@@ -37,7 +37,9 @@ public class ExecServer
     public static final int SET_DIRECTORY  = 6;
     public static final int SERIALIZE_OBJECT = 7;
     public static final int DESERIALIZE_OBJECT = 8;
-    public static final int DISPOSE_WINDOWS = 9;
+    public static final int SUPRESS_OUTPUT = 9;
+    public static final int RESTORE_OUTPUT = 10;
+    public static final int DISPOSE_WINDOWS = 11;
 
 
     static ExecServer server = null;
@@ -52,6 +54,8 @@ public class ExecServer
      * when simulating a System.exit() call
      */
     private static List openWindows = Collections.synchronizedList(new LinkedList());
+    private static PrintStream systemErr = System.err;
+    private static ByteArrayOutputStream throwawayErr = null;
 
 
     /**
@@ -75,10 +79,9 @@ public class ExecServer
         //Debug.message("[VM] creating server object");
 
         System.setSecurityManager(new RemoteSecurityManager());
-
         loaders = new HashMap();
-
         classmgr = new RemoteClassMgr();
+
 
         // the following causes the class loader mechanism to be initialised:
         // we attempt to load a (non-existent) class
@@ -160,6 +163,12 @@ public class ExecServer
                 return null;
             case DESERIALIZE_OBJECT:
                 return deserializeObject(arg1, arg2, arg3, arg4);
+            case SUPRESS_OUTPUT:
+                supressErrorOutput();
+                return null;
+            case RESTORE_OUTPUT:
+                restoreErrorOutput();
+                return null;
             case DISPOSE_WINDOWS:
                 disposeWindows();
                 return null;
@@ -372,7 +381,7 @@ public class ExecServer
      *
      * @param   o   a window object which has just been opened
      */
-    static void addWindow(Object o)
+    private static void addWindow(Object o)
     {
         openWindows.add(o);
     }
@@ -382,15 +391,32 @@ public class ExecServer
      *
      * @param   o   a window object which has just been closed
      */
-    static void removeWindow(Object o)
+    private static void removeWindow(Object o)
     {
         openWindows.remove(o);
     }
 
     /**
+     * Redirect System.err to an invisible sink.
+     */
+    static void supressErrorOutput()
+    {
+        throwawayErr = new ByteArrayOutputStream();
+        System.setErr(new PrintStream(throwawayErr));
+    }
+
+    /**
+     * Restore the standard System.err
+     */
+    static void restoreErrorOutput()
+    {
+        System.setErr(systemErr);
+    }
+
+    /**
      * Dispose of all the top level windows we think are open
      */
-    private static void disposeWindows()
+    static void disposeWindows()
     {
         synchronized(openWindows) {
 
@@ -409,25 +435,6 @@ public class ExecServer
 
             openWindows.clear();
         }
-    }
-
-
-    /**
-     * Asynchronously (in the system event thread) dispose of all the top 
-     * level windows we think are open
-     */
-    private static PrintStream oldErr = null;
-    public static void disposeWindowsLater(PrintStream restoreErr)
-    {
-        oldErr = restoreErr;
-        Toolkit.getDefaultToolkit().getSystemEventQueue().
-            invokeLater(new Runnable() {
-                    public void run() {
-                        if(oldErr != null)
-                            System.setErr(oldErr);
-                        disposeWindows();
-                    }
-                });
     }
 
     /**

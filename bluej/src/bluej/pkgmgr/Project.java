@@ -22,7 +22,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 590 2000-06-28 04:39:46Z mik $
+ * @version $Id: Project.java 601 2000-06-29 05:09:38Z mik $
  */
 public class Project
     implements BlueJEventListener
@@ -190,7 +190,12 @@ public class Project
         this.projectDir = projectDir;
 
         packages = new TreeMap();
-        packages.put("", new Package(this));
+        try {
+            packages.put("", new Package(this));
+        }
+        catch (IOException exc) {
+            Debug.reportError("could not read package file (unnamed package)");
+        }
 
         BlueJEvent.addListener(this);
 
@@ -237,6 +242,7 @@ public class Project
      * on the way to the root of the package tree will
      * also be constructed.
      *
+     *
      * @param qualifiedName the package name to fetch in dot qualified
      *                      notation ie java.util or "" for unnamed package
      */
@@ -250,10 +256,21 @@ public class Project
         if (qualifiedName.length() > 0) // should always be true (the unnamed package
                                         // always exists in the package collection)
         {
-            Package pkg = new Package(this, JavaNames.getBase(qualifiedName),
-                                    getPackage(JavaNames.getPrefix(qualifiedName)));
-
-            packages.put(qualifiedName, pkg);
+            Package pkg;
+            try {
+                Package parent = getPackage(JavaNames.getPrefix(qualifiedName));
+                if(parent != null) {
+                    pkg = new Package(this, JavaNames.getBase(qualifiedName),
+                                      parent);
+                    packages.put(qualifiedName, pkg);
+                }
+                else // parent package does not exist
+                    pkg = null;
+            }
+            catch (IOException exc) {
+                // the package did not exist in this project
+                pkg = null;
+            }
 
             return pkg;
         }
@@ -492,7 +509,9 @@ public class Project
     private void hitBreakpoint(DebuggerThread thread)
     {
         String packageName = JavaNames.getPrefix(thread.getClass(0));
-        getPackage(packageName).hitBreakpoint(thread);
+        Package pkg = getPackage(packageName);
+        if(pkg != null)
+            pkg.hitBreakpoint(thread);
     }
 
     /**
@@ -501,7 +520,9 @@ public class Project
     private void hitHalt(DebuggerThread thread)
     {
         String packageName = JavaNames.getPrefix(thread.getClass(0));
-        getPackage(packageName).hitHalt(thread);
+        Package pkg = getPackage(packageName);
+        if(pkg != null)
+            pkg.hitHalt(thread);
     }
 
     /**
@@ -511,7 +532,9 @@ public class Project
                                     boolean updateDebugger)
     {
         String packageName = JavaNames.getPrefix(thread.getClass(0));
-        getPackage(packageName).showSourcePosition(thread, updateDebugger);
+        Package pkg = getPackage(packageName);
+        if(pkg != null)
+            pkg.showSourcePosition(thread, updateDebugger);
     }
 
 }

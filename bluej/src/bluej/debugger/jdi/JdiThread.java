@@ -17,7 +17,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 600 2000-06-28 07:21:39Z mik $
+ * @version $Id: JdiThread.java 601 2000-06-29 05:09:38Z mik $
  */
 public final class JdiThread extends DebuggerThread
 {
@@ -264,7 +264,6 @@ public final class JdiThread extends DebuggerThread
             }
         } catch(Exception e) {
             // nothing can be done...
-            Debug.reportError("could not get local variable info: " + e);
         }
         return new ArrayList();
     }

@@ -6,11 +6,11 @@
 
 import java.awt.* ;
 import java.awt.event.* ;
-
+import javax.swing.*;
 /*
  * class to draw simple shapes in a window
  */   
-public class BasicGraphics extends Frame implements ActionListener
+public class BasicGraphics extends JFrame implements ActionListener
 {
     // maximum width of window
     private static final int MAX_WIDTH = 600 ;
@@ -65,14 +65,15 @@ public class BasicGraphics extends Frame implements ActionListener
         setSize(MAX_WIDTH, MAX_HEIGHT + 50) ;
 
         BasicCanvas c = new BasicCanvas(this) ;
-        add("Center", c) ;  
+        getContentPane().add("Center", c) ;  
 
         Panel p = new Panel() ;
         p.setLayout(new FlowLayout()) ;
         quit = new Button("Quit") ;
         p.add(quit) ;
         quit.addActionListener(this) ;
-        add("South", p) ;  
+        getContentPane().add("South", p) ;  
+		setVisible(true);
     } // end of constructor method
   
     /**
@@ -80,7 +81,6 @@ public class BasicGraphics extends Frame implements ActionListener
      */
     public void actionPerformed(ActionEvent event)
     {
-        dispose() ;
         System.exit(0) ;
     } // end of method actionPerformed
       

@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 589 2000-06-28 04:31:40Z mik $
+ * @version $Id: Package.java 601 2000-06-29 05:09:38Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -151,8 +151,10 @@ public class Package extends Graph
      * Create a package of a project with the package name of
      * baseName (ie reflect) and with a parent package of parent (which may
      * represent java.lang for instance)
+     * If the package file (bluej.pkg) is not found, an IOException is thrown.
      */
     public Package(Project project, String baseName, Package parent)
+        throws IOException
     {
         if (parent == null)
             throw new NullPointerException("Package must have a valid parent package");
@@ -172,8 +174,10 @@ public class Package extends Graph
 
     /**
      * Create the unnamed package of a project
+     * If the package file (bluej.pkg) is not found, an IOException is thrown.
      */
     public Package(Project project)
+        throws IOException
     {
         this.project = project;
         this.baseName = "";
@@ -183,6 +187,7 @@ public class Package extends Graph
     }
 
     private void init()
+        throws IOException
     {
         targets = new Hashtable();
         usesArrows = new Vector();
@@ -406,22 +411,17 @@ public class Package extends Graph
 
     /**
      * Load the elements of a package from a specified directory.
+     * If the package file (bluej.pkg) is not found, an IOException is thrown.
      */
-    public void load()
+    private void load()
+        throws IOException
     {
         // read the package properties
         File pkgFile = new File(getPath(), pkgfileName);
 
         // try to load the package file for this package
-        try {
-            FileInputStream input = new FileInputStream(pkgFile);
-
-            lastSavedProps.load(input);
-        }
-        catch(IOException e) {
-            Debug.reportError("Error loading initialisation file" +
-                              pkgFile + ": " + e);
-        }
+        FileInputStream input = new FileInputStream(pkgFile);
+        lastSavedProps.load(input);
 
         // read in all the targets contained in this package
         Map propTargets = new HashMap();
@@ -514,9 +514,8 @@ public class Package extends Graph
             }
             recalcArrows();
         } catch(Exception e) {
-            Debug.reportError("Error loading from file " +
+            Debug.reportError("Error loading from bluej.pkg file " +
                               pkgFile + ": " + e);
-            e.printStackTrace();
             return;
         }
 

@@ -10,13 +10,10 @@ import java.awt.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 600 2000-06-28 07:21:39Z mik $
+ * @version $Id: RemoteSecurityManager.java 601 2000-06-29 05:09:38Z mik $
  */
 public class RemoteSecurityManager extends SecurityManager
 {
-    private PrintStream oldErr = null;
-    private ByteArrayOutputStream throwawayErr = null;
-
     /**
      * The only thing BlueJ applications are currently not allowed to
      * do is exit normally. We handle this by signalling the exit as
@@ -48,12 +45,15 @@ public class RemoteSecurityManager extends SecurityManager
             // hidden in here but this is the best solution we've
             // come up with so far
 
-            oldErr = System.err;
-            throwawayErr = new ByteArrayOutputStream();
+            ExecServer.supressErrorOutput();
 
-            System.setErr(new PrintStream(throwawayErr));
-
-            ExecServer.disposeWindowsLater(oldErr);
+            Toolkit.getDefaultToolkit().getSystemEventQueue().
+                invokeLater(new Runnable() {
+                        public void run() {
+                            ExecServer.restoreErrorOutput();
+                            ExecServer.disposeWindows();
+                        }
+                    });
 
             // this exception will not ever be printed out
             throw new ExitException(Integer.toString(status));

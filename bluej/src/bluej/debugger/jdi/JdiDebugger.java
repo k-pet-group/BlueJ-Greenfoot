@@ -35,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 600 2000-06-28 07:21:39Z mik $
+ * @version $Id: JdiDebugger.java 601 2000-06-29 05:09:38Z mik $
  *
  * The startup process is as follows:
  *
@@ -361,7 +361,7 @@ public final class JdiDebugger extends Debugger
         }
         catch(Exception e) {
             // remote invocation failed
-            Debug.message("starting shell class failed: " + e);
+            Debug.reportError("starting shell class failed: " + e);
             exitStatus = EXCEPTION;
             lastException = new ExceptionDescription(
                                    "Internal BlueJ error!",
@@ -389,7 +389,6 @@ public final class JdiDebugger extends Debugger
     public void addObjectToScope(String scopeId, String instanceName,
                                  String fieldName, String newObjectName)
     {
-        //Debug.message("[addObjectToScope]: " + newObjectName);
         startServer(ExecServer.ADD_OBJECT, scopeId, instanceName,
                     fieldName, newObjectName);
     }
@@ -401,7 +400,6 @@ public final class JdiDebugger extends Debugger
      */
     public void removeObjectFromScope(String scopeId, String instanceName)
     {
-        //Debug.message("[removeObjectFromScope]: " + instanceName);
         startServer(ExecServer.REMOVE_OBJECT, scopeId, instanceName, "", "");
     }
 
@@ -410,7 +408,6 @@ public final class JdiDebugger extends Debugger
      */
     public void setLibraries(String classpath)
     {
-        //Debug.message("[setLibraries]: " + classpath);
         startServer(ExecServer.SET_LIBRARIES, classpath, "", "", "");
     }
 
@@ -431,7 +428,6 @@ public final class JdiDebugger extends Debugger
     public void serializeObject(String scopeId, String instanceName,
                                 String fileName)
     {
-        //Debug.message("[serializeObject]: " + instanceName);
         startServer(ExecServer.SERIALIZE_OBJECT, scopeId, instanceName, fileName, "");
     }
 
@@ -441,7 +437,6 @@ public final class JdiDebugger extends Debugger
     public DebuggerObject deserializeObject(String loaderId, String scopeId,
                                             String newInstanceName, String fileName)
     {
-        //Debug.message("[deserializeObject]: " + newInstanceName);
         ObjectReference objRef = (ObjectReference)
             startServer(ExecServer.DESERIALIZE_OBJECT, loaderId, scopeId, newInstanceName, fileName);
 
@@ -456,8 +451,23 @@ public final class JdiDebugger extends Debugger
      */
     public void disposeWindows()
     {
-        //Debug.message("[disposeWindows] ");
         startServer(ExecServer.DISPOSE_WINDOWS, "", "", "", "");
+    }
+
+    /**
+     * Supress error output on the remote machine.
+     */
+    public void supressErrorOutput()
+    {
+        startServer(ExecServer.SUPRESS_OUTPUT, "", "", "", "");
+    }
+
+    /**
+     * Restore error output on the remote machine.
+     */
+    public void restoreErrorOutput()
+    {
+        startServer(ExecServer.RESTORE_OUTPUT, "", "", "", "");
     }
 
     /**
@@ -625,12 +635,14 @@ public final class JdiDebugger extends Debugger
      */
     public void exceptionEvent(ExceptionEvent exc)
     {
+        Debug.message("exc!!!");
         String excClass = exc.exception().type().name();
         ObjectReference remoteException = exc.exception();
 
         if(excClass.equals("bluej.runtime.TerminateException")) {
             // this was an explicit "terminate" by the user
             exitStatus = TERMINATED;
+            machineStatus = IDLE;
             lastException = null;
             return;
         }
@@ -660,8 +672,10 @@ public final class JdiDebugger extends Debugger
             (val == null ? null : val.value());
 
         if(excClass.equals("bluej.runtime.ExitException")) {
+        Debug.message("exit!!!");
             // this was a "System.exit()", not a real exception!
             exitStatus = FORCED_EXIT;
+            machineStatus = IDLE;
             lastException = new ExceptionDescription(exceptionText);
         }
         else {		// real exception
@@ -807,9 +821,7 @@ public final class JdiDebugger extends Debugger
      */
     public void halt(DebuggerThread thread)
     {
-        Debug.message("about to suspend...");
         machine.suspend();
-        Debug.message("suspended...");
         machineStatus = SUSPENDED;
         if(thread != null)
             thread.setParam(executionUserParam);
@@ -832,9 +844,13 @@ public final class JdiDebugger extends Debugger
      */
     public void terminate(DebuggerThread thread)
     {
-        disposeWindows();
+        supressErrorOutput();
         thread.terminate();
+        disposeWindows();
+        restoreErrorOutput();
         exitStatus = TERMINATED;
+        machineStatus = IDLE;
+        BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, null);
     }
 
     /**
@@ -867,7 +883,8 @@ public final class JdiDebugger extends Debugger
         try {
             return serverThread.isAtBreakpoint() &&
                 serverThread.frame(0).location().declaringType().name().equals(
-                                                             SERVER_CLASSNAME);
+                                                             SERVER_CLASSNAME)
+                && (serverThread.suspendCount() == 1);
         }
         catch (IncompatibleThreadStateException exc) {
             Debug.reportError("debugger thread in run-away state...");
@@ -1034,7 +1051,7 @@ public final class JdiDebugger extends Debugger
         }
     }
 
-    private void dumpThreadInfo()
+    public void dumpThreadInfo()
     {
         Debug.message("threads:");
         Debug.message("--------");
@@ -1051,6 +1068,9 @@ public final class JdiDebugger extends Debugger
                     Debug.message("  group: " +
                                   ((JdiThread)thread).getRemoteThread().
                                   threadGroup());
+                    Debug.message("  suspend count: " +
+                                  ((JdiThread)thread).getRemoteThread().
+                                  suspendCount());
                     Debug.message("  monitor: " +
                                   ((JdiThread)thread).getRemoteThread().
                                   currentContendedMonitor());

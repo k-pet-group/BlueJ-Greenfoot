@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 600 2000-06-28 07:21:39Z mik $
+ ** @version $Id: ExecControls.java 601 2000-06-29 05:09:38Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -107,6 +107,7 @@ public class ExecControls extends JFrame
 
         if(obj == updateButton) {
             updateThreads(selectedThread);
+            //((JdiDebugger)Debugger.debugger).dumpThreadInfo();
         }
         else if(obj == closeButton) {
             setVisible(false);
@@ -120,6 +121,7 @@ public class ExecControls extends JFrame
         }
         else if(obj==continueButton && machineStatus==Debugger.SUSPENDED) {
             Debugger.debugger.cont();
+            selectedThread = null;
             updateThreads(selectedThread);
         }
         else if(selectedThread != null) {
@@ -180,17 +182,18 @@ public class ExecControls extends JFrame
 
     public synchronized void updateThreads(DebuggerThread select)
     {
+        DefaultListModel listModel = (DefaultListModel)threadList.getModel();
+        listModel.removeAllElements();
+
         int machineStatus = Debugger.debugger.getStatus();
 
         if(machineStatus == Debugger.RUNNING) {
+            threads.clear();
             clearThreadDetails();
         }
         else {
 
             int selectionIndex = -1;
-
-            DefaultListModel listModel = (DefaultListModel)threadList.getModel();
-            listModel.removeAllElements();
 
             threads = Debugger.debugger.listThreads();
             if(threads == null) {
@@ -237,9 +240,10 @@ public class ExecControls extends JFrame
 
         for(Iterator i=threads.iterator(); i.hasNext(); ) {
             DebuggerThread thread = (DebuggerThread)i.next();
-            boolean showThread = (showSystem || !thread.isKnownSystemThread())
-                                 && (!thread.getStatus().equals("finished"));
-            if(showThread || thread.getName().equals(selectedName))
+            boolean showThread = (showSystem || 
+                                  !thread.isKnownSystemThread() ||
+                                  thread.getName().equals(selectedName));
+            if(showThread && !thread.getStatus().equals("finished"))
                displayThreads.add(thread);
         }
         return displayThreads;
@@ -248,7 +252,7 @@ public class ExecControls extends JFrame
 
     private void selectThread(int index)
     {
-        if (index >= 0) {
+        if (index >= 0 && index < threads.size()) {
             selectedThread = getThread(index);
             setThreadDetails();
         }
@@ -270,7 +274,7 @@ public class ExecControls extends JFrame
             setStackFrameDetails(0);  // show details of top frame
         }
     }
-	
+
     private void clearThreadDetails()
     {
         stackList.setListData(empty);
