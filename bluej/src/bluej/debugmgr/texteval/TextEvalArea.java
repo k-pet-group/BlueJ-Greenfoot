@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 
@@ -30,7 +31,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2685 2004-06-29 12:22:13Z mik $
+ * @version $Id: TextEvalArea.java 2692 2004-06-30 08:55:28Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -60,7 +61,8 @@ public final class TextEvalArea extends JScrollPane
         text = new JEditorPane();
         text.setMargin(new Insets(2,2,2,2));
         text.setEditorKit(new MoeSyntaxEditorKit(true));
-
+//        text.addKeyListener(this);
+        
         doc = (MoeSyntaxDocument) text.getDocument();
         doc.setTokenMarker(new JavaTokenMarker());
 
@@ -150,6 +152,21 @@ public final class TextEvalArea extends JScrollPane
 
     //   --- end of ResultWatcher interface ---
 
+    //   --- KeyListener interface ---
+
+//    public void keyPressed(KeyEvent e) {
+//        if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+//            System.out.println("back");
+//            e.consume();
+//        }
+//    
+//    }
+//
+//    public void keyReleased(KeyEvent e) {}
+//    
+//    public void keyTyped(KeyEvent e) {}
+//    
+    //   --- end of KeyListener interface ---
 
     public void output(String s)
     {
@@ -273,6 +290,9 @@ public final class TextEvalArea extends JScrollPane
         action = new ContinueCommandAction();
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK), action);
 
+        action = new BackSpaceAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), action);
+        
         action = new CursorLeftAction();
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), action);
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, 0), action);
@@ -366,6 +386,30 @@ public final class TextEvalArea extends JScrollPane
             currentCommand += line + " ";
             history.add(line);
             markAs(MoeSyntaxView.CONTINUE);
+        }
+    }
+
+    final class BackSpaceAction extends AbstractAction {
+
+        /**
+         * Create a new action object.
+         */
+        public BackSpaceAction()
+        {
+            super("BackSpace");
+        }
+        
+        final public void actionPerformed(ActionEvent event)
+        {
+            System.out.println("yes "+getCurrentColumn());
+            if(getCurrentColumn() > 1) {
+                try {
+                    doc.remove(text.getCaretPosition()-1, 1);
+                }
+                catch(BadLocationException exc) {
+                    Debug.reportError("bad location in text eval operation");
+                }
+            }
         }
     }
 

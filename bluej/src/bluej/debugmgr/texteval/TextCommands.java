@@ -93,12 +93,17 @@ public class TextCommands {
             StringBuffer out = new StringBuffer(100);
             out.append("object bench:");
             ObjectWrapper[] objects = textArea.getObjectBench().getWrappers();
-            for(int i=0; i < objects.length; i++) {
-                out.append("   (");
-                out.append(objects[i].getTypeName());
-                out.append(" ");
-                out.append(objects[i].getName());
-                out.append(")");
+            if(objects.length == 0) {
+                out.append("   empty");
+            }
+            else {
+                for(int i=0; i < objects.length; i++) {
+                    out.append("   (");
+                    out.append(objects[i].getTypeName());
+                    out.append(" ");
+                    out.append(objects[i].getName());
+                    out.append(")");
+                }
             }
             textArea.output(out.toString());
         }
