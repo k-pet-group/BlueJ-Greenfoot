@@ -13,7 +13,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2048 2003-06-24 05:08:17Z ajp $
+ * @version $Id: JdiThread.java 2064 2003-06-25 09:53:41Z mik $
  */
 class JdiThread extends DebuggerThread
 {
@@ -477,7 +477,7 @@ class JdiThread extends DebuggerThread
     public String toString()
     {
     	try {
-			return getName() + " " + getStatus();
+			return getName() + " (" + getStatus() + ")";
     	}
     	catch (ObjectCollectedException oce)
     	{

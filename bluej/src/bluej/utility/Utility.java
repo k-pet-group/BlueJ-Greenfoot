@@ -14,23 +14,14 @@ import com.apple.mrj.MRJFileUtils;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 2042 2003-06-23 11:44:53Z mik $
+ * @version $Id: Utility.java 2064 2003-06-25 09:53:41Z mik $
  */
 public class Utility
 {
 
-    private static Random random = new Random();
-    public static int getRandom(int min, int max)
-    {
-        int r = random.nextInt();
-        r = (r > 0) ? r : -r;
-
-        return min + (r % (max - min));
-    }
-
     /**
-     ** Draw a thick rectangle - another of the things missing from the AWT
-     **/
+     * Draw a thick rectangle - another of the things missing from the AWT
+     */
     public static void drawThickRect(Graphics g, int x, int y, int width, int height, int thickness)
     {
         for(int i = 0; i < thickness; i++)
@@ -38,8 +29,8 @@ public class Utility
     }
 
     /**
-     ** Draw stripes over a rectangle - yet another thing missing from the AWT
-     **/
+     * Draw stripes over a rectangle - yet another thing missing from the AWT
+     */
     public static void stripeRect(Graphics g, int x, int y, int width, int height, int separation, int thickness)
     {
         for(int offset = 0; offset < width + height; offset += separation)
@@ -60,6 +51,9 @@ public class Utility
             }
     }
 
+    /**
+     * Draw a string at a given location on screen centered in a given rectangle.
+     */
     public static void drawCentredText(Graphics g, String str, int x, int y, int width, int height)
     {
         FontMetrics fm = g.getFontMetrics();
@@ -71,6 +65,9 @@ public class Utility
         g.setClip(oldClip);
     }
 
+    /**
+     * Draw a string at a given location on screen right-aligned in a given rectangle.
+     */
     public static void drawRightText(Graphics g, String str, int x, int y, int width, int height)
     {
         FontMetrics fm = g.getFontMetrics();
@@ -83,11 +80,11 @@ public class Utility
     }
 
     /**
-     ** Splits "string" by "Delimiter"
-     ** @param str - the string to be split
-     ** @param delimiter - the field delimiter within str
-     ** @returns	an array of Strings
-     **/
+     * Splits "string" by "Delimiter"
+     * @param str - the string to be split
+     * @param delimiter - the field delimiter within str
+     * @returns	an array of Strings
+     */
     public static String[] split(String str, String delimiter)
     {
         List strings = new ArrayList();
@@ -129,10 +126,10 @@ public class Utility
     }
 
     /**
-     ** Splits "string" into lines (stripping end-of-line characters)
-     ** @param str - the string to be split
-     ** @returns	an array of Strings
-     **/
+     * Splits "string" into lines (stripping end-of-line characters)
+     * @param str - the string to be split
+     * @returns	an array of Strings
+     */
     public static String[] splitLines(String str)
     {
         return (str == null ? null : split(str, "\n"));
@@ -203,9 +200,12 @@ public class Utility
                     url = encodeURLSpaces("file://" + url);
                 else
                     url = encodeURLSpaces(url);
-                MRJFileUtils.openURL(url);
-                // when we get rid of 1.3.1 on MacOS, replace with: 
-                //com.apple.eio.FileManager.openURL(url);
+                if(System.getProperty("java.vm.version").startsWith("1.3")) {
+                    MRJFileUtils.openURL(url);
+                }
+                else {
+                    com.apple.eio.FileManager.openURL(url);
+                }
             }
             catch(IOException e) {
                 Debug.reportError("could not start web browser. exc: " + e);

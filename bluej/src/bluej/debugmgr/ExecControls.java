@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2054 2003-06-24 12:53:46Z mik $
+ * @version $Id: ExecControls.java 2064 2003-06-25 09:53:41Z mik $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -398,12 +398,11 @@ public class ExecControls extends JFrame
         {
 			buttonBox.setLayout(new GridLayout(1,0));
 
-			Insets margin = new Insets(0, 0, 0, 0);
-			stopButton = addButton("image.stop", haltButtonText, buttonBox, margin);
-			stepButton = addButton("image.step", stepButtonText, buttonBox, margin);
-			stepIntoButton = addButton("image.step_into", stepIntoButtonText, buttonBox, margin);
-			continueButton = addButton("image.continue", continueButtonText, buttonBox, margin);
-			terminateButton = addButton("image.terminate", terminateButtonText, buttonBox, margin);
+			stopButton = addButton("image.stop", haltButtonText, buttonBox);
+			stepButton = addButton("image.step", stepButtonText, buttonBox);
+			stepIntoButton = addButton("image.step_into", stepIntoButtonText, buttonBox);
+			continueButton = addButton("image.continue", continueButtonText, buttonBox);
+			terminateButton = addButton("image.terminate", terminateButtonText, buttonBox);
         }
 
         contentPane.add(buttonBox, BorderLayout.SOUTH);
@@ -592,7 +591,7 @@ public class ExecControls extends JFrame
      * @param panel          The panel to add the button to.
      * @param margin         The margin around the button.
      */
-    private JButton addButton(String imgRsrcName, String buttonText, JPanel panel, Insets margin)
+    private JButton addButton(String imgRsrcName, String buttonText, JPanel panel)
     {
         JButton button;
         button = new JButton(buttonText, Config.getImageAsIcon(imgRsrcName));
@@ -600,7 +599,6 @@ public class ExecControls extends JFrame
         button.setHorizontalTextPosition(AbstractButton.CENTER);
         button.setEnabled(false);
 
-        //button.setMargin(margin);
         button.addActionListener(this);
         panel.add(button);
         return button;
