@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 2974 2004-09-02 00:26:12Z davmac $
+ * @version $Id: Invoker.java 2993 2004-09-06 13:05:11Z polle $
  */
 
 public class Invoker
@@ -270,12 +270,12 @@ public class Invoker
                         len = 0;
 	                for (int i = 0; i < len; i++) {
 	                    TypeParamView view = formalTypeParamViews[i];
-	                    GenType formalType = view.getParamType();
+	                    GenTypeDeclTpar formalType = view.getParamType();
 	                    GenType actualType = new GenTypeTpar(actualTypeParams[i]);
 	                    if (typeMap == null) {
 	                        typeMap = new HashMap();
 	                    }
-	                    typeMap.put(formalType.toString(false), actualType);
+	                    typeMap.put(formalType.getTparName(), actualType);
 	                }
                 }
                 
