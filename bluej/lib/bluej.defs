@@ -100,7 +100,7 @@ win9xBrowserCmd2=
 winBrowserCmd1=cmd.exe /c start $
 winBrowserCmd2=
 
-# For MacOS X: no command defenition is necessary here. The call is 
+# For MacOS X: no command defenition is necessary here. The call is
 # handled internally. The browser can be specified in the Mac OS X
 # System Preferences -> Internet -> Web settings.
 
@@ -174,7 +174,7 @@ appletViewer.command=appletviewer
 ## double-backslashes (see example).
 #######################################################################
 
-bluej.classTemplates = stdclass abstract interface applet unittest
+bluej.classTemplates = stdclass abstract interface applet
 #bluej.templatePath = /home/mik/bluej/lib/english/templates/newclass
 #bluej.templatePath = F:\\shared\\bluej\\templates
 
@@ -189,7 +189,7 @@ bluej.classTemplates = stdclass abstract interface applet unittest
 # These specify font and font sizes for most of the interface components.
 # This is the name of a font face with an optional "-bold" at the end.
 # The theme fonts are only used if bluej.useTheme flag is true.
-# Note: the use of theme flag and specification and non-standard fonts 
+# Note: the use of theme flag and specification and non-standard fonts
 # may affect bluej startup time (not confirmed for all systems)
 
 # Use theme, which means interface and menu fonts can be specified.
@@ -251,7 +251,7 @@ bluej.terminal.width=80
 
 #######################################################################
 ## Some settings for editor preferences.
-## These are the initial defaults - the settings can be changed by 
+## These are the initial defaults - the settings can be changed by
 ## users in their preferences dialogue. (values: true / false)
 #######################################################################
 
