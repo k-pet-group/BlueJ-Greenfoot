@@ -20,7 +20,7 @@ import bluej.utility.JavaNames;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 3046 2004-10-13 01:36:16Z davmac $
+ * @version $Id: TestDisplayFrame.java 3052 2004-10-15 10:44:42Z mik $
  */
 public class TestDisplayFrame
 {
@@ -47,15 +47,15 @@ public class TestDisplayFrame
 	private DefaultListModel testEntries;
 
 	private JList testnames;
-    private ProgressBar pb;
+    private ProgressBar progressBar;
     private GridBagConstraints pbConstraints;
     private JPanel statusLabel;
-    private JPanel topPanel;
+    private JPanel bottomPanel;
     
     // index of the progress bar in the topPanel's components
-    private final static int PROGRESS_BAR_INDEX = 2;
+    private final static int PROGRESS_BAR_INDEX = 0;
     
-    private CounterPanel cp;
+    private CounterPanel counterPanel;
     private int errorCount, failureCount;
     private int testTotal; 
     private boolean doingMultiple;
@@ -110,51 +110,51 @@ public class TestDisplayFrame
 				}
 			});
 		
-		topPanel = new JPanel();
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setBorder(BlueJTheme.generalBorder);
+        splitPane.setResizeWeight(0.5);
+        
+        JScrollPane resultScrollPane = new JScrollPane();
+        {
+            testEntries = new DefaultListModel();
+            testnames = new JList(testEntries);
+            testnames.setCellRenderer(new MyCellRenderer());
+            testnames.addListSelectionListener(new MyListSelectionListener());
+            testnames.addMouseListener(new ShowSourceListener());
+                        
+            resultScrollPane.setViewportView(testnames);
+        }
+        splitPane.setTopComponent(resultScrollPane);
+        
+        bottomPanel = new JPanel();
 		{
-			topPanel.setBorder(BlueJTheme.generalBorder);
-			//topPanel.setLayout(new BoxLayout(topPanel,BoxLayout.Y_AXIS));
-            topPanel.setLayout(new GridBagLayout());
-            GridBagConstraints c = new GridBagConstraints();
-					
-			JScrollPane jsp = new JScrollPane();
-			{
-				testEntries = new DefaultListModel();
-				
-				testnames = new JList(testEntries);
-				testnames.setCellRenderer(new MyCellRenderer());
-				testnames.addListSelectionListener(new MyListSelectionListener());
-                testnames.addMouseListener(new ShowSourceListener());
-							
-				jsp.setViewportView(testnames);
-			}
-		
-			c.fill = GridBagConstraints.BOTH;
-            c.weightx = 1.0;
-            c.weighty = 1.0;
-            c.gridx = 0;
-            topPanel.add(jsp,c);
+            bottomPanel.setLayout(new GridBagLayout());
+            GridBagConstraints constraints = new GridBagConstraints();
             
-            c.weighty = 0;
-            topPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), c);
-	        topPanel.add(pb=new ProgressBar(), c);
-            topPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), c);
-	        topPanel.add(cp=new CounterPanel(), c);
-            topPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), c);
+			constraints.fill = GridBagConstraints.BOTH;
+            constraints.weightx = 1.0;
+            constraints.weighty = 0;
+            constraints.gridx = 0;
+            
+            progressBar = new ProgressBar();
+	        bottomPanel.add(progressBar, constraints);
+            
+            bottomPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), constraints);
+            
+            counterPanel = new CounterPanel();
+	        bottomPanel.add(counterPanel, constraints);
+            bottomPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), constraints);
         
             // exception message field (text area)
             exceptionMessageField = new JTextArea("");
             exceptionMessageField.setEditable(false);
-            //Border x = new CompoundBorder(new LineBorder(Color.BLACK, 1),
-            //        new EmptyBorder(2,2,2,2));
-            //exceptionMessageField.setBorder(x);
-            exceptionMessageField.setRows(3);
+            exceptionMessageField.setRows(6);
             exceptionMessageField.setColumns(42);
             // exceptionMessageField.setLineWrap(true);
             exceptionMessageField.setFocusable(false);
             
             Dimension size = exceptionMessageField.getPreferredSize();
-            size.width = exceptionMessageField.getMaximumSize().width;
+            // size.width = exceptionMessageField.getMaximumSize().width;
             // exceptionMessageField.setPreferredSize(size);
             size.width = exceptionMessageField.getMinimumSize().width;
             exceptionMessageField.setMinimumSize(size);
@@ -179,17 +179,18 @@ public class TestDisplayFrame
             buttonPanel.add(Box.createHorizontalGlue());
             buttonPanel.add(closeButton);
             
-            c.weighty = .1;
-            topPanel.add(exceptionScrollPane, c);
-            c.weighty = 0;
-            topPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), c);
-            topPanel.add(buttonPanel, c);
+            constraints.weighty = 1.0;
+            bottomPanel.add(exceptionScrollPane, constraints);
+            constraints.weighty = 0;
+            bottomPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), constraints);
+            bottomPanel.add(buttonPanel, constraints);
 
-            c.gridy = PROGRESS_BAR_INDEX;
-            pbConstraints = c;
+            constraints.gridy = PROGRESS_BAR_INDEX;
+            pbConstraints = constraints;
         }
+        splitPane.setBottomComponent(bottomPanel);
         
-		frame.getContentPane().add(topPanel);
+		frame.getContentPane().add(splitPane);
         frame.pack();
     }
 
@@ -203,15 +204,15 @@ public class TestDisplayFrame
 
         exceptionMessageField.setText("");
         showSourceButton.setEnabled(false);
-        pb.reset();
-        cp.setTotal(0);
-        cp.setErrorValue(0);
-        cp.setFailureValue(0);
+        progressBar.reset();
+        counterPanel.setTotal(0);
+        counterPanel.setErrorValue(0);
+        counterPanel.setFailureValue(0);
         
-        topPanel.remove(PROGRESS_BAR_INDEX);
-        topPanel.add(pb, pbConstraints, PROGRESS_BAR_INDEX);
-        topPanel.validate();
-        pb.repaint();
+        bottomPanel.remove(PROGRESS_BAR_INDEX);
+        bottomPanel.add(progressBar, pbConstraints, PROGRESS_BAR_INDEX);
+        bottomPanel.validate();
+        progressBar.repaint();
     }
     
     /**
@@ -259,8 +260,8 @@ public class TestDisplayFrame
             testTotal = num;
         }
 
-        cp.setTotal(testTotal);
-        pb.setmaximum(testTotal);	
+        counterPanel.setTotal(testTotal);
+        progressBar.setmaximum(testTotal);	
 	}
 
     /**
@@ -298,13 +299,13 @@ public class TestDisplayFrame
             EventQueue.invokeAndWait(new Runnable() {
                 public void run() {
                     testEntries.addElement(dtr);
-                    pb.step(testEntries.getSize(), dtr.isSuccess());
+                    progressBar.step(testEntries.getSize(), dtr.isSuccess());
                     
-                    cp.setFailureValue(failureCount);
-                    cp.setErrorValue(errorCount);
-                    cp.setRunValue(testEntries.getSize());
+                    counterPanel.setFailureValue(failureCount);
+                    counterPanel.setErrorValue(errorCount);
+                    counterPanel.setRunValue(testEntries.getSize());
                     
-                    if (!doingMultiple && pb.getValue() == pb.getMaximum())
+                    if (!doingMultiple && progressBar.getValue() == progressBar.getMaximum())
                         setResultLabel();
                 }
             });
@@ -326,13 +327,13 @@ public class TestDisplayFrame
         else
             statusLabel.setBackground(ProgressBar.redBarColour);
 
-        statusLabel.setMinimumSize(pb.getMinimumSize());
-        statusLabel.setMaximumSize(pb.getMaximumSize());
-        statusLabel.setPreferredSize(pb.getSize());
+        statusLabel.setMinimumSize(progressBar.getMinimumSize());
+        statusLabel.setMaximumSize(progressBar.getMaximumSize());
+        statusLabel.setPreferredSize(progressBar.getSize());
         statusLabel.setOpaque(true);
-        topPanel.remove(PROGRESS_BAR_INDEX);
-        topPanel.add(statusLabel, pbConstraints, PROGRESS_BAR_INDEX);
-        topPanel.validate();
+        bottomPanel.remove(PROGRESS_BAR_INDEX);
+        bottomPanel.add(statusLabel, pbConstraints, PROGRESS_BAR_INDEX);
+        bottomPanel.validate();
         statusLabel.repaint();
     }
 
