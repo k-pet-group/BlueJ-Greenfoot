@@ -84,6 +84,10 @@ win9xBrowserCmd2=
 winBrowserCmd1=cmd.exe /c start $
 winBrowserCmd2=
 
+# For MacOS X, the following should start the default browser.
+macBrowserCmd1=/Applications/OmniWeb/Contents/MacOS/OmniWeb $
+macBrowserCmd2=/Applications/Internet Explorer/Internet Explorer/Contents/MacOS/Internet Explorer $
+
 
 #######################################################################
 ## Documentation generation. This specifies the command used for 
