@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.lang.reflect.Constructor;
 import javax.swing.*;
 import bluej.extensions.MenuGenerator;
+import bluej.extensions.PreferenceGenerator;
 
 /**
  * <PRE>
@@ -600,7 +601,7 @@ public class ExtensionWrapper
     {
         if (extensionBluej == null) return;
 
-        PrefGen aPrefGen = extensionBluej.getPrefGen();
+        PreferenceGenerator aPrefGen = extensionBluej.getPreferenceGenerator();
         // The above is dafe. An extension may not have a preference panel
         if ( aPrefGen == null ) return;
 
@@ -622,7 +623,7 @@ public class ExtensionWrapper
     {
         if (extensionBluej == null) return;
 
-        PrefGen aPrefGen = extensionBluej.getPrefGen();
+        PreferenceGenerator aPrefGen = extensionBluej.getPreferenceGenerator();
         // The above is dafe. An extension may not have a preference panel
         if ( aPrefGen == null ) return;
 
@@ -644,7 +645,7 @@ public class ExtensionWrapper
     {
         if (extensionBluej == null) return null;
 
-        PrefGen aPrefGen = extensionBluej.getPrefGen();
+        PreferenceGenerator aPrefGen = extensionBluej.getPreferenceGenerator();
         // The above is dafe. An extension may not have a preference panel
         if ( aPrefGen == null ) return null;
 
