@@ -4,7 +4,7 @@ import bluej.utility.MultiLineLabel;
 import java.awt.Label;
 
 /**
- ** @version $Id: LabelPrintWriter.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: LabelPrintWriter.java 87 1999-05-18 03:28:18Z ajp $
  ** @author Michael Cahill
  **
  ** LabelPrintWriter - create a MultiLineLabel containing the output to a
@@ -16,6 +16,11 @@ public class LabelPrintWriter extends FormattedPrintWriter
 	
 	public LabelPrintWriter(int align)
 	{
+		// PrintWriter needs to be passed a valid outputstream
+		// even if we are going to not actually print to it.
+		// We pass it the standard System output stream
+		super(System.out);
+
 		label = new MultiLineLabel(align);
 	}
 	

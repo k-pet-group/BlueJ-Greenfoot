@@ -5,18 +5,13 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 /**
- ** @version $Id: FormattedPrintWriter.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: FormattedPrintWriter.java 87 1999-05-18 03:28:18Z ajp $
  ** @author Michael Cahill
  **
  ** FormattedPrintWriter - provides formatting on top of a PrintWriter
  **/
 public abstract class FormattedPrintWriter extends PrintWriter
 {
-	public FormattedPrintWriter()
-	{
-		super((Writer)null);
-	}
-	
 	public FormattedPrintWriter(Writer out)
 	{
 		super(out);

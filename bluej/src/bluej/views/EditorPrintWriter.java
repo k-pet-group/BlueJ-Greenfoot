@@ -6,7 +6,7 @@ import bluej.utility.Utility;
 import java.awt.Label;
 
 /**
- ** @version $Id: EditorPrintWriter.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: EditorPrintWriter.java 87 1999-05-18 03:28:18Z ajp $
  ** @author Michael Cahill
  **
  ** EditorPrintWriter - ignore any formatting in a FormattedPrintWriter
@@ -19,6 +19,11 @@ public class EditorPrintWriter extends FormattedPrintWriter
 	
 	public EditorPrintWriter(Editor editor)
 	{
+		// PrintWriter needs to be passed a valid outputstream
+		// even if we are going to not actually print to it.
+		// We pass it the standard System output stream
+		super(System.out);
+
 		this.editor = editor;
 	}
 	
