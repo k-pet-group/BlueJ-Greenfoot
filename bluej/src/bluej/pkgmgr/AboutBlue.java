@@ -13,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 2596 2004-06-12 19:42:55Z mik $
+ * @version $Id: AboutBlue.java 2687 2004-06-29 13:59:27Z mik $
  */
 class AboutBlue extends JDialog
 {
@@ -80,7 +80,7 @@ class AboutBlue extends JDialog
 
         // Create Button Panel
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(Color.white);
+        //buttonPanel.setBackground(Color.white);
         buttonPanel.setLayout(new FlowLayout());
         JButton ok = BlueJTheme.getOkButton();
         buttonPanel.add(ok);
