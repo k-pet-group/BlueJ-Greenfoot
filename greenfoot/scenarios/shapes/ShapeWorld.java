@@ -17,6 +17,7 @@ public class ShapeWorld extends GreenfootWorld
      */
     public ShapeWorld() {
         super(600,400);
+        getBackground().fill(Color.white);
     }
     
     /**

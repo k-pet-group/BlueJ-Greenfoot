@@ -11,13 +11,24 @@ import greenfoot.localdebugger.LocalObject;
 
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import rmiextension.ObjectTracker;
 import rmiextension.wrappers.RObject;
@@ -30,7 +41,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3234 2004-12-12 23:59:56Z davmac $
+ * @version $Id: WorldHandler.java 3238 2004-12-14 18:43:54Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -297,8 +308,8 @@ public class WorldHandler
 
                 if (object instanceof GreenfootObject) {
                     GreenfootObject go = (GreenfootObject) object;
-                    int dragOffsetX = -go.getImage().getIconWidth() / 2;
-                    int dragOffsetY = -go.getImage().getIconHeight() / 2;
+                    int dragOffsetX = -go.getImage().getWidth() / 2;
+                    int dragOffsetY = -go.getImage().getHeight() / 2;
                     DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
                     // On the mac, the glass pane doesn't seem to receive
                     // mouse move events; the shift/move is treated like a drag
@@ -342,7 +353,6 @@ public class WorldHandler
         this.world = world;
 
         if (world != null) {
-            world.setDelay(delay);
             world.addObserver(worldCanvas);
             worldTitle.setText(world.getClass().getName());
         }
@@ -398,25 +408,6 @@ public class WorldHandler
     public WorldCanvas getWorldCanvas()
     {
         return worldCanvas;
-    }
-
-    /**
-     *  
-     */
-    public void delay()
-    {
-        world.delay();
-    }
-
-    /**
-     * @param delay
-     */
-    public void setDelay(int delay)
-    {
-        this.delay = delay;
-        if (world != null) {
-            world.setDelay(delay);
-        }
     }
 
     public boolean drop(Object o, Point p)

@@ -1,9 +1,9 @@
-import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.Image;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.image.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 public class Pheromone extends GreenfootObject
 {
@@ -48,16 +48,16 @@ public class Pheromone extends GreenfootObject
         g.fillOval(0, 0, size, size);
         g.setColor(Color.DARK_GRAY);
         g.fillRect(size/2, size/2, 1, 1);
-        setImage(new ImageIcon(image));
+        setImage(new Image(image));
     }
     
-    public int getWidth() {        
-        return getImage().getIconWidth();
+   /* public int getWidth() {        
+        return getImage().getWidth();
     }
     
     public int getHeight() {        
-        return getImage().getIconWidth();
-    }
+        return getImage().getWidth();
+    }*/
     
     public int getCenterX() {
         return getX() + getWidth()/2;

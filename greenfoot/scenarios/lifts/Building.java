@@ -1,8 +1,10 @@
-import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.GreenfootWorld;
+import greenfoot.Image;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.util.Random;
-import java.awt.*;
 
 public class Building extends GreenfootWorld
 {
@@ -42,8 +44,9 @@ public class Building extends GreenfootWorld
         super(240 + lifts * 56, stories * 72 + 40);
         
         //setBackgroundImage("brick.jpg");
-        setBackgroundImage("sandstone.jpg");
-        setTiledBackground(true);
+        Image background = new Image("sandstone.jpg");
+        background.setTiled(true);
+        setBackground(background);
         
         createFloors(stories);
         createLifts(lifts, stories);
@@ -68,11 +71,11 @@ public class Building extends GreenfootWorld
      */
     private void createLifts(int numberOfLifts, int numberOfFloors)
     {
-        Graphics g = getCanvas();
-        g.setColor(new Color(255, 255, 255, 100));
+        Image background = getBackground();
+        background.setColor(new Color(255, 255, 255, 100));
 
         for(int i=0; i<numberOfLifts; i++) {
-            g.fillRect(218 + i * 56, 18, 54, (numberOfFloors)*72 + 2);
+            background.fillRect(218 + i * 56, 18, 54, (numberOfFloors)*72 + 2);
             newObject(new Lift(), 220 + i * 56, (numberOfFloors-1)*72 + 20);
         }
     }

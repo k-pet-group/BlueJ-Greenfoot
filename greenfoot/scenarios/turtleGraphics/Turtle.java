@@ -1,9 +1,10 @@
-import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.Image;
+import greenfoot.Utilities;
 
-import java.awt.*;
-import java.awt.geom.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 public class Turtle extends GreenfootObject
 {
@@ -55,22 +56,21 @@ public class Turtle extends GreenfootObject
           drawPen();
         }
         setRotation(direction);
-        update();
+        Utilities.repaint();
     }
     
     private void drawPen() {
-        ImageIcon image = getImage();
-        Graphics g2 = image.getImage().getGraphics();
-        double halfWidth = image.getIconWidth()/2.;
-        double halfHeight = image.getIconHeight()/2.;    
+        Image image = getImage();
+        double halfWidth = image.getWidth()/2.;
+        double halfHeight = image.getHeight()/2.;    
     
         int penWidth = (int) halfWidth/2;
         int penHeight = (int) halfHeight/2;
         int penX = (int) (halfWidth - halfWidth/4);
         int penY = (int) (halfHeight - halfHeight/4);
         Color awtColor = decode(color);
-        g2.setColor(awtColor);
-        g2.fillOval(penX,
+        image.setColor(awtColor);
+        image.fillOval(penX,
                     penY,
                     penWidth,
                     penHeight);                 
@@ -93,13 +93,13 @@ public class Turtle extends GreenfootObject
     }
     
     public void drawLine(double x1, double y1, double x2, double y2) {
-        Graphics2D g = getWorld().getCanvas();
+        Image image = getWorld().getBackground();
         Color awtColor = decode(color);
         
-            g.setColor(awtColor);
-            int xOffset = getImage().getIconWidth()/2;
-            int yOffset = getImage().getIconHeight()/2;
-            g.drawLine((int) Math.ceil(x1) + xOffset,
+            image.setColor(awtColor);
+            int xOffset = getImage().getWidth()/2;
+            int yOffset = getImage().getHeight()/2;
+            image.drawLine((int) Math.ceil(x1) + xOffset,
                     (int) Math.ceil(y1) + yOffset,
                     (int) Math.ceil(x2) + xOffset,
                     (int) Math.ceil(y2) + yOffset);

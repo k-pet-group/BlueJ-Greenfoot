@@ -1,9 +1,9 @@
-import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.Image;
+import greenfoot.Utilities;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.image.*;
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 
 
 /**
@@ -26,15 +26,13 @@ public class Square extends GreenfootObject{
     /**
      * Draws the square
      */
-    public void draw() {
-        Image im = new BufferedImage(size,
-                                     size, 
-                                     BufferedImage.TYPE_INT_ARGB);
-        Graphics g = im.getGraphics();
-        g.setColor(color);
-        g.fillRect(0,0,size,size);
-        setImage(new ImageIcon(im));
-        update();
+    public void draw()
+    {
+        Image im = new Image(size, size);
+        im.setColor(color);
+        im.fillRect(0, 0, size, size);
+        setImage(im);
+        Utilities.repaint();
     }
     
     /**
@@ -84,7 +82,7 @@ public class Square extends GreenfootObject{
     public void moveHorizontal(int distance)
     {
         setLocation(getX()+distance, getY());
-        update();
+        Utilities.repaint();
     }
     
     /**
@@ -93,7 +91,7 @@ public class Square extends GreenfootObject{
     public void moveVertical(int distance)
     {
         setLocation(getX(), getY()+distance);
-        update();
+        Utilities.repaint();
     }
     
     /**
@@ -116,8 +114,7 @@ public class Square extends GreenfootObject{
         for(int i = 0; i < distance; i++)
         {
             setLocation(getX()+delta, getY());
-            update();
-            delay();
+            Utilities.delay();
         }
     }
     
@@ -141,8 +138,7 @@ public class Square extends GreenfootObject{
         for(int i = 0; i < distance; i++)
         {
             setLocation(getX(), getY()+delta);
-            update();
-            delay();
+            Utilities.delay();
         }
     }
     

@@ -1,12 +1,9 @@
 package greenfoot;
 
-import java.awt.Canvas;
-import java.awt.Component;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
+
 
 /**
  * A GreenfootObject is a thing that can be in a world. To be in a world means
@@ -15,7 +12,7 @@ import javax.swing.ImageIcon;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3211 2004-12-02 13:12:54Z polle $
+ * @version $Id: GreenfootObject.java 3238 2004-12-14 18:43:54Z polle $
  */
 public class GreenfootObject
 {
@@ -24,9 +21,7 @@ public class GreenfootObject
     private int y;
     private double rotation = 0;
     private GreenfootWorld world;
-    private ImageIcon image;
-
-    private final static Component comp = new Canvas();
+    private Image image;
 
     /**
      * Constructor that creates an object with a default image.
@@ -86,9 +81,10 @@ public class GreenfootObject
     public int getWidth()
     {
         if(image != null) {
-            return image.getIconWidth();
+            return image.getWidth();
+        } else {
+            return -1;
         }
-        return 0;
     }
 
 
@@ -99,15 +95,15 @@ public class GreenfootObject
     public int getHeight()
     {
         if(image != null) {
-            return image.getIconHeight();
-        }
-        return 0;
+            return image.getHeight();
+        } else {
+            return -1;
+        }        
     }    
     
-
     /**
-     * Gets the rotation of the object.
-     * <br>      
+     * Gets the rotation of the object. <br>
+     * 
      * Zero degrees is to the east. The angle is clockwise from this.
      * 
      * @see #setRotation(double)
@@ -164,31 +160,7 @@ public class GreenfootObject
             world.updateLocation(this, oldX, oldY);
         }
     }
-    
-    
-    /**
-     * 
-     * Translates the given location into cell-coordinates before setting the location.
-     * 
-     * @param x x-coordinate in pixels
-     * @param y y-coordinate in pixels
-     */
-    void setLocationInPixels(int x, int y)
-    {
-        setLocation(world.toCellFloor(x), world.toCellFloor(y));
-    }
-
-    /**
-     * Sets the world of this object
-     * 
-     * @param world
-     */
-    void setWorld(GreenfootWorld world)
-    {
-        //TODO Possible error if its location is out of bounds
-        this.world = world;
-    }
-
+ 
     /**
      * Gets the world that this object lives in
      * 
@@ -204,7 +176,7 @@ public class GreenfootObject
      * 
      * @return The image
      */
-    public ImageIcon getImage()
+    public Image getImage()
     {
         return image;
     }
@@ -222,7 +194,7 @@ public class GreenfootObject
     {
         URL imageURL = this.getClass().getClassLoader().getResource(filename);
         if (imageURL != null) {
-            setImage(new ImageIcon(imageURL));
+            image = new Image(imageURL);
         }
     }
 
@@ -233,65 +205,16 @@ public class GreenfootObject
      * @param image
      *            The image.
      */
-    final public void setImage(ImageIcon image)
+    final public void setImage(Image image)
     {
-        try {
-            image.getImage().getGraphics();
-        }
-        catch (Throwable e) {
-            //we MUST be able to get the graphics!
-            BufferedImage bImg = new BufferedImage(image.getIconWidth(), image.getIconHeight(),
-                    BufferedImage.TYPE_INT_ARGB);
-            image.paintIcon(comp, bImg.getGraphics(), 0, 0);
-            image.setImage(bImg);
-
-        }
         this.image = image;
     }
 
-    /**
-     * Gets a canvas to paint on. Origo of the canvas is at the center of the
-     * cell that this greenfootObject is in. Remember to call update afterwards
-     * for any painting to be visible.
-     * 
-     * @see #update()
-     * @return A canvas to draw on, or null if a world is not available
-     */
-    public Graphics2D getCanvas()
-    {
-        if (world == null) {
-            return null;
-        }
-
-        return world.getCanvas(getX(), getY());
-    }
 
     /**
-     * Updates the world. Should be called when changes have been made that
-     * needs updating.
-     *  
-     */
-    public void update()
-    {
-        if (world != null) {
-            world.update();
-        }
-    }
-
-    /**
-     * Delays for one time-slice
-     *  
-     */
-    public void delay()
-    {
-        if (world != null)
-            world.delay();
-    }
-
-    /**
-     * Determines whether the given location is considered to be inside this
+     * Determines whether the given pixel location is considered to be inside this
      * object. <br>
-     * The default implementation is to use the size of the image.
+     * This implementation uses the size of the image.
      * 
      * @param x
      *            The x-position relative to the location of the object
@@ -304,7 +227,6 @@ public class GreenfootObject
     {
         //TODO this disregards rotations. maybe this should be updated in the
         // getWidth/height methods
-        ImageIcon image = getImage();
         if (image != null) {
             int width = world.toCellCeil(getWidth());
             int height = world.toCellCeil(getHeight());
@@ -317,14 +239,6 @@ public class GreenfootObject
 
     /**
      * Determines if the given position intersects with the rectangle.
-     * 
-     * @param x
-     * @param y
-     * @param rectX
-     * @param rectY
-     * @param rectWidth
-     * @param rectHeight
-     * @return
      */
     private boolean intersects(int x, int y, int rectX, int rectY, int rectWidth, int rectHeight)
     {
@@ -335,5 +249,33 @@ public class GreenfootObject
             return false;
         }
     }
+    
+    
+    
+    /**
+     * 
+     * Translates the given location into cell-coordinates before setting the location.
+     * 
+     * @param x x-coordinate in pixels
+     * @param y y-coordinate in pixels
+     */
+    void setLocationInPixels(int x, int y)
+    {
+        if (world != null) {
+            setLocation(world.toCellFloor(x), world.toCellFloor(y));
+        }
+    }
+
+    /**
+     * Sets the world of this object
+     * 
+     * @param world
+     */
+    void setWorld(GreenfootWorld world)
+    {
+        //TODO Possible error if its location is out of bounds
+        this.world = world;
+    }
+
 
 }

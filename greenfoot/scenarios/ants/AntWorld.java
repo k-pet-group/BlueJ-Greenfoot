@@ -1,5 +1,6 @@
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.Image;
 
 import java.awt.Color;
 import java.util.Random;
@@ -18,11 +19,10 @@ public class AntWorld extends GreenfootWorld
     
 
     public AntWorld() {
-        super(SIZE,SIZE);
-        
-        setBackgroundColor(Color.BLACK);
-        setBackgroundImage("sand.jpg");
-        setTiledBackground(true);
+        super(SIZE,SIZE);       
+        Image background = new Image("sand.jpg");
+        background.setTiled(true);
+        setBackground(background);
     }
     
     public void scenario1()

@@ -1,9 +1,8 @@
-import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.Image;
+import greenfoot.Utilities;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.image.*;
+import java.awt.Color;
 
 
 /**
@@ -30,16 +29,13 @@ public class Triangle extends GreenfootObject
      * Draws the triangle
      */
     public void draw() {
-        Image im = new BufferedImage(width,
-                                     height, 
-                                     BufferedImage.TYPE_INT_ARGB);
-        Graphics g = im.getGraphics();
-        g.setColor(color);
-        int[] xpoints = { 0, 0 + (width/2), width };
-        int[] ypoints = { height, 0,  height };
-        g.fillPolygon(xpoints, ypoints, 3);
-        setImage(new ImageIcon(im));
-        update();
+        Image im = new Image(width, height);
+        im.setColor(color);
+        int[] xpoints = {0, 0 + (width / 2), width};
+        int[] ypoints = {height, 0, height};
+        im.fillPolygon(xpoints, ypoints, 3);
+        setImage(im);
+        Utilities.repaint();
     }
     
     /**
@@ -89,7 +85,7 @@ public class Triangle extends GreenfootObject
     public void moveHorizontal(int distance)
     {
         setLocation(getX()+distance, getY());
-        update();
+        Utilities.repaint();
     }
     
     /**
@@ -98,7 +94,7 @@ public class Triangle extends GreenfootObject
     public void moveVertical(int distance)
     {
         setLocation(getX(), getY()+distance);
-        update();
+        Utilities.repaint();
     }
     
     /**
@@ -121,8 +117,7 @@ public class Triangle extends GreenfootObject
         for(int i = 0; i < distance; i++)
         {
             setLocation(getX()+delta, getY());
-            update();
-            delay();
+            Utilities.delay();
         }
     }
     
@@ -146,8 +141,7 @@ public class Triangle extends GreenfootObject
         for(int i = 0; i < distance; i++)
         {
             setLocation(getX(), getY()+delta);
-            update();
-            delay();
+            Utilities.delay();
         }
     }
     

@@ -1,10 +1,8 @@
-import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.Image;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.image.*;
-
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.Random;
 
 public class Food extends GreenfootObject
@@ -62,7 +60,7 @@ public class Food extends GreenfootObject
             image.setRGB(x, y+1, color2);
             image.setRGB(x+1, y+1, color3);
         }
-        setImage(new ImageIcon(image));
+        setImage(new Image(image));
     }
     
     private int randomCoord()

@@ -16,7 +16,7 @@ import javax.swing.event.EventListenerList;
  * obejcts in the world and then paints them.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Simulation.java 3141 2004-11-23 01:17:03Z davmac $
+ * @version $Id: Simulation.java 3238 2004-12-14 18:43:54Z polle $
  */
 public class Simulation extends Thread
     implements ChangeListener
@@ -31,6 +31,11 @@ public class Simulation extends Thread
     private SimulationEvent startedEvent;
     private SimulationEvent stoppedEvent;
     private static Simulation instance;
+    
+
+    /** for timing the animation */
+    private long lastDelayTime;    
+    private int delay;
 
     /**
      * Create new simulation. Leaves the simulation in paused state
@@ -50,14 +55,23 @@ public class Simulation extends Thread
         instance.startedEvent = new SimulationEvent(instance, SimulationEvent.STARTED);
         instance.stoppedEvent = new SimulationEvent(instance, SimulationEvent.STOPPED);
         instance.paused = true;
+        instance.setPriority(Thread.MIN_PRIORITY);        
         instance.start();
     }
 
+    /**
+     * Returns the simulation if it is initialised. If not, it will return null.
+     * @return
+     */
     public static Simulation getInstance()
     {
         return instance;
     }
 
+    public WorldHandler getWorldHandler() {
+        return worldHandler;
+    }
+    
     /**
      * Runs the simulation from the current state.
      *  
@@ -68,7 +82,7 @@ public class Simulation extends Thread
         while (true) {
             maybePause();
             runOnce();
-            worldHandler.delay();
+            delay();
         }
     }
 
@@ -155,8 +169,25 @@ public class Simulation extends Thread
     public void stateChanged(ChangeEvent e)
     {
         if (e.getSource() instanceof ControlPanel) {
-            int delay = ((ControlPanel) e.getSource()).getDelay();
-            worldHandler.setDelay(delay);
+            delay = ((ControlPanel) e.getSource()).getDelay();            
+        }
+    }
+    
+    public void setDelay(int millis) {
+        this.delay = millis;
+    }
+    
+    public void delay() {
+        try {
+            long timeElapsed = System.currentTimeMillis() - this.lastDelayTime;
+            long actualDelay = delay - timeElapsed;
+            if (actualDelay > 0) {
+                Thread.sleep(delay - timeElapsed);
+            }
+            this.lastDelayTime = System.currentTimeMillis();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

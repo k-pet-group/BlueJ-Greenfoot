@@ -15,7 +15,7 @@ public class Sky extends GreenfootWorld
      */
     public Sky() {
         super(WIDTH,HEIGHT);
-        setBackgroundColor(new Color(90,90,255));
+        getBackground().fill(new Color(90,90,255));
       //  populate(20);
       
       /*  Cohesion c = new Cohesion();

@@ -1,7 +1,6 @@
-import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.Image;
 
-import java.awt.Image;
 import javax.swing.ImageIcon;
 
 public class Button extends GreenfootObject
@@ -19,14 +18,13 @@ public class Button extends GreenfootObject
     
     public Button()
     {
-        setImage("button-up-down.jpg");
-        imageUpDown = getImage().getImage();
-        setImage("button-up.jpg");
-        imageUp = getImage().getImage();
-        setImage("button-down.jpg");
-        imageDown = getImage().getImage();
-        setImage("button.jpg");
-        imageNone = getImage().getImage();
+        imageUpDown = new Image("button-up-down.jpg");
+        imageUp = new Image("button-up.jpg");
+        imageDown =new Image("button-down.jpg");
+        imageNone = new Image("button.jpg");
+        
+        setImage(imageNone);
+        
         up = false;
         down = false;
     }
@@ -60,12 +58,12 @@ public class Button extends GreenfootObject
     private void updateImage()
     {
         if(up && down) 
-            setImage(new ImageIcon(imageUpDown));
+            setImage(imageUpDown);
         else if(up)
-            setImage(new ImageIcon(imageUp));
+            setImage(imageUp);
         else if(down)
-            setImage(new ImageIcon(imageDown));
+            setImage(imageDown);
         else
-            setImage(new ImageIcon(imageNone));
+            setImage(imageNone);
     }
 }

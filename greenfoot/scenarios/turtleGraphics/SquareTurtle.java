@@ -1,5 +1,6 @@
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.Utilities;
 public class SquareTurtle extends Turtle
 {
   public SquareTurtle()
@@ -16,7 +17,7 @@ public class SquareTurtle extends Turtle
     for(int i=0; i<4; i++) {
         move(50);  
         turn(90);
-        delay();
+        Utilities.delay();
     }
   }
 

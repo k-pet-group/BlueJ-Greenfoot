@@ -3,6 +3,8 @@ import greenfoot.GreenfootObject;
 
 import java.util.Iterator;
 import java.util.List;
+
+import java.util.Collection;
 import java.util.ArrayList;
 import java.awt.Point;
 
@@ -130,6 +132,7 @@ public abstract class Boid extends GreenfootObject
             planning = false;
         }
         else {
+            
             vector.setX(vectorPlan.getX());            
             vector.setY(vectorPlan.getY());
             
@@ -148,28 +151,49 @@ public abstract class Boid extends GreenfootObject
             x += getVector().getX() ;
             y += getVector().getY() ;  
         }
-        
         limit();
+        
     //    System.out.println("" + x + " , " + y + " rot: " + getRotation());
         
         setLocation((int) Math.floor(x), (int) Math.floor(y));
     }
     
-    private void limit() {
-        if(x<=0) {
-           vectorPlan.setX(-10 * vectorPlan.getX());
-           x=1;
+    public void avoidBorders() {
+         //if we see a border, we mo
+         if(x<=20) {
+             vectorPlan.getDirection();
+         //  vectorPlan.setX(10);// -10 * vectorPlan.getX());
+           x=0;
         }
         if(x>=getWorld().getWidth()) {
-           vectorPlan.setX(-10 * vectorPlan.getX());
+         //  vectorPlan.setX(-10) ;//-10 * vectorPlan.getX());
            x=getWorld().getWidth()-2;
         }
-        if(y<=0 ) {
-            vectorPlan.setY(-10 * vectorPlan.getY());                
-            y=1;
+        if(y<=0) {
+            //vectorPlan.setY(10);//-10 * vectorPlan.getY());                
+            y=0;
         }
         if(y>=getWorld().getHeight()) {
-            vectorPlan.setY(-10 * vectorPlan.getY());                
+          //  vectorPlan.setY(-10);//-10 * vectorPlan.getY());                
+            y=getWorld().getHeight() -2 ;
+        }
+    }
+    
+    private void limit() {
+        if(x<=0) {
+         //  vectorPlan.setX(10);// -10 * vectorPlan.getX());
+           x=0;
+        }
+        if(x>=getWorld().getWidth()) {
+         //  vectorPlan.setX(-10) ;//-10 * vectorPlan.getX());
+           x=getWorld().getWidth()-2;
+        }
+        if(y<=0) {
+            //vectorPlan.setY(10);//-10 * vectorPlan.getY());                
+            y=0;
+        }
+        if(y>=getWorld().getHeight()) {
+          //  vectorPlan.setY(-10);//-10 * vectorPlan.getY());                
             y=getWorld().getHeight() -2 ;
         }
         
@@ -232,6 +256,14 @@ public abstract class Boid extends GreenfootObject
         flockVector.shorten(nBirds); 
         return flockVector;
     }
+   
+    /**
+     * Borders are considered obstacles, and exerts a very strong force when a boid is getting close to a border.
+     * This should be used to avoid getting stuck at the borders
+     */
+  /*  public Vector getObstacleRepulsion() {
+        
+    }*/
     
    
     public Vector getFlockAttraction(double distance) {
@@ -277,10 +309,13 @@ public abstract class Boid extends GreenfootObject
     }
     
  
-    private List getNeighbours(double distance) {
+    private Collection getNeighbours(double distance) {
+        return getWorld().getObjectsInRange(getX(),getY(),distance, Boid.class);
         //TODO for greenfoot it would be nice to be able to get obecjts within a certain radius
         //TODO and to get all obejcts of a certain type in the world.
-        Iterator objects = getWorld().getObjects();
+      /*  Iterator objects = getWorld().getObjects();
+         
+
         List neighbours = new ArrayList();
         while(objects.hasNext()) {
             Object o = objects.next();
@@ -291,9 +326,11 @@ public abstract class Boid extends GreenfootObject
                 }
             }
         }
-        return neighbours;
+        return neighbours;*/
 
     }
+    
+    
     
     private double distance(Boid other) {
         int dx = other.getX() - getX();

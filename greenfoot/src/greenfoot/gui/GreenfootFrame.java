@@ -54,7 +54,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3188 2004-11-26 12:15:11Z polle $
+ * @version $Id: GreenfootFrame.java 3238 2004-12-14 18:43:54Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -138,8 +138,7 @@ public class GreenfootFrame extends JFrame
         ControlPanel controlPanel = new ControlPanel(sim);
         controlPanel.setBorder(BorderFactory.createEtchedBorder());
         controlPanel.addChangeListener(sim);
-
-        worldHandler.setDelay(controlPanel.getDelay());
+        sim.setDelay(controlPanel.getDelay());
 
         //todo this should be moved to WorldCanvas becuase it changes when new
         // worlds are created

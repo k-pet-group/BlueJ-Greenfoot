@@ -1,6 +1,7 @@
 package greenfoot.gui;
 
 import greenfoot.GreenfootObject;
+import greenfoot.ImageVisitor;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -33,7 +34,7 @@ import javax.swing.*;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3182 2004-11-26 01:14:21Z davmac $
+ * @version $Id: DragGlassPane.java 3238 2004-12-14 18:43:54Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -46,7 +47,7 @@ public class DragGlassPane extends JComponent
     private static DragGlassPane instance;
 
     /** The image displayed when dragging where no DropTarget is below */
-    private ImageIcon image;
+    private greenfoot.Image image;
     private Icon noParkingIcon;
 
     /** Should the dragGlassPane display the no drop image? */
@@ -116,7 +117,7 @@ public class DragGlassPane extends JComponent
             double rotateX = halfWidth + rect.getX();
             double rotateY = halfHeight + rect.getY();
             g2.rotate(Math.toRadians(rotation), rotateX, rotateY);
-            image.paintIcon(this, g2, rect.x, rect.y);
+            ImageVisitor.drawImage(image, g2, rect.x, rect.y, this);
 
             g2.setColor(Color.RED);
             if (noParkingIcon != null) {
@@ -226,11 +227,11 @@ public class DragGlassPane extends JComponent
      * @param rotation
      *            The rotation of the image
      */
-    public void setDragImage(ImageIcon image, double rotation)
+    public void setDragImage(greenfoot.Image image, double rotation)
     {
         this.image = image;
-        int width = image.getIconWidth();
-        int height = image.getIconHeight();
+        int width = image.getWidth();
+        int height = image.getHeight();
         rect.width = width;
         rect.height = height;
         oldRect.width = width;

@@ -11,6 +11,6 @@ public class TurtleWorld extends GreenfootWorld
      */
     public TurtleWorld() {
         super(800,600);
-        setBackgroundColor(Color.WHITE);
+        getBackground().fill(Color.WHITE);
     }
 }

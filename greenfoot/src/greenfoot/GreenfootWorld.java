@@ -1,11 +1,5 @@
 package greenfoot;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +10,6 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Vector;
 
-import javax.swing.ImageIcon;
 
 /**
  * This class represents the object world, which is a 2 dimensional grid of
@@ -27,16 +20,17 @@ import javax.swing.ImageIcon;
  * aware that all methods that has something to do with location and size in
  * GreenfootObject and GreenfootWorld is using that resolution.
  * 
+ * TODO: wrapping
+ * 
  * @see greenfoot.GreenfootObject
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootWorld.java 3211 2004-12-02 13:12:54Z polle $
+ * @version $Id: GreenfootWorld.java 3238 2004-12-14 18:43:54Z polle $
  */
 public class GreenfootWorld extends Observable
 {
     private Map[][] world;
     private List objects = new ArrayList();
-    
-    
+
     /** The size of the cell in pixels.*/
     private int cellSize = 1;
 
@@ -52,20 +46,12 @@ public class GreenfootWorld extends Observable
 
     private static Collection emptyCollection = new Vector();
 
-    private Color backgroundColor = Color.WHITE;
-
     /** Image painted in the background. */
     private Image backgroundImage;
     private boolean tiledBackground;
 
-    /** A canvas that can be used for additional drawing. */
-    private Image canvasImage;
-
-
     private int delay = 500;
 
-    /** for timing the animation */
-    private long lastDelay;
 
     /**
      * Create a new world with the given size.
@@ -77,9 +63,9 @@ public class GreenfootWorld extends Observable
      */
     public GreenfootWorld(int worldWidth, int worldHeight)
     {
-        setSize(worldWidth, worldHeight);        
+        setSize(worldWidth, worldHeight);
     }
-    
+
     /**
      * This constructor should be used if a scenario is created that should use a grid.
      * It creates a new world with the given size .
@@ -91,25 +77,14 @@ public class GreenfootWorld extends Observable
      *            The height of the world (in cells).
      * @param cellSize
      *            Size of a cell in pixels
+     * @param wrap
+     *            Whether the world should wrap around the edges
      *  
      */
-    public GreenfootWorld(int worldWidth, int worldHeight, int cellSize)
-    {
+    public GreenfootWorld(int worldWidth, int worldHeight, int cellSize, boolean wrap)
+    {        
         setSize(worldWidth, worldHeight);
         this.cellSize = cellSize;
-    }
-
-    /**
-     * Sets a new background color.
-     * 
-     * @param color
-     *            The new background color
-     */
-    final public void setBackgroundColor(Color color)
-    {
-        this.backgroundColor = color;
-        setChanged();
-        notifyObservers(color);
     }
 
     /**
@@ -120,62 +95,23 @@ public class GreenfootWorld extends Observable
      * @param image
      *            The image
      */
-    final public void setBackgroundImage(Image image)
+    final public void setBackground(Image image)
     {
         backgroundImage = image;
-        setChanged();
-        notifyObservers(image);
-    }
-
-    /**
-     * Tiles the backgroundimage to fill up the background.
-     * 
-     * @see #setBackgroundImage(Image)
-     * @see #setBackgroundImage(String)
-     * @param tiled
-     *            Whether it should tile the background or not.
-     */
-    public void setTiledBackground(boolean tiled)
-    {
-        tiledBackground = tiled;
         update();
-    }
-
-    /**
-     * Returns true if the background image is tiled. Otrherwise false is
-     * returned.
-     * 
-     * @return Wherher the background image is tilled.
-     */
-    public boolean isTiledBackground()
-    {
-        return tiledBackground;
-    }
+    }   
 
     /**
      * Gets the background image
      * 
      * @return The background image
      */
-    public Image getBackgroundImage()
+    public Image getBackground()
     {
+        if(backgroundImage == null) {
+            backgroundImage =new Image(getWidthInPixels(), getHeightInPixels());
+        }
         return backgroundImage;
-    }
-
-    /**
-     * Sets the backgroundimage of the world.
-     * 
-     * @see #setTiledBackground(boolean)
-     * @see #setBackgroundImage(Image)
-     * @param filename
-     *            The file containing the image
-     */
-    final public void setBackgroundImage(String filename)
-    {
-        URL imageURL = this.getClass().getClassLoader().getResource(filename);
-        ImageIcon imageIcon = new ImageIcon(imageURL);
-        setBackgroundImage(imageIcon.getImage());
-        update();
     }
 
     /**
@@ -193,28 +129,12 @@ public class GreenfootWorld extends Observable
     {
         return world[0].length;
     }
-    
-    /**
-     * Get the height of the world in pixels.
-     */
-    int getHeightInPixels()
-    {
-        return getHeight() * getCellSize(); 
-    }
-    
-    /**
-     * Get the width of the world in pixels.
-     */ 
-    int getWidthInPixels()
-    {
-        return getWidth() * getCellSize();
-    }
 
     /**
      * Get the cell size. If no cell size has been specified via the
      * constructor, it defaults to 1.
      */
-    public int getCellSize()
+    int getCellSize()
     {
         return cellSize;
     }
@@ -223,11 +143,9 @@ public class GreenfootWorld extends Observable
      * Sets the size of the world. <br>
      * This will remove all objects from the world. TODO Maybe it shouldn't!
      */
-    public void setSize(int width, int height)
+    private void setSize(int width, int height)
     {
         world = new Map[width][height];
-        canvasImage = null;
-
         update();
     }
 
@@ -290,15 +208,14 @@ public class GreenfootWorld extends Observable
         int height = thing.getHeight();
         int width = thing.getWidth();
         int diag = (int) Math.sqrt(width * width + height * height);
-        
+
         int newSizeInCells = toCellCeil(diag);
-        
+
         if (maxSize == null || maxSize.intValue() < newSizeInCells) {
             objectMaxSizes.put(clazz, new Integer(newSizeInCells));
         }
     }
 
-    
     /**
      * Returns all the objects with the exact location (x,y)
      */
@@ -331,8 +248,8 @@ public class GreenfootWorld extends Observable
         Collection objectsAtCell = getObjectsAt(x, y);
         for (Iterator iter = objectsAtCell.iterator(); iter.hasNext();) {
             GreenfootObject go = (GreenfootObject) iter.next();
-            if(cls.isInstance(go)) {
-                 objectsThere.add(go);
+            if (cls.isInstance(go)) {
+                objectsThere.add(go);
             }
         }
         return objectsThere;
@@ -344,49 +261,114 @@ public class GreenfootWorld extends Observable
      * @see GreenfootObject#contains(int, int)
      */
     public Collection getObjectsAt(int x, int y)
-    {      
-            Collection maxSizes = objectMaxSizes.values();
-            int maxSize = 0;
-            for (Iterator iter = maxSizes.iterator(); iter.hasNext();) {
-                Integer element = (Integer) iter.next();
-                if (element.intValue() > maxSize) {
-                    maxSize = element.intValue();
-                }
-            }
+    {
+        int maxSize = getMaxSize();
 
-            List objectsThere = new ArrayList();
-            int xStart = (x - maxSize) + 1;
-            int yStart = (y - maxSize) + 1;
-            if (xStart < 0) {
-                xStart = 0;
-            }
-            if (yStart < 0) {
-                yStart = 0;
-            }
-            if (x >= getWidth()) {
-                x = getWidth() - 1;
-            }
-            if (y >= getHeight()) {
-                y = getHeight() - 1;
-            }
+        List objectsThere = new ArrayList();
+        int xStart = (x - maxSize) + 1;
+        int yStart = (y - maxSize) + 1;
+        if (xStart < 0) {
+            xStart = 0;
+        }
+        if (yStart < 0) {
+            yStart = 0;
+        }
+        if (x >= getWidth()) {
+            x = getWidth() - 1;
+        }
+        if (y >= getHeight()) {
+            y = getHeight() - 1;
+        }
 
-            for (int xi = xStart; xi <= x; xi++) {
-                for (int yi = yStart; yi <= y; yi++) {
-                    Map map = world[xi][yi];
-                    if (map != null) {
-                        Collection list = getObjectsWithLocation(xi, yi);
-                        for (Iterator iter = Collections.unmodifiableCollection(list).iterator(); iter.hasNext();) {
-                            GreenfootObject go = (GreenfootObject) iter.next();
-                            if (go.contains(x - xi, y - yi)) {
-                                objectsThere.add(go);
-                            }
+        for (int xi = xStart; xi <= x; xi++) {
+            for (int yi = yStart; yi <= y; yi++) {
+                Map map = world[xi][yi];
+                if (map != null) {
+                    Collection list = getObjectsWithLocation(xi, yi);
+                    for (Iterator iter = Collections.unmodifiableCollection(list).iterator(); iter.hasNext();) {
+                        GreenfootObject go = (GreenfootObject) iter.next();
+                        if (go.contains(x - xi, y - yi)) {
+                            objectsThere.add(go);
                         }
                     }
                 }
             }
-            return objectsThere;
+        }
+        return objectsThere;
     }
     
+    /**
+     * @return
+     */
+    private int getMaxSize()
+    {
+        int maxSize = 0;
+        Collection maxSizes = objectMaxSizes.values();
+        for (Iterator iter = maxSizes.iterator(); iter.hasNext();) {
+            Integer element = (Integer) iter.next();
+            if (element.intValue() > maxSize) {
+                maxSize = element.intValue();
+            }
+        }
+        return maxSize;
+    }
+
+    /**
+     * Gets all objects within the given radius and of the given class (or
+     * subclass).
+     * 
+     * 
+     * The center of the circle is considered to be at the center of the cell.
+     * Objects which have the center within the circle is considered to be in range.
+     * 
+     * @param x
+     *            The x-coordinate of the center
+     * @param y
+     *            The y-coordinate of the center
+     * @param r
+     *            The radius
+     * @param cls
+     *            Only objects of this class (or subclasses) are returned
+     * @return
+     */
+    public Collection getObjectsInRange(int x, int y, double r, Class cls)
+    {
+        Iterator objects = getObjects();
+
+        List neighbours = new ArrayList();
+        while (objects.hasNext()) {
+            Object o = objects.next();
+            if (cls.isInstance(o) && o != this) {
+                GreenfootObject go = (GreenfootObject) o;
+                if (distance(x, y, go) <= r) {
+                    neighbours.add(go);
+                }
+            }
+        }
+        return neighbours;       
+    }
+
+  
+    /**
+     * Returns the shortest distance from the cell (center of cell ) to the
+     * center of the greenfoot object.
+     * 
+     * @param x
+     *            x-coordinate of the cell
+     * @param y
+     *            y-coordinate of the cell
+     * @param go
+     * @return
+     */
+    private double distance(int x, int y, GreenfootObject go)
+    {
+        double gx = go.getX() + (go.getWidth() / 2.) / cellSize;
+        double gy = go.getY() + (go.getHeight() / 2.) / cellSize;
+        double dx = gx - (x + 0.5);
+        double dy = gy - (y + 0.5);
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
     /**
      * When we have a pixel coordinate, and the cell size > 1, we can use this
      * method which translates into cell coordinates. 
@@ -407,7 +389,6 @@ public class GreenfootWorld extends Observable
         return getObjectsAt(toCellFloor(x), toCellFloor(y), cls);
     }
 
-   
     /**
      * Removes the object from the world.
      * 
@@ -439,6 +420,19 @@ public class GreenfootWorld extends Observable
         List c = new ArrayList();
         c.addAll(objects);
         return c.iterator();
+    }
+
+    /**
+     * Refreshes the world. <br>
+     * Should be called to see the changes after painting on the graphics
+     * 
+     * @see #getCanvas()
+     * @see #getCanvas(int, int)
+     */
+    final void update()
+    {
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -475,121 +469,32 @@ public class GreenfootWorld extends Observable
         }
         list.add(object);
         update();
-    }   
-    
+    }
+
     int toCellCeil(int i)
     {
-        return (int) Math.ceil( (double) i / cellSize );        
+        return (int) Math.ceil((double) i / cellSize);
     }
-    
+
     int toCellFloor(int i)
     {
-        return (int) Math.floor( (double) i / cellSize );        
+        return (int) Math.floor((double) i / cellSize);
     }
 
     /**
-     * Sets the delay that is used in the animation loop
-     * 
-     * @param millis
-     *            The delay in ms
+     * Get the height of the world in pixels.
      */
-    public void setDelay(int millis)
+    int getHeightInPixels()
     {
-        this.delay = millis;
-        update();
+        return getHeight() * getCellSize();
     }
 
     /**
-     * Returns the delay.
-     * 
-     * @return The delay in ms
+     * Get the width of the world in pixels.
      */
-    public int getDelay()
+    int getWidthInPixels()
     {
-        return delay;
+        return getWidth() * getCellSize();
     }
 
-    /**
-     * Pauses for a while
-     */
-    public void delay()
-    {
-        //TODO this functionality shouldn't really be here. Should it be
-        // available to the user at all?
-        try {
-            long timeElapsed = System.currentTimeMillis() - this.lastDelay;
-            long actualDelay = delay - timeElapsed;
-            if (actualDelay > 0) {
-                Thread.sleep(delay - timeElapsed);
-            }
-            this.lastDelay = System.currentTimeMillis();
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Gets the background color
-     * 
-     * @return The current background color
-     */
-    public Color getBackgroundColor()
-    {
-        return backgroundColor;
-    }
-
-    /**
-     * Returns a canvas that can be used to paint custom stuff. <br>
-     * This will be painted on top of the background and below the
-     * GreenfootObjects. <br>
-     * update() must be called for changes to take effect.
-     * 
-     * @see #update()
-     * @return A graphics2D that can be used for painting.
-     */
-    public Graphics2D getCanvas()
-    {
-        if (canvasImage == null) {
-            canvasImage = new BufferedImage(getWidthInPixels(), getHeightInPixels(), BufferedImage.TYPE_INT_ARGB);
-        }
-        return (Graphics2D) canvasImage.getGraphics();
-    }
-
-    /**
-     * Used by the WorldCanvas.
-     * 
-     * @return
-     */
-    Image getCanvasImage()
-    {
-        return canvasImage;
-    }
-
-    /**
-     * Refreshes the world. <br>
-     * Should be called to see the changes after painting on the graphics
-     * 
-     * @see #getCanvas()
-     * @see #getCanvas(int, int)
-     */
-    public void update()
-    {
-        setChanged();
-        notifyObservers();
-    }
-
-    /**
-     * Gets a canvas that can be used to draw on the world. The origo of the
-     * canvas will be the given coordinates.
-     * 
-     * @see #update()
-     * @return A graphics2D that can be used for painting.
-     */
-    public Graphics2D getCanvas(int x, int y)
-    {       
-        Graphics2D g = getCanvas();
-        g.translate(x * cellSize, y * cellSize);
-        return g;
-    }
 }

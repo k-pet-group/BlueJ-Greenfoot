@@ -1,7 +1,5 @@
 package greenfoot;
 
-import java.awt.Image;
-
 /**
  * Class that makes it possible for classes outside the greenfoot package to get
  * access to world methods that are package protected. We need some
@@ -9,19 +7,22 @@ import java.awt.Image;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 3211 2004-12-02 13:12:54Z polle $
+ * @version $Id: WorldVisitor.java 3238 2004-12-14 18:43:54Z polle $
  */
 public class WorldVisitor
 {
-    public static Image getCanvasImage(GreenfootWorld w)
+    public static int getWidthInPixels(GreenfootWorld w)
     {
-        return w.getCanvasImage();
-    }
-    
-    public static int getWidthInPixels(GreenfootWorld w) {
         return w.getWidthInPixels();
     }
-    public static int getHeightInPixels(GreenfootWorld w) {
+
+    public static int getHeightInPixels(GreenfootWorld w)
+    {
         return w.getHeightInPixels();
+    }
+
+    public static int getCellSize(GreenfootWorld w)
+    {
+        return w.getCellSize();
     }
 }

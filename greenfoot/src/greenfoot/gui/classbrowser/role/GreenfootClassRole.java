@@ -1,6 +1,7 @@
 package greenfoot.gui.classbrowser.role;
 
 import greenfoot.GreenfootObject;
+import greenfoot.ImageVisitor;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.Color;
@@ -29,7 +30,7 @@ import bluej.extensions.ProjectNotOpenException;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: GreenfootClassRole.java 3238 2004-12-14 18:43:54Z polle $
  *  
  */
 public class GreenfootClassRole extends ClassRole
@@ -37,7 +38,7 @@ public class GreenfootClassRole extends ClassRole
     private final static float SUPER_CLASS_FONT_SHRINK_FACTOR = 0.8f;
     private RClass rClass;
     private final static Dimension iconSize = new Dimension(16, 16);
-    private ImageIcon image;
+    private Image image;
     private ClassView classView;
 
     /*
@@ -83,7 +84,7 @@ public class GreenfootClassRole extends ClassRole
 
         image = renderImage();
         if (image != null) {
-            Image scaledImage = image.getImage().getScaledInstance(iconSize.width, iconSize.height, Image.SCALE_SMOOTH);
+            java.awt.Image scaledImage = image.getScaledInstance(iconSize.width, iconSize.height, java.awt.Image.SCALE_SMOOTH);
             JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
             c.insets.left = 4;
             c.insets.right = 4;
@@ -96,7 +97,7 @@ public class GreenfootClassRole extends ClassRole
      * 
      * @return The image, or null if no image can be found
      */
-    public ImageIcon getImage()
+    public Image getImage()
     {
         /*
          * if (image == null && rClass.isCompiled()) { image = renderImage();
@@ -107,10 +108,9 @@ public class GreenfootClassRole extends ClassRole
         return image;
     }
 
-    private ImageIcon renderImage()
+    private Image renderImage()
     {
         Object object = null;
-        RObject rObject = null;
         Class cls = classView.getRealClass();
         if (cls == null) {
             return null;
@@ -152,23 +152,24 @@ public class GreenfootClassRole extends ClassRole
         }
         else if (object instanceof GreenfootObject) {
             GreenfootObject so = (GreenfootObject) object;
-            ImageIcon image = so.getImage();
+            greenfoot.Image image = so.getImage();
             //rotate it.
-            BufferedImage bImg = new BufferedImage(image.getIconWidth(), image.getIconHeight(),
-                    BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2 = (Graphics2D) bImg.getGraphics();
+            if (image != null) {
+                BufferedImage bImg = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g2 = (Graphics2D) bImg.getGraphics();
 
-            double halfWidth = image.getIconWidth() / 2.;
-            double halfHeight = image.getIconHeight() / 2.;
-            double rotateX = halfWidth;
-            double rotateY = halfHeight;
-            g2.rotate(Math.toRadians(so.getRotation()), rotateX, rotateY);
+                double halfWidth = image.getWidth() / 2.;
+                double halfHeight = image.getHeight() / 2.;
+                double rotateX = halfWidth;
+                double rotateY = halfHeight;
+                g2.rotate(Math.toRadians(so.getRotation()), rotateX, rotateY);
 
-            image.paintIcon(classView, g2, 0, 0);
+                ImageVisitor.drawImage(image, g2, 0, 0, classView);
 
-            image.paintIcon(classView, g2, 0, 0);
-            image.setImage(bImg);
-            return image;
+                return bImg;
+            } else {
+                System.err.println("Could not render the image: " + image + " for the class: " + cls);
+            }
         }
         return null;
     }

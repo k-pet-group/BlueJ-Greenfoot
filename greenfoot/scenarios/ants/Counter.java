@@ -1,9 +1,9 @@
-import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.Image;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.image.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 public class Counter extends GreenfootObject
 {
@@ -46,6 +46,6 @@ public class Counter extends GreenfootObject
         Graphics g = image.getGraphics();
         g.setColor(Color.BLACK);
         g.drawString(text + value, 1, 12);
-        setImage(new ImageIcon(image));
+        setImage(new Image(image));
     }
 }

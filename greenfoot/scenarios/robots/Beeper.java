@@ -13,9 +13,9 @@ public class Beeper extends GreenfootObject
         setImage("Beeper.gif");
     }
     
-	/**
-   	 * Does nothing.
-   	 */
+    /**
+     * Does nothing.
+     */
     public void act()
     {
     //here you can create the behaviour of your object

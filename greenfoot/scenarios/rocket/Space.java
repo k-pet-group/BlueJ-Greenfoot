@@ -1,6 +1,7 @@
 import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
-import java.awt.*;
+import greenfoot.Image;
+
+import java.awt.Color;
 
 public class Space extends GreenfootWorld
 {
@@ -10,14 +11,14 @@ public class Space extends GreenfootWorld
      */
     public Space() {
         super(400,400);
-        setBackgroundColor(java.awt.Color.BLACK);
+        getBackground().fill(java.awt.Color.BLACK);
         createStars(500);
         createRocketAndSpeeder();
     }
     
     public void createRocketAndSpeeder() {
         Rocket rocket = new Rocket();        
-        rocket.setLocation(getWidth() - rocket.getImage().getIconWidth(), getHeight()- rocket.getImage().getIconHeight());
+        rocket.setLocation(getWidth() - rocket.getWidth(), getHeight()- rocket.getHeight());
         addObject(rocket);
         
         Speeder speeder = new Speeder();
@@ -29,15 +30,14 @@ public class Space extends GreenfootWorld
     }
     
     private void createStars(int number) {
-        Graphics2D canvas = getCanvas();
+        Image background = getBackground();
              
-        for(int i=0; i < number; i++) {
-            
+        for(int i=0; i < number; i++) {            
              int x = (int) (Math.random() * getWidth());          
              int y = (int) (Math.random() * getHeight());
              int color = 255 - (int) (Math.random() * 200);
-             canvas.setColor(new Color(color,color,color));
-             canvas.fillOval(x,y,1,1);
+             background.setColor(new Color(color,color,color));
+             background.fillOval(x,y,1,1);
         }
     }
 }

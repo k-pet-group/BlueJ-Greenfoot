@@ -2,6 +2,7 @@ package greenfoot.gui;
 
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootWorld;
+import greenfoot.ImageVisitor;
 import greenfoot.WorldVisitor;
 import greenfoot.util.Location;
 
@@ -25,7 +26,7 @@ import javax.swing.JComponent;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3211 2004-12-02 13:12:54Z polle $
+ * @version $Id: WorldCanvas.java 3238 2004-12-14 18:43:54Z polle $
  */
 public class WorldCanvas extends JComponent
     implements Observer, DropTarget
@@ -33,8 +34,6 @@ public class WorldCanvas extends JComponent
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
     private GreenfootWorld world;
-    private Image backgroundImage;
-
     private DropTarget dropTargetListener;
 
     public WorldCanvas(GreenfootWorld world)
@@ -52,35 +51,12 @@ public class WorldCanvas extends JComponent
         this.world = world;
         this.setSize(0,0);
         if (world != null) {
-            setBackground(world.getBackgroundColor());
-            setBackgroundImage(world.getBackgroundImage());
             int width = WorldVisitor.getWidthInPixels(world);
             int height = WorldVisitor.getHeightInPixels(world);
             this.setSize(width, height);
         }
     }
-
-   
-    /**
-     * Puts an image in the background of the world.
-     *  
-     */
-    public void setBackgroundImage(Image image)
-    {
-        this.backgroundImage = image;
-
-        MediaTracker m = new MediaTracker(this);
-        m.addImage(image, 1);
-        try {
-            m.waitForID(1);
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        repaint();
-    }
-
+    
     /**
      * Paints all the objects
      * 
@@ -96,18 +72,19 @@ public class WorldCanvas extends JComponent
                 GreenfootObject thing = (GreenfootObject) iter.next();
 
                 Location loc = new Location(thing.getX(), thing.getY());
-                loc.scale(world.getCellSize(), world.getCellSize());
-                ImageIcon image = thing.getImage();
+                int cellSize = WorldVisitor.getCellSize(world);
+                loc.scale(cellSize, cellSize);
+                greenfoot.Image image = thing.getImage();
                 if (image != null) {
                     Graphics2D g2 = (Graphics2D) g;
 
-                    double halfWidth = image.getIconWidth() / 2.;
-                    double halfHeight = image.getIconHeight() / 2.;
+                    double halfWidth = image.getWidth() / 2.;
+                    double halfHeight = image.getHeight() / 2.;
                     double rotateX = halfWidth + loc.getX();
                     double rotateY = halfHeight + loc.getY();
                     AffineTransform oldTx = g2.getTransform();
                     g2.rotate(Math.toRadians(thing.getRotation()), rotateX, rotateY);
-                    image.paintIcon(this, g, loc.getX(), loc.getY());
+                    ImageVisitor.drawImage(image, g, loc.getX(), loc.getY(), this);
                     g2.setTransform(oldTx);
                 }
             }
@@ -130,16 +107,7 @@ public class WorldCanvas extends JComponent
             return;
         }
         paintBackground(g);
-        paintCanvas(g);
         paintObjects(g);
-    }
-
-    private void paintCanvas(Graphics g)
-    {
-        Image canvasImage = WorldVisitor.getCanvasImage(world);
-        if (canvasImage != null) {
-            g.drawImage(canvasImage, 0, 0, this);
-        }
     }
 
     private void paintBackground(Graphics g)
@@ -151,11 +119,12 @@ public class WorldCanvas extends JComponent
             int height = WorldVisitor.getHeightInPixels(world);
 	        g.fillRect(0, 0, width, height);
 	
-	        if (world.isTiledBackground()) {
+	        greenfoot.Image backgroundImage = world.getBackground();
+	        if (backgroundImage.isTiled()) {
 	            paintTiledBackground(g);
 	        }
 	        else if (backgroundImage != null) {
-	            g.drawImage(backgroundImage, 0, 0, this);
+	            ImageVisitor.drawImage(backgroundImage, g, 0, 0, this);
 	        }
         }
 
@@ -163,11 +132,12 @@ public class WorldCanvas extends JComponent
 
     private void paintTiledBackground(Graphics g)
     {
+        greenfoot.Image backgroundImage = world.getBackground();
         if (backgroundImage == null || world == null) {
             return;
         }
-        int imgWidth = backgroundImage.getWidth(this);
-        int imgHeight = backgroundImage.getHeight(this);
+        int imgWidth = backgroundImage.getWidth();
+        int imgHeight = backgroundImage.getHeight();
 
         int width = WorldVisitor.getWidthInPixels(world);
         int height = WorldVisitor.getHeightInPixels(world);
@@ -177,7 +147,7 @@ public class WorldCanvas extends JComponent
 
         for (int x = 0; x < xTiles; x++) {
             for (int y = 0; y < yTiles; y++) {
-                g.drawImage(backgroundImage, x * imgWidth, y * imgHeight, this);
+                ImageVisitor.drawImage(backgroundImage, g, x * imgWidth, y * imgHeight, this);
             }
         }
 
@@ -210,15 +180,7 @@ public class WorldCanvas extends JComponent
      */
     public void update(Observable o, Object arg)
     {
-        if (o == world) {
-            if (arg instanceof Color) {
-                setBackground((Color) arg);
-            }
-            else if (arg instanceof Image) {
-                setBackgroundImage((Image) arg);
-            }
-            repaint();
-        }
+        repaint();
     }
 
     public void setDropTargetListener(DropTarget dropTargetListener)

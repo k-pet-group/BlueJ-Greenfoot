@@ -1,7 +1,11 @@
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
-import java.awt.*;
+import greenfoot.Image;
+
+import java.awt.Color;
 import java.util.Collection;
+import java.io.*;
+import java.net.MalformedURLException;
 
 /**
  * A world for the robots
@@ -16,16 +20,16 @@ public class RobotWorld extends GreenfootWorld
      */
     public RobotWorld()
     {
-        super(10, 10, cellSize);
-        setBackgroundColor(Color.BLACK);
-        setBackgroundImage("road.gif");
-        setTiledBackground(true);
+        super(10, 10, cellSize, false);
+
+        Image background = new Image("road.gif");
+        setBackground(background);
+        background.setTiled(true);
     }
 
-/*    public static int getCellSize()
-    {
-        return cellSize;
-    }*/
+/*
+ * public static int getCellSize() { return cellSize; }
+ */
 
     public void populate()
     {

@@ -38,7 +38,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3200 2004-11-29 03:55:26Z davmac $
+ * @version $Id: ClassView.java 3238 2004-12-14 18:43:54Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -185,10 +185,6 @@ public class ClassView extends JToggleButton
 
     }
 
-    public ImageIcon getImage()
-    {
-        return getRole().getImage();
-    }
 
     /**
      * Sets the role of this ClassLabel. Updates the ui if the role has changed

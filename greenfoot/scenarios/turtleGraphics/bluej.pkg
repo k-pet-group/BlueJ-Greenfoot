@@ -1,8 +1,8 @@
 #BlueJ package file
 package.editor.height=300
 package.editor.width=420
-package.editor.x=552
-package.editor.y=800
+package.editor.x=800
+package.editor.y=0
 package.numDependencies=0
 package.numTargets=7
 package.showExtends=true
@@ -65,5 +65,5 @@ target7.height=62
 target7.name=greenfoot
 target7.type=PackageTarget
 target7.width=90
-target7.x=190
+target7.x=120
 target7.y=130

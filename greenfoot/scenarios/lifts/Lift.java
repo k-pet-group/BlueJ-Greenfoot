@@ -1,9 +1,11 @@
-import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.Image;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.util.Random;
-import java.awt.*;
-import javax.swing.*;
+
+import javax.swing.ImageIcon;
 
 public class Lift extends GreenfootObject
 {
@@ -23,14 +25,11 @@ public class Lift extends GreenfootObject
     
     public Lift()
     {
-        setImage("person.gif");
-        personImage = getImage().getImage();
-        setImage("lift-open.jpg");
-        openImage = getImage().getImage();
-        setImage("lift-open.jpg");
-        emptyImage = getImage().getImage();
-        setImage("lift-closed.jpg");
-        closedImage = getImage().getImage();
+        personImage = new Image("person.gif");
+        openImage =  new Image("lift-open.jpg");
+        emptyImage =  new Image("lift-open.jpg");
+        closedImage =  new Image("lift-closed.jpg");
+        setImage(closedImage);
         status = ST_STOPPED;
         people = 0;
     }
@@ -114,7 +113,7 @@ public class Lift extends GreenfootObject
      */
     public void openDoors()
     {
-        setImage(new ImageIcon(openImage));
+        setImage(openImage);
         status = ST_OPEN;
     }
     
@@ -123,7 +122,7 @@ public class Lift extends GreenfootObject
      */
     public void closeDoors()
     {
-        setImage(new ImageIcon(closedImage));
+        setImage(closedImage);
         status = ST_STOPPED;
     }
     
@@ -172,16 +171,15 @@ public class Lift extends GreenfootObject
      */
     private void updateImage()
     {
-        Graphics g = openImage.getGraphics();
-        g.drawImage(emptyImage, 0, 0, null);
+        openImage.drawImage(emptyImage, 0, 0);
         if(people > 3)
-            g.drawImage(personImage, 3, 14, null);
+            openImage.drawImage(personImage, 3, 14);
         if(people > 0)
-            g.drawImage(personImage, 12, 15, null);
+            openImage.drawImage(personImage, 12, 15);
         if(people > 1)
-            g.drawImage(personImage, 5, 22, null);
+            openImage.drawImage(personImage, 5, 22);
         if(people > 2)
-            g.drawImage(personImage, 17, 20, null);
+            openImage.drawImage(personImage, 17, 20);
         paintNumber(openImage);
         paintNumber(closedImage);
     }
@@ -191,11 +189,10 @@ public class Lift extends GreenfootObject
      */
     private void paintNumber(Image img)
     {
-        Graphics g = img.getGraphics();
-        g.setColor(Color.WHITE);
-        g.fillRect(20, 4, 24, 16);
-        g.setColor(Color.BLACK);
-        g.drawRect(20, 4, 24, 16);
-        g.drawString(Integer.toString(people), 22, 17);
+        img.setColor(Color.WHITE);
+        img.fillRect(20, 4, 24, 16);
+        img.setColor(Color.BLACK);
+        img.drawRect(20, 4, 24, 16);
+        img.drawString(Integer.toString(people), 22, 17);
     }
 }

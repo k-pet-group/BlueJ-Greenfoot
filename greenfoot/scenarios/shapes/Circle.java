@@ -1,9 +1,10 @@
-import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.Image;
+import greenfoot.Utilities;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.image.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 /**
  * A circle
@@ -29,14 +30,11 @@ public class Circle extends GreenfootObject
      * Draws the circle.
      */
     public void draw() {
-        Image im = new BufferedImage(diameter,
-                                     diameter,
-                                     BufferedImage.TYPE_INT_ARGB);
-        Graphics g = im.getGraphics();
-        g.setColor(color);
-        g.fillOval(0,0,diameter,diameter);
-        setImage(new ImageIcon(im));
-        update();
+        Image im = new Image(diameter, diameter);
+        im.setColor(color);
+        im.fillOval(0,0,diameter,diameter);
+        setImage(im);
+        Utilities.repaint();
     }
     
     
@@ -87,7 +85,7 @@ public class Circle extends GreenfootObject
     public void moveHorizontal(int distance)
     {
         setLocation(getX()+distance, getY());
-        update();
+        Utilities.repaint();
     }
     
     /**
@@ -96,7 +94,7 @@ public class Circle extends GreenfootObject
     public void moveVertical(int distance)
     {
         setLocation(getX(), getY()+distance);
-        update();
+        Utilities.repaint();
     }
     
     /**
@@ -119,8 +117,7 @@ public class Circle extends GreenfootObject
         for(int i = 0; i < distance; i++)
         {
             setLocation(getX()+delta, getY());
-            update();
-            delay();
+            Utilities.delay();
         }
     }
     
@@ -144,8 +141,7 @@ public class Circle extends GreenfootObject
         for(int i = 0; i < distance; i++)
         {
             setLocation(getX(), getY()+delta);
-            update();
-            delay();
+            Utilities.delay();
         }
     }
     
