@@ -22,16 +22,11 @@
         <javac srcdir="${src}" destdir="${build}">
             <classpath>
                 <pathelement path="${classpath}" />
-                <!-- path to existing bluej's lib bluej.jar -->
-                <pathelement location="${bluej_home}\lib\bluej.jar" />
+                <!-- path to existing bluej's lib bluejcore.jar -->
+                <pathelement location="${bluej_home}\lib\bluejcore.jar" />
             </classpath>
             <!-- exclude the standalone Moe editor class -->
-            <exclude name="**/Moe.java,
-                org/syntax/jedit/InputHandler.java,
-                org/syntax/jedit/DefaultInputHandler.java,   
-                org/syntax/jedit/JEditTextArea.java,
-                org/syntax/jedit/TextAreaPainter.java, 
-                org/syntax/jedit/TextAreaDefaults.java" /> 
+            <exclude name="**/Moe.java" /> 
         </javac>
     </target>   
     
