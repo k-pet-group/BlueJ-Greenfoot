@@ -10,14 +10,14 @@ import java.util.*;
 import java.util.zip.*;
 
 /**
-  * Usage: 
+  * Usage:
   * java Installer build <properties_file>
   *
   * This modifes the Installer.class file, which can then be run as
-  * 
+  *
   *   java Installer
   *
-  * @version $Id: Installer.java 1158 2002-03-08 13:33:26Z mik $
+  * @version $Id: Installer.java 1202 2002-04-01 07:45:04Z ajp $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -56,7 +56,7 @@ public class Installer extends JFrame
     JButton cancelButton;
     JProgressBar progress;
 
- 
+
     int progressPercent = 0;
     javax.swing.Timer timer;
 
@@ -75,7 +75,7 @@ public class Installer extends JFrame
 
     /*
      * Default behaviour for JTextFields is to generate an ActionEvent when
-     * "Enter" is pressed. We don't want that. Here, we remove the Enter key 
+     * "Enter" is pressed. We don't want that. Here, we remove the Enter key
      * from the keymap used by all JTextFields. Then we can use the default
      * button for dialogs (Enter will then activate the default button).
      */
@@ -87,7 +87,7 @@ public class Installer extends JFrame
     }
 
 
-    public static void main(String[] args) 
+    public static void main(String[] args)
     {
         if (args.length > 0) {
             if (args[0].equals("build"))
@@ -121,7 +121,7 @@ public class Installer extends JFrame
             long orig = out.length();
 
             // First, write out the capsule values
-            ObjectOutputStream ostr = 
+            ObjectOutputStream ostr =
                 new ObjectOutputStream(new FileOutputStream(out.getFD()));
             if (ostr == null)
                 System.err.println ("Could not open output file");
@@ -146,7 +146,7 @@ public class Installer extends JFrame
             System.err.println ("Couldn't build installer: " + e.getMessage());
             System.exit(1);
         }
-    } 
+    }
 
 
     /**
@@ -164,7 +164,7 @@ public class Installer extends JFrame
         } catch (IOException ge) {
             System.err.println ("Couldn't load gif: " + ge.getMessage());
         }
-		
+
         return buffer;
     }
 
@@ -172,7 +172,7 @@ public class Installer extends JFrame
      * Load the properties file and create a capsule to be used at install
      * time.
      */
-    public static Hashtable loadProperties(String fileName) 
+    public static Hashtable loadProperties(String fileName)
     {
         Hashtable capsule = new Hashtable();
         Properties props = new Properties();
@@ -265,18 +265,18 @@ public class Installer extends JFrame
         // have a few wild guesses...
 
         String shortVersion = javaVersion.substring(0, javaVersion.length()-2);
-        String[] tryPaths = { 
-            "C:\\jdk" + javaVersion, 
-            "C:\\jdk" + shortVersion, 
-            "D:\\jdk" + javaVersion, 
-            "D:\\jdk" + shortVersion, 
-            "/usr/java", 
+        String[] tryPaths = {
+            "C:\\jdk" + javaVersion,
+            "C:\\jdk" + shortVersion,
+            "D:\\jdk" + javaVersion,
+            "D:\\jdk" + shortVersion,
+            "/usr/java",
             "/usr/local/java",
-            "/usr/jdk" + javaVersion, 
-            "/usr/jdk" + shortVersion, 
-            "/usr/local/jdk" + javaVersion, 
-            "/usr/local/jdk" + shortVersion, 
-            "/System/Library/Frameworks/JavaVM.framework", 
+            "/usr/jdk" + javaVersion,
+            "/usr/jdk" + shortVersion,
+            "/usr/local/jdk" + javaVersion,
+            "/usr/local/jdk" + shortVersion,
+            "/System/Library/Frameworks/JavaVM.framework",
         };
 
         for(int i = 0; i < tryPaths.length; i++)
@@ -290,7 +290,7 @@ public class Installer extends JFrame
     /**
      * Handle button press.
      */
-    public void actionPerformed(ActionEvent evt) 
+    public void actionPerformed(ActionEvent evt)
     {
         Object src = evt.getSource();
 
@@ -315,12 +315,12 @@ public class Installer extends JFrame
             doInstall();
         }
     }
-       
+
 
     /**
      * Install button action
      */
-    public void doInstall() 
+    public void doInstall()
     {
         readInputValues();
         if(! isJDKPath(javaPath)) {
@@ -359,7 +359,7 @@ public class Installer extends JFrame
 
         if (getProperty("exeName") != null) {
             finish("BlueJ has been installed to " + installationDir,
-                   "To run it, execute \"" + 
+                   "To run it, execute \"" +
                    (String)getProperty("exeName") + "\".");
         } else {
             finish("The package has been installed to "+installationDir, " ");
@@ -419,7 +419,7 @@ public class Installer extends JFrame
     /**
      * Check that the current Java version is a full JDK. Warn if not.
      */
-    public boolean isJDKPath(String path) 
+    public boolean isJDKPath(String path)
     {
         if(osname.startsWith("Mac"))
             return true;   // check disabled for MacOS system
@@ -459,14 +459,14 @@ public class Installer extends JFrame
      */
     public void notifyError(String error, String msg) {
         JOptionPane.showMessageDialog(this, error);
-        finish(msg, "Installation aborted."); 
+        finish(msg, "Installation aborted.");
     }
 
 
     /**
      * Inform user of invalid jdk.
      */
-    private void jdkPathProblem() 
+    private void jdkPathProblem()
     {
         notifyProblem(
            "The Java directory you have specified is not a valid \n" +
@@ -479,7 +479,7 @@ public class Installer extends JFrame
     /**
      * Inform user of invalid install dir. Return true if everything is fine.
      */
-    private boolean checkInstallDir(String dirName, boolean make) 
+    private boolean checkInstallDir(String dirName, boolean make)
     {
         File installDir = new File(dirName);
         if(installDir.exists()) {
@@ -532,7 +532,7 @@ public class Installer extends JFrame
     /**
      * Create and show the main window
      */
-    public void makeWindow() 
+    public void makeWindow()
     {
         backgroundColour = (Color)getProperty("color.background");
         textColour = (Color)getProperty("color.text");
@@ -619,7 +619,7 @@ public class Installer extends JFrame
 
         centrePanel.add(Box.createVerticalStrut(24));
 
-        progress = new JProgressBar(); 
+        progress = new JProgressBar();
         centrePanel.add(progress);
 
         centrePanel.add(Box.createVerticalStrut(5));
@@ -649,7 +649,7 @@ public class Installer extends JFrame
         //Create a timer to update progress
         timer = new javax.swing.Timer(50, new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
-                    progress.setValue(progressPercent);	
+                    progress.setValue(progressPercent);
                 }
             });
 
@@ -671,8 +671,8 @@ public class Installer extends JFrame
      * Write out a Unix, Bourne shell script to start the application
      * For JDK 1.3 and later
      */
-    public void writeUnix(boolean isMacOS) 
-        throws IOException 
+    public void writeUnix(boolean isMacOS)
+        throws IOException
     {
         File outputFile = new File(installationDir, (String)getProperty("exeName"));
         FileWriter out = new FileWriter(outputFile.toString());
@@ -699,7 +699,7 @@ public class Installer extends JFrame
         out.write(javaName + " " + getProperty("javaOpts.unix") + " " +
                   getProperty("mainClass") + " $*\n");
         out.close();
-		
+
         try {
             Runtime.getRuntime().exec("chmod 755 " + outputFile);
         } catch(Exception e) {
@@ -711,11 +711,11 @@ public class Installer extends JFrame
      * Write out an MSDOS style batch file to start the application.
      * (JDK 1.3 and later)
      */
-    public void writeWindows() throws IOException 
+    public void writeWindows() throws IOException
     {
         File outputFile = new File(installationDir,
                                    (String)getProperty("exeName") + ".bat");
-			
+
         FileWriter out = new FileWriter(outputFile.toString());
         out.write("@echo off\r\n");
         out.write("set APPBASE=\"" + installationDir + "\"\r\n");
@@ -729,7 +729,7 @@ public class Installer extends JFrame
         }
         out.write("\"" + javaPath + "\\bin\\java\" " +
                   getProperty("javaOpts.win") + " " +
-                  getProperty("mainClass") + 
+                  getProperty("mainClass") +
                   " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
         out.close();
     }
@@ -740,7 +740,7 @@ public class Installer extends JFrame
 
 
     /**
-     * Grab the jar data from the class file and unjar it into the 
+     * Grab the jar data from the class file and unjar it into the
      * install directory.
      */
     public void unpackTo(boolean doJar) {
@@ -756,7 +756,7 @@ public class Installer extends JFrame
                 cpout.write(buffer, 0, len);
             cpin.close();
             cpout.close();
-			
+
             RandomAccessFile in = new RandomAccessFile(tempInstallerClass, "r");
             in.seek(in.length() - 8);
             long size = in.readLong();
@@ -802,7 +802,7 @@ public class Installer extends JFrame
     /**
      * Extract a JAR from a file stream to the given directory on disk.
      */
-    public void dumpJar(String dir, FileInputStream in) 
+    public void dumpJar(String dir, FileInputStream in)
         throws IOException, ZipException
     {
         makeDirsFor(dir,"");
@@ -847,13 +847,19 @@ public class Installer extends JFrame
                 out.write(buffer,0,len);
             }
             progressPercent = (int)((bytesRead*100/myTotalBytes)/4);
-            zip.closeEntry();
             out.close();
+
+            if (z.getTime() != -1) {
+                File f = new File(name);
+                f.setLastModified(z.getTime());
+            }
+
+            zip.closeEntry();
         }
 
         zip.close();
         timer.stop();
-        progress.setValue(100);	
+        progress.setValue(100);
     }
 
 
@@ -875,10 +881,10 @@ public class Installer extends JFrame
             else
                 ret.append(tok);
         }
-		
+
         return ret.toString();
     }
-	
+
     /**
      * Get a directory name via a file selection dialog.
      */
@@ -893,7 +899,7 @@ public class Installer extends JFrame
 
         if (result == JFileChooser.APPROVE_OPTION)
             return newChooser.getSelectedFile().getPath();
-        else 
+        else
             return null;
     }
 
