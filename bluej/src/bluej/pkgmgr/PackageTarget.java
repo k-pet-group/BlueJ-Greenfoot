@@ -10,7 +10,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /** 
- ** @version $Id: PackageTarget.java 170 1999-07-08 02:12:42Z ajp $
+ ** @version $Id: PackageTarget.java 265 1999-11-05 04:31:07Z ajp $
  ** @author Michael Cahill
  **
  ** A link to a package embedded in another package.
@@ -151,16 +151,16 @@ public class PackageTarget extends Target implements ActionListener
      * the GraphEditor is within a LibraryBrowser.
      */
     public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor) { 
-	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame) {
-	    LibraryBrowserPkgMgrFrame browserFrame = (LibraryBrowserPkgMgrFrame)editor.getFrame();
+//	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame) {
+	//    LibraryBrowserPkgMgrFrame browserFrame = (LibraryBrowserPkgMgrFrame)editor.getFrame();
 	    // use the current Frame for the new package
 //	    browserFrame.openPackage(this);
-	} else {
+//	} else {
 	    Package newpkg = Main.openPackage(pkg.getBaseDir(), packageName);
 	    // open a new Frame for the new package
 	    PkgFrame frame = newpkg.getFrame();
 	    frame.setVisible(true);
-	}
+//	}
     }
     public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
     {
@@ -173,14 +173,14 @@ public class PackageTarget extends Target implements ActionListener
 	JPopupMenu menu = new JPopupMenu(getName() + " operations");
 
 	// the only popup menu option under the Library Browser should be "use"
-	if (editorFrame != null && editorFrame instanceof LibraryBrowserPkgMgrFrame) {
+//	if (editorFrame != null && editorFrame instanceof LibraryBrowserPkgMgrFrame) {
 //	    addMenuItem(menu, openStr, true);
 				// only add the use option if the browser has been spawned by BlueJ
 //	    if (((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone == false)
 //		addMenuItem(menu, useStr, true);
 				
-	    return menu;
-	}
+//	    return menu;
+//	}
 			
 	return null;
     }
@@ -202,12 +202,12 @@ public class PackageTarget extends Target implements ActionListener
 	String cmd = e.getActionCommand();
 	if (useStr.equals(cmd)) {
 				// insert code to do same thing as double click here
-	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
-		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).usePackage(this);
-	} else if (openStr.equals(cmd)) {
+//	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
+//		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).usePackage(this);
+//	} else if (openStr.equals(cmd)) {
 				// insert code to do same thing as double click here
-	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
-		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).openPackage(this);
+//	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
+//		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).openPackage(this);
 	}
     }
 }

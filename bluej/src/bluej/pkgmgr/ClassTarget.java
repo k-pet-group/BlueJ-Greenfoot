@@ -41,7 +41,7 @@ import java.util.Vector;
  ** @author Michael Kolling
  ** @author Bruce Quig
  **
- ** @version $Id: ClassTarget.java 259 1999-09-23 03:15:20Z bruce $
+ ** @version $Id: ClassTarget.java 265 1999-11-05 04:31:07Z ajp $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -559,7 +559,7 @@ public class ClassTarget extends EditableTarget
 	
         // the only popup menu option under the Library Browser should be
         // "open"
-        if (editorFrame != null && 
+/*        if (editorFrame != null && 
             (editorFrame instanceof LibraryBrowserPkgMgrFrame)) {
 
             Package[] openpackages = Main.getAllOpenPackages();
@@ -577,12 +577,12 @@ public class ClassTarget extends EditableTarget
 	    // only add "use" option if the class is compiled and we're not 
 	    // running standalone
 //	    if (!((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone 
-//		/*&& isCompiled()*/)
+//		)
 //		addMenuItem(menu, useStr, true);
 	    
 	    return menu;
 	}
-	
+*/	
 	// call on role object to add any options needed
  	role.createMenu(menu, this, state);
 
@@ -746,12 +746,12 @@ public class ClassTarget extends EditableTarget
 	    open();
 	}
 	else if (useStr.equals(cmd)) {
-	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
-		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).usePackage(this);
+//	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
+//		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).usePackage(this);
 	}
 	else if (openStr.equals(cmd)) {
-	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
-		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).openClass(this);
+//	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
+//		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).openClass(this);
 	}
 	else if(publicStr.equals(cmd)) {
 	    showView(Editor.PUBLIC);
@@ -791,21 +791,21 @@ public class ClassTarget extends EditableTarget
     
     public void singleClick(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame)
-	    ((LibraryBrowserPkgMgrFrame)editor.getFrame()).openClassInAttributeChooser(this);
+//	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame)
+//	    ((LibraryBrowserPkgMgrFrame)editor.getFrame()).openClassInAttributeChooser(this);
     }
 	
     public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame)
-	    browse((LibraryBrowserPkgMgrFrame)editor.getFrame());
-	else
+//	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame)
+//	    browse((LibraryBrowserPkgMgrFrame)editor.getFrame());
+//	else
 	    open();
     }
 
-    private void browse(LibraryBrowserPkgMgrFrame browserFrame) {
-	browserFrame.openClass(this);
-    }
+//    private void browse(LibraryBrowserPkgMgrFrame browserFrame) {
+//	browserFrame.openClass(this);
+//    }
 		
     public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
     {	

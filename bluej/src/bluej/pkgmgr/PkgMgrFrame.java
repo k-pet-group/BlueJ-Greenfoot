@@ -28,6 +28,7 @@ import bluej.debugger.ExecControlButtonModel;
 import bluej.terminal.Terminal;
 import bluej.terminal.TerminalButtonModel;
 import bluej.prefmgr.PrefMgrDialog;
+import bluej.browser.LibraryBrowser;
 
 public class PkgMgrFrame extends PkgFrame 
 
@@ -55,7 +56,7 @@ public class PkgMgrFrame extends PkgFrame
     private static final ImageIcon stoppedIcon = new ImageIcon(Config.getImageFilename("image.working.stopped"));
     private static final Image iconImage = new ImageIcon(Config.getImageFilename("image.icon")).getImage();
 
-    private static LibraryBrowserPkgMgrFrame browser = null;
+    private static LibraryBrowser browser = null;
     private static ExecControls execCtrlWindow = null;
 
     // instance fields:
@@ -307,6 +308,8 @@ public class PkgMgrFrame extends PkgFrame
 		"The library browser is not implemented in this version.\n" +
 		"To browse the Java standard libraries, select \"Java\n" +
 		"Class Libraries...\" from the Help menu."); */
+
+
   	    getBrowser().setVisible(true);
   	    // offset browser from this window
   	    getBrowser().setLocation(this.getLocation().x + 100, 
@@ -1182,9 +1185,9 @@ public class PkgMgrFrame extends PkgFrame
 	}
     }
 
-    public LibraryBrowserPkgMgrFrame getBrowser() {
+    public LibraryBrowser getBrowser() {
 	if (browser == null)
-	    browser = new LibraryBrowserPkgMgrFrame(false);
+	    browser = new LibraryBrowser();
 	
 	return browser;
     }

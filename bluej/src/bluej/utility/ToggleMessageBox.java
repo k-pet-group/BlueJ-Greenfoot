@@ -5,7 +5,6 @@ import java.awt.event.*;
 import java.awt.*;
 import java.beans.*;
 import bluej.Config;
-import bluej.pkgmgr.LibraryBrowserPkgMgrFrame;
 					
 /**
  * A basic JOptionPane message box with a "don't display this message again"
@@ -14,8 +13,8 @@ import bluej.pkgmgr.LibraryBrowserPkgMgrFrame;
  * in the way with repeated viewings.  A callback method is used to tell the
  * parent class whether to show the dialog again or not when the dialog exits
  * 
- * @author $Author: mik $
- * @version $Id: ToggleMessageBox.java 36 1999-04-27 04:04:54Z mik $
+ * @author $Author: ajp $
+ * @version $Id: ToggleMessageBox.java 265 1999-11-05 04:31:07Z ajp $
  */
 public class ToggleMessageBox extends JDialog 
 

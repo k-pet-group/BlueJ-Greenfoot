@@ -13,17 +13,29 @@ import java.util.zip.ZipEntry;
 import java.net.*;
 
 /**
- ** @version $Id: ClassPathEntry.java 239 1999-08-17 07:55:00Z mik $
- ** @author Andrew Patterson
- ** Class to maintain a single file location in a classpath
- **/
+ * Class to maintain a single file/directory location in a classpath
+ *
+ * @author Andrew Patterson
+ * @version $Id: ClassPathEntry.java 265 1999-11-05 04:31:07Z ajp $
+ */
 public class ClassPathEntry implements Cloneable
 {
+    /**
+     * Hold the class path entry location.
+     */
 	private File file;
+    /**
+     * Hold the class path entry description or null for no description.
+     */
 	private String description;
 
 	/**
-	 * Create the classpath entry
+	 * Holds a file/directory location in a classpath entry along with a
+	 * description.
+     *
+     * @param location  the directory path or filename or a jar/zip file
+     * @param description a short description of the classes represented
+     *                    by this classpath entry
 	 */
 	public ClassPathEntry(String location, String description)
 	{
@@ -37,14 +49,29 @@ public class ClassPathEntry implements Cloneable
 		this.description = description;
 	}
 
+	/**
+     * Holds a file/directory location in a classpath entry without
+     * a description.
+     *
+     * @param location  the directory path or filename or a jar/zip file
+     */
 	public ClassPathEntry(String location)
 	{
-		this(location, "no description (" + location + ")");
+		this(location, null);
 	}
 
+    /**
+     * Gets the description for this entry.
+     *
+     * @returns a string describing the contents of this classpath entry
+     */
 	public String getDescription() {
-		return description;
+        if (description == null)
+            return "no description (" + file.getPath() + ")";
+        else
+		    return description;
 	}
+
 	protected void setDescription(String d) {
 		this.description = d;
 	}
@@ -63,9 +90,6 @@ public class ClassPathEntry implements Cloneable
 		return file.getCanonicalPath();
 	}
 
-    public URL getURL() throws MalformedURLException {
-        return file.toURL();   
-    }
 	/* Note that the Config.getString in this method was changed from a
 	 * static class string to a local variable because we need to instantiate
 	 * ClassPathEntries on the remote VM, and it has no access to the Config
@@ -82,6 +106,10 @@ public class ClassPathEntry implements Cloneable
 		}
 		return path;
 	}
+
+    public URL getURL() throws MalformedURLException {
+        return file.toURL();   
+    }
 
 	public boolean isJar() {
 		String name = file.getPath();

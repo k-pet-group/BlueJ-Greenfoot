@@ -11,7 +11,6 @@ import bluej.views.*;
 import bluej.utility.Utility;
 import bluej.Config;
 import bluej.classmgr.ClassMgr;
-import bluej.pkgmgr.LibraryBrowserPkgMgrFrame;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -28,31 +27,18 @@ import java.util.*;
  * @see AttributeThread
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: AttributeChooser.java 159 1999-07-06 14:38:56Z ajp $
+ * @version $Id: AttributeChooser.java 265 1999-11-05 04:31:07Z ajp $
  */
 public class AttributeChooser extends JPanel {
 
-	String currentClass;
+	private String currentClass;
 
 	/**
-	 * Create a new AttributeChooser.
-	 * 
-	 * @param parent the LibraryBrowserPkgMgrFrame object owning this object.
+	 * Create a new AttributeChooser to display the attributes of a class.
 	 */
-	public AttributeChooser(LibraryBrowserPkgMgrFrame parent) {
-//		this.parent = parent;
+	public AttributeChooser() {
 		this.setLayout(new BorderLayout());
 	}
-	
-//	private void setupTree() {
-		// show the String version of the selected attribute
-//		attributes.addTreeSelectionListener(new TreeSelectionListener() {
-//      public void valueChanged(TreeSelectionEvent e) {
- //       DefaultMutableTreeNode node = (DefaultMutableTreeNode)(e.getPath().getLastPathComponent());
-//				setStatusText(node.getUserObject().toString());
- //     }
-  //  });		
-//	}
 	
 	/**
 	 * Open a new class.  Call this method whenever you wish to update the
@@ -61,7 +47,8 @@ public class AttributeChooser extends JPanel {
 	 * load the tree with them and redisplays the tree.  Will not open class 
 	 * if it is the currently open one.
 	 * 
-	 * @param className the name of the attributes' class specified in class notation (i.e., a.b.c)
+	 * @param className the name of the attributes' class specified in
+	 *                  class notation (i.e., java.io.File)
 	 */
 	public void openClass(String className) {
 		// don't open current one
@@ -118,8 +105,6 @@ class AttributeThread extends Thread {
 		DefaultMutableTreeNode inherited = new DefaultMutableTreeNode("Inherited");
 		setupTree();
 */
-		JLabel testlabel = new JLabel();
-
 		try {
 			Class cl = ClassMgr.loadBlueJClass(className);
 
@@ -149,7 +134,9 @@ class AttributeThread extends Thread {
 	}
 
 	/*
-	 *
+	 * Return a string explaining that a class could not be loaded.
+     *
+     * @param className the name of the class which failed to load
 	 */
 	private String getCantLoadMessage(String className)
 	{
@@ -225,9 +212,7 @@ class AttributeThread extends Thread {
 /**
  * A simple TreeCellRenderer implementer for colour-coding entries in
  * the AttributeChooser based on access and type (i.e., field or method).
- * Uses a callback to a AttributeChooser to determine whether the root 
- * node is being rendered or not.  Renders the tree cells as JLabels
- * containing text and an associated icon.
+ * Renders the tree cells as JLabels containing HTML.
  * 
  * @author Andy Marks
  * @author Andrew Patterson
@@ -300,7 +285,7 @@ class AttributeChooserRenderer extends JLabel implements TreeCellRenderer {
 		} else {
 			setFont(fontTreeLeaf);
 			setForeground(Color.black);
-			setBackground(selected ? Color.yellow : Color.white);
+			setBackground(Color.white);
 
 			String desc = view.getShortDesc();
 			StringBuffer descbuf = new StringBuffer(desc);
@@ -317,8 +302,8 @@ class AttributeChooserRenderer extends JLabel implements TreeCellRenderer {
 
 				String nameHTMLend = "</B>";
 				String nameHTMLstart = "<B>";
-				String paramHTMLend = "</CODE>";
-				String paramHTMLstart = "<CODE>";
+				String paramHTMLend = "</I>";
+				String paramHTMLstart = "<I>";
 
 				int lastbracket = desc.indexOf(')');
 
@@ -340,7 +325,7 @@ class AttributeChooserRenderer extends JLabel implements TreeCellRenderer {
 				}
 			}
 
-			setText("<html>" + mod + " " + descbuf);
+			setText("<html><CODE>" + mod + " " + descbuf + "</CODE>");
 		}
 
 		return this;
