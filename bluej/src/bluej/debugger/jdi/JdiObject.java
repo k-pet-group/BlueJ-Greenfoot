@@ -15,7 +15,7 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiObject.java 1558 2002-12-05 02:19:55Z ajp $
+ *@version    $Id: JdiObject.java 1562 2002-12-06 05:09:08Z ajp $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -547,4 +547,20 @@ public class JdiObject extends DebuggerObject
         }
     }
 
+    public boolean equals(Object o)
+    {
+        if(this == o)
+            return true;
+        if((o == null) || (o.getClass() != this.getClass()))
+            return false;
+
+        // object must be JdiObject at this point
+        JdiObject test = (JdiObject)o;
+        return this.obj.equals(test.obj);
+	}
+		
+	public int hashCode()
+	{
+        return obj.hashCode();
+	}
 }
