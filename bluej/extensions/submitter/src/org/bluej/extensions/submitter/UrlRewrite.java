@@ -1,6 +1,6 @@
 package org.bluej.extensions.submitter;
 
-import bluej.extensions.BlueJ;
+import bluej.extensions.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,7 +30,7 @@ import javax.swing.text.JTextComponent;
  * I really need to get around to clean it up a bit, Damiano
  * 
  * @author Clive Miller
- * @version $Id: UrlRewrite.java 1620 2003-02-04 10:15:22Z damiano $
+ * @version $Id: UrlRewrite.java 1683 2003-03-10 12:00:15Z damiano $
  */
 
 class UrlRewrite
@@ -62,7 +62,7 @@ class UrlRewrite
             right.gridx = 1;
             right.fill = GridBagConstraints.HORIZONTAL;
         }
-        body.setBorder(stat.bluej.getDialogBorder());
+        body.setBorder(BPackage.getDialogBorder());
         NumberFormat digits = new DecimalFormat ("00");
         if (!isMessage) while (true) {
             final int start = urlString.indexOf ('<');

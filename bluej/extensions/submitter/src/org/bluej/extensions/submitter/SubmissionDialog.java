@@ -45,7 +45,7 @@ import javax.swing.event.TreeSelectionEvent;
  *
  *
  * @author     Clive Miller
- * @version    $Id: SubmissionDialog.java 1620 2003-02-04 10:15:22Z damiano $
+ * @version    $Id: SubmissionDialog.java 1683 2003-03-10 12:00:15Z damiano $
  */
 class SubmissionDialog extends JDialog implements ActionListener
 {
@@ -85,7 +85,7 @@ class SubmissionDialog extends JDialog implements ActionListener
 
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-        content.setBorder(bj.getDialogBorder());
+        content.setBorder(BPackage.getDialogBorder());
          {
             JPanel panel = new JPanel(new BorderLayout());
             JLabel tag = new JLabel(bj.getLabel("dialog.scheme") + ":  ");
@@ -170,7 +170,7 @@ class SubmissionDialog extends JDialog implements ActionListener
         }
         setContentPane(content);
         pack();
-        bj.centreWindow(this);
+        pkg.centreWindow(this);
         running = false;
         stat.submiProp.addTreeModelListener(
             new TreeModelListener()
@@ -370,7 +370,7 @@ class SubmissionDialog extends JDialog implements ActionListener
 
             setContentPane(content);
             pack();
-            BlueJ.centreWindow(this, SubmissionDialog.this);
+            pkg.centreWindow(this, SubmissionDialog.this);
             show();
         }
 
@@ -606,9 +606,9 @@ class SubmissionDialog extends JDialog implements ActionListener
                         statusLabel.setText(null);
                         JPanel panel = new JPanel();
                         JLabel label = new JLabel(result);
-                        panel.setBorder(bj.getDialogBorder());
+                        panel.setBorder(BPackage.getDialogBorder());
                         panel.add(label);
-                        resultFrame = bj.showGeneralDialog(bj.getLabel("title.results"), new JScrollPane(panel), SubmissionDialog.this);
+                        resultFrame = pkg.showGeneralDialog(bj.getLabel("title.results"), new JScrollPane(panel), SubmissionDialog.this);
                         dispose();
                     }
                 }
@@ -659,9 +659,9 @@ class SubmissionDialog extends JDialog implements ActionListener
                                 JPanel panel = new JPanel();
                                 JTextArea label = new JTextArea(ts.getLog());
                                 label.setEditable(false);
-                                label.setBorder(bj.getDialogBorder());
+                                label.setBorder(BPackage.getDialogBorder());
                                 panel.add(new JScrollPane(label));
-                                bj.showGeneralDialog(bj.getLabel("title.log"), panel, SubmissionDialog.this);
+                                pkg.showGeneralDialog(bj.getLabel("title.log"), panel, SubmissionDialog.this);
                             }
                         } while (press != 0);
                         setStatus(" ");
