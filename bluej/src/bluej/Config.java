@@ -36,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2976 2004-09-02 05:46:47Z bquig $
+ * @version $Id: Config.java 3017 2004-09-27 13:17:33Z iau $
  */
 
 public final class Config
@@ -177,6 +177,10 @@ public final class Config
         setLookAndFeel(laf);
 
         Config.setVMLocale();
+        
+        // Create a property containing the BlueJ version string
+        // put it in command_props so it won't be saved to a file
+        command_props.setProperty("bluej.version", Boot.BLUEJ_VERSION);
     } // initialise
 
     
