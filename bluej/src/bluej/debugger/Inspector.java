@@ -20,7 +20,7 @@ import javax.swing.border.Border;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1574 2002-12-11 20:36:07Z mik $
+ * @version    $Id: Inspector.java 1575 2002-12-11 20:51:32Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -109,6 +109,15 @@ public abstract class Inspector extends JFrame
         }
     }
 
+    public void setVisible(boolean visible)
+    {
+        super.setVisible(visible);
+        if(visible)
+            fieldList.requestFocus();   // doesn't seem to work
+                                        // requestFocus seems to work only of the
+                                        // component is already visible
+    }
+    
     public void getEvent(InspectorEvent e)
     {
     }
