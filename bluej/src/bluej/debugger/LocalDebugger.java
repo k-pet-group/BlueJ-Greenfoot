@@ -4,7 +4,7 @@ import bluej.runtime.BlueJRuntime;
 import bluej.pkgmgr.Package;
 
 /**
- ** @version $Id: LocalDebugger.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: LocalDebugger.java 65 1999-05-05 06:32:09Z mik $
  ** @author Michael Cahill
  ** A class implementing the debugger primitives needed by BlueJ
  ** Implemented in the local VM (via reflection, etc.)
@@ -91,6 +91,16 @@ public class LocalDebugger extends Debugger
     {
     }
 	
+    /**
+     * Show or hide the text terminal.
+     */
+    public void showTerminal(boolean show) {}
+
+    /**
+     * Clear the text terminal.
+     */
+    public void clearTerminal() {}
+
     /**
      * Have BlueJRuntime execute a command
      */

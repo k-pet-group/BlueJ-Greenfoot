@@ -4,7 +4,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
- ** @version $Id: Editor.java 49 1999-04-28 03:01:02Z ajp $
+ ** @version $Id: Editor.java 65 1999-05-05 06:32:09Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  ** Interface between an editor and the rest of BlueJ
@@ -143,8 +143,6 @@ public interface Editor
 	boolean isModified();
 
 
-	boolean isReadOnly();
-    
 	void setReadOnly(boolean readOnlyStatus);
 
 } // end interface Editor

@@ -1,5 +1,5 @@
 /**
- ** @version $Id: TerminalFrame.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: TerminalFrame.java 65 1999-05-05 06:32:09Z mik $
  ** @author Justin Tan
  ** @author Michael Cahill
  **
@@ -18,108 +18,131 @@ import java.io.OutputStream;
 
 public class TerminalFrame extends JFrame
 {
-	static final String defaultTitle = "BlueJ Terminal Window";
+    static final String defaultTitle = "BlueJ Terminal Window";
 
-	TerminalCanvas term;
-	boolean visible = false;
+    TerminalCanvas term;
+    private boolean isActive;
 
-	public TerminalFrame()
-	{
-		this(defaultTitle, 80, 25);
-	}
+    public TerminalFrame()
+    {
+	this(defaultTitle, 80, 25);
+    }
 
-	public TerminalFrame(String title, int width, int height)
-	{
-		super(title);
+    public TerminalFrame(String title, int width, int height)
+    {
+	super(title);
 
-		term = new TerminalCanvas(width, height);
+	term = new TerminalCanvas(width, height);
 
-		getContentPane().setLayout(new BorderLayout());
-		getContentPane().add(term, "Center");
-		setScreenSize(width, height);
+	getContentPane().setLayout(new BorderLayout());
+	getContentPane().add(term, "Center");
+	setScreenSize(width, height);
 
-		// Close Action when close button is pressed
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent event)
-			{
-				Window win = (Window)event.getSource();
-				win.setVisible(false);
-				win.dispose();
-			}
-		});
-	}
+	// Close Action when close button is pressed
+	addWindowListener(new WindowAdapter() {
+	    public void windowClosing(WindowEvent event)
+		{
+		    Window win = (Window)event.getSource();
+		    win.setVisible(false);
+		    win.dispose();
+		}
+	});
+    }
 
-	protected void processWindowEvent(WindowEvent e)
-	{
-		super.processWindowEvent(e);
+    protected void processWindowEvent(WindowEvent e)
+    {
+	super.processWindowEvent(e);
 		
-		if (e.getID() == WindowEvent.WINDOW_CLOSING)
-			doClose();
-	}
+	if (e.getID() == WindowEvent.WINDOW_CLOSING)
+	    doClose();
+    }
 
-	protected void doClose()
+
+    protected void doShow()
+    {
+	setVisible(true);
+    }
+
+    protected void doClose()
+    {
+	setVisible(false);
+    }
+
+    protected void clear()
+    {
+	term.clear();
+    }
+
+    /**
+     * Make the window active.
+     */
+    public void activate(boolean active)
+    {
+	if(active != isActive) {
+	    term.setEnabled(active);
+	    term.activate(active);
+	    isActive = active;
+	}
+    }
+
+    protected void setScreenSize(int w, int h)
+    {
+	term.setScreenSize(w,h);
+	pack();
+    }
+
+    InputStream in = new InputStream() {
+	public int available()
 	{
-		setVisible(false);
+	    return term.available();
 	}
 
-	protected void setScreenSize(int w, int h)
+	public int read()
 	{
-		term.setScreenSize(w,h);
-		pack();
+	    if(!isVisible())
+	        setVisible(true);
+	    if(!isActive) {
+    		activate(true);
+		term.requestFocus();
+	    }
+	    return term.getChar();
 	}
 
-	InputStream in = new InputStream() {
-		public int available()
-		{
-			return term.available();
-		}
-
-		public int read()
-		{
-			if(!isVisible())
-			{
-				setVisible(true);
-				term.setEnabled(true);
-				term.requestFocus();
-			}
-			return term.getChar();
-		}
-
-		public int read(byte b[], int off, int len) throws IOException
-		{
-			int nBytes = 0;
-
-			while(nBytes < len)
-			{
-				b[off + (nBytes++)] = (byte)term.getChar();
-				if(term.available() == 0)
-					break;
-			}
-
-			return nBytes;
-		}
-	};
-
-	public InputStream getInputStream()
+	public int read(byte b[], int off, int len) throws IOException
 	{
-		return in;
+	    int nBytes = 0;
+
+	    while(nBytes < len)
+	    {
+		b[off + (nBytes++)] = (byte)term.getChar();
+		if(term.available() == 0)
+		break;
+	    }
+
+	    return nBytes;
 	}
+    };
 
-	OutputStream out = new OutputStream() {
-		public void write(int b) throws IOException
-		{
-			if(!isVisible())
-			{
-				setVisible(true);
-				term.setEnabled(true);
-				term.requestFocus();
-			}
-			term.putchar((char)b);
-		}
-	};
+    public InputStream getInputStream()
+    {
+	return in;
+    }
 
-	public OutputStream getOutputStream()
+    OutputStream out = new OutputStream() {
+	public void write(int b) throws IOException
 	{
-		return out;
+	    if(!isVisible())
+	        setVisible(true);
+	    if(!isActive) {
+    		activate(true);
+		term.requestFocus();
+	    }
+	    term.putchar((char)b);
 	}
+    };
+
+    public OutputStream getOutputStream()
+    {
+	return out;
+    }
 }

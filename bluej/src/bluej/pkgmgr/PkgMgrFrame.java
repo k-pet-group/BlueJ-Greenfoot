@@ -19,10 +19,10 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import bluej.debugger.ExecControls;
 import bluej.graph.GraphEditor;
+import bluej.debugger.Debugger;
 import bluej.debugger.ObjectBench;
-import bluej.pkgmgr.ClassTarget;
+import bluej.debugger.ExecControls;
 
 
 public class PkgMgrFrame extends PkgFrame 
@@ -324,7 +324,11 @@ public class PkgMgrFrame extends PkgFrame
 	    break;
 
 	case VIEW_SHOWTERMINAL:
-	    Utility.NYI(this);
+	    toggleTerminal();
+	    break;
+
+	case VIEW_CLEARTERMINAL:
+	    clearTerminal();
 	    break;
 
 	    // Group work commands
@@ -358,7 +362,20 @@ public class PkgMgrFrame extends PkgFrame
 	    AboutBlue about = new AboutBlue(this, Config.Version);
 	    about.setVisible(true);
 	    break;
-		
+
+	case HELP_COPYRIGHT:    
+		JOptionPane.showMessageDialog(this,
+		new String[] { 
+		    "BlueJ \u00a9 1999 Michael K\u00F6lling, John Rosenberg.",
+		    " ",
+		    "BlueJ is available free of charge and may be",
+		    "redistributed freely. It may not be sold for",
+		    "for profit or included in other packages which",
+		    "are sold for profit without written authorisation."
+		    },
+		"BlueJ Copyright", JOptionPane.INFORMATION_MESSAGE);
+	    break;
+
 	default:
 	    Debug.reportError("unknown command ID");
 	    break;
@@ -676,6 +693,22 @@ public class PkgMgrFrame extends PkgFrame
 	if(show && update)
 	    execCtrlWindow.updateThreads();
 	showControlsMenuItem.setSelected(show);
+    }
+
+    /**
+     * Toggle visibility of the terminal window. 
+     */
+    private void toggleTerminal()
+    {
+	Debugger.debugger.showTerminal(showTerminalMenuItem.getState());
+    }
+
+    /**
+     * Clear the terminal window. 
+     */
+    private void clearTerminal()
+    {
+	Debugger.debugger.clearTerminal();
     }
 
     // ---- BlueJEventListener interface ----

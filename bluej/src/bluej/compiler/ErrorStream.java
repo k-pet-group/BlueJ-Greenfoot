@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 /**
- ** @version $Id: ErrorStream.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: ErrorStream.java 65 1999-05-05 06:32:09Z mik $
  ** @author Michael Cahill
  ** ErrorStream - OutputStream that parses javac output
  **/
@@ -47,6 +47,11 @@ public class ErrorStream extends PrintStream
       	// Windows might have a colon after drive name. If so, ignore it
       if(! filename.endsWith(".java")) {
 	first_colon = msg.indexOf(':', first_colon + 1);
+	if(first_colon == -1) {
+	    // cannot read format of error message
+	    Utility.showError(null, "Compiler error:\n" + msg);
+	    return;
+	}
 	filename = msg.substring(0, first_colon);
       }
       int second_colon = msg.indexOf(':', first_colon + 1);

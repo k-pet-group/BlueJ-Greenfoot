@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /** 
- ** @version $Id: ClassTarget.java 63 1999-05-04 00:03:10Z mik $
+ ** @version $Id: ClassTarget.java 65 1999-05-05 06:32:09Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -522,12 +522,10 @@ public class ClassTarget extends EditableTarget
 	    reopen();
 	}
 	else if (useStr.equals(cmd)) {
-		// insert code to do same thing as double click here
 		if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
 			((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).usePackage(this);
 	}
 	else if (openStr.equals(cmd)) {
-		// insert code to do same thing as double click here
 		if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
 			((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).openClass(this);
 	}
@@ -616,16 +614,17 @@ public class ClassTarget extends EditableTarget
     {
 	if(viewType == displayedView)
 	    open();
-	else {
-	    displayedView = viewType;
+	else
 	    showView(getEditor(), viewType);
-	}
     }
 	
     public void showView(Editor editor, int viewType)
     {
 	if(editor==null)
 	    return;
+
+	displayedView = viewType;
+	editor.setReadOnly(false);
 
 	if(viewType == Editor.IMPLEMENTATION)
 	    reopen();
@@ -645,6 +644,8 @@ public class ClassTarget extends EditableTarget
 		ViewFilter filter= (filterType != 0) ? new ViewFilter(filterType) : null;
 		view.print(new EditorPrintWriter(editor), filter);
 	    }
+	    editor.setReadOnly(true);
+	    setState(S_NORMAL);
 	    editor.show(viewType);
 	}
     }

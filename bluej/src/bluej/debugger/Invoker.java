@@ -3,6 +3,7 @@ package bluej.debugger;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.compiler.CompileObserver;
+import bluej.compiler.JobQueue;
 import bluej.pkgmgr.Package;
 import bluej.runtime.Shell;
 import bluej.utility.Utility;
@@ -22,7 +23,7 @@ import sun.tools.javac.SourceClass;
 import sun.tools.javac.BatchEnvironment;
 
 /**
- ** @version $Id: Invoker.java 63 1999-05-04 00:03:10Z mik $
+ ** @version $Id: Invoker.java 65 1999-05-05 06:32:09Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -314,7 +315,8 @@ public class Invoker extends Thread
 	}
 		
 	String[] files = { shellFileName };
-	bluej.compiler.Main.addJob(files, this, pkg.getClasspath(), pkg.getClassDir());
+	JobQueue.getJobQueue().addJob(files, this, pkg.getClasspath(), 
+				      pkg.getClassDir());
     }
 
     // -- CompileObserver interface --
@@ -354,8 +356,6 @@ public class Invoker extends Thread
 
 	if(successful)
 	    startClass();
-	else
-	    Debug.reportError("compiler error in shell class");
 
 	File srcFile = new File(pkg.getFileName(shellName) + ".java");
 	srcFile.delete();

@@ -1,7 +1,9 @@
 package bluej.compiler;
 
+import bluej.utility.Debug;
+
 /**
- ** @version $Id: Main.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: Main.java 65 1999-05-05 06:32:09Z mik $
  ** @author Michael Cahill
  ** Reasonably generic interface between the BlueJ IDE and the Java
  ** compiler.
@@ -9,8 +11,8 @@ package bluej.compiler;
 
 public class Main
 {
-    private static CompilerThread thread;
-    // private static Compiler compiler = new PizzaCompiler();
+    private static CompilerThread thread1;
+    private static CompilerThread thread = null;
     private static Compiler compiler = new JavacCompiler(new ErrorStream());
 	
     /**
@@ -32,6 +34,7 @@ public class Main
     public static void addJob(String[] sources, CompileObserver observer,
 			      String classpath, String destdir)
     {
+	Debug.message("add job: thread: " + (thread==null?"null": "not null"));
 	thread.addJob(new Job(sources, compiler, observer,
 			      classpath, destdir));
     }

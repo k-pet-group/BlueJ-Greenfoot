@@ -11,7 +11,7 @@ import java.util.Vector;
 import sun.tools.debug.*;
 
 /**
- ** @version $Id: SunDebugger.java 63 1999-05-04 00:03:10Z mik $
+ ** @version $Id: SunDebugger.java 65 1999-05-05 06:32:09Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -155,6 +155,29 @@ public class SunDebugger extends Debugger
 	runtimeCmd(allArgs, pkg);
     }
 	
+    /**
+     * Show or hide the text terminal.
+     */
+    public void showTerminal(boolean show)
+    {
+	String[] args = new String[2];
+	args[0] = BlueJRuntime.TERM_COMMAND;
+	if(show)
+	    args[1] = BlueJRuntime.TC_SHOW;
+	else
+	    args[1] = BlueJRuntime.TC_HIDE;
+	runtimeCmd(args, "");
+    }
+
+    /**
+     * Clear the text terminal.
+     */
+    public void clearTerminal()
+    {
+	String[] args = { BlueJRuntime.TERM_COMMAND, BlueJRuntime.TC_CLEAR };
+	runtimeCmd(args, "");
+    }
+
     /**
      * Have BlueJRuntime execute a command. This is done synchronously -
      * the calling thread is held here until the remote thread has finished.

@@ -10,6 +10,7 @@ public class Tester
     static int st = 33;
 
     private int x;
+    Tester t;
 
     /**
      ** Constructor for objects of class Tester
@@ -21,17 +22,26 @@ public class Tester
     }
 
     /**
+     * An example of a method - replace this comment with your own
+     * 
+     * @param  y   a sample parameter for a method 
+     * @return     the sum of x and y 
+     **/
+    public int goodtest()
+    {
+        return 42;
+    }
+    /**
      ** An example of a method - replace this comment with your own
      ** 	
      ** @param  y   a sample parameter for a method
      ** @return     the sum of x and y 
      **/
-    public int sampleMethod(int y)
+    public int test()
     {
-	x = y;
-	System.out.println("mik");
+        x = t.test();
 	// put your code here
-	return x + y;
+	return x;
     }
 
 }

@@ -35,7 +35,7 @@ COMPILER_CLASSES = \
 		ErrorStream \
 		JavacCompiler \
 		Job \
-		Main \
+		JobQueue \
 		Queue
 COMPILER_SRCS = $(COMPILER_CLASSES:%=compiler/%.java)
 COMPILER_SRCS_OS = $(subst /,$(SL),$(COMPILER_SRCS))

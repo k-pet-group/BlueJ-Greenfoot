@@ -12,7 +12,7 @@ import javax.swing.*;
 
 /**
  ** Some generally useful utility methods available to all of bluej.
- ** $Id: Utility.java 63 1999-05-04 00:03:10Z mik $
+ ** $Id: Utility.java 65 1999-05-05 06:32:09Z mik $
  ** @author Michael Cahill
  ** @author Justin Tan
  ** @author Michael Kolling
@@ -23,12 +23,6 @@ public class Utility
     static final String browserCmd2 = Config.getPropString("browserCmd2");
     static final String winBrowserCmd1 = Config.getPropString("winBrowserCmd1");
     static final String winBrowserCmd2 = Config.getPropString("winBrowserCmd2");
-
-    public static void reportError(String error)
-    {
-	// For simplicity, just write to System.err:
-	System.err.println("Internal BlueJ error: " + error);
-    }
 
     public static void NYI(JFrame frame)
     {
@@ -490,14 +484,14 @@ public class Utility
 		}
 	    }
 	    catch(InterruptedException e) {
-		reportError("cannot start web browser: " + cmd);
-		reportError("caught exc " + e);
+		Debug.reportError("cannot start web browser: " + cmd);
+		Debug.reportError("caught exc " + e);
 		return false;
 	    }
 	}
 	catch(IOException e) {
-	    reportError("could not start web browser");
-	    reportError("caught exc " + e);
+	    Debug.reportError("could not start web browser");
+	    Debug.reportError("caught exc " + e);
 	    return false;
 	}
 	return true;

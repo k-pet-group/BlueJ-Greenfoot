@@ -32,6 +32,7 @@ public class BlueJRuntime
     public static final String REMOVE_OBJECT = "removeObject";
     public static final String START_CLASS = "startClass";
     public static final String LOAD_CLASS = "loadClass";
+    public static final String TERM_COMMAND = "terminal";
 	
     static TerminalFrame terminal;
     private static Hashtable loaders = new Hashtable();
@@ -81,6 +82,7 @@ public class BlueJRuntime
     **	REMOVE_OBJECT	- remove an object from a package scope
     **	START_CLASS	- start a class (run its main method)
     **	LOAD_CLASS	- load a class (but don't run it)
+    **	TERM_COMMAND	- pass a command on to the terminal object
     **
     ** START_CLASS is used to run Shell classes to execute interactive
     ** calls.
@@ -123,6 +125,9 @@ public class BlueJRuntime
 
 	else if(LOAD_CLASS.equals(args[0]))	// arg[1] == scopeID/loaderID
 	    loadClass(args[1], args[2]);	// arg[2] == classname
+
+	else if(TERM_COMMAND.equals(args[0]))	// arg[1] == command
+	    terminalCommand(args[1]);
 
 	else
 	    System.err.println("Unknown runtime command " + args[0]);
@@ -215,6 +220,9 @@ public class BlueJRuntime
 	    Debug.reportError("Exception " + e + 
 				" while trying to start class " + classname);
 	}
+	finally {
+	    terminal.activate(false);
+	}
     }
 
     /**
@@ -248,5 +256,23 @@ public class BlueJRuntime
 				classname + ": " + e);
 	}
 	return cl;
+    }
+
+    /**
+     * Pass a command to the terminal. The command string should be one of
+     * the constant strings defined here.
+     */
+    public static final String TC_SHOW = "show";
+    public static final String TC_HIDE = "hide";
+    public static final String TC_CLEAR = "clear";
+
+    static void terminalCommand(String command)
+    {
+	if(command.equals(TC_SHOW))
+	    terminal.doShow();
+	else if(command.equals(TC_HIDE))
+	    terminal.doClose();
+	else if(command.equals(TC_CLEAR))
+	    terminal.clear();
     }
 }

@@ -3,7 +3,7 @@ package bluej.debugger;
 import bluej.pkgmgr.Package;
 
 /**
- ** @version $Id: Debugger.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: Debugger.java 65 1999-05-05 06:32:09Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  ** A class defining the debugger primitives needed by BlueJ
@@ -77,6 +77,16 @@ public abstract class Debugger
     public abstract void startClass(DebuggerClassLoader loader, 
 				    String classname, String[] args, 
 				    Package pkg);
+
+    /**
+     * Show or hide the text terminal.
+     */
+    public abstract void showTerminal(boolean show);
+
+    /**
+     * Clear the text terminal.
+     */
+    public abstract void clearTerminal();
 
     /**
      * Get the value of a static field in a class

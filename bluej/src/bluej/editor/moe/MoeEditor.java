@@ -216,7 +216,7 @@ public final class MoeEditor extends JFrame
 
 	setCompileStatus(compiled);
 	if (!isCode)
-	    actions.getActionByName("compile").setEnabled(false);
+	    actions.compileAction.setEnabled(false);
 	return true;
 
     } // showFile
@@ -226,7 +226,6 @@ public final class MoeEditor extends JFrame
     public void reloadFile() // inherited from Editor, redefined
     {
 	doReload();
-	textPane.setFont(editFont);
     }
 
     // --------------------------------------------------------------------
@@ -402,12 +401,21 @@ public final class MoeEditor extends JFrame
      * Determine whether this buffer has been modified.
      * @returns	a boolean indicating whether the file is modified
      */
-
     public boolean isModified()	// inherited from Editor, redefined
     {
 	return (saveState.isChanged());
     }
 
+    // --------------------------------------------------------------------
+    /**
+     * Set this editor to read-only.
+     */
+    public void setReadOnly(boolean readOnlyStatus) {
+	if (readOnlyStatus)
+	    saveState.setState(StatusLabel.READONLY);
+	textPane.setEditable(!readOnlyStatus);
+    }
+		    
     // --------------------------------------------------------------------
     // ------------ end of interface inherited from Editor ----------------
     // --------------------------------------------------------------------
@@ -620,7 +628,6 @@ public final class MoeEditor extends JFrame
 
     public void findBackward()
     {
-	Debug.message("find back");
 	Finder finder = MoeEditorManager.editorManager.getFinder();
 	String s = finder.getNewSearchString(this, Finder.BACKWARD);
 	if(s != null)
@@ -812,6 +819,8 @@ public final class MoeEditor extends JFrame
     {
 	if (watcher == null)
 	    return;
+	if (!isCode)
+	    return;
 
 	watcher.compile(this);
 	info.message ("Compiling...");
@@ -998,6 +1007,17 @@ public final class MoeEditor extends JFrame
     }
 
     // --------------------------------------------------------------------
+    /**
+     * Buffer just went from saved to changed state (called by StatusLabel)
+     */
+    void setChanged()
+    {
+	setCompileStatus (false);
+	if(watcher != null)
+	    watcher.modificationEvent(this);
+    }
+
+    // --------------------------------------------------------------------
 
     private void setWindowTitle()
     {
@@ -1010,17 +1030,6 @@ public final class MoeEditor extends JFrame
 		title = "Moe: " + filename;
 	}
 	setTitle(title);
-    }
-
-    // --------------------------------------------------------------------
-    /**
-     * Buffer just went from saved to changed state (called by StatusLabel)
-     */
-    void setChanged()
-    {
-	setCompileStatus (false);
-	if(watcher != null)
-	    watcher.modificationEvent(this);
     }
 
     // --------------------------------------------------------------------
@@ -1040,6 +1049,12 @@ public final class MoeEditor extends JFrame
 	    viewSelector.setSelectedIndex(2);
 	else if (view == bluej.editor.Editor.INHERITED)
 	    viewSelector.setSelectedIndex(3);
+
+	isCode = (view == bluej.editor.Editor.IMPLEMENTATION);
+	if(!isCode)
+	    setCompileStatus(true);
+
+	actions.compileAction.setEnabled(isCode);
     }
 
     // --------------------------------------------------------------------
@@ -1090,9 +1105,12 @@ public final class MoeEditor extends JFrame
 
     // ---- ItemListener interface ----
 
-    public void itemStateChanged(ItemEvent e) 
+    public void itemStateChanged(ItemEvent evt) 
     {
 	// the only item we're listening to is the items in the view selector
+
+	if(evt.getStateChange() == ItemEvent.DESELECTED)
+	    return;  // ignore deselection events
 
 	int view;
     
@@ -1181,6 +1199,20 @@ public final class MoeEditor extends JFrame
 	// get table of edit actions
 
 	actions = MoeActions.getActions(textPane);
+
+	// **** temporary: disable all unimplemented actions ****
+
+	actions.getActionByName("comment").setEnabled(false);
+	actions.getActionByName("uncomment").setEnabled(false);
+	actions.getActionByName("replace").setEnabled(false);
+	actions.getActionByName("goto-line").setEnabled(false);
+	actions.getActionByName("set-breakpoint").setEnabled(false);
+	actions.getActionByName("clear-breakpoint").setEnabled(false);
+	actions.getActionByName("preferences").setEnabled(false);
+	actions.getActionByName("describe-key").setEnabled(false);
+	actions.getActionByName("show-manual").setEnabled(false);
+
+	// ****
 
 	// create menubar and menus
 
@@ -1353,15 +1385,4 @@ public final class MoeEditor extends JFrame
 	return viewSelector;
     }
 
-    public boolean isReadOnly() {
-	return !textPane.isEditable();
-    }
-    
-    public void setReadOnly(boolean readOnlyStatus) {
-	if (readOnlyStatus)
-	    saveState.setState(StatusLabel.READONLY);
-
-	textPane.setEditable(!readOnlyStatus);
-    }
-		    
 } // end class MoeEditor

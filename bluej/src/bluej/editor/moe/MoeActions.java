@@ -50,6 +50,9 @@ public final class MoeActions
     public UndoAction undoAction;
     public RedoAction redoAction;
     public UndoManager undoManager;
+    
+    // frequently needed actions
+    public Action compileAction;
 
     // =========================== STATIC METHODS ===========================
 
@@ -492,7 +495,9 @@ public final class MoeActions
 	}
 
 	public void actionPerformed(ActionEvent e) {
-	    FunctionDialog dlg = getFunctionDialog();
+	    FunctionDialog dlg = new FunctionDialog(getEditor(e), actionTable,
+						  categories, categoryIndex);
+
 	    dlg.setVisible(true);
 	}
     }
@@ -510,26 +515,12 @@ public final class MoeActions
 	    JOptionPane.showMessageDialog(getEditor(e),
 		new String[] { 
 		    "Moe",
-		    "",
 		    "Version " + MoeEditor.versionString,
-		    "",
+		    " ",
 		    "Moe is the editor of the BlueJ programming environment.",
 		    "Written by Michael K\u00F6lling (mik@csse.monash.edu.au)."
 		    },
 		"About Moe", JOptionPane.INFORMATION_MESSAGE);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class CopyrightAction extends MoeAbstractAction {
- 
-	public CopyrightAction() {
-	    super("copyright", null);
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
 	}
     }
 
@@ -556,7 +547,20 @@ public final class MoeActions
 	}
 
 	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
+	    JOptionPane.showMessageDialog(getEditor(e),
+		new String[] { 
+		    "Moe Mouse Buttons:",
+		    " ",
+		    "left button:",
+		    "   click: place cursor",
+		    "   double-click: select word",
+		    "   triple-click: select line",
+		    "   drag: make selection",
+		    " ",
+		    "right button:",
+		    "   (currently unused)",
+		},
+		"Moe Mouse Buttons", JOptionPane.INFORMATION_MESSAGE);
 	}
     }
 
@@ -566,19 +570,6 @@ public final class MoeActions
 
 	public ShowManualAction() {
 	    super("show-manual", null);
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class ReportErrorAction extends MoeAbstractAction {
-
-	public ReportErrorAction() {
-	    super("report-errors", null);
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -606,18 +597,6 @@ public final class MoeActions
     /**
      * 
      */
-
-    // --------------------------------------------------------------------
-    /**
-     * Return the dialog to see/edit user functions and bindings.
-     */
-    private FunctionDialog getFunctionDialog()
-    {
-	if(functionDlg == null)
-	    functionDlg = new FunctionDialog(actionTable, categories, 
-					     categoryIndex);
-	return functionDlg;
-    }
 
     // --------------------------------------------------------------------
     /**
@@ -682,6 +661,7 @@ public final class MoeActions
     {
 	undoAction = new UndoAction();
 	redoAction = new RedoAction();
+	compileAction = new CompileAction();
 
 	// get all actions into arrays
 
@@ -705,7 +685,7 @@ public final class MoeActions
 	    new FindNextReverseAction(),
 	    new ReplaceAction(),
 	    new GotoLineAction(),
-	    new CompileAction(),
+	    compileAction,
 	    new SetBreakPointAction(),
 	    new ClearBreakPointAction(),
 
@@ -713,12 +693,9 @@ public final class MoeActions
 	    new KeyBindingsAction(),
 
 	    new AboutAction(),
-	    new CopyrightAction(),
 	    new DescribeKeyAction(),
 	    new HelpMouseAction(),
 	    new ShowManualAction(),
-	    new ReportErrorAction(),
-
 	};
 
 	// insert all actions into a hashtable
@@ -796,7 +773,7 @@ public final class MoeActions
 	    // class functions
 	    (Action)(actions.get("save")),			// 48
 	    (Action)(actions.get("reload")),
-	    (Action)(actions.get("close")),			// 50
+	    (Action)(actions.get("close")),
 	    (Action)(actions.get("print")),
 
 	    // customisation functions
@@ -805,15 +782,13 @@ public final class MoeActions
 
 	    // help functions
 	    (Action)(actions.get("describe-key")),		// 54
+	    (Action)(actions.get("help-mouse")),
 	    (Action)(actions.get("show-manual")),
 	    (Action)(actions.get("about-editor")),
-	    (Action)(actions.get("copyright")),
-	    (Action)(actions.get("report-errors")),
 
 	    // misc functions
-	    undoAction,						// 59
-	    redoAction,						// 60
-
+	    undoAction,						// 58
+	    redoAction,
 	    (Action)(actions.get("find")),
 	    (Action)(actions.get("find-backward")),
 	    (Action)(actions.get("find-next")),
@@ -822,8 +797,8 @@ public final class MoeActions
 	    (Action)(actions.get("goto-line")),
 	    (Action)(actions.get("compile")),
 	    (Action)(actions.get("set-breakpoint")),
-	    (Action)(actions.get("clear-breakpoint")),		// 69
-	};
+	    (Action)(actions.get("clear-breakpoint")),
+	};							// 69
 
 	categories = new String[] { "Edit Functions", 
 				    "Move & Scroll",
@@ -831,7 +806,7 @@ public final class MoeActions
 				    "Customisation",
 				    "Help",
 				    "Misc." };
-	categoryIndex = new int[] { 0, 32, 48, 52, 54, 59, 70 };
+	categoryIndex = new int[] { 0, 32, 48, 52, 54, 58, 69 };
     }
 
 } // end class MoeActions

@@ -20,7 +20,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 55 1999-04-30 00:51:26Z mik $
+ ** @version $Id: PkgFrame.java 65 1999-05-05 06:32:09Z mik $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -385,20 +385,23 @@ public abstract class PkgFrame extends JFrame
     static final int VIEW_SHOWINHERITS = VIEW_SHOWUSES + 1;
     static final int VIEW_SHOWCONTROLS = VIEW_SHOWINHERITS + 1;
     static final int VIEW_SHOWTERMINAL = VIEW_SHOWCONTROLS + 1;
+    static final int VIEW_CLEARTERMINAL = VIEW_SHOWTERMINAL + 1;
 
     static final String[] ViewCmds = {
-	"showUses", "showInherits", "showExecControls", "showTerminal"
+	"showUses", "showInherits", "showExecControls", "showTerminal",
+	"clearTerminal",
     };
 
     static final KeyStroke[] ViewKeys = {
 	KeyStroke.getKeyStroke(KeyEvent.VK_U, Event.CTRL_MASK), 
 	KeyStroke.getKeyStroke(KeyEvent.VK_I, Event.CTRL_MASK),
-	KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.CTRL_MASK),
+	KeyStroke.getKeyStroke(KeyEvent.VK_X, Event.CTRL_MASK),
 	KeyStroke.getKeyStroke(KeyEvent.VK_T, Event.CTRL_MASK),
+	null,
     };
 
     static final int[] ViewSeparators = {
-	VIEW_SHOWINHERITS
+	VIEW_SHOWINHERITS, VIEW_SHOWTERMINAL,
     };
 
     static final int GRP_COMMAND = VIEW_COMMAND + 100;
@@ -440,13 +443,14 @@ public abstract class PkgFrame extends JFrame
     };
 
     static final int HELP_COMMAND = GRP_COMMAND + 100;
-    static final int HELP_TUTORIAL = HELP_COMMAND;
+    static final int HELP_ABOUT = HELP_COMMAND;
+    static final int HELP_COPYRIGHT = HELP_ABOUT + 1;
+    static final int HELP_TUTORIAL = HELP_COPYRIGHT + 1;
     static final int HELP_REFERENCE = HELP_TUTORIAL + 1;
     static final int HELP_STANDARDAPI = HELP_REFERENCE + 1;
-    static final int HELP_ABOUT = HELP_STANDARDAPI + 1;
 
     static final String[] HelpCmds = {
-	"tutorial", "reference", "standardApi", "about",
+	 "about", "copyright", "tutorial", "reference", "standardApi",
     };
 
     static final KeyStroke[] HelpKeys = {
@@ -454,10 +458,11 @@ public abstract class PkgFrame extends JFrame
 	null,
 	null,
 	null,
+	null,
     };
 
     static final int[] HelpSeparators = {
-	HELP_STANDARDAPI
+	HELP_COPYRIGHT
     };
 
     static final int[] CmdTypes = {

@@ -2,6 +2,7 @@ package bluej.pkgmgr;
 
 import bluej.Config;
 import bluej.compiler.CompileObserver;
+import bluej.compiler.JobQueue;
 import bluej.utility.SimpleClassLoader;
 import bluej.debugger.ObjectBench;
 import bluej.debugger.ObjectWrapper;
@@ -33,7 +34,7 @@ import sun.tools.javac.BlueJJavacMain;
 import sun.tools.javadoc.BlueJDocumentationGenerator;
 
 /**
- ** @version $Id: Package.java 63 1999-05-04 00:03:10Z mik $
+ ** @version $Id: Package.java 65 1999-05-05 06:32:09Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -839,7 +840,7 @@ public class Package extends Graph
 
 		String[] files = new String[v.size()];
 		v.copyInto(files);
-		bluej.compiler.Main.addJob(files, this, classpath, getClassDir());
+		JobQueue.getJobQueue().addJob(files, this, classpath, getClassDir());
 	    }
     }
 
@@ -896,7 +897,7 @@ public class Package extends Graph
 			
 	String[] files = new String[v.size()];
 	v.copyInto(files);
-	bluej.compiler.Main.addJob(files, this, classpath, classdir);
+	JobQueue.getJobQueue().addJob(files, this, classpath, classdir);
     }
 
     public void addTarget(Target t)

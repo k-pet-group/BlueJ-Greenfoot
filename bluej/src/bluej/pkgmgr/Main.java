@@ -10,7 +10,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- ** @version $Id: Main.java 53 1999-04-29 23:43:58Z mik $
+ ** @version $Id: Main.java 65 1999-05-05 06:32:09Z mik $
  ** @author Michael Kolling
  ** @author Michael Cahill
  **
@@ -29,8 +29,6 @@ public class Main
      **/
     public static void main(String[] args)
     {
-	bluej.compiler.Main.init();
-
 	// Initialise library path
 	String libPath = Config.getPath("bluej.libPath", "");
 	int pos = 0;

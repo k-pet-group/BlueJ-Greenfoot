@@ -16,6 +16,7 @@ import java.util.MissingResourceException;
 
 import bluej.Config;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 import bluej.utility.FixedMultiLineLabel;
 
 /**
@@ -59,10 +60,10 @@ public final class FunctionDialog extends JDialog
 
   // ------------- METHODS --------------
 
-    public FunctionDialog(Action[] actiontable, String[] categories,
-			  int[] categoryIndex)
+    public FunctionDialog(JFrame parent, Action[] actiontable, 
+			  String[] categories, int[] categoryIndex)
     {
-	super(null, "Editor Functions", true);
+	super(parent, "Editor Functions", true);
 	actions = MoeActions.getActions(null);;
   	functions = actiontable;
 	this.categoryIndex = categoryIndex;
@@ -159,6 +160,11 @@ public final class FunctionDialog extends JDialog
 	keyList.setListData(new String[0]);
     }
 
+    private void clearHelpText()
+    {
+	helpLabel.setText(null);
+    }
+
     private void openHelpFile()
     {
 	try {
@@ -172,14 +178,15 @@ public final class FunctionDialog extends JDialog
 
     private String getHelpText(String function)
     {
-	String value;
+	if(help == null)
+	    return null;
+
 	try {
-	    value = help.getString(function);
+	    return help.getString(function);
 	}
 	catch (MissingResourceException ex) {
-	    value = null;
+	    return null;
 	}
-	return value;
     }
 
     // ======== EVENT HANDLING INTERFACES =========
@@ -219,6 +226,7 @@ public final class FunctionDialog extends JDialog
 		(String)functions[i].getValue(Action.NAME);
 	functionList.setListData(names);
 	clearKeyList();
+	clearHelpText();
     }
 
     // ----- ListSelectionListener interface -----
@@ -350,6 +358,7 @@ public final class FunctionDialog extends JDialog
 	});
 
 	pack();
+	Utility.centreDialog(this);
     }
 
 }  // end class FunctionDialog
