@@ -10,6 +10,12 @@ import bluej.pkgmgr.Package;
 
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.Map;
+
+import com.sun.jdi.*;
+import com.sun.jdi.connect.*;
+
+import java.io.*;
 
 /**
  ** A class implementing the debugger primitives needed by BlueJ
@@ -19,13 +25,15 @@ import java.util.Vector;
  **/
 
 public class JdiDebugger extends Debugger
-
-	implements DebuggerCallback
 {
     static final String RUNTIME_CLASSNAME = "bluej.runtime.BlueJRuntime";
     static final String MAIN_THREADGROUP = "bluej.runtime.BlueJRuntime.main";
 	
-    private RemoteDebugger remoteDebugger;
+
+    private VirtualMachine vm = null;
+    private Process process = null;
+    private int outputCompleteCount = 0;
+
     private Hashtable waitqueue = new Hashtable();
     private int exitStatus;
     private String exceptionMsg;
@@ -36,20 +44,47 @@ public class JdiDebugger extends Debugger
      */
     public synchronized void startDebugger()
     {
-	if(remoteDebugger != null)
-	    return;
+  	if(vm != null)
+  	    return;
 
-	try {
-	    BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM, null);
-	    boolean debugOutput = true;
-	    String arguments = "-Xbootclasspath/a:/usr/local/jdk1.2/lib/tools.jar";
-	    remoteDebugger = new RemoteDebugger(arguments, this, debugOutput);
-	    String[] args = { BlueJRuntime.INIT };
-	    runtimeCmd(args, "");		// Initialise
+	BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM, null);
+
+        VirtualMachineManager mgr = Bootstrap.virtualMachineManager();
+        LaunchingConnector connector;
+
+        connector = mgr.defaultConnector();
+	//Debug.message("connector: " + connector.name());
+	//Debug.message("transport: " + connector.transport().name());
+
+        Map arguments = connector.defaultArguments();
+
+	// "main" is the command line: main class and arguments
+        Connector.Argument mainArg = 
+	    (Connector.Argument)arguments.get("main");
+
+	// "options" contains runtime options to the target VM
+        Connector.Argument optionsArg = 
+	    (Connector.Argument)arguments.get("options");
+
+        if ((optionsArg == null) || (mainArg == null)) {
+	    Debug.reportError("Cannot start virtual machine.");
+	    Debug.reportError("(Incompatible launch connector)");
+	    return;
+        }
+
+        mainArg.setValue("");
+        optionsArg.setValue("");
+
+        try {
+            //VirtualMachine vm = connector.launch(arguments);
+            //process = vm.process();
+            //displayRemoteOutput(process.getErrorStream());
+            //displayRemoteOutput(process.getInputStream());
 	    BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
-	} catch(Exception e) {
-	    Debug.reportError("Failed to start debugger: " + e);
-	}
+        } catch (Exception e) {
+            Debug.reportError("Unable to launch target VM.");
+            e.printStackTrace();
+        }
     }
 	
     /**
@@ -57,10 +92,11 @@ public class JdiDebugger extends Debugger
      */
     protected synchronized void finishDebugging()
     {
-	if(remoteDebugger != null) {
-	    remoteDebugger.close();
-	    remoteDebugger = null;
-	}
+	Debug.message("[finishDebugging]");
+//  	if(remoteDebugger != null) {
+//  	    remoteDebugger.close();
+//  	    remoteDebugger = null;
+//  	}
     }
 	
     /**
@@ -68,16 +104,10 @@ public class JdiDebugger extends Debugger
      */
     public boolean isActive()
     {
-	return (remoteDebugger != null);
+	Debug.message("[isActive]");
+	return true; // ###
     }
 	
-    private RemoteDebugger getDebugger()
-    {
-	if(remoteDebugger == null)
-	    startDebugger();
-	return remoteDebugger;
-    }
-
     /**
      * Create a class loader. This really creates two distinct class
      *  loader objects: a DebuggerClassLoader which is handed back to the
@@ -89,10 +119,12 @@ public class JdiDebugger extends Debugger
      */
     public DebuggerClassLoader createClassLoader(String scopeId, String classpath)
     {
-	String[] args = { BlueJRuntime.CREATE_LOADER, scopeId, classpath };
-	runtimeCmd(args, "");
+	Debug.message("[createClassLoader]");
+//  	String[] args = { BlueJRuntime.CREATE_LOADER, scopeId, classpath };
+//  	runtimeCmd(args, "");
 
-	return new JdiClassLoader(scopeId);
+//  	return new JdiClassLoader(scopeId);
+	return null;
     }
 	
     /**
@@ -100,8 +132,9 @@ public class JdiDebugger extends Debugger
      */
     public void removeClassLoader(DebuggerClassLoader loader)
     {
-	String[] args = { BlueJRuntime.REMOVE_LOADER, ((JdiClassLoader)loader).getId() };
-	runtimeCmd(args, "");
+	Debug.message("[removeClassLoader]");
+//  	String[] args = { BlueJRuntime.REMOVE_LOADER, ((JdiClassLoader)loader).getId() };
+//  	runtimeCmd(args, "");
     }
 
     /**
@@ -111,9 +144,10 @@ public class JdiDebugger extends Debugger
     public void addObjectToScope(String scopeId, String instanceName, 
 				 String fieldName, String newObjectName)
     {
-	String[] args = { BlueJRuntime.ADD_OBJECT, 
-			  scopeId, instanceName, fieldName, newObjectName };
-	runtimeCmd(args, "");
+	Debug.message("[addObjectToScope]");
+//  	String[] args = { BlueJRuntime.ADD_OBJECT, 
+//  			  scopeId, instanceName, fieldName, newObjectName };
+//  	runtimeCmd(args, "");
     }
 	
     /**
@@ -121,9 +155,10 @@ public class JdiDebugger extends Debugger
      */
     public void removeObjectFromScope(String scopeId, String instanceName)
     {
-	String[] args = { BlueJRuntime.REMOVE_OBJECT, 
-			  scopeId, instanceName };
-	runtimeCmd(args, "");
+	Debug.message("[removeObjectFromScope]");
+//  	String[] args = { BlueJRuntime.REMOVE_OBJECT, 
+//  			  scopeId, instanceName };
+//  	runtimeCmd(args, "");
     }
 
     /**
@@ -131,9 +166,10 @@ public class JdiDebugger extends Debugger
      */
     public void loadClass(DebuggerClassLoader loader, String classname)
     {
-	String[] args = { BlueJRuntime.LOAD_CLASS, 
-			  ((JdiClassLoader)loader).getId(), classname };
-	runtimeCmd(args, "");
+	Debug.message("[loadClass]");
+//  	String[] args = { BlueJRuntime.LOAD_CLASS, 
+//  			  ((JdiClassLoader)loader).getId(), classname };
+//  	runtimeCmd(args, "");
     }
 
     /**
@@ -142,32 +178,104 @@ public class JdiDebugger extends Debugger
     public void startClass(DebuggerClassLoader loader, String classname, 
 			   String[] args, Package pkg)
     {
-	int length = (args == null) ? 0 : args.length;
-	String[] allArgs = new String[length + 3];
-	allArgs[0] = BlueJRuntime.START_CLASS;
-	allArgs[1] = ((JdiClassLoader)loader).getId();
-	allArgs[2] = classname;
-		
-	if(args != null)
-	    System.arraycopy(args, 0, allArgs, 3, args.length);
+	Debug.message("[startClass]");
+  	if(vm != null)
+  	    return;
 
-	exitStatus = NORMAL_EXIT;	// for now, we assume all goes okay...
+	BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM, null);
+
+        VirtualMachineManager mgr = Bootstrap.virtualMachineManager();
+        LaunchingConnector connector;
+
+        connector = mgr.defaultConnector();
+        Debug.message("connector: " + connector.name());
+        Debug.message("transport: " + connector.transport().name());
+
+        Map arguments = connector.defaultArguments();
+
+	// "main" is the command line: main class and arguments
+        Connector.Argument mainArg = 
+	    (Connector.Argument)arguments.get("main");
+
+	// "options" contains runtime options to the target VM
+        Connector.Argument optionsArg = 
+	    (Connector.Argument)arguments.get("options");
+
+        if ((optionsArg == null) || (mainArg == null)) {
+	    Debug.reportError("Cannot start virtual machine.");
+	    Debug.reportError("(Incompatible launch connector)");
+	    return;
+        }
+
+	String command = classname;
+	if(args != null)
+	    for (int i=0; i < args.length; i++)
+		command = command + " " + args[i];
+
+        mainArg.setValue(command);
+        optionsArg.setValue("");
+
+        try {
+            VirtualMachine vm = connector.launch(arguments);
+            process = vm.process();
+            //displayRemoteOutput(process.getErrorStream());
+            //displayRemoteOutput(process.getInputStream());
+	    BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
+	} catch (VMStartException vmse) {
+            Debug.reportError("Target VM did not initialise.");
+            Debug.reportError(vmse.getMessage() + "\n");
+            dumpFailedLaunchInfo(vmse.process());
+        } catch (Exception e) {
+            Debug.reportError("Unable to launch target VM.");
+            e.printStackTrace();
+        }
+//  	int length = (args == null) ? 0 : args.length;
+//  	String[] allArgs = new String[length + 3];
+//  	allArgs[0] = BlueJRuntime.START_CLASS;
+//  	allArgs[1] = ((JdiClassLoader)loader).getId();
+//  	allArgs[2] = classname;
+		
+//  	if(args != null)
+//  	    System.arraycopy(args, 0, allArgs, 3, args.length);
+
+//  	exitStatus = NORMAL_EXIT;	// for now, we assume all goes okay...
 	
-	runtimeCmd(allArgs, pkg);
+//  	runtimeCmd(allArgs, pkg);
     }
-	
+
+    private void dumpFailedLaunchInfo(Process process) {
+        try {
+            dumpStream(process.getErrorStream());
+            dumpStream(process.getInputStream());
+        } catch (IOException e) {
+            Debug.message("Unable to display process output: " +
+			  e.getMessage());
+        }
+    }
+
+    private void dumpStream(InputStream stream) throws IOException {
+        PrintStream outStream = System.out;
+        BufferedReader in = 
+            new BufferedReader(new InputStreamReader(stream));
+        String line;
+        while ((line = in.readLine()) != null) {
+            outStream.println(line);
+        }
+    }
+
+
     /**
      * Show or hide the text terminal.
      */
     public void showTerminal(boolean show)
     {
-	String[] args = new String[2];
-	args[0] = BlueJRuntime.TERM_COMMAND;
-	if(show)
-	    args[1] = BlueJRuntime.TC_SHOW;
-	else
-	    args[1] = BlueJRuntime.TC_HIDE;
-	runtimeCmd(args, "");
+//  	String[] args = new String[2];
+//  	args[0] = BlueJRuntime.TERM_COMMAND;
+//  	if(show)
+//  	    args[1] = BlueJRuntime.TC_SHOW;
+//  	else
+//  	    args[1] = BlueJRuntime.TC_HIDE;
+//  	runtimeCmd(args, "");
     }
 
     /**
@@ -175,8 +283,8 @@ public class JdiDebugger extends Debugger
      */
     public void clearTerminal()
     {
-	String[] args = { BlueJRuntime.TERM_COMMAND, BlueJRuntime.TC_CLEAR };
-	runtimeCmd(args, "");
+//  	String[] args = { BlueJRuntime.TERM_COMMAND, BlueJRuntime.TC_CLEAR };
+//  	runtimeCmd(args, "");
     }
 
     /**
@@ -187,38 +295,38 @@ public class JdiDebugger extends Debugger
      */
     private synchronized void runtimeCmd(String[] args, Object pkg)
     {
-	// Execute a BlueJ "runtime command" via
-	// bluej.runtime.BlueJRuntime
+//  	// Execute a BlueJ "runtime command" via
+//  	// bluej.runtime.BlueJRuntime
 
-	String[] allArgs = new String[args.length + 1];
-	allArgs[0] = RUNTIME_CLASSNAME;
-	System.arraycopy(args, 0, allArgs, 1, args.length);
+//  	String[] allArgs = new String[args.length + 1];
+//  	allArgs[0] = RUNTIME_CLASSNAME;
+//  	System.arraycopy(args, 0, allArgs, 1, args.length);
 		
-	try {
-	    RemoteThreadGroup tg = getDebugger().run(allArgs.length, allArgs);
-	    RemoteThread[] threads = tg.listThreads(false);
+//  	try {
+//  	    RemoteThreadGroup tg = getDebugger().run(allArgs.length, allArgs);
+//  	    RemoteThread[] threads = tg.listThreads(false);
 			
-	    if(threads.length > 0) {
-		RemoteThread thread = threads[0];
+//  	    if(threads.length > 0) {
+//  		RemoteThread thread = threads[0];
 
-		//Debug.message("runtimeCmd(" + args[0] + ") waiting on thread " + thread);
-		waitqueue.put(thread, pkg);
+//  		//Debug.message("runtimeCmd(" + args[0] + ") waiting on thread " + thread);
+//  		waitqueue.put(thread, pkg);
 
-		while(waitqueue.containsKey(thread)) {
-		    try {
-			wait();
-			//Debug.message("runtimeCmd(" + args[0] + ") woke up");
-		    } catch(InterruptedException e) {
-			// ignore it
-		    }
-		}
-	    }
-	    else {
-		//Debug.message("runtimeCmd(" + args[0] + ") finished");
-	    }
-	} catch(Exception e) {
-	    Debug.reportError("exception executing runtime command " + e);
-	}
+//  		while(waitqueue.containsKey(thread)) {
+//  		    try {
+//  			wait();
+//  			//Debug.message("runtimeCmd(" + args[0] + ") woke up");
+//  		    } catch(InterruptedException e) {
+//  			// ignore it
+//  		    }
+//  		}
+//  	    }
+//  	    else {
+//  		//Debug.message("runtimeCmd(" + args[0] + ") finished");
+//  	    }
+//  	} catch(Exception e) {
+//  	    Debug.reportError("exception executing runtime command " + e);
+//  	}
     }
 
     /**
@@ -227,11 +335,13 @@ public class JdiDebugger extends Debugger
     public DebuggerObject getStaticValue(String className, String fieldName)
 	throws Exception
     {
-	RemoteClass cl = getDebugger().findClass(className);
-	RemoteObject obj = (RemoteObject)cl.getFieldValue(fieldName);
-	DebuggerObject ret = JdiObject.getDebuggerObject(obj);
+	Debug.message("[getStaticValue]");
+//  	RemoteClass cl = getDebugger().findClass(className);
+//  	RemoteObject obj = (RemoteObject)cl.getFieldValue(fieldName);
+//  	DebuggerObject ret = JdiObject.getDebuggerObject(obj);
 		
-	return ret;
+//  	return ret;
+	return null;
     }
 
     /**
@@ -244,47 +354,26 @@ public class JdiDebugger extends Debugger
     public String toggleBreakpoint(String className, int line, boolean set,
 				   DebuggerClassLoader loader)
     {
-	try {
-	    loadClass(loader, className);
-	    RemoteClass cl = getDebugger().findClass(className);
-	    if(cl == null)
-		return "Class not found";
+//  	try {
+//  	    loadClass(loader, className);
+//  	    RemoteClass cl = getDebugger().findClass(className);
+//  	    if(cl == null)
+//  		return "Class not found";
 
-	    String result;
-	    if(set)
-		result = cl.setBreakpointLine(line);
-	    else
-		result = cl.clearBreakpointLine(line);
-	    return result;
-	}
-	catch (Exception e) {
-	    Debug.message("could not set breakpoint: " + e);
-	    return "Internal error while setting breakpoint";
-	}
+//  	    String result;
+//  	    if(set)
+//  		result = cl.setBreakpointLine(line);
+//  	    else
+//  		result = cl.clearBreakpointLine(line);
+//  	    return result;
+//  	}
+//  	catch (Exception e) {
+//  	    Debug.message("could not set breakpoint: " + e);
+//  	    return "Internal error while setting breakpoint";
+//  	}
 
+	return null;
     }
-
-//      /**
-//       * Get the value of a static integer field of a remote class.
-//       */
-//      public int getStaticIntValue(String className, String fieldName)
-//  	throws Exception
-//      {
-//  	RemoteClass cl = getDebugger().findClass(className);
-//  	RemoteInt val = (RemoteInt)cl.getFieldValue(fieldName);
-//  	return val.get();
-//      }
-	
-//      /**
-//       * Get the value of a static String field of a remote class.
-//       */
-//      public String getStaticStringValue(String className, String fieldName)
-//  	throws Exception
-//      {
-//  	RemoteClass cl = getDebugger().findClass(className);
-//  	RemoteString val = (RemoteString)cl.getFieldValue(fieldName);
-//  	return val.toString();
-//      }
 
     /**
      * Return the status of the last invocation. One of (NORMAL_EXIT,
@@ -309,26 +398,27 @@ public class JdiDebugger extends Debugger
     public DebuggerThread[] listThreads()
 	throws Exception
     {
-	RemoteThreadGroup[] tgroups = getDebugger().listThreadGroups(null);
+//  	RemoteThreadGroup[] tgroups = getDebugger().listThreadGroups(null);
 		
-	Vector allThreads = new Vector();
-	for(int i = 0; i < tgroups.length; i++) {
-	    if(tgroups[i].getName().equals(MAIN_THREADGROUP)) {
-		RemoteThread[] threads = tgroups[i].listThreads(false);
-		for(int j = 0; j < threads.length; j++) {
-		    allThreads.addElement(new JdiThread(threads[j]));
-		    //Debug.message("thread: " + threads[j].getName() +
-		    //		  " group: " + tgroups[i].getName());
-		}
-	    }
-	}
+//  	Vector allThreads = new Vector();
+//  	for(int i = 0; i < tgroups.length; i++) {
+//  	    if(tgroups[i].getName().equals(MAIN_THREADGROUP)) {
+//  		RemoteThread[] threads = tgroups[i].listThreads(false);
+//  		for(int j = 0; j < threads.length; j++) {
+//  		    allThreads.addElement(new JdiThread(threads[j]));
+//  		    //Debug.message("thread: " + threads[j].getName() +
+//  		    //		  " group: " + tgroups[i].getName());
+//  		}
+//  	    }
+//  	}
 
-	int len = allThreads.size();
-	DebuggerThread[] ret = new DebuggerThread[allThreads.size()];
-	// reverse order to make display nicer (newer threads first)
-	for(int i = 0; i < len; i++)
-	    ret[i] = (DebuggerThread)allThreads.elementAt(len - i - 1);
-	return ret;
+//  	int len = allThreads.size();
+//  	DebuggerThread[] ret = new DebuggerThread[allThreads.size()];
+//  	// reverse order to make display nicer (newer threads first)
+//  	for(int i = 0; i < len; i++)
+//  	    ret[i] = (DebuggerThread)allThreads.elementAt(len - i - 1);
+//  	return ret;
+	return null;
     }
 	
     /**
@@ -337,16 +427,16 @@ public class JdiDebugger extends Debugger
      */
     public void threadStopped(DebuggerThread thread)
     {
-	Package pkg = (Package)waitqueue.get(
-				     ((JdiThread)thread).getRemoteThread());
+//  	Package pkg = (Package)waitqueue.get(
+//  				     ((JdiThread)thread).getRemoteThread());
 
-	if(pkg == null)
-	    Debug.reportError("cannot find class for stopped thread");
-	else {
-	    pkg.hitBreakpoint(thread.getClassSourceName(0),
-			      thread.getLineNumber(0), 
-			      thread.getName(), true);
-	}
+//  	if(pkg == null)
+//  	    Debug.reportError("cannot find class for stopped thread");
+//  	else {
+//  	    pkg.hitBreakpoint(thread.getClassSourceName(0),
+//  			      thread.getLineNumber(0), 
+//  			      thread.getName(), true);
+//  	}
     }
 
     /**
@@ -355,10 +445,10 @@ public class JdiDebugger extends Debugger
      */
     public void threadContinued(DebuggerThread thread)
     {
-	Package pkg = (Package)waitqueue.get(
-				     ((JdiThread)thread).getRemoteThread());
-	if(pkg != null)
-	    pkg.getFrame().continueExecution();
+//  	Package pkg = (Package)waitqueue.get(
+//  				     ((JdiThread)thread).getRemoteThread());
+//  	if(pkg != null)
+//  	    pkg.getFrame().continueExecution();
     }
 
     /**
@@ -367,14 +457,14 @@ public class JdiDebugger extends Debugger
      */
     public void showSource(DebuggerThread thread, int frameNo)
     {
-	Package pkg = (Package)waitqueue.get(
-				     ((JdiThread)thread).getRemoteThread());
+//  	Package pkg = (Package)waitqueue.get(
+//  				     ((JdiThread)thread).getRemoteThread());
 
-	if(pkg != null) {
-	    pkg.hitBreakpoint(thread.getClassSourceName(frameNo),
-			      thread.getLineNumber(frameNo), 
-			      thread.getName(), false);
-	}
+//  	if(pkg != null) {
+//  	    pkg.hitBreakpoint(thread.getClassSourceName(frameNo),
+//  			      thread.getLineNumber(frameNo), 
+//  			      thread.getName(), false);
+//  	}
     }
 
     // --- DebuggerCallback interface --- 
@@ -386,7 +476,7 @@ public class JdiDebugger extends Debugger
      */
     public void printToConsole(String text) throws Exception
     {
-	System.out.print(text);
+//  	System.out.print(text);
     }
 
     /**
@@ -396,74 +486,74 @@ public class JdiDebugger extends Debugger
      *
      * @exception java.lang.Exception if a general exception occurs.
      */
-    public synchronized void breakpointEvent(RemoteThread rt) throws Exception
-    {
-	//Debug.message("JdiDebugger: breakpointEvent " + rt);
+//      public synchronized void breakpointEvent(RemoteThread rt) throws Exception
+//      {
+//  	//Debug.message("JdiDebugger: breakpointEvent " + rt);
 
-	Package pkg = (Package)waitqueue.get(rt);
+//  	Package pkg = (Package)waitqueue.get(rt);
 
-	if(pkg == null)
-	    Debug.reportError("cannot find thread for breakpoint");
-	else {
-	    JdiThread thread = new JdiThread(rt);
-	    pkg.hitBreakpoint(thread.getClassSourceName(0), 
-			      thread.getLineNumber(0), 
-			      thread.getName(), true);
-	}
-    }
+//  	if(pkg == null)
+//  	    Debug.reportError("cannot find thread for breakpoint");
+//  	else {
+//  	    JdiThread thread = new JdiThread(rt);
+//  	    pkg.hitBreakpoint(thread.getClassSourceName(0), 
+//  			      thread.getLineNumber(0), 
+//  			      thread.getName(), true);
+//  	}
+//      }
 
-    /**
-     * An exception has occurred.
-     *
-     * @exception java.lang.Exception if a general exception occurs.
-     */
-    public synchronized void exceptionEvent(RemoteThread rt, String errorText)
-	throws Exception
-    {
-	//Debug.message("JdiDebugger: exception event ");
+//      /**
+//       * An exception has occurred.
+//       *
+//       * @exception java.lang.Exception if a general exception occurs.
+//       */
+//      public synchronized void exceptionEvent(RemoteThread rt, String errorText)
+//  	throws Exception
+//      {
+//  	//Debug.message("JdiDebugger: exception event ");
 
-	// System.exit() gets caught by the security manager and translated
-	// into an exception called "BlueJ-Exit". First, we check for this.
-	// Otherwise it's a real exception.
+//  	// System.exit() gets caught by the security manager and translated
+//  	// into an exception called "BlueJ-Exit". First, we check for this.
+//  	// Otherwise it's a real exception.
 
-	int pos = errorText.indexOf("BlueJ-Exit:");
-	if(pos != -1) {
-	    exitStatus = FORCED_EXIT;
-	    // get exit code
-	    int endpos = errorText.indexOf(":", pos+11);  // find second ":"
-	    exceptionMsg = errorText.substring(pos+11, endpos);
-	}
-	else {
-	    exitStatus = EXCEPTION;
-	    exceptionMsg = errorText;
-	}
+//  	int pos = errorText.indexOf("BlueJ-Exit:");
+//  	if(pos != -1) {
+//  	    exitStatus = FORCED_EXIT;
+//  	    // get exit code
+//  	    int endpos = errorText.indexOf(":", pos+11);  // find second ":"
+//  	    exceptionMsg = errorText.substring(pos+11, endpos);
+//  	}
+//  	else {
+//  	    exitStatus = EXCEPTION;
+//  	    exceptionMsg = errorText;
+//  	}
 
-	if(waitqueue.containsKey(rt)) {	// someone is waiting on this...
-	    waitqueue.remove(rt);
-	    notifyAll();
-	}
-	else
-	    rt.stop();
-    }
+//  	if(waitqueue.containsKey(rt)) {	// someone is waiting on this...
+//  	    waitqueue.remove(rt);
+//  	    notifyAll();
+//  	}
+//  	else
+//  	    rt.stop();
+//      }
 
-    /**
-     * A thread has died.
-     *
-     * @exception java.lang.Exception if a general exception occurs.
-     */
-    public synchronized void threadDeathEvent(RemoteThread rt) 
-	throws Exception
-    {
-	//Debug.message("JdiDebugger: threadDeathEvent " + rt);
+//      /**
+//       * A thread has died.
+//       *
+//       * @exception java.lang.Exception if a general exception occurs.
+//       */
+//      public synchronized void threadDeathEvent(RemoteThread rt) 
+//  	throws Exception
+//      {
+//  	//Debug.message("JdiDebugger: threadDeathEvent " + rt);
 
-	if(waitqueue.containsKey(rt)) {	// someone is waiting on this...
-	    waitqueue.remove(rt);
-	    notifyAll();
-	}
-	else
-	    // Don't need the thread any more - it can go away
-	    rt.stop();
-    }
+//  	if(waitqueue.containsKey(rt)) {	// someone is waiting on this...
+//  	    waitqueue.remove(rt);
+//  	    notifyAll();
+//  	}
+//  	else
+//  	    // Don't need the thread any more - it can go away
+//  	    rt.stop();
+//      }
 
     /**
      * The client interpreter has exited, either by returning from its
@@ -473,6 +563,6 @@ public class JdiDebugger extends Debugger
      */
     public void quitEvent() throws Exception
     {
-	Debug.message("JdiDebugger: quitEvent");
+//  	Debug.message("JdiDebugger: quitEvent");
     }
 }

@@ -6,9 +6,10 @@ BINDIR=`dirname $0`
 BLUEJ_HOME=$BINDIR/.. 
 CLASSROOT=$BLUEJ_HOME/classes
 LIB_DIR=$BLUEJ_HOME/lib
+JBUG=$BLUEJ_HOME/lib/jbug.jar
 
 XCLASSPATH=""
-CLASSPATH=`makepath "$CLASSROOT;$LIB_DIR;$CLASSPATH"`
+CLASSPATH=`makepath "$CLASSROOT;$JBUG;$LIB_DIR;$CLASSPATH"`
 export CLASSPATH
 
 java -noverify -Dbluej.home=`makepath $BLUEJ_HOME` bluej.Main $@
