@@ -19,7 +19,7 @@ import bluej.views.*;
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 2848 2004-08-06 11:29:43Z mik $
+ * @version $Id: ClassRole.java 3016 2004-09-24 10:52:46Z fisker $
  */
 public abstract class ClassRole
 {
@@ -226,7 +226,7 @@ public abstract class ClassRole
                     continue;
                 // Debug.message("createSubMenu - creating MenuItem");
 
-                Action callAction = new CallAction(prefix + m.getShortDesc(), ct.getPackage().getEditor(), ct, m);
+                Action callAction = new CallAction(prefix + m.getLongDesc(), ct.getPackage().getEditor(), ct, m);
 
                 item = menu.add(callAction);
                 item.setFont(PrefMgr.getPopupMenuFont());
