@@ -46,18 +46,9 @@ private int x = 22222;
     /**
 	 * This is a comment number 2
 	 */
-    public int shortloop(int count)
+    public int shortloop(int i)
     {
-        	int sum = 44;
-        Tester t;
-
-        for (int i=0; i<10; i++) {
-            sum = sum + i;
-            sum = sum -200;
-        }
-        t = new Tester();
-        	sum = t.goodtest();
-        return sum + 2;
+        return 3;
     }
 
     /**
@@ -115,7 +106,6 @@ private int x = 22222;
    public void newMethod()
    {
         x = 88;
-        shortloop(4);
         System.out.println("The debugger is shit!");
         System.out.println("line2");
         System.out.println("line3");

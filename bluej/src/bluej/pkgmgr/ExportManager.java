@@ -16,7 +16,7 @@ import bluej.utility.BlueJFileReader;
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 577 2000-06-22 02:25:35Z mik $
+ * @version $Id: ExportManager.java 580 2000-06-22 07:17:42Z mik $
  */
 final class ExportManager
 {
@@ -85,7 +85,10 @@ final class ExportManager
 
             // create jar file
             oStream = new FileOutputStream(jarFile);
-            jStream = new JarOutputStream(oStream, manifest);
+            if(mainClass != null && mainClass.length() > 0)
+                jStream = new JarOutputStream(oStream, manifest);
+            else
+                jStream = new JarOutputStream(oStream);
 
             // write jar entries from source directory
             File srcFile = new File(sourceDir);

@@ -110,11 +110,11 @@ public class DocuGenerator
 
         // get the names of all the targets for the documentation tool.
         // first: get all package names
-        String[] packageNames = project.getPackageNames();
+        List packageNames = project.getPackageNames();
         StringBuffer tmp = new StringBuffer();
-        for (int i=0; i<packageNames.length; i++) {
+        for (Iterator names=packageNames.iterator(); names.hasNext(); ) {
             tmp.append(" ");
-            tmp.append(packageNames[i]);
+            tmp.append((String)names.next());
         }
         // second: get class names of classes in unnamed package, if any
         List classNames = project.getPackage(project.getInitialPackageName())

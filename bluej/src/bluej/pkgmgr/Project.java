@@ -21,7 +21,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 576 2000-06-22 00:50:22Z axel $
+ * @version $Id: Project.java 580 2000-06-22 07:17:42Z mik $
  */
 public class Project
 {
@@ -261,15 +261,12 @@ public class Project
      * @return an array of String containing the fully qualified names
      * of the packages in this project.
      */
-    public String[] getPackageNames()
+    public List getPackageNames()
     {
         // CURRENTLY THIS IMPLEMENTATION JUST RETURNS THE OPENED PACKAGES!
-        Set nameSet = packages.keySet();
-        String[] packageNames = new String[nameSet.size()];
-        int i = 0;
-        for (Iterator names = nameSet.iterator();names.hasNext(); i++)
-            packageNames[i] = (String)names.next();
-        return packageNames;
+        // TBD: RETURN ALL PACKAGES
+
+        return new ArrayList(packages.keySet());
     }
 
     /**

@@ -4,9 +4,9 @@ done
   export jar
   dir: add README
   status message to indicate success/failure
+  dialog: make drop menu for classes
 
 to do
-  dialog: make drop menu for classes
   error dialog for jar export error
   comments in exportmanager
 

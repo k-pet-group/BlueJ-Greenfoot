@@ -259,6 +259,7 @@ pkgmgr.export.directoryLabel=Store as directory structure
 pkgmgr.export.jarFileLabel=Store as jar file
 pkgmgr.export.classLabel=main class:
 pkgmgr.export.sourceLabel=include source
+pkgmgr.export.noClassText=none (cannot be executed)
 
 # run applet dialog
 pkgmgr.runApplet.title=BlueJ:  Run Applet

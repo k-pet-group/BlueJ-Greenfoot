@@ -6,6 +6,10 @@ import bluej.utility.Utility;
 import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 
+import java.util.List;
+import java.util.Iterator;
+import java.util.Collections;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -14,7 +18,7 @@ import javax.swing.*;
 * Dialog for choosing options when exporting
 *
 * @author  Andrew Patterson
-* @version $Id: ExportDialog.java 577 2000-06-22 02:25:35Z mik $
+* @version $Id: ExportDialog.java 580 2000-06-22 07:17:42Z mik $
 */
 class ExportDialog extends JDialog
 implements ActionListener
@@ -29,20 +33,97 @@ implements ActionListener
     private static final String jarFileLabel = Config.getString("pkgmgr.export.jarFileLabel");
     private static final String classLabelText = Config.getString("pkgmgr.export.classLabel");
     private static final String sourceLabel = Config.getString("pkgmgr.export.sourceLabel");
+    private static final String noClassText = Config.getString("pkgmgr.export.noClassText");
+    private static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
     private String mainClassName = "";
 
     private JRadioButton directoryButton;
     private JRadioButton jarButton;
-    private JTextField textField;
+    private JComboBox classSelect;
     private JCheckBox sourceBox;
 
     private boolean ok;		// result: which button?
+    private Project project;
 
-    public ExportDialog(JFrame parent)
+    public ExportDialog(PkgMgrFrame parent)
     {
         super(parent, dialogTitle, true);
+        project = parent.getProject();
+        makeDialog();
+    }
 
+    /**
+     * Show this dialog and return true if "OK" was pressed, false if
+     * cancelled.
+     */
+    public boolean display()
+    {
+        ok = false;
+        setVisible(true);
+        return ok;
+    }
+
+    /**
+     * Return the name of the main class in the project.
+     */
+    public String getMainClass()
+    {
+        return mainClassName;
+    }
+
+    /**
+     * Return true if user wants to save in jar file, false for saving
+     * in directory.
+     */
+    public boolean saveAsJar()
+    {
+        return jarButton.isSelected();
+    }
+
+    /**
+     * Return true if user wants to include the source.
+     */
+    public boolean includeSource()
+    {
+        return sourceBox.isSelected();
+    }
+
+    public void actionPerformed(ActionEvent evt)
+    {
+        String cmd = evt.getActionCommand();
+        if(cont.equals(cmd))
+            doOK();
+        else if(cancel.equals(cmd))
+            doCancel();
+    }
+
+    /**
+     * Close action when OK is pressed.
+     */
+    private void doOK()
+    {
+        mainClassName = (String)classSelect.getSelectedItem();
+        if(mainClassName.equals(noClassText))
+            mainClassName = "";
+        ok = true;
+        setVisible(false);
+    }
+
+    /**
+     * Close action when Cancel is pressed.
+     */
+    private void doCancel()
+    {
+        ok = false;
+        setVisible(false);
+    }
+
+    /**
+     * Create the dialog interface.
+     */
+    private void makeDialog()
+    {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         JPanel mainPanel = new JPanel();
@@ -92,11 +173,9 @@ implements ActionListener
                 }
                 inputPanel.add(classLabel);
 
-                textField = new JTextField(24);
-                {
-                    textField.setAlignmentX(LEFT_ALIGNMENT);
-                }
-                inputPanel.add(textField);
+                classSelect = new JComboBox();
+                makeClassPopup(classSelect);
+                inputPanel.add(classSelect);
                 inputPanel.add(Box.createVerticalStrut(5));
 
                 sourceBox = new JCheckBox(sourceLabel, true);
@@ -136,81 +215,30 @@ implements ActionListener
 
         getContentPane().add(mainPanel);
         pack();
-        textField.requestFocus();
 
         DialogManager.centreDialog(this);
     }
 
     /**
-     * Show this dialog and return true if "OK" was pressed, false if
-     * cancelled.
+     * Fill the class name popup selector with all classes of the project
      */
-    public boolean display()
+    private void makeClassPopup(JComboBox popup)
     {
-        ok = false;
-        setVisible(true);
-        textField.requestFocus();
-        return ok;
-    }
+        popup.addItem(noClassText);
 
-    /**
-     * Return the name of the main class in the project.
-     */
-    public String getMainClass()
-    {
-        return mainClassName;
-    }
+        List packageNames = project.getPackageNames();
+        Collections.sort(packageNames);
 
-    /**
-     * Return true if user wants to save in jar file, false for saving
-     * in directory.
-     */
-    public boolean saveAsJar()
-    {
-        return jarButton.isSelected();
-    }
-
-    /**
-     * Return true if user wants to include the source.
-     */
-    public boolean includeSource()
-    {
-        return sourceBox.isSelected();
-    }
-
-    public void actionPerformed(ActionEvent evt)
-    {
-        String cmd = evt.getActionCommand();
-        if(cont.equals(cmd))
-            doOK();
-        else if(cancel.equals(cmd))
-            doCancel();
-    }
-
-    /**
-     * Close action when OK is pressed.
-     */
-    private void doOK()
-    {
-        mainClassName = textField.getText().trim();
-
-        if (/*everything okay?*/ true) {
-            ok = true;
-            setVisible(false);
+        for (Iterator packages = packageNames.iterator(); packages.hasNext(); ) {
+            String pkgName = (String)packages.next();
+            List classNames = project.getPackage(pkgName).getAllClassnames();
+            Collections.sort(classNames);
+            if(pkgName.length() > 0) 
+                for (Iterator classes = classNames.iterator(); classes.hasNext();)
+                    popup.addItem(pkgName + "." + classes.next());
+            else
+                for (Iterator classes = classNames.iterator(); classes.hasNext();)
+                    popup.addItem(classes.next());
         }
-        else {
-            DialogManager.showError((JFrame)this.getParent(), "invalid-package-name");
-            textField.selectAll();
-            textField.requestFocus();
-        }
-    }
-
-    /**
-     * Close action when Cancel is pressed.
-     */
-    private void doCancel()
-    {
-        ok = false;
-        setVisible(false);
     }
 }

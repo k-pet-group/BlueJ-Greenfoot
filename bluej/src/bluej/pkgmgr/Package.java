@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 576 2000-06-22 00:50:22Z axel $
+ * @version $Id: Package.java 580 2000-06-22 07:17:42Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1413,7 +1413,7 @@ public class Package extends Graph
     }
 
     /**
-     * Return a vector of Strings with names of all classes and packages
+     * Return a vector of Strings with names of all classes
      * in this package.
      */
     public Vector getAllClassnames()
