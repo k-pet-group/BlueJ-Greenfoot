@@ -28,7 +28,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: PkgMgrFrame.java 1993 2003-05-30 04:24:43Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1528,7 +1528,8 @@ public class PkgMgrFrame extends JFrame
 
 		while(it.hasNext()) {
 			ClassTarget ct = (ClassTarget) it.next();
-			ct.getRole().run(this, ct, null);
+			if (ct.isCompiled())
+				ct.getRole().run(this, ct, null);
 		}
 
         TestDisplayFrame.getTestDisplay().endMultipleTests();
