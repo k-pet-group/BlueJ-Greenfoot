@@ -18,7 +18,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1867 2003-04-17 18:16:31Z damiano $
+ * @version $Id: Project.java 1871 2003-04-22 11:55:38Z mik $
  */
 public class Project
     implements BlueJEventListener
@@ -569,7 +569,7 @@ public class Project
     /**
      * Removes the current classloader, and removes
      * references to classes loaded by it (this includes removing
-     * the objects from all object benches of this project).\
+     * the objects from all object benches of this project).
      * Should be run whenever a source file changes
      */
     synchronized void removeLocalClassLoader()

@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1867 2003-04-17 18:16:31Z damiano $
+ * @version $Id: PkgMgrFrame.java 1871 2003-04-22 11:55:38Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1628,10 +1628,10 @@ public class PkgMgrFrame extends JFrame
     /**
      * Clear the terminal window.
      */
-    private void clearTerminal()
-    {
-        Terminal.getTerminal().clear();
-    }
+//    private void clearTerminal()
+//    {
+//        Terminal.getTerminal().clear();
+//    }
 
     // ---- BlueJEventListener interface ----
 

@@ -9,6 +9,7 @@ import bluej.Config;
 import bluej.compiler.*;
 import bluej.debugger.*;
 import bluej.editor.*;
+import bluej.terminal.*;
 import bluej.graph.*;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.*;
@@ -24,7 +25,7 @@ import bluej.extmgr.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1845 2003-04-14 06:15:46Z ajp $
+ * @version $Id: Package.java 1871 2003-04-22 11:55:38Z mik $
  */
 public class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -902,9 +903,9 @@ public class Package extends Graph
             }
         }
 
-		for(int i = toCompile.size() - 1; i >= 0; i--)
-			searchCompile((ClassTarget)toCompile.get(i), 1,
-						  new Stack(), new PackageCompileObserver());
+        for(int i = toCompile.size() - 1; i >= 0; i--)
+            searchCompile((ClassTarget)toCompile.get(i), 1,
+                          new Stack(), new PackageCompileObserver());
     }
 
     /**
@@ -923,20 +924,20 @@ public class Package extends Graph
     }
 
 
-	/**
-	 *  Compile a single class quietly.
-	 */
-	public void compileQuiet(ClassTarget ct)
-	{
-		if(!checkCompile())
-			return;
-
-		if (ct.editorOpen())
-			ct.getEditor().save();
-		ct.setState(Target.S_INVALID);		// to force compile
-
-		searchCompile(ct, 1, new Stack(), new QuietPackageCompileObserver());
-	}
+    /**
+     *  Compile a single class quietly.
+     */
+    public void compileQuiet(ClassTarget ct)
+    {
+        if(!checkCompile())
+            return;
+        
+        if (ct.editorOpen())
+            ct.getEditor().save();
+        ct.setState(Target.S_INVALID);		// to force compile
+        
+        searchCompile(ct, 1, new Stack(), new QuietPackageCompileObserver());
+    }
 
     /**
      * Force compile of all classes. Called by user function "rebuild".
@@ -1024,9 +1025,10 @@ public class Package extends Graph
             srcFiles[i] = ct.getSourceFile();
         }
         removeBreakpoints();
-
+        Terminal.getTerminal().clear();
+        
         JobQueue.getJobQueue().addJob(srcFiles, observer,
-        								getProject().getClassPath(),
+                                        getProject().getClassPath(),
                                       	getProject().getProjectDir());
     }
 
