@@ -1,0 +1,5 @@
+This is a plain text file.
+It can be edited in any
+standard editor.
+
+Michael Kšlling, Feb 2002
