@@ -17,10 +17,13 @@ import java.util.*;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 517 2000-05-25 07:58:59Z ajp $
+ * @version $Id: View.java 1061 2001-12-21 01:34:24Z ajp $
  */
 public class View
 {
+    private final String classIgnore = "class$";
+    private final String accessIgnore = "access$";
+
     /** The class that this view is for **/
     protected Class cl;
 
@@ -266,14 +269,30 @@ public class View
         return num;
     }
 
+    private boolean hideMethodName(String name)
+    {
+        return (name.startsWith(classIgnore) ||
+		name.startsWith(accessIgnore));
+    }
+
     public MethodView[] getDeclaredMethods()
     {
+	int count = 0;
         if(methods == null) {
             Method[] cl_methods = cl.getDeclaredMethods();
-            methods = new MethodView[cl_methods.length];
 
-            for(int i = 0; i < methods.length; i++) {
-                methods[i] = new MethodView(this, cl_methods[i]);
+            for(int i = 0; i < cl_methods.length; i++) {
+                if (!hideMethodName(cl_methods[i].getName()))
+                    count++;
+            }
+            methods = new MethodView[count];
+
+            count = 0;
+            for(int i = 0; i < cl_methods.length; i++) {
+                if (!hideMethodName(cl_methods[i].getName())) {
+                    methods[count] = new MethodView(this, cl_methods[i]);
+                    count++;
+                }
             }
         }
 
