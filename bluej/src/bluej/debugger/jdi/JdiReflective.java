@@ -12,7 +12,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  *  
  * @author Davin McCall
- * @version $Id: JdiReflective.java 2589 2004-06-11 02:16:14Z davmac $
+ * @version $Id: JdiReflective.java 2621 2004-06-18 01:58:59Z davmac $
  */
 public class JdiReflective extends Reflective {
 
@@ -78,17 +78,15 @@ public class JdiReflective extends Reflective {
         StringIterator s = new StringIterator(gensig);
         
         char c = s.next();
-        if( c != '<' ) {
-            Debug.message("getMap : no '<' at beginning of this signature ??");
-            return null;
-        }
+        if( c != '<' )
+            return rlist;
         
         // go through each type parameter, assign it the type from our
         // params list.
         while( c != '>' ) {
             String paramName = readClassName(s);
             if( s.current() != ':' ) {
-                Debug.message("getMap : no ':' following type parameter name in super signature?? got "+s.current());
+                Debug.message("getTypeParams : no ':' following type parameter name in super signature?? got "+s.current());
                 return null;
             }
             // '::' indicates lower bound is an interface. Ignore.
