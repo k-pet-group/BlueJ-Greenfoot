@@ -28,7 +28,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2592 2004-06-11 12:53:08Z fisker $
+ * @version $Id: ObjectWrapper.java 2604 2004-06-13 18:42:16Z fisker $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -80,6 +80,13 @@ public class ObjectWrapper extends JComponent
     private Hashtable methodsUsed;
     private Hashtable actions;
     private boolean isSelected = false;
+    
+    private Color[] colours = {
+            new Color(0,0,0,11), //furthest out
+            new Color(0,0,0,22),     
+            new Color(0,0,0,33),
+            new Color(0,0,0,66)//closes to the center
+    };
 
     static public ObjectWrapper getWrapper(PkgMgrFrame pmf, ObjectBench ob,
                                             DebuggerObject obj, String instanceName)
@@ -385,13 +392,13 @@ public class ObjectWrapper extends JComponent
 	private void drawShadow(Graphics2D g, int x, int y, int w, int h, int shad, int corner) {
 		//g.setColor(shadow);
 		//g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
-		g.setColor(GraphPainterStdImpl.colours[0]);
+		g.setColor(colours[0]);
 		g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
-		g.setColor(GraphPainterStdImpl.colours[1]);
+		g.setColor(colours[1]);
 		g.fillRoundRect(x+shad,y+shad,w-shad-1,h-shad-1,corner,corner);
-		g.setColor(GraphPainterStdImpl.colours[2]);
+		g.setColor(colours[2]);
 		g.fillRoundRect(x+shad,y+shad,w-shad-2,h-shad-2,corner,corner);
-		g.setColor(GraphPainterStdImpl.colours[3]);
+		g.setColor(colours[3]);
 		g.fillRoundRect(x+shad,y+shad,w-shad-3,h-shad-3,corner,corner);
 	}
 
