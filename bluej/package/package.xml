@@ -6,20 +6,22 @@
         <!--include name="lib/junit.jar" /-->
         <include name="lib/MRJToolkitStubs.zip" />
         <include name="lib/bluej.defs" />
-        <include name="lib/bluej.ico" />
         <include name="lib/moe.defs" />
     </patternset>
 
     <patternset id="bluej.libdirs">
         <exclude name="**/.#*" />
-        <include name="lib/inspector/ListInspector*.class" />
         <include name="lib/images/*.gif" />
         <include name="lib/images/*.jpg" />
+        <include name="lib/afrikaans/" />
+        <include name="lib/chinese/" />
+        <include name="lib/czech/" />
         <include name="lib/english/" />
         <include name="lib/german/" />
-        <include name="lib/swedish/" />
-        <include name="lib/spanish/" />
+        <include name="lib/italian/" />
         <include name="lib/japanese/" />
+        <include name="lib/spanish/" />
+        <include name="lib/swedish/" />
     </patternset>
 
     <patternset id="bluej.examples">
