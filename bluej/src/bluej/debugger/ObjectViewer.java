@@ -2,6 +2,7 @@ package bluej.debugger;
 
 import bluej.Config;
 import bluej.utility.Debug;
+import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Utility;
@@ -26,7 +27,7 @@ import javax.swing.border.Border;
  *@author     Michael Cahill
  *@author     Michael Kolling
  *@author     Duane Buck
- *@version    $Id: ObjectViewer.java 766 2001-02-07 23:55:57Z mik $
+ *@version    $Id: ObjectViewer.java 787 2001-03-02 04:03:22Z bquig $
  */
 public final class ObjectViewer extends JFrame
          implements ActionListener, ListSelectionListener, InspectorListener
@@ -62,7 +63,7 @@ public final class ObjectViewer extends JFrame
     // viewer's object into the package
     // scope
 
-    // === static methods ===
+    // === static variables ===
 
     protected static int count = 0;
     protected static Hashtable viewers = new Hashtable();
@@ -99,6 +100,65 @@ public final class ObjectViewer extends JFrame
     private static Class[] insp = new Class[10];
     private static int inspCnt = 0;
     private static Set loadedProjects = new HashSet();
+
+
+    // === static methods ===
+
+
+   /**
+     *  Return a ObjectViewer for an object. The viewer is visible.
+     *  This is the only way to get access to viewers - they cannot be
+     *  directly created.
+     *
+     *@param  inspection  True is this is an inspection, false for result
+     *  displays
+     *@param  obj         The object displayed by this viewer
+     *@param  name        The name of this object or "null" if it is not on the
+     *  object bench
+     *@param  pkg         The package all this belongs to
+     *@param  getEnabled  if false, the "get" button is permanently disabled
+     *@param  parent      The parent frame of this frame
+     *@return             The Viewer value
+     */
+    public static ObjectViewer getViewer(boolean inspection,
+            DebuggerObject obj, String name,
+            Package pkg, boolean getEnabled,
+            JFrame parent)
+    {
+        ObjectViewer viewer = (ObjectViewer) viewers.get(obj);
+
+        if (viewer == null)
+        {
+            String id;
+            if (name == null)
+            {
+                id = "#viewer" + count;  // # marks viewer for internal object
+                count++;  //  which is not on bench
+            }
+            else
+            {
+                id = name;
+            }
+            viewer = new ObjectViewer(inspection, obj, pkg, id, getEnabled, parent);
+            viewers.put(obj, viewer);
+        }
+        viewer.update();
+        viewer.bringToFront();
+
+        return viewer;
+    }
+
+    /**
+     *  Update all open viewers to show up-to-date values.
+     */
+    public static void updateViewers()
+    {
+        for (Enumeration e = viewers.elements(); e.hasMoreElements(); )
+        {
+            ObjectViewer viewer = (ObjectViewer) e.nextElement();
+            viewer.update();
+        }
+    }
 
 
     // === object methods ===
@@ -766,19 +826,8 @@ public final class ObjectViewer extends JFrame
 
         inspectorTabs = new JTabbedPane();
         inspectorTabs.add("Standard", mainPanel);
-        if (inspCnt == 0)
-        {
-            loadInspectors(Config.getSystemInspectorDir());
-        }
-
-        if (!loadedProjects.contains(pkg.getProject().getProjectDir()))
-        {
-            loadedProjects.add(pkg.getProject().getProjectDir());
-            loadInspectors(new File(pkg.getProject().getProjectDir(), 
-                                    inspectorDirectoryName));
-        }
-        addInspectors(inspectorTabs);
-
+        initInspectors();
+   
         ((JPanel) getContentPane()).add(inspectorTabs, BorderLayout.CENTER);
 
         // create bottom button pane with "Close" button
@@ -803,6 +852,35 @@ public final class ObjectViewer extends JFrame
 
         setVisible(true);
         button.requestFocus();
+    }
+
+    /**
+     * intialise inspectors
+     */
+    private void initInspectors() {
+      
+        if (inspCnt == 0)
+        {
+            loadInspectors(Config.getSystemInspectorDir());
+        }
+
+        Project proj = null;
+        // most common case, pkg can be null if inspection call came from debugger
+        if(pkg != null)
+            proj = pkg.getProject();
+        // 1 project open...
+        else if(Project.getOpenProjectCount() == 1)
+            proj = Project.getProject();
+       
+        if (proj != null && !loadedProjects.contains(proj.getProjectDir()))
+        {
+            loadedProjects.add(proj.getProjectDir());
+            loadInspectors(new File(proj.getProjectDir(), 
+                                    inspectorDirectoryName));
+        }
+
+        addInspectors(inspectorTabs);
+
     }
 
     private void loadInspectors(File inspectorDir)
@@ -879,58 +957,5 @@ public final class ObjectViewer extends JFrame
         }
     }
 
-    /**
-     *  Return a ObjectViewer for an object. The viewer is visible.
-     *  This is the only way to get access to viewers - they cannot be
-     *  directly created.
-     *
-     *@param  inspection  True is this is an inspection, false for result
-     *  displays
-     *@param  obj         The object displayed by this viewer
-     *@param  name        The name of this object or "null" if it is not on the
-     *  object bench
-     *@param  pkg         The package all this belongs to
-     *@param  getEnabled  if false, the "get" button is permanently disabled
-     *@param  parent      The parent frame of this frame
-     *@return             The Viewer value
-     */
-    public static ObjectViewer getViewer(boolean inspection,
-            DebuggerObject obj, String name,
-            Package pkg, boolean getEnabled,
-            JFrame parent)
-    {
-        ObjectViewer viewer = (ObjectViewer) viewers.get(obj);
-
-        if (viewer == null)
-        {
-            String id;
-            if (name == null)
-            {
-                id = "#viewer" + count;  // # marks viewer for internal object
-                count++;  //  which is not on bench
-            }
-            else
-            {
-                id = name;
-            }
-            viewer = new ObjectViewer(inspection, obj, pkg, id, getEnabled, parent);
-            viewers.put(obj, viewer);
-        }
-        viewer.update();
-        viewer.bringToFront();
-
-        return viewer;
-    }
-
-    /**
-     *  Update all open viewers to show up-to-date values.
-     */
-    public static void updateViewers()
-    {
-        for (Enumeration e = viewers.elements(); e.hasMoreElements(); )
-        {
-            ObjectViewer viewer = (ObjectViewer) e.nextElement();
-            viewer.update();
-        }
-    }
+ 
 }
