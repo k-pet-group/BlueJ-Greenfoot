@@ -195,8 +195,7 @@ public final class MoeEditor extends JFrame
                 document = (MoeSyntaxDocument)textPane.getDocument();
 
                 // set TokenMarker for syntax highlighting if desired
-                // check preference state first
-                document.setTokenMarker(new JavaTokenMarker());
+                checkSyntaxStatus();
 
                 document.addDocumentListener(saveState);
                 document.addUndoableEditListener(new MoeUndoableEditListener());
@@ -276,13 +275,50 @@ public final class MoeEditor extends JFrame
     public void insertText(String text, boolean bold, boolean italic)
     // inherited from Editor, redefined
     {
-        //MoeSyntaxEditorKit kit = (MoeSyntaxEditorKit)textPane.getEditorKit();
 
-        //MutableAttributeSet attr = kit.getInputAttributes();
-        //StyleConstants.setBold(attr, bold);
-        //StyleConstants.setItalic(attr, italic);
+        //=====original version=====
 
-        //attr.addAttributes(attr);
+  //       MoeSyntaxEditorKit kit = (MoeSyntaxEditorKit)textPane.getEditorKit();
+//         MutableAttributeSet attr = kit.getInputAttributes();
+//         StyleConstants.setBold(attr, bold);
+//         StyleConstants.setItalic(attr, italic);
+
+//         attr.addAttributes(attr);
+
+
+        //=====alternative 1
+
+ //        int currentLine = getLineNumberAt(textPane.getCaretPosition());
+//         Debug.message("Current line = " + currentLine);
+//         Element currentElement = document.getParagraphElement(currentLine);
+//         //AttributeSet attr = currentElement.getAttributes();
+//         //getLineNumberAt(textPane.getCaretPosition());
+//         Debug.message("Element start offset = " + currentElement.getStartOffset());
+//         SimpleAttributeSet attr = new SimpleAttributeSet();
+        
+//         StyleConstants.setBold(attr, bold);
+//         StyleConstants.setItalic(attr, italic);
+//         int start = currentElement.getStartOffset();
+//         int end = currentElement.getEndOffset();
+//         int length = end - start;
+//         document.setParagraphAttributes(start, 0, attr, false);
+
+        //======alternative 2
+
+//         int currentLine = getLineNumberAt(textPane.getCaretPosition());
+//         Debug.message("Current line = " + currentLine);
+//         Element currentElement = document.getParagraphElement(currentLine);
+//         //AttributeSet attr = currentElement.getAttributes();
+//         //getLineNumberAt(textPane.getCaretPosition());
+//         Debug.message("Element start offset = " + currentElement.getStartOffset());
+//         SimpleAttributeSet attr = new SimpleAttributeSet();
+        
+//         StyleConstants.setBold(attr, bold);
+//         StyleConstants.setItalic(attr, italic);
+        //((MutableAttributeSet)currentElement.getAttributes()).addAttributes(attr);
+        // StateInvariantError
+
+
 
         textPane.replaceSelection(text);
     }
@@ -309,6 +345,8 @@ public final class MoeEditor extends JFrame
     public void refresh()	// inherited from Editor, redefined
     {
         textPane.setFont(PrefMgr.getStandardEditorFont());
+        checkSyntaxStatus();
+        textPane.repaint();
     }
 
     // --------------------------------------------------------------------
@@ -1370,8 +1408,8 @@ public final class MoeEditor extends JFrame
             textPane.read(reader, null);
             document = (MoeSyntaxDocument)textPane.getDocument();
             // flag document type as a java file by associating a JavaTokenMarker
-            // for syntax colouring
-            document.setTokenMarker(new JavaTokenMarker());
+            // for syntax colouring if specified
+            checkSyntaxStatus();
             document.addDocumentListener(saveState);
             document.addUndoableEditListener(new MoeUndoableEditListener());
         }
@@ -1384,6 +1422,29 @@ public final class MoeEditor extends JFrame
         setView(bluej.editor.Editor.IMPLEMENTATION);
         setSaved();
     }
+
+
+   // --------------------------------------------------------------------
+    /**
+     * Checks that current status of syntax highlighting option is
+     * consistent with desired option eg off/on.
+     */
+    private void checkSyntaxStatus()
+    {
+        if(document != null) {
+
+            // flag document type as a java file by associating a JavaTokenMarker
+            // for syntax colouring if specified
+            if(PrefMgr.useSyntaxHilighting()) {
+                if(document.getTokenMarker() == null)
+                    document.setTokenMarker(new JavaTokenMarker());
+            }
+            else
+                document.setTokenMarker(null);
+        }
+        // else ??
+    }
+
 
     // --------------------------------------------------------------------
     private void setCompileStatus(boolean compiled)
