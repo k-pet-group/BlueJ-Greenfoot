@@ -18,11 +18,12 @@ import java.io.*;		// Object input, ouput streams
 **/
 
 public final class MoeEditorManager
-    implements bluej.editor.EditorManager
+    extends bluej.editor.EditorManager
 {
     // public static variables
+    //bq?
+    protected static MoeEditorManager editorManager;   // the manager object itself
 
-    public static MoeEditorManager editorManager;   // the manager object itself
     // private variables
 
     private Properties resources;

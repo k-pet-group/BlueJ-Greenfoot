@@ -26,13 +26,13 @@ import javax.swing.border.Border;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: ObjectViewer.java 657 2000-07-26 07:39:59Z mik $
+ * @version $Id: ObjectViewer.java 698 2000-10-23 03:34:55Z bquig $
  */
 public final class ObjectViewer extends JFrame
     implements ActionListener, ListSelectionListener
 {
-    private static final Image iconImage = new ImageIcon(
-                                                         Config.getImageFilename("image.icon")).getImage();
+    private static final Image iconImage = 
+        new ImageIcon(Config.getImageFilename("image.icon")).getImage();
 
     private static final Color bgColor = new Color(208, 212, 208);
 

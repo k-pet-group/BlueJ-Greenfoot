@@ -9,7 +9,7 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
-import bluej.editor.moe.MoeEditorManager;
+//import bluej.editor.moe.MoeEditorManager;
 import bluej.graph.Graph;
 import bluej.graph.Vertex;
 import bluej.utility.*;
@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 693 2000-09-14 01:28:11Z mik $
+ * @version $Id: Package.java 698 2000-10-23 03:34:55Z bquig $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -80,7 +80,8 @@ public class Package extends Graph
     public static final int FIXED_TARGET_Y = 10;
 
     /** Interface to editor */
-    public static EditorManager editorManager = new MoeEditorManager();
+    //bq    public static EditorManager editorManager = new MoeEditorManager();
+    public static EditorManager editorManager = EditorManager.getEditorManager();
     // static EditorManager editorManager = new RedEditorManager(false);
     // static EditorManager editorManager = new SimpleEditorManager();
 

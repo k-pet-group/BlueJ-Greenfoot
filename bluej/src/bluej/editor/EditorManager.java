@@ -1,16 +1,40 @@
+// Copyright (c) 2000 BlueJ Group, Monash University
+//
+// This software is made available under the terms of the "MIT License"
+// A copy of this license is included with this source distribution
+// in "license.txt" and is also available at:
+// http://www.opensource.org/licenses/mit-license.html 
+// Any queries should be directed to Michael Kolling mik@monash.edu.au
+
 package bluej.editor;
 
 import java.util.Vector;
+import bluej.editor.moe.MoeEditorManager;
 
 /**
  * Interface between the editor manager and the rest of BlueJ.
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: EditorManager.java 505 2000-05-24 05:44:24Z ajp $
+ * @author  Bruce Quig
+ * @version $Id: EditorManager.java 698 2000-10-23 03:34:55Z bquig $
  */
-public interface EditorManager
+public abstract class EditorManager
 {
+
+    private static EditorManager theEditorManager = new MoeEditorManager();
+
+    /**
+     * Singleton factory method to return an EditorManager instance;
+     *
+     * @returns	the singleton EditorManager instance
+     */
+    public static EditorManager getEditorManager()
+    {
+        return theEditorManager;
+    }
+
+
     /**
      * Open an editor to display a class. The filename may be "null"
      * to open an empty editor (e.g. for displaying a view). The editor
@@ -24,7 +48,7 @@ public interface EditorManager
      * @param breakpoints   vector of Integers: line numbers where bpts are
      * @returns		    the new editor, or null if there was a problem
      */
-    Editor openClass(String filename, String windowTitle,
+    public abstract Editor openClass(String filename, String windowTitle,
                      EditorWatcher watcher, boolean compiled,
                      Vector breakpoints);
 
@@ -42,20 +66,20 @@ public interface EditorManager
      * @param watcher	an object interested in editing events
      * @returns		the new editor, or null if there was a problem
      */
-    Editor openText(String filename, String windowTitle,
+    public abstract Editor openText(String filename, String windowTitle,
                     EditorWatcher watcher);
 
     /**
      * Indicate to the manager that all resources used by this editor
      * should be discarded.
      */
-    void discardEditor(Editor ed);
+    protected abstract void discardEditor(Editor ed);
 
     /**
      * Refresh the display of all showing editors (usually because
      * an editor property such as font has changed)
      */
-    void refreshAll();
+    public abstract void refreshAll();
 
 
 } // end interface EditorManager

@@ -1,3 +1,12 @@
+// Copyright (c) 2000 BlueJ Group, Monash University
+//
+// This software is made available under the terms of the "MIT License"
+// A copy of this license is included with this source distribution
+// in "license.txt" and is also available at:
+// http://www.opensource.org/licenses/mit-license.html 
+// Any queries should be directed to Michael Kolling mik@monash.edu.au
+
+
 package bluej.editor;
 
 import java.util.Vector;
@@ -8,7 +17,7 @@ import java.util.Enumeration;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Editor.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: Editor.java 698 2000-10-23 03:34:55Z bquig $
  */
 public interface Editor
 {
@@ -155,7 +164,6 @@ public interface Editor
      *  @param filename	new file name
      */
     void changeName(String title, String filename);
-
 
 
     /**
