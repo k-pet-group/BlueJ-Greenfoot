@@ -2,7 +2,6 @@ package bluej.compiler;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -17,7 +16,7 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Compiler.java 2501 2004-04-19 13:57:47Z polle $
+ * @version $Id: Compiler.java 2599 2004-06-13 07:56:04Z mik $
  */
 abstract class Compiler
 {

@@ -1,11 +1,9 @@
 package bluej.pkgmgr.target;
 
 import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
-import bluej.graph.GraphEditor;
 import bluej.graph.Moveable;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
@@ -16,7 +14,7 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version	$Id: DependentTarget.java 2599 2004-06-13 07:56:04Z mik $
  */
 public abstract class DependentTarget extends Target
 {

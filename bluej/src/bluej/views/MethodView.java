@@ -3,14 +3,13 @@ package bluej.views;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import bluej.Config;
 import bluej.utility.JavaUtils;
 
 /**
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 2582 2004-06-10 04:32:41Z davmac $
+ *  @version $Id: MethodView.java 2599 2004-06-13 07:56:04Z mik $
  * @author Michael Cahill
  * @author Michael Kolling
  */
