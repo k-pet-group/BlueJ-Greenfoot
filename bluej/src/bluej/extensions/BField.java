@@ -24,7 +24,7 @@ import java.lang.reflect.Modifier;
  * The BlueJ proxy Field object. This represents a field of a class or object.
  *
  * @author Clive Miller
- * @version $Id: BField.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: BField.java 1543 2002-11-29 13:49:49Z ajp $
  * @see bluej.extensions.BObject#getField(java.lang.String)
  * @see bluej.extensions.BObject#getFields(boolean)
  * @see bluej.extensions.BClass#getStaticField(java.lang.String)
@@ -114,7 +114,8 @@ public class BField
         }
         else if (val instanceof ObjectReference)
         {
-            return new BObject (pkg, new ObjectWrapper (PkgMgrFrame.findFrame (pkg.getRealPackage()), JdiObject.getDebuggerObject((ObjectReference)val), getName()), getName());
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame (pkg.getRealPackage());
+            return new BObject (pkg, new ObjectWrapper (pmf, pmf.getObjectBench(), JdiObject.getDebuggerObject((ObjectReference)val), getName()), getName());
         }
         else if (val instanceof BooleanValue)
         {

@@ -10,7 +10,7 @@ import java.awt.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 719 2000-12-12 04:15:18Z ajp $
+ * @version $Id: RemoteSecurityManager.java 1543 2002-11-29 13:49:49Z ajp $
  */
 public class RemoteSecurityManager extends SecurityManager
 {
@@ -76,12 +76,12 @@ public class RemoteSecurityManager extends SecurityManager
 
             // hide the exception print out which the AWT event
             // thread handler will print
-            ExecServer.supressErrorOutput();
+            ExecServer.supressOutput();
 
             Toolkit.getDefaultToolkit().getSystemEventQueue().
                 invokeLater(new Runnable() {
                         public void run() {
-                            ExecServer.restoreErrorOutput();
+                            ExecServer.restoreOutput();
                             ExecServer.disposeWindows();
                         }
                     });
@@ -93,6 +93,12 @@ public class RemoteSecurityManager extends SecurityManager
             // this exception will be displayed to the user
             throw new ExitException(Integer.toString(status));
         }
+    }
+
+    public void checkMemberAccess(Class clazz,
+                                    int which)
+    {
+
     }
 
     /**

@@ -16,7 +16,7 @@ import java.awt.Frame;
  * to that package.
  *
  * @author Clive Miller
- * @version $Id: BPackage.java 1462 2002-10-23 12:37:49Z jckm $
+ * @version $Id: BPackage.java 1543 2002-11-29 13:49:49Z ajp $
  *
  * @see bluej.extensions.BProject#getCurrentPackage()
  * @see bluej.extensions.BProject#getPackage(java.lang.String)
@@ -116,7 +116,7 @@ public class BPackage
      */
     public BObject getObject (String name)
     {
-        Component[] objects = pmf.getObjectBench().getComponents();
+        ObjectWrapper[] objects = pmf.getObjectBench().getWrappers();
         for (int i=0; i<objects.length; i++) {
             ObjectWrapper wrapper = (ObjectWrapper)objects[i];
             if (wrapper.getName().equals (name)) return new BObject (this, wrapper, name);
@@ -130,7 +130,7 @@ public class BPackage
      */
     public BObject[] getObjects()
     {
-        Component[] objectWrappers = pmf.getObjectBench().getComponents();
+        ObjectWrapper[] objectWrappers = pmf.getObjectBench().getWrappers();
         BObject[] objects = new BObject [objectWrappers.length];
         for (int i=0; i<objectWrappers.length; i++) {
             ObjectWrapper wrapper = (ObjectWrapper)objectWrappers[i];

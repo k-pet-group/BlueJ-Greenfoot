@@ -20,7 +20,7 @@ import javax.swing.border.Border;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1533 2002-11-29 13:22:07Z mik $
+ * @version    $Id: Inspector.java 1543 2002-11-29 13:49:49Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -288,9 +288,9 @@ public abstract class Inspector extends JFrame
 
             // If the newly opened object is public, enter it into the
             // package scope, so that we can perform "Get" operations on it.
-            if (isPublic) {
-                viewer.addToScope(viewerId, selectedObjectName);
-            }
+//            if (isPublic) {
+//                viewer.addToScope(viewerId, selectedObjectName);
+//            }
         }
     }
 
@@ -301,8 +301,7 @@ public abstract class Inspector extends JFrame
     private void doGet()
     {
         if(selectedObject != null) {
-            pkg.getEditor().raisePutOnBenchEvent(selectedObject, viewerId,
-                selectedObjectName);
+            pkg.getEditor().raisePutOnBenchEvent(selectedObject, selectedObjectName);
         }
     }
 
@@ -312,9 +311,9 @@ public abstract class Inspector extends JFrame
      */
     protected void addToScope(String parentViewerId, String objectName)
     {
-        Debugger.debugger.addObjectToScope(pkgScopeId, parentViewerId,
-                objectName, viewerId);
-        isInScope = true;
+//        Debugger.debugger.addObjectToScope(pkgScopeId, parentViewerId,
+//                objectName, viewerId);
+//        isInScope = true;
     }
 
 

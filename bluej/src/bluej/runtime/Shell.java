@@ -3,39 +3,109 @@ package bluej.runtime;
 import java.util.Map;
 
 /**
- * Interface implemented by all "shell" classes - used for method invocation
+ * Interface implemented by all "shell" classes.
+ *
+ * The src for each "shell" class is constructed automatically,
+ * compiled and executed. They are used for method invocation
  * and object creation.
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Shell.java 319 2000-01-02 13:03:50Z ajp $
+ * @version $Id: Shell.java 1543 2002-11-29 13:49:49Z ajp $
  */
 public abstract class Shell
 {
-    protected static Object makeObj(String s) { return new StringResultWrapper(s); }
-    protected static Object makeObj(boolean b) { return new BooleanResultWrapper(b); }
-    protected static Object makeObj(byte b) { return new ByteResultWrapper(b); }
-    protected static Object makeObj(char c) { return new CharResultWrapper(c); }
-    protected static Object makeObj(double d) { return new DoubleResultWrapper(d); }
-    protected static Object makeObj(float f) { return new FloatResultWrapper(f); }
-    protected static Object makeObj(int i) { return new IntResultWrapper(i); }
-    protected static Object makeObj(long l) { return new LongResultWrapper(l); }
-    protected static Object makeObj(short s) { return new ShortResultWrapper(s); }
-    protected static ObjectResultWrapper makeObj(Object obj) { return new ObjectResultWrapper(obj); }
-
-    // dummy method called by class loader to prepare the class
-    // after loading
+    /**
+     * A dummy method called by class loader to prepare the class
+     * after loading.
+     */
     public static void prepare()
     {
     }
 
+    /**
+     * Provide the shell class with static access to the object
+     * bench scopes.
+     */
     protected static Map getScope(String scopeId)
     {
         return ExecServer.getScope(scopeId);
     }
 
+    /**
+     * Put an object into the scope of one of the object benches.
+     */
     protected static void putObject(String scopeId, String instanceName, Object value)
     {
-        ExecServer.putObject(scopeId, instanceName, value);
+        ExecServer.addObject(scopeId, instanceName, value);
+    }
+
+    /**
+     * Construct an object that allows the result to be plucked out by
+     * the debugger.
+     *
+     * Object results are different from all the primitive types such as
+     * boolean, byte etc.. don't exactly know why but it is..
+     */
+    protected static ObjectResultWrapper makeObj(Object o) {
+        return new ObjectResultWrapper(o);
+    }
+
+    /**
+     * Construct an object that allows the result to be plucked out by
+     * the debugger.
+     */
+    protected static Object makeObj(final String s) {
+        return new Object() {
+           public String result = s;
+        };
+    }
+
+    protected static Object makeObj(final boolean b) {
+        return new Object() {
+           public boolean result = b;
+        };
+    }
+
+    protected static Object makeObj(final byte b) {
+        return new Object() {
+           public byte result = b;
+        };
+    }
+
+    protected static Object makeObj(final char c) {
+        return new Object() {
+           public char result = c;
+        };
+    }
+
+    protected static Object makeObj(final double d) {
+        return new Object() {
+           public double result = d;
+        };
+    }
+
+    protected static Object makeObj(final float f) {
+        return new Object() {
+           public float result = f;
+        };
+    }
+
+    protected static Object makeObj(final int i) {
+        return new Object() {
+            public int result = i;
+        };
+    }
+
+    protected static Object makeObj(final long l) {
+        return new Object() {
+           public long result = l;
+        };
+    }
+
+    protected static Object makeObj(final short s) {
+        return new Object() {
+           public short result = s;
+        };
     }
 }

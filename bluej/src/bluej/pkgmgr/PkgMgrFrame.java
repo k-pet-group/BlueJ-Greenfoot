@@ -36,12 +36,13 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.groupwork.*;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.HelpDialog;
-//import bluej.tester.*;
+
+import antlr.*;
 
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1533 2002-11-29 13:22:07Z mik $
+ * @version $Id: PkgMgrFrame.java 1543 2002-11-29 13:49:49Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -418,8 +419,10 @@ public class PkgMgrFrame extends JFrame
         // the enable/disable GUI code was run off a menu
         // item. This code will delay the menu disable
         // until after menu processing has finished
-        Runnable enableUI = new Runnable() {
-                public void run() {
+        Runnable enableUI = new Runnable()
+        {
+            public void run()
+            {
                     enableFunctions(true);  // changes menu items
                     updateWindowTitle();
                     show();
@@ -465,7 +468,8 @@ public class PkgMgrFrame extends JFrame
         // the enable/disable GUI code was run off a menu
         // item. This code will delay the menu disable
         // until after menu processing has finished
-        Runnable disableUI = new Runnable() {
+        Runnable disableUI = new Runnable()
+        {
                 public void run()
                 {
                     enableFunctions(false);  // changes menu items
@@ -523,8 +527,7 @@ public class PkgMgrFrame extends JFrame
         if (isEmptyFrame()) {
             setTitle("BlueJ");
             return "BlueJ";
-        }
-        else {
+        } else {
             String title = "BlueJ:  " + getProject().
                 getProjectName();
 
@@ -611,18 +614,18 @@ public class PkgMgrFrame extends JFrame
         case PackageEditorEvent.TARGET_RUN:       // user has initiated a
             //   run operation
             ClassTarget ct = (ClassTarget) e.getSource();
-
-            if(ct.isApplet())
-                runAppletTarget(ct);
-//            else if(ct.isUnitTest())
-//                runUnitTest(ct);
-
+            ct.getRole().run(this, ct, e.getName());
             break;
 
         case PackageEditorEvent.OBJECT_PUTONBENCH: // "Get" object from
             //   object inspector
-            putObjectOnBench(e.getDebuggerObject(), e.getFieldName(),
-                             e.getInstanceName());
+                String newObjectName = DialogManager.askString(this, "getobject-new-name");
+
+                if (newObjectName != null) {
+//                    getObjectBench().addCallAssignment(newObjectName, "\t\t" + newObjectName + " = ");
+                    
+                    putObjectOnBench(e.getDebuggerObject(), newObjectName);
+                }
             break;
 
 
@@ -639,7 +642,8 @@ public class PkgMgrFrame extends JFrame
      */
     protected boolean doNewProject()
     {
-        String newname = FileUtility.getFileName(this, Config.getString("pkgmgr.newPkg.title"),
+        String newname = FileUtility.getFileName(this,
+                                                 Config.getString("pkgmgr.newPkg.title"), 
                                                  Config.getString("pkgmgr.newPkg.buttonLabel"),
                                                  false, null, true);
 
@@ -651,8 +655,7 @@ public class PkgMgrFrame extends JFrame
 
             if(isEmptyFrame()) {
                 openPackage(proj.getPackage(""));
-            }
-            else {
+            } else {
                 PkgMgrFrame pmf = createFrame(proj.getPackage(""));
                 DialogManager.tileWindow(pmf, this);
                 pmf.show();
@@ -801,8 +804,7 @@ public class PkgMgrFrame extends JFrame
                 if(isEmptyFrame()) {
                     pmf = this;
                     openPackage(pkg);
-                }
-                else {
+                } else {
                     pmf = createFrame(pkg);
 
                     DialogManager.tileWindow(pmf, this);
@@ -839,8 +841,7 @@ public class PkgMgrFrame extends JFrame
             else {                      // all frames gone, lets quit
                 doQuit();
             }
-        }
-        else {                          // remove package and frame
+        } else {                          // remove package and frame
             PkgMgrFrame.closeFrame(this);
         }
     }
@@ -1047,8 +1048,6 @@ public class PkgMgrFrame extends JFrame
         }  
     }
 
-  
-
     /**
      * About menu was chosen - redefined from MRJAboutHandler
      */
@@ -1091,8 +1090,9 @@ public class PkgMgrFrame extends JFrame
                         if((name == null) || (name.length() == 0))
                             name = "result";
                         if(result != null) {
-                            ObjectWrapper wrapper =
-                                new ObjectWrapper(PkgMgrFrame.this, result.getInstanceFieldObject(0),
+                            ObjectWrapper wrapper = ObjectWrapper.getWrapper(
+                                                           PkgMgrFrame.this, getObjectBench(),
+                                                           result.getInstanceFieldObject(0),
                                                   name);
                             getObjectBench().add(wrapper);
                         }
@@ -1151,40 +1151,18 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * Run a target (currently only applets)
-     */
-    private void runAppletTarget(Target t)
-    {
-        if (t instanceof ClassTarget) {
-            ClassTarget ct = (ClassTarget) t;
-
-            ct.runApplet(this);
-        }
-    }
-
-    /*
-     * Run a target (currently only unit test)
-     */
-/*    private void runUnitTest(ClassTarget ct)
-    {
-        String args[]= { ct.getQualifiedName() };
-
-        getProject().testRunner.start( args );
-        getProject().testRunner.setSuite( ct.getQualifiedName() );
-        getProject().testRunner.runSuite();
-    } */
-
-    /**
      * Create an object on the object bench.
      */
-    private void putObjectOnBench(DebuggerObject object, String fieldName, String instanceName)
+    public void putObjectOnBench(DebuggerObject object, String newInstanceName)
     {
-        ObjectWrapper wrapper = new ObjectWrapper(this, object, fieldName);
+        if (!object.isNullObject()) {
+            ObjectWrapper wrapper = ObjectWrapper.getWrapper(this, getObjectBench(), object, newInstanceName);
         getObjectBench().add(wrapper);  // might change name
 
         // load the object into runtime scope
-        Debugger.debugger.addObjectToScope(getPackage().getId(), instanceName,
-                                           fieldName, wrapper.getName());
+            Debugger.debugger.addObjectToScope(getPackage().getId(),
+                                                wrapper.getName(), object);
+        }
     }
 
     /**
@@ -1208,7 +1186,7 @@ public class PkgMgrFrame extends JFrame
                 String template = dlg.getTemplateName();
                 target = new ClassTarget(pkg, name, template);
 
-                target.generateSkeleton();
+                target.generateSkeleton(template);
 
                 pkg.findSpaceForVertex(target);
                 pkg.addTarget(target);
@@ -1271,8 +1249,9 @@ public class PkgMgrFrame extends JFrame
 
             try {
                 newPkgFile.createNewFile();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
             }
-            catch(IOException ioe) { ioe.printStackTrace(); }
 
             while(st.hasMoreTokens()) {
                 newPkgDir = new File(newPkgDir, (String)st.nextToken());
@@ -1280,8 +1259,9 @@ public class PkgMgrFrame extends JFrame
 
                 try {
                     newPkgFile.createNewFile();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
                 }
-                catch(IOException ioe) { ioe.printStackTrace(); }
             }
         }
 
@@ -1602,14 +1582,6 @@ public class PkgMgrFrame extends JFrame
 
     // --- the following methods set up the GUI frame ---
 
-    private void makeButtonNotGrow(JButton button)
-    {
-        Dimension pref = button.getMinimumSize();
-        pref.width = Integer.MAX_VALUE;
-        button.setMaximumSize(pref);
-        button.setMargin(new Insets(2,0,2,0));
-    }
-
     private void makeFrame()
     {
         setFont(PkgMgrFont);
@@ -1752,7 +1724,7 @@ public class PkgMgrFrame extends JFrame
             bottomPanel.setLayout(new BorderLayout());
             objbench = new ObjectBench();
 
-            JScrollPane objScroller = new JScrollPane(objbench);
+            JScrollPane objScroller = new JScrollPane(objbench.getComponent());
             {
                 objScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
             }
@@ -1772,6 +1744,7 @@ public class PkgMgrFrame extends JFrame
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         classScroller = new JScrollPane();
+        classScroller.setBorder(BorderFactory.createTitledBorder("Class Diagram"));
         mainPanel.add(classScroller, BorderLayout.CENTER);
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
@@ -1779,13 +1752,14 @@ public class PkgMgrFrame extends JFrame
 
         pack();
 
-        addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent E)
-                {
-                    PkgMgrFrame pmf = (PkgMgrFrame)E.getWindow();
-                    pmf.doClose(false);
-                }
-            });
+        addWindowListener(new WindowAdapter()
+        {
+            public void windowClosing(WindowEvent E)
+            {
+                PkgMgrFrame pmf = (PkgMgrFrame)E.getWindow();
+                pmf.doClose(false);
+            }
+        });
 
         // grey out certain functions if package not open.
         if(isEmptyFrame())
@@ -1800,10 +1774,17 @@ public class PkgMgrFrame extends JFrame
     {
         JButton button = new JButton(text);
         button.setFont(PkgMgrFont);
+        if (icon != null)
         button.setIcon(icon);
         button.setToolTipText(toolTip);
         button.setRequestFocusEnabled(false);   // never get keyboard focus
-        makeButtonNotGrow(button);
+
+        // make the button infinitately extendable width-wise, but never
+        // grow in height
+        Dimension pref = button.getMinimumSize();
+        pref.width = Integer.MAX_VALUE;
+        button.setMaximumSize(pref);
+        button.setMargin(new Insets(2, 0, 2, 0));
 
         return button;
     }
@@ -1998,7 +1979,6 @@ public class PkgMgrFrame extends JFrame
         menu = new JMenu(Config.getString("menu.help"));
         menubar.add(Box.createHorizontalGlue());  // Hack while "setHelpMenu" does not work...
         menubar.add(menu);
-//        menubar.setHelpMenu(menu);  // not implemented in Swing 1.2
         {
             createMenuItem("menu.help.about", menu, 0, 0, false,
                            new ActionListener() {
@@ -2172,8 +2152,11 @@ public class PkgMgrFrame extends JFrame
 
     }
 
-    class URLDisplayer implements ActionListener {
-        public URLDisplayer() {}
+    class URLDisplayer implements ActionListener
+    {
+        public URLDisplayer()
+        {
+        }
 
         public void actionPerformed(ActionEvent evt)
         {
