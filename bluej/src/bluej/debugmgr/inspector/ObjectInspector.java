@@ -1,23 +1,26 @@
 package bluej.debugmgr.inspector;
 
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TreeSet;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
-import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.*;
+import bluej.utility.DialogManager;
+import bluej.utility.JavaNames;
 
 /**
  * A window that displays the fields in an object or a method return value.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectInspector.java 2279 2003-11-05 16:41:58Z polle $
+ * @version $Id: ObjectInspector.java 2315 2003-11-10 16:36:47Z polle $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -25,25 +28,14 @@ public class ObjectInspector extends Inspector
     // === static variables ===
 
     protected final static String inspectTitle =
-        Config.getString("debugger.inspector.object.title");
-    protected final static String resultTitle =
-        Config.getString("debugger.inspector.result.title");
-    protected final static String objListTitle =
-        Config.getString("debugger.inspector.objListTitle");
-    protected final static String objectNameLabel =
-        Config.getString("debugger.inspector.objectNameLabel");
-
-    protected static Class[] inspectorClasses = new Class[10];
-    protected static int inspectorCount = 0;
-    protected static Set loadedProjects = new HashSet();
+        Config.getString("debugger.inspector.object.title");  
+   
 
    /**
      * Return an ObjectInspector for an object. The inspector is visible.
      * This is the only way to get access to viewers - they cannot be
      * directly created.
      *
-     * @param  isResult    false is this is an inspection, true for result
-     *                     displays
      * @param  obj         The object displayed by this viewer
      * @param  name        The name of this object or "null" if the name is unobtainable
      * @param  pkg         The package all this belongs to
@@ -52,15 +44,14 @@ public class ObjectInspector extends Inspector
      * @param  parent      The parent frame of this frame
      * @return             The Viewer value
      */
-    public static ObjectInspector getInstance(boolean isResult,
-                                                DebuggerObject obj, String name,
-                                                Package pkg, InvokerRecord ir,
-                                                JFrame parent)
+    public static ObjectInspector getInstance(DebuggerObject obj,
+                                                String name, Package pkg,
+                                                InvokerRecord ir, JFrame parent)
     {
         ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
 
         if (inspector == null) {
-            inspector = new ObjectInspector(isResult, obj, name, pkg, ir, parent);
+            inspector = new ObjectInspector(obj, name, pkg, ir, parent);
             inspectors.put(obj, inspector);
         }
         inspector.update();
@@ -78,8 +69,6 @@ public class ObjectInspector extends Inspector
     protected String objName;           // a String for display that contains this objects
                                         // name on the object bench
                                             
-    protected boolean isResult;         // true if displaying result, false if
-                                        //  inspecting object
     protected boolean queryArrayElementSelected = false;
 
     protected TreeSet arraySet = null;  // array of Integers representing the array indexes from
@@ -96,8 +85,6 @@ public class ObjectInspector extends Inspector
      *  Note: private -- Objectviewers can only be created with the static
      *  "getViewer" method. 'pkg' may be null if 'ir' is null.
      *
-     * @param  isResult    false is this is an inspection, true for result
-     *                     displays
      * @param  obj         The object displayed by this viewer
      * @param  name        The name of this object or "null" if the name is unobtainable
      * @param  pkg         The package all this belongs to
@@ -105,41 +92,26 @@ public class ObjectInspector extends Inspector
      *                     if null, the "get" button is permanently disabled
      * @param  parent      The parent frame of this frame
      */
-    private ObjectInspector(boolean isResult, DebuggerObject obj,
-                            String name, Package pkg, InvokerRecord ir,
-                            JFrame parent)
+    private ObjectInspector(DebuggerObject obj, String name,
+                            Package pkg, InvokerRecord ir, JFrame parent)
     {
         super(pkg, ir);
         String className = JavaNames.stripPrefix(obj.getClassName());
         
-        setTitle(isResult ? resultTitle : inspectTitle);        
+        setTitle(inspectTitle);        
         setBorder(BlueJTheme.roundedShadowBorder);
         
         String fullTitle = name + " : " + className;        
         String underlinedNameLabel = "<html><u>"+fullTitle+ "</u></font>";
         setHeader(new JLabel(underlinedNameLabel, JLabel.CENTER));
-        this.isResult = isResult;
         this.obj = obj;
         this.objName = name;        
         
-        makeFrame(parent, isResult, true, true);
+        makeFrame(parent, true, true);
     }
 
-    /**
-     * Return the header title of the list in this inspector.
-     */
-    protected String getListTitle()
-    {
-        return objListTitle;
-    }
-
-    /**
-     * True if this inspector is used to display a method call result.
-     */
-    protected boolean showingResult()
-    {
-        return isResult;
-    }
+   
+   
 
     /**
      * True if this inspector is used to display a method call result.
@@ -149,9 +121,9 @@ public class ObjectInspector extends Inspector
         // if is an array (we potentially will compress the array if it is large)
         if (obj.isArray()) {
             return compressArrayList(
-                    obj.getInstanceFields(!isResult)).toArray(new Object[0]);
+                    obj.getInstanceFields(true)).toArray(new Object[0]);
         } else {
-            return obj.getInstanceFields(!isResult).toArray(new Object[0]);
+            return obj.getInstanceFields(true).toArray(new Object[0]);
         }
     }
 
@@ -286,20 +258,7 @@ public class ObjectInspector extends Inspector
     }
 
 
-    /**
-     *  If this is the display of a method call result, return a String with
-     *  the result.
-     *
-     * @return    The Result value
-     */
-    public String getResult()
-    {
-        if (isResult) {
-            return (String) obj.getInstanceFields(false).get(0);
-        } else {
-            return "";
-        }
-    }
+ 
 
     private final static int VISIBLE_ARRAY_START = 40;  // show at least the first 40 elements
     private final static int VISIBLE_ARRAY_TAIL = 5;  // and the last five elements
@@ -382,101 +341,14 @@ public class ObjectInspector extends Inspector
 
         return slot.intValue();
     }
-
-    /**
-     * Intialise additional inspector panels.
-     */
-    protected void initInspectors(JTabbedPane inspTabs)
-    {
-        if (inspectorCount == 0) {
-            loadInspectors(Config.getSystemInspectorDir());
-        }
-
-        Project proj = null;
-        // most common case, pkg can be null if inspection call came from debugger
-        if(pkg != null)
-            proj = pkg.getProject();
-        // 1 project open...
-        else if(Project.getOpenProjectCount() == 1)
-            proj = Project.getProject();
-
-        if (proj != null && !loadedProjects.contains(proj.getProjectDir()))
-        {
-            loadedProjects.add(proj.getProjectDir());
-            loadInspectors(new File(proj.getProjectDir(),
-                                    inspectorDirectoryName));
-        }
-
-        addInspectors(inspTabs);
-    }
-
-    private void loadInspectors(File inspectorDir)
-    {
-        ClassLoader loader = new InspectorClassLoader(inspectorDir);
-        String[] inspName = inspectorDir.list();
-        if (inspName != null) {
-            for (int i=0; i < inspName.length; i++) {  // Add inspectors (if any)
-                try {
-                    if (inspName[i].endsWith(".class")) {
-                        try {
-                            Class theInspClass = loader.loadClass(inspName[i].substring(0, inspName[i].length() - 6));
-                            InspectorPanel theInsp = ((InspectorPanel) theInspClass.newInstance());
-                            // If control gets here, the class implements Inspector!
-                            int inspIdx = inspectorCount;
-                            inspectorCount++;
-                            if (inspectorCount >= inspectorClasses.length) {
-                                Class[] temp = new Class[inspectorClasses.length * 2];
-                                System.arraycopy(inspectorClasses, 0, temp, 0, inspectorClasses.length);
-                                inspectorClasses = temp;
-                            }
-                            inspectorClasses[inspIdx] = theInspClass;  
-                        }
-                        catch (ClassNotFoundException e) {
-                        }
-                        catch (InstantiationException e) {
-                        }
-                        catch (IllegalAccessException e) {
-                        }
-                        catch (ClassCastException e) {
-                        }
-                    }
-                }
-                catch (Exception catchalle) {
-                    catchalle.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private void addInspectors(JTabbedPane inspTabs)
-    {
-        for (int i = 0; i < inspectorCount; i++) {  // Add inspectors (if any)
-            try {
-                InspectorPanel theInsp = ((InspectorPanel)inspectorClasses[i].newInstance());
-                String[] ic = theInsp.getInspectedClassnames();
-
-                for (int j = 0; j < ic.length; j++) {
-                    if (obj.isAssignableTo(ic[j])) {
-                        boolean initOK = theInsp.initialize(ObjectInspector.this.obj);
-                        if (initOK) {  //Inspector makes final decision
-                            theInsp.addInspectorListener(this);
-                            inspTabs.add(theInsp.getInspectorTitle(), theInsp);
-                        }
-                        break;
-                    }
-                }
-            }
-            // we catch and report all exceptions.. if there is buggy
-            // code in an inspector, it won't affect the rest of blueJ
-            // (the main inspector panel will always come up)
-            catch (Exception e) { 
-                Debug.reportError("Error while trying to load inspector: " + e);
-            }
-        }
-    }
+  
 
     public void inspectEvent(InspectorEvent e)
     {
-        getInstance(false, e.getDebuggerObject(), null, pkg, null, this);
+        getInstance(e.getDebuggerObject(), null, pkg, null, this);
+    }
+    
+    protected int getPreferredRows() {        
+        return 8;
     }
 }

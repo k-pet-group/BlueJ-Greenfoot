@@ -17,7 +17,7 @@ import bluej.utility.JavaNames;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: ClassInspector.java 2279 2003-11-05 16:41:58Z polle $
+ * @version    $Id: ClassInspector.java 2315 2003-11-10 16:36:47Z polle $
  */
 public class ClassInspector extends Inspector
 {
@@ -25,8 +25,6 @@ public class ClassInspector extends Inspector
 
     protected final static String inspectTitle =
         Config.getString("debugger.inspector.class.title");
-    protected final static String staticListTitle =
-        Config.getString("debugger.inspector.staticListTitle");
     protected final static String classNameLabel =
         Config.getString("debugger.inspector.classNameLabel");
 
@@ -97,17 +95,9 @@ public class ClassInspector extends Inspector
         };
         header.add(new JLabel(classNameLabel + " " + className));
         setHeader(header);
-        makeFrame(parent, false, false, false);
+        makeFrame(parent, false, false);
     }
-
-    /**
-     * Return the header title of the list in this inspector.
-     */
-    protected String getListTitle()
-    {
-        return staticListTitle;
-    }
-
+  
     /**
      * True if this inspector is used to display a method call result.
      */
@@ -175,5 +165,9 @@ public class ClassInspector extends Inspector
     protected void initInspectors(JTabbedPane inspTabs)
     {
         // not supported for class inspectors.
+    }
+
+    protected int getPreferredRows() {        
+        return 8;
     }
 }

@@ -22,7 +22,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2279 2003-11-05 16:41:58Z polle $
+ * @version    $Id: Inspector.java 2315 2003-11-10 16:36:47Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -31,8 +31,7 @@ public abstract class Inspector extends JFrame
 
     protected static HashMap inspectors = new HashMap();
 
-    protected final static String inspectorDirectoryName = "+inspector";
-
+   
     protected final static String showClassLabel =
         Config.getString("debugger.inspector.showClass");
     protected final static String inspectLabel =
@@ -60,9 +59,7 @@ public abstract class Inspector extends JFrame
     protected Package pkg;
     protected InvokerRecord ir;
 
-    // either a tabbed pane or null if there is only the standard inspector
-    protected JTabbedPane inspectorTabs = null;
-
+  
     // The top component of the UI
 	private JPanel header = new JPanel();
 
@@ -143,18 +140,9 @@ public abstract class Inspector extends JFrame
 
     // --- abstract interface to be implemented by subclasses ---
     
+       
     /**
-     * Return the header title of the list in this inspector.
-     */
-    abstract protected String getListTitle();
-    
-    /**
-     * True if this inspector is used to display a method call result.
-     */
-    abstract protected boolean showingResult();
-    
-    /**
-     * True if this inspector is used to display a method call result.
+     * Returns the list of data.
      */
     abstract protected Object[] getListData();
 
@@ -179,11 +167,12 @@ public abstract class Inspector extends JFrame
     abstract protected void remove();
 
     /**
-     * Intialise additional inspector panels.
+     * Return the preferred number of rows that should be shown in the list
+     * @return The number of rows
      */
-    abstract protected void initInspectors(JTabbedPane inspTabs);
-
+    abstract protected int getPreferredRows();
     // --- end of abstract methods ---
+
 
 
     /**
@@ -192,18 +181,17 @@ public abstract class Inspector extends JFrame
      */
     public void update()
     {
-        int maxRows = 8;
+        
 
         Object[] listData = getListData();
         fieldList.setListData(listData);
 
         int rows = listData.length + 2;
-        if (showingResult()) {
-            rows = 2;
+        
+        if(rows > getPreferredRows()) {
+            rows = getPreferredRows();
         }
-        else if (rows > maxRows) {
-            rows = maxRows;
-        }
+        
         fieldList.setVisibleRowCount(rows);
 
         if (fieldList != null) {
@@ -228,13 +216,7 @@ public abstract class Inspector extends JFrame
         else
             fieldList.setFixedCellWidth(-1);
 
-        pack();
-
-        if (inspectorTabs != null) {
-            for (int i = 1; i < inspectorTabs.getTabCount(); i++) {
-                ((InspectorPanel) inspectorTabs.getComponentAt(i)).refresh();
-            }
-        }
+        pack();       
 
         repaint();
 
@@ -314,8 +296,8 @@ public abstract class Inspector extends JFrame
             InvokerRecord newIr =
                 new ObjectInspectInvokerRecord("Math", selectedObjectName, ir);
                 
-            ObjectInspector.getInstance(false, selectedObject, 
-                                        selectedObjectName, pkg, isPublic ? newIr:null, this);
+            ObjectInspector.getInstance(selectedObject, selectedObjectName, 
+                                        pkg, isPublic ? newIr:null, this);
         }
     }
 
@@ -372,8 +354,7 @@ public abstract class Inspector extends JFrame
      * @param  isObject      Indicates if this is a object inspector window
      * @param  showAssert    Indicates if assertions should be shown.
      */
-    protected void makeFrame(JFrame parent, boolean isResult, boolean isObject,
-                            boolean showAssert)
+    protected void makeFrame(JFrame parent, boolean isObject, boolean showAssert)
     {
        
         addWindowListener(
@@ -404,9 +385,7 @@ public abstract class Inspector extends JFrame
         fieldList.requestDefaultFocus();
         fieldList.setFixedCellHeight(25);
         // if we are inspecting, we need a header
-        if (!isResult) {
-           // scrollPane.setColumnHeaderView(new JLabel(getListTitle()));
-        }
+        
         
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
@@ -451,20 +430,7 @@ public abstract class Inspector extends JFrame
         buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(buttonFramePanel, BorderLayout.EAST);
 
-        inspectorTabs = new JTabbedPane();
-        initInspectors(inspectorTabs);
-
-        // if we have any non-standard inspectors then we add a tabbed pane to
-        // hold them, otherwise we just add the one panel
-        if (inspectorTabs.getTabCount() > 0) {
-            inspectorTabs.insertTab("Standard", null, mainPanel, "Standard", 0);
-            getContentPane().add(inspectorTabs, BorderLayout.CENTER);
-            ((JPanel) getContentPane()).setBorder(BlueJTheme.generalBorderWithStatusBar);
-        } else {
-            inspectorTabs = null;
-            getContentPane().add(mainPanel, BorderLayout.CENTER);
-        }
-
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
 
         // create bottom button pane with "Close" button
         JPanel bottomPanel = new JPanel();
@@ -472,7 +438,7 @@ public abstract class Inspector extends JFrame
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        if (showAssert && isResult && pkg.getProject().inTestMode()) {          
+        if (showAssert && (this instanceof  ResultInspector) && pkg.getProject().inTestMode()) {          
             assertPanel = new AssertPanel();
             {
 				assertPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -484,7 +450,7 @@ public abstract class Inspector extends JFrame
         buttonPanel.setOpaque(false);
 
         // if we are doing an inspection, we add a label at the bottom, left of the close-button
-        if (!isResult) {
+        if (!(this instanceof  ResultInspector)) {
             mainPanel.add(header, BorderLayout.NORTH);
             if(isObject) {                
                 JButton classButton = new JButton(showClassLabel);
@@ -514,7 +480,7 @@ public abstract class Inspector extends JFrame
         getRootPane().setDefaultButton(button);
         ((JPanel) getContentPane()).add(bottomPanel, BorderLayout.SOUTH);
 
-        if (isResult) {
+        if ((this instanceof  ResultInspector)) {
             DialogManager.centreWindow(this, parent);
         } else {
             DialogManager.tileWindow(this, parent);
@@ -538,7 +504,7 @@ public abstract class Inspector extends JFrame
         final private JComponent valueContainer = new JPanel();
         
         /**
-         * Creates new renedere to display fields of an object
+         * Creates new rendere to display fields of an object
          * @param valueFieldWidth The width of value field
          */
         public FieldCellRenderer(final int valueFieldWidth) {
@@ -590,6 +556,13 @@ public abstract class Inspector extends JFrame
                     valueLabel.setText(valueString);   
                     this.setToolTipText(valueString);                                            
                 }
+                valueLabel.setVisible(true);
+            } else {
+                //It was not a "normal" object. We just show the string.
+                //It could be an array compression [...]
+                descriptionLabel.setText(s);
+                valueLabel.setVisible(false);
+                this.setToolTipText(null);
             }
             
             if (isSelected) {
