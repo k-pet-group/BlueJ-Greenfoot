@@ -24,7 +24,7 @@ import javax.swing.ImageIcon;
  * 
  * @see greenfoot.GreenfootObject
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootWorld.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: GreenfootWorld.java 3153 2004-11-24 13:52:11Z polle $
  */
 public class GreenfootWorld extends Observable
 {
@@ -351,24 +351,23 @@ public class GreenfootWorld extends Observable
             return objectsThere;
         }
     }
-
+    
     /**
      * Gets all the object of class cls at the given pixel location
      */
     public Collection getObjectsAtPixel(int x, int y, Class cls)
     {
         List objectsThere = new ArrayList();
-        int xCell = (int) Math.floor((double) x / (double) getCellWidth());
-        int yCell = (int) Math.floor((double) y / (double) getCellHeight());
-        Collection objectsAtCell = getObjectsAtCell(xCell, yCell, cls, true);
+        Collection objectsAtCell = getObjectsAtPixel(x, y, true);
         for (Iterator iter = objectsAtCell.iterator(); iter.hasNext();) {
             GreenfootObject go = (GreenfootObject) iter.next();
-            if (go.contains(x - xCell, y - yCell)) {
-                objectsThere.add(go);
+            if(cls.isInstance(go)) {
+                 objectsThere.add(go);
             }
         }
         return objectsThere;
     }
+
 
     public Collection getObjectsAtPixel(int x, int y, boolean checkImage)
     {
