@@ -35,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 601 2000-06-29 05:09:38Z mik $
+ * @version $Id: JdiDebugger.java 643 2000-07-18 03:46:08Z ajp $
  *
  * The startup process is as follows:
  *
@@ -175,11 +175,24 @@ public final class JdiDebugger extends Debugger
             return;
         }
         mainArg.setValue(SERVER_CLASSNAME);
-        optionsArg.setValue(VM_OPTIONS);
         //suspendArg.setValue("false");
 
         try {
-            machine = connector.launch(arguments);
+            machine = null;
+
+            try {
+                machine = connector.launch(arguments);
+            }
+            catch (VMStartException vmse) {
+                Debug.reportError("Target VM failed to initialise with default arguments");
+                Debug.reportError("Now trying to initialise VM with -classic option");
+            }
+
+            if (machine == null) {
+                optionsArg.setValue(VM_OPTIONS);
+                machine = connector.launch(arguments);
+            }
+
             process = machine.process();
             redirectIOStream(process.getErrorStream(), System.out, false);
             redirectIOStream(process.getInputStream(),
@@ -204,6 +217,7 @@ public final class JdiDebugger extends Debugger
         try {
             wait();
         } catch(InterruptedException e) {}
+        Terminal.enableTerminal();
         initialised = true;
         notifyAll();
         BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
@@ -414,7 +428,7 @@ public final class JdiDebugger extends Debugger
     /**
      * Set the remote "current directory" for relative file access.
      * Cannot be used currently because all the class loading goes wrong
-     * once the directory gets changed. Someone needs to fix the class 
+     * once the directory gets changed. Someone needs to fix the class
      * loading first.
      */
     public void setDirectory(String path)
@@ -866,8 +880,8 @@ public final class JdiDebugger extends Debugger
 
 
     /**
-     * Resume all threads in the VM. If the server thread is idle, make sure 
-     * that i doesn't get resumed. (The execution server thread waits for 
+     * Resume all threads in the VM. If the server thread is idle, make sure
+     * that i doesn't get resumed. (The execution server thread waits for
      * tasks suspended at an internal breakpoint - it should never get past
      * this breakpoint.)
      */
