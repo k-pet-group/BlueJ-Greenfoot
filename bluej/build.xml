@@ -194,7 +194,11 @@
 
     <target name="run">
         <!-- run the java code built into the jar files -->
-        <java jar="${boot.jar}" fork="yes" jvm="${run_java_home}/bin/java">
+        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">        
+        	<classpath>
+                <pathelement location="${boot.jar}"/>
+                <pathelement location="${build_java_home}/lib/tools.jar"/>
+            </classpath>
             <!-- <arg path="${bluej_home}/test-examples/dummy/bluej.pkg"/> -->
         </java>
     </target>
