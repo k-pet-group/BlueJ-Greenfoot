@@ -30,7 +30,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2394 2003-11-27 00:42:42Z bquig $
+ * @version $Id: Config.java 2437 2003-12-10 11:40:47Z mik $
  */
 
 public final class Config
@@ -728,6 +728,6 @@ public final class Config
      */
     public static String getBlueJIconPath()
     {
-        return bluejLibDir.getPath() + "/images/icons";
+        return bluejLibDir.getPath() + "/images";
     }
 }
