@@ -8,6 +8,7 @@ import javax.swing.event.*;
 import com.sun.jdi.*;
 import bluej.debugger.*;
 import bluej.debugger.jdi.*;
+import bluej.BlueJTheme;
 import bluej.Config;
 
 /**
@@ -161,7 +162,7 @@ public class ObjectReferenceInspector extends InspectorPanel
         clear();
         panel.addMouseListener(this);
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(Config.generalBorder);
+        mainPanel.setBorder(BlueJTheme.generalBorder);
         JPanel titlePanel = new JPanel();
         titlePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         JLabel classNameLabel = new JLabel(obj.getObjectReference().toString());

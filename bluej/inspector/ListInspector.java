@@ -14,6 +14,7 @@ import com.sun.jdi.*;
 import java.awt.event.*;
 import bluej.debugger.*;
 import bluej.debugger.jdi.*;
+import bluej.BlueJTheme;
 import bluej.Config;
 
 public class ListInspector extends bluej.debugger.InspectorPanel
@@ -43,7 +44,7 @@ public class ListInspector extends bluej.debugger.InspectorPanel
             return false;
         }
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(Config.generalBorder);
+        panel.setBorder(BlueJTheme.generalBorder);
         JPanel titlePanel = new JPanel();
         titlePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         JLabel classNameLabel = new JLabel("( " + "java.util.List" + " )  " + ((ClassType) obj.getObjectReference().referenceType()).name());
