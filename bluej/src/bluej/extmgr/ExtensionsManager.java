@@ -9,6 +9,7 @@ import bluej.utility.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
+import bluej.extensions.event.BlueJReadyEvent;
 
 /**
  *  Manages extensions and provides the main interface to PkgMgrFrame.
@@ -44,7 +45,7 @@ public class ExtensionsManager implements BlueJEventListener
         return instance;
     }
 
-    private final List extensions;
+    private List extensions;
     private PrefManager prefManager;
 
     /**
@@ -106,8 +107,10 @@ public class ExtensionsManager implements BlueJEventListener
         for (int index = 0; index < files.length; index++) {
             File thisFile = files[index];
 
+            // We do not want to try to make sense of directories
             if (thisFile.isDirectory()) continue;
 
+            // Skip also files that do not end in .jar
             if (!thisFile.getName().endsWith(".jar")) continue;
 
             // Ok, lets try to get a wrapper up and running
@@ -154,7 +157,7 @@ public class ExtensionsManager implements BlueJEventListener
 
             // Found it, this wrapper is already loaded...
             if (thisClassName.equals(aClassName)) {
-                Debug.message("isWrapperAlreadyLoaded==true: className=" +thisClassName+" jarName="+thisJarName);
+                Debug.message("Extension is already loaded: " +thisClassName+" jarName="+thisJarName);
                 return true;
             }
         }
@@ -185,9 +188,7 @@ public class ExtensionsManager implements BlueJEventListener
 
 
     /**
-     *  Informs extension wrappers that a package has been opened
-     *
-     * @param  pkg  the package that has just been opened.
+     * Informs extension that a package has been opened
      */
     public void packageOpened(Package pkg)
     {
@@ -199,11 +200,10 @@ public class ExtensionsManager implements BlueJEventListener
      *  This package frame is about to be closed.
      *  The issue here is to remove the extension if this is the right time to do it.
      *  NOTA: This must be syncronized since it changes the extensionslist
-     *
-     * @param  pkg  the package that is about to be closed
      */
     public synchronized void packageClosing(Package pkg)
     {
+        // Before removing the extension let signl that this package is closing
         delegateEvent(new PackageEvent(PackageEvent.PACKAGE_CLOSING, pkg));
 
         // Let's assume we are NOT going to delete the extension...
@@ -234,8 +234,6 @@ public class ExtensionsManager implements BlueJEventListener
 
             // The following terminated the Extension
             aWrapper.terminate();
-
-            // and this removes the Wrapper from the list of wrappers.
             iter.remove();
         }
     }
@@ -246,6 +244,7 @@ public class ExtensionsManager implements BlueJEventListener
      */
     public void addMenuItems( PkgMgrFrame pmf )
     {
+        // Try to decide if this frame needs a separator or not
         pmf.toolsExtensionsCheckSeparator();
 
         for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
@@ -287,9 +286,7 @@ public class ExtensionsManager implements BlueJEventListener
 
 
     /**
-     *  Delegates an event to all known extensions.
-     *
-     * @param  event  the event to delegate
+     * Delegates an event to all known extensions.
      */
     public void delegateEvent(BlueJExtensionEvent event)
     {
@@ -327,7 +324,7 @@ public class ExtensionsManager implements BlueJEventListener
 
         if ( eventId == BlueJEvent.CREATE_VM_DONE) 
             {
-            delegateEvent (new ApplicationEvent (ApplicationEvent.APP_READY_EVENT));
+            delegateEvent (new BlueJReadyEvent ());
             return;
             }
 
