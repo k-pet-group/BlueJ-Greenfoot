@@ -27,9 +27,9 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2577 2004-06-08 13:08:42Z fisker $
+ * @version $Id: ObjectWrapper.java 2578 2004-06-09 11:43:24Z fisker $
  */
-public class ObjectWrapper extends JComponent implements MouseListener, MouseMotionListener
+public class ObjectWrapper extends JComponent
 {
     // Strings
     static String methodException = Config.getString("debugger.objectwrapper.methodException");
@@ -44,6 +44,10 @@ public class ObjectWrapper extends JComponent implements MouseListener, MouseMot
     static final Color bg = Config.getItemColour("colour.wrapper.bg");
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
     static final Color textColour = Color.white;
+    
+    // Strokes
+    static final Stroke selectedStroke = new BasicStroke(2.5f);
+    static final Stroke unselectedStroke = new BasicStroke(1.0f);
     
     public static final int GAP = 5;    // gap between objects (left of each object)
     public static final int WIDTH = 90;
@@ -117,9 +121,8 @@ public class ObjectWrapper extends JComponent implements MouseListener, MouseMot
         
         setMinimumSize(new Dimension(WIDTH+GAP, HEIGHT));
         setSize(WIDTH + GAP, HEIGHT);
-    	addMouseListener(this);
-    	addMouseMotionListener(this);
     	setFocusable(false);
+    	setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
 
     
@@ -361,7 +364,8 @@ public class ObjectWrapper extends JComponent implements MouseListener, MouseMot
         g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
         g.setColor(bg);
         g.fillRoundRect(x,y,w-shad,h-shad,corner,corner);
-        g.setColor((isSelected ? Color.BLUE : Color.BLACK));
+        g.setColor( Color.BLACK );
+        g.setStroke((isSelected ? selectedStroke : unselectedStroke));
         g.drawRoundRect(x,y,w-shad, h-shad,corner,corner);
     }
 
@@ -369,9 +373,6 @@ public class ObjectWrapper extends JComponent implements MouseListener, MouseMot
     {
     	
         g.setColor(textColour);
-        if (isSelected()){
-        	g.setColor(Color.YELLOW);
-        }
         g.setFont(PrefMgr.getStandardFont());
 
         FontMetrics fm = g.getFontMetrics();
@@ -424,11 +425,7 @@ public class ObjectWrapper extends JComponent implements MouseListener, MouseMot
         int menuOffset;
         super.processMouseEvent(evt);
         if(evt.isPopupTrigger()) {
-            if(menu == null)
-                return;
-
-            menuOffset = calcOffset();
-            menu.show(this, evt.getX() + 1, evt.getY() - menuOffset);
+            showMenu(evt.getX(), evt. getY());
         }
         else if(evt.getID() == MouseEvent.MOUSE_CLICKED) {
             if(evt.getClickCount() > 1)  // double click
@@ -474,6 +471,28 @@ public class ObjectWrapper extends JComponent implements MouseListener, MouseMot
 		    offsetFactor = menuCount;
 		menuOffset = (menu.getComponentCount() - offsetFactor) * itemHeight;
 		return menuOffset;
+	}
+	
+	public void showMenu(int x, int y){
+		int menuOffset;
+		
+        if(menu == null)
+            return;
+
+        menuOffset = calcOffset();
+        //SingleSelectionModel ssm = menu.getSelectionModel();
+        //ssm.setSelectedIndex(4);
+        //ssm.clearSelection();
+        Component c = menu.getComponent(4);
+        menu.setSelected( c );
+        //System.err.println("selected" + c);
+        menu.show(this, x + 1, y - menuOffset);
+       
+        
+	}
+	
+	public void showMenu(){
+		showMenu(getWidth()/2, getHeight()/2);
 	}
 
 	/**
@@ -551,46 +570,5 @@ public class ObjectWrapper extends JComponent implements MouseListener, MouseMot
 	 */
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-	 */
-	public void mouseClicked(MouseEvent e) {
-	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-	 */
-	public void mouseEntered(MouseEvent e) {
-	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-	 */
-	public void mouseExited(MouseEvent e) {
-	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-	 */
-	public void mousePressed(MouseEvent e) {
-	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-	 */
-	public void mouseReleased(MouseEvent e) {
-	}
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
-	 */
-	public void mouseDragged(MouseEvent e) {
-	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
-	 */
-	public void mouseMoved(MouseEvent e) {
 	}
 }

@@ -17,7 +17,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2577 2004-06-08 13:08:42Z fisker $
+ * @version $Id: ObjectBench.java 2578 2004-06-09 11:43:24Z fisker $
  */
 public class ObjectBench
 {
@@ -137,15 +137,11 @@ public class ObjectBench
 				break;
 			}
 			case KeyEvent.VK_ENTER:{
-				if (selectedObjectWrapper != null){
-					selectedObjectWrapper.getMenu().show(containerPanel, 
-											(int)selectedObjectWrapper.getX(), 
-											(int)selectedObjectWrapper.getY());
-				}
+				showPopupMenu();
 				break;
 			}
 			case KeyEvent.VK_SPACE:{
-				fireObjectEvent(selectedObjectWrapper);
+				showPopupMenu();
 				break;
 			}
 		}
@@ -159,7 +155,16 @@ public class ObjectBench
 		}
 	}
     
-    public void adjustBench(ObjectWrapper objectWrapper){
+    /**
+	 * 
+	 */
+	private void showPopupMenu() {
+		if (selectedObjectWrapper != null){
+			selectedObjectWrapper.showMenu();
+		}
+	}
+
+	public void adjustBench(ObjectWrapper objectWrapper){
     	Rectangle wrapper = new Rectangle(objectWrapper.getX(), objectWrapper.getY(),
     									  objectWrapper.getWidth(), objectWrapper.getHeight());
     	//viewPort.scrollRectToVisible(wrapper); //this doesn't word! Bug in java?
