@@ -11,7 +11,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2231 2003-10-28 05:04:41Z ajp $
+ * @version $Id: JdiObject.java 2527 2004-05-10 11:52:05Z polle $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -404,8 +404,16 @@ public class JdiObject extends DebuggerObject
                         fieldString = "public ";
                     }
                 }
-
-                fieldString += JavaNames.stripPrefix(field.typeName())
+                
+                String typeName = null;                
+                if (val instanceof ObjectReference)
+                {
+                    typeName = getFieldObject(0).getClassName();
+                } else {
+                    typeName = field.typeName();
+                }
+                
+                fieldString += JavaNames.stripPrefix(typeName) 
                          + " " + field.name()
                          + " = " + valString;
 
