@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 577 2000-06-22 02:25:35Z mik $
+ * @version $Id: ClassTarget.java 609 2000-06-30 04:24:33Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -389,7 +389,7 @@ public class ClassTarget extends EditableTarget
      */
     public void saveEvent(Editor editor)
     {
-        analyseDependencies();
+        analyseSource(true);
     }
 
     /**
@@ -551,29 +551,48 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     *  Analyse the current dependencies in the source code and update the
-     *  dependencies in the graphical display accordingly.
+     * Analyse the source code.
      */
-    public void analyseDependencies()
+    public void analyseSource(boolean modifySource)
     {
-    	// currently we don't remove uses dependencies, but just warn
-
-    	//removeAllOutDependencies();
-    	removeInheritDependencies();
-    	unflagAllOutDependencies();
-
         ClassInfo info = sourceInfo.getInfo(getSourceFile().getPath(),
                                             getPackage().getAllClassnames());
 
         // info will be null if the source was unparseable
-        if(info == null) {
-            getPackage().repaint();
-            return;
+        if(info != null) {
+
+            // the following two may update the package display but they
+            // will not modify the classes source code
+            analyseRole(info);
+            analyseDependencies(info);
+
+            if (modifySource) {
+                if(analyseClassName(info))
+                    System.out.println("Class name changed");
+                if(analysePackageName(info))
+                    System.out.println("Package line changed");
+            }
         }
 
-        if(checkName(info))
-            return;
+        getPackage().repaint();
+    }
 
+    public boolean analyseClassName(ClassInfo info)
+    {
+        String newName = info.getName();
+
+        return (!getBaseName().equals(newName));
+    }
+
+    public boolean analysePackageName(ClassInfo info)
+    {
+        String newName = info.getPackage();
+
+        return (!getPackage().getQualifiedName().equals(newName));
+    }
+
+    public void analyseRole(ClassInfo info)
+    {
         if(info.isApplet()) {
             if( ! (role instanceof AppletClassRole))
                 role = new AppletClassRole();
@@ -587,9 +606,21 @@ public class ClassTarget extends EditableTarget
 
         setInterface(info.isInterface());
         setAbstract(info.isAbstract());
+    }
 
-        // handle superclass
+    /**
+     *  Analyse the current dependencies in the source code and update the
+     *  dependencies in the graphical display accordingly.
+     */
+    public void analyseDependencies(ClassInfo info)
+    {
+    	// currently we don't remove uses dependencies, but just warn
 
+    	//removeAllOutDependencies();
+    	removeInheritDependencies();
+    	unflagAllOutDependencies();
+
+        // handle superclass dependency
         if(info.getSuperclass() != null) {
             DependentTarget superclass = (DependentTarget)getPackage().getTarget(info.getSuperclass());
             if (superclass != null)
@@ -599,7 +630,6 @@ public class ClassTarget extends EditableTarget
         }
 
         // handle implemented interfaces
-
         Vector vect = info.getImplements();
         for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
             String name = (String)e.nextElement();
@@ -611,8 +641,8 @@ public class ClassTarget extends EditableTarget
                                   false);
             }
         }
-        // handle used classes
 
+        // handle used classes
         vect = info.getUsed();
         for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
             String name = (String)e.nextElement();
@@ -621,20 +651,13 @@ public class ClassTarget extends EditableTarget
                 getPackage().addDependency(new UsesDependency(getPackage(), this, used), true);
         }
 
-        checkForUsesInconsistencies();
-
-        getPackage().repaint();
-    }
-
-    private void checkForUsesInconsistencies()
-    {
+        // check for inconsistent use dependencies
         for(int i = 0; i < outUses.size(); i++) {
             UsesDependency usesDep = ((UsesDependency)outUses.elementAt(i));
             if(! usesDep.isFlagged())
                 getPackage().setStatus(usesArrowMsg + usesDep);
         }
     }
-
 
     /**
      * Check to see that name has not changed.
@@ -669,7 +692,7 @@ public class ClassTarget extends EditableTarget
                 myPkg.removeClass(this);
                 myPkg.addTarget(newTarget);
 
-                newTarget.analyseDependencies();
+//                newTarget.analyseDependencies();
 
                 return true;
             }
