@@ -15,7 +15,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2827 2004-07-28 10:36:40Z polle $
+ * @version $Id: JavaUtils.java 2951 2004-08-27 01:47:46Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -70,7 +70,20 @@ public abstract class JavaUtils {
      * @return The description.
      */
     abstract public String getShortDesc(Method method, String [] paramnames);
-    
+
+    /**
+     * Get a "short description" of a method, and map class type parameters to
+     * the given types. A short description is like the signature, but
+     * substitutes the parameter names for their types. Generic method type
+     * parameters are left unmapped.
+     * 
+     * @param method   The method to get the description of
+     * @param paramnames The parameter names of the method
+     * @param tparams  The map (String -> GenType) for class type parameters
+     * @return The description.
+     */
+    abstract public String getShortDesc(Method method, String [] paramnames, Map tparams);
+
     /**
      * Get a long String describing the method. A long description is
      * similar to the short description, but it has type names and parameters

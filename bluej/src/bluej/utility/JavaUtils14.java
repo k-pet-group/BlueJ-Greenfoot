@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import bluej.debugger.gentype.*;
 
@@ -12,7 +13,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 2827 2004-07-28 10:36:40Z polle $
+ * @version $Id: JavaUtils14.java 2951 2004-08-27 01:47:46Z davmac $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -31,6 +32,11 @@ public class JavaUtils14 extends JavaUtils
         return makeDescription(name, paramTypes, paramnames, false, false);
     }
 
+    public String getShortDesc(Method method, String [] paramnames, Map tparams)
+    {
+        return getShortDesc(method, paramnames);
+    }
+    
     public String getLongDesc(Method method, String[] paramnames)
     {
         String name = getTypeName(method.getReturnType()) + " " + method.getName();

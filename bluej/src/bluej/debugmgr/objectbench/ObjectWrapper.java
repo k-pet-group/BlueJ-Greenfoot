@@ -13,6 +13,8 @@ import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
@@ -39,7 +41,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2793 2004-07-13 16:59:39Z mik $
+ * @version $Id: ObjectWrapper.java 2951 2004-08-27 01:47:46Z davmac $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -177,7 +179,7 @@ public class ObjectWrapper extends JComponent
      * class inheritance hierarchy.
      *
      * @param className   class name of the object for which the menu is to be built
-     *                    ("raw" name only)
+     *                    (fully qualified)
      */
     protected void createMenu(String className)
     {
@@ -201,22 +203,39 @@ public class ObjectWrapper extends JComponent
 
             // get declared methods for the class
             MethodView[] declaredMethods = view.getDeclaredMethods();
+            
+            // get the generic parameter map & reflective
+            Map tparTypes = obj.getGenericParams();
+            if (tparTypes == null)
+                tparTypes = new HashMap();
+            Reflective reflective = obj.getGenType().getReflective();
+            for (Iterator i = reflective.getTypeParams().iterator(); i.hasNext();) {
+                GenTypeDeclTpar tpar = (GenTypeDeclTpar) i.next();
+                String paramName = tpar.getTparName();
+                if (!tparTypes.containsKey(paramName)) {
+                    tparTypes.put(paramName, tpar.getBound());
+                }
+            }
 
             // create method entries for locally declared methods
             int itemLimit = itemsOnScreen - 8 - classes.size();
-            createMenuItems(menu, declaredMethods, filter, 0,
-                            declaredMethods.length, itemLimit);
+            createMenuItems(menu, declaredMethods, filter, itemLimit, tparTypes);
 
             // create submenus for superclasses
             for(int i = 1; i < classes.size(); i++ ) {
                 Class currentClass = (Class)classes.get(i);
                 view = View.getView(currentClass);
+                
+                // map generic type paramaters to the current superclass
+                GenTypeClass c = new GenTypeClass(reflective, tparTypes);
+                tparTypes = c.mapToSuper(currentClass.getName());
+                reflective = reflective.superTypeByName(currentClass.getName()).getReflective();
+                
                 declaredMethods = view.getDeclaredMethods();
                 JMenu subMenu = new JMenu(inheritedFrom + " "
                                + JavaNames.stripPrefix(currentClass.getName()));
                 subMenu.setFont(PrefMgr.getStandoutMenuFont());
-                createMenuItems(subMenu, declaredMethods, filter, 0,
-                                declaredMethods.length, (itemsOnScreen / 2));
+                createMenuItems(subMenu, declaredMethods, filter, (itemsOnScreen / 2), tparTypes);
                 menu.insert(subMenu, 0);
             }
 
@@ -265,20 +284,21 @@ public class ObjectWrapper extends JComponent
      *                  submenus
      */
     private void createMenuItems(JComponent menu, MethodView[] methods,
-                                 ViewFilter filter, int first, int last,
-                                 int sizeLimit)
+                                 ViewFilter filter, int sizeLimit,
+                                 Map genericParams)
     {
         JMenuItem item;
 
         Arrays.sort(methods);
-        for(int i = first; i < last; i++) {
+        for(int i = 0; i < methods.length; i++) {
             try {
                 MethodView m = methods[i];
                 if(!filter.accept(m))
                     continue;
 
-                String methodSignature = m.getSignature();   // uses types for params
-                String methodDescription = m.getShortDesc(); // uses names for params
+                String methodSignature = m.getCallSignature();   // uses types for params
+                String methodDescription = m.getShortDesc(genericParams); // uses names for params
+
                 // check if method signature has already been added to a menu
                 if(methodsUsed.containsKey(methodSignature)) {
                     methodDescription = methodDescription

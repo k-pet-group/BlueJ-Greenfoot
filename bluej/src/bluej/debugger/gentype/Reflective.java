@@ -3,37 +3,49 @@ package bluej.debugger.gentype;
 import java.util.Iterator;
 import java.util.List;
 
-/*
+/**
  * A "reflective" is an object representing a java type. This interface
  * provides methods to, for instance, find the superclass/superinterfaces,
  * determine the generic type parameters, etc.
  *  
  * @author Davin McCall
- * @version $Id: Reflective.java 2581 2004-06-10 01:09:01Z davmac $
+ * @version $Id: Reflective.java 2951 2004-08-27 01:47:46Z davmac $
  */
 public abstract class Reflective {
 
-    // Get the name of the class this reflective represents
-    // (eg. "java.util.List").
+    /**
+     * Get the name of the class or interface represented by the reflective.
+     * @return The fully qualified class/interface name.
+     */
     public abstract String getName();
     
-    // Get the formal type parameters of the class this reflective represents
-    // (ordered List of GenTypeDeclTpar)
+    /**
+     * Get the formal type parameters of the class/interface this reflective
+     * represents.
+     * @return  The parameters as a List of GenTypeDeclTpar
+     */
     public abstract List getTypeParams();
     
-    // Return a list of Reflective.
+    /**
+     * Get the supertypes of this reflective, as a list of reflectives. 
+     * @return A List of Reflectives
+     */
     public abstract List getSuperTypesR();
     
-    // Return a list of GenType. The arguments to the base type are
-    // expressed in terms of the parent type, for instance,
-    // List<T> extends Collection<T>.
+    /**
+     * Get the supertypes of this reflective, as a list of GenTypes. The type
+     * parameter names will refer to the type parameters in the parent type.
+     * @return A List of GenType.
+     */
     public abstract List getSuperTypes();
     
-    // Get the corresponding array reflective
-    // public abstract Reflective getArray();
-    
-    // Get a supertype by its raw name. The default implementation just
-    // searches the list returned by getSuperTypes().
+    /**
+     * Get a supertype (as a GenTypeClass) by name. The default implementation
+     * uses getSuperTypes() and searches the resulting list.
+     * 
+     * @param rawName   the name of the supertype to find
+     * @return          the supertype as a GenTypeClass
+     */
     public GenTypeClass superTypeByName(String rawName)
     {
         List superTypes = getSuperTypes();

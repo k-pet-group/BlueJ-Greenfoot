@@ -1,9 +1,7 @@
 package bluej.utility;
 
 import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import bluej.debugger.gentype.*;
 
@@ -11,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2829 2004-08-03 05:02:05Z davmac $
+ * @version $Id: JavaUtils15.java 2951 2004-08-27 01:47:46Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -21,7 +19,7 @@ public class JavaUtils15 extends JavaUtils {
         Type[] params = method.getGenericParameterTypes();
         return makeSignature(name, params, method.isVarArgs());
     }
-
+    
     public String getShortDesc(Method method, String [] paramnames)
     {
         String name = getTypeParameters(method);
@@ -34,6 +32,33 @@ public class JavaUtils15 extends JavaUtils {
         return makeDescription(name, paramTypeNames, paramnames, false, method.isVarArgs());
     }
     
+    public String getShortDesc(Method method, String [] paramnames, Map tparams)
+    {
+        // Don't want to modify the map which was passed in, so make a copy
+        // of it:
+        Map newMap = new HashMap();
+        if (tparams != null)
+            newMap.putAll(tparams);
+        
+        // add any method type parameters into the map, replacing existing
+        // map entries.
+        List myParams = getTypeParams(method);
+        for(Iterator i = myParams.iterator(); i.hasNext(); ) {
+            GenTypeDeclTpar tpar = (GenTypeDeclTpar)i.next();
+            newMap.put(tpar.getTparName(), tpar);
+        }
+        
+        String name = getTypeParameters(method);
+        GenType rtype = getReturnType(method);
+        name += rtype.mapTparsToTypes(newMap).toString(true) + " " + method.getName();
+        GenType[] paramTypes = getParamGenTypes(method);
+        String[] paramTypeNames = new String[paramTypes.length];
+        for(int i = 0; i < paramTypes.length; i++)
+            paramTypeNames[i] = paramTypes[i].mapTparsToTypes(newMap).toString(true);
+        
+        return makeDescription(name, paramTypeNames, paramnames, false, method.isVarArgs());
+    }
+
     public String getLongDesc(Method method, String [] paramnames)
     {
         String name = getTypeParameters(method);
@@ -336,8 +361,9 @@ public class JavaUtils15 extends JavaUtils {
     /**
      * Get the type parameters for a generic method. For example, for the
      * method:   <code>&lt;T&gt; addAll(List&lt;T&gt;)</code>
-     * this would return "&lt;T&gt;".
+     * this would return "&lt;T&gt; " (including the trailing space).
      * Returns the empty string for a non-generic method.
+     * 
      * @param method  The method to retrieve the parameters of
      * @return the parameters (or an empty string)
      */

@@ -12,7 +12,7 @@ import bluej.utility.JavaUtils;
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 2655 2004-06-24 05:53:55Z davmac $
+ *  @version $Id: MethodView.java 2951 2004-08-27 01:47:46Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -54,12 +54,33 @@ public class MethodView extends CallableView implements Comparable
 
     /**
      * Returns a signature string in the format
-     *  name(type,type,type)
+     * "type name(type,type,type)".
      */
     public String getSignature() {
         return JavaUtils.getJavaUtils().getSignature(method);
     }
-
+    
+    /**
+     * Get the "call signature", ie. the signature without the return type.
+     * This should not be made user visible, it is for internal purposes only.
+     * It is useful for locating methods which override a method in a super
+     * class, without having to worry about covariant returns and generic
+     * methods etc.
+     */
+    public String getCallSignature() {
+        StringBuffer name = new StringBuffer();
+        name.append(method.getName());
+        name.append('(');
+        Class[] params = method.getParameterTypes();
+        for(int i = 0; i < params.length; i++) {
+            name.append(params[i].getName());
+            if (i != params.length - 1)
+                name.append(',');
+        }
+        name.append(')');
+        return name.toString();
+    }
+    
     /**
      * Get a short String describing this member. A description is similar
      * to the signature, but it has parameter names in it instead of types.
@@ -68,6 +89,20 @@ public class MethodView extends CallableView implements Comparable
         return JavaUtils.getJavaUtils().getShortDesc(method, getParamNames());
     }
 
+    /**
+     * Return a short description string, mapping type parameters from the
+     * class to the corresponding instantiation type. Type parameters not
+     * contained in the map are mapped to their erasure type; type parameters
+     * from a generic method are left unmapped.
+     *  
+     * @param genericParams  The map of String -> GenType
+     * @return  the signature string with type parameters mapped
+     */
+    public String getShortDesc(Map genericParams)
+    {
+        return JavaUtils.getJavaUtils().getShortDesc(method, getParamNames(), genericParams);
+    }
+    
     /**
      * Get a long String describing this member. A long description is
      * similar to the short description, but it has type names and parameters
