@@ -605,8 +605,14 @@ public class PkgMgrFrame extends PkgFrame
 		    Utility.showError(this, nameUsedError);
 		    return;
 		}
-		ClassTarget target = new ClassTarget(pkg, name);
+
+		ClassTarget target =  null;
 		int classType = dlg.getClassType();
+		if(classType == NewClassDialog.NC_APPLET)
+		    target = new AppletTarget(pkg, name);
+		else
+		    target = new ClassTarget(pkg, name);
+		
 		target.setAbstract(classType == NewClassDialog.NC_ABSTRACT);
 		target.setInterface(classType == NewClassDialog.NC_INTERFACE);
 		target.generateSkeleton();

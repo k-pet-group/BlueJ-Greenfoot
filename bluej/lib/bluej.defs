@@ -102,6 +102,8 @@ template.stdclass=stdclass.tmpl
 template.abstract=abstract.tmpl
 template.interface=interface.tmpl
 template.shell=shell.tmpl
+template.applet=applet.tmpl
+template.html=html.tmpl
 
 ## Images
 image.icon=bluej-icon.gif

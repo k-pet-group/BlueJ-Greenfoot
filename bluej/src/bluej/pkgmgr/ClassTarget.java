@@ -33,7 +33,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /** 
- ** @version $Id: ClassTarget.java 114 1999-06-08 04:02:49Z mik $
+ ** @version $Id: ClassTarget.java 118 1999-06-08 05:35:11Z bruce $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -424,8 +424,8 @@ public class ClassTarget extends EditableTarget
 	pkg.repaint();
     }
 
-    private Class last_class = null;
-    private JPopupMenu menu = null;
+    protected Class last_class = null;
+    protected JPopupMenu menu = null;
     boolean compiledMenu = false;
 
     public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
@@ -452,9 +452,9 @@ public class ClassTarget extends EditableTarget
 		menu.show(editor, evt.getX(), evt.getY());
     }
 	
-    private Hashtable actions;
+    protected Hashtable actions;
 
-    private JPopupMenu createMenu(Class cl, JFrame editorFrame) {
+    protected JPopupMenu createMenu(Class cl, JFrame editorFrame) {
 	actions = new Hashtable();
 	
 	JPopupMenu menu = new JPopupMenu(getName() + " operations");
@@ -483,7 +483,7 @@ public class ClassTarget extends EditableTarget
 	return menu;
     }
 	
-    private void addMenuItem(JPopupMenu menu, String itemString, boolean enabled)
+    protected void addMenuItem(JPopupMenu menu, String itemString, boolean enabled)
     {
 	JMenuItem item;
 
@@ -495,48 +495,50 @@ public class ClassTarget extends EditableTarget
 	    item.setEnabled(false);
     }
 
-    private void createClassMenu(JPopupMenu menu, Class cl)
+    protected void createClassMenu(JPopupMenu menu, Class cl)
     {
 	View view = View.getView(cl, pkg.getSearcher());
 	ViewFilter filter= new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
 	ConstructorView[] constructors = view.getConstructors();
-	// Debug.message("Adding constructors for " + cl);
+	
+	Debug.message("Adding constructors for " + cl);
+	Debug.message("Constructor count = " + constructors.length);
 	if (createMenuItems(menu, constructors, filter, 0, constructors.length, "new "))
 	    menu.addSeparator();
 		
 	filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
 	MethodView[] allMethods = view.getAllMethods();
-	// Debug.message("Adding static methods for " + cl);
+	Debug.message("Adding static methods for " + cl);
 	if(createMenuItems(menu, allMethods, filter, 0, allMethods.length, ""))
 	    menu.addSeparator();
     }
 	
-    private boolean createMenuItems(JPopupMenu menu,
+    protected boolean createMenuItems(JPopupMenu menu,
 				    MemberView[] members, ViewFilter filter, 
 				    int first, int last, String prefix)
     {
+	Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
 	boolean hasEntries = false;
 	JMenuItem item;
 		
-	for(int i = first; i < last; i++)
-	    {
-		try {
-		    MemberView m = members[last - i - 1];
-		    // Debug.message("createSubMenu - calling filter.accept");
-		    if(!filter.accept(m))
-			continue;
-		    // Debug.message("createSubMenu - creating MenuItem");
-		    item = new JMenuItem(prefix + m.getShortDesc());
-		    item.addActionListener(this);
-		    item.setFont(menuFont);
-		    actions.put(item, m);
-		    menu.add(item);
-		    hasEntries = true;
-		} catch(Exception e) {
-		    Debug.reportError(methodException + e);
-		    e.printStackTrace();
-		}
+	for(int i = first; i < last; i++) {
+	    try {
+		MemberView m = members[last - i - 1];
+		//Debug.message("createSubMenu - calling filter.accept");
+		if(!filter.accept(m))
+		    continue;
+		Debug.message("createSubMenu - creating MenuItem");
+		item = new JMenuItem(prefix + m.getShortDesc());
+		item.addActionListener(this);
+		item.setFont(menuFont);
+		actions.put(item, m);
+		menu.add(item);
+		hasEntries = true;
+	    } catch(Exception e) {
+		Debug.reportError(methodException + e);
+		e.printStackTrace();
 	    }
+	}
 	return hasEntries;
     }
 

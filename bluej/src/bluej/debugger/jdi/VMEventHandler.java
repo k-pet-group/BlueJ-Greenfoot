@@ -37,7 +37,7 @@ public class VMEventHandler implements Runnable {
     public void run() {
         while (!exiting) {
             try {
-                EventSet eventSet = queue.remove();
+		EventSet eventSet = queue.remove();
 
                 boolean resumeStoppedApp = false;
 		// ** I am not so sure about this - it seams I should only

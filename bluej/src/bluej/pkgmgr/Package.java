@@ -34,7 +34,7 @@ import sun.tools.javac.BlueJJavacMain;
 // import sun.tools.javadoc.BlueJDocumentationGenerator;
 
 /**
- ** @version $Id: Package.java 114 1999-06-08 04:02:49Z mik $
+ ** @version $Id: Package.java 118 1999-06-08 05:35:11Z bruce $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -461,6 +461,13 @@ public class Package extends Graph
 			((ClassTarget)target).setLibraryTarget(true);
 		    }
 		}
+		else if("AppletTarget".equals(type)) {
+		    target = new AppletTarget(this);
+		    if (libraryPackage) {
+			target.state = Target.S_NORMAL;
+			((AppletTarget)target).setLibraryTarget(true);
+		    }
+		}
 		else if("ImportedClassTarget".equals(type))
 		    target = new ImportedClassTarget(this);
 		else if("PackageTarget".equals(type))
@@ -502,7 +509,12 @@ public class Package extends Graph
 	    Target t = (Target)e.nextElement();
 	    if((t instanceof ClassTarget)
 	       && ((ClassTarget)t).upToDate()) {
-		ClassTarget ct = (ClassTarget)t;
+		ClassTarget ct = null;
+		if(t instanceof AppletTarget)
+		    ct = (AppletTarget)t;
+		else
+		    ct = (ClassTarget)t;
+//ClassTarget ct = (ClassTarget)t;
 		if (readyToPaint)
 		    ct.setState(Target.S_NORMAL);
 		// XXX: Need to invalidate things dependent on t
@@ -1329,8 +1341,6 @@ public class Package extends Graph
     /**  OBSOLETE!! **/
     public void notifyCompiled(SourceClass src, BatchEnvironment env)
     {
-	// XXX: remove existing dependencies???
-		
 //  	Hashtable used = new Hashtable();
 		
 //  	ClassDeclaration[] interfaces = src.getInterfaces();

@@ -9,7 +9,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: NewClassDialog.java 60 1999-05-03 02:22:57Z mik $
+ ** @version $Id: NewClassDialog.java 118 1999-06-08 05:35:11Z bruce $
  ** @author Justin Tan
  ** @author Michael Kolling
  **
@@ -23,6 +23,7 @@ public class NewClassDialog extends JDialog
     static final int NC_DEFAULT = 0;
     static final int NC_ABSTRACT = 1;
     static final int NC_INTERFACE = 2;
+    static final int NC_APPLET = 3;
 
     // Internationalisation
     static final String okay = Config.getString("okay");
@@ -33,7 +34,9 @@ public class NewClassDialog extends JDialog
     static final String newClassStr = Config.getString("pkgmgr.newClass.newClass");
     static final String newAbstractClassStr = Config.getString("pkgmgr.newClass.newAbstractClass");
     static final String newInterfaceStr = Config.getString("pkgmgr.newClass.newInterface");
+    static final String newAppletStr = Config.getString("pkgmgr.newClass.newApplet");
     static final String invalidNameStr = Config.getString("error.newClass.invalidName");
+
 
     private String newClassName = "";
     private int classType = NC_DEFAULT;
@@ -41,6 +44,7 @@ public class NewClassDialog extends JDialog
     private JRadioButton typeNormal;
     private JRadioButton typeAbstract;
     private JRadioButton typeInterface;
+    private JRadioButton typeApplet;
     private JTextField textFld;
 
     private boolean ok;		// result: which button?
@@ -86,7 +90,9 @@ public class NewClassDialog extends JDialog
 	typeInterface = new JRadioButton(newInterfaceStr, false);
 	compPanel.add(typeInterface);
 	bGroup.add(typeInterface);
-		
+	typeApplet = new JRadioButton(newAppletStr, false);
+	compPanel.add(typeApplet);
+	bGroup.add(typeApplet);	
 	getContentPane().add("Center", compPanel);
 		
 	Utility.centreDialog(this);
@@ -135,6 +141,8 @@ public class NewClassDialog extends JDialog
 		classType = NC_ABSTRACT;
 	    else if(typeInterface.isSelected())
 		classType = NC_INTERFACE;
+	    else if(typeApplet.isSelected())
+		classType = NC_APPLET;
 	    ok = true;
 	    setVisible(false);
 	}

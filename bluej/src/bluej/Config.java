@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 111 1999-06-04 06:16:57Z mik $
+ ** @version $Id: Config.java 118 1999-06-08 05:35:11Z bruce $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -52,7 +52,6 @@ public class Config
     private static Properties lang_props;	// The internationalisation
 						//  dictionary
     public static Properties moe_props;		// moe (editor) properties
-
     private static String dirname = (slash == '/') ? ".bluej" : "bluej";
     private static String bluej_home;
     private static String sys_confdir;
