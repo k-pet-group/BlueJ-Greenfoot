@@ -1,4 +1,4 @@
-// $ANTLR 2.7.2: "java.g" -> "JavaLexer.java"$
+// $ANTLR 2.7.4: "java.g" -> "JavaLexer.java"$
 
     package bluej.parser;
 
@@ -48,24 +48,24 @@ public interface JavaTokenTypes {
 	int LITERAL_package = 44;
 	int SEMI = 45;
 	int LITERAL_import = 46;
-	int LBRACK = 47;
-	int RBRACK = 48;
-	int LITERAL_void = 49;
-	int LITERAL_boolean = 50;
-	int LITERAL_byte = 51;
-	int LITERAL_char = 52;
-	int LITERAL_short = 53;
-	int LITERAL_int = 54;
-	int LITERAL_float = 55;
-	int LITERAL_long = 56;
-	int LITERAL_double = 57;
-	int IDENT = 58;
-	int DOT = 59;
-	int STAR = 60;
-	int LITERAL_private = 61;
-	int LITERAL_public = 62;
-	int LITERAL_protected = 63;
-	int LITERAL_static = 64;
+	int LITERAL_static = 47;
+	int LBRACK = 48;
+	int RBRACK = 49;
+	int LITERAL_void = 50;
+	int LITERAL_boolean = 51;
+	int LITERAL_byte = 52;
+	int LITERAL_char = 53;
+	int LITERAL_short = 54;
+	int LITERAL_int = 55;
+	int LITERAL_float = 56;
+	int LITERAL_long = 57;
+	int LITERAL_double = 58;
+	int IDENT = 59;
+	int DOT = 60;
+	int STAR = 61;
+	int LITERAL_private = 62;
+	int LITERAL_public = 63;
+	int LITERAL_protected = 64;
 	int LITERAL_transient = 65;
 	int LITERAL_native = 66;
 	int LITERAL_threadsafe = 67;
