@@ -34,7 +34,7 @@ import javax.swing.event.TreeSelectionEvent;
  * Manages the properties appropriate to the selected submission scheme.
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: SubmissionProperties.java 1611 2003-01-27 09:49:48Z damiano $
+ * @version    $Id: SubmissionProperties.java 1620 2003-02-04 10:15:22Z damiano $
  */
 
 class SubmissionProperties
@@ -45,12 +45,12 @@ class SubmissionProperties
     private final static String PROPERTIES_FILENAME = "submitter.properties";
     private final static String ROOT_NODENAME = "Submissions";
 
+    private Stat stat;
     private final BPackage curPkg;
     private Node rootNode;
     private DefaultTreeModel treeModel;
     private JTree tree;
     private String selectedScheme = null;
-    private Stat stat;
 
 
     /**
@@ -113,8 +113,7 @@ class SubmissionProperties
         stat.aDbg.debug(Stat.SVC_PROP, "file=" + file.toString());
 
         // Not a big deal if the file does not exist, really.
-        if (!file.exists())
-            return;
+        if (!file.exists()) return;
 
         FileInputStream fis = null;
         try {
@@ -259,7 +258,10 @@ class SubmissionProperties
     public void setSchemeFromTree()
     {
         TreePath path = tree.getSelectionPath();
-        selectedScheme = getPathAsString(path);
+
+        if ( path == null ) return;
+
+        setSelectedScheme( getPathAsString(path));
     }
 
 
@@ -272,21 +274,18 @@ class SubmissionProperties
      */
     public String getDefaultScheme()
     {
-        if (selectedScheme != null)
-            return selectedScheme;
+        if (selectedScheme != null) return selectedScheme;
 
         // Ok, time to retrieve the selected scheme, but first let's set a nice default
-        selectedScheme = "";
+        setSelectedScheme ( "" );
 
         BProject curProj = stat.bluej.getProject(curPkg);
         // FOr some misterious reason there is no project open, let's return the default
-        if (curProj == null)
-            return selectedScheme;
+        if (curProj == null) return selectedScheme;
 
         File projectDefsFile = new File(curProj.getProjectDir(), PROPERTIES_FILENAME);
         // For some reason (maybe the file is not there, I cannot read it...
-        if (!projectDefsFile.canRead())
-            return selectedScheme;
+        if (!projectDefsFile.canRead()) return selectedScheme;
 
         Properties projProps = new Properties();
         FileInputStream iStream = null;
@@ -301,7 +300,8 @@ class SubmissionProperties
             Utility.inputStreamClose(iStream);
         }
 
-        return selectedScheme = projProps.getProperty(SELECTED_NODE_PROPERTY, "");
+        // SHould be calling setSelectedScheme Damiano
+        return setSelectedScheme ( projProps.getProperty(SELECTED_NODE_PROPERTY, ""));
     }
 
 
@@ -309,12 +309,12 @@ class SubmissionProperties
      * This will write down what is the default scheme.
      * Of course the default is the one that is currently selected...
      */
-    public void setDefaultScheme()
+    public void saveDefaultScheme()
     {
         TreePath path = getPathFromString(selectedScheme);
-        if (path == null)
-            return;
+
         // Don't save invalid paths
+        if (path == null) return;
 
         BProject curProj = stat.bluej.getProject(curPkg);
         // For some misterious reason there is no project open, let's return the default
@@ -385,6 +385,36 @@ class SubmissionProperties
     }
 
 
+
+
+    /**
+     * Sets the currently selected scheme. You MUST call this one when you want
+     * to write the selectedScheme.
+     *
+     * @param  newScheme  The new selectedScheme value
+     */
+    public String setSelectedScheme(String newScheme)
+    {
+        // Let's be shure that there is no null around
+        if (newScheme == null) newScheme = "";
+
+        // This is a reasonable value
+        selectedScheme = newScheme;
+
+        // We store it in the global props
+        stat.globalProp.setProperty(GlobalProp.TITLE_VAR,selectedScheme);
+
+        // We also need it as a short version
+        String simpleScheme = selectedScheme;
+        int index = selectedScheme.lastIndexOf('/');
+        if (index >= 0 && (index+1) < selectedScheme.length() ) simpleScheme = selectedScheme.substring(index + 1);
+
+        stat.globalProp.setProperty(GlobalProp.SIMPLETITLE_VAR,simpleScheme);
+
+        return selectedScheme;
+    }
+
+
     /**
      * Gets the currently selected scheme. This may not be valid
      *
@@ -396,59 +426,6 @@ class SubmissionProperties
     }
 
 
-    /**
-     * Gets the last element of the currently selected scheme. This may not be valid
-     *
-     * @return    the scheme beyond any final <code>/</code>
-     */
-    public String getSelectedSchemeSimple()
-    {
-        int i = selectedScheme.lastIndexOf('/');
-        if (i < 0)
-            return selectedScheme;
-        // already simple
-        return selectedScheme.substring(i + 1);
-    }
-
-
-    /**
-     * Sets the currently selected scheme. This could be any old junk
-     *
-     * @param  newScheme  The new selectedScheme value
-     */
-    public void setSelectedScheme(String newScheme)
-    {
-        if (newScheme == null)
-            newScheme = "";
-        selectedScheme = newScheme;
-    }
-
-
-    /**
-     *  Gets the globalProp attribute of the SubmissionProperties object
-     *
-     * @param  item  Description of the Parameter
-     * @return       The globalProp value
-     */
-    public String getGlobalProp(String item)
-    {
-        return stat.bluej.getExtPropString(item, "");
-    }
-
-
-    /**
-     *  Gets the globalProps attribute of the SubmissionProperties object
-     *
-     * @return    The globalProps value
-     */
-    public Properties getGlobalProps()
-    {
-        PrefPanel myPanel = (PrefPanel) stat.bluej.getPrefGen();
-        return myPanel.getGlobalProps();
-    }
-
-
-    // A couple of useful utilities
     /**
      * Turns a TreePath into a String by getting the titles of each node
      * and separating them with a <code>/</code>
@@ -462,8 +439,7 @@ class SubmissionProperties
         String pathString = "";
 
         // It may happens, no need to coredump.
-        if (path == null)
-            return pathString;
+        if (path == null) return pathString;
 
         Object[] objs = path.getPath();
         for (int i = 1; i < objs.length; i++) {

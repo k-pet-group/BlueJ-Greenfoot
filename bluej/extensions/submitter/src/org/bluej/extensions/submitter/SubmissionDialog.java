@@ -45,7 +45,7 @@ import javax.swing.event.TreeSelectionEvent;
  *
  *
  * @author     Clive Miller
- * @version    $Id: SubmissionDialog.java 1610 2003-01-27 09:49:03Z damiano $
+ * @version    $Id: SubmissionDialog.java 1620 2003-02-04 10:15:22Z damiano $
  */
 class SubmissionDialog extends JDialog implements ActionListener
 {
@@ -273,7 +273,7 @@ class SubmissionDialog extends JDialog implements ActionListener
      */
     private void doSubmit()
     {
-        stat.submiProp.setDefaultScheme();
+        stat.submiProp.saveDefaultScheme();
         updateDialog = false;
         // stop the update listener from re-enabling the submit button
         submitButton.setEnabled(false);
@@ -397,7 +397,7 @@ class SubmissionDialog extends JDialog implements ActionListener
             if (e.getClickCount() == 2 && !e.isPopupTrigger() && okButton.isEnabled()) {
                 sp.setSchemeFromTree();
                 schemeField.setText(sp.getSelectedScheme());
-                sp.setDefaultScheme();
+                sp.saveDefaultScheme();
                 dispose();
             }
         }
@@ -446,7 +446,7 @@ class SubmissionDialog extends JDialog implements ActionListener
             if (src == okButton) {
                 sp.setSchemeFromTree();
                 schemeField.setText(sp.getSelectedScheme());
-                sp.setDefaultScheme();
+                sp.saveDefaultScheme();
             }
             else {
                 // sp.reload();
@@ -502,7 +502,7 @@ class SubmissionDialog extends JDialog implements ActionListener
          * @return                              Description of the Return Value
          * @exception  AbortOperationException  Description of the Exception
          */
-        private String sendFiles(URLProperties urlProps) throws AbortOperationException
+        private String sendFiles(UrlRewrite urlProps) throws AbortOperationException
         {
             TransportSession ts = null;
 
@@ -515,10 +515,10 @@ class SubmissionDialog extends JDialog implements ActionListener
                 Collection jarNames = stat.submiProp.getProps(".file.jar");
                 if (!jarNames.isEmpty()) {
                     jarName = (String) jarNames.iterator().next();
-                    ts = TransportSession.createJarTransportSession(urlProps.getURL(), stat.submiProp.getGlobalProps(), jarName);
+                    ts = TransportSession.createJarTransportSession(urlProps.getURL(), stat.globalProp, jarName);
                 }
                 else
-                    ts = TransportSession.createTransportSession(urlProps.getURL(), stat.submiProp.getGlobalProps());
+                    ts = TransportSession.createTransportSession(urlProps.getURL(), stat.globalProp);
 
                 ts.addStatusListener(
                     new StatusListener()
@@ -576,7 +576,7 @@ class SubmissionDialog extends JDialog implements ActionListener
             String result = null;
 
             try {
-                URLProperties urlProps = new URLProperties(bj, stat.submiProp);
+                UrlRewrite urlProps = new UrlRewrite(stat);
                 // This tryes to get whaever is requested from the user. By a dialog box.
                 if (!urlProps.process(SubmissionDialog.this)) {
                     reset();
@@ -585,7 +585,7 @@ class SubmissionDialog extends JDialog implements ActionListener
                 }
 
                 if (urlProps.isMessage()) {
-                    ts = TransportSession.createTransportSession(urlProps.getURL(), stat.submiProp.getGlobalProps());
+                    ts = TransportSession.createTransportSession(urlProps.getURL(), stat.globalProp);
                     ts.connect();
                     result = ts.getResult();
                 }

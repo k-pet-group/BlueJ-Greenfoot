@@ -14,7 +14,7 @@ import org.bluej.utility.*;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1608 2003-01-27 09:45:56Z damiano $
+ * @version    $Id: Submitter.java 1620 2003-02-04 10:15:22Z damiano $
  */
 public class Submitter extends Extension implements MenuGen, BJEventListener
 {
@@ -28,8 +28,8 @@ public class Submitter extends Extension implements MenuGen, BJEventListener
     private Thread submitterThread;
     private PrefPanel globalPreferences;
     private MenuAction anAction;
-    private int numPackagesOpen = 0;
-    // Counter for menu en/disable
+    private int numPackagesOpen = 0;       // Counter for menu en/disable
+
     private Stat stat;
 
 
@@ -51,7 +51,9 @@ public class Submitter extends Extension implements MenuGen, BJEventListener
 
         stat.aDbg.trace(Stat.SVC_PROP, "Submitter.startup: CALLED");
 
-        globalPreferences = new PrefPanel(stat.bluej);
+        stat.globalProp = new GlobalProp();
+
+        globalPreferences = new PrefPanel(stat);
         stat.bluej.setPrefGen(globalPreferences);
 
         String aLabel = stat.bluej.getLabel("menu.submit");
@@ -65,7 +67,7 @@ public class Submitter extends Extension implements MenuGen, BJEventListener
 
     /**
      * This method is called when BLueJ decides  (for whatever reason) that this extensions
-     * should terminate. Really it should clean up possibly running tasks...
+     * should terminate. TODO it should clean up possibly running tasks...
      *
      * @return    Description of the Return Value
      */
@@ -87,8 +89,7 @@ public class Submitter extends Extension implements MenuGen, BJEventListener
         int evType = ev.getEvent();
 
         // nothing to do if it is not a package event.
-        if (!(ev instanceof bluej.extensions.event.PackageEvent))
-            return;
+        if (!(ev instanceof bluej.extensions.event.PackageEvent)) return;
 
         if (evType == PackageEvent.PACKAGE_OPENED) {
             if ((++numPackagesOpen) > 0)
@@ -143,8 +144,7 @@ public class Submitter extends Extension implements MenuGen, BJEventListener
             final BPackage pkg = stat.bluej.getCurrentPackage();
 
             // If there is no current package open what am I dong here ?
-            if (pkg == null)
-                return;
+            if (pkg == null) return;
 
             if (submitterThread != null && submitterThread.isAlive()) {
                 stat.aDbg.notice(Stat.SVC_BUTTON, "MenuAction.actionPerformed: previous thread is alive");
