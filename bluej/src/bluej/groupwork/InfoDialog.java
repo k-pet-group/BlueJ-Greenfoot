@@ -12,15 +12,14 @@ import com.ice.jcvsii.*;
 import com.ice.cvsc.*;
 
 /**
- ** @version $Id: InfoDialog.java 504 2000-05-24 04:44:14Z markus $
+ ** @version $Id: InfoDialog.java 604 2000-06-29 06:41:26Z markus $
  ** @author Markus Ostman, some code copied from jCVS
  **
  ** Dialog for Group work information purposes
  **/
 
 public class InfoDialog extends JDialog
-
-    implements ActionListener, CVSUserInterface
+implements ActionListener, CVSUserInterface
 {
     // Internationalisation
     static final String close = Config.getString("close");
@@ -33,13 +32,9 @@ public class InfoDialog extends JDialog
 
     public InfoDialog(JFrame parent)
     {
-	super(parent, InfoDialogTitle, true);
+	super(parent, InfoDialogTitle, false);
 	this.parent = parent;
-
-	//Initialize jCVS components
-	//This is necessary because of the design of the jCVS code
-	//JcvsInit.doInitialize();
-
+        
 	addWindowListener(new WindowAdapter() {
 	    public void windowClosing(WindowEvent E) {
 		ok = false;
@@ -47,27 +42,34 @@ public class InfoDialog extends JDialog
 	    }
 	});
 	
+        JPanel mainPanel =  new JPanel();
+        mainPanel.setLayout(new BorderLayout(5, 5));
+        mainPanel.setBorder(Config.generalBorder);
+
 	//Text area showing information
 	this.infoText = new JTextArea();
         this.infoText.setEditable(false);
-        this.infoText.setFont(new Font("helvetica", Font.BOLD, 14));
+        //this.infoText.setRows(10);
+        //this.infoText.setPreferredSize(new Dimension(400, 200));
+        //this.infoText.setFont(new Font("helvetica", Font.BOLD, 14));
         //this.infoText.setBackground(new Color(192,192,192));
-        this.infoText.setBorder(BorderFactory.createLineBorder
-                                (Color.black, 2));
+        //this.infoText.setBorder(BorderFactory.createLineBorder
+        //                        (Color.black, 2));
 	this.scrollPane = new JScrollPane( this.infoText );
-        this.scrollPane.setBorder(BorderFactory.createEmptyBorder
-                                  (10, 10, 10, 10));
-	getContentPane().add("Center", scrollPane);
+        //this.scrollPane.setPreferredSize(new Dimension(400, 200));
+	mainPanel.add(scrollPane, BorderLayout.CENTER);
         
 	// button panel at bottom of dialog
 	JPanel buttonPanel = new JPanel();
 	buttonPanel.setLayout(new FlowLayout());
-	buttonPanel.setBorder(BorderFactory.createEmptyBorder
-                              (10, 10, 10, 10));
+	//buttonPanel.setBorder(BorderFactory.createEmptyBorder
+        //                    (10, 10, 10, 10));
 	JButton button;
 	buttonPanel.add(button = new JButton(close));
 	button.addActionListener(this);
-	getContentPane().add("South", buttonPanel); 		
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH); 
+	getContentPane().add(mainPanel);
+        
     }
 
     /**
@@ -77,7 +79,14 @@ public class InfoDialog extends JDialog
     public void display(String title)
     {
 	ok = false;
-	//pack();
+        if(title.equals(Config.getString("groupwork.log.title"))){
+            this.infoText.setColumns(40);
+            this.infoText.setRows(15);
+        }
+        if(title.equals(Config.getString("groupwork.status.title"))){
+            this.infoText.setColumns(18);
+            this.infoText.setRows(10);
+        }
         setTitle(title);
         //Set the size to be the same as the parent's
         //setSize(this.parent.getSize());
@@ -104,20 +113,20 @@ public class InfoDialog extends JDialog
     }
 
 
-    /**
-     * Close action when checkout is pressed.
-     */
-    public void doOK()
-    {
-	if(!true) {
-	    DialogManager.showError(parent, 
-				    "This error message must be specified");
-	}
-	else { // collect information from fields
-	    ok = true;
-	    setVisible(false);
-	}
-    }
+//     /**
+//      * Close action when checkout is pressed.
+//      */
+//     public void doOK()
+//     {
+// 	if(!true) {
+// 	    DialogManager.showError(parent, 
+// 				    "This error message must be specified");
+// 	}
+// 	else { // collect information from fields
+// 	    ok = true;
+// 	    setVisible(false);
+// 	}
+//     }
 
     public void setText(String info)
     {

@@ -19,7 +19,7 @@ import bluej.utility.DialogManager;
 import bluej.pkgmgr.*;
 
 /**
- ** @version $Id: Importer.java 504 2000-05-24 04:44:14Z markus $
+ ** @version $Id: Importer.java 604 2000-06-29 06:41:26Z markus $
  ** @author Markus Ostman, some parts are copied from jCVS ImportPanel
  **
  ** Import class for bluej group support.
@@ -209,8 +209,11 @@ implements CVSUserInterface
 	CVSArgumentVector arguments=CVSArgumentVector.parseArgumentString("");
 
 	String userName = this.getUserName();
+        //here we must check if the user have choosen to cancel import
+        if(this.passDialog.getCancel())
+            return;
 	String passWord = this.getPassword();
-
+        
         //here we must check if the user have choosen to cancel import
         if(this.passDialog.getCancel())
             return;
@@ -218,6 +221,10 @@ implements CVSUserInterface
 	String hostname = props.getProperty("group.server", null);
         //Name of dir in repos
 	String repository = this.getGroupName()+"/"+this.getModule();
+        String studentDir = props.getProperty("group.studentDir.path", null);
+        if(studentDir != null){
+            repository = studentDir+"/"+repository;
+        }
 	String rootDirectory = props.getProperty("group.repository.path",
                                                  null);
 	String importDirectory = this.getImportDirectory();
@@ -544,22 +551,21 @@ implements CVSUserInterface
                     (bluej.Config.getString("groupwork.importingDone"));
             }
             else{
-                //If there are other jobs in the Queue, it is very likely
-                //that they depend on the result of this job. Therefore we
-                //abort all of them.
-                //GroupJobQueue.getJobQueue().clearQueue();
-                
+                                
                 uiDisplayProgressMsg
                     ( ResourceMgr.getInstance().getUIString
                       ( "import.status.failure" ) );
                 //If import encounter an error we need to wait a while 
                 //before we notify the others.
-                synchronized(this) {
-                    try {
-                        wait(500);
-                    }catch(InterruptedException e) {}
-                }
-                //Sync.s.callNotify(false);
+                //this is now done in the clear queue method.
+                // synchronized(this) {
+//                     try {
+//                         wait(500);
+//                     }catch(InterruptedException e) {}
+//                 }
+                //If there are other jobs in the Queue, it is very likely
+                //that they depend on the result of this job. Therefore we
+                //abort all of them.
                 GroupJobQueue.getJobQueue().clearQueue();
                 Debug.message("importer,556: after sync "+Thread.currentThread().getName());
                 info.setText(resultStr);

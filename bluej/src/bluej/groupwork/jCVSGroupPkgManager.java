@@ -15,6 +15,7 @@ import bluej.pkgmgr.Package;
 import bluej.utility.Debug;
 import bluej.utility.SortedProperties;
 import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 import bluej.Config;
 
 import com.ice.cvsc.*;
@@ -98,7 +99,7 @@ public final class jCVSGroupPkgManager
      * The method is inherited from GroupPkgManager
      * @param 
      * @param frame  The current Bluej frame
-     * @returns  a Group Package or null if something went wrong
+     * @returns void
      */
     public void checkoutPackage(PkgMgrFrame frame )
     {
@@ -135,59 +136,57 @@ public final class jCVSGroupPkgManager
         //performed differently.
         if (props.getProperty("group.usesPkgInfo", "false").equals("true")){
 	    //Before import we must turn this package into a group package
-            //./temp this should probably be done further down the track 
-	    //in case of a cancel
-             pkg.turnIntoGroupPackage(true);
-
-             //And Save the change, note that we are saving using dirName
-             //by default, can be relative.
-             if(pkg.save()){
-                 //./temp What if the import doesn't work?
-                 importer.performImport();
-                 
-                 //If the import was canceled, we restore the project 
-                 //and abort the rest.
-                 if(importer.getCancel()){
-                     pkg.turnIntoGroupPackage(false);
-                     pkg.save();
-                     frame.clearStatus();
-                     frame.repaint();
-                     return;
-                 }
-
-                 //Need to get some information from the Package
-                 //before we remove it from the Frame
-                 String baseDir = frame.getPackage().getBaseDir();
-                 
-                 //Define the module in the repository
-                 if(defineModule(importer.getPassword(),
-                                 importer.getUserName(),
-                                 importer.getModule(), baseDir, 
-                                 importer.getGroupName(), frame)){
-
-                     //close the package
-                     //Must be careful with the order in which this is
-                     //done so that nothing important gets overwritten
-                     frame.removePackage();
-                     
-                     //Checkout the newly created project
-                     dialog.getCheckOutPanel().doCheckOut
-                         (importer.getPassword(),
-                          importer.getUserName(),
-                          importer.getModule(),
-                          importer.getGroupName(),
-                          baseDir, frame, true);
-                 }
-                 else{
-                     pkg.turnIntoGroupPackage(false);
-                     pkg.save();
-                     frame.clearStatus();
-                     frame.repaint();
-                     return; 
-                 }
-             }
-             else
-                 Debug.reportError("Could not save Package");
+            pkg.turnIntoGroupPackage(true);
+            
+            //And Save the change, note that we are saving using dirName
+            //by default, can be relative.
+            if(pkg.save()){
+                //./temp What if the import doesn't work?
+                importer.performImport();
+                
+                //If the import was canceled, we restore the project 
+                //and abort the rest.
+                if(importer.getCancel()){
+                    pkg.turnIntoGroupPackage(false);
+                    pkg.save();
+                    frame.clearStatus();
+                    frame.repaint();
+                    return;
+                }
+                
+                //Need to get some information from the Package
+                //before we remove it from the Frame
+                String baseDir = frame.getPackage().getBaseDir();
+                
+                //Define the module in the repository
+                if(defineModule(importer.getPassword(),
+                                importer.getUserName(),
+                                importer.getModule(), baseDir, 
+                                importer.getGroupName(), frame)){
+                    
+                    //close the package
+                    //Must be careful with the order in which this is
+                    //done so that nothing important gets overwritten
+                    frame.removePackage();
+                    
+                    //Checkout the newly created project
+                    dialog.getCheckOutPanel().doCheckOut
+                        (importer.getPassword(),
+                         importer.getUserName(),
+                         importer.getModule(),
+                         importer.getGroupName(),
+                         baseDir, frame, true);
+                }
+                else{
+                    pkg.turnIntoGroupPackage(false);
+                    pkg.save();
+                    frame.clearStatus();
+                    frame.repaint();
+                    return; 
+                }
+            }
+            else
+                Debug.reportError("Could not save Package");
         }
         else{
             if(pkg.save()){
@@ -195,7 +194,7 @@ public final class jCVSGroupPkgManager
                 importer.performImport();
                 DialogManager.showText(frame,
                                        "Performing Import");
-
+                
                 //Need to get some information from the Package
                 //before we remove it from the Frame
                 String baseDir = frame.getPackage().getBaseDir();
@@ -236,7 +235,10 @@ public final class jCVSGroupPkgManager
     {
         frame.setStatus(Config.getString("groupwork.updating"));
         //before we store the password we must make sure it is there.
-        frame.getPackage().getGroupInfo().verifyLogin();
+        if(!frame.getPackage().getGroupInfo().verifyLogin()){
+            frame.clearStatus();
+            return false;
+        }
 	this.project=frame.getPackage().getGroupInfo().getProject();
 	String passw=this.project.getPassword();
         frame.getPackage().save();
@@ -245,18 +247,17 @@ public final class jCVSGroupPkgManager
         Debug.message("jCVSGrpPkgMgr,140:" + pkgDir);
 
         //This only needs to be done if we are using the pkg file.
-        if(props.getProperty("group.usesPkgInfo","false").equals("true")){
-
-            //After loading the .pkg file we remove it to avoid conflicts
-            File pkg = new File(pkgDir + File.separator + "bluej.pkg");
-            try{
-                if(pkg.delete())
-                    Debug.message("Deleting pkg file before update");
-            }catch(SecurityException se){
-                Debug.reportError("Error deleting pkg file" + 
-                                  ": " + se);
-            }
+        //After loading the .pkg file we rename it to avoid conflicts
+        //if the update is successful we also remove it.
+        File pkgFile = new File(pkgDir + File.separator + "bluej.pkg");
+        try{
+            if(pkgFile.renameTo(new File(pkgDir+File.separator+"backup")))
+                Debug.message("renaming pkg file before update");
+        }catch(SecurityException se){
+            Debug.reportError("Error renaming pkg file" + 
+                              ": " + se);
         }
+        
         //Was this the thing that caused the bug when everything "froze"
         //this should probably be done still, somewhere.
         //if(!implicit)
@@ -265,16 +266,31 @@ public final class jCVSGroupPkgManager
             if(props.getProperty("group.usesPkgInfo","false").equals("true")){
 
                 GroupJobQueue.getJobQueue().addJob("update pkgfile",
-                                                 this.new UpdatePkgRunner(pkgDir, passw, frame, propsLocal), this.new JobMonitor());
+                                                   this.new UpdatePkgRunner
+                                                   (pkgDir, passw, frame,
+                                                    propsLocal), 
+                                                   this.new JobMonitor());
             }
             else{
                 GroupJobQueue.getJobQueue().addJob("update pkgfile", 
-                                                 this.new UpdatePkgRunner(pkgDir, passw, frame, propsLocal), this.new JobMonitor());
+                                                   this.new UpdatePkgRunner
+                                                   (pkgDir, passw, frame,
+                                                    propsLocal), 
+                                                   this.new JobMonitor());
             }
             return true;
 	}
 	else{
 	    Debug.message("JCVSGrpPkgMgr,line147: trouble updating");
+            //give the pkg file its name back.
+            try{
+                if(pkgFile.renameTo(new File(pkgDir+File.separator+
+                                             "bluej.pkg")))
+                    Debug.message("renaming pkg file before update");
+            }catch(SecurityException se){
+                Debug.reportError("Error deleting pkg file" + 
+                                  ": " + se);
+            }
 	    return false;
 	}
     }//End updatePkg
@@ -312,7 +328,9 @@ public final class jCVSGroupPkgManager
      * Adds a Class to the package. 
      *
      * This is only a local change so in order to change the Repository
-     * a commit must be performed
+     * a commit must be performed.
+     * If the user is working "offline" the actual CVS add will be performed
+     * later.
      * The method is inherited from GroupPkgManager
      * 
      * @param frame  The current Frame   
@@ -323,6 +341,20 @@ public final class jCVSGroupPkgManager
     {
         //Get the CVS Project of the package
 	this.project=frame.getPackage().getGroupInfo().getProject();
+        
+        //here we should check if onLine,
+        //instead we check if logged in or not
+        if(this.project.getPassword() == null){
+            Debug.message("grpPkgmgr,350 adding offline");
+            CVSGroupInfo groupInfo = (CVSGroupInfo)
+                frame.getPackage().getGroupInfo();
+            groupInfo.offLineAdd(createAddEntry
+                                 (classFilePath,
+                                  frame.getPackage().getDirName(),
+                                  this.project.getRepository()));
+            frame.setStatusR(Config.getString("groupwork.changed"));
+            return true;
+        }
         
 	//Create the new entry. It is crucial that all the paths
         //are set correctly 
@@ -354,13 +386,38 @@ public final class jCVSGroupPkgManager
      */
     public boolean removeClass(PkgMgrFrame frame, String classFilePath)
     {
-        //Get the CVS Project of the package 
-	this.project=frame.getPackage().getGroupInfo().getProject();
+        //Get the group info from the package
+        CVSGroupInfo groupInfo = (CVSGroupInfo)
+            frame.getPackage().getGroupInfo();           
+	this.project=groupInfo.getProject();
+
+        //Find the entry to remove
+        CVSEntry entry = findRemoveEntry(classFilePath);
+
+        //If the entry is null it means that it is not registered as part
+        //of this package, it might however be added OffLine, and therefore
+        //not registered, so we should still do a offLineRemove.
+        if(entry == null){
+            entry = new CVSEntry();
+            entry.setName(classFilePath.substring
+                          (classFilePath.lastIndexOf(File.separator)+1));
+            groupInfo.offLineRemove(entry);
+            return false;
+        }
+        
+        //here we should check if onLine,
+        //instead we check if logged in or not
+        if(this.project.getPassword() == null){
+            Debug.message("grpPkgmgr,350 removing offline");
+            groupInfo.offLineRemove(entry);
+            frame.setStatusR(Config.getString("groupwork.changed"));
+            return true;
+        }
 
 	//Create the new entry. It is crucial that all the paths
         //are set correctly 
         CVSEntryVector entries = new CVSEntryVector();
-	entries.appendEntry(findRemoveEntry(classFilePath));
+	entries.appendEntry(entry);
 
 	//Perform the command
 	if(this.performCommand(frame, REMOVE, entries, false)){
@@ -381,6 +438,9 @@ public final class jCVSGroupPkgManager
      */
     public boolean pkgStatus(PkgMgrFrame frame)
     {
+        frame.getPackage().save();
+        performOffLineActions(frame);
+        //DialogManager.showText(frame,"Waiting for add of offline");
 	if(this.performCommand(frame, STATUS, null, false)){
 	    return true;
 	}
@@ -465,7 +525,10 @@ public final class jCVSGroupPkgManager
 
 	if(frame.getPackage().getGroupInfo() != null
            && command != CHECKOUT){
-            frame.getPackage().getGroupInfo().verifyLogin();
+            if(!(frame.getPackage().getGroupInfo().verifyLogin())){
+                frame.clearStatus();
+                return false;
+            }
 	    this.project=frame.getPackage().getGroupInfo().getProject();
         }
 	
@@ -476,7 +539,7 @@ public final class jCVSGroupPkgManager
         Debug.message("GrpPkgMgr, line217: "+cvsCommand);
 	this.info = new InfoDialog(frame);
 	fdbkStr = rmgr.getUIString( "project.fdbk.buildcvsreq" );
-	Debug.message("jCVSGrpPkgMgr,line219: "+fdbkStr);
+	Debug.message("GrpPkgMgr,line219: "+fdbkStr);
 
 	request.setArguments( new CVSArgumentVector() );
 	request.setGlobalArguments( new CVSArgumentVector() );
@@ -608,9 +671,9 @@ public final class jCVSGroupPkgManager
 		    
                     String msgStr=" ";
                     if(!implicit){
-                        msgStr=DialogManager.askString(frame, "ask-logmsg");
-                    //this.requestLogMsg
-                        //(Config.getString("groupwork.log.prompt"), frame);
+                        msgStr=this.requestLogMsg(frame);
+                        //DialogManager.askString(frame, "ask-logmsg");
+                    
                     }
 		    
 		    if ( msgStr != null ){
@@ -798,19 +861,11 @@ public final class jCVSGroupPkgManager
             handleResponse(this.response, this.request, frame);
             
             if(allok){
+                //If someone is waiting let them know that everthing 
+                //went ok.
+                Sync.s.callNotify(true);
 		System.err.println( "THREAD FINISHED: pretty Nice '" );
-                if(this.request.getCommand().equals("ci")){
-                    if(request.displayReponse)
-                        this.frame.setStatus(Config.getString
-                                             ("groupwork.committingDone"));
-                    this.frame.setStatusR(Config.getString
-                                          ("groupwork.notChanged"));
-                }
-                else if(this.request.getCommand().equals("add") ||
-                        this.request.getCommand().equals("remove")){
-                    this.frame.setStatusR(Config.getString
-                                          ("groupwork.changed"));
-                }
+
             }
 	}
     }
@@ -869,7 +924,7 @@ public final class jCVSGroupPkgManager
 	return cvsCommand;
     }
 
-     /**
+    /**
      * Returns the entries of the active project
      *
      * @param
@@ -904,6 +959,7 @@ public final class jCVSGroupPkgManager
                 Debug.message("grpPkgMgr, line677"+entry.getName());
 		entryFile = this.project.getEntryFile( entry );
 		
+                //This bit of code is not necessary
 		if ( selector == CVSRequest.ES_ALLMOD
 		     || selector == CVSRequest.ES_SELMOD ){
 		    if ( ! this.project.isLocalFileModified( entry ) ){
@@ -931,7 +987,7 @@ public final class jCVSGroupPkgManager
 	return entries;
     }//End getProjectEntries
 
-     /**
+    /**
      * Returns the entry to be added
      *
      * @param entryName Path to the sourcefile to be added
@@ -963,12 +1019,12 @@ public final class jCVSGroupPkgManager
 	
 	return entry;
     }
-
-     /**
+    
+    /**
      * Returns the entry to be removed
      *
      * @param entryPath Path to the sourcefile to be removed
-     * @returns CVSEntry
+     * @returns CVSEntry or null if the entry couldn't be found
      */
     private CVSEntry findRemoveEntry(String entryPath)
     {
@@ -980,21 +1036,24 @@ public final class jCVSGroupPkgManager
 	    ( entries = new CVSEntryVector() );
 
         //Get the name of the file
-	String entryName = entryPath.substring(entryPath.lastIndexOf(File.separator)+1); 
+	String entryName = entryPath.substring(entryPath.lastIndexOf
+                                               (File.separator)+1); 
         Debug.message("GrpPkgMgr,line702: "+entryName);
 
 	if ( entries != null ){
-	    for (int i = 0 ; i < entries.size() ; ++i){
-		entry = entries.entryAt(i);
+	    for(Iterator i = entries.iterator();i.hasNext();){
+		entry = (CVSEntry)i.next();
                 Debug.message("GrpPkgMgr,line702: "+entry.getName());
                 if(entry.getName().equals(entryName))
                    return entry;
             }
-            Debug.reportError("GrpPkgMgr,line698: trying to remove a none excisting entry");
+            Debug.reportError("GrpPkgMgr,line698: "+
+                              "trying to remove a none excisting entry");
             return null;
         }
         else{
-            Debug.reportError("GrpPkgMgr,line702: No entries assoc. with project");
+            Debug.reportError("GrpPkgMgr,line702: "+
+                              "No entries assoc. with project");
             return null;
         }
     }
@@ -1053,6 +1112,10 @@ public final class jCVSGroupPkgManager
         propsRepos.setProperty("package.window.width",
                                propsLocal.getProperty("package.window.width",
                                                       "512"));
+        //The status should also be kept as it was locally
+        propsRepos.setProperty("package.status",
+                               propsLocal.getProperty("package.status",
+                                                      " "));
         //This package must be a group package (this is probably redundant)
         propsRepos.setProperty("package.isGroupPackage","true");
 
@@ -1338,8 +1401,9 @@ public final class jCVSGroupPkgManager
                 Debug.message("GrpPkgMgr,line1130 "+tmp+File.separator+modulesI);
                 FileWriter out = new FileWriter(tmp+File.separator+modulesI,
                                                 true);
-                out.write(groupName+module+" -d "+module+" "+groupName+
-                          "/"+module);
+                out.write(groupName+module+" -d "+module+" "+
+                          props.getProperty("group.studentDir.path", null)+
+                          "/"+groupName+"/"+module);
                 out.close();
             } catch (IOException e){
                 Debug.reportError("Could not write the modules definition");
@@ -1348,8 +1412,9 @@ public final class jCVSGroupPkgManager
             //Initialize the group info temporarily so that we can
             //perform the commit command.
             String scrambled = CVSScramble.scramblePassword( passWord, 'A' );
-            frame.getPackage().initializeGroupInfo(tmp+File.separator+"CVSROOT",
-                                                   frame, scrambled);         
+            frame.getPackage().initializeGroupInfo(tmp+File.separator+
+                                                   "CVSROOT", frame,
+                                                   scrambled);         
 
             //Commit the changed modules file
             if(this.performCommand(frame, COMMIT, null, true)){
@@ -1360,7 +1425,10 @@ public final class jCVSGroupPkgManager
             }
             //Here we remove the CVSROOT directory, preferably by
             //releasing it (CVS release)
-            releasePkg(frame, null);
+            //releasePkg(frame, null);
+            Sync.s.callWait();//we must wait for the commit, before we delete 
+            Debug.message("grppkgmgr,1385: Here we delete tmp");
+            FileUtility.deleteDir(new File(tmp));
             //DialogManager.showText(frame,"Waiting for release");
             return true;
         }
@@ -1397,15 +1465,28 @@ public final class jCVSGroupPkgManager
      * Ask for a Log message before committing
      *
      */
-    private String requestLogMsg(String prompt, PkgMgrFrame frame )
+    private String requestLogMsg(PkgMgrFrame frame )
     {
-        MessageDialog dlg = new MessageDialog( frame, true, prompt );
+        JTextArea input = new JTextArea();
+        input.setMargin(new Insets( 4, 4, 4, 4 ));
+        input.setRows(4);
+        JScrollPane scrollPane = new JScrollPane(input);
+        String warning = Config.getString("groupwork.commit.warning");
+        String enterMsg = Config.getString("groupwork.log.prompt");
+        String title = Config.getString("groupwork.commit.lbl");
+        Object[] options = new Object[] {Config.getString("groupwork.commit.lbl"), Config.getString("cancel")};
 
-        dlg.setTitle(Config.getString("groupwork.logmsg.title"));
-        
-        dlg.show();
-        
-        return dlg.getMessage();
+        Object[] msgField = new Object[] {warning, enterMsg, scrollPane};
+
+        int answ = JOptionPane.showOptionDialog(frame, msgField, title, 
+                                                JOptionPane.YES_NO_OPTION,
+                                                JOptionPane.PLAIN_MESSAGE,
+                                                null, options, options[0]);
+
+        if(answ == JOptionPane.NO_OPTION)
+            return null;
+        else
+            return input.getText();
     }
 
     /*
@@ -1442,13 +1523,19 @@ public final class jCVSGroupPkgManager
         String fileName="";
         String nextToken = " ";
         StringBuffer displayString=new StringBuffer();
-        StringTokenizer st = new StringTokenizer(response.getDisplayResults().trim());
+        StringTokenizer st = new StringTokenizer
+            (response.getDisplayResults().trim());
         
         //ERROR, Commit handles error differently
         if(response.getStatus() == CVSResponse.ERROR &&
            !request.getCommand().equals("ci")){
+            //If there are other jobs in the Queue, it is very likely
+            //that they depend on the result of this job. Therefore we
+            //abort all of them.
+            GroupJobQueue.getJobQueue().clearQueue();
             info.setText(response.getDisplayResults().trim());
             info.display(Config.getString("groupwork.error.title"));
+            frame.clearStatus();
         }
         //UPDATE
         else if(request.getCommand().equals("update")){
@@ -1472,19 +1559,55 @@ public final class jCVSGroupPkgManager
                     removedClasses.add(fileName);
                 }
             }
+            //Since everything went ok, we delete backup 
+            File pkgFile = new File(frame.getPackage().getDirName()+
+                                    File.separator+"backup");
+            try{
+                if(pkgFile.delete())
+                    Debug.message("deleting backup pkg file");
+            }catch(SecurityException se){
+                Debug.reportError("Error deleting backup pkg file" + 
+                                  ": " + se);
+            }
         }
         //COMMIT
         else if(request.getCommand().equals("ci")){
             if(response.getStatus() == CVSResponse.ERROR){
-                //Show dialog letting them know that the request
-                //was aborted.
-                int answer = DialogManager.askQuestion(frame, 
-                                                       "need-update");
-                // if they agree, update the package
-                if(answer == 0){
-                    updatePkg(frame, true);
+                while (st.hasMoreTokens()){
+                    nextToken = st.nextToken();                    
+                    if(nextToken.equals("correct")){
+                        //Show dialog letting them know that the request
+                        //was aborted, due to clashes with repos.
+                        int answer = DialogManager.askQuestion(frame, 
+                                                               "need-update");
+                        // if they agree, update the package
+                        if(answer == 0){
+                            updatePkg(frame, true);
+                        }
+                        Debug.message(response.getDisplayResults().trim());
+                        frame.clearStatus();
+                        return;
+                    }
                 }
+                //this is only displayed if the error was not caused
+                //by conflicts.
+                info.setText(response.getDisplayResults().trim());
+                info.display(Config.getString("groupwork.error.title"));
+                frame.clearStatus();
             }
+            else{
+                if(request.displayReponse)
+                    frame.setStatus(Config.getString
+                                    ("groupwork.committingDone"));
+                frame.setStatusR(Config.getString
+                                 ("groupwork.notChanged"));
+            }
+        }
+        //ADD or REMOVE
+        else if(request.getCommand().equals("add") ||
+                request.getCommand().equals("remove")){
+            frame.setStatusR(Config.getString
+                             ("groupwork.changed"));
         }
         //STATUS
         else if(request.getCommand().equals("status")){
@@ -1511,7 +1634,8 @@ public final class jCVSGroupPkgManager
                         nextToken = st.nextToken();
                         if(nextToken.equals("Needs") ||
                            nextToken.equals("Locally") ||
-                           nextToken.equals("File")){
+                           nextToken.equals("File") ||
+                           nextToken.equals("Unresolved")){
                             displayString.append(nextToken+" "+
                                                  st.nextToken());
                             if(nextToken.equals("File")){
@@ -1523,7 +1647,7 @@ public final class jCVSGroupPkgManager
                         else{
                             displayString.append(nextToken);
                         }
-                        displayString.append(" "+endOfLine);
+                        displayString.append(" ");
                     }
                 }
             }
@@ -1532,12 +1656,13 @@ public final class jCVSGroupPkgManager
         }
         //LOG
         else if(request.getCommand().equals("log")){
-            //String previousToken = " ";
-            String date="";
-            String file="";
+            String date = "";
+            String file = "";
+            StringBuffer logBuffer = new StringBuffer(); 
             Comparator comp = Collections.reverseOrder();
             Map dateLogMap = new TreeMap(comp);
             Map fileDateMap = new HashMap();
+            Map dateFileMap;
             List dateList = new ArrayList();
             while (st.hasMoreTokens()){
                 nextToken = st.nextToken(endOfLine);//endOfLine as delimiter
@@ -1546,14 +1671,21 @@ public final class jCVSGroupPkgManager
                     file = nextToken.substring((nextToken.lastIndexOf("/")+1),
                                                nextToken.lastIndexOf("."));
                 }
-                if(!file.equals("bluej")){
+                if(!file.equals("bluej")){ //ignore bluej.pkg
                     //get date assoc with file
                     if(nextToken.startsWith("date:")){
                         date = nextToken.substring(nextToken.indexOf(" "),
                                                    nextToken.indexOf(";"));
                         //remove seconds
                         date = date.substring(0,date.lastIndexOf(":"));
-                        dateLogMap.put(date, st.nextToken());
+                        //If the log message is more than one line
+                        while(!((nextToken=st.nextToken()).startsWith
+                                ("=======") || 
+                                nextToken.startsWith("-------"))){
+                            logBuffer.append(nextToken+endOfLine+" ");
+                        }
+                        dateLogMap.put(date, logBuffer.toString());
+                        logBuffer.delete(0, logBuffer.length());
                         dateList.add(date);
                     }
                     //indicates new file
@@ -1567,14 +1699,14 @@ public final class jCVSGroupPkgManager
             
             //Here we create a Map where a date maps onto a collection
             //of files that where committed on that date.
-            Map dateFileMap = transformMap(fileDateMap, dateLogMap.keySet());
+            dateFileMap = transformMap(fileDateMap, dateLogMap.keySet());
 
             for(Iterator itr=dateLogMap.keySet().iterator();itr.hasNext();){
                 date=(String)itr.next();
                 displayString.append(endOfLine+date+"\t"+
-                                     dateLogMap.get(date)+" "+endOfLine+
-                                     " "+dateFileMap.get(date).toString()+
-                                     endOfLine);
+                                     dateFileMap.get(date).toString()+" "+
+                                     endOfLine+" "+
+                                     dateLogMap.get(date));
             } 
 //             for(Iterator itr=fileDateMap.keySet().iterator();itr.hasNext();){
 //                 file=(String)itr.next();
@@ -1625,7 +1757,58 @@ public final class jCVSGroupPkgManager
         }
         return transformed;
     }//End transformMap
-    
+
+    /**
+     * Handle actions that have been performed with no
+     * network connection, eg. addClass
+     * Make sure that there is a network connection before
+     * you call this method. (not neccessary)
+     *
+     * @param frame
+     */
+    private void performOffLineActions(PkgMgrFrame frame)
+    {
+        CVSGroupInfo groupInfo = (CVSGroupInfo)
+            frame.getPackage().getGroupInfo();
+        CVSEntryVector addEntries = groupInfo.getAddedOffLine();
+        CVSEntryVector removeEntries = groupInfo.getRemovedOffLine();
+
+        if(!addEntries.isEmpty()){ //Do add
+            //Perform the command
+            Debug.message("grppkgmgr,1746 offlineadd");
+            if(this.performCommand(frame, ADD, addEntries, false)){
+                Sync.s.callWait();
+                if(Sync.s.getOk()){
+                    groupInfo.clearAddedOffLine();
+                    frame.getPackage().save(); //update .pkg file
+                }
+                //return true;
+            }
+            else{
+                Debug.message("JCVSGrpPkgMgr,line1734: trouble adding");
+                //return false;
+            }
+        }
+
+        //Could this be done smarter? Now we wait twice.
+        if(!removeEntries.isEmpty()){ //Do remove
+            //Perform the command
+            Debug.message("grppkgmgr,1773 offlineRemove");
+            if(this.performCommand(frame, REMOVE, removeEntries, false)){
+                Sync.s.callWait();
+                if(Sync.s.getOk()){
+                    groupInfo.clearRemovedOffLine();
+                    frame.getPackage().save(); //update .pkg file
+                }
+                //return true;
+            }
+            else{
+                Debug.message("JCVSGrpPkgMgr,line1734: trouble removing");
+                //return false;
+            }
+        }
+    }
+            
     private class UpdatePkgRunner 
     implements Runnable
     {
@@ -1678,6 +1861,11 @@ public final class jCVSGroupPkgManager
         }
     }//End class UpdatePkgRunner
 
+
+    /*
+     * This Class in not in use anymore, could be removed
+     *
+     */
     private class ModulesDefRunner 
     implements Runnable
     {
@@ -1749,11 +1937,3 @@ public final class jCVSGroupPkgManager
 	}
     }
 }
-    
-
-
-
-
-
-
-

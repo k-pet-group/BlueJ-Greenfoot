@@ -6,7 +6,7 @@ import bluej.utility.Debug;
 import bluej.Config;
 
 /**
- ** @version $Id: GroupJobQueue.java 504 2000-05-24 04:44:14Z markus $
+ ** @version $Id: GroupJobQueue.java 604 2000-06-29 06:41:26Z markus $
  ** @author Markus Ostman, but the idea is taken from JobQueue in bluej 
  ** compiler package.
  ** 
@@ -48,7 +48,8 @@ public class GroupJobQueue
     }
     
     /**
-     * Clears the job queue from waiting jobs
+     * Clears the job queue from waiting jobs and notifies threads that
+     * might be waiting for jobs to finish.
      * This can be necessary if we have several jobs depending on the 
      * success of previous jobs. If one job then is not succesfull, 
      * that job should be responsible of clearing the queue.
@@ -58,6 +59,12 @@ public class GroupJobQueue
      */
     public void clearQueue()
     {
+        //before we clear we wait for everything to stabilize
+        synchronized(this) {
+            try {
+                wait(500);
+            }catch(InterruptedException e) {}
+        }
         //If someone is waiting for a job in the queue, notify them. 
         Sync.s.callNotify(false);
 	thread.clearQueue();

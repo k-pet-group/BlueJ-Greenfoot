@@ -8,52 +8,73 @@ import java.io.File;
 import javax.swing.*;
 
 import bluej.pkgmgr.*;
+import bluej.utility.SortedProperties;
 
 import com.ice.cvsc.*;
 
 /**
- ** @version $Id: GroupInfo.java 426 2000-04-14 01:11:12Z markus $
+ ** @version $Id: GroupInfo.java 604 2000-06-29 06:41:26Z markus $
  ** @author Markus Ostman
  ** Interface between a group project and a bluej package
  **/
 public interface GroupInfo
 {
-    /**Method 
-     ** 
-     **  
-     ** @param pkgDir The directory name of a Package
-     ** @param 
-     ** @returns Group information or null if something went wrong  
-     **/
+
+    /**
+     * Method 
+     *  
+     * @param pkgDir The directory name of a Package
+     * @param 
+     * @returns Group information or null if something went wrong  
+     */
     GroupInfo getGroupInfo(String pkgDir);
 
-    /**Method 
-     ** 
-     **  
-     ** @param 
-     ** @returns CVSProject
-     **/
+    /**
+     * Method  
+     *  
+     * @param 
+     * @returns CVSProject
+     */
     CVSProject getProject();
 
-    /**Method 
-     ** 
-     **  
-     ** @param localDir The path to the local directory
-     ** @param 
-     ** @returns void  
-     **/
+    /** 
+     * Method 
+     *  
+     * @param localDir The path to the local directory
+     * @param 
+     * @returns void  
+     */
     void initializeGroupInfo(String localDirName, 
 			     JFrame currentFrame,
 			     String password);
 
-    /**Method to verify login to group project 
-     ** 
-     **  
-     ** @param 
-     ** @param 
-     ** @returns void  
-     **/
-    void verifyLogin();
-    
+    /**
+     * Method to verify login to group project 
+     *  
+     * @param 
+     * @param 
+     * @returns boolean  
+     */
+    boolean verifyLogin();
+
+    /**
+     * Method to save info to a properties object,
+     * ie. the bluej.pkg file. 
+     *  
+     * @param 
+     * @param 
+     * @returns void  
+     */
+    void save(SortedProperties props);
+
+    /**
+     * Method to load info from a properties File,
+     * ie. the bluej.pkg file. 
+     *  
+     * @param 
+     * @param 
+     * @returns void  
+     */
+    void load(File pkgFile);
 
 } // end interface GroupInfo

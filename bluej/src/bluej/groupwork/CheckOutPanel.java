@@ -1,8 +1,11 @@
 package bluej.groupwork;
 
+import com.ice.jcvsii.*;
+
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
+import java.io.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -12,6 +15,7 @@ import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 
 import com.ice.cvsc.*;
 import com.ice.pref.UserPrefs;
@@ -19,35 +23,74 @@ import com.ice.util.AWTUtilities;
 import com.ice.jcvsii.*;
 
 /**
-** @version $Id: CheckOutPanel.java 504 2000-05-24 04:44:14Z markus $
+** @version $Id: CheckOutPanel.java 604 2000-06-29 06:41:26Z markus $
 ** @author Modifications to jCVS CheckOutPanel.java by Markus Ostman
 **
 ** Check out panel for bluej group support.
 **/
 
-public class CheckOutPanel extends GroupWorkPanel
+public class CheckOutPanel extends JPanel
 implements ActionListener, CVSUserInterface
 {
-    protected CVSClient           client;
-    protected ConnectInfoPanel    info;
+    private CVSClient             client;
+    private ConnectInfoPanel      info;
     private JFileChooser          localDirChooser;
     private PkgMgrFrame           frame=null;//Don't ask why we need this
     private boolean               openPkg=true;
-    protected JButton             actionButton;
-    protected JButton             cancelButton;
+    private JButton               actionButton;
+    private JButton               cancelButton;
     private InfoDialog            errorInfo;
-
+    //private MainGrpPanel          parent;
+    private Properties            props;
+    private GroupWorkDialog       groupWorkDialog;
     //protected JButton helpButton;
     //protected JTextArea	outputText;
     //protected JLabel feedback;
     //private JLabel explain;
 
-    public CheckOutPanel( MainGrpPanel parent )
+    public CheckOutPanel( GroupWorkDialog groupWorkDialog )
     {
-        super( parent );
+        super();
+	//this.parent = parent;
+        this.groupWorkDialog = groupWorkDialog;
+	this.setBorder( new EmptyBorder( 4, 4, 4, 4 ) );
+	this.loadPrefs();
         this.establishContents();
         this.errorInfo = new InfoDialog
-            (parent.getGroupWorkDialog().getParentFrame());
+            (this.groupWorkDialog.getParentFrame());
+    }
+
+//     public MainGrpPanel getMainGrpPanel()
+//     {
+// 	return this.parent;
+//     }
+
+    public GroupWorkDialog getGroupWorkDialog()
+    {
+	return this.groupWorkDialog;
+    }
+    
+    /*
+     * this method and loadPreferences should of course be one method
+     */
+    public void loadPrefs()
+    {
+	String propsFile = bluej.Config.sys_confdir+File.separatorChar+
+            "group.defs";
+	Debug.message("CheckoutPnl,64 "+propsFile);
+
+        if (props == null) {
+            // try to load the Properties for the group stuff
+            try {
+                FileInputStream input = new FileInputStream(propsFile);
+		
+                this.props = new Properties();
+                this.props.load(input);
+            } catch(IOException e) {
+                Debug.reportError("Error loading group properties file" + 
+                                  propsFile + ": " + e);
+            }
+	}
     }
 
     public void loadPreferences()
@@ -64,7 +107,7 @@ implements ActionListener, CVSUserInterface
     {
         String command = event.getActionCommand();
         Debug.message("chkoutpnl,line58 "+command);
-        GroupWorkDialog g=(GroupWorkDialog)getTopLevelAncestor();
+        //GroupWorkDialog g=(GroupWorkDialog)getTopLevelAncestor();
 
         //If no selection is made the action command is
         //CancelSelection from both buttons in FileChooser. 
@@ -87,8 +130,9 @@ implements ActionListener, CVSUserInterface
 
         if ( command.equalsIgnoreCase( "CHECKOUT" ) )
             {
-                PkgMgrFrame parentFrame = (PkgMgrFrame)g.getOwner();
-                g.doClose();
+                PkgMgrFrame parentFrame = (PkgMgrFrame)
+                    groupWorkDialog.getOwner();
+                groupWorkDialog.doClose();
                 if(this.localDirChooser.showDialog(parentFrame, "Choose")==JFileChooser.APPROVE_OPTION){ 
                     this.performCheckout();
                 }
@@ -96,7 +140,7 @@ implements ActionListener, CVSUserInterface
         else if ( command.equalsIgnoreCase( "CANCEL" ) )
             {
                 //this.cancelCheckout();
-                g.doClose();
+                groupWorkDialog.doClose();
             }
     }
 
@@ -107,12 +151,11 @@ implements ActionListener, CVSUserInterface
 
     private void performCheckout()
     {
-        Debug.message("chkoutpnl,line660 ");
         Config cfg = Config.getInstance();
         UserPrefs prefs = cfg.getPreferences();
         ResourceMgr rmgr = ResourceMgr.getInstance();
 
-        Debug.message("chkOutPnl,80 "+props.getProperty("group.server", null));
+        Debug.message("chkOutPnl,80 "+props.getProperty("group.server",null));
 
         String argumentStr = "";//user choice/hard coded/admin choice?
         String userName = this.info.getUserName();
@@ -122,7 +165,12 @@ implements ActionListener, CVSUserInterface
         String rootDirectory = props.getProperty("group.repository.path",
                                                  null);
         String localDirectory = localDirChooser.getSelectedFile().getPath();
-
+        //this is a nasty work around the top level CVS dir problem
+     //    if(openPkg){
+//             localDirectory = localDirectory+File.separator+
+//                 this.info.getModule();
+//         }
+        Debug.message("chkoutpnl,126 "+localDirChooser.getSelectedFile().getPath());
         //user choice/hard coded/admin choice?
         boolean isPServer = true;//this.info.isPasswordSelected();
 
@@ -211,7 +259,7 @@ implements ActionListener, CVSUserInterface
 
         arguments.appendArgument( repository );
 
-        this.getMainGrpPanel().setAllTabsEnabled( false );
+        //this.getMainGrpPanel().setAllTabsEnabled( false );
 
         this.client = new CVSClient( hostname, cvsPort );
         CVSProject project = new CVSProject( this.client );
@@ -415,7 +463,7 @@ implements ActionListener, CVSUserInterface
                 this.response.deleteTempFiles();
             }
 
-            getMainGrpPanel().setAllTabsEnabled( true );
+            //getMainGrpPanel().setAllTabsEnabled( true );
             Debug.message("chkoutPnl,line403 "+Thread.currentThread().getName()+" THREAD FINISHED");
         }
 
@@ -483,13 +531,9 @@ implements ActionListener, CVSUserInterface
         
         
         
-        this.localDirChooser = new JFileChooser();
-        this.localDirChooser.setFileView(new PackageFileView());
+        this.localDirChooser = FileUtility.getFileChooser(true);
         this.localDirChooser.setDialogTitle("Choose local directory");
-        //this.localDirChooser.setDialogType(JFileChooser.SAVE_DIALOG);
-        //this.localDirChooser.setApproveButtonText("Choose");
         this.localDirChooser.setApproveButtonToolTipText("Choose selected directory"); 
-        this.localDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); 
         this.localDirChooser.addActionListener(this); 
 
         // button panel at bottom of dialog
@@ -619,7 +663,9 @@ implements ActionListener, CVSUserInterface
         this.info.setPassword(passWord);
         this.info.setModule(module);
         this.info.setGroupName(groupName);
+        Debug.message("chkoutpnl,619 "+localDir);
         this.localDirChooser.setSelectedFile(new File(localDir));
+        Debug.message("chkoutpnl,621 "+this.localDirChooser.getSelectedFile().getPath());
         this.performCheckout();
     }
 }
