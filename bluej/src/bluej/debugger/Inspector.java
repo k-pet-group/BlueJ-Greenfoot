@@ -17,7 +17,7 @@ import bluej.utility.DialogManager;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1828 2003-04-11 08:40:48Z mik $
+ * @version    $Id: Inspector.java 1884 2003-04-24 06:29:17Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -44,7 +44,6 @@ public abstract class Inspector extends JFrame
 
     protected JButton inspectButton;
     protected JButton getButton;
-    protected JCheckBox assertCheckbox;
     protected AssertPanel assertPanel;
 
     protected DebuggerObject selectedObject;    // the object currently selected in the list
@@ -325,8 +324,8 @@ public abstract class Inspector extends JFrame
 
 	protected void handleAssertions()
 	{
-		if (assertCheckbox != null && assertCheckbox.isSelected()) {
-			ir.addAssertion("\t\t\t" + assertPanel.getAssertStatement() + "\n");
+		if (assertPanel != null && assertPanel.isAssertEnabled()) {
+			ir.addAssertion("\t\t\t" + assertPanel.getAssertStatement() + ";\n");
 		}
 	}
 
@@ -444,26 +443,25 @@ public abstract class Inspector extends JFrame
 
 
         // create bottom button pane with "Close" button
-        buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        if (showAssert && isResult && pkg.getProject().inTestMode()) {
-            assertCheckbox = new JCheckBox("Assert that:", true);
-            assertCheckbox.setAlignmentX(LEFT_ALIGNMENT);
-            buttonPanel.add(assertCheckbox, BorderLayout.NORTH);
-           
+        if (showAssert && isResult && pkg.getProject().inTestMode()) {          
             assertPanel = new AssertPanel();
             {
-                buttonPanel.add(assertPanel, BorderLayout.CENTER);
+				assertPanel.setAlignmentX(LEFT_ALIGNMENT);
+                buttonPanel.add(assertPanel);
             }
-            
         }
         
         JButton button = new JButton(close);
-        {
+/*        {
             JPanel cbPanel = new JPanel();
             cbPanel.add(button);
-            buttonPanel.add(cbPanel, BorderLayout.SOUTH);
+            buttonPanel.add(cbPanel, BorderLayout.SOUTH);*/
+        {
+        	buttonPanel.add(button);
             button.addActionListener(new ActionListener() {
                  public void actionPerformed(ActionEvent e) { doClose(); }
               });
