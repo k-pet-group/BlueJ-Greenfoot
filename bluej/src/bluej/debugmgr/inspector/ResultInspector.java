@@ -107,7 +107,13 @@ public class ResultInspector extends Inspector implements InspectorListener {
      */
     protected Object[] getListData()
     {
-        return obj.getInstanceFields(false).toArray(new Object[0]);        
+        DebuggerObject realValue = obj.getFieldObject(0);
+                
+        String fieldString = JavaNames.stripPrefix(realValue.getClassName())
+        + " " + obj.getInstanceFieldName(0)
+        + " = " + DebuggerObject.OBJECT_REFERENCE;
+        
+        return new Object[] {fieldString};        
     }
 
     
