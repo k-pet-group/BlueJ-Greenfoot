@@ -110,8 +110,10 @@ browser.menu.library.addlibrary.title=Lägg till Bibliotek
 browser.menu.library.refresh=Ladda om
 browser.menu.library.close=Stäng
 
+# Preferences Manager user interface elements and error messages
+prefmgr.title=BlueJ:  Preferences
+
 # Class Manager user interface elements and error messages
-#
 classmgr.prefpaneltitle=Bibliotek
 classmgr.userlibraries=Användarbibliotek
 classmgr.systemlibraries=Systembibliotek
@@ -124,17 +126,17 @@ classmgr.unresolvable=Obestämbar sökväg
 classmgr.bootclass=Bootningsklassbibliotek
 classmgr.bluejclass=BlueJs Klassbibliotek
 classmgr.error.unresolvable=Obestämbar sökväg
-classmgr.error.loadingconfig=Saknar konfigurationsfil. Filen används för att specificera\nett bibliotek som tillägg till standard bootbiblioteket.
-classmgr.error.savingconfig=Sparar konfigurationsfil.
 classmgr.error.missingclasspath=Ingen java "Classpath". Kan uppstå problem vid laddning av klasser\npå grund av att klasserna i arbetskatalogen kommer bestämmas först.
 classmgr.error.missingbootclasspath=Ingen Sun bootnings-"Classpath". Bluej ska inte köras med en miljö äldre än JDK 1.2.
 
-# Preferences Manager user interface elements and error messages
-prefmgr.title=Inställningar
+# Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=Blandat
 prefmgr.misc.editorfontsize=Fontstorlek i ordbehandlaren
 prefmgr.misc.usesyntaxhilighting=Använd "Syntax highlighting".
 prefmgr.misc.jdkurlpath=JDK dokumentations URL
+prefmgr.misc.linkToLib=Use this URL when generating project documentation
+prefmgr.misc.linkToLibNoteLine1=If this URL is used for generating documentation, it must be correct and accessible.
+prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail. To work offline, uncheck this option.
 
 #---------------
 #Editor labels
@@ -142,10 +144,6 @@ prefmgr.misc.jdkurlpath=JDK dokumentations URL
 editor.title=BlueJ Ordbehandlare
 
 #button lables for toolbar commands
-editor.viewLabel1 = Implementation
-editor.viewLabel2 = Publik Vy
-editor.viewLabel3 = Paket Vy
-editor.viewLabel4 = Skyddad Vy
 editor.compileLabel = Kompilera
 editor.undoLabel = Ångra
 editor.cutLabel = Klipp
@@ -180,9 +178,7 @@ editor.insert-methodLabel = Infoga metod
 
 editor.find-backwardLabel = Hitta baklänges...
 editor.replaceLabel = Ersätt...
-editor.goto-lineLabel = Gå till rad...
 editor.compileLabel = Kompilera
-editor.preview-docLabel = Kör Javadoc
 editor.toggle-breakpointLabel = Sätt/Ta bort brytpunkt
 editor.toggle-interface-viewLabel = Toggle Interface View
 
@@ -453,6 +449,7 @@ menu.help.about=Om BlueJ...
 menu.help.copyright=Copyright...
 
 # tool tips ##TO BE TRANSLATED##
+
 tooltip.newClass=Create a new class in this package
 tooltip.newUses=Insert a 'uses' relation
 tooltip.newExtends=Insert an inheritance relation

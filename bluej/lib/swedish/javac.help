@@ -135,16 +135,16 @@ or something similar. The compiler could not find
 that here.
 
 ';' expected.
-Ett semikolon saknas i slutet av en rad.
-Antingen i den markerade raden eller i 
-raden ovanför.
+There is a semicolon missing at the end of 
+a line. This could be the line marked in the
+editor, or the line above.
 
 * expected.
-Symbolen som nämns i felmeddelandet förväntas
-finnas vid den här platsen i koden. Den fanns inte
-där, utan istället var där en annan symbol. Försök 
-lista ut varför symbolen i felmeddelandet kan 
-förväntas här.
+The symbol named in the error message was 
+expected to appear at this point in the code.
+It was not there; instead, there was some
+other symbol. Try to think about why this 
+symbol may be expected here.
 
 Missing term.
 Wow - you really got the compiler confused here!
@@ -343,7 +343,10 @@ of the type your are trying to cast to, so the cast can
 never work.
 
 Invalid type expression.
-No help available.
+You have written a typed expression here where
+it does not make sense. Quite possibly, you may
+have mistyped a character, forgotton a semicolon
+or an arithmetic symbol or something similar.
 
 Only named classes can have 'extends' or 'implements' clauses.
 You have used an anonymous class (a class that does not have
@@ -737,13 +740,11 @@ parameters, such as
    a.someMethod();
 but the method is defined with a parameter, eg.
    void someMethod(int i)
-If the method expects a paremeter, then you have
+If the method expects a parameter, then you have
 to call it with a parameter, eg:
    a.someMethod(42)
-The same 
-
-Wrong number of arguments in {0}.
-No help available.
+If it expects two parameters, then you have to
+supply two, and so on...
 
 Can't make forward reference to {0} in {1}.
 No help available.
@@ -796,6 +797,14 @@ the same method in which the 'break' or
 Invalid declaration.
 No help available.
 
+'return' with value from constructor*
+We are looking at a constructor here. And there
+is a "return" statement that tries to return a
+value. You cannot do that. You cannot return a
+value from a constructor. The returned value from
+a constructor always is (automatically) the object
+that is constructs.
+
 'return' with value from *
 You have a 'return' statement with a value
 in your method. Your method is not expected
@@ -823,107 +832,196 @@ but not
 The second one tries to return a String - that's
 not an "int", so it doesn't work.
 
-'return' without value from {0}.
-No help available.
+'return' without value from *
+Here, you have written a "return" statement that does
+not return a value. The method header, however, declares
+that this method returns a value. You must either declare
+that this method does not return a value (by using "void"
+as the return type in the method header), or you must 
+return a value of the correct type, for example 
+    return 42;
+or
+    return "Marvin";
 
 'return' inside static initializer.
-No help available.
+A static initialiser (that is, an unnamed static block
+of code that gets executed during class initialisation)
+cannot have a return statement. Remove it.
 
 Invalid label.
-No help available.
+You have written an invalid label. Labels are tags at the
+beginning of a line of the form
+    <identifier>:
+That is: a Java identifier followed by a colon. The 
+identifier can only contain letters, digits, the 
+underscore and the dollar sign. The real question here,
+however, is: Why are you using labels at all? There are
+not many cases where this is good practice, and you 
+should ask youself whether you can write this differently...
 
-Return required at end of {0}.
-No help available.
+Return required at end of *
+Here, you've got a method that is declared to return a 
+value. There is, however, no "return" statement in the body
+of the method. That doesn't fit together. You must either:
+   - declare the return type of the method as "void"
+     if you don't want to return a value, or
+   - write a "return" statement with the correct 
+     return type at the end of the method, for 
+     example
+         return 42;
+The type of the return value must match the declared type
+in the method header.
 
-Duplicate case label: {0}
-No help available.
+Duplicate case label*
+You have used the same label twice in the same 
+"switch" statement.
 
-Case label {0} too large for 'switch' on {1}
-No help available.
+too large for 'switch' on
+You have used a case label that can never be matched,
+because the value is larger than the largest possible
+value that your switch variable can hold.
 
-A statement cannot be labeled with the same identifier as one of its enclosing statements: {0}
-No help available.
+A statement cannot be labeled with the same identifier as one of its enclosing statements*
+You have used the same label twice in the same 
+block - are you insane? You shouldn't be using 
+labels at all without a license, let alone 
+overloading labels with the same name!
 
-A declaration cannot be labeled: {0}
-No help available.
+A declaration cannot be labeled*
+You cannot have a label here, since it makes
+no sense to jump to this location.
 
 Constant expression required.
-No help available.
+You have used a variable or an expression here, but
+that's illegal. You can only use constants here.
+Constants are number literals (such as 42) or 
+identifiers declared as "final".
 
 Duplicate 'default' label.
-No help available.
-
-'{0}' not supported.
-No help available.
-
-'return' with value from constructor: {0}
-No help available.
+You have written "default" twice inthe same switch 
+statement. You cannot do that - once is enough.
 
 Only one package declaration allowed.
-No help available.
+You cannot declare a class to be in more that
+one package. That means, you can have only one
+"package" statement in any class. You have two 
+here.
 
-Class {0} already defined in {1}.
-No help available.
-
-Class name {0} clashes with imported class {1}.
-No help available.
+* clashes with imported class *
+The declared class has the same name as an
+imported class. That's not a good idea. Either:
+    - rename your class, or
+    - don't import that class. You can then
+      use a fully qualified name where you
+      want to use it.
 
 Interfaces can't have constructors.
-No help available.
+This is a declaration of an interface. Interfaces
+only contain constant and method declarations
+(headers). You have written a constructor here - 
+interfaces cannot be constructed.
 
-Constructors can't be native, abstract, static, synchronized, or final: {0}
-No help available.
+Constructors can't be native, abstract, static, synchronized, or final*
+The text of this error message says it all, 
+doesn't it? Remove the native, abstract, static, 
+synchronized, or final keyword from the constructor.
 
 Interfaces can't have static initializers.
-No help available.
+Static initialiser blocks, that is: unnamed blocks
+of code marked "static" which are executed when the
+class is initialised, can only appear in classes,
+not in interfaces.
 
-Interface methods can't be native, static, synchronized, final, private, or protected : {0}
-No help available.
+Interface methods can't be native, static, synchronized, final, private, or protected*
+The text of this error message says it all, 
+doesn't it? Remove the native, static, synchronized, 
+final, private or protected keyword from the method.
 
-Interface fields can't be private or protected: {0}
-No help available.
+Interface fields can't be private or protected*
+All declarations in an interface are automatically 
+public. All constant fields declared in an interface
+are public. You cannot declare them private or 
+protected.
 
-Method {0} can't be transient. Only variables can be transient.
-No help available.
+*can't be transient. Only variables can be transient.
+The keywork "transient" can only be used with a
+field declaration, not in front of a method.
 
-Method {0} can't be volatile. Only variables can be volatile.
-No help available.
+* can't be volatile. Only variables can be volatile.
+The keywork "volatile" can only be used with a
+field declaration, not in front of a method.
 
-Abstract methods can't be private: {0}
-No help available.
+Abstract methods can't be private*
+It does not make sense to declare a method both
+abstract and private. Think about it: because it is
+abstract, a subclass must later redefine it to provide
+an implementation. But because it is private, no
+subclass can ever do that. This doesn't work.
 
-Abstract methods can't be static: {0}
-No help available.
+Abstract methods can't be static *
+Only instance methods can be abstract. A static 
+method (class method) cannot be abstract.
 
-Abstract methods can't be final: {0}
-No help available.
+Abstract methods can't be final *
+It does not make sense to declare a method both
+abstract and final. Think about it: because it is
+abstract, a subclass must later redefine it to provide
+an implementation. But because it is final, no
+subclass can ever do that. This doesn't work.
 
-Abstract methods can't be native: {0}
-No help available.
+Abstract methods can't be native *
+You cannot declare a method both abstract and
+native. Methods both abstract and native do
+not exist.
 
-Abstract methods can't be synchronized: {0}
-No help available.
+Abstract methods can't be synchronized *
+You cannot declare an abstract method to be 
+synchronized. If you want synchronization, put
+the "synchronized" declaration with the method
+in the subclass that implements this abstract 
+method.
 
-Abstract and native methods can't have a body: {0}
-No help available.
+Abstract and native methods can't have a body *
+You have declared a method "abstract" or "native" and
+you have written a method body. That is a contradiction.
+Both abstract and native method declarations have only
+a method header, followed by a semicolon. Either remove
+the "abstract" or "native" keyword, or remove the method
+body.
 
-Variables can't be synchronized, abstract or native: {0}
-No help available.
+Variables can't be synchronized, abstract or native *
+The keywords "synchronized", "abstract" and "native" all
+make sense only for methods. You have used one of these
+for a variable declaration. That doesn't work.
 
-Variables can't be declared strict: {0}
-No help available.
+Variables can't be declared strict *
+You cannot declare a variable "strict".
 
 Inner classes can't be volatile, transient, native, or synchronized: {0}
-No help available.
+The keywords "volatile" and "transient" only make sense
+for variables. The keywords "native" and "synchronised"
+are only for methods. You have used one of these for an 
+inner class declaration. That doesn't work.
 
-Transient variables can't be members of interfaces: {0}
-No help available.
+Transient variables can't be members of interfaces *
+You have declared a variable in an interface "transient".
+You cannot do that. Transient variables can only be in 
+classes. Interfaces can have only constant fields (and
+method declarations).
 
-Volatile variables can't be final or members of interfaces: {0}
-No help available.
+Volatile variables can't be final or members of interfaces*
+You have declared a variable volatile here. This is not
+allowed in this context. This variable is either declared 
+final or ot is in an interface (then it is, by definition,
+final as well). If it's final, it can't be volatile.
 
-This final variable must be initialized: {0}
-No help available.
+This final variable must be initialized*
+You have a constant declaration here (a variable that
+is declared final). (It may be in an interface - fields
+in interfaces are automatically final.) Constants must
+be assigned a value when they are declared. For 
+example:
+    private final int answer = 42;
 
 Duplicate method declaration: *
 You have declared two methods with the same name
@@ -933,296 +1031,666 @@ that is, either the name of the method or the number
 of parameters or the parameter types must be 
 different.
 
-Methods can't be redefined with a different return type: {0} was {1}
-No help available.
+Methods can't be redefined with a different return type:*
+You are redefining a method here. That means: a 
+superclass of your class has defined a method with the
+same name and parameters as the one you have written
+here. You are overriding the inherited method
+implementation. The problem is: the method in the 
+superclass has a different return type than your method.
+That is not allowed. If the name and the parameters are
+the same, then the return type must match as well.
 
 Duplicate variable declaration: *
 You have declared two variables with the same name.
 Each variable must have a unique name - you cannot
 have the same name twice.
 
-Duplicate inner class declaration: {0} is already defined in this scope.
-No help available.
+Duplicate inner class declaration:*
+You have two inner classes in this class 
+with the same name. That's no good. Rename 
+one of them.
 
-Superclass of {0} can't be an interface: {1}
-No help available.
+* can't be an interface: *
+You cannot use an interface here. 
+You must use a class instead.
 
-Can't access {0}. Class or interface must be public, in same package, or an accessible member class.
-No help available.
+* Class or interface must be public, in same package, or an accessible member class.
+Access to this class is not allowed. It is probably
+a private class in another package. Private classes
+cannot be used outside their own package. If you
+really need to use this class, you must declare it
+public.
 
 The type name in a qualified 'new' expression must be an unqualified identifier.
 No help available.
 
 Repeated modifier.
-No help available.
+In this declaration, you have written the same
+modifier twice. A modifier is a keyword such
+as final, static, public, private, volatile, ...
 
 Inconsistent member declaration. At most one of public, private, or protected may be specified.
-No help available.
+You cannot declare a field or method private and 
+public at the same time! (Or private and protected,
+or protected and public.) But that's what you are
+trying to do here. What were you thinking?!
 
-Can't subclass final classes: {0}
-No help available.
+Can't subclass final classes: *
+The superclass (the class listed after the 
+"extends" keyword) is declared final. That 
+means that it specifically prohibits 
+subclasses. Sorry - you cannot subclass it
+if it doesn't want you to...
 
-Can't subclass interfaces: {0}
-No help available.
+Can't subclass interfaces: *
+The superclass (the class listed after the 
+"extends" keyword) is not a class at all -
+it's an interface. If you want to inherit
+from an interface, use the "implements"
+keyword instead. For example:
+    class MyClass implements SomeInterface
 
 Cyclic class inheritance.
-No help available.
+You are trying to extend a class here, but
+that class has already declared that it
+extends yours! Well, that cannot work!
+You have to decide which one is the 
+superclass and which is the subclass.
 
 Cyclic class inheritance:  A subclass cannot enclose a superclass.
-No help available.
+You cannot extend a class that is an 
+innner class of yourself.
 
 Cyclic interface inheritance.
-No help available.
+You are trying to extend an interface here, 
+but that interface has already declared that 
+it extends yours! Well, that cannot work!
+You have to decide which one extends which.
 
 Cyclic class inheritance or scoping.
-No help available.
+You cannot extend the class you are trying
+to extend here. This class is either not in
+the right scope, or it is trying to extends
+yours.
 
-{0} must be an interface.
-No help available.
+* must be an interface.
+After the "implements" keyword, you must name
+an interface. Whatever you have written there
+is not an interface (it is probably a class).
+Use "extends" if you want to inherit from a
+class.
 
-Interfaces can't be final: {0}
-No help available.
+Interfaces can't be final*
+You cannot declare an interface "final".
+Think about it: it doesn't make sense! An
+interface is only useful if a class inherits
+from it (with the "implements" keyword). But
+if something if final, you cannot inherit from
+it. So a final interface would be useless!
 
 An interface can't implement anything; it can only extend other interfaces.
-No help available.
+In an interface, you cannot use the "implements"
+keyword. If you want to extend another interface,
+use the "extends" keyword. For example:
+   interface MyInterface extends YourInterface
 
 Multiple inheritance is not supported.
-No help available.
+In Java, you cannot inherit from (extend) two
+classes. If you need to do something like this,
+you have to make one of the superclasses an
+interface. You can implement multiple 
+interfaces.
 
-Interface {0} repeated.
-No help available.
+Invalid class file format in *
+The class file (the file produced by the
+compiler) seems dodgy. The best thing to
+do is to go to the "Tools" menu in the
+main window and select "Rebuild Package".
 
-Invalid class file format in {0}.  {1}
-No help available.
+Unexpected end of file encountered while reading the class file*
+The class file (the file produced by the
+compiler) seems dodgy. The best thing to
+do is to go to the "Tools" menu in the
+main window and select "Rebuild Package".
 
-Unexpected end of file encountered while reading the class file {0}.
-No help available.
+* requires a method body. Otherwise declare it as abstract.
+Methods must either have a body or be abstract. A
+method body is the block in curly braces { } that 
+follows the method header and contains statements.
+If a method does not have a body then it must have the
+keyword "abstract" in its header. For example:
+    public abstract int getAnswer();
 
-Method {0} requires a method body. Otherwise declare it as abstract.
-No help available.
-
-Constructor {0} requires a method body.
-No help available.
+* requires a method body.
+The method body (that is: the block in curly braces { } 
+that follows the method header and contains statements)
+is missing for this constructor.
 
 Constructors may not be modified by strictfp.
-No help available.
+Don't use the "strictfp" modifier for
+constructors. What were you thinking?
 
-Instance variables can't be void: {0}
-No help available.
+Instance variables can't be void: *
+You are declaring a variable with type "void" here.
+The special type name "void" cannot be used as the
+type for a variable. "void" indicates no type -
+variables must have a proper type.
 
 Invalid method declaration; return type required.
-No help available.
+A method declaration must have a declared return type.
+For example, if your method returns a String, write
+    public String myMethod();
+If you do not want to return a value from this method,
+use the special word "void" to indicate that there is
+no return type. For example
+    public void myMethod();
 
 Invalid method declaration; method name required.
-No help available.
+A method must have a name. The name is declared
+in the method signature. A method signature looks
+like this:
+    <access-modifier> <type> <name> (<parameters>)
+For example:
+    private int getAnswer(String question)
 
 Invalid qualified constructor name.
 No help available.
 
-Superclass {0} of {1} not found.
-No help available.
-
-Interface {0} of {1} not found.
-No help available.
-
-        Class {0} can't be declared both abstract and final.
-No help available.
+* can't be declared both abstract and final.
+You cannot declare an abstract class "final".
+Think about it: It doesn't make sense! An
+abstract class is only useful if another class 
+extends it. But if a class if final, you cannot 
+extend it. So a final abstract class would be 
+useless!
 
 Array of void is not a valid type.
-No help available.
+You cannot use "void" as the base type of
+an array. The array element type has to be 
+a valid type.
 
-Argument can't have type void: {0}
-No help available.
+Argument can't have type void: *
+"void" is not a real type. It is used for methods
+to indicate that they do not return anything.
+Arguments (also called parameters) must have a
+proper type.
 
 Invalid expression statement.
-No help available.
+Oh wow - something is wrong here!
+(Sorry that I can't be more specific -
+just read this line carefully and
+you might work out what's wrong. If
+not, ask a guru.)
 
 catch not reached.
-No help available.
+This catch statement is useless. It can
+never be executed, because all exceptions
+that it is declared to catch are already 
+caught by another catch statement above it.
 
 Statement not reached.
-No help available.
+This statement will never be executed. If
+you examine the code carefully you will
+notice that the control flow is such that 
+it can never reach this statement. Delete
+it if you really don't want it executed, 
+or fix your code.
 
 Initializer must be able to complete normally.
-No help available.
+You cannot throw exceptions or otherwise
+terminate static initialiser blocks. You
+have to let it complete executing.
 
 Arithmetic exception.
-No help available.
+Something wrong here with your
+'rithmetic...
 
+* must be defined in a file called *
+A Java class must be defined in a file with
+the same name as the class (plus a ".java"
+suffix). You names don't match.
 
-Public {0} must be defined in a file called "{1}".
-No help available.
+* Because it is used outside of its source file, it should be defined in a file called *
+A Java class must be defined in a file with
+the same name as the class (plus a ".java"
+suffix). You names don't match.
 
-{0} is defined in {1}. Because it is used outside of its source file, it should be defined in a file called "{2}".
-No help available.
+Possible loss of precision. Use an explicit cast to convert *
+You are assigning a value of one type to a variable
+of another type. The receiving type may not be able
+to store the value properly (it may have to be rounded
+off slightly). If you really want to do this assignment
+indicate this by using an explicit cast. 
 
-Possible loss of precision. Use an explicit cast to convert {0} to {1}.
-No help available.
+* is used twice in the argument list of this method.
+Two of the arguments of this method have the
+same name. Now, that's silly...
 
-Variable '{0}' is used twice in the argument list of this method.
-No help available.
+* is already defined in this method.
+There is already a variable (or maybe a
+parameter) in this method that has the 
+same name. Use a different name for this
+one. (Or maybe you meant to use the same
+variable here? Then remove the type name
+here so that it does not look like a new
+declaration.)
 
-Variable '{0}' is already defined in this method.
-No help available.
+Local class *
+You have declared the same local class
+twice here. 
 
-Local class '{0}' is already defined in this method.
-No help available.
+* is already defined in this scope.  An inner class may not have the same simple name as any of its enclosing classes.
+That message is very clear, isn't it? If 
+you don't understand it - well, I can't
+explain it any better either...
 
-The class name '{0}' is already defined in this scope.  An inner class may not have the same simple name as any of its enclosing classes.
-No help available.
+*, and hides a variable of the same name in *
+This variable use is not clear. There are at least
+two variables with this name, defined in this class,
+inherited from superclasses or in enclosing classes.
+Use "this." in front of this variable name to
+remove the ambiguity or, better still, rename your
+variable.
 
-Variable '{0}' is inherited in {1}, and hides a variable of the same name in {2}. An explicit 'this' qualifier must be used to select the desired instance.
-No help available.
+*, and hides a local variable of the same name. An explicit 'this' qualifier must be used to select the variable, or the local must be renamed.
+This variable use is not clear. There are at least
+two variables with this name, defined in this class,
+inherited from superclasses or in enclosing classes.
+Use "this." in front of this variable name to
+remove the ambiguity or, better still, rename your
+variable.
 
-Variable '{0}' is inherited in {1}, and hides a local variable of the same name. An explicit 'this' qualifier must be used to select the variable, or the local must be renamed.
-No help available.
+*, and hides a method of the same name in *
+This method use is not clear. There are at least
+two methods with this name, defined in this class,
+inherited from superclasses or in enclosing classes.
+Use "this." in front of this method name to
+remove the ambiguity or, better still, rename your
+method.
 
-Method '{0}' is inherited in {1}, and hides a method of the same name in {2}. An explicit 'this' qualifier must be used to select the desired instance.
-No help available.
+*, and hides a type of the same name in an enclosing scope. An explicit qualifier prefix must be used to name this type.
+This type use is not clear. There are at least
+two types with this name, defined in this class,
+inherited from superclasses or in enclosing classes.
+The best advice would be to rename your types!
 
-Type '{0}' is inherited in {1}, and hides a type of the same name in an enclosing scope. An explicit qualifier prefix must be used to name this type.
-No help available.
+* can't be private. Package members are always accessible within the current package.
+The keyword "private" is not allowed here for this
+class definition. Remove the word "private" to allow
+access to this class from other classes in this
+package only, or write "public" instead to allow
+access from all other classes.
 
-The type {0} can't be private. Package members are always accessible within the current package.
-No help available.
+* can't be declared static. It is already top-level, since it is a member of a package.
+It does not make sense to declare a class
+static. Remove the "static" keyword.
 
-The type {0} can't be declared static. It is already top-level, since it is a member of a package.
-No help available.
+* can't be made protected. Package members can either be public or local to the current package.
+The keyword "protected" is not allowed here for this
+class definition. Remove the word "protected" to allow
+access to this class from other classes in this
+package only, or write "public" instead to allow
+access from all other classes.
 
-The type {0} can't be made protected. Package members can either be public or local to the current package.
-No help available.
+Recursive constructor invocation: *
+You have written code that causes this
+constructor to call itself. That is not
+allowed (and would most likely lead to
+an infinite loop).
 
-Recursive constructor invocation: {0}.
-No help available.
+* Please remove the file, or make sure it appears in the correct subdirectory of the class path.
+Something is really wrong with your files. If you
+see this in BlueJ, it's time to get worried. BlueJ
+is supposed to handle this properly...
 
-File {0} does not contain {1} as expected, but {2}. Please remove the file, or make sure it appears in the correct subdirectory of the class path.
-No help available.
+* as expected. Please adjust the class path so that the file does not appear in the *
+There is something wrong with file names, 
+class names and paths. In general, it is
+a good idea to structure your code so that
+every file contains only one class, and the
+file name is the same as the class name
+(with an additional ".java" suffix).
 
-File {0} does not contain {1} as expected. Please adjust the class path so that the file does not appear in the {2}.
-No help available.
+* not found.  Please adjust the classpath so that package *
+This package could not be found. There are two possible
+causes to this problem. Either you just mis-spelled the
+name. Please check the package name (including capitals).
+Or the package is not in the classpath. If it is not a
+standard Java package, and the package is not visible
+in your class diagram, then open the "Preferences" dialog,
+select the "Libraries" tab and add the directory that 
+contains your package to the known library paths.
 
-Class {0} not found.
-No help available.
+A type and a package cannot have the same name.  The name *
+Make sure that the class and the package
+have different names. Usually, classes 
+should start with a capital letter, while
+package names start with a lowercase letter.
 
-Package {0} not found.  Please adjust the classpath so that package {0} is accessible.
-No help available.
+*refer to a package.  It is illegal for there to be an accessible class named*
+Well, that message says it all, really.
+Choose a different name for that class,
+so that it doesn't have the same name
+as the package.
 
-A type and a package cannot have the same name.  The name {0} cannot be used to name a class while the package {0} is accessible.
-No help available.
+Invalid name *
+This name is not allowed in
+this context. Choose another
+name.
 
-A type and a package cannot have the same name.  The name {0} cannot be used to name a package while the class {1} is accessible.
-No help available.
+* is both a class and a package.
+It is not clear what you mean here. There
+is a class with this name, but there is
+also a package with this name. To remove
+this ambiguity, you could use a fully
+qualified class name (That is: a class
+name with all the package names in front.)
+For example: instead of
+        List
+write
+        java.util.List
 
-The name {0} must refer to a package.  It is illegal for there to be an accessible class named {1} because types and packages cannot have the same name.  The class {1} should be renamed or taken off the classpath.
-No help available.
+* in throws clause must be a subclass of class java.lang.Throwable.
+Only objects that inherit from "Throwable"
+can be thrown. Usually, you would throw an
+object of type "Exception" or a subclass
+of "Exception". The class you have named 
+here does not extend "Exception".
 
-Invalid name {0} for {1}.
-No help available.
+Can't throw *
+Only objects that inherit from "Throwable"
+can be thrown. Usually, you would throw an
+object of type "Exception" or a subclass
+of "Exception". The class you have named 
+here does not extend "Exception".
 
-Ambiguous name: {0} is both a class and a package.
-No help available.
+Can't catch *
+Only objects that inherit from "Throwable"
+can be thrown and caught. Usually, you would 
+throw and catch objects of type "Exception" 
+or subclasses of "Exception". The class you 
+have named here does not extend "Exception".
 
-{0} in throws clause must be a subclass of class java.lang.Throwable.
-No help available.
+* can't be thrown in initializer.
+You cannot throw exceptions or otherwise
+terminate static initialiser blocks. You
+have to let it complete executing.
 
-Can't throw {0}; it must be a subclass of class java.lang.Throwable.
-No help available.
+Can't read: *
+The file could not be read. It may be
+  - not there
+  - read protected
+  - you may not have the necessary
+    access rights
+  - otherwise in use
 
-Can't catch {0}; it must be a subclass of class java.lang.Throwable.
-No help available.
-
-Exception {0} can't be thrown in initializer.
-No help available.
-
-Can't read: {0}
-No help available.
-
-Can't write: {0}
-No help available.
+Can't write: *
+The file could not be written. Maybe
+you do not have write access in the
+directory? Or your disk is full?
 
 An error has occurred in the compiler; please file a bug report (http://java.sun.com/cgi-bin/bugreport.cgi).
-No help available.
+There is an error in the Java compiler. This
+is not your fault - the compiler is wrong.
+This should not have happened. The developers
+of the compiler would like to know about this
+so that they can improve the compiler. Please
+go to the web site mentioned above and report
+this. Thanks.
 
 An exception has occurred in the compiler; please file a bug report (http://java.sun.com/cgi-bin/bugreport.cgi).
-No help available.
+There is an error in the Java compiler. This
+is not your fault - the compiler is wrong.
+This should not have happened. The developers
+of the compiler would like to know about this
+so that they can improve the compiler. Please
+go to the web site mentioned above and report
+this. Thanks.
 
 Support for inner classes has been disabled.
-No help available.
+This is strange! Support for inner classes should
+not be disabled. Ask someone for help who knowns 
+what she's doing.
 
-Exception {0} must be caught, or it must be declared in the throws clause of this method.
-No help available.
+* must be caught, or it must be declared in the throws clause of this method.
+Your code makes a call to a method that may throw 
+an exception. You have two choices: You can either 
+catch that exception or you can declare that your 
+method passes it on. If you want to catch the
+exception, you have to use a 
+   try 
+   {
+      ...
+   }
+   catch(...)
+   {
+      ...
+   }
+block.
+If you want to pass it on, you must write the 
+declaration
+   throws <ExceptionName>
+into the signature of your method.
 
-Exception {0} must be caught, or it must be declared in the throws clause of this constructor.
-No help available.
+* must be caught, or it must be declared in the throws clause of this constructor.
+Your code makes a call to a method that may throw 
+an exception. You have two choices: You can either 
+catch that exception or you can declare that your 
+constructor passes it on. If you want to catch the
+exception, you have to use a 
+   try 
+   {
+      ...
+   }
+   catch(...)
+   {
+      ...
+   }
+block.
+If you want to pass it on, you must write the 
+declaration
+   throws <ExceptionName>
+into the signature of your constructor.
 
-A default constructor cannot be created for this class because the constructor of its superclass throws the exception {0}.  Define the constructor for this class explicitly.
-No help available.
+A default constructor cannot be created for this class because the constructor of its superclass throws the exception *
+A default constructor is a constructor that has no parameters and throws 
+no exceptions. If you do not specify a constructor in your class, the
+compiler will automatically create a default constructor. BUT: this only 
+works if the superclass also has a default constructor. In your case, the 
+superclass does not have a default constructor. So the default constructor 
+here cannot be created. So you have to write a constructor yourself!
 
-Exception {0} is never thrown in the body of the corresponding try statement.
+* is never thrown in the body of the corresponding try statement.
+You have declared that you want to catch
+an exception here. But I can tell you
+that this exception will never be thrown
+here! There is no statement in the "try"
+block that throws this exception.
 
-#warning:
-No help available.
+*, as in "outer. new Inner()" or "outer. super()".
+You must name the outer class as well when 
+accessing this inner class (separated by
+a dot) because it cannot be seen otherwise.
 
-Note: The cloning of an array does not throw any checked exceptions, and therefore does not require any catch clauses.  Please remove unused catch clauses, or if you wish to retain compatibility with older compilers, you may insert an artificial throw as follows:  if (false) throw new CloneNotSupportedException();
-No help available.
+* is in scope; cannot create a default constructor for *
+You should write an explicit constructor
+here, because the default constructor
+cannot be created.
 
-No enclosing instance of {0} is in scope; an explicit one must be provided when creating {1}, as in "outer. new Inner()" or "outer. super()".
-No help available.
-
-No enclosing instance of {0} is in scope; cannot create a default constructor for {1}.
-No help available.
-
-No enclosing instance of {0} is in scope; an explicit one must be provided when accessing {1}, as in "outer.member".
-No help available.
+*, as in "outer.member".
+You must name the outer class as well when 
+accessing this inner class (separated by
+a dot) because it cannot be seen otherwise.
 
 Member interfaces can only occur in interfaces and top-level classes.
-No help available.
+You are using a member interface here. You 
+can only do that in another interface or
+a top-level class. It is not allowed in
+inner classes.
 
-The type {0} can't be static.  Static members can only occur in interfaces and top-level classes.
-No help available.
+* can't be static.  Static members can only occur in interfaces and top-level classes.
+You cannot declare static types in
+nested classes. If you need a static
+type here, declare it in the outer class.
 
-Variable {0} can't be static in {1}.  Only members of interfaces and top-level classes can be static.
-No help available.
+* Only members of interfaces and top-level classes can be static.
+You cannot declare static variables or 
+methods in nested classes. If you need 
+a static variable or method here, declare 
+it in the outer class.
 
-Method {0} can't be static in {1}.  Only members of interfaces and top-level classes can be static.
-No help available.
+Too many errors.  (The limit on reported errors is *
+Oh boy. This code is so screwed up - I give
+up. Fix some other bugs first, then I'll tell
+you more.
 
-Too many errors.  (The limit on reported errors is {0}.)
-No help available.
+* cannot override the static method of the same signature declared in *
+You are declaring a method here. There is a
+method with the same signature (that is: the
+same name and parameters) in a superclass.
+So, you are trying to redefine the method
+here. The problem is: the method in the 
+superclass is declared "static". Static
+methods cannot be redefined. 
+If you did not intend to redefine a method,
+just change the method name. If you did want 
+to redefine, make the static method in the
+superclass an instance method.
 
-The instance method {0} declared in {1} cannot override the static method of the same signature declared in {2}.  It is illegal to override a static method.
-No help available.
+* cannot hide the instance method of the same signature declared in *
+You are declaring a static method here. There is a
+method with the same signature (that is: the same 
+name and parameters) in a superclass. So, you are 
+trying to redefine the method here. The problem is: 
+your method is declared "static". Static methods 
+cannot redefine instance methods. 
+If you did not intend to redefine a method,
+just change the method name. If you did want 
+to redefine, remove the "static" keyword.
 
-The static method {0} declared in {1} cannot hide the instance method of the same signature declared in {2}.  It is illegal to hide an instance method.
-No help available.
+* cannot override the final method of the same signature declared in *
+You are declaring a method here. There is a
+method with the same signature (that is: the
+same name and parameters) in a superclass.
+So, you are trying to redefine the method
+here. The problem is: the method in the 
+superclass is declared "final". Final
+methods cannot be redefined. 
+If you did not intend to redefine a method,
+just change the method name. If you did want 
+to redefine, remove the "final" keyword in the
+superclass.
 
-The method {0} declared in {1} cannot override the final method of the same signature declared in {2}.  Final methods cannot be overridden.
-No help available.
+* is not deprecated, but overrides a deprecated method of the same signature declared in *
+You are declaring a method here. There is a method 
+with the same signature (that is: the same name and 
+parameters) in a superclass. So, you are trying to 
+redefine the method here. The problem is: the 
+method in the superclass is declared "deprecated". 
+Deprecated methods cannot be redefined. If you did 
+not intend to redefine a method, just change the 
+method name. If you did want to redefine, declare 
+your method "deprecated" as well.
 
-The method {0} declared in {1} is not deprecated, but overrides a deprecated method of the same signature declared in {2}.
-No help available.
+* The access modifier is made more restrictive.
+You are declaring a method here. There is a method 
+with the same signature (that is: the same name and 
+parameters) in a superclass. So, you are trying to 
+redefine the method here. The problem is: the 
+method in the superclass has a more generous access
+modifier than yours (for example, it is public, 
+yours is protected, or it is protected, yours is
+private). You cannot make the access modifier more
+restrictive in a redefinition. If you did not 
+intend to redefine a method, just change the 
+method name. If you did want to redefine, use the 
+same (or a more generous) access modifier than the
+original.
 
-The method {0} declared in {1} cannot override the method of the same signature declared in {2}.  The access modifier is made more restrictive.
-No help available.
+* They must have the same return type.
+You are declaring a method here. There is a method 
+with the same signature (that is: the same name and 
+parameters) in a superclass. So, you are trying to 
+redefine the method here. The problem is: the 
+method in the superclass has a different return
+type than yours. You cannot change the return type
+in a redefinition. If you did not intend to redefine 
+a method, just change the method name. If you did 
+want to redefine, use the same return type.
 
-The method {0} declared in {1} cannot override the method of the same signature declared in {2}.  They must have the same return type.
-No help available.
+* Their throws clauses are incompatible.
+You are declaring a method here. There is a method 
+with the same signature (that is: the same name and 
+parameters) in a superclass. So, you are trying to 
+redefine the method here. The problem is: the 
+method in the superclass has a different "throws"
+definition. You cannot arbitrarily change the throws
+clause in a redefined method. You must, either
+    - throw the same exceptions, or
+    - throw fewer exceptions, or
+    - throw exceptions that are subclasses of those
+      thrown in the superclass
 
-The method {0} declared in {1} cannot override the method of the same signature declared in {2}.  Their throws clauses are incompatible.
-No help available.
+* is incompatible with the method of the same signature inherited from *
+You are inheriting two methods here from two different
+classes or interfaces with the same signature (that is: 
+the same name and parameters). The problem is: they
+have different return types. You cannot inherit both of
+them. If you can change the method names in the 
+superclass or interface, do that. Otherwise you cannot
+inherit from both.
 
-The method {0} inherited from {1} is incompatible with the method of the same signature inherited from {2}.  They must have the same return type.
-No help available.
-
-The definitions of method {0} inherited from {1} and {2} are compatible, but the combination of them is nontrivial and has not been implemented.  As a workaround, declare {0} explicitly in this class.
-No help available.
+* are compatible, but the combination of them is nontrivial and has not been implemented.  As a workaround, declare *
+Sorry.
 
 This code requires generating a method with more than 64K bytes.  Virtual machines may refuse the resulting class file.
-No help available.
+Leaving this code like this is not a good idea.
+It may not run on all platforms. Try breaking up
+the method into smaller parts.
 
-The major version '{0}' is too old for this tool to understand.
-No help available.
+The major version *
+There is a versioning problem. The best 
+thing to do is to go to the "Tools" menu 
+in the main window and select "Rebuild 
+Package".
 
-The major.minor version '{0}' is too recent for this tool to understand.
-No help available.
+The major.minor version *
+There is a versioning problem. The best 
+thing to do is to go to the "Tools" menu 
+in the main window and select "Rebuild 
+Package".
+
+* already defined in *
+You are trying to define two classes with the same
+name. A class with the same name as the class
+highlighted here is already defined elsewhere.
+
+* not supported.
+You have used a construct that is not supported by
+Java or this compiler.
+
+* repeated.
+You have listed the same interface
+twice in the same "implements"
+declaration. Once is enough. My
+memory isn't that bad!
+
+Superclass *
+The declared superclass (the class named after
+the "extends" keyword) does not seem to exist.
+A typing error maybe?
+
+Interface *
+The listed interface (named after the 
+"implements" keyword) does not seem to 
+exist. A typing error maybe?
+
+* not found.
+A class with this name does not exist. 
+Check the name you typed - do you maybe
+have a spelling error in the name? Note
+also capital letters - all capitals must
+be exactly as in the specified class 
+name.
 
