@@ -21,7 +21,7 @@ import sun.misc.*;
  * and where the java runtime is.
  *
  * @author	Damiano Bolla
- * @version $Id: Boot.java 2021 2003-06-05 03:16:48Z ajp $
+ * @version $Id: Boot.java 2035 2003-06-13 06:37:18Z ajp $
  */
 public class Boot
 {
@@ -179,7 +179,10 @@ public class Boot
         for (int index = 0; index < runtimeClassPath.length; index++) {
             String filename = runtimeClassPath[index].getFile();
             result.append(filename);
-            result.append(pathSep);
+            
+            // no separator on the last entry
+            if (index != runtimeClassPath.length - 1)
+            	result.append(pathSep);
         }
 
         return result.toString();
