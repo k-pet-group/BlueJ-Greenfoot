@@ -27,17 +27,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * A wrapper around a Java object that handles calling methods, inspecting, etc.
+ * A wrapper around array objects.
  *
- * The wrapper is represented by the red oval that is visible on the
+ * The array wrapper is represented by a few red ovals that are visible on the
  * object bench.
  *
- * @author  Michael Kolling
- * @version $Id: ArrayWrapper.java 1535 2002-11-29 13:37:46Z ajp $
+ * @author  Andrew Patterson
+ * @version $Id: ArrayWrapper.java 1552 2002-12-02 05:59:24Z ajp $
  */
 public class ArrayWrapper extends ObjectWrapper
 {
-    public static int WORD_GAP = 10;
+    public static int WORD_GAP = 8;
     public static int SHADOW_SIZE = 3;
 
     ArrayWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, String instanceName)
@@ -56,8 +56,31 @@ public class ArrayWrapper extends ObjectWrapper
         menu = new JPopupMenu(instanceName);
 
         JMenuItem item;
-        menu.add(item = new JMenuItem("array len = "));
-//        item.addActionListener(this);
+
+        item = new JMenuItem("int length = " + obj.getInstanceFieldCount());
+//        item.addActionListener(
+//            new ActionListener() {
+//                public void actionPerformed(ActionEvent e) { /*invokeMethod(e.getSource());*/ }
+ //           });
+        item.setFont(PrefMgr.getPopupMenuFont());
+        menu.add(item);
+
+        menu.addSeparator();
+
+        // add inspect and remove options
+        menu.add(item = new JMenuItem(inspect));
+        item.addActionListener(
+            new ActionListener() {
+                public void actionPerformed(ActionEvent e) { inspectObject(); }
+            });
+        item.setFont(PrefMgr.getStandoutMenuFont());
+        item.setForeground(envOpColour);
+  
+        menu.add(item = new JMenuItem(remove));
+        item.addActionListener(
+            new ActionListener() {
+                public void actionPerformed(ActionEvent e) { removeObject(); }
+            });
         item.setFont(PrefMgr.getStandoutMenuFont());
         item.setForeground(envOpColour);
 

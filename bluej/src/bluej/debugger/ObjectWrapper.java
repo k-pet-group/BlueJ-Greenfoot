@@ -33,7 +33,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1535 2002-11-29 13:37:46Z ajp $
+ * @version $Id: ObjectWrapper.java 1552 2002-12-02 05:59:24Z ajp $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -63,19 +63,19 @@ public class ObjectWrapper extends JComponent
     private static int itemsOnScreen;
 
     // The Java object that this wraps
-    private DebuggerObject obj;
+    protected DebuggerObject obj;
 
     protected String className;
     protected String instanceName;
     protected String displayClassName;
     protected JPopupMenu menu;
-    private Method[] methods;
 
     // back references to the containers that we live in
     private Package pkg;
     private PkgMgrFrame pmf;
     private ObjectBench ob;
 
+    private Method[] methods;
     private Hashtable methodsUsed;
     private Hashtable actions;
 
@@ -186,7 +186,7 @@ public class ObjectWrapper extends JComponent
             menu.addSeparator();
         }
 
-        // add inspect, serializable and remove options
+        // add inspect and remove options
         JMenuItem item;
         menu.add(item = new JMenuItem(inspect));
         item.addActionListener(
@@ -195,26 +195,7 @@ public class ObjectWrapper extends JComponent
             });
         item.setFont(PrefMgr.getStandoutMenuFont());
         item.setForeground(envOpColour);
-
-        // serializable support - not yet enabled 12/01/2000 ajp
-        /* if (Serializable.class.isAssignableFrom(cl)) {
-            menu.add(item = new JMenuItem(serializable));
-            item.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) { serializeObject(); }
-                });
-            item.setFont(PrefMgr.getStandoutMenuFont());
-            item.setForeground(envOpColour);
-        } */
-    
-        /* menu.add(item = new JMenuItem("make test"));
-        item.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) { testObject(); }
-                });
-        item.setFont(PrefMgr.getStandoutMenuFont());
-        item.setForeground(envOpColour);*/
-
+  
         menu.add(item = new JMenuItem(remove));
         item.addActionListener(
             new ActionListener() {
@@ -373,7 +354,7 @@ public class ObjectWrapper extends JComponent
         g.setFont(PrefMgr.getStandardFont());
 
         FontMetrics fm = g.getFontMetrics();
-        int fontHeight = fm.getAscent() + 4;
+        int fontHeight = fm.getAscent() + 5;
 
         int maxWidth = w - shad - 4;    // our uml object will be (w-shad) pixels wide
                                         // we leave 2 pixels of space either side of shape
@@ -385,7 +366,7 @@ public class ObjectWrapper extends JComponent
 
         Utility.drawCentredText(g, a, x+2, y+5, maxWidth, fontHeight);
 
-        int lineX = (int)(maxWidth - aWidth)/2;
+        int lineX = x + 2 + ((int)(maxWidth - aWidth)/2);
         int lineY = y + 5 + fontHeight;
 
         g.drawLine(lineX, lineY, lineX + aWidth, lineY);
@@ -396,7 +377,7 @@ public class ObjectWrapper extends JComponent
             bWidth = maxWidth;
 
         Utility.drawCentredText(g, b, x+2, y+25, maxWidth, fontHeight);
-        lineX = (int)(maxWidth - bWidth)/2;
+        lineX = x + 2 + ((int)(maxWidth - bWidth)/2);
         lineY = y + 25 + fontHeight;
         g.drawLine(lineX, lineY, lineX + bWidth, lineY);
 
@@ -457,7 +438,7 @@ public class ObjectWrapper extends JComponent
     /**
      * Invoke a method on this object.
      */
-    public void invokeMethod(Object eventSource)
+    protected void invokeMethod(Object eventSource)
     {
         MethodView method = (MethodView)actions.get(eventSource);
         if(method != null)
@@ -467,50 +448,17 @@ public class ObjectWrapper extends JComponent
     /**
      * Open this object for inspection.
      */
-    private void inspectObject()
+    protected void inspectObject()
     {
         ObjectInspector viewer =
       	    ObjectInspector.getInstance(false, obj, instanceName, pkg, true, pmf);
     }
 
-    private void removeObject()
+    protected void removeObject()
     {
         ob.remove(this, pkg.getId());
     }
     
-    /**
-     * Open this object for inspection.
-     */
-//     private void testObject()
-//     {
-//         CallRecord cr = CallRecord.getCallRecord(getName());
-// 
-//         if (cr == null)
-//             System.out.println("object was constructed with a get");
-//         else
-//             System.out.println(cr.dump(1, "wow", false));
-//     }
-
-    /**
-     * Open this object for inspection.
-     */
-//     private void serializeObject()
-//     {
-//         Debugger.debugger.serializeObject(pkg.getId(),
-//         instanceName, "test.obj");
-//         DebuggerObject debObj =
-//         Debugger.debugger.deserializeObject(pkg.getRemoteClassLoader().getId(),
-//         pkg.getId(),
-//         "unserial_1",
-//         "test.obj");
-// 
-//         ObjectWrapper wrapper = new ObjectWrapper(debObj,
-//         "unserial_1",
-//         pkg);
-// 
-//         pkg.getFrame().getObjectBench().add(wrapper);  // might change name
-//     }
-
     /**
      * Execute an interactive method call. If the method has results,
      * create a watcher to watch out for the result coming back, do the
