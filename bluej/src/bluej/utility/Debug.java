@@ -1,10 +1,12 @@
 package bluej.utility;
 
+import bluej.Config;
+
 /**
  * Class to handle debugging messages.
  * 
  * @author Michael Kolling
- * @version $Id: Debug.java 2273 2003-11-05 13:27:08Z mik $
+ * @version $Id: Debug.java 3056 2004-10-21 00:58:44Z davmac $
  */
 
 public class Debug
@@ -19,6 +21,17 @@ public class Debug
     {
         System.out.println(msg);
         System.out.flush();
+    }
+    
+    /**
+     * Write out a debug message to the debuglog file only.
+     * 
+     * @param msg The message to be written.
+     */
+    public static void log(String msg)
+    {
+        if (! Config.getPropString("bluej.debug").equals("true"))
+            message(msg);
     }
 
     /**

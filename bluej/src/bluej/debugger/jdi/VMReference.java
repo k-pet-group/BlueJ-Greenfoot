@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3051 2004-10-15 03:15:41Z davmac $
+ * @version $Id: VMReference.java 3056 2004-10-21 00:58:44Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -237,7 +237,7 @@ class VMReference
                 for (int i = 0; i < CONNECT_TRIES; i++) {
                     try {
                         VirtualMachine m = connector.attach(arguments);
-                        Debug.message("Connected to debug VM via dt_socket transport.");
+                        Debug.log("Connected to debug VM via dt_socket transport.");
                         return m;
                     }
                     catch (Exception ce) {
@@ -293,7 +293,7 @@ class VMReference
                     remoteVMprocess = launchVM(initDir, launchParams, listenMessage,term);
                     
                     VirtualMachine m = connector.attach(arguments);
-                    Debug.message("Connected to debug VM via dt_shmem transport.");
+                    Debug.log("Connected to debug VM via dt_shmem transport.");
                     return m;
                 }
             }
