@@ -1,90 +1,220 @@
 package bluej.debugger;
 
+import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.JPanel;
+import javax.swing.*;
+import javax.swing.event.*;
+import java.util.*;
 
 import bluej.utility.Debug;
 
 /**
- * The panel that displays objects at the bottom of the package manager
+ * The object responsible for the panel that displays objects
+ * at the bottom of the package manager.
  *
  * @author  Michael Cahill
- * @version $Id: ObjectBench.java 1459 2002-10-23 12:13:12Z jckm $
+ * @author  Andrew Patterson
+ * @version $Id: ObjectBench.java 1546 2002-11-29 13:53:45Z ajp $
  */
-public class ObjectBench extends JPanel
+public class ObjectBench
 {
-    static final int WIDTH = 3 * (ObjectWrapper.WIDTH + 10);
-    static final int HEIGHT = ObjectWrapper.HEIGHT;
+    static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH)/3;
 
-    /**
-     * Create a new, empty object bench.
-     */
+    private JPanel containerPanel;
+    private JButton leftArrowButton, rightArrowButton;
+    private JViewport viewPort;
+    private ObjectBenchPanel obp;
+
     public ObjectBench()
     {
-        setLayout(new FlowLayout(FlowLayout.LEFT));
+        containerPanel = new JPanel();
+        containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.X_AXIS));
+            
+        leftArrowButton = new JButton("<");
+        leftArrowButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            { 
+                moveBench(-1);
+            }
+        });
+        leftArrowButton.setAlignmentY(0);
+        leftArrowButton.setMinimumSize(new Dimension(14, ObjectWrapper.HEIGHT));
+        leftArrowButton.setPreferredSize(new Dimension(14, ObjectWrapper.HEIGHT));
+        leftArrowButton.setMaximumSize(new Dimension(14, ObjectWrapper.HEIGHT));
+        leftArrowButton.setBorder(BorderFactory.createEmptyBorder());
+        
+        containerPanel.add(leftArrowButton);
+
+        obp = new ObjectBenchPanel();
+
+        viewPort = new JViewport();
+        viewPort.setView(obp);
+        viewPort.setAlignmentY(0);
+//        viewPort.setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
+
+/*        obp.addComponentListener(new ComponentListener() {
+            public void componentHidden(ComponentEvent e) {}
+            public void componentMoved(ComponentEvent e) {}
+            public void componentShown(ComponentEvent e)  {}
+            public void componentResized(ComponentEvent e)
+            {
+                enableButtons(ObjectBench.this.viewPort.getViewPosition());
+            }
+        }); */
+        
+        viewPort.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e)
+            {
+                enableButtons(ObjectBench.this.viewPort.getViewPosition());
+            }
+        });
+
+        viewPort.setMinimumSize(new Dimension(ObjectWrapper.WIDTH * 3, ObjectWrapper.HEIGHT));
+        viewPort.setPreferredSize(new Dimension(ObjectWrapper.WIDTH * 3, ObjectWrapper.HEIGHT));
+        viewPort.setMaximumSize(new Dimension(ObjectWrapper.WIDTH * 1000, ObjectWrapper.HEIGHT));
+        
+        containerPanel.add(viewPort);
+            
+        rightArrowButton = new JButton(">");
+        rightArrowButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            { 
+                moveBench(1);
+            }
+        });
+        rightArrowButton.setAlignmentY(0);
+        rightArrowButton.setMinimumSize(new Dimension(14, ObjectWrapper.HEIGHT));
+        rightArrowButton.setPreferredSize(new Dimension(14, ObjectWrapper.HEIGHT));
+        rightArrowButton.setMaximumSize(new Dimension(14, ObjectWrapper.HEIGHT));
+        rightArrowButton.setBorder(BorderFactory.createEmptyBorder());
+
+//        containerPanel.add(Box.createHorizontalGlue());
+        
+        containerPanel.add(rightArrowButton);
+
+ //       moveBench(0);
+
+/*        obpholder.setLayout(new BoxLayout(obpholder, BoxLayout.Y_AXIS));
+
+        obpholder.add(obp);        
+
+        obpholder.setMinimumSize(new Dimension(WIDTH,HEIGHT));
+        obpholder.setPreferredSize(new Dimension(WIDTH,HEIGHT));
+        obpholder.setMaximumSize(new Dimension(WIDTH*1000,HEIGHT)); */
+
+        startRecordingInteractions();
     }
 
-    /**
-     * Return the minimum size that this bench wants to have.
-     */
-    public Dimension getMinimumSize()
+    private void moveBench(int xamount)
     {
-        Dimension minSize = super.getMinimumSize();
-        minSize.width = Math.max(minSize.width, WIDTH);
-//        minSize.height = Math.max(minSize.height, HEIGHT);
-        minSize.height = HEIGHT;
-        return minSize;
+        Point pt = viewPort.getViewPosition();
+
+        pt.x += SCROLL_AMOUNT * xamount;
+        pt.x = Math.max(0, pt.x);
+        pt.x = Math.min(getMaxXExtent(), pt.x);
+
+        viewPort.setViewPosition(pt);
+
+        enableButtons(pt);
     }
 
-    /**
-     * Return the preferred size that this bench wants to have.
-     */
-    public Dimension getPreferredSize()
+    private void enableButtons(Point pt)
     {
-        Dimension prefSize = super.getPreferredSize();
-        prefSize.width = Math.max(prefSize.width, WIDTH);
-//        prefSize.height = Math.max(prefSize.height, HEIGHT);
-        prefSize.height = HEIGHT;
-        return prefSize;
+        if (pt.x == 0)
+            leftArrowButton.setEnabled(false);
+        else
+            leftArrowButton.setEnabled(true);
+
+        if (pt.x >= getMaxXExtent())
+            rightArrowButton.setEnabled(false);
+        else
+            rightArrowButton.setEnabled(true);
     }
 
-    /*
-     * This component will raise ObjectBenchEvents when nodes are
-     * selected in the bench. The following functions manage this.
-     */
-
-    /**
-     * Add an event listener to this bench.
-     */
-    public void addObjectBenchListener(ObjectBenchListener l) {
-        listenerList.add(ObjectBenchListener.class, l);
-    }
-
-    /**
-     * Remove an event listener from this bench.
-     */
-    public void removeObjectBenchListener(ObjectBenchListener l) {
-        listenerList.remove(ObjectBenchListener.class, l);
-    }
-
-    /**
-     * Notify all listeners that have registered interest for
-     * notification on this event type.
-     */
-    void fireObjectEvent(ObjectWrapper wrapper)
+    protected int getMaxXExtent()
     {
-        // guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        // process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length-2; i>=0; i-=2) {
-            if (listeners[i] == ObjectBenchListener.class) {
-                ((ObjectBenchListener)listeners[i+1]).objectEvent(
-                        new ObjectBenchEvent(this,
-                                ObjectBenchEvent.OBJECT_SELECTED, wrapper));
+        return obp.getLayoutWidthMin() - viewPort.getWidth();
+    }
+
+    /**
+     * This is an inner class so that people can't add or remove
+     * components to it that are of the wrong type (ie not ObjectWrapper).
+     */
+    private class ObjectBenchPanel extends JPanel
+    {
+        LayoutManager lm;
+        
+        public ObjectBenchPanel()
+        {
+            setLayout(lm = new BoxLayout(this, BoxLayout.X_AXIS));
+//            setBackground(Color.blue);
+            setAlignmentY(0);
+
+            setMinimumSize(new Dimension(ObjectWrapper.WIDTH, ObjectWrapper.HEIGHT));
+            setPreferredSize(new Dimension(ObjectWrapper.WIDTH, ObjectWrapper.HEIGHT));
+            setMaximumSize(new Dimension(ObjectWrapper.WIDTH * 1000, ObjectWrapper.HEIGHT));
+
+            setSize(ObjectWrapper.WIDTH, ObjectWrapper.HEIGHT);
+        }
+
+        public int getLayoutWidthMin()
+        {
+            Dimension d = lm.minimumLayoutSize(this);
+
+            return d.width;
+        }
+
+        /**
+         * This component will raise ObjectBenchEvents when nodes are
+         * selected in the bench. The following functions manage this.
+         */
+        public void addObjectBenchListener(ObjectBenchListener l)
+        {
+            listenerList.add(ObjectBenchListener.class, l);
+        }
+
+        public void removeObjectBenchListener(ObjectBenchListener l)
+        {
+            listenerList.remove(ObjectBenchListener.class, l);
+        }
+
+        // notify all listeners that have registered interest for
+        // notification on this event type.
+        void fireObjectEvent(ObjectWrapper wrapper)
+        {
+            // guaranteed to return a non-null array
+            Object[] listeners = listenerList.getListenerList();
+            // process the listeners last to first, notifying
+            // those that are interested in this event
+            for (int i = listeners.length-2; i>=0; i-=2) {
+                if (listeners[i] == ObjectBenchListener.class) {
+                    ((ObjectBenchListener)listeners[i+1]).objectEvent(
+                            new ObjectBenchEvent(this,
+                                    ObjectBenchEvent.OBJECT_SELECTED, wrapper));
+                }
             }
         }
+    }
+
+    public Component getComponent()
+    {
+        return containerPanel;
+    }
+
+    public void addObjectBenchListener(ObjectBenchListener l)
+    {
+        obp.addObjectBenchListener(l);
+    }
+
+    public void removeObjectBenchListener(ObjectBenchListener l)
+    {
+        obp.removeObjectBenchListener(l);
+    }
+    
+    public void fireObjectEvent(ObjectWrapper wrapper)
+    {
+        obp.fireObjectEvent(wrapper);
     }
 
     /**
@@ -105,20 +235,39 @@ public class ObjectBench extends JPanel
 
         // add to bench
 
-        super.add(wrapper);
-        revalidate();
-        repaint();
+        wrapper.setAlignmentY(0);
+        obp.add(wrapper);
+        obp.add(Box.createHorizontalStrut(2));
+
+        obp.setPreferredSize(new Dimension(obp.getLayoutWidthMin(), ObjectWrapper.HEIGHT));
+        enableButtons(viewPort.getViewPosition());
+//        obp.setSize(new Dimension(obp.getLayoutWidthMin(), HEIGHT));
+//        obp.invalidate();
+//        obp.validate();
+        obp.revalidate();
+        obp.repaint();
     }
 
     /**
-     * Helper function to return all the wrappers stored in this object
-     * bench in an array
+     * Return all the wrappers stored in this object bench in an array
      */
-    private ObjectWrapper[] getWrappers()
+    public ObjectWrapper[] getWrappers()
     {
-        Component[] components = getComponents();
-        ObjectWrapper[] wrappers = new ObjectWrapper[components.length];
-        System.arraycopy(components, 0, wrappers, 0, components.length);
+        Component[] components = obp.getComponents();
+        int count = 0;
+        
+        for(int i=0; i<components.length; i++) {
+            if (components[i] instanceof ObjectWrapper)
+                count++;
+        }
+                        
+        ObjectWrapper[] wrappers = new ObjectWrapper[count];
+
+        for(int i=0, j=0; i<components.length; i++) {
+            if (components[i] instanceof ObjectWrapper)
+                wrappers[j++] = (ObjectWrapper) components[i];
+        }
+        
         return wrappers;
     }
 
@@ -139,15 +288,6 @@ public class ObjectBench extends JPanel
     }
 
     /**
-     * Remove (as inherited from JPanel) should never be called. Call remove
-     * with the scopeId instead (see below).
-     */
-    public void remove(ObjectWrapper wrapper)
-    {
-        Debug.reportError("attempt to incorrectly remove object from bench");
-    }
-
-    /**
      * Remove all objects from the object bench.
      */
     public void removeAll(String scopeId)
@@ -155,13 +295,15 @@ public class ObjectBench extends JPanel
         ObjectWrapper[] wrappers = getWrappers();
 
         for(int i=0; i<wrappers.length; i++) {
-            super.remove(wrappers[i]);
-            Debugger.debugger.removeObjectFromScope(
-                                scopeId, wrappers[i].getName());
+            obp.remove(wrappers[i]);
+            Debugger.debugger.removeObjectFromScope(scopeId, wrappers[i].getName());
         }
 
-    	revalidate();
-        repaint();
+        fixtureDeclare = "";
+        fixtureInitialise = "";
+        
+    	obp.revalidate();
+        obp.repaint();
     }
 
     /**
@@ -171,15 +313,75 @@ public class ObjectBench extends JPanel
      */
     public void remove(ObjectWrapper wrapper, String scopeId)
     {
-        super.remove(wrapper);
+        obp.remove(wrapper);
         Debugger.debugger.removeObjectFromScope(scopeId, wrapper.getName());
 
-    	revalidate();
-    	repaint();
-
-/*        doLayout();
-        invalidate();
-        getParent().invalidate();
-        repaint();*/
+    	obp.revalidate();
+    	obp.repaint();
     }
+
+    boolean recordingTest = false;
+    
+    String fixtureDeclare = "";
+    String fixtureInitialise = "";
+    String testStatements = "";
+        
+    public void startRecordingInteractions()
+    {
+        recordingTest = false;
+
+        fixtureDeclare = "";
+        fixtureInitialise = "";
+    }
+
+    public void startRecordingTest()
+    {
+        recordingTest = true;
+        
+        testStatements = "";
+    }
+
+    public void addConstructorStatement(String instanceName, String typeName, String command)
+    {
+        if (!recordingTest) {
+            fixtureDeclare += "\t" + typeName + " " + instanceName + ";\n";            
+
+            fixtureInitialise += "\t\t" + instanceName + " = " + command + ";\n";
+        }
+        else {
+            testStatements += "\t\t" + typeName + " " + instanceName + " = " + command + ";\n";
+        }
+    }
+
+    public void addMethodStatement(String command)
+    {
+        if (!recordingTest) {
+            fixtureInitialise += "\t\t" + command + ";\n";
+        }
+        else {
+            testStatements += "\t\t{\n\t\t\tresult = " + command + ";\n";
+        }
+    }
+
+    public void addAssertStatement(String res)
+    {
+
+    }
+    
+    public String getFixtureInitialise()
+    {
+        return fixtureInitialise;
+
+    }
+
+    public String getFixtureDeclare()
+    {
+        return fixtureDeclare;
+    }
+
+    public String getTestStatements()
+    {
+        return testStatements;
+    }
+
 }
