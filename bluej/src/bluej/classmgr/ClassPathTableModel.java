@@ -18,7 +18,7 @@ import bluej.Config;
  * edited and then changes can be reverted or committed.
  *
  * @author  Andrew Patterson
- * @cvs     $Id: ClassPathTableModel.java 1353 2002-10-07 14:26:40Z mik $
+ * @cvs     $Id: ClassPathTableModel.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public class ClassPathTableModel extends AbstractTableModel
 {

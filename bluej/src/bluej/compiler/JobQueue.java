@@ -8,7 +8,7 @@ import bluej.Config;
  * compiler.
  *
  * @author  Michael Cahill
- * @version $Id: JobQueue.java 1458 2002-10-23 12:06:40Z jckm $
+ * @version $Id: JobQueue.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public class JobQueue
 {

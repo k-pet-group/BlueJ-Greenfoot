@@ -5,7 +5,7 @@ import bluej.utility.Debug;
 import bluej.utility.Queue;
 
 /**
- * @version $Id: CompilerThread.java 1458 2002-10-23 12:06:40Z jckm $
+ * @version $Id: CompilerThread.java 1459 2002-10-23 12:13:12Z jckm $
  * @author Michael Cahill
  * @author Michael Kolling
  *

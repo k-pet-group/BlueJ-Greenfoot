@@ -18,7 +18,7 @@ import com.apple.mrj.MRJFileUtils;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: Utility.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public class Utility
 {

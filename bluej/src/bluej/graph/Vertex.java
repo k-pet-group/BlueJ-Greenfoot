@@ -8,7 +8,7 @@ import java.awt.event.MouseEvent;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Vertex.java 1359 2002-10-07 19:52:18Z mik $
+ * @version $Id: Vertex.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public abstract class Vertex
 {

@@ -33,7 +33,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: FixtureWrapper.java 1458 2002-10-23 12:06:40Z jckm $
+ * @version $Id: FixtureWrapper.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public class FixtureWrapper extends JComponent
     implements ActionListener

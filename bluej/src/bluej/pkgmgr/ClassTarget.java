@@ -48,7 +48,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1458 2002-10-23 12:06:40Z jckm $
+ * @version $Id: ClassTarget.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener

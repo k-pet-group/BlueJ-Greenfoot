@@ -34,7 +34,7 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1458 2002-10-23 12:06:40Z jckm $
+ * @version $Id: Package.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener

@@ -23,7 +23,7 @@ import java.io.FileWriter;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 1338 2002-09-21 17:08:59Z mik $
+ * @version $Id: Terminal.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener

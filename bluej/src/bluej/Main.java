@@ -21,7 +21,7 @@ import java.util.StringTokenizer;
  * in this class's main method.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1458 2002-10-23 12:06:40Z jckm $
+ * @version $Id: Main.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public class Main
 {

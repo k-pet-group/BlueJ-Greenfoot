@@ -15,7 +15,7 @@ import bluej.Config;
  * Class to maintain a single file/directory location in a classpath
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPathEntry.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: ClassPathEntry.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public class ClassPathEntry implements Cloneable
 {

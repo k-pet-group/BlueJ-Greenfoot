@@ -28,7 +28,7 @@ import javax.swing.event.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: LibraryCallDialog.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener

@@ -30,7 +30,7 @@ import junit.framework.*;*/
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1458 2002-10-23 12:06:40Z jckm $
+ * @version $Id: Project.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public class Project
     implements BlueJEventListener

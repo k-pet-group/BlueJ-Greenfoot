@@ -13,7 +13,7 @@ import javax.swing.*;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 1417 2002-10-18 07:56:39Z mik $
+ * @version $Id: GraphEditor.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener

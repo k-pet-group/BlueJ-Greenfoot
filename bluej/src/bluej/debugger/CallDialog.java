@@ -17,7 +17,7 @@ import javax.swing.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 1378 2002-10-14 13:40:07Z mik $
+ * @version $Id: CallDialog.java 1459 2002-10-23 12:13:12Z jckm $
  */
 public abstract class CallDialog extends JDialog
 	implements ObjectBenchListener
