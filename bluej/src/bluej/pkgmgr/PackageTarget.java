@@ -19,7 +19,7 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 628 2000-07-06 05:31:09Z ajp $
+ * @version $Id: PackageTarget.java 648 2000-07-26 00:25:17Z ajp $
  */
 public class PackageTarget extends Target
 {
@@ -46,8 +46,9 @@ public class PackageTarget extends Target
 
     public PackageTarget(Package pkg, String baseName)
     {
-        super(pkg, baseName, nextX(), nextY(),
-                calculateWidth(baseName), DEF_HEIGHT + TAB_HEIGHT);
+        super(pkg, baseName);
+
+        setSize(calculateWidth(baseName), DEF_HEIGHT + TAB_HEIGHT);
     }
 
     /**

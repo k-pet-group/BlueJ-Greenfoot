@@ -16,7 +16,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 622 2000-07-05 05:53:32Z mik $
+ * @version $Id: ReadmeTarget.java 648 2000-07-26 00:25:17Z ajp $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -35,7 +35,10 @@ public class ReadmeTarget extends Target
     {
         // create the target with an identifier name that cannot be
         // a valid java name
-        super(pkg, "@README", 10, 10, DEF_WIDTH, DEF_HEIGHT);
+        super(pkg, "@README");
+
+        setPos(10, 10);
+        setSize(DEF_WIDTH, DEF_HEIGHT);
     }
 
     public void load(Properties props, String prefix) throws NumberFormatException

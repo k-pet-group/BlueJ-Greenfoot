@@ -18,7 +18,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: Target.java 625 2000-07-05 10:39:53Z ajp $
+ * @version $Id: Target.java 648 2000-07-26 00:25:17Z ajp $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -71,15 +71,12 @@ public abstract class Target extends Vertex
     static FontRenderContext FRC= new FontRenderContext(new AffineTransform(),
                                                         false, false);
 
-
-
     /**
-     * Create a new target at a specified position.
+     * Create a new target with default size.
      */
-    public Target(Package pkg, String identifierName, int x, int y,
-                  int width, int height)
+    public Target(Package pkg, String identifierName)
     {
-        super(x, y, width, height);
+        super(0, 0, calculateWidth(identifierName), DEF_HEIGHT);
 
         if (pkg == null)
             throw new NullPointerException();
@@ -87,42 +84,6 @@ public abstract class Target extends Vertex
         this.pkg = pkg;
         this.identifierName = identifierName;
         this.displayName = identifierName;
-    }
-
-    /**
-     * Create a new target with automatic placement and default size.
-     */
-    public Target(Package pkg, String identifierName)
-    {
-        this(pkg, identifierName, nextX(), nextY(),
-             calculateWidth(identifierName), DEF_HEIGHT);
-    }
-
-    /** last pos used for placement of new target (use only through method) **/
-    static int next_pos_x = 10;
-    static int next_pos_y = 70;
-
-    /**
-     * get the next x value to be used for placement of new target
-     */
-    protected static int nextX()
-    {
-        if(next_pos_x > 400) {
-            next_pos_x = 10;
-            next_pos_y += 70;
-        }
-
-        next_pos_x += 90;
-
-        return (next_pos_x - 90);
-    }
-
-    /**
-     * get the next y value to be used for placement of new target
-     */
-    protected static int nextY()
-    {
-        return next_pos_y;
     }
 
     /**
@@ -176,7 +137,6 @@ public abstract class Target extends Vertex
      * @arg directory The directory to copy into
      */
     public abstract boolean copyFiles(String directory);
-
 
     /**
      * Return this target's package (ie the package that this target is currently

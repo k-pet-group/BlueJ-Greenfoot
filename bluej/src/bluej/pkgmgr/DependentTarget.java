@@ -18,7 +18,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: DependentTarget.java 533 2000-06-09 04:24:08Z ajp $
+ * @version $Id: DependentTarget.java 648 2000-07-26 00:25:17Z ajp $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -32,24 +32,15 @@ public abstract class DependentTarget extends Target
     /**
      * Create a new target at a specified position.
      */
-    public DependentTarget(Package pkg, String identifierName, int x, int y,
-                            int width, int height)
+    public DependentTarget(Package pkg, String identifierName)
     {
-        super(pkg, identifierName, x, y, width, height);
+        super(pkg, identifierName);
+//             calculateWidth(identifierName), DEF_HEIGHT);
 
         inUses = new SortableVector();
         outUses = new SortableVector();
         parents = new Vector();
         children = new Vector();
-    }
-
-    /**
-     * Create a new target with automatic placement and default size.
-     */
-    public DependentTarget(Package pkg, String identifierName)
-    {
-        this(pkg, identifierName, nextX(), nextY(),
-             calculateWidth(identifierName), DEF_HEIGHT);
     }
 
     public void addDependencyOut(Dependency d, boolean recalc)
