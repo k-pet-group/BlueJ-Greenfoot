@@ -1,23 +1,20 @@
 fichier: lisezmoi
 description: Traduction française du logiciel BlueJ
-Date: 2003-07-28
-Auteur: Daniel U. Thibault
-        R & D pour la défense Canada - Valcartier
-        (Daniel.Thibault@DRDC-RDDC.GC.Ca)
+Date: 2003-12-07
+Auteur: Patrice Moreaux
+        Université de Reims Champagne-Ardenne, Reims, FRANCE
+        (patrice.moreaux@univ-reims.fr)
 
-
-Version BlueJ concernée: 1.3.0ß4 (2003-07-14)
+Version BlueJ concernée: 1.35rc1 (2003-11-26)
 
 
 Remerciements
------------------------
+-------------
 Cette traduction est basée sur celle fournie par
-   P. Moreaux
-   Université de Reims Champagne-Ardenne, FRANCE
-   (patrice.moreaux@univ-reims.fr)
-pour la version 1.2.2.  Elle a été améliorée, complétée et corrigée,
-avec l'aide des services en ligne de l'Office de la langue française
---en particulier le Signet (http://w3.olf.gouv.qc.ca/banque/).
+  Daniel U. Thibault R & D pour la défense Canada - Valcartier (Daniel.Thibault@DRDC-RDDC.GC.Ca)
+  pour la version 1.3.0beta4 (2003-07-14)
+elle-même basée sur ma traduction pour la version 1.2.2
+
 
 Principes de traduction
 -----------------------
@@ -41,6 +38,15 @@ anglais afin de préserver l'universalité du code.
 
 Terminologie
 ------------
+
+(P. Moreaux, 2003-12-06):
+- le terme "Object Bench" est traduit par "Bureau Objets"
+- le terme "Debugger", traduit par "Navigateur" a été traduit dans tous les
+  fichiers. Il était, de manière incohérente, traduit par "fureteur" dans
+  plusieurs fichiers.
+---------------------------------------------------------------------------
+
+
 
 Les équivalences signalées par l'abréviation CGTN sont celles
 suggérées par la Commission générale de terminologie et de néologie
