@@ -1,0 +1,113 @@
+/*
+ * @(#)$CLASSNAME
+ *
+ * Zde doplnte informace o autorskych pravech
+ */
+$PKGLINE
+import javax.swing.JApplet;
+import javax.swing.JRootPane;
+import java.awt.Graphics;
+
+/**
+ * Sem napiste popis teto tridy.
+ *
+ * @author     jmeno autora
+ * @version    cislo verze, datum
+ */
+public class $CLASSNAME extends JApplet {
+    // promenne instance objektu - nahradte ukazkovy kod vasim vlastnim
+    private int x;
+    
+    /**
+     * Tato metoda je volana prohlizecem nebo appletviewerem, aby byl JApplet
+     * informovan, ze byl nahran do systemu. Je vždy volana jeste pred prvnim
+     * zavolanim metody start.
+     */
+    public void init() {
+        // toto je pouze docasne reseni bezpecnostniho konfliktu soucasnych
+        // prohlizecu vcetne Netscape & Internet Exploreru, ktere nepovoluji
+        // pristup k AWT systemove fronte udalosti o ktery se pokouse JApplet
+        // pri svem startu.
+        JRootPane rootPane = this.getRootPane();
+        rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
+        
+        // zde doplnte dalsi potrebnou inicializaci vaseho JApplet
+        
+    }
+    
+    /**
+     * Tato metoda je volana prohlizecem nebo appletviewerem, aby byl JApplet
+     * informovan, ze se ma zacit vykonavat. Je volana po metode init
+     * a pri kazdem opetovnem navstiveni stranky.
+     */
+    public void start() {
+        // vlozte kod potrebny pro stusteni apletu
+        // pri kazdem navstiveni stranky
+        
+    }
+
+    /**
+     * Toto je pravdepodobne nejdulezitejsi metoda appletu, zde je
+     * uveden kod pro vykresleni appletu na obrazovku.
+     *
+     * @param  g   objekt tridy Graphics pro vykresleni na obrazovku
+     */
+    public void paint(Graphics g) {
+        // jednoduchy text, ktery se zobrazi v appletu
+        g.drawString("Ukazkovy JApplet", 20, 20);
+    }
+    
+    /**
+     * Tato metoda je volana prohlizecem nebo appletviewerem, aby byl JApplet
+     * informovan, ze se ma ukoncit cinnost. Je volana pri nahrazeni stranky
+     * s apletem jinou strankou a pred tim nez je applet volana metoda destroy.
+     * V teto metode jsou ukoncovana pouzita vlakna.
+     */
+    public void stop() {
+        // vlozte kod potrebny pro zastaveni cinnosti apletu
+        
+    }
+    
+    /**
+     * Tato metoda je volana prohlizecem nebo appletviewerem, aby byl JApplet
+     * informovan, ze uvolnit všechny alokovane zdroje. Metoda stop je volana
+     * vzdy pred touto metodou.
+     * /
+    public void destroy() {
+        // vlozte kod potrebny pro uvolneni alokovanych zdroju
+    
+    }
+    
+    /**
+     * Vraci informace o tomto appletu
+     * Applet by mel prepsat tuto metodu a vratit retezec obsahujici
+     * informace o autorovi, verzi a autorskych pravech k appletu.
+     *
+     * @return retezec obsahuji informace o appletu
+     */
+    public String getAppletInfo() {
+        // zde vlozte informace o appletu
+        return "Nazev:   \nAutor:   \nJednoduchy ukazkovy applet. ";
+    }
+    
+    
+    /**
+     * Vraci informace o parametrech, kterym rozumi tento applet.
+     * Applet by mel prepsat tuto metodu tak, aby vracela pole retezcu znaku
+     * popisujicich tyto parametry.
+     * Kazdy element tohoto pole se sklada ze tri retezcu obsahujicich
+     * jmeno, typ a popis.
+     *
+     * @return pole retezcu reprezentujici parametry tohoto appletu
+     */
+    public String[][] getParameterInfo() {
+        // zde vlozte informace o appletu
+        String paramInfo[][] = {
+            {"prvniParametr", "1-10", "popis prvniho parametru"},
+            {"stav", "boolean", "popis druheho parametru"},
+            {"obrazky", "url", "popis tretiho parametru"}
+        };
+        return paramInfo;
+    }
+    
+}

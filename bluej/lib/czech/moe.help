@@ -1,0 +1,111 @@
+#
+# Popis u\u017eivatelsk\u00fdch funkc\u00ed Moe editoru.
+#
+# Sou\u010d\u00e1st v\u00fdvojov\u00e9ho prost\u0159ed\u00ed BlueJ.
+#
+
+## funkce \u00dapravy
+
+delete-previous=\n Smazat znak p\u0159ed kurzorem.
+delete-next=\n Smazat znak za kurzorem.
+copy-to-clipboard=\n Kop\u00edrovat vybran\u00fd text do schr\u00e1nky. Odtud m\u016f\u017ee b\u00fdt\n pozd\u011bji vlo\u017een na jin\u00e9 m\u00edsto.
+cut-to-clipboard= Vyjmout vybran\u00fd text a um\u00edstit do schr\u00e1nky.\n Odtud m\u016f\u017ee b\u00fdt pozd\u011bji vlo\u017een na jin\u00e9 m\u00edsto.
+copy-line=\n Kop\u00edrovat aktu\u00e1ln\u00ed \u0159\u00e1dek do schr\u00e1nky.
+cut-line=\n Vyjmout vybranou \u0159\u00e1dku a vlo\u017eit ji do schr\u00e1nky.
+cut-end-of-line=\n Vyjmout zbytek \u0159\u00e1dku a vlo\u017eit ho do schr\u00e1nky.
+cut-word=\n Vyjmout slovo a vlo\u017eit do schr\u00e1nky.
+cut-end-of-word=\n Vyjmout do konce slova a vlo\u017eit do schr\u00e1nky.
+paste-from-clipboard=\n Vlo\u017eit text ze schr\u00e1nky na aktu\u00e1ln\u00ed pozici kurzoru.
+indent=\n Jestli\u017ee je v p\u0159edvolb\u00e1ch zapnuta volba "automatick\u00e9 odsazen\u00ed",\n provede se odsazen\u00ed podle p\u0159edchoz\u00edho \u0159\u00e1dku. \n V opa\u010dn\u00e9m p\u0159\u00edpad\u011b je vlo\u017een TAB pomoc\u00ed mezer. 
+insert-tab=\n Vlo\u017eit znak TAB.
+new-line=\n Vlo\u017eit konec \u0159\u00e1dku. Jestli\u017ee je v p\u0159edvolb\u00e1ch zapnuta volba\n "automatick\u00e9 odsazen\u00ed", provede se odsazen\u00ed podle p\u0159edchoz\u00edho \u0159\u00e1dku.
+insert-break=\n Vlo\u017eit konec \u0159\u00e1dku bez odsazen\u00ed nov\u00e9ho \u0159\u00e1dku.
+insert-method=\n Vlo\u017eit kost\u0159i\u010dku metody.
+comment-block=\n Ozna\u010dit vybran\u00e9 \u0159\u00e1dky jako koment\u00e1\u0159. Koment\u00e1\u0159 m\u016f\u017ee b\u00fdt zm\u011bn\u011bn zp\u011bt pomoc\u00ed uncomment-block.
+uncomment-block=\n Odkomentovat vybran\u00e9 \u0159\u00e1dky. Viz comment-block.
+indent-block=\n Zv\u011bt\u0161it odsazen\u00ed vybran\u00fdch \u0159\u00e1dk\u016f o jednu \u00farove\u0148.
+deindent-block=\n Zmensit odsazen\u00ed vybran\u00fdch \u0159\u00e1dk\u016f o jednu \u00farove\u0148..
+
+select-word=\n Ozna\u010dit aktu\u00e1ln\u00ed slovo (p\u0159i\u0159azeno tak\u00e9 k\n left-mouse-button: double-click).
+select-line=\n Ozna\u010dit aktu\u00e1ln\u00ed \u0159\u00e1dek (p\u0159i\u0159azeno tak\u00e9 k \n left-mouse-button: triple-click).
+select-paragraph=\n Ozna\u010dit aktu\u00e1ln\u00ed odstavec.
+select-all=\n Ozna\u010dit cel\u00fd text.
+selection-backward=\n Posunout konec ozna\u010den\u00e9ho textu o jeden znak zp\u011bt.
+selection-forward=\n Posunout konec ozna\u010den\u00e9ho textu o jeden znak vp\u0159ed.
+selection-up=\n Posunout konec ozna\u010den\u00e9ho textu o jeden \u0159\u00e1dek nahoru.
+selection-down=\n Posunout konec ozna\u010den\u00e9ho textu o jeden \u0159\u00e1dek dolu.
+selection-begin-word=\n Posunout konec ozna\u010den\u00e9ho textu na za\u010d\u00e1tek aktu\u00e1ln\u00edho slova.
+selection-end-word=\n  Posunout konec ozna\u010den\u00e9ho textu na konec aktu\u00e1ln\u00edho slova.
+selection-previous-word=\n Posunout konec ozna\u010den\u00e9ho textu na za\u010d\u00e1tek p\u0159edchoz\u00edho slova.
+selection-next-word=\n Posunout konec ozna\u010den\u00e9ho textu na za\u010d\u00e1tek n\u00e1sleduj\u00edc\u00edho slova.
+selection-begin-line=\n Posunout konec ozna\u010den\u00e9ho textu na za\u010d\u00e1tek aktu\u00e1ln\u00edho \u0159\u00e1dku.
+selection-end-line=\n Posunout konec ozna\u010den\u00e9ho textu na konec aktu\u00e1ln\u00edho \u0159\u00e1dku.
+selection-begin-paragraph=\n Posunout konec ozna\u010den\u00e9ho textu na za\u010d\u00e1tek aktu\u00e1ln\u00edho odstavce.
+selection-end-paragraph=\n Posunout konec ozna\u010den\u00e9ho textu na konec aktu\u00e1ln\u00edho odstavce.
+selection-page-up=\n Posunout konec ozna\u010den\u00e9ho textu o jednu str\u00e1nku nahoru.
+selection-page-down=\n Posunout konec ozna\u010den\u00e9ho textu o jednu str\u00e1nku dolu.
+selection-begin=\n Posunout konec ozna\u010den\u00e9ho textu na za\u010d\u00e1tek textu.
+selection-end=\n Posunout konec ozna\u010den\u00e9ho textu na konec textu.
+unselect=\n Zru\u0161it ozna\u010den\u00ed textu.
+
+## funkce pro pohyb a posun
+
+caret-backward=\n Posunout kurzor o jeden znak zp\u011bt.
+caret-forward=\n Posunout kurzor o jeden znak dop\u0159edu.
+caret-up=\n Posunout kurzor o jeden \u0159\u00e1dek nahoru.
+caret-down=\n Posunout kurzor o jeden \u0159\u00e1dek dolu.
+caret-begin-word=\n Posunout kurzor na za\u010d\u00e1tek aktu\u00e1ln\u00edho slova.
+caret-end-word=\n Posunout kurzor na konec aktu\u00e1ln\u00edho slova.
+caret-previous-word=\n Posunout kurzor na za\u010d\u00e1tek p\u0159edchoz\u00edho slova.
+caret-next-word=\n Posunout kurzor na za\u010d\u00e1tek n\u00e1sleduj\u00edc\u00edho slova.
+caret-begin-line=\n Posunout kurzor na za\u010d\u00e1tek aktu\u00e1ln\u00edho \u0159\u00e1dku.
+caret-end-line=\n Posunout kurzor na konec aktu\u00e1ln\u00edho \u0159\u00e1dku.
+caret-begin-paragraph=\n Posunout kurzor na za\u010d\u00e1tek aktu\u00e1ln\u00edho odstavce.
+caret-end-paragraph=\n Posunout kurzor na konec aktu\u00e1ln\u00edho odstavce.
+page-up=\n Posunout kurzor o str\u00e1nku nahoru.
+page-down=\n Posunout kurzor o str\u00e1nku dolu.
+caret-begin=\n Posunout kurzor na za\u010d\u00e1tek textu.
+caret-end=\n Posunout kurzor na konec textu.
+
+## funkce t\u0159\u00eddy
+
+save=\n Ulo\u017eit t\u0159\u00eddu. Norm\u00e1ln\u011b nen\u00ed t\u0159eba t\u0159\u00eddu ukl\u00e1dat manu\u00e1ln\u011b,\n t\u0159\u00edda je ulo\u017eena automaticky p\u0159ed kompilac\u00ed a p\u0159i zav\u0159en\u00ed editoru.
+reload=\n Nahr\u00e1t t\u0159\u00eddu znovu ze souboru. P\u0159i t\u00e9to operaci\n jsou zapomenuty v\u0161echny zm\u011bny od posledn\u00edho ulo\u017een\u00ed.
+close=\n zav\u0159\u00edt t\u0159\u00eddu. Zdrojov\u00fd k\u00f3d je automaticky ulo\u017een.
+print=\n Otev\u0159\u00edt tiskov\u00fd dialog.
+page-setup=\n Otev\u0159\u00edt dialog s nastaven\u00edm rozlo\u017een\u00ed str\u00e1nky.
+
+
+## funkce p\u0159izp\u016fsoben\u00ed
+
+key-bindings=\n Prohl\u00e9dnout a nastavit p\u0159i\u0159azen\u00ed kl\u00e1ves Moe editoru.
+preferences=\n Nastavit p\u0159edvolby editoru.
+
+
+## funkce n\u00e1pov\u011bdy
+
+describe-key=\n Po zavol\u00e1n\u00ed t\u00e9to metody a stisknut\u00ed kl\u00e1vesy je zobrazen\n popisfunkce p\u0159i\u0159azen\u00e9 t\u00e9to kl\u00e1vese.
+help-mouse=\n Zobrazit p\u0159i\u0159azen\u00ed tla\u010d\u00edtek my\u0161i.
+show-manual=\n Otev\u0159\u00edt prohl\u00ed\u017ee\u010d a zobrazit n\u00e1vod k editor Moe.
+about-editor=\n Zobrazit kr\u00e1tkou pozn\u00e1mku k Moe editoru.
+
+
+## r\u016fzn\u00e9 funkce
+
+undo=\n Zp\u011bt - vr\u00e1tit zp\u011bt posledn\u00ed akci.
+redo=\n Zru\u0161it zp\u011bt - zru\u0161it p\u0159edchoz\u00ed p\u0159\u00edkaz Zp\u011bt.
+
+find=\n Otev\u0159\u00edt dialog pro hled\u00e1n\u00ed textu.
+find-next=\n Vyhled\u00e1n\u00ed dal\u0161\u00edho v\u00fdskytu hledan\u00e9ho textu.
+find-next-backward=\n Vyhled\u00e1n\u00ed dal\u0161\u00edho v\u00fdskytu hledan\u00e9ho textu. sm\u011brem zp\u00e1tky.
+replace=\n Nahradit \u010d\u00e1st textu jin\u00fdm.
+
+compile=\n Kompilovat t\u0159\u00eddu. Zm\u011bny jsou automaticky ulo\u017eeny na disk.
+toggle-interface-view=\n P\u0159epnout zobrazen\u00ed mezi zdrojov\u00fdm k\u00f3dem a popisem rozhran\u00ed.
+toggle-breakpoint=\n Nastavit nebo odstranit breakpoint.
+
+## help texts for adding key bindings
+
+press-key=\n  Zm\u00e1\u010dkn\u011bte kl\u00e1vesu, kterou chcete p\u0159i\u0159adit...
+cannot-redefine=\n  Kl\u00e1vesy pro tisk nemohou b\u00fdt redefinov\u00e1ny.
+

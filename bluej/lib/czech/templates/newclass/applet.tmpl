@@ -1,0 +1,113 @@
+/*
+ * @(#)$CLASSNAME
+ *
+ * Zde doplnte informace o autorskych pravech
+ */
+$PKGLINE
+import java.applet.Applet;
+import java.awt.*;
+
+/**
+ * Sem napiste popis tohoto appletu.
+ *
+ * @author     jmeno autora
+ * @version    cislo verze, datum
+ */
+public class $CLASSNAME extends Applet {
+    // promenne instance objektu - nahradte ukazkovy kod vasim vlastnim
+    private int x;
+    
+    /**
+     * Tato metoda je volana prohlizecem nebo appletviewerem, aby byl applet
+     * informovan, ze byl nahran do systemu. Je vždy volana jeste pred prvnim
+     * zavolanim metody start.
+     */
+    public void init() {
+         // zde doplnte potrebnou inicializaci vaseho appletu
+        
+    }
+    
+    /**
+     * Tato metoda je volana prohlizecem nebo appletviewerem, aby byl applet
+     * informovan, ze se ma zacit vykonavat. Je volana po metode init
+     * a pri kazdem opetovnem navstiveni stranky.
+     */
+     */
+    public void start() {
+        // vlozte kod potrebny pro stusteni apletu
+        // pri kazdem navstiveni stranky
+
+    }
+    
+    /**
+     * Toto je pravdepodobne nejdulezitejsi metoda appletu, zde je
+     * uveden kod pro vykresleni appletu na obrazovku.
+     *
+     * @param  g   objekt tridy Graphics pro vykresleni na obrazovku
+     */
+    public void paint(Graphics g) {
+        // simple text displayed on applet
+        g.setColor(Color.white);
+        g.fillRect(0, 0, 200, 100);
+        g.setColor(Color.black);
+        g.drawString("Sample Applet", 20, 20);
+        g.setColor(Color.blue);
+        g.drawString("created by BlueJ", 20, 40);
+    }
+    
+    /**
+     * Tato metoda je volana prohlizecem nebo appletviewerem, aby byl applet
+     * informovan, ze se ma ukoncit cinnost. Je volana pri nahrazeni stranky
+     * s apletem jinou strankou a pred tim nez je applet volana metoda destroy.
+     * V teto metode jsou ukoncovana pouzita vlakna.
+     */
+    public void stop() {
+        // vlozte kod potrebny pro zastaveni cinnosti apletu
+        
+    }
+    
+    
+    /**
+     * Tato metoda je volana prohlizecem nebo appletviewerem, aby byl applet
+     * informovan, ze uvolnit všechny alokovane zdroje. Metoda stop je volana
+     * vzdy pred touto metodou.
+     * /
+    public void destroy() {
+        // vlozte kod potrebny pro uvolneni alokovanych zdroju
+    
+    }
+    
+    /**
+     * Vraci informace o tomto appletu
+     * Applet by mel prepsat tuto metodu a vratit retezec obsahujici
+     * informace o autorovi, verzi a autorskych pravech k appletu.
+     *
+     * @return retezec obsahuji informace o appletu
+     */
+    public String getAppletInfo() {
+        // zde vlozte informace o appletu
+        return "Nazev: BlueJ Applet Demo\n" +
+        "Autor: Bruce Quig\n" +
+        "Jednoduchy applet vykreslujici dva retezce.";
+    }
+
+    
+    /**
+     * Vraci informace o parametrech, kterym rozumi tento applet.
+     * Applet by mel prepsat tuto metodu tak, aby vracela pole retezcu znaku
+     * popisujicich tyto parametry.
+     * Kazdy element tohoto pole se sklada ze tri retezcu obsahujicich
+     * jmeno, typ a popis.
+     *
+     * @return pole retezcu reprezentujici parametry tohoto appletu
+     */
+    public String[][] getParameterInfo() {
+        // zde vlozte informace o appletu
+        String paramInfo[][] = {
+            {"prvniParametr", "1-10", "popis prvniho parametru"},
+            {"stav", "boolean", "popis druheho parametru"},
+            {"obrazky", "url", "popis tretiho parametru"}
+        };
+        return paramInfo;
+    }
+}

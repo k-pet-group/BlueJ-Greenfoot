@@ -1,0 +1,109 @@
+NullPointerException*
+Pokusili jste se p\u0159istoupit k prom\u011bnn\u00e9, nebo
+metod\u011b objektu pomoc\u00ed reference, kter\u00e1 je "null".
+Nap\u0159\u00edklad: "neco.print()", ale reference "neco"
+m\u00e1 nyn\u00ed hodnotu "null".
+
+ArithmeticException*
+Nastal probl\u00e9m p\u0159i prov\u00e1d\u011bn\u00ed aritmetick\u00e9ho
+v\u00fdpo\u010dtu. M\u016f\u017ee se jednat nap\u0159\u00edklad o pokus d\u011blen\u00ed
+nulou.
+
+StringIndexOutOfBoundsException*
+Index, kter\u00fd jste pou\u017eili pro p\u0159\u00edstup ke znaku
+nebo k \u010d\u00e1sti \u0159et\u011bzce, je mimo povolen\u00e9 meze.
+Prvn\u00ed znak \u0159et\u011bzce m\u00e1 index 0, posledn\u00ed znak m\u00e1
+index (d\u00e9lka-1).
+Prvn\u00ed parametr metody "substring" je za\u010d\u00e1tek
+a druh\u00fd parametr je d\u00e9lka \u010d\u00e1sti \u0159et\u011bzce.
+
+ClassCastException*
+Chyba p\u0159i p\u0159etypov\u00e1n\u00ed. P\u0159\u00edklad:
+       Object nejakaReference;
+       .....
+       (MojeTrida)nejakaReference
+"nejakaReference" obsahuje referenci na instanci objektu
+je p\u0159etypov\u00e1na na typ MojeTrida. Toto je ov\u0161em dovoleno pouze
+tehdy, je-li tato instance t\u0159\u00eddy MojeTride (nebo t\u0159\u00eddy odvozen\u00e9
+od MojeTrida).
+
+IndexOutOfBoundsException*
+Index je mimo povolen\u00e9 meze. Prvn\u00ed prvek m\u00e1
+index 0 a posledn\u00ed prvek m\u00e1 index (d\u00e9lka-1).
+
+ArrayIndexOutOfBoundsException*
+Index pole je mimo povolen\u00e9 meze. Prvn\u00ed prvek m\u00e1
+index 0 a posledn\u00ed prvek m\u00e1 index (d\u00e9lka_pole-1).
+
+ConcurrentModificationException*
+P\u0159i pr\u016fchodu kolekce pomoc\u00ed iter\u00e1toru byla kolekce
+zm\u011bn\u011bna. Toto nen\u00ed dovoleno.
+Jedin\u00e1 povolen\u00e1 zm\u011bna je odeb\u00edr\u00e1n\u00ed prvk\u016f pomoc\u00ed metody
+Iterator.remove
+(odeb\u00edr\u00e1n\u00ed pomoc\u00ed metod kolekce NEN\u00cd dovoleno).
+
+ArrayStoreException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+CannotRedoException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+CannotUndoException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+CMMException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+EmptyStackException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+IllegalArgumentException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+IllegalMonitorStateException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+IllegalPathStateException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+IllegalStateException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+ImagingOpException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+MissingResourceException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+NegativeArraySizeException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+NoSuchElementException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+ProfileDataException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+ProviderException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+RasterFormatException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+SecurityException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+SystemException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+UndeclaredThrowableException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+UnsupportedOperationException*
+N\u00e1pov\u011bda nen\u00ed k dispozici.
+
+Exception
+Toto je obecn\u00e1 v\u00fdjimka, kter\u00e1 informuje pouze
+o t\u00e9 skute\u010dnosti, \u017ee se n\u011bco nepovedlo. Ale
+co, to nen\u00ed uvedeno ...
+
