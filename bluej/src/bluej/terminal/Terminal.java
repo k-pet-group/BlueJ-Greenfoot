@@ -23,7 +23,7 @@ import java.io.FileWriter;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Terminal.java 883 2001-05-09 00:39:48Z bquig $
+ * @version $Id: Terminal.java 887 2001-05-09 01:00:08Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -235,12 +235,12 @@ public final class Terminal extends JFrame
             
         }
 
-            
         public void close() throws IOException
         {
     
         }
     };
+
 
     /**
      * Return the output stream that can be used to write to this terminal

@@ -170,13 +170,12 @@ bluej.classTemplates = stdclass abstract interface applet
 # font and font size for most of the interface components
 # This is the name of a font face with an optional "-bold" at the end.
 bluej.fontsize=12
-#bluej.font=SansSerif-bold
+bluej.font=SansSerif-bold
 #bluej.font=Monospaced
-bluej.font=SIMSUN
 
 # fonts for menus
-bluej.menu.font=SIMSUN
-#bluej.menu.font=SansSerif-bold
+
+bluej.menu.font=SansSerif-bold
 bluej.menu.fontsize=12
 
 # fonts for Targets (classes in display)
