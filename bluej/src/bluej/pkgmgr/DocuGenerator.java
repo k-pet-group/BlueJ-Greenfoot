@@ -128,7 +128,7 @@ public class DocuGenerator
 
         // build the path for the result to be shown
         File htmlFile = new File(getDocuPath(filename));
-        File logFile = new File(docDir, "logfile");
+        File logFile = new File(docDir, "logfile.txt");
 
         generateDoc(javadocCall, htmlFile, logFile, classLogHeader, false);
     }
@@ -265,9 +265,8 @@ public class DocuGenerator
                                                         showFile.getName());
                     }
                     if(openBrowser) {
-                        logWriter.println("<---- attempting to open browser ---->");
-                        logWriter.println("URL:  file://" + showFile.getPath());
-                        Utility.openWebBrowser("file://" + showFile.getPath());
+                        logWriter.println("try to open: " + showFile.getPath());
+                        Utility.openWebBrowser(showFile.getPath());
                     }
                 }
                 else {
@@ -341,12 +340,12 @@ public class DocuGenerator
             return docDirStatus;
 
         File startPage = new File(docDir, "index.html");
-        File logFile = new File(docDir, "logfile");
+        File logFile = new File(docDir, "logfile.txt");
 
         if(documentationExists(logFile)) {
             int result = DialogManager.askQuestion(null, "show-or-generate");
             if(result == 0) {  // show only
-                Utility.openWebBrowser("file://" + startPage.getPath());
+                Utility.openWebBrowser(startPage.getPath());
                 return "";
             }
             if(result == 2) {  // cancel

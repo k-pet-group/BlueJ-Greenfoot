@@ -17,7 +17,7 @@ import com.apple.mrj.MRJFileUtils;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 1359 2002-10-07 19:52:18Z mik $
+ * @version $Id: Utility.java 1367 2002-10-11 14:19:56Z mik $
  */
 public class Utility
 {
@@ -254,29 +254,28 @@ public class Utility
 
         if(Config.osname.startsWith("Mac")) {                           // Mac
             try {
-                MRJFileUtils.openURL(encodeURLSpaces(url));
+                if((!url.startsWith("http:")) && (!url.startsWith("file:")))
+                    url = encodeURLSpaces("file://" + url);
+                else
+                    url = encodeURLSpaces(url);
+                MRJFileUtils.openURL(url);
             }
             catch(IOException e) {
                 Debug.reportError("could not start web browser. exc: " + e);
                 return false;
             }
-//             catch(UnsupportedEncodingException e) {
-//                 Debug.reportError("encoding UTF-8 not supported!? " + e);
-//                 return false;
-//             }
         }
         else if(Config.osname.startsWith("Windows")) {                 // Windows
 
-            String [] cmd = new String[2];
+            String cmd;
             if(Config.osname.startsWith("Windows 9"))                   // win95/98
-                cmd[0] = Config.getPropString("win9xBrowserCmd");
+                cmd = "command.com";
             else                                                        // other
-                cmd[0] = Config.getPropString("winBrowserCmd");
-                
-            cmd[1] = url;
+                cmd = "cmd.exe";
 
             try {
-                Process p = Runtime.getRuntime().exec(cmd);
+                Process p = Runtime.getRuntime().exec(
+                    new String[] { cmd, "/c", "start", "\"\"", '"' + url + '"' });
             }
             catch(IOException e) {
                 Debug.reportError("could not start web browser. exc: " + e);
@@ -285,7 +284,11 @@ public class Utility
         }
         else {                                                      // Unix and other
         
-            url = encodeURLSpaces(url);
+            if((!url.startsWith("http:")) && (!url.startsWith("file:")))
+                url = encodeURLSpaces("file://" + url);
+            else
+                url = encodeURLSpaces(url);
+
             String cmd = mergeStrings(Config.getPropString("browserCmd1"), url);
 
             try {
