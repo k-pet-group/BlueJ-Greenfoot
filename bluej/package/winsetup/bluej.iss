@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=BlueJ
-AppVerName=BlueJ 2.0.0
+AppVerName=BlueJ 2.0.1
 AppPublisher=Deakin University
 AppPublisherURL=http://www.bluej.org
 AppSupportURL=http://www.bluej.org
