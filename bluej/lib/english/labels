@@ -222,6 +222,19 @@ editor.find.up=Search up
 editor.find.down=Search down
 editor.find.ignoreCase=Ignore case
 editor.find.wholeWord=Whole word
+editor.fing.backward=backward
+editor.find.forward=forward
+editor.find.wrapAround=wrap around
+
+#Messages shown as a result of a search with replace all
+editor.replaceAll.replaced=Replaced 
+editor.replaceAll.intancesOf=\ instances of 
+editor.replaceAll.string=String 
+editor.replaceAll.notFoundNothingReplaced=\ not found. Nothing replaced.
+
+#Messages shown when determining what function is bound to a given key
+editor.keypressed.keyIsNotBound=\ in not bound to a function.
+editor.keypressed.callsTheFunction=\ calls the function "
 
 #Messages, warnings, etc that is displayed by Info.java
 editor.info.version = Moe version

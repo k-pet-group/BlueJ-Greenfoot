@@ -23,7 +23,7 @@ import bluej.Config;
  *
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Finder.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version $Id: Finder.java 3168 2004-11-25 11:51:10Z fisker $
  */
 
 public class Finder extends JDialog
@@ -143,9 +143,14 @@ public class Finder extends JDialog
             }
         }
         if(count > 0)
-            editor.writeMessage("Replaced " + count + " instances of " + searchString);
+            //editor.writeMessage("Replaced " + count + " instances of " + searchString);
+        	editor.writeMessage(Config.getString("editor.replaceAll.replaced") +
+        		 count + Config.getString("editor.replaceAll.intancesOf") + 
+				 searchString);
         else
-            editor.writeMessage("String " + searchString + " not found. Nothing replaced.");
+            //editor.writeMessage("String " + searchString + " not found. Nothing replaced.");
+        	editor.writeMessage(Config.getString("editor.replaceAll.string") + 
+        			searchString + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
     }
 
     /**

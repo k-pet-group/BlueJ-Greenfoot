@@ -1943,14 +1943,17 @@ public final class MoeActions
                 // found
                 // through the keymap. we search for them explicitly here...
                 Object binding = componentInputMap.get(key);
-                if (binding == null)
-                    editor.writeMessage(keyName + " is not bound to a function.");
-                else
-                    editor.writeMessage(keyName + " calls the function \"" + binding + "\"");
+                if (binding == null){
+                    //editor.writeMessage(keyName + " is not bound to a function.");
+                	editor.writeMessage(keyName + Config.getString("editor.keypressed.keyIsNotBound"));
+                }
+                else {
+                	editor.writeMessage(keyName + Config.getString("editor.keypressed.callsTheFunction") + binding + "\"");
+                }
             }
             else {
                 String name = (String) action.getValue(Action.NAME);
-                editor.writeMessage(keyName + " calls the function \"" + name + "\"");
+                editor.writeMessage(keyName + Config.getString("editor.keypressed.callsTheFunction") + name + "\"");
             }
             e.getComponent().removeKeyListener(keyCatcher);
             e.consume();

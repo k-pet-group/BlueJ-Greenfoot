@@ -1212,19 +1212,19 @@ public final class MoeEditor extends JFrame
         else
             found = doFind(s, ignoreCase, wholeWord, wrap);
         
-        StringBuffer msg = new StringBuffer("Find ");
-        msg.append((backward ? "backward" : "forward"));
+        StringBuffer msg = new StringBuffer(Config.getString("editor.find.find.label") + " ");
+        msg.append(backward ? Config.getString("editor.find.backward") : Config.getString("editor.find.forward"));
         if (ignoreCase || wholeWord || wrap)
             msg.append(" (");
 
         if (ignoreCase)
-            msg.append("ignore case, ");
+        	msg.append(Config.getString("editor.find.ignoreCase").toLowerCase() + ", ");
         
         if (wholeWord)
-            msg.append("whole word, ");
+        	msg.append(Config.getString("editor.find.wholeWord").toLowerCase() + ", ");
         
         if (wrap) 
-            msg.append("wrap around, ");
+        	msg.append(Config.getString("editor.find.wrapAround").toLowerCase() + ", ");
         
         if (ignoreCase || wholeWord || wrap) 
             msg.replace(msg.length() - 2, msg.length(), "): ");
