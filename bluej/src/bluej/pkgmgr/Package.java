@@ -29,7 +29,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 213 1999-07-29 04:16:54Z mik $
+ ** @version $Id: Package.java 220 1999-08-10 04:23:38Z bruce $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -596,6 +596,14 @@ public class Package extends Graph
 	for(int i = 0; t_enum.hasMoreElements(); i++) {
 	    Target t = (Target)t_enum.nextElement();
 	    okay = okay && t.copyFiles(newname + Config.slash);
+	    if(t instanceof EditableTarget) {
+		// if editor is not null close it
+		if(((EditableTarget)t).editor != null)
+		    ((EditableTarget)t).editor.close();
+		// make editor null so existing references to old file are lost
+		((EditableTarget)t).editor = null;
+	    }
+	    
 	}
 	// PENDING: update all package directives in sources
 
@@ -785,10 +793,7 @@ public class Package extends Graph
 		int next = 0;
 		do {
 		    dir = new File(dir).getParent();
-		    //Debug.message("dir now " + dir);
-
 		    next = packageName.indexOf('.', next + 1);
-		    //Debug.message("next: " + next);
 
 		} while((next != -1) && (dir != null));
 

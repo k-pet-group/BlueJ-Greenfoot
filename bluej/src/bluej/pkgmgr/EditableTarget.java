@@ -5,7 +5,7 @@ import bluej.editor.EditorWatcher;
 import bluej.utility.Utility;
 
 /** 
- * @version $Id: EditableTarget.java 198 1999-07-22 00:50:03Z ajp $
+ * @version $Id: EditableTarget.java 220 1999-08-10 04:23:38Z bruce $
  * @author Michael Cahill
  *
  * A target in a package that can be edited as text
@@ -105,7 +105,7 @@ public abstract class EditableTarget extends Target
      ** Called by Editor when a breakpoint is been set/cleared
      ** @param filename	the name of the file that was modified
      ** @param lineNo	the line number of the breakpoint
-     ** @param set		whether the breakpoint is set (true) or cleared
+     ** @param set	whether the breakpoint is set (true) or cleared
      **/
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     { return null; }

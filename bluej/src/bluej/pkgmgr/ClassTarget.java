@@ -39,7 +39,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 207 1999-07-23 05:38:29Z ajp $
+ ** @version $Id: ClassTarget.java 220 1999-08-10 04:23:38Z bruce $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -612,7 +612,6 @@ public class ClassTarget extends EditableTarget
 		
 	filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
 	MethodView[] allMethods = view.getAllMethods();
-	// Debug.message("Adding static methods for " + cl);
 	if(createMenuItems(menu, allMethods, filter, 0, allMethods.length, ""))
 	    menu.addSeparator();
     }

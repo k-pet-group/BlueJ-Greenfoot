@@ -19,7 +19,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 169 1999-07-08 02:02:13Z mik $
+ ** @version $Id: AppletClassRole.java 220 1999-08-10 04:23:38Z bruce $
  **/
 public class AppletClassRole extends ClassRole 
 {
@@ -33,7 +33,7 @@ public class AppletClassRole extends ClassRole
     static final String HTML_EXTENSION = ".html";
     static final String THIS_DIRECTORY = ".";
     static final String APPLETVIEWER_COMMAND = "appletviewer"; // move to bluej.defs
-    static final String URL_PREFIX = "file:";
+    static final String URL_PREFIX = "file://localhost/";
     
     private String[] appletParams;
     private int appletHeight;
@@ -108,7 +108,6 @@ public class AppletClassRole extends ClassRole
 				 boolean isAbstract, boolean isInterface)
     {
 	String template;
-	//Debug.message("applet type = " + appletType);
 
 	if(appletType.equals("japplet"))
 	    template = "template.japplet";
@@ -143,7 +142,6 @@ public class AppletClassRole extends ClassRole
 
 	if(runAppletStr.equals(cmd))
 	    runApplet(ct);
-	
     }
     
 
@@ -178,7 +176,7 @@ public class AppletClassRole extends ClassRole
 		// generate HTML page for Applet using selected path and file name
 		String generatedFileName = chooseWebPage(pkg.getFrame());
 		if(generatedFileName != null)
-		  createWebPage(name, pkg.getBaseDir(), generatedFileName);
+		  createWebPage(name, URL_PREFIX + pkg.getBaseDir(), generatedFileName);
 	    }
 	    else {
 
