@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 924 2001-06-06 04:39:49Z bquig $
+ * @version $Id: Config.java 941 2001-06-12 05:22:36Z mik $
  */
 
 public class Config
@@ -88,22 +88,6 @@ public class Config
     public static final int dialogCommandButtonsVertical = 17;
 
     private static boolean initialised = false;
-
-    /*
-     * Default behaviour for JTextFields is to generate an ActionEvent when
-     * "Enter" is pressed. We don't want that. Here, we remove the Enter key
-     * from the keymap used by all JTextFields. Then we can use the default
-     * button for dialogs (Enter will then activate the default button).
-     *
-     * NOT NEEDED ANYMORE FOR JDK 1.3 - remove once 1.2 is out of fashion.
-     */
-    static {
-        JTextField f = new JTextField();
-        KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-        Keymap map = f.getKeymap();
-        map.removeKeyStrokeBinding(enter);
-    }
-
 
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
