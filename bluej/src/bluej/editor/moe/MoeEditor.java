@@ -369,7 +369,8 @@ public final class MoeEditor extends JFrame
 			       // inherited from Editor
     {
 	Element line = getLine (lineNumber);
-	textPane.select(line.getStartOffset(), line.getEndOffset());
+	textPane.setCaretPosition(line.getStartOffset());
+	textPane.moveCaretPosition(line.getEndOffset());
 
 	// display the message
 
