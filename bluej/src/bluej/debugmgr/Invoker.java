@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3019 2004-09-28 09:51:57Z damiano $
+ * @version $Id: Invoker.java 3032 2004-10-01 09:39:09Z mik $
  */
 
 public class Invoker
@@ -559,7 +559,6 @@ public class Invoker
 
             buffer.append("__bluej_runtime_result = ");
             buffer.append(callString);
-            buffer.append(";" + Config.nl);
         }
         else {
             // A sample of the code generated (for a method call)
@@ -570,8 +569,12 @@ public class Invoker
             buffer.append(callString);
             if (!isVoid)
                 buffer.append(")");
-            buffer.append(";" + Config.nl);
         }
+
+        if(! callString.endsWith(";"))
+            buffer.append(";");
+        buffer.append(Config.nl);
+
         String invocation = buffer.toString();
 
         File shellFile = new File(pkg.getPath(), shellName + ".java");
