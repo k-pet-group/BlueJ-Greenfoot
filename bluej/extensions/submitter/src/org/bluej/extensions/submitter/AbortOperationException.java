@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
  * occurred, but in a neat and tidy way.
  *
  * @author Clive Miller
- * @version $Id: AbortOperationException.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: AbortOperationException.java 2306 2003-11-08 17:46:57Z iau $
  */
 public class AbortOperationException extends Exception
 {
@@ -18,6 +18,7 @@ public class AbortOperationException extends Exception
     public AbortOperationException (String s)
     {
         message = s;
+        exception = this;
     }
     
     /**

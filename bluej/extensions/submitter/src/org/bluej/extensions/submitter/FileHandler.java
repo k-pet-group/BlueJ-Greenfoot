@@ -16,7 +16,7 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * according to a given String
  * 
  * @author Clive Miller
- * @version $Id: FileHandler.java 1980 2003-05-22 13:32:32Z iau $
+ * @version $Id: FileHandler.java 2306 2003-11-08 17:46:57Z iau $
  */
 class FileHandler
 {
@@ -206,14 +206,17 @@ class FileHandler
         Collection wantedFiles = new ArrayList();
         recurseDirectory (wantedFiles, projectDir);
         
-        if (essentials.isEmpty() && include.isEmpty() && exclude.isEmpty()) ; // Do nothing
-        else for (Iterator it = wantedFiles.iterator(); it.hasNext();)
+        if (!include.isEmpty()) for (Iterator it = wantedFiles.iterator(); it.hasNext();)
         {
-            File check = (File)it.next();
-            if (!match (check.getName(),essentials)
-             && !match (check.getName(),include)
-             || match (check.getName(),exclude))
+            String checkName = ((File)it.next()).getName();
+            if (!match (checkName,essentials) && !match (checkName,include))
                 it.remove();
+        }
+    
+        if (!exclude.isEmpty()) for (Iterator it = wantedFiles.iterator(); it.hasNext();)
+        {
+            String checkName = ((File)it.next()).getName();
+            if (match (checkName, exclude)) it.remove();
         }
 
         Collection unsatisfied = new ArrayList (essentials);
