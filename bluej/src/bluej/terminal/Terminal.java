@@ -16,7 +16,7 @@ import bluej.utility.*;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 1776 2003-04-10 04:20:56Z ajp $
+ * @version $Id: Terminal.java 2112 2003-07-15 04:51:33Z ajp $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -58,7 +58,7 @@ public final class Terminal extends JFrame
     private JScrollPane errorScrollPane;
     private JScrollPane scrollPane;
     private JSplitPane splitPane;
-    private boolean isActive = false;
+//    private boolean isActive = false;
     private boolean recordMethodCalls = false;
     private boolean clearOnMethodCall = false;
     private boolean newMethodCall = false;
@@ -122,12 +122,12 @@ public final class Terminal extends JFrame
      */
     public void activate(boolean active)
     {
-        if(active != isActive) {
+/*        if(active != isActive) {
             text.setEditable(active);
             //text.setEnabled(active);
             //text.setBackground(active ? activeBgColour : inactiveBgColour);
             isActive = active;
-        }
+        } */
     }
 
 
@@ -307,7 +307,7 @@ public final class Terminal extends JFrame
 
     public void keyTyped(KeyEvent event)
     {
-        if(isActive) {
+        if(true /*isActive*/) {
             char ch = event.getKeyChar();
 
             switch(ch) {
@@ -370,7 +370,7 @@ public final class Terminal extends JFrame
         text = new TermTextArea(rows, columns);
         scrollPane = new JScrollPane(text);
         text.setFont(PrefMgr.getTerminalFont());
-        text.setEditable(false);
+        text.setEditable(true);		// TODO: changed when removed active state tracking
         text.setLineWrap(false);
         text.setForeground(fgColour);
         text.setMargin(new Insets(6, 6, 6, 6));
