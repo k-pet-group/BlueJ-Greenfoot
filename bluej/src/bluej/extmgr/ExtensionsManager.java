@@ -23,26 +23,26 @@ public class ExtensionsManager implements BlueJEventListener
     /**
      * Create a new singleton instance of the ExtensionsManager.
      */
-    public static void initialise( )
+    public static ExtensionsManager initialise( )
     {
         if (instance != null) 
           {
           // Really, there is no need to trow an exception.
           Debug.message("ExtensionManager is already initilized");
-          return;
+          return instance;
           }
 
-        instance = new ExtensionsManager( );
+        return  instance = new ExtensionsManager( );
     }
 
-
     /**
-     * Return the ExtensionManager instance.
+     * Returns the ExtensionManager instance.
      */
-    public static ExtensionsManager getExtMgr()
+    public static ExtensionsManager get()
     {
         return instance;
     }
+
 
     private List extensions;
     private PrefManager prefManager;
@@ -77,12 +77,26 @@ public class ExtensionsManager implements BlueJEventListener
         if (dirPath != null ) systemDir = new File(dirPath);
 
         // Now we try to load the extensions from the BlueJ system repository.
-        loadAllExtensions(systemDir, null);
+        loadDirectoryExtensions(systemDir, null);
 
         // Load extensions that are in a user space location.
-        loadAllExtensions(Config.getUserConfigFile("extensions"), null);
+        loadDirectoryExtensions(Config.getUserConfigFile("extensions"), null);
     }
 
+    /**
+     * Unloads all extensions that are loaded.
+     * Normally called just before bluej is closing.
+     */
+    public synchronized void unloadExtensions ()
+      {
+      for (Iterator iter = extensions.iterator(); iter.hasNext(); ) 
+        {
+        ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
+
+        aWrapper.terminate();         // The following terminated the Extension
+        iter.remove();
+        }
+      }
 
     /**
      *  Searches through the given directory for jar files that contain a valid
@@ -96,7 +110,7 @@ public class ExtensionsManager implements BlueJEventListener
      * @param  directory  Where to look for extensions
      * @param  project    A project this extension is bound to
      */
-    private synchronized void loadAllExtensions(File directory, Project project)
+    private synchronized void loadDirectoryExtensions(File directory, Project project)
     {
         if (directory == null) return;
 
@@ -182,7 +196,7 @@ public class ExtensionsManager implements BlueJEventListener
     public void projectOpening( Project project )
     {
         File exts = new File(project.getProjectDir(), "extensions");
-        loadAllExtensions(exts, project);
+        loadDirectoryExtensions(exts, project);
     }
 
 

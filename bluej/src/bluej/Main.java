@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * in this class's main method.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: Main.java 1976 2003-05-22 10:05:14Z damiano $
  */
 public class Main
 {
@@ -89,7 +89,7 @@ public class Main
         ClassMgrPrefPanel.register();
 
         // You got to create it here since it is used by the Package manager frame
-        ExtensionsManager.initialise();
+        ExtensionsManager extManager = ExtensionsManager.initialise();
         
         // start the MachineLoader (a separate thread) to load the
         // remote virtual machine in the background
@@ -99,7 +99,7 @@ public class Main
         machineLoader.start();
 
         // It is here to have an extension to be ready whan a command line project is summoned
-        ExtensionsManager.getExtMgr().loadExtensions();
+        extManager.loadExtensions();
 
         processArgs(args);
         splash.remove();

@@ -28,7 +28,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1960 2003-05-19 05:27:36Z ajp $
+ * @version $Id: PkgMgrFrame.java 1976 2003-05-22 10:05:14Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -108,7 +108,7 @@ public class PkgMgrFrame extends JFrame
 
     private static List frames = new ArrayList();  // of PkgMgrFrames
 
-    private static ExtensionsManager extMgr = ExtensionsManager.getExtMgr();
+    private static ExtensionsManager extMgr = ExtensionsManager.get();
 
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit menu)
@@ -931,6 +931,12 @@ public class PkgMgrFrame extends JFrame
 
     private void doQuit()
     {
+        /* Ask to extension manager to unload all extensions. 
+         * Extensions can therefore save their stuff if they wish to
+         * It is here to avoid having extension getting loads of package closing events.
+         */
+        extMgr.unloadExtensions();
+    
         // close all open frames.
         PkgMgrFrame[] f = getAllFrames();
 

@@ -18,7 +18,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1964 2003-05-20 16:08:43Z damiano $
+ * @version $Id: Project.java 1976 2003-05-22 10:05:14Z damiano $
  */
 public class Project
     implements BlueJEventListener
@@ -150,7 +150,7 @@ public class Project
             proj.initialPackageName = startingPackageName;
 
         //Debugger.debugger.setDirectory(projectDir.getAbsolutePath());
-        ExtensionsManager.getExtMgr().projectOpening( proj );
+        ExtensionsManager.get().projectOpening( proj );
 
         return proj;
     }

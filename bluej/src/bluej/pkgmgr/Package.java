@@ -26,7 +26,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: Package.java 1976 2003-05-22 10:05:14Z damiano $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1911,7 +1911,7 @@ public final class Package extends Graph
 	    {
 	        // The following two lines will send a compilation event to extensions.
 	        CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, sources);
-	        ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
+	        ExtensionsManager.get().delegateEvent(aCompileEvent);
 	   
 	        setStatus(compiling);
 	
@@ -1938,7 +1938,7 @@ public final class Package extends Graph
 	        CompileEvent aCompileEvent = new CompileEvent(eventId, sources);
 	        aCompileEvent.setErrorLineNumber(lineNo);
 	        aCompileEvent.setErrorMessage(message);
-	        ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
+	        ExtensionsManager.get().delegateEvent(aCompileEvent);
 	 
 	        if(! showEditorMessage(filename, lineNo, message, invalidate, true,
 	                               true, false, Config.compilertype))
@@ -1968,7 +1968,7 @@ public final class Package extends Graph
 	        // The following three lines will send a compilation event to extensions.
 	        int eventId = successful?CompileEvent.COMPILE_DONE_EVENT:CompileEvent.COMPILE_FAILED_EVENT;
 	        CompileEvent aCompileEvent = new CompileEvent(eventId,sources);
-	        ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
+	        ExtensionsManager.get().delegateEvent(aCompileEvent);
 	    
 	        for(int i = 0; i < sources.length; i++) {
 	            String filename = sources[i].getPath();
@@ -2011,7 +2011,7 @@ public final class Package extends Graph
 		{
 			// the following two lines will send a compilation event to extensions.
 			CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, sources);
-			ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
+			ExtensionsManager.get().delegateEvent(aCompileEvent);
 	   
 			setStatus(compiling);
 	
