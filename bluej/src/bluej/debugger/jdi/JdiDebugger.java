@@ -28,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2489 2004-04-08 08:58:58Z polle $
+ * @version $Id: JdiDebugger.java 2507 2004-04-26 06:13:02Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -39,6 +39,9 @@ public class JdiDebugger extends Debugger
 	volatile private boolean vmRunning = false;
 	
 	private boolean autoRestart = true;
+    
+    // Did we order the VM to restart ourself?
+    private boolean selfRestart = false;
 
 	// the reference to the current remote VM handler
 	private VMReference vmRef;
@@ -94,11 +97,18 @@ public class JdiDebugger extends Debugger
 	 */
 	public synchronized void launch()
 	{
-		if(vmRunning)
+        // This could be either an initial launch (selfRestart == false) or
+        // a restart (selfRestart == true and machineLoader != null). In the
+        // latter case, there's no need to create a new machine loader, as
+        // that's pre-done in close(), below.
+        
+        if(vmRunning)
 			throw new IllegalStateException("JdiDebugger.launch() was called but the debugger was already loaded");
 
-		if(machineLoader != null)
-			 // Attempt to restart VM while already restarting - ignored.
+		if(machineLoader != null && !selfRestart)
+		    // Attempt to restart VM while already restarting - ignored,
+            // except when self-restarting, seeing as the new machine loader
+            // has already been created in that case.
             return;
 		
 		autoRestart = true;
@@ -107,7 +117,11 @@ public class JdiDebugger extends Debugger
 
 		// start the MachineLoader (a separate thread) to load the
 		// remote virtual machine in the background
-		machineLoader = new MachineLoaderThread();
+		
+        if(!selfRestart)
+            // if selfRestart == true, this has already been done
+            machineLoader = new MachineLoaderThread();
+        selfRestart = false;
 		// lower priority to improve GUI response time
         machineLoader.setPriority(loaderPriority);
 		machineLoader.start();	
@@ -119,20 +133,54 @@ public class JdiDebugger extends Debugger
 	 */
 	public synchronized void close(boolean restart)
 	{
+        // There are essentially three states the remote process could be in:
+        // started, stopping, or launching. It will not already be stopped
+        // as this only occurs when the project is closed.
+        //
+        // Following conditions are true in each state:
+        //
+        // Started:     vmRunning = true.
+        //
+        // Stopping:    vmRunning = false. selfRestart = true.
+        //              machineLoader != null.
+        //                   - or -
+        //              vmRunning = false. selfRestart = false.
+        //              machineLoader == null.
+        //
+        // Launching:   vmRunning = false. selfRestart = false.
+        //              machineLoader != null.
+        
         if (vmRunning) {
+            // The process is already started. We want to stop it (and
+            // possibly to then restart it).
             autoRestart = restart;
+            selfRestart = restart;
             vmRunning = false;
-
+            
+            // Create the new machine loader thread. That way any operation
+            // on the VM between now and the time the new machine has finished
+            // loading, can sleep until the new machine is ready.
+            if(selfRestart)
+                machineLoader = new MachineLoaderThread();
+            
             // kill the remote debugger process
             vmRef.close();
             
             // we will eventually get a vmDisconnect event and end up in
             // method vmDisconnect() (below)
         }
-        else {
-            // if we are not running, just check whether we want a restart
-            if(restart)
-                launch();
+        // The state is either "launching" or "stopping for restart". In either
+        // case, if restart == true, no further action is necessary.
+        else if(!restart) {
+            autoRestart = false;
+            selfRestart = false;
+            machineLoader = null;
+            
+            if(machineLoader != null && !selfRestart) {
+                // We must be already starting a process. 
+                // Stop it immediately.
+                vmRef.close();
+            }
         }
 	}
 
@@ -673,8 +721,11 @@ public class JdiDebugger extends Debugger
             vmRef = null;
 
             // promote garbage collection but also indicate to the
-            // launch procedure that we are not in a launch (see launch())
-            machineLoader = null;
+            // launch procedure that we are not in a launch (see launch()).
+            // In the case of a self-restart, a new machine loader has only
+            // just been set-up, so don't trash it now! 
+            if(!selfRestart)
+                machineLoader = null;
 
             vmRunning = false;
 			launch();
@@ -765,9 +816,13 @@ public class JdiDebugger extends Debugger
     	getVM().dumpThreadInfo();
     }
 
-	private VMReference getVM()
+	/**
+     * Get the VM, waiting for it to finish loading first (if necessary).
+	 * @return the VM reference.
+	 */
+    private VMReference getVM()
 	{
-		return machineLoader.getVM();
+        return machineLoader.getVM();
 	}
 	
 	/**
@@ -780,13 +835,9 @@ public class JdiDebugger extends Debugger
 		 public synchronized void run()
 		 {
              try{
-    		 	// System.out.println("machine loader is running " + vmRunning);
     			vmRef = new VMReference(JdiDebugger.this, terminal, startingDirectory);
     			vmRef.waitForStartup();
-    
     			vmRunning = true;
-    
-    			// System.out.println("machine loader is started " + vmRunning);
     
     			newClassLoader(startingDirectory.getAbsolutePath());
     
@@ -802,12 +853,12 @@ public class JdiDebugger extends Debugger
 		 
 		private synchronized VMReference getVM()
 		{
-			while(!vmRunning) 
+            while(!vmRunning) 
 				try {
 					wait();
 				}
 			catch(InterruptedException e) { }
-
+            
 			return vmRef;
 		}
 	} 
