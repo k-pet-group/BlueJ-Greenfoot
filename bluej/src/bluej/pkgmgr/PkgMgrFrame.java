@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 583 2000-06-26 01:51:17Z mik $
+ * @version $Id: PkgMgrFrame.java 594 2000-06-28 05:05:32Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -447,30 +447,6 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * Open a dialog that asks for a package to open. If the dialog is
-     * cancelled by the user, null is returned. Otherwise the result is
-     * the name of an existing directory (either plain or a BlueJ package).
-     */
-    private String openPackageDialog()
-    {
-        JFileChooser chooser = FileUtility.getPackageChooser();
-
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            String dirname = chooser.getSelectedFile().getPath();
-            if(dirname != null) {
-                // remove any trailing slashes
-                int len = dirname.length();
-                while((len > 0) && (dirname.charAt(len - 1) == File.separatorChar))
-                    --len;
-                dirname = dirname.substring(0, len);
-            }
-            return dirname;
-        }
-
-        return null;
-    }
-
-    /**
      * Set the window title to show the current package name.
      */
     protected String updateWindowTitle()
@@ -564,9 +540,9 @@ public class PkgMgrFrame extends JFrame
             openPackageTarget(e.getName());
             break;
 
-         case PackageEditorEvent.OBJECT_PUTONBENCH: // "Get" object from 
+         case PackageEditorEvent.OBJECT_PUTONBENCH: // "Get" object from
                                                     //   object inspector
-            putObjectOnBench(e.getDebuggerObject(), e.getFieldName(), 
+            putObjectOnBench(e.getDebuggerObject(), e.getFieldName(),
                              e.getInstanceName());
             break;
         }
@@ -771,7 +747,7 @@ public class PkgMgrFrame extends JFrame
      */
     protected boolean doNewProject()
     {
-        String newname = FileUtility.getFileName(this, newpkgTitle, createLabel);
+        String newname = FileUtility.getFileName(this, newpkgTitle, createLabel, false);
 
         if (newname == null)
             return false;
@@ -796,12 +772,12 @@ public class PkgMgrFrame extends JFrame
      */
     private void doOpen()
     {
-        String pkgPath = openPackageDialog();
+        File dirName = FileUtility.getPackageName(this);
 
-        if (pkgPath != null) {
+        if (dirName != null) {
             Project openProj;
 
-            if((openProj = Project.openProject(pkgPath)) != null) {
+            if((openProj = Project.openProject(dirName.getAbsolutePath())) != null) {
 
                 Package pkg = openProj.getPackage(
                                                   openProj.getInitialPackageName());
@@ -895,7 +871,7 @@ public class PkgMgrFrame extends JFrame
     private void doSaveAs()
     {
         // get a file name to save under
-        String newname = FileUtility.getFileName(this, saveAsTitle, saveLabel);
+        String newname = FileUtility.getFileName(this, saveAsTitle, saveLabel, true);
 
         if (newname != null) {
 
@@ -921,29 +897,79 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
+    /**
+     * Import into a new project or import into the current project.
+     */
     private void doImport()
     {
-        File importDir = null;
-        JFileChooser newChooser = FileUtility.getFileChooser(true);
+        boolean intoNewProject = true;
 
-        int result = newChooser.showOpenDialog(this);
+        // prompt for if they want it imported into the current
+        // project or a new project
+        if (!isEmptyFrame()) {
+            switch (DialogManager.askQuestion(this, "import-into-current")) {
+             case 0:
+                intoNewProject = false;
+                break;
+             case 2:
+                return;
+             default:
+                break;
+            }
+        }
 
-        if (result == JFileChooser.APPROVE_OPTION)
-            importDir = newChooser.getSelectedFile();
-        else if (result == JFileChooser.CANCEL_OPTION)
+        // prompt for the directory to import from
+        File importDir;
+        String importName = FileUtility.getFileName(this,
+                                Config.getString("pkgmgr.importPkg.title"),
+                                Config.getString("pkgmgr.importPkg.buttonLabel"),
+                                false);
+
+        if (importName == null)
             return;
 
-        if (isEmptyFrame())
-            if(!doNewProject())
+        importDir = new File(importName);
+
+        if (!importDir.isDirectory())
+            return;
+
+        // prompt for the new project to create (if required)
+        if (intoNewProject) {
+            String newProj = FileUtility.getFileName(this,
+                                Config.getString("pkgmgr.importPkgNew.title"),
+                                Config.getString("pkgmgr.importPkgNew.buttonLabel"),
+                                false);
+
+            if (newProj == null)
                 return;
 
+            if (Project.createNewProject(newProj)) {
+                Project proj = Project.openProject(newProj);
+
+                openPackage(proj.getPackage(""));
+            }
+        }
+
+        // if we are still empty then the project creation has failed and we
+        // shouldn't go on
         if (isEmptyFrame())
             return;
 
-        FileUtility.recursiveCopyFile(importDir, getPackage().getPath());
+        // recursively copy files from import directory to package directory
+        Object[] fails = FileUtility.recursiveCopyFile(
+                                        new File(importName), getPackage().getPath());
 
+        // if we have any files which failed the copy, we show them now
+        if (fails != null) {
+            JDialog ifd = new ImportFailedDialog(this, fails);
+            ifd.show();
+        }
+
+        // add bluej.pkg files through the imported directory structure
         Import.convertDirectory(getPackage().getPath());
 
+        // reload all the packages (which discovers classes which may have
+        // been added by the import)
         getProject().reloadAll();
     }
 
@@ -953,7 +979,7 @@ public class PkgMgrFrame extends JFrame
     private void doAddFromFile()
     {
         String className = FileUtility.getFileName(this,
-                            addClassTitle, addLabel,
+                            addClassTitle, addLabel, false,
                             FileUtility.getJavaSourceFilter());
         File classFile = new File(className);
 
