@@ -25,7 +25,7 @@ import bluej.views.*;
  * then loads the resulting class file and executes a method in a new thread.
  *
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2780 2004-07-12 03:28:01Z davmac $
+ * @version $Id: Invoker.java 2807 2004-07-19 05:47:15Z davmac $
  */
 
 public class Invoker extends Thread
@@ -102,8 +102,8 @@ public class Invoker extends Thread
 
 
     /**
-     * Call a class's constructor, then create an ObjectWrapper for the
-     * resulting object
+     * Call a class's constructor OR call a static method and create an
+     * ObjectWrapper for the resulting object
      *
      * @param pmf       the frame of the package we are working on
      * @param member    the member to invoke
@@ -111,7 +111,7 @@ public class Invoker extends Thread
      *                  relevance when we are calling a constructor or static method)
      * @param watcher   an object interested in the result of the invocation
      */
-    public Invoker(PkgMgrFrame pmf, CallableView member, String objName,
+    public Invoker(PkgMgrFrame pmf, CallableView member,
                    ResultWatcher watcher)
     {
         if(pmf.isEmptyFrame())
@@ -143,7 +143,6 @@ public class Invoker extends Thread
                 this.objName = JavaNames.stripPrefix(member.getClassName());
                 executionEvent = ExecutionEvent.createStaticMethod(objName);
             } else {
-                this.objName = objName;
                 executionEvent = ExecutionEvent.createObjectMethod(objName);
             }
 
@@ -686,7 +685,7 @@ public class Invoker extends Thread
     private void deleteShellFiles()
     {
         File srcFile = new File(pkg.getPath(), shellName + ".java");
-        // srcFile.delete();
+        srcFile.delete();
 
         File classFile = new File(pkg.getPath(), shellName + ".class");
         classFile.delete();
