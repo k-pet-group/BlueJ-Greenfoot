@@ -5,6 +5,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.pkgmgr.Package;
 import bluej.utility.Utility;
+import bluej.utility.FileUtility;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
@@ -22,7 +23,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 606 2000-06-30 04:23:02Z ajp $
+ * @version $Id: Project.java 622 2000-07-05 05:53:32Z mik $
  */
 public class Project
     implements BlueJEventListener
@@ -127,12 +128,15 @@ public class Project
 
             if(dir.mkdir()) {
                 File newpkgFile = new File(dir, Package.pkgfileName);
-                File newreadmeFile = new File(dir, Package.readmeName);
 
                 try {
                     if(newpkgFile.createNewFile()) {
-                        newreadmeFile.createNewFile();
-                        return true;
+                        if(FileUtility.copyFile(
+                                   Config.getLibFilename("template.readme"),
+                                   dir + File.separator + Package.readmeName))
+                            return true;
+                        else
+                            Debug.message("could not copy readme template");
                     }
                 }
                 catch(IOException ioe)

@@ -15,7 +15,7 @@ import java.util.*;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 598 2000-06-28 05:09:01Z ajp $
+ * @version $Id: FileUtility.java 622 2000-07-05 05:53:32Z mik $
  */
 public class FileUtility
 {
@@ -137,7 +137,6 @@ public class FileUtility
      */
     public static boolean copyFile(String source, String dest)
     {
-        // check whether source and dest are the same
         File srcFile = new File(source);
         File destFile = new File(dest);
 
@@ -150,6 +149,7 @@ public class FileUtility
      */
     public static boolean copyFile(File srcFile, File destFile)
     {
+        // check whether source and dest are the same
         if(srcFile.getAbsolutePath().equals(destFile.getAbsolutePath()))
             return true;  // don't bother - they are the same
 

@@ -427,13 +427,6 @@ public final class MoeEditor extends JFrame
                   }
         }
     }
-    //       if (filename != null) {		// if it has a file name...
-    // 	  if (first_save && RedEditorManager.red.backup_on()) {
-    // 	    fname = filename.concat(".~");
-    //   ////	  if (!filecopy (filename, fname))
-    //   ////	    ; // cannot display warning message here - will be overwritten
-    // 	    first_save = false;
-    // 	  }
 
     // --------------------------------------------------------------------
     /**
@@ -1166,9 +1159,9 @@ public final class MoeEditor extends JFrame
     {
         if(document != null) {
 
-            // flag document type as a java file by associating a JavaTokenMarker
-            // for syntax colouring if specified
-            if(PrefMgr.useSyntaxHilighting()) {
+            // flag document type as a java file by associating a
+            // JavaTokenMarker for syntax colouring if specified
+            if(isCode && PrefMgr.useSyntaxHilighting()) {
                 if(document.getTokenMarker() == null)
                     document.setTokenMarker(new JavaTokenMarker());
             }
