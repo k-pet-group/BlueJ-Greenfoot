@@ -752,7 +752,7 @@ field
             classDefinition[new JavaBitSet(), null]         // inner class
         |
             enumDefinition[new JavaBitSet(), null]     // inner enum
-		|
+        |
             interfaceDefinition[new JavaBitSet(), null]     // inner interface
         |
             type=typeSpec  // method or variable declaration(s)
@@ -1000,9 +1000,11 @@ statement
 	|	expression SEMI
 
 	// class definition
-	|	mods=modifiers classDefinition[mods, null]
+	// use syntactic predicate as it otherwise seems to produce non-determinism
+	// warnings now that enum has been added
+	|	mods=modifiers (mods=modifiers classDefinition[mods, null]) => classDefinition[mods, null]
 	
-	//BQ add enum definition?
+	// enum definition
 	|	mods=modifiers enumDefinition[mods, null]
 
     // Attach a label to the front of a statement
