@@ -37,14 +37,11 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 514 2000-05-25 07:57:41Z ajp $
+ * @version $Id: Package.java 519 2000-05-31 04:05:07Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
 {
-    /** the title of a package frame with no package loaded */
-    public static String noPackageTitle = Config.getString("pkgmgr.noPackage");
-
     /** message to be shown on the status bar */
     static final String compiling = Config.getString("pkgmgr.compiling");
     /** message to be shown on the status bar */
@@ -93,8 +90,10 @@ public class Package extends Graph
     /* base name of package (eg util) ("" for the unnamed package) */
     private String baseName = "";
 
-    /* fully qualified name of pkg (eg java.util) ("" for the unnamed package) */
-    private String qualifiedName = "";
+    /* this properties object contains the properties loaded off disk for
+       this package, or the properties which were most recently saved to
+       disk for this package */
+    private SortedProperties lastSavedProps = new SortedProperties();
 
     /** all the targets in a package */
     protected Hashtable targets;
@@ -153,22 +152,22 @@ public class Package extends Graph
 
     /**
      * Create a package of a project with the package name of
-     * qualifiedName (ie java.util) and with a parent package of parent
+     * baseName (ie reflect) and with a parent package of parent (which may
+     * represent java.lang for instance)
      */
-    public Package(Project project, String qualifiedName, Package parent)
+    public Package(Project project, String baseName, Package parent)
     {
         if (parent == null)
             throw new NullPointerException("Package must have a valid parent package");
 
-        if (qualifiedName.length() == 0)
+        if (baseName.length() == 0)
             throw new IllegalArgumentException("unnamedPackage must be created using Package(project)");
 
-        if (!JavaNames.isQualifiedIdentifier(qualifiedName))
-            throw new IllegalArgumentException(qualifiedName + " is not a valid qualifiedName for Package");
+        if (!JavaNames.isIdentifier(baseName))
+            throw new IllegalArgumentException(baseName + " is not a valid baseName for Package");
 
         this.project = project;
-        this.qualifiedName = qualifiedName;
-        this.baseName = JavaNames.getBase(qualifiedName);
+        this.baseName = baseName;
         this.parentPackage = parent;
 
         init();
@@ -180,7 +179,6 @@ public class Package extends Graph
     public Package(Project project)
     {
         this.project = project;
-        this.qualifiedName = "";
         this.baseName = "";
         this.parentPackage = null;
 
@@ -333,6 +331,11 @@ public class Package extends Graph
         return (PackageEditor)editor;
     }
 
+    public Properties getLastSavedProperties()
+    {
+        return lastSavedProps;
+    }
+
     /**
      * Get the currently selected Target.  Should return null if none are
      * selected.
@@ -429,7 +432,6 @@ public class Package extends Graph
      */
     public void load()
     {
-        SortedProperties props = new SortedProperties();
         // read the package properties
         File pkgFile = new File(getPath(), pkgfileName);
 
@@ -437,38 +439,24 @@ public class Package extends Graph
         try {
             FileInputStream input = new FileInputStream(pkgFile);
 
-            props = new SortedProperties();
-            props.load(input);
-        } catch(IOException e) {
+            lastSavedProps.load(input);
+        }
+        catch(IOException e) {
             Debug.reportError("Error loading initialisation file" +
                               pkgFile + ": " + e);
         }
-
-        if (props == null)
-            return;
-
-        String width_str = props.getProperty("package.window.width", "512");
-        String height_str = props.getProperty("package.window.height", "450");
-//XXX        frame.setSize(Integer.parseInt(width_str), Integer.parseInt(height_str));
-
-        // This is to make sure that opening a package into an empty frame
-        // works properly
-
-/* XXX        frame.invalidate();
-        frame.validate(); */
-
 
         // read in all the targets contained in this package
         Map propTargets = new HashMap();
 
         try {
-            int numTargets = Integer.parseInt(props.getProperty("package.numTargets", "0"));
-            int numDependencies = Integer.parseInt(props.getProperty("package.numDependencies", "0"));
+            int numTargets = Integer.parseInt(lastSavedProps.getProperty("package.numTargets", "0"));
+            int numDependencies = Integer.parseInt(lastSavedProps.getProperty("package.numDependencies", "0"));
 
             for(int i = 0; i < numTargets; i++) {
                 Target target = null;
-                String type = props.getProperty("target" + (i + 1) + ".type");
-                String identifierName = props.getProperty("target" + (i + 1) + ".name");
+                String type = lastSavedProps.getProperty("target" + (i + 1) + ".type");
+                String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
 
                 if("ClassTarget".equals(type) || "AppletTarget".equals(type)) {
                     target = new ClassTarget(this, identifierName, "AppletTarget".equals(type));
@@ -478,7 +466,7 @@ public class Package extends Graph
 
                 if(target != null) {
                     //Debug.message("Load target " + target);
-                    target.load(props, "target" + (i + 1));
+                    target.load(lastSavedProps, "target" + (i + 1));
                     //Debug.message("Putting " + identifierName);
                     propTargets.put(identifierName, target);
                 }
@@ -516,7 +504,7 @@ public class Package extends Graph
 
             for(int i = 0; i < numDependencies; i++) {
                 Dependency dep = null;
-                String type = props.getProperty("dependency" + (i+1) + ".type");
+                String type = lastSavedProps.getProperty("dependency" + (i+1) + ".type");
 
                 if("UsesDependency".equals(type))
                     dep = new UsesDependency(this);
@@ -526,7 +514,7 @@ public class Package extends Graph
                 //		    dep = new ImplementsDependency(this);
 
                 if(dep != null) {
-                    dep.load(props, "dependency" + (i + 1));
+                    dep.load(lastSavedProps, "dependency" + (i + 1));
                     addDependency(dep, false);
                 }
             }
@@ -563,7 +551,7 @@ public class Package extends Graph
      * Save this package to disk. The package is saved to the standard
      * package file (bluej.pkg).
      */
-    public boolean save()
+    public boolean save(Properties frameProperties)
     {
         /* create the directory if it doesn't exist */
         File dir = getPath();
@@ -583,6 +571,9 @@ public class Package extends Graph
 
         SortedProperties props = new SortedProperties();
 
+        if (frameProperties != null)
+            props.putAll(frameProperties);
+
         // save targets and dependencies in package
 
         props.put("package.numDependencies",
@@ -594,12 +585,11 @@ public class Package extends Graph
             Target t = (Target)t_enum.nextElement();
             // should use a better method of determining non saved targets
             if(!(t instanceof ParentPackageTarget)) {
-                t.save(props, "target" + (i + 1));
+                t.save(props, "target" + (t_count + 1));
                 t_count++;
             }
         }
         props.put("package.numTargets", String.valueOf(t_count));
-
 
         for(int i = 0; i < usesArrows.size(); i++) {        // uses arrows
             Dependency d = (Dependency)usesArrows.elementAt(i);
@@ -613,6 +603,8 @@ public class Package extends Graph
             Debug.reportError("Error saving project file " + file + ": " + e);
             return false;
         }
+
+        lastSavedProps = props;
 
         return true;
     }
@@ -761,8 +753,7 @@ public class Package extends Graph
     }
 
     /**
-     * Loads a class using the current class loader.
-     * Creates a classloader if none currently exists.
+     * Loads a class using the current project class loader.
      */
     public Class loadClass(String className)
     {
@@ -1010,7 +1001,6 @@ public class Package extends Graph
 
         removeTarget(removableTarget);
         getEditor().repaint();
-        save();
     }
 
     /**

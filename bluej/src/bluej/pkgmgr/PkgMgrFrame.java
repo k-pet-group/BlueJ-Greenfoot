@@ -29,7 +29,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 518 2000-05-30 05:15:03Z ajp $
+ * @version $Id: PkgMgrFrame.java 519 2000-05-31 04:05:07Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener, Printable
@@ -46,8 +46,8 @@ public class PkgMgrFrame extends JFrame
     static final String newpkgTitle =  Config.getString("pkgmgr.newPkg.title");
     static final String createLabel =  Config.getString("pkgmgr.newPkg.buttonLabel");
 
-    static int DEFAULT_WIDTH = 512;
-    static int DEFAULT_HEIGHT = 450;
+    static final int DEFAULT_WIDTH = 512;
+    static final int DEFAULT_HEIGHT = 450;
 
     private static String tutorialUrl = Config.getPropString("bluej.url.tutorial");
     private static String referenceUrl = Config.getPropString("bluej.url.reference");
@@ -94,8 +94,7 @@ public class PkgMgrFrame extends JFrame
 
     private PkgMgrFrame outer;
 
-    private JPanel mainPanel;
-    private JLabel statusbar = new JLabel();
+    private JLabel statusbar = new JLabel(" ");
 
     private JMenuBar menubar = null;
     private JButton progressButton;
@@ -313,13 +312,18 @@ public class PkgMgrFrame extends JFrame
         this.pkg = pkg;
         this.editor = new PackageEditor(pkg, this);
 
-        classScroller = new JScrollPane(editor);
-        mainPanel.add(classScroller, "Center");
-
+        classScroller.setViewportView(editor);
         editor.addPackageEditorListener(this);
 
-        invalidate();
-        validate();
+        Properties p = pkg.getLastSavedProperties();
+
+        String width_str = p.getProperty("package.editor.width", Integer.toString(DEFAULT_WIDTH));
+        String height_str = p.getProperty("package.editor.height", Integer.toString(DEFAULT_HEIGHT));
+
+        classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str), Integer.parseInt(height_str)));
+
+        pack();
+        editor.revalidate();
 
         // we have had trouble with BlueJ freezing when
         // the enable/disable GUI code was run off a menu
@@ -344,8 +348,7 @@ public class PkgMgrFrame extends JFrame
         if(isEmptyFrame())
             return;
 
-        if(classScroller != null)
-            mainPanel.remove(classScroller);
+        classScroller.setViewportView(null);
 
         editor.removePackageEditorListener(this);
 
@@ -828,6 +831,7 @@ public class PkgMgrFrame extends JFrame
                 if ((pmf = findFrame(pkg)) == null) {
                     if(isEmptyFrame()) {
                         pmf = this;
+                        openPackage(pkg);
                     }
                     else
                         pmf = createFrame(pkg);
@@ -891,7 +895,16 @@ public class PkgMgrFrame extends JFrame
     {
         if(isEmptyFrame())
             return;
-        pkg.save();
+
+        // store the current editor size in the bluej.pkg file
+        Properties p = new Properties();
+
+        Dimension d = classScroller.getSize(null);
+
+        p.put("package.editor.width", Integer.toString(d.width));
+        p.put("package.editor.height", Integer.toString(d.height));
+
+        pkg.save(p);
     }
 
     /**
@@ -1449,7 +1462,8 @@ public class PkgMgrFrame extends JFrame
 
         setupMenus();
 
-        mainPanel = new JPanel();
+        JPanel mainPanel = new JPanel();
+
         mainPanel.setLayout(new BorderLayout(5, 5));
         mainPanel.setBorder(Config.generalBorderWithStatusBar);
 
@@ -1583,15 +1597,13 @@ public class PkgMgrFrame extends JFrame
         mainPanel.add("West", toolPanel);
         mainPanel.add("South", bottomPanel);
 
-        //	getContentPane().setLayout(new GridBagLayout());
-        //	GridBagConstraints constraints = new GridBagConstraints();
-        //	constraints.insets = new Insets(10, 10, 10, 10);
-        //	constraints.fill = GridBagConstraints.BOTH;
-        //	constraints.weightx = 1;
-        //	constraints.weighty = 1;
+        classScroller = new JScrollPane();
+        mainPanel.add(classScroller, "Center");
+        classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+
         getContentPane().add(mainPanel);
 
-        setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        pack();
 
         addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent E)

@@ -13,13 +13,11 @@ import javax.swing.*;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: GraphEditor.java 519 2000-05-31 04:05:07Z ajp $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener
 {
-    static final int DEFAULT_WIDTH = 400;
-    static final int DEFAULT_HEIGHT = 400;
     static final long DBL_CLICK_TIME = 300;		// milliseconds
     static final Color background = Config.getItemColour("colour.background");
     static final Color realBackground = Config.getItemColour("colour.graph.background");
@@ -36,8 +34,6 @@ public class GraphEditor extends JComponent
         motionListening = false;
 
         setBackground(background);
-
-        setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     public void setGraph(Graph graph)

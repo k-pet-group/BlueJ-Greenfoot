@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 518 2000-05-30 05:15:03Z ajp $
+ * @version $Id: Project.java 519 2000-05-31 04:05:07Z ajp $
  */
 public class Project
 {
@@ -233,7 +233,7 @@ public class Project
         if (qualifiedName.length() > 0) // should always be true (the unnamed package
                                         // always exists in the package collection)
         {
-            Package pkg = new Package(this, qualifiedName,
+            Package pkg = new Package(this, JavaNames.getBase(qualifiedName),
                                     getPackage(JavaNames.getPrefix(qualifiedName)));
 
             packages.put(qualifiedName, pkg);
