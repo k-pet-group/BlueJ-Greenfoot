@@ -1,0 +1,381 @@
+okay=Ok
+cancel=Avbryt
+close=Stäng
+
+main.invalidPackage=Paketet kunde inte hittas
+
+compileException=Undantag under kompilering
+compiler.thread.title=BlueJ kompilatortråd
+compiler.invalidcompiler=bluej.compiler.type är inte satt till en giltig kompilatortyp
+compiler.nocompiler=Kompilatorn kunde inte exekveras
+
+debugger.objectviewer.title=Objekt Inspekteraren: Objekt av Klass
+debugger.resultviewer.title=Metodresultat
+debugger.objectviewer.staticListTitle=Statiskt fält
+debugger.objectviewer.objListTitle=Objekt fält
+debugger.objectviewer.inspect=Inspektera
+debugger.objectviewer.get=Ta fram
+debugger.objectviewer.objectClassName=Objekt av Klass
+
+debugger.objectwrapper.methodException=Undantag vid metodanrop
+debugger.objectwrapper.invocationException=Undantag under invokering
+debugger.objectwrapper.inspect=Inspektera
+debugger.objectwrapper.remove=Ta Bort
+debugger.objectwrapper.serializable=Serialisera
+debugger.objectwrapper.redefined=Omdefinierad i
+debugger.objectwrapper.inherited=Ärvt från
+
+debugger.threadstatus.finished=klar
+debugger.threadstatus.breakpoint=vid brytpunkt
+debugger.threadstatus.stopped=stoppad
+debugger.threadstatus.monitor=vid monitor
+debugger.threadstatus.notstarted=inte startad
+debugger.threadstatus.running=kör
+debugger.threadstatus.sleeping=sover
+debugger.threadstatus.unknown=okänd status
+debugger.threadstatus.waiting=väntar
+debugger.threadstatus.zombie=zombie
+
+#Debugger messages
+debugger.jdiDebugger.noBreakpointMsg=Ta bort brytpunkt: Det finns ingen brytpunkt pa den här raden
+debugger.jdiDebugger.noLineNumberMsg=Den här klassen har kompilerats utan radnummerinformation.\nBrytpunkt kan inte sättas.
+debugger.jdiDebugger.noCodeMsg=Kan inte sätta brytpunkt: ingen kod på den här raden.
+debugger.jdiDebugger.internalErrorMsg=Det uppstod ett internt fel vid försök att\nsätta brytpunkt.
+
+#library browser configuration
+browser.title=Biblioteksläsare
+browser.version=0.1
+browser.tempdir=c:\\temp
+browser.togglemessagebox.toggle.text=visa inte det här meddelandet igen
+
+browser.librarychooser.loading.status=Laddar bibliotek...
+browser.librarychooser.loaded.status=Bibliotek laddat.
+browser.librarychooser.openingarchive.status=Öppnar arkivbibliotek
+browser.librarychooser.config.user=userlibs.properties
+
+browser.classchooser.classmenu.open=Öppna
+browser.classchooser.classmenu.use=Använd...
+browser.classchooser.packagemenu.open=Öppna
+browser.classchooser.packagemenu.use=Använd...
+
+browser.usepackage.dialog.text=Välj destinationspaket och klicka Ok
+
+browser.missingclass.text=Läsaren kan inte hitta klass $
+
+#library browser menus
+browser.menu.library=Bibliotek
+browser.menu.library.properties=Properties...
+browser.menu.library.addlibrary=Lägg till...
+browser.menu.library.addlibrary.title=Lägg till Bibliotek
+browser.menu.library.refresh=Ladda om
+browser.menu.library.close=Stäng
+
+# Class Manager user interface elements and error messages
+#
+classmgr.prefpaneltitle=Bibliotek
+classmgr.userlibraries=Användarbibliotek
+classmgr.systemlibraries=Systembibliotek
+classmgr.bootlibraries=Bootningsbibliotek
+classmgr.add=Lägg till
+classmgr.delete=Radera
+classmgr.locationcolumn=Plats
+classmgr.descriptioncolumn=Beskrivning
+classmgr.unresolvable=Obestämbar sökväg
+classmgr.bootclass=Bootningsklassbibliotek
+classmgr.bluejclass=BlueJs Klassbibliotek
+classmgr.error.unresolvable=Obestämbar sökväg
+classmgr.error.loadingconfig=Saknar konfigurationsfil. Filen används för att specificera\nett bibliotek som tillägg till standard bootbiblioteket.
+classmgr.error.savingconfig=Sparar konfigurationsfil.
+classmgr.error.missingclasspath=Ingen java "Classpath". Kan uppstå problem vid laddning av klasser\npå grund av att klasserna i arbetskatalogen kommer bestämmas först.
+classmgr.error.missingbootclasspath=Ingen Sun bootnings-"Classpath". Bluej ska inte köras med en miljö äldre än JDK 1.2.
+
+# Preferences Manager user interface elements and error messages
+prefmgr.title=Inställningar
+prefmgr.misc.prefpaneltitle=Blandat
+prefmgr.misc.editorfontsize=Fontstorlek i ordbehandlaren
+prefmgr.misc.usesyntaxhilighting=Använd "Syntax highlighting".
+prefmgr.misc.jdkurlpath=JDK dokumentations URL
+
+#---------------
+#Editor labels
+#---------------
+editor.title=BlueJ Ordbehandlare
+
+#button lables for toolbar commands
+editor.viewLabel1 = Implementation
+editor.viewLabel2 = Publik Vy
+editor.viewLabel3 = Paket Vy
+editor.viewLabel4 = Skyddad Vy
+editor.compileLabel = Kompilera
+editor.undoLabel = Ångra
+editor.cutLabel = Klipp
+editor.copyLabel = Kopiera
+editor.pasteLabel = Klistra in
+editor.findLabel = Hitta...
+editor.find-nextLabel = Hitta nästa
+editor.closeLabel = Stäng
+editor.page-setupLabel = Page Setup...
+
+# menu labels (MUST be defined)
+editor.classLabel = Klass
+editor.editLabel = Redigera
+editor.toolsLabel = Verktyg
+editor.debugLabel = Avlusa
+editor.optionLabel = Välj
+editor.helpLabel = Hjälp
+
+# item labels (can be omitted if same as action name)
+editor.saveLabel = Spara
+editor.reloadLabel = Ladda om
+editor.printLabel = Skriv ut...
+editor.closeLabel = Stäng
+
+editor.redoLabel = Gör om
+editor.cut-to-clipboardLabel = Klipp ut
+editor.copy-to-clipboardLabel = Kopiera
+editor.paste-from-clipboardLabel = Klistra in
+editor.commentLabel = Kommentera
+editor.uncommentLabel = Ta bort kommentar
+editor.insert-methodLabel = Infoga metod
+
+editor.find-backwardLabel = Hitta baklänges...
+editor.replaceLabel = Ersätt...
+editor.goto-lineLabel = Gå till rad...
+editor.compileLabel = Kompilera
+editor.toggle-breakpointLabel = Sätt/Ta bort brytpunkt
+
+editor.state.readOnly = endast läsning
+editor.state.saved = sparad
+editor.state.changed = ändrad
+
+editor.key-bindingsLabel = Tangentbordskommandon...
+editor.preferencesLabel = Inställningar...
+
+# Dialog titles and texts
+editor.functions.title = Ordbehandlarfunktioner
+editor.functions.editFunctions = Ordbehandlarfunktioner
+editor.functions.moveScroll = Flytta & Scrolla
+editor.functions.classFunctions = Klassfunktioner
+editor.functions.customisation = Customisation
+editor.functions.help = Hjälp
+editor.functions.misc = Övrigt
+editor.functions.defaults=Default värden
+editor.functions.categories=Kategorier:
+editor.functions.keys=Tangentbordskommando
+editor.functions.addkey=Lägg till kommando
+editor.functions.delkey=Radera kommando
+
+editor.find.title = Hitta
+editor.find.textfield.label = Hitta:
+editor.find.forward=Framlänges
+editor.find.backward=Baklänges
+
+#Messages, warnings, etc that is displayed by Info.java
+editor.info.version = Moe version 0.4
+editor.info.readingProblem = Det uppstod problem vid läsning av den här filen.
+editor.info.regularFile = (Är det här verkligen en vanlig fil? Har du läsrättigheter?)
+editor.info.newFile = Ny fil
+editor.info.errorSaving = fel uppstod vid sparande av fil!
+editor.info.compiled = Klass kompilerad - inga syntaktiska fel
+editor.info.noChanges = Inga ändringar att spara
+editor.info.cannotReload = Kan inte ladda om - Den här texten har aldrig blivit sparad!
+editor.info.reload = (\"Reload\" laddar om det senast sparade tillståndet från disk.)
+editor.info.emptySearchString = Tom söksträng.
+editor.info.notFound = Hittades ej
+editor.info.compiling = Kompilerar...
+editor.info.cannotSetBreak = Kan inte sätta brytpunkt:\nIngen kod associerad med detta ordbehandlarfönster.
+editor.info.fileDisappeared = ERROR: Filen verkar ha försvunnit!
+editor.info.fileReadError = ERROR: Ett fel uppstod vid läsning av den här filen.
+editor.info.saved = Fil sparad
+editor.info.printing = Printing...
+editor.info.printed = Printing... Done.
+editor.info.cancelled = Cancelled.
+
+editor.printer.continued=forts
+#End Editor labels
+
+pkgmgr.noTitle=<ingenTitel>
+pkgmgr.chooseUsesFrom=Välj klass som beroendet kommer ifrån
+pkgmgr.chooseUsesTo=Välj klass som den beror på
+pkgmgr.chooseInhFrom=Välj subklass
+pkgmgr.chooseInhTo=Välj superklass
+pkgmgr.chooseArrow=Välj pil att radera
+pkgmgr.packageSaved=Paket sparat
+pkgmgr.info.printing = Printing...
+pkgmgr.info.printed = Printing... Done.
+
+# dialog titles and texts
+
+pkgmgr.newPkg.title=Nytt Paket
+pkgmgr.newPkg.buttonLabel=Skapa
+pkgmgr.openPkg.title=Öppna Paket
+pkgmgr.openPkg.buttonLabel=Öppna i BlueJ
+pkgmgr.saveAs.title=Spara Paket
+pkgmgr.saveAs.buttonLabel=Spara
+pkgmgr.importClass.title=Välj Klass för Import
+pkgmgr.importClass.buttonLabel=Importera
+pkgmgr.importPkg.title=Importera Paket
+pkgmgr.newClass.msg=Ange klassens namn
+pkgmgr.newUses=Ny Använder Pil
+pkgmgr.newExtends=Ny Extends Pil
+pkgmgr.unimplemented=Tyvärr - inte implementerat ännu
+pkgmgr.pkgChooseError=Fel vid val av giltigt Paketnamn
+pkgmgr.chooseWebPage.title=Välj destination för HTML sida
+
+pkgmgr.classmenu.runApplet=Kör Applet
+pkgmgr.classmenu.edit=Editera Implementation
+pkgmgr.classmenu.public=Public Vy
+pkgmgr.classmenu.package=Paket Vy
+pkgmgr.classmenu.inherited=Ärvd Vy
+pkgmgr.classmenu.compile=Kompilera
+pkgmgr.classmenu.remove=Ta Bort
+pkgmgr.view.label=Visa
+pkgmgr.view.usesLabel=Använder
+pkgmgr.view.inheritLabel=Arv
+
+# "new class" dialog
+pkgmgr.newClass.title=Skapa Ny Klass
+pkgmgr.newClass.label=Klassens namn:
+pkgmgr.newClass.classType=Klasstyp
+pkgmgr.newClass.newClass=Klass
+pkgmgr.newClass.newAbstractClass=Abstrakt klass
+pkgmgr.newClass.newInterface=Interface
+pkgmgr.newClass.newApplet=Applet
+
+# "export" dialog ##TO BE TRANSLATED##
+pkgmgr.export.title=BlueJ:  Export Project
+pkgmgr.export.helpLine1=Export stores a copy of the current project in
+pkgmgr.export.helpLine2=standard Java (non-BlueJ) format.
+pkgmgr.export.directoryLabel=Store as directory structure
+pkgmgr.export.jarFileLabel=Store as jar file
+pkgmgr.export.classLabel=main class:
+pkgmgr.export.sourceLabel=include source
+
+# run applet dialog
+pkgmgr.runApplet.title=Kör Applet
+pkgmgr.runApplet.webPageLabel=Skapa Websida
+pkgmgr.runApplet.webPage=Generera endast websida
+pkgmgr.runApplet.appletviewer=Kör applet i "appletviewer"
+pkgmgr.runApplet.webBrowser=Kör applet i webbläsare
+pkgmgr.runApplet.heightLbl=Höjd =
+pkgmgr.runApplet.widthLbl=Bredd =
+pkgmgr.runApplet.newParameterLbl=Lägg till ny parameter
+pkgmgr.runApplet.appletParameterLbl= Appletparametrar
+pkgmgr.runApplet.nameLbl=Namn =
+pkgmgr.runApplet.valueLbl=Värde =
+pkgmgr.runApplet.paramName=PARAM NAMN
+pkgmgr.runApplet.value=VÄRDE
+pkgmgr.runApplet.htmlComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  It is regenerated automatically each time the  -->\n<!-- applet is run.  Any manual changes made to file will be lost -->\n<!-- when the applet is next run inside BlueJ.  Save into a       -->\n<!-- directory outside of the Package directory if you want to    -->\n<!-- preserve this file. -->
+
+pkgmgr.runApplet.htmlExportedComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  The codebase variable is set to the absolute path to   -->\n<!-- the bluej Package directory of the applet at the time of this page being generated. -->\n<!-- If the location of that Paket alters you will nedd to edit the codebase value.       -->
+
+
+# method call dialog
+pkgmgr.methodCall.titleCreate=Skapa Objekt
+pkgmgr.methodCall.titleCall=Metodanrop
+pkgmgr.methodCall.namePrompt=Instansen namn:
+pkgmgr.methodCall.=Interface
+error.methodCall.emptyField=Tomt parameterfält
+error.methodCall.illegalName=Instansens namn maste vara en Java "Identifier".
+error.methodCall.duplicateName=Ett objekt med det här namnet existerar redan.\nVar god välj ett unikt namn.
+
+# Debugger dialog (ExecControls.java)
+debugger.execControls.windowTitle = BlueJ Avlusare
+debugger.execControls.stackTitle = Anropssekvens
+debugger.execControls.instanceTitle = Instansvariabler
+debugger.execControls.localTitle = Lokala variabler
+debugger.execControls.threadTitle = Trådar
+debugger.execControls.updateText = Uppdatera
+
+# DialogManager labels
+dialogmgr.error = Fel
+dialogmgr.question = Fråga
+dialogmgr.message = Meddelande
+
+#Terminal Window ##TO BE TRANSLATED##
+terminal.title = BlueJ Terminalfönster
+terminal.clear = Clear
+terminal.copy = Copy
+terminal.save = Save to file...
+terminal.close = Close
+terminal.save.title = Save terminal text
+terminal.save.buttonText = Save
+
+# status messages
+pkgmgr.compiling=Kompilerar...
+pkgmgr.compileDone=Kompilerar... Klar
+pkgmgr.creating=Skapar objekt...
+pkgmgr.createDone=Skapar objekt... Klar
+pkgmgr.creatingVM=Skapar virtuell maskin...
+pkgmgr.creatingVMDone=Skapar virtuell maskin... Klar
+pkgmgr.webBrowserMsg=Webbläsare har startats.
+pkgmgr.webBrowserError=Fel vid start av webbläsare.
+pkgmgr.usesArrowMsg="Använder" beroende har deklarerats men används inte:
+pkgmgr.breakpointMsg=En klass måste vara kompilerad för att brytpunkter ska kunna sättas.
+pkgmgr.appletInViewer=Kör applet i "appletviewer"
+pkgmgr.appletInBrowser=Kör applet i webbläsare
+
+properties.heading=BlueJ properties. Settings in this file override \"bluej.defs\"
+# menus and menu items
+
+menu.package=Paket
+menu.package.new=Nytt...
+menu.package.open=Öppna...
+menu.package.close=Stäng
+menu.package.save=Spara
+menu.package.saveAs=Spara som...
+menu.package.importClass=Importera klass...
+menu.package.pageSetup=Page Setup...
+menu.package.print=Skriv ut...
+menu.package.quit=Avsluta
+
+menu.edit=Redigera
+menu.edit.newClass=Ny Klass...
+# to be translated
+menu.edit.newPackage=New Package...
+# to be translated
+menu.edit.remove=Remove...
+menu.edit.newUses=Ny "Använder"-pil...
+menu.edit.newInherits=Ny Arvspil...
+menu.edit.removeArrow=Radera pil...
+
+menu.tools=Verktyg
+menu.tools.compile=Kompilera
+menu.tools.compileSelected=Kompilera Markerade
+menu.tools.rebuild=Bygg om paketet
+menu.tools.browse=Bläddra i bibliotek...
+menu.tools.preferences=Inställningar...
+
+menu.view=Visa
+menu.view.showUses=Visa Använder
+menu.view.showInherits=Visa Arv
+menu.view.showExecControls=Visa Debugger
+menu.view.showTerminal=Visa Terminal
+
+menu.group=Group Work
+menu.group.make=Make Group Paket
+menu.group.open=Öppna Group Paket
+menu.group.updateSelected=Update Markerade
+menu.group.updateAll=Update Alla
+menu.group.commitSelected=Commit Markerade
+menu.group.commitAll=Commit Alla
+menu.group.statusSelection=Status av Selection
+menu.group.statusAll=Status av Alla
+menu.group.users=Users
+menu.group.configuration=Configuration
+
+menu.help=Hjälp
+menu.help.tutorial=BlueJ Tutorial...
+menu.help.reference=BlueJ Referensmanual...
+menu.help.standardApi=Java Klassbibliotek...
+menu.help.about=Om BlueJ...
+menu.help.copyright=Copyright...
+
+# tool tips ##TO BE TRANSLATED##
+tooltip.newClass=Create a new class in this package
+tooltip.newUses=Insert a 'uses' relation
+tooltip.newExtends=Insert an inheritance relation
+tooltip.compile=Compile all uncompiled classes inthis package
+tooltip.showUses=Toggle display of 'uses' relations
+tooltip.showExtends=Toggle display of inheritance relations
+tooltip.progress=Work indicator: indicates when virtual machine is executing

@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 536 2000-06-11 12:07:53Z bquig $
+ * @version $Id: ClassTarget.java 555 2000-06-19 00:35:11Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -168,15 +168,15 @@ public class ClassTarget extends EditableTarget
     {
         boolean okay = true;
 
-        if (!BlueJFileReader.copyFile(getSourceFile(),
+        if (!FileUtility.copyFile(getSourceFile(),
                                       new File(directory, getBaseName() + ".java")))
             okay = false;
 
         if(upToDate()) {
-            if(!BlueJFileReader.copyFile(getClassFile(),
+            if(!FileUtility.copyFile(getClassFile(),
                                          new File(directory, getBaseName() + ".class")))
                 okay = false;
-            if(!BlueJFileReader.copyFile(getContextFile(),
+            if(!FileUtility.copyFile(getContextFile(),
                                          new File(directory, getBaseName() + ".ctxt")))
                 okay = false;
         }
@@ -651,7 +651,7 @@ public class ClassTarget extends EditableTarget
             File newSourceFile = new File(myPkg.getPath(), newName + ".java");
             File oldSourceFile = getSourceFile();
 
-            if(BlueJFileReader.copyFile(oldSourceFile, newSourceFile)) {
+            if(FileUtility.copyFile(oldSourceFile, newSourceFile)) {
 
                 ClassTarget newTarget = new ClassTarget(myPkg, newName);
                 newTarget.setPos(this.x, this.y);

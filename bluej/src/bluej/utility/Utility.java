@@ -15,7 +15,7 @@ import javax.swing.*;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 517 2000-05-25 07:58:59Z ajp $
+ * @version $Id: Utility.java 555 2000-06-19 00:35:11Z mik $
  */
 public class Utility
 {
@@ -129,11 +129,10 @@ public class Utility
 
         swap(arr, left, (left + right) / 2);
         last = left;
-        for(i = left + 1; i <= right; i++)
-            {
-                if(c.cmp(arr[i], arr[left]) < 0)
-                    swap(arr, ++last, i);
-            }
+        for(i = left + 1; i <= right; i++) {
+            if(c.cmp(arr[i], arr[left]) < 0)
+                swap(arr, ++last, i);
+        }
         swap(arr, left, last);
 
         quicksort(c, arr, left, last - 1);

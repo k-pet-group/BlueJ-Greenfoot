@@ -11,30 +11,37 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- * Dialog for choosing options when exporting
- *
- * @author  Andrew Patterson
- * @version $Id: ExportDialog.java 552 2000-06-14 22:24:17Z ajp $
- */
+* Dialog for choosing options when exporting
+*
+* @author  Andrew Patterson
+* @version $Id: ExportDialog.java 555 2000-06-19 00:35:11Z mik $
+*/
 class ExportDialog extends JDialog
-    implements ActionListener
+implements ActionListener
 {
     // Internationalisation
-    static final String okay = Config.getString("okay");
-    static final String cancel = Config.getString("cancel");
-    static final String newPackageTitle = Config.getString("pkgmgr.newPackage.title");
-    static final String newPackageLabel = Config.getString("pkgmgr.newPackage.label");
-    static final String classTypeStr = Config.getString("pkgmgr.newPackage.classType");
+    private static final String okay = Config.getString("okay");
+    private static final String cancel = Config.getString("cancel");
+    private static final String dialogTitle = Config.getString("pkgmgr.export.title");
+    private static final String helpLine1 = Config.getString("pkgmgr.export.helpLine1");
+    private static final String helpLine2 = Config.getString("pkgmgr.export.helpLine2");
+    private static final String directoryLabel = Config.getString("pkgmgr.export.directoryLabel");
+    private static final String jarFileLabel = Config.getString("pkgmgr.export.jarFileLabel");
+    private static final String classLabelText = Config.getString("pkgmgr.export.classLabel");
+    private static final String sourceLabel = Config.getString("pkgmgr.export.sourceLabel");
 
-    private String newPackageName = "";
+    private String mainClassName = "";
 
-    private JTextField textFld;
+    private JRadioButton directoryButton;
+    private JRadioButton jarButton;
+    private JTextField textField;
+    private JCheckBox sourceBox;
 
     private boolean ok;		// result: which button?
 
     public ExportDialog(JFrame parent)
     {
-        super(parent, newPackageTitle, true);
+        super(parent, dialogTitle, true);
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -43,20 +50,60 @@ class ExportDialog extends JDialog
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
             mainPanel.setBorder(Config.dialogBorder);
 
-            JLabel newclassTag = new JLabel(newPackageLabel);
-            {
-                newclassTag.setAlignmentX(LEFT_ALIGNMENT);
-            }
+            JLabel helpText1 = new JLabel(helpLine1);
+            mainPanel.add(helpText1);
 
-            textFld = new JTextField(24);
-            {
-                textFld.setAlignmentX(LEFT_ALIGNMENT);
-            }
+            JLabel helpText2 = new JLabel(helpLine2);
+            mainPanel.add(helpText2);
 
-            mainPanel.add(newclassTag);
-            mainPanel.add(textFld);
+            Font smallFont = helpText1.getFont().deriveFont(10);
+            helpText1.setFont(smallFont);
+            helpText2.setFont(smallFont);
+
             mainPanel.add(Box.createVerticalStrut(5));
 
+            JPanel inputPanel = new JPanel();
+            {
+                inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
+                inputPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+                //create compound border empty border outside of a titled border
+				inputPanel.setBorder(BorderFactory.createCompoundBorder(
+						BorderFactory.createEtchedBorder(),
+						BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+
+                directoryButton = new JRadioButton(directoryLabel, true);
+                jarButton = new JRadioButton(jarFileLabel, false);
+
+                ButtonGroup bGroup = new ButtonGroup();
+                {
+                    bGroup.add(directoryButton);
+                    bGroup.add(jarButton);
+                }
+                //directoryButton.setNextFocusableComponent(jarButton);
+
+                inputPanel.add(directoryButton);
+                inputPanel.add(jarButton);
+                inputPanel.add(Box.createVerticalStrut(5));
+
+                JLabel classLabel = new JLabel(classLabelText);
+                {
+                    classLabel.setAlignmentX(LEFT_ALIGNMENT);
+                }
+                inputPanel.add(classLabel);
+
+                textField = new JTextField(24);
+                {
+                    textField.setAlignmentX(LEFT_ALIGNMENT);
+                }
+                inputPanel.add(textField);
+                inputPanel.add(Box.createVerticalStrut(5));
+
+                sourceBox = new JCheckBox(sourceLabel, true);
+                inputPanel.add(sourceBox);
+            }
+
+            mainPanel.add(inputPanel);
             mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
 
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -88,9 +135,10 @@ class ExportDialog extends JDialog
 
         getContentPane().add(mainPanel);
         pack();
+        textField.requestFocus();
 
         DialogManager.centreDialog(this);
-	}
+    }
 
     /**
      * Show this dialog and return true if "OK" was pressed, false if
@@ -99,14 +147,34 @@ class ExportDialog extends JDialog
     public boolean display()
     {
         ok = false;
-        textFld.requestFocus();
         setVisible(true);
+        textField.requestFocus();
         return ok;
     }
 
-    public String getPackageName()
+    /**
+     * Return the name of the main class in the project.
+     */
+    public String getMainClass()
     {
-        return newPackageName;
+        return mainClassName;
+    }
+
+    /**
+     * Return true if user wants to save in jar file, false for saving
+     * in directory.
+     */
+    public boolean saveAsJar()
+    {
+        return jarButton.isSelected();
+    }
+
+    /**
+     * Return true if user wants to include the source.
+     */
+    public boolean includeSource()
+    {
+        return sourceBox.isSelected();
     }
 
     public void actionPerformed(ActionEvent evt)
@@ -121,25 +189,25 @@ class ExportDialog extends JDialog
     /**
      * Close action when OK is pressed.
      */
-    public void doOK()
+    private void doOK()
     {
-        newPackageName = textFld.getText().trim();
+        mainClassName = textField.getText().trim();
 
-        if (JavaNames.isIdentifier(newPackageName)) {
+        if (/*everything okay?*/ true) {
             ok = true;
             setVisible(false);
         }
         else {
             DialogManager.showError((JFrame)this.getParent(), "invalid-package-name");
-            textFld.selectAll();
-            textFld.requestFocus();
+            textField.selectAll();
+            textField.requestFocus();
         }
     }
 
     /**
      * Close action when Cancel is pressed.
      */
-    public void doCancel()
+    private void doCancel()
     {
         ok = false;
         setVisible(false);

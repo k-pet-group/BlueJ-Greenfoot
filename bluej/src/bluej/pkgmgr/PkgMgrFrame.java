@@ -26,7 +26,7 @@ import bluej.browser.LibraryBrowser;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 552 2000-06-14 22:24:17Z ajp $
+ * @version $Id: PkgMgrFrame.java 555 2000-06-19 00:35:11Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
@@ -85,7 +85,7 @@ public class PkgMgrFrame extends JFrame
     private Package pkg = null;
 
     /* The graph editor which works on the package or null for the case where
-        there is no package current being edited (isEmptyFrame() == true) */
+       there is no package current being edited (isEmptyFrame() == true) */
     private PackageEditor editor = null;
 
     /* A silly variable which is used by one of our inner classes. It is
@@ -177,7 +177,7 @@ public class PkgMgrFrame extends JFrame
     public static PkgMgrFrame[] getAllFrames()
     {
         if (frames.size() == 0)
-            return null;
+        return null;
 
         PkgMgrFrame[] openFrames = new PkgMgrFrame[frames.size()];
         frames.toArray(openFrames);
@@ -201,7 +201,7 @@ public class PkgMgrFrame extends JFrame
         }
 
         if (count == 0)
-            return null;
+        return null;
 
         PkgMgrFrame[] projectFrames = new PkgMgrFrame[count];
 
@@ -230,7 +230,7 @@ public class PkgMgrFrame extends JFrame
         return null;
     }
 
-   /**
+    /**
      * Refresh (repaint()) all open frames.
      * Called when class diagram notation style is changed
      * in PrefMgr.
@@ -319,7 +319,7 @@ public class PkgMgrFrame extends JFrame
         }
 
         this.pkg = pkg;
-        this.editor = new PackageEditor(pkg, this);
+        this.editor = new PackageEditor(pkg);
         this.pkg.editor = this.editor;
 
         classScroller.setViewportView(editor);
@@ -329,11 +329,11 @@ public class PkgMgrFrame extends JFrame
         Properties p = pkg.getLastSavedProperties();
 
         String width_str = p.getProperty(
-                                        "package.editor.width",
-                                        Integer.toString(DEFAULT_WIDTH));
+                                         "package.editor.width",
+                                         Integer.toString(DEFAULT_WIDTH));
         String height_str = p.getProperty(
-                                        "package.editor.height",
-                                        Integer.toString(DEFAULT_HEIGHT));
+                                          "package.editor.height",
+                                          Integer.toString(DEFAULT_HEIGHT));
 
         classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str),
                                                      Integer.parseInt(height_str)));
@@ -346,12 +346,12 @@ public class PkgMgrFrame extends JFrame
         // item. This code will delay the menu disable
         // until after menu processing has finished
         Runnable enableUI = new Runnable() {
-            public void run() {
-                enableFunctions(true);  // changes menu items
-                updateWindowTitle();
-                show();
-            }
-        };
+                public void run() {
+                    enableFunctions(true);  // changes menu items
+                    updateWindowTitle();
+                    show();
+                }
+            };
 
         SwingUtilities.invokeLater(enableUI);
     }
@@ -380,11 +380,11 @@ public class PkgMgrFrame extends JFrame
         // item. This code will delay the menu disable
         // until after menu processing has finished
         Runnable disableUI = new Runnable() {
-            public void run() {
-                enableFunctions(false);  // changes menu items
-                updateWindowTitle();
-            }
-        };
+                public void run() {
+                    enableFunctions(false);  // changes menu items
+                    updateWindowTitle();
+                }
+            };
 
         SwingUtilities.invokeLater(disableUI);
     }
@@ -463,7 +463,7 @@ public class PkgMgrFrame extends JFrame
         }
         else {
             String title = "BlueJ:  " + getProject().
-                                            getProjectName();
+                getProjectName();
 
             if (!getPackage().isUnnamedPackage())
                 title = title + "  [" + getPackage().getQualifiedName() + "]";
@@ -516,80 +516,22 @@ public class PkgMgrFrame extends JFrame
         int evtId = e.getID();
 
         switch(evtId) {
-         case PackageEditorEvent.TARGET_CALLABLE:   // user has initiated method call or constructor
-
-            ResultWatcher watcher = null;
-            CallableView cv = e.getCallable();
-
-
-            if(cv instanceof ConstructorView)
-            {
-                // if we are constructing an object, create a watcher that waits for
-                // completion of the call and then places the object on the object
-                // bench
-                watcher = new ResultWatcher() {
-                    public void putResult(DebuggerObject result, String name) {
-                        if((name == null) || (name.length() == 0))
-                            name = "result";
-                        if(result != null) {
-                            ObjectWrapper wrapper =
-                                new ObjectWrapper(outer, result.getInstanceFieldObject(0),
-                                                   name);
-                            getObjectBench().add(wrapper);
-                        }
-                        else
-                            Debug.reportError("cannot get execution result");
-                    }
-                };
-            }
-            else if(cv instanceof MethodView)
-            {
-                // if we are calling a method that has a result, create a watcher
-                // that waits for completion of the call and then displays the
-                // result
-                if(!((MethodView)cv).isVoid()) {
-                    watcher = new ResultWatcher() {
-                        public void putResult(DebuggerObject result, String name) {
-                            ObjectViewer viewer =
-                                ObjectViewer.getViewer(false, result, name, getPackage(), true,
-                                                       outer);
-                        }
-                    };
-                }
-            }
-
-            // create an Invoker to handle the actual invocation
-
-            new Invoker(this, cv, null, watcher);
+        case PackageEditorEvent.TARGET_CALLABLE:   // user has initiated method call or 
+                                                   //  constructor
+            callMethod(e.getCallable());
             break;
 
-         case PackageEditorEvent.TARGET_REMOVE:     // user has initiated target "remove" option
+        case PackageEditorEvent.TARGET_REMOVE:     // user has initiated target "remove" option
             ClassTarget t = (ClassTarget) e.getSource();
-
             removeClass(t);
             break;
 
-         case PackageEditorEvent.TARGET_OPEN:       // user has initiated a package open operation
-			String newname = e.getName();
-
-			Package p = getPackage().getProject().getPackage(newname);
-            PkgMgrFrame newframe = createFrame(p);
-
-            newframe.show();
+        case PackageEditorEvent.TARGET_OPEN:       // user has initiated a package open operation
+            openPackageTarget(e.getName());
             break;
 
-         case PackageEditorEvent.OBJECT_PUTONBENCH:
-            ObjectWrapper wrapper = new ObjectWrapper(this,
-                                                       e.getDebuggerObject(),
-                                                       e.getFieldName());
-            getObjectBench().add(wrapper);  // might change name
-
-            // load the object into runtime scope
-            Debugger.debugger.addObjectToScope(getPackage().getId(),
-                                                e.getInstanceName(),
-                                                e.getFieldName(),
-                                                wrapper.getName());
-
+        case PackageEditorEvent.OBJECT_PUTONBENCH:
+            putObjectOnBench(e.getDebuggerObject(), e.getFieldName(), e.getInstanceName());
             break;
         }
     }
@@ -613,29 +555,33 @@ public class PkgMgrFrame extends JFrame
         clearStatus();
 
         switch(evtId) {
-         // Project commands
-         case PROJ_NEW:                 // can be executed when isEmptyFrame() is true
+            // Project commands
+        case PROJ_NEW:                 // can be executed when isEmptyFrame() is true
             doNewProject();
             break;
 
-         case PROJ_OPEN:                // can be executed when isEmptyFrame() is true
+        case PROJ_OPEN:                // can be executed when isEmptyFrame() is true
             doOpen();
             break;
 
-         case PROJ_CLOSE:
+        case PROJ_CLOSE:
             doClose(true);
             break;
 
-         case PROJ_SAVE:
+        case PROJ_SAVE:
             doSave();
             setStatus(packageSaved);
             break;
 
-         case PROJ_IMPORT:
+        case PROJ_SAVEAS:
+            doSaveAs();
+            break;
+
+        case PROJ_IMPORT:
             doImport();
             break;
 
-         case PROJ_EXPORT:
+        case PROJ_EXPORT:
             doExport();
             break;
 
@@ -643,11 +589,11 @@ public class PkgMgrFrame extends JFrame
             pageSetup();
             break;
 
-         case PROJ_PRINT:
+        case PROJ_PRINT:
             print();
             break;
 
-         case PROJ_QUIT:                // can be executed when isEmptyFrame() is true
+        case PROJ_QUIT:        // can be executed when isEmptyFrame() is true
             int answer = 0;
             if(frameCount() > 1)
                 answer = DialogManager.askQuestion(this, "quit-all");
@@ -657,40 +603,40 @@ public class PkgMgrFrame extends JFrame
             break;
 
             // Edit commands
-         case EDIT_NEWCLASS:
+        case EDIT_NEWCLASS:
             createNewClass();
             break;
 
-         case EDIT_NEWPACKAGE:
+        case EDIT_NEWPACKAGE:
             createNewPackage();
             break;
 
-         case EDIT_REMOVE:
+        case EDIT_REMOVE:
             removeClass();
             break;
 
-         case EDIT_NEWUSES:
+        case EDIT_NEWUSES:
             pkg.setState(Package.S_CHOOSE_USES_FROM);
             setStatus(chooseUsesFrom);
             break;
 
-         case EDIT_NEWINHERITS:
+        case EDIT_NEWINHERITS:
             pkg.setState(Package.S_CHOOSE_EXT_FROM);
             setStatus(chooseInhFrom);
             break;
 
-         case EDIT_REMOVEARROW:
+        case EDIT_REMOVEARROW:
             pkg.setState(Package.S_DELARROW);
             setStatus(chooseArrow);
             break;
 
             // Tools commands
-         case TOOLS_COMPILE:
+        case TOOLS_COMPILE:
             pkg.compile();
             break;
 
-         case TOOLS_COMPILESELECTED:
-            DialogManager.NYI(this);
+        case TOOLS_COMPILESELECTED:
+            compileSelected();
             break;
 
         case TOOLS_REBUILD:
@@ -699,14 +645,14 @@ public class PkgMgrFrame extends JFrame
 
         case TOOLS_BROWSE:
             DialogManager.NYI(this);
-//            LibraryBrowser lb = new LibraryBrowser();
+            //            LibraryBrowser lb = new LibraryBrowser();
             break;
 
         case TOOLS_PREFERENCES:         // can be executed when isEmptyFrame() is true
             PrefMgrDialog.showDialog(this);
             break;
 
-        // View commands
+            // View commands
         case VIEW_SHOWUSES:
             toggleShowUses(src);
             break;
@@ -753,15 +699,15 @@ public class PkgMgrFrame extends JFrame
 
         case HELP_COPYRIGHT:
         	JOptionPane.showMessageDialog(this,
-        	new String[] {
-        	    "BlueJ \u00a9 2000 Michael K\u00F6lling, John Rosenberg.",
-        	    " ",
-        	    "BlueJ is available free of charge and may be",
-        	    "redistributed freely. It may not be sold for",
-        	    "profit or included in other packages which",
-        	    "are sold for profit without written authorisation."
-        	    },
-        	"BlueJ Copyright", JOptionPane.INFORMATION_MESSAGE);
+                                          new String[] {
+                                              "BlueJ \u00a9 2000 Michael K\u00F6lling, John Rosenberg.",
+                                              " ",
+                                              "BlueJ is available free of charge and may be",
+                                              "redistributed freely. It may not be sold for",
+                                              "profit or included in other packages which",
+                                              "are sold for profit without written authorisation."
+                                          },
+                                          "BlueJ Copyright", JOptionPane.INFORMATION_MESSAGE);
             break;
 
         default:
@@ -779,16 +725,14 @@ public class PkgMgrFrame extends JFrame
     {
         String newname = FileUtility.getFileName(this, newpkgTitle, createLabel);
 
-        if (Project.createNewProject(newname))
-        {
+        if (Project.createNewProject(newname)) {
             Project proj = Project.openProject(newname);
-
+            
             if(isEmptyFrame()) {
                 openPackage(proj.getPackage(""));
             }
             else {
                 PkgMgrFrame pmf = createFrame(proj.getPackage(""));
-
                 pmf.show();
             }
         }
@@ -808,7 +752,7 @@ public class PkgMgrFrame extends JFrame
             if((openProj = Project.openProject(pkgPath)) != null) {
 
                 Package pkg = openProj.getPackage(
-                                openProj.getInitialPackageName());
+                                                  openProj.getInitialPackageName());
 
                 PkgMgrFrame pmf;
 
@@ -908,16 +852,16 @@ public class PkgMgrFrame extends JFrame
                 return;
             }
 
-	    // save package under new name
+            // save package under new name
 
-	    //mik:Main.removePackage(pkg);	// remove under old name
-	    int result = pkg.saveAs(newname);
-	    //mik:Main.addPackage(pkg);	// add under new name
+            //mik:Main.removePackage(pkg);	// remove under old name
+            int result = pkg.saveAs(newname);
+            //mik:Main.addPackage(pkg);	// add under new name
 
-	    if(result == Package.CREATE_ERROR)
-		DialogManager.showError(this, "cannot-write-package");
-	    else if(result == Package.COPY_ERROR)
-		DialogManager.showError(this, "cannot-copy-package");
+            if(result == Package.CREATE_ERROR)
+                DialogManager.showError(this, "cannot-write-package");
+            else if(result == Package.COPY_ERROR)
+                DialogManager.showError(this, "cannot-copy-package");
 
             updateWindowTitle();
         }
@@ -957,9 +901,8 @@ public class PkgMgrFrame extends JFrame
      */
     private void doExport()
     {
-        ExportDialog ed = new ExportDialog(this);
-
-        ed.show();
+        ExportManager exporter = new ExportManager(this);
+        exporter.export();
     }
 
     /**
@@ -973,7 +916,7 @@ public class PkgMgrFrame extends JFrame
     }
 
 
-     /**
+    /**
      * print - implementation of the "print" user function
      */
     private void print()
@@ -1051,15 +994,6 @@ public class PkgMgrFrame extends JFrame
     } // end of nested class PrinterThread
 
 
-    public void resetDependencyButtons()
-    {
-        // pop them up
-//        if (imgUsesButton != null) {
-            // imgUsesButton.resetState();
-            // imgExtendButton.resetState();
-//            }
-    }
-
     // Add a title to printouts
     static final int PRINT_HMARGIN = 6;
     static final int PRINT_VMARGIN = 24;
@@ -1108,16 +1042,85 @@ public class PkgMgrFrame extends JFrame
 
         // write header
         /*XXX        String title = (packageName == noPackage) ? dirname : packageName;
-        g.setFont(printTitleFont);
-        Utility.drawCentredText(g, "BlueJ package - " + title,
-                                printArea.x, printArea.y,
-                                printArea.width, tfm.getHeight());
-        // write footer
-        g.setFont(printInfoFont);
-        DateFormat dateFormat = DateFormat.getDateTimeInstance();
-        Utility.drawRightText(g, dateFormat.format(new Date()) + ", page " + pageNum,
-                              printArea.x, printArea.y + printArea.height - PRINT_VMARGIN,
-                              printArea.width, ifm.getHeight()); */
+          g.setFont(printTitleFont);
+          Utility.drawCentredText(g, "BlueJ package - " + title,
+          printArea.x, printArea.y,
+          printArea.width, tfm.getHeight());
+          // write footer
+          g.setFont(printInfoFont);
+          DateFormat dateFormat = DateFormat.getDateTimeInstance();
+          Utility.drawRightText(g, dateFormat.format(new Date()) + ", page " + pageNum,
+          printArea.x, printArea.y + printArea.height - PRINT_VMARGIN,
+          printArea.width, ifm.getHeight()); */
+    }
+
+    /**
+     * Interactively call a method or a constructor
+     */
+    private void callMethod(CallableView cv)
+    {
+        ResultWatcher watcher = null;
+
+        if(cv instanceof ConstructorView) {
+            // if we are constructing an object, create a watcher that waits for
+            // completion of the call and then places the object on the object
+            // bench
+            watcher = new ResultWatcher() {
+                    public void putResult(DebuggerObject result, String name) {
+                        if((name == null) || (name.length() == 0))
+                            name = "result";
+                        if(result != null) {
+                            ObjectWrapper wrapper =
+                                new ObjectWrapper(outer, result.getInstanceFieldObject(0),
+                                                  name);
+                            getObjectBench().add(wrapper);
+                        }
+                        else
+                            Debug.reportError("cannot get execution result");
+                    }
+                };
+        }
+        else if(cv instanceof MethodView) {
+            // if we are calling a method that has a result, create a watcher
+            // that waits for completion of the call and then displays the
+            // result
+            if(!((MethodView)cv).isVoid()) {
+                watcher = new ResultWatcher() {
+                        public void putResult(DebuggerObject result, String name) {
+                            ObjectViewer viewer =
+                                ObjectViewer.getViewer(false, result, name, getPackage(), true,
+                                                       outer);
+                        }
+                    };
+            }
+        }
+
+        // create an Invoker to handle the actual invocation
+
+        new Invoker(this, cv, null, watcher);
+    }
+
+    /**
+     * Open a package target.
+     */
+    private void openPackageTarget(String newname)
+    {
+        Package p = getPackage().getProject().getPackage(newname);
+        PkgMgrFrame newframe = createFrame(p);
+        newframe.show();
+    }
+
+    /**
+     * Create an object on the object bench.
+     */
+    private void putObjectOnBench(DebuggerObject object, String fieldName, String instanceName)
+    {
+        ObjectWrapper wrapper = new ObjectWrapper(this, object, fieldName);
+        getObjectBench().add(wrapper);  // might change name
+
+        // load the object into runtime scope
+        Debugger.debugger.addObjectToScope(getPackage().getId(), instanceName,
+                                           fieldName, wrapper.getName());
     }
 
     /**
@@ -1171,23 +1174,23 @@ public class PkgMgrFrame extends JFrame
                 File newpkgDir = new File(getPackage().getPath(), name);
 
                 if(newpkgDir.mkdir())
-                {
-                    File newpkgFile = new File(newpkgDir, Package.pkgfileName);
-
-                    try {
-                        if(newpkgFile.createNewFile())
-                        {
-                            PackageTarget target = new PackageTarget(pkg, name);
-
-                            pkg.addTarget(target);
-                            editor.repaint();
-                        }
-                    }
-                    catch(IOException ioe)
                     {
+                        File newpkgFile = new File(newpkgDir, Package.pkgfileName);
 
+                        try {
+                            if(newpkgFile.createNewFile())
+                                {
+                                    PackageTarget target = new PackageTarget(pkg, name);
+
+                                    pkg.addTarget(target);
+                                    editor.repaint();
+                                }
+                        }
+                        catch(IOException ioe)
+                            {
+
+                            }
                     }
-                }
             }
         }
     }
@@ -1198,17 +1201,16 @@ public class PkgMgrFrame extends JFrame
      */
     public void removeClass()
     {
-	Target target = pkg.getSelectedTarget();
+        Target target = pkg.getSelectedTarget();
 
-	if(target == null)
-	    DialogManager.showError(this, "no-class-selected");
-	else {
-		if(target instanceof ClassTarget)
-		{
-			ClassTarget t = (ClassTarget) target;
-	    		removeClass(t);
-		}
-	}
+        if(target == null)
+            DialogManager.showError(this, "no-class-selected");
+        else {
+            if(target instanceof ClassTarget) {
+                ClassTarget t = (ClassTarget) target;
+                removeClass(t);
+            }
+        }
     }
 
     /**
@@ -1223,6 +1225,25 @@ public class PkgMgrFrame extends JFrame
         if(response == 0)
             pkg.removeClass(removableTarget);
     }
+
+
+    /**
+     * Compiles the currently selected class target.
+     */
+    public void compileSelected()
+    {
+        Target target = pkg.getSelectedTarget();
+
+        if(target == null)
+            DialogManager.showError(this, "no-class-selected");
+        else {
+            if(target instanceof ClassTarget) {
+                ClassTarget t = (ClassTarget) target;
+                pkg.compile(t);
+            }
+        }
+    }
+
 
     public void toggleShowUses(Object src)
     {
@@ -1463,7 +1484,7 @@ public class PkgMgrFrame extends JFrame
             buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));
             String newClassString = Config.getString("menu.edit." +
-                                        EditCmds[EDIT_NEWCLASS - EDIT_COMMAND]);
+                                                     EditCmds[EDIT_NEWCLASS - EDIT_COMMAND]);
 
             JButton button = new JButton(newClassString);
             button.setFont(PkgMgrFont);
@@ -1499,7 +1520,7 @@ public class PkgMgrFrame extends JFrame
             setButtonImages();
 
             String compileString = Config.getString("menu.tools." +
-                                        ToolsCmds[TOOLS_COMPILE - TOOLS_COMMAND]);
+                                                    ToolsCmds[TOOLS_COMPILE - TOOLS_COMMAND]);
             button = new JButton(compileString);
             button.setFont(PkgMgrFont);
             button.setToolTipText(Config.getString("tooltip.compile"));
@@ -1545,14 +1566,14 @@ public class PkgMgrFrame extends JFrame
         showExtendsCheckbox.addItemListener(this);
         showExtendsCheckbox.setFont(PkgMgrFont);
         showExtendsCheckbox.setToolTipText(Config.getString(
-                                                   "tooltip.showExtends"));
+                                                            "tooltip.showExtends"));
         // showExtendsCheckbox.setMargin(new Insets(0,0,0,0));
         actions.put(showExtendsCheckbox, new Integer(VIEW_SHOWINHERITS));
         showPanel.add(showExtendsCheckbox);
         viewPanel.add("Center",showPanel);
 
         // Image Button Panel to hold the Progress Image
-//        JPanel progressPanel = new JPanel ();
+        //        JPanel progressPanel = new JPanel ();
 
         progressButton = new JButton(workingIcon);
         progressButton.setDisabledIcon(notWorkingIcon);
@@ -1561,8 +1582,8 @@ public class PkgMgrFrame extends JFrame
         progressButton.addActionListener(this);
         actions.put(progressButton, new Integer(VIEW_SHOWCONTROLS));
         progressButton.setEnabled(false);
-//        progressPanel.add(progressButton);
-//        viewPanel.add("South",progressPanel);
+        //        progressPanel.add(progressButton);
+        //        viewPanel.add("South",progressPanel);
 
         progressButton.setAlignmentX(0.5f);
         buttonPanel.setAlignmentX(0.5f);
@@ -1731,14 +1752,15 @@ public class PkgMgrFrame extends JFrame
     static final int PROJ_OPEN = PROJ_NEW + 1;
     static final int PROJ_CLOSE = PROJ_OPEN + 1;
     static final int PROJ_SAVE = PROJ_CLOSE + 1;
-    static final int PROJ_IMPORT = PROJ_SAVE + 1;
+    static final int PROJ_SAVEAS = PROJ_SAVE + 1;
+    static final int PROJ_IMPORT = PROJ_SAVEAS + 1;
     static final int PROJ_EXPORT = PROJ_IMPORT + 1;
     static final int PROJ_PAGESETUP = PROJ_EXPORT + 1;
     static final int PROJ_PRINT = PROJ_PAGESETUP + 1;
     static final int PROJ_QUIT = PROJ_PRINT + 1;
 
     static final String[] ProjCmds = {
-        "new", "open", "close", "save", "import", "export",
+        "new", "open", "close", "save", "saveAs", "import", "export",
         "pageSetup", "print", "quit"
     };
 
@@ -1747,15 +1769,16 @@ public class PkgMgrFrame extends JFrame
         KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_W, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK),
-        null,
-        null,
-        null,
+        null, // save as
+        null, // import
+        null, // export
+        null, // page setup
         KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK)
     };
 
     static final int[] ProjSeparators = {
-        PROJ_SAVE, PROJ_EXPORT, PROJ_PRINT
+        PROJ_SAVEAS, PROJ_EXPORT, PROJ_PRINT
     };
 
     static final int EDIT_COMMAND = PROJ_COMMAND + 100;
@@ -1792,23 +1815,23 @@ public class PkgMgrFrame extends JFrame
     static final int TOOLS_REBUILD = TOOLS_COMPILESELECTED + 1;
     static final int TOOLS_BROWSE = TOOLS_REBUILD + 1;
     static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
-//    static final int TOOLS_PREFERENCES = TOOLS_REBUILD + 1;
+    //    static final int TOOLS_PREFERENCES = TOOLS_REBUILD + 1;
 
     static final String[] ToolsCmds = {
-	"compile", "compileSelected", "rebuild", "browse", "preferences",
+        "compile", "compileSelected", "rebuild", "browse", "preferences",
     };
 
     static final KeyStroke[] ToolsKeys = {
-        KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.CTRL_MASK),
-        KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.SHIFT_MASK | Event.CTRL_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.CTRL_MASK),
+        KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.SHIFT_MASK | Event.CTRL_MASK),
         null,
         KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK),
         null
     };
 
     static final int[] ToolsSeparators = {
-	TOOLS_REBUILD,
-	TOOLS_BROWSE
+        TOOLS_REBUILD,
+        TOOLS_BROWSE
     };
 
     static final int VIEW_COMMAND = TOOLS_COMMAND + 100;
@@ -1938,27 +1961,27 @@ public class PkgMgrFrame extends JFrame
 
         for (int i = 0; i < menus.length; i++) {
             if(menus[i] != null) {
-        	menu = (JMenu)menus[i];
+                menu = (JMenu)menus[i];
 
-        	if(menu.getText().equals(Config.getString("menu.package")) ||
-        	   menu.getText().equals(Config.getString("menu.tools"))) {
-        	    for (int j = 0; j < menu.getItemCount(); j++) {
-        		JMenuItem item = menu.getItem(j);
-        		if(item != null) {  // separators are returned as null
-        		    String label = item.getText();
-        		    if(!label.equals(Config.getString("menu.package.new"))
-        		       && !label.equals(Config.getString("menu.package.open"))
-        		       && !label.equals(Config.getString("menu.package.quit"))
-        		       && !label.equals(Config.getString("menu.package"))
-        		       && !label.equals(Config.getString("menu.tools"))
-        		       && !label.equals(Config.getString("menu.tools.browse"))
-        		       && !label.equals(Config.getString("menu.tools.preferences")))
-        			item.setEnabled(enable);
-        		}
-        	    }
-        	}
-        	else if(!menu.getText().equals(Config.getString("menu.help")))
-        	    menu.setEnabled(enable);
+                if(menu.getText().equals(Config.getString("menu.package")) ||
+                   menu.getText().equals(Config.getString("menu.tools"))) {
+                    for (int j = 0; j < menu.getItemCount(); j++) {
+                        JMenuItem item = menu.getItem(j);
+                        if(item != null) {  // separators are returned as null
+                            String label = item.getText();
+                            if(!label.equals(Config.getString("menu.package.new"))
+                               && !label.equals(Config.getString("menu.package.open"))
+                               && !label.equals(Config.getString("menu.package.quit"))
+                               && !label.equals(Config.getString("menu.package"))
+                               && !label.equals(Config.getString("menu.tools"))
+                               && !label.equals(Config.getString("menu.tools.browse"))
+                               && !label.equals(Config.getString("menu.tools.preferences")))
+                                item.setEnabled(enable);
+                        }
+                    }
+                }
+                else if(!menu.getText().equals(Config.getString("menu.help")))
+                    menu.setEnabled(enable);
             }
         }
     }

@@ -85,7 +85,7 @@ bluej.compiler.type=internal
 #bluej.lookAndFeel=javax.swing.plaf.motif.MotifLookAndFeel
 
 #####################################################################
-## System libraries which are  added to BlueJ's class path
+## System libraries which are added to BlueJ's class path
 #####################################################################
 
 bluej.systemlibrary1.description=A Sample Library for Windows
@@ -99,12 +99,26 @@ bluej.systemlibrary2.location=/usr/local/java/lib/sample.jar
 ## can set the size.
 #######################################################################
 
-# font for most of the interface components
+# font size for most of the interface components
 bluej.fontsize=12
 #bluej.fontsize=10
 
-# fontsize for the editor
-bluej.fontsize.editor=12
+# The editor font. This is the name of a font face with an optional "-bold"
+# at the end. Most used are monospaced fonts, such as Courier. Good large
+# fonts for screen projections are SansSerif-bold, 14pt, or Courier-bold, 18pt.
+# Some examples:
+#
+# bluej.editor.font=Courier
+# bluej.editor.font=Courier-bold
+bluej.editor.font=SansSerif
+# bluej.editor.font=SansSerif-bold
+# bluej.editor.font=Verdana
+# bluej.editor.font=Verdana-bold
+# bluej.editor.font=Arial-bold
+
+# fontsize for the editor - this is just the initial default. It can be
+# changed in the individual user preferences from within BlueJ.
+bluej.editor.fontsize=12
 
 # fonts for printing
 bluej.fontsize.printText=10

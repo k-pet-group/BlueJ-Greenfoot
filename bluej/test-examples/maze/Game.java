@@ -19,8 +19,6 @@
  ** 
  **/
 
-import bluej.runtime.Terminal;
-
 public class Game {
 	private Parser parser;
 	private Room curr_Room;
@@ -298,10 +296,10 @@ public class Game {
     }
 
 
-//	Main routine for starting game.
-//
-//	public static void main(String[] argv) {
-//		Game aGame = new Game();
-//		aGame.play();
-//	}
+	// Main routine for starting game.
+
+	public static void main(String[] argv) {
+		Game aGame = new Game();
+		aGame.play();
+	}
 }

@@ -22,13 +22,14 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 520 2000-05-31 06:49:05Z bquig $
+ * @version $Id: PrefMgr.java 555 2000-06-19 00:35:11Z mik $
  */
 public class PrefMgr
 {
-    private static String hilightingPropertyName = "bluej.syntaxHilighting";
-    private static String editorFontPropertyName = "bluej.fontsize.editor";
-    private static String notationStyle = "bluej.notation.style";
+    private static final String hilightingPropertyName = "bluej.syntaxHilighting";
+    private static final String editorFontPropertyName = "bluej.editor.font";
+    private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
+    private static final String notationStyle = "bluej.notation.style";
 
     private static int fontsize;
     private static int editFontsize;
@@ -57,7 +58,7 @@ public class PrefMgr
 	 */
     private PrefMgr()
     {
-        setEditorFontSize(Config.getPropInteger(editorFontPropertyName, 12));
+        setEditorFontSize(Config.getPropInteger(editorFontSizePropertyName, 12));
 
         isSyntaxHilighting = Boolean.valueOf(
             Config.getPropString(hilightingPropertyName, "true")).booleanValue();
@@ -121,13 +122,22 @@ public class PrefMgr
             // users settings (thereby hopefully keeping the user preferences
             // file to a minimum size)
 
-            if (Config.getDefaultPropInteger(editorFontPropertyName, -1) == size)
-                Config.removeProperty(editorFontPropertyName);
+            if (Config.getDefaultPropInteger(editorFontSizePropertyName, -1) == size)
+                Config.removeProperty(editorFontSizePropertyName);
             else
-                Config.putPropInteger(editorFontPropertyName, size);
+                Config.putPropInteger(editorFontSizePropertyName, size);
 
-            editorStandardFont = new Font("Monospaced", Font.PLAIN, size);
-            editorStandoutFont = new Font("Monospaced", Font.BOLD, size);
+            String fontName = Config.getPropString(editorFontPropertyName, 
+                                                   "Monospaced");
+            int style;
+            if(fontName.endsWith("-bold")) {
+                style = Font.BOLD;
+                fontName = fontName.substring(0, fontName.length()-5);
+            }
+            else
+                style = Font.PLAIN;
+            editorStandardFont = new Font(fontName, style, size);
+            editorStandoutFont = new Font(fontName, Font.BOLD, size);
         }
     }
 

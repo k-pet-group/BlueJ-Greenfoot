@@ -55,6 +55,11 @@ class imageFrame extends JFrame
 
 public class PersonDisplay
 {
+	public static void main(String[] args)
+	{
+		PersonDisplay p = new PersonDisplay("C:\\bluej");
+	}
+
     /**
      ** Constructor for objects of class PersonDisplay
      **/

@@ -28,7 +28,6 @@ import java.util.Properties;
  *  &lt;bluej_home>/bluej.defs <BR>
  *  &lt;bluej_home>/labels.&lt;language>	(eg "labels.english") <BR>
  *  &lt;user_home>/.bluej/bluej.properties <BR>
- *  &lt;bluej_home>/moe.labels.&lt;language> <BR>
  * <BR>
  * "bluej.defs"	- contains system definitions which are not language
  *			  specific and not user specific. <BR>
@@ -39,7 +38,7 @@ import java.util.Properties;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 537 2000-06-12 04:09:14Z mik $
+ * @version $Id: Config.java 555 2000-06-19 00:35:11Z mik $
  */
 
 public class Config
@@ -119,7 +118,7 @@ public class Config
 
         // find our language (but default to english if none found)
         language = bluej_props.getProperty("bluej.language", "english");
-        lang_props = loadDefs("labels." + language, false);
+        lang_props = loadDefs(language + File.separator + "labels", false);
 
         moe_props = loadDefs("moe.defs", false);
 
@@ -235,7 +234,7 @@ public class Config
      */
     public static DefaultProperties getMoeHelp()
     {
-        return loadDefs("moe.help." + language, false);
+        return loadDefs(language + File.separator + "moe.help", false);
     }
 
     /**
@@ -375,7 +374,8 @@ public class Config
      */
     public static String getHelpFilename(String base)
     {
-        return sys_confdir + File.separator + base + ".help." + language;
+        return sys_confdir + File.separator + language + File.separator + 
+            base + ".help";
     }
 
     /**
@@ -384,7 +384,7 @@ public class Config
      */
     public static String getLanguageFilename(String base)
     {
-        return sys_confdir + File.separator + base + "." + language;
+        return sys_confdir + File.separator + language + File.separator + base;
     }
 
     /**

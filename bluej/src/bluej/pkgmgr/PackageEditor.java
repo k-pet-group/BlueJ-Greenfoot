@@ -14,11 +14,11 @@ import javax.swing.*;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 544 2000-06-13 05:01:00Z ajp $
+ * @version $Id: PackageEditor.java 555 2000-06-19 00:35:11Z mik $
  */
 public class PackageEditor extends GraphEditor
 {
-    public PackageEditor(Package pkg, PkgMgrFrame frame)
+    public PackageEditor(Package pkg)
     {
         super(pkg);
     }

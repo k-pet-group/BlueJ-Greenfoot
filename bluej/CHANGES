@@ -1,0 +1,17 @@
+added editor font definition in bluej.defs
+changed templates to use TABs
+changed file structure for language files (needs CVS update;add;remove!)
+
+
+CVS add ExportManager!
+    add utility/BlueJFileChooser
+
+done
+  export dir
+  export jar
+
+to do
+  dir: add README
+  dialog: make drop menu for classes
+  dir/jar: check whether class name is empty
+  status message to indicate success/failure

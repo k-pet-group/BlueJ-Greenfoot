@@ -26,7 +26,7 @@ start:
     public MyClass()
     {
         	// initialise instance variables
-        x = 4;
+	 x = 4;
         	name = "K'mxnsja ";
  'cdsc' njcds "jcks"  
 

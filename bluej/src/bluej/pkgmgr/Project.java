@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 548 2000-06-14 01:45:28Z ajp $
+ * @version $Id: Project.java 555 2000-06-19 00:35:11Z mik $
  */
 public class Project
 {
@@ -117,8 +117,7 @@ public class Project
                 return false;
             }
 
-            if(dir.mkdir())
-            {
+            if(dir.mkdir()) {
                 File newpkgFile = new File(dir, Package.pkgfileName);
                 File newreadmeFile = new File(dir, Package.readmeName);
 
@@ -130,7 +129,6 @@ public class Project
                 }
                 catch(IOException ioe)
                 {
-
                 }
             }
         }

@@ -1,0 +1,260 @@
+compile-while-executing
+Klassen können nicht übersetzt werden
+während ein Programm ausgeführt wird.
+Das Programm muss erst beendet werden.
+
+exception-thrown
+Eine Exception ist ausgelöst worden:
+
+break-no-source
+Ein Breakpoint wurde erreicht in einer Datei,
+für die der Quelltext nicht gefunden werden
+kann. Name der Datei:
+
+error-in-file
+Ein Fehler ist aufgetreten in einer Datei,
+für die der Quelltext nicht gefunden werden
+kann. Name der Datei:Zeilennummer:
+
+system-exit
+Der Aufruf ist durch eine explizite "exit"-
+Operation beendet worden. Ein Ergebnis wurde
+nicht zurückgegeben. Der "exit" code ist:
+
+one-browser-only
+Vom Library Browser kann nur eine
+Kopie zur Zeit geöffnet werden.
+
+no-help
+Für diese Fehlermeldung ist kein Hilfetext
+verfügbar. Bitte schicken Sie den Text der
+Fehlermeldung an mik@monash.edu.au - 
+wir werden dann einen Hilfstext hinzufügen.
+
+# errors:
+#########
+
+no-lib-selected
+<Dieser Hilfstext ist noch nicht übersetzt worden.>
+You have not specified a library to go to.
+Click on a library in the "Search results" list
+and then press the "Go to" button.
+
+no-target-dialog
+<Dieser Hilfstext ist noch nicht übersetzt worden.>
+Before you use a package from
+the Library Browser, you need
+at least one target package open
+in a BlueJ window.
+
+cannot-locate-lib-node
+<Dieser Hilfstext ist noch nicht übersetzt worden.>
+Cannot locate the selected node in the 
+LibraryChooser tree.  The usual cause of 
+this error is an out-of-date package file
+in the directory containing the package.
+
+missing-shadow
+<Dieser Hilfstext ist noch nicht übersetzt worden.>
+Cannot locate shadow area:
+
+cannot-run-compiler
+Der Compiler konnte nicht gestartet werden.
+Ist er im Kommandopfad?
+Name des Compilers:
+
+compiler-error
+Compilerfehler:
+
+stream-incomplete
+Compilerfehler. Der "error stream" 
+ist unvollständig.
+
+out-of-bounds
+Der angegebene Array-Index liegt 
+außerhalb der Array-Grenzen.
+
+cannot-access-element
+Das angegebene Arrayelement konnte
+nicht gelesen werden.
+
+appletviewer-error
+Bei dem Versuch, den Appletviewer zu 
+starten, ist ein Fehler aufgetreten.
+
+error-no-name
+Ein gültiger Name muss angegeben werden.
+
+error-save-file
+Fehler beim Versuch, die Datei zu speichern.
+Die Datei wurde nicht gespeichert.
+
+cannot-save-keys
+Beim Versuch, die Tastenbindungen zu
+speichern, ist ein Fehler aufgetreten.
+Die Tastenbindungen konnten nicht
+gespeichert werden.
+
+skeleton-error
+Das Skelett für die Klasse konnte nicht erzeugt
+werden. Mögliche Gründe dafür sind eine
+inkorrekte Installation oder Probleme, das
+Dateisystem zu lesen.
+
+error-open-source
+Die Quelltextdatei der Klasse konnte nicht 
+geöffnet werden. Das sieht böse aus!
+
+invalid-name
+Ungültiger Klassenname.
+
+directory-exists
+Ein Verzeichnis mit diesem Namen
+existiert bereits.
+
+cannot-write-package
+Das Package konnte nicht geschrieben
+werden. Bitte überprüfen Sie den
+Namen und Zugriffsrechte.
+
+cannot-copy-package
+Es gab Probleme beim Kopieren einiger
+Package-Dateien. Das Package ist
+eventuell unvollständig.
+
+file-does-not-exist
+Die angegebene Datei existiert nicht.
+
+cannot-import
+Die Datei kann nicht importiert werden.
+Nur Java-Quelltextdateien, deren Namen
+mit ".java" enden, können importiert
+werden.
+
+no-java-sources-found
+Es wurden keine Java-Quelltextdateien
+in diesem Verzeichnis gefunden.
+
+# this belongs to the message above and is temporarily disabled.
+in diesem Verzeichnis (oder in einem
+der Unterverzeichnisse) gefunden.
+
+duplicate-name
+Eine Klasse mit diesem Namen gibt es
+in diesem Package schon. Das Package
+kann nicht zwei Klassen mit gleichem
+Namen enthalten.
+
+error-in-import
+Bei dem Versuch, die Datei zu importieren,
+ist ein Fehler aufgetreten. Prüfen Sie
+Zugriffsrechte und stellen Sie sicher,
+dass Speicherplatz verfügbar ist.
+
+no-class-selected
+Es ist keine Klasse selektiert.
+Selektieren Sie erst eine Klasse
+(durch draufklicken).
+
+package-does-not-exist
+Das Package konnte nicht geöffnet werden - 
+es scheint nicht zu existieren:
+
+no-bluej-package
+Das Package konnte nicht geöffnet werden.
+Es ist kein BlueJ package:
+
+applet-height-width
+Höhe und Breite des Applets 
+müssen angegeben werden.
+
+cannot-read-help
+Die folgende Hilfsdatei konnte
+nicht gelesen werden:
+
+not-yet-implemented
+Noch nicht implementiert - sorry.
+
+quit-all
+Alle offenen Packages schließen?
+Alle schließen
+Abbrechen
+null
+
+really-remove
+Das Löschen der Klasse kann nicht
+rückgängig gemacht werden.
+Wirklich löschen?
+Löschen
+Abbrechen
+null
+
+really-reload
+Durch nochmaliges Laden gehen alle Änderungen 
+seid dem letzten Speichern verloren. Wirklich
+laden?
+Laden
+Abbrechen
+null
+
+really-print
+Der Text ist breiter als das Papier. Lange
+Zeilen werden abgeschnitten werden. Dies kann
+vermieden werden, wenn das Editorfenster schmaler
+gemacht wird. Soll trotzdem gedruckt werden?
+Drucken
+Abbrechen
+null
+
+really-import-package
+Das gewählte Verzeichnis ist kein BlueJ-Package.
+Soll dieses Verzeichnis nach Java-Quelltextdateien
+durchsucht werden, die in einem BlueJ-Package-Fenster
+dargestellt werden können?
+(Wenn lediglich der Inhalt dieses Verzeichnisses 
+angezeigt werden sollte, dann bitte jetzt "Abbrechen"
+wählen und anschließend das Verzeichnis mit einem
+Doppelklick öffnen).
+Durchsuchen
+Abbrechen
+null
+
+also-search-subdirs
+Das gewählte Verzeichnis enthält Unterverzeichnisse.
+Sollen diese Verzeichnisse sowie ihre Unterverzeichnisse
+ebenfalls durchsucht werden und als geschachtelte Packages
+dargestellt werden, wenn sie Java-Quelltextdateien enthalten?
+Unterverzeichnisse durchsuchen
+Abbrechen
+null
+
+cannot-search-subdirs
+Das gewählte Verzeichnis enthält Unterverzeichnisse.
+Momentan können diese Verzeichnisse nicht nach Java-
+Quelltextdateien durchsucht werden, weil benannte
+und geschachtelte Packages in dieser BlueJ-Version
+nicht unterstützt werden. Diese Unterstützung ist
+jedoch in Arbeit.
+Wenn das gewählte Verzeichnis selbst Java-Quelltext-
+dateien enthält, dann werden diese nun in einem
+BlueJ-Packagefenster angezeigt.
+
+ask-index
+Index des Arrayelementes [...]
+Arrayinspektion
+null
+
+# editor:
+#########
+
+no-search-string
+Es ist kein Suchtext definiert.
+(Zuerst Text selektieren oder 'Suchen' benutzen.)
+
+default-keys
+Sollen wirklich alle definierten
+Tastenbindungen gelöscht werden und
+Standarddefinitionen gesetzt werden?
+Standard setzen
+Abbrechen
+null

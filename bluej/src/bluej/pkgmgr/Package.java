@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 548 2000-06-14 01:45:28Z ajp $
+ * @version $Id: Package.java 555 2000-06-19 00:35:11Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -670,7 +670,7 @@ public class Package extends Graph
         // copy class source into package
 
         String destPath = new File(getPath(),fileName).getPath();
-        if(!BlueJFileReader.copyFile(sourcePath, destPath))
+        if(!FileUtility.copyFile(sourcePath, destPath))
             return COPY_ERROR;
 
         // remove package line in class source
@@ -1431,8 +1431,6 @@ public class Package extends Graph
         return state;
     }
 
-
-
     /**
      *  Test whether a file instance denotes a BlueJ package directory.
      *  @param f the file instance that is tested for denoting a BlueJ package.
@@ -1838,16 +1836,14 @@ public class Package extends Graph
             Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
             if((currentArrow != null) && (currentArrow != selectedArrow))
                 currentArrow.highlight(getEditor().getGraphics2D());
-            if(selectedArrow != null)
-                {
-
-                    if (!(selectedArrow instanceof UsesDependency))
-                        {
-                            userRemoveDependency(selectedArrow);
-                        }
-                    removeDependency(selectedArrow, true);
-                    getEditor().repaint();
+            if(selectedArrow != null) {
+                
+                if (!(selectedArrow instanceof UsesDependency)) {
+                    userRemoveDependency(selectedArrow);
                 }
+                removeDependency(selectedArrow, true);
+                getEditor().repaint();
+            }
             currentArrow = null;
             setState(S_IDLE);
             break;
