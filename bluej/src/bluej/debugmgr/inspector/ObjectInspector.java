@@ -21,7 +21,7 @@ import bluej.utility.DialogManager;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ObjectInspector.java 2799 2004-07-15 03:16:36Z davmac $
+ * @version $Id: ObjectInspector.java 2949 2004-08-26 10:37:04Z polle $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -70,13 +70,13 @@ public class ObjectInspector extends Inspector
         if (inspector == null) {
             inspector = new ObjectInspector(obj, name, pkg, ir, parent);
             inspectors.put(obj, inspector);
-        }
-        inspector.update();
+        }        
 
         final ObjectInspector insp = inspector;
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
+                insp.update();
                 insp.setVisible(true);
                 insp.bringToFront();
             }
@@ -111,11 +111,11 @@ public class ObjectInspector extends Inspector
         else
             this.objName = name;
 
-        makeFrame();
         final ObjectInspector thisInspector = this;
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
+                makeFrame();
                 pack();
                 if (parent instanceof Inspector) {
                     DialogManager.tileWindow(thisInspector, parent);
@@ -282,7 +282,7 @@ public class ObjectInspector extends Inspector
      */
     protected void showClass()
     {
-        ClassInspector insp = ClassInspector.getInstance(obj.getClassRef(), pkg, this);
+        ClassInspector.getInstance(obj.getClassRef(), pkg, this);
     }
 
     /**

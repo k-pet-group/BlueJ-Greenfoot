@@ -21,7 +21,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 2830 2004-08-03 09:26:06Z polle $
+ * @version $Id: ClassInspector.java 2949 2004-08-26 10:37:04Z polle $
  */
 public class ClassInspector extends Inspector
 {
@@ -67,13 +67,13 @@ public class ClassInspector extends Inspector
             ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
             inspector = new ClassInspector(clss, pkg, ir, parent);
             inspectors.put(clss.getName(), inspector);
-        }
-        inspector.update();
+        }        
 
         final Inspector insp = inspector;
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
+                insp.update();
                 insp.setVisible(true);
                 insp.bringToFront();
             }
@@ -91,12 +91,12 @@ public class ClassInspector extends Inspector
         super(pkg, ir);
 
         myClass = clss;
-        makeFrame();
 
         final ClassInspector insp = this;
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
+                makeFrame();
                 pack();
                 if (parent instanceof Inspector) {
                     DialogManager.tileWindow(insp, parent);

@@ -25,7 +25,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Inspector.java 2878 2004-08-16 15:49:33Z polle $
+ * @version $Id: Inspector.java 2949 2004-08-26 10:37:04Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -226,28 +226,25 @@ public abstract class Inspector extends JFrame
     // --- end of abstract methods ---
 
     /**
-     * Update the field values shown in this viewer to show current object
+     * Requests an update of the field values shown in this viewer to show current object
      * values.
+     * 
+     * Will be executed int the event dispatch thread. 
      */
     public void update()
     {
-        final JFrame thisFrame = this;
-        final Object[] listData = getListData();
-
-        fieldList.setData(listData);
-        fieldList.setTableHeader(null);
-
-        // Ensures that an element is always seleceted (if there is any)
-        if (fieldList.getSelectedRow() == -1 && listData.length > 0) {
-            fieldList.setRowSelectionInterval(0, 0);
-        }
-
-        // Once a component is visible, it's size/position etc should only be
-        // manipulated in the event handling thread.
-
         EventQueue.invokeLater(new Runnable() {
             public void run()
-            {
+            {                
+                final Object[] listData = getListData();
+
+                fieldList.setData(listData);
+                fieldList.setTableHeader(null);
+
+                // Ensures that an element is always seleceted (if there is any)
+                if (fieldList.getSelectedRow() == -1 && listData.length > 0) {
+                    fieldList.setRowSelectionInterval(0, 0);
+                }
 
                 // Get the current position
                 int oldposX = getX();

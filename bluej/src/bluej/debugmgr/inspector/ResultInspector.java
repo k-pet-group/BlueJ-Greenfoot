@@ -26,7 +26,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 2904 2004-08-18 15:05:48Z polle $
+ * @version $Id: ResultInspector.java 2949 2004-08-26 10:37:04Z polle $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -119,11 +119,11 @@ public class ResultInspector extends Inspector
 
         calcResultType();
 
-        makeFrame();
         final ResultInspector thisInspector = this;
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
+                makeFrame();
                 pack();
                 DialogManager.centreWindow(thisInspector, parent);
             }
@@ -313,7 +313,7 @@ public class ResultInspector extends Inspector
      */
     protected void showClass()
     {
-        ClassInspector insp = ClassInspector.getInstance(obj.getClassRef(), pkg, this);
+        ClassInspector.getInstance(obj.getClassRef(), pkg, this);
     }
 
     /**
@@ -349,7 +349,4 @@ public class ResultInspector extends Inspector
     {
         return 2;
     }
-
-    protected void initInspectors(JTabbedPane inspTabs)
-    {}
 }
