@@ -11,43 +11,68 @@ import java.net.*;
 import javax.swing.table.*;
 
 /**
- ** @version $Id: ClassPath.java 189 1999-07-17 02:35:32Z ajp $
- ** @author Andrew Patterson
- ** Class to maintain a list of ClassPathEntry's.
- **/
+ * Class to maintain a list of ClassPathEntry's.
+ *
+ * @version $Id: ClassPath.java 194 1999-07-20 05:57:01Z ajp $
+ * @author Andrew Patterson
+ */
 public class ClassPath
 {
+    /**
+     * The actual list of class path entries
+     */
 	private ArrayList entries = new ArrayList();
 
+    /**
+     * Construct an empty ClassPath
+     */
 	public ClassPath()
 	{
 	}
 
+    /**
+     * Construct a ClassPath which is a copy of an existing ClassPath
+     */
 	public ClassPath(ClassPath classpath)
 	{
 		addClassPath(classpath);
 	}
 
+    /**
+     * Construct a ClassPath from a delimitered String of entries
+     *
+     * @param   classpath   A ; or : seperated String with entries
+     * @param   genericdescription  A String which can be used to
+     *          generically describe these entries
+     */
 	public ClassPath(String classpath, String genericdescription)
 	{
 		addClassPath(classpath, genericdescription);
 	}
 
+    /**
+     * Construct a ClassPath from a configuration file
+     *
+     * @param   inputstream A stream which represents the config file to read
+     */
 	public ClassPath(InputStream configstream)
 	{
 		addConfigFile(configstream);
 	}
 
 	/**
-	 *
+	 * Return the list of entries
 	 */
-
 	protected List getEntries()
 	{
 		return entries;
 	}
+
 	/**
 	 * Remove elements from the classpath
+     *
+     * @param   classpath   A ; or : separated String of class path entries to
+     *                      remove
 	 */
 	public void removeClassPath(String classpath)
 	{
@@ -64,11 +89,19 @@ public class ClassPath
 		}
 	}
 
+    /**
+     * Remove all entries from the class path
+     */
 	public void removeAll()
 	{
 		entries.clear();
 	}
 
+    /**
+     * Add a copy of an existing ClassPath
+     *
+     * @param   classpath   A ClassPath object to add a copy of
+     */
 	public void addClassPath(ClassPath classpath)
 	{
 		// make a copy of the entries.. don't just add the entries to the
@@ -188,6 +221,9 @@ public class ClassPath
 		}
 	}
 
+    /**
+     * Return the class path entries as an array of URL's
+     */
     public URL[] getURLs()
     {
 		Iterator it = entries.iterator();
@@ -199,7 +235,7 @@ public class ClassPath
 	    
             try {
                 u[current] = nextEntry.getURL();
-                Debug.message(u[current].toString());
+                // Debug.message(u[current].toString());
             } catch(MalformedURLException mue) {
             
             }
