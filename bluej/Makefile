@@ -69,6 +69,7 @@ INSTALL_LIB_FILES = \
 	lib/syslibs.properties
 
 INSTALL_EXAMPLES = \
+	examples/appletClock \
 	examples/hello \
 	examples/maze \
 	examples/people \

@@ -2,9 +2,10 @@ package bluej.views;
 
 import java.lang.reflect.*;
 import bluej.utility.Utility;
+import bluej.utility.Debug;
 
 /**
- ** @version $Id: ConstructorView.java 187 1999-07-17 02:32:38Z ajp $
+ ** @version $Id: ConstructorView.java 202 1999-07-22 07:45:35Z mik $
  ** @author Michael Cahill
  **
  ** A representation of a Java constructor in BlueJ

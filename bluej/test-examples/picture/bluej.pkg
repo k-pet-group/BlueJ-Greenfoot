@@ -1,13 +1,14 @@
-#JavaBlue project file
-#Wed Mar 17 18:37:38 EST 1999
-target1.modifiers=1
+#BlueJ project file
+#Thu Jul 22 16:53:59 GMT+10:00 1999
+target1.height=50
 package.window.height=437
+target1.y=20
+target1.x=50
+target1.valid=true
 package.numTargets=1
 target1.type=ClassTarget
-target1.width=110
-target1.y=20
-package.numDependencies=0
-target1.x=50
-target1.height=60
-target1.name=PersonDisplay
 package.window.width=608
+target1.name=PersonDisplay
+target1.width=120
+package.numDependencies=0
+target1.modifiers=1

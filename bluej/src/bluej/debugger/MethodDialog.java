@@ -18,7 +18,7 @@ import java.util.*;
 
 
 /**
- ** @version $Id: MethodDialog.java 199 1999-07-22 03:01:42Z ajp $
+ ** @version $Id: MethodDialog.java 202 1999-07-22 07:45:35Z mik $
  **
  ** @author Michael Cahill
  ** @author Bruce Quig
@@ -97,51 +97,51 @@ public class MethodDialog extends JDialog
 	});
 	// end of Workaround
 
-    // Find out the type of dialog and if hasArgs
-    if( method instanceof MethodView ) {
-        dialogType = MD_CALL;
-        methodName = ((MethodView)method).getName();
-        hasArgs = ((MethodView)method).hasParameters();
-    }		
-    else if (method instanceof ConstructorView ) {
-        dialogType = MD_CREATE;
-        hasArgs = ((ConstructorView)method).hasParameters();
+	// Find out the type of dialog and if hasArgs
+	if( method instanceof MethodView ) {
+	    dialogType = MD_CALL;
+	    methodName = ((MethodView)method).getName();
+	    hasArgs = ((MethodView)method).hasParameters();
+	}		
+	else if (method instanceof ConstructorView ) {
+	    dialogType = MD_CREATE;
+	    hasArgs = ((ConstructorView)method).hasParameters();
 	}
 
 
-		JPanel dialogPanel = new JPanel();
-		{
+	JPanel dialogPanel = new JPanel();
+	{
             descPanel = new JPanel();
             {
-    			descPanel.setLayout(new BoxLayout(descPanel, BoxLayout.Y_AXIS));
-				descPanel.setAlignmentX(LEFT_ALIGNMENT);
+		descPanel.setLayout(new BoxLayout(descPanel, BoxLayout.Y_AXIS));
+		descPanel.setAlignmentX(LEFT_ALIGNMENT);
             }
 
             JPanel centerPanel = new JPanel();
             {
-    			centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-				centerPanel.setAlignmentX(LEFT_ALIGNMENT);
+		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+		centerPanel.setAlignmentX(LEFT_ALIGNMENT);
 		
             	// parse method signature for param fields, there may be a better way
             	String[] paramNames = null;	
-            	if(hasArgs) 
+            	if(hasArgs)
             	    paramNames = parseParamNames(method.getLongDesc());
-            
+
             	//
             	// Set dialog items depends on the Dialog type
             	//
             	switch (dialogType) {
             	
-            	 case MD_CALL:		
+		case MD_CALL:		
             	    makeCallDialog(instanceName, method, paramNames, centerPanel);
             	    break;
             
-            	 case MD_CREATE:
+		case MD_CREATE:
             	    makeCreateDialog(className, instanceName, method, paramNames, 
             			     centerPanel);
             	    break;
             	    
-            	 default:	// error!
+		default:	// error!
             	    throw new Error("Invalid MethodDialog type " + dialogType);
             	}
             }
@@ -150,7 +150,7 @@ public class MethodDialog extends JDialog
             JPanel butPanel = new JPanel();
             {
                 butPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-				butPanel.setAlignmentX(LEFT_ALIGNMENT);
+		butPanel.setAlignmentX(LEFT_ALIGNMENT);
                 
                 butPanel.add(bOk = new JButton(Config.getString("okay")));
                 bOk.addActionListener(this);
@@ -160,25 +160,25 @@ public class MethodDialog extends JDialog
                 getRootPane().setDefaultButton(bOk);
 
 				// try to make the OK and cancel buttons have equal width
-				bOk.setPreferredSize(new Dimension(bCancel.getPreferredSize().width,
-								bOk.getPreferredSize().height));
+		bOk.setPreferredSize(new Dimension(bCancel.getPreferredSize().width,
+						   bOk.getPreferredSize().height));
 
             }
 
-//          	statusPanel.add(status);	
-//            statusPanel.setAlignmentX(LEFT_ALIGNMENT);
+	    //          	statusPanel.add(status);	
+	    //            statusPanel.setAlignmentX(LEFT_ALIGNMENT);
 	
-			dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
-			dialogPanel.setBorder(Config.generalBorder);
+	    dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
+	    dialogPanel.setBorder(Config.generalBorder);
 
-			dialogPanel.add(descPanel);
-			dialogPanel.add(centerPanel);
+	    dialogPanel.add(descPanel);
+	    dialogPanel.add(centerPanel);
             dialogPanel.add(status);
-			dialogPanel.add(butPanel);
+	    dialogPanel.add(butPanel);
         }
 
-		getContentPane().add(dialogPanel);
-		pack();
+	getContentPane().add(dialogPanel);
+	pack();
 		
         // Set some attributes for this DialogBox
         Utility.centreDialog(this);
@@ -186,9 +186,9 @@ public class MethodDialog extends JDialog
         // Close Action when close button is pressed
         addWindowListener(new WindowAdapter() {
     	    public void windowClosing(WindowEvent event) {
-	        	setVisible(false);
-	        }
-	    });
+		setVisible(false);
+	    }
+	});
     }
 
 
@@ -249,7 +249,7 @@ public class MethodDialog extends JDialog
 		tmpPanel.add(eol);
 	    }
 	    tmpPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-		tmpPanel.setAlignmentX(LEFT_ALIGNMENT);
+	    tmpPanel.setAlignmentX(LEFT_ALIGNMENT);
 	    panel.add(tmpPanel);
 	}
     } // makeCallDialog
@@ -301,52 +301,52 @@ public class MethodDialog extends JDialog
 	    tmpPanel.add(instanceNameText);
 
 	    JLabel name = new JLabel("new " + className + "(", JLabel.RIGHT);
-        constraints.gridwidth = 1;
+	    constraints.gridwidth = 1;
 	    constraints.gridx = 0;
 	    constraints.anchor = GridBagConstraints.EAST;
 	    constraints.fill = GridBagConstraints.NONE;
-	    	    gridBag.setConstraints(name,constraints);
+	    gridBag.setConstraints(name,constraints);
 	    tmpPanel.add(name);
 
 	    params = new JComboBox[paramClasses.length];
 		    
 	    for (int i = 0; i < paramClasses.length; i++) {
-            constraints.gridy = (i + 1);
-            constraints.anchor = GridBagConstraints.WEST;
+		constraints.gridy = (i + 1);
+		constraints.anchor = GridBagConstraints.WEST;
 
-            constraints.gridx = 1;
-	    constraints.fill = GridBagConstraints.HORIZONTAL;
-	                params[i] = new JComboBox(history.getHistory(paramClasses[i]));
-            params[i].setEditable(true);
-            params[i].getEditor().setItem("");
+		constraints.gridx = 1;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		params[i] = new JComboBox(history.getHistory(paramClasses[i]));
+		params[i].setEditable(true);
+		params[i].getEditor().setItem("");
 
-            // add FocusListener for text insertion
-            ((JTextField)params[i].getEditor().getEditorComponent()).addFocusListener(this);
+		// add FocusListener for text insertion
+		((JTextField)params[i].getEditor().getEditorComponent()).addFocusListener(this);
 	  
-            gridBag.setConstraints(params[i], constraints);
-            tmpPanel.add(params[i]);
+		gridBag.setConstraints(params[i], constraints);
+		tmpPanel.add(params[i]);
 
-	    constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 2;
-            JLabel eol = new JLabel(",  " + commentSlash + paramNames[i], JLabel.LEFT);
-			if (i == (paramClasses.length - 1)) {
-                if(paramClasses.length == 1)
-                    eol.setText(")");
-                else
-                    eol.setText(")  " + commentSlash + paramNames[i]);
-		    }
+		constraints.fill = GridBagConstraints.NONE;
+		constraints.gridx = 2;
+		JLabel eol = new JLabel(",  " + commentSlash + paramNames[i], JLabel.LEFT);
+		if (i == (paramClasses.length - 1)) {
+		    if(paramClasses.length == 1)
+			eol.setText(")");
+		    else
+			eol.setText(")  " + commentSlash + paramNames[i]);
+		}
 		
-            gridBag.setConstraints(eol,constraints);
+		gridBag.setConstraints(eol,constraints);
 
-            tmpPanel.add(eol);
-        }
+		tmpPanel.add(eol);
+	    }
 
-		constraints.gridx = 3;
-		constraints.gridy = 0;
-		constraints.weightx = 1.0;
-		JPanel filler = new JPanel();
-		gridBag.setConstraints(filler, constraints);
-		tmpPanel.add(filler);
+	    constraints.gridx = 3;
+	    constraints.gridy = 0;
+	    constraints.weightx = 1.0;
+	    JPanel filler = new JPanel();
+	    gridBag.setConstraints(filler, constraints);
+	    tmpPanel.add(filler);
 	}
 	else {
 	    tmpPanel = new JPanel();
@@ -354,9 +354,9 @@ public class MethodDialog extends JDialog
 	    tmpPanel.add(instanceNameText);
 	}
 	tmpPanel.setBorder(BorderFactory.createEmptyBorder(Config.generalSpacingWidth,
-	                                                    0,
-	                                                    Config.generalSpacingWidth,
-	                                                    0));
+							   0,
+							   Config.generalSpacingWidth,
+							   0));
 	panel.add("North", tmpPanel);
     } // makeCreateDialog
 
@@ -375,7 +375,7 @@ public class MethodDialog extends JDialog
 	boolean inArg = false;
 	Vector args = new Vector();
 
-    System.out.println(longMethodName);	
+	System.out.println(longMethodName);	
 	while( tokenizer.hasMoreTokens()){
 	    String token = tokenizer.nextToken();
 	    
@@ -508,7 +508,7 @@ public class MethodDialog extends JDialog
      */
     public void setDescription(MultiLineLabel label)
     {
-		label.setAlignmentX(LEFT_ALIGNMENT);
+	label.setAlignmentX(LEFT_ALIGNMENT);
         descPanel.removeAll();
         descPanel.add(label);
         invalidate();

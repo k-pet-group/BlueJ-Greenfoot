@@ -56,7 +56,7 @@ Entry template (copy this for new entry and increment the bug number
 in the template for the next one):
 
 @-------
-@bug#  : 00087
+@bug#  : 00088
 @short : 
 @prio  : 
 @source: 
@@ -81,6 +81,18 @@ in the template for the next one):
 @descr : insertion/removal of dependencies (both textually and graphically)
 	 must be handled (see planning/dependencies.txt)
 @cause : new feature
+
+@-------
+@bug#  : 00087
+@short : comments/parameter names in method call missing now!
+@prio  : 1
+@source: mik
+@date  : 1999-07-09
+@status: open
+@fixrel: 
+@descr : the parameter names and comments in the method call are not
+	 shown anymore.
+@cause : changes in implementation/old functionality not fully restored
 
 @-------
 @bug#  : 00045

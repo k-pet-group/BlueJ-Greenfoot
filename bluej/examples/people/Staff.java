@@ -8,8 +8,7 @@
 
 class Staff extends Person
 {
-        private String room;
-    private int thing;
+    private String room;
 
     /**
      ** Create a staff member with default settings for detail information.

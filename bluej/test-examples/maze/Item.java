@@ -56,4 +56,7 @@ class Item {
 		else
 			return (anObject.equals (this));
 	}
+    public void nix(int one, int two)
+    {
+    }
 }

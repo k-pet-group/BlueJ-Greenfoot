@@ -30,10 +30,10 @@ clean clobber allclasses::
 all: grammar antlr allclasses
 
 jikes:
-	jikes -classpath $(JIKES_CLASSPATH) $(JIKES_OPTS) -d $(TOP)/classes bluej/Main.java
+	jikes -classpath $(JIKES_CLASSPATH) $(JIKES_OPTS) -d $(TOP)/classes bluej/Main.java bluej/runtime/Shell.java
 
 javac:
-	javac -classpath $(JAVAC_CLASSPATH) $(JAVAC_OPTS) -d $(TOP)/classes bluej/Main.java
+	javac -classpath $(JAVAC_CLASSPATH) $(JAVAC_OPTS) -d $(TOP)/classes bluej/Main.java bluej/runtime/Shell.java
 
 grammar:
 	(cd bluej/parser && \
