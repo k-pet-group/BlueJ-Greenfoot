@@ -28,7 +28,7 @@ import java.util.Vector;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 553 2000-06-16 04:36:14Z bquig $
+ * @version $Id: ObjectWrapper.java 581 2000-06-23 05:55:35Z mik $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -398,9 +398,8 @@ public class ObjectWrapper extends JComponent
      */
     private void inspectObject()
     {
-        //XXX	ObjectViewer viewer =
-        //	    ObjectViewer.getViewer(true, obj, instanceName, pkg, true,
-        //				   pkg.getFrame());
+        ObjectViewer viewer =
+      	    ObjectViewer.getViewer(true, obj, instanceName, pkg, true, pmf);
     }
 
     /**

@@ -14,7 +14,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 517 2000-05-25 07:58:59Z ajp $
+ * @version $Id: JdiObject.java 581 2000-06-23 05:55:35Z mik $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -77,7 +77,7 @@ public class JdiObject extends DebuggerObject
      */
     public int getStaticFieldCount()
     {
-	return getFieldCount(true);
+        return getFieldCount(true);
     }
 
     /**
@@ -85,19 +85,19 @@ public class JdiObject extends DebuggerObject
      */
     public int getInstanceFieldCount()
     {
-	return getFieldCount(false);
+        return getFieldCount(false);
     }
 
     private int getFieldCount(boolean getStatic)
     {
-	int count = 0;
+        int count = 0;
 
-	for (int i = 0; i < fields.size(); i++) {
-	    Field field = (Field)fields.get(i);
-	    if(field.isStatic() == getStatic)
-		count++;
-	}
-	return count;
+        for (int i = 0; i < fields.size(); i++) {
+            Field field = (Field)fields.get(i);
+            if(field.isStatic() == getStatic)
+                count++;
+        }
+        return count;
     }
 
 
@@ -108,7 +108,7 @@ public class JdiObject extends DebuggerObject
      */
     public String getStaticFieldName(int slot)
     {
-	return getField(true, slot).name();
+        return getField(true, slot).name();
     }
 
     /**
@@ -118,7 +118,7 @@ public class JdiObject extends DebuggerObject
      */
     public String getInstanceFieldName(int slot)
     {
-	return getField(false, slot).name();
+        return getField(false, slot).name();
     }
 
 
@@ -129,7 +129,7 @@ public class JdiObject extends DebuggerObject
      */
     public boolean staticFieldIsPublic(int slot)
     {
-	return getField(true, slot).isPublic();
+        return getField(true, slot).isPublic();
     }
 
     /**
@@ -139,7 +139,7 @@ public class JdiObject extends DebuggerObject
      */
     public boolean instanceFieldIsPublic(int slot)
     {
-	return getField(false, slot).isPublic();
+        return getField(false, slot).isPublic();
     }
 
 
@@ -151,7 +151,7 @@ public class JdiObject extends DebuggerObject
      */
     public boolean staticFieldIsObject(int slot)
     {
-	return checkFieldForObject(true, slot);
+        return checkFieldForObject(true, slot);
     }
 
     /**
@@ -162,14 +162,14 @@ public class JdiObject extends DebuggerObject
      */
     public boolean instanceFieldIsObject(int slot)
     {
-	return checkFieldForObject(false, slot);
+        return checkFieldForObject(false, slot);
     }
 
     private boolean checkFieldForObject(boolean getStatic, int slot)
     {
-	Field field = getField(getStatic, slot);
-	Value val = obj.getValue(field);
-	return (val instanceof ObjectReference);
+        Field field = getField(getStatic, slot);
+        Value val = obj.getValue(field);
+        return (val instanceof ObjectReference);
     }
 
     /**
@@ -180,9 +180,9 @@ public class JdiObject extends DebuggerObject
      */
     public boolean fieldIsObject(int slot)
     {
-	Field field = (Field)fields.get(slot);
-	Value val = obj.getValue(field);
-	return (val instanceof ObjectReference);
+        Field field = (Field)fields.get(slot);
+        Value val = obj.getValue(field);
+        return (val instanceof ObjectReference);
     }
 
 
@@ -195,9 +195,9 @@ public class JdiObject extends DebuggerObject
      */
     public DebuggerObject getStaticFieldObject(int slot)
     {
-	Field field = getField(true, slot);
-	ObjectReference val = (ObjectReference)obj.getValue(field);
-	return getDebuggerObject(val);
+        Field field = getField(true, slot);
+        ObjectReference val = (ObjectReference)obj.getValue(field);
+        return getDebuggerObject(val);
     }
 
     /**
@@ -208,9 +208,9 @@ public class JdiObject extends DebuggerObject
      */
     public DebuggerObject getInstanceFieldObject(int slot)
     {
-	Field field = getField(false, slot);
-	ObjectReference val = (ObjectReference)obj.getValue(field);
-	return getDebuggerObject(val);
+        Field field = getField(false, slot);
+        ObjectReference val = (ObjectReference)obj.getValue(field);
+        return getDebuggerObject(val);
     }
 
     /**
@@ -221,9 +221,9 @@ public class JdiObject extends DebuggerObject
      */
     public DebuggerObject getFieldObject(int slot)
     {
-	Field field = (Field)fields.get(slot);
-	ObjectReference val = (ObjectReference)obj.getValue(field);
-	return getDebuggerObject(val);
+        Field field = (Field)fields.get(slot);
+        ObjectReference val = (ObjectReference)obj.getValue(field);
+        return getDebuggerObject(val);
     }
 
 
@@ -252,7 +252,7 @@ public class JdiObject extends DebuggerObject
      */
     public Vector getAllFields(boolean includeModifiers)
     {
-	return getFields(true, true, includeModifiers);
+        return getFields(true, true, includeModifiers);
     }
 
 
@@ -264,7 +264,7 @@ public class JdiObject extends DebuggerObject
      * determines whether static fields or instance fields are returned.
      */
     private Vector getFields(boolean getAll, boolean getStatic,
-                                boolean includeModifiers)
+                             boolean includeModifiers)
     {
         Vector fieldStrings = new Vector(fields.size());
 
@@ -290,17 +290,17 @@ public class JdiObject extends DebuggerObject
                 }
 
                 fieldString += JavaNames.stripPrefix(field.typeName())
-                                                            + " " + field.name()
-                                                            + " = " + valString;
+                    + " " + field.name()
+                    + " = " + valString;
 
         		if (!visible.contains(field)) {
                     fieldString += " (hidden)";
         		}
-		// the following code adds the word "inherited" to inherited
-		// fields - currently unused
-		//else if (!field.declaringType().equals(cls)) {
-		//    fieldString += " (inherited)";
-		//}
+                // the following code adds the word "inherited" to inherited
+                // fields - currently unused
+                //else if (!field.declaringType().equals(cls)) {
+                //    fieldString += " (inherited)";
+                //}
                 fieldStrings.add(fieldString);
             }
         }
@@ -309,17 +309,17 @@ public class JdiObject extends DebuggerObject
 
     private Field getField(boolean getStatic, int slot)
     {
-	for (int i = 0; i < fields.size(); i++) {
-	    Field field = (Field)fields.get(i);
-	    if(field.isStatic() == getStatic) {
-		if(slot == 0)
-		    return field;
-		else
-		    slot--;
-	    }
-	}
-	Debug.reportError("invalid slot in remote object");
-	return null;
+        for (int i = 0; i < fields.size(); i++) {
+            Field field = (Field)fields.get(i);
+            if(field.isStatic() == getStatic) {
+                if(slot == 0)
+                    return field;
+                else
+                    slot--;
+            }
+        }
+        Debug.reportError("invalid slot in remote object");
+        return null;
     }
 
     /**
@@ -327,13 +327,13 @@ public class JdiObject extends DebuggerObject
      */
     private void getRemoteFields()
     {
-	ReferenceType cls = obj.referenceType();
-	if (cls != null)
-	    fields = cls.allFields();
-	else {
-	    Debug.reportError("cannot get class for remote object");
-	    fields = new Vector();
-	}
+        ReferenceType cls = obj.referenceType();
+        if (cls != null)
+            fields = cls.allFields();
+        else {
+            Debug.reportError("cannot get class for remote object");
+            fields = new Vector();
+        }
     }
 
     /**
@@ -344,50 +344,50 @@ public class JdiObject extends DebuggerObject
         if (val == null)
             return "<null>";
         else if (val instanceof StringReference)
-        {
-            return "\"" + ((StringReference)val).value() + "\"";
-            // toString should be okay for this as well once the bug is out...
-        }
+            {
+                return "\"" + ((StringReference)val).value() + "\"";
+                // toString should be okay for this as well once the bug is out...
+            }
         else if (val instanceof ObjectReference)
-        {
-            return "<object reference>";
-        }
+            {
+                return "<object reference>";
+            }
 
         // the following should not be necessary but it seems like
         // the 1.3 beta jpda has a bug in the toString() method.
         // revisit this code when 1.3 is released
         else if (val instanceof BooleanValue)
-        {
-            return String.valueOf(((BooleanValue)val).value());
-        }
+            {
+                return String.valueOf(((BooleanValue)val).value());
+            }
         else if (val instanceof ByteValue)
-        {
-            return String.valueOf(((ByteValue)val).value());
-        }
+            {
+                return String.valueOf(((ByteValue)val).value());
+            }
         else if (val instanceof CharValue)
-        {
-            return String.valueOf(((CharValue)val).value());
-        }
+            {
+                return String.valueOf(((CharValue)val).value());
+            }
         else if (val instanceof DoubleValue)
-        {
-            return String.valueOf(((DoubleValue)val).value());
-        }
+            {
+                return String.valueOf(((DoubleValue)val).value());
+            }
         else if (val instanceof FloatValue)
-        {
-            return String.valueOf(((FloatValue)val).value());
-        }
+            {
+                return String.valueOf(((FloatValue)val).value());
+            }
         else if (val instanceof IntegerValue)
-        {
-            return String.valueOf(((IntegerValue)val).value());
-        }
+            {
+                return String.valueOf(((IntegerValue)val).value());
+            }
         else if (val instanceof LongValue)
-        {
-            return String.valueOf(((LongValue)val).value());
-        }
+            {
+                return String.valueOf(((LongValue)val).value());
+            }
         else if (val instanceof ShortValue)
-        {
-            return String.valueOf(((ShortValue)val).value());
-        }
+            {
+                return String.valueOf(((ShortValue)val).value());
+            }
         else
             return val.toString();
     }

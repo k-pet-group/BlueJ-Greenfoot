@@ -18,9 +18,9 @@ import java.awt.event.*;
  * Sets up a SecurityManager, initial thread state, etc.
  *
  * This class both holds runtime attibutes and executes commands.
- * Execution is done through a call to the "main" method. The main method
- * is executed on the remote machine; its parameters encode the actual
- * action to be taken. See "main" for more detail.
+ * Execution is done through a call to the "performTask" method. The 
+ * performTask method is executed on the remote machine; its parameters
+ * encode the actual action to be taken. See "performTask" for more detail.
  *
  * @author Michael Kolling
  */
@@ -330,9 +330,8 @@ public class ExecServer
         }
         catch (Exception e) {
             e.printStackTrace();
-            Debug.reportError("Internal BlueJ error: " +
-            	      "object field not found: " + fieldName +
-            	      " in " + instance);
+            Debug.reportError("object field not found: " + fieldName +
+                              " in " + instance);
             Debug.reportError("exception: " + e);
         }
     }

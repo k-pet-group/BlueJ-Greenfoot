@@ -1,8 +1,10 @@
-
 done
+  changable font in editor
+  export
+
+done recently
   export dir
   export jar
-  dir: add README
   status message to indicate success/failure
   dialog: make drop menu for classes
 

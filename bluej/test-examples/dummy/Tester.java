@@ -43,11 +43,6 @@ public class Tester
      **/
     public int goodtest()
     {
-		double pi = 3.1415;
-		double smallpi = Math.round(pi * 1000) / 1000.0;
-
-		System.out.println("result: " + smallpi);
-
         return 43;
     }
 
