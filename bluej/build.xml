@@ -2,8 +2,8 @@
 
     <!-- set global properties for this build -->
     <!-- the first two are the only values you should need to change -->
-    <property name="bluej_home" value="/home/ajp/bluej" />
-    <property name="java_home" value="/usr/jdk1.3" />
+    <property name="bluej_home" value="O:\home\banjo\project\bluej\main\bluej" />
+    <property name="java_home" value="O:\programming\jdk1.4" />
 
     <property name="build.compiler" value="modern" />
     <!-- property name="build.compiler" value="jikes" /-->
@@ -18,8 +18,8 @@
     <!-- set up classpath -->
     <path id="bluej.class.path">
         <pathelement location="${bluej_home}/lib/antlrall.jar" />
-        <pathelement location="${bluej_home}/lib/jcvsii.jar" />
-        <pathelement location="${bluej_home}/lib/junit.jar" />
+        <!--pathelement location="${bluej_home}/lib/jcvsii.jar" /-->
+        <!--pathelement location="${bluej_home}/lib/junit.jar" /-->
         <pathelement location="${bluej_home}/lib/MRJToolkitStubs.zip" />
         <pathelement location="${java_home}/lib/tools.jar" />
     </path>
@@ -51,7 +51,9 @@
             destdir="${build}"
             excludes="de/**, archiver/**, gnu/**, javax/**, kopi/**,
             		net/**/test/**,
+            		net/**,
 			bluej/groupwork/**,
+			bluej/tester/**,
                         bluej/browser/**,
                         bluej/guibuilder/**,
                         bluej/editor/moe/Moe.java" >
@@ -94,6 +96,7 @@
         <!-- Delete the ${build} directory trees -->
         <delete dir="${build}/bluej" />
         <delete dir="${build}/org" />
+        <delete dir="${build}/net" />
         <delete file="${bluej_home}/lib/bluej.jar" />
         <!-- Clean inspectors -->
 	<ant antfile="inspector.xml" dir="inspector" target="clean-inspector"/>
