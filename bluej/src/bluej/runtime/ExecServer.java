@@ -19,11 +19,11 @@ import bluej.utility.Debug;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2048 2003-06-24 05:08:17Z ajp $
+ * @version $Id: ExecServer.java 2062 2003-06-25 07:00:59Z ajp $
  */
 public class ExecServer
 {
-    // Task type constants (these constants must match the name of the
+    // task type constants (these constants must match the name of the
     // corresponding methods in this ExecServer source). Methods to call are
     // obtained using reflection by JdiDebugger (using these strings).
 
@@ -38,12 +38,28 @@ public class ExecServer
     public static final String RESTORE_OUTPUT   = "restoreOutput";
     public static final String DISPOSE_WINDOWS  = "disposeWindows";
 
-    static ExitException exitException = new ExitException("0");
 
-    private static RemoteClassMgr classmgr;
-	private static ClassLoader currentLoader;	// the current loader
+	// these fields will be fetched by VMReference
 	
-    private static Map scopes = new HashMap();
+	// an exception we can throw in the remote VM to signal System.exit()
+	public static final String EXIT_EXCEPTION_NAME = "exitException";
+    public static ExitException exitException = new ExitException("0");
+    
+    // the initial thread that starts main()
+	public static final String MAIN_THREAD_NAME = "mainThread";
+	public static Thread mainThread = null;
+	
+	// a worker thread that we create
+	public static final String WORKER_THREAD_NAME = "workerThread";
+	public static Thread workerThread = null;
+	
+	
+	// the class manager on this machine
+    private static RemoteClassMgr classmgr;
+	// the current class loader
+	private static ClassLoader currentLoader;
+	// a hashmap of names to objects
+    private static Map objects = new HashMap();
 
     /**
      * We need to keep track of open windows so that we can dispose of them
@@ -77,6 +93,23 @@ public class ExecServer
 			// ignore - we will get a ClassNotFound exception here
 		}
 
+		// record our main thread
+		mainThread = Thread.currentThread();
+		
+		// create another worker thread we can use for stuff
+		workerThread = new Thread("BlueJ worker thread") {
+			public void run() {
+				int count = 0;
+		
+				// an infinite loop.. 
+				while(count++ < 100000) {
+					vmSuspend();
+				}
+				System.err.println("worker thread bye bye");
+			}
+		};
+		workerThread.start();
+
 		// register a listener to record all window opens and closes
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 
@@ -109,7 +142,7 @@ public class ExecServer
 			vmSuspend();
 		}
 		
-		System.err.println("bye bye");
+		System.err.println("main thread bye bye");
     }
 
     /**
@@ -133,7 +166,7 @@ public class ExecServer
 	}
 
 	/**
-	 * This method is used to suspend the execution of this server thread.
+	 * This method is used to suspend the execution of the worker threads.
 	 * This is done via a breakpoint: a breakpoint is set in this method
 	 * so calling this method suspends execution.
 	 */
@@ -169,13 +202,7 @@ public class ExecServer
     static Map getScope()
     {
         //Debug.message("[VM] getScope" + scopeId);
-        //Map scope = (Map)scopes.get(scopeId);
-
-        //if(scope == null) {
-        //    scope = new HashMap();
-        //    scopes.put(scopeId, scope);
-       // }
-        return scopes;
+        return objects;
     }
 
     // -- methods called by reflection from JdiDebugger --
@@ -247,6 +274,7 @@ public class ExecServer
      */
     private static void setLibraries(String libraries)
     {
+		// Debug.message("[VM] setLibraries: " + libraries);
         classmgr.setLibraries(libraries);
     }
 
@@ -375,9 +403,7 @@ public class ExecServer
 
 		RemoteTestRunner runner = new RemoteTestRunner();
 
-		System.err.println("starting run");
         TestResult tr = runner.doRun(suite);
-		System.err.println("ended run");
 
 		if (tr.errorCount() > 1 || tr.failureCount() > 1)
 			throw new IllegalStateException("error or failure count was > 1");
