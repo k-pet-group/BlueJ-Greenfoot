@@ -28,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2115 2003-07-16 05:02:43Z ajp $
+ * @version $Id: JdiDebugger.java 2120 2003-07-18 04:50:28Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -687,13 +687,13 @@ public class JdiDebugger extends Debugger
  
 		 public synchronized void run()
 		 {
-		 	System.out.println("machine loader is running " + vmReady);
+		 	// System.out.println("machine loader is running " + vmReady);
 			vmRef = new VMReference(JdiDebugger.this, startingDirectory);
 			vmRef.waitForStartup();
 
 			vmReady = true;
 
-			System.out.println("machine loader is started " + vmReady);
+			// System.out.println("machine loader is started " + vmReady);
 
 			newClassLoader(startingDirectory.getAbsolutePath());
 

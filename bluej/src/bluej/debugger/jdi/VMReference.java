@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2115 2003-07-16 05:02:43Z ajp $
+ * @version $Id: VMReference.java 2120 2003-07-18 04:50:28Z ajp $
  *
  * The startup process is as follows:
  *
@@ -141,15 +141,13 @@ class VMReference
 			String listenMessage = new BufferedReader(new InputStreamReader(p.getInputStream())).readLine();
 		
 			portNumber = extractPortNumber(listenMessage);
-		
-			System.out.println("extracted " + portNumber + " with msg " + listenMessage);
 				
 			if (portNumber == -1) {
 				Debug.message("Could not find port number to connect to debugger");
 				Debug.message("Line received from debugger was: " + listenMessage);
-				
+				return null;
 			}
-				
+			
 			// redirect error stream from process to Terminal
 			redirectIOStream(new InputStreamReader(p.getErrorStream()),
 								//new OutputStreamWriter(System.err),
@@ -167,8 +165,6 @@ class VMReference
 								new OutputStreamWriter(p.getOutputStream()),
 								false);
 			process = p;
-			
-			Debug.message("started process " + process);
         }
         catch (IOException ioe) {
             ioe.printStackTrace();
@@ -372,7 +368,6 @@ class VMReference
         // lets just nuke it
         //machine.dispose();
         if (process != null) {
-			Debug.message("destroyed process " + process);
             process.destroy();
         }
         machine = null;
