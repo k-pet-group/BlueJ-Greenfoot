@@ -8,7 +8,6 @@
 
 package bluej.editor.moe;
 
-import bluej.Config;
 import bluej.utility.Debug;
 
 import java.awt.*;
