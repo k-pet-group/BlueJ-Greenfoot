@@ -1,12 +1,16 @@
 <project name="bluej" default="ready-to-run" basedir=".">
 
+    <taskdef name="antlr" classname="org.apache.tools.ant.taskdefs.optional.ANTLR"/>
+
     <!-- set global properties for this build -->
     <!-- the first two are the only values you should need to change -->
     <property name="bluej_home" value="U:\project\bluej\main\bluej" />
-    <property name="java_home" value="F:\programming\jdk1.3" />
+    <property name="java_home" value="F:\programming\jdk1.4" />
 
     <!-- property name="build.compiler" value="modern" /-->
     <property name="build.compiler" value="jikes" />
+    <property name="build.compiler.fulldepend" value="yes" />
+    <property name="build.compiler.emacs" value="yes" />
 
     <!-- set up common directories -->
     <property name="src" value="src" />
@@ -14,7 +18,7 @@
 
     <!-- set up classpath -->
     <path id="bluej.class.path">
-        <pathelement location="${bluej_home}/lib/antlr.jar" />
+        <pathelement location="${bluej_home}/lib/antlrall.jar" />
         <pathelement location="${java_home}/lib/tools.jar" />
     </path>
 
@@ -26,6 +30,10 @@
     </target>
 
     <target name="compile" depends="prepare">
+        <!-- depend srcdir="${src}"
+                destdir="${build}"
+                cache="depcache"
+                closure="no" -->
         <!-- Compile the java code from ${src} into ${build} -->
         <javac srcdir="${src}"
             destdir="${build}"
@@ -38,7 +46,16 @@
         </javac>
     </target>
 
-    <target name="ready-to-run" depends="compile, inspector">
+    <target name="jarred" depends="compile">
+        <!-- jar up all the classes -->
+        <jar jarfile="${bluej_home}/lib/bluej.jar"
+             compress="no" >
+            <fileset dir="${build}" >
+            </fileset>
+        </jar>
+    </target>
+
+    <target name="ready-to-run" depends="jarred, inspector">
     </target>
 
     <target name="inspector">
@@ -50,16 +67,16 @@
         <antlr
             fork="yes"
             target="src/bluej/parser/java.g"
+            outputdirectory="src/bluej/parser"
         />
     </target>
 
     <target name="run">
         <!-- Run the java code in ${build} -->
         <java classname="bluej.Main" fork="yes" jvm="${java_home}/bin/java">
-            <sysproperty key="bluej.home" value="${bluej_home}"/>
             <classpath>
-                 <pathelement location="${build}"/>
-                 <path refid="bluej.class.path" />
+	        <pathelement location="${bluej_home}/lib/bluej.jar" />
+                <path refid="bluej.class.path" />
             </classpath>
         </java>
     </target>
@@ -72,6 +89,7 @@
         <!-- Delete the ${build} directory trees -->
         <delete dir="${build}/bluej" />
         <delete dir="${build}/org" />
+        <delete file="${bluej_home}/lib/bluej.jar" />
         <!-- Clean inspectors -->
 	<ant antfile="inspector.xml" dir="inspector" target="clean-inspector"/>
     </target>
