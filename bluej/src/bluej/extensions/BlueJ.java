@@ -39,16 +39,20 @@ import java.awt.event.ActionListener;
  *             |
  *             +---- BPackage
  *                      |
- *                      +---- BClass
- *                      |
- *                      +---- BObject
- *                               |
- *                               +---- BMethod
- *                                         |
- *                                         +---- BField
+ *                      +--------- BClass
+ *                      |            |
+ *                      +- BObject   + BConstuctor
+ *                                   |      |
+ *                                   |      +- BObject
+ *                                   |
+ *                                   +---- BMethod
+ *                                   |      |
+ *                                   |      +- BObject
+ *                                   |
+ *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1649 2003-03-05 12:01:40Z damiano $
+ * @version $Id: BlueJ.java 1657 2003-03-06 09:40:38Z damiano $
  */
 
 public class BlueJ
