@@ -11,145 +11,184 @@ import bluej.views.ViewFilter;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.dnd.*;
+import java.awt.datatransfer.*;
+import java.awt.image.*;
+import java.io.*;
 import javax.swing.*;
 import java.lang.reflect.*;
 import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * A wrapper around a Java object that handles calling methods, inspecting, 
+ * A wrapper around a Java object that handles calling methods, inspecting,
  * etc. The wrapper is represented by the red oval that is visible on the
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 305 1999-12-09 23:50:57Z ajp $
+ * @version $Id: ObjectWrapper.java 326 2000-01-02 13:14:15Z ajp $
  */
-public class ObjectWrapper extends JComponent implements ActionListener
+public class ObjectWrapper extends JComponent
+    implements ActionListener, DragGestureListener, DragSourceListener
 {
     static final Color shadow = Config.getItemColour("colour.wrapper.shadow");
     static final Color bg = Config.getItemColour("colour.wrapper.bg");
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
-    
+
     /** The Java object that this wraps **/
     private DebuggerObject obj;
     protected String className;
     protected String instanceName;
+    private String displayClassName;
     private JPopupMenu menu;
     private Method[] methods;
     private Package pkg;
-    
+
     private Hashtable methodsUsed;
     private Hashtable actions;
 
-	
+    private DragSource dragSource;
+
     public static final int WIDTH = 100;
     public static final int HEIGHT = 70;
-	
+
     public ObjectWrapper(DebuggerObject obj, String instanceName, Package pkg)
     {
-	this.obj = obj;
-	this.instanceName = instanceName;
-	this.pkg = pkg;
-		
-	className = obj.getClassName();
-	createMenu(className);
-		
-	int dot_index = className.lastIndexOf('.');
-	if(dot_index >= 0)
-	    className = className.substring(dot_index + 1);
-	
-	enableEvents(AWTEvent.MOUSE_EVENT_MASK);
-	setSize(WIDTH, HEIGHT);
+        this.obj = obj;
+        this.instanceName = instanceName;
+        this.pkg = pkg;
+
+        className = obj.getClassName();
+        createMenu(className);
+
+        int dot_index = className.lastIndexOf('.');
+        if(dot_index >= 0)
+            displayClassName = className.substring(dot_index + 1);
+        else
+            displayClassName = className;
+
+        enableEvents(AWTEvent.MOUSE_EVENT_MASK);
+        setSize(WIDTH, HEIGHT);
+
+        // DragSource dragSource = DragSource.getDefaultDragSource();
+
+        // creating the recognizer is all that’s necessary - it
+        // does not need to be manipulated after creation
+        //dragSource.createDefaultDragGestureRecognizer(
+        //                this,       // component where drag originates
+        //                DnDConstants.ACTION_COPY_OR_MOVE, // actions
+        //                this);      // drag gesture listener
     }
-	
+
     public Package getPackage()
     {
-	return pkg;
+        return pkg;
     }
 
 
+    public void dragGestureRecognized(DragGestureEvent e)
+    {
+        // drag anything ...
+        e.startDrag(DragSource.DefaultCopyDrop, // cursor
+                new StringSelection("hello"), // transferable
+                this); // drag source listener
+      }
+    public void dragDropEnd(DragSourceDropEvent e) {}
+    public void dragEnter(DragSourceDragEvent e) {}
+    public void dragExit(DragSourceEvent e) {}
+    public void dragOver(DragSourceDragEvent e) {}
+    public void dropActionChanged(DragSourceDragEvent e) {}
+
     /**
-     ** creates the popup mene structure by parsing the object's
-     ** class inheritance hierarchy.
-     ** 
-     ** @param className class name of the object for which the menu is to be built
-     **/	
+     * Creates the popup mene structure by parsing the object's
+     * class inheritance hierarchy.
+     *
+     * @param   className   class name of the object for which the menu is to be built
+     */
     private void createMenu(String className)
     {
-	Class cl = null;
-	
-	cl = pkg.loadClass(className);
-	
-	Vector classes = getClassHierarchy(cl);
+        Class cl = null;
 
-	menu = new JPopupMenu(instanceName + " operations");
+        cl = pkg.loadClass(className);
 
-	if (cl != null) {
+        Vector classes = getClassHierarchy(cl);
 
-	    View view = View.getView(cl);
-	    actions = new Hashtable();
-	    methodsUsed = new Hashtable();
+        menu = new JPopupMenu(instanceName + " operations");
 
-	    // define a view filter
-	    ViewFilter filter= new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PROTECTED);
+        if (cl != null) {
+            View view = View.getView(cl);
+            actions = new Hashtable();
+            methodsUsed = new Hashtable();
 
-	    menu.addSeparator();
+            // define a view filter
+            ViewFilter filter= new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PROTECTED);
 
-	    // get declared methods for the class
-	    MethodView[] declaredMethods = view.getDeclaredMethods();
+            menu.addSeparator();
 
-	    createMenuItems(menu, declaredMethods, filter, 0, 
-			    declaredMethods.length);	
+            // get declared methods for the class
+            MethodView[] declaredMethods = view.getDeclaredMethods();
 
-	    for(int i = 1; i < classes.size(); i++ ) {
-		Class currentClass = (Class)classes.elementAt(i);
-		view = View.getView(currentClass);		
-		declaredMethods = view.getDeclaredMethods();
-		JMenu subMenu =  new JMenu("Inherited from " 
-					   + Utility.stripPackagePrefix(currentClass.getName()));
- 		subMenu.setFont(PrefMgr.getStandoutMenuFont());
-		createMenuItems(subMenu, declaredMethods, filter, 0, declaredMethods.length);
-		menu.insert(subMenu, 0);
+            createMenuItems(menu, declaredMethods, filter, 0,
+                            declaredMethods.length);
 
-	    }
+            for(int i = 1; i < classes.size(); i++ ) {
+                Class currentClass = (Class)classes.elementAt(i);
+                view = View.getView(currentClass);
+                declaredMethods = view.getDeclaredMethods();
+                JMenu subMenu =  new JMenu(inheritedFrom + " "
+                                + Utility.stripPackagePrefix(currentClass.getName()));
+                subMenu.setFont(PrefMgr.getStandoutMenuFont());
+                createMenuItems(subMenu, declaredMethods, filter, 0, declaredMethods.length);
+                menu.insert(subMenu, 0);
+            }
 
-	    menu.addSeparator();
+            menu.addSeparator();
+        }
 
-	}
-	// add inspect and remove options	
-	JMenuItem item;
-	menu.add(item = new JMenuItem(inspect));
-	item.addActionListener(this);
-	item.setFont(PrefMgr.getStandoutMenuFont());
-	item.setForeground(envOpColour);
-	menu.add(item = new JMenuItem(remove));
-	item.addActionListener(this);
-	item.setFont(PrefMgr.getStandoutMenuFont());
-	item.setForeground(envOpColour);
-	
-	add(menu);
+
+        // add inspect, serializable and remove options
+        JMenuItem item;
+        menu.add(item = new JMenuItem(inspect));
+        item.addActionListener(this);
+        item.setFont(PrefMgr.getStandoutMenuFont());
+        item.setForeground(envOpColour);
+
+        if (Serializable.class.isAssignableFrom(cl))
+        {
+            menu.add(item = new JMenuItem(serializable));
+            item.addActionListener(this);
+            item.setFont(PrefMgr.getStandoutMenuFont());
+            item.setForeground(envOpColour);
+        }
+
+        menu.add(item = new JMenuItem(remove));
+        item.addActionListener(this);
+        item.setFont(PrefMgr.getStandoutMenuFont());
+        item.setForeground(envOpColour);
+
+        add(menu);
     }
 
 
 
 
     /**
-     ** creates the individual menu items for an object's popup menu.
-     ** The method checks for previously defined methods with the same signature and 
-     ** appends information referring to this.
-     **
-     ** @param menu  the menu that the items are to be created for
-     ** @param methods  the methods for which menu items should be created
-     ** @param filter  the filter which decides on which methods should be shown
-     ** @param first  the index of the methods array which represents the starting point of the menu items 
-     ** @param last  the index of the methods array which represents the end point of the menu items
-     **/		
-    private void createMenuItems(JComponent menu, MethodView[] methods, 
+     * creates the individual menu items for an object's popup menu.
+     * The method checks for previously defined methods with the same signature and
+     * appends information referring to this.
+     *
+     * @param menu      the menu that the items are to be created for
+     * @param methods   the methods for which menu items should be created
+     * @param filter    the filter which decides on which methods should be shown
+     * @param first     the index of the methods array which represents the starting point of the menu items
+     * @param last      the index of the methods array which represents the end point of the menu items
+     */
+    private void createMenuItems(JComponent menu, MethodView[] methods,
 				 ViewFilter filter, int first, int last)
     {
-	JMenuItem item;
-	String methodSignature;
-	
+        JMenuItem item;
+        String methodSignature;
+
 	for(int i = first; i < last; i++) {
 	    try {
 		MethodView m = methods[i];
@@ -158,8 +197,8 @@ public class ObjectWrapper extends JComponent implements ActionListener
 
 		// check if method signature has already been added to a menu
 		if(methodsUsed.containsKey(m.getShortDesc())) {
-		    methodSignature = ( m.getShortDesc() 
-					+ "   [ redefined in " 
+		    methodSignature = ( m.getShortDesc()
+					+ "   [ " + redefinedIn + " "
 					+ Utility.stripPackagePrefix(((String)methodsUsed.get(m.getShortDesc())))
 			+ " ]");
 		}
@@ -185,7 +224,7 @@ public class ObjectWrapper extends JComponent implements ActionListener
      ** working back to Object
      **
      ** @param derivedClass the class whose hierarchy is mapped (including self)
-     ** @return the Vector containng the classes in the inheritance hierarchy 
+     ** @return the Vector containng the classes in the inheritance hierarchy
      **/
     public Vector getClassHierarchy(Class derivedClass)
     {
@@ -198,74 +237,74 @@ public class ObjectWrapper extends JComponent implements ActionListener
 	return classVector;
     }
 
-	
+
     public Dimension getMinimumSize()
     {
-	return new Dimension(WIDTH, HEIGHT);
+        return new Dimension(WIDTH, HEIGHT);
     }
-	
+
     public Dimension getPreferredSize()
     {
-	return new Dimension(WIDTH, HEIGHT);
+        return new Dimension(WIDTH, HEIGHT);
     }
-	
+
     public String getName()
     {
 	return instanceName;
     }
-	
+
     public void setName(String newName)
     {
-	instanceName = newName;
+        instanceName = newName;
     }
-	
+
     public void paint(Graphics g)
     {
         g.setFont(PrefMgr.getStandardFont());
-	FontMetrics fm = g.getFontMetrics();
-		
-	g.setColor(shadow);
-	g.fillOval(10, 5, WIDTH - 10, HEIGHT - 5);
-	g.setColor(bg);
-	g.fillOval(10, 5, WIDTH - 15, HEIGHT - 10);
-	g.setColor(Color.black);
-	g.drawOval(10, 5, WIDTH - 15, HEIGHT - 10);
-		
-	g.setColor(Color.white);
-	Utility.drawCentredText(g, className, 10, 5, WIDTH - 15, HEIGHT - 5);
-		
-	int w = fm.stringWidth(instanceName) + 10;
-	int h = fm.getAscent() + 4;
-	g.fillRect(0, 10, w, h);
-		
-	g.setColor(Color.black);
-	g.drawRect(0, 10, w, h);
-	Utility.drawCentredText(g, instanceName, 0, 10, w, h);
+        FontMetrics fm = g.getFontMetrics();
+
+        g.setColor(shadow);
+        g.fillOval(10, 5, WIDTH - 10, HEIGHT - 5);
+        g.setColor(bg);
+        g.fillOval(10, 5, WIDTH - 15, HEIGHT - 10);
+        g.setColor(Color.black);
+        g.drawOval(10, 5, WIDTH - 15, HEIGHT - 10);
+
+        g.setColor(Color.white);
+        Utility.drawCentredText(g, displayClassName, 10, 5, WIDTH - 15, HEIGHT - 5);
+
+        int w = fm.stringWidth(instanceName) + 10;
+        int h = fm.getAscent() + 4;
+        g.fillRect(0, 10, w, h);
+
+        g.setColor(Color.black);
+        g.drawRect(0, 10, w, h);
+        Utility.drawCentredText(g, instanceName, 0, 10, w, h);
     }
 
     protected void processMouseEvent(MouseEvent evt)
     {
-	int menuOffset;
-	super.processMouseEvent(evt);
-		
-	pkg.getFrame().clearStatus();
+        int menuOffset;
+        super.processMouseEvent(evt);
 
-	if(isPopupEvent(evt)) {
-	    int itemHeight = ((JComponent)menu.getComponent(0)).getHeight();
+        pkg.getFrame().clearStatus();
 
-	    if (itemHeight <= 1)     // not yet shown - don't know real height
-		// take a wild guess here
-		
-		// lifted higher to avoid mouse events on underlying objects - temporary
-		menuOffset = (menu.getComponentCount() - 1) * 19;
-		// lifted higher to avoid mouse events on underlying objects
-		//menuOffset = (menu.getComponentCount() - 4) * 19;
-	    else
-		// from the second time: do it properly
-		menuOffset = (menu.getComponentCount() - 1) * itemHeight;
-	    //menuOffset = (menu.getComponentCount() - 4) * itemHeight;
-	   
-	    menu.show(this, evt.getX(), evt.getY() - menuOffset);
+        if(isPopupEvent(evt)) {
+            int itemHeight = ((JComponent)menu.getComponent(0)).getHeight();
+
+            if (itemHeight <= 1)     // not yet shown - don't know real height
+            // take a wild guess here
+
+            // lifted higher to avoid mouse events on underlying objects - temporary
+            menuOffset = (menu.getComponentCount() - 1) * 19;
+            // lifted higher to avoid mouse events on underlying objects
+            //menuOffset = (menu.getComponentCount() - 4) * 19;
+            else
+            // from the second time: do it properly
+            menuOffset = (menu.getComponentCount() - 1) * itemHeight;
+            //menuOffset = (menu.getComponentCount() - 4) * itemHeight;
+
+            menu.show(this, evt.getX(), evt.getY() - menuOffset);
 	}
 	else if(evt.getID() == MouseEvent.MOUSE_CLICKED) {
 	    if(evt.getClickCount() > 1)
@@ -283,22 +322,42 @@ public class ObjectWrapper extends JComponent implements ActionListener
 	return evt.isPopupTrigger()
 	    || ((evt.getID() == MouseEvent.MOUSE_PRESSED) && evt.isControlDown());
     }
-	
+
     public void actionPerformed(ActionEvent e)
     {
-	MethodView method = (MethodView)actions.get(e.getSource());
-	if(method != null)
-	    executeMethod(method);			// user method
-	else {
-	    String cmd = e.getActionCommand();
-	    if(inspect.equals(cmd)) {			// inspect
-		inspectObject();
-	    }
-	    else if(remove.equals(cmd))	{		// remove
-		ObjectBench bench = (ObjectBench)getParent();
-		bench.remove(this, Utility.quoteSloshes(pkg.getId()));
-	    }
-	}
+        MethodView method = (MethodView)actions.get(e.getSource());
+        if(method != null)
+            executeMethod(method);			// user method
+        else {
+            String cmd = e.getActionCommand();
+            if(inspect.equals(cmd)) {			// inspect
+                inspectObject();
+
+/*                DebuggerObject debObj =
+                    Debugger.debugger.deserializeObject(pkg.getRemoteClassLoader().getId(),
+                                                         pkg.getId(),
+                                                         "unserial_1",
+                                                         "test.obj");
+
+                ObjectWrapper wrapper = new ObjectWrapper(debObj,
+                                                            "unserial_1",
+                                                            pkg);
+
+                pkg.getFrame().getObjectBench().add(wrapper);  // might change name
+*/
+                // load the object into runtime scope
+            }
+            else if(serializable.equals(cmd)) {
+
+                Debugger.debugger.serializeObject(pkg.getId(),
+                                                    instanceName, "test.obj");
+
+            }
+            else if(remove.equals(cmd))	{		// remove
+                ObjectBench bench = (ObjectBench)getParent();
+                bench.remove(this, pkg.getId());
+            }
+        }
     }
 
     /**
@@ -306,7 +365,7 @@ public class ObjectWrapper extends JComponent implements ActionListener
      */
     private void inspectObject()
     {
-	ObjectViewer viewer = 
+	ObjectViewer viewer =
 	    ObjectViewer.getViewer(true, obj, instanceName, pkg, true,
 				   pkg.getFrame());
     }
@@ -332,18 +391,27 @@ public class ObjectWrapper extends JComponent implements ActionListener
 		}
 	    };
 
-	Invoker invoker = new Invoker(pkg, method, instanceName, watcher);
+        Invoker invoker = new Invoker(pkg, method, instanceName, watcher);
     }
 
 
     // Internationalisation
-    static String methodException = 
-	Config.getString("debugger.objectwrapper.methodException");
-    static String invocationException = 
-	Config.getString("debugger.objectwrapper.invocationException");
-	
-    static String inspect = 
-	Config.getString("debugger.objectwrapper.inspect");
-    static String remove = 
-	Config.getString("debugger.objectwrapper.remove");
+    static String methodException =
+                    Config.getString("debugger.objectwrapper.methodException");
+    static String invocationException =
+                    Config.getString("debugger.objectwrapper.invocationException");
+
+    static String inspect =
+                    Config.getString("debugger.objectwrapper.inspect");
+    static String remove =
+                    Config.getString("debugger.objectwrapper.remove");
+
+    static String redefinedIn =
+                    Config.getString("debugger.objectwrapper.redefined");
+
+    static String inheritedFrom =
+                    Config.getString("debugger.objectwrapper.inherited");
+
+    static String serializable =
+                    Config.getString("debugger.objectwrapper.serializable");
 }
