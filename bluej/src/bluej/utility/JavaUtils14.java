@@ -7,49 +7,51 @@ import java.util.List;
 
 import bluej.debugger.gentype.*;
 
-
 /*
  * Java 1.4 version of JavaUtils
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils14.java 2655 2004-06-24 05:53:55Z davmac $
+ * 
+ * @version $Id: JavaUtils14.java 2777 2004-07-12 01:51:45Z davmac $
  */
-public class JavaUtils14 extends JavaUtils {
+public class JavaUtils14 extends JavaUtils
+{
 
-    public String getSignature(Method method) {
+    public String getSignature(Method method)
+    {
         String name = getTypeName(method.getReturnType()) + " " + method.getName();
         Class[] params = method.getParameterTypes();
         return makeSignature(name, params);
     }
-    
-    public String getShortDesc(Method method, String [] paramnames)
+
+    public String getShortDesc(Method method, String[] paramnames)
     {
         String name = getTypeName(method.getReturnType()) + " " + method.getName();
         String[] paramTypes = getParameterTypes(method);
         return makeDescription(name, paramTypes, paramnames, false, false);
     }
-    
-    public String getLongDesc(Method method, String [] paramnames)
+
+    public String getLongDesc(Method method, String[] paramnames)
     {
         String name = getTypeName(method.getReturnType()) + " " + method.getName();
         String[] paramTypes = getParameterTypes(method);
         return makeDescription(name, paramTypes, paramnames, true, false);
     }
 
-    public String getLongDesc(Constructor constructor, String [] paramnames)
+    public String getLongDesc(Constructor constructor, String[] paramnames)
     {
         String name = constructor.getName();
         String[] paramTypes = getParameterTypes(constructor);
         return makeDescription(name, paramTypes, paramnames, true, false);
     }
-    
-    public String getShortDesc(Constructor constructor, String [] paramnames)
+
+    public String getShortDesc(Constructor constructor, String[] paramnames)
     {
         String name = constructor.getName();
         String[] paramTypes = getParameterTypes(constructor);
         return makeDescription(name, paramTypes, paramnames, false, false);
-    }    
-    
+    }
+
     public String getSignature(Constructor cons)
     {
         String name = JavaNames.getBase(cons.getName());
@@ -61,13 +63,14 @@ public class JavaUtils14 extends JavaUtils {
     {
         return false;
     }
-    
+
     public boolean isVarArgs(Method method)
     {
         return false;
     }
 
-    public boolean isEnum(Class cl) {
+    public boolean isEnum(Class cl)
+    {
         return false;
     }
 
@@ -76,12 +79,12 @@ public class JavaUtils14 extends JavaUtils {
         Class retType = method.getReturnType();
         return genTypeFromClass(retType);
     }
-    
+
     public List getTypeParams(Method method)
     {
         return Collections.EMPTY_LIST;
     }
-    
+
     public List getTypeParams(Class cl)
     {
         return Collections.EMPTY_LIST;
@@ -90,98 +93,97 @@ public class JavaUtils14 extends JavaUtils {
     public GenTypeClass getSuperclass(Class cl)
     {
         Class sc = cl.getSuperclass();
-        if( sc == null )
+        if (sc == null)
             return null;
-        return (GenTypeClass)genTypeFromClass(sc);
+        return (GenTypeClass) genTypeFromClass(sc);
     }
 
-    public GenTypeClass [] getInterfaces(Class cl)
+    public GenTypeClass[] getInterfaces(Class cl)
     {
-        Class [] classes = cl.getInterfaces();
-        GenTypeClass [] gentypes = new GenTypeClass[classes.length];
-        
-        for( int i = 0; i < classes.length; i++ )
-            gentypes[i] = (GenTypeClass)genTypeFromClass(classes[i]);
-        
+        Class[] classes = cl.getInterfaces();
+        GenTypeClass[] gentypes = new GenTypeClass[classes.length];
+
+        for (int i = 0; i < classes.length; i++)
+            gentypes[i] = (GenTypeClass) genTypeFromClass(classes[i]);
+
         return gentypes;
     }
-    
-    public String[] getParameterTypes(Method method) 
+
+    public String[] getParameterTypes(Method method)
     {
-        Class [] params = method.getParameterTypes();
+        Class[] params = method.getParameterTypes();
         return getParameterTypes(params);
     }
-    
+
     public GenType[] getParamGenTypes(Method method)
     {
-        Class [] params = method.getParameterTypes();
-        GenType [] gentypes = new GenType[params.length];
-        for(int i = 0; i < params.length; i++) {
+        Class[] params = method.getParameterTypes();
+        GenType[] gentypes = new GenType[params.length];
+        for (int i = 0; i < params.length; i++) {
             gentypes[i] = genTypeFromClass(params[i]);
         }
         return gentypes;
     }
 
-    
-    public String[] getParameterTypes(Constructor constructor) 
-    {        
-        Class [] params = constructor.getParameterTypes();
+    public String[] getParameterTypes(Constructor constructor)
+    {
+        Class[] params = constructor.getParameterTypes();
         return getParameterTypes(params);
     }
 
     public GenType[] getParamGenTypes(Constructor constructor)
     {
-        Class [] params = constructor.getParameterTypes();
-        GenType [] gentypes = new GenType[params.length];
-        for(int i = 0; i < params.length; i++) {
+        Class[] params = constructor.getParameterTypes();
+        GenType[] gentypes = new GenType[params.length];
+        for (int i = 0; i < params.length; i++) {
             gentypes[i] = genTypeFromClass(params[i]);
         }
         return gentypes;
     }
 
     /* ------------- Internal methods --------------- */
-    
+
     /**
-     * Gets nicely formatted strings describing the parameter types. 
+     * Gets nicely formatted strings describing the parameter types.
      */
     private String[] getParameterTypes(Class[] params)
     {
         String[] parameterTypes = new String[params.length];
-        for (int j = 0; j < params.length; j++) {            
-                String typeName = getTypeName(params[j]);                    
-                parameterTypes[j] = typeName;
+        for (int j = 0; j < params.length; j++) {
+            String typeName = getTypeName(params[j]);
+            parameterTypes[j] = typeName;
         }
         return parameterTypes;
     }
-    
+
     static public String getTypeName(Class type)
     {
-        if(type.isArray())
-        {
+        if (type.isArray()) {
             try {
                 Class primtype = type;
                 int dimensions = 0;
-                while(primtype.isArray())
-                    {
-                        dimensions++;
-                        primtype = primtype.getComponentType();
-                    }
+                while (primtype.isArray()) {
+                    dimensions++;
+                    primtype = primtype.getComponentType();
+                }
                 StringBuffer sb = new StringBuffer();
                 sb.append(JavaNames.stripPrefix(primtype.getName()));
                 for (int i = 0; i < dimensions; i++)
                     sb.append("[]");
                 return sb.toString();
-            } catch (Throwable e) {
+            }
+            catch (Throwable e) {
                 // ignore it
             }
         }
         return JavaNames.stripPrefix(type.getName());
     }
-    
+
     /**
      * Build the signature string. Format: name(type,type,type)
      */
-    private String makeSignature(String name, Class[] params) {
+    private String makeSignature(String name, Class[] params)
+    {
         StringBuffer sb = new StringBuffer();
         sb.append(name);
         sb.append("(");
@@ -197,26 +199,28 @@ public class JavaUtils14 extends JavaUtils {
 
     static public GenType genTypeFromClass(Class c)
     {
-        if( c.isPrimitive()) {
-            if( c == boolean.class )
+        if (c.isPrimitive()) {
+            if (c == boolean.class)
                 return new GenTypeBool();
-            if( c == char.class )
+            if (c == char.class)
                 return new GenTypeChar();
-            if( c == byte.class )
+            if (c == byte.class)
                 return new GenTypeByte();
-            if( c == short.class )
+            if (c == short.class)
                 return new GenTypeShort();
-            if( c == int.class )
+            if (c == int.class)
                 return new GenTypeInt();
-            if( c == long.class )
+            if (c == long.class)
                 return new GenTypeLong();
-            if( c == float.class )
+            if (c == float.class)
                 return new GenTypeFloat();
-            if( c == void.class )
+            if (c == double.class)
+                return new GenTypeDouble();
+            if (c == void.class)
                 return new GenTypeVoid();
             Debug.message("getReturnType: Unknown primitive type");
         }
-        if( c.isArray() ) {
+        if (c.isArray()) {
             GenType componentT = genTypeFromClass(c.getComponentType());
             return new GenTypeArray(componentT, new JavaReflective(c));
         }
