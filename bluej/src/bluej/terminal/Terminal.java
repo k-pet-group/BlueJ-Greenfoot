@@ -3,6 +3,7 @@ package bluej.terminal;
 import bluej.Config;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 import bluej.utility.DialogManager;
@@ -22,13 +23,17 @@ import java.io.FileWriter;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 935 2001-06-12 01:21:10Z mik $
+ * @version $Id: Terminal.java 982 2001-10-05 14:51:10Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
 {
     private static final String WINDOWTITLE = Config.getString("terminal.title");
-    private static final int FONTSIZE = 12;
+    private static final int windowHeight = 
+        Config.getPropInteger("bluej.terminal.height", 25);
+    private static final int windowWidth = 
+        Config.getPropInteger("bluej.terminal.width", 80);
+
     private static final Color activeBgColour = Color.white;
     private static final Color inactiveBgColour = new Color(224, 224, 224);
     private static final Color fgColour = Color.black;
@@ -68,7 +73,7 @@ public final class Terminal extends JFrame
      */
     private Terminal()
     {
-        this(WINDOWTITLE, 80, 25);
+        this(WINDOWTITLE, windowWidth, windowHeight);
     }
 
 
@@ -374,7 +379,7 @@ public final class Terminal extends JFrame
 
         text = new TermTextArea(rows, columns);
         JScrollPane scrollPane = new JScrollPane(text);
-        text.setFont(new Font("Monospaced", Font.PLAIN, FONTSIZE));
+        text.setFont(PrefMgr.getTerminalFont());
         text.setEditable(false);
         text.setLineWrap(false);
         text.setForeground(fgColour);

@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 925 2001-06-06 04:45:32Z bquig $
+ * @version $Id: PrefMgr.java 982 2001-10-05 14:51:10Z mik $
  */
 public class PrefMgr
 {
@@ -30,6 +30,9 @@ public class PrefMgr
     private static final String linkingPropertyName = "doctool.linkToStandardLib";
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
+    private static final String terminalFontPropertyName = "bluej.terminal.font";
+    private static final String terminalFontSizePropertyName = "bluej.terminal.fontsize";
+
     private static final String notationStyle = "bluej.notation.style";
 
     private static int fontSize;
@@ -181,6 +184,19 @@ public class PrefMgr
             editorStandardFont = deriveFont(fontName, size);
             editorStandoutFont = new Font(fontName, Font.BOLD, size);
         }
+    }
+    
+    /**
+     * Set the editor font size preference to a particular point size
+     *
+     * @param size  the size of the font
+     */
+    public static Font getTerminalFont()
+    {
+        int size = Config.getPropInteger(terminalFontSizePropertyName, 12);
+        String fontName = Config.getPropString(terminalFontPropertyName, "Monospaced");
+         
+        return deriveFont(fontName, size);
     }
     
     /**
