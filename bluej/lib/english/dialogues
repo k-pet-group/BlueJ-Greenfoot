@@ -20,10 +20,6 @@ The method finished through an explicit
 "exit" instruction. No result was
 returned. The exit code is:
 
-one-browser-only
-Sorry - you can only start one copy
-of this version of the Library Browser
-
 no-help
 No help available for this message.
 Please mail the text of the error message
@@ -171,9 +167,6 @@ no-java-sources-found
 No Java source files were
 found in this directory.
 
-# this belongs to the message above and is temporarily disabled.
-(or any of its subdirectories).
-
 duplicate-name
 A class with this name already exists
 in this package. You cannot have two
@@ -238,16 +231,6 @@ Print
 Cancel
 null
 
-really-import-package
-You chose a directory that is not a BlueJ package.
-Do you want this directory to be searched for Java source
-files that can be displayed in a BlueJ package window?
-(If you just wanted to see the content of this directory,
-click Cancel now and then double click the directory icon).
-Search
-Cancel
-null
-
 import-into-current
 You currently have a package open in this window.
 Do you want to import into the current package
@@ -256,6 +239,24 @@ import into that?
 Current
 New Project
 Cancel
+
+package-name-invalid
+You have changed the package statement which
+tells Java the package this class is in to a
+package which does not exist in this project.
+If you wish to move this class to another
+package you must create the destination
+package first. The package statement has been
+reverted back to its original form.
+
+package-name-changed
+You have changed the package statement which
+tells Java the package this class is in. Do you
+want to move this class to the indicated package
+or do you want to leave the class where it is?
+Move
+Leave
+null
 
 ask-index
 Enter array element index [...]
