@@ -25,7 +25,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2344 2003-11-14 12:35:25Z polle $
+ * @version    $Id: Inspector.java 2345 2003-11-14 13:02:02Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -199,12 +199,8 @@ public abstract class Inspector extends JFrame
         }
 
         //Ensures that an element is always seleceted (if there is any)       
-        if(fieldList.getSelectedRow() == -1) {
-            try {
-                fieldList.setRowSelectionInterval(0,0);
-            } catch (IndexOutOfBoundsException e) {
-                //the list is empty
-            }            
+        if(fieldList.getSelectedRow() == -1 && listData.length > 0) {
+            fieldList.setRowSelectionInterval(0,0);
         }  
         
         //Calculate the height of the list
