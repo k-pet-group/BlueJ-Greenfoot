@@ -13,7 +13,7 @@ import bluej.pkgmgr.Package;
  * field after traversing into a directory.
  *
  * @author Michael Kolling
- * @version $Id: BlueJFileChooser.java 901 2001-05-23 04:29:34Z ajp $
+ * @version $Id: BlueJFileChooser.java 1119 2002-01-30 00:06:26Z bquig $
  */
 class BlueJFileChooser extends JFileChooser
 {
@@ -37,8 +37,9 @@ class BlueJFileChooser extends JFileChooser
         //Here we could treat bluej package differently
         //At the moment nothing is done.
         //if (Package.isBlueJPackage(dir)) { ...
-
-        setSelectedFile(null);              //clear the textfield
+        
+        //commented out post 1.1.6 to fix null pointer issue with J2SDK 1.4
+        //setSelectedFile(null);              //clear the textfield
         super.setCurrentDirectory(dir);
     }
 }
