@@ -8,10 +8,8 @@
 
 package bluej.editor.moe;
 
-import bluej.Main;
 import bluej.Config;
 import bluej.utility.Debug;
-import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
@@ -31,7 +29,6 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
-import org.gjt.sp.jedit.syntax.*;
 
 /**
  * A set of actions supported by the Moe editor. This is a singleton: the
@@ -42,6 +39,7 @@ import org.gjt.sp.jedit.syntax.*;
  * complete, ordered access.
  *
  * @author Michael Kolling
+ * @author Bruce Quig
  */
 
 public final class MoeActions
@@ -956,6 +954,20 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
+    class GoToLineAction extends MoeAbstractAction {
+
+        public GoToLineAction() {
+            super("go-to-line");
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            getEditor(e).goToLine();
+        }
+    }
+
+
+    // --------------------------------------------------------------------
+
     //     class Action extends MoeAbstractAction {
     //
     //       public Action() {
@@ -1344,6 +1356,7 @@ public final class MoeActions
             new FindNextBackwardAction(),
             new ReplaceAction(),
             compileAction,
+            new GoToLineAction(),
             new ToggleInterfaceAction(),
             new ToggleBreakPointAction(),
 
@@ -1465,7 +1478,8 @@ public final class MoeActions
             (Action)(actions.get("compile")),
             (Action)(actions.get("toggle-interface-view")),
             (Action)(actions.get("toggle-breakpoint")),
-        };                                                      // 76
+            (Action)(actions.get("go-to-line")),
+        };                                                      // 77
 
         categories = new String[] { Config.getString("editor.functions.editFunctions"),
                                     Config.getString("editor.functions.moveScroll"),

@@ -55,6 +55,7 @@ import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
  * rest of the BlueJ system.
  *
  * @author Michael Kolling
+ * @author Bruce Quig
  */
 
 public final class MoeEditor extends JFrame
@@ -139,6 +140,7 @@ public final class MoeEditor extends JFrame
     private JPanel statusArea;	    // the status area
     private StatusLabel saveState;  // the status label
     private JComboBox interfaceToggle;
+    private GoToLineDialog goToLineDialog;
 
     private JScrollPane scrollPane;
     private JComponent toolbar;	    // The toolbar
@@ -685,7 +687,6 @@ public final class MoeEditor extends JFrame
     }
 
 
-
     // ==================== USER ACTION IMPLEMENTATIONS ===================
 
     // --------------------------------------------------------------------
@@ -1017,6 +1018,21 @@ public final class MoeEditor extends JFrame
     }
 
     /**
+     * Transfers caret to user specified line number location.
+     */
+    public void goToLine()
+    {
+        if(goToLineDialog == null)
+           goToLineDialog = new GoToLineDialog(this); 
+           
+        DialogManager.centreDialog(goToLineDialog);
+        goToLineDialog.showDialog(numberOfLines());
+        int newPosition = goToLineDialog.getLineNumber();
+        if(newPosition > 0)
+            setSelection(newPosition, 1, 0);
+    }
+
+    /**
      * Find the position of a substring in a given string, ignoring case or searching for
      * whole words if desired. Return the position of the substring or -1.
      *
@@ -1064,6 +1080,18 @@ public final class MoeEditor extends JFrame
             return -1;
     }
 
+    // --------------------------------------------------------------------
+    /**
+     *
+     */
+    public void setFontSize(int size)
+    {
+        MutableAttributeSet attr = new SimpleAttributeSet();
+        //bq StyleConstants.setFontSize(attr, size);
+        int start = document.getStartPosition().getOffset();
+        int length = document.getEndPosition().getOffset() - start;
+        //bq document.setCharacterAttributes(start, length, attr, false);
+    }
 
     // --------------------------------------------------------------------
     /**
@@ -1821,7 +1849,7 @@ public final class MoeEditor extends JFrame
         String label;
 
         // get menu title
-        JMenu menu = new JMenu(Config.getString("editor."+key + LabelSuffix));
+        JMenu menu = new JMenu(Config.getString("editor." + key + LabelSuffix));
 
         // get menu definition
         String itemString = getResource(key);
@@ -1910,8 +1938,7 @@ public final class MoeEditor extends JFrame
             button = new JButton(label);
 
         button.setRequestFocusEnabled(false);   // never get keyboard focus
-        //button.setMargin(new Insets(2,2,2,2));
-        button.setFont(PrefMgr.getStandardFont());
+        button.setMargin(new Insets(2,2,2,2));
 
         String actionName = getResource(key + ActionSuffix);
         if (actionName == null)
@@ -1945,7 +1972,6 @@ public final class MoeEditor extends JFrame
         interfaceToggle.setRequestFocusEnabled(false);
         interfaceToggle.setBorder(new EmptyBorder(2,2,2,2));
         interfaceToggle.setForeground(envOpColour);
-        interfaceToggle.setFont(PrefMgr.getStandardFont());
 
         String actionName = "toggle-interface-view";
         Action action = actions.getActionByName(actionName);
