@@ -33,7 +33,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Andrew Patterson
- * @version $Id: ArrayWrapper.java 1552 2002-12-02 05:59:24Z ajp $
+ * @version $Id: ArrayWrapper.java 1576 2002-12-11 23:30:26Z ajp $
  */
 public class ArrayWrapper extends ObjectWrapper
 {
@@ -95,11 +95,11 @@ public class ArrayWrapper extends ObjectWrapper
         g.setFont(PrefMgr.getStandardFont());
         FontMetrics fm = g.getFontMetrics();
 
-        drawUMLObjectShape(g,10,10,WIDTH-10,HEIGHT-10,3,5);
-        drawUMLObjectShape(g,5,5,WIDTH-10,HEIGHT-10,3,5);
-        drawUMLObjectShape(g,0,0,WIDTH-10,HEIGHT-10,3,5);
+        drawUMLObjectShape(g,GAP+10,10,WIDTH-10,HEIGHT-10,3,5);
+        drawUMLObjectShape(g,GAP+5,5,WIDTH-10,HEIGHT-10,3,5);
+        drawUMLObjectShape(g,GAP,0,WIDTH-10,HEIGHT-10,3,5);
 
-        drawUMLObjectText(g,0,0,WIDTH-10,HEIGHT-10,3,
+        drawUMLObjectText(g,GAP,0,WIDTH-10,HEIGHT-10,3,
                             instanceName + ":", displayClassName);
         
     }
