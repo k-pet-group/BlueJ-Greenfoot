@@ -16,14 +16,14 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Main.java 519 2000-05-31 04:05:07Z ajp $
+ * @version $Id: Main.java 632 2000-07-07 02:10:14Z mik $
  */
 public class Main
 {
     public static int BLUEJ_VERSION_MAJOR = 1;
     public static int BLUEJ_VERSION_MINOR = 1;
     public static int BLUEJ_VERSION_RELEASE = 0;
-    public static String BLUEJ_VERSION_SUFFIX = " alpha";
+    public static String BLUEJ_VERSION_SUFFIX = " beta";
 
 
     public static int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +

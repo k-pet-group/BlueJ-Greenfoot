@@ -39,7 +39,7 @@ bluej.language=english
 #####################################################################
 
 bluej.url.tutorial=http://bluej.monash.edu/tutorial/tutorial.pdf
-bluej.url.reference=http://bluej.monash.edu/reference/
+bluej.url.reference=http://bluej.monash.edu/reference/manual.pdf
 bluej.url.javaStdLib=http://java.sun.com/products/jdk/1.3/docs/api/index.html
 
 

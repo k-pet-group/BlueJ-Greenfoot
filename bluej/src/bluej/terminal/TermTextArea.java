@@ -16,7 +16,7 @@ import javax.swing.text.*;
 
 public final class TermTextArea extends JTextArea
 {
-    private static final int BUFFER_LINES = 40;
+    private static final int BUFFER_LINES = 48;
 
     private boolean unlimitedBuffer = false;
 
