@@ -1,16 +1,15 @@
 package bluej.graph;
 
 import java.awt.*;
-import java.awt.event.MouseEvent;
 
 /**
  * General graph vertices
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Vertex.java 1541 2002-11-29 13:48:00Z ajp $
+ * @version $Id: Vertex.java 2044 2003-06-23 11:52:54Z fisker $
  */
-public abstract class Vertex
+public abstract class Vertex extends GraphElement
 {
     private int x, y;            // position
     private int width, height;   // size
@@ -73,19 +72,15 @@ public abstract class Vertex
 
         draw(newg);
     }
+    
+    /**
+     * The default shape for a vertex is a rectangle. Child classes can
+     * override this method to define more complex shapes.
+     */
+    public boolean contains(int x, int y){
+        return (getX() <= x) && (x < getX() + getWidth()) &&
+               (getY() <= y) && (y < getY() + getHeight());
+    }
 
-    public abstract void draw(Graphics2D g);
-
-    public void mousePressed(MouseEvent evt, int x, int y, GraphEditor editor) {}
-
-    public void mouseReleased(MouseEvent evt, int x, int y, GraphEditor editor) {}
-
-    public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor) {}
-
-    public void mouseMoved(MouseEvent evt, int x, int y, GraphEditor editor) {}
-
-    public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor) {}
-    public void singleClick(MouseEvent evt, int x, int y, GraphEditor editor) {}
-
-    public void popupMenu(int x, int y, GraphEditor editor) {}
+    
 }
