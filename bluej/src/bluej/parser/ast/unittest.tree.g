@@ -37,10 +37,10 @@ options {
      * name for methods).
      *
      * ie.
-     * /** asdasd */ public void methodName(int x)
+     * \** asdasd *\ public void methodName(int x)
      *               ^mods       ^keyword
      *
-     * /** asdasd */ class MyClass {
+     * \** asdasd *\ class MyClass {
      *               ^keyword
      */
     static antlr.CommonToken helpFindComment(AST mods, AST keyword)

@@ -37,140 +37,19 @@ import antlr.collections.impl.ASTArray;
 public class UnitTestParser extends antlr.TreeParser       implements UnitTestParserTokenTypes
  {
 
-	/**
-	 * Given an OBJBLOCK (generally from a class definition), we extract
-	 * a list of fields declared in the OBJBLOCK
-	 * ie
-	 *
-	 * class FooBar {
-	 *    private int a = 10;
-	 *    java.util.HashMap h,i,j = null;
-	 *    public String aString;
-	 * }
-	 * gives us a list with SourceSpan objects encompassing
-	 *   p in private to ;
-	 *   j in java to ;
-	 *   p in public to ;
-	 */
-    public static List getVariableSelections(AST objBlock)
-    {
-        if (!(objBlock instanceof LocatableAST))
-            throw new IllegalArgumentException("using unit test parser with wrong AST type");
-
-		// we are creating a list of AST nodes
-        LinkedList l = new LinkedList();
-
-		// the first AST in this OBJBLOCK
-        LocatableAST childAST = (LocatableAST) ((BaseAST)objBlock).getFirstChild();
-
-        // the children in an object block are a list of variable definitions
-        // and method definitions
-        while(childAST != null) {
-            // we are only interested in variable definitions
-            if(childAST.getType() == UnitTestParserTokenTypes.VARIABLE_DEF) {
-				// potentially VARIABLE_DEF could look like this
-				// we need to find the first type token (in this case
-				// "java") and the semicolon
-				
-				// ( VARIABLE_DEF ( . ( . java lang ) String ) ; )
-
-            	// find the complete span of nodes for this variable definition
-                LocatableAST startSibling = null, endSibling = null;
-                
-                startSibling = (LocatableAST) childAST.getFirstChild();
-                if(startSibling != null) {
-                	// the semicolon is always the sibling of the first child found
-                    endSibling = (LocatableAST) startSibling.getNextSibling();
-                    
-                    // however, we need to keep going down with startSibling to find
-                    // the left most token
-					while (startSibling.getFirstChild() != null)
-						startSibling = (LocatableAST) startSibling.getFirstChild();
-				}
-				                    
-                if (startSibling != null && endSibling != null) {                    
-					l.add(new SourceSpan(new SourceLocation(startSibling.getLine(),
-					                                        startSibling.getColumn()),
-					                     new SourceLocation(endSibling.getLine(),
-					                                        endSibling.getColumn())));
-                }
-            }               
-            childAST = (LocatableAST) childAST.getNextSibling();            
-        }            
-        return l;
-    }
-
-	/**
-	 * Given an OBJBLOCK (generally from a class definition), we extract
-	 * information about a unitTestSetup method in the OBJBLOCK
-	 * ie
-	 *
-	 * class FooBar {
-	 *    private int a = 10;
-	 *    java.util.HashMap h = null;
-	 *    public String aString;
-	 * }
-	 * gives us a list with AST nodes for  -> private , ; , java , ; , public , ; -<
-	 */
-    public static List getSetupMethodSelections(AST objBlock)
-    {
-        if (!(objBlock instanceof LocatableAST))
-            throw new IllegalArgumentException("wrong AST type");
-
-        LinkedList l = new LinkedList();
-        LocatableAST childAST = (LocatableAST) ((BaseAST)objBlock).getFirstChild();
-
-        // the children on a class' object block are a list of variable definitions
-        // and method definitions
-        while(childAST != null) {
-            // we are only interested in method definitions
-            if(childAST.getType() == UnitTestParserTokenTypes.METHOD_DEF) {
-                LocatableAST firstSib = null, secondSib = null, thirdSib = null;
-                
-                firstSib = (LocatableAST) childAST.getFirstChild();
-                if(firstSib != null && firstSib.getText().equals("setUp"))
-                    secondSib = (LocatableAST) firstSib.getNextSibling();
-                else
-                    continue;
-
-                if (secondSib != null) {
-                    thirdSib = (LocatableAST) secondSib.getNextSibling();
-                }
-                    
-                if (secondSib != null && thirdSib != null) {                    
-                    l.addFirst(thirdSib);
-                    l.addFirst(secondSib);
-
-                    return l;
-                }
-            }               
-            childAST = (LocatableAST) childAST.getNextSibling();            
-        }            
-        return l;
-    }
-
-    public static LocatableAST getOpeningBracketSelection(AST classBlock)
-    {
-        if (!(classBlock instanceof LocatableAST))
-            throw new IllegalArgumentException("wrong AST type");
-
-        return (LocatableAST) classBlock.getNextSibling();
-    }
-
-    public static LocatableAST getMethodInsertSelection(AST classBlock)
-    {
-        if (!(classBlock instanceof LocatableAST))
-            throw new IllegalArgumentException("wrong AST type");
-
-        return (LocatableAST) classBlock.getNextSibling();
-    }
-
     /**
      * Locate the comment token associated with a method/class.
      * We do this by looking at the hidden tokens associated with
      * both the modifiers (public, static etc) of the method/class
-     * and then keyword associated (ie class for classes, the method
+     * and then keyword associated (ie 'class' for classes, or the method
      * name for methods).
+     *
+     * ie.
+     * \** asdasd *\ public void methodName(int x)
+     *               ^mods       ^keyword
+     *
+     * \** asdasd *\ class MyClass {
+     *               ^keyword
      */
     static antlr.CommonToken helpFindComment(AST mods, AST keyword)
     {
@@ -418,6 +297,9 @@ public UnitTestParser() {
 				else
 				comment = null;
 				
+							// lc and rc and the left and right curly brackets associated with this
+							// class definition. We have stored them in the LocatableAST as
+							// 'important' tokens (done inside java.g)
 				LocatableAST lc = new LocatableAST(((LocatableAST) ob).getImportantToken(0));
 				LocatableAST rc = new LocatableAST(((LocatableAST) ob).getImportantToken(1));
 				
@@ -4958,6 +4840,7 @@ public UnitTestParser() {
 		"\"return\"",
 		"\"switch\"",
 		"\"throw\"",
+		"\"assert\"",
 		"\"case\"",
 		"\"default\"",
 		"\"try\"",
@@ -5020,12 +4903,12 @@ public UnitTestParser() {
 	};
 	
 	private static final long[] mk_tokenSet_0() {
-		long[] data = { -4611682170136690688L, 127L, 33554432L, 0L, 0L, 0L};
+		long[] data = { -4611682170136690688L, 127L, 67108864L, 0L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_0 = new BitSet(mk_tokenSet_0());
 	private static final long[] mk_tokenSet_1() {
-		long[] data = { 275150587008L, 10731126816L, 0L, 0L};
+		long[] data = { 275150587008L, 19321061408L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_1 = new BitSet(mk_tokenSet_1());

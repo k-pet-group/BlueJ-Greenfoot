@@ -1,15 +1,12 @@
 package bluej.parser;
 
-// make sure we don't use the JavaLexer in bluej.parser
-import bluej.parser.ast.gen.JavaLexer;
-import bluej.parser.ast.*;
-import bluej.parser.ast.gen.*;
-
 import java.io.Reader;
 import java.util.*;
 
 import antlr.*;
 import antlr.collections.AST;
+import bluej.parser.ast.*;
+import bluej.parser.ast.gen.*;
 
 /**
  * @author Andrew
@@ -28,34 +25,12 @@ public class UnitTestAnalyzer
      */
     public UnitTestAnalyzer(Reader r)
     {
+        JavaAnalyzer ja = null;
+        
         parsedOk = false;
         
-        // create a scanner that reads from the input stream passed to us
-        JavaLexer lexer = new JavaLexer(r);
-        lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
-
-        // with a tab size of one, the rows and column numbers that
-        // locatable token returns are model coordinates in the editor
-        // (not view coordinates)
-        // ie a keyword may appear to start at column 14 because of tabs
-        // but in the actual document model its really at column 4
-        // so we set our tabsize to 1 so that it maps directly to the
-        // document model
-        lexer.setTabSize(1);
-
-        // create a filter to handle our comments
-        TokenStreamHiddenTokenFilter filter;
-        filter = new TokenStreamHiddenTokenFilter(lexer);
-        filter.hide(JavaRecognizer.SL_COMMENT);
-        filter.hide(JavaRecognizer.ML_COMMENT);
-
-        // Create a parser that reads from the scanner
-        JavaRecognizer parser = new JavaRecognizer(filter);
-        parser.setASTNodeClass("bluej.parser.ast.LocatableAST");
-
-        // start parsing at the compilationUnit rule
         try {
-            parser.compilationUnit();
+            ja = new JavaAnalyzer(r);
         }
         catch (RecognitionException re) {
             re.printStackTrace();
@@ -69,7 +44,7 @@ public class UnitTestAnalyzer
         UnitTestParser tparse = new UnitTestParser();
         tparse.setASTNodeClass("bluej.parser.ast.LocatableAST");
         try {
-            tparse.compilationUnit(parser.getAST());
+            tparse.compilationUnit(ja.getAST());
         }
         catch (RecognitionException e) {
             e.printStackTrace();

@@ -149,14 +149,14 @@ Adds a file to an AST tree
             
 		try {
 			// Create a scanner that reads from the input stream passed to us
-			JavaLexer lexer = new JavaLexer(sr);
+//			JavaLexer lexer = new JavaLexer(sr);
 
 			// Create a parser that reads from the scanner
-			JavaRecognizer parser = new JavaRecognizer(lexer);
-            parser.setASTNodeClass("bluej.parser.ast.TypeInfoAST");
+//			JavaRecognizer parser = new JavaRecognizer(lexer);
+//            parser.setASTNodeClass("bluej.parser.ast.TypeInfoAST");
 
 			// start parsing at the expression rule
-			parser.expression();
+//			parser.expression();
 /*			
             TypeInfoAST tia = (TypeInfoAST) parser.getAST();
 

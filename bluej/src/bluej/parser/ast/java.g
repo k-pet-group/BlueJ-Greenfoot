@@ -134,7 +134,12 @@ tokens {
 {
     // Our nodes can also store "important" nodes. Ones that
     // don't interfere with the AST matching but which can be
-    // retrieved in the tree processing code
+    // retrieved in the tree processing code.
+    // For instance, when processing a class, we need to know
+    // where the opening and closing bracket tokens are, yet we
+    // don't want to change the actual tree generated to include
+    // bracket nodes. So we attach the bracket tokens to the
+    // CLASS_DEF node in the tree.
     static void addImportantToken(AST h, Token t)
     {
         // we may want to use this grammar with different AST types
@@ -165,7 +170,7 @@ compilationUnit
 
 // Package statement: "package" followed by an identifier.
 packageDefinition
-	options {defaultErrorHandler = true;} // let ANTLR handle errors
+	options {defaultErrorHandler = false;} // let ANTLR handle errors
 	:	p:"package"^ {#p.setType(PACKAGE_DEF);} identifier s:SEMI!
 	    {   addImportantToken(#p, s);   }
 	;
@@ -173,14 +178,14 @@ packageDefinition
 
 // Import statement: import followed by a package or class name
 importDefinition
-	options {defaultErrorHandler = true;}
+	options {defaultErrorHandler = false;}
 	:	i:"import"^ {#i.setType(IMPORT);} identifierStar s:SEMI!
 	    {   addImportantToken(#i, s);   }
 	;
 
 // A type definition in a file is either a class or interface definition.
 typeDefinition
-	options {defaultErrorHandler = true;}
+	options {defaultErrorHandler = false;}
 	:	m:modifiers!
 		( classDefinition[#m]
 		| interfaceDefinition[#m]
@@ -602,7 +607,7 @@ statement
 	|	"synchronized"^ LPAREN! expression RPAREN! compoundStatement
 
 	// asserts (uncomment if you want 1.4 compatibility)
-	// |	"assert"^ expression ( COLON! expression )? SEMI!
+	|	"assert"^ expression ( COLON! expression )? SEMI!
 
 	// empty statement
 	|	s:SEMI {#s.setType(EMPTY_STAT);}
@@ -1051,6 +1056,7 @@ class JavaLexer extends Lexer;
 options {
 	exportVocab=Java;      // call the vocabulary "Java"
 	testLiterals=false;    // don't automatically test for literals
+    defaultErrorHandler=false;
 	k=4;                   // four characters of lookahead
 	charVocabulary='\u0003'..'\uFFFF';
 	// without inlining some bitset tests, couldn't do unicode;
@@ -1221,10 +1227,10 @@ HEX_DIGIT
 
 // a dummy rule to force vocabulary to be all characters (except special
 //   ones that ANTLR uses internally (0 to 2)
-protected
-VOCAB
-	:	'\3'..'\377'
-	;
+//protected
+//VOCAB
+//	:	'\3'..'\377'
+//	;
 
 
 // an identifier.  Note that testLiterals is set to true!  This means
@@ -1232,7 +1238,7 @@ VOCAB
 // if it's a literal or really an identifer
 IDENT
 	options {testLiterals=true; paraphrase = "an identifier";}
-    :   ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00c0'..'\u00ff')
+    :   ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00c0'..'\ufffe')
         ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00c0'..'\ufffe'|'0'..'9')*
 	;
 
