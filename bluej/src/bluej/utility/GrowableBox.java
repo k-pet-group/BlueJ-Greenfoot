@@ -18,7 +18,7 @@ import javax.swing.JPanel;
  * components in either a horizonatal or vertical direction.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GrowableBox.java 2585 2004-06-10 13:27:46Z polle $
+ * @version $Id: GrowableBox.java 2637 2004-06-20 11:22:18Z polle $
  */
 public class GrowableBox extends Box
 {
@@ -56,22 +56,6 @@ public class GrowableBox extends Box
                 createNewComponent(0);
             }
         });
-               
-        /*addButton = new JButton();
-        removeButton = new JButton();
-        initButtons(addButton, removeButton);
-        defaultGrowable = componentFactory.createComponent(addButton, removeButton);
-        addButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                int index = getIndex(defaultGrowable);
-                createNewComponent(index + 1);
-            }
-        });
-        removeButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                removeGrowableComponent(defaultGrowable);
-            }
-        });*/
         clear();
     }
 
