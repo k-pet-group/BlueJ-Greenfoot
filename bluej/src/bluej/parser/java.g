@@ -747,11 +747,11 @@ field
         mods=modifiers
 
         (
-	        ctorHead[null, commentToken] constructorBody    // constructor
+            ctorHead[null, commentToken] constructorBody    // constructor
         |
             classDefinition[new JavaBitSet(), null]         // inner class
         |
-		    enumDefinition[new JavaBitSet(), null]     // inner enum
+            enumDefinition[new JavaBitSet(), null]     // inner enum
 		|
             interfaceDefinition[new JavaBitSet(), null]     // inner interface
         |
