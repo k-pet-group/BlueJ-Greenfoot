@@ -256,17 +256,9 @@ public class ExtensionsManager implements BlueJEventListener
 
 
     /**
-     *  Adds extension menu items to a newly created frame
-     *
-     * @param  menu     TO BE DELETED, it is always the tools menu
-     * @param  project  the project, so that extensions belonging to other
-     *      projects do not get their menu items added, we need o talk about
-     *      it... What this should do is to go trough all valid extensions and
-     *      revalidate their menu against this frame. This MUST be called from a
-     *      swing thread...
-     * @param  pmf      The feature to be added to the MenuItems attribute
+     * Adds extension menu items to a newly created frame.
      */
-    public void addMenuItems(Project project, PkgMgrFrame pmf)
+    public void addMenuItems( PkgMgrFrame pmf )
     {
         pmf.toolsExtensionsCheckSeparator();
 

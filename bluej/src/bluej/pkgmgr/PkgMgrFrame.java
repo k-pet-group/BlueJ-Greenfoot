@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1830 2003-04-11 09:28:39Z damiano $
+ * @version $Id: PkgMgrFrame.java 1831 2003-04-11 09:47:48Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -142,7 +142,7 @@ public class PkgMgrFrame extends JFrame
             pmf.openPackage(pkg);
         }
 
-        extMgr.addMenuItems(pmf.getProject(), pmf);
+        extMgr.addMenuItems( pmf);
         return pmf;
     }
 
@@ -2106,7 +2106,7 @@ public class PkgMgrFrame extends JFrame
                            });
 
             toolsExtensionsCheckSeparator();
-            extMgr.addMenuItems (null, this);
+            extMgr.addMenuItems ( this );
         }
 
 
