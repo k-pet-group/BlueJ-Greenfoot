@@ -15,7 +15,7 @@ import javax.swing.*;
  * an import.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportFailedDialog.java 592 2000-06-28 05:01:49Z ajp $
+ * @version $Id: ImportFailedDialog.java 1098 2002-01-16 04:53:33Z ajp $
  */
 public class ImportFailedDialog extends JDialog
     implements ActionListener
@@ -63,6 +63,7 @@ public class ImportFailedDialog extends JDialog
             }
 
             JScrollPane scrolly = new JScrollPane(failedList);
+            scrolly.setAlignmentX(LEFT_ALIGNMENT);
 
             mainPanel.add(scrolly);
             mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));

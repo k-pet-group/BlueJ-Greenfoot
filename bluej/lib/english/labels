@@ -346,6 +346,18 @@ pkgmgr.export.classLabel=main class:
 pkgmgr.export.sourceLabel=include source
 pkgmgr.export.noClassText=none (cannot be executed)
 
+# "open-non-bluej" mismatch dialog
+pkgmgr.importmismatch.title=BlueJ:  Package Line Mismatches
+pkgmgr.importmismatch.helpLine1=WARNING: This is not the expected top level directory of this Java
+pkgmgr.importmismatch.helpLine2=project as declared in some of the project's class's package declarations.
+pkgmgr.importmismatch.helpLine3=Opening this directory will change all package declarations in the
+pkgmgr.importmismatch.helpLine4=following source files of the project.
+pkgmgr.importmismatch.helpLine5=Most likely you should open the parent directory of the one you
+pkgmgr.importmismatch.helpLine6=have selected. For example, to open a Java project that contains
+pkgmgr.importmismatch.helpLine7=the package "org.bluej", you must select the directory that
+pkgmgr.importmismatch.helpLine8=_contains_ "org",  not the "org" or "bluej" directory itself.
+pkgmgr.importmismatch.helpLine9=Do you want to continue opening and changing the package declarations?
+
 # "import" failure dialog
 pkgmgr.importfailed.title=BlueJ:  Import Status
 pkgmgr.importfailed.helpLine1=The import has failed to copy the following files.

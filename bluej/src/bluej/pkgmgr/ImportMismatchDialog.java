@@ -17,7 +17,7 @@ import javax.swing.*;
  * had mismatched package lines on an open non-BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportMismatchDialog.java 1088 2002-01-12 13:31:47Z ajp $
+ * @version $Id: ImportMismatchDialog.java 1098 2002-01-16 04:53:33Z ajp $
  */
 public class ImportMismatchDialog extends JDialog
     implements ActionListener
@@ -26,9 +26,6 @@ public class ImportMismatchDialog extends JDialog
     private static final String cancel = Config.getString("cancel");
 
     private static final String dialogTitle = Config.getString("pkgmgr.importmismatch.title");
-    private static final String helpLine1 = Config.getString("pkgmgr.importmismatch.helpLine1");
-    private static final String helpLine2 = Config.getString("pkgmgr.importmismatch.helpLine2");
-    private static final String helpLine3 = Config.getString("pkgmgr.importmismatch.helpLine3");
 
     private boolean result = false;
 
@@ -44,22 +41,44 @@ public class ImportMismatchDialog extends JDialog
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
             mainPanel.setBorder(Config.dialogBorder);
 
-            JLabel helpText1 = new JLabel(helpLine1);
+            JLabel helpText1 = new JLabel(Config.getString("pkgmgr.importmismatch.helpLine1"));
             helpText1.setAlignmentX(LEFT_ALIGNMENT);
             mainPanel.add(helpText1);
-
-            JLabel helpText2 = new JLabel(helpLine2);
+            JLabel helpText2 = new JLabel(Config.getString("pkgmgr.importmismatch.helpLine2"));
             helpText2.setAlignmentX(LEFT_ALIGNMENT);
             mainPanel.add(helpText2);
-
-            JLabel helpText3 = new JLabel(helpLine3);
+            JLabel helpText3 = new JLabel(Config.getString("pkgmgr.importmismatch.helpLine3"));
             helpText3.setAlignmentX(LEFT_ALIGNMENT);
             mainPanel.add(helpText3);
+            JLabel helpText4 = new JLabel(Config.getString("pkgmgr.importmismatch.helpLine4"));
+            helpText4.setAlignmentX(LEFT_ALIGNMENT);
+            mainPanel.add(helpText4);
+            JLabel helpText5 = new JLabel(Config.getString("pkgmgr.importmismatch.helpLine5"));
+            helpText5.setAlignmentX(LEFT_ALIGNMENT);
+            mainPanel.add(helpText5);
+            JLabel helpText6 = new JLabel(Config.getString("pkgmgr.importmismatch.helpLine6"));
+            helpText6.setAlignmentX(LEFT_ALIGNMENT);
+            mainPanel.add(helpText6);
+            JLabel helpText7 = new JLabel(Config.getString("pkgmgr.importmismatch.helpLine7"));
+            helpText7.setAlignmentX(LEFT_ALIGNMENT);
+            mainPanel.add(helpText7);
+            JLabel helpText8 = new JLabel(Config.getString("pkgmgr.importmismatch.helpLine8"));
+            helpText8.setAlignmentX(LEFT_ALIGNMENT);
+            mainPanel.add(helpText8);
+            JLabel helpText9 = new JLabel(Config.getString("pkgmgr.importmismatch.helpLine9"));
+            helpText9.setAlignmentX(LEFT_ALIGNMENT);
+            mainPanel.add(helpText9);
 
             Font smallFont = helpText1.getFont().deriveFont(10);
             helpText1.setFont(smallFont);
             helpText2.setFont(smallFont);
             helpText3.setFont(smallFont);
+            helpText4.setFont(smallFont);
+            helpText5.setFont(smallFont);
+            helpText6.setFont(smallFont);
+            helpText7.setFont(smallFont);
+            helpText8.setFont(smallFont);
+            helpText9.setFont(smallFont);
 
             mainPanel.add(Box.createVerticalStrut(5));
 
@@ -69,6 +88,7 @@ public class ImportMismatchDialog extends JDialog
             }
 
             JScrollPane scrolly = new JScrollPane(failedList);
+            scrolly.setAlignmentX(LEFT_ALIGNMENT);
 
             mainPanel.add(scrolly);
             mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
@@ -91,6 +111,15 @@ public class ImportMismatchDialog extends JDialog
                 buttonPanel.add(cancelButton);
 
                 getRootPane().setDefaultButton(cancelButton);
+
+                // try to make the continue and cancel buttons have equal width
+                int biggest = Math.max(contButton.getPreferredSize().width,
+                                        cancelButton.getPreferredSize().width);
+
+                cancelButton.setPreferredSize(new Dimension(biggest,
+                                                cancelButton.getPreferredSize().height));
+                contButton.setPreferredSize(new Dimension(biggest,
+                                             contButton.getPreferredSize().height));
             }
 
             mainPanel.add(buttonPanel);
@@ -109,6 +138,13 @@ public class ImportMismatchDialog extends JDialog
 
     public void actionPerformed(ActionEvent evt)
     {
+        String cmd = evt.getActionCommand();
+
+        if(cont.equals(cmd))
+            result = true;
+        else
+            result = false;
+
         dispose();
     }
 }
