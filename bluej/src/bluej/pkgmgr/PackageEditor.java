@@ -14,7 +14,7 @@ import javax.swing.*;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 555 2000-06-19 00:35:11Z mik $
+ * @version $Id: PackageEditor.java 634 2000-07-07 02:38:22Z ajp $
  */
 public class PackageEditor extends GraphEditor
 {
@@ -62,6 +62,12 @@ public class PackageEditor extends GraphEditor
     {
         fireTargetEvent(
             new PackageEditorEvent(t, PackageEditorEvent.TARGET_REMOVE));
+    }
+
+    public void raiseRunTargetEvent(Target t)
+    {
+        fireTargetEvent(
+            new PackageEditorEvent(t, PackageEditorEvent.TARGET_RUN));
     }
 
     public void raiseOpenPackageEvent(Target t, String packageName)

@@ -22,7 +22,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 603 2000-06-29 06:38:01Z ajp $
+ ** @version $Id: AppletClassRole.java 634 2000-07-07 02:38:22Z ajp $
  **/
 public class AppletClassRole extends ClassRole
 {
@@ -160,9 +160,8 @@ public class AppletClassRole extends ClassRole
         String cmd = e.getActionCommand();
 
         if(runAppletStr.equals(cmd))
-            runApplet(ct);
+            ct.getPackage().getEditor().raiseRunTargetEvent(ct);
     }
-
 
     /**
      * Runs the applet using options provided by user RunAppletDialog dialog
@@ -174,13 +173,13 @@ public class AppletClassRole extends ClassRole
      * @param ct the class target that is represented by this applet class
      *
      */
-    private void runApplet(ClassTarget ct)
+    void runApplet(PkgMgrFrame parent, ClassTarget ct)
     {
         String name = ct.getBaseName();
         Package pkg = ct.getPackage();
 
         if(dialog == null) {
-            dialog = new RunAppletDialog(null /*XXXct.getPackage().getFrame()*/, name);
+            dialog = new RunAppletDialog(parent, name);
             // add params that originated from pkg properties
             if(appletParams != null)
                 dialog.setAppletParameters(appletParams);
@@ -191,7 +190,7 @@ public class AppletClassRole extends ClassRole
             int execOption = dialog.getAppletExecutionOption();
             if(execOption == RunAppletDialog.GENERATE_PAGE_ONLY) {
                 // generate HTML page for Applet using selected path and file name
-                String generatedFileName = chooseWebPage(null /*pkg.getFrame()*/);
+                String generatedFileName = chooseWebPage(parent);
                 if(generatedFileName != null)
                     createWebPage(name, URL_PREFIX + pkg.getPath().getPath(), generatedFileName);
             }
@@ -208,7 +207,7 @@ public class AppletClassRole extends ClassRole
                 if(execOption == RunAppletDialog.EXEC_APPLETVIEWER) {
                     try {
                         String[] execCommand = {APPLETVIEWER_COMMAND, url};
-                        //XXX                    ((PkgMgrFrame)pkg.getFrame()).displayMessage(Config.getString("pkgmgr.appletInViewer"));
+                        parent.displayMessage(Config.getString("pkgmgr.appletInViewer"));
 
                         Process applet =
                             Runtime.getRuntime().exec(execCommand);
@@ -220,13 +219,12 @@ public class AppletClassRole extends ClassRole
                 }
                 else {
                     // start in Browser
-                    //XXX		    ((PkgMgrFrame)pkg.getFrame()).displayMessage(Config.getString("pkgmgr.appletInBrowser"));
+                    parent.displayMessage(Config.getString("pkgmgr.appletInBrowser"));
                     Utility.openWebBrowser(absoluteFileName);
                 }
             }
         }
     }
-
 
 
     /**

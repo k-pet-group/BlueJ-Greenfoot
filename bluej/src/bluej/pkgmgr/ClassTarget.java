@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 633 2000-07-07 02:11:47Z bquig $
+ * @version $Id: ClassTarget.java 634 2000-07-07 02:38:22Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -455,7 +455,13 @@ public class ClassTarget extends EditableTarget
         return (state == S_NORMAL);
     }
 
-
+    public void runApplet(PkgMgrFrame parent)
+    {
+        if (role instanceof AppletClassRole) {
+            AppletClassRole acr = (AppletClassRole) role;
+            acr.runApplet(parent, this);
+        }
+    }
 
     /**
      * generates a source code skeleton for this class

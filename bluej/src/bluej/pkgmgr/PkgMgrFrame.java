@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 630 2000-07-07 01:35:30Z ajp $
+ * @version $Id: PkgMgrFrame.java 634 2000-07-07 02:38:22Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -539,11 +539,18 @@ public class PkgMgrFrame extends JFrame
             openPackageTarget(e.getName());
             break;
 
+         case PackageEditorEvent.TARGET_RUN:       // user has initiated a
+                                                    //   run operation
+            runAppletTarget((Target) e.getSource());
+            break;
+
          case PackageEditorEvent.OBJECT_PUTONBENCH: // "Get" object from
                                                     //   object inspector
             putObjectOnBench(e.getDebuggerObject(), e.getFieldName(),
                              e.getInstanceName());
             break;
+
+
         }
     }
 
@@ -1224,6 +1231,18 @@ public class PkgMgrFrame extends JFrame
             DialogManager.tileWindow(pmf, this);
         }
         pmf.show();
+    }
+
+    /**
+     * Run a target (currently only applets)
+     */
+    private void runAppletTarget(Target t)
+    {
+        if (t instanceof ClassTarget) {
+            ClassTarget ct = (ClassTarget) t;
+
+            ct.runApplet(this);
+        }
     }
 
     /**
