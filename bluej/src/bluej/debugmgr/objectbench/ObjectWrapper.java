@@ -41,7 +41,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2965 2004-08-31 05:58:15Z davmac $
+ * @version $Id: ObjectWrapper.java 3015 2004-09-24 10:49:25Z fisker $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -296,7 +296,7 @@ public class ObjectWrapper extends JComponent
                     continue;
 
                 String methodSignature = m.getCallSignature();   // uses types for params
-                String methodDescription = m.getShortDesc(genericParams); // uses names for params
+                String methodDescription = m.getLongDesc(genericParams); // uses names for params
 
                 // check if method signature has already been added to a menu
                 if(methodsUsed.containsKey(methodSignature)) {
