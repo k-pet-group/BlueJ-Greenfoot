@@ -33,7 +33,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: Config.java 2574 2004-06-03 13:56:37Z fisker $
  */
 
 public final class Config
@@ -442,6 +442,13 @@ public final class Config
         return lang_props.getProperty(strname, strname).indexOf('@') != -1;
     }
     
+    
+    /**
+     * parses the labels file and creates a KeyStroke with the right accelerator
+     * key and modifiers
+     * @param strname
+     * @return a KeyStroke
+     */
     public static KeyStroke getAcceleratorKey(String strname){
         int index;
         String modifiers = "ctrl ";
@@ -455,7 +462,6 @@ public final class Config
             modifiers = "shift ctrl ";
         }
         keyString = str.substring(index).toUpperCase();
-        System.err.println("modifiers: " + modifiers);
         keyStroke = KeyStroke.getKeyStroke(modifiers + keyString);
         return keyStroke;
     }
