@@ -31,7 +31,7 @@ import bluej.utility.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 802 2001-03-13 05:20:37Z ajp $
+ * @version $Id: JdiDebugger.java 803 2001-03-13 06:25:22Z ajp $
  *
  * The startup process is as follows:
  *
@@ -173,31 +173,23 @@ import bluej.utility.*;
          (Connector.Argument)arguments.get("options");
         Connector.Argument quoteArg =
             (Connector.Argument)arguments.get("quote");
-      //Connector.Argument suspendArg =
-      //    (Connector.Argument)arguments.get("suspend");
+        //Connector.Argument suspendArg =
+        //    (Connector.Argument)arguments.get("suspend");
 
-         if (mainArg == null || optionsArg == null) {
+         if (mainArg == null || optionsArg == null || quoteArg == null) {
             Debug.reportError("Cannot start virtual machine.");
             Debug.reportError("(Incompatible launch connector)");
             return;
          }
          mainArg.setValue(SERVER_CLASSNAME);
-      //suspendArg.setValue("false");
-        System.out.println("Quote arg = ->" + quoteArg.value());
-        System.out.println("Launching with local VM classpath = " + System.getProperty("java.class.path"));
+        //suspendArg.setValue("false");
 
          try {
             String vmOptions = Config.getSystemPropString("VmOptions");
-            String localVMClassPath = System.getProperty("java.class.path");
+            String localVMClassPath = quoteArg.value() +
+                                        System.getProperty("java.class.path") +
+                                        quoteArg.value();
 
-            if (quoteArg.value().equals("\"")) {
-                localVMClassPath = "\"" + localVMClassPath + "\"";
-            }
-            if (quoteArg.value().equals("\\")) {
-                localVMClassPath = Utility.quoteSpaces(localVMClassPath, "\\");
-            }
-
-            System.out.println("quoted launch classpath is " + localVMClassPath);
             optionsArg.setValue(vmOptions + " -classpath " + localVMClassPath);
             machine = connector.launch(arguments);
 
