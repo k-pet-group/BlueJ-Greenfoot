@@ -18,7 +18,7 @@ import java.awt.Frame;
  * possible and try to get all info dynamically. I need this to be in sync with BlueJ
  * This MAY NOT be ENOUGH so, check it with Andrew.
  *
- * @version $Id: BPackage.java 1647 2003-03-05 12:00:24Z damiano $
+ * @version $Id: BPackage.java 1656 2003-03-06 09:40:03Z damiano $
  */
 public class BPackage
 {
@@ -137,20 +137,25 @@ public class BPackage
     }
 
     /**
-     * Get an object proxy object for an object shown on the Object Bench.
-     * @param name the name of the object
-     * @return the proxy object, or <CODE>null</CODE> if no such object exists.
+     * Get an object shown on the Object Bench.<p>
+     * @param name the name of the object as shown on the object bench
+     * @return the object, or <CODE>null</CODE> if no such object exists.
      */
-    public BObject getObject (String name)
+    public BObject getObject (String instanceName)
     {
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
-        if ( pmf == null ) return null;
+        // The usual check to avoid silly stack trace
+        if ( instanceName == null ) return null;
 
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
+        // The above may return null, unfortunately.
+        if ( pmf == null ) return null;
+        
         ObjectWrapper[] objects = pmf.getObjectBench().getWrappers();
-        for (int i=0; i<objects.length; i++) {
-            ObjectWrapper wrapper = objects[i];
-            if (wrapper.getName().equals (name)) return new BObject (wrapper);
-        }
+        for (int index=0; index<objects.length; index++) 
+            {
+            ObjectWrapper wrapper = objects[index];
+            if (instanceName.equals(wrapper.getName())) return new BObject (wrapper);
+            }
         return null;
     }    
 
