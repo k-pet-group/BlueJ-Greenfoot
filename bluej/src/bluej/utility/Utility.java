@@ -18,7 +18,7 @@ import com.apple.mrj.MRJFileUtils;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: Utility.java 1556 2002-12-04 05:42:24Z bquig $
  */
 public class Utility
 {
@@ -243,7 +243,7 @@ public class Utility
         else if(Config.osname.startsWith("Windows")) {                 // Windows
 
             String cmd;
-            if(Config.osname.startsWith("Windows 9"))                   // win95/98
+            if(Config.osname.startsWith("Windows 9") || Config.osname.equals("Windows Me"))    // win95/98/Me
                 cmd = "command.com";
             else                                                        // other
                 cmd = "cmd.exe";
