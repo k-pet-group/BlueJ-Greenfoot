@@ -35,7 +35,7 @@ public class PrefPanel implements PrefGen
         globalSettings = new TreeMap();
         for (int i=0,n=globalProps.length; i<n; i++) {
             String prop = globalProps[i];
-            // NOTE: the way I get the values is DIFFERENT than the stored label !
+            // NOTE: the name of the label is different from the name of the property!
             myPanel.add (new JLabel (bluej.getLabel ("preferences.label."+prop)),tag);
             JTextField aTextField = new JTextField(30);
             myPanel.add (aTextField,value);
@@ -44,7 +44,7 @@ public class PrefPanel implements PrefGen
             globalSettings.put(prop,aTextField);
             }
 
-        // So the user sees the previos values
+        // So the user sees the previous values
         loadValues();
         }
 
@@ -58,7 +58,7 @@ public class PrefPanel implements PrefGen
         for (int i=0,n=globalProps.length; i<n; i++) {
             String prop = globalProps[i];
             JTextField aText = (JTextField)globalSettings.get(prop);
-            bluej.setExtPropString("preferences.label."+prop,aText.getText());
+            bluej.setExtPropString(prop,aText.getText());
             }
     }
 
@@ -67,7 +67,7 @@ public class PrefPanel implements PrefGen
         for (int i=0,n=globalProps.length; i<n; i++) {
             String prop = globalProps[i];
             JTextField aText = (JTextField)globalSettings.get(prop);
-            aText.setText(bluej.getExtPropString("preferences.label."+prop,globalDefaults[i]));
+            aText.setText(bluej.getExtPropString(prop,globalDefaults[i]));
             }
     }
 
@@ -77,7 +77,7 @@ public class PrefPanel implements PrefGen
 
         for (int i=0,n=globalProps.length; i<n; i++) {
             String prop = globalProps[i];      
-            props.setProperty (prop, bluej.getExtPropString("preferences.label."+prop,globalDefaults[i]));
+            props.setProperty (prop, bluej.getExtPropString(prop,globalDefaults[i]));
             }
 
         return props;
