@@ -28,7 +28,7 @@ import java.util.Vector;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 517 2000-05-25 07:58:59Z ajp $
+ * @version $Id: ObjectWrapper.java 553 2000-06-16 04:36:14Z bquig $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -36,6 +36,12 @@ public class ObjectWrapper extends JComponent
     static final Color shadow = Config.getItemColour("colour.wrapper.shadow");
     static final Color bg = Config.getItemColour("colour.wrapper.bg");
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+
+    //static final Color umlbg = Config.getItemColour("colour.wrapper.bg");
+    //static final Color umlbg = Color.white;
+    static final Color umlbg = Color.red.darker();
+    static final Color umlText = Color.white;
+
 
     /** The Java object that this wraps **/
     private DebuggerObject obj;
@@ -121,7 +127,7 @@ public class ObjectWrapper extends JComponent
                 view = View.getView(currentClass);
                 declaredMethods = view.getDeclaredMethods();
                 JMenu subMenu =  new JMenu(inheritedFrom + " "
-                                + JavaNames.stripPrefix(currentClass.getName()));
+                                           + JavaNames.stripPrefix(currentClass.getName()));
                 subMenu.setFont(PrefMgr.getStandoutMenuFont());
                 createMenuItems(subMenu, declaredMethods, filter, 0, declaredMethods.length);
                 menu.insert(subMenu, 0);
@@ -139,13 +145,13 @@ public class ObjectWrapper extends JComponent
         item.setForeground(envOpColour);
 
         // serializable support - not yet enabled 12/01/2000 ajp
-/*      if (Serializable.class.isAssignableFrom(cl))
-        {
-            menu.add(item = new JMenuItem(serializable));
-            item.addActionListener(this);
-            item.setFont(PrefMgr.getStandoutMenuFont());
-            item.setForeground(envOpColour);
-        } */
+        /*      if (Serializable.class.isAssignableFrom(cl))
+                {
+                menu.add(item = new JMenuItem(serializable));
+                item.addActionListener(this);
+                item.setFont(PrefMgr.getStandoutMenuFont());
+                item.setForeground(envOpColour);
+                } */
 
         menu.add(item = new JMenuItem(remove));
         item.addActionListener(this);
@@ -170,38 +176,38 @@ public class ObjectWrapper extends JComponent
      * @param last      the index of the methods array which represents the end point of the menu items
      */
     private void createMenuItems(JComponent menu, MethodView[] methods,
-				 ViewFilter filter, int first, int last)
+                                 ViewFilter filter, int first, int last)
     {
         JMenuItem item;
         String methodSignature;
 
-	for(int i = first; i < last; i++) {
-	    try {
-		MethodView m = methods[i];
-		if(!filter.accept(m))
-		    continue;
-
-		// check if method signature has already been added to a menu
-		if(methodsUsed.containsKey(m.getShortDesc())) {
-		    methodSignature = ( m.getShortDesc()
-					+ "   [ " + redefinedIn + " "
-					+ JavaNames.stripPrefix(((String)methodsUsed.get(m.getShortDesc())))
-			+ " ]");
-		}
-		else {
-		    methodSignature =  m.getShortDesc();
-		    methodsUsed.put(m.getShortDesc(), m.getClassName());
-		}
-		item = new JMenuItem(methodSignature);
-		item.addActionListener(this);
-		item.setFont(PrefMgr.getStandardMenuFont());
-		actions.put(item, m);
-		menu.add(item);
-	    } catch(Exception e) {
-		Debug.reportError(methodException + e);
-		e.printStackTrace();
-	    }
-	}
+        for(int i = first; i < last; i++) {
+            try {
+                MethodView m = methods[i];
+                if(!filter.accept(m))
+                    continue;
+                
+                // check if method signature has already been added to a menu
+                if(methodsUsed.containsKey(m.getShortDesc())) {
+                    methodSignature = ( m.getShortDesc()
+                                        + "   [ " + redefinedIn + " "
+                                        + JavaNames.stripPrefix(((String)methodsUsed.get(m.getShortDesc())))
+                                        + " ]");
+                }
+                else {
+                    methodSignature =  m.getShortDesc();
+                    methodsUsed.put(m.getShortDesc(), m.getClassName());
+                }
+                item = new JMenuItem(methodSignature);
+                item.addActionListener(this);
+                item.setFont(PrefMgr.getStandardMenuFont());
+                actions.put(item, m);
+                menu.add(item);
+            } catch(Exception e) {
+                Debug.reportError(methodException + e);
+                e.printStackTrace();
+            }
+        }
     }
 
 
@@ -214,13 +220,13 @@ public class ObjectWrapper extends JComponent
      **/
     public Vector getClassHierarchy(Class derivedClass)
     {
-	Class currentClass = derivedClass;
-	Vector classVector = new Vector();
-	while(currentClass != null) {
-	    classVector.addElement(currentClass);
-	    currentClass = currentClass.getSuperclass();
-	}
-	return classVector;
+        Class currentClass = derivedClass;
+        Vector classVector = new Vector();
+        while(currentClass != null) {
+            classVector.addElement(currentClass);
+            currentClass = currentClass.getSuperclass();
+        }
+        return classVector;
     }
 
 
@@ -236,7 +242,7 @@ public class ObjectWrapper extends JComponent
 
     public String getName()
     {
-	return instanceName;
+        return instanceName;
     }
 
     public void setName(String newName)
@@ -245,6 +251,16 @@ public class ObjectWrapper extends JComponent
     }
 
     public void paint(Graphics g)
+    {
+        Graphics2D g2 = (Graphics2D)g;
+
+        if(PrefMgr.isUML())
+            drawUMLStyle(g2);
+        else
+            drawBlueStyle(g2);
+    }
+
+    public void drawBlueStyle(Graphics2D g)
     {
         g.setFont(PrefMgr.getStandardFont());
         FontMetrics fm = g.getFontMetrics();
@@ -268,45 +284,75 @@ public class ObjectWrapper extends JComponent
         Utility.drawCentredText(g, instanceName, 0, 10, w, h);
     }
 
+
+    public void drawUMLStyle(Graphics2D g)
+    {
+        //Font instanceName = new 
+        g.setFont(PrefMgr.getStandardFont());
+        FontMetrics fm = g.getFontMetrics();
+
+        g.setColor(shadow);
+        g.fillRoundRect(10, 5, WIDTH - 10, HEIGHT - 5,5,5);
+        g.setColor(umlbg);
+        g.fillRoundRect(10, 5, WIDTH - 15, HEIGHT - 10,5,5);
+        g.setColor(Color.black);
+        g.drawRoundRect(10, 5, WIDTH - 15, HEIGHT - 10,5,5);
+
+        //        g.setColor(Color.white);
+        g.setColor(umlText);
+
+        Utility.drawCentredText(g, instanceName + ": ", 10, 0, WIDTH - 15, HEIGHT - 25);
+        //Utility.drawCentredText(g, displayClassName, 10, 5, WIDTH - 15, HEIGHT - 5);
+        //g.drawLine(10, 10, WIDTH - 20, 10);
+        //int w = fm.stringWidth(instanceName) + 10;
+        //int h = fm.getAscent() + 4;
+        //g.fillRect(0, 10, w, h);
+
+        //g.setColor(Color.black);
+        //g.drawRect(0, 10, w, h);
+        Utility.drawCentredText(g, displayClassName, 0, 10, WIDTH, HEIGHT -5);
+    }
+
+
     protected void processMouseEvent(MouseEvent evt)
     {
         int menuOffset;
         super.processMouseEvent(evt);
 
-//XXX        pkg.getFrame().clearStatus();
+        //XXX        pkg.getFrame().clearStatus();
 
         if(isPopupEvent(evt)) {
             int itemHeight = ((JComponent)menu.getComponent(0)).getHeight();
 
             if (itemHeight <= 1)     // not yet shown - don't know real height
-            // take a wild guess here
+                // take a wild guess here
 
-            // lifted higher to avoid mouse events on underlying objects - temporary
-            menuOffset = (menu.getComponentCount() - 1) * 19;
+                // lifted higher to avoid mouse events on underlying objects - temporary
+                menuOffset = (menu.getComponentCount() - 1) * 19;
             // lifted higher to avoid mouse events on underlying objects
             //menuOffset = (menu.getComponentCount() - 4) * 19;
             else
-            // from the second time: do it properly
-            menuOffset = (menu.getComponentCount() - 1) * itemHeight;
+                // from the second time: do it properly
+                menuOffset = (menu.getComponentCount() - 1) * itemHeight;
             //menuOffset = (menu.getComponentCount() - 4) * itemHeight;
 
             menu.show(this, evt.getX(), evt.getY() - menuOffset);
-	}
-	else if(evt.getID() == MouseEvent.MOUSE_CLICKED) {
-	    if(evt.getClickCount() > 1)
-		inspectObject();
-	    else {
-		ObjectBench bench = (ObjectBench)getParent();
-		bench.objectSelected(this);
-	    }
+        }
+        else if(evt.getID() == MouseEvent.MOUSE_CLICKED) {
+            if(evt.getClickCount() > 1)
+                inspectObject();
+            else {
+                ObjectBench bench = (ObjectBench)getParent();
+                bench.objectSelected(this);
+            }
 
-	}
+        }
     }
 
     private boolean isPopupEvent(MouseEvent evt)
     {
-	return evt.isPopupTrigger()
-	    || ((evt.getID() == MouseEvent.MOUSE_PRESSED) && evt.isControlDown());
+        return evt.isPopupTrigger()
+            || ((evt.getID() == MouseEvent.MOUSE_PRESSED) && evt.isControlDown());
     }
 
     public void actionPerformed(ActionEvent e)
@@ -326,24 +372,24 @@ public class ObjectWrapper extends JComponent
             }
 
             // serializable support - not yet enabled 12/01/2000 ajp
-/*            else if(serializable.equals(cmd)) {
+            /*            else if(serializable.equals(cmd)) {
 
-                Debugger.debugger.serializeObject(pkg.getId(),
-                                                   instanceName, "test.obj");
- */
-/*                DebuggerObject debObj =
-                    Debugger.debugger.deserializeObject(pkg.getRemoteClassLoader().getId(),
-                                                         pkg.getId(),
-                                                         "unserial_1",
-                                                         "test.obj");
+                          Debugger.debugger.serializeObject(pkg.getId(),
+                          instanceName, "test.obj");
+            */
+            /*                DebuggerObject debObj =
+                              Debugger.debugger.deserializeObject(pkg.getRemoteClassLoader().getId(),
+                              pkg.getId(),
+                              "unserial_1",
+                              "test.obj");
 
-                ObjectWrapper wrapper = new ObjectWrapper(debObj,
-                                                            "unserial_1",
-                                                            pkg);
+                              ObjectWrapper wrapper = new ObjectWrapper(debObj,
+                              "unserial_1",
+                              pkg);
 
-                pkg.getFrame().getObjectBench().add(wrapper);  // might change name
-            }
-*/
+                              pkg.getFrame().getObjectBench().add(wrapper);  // might change name
+                              }
+            */
         }
     }
 
@@ -352,9 +398,9 @@ public class ObjectWrapper extends JComponent
      */
     private void inspectObject()
     {
-//XXX	ObjectViewer viewer =
-//	    ObjectViewer.getViewer(true, obj, instanceName, pkg, true,
-//				   pkg.getFrame());
+        //XXX	ObjectViewer viewer =
+        //	    ObjectViewer.getViewer(true, obj, instanceName, pkg, true,
+        //				   pkg.getFrame());
     }
 
     /**
@@ -369,14 +415,14 @@ public class ObjectWrapper extends JComponent
         pkg.forgetLastSource();
         if(!method.isVoid()) {
             watcher = new ResultWatcher() {
-                public void putResult(DebuggerObject result, String name)
-                {
-                    ObjectViewer viewer = ObjectViewer.getViewer(false, result,
-                                        						 name,
-                                        						 pkg, true,
-                                        						 pmf);
-                }
-            };
+                    public void putResult(DebuggerObject result, String name)
+                    {
+                        ObjectViewer viewer = ObjectViewer.getViewer(false, result,
+                                                                     name,
+                                                                     pkg, true,
+                                                                     pmf);
+                    }
+                };
         }
 
         Invoker invoker = new Invoker(pmf, method, instanceName, watcher);
@@ -385,21 +431,21 @@ public class ObjectWrapper extends JComponent
 
     // Internationalisation
     static String methodException =
-                    Config.getString("debugger.objectwrapper.methodException");
+        Config.getString("debugger.objectwrapper.methodException");
     static String invocationException =
-                    Config.getString("debugger.objectwrapper.invocationException");
+        Config.getString("debugger.objectwrapper.invocationException");
 
     static String inspect =
-                    Config.getString("debugger.objectwrapper.inspect");
+        Config.getString("debugger.objectwrapper.inspect");
     static String remove =
-                    Config.getString("debugger.objectwrapper.remove");
+        Config.getString("debugger.objectwrapper.remove");
 
     static String redefinedIn =
-                    Config.getString("debugger.objectwrapper.redefined");
+        Config.getString("debugger.objectwrapper.redefined");
 
     static String inheritedFrom =
-                    Config.getString("debugger.objectwrapper.inherited");
+        Config.getString("debugger.objectwrapper.inherited");
 
     static String serializable =
-                    Config.getString("debugger.objectwrapper.serializable");
+        Config.getString("debugger.objectwrapper.serializable");
 }

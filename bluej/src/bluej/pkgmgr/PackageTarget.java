@@ -16,7 +16,7 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 530 2000-06-01 07:09:30Z bquig $
+ * @version $Id: PackageTarget.java 553 2000-06-16 04:36:14Z bquig $
  */
 public class PackageTarget extends Target implements ActionListener
 {
@@ -173,6 +173,17 @@ public class PackageTarget extends Target implements ActionListener
         drawBorders(g);
     }
 
+
+    void drawBorders(Graphics2D g)
+    {
+        if(PrefMgr.isUML())
+            drawUMLBorders(g);
+        else
+            super.drawBorders(g);
+
+    }
+
+
     void drawUMLBorders(Graphics2D g)
     {
 
@@ -236,6 +247,7 @@ public class PackageTarget extends Target implements ActionListener
         if(!enabled)
             item.setEnabled(false);
     }
+
 
     public void actionPerformed(ActionEvent e)
     {
