@@ -13,6 +13,7 @@ import java.awt.event.*;
 
 import java.util.*;
 import java.util.zip.*;
+import java.util.jar.*;
 
 import java.io.*;
 
@@ -31,8 +32,8 @@ import bluej.utility.Debug;
  * information about libraries, such as directory names and children within
  * a package in the library.
  * 
- * @author $Author: mik $
- * @version $Id: LibraryChooser.java 63 1999-05-04 00:03:10Z mik $
+ * @author $Author: ajp $
+ * @version $Id: LibraryChooser.java 131 1999-06-16 04:44:03Z ajp $
  */
 public class LibraryChooser extends JPanel implements ActionListener, Runnable {
     // used to build tree
@@ -262,6 +263,7 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 			
 	    addLibraryToTree(libNode);
 	}
+	System.out.println("setting up tree");
 	setupTree();
 	
 	// dont' add tree to UI until all it's data has been loaded.
@@ -599,19 +601,10 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 		setStatusText("Opening " + alias + "...");
 	    if (library.toLowerCase().endsWith(".zip")) {
 		libNode.setArchiveFile(true);
-		openZIPLibrary(libNode, new ZipFile(library), alias);
+		openJARLibrary(libNode, new JarFile(library), alias);
 	    } else if (library.toLowerCase().endsWith(".jar")) {
 		libNode.setArchiveFile(true);
-				// because JAR file support is only present in JDK 1.2,
-				// let's cheat and rename any required JAR files to their ZIP equivalents
-				// and process them as ZIP files (which works).
-				// Ideally, a copy (instead of rename) would be best here, but the File
-				// class doesn't support such an operation
-		String zipVersionOfJar = library.substring(0, library.length() - 4) + ".zip";
-		if (new File(zipVersionOfJar).exists() || Utility.copyFile(library, zipVersionOfJar) == true) {
-		    openJARLibrary(libNode, new ZipFile(zipVersionOfJar), alias);
-		} else
-		    System.err.println("unable to copy " + library + " to " + zipVersionOfJar);
+		openJARLibrary(libNode, new JarFile(library), alias);
 	    } else {
 		libNode.setArchiveFile(false);
 		openLibrary(libNode, new File(library));
@@ -630,24 +623,13 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
     }
 	
     /**
-     * Add a ZIP library to the tree.
-     * 
-     * @param top the node of the tree to be the parent of the library
-     * @param file the file representation of the library
-     * @param alias the display name for the library
-     */
-    private void openZIPLibrary(LibraryNode top, ZipFile file, String alias) {
-	openArchive(top, file, alias);
-    }
-
-    /**
      * Add a JAR library to the tree.
      * 
      * @param top the node of the tree to be the parent of the library
      * @param file the file representation of the library
      * @param alias the display name for the library
      */
-    private void openJARLibrary(LibraryNode top, ZipFile file, String alias) {
+    private void openJARLibrary(LibraryNode top, JarFile file, String alias) {
 	openArchive(top, file, alias);
     }
 
@@ -661,7 +643,7 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
      * @param file the file representation of the library
      * @param alias the display name for the library
      **/
-    private void openArchive(LibraryNode top, ZipFile archiveFile, String alias) {
+    private void openArchive(LibraryNode top, JarFile archiveFile, String alias) {
 	this.setShadowStructure(top, archiveFile);
 		
 	Enumeration files = archiveFile.entries();
@@ -671,7 +653,7 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
 
 	while (files.hasMoreElements()) {
 			
-	    entryName = ((ZipEntry) files.nextElement()).getName();
+	    entryName = ((JarEntry) files.nextElement()).getName();
 	    if (entryName.endsWith(".class")) {
 		addArchiveEntry(top, entryName);
 				// strip system dependent separators from path before storing 
@@ -702,7 +684,7 @@ public class LibraryChooser extends JPanel implements ActionListener, Runnable {
      * @param archiveFile the file from which the name of the shadow directory is derived
      * @param top the node in which the shadow directory will be stored
      */
-    private void setShadowStructure(LibraryNode top, ZipFile archiveFile) {
+    private void setShadowStructure(LibraryNode top, JarFile archiveFile) {
 	String shadowFile = archiveFileToShadowFile(archiveFile.getName());
 	if (new File(shadowFile).isDirectory())
 	    top.setShadowArea(shadowFile + File.separator);
