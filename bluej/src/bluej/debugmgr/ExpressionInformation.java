@@ -11,7 +11,7 @@ import bluej.views.MethodView;
  * information such as the method signature, javadoc, etc...
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ExpressionInformation.java 2544 2004-05-24 08:56:02Z polle $
+ * @version $Id: ExpressionInformation.java 2548 2004-05-26 07:14:21Z polle $
  */
 public class ExpressionInformation {
 	private Comment comment;
@@ -19,6 +19,7 @@ public class ExpressionInformation {
 	private String expression;
 	private String dynamicType;
 	private CallableView methodView;
+    private static final Comment emptyComment = new Comment();;
 
 	/**
 	 * Generates the expression information from a method view. The actual
@@ -78,10 +79,14 @@ public class ExpressionInformation {
 	/**
 	 * Returns the javadoc for this method
 	 *  
-	 * @return Returns the comment or null if it is not available
+	 * @return Returns the comment. Never null.
 	 */
 	public Comment getComment() {
-		return comment;
+	    if(comment!=null) {
+	        return comment;
+	    } else {
+	        return emptyComment;
+	    }
 	}
 	
 	/**
