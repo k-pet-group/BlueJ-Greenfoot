@@ -30,7 +30,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2244 2003-10-31 14:25:02Z damiano $
+ * @version $Id: PkgMgrFrame.java 2260 2003-11-04 18:40:38Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2217,7 +2217,7 @@ public class PkgMgrFrame extends JFrame
                            });
             menu.addSeparator();
 
-            createMenuItem("menu.package.pageSetup", menu, 0, 0, true,
+            createMenuItem("menu.package.pageSetup", menu, KeyEvent.VK_P, Event.SHIFT_MASK | SHORTCUT_MASK, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doPageSetup(); }
                            });
@@ -2297,7 +2297,7 @@ public class PkgMgrFrame extends JFrame
                            });
             menu.addSeparator();
 
-            createMenuItem("menu.tools.generateDoc", menu, 0, 0, true,
+            createMenuItem("menu.tools.generateDoc", menu, KeyEvent.VK_J, SHORTCUT_MASK, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); generateProjectDocumentation(); }
                            });
