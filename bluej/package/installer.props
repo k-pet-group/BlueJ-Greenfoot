@@ -20,28 +20,14 @@ install.pkgJar=bluej-dist.jar
 # Name of shell/batch script to create
 install.exeName=bluej
 
-# additional commands to be added to MacOS script before execution
-install.commands.mac = CP="~/lib/bluej.jar"
-
-# additional commands to be added to Unix script before execution
-install.commands.unix = CP="~/lib/bluej.jar"
-
-# additional commands to be added to Windows batch file before execution
-# (windows should not have quotes surrounding CP string
-# the quotes around APPBASE are enough
-install.commands.win = set CP=~\\lib\\bluej.jar
-
 # java command-line options for unix (icluding MacOS)
-# (UNIX must have quotes around the $CP on the actual
+# (UNIX must have quotes around the $VAR on the actual
 # invocation, not on the declaration of the shell variables -
 # unix is clever about the quotes and removes them)
-install.javaOpts.unix=-jar "$CP"
+install.javaOpts.unix=-jar "$APPBASE/lib/bluej.jar" $*
 
 # java command-line options for windows
-install.javaOpts.win=-jar %CP%
-
-# Class that contains the main to execute
-install.mainClass=bluej.Main
+install.javaOpts.win=-jar %APPBASE%\\lib\\bluej.jar %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 # The big text colors
 install.color.text=0 0 0
@@ -54,4 +40,4 @@ install.width=500
 install.height=340
 
 # Tag line to put at bottom
-install.tagline=BlueJ Installer version 2.2 - Monash University
+install.tagline=BlueJ Installer version 2.3 - University of Southern Denmark
