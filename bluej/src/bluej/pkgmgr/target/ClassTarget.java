@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2563 2004-05-28 12:30:41Z polle $
+ * @version $Id: ClassTarget.java 2567 2004-06-02 04:18:11Z bquig $
  */
 public class ClassTarget extends EditableTarget
 {	
@@ -252,9 +252,8 @@ public class ClassTarget extends EditableTarget
                     setRole(new InterfaceClassRole());
                 else if (classInfo.isAbstract())
                     setRole(new AbstractClassRole());
-                //TODO: When ClassInfo implements isEnum() this should be added:
-                // else if (Config.isJava15() && classInfo.isEnum())
-                //    setRole(new EnumClassRole());
+                else if (Config.isJava15() && classInfo.isEnum())
+                    setRole(new EnumClassRole());
                 else 
                     setRole(new StdClassRole()); 
 
