@@ -9,21 +9,19 @@ import bluej.pkgmgr.target.ReadmeTarget;
 /**
  * Paints a ReadmeTarget
  * @author fisker
- * @version $Id: ReadmeTargetPainter.java 2725 2004-07-02 20:33:26Z mik $
+ * @version $Id: ReadmeTargetPainter.java 2775 2004-07-09 15:07:12Z mik $
  */
 public class ReadmeTargetPainter
 {
     private static final int CORNER_SIZE = 11;
     private ReadmeTarget readmeTarget;
     private Graphics2D g;
-    private GraphPainterStdImpl graphPainterStdImpl;
 
     /**
      * Create the painter.
      */
-    public ReadmeTargetPainter(GraphPainterStdImpl graphPainterStdImpl)
+    public ReadmeTargetPainter()
     {
-        this.graphPainterStdImpl = graphPainterStdImpl;
     }
     
     /**
@@ -31,16 +29,16 @@ public class ReadmeTargetPainter
      * @param g  The graphics context to paint on.
      * @param target  The target to paint.
      */
-    public void paint(Graphics2D g, Target target)
+    public void paint(Graphics2D g, Target target, boolean hasFocus)
     {
         this.readmeTarget = (ReadmeTarget) target;
         this.g = g;
         g.translate(readmeTarget.getX(), readmeTarget.getY());
-        drawUMLStyle();
+        drawUMLStyle(hasFocus);
         g.translate(-readmeTarget.getX(), -readmeTarget.getY());
     }
     
-    private void drawUMLStyle()
+    private void drawUMLStyle(boolean hasFocus)
     {
         int width = readmeTarget.getWidth();
         int height = readmeTarget.getHeight();
@@ -53,7 +51,7 @@ public class ReadmeTargetPainter
 
         Polygon p = new Polygon(xpoints, ypoints, 5);
 
-        boolean isSelected = readmeTarget.isSelected() && graphPainterStdImpl.isGraphEditorInFocus();
+        boolean isSelected = readmeTarget.isSelected() && hasFocus;
         int thickness = (isSelected) ? 2 : 1;
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,

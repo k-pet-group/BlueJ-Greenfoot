@@ -11,7 +11,7 @@ import bluej.utility.Utility;
  * Paints a ClassTarget
  * 
  * @author fisker
- * @version $Id: ClassTargetPainter.java 2771 2004-07-09 09:27:41Z mik $
+ * @version $Id: ClassTargetPainter.java 2775 2004-07-09 15:07:12Z mik $
  */
 
 public class ClassTargetPainter
@@ -32,40 +32,35 @@ public class ClassTargetPainter
     private static final AlphaComposite alphaComposite = GraphPainterStdImpl.alphaComposite;
     private static Composite oldComposite;
 
-    private GraphPainterStdImpl graphPainterStdImpl;
-
     /**
      * Construct the ClassTargetPainter
      *  
      */
-    public ClassTargetPainter(GraphPainterStdImpl graphPainterStdImpl)
-    {
-        this.graphPainterStdImpl = graphPainterStdImpl;
-    }
+    public ClassTargetPainter()
+    { }
 
-    public void paint(Graphics2D g, Target target)
+    public void paint(Graphics2D g, ClassTarget classTarget, boolean hasFocus)
     {
-        ClassTarget classTarget = (ClassTarget) target;
         g.translate(classTarget.getX(), classTarget.getY());
 
         // draw the stationary class
         drawSkeleton(g, classTarget);
-        drawUMLStyle(g, classTarget);
+        drawUMLStyle(g, classTarget, hasFocus);
         drawWarnings(g, classTarget);
-        drawRole(g, classTarget);
+        // drawRole(g);  // currently, roles don't draw
         g.translate(-classTarget.getX(), -classTarget.getY());
     }
 
-    public void paintGhost(Graphics2D g, Target target)
+    public void paintGhost(Graphics2D g, Target target, boolean hasFocus)
     {
         ClassTarget classTarget = (ClassTarget) target;
         oldComposite = g.getComposite();
         g.translate(classTarget.getGhostX(), classTarget.getGhostY());
         g.setComposite(alphaComposite);
         drawSkeleton(g, classTarget);
-        drawUMLStyle(g, classTarget);
+        drawUMLStyle(g, classTarget, hasFocus);
         drawWarnings(g, classTarget);
-        drawRole(g, classTarget);
+        // drawRole(g);  // currently, roles don't draw
         g.setComposite(oldComposite);
         g.translate(-classTarget.getGhostX(), -classTarget.getGhostY());
     }
@@ -86,7 +81,7 @@ public class ClassTargetPainter
      * Draw the stereotype, identifier name and the line beneath the identifier
      * name.
      */
-    private void drawUMLStyle(Graphics2D g, ClassTarget classTarget)
+    private void drawUMLStyle(Graphics2D g, ClassTarget classTarget, boolean hasFocus)
     {
         // get the Stereotype
         String stereotype = classTarget.getRole().getStereotypeLabel();
@@ -114,6 +109,10 @@ public class ClassTargetPainter
         // draw line beneath the stereotype and indentifiername. The UML-style
         g.setColor(borderColor);
         g.drawLine(0, currentTextPosY, classTarget.getWidth(), currentTextPosY);
+        
+        g.setColor(borderColor);
+        boolean drawSelected = classTarget.isSelected() && hasFocus;
+        drawBorder(g, classTarget, drawSelected);
     }
 
     /**
@@ -132,9 +131,6 @@ public class ClassTargetPainter
             Utility.stripeRect(g, 0, divider, classTarget.getWidth(), classTarget.getHeight() - divider, 8, 3);
         }
 
-        g.setColor(borderColor);
-        drawBorders(g, classTarget);
-
         // if sourcecode is missing. Write "(no source)" in the diagram
         if (!classTarget.hasSourceCode()) {
             g.setColor(textcolor);
@@ -148,15 +144,15 @@ public class ClassTargetPainter
         }
     }
 
-    /**
-     * Let the role object of the class draw.
-     */
-    private void drawRole(Graphics2D g, ClassTarget classTarget)
-    {
-        // If a role ever needs to add to the diagram, put the drawing code here
-        // delegate extra functionality to role object
-        // ClassRole role = classTarget.getRole();
-    }
+//    /**
+//     * Let the role object of the class draw.
+//     */
+//    private void drawRole(Graphics2D g)
+//    {
+//        // If a role ever needs to add to the diagram, put the drawing code here
+//        // delegate extra functionality to role object
+//        ClassRole role = classTarget.getRole();
+//    }
 
     private Color getBackgroundColour(ClassTarget classTarget)
     {
@@ -171,13 +167,13 @@ public class ClassTargetPainter
     /**
      * Draw the borders of this target.
      */
-    protected void drawBorders(Graphics2D g, ClassTarget classTarget)
+    private void drawBorder(Graphics2D g, ClassTarget classTarget, boolean selected)
     {
         int height = classTarget.getHeight();
         int width = classTarget.getWidth();
         int thickness = 1; // default thickness
 
-        if (classTarget.isSelected() && graphPainterStdImpl.isGraphEditorInFocus()) {
+        if (selected) {
             thickness = 2; // thickness of borders when class is selected
             // Draw lines showing resize tag
             g.drawLine(width - HANDLE_SIZE - 2, height, width, height - HANDLE_SIZE - 2);

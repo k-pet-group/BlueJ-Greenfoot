@@ -15,11 +15,11 @@ import bluej.utility.*;
 import bluej.views.*;
 
 /**
- * A class role in a class target, providing behaviour specific to
- * particular class types
- *
- * @author  Bruce Quig
- * @version $Id: ClassRole.java 2429 2003-12-09 10:54:54Z mik $
+ * A class role in a class target, providing behaviour specific to particular
+ * class types
+ * 
+ * @author Bruce Quig
+ * @version $Id: ClassRole.java 2775 2004-07-09 15:07:12Z mik $
  */
 public abstract class ClassRole
 {
@@ -34,12 +34,14 @@ public abstract class ClassRole
     }
 
     /**
-     * save details about the class target variant this
-     * role represents.
-     *
-     * @param props the properties object associated with this target and role
-     * @param modifiers modifiers for
-     * @param prefix prefix to identifiy this role's target
+     * save details about the class target variant this role represents.
+     * 
+     * @param props
+     *            the properties object associated with this target and role
+     * @param modifiers
+     *            modifiers for
+     * @param prefix
+     *            prefix to identifiy this role's target
      */
     public void save(Properties props, int modifiers, String prefix)
     {
@@ -48,9 +50,12 @@ public abstract class ClassRole
 
     /**
      * load existing information about this class role
-     * @param props the properties object to read
-     * @param prefix an internal name used for this target to identify
-     * its properties in a properties file used by multiple targets.
+     * 
+     * @param props
+     *            the properties object to read
+     * @param prefix
+     *            an internal name used for this target to identify its
+     *            properties in a properties file used by multiple targets.
      */
     public void load(Properties props, String prefix)
         throws NumberFormatException
@@ -59,8 +64,8 @@ public abstract class ClassRole
     }
 
     /**
-     * Return the default background colour for targets that don't want 
-     * to define their own colour.
+     * Return the default background colour for targets that don't want to
+     * define their own colour.
      */
     public Color getBackgroundColour()
     {
@@ -74,28 +79,31 @@ public abstract class ClassRole
 
     /**
      * Generates a source code skeleton for this class.
-     *
-     * @param template the name of the particular class template (just the base
-     *                 name without path and suffix)
-     * @param pkg the package that the class target resides in
-     * @param name the name of the class
-     * @param sourceFile the name of the source file to be generated
+     * 
+     * @param template
+     *            the name of the particular class template (just the base name
+     *            without path and suffix)
+     * @param pkg
+     *            the package that the class target resides in
+     * @param name
+     *            the name of the class
+     * @param sourceFile
+     *            the name of the source file to be generated
      */
-    public void generateSkeleton(String template, Package pkg, String name, 
-                                 String sourceFile )
+    public void generateSkeleton(String template, Package pkg, String name, String sourceFile)
     {
         Hashtable translations = new Hashtable();
         translations.put("CLASSNAME", name);
 
-        if(pkg.isUnnamedPackage())
+        if (pkg.isUnnamedPackage())
             translations.put("PKGLINE", "");
         else
             translations.put("PKGLINE", "package " + pkg.getQualifiedName() + ";" + Config.nl + Config.nl);
 
         try {
-            BlueJFileReader.translateFile(Config.getClassTemplateFile(template),
-                                          new File(sourceFile), translations);
-        } catch(IOException e) {
+            BlueJFileReader.translateFile(Config.getClassTemplateFile(template), new File(sourceFile), translations);
+        }
+        catch (IOException e) {
             pkg.showError("skeleton-error");
             Debug.reportError("The default skeleton for the class could not be generated");
             Debug.reportError("Exception: " + e);
@@ -104,15 +112,19 @@ public abstract class ClassRole
 
     /**
      * Adds a single item to this roles popup menu.
-     *
-     * This method is used by ClassTarget to add some standard menus as well as by
-     * the roles to add menus. It should be overridden with caution.
-     *
-     * @param menu the popup menu the item is to be added to
-     * @param action the action to be registered with this menu item
-     * @param itemString the String to be displayed on menu item
-     * @param enabled boolean value representing whether item should be enabled
-     *
+     * 
+     * This method is used by ClassTarget to add some standard menus as well as
+     * by the roles to add menus. It should be overridden with caution.
+     * 
+     * @param menu
+     *            the popup menu the item is to be added to
+     * @param action
+     *            the action to be registered with this menu item
+     * @param itemString
+     *            the String to be displayed on menu item
+     * @param enabled
+     *            boolean value representing whether item should be enabled
+     *  
      */
     public void addMenuItem(JPopupMenu menu, Action action, boolean enabled)
     {
@@ -128,12 +140,16 @@ public abstract class ClassRole
     }
 
     /**
-     * Adds role specific items at the top of the popup menu for this class target.
-     *
-     * @param menu the menu object to add to
-     * @param ct ClassTarget object associated with this class role
-     * @param state the state of the ClassTarget
-     *
+     * Adds role specific items at the top of the popup menu for this class
+     * target.
+     * 
+     * @param menu
+     *            the menu object to add to
+     * @param ct
+     *            ClassTarget object associated with this class role
+     * @param state
+     *            the state of the ClassTarget
+     * 
      * @return true if any menu items have been added
      */
     public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class cl, int state)
@@ -142,12 +158,16 @@ public abstract class ClassRole
     }
 
     /**
-     * Adds role specific items at the bottom of the popup menu for this class target.
-     *
-     * @param menu the menu object to add to
-     * @param ct ClassTarget object associated with this class role
-     * @param state the state of the ClassTarget
-     *
+     * Adds role specific items at the bottom of the popup menu for this class
+     * target.
+     * 
+     * @param menu
+     *            the menu object to add to
+     * @param ct
+     *            ClassTarget object associated with this class role
+     * @param state
+     *            the state of the ClassTarget
+     * 
      * @return true if any menu items have been added
      */
     public boolean createRoleMenuEnd(JPopupMenu menu, ClassTarget ct, int state)
@@ -157,9 +177,11 @@ public abstract class ClassRole
 
     /**
      * Creates a class menu containing the constructors.
-     *
-     * @param menu the popup menu to add the class menu items to
-     * @param cl Class object associated with this class target
+     * 
+     * @param menu
+     *            the popup menu to add the class menu items to
+     * @param cl
+     *            Class object associated with this class target
      */
     public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class cl)
     {
@@ -190,11 +212,11 @@ public abstract class ClassRole
         return false;
     }
 
-    public boolean createMenuItems(JPopupMenu menu, CallableView[] members,
-                                        ViewFilter filter, int first, int last,
-                                        String prefix, ClassTarget ct)
+    public boolean createMenuItems(JPopupMenu menu, CallableView[] members, ViewFilter filter, int first, int last,
+            String prefix, ClassTarget ct)
     {
-        // Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
+        // Debug.message("Inside ClassTarget.createMenuItems\n first = " + first
+        // + " last = " + last);
         boolean hasEntries = false;
         JMenuItem item;
 
@@ -205,13 +227,13 @@ public abstract class ClassRole
                     continue;
                 // Debug.message("createSubMenu - creating MenuItem");
 
-                Action callAction = new CallAction(prefix + m.getShortDesc(),
-                                                    ct.getPackage().getEditor(), ct, m);
+                Action callAction = new CallAction(prefix + m.getShortDesc(), ct.getPackage().getEditor(), ct, m);
 
                 item = menu.add(callAction);
                 item.setFont(PrefMgr.getPopupMenuFont());
                 hasEntries = true;
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 Debug.reportError("Exception accessing methods: " + e);
                 e.printStackTrace();
             }
@@ -220,9 +242,9 @@ public abstract class ClassRole
     }
 
     /**
-     * Removes applicable files (.class, .java and .ctxt) prior to
-     * this ClassRole being removed from a Package.
-     *
+     * Removes applicable files (.class, .java and .ctxt) prior to this
+     * ClassRole being removed from a Package.
+     *  
      */
     public void prepareFilesForRemoval(ClassTarget ct, String sourceFile, String classFile, String contextFile)
     {
@@ -239,17 +261,12 @@ public abstract class ClassRole
             contextFileName.delete();
     }
 
-    /**
-     *  Draw this target, including its box, border, shadow and text.
-     */
-    public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width, int height)
-    {
-
-    }
+//    /**
+//     * Draw role specific elements of this class.
+//     */
+//    public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width, int height)
+//    {}  // currently unused
 
     public void run(PkgMgrFrame pmf, ClassTarget ct, String param)
-    {
-
-
-    }
+    {}
 }

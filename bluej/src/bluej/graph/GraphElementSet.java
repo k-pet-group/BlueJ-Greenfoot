@@ -9,15 +9,15 @@ import java.util.*;
  * @author fisker
  *  
  */
-class GraphElementManager
+public class GraphElementSet
 {
-    private List graphElements = new LinkedList();
+    private List graphElements = new ArrayList();
 
     /**
      * 
      * @param graphEditor
      */
-    public GraphElementManager()
+    public GraphElementSet()
     {}
 
     /**
@@ -29,14 +29,11 @@ class GraphElementManager
      *            a GraphElement implementing Selectable which returns false if
      *            it's 'isSelected' method is called.
      */
-    public void add(GraphElement graphElement)
+    public void add(SelectableGraphElement element)
     {
-        if (graphElement instanceof Selectable) {
-            Selectable element = (Selectable) graphElement;
-            if (!element.isSelected()) {
-                element.setSelected(true);
-                graphElements.add(element);
-            }
+        if (!element.isSelected()) {
+            element.setSelected(true);
+            graphElements.add(element);
         }
     }
 
@@ -46,7 +43,7 @@ class GraphElementManager
      * @param graphElementManager
      *            the other graphElementManager
      */
-    public void moveAll(GraphElementManager graphElementManager)
+    public void moveAll(GraphElementSet graphElementManager)
     {
         GraphElement graphElement;
         for (Iterator i = graphElementManager.graphElements.iterator(); i.hasNext();) {
@@ -61,12 +58,12 @@ class GraphElementManager
      * 
      * @param graphElement
      */
-    public void remove(GraphElement graphElement)
+    public void remove(SelectableGraphElement element)
     {
-        if (graphElement != null && graphElement instanceof Selectable) {
-            ((Selectable) graphElement).setSelected(false);
+        if (element != null) {
+            element.setSelected(false);
         }
-        graphElements.remove(graphElement);
+        graphElements.remove(element);
     }
 
     /**
@@ -75,12 +72,9 @@ class GraphElementManager
      */
     public void clear()
     {
-        GraphElement graphElement;
         for (Iterator i = graphElements.iterator(); i.hasNext();) {
-            graphElement = (GraphElement) i.next();
-            if (graphElement instanceof Selectable) {
-                ((Selectable) graphElement).setSelected(false);
-            }
+            SelectableGraphElement element = (SelectableGraphElement) i.next();
+            element.setSelected(false);
             i.remove();
         }
     }

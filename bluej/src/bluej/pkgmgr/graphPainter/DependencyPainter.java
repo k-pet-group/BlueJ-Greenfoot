@@ -12,5 +12,5 @@ import bluej.pkgmgr.dependency.Dependency;
 public interface DependencyPainter
 {
     public Point getPopupMenuPosition(Dependency dependency);
-    public void paint(Graphics2D g, Dependency d);
+    public void paint(Graphics2D g, Dependency d, boolean hasFocus);
 }

@@ -13,7 +13,7 @@ import bluej.pkgmgr.target.DependentTarget;
  * Paints a ClassTarget
  * @author fisker
  * @author  Michael Kolling
- * @version $Id: ExtendsDependencyPainter.java 2772 2004-07-09 10:38:54Z mik $
+ * @version $Id: ExtendsDependencyPainter.java 2775 2004-07-09 15:07:12Z mik $
  */
 public class ExtendsDependencyPainter implements DependencyPainter
 {
@@ -26,14 +26,11 @@ public class ExtendsDependencyPainter implements DependencyPainter
     static final int ARROW_SIZE = 18;		// pixels
     static final double ARROW_ANGLE = Math.PI / 6;	// radians
     
-    private GraphPainterStdImpl graphPainterStdImpl;
-    
-    public ExtendsDependencyPainter(GraphPainterStdImpl graphPainterStdImpl)
+    public ExtendsDependencyPainter()
     {
-        this.graphPainterStdImpl = graphPainterStdImpl;
     }
     
-    public void paint(Graphics2D g, Dependency dependency) 
+    public void paint(Graphics2D g, Dependency dependency, boolean hasFocus) 
     {
         if (!(dependency instanceof ExtendsDependency)) {
             throw new IllegalArgumentException("Not a ExtendsDependency");
@@ -41,7 +38,7 @@ public class ExtendsDependencyPainter implements DependencyPainter
         Stroke oldStroke = g.getStroke();
         ExtendsDependency d = (ExtendsDependency) dependency;
         
-        boolean isSelected = d.isSelected() && graphPainterStdImpl.isGraphEditorInFocus();
+        boolean isSelected = d.isSelected() && hasFocus;
         g.setStroke((isSelected? normalSelected : normalUnselected));
 
         Line line = d.computeLine();

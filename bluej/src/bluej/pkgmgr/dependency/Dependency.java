@@ -20,9 +20,9 @@ import bluej.utility.Debug;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Dependency.java 2755 2004-07-07 15:52:12Z mik $
+ * @version $Id: Dependency.java 2775 2004-07-09 15:07:12Z mik $
  */
-public abstract class Dependency extends Edge implements Selectable
+public abstract class Dependency extends Edge
 {
     Package pkg;
     private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");

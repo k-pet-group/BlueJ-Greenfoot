@@ -1,54 +1,45 @@
-/*
- * Created on Sep 17, 2003
- *
- */
 package bluej.graph;
 
 import java.awt.*;
 import java.util.Iterator;
 
 /**
+ * The diagram's marquee (a rectangular drag area for selecting graph elements).
+ * 
  * @author fisker
- *  
  */
-public class Marquee
+public final class Marquee
 {
     private Graph graph;
     private int drag_start_x, drag_start_y;
-    private Rectangle oldRect;
-    private GraphElementManager graphElementManger;
+    private Rectangle currentRect;
+    private GraphElementSet elements;  // the graph elements currently in the marguee
 
     /**
-     * Create a Marquee
-     * 
-     * @param graph
-     * @param graphEditor
+     * Create a marquee for a given graph.
      */
     public Marquee(Graph graph)
     {
         this.graph = graph;
-        this.graphElementManger = new GraphElementManager();
+        elements = new GraphElementSet();
     }
 
     /**
-     * start the marquee at point x, y
-     * 
-     * @param x
-     * @param y
+     * Start a marquee selection at point x, y.
      */
     public void start(int x, int y)
     {
         drag_start_x = x;
         drag_start_y = y;
-        graphElementManger.clear();
+        elements.clear();
     }
 
     /**
      * Place the marquee from its starting point to the coordinate (drag_x,
      * drag_y). The marquee must have been started before this method is called.
      * 
-     * @param drag_x
-     * @param drag_y
+     * @param drag_x  The x coordinate of the current drag position 
+     * @param drag_y  The y coordinate of the current drag position 
      */
     public void move(int drag_x, int drag_y)
     {
@@ -64,40 +55,47 @@ public class Marquee
         w = Math.abs(w);
         h = Math.abs(h);
         Rectangle newRect = new Rectangle(x, y, w, h);
-        oldRect = newRect;
+        currentRect = newRect;
 
         findSelectedVertices(x, y, w, h);
     }
 
+    
+    /**
+     * Find, and add, all vertices that intersect the specified area.
+     */
     private void findSelectedVertices(int x, int y, int w, int h)
     {
         //clear the currently selected
-        graphElementManger.clear();
+        elements.clear();
+
         //find the intersecting vertices
-        Vertex v;
         for (Iterator it = graph.getVertices(); it.hasNext();) {
-            v = (Vertex) it.next();
+            Vertex v = (Vertex) it.next();
             if (v.getRectangle().intersects(x, y, w, h)) {
-                graphElementManger.add(v);
+                elements.add(v);
             }
         }
     }
 
+    /**
+     * Stop a current marquee selection.
+     */
     public void stop()
     {
-        oldRect = null;
+        currentRect = null;
     }
 
     /**
-     * Get the GraphElementManger
+     * Get the elements selected by the marquee
      */
-    public GraphElementManager getGraphElementManger()
+    public GraphElementSet getElements()
     {
-        return graphElementManger;
+        return elements;
     }
 
     public Rectangle getRectangle()
     {
-        return oldRect;
+        return currentRect;
     }
 }

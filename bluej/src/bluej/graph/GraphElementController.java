@@ -22,7 +22,7 @@ public class GraphElementController
 {
     private GraphEditor graphEditor;
     private Graph graph;
-    private GraphElementManager graphElementManager;
+    private GraphElementSet graphElementManager;
     
     private static int dragStartX;
     private static int dragStartY;
@@ -42,7 +42,7 @@ public class GraphElementController
 
     private TraverseStragegy traverseStragegiImpl = new TraverseStragegyImpl();
 
-    public GraphElementController(GraphEditor graphEditor, Graph graph, GraphElementManager graphElementManager)
+    public GraphElementController(GraphEditor graphEditor, Graph graph, GraphElementSet graphElementManager)
     {
         this.graphEditor = graphEditor;
         this.graph = graph;
@@ -119,22 +119,6 @@ public class GraphElementController
                 }
             }
         }
-    }
-
-    /**
-     * Invoke 'mouseMoved' on all the GraphElements in the list
-     * 
-     * @param evt
-     *            the mouseEvent
-     */
-    public void mouseMoved(MouseEvent evt)
-    {
-        /*
-         * GraphElement graphElement; for(Iterator
-         * i=graphEditor.getGraphElementManager().iterator(); i.hasNext();){
-         * graphElement = (GraphElement) i.next();
-         *  }
-         */
     }
 
     /**
@@ -302,22 +286,22 @@ public class GraphElementController
         }
     }
 
-    public void mouseClicked(MouseEvent evt)
-    {
-    }
-
-    public void popupMenu()
-    {
-    }
-
-    public void doubleClick(MouseEvent evt)
-    {
-    }
-
-    public void singleClick(MouseEvent evt)
-    {
-    }
-
+//    public void mouseClicked(MouseEvent evt)
+//    {
+//    }
+//
+//    public void popupMenu()
+//    {
+//    }
+//
+//    public void doubleClick(MouseEvent evt)
+//    {
+//    }
+//
+//    public void singleClick(MouseEvent evt)
+//    {
+//    }
+//
     /**
      * Is the package to which target belongs drawing a dependency.
      * 
@@ -527,9 +511,6 @@ public class GraphElementController
     private void showPopupMenu()
     {
         if (currentDependency != null) {
-//            int x, y;
-//            x = currentDependency.getTo().getX();
-//            y = currentDependency.getTo().getY();
             Point p = ((GraphPainterStdImpl) GraphPainterStdImpl.getInstance()).getDependencyPainter(currentDependency)
                     .getPopupMenuPosition(currentDependency);
             currentDependency.popupMenu(p.x, p.y, graphEditor);

@@ -16,7 +16,7 @@ import bluej.pkgmgr.Package;
  * Paints a Graph using TargetPainters
  * 
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 2772 2004-07-09 10:38:54Z mik $
+ * @version $Id: GraphPainterStdImpl.java 2775 2004-07-09 15:07:12Z mik $
  */
 public class GraphPainterStdImpl
     implements GraphPainter
@@ -38,12 +38,12 @@ public class GraphPainterStdImpl
     static final float alpha = (float) 0.5;
     static AlphaComposite alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
 
-    private final ClassTargetPainter classTargetPainter = new ClassTargetPainter(this);
-    private final ReadmeTargetPainter readmePainter = new ReadmeTargetPainter(this);
-    private final PackageTargetPainter packageTargetPainter = new PackageTargetPainter(this);
-    private final ExtendsDependencyPainter extendsDependencyPainter = new ExtendsDependencyPainter(this);
-    private final ImplementsDependencyPainter implementsDependencyPainter = new ImplementsDependencyPainter(this);
-    private final UsesDependencyPainter usesDependencyPainter = new UsesDependencyPainter(this);
+    private final ClassTargetPainter classTargetPainter = new ClassTargetPainter();
+    private final ReadmeTargetPainter readmePainter = new ReadmeTargetPainter();
+    private final PackageTargetPainter packageTargetPainter = new PackageTargetPainter();
+    private final ExtendsDependencyPainter extendsDependencyPainter = new ExtendsDependencyPainter();
+    private final ImplementsDependencyPainter implementsDependencyPainter = new ImplementsDependencyPainter();
+    private final UsesDependencyPainter usesDependencyPainter = new UsesDependencyPainter();
     private static final GraphPainterStdImpl singleton = new GraphPainterStdImpl();
 
     private GraphEditor graphEditor;
@@ -135,7 +135,7 @@ public class GraphPainterStdImpl
             throw new IllegalArgumentException("Not a dependency");
         }
         Dependency dependency = (Dependency) edge;
-        getDependencyPainter(dependency).paint(g, dependency);
+        getDependencyPainter(dependency).paint(g, dependency, isGraphEditorInFocus());
     }
 
     public DependencyPainter getDependencyPainter(Dependency dependency)
@@ -165,13 +165,13 @@ public class GraphPainterStdImpl
     {
 
         if (vertex instanceof ClassTarget) {
-            classTargetPainter.paint(g, (ClassTarget) vertex);
+            classTargetPainter.paint(g, (ClassTarget) vertex, isGraphEditorInFocus());
         }
         else if (vertex instanceof ReadmeTarget) {
-            readmePainter.paint(g, (ReadmeTarget) vertex);
+            readmePainter.paint(g, (ReadmeTarget) vertex, isGraphEditorInFocus());
         }
         else if (vertex instanceof PackageTarget) {
-            packageTargetPainter.paint(g, (PackageTarget) vertex);
+            packageTargetPainter.paint(g, (PackageTarget) vertex, isGraphEditorInFocus());
         }
         else {
             //asserts false;
@@ -188,10 +188,10 @@ public class GraphPainterStdImpl
     {
 
         if (vertex instanceof ClassTarget) {
-            classTargetPainter.paintGhost(g, (ClassTarget) vertex);
+            classTargetPainter.paintGhost(g, (ClassTarget) vertex, isGraphEditorInFocus());
         }
         else if (vertex instanceof PackageTarget) {
-            packageTargetPainter.paintGhost(g, (PackageTarget) vertex);
+            packageTargetPainter.paintGhost(g, (PackageTarget) vertex, isGraphEditorInFocus());
         }
         else {
             //asserts false;

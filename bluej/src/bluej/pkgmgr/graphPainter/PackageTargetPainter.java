@@ -13,7 +13,7 @@ import bluej.utility.Utility;
  * Paints a packageTarget
  * 
  * @author fisker
- * @version $Id: PackageTargetPainter.java 2771 2004-07-09 09:27:41Z mik $
+ * @version $Id: PackageTargetPainter.java 2775 2004-07-09 15:07:12Z mik $
  */
 public class PackageTargetPainter
 {
@@ -30,31 +30,28 @@ public class PackageTargetPainter
     private static Composite oldComposite;
     private int tabWidth;
 
-    private GraphPainterStdImpl graphPainterStdImpl;
-
     /**
      *  
      */
-    public PackageTargetPainter(GraphPainterStdImpl graphPainterStdImpl)
+    public PackageTargetPainter()
     {
-        this.graphPainterStdImpl = graphPainterStdImpl;
     }
 
-    public void paint(Graphics2D g, Target target)
+    public void paint(Graphics2D g, Target target, boolean hasFocus)
     {
         PackageTarget packageTarget = (PackageTarget) target;
         g.translate(packageTarget.getX(), packageTarget.getY());
-        drawUMLStyle(g, packageTarget);
+        drawUMLStyle(g, packageTarget, hasFocus);
         g.translate(-packageTarget.getX(), -packageTarget.getY());
     }
 
-    public void paintGhost(Graphics2D g, Target target)
+    public void paintGhost(Graphics2D g, Target target, boolean hasFocus)
     {
         PackageTarget packageTarget = (PackageTarget) target;
         oldComposite = g.getComposite();
         g.translate(packageTarget.getGhostX(), packageTarget.getGhostY());
         g.setComposite(alphaComposite);
-        drawUMLStyle(g, packageTarget);
+        drawUMLStyle(g, packageTarget, hasFocus);
         g.setComposite(oldComposite);
         g.translate(-packageTarget.getGhostX(), -packageTarget.getGhostY());
     }
@@ -62,7 +59,7 @@ public class PackageTargetPainter
     /**
      * Draw the package icon.
      */
-    private void drawUMLStyle(Graphics2D g, PackageTarget packageTarget)
+    private void drawUMLStyle(Graphics2D g, PackageTarget packageTarget, boolean hasFocus)
     {
         tabWidth = packageTarget.getWidth() / 3;
 
@@ -77,16 +74,16 @@ public class PackageTargetPainter
         Utility.drawCentredText(g, packageTarget.getDisplayName(), TEXT_BORDER, TEXT_BORDER + TAB_HEIGHT, packageTarget
                 .getWidth()
                 - 2 * TEXT_BORDER, TEXT_HEIGHT);
-        drawUMLBorders(g, packageTarget);
+        drawUMLBorders(g, packageTarget, hasFocus);
     }
 
     /**
      * Draw the borders of the package icon.
      */
-    private void drawUMLBorders(Graphics2D g, PackageTarget packageTarget)
+    private void drawUMLBorders(Graphics2D g, PackageTarget packageTarget, boolean hasFocus)
     {
         int thickness = 1;  // default
-        boolean isSelected = packageTarget.isSelected() && graphPainterStdImpl.isGraphEditorInFocus();
+        boolean isSelected = packageTarget.isSelected() && hasFocus;
         if(isSelected)
             thickness = 2;
         

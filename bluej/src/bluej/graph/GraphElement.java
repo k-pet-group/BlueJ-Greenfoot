@@ -26,6 +26,5 @@ public abstract class GraphElement {
     public void mouseMoved(MouseEvent evt, GraphEditor editor) {}
     public void doubleClick(MouseEvent evt, GraphEditor editor) {}
     public void singleClick(MouseEvent evt, GraphEditor editor) {}
-    public void popupMenu(int x, int y, GraphEditor editor) {}
-    
+    public void popupMenu(int x, int y, GraphEditor editor) {}   
 }
