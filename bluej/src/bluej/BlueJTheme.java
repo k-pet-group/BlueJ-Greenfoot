@@ -3,6 +3,7 @@ package bluej;
 import java.awt.*;
 
 import javax.swing.*;
+import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
@@ -15,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  * components for i18n purposes.
  *
  * @author  Bruce Quig
- * @version $Id: BlueJTheme.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: BlueJTheme.java 2246 2003-11-01 15:31:55Z polle $
  */
 public class BlueJTheme extends DefaultMetalTheme
 {
@@ -54,6 +55,8 @@ public class BlueJTheme extends DefaultMetalTheme
 
 	public static final Border dialogBorder =
 	    BorderFactory.createEmptyBorder(12,12,11,11);
+    
+    public static final Border roundedShadowBorder = new RoundedShadowBorder();
 
 	public static final int commandButtonSpacing = 5;
 	public static final int commandButtonPadding = 12;
@@ -62,7 +65,7 @@ public class BlueJTheme extends DefaultMetalTheme
 	public static final int componentSpacingLarge = 11;
 
 	public static final int dialogCommandButtonsVertical = 17;
-
+    
     /**
      * Name of theme
      */
@@ -192,5 +195,114 @@ public class BlueJTheme extends DefaultMetalTheme
 								continueButton.getPreferredSize().width);
 									
 		okCancelDimension = new Dimension(maxWidth, okButton.getPreferredSize().height);
+	}
+    
+	/**
+	 * A border with rounded corners and a shadow
+	 * 
+	 * @author Poul Henriksen
+	 *
+	 */
+	private static class RoundedShadowBorder extends AbstractBorder{  
+	    private Insets insets;
+	    private ImageIcon topLeftCorner = Config.getImageAsIcon("image.border.topleft");      
+	    private ImageIcon topRightCorner = Config.getImageAsIcon("image.border.topright");
+	    private ImageIcon bottomLeftCorner = Config.getImageAsIcon("image.border.bottomleft");
+	    private ImageIcon bottomRightCorner = Config.getImageAsIcon("image.border.bottomright");
+	    private Color shadowColor = new Color(145,145,145);
+	    private Color backgroundColor = Color.WHITE;
+	    private Color borderColor = Color.BLACK;
+	    
+	    public RoundedShadowBorder() {
+            insets = new Insets(0,0,0,0);
+	        insets.bottom = bottomLeftCorner.getIconHeight();	         
+	        insets.top = topLeftCorner.getIconHeight();
+	        insets.left = topLeftCorner.getIconHeight();
+	        insets.right = topRightCorner.getIconHeight();
+	    }
+	    
+	    /** 
+	     * Reinitializes the insets parameter with this Border's current Insets. 
+	     * @param c the component for which this border insets value applies
+	     * @param insets the object to be reinitialized
+	     * @return the <code>insets</code> object
+	     */
+	    public Insets getBorderInsets(Component c, Insets insets) {
+	        insets.bottom = this.insets.bottom;
+	        insets.top = this.insets.top;
+	        insets.left = this.insets.left;
+	        insets.right = this.insets.right;
+	        return insets;
+	    }
+	    
+	    /**
+	     * Returns a new <code>Insets</code>
+	     * instance.
+	     * @param c the component for which this border insets value applies
+	     * @return the new <code>Insets</code> object
+	     */
+	    public Insets getBorderInsets(Component c) {
+	        return (Insets) insets.clone();
+	    }       
+	    
+	    /**
+	     * Returns false.
+	     */
+	    public boolean isBorderOpaque() {
+	        return false;
+	    }
+	    
+	    /**
+	     * Paints the border
+	     */
+	    public void paintBorder(
+	            Component c,
+				Graphics g,
+				int x,
+				int y,
+				int width,
+				int height) {       
+	        
+	        //Top
+	        g.setColor(backgroundColor);
+	        g.drawLine(x,y,x+width,y);
+	        g.drawLine(x,y+1,x+width,y+1);
+	        g.drawLine(x,y+2,x+width,y+2);
+	        g.setColor(borderColor);
+	        g.drawLine(x,y+3,x+width,y+3);
+	        
+	        //Bottom
+	        g.setColor(borderColor);
+	        g.drawLine(x,y+height-4,x+width,y+height-4);
+	        g.setColor(shadowColor);
+	        g.drawLine(x,y+height-3,x+width,y+height-3);
+	        g.drawLine(x,y+height-2,x+width,y+height-2);
+	        g.setColor(backgroundColor);
+	        g.drawLine(x,y+height-1,x+width,y+height-1);
+	        
+	        //Left
+	        g.setColor(backgroundColor);
+	        g.drawLine(x,y,x, y+height);
+	        g.drawLine(x+1,y,x+1,y+height);
+	        g.drawLine(x+2,y,x+2,y+height);
+	        g.setColor(borderColor);
+	        g.drawLine(x+3,y,x+3,y+height);
+	        
+	        //Right
+	        g.setColor(borderColor);
+	        g.drawLine(x+width-4,y,x+width-4,y+height);
+	        g.setColor(shadowColor);           
+	        g.drawLine(x+width-3,y,x+width-3,y+height);
+	        g.drawLine(x+width-2,y,x+width-2,y+height);
+	        g.setColor(backgroundColor);           
+	        g.drawLine(x+width-1,y,x+width-1,y+height);
+	        
+	        //Corners
+	        topLeftCorner.paintIcon(c,g,x,y);
+	        topRightCorner.paintIcon(c, g, x + width - insets.right, y );
+	        bottomLeftCorner.paintIcon(c, g, x, y + height -insets.bottom);
+	        bottomRightCorner.paintIcon(c, g, x + width - insets.right, y + height -insets.bottom);	        
+	    }
+	    
 	}
 }
