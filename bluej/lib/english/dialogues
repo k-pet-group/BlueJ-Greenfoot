@@ -87,7 +87,7 @@ error-no-templates
 The specified template directory (the directory where
 BlueJ finds the class templates) does not exist. It
 is defined with the property "bluej.templatePath" in
-<bluej-home>/lib/bluej/defs. Check and fix this property.
+<bluej-home>/lib/bluej.defs. Check and fix this property.
 
 skeleton-error
 The default skeleton for the class could not be
@@ -194,6 +194,10 @@ duplicate-name
 A class with this name already exists
 in this package. You cannot have two
 classes with the same name.
+
+duplicate-package-name
+A package with this name already exists
+in this project.
 
 error-in-import
 An error occured during the attempt to
