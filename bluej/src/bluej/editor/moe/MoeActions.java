@@ -37,7 +37,7 @@ public final class MoeActions
 {
     // -------- CONSTANTS --------
 
-    private static String KEYS_FILE = "bluej.keys";
+    private static String KEYS_FILE = "editor.keys";
     private static int SHIFT_CTRL_MASK;
     
     // -------- INSTANCE VARIABLES --------
@@ -83,7 +83,16 @@ public final class MoeActions
     {
         SHIFT_CTRL_MASK = Event.CTRL_MASK + Event.SHIFT_MASK;
         undoManager = new UndoManager();
-        keymap = textComponent.getKeymap();
+        
+        // the following can be changed once jdk 1.2 is not used anymore. 
+        // For jdk 1.3 and later, this should read:
+        //    keymap = textComponent.getKeymap();
+        // for 1.3, this will work, because it returns a new, empty keymap.
+        // for 1.2, we need to create our own:
+        
+          keymap = JTextComponent.addKeymap("BlueJ map", textComponent.getKeymap());
+          textComponent.setKeymap(keymap);
+
         createActionTable(textComponent);
         keyCatcher = new KeyCatcher();
         if(! load())

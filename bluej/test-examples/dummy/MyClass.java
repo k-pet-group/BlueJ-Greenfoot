@@ -13,7 +13,7 @@ public class MyClass
 {
 
     // instance variables - replace the example below with your own - replace the example below with your own - repla
-    private int x = 22222;
+private int x = 22222;
     private String name;
     public Tester tst;
     private static String sname;
@@ -85,7 +85,7 @@ public class MyClass
         return x + 5;
     }
 
-    public int nested()
+    public int nested ()
     {
         int sum = 0;
         sum = nested1(sum) + 3;
