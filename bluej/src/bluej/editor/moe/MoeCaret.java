@@ -44,12 +44,6 @@ public class MoeCaret extends DefaultCaret
      */
     protected void positionCaret(MouseEvent e) 
     {
-        if(e.getID() == MouseEvent.MOUSE_PRESSED)
-            Debug.message("mouse pressed");
-        else if(e.getID() == MouseEvent.MOUSE_RELEASED)
-            Debug.message("mouse released");
-        else 
-            Debug.message("other mouse event");
         editor.caretMoved();
         Point pt = new Point(e.getX(), e.getY());
         Position.Bias[] biasRet = new Position.Bias[1];
@@ -68,9 +62,8 @@ public class MoeCaret extends DefaultCaret
             }
         }
         else {
-         
-            editor.toggleBreakpoint(pos);
-
+            if(e.getID() == MouseEvent.MOUSE_PRESSED)
+                editor.toggleBreakpoint(pos);
         }
         
     }
