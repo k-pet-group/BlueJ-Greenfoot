@@ -41,7 +41,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3024 2004-09-29 11:37:58Z fisker $
+ * @version $Id: ObjectWrapper.java 3318 2005-02-17 05:04:12Z davmac $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -198,9 +198,16 @@ public class ObjectWrapper extends JComponent
             actions = new Hashtable();
             methodsUsed = new Hashtable();
 
+            // define two view filters for different package visibility
+            ViewFilter samePackageFilter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
+            ViewFilter otherPackageFilter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PUBLIC);
+            
             // define a view filter
-            ViewFilter filter =
-                new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PROTECTED);
+            ViewFilter filter;
+            if (view.getPackageName().equals(pkg.getQualifiedName()))
+                filter = samePackageFilter;
+            else
+                filter = otherPackageFilter;
 
             menu.addSeparator();
 
@@ -228,6 +235,12 @@ public class ObjectWrapper extends JComponent
             for(int i = 1; i < classes.size(); i++ ) {
                 Class currentClass = (Class)classes.get(i);
                 view = View.getView(currentClass);
+                
+                // Determine visibility of package private / protected members
+                if (view.getPackageName().equals(pkg.getQualifiedName()))
+                    filter = samePackageFilter;
+                else
+                    filter = otherPackageFilter;
                 
                 // map generic type paramaters to the current superclass
                 GenTypeClass c = new GenTypeClass(reflective, tparTypes);
@@ -290,6 +303,7 @@ public class ObjectWrapper extends JComponent
                                  Map genericParams)
     {
         JMenuItem item;
+        boolean menuEmpty = true;
 
         Arrays.sort(methods);
         for(int i = 0; i < methods.length; i++) {
@@ -298,6 +312,7 @@ public class ObjectWrapper extends JComponent
                 if(!filter.accept(m))
                     continue;
 
+                menuEmpty = false;
                 String methodSignature = m.getCallSignature();   // uses types for params
                 String methodDescription = m.getLongDesc(genericParams); // uses names for params
 
@@ -313,10 +328,12 @@ public class ObjectWrapper extends JComponent
                     methodsUsed.put(methodSignature, m.getClassName());
                 }
                 item = new JMenuItem(methodDescription);
-                item.addActionListener(
-                    new ActionListener() {
-                        public void actionPerformed(ActionEvent e) { invokeMethod(e.getSource()); }
-                    });
+                item.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        invokeMethod(e.getSource());
+                    }
+                });
                 item.setFont(PrefMgr.getPopupMenuFont());
                 actions.put(item, m);
 
@@ -328,7 +345,7 @@ public class ObjectWrapper extends JComponent
                 else
                     itemCount = menu.getComponentCount();
                 if(itemCount >= sizeLimit) {
-                    JMenu subMenu = new JMenu("more methods");
+                    JMenu subMenu = new JMenu(Config.getString("debugger.objectwrapper.moreMethods"));
                     subMenu.setFont(PrefMgr.getStandoutMenuFont());
                     subMenu.setForeground(envOpColour);
                     menu.add(subMenu);
@@ -340,6 +357,15 @@ public class ObjectWrapper extends JComponent
                 Debug.reportError(methodException + e);
                 e.printStackTrace();
             }
+        }
+        
+        // If there are no accessible methods, insert a message which says so.
+        if (menuEmpty) {
+            JMenuItem mi = new JMenuItem(Config.getString("debugger.objectwrapper.noMethods"));
+            mi.setFont(PrefMgr.getStandoutMenuFont());
+            mi.setForeground(envOpColour);
+            mi.setEnabled(false);
+            menu.add(mi);
         }
     }
 

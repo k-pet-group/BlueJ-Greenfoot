@@ -15,7 +15,7 @@ import bluej.utility.JavaUtils;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 2827 2004-07-28 10:36:40Z polle $
+ * @version $Id: View.java 3318 2005-02-17 05:04:12Z davmac $
  */
 public class View
 {
@@ -88,6 +88,16 @@ public class View
     public String getQualifiedName()
     {
         return cl.getName();
+    }
+    
+    public String getPackageName()
+    {
+        String clName = cl.getName();
+        int i = clName.lastIndexOf('.');
+        if (i == -1)
+            return "";
+        else
+            return clName.substring(0, i);
     }
 
     /**

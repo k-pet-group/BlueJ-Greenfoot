@@ -19,7 +19,7 @@ import bluej.views.*;
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 3016 2004-09-24 10:52:46Z fisker $
+ * @version $Id: ClassRole.java 3318 2005-02-17 05:04:12Z davmac $
  */
 public abstract class ClassRole
 {
@@ -203,7 +203,7 @@ public abstract class ClassRole
         ViewFilter filter;
         View view = View.getView(cl);
 
-        filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
+        filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PACKAGE);
         MethodView[] allMethods = view.getAllMethods();
         if (createMenuItems(menu, allMethods, filter, 0, allMethods.length, "", ct))
             return true;

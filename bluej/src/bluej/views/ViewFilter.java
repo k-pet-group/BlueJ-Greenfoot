@@ -3,7 +3,7 @@ package bluej.views;
 import java.lang.reflect.*;
 
 /**
- ** @version $Id: ViewFilter.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: ViewFilter.java 3318 2005-02-17 05:04:12Z davmac $
  ** @author Michael Cahill
  **
  ** A filter for views - allows only certain parts of a view to be seen.
@@ -12,9 +12,9 @@ import java.lang.reflect.*;
 public final class ViewFilter
 {
 	public static final int PUBLIC = Modifier.PUBLIC;
-	public static final int PACKAGE = PUBLIC | 0x10000;
-	public static final int PROTECTED = PACKAGE | Modifier.PROTECTED;
-	public static final int PRIVATE = PROTECTED | Modifier.PRIVATE;
+    public static final int PROTECTED = PUBLIC | Modifier.PROTECTED;
+	public static final int PACKAGE = PROTECTED | 0x10000;
+	public static final int PRIVATE = PACKAGE | Modifier.PRIVATE;
 	
 	public static final int STATIC = Modifier.STATIC;
 	public static final int INSTANCE = 0x20000;

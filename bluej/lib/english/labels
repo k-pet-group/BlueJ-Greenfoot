@@ -46,6 +46,8 @@ debugger.objectwrapper.remove=Remove
 debugger.objectwrapper.serializable=Serialize
 debugger.objectwrapper.redefined=redefined in
 debugger.objectwrapper.inherited=inherited from
+debugger.objectwrapper.noMethods=(No accessible methods)
+debugger.objectwrapper.moreMethods=more methods
 
 debugger.threadstatus.finished=finished
 debugger.threadstatus.breakpoint=at breakpoint

@@ -23,7 +23,7 @@ import bluej.views.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 3175 2004-11-25 14:33:52Z fisker $
+ * @version $Id: LibraryCallDialog.java 3318 2005-02-17 05:04:12Z davmac $
  */
 public class LibraryCallDialog extends EscapeDialog
 	implements ActionListener, ListSelectionListener
@@ -181,11 +181,17 @@ public class LibraryCallDialog extends EscapeDialog
         List list = new ArrayList();
 
         ConstructorView[] constructors = classView.getConstructors();
-        filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
+        
+        // Determine visibility of package private / protected members
+        int visibilityMod = ViewFilter.PUBLIC;
+        if (classView.getPackageName().equals(pkg.getQualifiedName()))
+            visibilityMod = ViewFilter.PACKAGE;
+
+        filter = new ViewFilter(ViewFilter.INSTANCE | visibilityMod);
         addMethods(list, constructors, filter);
 
         MethodView[] methods = classView.getAllMethods();
-        filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
+        filter = new ViewFilter(ViewFilter.STATIC | visibilityMod);
         addMethods(list, methods, filter);
 
         methodList.setListData(list.toArray());
