@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3043 2004-10-12 00:10:37Z davmac $
+ * @version $Id: VMReference.java 3048 2004-10-15 00:46:08Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -115,6 +115,10 @@ class VMReference
     private int exitStatus;
     private ExceptionDescription lastException;
     
+    // A counter for giving names to shared memory blocks for the shared
+    // memory transport
+    static private int shmCount = 0;
+
     /**
      * Launch a remote debug VM using a TCP/IP socket.
      * 
@@ -130,72 +134,45 @@ class VMReference
         final int CONNECT_WAIT = 500; // wait half a sec between each connect
 
         int portNumber;
+        String [] launchParams;
 
         // launch the VM
-        try {
-            // get classpath for VM
-            String allClassPath = ClassMgr.getClassMgr().getAllClassPath().toString();
-
-            ArrayList paramList = new ArrayList(10);
-            paramList.add(Config.getJDKExecutablePath("this.key.must.not.exist", "java"));
-
-            //check if any vm args are specified in Config, at the moment these
-            //are only Locale options: user.language and user.country
-
-            List configArgs = Config.getDebugVMArgs();
-            if (!configArgs.isEmpty()) {
-                paramList.addAll(configArgs);
-            }
-
-            paramList.add("-classpath");
-            paramList.add(allClassPath);
-            paramList.add("-Xdebug");
-            if (!PrefMgr.getFlag(PrefMgr.OPTIMISE_VM))
-                paramList.add("-Xint");
-            if (Config.isMacOS()) {
-                paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/vm.icns");
-                paramList.add("-Xdock:name=BlueJ Virtual Machine");
-            }
-            paramList.add("-Xrunjdwp:transport=dt_socket,server=y");
-            paramList.add(SERVER_CLASSNAME);
-
-            String[] launchParams = (String[]) paramList.toArray(new String[0]);
-            Process vmProcess = Runtime.getRuntime().exec(launchParams, null, initDir);
-
-            String listenMessage = new BufferedReader(new InputStreamReader(vmProcess.getInputStream())).readLine();
-
-            portNumber = extractPortNumber(listenMessage);
-
-            if (portNumber == -1) {
-                Debug.message("Could not find port number to connect to debugger");
-                Debug.message("Line received from debugger was: " + listenMessage);
-                return null;
-            }
-
-            // redirect error stream from process to Terminal
-            errorStreamRedirector = redirectIOStream(new InputStreamReader(vmProcess.getErrorStream()),
-            //new OutputStreamWriter(System.err),
-                    term.getErrorWriter(), false);
-
-            // redirect output stream from process to Terminal
-            outputStreamRedirector = redirectIOStream(new InputStreamReader(vmProcess.getInputStream()),
-            //new OutputStreamWriter(System.err),
-                    term.getWriter(), false);
-
-            // redirect Terminal input to process output stream
-            inputStreamRedirector = redirectIOStream(term.getReader(), new OutputStreamWriter(vmProcess
-                    .getOutputStream()), false);
-            remoteVMprocess = vmProcess;
+        // get classpath for VM
+        String allClassPath = ClassMgr.getClassMgr().getAllClassPath().toString();
+        
+        ArrayList paramList = new ArrayList(10);
+        paramList.add(Config.getJDKExecutablePath("this.key.must.not.exist", "java"));
+        
+        //check if any vm args are specified in Config, at the moment these
+        //are only Locale options: user.language and user.country
+        
+        List configArgs = Config.getDebugVMArgs();
+        if (!configArgs.isEmpty()) {
+            paramList.addAll(configArgs);
         }
-        catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
+        
+        paramList.add("-classpath");
+        paramList.add(allClassPath);
+        paramList.add("-Xdebug");
+        paramList.add("-Xnoagent");
+        if (!PrefMgr.getFlag(PrefMgr.OPTIMISE_VM))
+            paramList.add("-Xint");
+        if (Config.isMacOS()) {
+            paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/vm.icns");
+            paramList.add("-Xdock:name=BlueJ Virtual Machine");
         }
+        paramList.add("-Xrunjdwp:transport=dt_socket,server=y");
+        paramList.add(SERVER_CLASSNAME);
+        
+        launchParams = (String[]) paramList.toArray(new String[0]);
 
-        // now try to connect to the running VM using a TCP/IP socket
+        
 
-        AttachingConnector connector = null;
+        
+        // Attempt to connect via TCP/IP transport
+        
         List connectors = mgr.attachingConnectors();
+        AttachingConnector connector = null;
 
         // find a socket connector
         Iterator it = connectors.iterator();
@@ -208,50 +185,143 @@ class VMReference
             }
         }
 
-        if (connector == null) {
-            throw new IllegalStateException("no JPDA socket launch connector");
-        }
-
-        Map arguments = connector.defaultArguments();
-
-        Connector.Argument hostnameArg = (Connector.Argument) arguments.get("hostname");
-        Connector.Argument portArg = (Connector.Argument) arguments.get("port");
-
-        if (hostnameArg == null || portArg == null) {
-            throw new IllegalStateException("incompatible JPDA socket launch connector");
-        }
-
-        hostnameArg.setValue("127.0.0.1");
-        portArg.setValue(Integer.toString(portNumber));
-
-        // try to connect 10 times, waiting half a sec between each attempt
-        for (int i = 0; i < CONNECT_TRIES; i++) {
+        if (connector != null) {
             try {
-                VirtualMachine m = connector.attach(arguments);
+                StringBuffer listenMessage = new StringBuffer();
+                remoteVMprocess = launchVM(initDir, launchParams, listenMessage, term);
+            
+                portNumber = extractPortNumber(listenMessage.toString());
 
-                return m;
-            }
-            catch (java.net.ConnectException ce) {
-                // on our last attempt, give a stack trace to give some
-                // reason for the failure
-                if (i == CONNECT_TRIES - 1)
-                    ce.printStackTrace();
+                if (portNumber == -1) {
+                    Debug.message("Could not find port number to connect to debugger");
+                    Debug.message("Line received from debugger was: " + listenMessage);
+                    closeIO();
+                    remoteVMprocess.destroy();
+                    remoteVMprocess = null;
+                    return null;
+                }
 
-                try {
-                    synchronized (this) {
-                        wait(CONNECT_WAIT);
+                Map arguments = connector.defaultArguments();
+
+                Connector.Argument hostnameArg = (Connector.Argument) arguments.get("hostname");
+                Connector.Argument portArg = (Connector.Argument) arguments.get("port");
+
+                if (hostnameArg == null || portArg == null) {
+                    throw new IllegalStateException("incompatible JPDA socket launch connector");
+                }
+
+                hostnameArg.setValue("127.0.0.1");
+                portArg.setValue(Integer.toString(portNumber));
+
+                for (int i = 0; i < CONNECT_TRIES; i++) {
+                    try {
+                        VirtualMachine m = connector.attach(arguments);
+                        Debug.message("Connected to debug VM via dt_socket transport.");
+                        return m;
+                    }
+                    catch (Exception ce) {
+                        // on our last attempt, give a stack trace to give some
+                        // reason for the failure
+                        if (i == CONNECT_TRIES - 1) {
+                            Debug.reportError("Unable to launch target VM.");
+                            ce.printStackTrace(System.out);
+                        }
+                        else {
+                            try {
+                                synchronized (this) {
+                                    wait(CONNECT_WAIT);
+                                }
+                            }
+                            catch (InterruptedException ie) {}
+                        }
                     }
                 }
-                catch (InterruptedException ie) {}
+                
+                // failed to connect.
+                closeIO();
+                remoteVMprocess.destroy();
+                remoteVMprocess = null;
             }
-            catch (Exception e) {
-                Debug.reportError("Unable to launch target VM.");
-                e.printStackTrace();
-                return null;
+            catch(Throwable t) {
+                t.printStackTrace();
             }
         }
 
+        // Attempt launch using shared memory transport, if available
+        
+        connector = null;
+
+        it = connectors.iterator();
+        while (it.hasNext()) {
+            AttachingConnector c = (AttachingConnector) it.next();
+
+            if (c.transport().name().equals("dt_shmem")) {
+                connector = c;
+                break;
+            }
+        }
+
+        if (connector != null) {
+            try {
+                Map arguments = connector.defaultArguments();
+                Connector.Argument addressArg = (Connector.Argument) arguments.get("name");
+                if (addressArg == null) {
+                    Debug.message("Shared memory connector is incompatible - no 'name' argument");
+                }
+                else {
+                    String shmName = "bluej" + shmCount++;
+                    addressArg.setValue(shmName);
+                    
+                    launchParams[launchParams.length - 2] = "-Xrunjdwp:transport=dt_shmem,address=" + shmName + ",server=y,suspend=y";
+                    
+                    StringBuffer listenMessage = new StringBuffer();
+                    remoteVMprocess = launchVM(initDir, launchParams, listenMessage,term);
+                    
+                    VirtualMachine m = connector.attach(arguments);
+                    Debug.message("Connected to debug VM via dt_shmem transport.");
+                    return m;
+                }
+            }
+            catch(Throwable t) {
+                Debug.message("Failed to connect to debug VM via shared memory:");
+                t.printStackTrace();
+            }
+        }
+
+        // failed to connect
         return null;
+    }
+
+    /**
+     * Launch the debug VM and set up the I/O connectors to the terminal.
+     * @param initDir   the directory which the vm should be started in
+     * @param params    the parameters (including executable as first param)
+     * @param line      a buffer which receives the first line of output from
+     *                  the debug vm process
+     * @param term      the terminal to connect to process I/O
+     */
+    private Process launchVM(File initDir, String [] params, StringBuffer line, DebuggerTerminal term)
+        throws IOException
+    {
+        Process vmProcess = Runtime.getRuntime().exec(params, null, initDir);
+        String listenMessage = new BufferedReader(new InputStreamReader(vmProcess.getInputStream())).readLine();
+        line.append(listenMessage);
+        
+        // redirect error stream from process to Terminal
+        errorStreamRedirector = redirectIOStream(new InputStreamReader(vmProcess.getErrorStream()),
+                //new OutputStreamWriter(System.err),
+                term.getErrorWriter(), false);
+        
+        // redirect output stream from process to Terminal
+        outputStreamRedirector = redirectIOStream(new InputStreamReader(vmProcess.getInputStream()),
+                //new OutputStreamWriter(System.err),
+                term.getWriter(), false);
+        
+        // redirect Terminal input to process output stream
+        inputStreamRedirector = redirectIOStream(term.getReader(), new OutputStreamWriter(vmProcess
+                .getOutputStream()), false);
+        
+        return vmProcess;
     }
 
     /**
