@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2983 2004-09-03 05:46:00Z davmac $
+ * @version $Id: ExecServer.java 3008 2004-09-20 00:42:31Z davmac $
  */
 public class ExecServer
 {
@@ -86,12 +86,6 @@ public class ExecServer
 	// a hashmap of names to objects
     private static Map objects = new HashMap();
     
-    // Whether the current server thread should die. In particular this can
-    // be used to kill off one thread in order to start another. See
-    // newThread().
-    public static final String SHOULD_DIE = "shouldDie";
-    public static boolean shouldDie = false;
-
     /**
      * We need to keep track of open windows so that we can dispose of them
      * when simulating a System.exit() call
@@ -140,6 +134,8 @@ public class ExecServer
 				// an infinite loop.. 
 				while(true) {
 					vmSuspend();
+                    if (execAction == EXIT_VM)
+                        System.exit(0);
 				}
 				// System.err.println("worker thread bye bye");
 			}
