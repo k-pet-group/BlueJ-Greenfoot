@@ -550,11 +550,11 @@ public final class MoeEditor extends JFrame
             a.addAttribute(MoeSyntaxView.STEPMARK, Boolean.FALSE);
             sourceDocument.setParagraphAttributes(currentStepPos, a);
             currentStepPos = -1;
+            // remove highlight as well
+            sourcePane.setCaretPosition(sourcePane.getCaretPosition());
             // force an update of UI
             repaint();
         }
-        // remove highlight as well
-        sourcePane.setCaretPosition(sourcePane.getCaretPosition());
     }
 
     // --------------------------------------------------------------------
