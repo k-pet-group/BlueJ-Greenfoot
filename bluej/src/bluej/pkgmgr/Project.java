@@ -20,7 +20,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2389 2003-11-26 10:27:27Z mik $
+ * @version $Id: Project.java 2432 2003-12-09 12:11:23Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -134,7 +134,6 @@ public class Project
         }
 
         if (startingPackageName.equals("")) {
-            // The following one showuld be a getPackage ? 311003 Damiano
             Package startingPackage = proj.getOrCreatePackageTree("");
 
             while(startingPackage != null) {
@@ -506,20 +505,23 @@ public class Project
 
     public int newPackage(String qualifiedName)
     {
-        if ( qualifiedName == null ) return NEW_PACKAGE_BAD_NAME;
+        if(qualifiedName == null)
+            return NEW_PACKAGE_BAD_NAME;
         
         Package existing = (Package) packages.get(qualifiedName);
 
-        if (existing != null) return NEW_PACKAGE_EXIST;
+        if(existing != null) 
+            return NEW_PACKAGE_EXIST;
 
         // The zero len (unqualified) package should always exist.
-        if ( qualifiedName.length() < 1 ) return NEW_PACKAGE_BAD_NAME;
+        if(qualifiedName.length() < 1) 
+            return NEW_PACKAGE_BAD_NAME;
         
         // The above named package does not exist, lets create it.
         try {
-            // 311003 Damiano we really want to know if the parent is there.
-            Package parent = getPackage(JavaNames.getPrefix(qualifiedName));
-            if(parent == null) return NEW_PACKAGE_NO_PARENT;
+            Package parent = getOrCreatePackageTree(JavaNames.getPrefix(qualifiedName));
+            if(parent == null) 
+                return NEW_PACKAGE_NO_PARENT;
 
             // Before creating the package you have to create the directory
             // Maybe it should go into the new Package(...)
@@ -573,8 +575,7 @@ public class Project
      */
     public List getPackageNames()
     {
-        // Ok getPackage() 311003 Damiano, maybe we should consider a rootPackage ?
-        return getPackageNames(getPackage(""));
+        return getPackageNames(getOrCreatePackageTree(""));
     }
 
     /**
@@ -890,7 +891,7 @@ public class Project
 		
         DebuggerThread thr = event.getThread();
 		String packageName = JavaNames.getPrefix(thr.getClass(0));
-		Package pkg = getPackage(packageName);
+		Package pkg = getOrCreatePackageTree(packageName);
 		if(pkg != null) {
 			switch(event.getID()) {
 			 case DebuggerEvent.THREAD_BREAKPOINT:

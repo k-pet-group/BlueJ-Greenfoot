@@ -78,7 +78,7 @@ class Identifier
     {
     Project bluejProject = getBluejProject();
 
-    Package bluejPkg = bluejProject.getPackage(packageId);  // ok 311003 Damiano
+    Package bluejPkg = bluejProject.getPackage(packageId);
     if ( bluejPkg == null ) throw new PackageNotFoundException ("Package '"+packageId+"' is deleted");
     
     return  bluejPkg;

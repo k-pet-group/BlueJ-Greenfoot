@@ -385,7 +385,7 @@ public class DocuGenerator
             String packageName = (String)names.next();
             // as javadoc doesn't like packages with no java-files, we have to
             // pass only names of packages that really contain java files.
-            Package pack = project.getPackage(packageName); // ok 311003 Damiano
+            Package pack = project.getOrCreatePackageTree(packageName);
             if (FileUtility.containsFile(pack.getPath(),".java")) {
                 if(packageName.length() > 0)
                     call.add(packageName);
@@ -393,7 +393,7 @@ public class DocuGenerator
         }
 
         // second: get class names of classes in unnamed package, if any
-        List classNames = project.getPackage("").getAllClassnamesWithSource(); // ok 311003 Damiano
+        List classNames = project.getOrCreatePackageTree("").getAllClassnamesWithSource();
         String dirName = project.getProjectDir().getAbsolutePath();
         for (Iterator names = classNames.iterator();names.hasNext(); ) {
             call.add(dirName + "/" + names.next() + ".java");

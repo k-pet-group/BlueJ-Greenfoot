@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 2365 2003-11-18 16:11:56Z iau $
+ * @version $Id: BProject.java 2432 2003-12-09 12:11:23Z mik $
  */
 
 /*
@@ -74,9 +74,6 @@ public class BProject
         thisProject.saveAll();
         Project.closeProject (thisProject);
     }
-
-
-
     
     /**
      * Create and return a new package with the given fully qualified name.
@@ -134,7 +131,8 @@ public class BProject
         Project bluejProject = projectId.getBluejProject();
 
         Package pkg = bluejProject.getPackage (name);
-        if ( pkg == null ) return null;
+        if(pkg == null) 
+            return null;
 
         return new BPackage (new Identifier (bluejProject,pkg));
     }
@@ -162,15 +160,13 @@ public class BProject
      * Returns a string representation of this package object
      */
     public String toString ()
-      {
-      try
-        {
-        Project thisProject = projectId.getBluejProject();
-        return "BProject: "+thisProject.getProjectName();
+    {
+        try {
+            Project thisProject = projectId.getBluejProject();
+            return "BProject: "+thisProject.getProjectName();
         }
-      catch ( ExtensionException exc )
-        {
-        return "BProject: INVALID";  
+        catch(ExtensionException exc) {
+            return "BProject: INVALID";  
         }
-      }
+    }
 }

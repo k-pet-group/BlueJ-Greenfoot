@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2396 2003-11-27 13:49:39Z mik $
+ * @version $Id: PkgMgrFrame.java 2432 2003-12-09 12:11:23Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1472,17 +1472,17 @@ public class PkgMgrFrame extends JFrame
             fullName = getPackage().getQualifiedName(name);
 
         // check whether name is already used as an existing package
-        if (getProject().getPackage(fullName) != null) {
+        if (getProject().getOrCreatePackageTree(fullName) != null) {
             DialogManager.showError(this, "duplicate-name");
             return;
         }
 
 		// check whether name is already used for a class in the
 		// parent package
-		String pre = JavaNames.getPrefix(fullName);
+		String prefix = JavaNames.getPrefix(fullName);
 		String base = JavaNames.getBase(fullName);
 		
-		Package basePkg = getProject().getPackage(pre);
+		Package basePkg = getProject().getOrCreatePackageTree(prefix);
 		if (basePkg != null) {
 			if (basePkg.getTarget(base) != null) {
 				DialogManager.showError(this, "duplicate-name");

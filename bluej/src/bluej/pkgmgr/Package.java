@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2395 2003-11-27 13:32:44Z mik $
+ * @version $Id: Package.java 2432 2003-12-09 12:11:23Z mik $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -331,14 +331,12 @@ public final class Package extends Graph
 
         if (pt == null) return null;
 
-        // it is a getPackage 311003 Damiano
         return getProject().getOrCreatePackageTree(pt.getQualifiedName());
     }
 
     /**
      * Return an array of package objects which are nested one level
-     * below us. Will return null if there are no
-     * children.
+     * below us. Will return null if there are no children.
      */
     protected List getChildren()
     {
@@ -351,8 +349,7 @@ public final class Package extends Graph
                !(target instanceof ParentPackageTarget)) {
                 PackageTarget pt = (PackageTarget)target;
 
-                // It is a getPackage() 311003 Damiano
-                Package child = getProject().getPackage(pt.getQualifiedName());
+                Package child = getProject().getOrCreatePackageTree(pt.getQualifiedName());
 
                 if (child == null)
                     continue;
@@ -1828,8 +1825,7 @@ public final class Package extends Graph
         // check if the error is from a file belonging to another package
         if (packageName != getQualifiedName()) {
 
-            // It is a getPackage() 31103 Damiano
-            Package pkg = getProject().getPackage(packageName);
+            Package pkg = getProject().getOrCreatePackageTree(packageName);
             PkgMgrFrame pmf;
 
             if ((pmf = PkgMgrFrame.findFrame(pkg)) == null) {
