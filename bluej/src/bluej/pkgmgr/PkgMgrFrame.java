@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2330 2003-11-13 04:10:34Z ajp $
+ * @version $Id: PkgMgrFrame.java 2331 2003-11-14 04:52:24Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2316,11 +2316,11 @@ public class PkgMgrFrame extends JFrame
                            KeyEvent.VK_D, SHORTCUT_MASK, false, true, null);
             item.setModel(new ExecControlButtonModel(this));
 
-			menu.addSeparator();
-
             item = createCheckboxMenuItem("menu.view.showTerminal", menu,
-                           KeyEvent.VK_T, SHORTCUT_MASK, false, false, null);
+                           KeyEvent.VK_T, SHORTCUT_MASK, false, true, null);
             item.setModel(new TerminalButtonModel(this));
+
+            menu.addSeparator();
 
             showTestResultsItem = createCheckboxMenuItem("menu.view.showTestDisplay", menu,
                            0, 0, false, false, null);
