@@ -20,7 +20,7 @@ import javax.swing.border.Border;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1543 2002-11-29 13:49:49Z ajp $
+ * @version    $Id: Inspector.java 1553 2002-12-02 06:00:00Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -49,11 +49,9 @@ public abstract class Inspector extends JFrame
     protected JButton inspectButton;
     protected JButton getButton;
     protected DebuggerObject selectedObject;    // the object currently selected in the list
-    protected String selectedObjectName;
     protected Package pkg;
     protected String pkgScopeId;
     protected boolean getEnabled;
-    protected boolean isInScope;
 
     // either a tabbed pane or null if there is only the standard inspector
     protected JTabbedPane inspectorTabs = null;
@@ -98,7 +96,6 @@ public abstract class Inspector extends JFrame
         this.pkg = pkg;
         viewerId = id;
         this.getEnabled = getEnabled;
-        isInScope = false;
         if (pkg == null) {
             if (getEnabled) {
                 Debug.reportError("cannot enable 'get' with null package");
@@ -255,7 +252,6 @@ public abstract class Inspector extends JFrame
     protected void setCurrentObj(DebuggerObject object, String name)
     {
         selectedObject = object;
-        selectedObjectName = name;
     }
 
 
@@ -285,12 +281,6 @@ public abstract class Inspector extends JFrame
             boolean isPublic = getButton.isEnabled();
             ObjectInspector viewer = ObjectInspector.getInstance(false, selectedObject, 
                     null, pkg, isPublic, this);
-
-            // If the newly opened object is public, enter it into the
-            // package scope, so that we can perform "Get" operations on it.
-//            if (isPublic) {
-//                viewer.addToScope(viewerId, selectedObjectName);
-//            }
         }
     }
 
@@ -301,21 +291,9 @@ public abstract class Inspector extends JFrame
     private void doGet()
     {
         if(selectedObject != null) {
-            pkg.getEditor().raisePutOnBenchEvent(selectedObject, selectedObjectName);
+            pkg.getEditor().raisePutOnBenchEvent(this, selectedObject);
         }
     }
-
-    /**
-     *@param  parentViewerId  The feature to be added to the ToScope attribute
-     *@param  objectName      The feature to be added to the ToScope attribute
-     */
-    protected void addToScope(String parentViewerId, String objectName)
-    {
-//        Debugger.debugger.addObjectToScope(pkgScopeId, parentViewerId,
-//                objectName, viewerId);
-//        isInScope = true;
-    }
-
 
     /**
      *  Close this viewer. Don't forget to remove it from the list of open
@@ -326,13 +304,6 @@ public abstract class Inspector extends JFrame
         setVisible(false);
         remove();
         dispose();
-
-        // if the object shown here is not on the object bench, also
-        // remove it from the package scope
-
-        if (isInScope && (viewerId.charAt(0) == '#')) {
-            Debugger.debugger.removeObjectFromScope(pkgScopeId, viewerId);
-        }
     }
 
     /**
