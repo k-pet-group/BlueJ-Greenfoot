@@ -16,7 +16,7 @@ import java.lang.reflect.Array;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 734 2000-12-19 04:49:28Z ajp $
+ * @version $Id: FileUtility.java 756 2001-01-26 12:26:18Z ajp $
  */
 public class FileUtility
 {
@@ -262,11 +262,32 @@ public class FileUtility
 
     /**
      * Recursively copy all files from one directory to another.
+     * If destination is a sub directory of source directory then
+     * it returns without copying any files.
      *
      * @return An array contained each source file which was
      *         not successfully copied or null if everything went well
      */
     public static Object[] recursiveCopyFile(File srcDir, File destDir)
+    {
+        if (srcDir == null || destDir == null)
+            throw new IllegalArgumentException();
+
+        File parentDir = destDir.getParentFile();
+
+        // check to make sure that the destination is not a subdirectory
+        // of the source (which would lead to infinite recursion)
+        while(parentDir != null) {
+            if (parentDir.equals(srcDir))
+                return new Object[] { srcDir };
+
+            parentDir = parentDir.getParentFile();
+        }
+
+        return actualRecursiveCopyFile(srcDir, destDir);
+    }
+
+    private static Object[] actualRecursiveCopyFile(File srcDir, File destDir)
     {
         // remember every file which we don't successfully copy
         List failed = new ArrayList();
@@ -290,7 +311,7 @@ public class FileUtility
                 newDir.mkdir();
 
                 if (newDir.isDirectory()) {
-                    recursiveCopyFile(files[i], newDir);
+                    actualRecursiveCopyFile(files[i], newDir);
                 }
                 else {
                     failed.add(files[i]);
