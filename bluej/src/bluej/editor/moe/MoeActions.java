@@ -93,7 +93,8 @@ public final class MoeActions
         if(moeActions == null)
             moeActions = new MoeActions(textComponent);
 
-        textComponent.setKeymap(moeActions.keymap);
+        if(textComponent != null)
+            textComponent.setKeymap(moeActions.keymap);
         return moeActions;
     }
 
@@ -808,19 +809,6 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
-    class FindBackwardAction extends MoeAbstractAction {
-
-        public FindBackwardAction() {
-            super("find-backward");
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            getEditor(e).findBackward();
-        }
-    }
-
-    // --------------------------------------------------------------------
-
     class FindNextAction extends MoeAbstractAction {
 
         public FindNextAction() {
@@ -834,14 +822,14 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
-    class FindNextReverseAction extends MoeAbstractAction {
+    class FindNextBackwardAction extends MoeAbstractAction {
 
-        public FindNextReverseAction() {
-            super("find-next-reverse");
+        public FindNextBackwardAction() {
+            super("find-next-backward");
         }
 
         public void actionPerformed(ActionEvent e) {
-            getEditor(e).findNextReverse();
+            getEditor(e).findNextBackward();
         }
     }
 
@@ -854,7 +842,6 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
-           // DialogManager.NYI(getEditor(e));
            getEditor(e).replace();
         }
     }
@@ -1187,9 +1174,8 @@ public final class MoeActions
             new CutEndOfWordAction(),
 
             new FindAction(),
-            new FindBackwardAction(),
             new FindNextAction(),
-            new FindNextReverseAction(),
+            new FindNextBackwardAction(),
             new ReplaceAction(),
             compileAction,
             new ToggleInterfaceAction(),
@@ -1306,14 +1292,13 @@ public final class MoeActions
             undoAction,                                         // 66
             redoAction,
             (Action)(actions.get("find")),
-            (Action)(actions.get("find-backward")),
             (Action)(actions.get("find-next")),
-            (Action)(actions.get("find-next-reverse")),
+            (Action)(actions.get("find-next-backward")),
             (Action)(actions.get("replace")),
             (Action)(actions.get("compile")),
             (Action)(actions.get("toggle-interface-view")),
             (Action)(actions.get("toggle-breakpoint")),
-        };                                                      // 76
+        };                                                      // 75
 
         categories = new String[] { Config.getString("editor.functions.editFunctions"),
                                     Config.getString("editor.functions.moveScroll"),
@@ -1322,7 +1307,7 @@ public final class MoeActions
                                     Config.getString("editor.functions.help"),
                                     Config.getString("editor.functions.misc")};
 
-        categoryIndex = new int[] { 0, 39, 55, 60, 62, 66, 76 };
+        categoryIndex = new int[] { 0, 39, 55, 60, 62, 66, 75 };
     }
 
     /**
@@ -1372,14 +1357,11 @@ public final class MoeActions
                               KeyStroke.getKeyStroke(KeyEvent.VK_F, SHORTCUT_MASK),
                               (Action)(actions.get("find")));
         keymap.addActionForKeyStroke(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_F, SHIFT_SHORTCUT_MASK),
-                              (Action)(actions.get("find-backward")));
-        keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_G, SHORTCUT_MASK),
                               (Action)(actions.get("find-next")));
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_G, SHIFT_SHORTCUT_MASK),
-                              (Action)(actions.get("find-next-reverse")));
+                              (Action)(actions.get("find-next-backward")));
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK),
                               (Action)(actions.get("replace")));

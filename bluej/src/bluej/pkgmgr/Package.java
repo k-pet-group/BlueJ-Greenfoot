@@ -37,7 +37,7 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1032 2001-12-07 12:28:48Z mik $
+ * @version $Id: Package.java 1033 2001-12-07 16:11:10Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1141,11 +1141,11 @@ public class Package extends Graph
 
                 // XXX make this equality check against full package name
                 if(!exists.contains(to.getBaseName()))
-                    ed.insertText(", " + to.getBaseName(), false, false);
+                    ed.insertText(", " + to.getBaseName(), false);
             } else {
                 // otherwise we need to put the actual "implements" word
                 // and the interface name
-                ed.insertText(" implements " + to.getBaseName(), false, false);
+                ed.insertText(" implements " + to.getBaseName(), false);
             }
             ed.save();
         }
@@ -1185,11 +1185,11 @@ public class Package extends Graph
 
                 // XXX make this equality check against full package name
                 if(!exists.contains(to.getBaseName()))
-                    ed.insertText(", " + to.getBaseName(), false, false);
+                    ed.insertText(", " + to.getBaseName(), false);
             } else {
                 // otherwise we need to put the actual "extends" word
                 // and the interface name
-                ed.insertText(" extends " + to.getBaseName(), false, false);
+                ed.insertText(" extends " + to.getBaseName(), false);
             }
             ed.save();
         }
@@ -1219,12 +1219,12 @@ public class Package extends Graph
                 Selection s1 = info.getExtendsInsertSelection();
 
                 ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
-                ed.insertText(" extends " + to.getBaseName(), false, false);
+                ed.insertText(" extends " + to.getBaseName(), false);
             } else {
                 Selection s1 = info.getSuperReplaceSelection();
 
                 ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
-                ed.insertText(to.getBaseName(), false, false);
+                ed.insertText(to.getBaseName(), false);
             }
             ed.save();
         }
@@ -1299,15 +1299,15 @@ public class Package extends Graph
             // for s1 are not mucked up by the deletion
             if(sinsert != null) {
                 ed.setSelection(sinsert.getLine(), sinsert.getColumn(), sinsert.getLength());
-                ed.insertText(sinserttext, false, false);
+                ed.insertText(sinserttext, false);
             }
             if(s2 != null) {
                 ed.setSelection(s2.getLine(), s2.getColumn(), s2.getLength());
-                ed.insertText("", false, false);
+                ed.insertText("", false);
             }
             if(s1 != null) {
                 ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
-                ed.insertText("", false, false);
+                ed.insertText("", false);
             }
 
             ed.save();

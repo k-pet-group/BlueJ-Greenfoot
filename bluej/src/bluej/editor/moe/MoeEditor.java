@@ -316,13 +316,15 @@ public final class MoeEditor extends JFrame
      *  it is replaced by the new text.
      *
      *  @param text         the text to be inserted
-     *  @param style         the style in which the text is to be displayed
+     *  @param caretBack    move the caret to the beginning of the inserted text
      */
 
-    public void insertText(String text, boolean bold, boolean italic)
+    public void insertText(String text, boolean caretBack)
     // inherited from Editor, redefined
     {
         sourcePane.replaceSelection(text);
+        if(caretBack)
+            sourcePane.setCaretPosition(sourcePane.getCaretPosition()-text.length());
     }
 
     // --------------------------------------------------------------------
@@ -458,6 +460,14 @@ public final class MoeEditor extends JFrame
         currentTextPane.select(line.getStartOffset()+columnNumber-1,
                                line.getStartOffset()+columnNumber+len-1);
     }
+
+    /**
+     * Get the text currently selected. (currently not needed)
+     */
+//      public String getSelectedText()
+//      {
+//          return currentTextPane.getSelectedText();
+//      }
 
     // --------------------------------------------------------------------
     /**
@@ -711,14 +721,11 @@ public final class MoeEditor extends JFrame
     public void find()
     {
         Finder finder = MoeEditorManager.editorManager.getFinder();
-        DialogManager.centreWindow(finder, this);
-        String s = finder.getNewSearchString(this, Finder.FORWARD);
-        if(s != null)
-            findString(finder, s, finder.getDirection() == Finder.BACKWARD);
+        //DialogManager.centreWindow(finder, this);
+        finder.show(this, currentTextPane.getSelectedText(), false);
     }
     
-    
-      // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
     /**
      *  Implementation of "replace" user function.
      *  Replace adds extra functionality to that of a find dialog, 
@@ -727,22 +734,12 @@ public final class MoeEditor extends JFrame
      */
     public void replace()
     {
-        Replacer replacer = MoeEditorManager.editorManager.getReplacer();
-        DialogManager.centreWindow(replacer, this);
-        replacer.doReplace(this);
-        
-    }
-
-    // --------------------------------------------------------------------
-    /**
-     *  Implementation of "find-backward" user function.
-     */
-    public void findBackward()
-    {
+//          Replacer replacer = MoeEditorManager.editorManager.getReplacer();
+//          DialogManager.centreWindow(replacer, this);
+//          replacer.doReplace(this);
         Finder finder = MoeEditorManager.editorManager.getFinder();
-        String s = finder.getNewSearchString(this, Finder.BACKWARD);
-        if(s != null)
-            findString(finder, s, finder.getDirection() == Finder.BACKWARD);
+        //        DialogManager.centreWindow(finder, this);
+        finder.show(this, currentTextPane.getSelectedText(), true);
     }
 
     // --------------------------------------------------------------------
@@ -754,31 +751,31 @@ public final class MoeEditor extends JFrame
         Finder finder = MoeEditorManager.editorManager.getFinder();
         String s = currentTextPane.getSelectedText();
         if (s == null) {
-            s = finder.getLastSearchString();
+            s = finder.getSearchString();
             if (s == null) {
                 info.warning(DialogManager.getMessage("no-search-string"));
                 return;
             }
         }
-        findString(finder, s, finder.getDirection() == Finder.BACKWARD);
+        findNextString(finder, s, false);
     }
 
     // --------------------------------------------------------------------
     /**
      *  Implementation of "find-next-reverse" user function.
      */
-    public void findNextReverse()
+    public void findNextBackward()
     {
         Finder finder = MoeEditorManager.editorManager.getFinder();
         String s = currentTextPane.getSelectedText();
         if (s == null) {
-            s = finder.getLastSearchString();
+            s = finder.getSearchString();
             if (s == null) {
                 info.warning(DialogManager.getMessage("no-search-string"));
                 return;
             }
         }
-        findString(finder, s, finder.getDirection() == Finder.FORWARD);
+        findNextString(finder, s, true);
     }
 
 
@@ -786,26 +783,36 @@ public final class MoeEditor extends JFrame
     /**
      *   Do a find with info in the info area.
      */
-    private void findString(Finder finder, String s, boolean backward)
+    private void findNextString(Finder finder, String s, boolean backward)
+    {
+        boolean found = findString(s, backward, (!finder.getSearchFound()));
+
+        finder.setSearchString(s);
+        finder.setSearchFound(found);
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *   Do a find with info in the info area.
+     */
+    boolean findString(String s, boolean backward, boolean wrap)
     {
         if (s.length()==0) {
             info.warning(Config.getString("editor.info.emptySearchString"));
-            return;
+            return false;
         }
-        String msg;
-        boolean wrap = ! finder.lastSearchFound();
-        msg = "Find " + (backward ? "backward" : "forward") +
-            (wrap ? " (wrap around): " : ": ") + s;
-        info.message(msg);
         boolean found;
         if(backward)
             found = doFindBackward(s, wrap);
         else
             found = doFind(s, wrap);
-        finder.setSearchString(s);
-        finder.setSearchFound(found);
-        if (! found)
+        String msg = "Find " + (backward ? "backward" : "forward") +
+            (wrap ? " (wrap around): " : ": ") + s;
+        if (found)
+            info.message(msg);
+        else
             info.warning(msg, Config.getString("editor.info.notFound"));
+        return found;
     }
 
     // --------------------------------------------------------------------

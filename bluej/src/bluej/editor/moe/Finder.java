@@ -10,7 +10,8 @@ package bluej.editor.moe;
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;		// all the GUI components
+import javax.swing.*;
+import javax.swing.event.*;
 
 import bluej.Config;
 import bluej.utility.Debug;
@@ -22,7 +23,7 @@ import bluej.utility.Debug;
  **/
 
 public class Finder extends JDialog
-    implements ActionListener
+    implements ActionListener, DocumentListener
 {
     static final String title = Config.getString("editor.find.title");
     static final String findLabel = Config.getString("editor.find.find.label");
@@ -33,43 +34,33 @@ public class Finder extends JDialog
     // search direction for the finder
     static final int FORWARD = 0; 
     static final int BACKWARD = 1;
+    static final String UP = "up"; 
+    static final String DOWN = "down";
   
     // -------- INSTANCE VARIABLES --------
 
-    protected String searchString;	// the last search string used
-    protected boolean searchFound;	// true if last find was successfull
-    protected int searchDirection;	// direction of search
-    protected boolean cancelled;	// last dialog cancelled
+    private boolean searchFound;	// true if last find was successfull
+    private boolean replacing;
 
-    JButton findButton;
-    JButton replaceButton;
-    JButton replaceAllButton;
-    JButton cancelButton;
-    JTextField textField;
-    JTextField replaceField;
-    
+    private JButton findButton;
+    private JButton replaceButton;
+    private JButton replaceAllButton;
+    private JButton cancelButton;
+    private JTextField searchField;
+    private JTextField replaceField;
+    private ButtonGroup directionButtons;
+
+    private MoeEditor editor;
+
     // ------------- METHODS --------------
 
     public Finder()
     {
         super((Frame)null, title, true);
-
-        searchString = null;
         searchFound = true;
-        searchDirection = FORWARD;
-
         makeDialog();
     }
 
-    /**
-     * set the search string
-     */
-    public void setSearchString(String s)
-    {
-        searchString = s;
-    }
-
-     
     /**
      * Ask the user for input of search details via a dialogue.
      *  Returns null if operation was cancelled.
@@ -77,38 +68,105 @@ public class Finder extends JDialog
      * @param
      * @param direction  either FORWARD or BACKWARD
      */
-    public String getNewSearchString(JFrame parent, int direction)
+    public void show(MoeEditor currentEditor, String selection, boolean replace)
     {
-        if(direction == FORWARD)
-            getRootPane().setDefaultButton(findButton);
-        //        if(direction == BACKWARD)
-        //    getRootPane().setDefaultButton(backwardButton);
+        editor = currentEditor;
+        replacing = replace;
+        getRootPane().setDefaultButton(findButton);
 
-        textField.selectAll();
-        textField.requestFocus();
-        setVisible(true);
-
-        // the dialog is modal, so when we get here it was closed.
-        if(cancelled)
-            return null;
+        if(selection != null && selection.length() > 0) {
+            setSearchString(selection);
+            replaceButton.setEnabled(true);
+        }
         else
-            return textField.getText();
+            replaceButton.setEnabled(false);
+
+        if(!replacing)
+            replaceField.setText("");
+
+        searchField.selectAll();
+        searchField.requestFocus();
+
+        setVisible(true);
     }
 
+    /**
+     * search for the next instance of a text string
+     */
+    private void find()
+    {
+        searchFound = editor.findString(getSearchString(), getSearchBack(), !searchFound);
+        replaceButton.setEnabled(searchFound);
+        if(searchFound && replacing)
+            getRootPane().setDefaultButton(replaceButton);
+    }
+
+    /**
+     * replaces selected text with the contents of the replaceField and return
+     * next instance of the searchString.
+     */
+    private void replace()
+    {
+        editor.insertText(replaceField.getText(), getSearchBack());
+        find();
+    }
+
+    /**
+     * Replace all instances of the search String with a replacement.
+     * -check for valid search criteria
+     * -get initial cursor pos (TODO)
+     * -start at beginning
+     * -do initial find
+     * -replace until not found, no wrapping!
+     * -print out number of replacements (?)
+     * -return cursor/caret to original place (TODO)
+     */
+    private void replaceAll()
+    {
+        String searchString = getSearchString();
+        String replaceString = replaceField.getText();
+
+        int count = 0;
+        if(getSearchBack()) {
+            while(editor.doFindBackward(searchString, false)) {
+                editor.insertText(replaceString, true);
+                count++;
+            }
+        }
+        else {
+            while(editor.doFind(searchString, false)) {
+                editor.insertText(replaceString, false);
+                count++;
+            }
+        }
+        if(count > 0)
+            editor.writeMessage("Replaced " + count + " instances of " + searchString);
+        else
+            editor.writeMessage("String " + searchString + " not found. Nothing replaced.");
+    }
+
+    /**
+     * set the search string
+     */
+    public void setSearchString(String s)
+    {
+        searchField.setText(s);
+    }
+     
     /**
      * return the last search string
      */
-    public String getLastSearchString()
+    public String getSearchString()
     {
-        return searchString;
+        return searchField.getText();
     }
 
     /**
-     * return the direction chosen in the last dialog
+     * return true if the current search direction is backward
      */
-    public int getDirection()
+    private boolean getSearchBack()
     {
-        return searchDirection;
+        return directionButtons.getSelection().getActionCommand() == UP;
     }
 
     /**
@@ -122,11 +180,12 @@ public class Finder extends JDialog
     /**
      * return info whether the last search was successful
      */
-    public boolean lastSearchFound()
+    public boolean getSearchFound()
     {
         return searchFound;
     }
 
+    // === Actionlistener interface ===
     /**
      * A button was pressed. Find out which one and do the appropriate
      * thing.
@@ -134,25 +193,40 @@ public class Finder extends JDialog
     public void actionPerformed(ActionEvent evt)
     {
         Object src = evt.getSource();
-        if(src == findButton) {
-            searchDirection = FORWARD;
-            cancelled = false;
-        }
-//          else if(src == replaButton) {
-//              searchDirection = BACKWARD;
-//              cancelled = false;
-//          }
+        if(src == findButton)
+            find();
+        else if(src == replaceButton)
+            replace();
+        else if(src == replaceAllButton)
+            replaceAll();
         else if(src == cancelButton)
-            cancelled = true;
-
-        setVisible(false);
+            setVisible(false);
     }
 
-    protected  void makeDialog()
+    // === Documentlistener interface ===
+    /**
+     * The search text was changed.
+     */
+    public void changedUpdate(DocumentEvent evt) { }
+
+    public void insertUpdate(DocumentEvent evt) 
+    {
+        findButton.setEnabled(true);
+        replaceAllButton.setEnabled(true);
+    }
+
+    public void removeUpdate(DocumentEvent evt) 
+    {
+        if(getSearchString().length() == 0) {
+            findButton.setEnabled(false);
+            replaceAllButton.setEnabled(false);
+        }
+    }
+
+    private  void makeDialog()
     {
         addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent E) {
-                    cancelled = true;
                     setVisible(false);
                 }
             });
@@ -165,8 +239,9 @@ public class Finder extends JDialog
         {
             JPanel findPanel = new JPanel(new BorderLayout());
             findPanel.add(new JLabel(findLabel), BorderLayout.WEST);
-            textField = new JTextField(16);
-            findPanel.add(textField, BorderLayout.CENTER);
+            searchField = new JTextField(16);
+            searchField.getDocument().addDocumentListener(this);
+            findPanel.add(searchField, BorderLayout.CENTER);
             textPanel.add(findPanel);
 
             textPanel.add(Box.createVerticalStrut(6));
@@ -193,10 +268,15 @@ public class Finder extends JDialog
 
                 Box directionBox = new Box(BoxLayout.Y_AXIS);
                 {
-                    JToggleButton dirUp = new JRadioButton("Search up");
+                    directionButtons = new ButtonGroup();
+                    JToggleButton dirUp = new JRadioButton(Config.getString("editor.find.up"));
+                    dirUp.setActionCommand(UP);
+                    directionButtons.add(dirUp);
                     directionBox.add(dirUp);
                     directionBox.add(Box.createVerticalStrut(6));
-                    JToggleButton dirDown = new JRadioButton("Search down");
+                    JToggleButton dirDown = new JRadioButton(Config.getString("editor.find.down"), true);
+                    dirDown.setActionCommand(DOWN);
+                    directionButtons.add(dirDown);
                     directionBox.add(dirDown);
                 }
                 togglesBox.add(directionBox);
@@ -209,15 +289,19 @@ public class Finder extends JDialog
 
         JPanel buttonPanel = new JPanel(new GridLayout(0, 1, 0, 5));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         findButton = new JButton(Config.getString("editor.find.findNext"));
+        findButton.setEnabled(false);
         buttonPanel.add(findButton);
         findButton.addActionListener(this);
    
         replaceButton = new JButton(Config.getString("editor.find.replace"));
         buttonPanel.add(replaceButton);
+        replaceButton.setEnabled(false);
         replaceButton.addActionListener(this);
    
         replaceAllButton = new JButton(Config.getString("editor.find.replaceAll"));
+        replaceAllButton.setEnabled(false);
         buttonPanel.add(replaceAllButton);
         replaceAllButton.addActionListener(this);
    

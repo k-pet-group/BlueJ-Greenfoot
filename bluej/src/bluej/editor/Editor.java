@@ -17,7 +17,7 @@ import java.util.Enumeration;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Editor.java 999 2001-10-24 15:31:05Z mik $
+ * @version $Id: Editor.java 1033 2001-12-07 16:11:10Z mik $
  */
 public interface Editor
 {
@@ -56,11 +56,9 @@ public interface Editor
      *  "clear; [insertText]*; show".
      *
      *  @param text		the text to be inserted
-     *  @param style  	the style in which the text is to be displayed
-     *			(one of the style constants defined in this
-     *			class)
+     *  @param caretBack    move the caret to the beginning of the inserted text
      */
-    void insertText(String text, boolean bold, boolean italic);
+    void insertText(String text, boolean caretBack);
 
     /**
      * Set the selection of the editor to be a len characters on the
