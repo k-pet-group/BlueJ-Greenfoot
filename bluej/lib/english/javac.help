@@ -100,7 +100,7 @@ calling it's constructor is bound to be trouble!
 cannot return a value from method whose result type is void
 A void result type in a method signature means that this
 method will not return any result.  The method body 
-should not have a return statement within it.
+should not have a statement within it that returns a value.
 
 cannot select a static class from a parameterized type
 No help available

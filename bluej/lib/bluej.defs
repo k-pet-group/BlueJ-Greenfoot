@@ -138,7 +138,7 @@ doctool.linkToStandardLib=true
 ## top-of-screen menubar. Therefore, this is by default set to false.
 #######################################################################
 
-bluej.macos.screenmenubar=false
+bluej.macos.screenmenubar=true
 
 
 #####################################################################
@@ -228,7 +228,8 @@ bluej.terminal.fontsize=12
 # The editor font. This is the name of a font face with an optional
 # "-bold" at the end. Most used are monospaced fonts, such as Courier.
 # Good large fonts for screen projections are SansSerif-bold, 14pt, or
-# Courier-bold, 18pt. Some examples:
+# Courier-bold, 18pt. Only the font face is specified here, the font
+# size is specified in the BlueJ preference dialogue. Some examples:
 
 bluej.editor.font=Monospaced
 # bluej.editor.font=Monospaced-bold
@@ -237,9 +238,9 @@ bluej.editor.font=Monospaced
 # bluej.editor.font=Arial-bold
 
 # fonts for printing
-bluej.fontsize.printText=14
+bluej.fontsize.printText=10
 bluej.fontsize.printTitle=14
-bluej.fontsize.printInfo=10
+bluej.fontsize.printInfo=9
 
 
 #######################################################################
