@@ -10,7 +10,7 @@ import java.util.*;
  * construction and maintenance of assertion data.
  *
  * @author  Andrew Patterson
- * @version $Id: InvokerRecord.java 2223 2003-10-28 01:54:15Z ajp $
+ * @version $Id: InvokerRecord.java 2231 2003-10-28 05:04:41Z ajp $
  */
 public abstract class InvokerRecord
 {
@@ -156,7 +156,7 @@ public abstract class InvokerRecord
      *         insertion of the command or reference to bench object.
      *         ie assertXXXX(YYYY, foo.bar(5,6)) 
      */
-    public String insertCommandIntoAssertionStatement(String assertion, String command)
+    public static String insertCommandIntoAssertionStatement(String assertion, String command)
     {
         StringBuffer assertCommand = new StringBuffer(assertion);
         // search for the _last_ @@ in case the user has input some of these

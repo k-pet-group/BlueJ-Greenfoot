@@ -24,7 +24,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2210 2003-10-11 14:50:39Z mik $
+ * @version $Id: VMReference.java 2231 2003-10-28 05:04:41Z ajp $
  *
  * The startup process is as follows:
  *
@@ -309,6 +309,19 @@ class VMReference
         try {
             wait();
         } catch (InterruptedException e) {}
+        
+        setupServerConnection(machine);
+
+        EventRequestManager erm = machine.eventRequestManager();
+        //StepRequest sr = erm.createStepRequest(serverThread, StepRequest.STEP_LINE, StepRequest.STEP_INTO);
+        //sr.putProperty("s","s");
+        //sr.addClassExclusionFilter("java.*");
+        //sr.addClassExclusionFilter("sun.*");
+        //sr.addClassExclusionFilter("bluej.*");
+        //sr.addClassExclusionFilter("junit.*");
+        //sr.addClassExclusionFilter("com.sun.tools.*");
+        //sr.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+        //sr.enable();
     }
 
     /**
@@ -458,7 +471,7 @@ class VMReference
 			Debug.reportError("Cannot find fields on remote VM");
 			return false;
 		}
-		
+
         // okay, we have the server objects; now get the methods we need
         execServerMethods = new HashMap();
 
@@ -769,9 +782,13 @@ class VMReference
      */
     public void breakpointEvent(LocatableEvent event, boolean breakpoint)
     {
+        if (event.request().getProperty("s") != null) {
+            System.out.println(event);
+        }
+        
         // if the breakpoint is marked as with the SERVER_STARTED property
         // then this is our own breakpoint that we have been waiting for at startup
-        if (event.request().getProperty(SERVER_STARTED_METHOD_NAME) != null) {
+        else if (event.request().getProperty(SERVER_STARTED_METHOD_NAME) != null) {
             // wake up the waitForStartup() method
             synchronized (this) {
                 notifyAll();

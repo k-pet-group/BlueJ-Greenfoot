@@ -1,21 +1,17 @@
 package bluej.debugger.jdi;
 
-import bluej.debugger.DebuggerObject;
-import bluej.debugger.DebuggerClass;
-import bluej.utility.Debug;
-import bluej.utility.JavaNames;
+import java.util.*;
 
-import java.util.List;
-import java.util.ArrayList;
+import bluej.debugger.*;
+import bluej.utility.*;
 
 import com.sun.jdi.*;
 
 /**
- *  Represents an object running on the user (remote) machine.
+ * Represents an object running on the user (remote) machine.
  *
- *@author     Michael Kolling
- *@created    December 26, 2000
- *@version    $Id: JdiObject.java 1954 2003-05-15 06:06:01Z ajp $
+ * @author  Michael Kolling
+ * @version $Id: JdiObject.java 2231 2003-10-28 05:04:41Z ajp $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -544,6 +540,10 @@ public class JdiObject extends DebuggerObject
         }
     }
 
+    /**
+     * Base our object equality on the object that we are referring
+     * to in the remote VM.
+     */
     public boolean equals(Object o)
     {
         if(this == o)
@@ -556,6 +556,10 @@ public class JdiObject extends DebuggerObject
         return this.obj.equals(test.obj);
 	}
 		
+    /**
+     * Base our hashcode on the hashcode of the object that we are
+     * referring to in the remote VM.
+     */
 	public int hashCode()
 	{
         return obj.hashCode();

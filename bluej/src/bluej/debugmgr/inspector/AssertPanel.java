@@ -2,6 +2,7 @@ package bluej.debugmgr.inspector;
 
 import java.awt.Color;
 import java.awt.event.*;
+import java.util.StringTokenizer;
 
 import javax.swing.*;
 
@@ -12,7 +13,7 @@ import bluej.testmgr.record.InvokerRecord;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 2229 2003-10-28 02:09:36Z ajp $
+ * @version $Id: AssertPanel.java 2231 2003-10-28 05:04:41Z ajp $
  */
 public class AssertPanel extends JPanel
 {
@@ -88,6 +89,8 @@ public class AssertPanel extends JPanel
 					assertCombo.setEnabled(isSelected);
 					assertData.setEnabled(isSelected);
 					assertLabel.setEnabled(isSelected);
+                    deltaData.setEnabled(isSelected);
+                    deltaLabel.setEnabled(isSelected);
 				}				
 			});
 		}
@@ -112,12 +115,23 @@ public class AssertPanel extends JPanel
 						// disable the text field.
 						if (ie.getStateChange() == ItemEvent.SELECTED) {
 							int index = findItemIndex((String)ie.getItem());
-			
+
+                            // we have to also take into account the assertion check box status.
+                            // if it is not enabled, then we shouldn't enable the data controls either
 							if(index >= 0) {
-								assertData.setEnabled(firstLabelFieldNeeded[index]);
-								assertData.setBackground(firstLabelFieldNeeded[index] ? Color.white : Color.lightGray);
-								deltaData.setVisible(secondFieldNeeded[index]);
+                                boolean firstNeeded = firstLabelFieldNeeded[index] && assertCheckbox.isSelected();
+                                boolean secondNeeded = secondFieldNeeded[index] && assertCheckbox.isSelected();
+                                
+								assertData.setEnabled(firstNeeded);
+								//assertData.setBackground(firstNeeded ? Color.white : Color.lightGray);
+                                
+                                // if the second field is needed, we _always_ make it visible
+                                // (but perhaps not enabled)
                                 deltaLabel.setVisible(secondFieldNeeded[index]);
+                                deltaData.setVisible(secondFieldNeeded[index]);
+
+                                deltaLabel.setEnabled(secondNeeded);
+                                deltaData.setEnabled(secondNeeded);
                             }
 						}
 					}
@@ -156,12 +170,66 @@ public class AssertPanel extends JPanel
 
             deltaData.setVisible(false);
             deltaLabel.setVisible(false);
+
+            assertCombo.setEnabled(false);
+            assertData.setEnabled(false);
+            assertLabel.setEnabled(false);
+            deltaData.setEnabled(false);
+            deltaLabel.setEnabled(false);
         }
 
 		add(assertCheckbox);
         add(standardPanel);
 	}
 
+    /**
+     * This code should move to somewhere else once we sort out the whole
+     * inspector/debugger object mess.
+     * 
+     * @param resultString
+     */
+    public void updateWithResultData(String resultString)
+    {
+        // if the user has put in any data themselves, who are
+        // we to change it
+        if (userInput)
+            return;
+        
+        // parse the result string to try and make a reasonable guess
+        // at the initial assertion values.
+        // we should really be dealing with the actual objects here (rather
+        // than their string representations) but the DebuggerObject interface
+        // forces us to do it this way
+        String tokens[] = new String[4];
+        
+        StringTokenizer st = new StringTokenizer(resultString);
+        int i = 0;
+        while (st.hasMoreTokens() && i<4) {
+            tokens[i++] = st.nextToken();
+        }
+        
+        // floats and doubles, we calculate a delta
+        if (tokens[0].equals("float") || tokens[0].equals("double")) {
+            assertCombo.setSelectedIndex(findItemIndex(equalToFloatingPointLabel));
+            assertData.setText(tokens[3]);
+            double delta = Double.parseDouble(tokens[3]);
+            deltaData.setText(Double.toString(Math.abs(delta * 0.01)));
+        }
+        else if (tokens[3].equals("<null>")) {
+            // an object reference that is null
+            assertCombo.setSelectedIndex(findItemIndex(nullLabel));
+        }
+        else if (tokens[3].equals("<object")) {
+            // an object reference that is not null
+            assertCombo.setSelectedIndex(findItemIndex(notNullLabel));
+        } else {
+            // anything else, which means it is one of the primitive types
+            // or String
+            assertData.setText(tokens[3]);
+            assertCombo.setSelectedIndex(findItemIndex(equalToLabel));
+        }
+    }
+    
 	private int findItemIndex(String item)
 	{
 		for(int i=0; i<labels.length; i++) {
@@ -172,23 +240,43 @@ public class AssertPanel extends JPanel
 		return -1;
 	}
 	
+    /**
+     * Record that the user has made a change to the
+     * assertion UI.
+     * 
+     * If this is the first time that this has been done,
+     * we enable the assertion check box.
+     */
     private void signalUserInput()
     {
         if (!userInput) {
-            assertCheckbox.setSelected(true);    
+            //assertCheckbox.setSelected(true);    
         }
         userInput = true;
     }
     
+    /**
+     * 
+     * @return a boolean indicating if the user wanted assertions for this
+     *         result
+     */
 	public boolean isAssertEnabled()
 	{
 		return assertCheckbox != null ? assertCheckbox.isSelected() : false;
 	}
 	
+    /**
+     * Return an assertion statement out of the data in the UI.
+     * 
+     * @return a String representing the assertion specified in this
+     *         assertion panel.
+     */
     public String getAssertStatement()
     {
+        // which type of assertion is selected
         int index = assertCombo.getSelectedIndex();
         
+        // for double/float assertEquals() assertions, we need a delta value
         if (secondFieldNeeded[index]) {
             return InvokerRecord.makeAssertionStatement(labelsAssertStatement[index],
                                                         assertData.getText(),
