@@ -136,8 +136,8 @@ editor.insert-methodLabel = Insert method
 editor.find-backwardLabel = Find Backward...
 editor.replaceLabel = Replace...
 editor.compileLabel = Compile
-editor.preview-docLabel = Preview Documentation
 editor.toggle-breakpointLabel = Set/Clear Breakpoint
+editor.toggle-interface-viewLabel = Interface
 
 editor.state.readOnly = read-only
 editor.state.saved = saved
@@ -166,7 +166,7 @@ editor.find.forward=Forward
 editor.find.backward=Backward
 
 #Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Moe version 0.4
+editor.info.version = Moe version 
 editor.info.readingProblem = There was a problem reading this file.
 editor.info.regularFile = (Is it really a regular file? Do you have read access?)
 editor.info.newFile = New file
