@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2072 2003-06-26 04:49:58Z ajp $
+ * @version $Id: VMReference.java 2081 2003-06-26 15:26:56Z mik $
  *
  * The startup process is as follows:
  *
@@ -611,7 +611,7 @@ class VMReference
 				return null;
 		}
 
-		Debug.message("[VMRefWorker] Invoking " + methodName);
+		//Debug.message("[VMRefWorker] Invoking " + methodName);
 		Method m = (Method) execServerMethods.get(methodName);
 
 		if (m == null)

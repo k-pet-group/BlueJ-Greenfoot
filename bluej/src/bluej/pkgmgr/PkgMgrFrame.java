@@ -31,14 +31,14 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2079 2003-06-26 15:04:33Z damiano $
+ * @version $Id: PkgMgrFrame.java 2081 2003-06-26 15:26:56Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
 {
     public Font PkgMgrFont = PrefMgr.getStandardFont();
 
-    public static final KeyStroke restartKey = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 
+    public static final KeyStroke restartKey = KeyStroke.getKeyStroke(KeyEvent.VK_R, 
                                                 InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK);
 
     static final int DEFAULT_WIDTH = 420;

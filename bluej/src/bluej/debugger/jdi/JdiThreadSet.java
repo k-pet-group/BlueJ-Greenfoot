@@ -12,7 +12,7 @@ import bluej.utility.Debug;
  * store JdiThreads.
  * 
  * @author  Michael Kšlling
- * @version $Id: JdiThreadSet.java 2077 2003-06-26 14:09:27Z mik $
+ * @version $Id: JdiThreadSet.java 2081 2003-06-26 15:26:56Z mik $
  */
 public class JdiThreadSet extends HashSet
 {
@@ -48,7 +48,6 @@ public class JdiThreadSet extends HashSet
         for(Iterator it=iterator(); it.hasNext(); ) {
             if(((JdiThread)it.next()).getRemoteThread().equals(thread)) {
                 it.remove();
-                Debug.message("dead thread removed: " + thread);
                 return;
             }
         }

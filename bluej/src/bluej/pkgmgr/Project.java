@@ -19,7 +19,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2071 2003-06-26 04:49:14Z ajp $
+ * @version $Id: Project.java 2081 2003-06-26 15:26:56Z mik $
  */
 public class Project
     implements DebuggerListener
@@ -724,6 +724,7 @@ public class Project
 
 		if (de.getID() == DebuggerEvent.DEBUGGER_REMOVESTEPMARKS) {
 			// do this for all packages
+            Debug.message("removing step");
 			// TODO: pkg.removeStepMarks();
 		}
 		
