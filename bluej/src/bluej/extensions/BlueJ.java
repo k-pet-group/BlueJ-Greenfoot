@@ -52,7 +52,7 @@ import bluej.extensions.event.ApplicationEventListener;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1889 2003-04-25 09:28:26Z damiano $
+ * @version $Id: BlueJ.java 1891 2003-04-25 09:32:30Z damiano $
  */
 
 /*
@@ -487,7 +487,7 @@ public class BlueJ
         for (Iterator iter = applicationListeners.iterator(); iter.hasNext(); ) 
             {
             ApplicationEventListener eventListener = (ApplicationEventListener)iter.next();
-            eventListener.BlueJReady(event);
+            eventListener.blueJReady(event);
             }
         }
 

@@ -3,7 +3,7 @@ package bluej.extensions.event;
 /**
  * This interface allows you to listen for application events.
  *
- * @version $Id: ApplicationEventListener.java 1889 2003-04-25 09:28:26Z damiano $
+ * @version $Id: ApplicationEventListener.java 1891 2003-04-25 09:32:30Z damiano $
  */
 public interface ApplicationEventListener
 {
@@ -13,5 +13,5 @@ public interface ApplicationEventListener
      * return as quickly as possible. 
      * If a long operation must be performed you should start a Thread.
      */
-    public void BlueJReady (ApplicationEvent event);
+    public void blueJReady (ApplicationEvent event);
 }
