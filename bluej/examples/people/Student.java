@@ -14,7 +14,7 @@ class Student extends Person
      */
     Student()
     {
-        super("(unknown name)", 0000);
+        super("(unknown)", 0000);
         SID = "(unknown ID)";
     }
 

@@ -790,13 +790,41 @@ of a loop. It can only be used inside
 a "for", "while" or "do" loop.
 
 a 'break' or 'continue' must transfer control within the same method.
-No help available.
+If you use a 'break' or 'continue' statement
+with a label to change the control flow, you
+must make sure that the label is declared in
+the same method in which the 'break' or
+'continue' statement is.
 
 Invalid declaration.
 No help available.
 
-'return' with value from {0}.
-No help available.
+'return' with value from *
+You have a 'return' statement with a value
+in your method. Your method is not expected
+to return a value, though. The return type
+is declared in the header of the method. In
+your case, it says it doesn't return anything.
+Either change the return statement to just say
+        return;
+(without a parameter), or change the method 
+declaration to indicate that this method has
+a return value.
+
+Incompatible type for return *
+The return type of a method is defined in the
+header of the method (before the method name).
+For example, the method
+     public int doSomething()
+is defined to return a value of type "int". The
+value that is then actually returned using the
+"return" statement must be an "int" (or something
+compatible). For example, you could write
+     return 42;
+but not
+     return "two";   // illegal
+The second one tries to return a String - that's
+not an "int", so it doesn't work.
 
 'return' without value from {0}.
 No help available.
