@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 723 2000-12-12 04:43:19Z mik $
+ * @version $Id: Invoker.java 738 2000-12-20 04:13:39Z ajp $
  */
 
 public class Invoker extends Thread
@@ -79,7 +79,7 @@ public class Invoker extends Thread
      *                  relevance when we are calling a constructor or static method)
      * @param watcher   an object interested in the result of the invocation
      */
-    public Invoker(PkgMgrFrame pmf, CallableView member, String objName, 
+    public Invoker(PkgMgrFrame pmf, CallableView member, String objName,
                    ResultWatcher watcher)
     {
         if (pmf.isEmptyFrame())
@@ -101,9 +101,9 @@ public class Invoker extends Thread
                 baseName = baseName.substring(dot_index + 1);
 
             // truncate long names to  OBJ_NAME_LENGTH plus _instanceNum
-            int stringEndIndex = 
+            int stringEndIndex =
                 baseName.length() > OBJ_NAME_LENGTH ? OBJ_NAME_LENGTH : baseName.length();
-            
+
             String instanceName = Character.toLowerCase(baseName.charAt(0)) +
                 baseName.substring(1, stringEndIndex);
 
@@ -211,6 +211,7 @@ public class Invoker extends Thread
     protected void doInvocation(String[] args, Class[] argTypes)
     {
         Component[] wrappers;
+        boolean dontQualify = false;
 
         // PENDING: this should be changed to write directly to file.
         // The hashtable mechanism doesn't make so much sense anymore
@@ -219,7 +220,31 @@ public class Invoker extends Thread
         int numArgs = (args==null ? 0 : args.length);
         String className = member.getClassName();
 
-          // Create package specification line ("package xyz")
+        // if we happen to have a class in this package with the
+        // same name as the start of the package, then fully qualifying names
+        // does not work ie if the package is Test.Sub and we have
+        // a class called Test, then all fully qualified names
+        // fail ie new Test.Sub.Test() and new Test.Sub.Foo()
+        // in the package where the class Test exists.
+        // so in this case we need to use the unqualified name
+
+        // note we need to retain the fully qualified case for when
+        // we add library classes etc which may involve constructing
+        // objects of types which are not in the current package
+        if (!pkg.isUnnamedPackage()) {
+            String pkgName = pkg.getQualifiedName();
+            int lastDot = pkgName.indexOf(".");
+
+            if (lastDot >= 0)
+                pkgName = pkgName.substring(0, lastDot);
+
+            // the first part of the package name exists as a target
+            // then we must not qualify names
+            if (pkg.getTarget(pkgName) != null)
+                dontQualify = true;
+        }
+
+        // Create package specification line ("package xyz")
 
         Hashtable trans = new Hashtable();
 
@@ -237,7 +262,7 @@ public class Invoker extends Thread
 
         StringBuffer buffer = new StringBuffer();
         if(constructing)
-            buffer.append("public static ObjectResultWrapper");
+            buffer.append("public static bluej.runtime.ObjectResultWrapper");
         else
             buffer.append("public static Object");
         buffer.append(" __bluej_runtime_result;" + Config.nl);
@@ -270,18 +295,23 @@ public class Invoker extends Thread
         buffer = new StringBuffer();
         String scopeId = Utility.quoteSloshes(pkg.getId());
         if(wrappers.length > 0)
-            buffer.append("Map __bluej_runtime_scope = getScope(\""
+            buffer.append("java.util.Map __bluej_runtime_scope = getScope(\""
         		  + scopeId + "\");" + Config.nl);
         for(int i = 0; i < wrappers.length; i++) {
             ObjectWrapper wrapper = (ObjectWrapper)wrappers[i];
-            String type = wrapper.className;
+            String type = (dontQualify ?
+                                JavaNames.getBase(wrapper.className) :
+                                wrapper.className);
             String instname = wrapper.instanceName;
             buffer.append("\t\t" + type + " " + instname + " = ");
             buffer.append("(" + type + ")__bluej_runtime_scope.get(\"");
             buffer.append(instname + "\");" + Config.nl);
         }
         for(int i = 0; i < numArgs; i++) {
-            buffer.append("\t\t" + JavaNames.typeName(argTypes[i].getName()));
+            buffer.append("\t\t" +
+                            (dontQualify ?
+                              JavaNames.getBase(JavaNames.typeName(argTypes[i].getName())) :
+                              JavaNames.typeName(argTypes[i].getName())));
             buffer.append(" __bluej_param" + i);
             buffer.append(" = " + args[i]);
             buffer.append(";" + Config.nl);
@@ -292,7 +322,8 @@ public class Invoker extends Thread
         String command;  // the interactive command in text form
 
         if(constructing) {
-            command = "new " + className;
+            command = "new " + (dontQualify ? JavaNames.getBase(className) : className);
+
             buffer.append("__bluej_runtime_result = makeObj(");
             buffer.append(command + argString + ");" + Config.nl);
             buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
@@ -304,7 +335,9 @@ public class Invoker extends Thread
             boolean isVoid = method.isVoid();
 
             if(method.isStatic())
-                command = className + "." + method.getName();
+                command = (dontQualify ?
+                             JavaNames.getBase(className) :
+                             className) + "." + method.getName();
             else
                 command = objName + "." + method.getName();
 
