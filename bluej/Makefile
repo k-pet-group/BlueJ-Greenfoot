@@ -22,7 +22,7 @@
 
 include $(OS).mk
 
-PKG_VERSION = 110-beta
+PKG_VERSION = 110
 
 SUBDIRS = \
 	src
@@ -35,13 +35,14 @@ INSTALL_LIB_FILES = \
 	lib/antlr.jar \
 	lib/applet.tmpl \
 	lib/bluej.defs \
+	lib/bluej.ico \
 	lib/html.tmpl \
 	lib/interface.tmpl \
 	lib/japplet.tmpl \
 	lib/jpda.jar \
 	lib/moe.defs \
-	lib/readmeexp.tmpl \
 	lib/readme.tmpl \
+	lib/readmeexp.tmpl \
 	lib/shell.tmpl \
 	lib/stdclass.tmpl
 
@@ -59,8 +60,9 @@ INSTALL_EXAMPLES = \
 	examples/hello \
 	examples/people \
 	examples/people2 \
+	examples/picture \
 	examples/reader \
-	examples/simple \
+	examples/shapes \
 	examples/zork1
 
 PACKAGES = \
