@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 691 2000-09-13 05:00:06Z mik $
+ * @version $Id: PkgMgrFrame.java 717 2000-12-07 01:00:26Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -1119,10 +1119,21 @@ public class PkgMgrFrame extends JFrame
                 };
         }
         else if(cv instanceof MethodView) {
+            MethodView mv = (MethodView) cv;
+
+            // if we are calling a main method then we want to simulate a
+            // new launch of an application, so first of all we unload all our
+            // classes (prevents problems with static variables not being
+            // reinitialised because the class hangs around from a previous call)
+            if(mv.isMain()) {
+                getProject().removeLocalClassLoader();
+                getProject().removeRemoteClassLoader();
+            }
+
             // if we are calling a method that has a result, create a watcher
             // that waits for completion of the call and then displays the
             // result
-            if(!((MethodView)cv).isVoid()) {
+            if(!mv.isVoid()) {
                 watcher = new ResultWatcher() {
                         public void putResult(DebuggerObject result, String name) {
                             ObjectViewer viewer =

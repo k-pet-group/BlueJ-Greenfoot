@@ -6,7 +6,7 @@ import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
 /**
- ** @version $Id: MethodView.java 505 2000-05-24 05:44:24Z ajp $
+ ** @version $Id: MethodView.java 717 2000-12-07 01:00:26Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -114,6 +114,28 @@ public class MethodView extends CallableView
     {
         String resultName = getReturnType().getQualifiedName();
         return "void".equals(resultName);
+    }
+
+    /**
+     * @returns if this method is the main method (a static void returning
+     * function called main with a string array as an argument)
+     */
+    public boolean isMain()
+    {
+        if(!isVoid())
+            return false;
+        if("main".equals(getName())) {
+            Class[] c = getParameters();
+
+            if(c.length != 1)
+                return false;
+            if(c[0].isArray() && String.class.equals(c[0].getComponentType())) {
+                if(Modifier.isStatic(getModifiers()) &&
+                   Modifier.isPublic(getModifiers()))
+                   return true;
+            }
+        }
+        return false;
     }
 
     /**

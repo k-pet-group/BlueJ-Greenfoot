@@ -31,7 +31,7 @@ class PackageChooser extends JFileChooser
      **/
     public PackageChooser(String startDirectory)
     {
-	super(startDirectory);
+        super(startDirectory);
         setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         setFileView(new PackageFileView());
         setDialogTitle(Config.getString("pkgmgr.openPkg.title"));
@@ -55,14 +55,15 @@ class PackageChooser extends JFileChooser
      *  this a package selection and accept it as the "Open" action, otherwise
      *  just traverse into the directory.
      */
-    public void setCurrentDirectory(File dir) {    // redefined
-	if (Package.isBlueJPackage(dir)) {
-	    setSelectedFile(dir);
-	    super.approveSelection();
-	}
-	else{
+    public void setCurrentDirectory(File dir)
+    {    // redefined
+        if (Package.isBlueJPackage(dir)) {
+            setSelectedFile(dir);
+            super.approveSelection();
+        }
+        else{
             setSelectedFile(new File(""));
-	    super.setCurrentDirectory(dir);
+            super.setCurrentDirectory(dir);
         }
     }
 }
