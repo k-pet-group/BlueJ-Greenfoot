@@ -10,7 +10,7 @@ import java.net.URL;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 2461 2004-01-27 11:14:34Z mik $
+ * @version $Id: SplashWindow.java 2595 2004-06-12 19:30:25Z mik $
  */
 
 public class SplashWindow extends JFrame
@@ -24,7 +24,7 @@ public class SplashWindow extends JFrame
 		
 		public void paint(Graphics g){
 			super.paint(g);
-			g.setColor(new Color(51,102,153));
+			g.setColor(new Color(31,70,110));
 			g.setFont(new Font("SansSerif", Font.PLAIN, 16));
 			g.drawString("Version " + Boot.BLUEJ_VERSION, 26, image.getHeight()-20);
 		}
@@ -34,16 +34,13 @@ public class SplashWindow extends JFrame
 
     public SplashWindow()
     {
-    	setUndecorated(true);
-//    	// must start with a forward slash or else Java converts the .
-//    	// to a /
-    	URL iconURL = getClass().getResource("/bluej/splash.jpg");
+    		setUndecorated(true);
+    		// must start with a forward slash or else Java converts the .
+    		// to a /
+    		URL iconURL = getClass().getResource("/bluej/splash.jpg");
     	
         ImageIcon icon = new ImageIcon(iconURL);
-//        // Note: it is intentional that the forward slash is used here
-//        // for all systems. See the documentation of 
-//        // getResource()
-//
+
         image = new BlueJLabel(icon);
         image.setBorder(BorderFactory.createLineBorder(Color.black, 1));
         getContentPane().add(image);
@@ -66,4 +63,3 @@ public class SplashWindow extends JFrame
         dispose();
     }
 }
-
