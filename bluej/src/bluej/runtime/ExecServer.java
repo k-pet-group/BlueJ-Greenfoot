@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2859 2004-08-09 06:25:04Z davmac $
+ * @version $Id: ExecServer.java 2865 2004-08-12 04:23:38Z davmac $
  */
 public class ExecServer
 {
@@ -443,16 +443,11 @@ public class ExecServer
             // cannot execute setUp directly because it is protected
             // we can however use reflection to call it because this VM
             // has access protection disabled
-            // TODO: this will not execute inherited setUp methods!!!
-            try {
-                Method setUpMethod = cl.getDeclaredMethod("setUp", null);
 
-                if (setUpMethod != null) {
-                    setUpMethod.setAccessible(true);
-                    setUpMethod.invoke(testCase, null);
-                }
-            }
-            catch(NoSuchMethodException nsme) {
+            Method setUpMethod = findMethod(cl, "setUp", null);
+            if (setUpMethod != null) {
+                setUpMethod.setAccessible(true);
+                setUpMethod.invoke(testCase, null);
             }
 
             // pick up all declared fields
@@ -478,13 +473,37 @@ public class ExecServer
 
         return new Object[0];
     }
+    
+    /**
+     * Find a method in the class, regardless of visibility. This is
+     * essentially the same as Class.getMethod(), except that it also returns
+     * non-public methods.
+     * 
+     * @param cl         The class to search
+     * @param name       The name of the method
+     * @param paramtypes The argument types
+     * @return  The method, or null if not found.
+     */
+    static private Method findMethod(Class cl, String name, Class[] paramtypes)
+    {
+        while (cl != null) {
+            try {
+                return cl.getDeclaredMethod(name, paramtypes);
+            }
+            catch (NoSuchMethodException nsme) {}
+
+            cl = cl.getSuperclass();
+        }
+
+        return null;
+    }
 
 	/**
-	 * Execute a JUnit test method and return the result.
-	 * 
-	 * @return  an array in case of failure or error, and null if
-	 *          the test ran successfully.
-	 */
+     * Execute a JUnit test method and return the result.
+     * 
+     * @return an array in case of failure or error, and null if the test ran
+     *         successfully.
+     */
     private static Object[] runTestMethod(String className, String methodName)
         throws ClassNotFoundException
     {
@@ -534,13 +553,17 @@ public class ExecServer
 			
 		if (tr.errorCount() == 1) {
 			for (Enumeration e = tr.errors(); e.hasMoreElements(); ) {
-				Object result[] = new Object[3];
+				Object result[] = new Object[6];
 				TestFailure tf = (TestFailure)e.nextElement();
 				
 				result[0] = tf.isFailure() ? "failure" : "error";
 				result[1] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
 				result[2] = tf.trace() != null ? tf.trace() : "no trace";
-				
+				StackTraceElement [] ste = tf.thrownException().getStackTrace();
+                result[3] = ste[0].getClassName();
+                result[4] = ste[0].getFileName();
+                result[5] = String.valueOf(ste[0].getLineNumber());
+                
 				return result;
 			}
 			// should not reach here
@@ -549,12 +572,16 @@ public class ExecServer
 
 		if (tr.failureCount() == 1) {
 			for (Enumeration e = tr.failures(); e.hasMoreElements(); ) {
-				Object result[] = new Object[3];
+				Object result[] = new Object[6];
 				TestFailure tf = (TestFailure)e.nextElement();
 				
 				result[0] = tf.isFailure() ? "failure" : "error";
 				result[1] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
 				result[2] = tf.trace() != null ? tf.trace() : "no trace";
+                StackTraceElement [] ste = tf.thrownException().getStackTrace();
+                result[3] = ste[0].getClassName();
+                result[4] = ste[0].getFileName();
+                result[5] = String.valueOf(ste[0].getLineNumber());
 
 				return result;
 			}
@@ -650,27 +677,29 @@ public class ExecServer
     }
     
     /**
+     * Clear the system input buffer. This is used between method calls to
+     * make sure that System.in.read() doesn't read input which was buffered
+     * during the last method call but never read.
+     */
+    static void clearInputBuffer()
+    {
+        try {
+            int n = System.in.available();
+            while(n != 0) {
+                System.in.skip(n);
+                n = System.in.available();
+            }
+        }
+        catch(IOException ioe) { }
+    }
+    
+    /**
      * Bug in the java debug VM means that exception events are unreliable 
      * if we re-use the same thread over and over. So, whenever running user
      * code results in an exception, this method is used to spawn a new thread.
      */
     static void newThread()
-    {
-        // First wait until the old thread dies.
-/*        if( mainThread != null) {
-            System.out.println("... trying to join old thread...");
-            boolean joined = false;
-            while(! joined) {
-                try {
-                    mainThread.join();
-                    joined = true;
-                }
-                catch(InterruptedException ie) { }
-            }
-            shouldDie = false;
-            System.out.println("... joined successfully.");
-        } */
-        
+    {        
         final Thread oldThread = mainThread;
         // Then make a new one.
         mainThread = new Thread("main") {
@@ -700,6 +729,7 @@ public class ExecServer
                     switch(execAction) {
                         case EXEC_SHELL:
                             // Execute a shell class.
+                            clearInputBuffer();
                             Class c = currentLoader.loadClass(classToRun);
                             Method m = c.getMethod("run", new Class[0]);
                             try {
@@ -724,7 +754,6 @@ public class ExecServer
                 }
                 catch(Throwable t) {
                     exception = t;
-                    // throw new BlueJRuntimeException(t);
                 }
                 finally {
                     newThread();
@@ -733,15 +762,4 @@ public class ExecServer
         };
         mainThread.start();
     }
- 
-    /* static class BlueJRuntimeException extends RuntimeException
-    {
-        Throwable cause;
-        BlueJRuntimeException(Throwable t)
-        {
-            super();
-            cause = t;
-            setStackTrace(t.getStackTrace());
-        }
-    } */
 }
