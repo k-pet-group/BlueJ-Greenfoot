@@ -1,13 +1,12 @@
 NullPointerException*
-Pokusili jste se p\u0159istoupit k prom\u011bnn\u00e9, nebo
-metod\u011b objektu pomoc\u00ed reference, kter\u00e1 je "null".
-Nap\u0159\u00edklad: "neco.print()", ale reference "neco"
-m\u00e1 nyn\u00ed hodnotu "null".
+Pokusili jste se p\u0159istoupit k prom\u011bnn\u00e9 nebo
+metod\u011b objektu pomoc\u00ed odkazu s hodotou "null".
+Nap\u0159\u00edklad: "neco.print()",
+ale odkaz "neco" m\u00e1 nyn\u00ed hodnotu "null".
 
 ArithmeticException*
-Nastal probl\u00e9m p\u0159i prov\u00e1d\u011bn\u00ed aritmetick\u00e9ho
-v\u00fdpo\u010dtu. M\u016f\u017ee se jednat nap\u0159\u00edklad o pokus d\u011blen\u00ed
-nulou.
+Nastal probl\u00e9m p\u0159i prov\u00e1d\u011bn\u00ed aritmetick\u00e9ho v\u00fdpo\u010dtu.
+M\u016f\u017ee se jednat nap\u0159\u00edklad o pokus d\u011blen\u00ed nulou.
 
 StringIndexOutOfBoundsException*
 Index, kter\u00fd jste pou\u017eili pro p\u0159\u00edstup ke znaku
@@ -19,13 +18,12 @@ a druh\u00fd parametr je d\u00e9lka \u010d\u00e1sti \u0159et\u011bzce.
 
 ClassCastException*
 Chyba p\u0159i p\u0159etypov\u00e1n\u00ed. P\u0159\u00edklad:
-       Object nejakaReference;
+       Object nejakyOdkaz;
        .....
-       (MojeTrida)nejakaReference
-"nejakaReference" obsahuje referenci na instanci objektu
-je p\u0159etypov\u00e1na na typ MojeTrida. Toto je ov\u0161em dovoleno pouze
-tehdy, je-li tato instance t\u0159\u00eddy MojeTride (nebo t\u0159\u00eddy odvozen\u00e9
-od MojeTrida).
+       (MojeTrida)nejakOdkaz
+Odkaz v prom\u011bnn\u00e9 "nejakyOdkaz" je p\u0159etypov\u00e1n na typ MojeTrida.
+To je v\u0161ak dovoleno pouze tehdy, odkazuje-li na instanci t\u0159\u00eddy
+MojeTride nebo n\u011bkter\u00e9ho z jej\u00edch potomk\u016f.
 
 IndexOutOfBoundsException*
 Index je mimo povolen\u00e9 meze. Prvn\u00ed prvek m\u00e1
@@ -35,12 +33,18 @@ ArrayIndexOutOfBoundsException*
 Index pole je mimo povolen\u00e9 meze. Prvn\u00ed prvek m\u00e1
 index 0 a posledn\u00ed prvek m\u00e1 index (d\u00e9lka_pole-1).
 
+AssertionError*
+P\u0159edpoklad byl vyhodnocen jako neplatn\u00fd. To znamen\u00e1,
+\u017ee v\u00fdraz v p\u0159\u00edkazu assert
+    assert(v\u00fdraz-p\u0159edpoklad)
+byl vyhodnocen jako false (nepravda).
+P\u0159edpoklady slou\u017e\u00ed k ov\u011b\u0159en\u00ed spr\u00e1vn\u00e9 funkce programu.
+
 ConcurrentModificationException*
-P\u0159i pr\u016fchodu kolekce pomoc\u00ed iter\u00e1toru byla kolekce
-zm\u011bn\u011bna. Toto nen\u00ed dovoleno.
-Jedin\u00e1 povolen\u00e1 zm\u011bna je odeb\u00edr\u00e1n\u00ed prvk\u016f pomoc\u00ed metody
-Iterator.remove
-(odeb\u00edr\u00e1n\u00ed pomoc\u00ed metod kolekce NEN\u00cd dovoleno).
+P\u0159i pr\u016fchodu kolekce iter\u00e1torem byla kolekce zm\u011bn\u011bna.
+To nen\u00ed dovoleno. Jedin\u00e1 povolen\u00e1 zm\u011bna je odebr\u00e1n\u00ed
+prvk\u016f metodou Iterator.remove.
+Odeb\u00edr\u00e1n\u00ed metodami kolekce dovoleno NEN\u00cd!
 
 ArrayStoreException*
 N\u00e1pov\u011bda nen\u00ed k dispozici.
@@ -103,7 +107,5 @@ UnsupportedOperationException*
 N\u00e1pov\u011bda nen\u00ed k dispozici.
 
 Exception
-Toto je obecn\u00e1 v\u00fdjimka, kter\u00e1 informuje pouze
-o t\u00e9 skute\u010dnosti, \u017ee se n\u011bco nepovedlo. Ale
-co, to nen\u00ed uvedeno ...
-
+Obecn\u00e1 v\u00fdjimka informuj\u00edc\u00ed o tom, \u017ee se n\u011bco nepovedlo.
+Co se nepovedlo v\u0161ak tento typ ne\u0159\u00edk\u00e1.

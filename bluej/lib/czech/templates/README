@@ -4,7 +4,6 @@ generovanych souboru.
 
  - "readme" a "readmeexp" mohou byt libovolne meneny
  - zmeny v "html" sablonach provadejte opatrne, mohou nastat problemy
- - sablona "shell" nesmi byt menena VUBEC
 
 Podslozka "newclass" obsahuje sablony pro generovani novych trid a rozhrani
 pomoci polozky menu "Nova trida ...".

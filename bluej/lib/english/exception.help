@@ -18,8 +18,8 @@ in that string. For example, you may have tried to
 access the fifth character in a string that is only
 three characters long.
 For the substring operation, remember that the second
-parameter is the length of the substring, not the
-end index.
+parameter is the end index of the substring, not the
+lentgh.
 
 ClassCastException*
 You used a "cast" - that is an instruction assigning

@@ -5,29 +5,42 @@ continue=Pokra\u010dovat
 
 main.invalidPackage=Bal\u00ed\u010dek nenalezen
 
-compileException=V\u00fdjimka b\u011bhem kompilace
-compiler.thread.title=vl\u00e1kno kompil\u00e1toru BlueJ
-compiler.invalidcompiler=bluej.compiler.type nen\u00ed platn\u00fd typ kompil\u00e1toru
-compiler.nocompiler=Kompil\u00e1tor nemohl b\u00fdt spu\u0161t\u011bn
+compileException=V\u00fdjimka p\u0159i p\u0159ekladu
+compiler.thread.title=Vl\u00e1kno p\u0159eklada\u010de BlueJ
+compiler.invalidcompiler=bluej.compiler.type nen\u00ed nastaven na platn\u00fd typ p\u0159eklada\u010de
+compiler.nocompiler=P\u0159eklada\u010d nemohl b\u00fdt spu\u0161t\u011bn
+compiler.warningDialog.title=Varov\u00e1n\u00ed p\u0159eklada\u010de
+compiler.warningDialog.label=Varov\u00e1n\u00ed z posledn\u00edho p\u0159ekladu 
+compiler.warningDialog.noWarnings=Bez varov\u00e1n\u00ed
 
-debugger.objectviewer.title=BlueJ:  Prohl\u00ed\u017een\u00ed instance objektu t\u0159\u00eddy
-debugger.resultviewer.title=BlueJ:  V\u00fdstupn\u00ed hodnota metody
-debugger.objectviewer.staticListTitle=Statick\u00e9 prom\u011bnn\u00e9 (spole\u010dn\u00e9 pro t\u0159\u00eddu)
-debugger.objectviewer.objListTitle=Prom\u011bnn\u00e9 instance objektu
-debugger.objectviewer.inspect=Prohl\u00ed\u017eet
-debugger.objectviewer.get=Z\u00edskat referenci
-debugger.objectviewer.objectClassName=T\u0159\u00edda
+debugger.assert.assertThat=P\u0159edpokl\u00e1dat, \u017ee:
+debugger.assert.resultIs=v\u00fdsledek
+debugger.assert.equalTo=je roven
+debugger.assert.sameAs=je shodn\u00fd s
+debugger.assert.notNull=nen\u00ed null
+debugger.assert.notSameAs=nen\u00ed shodn\u00fd s
+debugger.assert.null=je null
+
+debugger.inspector.title=BlueJ:  Prohl\u00ed\u017ee\u010d instanc\u00ed t\u0159\u00eddy
+debugger.inspector.result.title=BlueJ:  N\u00e1vratov\u00e1 hodnota metody
+debugger.inspector.staticListTitle=Atributy t\u0159\u00eddy (statick\u00e9 atributy)
+debugger.inspector.objListTitle=Atributy instance
+debugger.inspector.showClass=Uk\u00e1zat statick\u00e9 atributy
+debugger.inspector.inspect=Prohl\u00ed\u017eet
+debugger.inspector.get=Z\u00edskat odkaz
+debugger.inspector.objectNameLabel=Instance t\u0159\u00eddy
+debugger.inspector.classNameLabel=T\u0159\u00edda
 
 debugger.objectwrapper.methodException=Nastala v\u00fdjimka p\u0159i p\u0159\u00edstupu k metod\u00e1m:
 debugger.objectwrapper.invocationException=Nastala v\u00fdjimka p\u0159i vol\u00e1n\u00ed metody:
 debugger.objectwrapper.inspect=Prohl\u00ed\u017eet
 debugger.objectwrapper.remove=Odstranit
 debugger.objectwrapper.serializable=Serializovat
-debugger.objectwrapper.redefined=redefinov\u00e1no v
+debugger.objectwrapper.redefined=p\u0159ekryto v
 debugger.objectwrapper.inherited=zd\u011bd\u011bno z
 
 debugger.threadstatus.finished=hotovo
-debugger.threadstatus.breakpoint=na breakpointu
+debugger.threadstatus.breakpoint=na zar\u00e1\u017ece
 debugger.threadstatus.stopped=zastaveno
 debugger.threadstatus.monitor=na monitoru
 debugger.threadstatus.notstarted=nebylo odstartov\u00e1no
@@ -38,10 +51,10 @@ debugger.threadstatus.waiting=\u010dekaj\u00edc\u00ed
 debugger.threadstatus.zombie=zombie
 
 #Debugger messages
-debugger.jdiDebugger.noBreakpointMsg=Odstranit breakpoint: na tomto \u0159\u00e1dku nebyl\nnalezen \u017e\u00e1dn\u00fd breakpoint.
-debugger.jdiDebugger.noLineNumberMsg=P\u0159i kompilaci t\u00e9to t\u0159\u00eddy nebyly generov\u00e1ny \u010d\u00edsla \u0159\u00e1dk\u016f.\nProto v\u00a0n\u00ed nem\u016f\u017eete nastavovat breakpointy. 
-debugger.jdiDebugger.noCodeMsg=Breakpoint nelze nastavit: na tomto \u0159\u00e1dku nen\u00ed\n\u017e\u00e1dn\u00fd k\u00f3d.
-debugger.jdiDebugger.internalErrorMsg=P\u0159i pokusu nastavit tento breakpoint nastala nezn\u00e1m\u00e1 vnit\u0159n\u00ed chyba.
+debugger.jdiDebugger.noBreakpointMsg=Odstranit zar\u00e1\u017eku: \nna tomto \u0159\u00e1dku nebyla nalezena \u017e\u00e1dn\u00e1 zar\u00e1\u017eka.
+debugger.jdiDebugger.noLineNumberMsg=P\u0159i p\u0159ekladu t\u00e9to t\u0159\u00eddy nebyla generov\u00e1na \u010d\u00edsla \u0159\u00e1dk\u016f.\nProto v\u00a0n\u00ed nem\u016f\u017eete nastavovat zar\u00e1\u017eky.
+debugger.jdiDebugger.noCodeMsg=Zar\u00e1\u017eku nelze nastavit: \nna tomto \u0159\u00e1dku nen\u00ed \u017e\u00e1dn\u00fd k\u00f3d.
+debugger.jdiDebugger.internalErrorMsg=P\u0159i pokusu nastavit tuto zar\u00e1\u017eku nastala nezn\u00e1m\u00e1 vnit\u0159n\u00ed chyba.
 
 #library browser configuration
 browser.title=BlueJ:  Pr\u016fzkumn\u00edk knihovny
@@ -58,7 +71,7 @@ browser.classchooser.classmenu.use=Pou\u017e\u00edt...
 browser.classchooser.packagemenu.open=Otev\u0159\u00edt
 browser.classchooser.packagemenu.use=Pou\u017e\u00edt...
 
-browser.usepackage.dialog.text=Vyberte c\u00edlov\u00fd bal\u00ed\u010dek a klikn\u011bte na OK
+browser.usepackage.dialog.text=Vyberte c\u00edlov\u00fd bal\u00ed\u010dek a klepn\u011bte na OK
 
 browser.missingclass.text=Pr\u016fzkumn\u00edk nem\u016f\u017ee nal\u00e9zt t\u0159\u00eddu $
 
@@ -70,9 +83,6 @@ browser.menu.library.addlibrary.title=P\u0159idat knihovnu
 browser.menu.library.refresh=Obnovit
 browser.menu.library.close=Zav\u0159\u00edt
 
-# Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ:  Nastaven\u00ed
-
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Knihovny
 classmgr.userlibraries=U\u017eivatelsk\u00e9 knihovny
@@ -83,31 +93,63 @@ classmgr.delete=Odstranit
 classmgr.statuscolumn=Stav
 classmgr.statusgood=Na\u010dteno
 classmgr.statusbad=Chyba
+classmgr.statusnew=Nen\u00ed na\u010dten(a)
 classmgr.locationcolumn=Um\u00edst\u011bn\u00ed
 classmgr.descriptioncolumn=Popis
 classmgr.bootclass=Knihovna zav\u00e1d\u011bc\u00edch t\u0159\u00edd
 classmgr.bluejclass=Knihovna BlueJ t\u0159\u00edd
 classmgr.error.unresolvable=Nezn\u00e1m\u00e1 cesta
 classmgr.error.nodescription=Bez popisu
-classmgr.error.missingclasspath=Nen\u00ed uvedena spr\u00e1vn\u00e1 cesta Java classpath.\nNahr\u00e1v\u00e1n\u00ed t\u0159\u00edd m\u016f\u017ee vykazovat neobvykl\u00e9 chov\u00e1n\u00ed.\nT\u0159\u00eddy v aktu\u00e1ln\u00edm adres\u00e1\u0159i budou pou\u017eity p\u0159ednostn\u011b.
+classmgr.error.missingclasspath=Nen\u00ed uvedena spr\u00e1vn\u00e1 cesta Java classpath.\nNahr\u00e1v\u00e1n\u00ed t\u0159\u00edd se m\u016f\u017ee chovat podivn\u011b,\nproto\u017ee budou p\u0159ednostn\u011b pou\u017eity t\u0159\u00eddy v aktu\u00e1ln\u00ed slo\u017ece.
 classmgr.error.missingbootclasspath=Nen\u00ed uvedena spr\u00e1vn\u00e1 cesta Sun boot classpath.\nBlueJ nefunguje v prost\u0159ed\u00ed star\u0161\u00edm ne\u017e JDK 1.3.
+
+# Preferences Manager user interface elements and error messages
+prefmgr.title=BlueJ:  Nastaven\u00ed
 
 # Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=R\u016fzn\u00e9
 prefmgr.misc.editor.title=Nastaven\u00ed editoru
 prefmgr.misc.editorfontsize=Velikost fontu
-prefmgr.misc.usesyntaxhilighting=Pou\u017e\u00edvat zv\u00fdrazn\u011bn\u00ed syntaxe
+prefmgr.misc.usesyntaxhilighting=Pou\u017e\u00edvat barevn\u00e9 zv\u00fdrazn\u011bn\u00ed syntaxe
 prefmgr.misc.autoindent=Automatick\u00e9 odsazen\u00ed (kl\u00e1vesy Enter a Tab)
 prefmgr.misc.displaylinenumbers=Zobrazit \u010d\u00edsla \u0159\u00e1dk\u016f
 prefmgr.misc.makeBackup=Vytv\u00e1\u0159et z\u00e1lohy zdrojov\u00fdch soubor\u016f
-prefmgr.misc.compiler.title=Nastaven\u00ed kompil\u00e1toru
-prefmgr.misc.usejdk14=Povolit prvky z JDK 1.4 (assert)
+prefmgr.misc.matchBrackets=P\u00e1rovat z\u00e1vorky
+prefmgr.misc.testing.title=Nastaven\u00ed testov\u00e1n\u00ed
+prefmgr.misc.showTesting=Zobrazit n\u00e1stroje pro testov\u00e1n\u00ed
 prefmgr.misc.documentation.title=Nastaven\u00ed dokumentace
-prefmgr.misc.jdkurlpath=URL Java API specifikace
+prefmgr.misc.jdkurlpath=URL specifikace Java API:
 prefmgr.misc.linkToLib=Pou\u017e\u00edt toto URL p\u0159i generov\u00e1n\u00ed projektov\u00e9 dokumentace
-prefmgr.misc.linkToLibNoteLine1=Jestli\u017ee je toto URL pou\u017eito, mus\u00ed b\u00fdt Java API specifikace v\u00a0okam\u017eiku generov\u00e1n\u00ed dostupn\u00e1!
-prefmgr.misc.linkToLibNoteLine2=V opa\u010dn\u00e9m p\u0159\u00edpad\u011b nebude dokumentace projektu vygenerov\u00e1na spr\u00e1vn\u011b.\nJestli\u017ee nen\u00ed tato dokumentace API dostupn\u00e1, vypn\u011bte tuto volbu!
+prefmgr.misc.linkToLibNoteLine1=Je-li toto URL pou\u017eito, mus\u00ed b\u00fdt Java API specifikace v\u00a0okam\u017eiku generov\u00e1n\u00ed korektn\u00ed a dostupn\u00e1! V opa\u010dn\u00e9m p\u0159\u00edpad\u011b
+prefmgr.misc.linkToLibNoteLine2=nebude dokumentace projektu vygenerov\u00e1na spr\u00e1vn\u011b. Nen\u00ed-li zadan\u00e1 dokumentace API dostupn\u00e1, vypn\u011bte tuto volbu!
 
+# Extensions Manager Help panel
+extmgr.title=BlueJ:  Instalovan\u00e1 roz\u0161\u00ed\u0159en\u00ed
+extmgr.extensions=Roz\u0161\u00ed\u0159en\u00ed
+extmgr.systemExtensionShort=Syst\u00e9m
+extmgr.systemExtensionLong=Roz\u0161\u00ed\u0159en\u00ed projektu (pro v\u0161echny projekty)
+extmgr.projectExtensionShort=Projekt
+extmgr.projectExtensionLong=Roz\u0161\u00ed\u0159en\u00ed projektu (pouze pro aktu\u00e1ln\u00ed projekt)
+extmgr.statuscolumn=Status
+extmgr.namecolumn=Jm\u00e9no
+extmgr.typecolumn=Typ
+extmgr.details=Detaily
+extmgr.details.location=Um\u00edst\u011bn\u00ed:
+extmgr.details.version=Verze
+extmgr.details.url=V\u00edce informac\u00ed na URL:
+
+extmgr.status.notused=Nen\u00ed pou\u017eito
+extmgr.status.loaded=Na\u010dteno
+extmgr.status.error=Chyba
+extmgr.status.unloaded=Nen\u00ed na\u010dteno
+extmgr.version.unknown=Nezn\u00e1m\u00fd stav
+extensions.nodescription=Nen\u00ed uvedeno.
+
+# Extension errors
+extmgr.error.nomanifest=Chyb\u00ed soubor manifest
+extmgr.error.nomain=Manifest neobsahuje atribut Main-Class
+extmgr.error.notsubclass=Hlavn\u00ed t\u0159\u00edda nen\u00ed odvozena od Extension
+extmgr.error.cannotload=Roz\u0161\u00ed\u0159en\u00ed nem\u016f\u017ee b\u00fdt spu\u0161t\u011bno
 
 #---------------
 #Editor labels
@@ -115,7 +157,7 @@ prefmgr.misc.linkToLibNoteLine2=V opa\u010dn\u00e9m p\u0159\u00edpad\u011b nebud
 editor.title=BlueJ: Editor
 
 #button lables for toolbar commands
-editor.compileLabel = Kompilovat
+editor.compileLabel = P\u0159elo\u017eit
 editor.undoLabel = Zp\u011bt
 editor.cutLabel = Vyjmout
 editor.copyLabel = Kop\u00edrovat
@@ -127,7 +169,7 @@ editor.page-setupLabel = Nastaven\u00ed str\u00e1nky...
 editor.classLabel = T\u0159\u00edda
 editor.editLabel = Upravit
 editor.toolsLabel = N\u00e1stroje
-editor.debugLabel = Debug
+editor.debugLabel = Lad\u011bn\u00ed
 editor.optionLabel = P\u0159edvolby
 editor.helpLabel = N\u00e1pov\u011bda
 
@@ -143,20 +185,26 @@ editor.copy-to-clipboardLabel = Kop\u00edrovat
 editor.paste-from-clipboardLabel = Vlo\u017eit
 editor.indent-blockLabel = Odsadit v\u00edce
 editor.deindent-blockLabel = Odsadit m\u00e9n\u011b
-editor.comment-blockLabel = Komentovat
+editor.comment-blockLabel = Zakomentovat
 editor.uncomment-blockLabel = Odkomentovat
 editor.insert-methodLabel = Vlo\u017eit metodu
 
 editor.findLabel = Naj\u00edt...
 editor.find-nextLabel = Naj\u00edt dal\u0161\u00ed
 editor.find-next-backwardLabel = Naj\u00edt p\u0159edchoz\u00ed
+editor.go-to-lineLabel=J\u00edt na \u0159\u00e1dek...
 editor.replaceLabel = Nahradit...
-editor.compileLabel = Kompilovat
-editor.toggle-breakpointLabel = Nastavit/zru\u0161it breakpoint
+editor.compileLabel = P\u0159elo\u017eit
+editor.toggle-breakpointLabel = Nastavit/zru\u0161it zar\u00e1\u017eku
 editor.toggle-interface-viewLabel = P\u0159epnout pohled
 
-editor.implementationLabel = Implementace
-editor.interfaceLabel = Popis rozhran\u00ed
+
+editor.gotoline.title=J\u00edt na \u0159\u00e1dek
+editor.gotoline.label=Zadejte \u010d\u00edslo \u0159\u00e1dku
+editor.gotoline.notNumericMessage=Je o\u010dek\u00e1v\u00e1na numerick\u00e1 hodnota
+
+editor.implementationLabel = Implementace (zdrojov\u00fd k\u00f3d)
+editor.interfaceLabel = Dokumentace (popis rozhran\u00ed)
 
 editor.state.readOnly = pouze pro \u010dten\u00ed
 editor.state.saved = ulo\u017eeno
@@ -191,30 +239,30 @@ editor.find.ignoreCase=Ignorovat velk\u00e1/mal\u00e1
 editor.find.wholeWord=Cel\u00e1 slova
 
 #Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Moe version
+editor.info.version = Verze editoru Moe
 editor.info.readingProblem = P\u0159i \u010dten\u00ed tohoto souboru nastal probl\u00e9m.
-editor.info.regularFile = (Je to opravdu norm\u00e1ln\u00ed soubor? M\u00e1te opr\u00e1vn\u011bn\u00ed k jeho \u010dten\u00ed?)
+editor.info.regularFile = (Je to opravdu spr\u00e1vn\u00fd soubor? M\u00e1te opr\u00e1vn\u011bn\u00ed k jeho \u010dten\u00ed?)
 editor.info.newFile = Nov\u00fd soubor
 editor.info.errorSaving = P\u0159i ukl\u00e1d\u00e1n\u00ed souboru nastala chyba!
-editor.info.compiled = T\u0159\u00edda byla \u00fasp\u011b\u0161n\u011b zkompilov\u00e1na - \u017e\u00e1dn\u00e9 syntaktick\u00e9 chyby
-editor.info.noChanges = zm\u011bny nen\u00ed t\u0159eba ukl\u00e1dat
+editor.info.compiled = T\u0159\u00edda byla \u00fasp\u011b\u0161n\u011b p\u0159elo\u017eena - \u017e\u00e1dn\u00e9 syntaktick\u00e9 chyby
+editor.info.noChanges = \u017d\u00e1dn\u00e9 zm\u011bny nen\u00ed t\u0159eba ukl\u00e1dat
 editor.info.cannotReload = P\u016fvodn\u00ed verze souboru nem\u016f\u017ee b\u00fdt na\u010dtena, soubor nebyl nikdy ulo\u017een!
-editor.info.reload = ("Znovu na\u010d\u00edst" na\u010dte stav souboru p\u0159i jeho posledn\u00edm ulo\u017een\u00ed.)
+editor.info.reload = (\"Znovu na\u010d\u00edst\" na\u010dte stav souboru p\u0159i jeho posledn\u00edm ulo\u017een\u00ed.)
 editor.info.emptySearchString = Nen\u00ed co hledat.
 editor.info.notFound = Nenalezeno (dal\u0161\u00edm hled\u00e1n\u00ed budete pokra\u010dovat v hled\u00e1n\u00ed od za\u010d\u00e1tku).
-editor.info.compiling = Kompiluji...
-editor.info.cannotSetBreak = Nemohu nastavit breakpoint:\nV tomto editoru nem\u00ed otev\u0159en\u00fd \u017e\u00e1dn\u00fd k\u00f3d.
+editor.info.compiling = P\u0159ekl\u00e1d\u00e1m...
+editor.info.cannotSetBreak = Nemohu nastavit zar\u00e1\u017eku:\nV tomto editoru nem\u00ed otev\u0159en\u00fd \u017e\u00e1dn\u00fd k\u00f3d.
 editor.info.fileDisappeared = CHYBA: Zd\u00e1 se, \u017ee soubor zmizel!
-editor.info.fileReadError = CHYBA: P\u0159i \u010dten\u00ed tohoto souboru nastala chyba. 
+editor.info.fileReadError = CHYBA: P\u0159i \u010dten\u00ed tohoto souboru nastala chyba.
 editor.info.saved = Soubor ulo\u017een
-editor.info.printing = Prob\u00edh\u00e1 tisk...
-editor.info.printed = Prob\u00edh\u00e1 tisk... Hotovo.
+editor.info.printing = Tiskne...
+editor.info.printed = Tiskne... Hotovo.
 editor.info.cancelled = Zru\u0161eno.
 editor.info.generatingDoc = Generuji popis rozhran\u00ed t\u0159\u00eddy...
 editor.info.loadingDoc = Na\u010d\u00edt\u00e1m popis rozhran\u00ed t\u0159\u00eddy...
 editor.info.docLoaded = Na\u010d\u00edt\u00e1m popis rozhran\u00ed t\u0159\u00eddy... Hotovo.
-editor.info.docAborted = Nastala v\u00e1\u017en\u00e1 chyba p\u0159i vytv\u00e1\u0159en\u00ed popisu rozhran\u00ed pomoc\u00ed Javaoc. Proces byl p\u0159eru\u0161en.
-editor.info.docDisappeared = Nemohu nal\u00e9zt HLML soubor:
+editor.info.docAborted = Nastala v\u00e1\u017en\u00e1 chyba p\u0159i vytv\u00e1\u0159en\u00ed popisu rozhran\u00ed pomoc\u00ed Javadoc. \nProces byl p\u0159eru\u0161en.
+editor.info.docDisappeared = Nemohu nal\u00e9zt HTML soubor:
 editor.info.docNoFrames = V n\u00e1hledu editoru nen\u00ed povoleno zobrazen\u00ed r\u00e1mc\u016f.
 editor.info.tabsExpanded = P\u0159ev\u00e9zt v\u0161echny TABy na mezery.
 editor.printer.continued = pokra\u010dov\u00e1n\u00ed na dal\u0161\u00ed str\u00e1nce
@@ -222,12 +270,12 @@ editor.printer.continued = pokra\u010dov\u00e1n\u00ed na dal\u0161\u00ed str\u00
 
 pkgmgr.chooseUsesFrom=Vyberte t\u0159\u00eddu, kter\u00e1 pou\u017e\u00edv\u00e1 jinou
 pkgmgr.chooseUsesTo=Vyberte t\u0159\u00eddu, kter\u00e1 je pou\u017e\u00edv\u00e1na
-pkgmgr.chooseInhFrom=Vyberte podt\u0159\u00eddu - d\u011bd\u00ed z jin\u00e9 metody
-pkgmgr.chooseInhTo=Vyberte t\u0159\u00eddu, ze kter\u00e9 se d\u011bd\u00ed
+pkgmgr.chooseInhFrom=Vyberte podt\u0159\u00eddu (dce\u0159innou t\u0159\u00eddu), kter\u00e1 d\u011bd\u00ed, resp. implementuje
+pkgmgr.chooseInhTo=Vyberte nadt\u0159\u00eddu (rodi\u010dovskou t\u0159\u00eddu, rozhran\u00ed), ze kter\u00e9 se d\u011bd\u00ed
 pkgmgr.chooseArrow=Vyberte \u0161ipku, kterou chcete smazat
 pkgmgr.packageSaved=Bal\u00ed\u010dek ulo\u017een
-pkgmgr.info.printing = Prob\u00edh\u00e1 tisk...
-pkgmgr.info.printed = Prob\u00edh\u00e1 tisk... Hotovo.
+pkgmgr.info.printing = Tiskne...
+pkgmgr.info.printed = Tiskne... Hotovo.
 
 utility.packageChooser.previewPane1=N\u00e1hled mo\u017en\u00e9
 utility.packageChooser.previewPane2=struktury bal\u00ed\u010dku
@@ -242,7 +290,7 @@ pkgmgr.openNonBlueJPkg.title=Otev\u0159\u00edt ne-BlueJ projekt
 pkgmgr.openNonBlueJPkg.buttonLabel=Otev\u0159\u00edt v BlueJ
 pkgmgr.saveAs.title=Ulo\u017eit projekt
 pkgmgr.saveAs.buttonLabel=Ulo\u017eit
-pkgmgr.addClass.title=Vyberte t\u0159\u00eddu Java pro p\u0159id\u00e1n\u00ed
+pkgmgr.addClass.title=Vyberte Java t\u0159\u00eddu pro p\u0159id\u00e1n\u00ed
 pkgmgr.addClass.buttonLabel=P\u0159idat
 pkgmgr.importPkg.title=Vyberte slo\u017eku, ze kter\u00e9 chcete importovat
 pkgmgr.importPkg.buttonLabel=Importovat
@@ -252,7 +300,7 @@ pkgmgr.importPkgNew.buttonLabel=Vytvo\u0159it
 pkgmgr.newClass.msg=Zadejte jm\u00e9no t\u0159\u00eddy
 pkgmgr.newUses=Nov\u00e1 \u0161ipka Pou\u017e\u00edv\u00e1
 pkgmgr.newExtends=Nov\u00e1 \u0161ipka D\u011bdi\u010dnost
-pkgmgr.unimplemented=Omlouv\u00e1me se - tento prvek je\u0161t\u011b nebyl implementov\u00e1n
+pkgmgr.unimplemented=Omlouv\u00e1me se - tato funkce je\u0161t\u011b nebyla implementov\u00e1na
 pkgmgr.pkgChooseError=Chyba p\u0159i vyb\u00edr\u00e1n\u00ed platn\u00e9ho jm\u00e9na bal\u00ed\u010dku
 pkgmgr.chooseWebPage.title=Vyberte c\u00edlovou HTML str\u00e1nku
 
@@ -262,24 +310,39 @@ pkgmgr.parentpackagetarget.openunamed=Otev\u0159\u00edt nepojmenovan\u00fd bal\u
 pkgmgr.packagemenu.open=Otev\u0159\u00edt
 pkgmgr.packagemenu.remove=Odstranit
 
-pkgmgr.classmenu.runApplet=Spustit applet
+pkgmgr.classmenu.runApplet=Spustit aplet
 pkgmgr.classmenu.edit=Otev\u0159\u00edt v editoru
-pkgmgr.classmenu.compile=Kompilovat
+pkgmgr.classmenu.compile=P\u0159elo\u017eit
+pkgmgr.classmenu.inspect=Prohl\u00ed\u017eet
 pkgmgr.classmenu.remove=Odstranit
+pkgmgr.classmenu.createTest=Vytvo\u0159it testovac\u00ed t\u0159\u00eddu
 
-pkgmgr.view.label=Zobrazit
-pkgmgr.view.usesLabel=Pou\u017e\u00edv\u00e1
-pkgmgr.view.inheritLabel=D\u011bdi\u010dnost
+pkgmgr.test.label=Prob\u00edh\u00e1 testov\u00e1n\u00ed
+pkgmgr.test.record=z\u00e1znam
+pkgmgr.test.run=Spustit testy
+pkgmgr.test.end=Ukon\u010dit
+pkgmgr.test.succeeded=je ok
+pkgmgr.test.noTestName=Mus\u00edte zadat jm\u00e9no testu
+pkgmgr.test.invalidTestName=Jm\u00e9no testu mus\u00ed b\u00fdt platn\u00fd Java identifik\u00e1tor
+pkgmgr.test.recording=zaznamen\u00e1v\u00e1m
+
+pkgmgr.test.popup.testAll=Testovat v\u0161e
+pkgmgr.test.popup.noTests=Testovac\u00ed metody neexistuj\u00ed
+pkgmgr.test.popup.createTest=Vytvo\u0159it testovac\u00ed metodu...
+pkgmgr.test.popup.testPrefix=Testovat
+pkgmgr.test.popup.benchToFixture=Z\u00e1sobn\u00edk odkaz\u016f -> testovac\u00ed p\u0159\u00edpravek
+pkgmgr.test.popup.fixtureToBench=Testovac\u00ed p\u0159\u00edpravek -> z\u00e1sobn\u00edk odkaz\u016f
 
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Vytvo\u0159it novou t\u0159\u00eddu
 pkgmgr.newClass.label=Jm\u00e9no t\u0159\u00eddy:
 pkgmgr.newClass.classType=Typ t\u0159\u00eddy
-pkgmgr.newClass.stdclass=T\u0159\u00edda
+pkgmgr.newClass.stdclass=Standardn\u00ed t\u0159\u00edda
 pkgmgr.newClass.abstract=Abstraktn\u00ed t\u0159\u00edda
 pkgmgr.newClass.interface=Rozhran\u00ed
-pkgmgr.newClass.applet=Applet
-pkgmgr.newClass.appletj=Applet
+pkgmgr.newClass.applet=Aplet
+pkgmgr.newClass.appletj=Aplet
+pkgmgr.newClass.empty=Pr\u00e1zdn\u00e1 t\u0159\u00edda
 pkgmgr.newClass.unittest=Test jednotky
 
 # "new package" dialog
@@ -297,11 +360,18 @@ callLibraryDialog.clickHere2=kl\u00e1vesy Enter se zobraz\u00ed konstruktory a m
 callLibraryDialog.classNotFound1=T\u0159\u00edda nebyla nalezena.
 callLibraryDialog.classNotFound2=(Zkontrolujte jm\u00e9no t\u0159\u00eddy a stiskn\u011bte znovu Enter.)
 
+# "Free Form Call" dialog
+freeCallDialog.title=BlueJ:  Vyhodnotit
+freeCallDialog.fieldLabel=Vyhodnotit:
+freeCallDialog.resultLabel=jako
+freeCallDialog.returnsResult=v\u00fdraz (zobraz\u00ed vr\u00e1cenou hodnotu)
+freeCallDialog.returnsNoResult=p\u0159\u00edkaz (vr\u00e1cen\u00e1 hodnota je ignorov\u00e1na)
+
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Exportovat projekt
-pkgmgr.export.helpLine1=P\u0159i exportu je ulo\u017eena kopie aktu\u00e1ln\u00edho projektu
+pkgmgr.export.helpLine1=P\u0159i exportu je kopie aktu\u00e1ln\u00edho projektu ulo\u017eena
 pkgmgr.export.helpLine2=ve standardn\u00edm Java (ne-BlueJ) form\u00e1tu.
-pkgmgr.export.directoryLabel=Ulo\u017eit do adres\u00e1\u0159ov\u00e9 struktury
+pkgmgr.export.directoryLabel=Ulo\u017eit do struktury slo\u017eek
 pkgmgr.export.jarFileLabel=Ulo\u017eit do jar souboru
 pkgmgr.export.classLabel=t\u0159\u00edda s metodou main:
 pkgmgr.export.sourceLabel=p\u0159ilo\u017eit zdrojov\u00e9 soubory
@@ -309,15 +379,15 @@ pkgmgr.export.noClassText=\u017e\u00e1dn\u00e1 (nelze spou\u0161t\u011bt)
 
 # "open-non-bluej" mismatch dialog
 pkgmgr.importmismatch.title=BlueJ:  Probl\u00e9my p\u0159i otev\u00edr\u00e1n\u00ed bal\u00ed\u010dku
-pkgmgr.importmismatch.helpLine1=VAROV\u00c1N\u00cd: Vzhledem k deklaraci "package" v n\u011bkter\u00fdch
-pkgmgr.importmismatch.helpLine2=importovan\u00fdch t\u0159\u00edd\u00e1ch je pravd\u011bpodobn\u011b vybr\u00e1n
-pkgmgr.importmismatch.helpLine3=nespr\u00e1vn\u00fd adres\u00e1\u0159 pro import projektu.
-pkgmgr.importmismatch.helpLine4=Pravd\u011bpodobn\u011b mus\u00edte ozna\u010dit adres\u00e1\u0159 nad\u0159azen\u00fd tomuto adres\u00e1\u0159i.
-pkgmgr.importmismatch.helpLine5=
-pkgmgr.importmismatch.helpLine6=Nap\u0159\u00edklad: jestli\u017ee chcete otev\u0159\u00edt bal\u00ed\u010dek "org.bluej",
-pkgmgr.importmismatch.helpLine7=mus\u00edte ozna\u010dit adres\u00e1\u0159 obsahuj\u00edc\u00ed "org",
-pkgmgr.importmismatch.helpLine8=nikoliv samotn\u00e9 adres\u00e1\u0159e "org" nebo "bluej".
-pkgmgr.importmismatch.helpLine9=P\u0159ejete si pokra\u010dovat v otev\u00edr\u00e1n\u00ed a \u00faprav\u011b deklarace package?
+pkgmgr.importmismatch.helpLine1=VAROV\u00c1N\u00cd: Vzhledem ke kolizi informac\u00ed v p\u0159\u00edkazu "package"
+pkgmgr.importmismatch.helpLine2=a um\u00edst\u011bn\u00ed soubor\u016f ve slo\u017ek\u00e1ch je pravd\u011bpodobn\u00e9, \u017ee byla
+pkgmgr.importmismatch.helpLine3=zad\u00e1na nespr\u00e1vn\u00e1 slo\u017eka pro import projektu. Jej\u00ed otev\u0159en\u00ed
+pkgmgr.importmismatch.helpLine4=zm\u011bn\u00ed v\u0161echny p\u0159\u00edkazy "package" v dal\u0161\u00edch zdrojov\u00fdch souborech.
+pkgmgr.importmismatch.helpLine5=Nejsp\u00ed\u0161e mus\u00edte vybrat slo\u017eku nad\u0159azenou t\u00e9to slo\u017ece.
+pkgmgr.importmismatch.helpLine6=Chcete-li nap\u0159. otev\u0159\u00edt projekt obsahuj\u00edc\u00ed bal\u00ed\u010dek "org.bluej",
+pkgmgr.importmismatch.helpLine7=mus\u00edte ozna\u010dit rodi\u010dovskou slo\u017eku slo\u017eky "org" (tj. slo\u017eku
+pkgmgr.importmismatch.helpLine8=obsahuj\u00edc\u00ed slo\u017eku "org"), nikoliv vlastn\u00ed slo\u017eku "org" nebo "bluej".
+pkgmgr.importmismatch.helpLine9=P\u0159ejete si pokra\u010dovat v otev\u00edr\u00e1n\u00ed soubor\u016f a \u00faprav\u011b p\u0159\u00edkaz\u016f package?
 
 # "import" failure dialog
 pkgmgr.importfailed.title=BlueJ:  V\u00fdsledek importu
@@ -327,7 +397,7 @@ pkgmgr.importfailed.helpLine3=se shodn\u00fdm jm\u00e9nem.
 
 # "version check" dialog
 pkgmgr.versionDlg.title=BlueJ:  Zkontrolovat, zda je dostupn\u00e1 nov\u00e1 verze
-pkgmgr.versionDlg.helpLine1=Tato funkce provede kontrolu, zda je k dispozici nov\u00e1 verze BlueJ
+pkgmgr.versionDlg.helpLine1=Tato funkce zjist\u00ed, zda je k dispozici nov\u00e1 verze BlueJ
 pkgmgr.versionDlg.helpLine2=Aby byla tato funkce dostupn\u00e1, mus\u00edte b\u00fdt on-line.
 pkgmgr.versionDlg.check=Zkontrolovat nov\u00e9 verze
 pkgmgr.versionDlg.upToDate=Tato verze je aktu\u00e1ln\u00ed.
@@ -335,46 +405,52 @@ pkgmgr.versionDlg.currentVersion=Va\u0161e sou\u010dasn\u00e1 verze BlueJ je
 pkgmgr.versionDlg.newVersion=Posledn\u00ed zn\u00e1m\u00e1 verze BlueJ je
 
 # run applet dialog
-pkgmgr.runApplet.title=BlueJ:  Spustit applet
+pkgmgr.runApplet.title=BlueJ:  Spustit aplet
 pkgmgr.runApplet.webPageLabel=Vytvo\u0159it WWW str\u00e1nku
 pkgmgr.runApplet.webPage=Generovat pouze WWW str\u00e1nku
-pkgmgr.runApplet.appletviewer=Spustit applet pomoc\u00ed appletviewer
-pkgmgr.runApplet.webBrowser=Spustit applet ve WWW prohl\u00ed\u017ee\u010di
+pkgmgr.runApplet.appletviewer=Spustit aplet pomoc\u00ed appletviewer
+pkgmgr.runApplet.webBrowser=Spustit aplet ve WWW prohl\u00ed\u017ee\u010di
 pkgmgr.runApplet.heightLbl=V\u00fd\u0161ka =
 pkgmgr.runApplet.widthLbl=\u0160\u00ed\u0159ka =
 pkgmgr.runApplet.newParameterLbl=P\u0159idat nov\u00fd parametr
-pkgmgr.runApplet.appletParameterLbl= Parametry appletu
-pkgmgr.runApplet.nameLbl=Jm\u00e9no =
+pkgmgr.runApplet.appletParameterLbl= Parametry apletu
+pkgmgr.runApplet.nameLbl=Jm\u00e9no =                                                                                                                         -->\n<!--
 pkgmgr.runApplet.valueLbl=Hodnota =
 pkgmgr.runApplet.paramName=PARAM NAME
 pkgmgr.runApplet.value=VALUE
-pkgmgr.runApplet.htmlComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  It is regenerated automatically each time the  -->\n<!-- applet is run.  Any manual changes made to file will be lost -->\n<!-- when the applet is next run inside BlueJ.  Save into a       -->\n<!-- directory outside of the package directory if you want to    -->\n<!-- preserve this file. -->
-pkgmgr.runApplet.htmlExportedComment=<!-- This file automatically generated by BlueJ Java Development  -->\n<!-- Environment.  The codebase variable is set to the absolute path to   -->\n<!-- the bluej package directory of the applet at the time of this page being generated. -->\n<!-- If the location of that package alters you will need to edit the codebase value.       -->
+pkgmgr.runApplet.htmlComment=<!-- Tento soubor je automaticky generovan programem BlueJ. -->\n<!-- Po kazdemu spusteni apletu je automaticky obnoven.     -->\n<!-- Jakekoliv zmeny budou pri pristim spusteni apletu      -->\n<!-- z prostredi BlueJ ztraceny. Chcete-li soubor zachovat, -->\n<!-- musite jej ulozit do jin\u00e9 slozky.                      -->
+pkgmgr.runApplet.htmlExportedComment=<!-- Tento soubor je automaticky generovan programem BlueJ.              -->\n<!-- Promenna codebase je pri vytvareni teto stranky automaticky         -->\n<!-- nastavena na absolutni cestu k adresari s balickem daneho apletu.   -->\n<!-- Zmenite-li umisteni tohoto balicku, musite zmenit hodnotu codebase. -->
 
+#print project dialog
+pkgmgr.printDialog.title=Vytisknout projekt
+pkgmgr.printDialog.printDiagram=Vytisknout UML diagram t\u0159\u00edd
+pkgmgr.printDialog.printSource=Vytisknout zdrojov\u00fd k\u00f3d
+pkgmgr.printDialog.printReadme=Vytisknout soubor readme projektu
 
 # method call dialog
-pkgmgr.methodCall.titleCreate=BlueJ:  Vytvo\u0159it instanci objektu
+pkgmgr.methodCall.titleCreate=BlueJ:  Vytvo\u0159it instanci
 pkgmgr.methodCall.titleCall=BlueJ:  Vol\u00e1n\u00ed metody
-pkgmgr.methodCall.namePrompt=Jm\u00e9no reference na objekt:
-pkgmgr.methodCall.=Rozhran\u00ed
-error.methodCall.emptyField=Pole s parametry je pr\u00e1zdn\u00e9
+pkgmgr.methodCall.namePrompt=Jm\u00e9no odkazu na objekt:
+error.methodCall.emptyField=Chyba: Pole s parametry je pr\u00e1zdn\u00e9
 error.methodCall.illegalName=Jm\u00e9no instance mus\u00ed b\u00fdt platn\u00fd identifik\u00e1tor Javy.
-error.methodCall.duplicateName=Objekt se shodn\u00fdm jm\u00e9nem u\u017e existuje.\nVyberte pros\u00edm jedine\u010dn\u00e9 jm\u00e9no.
+error.methodCall.duplicateName=Objekt s t\u00edmto jm\u00e9nem ji\u017e existuje.\nVyberte pros\u00edm jedine\u010dn\u00e9 jm\u00e9no.
 
 # Debugger dialog (ExecControls.java)
 debugger.execControls.windowTitle = BlueJ:  Debugger
 debugger.execControls.stackTitle = Po\u0159ad\u00ed vol\u00e1n\u00ed
-debugger.execControls.staticTitle = Statick\u00e9 prom\u011bnn\u00e9
-debugger.execControls.instanceTitle = Prom\u011bnn\u00e9 instance objektu
+debugger.execControls.staticTitle = Atributy t\u0159\u00eddy
+debugger.execControls.instanceTitle = Atributy instance
 debugger.execControls.localTitle = Lok\u00e1ln\u00ed prom\u011bnn\u00e9 metody
 debugger.execControls.threadTitle = Vl\u00e1kna
-debugger.execControls.updateText = Aktualizovat
-debugger.execControls.systemThreads = Uk\u00e1zat syst\u00e9mov\u00e1 vl\u00e1kna
 debugger.execControls.haltButtonText = Zastavit
 debugger.execControls.stepButtonText = Krokovat
 debugger.execControls.stepIntoButtonText = Krokovat dovnit\u0159
 debugger.execControls.continueButtonText = Pokra\u010dovat
 debugger.execControls.terminateButtonText = Ukon\u010dit
+
+debugger.options = Nastaven\u00ed
+debugger.hideSystemThreads = Skr\u00fdt syst\u00e9mov\u00e1 vl\u00e1kna
+debugger.threadRunning = <html><center>Vl\u00e1kno je aktivn\u00ed.<br>Jestli\u017ee chcete zobrazit informace o vl\u00e1kn\u011b, mus\u00edte ho zastavit.</html>
 
 # DialogManager labels
 dialogmgr.error = BlueJ:  Chyba
@@ -388,14 +464,21 @@ terminal.clear = Smazat
 terminal.copy = Kop\u00edrovat
 terminal.save = Ulo\u017eit do souboru...
 terminal.close = Zav\u0159\u00edt
+terminal.clearScreen = Smazat obrazovku p\u0159i vol\u00e1n\u00ed metod
 terminal.recordCalls = Zaznamen\u00e1vat vol\u00e1n\u00ed metod
 terminal.buffering = Neomezen\u00e1 d\u00e9lka v\u00fdpisu
 terminal.save.title = Ulo\u017eit text z termin\u00e1lu
 terminal.save.buttonText = Ulo\u017eit
 
+#TestDisplay Window
+testdisplay.title=BlueJ:  V\u00fdsledky test\u016f
+testdisplay.counter.runs=Vykon\u00e1no:
+testdisplay.counter.errors=Chyby:
+testdisplay.counter.failures=Selh\u00e1n\u00ed:
+
 # status messages
-pkgmgr.compiling=Kompilov\u00e1n\u00ed...
-pkgmgr.compileDone=Kompilov\u00e1n\u00ed... Hotovo
+pkgmgr.compiling=P\u0159eklad...
+pkgmgr.compileDone=P\u0159eklad... Hotovo
 pkgmgr.creating=Vytv\u00e1\u0159en\u00ed objektu...
 pkgmgr.createDone=Vytv\u00e1\u0159en\u00ed objektu... Hotovo
 pkgmgr.creatingVM=Vytv\u00e1\u0159en\u00ed virtu\u00e1ln\u00edho stroje...
@@ -406,20 +489,22 @@ pkgmgr.docuAborted=Generov\u00e1n\u00ed dokumentace... P\u0159eru\u0161eno
 pkgmgr.webBrowserMsg=WWW prohl\u00ed\u017ee\u010d byl spu\u0161t\u011bn.
 pkgmgr.webBrowserError=Chyba p\u0159i spou\u0161t\u011bn\u00ed WWW prohl\u00ed\u017ee\u010de.
 pkgmgr.usesArrowMsg=Vztah "Pou\u017e\u00edv\u00e1" byl deklarov\u00e1n, ale nebyl pou\u017eit:
-pkgmgr.breakpointMsg=Aby mohly b\u00fdt nastaveny breakpointy, mus\u00ed b\u00fdt t\u0159\u00edda zkompilov\u00e1na.
+pkgmgr.breakpointMsg=Aby mohly b\u00fdt nastaveny zar\u00e1\u017eky, mus\u00ed b\u00fdt t\u0159\u00edda p\u0159elo\u017eena.
 pkgmgr.appletInViewer=Spou\u0161t\u011bn\u00ed apletu pomoc\u00ed appletviewer
-pkgmgr.appletInBrowser=Spou\u0161t\u011bn\u00ed appletu pomoc\u00ed WWW prohl\u00ed\u017ee\u010de
+pkgmgr.appletInBrowser=Spou\u0161t\u011bn\u00ed apletu pomoc\u00ed WWW prohl\u00ed\u017ee\u010de
 pkgmgr.exported=Export dokon\u010den.
 pkgmgr.exported.jar=Export do jar souboru dokon\u010den.
+pkgmgr.error.open=Projekt neexistuje.
 
-properties.heading.bluej=Nastaven\u00ed BlueJ. Nastaven\u00ed v tomto souboru maj\u00ed p\u0159ednost p\u0159ed "bluej.defs"
-properties.heading.moe=Nastaven\u00ed Moe Editoru. Nastaven\u00ed v tomto souboru maj\u00ed p\u0159ednost p\u0159ed "moe.defs"
+properties.heading.bluej=Nastaven\u00ed BlueJ. Nastaven\u00ed v tomto souboru maj\u00ed p\u0159ednost p\u0159ed \"bluej.defs\"
+properties.heading.moe=Nastaven\u00ed Moe Editoru. Nastaven\u00ed v tomto souboru maj\u00ed p\u0159ednost p\u0159ed \"moe.defs\"
 
 # menus and menu items
 
 menu.package=Projekt
 menu.package.new=Nov\u00fd...
 menu.package.open=Otev\u0159\u00edt...
+menu.package.openRecent=Znovu otev\u0159\u00edt
 menu.package.openNonBlueJ=Otev\u0159\u00edt ne-BlueJ...
 menu.package.close=Zav\u0159\u00edt
 menu.package.save=Ulo\u017eit
@@ -434,18 +519,19 @@ menu.edit=\u00dapravy
 menu.edit.newClass=Nov\u00e1 t\u0159\u00edda...
 menu.edit.newPackage=Nov\u00fd bal\u00ed\u010dek...
 menu.edit.addClass=Nov\u00e1 t\u0159\u00edda ze souboru...
-menu.edit.remove=Odstranit
+menu.edit.remove=Odstranit t\u0159\u00eddu/bal\u00ed\u010dek
 menu.edit.newUses=Nov\u00e1 \u0161ipka "Pou\u017e\u00edv\u00e1"
 menu.edit.newInherits=Nov\u00e1 \u0161ipka "D\u011bdi\u010dnost"
 menu.edit.removeArrow=Odstranit \u0161ipku
 
 menu.tools=N\u00e1stroje
-menu.tools.compile=Kompilovat
-menu.tools.compileSelected=Kompilovat vybranou t\u0159\u00eddu
-menu.tools.callLibrary=Volat t\u0159\u00eddu z knihovny...
-menu.tools.rebuild=P\u0159ekompilovat v\u0161e
+menu.tools.compile=P\u0159elo\u017eit
+menu.tools.test=Spustit testy
+menu.tools.compileSelected=P\u0159elo\u017eit vybranou t\u0159\u00eddu
+menu.tools.callLibrary=Pou\u017e\u00edt t\u0159\u00eddu z knihovny...
+menu.tools.rebuild=P\u0159elo\u017eit znovu cel\u00fd bal\u00ed\u010dek
+menu.tools.callFreeForm=Vyhodnotit v\u00fdraz...
 menu.tools.generateDoc=Dokumentace projektu
-menu.tools.browse=Prozkoumat knihovny...
 menu.tools.preferences=Nastaven\u00ed...
 
 menu.view=Zobrazit
@@ -453,6 +539,7 @@ menu.view.showUses=Zobrazit "Pou\u017e\u00edv\u00e1"
 menu.view.showInherits=Zobrazit "D\u011bdi\u010dnost"
 menu.view.showExecControls=Zobrazit Debugger
 menu.view.showTerminal=Zobrazit Termin\u00e1l
+menu.view.showTestDisplay=Uk\u00e1zat v\u00fdsledky test\u016f
 
 menu.group=Skupinov\u00e1 spolupr\u00e1ce
 menu.group.make=Vytvo\u0159it skupinov\u00fd bal\u00ed\u010dek
@@ -462,25 +549,28 @@ menu.group.updateAll=Aktualizovat v\u0161e
 menu.group.commitSelected=P\u0159ijmout vybran\u00fd
 menu.group.commitAll=P\u0159ijmout v\u0161e
 menu.group.statusSelection=Stav v\u00fdb\u011bru
-menu.group.statusAll=Stav v\u0161e
+menu.group.statusAll=Stav v\u0161eho
 menu.group.users=U\u017eivatel\u00e9
 menu.group.configuration=Konfigurace
 
 menu.help=N\u00e1pov\u011bda
 menu.help.about=O BlueJ
-menu.help.versionCheck=Zkontrolovat verzi
-menu.help.copyright=Copyright
+menu.help.extensions=Instalovan\u00e1 roz\u0161\u00ed\u0159en\u00ed
+menu.help.versionCheck=Zkontrolovat aktualizace na WWW
+menu.help.extensions=Instalovan\u00e1 roz\u0161\u00ed\u0159en\u00ed
+menu.help.copyright=Autorsk\u00e1 pr\u00e1va
 menu.help.website=WWW str\u00e1nky BlueJ
 menu.help.tutorial=BlueJ Tutorial
-menu.help.standardApi=Knihovna t\u0159\u00edd Java
+menu.help.standardApi=Popis standardn\u00edch t\u0159\u00edd
 
 # tool tips
 
 tooltip.newClass=Vytvo\u0159it novou t\u0159\u00eddu v tomto bal\u00ed\u010dku.
-tooltip.newUses=Vlo\u017eit vztah "Pou\u017e\u00edv\u00e1".
-tooltip.newExtends=Vlo\u017eit vztah "D\u011bdi\u010dnost".
-tooltip.compile=Zkompilovat v\u0161echny nezkompilovan\u00e9 t\u0159\u00eddy v tomto bal\u00ed\u010dku.
-tooltip.showUses=P\u0159epnout zobrazov\u00e1n\u00ed vztah\u016f Pou\u017e\u00edv\u00e1.
-tooltip.showExtends=P\u0159epnout zobrazov\u00e1n\u00ed vztah\u016f D\u011bdi\u010dnost.
+tooltip.newUses=Vytvo\u0159it vztah "Pou\u017e\u00edv\u00e1".
+tooltip.newExtends=Vytvo\u0159it vztah "D\u011bdi\u010dnost".
+tooltip.compile=P\u0159elo\u017eit v\u0161echny nep\u0159elo\u017een\u00e9 t\u0159\u00eddy v tomto bal\u00ed\u010dku.
+tooltip.test=Spustit v\u0161echny testy v aktu\u00e1ln\u00edm bal\u00ed\u010dku
 tooltip.progress=Indik\u00e1tor \u010dinnosti: informuje o tom, kdy pracuje Java VM.
+tooltip.test.end=Ukon\u010dit zaznamen\u00e1v\u00e1n\u00ed testu
+tooltip.test.cancel=P\u0159eru\u0161it zaznamen\u00e1v\u00e1n\u00ed testu
 

@@ -9,6 +9,17 @@ compileException=Exceção gerada durante a compilação
 compiler.thread.title=Thread do compilador do BlueJ
 compiler.invalidcompiler=bluej.compiler.type não está definido com um tipo de compilador válido
 compiler.nocompiler=Compilador não pôde ser executado
+compiler.warningDialog.title=Avisos do Compilador
+compiler.warningDialog.label=Avisos da última compilação 
+compiler.warningDialog.noWarnings=Sem avisos
+	
+debugger.assert.assertThat=Asseguro que:
+debugger.assert.resultIs=resultado é
+debugger.assert.equalTo=igual a
+debugger.assert.sameAs=o mesmo que
+debugger.assert.notSameAs=não é o mesmo que
+debugger.assert.notNull=não null
+debugger.assert.null=null
 
 debugger.inspector.title=BlueJ:  Inspecionador de Objetos da classe 
 debugger.inspector.result.title=BlueJ:  Resultado de método
@@ -115,23 +126,17 @@ prefmgr.misc.linkToLibNoteLine2=Caso contrário, a operação de geração da documen
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Extensões instaladas
 extmgr.extensions=Extensões
-extmgr.installed=Instalada
-extmgr.project=Projeto
+extmgr.systemExtensionShort=Sistema
+extmgr.systemExtensionLong=Extensão de sistema (ativo para todos os projetos)
+extmgr.projectExtensionShort=Projeto
+extmgr.projectExtensionLong=Extensão de projeto (apenas para o projeto corrente)
 extmgr.statuscolumn=Status
 extmgr.namecolumn=Nome
 extmgr.typecolumn=Tipo
-extmgr.versioncolumn=Versão
 extmgr.details=Detalhes
-extmgr.details.status=Status
-extmgr.details.name=Nome
 extmgr.details.location=Localização
-extmgr.details.type=Tipo
 extmgr.details.version=Versão
-extmgr.details.date=Data da geração
 extmgr.details.url=URL
-extmgr.details.menus=Menus
-extmgr.details.preferences=Preferencias
-extmgr.details.description=Descrição
 
 extmgr.status.notused=Não usado
 extmgr.status.loaded=Carregado
@@ -187,10 +192,16 @@ editor.insert-methodLabel = Inserir método
 editor.findLabel = Procurar...
 editor.find-nextLabel = Procurar próximo
 editor.find-next-backwardLabel = Procurar anterior
+editor.go-to-lineLabel = Ir para a linha...
 editor.replaceLabel = Substituir...
 editor.compileLabel = Compilar
 editor.toggle-breakpointLabel = Por/Retirar Breakpoint
 editor.toggle-interface-viewLabel = Mudar Visão da Interface
+
+editor.go-to-lineLabel = Ir para a linha...
+editor.gotoline.title = Ir para a linha
+editor.gotoline.label = Forneça o número da linha
+editor.gotoline.notNumericMessage = Deve ser um número	
 
 editor.implementationLabel = Implementação
 editor.interfaceLabel = Interface
@@ -304,10 +315,24 @@ pkgmgr.classmenu.edit=Abrir Editor
 pkgmgr.classmenu.compile=Compilar
 pkgmgr.classmenu.inspect=Inspecionar
 pkgmgr.classmenu.remove=Remover
+pkgmgr.classmenu.createTest=Criar classe de teste
 
-pkgmgr.view.label=Exibir
-pkgmgr.view.usesLabel=Uso
-pkgmgr.view.inheritLabel=Herança
+pkgmgr.test.label=Testando
+pkgmgr.test.record=gravendo
+pkgmgr.test.run=Executar Testes
+pkgmgr.test.end=Fim
+pkgmgr.test.succeeded=realizado
+pkgmgr.test.noTestName=VOcê deve espexificar um nome para o teste
+pkgmgr.test.invalidTestName=O nome do teste deve ser um identificador Java válido
+pkgmgr.test.recording=gravando
+
+pkgmgr.test.popup.testAll=Testar Tudo
+pkgmgr.test.popup.noTests=Nenhum método de teste
+pkgmgr.test.popup.testPrefix=Teste
+pkgmgr.test.popup.createTest=Criar Método de Teste...
+pkgmgr.test.popup.benchToFixture=Object Bench to Test Fixture
+pkgmgr.test.popup.fixtureToBench=Test Fixture to Object Bench
+
 
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Criar Nova Classe
@@ -443,6 +468,12 @@ terminal.buffering = Buffer ilimitado
 terminal.save.title = Salvar texto do terminal
 terminal.save.buttonText = Salvar
 
+#TestDisplay Window
+testdisplay.title = BlueJ:  Resultados de Testes
+testdisplay.counter.runs=Execuções:
+testdisplay.counter.errors=Erros:
+testdisplay.counter.failures=Falhas:
+	
 # status messages
 pkgmgr.compiling=Compilando...
 pkgmgr.compileDone=Compilando... Pronto
@@ -493,6 +524,7 @@ menu.edit.removeArrow=Remover Seta...
 
 menu.tools=Ferramentas
 menu.tools.compile=Compilar
+menu.tools.test=Executar Testes
 menu.tools.compileSelected=Compilar Selecionados
 menu.tools.rebuild=Recompile Pacote
 menu.tools.callLibrary=Usar Biblioteca de Classes...
@@ -505,6 +537,7 @@ menu.view.showUses=Exibir Uso
 menu.view.showInherits=Exibir Herança
 menu.view.showExecControls=Exibir Debugger
 menu.view.showTerminal=Exibir Terminal
+menu.view.showTestDisplay=Exibir Resultados de Testes
 
 menu.group=Grupo de Trabalho
 menu.group.make=Fazer Pacote de Grupo
@@ -534,6 +567,7 @@ tooltip.newClass=Cria uma nova classe neste pacote
 tooltip.newUses=Insere uma relação de 'uso' 
 tooltip.newExtends=Insere uma relação de 'herança'
 tooltip.compile=Compila todas as classes não compiladas
+tooltip.test=Executa todas as classes de teste compiladas deste pacote	
 tooltip.showUses=Exibe/apaga relacionamentos de uso
 tooltip.showExtends=Exibe/apaga relacionamentos de herança
 tooltip.progress=Indicador de trabalho: indica quando a máquina virtual está trabalhando

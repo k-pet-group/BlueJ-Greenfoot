@@ -1,13 +1,12 @@
 compile-while-executing
-Nem\u016f\u017eete kompilovat d\u0159\u00edv n\u011b\u017e nastartuje
-virtu\u00e1ln\u00ed stroj Javy. Mohly by nastat
-nep\u0159edv\u00eddateln\u00e9 probl\u00e9my!
+Nem\u016f\u017eete p\u0159ekl\u00e1dat, dokud b\u011b\u017e\u00ed virtu\u00e1ln\u00ed stroj Javy.
+Mohly by nastat nep\u0159edv\u00eddateln\u00e9 probl\u00e9my!
 
 exception-thrown
-Nastala v\u00fdjimka:
+Byla vyvol\u00e1na v\u00fdjimka:
 
 break-no-source
-Chod programu se zastavil na breakpointu v souboru,
+Chod programu se zastavil na zar\u00e1\u017ece v souboru,
 ke kter\u00e9mu nen\u00ed dostupn\u00fd zdrojov\u00fd k\u00f3d.
 Jm\u00e9no souboru:
 
@@ -17,7 +16,7 @@ dostupn\u00fd zdrojov\u00fd k\u00f3d.
 t\u0159\u00edda: \u010d\u00edslo \u0159\u00e1dku:
 
 system-exit
-Metoda skon\u010dila implicitn\u00edm vol\u00e1n\u00edm "exit".
+Metoda skon\u010dila zavol\u00e1n\u00edm metody "exit".
 Nebyl vr\u00e1cen \u017e\u00e1dn\u00fd v\u00fdsledek.
 K\u00f3d ukon\u010den\u00ed je:
 
@@ -28,37 +27,39 @@ mik@mip.sdu.dk - n\u00e1pov\u011bda bude p\u0159id\u00e1na
 do datab\u00e1ze. D\u011bkujeme.
 
 editor-crashed
-P\u0159i posledn\u00edm z\u00e1pisu t\u00e9to t\u0159\u00eddy na disk BlueJ
-pravd\u011bpodobn\u011b havaroval. Zdrojov\u00fd k\u00f3d chyb\u00ed, nebo je
-nekompletn\u00ed. V projektov\u00e9m adres\u00e1\u0159i by m\u011bla b\u00fdt z\u00e1lo\u017en\u00ed
-kopie t\u00e9to t\u0159\u00eddy. Jestli\u017ee se zd\u00e1 t\u0159\u00edda poni\u010dena:
+Zdrojov\u00fd text byl nejsp\u00ed\u0161 upraven jin\u00fdm editorem nebo
+BlueJ p\u0159i posledn\u00edm z\u00e1pisu t\u00e9to t\u0159\u00eddy na disk
+havaroval. Zdrojov\u00fd k\u00f3d pak mo\u017en\u00e1 chyb\u00ed, nebo je
+nekompletn\u00ed. V projektov\u00e9 slo\u017ece by m\u011bla b\u00fdt z\u00e1lo\u017en\u00ed
+kopie t\u00e9to t\u0159\u00eddy. Zd\u00e1-li se zdrojov\u00fd k\u00f3d poni\u010den:
+   1. ukon\u010dete BlueJ,
+   2. z\u00e1lohujte slo\u017eku s projektem (pro jistotu),
+   3. zm\u011b\u0148te p\u0159\u00edponu z\u00e1lo\u017en\u00edho souboru na .java
 
-   1 - ukon\u010dete BlueJ
-   2 - z\u00e1lohujte si adres\u00e1\u0159 s projektem (pro jistotu)
-   3 - zm\u011b\u0148te p\u0159\u00edponu z\u00e1lo\u017en\u00edho souboru na .java
+# errors:
+#########
 
 cannot-run-compiler
-Kompil\u00e1tor nelze spustit. Je tento kompil\u00e1tor
-dostupn\u00fd?
-Jm\u00e9no kompil\u00e1toru:
+P\u0159eklada\u010d nelze spustit.
+Je tento p\u0159eklada\u010d dostupn\u00fd?
+Jm\u00e9no p\u0159eklada\u010de:
 
 compiler-error
-Chyba kompil\u00e1toru:
+Chyba p\u0159ekladu:
 
 stream-incomplete
-Chyba kompil\u00e1toru. Tok chyb je nekompletn\u00ed.
+Chyba p\u0159ekladu. Chybov\u00fd proud je nekompletn\u00ed.
 
 out-of-bounds
-Specifikovan\u00fd element le\u017e\u00ed mimo povolen\u00e9
-meze pole.
+Specifikovan\u00fd prvek le\u017e\u00ed
+mimo povolen\u00e9 meze pole.
 
 cannot-access-element
-Nelze p\u0159istupovat k tomuto elementu
-pole.
+Nan\u00ed mo\u017en\u00e9 p\u0159istoupit
+k zadan\u00e9mu prvku pole.
 
 appletviewer-error
 Chyba p\u0159i spou\u0161t\u011bn\u00ed aplikace appletviewer.
-
 
 error-no-name
 Mus\u00edte zadat platn\u00e9 jm\u00e9no.
@@ -72,38 +73,39 @@ P\u0159i ukl\u00e1d\u00e1n\u00ed kl\u00e1vesov\u00fdch zkratek nastala chyba.
 Zm\u011bny nebyly ulo\u017eeny.
 
 error-no-templates
-Adres\u00e1\u0159 s \u0161ablonami neexistuje.
-Zkontrolujete pros\u00edm nastaven\u00ed polo\u017eky
+Slo\u017eka s \u0161ablonami (slo\u017eka, v n\u00ed\u017e BlueJ hled\u00e1 \u0161ablony
+t\u0159\u00edd) neexistuje. Zkontrolujete pros\u00edm nastaven\u00ed polo\u017eky
 "bluej.templatePath" v souboru <bluej-home>/lib/bluej.defs.
 
 skeleton-error
-V\u00fdchoz\u00ed kost\u0159i\u010dka t\u00e9to t\u0159\u00eddy nem\u016f\u017ee b\u00fdt vygenerov\u00e1na.
-Mo\u017en\u00e1 je chyba v konfiguraci BlueJ, nebo je soubor
-dostupn\u00fd.
+Nelze vygenerovat v\u00fdchoz\u00ed kostru t\u00e9to t\u0159\u00eddy.
+Bu\u010f je chyba v konfiguraci BlueJ,
+nebo je soubor nedostupn\u00fd.
 
 error-open-source
 Zdrojov\u00fd k\u00f3d t\u00e9to t\u0159\u00eddy nelze otev\u0159\u00edt.
 
 error-open-readme
-Nepoda\u0159ilo se otev\u0159\u00edt textov\u00e9 pozn\u00e1mky k tomuto
-projektu. Byl vytvo\u0159en nov\u00fd soubor pro textov\u00e9 pozn\u00e1mky.
+Nepoda\u0159ilo se otev\u0159\u00edt textov\u00e9 pozn\u00e1mky k tomuto projektu.
+Byl vytvo\u0159en nov\u00fd soubor pro textov\u00e9 pozn\u00e1mky.
 
 error-writing-readme
-Nepoda\u0159ilo se otev\u0159\u00edt soubor README pro p\u0159id\u00e1n\u00ed
-informac\u00ed o t\u0159\u00edd\u011b s metodou main.
-Nastala chyba p\u0159i ukl\u00e1d\u00e1n\u00ed zm\u011bn do tohoto souboru.
+Do souboru README se nepoda\u0159ilo p\u0159idat
+informace o t\u0159\u00edd\u011b s metodou main.
+P\u0159i zm\u011bn\u011b souboru nastala chyba.
 
 error-exporting
 Nastala chyba p\u0159i exportov\u00e1n\u00ed aplikace.
-V\u0161echny nebo n\u011bkter\u00e9 soubory nebyly spr\u00e1vn\u011b
-zkop\u00edrov\u00e1ny.
+N\u011bkter\u00e9 soubory (mo\u017en\u00e1 v\u0161echny)
+nebyly spr\u00e1vn\u011b zkop\u00edrov\u00e1ny.
 
 error-writing-jar
 Do souboru jar se nepoda\u0159ilo \u00fasp\u011b\u0161n\u011b zapsat.
-(Zkontrolujte p\u0159\u00edstupov\u00e1 pr\u00e1va a voln\u00e9 m\u00edsto.)
+Zkontrolujte p\u0159\u00edstupov\u00e1 pr\u00e1va a voln\u00e9 m\u00edsto
+na disku.
 
 error-jar-exists
-Vybran\u00fd soubor jar u\u017e existuje.
+Vybran\u00fd soubor jar ji\u017e existuje.
 P\u0159ejete si pokra\u010dovat?
 P\u0159epsat
 Zru\u0161it
@@ -116,39 +118,38 @@ invalid-package-name
 Neplatn\u00e9 jm\u00e9no bal\u00ed\u010dku.
 
 directory-exists
-Soubor nebo adres\u00e1\u0159 se shodn\u00fdm jm\u00e9nem
-u\u017e existuje.
+Soubor nebo slo\u017eka s t\u00edmto
+jm\u00e9nem ji\u017e existuje.
 
 cannot-copy-package
 Nastal probl\u00e9m p\u0159i kop\u00edrov\u00e1n\u00ed soubor\u016f bal\u00ed\u010dku.
 Bal\u00ed\u010dek nebyl v\u016fbec zaps\u00e1n, nebo je nekompletn\u00ed.
 
 file-does-not-exist
-Zadan\u00fd soubor
-neexistuje.
+Zadan\u00fd soubor neexistuje.
 
 cannot-import
-Nemohu importovat soubor. Soubor mus\u00ed
-obsahovat zdrojov\u00fd k\u00f3d a mus\u00ed
-m\u00edt p\u0159\u00edponu ".java".
+Nemohu importovat soubor. Soubor
+mus\u00ed obsahovat zdrojov\u00fd k\u00f3d a
+mus\u00ed m\u00edt p\u0159\u00edponu ".java".
 
 docdir-blocked-by-file
-Adres\u00e1\u0159 pro dokumentaci nem\u016f\u017ee b\u00fdt vytvo\u0159en,
-proto\u017ee se u\u017e v projektov\u00e9m adres\u00e1\u0159i
-nach\u00e1z\u00ed soubor se stejn\u00fdm jm\u00e9nem.
+Slo\u017eku pro dokumentaci nelze vytvo\u0159it,
+proto\u017ee se ve slo\u017ece projektu
+ji\u017e nach\u00e1z\u00ed soubor se stejn\u00fdm jm\u00e9nem.
 
 docdir-not-created
-V projektov\u00e9m adres\u00e1\u0159i nem\u016f\u017ee b\u00fdt vytvo\u0159en
-adres\u00e1\u0159 pro dokumentaci.
+Ve slo\u017ece projektu nem\u016f\u017ee b\u00fdt vytvo\u0159ena
+slo\u017eka pro dokumentaci.
 
 no-permission-for-docdir
-V projektov\u00e9m adres\u00e1\u0159i nem\u016f\u017ee b\u00fdt vytvo\u0159en
-adres\u00e1\u0159 pro dokumentaci. Nem\u00e1te dostate\u010dn\u00e9
-opr\u00e1vn\u011bn\u00ed.
+Ve slo\u017ece projektu nem\u016f\u017ee b\u00fdt vytvo\u0159ena
+slo\u017eka pro dokumentaci.
+Nem\u00e1te dostate\u010dn\u00e9 opr\u00e1vn\u011bn\u00ed.
 
 show-or-generate
-P\u0159ejete si zobrazit dokumentaci v p\u016fvodn\u00ed
-verzi, nebo si p\u0159ejete vygenerovat novou verzi?
+P\u0159ejete si zobrazit d\u0159\u00edve vytvo\u0159enou dokumentaci
+nebo si p\u0159ejete vygenerovat jej\u00ed novou verzi?
 Pouze uk\u00e1zat
 Znovu generovat
 Zru\u0161it
@@ -157,27 +158,24 @@ doctool-error
 Javadoc nahl\u00e1sil chybu. Mo\u017en\u00e1 je v n\u011bkter\u00e9m zdrojov\u00e9m
 souboru syntaktick\u00e1 chyba. Je tak\u00e9 mo\u017en\u00e9, \u017ee byla nastavena
 \u0161patn\u00e1 cesta URL k dokumentaci JDK v nastaven\u00ed BlueJ.
-Ujist\u011bte se, \u017ee jsou v\u0161echny soubory zkompilovan\u00e9 a
+Ujist\u011bte se, \u017ee jsou v\u0161echny soubory p\u0159elo\u017een\u00e9 a
 ov\u011b\u0159te nastaven\u00ed cesty k\u00a0Java API specifikaci.
-Opakujte generov\u00e1n\u00ed, jestli\u017ee probl\u00e9my p\u0159etrvaj\u00ed,
-zkontrolujte v\u00fdpis chyb z Javadoc:
+Opakujte generov\u00e1n\u00ed dokumentace. Jestli\u017ee probl\u00e9my
+p\u0159etrvaj\u00ed, zkontrolujte v\u00fdpis chyb z Javadoc:
 
 severe-doc-trouble
 Nastala v\u00fdjimka p\u0159i vol\u00e1n\u00ed extern\u00edho
 n\u00e1stroje pro vytv\u00e1\u0159en\u00ed dokumentace.
 
 no-java-sources-found
-V zadan\u00e9m adres\u00e1\u0159i nebyly nalezeny
+V zadan\u00e9 slo\u017ece nebyly nalezeny
 \u017e\u00e1dn\u00e9 zdrojov\u00e9 soubory Javy.
 
 duplicate-name
-T\u0159\u00edda se stejn\u00fdm jm\u00e9nem u\u017e v tomto bal\u00ed\u010dku
-existuje. V\u00a0jednom bal\u00ed\u010dku nem\u016f\u017eete m\u00edt
-dv\u011b t\u0159\u00eddy se stejn\u00fdm jm\u00e9nem.
-
-duplicate-package-name
-Bal\u00ed\u010dek se stejn\u00fdm jm\u00e9nem u\u017e v tomto
-projektu existuje.
+T\u0159\u00edda nebo bal\u00ed\u010dek se stejn\u00fdm jm\u00e9nem
+ji\u017e v tomto bal\u00ed\u010dku existuje.
+V\u00a0jednom bal\u00ed\u010dku nem\u016f\u017eete m\u00edt
+dv\u011b t\u0159\u00eddy(bal\u00ed\u010dek) se stejn\u00fdm jm\u00e9nem.
 
 error-in-import
 P\u0159i importov\u00e1n\u00ed nastala chyba. Zkontrolujte
@@ -196,18 +194,17 @@ Zru\u0161it
 null
 
 really-remove-package
-P\u0159i odstra\u0148ov\u00e1n\u00ed sma\u017eete rovn\u011b\u017e cel\u00fd obsah adres\u00e1\u0159e
-(v\u010detn\u011b v\u0161ech soubor\u016f a podadres\u00e1\u0159\u016f).
+P\u0159i odstra\u0148ov\u00e1n\u00ed bal\u00ed\u010dku sma\u017eete cel\u00fd obsah
+p\u0159\u00edslu\u0161n\u00e9 slo\u017eky v\u010detn\u011b v\u0161ech soubor\u016f a podslo\u017eek.
 P\u0159ejete si pokra\u010dovat?
 Odstranit
 Zru\u0161it
 null
 
 remove-package-open
-Vybran\u00fd bal\u00ed\u010dek ur\u010den\u00fd pro odstran\u011bn\u00ed
-obsahuje jin\u00fd bal\u00ed\u010dek, kter\u00fd je otev\u0159en\u00fd
-v BlueJ. Tento bal\u00ed\u010dek mus\u00ed b\u00fdt nejd\u0159\u00edv
-zav\u0159en.
+Vybran\u00fd bal\u00ed\u010dek ur\u010den\u00fd pro odstran\u011bn\u00ed obsahuje
+jin\u00fd bal\u00ed\u010dek, kter\u00fd je otev\u0159en\u00fd v BlueJ.
+Tento bal\u00ed\u010dek mus\u00ed b\u00fdt nejd\u0159\u00edv zav\u0159en.
 
 package-does-not-exist
 Chyba p\u0159i otev\u00edr\u00e1n\u00ed bal\u00ed\u010dku.
@@ -215,12 +212,11 @@ Bal\u00ed\u010dek neexistuje:
 
 no-bluej-package
 Chyba p\u0159i otev\u00edr\u00e1n\u00ed bal\u00ed\u010dku.
-Soubor/adres\u00e1\u0159 nen\u00ed platn\u00fd BlueJ
+Soubor/slo\u017eka nen\u00ed platn\u00fd BlueJ
 bal\u00ed\u010dek:
 
 applet-height-width
-V\u00fd\u0161ka a \u0161\u00ed\u0159ka appletu mus\u00ed b\u00fdt
-zad\u00e1na.
+Mus\u00ed b\u00fdt zad\u00e1na v\u00fd\u0161ka a \u0161\u00ed\u0159ka apletu.
 
 cannot-read-help
 Soubor s n\u00e1pov\u011bdou nem\u016f\u017ee b\u00fdt na\u010dten:
@@ -229,8 +225,8 @@ not-yet-implemented
 Zat\u00edm nen\u00ed implementov\u00e1no - omlouv\u00e1me se.
 
 quit-all
-Opustit v\u0161echny projekty?
-Opustit v\u0161echny
+Ukon\u010dit v\u0161echny projekty?
+Ukon\u010dit v\u0161echny
 Zru\u0161it
 null
 
@@ -251,62 +247,92 @@ Zru\u0161it
 null
 
 open-non-bluej-already-bluej
-Vybran\u00fd adres\u00e1\u0159 u\u017e je projekt BlueJ.
+Vybran\u00e1 slo\u017eka je ji\u017e projekt BlueJ.
 
 open-non-bluej-no-java
-V tomto adres\u00e1\u0159i nebyly nalezeny \u017e\u00e1dn\u00e9 zdrojov\u00e9
-soubory v Jav\u011b.
+V t\u00e9to slo\u017ece nebyly nalezeny
+\u017e\u00e1dn\u00e9 zdrojov\u00e9 soubory v Jav\u011b.
 
 open-non-bluej-invalid
-P\u0159\u00e1li jste si otev\u0159\u00edt tento adres\u00e1\u0159 jako BlueJ
+P\u0159\u00e1li jste si otev\u0159\u00edt tuto slo\u017eku jako BlueJ
 projekt. V n\u011bkter\u00e9m souboru je ozna\u010den\u00ed 'package',
-kter\u00e9 neodpov\u00edd\u00e1 adres\u00e1\u0159i, ve kter\u00e9m je soubor
-um\u00edst\u011bn. (Soubor s \u0159\u00e1dkem 'package com.aa;' mus\u00ed
-b\u00fdt ulo\u017een v adres\u00e1\u0159i muj_projekt/com/aa .)
+kter\u00e9 neodpov\u00edd\u00e1 slo\u017ece, ve kter\u00e9 je soubor
+um\u00edst\u011bn - nap\u0159. soubor s p\u0159\u00edkazem
+package com.aa;
+mus\u00ed b\u00fdt ulo\u017een ve slo\u017ece
+<slo\u017eka_projektu>/com/aa.
 
 import-into-current
 V tomto okn\u011b u\u017e m\u00e1te projekt otev\u0159en\u00fd.
-P\u0159ejete si importovat do tohoto projektu, nebo
-chcete vytvo\u0159it nov\u00fd projekt?
+P\u0159ejete si importovat do tohoto projektu,
+nebo chcete vytvo\u0159it nov\u00fd projekt?
 Do sou\u010dasn\u00e9ho
 Nov\u00fd projekt
 Zru\u0161it
 
 package-name-invalid
-Pokusili jste se p\u0159esunout t\u0159\u00eddu do bal\u00ed\u010dku,
+V p\u0159\u00edkazu "package" jste pou\u017eili bal\u00ed\u010dek,
 kter\u00fd v tomto projektu neexistuje.
-Jestli\u017ee chcete p\u0159esunout tuto t\u0159\u00eddu do jin\u00e9ho
-bal\u00ed\u010dku, mus\u00edte ho nejd\u0159\u00edve vytvo\u0159it.
-Jm\u00e9no bal\u00ed\u010dku bylo zm\u011bn\u011bno zp\u011bt na p\u016fvodn\u00ed.
+Chcete-li p\u0159esunout t\u0159\u00eddu do jin\u00e9ho bal\u00ed\u010dku,
+mus\u00edte jej nejd\u0159\u00edve vytvo\u0159it.
+P\u0159\u00edkaz "package" byl vr\u00e1cen do p\u016fvodn\u00edho tvaru.
+
+package-name-clash
+Zm\u011bna proveden\u00e1 v p\u0159\u00edkazu "package" je neplatn\u00e1,
+p\u0159\u00edkaz package byl vr\u00e1cen do p\u016fvodn\u00edho stavu.
+D\u016fvodem je to, \u017ee zm\u011bna by m\u011bla za n\u00e1sledek p\u0159esunut\u00ed
+t\u00e9to t\u0159\u00eddy do jin\u00e9ho bal\u00ed\u010dku, ale v c\u00edlov\u00e9m bal\u00ed\u010dku
+ji\u017e existuje t\u0159\u00edda se shodn\u00fdm n\u00e1zvem (tato t\u0159\u00edda by
+musela b\u00fdt p\u0159eps\u00e1na).
 
 package-name-changed
-Zm\u011bnily jste kl\u00ed\u010dov\u00e9 slovo 'package',
-kter\u00e9 ud\u00e1v\u00e1 p\u0159\u00edslu\u0161nost t\u0159\u00eddy k bal\u00ed\u010dku.
-P\u0159ejete si p\u0159esunout t\u0159\u00eddu do jin\u00e9ho bal\u00ed\u010dku,
+Zm\u011bnili jste p\u0159\u00edkaz "package", kter\u00fd ud\u00e1v\u00e1
+p\u0159\u00edslu\u0161nost t\u0159\u00eddy k bal\u00ed\u010dku. P\u0159ejete si
+p\u0159esunout t\u0159\u00eddu do jin\u00e9ho bal\u00ed\u010dku,
 nebo vr\u00e1tit zm\u011bnu zp\u011bt.
 P\u0159esunout
 Zp\u011bt
 null
 
 ask-index
-Zadejte index elementu pole [...]
+Zadejte index pvku pole [...]
 Prohl\u00eddka pole
 null
 
 classmgr-changes-no-effect
 Zm\u011bny, kter\u00e9 jste provedli v nastaven\u00ed knihoven,
-budou \u00fa\u010dinn\u00e9 a\u017e po p\u0159\u00ed\u0161t\u00edm spu\u0161t\u011bn\u00ed BlueJ.
+se projev\u00ed a\u017e po p\u0159\u00ed\u0161t\u00edm spu\u0161t\u011bn\u00ed BlueJ.
+
+unittest-new-test-method
+Zadejte jm\u00e9no testu.
+Pot\u00e9 bude zah\u00e1jeno zaznamen\u00e1v\u00e1n\u00ed testu.
+N\u00e1zev testovac\u00ed metody
+null
+
+getobject-new-name
+Vlo\u017ete jm\u00e9no odkazu na objekt
+v z\u00e1sobn\u00edku odkaz\u016f.
+Jm\u00e9no odkazu
+null
+
+unittest-fixture-present
+Tento unit test u\u017e m\u00e1 deklarovan\u00fd p\u0159\u00edpravek. Jestli\u017ee
+budete pokra\u010dovat, sou\u010dasn\u00fd p\u0159\u00edpravek bude nahrazen.
+P\u0159ejete si pokra\u010dovat?
+Nahradit
+Storno
+null
 
 # editor:
 #########
 
 no-search-string
-Nen\u00ed vybr\u00e1n text pro hled\u00e1n\u00ed.
+Nen\u00ed zad\u00e1n hledan\u00fd text.
 (Vyberte text nebo nejd\u0159\u00edve pou\u017eijte "Hledat".)
 
 default-keys
-Opravdu si p\u0159ejete obnovit v\u00fdchoz\u00ed nastaven\u00ed
-kl\u00e1vesov\u00fdch zkratek?
+Opravdu si p\u0159ejete obnovit v\u00fdchoz\u00ed
+nastaven\u00ed kl\u00e1vesov\u00fdch zkratek?
 V\u00fdchoz\u00ed
 Zru\u0161it
 null

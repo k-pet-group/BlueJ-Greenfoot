@@ -33,8 +33,9 @@ ou incompleto. Deve haver uma cópia de backup desta classe
 na pasta do projeto. Se a classe parecer corrompida,
    1 - saia do BlueJ
    2 - faça backup da pasta do seu projeto (só para prevenir)
-   3 - procure na pasta do projeto por um backup deste arquivo.
-       Renomei-o com o nome original (com uma extensão '.java')
+   3 - procure na pasta do projeto por um 
+       backup deste arquivo. Renomei-o com 
+       o nome original (com uma extensão '.java')
 
 cannot-run-compiler
 Não foi possivel executar o compilador. O programa
@@ -183,10 +184,6 @@ Uma classe com este nome já existe neste
 pacote. Você não pode ter duas classes
 com o mesmo nome no mesmo pacote.
 
-duplicate-package-name
-Um pacote com este nome já existe 
-neste projeto.
-
 error-in-import
 Erro durante tentativa de importação
 do arquivo. Cheque os direitos de acesso
@@ -295,7 +292,16 @@ que não existe neste projeto.
 Se você deseja mover esta classe para outro
 pacote deverá, primeiro, criar o pacote
 de destino. O comando package foi revertido
-para sua forma original.
+para sua forma anterior.
+
+package-name-clash
+Você alterou o comando package para um 
+nome que já é utilizado por outra classe
+ou pacote. Se esta classe for transferida
+para este novo pacote, a classe ou pacote 
+original poderá ser destruído. Assim, o
+comando package foi revertido para sua 
+forma anterior.
 
 package-name-changed
 Você mudou o comando package que define o
@@ -317,14 +323,25 @@ classmgr-changes-no-effect
 As mudanças que você efetuou na biblioteca de classes
 não terão efeito até a prómixa execução do BlueJ.
 
+unittest-new-test-method
+Forneça um nome para este teste.
+A gravação irá começar.
+Novo Método de Teste
+null
+
 getobject-new-name
 Digite o nome para o novo objeto 
 do banco de objetos
 Novo Nome do Objeto
 null
 
-# editor:
-#########
+unittest-fixture-present
+Esta classe de teste já possui um "fixture" declarado.
+Se você continuar, a declaração deste "fixture" será substituída.
+Deseja continuar?
+Substituir
+Cancelar
+null
 
 no-search-string
 Nenhuma palavra de pesquisa foi definida.
