@@ -1,120 +1,129 @@
+
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
 import java.util.*;
 
-public class Robot extends GreenfootObject
+public class Robot extends GridObject
 {
 
-  /** 
-   * East direction for the robot.
-   * @see #setDirection(int)
-   */
-  public static final int EAST = 0;
-  /** 
-   * West direction for the robot.
-   * @see #setDirection(int)
-   */
-  public static final int WEST = 1;
-  /** 
-   * North direction for the robot.
-   * @see #setDirection(int)
-   */
-  public static final int NORTH = 2;
-  /** 
-   * South direction for the robot.
-   * @see #setDirection(int)
-   */
-  public static final int SOUTH = 3;
+    /**
+     * East direction for the robot.
+     * 
+     * @see #setDirection(int)
+     */
+    public static final int EAST = 0;
+    /**
+     * West direction for the robot.
+     * 
+     * @see #setDirection(int)
+     */
+    public static final int WEST = 1;
+    /**
+     * North direction for the robot.
+     * 
+     * @see #setDirection(int)
+     */
+    public static final int NORTH = 2;
+    /**
+     * South direction for the robot.
+     * 
+     * @see #setDirection(int)
+     */
+    public static final int SOUTH = 3;
 
-  private int direction;       
-  
-  Stack beeperBag = new Stack();
-  
-  /**
-   * Creates a robot. 
-   */ 
-  public Robot()
-  {
-    setImage("Robot.gif");
-    setDirection(SOUTH);
-  }  
-  
-  /**
-   * Does nothing.
-   */
-  public void act()
-  {
+    private int direction;
+
+    Stack beeperBag = new Stack();
+
+    /**
+     * Creates a robot.
+     */
+    public Robot()
+    {
+        setImage("Robot.gif");
+        setDirection(SOUTH);
+    }
+
+    /**
+     * Does nothing.
+     */
+    public void act()
+    {
     //here you can create the behaviour of your object
-  }
-  
-  /**
-   * Moves the robot one cell forward in the 
-   * current direction 
-   */
-   public void move() {        
-        if(! canMove()) {
+    }
+
+    /**
+     * Moves the robot one cell forward in the current direction
+     */
+    public void move()
+    {
+        if (!canMove()) {
             return;
         }
-        switch (direction) {
+        switch(direction) {
             case SOUTH :
-                setLocation(getX(), getY() + 1);
+                setCellLocation(getCellX(), getCellY() + 1);
                 break;
             case EAST :
-                setLocation(getX() + 1, getY());
+                setCellLocation(getCellX() + 1, getCellY());
                 break;
             case NORTH :
-                setLocation(getX(), getY() - 1);
+                setCellLocation(getCellX(), getCellY() - 1);
                 break;
             case WEST :
-                setLocation(getX() - 1, getY());
+                setCellLocation(getCellX() - 1, getCellY());
                 break;
         }
     }
-    
-   /**
-    * Test if the robot can move forward.
-    * 
-    * @return true if the robot can move.
-    */
-    public boolean canMove() {   
-    GreenfootWorld myWorld = getWorld();
-    int x = getX();
-    int y = getY();
-    switch (direction) {
-     case SOUTH :
-       y++;
-       break;
-     case EAST :
-       x++;
-       break;
-     case NORTH :
-       y--;
-       break;
-     case WEST :
-       x--;
-       break;
-    }        
-    // test for outside border 
-    if(x>=myWorld.getWorldWidth() || y>=myWorld.getWorldHeight()) {
-     return false;
-    } else if(x<0 || y<0) {
-     return false;
-    } 
-    
-    //Run through all objects and see if there is a wall.
-    Collection objectsThere = myWorld.getObjectsAtCell(x, y, Wall.class, false);
-    if(objectsThere.isEmpty()) {
-        return true;
-    } else {
-        return false;
-    }
-    }
-    
+
     /**
-     * Turns the robot to the left. 
+     * Test if the robot can move forward.
+     * 
+     * @return true if the robot can move.
      */
-    public void turnLeft() {
-        switch (direction) {
+    public boolean canMove()
+    {
+        RobotWorld myWorld = (RobotWorld) getWorld();
+        int x = getCellX();
+        int y = getCellY();
+        switch(direction) {
+            case SOUTH :
+                y++;
+                break;
+            case EAST :
+                x++;
+                break;
+            case NORTH :
+                y--;
+                break;
+            case WEST :
+                x--;
+                break;
+        }
+        // test for outside border
+        if (x >= myWorld.getGridWidth() || y >= myWorld.getGridHeight()) {
+            return false;
+        }
+        else if (x < 0 || y < 0) {
+            return false;
+        }
+
+        //Run through all objects and see if there is a wall.
+        Collection objectsThere = myWorld.getObjectsAtCell(x, y, Wall.class);
+        if (objectsThere.isEmpty()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Turns the robot to the left.
+     */
+    public void turnLeft()
+    {
+        switch(direction) {
             case SOUTH :
                 setDirection(EAST);
                 break;
@@ -126,22 +135,22 @@ public class Robot extends GreenfootObject
                 break;
             case WEST :
                 setDirection(SOUTH);
-                break;           
+                break;
         }
     }
-    
-    
+
     /**
      * Sets the direction of the robot.
      * 
      * @see #SOUTH
-     * @see #EAST 
+     * @see #EAST
      * @see #NORTH
-     * @see #WEST 
-     */ 
-    public void setDirection(int direction) {
+     * @see #WEST
+     */
+    public void setDirection(int direction)
+    {
         this.direction = direction;
-        switch (direction) {
+        switch(direction) {
             case SOUTH :
                 setRotation(90);
                 break;
@@ -159,23 +168,21 @@ public class Robot extends GreenfootObject
         }
         update();
     }
-    
-    
+
     /**
-     * If there is a beeper at the robots current location, 
-     * it picks it up.
-     * 
+     * If there is a beeper at the robots current location, it picks it up.
+     *  
      */
-    public void pickBeeper() {
-        GreenfootWorld myWorld = getWorld();
-        Collection objectsHere = myWorld.getObjectsAtCell(getX(), getY(), Beeper.class, false);
+    public void pickBeeper()
+    {
+        RobotWorld myWorld = (RobotWorld) getWorld();
+        Collection objectsHere = myWorld.getObjectsAtCell(getCellX(), getCellY(), Beeper.class);
         Iterator iter = objectsHere.iterator();
-        if(iter.hasNext()) {
+        if (iter.hasNext()) {
             Object currentObject = iter.next();
             Beeper beeper = (Beeper) currentObject;
             myWorld.removeObject(beeper);
             beeperBag.add(beeper);
-            
         }
     }
 
@@ -184,13 +191,14 @@ public class Robot extends GreenfootObject
      * again.
      *  
      */
-    public void putBeeper() {
+    public void putBeeper()
+    {
         GreenfootWorld myWorld = getWorld();
-        if (!beeperBag.isEmpty()) {            
-            Beeper beeper = (Beeper) beeperBag.pop();    
-            beeper.setLocation(getX(), getY());
+        if (!beeperBag.isEmpty()) {
+            Beeper beeper = (Beeper) beeperBag.pop();
+            beeper.setCellLocation(getCellX(), getCellY());
             myWorld.addObject(beeper);
-            setLocation(getX(), getY());
+            setCellLocation(getCellX(), getCellY());
         }
-    }    
+    }
 }

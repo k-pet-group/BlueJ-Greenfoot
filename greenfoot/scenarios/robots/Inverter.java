@@ -1,6 +1,6 @@
+
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
-
 
 /**
  * An inverter moves forward in a straight line. <br>
@@ -9,45 +9,42 @@ import greenfoot.GreenfootObject;
  */ 
 public class Inverter extends Robot
 {
+    public Inverter()
+    {
+    }
 
-  /**
-   * Creates and inverter robot
-   */
-  public Inverter()
-  {
-  }
+    /**
+     * Inverts and moves one step forward.
+     */
+    public void act()
+    {         
+        if (canMove()) {
+            invert();
+            move();
+        }
+        else {
+            turnLeft();
+        }
+    }
 
-  /**
-   * Inverts and moves one step forward.
-   */
-  public void act()
-  {
-     invert();
-     if(canMove()) {
-         move();
-     }  else {
-         turnLeft();
-     }
-  } 
-  
-  /**
-   * Invert the current cell. This makes the robot pick up 
-   * a beeper if there is a beeper here, and puts a beeper 
-   * down if there is no beeper
-   */
-  public void invert() {
-      int beepersInBag = beeperBag.size();          
-      pickBeeper();
-      
-      if(beepersInBag == beeperBag.size()) {
-          if(beepersInBag>0) {
-              putBeeper();
-          } else {
-              Beeper newBeeper = new Beeper();
-              newBeeper.setLocation(getX(), getY());
-              getWorld().addObject(newBeeper);
-          }              
-      }
-  }
+    /**
+     * Invert the current cell. This makes the robot pick up a beeper if there
+     * is a beeper here, and puts a beeper down if there is no beeper
+     */
+    public void invert()
+    {
+        int beepersInBag = beeperBag.size();
+        pickBeeper();
 
+        if (beepersInBag == beeperBag.size()) {
+            if (beepersInBag > 0) {
+                putBeeper();
+            }
+            else {
+                Beeper newBeeper = new Beeper();
+                newBeeper.setCellLocation(getCellX(), getCellY());
+                getWorld().addObject(newBeeper);
+            }
+        }
+    }
 }

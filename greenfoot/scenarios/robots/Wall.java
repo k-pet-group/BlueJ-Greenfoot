@@ -1,22 +1,16 @@
+
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
-
-/**
- * A wall
- */
-public class Wall extends GreenfootObject
+public class  Wall extends GridObject
 {
-  public Wall()
-  {
-    setImage("Wall.gif");
-  }
+    public Wall()
+    {
+        setImage("Wall.gif");
+    }
 
-  /**
-   * Does nothing.
-   */
-  public void act()
-  {
+    public void act()
+    {
     //here you can create the behaviour of your object
-  }
+    }
 
 }
