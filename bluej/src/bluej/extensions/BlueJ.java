@@ -1,6 +1,6 @@
 package bluej.extensions;
 
-import bluej.extensions.event.BJEventListener;
+import bluej.extensions.event.ExtEventListener;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.extmgr.PrefManager;
 import bluej.extmgr.MenuManager;
@@ -30,7 +30,10 @@ import java.awt.event.ActionListener;
 
 /**
  * Provides services to BlueJ extensions. 
- * This is the top-level object of the proxy hierarchy. It looks like this:
+ * This is the top-level object of the proxy hierarchy, bear in mind that
+ * there is much similarity between the Reflection API and this API.<p>
+ * Every effort has been made to retain the logic of Reflection and to provide
+ * methods that behave in a very similar way.
  * 
  * <PRE>
  * BlueJ
@@ -52,7 +55,7 @@ import java.awt.event.ActionListener;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1657 2003-03-06 09:40:38Z damiano $
+ * @version $Id: BlueJ.java 1672 2003-03-10 08:58:56Z damiano $
  */
 
 public class BlueJ
@@ -166,6 +169,8 @@ public class BlueJ
      * Gets the current package. That is, the most recently accessed package.
      * It can return null if this information is not available.
      * This is here and NOT into a BProject since it depends on user interface.
+     * Depending on what is the currently selected Frame you may get packages that
+     * belongs to different projects.
      *
      * @return the current package
      */
@@ -261,9 +266,9 @@ public class BlueJ
      * Opening and Closing events will be passed to the listener.
      * @param pl the listener
      */
-    public void addBJEventListener (BJEventListener el)
+    public void addExtEventListener (ExtEventListener el)
     {
-        myWrapper.addBJEventListener (el);
+        myWrapper.addExtEventListener (el);
     }
 
     /**
