@@ -97,6 +97,7 @@ public class MachineIcon extends JLabel
 		JPopupMenu menu = new JPopupMenu();
 		JMenuItem item;
 		
+		//TODO: internationalization
 		item = new JMenuItem("Show Debugger");
 		item.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent e) {

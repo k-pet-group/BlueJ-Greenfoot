@@ -28,13 +28,15 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2100 2003-07-08 11:49:41Z mik $
+ * @version $Id: JdiDebugger.java 2115 2003-07-16 05:02:43Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
 	// the synch object for loading.
 	// See the inner class MachineLoaderThread (at the bottom of this source)
 	volatile private boolean vmReady = false;
+	
+	private boolean explicitClose = false;
 
 	// the reference to the current remote VM handler
 	private VMReference vmRef;
@@ -91,6 +93,8 @@ public class JdiDebugger extends Debugger
 		if (machineLoader != null)
 			throw new IllegalStateException("JdiDebugger.launch() was called we were already in the process of launching");
 		
+		explicitClose = false;
+		
 		raiseStateChangeEvent(Debugger.UNKNOWN, Debugger.NOTREADY);
 
 		// start the MachineLoader (a separate thread) to load the
@@ -110,9 +114,12 @@ public class JdiDebugger extends Debugger
 		// we have nothing to do
 		if (vmReady == false)
 			return;
-				
+
+		explicitClose = true;
+						
 		vmReady = false;
 
+		raiseRemoveStepMarksEvent();
 		raiseStateChangeEvent(Debugger.IDLE, Debugger.NOTREADY);
 
 		treeModel.setRoot(new JdiThreadNode());
@@ -232,7 +239,10 @@ public class JdiDebugger extends Debugger
     		
         Object args[] = { instanceName };
 
-		getVM().invokeExecServerWorker( ExecServer.REMOVE_OBJECT, Arrays.asList(args) );
+		try {
+			getVM().invokeExecServerWorker( ExecServer.REMOVE_OBJECT, Arrays.asList(args) );
+		}
+		catch (VMDisconnectedException e) { }
     }
 
     /**
@@ -347,7 +357,10 @@ public class JdiDebugger extends Debugger
 		if (!vmReady)
 			return;
 
-		getVM().invokeExecServerWorker(ExecServer.DISPOSE_WINDOWS, Collections.EMPTY_LIST);
+		try {
+			getVM().invokeExecServerWorker(ExecServer.DISPOSE_WINDOWS, Collections.EMPTY_LIST);
+		}
+		catch (VMDisconnectedException e) { }
     }
 
     /**
@@ -536,6 +549,45 @@ public class JdiDebugger extends Debugger
                                           breakThread));
 	}
 
+	// - event handling
+
+	void vmDisconnect()
+	{
+		if (explicitClose)
+			return;
+			
+		/*System.out.println("unprompted vmDisconnect event");
+
+		raiseStateChangeEvent(Debugger.IDLE, Debugger.NOTREADY);
+
+		treeModel.setRoot(new JdiThreadNode());
+		treeModel.reload();
+		usedNames.clear();
+
+		vmRef = null;
+
+		// promote garbage collection but also indicate to the
+		// launch procedure that we are not in a launch (see launch())
+		machineLoader = null;
+
+		vmReady = false;
+		
+		if(!explicitClose)
+			launch(); */
+
+	}
+	
+	/**
+	 * Called by VMReference when the machine disconnects
+	 * or exits.
+	 */	
+	void vmExit()
+	{
+		if (explicitClose)
+			return;
+			
+		//System.out.println("unprompted vmExit event");
+	}
 
 	/**
 	 * Called by VMReference when a thread is started in
@@ -635,10 +687,13 @@ public class JdiDebugger extends Debugger
  
 		 public synchronized void run()
 		 {
+		 	System.out.println("machine loader is running " + vmReady);
 			vmRef = new VMReference(JdiDebugger.this, startingDirectory);
 			vmRef.waitForStartup();
-		
+
 			vmReady = true;
+
+			System.out.println("machine loader is started " + vmReady);
 
 			newClassLoader(startingDirectory.getAbsolutePath());
 

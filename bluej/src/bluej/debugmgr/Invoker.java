@@ -28,7 +28,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2039 2003-06-19 06:03:24Z ajp $
+ * @version $Id: Invoker.java 2115 2003-07-16 05:02:43Z ajp $
  */
 
 public class Invoker extends Thread
@@ -540,8 +540,7 @@ public class Invoker extends Thread
             startClass();
 
         File srcFile = new File(pkg.getPath(), shellName + ".java");
-		// TODO: renable me
-		// srcFile.delete();
+		srcFile.delete();
 
         File classFile = new File(pkg.getPath(), shellName + ".class");
         classFile.delete();

@@ -1,12 +1,12 @@
 package bluej.utility;
 
+import java.awt.*;
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
+
 import bluej.Config;
 
-import java.awt.*;
-import java.io.*;
-import java.util.Random;
-import java.util.List;
-import java.util.ArrayList;
 import com.apple.mrj.MRJFileUtils;
 
 /**
@@ -14,7 +14,7 @@ import com.apple.mrj.MRJFileUtils;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 2064 2003-06-25 09:53:41Z mik $
+ * @version $Id: Utility.java 2115 2003-07-16 05:02:43Z ajp $
  */
 public class Utility
 {

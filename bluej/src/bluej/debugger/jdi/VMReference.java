@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2113 2003-07-16 02:36:02Z bquig $
+ * @version $Id: VMReference.java 2115 2003-07-16 05:02:43Z ajp $
  *
  * The startup process is as follows:
  *
@@ -117,9 +117,11 @@ class VMReference
      */
     public VirtualMachine localhostSocketLaunch(File initDir, VirtualMachineManager mgr)
     {
-    	final int PORT_NUM = 8000;			// use port 8000
+    	// final int PORT_NUM = 8000;			// use port 8000
     	final int CONNECT_TRIES = 10;		// try to connect max of 10 times
     	final int CONNECT_WAIT = 500;		// wait half a sec between each connect
+    	
+    	int portNumber;
     	
         // launch the VM
         try {
@@ -132,17 +134,31 @@ class VMReference
 										allClassPath,
             							"-Xdebug",
             							"-Xint",
-            							"-Xrunjdwp:transport=dt_socket,server=y,address=" + PORT_NUM,
+            							"-Xrunjdwp:transport=dt_socket,server=y", //,address=" + PORT_NUM,
             							SERVER_CLASSNAME };
             Process p = Runtime.getRuntime().exec(launchParams, null, initDir);
 
+			String listenMessage = new BufferedReader(new InputStreamReader(p.getInputStream())).readLine();
+		
+			portNumber = extractPortNumber(listenMessage);
+		
+			System.out.println("extracted " + portNumber + " with msg " + listenMessage);
+				
+			if (portNumber == -1) {
+				Debug.message("Could not find port number to connect to debugger");
+				Debug.message("Line received from debugger was: " + listenMessage);
+				
+			}
+				
 			// redirect error stream from process to Terminal
-			redirectIOStream(new InputStreamReader(p.getErrorStream()), //new OutputStreamWriter(System.err),
+			redirectIOStream(new InputStreamReader(p.getErrorStream()),
+								//new OutputStreamWriter(System.err),
 								Terminal.getTerminal().getErrorWriter(),
 								false);
 
 			// redirect output stream from process to Terminal
-			redirectIOStream(new InputStreamReader(p.getInputStream()), //new OutputStreamWriter(System.err),
+			redirectIOStream(new InputStreamReader(p.getInputStream()),
+								//new OutputStreamWriter(System.err),
 								Terminal.getTerminal().getWriter(),
 								false);
 
@@ -151,6 +167,8 @@ class VMReference
 								new OutputStreamWriter(p.getOutputStream()),
 								false);
 			process = p;
+			
+			Debug.message("started process " + process);
         }
         catch (IOException ioe) {
             ioe.printStackTrace();
@@ -188,7 +206,7 @@ class VMReference
         }
 
         hostnameArg.setValue("127.0.0.1");
-        portArg.setValue(Integer.toString(PORT_NUM));
+        portArg.setValue(Integer.toString(portNumber));
 
 		// try to connect 10 times, waiting half a sec between each attempt
 		for (int i=0; i<CONNECT_TRIES; i++) {
@@ -218,6 +236,22 @@ class VMReference
 
         return null;
     }
+
+	private int extractPortNumber(String msg)
+	{
+		int colonIndex = msg.indexOf(":");
+		int val = -1;
+					
+		try {
+			if (colonIndex > -1) {
+				val = Integer.parseInt(msg.substring(colonIndex+1).trim());
+			}
+		} catch (NumberFormatException nfe) {
+			return -1;
+		}
+		
+		return val;
+	}
 
     public VirtualMachine defaultLaunch(VirtualMachineManager mgr)
     {
@@ -338,6 +372,7 @@ class VMReference
         // lets just nuke it
         //machine.dispose();
         if (process != null) {
+			Debug.message("destroyed process " + process);
             process.destroy();
         }
         machine = null;
@@ -675,6 +710,22 @@ class VMReference
 	 */
 	public void vmStartEvent(VMStartEvent vmse)
 	{
+	}
+
+	/**
+	 * The VM has been disconnected or ended.
+	 */
+	public void vmExitEvent()
+	{
+		owner.vmExit();
+	}
+
+	/**
+	 * The VM has been disconnected or ended.
+	 */
+	public void vmDisconnectEvent()
+	{
+		owner.vmDisconnect();
 	}
 	
 	/**

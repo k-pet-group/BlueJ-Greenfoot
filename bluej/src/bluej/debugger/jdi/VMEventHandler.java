@@ -7,7 +7,7 @@ import com.sun.jdi.event.*;
  * Event handler class to handle events coming from the remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: VMEventHandler.java 2063 2003-06-25 07:03:00Z ajp $
+ * @version $Id: VMEventHandler.java 2115 2003-07-16 05:02:43Z ajp $
  */
 class VMEventHandler implements Runnable
 {
@@ -105,10 +105,7 @@ class VMEventHandler implements Runnable
             	eventSet.resume();
             }
             catch (InterruptedException exc) { }
-            catch (VMDisconnectedException discExc) {
-                handleDisconnectedException();
-                break;
-            }
+            catch (VMDisconnectedException discExc) { }
         }
         synchronized (this) {
             exited = true;
@@ -120,6 +117,10 @@ class VMEventHandler implements Runnable
     {
     	if (event instanceof VMStartEvent) {
     		vm.vmStartEvent((VMStartEvent) event);
+    	} else if (event instanceof VMDeathEvent) {
+			vm.vmExitEvent();
+		} else if (event instanceof VMDisconnectEvent) {
+			vm.vmDisconnectEvent();
     	} else if (event instanceof ExceptionEvent) {
 			vm.exceptionEvent((ExceptionEvent)event);
         } else if (event instanceof BreakpointEvent) {
@@ -132,40 +133,9 @@ class VMEventHandler implements Runnable
 			vm.threadDeathEvent((ThreadDeathEvent)event);
         } else if (event instanceof ClassPrepareEvent) {
             classPrepareEvent(event);
-        } else if (event instanceof VMDeathEvent) {
-            handleExitEvent(event);
-        } else if (event instanceof VMDisconnectEvent) {
-            handleExitEvent(event);
         } else {
 			//Debug.message("[VM event] unhandled: " + event);
         }
-    }
-
-    private boolean vmDied = false;
-    private boolean handleExitEvent(Event event)
-    {
-        //Debug.message("[VM Event] exiting..!?");
-        if (event instanceof VMDeathEvent) {
-            vmDied = true;
-            return false;
-        } else if (event instanceof VMDisconnectEvent) {
-            exiting = true;
-            if (!vmDied) {
-                
-            }
-            //Debug.message("[VM Event] exiting..!?");
-            return false;
-        }
-	else {
-            return false;
-        }
-    }
-
-    synchronized void handleDisconnectedException()
-    {
-        // A VMDisconnectedException has happened while dealing with
-        // another event.
-		// Debug.reportError("[VM Event] unexpected disconnection");
     }
 
     private boolean classPrepareEvent(Event event)

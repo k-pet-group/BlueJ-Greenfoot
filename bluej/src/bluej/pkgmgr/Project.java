@@ -20,7 +20,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2092 2003-07-04 06:50:13Z fisker $
+ * @version $Id: Project.java 2115 2003-07-16 05:02:43Z ajp $
  */
 public class Project
     implements DebuggerListener
@@ -568,6 +568,14 @@ public class Project
 	{
 		getDebugger().close();
 
+		// remove breakpoints for all packages
+		Iterator i = packages.values().iterator();
+
+		while(i.hasNext()) {
+			Package pkg = (Package) i.next();
+			pkg.removeBreakpoints();
+		}
+
 		// any calls to the debugger made by removeLocalClassLoader
 		// will silently fail
 		removeLocalClassLoader();
@@ -700,6 +708,19 @@ public class Project
                                                     new File(pathname));
     }
 
+	public void removeStepMarks()
+	{
+		// remove step marks for all packages
+		Iterator i = packages.values().iterator();
+
+		while(i.hasNext()) {
+			Package pkg = (Package) i.next();
+			pkg.removeStepMarks();
+		}
+			
+		return;
+	}
+
     // ---- DebuggerListener interface ----
 
     /**
@@ -724,9 +745,8 @@ public class Project
 		}
 
 		if (de.getID() == DebuggerEvent.DEBUGGER_REMOVESTEPMARKS) {
-			// do this for all packages
-            Debug.message("removing step");
-			// TODO: pkg.removeStepMarks();
+			removeStepMarks();
+			return;
 		}
 		
         DebuggerThread thr = de.getThread();
@@ -740,8 +760,8 @@ public class Project
 			 case DebuggerEvent.THREAD_HALT:
 			    pkg.hitHalt(thr);
 			    break;
-			 case DebuggerEvent.THREAD_CONTINUE:
-				break;
+			 //case DebuggerEvent.THREAD_CONTINUE:
+			 //	break;
 			 case DebuggerEvent.THREAD_SHOWSOURCE:
 				pkg.showSourcePosition(thr);
 				break;
@@ -756,7 +776,8 @@ public class Project
      * @param packageTarget the packageTarget to be removed.
      * 
      */
-    public void removePackage(PackageTarget packageTarget){
+    public void removePackage(PackageTarget packageTarget)
+    {
         packages.remove(packageTarget.getQualifiedName());
     }
 }

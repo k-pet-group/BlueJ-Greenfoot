@@ -13,7 +13,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2111 2003-07-15 03:29:07Z ajp $
+ * @version $Id: JdiThread.java 2115 2003-07-16 05:02:43Z ajp $
  */
 class JdiThread extends DebuggerThread
 {
@@ -517,7 +517,7 @@ class JdiThread extends DebuggerThread
 					// have deleted the step event, the
 					// list iterator is invalid
 					// our assumption is that we can have at
-					// most one other step event for this thread
+					// most one step event for this thread
 					// in the system.
 					break;
                 }

@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2100 2003-07-08 11:49:41Z mik $
+ * @version $Id: Package.java 2115 2003-07-16 05:02:43Z ajp $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1096,7 +1096,7 @@ public final class Package extends Graph
     /**
      *  Remove all breakpoints in all classes.
      */
-    private void removeBreakpoints()
+    public void removeBreakpoints()
     {
         for(Iterator it = targets.iterator(); it.hasNext(); ) {
             Target target = (Target)it.next();
