@@ -36,7 +36,7 @@ import java.text.DateFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 910 2001-05-24 07:24:41Z mik $
+ * @version $Id: Package.java 918 2001-05-25 05:33:33Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1831,7 +1831,7 @@ public class Package extends Graph
             done = showEditorMessage(filename, lineNo, message, invalidate, 
                                      true, true, false, "exception");
             if(firstTime && !done) {
-                message = "In " + loc.getClassName() + ": " + message;
+                message += " (in " + loc.getClassName() + ")";
                 firstTime = false;
             }
         }
