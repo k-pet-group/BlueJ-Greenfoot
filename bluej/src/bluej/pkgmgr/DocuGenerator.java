@@ -7,6 +7,7 @@ import bluej.utility.Utility;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.prefmgr.PrefMgr;
 
 import java.util.*;
 import java.io.*;
@@ -112,6 +113,11 @@ public class DocuGenerator
         ArrayList call = new ArrayList();
         call.add(docCommand);
         addParams(call, fixedJavadocParams);
+        if(! System.getProperty("java.vm.version").startsWith("1.3"))
+            if(PrefMgr.getFlag(PrefMgr.ENABLE_JDK14)) {
+                call.add("-source");
+                call.add("1.4");
+            }
         addParams(call, tmpJavadocParams);
         call.add("-d");
         call.add(docDir.getPath());

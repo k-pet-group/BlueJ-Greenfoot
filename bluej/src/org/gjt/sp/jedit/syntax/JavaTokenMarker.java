@@ -24,7 +24,7 @@ import javax.swing.text.Segment;
 * Java token marker.
 *
 * @author Slava Pestov
-* @version $Id: JavaTokenMarker.java 365 2000-01-14 06:33:17Z mik $
+* @version $Id: JavaTokenMarker.java 1196 2002-03-26 10:20:43Z mik $
 */
 public class JavaTokenMarker extends CTokenMarker
 {
@@ -81,6 +81,7 @@ public class JavaTokenMarker extends CTokenMarker
             javaKeywords.add("catch",Token.KEYWORD1);
             javaKeywords.add("finally",Token.KEYWORD1);
             javaKeywords.add("throws",Token.KEYWORD1);
+            javaKeywords.add("assert",Token.KEYWORD1);
 
             javaKeywords.add("this",Token.LITERAL2);
             javaKeywords.add("null",Token.LITERAL2);
@@ -98,6 +99,10 @@ public class JavaTokenMarker extends CTokenMarker
 /*
 * ChangeLog:
 * $Log$
+* Revision 1.5  2002/03/26 10:20:43  mik
+* added "-source 1.4" option to javadoc call when appropriate
+* added "assert" to syntax highlight set
+*
 * Revision 1.4  2000/01/14 06:33:16  mik
 * fixed little font pref bug
 *
