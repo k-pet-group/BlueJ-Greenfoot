@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 2354 2003-11-17 05:11:22Z ajp $
+ * @version $Id: Main.java 2374 2003-11-19 03:44:33Z ajp $
  */
 public class Main
 {
@@ -67,9 +67,8 @@ public class Main
             String propName = definition.substring(0, definitionEquals); 
             String propValue = definition.substring(definitionEquals+1);
             
-            props.put(propName, propValue);
-
-            System.out.println("->" + propName + "<->" + propValue + "<-");
+            if (!propName.equals("") && !propValue.equals(""))
+                props.put(propName, propValue);
         }
 
         return props;
