@@ -16,25 +16,25 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3033 2004-10-01 09:40:20Z mik $
+ * @version $Id: Boot.java 3039 2004-10-05 08:59:05Z mik $
  */
 public class Boot
 {
-    public static int BLUEJ_VERSION_MAJOR = 2;
-    public static int BLUEJ_VERSION_MINOR = 0;
-    public static int BLUEJ_VERSION_RELEASE = 1;
-    public static String BLUEJ_VERSION_SUFFIX = "";
+    public static final int BLUEJ_VERSION_MAJOR = 2;
+    public static final int BLUEJ_VERSION_MINOR = 0;
+    public static final int BLUEJ_VERSION_RELEASE = 1;
+    public static final String BLUEJ_VERSION_SUFFIX = "";
 
-    public static int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
+    public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
                                              BLUEJ_VERSION_MINOR * 100 +
                                              BLUEJ_VERSION_RELEASE;
 
-    public static String BLUEJ_VERSION = BLUEJ_VERSION_MAJOR
+    public static final String BLUEJ_VERSION = BLUEJ_VERSION_MAJOR
                                          + "." + BLUEJ_VERSION_MINOR
                                          + "." + BLUEJ_VERSION_RELEASE
                                          + BLUEJ_VERSION_SUFFIX;
 
-    public static String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
+    public static final String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
     
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
