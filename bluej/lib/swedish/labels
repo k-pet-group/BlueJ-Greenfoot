@@ -122,10 +122,10 @@ classmgr.add=Lägg till
 classmgr.delete=Radera
 classmgr.locationcolumn=Plats
 classmgr.descriptioncolumn=Beskrivning
-classmgr.unresolvable=Obestämbar sökväg
 classmgr.bootclass=Bootningsklassbibliotek
 classmgr.bluejclass=BlueJs Klassbibliotek
 classmgr.error.unresolvable=Obestämbar sökväg
+classmgr.error.nodescription=No Beskrivning
 classmgr.error.missingclasspath=Ingen java "Classpath". Kan uppstå problem vid laddning av klasser\npå grund av att klasserna i arbetskatalogen kommer bestämmas först.
 classmgr.error.missingbootclasspath=Ingen Sun bootnings-"Classpath". Bluej ska inte köras med en miljö äldre än JDK 1.2.
 
@@ -212,7 +212,7 @@ editor.find.forward=Framlänges
 editor.find.backward=Baklänges
 
 #Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Moe version 
+editor.info.version = Moe version
 editor.info.readingProblem = Det uppstod problem vid läsning av den här filen.
 editor.info.regularFile = (Är det här verkligen en vanlig fil? Har du läsrättigheter?)
 editor.info.newFile = Ny fil

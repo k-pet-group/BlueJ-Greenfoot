@@ -122,10 +122,10 @@ classmgr.add=Add
 classmgr.delete=Delete
 classmgr.locationcolumn=Location
 classmgr.descriptioncolumn=Description
-classmgr.unresolvable=Unresolvable Path
 classmgr.bootclass=Boot class library
 classmgr.bluejclass=BlueJ class library
 classmgr.error.unresolvable=Unresolvable Path
+classmgr.error.nodescription=No Description
 classmgr.error.missingclasspath=No Java classpath. Class loading behaviour may be strange because\nclasses in the current directory will be resolved first.
 classmgr.error.missingbootclasspath=No Sun boot classpath. BlueJ should not be run on a pre JDK 1.2 environment.
 
@@ -212,7 +212,7 @@ editor.find.forward=Forward
 editor.find.backward=Backward
 
 #Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Moe version 
+editor.info.version = Moe version
 editor.info.readingProblem = There was a problem reading this file.
 editor.info.regularFile = (Is it really a regular file? Do you have read access?)
 editor.info.newFile = New file

@@ -122,10 +122,10 @@ classmgr.add=Hinzufügen
 classmgr.delete=Löschen
 classmgr.locationcolumn=Pfad
 classmgr.descriptioncolumn=Beschreibung
-classmgr.unresolvable=Unauflösbarer Pfad
 classmgr.bootclass=Boot-Klassen-Library
 classmgr.bluejclass=BlueJ-Klassen-Library
 classmgr.error.unresolvable=Unauflösbarer Pfad
+classmgr.error.nodescription=No Beschreibung
 classmgr.error.missingclasspath=No java classpath. Class loading behaviour may be strange because\nclasses in the current directory will be resolved first.
 classmgr.error.missingbootclasspath=No Sun boot classpath. BlueJ should not be run on a pre JDK 1.2 environment.
 
