@@ -5,7 +5,7 @@ package bluej.testmgr.record;
  * mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ConstructionInvokerRecord.java 2225 2003-10-28 02:04:42Z ajp $
+ * @version $Id: ConstructionInvokerRecord.java 2287 2003-11-06 00:55:29Z ajp $
  */
 public class ConstructionInvokerRecord extends InvokerRecord
 {
@@ -29,7 +29,7 @@ public class ConstructionInvokerRecord extends InvokerRecord
 	 */    
     public String toFixtureDeclaration()
     {
-        return firstIndent + "private " + type + " " + name + statementEnd;       
+        return fieldDeclarationStart + type + " " + name + statementEnd;       
     }
     
 	/**

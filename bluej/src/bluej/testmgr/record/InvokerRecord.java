@@ -10,7 +10,7 @@ import java.util.*;
  * construction and maintenance of assertion data.
  *
  * @author  Andrew Patterson
- * @version $Id: InvokerRecord.java 2231 2003-10-28 05:04:41Z ajp $
+ * @version $Id: InvokerRecord.java 2287 2003-11-06 00:55:29Z ajp $
  */
 public abstract class InvokerRecord
 {
@@ -18,6 +18,8 @@ public abstract class InvokerRecord
 	final static String secondIndent = "\t\t";
 	final static String thirdIndent = "\t\t\t";
 	final static String statementEnd = ";\n";
+    
+    final static String fieldDeclarationStart = firstIndent + "private ";
 
 	/**
 	 * Construct a declaration for any objects constructed
@@ -45,6 +47,10 @@ public abstract class InvokerRecord
 	 */
 	public abstract String toTestMethod();
 
+    /**
+     * A collection of assertion skeletons made about the invoker
+     * record.
+     */
     private ArrayList assertions = new ArrayList();
     
     /**
@@ -70,7 +76,7 @@ public abstract class InvokerRecord
     
     /**
      * Returns a statement representing this assertion
-     * with an @@ at the point where a statement needs to be
+     * with an @@ at the point where code needs to be
      * inserted.
      * 
      * This case is for when there is only a single argument
@@ -88,7 +94,7 @@ public abstract class InvokerRecord
 
     /**
      * Returns a statement representing this assertion
-     * with an @@ at the point where a statement needs to be
+     * with an @@ at the point where code needs to be
      * inserted.
      * 
      * This case is for when there are two arguements

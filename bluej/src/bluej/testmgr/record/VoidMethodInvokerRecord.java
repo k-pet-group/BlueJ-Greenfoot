@@ -8,7 +8,7 @@ package bluej.testmgr.record;
  * This record is for method calls with no result.
  *
  * @author  Andrew Patterson
- * @version $Id: VoidMethodInvokerRecord.java 2223 2003-10-28 01:54:15Z ajp $
+ * @version $Id: VoidMethodInvokerRecord.java 2287 2003-11-06 00:55:29Z ajp $
  */
 public class VoidMethodInvokerRecord extends InvokerRecord
 {
@@ -19,11 +19,24 @@ public class VoidMethodInvokerRecord extends InvokerRecord
         this.command = command;
     }
 
+    /**
+     * Construct a declaration for any objects constructed
+     * by this invoker record.
+     * 
+     * @return null because a void method results in no objects
+     */    
     public String toFixtureDeclaration()
     {
         return null;
     }
     
+    /**
+     * Construct a portion of an initialisation method for
+     * this invoker record.
+     *  
+     * @return a String reprenting the object initialisation
+     *         src or null if there is none. 
+     */    
     public String toFixtureSetup()
     {
     	// code for the fixture setup involves just inserting the method call

@@ -9,7 +9,7 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 2225 2003-10-28 02:04:42Z ajp $
+ * @version $Id: MethodInvokerRecord.java 2287 2003-11-06 00:55:29Z ajp $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
@@ -17,6 +17,12 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 	private String benchType;
 	private String benchName;
 	
+    /**
+     * Records a method call that returns a result to the user.
+     * 
+     * @param returnType  the Class of the return type of the method
+     * @param command     the method statement to execute
+     */
     public MethodInvokerRecord(Class returnType, String command)
     {
     	super(command);
@@ -26,6 +32,14 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
         this.benchName = null;
     }
 
+    /**
+     * Give this method invoker record a name on the object
+     * bench (the user has done a "Get" on the result). The type
+     * is the type that the object is on the actual bench.
+     * 
+     * @param name
+     * @param type
+     */
 	public void setBenchName(String name, String type)
 	{
 		benchName = name;
@@ -48,8 +62,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 
 		// declare the variable		
 		StringBuffer sb = new StringBuffer();
-		sb.append(firstIndent);
-        sb.append("private ");
+		sb.append(fieldDeclarationStart);
 		sb.append(benchDeclaration());
 		sb.append(benchName);
 		sb.append(statementEnd);

@@ -1,13 +1,13 @@
 package bluej.debugmgr.objectbench;
 
-import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.util.List;
+
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.plaf.basic.*;
-import java.util.*;
-
+import javax.swing.plaf.basic.BasicArrowButton;
 import bluej.testmgr.record.*;
 
 /**
@@ -16,7 +16,7 @@ import bluej.testmgr.record.*;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2281 2003-11-05 17:43:53Z mik $
+ * @version $Id: ObjectBench.java 2287 2003-11-06 00:55:29Z ajp $
  */
 public class ObjectBench
 {

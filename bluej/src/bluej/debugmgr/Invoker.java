@@ -21,7 +21,7 @@ import bluej.views.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2228 2003-10-28 02:09:11Z ajp $
+ * @version $Id: Invoker.java 2287 2003-11-06 00:55:29Z ajp $
  */
 
 public class Invoker extends Thread
@@ -318,7 +318,7 @@ public class Invoker extends Thread
 
             if (isVoid) {
                 if (method.isMain())
-                    ir = new StaticVoidMainMethodInvokerRecord(command + actualArgString);
+                    ir = new StaticVoidMainMethodInvokerRecord();
                 else
                     ir = new VoidMethodInvokerRecord(command + actualArgString);
                 instanceName = null;

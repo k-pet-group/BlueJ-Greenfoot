@@ -9,15 +9,12 @@ package bluej.testmgr.record;
  * code being created.
  *
  * @author  Andrew Patterson
- * @version $Id: StaticVoidMainMethodInvokerRecord.java 2223 2003-10-28 01:54:15Z ajp $
+ * @version $Id: StaticVoidMainMethodInvokerRecord.java 2287 2003-11-06 00:55:29Z ajp $
  */
 public class StaticVoidMainMethodInvokerRecord extends InvokerRecord
 {
-    protected String command;
-    
-    public StaticVoidMainMethodInvokerRecord(String command)
+    public StaticVoidMainMethodInvokerRecord()
     {
-        this.command = command;
     }
 
     public String toFixtureDeclaration()
