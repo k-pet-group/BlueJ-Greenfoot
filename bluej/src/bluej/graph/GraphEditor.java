@@ -10,12 +10,12 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: GraphEditor.java 53 1999-04-29 23:43:58Z mik $
+ ** @version $Id: GraphEditor.java 388 2000-02-09 03:31:56Z ajp $
  ** @author Michael Cahill
  ** Canvas to allow editing of general graphs
  **/
 
-public class GraphEditor extends JComponent 
+public class GraphEditor extends JComponent
 
     implements MouseListener, MouseMotionListener
 {
@@ -30,7 +30,7 @@ public class GraphEditor extends JComponent
     boolean motionListening;
 
     private boolean readOnly = false;
-	
+
     public GraphEditor(Graph graph, PkgFrame frame)
     {
 	setGraph(graph);
@@ -42,21 +42,21 @@ public class GraphEditor extends JComponent
 
 	setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
-	
+
     /**
      * Return the PkgFrame containing this editor.
      */
     public PkgFrame getFrame() {
 	return this.frame;
     }
-	
+
     public void setGraph(Graph graph)
     {
 	this.graph = graph;
 	this.graph.setEditor(this);
 	activeVertex = null;
     }
-	
+
     public Dimension getPreferredSize()
     {
 	return graph.getMinimumSize();
@@ -66,12 +66,12 @@ public class GraphEditor extends JComponent
     {
 	return graph.getMinimumSize();
     }
-	
+
     public void update(Graphics g)
     {
 	paint(g);
     }
-	
+
     public void paint(Graphics g)
     {
 	if(!(g instanceof PrintGraphics)) {
@@ -79,7 +79,7 @@ public class GraphEditor extends JComponent
 	    g.setColor(realBackground);
 	    g.fillRect(0, 0, d.width, d.height);
 	}
-		
+
 	graph.draw(g);
     }
 
@@ -104,10 +104,11 @@ public class GraphEditor extends JComponent
 	}
 
 	graph.setActiveVertex(activeVertex);
-		
-	if((activeVertex != null) && !isPopupEvent(evt)) {
+
+	if((activeVertex != null) && !isPopupEvent(evt) && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) ) {
 	    activeVertex.mousePressed(evt, x, y, this);
 	    if (!motionListening) {
+
 		addMouseMotionListener(this);
 		motionListening = true;
 	    }
@@ -116,7 +117,7 @@ public class GraphEditor extends JComponent
 
     public void mouseReleased(MouseEvent evt)
     {
-	if(activeVertex != null) {
+	if(activeVertex != null && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
 	    activeVertex.mouseReleased(evt, evt.getX(), evt.getY(), this);
 	    if ((frame.getPackage().getState() != Package.S_CHOOSE_USES_TO) &&
 		(frame.getPackage().getState() != Package.S_CHOOSE_EXT_TO)) {
@@ -134,7 +135,7 @@ public class GraphEditor extends JComponent
 	    }
 	}
     }
-	
+
     public void mouseClicked(MouseEvent evt)
     {
 	if(activeVertex != null) {
@@ -142,22 +143,22 @@ public class GraphEditor extends JComponent
 		activeVertex.doubleClick(evt, evt.getX(), evt.getY(), this);
 	    else
 		activeVertex.singleClick(evt, evt.getX(), evt.getY(), this);
-		    
+
 	}
     }
-	
+
     public void mouseEntered(MouseEvent evt) {}
     public void mouseExited(MouseEvent evt) {}
-	
-    public void mouseDragged(MouseEvent evt) { 
+
+    public void mouseDragged(MouseEvent evt) {
 	if (readOnly)
 	    return;
-		
+
 	if(activeVertex != null)
 	    activeVertex.mouseDragged(evt, evt.getX(), evt.getY(), this);
     }
-	
-    public void mouseMoved(MouseEvent evt) 
+
+    public void mouseMoved(MouseEvent evt)
     {
 	if(activeVertex != null)
 	    activeVertex.mouseMoved(evt, evt.getX(), evt.getY(), this);
@@ -166,18 +167,18 @@ public class GraphEditor extends JComponent
     protected void processMouseEvent(MouseEvent evt)
     {
 	super.processMouseEvent(evt);
-		
+
 	if (isPopupEvent(evt))
 	    if((activeVertex != null))
 		activeVertex.popupMenu(evt, evt.getX(), evt.getY(), this);
     }
-	
+
     private boolean isPopupEvent(MouseEvent evt)
     {
 	return evt.isPopupTrigger()
 	    || ((evt.getID() == MouseEvent.MOUSE_PRESSED) && evt.isControlDown());
     }
-	
+
     public void setReadOnly(boolean state) {
 	readOnly = state;
     }
