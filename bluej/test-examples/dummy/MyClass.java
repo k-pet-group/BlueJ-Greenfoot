@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class MyClass
 {
-start:
+
     // instance variables - replace the example below with your own - replace the example below with your own - repla
     private int x = 22222;
     private String name;
@@ -28,7 +28,6 @@ start:
         	// initialise instance variables
 	 x = 4;
         	name = "K'mxnsja ";
- 'cdsc' njcds "jcks"  
 
   String s = "ncds";
   
