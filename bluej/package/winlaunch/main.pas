@@ -12,8 +12,8 @@ const
     bluejdefsproperty : string = 'bluej.windows.vm=';
 
     jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
-	ibmregkey : string = '\Software\IBM\Java Development Kit';
-    bluejregkey : string = '\Software\BlueJ\BlueJ\2.0.2';
+    ibmregkey : string = '\Software\IBM\Java Development Kit';
+    bluejregkey : string = '\Software\BlueJ\BlueJ\2.0.4';
 
     searchingstartcaption : string = 'Search drives for all Java versions...';
     searchingstopcaption : string = 'Stop Search';

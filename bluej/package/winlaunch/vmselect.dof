@@ -72,8 +72,8 @@ IncludeVerInfo=1
 AutoIncBuild=1
 MajorVer=2
 MinorVer=0
-Release=3
-Build=13
+Release=4
+Build=1
 Debug=0
 PreRelease=0
 Special=0
@@ -84,13 +84,13 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=www.bluej.org
 FileDescription=BlueJ Launcher
-FileVersion=2.0.3.13
+FileVersion=2.0.4.1
 InternalName=
 LegalCopyright=Michael Kolling and John Rosenberg
 LegalTrademarks=
 OriginalFilename=
 ProductName=BlueJ
-ProductVersion=2.0.3
+ProductVersion=2.0.4
 Comments=
 [HistoryLists\hlUnitAliases]
 Count=1
