@@ -15,7 +15,7 @@ import java.util.*;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BClass.java 1981 2003-05-22 16:35:43Z iau $
+ * @version $Id: BClass.java 1982 2003-05-23 08:08:34Z damiano $
  */
 
 public class BClass
@@ -148,7 +148,7 @@ public class BClass
       if ( aTest == null ) return null;
 
       String classPkgName = findPkgName ( superView.getQualifiedName());
-      System.out.println ("Parent="+classPkgName);
+//      System.out.println ("Parent="+classPkgName);
       
       // Now I need to find out to what package it belongs to...
       boolean foundPackageMatch=false;

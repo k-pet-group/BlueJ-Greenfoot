@@ -28,7 +28,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1976 2003-05-22 10:05:14Z damiano $
+ * @version $Id: PkgMgrFrame.java 1982 2003-05-23 08:08:34Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -219,13 +219,11 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * @return an array of all PkgMgrFrame objects, or null if none exist
+     * Returns an array of all PkgMgrFrame objects.
+     * It can be an empty array if none is found.
      */
     public static PkgMgrFrame[] getAllFrames()
     {
-        if (frames.size() == 0)
-            return null;
-
         PkgMgrFrame[] openFrames = new PkgMgrFrame[frames.size()];
         frames.toArray(openFrames);
 
@@ -300,10 +298,16 @@ public class PkgMgrFrame extends JFrame
     public static PkgMgrFrame getMostRecent()
     {
         PkgMgrFrame[] frames = getAllFrames();
+
+        // If there are no frames open, yet...
+        if ( frames.length < 1 ) return null;
+
+        // Assume that the most recent is the first one. Not really the best thing to do...
         PkgMgrFrame mostRecent = frames[0];
-        for (int i=0; i<frames.length; i++) {
+
+        for (int i=0; i<frames.length; i++) 
             if (frames[i].getFocusOwner() != null) mostRecent = frames[i];
-        }
+
         return mostRecent;
     }
 
@@ -938,14 +942,15 @@ public class PkgMgrFrame extends JFrame
         extMgr.unloadExtensions();
     
         // close all open frames.
-        PkgMgrFrame[] f = getAllFrames();
+        PkgMgrFrame[] pkgFrames = getAllFrames();
 
         // We replicate some of the behaviour of doClose() here
         // rather than call it to avoid a nasty recursion
-        for(int i = f.length - 1; i >= 0; i--) {
-            f[i].doSave();
-            f[i].closePackage();
-            PkgMgrFrame.closeFrame(f[i]);
+        for(int i = pkgFrames.length - 1; i >= 0; i--) {
+            PkgMgrFrame aFrame = pkgFrames[i];
+            aFrame.doSave();
+            aFrame.closePackage();
+            PkgMgrFrame.closeFrame(aFrame);
         }
 
         bluej.Main.exit();

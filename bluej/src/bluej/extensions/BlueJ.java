@@ -43,7 +43,7 @@ import java.util.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version $Id: BlueJ.java 1981 2003-05-22 16:35:43Z iau $
+ * @version $Id: BlueJ.java 1982 2003-05-23 08:08:34Z damiano $
  */
 
 /*
@@ -146,14 +146,9 @@ public class BlueJ
      */
     public BProject[] getOpenProjects()
         {
-        Iterator iter;
-        int index;
-
         if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
         
-        // If this extension is not valid return an empty array.
-        if (!myWrapper.isValid()) return new BProject[0];
-
+        int index; Iterator iter;
         Collection projects = Project.getProjects();
         BProject [] result = new BProject[projects.size()];
         
@@ -182,11 +177,9 @@ public class BlueJ
 
         Package pkg = pmf.getPackage();
         // The frame may be there BUT have no package. 
-        // I do NOT want to create what is NOT there
         if ( pkg == null ) return null;
 
-        Identifier anId = new Identifier(pkg.getProject(),pkg);
-        return new BPackage (anId);
+        return new BPackage (new Identifier(pkg.getProject(),pkg));
     }
 
     /**

@@ -12,7 +12,7 @@ import bluej.views.*;
  * @author Damiano Bolla, University of Kent at Canterbury, 2003
  * @author Clive Miller, University of Kent at Canterbury, 2002
  * 
- * @version $Id: DirectInvoker.java 1970 2003-05-21 10:59:26Z damiano $
+ * @version $Id: DirectInvoker.java 1982 2003-05-23 08:08:34Z damiano $
  */
 class DirectInvoker
 {
@@ -129,6 +129,7 @@ class DirectInvoker
      */
     private String convOneObj ( Object i_obj )
       {
+      if ( i_obj == null ) return null;
       // A string should be quoted by a couple of "".
       if ( i_obj instanceof String )     return "\""+i_obj+"\"";
       // An object reference is just the object instance name

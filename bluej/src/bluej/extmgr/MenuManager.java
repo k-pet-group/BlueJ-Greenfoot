@@ -143,9 +143,6 @@ public class MenuManager
       HashMap newFramesToJmenu = new HashMap(20);
       PkgMgrFrame[] allFrames  = PkgMgrFrame.getAllFrames();
 
-      // Yes, the previous one MAY return null if it wish.. SHould really return an empty array...
-      if ( allFrames == null ) return;
-      
       for (int index=0; index<allFrames.length; index++ )
         {
         PkgMgrFrame thisFrame = allFrames[index];

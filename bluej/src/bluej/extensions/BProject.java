@@ -10,7 +10,7 @@ import java.util.ListIterator;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 1981 2003-05-22 16:35:43Z iau $
+ * @version $Id: BProject.java 1982 2003-05-23 08:08:34Z damiano $
  */
 
 /*
@@ -91,8 +91,7 @@ public class BProject
         Package pkg = bluejProject.getPackage (name);
         if ( pkg == null ) return null;
 
-        Identifier anId = new Identifier (bluejProject,pkg);
-        return new BPackage (anId);
+        return new BPackage (new Identifier (bluejProject,pkg));
     }
     
     /**
