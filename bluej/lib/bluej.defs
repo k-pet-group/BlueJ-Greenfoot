@@ -398,6 +398,7 @@ image.breakstepmark=stepbreak.gif
 
 # file chooser
 image.packageIcon=packageIcon.gif
+image.classIcon=classIcon.gif
 
 image.broken=broken-arrow.gif
 image.help=help.gif
