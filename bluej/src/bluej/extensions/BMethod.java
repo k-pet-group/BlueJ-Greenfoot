@@ -8,13 +8,14 @@ import bluej.views.MethodView;
 import bluej.views.ConstructorView;
 import bluej.views.CallableView;
 import java.lang.reflect.Modifier;
+import bluej.pkgmgr.Package;
 
 /**
  * The BlueJ proxy Method object. This represents a method of a class or object. 
  * This could be a method, or constructor.
  *
  * @author Clive Miller
- * @version $Id: BMethod.java 1640 2003-03-04 20:26:52Z damiano $
+ * @version $Id: BMethod.java 1649 2003-03-05 12:01:40Z damiano $
  * @see bluej.extensions.BObject#getMethod(java.lang.String,java.lang.Class[])
  * @see bluej.extensions.BObject#getMethods(boolean)
  * @see bluej.extensions.BClass#getConstructor(java.lang.Class[])
@@ -51,7 +52,7 @@ public class BMethod
         return true;
     }
 
-    private final BPackage pkg;
+    private final Package bluej_pkg;
     private final CallableView view;
     private final String instanceName;
     private DirectInvoker invoker;
@@ -59,9 +60,9 @@ public class BMethod
     /**
      * @param instanceName should be <code>null</code> for constructors and static methods
      */
-    BMethod (BPackage pkg, CallableView view, String instanceName)
+    BMethod (Package i_bluej_pkg, CallableView view, String instanceName)
     {
-        this.pkg = pkg;
+        bluej_pkg = i_bluej_pkg;
         this.view = view;
         this.instanceName = instanceName;
     }
@@ -144,25 +145,19 @@ public class BMethod
      */
     public BField invoke (String[] args, String newObjectName)
     {
-        invoker = new DirectInvoker (pkg.bluej_pkg, view, instanceName);
+        if ( view instanceof ConstructorView) 
+            {
+            System.out.println ("BMethod.invoke: NO  constructors allowed here");
+            return null;
+            }
+
+        invoker = new DirectInvoker (bluej_pkg, view, instanceName);
         DebuggerObject result = invoker.invoke (args);
 
         if (result == null) return null;
 
         String resultName = invoker.getResultName();
-        if ( view instanceof ConstructorView) {
-            PkgMgrFrame pmf = PkgMgrFrame.findFrame (pkg.bluej_pkg);
-
-            if (!result.isNullObject()) {
-                ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
-                pmf.getObjectBench().add(wrapper);  // might change name
-
-                // load the object into runtime scope
-                Debugger.debugger.addObjectToScope(pmf.getPackage().getId(),
-                                                    wrapper.getName(), result);
-            }
-        }
-        return new BField (pkg, result.getObjectReference(), result.getObjectReference().referenceType().fieldByName (resultName));
+        return new BField (bluej_pkg, result.getObjectReference(), result.getObjectReference().referenceType().fieldByName (resultName));
     }
     
     /**

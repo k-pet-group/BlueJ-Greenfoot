@@ -48,7 +48,7 @@ import java.awt.event.ActionListener;
  *                                         +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1640 2003-03-04 20:26:52Z damiano $
+ * @version $Id: BlueJ.java 1649 2003-03-05 12:01:40Z damiano $
  */
 
 public class BlueJ
@@ -138,20 +138,23 @@ public class BlueJ
      * 
      * @return an array of the currently open project objects. It can be an empty array
      */
-    public List getOpenProjects()
+    public BProject[] getOpenProjects()
         {
-        ArrayList projectList = new ArrayList();
-
-        // If this extension is not valid return an empty list.
-        if (!myWrapper.isValid()) return projectList;
+        // If this extension is not valid return an empty array.
+        if (!myWrapper.isValid()) return new BProject[0];
 
         Set projSet = Project.getProjectKeySet();
-        for ( Iterator iter = projSet.iterator(); iter.hasNext(); )
+        BProject [] result = new BProject[projSet.size()];
+        Iterator iter = projSet.iterator();
+        int insIndex = 0;
+        
+        while ( iter.hasNext() )
             {
             Object projKey = iter.next();
-            projectList.add(new BProject((File)projKey));
+            result[insIndex++] = new BProject ((File)projKey);
             }
-        return projectList;
+
+        return result;
         }
 
 

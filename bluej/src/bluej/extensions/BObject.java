@@ -15,34 +15,49 @@ import java.util.List;
 import java.util.ListIterator;
 import java.lang.reflect.Modifier;
 import java.awt.Point;
+import bluej.debugger.*;
 
 /**
  * The BlueJ proxy Object object. This represents an object on the Object Bench. It can be 
  * got from {@link bluej.extensions.BPackage#getObject(java.lang.String) getObject}.
  * The Idea is that this behaves much as the normal Java Object but with added properties.
  *
- * @version $Id: BObject.java 1640 2003-03-04 20:26:52Z damiano $
+ * @version $Id: BObject.java 1649 2003-03-05 12:01:40Z damiano $
  */
 public class BObject
 {
-    private final BPackage pkg;
-    private ObjectWrapper wrapper; // Not final because it can be nullified
-    private final String instanceName;
+    private ObjectWrapper wrapper;      // Not final because it can be nullified
 
-    BObject (BPackage pkg, ObjectWrapper wrapper, String instanceName)
+    /**
+     * Do NOT use: You should get BObjects from the BPackage or by the BConstructors
+     */
+    BObject (ObjectWrapper wrapper)
     {
-        this.pkg = pkg;
         this.wrapper = wrapper;
-        this.instanceName = instanceName;
     }
     
+
+    /**
+     * Tests if this BObject is still valid. It may happens for various reasons
+     * 
+     * @return true or false
+     */
+    public boolean isValid()
+        {
+        if ( wrapper == null ) return ( false);
+        // TODO: Possible others checks here
+        return true;
+        }
+
     /**
      * Gets the owning Package of this object
      * @return the originator
      */
     public BPackage getPackage()
     {
-        return pkg;
+        if ( ! isValid() ) return null;
+        
+        return new BPackage(wrapper.getPackage());
     }
         
     /**
@@ -51,19 +66,32 @@ public class BObject
      */
     public void remove()
     {
-        if (wrapper != null) {
-            PkgMgrFrame.findFrame (pkg.bluej_pkg).getObjectBench().remove (wrapper, pkg.bluej_pkg.getId());
-            wrapper = null;
-        }
+        if ( ! isValid() ) return;
+
+        // This should really always exists, no need to check
+        bluej.pkgmgr.Package aPackage = wrapper.getPackage();
+
+        // This may reasonably fail
+        PkgMgrFrame aFrame = PkgMgrFrame.findFrame ( aPackage );
+        if ( aFrame == null ) return;
+
+        ObjectBench aBench = aFrame.getObjectBench();
+        aBench.remove(wrapper, aPackage.getId());
+
+
+        //(pkg.bluej_pkg).getObjectBench().remove (wrapper, pkg.bluej_pkg.getId());
+        wrapper = null;
     }
     
     /**
      * Gets the name of the instance of this object
-     * @return the name of the object
+     * @return the name of the object, can return null if object is invalid
      */
     public String getName()
     {
-        return instanceName;
+        if ( ! isValid() ) return null;
+
+        return wrapper.getName();
     }
     
     /**
@@ -74,7 +102,9 @@ public class BObject
      */
     public BClass getBClass()
     {
-        return new BClass (pkg, wrapper.getClassName());
+        if ( ! isValid() ) return null;
+        
+        return new BClass (wrapper.getPackage(), wrapper.getClassName());
     } 
     
     /**

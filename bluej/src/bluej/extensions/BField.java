@@ -19,12 +19,13 @@ import com.sun.jdi.ByteValue;
 import com.sun.jdi.BooleanValue;
 
 import java.lang.reflect.Modifier;
+import bluej.pkgmgr.Package;
 
 /**
  * The BlueJ proxy Field object. This represents a field of a class or object.
  *
  * @author Clive Miller
- * @version $Id: BField.java 1640 2003-03-04 20:26:52Z damiano $
+ * @version $Id: BField.java 1649 2003-03-05 12:01:40Z damiano $
  * @see bluej.extensions.BObject#getField(java.lang.String)
  * @see bluej.extensions.BObject#getFields(boolean)
  * @see bluej.extensions.BClass#getStaticField(java.lang.String)
@@ -32,16 +33,16 @@ import java.lang.reflect.Modifier;
  */
 public class BField
 {
-    private final BPackage pkg;
+    private final Package bluej_pkg;
     private final ObjectReference ref;
     private final Field field;
     private final BObject obj;
     private final boolean array;
     private final int element;
    
-    BField (BPackage pkg, ObjectReference ref, Field field)
+    BField (Package i_bluej_pkg, ObjectReference ref, Field field)
     {
-        this.pkg = pkg;
+        bluej_pkg = i_bluej_pkg;
         this.ref = ref;
         this.field = field;
         this.array = false;
@@ -52,9 +53,9 @@ public class BField
     /**
      * Constructor for an array
      */
-    BField (BPackage pkg, ArrayReference ref, BObject obj, int element)
+    BField (Package i_bluej_pkg, ArrayReference ref, BObject obj, int element)
     {
-        this.pkg = pkg;
+        bluej_pkg = i_bluej_pkg;
         this.ref = ref;
         this.field = null;
         this.obj = obj;
@@ -114,8 +115,8 @@ public class BField
         }
         else if (val instanceof ObjectReference)
         {
-            PkgMgrFrame pmf = PkgMgrFrame.findFrame (pkg.bluej_pkg);
-            return new BObject (pkg, new ObjectWrapper (pmf, pmf.getObjectBench(), JdiObject.getDebuggerObject((ObjectReference)val), getName()), getName());
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
+            return new BObject ( new ObjectWrapper (pmf, pmf.getObjectBench(), JdiObject.getDebuggerObject((ObjectReference)val), getName()));
         }
         else if (val instanceof BooleanValue)
         {
