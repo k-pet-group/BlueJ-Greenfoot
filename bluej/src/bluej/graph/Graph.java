@@ -9,7 +9,7 @@ import java.awt.geom.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Graph.java 2598 2004-06-12 20:08:18Z mik $
+ * @version $Id: Graph.java 2761 2004-07-08 09:57:37Z mik $
  */
 public abstract class Graph
 {
@@ -33,12 +33,12 @@ public abstract class Graph
             Vertex v = (Vertex)it.next();
 
             if(v.getX() + v.getWidth() > minWidth)
-        	minWidth = v.getX() + v.getWidth();
+                minWidth = v.getX() + v.getWidth();
             if(v.getY() + v.getHeight() > minHeight)
-        	minHeight = v.getY() + v.getHeight();
+                minHeight = v.getY() + v.getHeight();
         }
 
-        return new Dimension(minWidth, minHeight);
+        return new Dimension(minWidth + 20, minHeight + 20);  // add some space for looks
     }
 
     public void findSpaceForVertex(Vertex t)
