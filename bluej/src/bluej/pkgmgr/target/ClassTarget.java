@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2557 2004-05-27 11:06:31Z polle $
+ * @version $Id: ClassTarget.java 2561 2004-05-28 10:25:03Z polle $
  */
 public class ClassTarget extends EditableTarget
 {	
@@ -151,23 +151,6 @@ public class ClassTarget extends EditableTarget
     }
     
     /**
-     * Returns the text which the target is displaying as its label. For normal
-     * classes this is just the identifier name. For generic classes the generic
-     * parameters are shown as well
-     */
-    public String getDisplayName() {
-        return super.getDisplayName() + getTypeParameters();
-    }
-    
-    /**
-     * Returns the type parameters for a genric class as declared in the source file.  
-     */
-    private String getTypeParameters() {
-        //TODO When the parser supports generics this should return something usefull
-        return "";
-    }
-
-    /**
      * Change the state of this target. The target will be repainted to show
      * the new state.
      */
@@ -248,12 +231,16 @@ public class ClassTarget extends EditableTarget
             if (classInfo != null) {
                 if (classInfo.isApplet())
                     setRole(new AppletClassRole());
-                if (classInfo.isUnitTest())
+                else if (classInfo.isUnitTest())
                     setRole(new UnitTestClassRole());
-                if (classInfo.isInterface())
+                else if (classInfo.isInterface())
                     setRole(new InterfaceClassRole());
-                if (classInfo.isAbstract())
+                else if (classInfo.isAbstract())
                     setRole(new AbstractClassRole());
+                else if (Config.isJava15() && cl.isEnum())
+                    setRole(new EnumClassRole());  
+                else
+                    setRole(new StdClassRole()); 
             }
         }
         // everything failed, lets leave the role as it was
