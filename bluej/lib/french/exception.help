@@ -1,0 +1,124 @@
+NullPointerException*
+You tried to access an object (either a field
+in an object or a method of an object). This
+did not work because the object reference you
+used to access the object was 'null'. For
+example: You wrote "thing.print()", and "thing"
+was null at the time.
+
+ArithmeticException*
+Something went wrong during an arithmetic
+calculation, such as a division by 0 or
+something similar.
+
+StringIndexOutOfBoundsException*
+You have tried to access a character or a substring
+in a string , and the index you used does not exist
+in that string. For example, you may have tried to
+access the fifth character in a string that is only
+three characters long.
+For the substring operation, remember that the second
+parameter is the length of the substring, not the
+end index.
+
+ClassCastException*
+You used a "cast" - that is an instruction assigning
+a different static type to an object, such as in this
+example:
+       (String)someObject
+Here, "someObject" is cast to "String". This is legal
+only if the object stored in someObject really is of
+type String.
+In other words: you can cast to type T only if the
+object you are casting is of type T or one of its
+subtypes. In your case it wasn't.
+
+IndexOutOfBoundsException*
+An index of some sort (such as to an array, to a string,
+or to a vector) is out of range. "Out of range" means
+that the index does not exist in the array or other
+collection (e.g. you tried to access element 5, but only
+three elements exist).
+
+ArrayIndexOutOfBoundsException*
+An array index is out of range. "Out of range" means
+that the index does not exist in the array (e.g. you
+tried to access element 5, but only three elements
+exist). The legal index range is 0..arraylength-1.
+
+ConcurrentModificationException*
+You are doing an iteration over a collection here.
+While you are doing this, the collection was modified.
+That's a problem. You are not allowed to modify the
+collection during an iteration. Or the other way
+around: you cannot continue the iteration after
+modifying the collection. The only modification
+allowed during an iteration is removing elements with
+the Iterator's remove method (NOT the remove in the
+collection itself).
+
+ArrayStoreException*
+No help available - sorry.
+
+CannotRedoException*
+No help available - sorry.
+
+CannotUndoException*
+No help available - sorry.
+
+CMMException*
+No help available - sorry.
+
+EmptyStackException*
+No help available - sorry.
+
+IllegalArgumentException*
+No help available - sorry.
+
+IllegalMonitorStateException*
+No help available - sorry.
+
+IllegalPathStateException*
+No help available - sorry.
+
+IllegalStateException*
+No help available - sorry.
+
+ImagingOpException*
+No help available - sorry.
+
+MissingResourceException*
+No help available - sorry.
+
+NegativeArraySizeException*
+No help available - sorry.
+
+NoSuchElementException*
+No help available - sorry.
+
+ProfileDataException*
+No help available - sorry.
+
+ProviderException*
+No help available - sorry.
+
+RasterFormatException*
+No help available - sorry.
+
+SecurityException*
+No help available - sorry.
+
+SystemException*
+No help available - sorry.
+
+UndeclaredThrowableException*
+No help available - sorry.
+
+UnsupportedOperationException*
+No help available - sorry.
+
+Exception
+This is a general exception that only says
+that something went wrong. I have no idea
+what it is...
+

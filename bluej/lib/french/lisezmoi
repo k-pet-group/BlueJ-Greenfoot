@@ -1,0 +1,90 @@
+fichier: lisezmoi
+description: Traduction française du logiciel BlueJ
+Date: 2002/10/17
+Auteur: P. Moreaux
+        Université de Reims Champagne-Ardenne, FRANCE
+        (patrice.moreaux@univ-reims.fr)
+
+
+Version BlueJ concernée: 1.2.2 (2002/10/16)
+
+
+Principes de traduction
+-----------------------
+La traduction concerne l'environnement BlueJ:
+- menus,
+- commentaires d'erreur,
+- messages d'aide de BlueJ.
+
+La traduction ne concerne pas:
+- les aides de l'éditeur "moe" liées aux associations de touches
+  (key bindings)
+- les messages du système sous-jacent Java
+- le texte des exemples
+- le texte des "templates" (modèles).
+
+Nous considérons qu'un programmeur francophone, même débutant,
+doit programmer en Anglais, y compris pour les noms d'entités
+(variables, méthodes, classes, etc.) et la documentation
+du code.
+De plus, l'Anglais est mieux adapté à un style concis, tout
+en restant précis, le Français exigeant beaucoup de <<petits mots>>
+(de, la, un, et, etc.) pour être précis.
+
+
+Termes non traduits
+-------------------
+Ces termes sont d'un usage consacré, même dans les pays francophones,
+ou à caractère technique (en Java ou en programmation objet).
+
+Terme         sens en Français
+------------|---------------------------------------------------
+thread        processus léger
+debugger      metteur au point
+package       packetage
+'uses'        clause uses
+browser       butineur
+web           web
+url           adresse Internet
+applet        "appliquette"
+appletviewer  "visualiseur" d'"appliquette"
+path          chemin d'accès
+stream        flux
+Extends       clause extends
+TAB           caractère tabulation
+jar           extension des fichiers compressés Java
+template      modèle, patron
+main          méthode main
+log           fichier log (ou trace si traduit selon le contexte)
+
+
+Choix de traduction de termes techniques
+----------------------------------------
+identifier   = identificateur
+buffer       = tampon
+key bindings =  associations aux touches ou des touches selon le contexte.
+log          = trace (fichier de -)
+Save         = enregistrer (un fichier)
+
+
+Traduction classique mais souvent incorrecte
+--------------------------------------------
+library = bibliothèque (et non pas librairie)
+
+
+Contenu et installation de la traduction
+----------------------------------------
+le répertoire "french" contient tous les fichiers remplacés par
+leur traduction:
+- dialogues
+- labels
+- sous-répertoire templates
+  - readme
+  - sous-répertoire newclass
+    - readme
+On trouvera de plus:
+- lisezmoi (le présent fichier)
+- bluej.defs: version avec langage français sélectionné
+
+
+fin du fichier lisezmoi

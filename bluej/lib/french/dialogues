@@ -1,0 +1,353 @@
+compile-while-executing
+Vous ne pouvez pas compiler pendant
+une exécution. Cela pourrait créer
+des problèmes!
+
+exception-thrown
+Une exception a été levée:
+
+break-no-source
+Point d'arrêt dans un fichier dont
+le source est introuvable. Nom du fichier:
+
+error-in-file
+Une erreur a eu lieu dans un fichier dont
+le source est introuvable.
+classe: numéro de ligne dans le source:
+
+system-exit
+Méthode terminée par un appel explicite à "exit".
+Pas de résultat retourné.
+Code de "exit":
+
+no-help
+Pas d'aide disponible pour ce message.
+Envoyer un courrier électronique avec le texte du message d'erreur
+à mik@mip.sdu.dk - nous ajouterons
+un texte d'aide à notre base de données d'aide. Merci.
+
+editor-crashed
+BlueJ a dû terminer en erreur lors de la dernière
+écriture de cette classe sur disque. Le code source
+semble endommagé ou incomplet. Il devrait y avoir une
+sauvegarde de cette classe dans le répertoire du projet.
+Si cette classe est effectivement endommagée,
+   1 - quitter BlueJ
+   2 - sauvegarder votre répertoire projet (au cas où)
+   3 - chercher dans le répertoire projet une sauvegarde
+       de ce fichier java. Renommez-le avec le nom original
+       (avec un suffixe '.java')
+
+# errors:
+#########
+
+no-lib-selected
+Vous n'avez pas indiqué de bibliothèque cible zzz .
+Cliquez sur une bibliothèque dans la liste des "Résultats de recherche"
+et appuyez sur le bouton "Aller à".
+
+no-target-dialog
+Avant d'utiliser un package à partir
+du Browser de bibliothèques, au moins un
+package cible doit être ouvert
+dans une fenêtre BlueJ.
+
+cannot-locate-lib-node
+Impossible de trouver le noeud sélectionné
+dans l'arbre des bibliothèques.
+La cause habituelle de cette erreur
+est qu'un fichier du package n'est pas à jour
+dans le répertoire de ce package.
+
+missing-shadow
+Impossible de localiser la "shadow area" zzz:
+
+cannot-run-compiler
+Impossible d'exécution du compilateur impossible. Est-il
+dans votre path?
+Nom du compilateur:
+
+compiler-error
+Erreur de compilation:
+
+stream-incomplete
+Erreur de compilation. Erreur stream incomplet.
+
+out-of-bounds
+L'élément n'est pas dans les limites de bornes du tableau.
+
+
+cannot-access-element
+Impossible d'accéder à l'élément de tableau.
+
+appletviewer-error
+Erreur d'exécution de l'applet dans l'appletviewer.
+
+error-no-name
+Vous devez indiquer un nom valide.
+
+error-save-file
+Une erreur est survenue lors de l'enregistrement du fichier.
+Le fichier n'a pas été enregistré.
+
+cannot-save-keys
+Une erreur est survenue lors de l'enregistrement des associations de touches.
+Les associations n'ont pas été enregistrées.
+
+error-no-templates
+Le répertoire template (répertoire où
+BlueJ cherche les templates de classe) n'existe pas.
+Il est défini par la propriété "bluej.templatePath"
+dans <bluej-home>/lib/bluej.defs. Vérifier et
+corriger cette propriété.
+
+skeleton-error
+Impossible de générer le squelette par défaut pour cette classe.
+Cela peut provenir d'une erreur de configuration
+dans l'initialisation de BlueJ ou de problèmes
+d'accès au système de fichiers.
+
+error-open-source
+Impossible d'ouvrir le fichier source
+de cette classe.
+
+error-open-readme
+Problème d'ouverture des notes de ce projet.
+Une nouvelle note vide a été créé.
+
+error-writing-readme
+Le fichier README de ce projet n'a pu être
+mis à jour pour ajouter l'information de classe 'main'.
+Un erreur s'est produite pendant la modification
+de e fichier.
+
+error-exporting
+Une erreur s'est produite lors de l'exportation
+de l'application. Certains (voire tous les) fichiers
+n'ont peut-être pas été copiés correctement.
+
+error-writing-jar
+Le fichier jar n'a pu être enregistré correctement.
+(Vérifier les droits d'accès dans le système de fichiers
+et l'espace disque disponible).
+
+error-jar-exists
+Le fichier jar sélectionné existe.
+Voulez-vous continuer?
+Remplacer
+Annuler
+null
+
+invalid-class-name
+Nom de classe non valide.
+
+invalid-package-name
+Nom de package non valide.
+
+directory-exists
+Un fichier ou répertoire de ce nom
+existe déjà.
+
+cannot-copy-package
+Prblème lors de la copie des fichiers du package.
+Le package n'a pas été copié ou la copie peut être
+incomplète.
+
+file-does-not-exist
+Le fichier n'existe pas.
+
+cannot-import
+Importation du fichier impossible.
+Ce fichier doit être un fichier source Java.
+(son nom doit se terminer par ".java").
+
+docdir-blocked-by-file
+Impossible de créer le répertoire de documentation
+dans le répertoire projet: un fichier de même nom
+existe déjà.
+
+docdir-not-created
+Impossible de créer le répertoire de documentation
+dans le répertoire projet.
+
+no-permission-for-docdir
+Impossible de créer le répertoire de documentation
+dans le répertoire projet: droits d'accès incorrects.
+
+show-or-generate
+Voulez-vous voir la documentation
+existante ou régénérer
+toute la documentation?
+Voir seulement
+Régénérer
+Annuler
+
+doctool-error
+Javadoc  a signalé une erreur. Il peut y avoir
+une erreur de syntaxe dans un des fichiers à documenter.
+L'URL de la documentation JDK spécifié dans les
+préférences est peut-être incorrect.
+Vérifiez que tous les les fichiers Java sont compilés et
+que l'URL est correct (ou désactiver l'URL)
+puis recommencez.
+Si ce message apparaît à nouveau, vous devriez examiner
+les messages de Javadoc dans le fichier de trace:
+
+severe-doc-trouble
+Une exception est survenue lors d'un appel
+à l'outil externe de documentation.
+
+no-java-sources-found
+Pas de source Java dans ce répertoire.
+
+duplicate-name
+Une classe de même nom existe déjà dans ce package.
+Un nom de classe doit être unique.
+
+duplicate-package-name
+Un package de même nom existe déjà dans
+ce projet.
+
+error-in-import
+Une erreur est survenue pednant la tentative
+d'importation de ce fichier.
+Vérifiez les droits d'accès et l'espace disque disponible.
+
+no-class-selected
+Pas de classe ou package à supprimer.
+Sélectionner une classe ou un package avant
+d'essayer de le supprimer.
+
+really-remove-class
+Supprimer cette classe supprimera définitivement
+le fichier source.
+Voulez-vous continuer?
+Supprimer
+Annuler
+null
+
+really-remove-package
+Supprimer ce package supprimera définitivement
+le répertoire du package (et TOUS les
+fichiers de ce répertoire).
+Voulez-vous continuer?
+Supprimer
+Annuler
+null
+
+remove-package-open
+Un (au moins) des sous-packages du package à supprimer
+est ouvert dans BlueJ.
+Vous devez fermer tous ces sous-packages
+avant de pouvoir supprimer ce package.
+
+package-does-not-exist
+Erreur d'ouverture de package.
+Package inexistant:
+
+no-bluej-package
+Erreur d'ouverture de package.
+Le fichier/répertoire n'est
+pas un package BlueJ:
+
+applet-height-width
+Il faut définir les hauteur et largeur de l'Applet.
+
+cannot-read-help
+Impossible d'ouvrir le fichier d'aide:
+
+not-yet-implemented
+Non encore implémenté - désolé.
+
+quit-all
+Quitter tous les projets ouverts?
+Quitter tout
+Annuler
+null
+
+really-reload
+Recharger supprime toutes les modifications depuis
+la dernière édition.
+Etes-vous sûr?
+Recharger
+Annuler
+null
+
+really-print
+Le texte est plus large que le papier.
+Les lignes trop longues seront tronquées.
+Vous pouvez éviter cela en rétrécissant la fenêtre d'édition.
+Voulez-vous malgré tout imprimer?
+Imprimer
+Annuler
+null
+
+open-non-bluej-already-bluej
+Le répertoire sélectionné est déjà
+un projet BlueJ.
+
+open-non-bluej-no-java
+Pas de source Java trouvé
+dans ce répertoire.
+
+open-non-bluej-invalid
+Ce répertoire ne semble pas être un projet BlueJ
+car un fichier contient une instruction package
+incompatible avec la structure actuelle du répertoire.
+Par exemple, si la classe Java Shape contient
+une instruction package com.aa,
+le fichier Shape.java doit être dans le répertoire aa
+qui doit être lui-même dans le répertoire com.
+Le répertoire com doit finalement dans un répertoire
+qui est le répertoire projet BlueJ à ouvrir.
+
+import-into-current
+Vous avez un package ouvert dans cette fenêtre.
+Voulez-vous importer dans ce package courant
+ou créer un nouveau projet pour l'importation?
+Courant
+Nouveau projet
+Annuler
+
+package-name-invalid
+Vous avez changé l'instruction package en indiquant
+un package qui n'existe pas dans ce projet.
+Si vous voulez déplacer cette classe vers un autre
+package, vous devez d'abord créer ce package.
+L'instruction package originale a été rétablie.
+
+package-name-changed
+Vous avez changé l'instruction package qui indique à
+Java dans quel package se trouve cette classe. Voulez-vous
+déplacer cette classe dans le package indiqué
+ou laisser la classe où elle est
+(Défaire: l'instruction package originale sera
+rétablie)?
+Déplacer
+Défaire
+null
+
+ask-index
+Entrer l'indice de l'élément de tableau [...]
+Inspection de tableau
+null
+
+classmgr-changes-no-effect
+Les changements apportés aux bibliothèques de classes
+ne seront effectifs qu'au prochain lancement de
+BlueJ.
+
+# editor:
+#########
+
+no-search-string
+Chaîne à chercher non définie.
+(Sélectionner du texte ou utiliser d'abord 'Chercher').
+
+default-keys
+Voulez-vous vraiment supprimer toutes
+vos associations de touches
+et rétablir les associations par défaut?
+Rétablir valeurs par défaut
+Annuler
+null
