@@ -140,6 +140,7 @@ prefmgr.misc.usesyntaxhilighting=Use syntax hilighting
 prefmgr.misc.autoindent=Auto-indent (Enter and Tab keys)
 prefmgr.misc.displaylinenumbers=Display line numbers
 prefmgr.misc.makeBackup=Make backup of source files
+prefmgr.misc.matchBrackets=Match brackets
 prefmgr.misc.compiler.title=Compiler settings
 prefmgr.misc.usejdk14=Enable JDK 1.4 features (assertions)
 prefmgr.misc.documentation.title=Documentation settings
