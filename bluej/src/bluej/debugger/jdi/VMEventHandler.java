@@ -9,7 +9,7 @@ import com.sun.jdi.event.*;
  * Event handler class to handle events coming from the remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: VMEventHandler.java 3030 2004-10-01 01:32:28Z davmac $
+ * @version $Id: VMEventHandler.java 3037 2004-10-05 04:29:18Z davmac $
  */
 class VMEventHandler extends Thread
 {
@@ -20,8 +20,6 @@ class VMEventHandler extends Thread
     private EventQueue queue;
     
     volatile boolean exiting = false;
-    
-    public Object requestLock = new Object();
     
     VMEventHandler(VMReference vm, VirtualMachine vmm)
     {
@@ -66,63 +64,46 @@ class VMEventHandler extends Thread
                 //		 o StepEvent
                 //		 o MethodEntryEvent 
                 
-                // synchronize to avoid getting interrupt()ed temporarily
-                synchronized(this) {
-                    boolean storedInterrupt = interrupted();
-                    boolean addToSuspendCount = false;
+                boolean addToSuspendCount = false;
+                
+                // iterate through all events in the set
+                EventIterator it = eventSet.eventIterator();
+                
+                while (it.hasNext()) {
+                    Event ev = it.nextEvent();
                     
-                    // iterate through all events in the set
-                    EventIterator it = eventSet.eventIterator();
+                    // do some processing with this event
+                    // this calls back into VMReference
+                    handleEvent(ev);
                     
-                    while (it.hasNext()) {
-                        Event ev = it.nextEvent();
-                        
-                        // do some processing with this event
-                        // this calls back into VMReference
-                        handleEvent(ev);
-                        
-                        // for breakpoint and step events, we may want
-                        // to leave the relevant thread suspended. If the dontResume
-                        // property for the event is set, then lets do this.
-                        if(ev.request() != null) {
-                            if(ev.request().getProperty(DONT_RESUME) != null) {
-                                addToSuspendCount = true;
-                            }
-                        }
-                        
-                        if (addToSuspendCount) {
-                            // we ensure that the thread will stay suspended
-                            // by incrementing its suspend count (to counter
-                            // the resume() that will be executed in eventSet.resume())
-                            // we may have a case where multiple Break, Step events
-                            // occur at the same line (in the same EventSet).
-                            // use of the addToSuspendCount variable ensures that
-                            // we will still only add 1 to the suspend count					
-                            if(ev instanceof LocatableEvent) {
-                                LocatableEvent le = (LocatableEvent) ev;
-                                le.thread().suspend();
-                            }
+                    // for breakpoint and step events, we may want
+                    // to leave the relevant thread suspended. If the dontResume
+                    // property for the event is set, then lets do this.
+                    if(ev.request() != null) {
+                        if(ev.request().getProperty(DONT_RESUME) != null) {
+                            addToSuspendCount = true;
                         }
                     }
                     
-                    // resume the VM
-                    eventSet.resume();
-                    
-                    if (storedInterrupt)
-                        throw new InterruptedException();
-                }
-            }
-            catch (InterruptedException exc) {
-                // InterruptedException means we have a request from another thread.
-                // Grant that thread control for a time.
-                synchronized(this) {
-                    notify();
-                    try {
-                        wait();
+                    if (addToSuspendCount) {
+                        // we ensure that the thread will stay suspended
+                        // by incrementing its suspend count (to counter
+                        // the resume() that will be executed in eventSet.resume())
+                        // we may have a case where multiple Break, Step events
+                        // occur at the same line (in the same EventSet).
+                        // use of the addToSuspendCount variable ensures that
+                        // we will still only add 1 to the suspend count					
+                        if(ev instanceof LocatableEvent) {
+                            LocatableEvent le = (LocatableEvent) ev;
+                            le.thread().suspend();
+                        }
                     }
-                    catch(InterruptedException ie) {}
                 }
+                
+                // resume the VM
+                eventSet.resume();
             }
+            catch (InterruptedException exc) { }
             catch (VMDisconnectedException discExc) { exiting = true; }
         }
     }

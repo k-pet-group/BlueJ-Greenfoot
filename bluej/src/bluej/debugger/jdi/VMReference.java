@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3035 2004-10-04 06:14:00Z davmac $
+ * @version $Id: VMReference.java 3037 2004-10-05 04:29:18Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -539,11 +539,11 @@ class VMReference
             
             workerThread.resume();
             breakpointWait(workerThread);
+            
+            currentLoader = (ClassLoaderReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
+            
+            return currentLoader;
         }
-
-        currentLoader = (ClassLoaderReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
-
-        return currentLoader;
     }
 
     /**
@@ -567,13 +567,13 @@ class VMReference
             
             workerThread.resume();
             breakpointWait(workerThread);
+            
+            ReferenceType rt = ((ClassObjectReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME)).reflectedType();
+            if (rt == null)
+                throw new ClassNotFoundException(className);
+            
+            return rt;
         }
-        
-        ReferenceType rt = ((ClassObjectReference) getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME)).reflectedType();
-        if (rt == null)
-            throw new ClassNotFoundException(className);
-        
-        return rt;
     }
 
     /**
@@ -885,14 +885,14 @@ class VMReference
      */
     public void breakpointEvent(LocatableEvent event, boolean breakpoint)
     {
-        if (event.request().getProperty("s") != null) {
-            System.out.println(event);
-        }
+        //if (event.request().getProperty("s") != null) {
+        //    System.out.println(event);
+        //}
 
         // if the breakpoint is marked as with the SERVER_STARTED property
         // then this is our own breakpoint that we have been waiting for at
         // startup
-        else if (event.request().getProperty(SERVER_STARTED_METHOD_NAME) != null) {
+        if (event.request().getProperty(SERVER_STARTED_METHOD_NAME) != null) {
             // wake up the waitForStartup() method
             synchronized (this) {
                 serverThreadStarted = true;
@@ -906,8 +906,8 @@ class VMReference
         // it is required to do more work.
         else if (event.request().getProperty(SERVER_SUSPEND_METHOD_NAME) != null) {
             // do nothing except signify our change of state
-            if (serverThread != null && serverThread.equals(event.thread()))
-                owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.IDLE);
+            //if (serverThread != null && serverThread.equals(event.thread()))
+            //    owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.IDLE);
         }
         else {
             // breakpoint set by user in user code
@@ -927,7 +927,7 @@ class VMReference
             }
 
             if (fileName != null && fileName.startsWith("__SHELL")) {
-                machine.resume();
+                // machine.resume();
             }
             else {
                 // otherwise, signal the breakpoint/step to the user
@@ -1129,38 +1129,23 @@ class VMReference
             serverThreadStartWait();
             synchronized(workerThread) {
                 breakpointWait(workerThread);
-        
-                synchronized(eventHandler.requestLock) {
-                    synchronized(eventHandler) {
-                        eventHandler.interrupt();
-                        try {
-                            eventHandler.wait();
-                        }
-                        catch(InterruptedException ie) {}
-                        //machine.suspend();
-                        
-                        // we need to throw away all the breakpoints referring to the old
-                        // class loader but then we need to restore our exitMarker and
-                        // suspendMethod breakpoints
-                        erm.deleteAllBreakpoints();
-                        serverClassAddBreakpoints();
-                        
-                        // add all the new breakpoints we have created
-                        Iterator it = newSaved.iterator();
-                        
-                        while (it.hasNext()) {
-                            Location l = (Location) it.next();
-                            
-                            BreakpointRequest bpreq = erm.createBreakpointRequest(l);
-                            bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
-                            bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
-                            bpreq.enable();
-                        }
-                        
-                        // start the machine back up
-                        //machine.resume();
-                        eventHandler.notify();
-                    }
+                
+                // we need to throw away all the breakpoints referring to the old
+                // class loader but then we need to restore our exitMarker and
+                // suspendMethod breakpoints
+                erm.deleteAllBreakpoints();
+                serverClassAddBreakpoints();
+                
+                // add all the new breakpoints we have created
+                Iterator it = newSaved.iterator();
+                
+                while (it.hasNext()) {
+                    Location l = (Location) it.next();
+                    
+                    BreakpointRequest bpreq = erm.createBreakpointRequest(l);
+                    bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+                    bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
+                    bpreq.enable();
                 }
             }
         }
@@ -1218,21 +1203,6 @@ class VMReference
         catch(InterruptedException ie) {}
     }
     
-    
-    /**
-     * Resume a thread on the debug VM, in a way that is thread safe (on this VM).
-     */
-    private void threadResume(ThreadReference thread)
-    {
-        synchronized(eventHandler.requestLock) {
-            synchronized(eventHandler) {
-                signalEventHandler();
-                thread.resume();
-                eventHandler.notify();
-            }
-        }
-    }
-
     /**
      * Invoke a shell class (a class which has been generated on-the-fly in
      * order to execute some user code)
@@ -1241,29 +1211,31 @@ class VMReference
      *            The class to execute.
      * @return
      */
-    synchronized private Value invokeShell(String cl)
+    private Value invokeShell(String cl)
     {
-        serverThreadStartWait();
-        
-        // Store the class and method to call
-        setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, cl);
-        setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.EXEC_SHELL));
-    
-        // Resume the thread, wait for it to finish and the new thread to start
-        debuggerState = Debugger.RUNNING;
-        serverThreadStarted = false;
-        threadResume(serverThread);
-        serverThreadStartWait();
-        debuggerState = Debugger.IDLE;
-        
-        // Get return value and check for exceptions
-        Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
-        if (rval == null) {
-            ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
-            if (exception != null)
-                exceptionEvent(new InvocationException(exception));
+        synchronized(serverThreadLock) {
+            serverThreadStartWait();
+            
+            // Store the class and method to call
+            setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, cl);
+            setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.EXEC_SHELL));
+            
+            // Resume the thread, wait for it to finish and the new thread to start
+            debuggerState = Debugger.RUNNING;
+            serverThreadStarted = false;
+            serverThread.resume();
+            serverThreadStartWait();
+            debuggerState = Debugger.IDLE;
+            
+            // Get return value and check for exceptions
+            Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
+            if (rval == null) {
+                ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
+                if (exception != null)
+                    exceptionEvent(new InvocationException(exception));
+            }
+            return rval;
         }
-        return rval;
     }
     
     public Value invokeTestSetup(String cl)
@@ -1280,7 +1252,7 @@ class VMReference
             // Resume the thread, wait for it to finish and the new thread to start
             debuggerState = Debugger.RUNNING;
             serverThreadStarted = false;
-            threadResume(serverThread);
+            serverThread.resume();
             serverThreadStartWait();
             debuggerState = Debugger.IDLE;
             
@@ -1311,7 +1283,7 @@ class VMReference
             // Resume the thread, wait for it to finish and the new thread to start
             debuggerState = Debugger.RUNNING;
             serverThreadStarted = false;
-            threadResume(serverThread);
+            serverThread.resume();
             serverThreadStartWait();
             debuggerState = Debugger.IDLE;
             
@@ -1340,7 +1312,7 @@ class VMReference
             
             // Resume the thread, it then proceeds to remove open windows
             serverThreadStarted = false;
-            threadResume(serverThread);
+            serverThread.resume();
         }
     }
     
@@ -1359,7 +1331,7 @@ class VMReference
             setStaticFieldObject(serverClass, ExecServer.OBJECTNAME_NAME, instanceName);
             setStaticFieldValue(serverClass, ExecServer.OBJECT_NAME, object);
             
-            threadResume(workerThread);
+            workerThread.resume();
         }
     }
     
@@ -1370,16 +1342,16 @@ class VMReference
     synchronized void removeObject(String instanceName)
     {
         synchronized(workerThread) {
-        	try {
-        		breakpointWait(workerThread);
-        		setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.REMOVE_OBJECT));
+            try {
+                breakpointWait(workerThread);
+                setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.REMOVE_OBJECT));
         
-        		// parameters
-        		setStaticFieldObject(serverClass, ExecServer.OBJECTNAME_NAME, instanceName);
+                // parameters
+                setStaticFieldObject(serverClass, ExecServer.OBJECTNAME_NAME, instanceName);
         
-        		threadResume(workerThread);
-        	}
-        	catch(VMDisconnectedException vmde) {}
+                workerThread.resume();
+            }
+            catch(VMDisconnectedException vmde) { }
         }
     }
 
@@ -1631,16 +1603,10 @@ class VMReference
             s.enableCollection();
         }
         catch(ObjectCollectedException oce) {
-            synchronized(eventHandler.requestLock) {
-                synchronized(eventHandler) {
-                    signalEventHandler();
-                    machine.suspend();
-                    StringReference s = machine.mirrorOf(value);
-                    setStaticFieldValue(cl, fieldName, s);
-                    machine.resume();
-                    eventHandler.notify();
-                }
-            }
+            machine.suspend();
+            StringReference s = machine.mirrorOf(value);
+            setStaticFieldValue(cl, fieldName, s);
+            machine.resume();
         }
     }
 
