@@ -83,7 +83,7 @@ Ett fel inträffade när tangentbordskommandona
 försökte sparas. Kommandona sparades inte.
 
 error-no-templates
-The specified template directory (the directory where 
+The specified template directory (the directory where
 BlueJ finds the class templates) does not exist. It
 is defined with the property "bluej.templatePath" in
 <bluej-home>/lib/bluej/defs. Check and fix this property.
@@ -157,14 +157,22 @@ The directory for the documentation could
 not be created in the project directory
 because of insufficient rights.
 
+show-or-generate
+Do you want to show the documentation
+generated previously, or do you want
+to regenerate the whole documentation?
+Just Show
+Regenerate
+Cancel
+
 doctool-error
-Javadoc reported an error. It could be that there is a 
-syntax error in one of the files you tried to generate 
-a documentation for. It could also be that the JDK 
+Javadoc reported an error. It could be that there is a
+syntax error in one of the files you tried to generate
+a documentation for. It could also be that the JDK
 documentation URL specified in the preferences is incorrect.
-Make sure that all your Java files are compiled and the 
-documentation URL is accessible or disabled. Then try again. 
-If this message appears again you should check the log file 
+Make sure that all your Java files are compiled and the
+documentation URL is accessible or disabled. Then try again.
+If this message appears again you should check the log file
 with the error messages from Javadoc:
 
 severe-doc-trouble

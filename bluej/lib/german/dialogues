@@ -92,7 +92,7 @@ Die Tastenbindungen konnten nicht
 gespeichert werden.
 
 error-no-templates
-The specified template directory (the directory where 
+The specified template directory (the directory where
 BlueJ finds the class templates) does not exist. It
 is defined with the property "bluej.templatePath" in
 <bluej-home>/lib/bluej/defs. Check and fix this property.
@@ -113,7 +113,7 @@ nicht geöffnet werden. Eine neue, leere
 Notiz wurde erzeugt.
 
 error-writing-readme
-Die README-Datei dieses Projektes konnte 
+Die README-Datei dieses Projektes konnte
 nicht erweitert werdem um die Information
 der "main class" hinzuzufügen.
 
@@ -124,7 +124,7 @@ Dateien sind möglicherweise nicht kopiert
 worden.
 
 error-writing-jar
-Die "jar"-Datei konnte nicht geschrieben 
+Die "jar"-Datei konnte nicht geschrieben
 werden. (Zugriffsrechte fehlen? Dateisystem
 voll?)
 
@@ -167,8 +167,16 @@ Das Verzeichnis für die Dokumentation konnte
 aufgrund mangelnder Zugriffsrechte nicht im
 Projektverzeichnis angelegt werden.
 
+show-or-generate
+Do you want to show the documentation
+generated previously, or do you want
+to regenerate the whole documentation?
+Just Show
+Regenerate
+Cancel
+
 doctool-error
-Javadoc hat einen Fehler gemeldet. Mögliche 
+Javadoc hat einen Fehler gemeldet. Mögliche
 Gründe sind:
   - ein Syntaxfehler in einer Klasse
   - die URL zur Javadokumentation (in den
