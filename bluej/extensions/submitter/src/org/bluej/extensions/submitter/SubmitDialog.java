@@ -370,7 +370,8 @@ public class SubmitDialog implements ActionListener
     catch (Exception ex) 
       {
       // WARNING: There is still open all the issue of CLOSING streams !!!!
-      statusWriteln ("sendFiles Exception="+ex.toString());
+      logWriteln ("sendFiles Exception="+ex.toString());
+      statusWriteln (translateException(ex));
       return null;
       }
 
@@ -379,6 +380,45 @@ public class SubmitDialog implements ActionListener
     // Lets try to get back possible results....
     return ts.getResult();
     }
+
+
+
+  /**
+   *  Translates a given exception into a more user friendly form
+   *
+   * @param  ex  The exception being translated
+   * @return     A friendly return string
+   */
+  private String translateException(Throwable ex)
+    {
+    if (ex instanceof AbortOperationException)
+        ex = ((AbortOperationException) ex).getException();
+          
+    if (ex instanceof java.net.UnknownHostException)
+        return stat.bluej.getLabelInsert("exception.unknownhost", ex.getMessage());
+          
+    if (ex instanceof java.net.NoRouteToHostException)
+        return stat.bluej.getLabel("exception.notroutetohost");
+          
+    if (ex instanceof java.net.ProtocolException)
+        return ex.getMessage();
+          
+    if (ex instanceof java.io.FileNotFoundException)
+        return stat.bluej.getLabelInsert("exception.filenotfound", ex.getMessage());
+          
+    if (ex instanceof IllegalArgumentException && ex.getMessage().equals("SMTP Host has not been set"))
+        return stat.bluej.getLabel("exception.hostnotset");
+          
+    if (ex instanceof IllegalArgumentException && ex.getMessage().equals("User Email address invalid"))
+        return stat.bluej.getLabel("exception.addrnotset");
+
+    // I want to have a message in any case...        
+    return ex.getMessage();
+    }
+
+
+
+
 
 
 
