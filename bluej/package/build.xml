@@ -129,7 +129,7 @@
         <delete dir="install_tmp" />
         <unzip src="bluej-dist.jar" dest="install_tmp" />
 
-        <exec dir="winsetup" executable="C:\Program Files\Inno Setup 3\ISCC.exe">
+        <exec dir="winsetup" executable="C:\Program Files\Inno Setup 4\ISCC.exe">
             <arg line="bluej.iss"/>
         </exec>
 
