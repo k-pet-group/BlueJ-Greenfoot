@@ -4,13 +4,14 @@ import javax.swing.*;
 import java.awt.*;
 import bluej.Config;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * A PrefPanel subclass to allow the user to interactively edit
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: MiscPrefPanel.java 1909 2003-04-28 18:04:45Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -22,7 +23,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     private JCheckBox autoIndentBox;
     private JCheckBox lineNumbersBox;
     private JCheckBox makeBackupBox;
-    private JCheckBox useJdk14Box;
+    private JCheckBox showTestBox;
     private JCheckBox matchBracketsBox;
 
     private JTextField jdkURLField;
@@ -80,23 +81,6 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
         add(Box.createVerticalStrut(Config.generalSpacingWidth));
 
-        JPanel compilerPanel = new JPanel(new GridLayout(1,2,0,0));
-        {
-            compilerPanel.setBorder(BorderFactory.createCompoundBorder(
-                                          BorderFactory.createTitledBorder(
-                                                 Config.getString("prefmgr.misc.compiler.title")),
-                                          Config.generalBorder));
-            compilerPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-            useJdk14Box = new JCheckBox(Config.getString("prefmgr.misc.usejdk14"));
-            compilerPanel.add(useJdk14Box);
-            if(System.getProperty("java.vm.version").startsWith("1.3"))
-                useJdk14Box.setEnabled(false);
-        }
-        add(compilerPanel);
-
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
-
         JPanel docPanel = new JPanel();
         {
             docPanel.setLayout(new BoxLayout(docPanel, BoxLayout.Y_AXIS));
@@ -141,6 +125,21 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
         add(Box.createVerticalStrut(Config.generalSpacingWidth));
 
+        JPanel testPanel = new JPanel(new GridLayout(1,2,0,0));
+        {
+            testPanel.setBorder(BorderFactory.createCompoundBorder(
+                                          BorderFactory.createTitledBorder(
+                                                 Config.getString("prefmgr.misc.testing.title")),
+                                          Config.generalBorder));
+            testPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+            showTestBox = new JCheckBox(Config.getString("prefmgr.misc.showTesting"));
+            testPanel.add(showTestBox);
+        }
+        add(testPanel);
+
+        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+
         add(Box.createVerticalGlue());
     }
 
@@ -152,7 +151,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         lineNumbersBox.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
         makeBackupBox.setSelected(PrefMgr.getFlag(PrefMgr.MAKE_BACKUP));
         matchBracketsBox.setSelected(PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS));
-        useJdk14Box.setSelected(PrefMgr.getFlag(PrefMgr.ENABLE_JDK14));
+        showTestBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS));
         linkToLibBox.setSelected(PrefMgr.getFlag(PrefMgr.LINK_LIB));
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
     }
@@ -177,9 +176,10 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
         PrefMgr.setFlag(PrefMgr.LINK_LIB, linkToLibBox.isSelected());
-        PrefMgr.setFlag(PrefMgr.ENABLE_JDK14, useJdk14Box.isSelected());
+        PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, showTestBox.isSelected());
 
         Package.editorManager.refreshAll();
+        PkgMgrFrame.checkTestingStatus();
 
         String jdkURL = jdkURLField.getText();
 

@@ -14,7 +14,7 @@ import bluej.Config;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: PrefMgr.java 1909 2003-04-28 18:04:45Z mik $
  */
 public class PrefMgr
 {
@@ -24,7 +24,7 @@ public class PrefMgr
     public static final String LINENUMBERS = "bluej.editor.displayLineNumbers";
     public static final String MAKE_BACKUP = "bluej.editor.makeBackup";
     public static final String MATCH_BRACKETS = "bluej.editor.matchBrackets";
-    public static final String ENABLE_JDK14 = "bluej.compiler.source14";
+    public static final String SHOW_TEST_TOOLS = "bluej.testing.showtools";
     public static final String LINK_LIB = "doctool.linkToStandardLib";
     
     public static final String USE_THEMES = "bluej.useTheme";
@@ -114,7 +114,7 @@ public class PrefMgr
         flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
         flags.put(MAKE_BACKUP, Config.getPropString(MAKE_BACKUP, "false"));
         flags.put(MATCH_BRACKETS, Config.getPropString(MATCH_BRACKETS, "true"));
-        flags.put(ENABLE_JDK14, Config.getPropString(ENABLE_JDK14, "false"));
+        flags.put(SHOW_TEST_TOOLS, Config.getPropString(SHOW_TEST_TOOLS, "false"));
         flags.put(LINK_LIB, Config.getPropString(LINK_LIB, "true"));
         flags.put(USE_THEMES, Config.getPropString(USE_THEMES, "false"));
     }

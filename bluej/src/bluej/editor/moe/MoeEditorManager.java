@@ -107,13 +107,12 @@ public final class MoeEditorManager
     {
         Iterator e = editors.iterator();
 
-        while(e.hasNext())
-            {
-                Editor ed = (Editor)e.next();
+        while(e.hasNext()) {
+            Editor ed = (Editor)e.next();
 
-                if(ed.isShowing())
-                    ed.refresh();
-            }
+            if(ed.isShowing())
+                ed.refresh();
+       }
     }
 
     // ------------------------------------------------------------------------

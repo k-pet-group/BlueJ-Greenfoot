@@ -14,7 +14,7 @@ import bluej.utility.DialogManager;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- * @version $Id: JavacCompiler.java 1771 2003-04-10 02:00:54Z ajp $
+ * @version $Id: JavacCompiler.java 1909 2003-04-28 18:04:45Z mik $
  */
 public class JavacCompiler extends Compiler
 {
@@ -72,11 +72,10 @@ public class JavacCompiler extends Compiler
         if(deprecation)
             args.add("-deprecation");
         
-        if(! System.getProperty("java.vm.version").startsWith("1.3"))
-            if(PrefMgr.getFlag(PrefMgr.ENABLE_JDK14)) {
-                args.add("-source");
-                args.add("1.4");
-            }
+        if(! System.getProperty("java.vm.version").startsWith("1.3")) {
+            args.add("-source");
+            args.add("1.4");
+        }
 
          /** Not used at present...
         // add user specified compiler options

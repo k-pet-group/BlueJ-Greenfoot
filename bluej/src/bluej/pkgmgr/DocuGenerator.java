@@ -106,11 +106,10 @@ public class DocuGenerator
         ArrayList call = new ArrayList();
         call.add(docCommand);
         addParams(call, fixedJavadocParams);
-        if(! System.getProperty("java.vm.version").startsWith("1.3"))
-            if(PrefMgr.getFlag(PrefMgr.ENABLE_JDK14)) {
-                call.add("-source");
-                call.add("1.4");
-            }
+        if(! System.getProperty("java.vm.version").startsWith("1.3")) {
+            call.add("-source");
+            call.add("1.4");
+        }
         addParams(call, tmpJavadocParams);
         call.add("-d");
         call.add(docDir.getPath());
@@ -363,11 +362,10 @@ public class DocuGenerator
         call.add(projectDirPath);
         call.add("-d");
         call.add(docDirPath);
-        if(! System.getProperty("java.vm.version").startsWith("1.3"))
-            if(PrefMgr.getFlag(PrefMgr.ENABLE_JDK14)) {
-                call.add("-source");
-                call.add("1.4");
-            }
+        if(! System.getProperty("java.vm.version").startsWith("1.3")) {
+            call.add("-source");
+            call.add("1.4");
+        }
         call.add("-doctitle");
         call.add(project.getProjectName());
         call.add("-windowtitle");

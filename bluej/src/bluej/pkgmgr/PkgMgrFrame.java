@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1908 2003-04-28 07:33:30Z ajp $
+ * @version $Id: PkgMgrFrame.java 1909 2003-04-28 18:04:45Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -48,6 +48,7 @@ public class PkgMgrFrame extends JFrame
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
     private static Application macApplication = prepareMacOSApp();
+    private static boolean testToolsShown = wantToSeeTestingTools();
 
     // instance fields:
 
@@ -61,9 +62,6 @@ public class PkgMgrFrame extends JFrame
     private JButton imgDependsButton;
     private JTextField executorField;
     
-    private JMenu recentProjectsMenu;
-    private int toolsExtensionsSeparatorIndex;
-
     private JLabel statusbar;
     
     private JLabel testStatusMessage;
@@ -75,8 +73,13 @@ public class PkgMgrFrame extends JFrame
     private String testTargetMethod;
     
     private JMenuBar menubar = null;
+    private JMenu recentProjectsMenu;
     private JMenu toolsMenu;
+    private int toolsExtensionsSeparatorIndex;
+    private JMenu viewMenu;
+    private JMenuItem showTestResultsItem;
     private List itemsToDisable;
+    private List testItems;
     private JButton progressButton;
 
     /* The scroller which holds the PackageEditor we use to edit packages */
@@ -103,8 +106,6 @@ public class PkgMgrFrame extends JFrame
 
     private static ExtensionsManager extMgr = ExtensionsManager.getExtMgr();
 
-
-        
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit menu)
      */
@@ -302,6 +303,30 @@ public class PkgMgrFrame extends JFrame
         return mostRecent;
     }
 
+
+    /**
+     * Check whether the status of the 'Show unit test tools' preference
+     * has changed, and if it has, show or hide them as requested.
+     */
+    public static void checkTestingStatus()
+    {
+        if(testToolsShown != wantToSeeTestingTools()) {
+            for(Iterator i = frames.iterator(); i.hasNext(); ) {
+                ((PkgMgrFrame)i.next()).showTestingTools(!testToolsShown);
+            }
+            testToolsShown = !testToolsShown;
+        }
+    }
+
+    
+    /**
+     * Tell whether unit testing tools should be shown.
+     */
+    private static boolean wantToSeeTestingTools()
+    {
+        return PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS);
+    }
+    
 
     /**
      * Display a short text message to the user. Without specifying a package,
@@ -1765,7 +1790,8 @@ public class PkgMgrFrame extends JFrame
     {
         setFont(PkgMgrFont);
         setIconImage(Config.frameImage);
-
+        testItems = new ArrayList();
+        
         setupMenus();
 
         JPanel mainPanel = new JPanel();
@@ -1888,7 +1914,7 @@ public class PkgMgrFrame extends JFrame
                 
                 testPanel.setAlignmentX(0.5f);
             }
-
+            testItems.add(testPanel);
 
             // Image Button Panel to hold the Progress Image
             //        JPanel progressPanel = new JPanel ();
@@ -1948,6 +1974,10 @@ public class PkgMgrFrame extends JFrame
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
         getContentPane().add(mainPanel);
+        
+        // hide testing tools if not wanted
+        if(! testToolsShown)
+            showTestingTools(false);
 
         pack();
 
@@ -2175,10 +2205,11 @@ public class PkgMgrFrame extends JFrame
                            KeyEvent.VK_T, SHORTCUT_MASK, false, false, null);
             item.setModel(new TerminalButtonModel());
 
-            item = createCheckboxMenuItem("menu.view.showTestDisplay", menu,
+            showTestResultsItem = createCheckboxMenuItem("menu.view.showTestDisplay", menu,
                            0, 0, false, false, null);
-            item.setModel(new TestDisplayButtonModel());
+            showTestResultsItem.setModel(new TestDisplayButtonModel());
         }
+        viewMenu = menu;
 
 
     /**
@@ -2233,7 +2264,44 @@ public class PkgMgrFrame extends JFrame
         setJMenuBar(menubar);
     }
 
+    
+    /**
+     * Add a new menu item to a menu.
+     */
+    private void createMenuItem(String itemStr, JMenu menu, int key, int modifiers,
+                                boolean disable, ActionListener listener)
+    {
+        JMenuItem item = new JMenuItem(Config.getString(itemStr));
 
+        if (key != 0)
+            item.setAccelerator(KeyStroke.getKeyStroke(key, modifiers));
+        item.addActionListener(listener);
+        menu.add(item);
+        if(disable)
+            itemsToDisable.add(item);
+    }
+
+    
+    /**
+     * Add a new menu item to a menu.
+     */
+    private JCheckBoxMenuItem createCheckboxMenuItem(String itemStr, JMenu menu,
+                                                    int key, int modifiers, boolean selected,
+                                                    boolean disable, ActionListener listener)
+    {
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(Config.getString(itemStr), selected);
+
+        if (key != 0)
+            item.setAccelerator(KeyStroke.getKeyStroke(key, modifiers));
+        item.addActionListener(listener);
+        menu.add(item);
+        if(disable)
+            itemsToDisable.add(item);
+
+        return item;
+    }
+
+    
     /**
      *  Return the menu tool bar.
      */
@@ -2242,7 +2310,7 @@ public class PkgMgrFrame extends JFrame
         return toolsMenu;
     }
 
-
+    
     /**
      * Add or remove a separator in the tools menu for extensions as needed.
      */
@@ -2263,44 +2331,7 @@ public class PkgMgrFrame extends JFrame
             toolsExtensionsSeparatorIndex = 0;
         }
     }
-
-
-
-    /**
-     * Add a new menu item to a menu.
-     */
-    private void createMenuItem(String itemStr, JMenu menu, int key, int modifiers,
-                                boolean disable, ActionListener listener)
-    {
-        JMenuItem item = new JMenuItem(Config.getString(itemStr));
-
-        if (key != 0)
-            item.setAccelerator(KeyStroke.getKeyStroke(key, modifiers));
-        item.addActionListener(listener);
-        menu.add(item);
-        if(disable)
-            itemsToDisable.add(item);
-    }
-
-    /**
-     * Add a new menu item to a menu.
-     */
-    private JCheckBoxMenuItem createCheckboxMenuItem(String itemStr, JMenu menu,
-                                                    int key, int modifiers, boolean selected,
-                                                    boolean disable, ActionListener listener)
-    {
-        JCheckBoxMenuItem item = new JCheckBoxMenuItem(Config.getString(itemStr), selected);
-
-        if (key != 0)
-            item.setAccelerator(KeyStroke.getKeyStroke(key, modifiers));
-        item.addActionListener(listener);
-        menu.add(item);
-        if(disable)
-            itemsToDisable.add(item);
-
-        return item;
-    }
-
+    
 
     /**
      * Called on (almost) every menu invocation to clean up.
@@ -2312,7 +2343,7 @@ public class PkgMgrFrame extends JFrame
         clearStatus();
     }
 
-
+    
     /**
      * Add user defined help menus. Users can add help menus via the
      * bluej.help.items property. See comment in bluej.defs.
@@ -2366,8 +2397,24 @@ public class PkgMgrFrame extends JFrame
             JComponent component = (JComponent)it.next();
             component.setEnabled(enable);
         }
-
     }
+
+
+    /**
+     * Show or hide the testing tools.
+     */
+    public void showTestingTools(boolean show)
+    {
+        for (Iterator it = testItems.iterator(); it.hasNext(); ) {
+            JComponent component = (JComponent)it.next();
+            component.setVisible(show);
+        }
+        if (show)
+            viewMenu.add(showTestResultsItem);
+        else
+            viewMenu.remove(showTestResultsItem);
+    }
+    
 
     class URLDisplayer implements ActionListener
     {
