@@ -19,7 +19,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2012 2003-06-03 07:09:13Z ajp $
+ * @version $Id: ExecServer.java 2026 2003-06-11 07:55:32Z ajp $
  */
 public class ExecServer
 {
@@ -166,16 +166,16 @@ public class ExecServer
     /**
      * Find a scoping Map for the given scopeId
      */
-    /*package*/ static Map getScope(String scopeId)
+    static Map getScope()
     {
         //Debug.message("[VM] getScope" + scopeId);
-        Map scope = (Map)scopes.get(scopeId);
+        //Map scope = (Map)scopes.get(scopeId);
 
-        if(scope == null) {
-            scope = new HashMap();
-            scopes.put(scopeId, scope);
-        }
-        return scope;
+        //if(scope == null) {
+        //    scope = new HashMap();
+        //    scopes.put(scopeId, scope);
+       // }
+        return scopes;
     }
 
     // -- methods called by reflection from JdiDebugger --
@@ -234,10 +234,10 @@ public class ExecServer
      *
      * Must be static because it is used by Shell without a execServer reference
      */
-    /*package*/ static void addObject(String scopeId, String instanceName, Object value)
+    static void addObject(String instanceName, Object value)
     {
         // Debug.message("[VM] addObject: " + instanceName + " " + value);
-        Map scope = getScope(scopeId);
+        Map scope = getScope();
         scope.put(instanceName, value);
     }
 
@@ -414,10 +414,10 @@ public class ExecServer
      * This has to be done tolerantly: (why? ajp 22/5)
      *  If the named instance is not in the scope, we just quetly return.
      */
-    private static void removeObject(String scopeId, String instanceName)
+    private static void removeObject(String instanceName)
     {
         //Debug.message("[VM] removeObject: " + instanceName);
-        Map scope = getScope(scopeId);
+        Map scope = getScope();
         scope.remove(instanceName);
     }
 
@@ -426,7 +426,7 @@ public class ExecServer
      *
      * Must be static because it is used by RemoteSecurityManager without a execServer reference
      */
-    /*package*/ static void supressOutput()
+    static void supressOutput()
     {
         throwawayErr = new ByteArrayOutputStream();
         System.setErr(new PrintStream(throwawayErr));
@@ -437,7 +437,7 @@ public class ExecServer
      *
      * Must be static because it is used by RemoteSecurityManager without a execServer reference
      */
-    /*package*/ static void restoreOutput()
+    static void restoreOutput()
     {
         System.setErr(systemErr);
     }
@@ -447,7 +447,7 @@ public class ExecServer
      *
      * Must be static because it is used by RemoteSecurityManager without a execServer reference
      */
-    /*package*/ static void disposeWindows()
+    static void disposeWindows()
     {
         synchronized(openWindows) {
             disposingAllWindows = true;

@@ -11,7 +11,7 @@ import java.util.Map;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Shell.java 1543 2002-11-29 13:49:49Z ajp $
+ * @version $Id: Shell.java 2026 2003-06-11 07:55:32Z ajp $
  */
 public abstract class Shell
 {
@@ -29,7 +29,7 @@ public abstract class Shell
      */
     protected static Map getScope(String scopeId)
     {
-        return ExecServer.getScope(scopeId);
+        return ExecServer.getScope();
     }
 
     /**
@@ -37,7 +37,7 @@ public abstract class Shell
      */
     protected static void putObject(String scopeId, String instanceName, Object value)
     {
-        ExecServer.addObject(scopeId, instanceName, value);
+        ExecServer.addObject(instanceName, value);
     }
 
     /**

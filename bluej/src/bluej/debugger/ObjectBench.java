@@ -16,7 +16,7 @@ import bluej.testmgr.*;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: ObjectBench.java 2026 2003-06-11 07:55:32Z ajp $
  */
 public class ObjectBench
 {
@@ -367,7 +367,7 @@ public class ObjectBench
 
         for(int i=0; i<wrappers.length; i++) {
             wrappers[i].prepareRemove();
-			wrappers[i].getPackage().getDebugger().removeObjectFromScope(scopeId, wrappers[i].getName());
+			wrappers[i].getPackage().getDebugger().removeObject(wrappers[i].getName());
 
             obp.remove(wrappers[i]);
         }
@@ -387,7 +387,7 @@ public class ObjectBench
     public void remove(ObjectWrapper wrapper, String scopeId)
     {
         wrapper.prepareRemove();
-		wrapper.getPackage().getDebugger().removeObjectFromScope(scopeId, wrapper.getName());
+		wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
         obp.remove(wrapper);
 
         enableButtons(viewPort.getViewPosition());

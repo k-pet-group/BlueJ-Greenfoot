@@ -28,7 +28,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2010 2003-06-03 07:07:12Z ajp $
+ * @version $Id: PkgMgrFrame.java 2026 2003-06-11 07:55:32Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1203,8 +1203,7 @@ public class PkgMgrFrame extends JFrame
                                                        name);
                         getObjectBench().add(wrapper);
 
-                        getPackage().getDebugger().addObjectToScope(getPackage().getId(),
-                                                wrapper.getName(), realResult);
+                        getPackage().getDebugger().addObject(wrapper.getName(), realResult);
                                                 
                         getObjectBench().addInteraction(ir);
                     }
@@ -1313,8 +1312,7 @@ public class PkgMgrFrame extends JFrame
             getObjectBench().add(wrapper);  // might change name
 
             // load the object into runtime scope
-            getPackage().getDebugger().addObjectToScope(getPackage().getId(),
-                                                wrapper.getName(), object);
+            getPackage().getDebugger().addObject(wrapper.getName(), object);
                                                 
             if (ir instanceof MethodInvokerRecord) {
             	MethodInvokerRecord mir = (MethodInvokerRecord) ir;
@@ -1794,7 +1792,7 @@ public class PkgMgrFrame extends JFrame
      */
     public void executionStarted()
     {
-        progressButton.setEnabled(true);
+		progressButton.setIcon(workingIcon);
         Terminal.getTerminal().activate(true);
     }
 
@@ -1804,7 +1802,7 @@ public class PkgMgrFrame extends JFrame
      */
     private void executionFinished()
     {
-        progressButton.setEnabled(false);
+		progressButton.setIcon(stoppedIcon);
         if(getProject().getExecControls().isVisible())
         	getProject().getExecControls().updateThreads(null);
         	
@@ -1857,6 +1855,31 @@ public class PkgMgrFrame extends JFrame
         else
             setStatus(Config.getString("pkgmgr.webBrowserError"));
     }
+
+	private void createMachinePopup()
+	{
+		JPopupMenu p = new JPopupMenu();
+		JMenuItem item;
+		
+		item = new JMenuItem("Show Debugger");
+		item.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent e) {
+									getProject().getExecControls().showHide(true, true, null);
+								}
+							 });
+		p.add(item);
+
+		item = new JMenuItem("Reset Machine");
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, InputEvent.SHIFT_MASK));
+		item.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent e) {
+									restartDebugger();
+								}
+							 });
+		p.add(item);
+
+		p.show(progressButton, 10,10);
+	}
 
     // --- the following methods set up the GUI frame ---
 
@@ -2005,15 +2028,17 @@ public class PkgMgrFrame extends JFrame
             // Image Button Panel to hold the Progress Image
             //        JPanel progressPanel = new JPanel ();
     
-            progressButton = new JButton(workingIcon);
+            progressButton = new JButton(stoppedIcon);
             progressButton.setDisabledIcon(notWorkingIcon);
             progressButton.setMargin(new Insets(0, 0, 0, 0));
             progressButton.setToolTipText(Config.getString("tooltip.progress"));
             progressButton.addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent e) {
-                                    getProject().getExecControls().showHide(true, true, null);
-                                }
-                           });
+                            public void actionPerformed(ActionEvent e)
+                            {
+                            	createMachinePopup();                               	
+                            }
+                       });
+			itemsToDisable.add(progressButton);
             progressButton.setEnabled(false);
             //        progressPanel.add(progressButton);
     
@@ -2240,10 +2265,6 @@ public class PkgMgrFrame extends JFrame
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); pkg.rebuild(); }
                            });
-//			createMenuItem("menu.tools.restart", menu, KeyEvent.VK_ESCAPE, 0, true,
-//						   new ActionListener() {
-//							   public void actionPerformed(ActionEvent e) { menuCall(); restartDebugger(); }
-//						   });
             menu.addSeparator();
 
             createMenuItem("menu.tools.callLibrary", menu, KeyEvent.VK_L, SHORTCUT_MASK, true,
