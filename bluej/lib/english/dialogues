@@ -109,7 +109,7 @@ There was an error changing this file.
 
 error-exporting
 An error occurred while trying to export the
-application. Some or all files may not have 
+application. Some or all files may not have
 been correctly copied.
 
 error-writing-jar
@@ -255,7 +255,7 @@ or would you like to create a new project and
 import into that?
 Current
 New Project
-null
+Cancel
 
 ask-index
 Enter array element index [...]

@@ -261,6 +261,12 @@ pkgmgr.export.classLabel=main class:
 pkgmgr.export.sourceLabel=include source
 pkgmgr.export.noClassText=none (cannot be executed)
 
+# "import" failure dialog
+pkgmgr.importfailed.title=BlueJ:  Import Status
+pkgmgr.importfailed.helpLine1=The import has failed to copy the following files.
+pkgmgr.importfailed.helpLine2=This is most likely due to these files already
+pkgmgr.importfailed.helpLine3=being present in the destination project.
+
 # run applet dialog
 pkgmgr.runApplet.title=BlueJ:  Run Applet
 pkgmgr.runApplet.webPageLabel=Create Web Page
