@@ -3,7 +3,7 @@
 // This software is made available under the terms of the "MIT License"
 // A copy of this license is included with this source distribution
 // in "license.txt" and is also available at:
-// http://www.opensource.org/licenses/mit-license.html 
+// http://www.opensource.org/licenses/mit-license.html
 // Any queries should be directed to Michael Kolling mik@monash.edu.au
 
 package bluej.editor.moe;
@@ -15,21 +15,18 @@ import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
 
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
-import java.awt.event.*;        // New Event model    
+import java.awt.event.*;        // New Event model
 import javax.swing.*;		// all the GUI components
 import java.io.*;
 
 /**
-** @author Michael Kolling
-**
-**/
-
+ *
+ * @author Michael Kolling
+ */
 public final class Info extends JPanel
-
-implements ActionListener 
+    implements ActionListener
 {
-    static final ImageIcon helpImage = 
-    new ImageIcon(Config.getImageFilename("image.help"));
+    static final ImageIcon helpImage = Config.getImageAsIcon("image.help");
 
     public static Font infoFont = new Font("SansSerif", Font.BOLD, 10);
 
@@ -131,7 +128,7 @@ implements ActionListener
 
 
     /**
-     * 
+     *
      */
     public void setHelp(String helpGroup)
     {
@@ -140,7 +137,7 @@ implements ActionListener
     }
 
     /**
-     * 
+     *
      */
     public void hideHelp()
     {
@@ -156,7 +153,7 @@ implements ActionListener
 
     private void displayHelp(String helpGroup)
     {
-        String fileName = Config.getHelpFilename(helpGroup);
+        String fileName = Config.getLibFile(helpGroup + ".help").getPath();
         String displayMsg = (line1.getText() + line2.getText()).trim();
 
         String helpText = BlueJFileReader.readHelpText(fileName, displayMsg,
@@ -164,12 +161,12 @@ implements ActionListener
 
         if(displayMsg.length() > 60) {
             int half = displayMsg.length() / 2;
-            displayMsg = displayMsg.substring(0, half) + "\n" + 
+            displayMsg = displayMsg.substring(0, half) + "\n" +
                          displayMsg.substring(half);
         }
 
         if(helpText == null)
-            DialogManager.showMessageWithText(null, "no-help", 
+            DialogManager.showMessageWithText(null, "no-help",
                                               "\n" + displayMsg);
         else
             DialogManager.showText(null, displayMsg + "\n\n" + helpText);

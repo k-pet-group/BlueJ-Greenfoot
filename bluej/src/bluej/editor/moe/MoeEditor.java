@@ -3,7 +3,7 @@
 // This software is made available under the terms of the "MIT License"
 // A copy of this license is included with this source distribution
 // in "license.txt" and is also available at:
-// http://www.opensource.org/licenses/mit-license.html 
+// http://www.opensource.org/licenses/mit-license.html
 // Any queries should be directed to Michael Kolling mik@monash.edu.au
 
 package bluej.editor.moe;
@@ -45,7 +45,7 @@ import java.awt.geom.*;
 import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
 
 /**
- * @author Michael Kolling 
+ * @author Michael Kolling
  *
  */
 
@@ -76,8 +76,8 @@ public final class MoeEditor extends JFrame
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
     // Icons
-    static final Image iconImage = 
-        new ImageIcon(Config.getImageFilename("image.icon.editor")).getImage();
+    static final Image iconImage =
+        Config.getImageAsIcon("image.icon.editor").getImage();
 
     // Fonts
     public static Font printFont = new Font("Monospaced", Font.PLAIN,
@@ -126,7 +126,7 @@ public final class MoeEditor extends JFrame
     private JPanel statusArea;	    // the status area
     private LineNumberLabel lineCounter;	// the line number label
     private StatusLabel saveState;  // the status label
-    private JComboBox interfaceToggle; 
+    private JComboBox interfaceToggle;
 
     private JScrollPane scrollPane;
     private JComponent toolbar;	    // The toolbar
@@ -269,13 +269,13 @@ public final class MoeEditor extends JFrame
         //       save_state = Saved;
 
         if (loaded)
-            info.message (Config.getString("editor.info.version") + 
+            info.message (Config.getString("editor.info.version") +
                           versionString);
         else if (readError)
             info.warning (Config.getString("editor.info.readingProblem"),
                           Config.getString("editor.info.regularFile"));
         else
-            info.message (Config.getString("editor.info.version" + 
+            info.message (Config.getString("editor.info.version" +
                                            versionString),
                           Config.getString("editor.info.newFile"));
 
@@ -999,9 +999,9 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  
+     *
      */
-    public void createHTMLPane() 
+    public void createHTMLPane()
     {
         htmlPane = new JEditorPane();
         htmlPane.setEditorKit(new HTMLEditorKit());
@@ -1013,7 +1013,7 @@ public final class MoeEditor extends JFrame
     /**
      *  A hyperlink was activated in the document. Do something appropriate.
      */
-    public void hyperlinkUpdate(HyperlinkEvent e) 
+    public void hyperlinkUpdate(HyperlinkEvent e)
     {
         info.clear();
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
@@ -1667,7 +1667,7 @@ public final class MoeEditor extends JFrame
         String actionName = "toggle-interface-view";
         Action action = actions.getActionByName(actionName);
         if (action != null) {	// should never be null...
-            // for jdk 1.3 and newer only: 
+            // for jdk 1.3 and newer only:
             //  interfaceToggle.setAction(action);
 
             // code for 1.2 - remove once 1.2 is out of fashion
@@ -1705,7 +1705,7 @@ public final class MoeEditor extends JFrame
             //printer.printDocument(document, windowTitle, printFont, pageFormat);
             // print document, using new pageformat object at present
             info.message (Config.getString("editor.info.printing"));
-            if(printer.printDocument(sourceDocument, windowTitle, printFont, 
+            if(printer.printDocument(sourceDocument, windowTitle, printFont,
                                      pageFormat))
                 info.message (Config.getString("editor.info.printed"));
             else

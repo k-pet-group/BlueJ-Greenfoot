@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 791 2001-03-06 03:27:51Z mik $
+ * @version $Id: ClassTarget.java 853 2001-04-19 04:24:26Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -64,7 +64,7 @@ public class ClassTarget extends EditableTarget
     static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
 
     static final Image brokenImage =
-	Toolkit.getDefaultToolkit().getImage(Config.getImageFilename("image.broken"));
+	    Config.getImageAsIcon("image.broken").getImage();
 
     static final String STEREOTYPE_OPEN = "<<";
     static final String STEREOTYPE_CLOSE = ">>";
@@ -133,7 +133,7 @@ public class ClassTarget extends EditableTarget
      * @param prefix an internal name used for this target to identify
      * its properties in a properties file used by multiple targets.
      */
-    public void load(Properties props, String prefix) 
+    public void load(Properties props, String prefix)
         throws NumberFormatException
     {
         super.load(props, prefix);

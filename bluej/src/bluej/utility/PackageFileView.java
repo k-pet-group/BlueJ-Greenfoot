@@ -17,10 +17,10 @@ import java.io.File;
  */
 public class PackageFileView extends FileView {
 
-    static final Icon packageIcon = new ImageIcon(Config.getImageFilename("image.packageIcon"));
+    static final Icon packageIcon = Config.getImageAsIcon("image.packageIcon");
 
     /**
-     * The name of the file.  Do nothing special here. Let the system file 
+     * The name of the file.  Do nothing special here. Let the system file
      * view handle this. (All methods that return null get then handled by
      * the system.)
      */

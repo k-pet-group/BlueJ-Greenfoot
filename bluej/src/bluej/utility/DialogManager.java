@@ -10,12 +10,12 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- **
- **
- **
- **
- ** @author Michael Kolling
- **/
+ *
+ *
+ *
+ *
+ * @author Michael Kolling
+ */
 public class DialogManager
 {
     private static final String DLG_FILE_NAME = "dialogues";
@@ -153,8 +153,9 @@ public class DialogManager
      * Support routine for dialogues. Read the message text out of the
      * dialogue text file (language dependent).
      */
-    public static String getMessage(String msgID) {
-        String filename = Config.getLanguageFilename(DLG_FILE_NAME);
+    public static String getMessage(String msgID)
+    {
+        String filename = Config.getLanguageFile(DLG_FILE_NAME).getPath();
         String message = BlueJFileReader.readHelpText(filename, msgID, true);
         if(message == null)
             JOptionPane.showMessageDialog(null,

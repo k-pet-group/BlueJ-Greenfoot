@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 809 2001-03-21 06:20:20Z mik $
+ ** @version $Id: ExecControls.java 853 2001-04-19 04:24:26Z ajp $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -484,7 +484,7 @@ public class ExecControls extends JFrame
     private JButton addButton(String imgRsrcName, JPanel panel, Insets margin)
     {
         JButton button;
-        button = new JButton(new ImageIcon(Config.getImageFilename(imgRsrcName)));
+        button = new JButton(Config.getImageAsIcon(imgRsrcName));
         button.setMargin(margin);
         button.addActionListener(this);
         panel.add(button);

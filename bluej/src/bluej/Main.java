@@ -19,7 +19,7 @@ import java.util.StringTokenizer;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Main.java 839 2001-04-12 04:55:46Z mik $
+ * @version $Id: Main.java 853 2001-04-19 04:24:26Z ajp $
  */
 public class Main
 {
@@ -42,6 +42,9 @@ public class Main
     public static String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
 
     public static String BLUEJ_JAR = "bluej.jar";
+
+    private static int FIRST_X_LOCATION = 20;
+    private static int FIRST_Y_LOCATION = 20;
 
     /**
      * Entry point to starting up the system. Initialise the
@@ -74,7 +77,7 @@ public class Main
             System.exit(-1);
         }
 
-        String bluejLib = findBlueJLib();
+        File bluejLib = findBlueJLib();
         if(bluejLib == null) {
             Debug.reportError("Cannot find lib directory");
             Debug.reportError("A file named " + BLUEJ_JAR + " should be in the classpath!");
@@ -104,7 +107,7 @@ public class Main
      * Start everything off. This is used to open the projects
      * specified on the command line when starting BlueJ.
      */
-    public static void processArgs(String[] args)
+    private static void processArgs(String[] args)
     {
         boolean oneOpened = false;
         if(args.length > 0) {
@@ -118,7 +121,8 @@ public class Main
 
                     PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
 
-                    pmf.setLocation(i*30 + 20, i*30 + 20);
+                    pmf.setLocation(i*30 + FIRST_X_LOCATION,
+                                     i*30 + FIRST_Y_LOCATION);
                     pmf.show();
                 }
             }
@@ -127,32 +131,38 @@ public class Main
         if(args.length == 0 || !oneOpened) {
             // no arguments, so start an empty package manager window
             PkgMgrFrame frame = PkgMgrFrame.createFrame();
-            frame.setLocation(20, 20);
+            frame.setLocation(FIRST_X_LOCATION, FIRST_Y_LOCATION);
             frame.show();
         }
     }
 
     /**
-     * Find out and return the directory path of BlueJ's lib directory,
-     * including trailing slash or backslash.
+     * Find out and return the directory path of BlueJ's lib directory
      * Return null, if we can't find it.
      */
-    private static String findBlueJLib()
+    private static File findBlueJLib()
     {
         String bluejLib = null;
         String classpath = System.getProperty("java.class.path");
 
-        StringTokenizer st = new StringTokenizer(classpath, 
+        StringTokenizer st = new StringTokenizer(classpath,
                                                  File.pathSeparator);
         while(st.hasMoreTokens()) {
             String entry = st.nextToken();
             if(entry.endsWith(BLUEJ_JAR)) {
-                bluejLib = entry.substring(0, 
+                bluejLib = entry.substring(0,
                                      entry.length() - BLUEJ_JAR.length());
                 break;
             }
         }
-        return bluejLib;
+        if (bluejLib != null) {
+            File blueJLibFile = new File(bluejLib);
+
+            if (blueJLibFile.isDirectory())
+                return blueJLibFile;
+        }
+
+        return null;
     }
 
     /**

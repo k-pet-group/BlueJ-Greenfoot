@@ -40,7 +40,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 839 2001-04-12 04:55:46Z mik $
+ * @version $Id: Config.java 853 2001-04-19 04:24:26Z ajp $
  */
 
 public class Config
@@ -51,14 +51,18 @@ public class Config
     private static DefaultProperties lang_props;	// The internationalisation
     //  dictionary
     public static DefaultProperties moe_props;		// moe (editor) properties
+
     private static String dirname = (File.separatorChar == '/') ? ".bluej" : "bluej";
-    private static String bluej_lib;
-    private static String user_confdir;
+    private static File bluej_lib_dir;
+    private static File user_conf_dir;
 
     public static String compilertype;	// current compiler (javac, jikes)
     public static String language;	// message language (english, ...)
 
     public static Rectangle screenBounds; // maximum dimensions of screen
+
+    // Image to be used for setting the frames icon
+    public static Image frameImage = null;
 
     // Swing JSplitPane divider width constant for uniform look and feel
     public static final int splitPaneDividerWidth = 3;
@@ -102,7 +106,7 @@ public class Config
      * Initialisation of BlueJ configuration. Must be called at startup.
      * This method finds and opens the configuration files.
      */
-    public static void initialise(String bluej_lib)
+    public static void initialise(File bluej_lib_dir)
     {
         if(initialised)
             return;
@@ -113,11 +117,11 @@ public class Config
 
         // construct paths for the configuration directories
 
-        Config.bluej_lib = bluej_lib;
-        user_confdir = FileSystemView.getFileSystemView().
-            getHomeDirectory().getAbsolutePath() + File.separator + dirname;
+        Config.bluej_lib_dir = bluej_lib_dir;
+        user_conf_dir = new File(FileSystemView.getFileSystemView().getHomeDirectory(),
+                                    dirname);
 
-        checkUserDir(user_confdir);
+        checkUserDir(user_conf_dir);
 
         bluej_props = loadDefs("bluej.defs", true);	// system definitions
         loadProperties("bluej", bluej_props);	// user specific definitions
@@ -128,7 +132,12 @@ public class Config
 
         moe_props = loadDefs("moe.defs", false);
 
-        checkDebug(user_confdir);
+        ImageIcon ii = Config.getImageAsIcon("image.icon");
+        if(ii != null)
+            frameImage = ii.getImage();
+
+        checkDebug(user_conf_dir);
+
         compilertype = Config.getPropString("bluej.compiler.type");
         if(compilertype.equals("internal"))
             compilertype = "javac";
@@ -167,26 +176,25 @@ public class Config
     /**
      * Check, and if necessary create, the user directory (~/.bluej)
      */
-    private static void checkUserDir(String userdir)
+    private static void checkUserDir(File userdir)
     {
-        File dir = new File(userdir);
-        if(!dir.exists())
-            dir.mkdirs();
+        if(!userdir.exists())
+            userdir.mkdirs();
     }
 
     /**
      * Check whether we want to see debug information. If not, redirect it to
      * a file.
      */
-    private static void checkDebug(String userdir)
+    private static void checkDebug(File userdir)
     {
         if (! "on".equals(bluej_props.getProperty("debug"))) {
-            String debugLogFileName = userdir + File.separator +
-                bluej_props.getProperty("bluej.debugLog");
+            File debugLogFile = new File(userdir,
+                                          bluej_props.getProperty("bluej.debugLog"));
             // simple diversion of output stream to a log file
             try {
                 PrintStream outStream =
-                    new PrintStream(new FileOutputStream(debugLogFileName));
+                    new PrintStream(new FileOutputStream(debugLogFile));
                 System.setOut(outStream);
                 Debug.message("BlueJ version " + Main.BLUEJ_VERSION);
             }
@@ -216,7 +224,7 @@ public class Config
      */
     private static DefaultProperties loadDefs(String filename, boolean asDefault)
     {
-        File propsFile = new File(bluej_lib, filename);
+        File propsFile = new File(bluej_lib_dir, filename);
         DefaultProperties defs = new DefaultProperties();
 
         try {
@@ -239,7 +247,7 @@ public class Config
      */
     private static void loadProperties(String filename, DefaultProperties props)
     {
-        File propsFile = new File(user_confdir, filename + ".properties");
+        File propsFile = new File(user_conf_dir, filename + ".properties");
 
         try {
             props.load(new FileInputStream(propsFile));
@@ -255,7 +263,7 @@ public class Config
      */
     private static void saveProperties(String filename, DefaultProperties props)
     {
-        File propsFile = new File(user_confdir, filename + ".properties");
+        File propsFile = new File(user_conf_dir, filename + ".properties");
 
         try {
             props.store(new FileOutputStream(propsFile),
@@ -394,11 +402,11 @@ public class Config
         return (String)(bluej_props.remove(propertyName));
     }
 
-    public static String getLibFilename(String propname)
+    public static File getLibFile(String propname)
     {
         try {
             String filename = bluej_props.getProperty(propname);
-            return bluej_lib + filename;
+            return new File(bluej_lib_dir, filename);
         }
         catch(Exception e) {
             Debug.reportError("Could not get library name: " + propname);
@@ -409,11 +417,11 @@ public class Config
     /**
      * Find and return the file name for an image.
      */
-    public static String getImageFilename(String propname)
+    private static File getImageFile(String propname)
     {
         try {
             String filename = bluej_props.getProperty(propname);
-            return bluej_lib + "images" + File.separator + filename;
+            return new File(bluej_lib_dir, "images" + File.separator + filename);
         }
         catch(Exception e) {
             Debug.reportError("Could not find image: " + propname);
@@ -424,48 +432,36 @@ public class Config
     /**
      * Find and return the icon for an image.
      */
-//     public static Icon getImage(String propname)
-//     {
-//         try {
-//             String filename = bluej_props.getProperty(propname);
-//             Debug.message(propname);
-//             Debug.message(filename);
-//             return new ImageIcon(bluej_lib + "images" + File.separator + filename);
-
-//         }
-//         catch(Exception e) {
-//             Debug.reportError("Could not find image: " + propname);
-//             return null;
-//         }
-//     }
-
-
-    /**
-     * Find and return the file name for a help file (eg.
-     * "bluej/lib/javac.help.english")
-     */
-    public static String getHelpFilename(String base)
+    public static ImageIcon getImageAsIcon(String propname)
     {
-        return bluej_lib + File.separator + language + File.separator +
-            base + ".help";
+        try {
+            java.net.URL u = getImageFile(propname).toURL();
+
+            return new ImageIcon(u);
+        }
+        catch (java.net.MalformedURLException mue) { }
+        catch (NullPointerException npe) { }
+
+        return null;
     }
 
+
     /**
-     * Return the file name for a file with language specific text (eg.
-     * "bluej/lib/dialogs.english")
+     * Return the file with language specific text (eg.
+     * "bluej/lib/english/dialogs" is base is dialogs)
      */
-    public static String getLanguageFilename(String base)
+    public static File getLanguageFile(String base)
     {
-        return bluej_lib + File.separator + language + File.separator + base;
+        return new File(bluej_lib_dir, language + File.separator + base);
     }
 
     /**
      * Return the file name for a file in the user config directory
      * (<user_home>/.bluej/<base>)
      */
-    public static String getUserConfigFilename(String base)
+    public static File getUserConfigFile(String base)
     {
-        return user_confdir + File.separator + base;
+        return new File(user_conf_dir, base);
     }
 
     public static Color getItemColour(String itemname)
@@ -545,9 +541,9 @@ public class Config
     /**
      * Get the Inspector directory for the system
      */
-    public static File getSystemInspectorDir() 
+    public static File getSystemInspectorDir()
     {
-        return new File(bluej_lib + "inspector");
+        return new File(bluej_lib_dir, "inspector");
     }
 
 }

@@ -13,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 723 2000-12-12 04:43:19Z mik $
+ * @version $Id: AboutBlue.java 853 2001-04-19 04:24:26Z ajp $
  */
 class AboutBlue extends JDialog
 {
@@ -30,7 +30,7 @@ class AboutBlue extends JDialog
         // Create Text Panel
         MultiLineLabel toptext = new MultiLineLabel(LEFT_ALIGNMENT);
         toptext.setBackground(Color.white);
-        toptext.addText("BlueJ version " + version + 
+        toptext.addText("BlueJ version " + version +
                      "  (Java version " + System.getProperty("java.version") +
                      ")", true, false);
         toptext.addText(" ");
@@ -41,7 +41,7 @@ class AboutBlue extends JDialog
         toptext.addText("Running on: " + System.getProperty("os.name") +
                      " " + System.getProperty("os.version") +
                      " (" + System.getProperty("os.arch") + ")");
- 
+
         aboutPanel.add(toptext, BorderLayout.NORTH);
 
         // Create Text Panel
@@ -75,7 +75,7 @@ class AboutBlue extends JDialog
         aboutPanel.add(bottomtext, BorderLayout.SOUTH);
 
         // insert logo
-        ImageIcon icon = new ImageIcon(Config.getImageFilename("image.logo"));
+        Icon icon = Config.getImageAsIcon("image.logo");
         JLabel logoLabel = new JLabel(icon);
         aboutPanel.add(logoLabel, BorderLayout.WEST);
 

@@ -27,7 +27,7 @@ import javax.swing.border.Border;
  * @author     Michael Cahill
  * @author     Michael Kolling
  * @author     Duane Buck
- * @version    $Id: ObjectViewer.java 837 2001-04-04 12:27:53Z ajp $
+ * @version    $Id: ObjectViewer.java 853 2001-04-19 04:24:26Z ajp $
  */
 public class ObjectViewer extends JFrame
     implements ActionListener, ListSelectionListener, InspectorListener
@@ -69,8 +69,6 @@ public class ObjectViewer extends JFrame
 
     protected static int count = 0;
     protected static Hashtable viewers = new Hashtable();
-    protected final static Image iconImage =
-            new ImageIcon(Config.getImageFilename("image.icon")).getImage();
 
     protected final static Color bgColor = new Color(208, 212, 208);
 
@@ -176,7 +174,7 @@ public class ObjectViewer extends JFrame
     {
         super();
 
-        setIconImage(iconImage);
+        setIconImage(Config.frameImage);
 
         isInspection = inspect;
         this.obj = obj;

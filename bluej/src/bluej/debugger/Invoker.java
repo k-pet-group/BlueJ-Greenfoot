@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 815 2001-03-26 05:37:12Z mik $
+ * @version $Id: Invoker.java 853 2001-04-19 04:24:26Z ajp $
  */
 
 public class Invoker extends Thread
@@ -358,12 +358,12 @@ public class Invoker extends Thread
         }
         trans.put("INVOCATION", buffer.toString());
 
-        String templateFileName = Config.getLibFilename("template.shell");
-        String shellFileName = new File(pkg.getPath(),shellName + ".java").getPath();
+        File templateFile = Config.getLibFile("template.shell");
+        File shellFile = new File(pkg.getPath(), shellName + ".java");
 
         try {
-            BlueJFileReader.translateFile(templateFileName, shellFileName,
-        				  trans);
+            BlueJFileReader.translateFile(templateFile, shellFile,
+                                            trans);
         } catch(IOException e) {
             e.printStackTrace();
             return;
@@ -371,7 +371,7 @@ public class Invoker extends Thread
 
         BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, command + actualArgString);
 
-        String[] files = { shellFileName };
+        String[] files = { shellFile.getPath() };
         JobQueue.getJobQueue().addJob(files, this, pkg.getProject().getClassPath(),
                                         pkg.getProject().getProjectDir().getPath());
     }

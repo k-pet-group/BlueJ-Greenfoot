@@ -3,7 +3,7 @@
 // This software is made available under the terms of the "MIT License"
 // A copy of this license is included with this source distribution
 // in "license.txt" and is also available at:
-// http://www.opensource.org/licenses/mit-license.html 
+// http://www.opensource.org/licenses/mit-license.html
 // Any queries should be directed to Michael Kolling: mik@monash.edu.au
 
 package bluej.editor.moe;
@@ -35,7 +35,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 779 2001-02-12 01:50:21Z bquig $
+ * @version $Id: MoeSyntaxView.java 853 2001-04-19 04:24:26Z ajp $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -44,11 +44,11 @@ public class MoeSyntaxView extends PlainView
     private Segment line;
 
     static final Image breakImage =
-        new ImageIcon(Config.getImageFilename("image.breakmark")).getImage();
+        Config.getImageAsIcon("image.breakmark").getImage();
     static final Image stepImage =
-        new ImageIcon(Config.getImageFilename("image.stepmark")).getImage();
+        Config.getImageAsIcon("image.stepmark").getImage();
     static final Image breakStepImage =
-        new ImageIcon(Config.getImageFilename("image.breakstepmark")).getImage();
+        Config.getImageAsIcon("image.breakstepmark").getImage();
     static final int BREAKPOINT_OFFSET = MoeEditor.TAG_WIDTH + 2;
 
     /**

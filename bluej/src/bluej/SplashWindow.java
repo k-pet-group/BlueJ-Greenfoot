@@ -9,27 +9,27 @@ import java.io.File;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 839 2001-04-12 04:55:46Z mik $
+ * @version $Id: SplashWindow.java 853 2001-04-19 04:24:26Z ajp $
  */
 
 public class SplashWindow extends JWindow
 {
-    public SplashWindow(String bluejLib)
+    public SplashWindow(File bluejLibDir)
     {
-        ImageIcon icon = new ImageIcon(bluejLib + 
-                                       "images" + File.separator + 
-                                       "splash.jpg");
+        ImageIcon icon = new ImageIcon(new File(
+                                        new File(bluejLibDir, "images"),
+                                        "splash.jpg").getPath());
         JLabel image = new JLabel(icon);
         getContentPane().add(image);
         pack();
-        
+
         // centre on screen
         Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((screenDim.width - getSize().width)/2,
                     (screenDim.height - getSize().height)/2);
         setVisible(true);
     }
-    
+
     /**
      * Remove this splash screen from screen. Since we never need it again,
      * throw it away completely.

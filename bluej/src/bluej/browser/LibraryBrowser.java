@@ -27,13 +27,10 @@ import bluej.pkgmgr.Package;
  *
  * @author  Andy Marks
  * @author  Andrew Patterson
- * @cvs     $Id: LibraryBrowser.java 569 2000-06-19 05:42:42Z ajp $
+ * @cvs     $Id: LibraryBrowser.java 853 2001-04-19 04:24:26Z ajp $
  */
 public class LibraryBrowser extends JFrame implements ActionListener
 {
-    private static final Image iconImage = new ImageIcon(
-                                            Config.getImageFilename("image.icon")).getImage();
-
 	// panel which holds tree listing class heirarchy
 	private LibraryChooser libraryChooser = null;
 	// panel which holds display of the list of classes
@@ -88,7 +85,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
     	    return;
     	}
 
-    	setIconImage(iconImage);
+    	setIconImage(Config.frameImage);
     	setSize(new Dimension(780,580));
 
         setWaitCursor(true);

@@ -24,7 +24,7 @@ import java.io.IOException;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 814 2001-03-26 04:30:12Z ajp $
+ * @version $Id: Project.java 853 2001-04-19 04:24:26Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -163,7 +163,7 @@ public class Project
                 try {
                     if(newpkgFile.createNewFile()) {
                         if(FileUtility.copyFile(
-                                   new File(Config.getLibFilename("template.readme")),
+                                   Config.getLibFile("template.readme"),
                                    newreadmeFile))
                             return true;
                         else

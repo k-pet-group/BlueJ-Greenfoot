@@ -16,7 +16,7 @@ import bluej.utility.BlueJFileReader;
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 790 2001-03-06 01:07:51Z mik $
+ * @version $Id: ExportManager.java 853 2001-04-19 04:24:26Z ajp $
  */
 final class ExportManager
 {
@@ -120,7 +120,7 @@ final class ExportManager
      * Write the contents of a directory to a jar stream. Recursively called
      * for subdirectories.
      */
-    private void writeDirToJar(String sourceDir, String pathPrefix, 
+    private void writeDirToJar(String sourceDir, String pathPrefix,
                                JarOutputStream jStream, boolean includeSource)
         throws IOException
     {
@@ -131,7 +131,7 @@ final class ExportManager
             File file = new File(srcName);
             if(file.isDirectory()) {
                 if(!skipDir(dir[i]))
-                    writeDirToJar(srcName, pathPrefix + dir[i] + File.separator, 
+                    writeDirToJar(srcName, pathPrefix + dir[i] + File.separator,
                                   jStream, includeSource);
             }
             else {
@@ -213,8 +213,7 @@ final class ExportManager
 
         try {
             // copy README to tmp file
-            String readMePath = dir + File.separator + Package.readmeName;
-            File readMe = new File(readMePath);
+            File readMe = new File(dir, Package.readmeName);
             File tmp = File.createTempFile("bluej", "txt");
             FileUtility.copyFile(readMe, tmp);
 
@@ -222,14 +221,14 @@ final class ExportManager
             Hashtable translations = new Hashtable();
             translations.put("MAINCLASS", mainClass);
 
-            String templateName = 
-                Config.getLibFilename("template.readme.export");
-            BlueJFileReader.translateFile(templateName, readMePath,
+            File templateFile =
+                Config.getLibFile("template.readme.export");
+            BlueJFileReader.translateFile(templateFile, readMe,
                                           translations);
             // append original README
             InputStream in = new BufferedInputStream(new FileInputStream(tmp));
             OutputStream out = new BufferedOutputStream(
-                new FileOutputStream(readMePath, true));
+                new FileOutputStream(readMe, true));
             FileUtility.copyStream(in, out);
             in.close();
             out.close();

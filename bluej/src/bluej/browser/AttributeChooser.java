@@ -27,7 +27,7 @@ import java.util.*;
  * @see AttributeThread
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: AttributeChooser.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: AttributeChooser.java 853 2001-04-19 04:24:26Z ajp $
  */
 public class AttributeChooser extends JPanel {
 
@@ -228,13 +228,13 @@ class AttributeChooserRenderer extends JLabel implements TreeCellRenderer {
 			 Config.getPropInteger("browser.fontsize.treeleaf", 12));
 
 	private static final ImageIcon CONSTRUCTOR_ICON =
-		new ImageIcon(Config.getImageFilename("browser.image.constructoricon"));
+		Config.getImageAsIcon("browser.image.constructoricon");
 	private static final ImageIcon PRIVATE_ICON =
-		new ImageIcon(Config.getImageFilename("browser.image.privateicon"));
+		Config.getImageAsIcon("browser.image.privateicon");
 	private static final ImageIcon PUBLIC_ICON =
-		new ImageIcon(Config.getImageFilename("browser.image.publicicon"));
+		Config.getImageAsIcon("browser.image.publicicon");
 	private static final ImageIcon PROTECTED_ICON =
-		new ImageIcon(Config.getImageFilename("browser.image.protectedicon"));
+		Config.getImageAsIcon("browser.image.protectedicon");
 
 	/**
 	 * Create a new renderer.  Set the

@@ -23,7 +23,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 635 2000-07-07 05:02:13Z bquig $
+ ** @version $Id: AppletClassRole.java 853 2001-04-19 04:24:26Z ajp $
  **/
 public class AppletClassRole extends ClassRole
 {
@@ -322,7 +322,7 @@ public class AppletClassRole extends ClassRole
         // else
         //    template = "template.html";
 
-        String filename = Config.getLibFilename(template);
+        String filename = Config.getLibFile(template).getPath();
 
         try {
             BlueJFileReader.translateFile(filename, outputFileName,
@@ -361,7 +361,7 @@ public class AppletClassRole extends ClassRole
         Utility.drawCentredText(g, "www",
                                 Target.TEXT_BORDER,
                                 (Target.TEXT_HEIGHT + Target.TEXT_BORDER),
-                                width - (2 * Target.TEXT_BORDER), 
+                                width - (2 * Target.TEXT_BORDER),
                                 height - (Target.TEXT_BORDER +Target.TEXT_HEIGHT));
         }
     }

@@ -3,7 +3,7 @@
 // This software is made available under the terms of the "MIT License"
 // A copy of this license is included with this source distribution
 // in "license.txt" and is also available at:
-// http://www.opensource.org/licenses/mit-license.html 
+// http://www.opensource.org/licenses/mit-license.html
 // Any queries should be directed to Michael Kolling mik@monash.edu.au
 
 package bluej.editor.moe;
@@ -23,7 +23,7 @@ import javax.swing.text.*;
 
 public class MoeParagraphView extends ParagraphView  {
 
-    static final Image breakImage = new ImageIcon(Config.getImageFilename("image.break")).getImage();
+    static final Image breakImage = Config.getImageAsIcon("image.break").getImage();
 
 
     /**
@@ -33,7 +33,7 @@ public class MoeParagraphView extends ParagraphView  {
      */
     public MoeParagraphView(Element elem) {
         super(elem);
-        setInsets((short)0, (short)(MoeEditor.TAG_WIDTH + 2), 
+        setInsets((short)0, (short)(MoeEditor.TAG_WIDTH + 2),
                   (short)0, (short)0);
     }
 
@@ -48,7 +48,7 @@ public class MoeParagraphView extends ParagraphView  {
 
     /**
      * Renders using the given rendering surface and area on that
-     * surface.  Only the paiting of the breakpoint symbol is handled 
+     * surface.  Only the paiting of the breakpoint symbol is handled
      * here, the rest is handed on and handled by the superclass.
      *
      * @param g the rendering surface to use

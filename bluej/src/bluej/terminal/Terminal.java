@@ -22,7 +22,7 @@ import java.io.FileWriter;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Terminal.java 751 2001-01-22 06:20:55Z ajp $
+ * @version $Id: Terminal.java 853 2001-04-19 04:24:26Z ajp $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -33,7 +33,7 @@ public final class Terminal extends JFrame
     private static final Color inactiveBgColour = new Color(224, 224, 224);
     private static final Color fgColour = Color.black;
     private static final Image iconImage =
-      new ImageIcon(Config.getImageFilename("image.icon.terminal")).getImage();
+        Config.getImageAsIcon("image.icon.terminal").getImage();
 
     private static final char CHAR_CLEAR = 11;  // CTRL-K
     private static final char CHAR_COPY = 3;    // CTRL-C

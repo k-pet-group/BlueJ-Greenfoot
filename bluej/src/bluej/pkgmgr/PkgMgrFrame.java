@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 851 2001-04-19 01:53:36Z mik $
+ * @version $Id: PkgMgrFrame.java 853 2001-04-19 04:24:26Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -67,10 +67,9 @@ public class PkgMgrFrame extends JFrame
     private static final String addLabel = Config.getString("pkgmgr.addClass.buttonLabel");
     private static final String importpkgTitle = Config.getString("pkgmgr.importPkg.title");
 
-    private static final ImageIcon workingIcon = new ImageIcon(Config.getImageFilename("image.working"));
-    private static final ImageIcon notWorkingIcon = new ImageIcon(Config.getImageFilename("image.working.disab"));
-    private static final ImageIcon stoppedIcon = new ImageIcon(Config.getImageFilename("image.working.stopped"));
-    private static final Image iconImage = new ImageIcon(Config.getImageFilename("image.icon")).getImage();
+    private static final Icon workingIcon = Config.getImageAsIcon("image.working");
+    private static final Icon notWorkingIcon = Config.getImageAsIcon("image.working.disab");
+    private static final Icon stoppedIcon = Config.getImageAsIcon("image.working.stopped");
 
     private static PageFormat pageFormat = new PageFormat();
 
@@ -1565,7 +1564,7 @@ public class PkgMgrFrame extends JFrame
     private void makeFrame()
     {
         setFont(PkgMgrFont);
-        setIconImage(iconImage);
+        setIconImage(Config.frameImage);
 
         setupMenus();
 
@@ -1595,23 +1594,18 @@ public class PkgMgrFrame extends JFrame
             buttonPanel.add(Box.createVerticalStrut(3));
             actions.put(button, new Integer(EDIT_NEWCLASS));
 
-
-            //ImageIcon usesIcon = new ImageIcon(Config.getImageFilename("image.build.depends"));
             imgDependsButton = new JButton();
             imgDependsButton.setToolTipText(Config.getString("tooltip.newUses"));
             imgDependsButton.addActionListener(this);
             imgDependsButton.setRequestFocusEnabled(false);   // never get keyboard focus
-            //makeButtonNotGrow(imgDependsButton);
             buttonPanel.add(imgDependsButton);
             buttonPanel.add(Box.createVerticalStrut(3));
             actions.put(imgDependsButton, new Integer(EDIT_NEWUSES));
 
-            //ImageIcon extendsIcon = new ImageIcon(Config.getImageFilename("image.build.extends"));
             imgExtendsButton = new JButton();
             imgExtendsButton.setToolTipText(Config.getString("tooltip.newExtends"));
             imgExtendsButton.addActionListener(this);
             imgExtendsButton.setRequestFocusEnabled(false);   // never get keyboard focus
-            //makeButtonNotGrow(imgExtendsButton);
             buttonPanel.add(imgExtendsButton);
             buttonPanel.add(Box.createVerticalStrut(3));
             actions.put(imgExtendsButton, new Integer(EDIT_NEWINHERITS));
@@ -1741,8 +1735,8 @@ public class PkgMgrFrame extends JFrame
             dependsImage += umlSuffix;
             extendsImage += umlSuffix;
         }
-        ImageIcon dependsIcon = new ImageIcon(Config.getImageFilename(dependsImage));
-        ImageIcon extendsIcon = new ImageIcon(Config.getImageFilename(extendsImage));
+        ImageIcon dependsIcon = Config.getImageAsIcon(dependsImage);
+        ImageIcon extendsIcon = Config.getImageAsIcon(extendsImage);
         imgDependsButton.setIcon(dependsIcon);
         imgExtendsButton.setIcon(extendsIcon);
         makeButtonNotGrow(imgExtendsButton);

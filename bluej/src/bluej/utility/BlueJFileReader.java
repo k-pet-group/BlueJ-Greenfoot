@@ -20,23 +20,23 @@ import java.io.*;
  * dictionary.
  *
  * @author  Michael Kolling
- * @version $Id: BlueJFileReader.java 749 2001-01-11 04:53:40Z mik $
+ * @version $Id: BlueJFileReader.java 853 2001-04-19 04:24:26Z ajp $
  */
 public class BlueJFileReader
 {
     /**
      * Read a help text out of a help file.
      *
-     * Help files are named <baseFileName>.help.<language> (for example
-     * "moe.help.english"). Help texts inside the file are identified by
+     * Help files are named <language>/<baseFileName>.help (for example
+     * "english/moe.help"). Help texts inside the file are identified by
      * a help ID (a string).
      *
-     * @param baseFileName	Base name of the help file
-     * @param textID		ID string for the help message
-     * @param exactMatch	If true, match ID string exactly. If false,
-     *				wildcards are used.
+     * @param baseFileName  Base name of the help file
+     * @param textID        ID string for the help message
+     * @param exactMatch    If true, match ID string exactly. If false,
+     *                      wildcards are used.
      *
-     * @return			The help text or null.
+     * @return              The help text or null.
      */
     public static String readHelpText(String fileName, String textID,
                                       boolean exactMatch)
@@ -118,14 +118,23 @@ public class BlueJFileReader
             return pattern.equals(message);
     }
 
-    /**
-     * translateFile - copy a file while replacing special keywords
-     *  within the file by definitions. Keywords are marked with a dollar
-     *  sign and a name ($KEYWORD). 'translations' contains definitions
-     *  to be used as replacements.
-     *  This is used to create shell files from the shell file template.
-     */
     public static void translateFile(String template, String dest,
+                                     Dictionary translations)
+        throws IOException
+    {
+        translateFile(new File(template), new File(dest), translations);
+    }
+
+    /**
+     * Copy a file while replacing special keywords
+     * within the file by definitions.
+     *
+     * Keywords are marked with a dollar
+     * sign and a name ($KEYWORD). 'translations' contains definitions
+     * to be used as replacements.
+     * This is used to create shell files from the shell file template.
+     */
+    public static void translateFile(File template, File dest,
                                      Dictionary translations)
         throws IOException
     {
