@@ -12,13 +12,12 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- ** Event handler class to handle events coming from the remote VM.
- **
- ** @author Michael Kolling
- **/
-
-public class VMEventHandler implements Runnable {
-
+ * Event handler class to handle events coming from the remote VM.
+ *
+ * @author Michael Kolling
+ */
+public class VMEventHandler implements Runnable
+{
     JdiDebugger debugger;
     Thread thread;
     VirtualMachine vm;
@@ -26,22 +25,24 @@ public class VMEventHandler implements Runnable {
     volatile boolean exiting = false;
     boolean exited = false;
 
-    VMEventHandler(JdiDebugger debugger, VirtualMachine vm) {
+    VMEventHandler(JdiDebugger debugger, VirtualMachine vm)
+    {
         this.debugger = debugger;
-	this.vm = vm;
-	queue = vm.eventQueue();
-        thread = new Thread(this, "vm-event-handler"); 
+        this.vm = vm;
+        queue = vm.eventQueue();
+        thread = new Thread(this, "vm-event-handler");
         thread.start();  // will execute our own run method
     }
 
-    public void run() {
+    public void run()
+    {
         while (!exiting) {
             try {
-		EventSet eventSet = queue.remove();
+                EventSet eventSet = queue.remove();
 
                 boolean resumeStoppedApp = false;
-		// ** I am not so sure about this - it seams I should only
-		// handle one event of every group...?! **
+                // ** I am not so sure about this - it seems I should only
+                // handle one event of every group...?! **
 
                 EventIterator it = eventSet.eventIterator();
                 while (it.hasNext()) {
@@ -55,12 +56,12 @@ public class VMEventHandler implements Runnable {
                     if (resumeStoppedApp) {
                         vm.resume();
                     }
-		    else {
-			//Debug.message("   machine suspended. ");
+                    else {
+                        //Debug.message("   machine suspended. ");
                     }
                 }
             } catch (InterruptedException exc) {
-		// Do nothing. Any changes will be seen at top of loop.
+                // Do nothing. Any changes will be seen at top of loop.
             } catch (VMDisconnectedException discExc) {
                 handleDisconnectedException();
                 break;
@@ -72,7 +73,8 @@ public class VMEventHandler implements Runnable {
         }
     }
 
-    private boolean handleEvent(Event event) {
+    private boolean handleEvent(Event event)
+    {
         if (event instanceof ExceptionEvent) {
             return exceptionEvent(event);
         } else if (event instanceof BreakpointEvent) {
@@ -92,7 +94,7 @@ public class VMEventHandler implements Runnable {
     }
 
     private boolean vmDied = false;
-    private boolean handleExitEvent(Event event) 
+    private boolean handleExitEvent(Event event)
     {
         //Debug.message("[VM Event] exiting..!?");
         if (event instanceof VMDeathEvent) {
@@ -105,22 +107,22 @@ public class VMEventHandler implements Runnable {
             }
             //Debug.message("[VM Event] exiting..!?");
             return false;
-        } 
+        }
 	else {
             return false;
         }
     }
 
-    synchronized void handleDisconnectedException() 
+    synchronized void handleDisconnectedException()
     {
         // A VMDisconnectedException has happened while dealing with
-        // another event. 
+        // another event.
 	Debug.reportError("[VM Event] unexpected disconnection");
     }
 
     private boolean breakpointEvent(Event event)
     {
-	debugger.breakEvent((LocatableEvent)event, true);
+        debugger.breakEvent((LocatableEvent)event, true);
         return false;
     }
 
@@ -156,7 +158,7 @@ public class VMEventHandler implements Runnable {
         return false;
     }
 
-    public boolean vmDisconnectEvent(Event event) 
+    public boolean vmDisconnectEvent(Event event)
     {
 	//Debug.message("[VM Event] vmDisconnectEvent");
         return false;
