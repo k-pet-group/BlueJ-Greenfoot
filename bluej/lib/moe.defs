@@ -54,6 +54,7 @@ option = key-bindings preferences
 
 comment = 003399
 javadoc = 000099
+stand-out = ee00bb
 keyword1 = 660033
 keyword2 = cc0000
 keyword3 = 006699
