@@ -31,7 +31,7 @@ import bluej.views.View;
  * Tests for the debugger.
  *  
  * @author Davin McCall
- * @version $Id: JdiTests.java 3077 2004-11-09 04:33:53Z davmac $
+ * @version $Id: JdiTests.java 3095 2004-11-15 23:44:35Z davmac $
  */
 public class JdiTests extends TestCase
 {
@@ -520,6 +520,41 @@ public class JdiTests extends TestCase
         
         // execution finished: ok, test passed.
         assertFalse(n.isAlive());
+    }
+    
+    public void test4() throws Exception
+    {
+        // launch the debugger
+        File launchDir = new File(bluejLibDir);
+        launchDir = launchDir.getParentFile();
+        launchDir = new File(launchDir, "test");
+        launchDir = new File(launchDir, "testprojects");
+        launchDir = new File(launchDir, "test1");
+        DebuggerTerminal term = new TestTerminal();
+        final JdiDebugger debugger = new JdiDebugger(launchDir,term);
+        debugger.launch();
+        
+        TestDebuggerListener tdl = new TestDebuggerListener(this);
+        
+        // load the test class, execute it
+        Thread n = new Thread() {
+            public void run() {
+                try {
+                    debugger.runClassMain("__SHELL99");
+                }
+                catch(Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+        };
+        n.start();
+        
+        n.join();
+        ExceptionDescription ed = debugger.getException();
+        if (ed != null && ed.getText() != null)
+            assertFalse(ed.getText().startsWith("Internal BlueJ error"));
+        
+        debugger.close(false);
     }
     
     class TestDebuggerListener implements DebuggerListener
