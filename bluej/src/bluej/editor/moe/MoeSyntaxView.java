@@ -26,7 +26,7 @@ import bluej.Config;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 377 2000-01-25 03:53:42Z mik $
+ * @version $Id: MoeSyntaxView.java 417 2000-04-04 02:57:53Z bquig $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -76,12 +76,8 @@ public class MoeSyntaxView extends PlainView
     public void drawLine(int lineIndex, Graphics g, int x, int y)
     {
 
-        //need to add left indent
-        // add breakpoint image
-
         // add breakpoint offset to x co-ordinate
         int offsetX = x  + BREAKPOINT_OFFSET;
-        
 
         SyntaxDocument document = (SyntaxDocument)getDocument();
         TokenMarker tokenMarker = document.getTokenMarker();
@@ -262,7 +258,8 @@ public class MoeSyntaxView extends PlainView
         int xOffs = Utilities.getTabbedTextWidth(buffer, metrics, tabBase, this, p0);
 
         // fill in the results and return, include breakpoint area offset
-        lineArea.x += xOffs + (MoeEditor.TAG_WIDTH + 1); 
+        lineArea.x += xOffs + (MoeEditor.TAG_WIDTH + 2); 
+        //        lineArea.x += xOffs + (MoeEditor.TAG_WIDTH + 1); 
         lineArea.width = 1;
         lineArea.height = metrics.getHeight();
         return lineArea;
@@ -285,11 +282,11 @@ public class MoeSyntaxView extends PlainView
     public float nextTabStop(float x, int tabOffset) {
         // calculate tabsize using fontwidth and tab spaces
         int tabSize = getTabSize() * metrics.charWidth('m');
-
         if (tabSize == 0) {
             return x;
         }
-        return x + tabSize;
+        int tabStopNumber = (int)((x - BREAKPOINT_OFFSET) / tabSize) + 1; 
+        return (tabStopNumber * tabSize) + BREAKPOINT_OFFSET + 2;
     }
 
 

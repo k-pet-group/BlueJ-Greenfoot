@@ -11,7 +11,7 @@ import javax.swing.text.*;
  * disk.
  *
  * @author  Andrew Patterson
- * @version $Id: FileEditor.java 348 2000-01-12 04:23:19Z ajp $
+ * @version $Id: FileEditor.java 417 2000-04-04 02:57:53Z bquig $
  */
 public class FileEditor extends PlainDocument
 {
@@ -43,6 +43,10 @@ public class FileEditor extends PlainDocument
         catch(BadLocationException ble)
         {
             ble.printStackTrace();
+        }
+        finally {
+            if(in != null)
+                in.close();
         }
     }
 

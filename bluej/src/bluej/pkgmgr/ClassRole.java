@@ -19,7 +19,7 @@ import java.util.Properties;
  ** particular class types 
  ** 
  ** @author Bruce Quig
- ** @version $Id: ClassRole.java 269 1999-11-10 05:36:05Z mik $
+ ** @version $Id: ClassRole.java 417 2000-04-04 02:57:53Z bquig $
  **
  **/
 public abstract class ClassRole
@@ -36,7 +36,7 @@ public abstract class ClassRole
      */
     public void save(Properties props, int modifiers, String prefix)
     {
-	props.put(prefix + ".modifiers", Integer.toString(modifiers, 16));
+        props.put(prefix + ".modifiers", Integer.toString(modifiers, 16));
     }
 
 
@@ -62,7 +62,7 @@ public abstract class ClassRole
      *
      */
     public abstract void generateSkeleton(Package pkg, String name, String sourceFile, 
-					  boolean isAbstract, boolean isInterface);
+                                          boolean isAbstract, boolean isInterface);
 
 
 
@@ -76,26 +76,26 @@ public abstract class ClassRole
      */
     public void generateSkeleton(String template, Package pkg, String name, String sourceFile )
     {
-	Hashtable translations = new Hashtable();
-	translations.put("CLASSNAME", name);
+        Hashtable translations = new Hashtable();
+        translations.put("CLASSNAME", name);
 		
-	String pkgname = pkg.getName();
-	if((pkgname == Package.noPackage))
-	    translations.put("PKGLINE", "");
-	else
-	    translations.put("PKGLINE", "package " + pkgname + ";" + Config.nl + Config.nl);
+        String pkgname = pkg.getName();
+        if((pkgname == Package.noPackage))
+            translations.put("PKGLINE", "");
+        else
+            translations.put("PKGLINE", "package " + pkgname + ";" + Config.nl + Config.nl);
 			
-	String filename = Config.getLibFilename(template);
+        String filename = Config.getLibFilename(template);
 		
-	try {
-	    BlueJFileReader.translateFile(filename, sourceFile, translations);
-	} catch(IOException e) {
-	    DialogManager.showError(pkg.getFrame(), "skeleton-error");
-	    Debug.reportError("The default skeleton for the class could not be generated");
-	    e.printStackTrace();
-	}
+        try {
+            BlueJFileReader.translateFile(filename, sourceFile, translations);
+        } catch(IOException e) {
+            DialogManager.showError(pkg.getFrame(), "skeleton-error");
+            Debug.reportError("The default skeleton for the class could not be generated");
+            e.printStackTrace();
+        }
 		
-	//setState(Target.S_INVALID);
+        //setState(Target.S_INVALID);
     }
 
     
@@ -119,7 +119,7 @@ public abstract class ClassRole
 
 
 
-   /**
+    /**
      * 
      * Removes applicable files (.class, .java and .ctxt) prior to 
      * this ClassRole being removed from a Package.
@@ -127,17 +127,17 @@ public abstract class ClassRole
      */
     public void prepareFilesForRemoval(String sourceFile, String classFile, String contextFile)
     {
-	File sourceFileName = new File(sourceFile);
-	if (sourceFileName.exists())
-	    sourceFileName.delete(); 
-
-	File classFileName = new File(classFile); 
-	if (classFileName.exists())
-	    classFileName.delete();
+        File sourceFileName = new File(sourceFile);
+        if (sourceFileName.exists()) {
+            sourceFileName.delete(); 
+        }
+        File classFileName = new File(classFile); 
+        if (classFileName.exists())
+            classFileName.delete();
  	
-	File contextFileName = new File(contextFile);
-	if (contextFileName.exists())
-	    contextFileName.delete(); 
+        File contextFileName = new File(contextFile);
+        if (contextFileName.exists())
+            contextFileName.delete(); 
     }
 
     /**

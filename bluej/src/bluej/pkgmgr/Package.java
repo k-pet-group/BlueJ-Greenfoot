@@ -38,7 +38,7 @@ import java.text.DateFormat;
 /**
  * A Java package (collection of Java classes).
  *
- * @version $Id: Package.java 391 2000-02-15 03:47:53Z bquig $
+ * @version $Id: Package.java 417 2000-04-04 02:57:53Z bquig $
  * @author Michael Cahill
  *
  */
@@ -1130,6 +1130,16 @@ implements CompileObserver, MouseListener, MouseMotionListener
     {
         targets.remove(t.getBaseName());
     }
+
+
+    //bq
+   public void updateTargetIdentifier(Target t, String newIdentifier)
+    {
+        targets.remove(t.getBaseName());
+        targets.put(newIdentifier, t);
+    }
+
+
 
     /**
      *  Removes a class from the Package

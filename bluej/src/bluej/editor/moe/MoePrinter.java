@@ -11,6 +11,7 @@ import java.util.*;
 import java.text.DateFormat;
 
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 import bluej.Config;
 
 
@@ -28,6 +29,7 @@ public class MoePrinter
     private final int HEADER_SPACE = 30;
     private final int FOOTER_SPACE = 20;
     private final int PADDING = 5;
+    private final char TAB_CHAR = '\t';
 
     //private PageFormat pgfmt;         // The Pageformat
     private Book pages = new Book();  // This holds each page
@@ -36,7 +38,7 @@ public class MoePrinter
     private static Font footerFont = new Font("SansSerif", Font.ITALIC, 9);
      
     private String className;
-    private String packageName;
+    private int tabSize = 4; 
 
     /**
      * Default constructor
@@ -55,7 +57,11 @@ public class MoePrinter
         List lines = new ArrayList();
 
         this.className = className;
-        //this.packageName = packageName;
+        // extract tabsize attribute from document and assign to tabSize attribute
+        Integer tabSizeAsInteger =  (Integer)document.getProperty(document.tabSizeAttribute);
+        if(tabSizeAsInteger != null)
+            tabSize = tabSizeAsInteger.intValue();
+
         try{
             // read lock the document while reading to avoid any subsequent edits
             // unlikely to happen due to the speed at which the document is read
@@ -147,15 +153,18 @@ public class MoePrinter
         Book book = new Book();
         int currentLine = 0;       // line I am  currently reading
         int pageNum = 1;        // page #
+
         // height of text area of a page
         int height = (int)pageFormat.getImageableHeight() - (HEADER_SPACE + FOOTER_SPACE);
+
         // number of lines on a page
         int linesPerPage = height / (font.getSize() + 2);   
-        
-        List pageText;      // one page of text
         wrapLines(text, pageFormat, font);
+
         // set number of pages
         int numberOfPages = ((int)(text.size() / linesPerPage)) + 1;  
+
+        List pageText;      // one page of text
 
         ListIterator li = text.listIterator();
         while ( pageNum <= numberOfPages) {
@@ -172,6 +181,7 @@ public class MoePrinter
         }
         return book;  // return the completed book
     }
+
 
     /**
      * Wraps lines so that long lines of text outside of print page dimensions for a 
@@ -190,10 +200,11 @@ public class MoePrinter
         int chars = maxWidth / fontWidth;
 
         for(ListIterator li = text.listIterator(); li.hasNext(); ) {
-            String currentLine = (String)li.next();
+            String currentLine = Utility.convertTabsToSpaces((String)li.next(), tabSize);
+            li.set(currentLine);
             int currentLineLength = currentLine.length();
             int width = fontMetrics.stringWidth(currentLine);
-         
+            
             // if line needs to be wrapped
             if(width > maxWidth) {
                 int indexOfLine = li.previousIndex();
@@ -286,7 +297,9 @@ public class MoePrinter
             if(pageIndex == 0) 
                 g.setFont(titleFont);
             else {
-                title = title + " (" + CONTINUED_LABEL + ")";
+                // don't add (continued) if there is no definition
+                if(!"".equals(CONTINUED_LABEL) && !"editor.printer.continued".equals(CONTINUED_LABEL))
+                    title = title + " (" + CONTINUED_LABEL + ")";
                 g.setFont(smallTitleFont);
             }
             // print class name
@@ -309,7 +322,7 @@ public class MoePrinter
 	    private void printFooter(Graphics g, int xPos, int yPos, int width, int height) 
         {
             // draw footer box
-            g.drawRect(xPos, yPos, width, height);
+            //g.drawRect(xPos, yPos, width, height);
 
             // set up font and text position
             g.setFont(footerFont);

@@ -3,6 +3,8 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
+import bluej.utility.BlueJFileReader;
+import bluej.utility.DialogManager;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerClassLoader;
@@ -43,7 +45,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 411 2000-03-13 02:54:47Z markus $
+ * @version $Id: ClassTarget.java 417 2000-04-04 02:57:53Z bquig $
  */
 public class ClassTarget extends EditableTarget
 
@@ -65,7 +67,7 @@ public class ClassTarget extends EditableTarget
     static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
 
     static final Image brokenImage = Toolkit.getDefaultToolkit().getImage(
-					Config.getImageFilename("image.broken"));
+                                                                          Config.getImageFilename("image.broken"));
 
     // variables
     private ClassRole role;
@@ -84,7 +86,7 @@ public class ClassTarget extends EditableTarget
      */
     public ClassTarget(Package pkg, String name)
     {
-	this(pkg, name, false);
+        this(pkg, name, false);
     }
 
     /**
@@ -92,11 +94,11 @@ public class ClassTarget extends EditableTarget
      */
     public ClassTarget(Package pkg, String name, boolean isApplet)
     {
-	super(pkg, name);
-	if(isApplet)
-	    role = new AppletClassRole();
-	else
-	    role = new StdClassRole();
+        super(pkg, name);
+        if(isApplet)
+            role = new AppletClassRole();
+        else
+            role = new StdClassRole();
     }
 
     /**
@@ -105,7 +107,7 @@ public class ClassTarget extends EditableTarget
      */
     public ClassTarget(Package pkg, boolean isApplet)
     {
-	this(pkg, null, isApplet);
+        this(pkg, null, isApplet);
     }
 
 
@@ -117,11 +119,11 @@ public class ClassTarget extends EditableTarget
      */
     public void load(Properties props, String prefix) throws NumberFormatException
     {
-	super.load(props, prefix);
-	role.load(props, prefix);
-	String modifierStr = props.getProperty(prefix + ".modifiers", "0");
-	modifiers = Integer.parseInt(modifierStr, 16);
-	sourceInfo.load(props, prefix);
+        super.load(props, prefix);
+        role.load(props, prefix);
+        String modifierStr = props.getProperty(prefix + ".modifiers", "0");
+        modifiers = Integer.parseInt(modifierStr, 16);
+        sourceInfo.load(props, prefix);
     }
 
     /**
@@ -132,9 +134,9 @@ public class ClassTarget extends EditableTarget
      */
     public void save(Properties props, String prefix)
     {
-	super.save(props, prefix);
-	role.save(props,modifiers, prefix);
-	sourceInfo.save(props, prefix);
+        super.save(props, prefix);
+        role.save(props,modifiers, prefix);
+        sourceInfo.save(props, prefix);
     }
 
     /**
@@ -146,21 +148,21 @@ public class ClassTarget extends EditableTarget
      */
     public boolean copyFiles(String directory)
     {
-	boolean okay = true;
+        boolean okay = true;
 
-	if (!BlueJFileReader.copyFile(sourceFile(),
-				      directory + name + ".java"))
-	    okay = false;
+        if (!BlueJFileReader.copyFile(sourceFile(),
+                                      directory + name + ".java"))
+            okay = false;
 
-	if(upToDate()) {
-	    if(!BlueJFileReader.copyFile(classFile(),
-					 directory + name + ".class"))
-		okay = false;
-	    if(!BlueJFileReader.copyFile(contextFile(),
-					 directory + name + ".ctxt"))
-		okay = false;
-	}
-	return okay;
+        if(upToDate()) {
+            if(!BlueJFileReader.copyFile(classFile(),
+                                         directory + name + ".class"))
+                okay = false;
+            if(!BlueJFileReader.copyFile(contextFile(),
+                                         directory + name + ".ctxt"))
+                okay = false;
+        }
+        return okay;
     }
 
     /**
@@ -169,19 +171,19 @@ public class ClassTarget extends EditableTarget
      */
     public boolean upToDate()
     {
-	try {
-	    // Check if the class file is up to date
-	    File src = new File(sourceFile());
-	    File clss = new File(classFile());
+        try {
+            // Check if the class file is up to date
+            File src = new File(sourceFile());
+            File clss = new File(classFile());
 
-	    if(!clss.exists()
-	       || (src.exists() && (src.lastModified() > clss.lastModified())))
-		return false;
-	} catch(Exception e) {
-	    e.printStackTrace();
-	}
+            if(!clss.exists()
+               || (src.exists() && (src.lastModified() > clss.lastModified())))
+                return false;
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
 
-	return true;
+        return true;
     }
 
     /**
@@ -189,13 +191,13 @@ public class ClassTarget extends EditableTarget
      */
     public void invalidate()
     {
-	setState(S_INVALID);
+        setState(S_INVALID);
 
-	for(Enumeration e = dependents(); e.hasMoreElements(); ) {
-	    Dependency d = (Dependency)e.nextElement();
-	    Target dependent = d.getFrom();
-	    dependent.setState(S_INVALID);
-	}
+        for(Enumeration e = dependents(); e.hasMoreElements(); ) {
+            Dependency d = (Dependency)e.nextElement();
+            Target dependent = d.getFrom();
+            dependent.setState(S_INVALID);
+        }
     }
 
 
@@ -205,7 +207,7 @@ public class ClassTarget extends EditableTarget
      */
     public int getModifiers()
     {
-	return modifiers;
+        return modifiers;
     }
 
     /**
@@ -214,7 +216,7 @@ public class ClassTarget extends EditableTarget
      */
     public boolean isInterface()
     {
-	return Modifier.isInterface(modifiers);
+        return Modifier.isInterface(modifiers);
     }
 
     /**
@@ -224,10 +226,10 @@ public class ClassTarget extends EditableTarget
      */
     public void setInterface(boolean isInterface)
     {
-	if(isInterface)
-	    modifiers |= Modifier.INTERFACE;
-	else
-	    modifiers &= ~Modifier.INTERFACE;
+        if(isInterface)
+            modifiers |= Modifier.INTERFACE;
+        else
+            modifiers &= ~Modifier.INTERFACE;
     }
 
     /**
@@ -236,7 +238,7 @@ public class ClassTarget extends EditableTarget
      */
     public boolean isAbstract()
     {
-	return Modifier.isAbstract(modifiers);
+        return Modifier.isAbstract(modifiers);
     }
 
     /**
@@ -246,36 +248,36 @@ public class ClassTarget extends EditableTarget
      */
     public void setAbstract(boolean isAbstract)
     {
-	if(isAbstract)
-	    modifiers |= Modifier.ABSTRACT;
-	else
-	    modifiers &= ~Modifier.ABSTRACT;
+        if(isAbstract)
+            modifiers |= Modifier.ABSTRACT;
+        else
+            modifiers &= ~Modifier.ABSTRACT;
     }
 
 
     Color getDefaultBackground()
     {
-	if(isInterface())
-	    return interfacebg;
-	else if(isAbstract())
-	    return abstractbg;
-	else
-	    return defaultbg;
+        if(isInterface())
+            return interfacebg;
+        else if(isAbstract())
+            return abstractbg;
+        else
+            return defaultbg;
     }
 
     // --- Target interface ---
 
     Color getBackgroundColour()
     {
-	if(state == S_COMPILING)
-	    return compbg;
-	else
-	    return getDefaultBackground();
+        if(state == S_COMPILING)
+            return compbg;
+        else
+            return getDefaultBackground();
     }
 
     Color getBorderColour()
     {
-	return colBorder;
+        return colBorder;
     }
 
     Color getTextColour()
@@ -295,7 +297,7 @@ public class ClassTarget extends EditableTarget
      */
     protected boolean isCode()
     {
-	return true;
+        return true;
     }
 
     /**
@@ -303,7 +305,7 @@ public class ClassTarget extends EditableTarget
      */
     public String sourceFile()
     {
-	return pkg.getFileName(name) + ".java";
+        return pkg.getFileName(name) + ".java";
     }
 
     /**
@@ -311,7 +313,7 @@ public class ClassTarget extends EditableTarget
      */
     public String contextFile()
     {
-	return pkg.getFileName(name) + ".ctxt";
+        return pkg.getFileName(name) + ".ctxt";
     }
     /**
      ** @return the editor object associated with this target. May be null
@@ -319,10 +321,10 @@ public class ClassTarget extends EditableTarget
      **/
     public Editor getEditor()
     {
-	if(editor == null)
-	    editor = pkg.editorManager.openClass(sourceFile(), name, this,
-						 isCompiled(), breakpoints);
-	return editor;
+        if(editor == null)
+            editor = pkg.editorManager.openClass(sourceFile(), name, this,
+                                                 isCompiled(), breakpoints);
+        return editor;
     }
 
     /**
@@ -330,7 +332,7 @@ public class ClassTarget extends EditableTarget
      */
     public int getDisplayedView()
     {
-	return displayedView;
+        return displayedView;
     }
 
     // --- EditorWatcher interface ---
@@ -351,7 +353,7 @@ public class ClassTarget extends EditableTarget
      */
     public void saveEvent(Editor editor)
     {
-	analyseDependencies();
+        analyseDependencies();
     }
 
     /**
@@ -364,13 +366,13 @@ public class ClassTarget extends EditableTarget
      */
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     {
-	if(isCompiled()) {
-	    DebuggerClassLoader loader = pkg.getRemoteClassLoader();
-	    return Debugger.debugger.toggleBreakpoint(name, lineNo, set,
-						      loader);
-	}
-	else
-	    return Config.getString("pkgmgr.breakpointMsg");
+        if(isCompiled()) {
+            DebuggerClassLoader loader = pkg.getRemoteClassLoader();
+            return Debugger.debugger.toggleBreakpoint(name, lineNo, set,
+                                                      loader);
+        }
+        else
+            return Config.getString("pkgmgr.breakpointMsg");
     }
 
     /**
@@ -381,14 +383,14 @@ public class ClassTarget extends EditableTarget
      */
     public boolean changeView(Editor editor, int viewType)
     {
-	generateView(editor, viewType);
-	return true;
+        generateView(editor, viewType);
+        return true;
     }
 
 
     public void compile(Editor editor)
     {
-	pkg.compile(this);
+        pkg.compile(this);
     }
 
     // --- end of EditorWatcher interface ---
@@ -397,25 +399,25 @@ public class ClassTarget extends EditableTarget
 
     protected void removeBreakpoints()
     {
-	if(editor != null)
-	    editor.removeBreakpoints();
+        if(editor != null)
+            editor.removeBreakpoints();
     }
 
     protected void removeStepMark()
     {
-	if(editor != null)
-	    editor.removeStepMark();
+        if(editor != null)
+            editor.removeStepMark();
     }
 
     protected boolean isCompiled()
     {
-	return (state == S_NORMAL);
+        return (state == S_NORMAL);
     }
 
 
     public String classFile()
     {
-	return pkg.getClassFileName(name) + ".class";
+        return pkg.getClassFileName(name) + ".class";
     }
 
 
@@ -425,10 +427,10 @@ public class ClassTarget extends EditableTarget
      */
     public void generateSkeleton()
     {
-	// delegate to role object
-	role.generateSkeleton(pkg, name, sourceFile(), isAbstract(), isInterface());
-	// do we need to check whether skeleton generated before setting state?
-	setState(Target.S_INVALID);
+        // delegate to role object
+        role.generateSkeleton(pkg, name, sourceFile(), isAbstract(), isInterface());
+        // do we need to check whether skeleton generated before setting state?
+        setState(Target.S_INVALID);
     }
 
     public static void enforcePackage(String sourceFileName, String packageName) throws IOException
@@ -441,9 +443,9 @@ public class ClassTarget extends EditableTarget
             info = ClassParser.parse(sourceFileName);
         }
         catch(Exception e)
-        {
-            return;
-        }
+            {
+                return;
+            }
 
         if (info == null) {
             return;
@@ -483,15 +485,15 @@ public class ClassTarget extends EditableTarget
         FileEditor fed = new FileEditor(new File(sourceFileName));
 
         if (fourCases == 1 || fourCases == 4)
-        {
-            Selection selSemi = info.getPackageSemiSelection();
+            {
+                Selection selSemi = info.getPackageSemiSelection();
 
-            if (fourCases == 1) {
-                fed.replaceSelection(selSemi, "");
+                if (fourCases == 1) {
+                    fed.replaceSelection(selSemi, "");
+                }
+                else
+                    fed.replaceSelection(selSemi, ";");
             }
-            else
-                fed.replaceSelection(selSemi, ";");
-        }
 
         Selection selName = info.getPackageNameSelection();
 
@@ -501,14 +503,14 @@ public class ClassTarget extends EditableTarget
             fed.replaceSelection(selName, packageName);
 
         if (fourCases == 1 || fourCases == 4)
-        {
-            Selection selStatement = info.getPackageStatementSelection();
+            {
+                Selection selStatement = info.getPackageStatementSelection();
 
-            if (fourCases == 1)
-                fed.replaceSelection(selStatement, "");
-            else
-                fed.replaceSelection(selStatement, "package ");
-        }
+                if (fourCases == 1)
+                    fed.replaceSelection(selStatement, "");
+                else
+                    fed.replaceSelection(selStatement, "package ");
+            }
 
         fed.save();
     }
@@ -528,11 +530,14 @@ public class ClassTarget extends EditableTarget
         ClassInfo info = sourceInfo.getInfo(sourceFile(),
                                             pkg.getAllClassnames());
 
+       
         // info will be null if the source was unparseable
         if(info == null) {
             pkg.repaint();
             return;
         }
+
+        checkName(info);
 
         if(info.isApplet()) {
             if( ! (role instanceof AppletClassRole))
@@ -552,31 +557,31 @@ public class ClassTarget extends EditableTarget
             Target superclass = pkg.getTarget(info.getSuperclass());
             if (superclass != null)
                 pkg.addDependency(
-                          new ExtendsDependency(pkg, this, superclass),
-                          false);
+                                  new ExtendsDependency(pkg, this, superclass),
+                                  false);
         }
 
         // handle implemented interfaces
 
         Vector vect = info.getImplements();
         for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
-        String name = (String)e.nextElement();
-        Target interfce = pkg.getTarget(name);
-        // Debug.message("Implements " + name);
-        if (interfce != null) {
-           pkg.addDependency(
-                      new ImplementsDependency(pkg, this, interfce),
-                      false);
+            String name = (String)e.nextElement();
+            Target interfce = pkg.getTarget(name);
+            // Debug.message("Implements " + name);
+            if (interfce != null) {
+                pkg.addDependency(
+                                  new ImplementsDependency(pkg, this, interfce),
+                                  false);
             }
         }
         // handle used classes
 
         vect = info.getUsed();
         for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
-        String name = (String)e.nextElement();
-        Target used = pkg.getTarget(name);
-        if (used != null)
-            pkg.addDependency(new UsesDependency(pkg, this, used), true);
+            String name = (String)e.nextElement();
+            Target used = pkg.getTarget(name);
+            if (used != null)
+                pkg.addDependency(new UsesDependency(pkg, this, used), true);
         }
 
         checkForUsesInconsistencies();
@@ -586,11 +591,36 @@ public class ClassTarget extends EditableTarget
 
     private void checkForUsesInconsistencies()
     {
-	for(int i = 0; i < outUses.size(); i++) {
-	    UsesDependency usesDep = ((UsesDependency)outUses.elementAt(i));
-	    if(! usesDep.isFlagged())
-		pkg.getFrame().setStatus(usesArrowMsg + usesDep);
-	}
+        for(int i = 0; i < outUses.size(); i++) {
+            UsesDependency usesDep = ((UsesDependency)outUses.elementAt(i));
+            if(! usesDep.isFlagged())
+                pkg.getFrame().setStatus(usesArrowMsg + usesDep);
+        }
+    }
+
+
+    /**
+     * Check to see that name has not changed.  
+     * If name has changed then update details.
+     *
+     */
+    private void checkName(ClassInfo info)
+    {
+        if(!name.equals(info.getName())) {
+            //need to check that class does not already exist
+            if(pkg.getTarget(info.getName()) != null) {
+                DialogManager.showError(pkg.getFrame(), "duplicate-name");
+                return;
+            }
+            String newSourceFileName = pkg.getDirName() + File.separator + info.getName() + ".java";
+            String oldSourceFileName = sourceFile();
+            if(BlueJFileReader.copyFile(oldSourceFileName , newSourceFileName)) {
+                pkg.updateTargetIdentifier(this, info.getName());
+                getEditor().changeName(info.getName(), newSourceFileName);
+                role.prepareFilesForRemoval(oldSourceFileName, classFile(), contextFile());
+                name = info.getName();
+            }
+        }
     }
 
 
@@ -600,27 +630,27 @@ public class ClassTarget extends EditableTarget
 
     public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-	if (state == S_NORMAL) {
-//  	    Class cl = pkg.loadClass(fullname);
-	    Class cl = pkg.loadClass(name);
-	    if ((cl != null) && (last_class != cl)) {
-		if (menu != null)
-		    editor.remove(menu);
-		menu = createMenu(cl, editor.getFrame());
-		editor.add(menu);
-		compiledMenu = true;
-	    }
-	    last_class = cl;
-	}
-	else {
-	    if (compiledMenu || menu == null) {
-		menu = createMenu(null, editor.getFrame());
-		editor.add(menu);
-		compiledMenu = false;
-	    }
-	}
-	if (menu != null)
-	    menu.show(editor, evt.getX(), evt.getY());
+        if (state == S_NORMAL) {
+            //  	    Class cl = pkg.loadClass(fullname);
+            Class cl = pkg.loadClass(name);
+            if ((cl != null) && (last_class != cl)) {
+                if (menu != null)
+                    editor.remove(menu);
+                menu = createMenu(cl, editor.getFrame());
+                editor.add(menu);
+                compiledMenu = true;
+            }
+            last_class = cl;
+        }
+        else {
+            if (compiledMenu || menu == null) {
+                menu = createMenu(null, editor.getFrame());
+                editor.add(menu);
+                compiledMenu = false;
+            }
+        }
+        if (menu != null)
+            menu.show(editor, evt.getX(), evt.getY());
     }
 
     protected Hashtable actions;
@@ -704,31 +734,31 @@ public class ClassTarget extends EditableTarget
 
 
     protected boolean createMenuItems(JPopupMenu menu,
-				      CallableView[] members, ViewFilter filter,
-				      int first, int last, String prefix)
+                                      CallableView[] members, ViewFilter filter,
+                                      int first, int last, String prefix)
     {
-	// Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
-	boolean hasEntries = false;
-	JMenuItem item;
+        // Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
+        boolean hasEntries = false;
+        JMenuItem item;
 
-	for(int i = first; i < last; i++) {
-	    try {
-		CallableView m = members[last - i - 1];
-		if(!filter.accept(m))
-		    continue;
-		// Debug.message("createSubMenu - creating MenuItem");
-		item = new JMenuItem(prefix + m.getShortDesc());
-		item.addActionListener(this);
-		item.setFont(PrefMgr.getStandardMenuFont());
-		actions.put(item, m);
-		menu.add(item);
-		hasEntries = true;
-	    } catch(Exception e) {
-		Debug.reportError("Exception accessing methods: " + e);
-		e.printStackTrace();
-	    }
-	}
-	return hasEntries;
+        for(int i = first; i < last; i++) {
+            try {
+                CallableView m = members[last - i - 1];
+                if(!filter.accept(m))
+                    continue;
+                // Debug.message("createSubMenu - creating MenuItem");
+                item = new JMenuItem(prefix + m.getShortDesc());
+                item.addActionListener(this);
+                item.setFont(PrefMgr.getStandardMenuFont());
+                actions.put(item, m);
+                menu.add(item);
+                hasEntries = true;
+            } catch(Exception e) {
+                Debug.reportError("Exception accessing methods: " + e);
+                e.printStackTrace();
+            }
+        }
+        return hasEntries;
     }
 
 
@@ -737,11 +767,11 @@ public class ClassTarget extends EditableTarget
      */
     public void draw(Graphics g)
     {
-	super.draw(g);
-	if(!sourceInfo.isValid())
-	    g.drawImage(brokenImage, x + TEXT_BORDER, y + height - 22, null);
-	// delegate extra functionality to role object
-	role.draw(g, this, x, y, width, height);
+        super.draw(g);
+        if(!sourceInfo.isValid())
+            g.drawImage(brokenImage, x + TEXT_BORDER, y + height - 22, null);
+        // delegate extra functionality to role object
+        role.draw(g, this, x, y, width, height);
     }
 
 
@@ -749,81 +779,81 @@ public class ClassTarget extends EditableTarget
 
     public void actionPerformed(ActionEvent e)
     {
-      //role.actionPerformed(e, pkg, actions, state);
+        //role.actionPerformed(e, pkg, actions, state);
 
-	MemberView member = (MemberView)actions.get(e.getSource());
-	String cmd = e.getActionCommand();
+        MemberView member = (MemberView)actions.get(e.getSource());
+        String cmd = e.getActionCommand();
 
-	if(member != null) {
-	    if(state != S_NORMAL) {
-		Debug.reportError("Can't instantiate modified class");
-		return;
-	    }
+        if(member != null) {
+            if(state != S_NORMAL) {
+                Debug.reportError("Can't instantiate modified class");
+                return;
+            }
 
-	    ResultWatcher watcher = null;
+            ResultWatcher watcher = null;
 
-	    // if we are constructing an object, create a watcher that waits for
-	    // completion of the call and then places the object on the object
-	    // bench
+            // if we are constructing an object, create a watcher that waits for
+            // completion of the call and then places the object on the object
+            // bench
 
-	    if(member instanceof ConstructorView)
-		watcher = new ResultWatcher() {
-		    public void putResult(DebuggerObject result, String name) {
-			if((name == null) || (name.length() == 0))
-			name = "result";
-			if(result != null) {
-			    ObjectWrapper wrapper =
-			    new ObjectWrapper(result.getInstanceFieldObject(0),
-					      name, pkg);
-			    pkg.getFrame().getObjectBench().add(wrapper);
-			}
-			else
-			Debug.reportError("cannot get execution result");
-		    }
-		};
+            if(member instanceof ConstructorView)
+                watcher = new ResultWatcher() {
+                        public void putResult(DebuggerObject result, String name) {
+                            if((name == null) || (name.length() == 0))
+                                name = "result";
+                            if(result != null) {
+                                ObjectWrapper wrapper =
+                                    new ObjectWrapper(result.getInstanceFieldObject(0),
+                                                      name, pkg);
+                                pkg.getFrame().getObjectBench().add(wrapper);
+                            }
+                            else
+                                Debug.reportError("cannot get execution result");
+                        }
+                    };
 
-	    // if we are calling a method that has a result, create a watcher
-	    // that waits for completion of the call and then displays the
-	    // result
+            // if we are calling a method that has a result, create a watcher
+            // that waits for completion of the call and then displays the
+            // result
 
-	    else if(!((MethodView)member).isVoid())
-		watcher = new ResultWatcher() {
-		    public void putResult(DebuggerObject result, String name) {
-			ObjectViewer viewer =
-		        ObjectViewer.getViewer(false, result, name, pkg, true,
-					       pkg.getFrame());
-		    }
-		};
+            else if(!((MethodView)member).isVoid())
+                watcher = new ResultWatcher() {
+                        public void putResult(DebuggerObject result, String name) {
+                            ObjectViewer viewer =
+                                ObjectViewer.getViewer(false, result, name, pkg, true,
+                                                       pkg.getFrame());
+                        }
+                    };
 
-	    // create an Invoker to handle the actual invocation
+            // create an Invoker to handle the actual invocation
 
-	    new Invoker(pkg, (CallableView)member, null, watcher);
-	}
-	else if(editStr.equals(cmd)) {
-	    showView(Editor.IMPLEMENTATION);
-	}
-	else if(publicStr.equals(cmd)) {
-	    showView(Editor.PUBLIC);
-	}
-	else if(pkgStr.equals(cmd)) {
-	    showView(Editor.PACKAGE);
-	}
-	else if(inheritedStr.equals(cmd)) {
-	    showView(Editor.INHERITED);
-	}
-	else if(compileStr.equals(cmd)) {
-	    pkg.compile(this);
-	}
-	else if(removeStr.equals(cmd)) {
-	    try {
-		((PkgMgrFrame)pkg.getFrame()).removeClass(this);
-	    } catch (ClassCastException cce) {
-		System.err.println("Invalid cast to JFrame in ClassTarget");
-	    }
-	}
-	else
-	  // if not handled send to class role for consumption
-	  role.actionPerformed(e, this);
+            new Invoker(pkg, (CallableView)member, null, watcher);
+        }
+        else if(editStr.equals(cmd)) {
+            showView(Editor.IMPLEMENTATION);
+        }
+        else if(publicStr.equals(cmd)) {
+            showView(Editor.PUBLIC);
+        }
+        else if(pkgStr.equals(cmd)) {
+            showView(Editor.PACKAGE);
+        }
+        else if(inheritedStr.equals(cmd)) {
+            showView(Editor.INHERITED);
+        }
+        else if(compileStr.equals(cmd)) {
+            pkg.compile(this);
+        }
+        else if(removeStr.equals(cmd)) {
+            try {
+                ((PkgMgrFrame)pkg.getFrame()).removeClass(this);
+            } catch (ClassCastException cce) {
+                System.err.println("Invalid cast to JFrame in ClassTarget");
+            }
+        }
+        else
+            // if not handled send to class role for consumption
+            role.actionPerformed(e, this);
 
     }
 
@@ -832,10 +862,10 @@ public class ClassTarget extends EditableTarget
 
     public void mousePressed(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-	super.mousePressed(evt, x, y, editor);
+        super.mousePressed(evt, x, y, editor);
 
-	anchor_x = last_x = x;
-	anchor_y = last_y = y;
+        anchor_x = last_x = x;
+        anchor_y = last_y = y;
     }
 
     public void singleClick(MouseEvent evt, int x, int y, GraphEditor editor)
@@ -849,45 +879,45 @@ public class ClassTarget extends EditableTarget
 
     public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-	if ((pkg.getState() == Package.S_CHOOSE_USES_TO) ||
-	    (pkg.getState() == Package.S_CHOOSE_EXT_TO) ) {
-	    // Draw a line from this Target to the current Cursor position
-	    Graphics g = editor.getGraphics();
-	    g.setColor(colBorder);
-	    g.setXORMode(graphbg);
-	    g.drawLine( anchor_x , anchor_y , last_x , last_y );
-	    g.drawLine( anchor_x , anchor_y , x , y );
-	    last_x = x;
-	    last_y = y;
-	}
-	else
-	    super.mouseDragged(evt, x, y, editor);
+        if ((pkg.getState() == Package.S_CHOOSE_USES_TO) ||
+            (pkg.getState() == Package.S_CHOOSE_EXT_TO) ) {
+            // Draw a line from this Target to the current Cursor position
+            Graphics g = editor.getGraphics();
+            g.setColor(colBorder);
+            g.setXORMode(graphbg);
+            g.drawLine( anchor_x , anchor_y , last_x , last_y );
+            g.drawLine( anchor_x , anchor_y , x , y );
+            last_x = x;
+            last_y = y;
+        }
+        else
+            super.mouseDragged(evt, x, y, editor);
     }
 
     public void mouseMoved(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-	if (pkg.getState() != Package.S_IDLE)
-	    {
-		// Draw a line from this Target to the current Cursor position
-		Graphics g = editor.getGraphics();
-		g.setColor(colBorder);
-		g.setXORMode(graphbg);
-		g.drawLine( anchor_x , anchor_y , last_x , last_y );
-		g.drawLine( anchor_x , anchor_y , x , y );
-		last_x = x;
-		last_y = y;
-	    }
-	else
-	    super.mouseMoved(evt, x, y, editor);
+        if (pkg.getState() != Package.S_IDLE)
+            {
+                // Draw a line from this Target to the current Cursor position
+                Graphics g = editor.getGraphics();
+                g.setColor(colBorder);
+                g.setXORMode(graphbg);
+                g.drawLine( anchor_x , anchor_y , last_x , last_y );
+                g.drawLine( anchor_x , anchor_y , x , y );
+                last_x = x;
+                last_y = y;
+            }
+        else
+            super.mouseMoved(evt, x, y, editor);
     }
 
     public void showView(int viewType)
     {
-	if(viewType == displayedView)
-	    open();
-	else {
+        if(viewType == displayedView)
+            open();
+        else {
             Editor editor = getEditor();
-	    editor.setView(viewType);
+            editor.setView(viewType);
             editor.setVisible(true);
         }
     }
@@ -899,34 +929,34 @@ public class ClassTarget extends EditableTarget
      */
     private void generateView(Editor editor, int viewType)
     {
-	if(editor==null)
-	    return;
+        if(editor==null)
+            return;
 
-	displayedView = viewType;
-	editor.setReadOnly(false);
+        displayedView = viewType;
+        editor.setReadOnly(false);
 
-	if(viewType == Editor.IMPLEMENTATION)
-	    reopen();
-	else {
-	    editor.clear();
-	    Class cl = pkg.loadClass(name);
-	    if(cl != null) {
-		View view = View.getView(cl);
-		int filterType = 0;
-		if(viewType == Editor.PUBLIC)
-		    filterType = ViewFilter.PUBLIC;
-		else if(viewType == Editor.PACKAGE)
-		    filterType = ViewFilter.PACKAGE;
-		else if(viewType == Editor.INHERITED)
-		    filterType = ViewFilter.PROTECTED;
+        if(viewType == Editor.IMPLEMENTATION)
+            reopen();
+        else {
+            editor.clear();
+            Class cl = pkg.loadClass(name);
+            if(cl != null) {
+                View view = View.getView(cl);
+                int filterType = 0;
+                if(viewType == Editor.PUBLIC)
+                    filterType = ViewFilter.PUBLIC;
+                else if(viewType == Editor.PACKAGE)
+                    filterType = ViewFilter.PACKAGE;
+                else if(viewType == Editor.INHERITED)
+                    filterType = ViewFilter.PROTECTED;
 
-		ViewFilter filter= (filterType != 0) ? new ViewFilter(filterType) : null;
-		view.print(new EditorPrintWriter(editor), filter);
-	    }
-	    editor.setReadOnly(true);
-	    setState(S_NORMAL);
-	    editor.setSelection(1, 1, 0);  // move cursor to top of editor
-	}
+                ViewFilter filter= (filterType != 0) ? new ViewFilter(filterType) : null;
+                view.print(new EditorPrintWriter(editor), filter);
+            }
+            editor.setReadOnly(true);
+            setState(S_NORMAL);
+            editor.setSelection(1, 1, 0);  // move cursor to top of editor
+        }
     }
 
     /**
@@ -938,14 +968,15 @@ public class ClassTarget extends EditableTarget
      */
     public void prepareForRemoval()
     {
-	// flag dependent Targets as invalid
-	//invalidate();
+        // flag dependent Targets as invalid
+        //invalidate();
+        getEditor().close();
 
-	removeAllInDependencies();
-	removeAllOutDependencies();
+        removeAllInDependencies();
+        removeAllOutDependencies();
 
-	// remove associated files (.class, .java and .ctxt)
-	prepareFilesForRemoval();
+        // remove associated files (.class, .java and .ctxt)
+        prepareFilesForRemoval();
     }
 
     /**
@@ -956,8 +987,8 @@ public class ClassTarget extends EditableTarget
      */
     public void prepareFilesForRemoval()
     {
-	// delegated to role object
-	role.prepareFilesForRemoval(sourceFile(), classFile(), contextFile());
+        // delegated to role object
+        role.prepareFilesForRemoval(sourceFile(), classFile(), contextFile());
     }
 
 

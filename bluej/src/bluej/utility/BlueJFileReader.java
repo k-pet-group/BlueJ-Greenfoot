@@ -39,59 +39,59 @@ public class BlueJFileReader
      * @return			The help text or null.
      */
     public static String readHelpText(String fileName, String textID,
-				boolean exactMatch)
+                                      boolean exactMatch)
     {
-	BufferedReader in = null;
-	boolean found = false;
+        BufferedReader in = null;
+        boolean found = false;
 
-	try {
-	    in = new BufferedReader(new FileReader(fileName));
-	    String msg;
-	    String line;
-	    String helptext = "";
-	    boolean match;
+        try {
+            in = new BufferedReader(new FileReader(fileName));
+            String msg;
+            String line;
+            String helptext = "";
+            boolean match;
 
-	    while ((msg = in.readLine()) != null) {
-		msg = msg.trim();
-		if(exactMatch)
-		    match = msg.equals(textID);
-		else
-		    match = helpTextMatch(textID, msg);
+            while ((msg = in.readLine()) != null) {
+                msg = msg.trim();
+                if(exactMatch)
+                    match = msg.equals(textID);
+                else
+                    match = helpTextMatch(textID, msg);
 
-		if(match) {
-		    // found it - read help text
-		    line = in.readLine();
-		    if((line != null) && (line.length() > 0)) {
-			helptext = line;
-			line = in.readLine();
-		    }
-		    while ((line != null) && (line.length() > 0)) {
-			helptext += "\n" + line;
-			line = in.readLine();
-		    }
-		    return helptext;
-		}
-		else {
-		    // skip help text
-		    line = in.readLine();
-		    while ((line != null) && (line.length() > 0))
-			line = in.readLine();
-		}
-	    }
-	}
-	catch(IOException e) {
-	    DialogManager.showErrorWithText(null, "cannot-read-help",
-					    fileName);
-	}
-	finally {
-	    if(in != null) {
-		try {
-		    in.close();
-		}
-		catch(Exception e) {}
-	    }
-	}
-	return null;	// not found
+                if(match) {
+                    // found it - read help text
+                    line = in.readLine();
+                    if((line != null) && (line.length() > 0)) {
+                        helptext = line;
+                        line = in.readLine();
+                    }
+                    while ((line != null) && (line.length() > 0)) {
+                        helptext += "\n" + line;
+                        line = in.readLine();
+                    }
+                    return helptext;
+                }
+                else {
+                    // skip help text
+                    line = in.readLine();
+                    while ((line != null) && (line.length() > 0))
+                        line = in.readLine();
+                }
+            }
+        }
+        catch(IOException e) {
+            DialogManager.showErrorWithText(null, "cannot-read-help",
+                                            fileName);
+        }
+        finally {
+            if(in != null) {
+                try {
+                    in.close();
+                }
+                catch(Exception e) {}
+            }
+        }
+        return null;	// not found
     }
 
     /**
@@ -101,15 +101,15 @@ public class BlueJFileReader
      */
     private static boolean helpTextMatch(String message, String pattern)
     {
-	if(pattern.length() == 0)
-	    return false;
-	if(pattern.charAt(0) == '*')
-	    return message.endsWith(pattern.substring(1));
-	if(pattern.charAt(pattern.length()-1) == '*')
-	    return message.startsWith(
-				pattern.substring(0, pattern.length()-2));
-	else
-	    return pattern.equals(message);
+        if(pattern.length() == 0)
+            return false;
+        if(pattern.charAt(0) == '*')
+            return message.endsWith(pattern.substring(1));
+        if(pattern.charAt(pattern.length()-1) == '*')
+            return message.startsWith(
+                                      pattern.substring(0, pattern.length()-2));
+        else
+            return pattern.equals(message);
     }
 
 
@@ -121,51 +121,51 @@ public class BlueJFileReader
      *  This is used to create shell files from the shell file template.
      */
     public static void translateFile(String template, String dest,
-				     Dictionary translations)
-	throws IOException
+                                     Dictionary translations)
+        throws IOException
     {
-	FileReader in = null;
-	FileWriter out = null;
+        FileReader in = null;
+        FileWriter out = null;
 
-	try {
-	    in = new FileReader(template);
-	    out = new FileWriter(dest);
+        try {
+            in = new FileReader(template);
+            out = new FileWriter(dest);
 
-	    for(int c; (c = in.read()) != -1; ) {
-		if(c == '$') {
-		    StringBuffer buf = new StringBuffer();
-		    while(((c = in.read()) != -1) && Character.isLetter((char)c))
-			buf.append((char)c);
+            for(int c; (c = in.read()) != -1; ) {
+                if(c == '$') {
+                    StringBuffer buf = new StringBuffer();
+                    while(((c = in.read()) != -1) && Character.isLetter((char)c))
+                        buf.append((char)c);
 
-		    String key = buf.toString();
-		    String value = (String)translations.get(key);
+                    String key = buf.toString();
+                    String value = (String)translations.get(key);
 
-		    if(value == null) {
-			out.write('$');
-			value = key;
-		    }
+                    if(value == null) {
+                        out.write('$');
+                        value = key;
+                    }
 
-		    out.write(value);
-		    if(c != -1)
-			out.write(c);
-		}
-		else
-		    out.write(c);
-	    }
+                    out.write(value);
+                    if(c != -1)
+                        out.write(c);
+                }
+                else
+                    out.write(c);
+            }
 
-	    in.close();
-	    out.close();
-	} catch(IOException e) {
-	    if(in != null)
-		in.close();
-	    if(out != null) {
-		out.close();
-		// File destFile = new File(dest);
-		// destFile.delete();
-	    }
+            in.close();
+            out.close();
+        } catch(IOException e) {
+            if(in != null)
+                in.close();
+            if(out != null) {
+                out.close();
+                // File destFile = new File(dest);
+                // destFile.delete();
+            }
 
-	    throw e;
-	}
+            throw e;
+        }
     }
 
     /**
@@ -173,30 +173,39 @@ public class BlueJFileReader
      */
     public static boolean copyFile(String source, String dest)
     {
-	// check whether source and dest are the same
-	File srcFile = new File(source);
-	File destFile = new File(dest);
+        // check whether source and dest are the same
+        File srcFile = new File(source);
+        File destFile = new File(dest);
 
-	if(srcFile.getAbsolutePath().equals(destFile.getAbsolutePath()))
-	    return true;  // don't bother - they are the same
+        if(srcFile.getAbsolutePath().equals(destFile.getAbsolutePath()))
+            return true;  // don't bother - they are the same
 
-	Reader in = null;
-	Writer out = null;
-	try {
-	    in = new BufferedReader(new FileReader(srcFile));
-	    out = new BufferedWriter(new FileWriter(destFile));
+        Reader in = null;
+        Writer out = null;
+        try {
+            Debug.message("opening srcFile: " + srcFile);
+            in = new BufferedReader(new FileReader(srcFile));
+            out = new BufferedWriter(new FileWriter(destFile));
 
-		for(int c; (c = in.read()) != -1; )
-		    out.write(c);
+            for(int c; (c = in.read()) != -1; )
+                out.write(c);
 
-	    in.close();
-	    out.close();
-	    return true;
-	} catch(IOException e) {
-	    return false;
-	}
+            return true;
+        } catch(IOException e) {
+            return false;
+        } finally {
+            try{
+                if(in != null) {
+                in.close();
+                Debug.message("closing srcFile: " + srcFile);
+                }
+            if(out != null)
+                out.close();
+            } catch (IOException e) {
+            }
+        }
+        
     }
-
 
 
 }

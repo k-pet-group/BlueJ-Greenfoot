@@ -355,6 +355,11 @@ public final class ClassInfo {
         return packageName;
     }
 
+    public String getName()
+    {
+        return name;
+    }
+
     public Vector getImplements()
     {
         return implemented;

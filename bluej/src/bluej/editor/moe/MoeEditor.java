@@ -32,8 +32,7 @@ import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
 
 
 /**
- * @author Michael Kolling
- *
+ * @author Michael Kolling *
  */
 
 // PENDING: add "finalize" method that does:
@@ -197,6 +196,7 @@ public final class MoeEditor extends JFrame
             try {
                 FileReader reader = new FileReader(filename);
                 textPane.read(reader, null);
+                reader.close();
 
                 document = (MoeSyntaxDocument)textPane.getDocument();
 
@@ -213,6 +213,7 @@ public final class MoeEditor extends JFrame
             catch (IOException ex) {
                 readError = true;
             }
+
         }
 
         if (! loaded)  // should exist, but didn't
@@ -411,14 +412,15 @@ public final class MoeEditor extends JFrame
             // missing: ## NYI
             // check for first save -> make backup
 
-            try {
-                FileWriter writer = new FileWriter(filename);
-                textPane.write(writer);
-                setSaved();
-            }
-            catch (IOException ex) {
-                info.warning (Config.getString("editor.info.errorSaving"));
-            }
+                  try {
+                      FileWriter writer = new FileWriter(filename);
+                      textPane.write(writer);
+                      writer.close();
+                      setSaved();
+                  }
+                  catch (IOException ex) {
+                      info.warning (Config.getString("editor.info.errorSaving"));
+                  }
         }
     }
     //       if (filename != null) {		// if it has a file name...
@@ -1111,6 +1113,7 @@ public final class MoeEditor extends JFrame
         try {
             FileReader reader = new FileReader(filename);
             textPane.read(reader, null);
+            reader.close();
             document = (MoeSyntaxDocument)textPane.getDocument();
             // flag document type as a java file by associating a JavaTokenMarker
             // for syntax colouring if specified

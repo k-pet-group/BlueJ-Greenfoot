@@ -622,13 +622,12 @@ implements BlueJEventListener
     }
 
     /**
-       /**
-        * removeClass - removes the specified ClassTarget from the Package.
-        */
+     * removeClass - removes the specified ClassTarget from the Package.
+     */
     public void removeClass(ClassTarget removableTarget)
     {
-	// Check they realise that this will delete the files.
-	int response = DialogManager.askQuestion(this, "really-remove");
+        // Check they realise that this will delete the files.
+        int response = DialogManager.askQuestion(this, "really-remove");
 
         // if they agree
         if(response == 0)
