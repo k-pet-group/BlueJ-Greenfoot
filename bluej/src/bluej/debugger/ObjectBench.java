@@ -10,7 +10,7 @@ import bluej.utility.Debug;
 
 /**
  ** The panel that displays objects at the bottom of the package manager
- ** @version $Id: ObjectBench.java 63 1999-05-04 00:03:10Z mik $
+ ** @version $Id: ObjectBench.java 111 1999-06-04 06:16:57Z mik $
  ** @author Michael Cahill
  **/
 
@@ -92,7 +92,7 @@ public class ObjectBench extends JPanel
     /**
      * Check whether the bench contains an object with name 'name'.
      * 
-     * @arg name  The name to check for.
+     * @param name  The name to check for.
      */
     public boolean hasObject(String name)
     {

@@ -34,7 +34,7 @@ import sun.tools.javac.BlueJJavacMain;
 // import sun.tools.javadoc.BlueJDocumentationGenerator;
 
 /**
- ** @version $Id: Package.java 104 1999-06-02 03:56:24Z mik $
+ ** @version $Id: Package.java 111 1999-06-04 06:16:57Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -1184,10 +1184,11 @@ public class Package extends Graph
 
 	if(firstHit)
 	    msg = "Thread \"" + threadName + "\" stopped at breakpoint.";
-	showEditorMessage(getFileName(sourcename), lineNo, msg,
-			  false, false);
-	frame.showHideExecControls(true, firstHit);
-	frame.haltExecution();
+
+	if(! showEditorMessage(getFileName(sourcename), lineNo, msg,
+			       false, false))
+	    Utility.showMessage(frame, "Breakpoint hit in file: " + 
+				sourcename + "\nCannot find file!");
     }
 
     /**

@@ -21,6 +21,7 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.graph.GraphEditor;
 import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerThread;
 import bluej.debugger.ObjectBench;
 import bluej.debugger.ExecControls;
 import bluej.debugger.ExecControlButtonModel;
@@ -688,10 +689,10 @@ public class PkgMgrFrame extends PkgFrame
 	if(execCtrlWindow == null) {
 	    execCtrlWindow = new ExecControls();
 	    Utility.centreWindow(execCtrlWindow, this);
-	    Utility.showMessage(this, 
-				"ATTENTION: The debugger is not yet\n" +
-				"fully functional and it known to cause\n" +
-				"problems. It should not be used.");
+//  	    Utility.showMessage(this, 
+//  				"ATTENTION: The debugger is not yet\n" +
+//  				"fully functional and it known to cause\n" +
+//  				"problems. It should not be used.");
 	}
 	execCtrlWindow.setVisible(show);
 	if(show && update)
@@ -720,6 +721,11 @@ public class PkgMgrFrame extends PkgFrame
 		break;
 	    case BlueJEvent.CREATE_VM_DONE:
 		setStatus(creatingVMDone);
+		break;
+	    case BlueJEvent.BREAKPOINT:
+		DebuggerThread thread = (DebuggerThread)arg;
+		if(thread.getParam() == pkg)
+		    hitBreakpoint(thread);
 		break;
 	}
     }
@@ -762,6 +768,19 @@ public class PkgMgrFrame extends PkgFrame
     public void continueExecution()
     {
 	progressButton.setIcon(workingIcon);
+    }
+
+
+    /**
+     * hitBreakpoint - A breakpoint in this package was hit.
+     */
+    private void hitBreakpoint(DebuggerThread thread)
+    {
+	pkg.hitBreakpoint(thread.getClassSourceName(0), 
+			  thread.getLineNumber(0), 
+			  thread.getName(), true);
+	showHideExecControls(true, true);
+	haltExecution();
     }
 
 

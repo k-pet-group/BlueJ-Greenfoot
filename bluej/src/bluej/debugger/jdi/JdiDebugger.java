@@ -7,8 +7,6 @@ import bluej.utility.Debug;
 import bluej.runtime.ExecServer;
 import bluej.terminal.Terminal;
 
-import bluej.pkgmgr.Package;
-
 import java.util.Hashtable;
 //import java.util.Vector;
 import java.util.Map;
@@ -23,7 +21,9 @@ import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ExceptionEvent;
 
 import java.io.*;
-import java.util.*;
+import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  ** A class implementing the debugger primitives needed by BlueJ
@@ -47,8 +47,8 @@ public class JdiDebugger extends Debugger
     // the name of the method called to signal the ExecServer to start a new task
     static final String SERVER_PERFORM_METHOD_NAME = "performTask";
 
-
-    //static final String MAIN_THREADGROUP = "bluej.runtime.BlueJRuntime.main";
+    // name of the threadgroup that contains user threads
+    static final String MAIN_THREADGROUP = "main";
 
     private Process process = null;
     private VMEventHandler eventHandler = null;
@@ -59,7 +59,14 @@ public class JdiDebugger extends Debugger
 
     private int exitStatus;
     private ExceptionDescription lastException;
+    private Hashtable activeThreads;
 
+
+    public JdiDebugger()
+    {
+	super();
+	activeThreads = new Hashtable();
+    }
 
     private VirtualMachine machine = null;
     private synchronized VirtualMachine getVM()
@@ -121,8 +128,8 @@ public class JdiDebugger extends Debugger
 
         mainArg.setValue(SERVER_CLASSNAME);
 	//modeArg.setValue("running");  // use this to start the machine running.
-					// default is to suspend on first 
-					// instruction.
+	// default is to suspend on first 
+	// instruction.
 
         try {
             machine = connector.launch(arguments);
@@ -145,8 +152,8 @@ public class JdiDebugger extends Debugger
         setEventRequests(machine);
 	eventHandler = new VMEventHandler(this, machine);
 
-	// now wait until the machine really has sterted up. We will know that it
-	// has when the first breakpoint is hit (see breakpointEvent).
+	// now wait until the machine really has sterted up. We will know that
+	// it has when the first breakpoint is hit (see breakpointEvent).
 	try {
 	    wait();
 	} catch(InterruptedException e) {}
@@ -173,7 +180,7 @@ public class JdiDebugger extends Debugger
             }
         }
     }
-	
+
 
     /**
      * This method is called by the VMEventHandler when the execution server
@@ -185,28 +192,9 @@ public class JdiDebugger extends Debugger
      */
     void serverClassPrepared()
     {
-	ReferenceType serverType = null;
-
-	// ** find the mirror of the server object **
-
-	List list = machine.classesByName(SERVER_CLASSNAME);
-	if(list.size() > 1)
-	    Debug.message("Warning: more than one VM server object found");
-	if(list.size() < 1)
-	    Debug.reportError("Cannot find VM server object");
-	else {
-	    serverType = (ReferenceType)list.get(0);
-	}
-
-	// ** find the suspend method **
-
-	list = serverType.methodsByName(SERVER_SUSPEND_METHOD_NAME);
-	Method suspendMethod = null;
-	if(list.size() != 1)
-	    Debug.reportError("Problem getting suspend method");
-	else
-	    suspendMethod = (Method)list.get(0);
-  
+	ReferenceType serverType = findClassByName(machine, SERVER_CLASSNAME);
+	Method suspendMethod = findMethodByName(serverType, 
+						SERVER_SUSPEND_METHOD_NAME);
 	if(suspendMethod == null) {
 	    Debug.reportError("invalid VM server object");
 	    Debug.reportError("Fatal: User code execution will not work");
@@ -222,7 +210,7 @@ public class JdiDebugger extends Debugger
 
 	// ** remove the "class prepare" event request (not needed anymore) **
 
-	list = erm.classPrepareRequests();
+	List list = erm.classPrepareRequests();
 	if(list.size() != 1)
 	    Debug.reportError("oops - found more than one prepare request!");
 	ClassPrepareRequest cpreq = (ClassPrepareRequest)list.get(0);
@@ -242,7 +230,7 @@ public class JdiDebugger extends Debugger
     public DebuggerClassLoader createClassLoader(String scopeId, 
 						 String classpath)
     {
-	startServer(ExecServer.CREATE_LOADER, scopeId, classpath, "", "", "");
+	startServer(ExecServer.CREATE_LOADER, scopeId, classpath, "", "");
 	return new JdiClassLoader(scopeId);
     }
 	
@@ -252,35 +240,26 @@ public class JdiDebugger extends Debugger
      */
     public void removeClassLoader(DebuggerClassLoader loader)
     {
-	startServer(ExecServer.REMOVE_LOADER, loader.getId(), "", "", "", "");
+	startServer(ExecServer.REMOVE_LOADER, loader.getId(), "", "", "");
     }
 
 
     /**
      * "Start" a class (i.e. invoke its main method)
+     *
+     * @param loader		the class loader to use
+     * @param classname		the class to start
+     * @param eventParam	when a BlueJEvent is generated for a
+     *				breakpoint, this parameter is passed as the
+     *				event parameter
      */
     public void startClass(DebuggerClassLoader loader, String classname, 
-			   Package pkg)
+			   Object eventParam)
     {
-	startServer(ExecServer.LOAD_CLASS, loader.getId(), classname, "", "",
-		    pkg);
+	loadClass(loader, classname);
+	ClassType shellClass = findClassByName(machine, classname);
 
-	// ** find the mirror of the class **
-
-	List list = machine.classesByName(classname);
-	if(list.size() != 1)
-	    Debug.reportError("error starting class " + classname);
-
-	ClassType shellClass = (ClassType)list.get(0);
-
-	// ** find the run method **
-
-	list = shellClass.methodsByName("run");
-	if(list.size() != 1)
-	    Debug.reportError("Problem getting 'run' method");
-
-	Method runMethod = (Method)list.get(0);
-
+	Method runMethod = findMethodByName(shellClass, "run");
 	if(runMethod == null) {
 	    Debug.reportError("Could not find shell run method");
 	    return;
@@ -291,22 +270,41 @@ public class JdiDebugger extends Debugger
 	List arguments = new ArrayList();	// empty argument list
   	try {
 	    exitStatus = NORMAL_EXIT;
+	    // the following is in preparation for running several threads
+	    // concurrently: we remember which thread is used for executing
+	    // in which package (although, currently, there is always only
+	    // one thread at a time, the serverThread).
+	    activeThreads.put(serverThread, eventParam);
   	    Value returnVal = shellClass.invokeMethod(serverThread, 
 						      runMethod, 
 						      arguments, 0);
 	    // returnVal is type void
+	    // 'invokeMethod' is synchronous - when we get here it has
+	    // finished
 	}
   	catch(InvocationException e) {
-	    // exception thrown in remote machine
+	    // exception thrown in remote machine - ignored here. The
+	    // exception is handled through the exceptionEvent method
 	}
   	catch(Exception e) {
 	    // remote invocation failed
 	    Debug.message("starting shell class failed: " + e);
 	    exitStatus = EXCEPTION;
-	    lastException = new ExceptionDescription("Internal BlueJ error!",
-					     "Cannot execute remote command",
-					     null, 0);
+	    lastException = new ExceptionDescription(
+					"Internal BlueJ error!",
+					"Cannot execute remote command",
+					null, 0);
   	}
+	activeThreads.remove(serverThread);
+    }
+
+
+    /**
+     * Load a class in the remote machine.
+     */
+    private void loadClass(DebuggerClassLoader loader, String classname)
+    {
+	startServer(ExecServer.LOAD_CLASS, loader.getId(), classname, "", "");
     }
 
 
@@ -319,7 +317,7 @@ public class JdiDebugger extends Debugger
     {
 	//Debug.message("[addObjectToScope]: " + newObjectName);
 	startServer(ExecServer.ADD_OBJECT, scopeId, instanceName, 
-		    fieldName, newObjectName, "");
+		    fieldName, newObjectName);
     }
 	
     /**
@@ -330,8 +328,7 @@ public class JdiDebugger extends Debugger
     public void removeObjectFromScope(String scopeId, String instanceName)
     {
 	//Debug.message("[removeObjectFromScope]: " + instanceName);
-	startServer(ExecServer.REMOVE_OBJECT, scopeId, instanceName, 
-		    "", "", "");
+	startServer(ExecServer.REMOVE_OBJECT, scopeId, instanceName, "", "");
     }
 
 
@@ -346,7 +343,7 @@ public class JdiDebugger extends Debugger
      * has completed.
      */
     private void startServer(int task, String arg1, String arg2, 
-			     String arg3, String arg4, Object pkg)
+			     String arg3, String arg4)
     {
 	VirtualMachine vm = getVM();
 
@@ -382,46 +379,32 @@ public class JdiDebugger extends Debugger
      */
     private boolean setupServerConnection(VirtualMachine vm)
     {
-	ReferenceType serverType = null;
+	ReferenceType serverType = findClassByName(vm, SERVER_CLASSNAME);
 
-	// try to get the mirror of the server object
+	Field serverField = serverType.fieldByName(SERVER_FIELD_NAME);
+	execServer = (ObjectReference)serverType.getValue(serverField);
 
-	List list = vm.classesByName(SERVER_CLASSNAME);
-	if(list.size() > 1)
-	    Debug.message("Warning: more than one VM server object found");
-	if(list.size() < 1)
-	    Debug.reportError("Cannot find VM server object");
-	else {
-	    serverType = (ReferenceType)list.get(0);
-	    Field serverField = serverType.fieldByName(SERVER_FIELD_NAME);
+	if(execServer == null) {
+	    sleep(3000);
 	    execServer = (ObjectReference)serverType.getValue(serverField);
-	    if(execServer == null) {
-		sleep(3000);
-		execServer = (ObjectReference)serverType.getValue(serverField);
-	    }
 	}
-
 	if(execServer == null) {
 	    Debug.reportError("Failed to load VM server object");
 	    Debug.reportError("Fatal: User code execution will not work");
 	    return false;
 	}
 
-	// okay, we have the server object; now get the signal method
+	// okay, we have the server object; now get the perform method
 
-	list = serverType.methodsByName(SERVER_PERFORM_METHOD_NAME);
-	if(list.size() != 1)
-	    Debug.reportError("Problem getting server signal method");
-	else
-	    performTaskMethod = (Method)list.get(0);
-  
+	performTaskMethod = findMethodByName(serverType, 
+					     SERVER_PERFORM_METHOD_NAME);
 	if(performTaskMethod == null) {
 	    Debug.reportError("invalid VM server object");
 	    Debug.reportError("Fatal: User code execution will not work");
 	    return false;
 	}
 
-	list = vm.allThreads();
+	List list = vm.allThreads();
 	for (int i=0 ; i<list.size() ; i++) {
 	    ThreadReference threadRef = (ThreadReference)list.get(i);
 	    if("main".equals(threadRef.name()))
@@ -445,19 +428,17 @@ public class JdiDebugger extends Debugger
     public DebuggerObject getStaticValue(String className, String fieldName)
 	throws Exception
     {
-	DebuggerObject object;
+	DebuggerObject object = null;
+
+	ReferenceType classMirror = findClassByName(getVM(), className);
 
 	//Debug.message("[getStaticValue] " + className);
 
-	List list = getVM().classesByName(className);
-	if(list.size() > 1)
-	    Debug.message("Warning: more than one class found");
-	if(list.size() < 1) {
+	if(classMirror == null) {
 	    Debug.reportError("Cannot find class for result value");
 	    object = null;
 	}
 	else {
-	    ReferenceType classMirror = (ReferenceType)list.get(0);
 	    Field resultField = classMirror.fieldByName(fieldName);
 	    ObjectReference obj = 
 		(ObjectReference)classMirror.getValue(resultField);
@@ -503,21 +484,18 @@ public class JdiDebugger extends Debugger
   	StringReference val = 
   	    (StringReference)remoteException.getValue(msgField);
 
-
 	//better: get message via method call
-//  	List list = remoteException.referenceType().methodsByName("getMessage");
-//  	if(list.size() != 1)
-//  	    Debug.reportError("Problem getting exception message");
-
-//  	Method getMessageMethod = (Method)list.get(0);
-//  	StringReference val = null;
-//    	try {
-//  	    val = (StringReference)execServer.invokeMethod(serverThread, 
-//  						getMessageMethod, 
-//  						null, 0);
-//  	} catch(Exception e) {
-//  	    Debug.reportError("Problem getting exception message: " + e);
-//  	}
+	//  	Method getMessageMethod = findMethodByName(
+	//  					   remoteException.referenceType(),
+	//  					   "getMessage");
+	//  	StringReference val = null;
+	//    	try {
+	//  	    val = (StringReference)execServer.invokeMethod(serverThread, 
+	//  						getMessageMethod, 
+	//  						null, 0);
+	//  	} catch(Exception e) {
+	//  	    Debug.reportError("Problem getting exception message: " + e);
+	//  	}
 
 	String exceptionText = 
 	    (val == null ? null : val.value());
@@ -558,25 +536,22 @@ public class JdiDebugger extends Debugger
 		notifyAll();
 	    }
 	}
-	else
+	else {
 	    Debug.message("[JdiDebugger] breakpointEvent");
 
-
-//  	Package pkg = (Package)waitqueue.get(rt);
-
-//  	if(pkg == null)
-//  	    Debug.reportError("cannot find thread for breakpoint");
-//  	else {
-//  	    JdiThread thread = new JdiThread(rt);
-//  	    pkg.hitBreakpoint(thread.getClassSourceName(0), 
-//  			      thread.getLineNumber(0), 
-//  			      thread.getName(), true);
-//  	}
+	    ThreadReference remoteThread = event.thread();
+	    Object pkg = activeThreads.get(remoteThread);
+	    if(pkg == null)
+		Debug.reportError("cannot find breakpoint thread!");
+	    else {
+		JdiThread thread = new JdiThread(remoteThread, pkg);
+		BlueJEvent.raiseEvent(BlueJEvent.BREAKPOINT, thread);
+	    }
+	}
     }
 
 
-    //====
-
+    // ==== code for active debugging: setting breakpoints, stepping, etc ===
 
     /**
      * Set/clear a breakpoint at a specified line in a class.
@@ -584,60 +559,89 @@ public class JdiDebugger extends Debugger
      * @param className  The class in which to set the breakpoint.
      * @param line       The line number of the breakpoint.
      * @param set        True to set, false to clear a breakpoint.
+     *
+     * @return  null if there was no problem, or an error string
      */
     public String toggleBreakpoint(String className, int line, boolean set,
 				   DebuggerClassLoader loader)
     {
-	//  	try {
-	//  	    loadClass(loader, className);
-	//  	    RemoteClass cl = getDebugger().findClass(className);
-	//  	    if(cl == null)
-	//  		return "Class not found";
+	//Debug.message("[toggleBreakpoint]: " + className);
 
-	//  	    String result;
-	//  	    if(set)
-	//  		result = cl.setBreakpointLine(line);
-	//  	    else
-	//  		result = cl.clearBreakpointLine(line);
-	//  	    return result;
-	//  	}
-	//  	catch (Exception e) {
-	//  	    Debug.message("could not set breakpoint: " + e);
-	//  	    return "Internal error while setting breakpoint";
-	//  	}
+	VirtualMachine vm = getVM();
 
-	return null;
+	loadClass(loader, className);
+  	ClassType remoteClass = findClassByName(vm, className);
+  	if(remoteClass == null)
+  	    return "Class not found";
+
+	try {
+	    Location loc = findLocationInLine(remoteClass, line);
+	    if(loc == null)
+		return "Cannot set breakpoint: no code in this line";
+
+	    EventRequestManager erm = vm.eventRequestManager();
+	    if(set) {
+		BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
+		bpreq.enable();
+		return null;
+	    }
+	    else {	// clear breakpoint
+		List list = erm.breakpointRequests();
+		for (int i=0 ; i < list.size() ; i++) {
+		    BreakpointRequest bp = (BreakpointRequest)list.get(i);
+		    if(bp.location().equals(loc)) {
+			erm.deleteEventRequest(bp);
+			return null;
+		    }
+		}
+		// bp not found
+		return "Clear breakpoint: no breakpoint found in this line.";
+	    }
+	}
+	catch(AbsentInformationException e) {
+	    return "This class has been compiled without line number\n" +
+		"information. You cannot set breakpoints.";
+	}
+	catch(InvalidLineNumberException e) {
+	    return "Cannot set breakpoint: no code in this line";
+	}
+	catch(Exception e) {
+	    Debug.reportError("breakpoint error: " + e);
+	    return "There was an internal error while attempting to\n" +
+		   "set this breakpoint";
+	}
     }
 
     /**
-     * List all the threads being debugged
+     * List all the threads being debugged as a Vector containing elements
+     * of type DebuggerThread. Filter out threads that belong
+     * to system, returning only user threads.
      */
-    public DebuggerThread[] listThreads()
-	throws Exception
+    public Vector listThreads()
     {
-	//  	RemoteThreadGroup[] tgroups = getDebugger().listThreadGroups(null);
-		
-	//  	Vector allThreads = new Vector();
-	//  	for(int i = 0; i < tgroups.length; i++) {
-	//  	    if(tgroups[i].getName().equals(MAIN_THREADGROUP)) {
-	//  		RemoteThread[] threads = tgroups[i].listThreads(false);
-	//  		for(int j = 0; j < threads.length; j++) {
-	//  		    allThreads.addElement(new JdiThread(threads[j]));
-	//  		    //Debug.message("thread: " + threads[j].getName() +
-	//  		    //		  " group: " + tgroups[i].getName());
-	//  		}
-	//  	    }
-	//  	}
+	List threads = getVM().allThreads();
+	int len = threads.size();
 
-	//  	int len = allThreads.size();
-	//  	DebuggerThread[] ret = new DebuggerThread[allThreads.size()];
-	//  	// reverse order to make display nicer (newer threads first)
-	//  	for(int i = 0; i < len; i++)
-	//  	    ret[i] = (DebuggerThread)allThreads.elementAt(len - i - 1);
-	//  	return ret;
-	return null;
+	Vector threadVec = new Vector(len);
+
+	// reverse order to make display nicer (newer threads first)
+	for(int i = 0; i < len; i++) {
+	    ThreadReference thread = (ThreadReference)threads.get(len-i-1);
+	    if(thread.threadGroup().name().equals(MAIN_THREADGROUP)) {
+
+		String name = thread.name();
+		if(! name.startsWith("AWT-") &&	       // known system threads
+		   ! name.startsWith("SunToolkit.") && 
+		   ! name.equals("TimerQueue"))
+		    threadVec.add(i, new JdiThread(thread));
+	    }
+	}
+	return threadVec;
     }
 	
+    //====
+
+
     /**
      * A thread has been stopped by the user. Make sure that the source 
      * is shown.
@@ -687,6 +691,50 @@ public class JdiDebugger extends Debugger
 
     // -- support methods --
 
+    /** 
+     *  Find the mirror of a class in the remote VM. The class is expected
+     *  to exist. We expect only one single class to exist with this name
+     *  and report an error if more than one is found.
+     */
+    private ClassType findClassByName(VirtualMachine vm, String classname) 
+    {
+	List list = vm.classesByName(classname);
+	if(list.size() != 1) {
+	    Debug.reportError("error finding class " + classname);
+	    Debug.reportError("number of classes found: " + list.size());
+	    return null;
+	}
+	return (ClassType)list.get(0);
+    }
+
+    /** 
+     *  Find the mirror of a method in the remote VM. The method is expected
+     *  to exist. We expect only one single method to exist with this name
+     *  and report an error if more than one is found.
+     */
+    private Method findMethodByName(ReferenceType type, String methodName) 
+    {
+	List list = type.methodsByName(methodName);
+	if(list.size() != 1) {
+	    Debug.reportError("Problem getting method: " + methodName);
+	    return null;
+	}
+	return (Method)list.get(0);
+    }
+
+    /** 
+     *  Find the first location in a given line in a class.
+     */
+    private Location findLocationInLine(ClassType cl, int line) 
+      throws Exception
+    {
+	List list = cl.locationsOfLine(line);
+	if(list.size() == 0)
+	    return null;
+	else
+	    return (Location)list.get(0);
+    }
+
     private void setEventRequests(VirtualMachine vm) 
     {
         EventRequestManager erm = vm.eventRequestManager();
@@ -718,14 +766,14 @@ public class JdiDebugger extends Debugger
 	thr.start();
     }
 
-//      private void dumpStream(InputStream inStream, OutputStream outStream) 
-//  	throws IOException 
-//      {
-//          int ch;
-//          while ((ch = inStream.read()) != -1) {
-//              outStream.write(ch);
-//          }
-//      }
+    //      private void dumpStream(InputStream inStream, OutputStream outStream) 
+    //  	throws IOException 
+    //      {
+    //          int ch;
+    //          while ((ch = inStream.read()) != -1) {
+    //              outStream.write(ch);
+    //          }
+    //      }
 
     private void dumpStream(InputStream inStream, OutputStream outStream) 
 	throws IOException 

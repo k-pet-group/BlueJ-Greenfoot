@@ -12,7 +12,7 @@ import javax.swing.*;
 
 /**
  ** Some generally useful utility methods available to all of bluej.
- ** $Id: Utility.java 95 1999-05-28 06:08:18Z mik $
+ ** $Id: Utility.java 111 1999-06-04 06:16:57Z mik $
  ** @author Michael Cahill
  ** @author Justin Tan
  ** @author Michael Kolling
@@ -247,8 +247,8 @@ public class Utility
 
     /**
      ** Splits "string" by "Delimiter"
-     ** @arg str - the string to be split
-     ** @arg delimiter - the field delimiter within str
+     ** @param str - the string to be split
+     ** @param delimiter - the field delimiter within str
      ** @returns	an array of Strings
      **/
     public static String[] split(String str, String delimiter)
@@ -293,7 +293,7 @@ public class Utility
 	
     /**
      ** Splits "string" into lines (stripping end-of-line characters)
-     ** @arg str - the string to be split
+     ** @param str - the string to be split
      ** @returns	an array of Strings
      **/
     public static String[] splitLines(String str)

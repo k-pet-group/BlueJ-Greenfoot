@@ -63,8 +63,8 @@ public final class Finder extends JDialog
      * Ask the user for input of search details via a dialogue.
      *  Returns null if operation was cancelled.
      *
-     * @arg
-     * @arg direction  either FORWARD or BACKWARD
+     * @param
+     * @param direction  either FORWARD or BACKWARD
      */
     public String getNewSearchString(JFrame parent, int direction)
     {

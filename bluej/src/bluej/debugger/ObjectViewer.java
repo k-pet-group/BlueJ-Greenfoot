@@ -20,7 +20,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 104 1999-06-02 03:56:24Z mik $
+ ** @version $Id: ObjectViewer.java 111 1999-06-04 06:16:57Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -61,8 +61,7 @@ public final class ObjectViewer extends JFrame
     private String pkgScopeId;
     private boolean getEnabled;
 
-    private boolean queryArrayElement;
-  //   private boolean isStaticArraySelected;
+    private boolean queryArrayElementSelected;
 
     private String viewerId;		// a unique ID used to enter the 
 					// viewer's object into the package
@@ -78,14 +77,14 @@ public final class ObjectViewer extends JFrame
      * This is the only way to get access to viewers - they cannot be
      * directly created.
      *
-     * @arg inspection  True is this is an inspection, false for result 
+     * @param inspection  True is this is an inspection, false for result 
      *			displays
-     * @arg obj		The object displayed by this viewer
-     * @arg name	The name of this object or "null" if it is not on the
+     * @param obj		The object displayed by this viewer
+     * @param name	The name of this object or "null" if it is not on the
      *			object bench
-     * @arg pkg		The package all this belongs to
-     * @arg getEnabled	if false, the "get" button is permanently disabled
-     * @arg parent	The parent frame of this frame
+     * @param pkg		The package all this belongs to
+     * @param getEnabled	if false, the "get" button is permanently disabled
+     * @param parent	The parent frame of this frame
      */
     public static ObjectViewer getViewer(boolean inspection, 
 					 DebuggerObject obj, String name, 
@@ -127,7 +126,7 @@ public final class ObjectViewer extends JFrame
     /**
      * Constructor
      * Note: protected -- Objectviewers can only be created with the static
-     * "getViewer" method. 
+     * "getViewer" method. 'pkg' may be null if getEnabled is false.
      */
     protected ObjectViewer(boolean inspect, DebuggerObject obj, 
 			   Package pkg, String id, boolean getEnabled, 
@@ -139,7 +138,13 @@ public final class ObjectViewer extends JFrame
 	this.pkg = pkg;
 	viewerId = id;
 	this.getEnabled = getEnabled;
-	pkgScopeId = Utility.quoteSloshes(pkg.getId());
+	if(pkg == null) {
+	    if(getEnabled)
+		Debug.reportError("cannot enable 'get' with null package");
+	    pkgScopeId = "";
+	}
+	else
+	    pkgScopeId = Utility.quoteSloshes(pkg.getId());
 
 	makeFrame(parent, isInspection, obj);
     }
@@ -237,22 +242,23 @@ public final class ObjectViewer extends JFrame
 	    // add index to slot method for truncated arrays
 	    if(obj.isArray()) 
 		slot = indexToSlot(objFieldList.getSelectedIndex());
-		
-	    // occurs if valueChanged picked up a clearSelection event from the list
+
+	    // occurs if valueChanged picked up a clearSelection event from
+	    // the list
 	    if(slot == -1)
 		return;
 
+	    queryArrayElementSelected = (slot == ARRAY_QUERY_SLOT_VALUE);
+
 	    // for array compression..
-	    if(slot == -2) {	// "..." in Array inspector selected
-	    	setCurrentObj(null, null);
+	    if(queryArrayElementSelected) {	  // "..." in Array inspector 
+	    	setCurrentObj(null, null);	  //  selected
 		// check to see if elements are objects, 
 		// using the index replaced by this element
 		if(obj.instanceFieldIsObject(ARRAY_QUERY_INDEX))
 		    setButtonsEnabled(true, false);
 		else
 		    setButtonsEnabled(false, false);
-
-		queryArrayElement =  true;
 	    }
 	    else if(obj.instanceFieldIsObject(slot)) {
 		setCurrentObj(obj.getInstanceFieldObject(slot),
@@ -279,8 +285,8 @@ public final class ObjectViewer extends JFrame
     /**
      * Converts list index position to that of array element position in arrays.
      * For small arrays this is a direct match to list index, in larger arrays
-     * (greater than 45 elements) the first 40 , a wildcard (...) and the last 4 
-     * are shown.
+     * (greater than 45 elements) the first 40 , a wildcard (...) and the last
+     * 4 are shown.
      *
      * @param  listIndexPosition  the position selected in the list
      * @return the translated index of field array element
@@ -291,19 +297,12 @@ public final class ObjectViewer extends JFrame
 	if(fieldCount < VISIBLE_ARRAY_FIELDS)
 	    return listIndexPosition;
 	else {
-	    // set queryArrayElement to false to avoid previously selected 
-	    // element being reselected if 2 array element selection queries 
-	    // are made consecutively.  Second does not show as
-	    // a change event due to filtering out of non change events. 
-	    queryArrayElement =  false;
- 	    int index = -1;
+ 	    int index;
 	    if(listIndexPosition < ARRAY_QUERY_INDEX)
 		index = listIndexPosition;
-	    else if(listIndexPosition == ARRAY_QUERY_INDEX) {
+	    else if(listIndexPosition == ARRAY_QUERY_INDEX)
 		index = ARRAY_QUERY_SLOT_VALUE;
-		queryArrayElement = true;
-	    }
-	    else if(listIndexPosition > ARRAY_QUERY_INDEX)
+	    else
 		index = listIndexPosition + (fieldCount - VISIBLE_ARRAY_FIELDS);
 
 	    return index;
@@ -354,14 +353,12 @@ public final class ObjectViewer extends JFrame
     private void selectArrayElement()
     {
 	    String response = Utility.askString(this, 
-						"Enter array element index [...]", 
-						"Array Inspection", 
-						null);
-
+					"Enter array element index [...]", 
+					"Array Inspection", 
+					null);
 	    if(response != null) {
 		try {
 		    int slot = Integer.parseInt(response);
-
 		    
 		    // check if within bounds of array
 		    if(slot >= 0 && slot < obj.getInstanceFieldCount()) {
@@ -376,17 +373,21 @@ public final class ObjectViewer extends JFrame
 			    setButtonsEnabled(false, false);
 		    }
 		    else // not within array bounds
-			Utility.showError(this, "Element specified is not within array bounds");
+			Utility.showError(this, 
+			   "Element specified is not within array bounds");
 		    
 		} 
 		catch(NumberFormatException e) {
 		    // input could not be parsed, eg. non integer value
 		    setCurrentObj(null, null);
-		    Utility.showError(this, "Unable to access the array element specified");
+		    Utility.showError(this, 
+			   "Unable to access the array element specified");
 		}
 	
 	    }
-	    else {  // set current object to null to avoid re-inspection of previously selected wildcard 
+	    else {  
+		// set current object to null to avoid re-inspection of 
+		// previously selected wildcard 
 	    	setCurrentObj(null, null);
 	    }
     }
@@ -400,7 +401,7 @@ public final class ObjectViewer extends JFrame
     private void doInspect()
     {
 	// if need to query array element
-	if(queryArrayElement == true) {
+	if(queryArrayElementSelected) {
 	    selectArrayElement();
 	}
 	
@@ -562,13 +563,14 @@ public final class ObjectViewer extends JFrame
 	else  
 	   mainPanel.add(objectScrollPane);
 
-	// add mouse listener to monitor for double clicks to inspect list objects
-	// assumption is made that valueChanged will have selected object on first click
+	// add mouse listener to monitor for double clicks to inspect list 
+	// objects. assumption is made that valueChanged will have selected
+	// object on first click
 	MouseListener mouseListener = new MouseAdapter() {
 	    public void mouseClicked(MouseEvent e) {
 		// monitor for double clicks
 		if (e.getClickCount() == 2) {
-			doInspect();
+		    doInspect();
 		}
 	    }
 	};
@@ -610,7 +612,7 @@ public final class ObjectViewer extends JFrame
 	mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 		
 	pack();
-	if(isInspection) {
+	if(isInspection || pkg == null) {
 	    Utility.tileWindow(this, parent);
 	}
 	else

@@ -14,7 +14,7 @@ import java.io.*;               // Object input, ouput streams
 import java.util.Properties;	// Store Printing properties
 
 /**
- ** @version $Id: RedEditor.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: RedEditor.java 111 1999-06-04 06:16:57Z mik $
  ** @author Michael Kolling
  ** @author Giuseppe Speranza
  **
@@ -297,10 +297,10 @@ public final class RedEditor
    ** This function is typically used in a sequence
    ** "clear; [insertText]*; setVisible(true)".
    **
-   ** @arg text         the text to be inserted
-   ** @arg newLines     number of newline characters to be inserted
+   ** @param text         the text to be inserted
+   ** @param newLines     number of newline characters to be inserted
    **                   after the text (newLines >= 0)
-   ** @arg style         the style in which the text is to be displayed
+   ** @param style         the style in which the text is to be displayed
    **/
   public void insertText(String text, int newLines, int style)
 	// inherited from Editor, redefined
@@ -315,7 +315,7 @@ public final class RedEditor
    ** Show the editor window. This includes whatever is necessary of the
    ** following: make visible, de-iconify, bring to front of window stack.
    **
-   ** @arg view		the view to be displayed. Must be one of the 
+   ** @param view		the view to be displayed. Must be one of the 
    **			view constants defined above
    **/
   public void show(int view)	// inherited from Editor, redefined
@@ -378,12 +378,12 @@ public final class RedEditor
    ** must support at least two lines of message text, so the message
    ** can contain a newline character.
    **
-   ** @arg message	the message to be displayed
-   ** @arg line		the line to move the cursor to (the line is 
+   ** @param message	the message to be displayed
+   ** @param line		the line to move the cursor to (the line is 
    **			also highlighted)
-   ** @arg column		the column to move the cursor to
-   ** @arg beep		if true, do a system beep
-   ** @arg setStepMark	if true, set step mark (for single stepping)
+   ** @param column		the column to move the cursor to
+   ** @param beep		if true, do a system beep
+   ** @param setStepMark	if true, set step mark (for single stepping)
    **/
 
   public void displayMessage(String message, int line, int column, 
@@ -451,8 +451,8 @@ public final class RedEditor
   /**
    ** Change class name.
    **
-   ** @arg title	new window title
-   ** @arg filename	new file name
+   ** @param title	new window title
+   ** @param filename	new file name
    **/
   public void changeName (String title, String filename)
   {
@@ -615,7 +615,7 @@ public final class RedEditor
    ** Sets the editor to contain a view. This is called from outside the 
    ** editor (not by the editor function).
    **
-   ** @arg view	    the new view. Must be one of the defined view constants.
+   ** @param view	    the new view. Must be one of the defined view constants.
    **/
   private void setView(int view)
   {
@@ -947,7 +947,7 @@ public final class RedEditor
    ** Display the current line number in the status area.
    ** The number is only refreshed if it has changed since last display or if 
    ** 'force' is true.
-   ** @arg force	force new display even if line hasn't changed
+   ** @param force	force new display even if line hasn't changed
    **/
 
   private void show_line_number (boolean force)

@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 100 1999-05-31 06:39:59Z ajp $
+ ** @version $Id: Config.java 111 1999-06-04 06:16:57Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -164,8 +164,8 @@ public class Config
      * properties object can be returned that has the named definitions as
      * defaults.
      *
-     * @arg filename	the properties file
-     * @arg asDefault	if true, the definitions are used as defaults for
+     * @param filename	the properties file
+     * @param asDefault	if true, the definitions are used as defaults for
      *			an empty properties objects.
      */
     private static Properties loadDefs(String filename, boolean asDefault)

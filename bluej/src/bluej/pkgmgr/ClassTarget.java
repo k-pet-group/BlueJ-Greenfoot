@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /** 
- ** @version $Id: ClassTarget.java 93 1999-05-28 00:54:37Z mik $
+ ** @version $Id: ClassTarget.java 111 1999-06-04 06:16:57Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -104,7 +104,7 @@ public class ClassTarget extends EditableTarget
      * For class targets, that is the source file, and possibly (if compiled)
      * class and context files.
      *
-     * @arg directory The directory to copy into (ending with "/")
+     * @param directory The directory to copy into (ending with "/")
      */
     public boolean copyFiles(String directory)
     {
@@ -229,7 +229,7 @@ public class ClassTarget extends EditableTarget
     // --- EditableTarget interface ---
 
     /**
-    ** @returns a boolean indicating whether this target contains source code
+    ** @return a boolean indicating whether this target contains source code
     **/
     protected boolean isCode()
     {
@@ -237,7 +237,7 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-    ** @returns the name of the (text) file this target corresponds to.
+    ** @return the name of the (text) file this target corresponds to.
     **/
     public String sourceFile()
     {
@@ -245,7 +245,7 @@ public class ClassTarget extends EditableTarget
     }
     
     /**
-     * @returns the name of the context(.ctxt) file this target corresponds to.
+     * @return the name of the context(.ctxt) file this target corresponds to.
      */
     public String contextFile()
     {
@@ -282,9 +282,11 @@ public class ClassTarget extends EditableTarget
 
     /**
      * Called by Editor when a breakpoint is been set/cleared
-     * @arg filename	the name of the file that was modified
-     * @arg lineNo	the line number of the breakpoint
-     * @arg set	whether the breakpoint is set (true) or cleared
+     * @param filename	the name of the file that was modified
+     * @param lineNo	the line number of the breakpoint
+     * @param set	whether the breakpoint is set (true) or cleared
+     *
+     * @return  null if there was no problem, or an error string
      */
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     {
@@ -299,9 +301,9 @@ public class ClassTarget extends EditableTarget
 
     /**
      * Called by Editor to change the view displayed by an editor
-     * @arg viewname	the name of the view to display, should be 
+     * @param viewname	the name of the view to display, should be 
      * 		one of bluej.editor.Editor.PUBLIC, etc.
-     * @returns a boolean indicating if the change was allowed
+     * @return a boolean indicating if the change was allowed
      */
     public boolean changeView(Editor editor, int viewType)
     {

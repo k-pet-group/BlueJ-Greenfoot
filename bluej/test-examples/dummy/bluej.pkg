@@ -1,9 +1,9 @@
 #BlueJ project file
-#Wed Jun 02 13:54:43 GMT+10:00 1999
+#Fri Jun 04 16:12:36 GMT+10:00 1999
 target1.height=50
 dependency1.to=Tester
 dependency1.type=ExtendsDependency
-package.window.height=527
+package.window.height=501
 dependency1.from=SubTester
 target3.y=50
 target3.x=40

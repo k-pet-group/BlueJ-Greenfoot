@@ -1,7 +1,7 @@
 package bluej.editor;
 
 /**
- ** @version $Id: EditorWatcher.java 49 1999-04-28 03:01:02Z ajp $
+ ** @version $Id: EditorWatcher.java 111 1999-06-04 06:16:57Z mik $
  ** @author Michael Cahill
  ** Interface between the editor and the rest of BlueJ
  ** The editor uses this class
@@ -25,18 +25,18 @@ public interface EditorWatcher
 
 	/**
 	 ** Called by Editor when a breakpoint is been set/cleared
-	 ** @arg lineNo		the line number of the breakpoint
-	 ** @arg set		whether the breakpoint is set (true) or cleared
-	 ** @returns            An error message or null or "".
+	 ** @param lineNo		the line number of the breakpoint
+	 ** @param set		whether the breakpoint is set (true) or cleared
+	 ** @return             An error message or null if okay.
 	 **/
 	String breakpointToggleEvent(Editor editor, int lineNo, 
 					    boolean set);
 
 	/**
 	 ** Called by Editor to change the view displayed by an editor
-	 ** @arg viewType	the view to display, should be
+	 ** @param viewType	the view to display, should be
 	 **			one of bluej.editor.Editor.PUBLIC, etc.
-	 ** @returns a boolean indicating if the change was allowed
+	 ** @return a boolean indicating if the change was allowed
 	 **/
 	boolean changeView(Editor editor, int viewType);
 

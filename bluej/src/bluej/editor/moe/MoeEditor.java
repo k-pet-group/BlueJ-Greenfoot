@@ -881,19 +881,15 @@ public final class MoeEditor extends JFrame
     {
 	if (watcher != null) {
 	    String result = watcher.breakpointToggleEvent(this, 
-							  getLineNumberAt(pos), set);
-	    if(result == null || result.length() == 0) {
+						  getLineNumberAt(pos), set);
+	    if(result == null) {
 		// no problem, go ahead
 		SimpleAttributeSet a = new SimpleAttributeSet();
 		a.addAttribute(BreakPoint, new Boolean(set));
 		document.setParagraphAttributes(pos, 0, a, false);
 	    }
-	    else {
-		if(result.startsWith("No code"))
-		    info.warning("Cannot set breakpoint: no code in this line");
-		else
-		    info.warning("Cannot set breakpoint:", result);
-	    }
+	    else
+		info.warning(result);
 	}
     }
 

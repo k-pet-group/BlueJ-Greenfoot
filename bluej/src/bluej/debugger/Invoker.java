@@ -23,7 +23,7 @@ import sun.tools.javac.SourceClass;
 import sun.tools.javac.BatchEnvironment;
 
 /**
- ** @version $Id: Invoker.java 104 1999-06-02 03:56:24Z mik $
+ ** @version $Id: Invoker.java 111 1999-06-04 06:16:57Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -65,10 +65,10 @@ public class Invoker extends Thread
      * Call a class's constructor, then create an ObjectWrapper for the
      * resulting object
      *
-     * @arg pkg - the Package we are working on
-     * @arg member - the member to invoke
-     * @arg objName - the name of the object on which the method is called
-     * @arg watcher - an object interested in the result of the invocation
+     * @param pkg - the Package we are working on
+     * @param member - the member to invoke
+     * @param objName - the name of the object on which the method is called
+     * @param watcher - an object interested in the result of the invocation
      */
     public Invoker(Package pkg, MemberView member, String objName, ResultWatcher watcher)
     {
@@ -358,7 +358,7 @@ public class Invoker extends Thread
 	    startClass();
 
 	File srcFile = new File(pkg.getFileName(shellName) + ".java");
-	//srcFile.delete();
+	srcFile.delete();
 
 	File classFile = new File(pkg.getClassFileName(shellName) + ".class");
 	classFile.delete();

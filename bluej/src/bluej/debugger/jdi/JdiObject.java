@@ -18,7 +18,7 @@ import com.sun.jdi.*;
 public class JdiObject extends DebuggerObject
 {
     ObjectReference obj;	// the remote object represented
-    List fields = null;		// list of fields of the object
+    List fields;		// list of fields of the object
 
     /**
      * Factory method that returns instances of JdiObjects.
@@ -49,6 +49,7 @@ public class JdiObject extends DebuggerObject
     private JdiObject(ObjectReference obj)
     {
 	this.obj = obj;
+	getRemoteFields();
     }
 
 
@@ -90,9 +91,6 @@ public class JdiObject extends DebuggerObject
     {
 	int count = 0;
 
-	if(fields == null)
-	    getRemoteFields();
-
 	for (int i = 0; i < fields.size(); i++) {
 	    Field field = (Field)fields.get(i);
 	    if(field.isStatic() == getStatic)
@@ -105,7 +103,7 @@ public class JdiObject extends DebuggerObject
     /**
      * Return the name of the static field at 'slot'.
      *
-     * @arg slot  The slot number to be checked
+     * @param slot  The slot number to be checked
      */
     public String getStaticFieldName(int slot)
     {
@@ -115,7 +113,7 @@ public class JdiObject extends DebuggerObject
     /**
      * Return the name of the object field at 'slot'.
      *
-     * @arg slot  The slot number to be checked
+     * @param slot  The slot number to be checked
      */
     public String getInstanceFieldName(int slot)
     {
@@ -126,7 +124,7 @@ public class JdiObject extends DebuggerObject
     /**
      * Return true if the static field 'slot' is public.
      *
-     * @arg slot The slot number to be checked
+     * @param slot The slot number to be checked
      */
     public boolean staticFieldIsPublic(int slot)
     {
@@ -136,7 +134,7 @@ public class JdiObject extends DebuggerObject
     /**
      * Return true if the object field 'slot' is public.
      *
-     * @arg slot The slot number to be checked
+     * @param slot The slot number to be checked
      */
     public boolean instanceFieldIsPublic(int slot)
     {
@@ -148,27 +146,40 @@ public class JdiObject extends DebuggerObject
      * Return true if the static field 'slot' is an object (and not
      * a simple type).
      *
-     * @arg slot The slot number to be checked
+     * @param slot The slot number to be checked
      */
     public boolean staticFieldIsObject(int slot)
     {
-	return fieldIsObject(true, slot);
+	return checkFieldForObject(true, slot);
     }
 	
     /**
      * Return true if the object field 'slot' is an object (and not
      * a simple type).
      *
-     * @arg slot The slot number to be checked
+     * @param slot The slot number to be checked
      */
     public boolean instanceFieldIsObject(int slot)
     {
-	return fieldIsObject(false, slot);
+	return checkFieldForObject(false, slot);
     }
 
-    private boolean fieldIsObject(boolean getStatic, int slot)
+    private boolean checkFieldForObject(boolean getStatic, int slot)
     {
 	Field field = getField(getStatic, slot);
+	Value val = obj.getValue(field);
+	return (val instanceof ObjectReference);
+    }
+
+    /**
+     * Return true if the object field 'slot' is an object (and not
+     * a simple type).
+     *
+     * @param slot The slot number to be checked
+     */
+    public boolean fieldIsObject(int slot)
+    {
+	Field field = (Field)fields.get(slot);
 	Value val = obj.getValue(field);
 	return (val instanceof ObjectReference);
     }
@@ -192,11 +203,24 @@ public class JdiObject extends DebuggerObject
      * Return the object in object field 'slot'. Slot must exist and
      * must be of object type.
      *
-     * @arg slot  The slot number to be returned
+     * @param slot  The slot number to be returned
      */
     public DebuggerObject getInstanceFieldObject(int slot)
     {
 	Field field = getField(false, slot);
+	ObjectReference val = (ObjectReference)obj.getValue(field);
+	return getDebuggerObject(val);
+    }
+
+    /**
+     * Return the object in field 'slot'. Slot must exist and
+     * must be of object type.
+     *
+     * @param slot  The slot number to be returned
+     */
+    public DebuggerObject getFieldObject(int slot)
+    {
+	Field field = (Field)fields.get(slot);
 	ObjectReference val = (ObjectReference)obj.getValue(field);
 	return getDebuggerObject(val);
     }
@@ -208,7 +232,7 @@ public class JdiObject extends DebuggerObject
      */
     public Vector getStaticFields(boolean includeModifiers)
     {
-	return getFields(true, includeModifiers);
+	return getFields(false, true, includeModifiers);
     }
 	
     /**
@@ -217,21 +241,30 @@ public class JdiObject extends DebuggerObject
      */
     public Vector getInstanceFields(boolean includeModifiers)
     {
-	return getFields(false, includeModifiers);
+	return getFields(false, false, includeModifiers);
     }
 
 
     /**
      * Return a vector of strings with the description of each field
      * in the format "<modifier> <type> <name> = <value>".
-     * If 'getStatic' is true, return the static fields, otherwise the
-     * instance fields.
      */
-    private Vector getFields(boolean getStatic, boolean includeModifiers)
+    public Vector getAllFields(boolean includeModifiers)
     {
-	if(fields == null)
-	    getRemoteFields();
+	return getFields(true, true, includeModifiers);
+    }
 
+
+    /**
+     * Return a vector of strings with the description of each field
+     * in the format "<modifier> <type> <name> = <value>".
+     * If 'getAll' is true, both static and instance fields are returned
+     * ('getStatic' is ignored). If 'getAll' is false, then 'getStatic'
+     * determines whether static fields or instance fields are returned.
+     */
+    private Vector getFields(boolean getAll, boolean getStatic, 
+			     boolean includeModifiers)
+    {
 	Vector fieldStrings = new Vector(fields.size());
 
 	ReferenceType cls = obj.referenceType();
@@ -239,19 +272,10 @@ public class JdiObject extends DebuggerObject
 
 	for (int i = 0; i < fields.size(); i++) {
 	    Field field = (Field)fields.get(i);
-	    if(field.isStatic() == getStatic) {
+	    if(getAll || (field.isStatic() == getStatic)) {
 		Value val = obj.getValue(field);
 
-		String valString;
-				
-		if(val == null)
-		    valString = "<null>";
-		else if((val instanceof ObjectReference) &&
-			!(val instanceof StringReference))
-		    valString = "<object reference>";
-		else
-		    valString = val.toString();
-
+		String valString = getValueString(val);
 		String fieldString = "";
 
 		if(includeModifiers) {
@@ -280,9 +304,6 @@ public class JdiObject extends DebuggerObject
 
     private Field getField(boolean getStatic, int slot)
     {
-	if(fields == null)
-	    getRemoteFields();
-
 	for (int i = 0; i < fields.size(); i++) {
 	    Field field = (Field)fields.get(i);
 	    if(field.isStatic() == getStatic) {
@@ -309,4 +330,21 @@ public class JdiObject extends DebuggerObject
 	    fields = new Vector();
 	}
     }
+
+    /**
+     *  Return the value of a field as as string.
+     */
+    public static String getValueString(Value val)
+    {
+	if(val == null)
+	    return "<null>";
+
+	else if((val instanceof ObjectReference) &&
+		!(val instanceof StringReference))
+	    return "<object reference>";
+
+	else
+	    return val.toString();
+    }
+
 }

@@ -1,8 +1,4 @@
  /**
- ** Class MyClass - write a description of the class here
- ** 
- ** @author: 
- ** Date: 
  **/
 public class MyClass
 {
@@ -29,12 +25,18 @@ public class MyClass
         return tst;
     }
 
-    /**
-     ** An example of a method - replace this comment with your own
-     ** 	
-     ** @param  y   a sample parameter for a method
-     ** @return     the sum of x and y 
-     **/
+    public int shortloop(int count)
+    {
+        	int sum = 0;
+        Tester t = null;
+
+        	for (int i=0; i<10; i++) {
+            sum = sum + i;
+            sum = sum -200;
+        }
+        	return x + 5;
+    }
+
     public int loop(int count)
     {
         	int sum = 0;

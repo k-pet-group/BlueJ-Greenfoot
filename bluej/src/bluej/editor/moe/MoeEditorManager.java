@@ -57,11 +57,11 @@ public final class MoeEditorManager
      ** is initially hidden. A call to "Editor::show" is needed to make 
      ** is visible after opening it.
      **
-     ** @arg filename	name of the source file to open (may be null)
-     ** @arg windowTitle	title of window (usually class name)
-     ** @arg watcher	an object interested in editing events
-     ** @arg compiled	true, if the class has been compiled
-     ** @arg breakpoints	vector of Integers: line numbers where bpts are
+     ** @param filename	name of the source file to open (may be null)
+     ** @param windowTitle	title of window (usually class name)
+     ** @param watcher	an object interested in editing events
+     ** @param compiled	true, if the class has been compiled
+     ** @param breakpoints	vector of Integers: line numbers where bpts are
      ** @returns		the new editor, or null if there was a problem
      **/
 
@@ -82,9 +82,9 @@ public final class MoeEditorManager
      ** A call to "Editor::show" is needed to make is visible after 
      ** opening it.
      **
-     ** @arg filename	name of the source file to open (may be null)
-     ** @arg windowTitle	title of window (usually class name)
-     ** @arg watcher	an object interested in editing events
+     ** @param filename	name of the source file to open (may be null)
+     ** @param windowTitle	title of window (usually class name)
+     ** @param watcher	an object interested in editing events
      ** @returns		the new editor, or null if there was a problem
      **/
 
@@ -200,11 +200,11 @@ public final class MoeEditorManager
      ** is initially hidden. A call to "Editor::show" is needed to make 
      ** is visible after opening it.
      **
-     ** @arg filename	name of the source file to open (may be null)
-     ** @arg windowTitle	title of window (usually class name)
-     ** @arg watcher	an object interested in editing events
-     ** @arg compiled	true, if the class has been compiled
-     ** @arg breakpoints	vector of Integers: line numbers where bpts are
+     ** @param filename	name of the source file to open (may be null)
+     ** @param windowTitle	title of window (usually class name)
+     ** @param watcher	an object interested in editing events
+     ** @param compiled	true, if the class has been compiled
+     ** @param breakpoints	vector of Integers: line numbers where bpts are
      ** @returns		the new editor, or null if there was a problem
      **/
 

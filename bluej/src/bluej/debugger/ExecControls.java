@@ -12,7 +12,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 63 1999-05-04 00:03:10Z mik $
+ ** @version $Id: ExecControls.java 111 1999-06-04 06:16:57Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -37,15 +37,17 @@ public class ExecControls extends JFrame
 		    terminateButton;
     private JButton updateButton, closeButton;
 
-    private DebuggerThread[] threads;		// most recently updated list
+    private Vector threads;
     private DebuggerThread selectedThread;	// the thread currently
-						// selected
+						//  selected
+    private DebuggerObject currentObject;	// the "this" object for the
+						//  selected stack frame
 
     public ExecControls()
     {
 	super(windowTitle);
 		
-	threads = new DebuggerThread[0];
+	threads = new Vector();
 	createWindow();
     }
 
@@ -97,6 +99,9 @@ public class ExecControls extends JFrame
 
     public void valueChanged(ListSelectionEvent event)
     {
+	if(event.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
+	    return;
+
 	Object src = event.getSource();
 
 	if(src == threadList) {
@@ -106,13 +111,24 @@ public class ExecControls extends JFrame
 	else if(src == stackList) {
 	    selectStackFrame(stackList.getSelectedIndex());
 	}
-	else if(src == instanceList) {
-	}
-	else if(src == localList) {
-	}
+
+	// instanceList and localList are ignored - single click doesn't do
+	// anything
     }
 
     // ----- end of ListSelectionListener interface -----
+
+    public void listDoubleClick(MouseEvent event)
+    {
+	Component src = event.getComponent();
+
+	if(src == instanceList) {
+	    viewInstanceField(instanceList.getSelectedIndex());
+	}
+	else if(src == localList) {
+	    //viewField(instanceList.getSelectedIndex());
+	}
+    }
 
     public synchronized void updateThreads()
     {
@@ -122,26 +138,27 @@ public class ExecControls extends JFrame
 	try {
 	    // remember all the threads that are explicitly halted
 	    Hashtable haltedThreads = new Hashtable();
-	    for(int i = 0; i < threads.length; i++)
-		if(threads[i].isHalted())
-		    haltedThreads.put(threads[i].getName(), "");
-
+	    for(int i = 0; i < threads.size(); i++) {
+		DebuggerThread thread = (DebuggerThread)threads.get(i);
+		if(thread.isHalted())
+		    haltedThreads.put(thread.getName(), "");
+	    }
 	    threads = Debugger.debugger.listThreads();
 
-	    for(int i = 0; i < threads.length; i++)
-		if(haltedThreads.get(threads[i].getName()) != null)
-		    threads[i].setHalted(true);
-
+	    for(int i = 0; i < threads.size(); i++) {
+		DebuggerThread thread = (DebuggerThread)threads.get(i);
+		if(haltedThreads.get(thread.getName()) != null)
+		    thread.setHalted(true);
+	    }
 	} catch(Exception e) {
-	    Debug.reportError("could not get thread information");
+	    Debug.reportError("could not get thread information: " + e);
 	    return;
 	}
 
-	for(int i = 0; i < threads.length; i++) {
-	    String name = threads[i].getName();
-	    if(! name.startsWith("AWT-") && !name.equals("Screen Updater"))
-		listModel.addElement(name + " [" + 
-				     threads[i].getStatus() + "]");
+	for(int i = 0; i < threads.size(); i++) {
+	    DebuggerThread thread = (DebuggerThread)threads.get(i);
+	    listModel.addElement(thread.getName() + " [" + 
+				 thread.getStatus() + "]");
 	}
 	if(listModel.getSize() > 0)
 	    threadList.setSelectedIndex(0);  // always select the first one
@@ -161,7 +178,7 @@ public class ExecControls extends JFrame
 	
     private synchronized DebuggerThread getThread(int index)
     {
-	return threads[index];
+	return (DebuggerThread)threads.get(index);
     }
 
     private void setThreadDetails()
@@ -169,7 +186,7 @@ public class ExecControls extends JFrame
 	Vector stack = selectedThread.getStack();
 	if(stack.size() > 0) {
 	    stackList.setListData(stack);
-	    setVariableDetails(0);  // show details of top frame
+	    setStackFrameDetails(0);  // show details of top frame
 	}
     }
 	
@@ -183,19 +200,29 @@ public class ExecControls extends JFrame
     private void selectStackFrame(int index)
     {
 	if (index >= 0)
-	    setVariableDetails(index);
+	    setStackFrameDetails(index);
 	Debugger.debugger.showSource(selectedThread, index);
     }
 	
-    private void setVariableDetails(int frameNo)
+    private void setStackFrameDetails(int frameNo)
     {
-	instanceList.setListData(selectedThread.getInstanceVariables(frameNo));
+	currentObject = selectedThread.getCurrentObject(frameNo);
+	instanceList.setListData(currentObject.getAllFields(false));
 	localList.setListData(selectedThread.getLocalVariables(frameNo));
+    }
+
+    private void viewInstanceField(int index)
+    {
+	if(currentObject.fieldIsObject(index)) {
+	    ObjectViewer viewer = ObjectViewer.getViewer(true, 
+					currentObject.getFieldObject(index), 
+					null, null, false, this);
+	}
     }
 
     private void createWindow()
     {
-	JPanel mainPanel = (JPanel)getContentPane();  // has BerderLayout by default
+	JPanel mainPanel = (JPanel)getContentPane();  // has BorderLayout by default
 	mainPanel.setLayout(new BorderLayout(6,6));
 	mainPanel.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
 
@@ -246,6 +273,19 @@ public class ExecControls extends JFrame
 	localList.setVisibleRowCount(5);
 	scrollPane = new JScrollPane(localList);
 	scrollPane.setColumnHeaderView(new JLabel(localTitle));
+
+	// add mouse listener to monitor for double clicks
+
+	MouseListener mouseListener = new MouseAdapter() {
+	    public void mouseClicked(MouseEvent e) {
+		if (e.getClickCount() == 2) {
+		    listDoubleClick(e);
+		}
+	    }
+	};
+	instanceList.addMouseListener(mouseListener);
+	localList.addMouseListener(mouseListener);
+
 
 	varArea.add(scrollPane);
 
@@ -299,9 +339,9 @@ public class ExecControls extends JFrame
     /**
      * Create a button and add it to a panel.
      *
-     * @arg imgRsrcName    The name of the image resource for the button.
-     * @arg panel          The panel to add the button to.
-     * @arg margin         The margin around the button.
+     * @param imgRsrcName    The name of the image resource for the button.
+     * @param panel          The panel to add the button to.
+     * @param margin         The margin around the button.
      */
     private JButton addButton(String imgRsrcName, JPanel panel, Insets margin)
     {

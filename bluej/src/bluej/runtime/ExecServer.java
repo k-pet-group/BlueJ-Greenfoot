@@ -151,7 +151,7 @@ public class ExecServer
 	Class cl = null;
 
 	try {
-  	    //Debug.message("loading class " + classname);
+	    //Debug.reportError("loading class " + classname);
 
 	    if(loaderId == null)
 		cl = Class.forName(classname);
@@ -161,6 +161,7 @@ public class ExecServer
 		    cl = loader.loadClass(classname);
 	    }
 
+	    //Debug.reportError("   loaded.");
 	    if(cl == null)
 		Debug.reportError("Could not load class for execution");
 	    else
@@ -185,7 +186,8 @@ public class ExecServer
 	    Method m = cl.getMethod("prepare", null);
 	    m.invoke(null, null);
 	} catch(Exception e) {
-	    Debug.reportError("Exception while trying to prepare class:" + e);
+	    // ignore - some classes don't have prepare method. attempt to
+	    // call will still prepare the class
 	}
     }
 

@@ -4,7 +4,7 @@ package bluej.debugger;
 //import bluej.debugger.suntools.SunDebugger;
 import bluej.debugger.jdi.JdiDebugger;
 
-import bluej.pkgmgr.Package;
+import java.util.Vector;
 
 /**
  ** A class defining the debugger primitives needed by BlueJ
@@ -13,7 +13,7 @@ import bluej.pkgmgr.Package;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Debugger.java 101 1999-06-01 05:56:29Z mik $
+ ** @version $Id: Debugger.java 111 1999-06-04 06:16:57Z mik $
  **/
 
 public abstract class Debugger
@@ -75,7 +75,7 @@ public abstract class Debugger
      * "Start" a class (i.e. invoke its main method without arguments)
      */
     public abstract void startClass(DebuggerClassLoader loader, 
-				    String classname, Package pkg);
+				    String classname, Object eventParam);
 
     /**
      * Get the value of a static field in a class
@@ -86,9 +86,9 @@ public abstract class Debugger
     /**
      * Set/clear a breakpoint at a specified line in a class.
      *
-     * @arg className  The class in which to set the breakpoint.
-     * @arg line       The line number of the breakpoint.
-     * @arg set        True to set, false to clear a breakpoint.
+     * @param className  The class in which to set the breakpoint.
+     * @param line       The line number of the breakpoint.
+     * @param set        True to set, false to clear a breakpoint.
      */
     public abstract String toggleBreakpoint(String className, int line, 
 					    boolean set, 
@@ -106,9 +106,10 @@ public abstract class Debugger
     public abstract ExceptionDescription getException();
 
     /**
-     * List all the threads being debugged
+     * List all the threads being debugged as a Vector containing elements
+     * of type DebuggerThread.
      */
-    public abstract DebuggerThread[] listThreads()
+    public abstract Vector listThreads()
 	throws Exception;
 
     /**

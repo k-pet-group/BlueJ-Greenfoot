@@ -4,7 +4,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- ** @version $Id: SimpleEditor.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: SimpleEditor.java 111 1999-06-04 06:16:57Z mik $
  ** @author Michael Cahill
  ** Interface between the editor and the rest of BlueJ
  **/
@@ -15,7 +15,7 @@ public class SimpleEditor extends Editor
 	
 	/**
 	 ** Interface helper function
-	 ** @arg filename	the name of the file to open
+	 ** @param filename	the name of the file to open
 	 ** @returns the editor frame object for that filename, if it exists
 	 **/
 	protected SimpleFrame getEditor(String filename)
@@ -27,8 +27,8 @@ public class SimpleEditor extends Editor
 	/**
 	 ** Open a named file.
 	 ** If the file is already open then bring its window to front.
-	 ** @arg filename	the name of the file to open
-	 ** @arg isCode	indicates whether the file contains source code
+	 ** @param filename	the name of the file to open
+	 ** @param isCode	indicates whether the file contains source code
 	 **/
 	public void open(String filename, boolean isCode)
 	{
@@ -45,7 +45,7 @@ public class SimpleEditor extends Editor
 
 	/**
 	 ** Revert to the contents of the named file.
-	 ** @arg filename	the name of the file to revert to
+	 ** @param filename	the name of the file to revert to
 	 **/
 	public void reopen(String filename)
 	{
@@ -57,7 +57,7 @@ public class SimpleEditor extends Editor
 	
 	/**
 	 ** Save the buffer to disk.
-	 ** @arg filename	the name of the file for the operation
+	 ** @param filename	the name of the file for the operation
 	 **      if <tt>filename</tt> is null then apply to all open editors
 	 **/
 	public void save(String filename)
@@ -71,7 +71,7 @@ public class SimpleEditor extends Editor
 	/**
 	 ** Try to close (allows the editor to prompt the user to save
 	 ** modified files).
-	 ** @arg filename	the name of the file to try to close
+	 ** @param filename	the name of the file to try to close
 	 **      if <tt>filename</tt> is null then apply to all open editors
 	 ** @returns	a boolean indicating whether the editor was closed
 	 **/
@@ -87,7 +87,7 @@ public class SimpleEditor extends Editor
 
 	/**
 	 ** Close regardless of whether the file is modified.
-	 ** @arg filename the name of the file to close
+	 ** @param filename the name of the file to close
 	 **      if <tt>filename</tt> is null then apply to all open editors
 	 **/
 	public void doClose(String filename)
@@ -100,8 +100,8 @@ public class SimpleEditor extends Editor
 	
 	/**
 	 ** Set the breakpoints of the named file.
-	 ** @arg filename	the name of the file for the operation
-	 ** @arg breakpoints	a list of breakpoint line numbers
+	 ** @param filename	the name of the file for the operation
+	 ** @param breakpoints	a list of breakpoint line numbers
 	 **/
 	public void setBreakpoints(String filename, Vector breakpoints)
 	{
@@ -110,9 +110,9 @@ public class SimpleEditor extends Editor
 	
 	/**
 	 ** Set the views of the named file.
-	 ** @arg filename	the name of the file for the operation
-	 ** @arg inherited	a string representing the inherited view
-	 ** @arg exported	a string representing the exported view
+	 ** @param filename	the name of the file for the operation
+	 ** @param inherited	a string representing the inherited view
+	 ** @param exported	a string representing the exported view
 	 **/
 	public void setViews(String filename, String inherited, String exported)
 	{
@@ -121,9 +121,9 @@ public class SimpleEditor extends Editor
 	
 	/**
 	 ** Highlight a line or region of a file
-	 ** @arg filename	the name of the file to try to close
-	 ** @arg startLine	the first line to highlight
-	 ** @arg endLine	the last line to highlight
+	 ** @param filename	the name of the file to try to close
+	 ** @param startLine	the first line to highlight
+	 ** @param endLine	the last line to highlight
 	 **/
 	public void select(String filename, int startLine, int endLine)
 	{
@@ -134,8 +134,8 @@ public class SimpleEditor extends Editor
 	 ** Go to a particular line number - move the cursor to the
 	 ** specified line and ensure it is displayed.
 	 ** Note: need not change the current selection.
-	 ** @arg filename	the name of the file for the operation
-	 ** @arg lineNo		the line number to display
+	 ** @param filename	the name of the file for the operation
+	 ** @param lineNo		the line number to display
 	 **/
 	public void goToLine(String filename, int lineNo)
 	{
@@ -144,8 +144,8 @@ public class SimpleEditor extends Editor
 	
 	/**
 	 ** Display a message (used for compile errors)
-	 ** @arg filename	the name of the file for the operation
-	 ** @arg message	the message to be displayed
+	 ** @param filename	the name of the file for the operation
+	 ** @param message	the message to be displayed
 	 **/
 	public void showMessage(String filename, String message)
 	{
@@ -158,7 +158,7 @@ public class SimpleEditor extends Editor
 	/**
 	 ** Determine whether a file has been modified from the version
 	 ** on disk
-	 ** @arg filename	the name of the file for the operation
+	 ** @param filename	the name of the file for the operation
 	 ** @returns	a boolean indicating whether the file is modified
 	 **/
 	public boolean isModified(String filename)

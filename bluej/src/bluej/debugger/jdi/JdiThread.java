@@ -1,28 +1,39 @@
 package bluej.debugger.jdi;
 
-import bluej.debugger.*;
-
+import bluej.debugger.DebuggerThread;
+import bluej.debugger.DebuggerObject;
 import bluej.utility.Debug;
 
 import java.util.Vector;
+import java.util.List;
+
+import com.sun.jdi.*;
 
 /**
- ** A class implementing the debugger primitives needed by BlueJ
- ** Implemented in a remote VM (via Sun's JDI interface)
+ ** This class represents a thread running on the remote virtual machine.
  **
  ** @author Michael Kolling
  **/
 
-public class JdiThread extends DebuggerThread
+public final class JdiThread extends DebuggerThread
 {
-    RemoteThread rt;
-    boolean halted;	// true if explicitely suspended
-    RemoteStackFrame[] frames = null;
-
-    public JdiThread(RemoteThread rt)
+    ThreadReference rt; // the reference to the remote thread
+    //boolean halted;	// true if explicitely suspended
+    Object userParam;	// an optional user parameter associated with this
+			// thread
+    
+    public JdiThread(ThreadReference rt)
     {
 	this.rt = rt;
-	halted = false;
+	this.userParam = null;
+	//halted = false;
+    }
+	
+    public JdiThread(ThreadReference rt, Object userParam)
+    {
+	this.rt = rt;
+	this.userParam = userParam;
+	//halted = false;
     }
 	
     public String getName()
@@ -30,47 +41,69 @@ public class JdiThread extends DebuggerThread
 	String name = null;
 		
 	try {
-	    name = rt.getName();
+	    name = rt.name();
 	} catch(Exception e) {
 	    // ignore it
 	}
-		
 	return name;
     }
 
-    public RemoteThread getRemoteThread()
+    public Object getParam()
+    {
+	return userParam;
+    }
+
+    public ThreadReference getRemoteThread()
     {
 	return rt;
     }
 	
     public String getStatus()
     {
-	String status = null;
-		
-	try {
-	    status = rt.getStatus();
-	} catch(Exception e) {
-	    // ignore it
-	}
-		
-	return status;
+  	try {
+	    if(rt.isAtBreakpoint())
+		return "at breakpoint";
+
+	    if(rt.isSuspended())
+		return "stopped";
+
+  	    int status = rt.status();
+	    switch(status) {
+		case ThreadReference.THREAD_STATUS_UNKNOWN: 
+		    return "unknown status";
+		case ThreadReference.THREAD_STATUS_ZOMBIE:
+		    return "zombie";
+		case ThreadReference.THREAD_STATUS_RUNNING:
+		    return "running";
+		case ThreadReference.THREAD_STATUS_SLEEPING:
+		    return "sleeping";
+		case ThreadReference.THREAD_STATUS_MONITOR: 
+		    return "at monitor";
+		case ThreadReference.THREAD_STATUS_WAIT:
+		    return "waiting";
+	    }
+  	} catch(Exception e) {
+  	    return "(???)";
+  	}
+	return null; // to shut up compiler
     }
 
     public void setHalted(boolean halted)
     {
-	this.halted = halted;
+	Debug.message("[JdiThread] setHalted - NYI");
+	//this.halted = halted;
     }
 
     public boolean isHalted()
     {
-	return halted;
+	Debug.message("[JdiThread] isHalted - NYI");
+	return false;
     }
 
     public String getClassSourceName(int frameNo)
     {
 	try {
-	    readStackFrames();
-	    return frames[frameNo].getRemoteClass().getSourceFileName();
+	    return rt.frame(frameNo).location().sourceName();
 	} catch(Exception e) {
 	    return "";
 	}
@@ -79,8 +112,7 @@ public class JdiThread extends DebuggerThread
     public int getLineNumber(int frameNo)
     {
 	try {
-	    readStackFrames();
-	    return frames[frameNo].getLineNumber();
+	    return rt.frame(frameNo).location().lineNumber();
 	} catch(Exception e) {
 	    return 1;
 	}
@@ -88,28 +120,32 @@ public class JdiThread extends DebuggerThread
 
     /**
      * Get strings showing the current stack frames. Ignore everything
-     * including the __SHELL clas and below.
+     * including the __SHELL class and below.
      *
      * The thread must be suspended to do this. Otherwise an empty vector
      * is returned.
+     *
+     * @return  A Vector of Strings in the format "<class>.<method>"
      */
     public Vector getStack()
     {
+	Debug.message("[JdiThread] getStack");
 	try {
 	    if(rt.isSuspended()) {
-		readStackFrames();
+
 		Vector stack = new Vector();
-		
+		List frames = rt.frames();
+
 		boolean shellFound = false;
-		for(int i = 0; i < frames.length; i++) {
-		    RemoteStackFrame f = frames[i];
-		    RemoteClass cl = frames[i].getRemoteClass();
-		    if(cl.getName().startsWith("__SHELL")) {
+		for(int i = 0; i < frames.size(); i++) {
+		    StackFrame f = (StackFrame)frames.get(i);
+		    Location loc = f.location();
+		    String classname = loc.declaringType().name();
+		    if(classname.startsWith("__SHELL")) {
 			shellFound = true;
 			break;
 		    }
-		    stack.addElement(cl.getName() + "." + f.getMethodName());
-		    // cl.getSourceFileName()  f.getLineNumber();
+		    stack.addElement(classname + "." + loc.method().name());
 		}
 		if(shellFound)
 		    return stack;
@@ -122,43 +158,6 @@ public class JdiThread extends DebuggerThread
 	return new Vector();
     }
 
-    /**	
-     *
-     * The thread must be suspended to do this. Otherwise an empty string
-     * array is returned.
-     */
-    public Vector getInstanceVariables(int frameNo)
-    {
-	try {
-	    if(rt.isSuspended()) {
-		readStackFrames();
-		RemoteStackVariable thisVar = 
-		    frames[frameNo].getLocalVariable("this");
-		if(thisVar == null)
-		    return new Vector();
-		RemoteValue value = thisVar.getValue();
-		if(value == null)
-		    return new Vector();
-		JdiObject obj = JdiObject.getDebuggerObject((RemoteObject)value);
-
-		String[] staticVar = obj.getStaticFields(false);
-		String[] instVar = obj.getFields(false);
-
-		Vector allVars = new Vector(staticVar.length+instVar.length);
-
-		for(int i=0; i < staticVar.length; i++)
-		    allVars.addElement(staticVar[i]);
-		for(int i=0; i < instVar.length; i++)
-		    allVars.addElement(instVar[i]);
-
-		return allVars;
-	    }
-	} catch(Exception e) {
-	    // nothing can be done...
-	    Debug.reportError("could not get instance variable info: " + e);
-	}
-	return new Vector();
-    }
 	
     /**
      * Return strings listing the local variables. Note that internally, the
@@ -170,21 +169,20 @@ public class JdiThread extends DebuggerThread
      */
     public Vector getLocalVariables(int frameNo)
     {
+	Debug.message("[JdiThread] getLocalVariables");
 	try {
 	    if(rt.isSuspended()) {
-		readStackFrames();
-		RemoteStackVariable[] allVars = 
-		    frames[frameNo].getLocalVariables();
+		StackFrame frame = rt.frame(frameNo);
+		List vars = frame.visibleVariables();
 		Vector localVars = new Vector();
 
-		for(int i = 0; i < allVars.length; i++) {
-		    RemoteStackVariable var = allVars[i];
-		    String name = var.getName();
-		    if(! name.equals("this")) {
-			localVars.addElement(var.getType() + " " + name +
-					     " = " +
-					     getValueString(var.getValue()));
-		    }
+		for(int i = 0; i < vars.size(); i++) {
+		    LocalVariable var = (LocalVariable)vars.get(i);
+		    String val = JdiObject.getValueString(
+						frame.getValue(var));
+		    localVars.addElement(var.typeName() + " " + 
+					 var.name() + " = " + val);
+  					 
 		}
 		return localVars;
 	    }
@@ -195,93 +193,83 @@ public class JdiThread extends DebuggerThread
 	return new Vector();
     }
 
-    public void stop()
+    public DebuggerObject getCurrentObject(int frameNo)
     {
 	try {
-	    rt.suspend();
-	    halted = true;
+	    if(rt.isSuspended()) {
+		StackFrame frame = rt.frame(frameNo);
+		return JdiObject.getDebuggerObject(frame.thisObject());
+	    }
 	} catch(Exception e) {
-	    e.printStackTrace(System.err);
+	    // nothing can be done...
+	    Debug.reportError("could not get current object: " + e);
 	}
+	return null;
+    }
+
+
+    public void stop()
+    {
+	Debug.message("[JdiThread] stop - NYI");
+//  	try {
+//  	    rt.suspend();
+//  	    halted = true;
+//  	} catch(Exception e) {
+//  	    e.printStackTrace(System.err);
+//  	}
     }
 
     public void step()
     {
-	try {
-	    rt.next();
-//  	    if(halted) {
-//  		rt.resume();
-//  		halted = false;
-//  	    }
-	} catch(Exception e) {
-	    e.printStackTrace(System.err);
-	}
+	Debug.message("[JdiThread] step - NYI");
+//  	try {
+//  	    rt.next();
+//  //  	    if(halted) {
+//  //  		rt.resume();
+//  //  		halted = false;
+//  //  	    }
+//  	} catch(Exception e) {
+//  	    e.printStackTrace(System.err);
+//  	}
     }
 
     public void stepInto()
     {
-	try {
-	    rt.step(true);
-//  	    if(halted) {
-//  		rt.resume();
-//  		halted = false;
-//  	    }
-	} catch(Exception e) {
-	    e.printStackTrace(System.err);
-	}
+	Debug.message("[JdiThread] stepInto - NYI");
+//  	try {
+//  	    rt.step(true);
+//  //  	    if(halted) {
+//  //  		rt.resume();
+//  //  		halted = false;
+//  //  	    }
+//  	} catch(Exception e) {
+//  	    e.printStackTrace(System.err);
+//  	}
     }
 
     public void cont()
     {
-	try {
-	    rt.cont();
-	    if(halted) {
-		rt.resume();
-		halted = false;
-	    }
-	} catch(Exception e) {
-	    e.printStackTrace(System.err);
-	}
+	Debug.message("[JdiThread] cont");
+  	try {
+  	    rt.resume();
+//  	    if(halted) {
+//  		rt.resume();
+//  		halted = false;
+//  	    }
+  	} catch(Exception e) {
+  	    e.printStackTrace(System.err);
+  	}
     }
 
     public void terminate()
     {
-	try {
-	    //rt.stop();
-	    Debug.message("terminate nyi");
-	} catch(Exception e) {
-	    e.printStackTrace(System.err);
-	}
+	Debug.message("[JdiThread] terminate - NYI");
+//  	try {
+//  	    //rt.stop();
+//  	    Debug.message("terminate nyi");
+//  	} catch(Exception e) {
+//  	    e.printStackTrace(System.err);
+//  	}
     }
 
-    private String getValueString(RemoteValue val)
-    {
-	String valString;
-	
-	if(val == null)
-	    valString = "<null>";
-	else if(val.isString()) {
-	    // Horrible special case:
-	    if("null".equals(val.toString()))
-		valString = "\"\"";
-	    else
-		valString = "\"" + val.toString() + "\"";
-	}
-	else if(val instanceof RemoteObject)
-	    valString = "<object reference>";
-	else
-	    valString = val.toString();
-
-	return valString;
-    }
-
-    private void readStackFrames()
-    {
-	try {
-	    if(frames == null)
-		frames = rt.dumpStack();
-	} catch(Exception e) {
-	    Debug.reportError("could not read stack info: " + e);
-	}
-    }
 }

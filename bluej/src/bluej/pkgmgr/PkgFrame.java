@@ -20,7 +20,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 106 1999-06-03 02:15:30Z ajp $
+ ** @version $Id: PkgFrame.java 111 1999-06-04 06:16:57Z mik $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -219,7 +219,6 @@ public abstract class PkgFrame extends JFrame
     }
 	
     protected void enableFunctions(boolean enable) {}
-    public void showHideExecControls(boolean show, boolean update) {}
 
     /**
      * Set the window title to show the current package name.

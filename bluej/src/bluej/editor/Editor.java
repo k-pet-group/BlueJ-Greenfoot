@@ -4,7 +4,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
- ** @version $Id: Editor.java 65 1999-05-05 06:32:09Z mik $
+ ** @version $Id: Editor.java 111 1999-06-04 06:16:57Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  ** Interface between an editor and the rest of BlueJ
@@ -29,9 +29,9 @@ public interface Editor
 	 ** Read a file into the editor buffer and show the editor. If the
 	 ** editor already contains text, it is cleared first.
 	 **
-	 ** @arg filename	the file to be read
-	 ** @arg compiled	true if this is a compiled class
-	 ** @arg breakpoints	Vector of Integers: list of breakpoints in 
+	 ** @param filename	the file to be read
+	 ** @param compiled	true if this is a compiled class
+	 ** @param breakpoints	Vector of Integers: list of breakpoints in 
 	 **			current class (if 'compiled' is false, 
 	 **			'breakpoints' must be null).
 	 ** @returns		false is there was a problem, true otherwise
@@ -59,8 +59,8 @@ public interface Editor
 	 ** redisplayed. This function is typically used in a sequence
 	 ** "clear; [insertText]*; show".
 	 **
-	 ** @arg text		the text to be inserted
-	 ** @arg style  	the style in which the text is to be displayed
+	 ** @param text		the text to be inserted
+	 ** @param style  	the style in which the text is to be displayed
 	 **			(one of the style constants defined in this 
 	 **			class)
 	 **/
@@ -72,7 +72,7 @@ public interface Editor
 	 ** following: make visible, de-iconify, bring to front of window 
 	 ** stack.
 	 **
-	 ** @arg view		the view to be displayed. Must be one of the 
+	 ** @param view		the view to be displayed. Must be one of the 
 	 **			view constants defined above
 	 **/
 	void show(int view);
@@ -97,12 +97,12 @@ public interface Editor
 	 ** must support at least two lines of message text, so the message
 	 ** can contain a newline character.
 	 **
-	 ** @arg message	the message to be displayed
-	 ** @arg lineNumber	the line to move the cursor to (the line is 
+	 ** @param message	the message to be displayed
+	 ** @param lineNumber	the line to move the cursor to (the line is 
 	 **			also highlighted)
-	 ** @arg column		the column to move the cursor to
-	 ** @arg beep		if true, do a system beep
-	 ** @arg setStepMark	if true, set step mark (for single stepping)
+	 ** @param column		the column to move the cursor to
+	 ** @param beep		if true, do a system beep
+	 ** @param setStepMark	if true, set step mark (for single stepping)
 	 **/
 	void displayMessage(String message, int lineNumber, 
 					int column, boolean beep, 
@@ -120,8 +120,8 @@ public interface Editor
 	/**
 	 ** Change class name.
 	 **
-	 ** @arg title		new window title
-	 ** @arg filename	new file name
+	 ** @param title		new window title
+	 ** @param filename	new file name
 	 **/
 	void changeName (String title, String filename);
 
@@ -130,7 +130,7 @@ public interface Editor
 	/**
 	 ** Set the "compiled" status
 	 **
-	 ** @arg compiled	true if the class has been compiled
+	 ** @param compiled	true if the class has been compiled
 	 **/
 	void setCompiled (boolean compiled);
 
