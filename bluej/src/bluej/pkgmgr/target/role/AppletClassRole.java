@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.*;
+import java.net.MalformedURLException;
 
 import javax.swing.*;
 
@@ -19,7 +20,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 2850 2004-08-06 14:32:26Z mik $
+ * @version $Id: AppletClassRole.java 2851 2004-08-06 14:43:05Z mik $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -301,14 +302,15 @@ public class AppletClassRole extends ClassRole
         
         String archives = "";
         try{
-        for(int i=0; i < libs.length; i++) {
-            if(archives.length() == 0)
-                archives = libs[i].toURL().toString();
-            else
-                archives += "," + libs[i].toURL();
+            for(int i=0; i < libs.length; i++) {
+                if(archives.length() == 0)
+                    archives = libs[i].toURL().toString();
+                else
+                    archives += "," + libs[i].toURL();
+            }
         }
-        }
-        catch(Exception e) {}
+        catch(MalformedURLException e) {}
+        
         String userLibs = ClassMgr.getClassMgr().getUserClassPath().asCommaSeparatedList();
         if(userLibs.length() > 0) {
             if(archives.length() > 0)
