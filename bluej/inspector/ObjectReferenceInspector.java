@@ -71,8 +71,8 @@ public class ObjectReferenceInspector extends InspectorPanel
 
     private final static int MAX_IDX = 11;
 
-    private static String inspectLabel = Config.getString("debugger.objectviewer.inspect");
-    private static String getLabel = Config.getString("debugger.objectviewer.get");
+    private static String inspectLabel = Config.getString("debugger.inspector.inspect");
+    private static String getLabel = Config.getString("debugger.inspector.get");
     private static String referenceLabel = Config.getString("debugger.objectviewer.ori.reference");
     private static String copyLabel = Config.getString("debugger.objectviewer.ori.copy");
     private static String pasteLabel = Config.getString("debugger.objectviewer.ori.paste");
@@ -1300,7 +1300,7 @@ public class ObjectReferenceInspector extends InspectorPanel
                             JOptionPane.showMessageDialog(getJFrame(), noAssignmentErrorLabel + ":\n" + ex,
                                     errorLabel, JOptionPane.ERROR_MESSAGE);
                         }
-                        bluej.debugger.ObjectViewer.updateViewers();
+                        bluej.debugger.Inspector.updateInspectors();
                     }
                 }
             }
@@ -1330,7 +1330,7 @@ public class ObjectReferenceInspector extends InspectorPanel
                         JOptionPane.showMessageDialog(getJFrame(), noAssignmentErrorLabel + ":\n" + ex,
                                 errorLabel, JOptionPane.ERROR_MESSAGE);
                     }
-                    bluej.debugger.ObjectViewer.updateViewers();
+                    bluej.debugger.Inspector.updateInspectors();
                 }
             }
                 );
@@ -1362,7 +1362,7 @@ public class ObjectReferenceInspector extends InspectorPanel
                             JOptionPane.showMessageDialog(getJFrame(), noAssignmentErrorLabel + ":\n" + ex,
                                     errorLabel, JOptionPane.ERROR_MESSAGE);
                         }
-                        bluej.debugger.ObjectViewer.updateViewers();
+                        bluej.debugger.Inspector.updateInspectors();
                     }
                 }
             }
@@ -2138,7 +2138,7 @@ public class ObjectReferenceInspector extends InspectorPanel
     {
         Object rtrn = JdiObject.getDebuggerObject(or).invokeMethod(
                 mthd.name(), mthd.signature(), arg);
-        bluej.debugger.ObjectViewer.updateViewers();
+        bluej.debugger.Inspector.updateInspectors();
         if (rtrn != null && rtrn instanceof ObjectReference)
         {
             fireInspectEvent(JdiObject.getDebuggerObject(((ObjectReference) rtrn)));
@@ -2278,7 +2278,7 @@ public class ObjectReferenceInspector extends InspectorPanel
                     {
                         Object rtrn = JdiObject.getDebuggerObject(((ObjectReference) active.obj)).invokeMethod(
                                 theMethod.name(), theMethod.signature(), Arrays.asList(arg));
-                        bluej.debugger.ObjectViewer.updateViewers();
+                        bluej.debugger.Inspector.updateInspectors();
                         boolean ok = true;
                         if (rtrn != null && rtrn instanceof ObjectReference)
                         {
@@ -2303,7 +2303,7 @@ public class ObjectReferenceInspector extends InspectorPanel
                         if (ok)
                         {
                             MethodDialog.this.setVisible(false);
-                            bluej.debugger.ObjectViewer.updateViewers();
+                            bluej.debugger.Inspector.updateInspectors();
                         }
                     }
                 });
@@ -2466,7 +2466,7 @@ public class ObjectReferenceInspector extends InspectorPanel
                         if (ok)
                         {
                             AssignDialog.this.setVisible(false);
-                            bluej.debugger.ObjectViewer.updateViewers();
+                            bluej.debugger.Inspector.updateInspectors();
                         }
                     }
                 });
