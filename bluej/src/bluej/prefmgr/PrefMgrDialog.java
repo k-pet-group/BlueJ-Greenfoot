@@ -21,7 +21,7 @@ import bluej.utility.Debug;
  * instance of PrefMgrDialog at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgrDialog.java 562 2000-06-19 02:26:55Z ajp $
+ * @version $Id: PrefMgrDialog.java 751 2001-01-22 06:20:55Z ajp $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -110,6 +110,17 @@ public class PrefMgrDialog extends JFrame
         }
 
         getContentPane().add(contentPanel);
+
+        // save position when window is moved
+        addComponentListener(new ComponentAdapter() {
+                public void componentMoved(ComponentEvent event)
+                {
+                    Config.putLocation("bluej.preferences", getLocation());
+                }
+            });
+
+        setLocation(Config.getLocation("bluej.preferences"));
+
         pack();
     }
 
@@ -152,9 +163,3 @@ public class PrefMgrDialog extends JFrame
 		return true;
 	}
 }
-
-/*
-import bluej.editor.moe.MoeEditorPrefPanel;
-        MoeEditorPrefPanel p2 = new MoeEditorPrefPanel();
-        PrefMgrDialog.add(p2, "Editor", p2);
-        */

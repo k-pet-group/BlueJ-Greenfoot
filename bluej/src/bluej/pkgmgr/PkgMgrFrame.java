@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 717 2000-12-07 01:00:26Z ajp $
+ * @version $Id: PkgMgrFrame.java 751 2001-01-22 06:20:55Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -382,15 +382,36 @@ public class PkgMgrFrame extends JFrame
         // fetch some properties from the package that interest us
         Properties p = pkg.getLastSavedProperties();
 
-        String width_str = p.getProperty(
-                                         "package.editor.width",
-                                         Integer.toString(DEFAULT_WIDTH));
-        String height_str = p.getProperty(
-                                          "package.editor.height",
-                                          Integer.toString(DEFAULT_HEIGHT));
+        try {
+            String width_str = p.getProperty(
+                                             "package.editor.width",
+                                             Integer.toString(DEFAULT_WIDTH));
+            String height_str = p.getProperty(
+                                              "package.editor.height",
+                                              Integer.toString(DEFAULT_HEIGHT));
 
-        classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str),
-                                                     Integer.parseInt(height_str)));
+            classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str),
+                                                         Integer.parseInt(height_str)));
+
+            String x_str = p.getProperty("package.editor.x",
+                                              Integer.toString(16));
+            String y_str = p.getProperty("package.editor.x",
+                                              Integer.toString(16));
+
+            int x = 16, y = 16;
+
+            x = Integer.parseInt(x_str);
+            y = Integer.parseInt(y_str);
+
+            if (x > (Config.screenBounds.width - 16))
+                x = Config.screenBounds.width - 16;
+
+            if (y > (Config.screenBounds.height - 16))
+                y = Config.screenBounds.height - 16;
+
+            setLocation(x,y);
+        }
+        catch (Exception e) { }
 
         pack();
         editor.revalidate();
@@ -978,6 +999,11 @@ public class PkgMgrFrame extends JFrame
 
         p.put("package.editor.width", Integer.toString(d.width));
         p.put("package.editor.height", Integer.toString(d.height));
+
+        Point point = getLocation();
+
+        p.put("package.editor.x", Integer.toString(point.x));
+        p.put("package.editor.y", Integer.toString(point.y));
 
         pkg.save(p);
 

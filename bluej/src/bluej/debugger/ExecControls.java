@@ -13,30 +13,30 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 601 2000-06-29 05:09:38Z mik $
+ ** @version $Id: ExecControls.java 751 2001-01-22 06:20:55Z ajp $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
  **/
-public class ExecControls extends JFrame 
+public class ExecControls extends JFrame
 
     implements ActionListener, ListSelectionListener
 {
-    private static final String windowTitle = 
+    private static final String windowTitle =
         Config.getString("debugger.execControls.windowTitle");
-    private static final String stackTitle = 
+    private static final String stackTitle =
         Config.getString("debugger.execControls.stackTitle");
-    private static final String instanceTitle = 
+    private static final String instanceTitle =
         Config.getString("debugger.execControls.instanceTitle");
-    private static final String localTitle = 
+    private static final String localTitle =
         Config.getString("debugger.execControls.localTitle");
-    private static final String threadTitle = 
+    private static final String threadTitle =
         Config.getString("debugger.execControls.threadTitle");
-    private static final String updateText = 
+    private static final String updateText =
         Config.getString("debugger.execControls.updateText");
-    private static final String closeText = 
+    private static final String closeText =
         Config.getString("close");
-    private static final String systemThreadText = 
+    private static final String systemThreadText =
         Config.getString("debugger.execControls.systemThreads");
 
     private static String[] empty = new String[0];
@@ -66,7 +66,7 @@ public class ExecControls extends JFrame
     /**
      * Show or hide the exec control window.
      */
-    public static void showHide(boolean show, boolean update, 
+    public static void showHide(boolean show, boolean update,
                                 DebuggerThread thread)
     {
         getExecControls().setVisible(show);
@@ -78,7 +78,7 @@ public class ExecControls extends JFrame
 
     private JList threadList;
     private JList stackList, instanceList, localList;
-    private JButton stopButton, stepButton, stepIntoButton, continueButton, 
+    private JButton stopButton, stepButton, stepIntoButton, continueButton,
         terminateButton;
     private JButton updateButton, closeButton;
     private JCheckBox showSystemThreads;
@@ -93,7 +93,7 @@ public class ExecControls extends JFrame
     private ExecControls()
     {
         super(windowTitle);
-		
+
         threads = new ArrayList();
         createWindow();
     }
@@ -140,7 +140,7 @@ public class ExecControls extends JFrame
         else
             Debug.message("no thread selected...");
     }
-	
+
     // ----- ListSelectionListener interface -----
 
     /**
@@ -222,7 +222,7 @@ public class ExecControls extends JFrame
         }
         setButtonsEnabled(machineStatus);
     }
-    
+
     /**
      * Delete from the threads list all those threads that we don't want to
      * see.
@@ -240,7 +240,7 @@ public class ExecControls extends JFrame
 
         for(Iterator i=threads.iterator(); i.hasNext(); ) {
             DebuggerThread thread = (DebuggerThread)i.next();
-            boolean showThread = (showSystem || 
+            boolean showThread = (showSystem ||
                                   !thread.isKnownSystemThread() ||
                                   thread.getName().equals(selectedName));
             if(showThread && !thread.getStatus().equals("finished"))
@@ -259,7 +259,7 @@ public class ExecControls extends JFrame
         else
             selectedThread = null;
     }
-	
+
     private synchronized DebuggerThread getThread(int index)
     {
         return (DebuggerThread)threads.get(index);
@@ -291,7 +291,7 @@ public class ExecControls extends JFrame
             currentFrame = index;
         }
     }
-	
+
     private void setStackFrameDetails(int frameNo)
     {
         currentObject = selectedThread.getCurrentObject(frameNo);
@@ -308,8 +308,8 @@ public class ExecControls extends JFrame
     private void viewInstanceField(int index)
     {
         if(currentObject.fieldIsObject(index)) {
-            ObjectViewer viewer = ObjectViewer.getViewer(true, 
-                                                         currentObject.getFieldObject(index), 
+            ObjectViewer viewer = ObjectViewer.getViewer(true,
+                                                         currentObject.getFieldObject(index),
                                                          null, null, false, this);
         }
     }
@@ -317,7 +317,7 @@ public class ExecControls extends JFrame
     private void viewLocalVar(int index)
     {
         if(selectedThread.varIsObject(currentFrame, index)) {
-            ObjectViewer viewer = ObjectViewer.getViewer(true, 
+            ObjectViewer viewer = ObjectViewer.getViewer(true,
                            selectedThread.getStackObject(currentFrame, index),
                            null, null, false, this);
         }
@@ -343,9 +343,9 @@ public class ExecControls extends JFrame
         stepIntoButton = addButton("image.step_into", buttonBox, margin);
         continueButton = addButton("image.continue", buttonBox, margin);
         terminateButton = addButton("image.terminate", buttonBox, margin);
-		
+
         contentPane.add(buttonBox, BorderLayout.SOUTH);
-		
+
         // Create instance variable panel
 
         instanceList = new JList(new DefaultListModel());
@@ -410,7 +410,7 @@ public class ExecControls extends JFrame
 
 
         JPanel buttonPanel = new JPanel();
-            buttonPanel.setLayout(new BoxLayout(buttonPanel, 
+            buttonPanel.setLayout(new BoxLayout(buttonPanel,
                                                 BoxLayout.Y_AXIS));
             buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
@@ -442,7 +442,7 @@ public class ExecControls extends JFrame
         mainPanel.setDividerSize(6);
 
         contentPane.add(mainPanel, BorderLayout.CENTER);
-		
+
         // Close Action when close button is pressed
         addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent event)
@@ -452,6 +452,16 @@ public class ExecControls extends JFrame
                     // Main.execWindowHidden();  // inform all frames that exec win is gone
                 }
             });
+
+        // save position when window is moved
+        addComponentListener(new ComponentAdapter() {
+                public void componentMoved(ComponentEvent event)
+                {
+                    Config.putLocation("bluej.debugger", getLocation());
+                }
+            });
+
+        setLocation(Config.getLocation("bluej.debugger"));
 
         pack();
 
