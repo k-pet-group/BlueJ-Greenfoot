@@ -35,11 +35,10 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.groupwork.*;
 import bluej.tester.*;
 
-
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1018 2001-12-04 05:08:03Z ajp $
+ * @version $Id: PkgMgrFrame.java 1030 2001-12-07 12:24:23Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
