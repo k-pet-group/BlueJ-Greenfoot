@@ -257,8 +257,8 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
                                     extendsInsert, superInterfaceSelections);
     }
 
-    public void defineVar(JavaToken theVariable, JavaToken type, JavaToken comment) {
-        symbolTable.defineVar(theVariable, type, comment);
+    public void defineVar(JavaToken theVariable, JavaToken type, boolean isVarargs, JavaToken comment) {
+        symbolTable.defineVar(theVariable, type, isVarargs, comment);
     }
 
 
@@ -3152,7 +3152,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		varInitializer();
 		if ( inputState.guessing==0 ) {
-			defineVar((JavaToken)id, type, commentToken);
+			defineVar((JavaToken)id, type, false, commentToken);
 		}
 	}
 	
@@ -3322,6 +3322,7 @@ public ClassParser(ParserSharedInputState state) {
 		
 		Token  id = null;
 		JavaToken type;
+		boolean isVarargs = false;
 		
 		parameterModifier();
 		type=typeSpec();
@@ -3330,6 +3331,9 @@ public ClassParser(ParserSharedInputState state) {
 		case ELLIPSES:
 		{
 			match(ELLIPSES);
+			if ( inputState.guessing==0 ) {
+				isVarargs=true;
+			}
 			break;
 		}
 		case IDENT:
@@ -3362,7 +3366,7 @@ public ClassParser(ParserSharedInputState state) {
 		} while (true);
 		}
 		if ( inputState.guessing==0 ) {
-			defineVar((JavaToken)id, type, null);
+			defineVar((JavaToken)id, type, isVarargs, null);
 		}
 	}
 	
