@@ -13,7 +13,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Debugger.java 136 1999-06-21 06:35:48Z mik $
+ ** @version $Id: Debugger.java 158 1999-07-06 14:38:39Z ajp $
  **/
 
 public abstract class Debugger
@@ -82,6 +82,10 @@ public abstract class Debugger
      */
     public abstract boolean isRunning(); 
 
+    /**
+     * Set the remote VM classpath
+     */
+    public abstract void setLibraries(String classpath);
 
     /**
      * "Start" a class (i.e. invoke its main method without arguments)

@@ -373,6 +373,14 @@ public final class JdiDebugger extends Debugger
 	startServer(ExecServer.REMOVE_OBJECT, scopeId, instanceName, "", "");
     }
 
+    /**
+     * Set the class path of the remote VM 
+     */
+    public void setLibraries(String classpath)
+    {
+	//Debug.message("[setLibraries]: " + classpath);
+	startServer(ExecServer.SET_LIBRARIES, classpath, "", "", "");
+    }
 
     /**
      * Start the server process on the remote machine to perform a task.

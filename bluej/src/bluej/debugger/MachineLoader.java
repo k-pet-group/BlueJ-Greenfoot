@@ -1,6 +1,7 @@
 package bluej.debugger;
 
 import bluej.Config;
+import bluej.classmgr.ClassMgr;
 
 /**
  ** @author Michael Kolling
@@ -28,5 +29,7 @@ public class MachineLoader extends Thread
     public void run()
     {
 	Debugger.debugger.startDebugger();
+
+	Debugger.debugger.setLibraries(ClassMgr.getClassMgr().getAllClassPath());
     }
 }

@@ -1,6 +1,6 @@
 /**
  ** bluej.debugger ObjectWrapper.java
- ** $Id: ObjectWrapper.java 63 1999-05-04 00:03:10Z mik $
+ ** $Id: ObjectWrapper.java 158 1999-07-06 14:38:39Z ajp $
  **
  ** A wrapper around a Java object that handles calling methods, inspecting, 
  ** etc. The wrapper is represented by the red oval that is visible on the
@@ -92,7 +92,7 @@ public class ObjectWrapper extends JComponent implements ActionListener
 
 	if (cl != null) {
 
-	    View view = View.getView(cl, pkg.getSearcher());
+	    View view = View.getView(cl);
 	    actions = new Hashtable();
 	    methodsUsed = new Hashtable();
 
@@ -109,7 +109,7 @@ public class ObjectWrapper extends JComponent implements ActionListener
 
 	    for(int i = 1; i < classes.size(); i++ ) {
 		Class currentClass = (Class)classes.elementAt(i);
-		view = View.getView(currentClass, pkg.getSearcher());		
+		view = View.getView(currentClass);		
 		declaredMethods = view.getDeclaredMethods();
 		JMenu subMenu =  new JMenu("Inherited from " 
 					   + Utility.stripPackagePrefix(currentClass.getName()));
