@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1820 2003-04-10 15:06:22Z mik $
+ * @version $Id: PkgMgrFrame.java 1823 2003-04-10 16:27:51Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -65,9 +65,10 @@ public class PkgMgrFrame extends JFrame
 
     private JLabel statusbar;
     
-    JLabel testStatusMessage;
-    JButton endTestButton;
-    JButton cancelTestButton;
+    private JLabel testStatusMessage;
+    private JLabel recordingLabel;
+    private JButton endTestButton;
+    private JButton cancelTestButton;
     
     private ClassTarget testTarget = null;
     private String testTargetMethod;
@@ -1414,16 +1415,12 @@ public class PkgMgrFrame extends JFrame
         TestDisplayFrame.getTestDisplay().endMultipleTests();
 	}
 
-
-
+    /**
+     * The 'end test recording' button was clicked - end the recording.
+     */
     private void doEndTest()
     {
-        testStatusMessage.setEnabled(false);
-        testStatusMessage.setText("");
-        endTestButton.setEnabled(false);
-        cancelTestButton.setEnabled(false);
-        
-        getProject().setTestMode(false);
+        testRecordingEnded();
         
         if (testTarget.getRole() instanceof UnitTestClassRole) {
             UnitTestClassRole utcr = (UnitTestClassRole) testTarget.getRole();
@@ -1432,9 +1429,35 @@ public class PkgMgrFrame extends JFrame
         }            
     }
     
+    /**
+     * The 'cancel test recording' button was clicked - cancel the recording.
+     */
     private void doCancelTest()
     {
-        testStatusMessage.setEnabled(false);
+        testRecordingEnded();
+    }
+
+
+    /**
+     * Recording of a test case started - set the interface appropriately.
+     */
+    public void testRecordingStarted(String message)
+    {
+        recordingLabel.setEnabled(true);
+        testStatusMessage.setText(message);
+        endTestButton.setEnabled(true);
+        cancelTestButton.setEnabled(true);
+
+        getProject().setTestMode(true);
+    }
+
+
+    /**
+     * Recording of a test case ended - set the interface appropriately.
+     */
+    private void testRecordingEnded()
+    {
+        recordingLabel.setEnabled(false);
         testStatusMessage.setText("");
         endTestButton.setEnabled(false);
         cancelTestButton.setEnabled(false);
@@ -1442,14 +1465,16 @@ public class PkgMgrFrame extends JFrame
         getProject().setTestMode(false);
     }
 
+
     public void setTestInfo(String testName, ClassTarget testClass)
     {
         this.testTargetMethod = testName;
         this.testTarget = testClass;
     }
     
+
     /**
-     * Removes the specified ClassTarget from the Package.
+     * Remove the specified ClassTarget from the Package.
      */
     public void removeClass(ClassTarget removableTarget)
     {
@@ -1461,8 +1486,9 @@ public class PkgMgrFrame extends JFrame
             pkg.removeClass(removableTarget);
     }
 
+
     /**
-     * Removes the specified PackageTarget from the Package.
+     * Remove the specified PackageTarget from the Package.
      */
     public void removePackage(PackageTarget removableTarget)
     {
@@ -1484,7 +1510,7 @@ public class PkgMgrFrame extends JFrame
 
 
     /**
-     * Compiles the currently selected class target.
+     * Compile the currently selected class target.
      */
     public void compileSelected()
     {
@@ -1779,40 +1805,38 @@ public class PkgMgrFrame extends JFrame
 												doTest(); }
 										 });
                 testPanel.add(button);
-                testPanel.add(Box.createVerticalStrut(5));
+                testPanel.add(Box.createVerticalStrut(6));
 
-                JLabel recordingLabel = new JLabel(Config.getString("pkgmgr.test.record"),
+                recordingLabel = new JLabel(Config.getString("pkgmgr.test.record"),
                                                 Config.getImageAsIcon("image.test.recording"),
                                                 SwingConstants.LEADING);
                 recordingLabel.setFont(PkgMgrFont);
+                recordingLabel.setEnabled(false);
                 testPanel.add(recordingLabel);
-    
+                testPanel.add(Box.createVerticalStrut(3));
+
                 endTestButton = createButton(Config.getString("pkgmgr.test.end"),
                                               null,
                                               Config.getString("tooltip.test.end"));
-                testPanel.add(endTestButton);
-
-                cancelTestButton = createButton(Config.getString("cancel"),
-                                              null,
-                                              Config.getString("tooltip.test.cancel"));
-                testPanel.add(cancelTestButton);
-
                 endTestButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         doEndTest(); }
                  });
+                endTestButton.setEnabled(false);
+                testPanel.add(endTestButton);
+                testPanel.add(Box.createVerticalStrut(3));
+
+                cancelTestButton = createButton(Config.getString("cancel"),
+                                              null,
+                                              Config.getString("tooltip.test.cancel"));
                 cancelTestButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         doCancelTest(); }
                  });
-
-                testStatusMessage = new JLabel("");
-                //testPanel.add(testStatusMessage);
-
-                testStatusMessage.setEnabled(false);
-                endTestButton.setEnabled(false);
                 cancelTestButton.setEnabled(false);
-                                         
+                testPanel.add(cancelTestButton);
+
+
                 testPanel.setAlignmentX(0.5f);
             }
 
@@ -1858,12 +1882,14 @@ public class PkgMgrFrame extends JFrame
             statusbar = new JLabel(" ");
             statusbar.setAlignmentX(0.0f);
             
-//  experiment with expression eval entry field layout
+            testStatusMessage = new JLabel("");
+
+            JPanel bottom = new JPanel(new BorderLayout());
 //             bottom.setBorder(BorderFactory.createEmptyBorder(2,2,4,2));
-//             bottom.add(statusbar, BorderLayout.CENTER);
+            bottom.add(statusbar, BorderLayout.CENTER);
+            bottom.add(testStatusMessage, BorderLayout.WEST);
 //             bottom.add(new JTextField(30), BorderLayout.EAST);
-//             bottomPanel.add(bottom, BorderLayout.SOUTH);
-            bottomPanel.add(statusbar, BorderLayout.SOUTH);
+            bottomPanel.add(bottom, BorderLayout.SOUTH);
         }
 
         mainPanel.add(toolPanel, BorderLayout.WEST);

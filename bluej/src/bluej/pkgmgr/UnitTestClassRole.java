@@ -21,7 +21,7 @@ import bluej.utility.DialogManager;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1730 2003-04-01 03:55:19Z ajp $
+ * @version $Id: UnitTestClassRole.java 1823 2003-04-10 16:27:51Z mik $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -185,13 +185,7 @@ public class UnitTestClassRole extends ClassRole
             return;
 
         pmf.getProject().removeLocalClassLoader();
-
-        pmf.getPackage().getProject().setTestMode(true);
-        
-        pmf.endTestButton.setEnabled(true);
-        pmf.cancelTestButton.setEnabled(true);
-        pmf.testStatusMessage.setEnabled(true);
-        pmf.testStatusMessage.setText("constructing " + ct.getBaseName() + ".test" + newTestName + "()");
+        pmf.testRecordingStarted("constructing " + ct.getBaseName() + ".test" + newTestName + "()");
  
         Editor ed = ct.getEditor();
 
