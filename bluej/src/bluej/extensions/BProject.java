@@ -10,7 +10,7 @@ import java.util.ListIterator;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 1961 2003-05-20 10:41:24Z damiano $
+ * @version $Id: BProject.java 1966 2003-05-21 09:09:15Z damiano $
  */
 
 /*
@@ -42,7 +42,7 @@ public class BProject
      * from the main BlueJ graphical user interface.
      * @return true if this project is valid and active, false otherwise.
      */
-    public boolean isValid ()
+    public boolean isValid () throws ProjectNotOpenException
     {
         Project thisProject = projectId.getBluejProject();
         return thisProject != null;      
@@ -53,7 +53,7 @@ public class BProject
      * This is what is displayed in the title bar of the frame after 'BlueJ'.
      * Returns null if this project is invalid.
      */
-    public String getName()
+    public String getName() throws ProjectNotOpenException
     {
         Project thisProject = projectId.getBluejProject();
         if ( thisProject == null ) return null;
@@ -65,7 +65,7 @@ public class BProject
      * Returns the directory in which this project is stored. 
      * Returns null if this project is invalid.
      */
-    public File getDir()
+    public File getDir() throws ProjectNotOpenException
     {
         Project thisProject = projectId.getBluejProject();
         if ( thisProject == null ) return null;
@@ -76,7 +76,7 @@ public class BProject
     /**
      * Requests a "save" of all open files in this project. 
      */
-    public void save()
+    public void save() throws ProjectNotOpenException
     {
         Project thisProject = projectId.getBluejProject();
         if ( thisProject == null ) return;
@@ -87,7 +87,7 @@ public class BProject
     /**
      * Saves any open files, then closes all frames belonging to this project.
      */
-    public void close()
+    public void close() throws ProjectNotOpenException
     {
         Project thisProject = projectId.getBluejProject();
         if ( thisProject == null ) return;
@@ -104,7 +104,7 @@ public class BProject
      * @param the fully-qualified name of the package
      * @return the requested package, or null if it wasn't found
      */
-    public BPackage getPackage (String name)
+    public BPackage getPackage (String name) throws ProjectNotOpenException
     {
         Project bluejProject = projectId.getBluejProject();
         if ( bluejProject == null ) return null;
@@ -120,7 +120,7 @@ public class BProject
      * Returns all packages belonging to this project.
      * If for some reason none exist, or the project is invalid, an empty array is returned.
      */
-    public BPackage[] getPackages()
+    public BPackage[] getPackages() throws ProjectNotOpenException
     {
         Project thisProject = projectId.getBluejProject();
         if ( thisProject == null ) return new BPackage[0];
@@ -140,9 +140,14 @@ public class BProject
      */
     public String toString ()
       {
-      Project thisProject = projectId.getBluejProject();
-      if ( thisProject == null ) return "BProject: INVALID";
-
-      return "BProject: "+thisProject.getProjectName();
+      try
+        {
+        Project thisProject = projectId.getBluejProject();
+        return "BProject: "+thisProject.getProjectName();
+        }
+      catch ( ExtensionException exc )
+        {
+        return "BProject: INVALID";  
+        }
       }
 }

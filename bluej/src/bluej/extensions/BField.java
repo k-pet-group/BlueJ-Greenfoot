@@ -15,7 +15,7 @@ import bluej.utility.Debug;
  * A wrapper for a field of a BlueJ class.
  * Behaviour is similar to the Reflection API.
  * 
- * @version $Id: BField.java 1965 2003-05-20 17:30:25Z damiano $
+ * @version $Id: BField.java 1966 2003-05-21 09:09:15Z damiano $
  */
 
 /*
@@ -83,7 +83,7 @@ public class BField
     /**
      * When you are inspecting a static field use this one.
      */
-    private Object getStaticField ()
+    private Object getStaticField () throws ProjectNotOpenException
       {
       Package bluejPkg = parentId.getBluejPackage();
       
@@ -162,7 +162,7 @@ public class BField
      * As in the Relection API, in order to get the value of a static field pass 
      * null as the parameter to this method.
      */
-    public Object getValue ( BObject onThis )
+    public Object getValue ( BObject onThis ) throws ProjectNotOpenException
         {
         // If someone gives me a null it means that he wants a static field
         if ( onThis == null ) return getStaticField();

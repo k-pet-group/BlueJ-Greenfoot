@@ -12,7 +12,7 @@ import bluej.pkgmgr.Package;
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API. 
  *
- * @version $Id: BConstructor.java 1965 2003-05-20 17:30:25Z damiano $
+ * @version $Id: BConstructor.java 1966 2003-05-21 09:09:15Z damiano $
  */
 
 /*
@@ -83,7 +83,7 @@ public class BConstructor
      * Creates a new instance of the object described by this constructor.
      * Similar to reflection API.
      */
-    public BObject newInstance ( Object[] initargs )
+    public BObject newInstance ( Object[] initargs ) throws ProjectNotOpenException
       {
       Package bluejPkg = parentId.getBluejPackage();
       

@@ -14,7 +14,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BClass.java 1965 2003-05-20 17:30:25Z damiano $
+ * @version $Id: BClass.java 1966 2003-05-21 09:09:15Z damiano $
  */
 
 public class BClass
@@ -41,7 +41,7 @@ public class BClass
      * Note that this is for information only. If you want to interact with BlueJ you must
      * use the methods provided in BClass.
      */
-    public Class getJavaClass ()
+    public Class getJavaClass () throws ProjectNotOpenException
       {
       return classId.getJavaClass();
       }
@@ -50,7 +50,7 @@ public class BClass
      * Returns the package this class belongs to.
      * Similar to reflection API.
      */
-    public BPackage getPackage()
+    public BPackage getPackage() throws ProjectNotOpenException
     {
         Project bluejProject = classId.getBluejProject();
         Package bluejPkg = classId.getBluejPackage();
@@ -64,7 +64,7 @@ public class BClass
      * Returns true if it is compiled and valid.
      * Returns true if it is a virtual class.
      */
-    public boolean isCompiled()
+    public boolean isCompiled() throws ProjectNotOpenException
     {
         ClassTarget aTarget = classId.getClassTarget();
 
@@ -78,7 +78,7 @@ public class BClass
      * 
      * @return true if the compilation was successful, false otherwise.
      */
-    public boolean compile()
+    public boolean compile() throws ProjectNotOpenException
     {
         ClassTarget aTarget = classId.getClassTarget();
     
@@ -99,7 +99,7 @@ public class BClass
      * Similar to reflection API.
      * ============ NEEDS TESTING ======================
      */
-    public BClass getSuperclass()
+    public BClass getSuperclass() throws ProjectNotOpenException
     {
         // This method is needed otherwise you cannot get a superclass of this BClass.
 
@@ -122,7 +122,7 @@ public class BClass
      * Returns all the constructors of this class.
      * Similar to reflection API.
      */
-    public BConstructor[] getConstructors()
+    public BConstructor[] getConstructors() throws ProjectNotOpenException
         {
         View bluejView   = classId.getBluejView();
         
@@ -142,7 +142,7 @@ public class BClass
      * @return the requested constructor of this class, or null if
      * the class has not been compiled or the constructor cannot be found.
      */
-    public BConstructor getConstructor (Class[] signature)
+    public BConstructor getConstructor (Class[] signature) throws ProjectNotOpenException
         {
         View bluejView = classId.getBluejView();
         
@@ -160,7 +160,7 @@ public class BClass
      * Returns the declared methods of this class.
      * Similar to reflection API.
      */
-    public BMethod[] getDeclaredMethods()
+    public BMethod[] getDeclaredMethods() throws ProjectNotOpenException
     {
         View bluejView = classId.getBluejView();
         
@@ -177,7 +177,8 @@ public class BClass
      * Returns the declared method of this class with the given signature.
      * Similar to reflection API.
      */
-    public BMethod getDeclaredMethod(String methodName, Class[] params )
+    public BMethod getDeclaredMethod(String methodName, Class[] params ) 
+        throws ProjectNotOpenException
         {
         View bluejView = classId.getBluejView();
         
@@ -199,6 +200,7 @@ public class BClass
      * Similar to reflection API.
      */
     public BField[] getFields()
+        throws ProjectNotOpenException
         {
         View bluejView = classId.getBluejView();
 
@@ -216,6 +218,7 @@ public class BClass
      * Similar to Reflection API.
      */
     public BField getField(String fieldName)
+        throws ProjectNotOpenException
         {
         if ( fieldName == null ) return null;
 
@@ -237,9 +240,14 @@ public class BClass
      */
     public String toString ()
       {
-      Class javaClass = classId.getJavaClass();
-      if (javaClass == null) return "BClass: INVALID";
-
-      return "BClass: "+javaClass.getName();
+      try
+        {
+        Class javaClass = classId.getJavaClass();
+        return "BClass: "+javaClass.getName();
+        }
+      catch ( ExtensionException exc )
+        {
+        return "BClass: INVALID";  
+        }
       }
     }   

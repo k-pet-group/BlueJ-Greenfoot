@@ -41,18 +41,18 @@ class Identifier
   private String packageId;
   private String qualifiedClassName;
   
-  public Identifier(Project bleujProject)
+  Identifier(Project bleujProject)
     {
     projectId = bleujProject.getProjectDir();
     }
 
-  public Identifier (Project bluejProject, Package bluejPackage )
+  Identifier (Project bluejProject, Package bluejPackage )
     {
     projectId = bluejProject.getProjectDir();
     packageId = bluejPackage.getQualifiedName();
     }
 
-  public Identifier (Project bluejProject, Package bluejPackage, String aQualifiedClassName )
+  Identifier (Project bluejProject, Package bluejPackage, String aQualifiedClassName )
     {
     projectId = bluejProject.getProjectDir();
     packageId = bluejPackage.getQualifiedName();
@@ -60,17 +60,20 @@ class Identifier
     }
 
   /**
-   * Returns the blueJProject by checking its existence
+   * Returns the blueJProject and also checks its existence
    */
-  public Project getBluejProject ()
+  Project getBluejProject () throws ProjectNotOpenException
     {
-    return Project.getProject(projectId);      
+    Project aProject = Project.getProject(projectId);
+    if ( aProject == null ) throw new ProjectNotOpenException ("Project "+projectId+" is closed");
+
+    return aProject;
     }
 
   /**
    * Returns the inner bluej package given the current identifier.
    */
-  public Package getBluejPackage ()
+  Package getBluejPackage () throws ProjectNotOpenException
     {
     Project bluejProject = getBluejProject();
     Package bluejPkg = bluejProject.getPackage(packageId);
@@ -80,7 +83,7 @@ class Identifier
   /**
    * Returns the Java class that is associated with this name in this package
    */
-  public Class getJavaClass ()
+  Class getJavaClass () throws ProjectNotOpenException
     {
     Project bluejPrj = getBluejProject();
     return bluejPrj.loadClass(qualifiedClassName);
@@ -89,7 +92,7 @@ class Identifier
   /**
    * Returns the class target of this java class by checking its existence
    */
-  ClassTarget getClassTarget ()
+  ClassTarget getClassTarget () throws ProjectNotOpenException
     {
     Package bluejPkg = getBluejPackage();
 
@@ -106,7 +109,7 @@ class Identifier
   /**
    * Returns the view associated with this Class
    */
-  View getBluejView ()
+  View getBluejView () throws ProjectNotOpenException
     {
     Class aClass = getJavaClass();
 

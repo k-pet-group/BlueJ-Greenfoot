@@ -19,7 +19,7 @@ import java.awt.Frame;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1962 2003-05-20 13:47:15Z damiano $
+ * @version $Id: BPackage.java 1966 2003-05-21 09:09:15Z damiano $
  */
 
 /*
@@ -44,7 +44,7 @@ public class BPackage
      * Returns the package's project.
      * It will return null if this is an invalid package.
      */
-    public BProject getProject()
+    public BProject getProject() throws ProjectNotOpenException
     {
         Project bluejProject = packageId.getBluejProject();
         if ( bluejProject == null ) return null;
@@ -59,7 +59,7 @@ public class BPackage
      * Returns an empty string if no package name has been set.
      * Returns a null string if it is an invalid package.
      */
-    public String getName()
+    public String getName() throws ProjectNotOpenException
     {
         Package bluejPkg = packageId.getBluejPackage();
         return bluejPkg.getQualifiedName();
@@ -70,7 +70,7 @@ public class BPackage
      * This can be used (e.g.) as the "parent" frame for positioning modal dialogues.
      * Returns null if this is not a valid package.
      */
-    public Frame getFrame()
+    public Frame getFrame() throws ProjectNotOpenException
     {
        Package bluejPkg = packageId.getBluejPackage();
        PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluejPkg);
@@ -85,7 +85,7 @@ public class BPackage
      * 
      * @param name the simple name of the required class.
      */
-    public BClass getBClass (String name)
+    public BClass getBClass (String name) throws ProjectNotOpenException
     {
         Project bluejPrj = packageId.getBluejProject();
         Package bluejPkg = packageId.getBluejPackage();
@@ -104,7 +104,7 @@ public class BPackage
      * Returns an array containing all the classes in this package.
      * If there are no classes or the package is invalid an empty array will be returned.
      */
-    public BClass[] getBClasses()
+    public BClass[] getBClasses() throws ProjectNotOpenException
     {
         Project bluejPrj = packageId.getBluejProject();
         Package bluejPkg = packageId.getBluejPackage();
@@ -128,7 +128,7 @@ public class BPackage
      * @param name the name of the object as shown on the object bench
      * @return the object, or null if no such object exists.
      */
-    public BObject getObject (String instanceName)
+    public BObject getObject (String instanceName) throws ProjectNotOpenException
     {
         // The usual check to avoid silly stack trace
         if ( instanceName == null ) return null;
@@ -151,7 +151,7 @@ public class BPackage
      * Returns an array of all the Objects on the object bench.
      * The array will be empty if no objects are on the bench.
      */
-    public BObject[] getObjects()
+    public BObject[] getObjects() throws ProjectNotOpenException
     {
         Package bluejPkg = packageId.getBluejPackage();
         PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluejPkg);
@@ -173,7 +173,7 @@ public class BPackage
      * just the ones that are modified.
      * @param forceAll if <code>true</code> compile all files.
      */
-    public void compile (boolean forceAll)
+    public void compile (boolean forceAll) throws ProjectNotOpenException
     {
         Package bluejPkg = packageId.getBluejPackage();
 
@@ -187,7 +187,7 @@ public class BPackage
      * Reloads the entire package.
      * This is used (e.g.) when a new <code>.java</code> file has been added to the package.
      */
-    public void reload()
+    public void reload() throws ProjectNotOpenException
     {
         Package bluejPkg = packageId.getBluejPackage();
         if (bluejPkg == null) return;
@@ -197,12 +197,17 @@ public class BPackage
     /**
      * Returns a string representation of the Object
      */
-    public String toString ()
+    public String toString () 
       {
-      Package bluejPkg = packageId.getBluejPackage();
-      if (bluejPkg == null) return "BPackage: INVALID";
-
-      return "BPackage: "+bluejPkg.getQualifiedName();
+      try 
+        {
+        Package bluejPkg = packageId.getBluejPackage();
+        return "BPackage: "+bluejPkg.getQualifiedName();
+        }
+      catch ( ExtensionException exc )
+        {
+        return "BPackage: INVALID";  
+        }
       }
 
 }
