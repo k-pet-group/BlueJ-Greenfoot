@@ -73,15 +73,15 @@ public class DocuGenerator
     private static String tmpJavadocParams = " -noindex -notree -nohelp -nonavbar";
 
     /** The project this generator belongs to. */
-    private static Project project;
+    private Project project;
     /** The project directory. */
-    private static File projectDir;
+    private File projectDir;
     /** the path of the project directory, the root for all sources. */
-    private static String projectDirPath;
+    private String projectDirPath;
     /** the directory where documentation is written to. */
-    private static File docDir;
+    private File docDir;
     /** the path of the directory where documentation is written to. */
-    private static String docDirPath;
+    private String docDirPath;
 
     /* -------------- end of static field declarations ----------------- */
 
@@ -93,7 +93,7 @@ public class DocuGenerator
      * documented.
      * @return the path of the HTML file that will be generated
      */
-    public static void generateClassDocu(String filename)
+    public void generateClassDocu(String filename)
     {
         //File docDir = getDocTempDir();  use project docDir instead
         if (docDir == null)
@@ -127,11 +127,12 @@ public class DocuGenerator
         generateDoc(javadocCall, htmlFile, logFile, classLogHeader, false);
     }
 
+
     /**
      * For a given filename, return the path where the html documentation
      * file for that file would be generated.
      */
-    public static String getDocuPath(String filename)
+    public String getDocuPath(String filename)
     {
         if(filename.startsWith(projectDirPath))
             filename = filename.substring(projectDirPath.length());
@@ -419,7 +420,7 @@ public class DocuGenerator
      * @return "" if directory exists and is accessible, an error message
      * otherwise.
      */
-    private static String testDocDir()
+    private String testDocDir()
     {
         if (docDir.exists()) {
             if (!docDir.isDirectory())
