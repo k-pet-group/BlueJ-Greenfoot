@@ -1,34 +1,30 @@
-// Copyright (c) 2000 BlueJ Group, Monash University
-//
-// This software is made available under the terms of the "MIT License"
-// A copy of this license is included with this source distribution
-// in "license.txt" and is also available at:
-// http://www.opensource.org/licenses/mit-license.html 
-// Any queries should be directed to Michael Kolling mik@mip.sdu.dk
-
-package bluej.editor.moe;
+package bluej.debugmgr.texteval;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
 
 import javax.swing.JEditorPane;
 
-/**
- * MoeJEditorPane - a variation of JEditorPane for Moe. The preferred size
- * is adjusted to allow for the tag line.
- *
- * @author Michael Kolling
- */
+import bluej.editor.moe.BlueJSyntaxView;
+import bluej.utility.Debug;
 
-public class MoeEditorPane extends JEditorPane
-{
+/**
+ * A modified editor pane for the text evaluation area.
+ * The standard JEditorPane is adjusted to take the tag line to the left into
+ * account in size computations.
+ * 
+ * @author Michael Kolling
+ * @version $Id: TextEvalPane.java 2759 2004-07-08 08:58:27Z mik $
+ */
+public class TextEvalPane extends JEditorPane {
+
     public Dimension getPreferredSize() 
     {
         Dimension d = super.getPreferredSize();
         d.width += BlueJSyntaxView.TAG_WIDTH + 8;  // bit of empty space looks nice
         return d;
     }
-
+    
     /**
      * Make sure, when we are scrolling to follow the caret,
      * that we can see the tag area as well.

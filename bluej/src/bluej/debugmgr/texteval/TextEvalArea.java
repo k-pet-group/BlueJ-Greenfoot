@@ -32,13 +32,13 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2746 2004-07-06 21:32:45Z mik $
+ * @version $Id: TextEvalArea.java 2759 2004-07-08 08:58:27Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher, KeyListener, FocusListener
 {
     //    private JTextArea text;
-    private JEditorPane text;
+    private TextEvalPane text;
     private MoeSyntaxDocument doc;  // the text document behind the editor pane
     private String currentCommand = "";
     private PkgMgrFrame frame;
@@ -199,7 +199,6 @@ public final class TextEvalArea extends JScrollPane
         return doc.getParagraphElement(pos);
     }
 
-    
     // --- FocusListener interface ---
     
     /**
@@ -380,16 +379,24 @@ public final class TextEvalArea extends JScrollPane
     {
         Caret caret = text.getCaret();
         int pos = Math.min(caret.getMark(), caret.getDot());
-        int lineStart = doc.getParagraphElement(pos).getStartOffset();
-        return (pos - lineStart);
+        return getColumnFromPosition(pos);
     }
 
+    /**
+     * Return tha column for a given position.
+     */
+    public int getColumnFromPosition(int pos)
+    {
+        int lineStart = doc.getParagraphElement(pos).getStartOffset();
+        return (pos - lineStart);        
+    }
+    
     /**
      * Create the Swing component representing the text area.
      */
     private void createComponent(Font font)
     {
-        text = new JEditorPane();
+        text = new TextEvalPane();
         text.setMargin(new Insets(2,2,2,2));
 
         text.setEditorKit(new MoeSyntaxEditorKit(true));
