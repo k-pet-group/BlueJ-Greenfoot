@@ -42,7 +42,7 @@ public final static String CLASSIC_CLASS = "sun.tools.javac.Main";
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: JavacCompilerInternal.java 963 2001-07-05 03:21:33Z ajp $
+ * @version $Id: JavacCompilerInternal.java 971 2001-07-23 04:19:06Z ajp $
  */
 public class JavacCompilerInternal extends Compiler
 {
@@ -123,7 +123,8 @@ public class JavacCompilerInternal extends Compiler
         System.setErr(output);      // redirect errors to our stream
 
         //Main javac = new Main(output, "javac"); // old version
-        int result = com.sun.tools.javac.Main.compile(params);
+ 		com.sun.tools.javac.Main javac = new com.sun.tools.javac.Main();
+        int result = javac.compile(params);
 
         // only one of 'output' or 'firstStream' should be receiving output so
         // we will only generate one error message
