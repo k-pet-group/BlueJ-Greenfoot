@@ -83,13 +83,41 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
         }
     }
     
+    /**
+     * Sets attributes for a paragraph. This method was added to provide the
+     * ability to replicate DefaultStyledDocument's ability to set each lines
+     * attributes easily. This is an added method for the BlueJ adaption of
+     * jedit's Syntax package. <br>
+     * 
+     * This method does not try to acquire the lock th document like the
+     * setParagraphAttributes does. USE WITH CAUTION!
+     * 
+     * @param offset
+     *            the offset into the paragraph >= 0
+     * @param length
+     *            the number of characters affected >= 0
+     * @param s
+     *            the attributes
+     * @param replace
+     *            whether to replace existing attributes, or merge them
+     */
+    public void setParagraphAttributesWithoutLock(int offset, AttributeSet s)
+    {
+        // modified version of method from DefaultStyleDocument
+        Element paragraph = getParagraphElement(offset);
+        MutableAttributeSet attr = (MutableAttributeSet) paragraph.getAttributes();
+        attr.addAttributes(s);
+    }
+    
     
     /**
-     * Allows user-defined colours to be set for synax highlighting. The file 
-     * containing the colour values is should be 'lib/moe.defs'.
-     * If this file is not found, or not all colours are defined, the BlueJ
-     * default colours are used.
-     * @author This method was added by Jo Wood (jwo@soi.city.ac.uk), 9th March, 2001.
+     * Allows user-defined colours to be set for synax highlighting. The file
+     * containing the colour values is should be 'lib/moe.defs'. If this file is
+     * not found, or not all colours are defined, the BlueJ default colours are
+     * used.
+     * 
+     * @author This method was added by Jo Wood (jwo@soi.city.ac.uk), 9th March,
+     *         2001.
      */
     private static Color[] getUserColors()
     { 
