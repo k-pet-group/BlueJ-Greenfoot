@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 823 2001-03-28 06:27:58Z mik $
+ * @version $Id: PkgMgrFrame.java 839 2001-04-12 04:55:46Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -50,11 +50,12 @@ public class PkgMgrFrame extends JFrame
     static final int DEFAULT_WIDTH = 420;
     static final int DEFAULT_HEIGHT = 300;
 
-    private static String tutorialUrl = Config.getPropString("bluej.url.tutorial");
-    private static String referenceUrl = Config.getPropString("bluej.url.reference");
+    private static final String bluejUrl = Config.getPropString("bluej.url.bluej");
+    private static final String tutorialUrl = Config.getPropString("bluej.url.tutorial");
+    private static final String referenceUrl = Config.getPropString("bluej.url.reference");
 
-    private static String webBrowserMsg = Config.getString("pkgmgr.webBrowserMsg");
-    private static String webBrowserError = Config.getString("pkgmgr.webBrowserError");
+    private static final String webBrowserMsg = Config.getString("pkgmgr.webBrowserMsg");
+    private static final String webBrowserError = Config.getString("pkgmgr.webBrowserError");
     private static final String creatingVM = Config.getString("pkgmgr.creatingVM");
     private static final String creatingVMDone = Config.getString("pkgmgr.creatingVMDone");
 
@@ -783,34 +784,38 @@ public class PkgMgrFrame extends JFrame
             break;
 
             // Help commands
-        case HELP_TUTORIAL:                 // can be executed when isEmptyFrame() is true
-            showWebPage(tutorialUrl);
-            break;
-
-        case HELP_REFERENCE:                // can be executed when isEmptyFrame() is true
-            showWebPage(referenceUrl);
-            break;
-
-        case HELP_STANDARDAPI:              // can be executed when isEmptyFrame() is true
-            showWebPage(Config.getPropString("bluej.url.javaStdLib"));
-            break;
-
         case HELP_ABOUT:                    // can be executed when isEmptyFrame() is true
             AboutBlue about = new AboutBlue(this, bluej.Main.BLUEJ_VERSION);
             about.setVisible(true);
             break;
 
+        case HELP_VERSIONCHECK:             // can be executed when isEmptyFrame() is true
+            VersionChecker.getVersionChecker().checkVersion(this);
+            break;
+
         case HELP_COPYRIGHT:
         	JOptionPane.showMessageDialog(this,
-                                          new String[] {
-                                              "BlueJ \u00a9 2000 Michael K\u00F6lling, John Rosenberg.",
-                                              " ",
-                                              "BlueJ is available free of charge and may be",
-                                              "redistributed freely. It may not be sold for",
-                                              "profit or included in other packages which",
-                                              "are sold for profit without written authorisation."
-                                          },
-                                          "BlueJ Copyright", JOptionPane.INFORMATION_MESSAGE);
+                  new String[] {
+                      "BlueJ \u00a9 2000 Michael K\u00F6lling, John Rosenberg.",
+                      " ",
+                      "BlueJ is available free of charge and may be",
+                      "redistributed freely. It may not be sold for",
+                      "profit or included in other packages which",
+                      "are sold for profit without written authorisation."
+                  },
+                  "BlueJ Copyright", JOptionPane.INFORMATION_MESSAGE);
+            break;
+
+        case HELP_WEBSITE:                  // can be executed when isEmptyFrame() is true
+            showWebPage(bluejUrl);
+            break;
+
+        case HELP_TUTORIAL:                 // can be executed when isEmptyFrame() is true
+            showWebPage(tutorialUrl);
+            break;
+
+        case HELP_STANDARDAPI:              // can be executed when isEmptyFrame() is true
+            showWebPage(Config.getPropString("bluej.url.javaStdLib"));
             break;
 
         default:
@@ -1725,7 +1730,7 @@ public class PkgMgrFrame extends JFrame
 
 
     /**
-     *
+     * Set the images on the interface buttons according to preferences.
      */
     private void setButtonImages()
     {
@@ -1742,7 +1747,6 @@ public class PkgMgrFrame extends JFrame
         imgExtendsButton.setIcon(extendsIcon);
         makeButtonNotGrow(imgExtendsButton);
         makeButtonNotGrow(imgDependsButton);
-
     }
 
     /**
@@ -1999,17 +2003,19 @@ public class PkgMgrFrame extends JFrame
 
     static final int HELP_COMMAND = GRP_COMMAND + 100;
     static final int HELP_ABOUT = HELP_COMMAND;
-    static final int HELP_COPYRIGHT = HELP_ABOUT + 1;
-    static final int HELP_TUTORIAL = HELP_COPYRIGHT + 1;
-    static final int HELP_REFERENCE = HELP_TUTORIAL + 1;
-    static final int HELP_STANDARDAPI = HELP_REFERENCE + 1;
+    static final int HELP_VERSIONCHECK = HELP_ABOUT + 1;
+    static final int HELP_COPYRIGHT = HELP_VERSIONCHECK + 1;
+    static final int HELP_WEBSITE = HELP_COPYRIGHT + 1;
+    static final int HELP_TUTORIAL = HELP_WEBSITE + 1;
+    static final int HELP_STANDARDAPI = HELP_TUTORIAL + 1;
 
     static final String[] HelpCmds = {
-        "about", "copyright", "tutorial", "reference", "standardApi",
+        "about", "versionCheck", "copyright", "website", "tutorial", "standardApi",
     };
 
     static final KeyStroke[] HelpKeys = {
         null,
+        KeyStroke.getKeyStroke(KeyEvent.VK_V, Event.CTRL_MASK),
         null,
         null,
         null,
@@ -2073,9 +2079,10 @@ public class PkgMgrFrame extends JFrame
             Config.getString("menu.view.showExecControls"),
             Config.getString("menu.view.showTerminal"),
             Config.getString("menu.help.about"),
+            Config.getString("menu.help.versionCheck"),
             Config.getString("menu.help.copyright"),
+            Config.getString("menu.help.website"),
             Config.getString("menu.help.tutorial"),
-            Config.getString("menu.help.reference"),
             Config.getString("menu.help.standardApi"),
         });
 
@@ -2095,4 +2102,3 @@ public class PkgMgrFrame extends JFrame
         }
     }
 }
-

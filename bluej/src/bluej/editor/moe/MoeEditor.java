@@ -1235,7 +1235,7 @@ public final class MoeEditor extends JFrame
     private int getCurrentLineNo()
     {
         return document.getDefaultRootElement().getElementIndex(
-                                                                currentTextPane.getCaretPosition()) + 1;
+                                   currentTextPane.getCaretPosition()) + 1;
     }
 
     // --------------------------------------------------------------------

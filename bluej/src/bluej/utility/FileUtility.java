@@ -16,7 +16,7 @@ import java.lang.reflect.Array;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 756 2001-01-26 12:26:18Z ajp $
+ * @version $Id: FileUtility.java 839 2001-04-12 04:55:46Z mik $
  */
 public class FileUtility
 {
@@ -93,10 +93,15 @@ public class FileUtility
      */
     private static JFileChooser getPackageChooser()
     {
+        // find current dir name
+        File f = new File("x");
+        String currentDir = f.getAbsolutePath();
+        currentDir = currentDir.substring(0, currentDir.length()-1);
+
         if(pkgChooser == null)
             pkgChooser = new PackageChooser(
                            Config.getPropString("bluej.defaultProjectPath",
-                                                "."));
+                                                currentDir));
         return pkgChooser;
     }
 

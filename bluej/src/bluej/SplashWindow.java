@@ -9,14 +9,14 @@ import java.io.File;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 809 2001-03-21 06:20:20Z mik $
+ * @version $Id: SplashWindow.java 839 2001-04-12 04:55:46Z mik $
  */
 
 public class SplashWindow extends JWindow
 {
-    public SplashWindow(String bluejHome)
+    public SplashWindow(String bluejLib)
     {
-        ImageIcon icon = new ImageIcon(bluejHome + File.separator + 
+        ImageIcon icon = new ImageIcon(bluejLib + 
                                        "images" + File.separator + 
                                        "splash.jpg");
         JLabel image = new JLabel(icon);

@@ -10,13 +10,16 @@ import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.prefmgr.MiscPrefPanel;
 import bluej.prefmgr.PrefMgr;
 
+import java.io.File;
+import java.util.StringTokenizer;
+
 /**
  * This is the main entry point to BlueJ. Normal invocations start
  * in this class's main method.
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Main.java 821 2001-03-28 04:32:41Z mik $
+ * @version $Id: Main.java 839 2001-04-12 04:55:46Z mik $
  */
 public class Main
 {
@@ -37,6 +40,8 @@ public class Main
 
 
     public static String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
+
+    public static String BLUEJ_JAR = "bluej.jar";
 
     /**
      * Entry point to starting up the system. Initialise the
@@ -69,23 +74,15 @@ public class Main
             System.exit(-1);
         }
 
-        String home = null;
-        if((args.length >= 2) && "-home".equals(args[0])) {
-            home = args[1];
-            String[] newArgs = new String[args.length - 2];
-            System.arraycopy(args, 2, newArgs, 0, args.length - 2);
-            args = newArgs;
-        } else {
-            home = System.getProperty("bluej.home");
-        }
-
-        if(home == null) {
-            Debug.reportError("BlueJ should be run from a script that sets the \"bluej.home\" property");
+        String bluejLib = findBlueJLib();
+        if(bluejLib == null) {
+            Debug.reportError("Cannot find lib directory");
+            Debug.reportError("A file named " + BLUEJ_JAR + " should be in the classpath!");
             System.exit(-1);
         }
 
-        SplashWindow splash = new SplashWindow(home);
-        Config.initialise(home);
+        SplashWindow splash = new SplashWindow(bluejLib);
+        Config.initialise(bluejLib);
         PrefMgr.initialise();
 
         MiscPrefPanel.register();
@@ -133,6 +130,29 @@ public class Main
             frame.setLocation(20, 20);
             frame.show();
         }
+    }
+
+    /**
+     * Find out and return the directory path of BlueJ's lib directory,
+     * including trailing slash or backslash.
+     * Return null, if we can't find it.
+     */
+    private static String findBlueJLib()
+    {
+        String bluejLib = null;
+        String classpath = System.getProperty("java.class.path");
+
+        StringTokenizer st = new StringTokenizer(classpath, 
+                                                 File.pathSeparator);
+        while(st.hasMoreTokens()) {
+            String entry = st.nextToken();
+            if(entry.endsWith(BLUEJ_JAR)) {
+                bluejLib = entry.substring(0, 
+                                     entry.length() - BLUEJ_JAR.length());
+                break;
+            }
+        }
+        return bluejLib;
     }
 
     /**

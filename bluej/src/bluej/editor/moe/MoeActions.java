@@ -15,6 +15,8 @@ import bluej.utility.DialogManager;
 import bluej.prefmgr.PrefMgrDialog;
 
 import java.util.Hashtable;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.io.*;
 
 import java.awt.Event;
@@ -63,6 +65,9 @@ public final class MoeActions
     // frequently needed actions
     public Action compileAction;
 
+    // for bug workaround:
+    private InputMap componentInputMap;
+
     // =========================== STATIC METHODS ===========================
 
     private static MoeActions moeActions;
@@ -93,7 +98,6 @@ public final class MoeActions
         //    keymap = textComponent.getKeymap();
         // for 1.3, this will work, because it returns a new, empty keymap.
         // for 1.2, we need to create our own:
-        
           keymap = JTextComponent.addKeymap("BlueJ map", textComponent.getKeymap());
           textComponent.setKeymap(keymap);
 
@@ -101,6 +105,9 @@ public final class MoeActions
         keyCatcher = new KeyCatcher();
         if(! load())
             setDefaultKeyBindings();
+
+        // for bug workaround (below)
+        componentInputMap = textComponent.getInputMap();
     }
 
     /**
@@ -117,10 +124,58 @@ public final class MoeActions
     public KeyStroke[] getKeyStrokesForAction(Action action)
     {
         KeyStroke[] keys = keymap.getKeyStrokesForAction(action);
+        keys = addComponentKeyStrokes(action, keys);  // BUG workaround
         if (keys != null && keys.length > 0)
             return keys;
         else
             return null;
+    }
+
+    /**
+     *  BUG WORKAROUND: currently, keymap.getKeyStrokesForAction() misses 
+     *  keystrokes that come from JComponents inputMap. Here, we add those
+     *  ourselves...
+     */
+    public KeyStroke[] addComponentKeyStrokes(Action action, KeyStroke[] keys)
+    {
+        ArrayList keyStrokes = null;
+        KeyStroke[] componentKeys = componentInputMap.allKeys();
+
+        // find all component keys that bind to this action
+        for(int i = 0; i < componentKeys.length; i++) {
+            if(componentInputMap.get(componentKeys[i]).equals(
+                                             action.getValue(Action.NAME))) {
+                if(keyStrokes == null)
+                    keyStrokes = new ArrayList();
+                keyStrokes.add(componentKeys[i]);
+            }
+        }
+        
+        // test whether this keyStroke was redefined in keymap
+        if(keyStrokes != null) {
+            for(Iterator i=keyStrokes.iterator(); i.hasNext(); ) {
+                if(keymap.getAction((KeyStroke)i.next()) != null) {
+                    i.remove();
+                }
+            }
+        }
+
+        // merge found keystrokes into key array
+        if((keyStrokes == null) || (keyStrokes.size() == 0))
+            return keys;
+        
+        KeyStroke[] allKeys;
+        if(keys == null) {
+            allKeys = new KeyStroke[keyStrokes.size()];
+            keyStrokes.toArray(allKeys);
+        }
+        else {   // merge new keystrokes into keys
+            allKeys = new KeyStroke[keyStrokes.size() + keys.length];
+            keyStrokes.toArray(allKeys);
+            System.arraycopy(allKeys, 0, allKeys, keys.length, keyStrokes.size());
+            System.arraycopy(keys, 0, allKeys, 0, keys.length);
+        }
+        return allKeys;
     }
 
     /**
@@ -192,6 +247,10 @@ public final class MoeActions
             return false;
         }
     }
+    private void printMap()
+    {
+    }
+
 
     /**
      *  Get a keystroke for an action by action name. Return null is there
@@ -924,59 +983,59 @@ public final class MoeActions
 
             // edit functions
             
-            (Action)(actions.get("delete-previous")),           // 0
-            (Action)(actions.get("delete-next")),
-            (Action)(actions.get("copy-to-clipboard")),
-            (Action)(actions.get("cut-to-clipboard")),
-            (Action)(actions.get("paste-from-clipboard")),
-            (Action)(actions.get("insert-tab")),
-            (Action)(actions.get("insert-break")),
+            (Action)(actions.get(DefaultEditorKit.deletePrevCharAction)),           // 0
+            (Action)(actions.get(DefaultEditorKit.deleteNextCharAction)),
+            (Action)(actions.get(DefaultEditorKit.copyAction)),
+            (Action)(actions.get(DefaultEditorKit.cutAction)),
+            (Action)(actions.get(DefaultEditorKit.pasteAction)),
+            (Action)(actions.get(DefaultEditorKit.insertTabAction)),
+            (Action)(actions.get(DefaultEditorKit.insertBreakAction)),
             (Action)(actions.get("insert-break-and-indent")),
             (Action)(actions.get("indent")),
             (Action)(actions.get("insert-method")),
             (Action)(actions.get("comment")),
             (Action)(actions.get("uncomment")),
 
-            (Action)(actions.get("select-word")),               // 12
-            (Action)(actions.get("select-line")),
-            (Action)(actions.get("select-paragraph")),
-            (Action)(actions.get("select-all")),
-            (Action)(actions.get("unselect")),
-            (Action)(actions.get("selection-backward")),
-            (Action)(actions.get("selection-forward")),
-            (Action)(actions.get("selection-up")),
-            (Action)(actions.get("selection-down")),            // 20
-            (Action)(actions.get("selection-begin-word")),
-            (Action)(actions.get("selection-end-word")),
-            (Action)(actions.get("selection-previous-word")),
-            (Action)(actions.get("selection-next-word")),
-            (Action)(actions.get("selection-begin-line")),
-            (Action)(actions.get("selection-end-line")),
-            (Action)(actions.get("selection-begin-paragraph")),
-            (Action)(actions.get("selection-end-paragraph")),
+            (Action)(actions.get(DefaultEditorKit.selectWordAction)),               // 12
+            (Action)(actions.get(DefaultEditorKit.selectLineAction)),
+            (Action)(actions.get(DefaultEditorKit.selectParagraphAction)),
+            (Action)(actions.get(DefaultEditorKit.selectAllAction)),
+            (Action)(actions.get(DefaultEditorKit.selectionBackwardAction)),
+            (Action)(actions.get(DefaultEditorKit.selectionForwardAction)),
+            (Action)(actions.get(DefaultEditorKit.selectionUpAction)),
+            (Action)(actions.get(DefaultEditorKit.selectionDownAction)),     
+            (Action)(actions.get(DefaultEditorKit.selectionBeginWordAction)),       // 20
+            (Action)(actions.get(DefaultEditorKit.selectionEndWordAction)),
+            (Action)(actions.get(DefaultEditorKit.selectionPreviousWordAction)),
+            (Action)(actions.get(DefaultEditorKit.selectionNextWordAction)),
+            (Action)(actions.get(DefaultEditorKit.selectionBeginLineAction)),
+            (Action)(actions.get(DefaultEditorKit.selectionEndLineAction)),
+            (Action)(actions.get(DefaultEditorKit.selectionBeginParagraphAction)),
+            (Action)(actions.get(DefaultEditorKit.selectionEndParagraphAction)),
             (Action)(actions.get("selection-page-up")),
-            (Action)(actions.get("selection-page-down")),       // 30
-            (Action)(actions.get("selection-begin")),
-            (Action)(actions.get("selection-end")),
+            (Action)(actions.get("selection-page-down")),
+            (Action)(actions.get(DefaultEditorKit.selectionBeginAction)),           // 30
+            (Action)(actions.get(DefaultEditorKit.selectionEndAction)),
+            (Action)(actions.get("unselect")),
 
             // move and scroll functions
 
-            (Action)(actions.get("caret-backward")),            // 33
-            (Action)(actions.get("caret-forward")),
-            (Action)(actions.get("caret-up")),
-            (Action)(actions.get("caret-down")),
-            (Action)(actions.get("caret-begin-word")),
-            (Action)(actions.get("caret-end-word")),
-            (Action)(actions.get("caret-previous-word")),
-            (Action)(actions.get("caret-next-word")),            // 40
-            (Action)(actions.get("caret-begin-line")),
-            (Action)(actions.get("caret-end-line")),
-            (Action)(actions.get("caret-begin-paragraph")),
-            (Action)(actions.get("caret-end-paragraph")),
-            (Action)(actions.get("page-up")),
-            (Action)(actions.get("page-down")),
-            (Action)(actions.get("caret-begin")),
-            (Action)(actions.get("caret-end")),
+            (Action)(actions.get(DefaultEditorKit.backwardAction)),            // 33
+            (Action)(actions.get(DefaultEditorKit.forwardAction)),
+            (Action)(actions.get(DefaultEditorKit.upAction)),
+            (Action)(actions.get(DefaultEditorKit.downAction)),
+            (Action)(actions.get(DefaultEditorKit.beginWordAction)),
+            (Action)(actions.get(DefaultEditorKit.endWordAction)),
+            (Action)(actions.get(DefaultEditorKit.previousWordAction)),
+            (Action)(actions.get(DefaultEditorKit.nextWordAction)),            // 40
+            (Action)(actions.get(DefaultEditorKit.beginLineAction)),
+            (Action)(actions.get(DefaultEditorKit.endLineAction)),  
+            (Action)(actions.get(DefaultEditorKit.beginParagraphAction)),
+            (Action)(actions.get(DefaultEditorKit.endParagraphAction)),
+            (Action)(actions.get(DefaultEditorKit.pageUpAction)),
+            (Action)(actions.get(DefaultEditorKit.pageDownAction)),
+            (Action)(actions.get(DefaultEditorKit.beginAction)),
+            (Action)(actions.get(DefaultEditorKit.endAction)),
 
             // class functions
             (Action)(actions.get("save")),                      // 49
@@ -1090,7 +1149,18 @@ public final class MoeActions
                               (Action)(actions.get("describe-key")));
         // "help-mouse" not bound
         // "show-manual" not bound
+
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.CTRL_MASK), 
+                              (Action)(actions.get(DefaultEditorKit.copyAction)));
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_X, Event.CTRL_MASK), 
+                              (Action)(actions.get(DefaultEditorKit.cutAction)));
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_V, Event.CTRL_MASK), 
+                              (Action)(actions.get(DefaultEditorKit.pasteAction)));
     }
+
 
     /**
      * Class KeyCatcher - used for implementation of "describe-key" command to

@@ -35,13 +35,9 @@ class BlueJFileChooser extends JFileChooser
     {
         //Here we could treat bluej package differently
         //At the moment nothing is done.
-        if (Package.isBlueJPackage(dir)) {
-            setSelectedFile(new File(""));
-            super.setCurrentDirectory(dir);
-        }
-        else{
-            setSelectedFile(new File("")); //clear the textfield
-            super.setCurrentDirectory(dir);
-        }
+        //if (Package.isBlueJPackage(dir)) { ...
+
+        setSelectedFile(new File("")); //clear the textfield
+        super.setCurrentDirectory(dir);
     }
 }
