@@ -16,7 +16,7 @@ import bluej.utility.*;
  * @author  Michael Kolling
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: JavacCompilerInternal.java 1765 2003-04-09 05:56:45Z ajp $
+ * @version $Id: JavacCompilerInternal.java 1771 2003-04-10 02:00:54Z ajp $
  */
 public class JavacCompilerInternal extends Compiler
 {
@@ -91,7 +91,7 @@ public class JavacCompilerInternal extends Compiler
         */
                 
         for(int i = 0; i < sources.length; i++)
-            args.add(sources[i]);
+            args.add(sources[i].getPath());
 
         int length = args.size();
         String[] params = new String[length];

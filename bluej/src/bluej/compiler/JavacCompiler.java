@@ -14,7 +14,7 @@ import bluej.utility.DialogManager;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- * @version $Id: JavacCompiler.java 1765 2003-04-09 05:56:45Z ajp $
+ * @version $Id: JavacCompiler.java 1771 2003-04-10 02:00:54Z ajp $
  */
 public class JavacCompiler extends Compiler
 {
@@ -90,7 +90,7 @@ public class JavacCompiler extends Compiler
         */
 
         for(int i = 0; i < sources.length; i++)
-            args.add(sources[i]);
+            args.add(sources[i].getPath());
 
         int length = args.size();
         String[] params = new String[length];
