@@ -1,4 +1,4 @@
-/*
+ /*
 Author:  Morten Knudsen & Kent Hansen
          Ported from the Blue program "Maze" by Michael Kolling.
 Version: 1.0

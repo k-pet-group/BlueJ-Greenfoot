@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 class Command implements Enumeration {
     private int index;
     private final static String validCommands[] = {"north","south","west"
-        ,"east","back","quit","take","drop","solve","help"};
+        ,"east","quit","take","drop","solve","help"};
 
     /**
      * Compare this Command to either a String or another Command.

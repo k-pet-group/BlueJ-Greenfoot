@@ -45,23 +45,6 @@ public class Game {
     }
 
 
-    /** Go back to the last room we've been to. If we've been to no
-     * other room before, print an error message.
-     */
-    private void goBack() {
-        if (last_Room == null)
-            System.out.println
-                ("You haven't been anywhere before.\n");
-        else {
-            Room tmp;
-            tmp = last_Room;
-            last_Room = curr_Room;
-            curr_Room = tmp;
-            System.out.println(curr_Room);
-        }
-    }
-
-
     /** Try to take an object. If the object is really there and we are
      * not carrying anything, take it. Otherwise print an error message.
      */
@@ -180,12 +163,6 @@ public class Game {
             else
                 System.out.println("Huh\n");
         }
-        else if (cmd.equals("back")) {
-            if(!result.hasItem())
-                goBack();
-            else
-                System.out.println("back what?\n");
-        }
         else if (cmd.equals("quit")) {
             if(!result.hasItem())
                 bDone = true;
@@ -203,7 +180,6 @@ public class Game {
                 System.out.println("Drop what?\n");
             else
                 dropObject(item);
-            
         }
         else if (cmd.equals("solve")) {
             if(!result.hasItem())

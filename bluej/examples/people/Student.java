@@ -45,4 +45,11 @@ class Student extends Person
                "Student ID: " + SID + "\n";
     }
 
+    /**
+     * 
+     **/
+    public int sampleMethod(int y)
+    {
+        return 42;
+    }
 }

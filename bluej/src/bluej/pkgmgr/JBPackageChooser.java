@@ -1,5 +1,7 @@
 package bluej.pkgmgr;
 
+import bluej.utility.Utility;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -19,12 +21,12 @@ public class JBPackageChooser extends JFileChooser
     }
 
     /**
-     *  "Open" has been selected. Check whether the selection is really a BlueJ 
-     *  package. If so, go ahead, open it, otherwise (it was just a normal directory)
-     *  change to that directory instead.
+     *  "Open" has been selected. Check whether the selection is really a 
+     *  BlueJ package. If so, go ahead, open it, otherwise (it was just a
+     *  normal directory) change to that directory instead.
      */
     public void approveSelection() {   // redefined
-	if (isJBPackage(getSelectedFile()))
+	if (Utility.isJBPackage(getSelectedFile(), Package.pkgfileName))
 	    super.approveSelection();
 	else
 	    super.setCurrentDirectory(getSelectedFile());
@@ -36,23 +38,12 @@ public class JBPackageChooser extends JFileChooser
      *  traverse into the directory.
      */
     public void setCurrentDirectory(File dir) {    // redefined
-	if (isJBPackage(dir)) {
+	if (Utility.isJBPackage(dir, Package.pkgfileName)) {
 	    setSelectedFile(dir);
 	    super.approveSelection();
 	}
 	else
 	    super.setCurrentDirectory(dir);
-    }
-
-    /**
-     *  return true if the directory is a BlueJ package
-     */
-    private boolean isJBPackage(File directory) {
-	if (directory == null)
-	    return false;
-
-  	File packageFile = new File(directory, Package.pkgfileName);
-  	return (packageFile.exists());
     }
 }
 

@@ -92,7 +92,7 @@ public class PkgMgrFrame extends PkgFrame
 	frames.addElement(frame);
 	return frame;
     }
-	
+
     /**
      * Remove a frame from the set of currently open PkgMgrFrames.
      */
@@ -304,11 +304,12 @@ public class PkgMgrFrame extends PkgFrame
 	    break;
 
 	case TOOLS_BROWSE:
-/*	    Utility.showMessage(this, 
+/*
+	    Utility.showMessage(this, 
 		"The library browser is not implemented in this version.\n" +
 		"To browse the Java standard libraries, select \"Java\n" +
-		"Class Libraries...\" from the Help menu."); */
-
+		"Class Libraries...\" from the Help menu."); 
+*/
 
   	    getBrowser().setVisible(true);
   	    // offset browser from this window

@@ -1,7 +1,10 @@
 #BlueJ project file
-#Fri Aug 06 15:48:22 GMT+10:00 1999
+#Mon Oct 11 09:19:10 GMT+10:00 1999
 target1.height=50
+dependency1.to=BasicGraphics
+dependency1.type=UsesDependency
 package.window.height=450
+dependency1.from=BasicGraphics
 target1.y=65
 target1.x=65
 target1.valid=true
@@ -10,5 +13,5 @@ target1.type=ClassTarget
 package.window.width=512
 target1.name=BasicGraphics
 target1.width=110
-package.numDependencies=0
+package.numDependencies=1
 target1.modifiers=0

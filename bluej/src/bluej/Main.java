@@ -8,7 +8,7 @@ import bluej.classmgr.ClassMgr;
 
 
 /**
- ** @version $Id: Main.java 263 1999-09-28 10:47:49Z ajp $
+ ** @version $Id: Main.java 266 1999-11-09 05:00:13Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -21,7 +21,7 @@ public class Main
 
     public static int BLUEJ_VERSION_MAJOR = 1;
     public static int BLUEJ_VERSION_MINOR = 0;
-    public static int BLUEJ_VERSION_RELEASE = 0;
+    public static int BLUEJ_VERSION_RELEASE = 1;
 
     public static int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
 					BLUEJ_VERSION_MINOR * 100 +

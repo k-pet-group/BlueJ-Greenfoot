@@ -10,7 +10,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- ** @version $Id: Main.java 229 1999-08-12 02:30:04Z bruce $
+ ** @version $Id: Main.java 266 1999-11-09 05:00:13Z mik $
  ** @author Michael Kolling
  ** @author Michael Cahill
  **
@@ -40,12 +40,12 @@ public class Main
 
 	if(args.length == 0) {
 	    // No arguments, so start an empty package manager window
-	    PkgFrame frame = PkgMgrFrame.createFrame(null);
+	    PkgMgrFrame frame = PkgMgrFrame.createFrame(null);
 	    frame.setVisible(true);
 	}
 	else {
 	    for(int i = 0; i < args.length; i++) {
-		PkgFrame frame = PkgMgrFrame.createFrame(args[i]);
+		PkgMgrFrame frame = PkgMgrFrame.createFrame(args[i]);
 		frame.setVisible(true);
 	    }
 	}

@@ -15,11 +15,13 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 
 /**
- ** @version $Id: MethodDialog.java 244 1999-08-20 06:42:33Z mik $
+ ** @version $Id: MethodDialog.java 266 1999-11-09 05:00:13Z mik $
  **
  ** @author Michael Cahill
  ** @author Bruce Quig
@@ -75,6 +77,7 @@ public class MethodDialog extends JDialog
     private String[] paramNames;
     private Class[] paramClasses;
     private boolean emptyField = false;
+    private String defaultParamValue = "";
 
     public MethodDialog(Package pkg, String className, String instanceName, 
 			CallableView method)
@@ -225,6 +228,9 @@ public class MethodDialog extends JDialog
 	    else
 		setCallLabel(instanceName, methodName);
 
+	    if(isMainCall(method, methodName, paramClasses))
+		defaultParamValue = "null";
+
 	    gridBag.setConstraints(callLabel, constraints);
 	    tmpPanel.add(callLabel);
 
@@ -232,11 +238,10 @@ public class MethodDialog extends JDialog
 
 	    for (int i = 0; i < paramClasses.length; i++) {
 		constraints.gridx = 1;
-		params[i] = new JComboBox(history.getHistory(paramClasses[i]));
+		List historyList = history.getHistory(paramClasses[i]);
+		params[i] = new JComboBox(historyList.toArray());
+		params[i].insertItemAt(defaultParamValue, 0);
 		params[i].setEditable(true);
-		params[i].getEditor().setItem("");
-		// Action listener commented out for present, 
-		// need to disable tab firing action event
 
 		// add FocusListener for text insertion
 		((JTextField)params[i].getEditor().getEditorComponent()).addFocusListener(this);
@@ -325,9 +330,10 @@ public class MethodDialog extends JDialog
 
 		constraints.gridx = 1;
 		constraints.fill = GridBagConstraints.HORIZONTAL;
-		params[i] = new JComboBox(history.getHistory(paramClasses[i]));
+		List historyList = history.getHistory(paramClasses[i]);
+		params[i] = new JComboBox(historyList.toArray());
+		params[i].insertItemAt(defaultParamValue, 0);
 		params[i].setEditable(true);
-		params[i].getEditor().setItem("");
 
 		// add FocusListener for text insertion
 		((JTextField)params[i].getEditor().getEditorComponent()).addFocusListener(this);
@@ -382,7 +388,7 @@ public class MethodDialog extends JDialog
 	StringTokenizer tokenizer = new StringTokenizer(longMethodName,",()",true);
 	String arg = "";
 	boolean inArg = false;
-	Vector args = new Vector();
+	List args = new ArrayList();
 
 	while( tokenizer.hasMoreTokens()){
 	    String token = tokenizer.nextToken();
@@ -392,12 +398,12 @@ public class MethodDialog extends JDialog
 		arg = "";
 	    }
 	    else if (token.equals(",")){
-		args.addElement(arg);
+		args.add(arg);
 		inArg = true;
 		arg = "";
 	    }
 	    else if (token.equals(")")){
-		args.addElement(arg);
+		args.add(arg);
 		inArg = false;
 	    }
 	    else {
@@ -408,10 +414,23 @@ public class MethodDialog extends JDialog
 	//Debug.message("params = " + args.toString());
 	argNames = new String[args.size()];
 	for(int i = 0; i < args.size(); i++)
-	    argNames[i] = ((String)args.elementAt(i)).trim();
+	    argNames[i] = ((String)args.get(i)).trim();
 	
 	return argNames;
     } // parseParamNames
+
+
+    /**
+     * Return true is this is a call to
+     *     public static void main(String[])
+     */
+    private boolean isMainCall(MemberView method, String name, 
+			       Class[] paramClasses)
+    {
+	return method.isStatic() && "main".equals(name) && 
+	       paramClasses.length == 1 && paramClasses[0].isArray() &&
+	       paramClasses[0].getComponentType().getName().equals("java.lang.String");
+    }
 
     /**
      * Set the visibility of the dialog, clearing parameter edit fields 
@@ -428,8 +447,7 @@ public class MethodDialog extends JDialog
 	    clearParameters();
 
 	    if(params != null) {
-		//params[0].requestFocus();
-		((JTextField)params[0].getEditor().getEditorComponent()).requestFocus();
+		params[0].requestFocus();
 	    }
 	    else if(dialogType == MD_CREATE) {
 		instanceNameText.selectAll();
@@ -622,16 +640,18 @@ public class MethodDialog extends JDialog
 
     /**
      * Workaround for udating model problems with JComboBox.
-     * Updates CallHistory and resets model to updated Vectors.  Ugly and brutal
-     * but corrects problems with JComboBox update problems. 
-     *
+     * Updates CallHistory and resets model to updated Vectors.  Ugly and
+     * brutal but corrects problems with JComboBox update problems. 
      */
     public void updateParameters()
     {
 	if(params != null) {
 	    for(int i = 0; i < params.length; i++) {
-		history.addCall(paramClasses[i], (String)params[i].getEditor().getItem());
-		params[i].setModel(new DefaultComboBoxModel(history.getHistory(paramClasses[i])));
+		history.addCall(paramClasses[i], 
+				(String)params[i].getEditor().getItem());
+		List historyList = history.getHistory(paramClasses[i]);
+		params[i].setModel(new DefaultComboBoxModel(historyList.toArray()));
+		params[i].insertItemAt(defaultParamValue, 0);
 	    }	    
 	}
     }
@@ -642,11 +662,9 @@ public class MethodDialog extends JDialog
      */
     private void clearParameters()
     {
-	//Debug.message("Calling clearParameters");
 	if(params != null) {
-	    for(int i = 0; i < params.length; i++) {
-		((JTextField)params[i].getEditor().getEditorComponent()).setText("");
-	    }	    
+	    for(int i = 0; i < params.length; i++)
+		params[i].setSelectedIndex(0);
 	}
     }
 

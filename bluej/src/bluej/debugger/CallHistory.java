@@ -1,8 +1,10 @@
 package bluej.debugger;
 
 
-import java.util.Vector;
-import java.util.Hashtable;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import bluej.utility.Utility;
 import bluej.utility.Debug;
 import java.util.Enumeration;
@@ -16,14 +18,13 @@ import java.util.Enumeration;
  **/
 public class CallHistory
 {
-    private Hashtable objectTypes = null;
-    private Vector objectClasses = null;
-    private Vector objectParams = null;
+    private Map objectTypes = null;
+    private List objectClasses = null;
+    private List objectParams = null;
 
     private int historyLength;
 
     static final int DEFAULT_LENGTH = 6;
-    static final int INSERTION_POINT = 0;  // front of history list
 
     static final String INT_NAME = "int";
     static final String BOOLEAN_NAME = "boolean";
@@ -43,16 +44,16 @@ public class CallHistory
     public CallHistory(int length)
     {
 	historyLength = length;
-	objectTypes = new Hashtable(8);
-	objectTypes.put(INT_NAME, new Vector(length));
-	objectTypes.put(LONG_NAME, new Vector(length));
-	objectTypes.put(BOOLEAN_NAME, new Vector(length)); 
-	objectTypes.put(FLOAT_NAME, new Vector(length));
-	objectTypes.put(DOUBLE_NAME, new Vector(length));
-	objectTypes.put(SHORT_NAME, new Vector(length));
-	objectTypes.put(STRING_NAME, new Vector(length));
-	objectClasses = new Vector();
-	objectParams = new Vector();
+	objectTypes = new HashMap(8);
+	objectTypes.put(INT_NAME, new ArrayList(length));
+	objectTypes.put(LONG_NAME, new ArrayList(length));
+	objectTypes.put(BOOLEAN_NAME, new ArrayList(length)); 
+	objectTypes.put(FLOAT_NAME, new ArrayList(length));
+	objectTypes.put(DOUBLE_NAME, new ArrayList(length));
+	objectTypes.put(SHORT_NAME, new ArrayList(length));
+	objectTypes.put(STRING_NAME, new ArrayList(length));
+	objectClasses = new ArrayList();
+	objectParams = new ArrayList();
 
     }
 
@@ -61,22 +62,23 @@ public class CallHistory
      ** Gets the appropriate history for the specified data type
      ** 
      ** @param objectType  the name of the object's class
-     ** @return the Vector containing the appropriate history of invocations
+     ** @return the List containing the appropriate history of invocations
      **/	
-    public Vector getHistory(Class objectClass)
+    public List getHistory(Class objectClass)
     {
-	Vector history = null;
+	List history = null;
 	// if listed in hashtable ie primitive or String
 	if( objectTypes.containsKey(objectClass.getName())) {
-	    history = (Vector)objectTypes.get(objectClass.getName());
+	    history = (List)objectTypes.get(objectClass.getName());
 	}
 	// otherwise get general object history
 	else {
-	    history = new Vector();
+	    history = new ArrayList();
 	    for(int i = 0; i < objectClasses.size(); i++) {
-	      // if object parameter can be assigned from element in Class vector add to history
-	      if (objectClass.isAssignableFrom((Class)objectClasses.elementAt(i)))
-		history.addElement(objectParams.elementAt(i));
+		// if object parameter can be assigned from element in Class 
+		// vector add to history
+		if (objectClass.isAssignableFrom((Class)objectClasses.get(i)))
+		    history.add(objectParams.get(i));
 	    }
 	}
 	return history;
@@ -88,44 +90,43 @@ public class CallHistory
      ** 
      ** @param objectType  the object's class
      ** @param argument  the parameter 
-     ** @return the Vector containing the appropriate history of invocations
+     ** @return the List containing the appropriate history of invocations
      **/
     public void addCall(Class objectType, String argument)
     {
-	  if(argument != null) {
-	      // if a primitive or String
-	      if(objectTypes.containsKey(objectType.getName())) {
+	if(argument != null) {
+	    // if a primitive or String
+	    if(objectTypes.containsKey(objectType.getName())) {
 
-		  Vector history = getHistory(objectType);
-		  int index = history.indexOf(argument);
+		List history = getHistory(objectType);
+		int index = history.indexOf(argument);
 	
-		  // if first no change
-		  if( index != 0) {
-		      // if already there remove
-		      if(index > 0)
-			  history.removeElementAt(index);
-		      history.insertElementAt(argument, INSERTION_POINT);
-		  }
-		  // trim to size if necessary
-		  if(history.size() > historyLength) {
-		      history.setSize(historyLength);
-		  }
-	      }
-	      //else add to other object's class and param vectors
-	      else {
-		  int index = objectParams.indexOf(argument);
+		// if first no change
+		if( index != 0) {
+		    // if already there remove
+		    if(index > 0)
+			history.remove(index);
+		    history.add(0, argument);
+		}
+		// trim to size if necessary
+		if(history.size() > historyLength)
+		    history.remove(historyLength);
+	    }
+	    //else add to other object's class and param vectors
+	    else {
+		int index = objectParams.indexOf(argument);
 		
-		  // if first no change
-		  if( index != 0) {
-		      // if already there remove
-		      if(index > 0) {
-			  objectParams.removeElementAt(index);
-			  objectClasses.removeElementAt(index);
-		      }
-		      objectClasses.insertElementAt(objectType, INSERTION_POINT);
-		      objectParams.insertElementAt(argument, INSERTION_POINT);
-		  }
-	      }
-	  }
+		// if first no change
+		if( index != 0) {
+		    // if already there remove
+		    if(index > 0) {
+			objectParams.remove(index);
+			objectClasses.remove(index);
+		    }
+		    objectClasses.add(0, objectType);
+		    objectParams.add(0, argument);
+		}
+	    }
+	}
     }
 }
