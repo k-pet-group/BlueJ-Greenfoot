@@ -16,7 +16,7 @@ import bluej.utility.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: CallDialog.java 2477 2004-02-11 11:29:19Z fisker $
  */
 public abstract class CallDialog extends JDialog
 	implements ObjectBenchListener

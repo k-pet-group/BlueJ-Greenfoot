@@ -1,14 +1,13 @@
-package bluej.pkgmgr.graphPainter;
+package bluej.graph;
 
 import java.awt.*;
 import java.awt.Graphics2D;
 
-import bluej.graph.Marquee;
 
 /**
  * Paints a marquee
  * @author fisker
- * @version $Id: MarqueePainter.java 2475 2004-02-10 09:53:59Z fisker $
+ * @version $Id: MarqueePainter.java 2477 2004-02-11 11:29:19Z fisker $
  */
 public class MarqueePainter
 {
