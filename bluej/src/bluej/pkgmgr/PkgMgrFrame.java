@@ -31,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2055 2003-06-24 14:51:00Z mik $
+ * @version $Id: PkgMgrFrame.java 2057 2003-06-24 16:05:20Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1706,6 +1706,18 @@ public class PkgMgrFrame extends JFrame
             DialogManager.showText(this,message);
     }
 
+    /**
+     * Show the debugger controls for the VM associated with this project.
+     */
+	public void showDebugger()
+	{
+		if (!isEmptyFrame())
+            getProject().getExecControls().showHide(true);
+	}
+	
+    /**
+     * Restart the debugger VM associated with this project.
+     */
 	public void restartDebugger()
 	{
 		if (!isEmptyFrame())
@@ -1840,7 +1852,8 @@ public class PkgMgrFrame extends JFrame
         JPanel mainPanel = new JPanel();
 
 		mainPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                              KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, InputEvent.SHIFT_MASK), 
+                              KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 
+                                   InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK)), 
                               "restartVM");
 								
 		mainPanel.getActionMap().put("restartVM",
@@ -1973,8 +1986,8 @@ public class PkgMgrFrame extends JFrame
             testItems.add(testPanel);
 
             machineIcon = new MachineIcon(this);
-
             machineIcon.setAlignmentX(0.5f);
+            itemsToDisable.add(machineIcon);
         }
     
         toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));

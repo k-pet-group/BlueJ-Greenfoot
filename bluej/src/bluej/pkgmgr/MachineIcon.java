@@ -22,13 +22,8 @@ public class MachineIcon extends JLabel
         this.frame = frame;
 	 	setIcon(notWorkingIcon);
         setToolTipText(Config.getString("tooltip.progress"));
-//            progressButton.setDisabledIcon(notWorkingIcon);
-//            progressButton.setMargin(new Insets(0, 0, 0, 0));
-
-//            progressButton.setEnabled(false);
 
         popupMenu = createMachinePopup();
-        
         enableEvents(AWTEvent.KEY_EVENT_MASK);
     }
 
@@ -47,7 +42,7 @@ public class MachineIcon extends JLabel
     {
         setIcon(workingIcon);
     }
-    
+
     /**
      * Indicate that the machine is stopped.
      */
@@ -61,7 +56,7 @@ public class MachineIcon extends JLabel
      */
     private void showDebugger()
     {
-        frame.getProject().getExecControls().showHide(true);
+        frame.showDebugger();
     }
 
     /**
@@ -80,6 +75,9 @@ public class MachineIcon extends JLabel
      */
     protected void processMouseEvent(MouseEvent evt)
     {
+        if(!isEnabled())
+            return;
+        
         int menuOffset;
         super.processMouseEvent(evt);
 
@@ -106,7 +104,8 @@ public class MachineIcon extends JLabel
 		menu.add(item);
 
 		item = new JMenuItem("Reset Machine");
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, InputEvent.SHIFT_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 
+                                InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK));
 		item.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent e) {
 									resetMachine();
