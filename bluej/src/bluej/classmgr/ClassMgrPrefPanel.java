@@ -20,7 +20,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: ClassMgrPrefPanel.java 1915 2003-04-29 05:07:57Z ajp $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -73,7 +73,7 @@ public class ClassMgrPrefPanel extends JPanel
                 TableColumn notfoundColumn = 
 			userLibrariesTable.getColumn(userLibrariesTable.getColumnName(0));
                 {
-                    notfoundColumn.setPreferredWidth(12);
+                    notfoundColumn.setPreferredWidth(20);
                 }
 
                 TableColumn locationColumn = 
@@ -91,6 +91,7 @@ public class ClassMgrPrefPanel extends JPanel
             {
                 buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.Y_AXIS));
                 buttonPane.setAlignmentY(TOP_ALIGNMENT);
+                buttonPane.setBorder(BorderFactory.createEmptyBorder(0,5,0,0));
 
                 JButton addButton = new JButton(Config.getString("classmgr.add"));
                 {
