@@ -3,7 +3,7 @@
  *
  * Test program to demonstrate BlueJ
  */
-public class Hello
+ class Hello
 {
     /** 
      * Method that does the work 

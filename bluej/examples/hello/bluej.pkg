@@ -1,14 +1,16 @@
 #BlueJ project file
-#Thu Nov 11 14:01:33 GMT+11:00 1999
-target1.height=50
-package.window.height=468
-target1.y=40
-target1.x=50
-target1.valid=true
+dependency1.from=Hello
+dependency1.to=Hello
+dependency1.type=UsesDependency
+package.numDependencies=1
 package.numTargets=1
-target1.type=ClassTarget
+package.window.height=468
 package.window.width=525
-target1.name=Hello
-target1.width=80
-package.numDependencies=0
+target1.height=50
 target1.modifiers=1
+target1.name=Hello
+target1.type=ClassTarget
+target1.valid=true
+target1.width=80
+target1.x=50
+target1.y=40
