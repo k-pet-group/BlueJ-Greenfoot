@@ -16,7 +16,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 2838 2004-08-04 17:24:14Z damiano $
+ * @version $Id: Main.java 2841 2004-08-05 15:11:53Z mik $
  */
 public class Main
 {
@@ -111,7 +111,7 @@ public class Main
                         // checking all is well (project exists)
                         if((openProj = Project.openProject(exists)) != null) {
                             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
-                            PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
+                            PkgMgrFrame.createFrame(pkg);
                             oneOpened = true;
                         }
                 
