@@ -136,6 +136,12 @@ options {
     }
 
     
+    // redefined from antlr.LLkParser to supress error messages
+    public void reportError(ParserException ex) {
+        // do nothing
+    }
+
+    
     //------------------------------------------------------------------------
     // Symboltable adapter methods
     // The following methods are provided to give a single set of entry
