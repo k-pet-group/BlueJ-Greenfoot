@@ -24,7 +24,7 @@ import javax.swing.text.Segment;
  * C token marker.
  *
  * @author Slava Pestov
- * @version $Id: CTokenMarker.java 342 2000-01-12 03:18:00Z bruce $
+ * @version $Id: CTokenMarker.java 1307 2002-08-15 09:44:22Z mik $
  */
 public class CTokenMarker extends TokenMarker
 {
@@ -58,7 +58,7 @@ loop:		for(int i = offset; i < length; i++)
 				backslash = !backslash;
 				break;
 			case '*':
-				if((token == Token.COMMENT1 || token == Token.COMMENT2)
+				if((token == Token.COMMENT1 || token == Token.COMMENT2 || token == Token.COMMENT3)
 					&& length - i > 1)
 				{
 					backslash = false;
@@ -95,10 +95,12 @@ loop:		for(int i = offset; i < length; i++)
 						lastKeyword = lastOffset;
 						if(length - i > 2 && array[i+2] == '*')
 							token = Token.COMMENT2;
+						else if(length - i > 2 && array[i+2] == '#')
+							token = Token.COMMENT3;
 						else
 							token = Token.COMMENT1;
 						break;
-                        		case '/':
+                    case '/':
 						addToken(i - lastOffset,token);
 						addToken(length - i,Token.COMMENT1);
 						lastOffset = length;
@@ -259,6 +261,9 @@ loop:		for(int i = offset; i < length; i++)
 /*
  * ChangeLog:
  * $Log$
+ * Revision 1.2  2002/08/15 09:44:21  mik
+ * added new syntax colouring catergory: stand-out comment (/*#).
+ *
  * Revision 1.1  2000/01/12 03:17:58  bruce
  *
  * Addition of Syntax Colour Highlighting Package to CVS tree.  This is LGPL code used in the Moe Editor to provide syntax highlighting.

@@ -96,7 +96,7 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
     
     /**
      * Allows user-defined colours to be set for synax highlighting. The file 
-     * containing the colour values is should be 'lib/syntaxColors.defs'.
+     * containing the colour values is should be 'lib/moe.defs'.
      * If this file is not found, or not all colours are defined, the BlueJ
      * default colours are used.
      * @author This method was added by Jo Wood (jwo@soi.city.ac.uk), 9th March, 2001.
@@ -131,6 +131,16 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
     	    colorInt = 0x1a1a80;
     	}
     	colors[Token.COMMENT2] = new Color(colorInt);
+    	
+    	// Stand-out comments (/*#).
+    	colorStr = editorProps.getProperty("stand-out","ee00bb");
+    	try {
+    	    colorInt = Integer.parseInt(colorStr,16);
+    	}
+    	catch (NumberFormatException e)	{
+    	    colorInt = 0xee00bb;
+    	}
+    	colors[Token.COMMENT3] = new Color(colorInt);
     	
     	// Java keywords.	
     	colorStr = editorProps.getProperty("keyword1","cc0033");

@@ -28,7 +28,7 @@ import java.awt.Color;
 * the default color table.
 *
 * @author Slava Pestov
-* @version $Id: SyntaxUtilities.java 657 2000-07-26 07:39:59Z mik $
+* @version $Id: SyntaxUtilities.java 1307 2002-08-15 09:44:22Z mik $
 */
 public class SyntaxUtilities
 {
@@ -192,6 +192,7 @@ public class SyntaxUtilities
 
         colors[Token.COMMENT1] = new Color(0x1a1a80);    // private comment
         colors[Token.COMMENT2] = colors[Token.COMMENT1]; // javadoc comment
+        colors[Token.COMMENT3] = colors[Token.COMMENT1]; // stand-out comment
         colors[Token.KEYWORD1] = new Color(0xcc0033);    // red(ish)
         colors[Token.KEYWORD2] = new Color(0xcc8033);
         colors[Token.KEYWORD3] = new Color(0x996699);
@@ -252,6 +253,9 @@ public class SyntaxUtilities
 /*
 * ChangeLog:
 * $Log$
+* Revision 1.5  2002/08/15 09:44:21  mik
+* added new syntax colouring catergory: stand-out comment (/*#).
+*
 * Revision 1.4  2000/07/26 07:39:59  mik
 * - implemented "Record Method calls" option in terminal
 *

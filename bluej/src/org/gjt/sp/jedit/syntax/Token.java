@@ -26,7 +26,7 @@ package org.gjt.sp.jedit.syntax;
  * token in the text, and a pointer to the next token in the list.
  *
  * @author Slava Pestov
- * @version $Id: Token.java 342 2000-01-12 03:18:00Z bruce $
+ * @version $Id: Token.java 1307 2002-08-15 09:44:22Z mik $
  */
 public class Token
 {
@@ -46,63 +46,67 @@ public class Token
 	 */
 	public static final byte COMMENT2 = 2;
 
-	
+		/**
+	 * Comment 2 token id. This can be used to mark a comment.
+	 */
+	public static final byte COMMENT3 = 3;
+
 	/**
 	 * Literal 1 token id. This can be used to mark a string
 	 * literal (eg, C mode uses this to mark "..." literals)
 	 */
-	public static final byte LITERAL1 = 3;
+	public static final byte LITERAL1 = 4;
 
 	/**
 	 * Literal 2 token id. This can be used to mark an object
 	 * literal (eg, Java mode uses this to mark true, false, etc)
 	 */
-	public static final byte LITERAL2 = 4;
+	public static final byte LITERAL2 = 5;
 
 	/**
 	 * Label token id. This can be used to mark labels
 	 * (eg, C mode uses this to mark ...: sequences)
 	 */
-	public static final byte LABEL = 5;
+	public static final byte LABEL = 6;
 
 	/**
 	 * Keyword 1 token id. This can be used to mark a
 	 * keyword. This should be used for general language
 	 * constructs.
 	 */
-	public static final byte KEYWORD1 = 6;
+	public static final byte KEYWORD1 = 7;
 
 	/**
 	 * Keyword 2 token id. This can be used to mark a
 	 * keyword. This should be used for preprocessor
 	 * commands, or variables.
 	 */
-	public static final byte KEYWORD2 = 7;
+	public static final byte KEYWORD2 = 8;
 
 	/**
 	 * Keyword 3 token id. This can be used to mark a
 	 * keyword. This should be used for data types.
 	 */
-	public static final byte KEYWORD3 = 8;
+	public static final byte KEYWORD3 = 9;
 
 	/**
 	 * Operator token id. This can be used to mark an
 	 * operator. (eg, SQL mode marks +, -, etc with this
 	 * token type)
 	 */
-	public static final byte OPERATOR = 9;
+	public static final byte OPERATOR = 10;
 
 	/**
 	 * Invalid token id. This can be used to mark invalid
 	 * or incomplete tokens, so the user can easily spot
 	 * syntax errors.
 	 */
-	public static final byte INVALID = 10;
+	public static final byte INVALID = 11;
 
 	/**
 	 * The total number of defined token ids.
 	 */
-	public static final byte ID_COUNT = 11;
+	public static final byte ID_COUNT = 12;
 
 	/**
 	 * The first id that can be used for internal state
@@ -160,6 +164,9 @@ public class Token
 /*
  * ChangeLog:
  * $Log$
+ * Revision 1.2  2002/08/15 09:44:22  mik
+ * added new syntax colouring catergory: stand-out comment (/*#).
+ *
  * Revision 1.1  2000/01/12 03:18:00  bruce
  *
  * Addition of Syntax Colour Highlighting Package to CVS tree.  This is LGPL code used in the Moe Editor to provide syntax highlighting.
