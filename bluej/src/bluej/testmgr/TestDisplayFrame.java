@@ -20,7 +20,7 @@ import bluej.utility.JavaNames;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 2936 2004-08-24 01:25:58Z davmac $
+ * @version $Id: TestDisplayFrame.java 2937 2004-08-24 01:38:16Z davmac $
  */
 public class TestDisplayFrame
 {
@@ -291,20 +291,23 @@ public class TestDisplayFrame
                 ++errorCount;
         }
 
-        EventQueue.invokeLater(new Runnable() {
+        try {
+        EventQueue.invokeAndWait(new Runnable() {
             public void run() {
                 cp.setFailureValue(failureCount);
                 cp.setErrorValue(errorCount);
+                cp.setRunValue(testEntries.getSize());
                 
                 testEntries.addElement(dtr);
-                
-                cp.setRunValue(testEntries.getSize());
                 pb.step(testEntries.getSize(), dtr.isSuccess());
                 
-                if (!doingMultiple)
+                if (!doingMultiple && pb.getValue() == pb.getMaximum())
                     setResultLabel();
             }
         });
+        }
+        catch(InvocationTargetException ite) { }
+        catch(InterruptedException ie) { }
     }
     
     /**
