@@ -31,9 +31,8 @@
         <include name="examples/people/" />
         <include name="examples/people2/" />
         <include name="examples/picture/" />
-        <include name="examples/reader/" />
+        <include name="examples/file-reader/" />
         <include name="examples/shapes/" />
-        <include name="examples/zork1/" />
     </patternset>
 
     <patternset id="bluej.editorclasses" >
