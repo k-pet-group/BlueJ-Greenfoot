@@ -10,11 +10,10 @@ import bluej.views.ConstructorView;
 import bluej.testmgr.*;
 
 /**
- * Provides a gateway to invoke methods on objects using a specified
- * set of parameters.
+ * Provides a gateway to invoke methods on objects using a specified set of parameters.
  *
- * @author Clive Miller
- * @version $Id: DirectInvoker.java 1626 2003-02-11 01:46:35Z ajp $
+ * @author Clive Miller, Damiano Bolla
+ * @version $Id: DirectInvoker.java 1646 2003-03-05 11:59:00Z damiano $
  */
 class DirectInvoker
 {
@@ -22,7 +21,11 @@ class DirectInvoker
     private final CallableView callable;
     private final String instanceName;
     private String error, resultName;
-    
+
+    /**
+     * For use by the beluj.extensions
+     * The instanceName IS used when an object is created.
+     */
     DirectInvoker (Package pkg, CallableView callable, String instanceName)
     {
         this.pkg = pkg;
@@ -34,27 +37,31 @@ class DirectInvoker
      * @param methodName <CODE>null</CODE> implies a constructor.
      */
     DebuggerObject invoke (String[] args)
-    {
+        {
         PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
+        if ( pmf == null ) return null;
+        
         DirectResultWatcher watcher = new DirectResultWatcher();
         Invoker invoker = new Invoker (pmf, callable, instanceName, watcher);
-        invoker.invokeDirect (null, args);
+        invoker.invokeDirect (instanceName, args);
 
         // this will wait() on the invoke to finish
         DebuggerObject result = watcher.getResult();
 
-        // constructors place the result as the first field on the returned object
-        if (result != null && callable instanceof ConstructorView) {
-            result = result.getInstanceFieldObject(0);
-        }
-        
         if (result == null)
+            {
             error = watcher.getError();
-        else
-            resultName = watcher.getResultName();
-            
+            return null;
+            }
+
+        // constructors place the result as the first field on the returned object
+        if ( callable instanceof ConstructorView ) 
+            result = result.getInstanceFieldObject(0);
+        
+        resultName = watcher.getResultName();
+
         return result;
-    }
+        }
     
     public String getError()
     {
@@ -66,6 +73,10 @@ class DirectInvoker
         return resultName;
     }
     
+
+    /**
+     * This is used to interface with the core BlueJ
+     */
     public class DirectResultWatcher implements ResultWatcher
     {
         private boolean resultReady;
