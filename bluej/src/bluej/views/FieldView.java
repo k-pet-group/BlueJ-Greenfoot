@@ -3,7 +3,7 @@ package bluej.views;
 import java.lang.reflect.*;
 
 /**
- ** @version $Id: FieldView.java 1819 2003-04-10 13:47:50Z fisker $
+ ** @version $Id: FieldView.java 3089 2004-11-10 15:00:46Z damiano $
  ** @author Michael Cahill
  **
  ** A representation of a Java field in BlueJ
@@ -23,6 +23,16 @@ public final class FieldView extends MemberView
 	this.field = field;
     }
 
+    /**
+     * Returns the Field being manipulated by this View.
+     * 
+     * @return the Field that this view represent.
+     */
+    public Field getField ()
+      {
+      return field;
+      }
+      
     /**
      ** Returns the name of this method as a String
      **/

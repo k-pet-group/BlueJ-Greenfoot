@@ -28,7 +28,7 @@ import com.sun.jdi.Value;
  * Behaviour is similar to the Reflection API.
  *
  *
- * @version    $Id: BField.java 2513 2004-04-29 12:33:08Z damiano $
+ * @version    $Id: BField.java 3089 2004-11-10 15:00:46Z damiano $
  */
 
 /*
@@ -38,8 +38,8 @@ import com.sun.jdi.Value;
  */
 public class BField
 {
-    private FieldView bluej_view;
-    private Identifier parentId;
+    private final FieldView bluej_view;
+    private final Identifier parentId;
 
 
     /**
@@ -98,6 +98,23 @@ public class BField
         return bluej_view.getType().getViewClass();
     }
 
+
+    /**
+     * Returns the java Field for inspection.
+     * Use this method when you need more information about the Field than
+     * is provided by the BField interface. E.g.:
+     * What is the declaring class of this Field?
+     *
+     * Note that this is for information only. If you want to interact with BlueJ you must
+     * use the methods provided in BField.
+     * 
+     * @return    The java.lang.reflect.Field providing extra information about this BField.
+     */
+    public java.lang.reflect.Field getJavaField()
+      {
+      return bluej_view.getField();
+      }
+    
 
     /**
      * Returns the modifiers of this field.
