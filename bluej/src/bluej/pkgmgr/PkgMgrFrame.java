@@ -42,7 +42,7 @@ import antlr.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1543 2002-11-29 13:49:49Z ajp $
+ * @version $Id: PkgMgrFrame.java 1550 2002-12-02 05:58:30Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -619,7 +619,7 @@ public class PkgMgrFrame extends JFrame
 
         case PackageEditorEvent.OBJECT_PUTONBENCH: // "Get" object from
             //   object inspector
-                String newObjectName = DialogManager.askString(this, "getobject-new-name");
+                String newObjectName = DialogManager.askString((Component) e.getSource(), "getobject-new-name");
 
                 if (newObjectName != null) {
 //                    getObjectBench().addCallAssignment(newObjectName, "\t\t" + newObjectName + " = ");
