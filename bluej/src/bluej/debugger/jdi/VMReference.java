@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 2857 2004-08-09 01:53:13Z davmac $
+ * @version $Id: VMReference.java 2858 2004-08-09 04:11:32Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -107,6 +107,7 @@ class VMReference
     // used by JdiDebugger.invokeMethod
     private Map execServerMethods = null;
 
+    private int debuggerState; // Debugger.IDLE if idle or RUNNING otherwise
     private int exitStatus;
     private ExceptionDescription lastException;
     
@@ -283,6 +284,7 @@ class VMReference
         throws JdiVmCreationException
     {
         this.owner = owner;
+        debuggerState = Debugger.IDLE;
 
         // machine will be suspended at startup
         machine = localhostSocketLaunch(initialDirectory, term, Bootstrap.virtualMachineManager());
@@ -514,12 +516,11 @@ class VMReference
      */
     int getStatus()
     {
-        if (serverThread.isSuspended()) {
-            if (isAtMainBreakpoint(serverThread))
-                return Debugger.IDLE;
-            else
-                return Debugger.SUSPENDED;
-        }
+        if( debuggerState == Debugger.IDLE )
+            return Debugger.IDLE;
+            
+        if (serverThread.isSuspended())
+            return Debugger.SUSPENDED;
         else
             return Debugger.RUNNING;
     }
@@ -1200,9 +1201,11 @@ class VMReference
         // Resume the thread, wait for it to finish and the new thread to start
         serverThreadStartWait();
         breakpointWait(serverThread);
+        debuggerState = Debugger.RUNNING;
         serverThreadStarted = false;
         serverThread.resume();
         serverThreadStartWait();
+        debuggerState = Debugger.IDLE;
         
         // Get return value and check for exceptions
         Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
@@ -1226,9 +1229,11 @@ class VMReference
         
         // Resume the thread, wait for it to finish and the new thread to start
         breakpointWait(serverThread);
+        debuggerState = Debugger.RUNNING;
         serverThreadStarted = false;
         serverThread.resume();
         serverThreadStartWait();
+        debuggerState = Debugger.IDLE;
         
         // Get return value and check for exceptions
         Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
@@ -1253,9 +1258,11 @@ class VMReference
         // Resume the thread, wait for it to finish and the new thread to start
         serverThreadStartWait();
         breakpointWait(serverThread);
+        debuggerState = Debugger.RUNNING;
         serverThreadStarted = false;
         serverThread.resume();
         serverThreadStartWait();
+        debuggerState = Debugger.IDLE;
 
         Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
         if (rval == null) {
