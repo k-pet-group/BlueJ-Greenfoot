@@ -107,20 +107,26 @@ prefmgr.title=BlueJ:  Preferences
 
 # Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=Miscellaneous
-prefmgr.misc.editor.title=Editor settings
-prefmgr.misc.editorfontsize=Font size
-prefmgr.misc.usesyntaxhilighting=Use syntax hilighting
-prefmgr.misc.autoindent=Auto-indent (Enter and Tab keys)
-prefmgr.misc.displaylinenumbers=Display line numbers
-prefmgr.misc.makeBackup=Make backup of source files
-prefmgr.misc.matchBrackets=Match brackets
-prefmgr.misc.testing.title=Unit test settings
-prefmgr.misc.showTesting=Show unit testing tools
 prefmgr.misc.documentation.title=Documentation settings
 prefmgr.misc.jdkurlpath=JDK documentation URL
 prefmgr.misc.linkToLib=Use this URL when generating project documentation
 prefmgr.misc.linkToLibNoteLine1=If this URL is used for generating documentation, it must be correct and accessible.
 prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail. To work offline, uncheck this option.
+prefmgr.misc.testing.title=Unit test settings
+prefmgr.misc.showTesting=Show unit testing tools
+prefmgr.misc.vm.title=Virtual machine settings
+prefmgr.misc.optimiseVM=Use optimisation (faster execution, but may cause problems with debugging)
+
+# Editor Preferences panel
+prefmgr.edit.prefpaneltitle=Editor
+prefmgr.edit.editor.title=Editor settings
+prefmgr.edit.editorfontsize=Font size
+prefmgr.edit.usesyntaxhilighting=Use syntax hilighting
+prefmgr.edit.autoindent=Auto-indent (Enter and Tab keys)
+prefmgr.edit.displaylinenumbers=Display line numbers
+prefmgr.edit.makeBackup=Make backup of source files
+prefmgr.edit.matchBrackets=Match brackets
+
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Installed Extensions

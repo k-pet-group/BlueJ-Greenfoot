@@ -280,7 +280,7 @@ bluej.editor.tabsize=4
 ## users in their preferences dialogue. (values: true / false)
 #######################################################################
 
-bluej.testing.showTools=false
+bluej.testing.showtools=false
 
 
 #######################################################################
@@ -343,7 +343,7 @@ bluej.compiler.source14=false
 ## bugs in Hotspot that cause debugging errors when optimising.
 ## If you really want, you can switch it on here - this will make
 ## your programs run faster, but cause bugs in BlueJ's debugger!!
-## Not recommended. (values: true/false)
+## This can also be switched in the preferences dialog.
 #####################################################################
 
 bluej.vm.optimize=false

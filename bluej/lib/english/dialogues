@@ -330,6 +330,11 @@ The changes you have made to the class libraries
 will not take effect until the next time you
 start BlueJ.
 
+pref-optimise-no-effect
+Changes to the virtual machine settings will only take 
+effect for projects you open after making this change
+(or if you restart the virtual machine).
+
 unittest-new-test-method
 Specify a name for this test.
 Recording will then start.
