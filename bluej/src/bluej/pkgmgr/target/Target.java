@@ -19,7 +19,7 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 2085 2003-06-30 12:03:30Z fisker $
+ * @version $Id: Target.java 2203 2003-10-06 13:04:21Z fisker $
  */
 public abstract class Target extends Vertex implements Comparable, Selectable
 {
@@ -54,7 +54,8 @@ public abstract class Target extends Vertex implements Comparable, Selectable
 
     protected boolean resizing;
     protected boolean disabled;
-    protected int drag_start_x, drag_start_y;
+    protected static int drag_start_x; 
+    protected static int drag_start_y; 
 
     protected int state = S_INVALID;
 
@@ -343,8 +344,8 @@ public abstract class Target extends Vertex implements Comparable, Selectable
             pkg.targetSelected(this);
             return;
         }
-        drag_start_x = x;
-        drag_start_y = y;
+        drag_start_x = evt.getX();
+        drag_start_y = evt.getY();;
         oldRect = new Rectangle(this.getX(), this.getY(), getWidth(), getHeight());
     }
 
@@ -419,7 +420,7 @@ public abstract class Target extends Vertex implements Comparable, Selectable
                 setSize( Math.max(new_x, MIN_WIDTH),Math.max(new_y, MIN_HEIGHT));
             }
             else {
-                setPos( (new_x >= 0 ? new_x : 0), (new_y >= 0 ? new_y : 0));
+                setPos( (new_x >= 0 ? new_x : 0), (new_y >= 0 ? new_y : 0)); 
             }
             g.translate(this.getX(),this.getY());
             drawBorders(g);		// draw new border
