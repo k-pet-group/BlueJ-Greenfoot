@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 820 2001-03-27 07:51:06Z mik $
+ * @version $Id: JdiDebugger.java 884 2001-05-09 00:40:55Z bquig $
  *
  * The startup process is as follows:
  *
@@ -191,11 +191,24 @@ public final class JdiDebugger extends Debugger
             machine = connector.launch(arguments);
 
             process = machine.process();
-            redirectIOStream(process.getErrorStream(), System.out, false);
-            redirectIOStream(process.getInputStream(),
-                             Terminal.getTerminal().getOutputStream(), false);
-            redirectIOStream(Terminal.getTerminal().getInputStream(),
-                             process.getOutputStream(), false);
+            
+            // redirect error stream from process to System.out
+            InputStreamReader processErrorReader 
+                = new InputStreamReader(process.getErrorStream());
+            OutputStreamWriter errorWriter = new OutputStreamWriter(System.out);
+            redirectIOStream(processErrorReader, errorWriter, false);
+            
+            // redirect output stream from process to Terminal
+            InputStreamReader processInputReader 
+                = new InputStreamReader(process.getInputStream());
+            Writer terminalWriter = Terminal.getTerminal().getWriter();
+            redirectIOStream(processInputReader, terminalWriter, false);
+            
+            //redirect Terminal input to process output stream
+            OutputStreamWriter processWriter 
+                = new OutputStreamWriter(process.getOutputStream());
+            Reader terminalReader = Terminal.getTerminal().getReader();
+            redirectIOStream(terminalReader, processWriter, false);
 
         }
         catch (VMStartException vmse) {
@@ -1120,8 +1133,8 @@ public final class JdiDebugger extends Debugger
      *	Create a thread that will retrieve any output from the remote
      *  machine and direct it to our terminal (or vice versa).
      */
-    private void redirectIOStream(final InputStream inStream,
-                                  final OutputStream outStream,
+    private void redirectIOStream(final Reader reader,
+                                  final Writer writer,
                                   boolean buffered)
     {
         Thread thr;
@@ -1131,7 +1144,7 @@ public final class JdiDebugger extends Debugger
                 new Thread("I/O reader") {
                         public void run() {
                             try {
-                                dumpStreamBuffered(inStream, outStream);
+                                dumpStreamBuffered(reader, writer);
                             }
                             catch (IOException ex) {
                                 Debug.reportError("Cannot read output user VM.");
@@ -1144,7 +1157,7 @@ public final class JdiDebugger extends Debugger
                 new Thread("I/O reader") {
                         public void run() {
                             try {
-                                dumpStream(inStream, outStream);
+                                dumpStream(reader, writer);
                             }
                             catch (IOException ex) {
                                 Debug.reportError("Cannot read output user VM.");
@@ -1156,36 +1169,43 @@ public final class JdiDebugger extends Debugger
         thr.start();
     }
 
-    private void dumpStream(InputStream inStream, OutputStream outStream)
+    private void dumpStream(Reader reader, Writer writer)
         throws IOException
     {
+        int test = '\u4F60';
+        
         int ch;
-        while ((ch = inStream.read()) != -1) {
-            outStream.write(ch);
-            outStream.flush();
+        while ((ch = reader.read()) != -1) {
+            writer.write(ch);
+            writer.flush();
         }
     }
 
-    private void dumpStreamBuffered(InputStream inStream,
-                                    OutputStream outStream)
+    private void dumpStreamBuffered(Reader reader,
+                                    Writer writer)
         throws IOException
     {
         BufferedReader in =
-            new BufferedReader(new InputStreamReader(inStream));
-        OutputStreamWriter out =
-            new OutputStreamWriter(outStream);
+            new BufferedReader(reader);
+     
         String line;
+        //String test = "\u91cd\u505a\n";
         while ((line = in.readLine()) != null) {
-            out.write(line);
-            out.write("\n");
-            out.flush();
+            line += '\n';
+            writer.write(line.toCharArray(), 0, line.length());
+            //writer.write(test.toCharArray(), 0, test.length());
+            writer.flush();
         }
     }
 
     private void dumpFailedLaunchInfo(Process process) {
         try {
-            dumpStream(process.getErrorStream(), System.out);
-            dumpStream(process.getInputStream(), System.out);
+            InputStreamReader processErrorReader 
+                = new InputStreamReader(process.getErrorStream());
+            OutputStreamWriter errorWriter = new OutputStreamWriter(System.out);
+            dumpStream(processErrorReader, errorWriter);
+            //dumpStream(process.getErrorStream(), System.out);
+            //dumpStream(process.getInputStream(), System.out);
         }
         catch (IOException e) {
             Debug.message("Unable to display process output: " +
