@@ -2,10 +2,11 @@
 # Installer properties
 # This properties-style file completely defines what the installer should do.
 #
-# Two special characters can be used in commands and paths:
+# Some special characters can be used in commands and paths:
 #  ~ (tilde) will be replaced by the installation directory
 #  ! (exclamation) will be replaced the Java home directory
-#
+#  @ (at) will be replaced by the processor architecture name 
+#        (eg. i386, sparc, ...)
 
 # Logo to put at top
 install.gif.logo=installer-logo.gif
@@ -20,13 +21,15 @@ install.pkgJar=bluej-dist.jar
 install.exeName=bluej
 
 # additional commands to be added to Unix script before execution
-install.unixCommands=LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/lib/sparc; export LD_LIBRARY_PATH; THREADS_FLAG=native; export THREADS_FLAG
+install.unixCommands.localJPDA=LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/lib/@; export LD_LIBRARY_PATH; THREADS_FLAG=native; export THREADS_FLAG
+install.unixCommands=LD_LIBRARY_PATH=$LD_LIBRARY_PATH:!/../lib/@; export LD_LIBRARY_PATH; THREADS_FLAG=native; export THREADS_FLAG
 
 # additional commands to be added to Windows batch file before execution
 install.winCommands=set PATH=~\\lib\\win32;%PATH%
 
 # Name of the classpath to be added to existing classpath
-install.classpath=~/lib/bluej.jar;~/lib/jpda.jar;~/lib/antlr.jar;!/../lib/tools.jar
+install.classpath.localJPDA=~/lib/bluej.jar;~/lib/jpda.jar;~/lib/antlr.jar;!/../lib/tools.jar
+install.classpath=~/lib/bluej.jar;~/lib/antlr.jar;!/../lib/tools.jar;!/../lib/jpda.jar
 
 # Class that contains the main to execute
 install.mainClass=bluej.Main

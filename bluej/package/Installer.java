@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 177 1999-07-09 05:52:24Z mik $
+  * @version $Id: Installer.java 358 2000-01-13 06:12:26Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -56,8 +56,9 @@ public class Installer extends JFrame
     Timer timer;
     String javaHome;
     String currentDirectory;
+    String architecture;
 
-    String myDir = "";
+    String installationDir = "";
     String javaPath = "";
 
     Hashtable properties;
@@ -214,6 +215,8 @@ public class Installer extends JFrame
 	super();
 	javaHome = System.getProperty("java.home");
 	currentDirectory = System.getProperty("user.dir");
+        architecture = System.getProperty("os.arch");
+
 	unpackTo(false);
 	makeWindow();
     }
@@ -242,6 +245,7 @@ public class Installer extends JFrame
 	if (fileName != null) {
 	    fileName = replace(fileName, '~', currentDirectory);
 	    fileName = replace(fileName, '!', javaHome);
+	    fileName = replace(fileName, '@', architecture);
 	    if(! (new File(fileName).exists())) {
 		String help = (String)getProperty("requiresFile.help");
 		if (help == null) help = "";
@@ -296,16 +300,15 @@ public class Installer extends JFrame
 
 		if(osname == null) {	// if we don't know, write both
 		    writeWindows();
-		    writeUnix();
+		    writeUnix(true);
 		}
 		else if(osname.startsWith("Windows"))
 		    writeWindows();
+		else if(osname.startsWith("Linux"))
+		    writeUnix(false);
 		else
-		    writeUnix();
+		    writeUnix(true);
 	    }
-
-	    // write BlueJ specific properties
-	    writeBlueJprops();
 
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -458,7 +461,92 @@ public class Installer extends JFrame
     }
 
     // ===========================================================
-    // File I/O (JAR extraction and scripts)
+    // Script generation for BlueJ startup script
+    // ===========================================================
+
+    /**
+     ** Write out a Unix, Bourne shell script to start the application
+     **/
+    public void writeUnix(boolean localJPDA) throws IOException 
+    {
+
+	File outputFile = new File(installDir(), (String)getProperty("exeName"));
+	FileWriter out = new FileWriter(outputFile.toString());
+	out.write("#!/bin/sh\n");
+	out.write("APPBASE=" + installDir() + "\n");
+	String commands;
+        if (localJPDA)
+            commands = getProperty("unixCommands.localJPDA").toString();
+        else
+            commands = getProperty("unixCommands").toString();
+	if(commands != null) {
+	    commands = replace(commands, '~', "$APPBASE");
+	    commands = replace(commands, '!', javaHome);
+	    commands = replace(commands, '@', architecture);
+	    out.write(commands);
+	    out.write("\n");
+	}
+        String classpath;
+        if (localJPDA)
+            classpath = getProperty("classpath.localJPDA").toString();
+        else
+            classpath = getProperty("classpath").toString();
+	classpath = classpath.replace(';', ':');
+	classpath = replace(classpath, '~', "$APPBASE");
+	classpath = replace(classpath, '!', javaHome);
+        classpath = replace(classpath, '@', architecture);
+	out.write("CLASSPATH=" + classpath + ":$CLASSPATH\n");
+	out.write("export CLASSPATH\n");
+	out.write(getJavaPath() + " " + getProperty("javaOpts") + " -D" + 
+		  getProperty("installDirProp") + "=$APPBASE "+ 
+		  getProperty("mainClass") + " $*\n");
+	out.close();
+		
+	try {
+	    Runtime.getRuntime().exec("chmod 755 " + outputFile);
+	} catch(Exception e) {
+	    // ignore it - might not be Unix
+	}
+    }
+
+    /**
+     ** Write out an MSDOS style batch file to start the application.
+     **/
+    public void writeWindows() throws IOException 
+    {
+	File outputFile = new File(installDir(),
+				   (String)getProperty("exeName") + ".bat");
+			
+	FileWriter out = new FileWriter(outputFile.toString());
+	out.write("@echo off\r\n");
+	out.write("set OLDPATH=%CLASSPATH%\r\n");
+	out.write("set APPBASE=" + installDir() + "\r\n");
+	String commands = getProperty("winCommands").toString();
+	if(commands != null) {
+	    commands = replace(commands, '~', "%APPBASE%");
+	    commands = replace(commands, '!', javaHome);
+	    commands = replace(commands, '@', architecture);
+	    out.write(commands);
+	    out.write("\r\n");
+	}
+	String classpath = getProperty("classpath.localJPDA").toString();
+	classpath = classpath.replace('/', '\\');
+	classpath = replace(classpath, '~', "%APPBASE%");
+	classpath = replace(classpath, '!', javaHome);
+	classpath = replace(classpath, '@', architecture);
+	out.write("set CLASSPATH=" + classpath + ";%CLASSPATH%\r\n");
+	out.write(getJavaPath() + " " + getProperty("javaOpts") + " -D" + 
+		  getProperty("installDirProp") + "=%APPBASE% "+ 
+		  getProperty("mainClass") + 
+		  " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
+	out.write("set CLASSPATH=%OLDPATH%\r\n");
+
+	out.close();
+    }
+
+
+    // ===========================================================
+    // File I/O (JAR extraction)
     // ===========================================================
 
     /**
@@ -639,97 +727,6 @@ public class Installer extends JFrame
     }
 
     /**
-     ** Write out a Unix, Bourne shell script to start the application
-     **/
-    public void writeUnix() throws IOException 
-    {
-
-	File outputFile = new File(installDir(), (String)getProperty("exeName"));
-	FileWriter out = new FileWriter(outputFile.toString());
-	out.write("#!/bin/sh\n");
-	out.write("APPBASE=" + installDir() + "\n");
-	String commands = getProperty("unixCommands").toString();
-	if(commands != null) {
-	    commands = replace(commands, '~', "$APPBASE");
-	    commands = replace(commands, '!', javaHome);
-	    out.write(commands);
-	    out.write("\n");
-	}
-	String classpath = getProperty("classpath").toString();
-	classpath = classpath.replace(';', ':');
-	classpath = replace(classpath, '~', "$APPBASE");
-	classpath = replace(classpath, '!', javaHome);
-	out.write("CLASSPATH=" + classpath + ":$CLASSPATH\n");
-	out.write("export CLASSPATH\n");
-	out.write(getJavaPath() + " " + getProperty("javaOpts") + " -D" + 
-		  getProperty("installDirProp") + "=$APPBASE "+ 
-		  getProperty("mainClass") + " $*\n");
-	out.close();
-		
-	try {
-	    Runtime.getRuntime().exec("chmod 755 " + outputFile);
-	} catch(Exception e) {
-	    // ignore it - might not be Unix
-	}
-    }
-
-    /**
-     ** Write out an MSDOS style batch file to start the application.
-     **/
-    public void writeWindows() throws IOException 
-    {
-	File outputFile = new File(installDir(),
-				   (String)getProperty("exeName") + ".bat");
-			
-	FileWriter out = new FileWriter(outputFile.toString());
-	out.write("@echo off\r\n");
-	out.write("set OLDPATH=%CLASSPATH%\r\n");
-	out.write("set APPBASE=" + installDir() + "\r\n");
-	String commands = getProperty("winCommands").toString();
-	if(commands != null) {
-	    commands = replace(commands, '~', "%APPBASE%");
-	    commands = replace(commands, '!', javaHome);
-	    out.write(commands);
-	    out.write("\r\n");
-	}
-	String classpath = getProperty("classpath").toString();
-	classpath = classpath.replace('/', '\\');
-	classpath = replace(classpath, '~', "%APPBASE%");
-	classpath = replace(classpath, '!', javaHome);
-	out.write("set CLASSPATH=" + classpath + ";%CLASSPATH%\r\n");
-	out.write(getJavaPath() + " " + getProperty("javaOpts") + " -D" + 
-		  getProperty("installDirProp") + "=%APPBASE% "+ 
-		  getProperty("mainClass") + 
-		  " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
-	out.write("set CLASSPATH=%OLDPATH%\r\n");
-
-	out.close();
-    }
-
-
-    /**
-     ** write out BlueJ specific properties
-     **/
-    private void writeBlueJprops() throws IOException {
-
-	// Don't do this anymore...
-
-//  	String libDirPath = installDir() + slash + libDir;
-
-//  	FileWriter out = new FileWriter(libDirPath + slash + syslibs);
-
-//  	out.write("# BlueJ system libraries" + nl);
-//  	out.write("# These libraries will be shown as system libraries in the" + nl);
-//  	out.write("# library browser of all users. Add other libraries here" + nl);
-//  	out.write("# which you want all users to see.\n");
-//  	out.write("lib1.alias=JDK Standard Classes" + nl);
-//  	out.write("lib1.location=" + getFullPath(standardClasses) + nl);
-//  	out.write("lib2.alias=Swing" + nl);
-//  	out.write("lib2.location=" + libDirPath + slash + "swing.jar" + nl);
-//  	out.close();
-    }
-
-    /**
      ** Find and return the full path to an archive in CLASSPATH
      **/
     private String getFullPath(String archiveName)
@@ -763,20 +760,18 @@ public class Installer extends JFrame
 	return ret.toString();
     }
 	
-    ///////////////////////////////////////////////////////////////////////
-    // Property type stuff
-    ///////////////////////////////////////////////////////////////////////
+    // =============== property access ================
 
     public Object getProperty(String key) {
 	return properties.get(key);
     }
 
     public String installDir() {
-	return myDir;
+	return installationDir;
     }
 
-    public void setInstallDir(String d) {
-	myDir = d;
+    public void setInstallDir(String dir) {
+	installationDir = dir;
     }
 
     public String getJavaPath() {

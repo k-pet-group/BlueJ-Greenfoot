@@ -1,7 +1,7 @@
 /**
  * A class representing students for a simple JavaBlue demo program.
  *
- * Author:  Michael Kölling
+ * Author:  Michael K?lling
  * Version: 1.0
  * Date:    January 1999
  */
@@ -13,7 +13,7 @@ class Student extends Person
     /**
      * Create a student with default settings for detail information.
      */
-    Student()
+    public Student()
     {
         super("(unknown name)", 0000);
         SID = "(unknown ID)";
@@ -22,7 +22,7 @@ class Student extends Person
     /**
      * Create a student with given name, year of birth and student ID
      */
-    Student(String name, int yearOfBirth, String studentID)
+    public Student(String name, int yearOfBirth, String studentID)
     {
         super(name, yearOfBirth);
         SID = studentID;

@@ -22,7 +22,7 @@
 
 include $(OS).mk
 
-PKG_VERSION = rc4
+PKG_VERSION = 101v1
 
 SUBDIRS = \
 	src
@@ -39,6 +39,8 @@ INSTALL_IMAGES = \
 	images/darrow_red.gif \
 	images/help.gif \
 	images/leftarrow.gif \
+	images/objectIcon.gif \
+	images/objectIcon_blank.gif \
 	images/packageIcon.gif \
 	images/rightarrow.gif \
 	images/step.gif \
@@ -54,18 +56,26 @@ INSTALL_LIB_FILES = \
 	lib/antlr.jar \
 	lib/applet.tmpl \
 	lib/bluej.defs \
-	lib/english.defs \
-	lib/exception.english.help \
+	lib/dialogues.english \
+	lib/dialogues.german \
+	lib/exception.help.english \
+	lib/exception.help.german \
 	lib/html.tmpl \
 	lib/interface.tmpl \
-	lib/javac.english.help \
-	lib/jikes.english.help \
+	lib/japplet.tmpl \
+	lib/javac.help.english \
+	lib/javac.help.german \
+	lib/jikes.help.english \
+	lib/jikes.help.german \
 	lib/jpda.jar \
-	lib/moe.defs \
-	lib/moehelp.defs \
+	lib/labels.english \
+	lib/labels.german \
+	lib/moe.help.english \
+	lib/moe.help.german \
+	lib/moe.labels.english \
+	lib/moe.labels.german \
 	lib/shell.tmpl \
 	lib/stdclass.tmpl \
-	lib/stdctxt.jar \
 	lib/syslibs.properties
 
 INSTALL_EXAMPLES = \

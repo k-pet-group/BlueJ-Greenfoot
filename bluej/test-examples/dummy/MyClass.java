@@ -1,6 +1,8 @@
-/**
- **/
 import java.util.Random;
+
+/**
+ * This class is clased MyClass.
+ */
 
 public class MyClass
 {
@@ -22,12 +24,18 @@ public class MyClass
         	name = "Michael";
         tst  = new Tester();
     }
-    
+
+    /**
+	 * This is a comment number 1
+	 */
     public Tester getTester()
     {
         return tst;
     }
 
+    /**
+	 * This is a comment number 2
+	 */
     public int shortloop(int count)
     {
         	int sum = 44;
@@ -42,6 +50,9 @@ public class MyClass
         return sum + 2;
     }
 
+    /**
+	 * This is a comment number 3
+	 */
     public int loop(int count)
     {
         	int sum = 0;

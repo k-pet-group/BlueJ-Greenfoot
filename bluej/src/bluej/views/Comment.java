@@ -5,21 +5,21 @@ import bluej.utility.Utility;
 import java.util.*;
 
 /**
- ** @version $Id: Comment.java 244 1999-08-20 06:42:33Z mik $
- ** @author Michael Cahill
- **
- ** Comment class - the source information associated with a class or field
- **/
+** @version $Id: Comment.java 358 2000-01-13 06:12:26Z mik $
+** @author Michael Cahill
+**
+** Comment class - the source information associated with a class or field
+**/
 public final class Comment
 {
     private String target;		// identifies what this comment is for
     private String text;
     private String paramnames[];
-	
+
     public void load(Properties p, String prefix)
     {
-	target = p.getProperty(prefix + ".target", "<no target>");
-	text = p.getProperty(prefix + ".text");
+        target = p.getProperty(prefix + ".target", "<no target>");
+        text = p.getProperty(prefix + ".text");
 
         String paramnamestring = p.getProperty(prefix + ".params");
 
@@ -34,17 +34,17 @@ public final class Comment
             }
         }
     }
-	
+
     public String getTarget()
     {
-	return target;
+        return target;
     }
-	
+
     public String getText()
     {
-	return text;
+        return text;
     }
-	
+
     public String getParamName(int i)
     {
         if (paramnames != null) {
@@ -60,37 +60,46 @@ public final class Comment
             return paramnames.length;
         return 0;
     }
-    
+
     /*	public void addReference(String classname, String fieldname)
-	{
-	// refs.addElement(new Reference(classname, fieldname));
-	}
-	
-	public Enumeration getReferences()
-	{
-	return refs.elements();
-	}
-    */
- 	
+        {
+        // refs.addElement(new Reference(classname, fieldname));
+        }
+
+        public Enumeration getReferences()
+        {
+        return refs.elements();
+        }
+        */
+
     public void print(FormattedPrintWriter out)
     {
-	print(out, 0);
+        print(out, 0);
     }
-	
+
     public void print(FormattedPrintWriter out, int indents)
     {
-	out.setBold(false);
-	out.setItalic(true);
-	if(text != null)
-	    {
-		String[] lines = Utility.splitLines(text);
-	
-		for(int i = 0; i < lines.length; i++)
-		    {
-			for(int j=0; j<indents; j++)
-			    out.indentLine();
-			out.println(lines[i].trim());
-		    }
-	    }
-    }
+        out.setBold(false);
+        out.setItalic(true);
+        if(text != null) {
+            String[] lines = Utility.splitLines(text);
+
+            // trim spaces
+            for(int i = 0; i < lines.length; i++)
+                lines[i] = lines[i].trim(); 
+
+            // remove blank lines front and back
+            int first = 0;
+            while (lines[first].length() == 0)
+                first++;
+            int last = lines.length - 1;
+            while (lines[last].length() == 0)
+                last--;
+            for(int i = first; i<=last; i++) { 
+                for(int j=0; j<indents; j++)
+                    out.indentLine(); 
+                out.println(lines[i]); 
+            } 
+        } 
+    } 
 }

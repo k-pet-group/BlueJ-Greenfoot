@@ -10,7 +10,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: AboutBlue.java 281 1999-11-18 03:58:18Z axel $
+ ** @version $Id: AboutBlue.java 358 2000-01-13 06:12:26Z mik $
  ** @author Justin Tan
  **
  ** General graph edge
@@ -32,18 +32,19 @@ class AboutBlue extends JDialog
 	text.setBackground(Color.white);
 	    text.addText("BlueJ version " + version, true, false);
 	    text.addText("\nThe BlueJ development environment was\n" +
-			 "developed at the School of Computer Science\n" +
-			 "and Software Engineering, Monash University.");
+			 "developed at Monash University.");
 	    text.addText("\nThe BlueJ team:", false, true);
-	    text.addText("      John Rosenberg\n" + 
-			 "      Michael K\u00F6lling\n" +
+	    text.addText("      Michael K\u00F6lling\n" + 
+			 "      Markus Ostman\n" +
+			 "      Andrew Patterson\n" +
 			 "      Bruce Quig\n" +
-			 "      Andrew Patterson");
+			 "      John Rosenberg\n" +
+			 "      Axel Schmolitzky");
 	    text.addText("\nwith help from:", false, true);
 	    text.addText("      Michael Cahill\n" +
 			 "      Andrew Marks");
 	    text.addText("\nFor more information contact Michael K\u00F6lling\n" +
-			 "(mik@csse.monash.edu.au).");
+			 "(mik@monash.edu.au).");
 
   	aboutPanel.add(text, BorderLayout.CENTER);
 
