@@ -100,15 +100,18 @@ public class TreeParser {
 	}
 	/** Parser error-reporting function can be overridden in subclass */
 	public void reportError(ParserException ex) {
-		System.err.println("Error: " + ex.toString());
+	    // ignoring errors... should probably be done in subclass...
+	    //System.err.println("Error: " + ex.toString());
 	}
 	/** Parser error-reporting function can be overridden in subclass */
 	public void reportError(String s) {
-		System.err.println("Error: " + s);
+	    // ignoring errors... should probably be done in subclass...
+	    // System.err.println("Error: " + s);
 	}
 	/** Parser warning-reporting function can be overridden in subclass */
 	public void reportWarning(String s) {
-		System.err.println("Warning: " + s);
+	    // ignoring errors... should probably be done in subclass...
+	    // System.err.println("Warning: " + s);
 	}
 	/** Specify an object with support code (shared by
 	 *  Parser and TreeParser.  Normally, the programmer

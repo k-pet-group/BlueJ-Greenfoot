@@ -96,6 +96,7 @@ public final class MoeEditor extends JFrame
     private boolean isCode;		// true if current buffer is code
 
     private boolean mayHaveBreakpoints;	// true if there were BP here
+    private boolean ignoreChanges = false;
 
     // =========================== NESTED CLASSES ===========================
 
@@ -241,7 +242,9 @@ public final class MoeEditor extends JFrame
 
     public void clear()	// inherited from Editor, redefined
     {
+	ignoreChanges = true;
 	textPane.setText("");
+	ignoreChanges = false;
     }
 
     // --------------------------------------------------------------------
@@ -1144,6 +1147,8 @@ public final class MoeEditor extends JFrame
      */
     void setChanged()
     {
+	if(ignoreChanges)
+	    return;
 	setCompileStatus (false);
 	if(watcher != null)
 	    watcher.modificationEvent(this);

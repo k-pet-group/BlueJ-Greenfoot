@@ -6,7 +6,7 @@
  ** Date:    January 1999
  **/
 
-class Student extends Person
+class Student extends Person  
 {
     private String SID;    // student ID number
 
@@ -17,6 +17,7 @@ class Student extends Person
     {
         super("(unknown name)", 0000);
         SID = "(unknown ID)";
+i=i"1;
     }
 
     /**

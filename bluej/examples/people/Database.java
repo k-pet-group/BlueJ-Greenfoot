@@ -23,7 +23,7 @@ public class Database {
         personVector = new Vector ();
     }
 
-    /**
+    /** 
      * Add a person to the database.
      */
     public void addPerson(Person p) {
