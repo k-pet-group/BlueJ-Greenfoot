@@ -1,12 +1,13 @@
 package bluej.parser.ast;
 
-import java.io.*;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.net.URL;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-import bluej.parser.symtab.ClassInfo;
 
 /**
  * Run sample source file(s) containing Java 1.5 specific features

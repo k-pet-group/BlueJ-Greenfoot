@@ -3,8 +3,6 @@ package bluej.parser;
 import java.io.File;
 import java.net.URL;
 
-import bluej.parser.symtab.ClassInfo;
-
 /**
  * Run sample source file(s) containing Java 1.5 specific features
  * eg. generics, enums, static imports, foreach, varargs etc.
