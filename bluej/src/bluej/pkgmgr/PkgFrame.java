@@ -22,12 +22,12 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 311 1999-12-14 00:58:28Z axel $
+ ** @version $Id: PkgFrame.java 360 2000-01-13 13:53:49Z ajp $
  **/
-public abstract class PkgFrame extends JFrame 
+public abstract class PkgFrame extends JFrame
 
-implements ActionListener, ItemListener 
-{ 
+implements ActionListener, ItemListener
+{
     public static final String AppTitle = "BlueJ version " + bluej.Main.BLUEJ_VERSION;
     static final String noTitle = Config.getString("pkgmgr.noTitle");
 
@@ -157,7 +157,7 @@ implements ActionListener, ItemListener
      * Return a BlueJ package chooser, i.e. a file chooser which
      * recognises BlueJ packages and treats them differently.
      */
-    private PackageChooser getPackageChooser() { 
+    private PackageChooser getPackageChooser() {
         if(pkgChooser == null)
             pkgChooser = new PackageChooser(".");
         return pkgChooser;
@@ -216,12 +216,12 @@ implements ActionListener, ItemListener
             setTitle("BlueJ" + " - " + pkg.getName());
     }
 
-    public void setStatus(String status) { 
+    public void setStatus(String status) {
         if (statusbar != null)
             statusbar.setText(status);
     }
 
-    public void clearStatus() { 
+    public void clearStatus() {
         if (statusbar != null)
             statusbar.setText(" ");
     }
@@ -235,7 +235,7 @@ implements ActionListener, ItemListener
     }
 
     /**
-     * Removes current package details and reverts the frame to 
+     * Removes current package details and reverts the frame to
      * similar to opening with no existing package.
      */
     public void removePackage() {
@@ -244,12 +244,12 @@ implements ActionListener, ItemListener
         editor = new GraphEditor(pkg,this);
         enableFunctions(false);
         repaint();
-    }    
+    }
 
     /**
      * Closes the current package.
      */
-    public void closePackage() { 
+    public void closePackage() {
         if(classScroller != null)
             mainPanel.remove(classScroller);
         if (pkg != null) {
@@ -264,7 +264,7 @@ implements ActionListener, ItemListener
             pkg = null;
 
         }
-    }    
+    }
 
     /**
      * Commands - for lookup from events
@@ -282,7 +282,7 @@ implements ActionListener, ItemListener
     static final int PKG_QUIT = PKG_PRINT + 1;
 
     static final String[] PkgCmds = {
-        "new", "open", "close", "save", "saveAs", "importClass", 
+        "new", "open", "close", "save", "saveAs", "importClass",
         "print", "quit"
     };
 
@@ -310,11 +310,11 @@ implements ActionListener, ItemListener
 
 
     static final String[] EditCmds = {
-        "newClass", "removeClass", "newUses", "newInherits", "removeArrow" 
+        "newClass", "removeClass", "newUses", "newInherits", "removeArrow"
     };
 
     static final KeyStroke[] EditKeys = {
-        KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK), 
+        KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_R, Event.CTRL_MASK),
         null,
         null,
@@ -330,15 +330,16 @@ implements ActionListener, ItemListener
     static final int TOOLS_COMPILE = TOOLS_COMMAND;
     static final int TOOLS_COMPILESELECTED = TOOLS_COMPILE + 1;
     static final int TOOLS_REBUILD = TOOLS_COMPILESELECTED + 1;
-    static final int TOOLS_BROWSE = TOOLS_REBUILD + 1;
-    static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
+//    static final int TOOLS_BROWSE = TOOLS_REBUILD + 1;
+//    static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
+    static final int TOOLS_PREFERENCES = TOOLS_REBUILD + 1;
 
     static final String[] ToolsCmds = {
-	"compile", "compileSelected", "rebuild", "browse", "preferences"
+	"compile", "compileSelected", "rebuild", "preferences" //"browse",
     };
 
     static final KeyStroke[] ToolsKeys = {
-        KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.CTRL_MASK), 
+        KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.SHIFT_MASK | Event.CTRL_MASK),
         null,
         KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK),
@@ -347,7 +348,7 @@ implements ActionListener, ItemListener
 
     static final int[] ToolsSeparators = {
 	TOOLS_REBUILD,
-	TOOLS_BROWSE
+//	TOOLS_BROWSE
     };
 
     static final int VIEW_COMMAND = TOOLS_COMMAND + 100;
@@ -363,7 +364,7 @@ implements ActionListener, ItemListener
     };
 
     static final KeyStroke[] ViewKeys = {
-        KeyStroke.getKeyStroke(KeyEvent.VK_U, Event.CTRL_MASK), 
+        KeyStroke.getKeyStroke(KeyEvent.VK_U, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_I, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_T, Event.CTRL_MASK),
@@ -453,7 +454,7 @@ implements ActionListener, ItemListener
     };
 
     static final int[][] CmdSeparators = {
-        PkgSeparators, EditSeparators, ToolsSeparators, ViewSeparators, 
+        PkgSeparators, EditSeparators, ToolsSeparators, ViewSeparators,
         /* GrpSeparators, */ HelpSeparators
     };
 

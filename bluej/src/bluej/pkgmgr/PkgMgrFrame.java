@@ -293,14 +293,14 @@ implements BlueJEventListener
 	    pkg.rebuild();
 	    break;
 
-	case TOOLS_BROWSE:
+//	case TOOLS_BROWSE:
 /*
 	    DialogManager.showText(this,
 		"The library browser is not implemented in this version.\n" +
 		"To browse the Java standard libraries, select \"Java\n" +
 		"Class Libraries...\" from the Help menu.");
 */
-
+/*
   	    // offset browser from this window
   	    getBrowser().setLocation(this.getLocation().x + 100,
  				     this.getLocation().y + 100);
@@ -308,7 +308,7 @@ implements BlueJEventListener
  	    getBrowser().validate();
   	    getBrowser().setVisible(true);
 	    break;
-
+*/
 	case TOOLS_PREFERENCES:
 		PrefMgrDialog.showDialog(this);
 		break;
