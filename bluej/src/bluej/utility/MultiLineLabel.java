@@ -6,7 +6,7 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: MultiLineLabel.java 138 1999-06-22 01:05:50Z mik $
+ ** @version $Id: MultiLineLabel.java 185 1999-07-17 02:28:27Z ajp $
  ** @author Justin Tan
  ** A multi-line Label-like AWT component.
  **/
@@ -21,7 +21,8 @@ public class MultiLineLabel extends JPanel
     public MultiLineLabel(String text, int alignment)
     {
 	this.alignment = alignment;
-	setLayout(new GridLayout(0,1));
+    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+//	setLayout(new GridLayout(0,1));
 	if(text != null)
 	    setText(text);
     }
@@ -31,7 +32,7 @@ public class MultiLineLabel extends JPanel
      **/
     public MultiLineLabel(String text)
     {
-	this(text, JLabel.CENTER);
+        this(text, JLabel.CENTER);
     }
 
     /**
@@ -39,7 +40,7 @@ public class MultiLineLabel extends JPanel
      **/
     public MultiLineLabel(int alignment)
     {
-	this(null, alignment);
+        this(null, alignment);
     }
 
     /**
@@ -47,26 +48,26 @@ public class MultiLineLabel extends JPanel
      **/
     public MultiLineLabel()
     {
-	this(null, JLabel.CENTER);
+        this(null, JLabel.CENTER);
     }
 	
     public void setText(String text)
     {
-	// clear the existing lines from the panel
-	removeAll();
-	addText(text);
+        // clear the existing lines from the panel
+        removeAll();
+        addText(text);
     }
 	
     public void addText(String text)
     {
-	String strs[] = Utility.splitLines(text);
-	JLabel l;
-	Font font = new Font("SansSerif", fontAttributes, Config.fontsize);
+        String strs[] = Utility.splitLines(text);
+        JLabel l;
+        Font font = new Font("SansSerif", fontAttributes, Config.fontsize);
 
-	for (int i = 0; strs != null && i < strs.length; i++) {
+        for (int i = 0; strs != null && i < strs.length; i++) {
 	    l = new JLabel(strs[i]);
 	    l.setFont(font);
-	    l.setHorizontalAlignment(alignment);
+	    l.setAlignmentX(LEFT_ALIGNMENT);
 	    add(l);
 	}	
     }
