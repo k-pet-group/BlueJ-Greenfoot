@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 980 2001-09-28 04:57:54Z bquig $
+ ** @version $Id: ExecControls.java 1059 2001-12-20 13:49:55Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -26,6 +26,8 @@ public class ExecControls extends JFrame
         Config.getString("debugger.execControls.windowTitle");
     private static final String stackTitle =
         Config.getString("debugger.execControls.stackTitle");
+    private static final String staticTitle =
+        Config.getString("debugger.execControls.staticTitle");
     private static final String instanceTitle =
         Config.getString("debugger.execControls.instanceTitle");
     private static final String localTitle =
@@ -88,7 +90,7 @@ public class ExecControls extends JFrame
     // === instance ===
 
     private JList threadList;
-    private JList stackList, instanceList, localList;
+    private JList stackList, staticList, instanceList, localList;
     private JButton stopButton, stepButton, stepIntoButton, continueButton,
         terminateButton;
     private JButton updateButton, closeButton;
@@ -97,8 +99,10 @@ public class ExecControls extends JFrame
     private List threads;
     private DebuggerThread selectedThread;	// the thread currently
     //  selected
+    private DebuggerClass currentClass;	    // the current class for the
+                                            //  selected stack frame
     private DebuggerObject currentObject;	// the "this" object for the
-    //  selected stack frame
+                                            //  selected stack frame
     private int currentFrame = 0;		// currently selected frame
 
     private ExecControls()
@@ -173,8 +177,8 @@ public class ExecControls extends JFrame
             selectStackFrame(stackList.getSelectedIndex());
         }
 
-        // instanceList and localList are ignored - single click doesn't do
-        // anything
+        // ststicList, instanceList and localList are ignored - single click 
+        // doesn't do anything
     }
 
     // ----- end of ListSelectionListener interface -----
@@ -183,7 +187,10 @@ public class ExecControls extends JFrame
     {
         Component src = event.getComponent();
 
-        if(src == instanceList && instanceList.getSelectedIndex() >= 0) {
+        if(src == staticList && staticList.getSelectedIndex() >= 0) {
+            viewStaticField(staticList.getSelectedIndex());
+        }
+        else if(src == instanceList && instanceList.getSelectedIndex() >= 0) {
             viewInstanceField(instanceList.getSelectedIndex());
         }
         else if(src == localList && localList.getSelectedIndex() >= 0) {
@@ -289,6 +296,7 @@ public class ExecControls extends JFrame
     private void clearThreadDetails()
     {
         stackList.setListData(empty);
+        staticList.setListData(empty);
         instanceList.setListData(empty);
         localList.setListData(empty);
     }
@@ -305,25 +313,40 @@ public class ExecControls extends JFrame
 
     private void setStackFrameDetails(int frameNo)
     {
+        currentClass = selectedThread.getCurrentClass(frameNo);
         currentObject = selectedThread.getCurrentObject(frameNo);
+        if(currentClass != null) {
+            staticList.setFixedCellWidth(-1);
+            staticList.setListData(
+               currentClass.getStaticFields(false).toArray(new Object[0]));
+        }
         if(currentObject != null) {
             instanceList.setFixedCellWidth(-1);
             instanceList.setListData(
-               currentObject.getAllFields(false).toArray(new Object[0]));
+               currentObject.getInstanceFields(false).toArray(new Object[0]));
         }
         if(selectedThread != null) {
             localList.setFixedCellWidth(-1);
             localList.setListData(
-             selectedThread.getLocalVariables(frameNo).toArray(new Object[0]));
+              selectedThread.getLocalVariables(frameNo).toArray(new Object[0]));
+        }
+    }
+
+    private void viewStaticField(int index)
+    {
+        if(currentClass.staticFieldIsObject(index)) {
+            ObjectViewer viewer = ObjectViewer.getViewer(true,
+                                          currentClass.getStaticFieldObject(index),
+                                          null, null, false, this);
         }
     }
 
     private void viewInstanceField(int index)
     {
-        if(currentObject.fieldIsObject(index)) {
+        if(currentObject.instanceFieldIsObject(index)) {
             ObjectViewer viewer = ObjectViewer.getViewer(true,
-                                                         currentObject.getFieldObject(index),
-                                                         null, null, false, this);
+                                          currentObject.getInstanceFieldObject(index),
+                                          null, null, false, this);
         }
     }
 
@@ -359,6 +382,17 @@ public class ExecControls extends JFrame
 
         contentPane.add(buttonBox, BorderLayout.SOUTH);
 
+        // Create static variable panel
+
+        staticList = new JList(new DefaultListModel());
+        staticList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        staticList.addListSelectionListener(this);
+        staticList.setVisibleRowCount(5);
+        staticList.setFixedCellWidth(150);
+        JScrollPane staticScrollPane = new JScrollPane(staticList);
+        staticScrollPane.setColumnHeaderView(new JLabel(staticTitle));
+
+
         // Create instance variable panel
 
         instanceList = new JList(new DefaultListModel());
@@ -389,13 +423,18 @@ public class ExecControls extends JFrame
                 }
             }
         };
+        staticList.addMouseListener(mouseListener);
         instanceList.addMouseListener(mouseListener);
         localList.addMouseListener(mouseListener);
 
         // Create variable display area
 
+        JSplitPane innerVarPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                                                 staticScrollPane, instanceScrollPane);
+        innerVarPane.setDividerSize(6);
+
         JSplitPane varPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                                           instanceScrollPane,localScrollPane);
+                                            innerVarPane, localScrollPane);
         varPane.setDividerSize(6);
 
         // Create stack listing panel

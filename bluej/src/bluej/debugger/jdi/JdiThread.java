@@ -3,6 +3,7 @@ package bluej.debugger.jdi;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.DebuggerClass;
 import bluej.debugger.SourceLocation;
 import bluej.utility.Debug;
 
@@ -18,7 +19,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 910 2001-05-24 07:24:41Z mik $
+ * @version $Id: JdiThread.java 1059 2001-12-20 13:49:55Z mik $
  */
 public final class JdiThread extends DebuggerThread
 {
@@ -334,6 +335,24 @@ public final class JdiThread extends DebuggerThread
             if(rt.isSuspended()) {
                 StackFrame frame = rt.frame(frameNo);
                 return JdiObject.getDebuggerObject(frame.thisObject());
+            }
+        } 
+        catch(Exception e) {
+            // nothing to do...
+        }
+        return null;
+    }
+   
+   
+    /**
+     * Return the current class of this thread. 
+     */
+    public DebuggerClass getCurrentClass(int frameNo)
+    {
+        try {
+            if(rt.isSuspended()) {
+                StackFrame frame = rt.frame(frameNo);
+                return new JdiClass(frame.location().declaringType());
             }
         } 
         catch(Exception e) {

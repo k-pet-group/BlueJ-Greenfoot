@@ -9,7 +9,7 @@ import java.util.List;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: DebuggerThread.java 589 2000-06-28 04:31:40Z mik $
+ ** @version $Id: DebuggerThread.java 1059 2001-12-20 13:49:55Z mik $
  **/
 
 public abstract class DebuggerThread
@@ -29,6 +29,7 @@ public abstract class DebuggerThread
     public abstract boolean varIsObject(int frameNo, int index);
     public abstract DebuggerObject getStackObject(int frameNo, int index);
     public abstract DebuggerObject getCurrentObject(int frameNo);
+    public abstract DebuggerClass getCurrentClass(int frameNo);
 
     public abstract void setSelectedFrame(int frame);
     public abstract int getSelectedFrame();

@@ -15,7 +15,7 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiObject.java 739 2000-12-27 08:11:41Z dbuck $
+ *@version    $Id: JdiObject.java 1059 2001-12-20 13:49:55Z mik $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -351,7 +351,7 @@ public class JdiObject extends DebuggerObject
      *
      *@param  getAll            Description of Parameter
      *@param  getStatic         Description of Parameter
-     *@param  includeModifiers  Description of Parameter
+     *@param  includeModifiers  If true, include the modifier name (public, private)
      *@return                   The Fields value
      */
     private List getFields(boolean getAll, boolean getStatic,
@@ -362,29 +362,23 @@ public class JdiObject extends DebuggerObject
         ReferenceType cls = obj.referenceType();
         List visible = cls.visibleFields();
 
-        for (int i = 0; i < fields.size(); i++)
-        {
+        for (int i = 0; i < fields.size(); i++) {
             Field field = (Field) fields.get(i);
 
-            if (getAll || (field.isStatic() == getStatic))
-            {
+            if (getAll || (field.isStatic() == getStatic)) {
                 Value val = obj.getValue(field);
 
                 String valString = getValueString(val);
                 String fieldString = "";
 
-                if (includeModifiers)
-                {
-                    if (field.isPrivate())
-                    {
+                if (includeModifiers) {
+                    if (field.isPrivate()) {
                         fieldString = "private ";
                     }
-                    if (field.isProtected())
-                    {
+                    if (field.isProtected()) {
                         fieldString = "protected ";
                     }
-                    if (field.isPublic())
-                    {
+                    if (field.isPublic()) {
                         fieldString = "public ";
                     }
                 }
@@ -393,8 +387,7 @@ public class JdiObject extends DebuggerObject
                          + " " + field.name()
                          + " = " + valString;
 
-                if (!visible.contains(field))
-                {
+                if (!visible.contains(field)) {
                     fieldString += " (hidden)";
                 }
                 // the following code adds the word "inherited" to inherited

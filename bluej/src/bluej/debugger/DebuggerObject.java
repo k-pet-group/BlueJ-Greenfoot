@@ -5,11 +5,8 @@ import java.util.List;
 /**
  *  A class representing an object in the debugged VM.
  *
- *@author     Michael Cahill
  *@author     Michael Kolling
- *@author     Duane Buck
- *@created    December 26, 2000
- *@version    $Id: DebuggerObject.java 739 2000-12-27 08:11:41Z dbuck $
+ *@version    $Id: DebuggerObject.java 1059 2001-12-20 13:49:55Z mik $
  */
 public abstract class DebuggerObject
 {
@@ -182,9 +179,7 @@ public abstract class DebuggerObject
      *@param  slot  The slot number to be checked
      *@return       Description of the Returned Value
      */
-    public abstract boolean fieldIsObject(int slot);  //{
-    //return null;
-    //}
+    public abstract boolean fieldIsObject(int slot);
 
     /**
      *  Invoke the method on the server thread. This exposes the jdi to Inspectors.
