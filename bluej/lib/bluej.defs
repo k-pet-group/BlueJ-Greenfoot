@@ -111,6 +111,9 @@ bluej.fontsize.printText=10
 bluej.fontsize.printTitle=14
 bluej.fontsize.printInfo=10
 
+# page format for printing
+
+
 # should we syntax hilight
 bluej.syntaxHilighting=true
 
@@ -124,6 +127,9 @@ bluej.debugLog=debug.log
 ## Applets -  preferences for how applets are generated and executed
 ##
 #######################################################################
+
+#appletviewer command 
+appletViewer.command=c:\\jdk1.3\\bin\\appletviewer
 
 # which jvm browser internal or JDK plugin
 bluej.applet.jvm=html

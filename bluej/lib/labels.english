@@ -101,6 +101,8 @@ editor.functions.keys=Key Bindings
 editor.functions.addkey=Add Key
 editor.functions.delkey=Delete Key
 
+editor.printer.continued=continued
+
 pkgmgr.noTitle=<noTitle>
 pkgmgr.chooseUsesFrom=Select the class where the dependency is from
 pkgmgr.chooseUsesTo=Select the class it depends on

@@ -101,6 +101,8 @@ editor.functions.keys=Tastenbindungen
 editor.functions.addkey=Taste hinzufügen
 editor.functions.delkey=Taste löschen
 
+editor.printer.continued=continued
+
 pkgmgr.noTitle=<noTitle>
 pkgmgr.chooseUsesFrom=Klicken Sie auf die Klasse von der der Pfeil ausgeht
 pkgmgr.chooseUsesTo=Klicken Sie auf die Klasse auf die der Pfeil zeigt

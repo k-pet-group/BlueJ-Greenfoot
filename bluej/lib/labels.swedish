@@ -101,6 +101,8 @@ editor.functions.keys=Tangentbordskommando
 editor.functions.addkey=Lägg till kommando
 editor.functions.delkey=Radera kommando
 
+editor.printer.continued=continued
+
 pkgmgr.noTitle=<ingenTitel>
 pkgmgr.chooseUsesFrom=Välj klass som beroendet kommer ifrån
 pkgmgr.chooseUsesTo=Välj klass som den beror på
