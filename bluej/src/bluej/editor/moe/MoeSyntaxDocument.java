@@ -66,11 +66,6 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
         // code closely resembles method from DefaultStyleDocument
         try {
             writeLock();
-            //DefaultDocumentEvent changes = 
-            //    new DefaultDocumentEvent(offset, length, 
-            //     DocumentEvent.EventType.CHANGE);
-
-            //AttributeSet sCopy = s.copyAttributes();
 
             Element section = getDefaultRootElement();
             int index0 = section.getElementIndex(offset);
@@ -81,20 +76,13 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
                 Element paragraph = section.getElement(i);
                 MutableAttributeSet attr = 
                     (MutableAttributeSet) paragraph.getAttributes();
-                // changes.addEdit(new AttributeUndoableEdit(paragraph, 
-                //                                          sCopy, replace));
                 if (replace) {
                     attr.removeAttributes(attr);
                 }
                 attr.addAttributes(s);
-            }
-            //changes.end();
-            //fireChangedUpdate(changes);
-            //fireUndoableEditUpdate(new UndoableEditEvent(this, changes));
         } finally {
             writeUnlock();
         }
-
     }
 }
 

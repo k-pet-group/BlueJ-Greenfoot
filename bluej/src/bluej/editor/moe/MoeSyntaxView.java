@@ -1,3 +1,11 @@
+// Copyright (c) 2000 BlueJ Group, Monash University
+//
+// This software is made available under the terms of the "MIT License"
+// A copy of this license is included with this source distribution
+// in "license.txt" and is also available at:
+// http://www.opensource.org/licenses/mit-license.html 
+// Any queries should be directed to Michael Kolling: mik@monash.edu.au
+
 package bluej.editor.moe;
 
 /**
@@ -11,9 +19,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 
-import org.gjt.sp.jedit.syntax.*;
 import bluej.utility.*;
 import bluej.Config;
+
+import org.gjt.sp.jedit.syntax.*;
 
 /**
  * A Swing view implementation that colorizes lines of a
@@ -26,7 +35,7 @@ import bluej.Config;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 704 2000-10-25 02:44:49Z ajp $
+ * @version $Id: MoeSyntaxView.java 779 2001-02-12 01:50:21Z bquig $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -125,11 +134,6 @@ public class MoeSyntaxView extends PlainView
             else {
                 paintSyntaxLine(line, lineIndex, offsetX, y, g, document,
                                 tokenMarker, def);
-
-                // following lines were in SyntaxView.  Unsure as to whether
-                //  needed
-                // if(tokenMarker.isNextLineRequested())
-                // forceRepaint(metrics,x,y);
             }
         }
         catch(BadLocationException bl) {
@@ -181,25 +185,6 @@ public class MoeSyntaxView extends PlainView
             tokens = tokens.next;
         }
     }
-
-    // redefinition of a method used in SyntaxView, unsure if needed anymore
-//    /**
-//     *
-//     * Stupid hack that repaints from y to the end of the text component
-//     *
-//     */
-//     private void forceRepaint(FontMetrics metrics, int x, int y)
-//     {
-//         Container host = getContainer();
-//         Dimension size = host.getSize();
-//         /**
-//          * We repaint the next line only, instead of the
-//          * entire viewscreen, since PlainView doesn't (yet)
-//          * collapse multiple repaint requests.
-//          */
-//         host.repaint(x,y,size.width - x,metrics.getHeight()
-//                      + metrics.getMaxAscent());
-//     }
 
 
    /**
@@ -320,7 +305,6 @@ public class MoeSyntaxView extends PlainView
                     doc.getText(p0, p1 - p0, buffer);
                     // add Moe breakpoint offset area width
                     int tabBase = alloc.x + MoeEditor.TAG_WIDTH + 2;
-                    //int tabBase = alloc.x;
                     int offs = p0 + Utilities.getTabbedTextOffset(buffer, metrics,
                                                                   tabBase, x, this, p0);
                     return offs;
