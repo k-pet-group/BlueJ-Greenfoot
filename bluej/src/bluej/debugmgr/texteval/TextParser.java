@@ -23,7 +23,7 @@ import bluej.utility.JavaUtils;
  * Parsing routines for the code pad.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3324 2005-02-25 01:30:38Z davmac $
+ * @version $Id: TextParser.java 3327 2005-03-03 01:10:45Z davmac $
  */
 public class TextParser
 {
@@ -82,7 +82,7 @@ public class TextParser
                 
                 ExprValue ev = getExpressionType(rootAST);
                 GenType t = ev != null ? ev.getType() : null;
-                // Debug.message("got type = " + t);
+
                 if (t == null)
                     return "";
                 else if (t.isVoid())
@@ -459,8 +459,6 @@ public class TextParser
         System.arraycopy(uboundsa, 0, args, 0, uboundsa.length);
         System.arraycopy(uboundsb, 0, args, uboundsa.length, uboundsb.length);
         return lub(args);
-        // The JLS says that infinite types are possible due to the recursive
-        // call of lub, but I do not believe that this is the case.
     }
     
     /**
@@ -794,7 +792,7 @@ public class TextParser
      * 
      * @throws RecognitionException, SemanticException
      */
-    private GenType getType(AST node) throws RecognitionException, SemanticException
+    private GenTypeSolid getType(AST node) throws RecognitionException, SemanticException
     {        
         if (node.getType() == JavaTokenTypes.IDENT) {
             // A class name
@@ -814,7 +812,7 @@ public class TextParser
             // The children nodes are: the qualified class name, and then
             // the type arguments
             AST packageNode = node.getFirstChild();
-            PackageOrClass porc = getPackageOrClass(packageNode);
+            PackageOrClass porc = getPackageOrType(packageNode);
             
             // String packagen = combineDotNames(packageNode, '.');
 
@@ -823,9 +821,15 @@ public class TextParser
 
             PackageOrClass nodePorC = porc.getPackageOrClassMember(classNode.getText());
             GenTypeClass nodeClass = (GenTypeClass) nodePorC.getType();
-            return new GenTypeClass(nodeClass.getReflective(), params);
+
+            // Don't pass in an outer class if it's not generic anyway 
+            if (! nodeClass.isGeneric())
+                nodeClass = null;
+            return new GenTypeClass(nodeClass.getReflective(), params, nodeClass);
         }
-        else throw new RecognitionException();
+        else {
+            throw new RecognitionException();
+        }
     }
     
     /**
@@ -842,7 +846,28 @@ public class TextParser
         
         // get the type parameters
         while(node != null && node.getType() == JavaTokenTypes.TYPE_ARGUMENT) {
-            GenType tparType = getType(node.getFirstChild());
+            AST childNode = node.getFirstChild();
+            GenType tparType;
+            
+            if (childNode.getType() == JavaTokenTypes.WILDCARD_TYPE) {
+                // wildcard parameter
+                AST boundNode = childNode.getNextSibling();
+                int boundType = boundNode.getType();
+                
+                // it's either an upper or lower bound
+                if (boundType == JavaTokenTypes.TYPE_UPPER_BOUNDS) {
+                    tparType = new GenTypeExtends(getType(boundNode.getFirstChild()));
+                }
+                else if (boundType == JavaTokenTypes.TYPE_LOWER_BOUNDS) {
+                    tparType = new GenTypeSuper(getType(boundNode.getFirstChild()));
+                }
+                else
+                    throw new RecognitionException();
+            }
+            else {
+                // "solid" parameter
+                tparType = getType(node.getFirstChild());
+            }
             params.add(tparType);
             node = node.getNextSibling();
         }
@@ -882,17 +907,17 @@ public class TextParser
      * @throws SemanticException
      * @throws RecognitionException
      */
-    GenType getInnerType(AST node, Reflective outer) throws SemanticException, RecognitionException
+    GenType getInnerType(AST node, GenTypeClass outer) throws SemanticException, RecognitionException
     {
         if (node.getType() == JavaTokenTypes.IDENT) {
             // A simple name<params> expression
             List params = getTParams(node.getFirstChild());
             
-            String name = outer.getName() + '$' + node.getText();
+            String name = outer.rawName() + '$' + node.getText();
             try {
                 Class theClass = classLoader.loadClass(name);
                 Reflective r = new JavaReflective(theClass);
-                return new GenTypeClass(r, params);
+                return new GenTypeClass(r, params, outer);
             }
             catch (ClassNotFoundException cnfe) {
                 throw new SemanticException();
@@ -908,7 +933,7 @@ public class TextParser
             AST classNode = packageNode.getNextSibling();
             List params = getTParams(classNode.getNextSibling());
 
-            String name = outer.getName() + '$' + dotnames + '$' + node.getText();
+            String name = outer.rawName() + '$' + dotnames + '$' + node.getText();
             try {
                 Class c = classLoader.loadClass(name);
                 Reflective r = new JavaReflective(c);
@@ -940,7 +965,7 @@ public class TextParser
             
             try {
                 Class c = loadUnqualifiedClass(nodeText);
-                return new ClassEntity(c);
+                return new TypeEntity(c);
             }
             catch (ClassNotFoundException cnfe) {
                 return new PackageEntity(nodeText);
@@ -965,22 +990,29 @@ public class TextParser
     }
     
     /**
-     * Get an entity which by context must be either a package or class.
+     * Get an entity which by context must be either a package or a (possibly
+     * generic) type.
      * *
      * @throws SemanticException
      */
-    private PackageOrClass getPackageOrClass(AST node) throws SemanticException
+    private PackageOrClass getPackageOrType(AST node) throws SemanticException, RecognitionException
     {
         // simple case first:
         if (node.getType() == JavaTokenTypes.IDENT) {
             // Treat it first as a type, then as a package.
             String nodeText = node.getText();
+            List tparams = getTParams(node.getFirstChild());
             
             try {
                 Class c = loadUnqualifiedClass(nodeText);
-                return new ClassEntity(c);
+                TypeEntity r = new TypeEntity(c);
+                r.setTypeParams(tparams);
+                return r;
             }
             catch (ClassNotFoundException cnfe) {
+                // Could not be loaded as a class, so it must be a package.
+                if (! tparams.isEmpty())
+                    throw new SemanticException();
                 return new PackageEntity(nodeText);
             }
         }
@@ -990,8 +1022,11 @@ public class TextParser
             AST firstChild = node.getFirstChild();
             AST secondChild = firstChild.getNextSibling();
             if (secondChild.getType() == JavaTokenTypes.IDENT) {
-                PackageOrClass firstpart = getPackageOrClass(firstChild);
-                return firstpart.getPackageOrClassMember(secondChild.getText());
+                List tparams = getTParams(secondChild.getFirstChild());
+                PackageOrClass firstpart = getPackageOrType(firstChild);
+
+                PackageOrClass entity = firstpart.getPackageOrClassMember(secondChild.getText());
+                entity.setTypeParams(tparams);
             }
         }
         
@@ -1109,6 +1144,8 @@ public class TextParser
         //
         // Where <object-expression> may actually be a type (ie. invoking
         // a static method).
+        // TODO getClass() is a special case, it should return Class<? extends
+        // basetype>
         
         JavaUtils jutils = JavaUtils.getJavaUtils();
         
@@ -1446,8 +1483,8 @@ public class TextParser
                     
                     // now evaluate the qualified new in the context of the type
                     // of the expression
-                    if (fpType instanceof GenTypeClass) {
-                        GenType type = getInnerType(secondDotArg.getFirstChild(), ((GenTypeClass)fpType).getReflective());
+                    if (fpType.asClass() != null) {
+                        GenType type = getInnerType(secondDotArg.getFirstChild(), fpType.asClass());
                         return new ExprValue(type);
                     }
                     
@@ -1838,11 +1875,11 @@ public class TextParser
      */
     abstract class Entity
     {
-        static final int ENTITY_PACKAGE = 0;
-        static final int ENTITY_CLASS = 1;
-        static final int ENTITY_VALUE = 2;
+        //static final int ENTITY_PACKAGE = 0;
+        //static final int ENTITY_CLASS = 1;
+        //static final int ENTITY_VALUE = 2;
         
-        abstract int entityType();
+        // abstract int entityType();
         
         // getType throws SemanticException if the entity doesn't have an
         // assosciated type (for instance a package)
@@ -1855,6 +1892,8 @@ public class TextParser
     {
         // same as getSubentity, but cannot yield a value
         abstract PackageOrClass getPackageOrClassMember(String name) throws SemanticException;
+        
+        abstract void setTypeParams(List tparams) throws SemanticException;
     }
     
     class PackageEntity extends PackageOrClass
@@ -1866,13 +1905,14 @@ public class TextParser
             packageName = pname;
         }
         
-        int entityType()
-        {
-            return ENTITY_PACKAGE;
-        }
-        
         GenType getType() throws SemanticException
         {
+            throw new SemanticException();
+        }
+        
+        void setTypeParams(List tparams) throws SemanticException
+        {
+            // a package cannot be parameterized!
             throw new SemanticException();
         }
         
@@ -1881,7 +1921,7 @@ public class TextParser
             Class c;
             try {
                 c = classLoader.loadClass(packageName + '.' + name);
-                return new ClassEntity(c);
+                return new TypeEntity(c);
             }
             catch (ClassNotFoundException cnfe) {
                 return new PackageEntity(packageName + '.' + name);
@@ -1899,23 +1939,38 @@ public class TextParser
         }
     }
     
-    class ClassEntity extends PackageOrClass
+    class TypeEntity extends PackageOrClass
     {
         Class thisClass;
+        List tparams;
+        GenTypeClass outer;
         
-        ClassEntity(Class c)
+        TypeEntity(Class c)
         {
             thisClass = c;
+            tparams = Collections.EMPTY_LIST;
         }
         
-        int entityType()
+        TypeEntity(Class c, GenTypeClass outer)
         {
-            return ENTITY_CLASS;
+            thisClass = c;
+            this.outer = outer;
+            tparams = Collections.EMPTY_LIST;
+        }
+
+        void setTypeParams(List tparams) throws SemanticException
+        {
+            this.tparams = tparams;
+        }
+
+        GenType getType()
+        {
+            return getClassType();
         }
         
-        GenType getType() throws SemanticException
+        GenTypeClass getClassType()
         {
-            return new GenTypeClass(new JavaReflective(thisClass));
+            return new GenTypeClass(new JavaReflective(thisClass), tparams, outer);
         }
         
         Entity getSubentity(String name) throws SemanticException
@@ -1926,6 +1981,9 @@ public class TextParser
             try {
                 f = thisClass.getField(name);
                 GenType fieldType = JavaUtils.getJavaUtils().getFieldType(f);
+                Map tparmap = getClassType().getMap();
+                if (tparmap != null)
+                    fieldType.mapTparsToTypes(tparmap);
                 return new ValueEntity(fieldType);
             }
             catch (NoSuchFieldException nsfe) {}
@@ -1940,7 +1998,7 @@ public class TextParser
             Class c;
             try {
                 c = classLoader.loadClass(thisClass.getName() + '$' + name);
-                return new ClassEntity(c);
+                return new TypeEntity(c, (GenTypeClass) getType());
             }
             catch (ClassNotFoundException cnfe) {
                 // No more options - it must be an error
@@ -1956,11 +2014,6 @@ public class TextParser
         ValueEntity(GenType type)
         {
             this.type = type;
-        }
-        
-        int entityType()
-        {
-            return ENTITY_VALUE;
         }
         
         GenType getType()

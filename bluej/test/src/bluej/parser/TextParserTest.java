@@ -8,7 +8,7 @@ import bluej.debugmgr.texteval.TextParser;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 3326 2005-02-28 21:50:06Z davmac $
+ * @version $Id: TextParserTest.java 3327 2005-03-03 01:10:45Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -63,8 +63,8 @@ public class TextParserTest extends TestCase
         ObjectBench ob = new ObjectBench();
         TextParser tp = new TextParser(getClass().getClassLoader(), "", ob);
         String r = tp.parseCommand("javax.swing.Box.new Filler()");
-        assertEquals("javax.swing.Box$Filler", r);
-    }
+        assertEquals("javax.swing.Box.Filler", r);
+    } 
     
     public void testCastToWildcard()
     {
