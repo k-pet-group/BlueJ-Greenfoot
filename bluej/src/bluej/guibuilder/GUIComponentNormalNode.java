@@ -1,4 +1,4 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 /**
  * This interface should be used byte all subclasses of java.awt.Container.

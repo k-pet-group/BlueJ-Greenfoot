@@ -1,4 +1,4 @@
-package javablue.gui;
+package bluej.guibuilder.graphics;
 
 import java.awt.*;
 import java.util.Enumeration;

@@ -1,9 +1,9 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 import java.awt.*;
 import java.awt.event.*;
-import javablue.GUIGraphics.Separator;
-import javablue.GUIGraphics.IntegerField;
+import bluej.guibuilder.graphics.Separator;
+import bluej.guibuilder.graphics.IntegerField;
 import java.util.Vector;
 
 

@@ -1,13 +1,13 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.util.Vector;
-import javablue.pkgmgr.*;
-import javablue.editor.*;
-import javablue.editor.red.*;
+import bluej.pkgmgr.*;
+import bluej.editor.*;
+import bluej.editor.red.*;
 
 
 /**
@@ -226,7 +226,7 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
      *
      * @param component The GUIComponent to be added to the container.
      *
-     * @see javablue.GUIComponentLayoutNode@addGUIComponent(GUIComponent component)
+     * @see bluej.GUIComponentLayoutNode@addGUIComponent(GUIComponent component)
      */
     public void add(GUIComponent component)
     {
@@ -243,7 +243,7 @@ class GUIFrame extends Frame implements GUIComponentNormalNode
      * @param component The GUIComponent to be added to the container.
      * @param constraints The constraints to be used.
      *
-     * @see javablue.GUIComponentLayoutNode@addGUIComponent(GUIComponent component, Object constraints)
+     * @see bluej.GUIComponentLayoutNode@addGUIComponent(GUIComponent component, Object constraints)
      */
     public void add(GUIComponent component, Object constraints)
     {

@@ -1,8 +1,8 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 import java.awt.*;
 import java.awt.event.*;
-import javablue.GUIGraphics.IntegerField;
+import bluej.guibuilder.graphics.IntegerField;
 
 
 /**

@@ -1,4 +1,4 @@
-package javablue.gui;
+package bluej.guibuilder.graphics;
 
 /**
  * Constants for Etching.

@@ -1,4 +1,4 @@
-package javablue.gui;
+package bluej.guibuilder.graphics;
 
 /**
  * A simple assertion mechanism for asserting validity of

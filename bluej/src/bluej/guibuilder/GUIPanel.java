@@ -1,4 +1,4 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 import java.awt.*;
 import java.util.Vector;
@@ -178,7 +178,7 @@ class GUIPanel extends Panel implements GUIComponentNormalNode
      *
      * @param component The GUIComponent to be added to the container.
      *
-     * @see javablue.GUIComponentLayoutNode@addGUIComponent(GUIComponent component)
+     * @see bluej.GUIComponentLayoutNode@addGUIComponent(GUIComponent component)
      */
     public void add(GUIComponent component)
     {
@@ -195,7 +195,7 @@ class GUIPanel extends Panel implements GUIComponentNormalNode
      * @param component The GUIComponent to be added to the container.
      * @param constraints The constraints to be used.
      *
-     * @see javablue.GUIComponentLayoutNode@addGUIComponent(GUIComponent component, Object constraints)
+     * @see bluej.guibuilder.GUIComponentLayoutNode@addGUIComponent(GUIComponent component, Object constraints)
      */
     public void add(GUIComponent component, Object constraints)
     {

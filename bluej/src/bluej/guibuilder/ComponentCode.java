@@ -1,4 +1,4 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 import java.io.BufferedReader;
 import java.io.StringReader;

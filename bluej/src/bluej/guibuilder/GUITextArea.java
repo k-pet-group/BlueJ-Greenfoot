@@ -1,4 +1,4 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 import java.awt.*;
 import java.util.Vector;
@@ -262,7 +262,7 @@ class GUITextArea extends TextArea implements GUIComponentLeaf
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see javablue.GUITextAreaPropertyDialog
+     * @see bluej.GUITextAreaPropertyDialog
      */
     public void showPropertiesDialog()
     {

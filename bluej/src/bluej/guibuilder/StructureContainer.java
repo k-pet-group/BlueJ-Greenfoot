@@ -1,4 +1,4 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 import java.awt.Window;
 import java.awt.Dimension;
@@ -7,9 +7,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 
-import javablue.pkgmgr.*;
-import javablue.editor.*;
-import javablue.editor.red.*;
+import bluej.pkgmgr.*;
+import bluej.editor.*;
+import bluej.editor.moe.*;
 
 
 /**

@@ -1,4 +1,4 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 import java.util.Vector;
 import java.io.Serializable;

@@ -1,11 +1,11 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.io.Serializable;
-import javablue.GUIGraphics.*;
+import bluej.guibuilder.graphics.*;
 
 /**
  * A custom component representing a menu bar.

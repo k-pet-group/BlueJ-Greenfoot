@@ -1,10 +1,10 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Vector;
 import java.util.Enumeration;
-import javablue.GUIGraphics.*;
+import bluej.guibuilder.graphics.*;
 
 
 /**

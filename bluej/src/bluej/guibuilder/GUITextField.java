@@ -1,4 +1,4 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 import java.awt.*;
 import java.util.Vector;
@@ -242,7 +242,7 @@ class GUITextField extends TextField implements GUIComponentLeaf
      * Shows the property dialog of this component. This method will not return until the
      * dialog is closed.
      *
-     * @see javablue.GUITextFieldPropertyDialog
+     * @see bluej.GUITextFieldPropertyDialog
      */
     public void showPropertiesDialog()
     {

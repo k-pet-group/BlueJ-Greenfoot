@@ -1,4 +1,4 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 /**
  *  This interface is used by all classes that can contain GUIComponents

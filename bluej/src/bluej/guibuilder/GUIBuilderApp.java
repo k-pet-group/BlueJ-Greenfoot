@@ -1,11 +1,11 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 import java.awt.*;
 import java.awt.event.*;
-import javablue.GUIGraphics.*;
 import java.io.*;
 import java.util.Vector;
-import javablue.pkgmgr.*;
+import bluej.guibuilder.graphics.*;
+import bluej.pkgmgr.Package;
 
 /**
  * This is the main class for the GUI-Builder application. Instantiate this

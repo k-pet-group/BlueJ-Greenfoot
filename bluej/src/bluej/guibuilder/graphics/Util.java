@@ -1,4 +1,4 @@
-package javablue.gui;
+package bluej.guibuilder.graphics;
 
 import java.applet.Applet;
 import java.awt.*;

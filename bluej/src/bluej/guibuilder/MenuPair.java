@@ -1,4 +1,4 @@
-package javablue.GUIBuilder;
+package bluej.guibuilder;
 
 /**
  * This class is used to group a GUIMenuComponent and a string representation
