@@ -1,55 +1,45 @@
 package bluej.extmgr;
 
-import bluej.Config;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.utility.DialogManager;
-
-import java.util.List;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.*;
-import javax.swing.ImageIcon;
+import bluej.*;
+import bluej.utility.*;
 import java.awt.*;
+import java.awt.event.*;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.table.*;
 
 /**
- *  The Extensions Manager help panel allows the user to view current
- *  extensions.
+ *  The Extensions Manager help panel allows the user to view current  extensions.
  *
- * @version    $Id: HelpDialog.java 1709 2003-03-20 09:15:51Z damiano $
+ * @version    $Id: HelpDialog.java 1866 2003-04-17 10:33:24Z damiano $
  */
-public class HelpDialog extends JDialog implements ActionListener
+
+ /*
+  * Author Clive Millaer, University of Kent at Canterbury, 2002
+  * Author Damiano Bolla, University of Kent at Canterbury, 2003
+  */
+  
+public class HelpDialog implements ActionListener
 {
     private final String installedString = Config.getString("extmgr.installed");
     private final String projectString = Config.getString("extmgr.project");
     private final ImageIcon infoIcon = Config.getImageAsIcon("image.extmgr.info");
 
+    private JDialog          mainFrame;
     private HelpDetailDialog detailDialog;
-    private JButton closeButton;
+    private JButton          closeButton;
+    private JTable           extensionsTable;
     private ExtensionsTableModel extensionsTableModel;
-    private JTable extensionsTable;
-
+    private ExtensionsManager extMgr;
 
     /**
      * Setup the UI for the dialog and event handlers for the dialog's buttons.
-     * I cannot manage to get the ExtensionsManager passed, yet....
-     * This means, basically, that we are NEVER shure if all is ready when we are called...
-     *  
-     * @param  parent  Description of the Parameter
+     * This new version is guaranetee to have a valid extension manager.
      */
-    public HelpDialog(PkgMgrFrame parent)
+    HelpDialog(ExtensionsManager myManager, JFrame parent)
     {
-        super(parent, Config.getString("extmgr.title"), true);
-
+        extMgr = myManager;
+    
         extensionsTable = getExtensionTable();
         JScrollPane extensionsPane = new JScrollPane(extensionsTable);
 
@@ -58,43 +48,39 @@ public class HelpDialog extends JDialog implements ActionListener
         closeButton.addActionListener(this);
         buttonPanel.add(closeButton);
 
-        JPanel rootPane = (JPanel) getContentPane();
+
+        mainFrame = new JDialog(parent, Config.getString("extmgr.title"), true);
+        JPanel rootPane = (JPanel)mainFrame.getContentPane();
         rootPane.setLayout(new BorderLayout());
         rootPane.setBorder(Config.dialogBorder);
 
         rootPane.add(extensionsPane, BorderLayout.CENTER);
         rootPane.add(buttonPanel, BorderLayout.SOUTH);
-        DialogManager.centreDialog(this);
+        DialogManager.centreDialog(mainFrame);
 
         // save position when window is moved
-        addComponentListener(
+        mainFrame.addComponentListener(
             new ComponentAdapter()
             {
                 public void componentMoved(ComponentEvent event)
                 {
-                    Config.putLocation("bluej.extmgr.helpdialog", getLocation());
+                    Config.putLocation("bluej.extmgr.helpdialog", mainFrame.getLocation());
                 }
             });
 
-        setLocation(Config.getLocation("bluej.extmgr.helpdialog"));
-        pack();
-        setVisible(true);
+        mainFrame.setLocation(Config.getLocation("bluej.extmgr.helpdialog"));
+        mainFrame.pack();
+        mainFrame.setVisible(true);
     }
 
 
     /**
-     *  Just to manage the close button
-     *
-     * @param  evt  Description of the Parameter
+     *  Just to manage the close button.
      */
     public void actionPerformed(ActionEvent evt)
     {
-        Object src = evt.getSource();
-        if (src == null)
-            return;
-
-        if (src == closeButton)
-            hide();
+        // We really want all of this to go away, really, not just hiding it !
+        mainFrame.dispose();
     }
 
 
@@ -103,17 +89,18 @@ public class HelpDialog extends JDialog implements ActionListener
      */
     private void showDetails()
     {
-        if (detailDialog == null)
-            detailDialog = new HelpDetailDialog(ExtensionsManager.getExtMgr(),this);
+        // If no detail dialog is created then make it...
+        if ( detailDialog == null ) detailDialog = new HelpDetailDialog(mainFrame);
 
         int selectedColumn = extensionsTable.getSelectedColumn();
 
         // We want the user to click on the ICON !!!
-        if (selectedColumn != 0)
-            return;
+        if (selectedColumn != 0) return;
 
-        detailDialog.updateInfo(extensionsTable.getSelectedRow());
-        detailDialog.setVisible(true);
+        ExtensionWrapper aWrapper = getWrapper(extensionsTable.getSelectedRow());
+        if ( aWrapper == null ) return;
+        
+        detailDialog.updateInfo(aWrapper);
     }
 
 
@@ -145,6 +132,24 @@ public class HelpDialog extends JDialog implements ActionListener
 
 
     /**
+     *  Gets the wrapper attribute of the ExtensionsTableModel object
+     *
+     * @param  index  Description of the Parameter
+     * @return        The wrapper value
+     */
+    private ExtensionWrapper getWrapper(int index)
+    {
+        // Every time I am called I reload this ?
+        List exts = extMgr.getExtensions();
+
+        // of ExtensionWrapper
+        if (index > exts.size()) return null;
+
+        return (ExtensionWrapper) exts.get(index);
+    }
+
+
+    /**
      *  When a mouse is clicked I come here Maybe I can do it with the selected,
      *  it may be easier... next release ?
      */
@@ -157,8 +162,7 @@ public class HelpDialog extends JDialog implements ActionListener
          */
         public void mouseClicked(MouseEvent e)
         {
-            if (e.getClickCount() == 1)
-                showDetails();
+            if (e.getClickCount() == 1)  showDetails();
         }
     }
 
@@ -167,7 +171,7 @@ public class HelpDialog extends JDialog implements ActionListener
      *  This models the data of the table. Basically the JTable ask this class
      *  about the data to be displayed on the screen
      */
-    private class ExtensionsTableModel extends AbstractTableModel
+    class ExtensionsTableModel extends AbstractTableModel
     {
         // It does not matter very much if it is not static, it is created once only
         private String columnNames[] = {
@@ -179,20 +183,16 @@ public class HelpDialog extends JDialog implements ActionListener
 
 
         /**
-         *  Gets the rowCount attribute of the ExtensionsTableModel object
-         *
-         * @return    The rowCount value
+         *  Returns the rowCount attribute of the ExtensionsTableModel object
          */
         public int getRowCount()
         {
-            return getExtensions().size();
+            return extMgr.getExtensions().size();
         }
 
 
         /**
-         *  Gets the columnCount attribute of the ExtensionsTableModel object
-         *
-         * @return    The columnCount value
+         * Returns the columnCount attribute of the ExtensionsTableModel object
          */
         public int getColumnCount()
         {
@@ -274,33 +274,6 @@ public class HelpDialog extends JDialog implements ActionListener
         }
 
 
-        /**
-         *  Gets the wrapper attribute of the ExtensionsTableModel object
-         *
-         * @param  index  Description of the Parameter
-         * @return        The wrapper value
-         */
-        private ExtensionWrapper getWrapper(int index)
-        {
-            // Every time I am called I reload this ?
-            List exts = getExtensions();
-            // of ExtensionWrapper
-            if (index > exts.size())
-                return null;
 
-            return (ExtensionWrapper) exts.get(index);
-        }
-
-
-        /**
-         *  Gets the extensions attribute of the ExtensionsTableModel object
-         *
-         * @return    The extensions value
-         */
-        private List getExtensions()
-        {
-            // Just wondering if there is a thread sync issue here
-            return ExtensionsManager.getExtMgr().getExtensions();
-        }
     }
 }

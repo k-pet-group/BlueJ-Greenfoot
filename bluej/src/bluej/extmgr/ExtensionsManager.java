@@ -1,22 +1,14 @@
 package bluej.extmgr;
 
+import bluej.*;
+import bluej.debugger.*;
 import bluej.extensions.event.*;
-
-import bluej.BlueJEvent;
-import bluej.BlueJEventListener;
-import bluej.Config;
-import bluej.utility.Debug;
-import bluej.debugger.ExecutionEvent;
+import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Project;
-
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.io.File;
+import bluej.utility.*;
+import java.io.*;
+import java.util.*;
+import javax.swing.*;
 
 /**
  *  Manages extensions and provides the main interface to PkgMgrFrame.
@@ -172,6 +164,15 @@ public class ExtensionsManager implements BlueJEventListener
         return false;
     }
 
+    /**
+     * Ask for extension manager to show the help dialog for extensions.
+     * This is here to be shure that the help dialog is called when extension manager is valid.
+     */
+    public void showHelp ( JFrame parentFrame )
+      {
+      // It should be constructed and then destroyed, since it is associated with a frame...
+      HelpDialog aHelp = new HelpDialog ( this, parentFrame );
+      }
 
     /**
      *  Searches for and loads any new extensions found in the project.
@@ -179,6 +180,7 @@ public class ExtensionsManager implements BlueJEventListener
     public void projectOpening( Project project )
     {
         File exts = new File(project.getProjectDir(), "extensions");
+//        Debug.message("loading from="+exts);
         loadAllExtensions(exts, project);
     }
 
@@ -355,15 +357,12 @@ public class ExtensionsManager implements BlueJEventListener
         return argsList;
     }
 
-
     /**
-     *  Returns an unmodifiable list of extensions.
-     *
-     * @return    an unmodifiable list of the Extensions, but the elements
-     *      themselves are not protected.
+     * Returns the list of extensions.
+     * It should be used only within the extmgr package.
      */
-    public synchronized List getExtensions()
+    synchronized List getExtensions()
     {
-        return Collections.unmodifiableList(extensions);
+        return extensions;
     }
 }

@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1860 2003-04-16 13:28:58Z mik $
+ * @version $Id: PkgMgrFrame.java 1866 2003-04-17 10:33:24Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2196,7 +2196,7 @@ public class PkgMgrFrame extends JFrame
                            });
             createMenuItem("menu.help.extensions", menu, 0, 0, false,
                            new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); new HelpDialog(frame); }
+                               public void actionPerformed(ActionEvent e) { menuCall(); extMgr.showHelp(frame); }
                            });
             createMenuItem("menu.help.copyright", menu, 0, 0, false, 
                            new ActionListener() {

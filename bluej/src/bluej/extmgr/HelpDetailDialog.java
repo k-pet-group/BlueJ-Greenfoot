@@ -1,23 +1,11 @@
 package bluej.extmgr;
 
-import bluej.Config;
-import bluej.utility.Utility;
-
-import java.util.List;
-import java.net.URL;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import bluej.*;
+import bluej.utility.*;
 import java.awt.*;
+import java.awt.event.*;
+import java.net.*;
+import javax.swing.*;
 
 /**
  *  This class can display info on a particular extension. It is not really
@@ -45,18 +33,12 @@ class HelpDetailDialog extends JDialog implements ActionListener
     private URL url;
     private JButton closeButton;
 
-    private ExtensionsManager extensionsManager;
-
     /**
-     *  Constructor
-     *
-     * @param  owner  Description of the Parameter
+     * Constructor
      */
-    public HelpDetailDialog(ExtensionsManager extensionsManager, Dialog owner)
+    HelpDetailDialog(Dialog owner)
     {
         super(owner, "Details");
-
-        this.extensionsManager = extensionsManager;
 
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
@@ -146,6 +128,7 @@ class HelpDetailDialog extends JDialog implements ActionListener
 
         setLocation(Config.getLocation("bluej.extmgr.helpdialog.details"));
         pack();
+        // Do not call the setVisible
     }
 
 
@@ -157,10 +140,9 @@ class HelpDetailDialog extends JDialog implements ActionListener
     public void actionPerformed(ActionEvent evt)
     {
         Object src = evt.getSource();
-        if (src == null)
-            return;
-        if (src == closeButton)
-            setVisible(false);
+        if (src == null) return;
+
+        if (src == closeButton) setVisible(false);
     }
 
 
@@ -196,19 +178,10 @@ class HelpDetailDialog extends JDialog implements ActionListener
 
 
     /**
-     *  Called with the index on what extension you want to update It would be
-     *  better if I gave the extension.... Next one ?
-     *
-     * @param  extensionIndex  Description of the Parameter
+     * When a different extension is shown you call this one.
      */
-    public void updateInfo(int extensionIndex)
+    void updateInfo(ExtensionWrapper wrapper)
     {
-        if (extensionIndex < 0) return;
-
-        List exts = extensionsManager.getExtensions();
-        ExtensionWrapper wrapper = (ExtensionWrapper) exts.get(extensionIndex);
-
-        // You never know when you get strange errors...
         if (wrapper == null) return;
 
         statusField.setText(wrapper.getExtensionStatus());
@@ -233,11 +206,12 @@ class HelpDetailDialog extends JDialog implements ActionListener
 
         validate();
         pack();
+        setVisible(true);
     }
 
 
     /**
-     *  Description of the Method
+     * Description of the Method
      */
     private void openURL()
     {

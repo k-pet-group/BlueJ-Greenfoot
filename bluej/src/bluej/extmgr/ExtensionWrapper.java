@@ -232,7 +232,7 @@ public class ExtensionWrapper
      */
     void terminate()
     {
-        Debug.message("Extension.terminate(): class="+getExtensionClassName());
+//        Debug.message("Extension.terminate(): class="+getExtensionClassName());
 
         safeTerminate();
 
