@@ -2,7 +2,6 @@ package javablue.GUIGraphics;
 
 import java.awt.*;
 import java.util.Vector;
-import javablue.GUIGraphics.*;
 
 /**
  * This class is used to group a set of ToolbarButtons together on one group.

@@ -100,7 +100,8 @@ public class GUIBuilderApp extends Frame
      */
     public void shutdown()
     {
-	System.exit(0);
+	setVisible(false);
+	dispose();
     }
 
 
