@@ -885,7 +885,7 @@ public class MainPkgMgrFrame extends PkgMgrFrame {
 		if(CmdTypes[menuType] == GRP_COMMAND)
 		    item.setEnabled(false);
 
-				// Add new Item to the Menu & associate Action to it.
+		// Add new Item to the Menu & associate Action to it.
 		menu.add(item);
 		actions.put(item, new Integer(actionId));
 
@@ -896,13 +896,17 @@ public class MainPkgMgrFrame extends PkgMgrFrame {
 			++sep;
 		    }
 	    }
+	    // Hack while "setHelpMenu" does not work...
+	    if(CmdTypes[menuType] == HELP_COMMAND)
+		menubar.add(Box.createHorizontalGlue());
+
 	    // Add the menu to the MenuBar
 	    menubar.add(menu);
 	}
 
 	if(menu != null) {
 	    // Always put help menu last
-	    //menubar.setHelpMenu(menu);
+	    //menubar.setHelpMenu(menu);  // not implemented in Swing 1.1
 	}
 
 	setJMenuBar(menubar);

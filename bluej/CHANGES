@@ -191,18 +191,6 @@ in the template for the next one):
 @cause : ?
 
 @-------
-@bug#  : 00063
-@short : fix source templates
-@prio  : 3
-@source: bruce
-@date  : 1999-03-22
-@status: open
-@fixrel: 
-@descr : source skeleton (initial and editor-inserted) should use javadoc
-	 style
-@cause : ?
-
-@-------
 @bug#  : 00021
 @short : state of read-only package must be shown
 @prio  : 3
@@ -540,6 +528,18 @@ in the template for the next one):
 =======================================================================
 
 ============================ version 0.9.1 ============================
+
+@-------
+@bug#  : 00063
+@short : fix source templates
+@prio  : 3
+@source: bruce
+@date  : 1999-03-22
+@status: closed, fixed (mik, 1999-04-27)
+@fixrel: 0.9.1
+@descr : source skeleton (initial and editor-inserted) should use javadoc
+	 style
+@cause : inconsistent original implementation
 
 @-------
 @bug#  : 00028

@@ -55,6 +55,8 @@ public final class MoeEditor extends JFrame
     public static Font printFont = new Font("Monospaced", Font.PLAIN, 
 					   Config.printFontsize);
 
+    static int SHIFT_CTRL_MASK;
+
     // suffixes for resources
     static final String LabelSuffix = "Label";
     static final String ActionSuffix = "Action";
@@ -75,7 +77,8 @@ public final class MoeEditor extends JFrame
     private DefaultStyledDocument document;
     private Hashtable actions;		// user actions
 
-    private JTextPane textPane;
+    private JTextPane textPane;		// the component holding the text
+    private Keymap keymap;		// the editor's keymap
     private Info info;			// the info number label
     private JPanel statusArea;		// the status area
     private LineNumberLabel lineCounter;	// the line number label
@@ -153,6 +156,9 @@ public final class MoeEditor extends JFrame
 	isCompiled = false;
 	newline = System.getProperty("line.separator");
 	this.isCode = isCode;
+	SHIFT_CTRL_MASK = Event.CTRL_MASK;
+	SHIFT_CTRL_MASK |= Event.SHIFT_MASK;
+
 	undoManager = new UndoManager();
 
 	initWindow(showToolbar, showLineNum);
@@ -646,6 +652,8 @@ public final class MoeEditor extends JFrame
 	public MoeAbstractAction(String name, KeyStroke keyStroke) {
 	    super(name);
 	    key = keyStroke;
+	    if(keyStroke != null)
+		keymap.addActionForKeyStroke(keyStroke, this);
 	}
 
 	final public KeyStroke getKey() {
@@ -656,36 +664,11 @@ public final class MoeEditor extends JFrame
     // === File: ===
     // --------------------------------------------------------------------
 
-    class NewAction extends MoeAbstractAction {
-
-	public NewAction() {
-	    super("new-file", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class OpenAction extends MoeAbstractAction {
-
-	public OpenAction() {
-	    super("open-file", KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.ALT_MASK));
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
-	}
-    }
-
-    // --------------------------------------------------------------------
-
     class SaveAction extends MoeAbstractAction {
 
 	public SaveAction() {
-	    super("save", KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.ALT_MASK));
+	    super("save", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -701,19 +684,6 @@ public final class MoeEditor extends JFrame
 		else
 		    save();
 	    }
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class SaveAsAction extends MoeAbstractAction {
-
-	public SaveAsAction() {
-	    super("save-as", null);
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(editor);
 	}
     }
 
@@ -751,7 +721,8 @@ public final class MoeEditor extends JFrame
     class PrintAction extends MoeAbstractAction {
 
 	public PrintAction() {
-	    super("print", KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.ALT_MASK));
+	    super("print", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -764,7 +735,8 @@ public final class MoeEditor extends JFrame
     class CloseAction extends MoeAbstractAction {
 
 	public CloseAction() {
-	    super("close", KeyStroke.getKeyStroke(KeyEvent.VK_W, Event.ALT_MASK));
+	    super("close", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_W, Event.CTRL_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -779,7 +751,8 @@ public final class MoeEditor extends JFrame
 
 	public UndoAction() 
 	{
-	    super("undo", KeyStroke.getKeyStroke(KeyEvent.VK_Z, Event.ALT_MASK));
+	    super("undo", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_Z, Event.CTRL_MASK));
 	    this.setEnabled(false);
 	}
     
@@ -814,7 +787,8 @@ public final class MoeEditor extends JFrame
 
 	public RedoAction() 
 	{
-	    super("redo", KeyStroke.getKeyStroke(KeyEvent.VK_Y, Event.ALT_MASK));
+	    super("redo", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_Y, Event.CTRL_MASK));
 	    this.setEnabled(false);
 	}
 
@@ -848,7 +822,8 @@ public final class MoeEditor extends JFrame
     class CommentAction extends MoeAbstractAction {
 
 	public CommentAction() {
-	    super("comment", KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.CTRL_MASK));
+	    super("comment", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, Event.CTRL_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -861,7 +836,8 @@ public final class MoeEditor extends JFrame
     class UncommentAction extends MoeAbstractAction {
 
 	public UncommentAction() {
-	    super("uncomment", KeyStroke.getKeyStroke(KeyEvent.VK_U, Event.CTRL_MASK));
+	    super("uncomment", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, SHIFT_CTRL_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -874,22 +850,24 @@ public final class MoeEditor extends JFrame
     class InsertMethodAction extends MoeAbstractAction {
 
 	public InsertMethodAction() {
-	    super("insert-method", KeyStroke.getKeyStroke(KeyEvent.VK_M, Event.ALT_MASK));
+	    super("insert-method", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_M, Event.CTRL_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
 	    int pos = textPane.getCaretPosition();
-	    textPane.replaceSelection("    /**\n" +
-				      "     ** An example of a method - replace this comment with your own\n" +
-				      "     ** \n" +
-				      "     ** @param  y   a sample parameter for a method \n" + 
-				      "     ** @return     the sum of x and y \n" +
-				      "     **/ \n" + 
-				      "    public int sampleMethod(int y)\n" +
-				      "    { \n" +
-				      "        // put your code here" + 
-				      "        return x + y\n;" +
-				      "    }");
+	    textPane.replaceSelection(
+		"    /**\n" +
+		"     * An example of a method - replace this comment with your own\n" +
+		"     * \n" +
+		"     * @param  y   a sample parameter for a method \n" + 
+		"     * @return     the sum of x and y \n" +
+		"     **/\n" + 
+		"    public int sampleMethod(int y)\n" +
+		"    {\n" +
+		"        // put your code here\n" + 
+		"        return x + y;\n" +
+		"    }");
 	    textPane.setCaretPosition(pos);
 	}
     }
@@ -930,7 +908,8 @@ public final class MoeEditor extends JFrame
     class FindAction extends MoeAbstractAction {
  
 	public FindAction() {
-	    super("find", KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.ALT_MASK));
+	    super("find", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK));
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -946,7 +925,8 @@ public final class MoeEditor extends JFrame
     class FindBackwardAction extends MoeAbstractAction {
 
 	public FindBackwardAction() {
-	    super("find-backward", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("find-backward", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_F, SHIFT_CTRL_MASK));
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -959,7 +939,8 @@ public final class MoeEditor extends JFrame
     class FindNextAction extends MoeAbstractAction {
 
 	public FindNextAction() {
-	    super("find-next", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("find-next", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK));
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -982,7 +963,8 @@ public final class MoeEditor extends JFrame
     class FindNextReverseAction extends MoeAbstractAction {
  
 	public FindNextReverseAction() {
-	    super("find-next-reverse", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("find-next-reverse", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_G, SHIFT_CTRL_MASK));
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -995,7 +977,8 @@ public final class MoeEditor extends JFrame
     class ReplaceAction extends MoeAbstractAction {
 
 	public ReplaceAction() {
-	    super("replace", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("replace", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_R, Event.CTRL_MASK));
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1008,7 +991,8 @@ public final class MoeEditor extends JFrame
     class GotoLineAction extends MoeAbstractAction {
 
 	public GotoLineAction() {
-	    super("goto-line", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("goto-line", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK));
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1022,7 +1006,8 @@ public final class MoeEditor extends JFrame
     class CompileAction extends MoeAbstractAction {
 
 	public CompileAction() {
-	    super("compile", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("compile", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.CTRL_MASK));
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1039,7 +1024,8 @@ public final class MoeEditor extends JFrame
     class SetBreakPointAction extends MoeAbstractAction {
 
 	public SetBreakPointAction() {
-	    super("set-breakpoint", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("set-breakpoint", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK));
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1053,7 +1039,8 @@ public final class MoeEditor extends JFrame
     class ClearBreakPointAction extends MoeAbstractAction {
  
 	public ClearBreakPointAction() {
-	    super("clear-breakpoint", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("clear-breakpoint", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_B, SHIFT_CTRL_MASK));
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1067,7 +1054,7 @@ public final class MoeEditor extends JFrame
     class StepAction extends MoeAbstractAction {
 
 	public StepAction() {
-	    super("step", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("step", null);
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1080,7 +1067,7 @@ public final class MoeEditor extends JFrame
     class StepIntoAction extends MoeAbstractAction {
  
 	public StepIntoAction() {
-	    super("step-into", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("step-into", null);
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1093,7 +1080,7 @@ public final class MoeEditor extends JFrame
     class ContinueAction extends MoeAbstractAction {
 
 	public ContinueAction() {
-	    super("continue", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("continue", null);
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1106,7 +1093,7 @@ public final class MoeEditor extends JFrame
     class TerminateAction extends MoeAbstractAction {
 
 	public TerminateAction() {
-	    super("terminate", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("terminate", null);
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1120,7 +1107,7 @@ public final class MoeEditor extends JFrame
     class PreferencesAction extends MoeAbstractAction {
  
 	public PreferencesAction() {
-	    super("preferences", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("preferences", null);
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1133,7 +1120,7 @@ public final class MoeEditor extends JFrame
     class KeyBindingsAction extends MoeAbstractAction {
  
 	public KeyBindingsAction() {
-	    super("key-bindings", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("key-bindings", null);
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1147,7 +1134,7 @@ public final class MoeEditor extends JFrame
     class AboutAction extends MoeAbstractAction {
 
 	public AboutAction() {
-	    super("help-about", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("help-about", null);
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1169,7 +1156,7 @@ public final class MoeEditor extends JFrame
     class CopyrightAction extends MoeAbstractAction {
  
 	public CopyrightAction() {
-	    super("help-copyright", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("help-copyright", null);
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1182,7 +1169,8 @@ public final class MoeEditor extends JFrame
     class DescribeKeyAction extends MoeAbstractAction {
 
 	public DescribeKeyAction() {
-	    super("help-describe-key", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("help-describe-key", 
+		  KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK));
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1195,7 +1183,7 @@ public final class MoeEditor extends JFrame
     class HelpMouseAction extends MoeAbstractAction {
 
 	public HelpMouseAction() {
-	    super("help-mouse", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("help-mouse", null);
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1208,7 +1196,7 @@ public final class MoeEditor extends JFrame
     class ShowManualAction extends MoeAbstractAction {
 
 	public ShowManualAction() {
-	    super("help-show-manual", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("help-show-manual", null);
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1221,7 +1209,7 @@ public final class MoeEditor extends JFrame
     class ReportErrorAction extends MoeAbstractAction {
 
 	public ReportErrorAction() {
-	    super("report-errors", KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.ALT_MASK));
+	    super("report-errors", null);
 	}
  
 	public void actionPerformed(ActionEvent e) {
@@ -1377,9 +1365,11 @@ public final class MoeEditor extends JFrame
 
 	Rectangle printArea = getPrintArea(pageSize);
 	Dimension textSize = textPane.getSize(null);
+	//Debug.message("text height: " + textSize.height);
 	textSize.width -= (TAG_WIDTH + 3);
 	int pages = (textSize.height + printArea.height - 1) / 
 			printArea.height;
+	//Debug.message("pages: " + pages);
 
 	int answer;
 	if(printArea.width < textSize.width-8) {
@@ -1436,6 +1426,8 @@ public final class MoeEditor extends JFrame
 
 	// ensure printHeight is multiple of font size
 	printHeight = (printHeight / fontSize) * fontSize;
+	//Debug.message("print height: " + printHeight);
+	//Debug.message("lines/page " + (printHeight / fontSize));
 
 	return new Rectangle(PRINT_HMARGIN,
 			     PRINT_VMARGIN + tfm.getHeight() + 4,
@@ -1761,6 +1753,7 @@ public final class MoeEditor extends JFrame
 	textPane.getCaret().setBlinkRate(0);
 	textPane.setSelectionColor(selectionColor);
 	textPane.setCaretColor(cursorColor);
+	keymap = textPane.getKeymap();
 
 	JScrollPane scrollPane = new JScrollPane(textPane);
 	scrollPane.setPreferredSize(new Dimension(598,400));
@@ -1808,7 +1801,7 @@ public final class MoeEditor extends JFrame
 
     private void createActionTable(JTextComponent textComponent)
     {
-	actions = new Hashtable();		    // will hold all user actions
+	actions = new Hashtable();	    // will hold all user actions
 
 	// first, create our own actions
 
@@ -1818,10 +1811,7 @@ public final class MoeEditor extends JFrame
 	Action[] myActions = {
 
 	    // class actions
-	    new NewAction(),
-	    new OpenAction(),
 	    new SaveAction(),
-	    new SaveAsAction(),
 	    new ReloadAction(),
 	    new PrintAction(),
 	    new CloseAction(),
@@ -1870,8 +1860,9 @@ public final class MoeEditor extends JFrame
 	// now, get the actions already defined in the editor and merge them
 	// with our own actions
 
-	Action[] allActions = TextAction.augmentList(textComponent.getActions(),
-						     myActions);
+	Action[] allActions = TextAction.augmentList(
+					     textComponent.getActions(),
+					     myActions);
 
 	// next, enter all those actions into our hash table
 
@@ -1884,9 +1875,8 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Create the table of action supported by this editor
+     * Return an action with a given name.
      */
-
     private Action getActionByName(String name)
     {
 	return (Action)(actions.get(name));
@@ -1894,6 +1884,9 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
 
+    /**
+     * Create the editor's menu bar.
+     */
     private JMenuBar createMenuBar()
     {
 	JMenuBar menubar = new JMenuBar();
@@ -1902,31 +1895,45 @@ public final class MoeEditor extends JFrame
 	String[] menuKeys = tokenize(getResource("menubar"));
 	for (int i=0; i<menuKeys.length; i++) {
 	    menu = createMenu(menuKeys[i]);
-	    if (menu != null)
+	    if (menu != null) {
+		// Hack while "setHelpMenu" does not work...
+		if(menuKeys[i].equals("help"))
+		    menubar.add(Box.createHorizontalGlue());
 		menubar.add(menu);
+	    }
 	}
 	if (menu != null) {
 	    // Always put help menu last
-	    //menubar.setHelpMenu(menu);
+	    //menubar.setHelpMenu(menu);  // not implemented in Swing 1.1
 	}
 	return menubar;
     }
 
     // --------------------------------------------------------------------
 
+    /**
+     * Create a single menu for the editor's menu bar. The key for the menu
+     * (as defined in moe.properties) is supplied.
+     */
     private JMenu createMenu(String key)
     {
 	JMenuItem item;
 	String label;
-	Keymap kmap = textPane.getKeymap();
 
+	// get menu title
 	JMenu menu = new JMenu(getResource(key + LabelSuffix));
+
+	// get menu definition
 	String itemString = getResource(key);
 	if (itemString == null) {
 	    Debug.message ("Moe: cannot find menu definition for " + key);
 	    return null;
 	}
+
+	// cut menu definition into separate items
 	String[] itemKeys = tokenize(itemString);
+
+	// create menu item for each item
 	for (int i=0; i<itemKeys.length; i++) {
 	    if (itemKeys[i].equals("-"))
 		menu.addSeparator();
@@ -1939,11 +1946,9 @@ public final class MoeEditor extends JFrame
 		    label = getResource(itemKeys[i] + LabelSuffix);
 		    if (label != null)
 			item.setText(label);
-		    KeyStroke[] keys = kmap.getKeyStrokesForAction(action);
-		    if (keys != null) { // keys.length > 0) 
-			Debug.message ("key accel found");
+		    KeyStroke[] keys = keymap.getKeyStrokesForAction(action);
+		    if (keys != null && keys.length > 0) 
 			item.setAccelerator(keys[0]);
-		    }
 		}
 	    }
 	}

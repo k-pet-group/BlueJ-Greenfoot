@@ -80,7 +80,6 @@ bluej.fontsize.printInfo=10
 
 ## debugging: when on, debug output goes to console; when off, to log file
 debug=on
-#debug=off
 
 ##Log Files
 bluej.debugLog=debug.log

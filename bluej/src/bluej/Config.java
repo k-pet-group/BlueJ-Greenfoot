@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 45 1999-04-28 01:01:18Z mik $
+ ** @version $Id: Config.java 52 1999-04-29 07:53:02Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -119,6 +119,7 @@ public class Config
 		PrintStream outStream = 
 		    new PrintStream(new FileOutputStream(debugLogFileName));
 		System.setOut(outStream);
+		System.setErr(outStream);
 		Debug.message("BlueJ " + Version);
 	    } catch (IOException e) {
 		Utility.reportError("Warning: Unable to create debug log file.");

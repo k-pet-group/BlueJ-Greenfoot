@@ -1,24 +1,24 @@
-#JavaBlue project file
-#Sun Apr 18 23:44:21 EDT 1999
+#BlueJ project file
+#Wed Apr 28 03:22:03 EDT 1999
 target2.width=80
 target4.y=10
 target4.x=260
 target1.modifiers=0
 target5.width=80
 target2.height=50
-target2.name=Student
+target2.name=Database
 target5.type=ClassTarget
 target5.height=50
-target2.modifiers=0
-target2.y=180
-target2.x=200
+target2.modifiers=1
+target2.y=20
+target2.x=20
 dependency4.from=Staff
 dependency4.to=Person
 dependency2.to=Database
 dependency3.from=Student
 package.window.height=450
-target3.modifiers=1
-target3.name=Database
+target3.modifiers=0
+target3.name=Student
 dependency2.from=tester
 target4.modifiers=1
 dependency1.from=Database
@@ -32,9 +32,9 @@ target5.x=150
 target4.width=80
 target5.name=Person
 target3.width=80
-target3.y=20
+target3.y=180
 target2.type=ClassTarget
-target3.x=20
+target3.x=200
 target3.height=50
 target1.y=180
 package.numDependencies=4
