@@ -1,0 +1,82 @@
+<project name="myextensions" default="jarred" basedir=".">
+
+    <!-- set global properties for this build -->
+    <!-- the first four are the only values you should need to change -->
+    <property name="bluej_home" value="D:\bluejdev\bluej" />
+    <property name="java_home" value="D:\jdk131" />
+    <property name="test_home" value="D:\bluejtest" />
+    <property name="output_jar" value="submission24.jar" />
+
+    <property name="build.compiler" value="modern" />
+    <!-- property name="build.compiler" value="jikes" /-->
+    <!-- property name="build.compiler.fulldepend" value="yes" /-->
+    <!-- property name="build.compiler.emacs" value="yes" /-->
+
+    <!-- set up common directories -->
+    <property name="src" value="src" />
+    <property name="build" value="classes" />
+    <property name="lib" value="lib" />
+    <property name="doc" value="doc" />
+
+    <!-- set up classpath -->
+    <path id="bluej.class.path">
+        <pathelement location="${bluej_home}/lib/antlrall.jar"/>
+        <!--pathelement location="${bluej_home}/lib/jcvsii.jar" /-->
+        <pathelement location="${bluej_home}/lib/junit.jar" />
+        <pathelement location="${bluej_home}/lib/MRJToolkitStubs.zip"/>
+        <pathelement location="${bluej_home}/lib/bluejext.jar"/>
+        <pathelement location="${java_home}/lib/tools.jar"/>
+    </path>
+
+
+    <target name="prepare">
+        <!-- Create the time stamp -->
+        <tstamp/>
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${build}" />
+    </target>
+
+    <target name="compile" depends="prepare">
+        <!-- depend srcdir="${src}"
+                destdir="${build}"
+                cache="depcache"
+                closure="no" -->
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src}"
+            destdir="${build}"
+            deprecation = "yes"
+            debug = "yes">
+            <classpath refid="bluej.class.path" />
+        </javac>
+    </target>
+
+    <target name="jarred" depends="compile">
+        <!-- jar up all the classes -->
+        <jar jarfile="${bluej_home}/lib/extensions/${output_jar}" compress="no" >
+            <fileset dir="${build}" />
+            <fileset dir="." includes="${lib}/**" />
+            <manifest>
+                <attribute name="Main-Class" value="org.bluej.extensions.submitter.Submitter"/>
+                <attribute name="Built-By" value="${user.name}"/>
+             </manifest>
+        </jar>
+    </target>
+
+    <target name="doc">
+        <!-- Doc the java code from ${src} into ${doc} -->
+        <mkdir dir="${doc}"/>
+        <javadoc destdir="${doc}"
+            packagenames="org.bluej.extensions.submitter.*"
+            sourcepath="${src}"
+            private="yes">
+            <classpath refid="bluej.class.path" />
+       </javadoc>
+    </target>
+
+    <target name="clean">
+        <!-- Delete the ${build} directory trees -->
+        <delete dir="${build}" />
+        <delete file="${bluej_home}/lib/extensions/${output_jar}" />
+    </target>
+
+</project>
