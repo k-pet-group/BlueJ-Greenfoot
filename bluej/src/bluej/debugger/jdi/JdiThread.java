@@ -4,16 +4,19 @@ import java.util.*;
 
 import bluej.Config;
 import bluej.debugger.*;
-import bluej.utility.*;
+import bluej.debugger.gentype.GenType;
+import bluej.utility.Debug;
+import bluej.utility.JavaNames;
 
 import com.sun.jdi.*;
-import com.sun.jdi.request.*;
+import com.sun.jdi.request.EventRequestManager;
+import com.sun.jdi.request.StepRequest;
 
 /**
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2115 2003-07-16 05:02:43Z ajp $
+ * @version $Id: JdiThread.java 2766 2004-07-09 04:22:27Z davmac $
  */
 class JdiThread extends DebuggerThread
 {
@@ -322,11 +325,12 @@ class JdiThread extends DebuggerThread
 
                 for(int i = 0; i < vars.size(); i++) {
                     LocalVariable var = (LocalVariable)vars.get(i);
-                    String val = JdiObject.getValueString(
-                                                          frame.getValue(var));
-                    localVars.add(JavaNames.stripPrefix(var.typeName()) +
-                                  " " + var.name() + " = " + val);
 
+                    // Add "type name = value" to the list
+                    GenType vartype = JdiReflective.fromLocalVar(frame, var);
+                    String val = JdiObject.getValueString(frame.getValue(var));
+                    localVars.add(vartype.toString(true) + " " + var.name()
+                            + " = " + val);
                 }
                 return localVars;
             }
@@ -371,8 +375,9 @@ class JdiThread extends DebuggerThread
                 StackFrame frame = rt.frame(frameNo);
                 List vars = frame.visibleVariables();
                 LocalVariable var = (LocalVariable)vars.get(index);
+                GenType vartype = JdiReflective.fromLocalVar(frame, var);
                 ObjectReference val = (ObjectReference)frame.getValue(var);
-                return JdiObject.getDebuggerObject(val);
+                return JdiObject.getDebuggerObject(val, vartype);
             }
             else
                 return null;

@@ -12,7 +12,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  *  
  * @author Davin McCall
- * @version $Id: JdiReflective.java 2763 2004-07-08 11:48:32Z polle $
+ * @version $Id: JdiReflective.java 2766 2004-07-09 04:22:27Z davmac $
  */
 public class JdiReflective extends Reflective {
 
@@ -72,7 +72,7 @@ public class JdiReflective extends Reflective {
         if( rclass == null ) {
             rclass = findClass(name, sourceLoader, sourceVM);
             if( rclass == null )
-                Debug.message("Attemp to use unloaded type: " + name);
+                Debug.message("Attempt to use unloaded type: " + name);
             name = null;
             sourceLoader = null;
             sourceVM = null;
@@ -301,13 +301,22 @@ public class JdiReflective extends Reflective {
         }
         if( c == '+' ) {
             // ? extends ...
-            GenTypeSolid t = (GenTypeSolid)fromSignature(i, tparams, parent);
-            return new GenTypeExtends(t);
+            // The bound must be a solid, but it's possible that tparams map
+            // a type parameter (solid) to a wildcard (non-solid).
+            GenTypeSolid t = (GenTypeSolid)fromSignature(i, null, parent);
+            if(tparams != null)
+                return new GenTypeExtends(t).mapTparsToTypes(tparams);
+            else
+                return new GenTypeExtends(t);
         }
         if( c == '-' ) {
             // ? super ...
-            GenTypeSolid t = (GenTypeSolid)fromSignature(i, tparams, parent);
-            return new GenTypeSuper(t);
+            // Likewise as for extends.
+            GenTypeSolid t = (GenTypeSolid)fromSignature(i, null, parent);
+            if(tparams != null)
+                return new GenTypeSuper(t).mapTparsToTypes(tparams);
+            else
+                return new GenTypeSuper(t);
         }
         if( c == '[' ) {
             // array
@@ -383,6 +392,37 @@ public class JdiReflective extends Reflective {
         return new GenTypeClass(reflective, params);
     }
 
+    private static GenType getNonGenericType(String typeName, Type t, ClassLoaderReference clr, VirtualMachine vm)
+    {
+        if( t instanceof BooleanType )
+            return new GenTypeBool();
+        else if( t instanceof ByteType )
+            return new GenTypeByte();
+        else if( t instanceof CharType )
+            return new GenTypeChar();
+        else if( t instanceof DoubleType )
+            return new GenTypeDouble();
+        else if( t instanceof FloatType )
+            return new GenTypeFloat();
+        else if( t instanceof IntegerType )
+            return new GenTypeInt();
+        else if( t instanceof LongType )
+            return new GenTypeLong();
+        else if( t instanceof ShortType )
+            return new GenTypeShort();
+        else {
+            // The class may or may not be loaded.
+            Reflective ref;
+            if( t == null )
+                ref = new JdiReflective(typeName, clr, vm);
+            else {
+                ReferenceType rt = findClass(t.name(), clr, vm);
+                ref = new JdiReflective(rt);
+            }
+            return new GenTypeClass(ref, (List)null);
+        }
+    }
+    
     /**
      * Determine the complete type of an instance field.
      * @param f      The field
@@ -416,35 +456,10 @@ public class JdiReflective extends Reflective {
         
         final String gensig = JdiUtils.getJdiUtils().genericSignature(f);
         
-        if( gensig == null ) {
-            if( t instanceof BooleanType )
-                return new GenTypeBool();
-            else if( t instanceof ByteType )
-                return new GenTypeByte();
-            else if( t instanceof CharType )
-                return new GenTypeChar();
-            else if( t instanceof DoubleType )
-                return new GenTypeDouble();
-            else if( t instanceof FloatType )
-                return new GenTypeFloat();
-            else if( t instanceof IntegerType )
-                return new GenTypeInt();
-            else if( t instanceof LongType )
-                return new GenTypeLong();
-            else if( t instanceof ShortType )
-                return new GenTypeShort();
-            else {
-                // The class may or may not be loaded.
-                Reflective ref;
-                if( t == null )
-                    ref = new JdiReflective(f.typeName(), parent.obj.referenceType());
-                else {
-                    ReferenceType rt = findClass(t.name(), parent.obj.referenceType().classLoader(), parent.obj.virtualMachine());
-                    ref = new JdiReflective(rt);
-                }
-                return new GenTypeClass(ref, (List)null);
-            }
-        }
+        if( gensig == null )
+            return getNonGenericType(f.typeName(), t,
+                    parent.obj.referenceType().classLoader(),
+                    parent.obj.virtualMachine());
         
         // generic version.
         // Get the mapping of type parameter names to actual types. Then,
@@ -501,39 +516,55 @@ public class JdiReflective extends Reflective {
         
         final String gensig = JdiUtils.getJdiUtils().genericSignature(f);
         
-        if( gensig == null ) {
-            if( t instanceof BooleanType )
-                return new GenTypeBool();
-            else if( t instanceof ByteType )
-                return new GenTypeByte();
-            else if( t instanceof CharType )
-                return new GenTypeChar();
-            else if( t instanceof DoubleType )
-                return new GenTypeDouble();
-            else if( t instanceof FloatType )
-                return new GenTypeFloat();
-            else if( t instanceof IntegerType )
-                return new GenTypeInt();
-            else if( t instanceof LongType )
-                return new GenTypeLong();
-            else if( t instanceof ShortType )
-                return new GenTypeShort();
-            else {
-                // The class may or may not be loaded.
-                Reflective ref;
-                if( t == null )
-                    ref = new JdiReflective(f.typeName(), parent.classLoader(), parent.virtualMachine());
-                else {
-                    ReferenceType rt = findClass(t.name(), parent.classLoader(), parent.virtualMachine());
-                    ref = new JdiReflective(rt);
-                }
-                return new GenTypeClass(ref, (List)null);
-            }
-        }
+        if( gensig == null )
+            return getNonGenericType(f.typeName(), t, parent.classLoader(),
+                    parent.virtualMachine());
         
         // if the generic signature wasn't null, get the type from it.
         StringIterator iterator = new StringIterator(gensig);
         return fromSignature(iterator, null, parent);
+    }
+    
+    public static GenType fromLocalVar(StackFrame sf, LocalVariable var)
+    {
+        Type t = null;
+        // For a variable whose value is unset/null, the corresponding class
+        // type may not have been loaded. In this case "var.type()" throws a
+        // ClassNotLoadedException.
+        //
+        // In the case of string literals, however, it's possible that trying
+        // to get a reference to "java.lang.String" throws
+        // ClassNotLoadedException even when the value isn't null. In this
+        // case, findClass() and v.type() both successfully get a reference
+        // to the type. Perhaps it's a VM bug.
+        
+        Value v = sf.getValue(var);
+        
+        Location l = sf.location();
+        ReferenceType declType = l.declaringType();
+        
+        try {
+            t = var.type();
+        }
+        catch(ClassNotLoadedException cnle) {
+            // Debug.message("ClassNotLoadedException, name = " + f.typeName());
+            t = findClass(var.typeName(), declType.classLoader(), declType.virtualMachine());
+            if( t == null && v != null )
+                t = v.type();
+        }
+        
+        final String gensig = JdiUtils.getJdiUtils().genericSignature(var);
+        
+        if( gensig == null )
+            return getNonGenericType(var.typeName(), t,
+                    declType.classLoader(), declType.virtualMachine());
+        
+        // if the generic signature wasn't null, get the type from it.
+        StringIterator iterator = new StringIterator(gensig);
+        // Map tparams = null;
+        Map tparams = new HashMap();
+        GenTypeClass.addDefaultParamBases(tparams, new JdiReflective(declType));
+        return fromSignature(iterator, tparams, declType);
     }
     
     static class StringIterator {
