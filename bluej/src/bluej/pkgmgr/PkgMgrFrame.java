@@ -28,7 +28,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1993 2003-05-30 04:24:43Z ajp $
+ * @version $Id: PkgMgrFrame.java 2010 2003-06-03 07:07:12Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -414,7 +414,7 @@ public class PkgMgrFrame extends JFrame
         makeFrame();
 
         updateWindowTitle();
-        setStatus(bluej.Main.BLUEJ_VERSION_TITLE);
+        setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
     }
 
 
@@ -1155,7 +1155,7 @@ public class PkgMgrFrame extends JFrame
      */
     public void aboutBlueJ()
     {
-        AboutBlue about = new AboutBlue(this, bluej.Main.BLUEJ_VERSION);
+        AboutBlue about = new AboutBlue(this, bluej.Boot.BLUEJ_VERSION);
         about.setVisible(true);
     }
 

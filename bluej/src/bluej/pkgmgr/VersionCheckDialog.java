@@ -17,7 +17,7 @@ import javax.swing.*;
  * Dialog implementing version check functionality.
  *
  * @author  Michael Kolling
- * @version $Id: VersionCheckDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: VersionCheckDialog.java 2010 2003-06-03 07:07:12Z ajp $
  */
 
 final class VersionCheckDialog extends JDialog
@@ -199,7 +199,7 @@ final class VersionCheckDialog extends JDialog
                 textArea.setText("Error: could not read remote version information");
                 Debug.reportError("IO error when reading remote version info\n" + exc);
             }
-            return ! Main.BLUEJ_VERSION.equals(newVersion);
+            return ! Boot.BLUEJ_VERSION.equals(newVersion);
         }
 
         /**
@@ -213,7 +213,7 @@ final class VersionCheckDialog extends JDialog
             else {
                 textArea.setText(Config.getString("pkgmgr.versionDlg.currentVersion"));
                 textArea.append(" ");
-                textArea.append(Main.BLUEJ_VERSION);
+                textArea.append(Boot.BLUEJ_VERSION);
                 textArea.append("\n");
                 textArea.append(Config.getString("pkgmgr.versionDlg.newVersion"));
                 textArea.append(" ");

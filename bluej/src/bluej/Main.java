@@ -16,33 +16,12 @@ import java.io.File;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 2003 2003-06-02 10:44:29Z iau $
+ * @version $Id: Main.java 2010 2003-06-03 07:07:12Z ajp $
  */
 public class Main
 {
-    public static int BLUEJ_VERSION_MAJOR = 1;
-    public static int BLUEJ_VERSION_MINOR = 3;
-    public static int BLUEJ_VERSION_RELEASE = 0;
-    public static String BLUEJ_VERSION_SUFFIX = " beta 2";
-
-    public static int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
-                                             BLUEJ_VERSION_MINOR * 100 +
-                                             BLUEJ_VERSION_RELEASE;
-
-    public static String BLUEJ_VERSION = BLUEJ_VERSION_MAJOR
-                                         + "." + BLUEJ_VERSION_MINOR
-                                         + "." + BLUEJ_VERSION_RELEASE
-                                         + BLUEJ_VERSION_SUFFIX;
-
-
-    public static String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
-
-    public static String BLUEJ_JAR = "bluej.jar";
-
-
     private int FIRST_X_LOCATION = 20;
     private int FIRST_Y_LOCATION = 20;
-
 
     /**
      * Entry point to starting up the system. Initialise the
@@ -52,34 +31,9 @@ public class Main
     {
         Boot boot = Boot.get();
         String [] args = boot.getArgs();
-        File bluejLibDir = boot.getBluejLibDir();
+		File bluejLibDir = boot.getBluejLibDir();
+		System.out.println("Main " + getClass().getClassLoader());
         
-        if((args.length >= 1) && "-version".equals(args[0])) {
-            System.out.println("BlueJ version " + BLUEJ_VERSION
-                               + " (Java version "
-                               + System.getProperty("java.version")
-                               + ")");
-            System.out.println("--");
-
-            System.out.println("virtual machine: "
-                               + System.getProperty("java.vm.name")
-                               + " "
-                               + System.getProperty("java.vm.version")
-                               + " ("
-                               + System.getProperty("java.vm.vendor")
-                               + ")");
-
-            System.out.println("running on: "
-                               + System.getProperty("os.name")
-                               + " "
-                               + System.getProperty("os.version")
-                               + " ("
-                               + System.getProperty("os.arch")
-                               + ")");
-            System.exit(-1);
-            }
-
-        SplashWindow splash = new SplashWindow(bluejLibDir);
         Config.initialise(bluejLibDir);
 
         MiscPrefPanel.register();
@@ -92,8 +46,7 @@ public class Main
         extManager.loadExtensions();
 
         processArgs(args);
-        splash.remove();
-        }
+    }
 
     /**
      * Start everything off. This is used to open the projects
@@ -131,7 +84,6 @@ public class Main
         }
     }
 
-
     /**
      * Exit BlueJ.
      *
@@ -148,5 +100,4 @@ public class Main
         // exit with success status
         System.exit(0);
     }
-
 }

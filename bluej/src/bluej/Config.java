@@ -24,7 +24,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1938 2003-05-02 13:40:01Z mik $
+ * @version $Id: Config.java 2010 2003-06-03 07:07:12Z ajp $
  */
 
 public class Config
@@ -158,7 +158,7 @@ public class Config
                 PrintStream outStream =
                     new PrintStream(new FileOutputStream(debugLogFile));
                 System.setOut(outStream);
-                Debug.message("BlueJ version " + Main.BLUEJ_VERSION);
+                Debug.message("BlueJ version " + Boot.BLUEJ_VERSION);
             }
             catch (IOException e) {
                 Debug.reportError("Warning: Unable to create debug log file.");
