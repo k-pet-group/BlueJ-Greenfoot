@@ -12,7 +12,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  *  
  * @author Davin McCall
- * @version $Id: JdiReflective.java 2734 2004-07-05 05:32:09Z davmac $
+ * @version $Id: JdiReflective.java 2763 2004-07-08 11:48:32Z polle $
  */
 public class JdiReflective extends Reflective {
 
@@ -113,6 +113,8 @@ public class JdiReflective extends Reflective {
                 s.next();
             // multiple bounds appear as T:bound1;:bound2; ... etc
             boolean firstBound = true;
+            
+            //TODO refactor this messy while loop...                        
             while(s.current() == ':') {
                 GenTypeSolid bound = (GenTypeSolid)fromSignature(s, null, rclass);
                 // TODO properly support multiple bounds. At the moment we'll
@@ -121,8 +123,15 @@ public class JdiReflective extends Reflective {
                     rlist.add(new GenTypeDeclTpar(paramName, bound));
                     firstBound = false;
                 }
-                c = s.next();
+                //we don't want the next char to be eaten...
+                if(s.peek() == ':')  {
+                    
+                    s.next();
+                } else {                    
+                    break;
+                }
             }
+            c = s.peek();            
         }
         return rlist;
     }
