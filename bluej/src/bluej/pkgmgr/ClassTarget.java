@@ -50,7 +50,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1539 2002-11-29 13:44:44Z ajp $
+ * @version $Id: ClassTarget.java 1549 2002-12-02 05:57:08Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -323,18 +323,13 @@ public class ClassTarget extends EditableTarget
         }
     }
 
+    /**
+     * Verify whether this class target is an interface class
+     * @return true if class target is an interface class, else returns false
+     */
     public boolean isInterface()
     {
         return (getRole() instanceof InterfaceClassRole);
-    }
-
-    /**
-     * verify whether this class target is an abstract class
-     * @return true if class target is an abstract class, else returns false
-     */
-    public boolean isAbstract()
-    {
-        return (getRole() instanceof AbstractClassRole);
     }
 
     // --- Target interface ---
@@ -889,7 +884,7 @@ public class ClassTarget extends EditableTarget
 
         role.addMenuItem(menu, new EditAction(), true);
         role.addMenuItem(menu, new CompileAction(), true);
-        role.addMenuItem(menu, new InspectAction(), true);
+        role.addMenuItem(menu, new InspectAction(), cl != null);
         role.addMenuItem(menu, new RemoveAction(), true);
 
         if (getRole() instanceof StdClassRole) {
