@@ -10,4 +10,4 @@ CLASSPATH=$BLUEJ_HOME/lib/bluej.jar:$BLUEJ_HOME/classes:$BLUEJ_HOME/lib/antlr.ja
 export CLASSPATH
 
 #java -Dcom.apple.mrj.application.apple.menu.about.name=BlueJ bluej.Main $@
-java -Dcom.apple.mrj.application.apple.menu.about.name=BlueJ -Dcom.apple.macos.useScreenMenuBar=true bluej.Main $@
+java -Dcom.apple.mrj.application.apple.menu.about.name=BlueJ -Dcom.apple.macos.useScreenMenuBar=false bluej.Main $@
