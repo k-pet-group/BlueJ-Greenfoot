@@ -9,7 +9,7 @@ import java.net.*;
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 2457 2004-01-19 00:52:53Z ajp $
+ * @version $Id: ClassPath.java 2848 2004-08-06 11:29:43Z mik $
  */
 public class ClassPath
 {
@@ -144,7 +144,6 @@ public class ClassPath
 
             while(st.hasMoreTokens()) {
                 String entry = st.nextToken();
-                String name = (new File(entry)).getName();
                 ClassPathEntry cpentry = new ClassPathEntry(entry, genericdescription);
 
                 if(!entries.contains(cpentry))
@@ -246,7 +245,35 @@ public class ClassPath
         return is;
     }
 
+    /**
+     * Create a string with this class path as a comma separated list of strings.
+     * 
+     * @return  The classpath as string.
+     */
+    public String asCommaSeparatedList()
+    {
+        return asList(',');
+    }
+
+    /**
+     * Create a string with this class path as a separated list of strings.
+     * The separator character is system dependent (see File.pathSeparatorChar).
+     * 
+     * @return  The classpath as string.
+     */
     public String toString()
+    {
+        return asList(File.pathSeparatorChar);
+    }
+    
+    /**
+     * Create a string with this class path as a separated list of strings.
+     * The separator character can be specified.
+     * 
+     * @param separator  The character to be used to separate entries.
+     * @return  The classpath as string.
+     */
+    private String asList(char separator)
     {
         StringBuffer buf = new StringBuffer();
 
@@ -256,11 +283,11 @@ public class ClassPath
             ClassPathEntry nextEntry = (ClassPathEntry)it.next();
 
             buf.append(nextEntry.getPath());
-            // we want to append a pathSeparartorChar to all but the last entry
+            // we want to append a separator to all but the last entry
             if(it.hasNext())
-                buf.append(File.pathSeparatorChar);
+                buf.append(separator);
         }
 
-        return buf.toString();
+        return buf.toString();        
     }
 }

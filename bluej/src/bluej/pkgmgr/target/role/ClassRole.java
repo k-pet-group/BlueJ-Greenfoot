@@ -19,7 +19,7 @@ import bluej.views.*;
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 2775 2004-07-09 15:07:12Z mik $
+ * @version $Id: ClassRole.java 2848 2004-08-06 11:29:43Z mik $
  */
 public abstract class ClassRole
 {
@@ -45,7 +45,6 @@ public abstract class ClassRole
      */
     public void save(Properties props, int modifiers, String prefix)
     {
-
     }
 
     /**

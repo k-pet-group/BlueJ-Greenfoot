@@ -24,7 +24,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 2847 2004-08-06 09:56:45Z mik $
+ * @version $Id: ClassMgr.java 2848 2004-08-06 11:29:43Z mik $
  */
 public class ClassMgr
 {
@@ -34,7 +34,7 @@ public class ClassMgr
                             = Config.getString("classmgr.error.missingbootclasspath");
 
     private static final String userlibPrefix = "bluej.userlibrary";
-    private static final String syslibPrefix = "bluej.systemlibrary";
+//    private static final String syslibPrefix = "bluej.systemlibrary";  // remove (mik)
 
     private static ClassMgr currentClassMgr = new ClassMgr();
 
@@ -60,41 +60,10 @@ public class ClassMgr
     {
         return new ProjectClassLoader(projectDir, getClassMgr().bluejloader);
     }
-
-    /**
-     * Convenience static method to easily allow classes to be loaded into the default
-     * BlueJ class loader.
-     */
-    public static Class loadBlueJClass(String classname) throws ClassNotFoundException
-    {
-        return getClassMgr().bluejloader.loadClass(classname);
-    }
-    /**
-     * Returns the class loader associated with the ClassMgr.
-     * This class loader is used as the parent of all
-     * class loaders created within BlueJ.
-     *
-     * @return  the <code>ClassLoader</code> associated with BlueJ's
-     *          current ClassMgr
-     */
-    public static ClassLoader getBlueJLoader()
-    {
-        return getClassMgr().bluejloader;
-    }
-
+    
+    // =========== instance part ============
+    
     private BlueJLoader bluejloader = new BlueJLoader();
-
-    public ClassPath getAllClassPath()
-    {
-        ClassPath all = new ClassPath();
-
-        all.addClassPath(systemLibraries);
-        all.addClassPath(userLibraries);
-        all.addClassPath(userlibExtLibraries);
-        all.addClassPath(bootLibraries);
-
-        return all;
-    }
 
     /**
      * Protected to allow access by the class manager panel.
@@ -103,17 +72,17 @@ public class ClassMgr
      * when we go to open it we will still end up with a valid
      * classpath object (albeit empty)
      */
-    protected ClassPath systemLibraries = new ClassPath();
-    protected ClassPath userLibraries = new ClassPath();
-    protected ClassPath userlibExtLibraries = new ClassPath();
-    protected ClassPath bootLibraries = new ClassPath();
+    protected ClassPath bootLibraries;
+    protected ClassPath systemLibraries;
+    protected ClassPath userLibraries;
+    protected ClassPath userlibExtLibraries;
 
     /** Don't let anyone else instantiate this class */
     private ClassMgr()
     {
         URL[] bootcp = Boot.getInstance().getRuntimeClassPath();
         URL[] syscp = Boot.getInstance().getRuntimeUserClassPath();
-        URL[] userextcp = Boot.getInstance().getUserExtLibClassPath();
+        URL[] userextcp = Boot.getInstance().getUserLibClassPath();
         String envcp = System.getProperty("java.class.path");
 
         if (bootcp == null) {        // pre JDK1.2
@@ -128,9 +97,10 @@ public class ClassMgr
         // investigate!
         bootLibraries = new ClassPath(bootcp);
         systemLibraries = new ClassPath(syscp);
+        userLibraries = new ClassPath();
         userlibExtLibraries = new ClassPath(userextcp);
 
-        addConfigEntries(systemLibraries, syslibPrefix);
+//        addConfigEntries(systemLibraries, syslibPrefix); // can be removed, I think (mik)
         addConfigEntries(userLibraries, userlibPrefix);
 
         if (envcp != null) {
@@ -140,6 +110,34 @@ public class ClassMgr
         /* XXX we should add here the boot libraries which are in the JDK extension
            directory */
         //System.getProperty("java.ext.dirs");
+    }
+
+    public ClassPath getAllClassPath()
+    {
+        ClassPath all = new ClassPath();
+
+        all.addClassPath(systemLibraries);
+        all.addClassPath(userLibraries);
+        all.addClassPath(userlibExtLibraries);
+        all.addClassPath(bootLibraries);
+
+        return all;
+    }
+
+    /**
+     * Return the classpath for user defined libraries (from lib/userlib
+     * and from Preferences/Libraries)
+     * 
+     * @return The classpath containing all user libraries.
+     */
+    public ClassPath getUserClassPath()
+    {
+        ClassPath usercp = new ClassPath();
+
+        usercp.addClassPath(userlibExtLibraries);
+        usercp.addClassPath(userLibraries);
+
+        return usercp;
     }
 
     /**
@@ -179,14 +177,13 @@ public class ClassMgr
      */
     protected void saveUserLibraries()
     {
-        String r1, r2;
+        String r1;
         int resourceID = 1;
 
         while(true) {
             r1 = Config.removeProperty(userlibPrefix + resourceID + ".location");
-            r2 = Config.removeProperty(userlibPrefix + resourceID + ".description");
 
-            if((r1 == null) || (r2 == null))
+            if(r1 == null)
                 break;
 
             resourceID++;
@@ -200,9 +197,6 @@ public class ClassMgr
 
             Config.putPropString(userlibPrefix + resourceID + ".location",
                                     nextEntry.getPath());
-            Config.putPropString(userlibPrefix + resourceID + ".description",
-                                    nextEntry.getDescription());
-
             resourceID++;
         }
     }

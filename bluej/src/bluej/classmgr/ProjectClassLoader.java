@@ -9,7 +9,7 @@ import java.lang.reflect.*;
  * and from jar files within a +libs directory.
  *
  * @author  Andrew Patterson
- * @version $Id: ProjectClassLoader.java 2847 2004-08-06 09:56:45Z mik $
+ * @version $Id: ProjectClassLoader.java 2848 2004-08-06 11:29:43Z mik $
  */
 public class ProjectClassLoader extends URLClassLoader
 {
@@ -80,7 +80,7 @@ public class ProjectClassLoader extends URLClassLoader
      * 
      * @return An array of jar files, may be empty, but will not be null.
      */
-    public File[] getLibs()
+    public File[] getProjectLibs()
     {
         return libsJars;
     }
@@ -120,10 +120,9 @@ public class ProjectClassLoader extends URLClassLoader
  
             Method setAssertMethod = cl.getMethod("setDefaultAssertionStatus", p);
 
-            Object objResult;
             Object[] arguments = new Object[] { new Boolean(status) };
 
-            objResult = setAssertMethod.invoke(this, arguments);
+            /* Object objResult = */ setAssertMethod.invoke(this, arguments);
         }
         // for all these errors no need to report anything.. just assume its because
         // assertions are not supported (ie 1.3)

@@ -16,7 +16,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 2724 2004-07-02 18:51:36Z mik $
+ * @version $Id: Boot.java 2848 2004-08-06 11:29:43Z mik $
  */
 public class Boot
 {
@@ -120,7 +120,7 @@ public class Boot
 
     private URL[] runtimeClassPath; // The class path used to run the rest of BlueJ
     private URL[] runtimeUserClassPath; // The initial class path used to run code within BlueJ
-    private URL[] userExtLibClassPath; // The class path of user libs in the "ext" directory (lib/userlib)
+    private URL[] userLibClassPath; // The class path of user libs in the "ext" directory (lib/userlib)
     private URLClassLoader runtimeLoader;   // The class loader used for the rest of BlueJ
 
 
@@ -208,17 +208,12 @@ public class Boot
         bluejLibDir = calculateBluejLibDir();
 
         try {
-            // Find all the libraries needed by BlueJ
             runtimeClassPath = getKnownJars(bluejLibDir, bluejJars, true);
-            // Find all the libraries needed by BlueJ
-            //runtimeUserClassPath = getUserRuntimeJars();
             runtimeUserClassPath = getKnownJars(bluejLibDir, bluejUserJars, false);
-			// Construct a new class loader which knows about them
             runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
-            // get details of any userlibs
-            userExtLibClassPath = getUserExtLibItems();
-            // Use the new class loader to find and construct a
-            // bluej.Main object. This starts BlueJ "proper".
+            userLibClassPath = getUserExtLibItems();
+
+            // Construct a bluej.Main object. This starts BlueJ "proper".
             Class mainClass = Class.forName("bluej.Main", true, runtimeLoader);
             Object main = mainClass.newInstance();
             
@@ -342,18 +337,17 @@ public class Boot
     
     
     /**
-     * Returns an array of URLs for all the JAR files located in the lib/customlib directory
+     * Returns an array of URLs for all the JAR files located in the lib/userlib directory
      *
      * @return  URLs of the discovered JAR files
      * @exception  MalformedURLException  for any problems with the URLs
      */
     private URL[] getUserExtLibItems() throws MalformedURLException
     {
-        File extDir = new File(bluejLibDir, "userlib");
+        File userLibDir = new File(bluejLibDir, "userlib");
 
-        File[] files = extDir.listFiles();
+        File[] files = userLibDir.listFiles();
         if (files == null) {
-            // preferred response?
             return new URL[0];
         }
         
@@ -377,13 +371,13 @@ public class Boot
     }
     
     /**
-     * return the classpath for valid libs (jars & zips) 
+     * Return the classpath for valid libs (jars & zips) 
      * in the lib/userlib directory
      * @return the classpath for valid libs
      */
-    public URL[] getUserExtLibClassPath()
+    public URL[] getUserLibClassPath()
     {
-        return userExtLibClassPath;
+        return userLibClassPath;
     }
 
     /**

@@ -1,7 +1,6 @@
 package bluej.pkgmgr.target.role;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.*;
@@ -9,6 +8,7 @@ import java.util.*;
 import javax.swing.*;
 
 import bluej.Config;
+import bluej.classmgr.ClassMgr;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.*;
@@ -19,7 +19,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 2847 2004-08-06 09:56:45Z mik $
+ * @version $Id: AppletClassRole.java 2848 2004-08-06 11:29:43Z mik $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -35,7 +35,6 @@ public class AppletClassRole extends ClassRole
                             Config.getJDKExecutablePath("appletViewer.command", "appletviewer");
 
 	public static final String HTML_EXTENSION = ".html";
-    private static final String THIS_DIRECTORY = ".";
     private static final String URL_PREFIX = "file://localhost/";
     private static final int DEFAULT_APPLET_WIDTH = 500;
     private static final int DEFAULT_APPLET_HEIGHT = 500;
@@ -185,7 +184,7 @@ public class AppletClassRole extends ClassRole
         }
         
         if(dialog.display()) {  // if OK was clicked
-            File[] libs = parent.getProject().getLocalClassLoader().getLibs();
+            File[] libs = parent.getProject().getLocalClassLoader().getProjectLibs();
 
             int execOption = dialog.getAppletExecutionOption();
             if(execOption == RunAppletDialog.GENERATE_PAGE_ONLY) {
@@ -308,6 +307,14 @@ public class AppletClassRole extends ClassRole
             else
                 archives += "," + libs[i].getAbsolutePath();
         }
+        String userLibs = ClassMgr.getClassMgr().getUserClassPath().asCommaSeparatedList();
+        if(userLibs.length() > 0) {
+            if(archives.length() > 0)
+                archives = archives + "," + userLibs;
+            else
+                archives = userLibs;
+        }
+        
         translations.put("ARCHIVE", archives);
 
         StringBuffer allParameters = new StringBuffer();
@@ -343,10 +350,4 @@ public class AppletClassRole extends ClassRole
         if (htmlFile.exists())
             htmlFile.delete();
     }
-
-    public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width,
-                     int height)
-    {
-    }
-
 }
