@@ -11,10 +11,23 @@ import java.util.Vector;
  */
 public class ClassHistory
 {
+    // ======= static (factory) section =======
+
+    private static ClassHistory classHistory = null;
+
+    public static ClassHistory getClassHistory(int maxLength)
+    {
+        if(classHistory == null)
+            classHistory = new ClassHistory(maxLength);
+        return classHistory;
+    }
+
+    // ======= instance section =======
+
     private Vector history = null;
     private int maxLength;
 
-    public ClassHistory(int maxLength)
+    private ClassHistory(int maxLength)
     {
         this.maxLength = maxLength;
         history = new Vector(maxLength);

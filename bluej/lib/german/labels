@@ -304,10 +304,14 @@ pkgmgr.newPackage.label=Package-Name:
 pkgmgr.newPackage.newPackage=Package
 
 # "Use Library Class" dialog
-pkgmgr.callLibraryDialog.title=BlueJ:  Library-Klasse aufrufen
-pkgmgr.callLibraryDialog.classLabel=Klasse:
-pkgmgr.callLibraryDialog.docButton=Dokumentation
-pkgmgr.callLibraryDialog.listHeading=Konstruktoren und statische Methoden
+callLibraryDialog.title=BlueJ:  Library-Klasse aufrufen
+callLibraryDialog.classLabel=Klasse:
+callLibraryDialog.docButton=Dokumentation
+callLibraryDialog.listHeading=Konstruktoren und statische Methoden
+callLibraryDialog.clickHere1=Bitte vollen Klassennamen eingeben, dann hier
+callLibraryDialog.clickHere2=klicken um Konstruktoren und Methoden zu laden.
+callLibraryDialog.classNotFound1=Klasse konnte nicht gefunden werden.
+callLibraryDialog.classNotFound2=(Bitte Klassennamen prüfen und nochmal hier klicken.)
 
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Projekt exportieren

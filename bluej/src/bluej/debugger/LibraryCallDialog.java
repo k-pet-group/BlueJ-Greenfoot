@@ -24,24 +24,23 @@ import javax.swing.event.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 818 2001-03-26 07:19:56Z mik $
+ * @version $Id: LibraryCallDialog.java 823 2001-03-28 06:27:58Z mik $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener
 {
-    // ======= static (factory) section =======
-
-    private static LibraryCallDialog dlg = null;
-
-    public static void showLibraryCallDialog(PkgMgrFrame pmf)
-    {
-        if(dlg == null)
-            dlg = new LibraryCallDialog(pmf);
-        dlg.setVisible(true);
-    }
-
-    // ======= instance section =======
-
+    private static final String[] clickHere = { 
+        "    ",
+        "    " + Config.getString("callLibraryDialog.clickHere1"),
+        "    " + Config.getString("callLibraryDialog.clickHere2"),
+    };
+    
+    private static final String[] classNotFound = { 
+        "    ",
+        "    " + Config.getString("callLibraryDialog.classNotFound1"),
+        "    " + Config.getString("callLibraryDialog.classNotFound2"),
+    };
+    
     private JComboBox classField;
     private JList methodList;
     private JButton docButton;
@@ -53,13 +52,13 @@ public class LibraryCallDialog extends JDialog
     private CallableView viewToCall;
     private Vector currentViews;      // views currently displayed in list
 
-    private LibraryCallDialog(PkgMgrFrame pmf)
+    public LibraryCallDialog(PkgMgrFrame pmf)
     {
-        super(pmf, Config.getString("pkgmgr.callLibraryDialog.title"), false);
+        super(pmf, Config.getString("callLibraryDialog.title"), false);
         pkg = pmf.getPackage();
         currentViews = new Vector();
         viewToCall = null;
-        history = new ClassHistory(10);
+        history = ClassHistory.getClassHistory(10);
         makeDialog();
     }
 
@@ -73,9 +72,9 @@ public class LibraryCallDialog extends JDialog
     	if (show) {
             okButton.setEnabled(false);
             classField.setModel(new DefaultComboBoxModel(history.getHistory()));
+            classSelected();
+            classField.requestFocus();
     	}
-    	else {
-        }
     }
 
     /**
@@ -109,6 +108,9 @@ public class LibraryCallDialog extends JDialog
      */
     private void doOk()
     {
+        if(viewToCall == null)   // not a method - help text selected
+            return;
+
         history.addClass((String)classField.getEditor().getItem());
         setVisible(false);
         pkg.getEditor().raiseMethodCallEvent(pkg, viewToCall);
@@ -133,16 +135,21 @@ public class LibraryCallDialog extends JDialog
         Class cl = null;
         currentViews.clear();
         viewToCall = null;
+        okButton.setEnabled(false);
 
         String className = (String)classField.getEditor().getItem();
 
+        if(className.length() == 0) {
+            displayTextInClassList(clickHere);
+            return;
+        }
+            
         try {
             cl = Class.forName(className, true, 
                                ClassLoader.getSystemClassLoader());
         }
         catch(Exception exc) {
-            methodList.setListData(new Vector());
-            docButton.setEnabled(false);
+            displayTextInClassList(classNotFound);
             return;
         }
         displayMethodsForClass(cl);
@@ -168,7 +175,15 @@ public class LibraryCallDialog extends JDialog
         methodList.setListData(list);
         methodList.clearSelection();
         docButton.setEnabled(true);
-        okButton.setEnabled(false);
+    }
+
+    /**
+     * Display a message that the current class was not found.
+     */
+    private void displayTextInClassList(String[] text)
+    {
+        methodList.setListData(text);
+        docButton.setEnabled(false);
     }
 
     /**
@@ -201,6 +216,10 @@ public class LibraryCallDialog extends JDialog
         if(index == -1)
             return;
 
+        String text = (String)methodList.getSelectedValue();
+        if(text.charAt(0) == ' ')
+            return;
+
         viewToCall = (CallableView)currentViews.get(index);
         okButton.setEnabled(true);
     }
@@ -217,11 +236,10 @@ public class LibraryCallDialog extends JDialog
         JPanel classPanel = new JPanel(new BorderLayout(4,6));
         {
             classPanel.add(new JLabel(
-                  Config.getString("pkgmgr.callLibraryDialog.classLabel")), 
+                  Config.getString("callLibraryDialog.classLabel")), 
                   BorderLayout.WEST);
 
-            Vector historyList = history.getHistory();
-            classField = new JComboBox(historyList);
+            classField = new JComboBox(history.getHistory());
             classField.setEditable(true);
             classField.setMaximumRowCount(10);
             JTextField textField = (JTextField)classField.getEditor().getEditorComponent();
@@ -229,7 +247,7 @@ public class LibraryCallDialog extends JDialog
             classField.addActionListener(this);
             classPanel.add(classField, BorderLayout.CENTER);
 
-            docButton = new JButton(Config.getString("pkgmgr.callLibraryDialog.docButton"));
+            docButton = new JButton(Config.getString("callLibraryDialog.docButton"));
             docButton.addActionListener(this);
             docButton.setEnabled(false);
             classPanel.add(docButton, BorderLayout.EAST);
@@ -238,13 +256,13 @@ public class LibraryCallDialog extends JDialog
         // create the centre Panel
         JPanel centrePanel = new JPanel(new BorderLayout());
         {
-            methodList = new JList(new DefaultListModel());
+            methodList = new JList();
             methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             methodList.addListSelectionListener(this);
             methodList.setVisibleRowCount(8);
             JScrollPane methodScrollPane = new JScrollPane(methodList);
             methodScrollPane.setColumnHeaderView(new JLabel(
-                 Config.getString("pkgmgr.callLibraryDialog.listHeading")));
+                 Config.getString("callLibraryDialog.listHeading")));
 
             MouseListener mouseListener = new MouseAdapter() {
                     public void mouseClicked(MouseEvent e) {

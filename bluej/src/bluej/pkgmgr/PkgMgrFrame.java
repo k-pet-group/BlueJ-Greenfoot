@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 820 2001-03-27 07:51:06Z mik $
+ * @version $Id: PkgMgrFrame.java 823 2001-03-28 06:27:58Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -75,11 +75,22 @@ public class PkgMgrFrame extends JFrame
 
     // instance fields:
 
-    JPanel buttonPanel;
-    JPanel viewPanel;
-    JPanel showPanel;
-    JButton imgExtendsButton;
-    JButton imgDependsButton;
+    private JPanel buttonPanel;
+    private JPanel viewPanel;
+    private JPanel showPanel;
+    private JButton imgExtendsButton;
+    private JButton imgDependsButton;
+
+    private JLabel statusbar = new JLabel(" ");
+
+    private JMenuBar menubar = null;
+    private JButton progressButton;
+
+    private JCheckBoxMenuItem showUsesMenuItem;
+    private JCheckBoxMenuItem showExtendsMenuItem;
+
+    private JCheckBox showUsesCheckbox;
+    private JCheckBox showExtendsCheckbox;
 
     /* The scroller which holds the PackageEditor we use to edit packages */
     private JScrollPane classScroller = null;
@@ -97,18 +108,8 @@ public class PkgMgrFrame extends JFrame
        in the inner class */
     private PkgMgrFrame outer;
 
-    private JLabel statusbar = new JLabel(" ");
-
-    private JMenuBar menubar = null;
-    private JButton progressButton;
-
-    private JCheckBoxMenuItem showUsesMenuItem;
-    private JCheckBoxMenuItem showExtendsMenuItem;
-
-    private JCheckBox showUsesCheckbox;
-    private JCheckBox showExtendsCheckbox;
-
     private ObjectBench objbench;
+    private LibraryCallDialog libraryCallDialog = null;
 
     // ============================================================
     // static methods to create and remove frames
@@ -1375,13 +1376,19 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     *
+     * User function "Use Library Class...". Pop up the dialog that allows
+     * users to invoke library classes.
      */
     public void callLibraryClass()
     {
-        LibraryCallDialog.showLibraryCallDialog(this);
+        if(libraryCallDialog == null)
+            libraryCallDialog = new LibraryCallDialog(this);
+        libraryCallDialog.setVisible(true);
     }
 
+    /**
+     * Toggle the state of the "show uses arrows" switch.
+     */
     public void toggleShowUses(Object src)
     {
         if(showUsesCheckbox.isSelected() != showUsesMenuItem.isSelected()) {
