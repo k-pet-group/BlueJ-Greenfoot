@@ -1,12 +1,12 @@
 package bluej.extensions.editor;
-import bluej.editor.*;
 
+import bluej.editor.*;
 
 /**
  * Proxy object that allows interaction with the BlueJ Editor for a
  * particular class.
  *
- * @version    $Id: Editor.java 2920 2004-08-20 08:02:09Z damiano $
+ * @version    $Id: Editor.java 2924 2004-08-22 05:47:12Z damiano $
  */
 
 /*
@@ -24,7 +24,7 @@ public class Editor
      *
      * @param  bjEditor  Description of the Parameter
      */
-    Editor(bluej.editor.Editor bjEditor)
+    Editor( bluej.editor.Editor bjEditor )
     {
         this.bjEditor = bjEditor;
     }
@@ -44,9 +44,9 @@ public class Editor
      *
      * @param  visible  The new visible value
      */
-    public void setVisible(boolean visible)
+    public void setVisible( boolean visible )
     {
-        bjEditor.setVisible(visible);
+        bjEditor.setVisible( visible );
     }
 
 
@@ -63,35 +63,44 @@ public class Editor
 
     /**
      * Returns the current caret location within the edited text.
+     * This method must be called from a swing thread.
+     *
      *
      * @return    the textLocation.
      */
     public TextLocation getCaretLocation()
     {
         LineColumn lineColumn = bjEditor.getCaretLocation();
-        return new TextLocation (lineColumn.getLine(),lineColumn.getColumn());
+        return new TextLocation( lineColumn.getLine(), lineColumn.getColumn() );
     }
 
 
     /**
      * Sets the current Caret location within the edited text.
+     * This method must be called from a swing thread.
      *
      * @param  location                   The location in the text to set the Caret to.
      * @throws  IllegalArgumentException  if the specified TextLocation represents a position which does not exist in the text.
      */
-    public void setCaretLocation(TextLocation location)
+    public void setCaretLocation( TextLocation location )
     {
+        if ( location == null ) {
+            throw new IllegalArgumentException( "setCaretLocation: location == null " );
+        }
+
+        bjEditor.setCaretLocation( new LineColumn( location.getLine(), location.getColumn() ) );
     }
 
 
     /**
      * Request to the editor to display the given message in the editor message area.
+     * The message will be cleared when BlueJ needs to.
      *
      * @param  message  The message to display.
      */
-    public void showMessage(String message)
+    public void showMessage( String message )
     {
-        bjEditor.displayMessage("",-1,-1,false,false,null);
+        bjEditor.writeMessage( message );
     }
 
 
@@ -102,8 +111,13 @@ public class Editor
      */
     public TextLocation getSelectionBegin()
     {
-        return null;
-    }
+        LineColumn lineColumn = bjEditor.getSelectionBegin();
+        if ( lineColumn == null ) {
+            return null;
+        }
+
+        return new TextLocation( lineColumn.getLine(), lineColumn.getColumn() );
+    }    
 
 
     /**
@@ -125,7 +139,7 @@ public class Editor
      * @return                            The text value
      * @throws  IllegalArgumentException  if either of the specified TextLocations represent a position which does not exist in the text.
      */
-    public String getText(TextLocation begin, TextLocation end)
+    public String getText( TextLocation begin, TextLocation end )
     {
         return "";
     }
@@ -141,7 +155,7 @@ public class Editor
      * @throws  IllegalArgumentException  if either of the specified TextLocations
      * represent a position which does not exist in the text.
      */
-    public void setText(TextLocation begin, TextLocation end, String newText)
+    public void setText( TextLocation begin, TextLocation end, String newText )
     {
     }
 
@@ -154,7 +168,7 @@ public class Editor
      * @throws  IllegalArgumentException  if either of the specified TextLocations
      * represent a position which does not exist in the text.
      */
-    public void setSelection(TextLocation begin, TextLocation end)
+    public void setSelection( TextLocation begin, TextLocation end )
     {
     }
 
@@ -165,9 +179,9 @@ public class Editor
      *
      * @param  readOnly  If true user cannot change the editor content using the GUI, false allows user interaction using the GUI.
      */
-    void setReadOnly(boolean readOnly)
+    void setReadOnly( boolean readOnly )
     {
-        bjEditor.setReadOnly(readOnly);
+        bjEditor.setReadOnly( readOnly );
     }
 
 
@@ -189,7 +203,7 @@ public class Editor
      * @param  propertyKey  The propertyKey of the property to retrieve.
      * @return              the property value or null if it is not found
      */
-    public Object getProperty(String propertyKey)
+    public Object getProperty( String propertyKey )
     {
         return null;
     }
@@ -202,7 +216,7 @@ public class Editor
      * @param  propertyKey  The property key of the new property
      * @param  value        The new property value
      */
-    public void setProperty(String propertyKey, Object value)
+    public void setProperty( String propertyKey, Object value )
     {
     }
 
@@ -214,7 +228,7 @@ public class Editor
      * @param  location  position to be translated
      * @return           the offset into the text of this text or -1 if the text location is invalid
      */
-    public int getOffsetFromTextLocation(TextLocation location)
+    public int getOffsetFromTextLocation( TextLocation location )
     {
         return 0;
     }
@@ -226,9 +240,15 @@ public class Editor
      * @param  offset  location to be translated
      * @return         the TextLocation in the text of this offset or null if the offset is invalid
      */
-    public TextLocation getTextLocationFromOffset(int offset)
+    public TextLocation getTextLocationFromOffset( int offset )
     {
-        return null;
+        LineColumn lineColumn = bjEditor.getLineColumnFromOffset( offset );
+
+        if ( lineColumn == null ) {
+            return null;
+        }
+
+        return new TextLocation( lineColumn.getLine(), lineColumn.getColumn() );
     }
 
 
@@ -238,7 +258,7 @@ public class Editor
      * @param  line  the line in the text for which the length should be calculated
      * @return       the length of the line, -1 if line is invalid
      */
-    public int getLineLength(int line)
+    public int getLineLength( int line )
     {
         return 0;
     }

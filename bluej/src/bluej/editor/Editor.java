@@ -14,7 +14,7 @@ import java.awt.print.PrinterJob;
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 2920 2004-08-20 08:02:09Z damiano $
+ * @version $Id: Editor.java 2924 2004-08-22 05:47:12Z damiano $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -124,6 +124,15 @@ public interface Editor
                         boolean beep, boolean setStepMark, String help);
 
     /**
+     *  Display a message into the info area.
+     *  The message will be cleared when the caret is moved.
+     *  
+     *  @param msg the message to display
+     */
+    public void writeMessage(String msg);
+
+
+    /**
      * Remove the step mark (the mark that shows the current line when
      * single-stepping through code). If it is not currently displayed, do
      * nothing.
@@ -204,5 +213,29 @@ public interface Editor
      * @return    the LineColumn object.
      */
     public LineColumn getCaretLocation();
+    
+    /**
+     * Sets the current Caret location within the edited text.
+     *
+     * @param  location                   The location in the text to set the Caret to.
+     * @throws  IllegalArgumentException  if the specified TextLocation represents a position which does not exist in the text.
+     */
+    public void setCaretLocation(LineColumn location);
+
+
+    /**
+     * Returns the location at which current selection begins.
+     *
+     * @return    the current beginning of the selection or null if no text is selected.
+     */
+    public LineColumn getSelectionBegin();
+    
+    
+    /**
+     * Returns the LineColumn object from the given offset in the text.
+     *
+     * @return    the LineColumn object or null if the offset points outside the text.
+     */
+    public LineColumn getLineColumnFromOffset(int offset);
     
 } // end interface Editor
