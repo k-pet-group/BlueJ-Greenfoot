@@ -9,18 +9,18 @@
          tools.jar file to use with it. Note that in general all
          compilation should be done on the minimum supported JDK for
          BlueJ (which is currently 1.3) -->
-    <property name="build_java_home" value="C:/Programmi/j2sdk1.4.1"/>
+    <property name="build_java_home" value="C:\j2sdk1.4.1_02"/>
 
     <!-- the run_java_home is used to find the jvm to run and the
          corresponding tools.jar file -->
-    <property name="run_java_home" value="C:/Programmi/j2sdk1.4.1"/>
+    <property name="run_java_home" value="C:\jdk1.3.1_08"/>
 
+    <!-- Pass this property down to lower build files to find various jars etc -->
+    <!-- Makes it easier if the current directory is not bluej_home -->
+    <property name="bluej_home" value="c:\BlueJdev\bluej"/>
 
     <!-- ********************************************** -->
     <!-- do not edit below here for local customisation -->
-
-    <!-- Pass this property down to lower build files to find various jars etc -->
-    <property name="bluej_home" value="c:/home/bluej/bluej"/>
 
     <!-- Set up common directories -->
     <property name="src" value="src"/>
@@ -144,13 +144,7 @@
 
     <target name="run">
         <!-- Run the java code in ${build} -->
-        <java classname="bluej.Main" fork="yes" jvm="${run_java_home}/bin/java">
-            <classpath>
-                <path refid="bluej.class.path"/>
-                <pathelement location="${bluej_home}/lib/bluej.jar"/>
-                <pathelement location="${bluej_home}/lib/bluejext.jar"/>
-                <pathelement location="${run_java_home}/lib/tools.jar"/>
-            </classpath>
+        <java jar="${bluej_home}/lib/bluej.jar" fork="yes" jvm="${run_java_home}/bin/java">
             <!-- <arg path="${bluej_home}/test-examples/dummy/bluej.pkg"/> -->
         </java>
     </target>
