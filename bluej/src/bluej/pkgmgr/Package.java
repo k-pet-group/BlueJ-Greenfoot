@@ -28,7 +28,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 170 1999-07-08 02:12:42Z ajp $
+ ** @version $Id: Package.java 175 1999-07-09 02:05:09Z ajp $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -1485,8 +1485,7 @@ public class Package extends Graph
     public Class loadClass(String className)
     {
 	try {
-	    Class c = ClassMgr.getLoader(getClassDir()).loadClass(className);
-	    return c;
+	    return getLocalClassLoader().loadClass(className);
 	} catch(ClassNotFoundException e) {
 	    e.printStackTrace();
 	    return null;
