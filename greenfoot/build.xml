@@ -26,7 +26,7 @@
 	<property name="images" location="images"/>
 		
 	<!-- Location of the build-dir where the class files will be stored -->
-	<property name="build" location="bin"/>
+	<property name="build" location="classes"/>
     <!-- Files that are used in the skeleton project. These are the user-visible framework files   -->
 	<patternset id="skeleton.files">
 		<include name="greenfoot/GreenfootWorld.*"/>
