@@ -9,6 +9,7 @@ import bluej.debugger.DebuggerClassLoader;
 import bluej.debugger.CallHistory;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.editor.moe.MoeEditorManager;
@@ -29,7 +30,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 220 1999-08-10 04:23:38Z bruce $
+ ** @version $Id: Package.java 231 1999-08-12 04:15:34Z ajp $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -485,10 +486,10 @@ public class Package extends Graph
 
 		if("UsesDependency".equals(type))
 		    dep = new UsesDependency(this);
-		else if("ExtendsDependency".equals(type))
-		    dep = new ExtendsDependency(this);
-		else if("ImplementsDependency".equals(type))
-		    dep = new ImplementsDependency(this);
+//		else if("ExtendsDependency".equals(type))
+//		    dep = new ExtendsDependency(this);
+//		else if("ImplementsDependency".equals(type))
+//		    dep = new ImplementsDependency(this);
 		
 		if(dep != null) {
 		    dep.load(props, "dependency" + (i + 1));
@@ -502,6 +503,15 @@ public class Package extends Graph
 	    return;
 	}
 
+	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+	    Target target = (Target)e.nextElement();
+			
+	    if(target instanceof ClassTarget) {
+		ClassTarget ct = (ClassTarget)target;
+		ct.analyseDependencies();
+        }
+    }
+    
 	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
 	    Target t = (Target)e.nextElement();
 	    if((t instanceof ClassTarget)
@@ -559,10 +569,10 @@ public class Package extends Graph
 	    Dependency d = (Dependency)usesArrows.elementAt(i);
 	    d.save(props, "dependency" + (i + 1));
 	}
-	for(int i = 0; i < extendsArrows.size(); i++) {		// inherit arrows
-	    Dependency d = (Dependency)extendsArrows.elementAt(i);
-	    d.save(props, "dependency" + (usesArrows.size() + i + 1));
-	}
+//	for(int i = 0; i < extendsArrows.size(); i++) {		// inherit arrows
+//	    Dependency d = (Dependency)extendsArrows.elementAt(i);
+//	    d.save(props, "dependency" + (usesArrows.size() + i + 1));
+//	}
 
 	try {
 	    FileOutputStream output = new FileOutputStream(file);
@@ -715,27 +725,22 @@ public class Package extends Graph
      * has selected a class, issued the "use" command
      * and selected the open package to use the class in.
      * 
-     * @param packageName the name of the package in java format (eg. java.awt)
-     * @param className the name of the class (eg. Frame)
+     * @param qualifiedName the fully qualified name of the class
+     *        in java format (eg. java.awt.Frame)
      * @return an error code indicating the status of the insert (eg. NO_ERROR)
      */
-    public int insertLibClass(String packageName, String className) {
-        Debug.message("Inserting class: " + packageName + "-" + className + " in " + this.getFrame().getTitle());
+    public int insertLibClass(String qualifiedName) {
+        Debug.message("Inserting class: " + qualifiedName + " in " + this.getFrame().getTitle());
 
-	if (getFrame() instanceof PkgMgrFrame) {
-	    String packagePath;
-	    packagePath = "/"; //((PkgMgrFrame)getFrame()).getBrowser().getDirectoryForPackage(packageName);
-	    Debug.message("Package lives in directory: " + packagePath);
-
-	    // create class icon (ClassTarget) for new class
-	    
-	    ImportedClassTarget target = new ImportedClassTarget(this, 
-								 className,
-								 packagePath);
-	    target.setState(Target.S_NORMAL);
-	    addTarget(target);
-	}
- 	return NO_ERROR;
+        if (getFrame() instanceof PkgMgrFrame) {
+            // create class icon (ClassTarget) for new class
+            
+            ImportedClassTarget target = new ImportedClassTarget(this, 
+                                            qualifiedName);
+            target.setState(Target.S_NORMAL);
+            addTarget(target);
+        }
+        return NO_ERROR;
     }
     
     /**
@@ -897,6 +902,10 @@ public class Package extends Graph
 	    if(!(d.getTo() instanceof ClassTarget))
 		continue;
 
+        // XXX bad bad bad. Must fix
+        if(d.getTo() instanceof ImportedClassTarget)
+            continue;
+
 	    ClassTarget to = (ClassTarget)d.getTo();
 			
 	    if(to.isFlagSet(Target.F_QUEUED)) {
@@ -1019,20 +1028,86 @@ public class Package extends Graph
 	to.addDependencyIn(d, recalc);
     }
 
+    public void correctAddDependency(Dependency d)
+    {
+        Target from = (Target)d.getFrom();
+	    Target to = (Target)d.getTo();
+
+        try {
+            if (from instanceof ClassTarget) {
+                ClassTarget t = (ClassTarget)from;
+                
+                ClassInfo info = ClassParser.parse(t.sourceFile(), getAllClassnames());
+
+                System.out.println(info.getSuperclass());
+                
+                if (info.getSuperclass() == null) {
+                    Selection s1 = info.getClassExtendsInsertSelection();
+
+                    t.getEditor().setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
+                    t.getEditor().insertText(" extends " + to.getName(), true, false);
+
+                    t.showView(Editor.IMPLEMENTATION);
+                }
+            }
+        }
+        catch(Exception e) {
+            // exception during parsing so we have to ignore
+            // perhaps we should display a message here
+            return;
+        }
+    }
+
+    public void correctRemoveDependency(Dependency d)
+    {
+        Target from = (Target)d.getFrom();
+
+        try {
+            if (from instanceof ClassTarget) {
+                ClassTarget t = (ClassTarget)from;
+                
+                ClassInfo info = ClassParser.parse(t.sourceFile(), getAllClassnames());
+
+                Selection s1 = info.getClassExtendsReplaceSelection();
+                Selection s2 = info.getClassSuperClassReplaceSelection();
+
+                t.getEditor().setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
+                t.getEditor().insertText("", false, false);
+                
+                if(s1.getLine() == s2.getLine())
+                    t.getEditor().setSelection(s2.getLine(), s2.getColumn() - s1.getLength(), s2.getLength());
+                else
+                    t.getEditor().setSelection(s2.getLine(), s2.getColumn(), s2.getLength());
+                    
+                t.getEditor().insertText("", false, false);
+
+                t.showView(Editor.IMPLEMENTATION);
+            }
+        }
+        catch(Exception e) {
+            // exception during parsing so we have to ignore
+            // perhaps we should display a message here
+            return;
+        }
+    }
+
+
     /**
      *  Remove a dependancy from this package. The dependency is also removed
      *  from the individual targets involved.
      */
     public void removeDependency(Dependency d, boolean recalc)
     {
-	if(d instanceof UsesDependency)
-	    usesArrows.removeElement(d);
-	else
-	    extendsArrows.removeElement(d);
-	Target from = (Target)d.getFrom();
-	from.removeDependencyOut(d, recalc);
-	Target to = (Target)d.getTo();
-	to.removeDependencyIn(d, recalc);
+        if(d instanceof UsesDependency)
+            usesArrows.removeElement(d);
+        else
+            extendsArrows.removeElement(d);
+
+        Target from = (Target)d.getFrom();
+        from.removeDependencyOut(d, recalc);
+
+        Target to = (Target)d.getTo();
+        to.removeDependencyIn(d, recalc);
     }
 
     public void recalcArrows()
@@ -1239,8 +1314,11 @@ public class Package extends Graph
 		    if(t instanceof ClassTarget) {
 			if(((ClassTarget)t).isInterface())
 			    addDependency(new ImplementsDependency(this, fromChoice, t), true);
-			else
-			    addDependency(new ExtendsDependency(this, fromChoice, t), true);
+			else {
+                Dependency d = new ExtendsDependency(this, fromChoice, t);
+                correctAddDependency(d);
+			    addDependency(d, true);
+			    }
 		    }
 		    frame.clearStatus();
 		}
@@ -1618,6 +1696,7 @@ public class Package extends Graph
 		    currentArrow.highlight(frame.editor.getGraphics());
 		if(selectedArrow != null)
 		    {
+            correctRemoveDependency(selectedArrow);
 			removeDependency(selectedArrow, true);
 			frame.editor.repaint();
 		    }

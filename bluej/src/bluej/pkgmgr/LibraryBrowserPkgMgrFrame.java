@@ -344,9 +344,8 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
      */
     public void usePackage(Package thePackage, String lib, boolean isClass) {
 	    if (isClass) {
-		// separate class name from package name
-		thePackage.insertLibClass(lib.substring(0, lib.lastIndexOf(".")), 
-					  lib.substring(lib.lastIndexOf(".") + 1, lib.length()));
+		    // separate class name from package name
+		    thePackage.insertLibClass(lib);
 	    } else
 		thePackage.insertLibPackage(lib);
     }
@@ -464,7 +463,7 @@ public class LibraryBrowserPkgMgrFrame extends PkgFrame implements ActionListene
 	
     /**
      * Attempt to open the class in the code viewer if it exists.  If the class is
-     * an inner class (embedded $ in name), open the parent class instead.
+     * an inner class (embedde4 $ in name), open the parent class instead.
      * 
      * @param className the class name specified as a filesystem file (with .java extension)
      * @param isCompiled true if the file to open has been compiled

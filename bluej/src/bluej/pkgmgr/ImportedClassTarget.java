@@ -1,12 +1,14 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
+import bluej.editor.Editor;
+
 import java.util.Properties;
 import java.awt.Color;
 import java.awt.Font;
 
 /** 
- ** @version $Id: ImportedClassTarget.java 198 1999-07-22 00:50:03Z ajp $
+ ** @version $Id: ImportedClassTarget.java 231 1999-08-12 04:15:34Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -22,6 +24,7 @@ public class ImportedClassTarget extends ClassTarget
     static Font normalFont = new Font("SansSerif", Font.BOLD, Config.fontsize);
     static Font invalidFont = new Font("SansSerif", Font.BOLD | Font.ITALIC, Config.fontsize);
 	
+
     String sourcePkgDir;
 
     /**
@@ -31,10 +34,11 @@ public class ImportedClassTarget extends ClassTarget
      * @param name  the name of the target
      * @param sourcePackageDir  the directory/jar where the class's source is stored
      */
-    public ImportedClassTarget(Package pkg, String name, String sourcePkgDir)
+    public ImportedClassTarget(Package pkg, String qualifiedName)
     {
-        super(pkg, name);
-        this.sourcePkgDir = sourcePkgDir;
+        super(pkg, qualifiedName);
+
+        displayedView = Editor.PUBLIC;
     }
 
     /**
@@ -43,7 +47,7 @@ public class ImportedClassTarget extends ClassTarget
      */
     public ImportedClassTarget(Package pkg)
     {
-        this(pkg, null, null);
+        this(pkg, null);
     }
 
     /**
@@ -56,7 +60,7 @@ public class ImportedClassTarget extends ClassTarget
     {
 	super.load(props, prefix);
 
-	sourcePkgDir = Config.getPath(props, prefix + ".srcPkgDir");
+//	sourcePkgDir = Config.getPath(props, prefix + ".srcPkgDir");
     }
 
     /**
@@ -70,7 +74,7 @@ public class ImportedClassTarget extends ClassTarget
 	super.save(props, prefix);
 
 	props.put(prefix + ".type", "ImportedClassTarget"); // overwrites type from superclass
-	Config.putPath(props, prefix + ".srcPkgDir", sourcePkgDir);
+//	Config.putPath(props, prefix + ".srcPkgDir", sourcePkgDir);
     }
 
     /**
@@ -86,6 +90,26 @@ public class ImportedClassTarget extends ClassTarget
     }
 
     /**
+     ** @return the editor object associated with this target. May be null
+     **  if there was a problem opening this editor.
+     **/
+    public Editor getEditor()
+    {
+	    if(editor == null)
+	        editor = pkg.editorManager.openClass(sourceFile(), name, this,
+						 isCompiled(), breakpoints);
+	return editor;
+    }
+	
+    /**
+     ** @return the current view being shown - one of the Editor constants
+     **/
+    public int getDisplayedView()
+    {
+	return displayedView;
+    }
+
+    /**
      * Return the background colour of this target.
      */
     Color getBackgroundColour()
@@ -94,11 +118,34 @@ public class ImportedClassTarget extends ClassTarget
     }
 
     /**
+     ** @return a boolean indicating whether this target contains source code
+     **/
+    protected boolean isCode()
+    {
+	return false;
+    }
+
+    protected boolean isCompiled()
+    {
+	return true;
+    }
+
+    public void invalidate()
+    {
+    }
+
+    public boolean upToDate()
+    {
+        return true;
+    }
+
+    /**
      * Return the full path name of the source file of this target.
      */
     public String sourceFile()
     {
-	return sourcePkgDir + Config.slash + name + ".java";
+        return "";
+//        return sourcePkgDir + Config.slash + name + ".java";
     }
  
     /**

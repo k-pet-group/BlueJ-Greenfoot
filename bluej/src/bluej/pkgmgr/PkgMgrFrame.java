@@ -27,7 +27,7 @@ import bluej.debugger.ExecControls;
 import bluej.debugger.ExecControlButtonModel;
 import bluej.terminal.Terminal;
 import bluej.terminal.TerminalButtonModel;
-import bluej.classmgr.ClassMgrDialog;
+// import bluej.prefmgr.PrefMgrDialog;
 
 public class PkgMgrFrame extends PkgFrame 
 
@@ -289,10 +289,6 @@ public class PkgMgrFrame extends PkgFrame
 	    setStatus(chooseArrow);
 	    break;
 
-	case EDIT_PREFERENCES:
-		ClassMgrDialog.showDialog(null);
-		break;
-
 	    // Tools commands
 	case TOOLS_COMPILE:
 	    pkg.compile();
@@ -315,6 +311,10 @@ public class PkgMgrFrame extends PkgFrame
 //  	    getBrowser().invalidate();
 // 	    getBrowser().validate();
 	    break;
+
+//	case TOOLS_PREFERENCES:
+//		PrefMgrDialog.showDialog(null);
+//		break;
 
 	    // View commands
 	case VIEW_SHOWUSES:
