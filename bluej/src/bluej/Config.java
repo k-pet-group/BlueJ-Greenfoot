@@ -24,7 +24,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 2095 2003-07-04 10:30:37Z iau $
+ * @version $Id: Config.java 2141 2003-08-04 08:09:49Z bquig $
  */
 
 public class Config
@@ -549,6 +549,14 @@ public class Config
     public static File getLanguageFile(String base)
     {
         return new File(bluej_lib_dir, language + File.separator + base);
+    }
+    
+    /**
+     * return the default language version of a language resource file
+     */
+    public static File getDefaultLanguageFile(String base)
+    {
+    	return new File(bluej_lib_dir, DEFAULT_LANGUAGE + File.separator + base);
     }
 
     /**
