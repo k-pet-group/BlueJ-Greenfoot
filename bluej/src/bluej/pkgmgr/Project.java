@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 566 2000-06-19 05:40:19Z ajp $
+ * @version $Id: Project.java 570 2000-06-19 06:45:09Z ajp $
  */
 public class Project
 {
@@ -247,7 +247,7 @@ public class Project
     }
 
     /**
-     * Save all package of this project.
+     * Save all open packages of this project.
      */
     public void saveAll()
     {
@@ -255,6 +255,23 @@ public class Project
 
         for(int i=0; i< frames.length; i++) {
             frames[i].doSave();
+        }
+    }
+
+    /**
+     * Reload all constructed package of this project.
+     *
+     * This function is used after a major change to the contents
+     * of the project directory ie an import.
+     */
+    public void reloadAll()
+    {
+        Iterator i = packages.values().iterator();
+
+        while(i.hasNext()) {
+            Package pkg = (Package) i.next();
+
+            pkg.reload();
         }
     }
 

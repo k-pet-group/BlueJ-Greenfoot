@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 567 2000-06-19 05:40:49Z ajp $
+ * @version $Id: PkgMgrFrame.java 570 2000-06-19 06:45:09Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
@@ -726,9 +726,12 @@ public class PkgMgrFrame extends JFrame
      * Allow the user to select a directory into which we create
      * a project.
      */
-    protected void doNewProject()
+    protected boolean doNewProject()
     {
         String newname = FileUtility.getFileName(this, newpkgTitle, createLabel);
+
+        if (newname == null)
+            return false;
 
         if (Project.createNewProject(newname)) {
             Project proj = Project.openProject(newname);
@@ -741,6 +744,7 @@ public class PkgMgrFrame extends JFrame
                 pmf.show();
             }
         }
+        return true;
     }
 
     /**
@@ -886,9 +890,18 @@ public class PkgMgrFrame extends JFrame
         else if (result == JFileChooser.CANCEL_OPTION)
             return;
 
+        if (isEmptyFrame())
+            if(!doNewProject())
+                return;
+
+        if (isEmptyFrame())
+            return;
+
         FileUtility.recursiveCopyFile(importDir, getPackage().getPath());
 
         Import.convertDirectory(getPackage().getPath());
+
+        getProject().reloadAll();
     }
 
     /**

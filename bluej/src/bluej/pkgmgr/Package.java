@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 564 2000-06-19 05:39:04Z ajp $
+ * @version $Id: Package.java 570 2000-06-19 06:45:09Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -598,6 +598,8 @@ public class Package extends Graph
                 ct.analyseDependencies();
             }
         }
+
+        repaint();
     }
 
     /**
@@ -1081,7 +1083,7 @@ public class Package extends Graph
         DependentTarget to = (DependentTarget)d.getTo();
 
         if(from == null || to == null) {
-            Debug.reportError("Found invalid dependency - ignored.");
+            // Debug.reportError("Found invalid dependency - ignored.");
             return;
         }
 

@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 565 2000-06-19 05:40:01Z ajp $
+ * @version $Id: ClassTarget.java 570 2000-06-19 06:45:09Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -525,7 +525,7 @@ public class ClassTarget extends EditableTarget
                 fed.replaceSelection(selSemi, "");
             }
             else
-                fed.replaceSelection(selSemi, ";");
+                fed.replaceSelection(selSemi, ";\n\n");
         }
 
         // then delete or insert the package name
