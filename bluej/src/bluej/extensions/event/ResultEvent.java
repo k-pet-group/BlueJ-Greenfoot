@@ -4,23 +4,30 @@ import bluej.debugger.ExecutionEvent;
 import bluej.extensions.BPackage;
 
 /**
- * <pre>This Class represent a Result event, it is mostly similar to an Invocation now
- * but it will be different as soon as I am able to get the returnin values.
- * Damiano
- * </pre>
- * @version $Id: ResultEvent.java 1689 2003-03-10 13:40:53Z damiano $
+ * This Class represent a Result event, an event generated when the invocation finished.
+ * From this event you can extract the actual result of the invocation.
+ * 
+ * @version $Id: ResultEvent.java 1707 2003-03-14 06:37:51Z damiano $
  */
 public class ResultEvent extends BluejEvent
 {
     // This event is returned in case of unknown mapping
     public static final int UNKNOWN_EXIT = 0;
-    // The execution has finished normally;
+    /**
+     * The execution has finished normally;
+     */
     public static final int NORMAL_EXIT = 1;
-    // The execution has finished through a call to System.exit();
+    /**
+     * The execution has finished through a call to System.exit();
+     */
     public static final int FORCED_EXIT = 2;
-    // The execution has finished due to an exception
+    /**
+     * The execution has finished due to an exception
+     */ 
     public static final int EXCEPTION_EXIT = 3;
-    // The execution has finished because the user has forcefully terminated it
+    /**
+     * The execution has finished because the user has forcefully terminated it
+     */
     public static final int TERMINATED_EXIT = 4;
 
     private String className, objectName, methodName;
@@ -71,6 +78,7 @@ public class ResultEvent extends BluejEvent
       }
 
     /**
+     * TODO: returning a BClass instead
      * @return the name of the class being operated on, or <code>null</code> if it is an object method
      */
     public String getClassName()
@@ -79,6 +87,7 @@ public class ResultEvent extends BluejEvent
     }
     
     /**
+     * TODO: returning a BObject instead
      * @return the name of the object being operated on, or <code>null</code> if it is a static method, or the
      * new instance name if it is a constructor
      */
