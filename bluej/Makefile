@@ -1,11 +1,33 @@
+##
+## Top level Makefile for the BlueJ Development Environment
+##
+## Usage:
+## 	make all	- makes the whole system (grammar, antlr, allclasses)
+## 	make allclasses	- makes all bluej classes (but not grammar, antlr)
+## 	make		- makes the system with the default compiler
+## 	make javac	- makes the system with javac
+## 	make jikes	- makes the system with jikes
+## 	make grammar	- makes the whole system with jikes
+## 	make antlr	- makes the whole system with jikes
+## 	make clean	- removes the classes
+## 	make dist	- make a distribution
+##
+## NOTE: the normal make commands (make, make javac, make jikes) do not
+## 	make some classes: some classes in "runtime" which are not accesses
+##	at compile time are forgotton by those commands. To make those you
+##	must use "make allclasses".
+##	The Java grammar and the antlr classes are, by default, not re-made.
+##	Use "make grammar" and "make antlr" to make those.
+##
+
 include $(OS).mk
 
-PKG_VERSION = 093
+PKG_VERSION = 095
 
 SUBDIRS = \
 	src
 
-INSTALL_FILES = \
+INSTALL_IMAGES = \
 	images/arrow_black.gif \
 	images/arrow_red.gif \
 	images/bluej-icon.gif \
@@ -25,26 +47,43 @@ INSTALL_FILES = \
 	images/terminate.gif \
 	images/working-disab.gif \
 	images/working-stopped.gif \
-	images/working.gif \
+	images/working.gif
+
+INSTALL_LIB_FILES = \
 	lib/abstract.tmpl \
 	lib/antlr.jar \
 	lib/applet.tmpl \
 	lib/bluej.defs \
-	lib/bluej.jar \
 	lib/english.defs \
 	lib/exception.english.help \
 	lib/html.tmpl \
 	lib/interface.tmpl \
 	lib/javac.english.help \
-	lib/jbug.jar \
 	lib/jikes.english.help \
+	lib/jpda.jar \
 	lib/moe.defs \
 	lib/moehelp.defs \
 	lib/shell.tmpl \
 	lib/stdclass.tmpl \
 	lib/stdctxt.jar \
-	lib/syslibs.properties \
-	examples
+	lib/syslibs.properties
+
+INSTALL_EXAMPLES = \
+	examples/hello \
+	examples/maze \
+	examples/people \
+	examples/people2 \
+	examples/reader \
+	examples/simple
+
+SPARC_INSTALL_FILES = \
+	lib/sparc
+
+WINDOWS_INSTALL_FILES = \
+	lib/win32
+
+LINUX_INSTALL_FILES = \
+
 
 PACKAGES = \
 	package/bluej-$(PKG_VERSION).jar
@@ -52,67 +91,58 @@ PACKAGES = \
 FINDALL = find . -follow \( -name CVS -a -prune \) -o \( -type f -a -print \)
 FINDCVS = find . -name CVS
 
-all dep depend clean clobber jikes grammar antlr::
+default all allclasses clean jikes javac grammar antlr::
 	for f in $(SUBDIRS) ; do \
 		$(MAKE) -C $$f $@ ; \
 	done
 
-package: dist
-
 dist: $(PACKAGES)
 
-package/bluej-$(PKG_VERSION).jar: package/install.class
-	( cd package && \
-	  jar cv0Mf bluej-$(PKG_VERSION).jar *.class )
+package/bluej-$(PKG_VERSION).jar: default
+	rm -rf install_tmp
+	mkdir install_tmp
+	mkdir install_tmp/images
+	mkdir install_tmp/lib
+	mkdir install_tmp/examples
+	chmod -R a+rx images
 
-package/install.class: package/bluej.jar
-	( cd package && \
-	  javac install.java ; \
-	  java install build install.props )
+	# install images
+	cp -p $(INSTALL_IMAGES) install_tmp/images
 
-# create a files listed in INSTALL_FILES in directory "install/"
-# and
-package/bluej.jar: $(INSTALL_FILES:%=install/%)
-	rm -f $@
-	# ( cd install && jar cvMf ../$@ `$(FINDALL)` )
-	( cd install && jar cvMf ../$@ * )
+	# install lib files
+	cp -p $(INSTALL_LIB_FILES) install_tmp/lib
 
-install:
-	mkdir -p $@
+	# install examples
+	cp -rp $(INSTALL_EXAMPLES) install_tmp/examples
+	( cd install_tmp/examples && rm -rf `$(FINDCVS)` )
 
-install/images:
-	mkdir -p $@
-	chmod a+rx $@
-
-install/images/%.gif: install/images
-	cp images/`basename $@` $@
-	chmod a+r $@
-
-install/lib:
-	mkdir -p $@
-	chmod a+rx $@
-
-# create install/lib/bluej.jar and add all class files
-install/lib/bluej.jar: all install/lib
+	# jar bluej class files into lib/bluej.jar
 	( cd classes ; \
-	  rm -f ../$@ ; \
-	  jar cv0Mf ../$@ `$(FINDALL)` )
+	  jar cv0Mf ../install_tmp/lib/bluej.jar `$(FINDALL)` )
 
-# copy the target from "lib/" to "install/lib"
-install/lib/%: lib/% install/lib
-	cp lib/`basename $@` $@
-	chmod a+r $@
+	chmod -R a+r install_tmp
 
-.PHONY:
-install/examples: install
-	rm -rf $@
-	cp -rp examples install
-	# mkdir $@/bluej
-	# cp -r src/* $@/bluej
-	( cd $@ && rm -rf `$(FINDCVS)` )
+	# copy platform directories to lib
+	cp -rp lib/sparc install_tmp/lib
+	cp -rp lib/win32 install_tmp/lib
+	( cd install_tmp/lib && rm -rf `$(FINDCVS)` )
+
+	# bundle the whole bluej distribution together to bluej-dist.jar
+	rm -f package/bluej.jar
+	( cd install_tmp && jar cvMf ../package/bluej-dist.jar * )
+
+	# compile and run the installer
+	( cd package && \
+	  javac Installer.java ; \
+	  java Installer build installer.props ; \
+	  jar cv0mf manifest bluej-$(PKG_VERSION).jar *.class )
+
+	# clean up
+	rm -f package/bluej-dist.jar
+	rm -rf install_tmp
 
 clean::
 	$(RM) $(PACKAGES)
-	$(RM) -r install
+	$(RM) -r install_tmp
 
 .PHONY:

@@ -9,5 +9,5 @@ CLASSROOT=$JAVABLUE_HOME/classes
 CLASSPATH=`makepath "$CLASSROOT":$CLASSPATH`
 export CLASSPATH
 
-# Run it twice if necessary
+# Run it
 java jdepend.JDepend $@

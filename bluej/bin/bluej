@@ -3,14 +3,14 @@
 BINDIR=`dirname $0`
 . $BINDIR/config
 
+JAVA_BIN=`which java 2>/dev/null`
+SUNTOOLS=`dirname $JAVA_BIN`/../lib/tools.jar
 BLUEJ_HOME=$BINDIR/.. 
 CLASSROOT=$BLUEJ_HOME/classes
-LIB_DIR=$BLUEJ_HOME/lib
 JPDA=$BLUEJ_HOME/lib/jpda.jar
 ANTLR=$BLUEJ_HOME/lib/antlr.jar
 
-XCLASSPATH=""
-CLASSPATH=`makepath "$CLASSROOT;$JPDA;$ANTLR;$CLASSPATH"`
+CLASSPATH=`makepath "$CLASSROOT;$JPDA;$ANTLR;$SUNTOOLS;$CLASSPATH"`
 export CLASSPATH
 
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BLUEJ_HOME/lib/sparc
