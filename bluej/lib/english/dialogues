@@ -87,11 +87,6 @@ error-open-source
 Cannot open the source
 of this class.
 
-error-open-readme
-There is a problem opening the text note
-of this project. A new empty text note has
-been created.
-
 error-writing-readme
 The README file for this project could not be
 updated to add the main class information.
