@@ -1,8 +1,6 @@
 package bluej.editor.moe.autocomplete;
 
-import bluej.classmgr.ClassMgr;
 import bluej.editor.moe.autocomplete.parser.MoeClassLoader;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
