@@ -9,11 +9,11 @@
 package bluej.editor;
 
 /**
-** @version $Id: EditorWatcher.java 1749 2003-04-04 13:52:46Z fisker $
-** @author Michael Cahill
-** Interface between the editor and the rest of BlueJ
-** The editor uses this class
-**/
+ * @version $Id: EditorWatcher.java 2752 2004-07-07 09:39:56Z mik $
+ * @author Michael Kolling
+ * Interface between the editor and the rest of BlueJ
+ * The editor uses this class
+ */
 public interface EditorWatcher
 {
     /**

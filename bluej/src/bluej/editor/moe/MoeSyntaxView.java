@@ -32,7 +32,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 2721 2004-07-02 11:30:40Z mik $
+ * @version $Id: MoeSyntaxView.java 2752 2004-07-07 09:39:56Z mik $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -81,9 +81,14 @@ public class MoeSyntaxView extends BlueJSyntaxView
 		    g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null), null);
 		}
 
-		paintSyntaxLine(lineText, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
-		                document, tokenMarker, def);
-	}
+        if(tokenMarker == null) {
+            Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);            
+        }
+        else {
+            paintSyntaxLine(lineText, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
+                            document, tokenMarker, def);
+        }
+}
 
    /**
     * redefined paint method to paint breakpoint area

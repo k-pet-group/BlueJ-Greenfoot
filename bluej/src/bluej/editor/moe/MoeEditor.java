@@ -1414,7 +1414,8 @@ public final class MoeEditor extends JFrame
      */
     private void setUnsetBreakpoint(int pos, boolean set)
     {
-        if (watcher != null) {
+        if (watcher != null) {      // TODO: this should be changed one day: 
+                                    // maybe text documents have watchers one day
             int line = getLineNumberAt(pos);
             String result = watcher.breakpointToggleEvent(this, line, set);
 

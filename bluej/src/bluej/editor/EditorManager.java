@@ -18,7 +18,7 @@ import bluej.editor.moe.MoeEditorManager;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: EditorManager.java 2642 2004-06-21 14:53:23Z polle $
+ * @version $Id: EditorManager.java 2752 2004-07-07 09:39:56Z mik $
  */
 public abstract class EditorManager
 {
@@ -73,7 +73,7 @@ public abstract class EditorManager
      * @returns		the new editor, or null if there was a problem
      */
     public abstract Editor openText(String filename, String windowTitle,
-                    EditorWatcher watcher, Rectangle bounds );
+                                    Rectangle bounds );
 
     /**
      * Indicate to the manager that all resources used by this editor

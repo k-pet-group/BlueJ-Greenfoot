@@ -18,10 +18,10 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 2747 2004-07-06 21:57:23Z mik $
+ * @version $Id: ReadmeTarget.java 2752 2004-07-07 09:39:56Z mik $
  */
 public class ReadmeTarget extends Target
-    implements ActionListener, EditorWatcher
+    implements ActionListener
 {
     static final int WIDTH = 40;
     static final int HEIGHT = 50;
@@ -146,51 +146,10 @@ public class ReadmeTarget extends Target
         if(editor == null)
             editor = EditorManager.getEditorManager().openText(
                                                  getSourceFile().getPath(),
-                                                 Package.readmeName, this, editorBounds);
+                                                 Package.readmeName, editorBounds);
         return editor;
     }
 
-    // --- EditorWatcher interface ---
-
-    /**
-     * Called by Editor when a file is changed
-     */
-    public void modificationEvent(Editor editor)
-    {
-    }
-
-    /**
-     * Called by Editor when a file is saved
-     * @param editor	the editor object being saved
-     */
-    public void saveEvent(Editor editor)
-    {
-    }
-
-    /**
-     * Called by Editor when a file is closed
-     * @param editor	the editor object being closed
-     */
-    public void closeEvent(Editor editor) {}
-
-    /**
-     * Called by Editor when a breakpoint is been set/cleared
-     * @param filename	the name of the file that was modified
-     * @param lineNo	the line number of the breakpoint
-     * @param set	whether the breakpoint is set (true) or cleared
-     *
-     * @return  null if there was no problem, or an error string
-     */
-    public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
-    {
-        return null;
-    }
-
-    public void compile(Editor editor)
-    {
-    }
-
-    // --- end of EditorWatcher interface ---
 
     public void actionPerformed(ActionEvent e)
     {
@@ -251,13 +210,6 @@ public class ReadmeTarget extends Target
         return menu;
        }
 
-	/* (non-Javadoc)
-	 * @see bluej.editor.EditorWatcher#generateDoc()
-	 */
-	public void generateDoc() 
-    {
-	}
-    
     private class OpenAction extends AbstractAction
     {
 
@@ -272,7 +224,8 @@ public class ReadmeTarget extends Target
         }
     }
     
-    public void remove(){
+    public void remove()
+    {
         // The user is not permitted to remove the readmefile
-   }
+    }
 }
