@@ -1,38 +1,46 @@
 package bluej.extensions.event;
 
 import bluej.extensions.BPackage;
+import bluej.pkgmgr.Package;
 
 /**
- * This class represents a package event. It is provided to a <code>BJEventListener</code> 
- * that has registered an interest in receiving such events with 
- * a <CODE>BlueJ</CODE> object by using its <CODE>addBJEventListener</CODE> method.
- * @author Clive Miller
- * @version $Id: PackageEvent.java 1459 2002-10-23 12:13:12Z jckm $
+ * Package events, like package OPEN/CLOSE are delivered using this event Class
+ *
+ * @version $Id: PackageEvent.java 1671 2003-03-10 08:58:32Z damiano $
  */
-public class PackageEvent extends BJEvent
+public class PackageEvent extends ExtEvent
 {
-    /**
-     * Event id: Occurs when a package has just been opened. Use {@link bluej.extensions.event.PackageEvent#getPackage() getPackage} to
-     * get a reference to the package.
-     */
+    //  Occurs when a package has just been opened
     public static final int PACKAGE_OPENED = 1;
 
-    /**
-     * Event id: Occurs when a package is just about to be closed so that the extension can take any necessary
-     * action before being voided.
-     */
+    // Occurs when a package is just about to be closed so that the extension can take any necessary action before being voided.
     public static final int PACKAGE_CLOSING = 2;
 
-    /**
-     * Event id: A bitwise combination of PACKAGE_OPENED and PACKAGE_CLOSING
-     */
-    public static final int PACKAGE_EVENT = PACKAGE_OPENED | PACKAGE_CLOSING;
 
+    private int eventId;
+    private Package thisPackage;
     /**
      * Constructs a package event
      */
-    public PackageEvent (int event, BPackage pkg)
+    public PackageEvent (int i_eventId, Package pkg)
     {
-        super (event, pkg);
+        eventId = i_eventId;
+        thisPackage = pkg;
     }
+
+    /**
+     * @return the eventId of this class
+     */
+    public int getEvent ()
+      {
+      return eventId;
+      }
+
+    /**
+     * @return the package on which the event happened
+     */
+    public BPackage getPackage ()
+      {
+      return new BPackage (thisPackage);
+      }
 }
