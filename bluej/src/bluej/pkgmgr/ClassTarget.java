@@ -39,7 +39,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 230 1999-08-12 04:04:54Z ajp $
+ ** @version $Id: ClassTarget.java 233 1999-08-12 23:53:28Z mik $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -60,6 +60,8 @@ public class ClassTarget extends EditableTarget
     static public final Font menuFont = new Font("SansSerif", Font.PLAIN, Config.fontsize);
     static final Font italicMenuFont = new Font("SansSerif", Font.ITALIC, Config.fontsize);
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+
+    static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
 
     static final Image brokenImage = Toolkit.getDefaultToolkit().getImage(
 					Config.getImageFilename("image.broken"));
@@ -426,8 +428,12 @@ public class ClassTarget extends EditableTarget
      */
     public void analyseDependencies()
     {
-        removeAllOutDependencies();
-    
+	// currently we don't remove uses dependencies, but just warn
+        
+	//removeAllOutDependencies();
+	removeInheritDependencies();
+	unflagAllOutDependencies();
+
         try {
             ClassInfo info = ClassParser.parse(sourceFile(), 
                                pkg.getAllClassnames());
@@ -479,6 +485,8 @@ public class ClassTarget extends EditableTarget
             }
     
             sourceInfo.setValid(true);
+
+	    checkForUsesInconsistencies();
         }
         catch(Exception e) {
             // exception during parsing
@@ -487,6 +495,16 @@ public class ClassTarget extends EditableTarget
     
         pkg.repaint();
     }
+
+    private void checkForUsesInconsistencies()
+    {
+	for(int i = 0; i < outUses.size(); i++) {
+	    UsesDependency usesDep = ((UsesDependency)outUses.elementAt(i));
+	    if(! usesDep.isFlagged())
+		pkg.getFrame().setStatus(usesArrowMsg + usesDep);
+	}
+    }
+
 
     protected Class last_class = null;
     protected JPopupMenu menu = null;

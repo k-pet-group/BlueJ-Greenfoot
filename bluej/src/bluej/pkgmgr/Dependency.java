@@ -12,7 +12,7 @@ import java.awt.Color;
  **
  ** @author Michael Cahill
  **
- ** @version $Id: Dependency.java 114 1999-06-08 04:02:49Z mik $
+ ** @version $Id: Dependency.java 233 1999-08-12 23:53:28Z mik $
  **/
 
 public abstract class Dependency extends Edge
@@ -74,4 +74,9 @@ public abstract class Dependency extends Edge
     public abstract void draw(Graphics g);
     public abstract boolean contains(int x, int y);
     public abstract void highlight(Graphics g);
+
+    public String toString()
+    {
+	return getFrom().getBaseName() + " --> " + getTo().getBaseName();
+    }
 }

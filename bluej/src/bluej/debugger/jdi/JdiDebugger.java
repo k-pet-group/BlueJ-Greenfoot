@@ -739,14 +739,14 @@ public final class JdiDebugger extends Debugger
 	// reverse order to make display nicer (newer threads first)
 	for(int i = 0; i < len; i++) {
 	    ThreadReference thread = (ThreadReference)threads.get(len-i-1);
-	    //if(thread.threadGroup().name().equals(MAIN_THREADGROUP)) {
+	    if(thread.threadGroup().name().equals(MAIN_THREADGROUP)) {
 
 		String name = thread.name();
-		if(! name.startsWith("xAWT-") &&	       // known system threads
-		   ! name.startsWith("xSunToolkit.") && 
-		   ! name.equals("xTimerQueue"))
+		if(! name.startsWith("AWT-") &&	       // known system threads
+		   ! name.startsWith("SunToolkit.") && 
+		   ! name.equals("TimerQueue"))
 		    threadVec.addElement(new JdiThread(thread));
-		//}
+	    }
 	}
 	return threadVec;
     }

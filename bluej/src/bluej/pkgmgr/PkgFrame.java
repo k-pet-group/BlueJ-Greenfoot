@@ -20,7 +20,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 231 1999-08-12 04:15:34Z ajp $
+ ** @version $Id: PkgFrame.java 233 1999-08-12 23:53:28Z mik $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -330,7 +330,8 @@ public abstract class PkgFrame extends JFrame
 
     static final KeyStroke[] EditKeys = {
 	KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK), 
-	KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK),
+	KeyStroke.getKeyStroke(KeyEvent.VK_R, Event.CTRL_MASK),
+	null,
 	null,
 	null,
 	null
@@ -379,7 +380,7 @@ public abstract class PkgFrame extends JFrame
     static final KeyStroke[] ViewKeys = {
 	KeyStroke.getKeyStroke(KeyEvent.VK_U, Event.CTRL_MASK), 
 	KeyStroke.getKeyStroke(KeyEvent.VK_I, Event.CTRL_MASK),
-	KeyStroke.getKeyStroke(KeyEvent.VK_X, Event.CTRL_MASK),
+	KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK),
 	KeyStroke.getKeyStroke(KeyEvent.VK_T, Event.CTRL_MASK),
 	null,
     };

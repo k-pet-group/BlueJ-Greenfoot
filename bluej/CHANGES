@@ -56,7 +56,7 @@ Entry template (copy this for new entry and increment the bug number
 in the template for the next one):
 
 @-------
-@bug#  : 00088
+@bug#  : 00093
 @short : 
 @prio  : 
 @source: 
@@ -66,33 +66,33 @@ in the template for the next one):
 @descr : 
 @cause : 
 
-============================ bug list ============================
+============================ Bug list ============================
 
 ============ open bugs: ============
 
 @-------
-@bug#  : 00003
-@short : handle dependency parsing and update 
+@bug#  : 00092
+@short : handle dependency source update
 @prio  : 1
 @source: mik
-@date  : 1999-02-23
-@status: in process (mik)
+@date  : 1999-08-11
+@status: in process (ajp, mik)
 @fixrel: 
-@descr : insertion/removal of dependencies (both textually and graphically)
-	 must be handled (see planning/dependencies.txt)
+@descr : insertion/removal of dependencies (graphically)
+	 must be handled
 @cause : new feature
 
 @-------
-@bug#  : 00087
-@short : comments/parameter names in method call missing now!
+@bug#  : 00091
+@short : System.exit does not work for graphical applications
 @prio  : 1
 @source: mik
-@date  : 1999-07-09
+@date  : 1999-08-12
 @status: open
 @fixrel: 
-@descr : the parameter names and comments in the method call are not
-	 shown anymore.
-@cause : changes in implementation/old functionality not fully restored
+@descr : System.exit causes a whole lot of problems when called out of an 
+	 event handling thread
+@cause : incomplete implementation
 
 @-------
 @bug#  : 00045
@@ -107,14 +107,14 @@ in the template for the next one):
 @cause : new feature
 
 @-------
-@bug#  : 00084
-@short : inspect for local variables in debugger not implemented
-@prio  : 2
+@bug#  : 00093
+@short : package lines in classes must be removed
+@prio  : 1
 @source: mik
-@date  : 1999-06-21
-@status: in process (mik)
+@date  : 1999-08-11
+@status: in process (ajp)
 @fixrel: 
-@descr : double click on locals in debugger should open object viewer
+@descr : "package" declarations must be automatically removed
 @cause : new feature
 
 @-------
@@ -138,7 +138,7 @@ in the template for the next one):
 @date  : 1999-02-26
 @status: in process (mik)
 @fixrel: 
-@descr : the editor font cannot be set in the properties file
+@descr : the editor font settings do not work properly
 @cause : new feature
 
 @-------
@@ -154,17 +154,6 @@ in the template for the next one):
 @cause : 
 
 @-------
-@bug#  : 00044
-@short : terminal input does not work correctly
-@prio  : 2
-@source: mik
-@date  : 1999-02-01
-@status: open
-@fixrel: 
-@descr : terminal input does not work (or works only first time)
-@cause : buggy original implementation
-
-@-------
 @bug#  : 00069
 @short : __SHELL files are not (always) deleted.
 @prio  : 3
@@ -174,18 +163,6 @@ in the template for the next one):
 @fixrel: 
 @descr : The __SHELL files are often not deleted and accumulate in the 
 	 directory.
-@cause : ?
-
-@-------
-@bug#  : 00022
-@short : system hangs in some situations
-@prio  : 3
-@source: mik
-@date  : 1999-03-04
-@status: open
-@fixrel: 
-@descr : example: package "people". create Staff _before_ VM has been created.
-	 Create Database. system hangs.
 @cause : ?
 
 @-------
@@ -212,18 +189,6 @@ in the template for the next one):
 	 this should be indicated by an info dialog and visual hints
 	 (eg all classes grey)
 @cause : new feature
-
-@-------
-@bug#  : 00039
-@short : terminal window should come to front
-@prio  : 3
-@source: mik
-@date  : 1999-03-13
-@status: open
-@fixrel: 
-@descr : terminal window should come to front on first output of
-	 each interactive call but not on subsequent output.
-@cause : 
 
 @-------
 @bug#  : 00043
@@ -259,6 +224,18 @@ in the template for the next one):
 @descr : when a package is accessed that has only read access, the 
 	 interface should indicate this.
 @cause : incomplete original implementation
+
+@-------
+@bug#  : 00089
+@short : debugging with threads does not work
+@prio  : 3
+@source: johnr
+@date  : 1999-08-12
+@status: open
+@fixrel: 
+@descr : when several threads are running, setting breakpoints and single
+	 stepping does not quite work
+@cause : ?
 
 @-------
 @bug#  : 00086
@@ -310,6 +287,18 @@ in the template for the next one):
 @cause : new feature
 
 @-------
+@bug#  : 00090
+@short : terminal functions not implemented
+@prio  : 4
+@source: mik
+@date  : 1999-08-12
+@status: open
+@fixrel: 
+@descr : terminal functions (at least copy, paste, clear, select all, save)
+	 should be available (preferrable in a pop-up menu in the terminal
+@cause : new feature
+
+@-------
 @bug#  : 00031
 @short : main shown without "public static"
 @prio  : 4
@@ -346,7 +335,7 @@ in the template for the next one):
 
 @-------
 @bug#  : 00072
-@short : moe key bindings cannot be changed or saved
+@short : editor key bindings cannot be changed or saved
 @prio  : 4
 @source: mik
 @date  : 1999-05-04
@@ -483,6 +472,79 @@ in the template for the next one):
 =======================================================================
 ============================ closed bugs: =============================
 =======================================================================
+
+============================ version 0.9.7 ============================
+
+@-------
+@bug#  : 00039
+@short : terminal window should come to front
+@prio  : 3
+@source: mik
+@date  : 1999-03-13
+@status: closed, fixed (mik, 1999-08-11)
+@fixrel: 0.9.7
+@descr : terminal window should come to front on first output of
+	 each interactive call but not on subsequent output.
+@cause : 
+
+@-------
+@bug#  : 00022
+@short : system hangs in some situations
+@prio  : 3
+@source: mik
+@date  : 1999-03-04
+@status: closed, fixed (mik, 1999-08-11)
+@fixrel: 0.9.7
+@descr : example: package "people". create Staff _before_ VM has been created.
+	 Create Database. system hangs.
+@cause : ?
+
+@-------
+@bug#  : 00044
+@short : terminal input does not work correctly
+@prio  : 2
+@source: mik
+@date  : 1999-02-01
+@status: closed, fixed (mik, 1999-08-11)
+@fixrel: 0.9.7
+@descr : terminal input does not work (or works only first time)
+@cause : buggy original implementation
+
+@-------
+@bug#  : 00084
+@short : inspect for local variables in debugger not implemented
+@prio  : 2
+@source: mik
+@date  : 1999-06-21
+@status: closed, fixed (mik, 1999-08-11)
+@fixrel: 0.9.7
+@descr : double click on locals in debugger should open object viewer
+@cause : new feature
+
+@-------
+@bug#  : 00087
+@short : comments/parameter names in method call missing now!
+@prio  : 1
+@source: mik
+@date  : 1999-07-09
+@status: closed, fixed (ajp, 1999-08-11)
+@fixrel: 0.9.7
+@descr : the parameter names and comments in the method call are not
+	 shown anymore.
+@cause : changes in implementation/old functionality not fully restored
+
+@-------
+@bug#  : 00003
+@short : handle dependency parsing and update 
+@prio  : 1
+@source: mik
+@date  : 1999-02-23
+@status: closed, fixed (mik, 1999-08-11)
+@fixrel: 0.9.7
+@descr : insertion/removal of dependencies (both textually and graphically)
+	 must be handled (see planning/dependencies.txt)
+@cause : new feature
+
 
 ============================ version 0.9.5 ============================
 

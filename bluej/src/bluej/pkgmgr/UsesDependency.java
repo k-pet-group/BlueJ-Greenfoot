@@ -10,21 +10,24 @@ import java.awt.Point;
 import java.awt.Color;
 
 /**
- ** @version $Id: UsesDependency.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: UsesDependency.java 233 1999-08-12 23:53:28Z mik $
  ** @author Michael Cahill
  **
  ** A dependency between two targets in a package
  **/
 public class UsesDependency extends Dependency
 {
-    static final Color normalColour = Config.getItemColour("colour.arrow.uses");
-    int src_x, src_y, dst_x, dst_y;
-    boolean start_top, end_left;
-    static final int SELECT_DIST = 4;
+    private static final Color normalColour = Config.getItemColour("colour.arrow.uses");
+    private static final int SELECT_DIST = 4;
+
+    private int src_x, src_y, dst_x, dst_y;
+    private boolean start_top, end_left;
+    private boolean flag;	// flag to mark some dependencies
 
     public UsesDependency(Package pkg, Target from, Target to)
     {
 	super(pkg, from, to);
+	flag = false;
     }
 
     public UsesDependency(Package pkg)
@@ -177,5 +180,15 @@ public class UsesDependency extends Dependency
 
 	// This may be overridden by decendents
 	props.put(prefix + ".type", "UsesDependency");
+    }
+
+    public void setFlag(boolean value)
+    {
+	flag = value;
+    }
+
+    public boolean isFlagged()
+    {
+	return flag;
     }
 }

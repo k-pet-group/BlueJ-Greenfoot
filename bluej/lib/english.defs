@@ -223,6 +223,7 @@ pkgmgr.creatingVM=Creating virtual machine...
 pkgmgr.creatingVMDone=Creating virtual machine... Done
 pkgmgr.webBrowserMsg=Starting web browser...
 pkgmgr.webBrowserError=Error starting web browser.
+pkgmgr.usesArrowMsg="Uses" dependency declared but never used: 
 
 properties.heading=BlueJ properties. Settings in this file override \"bluej.defs\"
 # menus and menu items

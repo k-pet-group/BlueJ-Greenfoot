@@ -15,7 +15,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 /**
- ** @version $Id: Target.java 198 1999-07-22 00:50:03Z ajp $
+ ** @version $Id: Target.java 233 1999-08-12 23:53:28Z mik $
  ** @author Michael Cahill
  **
  ** A general target in a package
@@ -330,14 +330,24 @@ public abstract class Target extends Vertex
 		pkg.removeDependency(outUsesArray[i], false);
 	}
 
-	// delete dependencies to super classes
+	removeInheritDependencies();
+    }
+
+    /**
+     *  Remove inheritence dependencies.
+     */
+    protected void removeInheritDependencies()
+    {
+	// While removing the dependencies the dependency Vector must be
+	// copied since the original is modified during this operation.
+	// Enumerations over the original would go wrong.
+
 	if(!parents.isEmpty()) {
 	    Dependency[] parentsArray = new Dependency[ parents.size() ];
 	    parents.copyInto(parentsArray);
 	    for(int i = 0; i < parentsArray.length ; i++)
 		pkg.removeDependency(parentsArray[i], false);
 	} 
-
     }
 
     /**
@@ -375,34 +385,30 @@ public abstract class Target extends Vertex
 	// Count the number of arrows into each quadrant
 	int cy = y + height / 2;
 	int n_top = 0, n_bottom = 0;
-	for(int i = outUses.size() - 1; i >= 0; i--)
-	    {
-		Target to = ((Dependency)outUses.elementAt(i)).getTo();
-		int to_cy = to.y + to.height / 2;
-		if(to_cy < cy)
-		    ++n_top;
-		else
-		    ++n_bottom;
-	    }
+	for(int i = outUses.size() - 1; i >= 0; i--) {
+	    Target to = ((Dependency)outUses.elementAt(i)).getTo();
+	    int to_cy = to.y + to.height / 2;
+	    if(to_cy < cy)
+		++n_top;
+	    else
+		++n_bottom;
+	}
 		
 	// Assign source coordinates to each arrow
 	int top_left = x + (width - (n_top - 1) * ARR_HORIZ_DIST) / 2;
 	int bottom_left = x + (width - (n_bottom - 1) * ARR_HORIZ_DIST) / 2;
-	for(int i = 0; i < n_top + n_bottom; i++)
-	    {
-		UsesDependency d = (UsesDependency)outUses.elementAt(i);
-		int to_cy = d.getTo().y + d.getTo().height / 2;
-		if(to_cy < cy)
-		    {
-			d.setSourceCoords(top_left, y - 4, true);
-			top_left += ARR_HORIZ_DIST;
-		    }
-		else
-		    {
-			d.setSourceCoords(bottom_left, y + height + 4, false);
-			bottom_left += ARR_HORIZ_DIST;
-		    }
+	for(int i = 0; i < n_top + n_bottom; i++) {
+	    UsesDependency d = (UsesDependency)outUses.elementAt(i);
+	    int to_cy = d.getTo().y + d.getTo().height / 2;
+	    if(to_cy < cy) {
+		d.setSourceCoords(top_left, y - 4, true);
+		top_left += ARR_HORIZ_DIST;
 	    }
+	    else {
+		d.setSourceCoords(bottom_left, y + height + 4, false);
+		bottom_left += ARR_HORIZ_DIST;
+	    }
+	}
     }
 	
     public void recalcInUses()
@@ -441,6 +447,15 @@ public abstract class Target extends Vertex
 			right_top += ARR_VERT_DIST;
 		    }
 	    }
+    }
+
+    /**
+     *  Clear the flag in a outgoing uses dependencies
+     */
+    protected void unflagAllOutDependencies()
+    {
+	for(int i = 0; i < outUses.size(); i++)
+	    ((UsesDependency)outUses.elementAt(i)).setFlag(false);
     }
 
     public Point getAttachment(double angle)

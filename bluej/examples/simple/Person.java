@@ -1,4 +1,3 @@
-package simple;
 
 /**
  ** This class is part of a simple Database program, made to demonstrate

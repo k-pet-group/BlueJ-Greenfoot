@@ -30,7 +30,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 231 1999-08-12 04:15:34Z ajp $
+ ** @version $Id: Package.java 233 1999-08-12 23:53:28Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -401,10 +401,13 @@ public class Package extends Graph
      *
      * @param dirname the directory from which to load the properties
      * @param props the already created properties for this package
-     * @param readyToPaint true if the UI is in a state suitable for painting right now
-     * @param libraryPackage true if this method was called to create a package for the library browser
+     * @param readyToPaint true if the UI is in a state suitable for 
+     *	      painting right now
+     * @param libraryPackage true if this method was called to create a 
+     *	      package for the library browser
      */
-    public void load(String dirname, Properties props, boolean readyToPaint, boolean libraryPackage)
+    public void load(String dirname, Properties props, boolean readyToPaint, 
+		     boolean libraryPackage)
     {
 	// Read the package properties
 	String fullpkgfile = dirname + Config.slash + pkgfileName;
@@ -1010,8 +1013,11 @@ public class Package extends Graph
     public void addDependency(Dependency d, boolean recalc)
     {
 	if(d instanceof UsesDependency) {
-	    if(usesArrows.contains(d))
+	    int index = usesArrows.indexOf(d);
+	    if(index != -1) {
+		((UsesDependency)usesArrows.get(index)).setFlag(true);
 		return;
+	    }
 	    else
 		usesArrows.addElement(d);
 	}

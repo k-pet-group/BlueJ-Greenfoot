@@ -88,28 +88,25 @@ public final class JdiThread extends DebuggerThread
 		    return "at breakpoint";
 	    }
 
-	    String st;
 	    if(rt.isSuspended())
-		st = "(stopped) ";
-	    else 
-		st = "";
+		return "(stopped)";
 
   	    int status = rt.status();
 	    switch(status) {
 		case ThreadReference.THREAD_STATUS_MONITOR: 
-		    return st + "at monitor";
+		    return "at monitor";
 		case ThreadReference.THREAD_STATUS_NOT_STARTED: 
-		    return st + "not started";
+		    return "not started";
 		case ThreadReference.THREAD_STATUS_RUNNING:
-		    return st + "running";
+		    return "running";
 		case ThreadReference.THREAD_STATUS_SLEEPING:
-		    return st + "sleeping";
+		    return "sleeping";
 		case ThreadReference.THREAD_STATUS_UNKNOWN: 
-		    return st + "unknown status";
+		    return "unknown status";
 		case ThreadReference.THREAD_STATUS_WAIT:
-		    return st + "waiting";
+		    return "waiting";
 		case ThreadReference.THREAD_STATUS_ZOMBIE:
-		    return st + "zombie";
+		    return "zombie";
 	    }
   	} catch(Exception e) {
   	    return "???";

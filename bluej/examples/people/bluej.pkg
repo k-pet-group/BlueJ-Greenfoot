@@ -1,26 +1,20 @@
 #BlueJ project file
-#Thu Jul 22 16:34:19 GMT+10:00 1999
+#Thu Aug 12 16:20:14 GMT+10:00 1999
 target4.name=Database
 target1.height=50
 dependency1.to=Person
-dependency2.to=Person
 target4.height=50
-dependency3.to=Person
 dependency1.type=UsesDependency
 target4.modifiers=1
 package.window.height=509
-dependency2.type=ExtendsDependency
-dependency3.type=ExtendsDependency
 dependency1.from=Database
 target2.valid=true
 target4.valid=true
 target3.y=80
 target3.x=150
-dependency2.from=Student
 target1.y=180
 target1.x=200
 target2.height=50
-dependency3.from=Staff
 target1.valid=true
 target3.valid=true
 target2.modifiers=0
