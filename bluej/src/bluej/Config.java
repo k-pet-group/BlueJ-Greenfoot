@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 915 2001-05-25 05:06:27Z ajp $
+ * @version $Id: Config.java 924 2001-06-06 04:39:49Z bquig $
  */
 
 public class Config
@@ -154,7 +154,10 @@ public class Config
         if(compilertype.equals("internal"))
             compilertype = "javac";
 
-        MetalLookAndFeel.setCurrentTheme(new BluejTheme());
+        boolean themed = Boolean.valueOf(
+            Config.getPropString("bluej.useTheme", "false")).booleanValue();
+        if(themed)    
+            MetalLookAndFeel.setCurrentTheme(new BluejTheme());
 
     } // initialise
 
