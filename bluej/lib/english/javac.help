@@ -661,7 +661,7 @@ No help available
 non-static {0} {1} cannot be referenced from a static context
 No help available
 
-cannot resolve symbol
+cannot resolve symbol*
 No help available
 
 {0}; {1} and {2} are static
