@@ -31,7 +31,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 837 2001-04-04 12:27:53Z ajp $
+ * @version $Id: ObjectWrapper.java 932 2001-06-12 00:05:11Z bquig $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -221,7 +221,7 @@ public class ObjectWrapper extends JComponent
                 }
                 item = new JMenuItem(methodSignature);
                 item.addActionListener(this);
-                item.setFont(PrefMgr.getStandardMenuFont());
+                item.setFont(PrefMgr.getPopupMenuFont());
                 actions.put(item, m);
 
                 // check whether it's time for a submenu
