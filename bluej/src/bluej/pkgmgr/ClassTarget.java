@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 923 2001-06-06 01:01:12Z mik $
+ * @version $Id: ClassTarget.java 925 2001-06-06 04:45:32Z bquig $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -71,6 +71,7 @@ public class ClassTarget extends EditableTarget
     static final String INTERFACE_LABEL = "interface";
     static final String APPLET_LABEL = "applet";
     static final String ABSTRACT_CLASS_LABEL = "abstract";
+    static final String HTML_EXTENSION = ".html";
 
 
     // variables
@@ -103,6 +104,7 @@ public class ClassTarget extends EditableTarget
         super(pkg, baseName);
 
         boolean isApplet = (template!=null) && (template.startsWith("applet"));
+        
         boolean isAbstract = (template!=null) && 
                              (template.startsWith("abstract"));
         boolean isInterface = (template!=null) && 
@@ -289,9 +291,9 @@ public class ClassTarget extends EditableTarget
     public boolean isApplet()
     {
         ClassInfo classInfo = sourceInfo.getInfoIfAvailable();
-
-        return (role instanceof AppletClassRole
-                || ((classInfo != null) && classInfo.isApplet()));
+        if(!(role instanceof AppletClassRole) && ((classInfo != null) && classInfo.isApplet()))
+            role = new AppletClassRole();
+        return (role instanceof AppletClassRole);
     }
 
 
@@ -819,7 +821,7 @@ public class ClassTarget extends EditableTarget
 
     	menu.add(item = new JMenuItem(itemString));
     	item.addActionListener(this);
-    	item.setFont(PrefMgr.getStandardMenuFont());
+    	item.setFont(PrefMgr.getPopupMenuFont());
     	item.setForeground(envOpColour);
     	if(!enabled)
     	    item.setEnabled(false);
@@ -871,7 +873,7 @@ public class ClassTarget extends EditableTarget
                                                     this, m);
 
                 item = menu.add(callAction);
-                item.setFont(PrefMgr.getStandardMenuFont());
+                item.setFont(PrefMgr.getPopupMenuFont());
                 hasEntries = true;
             } catch(Exception e) {
                 Debug.reportError("Exception accessing methods: " + e);
@@ -927,7 +929,7 @@ public class ClassTarget extends EditableTarget
 
 
     /**
-     * creates a stereotype name as a Strinbg if it is an interface,
+     * creates a stereotype name as a String if it is an interface,
      * abstract class or Applet.
      * @return String representing the type of stereotype or null if not applicable
      */

@@ -16,7 +16,7 @@ import javax.swing.event.ListSelectionEvent;
  * Dialog for generating HTML and running applets.
  *
  * @author  Bruce Quig
- * @version $Id: RunAppletDialog.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: RunAppletDialog.java 925 2001-06-06 04:45:32Z bquig $
  */
 
 class RunAppletDialog extends JDialog
@@ -80,7 +80,7 @@ class RunAppletDialog extends JDialog
 	mainPanel.setBorder(Config.dialogBorder);
 
 	appletParameters = new DefaultListModel();
-	webPageName = appletClassName + AppletClassRole.HTML_EXTENSION;
+	webPageName = appletClassName + ClassTarget.HTML_EXTENSION;
 
 	// button panel at bottom of dialog
 	JPanel buttonPanel = new JPanel();

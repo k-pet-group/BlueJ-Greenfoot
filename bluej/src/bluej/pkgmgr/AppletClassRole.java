@@ -23,7 +23,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 871 2001-04-26 00:56:38Z mik $
+ ** @version $Id: AppletClassRole.java 925 2001-06-06 04:45:32Z bquig $
  **/
 public class AppletClassRole extends ClassRole
 {
@@ -33,9 +33,8 @@ public class AppletClassRole extends ClassRole
     static final String htmlComment = Config.getString("pkgmgr.runApplet.htmlComment");
 	static final String APPLETVIEWER_COMMAND = Config.getPropString("appletViewer.command");
 
-    static final String HTML_EXTENSION = ".html";
+    //static final String HTML_EXTENSION = ".html";
     static final String THIS_DIRECTORY = ".";
-    //static final String APPLETVIEWER_COMMAND = "appletviewer"; // move to bluej.defs
     static final String URL_PREFIX = "file://localhost/";
     static final int DEFAULT_APPLET_WIDTH = 200;
     static final int DEFAULT_APPLET_HEIGHT = 100;
@@ -167,9 +166,8 @@ public class AppletClassRole extends ClassRole
                     createWebPage(name, URL_PREFIX + pkg.getPath().getPath(), generatedFileName);
             }
             else {
-
                 String dir = pkg.getPath().getAbsolutePath();
-                String absoluteFileName = new File(dir, name + HTML_EXTENSION).getPath();
+                String absoluteFileName = new File(dir, name + ClassTarget.HTML_EXTENSION).getPath();
 
                 createWebPage(name, ".", absoluteFileName);
 
@@ -310,7 +308,7 @@ public class AppletClassRole extends ClassRole
         super.prepareFilesForRemoval(sourceFile, classFile, contextFile);
 
         // remove associated HTML file if exists
-        File htmlFileName = new File(classFile + HTML_EXTENSION);
+        File htmlFileName = new File(classFile + ClassTarget.HTML_EXTENSION);
         if (htmlFileName.exists())
             htmlFileName.delete();
     }

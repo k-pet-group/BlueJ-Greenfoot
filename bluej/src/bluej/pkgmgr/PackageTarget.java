@@ -19,7 +19,7 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 648 2000-07-26 00:25:17Z ajp $
+ * @version $Id: PackageTarget.java 925 2001-06-06 04:45:32Z bquig $
  */
 public class PackageTarget extends Target
 {
@@ -262,13 +262,13 @@ public class PackageTarget extends Target
                                  getPackage().getQualifiedName(getBaseName()));
 
         item = menu.add(openAction);
-        item.setFont(PrefMgr.getStandardMenuFont());
+        item.setFont(PrefMgr.getPopupMenuFont());
         item.setForeground(envOpColour);
 
         Action removeAction = new RemoveAction(removeStr, this);
 
         item = menu.add(removeAction);
-        item.setFont(PrefMgr.getStandardMenuFont());
+        item.setFont(PrefMgr.getPopupMenuFont());
         item.setForeground(envOpColour);
 
         return menu;
@@ -281,7 +281,7 @@ public class PackageTarget extends Target
         Action openAction = new OpenAction(itemString, this, pkgName);
 
         item = menu.add(openAction);
-        item.setFont(PrefMgr.getStandardMenuFont());
+        item.setFont(PrefMgr.getPopupMenuFont());
         item.setForeground(envOpColour);
     }
 

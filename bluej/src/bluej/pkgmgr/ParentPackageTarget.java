@@ -14,7 +14,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 628 2000-07-06 05:31:09Z ajp $
+ * @version $Id: ParentPackageTarget.java 925 2001-06-06 04:45:32Z bquig $
  */
 public class ParentPackageTarget extends PackageTarget
 {
@@ -115,7 +115,7 @@ public class ParentPackageTarget extends PackageTarget
         Action openAction = new OpenAction(itemString, this, pkgName);
 
         item = menu.add(openAction);
-        item.setFont(PrefMgr.getStandardMenuFont());
+        item.setFont(PrefMgr.getPopupMenuFont());
         item.setForeground(envOpColour);
     }
 

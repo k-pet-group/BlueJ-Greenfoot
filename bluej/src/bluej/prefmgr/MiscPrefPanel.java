@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 890 2001-05-14 04:59:09Z bquig $
+ * @version $Id: MiscPrefPanel.java 925 2001-06-06 04:45:32Z bquig $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -139,14 +139,15 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         JPanel notationPanel = new JPanel();
         {
             notationPanel.setLayout(new BoxLayout(notationPanel, BoxLayout.Y_AXIS));
+            String notationTitle = Config.getString("prefmgr.notation.title");
             notationPanel.setBorder(BorderFactory.createCompoundBorder(
-                                                                       BorderFactory.createTitledBorder(Config.getString("prefmgr.notation.title")),
+                                                                       BorderFactory.createTitledBorder(notationTitle),
                                                                        Config.generalBorder));
             notationPanel.setAlignmentX(LEFT_ALIGNMENT);
 
             notationStyleGroup = new ButtonGroup();
             umlRadioButton = 
-                new JRadioButton(Config.getString("Unified Modeling Language (UML)"));
+                new JRadioButton(Config.getString("prefmgr.notation.uml"));
             blueRadioButton = 
                 new JRadioButton(Config.getString("prefmgr.notation.blue"));
             umlRadioButton.setActionCommand(Graph.UML);

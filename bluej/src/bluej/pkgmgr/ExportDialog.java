@@ -19,7 +19,7 @@ import javax.swing.*;
  * Dialog for choosing options when exporting
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 838 2001-04-10 06:07:03Z ajp $
+ * @version $Id: ExportDialog.java 925 2001-06-06 04:45:32Z bquig $
  */
 class ExportDialog extends JDialog
     implements ActionListener
@@ -226,7 +226,7 @@ class ExportDialog extends JDialog
      */
     private void makeClassPopup(JComboBox popup)
     {
-    	popup.setFont(PrefMgr.getStandardMenuFont());
+    	popup.setFont(PrefMgr.getPopupMenuFont());
         popup.addItem(noClassText);
 
         List packageNames = project.getPackageNames();

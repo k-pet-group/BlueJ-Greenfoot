@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 896 2001-05-16 07:28:17Z mik $
+ * @version $Id: PrefMgr.java 925 2001-06-06 04:45:32Z bquig $
  */
 public class PrefMgr
 {
@@ -45,6 +45,7 @@ public class PrefMgr
     // initialised by a call to setMenuFontSize()
     private static int menuFontSize;
     private static Font menuFont;
+    private static Font popupMenuFont;
     private static Font italicMenuFont;
 
     // initialised by a call to setEditorFontSize()
@@ -55,6 +56,7 @@ public class PrefMgr
     private static boolean isSyntaxHilighting;
     private static boolean isLinkDocumentation;
     private static boolean isUML;
+    private static boolean hasTheme;
 
     private static PrefMgr prefmgr = new PrefMgr();
 
@@ -69,7 +71,14 @@ public class PrefMgr
         String menuFontName = Config.getPropString("bluej.menu.font", "SansSerif");
         menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
         menuFont = deriveFont(menuFontName, menuFontSize);
+        
+        // popup menus are not permitted to be bold (MIK style guide) at present
+        // make popup menus same font as drop down menus
+        if(menuFontName.endsWith("-bold")) {
+            menuFontName = menuFontName.substring(0, menuFontName.length()-5);
+        }
         italicMenuFont = new Font(menuFontName, Font.ITALIC, menuFontSize);
+        popupMenuFont = new Font(menuFontName, Font.PLAIN, menuFontSize);
 
         //standard font for UI components
         String normalFontName = Config.getPropString("bluej.font", "SansSerif");
@@ -87,6 +96,8 @@ public class PrefMgr
             Config.getPropString(linkingPropertyName, "true")).booleanValue();
 
         isUML = (Config.getDefaultPropString(notationStyle, Graph.UML).equals(Graph.UML));
+        hasTheme = Boolean.valueOf(
+            Config.getPropString("bluej.useTheme", "false")).booleanValue();
     }
 
     public static void initialise()
@@ -112,6 +123,11 @@ public class PrefMgr
     public static Font getStandoutMenuFont()
     {
         return italicMenuFont;
+    }
+    
+    public static Font getPopupMenuFont()
+    {
+        return popupMenuFont;   
     }
 
     public static Font getTargetFont()
@@ -238,6 +254,16 @@ public class PrefMgr
     public static boolean isUML()
     {
         return isUML;
+    }
+    
+      /**
+     * Return whether bluej is using a Theme to allow specification of
+     * UI fonts.  Use can seem to degrade startup performance if Bold fonts
+     * used.
+     */
+    public static boolean hasTheme()
+    {
+        return hasTheme;
     }
 
    /**
