@@ -383,30 +383,21 @@ image.logo=bluej-logo.gif
 image.empty=empty.gif
 
 # arrow buttons
-image.build.depends=arrow_black.gif
-image.build.depends.uml=arrow_black_uml.gif
-image.build.depends.selected=arrow_red.gif
-image.build.extends=darrow_black.gif
-image.build.extends.uml=darrow_black_uml.gif
-image.build.extends.selected=darrow_red.gif
-
-image.test.recording=record.gif
+image.build.depends=arrow_black_uml.gif
+image.build.extends=darrow_black_uml.gif
 
 # the machine indicator
 image.working=working.gif
 image.working.disab=working-disab.gif
 image.working.stopped=working-stopped.gif
 
-image.objectviewer.object=objectIcon.gif
-image.objectviewer.blank=objectIcon_blank.gif
-
 # editor breakpoint and step mark
 image.breakmark=break.gif
 image.stepmark=stepmark.gif
 image.breakstepmark=stepbreak.gif
 
-image.classIcon=class16.gif
-image.packageIcon=package16.gif
+# file chooser
+image.packageIcon=packageIcon.gif
 
 image.broken=broken-arrow.gif
 image.help=help.gif
@@ -418,11 +409,13 @@ image.step_into=step_into.gif
 image.stop=stop.gif
 image.terminate=terminate.gif
 
+# unit testing
+image.test.recording=record.gif
+
 # test manager
 image.testmgr.ok=ok.gif
 image.testmgr.error=error.gif
 image.testmgr.failure=failure.gif
 
-# Extensions manager help page
+# extensions manager help page
 image.extmgr.info=extmgr-info.gif
-
