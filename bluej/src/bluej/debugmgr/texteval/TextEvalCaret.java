@@ -35,9 +35,6 @@ public class TextEvalCaret extends DefaultCaret
      */
     protected void positionCaret(MouseEvent e) 
     {
-        if(e.getID() != MouseEvent.MOUSE_PRESSED)
-            return;
-
         Point pt = new Point(e.getX(), e.getY());
         Position.Bias[] biasRet = new Position.Bias[1];
         int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
@@ -45,7 +42,6 @@ public class TextEvalCaret extends DefaultCaret
         if (e.getX() > BlueJSyntaxView.TAG_WIDTH) {
             if (pos >= 0) {
                 setDot(pos);
-                setMagicCaretPosition(null);
             }
         }
         else {
