@@ -16,7 +16,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 1637 2003-03-04 03:22:52Z ajp $
+ * @version $Id: ReadmeTarget.java 1754 2003-04-04 14:20:56Z fisker $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -223,4 +223,10 @@ public class ReadmeTarget extends Target
     public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
     {
     }
+
+	/* (non-Javadoc)
+	 * @see bluej.editor.EditorWatcher#generateDoc()
+	 */
+	public void generateDoc() {
+	}
 }
