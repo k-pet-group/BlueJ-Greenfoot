@@ -131,6 +131,27 @@ Cannot import file. The file must
 be a Java source file (it's name
 must end in ".java").
 
+docdir-blocked-by-file
+The directory for the documentation could
+not be created in the project directory
+because there is a file with same name.
+
+docdir-not-created
+The directory for the documentation could
+not be created in the project directory.
+
+no-permission-for-docdir
+The directory for the documentation could
+not be created in the project directory
+because of insufficient rights.
+
+doctool-error
+The documentation tool used reported an error:
+
+severe-doc-trouble
+An exception occured during the call
+to the external documentation tool.
+
 no-java-sources-found
 No Java source files were
 found in this directory.
@@ -199,6 +220,16 @@ will be cut off. You can avoid this by resizing
 the editor window to make it narrower. Do you
 want to print anyway?
 Print
+Cancel
+null
+
+really-import-package
+You chose a directory that is not a BlueJ package.
+Do you want this directory to be searched for Java source
+files that can be displayed in a BlueJ package window?
+(If you just wanted to see the content of this directory,
+click Cancel now and then double click the directory icon).
+Search
 Cancel
 null
 

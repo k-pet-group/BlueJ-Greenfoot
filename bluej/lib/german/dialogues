@@ -131,6 +131,28 @@ Nur Java-Quelltextdateien, deren Namen
 mit ".java" enden, können importiert
 werden.
 
+docdir-blocked-by-file
+Das Verzeichnis für die Dokumentation konnte
+nicht angelegt werden, weil im Projektverzeichnis
+bereits eine Datei gleichen Namens existiert.
+
+docdir-not-created
+Das Verzeichnis für die Dokumentation konnte
+nicht im Projektverzeichnis angelegt werden.
+
+no-permission-for-docdir
+Das Verzeichnis für die Dokumentation konnte
+aufgrund mangelnder Zugriffsrechte nicht im
+Projektverzeichnis angelegt werden.
+
+doctool-error
+Das externe Werkzeug zur Dokumentation
+hat folgende Fehlermeldung geliefert:
+
+severe-doc-trouble
+Während der Generierung der Dokumentation
+ist eine Exception aufgetreten.
+
 no-java-sources-found
 Es wurden keine Java-Quelltextdateien
 in diesem Verzeichnis gefunden.

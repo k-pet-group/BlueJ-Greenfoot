@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 570 2000-06-19 06:45:09Z ajp $
+ * @version $Id: PkgMgrFrame.java 576 2000-06-22 00:50:22Z axel $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
@@ -54,6 +54,9 @@ public class PkgMgrFrame extends JFrame
     private static String webBrowserError = Config.getString("pkgmgr.webBrowserError");
     private static final String creatingVM = Config.getString("pkgmgr.creatingVM");
     private static final String creatingVMDone = Config.getString("pkgmgr.creatingVMDone");
+
+    private static final String generatingDocu = Config.getString("pkgmgr.generatingDocu");
+    private static final String docuGenerated = Config.getString("pkgmgr.docuGenerated");
 
     private static final String addClassTitle = Config.getString("pkgmgr.addClass.title");
     private static final String addLabel = Config.getString("pkgmgr.addClass.buttonLabel");
@@ -305,6 +308,7 @@ public class PkgMgrFrame extends JFrame
         setStatus(bluej.Main.BLUEJ_VERSION_TITLE);
     }
 
+
     /**
      *  Displays the package in the frame for editing
      */
@@ -531,8 +535,23 @@ public class PkgMgrFrame extends JFrame
             openPackageTarget(e.getName());
             break;
 
+//          case PackageEditorEvent.OBJECT_PUTONBENCH:
+//             ObjectWrapper wrapper = new ObjectWrapper(this,
+//                                                       e.getDebuggerObject(),
+//                                                        e.getFieldName());
+//             getObjectBench().add(wrapper);  // might change name
+
+// <<<<<<< PkgMgrFrame.java
+//             // load the object into runtime scope
+//             Debugger.debugger.addObjectToScope(getPackage().getId(),
+//                                                 e.getInstanceName(),
+//                                                 e.getFieldName(),
+//                                                 wrapper.getName());
+
+// =======
          case PackageEditorEvent.OBJECT_PUTONBENCH: // user has "Get" has on object from an inspector
             putObjectOnBench(e.getDebuggerObject(), e.getFieldName(), e.getInstanceName());
+// >>>>>>> 1.70
             break;
         }
     }
@@ -645,6 +664,12 @@ public class PkgMgrFrame extends JFrame
 
         case TOOLS_REBUILD:
             pkg.rebuild();
+            break;
+
+         case TOOLS_GENERATEDOC:
+            String message = pkg.generateDocumentation();
+            if (message!="")
+                DialogManager.showText(this,message);
             break;
 
         case TOOLS_BROWSE:
@@ -1358,6 +1383,12 @@ public class PkgMgrFrame extends JFrame
         case BlueJEvent.EXECUTION_FINISHED:
             executionFinished();
             break;
+        case BlueJEvent.GENERATING_DOCU:
+            setStatus(generatingDocu);
+            break;
+        case BlueJEvent.DOCU_GENERATED:
+            setStatus(docuGenerated);
+            break;
         case BlueJEvent.BREAKPOINT:
             thread = (DebuggerThread)arg;
             if(thread.getParam() == pkg)
@@ -1849,17 +1880,20 @@ public class PkgMgrFrame extends JFrame
     static final int TOOLS_COMPILE = TOOLS_COMMAND;
     static final int TOOLS_COMPILESELECTED = TOOLS_COMPILE + 1;
     static final int TOOLS_REBUILD = TOOLS_COMPILESELECTED + 1;
-    static final int TOOLS_BROWSE = TOOLS_REBUILD + 1;
+    static final int TOOLS_GENERATEDOC = TOOLS_REBUILD + 1;
+    static final int TOOLS_BROWSE = TOOLS_GENERATEDOC + 1;
     static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
     //    static final int TOOLS_PREFERENCES = TOOLS_REBUILD + 1;
 
     static final String[] ToolsCmds = {
-        "compile", "compileSelected", "rebuild", "browse", "preferences",
+	"compile", "compileSelected", "rebuild", "generateDoc", "browse",
+        "preferences",
     };
 
     static final KeyStroke[] ToolsKeys = {
         KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.CTRL_MASK),
         KeyStroke.getKeyStroke(KeyEvent.VK_K, Event.SHIFT_MASK | Event.CTRL_MASK),
+        null,
         null,
         KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK),
         null

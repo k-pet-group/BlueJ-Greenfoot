@@ -124,6 +124,27 @@ importeras. Filen måste
 vara en Java källkodsfil 
 (namnet måste sluta med ".java")
 
+docdir-blocked-by-file
+The directory for the documentation could
+not be created in the project directory
+because there is a file with same name.
+
+docdir-not-created
+The directory for the documentation could
+not be created in the project directory.
+
+no-permission-for-docdir
+The directory for the documentation could
+not be created in the project directory
+because of insufficient rights.
+
+doctool-error
+The external documentation tool used
+reported an error:
+
+severe-doc-trouble
+An exception occured during the call
+to the external documentation tool.
 
 no-java-sources-found
 Inga Java källkodsfiler kunde

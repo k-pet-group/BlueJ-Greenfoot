@@ -308,6 +308,8 @@ pkgmgr.creating=Objekt wird erzeugt...
 pkgmgr.createDone=Objekt wird erzeugt... Fertig
 pkgmgr.creatingVM=Virtuelle Maschine wird erzeugt...
 pkgmgr.creatingVMDone=Virtuelle Maschine wird erzeugt... Fertig
+pkgmgr.generatingDocu=Dokumentation wird generiert...
+pkgmgr.docuGenerated=Dokumentation wird generiert... Fertig
 pkgmgr.webBrowserMsg=Web Browser ist gestartet worden.
 pkgmgr.webBrowserError=Web Browser konnte nicht gestartet werden.
 pkgmgr.usesArrowMsg=Benutzt-Beziehung deklariert, aber nicht implementiert:
@@ -342,6 +344,7 @@ menu.tools=Werkzeuge
 menu.tools.compile=Übersetzen
 menu.tools.compileSelected=Einzeln übersetzen
 menu.tools.rebuild=Package neu generieren
+menu.tools.generateDoc=Dokumentation generieren
 menu.tools.browse=Libraries...
 menu.tools.preferences=Einstellungen...
 

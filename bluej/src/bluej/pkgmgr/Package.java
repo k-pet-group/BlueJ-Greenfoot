@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 570 2000-06-19 06:45:09Z ajp $
+ * @version $Id: Package.java 576 2000-06-22 00:50:22Z axel $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1000,6 +1000,17 @@ public class Package extends Graph
         }
         else
             return true;
+    }
+
+    /**
+     * Generate documentation for this package.
+     * @return "" if everything was alright, an error message otherwise.
+     */
+    public String generateDocumentation()
+    {
+        // This implementation currently just delegates the generation to
+        // the project this package is part of.
+        return project.generateDocumentation();
     }
 
     /**

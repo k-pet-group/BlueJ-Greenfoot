@@ -27,6 +27,10 @@ import java.util.Vector;
  **
  **  EXECUTION_FINISHED	(unused)		VM execution finished
  **
+ **  GENERATING_DOCU	(unused)		docu generation started
+ **
+ **  DOCU_GENERATED	(unused)		docu generation finished
+ **
  **  BREAKPOINT		the JdiThread object	a thread hit a breakpoint
  **			 that hit the breakpoint
  **
@@ -50,7 +54,9 @@ public class BlueJEvent
     public static final int CREATE_VM_DONE = CREATE_VM + 1;
     public static final int EXECUTION_STARTED = CREATE_VM_DONE + 1;
     public static final int EXECUTION_FINISHED = EXECUTION_STARTED + 1;
-    public static final int BREAKPOINT = EXECUTION_FINISHED + 1;
+    public static final int GENERATING_DOCU = EXECUTION_FINISHED + 1;
+    public static final int DOCU_GENERATED = GENERATING_DOCU + 1;
+    public static final int BREAKPOINT = DOCU_GENERATED + 1;
     public static final int HALT = BREAKPOINT + 1;
     public static final int CONTINUE = HALT + 1;
     public static final int SHOW_SOURCE = CONTINUE + 1;

@@ -7,6 +7,10 @@ import bluej.debugger.*;
 import bluej.classmgr.*;
 import bluej.views.View;
 
+import bluej.Config;
+import bluej.pkgmgr.Package;
+import bluej.utility.Utility;
+
 import java.util.*;
 import java.io.File;
 import java.io.IOException;
@@ -17,20 +21,21 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 570 2000-06-19 06:45:09Z ajp $
+ * @version $Id: Project.java 576 2000-06-22 00:50:22Z axel $
  */
 public class Project
 {
     // static fields
 
-    // collection of all open projects. the canonical name of the project
-    // directory is used as the key.
+    /**
+     * collection of all open projects. the canonical name of the project
+     * directory is used as the key.
+     */
     private static Map projects = new HashMap();
 
     /**
      * Open a BlueJ project.
-     *
-     * @returns The Project representing the BlueJ project
+     * @return The Project representing the BlueJ project
      *          that has this directory within it or
      *          null if there were no bluej.pkg files in the
      *          specified directory.
@@ -139,22 +144,22 @@ public class Project
 
     // instance fields
 
-    /* the path of the project directory */
+    /** the path of the project directory. */
     private File projectDir;
 
-    /* collection of open packages in this project
+    /** collection of open packages in this project
       (indexed by the qualifiedName of the package).
        The unnamed package ie root package of the package tree
        can be obtained by retrieving "" from this collection */
     private Map packages;
 
-    /* a ClassLoader for the local virtual machine */
+    /** a ClassLoader for the local virtual machine */
     private ClassLoader loader;
 
-    /* a ClassLoader for the remote virtual machine */
+    /** a ClassLoader for the remote virtual machine */
     private DebuggerClassLoader debuggerLoader;
 
-    /* when a project is opened, the user may specify a
+    /** when a project is opened, the user may specify a
        directory deep into the projects directory structure.
        BlueJ will correctly find the top of this package
        heirarchy but the bit of the name left over will be
@@ -163,6 +168,9 @@ public class Project
        /home/user/foo is the project directory, this variable
        will be set to com.sun */
     private String initialPackageName = "";
+
+    /** the documentation generator for this project. */
+    private DocuGenerator docuGenerator;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -180,6 +188,8 @@ public class Project
 
         packages = new TreeMap();
         packages.put("", new Package(this));
+
+        docuGenerator = new DocuGenerator(this);
     }
 
     /**
@@ -245,6 +255,32 @@ public class Project
 
         throw new IllegalStateException("Project.getPackage()");
     }
+
+    /**
+     * Get the names of all packages in this project.
+     * @return an array of String containing the fully qualified names
+     * of the packages in this project.
+     */
+    public String[] getPackageNames()
+    {
+        // CURRENTLY THIS IMPLEMENTATION JUST RETURNS THE OPENED PACKAGES!
+        Set nameSet = packages.keySet();
+        String[] packageNames = new String[nameSet.size()];
+        int i = 0;
+        for (Iterator names = nameSet.iterator();names.hasNext(); i++)
+            packageNames[i] = (String)names.next();
+        return packageNames;
+    }
+
+    /**
+     * Generate documentation for the whole project.
+     * @return "" if everything was alright, an error message otherwise.
+     */
+    public String generateDocumentation()
+    {
+        return docuGenerator.generateProjectDocu();
+    }
+
 
     /**
      * Save all open packages of this project.

@@ -308,6 +308,8 @@ pkgmgr.creating=Skapar objekt...
 pkgmgr.createDone=Skapar objekt... Klar
 pkgmgr.creatingVM=Skapar virtuell maskin...
 pkgmgr.creatingVMDone=Skapar virtuell maskin... Klar
+pkgmgr.generatingDocu=Generating documentation...
+pkgmgr.docuGenerated=Generating documentation... Done
 pkgmgr.webBrowserMsg=Webbläsare har startats.
 pkgmgr.webBrowserError=Fel vid start av webbläsare.
 pkgmgr.usesArrowMsg="Använder" beroende har deklarerats men används inte:
@@ -343,6 +345,7 @@ menu.tools=Verktyg
 menu.tools.compile=Kompilera
 menu.tools.compileSelected=Kompilera Markerade
 menu.tools.rebuild=Bygg om paketet
+menu.tools.generateDoc=Generate Documentation
 menu.tools.browse=Bläddra i bibliotek...
 menu.tools.preferences=Inställningar...
 

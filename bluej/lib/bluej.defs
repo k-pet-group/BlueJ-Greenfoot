@@ -142,6 +142,15 @@ debug=on
 bluej.debugLog=debug.log
 
 #######################################################################
+## Tool used for generating documentation and its parameters
+##
+#######################################################################
+doctool.command=javadoc
+
+## name of directory in project directory where documentation is written to
+doctool.outputdir=doc
+
+#######################################################################
 ## Applets -  preferences for how applets are generated and executed
 ##
 #######################################################################
