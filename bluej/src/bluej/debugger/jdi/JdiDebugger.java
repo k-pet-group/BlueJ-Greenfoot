@@ -28,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2330 2003-11-13 04:10:34Z ajp $
+ * @version $Id: JdiDebugger.java 2371 2003-11-19 03:39:06Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -167,6 +167,10 @@ public class JdiDebugger extends Debugger
 	 */
 	public String guessNewName(String className)
 	{
+        // className can have array brackets at the end which is not suitable
+        // for an identifier. We'll strip them out
+        className = className.replace('[',' ').replace(']',' ').trim();
+        
 		String baseName = JavaNames.getBase(className);
 
 		// truncate long names to  OBJ_NAME_LENGTH plus _instanceNum
