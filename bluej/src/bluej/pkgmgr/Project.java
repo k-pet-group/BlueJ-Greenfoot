@@ -30,7 +30,7 @@ import junit.framework.*;*/
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1506 2002-11-18 11:49:37Z ajp $
+ * @version $Id: Project.java 1601 2003-01-24 09:12:34Z mik $
  */
 public class Project
     implements BlueJEventListener
@@ -368,7 +368,8 @@ public class Project
     }
 
     /**
-     *
+     * The name of the package within the project directory where we first opened
+     * this project.
      */
     public String getInitialPackageName()
     {
