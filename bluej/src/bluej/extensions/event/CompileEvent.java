@@ -1,13 +1,14 @@
 package bluej.extensions.event;
 
+import java.io.File;
+
 /**
  * This class encapsulates compiler events
  * 
- * @version $Id: CompileEvent.java 1742 2003-04-04 09:57:57Z damiano $
+ * @version $Id: CompileEvent.java 1765 2003-04-09 05:56:45Z ajp $
  */
-
 public class CompileEvent extends BluejEvent 
-  {
+{
   /**
    * Event generated when compilation begins
    */
@@ -38,14 +39,14 @@ public class CompileEvent extends BluejEvent
   public static final int COMPILE_FAILED_EVENT=5;
 
   private int eventId;
-  private String [] fileNames;   // An array of names this event belong to
+  private File[] fileNames;   // An array of names this event belong to
   private int    errorLineNumber;
   private String errorMessage;
 
   /**
    * NOT to be used by Extension writer.
    */
-  public CompileEvent(int i_eventId, String []i_fileNames)
+  public CompileEvent(int i_eventId, File[] i_fileNames)
     {
     eventId   = i_eventId;
     fileNames = i_fileNames;
@@ -61,10 +62,10 @@ public class CompileEvent extends BluejEvent
 
 
   /**
-   * Returns an array of zero, one or more filenames related to this event.
+   * Returns an array of zero, one or more files related to this event.
    * In case of COMPILE_ERROR_EVENT or COMPILE_WARNING_EVENT it is normally a one element array.
    */
-  public String[] getFileNames ()
+  public File[] getFiles ()
     {
     return fileNames;
     }
@@ -129,4 +130,4 @@ public class CompileEvent extends BluejEvent
 
     return aRisul.toString();
     }
-  }
+}

@@ -1,14 +1,16 @@
 package bluej.compiler;
 
-import bluej.utility.Debug;
+import java.io.File;
+
 import bluej.Config;
+import bluej.utility.Debug;
 
 /**
  * Reasonably generic interface between the BlueJ IDE and the Java
  * compiler.
  *
  * @author  Michael Cahill
- * @version $Id: JobQueue.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: JobQueue.java 1765 2003-04-09 05:56:45Z ajp $
  */
 public class JobQueue
 {
@@ -62,23 +64,13 @@ public class JobQueue
     /**
      * Adds a job to the compile queue.
      */
-    public void addJob(String[] sources, CompileObserver observer,
-                       String classpath, String destdir)
+    public void addJob(File[] sources, CompileObserver observer,
+                       String classPath, File destDir)
     {
         thread.addJob(new Job(sources, compiler, observer,
-                              classpath, destdir));
+                              classPath, destDir));
     }
 
-    /**
-     * Adds a job to the compile queue.
-     */
-    public void addJob(String sourcefile, CompileObserver observer,
-                       String classpath, String destdir)
-    {
-        thread.addJob(new Job(sourcefile, compiler, observer,
-                              classpath, destdir));
-    }
-    
     public void waitForEmptyQueue()
     {
         while (thread.isBusy()) {

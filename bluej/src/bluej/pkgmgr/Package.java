@@ -24,7 +24,7 @@ import bluej.extmgr.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1759 2003-04-08 02:52:53Z ajp $
+ * @version $Id: Package.java 1765 2003-04-09 05:56:45Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1007,15 +1007,15 @@ public class Package extends Graph
         if(targetList.size() == 0)
             return;
 
-        String[] files = new String[targetList.size()];
+        File[] srcFiles = new File[targetList.size()];
         for(int i = 0; i < targetList.size(); i++) {
             ClassTarget ct = (ClassTarget)targetList.get(i);
-            files[i] = ct.getSourceFile().getPath();
+            srcFiles[i] = ct.getSourceFile();
         }
         removeBreakpoints();
 
-        JobQueue.getJobQueue().addJob(files, this, getProject().getClassPath(),
-                                      getProject().getProjectDir().getPath());
+        JobQueue.getJobQueue().addJob(srcFiles, this, getProject().getClassPath(),
+                                      getProject().getProjectDir());
     }
 
 
@@ -1824,11 +1824,11 @@ public class Package extends Graph
      *  A compilation has been started. Mark the affected classes as being
      *  currently compiled.
      */
-    public void startCompile(String[] sources)
+    public void startCompile(File[] sources)
     {
 
         // The following two lines will send a compilation event to extensions.
-        CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT,sources);
+        CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, sources);
         ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
    
         setStatus(compiling);
@@ -1839,7 +1839,7 @@ public class Package extends Graph
         }
 
         for(int i = 0; i < sources.length; i++) {
-            String filename = sources[i];
+            String filename = sources[i].getPath();
 
             String fullName = getProject().convertPathToPackageName(filename);
 
@@ -1861,9 +1861,9 @@ public class Package extends Graph
 
         // The following lines will send a compilation Error event to extensions.
         int eventId = invalidate?CompileEvent.COMPILE_ERROR_EVENT:CompileEvent.COMPILE_WARNING_EVENT;
-        String [] sources = new String[1]; 
-        sources [0] = filename;
-        CompileEvent aCompileEvent = new CompileEvent(eventId,sources);
+        File [] sources = new File[1]; 
+        sources [0] = new File(filename);
+        CompileEvent aCompileEvent = new CompileEvent(eventId, sources);
         aCompileEvent.setErrorLineNumber(lineNo);
         aCompileEvent.setErrorMessage(message);
         ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
@@ -1923,7 +1923,7 @@ public class Package extends Graph
      *  Compilation has ended.  Mark the affected classes as being
      *  normal again.
      */
-    public void endCompile(String[] sources, boolean successful)
+    public void endCompile(File[] sources, boolean successful)
     {
 
         // The following three lines will send a compilation event to extensions.
@@ -1932,7 +1932,7 @@ public class Package extends Graph
         ExtensionsManager.getExtMgr().delegateEvent(aCompileEvent);
     
         for(int i = 0; i < sources.length; i++) {
-            String filename = sources[i];
+            String filename = sources[i].getPath();
 
             String fullName = getProject().convertPathToPackageName(filename);
 

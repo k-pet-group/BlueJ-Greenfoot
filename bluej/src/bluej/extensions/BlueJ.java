@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1739 2003-04-04 08:26:04Z damiano $
+ * @version $Id: BlueJ.java 1765 2003-04-09 05:56:45Z ajp $
  */
 
 public class BlueJ
@@ -97,18 +97,16 @@ public class BlueJ
         Package pkg = openProj.getPackage(openProj.getInitialPackageName());
         if ( pkg == null ) return null;
 
-        PkgMgrFrame pmf = currentFrame.findFrame(pkg);
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
         
-        if (pmf == null) 
-            {
-            if (currentFrame.isEmptyFrame()) 
-                {
+        if (pmf == null) {
+            if (currentFrame.isEmptyFrame()) {
                 pmf = currentFrame;
                 currentFrame.openPackage(pkg);
-                }
+            }
             else 
                 {
-                pmf = currentFrame.createFrame(pkg);
+                pmf = PkgMgrFrame.createFrame(pkg);
                 DialogManager.tileWindow(pmf, currentFrame);
                 }
             }

@@ -1,14 +1,9 @@
 package bluej.compiler;
 
 import java.io.*;
-import java.util.List;
-import java.util.ArrayList;
-import java.lang.Runtime;
+import java.util.*;
 
-import bluej.utility.Debug;
-import bluej.utility.Utility;
 import bluej.utility.DialogManager;
-import bluej.Config;
 
 /**
  * JikesCompiler class - an implementation for the BlueJ "Compiler"
@@ -16,13 +11,13 @@ import bluej.Config;
  * compiler. Verified working with Jikes 1.12.
  *
  * @author  Andrew Patterson
- * @version $Id: JikesCompiler.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: JikesCompiler.java 1765 2003-04-09 05:56:45Z ajp $
  */
 public class JikesCompiler extends Compiler
 {
     String executable;
-    String destdir;
-    String classpath;
+    File destDir;
+    String classPath;
     boolean debug;
     boolean deprecation;
 
@@ -32,14 +27,14 @@ public class JikesCompiler extends Compiler
         setDebug(true);
     }
 
-    public void setDestDir(String destdir)
+    public void setDestDir(File destDir)
     {
-        this.destdir = destdir;
+        this.destDir = destDir;
     }
 
-    public void setClassPath(String classpath)
+    public void setClassPath(String classPath)
     {
-        this.classpath = classpath;
+        this.classPath = classPath;
     }
 
     public void setDebug(boolean debug)
@@ -52,7 +47,7 @@ public class JikesCompiler extends Compiler
         this.deprecation = deprecation;
     }
 
-    public boolean compile(String[] sources, CompileObserver watcher)
+    public boolean compile(File[] sources, CompileObserver watcher)
     {
         List args = new ArrayList();
 
@@ -62,17 +57,17 @@ public class JikesCompiler extends Compiler
         args.add("+D");		// generate Emacs style error messages
         args.add("-Xstdout"); // errors must go to stdout
 
-        if(destdir != null) {
+        if(destDir != null) {
             args.add("-d");
-            args.add(destdir);
+            args.add(destDir);
         }
 
         // as of Jikes 0.50, jikes will not automatically find the standard
         // JDK 1.2 classes because of changes Sun has made to the classpath
         // mechanism. We will supply jikes with the sun boot classes
-        if(classpath != null) {
+        if(classPath != null) {
             args.add("-classpath");
-            args.add(classpath + File.pathSeparator + System.getProperty("sun.boot.class.path"));
+            args.add(classPath + File.pathSeparator + System.getProperty("sun.boot.class.path"));
         }
 
         if(debug)
@@ -82,7 +77,7 @@ public class JikesCompiler extends Compiler
             args.add("-deprecation");
 
         for(int i = 0; i < sources.length; i++)
-            args.add(sources[i]);
+            args.add(sources[i].getPath());
 
         int length = args.size();
         String[] params = new String[length];

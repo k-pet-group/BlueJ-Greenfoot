@@ -1,54 +1,40 @@
 package bluej.compiler;
 
+import java.io.File;
+
 import bluej.Config;
-import bluej.utility.Debug;
 
 /**
- ** @version $Id: Job.java 1418 2002-10-18 09:38:56Z mik $
- ** @author Michael Cahill
- **
- ** A compiler "job" - list of filenames to compile + parameters.
- ** Jobs are held in a queue by the CompilerThread, which compiles them
- ** by running the job's "compile" method.
- **/
-
+ * A compiler "job". A list of filenames to compile + parameters.
+ * Jobs are held in a queue by the CompilerThread, which compiles them
+ * by running the job's "compile" method.
+ *
+ * @author  Michael Cahill
+ * @version $Id: Job.java 1765 2003-04-09 05:56:45Z ajp $
+ */
 public class Job
 {
     Compiler compiler;		// The compiler for this job
     CompileObserver observer;
-    String destdir;
-    String classpath;
-    String sources[];
+    File destDir;
+    String classPath;
+    File sources[];
 	
     /**
-     * contructor - create a job with a set of sources
+     * Create a job with a set of sources.
      */
-    public Job(String[] sources, Compiler compiler,
-               CompileObserver observer, String classpath, String destdir)
+    public Job(File[] sourceFiles, Compiler compiler, CompileObserver observer,
+    			String classPath, File destDir)
     {
-        this.sources = sources;
+        this.sources = sourceFiles;
         this.compiler = compiler;
         this.observer = observer;
-        this.classpath = classpath;
-        this.destdir = destdir;
+        this.classPath = classPath;
+        this.destDir = destDir;
     }
 	
     /**
-     * contructor - create a job with one source file
-     */
-    public Job(String sourcefile, Compiler compiler,
-               CompileObserver observer, String classpath, String destdir)
-    {
-        this.sources = new String[1];
-        this.sources[0] = sourcefile;
-        this.compiler = compiler;
-        this.observer = observer;
-        this.classpath = classpath;
-        this.destdir = destdir;
-    }
-
-    /**
-     * compile - compile this job
+     * Compile this job
      */
     public void compile()
     {
@@ -57,21 +43,19 @@ public class Job
 			
             if(observer != null)
                 observer.startCompile(sources);
-            if(destdir != null)
-                compiler.setDestDir(destdir);
-            if(classpath != null)
-                compiler.setClassPath(classpath);
+            if(destDir != null)
+                compiler.setDestDir(destDir);
+            if(classPath != null)
+                compiler.setClassPath(classPath);
 
             successful = compiler.compile(sources, observer);
-	    //Debug.message("compile success: " + successful);
+	        //Debug.message("compile success: " + successful);
 
             if(observer != null)
                 observer.endCompile(sources, successful);
         } catch(Exception e) {
-            System.err.println(compileException + e);
+            System.err.println(Config.getString("compileException") + e);
             e.printStackTrace();
         }
     }
-	
-    static String compileException = Config.getString("compileException");
 }

@@ -25,7 +25,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1718 2003-03-21 09:27:05Z damiano $
+ * @version $Id: Invoker.java 1765 2003-04-09 05:56:45Z ajp $
  */
 
 public class Invoker extends Thread
@@ -520,15 +520,15 @@ public class Invoker extends Thread
      */    
     private void compileInvocationFile(File shellFile)
     {
-        String[] files = { shellFile.getPath() };
+        File[] files = { shellFile };
         JobQueue.getJobQueue().addJob(files, this, pkg.getProject().getClassPath(),
-                                      pkg.getProject().getProjectDir().getPath());
+                                      pkg.getProject().getProjectDir());
     }
 
     // -- CompileObserver interface --
 
     // not interested in these events:
-    public void startCompile(String[] sources) {}
+    public void startCompile(File[] sources) {}
     public void checkTarget(String sources) {}
 
     /**
@@ -549,7 +549,7 @@ public class Invoker extends Thread
      * is called by the CompilerThread after compilation. If
      * all went well, execute now. Then clean up.
      */
-    public void endCompile(String[] sources, boolean successful)
+    public void endCompile(File[] sources, boolean successful)
     {
         if(dialog != null) {
             dialog.setWaitCursor(false);

@@ -1,5 +1,7 @@
 package bluej.compiler;
 
+import java.io.File;
+
 /**
  * Compiler class - an abstract interface to a source -> bytecode compiler.
  * This can be implemented by different compiler implementations.
@@ -8,12 +10,12 @@ package bluej.compiler;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Compiler.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: Compiler.java 1765 2003-04-09 05:56:45Z ajp $
  */
 public abstract class Compiler
 {
-	public abstract void setDestDir(String destdir);
-	public abstract void setClassPath(String classpath);
+	public abstract void setDestDir(File destDir);
+	public abstract void setClassPath(String classPath);
 	public abstract void setDebug(boolean debug);
-	public abstract boolean compile(String[] sources, CompileObserver observer);
+	public abstract boolean compile(File[] sources, CompileObserver observer);
 }

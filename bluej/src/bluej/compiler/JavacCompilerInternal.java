@@ -1,10 +1,8 @@
 package bluej.compiler;
 
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
-import java.lang.reflect.*;
+import java.io.*;
+import java.lang.reflect.Method;
+import java.util.*;
 
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
@@ -18,14 +16,14 @@ import bluej.utility.*;
  * @author  Michael Kolling
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: JavacCompilerInternal.java 1733 2003-04-01 06:29:22Z bquig $
+ * @version $Id: JavacCompilerInternal.java 1765 2003-04-09 05:56:45Z ajp $
  */
 public class JavacCompilerInternal extends Compiler
 {
     private ErrorStream firstStream = null;
 
-	private String destdir;
-	private String classpath;
+	private File destDir;
+	private String classPath;
 	private boolean debug;
 	private boolean deprecation;
 
@@ -34,14 +32,14 @@ public class JavacCompilerInternal extends Compiler
 		setDebug(true);
 	}
 
-	public void setDestDir(String destdir)
+	public void setDestDir(File destDir)
 	{
-		this.destdir = destdir;
+		this.destDir = destDir;
 	}
 
-	public void setClassPath(String classpath)
+	public void setClassPath(String classPath)
 	{
-		this.classpath = classpath;
+		this.classPath = classPath;
 	}
 
 	public void setDebug(boolean debug)
@@ -54,18 +52,18 @@ public class JavacCompilerInternal extends Compiler
 		this.deprecation = deprecation;
 	}
 
-	public boolean compile(String[] sources, CompileObserver watcher)
+	public boolean compile(File[] sources, CompileObserver watcher)
 	{
 		List args = new ArrayList();
 
-		if(destdir != null) {
+		if(destDir != null) {
 			args.add("-d");
-			args.add(destdir);
+			args.add(destDir.getPath());
 		}
 
-		if(classpath != null) {
+		if(classPath != null) {
 			args.add("-classpath");
-			args.add(classpath);
+			args.add(classPath);
 		}
 
 		if(debug)

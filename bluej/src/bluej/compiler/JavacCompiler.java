@@ -1,15 +1,10 @@
 package bluej.compiler;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
+import java.util.*;
 
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.DialogManager;
 import bluej.prefmgr.PrefMgr;
-import bluej.Config;
+import bluej.utility.DialogManager;
 
 /**
  * JavacCompiler class - an implementation for the BlueJ "Compiler"
@@ -19,13 +14,13 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- * @version $Id: JavacCompiler.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: JavacCompiler.java 1765 2003-04-09 05:56:45Z ajp $
  */
 public class JavacCompiler extends Compiler
 {
     private String executable;
-    private String destdir;
-    private String classpath;
+    private File destDir;
+    private String classPath;
     private boolean debug;
     private boolean deprecation;
 
@@ -35,14 +30,14 @@ public class JavacCompiler extends Compiler
         setDebug(true);
     }
 
-    public void setDestDir(String destdir)
+    public void setDestDir(File destDir)
     {
-        this.destdir = destdir;
+        this.destDir = destDir;
     }
 
-    public void setClassPath(String classpath)
+    public void setClassPath(String classPath)
     {
-        this.classpath = classpath;
+        this.classPath = classPath;
     }
 
     public void setDebug(boolean debug)
@@ -55,20 +50,20 @@ public class JavacCompiler extends Compiler
         this.deprecation = deprecation;
     }
 
-    public boolean compile(String[] sources, CompileObserver watcher)
+    public boolean compile(File[] sources, CompileObserver watcher)
     {
         List args = new ArrayList();
 
         args.add(executable);
 
-        if(destdir != null) {
+        if(destDir != null) {
             args.add("-d");
-            args.add(destdir);
+            args.add(destDir.getPath());
         }
 
-        if(classpath != null) {
+        if(classPath != null) {
             args.add("-classpath");
-            args.add(classpath);
+            args.add(classPath);
         }
 
         if(debug)

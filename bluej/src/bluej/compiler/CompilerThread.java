@@ -1,19 +1,17 @@
 package bluej.compiler;
 
 import bluej.Config;
-import bluej.utility.Debug;
 import bluej.utility.Queue;
 
 /**
- * @version $Id: CompilerThread.java 1459 2002-10-23 12:13:12Z jckm $
- * @author Michael Cahill
- * @author Michael Kolling
- *
  * The compiler thread. BlueJ uses exactly one thread for compilation.
  * Jobs are queued, and this thread processes tham one by one.  If there
  * is no job, this thread just sleeps.
+ *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @version $Id: CompilerThread.java 1765 2003-04-09 05:56:45Z ajp $
  */
-
 public class CompilerThread extends Thread
 {
     Queue jobs;
@@ -21,7 +19,7 @@ public class CompilerThread extends Thread
 	
     public CompilerThread()
     {
-        super(title);
+        super(Config.getString("compiler.thread.title"));
         jobs = new Queue();
     }
 	
@@ -40,8 +38,7 @@ public class CompilerThread extends Thread
                 notifyAll();
                 try {
                     wait();
-                } catch(InterruptedException e) {
-                }
+                } catch(InterruptedException e) { }
             }
         }
     }
@@ -56,6 +53,4 @@ public class CompilerThread extends Thread
 	{
 	    return (busy || !jobs.isEmpty());
 	}
-	
-    static String title = Config.getString("compiler.thread.title");
 }
