@@ -1,7 +1,7 @@
 /**
  * A class representing students for a simple BlueJ demo program.
  *
- * @author:  Michael Kölling
+ * @author:  Michael K¿lling
  * @version: 1.0, January 1999
  */
 

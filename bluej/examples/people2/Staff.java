@@ -1,7 +1,7 @@
 /**
  * A class representing staff members for a simple BlueJ demo program.
  *
- * @author:  Michael Kölling
+ * @author:  Michael Kšlling
  * @version: 1.0, January 1999
  */
 

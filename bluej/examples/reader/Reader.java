@@ -1,6 +1,6 @@
 /**
  * Class Reader - Simplifies reading in user input.
- * @author: Michael Kölling
+ * @author: Michael Kšlling
  */
 import java.io.*;
 

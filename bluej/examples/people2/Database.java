@@ -7,7 +7,7 @@ import java.util.Enumeration;
  *
  * Written as a first demo program for BlueJ.
  *
- * @author:  Michael Kölling
+ * @author:  Michael Kšlling
  * @version: 1.0, January 1999
  */
 
