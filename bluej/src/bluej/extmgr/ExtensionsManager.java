@@ -58,14 +58,10 @@ public class ExtensionsManager implements BlueJEventListener
     }
 
 
-
     private final List argsList;
     private final List extensions;
     private final File bluejLib;
-    private final File systemDir;
-    private final File userDir;
     private PrefManager prefManager;
-
 
     /**
      *  Constructor for the ExtensionsManager object
@@ -86,14 +82,6 @@ public class ExtensionsManager implements BlueJEventListener
         this.bluejLib = bluejLib;
         argsList = Collections.unmodifiableList(Arrays.asList(args));
 
-        String dir = Config.getPropString("bluej.extensions.systempath", (String) null);
-        if (dir == null)
-            systemDir = new File(bluejLib, "extensions");
-        else
-            systemDir = new File(dir);
-
-        userDir = Config.getUserConfigFile("extensions");
-
         extensions = new ArrayList();
 
         // This will also register the panel with BlueJ
@@ -104,12 +92,22 @@ public class ExtensionsManager implements BlueJEventListener
 
 
     /**
-     *  Quite a simple one, just not to change the main BlueJ code.
+     * Loads extensions that are in system and user location.
      */
     public void loadExtensions()
     {
+        // Most of the time the systemDirectory will be this.
+        File systemDir = new File(bluejLib, "extensions");
+
+        String dirPath = Config.getPropString("bluej.extensions.systempath", null);
+        // But we allow one to override the default location of system extension.
+        if (dirPath != null ) systemDir = new File(dirPath);
+
+        // Now we try to load the extensions from the BlueJ system repository.
         loadAllExtensions(systemDir, null);
-        loadAllExtensions(userDir, null);
+
+        // Load extensions that are in a user space location.
+        loadAllExtensions(Config.getUserConfigFile("extensions"), null);
     }
 
 
