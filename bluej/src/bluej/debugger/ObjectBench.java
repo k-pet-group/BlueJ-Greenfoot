@@ -16,11 +16,11 @@ import bluej.utility.Debug;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 1570 2002-12-11 13:27:21Z mik $
+ * @version $Id: ObjectBench.java 1571 2002-12-11 14:45:40Z mik $
  */
 public class ObjectBench
 {
-    static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH / 3) * 2;
+    static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH / 3);
 
     private JPanel containerPanel;
     private JButton leftArrowButton, rightArrowButton;
@@ -95,50 +95,50 @@ public class ObjectBench
     }
 
     private void moveBench(int xamount)
-    {
-        final int xoffset = xamount;
-        
-        Thread scrollThread = new Thread() {
-                public void run() {
-                    Point pt = viewPort.getViewPosition();
+    {        
+        Point pt = viewPort.getViewPosition();
 
-                    int newx = pt.x + (SCROLL_AMOUNT * xoffset);
-                    newx = Math.max(0, newx);
-                    newx = Math.min(getMaxXExtent(), newx);
-            
-                    for(int x = pt.x + xoffset; x != newx ; x += xoffset) {
-                        pt.x = x;
-                        viewPort.setViewPosition(pt);
-                        viewPort.repaint();
-                        try {
-                            Thread.sleep(1); 
-                        } catch (InterruptedException e) {}
-                    }
-                    pt.x = newx;
-                    viewPort.setViewPosition(pt);
-                    enableButtons(pt);
-                }
-        };
-        scrollThread.start();
+        pt.x += (SCROLL_AMOUNT * xamount);
+        pt.x = Math.max(0, pt.x);
+        pt.x = Math.min(getMaxXExtent(), pt.x);
+
+        viewPort.setViewPosition(pt);
     }
 
     private void enableButtons(Point pt)
     {
+        boolean buttonsNeeded = false;
+        
         if (pt.x == 0)
             leftArrowButton.setEnabled(false);
-        else
+        else {
             leftArrowButton.setEnabled(true);
+            buttonsNeeded = true;
+        }
 
         if (pt.x >= getMaxXExtent())
             rightArrowButton.setEnabled(false);
-        else
+        else {
             rightArrowButton.setEnabled(true);
+            buttonsNeeded = true;
+        }
+        
+        if(buttonsNeeded) {
+            rightArrowButton.setVisible(true);
+            leftArrowButton.setVisible(true);
+        }
+       else {
+            rightArrowButton.setVisible(false);
+            leftArrowButton.setVisible(false);
+        }
     }
 
     protected int getMaxXExtent()
     {
         return obp.getLayoutWidthMin() - viewPort.getWidth();
     }
+    
+    // ------------- nested class ObjectBenchPanel --------------
 
     /**
      * This is an inner class so that people can't add or remove
@@ -255,7 +255,7 @@ public class ObjectBench
     
     // ----------------- end of nested class ------------------
 
-    public Component getComponent()
+    public JComponent getComponent()
     {
         return containerPanel;
     }
@@ -293,9 +293,8 @@ public class ObjectBench
 
         // add to bench
 
-        wrapper.setAlignmentY(0);
+        //wrapper.setAlignmentY(0);
         obp.add(wrapper);
-        obp.add(Box.createHorizontalStrut(2));
 
         obp.setPreferredSize(new Dimension(obp.getLayoutWidthMin(), ObjectWrapper.HEIGHT));
         enableButtons(viewPort.getViewPosition());
@@ -360,6 +359,7 @@ public class ObjectBench
         fixtureDeclare = "";
         fixtureInitialise = "";
         
+        enableButtons(viewPort.getViewPosition());
     	obp.revalidate();
         obp.repaint();
     }
@@ -374,6 +374,7 @@ public class ObjectBench
         obp.remove(wrapper);
         Debugger.debugger.removeObjectFromScope(scopeId, wrapper.getName());
 
+        enableButtons(viewPort.getViewPosition());
     	obp.revalidate();
     	obp.repaint();
     }

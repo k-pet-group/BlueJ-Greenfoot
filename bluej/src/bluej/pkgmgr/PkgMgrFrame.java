@@ -1,7 +1,7 @@
 package bluej.pkgmgr;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
+import javax.swing.border.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.List;
@@ -42,7 +42,7 @@ import antlr.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1550 2002-12-02 05:58:30Z ajp $
+ * @version $Id: PkgMgrFrame.java 1571 2002-12-11 14:45:40Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -1724,12 +1724,11 @@ public class PkgMgrFrame extends JFrame
             bottomPanel.setLayout(new BorderLayout());
             objbench = new ObjectBench();
 
-            JScrollPane objScroller = new JScrollPane(objbench.getComponent());
-            {
-                objScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-            }
-
-            bottomPanel.add(objScroller, BorderLayout.NORTH);
+            JComponent bench = objbench.getComponent();
+            bench.setBorder(BorderFactory.createCompoundBorder(
+                                BorderFactory.createBevelBorder(BevelBorder.LOWERED),
+                                BorderFactory.createEmptyBorder(5,0,5,0)));
+            bottomPanel.add(bench, BorderLayout.NORTH);
             
             JPanel bottom = new JPanel(new BorderLayout());
 //  experiment with expression eval entry field layout
@@ -1744,7 +1743,6 @@ public class PkgMgrFrame extends JFrame
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         classScroller = new JScrollPane();
-        classScroller.setBorder(BorderFactory.createTitledBorder("Class Diagram"));
         mainPanel.add(classScroller, BorderLayout.CENTER);
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 

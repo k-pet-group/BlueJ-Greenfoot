@@ -33,7 +33,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1552 2002-12-02 05:59:24Z ajp $
+ * @version $Id: ObjectWrapper.java 1571 2002-12-11 14:45:40Z mik $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -51,9 +51,11 @@ public class ObjectWrapper extends JComponent
     static final Color bg = Config.getItemColour("colour.wrapper.bg");
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
     static final Color textColour = Color.white;
-
+    
+    public static final int GAP = 5;    // gap between objects (left of each object)
     public static final int WIDTH = 90;
     public static final int HEIGHT = 60;
+
     // vertical offset between instance and class name
     public static int WORD_GAP = 20;
     public static int SHADOW_SIZE = 5;
@@ -118,8 +120,8 @@ public class ObjectWrapper extends JComponent
 
         enableEvents(AWTEvent.MOUSE_EVENT_MASK);
         
-        setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        setSize(WIDTH, HEIGHT);
+        setMinimumSize(new Dimension(WIDTH+GAP, HEIGHT));
+        setSize(WIDTH+GAP, HEIGHT);
     }
 
     public Package getPackage()
@@ -301,17 +303,17 @@ public class ObjectWrapper extends JComponent
 
     public Dimension getMinimumSize()
     {
-        return new Dimension(WIDTH, HEIGHT);
+        return new Dimension(WIDTH+GAP, HEIGHT);
     }
 
     public Dimension getPreferredSize()
     {
-        return new Dimension(WIDTH, HEIGHT);
+        return new Dimension(WIDTH+GAP, HEIGHT);
     }
 
     public Dimension getMaximumSize()
     {
-        return new Dimension(WIDTH, HEIGHT);
+        return new Dimension(WIDTH+GAP, HEIGHT);
     }
 
     public String getName()
@@ -380,7 +382,6 @@ public class ObjectWrapper extends JComponent
         lineX = x + 2 + ((int)(maxWidth - bWidth)/2);
         lineY = y + 25 + fontHeight;
         g.drawLine(lineX, lineY, lineX + bWidth, lineY);
-
     }
 
     /**
@@ -388,9 +389,9 @@ public class ObjectWrapper extends JComponent
      */
     protected void drawUMLStyle(Graphics2D g)
     {
-        drawUMLObjectShape(g,0,0,WIDTH,HEIGHT,SHADOW_SIZE,8);
+        drawUMLObjectShape(g, GAP, 0, WIDTH, HEIGHT, SHADOW_SIZE, 8);
 
-        drawUMLObjectText(g,0,0,WIDTH,HEIGHT,SHADOW_SIZE,
+        drawUMLObjectText(g, GAP, 0, WIDTH, HEIGHT, SHADOW_SIZE,
                             instanceName + ":", displayClassName);
     }
 
