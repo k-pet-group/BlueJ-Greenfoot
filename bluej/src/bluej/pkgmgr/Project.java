@@ -23,7 +23,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 649 2000-07-26 00:29:24Z ajp $
+ * @version $Id: Project.java 677 2000-09-01 12:37:28Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -134,12 +134,14 @@ public class Project
     {
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(project);
 
-        for(int i=0; i< frames.length; i++) {
-            frames[i].doClose(true);
+        if (frames != null) {
+            for(int i=0; i< frames.length; i++) {
+                frames[i].doClose(true);
+            }
         }
 
         BlueJEvent.removeListener(project);
-        projects.remove(project.getProjectDir().getPath());
+        projects.remove(project.getProjectDir());
     }
 
 
