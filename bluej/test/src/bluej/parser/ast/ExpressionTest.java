@@ -1,16 +1,12 @@
 package bluej.parser.ast;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 /**
  * Write a description of the test class $CLASSNAME here.
  *
  * @author  (your name)
  * @version (a version number or a date)
  */
-public class ExpressionTest extends TestCase
+public class ExpressionTest extends junit.framework.TestCase
 {
     /**
      * Insert fixtures here
