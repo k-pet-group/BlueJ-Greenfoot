@@ -13,7 +13,7 @@ import java.net.URL;
  * their project by the agreed method
  *
  * @author Clive Miller
- * @version $Id: Submitter.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: Submitter.java 1482 2002-10-28 10:01:12Z damiano $
  */
 public class Submitter extends Extension implements MenuListener
 {
@@ -29,6 +29,8 @@ public class Submitter extends Extension implements MenuListener
     private SubmissionProperties sp;
     private SubmissionDialog sd;
     private Thread submitterThread;
+    private PrefPanel globalPreferences;
+
     
     public boolean isCompatibleWith (int majorVersion, int minorVersion)
     {
@@ -43,8 +45,9 @@ public class Submitter extends Extension implements MenuListener
         menuItem = new BMenuItem (bj.getLabel ("menu.submit"), true);
         menuItem.addMenuListener (this);
         bj.getMenu().addMenuItem (menuItem);
-        
-        SubmissionProperties.addSettings (bj);
+
+        globalPreferences = new PrefPanel(bj);   
+        bj.setBPrefPanel(globalPreferences);
     }
     
     public void menuInvoked (Object src, final BPackage pkg)
@@ -87,7 +90,7 @@ public class Submitter extends Extension implements MenuListener
         try {
             url = new URL ("http://www.cs.ukc.ac.uk/projects/bluej/submit.html");
         } catch (java.net.MalformedURLException ex) {}
-        return url;
+        return url;  
     }
 }
         
