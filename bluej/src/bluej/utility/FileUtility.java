@@ -5,17 +5,16 @@ import bluej.Config;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.filechooser.*;
 import java.io.*;
-
 
 /**
  * A file utility for various file related actions.
  *
- * @version $ $
- * @author Markus Ostman, but most of the methods are just copied across
- * from other parts of bluej.
+ * @author  Markus Ostman
+ * @author  Michael Kolling
+ * @version $Id: FileUtility.java 557 2000-06-19 02:16:00Z ajp $
  */
-
 public class FileUtility
 {
     private static final String sourceSuffix = ".java";
@@ -32,10 +31,14 @@ public class FileUtility
      *  If cancelled or an invalid name was specified, return null.
      */
     public static String getFileName(Component parent, String title,
-                                     String buttonLabel)
+                                     String buttonLabel, FileFilter filter)
     {
         JFileChooser newChooser = getFileChooser(false);
         newChooser.setDialogTitle(title);
+
+        if(filter == null)
+            filter = newChooser.getAcceptAllFileFilter();
+        newChooser.setFileFilter(filter);
 
         int result = newChooser.showDialog(parent, buttonLabel);
 
@@ -47,6 +50,17 @@ public class FileUtility
             DialogManager.showError(parent, "error-no-name");
             return null;
         }
+    }
+
+    public static String getFileName(Component parent, String title,
+                                     String buttonLabel)
+    {
+        return getFileName(parent, title, buttonLabel, null);
+    }
+
+    public static FileFilter getJavaSourceFilter()
+    {
+        return new JavaSourceFilter();
     }
 
     /**
@@ -76,6 +90,74 @@ public class FileUtility
         return fileChooser;
     }
 
+    private static class JavaSourceFilter extends FileFilter
+    {
+        /**
+         * This method only accepts files that are Java source files.
+         * Whether a file is a Java source file is determined by the fact that
+         * its filename ends with ".java".
+         */
+        public boolean accept(File pathname)
+        {
+            if (pathname.isDirectory() || pathname.getName().endsWith(".java"))
+                return true;
+            else
+                return false;
+        }
+
+        public String getDescription()
+        {
+            return "Java Source";
+        }
+    }
+
+    /**
+     * To serve our purposes we need to redefine some of the methods
+     * in JFileChooser.
+     *
+     * Why is this Class static? Well since it is a nested class and
+     * it needs to be instantiated in a class (static) method, this
+     * seems to be the only way to do it.
+     * Normally an inner class is instantiated by an instance of the
+     * outer class but in this case it is the outer class itself that
+     * instantiate it.
+     */
+    private static class BluejFileChooser extends JFileChooser
+    {
+        /**
+         * Create a new BluejFileChooser.
+         * @param startDirectory Directory to start the package selection in.
+         * @param directoryOnly  Should it display just directories
+         **/
+        public BluejFileChooser(String startDirectory, boolean directoryOnly)
+        {
+            super(startDirectory);
+            setFileView(new PackageFileView());
+            if (directoryOnly)
+                setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            else
+                setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        }
+
+        /**
+         * A directory was double-clicked. If it is a BlueJ package maybe
+         * we want to treat it differently
+         */
+        public void setCurrentDirectory(File dir)    // redefined
+        {
+            //Here we could treat bluej package differently
+            //At the moment nothing is done.
+            if (Package.isBlueJPackage(dir)) {
+                setSelectedFile(new File(""));
+                super.setCurrentDirectory(dir);
+            }
+            else{
+                setSelectedFile(new File("")); //clear the textfield
+                super.setCurrentDirectory(dir);
+            }
+        }
+     }
+
     /**
      * Copy file 'source' to file 'dest'. The source file must exist,
      * the destination file will be created. Returns true if successful.
@@ -101,8 +183,8 @@ public class FileUtility
         InputStream in = null;
         OutputStream out = null;
         try {
-            in = new FileInputStream(srcFile);
-            out = new FileOutputStream(destFile);
+            in = new BufferedInputStream(new FileInputStream(srcFile));
+            out = new BufferedOutputStream(new FileOutputStream(destFile);
             copyStream(in, out);
             return true;
         } catch(IOException e) {
@@ -136,7 +218,7 @@ public class FileUtility
     public static final int COPY_ERROR = 3;
 
     public static int copyDirectory(String source, String dest,
-                                    boolean excludeBlueJ, 
+                                    boolean excludeBlueJ,
                                     boolean excludeSource)
     {
         File srcFile = new File(source);
@@ -170,7 +252,7 @@ public class FileUtility
         }
         return NO_ERROR;
     }
-    
+
     public static boolean skipFile(String fileName,
                             boolean skipBlueJ, boolean skipSource)
     {
@@ -185,9 +267,55 @@ public class FileUtility
 
         return false;
     }
+
+    /**
+     * Recursively copy all files from one directory to another.
+     *
+     * @return An array contained each source file which was
+     *         not successfully copied or null if everything went well
+     */
+    public static Object[] recursiveCopyFile(File srcDir, File destDir)
+    {
+        // remember every file which we don't successfully copy
+        List failed = new ArrayList();
+
+        // check whether source and dest are the same
+        if(srcDir.getAbsolutePath().equals(destDir.getAbsolutePath()))
+            return null;
+
+        if (!srcDir.isDirectory() || !destDir.isDirectory())
+            throw new IllegalArgumentException();
+
+        // get all entities in the source directory
+        File[] files = srcDir.listFiles();
+
+        for (int i=0; i < files.length; i++) {
+            // handle directories by recursively copying
+            if (files[i].isDirectory()) {
+
+                File newDir = new File(destDir, files[i].getName());
+
+                newDir.mkdir();
+
+                if (newDir.isDirectory()) {
+                    recursiveCopyFile(files[i], newDir);
+                }
+                else {
+                    failed.add(files[i]);
+                }
+            }
+            else if(files[i].isFile()) {
+                // handle all other files
+                File newFile = new File(destDir, files[i].getName());
+
+                if(newFile.exists() || !copyFile(files[i], newFile))
+                    failed.add(files[i]);
+            }
+        }
+
+        if (failed.size() > 0)
+            return failed.toArray();
+        else
+            return null;
+    }
 }
-
-
-
-
-

@@ -1,6 +1,6 @@
 package bluej.utility;
 
-import java.util.Dictionary;
+import java.util.*;
 import java.io.*;
 
 /**
@@ -19,8 +19,8 @@ import java.io.*;
  * with place holders (variables) in them that will be replaced using a
  * dictionary.
  *
- * @author Michael Kolling
- * @version 1.0
+ * @author  Michael Kolling
+ * @version $Id: BlueJFileReader.java 557 2000-06-19 02:16:00Z ajp $
  */
 public class BlueJFileReader
 {
@@ -111,7 +111,6 @@ public class BlueJFileReader
         else
             return pattern.equals(message);
     }
-
 
     /**
      * translateFile - copy a file while replacing special keywords
