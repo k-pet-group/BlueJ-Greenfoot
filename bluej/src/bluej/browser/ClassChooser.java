@@ -35,7 +35,7 @@ import bluej.pkgmgr.Main;
  * 
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: ClassChooser.java 277 1999-11-16 00:57:17Z ajp $
+ * @version $Id: ClassChooser.java 279 1999-11-16 07:06:32Z ajp $
  */
 public class ClassChooser extends JPanel {
 
@@ -276,7 +276,7 @@ class FlowPanel extends JPanel  {
     
 }
 
-public class QuickCellRenderer extends DefaultTreeCellRenderer {
+class QuickCellRenderer extends DefaultTreeCellRenderer {
 
     public Component getTreeCellRendererComponent(JTree tree,
 						  Object value,
