@@ -27,7 +27,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2632 2004-06-19 14:41:19Z mik $
+ * @version $Id: TextEvalArea.java 2634 2004-06-19 15:05:49Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -211,6 +211,21 @@ public final class TextEvalArea extends JScrollPane
         }
     }
     
+    /**
+     * Return the current column number.
+     */
+    private int getCurrentColumn()
+    {
+        Caret caret = text.getCaret();
+        int pos = Math.min(caret.getMark(), caret.getDot());
+        int lineStart = doc.getParagraphElement(pos).getStartOffset();
+        return (pos - lineStart);
+    }
+
+    /**
+     * 
+     *
+     */
     private void defineKeymap()
     {
         Keymap newmap = JTextComponent.addKeymap("texteval", text.getKeymap());
@@ -271,8 +286,11 @@ public final class TextEvalArea extends JScrollPane
         
         final public void actionPerformed(ActionEvent event)
         {
+            if(getCurrentColumn() > 1) {
+                Caret caret = text.getCaret();
+                caret.setDot(caret.getDot() - 1);
+            }
         }
-
     }
 
     final class HistoryBackAction extends AbstractAction {
