@@ -39,8 +39,9 @@ import java.util.Vector;
  **
  ** @author Michael Cahill
  ** @author Michael Kolling
+ ** @author Bruce Quig
  **
- ** @version $Id: ClassTarget.java 251 1999-08-23 06:32:46Z mik $
+ ** @version $Id: ClassTarget.java 259 1999-09-23 03:15:20Z bruce $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -742,7 +743,7 @@ public class ClassTarget extends EditableTarget
 	}
 	else if(editStr.equals(cmd)) {
 	    displayedView = Editor.IMPLEMENTATION;
-	    reopen();
+	    open();
 	}
 	else if (useStr.equals(cmd)) {
 	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
