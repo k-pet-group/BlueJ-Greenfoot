@@ -10,7 +10,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- ** @version $Id: Main.java 65 1999-05-05 06:32:09Z mik $
+ ** @version $Id: Main.java 229 1999-08-12 02:30:04Z bruce $
  ** @author Michael Kolling
  ** @author Michael Cahill
  **
@@ -59,12 +59,12 @@ public class Main
 	machineLoader.start();
     }
 
-    public static void addPackage(Package pkg) { 
-	packages.put(pkg.getName(), pkg);
+    public static void addPackage(Package pkg) {
+	packages.put(pkg.getId(), pkg);
     }
 
     public static void removePackage(Package pkg) { 
-	packages.remove(pkg.getName());
+	packages.remove(pkg.getId());
     }
 
     public static Package getPackage(String pkgname)

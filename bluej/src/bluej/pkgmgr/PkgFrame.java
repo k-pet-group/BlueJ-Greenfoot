@@ -20,7 +20,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 210 1999-07-23 06:43:19Z ajp $
+ ** @version $Id: PkgFrame.java 229 1999-08-12 02:30:04Z bruce $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -267,8 +267,13 @@ public abstract class PkgFrame extends JFrame
 	    pkg.removeLocalClassLoader();
 	    pkg.removeRemoteClassLoader();
 	    pkg.closeAllEditors();
-	    pkg = null;
 	    editor = null;
+	    
+	    // remove package from list of open packages
+	    Main.removePackage(pkg);
+
+	    pkg = null;
+
 	}
     }    
 

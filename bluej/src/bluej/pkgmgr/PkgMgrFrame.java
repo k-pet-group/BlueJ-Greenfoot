@@ -395,7 +395,7 @@ public class PkgMgrFrame extends PkgFrame
 	    if(pkg.getDirName() == noTitle || pkg.getDirName() == null) 
 		doOpenPackage(openPkg);
 	    else {
-				// Otherwise open it in a new window
+		// Otherwise open it in a new window
 		PkgMgrFrame frame = createFrame(openPkg);
 		frame.setVisible(true);
 	    }
