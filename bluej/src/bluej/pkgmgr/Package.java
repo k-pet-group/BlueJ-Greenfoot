@@ -33,7 +33,7 @@ import java.io.*;
 import java.util.*;
 
 /**
-** @version $Id: Package.java 287 1999-11-25 05:48:24Z ajp $
+** @version $Id: Package.java 301 1999-12-08 12:09:59Z ajp $
 ** @author Michael Cahill
 **
 ** A Java package (collection of Java classes).
@@ -464,7 +464,6 @@ implements CompileObserver, MouseListener, MouseMotionListener
                     // all library classes should be considered to be compiled
                     if (libraryPackage) {
                         target.state = Target.S_NORMAL;
-                        ((ClassTarget)target).setLibraryTarget(true);
                     }
                 }
                 else if("ImportedClassTarget".equals(type))

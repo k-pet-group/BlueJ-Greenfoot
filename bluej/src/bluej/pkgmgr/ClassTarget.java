@@ -11,6 +11,7 @@ import bluej.debugger.ResultWatcher;
 import bluej.debugger.ObjectWrapper;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
 import bluej.editor.Editor;
 import bluej.graph.GraphEditor;
 import bluej.utility.Utility;
@@ -42,7 +43,7 @@ import java.util.Vector;
  ** @author Michael Kolling
  ** @author Bruce Quig
  **
- ** @version $Id: ClassTarget.java 284 1999-11-25 02:34:37Z ajp $
+ ** @version $Id: ClassTarget.java 301 1999-12-08 12:09:59Z ajp $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -261,8 +262,6 @@ public class ClassTarget extends EditableTarget
 	    return interfacebg;
 	else if(isAbstract())
 	    return abstractbg;
-	else if(isLibrary())
-	    return librarybg;
 	else
 	    return defaultbg;
     }
@@ -389,7 +388,7 @@ public class ClassTarget extends EditableTarget
 
 
     public void compile(Editor editor)
-    {
+    {   
 	pkg.compile(this);
     }
 
@@ -434,6 +433,92 @@ public class ClassTarget extends EditableTarget
     }  
 
 
+
+    public void enforcePackage(String packageName)
+    {
+        packageName = packageName.trim();
+        
+        try {
+            ClassInfo info = ClassParser.parse(sourceFile(),
+                                                pkg.getAllClassnames());
+
+            Editor ed = getEditor();
+
+            int fourCases = 0;
+            
+            // there are four possible combinations of
+            // packageName.length == 0 and
+            // info.hasPackageStatement
+
+            if (packageName.length() == 0) {
+                if (info.hasPackageStatement()) {
+                    // we must delete all parts of the "package" statement
+                    fourCases = 1;    
+                }
+                else {
+                    // if we have no package statement we do not need
+                    // to do anything to turn in into an anonymous package
+                    return;
+                }
+            }
+            else {
+                if (info.hasPackageStatement()) {
+                    // we must change just the package name
+                    fourCases = 3;                              
+                }
+                else {
+                    // we must insert all the "package" statement
+                    fourCases = 4;                
+                }
+            }
+
+            if (fourCases == 1 || fourCases == 4)
+            {
+                Selection selSemi = info.getPackageSemiSelection();
+            
+                ed.setSelection(selSemi.getLine(),
+                                selSemi.getColumn(),
+                                selSemi.getLength());
+
+                if (fourCases == 1)
+                    ed.insertText("", false, false);
+                else
+                    ed.insertText(";", false, false);
+            }
+
+            Selection selName = info.getPackageNameSelection();
+            
+            ed.setSelection(selName.getLine(),
+                            selName.getColumn(),
+                            selName.getLength());
+
+            if (fourCases == 1)
+                ed.insertText("", false, false);
+            else
+                ed.insertText(packageName, false, false);
+
+            if (fourCases == 1 || fourCases == 4)
+            {
+                Selection selStatement = info.getPackageStatementSelection();
+            
+                ed.setSelection(selStatement.getLine(),
+                                selStatement.getColumn(),
+                                selStatement.getLength());
+            
+                if (fourCases == 1)
+                    ed.insertText("", false, false);
+                else
+                    ed.insertText("package ", false, false);
+            }                    
+            
+            ed.save();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
     /** 
      *  Analyse the current dependencies in the source code and update the
      *  dependencies in the graphical display accordingly.
@@ -447,8 +532,8 @@ public class ClassTarget extends EditableTarget
 	unflagAllOutDependencies();
 
         try {
-            ClassInfo info = ClassParser.parse(sourceFile(), 
-					       pkg.getAllClassnames());
+            ClassInfo info = ClassParser.parse(sourceFile(),
+                                                pkg.getAllClassnames());
     
             if(info.isApplet()) {
                 if( ! (role instanceof AppletClassRole))
@@ -885,14 +970,4 @@ public class ClassTarget extends EditableTarget
     static String inheritedStr = Config.getString("pkgmgr.classmenu.inherited");
     static String compileStr = Config.getString("pkgmgr.classmenu.compile");
     static String removeStr = Config.getString("pkgmgr.classmenu.remove");
-
-    private boolean libraryTarget = false;
-
-    public boolean isLibrary() {
-	return libraryTarget;
-    }
-    
-    public void setLibraryTarget(boolean libraryTarget) {
-	this.libraryTarget = libraryTarget;
-    }
 }
