@@ -10,11 +10,13 @@ import bluej.utility.Debug;
 import java.io.File;
 
 /**
- * This is the main entry point to BlueJ. Normal invocations start
- * in this class's main method.  
+ * BlueJ starts here.
+ * The Boot class, which is responsible for dealing with specialised
+ * class loaders, constructs an object of this class to initiate the 
+ * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1997 2003-05-30 12:10:30Z damiano $
+ * @version $Id: Main.java 2003 2003-06-02 10:44:29Z iau $
  */
 public class Main
 {
