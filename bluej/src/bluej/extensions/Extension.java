@@ -7,12 +7,12 @@ import bluej.Config;
  * Defines the interface between BlueJ and an extension. All extensions must extend this class.
  * A concrete extension class must also have a no-arguments constructor.
  * 
- * @version    $Id: Extension.java 2966 2004-08-31 06:29:34Z damiano $
+ * @version    $Id: Extension.java 3239 2004-12-15 07:12:54Z damiano $
  */
 
 /*
  * Author Clive Miller, University of Kent at Canterbury, 2002
- * Author Damiano Bolla, University of Kent at Canterbury, 2003
+ * Author Damiano Bolla, University of Kent at Canterbury, 2003,2004
  */
  
 public abstract class Extension
@@ -30,7 +30,7 @@ public abstract class Extension
      * The minor version number of the Extension API.
      * Provided so that extensions can check for compatibility.
      */
-    public int VERSION_MINOR = 3;
+    public int VERSION_MINOR = 4;
 
     /**
      * Determine whether this extension is compatible with a particular version

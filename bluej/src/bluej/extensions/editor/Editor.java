@@ -9,7 +9,7 @@ import javax.swing.text.*;
  * Except as marked, methods of this class must be called from a swing compatible thread.
  *
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
- * @version    $Id: Editor.java 3018 2004-09-28 09:21:48Z iau $
+ * @version    $Id: Editor.java 3239 2004-12-15 07:12:54Z damiano $
  */
 
 public class Editor
@@ -36,6 +36,14 @@ public class Editor
     public void saveFile()
     {
         bjEditor.save();
+    }
+
+    /**
+     * Request the editor to load the file currently opened.
+     */
+    public void loadFile()
+    {
+        bjEditor.reloadFile();
     }
 
 
