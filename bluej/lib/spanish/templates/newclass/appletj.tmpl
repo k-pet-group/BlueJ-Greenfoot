@@ -1,14 +1,13 @@
-$PKGLINE/**
+$PKGLINE
+import java.awt.*;
+import javax.swing.*;
+
+/**
  * Class $CLASSNAME - write a description of the class here
  * 
- * @author: 
- * date: 
+ * @author (your name)
+ * @version (version number)
  */
-
-import javax.swing.JApplet;
-import javax.swing.JRootPane;
-import java.awt.Graphics;
-
 public class $CLASSNAME extends JApplet
 {
 	// instance variables - replace the example below with your own
@@ -23,7 +22,7 @@ public class $CLASSNAME extends JApplet
 	{
 		// this is a workaround for a security conflict with current browsers
 		// including Netscape & Internet Explorer which do not allow access to 
-		// AWT system event queuen which JApplets do on startup to check access. 
+		// AWT system event queues which JApplets do on startup to check access. 
 		JRootPane rootPane = this.getRootPane();	
 		rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
 	
