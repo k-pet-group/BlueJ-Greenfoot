@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1929 2003-05-01 04:51:14Z ajp $
+ * @version $Id: PkgMgrFrame.java 1932 2003-05-01 14:04:46Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -308,7 +308,7 @@ public class PkgMgrFrame extends JFrame
      * Check whether the status of the 'Show unit test tools' preference
      * has changed, and if it has, show or hide them as requested.
      */
-    public static void checkTestingStatus()
+    public static void updateTestingStatus()
     {
         if(testToolsShown != wantToSeeTestingTools()) {
             for(Iterator i = frames.iterator(); i.hasNext(); ) {
@@ -675,42 +675,18 @@ public class PkgMgrFrame extends JFrame
             break;
 
          case PackageEditorEvent.TARGET_BENCHTOFIXTURE:
-            {
-                // put objects on object bench into fixtures
-                ClassTarget bct = (ClassTarget) e.getSource();
-
-                if (bct.getRole() instanceof UnitTestClassRole) {
-                    UnitTestClassRole utcr = (UnitTestClassRole) bct.getRole();
-
-                    utcr.doBenchToFixture(this, bct);
-                }
-            }
+            // put objects on object bench into fixtures
+            objectBenchToTestFixture((ClassTarget) e.getSource());
             break;
 
          case PackageEditorEvent.TARGET_FIXTURETOBENCH:
-            {
-                // put objects on object bench into fixtures
-                ClassTarget bct = (ClassTarget) e.getSource();
-
-                if (bct.getRole() instanceof UnitTestClassRole) {
-                    UnitTestClassRole utcr = (UnitTestClassRole) bct.getRole();
-
-                    utcr.doFixtureToBench(this, bct);
-                }
-            }
+            // put objects on object bench into fixtures
+            testFixtureToObjectBench((ClassTarget) e.getSource());
             break;
 
         case PackageEditorEvent.TARGET_MAKETESTCASE:
-            {
-                // start recording a new test case
-                ClassTarget bct = (ClassTarget) e.getSource();
-
-                if (bct.getRole() instanceof UnitTestClassRole) {
-                    UnitTestClassRole utcr = (UnitTestClassRole) bct.getRole();
-
-                    utcr.doMakeTestCase(this, bct);
-                }
-            }
+            // start recording a new test case
+            makeTestCase((ClassTarget) e.getSource());
             break;
 
          case PackageEditorEvent.OBJECT_PUTONBENCH:
@@ -1254,6 +1230,47 @@ public class PkgMgrFrame extends JFrame
             DialogManager.tileWindow(pmf, this);
         }
         pmf.show();
+    }
+
+    
+    /**
+     * Create the text fixture method in the indicated target on from
+     * the current objects on the object bench.
+     */
+    private void objectBenchToTestFixture(ClassTarget target)
+    {
+        if (target.getRole() instanceof UnitTestClassRole) {
+            UnitTestClassRole utcr = (UnitTestClassRole) target.getRole();
+
+            utcr.doBenchToFixture(this, target);
+        }
+    }
+
+    
+    /**
+     * Build the text fixture specified in the indicated target on the object
+     * bench.
+     */
+    private void testFixtureToObjectBench(ClassTarget target)
+    {
+        if (target.getRole() instanceof UnitTestClassRole) {
+            UnitTestClassRole utcr = (UnitTestClassRole) target.getRole();
+            utcr.doFixtureToBench(this, target);
+        }
+    }
+
+    
+    /**
+     * Create a test method for the indicated target.
+     */
+    private void makeTestCase(ClassTarget target)
+    {
+        if (target.getRole() instanceof UnitTestClassRole) {
+            UnitTestClassRole utcr = (UnitTestClassRole) target.getRole();
+            if(! testToolsShown)
+                showTestingTools(true);
+            utcr.doMakeTestCase(this, target);
+        }
     }
 
     /**

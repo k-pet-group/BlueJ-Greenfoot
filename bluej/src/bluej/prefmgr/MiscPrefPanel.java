@@ -13,7 +13,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: MiscPrefPanel.java 1932 2003-05-01 14:04:46Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -181,7 +181,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, showTestBox.isSelected());
 
         Package.editorManager.refreshAll();
-        PkgMgrFrame.checkTestingStatus();
+        PkgMgrFrame.updateTestingStatus();
 
         String jdkURL = jdkURLField.getText();
 

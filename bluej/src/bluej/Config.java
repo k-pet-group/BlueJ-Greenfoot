@@ -4,7 +4,6 @@ import java.awt.*;
 import java.io.*;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import bluej.utility.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
@@ -25,7 +24,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1921 2003-04-30 06:07:04Z ajp $
+ * @version $Id: Config.java 1932 2003-05-01 14:04:46Z mik $
  */
 
 public class Config

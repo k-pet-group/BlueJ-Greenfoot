@@ -10,9 +10,9 @@ import java.awt.*;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: PackageEditor.java 1932 2003-05-01 14:04:46Z mik $
  */
-public class PackageEditor extends GraphEditor
+public final class PackageEditor extends GraphEditor
 {
     public PackageEditor(Package pkg)
     {
