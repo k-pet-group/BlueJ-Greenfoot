@@ -3,17 +3,15 @@ package bluej.extensions;
 import javax.swing.JPanel;
 
 /**
- *  Provides a means by which to add preference items to the Tools-Preferences
- *  Extensions panel.
+ *  Provides a means to add preference items to the Tools-Preferences Extensions panel.
  *
  *  What you do is to implement getPanel(), loadValues() and saveValues() and
  *  put all your swing Components into a JPanel that will be taken for drawing.
  *  After having allocated this class you can simply call 
  *  bluej.setPrefGen (myPrefGen );  
  *  This is a simple example of how a preference panel can be implemented.
- *  Damiano
  *  
- *  <PRE>
+ * <PRE>
  * public class JsPreferences implements PrefGen
  * {
  * private JPanel myPanel;
@@ -42,32 +40,34 @@ import javax.swing.JPanel;
  *   }
  * }
  * </pre>
+ *
+ * @version $Id: PrefGen.java 1726 2003-03-24 13:33:06Z damiano $
  */
 
 public interface PrefGen
 {
     /**
-     *  The system will call this method to get the panel where you have put all
-     *  your preferences. You can layout your preferences items as you wish.
+     * Bluej will call this method to get the panel where preferences for this
+     * extension are. Preferences can be layout aswished.
      *
-     * @return    The panel value
+     * @return    The JPanel where preferences are.
      */
     public JPanel getPanel();
 
 
     /**
-     *  Called by the host when it's time for the subclass to load or revert its
-     *  value What it should do is loading values from somewhere and putting
-     *  them into the panel objects.
-     *  This is called from a swing thread, so be ALWAYS quick in doing your job
+     * When this method is called the Extension should load its current values into
+     * its preference panel.
+     * This is called from a swing thread, so ALWAYS be quick in doing your job.
      */
     public void loadValues();
 
 
     /**
-     *  Called by the host when it's time for the subclass to save its value
-     *  What it should do is to get the values from the components and save them
-     *  This is called from a swing thread, so be ALWAYS quick in doing your job
+     * When this method is called the Extension should save values from the preference panel to 
+     * a longer term of storage. At this stage some sort of control on what is being
+     * saved can be done.
+     * This is called from a swing thread, so ALWAYS be quick in doing your job
      */
     public void saveValues();
 }

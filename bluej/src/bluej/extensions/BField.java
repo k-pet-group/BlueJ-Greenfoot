@@ -12,14 +12,14 @@ import bluej.debugger.*;
 import bluej.utility.Debug;
 
 /**
- * This is similar to the Reflection Field.
+ * A Wrapper for a Field of a BlueJ Class of Objects.
  * The main reason to have a field coming from a Class and not from an Object is that
  * logically we should be able to get static Field without having objects.
  * Reflection states that to get a static field we can use a Field and pass null as the object to work on.
  * NOTE: the get method returns an Object, in most cases it is a String, Integer, Long and so on BUT
  * when a real Object is actually returned it is encapsulated into a BObject. You MUST look for this.
  * 
- * @version $Id: BField.java 1723 2003-03-21 11:19:28Z damiano $
+ * @version $Id: BField.java 1726 2003-03-24 13:33:06Z damiano $
  */
 public class BField
 {

@@ -7,10 +7,37 @@
 <P>Provides access to components of BlueJ by means of a set of proxy objects. All objects are
 obtained from a top-level proxy, <CODE>BlueJ</CODE>.</P> 
 
-<P>a very simple extension is like this</P>
-<P>Once you have it compiled you MUST put it into a JAR and have a manifest declaring what is the main class. The jar must go into
-the lib/extensions directory of your BlueJ installation</P>
-<P>If you did everythig correctly you will see your extension in the help panel of BlueJ</P>
+<H2>A simple extension</H2>
+<P>The following example impelemnts an extension which logs BlueJ behaviour to System.out.
+Once it is installed you should see an entry in the "installed extensions" panel of BlueJ help menu.</P>
+
+<H3>How to install it</H3>
+
+<UL>
+  <LI>Compile. Remembar that you must include the lib/bluejext.jar into the compiler classpath
+  <LI>Jar. If you use "ant" you can use the instructions ahead.
+  <LI>Copy. You MUST copy it into the lib/extensions of you BlueJ installation.
+  <LI>Run. To run the extension you simply start BlueJ.
+</UL>
+
+<P>If you are using ant to build your jar you can use the following. Of course you have to fill in the 
+missing parts, as always you should understand what you are doing.</P>
+<P>The important part is the one adding a Manifest to your jar file and specifyng what is the 
+Main_Class to be run on the jar file.</P>
+
+<PRE>
+    &lt;target name="jarred" depends="compile">
+        &lt;jar jarfile="${bluej_home}/lib/extensions/${output_jar}" compress="no" >
+           &lt;fileset dir="${build}" />
+            &lt;fileset dir="." includes="${lib}/**" />
+            &lt;manifest>
+                &lt;attribute name="Main-Class" value="SimpleExtension"/>
+             &lt;/manifest>
+        &lt;/jar>
+    &lt;/target>
+</PRE>
+
+<P>This is the actual code</P>
 
 <PRE>
 import bluej.extensions.*;
@@ -25,7 +52,7 @@ import java.net.URL;
 public class SimpleExtension extends Extension implements BluejEventListener
   {
   /**
-   * Here you can actually start using your nice extension, all pieces are in place.
+   * Called when the extension is loaded. The starting point.
    */
   public void startup (BlueJ bluej)
     {
@@ -33,7 +60,7 @@ public class SimpleExtension extends Extension implements BluejEventListener
     }
 
   /**
-   * You should manage this, terminating in a nice way, really.
+   * Called when the extension should exit, to allow the extension to tidy up.
    */
   public String terminate()
     {
@@ -41,18 +68,16 @@ public class SimpleExtension extends Extension implements BluejEventListener
     }
 
   /** 
-   * Something has happened in blueJ
-   * What we do is to put it into the queue of events happening
-   * and also we display it into the console.
+   * Something has happened in blueJ, display it on the console.
    */
   public void eventOccurred ( BluejEvent ev )    
     {
-    System.out.println ("\nEvxmllog.eventOccurred: "+ev.toString());
+    System.out.println ("\neventOccurred: Event="+ev.toString());
     }  
     
     
   /**
-   * Tryes to decide if this Extension is compatible with the current release of Extensions API
+   * Tries to decide if this Extension is compatible with the current release of Extensions API
    */
   public boolean isCompatible ()  
     { 
@@ -60,7 +85,7 @@ public class SimpleExtension extends Extension implements BluejEventListener
     }
 
   /**
-   * Returs to the system the version of this extension
+   * Returns to the system the version of this extension
    */
   public String  getVersion ()    
     { 
@@ -74,7 +99,7 @@ public class SimpleExtension extends Extension implements BluejEventListener
 
   /**
    * Returns a URL where you can find info on this extension.
-   * WARNING: The real problem is making shure that the link will be alive in three years...
+   * The real problem is making sure that the link will be alive in three years.
    */
   public URL getURL ()
     {

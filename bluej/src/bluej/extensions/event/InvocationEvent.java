@@ -4,11 +4,10 @@ import bluej.debugger.ExecutionEvent;
 import bluej.extensions.*;
 
 /**
- * This is an invocation event, it gets generated when Objects or methods are
- * invoked on BlueJ objects.
- * The various methods here provided will return you the values of the invocation.
+ * An invocation event, it gets generated when an Object constructor is called or
+ * a method is called.
  * 
- * @version $Id: InvocationEvent.java 1719 2003-03-21 09:28:42Z damiano $
+ * @version $Id: InvocationEvent.java 1726 2003-03-24 13:33:06Z damiano $
  */
 public class InvocationEvent extends BluejEvent
 {
@@ -24,7 +23,7 @@ public class InvocationEvent extends BluejEvent
     private bluej.pkgmgr.Package thisPackage;
     
     /** 
-     * For bluej.extensions use ONLY
+     * NOT to be used by Extension writer.
      */
     public InvocationEvent ( int BluejEventId, ExecutionEvent exevent )
       {
@@ -38,10 +37,7 @@ public class InvocationEvent extends BluejEvent
       }
      
     /**
-     * Get the type of event, at the moment it can only be INVOCATION_STARTED.
-     * TODO: Differentiate between Constructors and Methods
-     * 
-     * @return the eventId of this particular event
+     * Returns the type of event.
      */
     public int getEvent()
       {
@@ -49,9 +45,8 @@ public class InvocationEvent extends BluejEvent
       }
 
     /**
-     * Gets the BPackage of this event, from this You can get the project.
-     * 
-     * @return the BPackage associated with this event.
+     * Returns the BPackage of this event.
+     * Using a BPackege it is possible to obtain further information on what is being invoked.
      */
      
     public BPackage getBPackage()
@@ -60,11 +55,9 @@ public class InvocationEvent extends BluejEvent
       }
 
     /**
-     * Gets the Class name on which the event happened.
+     * Returns the Class name on which the event happened.
      * If you need to have further information about this Class you can obtain a 
      * BClass from BPackage using this name as a reference.
-     * 
-     * @return the Class name associated with this event
      */
     public String getClassName()
     {
@@ -72,15 +65,13 @@ public class InvocationEvent extends BluejEvent
     }
     
     /**
-     * Gets what is the instanceName, that is the name of the object on the object bench.
+     * Returns the instanceName, that is the name of the object on the object bench.
      * If you need the BObject you can use the getObject(instanceName) in the BPackage using
      * this name as a key.
      * 
      * In case of a static method this will be null
      * If it is a constructor call it will be the new instance name of the opbject
      * For methods call it will be the name of the object where the operation occourred.
-     * 
-     * @return the instance name of the object being operated on.
      */
     public String getObjectName()
     {
@@ -88,9 +79,8 @@ public class InvocationEvent extends BluejEvent
     }
     
     /**
-     * Gets the method being called.
-     * 
-     * @return the name of the method being called, or <code>null</code> if it is a constructor
+     * Returns the method name being called.
+     * It can be null if this is an invocation of a constructor.
      */
     public String getMethodName()
     {
@@ -98,7 +88,7 @@ public class InvocationEvent extends BluejEvent
     }
     
     /**
-     * @return the signature of the called method or constructor
+     * Returns the signature of the called method or the one of the constructor.
      */
     public Class[] getSignature()
     {
@@ -106,7 +96,8 @@ public class InvocationEvent extends BluejEvent
     }
     
     /**
-     * @return the parameters in string form. If a parameter really is a string, this should be either the
+     * Returns the parameters in string form. 
+     * If a parameter really is a string, this should be either the
      * name of a string instance, or a literal string enclosed by double quotes.
      */
     public String[] getParameters()
@@ -115,7 +106,7 @@ public class InvocationEvent extends BluejEvent
     } 
 
     /**
-     * returns a meaningful version of this object.
+     * Returns a meaningful description of this Event.
      */
     public String toString() 
       {

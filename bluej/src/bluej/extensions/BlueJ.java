@@ -18,9 +18,12 @@ import java.io.File;
 
 /**
  * Provides services to BlueJ extensions. 
- * This is the top-level object of the proxy hierarchy, bear in mind that
- * there is much similarity between the Reflection API and this API.
- * Every effort has been made to retain the logic of Reflection and to provide
+ * This is the top-level object of the proxy hierarchy, from this class
+ * an extension can obtain the projects and packages which BlueJ is currently displayng
+ * and the Classes and Objects they contain. Fields and Mehods of these Objects 
+ * can be inspected and invoked using API based on the logic of Reflection API.
+ * 
+ * Every effort has been made to retain the logic of Reflection API and to provide
  * methods that behave in a very similar way.
  * 
  * <PRE>
@@ -43,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1723 2003-03-21 11:19:28Z damiano $
+ * @version $Id: BlueJ.java 1726 2003-03-24 13:33:06Z damiano $
  */
 
 public class BlueJ
@@ -57,8 +60,7 @@ public class BlueJ
     private Properties localLabels;
 
     /**
-     * Extensions should not call this constructor.
-     * The BlueJ object is given to the Extension by the system.
+     * NOT to be used by Extension writer.
      */
     public BlueJ (ExtensionWrapper i_myWrapper, PrefManager i_prefManager, MenuManager i_menuManager)
     {
@@ -76,10 +78,10 @@ public class BlueJ
     
 
     /**
-     * Opens a project
+     * Opens a project.
      * 
      * @param directory Give the directory where the project is.
-     * @return the BProject that describes the newly opened or null if it cannot be opened
+     * @return the BProject that describes the newly opened project or null if it cannot be opened
      */
     public BProject openProject (File directory)
     {
@@ -116,9 +118,9 @@ public class BlueJ
     }
         
     /**
-     * Creates new project.
-     * Give the directory where you want the project be placed. It must be writable, obviously.
-     * 
+     * Creates new BlueJ project.
+     *
+     * @param directory where you want the project be placed. It must be writable.
      * @return the newly created BProject if successful. null otherwise.
      */
     public BProject newProject (File directory)
@@ -132,9 +134,8 @@ public class BlueJ
 
 
     /**
-     * Gets all the currently open projects.
-     * 
-     * @return an array of the currently open project objects. It can be an empty array
+     * Returns all currently open projects.
+     * It can be an empty array if no projects are open.
      */
     public BProject[] getOpenProjects()
         {
@@ -157,16 +158,15 @@ public class BlueJ
 
 
     /**
-     * Gets the current package being displayed. 
+     * Returns the current package being displayed. 
      * It can return null if this information is not available.
-     * This is here and NOT into a BProject since it depends on user interface.
-     * Depending on what is the currently selected Frame you may get packages that
+     * Depending on the currently selected Frame you may get packages that
      * belongs to different projects.
-     *
-     * @return the current package
      */
     public BPackage getCurrentPackage()
     {
+        // This is here and NOT into a BProject since it depends on user interface.
+        
         PkgMgrFrame pmf = PkgMgrFrame.getMostRecent();
         // If there is nothing at all open there is no Frame open...
         if (pmf == null) return null;
@@ -182,9 +182,7 @@ public class BlueJ
     /**
      * Gets the current Frame being displayed. 
      * Used for modal dialog or similar.
-     * Use this one when there are NO packages open
-     *
-     * @return the current Frame
+     * Use this one when there are NO packages open.
      */
     public Frame getCurrentFrame()
     {
@@ -194,7 +192,7 @@ public class BlueJ
 
     /**
      * Install a new menu generator for this extension.
-     * If you want no menues then just set it to null
+     * If you want no menus then set it to null
      * 
      * @param menuGen a Class instance that implements the MenuGen interface
      */
@@ -205,7 +203,7 @@ public class BlueJ
     }
 
     /**
-     * @return What you have set with the setMenuGen
+     * Returns the currently registered MenuGen instance
      */
     public MenuGen getMenuGen ()
     {
@@ -214,7 +212,7 @@ public class BlueJ
 
     /**
      * Install a new preference panel for this extension.
-     * If you want to delete it just set prefGen to null
+     * If you want to delete it set prefGen to null
      * 
      * @param prefGen a class instance that implements the PrefGen interface.
      */
@@ -225,7 +223,7 @@ public class BlueJ
     }
     
     /**
-     * @return what you have set with setPrefPanel
+     * Returns the currently registered PrefGen instance.
      */
     public PrefGen getPrefGen()
     {
@@ -235,8 +233,7 @@ public class BlueJ
 
     /**
      * Returns the arguments with which BlueJ was started.
-     * 
-     * @return a List of strings
+     * The return value is a List of Strings.
      */
     public List getArgs()
     {
@@ -244,9 +241,9 @@ public class BlueJ
     }
     
     /**
-     * WARNING: Is this really needed by the extensions ?
-     * 
-     * @return the path to the BlueJ system library directory
+     * Returns the path to the BlueJ system directory.
+     * This is used to locate systemwide configuration files.
+     * Having the Directory you can then located a file within it.
      */
     public File getSystemLib()
     {
@@ -255,17 +252,19 @@ public class BlueJ
 
     /**
      * Returns the path to a file contained in the
-     * user's bluej settings <CODE>&lt;user&gt;/bluej/<I>file</I></CODE>
-     * @param subpath the name of a file or subpath and file
+     * user's bluej settings &lt;user&gt;/bluej/<I>file</I>
+     * What is returned is just a File, no guarantee is made that it exists.
+     * 
+     * @param fileName the name of a file.
      * @return the path to the user file, which may not exist.
      */
-    public File getUserFile (String subpath)
+    public File getUserFile (String fileName)
     {
-        return Config.getUserConfigFile (subpath);
+        return Config.getUserConfigFile (fileName);
     }
     
     /**
-     * Registers a listener for events generated by Bluej.
+     * Registers an event listener for events generated by Bluej.
      * 
      * @param listener an instance of a class that implements the BluejEventListener interface
      */
@@ -276,7 +275,7 @@ public class BlueJ
 
 
      /**
-      * Gets a property from BlueJ properties, but include a default value.
+      * Returns a property from BlueJ properties, includes a default value.
       * 
       * @param property The name of the required global property
       * @param def The default value to use if the property cannot be found.
@@ -288,8 +287,8 @@ public class BlueJ
     }
 
      /**
-      * Gets a property from Extensions properties file, but include a default value.
-      * You MUST use the setExtPropString to write the propertie that you want stored.
+      * Returns a property from Extensions properties file, includes a default value.
+      * You MUST use the setExtPropString to write the property that you want stored.
       * You can then come back and retrieve it using this function.
       * 
       * @param property The name of the required global property
@@ -316,29 +315,36 @@ public class BlueJ
     }
     
     /**
-     * Gets a language-independent label. 
-     * First the BlueJ library is searched, <CODE>&lt;bluej&gt;/lib/&lt;language&gt;/labels</CODE>,
-     * then the local, extension's library (if it has one) is searched:
-     * <CODE>lib/&lt;language&gt;/labels</CODE>, for example,
-     * <CODE>lib/english/labels</CODE> for the English language settings.
-     * If no labels are found for the current language, the default language (english) will be tried.
-     * 
-     * @param id the id of the label to be searched
-     * @return the label appropriate to the current language, or, if that fails, the name of the label will be returned.
+     * Returns a language-independent label.
+     * The search order is to look FIRST into extensions labels and if not found into 
+     * systems label.
+     * Extensions labels are stored in a Property format and MUST be jarred together
+     * with the extension. The path being searched is equivalent to the bluej/lib/[language]
+     * style used for the bluej system labels. An Example can be:
+     * <pre>
+     * lib/english/label
+     * lib/italian/label
+     * lib/german/label
+     * </pre>
+     * In the above example "label" at the end is a file that caontains the actual label values.
      */
     public String getLabel (String wantKey)
     {
-        // First try from the standard BlueJ properties
-        String label = Config.getString (wantKey, null);
-        if ( label != null ) return label;
+        // If there are no label for this extension I can only return the system ones.
+        if ( localLabels == null ) Config.getString (wantKey, wantKey);
 
-        if ( localLabels == null ) return wantKey;
+        // In theory there are label for this extension let me try to get them
+        String aLabel = localLabels.getProperty (wantKey, null);
 
-        return localLabels.getProperty (wantKey, wantKey);
+        // Found what I wanted, job done.
+        if ( aLabel != null ) return aLabel;
+
+        // ok, the only hope is to get it from the system
+        return Config.getString (wantKey, wantKey);
     }
     
     /**
-     * Gets a language-independent label, and replaces the first occurrance
+     * Returns a language-independent label, and replaces the first occurrance
      * of a <code>$</code> symbol with the given replacement string.
      * If there is no occurrance of <code>$</code> then it will be added
      * after a space, to the end of the resulting string

@@ -8,10 +8,10 @@ import bluej.views.*;
 
 
 /**
- * Wrapper for a BlueJ Constructor.
+ * A wrapper for a Constructor of a BlueJ Class.
  * Behaviour is similar to reflection API. 
  *
- * @version $Id: BConstructor.java 1723 2003-03-21 11:19:28Z damiano $
+ * @version $Id: BConstructor.java 1726 2003-03-24 13:33:06Z damiano $
  */
 public class BConstructor 
   {

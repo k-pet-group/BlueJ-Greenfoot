@@ -19,10 +19,10 @@ import java.awt.Window;
 
 
 /**
- * The BlueJ proxy Package object. 
+ * A wrapper for a Package in the BlueJ environment.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1723 2003-03-21 11:19:28Z damiano $
+ * @version $Id: BPackage.java 1726 2003-03-24 13:33:06Z damiano $
  */
 public class BPackage
 {
@@ -30,19 +30,18 @@ public class BPackage
     private final Package bluej_pkg;
 
     /**
-     * NOT to be used by the extensions writer. You can get packaged from Projects !
-     * Unfortunately it must be bublic since it is called by the extension manager
+     * NOT to be used by Extension writer.
+     * BPackages can be obtained from BProject or directly from BlueJ
      */
     public BPackage (Package i_pkg)
     {
+        // Unfortunately it must be bublic since it is called by the extension manager
         bluej_pkg = i_pkg;
     }
 
     /**
-     * Gets the package's project.
-     * If this is an empty package, no action will be taken and <code>null</code> will be returned.
-     * 
-     * @return the project that this package belongs to
+     * Return the package's project.
+     * If this is an invalid package, no action will be taken and <code>null</code> will be returned.
      */
     public BProject getProject()
     {
@@ -53,11 +52,9 @@ public class BPackage
 
 
     /**
-     * Gets the name of the package. This might well be an empty String.
-     *
-     * @return fully-qualified name of the package, or
-     * an empty string if the package is the 'default' package
-     * or <code>null</code> if this Package is an empty frame.
+     * Return the name of the package. 
+     * This might well be an empty String if no package name has been set.
+     * It can be a null string if it is an invalid package.
      */
     public String getName()
     {
@@ -66,9 +63,8 @@ public class BPackage
     }
     
     /**
-     * Gets a handle on the package's frame, in case you need to do modal dialogues etc.
-     * 
-     * @return package Frame. Can return null if none found
+     * Return a handle on the package's frame.
+     * This may be needed for modal dialogues etc.
      */
     public Frame getFrame()
     {
@@ -78,8 +74,7 @@ public class BPackage
 
     /**
      * Determines whether this is a valid BPackage.
-     *
-     * @return <code>true</code> if this there is no package open
+     * Return true if it is, false othervise.
      */
     public boolean isValid()
     {
@@ -89,13 +84,13 @@ public class BPackage
     }
     
     /**
-     * Gets a class proxy object relating to a particular class in this package.
+     * Return a BClass proxy object relating to a particular class in this package.
      * If this is an empty package, no action will be taken and <code>null</code> will be returned.
      * 
      * @param name the simple name of the required class. For example, <CODE>Person</CODE>.
      * @return the proxy class object, or <CODE>null</CODE> if no such class exists.
      */
-    public BClass getClass (String name)
+    public BClass getBClass (String name)
     {
         if ( ! isValid() ) return null;
 
@@ -108,11 +103,10 @@ public class BPackage
     }
     
     /**
-     * Gets a list of the class names contained within this package.
-     *
-     * @return an array containing all BClass of the BPackage
+     * Return an array with al BClass in thi BPackage.
+     * If there are no BClasses or the BPackage is invalid an empty array will be returned.
      */
-    public BClass[] getClasses()
+    public BClass[] getBClasses()
     {
         if (! isValid()) return new BClass[0];
         
@@ -121,32 +115,13 @@ public class BPackage
         for (ListIterator iter=names.listIterator(); iter.hasNext();) {
             int index=iter.nextIndex();
             String name = (String)iter.next();
-            classes [index] = getClass (name);
+            classes [index] = getBClass (name);
         }
         return classes;
     }
     
-
     /**
-     * Gets a System class. This can be manipulated in the same way as other BlueJ proxy classes.
-     * WARNING: is this really needed ?
-     * 
-     * @param name the fully-qualified name of the System class
-     * @return the proxy class object
-     */
-    public BClass getSystemClass (String name)
-    {
-        Class cl = null;
-        try {
-            cl = ClassLoader.getSystemClassLoader().loadClass (name);
-        } catch (ClassNotFoundException ex) {
-            return null;
-        }
-        return new BClass (bluej_pkg, cl);
-    }
-
-    /**
-     * Get an object shown on the Object Bench.<p>
+     * Return an object shown on the Object Bench.
      * @param name the name of the object as shown on the object bench
      * @return the object, or <CODE>null</CODE> if no such object exists.
      */
@@ -169,9 +144,8 @@ public class BPackage
     }    
 
     /**
-     * Gets a list of the object names on the object bench of this project.
-     * 
-     * @return an array containing the names of all the objects on the object bench
+     * Return an array of all the Objects on the Object bench.
+     * It can be an empty array if no objects are on the bench.
      */
     public BObject[] getObjects()
     {
@@ -189,9 +163,9 @@ public class BPackage
     
 
     /**
-     * Compile classes
-     * @param forceAll if <code>true</code> rebuilds the entire project, otherwise
-     * only compiles currently uncompiled classes
+     * Compile this Package.
+     * 
+     * @param forceAll if <code>true</code> rebuilds the entire project.
      */
     public void compile (boolean forceAll)
     {

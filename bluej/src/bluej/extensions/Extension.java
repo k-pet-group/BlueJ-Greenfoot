@@ -4,11 +4,10 @@ import java.net.URL;
 import bluej.Config;
 
 /**
- * The Extensions superclass, all extensions must extend this.
- * Your class MUST have an empty parameters constructor 
- * and it must implement all the abstract methods.
+ * The Extensions superclass, all extensions MUST extend this class.
+ * Your class MUST have an empty constructor.
  * 
- * @version    $Id: Extension.java 1723 2003-03-21 11:19:28Z damiano $
+ * @version    $Id: Extension.java 1726 2003-03-24 13:33:06Z damiano $
  */
 public abstract class Extension
 {
@@ -17,11 +16,13 @@ public abstract class Extension
      */
     /**
      * The major version number of the Extension API.
+     * Provided so that Extensions can check for compatibility.
      */
     public int VERSION_MAJOR = 2;
 
     /**
      * The minor version number of the Extension API.
+     * Provided so that Extensions can check for compatibility.
      */
     public int VERSION_MINOR = 1;
 
@@ -36,10 +37,10 @@ public abstract class Extension
     public abstract boolean isCompatible();
 
     /**
-     * After your class is created this method is called.
+     * After the Extensions is created this method is called.
      * A reference on the relevant BlueJ object is passed so you can interact with BlueJ.
      * This is NOT a thread. You MUST return as quick as possible from this method. If
-     * you start doing something you should create your own thread.
+     * you start doing something a thread should be created.
      *
      * @param  bluej  The statring point to interact with BlueJ
      */
@@ -48,14 +49,12 @@ public abstract class Extension
 
     /**
      * Terminate this extension.
-     * When bluej decides that this extension is not longer need it will call this 
-     * method before detaching it from the system. This is needed since if an extension
-     * is reloaded I REALLY would like it to come back in the exact
-     * way it was the first time and this extension may have threads going on
-     * that it wants to shut... What you Extension writer should do here is to
-     * SHUT down everything you created. The extension may give me a not
+     * When bluej decides that this extension is not longer needed it will call this 
+     * method before detaching it from the system. Note that an extension may
+     * be reloaded after having been unloaded. What you Extension writer should do here is to
+     * SHUT down everything you created. The extension may return a not
      * null message string that will be written to the console.
-     * In ANY case the extension will be disconnected.
+     * In ANY case the extension will be disconnected from BlueJ.
      *
      * @return    A possible not null string that will be sent to the console
      */
@@ -63,32 +62,23 @@ public abstract class Extension
 
 
     /**
-     * BlueJ will call this method to display the version of the loaded extension.
+     * Return to BlueJ the version of the loaded extension.
      * Please limit the string to five or 10 chars.
-     * NOTE: This is NOT the verion of the Extension API, it is the Verions of the 
-     * Extension itself !
-     *
-     * @return    The version of this extensions
      */
     public abstract String getVersion();
 
-
     /**
-     *  Gets a description of the extension's function.
-     *
-     * @return    A description of the extension.
+     * Return to BlueJ a description of the extension's function.
+     * It should be a brief statement of the Extension purpose.
      */
     public String getDescription()
     {
         return Config.getString("extensions.nodescription");
     }
 
-
     /**
-     * Gets a URL for more information about the extension, including possible
-     * upgrades and configuration details.
-     *
-     * @return    a website containing more information
+     * Return to BlueJ a URL for more information about the extension.
+     * Ideally this includes complete manual, possible upgrades and configuration details.
      */
     public URL getURL()
     {

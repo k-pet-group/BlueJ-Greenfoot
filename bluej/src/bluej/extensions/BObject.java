@@ -10,19 +10,19 @@ import com.sun.jdi.ObjectReference;
 import bluej.debugger.*;
 
 /**
- * This allows you to interacet with objects that are created in the BlueJ environment.
+ * A Wrapper for an Object in the BlueJ object bench.
  * This wraps an object so you can put and remove it from the bench.
  * You get Bobjects from BConstructor or BMethods and from BField.
  *
- * @version $Id: BObject.java 1723 2003-03-21 11:19:28Z damiano $
+ * @version $Id: BObject.java 1726 2003-03-24 13:33:06Z damiano $
  */
 public class BObject
 {
     private ObjectWrapper  wrapper;  
 
     /**
-     * Not for use by the extension writer.
-     * You should get BObjects from the BPackage, BConstructor, BMethod, BField
+     * NOT to be used by Extension writer.
+     * Get BObjects from the BPackage, BConstructor, BMethod, BField
      */
     public BObject (ObjectWrapper i_wrapper)
     {
@@ -31,8 +31,7 @@ public class BObject
 
     /**
      * Tests if this BObject is still valid in Bluej.
-     * 
-     * @return true or false
+     * Return true if it is false othervise.
      */
     public boolean isValid()
         {
@@ -43,9 +42,7 @@ public class BObject
 
 
     /**
-     * Gets the BPackage whose this BObject belongs.
-     * 
-     * @return the BPackage belonging to this Object
+     * Return the BPackage whose this BObject belongs.
      */
     public BPackage getPackage()
     {
@@ -56,7 +53,7 @@ public class BObject
         
     /**
      * Removes this object from the Object Bench. 
-     * Having done this, it will no longer be accessible in any way, shape or form.
+     * This will also remove it from the visible part of the bench.
      */
     public void removeFromBench()
         {
@@ -77,9 +74,9 @@ public class BObject
     
 
     /**
-     * Is this object a null one, if so you will not be able to put it into the bench.
-     * 
-     * @return true or false
+     * Test is this object a null one, if so you will not be able to put it into the bench.
+     * The reasoning is that you may have a representation of a null object and this BObject may
+     * be just that.
      */
     public boolean isNullObject()
         {
@@ -123,9 +120,8 @@ public class BObject
 
 
     /**
-     * Used when you need to know the name of the object on the bench.
-     * 
-     * @return the instance name of the object, can return null if object is invalid
+     * Return the name of the object on the bench.
+     * It can return null if the object is in an invalid state.
      */
     public String getInstanceName()
         {
@@ -135,11 +131,9 @@ public class BObject
         }
     
     /**
-     * Similar to Reflection API this gets the object BClass.
-     * Trom that you get what you need from it. 
-     * BClass can tell you if it is an array, the modifiers and so on.
-     * 
-     * @return the proxy BClass of this object
+     * Return the BClass of this BObject.
+     * Similar to Reflection API.
+     * It can return null if the object is invalid.
      */
     public BClass getBClass()
     {
@@ -175,7 +169,7 @@ public class BObject
 
 
   /**
-   * Returns a reasonable representation of this BObject
+   * Return a reasonable representation of this BObject.
    */
   public String toString ()
     {

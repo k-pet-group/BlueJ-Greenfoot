@@ -10,28 +10,29 @@ import bluej.pkgmgr.*;
 
 /**
  * This Class represent a Result event, an event generated when the invocation finished.
+ * AN invocation may finish in a normal way or it may be interrupted.
  * From this event you can extract the actual result of the invocation.
  * 
- * @version $Id: ResultEvent.java 1719 2003-03-21 09:28:42Z damiano $
+ * @version $Id: ResultEvent.java 1726 2003-03-24 13:33:06Z damiano $
  */
 public class ResultEvent extends BluejEvent
 {
     // This event is returned in case of unknown mapping
     public static final int UNKNOWN_EXIT = 0;
     /**
-     * The execution has finished normally;
+     * The execution finished normally.
      */
     public static final int NORMAL_EXIT = 1;
     /**
-     * The execution has finished through a call to System.exit();
+     * The execution finished through a call to System.exit();
      */
     public static final int FORCED_EXIT = 2;
     /**
-     * The execution has finished due to an exception
+     * The execution finished due to an exception
      */ 
     public static final int EXCEPTION_EXIT = 3;
     /**
-     * The execution has finished because the user has forcefully terminated it
+     * The execution finished because the user has forcefully terminated it
      */
     public static final int TERMINATED_EXIT = 4;
 
@@ -44,7 +45,7 @@ public class ResultEvent extends BluejEvent
     
     
     /** 
-     * For bluej.extensions use ONLY
+     * NOT to be used by Extension writer.
      */
     public ResultEvent ( int BluejEventId, ExecutionEvent exevent )
       {
@@ -66,7 +67,7 @@ public class ResultEvent extends BluejEvent
       }
      
     /**
-     * @return the eventId of this particular event
+     * Returns the eventId of this Event.
      */
     public int getEvent()
       {
@@ -74,20 +75,18 @@ public class ResultEvent extends BluejEvent
       }
 
     /**
-     * @return the BPackage associated with this event.
+     * Returns the BPachage of this Invocation.
+     * Using a BPackage you can retrieve further information on this Event.
      */
-     
     public BPackage getBPackage()
       {
       return new BPackage (bluej_pkg);
       }
 
     /**
-     * Gets the Class name on which the event happened.
+     * Returns the Class name on which the event happened.
      * If you need to have further information about this Class you can obtain a 
      * BClass from BPackage using this name as a reference.
-     * 
-     * @return the Class name associated with this event
      */
     public String getClassName()
     {
@@ -95,15 +94,13 @@ public class ResultEvent extends BluejEvent
     }
     
     /**
-     * Gets what is the instanceName, that is the name of the object on the object bench.
+     * Returns the instanceName, that is the name of the object on the object bench.
      * If you need the BObject you can use the getObject(instanceName) in the BPackage using
      * this name as a key.
      * 
      * In case of a static method this will be null
      * If it is a constructor call it will be the new instance name of the opbject
      * For methods call it will be the name of the object where the operation occourred.
-     * 
-     * @return the instance name of the object being operated on.
      */
     public String getObjectName()
     {
@@ -111,7 +108,8 @@ public class ResultEvent extends BluejEvent
     }
     
     /**
-     * @return the name of the method being called, or <code>null</code> if it is a constructor
+     * Returns the method name being called.
+     * It can be null if this is an invocation of a constructor.
      */
     public String getMethodName()
     {
@@ -119,7 +117,7 @@ public class ResultEvent extends BluejEvent
     }
     
     /**
-     * @return the signature of the called method or constructor
+     * Returns the signature of the called method or the one of the constructor.
      */
     public Class[] getSignature()
     {
@@ -127,7 +125,8 @@ public class ResultEvent extends BluejEvent
     }
     
     /**
-     * @return the parameters in string form. If a parameter really is a string, this should be either the
+     * Returns the parameters in string form. 
+     * If a parameter really is a string, this should be either the
      * name of a string instance, or a literal string enclosed by double quotes.
      */
     public String[] getParameters()
@@ -139,7 +138,7 @@ public class ResultEvent extends BluejEvent
      * Returns the newly created Object (if any).
      * If the object is one that you can put in the bench it will be a BObject...
      * 
-     * @return an Object of various types depending on the type. It can return null if the risul is void.
+     * @return an Object of various types. It can return null if the result is void.
      */
     public Object getResult ()
       {
@@ -176,7 +175,7 @@ public class ResultEvent extends BluejEvent
 
 
     /**
-     * returns a meaningful version of this object.
+     * Returns a meaningful description of this Event.
      */
     public String toString() 
       {

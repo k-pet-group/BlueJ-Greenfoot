@@ -3,11 +3,10 @@ package bluej.extensions;
 import com.sun.jdi.*;
 
 /**
- * This is the equivalent of Reflection java.lang.reflect.Array.
- * It allows you to get items of an array Object, the implementation is partial at the moment, this
- * means that there are no methods to get primitive types directly.
+ * This is an equivalent to java.lang.reflect.Array for Arrays objects in BlueJ.
+ * It allows you to get items of an array Object.
  * 
- * @version $Id: BArray.java 1712 2003-03-20 10:39:46Z damiano $
+ * @version $Id: BArray.java 1726 2003-03-24 13:33:06Z damiano $
  */
 public class BArray 
 {
@@ -16,7 +15,7 @@ public class BArray
    * This returns an Object since this can return primitive types wrappers for most cases.
    * Ex: in case you have arrays of int, long, boolean and so on.
    * In case the array is composed of real OBJECTS then what will be returned is 
-   * a BObject itself, this is also in the case that it is a nested array....
+   * a BObject itself, this is also in the case that it is a nested array.
    * 
    * @param thisArray This MUST be an array object of which you want the given item
    * @param itemIndex The index in the array where you want to peek.
