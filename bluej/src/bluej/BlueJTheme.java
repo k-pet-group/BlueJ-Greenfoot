@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  * components for i18n purposes.
  *
  * @author  Bruce Quig
- * @version $Id: BlueJTheme.java 2370 2003-11-19 00:50:01Z ajp $
+ * @version $Id: BlueJTheme.java 2762 2004-07-08 11:13:23Z mik $
  */
 public class BlueJTheme extends DefaultMetalTheme
 {
@@ -54,7 +54,7 @@ public class BlueJTheme extends DefaultMetalTheme
 	    BorderFactory.createEmptyBorder(10,10,0,10);
 
 	public static final Border dialogBorder =
-	    BorderFactory.createEmptyBorder(12,12,11,11);
+	    BorderFactory.createEmptyBorder(12,12,12,12);
     
     public static final Border roundedShadowBorder = new RoundedShadowBorder();
 

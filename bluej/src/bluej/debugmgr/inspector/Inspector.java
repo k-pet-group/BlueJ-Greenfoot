@@ -20,7 +20,7 @@ import bluej.testmgr.record.*;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2613 2004-06-15 11:28:22Z mik $
+ * @version    $Id: Inspector.java 2762 2004-07-08 11:13:23Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -386,7 +386,8 @@ public abstract class Inspector extends JFrame
      * 
      * @return A panel with two buttons
      */
-    protected JPanel createInspectAndGetButtons() {
+    protected JPanel createInspectAndGetButtons() 
+    {
         // Create panel with "inspect" and "get" buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
@@ -414,32 +415,11 @@ public abstract class Inspector extends JFrame
     }
     
     
-    
-    /**
-     * Creates a header component for the inspector.
-     * The header has a horizontal line at the bottom
-     * 
-     * @return a header component
-     */
-    protected JComponent createHeader() {
-        JComponent header = new JPanel() {
-            public void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Dimension size = this.getSize();
-                g.drawLine(0,size.height-1, size.width, size.height-1);
-            }            
-        };
-                
-        header.setOpaque(false);
-        return header;
-    }
-
     /**
      * Creates a ScrollPane for the fieldList
-     * 
-     * @return
      */
-    protected JScrollPane createFieldListScrollPane() {
+    protected JScrollPane createFieldListScrollPane() 
+    {
         JScrollPane scrollPane = new JScrollPane(fieldList);
         scrollPane.setBorder(BlueJTheme.generalBorder);
         scrollPane.setOpaque(false);
@@ -448,9 +428,4 @@ public abstract class Inspector extends JFrame
         fieldList.setPreferredScrollableViewportSize(new Dimension(getListWidth(), 25));
         return scrollPane;
     }
-
-  
-    
-   
-    
 }

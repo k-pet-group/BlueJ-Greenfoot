@@ -25,7 +25,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 2658 2004-06-25 02:55:31Z davmac $
+ * @version $Id: ResultInspector.java 2762 2004-07-08 11:13:23Z mik $
  */
 public class ResultInspector extends Inspector implements InspectorListener {
 
@@ -108,9 +108,6 @@ public class ResultInspector extends Inspector implements InspectorListener {
 
 		expressionInformation = info;
 
-		setTitle(resultTitle);
-		setBorder(BlueJTheme.generalBorderWithStatusBar);
-
 		this.obj = obj;
 		this.objName = name;
         
@@ -176,16 +173,17 @@ public class ResultInspector extends Inspector implements InspectorListener {
 	 * @param showAssert
 	 *            Indicates if assertions should be shown.
 	 */
-	protected void makeFrame() {
-		JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-		mainPanel.setOpaque(false);
-		getContentPane().add(mainPanel, BorderLayout.CENTER);
+	protected void makeFrame() 
+    {
+        setTitle(resultTitle);
+        setBorder(BlueJTheme.dialogBorder);
 
-		// Create a header
-		JComponent header = createHeader();
+		// Create the header
+        
+		JComponent header = new JPanel();
 		header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
 		
-		Comment comment = expressionInformation.getComment();		
+		Comment comment = expressionInformation.getComment();
 		LabelPrintWriter commentLabelPrintWriter = new LabelPrintWriter();
 		comment.print(commentLabelPrintWriter);
 		MultiLineLabel commentLabel = commentLabelPrintWriter.getLabel(); 
@@ -193,11 +191,18 @@ public class ResultInspector extends Inspector implements InspectorListener {
 		header.add(commentLabel);
 		JLabel sig = new JLabel(expressionInformation.getSignature());
 		sig.setForeground(Color.GRAY);
-		header.add(sig);
+
+        header.add(sig);
+        header.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+        header.add(new JSeparator());
+        
+		//Create the main part that shows the expression and the result
 		
-		//Create the part that shows the expression and the result		
-		Box result = Box.createVerticalBox();	
-				
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setOpaque(false);
+
+        Box result = Box.createVerticalBox();	
+
 		JLabel expression = new JLabel(expressionInformation.getExpression(), JLabel.LEFT);
 		expression.setAlignmentX(JComponent.LEFT_ALIGNMENT);
 		
@@ -220,8 +225,13 @@ public class ResultInspector extends Inspector implements InspectorListener {
 		JPanel inspectAndGetButtons = createInspectAndGetButtons();
 		mainPanel.add(inspectAndGetButtons, BorderLayout.EAST);
 		
+        Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
+        mainPanel.setBorder(new EmptyBorder(insets));           
+
+
 		// create bottom button pane with "Close" button
-		JPanel bottomPanel = new JPanel();
+		
+        JPanel bottomPanel = new JPanel();
 		bottomPanel.setOpaque(false);
 		bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
 		bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
@@ -248,9 +258,6 @@ public class ResultInspector extends Inspector implements InspectorListener {
         contentPane.add(header, BorderLayout.NORTH);        
         contentPane.add(mainPanel, BorderLayout.CENTER);
 		contentPane.add(bottomPanel, BorderLayout.SOUTH);
-
-		Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
-	    mainPanel.setBorder(new EmptyBorder(insets));	        
 
 		getRootPane().setDefaultButton(button);
 		pack();

@@ -21,7 +21,7 @@ import bluej.utility.DialogManager;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ObjectInspector.java 2712 2004-07-01 14:57:19Z polle $
+ * @version $Id: ObjectInspector.java 2762 2004-07-08 11:13:23Z mik $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -102,9 +102,6 @@ public class ObjectInspector extends Inspector
     {
         super(pkg, ir);
         
-        setTitle(inspectTitle);        
-        setBorder(BlueJTheme.roundedShadowBorder);
-        
         this.obj = obj;
         if(name == null)
             this.objName = "";      
@@ -127,6 +124,31 @@ public class ObjectInspector extends Inspector
      */
     protected void makeFrame()
     {
+        setTitle(inspectTitle);
+        setBorder(BlueJTheme.roundedShadowBorder);
+        
+        // Create the header
+        
+        JComponent header = new JPanel();
+        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+        String className = obj.getStrippedGenClassName();        
+        final String fullTitle = objName + " : " + className;    
+        JLabel headerLabel = new JLabel(fullTitle, JLabel.CENTER) {
+            public void paintComponent(Graphics g)
+            {
+                super.paintComponent(g);
+                int ascent = g.getFontMetrics().getAscent() + 1;
+                g.drawLine(0, ascent, this.getWidth(), ascent);
+            }
+        };
+        headerLabel.setAlignmentX(0.5f);
+        header.add(headerLabel);
+        header.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+        header.add(new JSeparator());
+
+
+        // Create the main panel (field list, Get/Inspect buttons)
+        
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setOpaque(false);   
                      
@@ -136,7 +158,12 @@ public class ObjectInspector extends Inspector
         JPanel inspectAndGetButtons = createInspectAndGetButtons();
         mainPanel.add(inspectAndGetButtons, BorderLayout.EAST);
 
+        Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
+        mainPanel.setBorder(new EmptyBorder(insets));        
+        
+
         // create bottom button pane with "Close" button
+
         JPanel bottomPanel = new JPanel();
         bottomPanel.setOpaque(false);
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
@@ -155,34 +182,16 @@ public class ObjectInspector extends Inspector
         });
         buttonPanel.add(classButton, BorderLayout.WEST);        
         
-        bottomPanel.add(buttonPanel);       
+        bottomPanel.add(buttonPanel);
         
         
-        //Create a header
-        JComponent header = createHeader();
-        String className = obj.getStrippedGenClassName();        
-        final String fullTitle = objName + " : " + className;    
-        JLabel headerLabel = new JLabel(fullTitle, JLabel.CENTER) {
-            public void paintComponent(Graphics g)
-            {
-                super.paintComponent(g);
-                int ascent = g.getFontMetrics().getAscent() + 1;
-                g.drawLine(0, ascent, this.getWidth(), ascent);
-            }
-        };
+        // add the components
         
-        
-        header.add(headerLabel);        
-        
-        //     add the components
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());        
         contentPane.add(header, BorderLayout.NORTH);        
         contentPane.add(mainPanel, BorderLayout.CENTER);
         contentPane.add(bottomPanel, BorderLayout.SOUTH);
-               
-        Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
-        mainPanel.setBorder(new EmptyBorder(insets));        
         
         getRootPane().setDefaultButton(button);
         pack();
