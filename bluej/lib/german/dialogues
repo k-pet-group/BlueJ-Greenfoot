@@ -101,6 +101,27 @@ error-open-source
 Die Quelltextdatei der Klasse konnte nicht
 geöffnet werden. Das sieht böse aus!
 
+error-open-readme
+Die Textnotiz für dieses Projekt konnte
+nicht geöffnet werden. Eine neue, leere
+Notiz wurde erzeugt.
+
+error-writing-readme
+Die README-Datei dieses Projektes konnte 
+nicht erweitert werdem um die Information
+der "main class" hinzuzufügen.
+
+error-exporting
+Beim Versuch, die "Export"-Funktion auszuführen,
+ist ein Fehler aufgetreten. Einige oder alle
+Dateien sind möglicherweise nicht kopiert
+worden.
+
+error-writing-jar
+Die "jar"-Datei konnte nicht geschrieben 
+werden. (Zugriffsrechte fehlen? Dateisystem
+voll?)
+
 invalid-class-name
 Ungültiger Klassenname.
 
@@ -141,8 +162,16 @@ aufgrund mangelnder Zugriffsrechte nicht im
 Projektverzeichnis angelegt werden.
 
 doctool-error
-Das externe Werkzeug zur Dokumentation
-hat folgende Fehlermeldung geliefert:
+Javadoc hat einen Fehler gemeldet. Mögliche 
+Gründe sind:
+  - ein Syntaxfehler in einer Klasse
+  - die URL zur Javadokumentation (in den
+    Einstellungen) is inkorrekt
+Abhilfe: Alle Klassen übersetzen und prüfen,
+dass die URL für die Dokumentation korrekt
+und erreichbar (oder abgeschaltet) ist. Falls
+der Fehler wieder auftaucht, bitte das Javadoc
+Logfile lesen:
 
 severe-doc-trouble
 Während der Generierung der Dokumentation
@@ -151,10 +180,6 @@ ist eine Exception aufgetreten.
 no-java-sources-found
 Es wurden keine Java-Quelltextdateien
 in diesem Verzeichnis gefunden.
-
-# this belongs to the message above and is temporarily disabled.
-in diesem Verzeichnis (oder in einem
-der Unterverzeichnisse) gefunden.
 
 duplicate-name
 Eine Klasse mit diesem Namen gibt es
@@ -172,6 +197,30 @@ no-class-selected
 Es ist keine Klasse selektiert.
 Selektieren Sie erst eine Klasse
 (durch draufklicken).
+
+really-remove-class
+Das Löschen der Klasse kann nicht
+rückgängig gemacht werden.
+Wirklich löschen?
+Löschen
+Abbrechen
+null
+
+really-remove-package
+Removing this package will permanently
+delete the package directory (including ALL
+the contents of that directory).
+Do you want to continue?
+Remove
+Cancel
+null
+
+remove-package-open
+The package you have selected for
+deletion has some sub-packages opened
+within BlueJ. You must close these
+packages before you will be allowed
+to delete this package.
 
 package-does-not-exist
 Das Package konnte nicht geöffnet werden -
@@ -198,23 +247,6 @@ Alle schließen
 Abbrechen
 null
 
-really-remove-class
-Das Löschen der Klasse kann nicht
-rückgängig gemacht werden.
-Wirklich löschen?
-Löschen
-Abbrechen
-null
-
-really-remove-package
-Removing this package will permanently
-delete the package directory (including ALL
-the contents of that directory).
-Do you want to continue?
-Remove
-Cancel
-null
-
 really-reload
 Durch nochmaliges Laden gehen alle Änderungen
 seid dem letzten Speichern verloren. Wirklich
@@ -231,6 +263,23 @@ gemacht wird. Soll trotzdem gedruckt werden?
 Drucken
 Abbrechen
 null
+
+open-non-bluej-already-bluej
+The directory you have selected is already
+a BlueJ project.
+
+open-non-bluej-invalid
+You have indicated you wish to open this
+directory as a BlueJ project, however a file
+has been found with a package statement that
+is incompatible with the current directory
+structure. (For example, if the Java class
+Shape has a package line of com.aa, then the
+file Shape.java must be in a directory aa
+which is itself in a directory com. This com
+directory in turn must be in another directory
+which is the directory you should point BlueJ
+to when attempting to open it).
 
 import-into-current
 You currently have a package open in this window.

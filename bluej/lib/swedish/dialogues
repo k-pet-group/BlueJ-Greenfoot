@@ -107,6 +107,11 @@ Ett fel uppstod vid försök att exportera
 applikationen. Det är möjligt att några eller
 alla filer inte har blivit korrekt kopierade.
 
+error-writing-jar
+The jar file could not be written correctly.
+(Check the file system for access rights and
+disk space availability.)
+
 invalid-class-name
 Icke godkänt klassnamn.
 
@@ -147,8 +152,14 @@ not be created in the project directory
 because of insufficient rights.
 
 doctool-error
-The external documentation tool used
-reported an error:
+Javadoc reported an error. It could be that there is a 
+syntax error in one of the files you tried to generate 
+a documentation for. It could also be that the JDK 
+documentation URL specified in the preferences is incorrect.
+Make sure that all your Java files are compiled and the 
+documentation URL is accessible or disabled. Then try again. 
+If this message appears again you should check the log file 
+with the error messages from Javadoc:
 
 severe-doc-trouble
 An exception occured during the call
@@ -157,9 +168,6 @@ to the external documentation tool.
 no-java-sources-found
 Inga Java källkodsfiler kunde
 hittas i den här katalogen
-
-# this belongs to the message above and is temporarily disabled.
-(eller i någon av dess underkataloger).
 
 duplicate-name
 En klass med det här namnet existerar redan
@@ -175,6 +183,30 @@ no-class-selected
 Ingen klass markerad för borttagning.
 Välj klass genom att klicka på den
 och försök igen.
+
+really-remove-class
+Borttagning av den har klassen betyder
+permanent radering av källfilen.
+Vill du fortsätta?
+Ta bort
+Avbryt
+null
+
+really-remove-package
+Removing this package will permanently
+delete the package directory (including ALL
+the contents of that directory).
+Do you want to continue?
+Remove
+Cancel
+null
+
+remove-package-open
+The package you have selected for
+deletion has some sub-packages opened
+within BlueJ. You must close these
+packages before you will be allowed
+to delete this package.
 
 package-does-not-exist
 Fel vid öppning av paket.
@@ -201,23 +233,6 @@ Avsluta allt
 Avbryt
 null
 
-really-remove-class
-Borttagning av den har klassen betyder
-permanent radering av källfilen.
-Vill du fortsätta?
-Ta bort
-Avbryt
-null
-
-really-remove-package
-Removing this package will permanently
-delete the package directory (including ALL
-the contents of that directory).
-Do you want to continue?
-Remove
-Cancel
-null
-
 really-reload
 Vid omladdning förloras icke sparade ändringar.
 Vill du verkligen ladda om?
@@ -233,6 +248,23 @@ Skriv ut
 Avbryt
 null
 
+open-non-bluej-already-bluej
+The directory you have selected is already
+a BlueJ project.
+
+open-non-bluej-invalid
+You have indicated you wish to open this
+directory as a BlueJ project, however a file
+has been found with a package statement that
+is incompatible with the current directory
+structure. (For example, if the Java class
+Shape has a package line of com.aa, then the
+file Shape.java must be in a directory aa
+which is itself in a directory com. This com
+directory in turn must be in another directory
+which is the directory you should point BlueJ
+to when attempting to open it).
+
 import-into-current
 Du har redan ett paket öppet i det här fönstret.
 Vill du importera till det öppna paketet eller
@@ -240,6 +272,25 @@ vill du skapa ett nytt projekt och importera till
 det.
 Till Öppet
 Nytt Projekt
+null
+
+package-name-invalid
+You have changed the package statement
+to a package which does not exist in this project.
+If you wish to move this class to another
+package you must create the destination
+package first. The package statement has been
+reverted back to its original form.
+
+package-name-changed
+You have changed the package statement which
+tells Java the package this class is in. Do you
+want to move this class to the indicated package
+or do you want to leave the class where it is
+(the package statement will be reverted back to
+its original form)?
+Move
+Revert
 null
 
 ask-index
