@@ -14,7 +14,7 @@ class Student extends Person
      */
     Student()
     {
-        super("(unknown)", 0000);
+        super("(unknown name)", 0000);
         SID = "(unknown ID)";
     }
 
@@ -32,7 +32,12 @@ class Student extends Person
      */
     public String getStudentID()
     {
-        return SID;
+       return SID;
+    }
+
+    public void sampleMethod()
+    {
+        return x + y;
     }
 
     /**
