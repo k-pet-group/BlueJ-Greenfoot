@@ -35,7 +35,7 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1085 2002-01-11 22:30:13Z mik $
+ * @version $Id: Package.java 1258 2002-06-26 01:04:25Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1513,13 +1513,13 @@ public class Package extends Graph
         if (f == null)
             return false;
 
-        if(!f.isDirectory())
-            return false;
-
         // don't try to test Windows root directories (you'll get in
         // trouble with disks that are not in drives...).
 
         if(f.getPath().endsWith(":\\"))
+            return false;
+
+        if(!f.isDirectory())
             return false;
 
         File packageFile = new File(f, pkgfileName);
