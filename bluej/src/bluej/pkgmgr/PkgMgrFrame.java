@@ -39,7 +39,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1304 2002-08-14 11:39:59Z mik $
+ * @version $Id: PkgMgrFrame.java 1306 2002-08-15 09:43:24Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -1515,11 +1515,6 @@ public class PkgMgrFrame extends JFrame
         else
             setStatus(Config.getString("pkgmgr.webBrowserError"));
     }
-
-//     public void itemStateChanged(ItemEvent evt)
-//     {
-//         handleAction(evt);
-//     }
 
     // --- the following methods set up the GUI frame ---
 
