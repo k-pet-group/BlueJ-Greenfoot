@@ -1109,6 +1109,25 @@ public final class MoeEditor extends JFrame
         else if(!wantHTML && viewingHTML)
             switchToSourceView();
     }
+    
+    
+	/**
+	 * Allow the enabling/disabling of print menu option.
+     * Added to disable the printing og javadoc html for the time 
+     * being until until implemented.  (This is reliant on the use 
+     * of j2sdk1.4 and Java Unified Print Service implementation JSR 6)
+	 * @param flag true to enable printing from menu.
+	 */
+    public void enablePrinting(boolean flag)
+    {
+        Action printAction = actions.getActionByName("print");
+        if(printAction != null)
+            printAction.setEnabled(flag);
+         Action pageSetupAction = actions.getActionByName("page-setup");
+        if(pageSetupAction != null)
+            pageSetupAction.setEnabled(flag);        
+        
+    }
 
     // --------------------------------------------------------------------
     /**
@@ -1119,6 +1138,8 @@ public final class MoeEditor extends JFrame
         if(!viewingHTML)
             return;
 
+        // enable print option
+        enablePrinting(true);
         document = sourceDocument;
         currentTextPane = sourcePane;
         viewingHTML = false;
@@ -1136,7 +1157,9 @@ public final class MoeEditor extends JFrame
     {
         if(viewingHTML)
             return;
-
+            
+        // disable print menu option until implemented
+        enablePrinting(false);
         save();
         if(docUpToDate()) {
             displayInterface(false);
