@@ -14,7 +14,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.text.*;
-import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
+
 
 /**
  * A customised caret for Moe. It gets most of its bahaviour from
@@ -26,10 +26,12 @@ import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 public class MoeCaret extends DefaultCaret  
 {
     private static final Color bracketHighlightColour = new Color(196, 196, 196);
+    
     private static final LayeredHighlighter.LayerPainter bracketPainter = 
-        new DefaultHighlightPainter(bracketHighlightColour);
-
+        new BracketMatchPainter(bracketHighlightColour);
+        
     private MoeEditor editor;
+
     // matching bracket highlight holder
     private Object matchingBracketHighlight;
 
