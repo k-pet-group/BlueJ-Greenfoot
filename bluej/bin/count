@@ -1,0 +1,20 @@
+#!/bin/sh
+
+BLUEJ_HOME=/Users/mik/bluej
+
+NUMCLASSES=`find $BLUEJ_HOME/src/bluej -name *.java -print | wc -l`
+LINES=`find $BLUEJ_HOME/src/bluej -name *.java -exec cat \{\} \; | wc -l`
+BLANK=`find $BLUEJ_HOME/src/bluej -name *.java -exec cat \{\} \; | grep "^ *$" | wc -l`
+
+# search for comments, that is, lines starting with " //", " /*" or " *".
+
+COMMENT=`find $BLUEJ_HOME/src/bluej -name *.java -exec cat \{\} \; | grep -e "^ */\*" -e "^ *\*" -e "^ *//" | wc -l`
+
+CODE=$(($LINES - $BLANK - $COMMENT))
+
+echo "number of classes: $NUMCLASSES"
+echo "total number of lines  : $LINES"
+echo "number of blank lines  : $BLANK"
+echo "number of comment lines: $COMMENT"
+echo "number of code lines   : $CODE"
+

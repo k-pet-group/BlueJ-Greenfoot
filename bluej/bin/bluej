@@ -4,7 +4,9 @@ BINDIR=`dirname $0`
 BLUEJ_HOME=$BINDIR/.. 
 SUNTOOLS=/usr/java/lib/tools.jar
 
-OPTIONS='-Dcom.apple.mrj.application.apple.menu.about.name=BlueJ -Dcom.apple.macos.useScreenMenuBar=false -native'
+#OPTIONS='-Dcom.apple.mrj.application.apple.menu.about.name=BlueJ -Dcom.apple.macos.useScreenMenuBar=false -Dcom.apple.macosx.useSolarisWinActiveFocus=false -native'
+#OPTIONS='-Dcom.apple.mrj.application.apple.menu.about.name=BlueJ -Dcom.apple.macos.useScreenMenuBar=true -Dcom.apple.macosx.useSolarisWinActiveFocus=false'
+OPTIONS='-Dcom.apple.mrj.application.apple.menu.about.name=BlueJ -Dcom.apple.macosx.useSolarisWinActiveFocus=false'
 
 CP=$BLUEJ_HOME/lib/bluej.jar:$BLUEJ_HOME/classes:$BLUEJ_HOME/lib/antlr.jar:$BLUEJ_HOME/lib/MRJToolkitStubs.zip:$BLUEJ_HOME/lib/junit.jar:$SUNTOOLS
 
