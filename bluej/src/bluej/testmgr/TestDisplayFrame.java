@@ -21,7 +21,7 @@ import bluej.utility.JavaNames;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 2938 2004-08-24 02:11:19Z davmac $
+ * @version $Id: TestDisplayFrame.java 2997 2004-09-09 12:29:52Z mik $
  */
 public class TestDisplayFrame
 {
@@ -320,9 +320,9 @@ public class TestDisplayFrame
         statusLabel = new JPanel();
 
         if (errorCount + failureCount == 0)
-            statusLabel.setBackground(Color.GREEN);
+            statusLabel.setBackground(ProgressBar.greenBarColour);
         else
-            statusLabel.setBackground(Color.RED);
+            statusLabel.setBackground(ProgressBar.redBarColour);
 
         statusLabel.setMinimumSize(pb.getMinimumSize());
         statusLabel.setMaximumSize(pb.getMaximumSize());
