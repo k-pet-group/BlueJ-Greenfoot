@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2132 2003-07-29 04:35:53Z ajp $
+ * @version $Id: VMReference.java 2150 2003-08-05 14:40:32Z mik $
  *
  * The startup process is as follows:
  *
@@ -46,7 +46,7 @@ import com.sun.jdi.request.*;
  *      .                        .                       .
  *      .                        .                     hit breakpoint
  *      .                      break-event < ------------.
- *    continue <-----------------.
+ *    continue < -----------------.
  *      .
  *      .
  *
@@ -77,7 +77,7 @@ class VMReference
 	
     // The remote virtual machine and process we are referring to
     private VirtualMachine machine = null;
-    private Process process = null;
+    private Process remoteVMprocess = null;
 
     // The handler for virtual machine events    
     private VMEventHandler eventHandler = null;
@@ -134,16 +134,30 @@ class VMReference
             String allClassPath = ClassMgr.getClassMgr().getAllClassPath().toString();
             
         	// the parameters to launch the VM
-            String launchParams[] = { Config.getJDKExecutablePath("this.key.must.not.exist", "java"),
+            String optimise = Config.getPropString("bluej.vm.optimize", "false");
+            Process vmProcess;
+            
+            if(optimise.equals("true")) {
+                String launchParams[] = { Config.getJDKExecutablePath("this.key.must.not.exist", "java"),
+            							"-classpath",
+										allClassPath,
+            							"-Xdebug",
+            							"-Xrunjdwp:transport=dt_socket,server=y",
+            							SERVER_CLASSNAME };
+                vmProcess = Runtime.getRuntime().exec(launchParams, null, initDir);
+            }
+            else {
+                String launchParams[] = { Config.getJDKExecutablePath("this.key.must.not.exist", "java"),
             							"-classpath",
 										allClassPath,
             							"-Xdebug",
             							"-Xint",
             							"-Xrunjdwp:transport=dt_socket,server=y",
             							SERVER_CLASSNAME };
-            Process p = Runtime.getRuntime().exec(launchParams, null, initDir);
+                vmProcess = Runtime.getRuntime().exec(launchParams, null, initDir);
+            }
 
-			String listenMessage = new BufferedReader(new InputStreamReader(p.getInputStream())).readLine();
+			String listenMessage = new BufferedReader(new InputStreamReader(vmProcess.getInputStream())).readLine();
 		
 			portNumber = extractPortNumber(listenMessage);
 				
@@ -155,14 +169,14 @@ class VMReference
 			
 			// redirect error stream from process to Terminal
 			errorStreamRedirector =
-			    redirectIOStream(new InputStreamReader(p.getErrorStream()),
+			    redirectIOStream(new InputStreamReader(vmProcess.getErrorStream()),
 								//new OutputStreamWriter(System.err),
 								Terminal.getTerminal().getErrorWriter(),
 								false);
 
 			// redirect output stream from process to Terminal
 			outputStreamRedirector = 
-			    redirectIOStream(new InputStreamReader(p.getInputStream()),
+			    redirectIOStream(new InputStreamReader(vmProcess.getInputStream()),
 								//new OutputStreamWriter(System.err),
 								Terminal.getTerminal().getWriter(),
 								false);
@@ -170,13 +184,12 @@ class VMReference
 			// redirect Terminal input to process output stream
 			inputStreamRedirector = 
 			    redirectIOStream(Terminal.getTerminal().getReader(),
-								new OutputStreamWriter(p.getOutputStream()),
+								new OutputStreamWriter(vmProcess.getOutputStream()),
 								false);
-			process = p;
+			remoteVMprocess = vmProcess;
         }
         catch (IOException ioe) {
             ioe.printStackTrace();
-            
             return null;
         }
 
@@ -328,8 +341,8 @@ class VMReference
         // can cause deadlock - why bother
         // lets just nuke it
         //machine.dispose();
-        if (process != null) {
-            process.destroy();
+        if (remoteVMprocess != null) {
+            remoteVMprocess.destroy();
         }
         machine = null;
     }

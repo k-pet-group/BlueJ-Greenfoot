@@ -13,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: AboutBlue.java 2150 2003-08-05 14:40:32Z mik $
  */
 class AboutBlue extends JDialog
 {
@@ -54,10 +54,12 @@ class AboutBlue extends JDialog
                      "and the University of Southern Denmark.");
         text.addText(" ");
         text.addText("The BlueJ team:", false, true);
-        text.addText("      Michael K\u00F6lling\n" +
+        text.addText("      Kasper Fisker\n" +
+                     "      Poul Henriksen\n" +
+                     "      Michael K\u00F6lling\n" +
                      "      Andrew Patterson\n" +
                      "      Bruce Quig\n" +
-                     "      John Rosenberg");
+                     "      John Rosenberg\n");
         text.addText(" ");
         text.addText("The extension mechanism was written by\n" +
                      "Ian Utting, Clive Miller and Damiano Bolla\n" +
