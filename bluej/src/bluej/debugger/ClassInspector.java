@@ -14,7 +14,7 @@ import bluej.pkgmgr.Package;
  * A window that displays the static fields in an class.
  *
  * @author     Michael Kolling
- * @version    $Id: ClassInspector.java 1529 2002-11-28 15:59:21Z mik $
+ * @version    $Id: ClassInspector.java 1532 2002-11-29 10:28:51Z mik $
  */
 public class ClassInspector extends Inspector
 {
@@ -82,7 +82,7 @@ public class ClassInspector extends Inspector
                            boolean getEnabled, JFrame parent)
     {
         super(pkg, id, getEnabled, parent,
-              classNameLabel + " " + JavaNames.stripPrefix(clss.getName()), true);
+              classNameLabel + " " + JavaNames.stripPrefix(clss.getName()), false);
         setTitle(inspectTitle);
 
         myClass = clss;
