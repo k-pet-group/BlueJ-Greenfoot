@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import bluej.*;
+import bluej.classmgr.ClassMgr;
 import bluej.debugger.*;
 import bluej.runtime.ExecServer;
 import bluej.terminal.Terminal;
@@ -22,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2111 2003-07-15 03:29:07Z ajp $
+ * @version $Id: VMReference.java 2113 2003-07-16 02:36:02Z bquig $
  *
  * The startup process is as follows:
  *
@@ -122,10 +123,13 @@ class VMReference
     	
         // launch the VM
         try {
+            // get classpath for VM
+            String allClassPath = ClassMgr.getClassMgr().getAllClassPath().toString();
+            
         	// the parameters to launch the VM
             String launchParams[] = { Config.getJDKExecutablePath("this.key.must.not.exist", "java"),
             							"-classpath",
-										Boot.getInstance().getRuntimeClassPathString(),
+										allClassPath,
             							"-Xdebug",
             							"-Xint",
             							"-Xrunjdwp:transport=dt_socket,server=y,address=" + PORT_NUM,
