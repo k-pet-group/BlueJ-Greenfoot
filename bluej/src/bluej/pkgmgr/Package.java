@@ -28,7 +28,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2214 2003-10-15 03:18:49Z ajp $
+ * @version $Id: Package.java 2240 2003-10-31 02:38:49Z ajp $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1219,6 +1219,7 @@ public final class Package extends Graph
         ClassTarget from = (ClassTarget)d.getFrom();    // a class
         ClassTarget to = (ClassTarget)d.getTo();        // an interface
         Editor ed = from.getEditor();
+        ed.save();
 
         // Debug.message("Implements class dependency from " + from.getName() + " to " + to.getName());
 
@@ -1263,6 +1264,7 @@ public final class Package extends Graph
         ClassTarget from = (ClassTarget)d.getFrom();    // an interface
         ClassTarget to = (ClassTarget)d.getTo();        // an interface
         Editor ed = from.getEditor();
+        ed.save();
 
         // Debug.message("Implements interface dependency from " + from.getName() + " to " + to.getName());
 
@@ -1307,6 +1309,7 @@ public final class Package extends Graph
         ClassTarget from = (ClassTarget)d.getFrom();
         ClassTarget to = (ClassTarget)d.getTo();
         Editor ed = from.getEditor();
+        ed.save();
 
         try {
             ClassInfo info = ClassParser.parse(from.getSourceFile(), new Vector(getAllClassnames()));
@@ -1346,6 +1349,7 @@ public final class Package extends Graph
         ClassTarget from = (ClassTarget)d.getFrom();
         ClassTarget to = (ClassTarget)d.getTo();
         Editor ed = from.getEditor();
+        ed.save();
 
         try {
             ClassInfo info = ClassParser.parse(from.getSourceFile(), new Vector(getAllClassnames()));
