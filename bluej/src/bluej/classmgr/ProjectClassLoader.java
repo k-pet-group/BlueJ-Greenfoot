@@ -3,6 +3,7 @@ package bluej.classmgr;
 import java.io.*;
 import java.util.*;
 import java.net.*;
+import java.lang.reflect.*;
 
 import bluej.utility.Debug;
 import bluej.Config;
@@ -12,7 +13,7 @@ import bluej.Config;
  * and from jar files within a +libs directory.
  *
  * @author  Andrew Patterson
- * @version $Id: ProjectClassLoader.java 1053 2001-12-19 06:31:58Z ajp $
+ * @version $Id: ProjectClassLoader.java 1140 2002-02-21 06:30:43Z ajp $
  */
 public class ProjectClassLoader extends URLClassLoader
 {
@@ -30,6 +31,8 @@ public class ProjectClassLoader extends URLClassLoader
     public ProjectClassLoader(File projectDir, ClassLoader parent)
     {
         super(getDirectoryAsURL(projectDir), parent);
+
+        setAssertions(true);
 
 	// the subdirectory of the project which can hold project specific
 	// jars and zips
@@ -85,6 +88,30 @@ public class ProjectClassLoader extends URLClassLoader
         return blankUrls; 
     }
 
+    /**
+     * Under a 1.4 or above VM, set default assert status in the project class loader
+     * using reflection to find the relevant method.
+     */
+    private void setAssertions(boolean status)
+    {
+        try {
+            Class cl = this.getClass();
+
+            Class[] p = new Class[] { boolean.class }; 
+ 
+            Method setAssertMethod = cl.getMethod("setDefaultAssertionStatus", p);
+
+            Object objResult;
+            Object[] arguments = new Object[] { new Boolean(status) };
+
+            objResult = setAssertMethod.invoke(this, arguments);
+        }
+        // for all these errors no need to report anything.. just assume its because
+        // assertions are not supported (ie 1.3)
+        catch (NoSuchMethodException e) { }
+        catch (IllegalAccessException e) { }
+        catch (InvocationTargetException e) { }
+    }
 }
 
 /**
