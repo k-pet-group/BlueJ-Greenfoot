@@ -28,7 +28,7 @@ install.winCommands=
 
 # Name of the classpath to be added to existing classpath
 # for jdk 1.3 and later
-install.classpath=~/lib/bluej.jar;~/lib/editor.jar;~/lib/antlr.jar;!/lib/tools.jar
+install.classpath=~/lib/bluej.jar;~/lib/editor.jar;~/lib/antlr.jar;~/lib/MRJToolkitStubs.zip;!/lib/tools.jar
 install.classpath.mac=~/lib/bluej.jar;~/lib/editor.jar;~/lib/antlr.jar
 
 # Class that contains the main to execute
@@ -47,5 +47,5 @@ install.color.background=255,255,255
 install.width=500
 install.height=340
 
-# Tag line to put at bottom (your web site, copyright, etc.)
+# Tag line to put at bottom
 install.tagline=BlueJ Installer version 2.2 - Monash University

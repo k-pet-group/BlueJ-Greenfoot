@@ -3,6 +3,7 @@
     <patternset id="bluej.libfiles">
         <exclude name="**/.#*" />
         <include name="lib/antlr.jar" />
+        <include name="lib/MRJToolkitStubs.zip" />
         <include name="lib/bluej.defs" />
         <include name="lib/bluej.ico" />
         <include name="lib/moe.defs" />
@@ -86,7 +87,8 @@
                includes="Installer.java"
         />
 
-        <java classname="Installer" fork="yes" jvm="${java_home}/bin/java">
+        <!-- NOTE: use  jvm="${java_home}/bin/java"  if java is not in the path -->
+        <java classname="Installer" fork="yes" jvm="java">
             <classpath>
                  <pathelement location="." />
             </classpath>
