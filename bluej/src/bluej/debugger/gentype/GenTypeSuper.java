@@ -6,7 +6,7 @@ import java.util.Map;
  * "? super ..." type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSuper.java 2581 2004-06-10 01:09:01Z davmac $
+ * @version $Id: GenTypeSuper.java 2615 2004-06-16 07:01:33Z davmac $
  */
 public class GenTypeSuper extends GenTypeWildcard
 {
@@ -66,7 +66,7 @@ public class GenTypeSuper extends GenTypeWildcard
         return new GenTypeSuper((GenTypeSolid)newType.precisify(superClass));
     }
     
-    protected GenTypeParameterizable mapTparsToTypes(Map tparams)
+    public GenTypeParameterizable mapTparsToTypes(Map tparams)
     {
         GenTypeSolid n = (GenTypeSolid)lowerBound.mapTparsToTypes(tparams);
         return new GenTypeSuper(n);

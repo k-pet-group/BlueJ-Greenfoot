@@ -29,7 +29,7 @@ public class GenTypeTpar extends GenTypeSolid
         return name.equals(((GenTypeTpar)other).name);
     }
     
-    protected GenTypeParameterizable mapTparsToTypes(Map tparams)
+    public GenTypeParameterizable mapTparsToTypes(Map tparams)
     {
         GenTypeParameterizable newType = (GenTypeParameterizable)tparams.get(name);
         if( newType == null )
@@ -49,4 +49,8 @@ public class GenTypeTpar extends GenTypeSolid
         return other;
     }
 
+    public boolean isPrimitive()
+    {
+        return false;
+    }
 }

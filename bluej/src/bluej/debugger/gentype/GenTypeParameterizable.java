@@ -17,11 +17,11 @@ public abstract class GenTypeParameterizable implements GenType
      * @param tparams  A map of (String name -> GenType type).
      * @return  An equivalent type with parameters mapped.
      */
-    protected abstract GenTypeParameterizable mapTparsToTypes(Map tparams);
+    abstract public GenTypeParameterizable mapTparsToTypes(Map tparams);
     
-    public abstract boolean equals(GenTypeParameterizable other);
+    abstract public boolean equals(GenTypeParameterizable other);
     
-    protected abstract void getParamsFromTemplate(Map map, GenTypeParameterizable template);
+    abstract protected void getParamsFromTemplate(Map map, GenTypeParameterizable template);
     
-    protected abstract GenTypeParameterizable precisify(GenTypeParameterizable other);
+    abstract protected GenTypeParameterizable precisify(GenTypeParameterizable other);
 }

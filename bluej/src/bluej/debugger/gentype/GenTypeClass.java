@@ -11,7 +11,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 2581 2004-06-10 01:09:01Z davmac $
+ * @version $Id: GenTypeClass.java 2615 2004-06-16 07:01:33Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -22,7 +22,12 @@ public class GenTypeClass extends GenTypeSolid {
     
     // ---------- Constructors -------------
     
-    protected GenTypeClass(Reflective r)
+    /**
+     * Constructor for a non-generic class type.
+     * 
+     * @param r   The Reflective representing the class.
+     */
+    public GenTypeClass(Reflective r)
     {
         reflective = r;
     }
@@ -37,7 +42,8 @@ public class GenTypeClass extends GenTypeSolid {
     public GenTypeClass(Reflective r, List params)
     {
         reflective = r;
-        this.params = params;
+        if( params != null && ! params.isEmpty() )
+            this.params = params;
     }
     
     /**
@@ -61,6 +67,11 @@ public class GenTypeClass extends GenTypeSolid {
     
     // ---------- instance methods -------------
 
+    public boolean isPrimitive()
+    {
+        return false;
+    }
+    
     public final String toString()
     {
         return toString(false);
@@ -192,7 +203,15 @@ public class GenTypeClass extends GenTypeSolid {
         tparams.putAll(baseClass.getMap());
     }
     
-    protected GenTypeParameterizable mapTparsToTypes(Map tparams)
+    /**
+     * Return the corresponding type if all type parameters are replaced with
+     * corresponding actual types, as defined by a Map (String -> GenType).
+     * 
+     * @param tparams  A map definining the translation from type parameter
+     *                 name (String) to its actual type (GenType).
+     * @return the corresponding type structure, with parameters mapped.
+     */
+    public GenTypeParameterizable mapTparsToTypes(Map tparams)
     {
         // If there are no generic parameters, there's nothing to map...
         if( params == null )

@@ -4,7 +4,7 @@ package bluej.debugger.gentype;
  * "byte" primitive type
  * 
  * @author Davin McCall
- * @version $Id: GenTypeByte.java 2581 2004-06-10 01:09:01Z davmac $
+ * @version $Id: GenTypeByte.java 2615 2004-06-16 07:01:33Z davmac $
  */
 public class GenTypeByte implements GenType
 {
@@ -15,5 +15,9 @@ public class GenTypeByte implements GenType
     public String toString(boolean stripPrefix)
     {
         return "byte";
+    }
+    public boolean isPrimitive()
+    {
+        return true;
     }
 }

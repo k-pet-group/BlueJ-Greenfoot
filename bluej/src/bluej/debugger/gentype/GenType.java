@@ -5,11 +5,12 @@ package bluej.debugger.gentype;
  * Most functionality is in subclasses.
  * 
  * @author Davin McCall
- * @version $Id: GenType.java 2581 2004-06-10 01:09:01Z davmac $
+ * @version $Id: GenType.java 2615 2004-06-16 07:01:33Z davmac $
  */
 
 public interface GenType {
 
     public String toString(boolean stripPrefix);
 
+    public boolean isPrimitive();
 }

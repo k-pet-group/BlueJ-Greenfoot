@@ -5,7 +5,7 @@ import java.util.Map;
 /* An unbounded wildcard.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeUnbounded.java 2581 2004-06-10 01:09:01Z davmac $
+ * @version $Id: GenTypeUnbounded.java 2615 2004-06-16 07:01:33Z davmac $
  */
 public class GenTypeUnbounded extends GenTypeWildcard
 {
@@ -27,7 +27,7 @@ public class GenTypeUnbounded extends GenTypeWildcard
         return other;
     }
         
-    protected GenTypeParameterizable mapTparsToTypes(Map tparams)
+    public GenTypeParameterizable mapTparsToTypes(Map tparams)
     {
         return this;
     }
