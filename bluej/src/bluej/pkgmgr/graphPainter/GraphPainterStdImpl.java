@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.util.Iterator;
 
 
+import bluej.Config;
 import bluej.graph.*;
 import bluej.pkgmgr.dependency.*;
 import bluej.pkgmgr.dependency.ImplementsDependency;
@@ -15,7 +16,7 @@ import bluej.pkgmgr.Package;
 /**
  * Paints a Graph using TargetPainters
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 2484 2004-04-06 06:58:05Z fisker $
+ * @version $Id: GraphPainterStdImpl.java 2497 2004-04-15 08:34:09Z fisker $
  */
 public class GraphPainterStdImpl implements GraphPainter
 {
@@ -29,7 +30,7 @@ public class GraphPainterStdImpl implements GraphPainter
             new Color(0,0,0,66),//on white background this is (189,189,189)
             new Color(0,0,0,172)//on white background this is (83,83,83)
     };
-    static final int TEXT_HEIGHT = 16;
+    static final int TEXT_HEIGHT = Integer.parseInt(Config.getPropString("bluej.target.fontsize")) + 4; //16;
     static final int TEXT_BORDER = 4;
     static final float alpha = (float)0.5;
     static AlphaComposite alphaComposite = 
