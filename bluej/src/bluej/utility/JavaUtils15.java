@@ -11,7 +11,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2827 2004-07-28 10:36:40Z polle $
+ * @version $Id: JavaUtils15.java 2829 2004-08-03 05:02:05Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -406,11 +406,11 @@ public class JavaUtils15 extends JavaUtils {
                     return new GenTypeSuper(null);
                 }
                 else {
-                    if( upperBounds.length != 0 && upperBounds[0] != null )
+                    if (upperBounds.length != 0 && upperBounds[0] != null && upperBounds[0] != Object.class)
                         Debug.message("getTypeName: upper and lower bound?");
-                    if( lowerBounds.length != 1 )
+                    if (lowerBounds.length != 1)
                         Debug.message("getTypeName: multiple lower bounds for wildcard type?");
-                    GenTypeSolid lbound = (GenTypeSolid)genTypeFromType(lowerBounds[0]);
+                    GenTypeSolid lbound = (GenTypeSolid) genTypeFromType(lowerBounds[0]);
                     return new GenTypeSuper(lbound);
                 }
             }
