@@ -5,14 +5,15 @@ import javax.swing.JMenuItem;
 /**
  *  This interface allows an Extension Writer to provide its own menu to the
  *  BlueJ Tools Menu. The duty is extremly simple, there is only one function to
- *  implement and that should return the JMenuItem you want to display. <P>
+ *  implement and that should return the JMenuItem you want to display.
  *
  *  To help you I am going to provide a more complex example that you may scale
- *  down or up depending on your needs. <P>
+ *  down or up depending on your needs.
  *
  *  This example will provide you with TWO active menues. You can istantiate
- *  ExtensionMenu and then just do bluej.setMenuGen(myNewClass); <P>
+ *  ExtensionMenu and then just do bluej.setMenuGen(myNewClass);
  *  Damiano
+ *  
  *  <PRE>
  * import bluej.extensions.*;
  * import javax.swing.*;
@@ -62,9 +63,9 @@ public interface MenuGen
 {
 
     /**
-     *  Your implementation just needs to return a single menu item.<P>
-     *  You MUST follows the following guidelines<P>
-     *  - The returned JMenuItem and all possible subtree MUST always be a new  one.<P>
+     *  Your implementation just needs to return a single menu item.
+     *  You MUST follows the following guidelines:
+     *  - The returned JMenuItem and all possible subtree MUST always be a new  one.
      *  - Do NOT store them away in your code.
      *
      * @return    The menuItem value

@@ -43,14 +43,15 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1693 2003-03-10 14:03:52Z damiano $
+ * @version $Id: BlueJ.java 1712 2003-03-20 10:39:46Z damiano $
  */
 
 public class BlueJ
 {
     private final ExtensionWrapper myWrapper;
     private final PrefManager      prefManager;
-
+    private final MenuManager      menuManager;
+    
     private PrefGen    currentPrefGen=null;
     private MenuGen    currentMenuGen=null;
     private Properties localLabels;
@@ -59,10 +60,11 @@ public class BlueJ
      * Extensions should not call this constructor.
      * The BlueJ object is given to the Extension by the system.
      */
-    public BlueJ (ExtensionWrapper myWrapper, PrefManager prefManager)
+    public BlueJ (ExtensionWrapper i_myWrapper, PrefManager i_prefManager, MenuManager i_menuManager)
     {
-        this.myWrapper   = myWrapper;
-        this.prefManager = prefManager;
+        myWrapper   = i_myWrapper;
+        prefManager = i_prefManager;
+        menuManager = i_menuManager;
 
         /* I do NOT want lazy initialization othervise I may try to load it
          * may times just because I cannof find anything.
@@ -200,8 +202,6 @@ public class BlueJ
     {
         currentMenuGen = menuGen;
 
-        MenuManager menuManager=myWrapper.getMenuManager();
-        if ( menuManager == null ) return;
         menuManager.menuExtensionRevalidateReq();
     }
 
@@ -245,6 +245,8 @@ public class BlueJ
     }
     
     /**
+     * NOTA: Is this really needed by the extensions ?
+     * 
      * @return the path to the BlueJ system library directory
      */
     public File getSystemLib()

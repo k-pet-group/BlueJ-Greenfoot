@@ -12,12 +12,12 @@ import bluej.pkgmgr.Package;
 import bluej.views.*;
 
 /**
- * This should behave as much as possible like the Java reflection API.
- * It will not be the same thing but every effort is made to avoid differences.
- * The reasoning behind it is that is is no good to create a new standard when there 
- * is already one that can be used.
+ * This is a wrapper for a BlueJ Class. From this BClass you can create Bobjects and call methods
+ * by following the same reasoning of the reflection API.
+ * BClass allows you to know the real underlyng class because there is a need to 
+ * understand what is the identity of this Class (BClass) and the identity of the hidden one.
  * 
- * @version $Id: BClass.java 1687 2003-03-10 13:18:23Z damiano $
+ * @version $Id: BClass.java 1712 2003-03-20 10:39:46Z damiano $
  */
 public class BClass
 {
@@ -68,14 +68,14 @@ public class BClass
 
 
     /**
-     * Gets the Java Class being hidden by this BClass, this means showing the real Object...
+     * Gets the Java Class being hidden by this BClass.
      * This is the core point where you can get more information about the class. Es:
      * What is the real class being hidden
      * Is it an array
      * What is the typ of the array element
      * 
      * NOTE: This is for INFORMATION ONLY, if you want to interact with BlueJ you MUST
-     * use the methods proviced in BClass
+     * use the methods proviced in BClass.
      */
     public Class getJavaClass ()
       {

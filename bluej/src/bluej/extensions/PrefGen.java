@@ -4,13 +4,13 @@ import javax.swing.JPanel;
 
 /**
  *  Provides a means by which to add preference items to the Tools-Preferences
- *  Extensions panel. <P>
+ *  Extensions panel.
  *
  *  What you do is to implement getPanel(), loadValues() and saveValues() and
  *  put all your swing Components into a JPanel that will be taken for drawing.
- *  After having allocated this class you can simply call bluej.setPrefGen (
- *  myPrefGen ); </P> 
- *  This is a simple example of how a preference panel can be implemented. <P>
+ *  After having allocated this class you can simply call 
+ *  bluej.setPrefGen (myPrefGen );  
+ *  This is a simple example of how a preference panel can be implemented.
  *  Damiano
  *  
  *  <PRE>

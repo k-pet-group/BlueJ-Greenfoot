@@ -9,11 +9,11 @@ import bluej.views.*;
 import com.sun.jdi.*;
 
 /**
- * <pre>This class encapsulate a method. Its duty is to provide a way to the developer
- * to call a method on a given object that is on the bench.
+ * This class encapsulate a method. 
+ * Its duty is to provide a way to the developer to call a method on a given object that is on the bench.
  * What it returns is an Object that is either a primitive type encapsulation
  * Integer for int, Long for long and so on, or it may return a BObject that can
- * further be sent to the bench.</pre>
+ * further be sent to the bench.
  */
 public class BMethod
 {
@@ -34,7 +34,7 @@ public class BMethod
      * Tests if this mthod matches against the given param.
      * @return true if it matches false othervise.
      */
-    public boolean matches ( String methodName, Class[] parameter )
+    boolean matches ( String methodName, Class[] parameter )
       {
       // If someone is crazy enough to do this he deserves it :-)
       if ( methodName == null ) return false;
@@ -98,12 +98,10 @@ public class BMethod
         }
 
     /**
-     * invoke a method on the given Object.<P>
-     * The real problem is how to manipulate the result that come out. The BLueJ behaviour is:<P>
-     * - If the result is a primitive then you can vet the value but NOT put it into the bench<P>
-     * - If the result is an OBject you can put it into the bench <P>
+     * Invoke this method on the given Object.
      * 
-     * @param args an array containing the arguments. If none then pass null
+     * @param onThis The BObject where you want to apply this method
+     * @param params an array containing the arguments. If none then null
      *
      * @return the resulting Object. It can be a primitive wrapper or a BObject
      */

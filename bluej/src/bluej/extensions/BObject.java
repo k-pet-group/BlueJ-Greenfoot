@@ -12,10 +12,9 @@ import bluej.debugger.*;
 /**
  * This allows you to interacet with objects that are created in the BlueJ environment.
  * This wraps an object so you can put and remove it from the bench.
- * You get Bobjects from BConstructor or BMethods and of course you get them also from
- * BField.
+ * You get Bobjects from BConstructor or BMethods and from BField.
  *
- * @version $Id: BObject.java 1686 2003-03-10 13:02:09Z damiano $
+ * @version $Id: BObject.java 1712 2003-03-20 10:39:46Z damiano $
  */
 public class BObject
 {
@@ -93,8 +92,9 @@ public class BObject
     /**
      * Puts this object on the Object Bench.
      * If it is a null object you will not be able to put it.
+     * If you pass null as instanceName the object will have a predefined name.
      * 
-     * @param instanceName  The name you want this object to have on the bench
+     * @param instanceName  The name you want this object to have on the bench.
      */
     public void putIntoBench(String instanceName)
         {

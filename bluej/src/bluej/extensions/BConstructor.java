@@ -8,7 +8,8 @@ import bluej.views.*;
 
 
 /**
- * This should behave as much as possible as a reflection COnstructor
+ * Wrapper for a BlueJ Constructor.
+ * Behaviour is similar to reflection API. 
  */
 public class BConstructor 
   {
@@ -28,7 +29,7 @@ public class BConstructor
   /**
    * Tests if this constructor matches against the given param.
    */
-  public boolean matches ( Class[] parameter )
+  boolean matches ( Class[] parameter )
     {
     Class[] thisArgs = bluej_view.getParameters();
 
@@ -79,7 +80,7 @@ public class BConstructor
 
     /**
      * Gets the last error that occurred.
-     * This should be called after receiving a <code>null</code> back from an invoke.
+     * This should be called after receiving a <code>null</code> back from newInstance.
      * 
      * @return any error as a String
      */

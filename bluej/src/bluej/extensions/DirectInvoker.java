@@ -6,7 +6,6 @@ import bluej.debugger.ResultWatcher;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.CallableView;
-import bluej.views.ConstructorView;
 import bluej.testmgr.*;
 import bluej.utility.*;
 
@@ -14,7 +13,7 @@ import bluej.utility.*;
  * Provides a gateway to invoke methods on objects using a specified set of parameters.
  *
  * @author Clive Miller, Damiano Bolla
- * @version $Id: DirectInvoker.java 1667 2003-03-08 12:16:42Z damiano $
+ * @version $Id: DirectInvoker.java 1712 2003-03-20 10:39:46Z damiano $
  */
 class DirectInvoker
 {

@@ -9,12 +9,8 @@ import java.util.ListIterator;
 
 /**
  * This represent a Project open by BlueJ.
- * NOTE: As a reference I store ONLY the key of the project and EVERY time I want to 
- * get information I will retrieve the LIVE Project.
- * I do this to try to have a reasonably syncronized view between the BleuJ and this
- * Othervise I will be holding a Project object that is NO longer active !
  *
- * @version $Id: BProject.java 1686 2003-03-10 13:02:09Z damiano $
+ * @version $Id: BProject.java 1712 2003-03-20 10:39:46Z damiano $
  */
 
 public class BProject
@@ -23,7 +19,10 @@ public class BProject
   
     /**
      * Not for public use.
-     * You can get projects from BlueJ
+     * NOTE: As a reference I store ONLY the key of the project and EVERY time I want to 
+     * get information I will retrieve the LIVE Project.
+     * I do this to try to have a reasonably syncronized view between the BleuJ and this
+     * Othervise I will be holding a Project object that is NO longer active !
      */
     BProject (File projectDir)
     {

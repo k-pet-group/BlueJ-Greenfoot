@@ -6,26 +6,15 @@ import bluej.pkgmgr.Target;
 import bluej.pkgmgr.ClassTarget;
 import bluej.debugger.ObjectWrapper;
 
-import bluej.Config;
-import bluej.utility.DialogManager;
 
 
 import java.util.List; 
 import java.util.ListIterator;
-import java.awt.Component;
 import java.awt.Frame;
 
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Window;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 
 
@@ -36,7 +25,7 @@ import java.awt.event.ActionListener;
  * possible and try to get all info dynamically. I need this to be in sync with BlueJ
  * This MAY NOT be ENOUGH so, check it with Andrew.
  *
- * @version $Id: BPackage.java 1686 2003-03-10 13:02:09Z damiano $
+ * @version $Id: BPackage.java 1712 2003-03-20 10:39:46Z damiano $
  */
 public class BPackage
 {
@@ -224,36 +213,7 @@ public class BPackage
     }
 
 
-    /**
-     * CONVENIENCE method, shows a message box, with this text and an OK button.
-     * 
-     * @param message the text to be displayed in the box.
-     */
-    public void showMessage (String message)
-    {
-        DialogManager.showText ( PkgMgrFrame.getMostRecent(), message);
-    }
    
-    /**
-     * CONVENIENCE method, gets the bluej default dialog border.
-     * 
-     * @return the default BlueJ border object
-     */
-    public static javax.swing.border.Border getDialogBorder()
-    {
-        return Config.dialogBorder;
-    }
-     
-    /**
-     * CONVENIENCE method, centres a frame onto the package frame.
-     * 
-     * @param frame the frame to be centred
-     */
-    public void centreWindow (java.awt.Window child)
-    {
-        centreWindow (child, PkgMgrFrame.getMostRecent());
-    }
-    
     /**
      * CONVENIENCE method, tries to center a window within a parent window
      * @param child the window to be centered
@@ -277,79 +237,8 @@ public class BPackage
         child.setLocation(x,y);
     }
 
-    /**
-     * CONVENIENCE method, as for showLabelDialog, but you can specify the modal parent frame.
-     * 
-     * @param title the title of the dialog box
-     * @param body the contents of the dialog
-     * @param parent the Frame that is to be the modal parent
-     * @return the dialog
-     */
-    public JDialog showGeneralDialog (String title, Component body, Frame parent)
-    {
-        final JDialog dialog = new JDialog (parent, title, true);
-        addDialogBody (dialog, body);
-        return dialog;
-    }
     
-    /**
-     * CONVENIENCE method, ss for showLabelDialog, but you can specify the modal parent dialog.
-     * 
-     * @param title the title of the dialog box
-     * @param body the contents of the dialog
-     * @param parent the Dialog that is to be the modal parent
-     * @return the dialog
-     */
-    public JDialog showGeneralDialog (String title, Component body, Dialog parent)
-    {
-        final JDialog dialog = new JDialog (parent, title, true);
-        addDialogBody (dialog, body);
-        return dialog;
-    }
     
-    /**
-     * CONVENIENCE method, creates a skeleton dialog box plus a close button in the local language.
-     * 
-     * @param title the title of the dialog box
-     * @param body the contents of the dialog box
-     * @return the dialog so you can dispose of it if you need to.
-     */
-    public JDialog showGeneralDialog (String title, Component body)
-    {
-        return showGeneralDialog (title, body, PkgMgrFrame.getMostRecent());
-    }
-
-    private void addDialogBody (final JDialog dialog, Component body)
-    {
-        JPanel panel = new JPanel();
-        panel.setLayout (new BoxLayout (panel, BoxLayout.Y_AXIS));
-        panel.add (body);
-
-        dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent e)
-            {
-                dialog.dispose();
-            }
-        });
-
-        panel.add (Box.createVerticalStrut (5));
-        
-        JButton close = new JButton (Config.getString("close"));
-        close.setAlignmentX (0.5f);
-        close.addActionListener (new ActionListener() {
-            public void actionPerformed (ActionEvent e) {
-                dialog.dispose();
-            }
-        });
-        panel.add (close);
-        panel.setBorder(getDialogBorder());
-        dialog.setContentPane(panel);
-
-        dialog.pack();
-        centreWindow (dialog);
-        dialog.setVisible(true);
-    }
-
 
     
     

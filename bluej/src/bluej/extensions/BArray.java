@@ -4,25 +4,24 @@ import com.sun.jdi.*;
 
 /**
  * This is the equivalent of Reflection java.lang.reflect.Array.
- * It allows you to get items of an array Object.
- * The implementation may be partial at the moment.
- * As from the Reflection API all of he ones here are static Methods.
- * We could include them into the BField Class but we are tryng to be similar to Reflection API<p>
- * Damiano
+ * It allows you to get items of an array Object, the implementation is partial at the moment, this
+ * means that there are no methods to get primitive types directly.
+ * 
+ * @version $Id: BArray.java 1712 2003-03-20 10:39:46Z damiano $
  */
 public class BArray 
 {
   /**
-   * <pre>I am returning an object since this can return primitive types for most cases
-   * This is in case you have arrays of int, long, boolean and so on.
+   * Given an array object contained inside a BObject, returns the item at the given index.
+   * This returns an Object since this can return primitive types wrappers for most cases.
+   * Ex: in case you have arrays of int, long, boolean and so on.
    * In case the array is composed of real OBJECTS then what will be returned is 
    * a BObject itself, this is also in the case that it is a nested array....
-   * </pre>
    * 
-   * @param thisObj This MUST be an array object of which you want the given item
+   * @param thisArray This MUST be an array object of which you want the given item
    * @param itemIndex The index in the array where you want to peek.
    * 
-   * @return an Object that encapsulate the specific item.
+   * @return an Object that encapsulate the specific item or null if not an array.
    */
   public static Object get ( BObject thisArray, int itemIndex )
     {

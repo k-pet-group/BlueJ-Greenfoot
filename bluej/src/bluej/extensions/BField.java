@@ -14,11 +14,10 @@ import bluej.utility.Debug;
 /**
  * This is similar to the Reflection Field.
  * The main reason to have a field coming from a Class and not from an Object is that
- * logically we should be able to get static Field without having objects around.
+ * logically we should be able to get static Field without having objects.
  * Reflection states that to get a static field we can use a Field and pass null as the object to work on.
  * NOTE: the get method returns an Object, in most cases it is a String, Integer, Long and so on BUT
  * when a real Object is actually returned it is encapsulated into a BObject. You MUST look for this.
- * Damiano
  */
 public class BField
 {
@@ -37,7 +36,7 @@ public class BField
     /**
      * Used to see if this field matches with the given criteria
      */
-    public boolean matches ( String fieldName )
+    boolean matches ( String fieldName )
         {
         // Who is so crazy to give me a null name ?
         if ( fieldName == null ) return false;
