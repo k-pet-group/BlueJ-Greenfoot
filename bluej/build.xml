@@ -3,12 +3,12 @@
 
     <!-- set global properties for this build -->
     <!-- the first two are the only values you should need to change -->
-    <property name="bluej_home" value="c:\projects\bluej"/>
-    <property name="java_home" value="c:\jdk1.4"/> 
+    <property name="bluej_home" value="/home/ajp/bluej"/>
+    <property name="java_home" value="/usr/jdk1.4"/> 
     <!-- property name="java_home" value="c:\jdk1.3.1_01" /--> 
 
-    <property name="build.compiler" value="modern"/>
-    <!-- property name="build.compiler" value="jikes" /-->
+    <!--property name="build.compiler" value="modern"/-->
+    <property name="build.compiler" value="jikes" />
     <property name="build.compiler.fulldepend" value="yes"/>
     <property name="build.compiler.emacs" value="yes"/>
     <property name="build.compiler.debug" value="yes"/>

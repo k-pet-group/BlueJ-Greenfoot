@@ -24,11 +24,11 @@ import junit.framework.*;
  * built from Java source code.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1125 2002-02-07 02:02:29Z ajp $
+ * @version $Id: UnitTestClassRole.java 1129 2002-02-12 02:51:44Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
-    static final String runAppletStr = Config.getString("pkgmgr.classmenu.runApplet");
+    static final String runAppletStr = "Run Unit Test"; // Config.getString("pkgmgr.classmenu.runApplet");
 
     /**
      * Create the class role.
