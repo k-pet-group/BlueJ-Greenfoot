@@ -2042,10 +2042,19 @@ WS  :   (   ' '
         { $setType(Token.SKIP); }
     ;
 
+// original SL_COMMENT from standard antlr java.g, causes error on comment on last
+// line of file    
+// Single-line comments
+//SL_COMMENT
+//    :       "//"
+//            (~('\n'|'\r'))* ('\n'|'\r'('\n')?)
+//            { $setType(Token.SKIP); newline(); }
+//    ;    
+
 // Single-line comments
 SL_COMMENT
     :       "//"
-            (~('\n'|'\r'))* ('\n'|'\r'('\n')?)
+            (~('\n'|'\r'))* 
             { $setType(Token.SKIP); newline(); }
     ;
 
