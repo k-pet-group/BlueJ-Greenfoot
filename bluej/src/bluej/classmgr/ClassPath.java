@@ -9,7 +9,7 @@ import java.net.*;
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: ClassPath.java 2114 2003-07-16 02:37:04Z bquig $
  */
 public class ClassPath
 {
@@ -255,7 +255,9 @@ public class ClassPath
             ClassPathEntry nextEntry = (ClassPathEntry)it.next();
 
             buf.append(nextEntry.getPath());
-            buf.append(File.pathSeparatorChar);
+            // we want to append a pathSeparartorChar to all but the last entry
+            if(it.hasNext())
+                buf.append(File.pathSeparatorChar);
         }
 
         return buf.toString();
