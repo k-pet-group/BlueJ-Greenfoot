@@ -16,7 +16,7 @@ import bluej.utility.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 2629 2004-06-19 14:24:17Z polle $
+ * @version $Id: CallDialog.java 3026 2004-09-30 04:27:52Z bquig $
  */
 public abstract class CallDialog extends JDialog
 	implements ObjectBenchListener
@@ -28,6 +28,8 @@ public abstract class CallDialog extends JDialog
 
     private ObjectBench bench;
     private CallDialogWatcher watcher;
+    
+    protected JButton okButton;
 
     public CallDialog(PkgMgrFrame pmf, String title)
     {
@@ -158,7 +160,8 @@ public abstract class CallDialog extends JDialog
         {
             buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
-            JButton okButton = BlueJTheme.getOkButton();
+            //JButton okButton = BlueJTheme.getOkButton();
+            okButton = BlueJTheme.getOkButton();
             okButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent evt) { doOk(); }
                     });
