@@ -1,13 +1,13 @@
 #BlueJ project file
-#Thu Apr 29 20:49:51 EDT 1999
-target1.modifiers=1
+#Thu May 20 17:20:54 GMT+10:00 1999
+target1.height=50
 package.window.height=407
+target1.y=20
+target1.x=20
 package.numTargets=1
 target1.type=ClassTarget
-target1.width=90
-target1.y=20
-package.numDependencies=0
-target1.x=20
-target1.height=50
-target1.name=hello
 package.window.width=565
+target1.name=hello
+target1.width=90
+package.numDependencies=0
+target1.modifiers=1
