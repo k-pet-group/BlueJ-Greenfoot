@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: ClassTarget.java 515 2000-05-25 07:58:20Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -455,10 +455,9 @@ public class ClassTarget extends EditableTarget
         try {
             info = ClassParser.parse(sourceFileName);
         }
-        catch(Exception e)
-            {
-                return;
-            }
+        catch(Exception e) {
+            return;
+        }
 
         if (info == null) {
             return;
@@ -497,16 +496,15 @@ public class ClassTarget extends EditableTarget
 
         FileEditor fed = new FileEditor(new File(sourceFileName));
 
-        if (fourCases == 1 || fourCases == 4)
-            {
-                Selection selSemi = info.getPackageSemiSelection();
+        if (fourCases == 1 || fourCases == 4) {
+            Selection selSemi = info.getPackageSemiSelection();
 
-                if (fourCases == 1) {
-                    fed.replaceSelection(selSemi, "");
-                }
-                else
-                    fed.replaceSelection(selSemi, ";");
+            if (fourCases == 1) {
+                fed.replaceSelection(selSemi, "");
             }
+            else
+                fed.replaceSelection(selSemi, ";");
+        }
 
         Selection selName = info.getPackageNameSelection();
 
@@ -515,15 +513,15 @@ public class ClassTarget extends EditableTarget
         else
             fed.replaceSelection(selName, packageName);
 
-        if (fourCases == 1 || fourCases == 4)
-            {
-                Selection selStatement = info.getPackageStatementSelection();
+        if (fourCases == 1 || fourCases == 4) {
 
-                if (fourCases == 1)
-                    fed.replaceSelection(selStatement, "");
-                else
-                    fed.replaceSelection(selStatement, "package ");
-            }
+            Selection selStatement = info.getPackageStatementSelection();
+
+            if (fourCases == 1)
+                fed.replaceSelection(selStatement, "");
+            else
+                fed.replaceSelection(selStatement, "package ");
+        }
 
         fed.save();
     }
@@ -549,7 +547,8 @@ public class ClassTarget extends EditableTarget
             return;
         }
 
-//        checkName(info);
+        if(checkName(info))
+            return;
 
         if(info.isApplet()) {
             if( ! (role instanceof AppletClassRole))
@@ -614,29 +613,43 @@ public class ClassTarget extends EditableTarget
     /**
      * Check to see that name has not changed.
      * If name has changed then update details.
-     *
+     * Return true if the name has changed.
      */
-    private void checkName(ClassInfo info)
+    private boolean checkName(ClassInfo info)
     {
         String newName = info.getName();
+        Package myPkg = getPackage();
 
         if(!getBaseName().equals(newName)) {
             //need to check that class does not already exist
             if(getPackage().getTarget(newName) != null) {
                 getPackage().showError("duplicate-name");
-                return;
+                return false;
             }
 
-            File newSourceFile = new File(getPackage().getPath(), newName + ".java");
+            File newSourceFile = new File(myPkg.getPath(), newName + ".java");
             File oldSourceFile = getSourceFile();
 
             if(BlueJFileReader.copyFile(oldSourceFile, newSourceFile)) {
+
+                ClassTarget newTarget = new ClassTarget(myPkg, newName);
+                newTarget.setPos(this.x, this.y);
+
 /*  XXX              getPackage().updateTargetIdentifier(this, info.getName());
                 getEditor().changeName(info.getName(), newSourceFileName);
                 role.prepareFilesForRemoval(oldSourceFileName, getClassFile().getPath(), getContextFile().getPath());
                 name = info.getName(); */
+
+                myPkg.removeClass(this);
+                myPkg.addTarget(newTarget);
+
+                newTarget.analyseDependencies();
+
+                return true;
             }
         }
+
+        return false;
     }
 
 
@@ -796,9 +809,7 @@ public class ClassTarget extends EditableTarget
                 Debug.reportError("Can't instantiate modified class");
                 return;
             }
-
             getPackage().getEditor().raiseMethodCallEvent(t, cv);
-
         }
     }
 
@@ -842,12 +853,7 @@ public class ClassTarget extends EditableTarget
             getPackage().compile(this);
         }
         else if(removeStr.equals(cmd)) {
-            // getPackage().raiseRemoveEvent()
-//XXX            try {
-//                ((PkgMgrFrame)getPackage().getFrame()).removeClass(this);
-//            } catch (ClassCastException cce) {
-//                System.err.println("Invalid cast to JFrame in ClassTarget");
-//            }
+            getPackage().getEditor().raiseRemoveTargetEvent(this);
         }
         else
             // if not handled send to class role for consumption
@@ -982,12 +988,12 @@ public class ClassTarget extends EditableTarget
      *
      * Removes applicable files (.class, .java and .ctxt) prior to
      * this ClassTarget being removed from a Package.
-     *
      */
     public void prepareFilesForRemoval()
     {
         // delegated to role object
-        role.prepareFilesForRemoval(getSourceFile().getPath(), getClassFile().getPath(),
+        role.prepareFilesForRemoval(getSourceFile().getPath(),
+                                    getClassFile().getPath(),
                                     getContextFile().getPath());
     }
 
