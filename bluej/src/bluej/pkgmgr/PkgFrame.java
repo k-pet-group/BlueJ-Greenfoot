@@ -1,6 +1,5 @@
 package bluej.pkgmgr;
 
-import bluej.BlueJFrame;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.debugger.ObjectBench;
@@ -21,7 +20,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 54 1999-04-30 00:08:08Z mik $
+ ** @version $Id: PkgFrame.java 55 1999-04-30 00:51:26Z mik $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -281,7 +280,7 @@ public abstract class PkgFrame extends JFrame
 	pkg = new Package(noTitle,this);
 	editor = new GraphEditor(pkg,this);
 	enableFunctions(false);
-	show();
+	repaint();
     }    
 
     /**

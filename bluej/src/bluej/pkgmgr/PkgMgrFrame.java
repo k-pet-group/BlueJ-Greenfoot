@@ -11,6 +11,7 @@ import java.awt.PrintJob;
 import java.awt.AWTEvent;
 
 import java.util.Vector;
+import java.util.Enumeration;
 import java.io.File;
 
 import bluej.Config;
@@ -67,6 +68,7 @@ public class PkgMgrFrame extends PkgFrame {
 
     ObjectBench objbench;
 
+    // ============================================================
     // static methods to create and remove frames
 
     private static Vector frames = new Vector();  // of PkgMgrFrames
@@ -99,6 +101,14 @@ public class PkgMgrFrame extends PkgFrame {
     }
 
     /**
+     * frameCount - return the number of currently open top level frames
+     */
+    private static int frameCount()
+    {
+	return frames.size();
+    }
+
+    /**
      * About to exit - close all open frames.
      */
     public static void handleExit() {
@@ -106,14 +116,6 @@ public class PkgMgrFrame extends PkgFrame {
 	    PkgMgrFrame frame = (PkgMgrFrame)frames.elementAt(i);
 	    frame.doClose();
 	}
-    }
-
-    /**
-     * frameCount - return the number of currently open top level frames
-     */
-    private static int frameCount()
-    {
-	return frames.size();
     }
 
     /**
@@ -128,6 +130,9 @@ public class PkgMgrFrame extends PkgFrame {
 	    frame.setStatus(message);
 	}
     }
+
+    // ================ (end of static part) ==========================
+
 
     /**
      * Create a new PkgMgrFrame which may or may not show a
@@ -212,7 +217,7 @@ public class PkgMgrFrame extends PkgFrame {
 	    break;
 
 	case PKG_CLOSE:
-	    closeFrame();
+	    closeFrame(this);
 	    break;
 
 	case PKG_SAVE:
@@ -242,7 +247,7 @@ public class PkgMgrFrame extends PkgFrame {
 
 	case PKG_QUIT:
 	    int answer = 0;
-	    if(bluej.Main.frameCount() > 1)
+	    if(frameCount() > 1)
 		answer = Utility.askQuestion(this, "Quit all open packages?", 
 					     "Quit All", "Cancel", null);
 	    if(answer == 0)
@@ -884,7 +889,7 @@ public class PkgMgrFrame extends PkgFrame {
 	addWindowListener(new WindowAdapter() {
 	    public void windowClosing(WindowEvent E)
 		{
-		    if(bluej.Main.frameCount() == 1)
+		    if(frameCount() == 1)
 			bluej.Main.exit();
 		}
 	});
@@ -1018,14 +1023,18 @@ public class PkgMgrFrame extends PkgFrame {
 	    if(menu.getText().equals(Config.getString("menu.package")) ||
 	       menu.getText().equals(Config.getString("menu.tools"))) {
 		for (int j = 0; j < menu.getItemCount(); j++) {
-		    if(!menu.getItem(j).getText().equals(Config.getString("menu.package.new"))
-		       && !menu.getItem(j).getText().equals(Config.getString("menu.package.open"))
-		       && !menu.getItem(j).getText().equals(Config.getString("menu.package.importPackage"))
-		       && !menu.getItem(j).getText().equals(Config.getString("menu.package.quit"))
-		       && !menu.getItem(j).getText().equals(Config.getString("menu.package"))
-		       && !menu.getItem(j).getText().equals(Config.getString("menu.tools"))
-		       && !menu.getItem(j).getText().equals(Config.getString("menu.tools.browse")))
-			menu.getItem(j).setEnabled(enable);
+		    JMenuItem item = menu.getItem(j);
+		    if(item != null) {  // separators are returned as null
+			String label = item.getText();
+			if(!label.equals(Config.getString("menu.package.new"))
+			   && !label.equals(Config.getString("menu.package.open"))
+			   && !label.equals(Config.getString("menu.package.importPackage"))
+			   && !label.equals(Config.getString("menu.package.quit"))
+			   && !label.equals(Config.getString("menu.package"))
+			   && !label.equals(Config.getString("menu.tools"))
+			   && !label.equals(Config.getString("menu.tools.browse")))
+			    item.setEnabled(enable);
+		    }
 		}
 	    }
 	    else if(!menu.getText().equals(Config.getString("menu.help")))

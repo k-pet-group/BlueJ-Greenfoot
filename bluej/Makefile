@@ -57,7 +57,7 @@ PACKAGES = \
 FINDALL = find . -follow \( -name CVS -a -prune \) -o \( -type f -a -print \)
 FINDCVS = find . -name CVS
 
-all dep depend clean clobber::
+all dep depend clean clobber jikes::
 	for f in $(SUBDIRS) ; do \
 		$(MAKE) -C $$f $@ ; \
 	done
