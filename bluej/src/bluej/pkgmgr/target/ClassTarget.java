@@ -30,7 +30,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: ClassTarget.java 1992 2003-05-30 04:19:51Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -1179,6 +1179,18 @@ public class ClassTarget extends EditableTarget
         if(editor != null)
             editor.close();
 
+		// if this target is the assocation for another Target, remove
+		// the association
+		Iterator it = getPackage().getVertices();
+		while(it.hasNext()) {
+			Object o = it.next();
+			if (o instanceof DependentTarget) {
+				DependentTarget d = (DependentTarget) o;
+				if (this.equals(d.getAssociation()))
+					d.setAssociation(null);
+			}
+		}
+		
 		// flag dependent Targets as invalid
 		invalidate();
 
