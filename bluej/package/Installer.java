@@ -17,7 +17,7 @@ import java.util.zip.*;
   *
   *   java Installer
   *
-  * @version $Id: Installer.java 2438 2003-12-11 14:06:34Z mik $
+  * @version $Id: Installer.java 2495 2004-04-14 11:03:12Z polle $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -678,15 +678,26 @@ public class Installer extends JFrame
         FileWriter out = new FileWriter(outputFile.toString());
         out.write("#!/bin/sh\n");
         out.write("APPBASE=\"" + installationDir + "\"\n");
+        String commands;
         String javaName;
         if(isMacOS) {
+            commands = getProperty("commands.mac").toString();
             javaName = "java";
         }
         else {
+            commands = getProperty("commands.unix").toString();
             javaName = javaPath + "/bin/java";
         }
 
-        out.write(javaName + " " + getProperty("javaOpts.unix") + "\n");
+        if(commands != null) {
+            commands = replace(commands, '~', "$APPBASE");
+            commands = replace(commands, '!', javaPath);
+            commands = replace(commands, '@', architecture);
+            out.write(commands);
+            out.write("\n");
+        }
+        out.write(javaName + " " + getProperty("javaOpts.unix") + " " +
+                  getProperty("mainClass") + " $*\n");
         out.close();
 
         try {
@@ -708,10 +719,19 @@ public class Installer extends JFrame
 
         FileWriter out = new FileWriter(outputFile.toString());
         out.write("@echo off\r\n");
-        out.write("set APPBASE=\"" + installationDir + "\"\r\n");
-
+        out.write("set APPBASE=" + installationDir + "\r\n");
+        String commands = getProperty("commands.win").toString();
+        if(commands != null) {
+            commands = replace(commands, '~', "%APPBASE%");
+            commands = replace(commands, '!', javaPath);
+            commands = replace(commands, '@', architecture);
+            out.write(commands);
+            out.write("\r\n");
+        }
         out.write("\"" + javaPath + "\\bin\\java\" " +
-                  getProperty("javaOpts.win") + " \r\n");
+                  getProperty("javaOpts.win") + " " +
+                  getProperty("mainClass") +
+                  " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
         out.close();
     }
 
