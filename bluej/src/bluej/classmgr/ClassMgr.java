@@ -2,13 +2,15 @@ package bluej.classmgr;
 
 import bluej.utility.Debug;
 import bluej.Config;
+import bluej.prefmgr.PrefMgrDialog;
 
 import java.io.*;
 import java.util.*;
 import java.net.*;
 
+
 /**
- ** @version $Id: ClassMgr.java 194 1999-07-20 05:57:01Z ajp $
+ ** @version $Id: ClassMgr.java 261 1999-09-28 10:45:04Z ajp $
  ** @author Andrew Patterson
  **
  ** Class to maintain a global class loading environment.
@@ -34,7 +36,19 @@ public class ClassMgr
 	static final String userlibs_file = Config.getPropString("classmgr.userconfig","userlibs.properties");
 	static final String syslibs_file = Config.getPropString("classmgr.systemconfig","syslibs.properties");
 
+    static final String prefpaneltitle = Config.getPropString("classmgr.prefpaneltitle");
+
 	private static ClassMgr currentClassMgr = new ClassMgr();
+
+    /**
+     * Registers the class manager preference panel with the preferences
+     * dialog
+     */
+    public static void initialise() {
+        ClassMgrPrefPanel p = new ClassMgrPrefPanel();
+        
+        PrefMgrDialog.add(p, prefpaneltitle, p);
+    }
 
 	/**
 	 * Returns the classmgr object associated with the current BlueJ.
@@ -116,7 +130,7 @@ public class ClassMgr
 	}
 
 	/**
-	 * Protected to allow access by the class manager dialog.
+	 * Protected to allow access by the class manager panel.
 	 * These start off as empty classpath's. If the corresponding
 	 * file does not exist and therefore throws an exception
 	 * when we go to open it we will still end up with a valid
@@ -171,6 +185,9 @@ public class ClassMgr
 		}
 
 		bootLibraries = new ClassPath(syscp, Config.getString("classmgr.bootclass"));
+
+        /* we should add here the boot libraries which are in the JDK extension
+           directory */
 
 		/* The libraries which are in the java classpath environment variable should
 		   only be the bluej libraries needed to run the program */
@@ -244,69 +261,8 @@ public class ClassMgr
 
 class ClassPathLoader extends URLClassLoader
 {
-//	ClassPath classpath;
-
 	ClassPathLoader(ClassPath classpath, ClassLoader parent)
 	{
 		super(classpath.getURLs(), parent);
-
-//		this.classpath = classpath;
 	}
-
-	/**
-	 * Read in a class file from disk. Return a class object.
-	 */
-/*	protected Class findClass(String name) throws ClassNotFoundException
-	{
-		// Debug.message("classpathloader: finding " + name);
-
-		byte[] bytes = loadClassData(name);
-		if(bytes != null) {
-			// Debug.message("classpathloader: succeeded " + name);
-			return defineClass(name, bytes, 0, bytes.length);
-		}
-		else {
-			// Debug.message("classpathloader: failed " + name);
-			throw new ClassNotFoundException("ClassPathLoader");
-		}
-	}
-*/
-	/**
-	 * Read in a class file from disk. Return the class code as a byte
-	 * array. The JDK class loader delegation model means that we are
-	 * only ever asked to look up a class if the parent system loader
-	 * has failed. Therefore we are going to look just in our classpath
-	 * as our parent class loader has taken care of the user and
-	 * system libraries.
-	 */
-/*	protected byte[] loadClassData(String name)
-	{
-		ByteArrayOutputStream classdata = new ByteArrayOutputStream();
-
-		try {
-			String filename = name.replace('.', Config.slash) + ".class";
-
-			InputStream in = classpath.getFile(filename);
-
-			if(in != null) {
-				BufferedInputStream bufin = new BufferedInputStream(in);
-				int b;
-
-				while ((b = bufin.read()) != -1) {
-					classdata.write(b);
-				}
-				// Debug.message("classpathloader: " + classdata.size() + " bytes");
-			}
-
-		} catch(Exception e) {
-			Debug.reportError("cannot load class " + name + ": " + e);
-			e.printStackTrace();
-			return null;
-		}
-
-		if (classdata.size() == 0)
-			return null;
-		else
-			return classdata.toByteArray();
-	}  */
 }
