@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2269 2003-11-05 11:31:55Z damiano $
+ * @version $Id: ClassTarget.java 2291 2003-11-06 09:39:02Z fisker $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -1273,10 +1273,14 @@ public class ClassTarget extends EditableTarget
 	}
     
     public void remove(){
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-        if ( pmf.askRemoveClass() ){
-            prepareForRemoval();
-            getPackage().removeClass(this);   
-        }
+//        PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+//        if ( pmf.askRemoveClass() ){
+//            prepareForRemoval();
+//            getPackage().removeClass(this);   
+//        }
+        prepareForRemoval();
+        getPackage().removeClass(this);   
     }
+    
+    
 }

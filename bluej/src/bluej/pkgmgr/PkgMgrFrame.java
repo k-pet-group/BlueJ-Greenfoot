@@ -6,7 +6,6 @@ import bluej.debugmgr.*;
 import bluej.debugmgr.inspector.*;
 import bluej.debugmgr.objectbench.*;
 import bluej.extmgr.*;
-import bluej.graph.*;
 import bluej.parser.*;
 import bluej.parser.symtab.*;
 import bluej.pkgmgr.target.*;
@@ -30,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2282 2003-11-05 19:46:22Z polle $
+ * @version $Id: PkgMgrFrame.java 2291 2003-11-06 09:39:02Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -698,7 +697,7 @@ public class PkgMgrFrame extends JFrame
 
          case PackageEditorEvent.TARGET_REMOVE:
             // user has initiated target "remove" option
-            doRemove((Target) e.getSource());
+            ((Target) e.getSource()).remove();
             break;
 
          case PackageEditorEvent.TARGET_OPEN:
@@ -1505,20 +1504,24 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
-
+    /**
+     * Remove the selected targets. Ask before deletion. If nothing is selected
+     * display an errormessage.
+     */
     public void doRemove(){
-        GraphElement graphElement = pkg.getSelectedGraphElement();
-        if (graphElement == null){
+        Target[] targets = pkg.getSelectedTargets();
+        if (targets.length > 0){
+            if( askRemoveClass() ){
+                for(int i=0; i<targets.length; i++){
+                    targets[i].remove();
+                }
+            }
+        }
+        else {
             DialogManager.showError(this, "no-class-selected");
         }
-        else{
-            graphElement.remove();
-        }
     }
 
-    public void doRemove(GraphElement graphElement){
-        graphElement.remove();
-    }
 
     /**
      * The user function to add a uses arrow to the diagram was invoked.
@@ -1692,19 +1695,21 @@ public class PkgMgrFrame extends JFrame
 
 
     /**
-     * Compile the currently selected class target.
+     * Compile the currently selected class targets.
      */
     public void compileSelected()
     {
-        Target target = pkg.getSelectedTarget();
-
-        if(target == null)
-            DialogManager.showError(this, "no-class-selected-compile");
-        else {
-            if(target instanceof ClassTarget) {
-                ClassTarget t = (ClassTarget) target;
-                pkg.compile(t);
+        Target[] targets = pkg.getSelectedTargets();
+        if (targets.length > 0){   
+            for(int i=0; i<targets.length; i++){
+                if(targets[i] instanceof ClassTarget) {
+                    ClassTarget t = (ClassTarget) targets[i];
+                    pkg.compile(t);
+                }
             }
+        }
+        else {
+            DialogManager.showError(this, "no-class-selected-compile");
         }
     }
 

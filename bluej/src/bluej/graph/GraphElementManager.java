@@ -9,7 +9,7 @@ import java.util.*;
  * @author fisker
  *
  */
-public class GraphElementManager 
+class GraphElementManager 
 {
     private GraphEditor graphEditor;
     private List graphElements = new LinkedList();
@@ -143,6 +143,4 @@ public class GraphElementManager
     public int getSize(){
         return graphElements.size();
     }
-    
-    
 }

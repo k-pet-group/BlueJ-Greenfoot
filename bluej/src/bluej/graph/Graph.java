@@ -9,7 +9,7 @@ import java.awt.geom.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Graph.java 2085 2003-06-30 12:03:30Z fisker $
+ * @version $Id: Graph.java 2291 2003-11-06 09:39:02Z fisker $
  */
 public abstract class Graph
 {
@@ -94,4 +94,5 @@ public abstract class Graph
 
         t.setPos(10,min.height+10);
     }
+    
 }

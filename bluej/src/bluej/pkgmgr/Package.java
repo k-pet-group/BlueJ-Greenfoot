@@ -28,7 +28,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2270 2003-11-05 12:39:12Z fisker $
+ * @version $Id: Package.java 2291 2003-11-06 09:39:02Z fisker $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -394,6 +394,7 @@ public final class Package extends Graph
      * @return the currently selected Target.
      */
     public Target getSelectedTarget()
+    //TODO This method is obsolete, remove when it is nolonger used.
     {
         if (selected != null && selected instanceof Target)
         {
@@ -402,12 +403,17 @@ public final class Package extends Graph
         return null; 
     }
     
-    /**
-     * Getter method for the seleceted graphElement.
-     * @return the selected graphelement
-     */
-    public GraphElement getSelectedGraphElement(){
-        return selected;
+    
+    public Target[] getSelectedTargets(){
+        Target[] targetArray = new Target[0];
+        LinkedList list = new LinkedList();
+        for(Iterator it = getVertices(); it.hasNext(); ) {
+            Vertex vertex = (Vertex)it.next();
+            if (vertex instanceof Target && ((Target)vertex).isSelected()) {
+                list.add(vertex);
+            }
+        }
+        return (Target[]) list.toArray(targetArray);
     }
 
     /**
@@ -1197,7 +1203,6 @@ public final class Package extends Graph
         removeTarget(removableTarget);
         getEditor().repaint();
     }
-
 
     /**
      *  Add a dependancy in this package. The dependency is also added to the
@@ -2160,7 +2165,5 @@ public final class Package extends Graph
 
     public void mouseDragged(MouseEvent evt) {}
 
-    public void mouseMoved(MouseEvent evt) {}
-    
-	
+    public void mouseMoved(MouseEvent evt) {}	
 }
