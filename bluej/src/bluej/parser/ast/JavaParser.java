@@ -44,8 +44,8 @@ Creates a new AST root node.
 
 /**
 Takes and AST root and a bunch of files and parses them into a single AST
-@param File the file you wish to parse
-@param String an array of files
+@param root File the file you wish to parse
+@param files String an array of files
 @exception FileNotFoundException thrown if root of an invalid type
 */
   public void parseFiles(File root,
@@ -58,7 +58,7 @@ Takes and AST root and a bunch of files and parses them into a single AST
 
 /**
 Takes a File or directory and either traverses the directory or calls parseFile on the file.
-@param File to be sent to parseFile or the directory to be traversed.
+@param file File to be sent to parseFile or the directory to be traversed.
 @exception FileNotFoundException thrown on invalid type.
 */
   public void doFile(File file) throws FileNotFoundException
@@ -75,8 +75,8 @@ Takes a File or directory and either traverses the directory or calls parseFile 
 
 /**
 Constructor, creates a new JavaLexer object based input stream.
-@param Inputstream the input to be broken up
-@param String the absoulute path of the file
+@param stream Inputstream the input to be broken up
+@param path String the absoulute path of the file
 @return JavaLexer object called result
 */
   private JavaLexer makeLexer(InputStream stream, String path) {
@@ -89,8 +89,8 @@ Constructor, creates a new JavaLexer object based input stream.
 
 /**
 Constructor, creates a new java Recognizer object based on a Lexer object
-@param JavaLexer object to be worked on
-@param String the absolute path of the file
+@param filter JavaLexer object to be worked on
+@param path String the absolute path of the file
 @return JavaRecognizer object called result
 */
 private JavaRecognizer makeRecognizer(TokenStreamHiddenTokenFilter filter,
@@ -104,7 +104,7 @@ private JavaRecognizer makeRecognizer(TokenStreamHiddenTokenFilter filter,
 
 /**
 Boolean opperation that checks to see if a file is of type .java
-@param File the file you wish to check
+@param file File the file you wish to check
 @return boolean
 */
   public static boolean isJavaFile(File file) {
@@ -114,9 +114,9 @@ Boolean opperation that checks to see if a file is of type .java
 
 /**
 Processes a Tree to be modified
-@param String the name of the file
-@param AST the tree to be worked on
-@param String an array of strings
+@param file String the name of the file
+@param tree AST the tree to be worked on
+@param tokenNames String an array of strings
 */
   private void doTreeAction(File file, AST tree, String[] tokenNames) {
     if (tree != null) {
@@ -127,9 +127,9 @@ Processes a Tree to be modified
 
 /**
 Adds a file to an AST tree
-@param String the file you wish to add
-@param AST the tree you are adding the file to
-@param String the token names
+@param file String the file you wish to add
+@param tree AST the tree you are adding the file to
+@param tokenNames String the token names
 */
   private void addToTree(File file, AST tree, String[] tokenNames) {
 //    ((CommonAST)tree).setVerboseStringConversion(true, tokenNames);

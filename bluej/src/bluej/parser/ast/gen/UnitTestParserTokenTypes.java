@@ -2,7 +2,13 @@
 
     package bluej.parser.ast.gen;
     
-    
+    import bluej.parser.SourceSpan;
+    import bluej.parser.SourceLocation;
+	import bluej.parser.ast.LocatableAST;
+	    
+    import java.util.*;
+    import antlr.BaseAST;
+
 public interface UnitTestParserTokenTypes {
 	int EOF = 1;
 	int NULL_TREE_LOOKAHEAD = 3;
@@ -153,7 +159,8 @@ public interface UnitTestParserTokenTypes {
 	int ML_COMMENT = 148;
 	int ESC = 149;
 	int HEX_DIGIT = 150;
-	int EXPONENT = 151;
-	int FLOAT_SUFFIX = 152;
-	int LITERAL_const = 153;
+	int IDENT_LETTER = 151;
+	int EXPONENT = 152;
+	int FLOAT_SUFFIX = 153;
+	int LITERAL_const = 154;
 }

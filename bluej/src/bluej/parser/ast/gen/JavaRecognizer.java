@@ -2,9 +2,24 @@
 
     package bluej.parser.ast.gen;
 
-import antlr.*;
+import antlr.TokenBuffer;
+import antlr.TokenStreamException;
+import antlr.TokenStreamIOException;
+import antlr.ANTLRException;
+import antlr.LLkParser;
+import antlr.Token;
+import antlr.TokenStream;
+import antlr.RecognitionException;
+import antlr.NoViableAltException;
+import antlr.MismatchedTokenException;
+import antlr.SemanticException;
+import antlr.ParserSharedInputState;
+import antlr.collections.impl.BitSet;
 import antlr.collections.AST;
-import antlr.collections.impl.*;
+import java.util.Hashtable;
+import antlr.ASTFactory;
+import antlr.ASTPair;
+import antlr.collections.impl.ASTArray;
 
 /** Java 1.3 Recognizer
  *
@@ -111,6 +126,12 @@ import antlr.collections.impl.*;
  *      Checked parser/tree parser on source for
  *          Resin-2.0.5, jive-2.1.1, jdk 1.3.1, Lucene, antlr 2.7.2a4,
  *	    and the 110k-line jGuru server source.
+ *
+ * Version 1.21 (October 17, 2003)
+ *	Fixed lots of problems including:
+ *	Ray Waldin: add typeDefinition to interfaceBlock in java.tree.g
+ *  He found a problem/fix with floating point that start with 0
+ *  Ray also fixed problem that (int.class) was not recognized.
  *
  * This grammar is in the PUBLIC DOMAIN
  */
@@ -3769,32 +3790,26 @@ public JavaRecognizer(ParserSharedInputState state) {
 			unaryExpressionNotPlusMinus_AST = (AST)currentAST.root;
 			break;
 		}
-		case LITERAL_void:
-		case LITERAL_boolean:
-		case LITERAL_byte:
-		case LITERAL_char:
-		case LITERAL_short:
-		case LITERAL_int:
-		case LITERAL_float:
-		case LITERAL_long:
-		case LITERAL_double:
-		case IDENT:
-		case LPAREN:
-		case LITERAL_this:
-		case LITERAL_super:
-		case LITERAL_true:
-		case LITERAL_false:
-		case LITERAL_null:
-		case LITERAL_new:
-		case NUM_INT:
-		case CHAR_LITERAL:
-		case STRING_LITERAL:
-		case NUM_FLOAT:
-		case NUM_LONG:
-		case NUM_DOUBLE:
-		{
-			{
-			if ((LA(1)==LPAREN) && ((LA(2) >= LITERAL_void && LA(2) <= LITERAL_double))) {
+		default:
+			boolean synPredMatched167 = false;
+			if (((LA(1)==LPAREN) && ((LA(2) >= LITERAL_void && LA(2) <= LITERAL_double)))) {
+				int _m167 = mark();
+				synPredMatched167 = true;
+				inputState.guessing++;
+				try {
+					{
+					match(LPAREN);
+					builtInTypeSpec(true);
+					match(RPAREN);
+					}
+				}
+				catch (RecognitionException pe) {
+					synPredMatched167 = false;
+				}
+				rewind(_m167);
+				inputState.guessing--;
+			}
+			if ( synPredMatched167 ) {
 				lpb = LT(1);
 				lpb_AST = astFactory.create(lpb);
 				astFactory.makeASTRoot(currentAST, lpb_AST);
@@ -3807,12 +3822,13 @@ public JavaRecognizer(ParserSharedInputState state) {
 				match(RPAREN);
 				unaryExpression();
 				astFactory.addASTChild(currentAST, returnAST);
+				unaryExpressionNotPlusMinus_AST = (AST)currentAST.root;
 			}
 			else {
-				boolean synPredMatched168 = false;
+				boolean synPredMatched169 = false;
 				if (((LA(1)==LPAREN) && (LA(2)==IDENT))) {
-					int _m168 = mark();
-					synPredMatched168 = true;
+					int _m169 = mark();
+					synPredMatched169 = true;
 					inputState.guessing++;
 					try {
 						{
@@ -3823,12 +3839,12 @@ public JavaRecognizer(ParserSharedInputState state) {
 						}
 					}
 					catch (RecognitionException pe) {
-						synPredMatched168 = false;
+						synPredMatched169 = false;
 					}
-					rewind(_m168);
+					rewind(_m169);
 					inputState.guessing--;
 				}
-				if ( synPredMatched168 ) {
+				if ( synPredMatched169 ) {
 					lp = LT(1);
 					lp_AST = astFactory.create(lp);
 					astFactory.makeASTRoot(currentAST, lp_AST);
@@ -3841,24 +3857,17 @@ public JavaRecognizer(ParserSharedInputState state) {
 					match(RPAREN);
 					unaryExpressionNotPlusMinus();
 					astFactory.addASTChild(currentAST, returnAST);
+					unaryExpressionNotPlusMinus_AST = (AST)currentAST.root;
 				}
 				else if ((_tokenSet_21.member(LA(1))) && (_tokenSet_22.member(LA(2)))) {
 					postfixExpression();
 					astFactory.addASTChild(currentAST, returnAST);
+					unaryExpressionNotPlusMinus_AST = (AST)currentAST.root;
 				}
-				else {
-					throw new NoViableAltException(LT(1), getFilename());
-				}
-				}
-				}
-				unaryExpressionNotPlusMinus_AST = (AST)currentAST.root;
-				break;
-			}
-			default:
-			{
+			else {
 				throw new NoViableAltException(LT(1), getFilename());
 			}
-			}
+			}}
 			returnAST = unaryExpressionNotPlusMinus_AST;
 		}
 		
@@ -3883,7 +3892,7 @@ public JavaRecognizer(ParserSharedInputState state) {
 		primaryExpression();
 		astFactory.addASTChild(currentAST, returnAST);
 		{
-		_loop174:
+		_loop175:
 		do {
 			if ((LA(1)==DOT) && (LA(2)==IDENT)) {
 				AST tmp153_AST = null;
@@ -4106,7 +4115,7 @@ public JavaRecognizer(ParserSharedInputState state) {
 				match(RBRACK);
 			}
 			else {
-				break _loop174;
+				break _loop175;
 			}
 			
 		} while (true);
@@ -4307,7 +4316,7 @@ public JavaRecognizer(ParserSharedInputState state) {
 			builtInType();
 			astFactory.addASTChild(currentAST, returnAST);
 			{
-			_loop179:
+			_loop180:
 			do {
 				if ((LA(1)==LBRACK)) {
 					lbt = LT(1);
@@ -4320,7 +4329,7 @@ public JavaRecognizer(ParserSharedInputState state) {
 					match(RBRACK);
 				}
 				else {
-					break _loop179;
+					break _loop180;
 				}
 				
 			} while (true);
@@ -4570,7 +4579,7 @@ public JavaRecognizer(ParserSharedInputState state) {
 		astFactory.addASTChild(currentAST, tmp181_AST);
 		match(IDENT);
 		{
-		_loop182:
+		_loop183:
 		do {
 			if ((LA(1)==DOT) && (LA(2)==IDENT)) {
 				AST tmp182_AST = null;
@@ -4583,7 +4592,7 @@ public JavaRecognizer(ParserSharedInputState state) {
 				match(IDENT);
 			}
 			else {
-				break _loop182;
+				break _loop183;
 			}
 			
 		} while (true);
@@ -4605,8 +4614,8 @@ public JavaRecognizer(ParserSharedInputState state) {
 		}
 		else if ((LA(1)==LBRACK) && (LA(2)==RBRACK)) {
 			{
-			int _cnt186=0;
-			_loop186:
+			int _cnt187=0;
+			_loop187:
 			do {
 				if ((LA(1)==LBRACK) && (LA(2)==RBRACK)) {
 					lbc = LT(1);
@@ -4619,10 +4628,10 @@ public JavaRecognizer(ParserSharedInputState state) {
 					match(RBRACK);
 				}
 				else {
-					if ( _cnt186>=1 ) { break _loop186; } else {throw new NoViableAltException(LT(1), getFilename());}
+					if ( _cnt187>=1 ) { break _loop187; } else {throw new NoViableAltException(LT(1), getFilename());}
 				}
 				
-				_cnt186++;
+				_cnt187++;
 			} while (true);
 			}
 		}
@@ -4715,8 +4724,8 @@ public JavaRecognizer(ParserSharedInputState state) {
 		AST lb_AST = null;
 		
 		{
-		int _cnt196=0;
-		_loop196:
+		int _cnt197=0;
+		_loop197:
 		do {
 			if ((LA(1)==LBRACK) && (_tokenSet_25.member(LA(2)))) {
 				lb = LT(1);
@@ -4775,10 +4784,10 @@ public JavaRecognizer(ParserSharedInputState state) {
 				match(RBRACK);
 			}
 			else {
-				if ( _cnt196>=1 ) { break _loop196; } else {throw new NoViableAltException(LT(1), getFilename());}
+				if ( _cnt197>=1 ) { break _loop197; } else {throw new NoViableAltException(LT(1), getFilename());}
 			}
 			
-			_cnt196++;
+			_cnt197++;
 		} while (true);
 		}
 		newArrayDeclarator_AST = (AST)currentAST.root;
@@ -4938,6 +4947,7 @@ public JavaRecognizer(ParserSharedInputState state) {
 		"ML_COMMENT",
 		"ESC",
 		"HEX_DIGIT",
+		"IDENT_LETTER",
 		"EXPONENT",
 		"FLOAT_SUFFIX"
 	};

@@ -108,6 +108,12 @@ header {
  *          Resin-2.0.5, jive-2.1.1, jdk 1.3.1, Lucene, antlr 2.7.2a4,
  *	    and the 110k-line jGuru server source.
  *
+ * Version 1.21 (October 17, 2003)
+ *	Fixed lots of problems including:
+ *	Ray Waldin: add typeDefinition to interfaceBlock in java.tree.g
+ *  He found a problem/fix with floating point that start with 0
+ *  Ray also fixed problem that (int.class) was not recognized.
+ *
  * This grammar is in the PUBLIC DOMAIN
  */
 class JavaRecognizer extends Parser;
@@ -830,14 +836,8 @@ unaryExpressionNotPlusMinus
 	:	BNOT^ unaryExpression
 	|	LNOT^ unaryExpression
 
-	|	(	// subrule allows option to shut off warnings
-			options {
-				// "(int" ambig with postfixExpr due to lack of sequence
-				// info in linear approximate LL(k).  It's ok.  Shut up.
-				generateAmbigWarnings=false;
-			}
-		:	// If typecast is built in type, must be numeric operand
-			// Also, no reason to backtrack if type keyword like int, float...
+		// use predicate to skip cases like: (int.class)
+    |   (LPAREN builtInTypeSpec[true] RPAREN) =>
 			lpb:LPAREN^ {#lpb.setType(TYPECAST);} builtInTypeSpec[true] RPAREN!
 			unaryExpression
 
@@ -849,7 +849,6 @@ unaryExpressionNotPlusMinus
 			unaryExpressionNotPlusMinus
 
 		|	postfixExpression
-		)
 	;
 
 // qualified names, array expressions, method invocation, post inc/dec
@@ -1238,11 +1237,6 @@ IDENT_LETTER
           '\uf900'..'\ufaff' )
     ;
     
-protected
-IDENT_NUMBER
-    :   (
-    ;
-    
 // an identifier.  Note that testLiterals is set to true!  This means
 // that after we match the rule, we look in the literals table to see
 // if it's a literal or really an identifer
@@ -1317,6 +1311,10 @@ NUM_INT
 					}
 				:	HEX_DIGIT
 				)+
+
+			|	//float or double with leading zero
+				(('0'..'9')+ ('.'|EXPONENT|FLOAT_SUFFIX)) => ('0'..'9')+
+
 			|	('0'..'7')+									// octal
 			)?
 		|	('1'..'9') ('0'..'9')*  {isDecimal=true;}		// non-zero decimal

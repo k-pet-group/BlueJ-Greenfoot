@@ -1579,12 +1579,12 @@ ESC
         |   '\''
         |   '\\'
         |   ('u')+ HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
-		|	('0'..'3')
+		|	'0'..'3'
 			(
 				options {
 					warnWhenFollowAmbig = false;
 				}
-			:	('0'..'7')
+			:	'0'..'7'
 				(
 					options {
 						warnWhenFollowAmbig = false;
@@ -1592,12 +1592,12 @@ ESC
 				:	'0'..'7'
 				)?
 			)?
-		|	('4'..'7')
+		|	'4'..'7'
 			(
 				options {
 					warnWhenFollowAmbig = false;
 				}
-			:	('0'..'9')
+			:	'0'..'7'
 			)?
         )
     ;
@@ -1626,11 +1626,11 @@ NUM_INT
     :   '.' {_ttype = DOT;}
             (	('0'..'9')+ (EXPONENT)? (f1:FLOAT_SUFFIX {t=f1;})?
                 {
-				if (t != null && t.getText().toUpperCase().indexOf('D')>=0) {
-                	_ttype = NUM_DOUBLE;
+				if (t != null && t.getText().toUpperCase().indexOf('F')>=0) {
+                	_ttype = NUM_FLOAT;
 				}
 				else {
-                	_ttype = NUM_FLOAT;
+                	_ttype = NUM_DOUBLE; // assume double
 				}
 				}
             )?
@@ -1648,6 +1648,10 @@ NUM_INT
 					}
 				:	HEX_DIGIT
 				)+
+
+			|	//float or double with leading zero
+				(('0'..'9')+ ('.'|EXPONENT|FLOAT_SUFFIX)) => ('0'..'9')+
+
 			|	('0'..'7')+									// octal
             )?
         |   ('1'..'9') ('0'..'9')*  {isDecimal=true;}       // non-zero decimal
@@ -1661,11 +1665,11 @@ NUM_INT
             |   f4:FLOAT_SUFFIX {t=f4;}
             )
             {
-			if (t != null && t.getText().toUpperCase() .indexOf('D') >= 0) {
-                _ttype = NUM_DOUBLE;
+			if (t != null && t.getText().toUpperCase() .indexOf('F') >= 0) {
+                _ttype = NUM_FLOAT;
 			}
             else {
-                _ttype = NUM_FLOAT;
+	           	_ttype = NUM_DOUBLE; // assume double
 			}
 			}
         )?

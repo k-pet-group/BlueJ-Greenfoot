@@ -61,7 +61,6 @@ public class LocatableAST extends antlr.CommonASTWithHiddenTokens
   /**
    * initialized this node with input node
    * @param t
-   * @return <code>void</code>
    */
     public void initialize(AST t)
     {
@@ -79,7 +78,6 @@ public class LocatableAST extends antlr.CommonASTWithHiddenTokens
   /**
    * initializes the node with input <code>Token</code>
    * @param t
-   * @return <code>void</code>
    */
     public void initialize(Token t)
     {

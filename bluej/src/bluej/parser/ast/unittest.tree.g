@@ -189,6 +189,7 @@ interfaceBlock
 	:	#(	OBJBLOCK
 			(	methodDecl
 			|	variableDef
+			|	typeDefinition
 			)*
 		)
 	;
@@ -315,7 +316,7 @@ stat:	typeDefinition
 	|	#(LABELED_STAT IDENT stat)
 	|	#("if" expression stat (stat)? )
 	|	#(	"for"
-			#(FOR_INIT (variableDef | elist)?)
+			#(FOR_INIT ((variableDef)+ | elist)?)
 			#(FOR_CONDITION (expression)?)
 			#(FOR_ITERATOR (elist)?)
 			stat
