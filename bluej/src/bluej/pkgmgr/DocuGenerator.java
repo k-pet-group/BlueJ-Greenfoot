@@ -340,9 +340,13 @@ public class DocuGenerator
 
         if(documentationExists(logFile)) {
             int result = DialogManager.askQuestion(null, "show-or-generate");
-            if(result == 0)   // show only
+            if(result == 0) {  // show only
                 Utility.openWebBrowser(startPage.getPath());
-            return "";
+                return "";
+            }
+            if(result == 2) {  // cancel
+                return "";
+            }
         }
 
         // get the names of all the targets for the documentation tool.
