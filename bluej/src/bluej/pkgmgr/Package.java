@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 559 2000-06-19 02:24:16Z ajp $
+ * @version $Id: Package.java 564 2000-06-19 05:39:04Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -71,6 +71,12 @@ public class Package extends Graph
     /** layout constant */ private static final int DEFAULTTARGETHEIGHT = 50;
     /** layout constant */ private static final int TARGETGAP = 20;
     /** layout constant */ private static final int RIGHT_LAYOUT_BOUND = 500;
+
+    /* In the top left corner of each package we have a fixed target -
+       either a ParentPackageTarget or a ReadmeTarget. These are there
+       locations */
+    public static final int FIXED_TARGET_X = 10;
+    public static final int FIXED_TARGET_Y = 10;
 
     /** Interface to editor */
     public static EditorManager editorManager = new MoeEditorManager();
@@ -457,10 +463,14 @@ public class Package extends Graph
                 }
             }
 
+            // make our Package targets reflect what is actually on disk
+            // note that we consider this on-disk version the master
+            // version so if we have a class target called Foo but we
+            // discover a directory call Foo, a PackageTarget will be
+            // inserted to replace the ClassTarget
             File subdirs[] = getPath().listFiles(new SubPackageFilter());
 
-            for(int i=0; i<subdirs.length; i++)
-            {
+            for(int i=0; i<subdirs.length; i++) {
                 Target target = (Target) propTargets.get(subdirs[i].getName());
 
                 if(target == null || !(target instanceof PackageTarget))
@@ -471,24 +481,32 @@ public class Package extends Graph
 
             File srcfiles[] = getPath().listFiles(new JavaSourceFilter());
 
-            for(int i=0; i<srcfiles.length; i++)
-            {
+            for(int i=0; i<srcfiles.length; i++) {
                 String targetName = JavaNames.stripSuffix(srcfiles[i].getName(), ".java");
                 Target target = (Target) propTargets.get(targetName);
-                if(target == null || !(target instanceof ClassTarget))
+                if(target == null || !(target instanceof ClassTarget)) {
                     target = new ClassTarget(this, targetName);
+                }
+
+                try {
+                    ((ClassTarget)target).enforcePackage(getQualifiedName());
+                }
+                catch(IOException ioe) {
+                    Debug.message(ioe.getLocalizedMessage());
+                }
+                catch(ClassCastException cce) { }
 
                 addTarget(target);
             }
 
             if (!isUnnamedPackage()) {
                 Target t = new ParentPackageTarget(this);
-                t.setPos(10,10);
+                t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
                 addTarget(t);
             }
             else {
                 Target t = new ReadmeTarget(this);
-                t.setPos(10,10);
+                t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
                 addTarget(t);
             }
 
@@ -533,6 +551,51 @@ public class Package extends Graph
 //                if (readyToPaint)
                     ct.setState(Target.S_NORMAL);
                 // XXX: Need to invalidate things dependent on t
+            }
+        }
+    }
+
+    /**
+     * Reload a package.
+     *
+     * This means we check the existing directory contents and compare
+     * it against the targets we have in the package. Any new
+     * directories or java source is added to the package.
+     * This function will not remove targets that have had their
+     * corresponding on disk counterparts removed.
+     *
+     * Any new source files will have their package lines updated to
+     * match the package we are in.
+     */
+    public void reload()
+    {
+        File subDirs[] = getPath().listFiles(new SubPackageFilter());
+
+        for(int i=0; i<subDirs.length; i++) {
+            Target target = (Target) targets.get(subDirs[i].getName());
+
+            if(target == null) {
+                addPackage(subDirs[i].getName());
+            }
+        }
+
+        File srcFiles[] = getPath().listFiles(new JavaSourceFilter());
+
+        for(int i=0; i<srcFiles.length; i++) {
+            String targetName = JavaNames.stripSuffix(srcFiles[i].getName(), ".java");
+            Target target = (Target) targets.get(targetName);
+
+            if(target == null) {
+                addClass(targetName);
+            }
+        }
+
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target target = (Target)e.nextElement();
+
+            if(target instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget)target;
+                ct.analyseDependencies();
             }
         }
     }
@@ -635,12 +698,12 @@ public class Package extends Graph
     }
 
     /**
-     * import a source file into this package as a new
-     * class target. Returns an error code: <br>
-     *   NO_ERROR       - everything is fine <br>
-     *   FILE_NOT_FOUND - file does not exist <br>
-     *   ILLEGAL_FORMAT - the file name does not end in ".java" <br>
-     *   CLASS_EXISTS   - a class with this name already exists <br>
+     * Import a source file into this package as a new
+     * class target. Returns an error code:
+     *   NO_ERROR       - everything is fine
+     *   FILE_NOT_FOUND - file does not exist
+     *   ILLEGAL_FORMAT - the file name does not end in ".java"
+     *   CLASS_EXISTS   - a class with this name already exists
      *   COPY_ERROR     - could not copy
      */
     public int importFile(File sourceFile)
@@ -667,31 +730,36 @@ public class Package extends Graph
         if(!FileUtility.copyFile(sourceFile, destFile))
             return COPY_ERROR;
 
-        // remove package line in class source
+        ClassTarget t = addClass(className);
+
+        t.analyseDependencies();
+
+        return NO_ERROR;
+    }
+
+    public ClassTarget addClass(String className)
+    {
+        // create class icon (ClassTarget) for new class
+        ClassTarget target = new ClassTarget(this, className);
+        addTarget(target);
+
+        // make package line in class source match our package
         try {
-            ClassTarget.enforcePackage(destFile, getQualifiedName());
+            target.enforcePackage(getQualifiedName());
         }
         catch(IOException ioe) {
             Debug.message(ioe.getLocalizedMessage());
         }
 
-        addClass(className);
-
-        return NO_ERROR;
+        return target;
     }
 
-    public void addClass(String className)
-    {
-        // create class icon (ClassTarget) for new class
-        ClassTarget target = new ClassTarget(this, className);
-        addTarget(target);
-        target.analyseDependencies();
-    }
-
-    public void addPackage(String packageName)
+    public PackageTarget addPackage(String packageName)
     {
         PackageTarget target = new PackageTarget(this, packageName);
         addTarget(target);
+
+        return target;
     }
 
     /**
