@@ -12,7 +12,7 @@ import java.util.Map;
  * @author Davin McCall
  */
 public abstract class GenTypeParameterizable
-    implements GenType
+    extends GenType
 {
 
     private static GenTypeSolid [] noBounds = new GenTypeSolid[0];
@@ -68,17 +68,6 @@ public abstract class GenTypeParameterizable
     abstract public GenTypeSolid [] getUpperBounds();
     
     abstract public GenTypeSolid [] getLowerBounds();
-    
-    abstract public String toString(NameTransform nt);
-    
-    /**
-     * If this is an array type, get the component type. If this is not an
-     * array type, return null.<p>
-     */
-    public GenType getArrayComponent()
-    {
-        return null;
-    }
     
     /**
      * Find the "greatest common denominator" between this type and the given

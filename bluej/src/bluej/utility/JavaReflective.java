@@ -10,7 +10,7 @@ import bluej.debugger.gentype.Reflective;
  * A reflective for GenTypeClass which uses the standard java reflection API.  
  * 
  * @author Davin McCall
- * @version $Id: JavaReflective.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: JavaReflective.java 3102 2004-11-18 01:39:18Z davmac $
  */
 public class JavaReflective extends Reflective {
 
@@ -26,6 +26,11 @@ public class JavaReflective extends Reflective {
         return c.getName();
     }
 
+    public boolean isInterface()
+    {
+        return c.isInterface();
+    }
+    
     public List getTypeParams()
     {
         return JavaUtils.getJavaUtils().getTypeParams(c);
@@ -41,7 +46,7 @@ public class JavaReflective extends Reflective {
         
         try {
             Class arrClass = c.getClassLoader().loadClass(rname);
-            return new JavaArrayReflective(arrClass);
+            return new JavaReflective(arrClass);
         }
         catch (ClassNotFoundException cnfe) {}
         

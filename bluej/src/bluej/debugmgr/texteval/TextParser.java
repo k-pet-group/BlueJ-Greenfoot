@@ -23,7 +23,7 @@ import bluej.utility.JavaUtils;
  * Parsing routines for the code pad.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: TextParser.java 3102 2004-11-18 01:39:18Z davmac $
  */
 public class TextParser
 {
@@ -44,6 +44,555 @@ public class TextParser
         this.packageScope = packageScope;
         this.objectBench = ob;
     }
+    
+    // need to return two seperate pieces of info: is it an expression or
+    // is it a statement, and, if an expression, what is the return type if known?
+    // return null if a statement (or otherwise unparseable), "" if an expression
+    // but type not known, or "sometype" if the type is known. 
+    String parseCommand(String command)
+    {
+        boolean parsedOk = false;
+        AST rootAST;
+
+        // Multiple semi-colon to avoid hitting "end-of-file" which breaks
+        // parse
+        JavaRecognizer parser = getParser("{" + command + "};;;;;");
+        
+        // start parsing at the classBlock rule
+        try {
+            parser.compoundStatement();
+            rootAST = parser.getAST();
+            parsedOk = true;
+            // Debug.message("It seems to be a statement.");
+        }
+        catch(RecognitionException re) { }
+        catch(TokenStreamException tse) { }
+      
+        if (! parsedOk) {
+            // It might just be an expression. Multiple semi-colon to ensure
+            // end-of-file not hit (causes parse failure).
+            parser = getParser(command + ";;;;;");
+            
+            try {
+                parser.expression();
+                rootAST = parser.getAST();
+                parsedOk = true;
+                // Debug.message("It seems to be an expression:");
+                // bluej.utility.Debug.message(rootAST.toStringTree());
+                // root type always == 28, which is EXPR
+                // AST childAst = rootAST.getFirstChild();
+                GenType t = getExpressionType(rootAST);
+                // Debug.message("got type = " + t);
+                if (t == null)
+                    return "";
+                else
+                    return t.toString();
+            }
+            catch(RecognitionException re) { }
+            catch(SemanticException se) { }
+            catch(TokenStreamException tse) { }
+            return "";
+        }
+        return null;
+    }
+
+    /**
+     * Calculate lub, as defined in revised JLS 15.12.2. Essentially this
+     * means, calculate the type to which all the given types are
+     * convertible.<p>
+     * 
+     * The JLS specifies lub returns a set of types A & B ...
+     * This method actually returns a wildcard "? extends A & B ...".
+     */
+    private GenTypeParameterizable lub(GenTypeClass [] ubounds)
+    {
+        Stack btstack = new Stack();
+        return lub(ubounds, btstack);
+    }
+    
+    private GenTypeParameterizable lub(GenTypeClass [] ubounds, Stack lubBt)
+    {
+        // "lowest(/least) upper bound"?
+        
+        // first check for infinite recursion:
+        Iterator si = lubBt.iterator();
+        while (si.hasNext()) {
+            GenTypeClass [] sbounds = (GenTypeClass []) si.next();
+            int i;
+            for (i = 0; i < sbounds.length; i++) {
+                if (! sbounds[i].equals(ubounds[i]))
+                    break;
+            }
+            if (i == sbounds.length)
+                return new GenTypeUnbounded();
+            // TODO this is really supposed to result in a recursively-
+            // defined type.
+        }
+
+        lubBt.push(ubounds);
+        List l = new ArrayList();
+        Reflective [] mec = MinimalErasedCandidateSet(ubounds);
+        for (int i = 0; i < mec.length; i++) {
+            l.add(Candidate(mec[i], ubounds, lubBt));
+        }
+        lubBt.pop();
+        
+        GenTypeSolid [] lbounds = new GenTypeSolid[0];
+        GenTypeSolid [] rubounds = (GenTypeSolid []) l.toArray(lbounds);
+        return new GenTypeWildcard(rubounds, lbounds);
+    }
+    
+    /**
+     * This is the "Candidate" (and "CandidateInvocation") function as defined
+     * in the proposed JLS, section 15.12.2.7
+     * 
+     * @param t        The class type to find the candidate type for
+     * @param ubounds  The complete set of bounding types (see lub())
+     * @param lubBt    A backtrace used to avoid infinite recursion
+     * @return  The candidate type
+     */
+    private GenTypeClass Candidate(Reflective t, GenTypeClass [] ubounds, Stack lubBt)
+    {
+        if (t.getTypeParams().isEmpty())
+            return new GenTypeClass(t);
+        else {
+            // CandidateInvocation(G) = lci(Inv(G))
+            GenTypeClass [] ri = relevantInvocations(t, ubounds);
+            return leastContainingInvocation(ri, lubBt);
+        }
+    }
+    
+    /**
+     * Find the least containing invocation from a set of invocations. The
+     * invocations a, b, ... are types based on the same class G. The return is
+     * a generic type G<...> such that all  a, b, ... are convertible to the
+     * return type.<p>
+     * 
+     * This is "lci" as defined in the proposed JLS section 15.12.2.7 
+     * 
+     * @param types   The invocations
+     * @param lubBt   A backtrace used to avoid infinite recursion
+     * @return   The least containing type
+     */
+    private GenTypeClass leastContainingInvocation(GenTypeClass [] types, Stack lubBt)
+    {
+        GenTypeClass rtype = types[0];
+        for (int i = 1; i < types.length; i++) {
+            rtype = leastContainingInvocation(rtype, types[i], lubBt);
+        }
+        return rtype;
+    }
+    
+    /**
+     * Find the least containing invocation from two invocations.
+     */
+    private GenTypeClass leastContainingInvocation(GenTypeClass a, GenTypeClass b, Stack lubBt)
+    {
+        if (! a.getReflective().getName().equals(b.getReflective().getName()))
+            throw new IllegalArgumentException("Class types must be the same.");
+        
+        Map ma = a.getMap();
+        Map mb = b.getMap();
+        if (ma == null || mb == null)
+            return new GenTypeClass(a.getReflective());
+        
+        Map rmap = new HashMap();
+        Iterator i = ma.entrySet().iterator();
+
+        // lci(G<X1,...,Xn>, G<Y1,...,Yn>) =
+        //       G<lcta(X1,Y1), ..., lcta(Xn,Yn)>
+        while (i.hasNext()) {
+            Map.Entry mentry = (Map.Entry) i.next();
+            GenTypeParameterizable atype = (GenTypeParameterizable) mentry.getValue();
+            GenTypeParameterizable btype = (GenTypeParameterizable) mb.get(mentry.getKey());
+            GenTypeParameterizable rtype = leastContainingTypeArgument(atype, btype, lubBt);
+            rmap.put(mentry.getKey(), rtype);
+        }
+        return new GenTypeClass(a.getReflective(), rmap);
+    }
+    
+    /**
+     * Find the "least containing" type of two type parameters. This is "lcta"
+     * as defined in the JLS section 15.12.2.7 
+     * 
+     * @param a      The first type parameter
+     * @param b      The second type parameter
+     * @param lubBt  The backtrace for avoiding infinite recursion
+     * @return   The least containing type
+     */
+    private GenTypeParameterizable leastContainingTypeArgument(GenTypeParameterizable a, GenTypeParameterizable b, Stack lubBt)
+    {
+        GenTypeClass ac = a.asClass();
+        GenTypeClass bc = b.asClass();
+        
+        // Both arguments are of solid type
+        if (ac != null && bc != null) {
+            if (ac.equals(bc))
+                return ac;
+            else
+                return lub(new GenTypeClass [] {ac, bc}, lubBt);
+        }
+        
+        
+        if (ac != null || bc != null) {
+            // One is a solid type and the other is a wilcard type. Ensure
+            // that ac is the solid and b is the wildcard:
+            if (ac == null) {
+                ac = bc;
+                b = a;
+            }
+
+            GenTypeSolid [] lbounds = b.getLowerBounds();
+            if (lbounds.length != 0) {
+                // lcta(U, ? super V) = ? super glb(U,V)
+                GenTypeSolid [] newlbounds = new GenTypeSolid[lbounds.length + 1];
+                System.arraycopy(lbounds, 0, newlbounds, 1, lbounds.length);
+                newlbounds[0] = ac;
+                return new GenTypeWildcard(new GenTypeSolid[0], newlbounds);
+            }
+        }
+        
+        GenTypeSolid [] lboundsa = a.getLowerBounds();
+        GenTypeSolid [] lboundsb = b.getLowerBounds();
+        if (lboundsa != null && lboundsb != null) {
+            // lcta(? super U, ? super V = ? super glb(U,V)
+            GenTypeSolid [] newlbounds = new GenTypeSolid[lboundsa.length + lboundsb.length];
+            System.arraycopy(lboundsa, 0, newlbounds, 0, lboundsa.length);
+            System.arraycopy(lboundsb, 0, newlbounds, lboundsa.length, lboundsb.length);
+            return new GenTypeWildcard(new GenTypeSolid[0], newlbounds);
+        }
+        
+        if (lboundsa != null || lboundsb != null) {
+            // lcta(? super U, ? extends V)
+            GenTypeSolid [] ubounds;
+            if (lboundsa == null) {
+                lboundsa = lboundsb;
+                ubounds = a.getUpperBounds();
+            }
+            else
+                ubounds = b.getUpperBounds();
+            
+            // we'll check if any upper bounds matches any lower bounds. This
+            // is not exactly as in the JLS, which doesn't really specify what
+            // to do in the case of multiple types
+            for (int i = 0; i < lboundsa.length; i++) {
+                for (int j = 0; j < ubounds.length; j++) {
+                    if (lboundsa[i].equals(ubounds[j]))
+                        return lboundsa[i];
+                }
+            }
+            
+            // otherwise return good old '?'.
+            return new GenTypeUnbounded();
+        }
+        
+        // The only option left is lcta(? extends U, ? extends V)
+        GenTypeSolid [] uboundsa = a.getUpperBounds();
+        GenTypeSolid [] uboundsb = b.getUpperBounds();
+        GenTypeClass [] args = new GenTypeClass[uboundsa.length + uboundsb.length];
+        System.arraycopy(uboundsa, 0, args, 0, uboundsa.length);
+        System.arraycopy(uboundsb, 0, args, uboundsa.length, uboundsb.length);
+        return lub(args);
+        // The JLS says that infinite types are possible due to the recursive
+        // call of lub, but I do not believe that this is the case.
+    }
+    
+    /**
+     * Aggregate types, checking for consistency. This is "glb" as defined
+     * in the JLS section 5.1.10
+     * 
+     * @throws SemanticException
+     */
+    private GenTypeSolid [] glb(GenTypeSolid [] args) throws SemanticException
+    {
+        for (int i = 0; i < args.length; i++) {
+
+            // if i is an interface (not a class), continue
+            if (args[i].isInterface())
+                continue;
+            
+            for (int j = 0; j < args.length; j++) {
+                if (i == j || args[j].isInterface())
+                    continue;
+                
+                // if both are class types, and neither is assignable to the
+                // other, it is a "compile time" error.
+                if (! (args[i].isAssignableFrom(args[j]) || args[j].isAssignableFrom(args[i])))
+                    throw new SemanticException();
+            }
+        }
+        return args;
+    }
+    
+    /**
+     * Find the "relevant invocations" of some class. That is, given the class,
+     * find the generic types corresponding to that class which occur in the
+     * given parameter list.<P>
+     * 
+     * This is "Inv" described in the JLS section 15.12.2.7
+     *  
+     * @param r       The class whose invocations to find
+     * @param ubounds The parameter list to search
+     * @return        A list of generic types all based on the class r
+     */
+    private GenTypeClass [] relevantInvocations(Reflective r, GenTypeClass [] ubounds)
+    {
+        GenTypeClass [] rlist = new GenTypeClass[ubounds.length];
+        for (int i = 0; i < ubounds.length; i++) {
+            Map m = ubounds[i].mapToSuper(r.getName());
+            rlist[i] = new GenTypeClass(r, m);
+        }
+        
+        return rlist;
+    }
+    
+    /**
+     * Get the erased (raw) super types of some type, put them in the given
+     * map. The given type itself is also stored in the map. This is a
+     * recursive method which also uses the map to avoid processing types
+     * more than once.<P>
+     * 
+     * This is "EST" as defined in the proposed JLS section 15.12.2.7
+     * 
+     * @param r    The type whose supertypes to find
+     * @param rmap The map (String -&gt; Reflective) in which to store the
+     *             supertypes.
+     */
+    private void ErasedSuperTypes(Reflective r, Map rmap)
+    {
+        String rname = r.getName();
+        if (! rmap.containsKey(rname)) {
+            rmap.put(rname, r);
+            List supertypes = r.getSuperTypesR();
+            Iterator i = supertypes.iterator();
+            while (i.hasNext()) {
+                ErasedSuperTypes((Reflective) i.next(), rmap);
+            }
+        }
+    }
+    
+    /**
+     * Find the "minimal erased candidate set" of a set of types (MEC as
+     * defined in the JLS, section 15.12.2.7. This is the set of all (raw)
+     * supertypes common to each type in the given set, with no duplicates or
+     * redundant types (types whose presence is dictated by the presence of a
+     * subtype).
+     * 
+     * @param types   The types for which to find the MEC.
+     * @return        The MEC as an array of Reflective.
+     */
+    // "MEC" in JLS
+    private Reflective [] MinimalErasedCandidateSet(GenTypeClass [] types)
+    {
+        // have to find *intersection* of all sets and remove redundant types
+        
+        Map rmap = new HashMap();
+        ErasedSuperTypes(types[0].getReflective(), rmap);
+        
+        for (int i = 1; i < types.length; i++) {
+            Map rmap2 = new HashMap();
+            ErasedSuperTypes(types[i].getReflective(), rmap2);
+            
+            // find the intersection incrementally
+            Iterator j = rmap2.keySet().iterator();
+            while (j.hasNext()) {
+                if( ! rmap.containsKey(j.next()))
+                    j.remove();
+            }
+            rmap = rmap2;
+        }
+        
+        // Now remove redundant types
+        Set entryset = rmap.entrySet();
+        Iterator i = entryset.iterator();
+        while (i.hasNext()) {
+            Iterator j = entryset.iterator();
+            Map.Entry ielem = (Map.Entry) i.next();
+            
+            while (j.hasNext()) {
+                Map.Entry jelem = (Map.Entry) j.next();
+                if (ielem == jelem)
+                    continue;
+                
+                Reflective ri = (Reflective) ielem.getValue();
+                Reflective ji = (Reflective) jelem.getValue();
+                if (ri.isAssignableFrom(ji)) {
+                    i.remove();
+                    break;
+                }
+            }
+        }
+        
+        Reflective [] rval = new Reflective[rmap.values().size()];
+        rmap.values().toArray(rval);
+        
+        return rval;
+    }
+    
+    /**
+     * binary numeric promotion, as defined by JLS section 5.6.2. Both
+     * operands must be numeric types.
+     */
+    private GenType binaryNumericPromotion(GenType a, GenType b)
+    {
+        GenType ua = unBox(a);
+        GenType ub = unBox(b);
+        
+        if (a.typeIs(GenType.GT_DOUBLE) || b.typeIs(GenType.GT_DOUBLE))
+            return GenTypePrimitive.getDouble();
+        
+        if (a.typeIs(GenType.GT_FLOAT) || b.typeIs(GenType.GT_FLOAT))
+            return GenTypePrimitive.getFloat();
+        
+        if (a.typeIs(GenType.GT_LONG) || b.typeIs(GenType.GT_LONG))
+            return GenTypePrimitive.getLong();
+        
+        return GenTypePrimitive.getInt();
+    }
+    
+    /**
+     * Get the GenType of a character literal node.
+     * @throws RecognitionException
+     */
+    private GenType getCharLiteral(AST node) throws RecognitionException
+    {
+        // char literal is either 'x', or '\\uXXXX' notation, or '\t' etc.
+        String x = node.getText();
+        x = x.substring(1, x.length() - 1); // strip single quotes
+        
+        if (! x.startsWith("\\")) {
+            // This is the normal case
+            if (x.length() != 1)
+                throw new RecognitionException();
+            else
+                return new NumLiteral(GenType.GT_CHAR, x.charAt(0));
+        }
+        else if (x.equals("\\b"))
+            return new NumLiteral(GenType.GT_CHAR, '\b');
+        else if (x.equals("\\t"))
+            return new NumLiteral(GenType.GT_CHAR, '\t');
+        else if (x.equals("\\n"))
+            return new NumLiteral(GenType.GT_CHAR, '\n');
+        else if (x.equals("\\f"))
+            return new NumLiteral(GenType.GT_CHAR, '\f');
+        else if (x.equals("\\r"))
+            return new NumLiteral(GenType.GT_CHAR, '\r');
+        else if (x.equals("\\\""))
+            return new NumLiteral(GenType.GT_CHAR, '"');
+        else if (x.equals("\\'"))
+            return new NumLiteral(GenType.GT_CHAR, '\'');
+        else if (x.equals("\\\\"))
+            return new NumLiteral(GenType.GT_CHAR, '\\');
+        else if (x.startsWith("\\u")) {
+            // unicode escape, as a 4-digit hexadecimal
+            if (x.length() != 6)
+                throw new RecognitionException();
+            
+            char val = 0;
+            for (int i = 0; i < 4; i++) {
+                char digit = x.charAt(i + 2);
+                int digVal = Character.digit(digit, 16);
+                if (digVal == -1)
+                    throw new RecognitionException();
+                val = (char)(val * 16 + digVal);
+            }
+            return new NumLiteral(GenType.GT_CHAR, val);
+        }
+        else {
+            // octal escape, up to three digits
+            int xlen = x.length();
+            if (xlen < 2 || xlen > 4)
+                throw new RecognitionException();
+            
+            char val = 0;
+            for (int i = 0; i < xlen - 1; i++) {
+                char digit = x.charAt(i+1);
+                int digVal = Character.digit(digit, 8);
+                if (digVal == -1) {
+                        throw new RecognitionException();
+                }
+                val = (char)(val * 8 + digVal);
+            }
+            return new NumLiteral(GenType.GT_CHAR, val);
+        }
+    }
+    
+    /**
+     * Get the GenType corresponding to an integer literal node.
+     * @throws RecognitionException
+     */
+    private GenType getIntLiteral(AST node, boolean negative) throws RecognitionException
+    {
+        String x = node.getText();
+        if (negative)
+            x = "-" + x;
+        
+        try {
+            int val = Integer.decode(x).intValue();
+            return new NumLiteral(GenType.GT_INT, val);
+        }
+        catch (NumberFormatException nfe) {
+            throw new RecognitionException();
+        }
+    }
+    
+    /**
+     * Ge the GenType corresponding to a long literal node.
+     * @throws RecognitionException
+     */
+    private GenType getLongLiteral(AST node, boolean negative) throws RecognitionException
+    {
+        String x = node.getText();
+        if (negative)
+            x = "-" + x;
+        
+        try {
+            long val = Long.decode(x).longValue();
+            return new NumLiteral(GenType.GT_LONG, val);
+        }
+        catch (NumberFormatException nfe) {
+            throw new RecognitionException();
+        }
+    }
+    
+    /**
+     * Get the GenType corresponding to a float literal.
+     * @throws RecognitionException
+     */
+    private GenType getFloatLiteral(AST node, boolean negative) throws RecognitionException
+    {
+        String x = node.getText();
+        if (negative)
+            x = "-" + x;
+        
+        try {
+            float val = Float.parseFloat(x);
+            return new NumLiteral(GenType.GT_FLOAT, val);
+        }
+        catch (NumberFormatException nfe) {
+            throw new RecognitionException();
+        }
+    }
+    
+    /**
+     * Get the GenType corresponding to a double literal.
+     * @throws RecognitionException
+     */
+    private GenType getDoubleLiteral(AST node, boolean negative) throws RecognitionException
+    {
+        String x = node.getText();
+        if (negative)
+            x = "-" + x;
+        
+        try {
+            double val = Double.parseDouble(x);
+            return new NumLiteral(GenType.GT_DOUBLE, val);
+        }
+        catch (NumberFormatException nfe) {
+            throw new RecognitionException();
+        }
+    }
+    
     
     /**
      * Attempt to load, by its unqualified name,  a class which might be in the
@@ -438,8 +987,6 @@ public class TextParser
                 throw new RecognitionException();
             
             // match the call to a method:
-            // TODO it's possible to call a method on an object of
-            // unknown (wildcard) type
             if (targetType instanceof GenTypeClass) {
                 GenTypeClass targetClass = (GenTypeClass) targetType;
                 try {
@@ -543,28 +1090,28 @@ public class TextParser
         
         switch (firstChild.getType()) {
             case JavaTokenTypes.LITERAL_char:
-                baseType = new GenTypeChar();
+                baseType = GenTypePrimitive.getChar();
                 break;
             case JavaTokenTypes.LITERAL_byte:
-                baseType = new GenTypeByte();
+                baseType = GenTypePrimitive.getByte();
                 break;
             case JavaTokenTypes.LITERAL_boolean:
-                baseType = new GenTypeBool();
+                baseType = GenTypePrimitive.getBoolean();
                 break;
             case JavaTokenTypes.LITERAL_short:
-                baseType = new GenTypeShort();
+                baseType = GenTypePrimitive.getShort();
                 break;
             case JavaTokenTypes.LITERAL_int:
-                baseType = new GenTypeInt();
+                baseType = GenTypePrimitive.getInt();
                 break;
             case JavaTokenTypes.LITERAL_long:
-                baseType = new GenTypeLong();
+                baseType = GenTypePrimitive.getLong();
                 break;
             case JavaTokenTypes.LITERAL_float:
-                baseType = new GenTypeFloat();
+                baseType = GenTypePrimitive.getFloat();
                 break;
             case JavaTokenTypes.LITERAL_double:
-                baseType = new GenTypeDouble();
+                baseType = GenTypePrimitive.getDouble();
                 break;
             default:
                 // not a primitive type
@@ -600,21 +1147,21 @@ public class TextParser
             GenTypeClass c = (GenTypeClass) b;
             String cName = c.rawName();
             if (c.equals("java.lang.Integer"))
-                return new GenTypeInt();
+                return GenTypePrimitive.getInt();
             else if (c.equals("java.lang.Long"))
-                return new GenTypeLong();
+                return GenTypePrimitive.getLong();
             else if (c.equals("java.lang.Short"))
-                return new GenTypeShort();
+                return GenTypePrimitive.getShort();
             else if (c.equals("java.lang.Byte"))
-                return new GenTypeByte();
+                return GenTypePrimitive.getByte();
             else if (c.equals("java.lang.Character"))
-                return new GenTypeChar();
+                return GenTypePrimitive.getChar();
             else if (c.equals("java.lang.Float"))
-                return new GenTypeFloat();
+                return GenTypePrimitive.getFloat();
             else if (c.equals("java.lang.Double"))
-                return new GenTypeDouble();
+                return GenTypePrimitive.getDouble();
             else if (c.equals("java.lang.Boolean"))
-                return new GenTypeBool();
+                return GenTypePrimitive.getBoolean();
             else
                 return b;
         }
@@ -637,27 +1184,37 @@ public class TextParser
     private GenType boxType(GenType u)
     {
         if (u instanceof GenTypePrimitive) {
-            if (u instanceof GenTypeInt)
+            if (u.typeIs(GenType.GT_INT))
                 return new GenTypeClass(new JavaReflective(Integer.class));
-            else if (u instanceof GenTypeLong)
+            else if (u.typeIs(GenType.GT_LONG))
                 return new GenTypeClass(new JavaReflective(Long.class));
-            else if (u instanceof GenTypeShort)
+            else if (u.typeIs(GenType.GT_SHORT))
                 return new GenTypeClass(new JavaReflective(Short.class));
-            else if (u instanceof GenTypeByte)
+            else if (u.typeIs(GenType.GT_BYTE))
                 return new GenTypeClass(new JavaReflective(Byte.class));
-            else if (u instanceof GenTypeChar)
+            else if (u.typeIs(GenType.GT_CHAR))
                 return new GenTypeClass(new JavaReflective(Character.class));
-            else if (u instanceof GenTypeFloat)
+            else if (u.typeIs(GenType.GT_FLOAT))
                 return new GenTypeClass(new JavaReflective(Float.class));
-            else if (u instanceof GenTypeDouble)
+            else if (u.typeIs(GenType.GT_DOUBLE))
                 return new GenTypeClass(new JavaReflective(Double.class));
-            else if (u instanceof GenTypeBool)
+            else if (u.typeIs(GenType.GT_BOOLEAN))
                 return new GenTypeClass(new JavaReflective(Boolean.class));
             else
                 return u;
         }
         else
             return u;
+    }
+    
+    static public boolean isBoxedBoolean(GenType t)
+    {
+        GenTypeClass ct = t.asClass();
+        if (ct != null) {
+            return ct.rawName().equals("java.lang.Boolean");
+        }
+        else
+            return false;
     }
     
     /**
@@ -699,7 +1256,6 @@ public class TextParser
             fcNode = node.getFirstChild();
         else
             fcNode = node;
-        
         
         switch (fcNode.getType()) {
             // "new xxxxx<>()"
@@ -744,7 +1300,7 @@ public class TextParser
                 if (secondDotArg.getType() == JavaTokenTypes.LITERAL_class) {
                     if (! Config.isJava15())
                         return new GenTypeClass(new JavaReflective(Class.class));
-                    // TODO incomplete - return "Class<X>", not just "Class"
+                    // TODO return "Class<X>", not just "Class"
                     return new GenTypeClass(new JavaReflective(Class.class));
                 }
                 
@@ -789,22 +1345,49 @@ public class TextParser
                 return new GenTypeClass(new JavaReflective(String.class));
             
             case JavaTokenTypes.CHAR_LITERAL:
-                return new GenTypeChar();
+                return getCharLiteral(fcNode);
             
             case JavaTokenTypes.NUM_INT:
-                return new GenTypeInt();
+                return getIntLiteral(fcNode, false);
+            
+            case JavaTokenTypes.NUM_LONG:
+                return getLongLiteral(fcNode, false);
             
             case JavaTokenTypes.NUM_FLOAT:
-                return new GenTypeFloat();
+                return getFloatLiteral(fcNode, false);
             
             case JavaTokenTypes.NUM_DOUBLE:
-                return new GenTypeDouble();
+                return getDoubleLiteral(fcNode, false);
             
             case JavaTokenTypes.LITERAL_true:
             case JavaTokenTypes.LITERAL_false:
             case JavaTokenTypes.LITERAL_instanceof:
-                return new GenTypeBool();
+                return GenTypePrimitive.getBoolean();
             
+            case JavaTokenTypes.LITERAL_null:
+                return GenTypePrimitive.getNull();
+            
+            // unary operators
+            case JavaTokenTypes.UNARY_PLUS:
+                return getExpressionType(fcNode.getFirstChild());
+            case JavaTokenTypes.UNARY_MINUS:
+            {
+                AST negExpr = fcNode.getFirstChild();
+                
+                switch (negExpr.getType()) {
+                    case JavaTokenTypes.NUM_INT:
+                        return getIntLiteral(negExpr, true);
+                    case JavaTokenTypes.NUM_LONG:
+                        return getLongLiteral(negExpr, true);
+                    case JavaTokenTypes.NUM_FLOAT:
+                        return getFloatLiteral(negExpr, true);
+                    case JavaTokenTypes.NUM_DOUBLE:
+                        return getFloatLiteral(negExpr, true);
+                    default:
+                        return getExpressionType(negExpr);
+                }
+            }
+                
             // boolean operators
             
             case JavaTokenTypes.LT:
@@ -816,7 +1399,7 @@ public class TextParser
             case JavaTokenTypes.LNOT:
             case JavaTokenTypes.LAND:
             case JavaTokenTypes.LOR:
-                return new GenTypeBool();
+                return GenTypePrimitive.getBoolean();
             
             // shift operators. The result type is the same as the (unboxed)
             // first operand type.
@@ -869,6 +1452,8 @@ public class TextParser
                 AST rightNode = leftNode.getNextSibling();
                 GenType leftType = unBox(getExpressionType(leftNode));
                 GenType rightType = unBox(getExpressionType(rightNode));
+                if (leftType == null || rightType == null)
+                    return null;
                 if (leftType.isAssignableFrom(rightType) || leftType.toString().equals("java.lang.String"))
                     return leftType;
                 else
@@ -886,8 +1471,8 @@ public class TextParser
             // ? : operator  (trinary operator)
             // This one is nasty. Even javac doesn't allow certain things that
             // it should, for instance:
-            //    List<? extends Thread> lt = new LinkedList<Thread>();
-            //    List<? extends Thread> lq = new LinkedList<Thread>();
+            //    List<? super Thread> lt = new LinkedList<Thread>();
+            //    List<? super Thread> lq = new LinkedList<Thread>();
             //    (true ? lt : lq).add(new Thread());  // ERROR(!)
             // In above case the javac result type is:
             //    List<capture of ? extends Object>.
@@ -896,34 +1481,93 @@ public class TextParser
             //    true ? 3 : new Object()
             // result type is:
             //    Integer
+            //
+            // See JLS section 15.24. Note that JLS 3rd ed. differs extensively
+            // from JLS 2nd edition, but we'll assume that the changes are
+            // backwards compatible.
             case JavaTokenTypes.QUESTION:
             {
                 AST trueAlt = fcNode.getFirstChild().getNextSibling();
                 AST falseAlt = trueAlt.getNextSibling();
                 GenType trueAltType = getExpressionType(trueAlt);
                 GenType falseAltType = getExpressionType(falseAlt);
+                
+                // if we don't know the type of both alternatives, we don't
+                // know the result type:
+                if (trueAltType == null || falseAltType == null)
+                    return null;
+                
+                // Neither argument can be a void type.
+                if (trueAltType.isVoid() || falseAltType.isVoid())
+                    throw new SemanticException();
+                
+                // if the second & third arguments have the same type, then
+                // that is the result type:
+                if (trueAltType.equals(falseAltType))
+                    return trueAltType;
+
                 GenType trueUnboxed = unBox(trueAltType);
                 GenType falseUnboxed = unBox(falseAltType);
+
+                // if one the arguments is of type boolean and the other
+                // Boolean, the result type is boolean.
+                if (trueUnboxed.typeIs(GenType.GT_BOOLEAN) && falseUnboxed.typeIs(GenType.GT_BOOLEAN))
+                    return trueUnboxed;
                 
-                if (trueUnboxed.isPrimitive() && falseUnboxed.isPrimitive()) {
-                    // Return the most precise. If both original types were
-                    // boxed types, the result must be boxed. Which is stupid.
-                    // But that's java for you :-).
-                    boolean box = trueAltType != trueUnboxed && falseAltType != falseUnboxed;
-                    if (trueAltType.isAssignableFrom(falseAltType))
-                        return maybeBox(trueAltType, box);
-                    else if (falseAltType.isAssignableFrom(trueAltType))
-                        return maybeBox(falseAltType, box);
+                // if one type is null and the other is a reference type, the
+                // return is that reference type.
+                //   Also partially handle the final case from the JLS,
+                // involving boxing conversion & capture conversion (which
+                // is trivial when non-parameterized types such as boxed types
+                // are involved)
+                // 
+                // This precludes either type from being null later on.
+                if (trueAltType.typeIs(GenType.GT_NULL))
+                    return boxType(falseAltType);
+                if (falseAltType.typeIs(GenType.GT_NULL))
+                    return boxType(trueAltType);
+                
+                // if the two alternatives are convertible to numeric types,
+                // there are several cases:
+                if (trueUnboxed.isNumeric() && falseUnboxed.isNumeric()) {
+                    // If one is byte/Byte and the other is short/Short, the
+                    // result type is short.
+                    if (trueUnboxed.typeIs(GenType.GT_BYTE) && falseUnboxed.typeIs(GenType.GT_SHORT))
+                        return falseUnboxed;
+                    if (falseUnboxed.typeIs(GenType.GT_BYTE) && trueUnboxed.typeIs(GenType.GT_SHORT))
+                        return trueUnboxed;
+                    
+                    // If one type, when unboxed, is byte/short/char, and the
+                    // other is an integer constant whose value fits in the
+                    // first, the result type is the (unboxed) first. (The JLS
+                    // takes four paragraphs to say this, but the result is the
+                    // same).
+                    if (trueUnboxed.fitsType(GenType.GT_INT) && ! trueUnboxed.typeIs(GenType.GT_INT)) {
+                        if (falseAltType.isIntegerLiteral() && trueUnboxed.isAssignableFrom(falseAltType))
+                            return trueUnboxed;
+                    }
+                    if (falseUnboxed.fitsType(GenType.GT_INT) && ! falseUnboxed.typeIs(GenType.GT_INT)) {
+                        if (trueAltType.isIntegerLiteral() && falseUnboxed.isAssignableFrom(trueAltType))
+                            return falseUnboxed;
+                    }
+                    
+                    // Otherwise apply binary numeric promotion
+                    return binaryNumericPromotion(trueAltType, falseAltType);
                 }
                 
-                // Not a primitive ? :, so box both:
+                // Box both alternatives:
                 trueAltType = boxType(trueAltType);
                 falseAltType = boxType(falseAltType);
                 
-                // TODO this must work for GenTypeParameterizable, not just GenTypeSolid
-                if (trueAltType instanceof GenTypeSolid && falseAltType instanceof GenTypeSolid) {
-                    GenTypeClass rt = GenTypeSolid.gcd((GenTypeSolid) trueAltType, (GenTypeSolid) falseAltType);
-                    return rt;
+                if (trueAltType instanceof GenTypeParameterizable && falseAltType instanceof GenTypeParameterizable) {
+                    // apply capture conversion (JLS 5.1.10) to lub() of both
+                    // alternatives (JLS 15.12.2.7)
+                    GenTypeSolid [] trueUbounds = ((GenTypeParameterizable) trueAltType).getUpperBounds();
+                    GenTypeSolid [] falseUbounds = ((GenTypeParameterizable) falseAltType).getUpperBounds();
+                    GenTypeClass [] ctypes = new GenTypeClass[2];
+                    ctypes[0] = trueUbounds[0].asClass();
+                    ctypes[1] = falseUbounds[0].asClass();
+                    return lub(ctypes).getUpperBounds()[0];
                 }
             }
             
@@ -966,57 +1610,6 @@ public class TextParser
         parser.setASTNodeClass("bluej.parser.ast.LocatableAST");
         
         return parser;
-    }
-
-    // need to return two seperate pieces of info: is it an expression or
-    // is it a statement, and, if an expression, what is the return type if known?
-    // return null if a statement (or otherwise unparseable), "" if an expression
-    // but type not known, or "sometype" if the type is known. 
-    String parseCommand(String command)
-    {
-        boolean parsedOk = false;
-        AST rootAST;
-
-        // Multiple semi-colon to avoid hitting "end-of-file" which breaks
-        // parse
-        JavaRecognizer parser = getParser("{" + command + "};;;;;");
-        
-        // start parsing at the classBlock rule
-        try {
-            parser.compoundStatement();
-            rootAST = parser.getAST();
-            parsedOk = true;
-            // Debug.message("It seems to be a statement.");
-        }
-        catch(RecognitionException re) { }
-        catch(TokenStreamException tse) { }
-      
-        if (! parsedOk) {
-            // It might just be an expression. Multiple semi-colon to ensure
-            // end-of-file not hit (causes parse failure).
-            parser = getParser(command + ";;;;;");
-            
-            try {
-                parser.expression();
-                rootAST = parser.getAST();
-                parsedOk = true;
-                // Debug.message("It seems to be an expression:");
-                // bluej.utility.Debug.message(rootAST.toStringTree());
-                // root type always == 28, which is EXPR
-                // AST childAst = rootAST.getFirstChild();
-                GenType t = getExpressionType(rootAST);
-                // Debug.message("got type = " + t);
-                if (t == null)
-                    return "";
-                else
-                    return t.toString();
-            }
-            catch(RecognitionException re) { }
-            catch(SemanticException se) { }
-            catch(TokenStreamException tse) { }
-            return "";
-        }
-        return null;
     }
 
     /**
@@ -1096,7 +1689,7 @@ public class TextParser
             // finally, if one method is declared in an interface and the
             // other in a class, the one from the class is "more specific".
             // TODO this should only be true if the method signatures are
-            // actually the same.
+            // actually the same. Is it even necessary?
             if (method.getDeclaringClass().isInterface() && ! other.method.getDeclaringClass().isInterface())
                 return -1;
             else if (! method.getDeclaringClass().isInterface() && other.method.getDeclaringClass().isInterface())

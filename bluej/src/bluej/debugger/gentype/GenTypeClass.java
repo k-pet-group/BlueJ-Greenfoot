@@ -12,7 +12,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: GenTypeClass.java 3102 2004-11-18 01:39:18Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -80,9 +80,9 @@ public class GenTypeClass extends GenTypeSolid {
     
     // ---------- instance methods -------------
 
-    public boolean isPrimitive()
+    public GenTypeClass asClass()
     {
-        return false;
+        return this;
     }
     
     /**
@@ -121,8 +121,9 @@ public class GenTypeClass extends GenTypeSolid {
     }
     
     /**
-     * Check whether the type is a generic type (with type parameters) or a
-     * raw type.
+     * Check whether the type is a generic type (with type parameters).
+     * Returns false for parameterless types and raw types.
+     * 
      * @return  true if the type has type parameters
      */
     public boolean isGeneric()
@@ -142,6 +143,11 @@ public class GenTypeClass extends GenTypeSolid {
         return getMap() == null;
     }
 
+    public boolean isInterface()
+    {
+        return reflective.isInterface();
+    }
+    
     public String toString(boolean stripPrefix)
     {
         String baseClass = rawName();
@@ -181,13 +187,20 @@ public class GenTypeClass extends GenTypeSolid {
     {
         if (other == this)
             return true;
-        if (! (other.getClass() != GenTypeClass.class))
+        if (other.getClass() != GenTypeClass.class)
             return false;
         
         GenTypeClass oClass = (GenTypeClass)other;
         
         // the class name must match
         if (! rawName().equals(oClass.rawName()))
+            return false;
+        
+        if (params == null && oClass.params == null)
+            return true;
+        if (params == null && oClass.params != null)
+            return false;
+        if (params != null && oClass.params == null)
             return false;
         
         Iterator i = params.iterator();

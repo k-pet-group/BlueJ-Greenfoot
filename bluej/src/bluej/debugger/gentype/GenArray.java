@@ -8,12 +8,15 @@ import java.util.Map;
  * component type must be some solid type.
  * 
  * @author Davin McCall
- * @version $Id: GenArray.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: GenArray.java 3102 2004-11-18 01:39:18Z davmac $
  */
 public class GenArray extends GenTypeParameterizable
 {
     private GenType componentType;
     
+    /*
+     * Constructor.
+     */
     public GenArray(GenType componentType)
     {
         this.componentType = componentType;
@@ -22,6 +25,24 @@ public class GenArray extends GenTypeParameterizable
     public GenType getArrayComponent()
     {
         return componentType;
+    }
+    
+    /*
+     * Default toString() will not strip prefix.
+     */
+    public String toString()
+    {
+        return toString(false);
+    }
+    
+    public String toString(boolean stripPrefix)
+    {
+        return componentType.toString(stripPrefix) + "[]";
+    }
+
+    public String toString(NameTransform nt)
+    {
+        return componentType.toString(nt) + "[]";
     }
     
     /* (non-Javadoc)
@@ -90,24 +111,6 @@ public class GenArray extends GenTypeParameterizable
     {
         // TODO Auto-generated method stub
         return new GenTypeSolid[0];
-    }
-
-    /* (non-Javadoc)
-     * @see bluej.debugger.gentype.GenTypeParameterizable#toString(bluej.debugger.gentype.NameTransform)
-     */
-    public String toString(NameTransform nt)
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see bluej.debugger.gentype.GenType#toString(boolean)
-     */
-    public String toString(boolean stripPrefix)
-    {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /* (non-Javadoc)

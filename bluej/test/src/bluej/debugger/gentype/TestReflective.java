@@ -12,7 +12,7 @@ import bluej.debugger.gentype.Reflective;
  * of a test.
  * 
  * @author Davin McCall
- * @version $Id: TestReflective.java 3077 2004-11-09 04:33:53Z davmac $
+ * @version $Id: TestReflective.java 3102 2004-11-18 01:39:18Z davmac $
  */
 public class TestReflective extends Reflective
 {
@@ -30,6 +30,11 @@ public class TestReflective extends Reflective
     public String getName()
     {
         return name;
+    }
+    
+    public boolean isInterface()
+    {
+        return false;
     }
     
     public List getTypeParams()

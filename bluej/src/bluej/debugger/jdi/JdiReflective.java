@@ -13,7 +13,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: JdiReflective.java 3102 2004-11-18 01:39:18Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -94,6 +94,12 @@ public class JdiReflective extends Reflective
         if (name != null)
             return name;
         return rclass.name();
+    }
+    
+    public boolean isInterface()
+    {
+        checkLoaded();
+        return rclass instanceof InterfaceType;
     }
 
     public Reflective getArrayOf()
@@ -467,35 +473,35 @@ public class JdiReflective extends Reflective
         }
         if (c == 'I') {
             // integer
-            return new GenTypeInt();
+            return GenTypePrimitive.getInt();
         }
         if (c == 'C') {
             // character
-            return new GenTypeChar();
+            return GenTypePrimitive.getChar();
         }
         if (c == 'Z') {
             // boolean
-            return new GenTypeBool();
+            return GenTypePrimitive.getBoolean();
         }
         if (c == 'B') {
             // byte
-            return new GenTypeByte();
+            return GenTypePrimitive.getByte();
         }
         if (c == 'S') {
             // short
-            return new GenTypeShort();
+            return GenTypePrimitive.getShort();
         }
         if (c == 'J') {
             // long
-            return new GenTypeLong();
+            return GenTypePrimitive.getLong();
         }
         if (c == 'F') {
             // float
-            return new GenTypeFloat();
+            return GenTypePrimitive.getFloat();
         }
         if (c == 'D') {
             // double
-            return new GenTypeDouble();
+            return GenTypePrimitive.getDouble();
         }
 
         if (c != 'L')
@@ -528,21 +534,21 @@ public class JdiReflective extends Reflective
     private static GenType getNonGenericType(String typeName, Type t, ClassLoaderReference clr, VirtualMachine vm)
     {
         if (t instanceof BooleanType)
-            return new GenTypeBool();
+            return GenTypePrimitive.getBoolean();
         else if (t instanceof ByteType)
-            return new GenTypeByte();
+            return GenTypePrimitive.getByte();
         else if (t instanceof CharType)
-            return new GenTypeChar();
+            return GenTypePrimitive.getChar();
         else if (t instanceof DoubleType)
-            return new GenTypeDouble();
+            return GenTypePrimitive.getDouble();
         else if (t instanceof FloatType)
-            return new GenTypeFloat();
+            return GenTypePrimitive.getFloat();
         else if (t instanceof IntegerType)
-            return new GenTypeInt();
+            return GenTypePrimitive.getInt();
         else if (t instanceof LongType)
-            return new GenTypeLong();
+            return GenTypePrimitive.getLong();
         else if (t instanceof ShortType)
-            return new GenTypeShort();
+            return GenTypePrimitive.getShort();
         else {
             // The class may or may not be loaded.
             Reflective ref;

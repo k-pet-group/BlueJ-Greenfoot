@@ -27,6 +27,11 @@ public class GenTypeTpar extends GenTypeSolid
         return name;
     }
     
+    public boolean isInterface()
+    {
+        return false;
+    }
+    
     public boolean equals(GenTypeParameterizable other)
     {
         if( ! (other instanceof GenTypeTpar) )

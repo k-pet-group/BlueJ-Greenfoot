@@ -10,7 +10,7 @@ import com.sun.jdi.VirtualMachine;
  * A proxy-type reflective for arrays.
  * 
  * @author Davin McCall
- * @version $Id: JdiArrayReflective.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: JdiArrayReflective.java 3102 2004-11-18 01:39:18Z davmac $
  */
 public class JdiArrayReflective extends JdiReflective {
 
@@ -39,32 +39,36 @@ public class JdiArrayReflective extends JdiReflective {
         super.checkLoaded();
     }
     
+    /**
+     * Get the component name, as it appears in the class name given to a
+     * classloader.
+     */
     private String componentName()
     {
-        if( componentType instanceof GenTypeBool )
+        if (componentType.typeIs(GenType.GT_BOOLEAN))
             return "Z";
-        if( componentType instanceof GenTypeByte )
+        if (componentType.typeIs(GenType.GT_BYTE))
             return "B";
-        if( componentType instanceof GenTypeChar )
+        if (componentType.typeIs(GenType.GT_CHAR))
             return "C";
-        if( componentType instanceof GenTypeDouble )
+        if (componentType.typeIs(GenType.GT_DOUBLE))
             return "D";
-        if( componentType instanceof GenTypeFloat )
+        if (componentType.typeIs(GenType.GT_FLOAT))
             return "F";
-        if( componentType instanceof GenTypeInt )
+        if (componentType.typeIs(GenType.GT_INT))
             return "I";
-        if( componentType instanceof GenTypeLong )
+        if (componentType.typeIs(GenType.GT_LONG))
             return "J";
-        if( componentType instanceof GenTypeShort )
+        if (componentType.typeIs(GenType.GT_SHORT))
             return "S";
-        
-        if( componentType instanceof GenTypeArray ) {
-            Reflective r = ((GenTypeArray)componentType).getReflective();
+
+        if (componentType instanceof GenTypeArray) {
+            Reflective r = ((GenTypeArray) componentType).getReflective();
             return r.getName();
         }
-        
+
         // If we get to here, assume it's a class/interface type.
-        GenTypeClass gtc = (GenTypeClass)componentType;
+        GenTypeClass gtc = (GenTypeClass) componentType;
         return "L" + gtc.rawName() + ";";
     }
 }

@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: JavaUtils15.java 3102 2004-11-18 01:39:18Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -532,7 +532,7 @@ public class JavaUtils15 extends JavaUtils {
         // Assume we have an array
         GenericArrayType gat = (GenericArrayType)t;
         GenType componentType = genTypeFromType(gat.getGenericComponentType());
-        return new GenTypeArray(componentType, new JavaArrayReflective(gat));
+        return new GenArray(componentType);
     }
     
 }

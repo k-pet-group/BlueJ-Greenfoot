@@ -1,7 +1,6 @@
 package bluej.debugger.gentype;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * A "solid" type is a non-primitive, non-wildcard type. This includes arrays,
@@ -9,30 +8,28 @@ import java.util.Map;
  * a component type for a wildcard clause.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSolid.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: GenTypeSolid.java 3102 2004-11-18 01:39:18Z davmac $
  */
 public abstract class GenTypeSolid extends GenTypeParameterizable {
 
-    /*
-     * @see bluej.debugger.gentype.GenTypeParameterizable#equals(bluej.debugger.gentype.GenTypeParameterizable)
-     */
-    public abstract boolean equals(GenTypeParameterizable other);
-
-    /*
-     * @see bluej.debugger.gentype.GenTypeParameterizable#getParamsFromTemplate(java.util.Map, bluej.debugger.gentype.GenTypeParameterizable)
-     */
-    public abstract void getParamsFromTemplate(Map map,
-            GenTypeParameterizable template);
-
-    /*
-     * @see bluej.debugger.gentype.GenType#toString(boolean)
-     */
+    // force toString(boolean) to be reimplemented
     public abstract String toString(boolean stripPrefix);
     
+    // force toString(NameTransform) to be reimplemented
+    public abstract String toString(NameTransform nt);
+    
+    // provide a default implementation for toString().
     public String toString()
     {
         return toString(false);
     }
+    
+    public boolean isPrimitive()
+    {
+        return false;
+    }
+    
+    public abstract boolean isInterface();
     
     /**
      * Get the upper bounds for this type, as an array of reference types.

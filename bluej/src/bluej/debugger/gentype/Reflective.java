@@ -9,7 +9,7 @@ import java.util.List;
  * determine the generic type parameters, etc.
  *  
  * @author Davin McCall
- * @version $Id: Reflective.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: Reflective.java 3102 2004-11-18 01:39:18Z davmac $
  */
 public abstract class Reflective {
 
@@ -59,6 +59,13 @@ public abstract class Reflective {
      * @return   True if the other reflective type is assignable to this type
      */
     public abstract boolean isAssignableFrom(Reflective r);
+    
+    /**
+     * Return true if this reflective represents an interface type rather than
+     * a class type.
+     * @return   True if this reflective represents an interface
+     */
+    public abstract boolean isInterface();
     
     /**
      * Get a supertype (as a GenTypeClass) by name. The default implementation

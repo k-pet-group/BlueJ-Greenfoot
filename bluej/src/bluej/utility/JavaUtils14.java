@@ -14,7 +14,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: JavaUtils14.java 3102 2004-11-18 01:39:18Z davmac $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -233,23 +233,23 @@ public class JavaUtils14 extends JavaUtils
     {
         if (c.isPrimitive()) {
             if (c == boolean.class)
-                return new GenTypeBool();
+                return GenTypePrimitive.getBoolean();
             if (c == char.class)
-                return new GenTypeChar();
+                return GenTypePrimitive.getChar();
             if (c == byte.class)
-                return new GenTypeByte();
+                return GenTypePrimitive.getByte();
             if (c == short.class)
-                return new GenTypeShort();
+                return GenTypePrimitive.getShort();
             if (c == int.class)
-                return new GenTypeInt();
+                return GenTypePrimitive.getInt();
             if (c == long.class)
-                return new GenTypeLong();
+                return GenTypePrimitive.getLong();
             if (c == float.class)
-                return new GenTypeFloat();
+                return GenTypePrimitive.getFloat();
             if (c == double.class)
-                return new GenTypeDouble();
+                return GenTypePrimitive.getDouble();
             if (c == void.class)
-                return new GenTypeVoid();
+                return GenTypePrimitive.getVoid();
             Debug.message("getReturnType: Unknown primitive type");
         }
         if (c.isArray()) {
