@@ -7,14 +7,12 @@ import java.util.List;
 
 import bluej.Config;
 
-import com.apple.mrj.MRJFileUtils;
-
 /**
  * Some generally useful utility methods available to all of bluej.
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 2449 2004-01-09 02:29:47Z ajp $
+ * @version $Id: Utility.java 2462 2004-01-27 12:34:34Z mik $
  */
 public class Utility
 {
@@ -200,12 +198,7 @@ public class Utility
                     url = encodeURLSpaces("file://" + url);
                 else
                     url = encodeURLSpaces(url);
-                if(System.getProperty("java.vm.version").startsWith("1.3")) {
-                    MRJFileUtils.openURL(url);
-                }
-                else {
-                    com.apple.eio.FileManager.openURL(url);
-                }
+                com.apple.eio.FileManager.openURL(url);
             }
             catch(IOException e) {
                 Debug.reportError("could not start web browser. exc: " + e);
