@@ -13,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 2276 2003-11-05 15:02:44Z mik $
+ * @version $Id: AboutBlue.java 2281 2003-11-05 17:43:53Z mik $
  */
 class AboutBlue extends JDialog
 {
@@ -61,7 +61,7 @@ class AboutBlue extends JDialog
         text.addText("      Kasper Fisker, Poul Henriksen,\n" +
                      "      Michael K\u00F6lling\n");
         text.addText(" ");
-        text.addText("The BlueJ extension team at Kent University", false, true);
+        text.addText("The BlueJ team at Kent University", false, true);
         text.addText("      Damiano Bolla, Ian Utting");
 
         aboutPanel.add(text, BorderLayout.CENTER);
@@ -70,7 +70,7 @@ class AboutBlue extends JDialog
         MultiLineLabel bottomtext = new MultiLineLabel(LEFT_ALIGNMENT);
         bottomtext.setBackground(Color.white);
         bottomtext.addText(" ");
-        bottomtext.addText("More information is at www.bluej.org");
+        bottomtext.addText("More information is at www.bluej.org.");
 
         aboutPanel.add(bottomtext, BorderLayout.SOUTH);
 

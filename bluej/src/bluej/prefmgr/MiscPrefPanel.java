@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-import bluej.Main;
 import bluej.Config;
 import bluej.BlueJTheme;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -15,7 +14,7 @@ import bluej.utility.DialogManager;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 2210 2003-10-11 14:50:39Z mik $
+ * @version $Id: MiscPrefPanel.java 2281 2003-11-05 17:43:53Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {

@@ -15,7 +15,6 @@ import bluej.debugmgr.inspector.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
-import bluej.testmgr.*;
 import bluej.testmgr.record.*;
 import bluej.utility.*;
 import bluej.views.*;
@@ -28,7 +27,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2227 2003-10-28 02:08:15Z ajp $
+ * @version $Id: ObjectWrapper.java 2281 2003-11-05 17:43:53Z mik $
  */
 public class ObjectWrapper extends JComponent
 {

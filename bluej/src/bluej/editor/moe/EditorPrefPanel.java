@@ -11,7 +11,6 @@ package bluej.editor.moe;
 import javax.swing.*;
 import java.awt.*;
 
-import bluej.Main;
 import bluej.Config;
 import bluej.BlueJTheme;
 import bluej.pkgmgr.Package;
@@ -22,7 +21,7 @@ import bluej.prefmgr.*;
  * editor settings
  *
  * @author  Michael Kolling
- * @version $Id: EditorPrefPanel.java 2210 2003-10-11 14:50:39Z mik $
+ * @version $Id: EditorPrefPanel.java 2281 2003-11-05 17:43:53Z mik $
  */
 public class EditorPrefPanel extends JPanel implements PrefPanelListener
 {

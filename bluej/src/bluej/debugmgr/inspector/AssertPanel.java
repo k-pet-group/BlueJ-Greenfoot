@@ -1,6 +1,5 @@
 package bluej.debugmgr.inspector;
 
-import java.awt.Color;
 import java.awt.event.*;
 import java.util.StringTokenizer;
 
@@ -13,7 +12,7 @@ import bluej.testmgr.record.InvokerRecord;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 2231 2003-10-28 05:04:41Z ajp $
+ * @version $Id: AssertPanel.java 2281 2003-11-05 17:43:53Z mik $
  */
 public class AssertPanel extends JPanel
 {

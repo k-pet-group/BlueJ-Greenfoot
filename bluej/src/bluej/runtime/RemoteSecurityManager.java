@@ -1,16 +1,12 @@
 package bluej.runtime;
 
 import java.security.Permission;
-import java.awt.*;
-
-// NOTE: CURRENTLY UNUSED. PENDING FOR REMOVAL
 
 /**
  * A SecurityManager for the BlueJ runtime
  *
- * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 2253 2003-11-04 13:49:11Z mik $
+ * @version $Id: RemoteSecurityManager.java 2281 2003-11-05 17:43:53Z mik $
  */
 public class RemoteSecurityManager extends SecurityManager
 {

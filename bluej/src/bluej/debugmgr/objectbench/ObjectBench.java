@@ -8,7 +8,6 @@ import javax.swing.event.*;
 import javax.swing.plaf.basic.*;
 import java.util.*;
 
-import bluej.testmgr.*;
 import bluej.testmgr.record.*;
 
 /**
@@ -17,7 +16,7 @@ import bluej.testmgr.record.*;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2227 2003-10-28 02:08:15Z ajp $
+ * @version $Id: ObjectBench.java 2281 2003-11-05 17:43:53Z mik $
  */
 public class ObjectBench
 {

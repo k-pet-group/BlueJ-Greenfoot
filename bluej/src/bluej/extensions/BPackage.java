@@ -5,7 +5,6 @@ import bluej.debugmgr.objectbench.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.*;
-import bluej.utility.*;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -17,7 +16,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2266 2003-11-05 11:20:26Z damiano $
+ * @version $Id: BPackage.java 2281 2003-11-05 17:43:53Z mik $
  */
 
 /*
