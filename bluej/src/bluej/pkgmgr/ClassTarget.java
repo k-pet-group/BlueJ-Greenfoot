@@ -39,7 +39,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 124 1999-06-14 07:26:17Z mik $
+ ** @version $Id: ClassTarget.java 126 1999-06-15 03:42:35Z mik $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -518,14 +518,14 @@ public class ClassTarget extends EditableTarget
 	ViewFilter filter= new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
 	ConstructorView[] constructors = view.getConstructors();
 	
-	Debug.message("Adding constructors for " + cl);
-	Debug.message("Constructor count = " + constructors.length);
+	//Debug.message("Adding constructors for " + cl);
+	//Debug.message("Constructor count = " + constructors.length);
 	if (createMenuItems(menu, constructors, filter, 0, constructors.length, "new "))
 	    menu.addSeparator();
 		
 	filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
 	MethodView[] allMethods = view.getAllMethods();
-	Debug.message("Adding static methods for " + cl);
+	//Debug.message("Adding static methods for " + cl);
 	if(createMenuItems(menu, allMethods, filter, 0, allMethods.length, ""))
 	    menu.addSeparator();
     }
@@ -534,7 +534,7 @@ public class ClassTarget extends EditableTarget
 				      MemberView[] members, ViewFilter filter, 
 				      int first, int last, String prefix)
     {
-	Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
+	//Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
 	boolean hasEntries = false;
 	JMenuItem item;
 		
@@ -544,7 +544,7 @@ public class ClassTarget extends EditableTarget
 		//Debug.message("createSubMenu - calling filter.accept");
 		if(!filter.accept(m))
 		    continue;
-		Debug.message("createSubMenu - creating MenuItem");
+		//Debug.message("createSubMenu - creating MenuItem");
 		item = new JMenuItem(prefix + m.getShortDesc());
 		item.addActionListener(this);
 		item.setFont(menuFont);

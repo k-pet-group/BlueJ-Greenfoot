@@ -1,5 +1,5 @@
 #BlueJ project file
-#Mon Jun 14 17:24:25 GMT+10:00 1999
+#Tue Jun 15 13:10:14 GMT+10:00 1999
 target4.name=Adapter
 target5.type=ClassTarget
 target1.height=50
@@ -10,7 +10,7 @@ target4.height=50
 dependency3.to=SubTester
 dependency1.type=UsesDependency
 target4.modifiers=0
-package.window.height=501
+package.window.height=491
 dependency4.to=Sortable
 dependency2.type=UsesDependency
 dependency3.type=UsesDependency

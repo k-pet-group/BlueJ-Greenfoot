@@ -326,11 +326,7 @@ public class PkgMgrFrame extends PkgFrame
 	    break;
 
 	case VIEW_SHOWCONTROLS:
-	    //toggleExecControls();
-	    break;
-
-	case VIEW_SHOWTERMINAL:
-	    //toggleTerminal();
+	    showHideExecControls(true, true);
 	    break;
 
 	case VIEW_CLEARTERMINAL:

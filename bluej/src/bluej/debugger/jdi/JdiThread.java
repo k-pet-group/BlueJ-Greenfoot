@@ -223,12 +223,7 @@ public final class JdiThread extends DebuggerThread
 
     public void stop()
     {
-	Debug.message("[JdiThread] stop - NYI");
-//  	try {
-//  	    rt.suspend();
-//  	} catch(Exception e) {
-//  	    e.printStackTrace(System.err);
-//  	}
+	rt.suspend();
     }
 
     public void step()

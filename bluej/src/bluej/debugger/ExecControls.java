@@ -11,7 +11,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 124 1999-06-14 07:26:17Z mik $
+ ** @version $Id: ExecControls.java 126 1999-06-15 03:42:35Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -65,10 +65,9 @@ public class ExecControls extends JFrame
 	    setVisible(false);
 	}
 	else if(obj == stopButton) {
-	    if(selectedThread != null) {
-		selectedThread.stop();
+	    if(machineIsRunning) {
+		Debugger.debugger.stopMachine();
 		updateThreads();
-		Debugger.debugger.threadStopped(selectedThread);
 	    }
 	}
 	else if(obj == stepButton) {

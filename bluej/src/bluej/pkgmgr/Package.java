@@ -28,7 +28,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 124 1999-06-14 07:26:17Z mik $
+ ** @version $Id: Package.java 126 1999-06-15 03:42:35Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -935,9 +935,9 @@ public class Package extends Graph
 	String[] files = new String[targets.size()];
 	for(int i = 0; i < targets.size(); i++) {
 	    ClassTarget ct = (ClassTarget)targets.get(i);
-	    ct.removeBreakpoints();
 	    files[i] = ct.sourceFile();
 	}
+	removeBreakpoints();
 	JobQueue.getJobQueue().addJob(files, this, classpath, getClassDir());
     }
 
@@ -958,6 +958,18 @@ public class Package extends Graph
 	    return true;
     }
 
+    /**
+     *  Remove all breakpoints in all classes.
+     */
+    private void removeBreakpoints()
+    {
+	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+	    Target target = (Target)e.nextElement();
+			
+	    if(target instanceof ClassTarget)
+		((ClassTarget)target).removeBreakpoints();
+	}
+    }
 
     public void addTarget(Target t)
     {

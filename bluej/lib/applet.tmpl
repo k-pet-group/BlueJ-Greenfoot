@@ -25,9 +25,9 @@ public class $CLASSNAME extends JApplet
         // this is a workaround for a security conflict with current browsers
         // including Netscape & Internet Explorer which do not allow access to 
         // AWT system event queuen which JApplets do on startup to check access. 
-        JRootPane rootPane = this.getRootPane();	
+        JRootPane rootPane = this.getRootPane();
         rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
-	
+
         // provide any initialisation necessary for your JApplet
 
     }
@@ -54,7 +54,6 @@ public class $CLASSNAME extends JApplet
     {
         // provide any code that needs to be run when page
         // is replaced by another page or before JApplet is destroyed 
-	
     }
 
     /**
@@ -65,7 +64,6 @@ public class $CLASSNAME extends JApplet
     public void destroy()
     {
         // provide code to be run when JApplet is about to be destroyed.
-	
     }
 
 
@@ -105,7 +103,7 @@ public class $CLASSNAME extends JApplet
 
     /**
      * Paint method for applet.
-     * 	
+     * 
      * @param  g   the Graphics object for this applet
      */
     public void paint(Graphics g)
@@ -117,7 +115,7 @@ public class $CLASSNAME extends JApplet
 
     /**
      * An example of a method - replace this comment with your own
-     * 	
+     * 
      * @param  y   a sample parameter for a method
      * @return     the sum of x and y 
      */

@@ -13,7 +13,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Debugger.java 124 1999-06-14 07:26:17Z mik $
+ ** @version $Id: Debugger.java 126 1999-06-15 03:42:35Z mik $
  **/
 
 public abstract class Debugger
@@ -134,10 +134,9 @@ public abstract class Debugger
 
 
     /**
-     * A thread has been stopped by the user. Make sure that the source 
-     * is shown.
+     * Stop all (non-system) threads in the remote VM.
      */
-    public abstract void threadStopped(DebuggerThread thread);
+    public abstract void stopMachine();
 
 
     /**

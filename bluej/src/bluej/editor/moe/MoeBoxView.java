@@ -28,6 +28,9 @@ public class MoeBoxView extends BoxView  {
      */
     public void paint(Graphics g, Shape allocation) 
     {
+	// paint the lines
+        super.paint(g, allocation);
+
 	// paine the tag line (possibly grey, always a separator line)
 
 	Rectangle bounds = allocation.getBounds();
@@ -42,8 +45,6 @@ public class MoeBoxView extends BoxView  {
 	g.drawLine(bounds.x + MoeEditor.TAG_WIDTH, 0, 
 		   bounds.x + MoeEditor.TAG_WIDTH, bounds.y + bounds.height);
 
-	// paint the lines
-        super.paint(g, allocation);
     }
 
 }

@@ -663,8 +663,8 @@ public class JdiDebugger extends Debugger
      * returning only user threads. This can be done only if the machine
      * is currently suspended.
      *
-     * @return  A vector of threads, or null if the machine is currently
-     *		running
+     * @return  A vector of threads (type JdiThread), or null if the machine
+     *		is currently running
      */
     public Vector listThreads()
     {
@@ -695,21 +695,18 @@ public class JdiDebugger extends Debugger
 
 
     /**
-     * A thread has been stopped by the user. Make sure that the source 
-     * is shown.
+     *  Stop all (non-system) threads in the remote VM.
      */
-    public void threadStopped(DebuggerThread thread)
+    public void stopMachine()
     {
-	//  	Package pkg = (Package)waitqueue.get(
-	//  				     ((JdiThread)thread).getRemoteThread());
-
-	//  	if(pkg == null)
-	//  	    Debug.reportError("cannot find class for stopped thread");
-	//  	else {
-	//  	    pkg.hitBreakpoint(thread.getClassSourceName(0),
-	//  			      thread.getLineNumber(0), 
-	//  			      thread.getName(), true);
-	//  	}
+	Debug.message("suspending...");
+	VirtualMachine vm = getVM();
+	Debug.message("got vm.");
+	vm.suspend();
+	Debug.message("suspended.");
+//  	Vector threads = listThreads();
+//  	for(int i = 0; i < threads.size(); i++)
+//  	    ((JdiThread)threads.get(i)).stop();
     }
 
     /**
