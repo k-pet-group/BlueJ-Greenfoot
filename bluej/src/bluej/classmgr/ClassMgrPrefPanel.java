@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import bluej.Config;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.prefmgr.*;
 
 /**
@@ -20,9 +21,10 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 416 2000-03-14 03:03:13Z ajp $
+ * @version $Id: ClassMgrPrefPanel.java 682 2000-09-06 07:12:15Z ajp $
  */
-public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener
+public class ClassMgrPrefPanel extends JPanel
+    implements PrefPanelListener
 {
     static final String prefpaneltitle = Config.getString("classmgr.prefpaneltitle");
 
@@ -206,6 +208,8 @@ public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener
 				String librarylocation = chooser.getSelectedFile().getAbsolutePath();
 
 				userLibrariesModel.addEntry(new ClassPathEntry(librarylocation,""));
+
+				DialogManager.showMessage(null, "classmgr-changes-no-effect");
 			}
 		}
 	}

@@ -247,6 +247,11 @@ Ange arrayelementindex [...]
 Inspektera Array
 null
 
+classmgr-changes-no-effect
+The changes you have made to the class libraries
+will not take effect until the next time you
+start BlueJ.
+
 # editor:
 #########
 

@@ -90,7 +90,7 @@ error in the setup of BlueJ, or because of file
 system access problems.
 
 error-open-source
-Cannot open the source 
+Cannot open the source
 of this class.
 
 error-open-readme
@@ -297,6 +297,11 @@ ask-index
 Enter array element index [...]
 Array Inspection
 null
+
+classmgr-changes-no-effect
+The changes you have made to the class libraries
+will not take effect until the next time you
+start BlueJ.
 
 # editor:
 #########
