@@ -753,6 +753,14 @@ Static methods can only call other static methods in
 their class (or they need to use an explicit object
 for the call).
 
+cannot find symbol*
+You are using a symbol here (a name for a variable,
+a method, or a class) that has not been declared in
+any visible scope. Check the spelling of that name -
+did you mistype it? Or did you forget to declare it?
+Or maybe you did declare it, but it is not visible
+from here.
+
 cannot resolve symbol*
 You are using a symbol here (a name for a variable,
 a method, or a class) that has not been declared in
