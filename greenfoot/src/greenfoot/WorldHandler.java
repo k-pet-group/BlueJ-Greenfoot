@@ -10,17 +10,14 @@ import greenfoot.gui.classbrowser.SelectionManager;
 
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -33,7 +30,7 @@ import rmiextension.wrappers.RObject;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3211 2004-12-02 13:12:54Z polle $
+ * @version $Id: WorldHandler.java 3213 2004-12-03 02:57:27Z davmac $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -149,15 +146,41 @@ public class WorldHandler
 
             GreenfootObject obj = getObject(e.getX(), e.getY());
             if (obj != null) {
-                JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(obj, e);
-                menu.setVisible(true);
+                JPopupMenu menu = makePopupMenu(obj);
+                //JPopupMenu menu = new JPopupMenu();
+                // ObjectWrapper.createMenuItems(menu, ...);
+                // new ObjectWrapper();
+                //JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(obj, e);
+                //menu.setVisible(true);
+                menu.show(worldCanvas, e.getX(), e.getY());
             }
             return true;
 
         }
         return false;
     }
-
+    
+    private JPopupMenu makePopupMenu(final GreenfootObject obj)
+    {
+        //JPopupMenu menu = new JPopupMenu();
+        //MethodView [] methods = new MethodView[0];
+        //ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj));
+        // add "inspect"
+        // add "remove"
+        JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(obj);
+        int cc = menu.getComponentCount();
+        menu.remove(cc - 1);
+        JMenuItem m = new JMenuItem("remove");
+        m.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                world.removeObject(obj);
+            }
+        });
+        menu.add(m);
+        return menu;
+    }
+    
     /**
      * TODO: this method should be removed when it is posisble to select among
      * multiple objects from a popup menu.
@@ -255,6 +278,8 @@ public class WorldHandler
                     int dragOffsetX = -go.getImage().getIconWidth() / 2;
                     int dragOffsetY = -go.getImage().getIconHeight() / 2;
                     DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
+                    // On the mac, the glass pane doesn't seem to receive
+                    // mouse move events; the shift/move is treated like a drag
                     worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
                     worldCanvas.addMouseListener(DragGlassPane.getInstance());
                 }
@@ -269,10 +294,15 @@ public class WorldHandler
      */
     public void keyReleased(KeyEvent e)
     {
-        isQuickAddActive = e.isShiftDown();
-        // DragGlassPane.getInstance().endDrag();
-        DragGlassPane.getInstance().cancelDrag();
+        DragGlassPane.getInstance().cancelDrag(); // dragEnded/dragFinished
         worldCanvas.requestFocus();
+        if (isQuickAddActive) {
+            isQuickAddActive = e.isShiftDown();
+            if (! isQuickAddActive) {
+                worldCanvas.removeMouseMotionListener(DragGlassPane.getInstance());
+                worldCanvas.removeMouseListener(DragGlassPane.getInstance());
+            }
+        }
     }
 
     /**
@@ -308,7 +338,7 @@ public class WorldHandler
             public void mouseReleased(MouseEvent e)
             {
                 if (e.isPopupTrigger()) {
-                    JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(WorldHandler.this.world, e);
+                    JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(WorldHandler.this.world);
                     menu.setVisible(true);
                 }
             }
@@ -316,7 +346,7 @@ public class WorldHandler
             public void mousePressed(MouseEvent e)
             {
                 if (e.isPopupTrigger()) {
-                    JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(WorldHandler.this.world, e);
+                    JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(WorldHandler.this.world);
                     menu.setVisible(true);
                 }
             }

@@ -32,7 +32,7 @@ import rmiextension.wrappers.event.RActionListenerWrapper;
  * Maximum Solutions for more information.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: MenuSerializer.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: MenuSerializer.java 3213 2004-12-03 02:57:27Z davmac $
  */
 public class MenuSerializer
     implements Serializable
@@ -229,13 +229,13 @@ public class MenuSerializer
      * @param e
      * @return
      */
-    public JPopupMenu getPopupMenu(MouseEvent e)
+    public JPopupMenu getPopupMenu()
     {
         JPopupMenu popup = ((JMenu) menu.getComponent()).getPopupMenu();
-        Component source = (Component) e.getSource();
-        Point locOnScr = source.getLocationOnScreen();
-        popup.setInvoker(source);
-        popup.setLocation((int) locOnScr.getX() + e.getX(), (int) locOnScr.getY() + e.getY());
+        //Component source = (Component) e.getSource();
+        //Point locOnScr = source.getLocationOnScreen();
+        //popup.setInvoker(source);
+        //popup.setLocation((int) locOnScr.getX() + e.getX(), (int) locOnScr.getY() + e.getY());
         return popup;
     }
 

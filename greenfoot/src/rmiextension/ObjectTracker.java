@@ -1,6 +1,5 @@
 package rmiextension;
 
-import java.awt.event.MouseEvent;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.logging.Logger;
@@ -18,7 +17,7 @@ import bluej.runtime.ExecServer;
  * and BlueJ-VM Has both a representation in greenfoot and bluej VM.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ObjectTracker.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: ObjectTracker.java 3213 2004-12-03 02:57:27Z davmac $
  */
 public class ObjectTracker
 {
@@ -104,10 +103,10 @@ public class ObjectTracker
         return null;
     }
 
-    public JPopupMenu getJPopupMenu(Object obj, MouseEvent e)
+    public JPopupMenu getJPopupMenu(Object obj)
     {
         try {
-            return getRObject(obj).getMenu().getPopupMenu(e);
+            return getRObject(obj).getMenu().getPopupMenu();
         }
         catch (RemoteException e1) {
             e1.printStackTrace();
