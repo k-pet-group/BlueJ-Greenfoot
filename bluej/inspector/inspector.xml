@@ -8,7 +8,8 @@
     <!-- set up classpath -->
     <path id="bluej.class.path">
         <pathelement location="${bluej_home}/classes" />
-        <pathelement location="${bluej_home}/lib/antlr.jar" />
+        <pathelement location="${bluej_home}/lib/antlrall.jar" />
+        <pathelement location="${bluej_home}/lib/MRJToolkitStubs.zip" />
         <pathelement location="${java_home}/lib/tools.jar" />
     </path>
 
