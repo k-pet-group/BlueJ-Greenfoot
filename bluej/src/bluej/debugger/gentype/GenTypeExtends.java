@@ -5,7 +5,7 @@ import java.util.Map;
 /* "? extends ..." type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeExtends.java 2615 2004-06-16 07:01:33Z davmac $
+ * @version $Id: GenTypeExtends.java 2639 2004-06-21 02:09:00Z davmac $
  */
 public class GenTypeExtends extends GenTypeWildcard
 {
@@ -70,7 +70,20 @@ public class GenTypeExtends extends GenTypeWildcard
 
     public GenTypeParameterizable mapTparsToTypes(Map tparams)
     {
-        GenTypeSolid n = (GenTypeSolid)upperBound.mapTparsToTypes(tparams);
-        return new GenTypeExtends(n);
+        GenType n = upperBound.mapTparsToTypes(tparams);
+
+        if(n instanceof GenTypeSolid) {
+            GenTypeSolid m = (GenTypeSolid)n;
+            return new GenTypeExtends(m);
+        }
+        
+        if(n instanceof GenTypeExtends) {
+            GenTypeExtends e = (GenTypeExtends)n;
+            GenTypeSolid bound = e.upperBound;
+            return new GenTypeExtends(bound);
+        }
+        
+        // otherwise assume n is GenTypeSuper or GenTypeUnbounded.
+        return new GenTypeUnbounded();
     }
 }

@@ -11,7 +11,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2636 2004-06-20 11:03:55Z polle $
+ * @version $Id: JavaUtils15.java 2639 2004-06-21 02:09:00Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -247,8 +247,10 @@ public class JavaUtils15 extends JavaUtils {
             }
             else
                 sb.append(getTypeName(lowerBounds[0]));
-            if( upperBounds.length != 0 && upperBounds[0] != null )
+            if( upperBounds.length != 0 && upperBounds[0] != null && upperBounds[0] != Object.class) {
                 Debug.message("getTypeName: upper and lower bound?");
+                Debug.message("upper bound is: " + upperBounds[0]);
+            }
             if( lowerBounds.length != 1 )
                 Debug.message("getTypeName: multiple lower bounds for wildcard type?");
         }
@@ -283,11 +285,11 @@ public class JavaUtils15 extends JavaUtils {
 
     /**
      * Get the type parameters for a generic method. For example, for the
-     * method:   <code>&lt;T&gt; addAll(List&lt;T&gt;</code>
+     * method:   <code>&lt;T&gt; addAll(List&lt;T&gt;)</code>
      * this would return "&lt;T&gt;".
      * Returns the empty string for a non-generic method.
      * @param method  The method to retrieve the parameters of
-     * @return the parameters
+     * @return the parameters (or an empty string)
      */
     static private String getTypeParameters(Method method)
     {

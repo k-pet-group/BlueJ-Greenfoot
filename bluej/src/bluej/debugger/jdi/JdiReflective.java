@@ -12,7 +12,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  *  
  * @author Davin McCall
- * @version $Id: JdiReflective.java 2621 2004-06-18 01:58:59Z davmac $
+ * @version $Id: JdiReflective.java 2639 2004-06-21 02:09:00Z davmac $
  */
 public class JdiReflective extends Reflective {
 
@@ -176,10 +176,11 @@ public class JdiReflective extends Reflective {
                     // eg in A<...> extends B<String,Integer>, this is "String".
                     GenType sParamType = fromSignature(s, null, rclass); // super parameter type
                     bParams.add(sParamType);
-                    c = s.next();
+                    c = s.peek();
                 }
                 
-                c = s.next();  // read terminating ';'
+                s.next();  // read terminating '>'
+                s.next();  // read ';'
                 rlist.add(new GenTypeClass(bReflective, bParams));
             }
         }
@@ -320,8 +321,11 @@ public class JdiReflective extends Reflective {
             return new GenTypeDouble();
         }
         
-        if( c != 'L' )
+        if( c != 'L' ) {
             Debug.message("Generic signature begins without 'L'?? (got " + c + ")");
+            // DAV !
+            throw new NullPointerException();
+        }
         
         String basename = readClassName(i);
         Reflective reflective = new JdiReflective(basename,parent);
