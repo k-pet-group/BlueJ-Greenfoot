@@ -11,12 +11,12 @@ import java.io.File;
  * A FileView subclass that enables BlueJ packages to be displayed with a
  * distinct icon in a FileChooser.
  *
- * @version $ $
  * @author Michael Kolling
  * @see FileUtility
+ * @version $Id: PackageFileView.java 900 2001-05-23 04:28:24Z ajp $
  */
-public class PackageFileView extends FileView {
-
+public class PackageFileView extends FileView
+{
     static final Icon packageIcon = Config.getImageAsIcon("image.packageIcon");
 
     /**
@@ -24,44 +24,36 @@ public class PackageFileView extends FileView {
      * view handle this. (All methods that return null get then handled by
      * the system.)
      */
-    public String getName(File f) {
-	return null;
+    public String getName(File f)
+    {
+        return null;
     }
 
     /**
      * A human readable description of the file.
      */
-    public String getDescription(File f) {
-	return "Unknown file";
+    public String getDescription(File f)
+    {
+        return null;
     }
 
     /**
      * A human readable description of the type of the file.
      */
-    public String getTypeDescription(File f) {
-	return null;
+    public String getTypeDescription(File f)
+    {
+        return null;
     }
 
     /**
-     * Here we return proper BlueJ package icons for JB packages.
+     * Here we return proper BlueJ package icons for BlueJ packages.
      * Everything else gets handled by the system (by returning null).
      */
-    public Icon getIcon(File f) {
-	if(Package.isBlueJPackage(f))
-	    return packageIcon;
-	else
-	    return null;
+    public Icon getIcon(File f)
+    {
+        if(Package.isBlueJPackage(f))
+            return packageIcon;
+        else
+            return null;
     }
-
-    /**
-     * Whether the directory is traversable or not.
-     */
-    public Boolean isTraversable(File f) {
-	if(f.isDirectory()) {
-	    return Boolean.TRUE;
-	} else {
-	    return Boolean.FALSE;
-	}
-    }
-
 }
