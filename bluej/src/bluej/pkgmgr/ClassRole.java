@@ -18,7 +18,7 @@ import java.util.Properties;
  * particular class types
  *
  * @author  Bruce Quig
- * @version $Id: ClassRole.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: ClassRole.java 1911 2003-04-28 21:35:13Z mik $
  */
 public abstract class ClassRole
 {
@@ -123,7 +123,7 @@ public abstract class ClassRole
     }
 
     /**
-     * Adds role specific items to the popup menu for this class target.
+     * Adds role specific items at the top of the popup menu for this class target.
      *
      * @param menu the menu object to add to
      * @param ct ClassTarget object associated with this class role
@@ -132,6 +132,20 @@ public abstract class ClassRole
      * @return true if any menu items have been added
      */
     protected boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, int state)
+    {
+        return false;
+    }
+
+    /**
+     * Adds role specific items at the bottom of the popup menu for this class target.
+     *
+     * @param menu the menu object to add to
+     * @param ct ClassTarget object associated with this class role
+     * @param state the state of the ClassTarget
+     *
+     * @return true if any menu items have been added
+     */
+    protected boolean createRoleMenuEnd(JPopupMenu menu, ClassTarget ct, int state)
     {
         return false;
     }

@@ -1,5 +1,7 @@
 package bluej.pkgmgr;
 
+import bluej.prefmgr.PrefMgr;
+
 import javax.swing.*;
 
 /**
@@ -7,7 +9,7 @@ import javax.swing.*;
  * StdClassRole is used to represent standard Java classes.
  *
  * @author Bruce Quig
- * @version $Id: StdClassRole.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: StdClassRole.java 1911 2003-04-28 21:35:13Z mik $
  */
 public class StdClassRole extends ClassRole
 {
@@ -34,5 +36,29 @@ public class StdClassRole extends ClassRole
     protected boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, int state)
     {
         return false;
+    }
+
+
+        /**
+     * Adds role specific items at the bottom of the popup menu for this class target.
+     *
+     * @param menu the menu object to add to
+     * @param ct ClassTarget object associated with this class role
+     * @param state the state of the ClassTarget
+     *
+     * @return true if any menu items have been added
+     */
+    protected boolean createRoleMenuEnd(JPopupMenu menu, ClassTarget ct, int state)
+    {
+        if(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS)) {
+            if (ct.getAssociation() == null) {
+                menu.addSeparator();
+                addMenuItem(menu, ct.new CreateTestAction(), true);
+//              addMenuItem(menu, new AssociateTestAction(), true);
+            }
+//          else
+//              addMenuItem(menu, new DisassociateTestAction(), true);
+        }
+        return true;
     }
 }

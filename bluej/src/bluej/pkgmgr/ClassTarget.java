@@ -27,7 +27,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1847 2003-04-14 06:51:23Z ajp $
+ * @version $Id: ClassTarget.java 1911 2003-04-28 21:35:13Z mik $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -37,6 +37,7 @@ public class ClassTarget extends EditableTarget
     private static final String compileStr = Config.getString("pkgmgr.classmenu.compile");
     private static final String inspectStr = Config.getString("pkgmgr.classmenu.inspect");
     private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
+    private static final String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
 
     // Define Background Colours
     private static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
@@ -817,7 +818,7 @@ public class ClassTarget extends EditableTarget
         Class cl = null;
 
         if (state == S_NORMAL) {
-            // handle error causes when loading 1.4 compiled classes
+            // handle error caused when loading 1.4 compiled classes
             // on a 1.3 VM
             // we detect the error, remove the class file, and invalidate
             // to allow them to be recompiled
@@ -837,10 +838,10 @@ public class ClassTarget extends EditableTarget
             }
         }
 
-        // check that the class loading hasn't changed out state
+        // check that the class loading hasn't changed our state
         if (state == S_NORMAL) {
             if (true) { //(cl != null) && (last_class != cl)) {
-               if (menu != null)
+                if (menu != null)
                     editor.remove(menu);
                 menu = createMenu(cl);
                 editor.add(menu);
@@ -869,7 +870,7 @@ public class ClassTarget extends EditableTarget
     {
         JPopupMenu menu = new JPopupMenu(getBaseName() + " operations");
 
-        // call on role object to add any options needed
+        // call on role object to add any options needed at top
         role.createRoleMenu(menu, this, state);
 
         if (cl != null)
@@ -885,24 +886,17 @@ public class ClassTarget extends EditableTarget
         role.addMenuItem(menu, new InspectAction(), cl != null);
         role.addMenuItem(menu, new RemoveAction(), true);
 
-        if (getRole() instanceof StdClassRole) {
-			if (getAssociation() == null) {
-				menu.addSeparator();
-				role.addMenuItem(menu, new CreateTestAction(), true);
-//				role.addMenuItem(menu, new AssociateTestAction(), true);
-			}
-//			else
-//            	role.addMenuItem(menu, new DisassociateTestAction(), true);
-        }
+        // call on role object to add any options needed at bottom
+        role.createRoleMenuEnd(menu, this, state);
 
         return menu;
     }
 
-    private class CreateTestAction extends AbstractAction
+    public class CreateTestAction extends AbstractAction
     {
         public CreateTestAction()
         {
-            putValue(NAME, "Create Test Class");
+            putValue(NAME, createTestStr);
         }
 
         public void actionPerformed(ActionEvent e)
