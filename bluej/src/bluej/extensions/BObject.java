@@ -12,9 +12,12 @@ import bluej.debugger.*;
 /**
  * A wrapper for an object in the BlueJ object bench.
  * This wraps an object so you can add and remove it from the bench.
- * Bobjects can be obtained from BConstructor, BMethods or BField.
+ * Bobjects can be obtained from the following classes.
  *
- * @version $Id: BObject.java 1848 2003-04-14 10:24:47Z damiano $
+ * @see BConstructor
+ * @see BMethod
+ * @see BField
+ * @version $Id: BObject.java 1849 2003-04-14 14:05:01Z damiano $
  */
 
 /*

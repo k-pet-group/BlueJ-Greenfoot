@@ -7,7 +7,7 @@ import bluej.Config;
  * The Extensions superclass, all extensions must extend this class.
  * Your class must have an empty constructor.
  * 
- * @version    $Id: Extension.java 1848 2003-04-14 10:24:47Z damiano $
+ * @version    $Id: Extension.java 1849 2003-04-14 14:05:01Z damiano $
  */
 
 /*
@@ -86,6 +86,7 @@ public abstract class Extension
     /**
      * Should return a URL for more information about the extension.
      * Ideally this includes complete manual, possible upgrades and configuration details.
+     * If no url is available then null can be returned.
      */
     public URL getURL()
     {
