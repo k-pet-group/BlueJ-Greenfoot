@@ -12,7 +12,7 @@ import bluej.Config;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: GraphEditor.java 2085 2003-06-30 12:03:30Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -20,17 +20,17 @@ public class GraphEditor extends JComponent
     protected static final Color background = Config.getItemColour("colour.graph.background");
 
     private Graph graph;
-    private Vertex activeVertex;
-    private boolean motionListening;
-
+    private GraphElement activeGraphElement;
+    final static Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
+    final static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+    final static Cursor arrowCursor = new Cursor(Cursor.SE_RESIZE_CURSOR);
     private boolean readOnly = false;
 
     public GraphEditor(Graph graph)
     {
         this.graph = graph;
-
-        activeVertex = null;
-        motionListening = false;
+        activeGraphElement = null;
+        addMouseMotionListener(this);
     }
 
     public Dimension getPreferredSize()
@@ -63,7 +63,36 @@ public class GraphEditor extends JComponent
 	{
 		return false;
 	}
-	
+    /**
+     * Finds the graphElement that covers the coordinate x,y.
+     * If no element is found, null is returned.
+     * @param x the x coordinate
+     * @param y the x coordinate
+     * @return GraphElement 
+     */
+    private GraphElement findGraphElement(int x, int y){
+        GraphElement graphElement = null;
+        for (Iterator it = graph.getEdges(); it.hasNext(); ){
+            graphElement = (GraphElement)it.next();
+            if(graphElement.contains(x,y)){
+                return graphElement;
+            }
+        }
+        //Try to find a vertex containing the point
+        // Rather than breaking when we find the vertex we keep searching
+        // which will therefore find the LAST vertex containing the point
+        // This turns out to be the vertex which is rendered at the front
+        GraphElement ge = null;
+        for (Iterator it = graph.getVertices(); it.hasNext();){
+            graphElement = (GraphElement)it.next();
+            if(graphElement.contains(x,y)){
+                ge = graphElement;
+            }
+        }
+        return ge;
+    }
+
+
 	// ---- KeyListener interface ----
 	
     public void keyPressed(KeyEvent evt)
@@ -90,56 +119,49 @@ public class GraphEditor extends JComponent
 	
     public void mouseClicked(MouseEvent evt)
     {
-        if(activeVertex != null) {
+        if(activeGraphElement != null) {
             if(evt.getClickCount() > 1 && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-                activeVertex.doubleClick(evt, evt.getX(), evt.getY(), this);
+                activeGraphElement.doubleClick(evt, evt.getX(), evt.getY(), this);
             }
             else
-                activeVertex.singleClick(evt, evt.getX(), evt.getY(), this);
+            activeGraphElement.singleClick(evt, evt.getX(), evt.getY(), this);
         }
     }
-
-    public void mouseEntered(MouseEvent evt) {}
-    public void mouseExited(MouseEvent evt) {}
 
     public void mousePressed(MouseEvent evt)
     {
         int x = evt.getX();
         int y = evt.getY();
 
-        activeVertex = null;
-
-        // Try to find a vertex containing the point
-        // Rather than breaking when we find the vertex we keep searching
-        // which will therefore find the LAST vertex containing the point
-        // This turns out to be the vertex which is rendered at the front
-        for(Iterator it = graph.getVertices(); it.hasNext(); ) {
-            Vertex v = (Vertex)it.next();
-
-            if((v.getX() <= x) && (x < v.getX() + v.getWidth()) && (v.getY() <= y) && (y < v.getY() + v.getHeight())) {
-                activeVertex = v;
-            }
-        }
-
-        graph.setActiveVertex(activeVertex);
-
-        if((activeVertex != null) && !evt.isPopupTrigger() &&
+        activeGraphElement = findGraphElement(x,y);
+        graph.setActiveGraphElement(activeGraphElement);
+        // Signal the graphElement that it was clicked
+        if((activeGraphElement != null) && !evt.isPopupTrigger() &&
             ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-            activeVertex.mousePressed(evt, x, y, this);
-            if (!motionListening) {
-                startMotionListening();
+                activeGraphElement.mousePressed(evt, x, y, this);
+        }
+        //if the graphElement is selectable and it got clicked on a handle,
+        //then it is resizing.
+        if(activeGraphElement instanceof Selectable)
+        {
+            Selectable selectable = (Selectable) activeGraphElement;
+            if ( selectable.isHandle(x,y) )
+            {
+               selectable.setResizing(true);
+            }
+            else
+            {
+                selectable.setResizing(false);
             }
         }
     }
+    
+    
 
     public void mouseReleased(MouseEvent evt)
     {
-        if(activeVertex != null && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-            activeVertex.mouseReleased(evt, evt.getX(), evt.getY(), this);
-
-            if (motionListening) {
-                stopMotionListening();
-            }
+        if(activeGraphElement != null && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
+            activeGraphElement.mouseReleased(evt, evt.getX(), evt.getY(), this);
         }
     }
 
@@ -152,44 +174,66 @@ public class GraphEditor extends JComponent
         if (readOnly)
             return;
 
-        if(activeVertex != null)
-            activeVertex.mouseDragged(evt, evt.getX(), evt.getY(), this);
+        if(activeGraphElement != null)
+        activeGraphElement.mouseDragged(evt, evt.getX(), evt.getY(), this);
     }
+    
+   
 
     public void mouseMoved(MouseEvent evt)
     {
-        if(activeVertex != null)
-            activeVertex.mouseMoved(evt, evt.getX(), evt.getY(), this);
+        int x = evt.getX();
+        int y = evt.getY();
+        GraphElement ge = findGraphElement(x,y);
+        if(ge != null)
+        {
+            //make the mousecursor a hand
+            if(ge instanceof Selectable)
+			{
+			    setCursor(handCursor);
+                //are the mouse over a resizeHandle
+                if (((Selectable) ge).isHandle(x,y)){
+                    setCursor(arrowCursor);
+                }
+			} 
+        }
+        else
+        {
+            //make the mousecursor normal
+            setCursor(defaultCursor);
+        }
+        if(activeGraphElement != null)
+        {
+            activeGraphElement.mouseMoved(evt, evt.getX(), evt.getY(), this);
+        } 
     }
 
     // ---- end of MouseMotionListener interface ----
-	
 
-    public void startMotionListening()
-    {
-		addMouseMotionListener(this);
-		motionListening = true;
-    }
 
-    public void stopMotionListening()
-    {
-        // if we're not choosing anymore, remove listener
-        removeMouseMotionListener(this);
-        motionListening = false;
-    }
 
     protected void processMouseEvent(MouseEvent evt)
     {
         super.processMouseEvent(evt);
 
-        if(evt.isPopupTrigger())
-            if((activeVertex != null)) {
-                activeVertex.popupMenu(evt.getX(), evt.getY(), this);
-            }
+        if(evt.isPopupTrigger() && activeGraphElement != null)
+        {
+            activeGraphElement.popupMenu(evt.getX(), evt.getY(), this);
+        }
     }
 
     public void setReadOnly(boolean state)
     {
         readOnly = state;
     }
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+	 */
+	public void mouseEntered(MouseEvent e) {}
+
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+	 */
+	public void mouseExited(MouseEvent e) {}
 }

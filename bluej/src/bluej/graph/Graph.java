@@ -9,7 +9,7 @@ import java.awt.geom.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Graph.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: Graph.java 2085 2003-06-30 12:03:30Z fisker $
  */
 public abstract class Graph
 {
@@ -36,7 +36,8 @@ public abstract class Graph
         }
     }
 
-    public void setActiveVertex(Vertex v)
+    
+    public void setActiveGraphElement(GraphElement ge)
     {
     }
 

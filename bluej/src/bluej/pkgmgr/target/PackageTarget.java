@@ -18,7 +18,7 @@ import bluej.utility.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 2058 2003-06-24 19:45:51Z mik $
+ * @version $Id: PackageTarget.java 2085 2003-06-30 12:03:30Z fisker $
  */
 public class PackageTarget extends Target
 {
@@ -145,13 +145,13 @@ public class PackageTarget extends Target
 
     void drawUMLBorders(Graphics2D g)
     {
-        if(!((flags & F_SELECTED) == 0))
+        if(isSelected())
             g.setStroke(selectedStroke);
 
         g.drawRect(0, 0, tabWidth, TAB_HEIGHT);
         g.drawRect(0, TAB_HEIGHT, getWidth(), getHeight() - TAB_HEIGHT);
 
-        if((flags & F_SELECTED) == 0)
+        if(!isSelected())
                 return;
 
         g.setStroke(normalStroke);
@@ -253,6 +253,14 @@ public class PackageTarget extends Target
         public void actionPerformed(ActionEvent e)
         {
             getPackage().getEditor().raiseRemoveTargetEvent(t);
+        }
+    }
+    
+    public void remove(){
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+        if ( pmf.askRemovePackage(this) ){
+            deleteFiles();
+            getPackage().removePackage(this);   
         }
     }
 

@@ -18,7 +18,7 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 2038 2003-06-17 13:00:58Z fisker $
+ * @version $Id: ReadmeTarget.java 2085 2003-06-30 12:03:30Z fisker $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -184,7 +184,7 @@ public class ReadmeTarget extends Target
 
         Polygon p = new Polygon(xpoints, ypoints, 5);
 
-        int thickness = ((flags & F_SELECTED) == 0) ? 1 : 2;
+        int thickness = (isSelected()) ? 2 : 1;
 
         g.setColor(Color.white);
         g.fill(p);
@@ -275,4 +275,8 @@ public class ReadmeTarget extends Target
             openEditor();
         }
     }
+    
+    public void remove(){
+        // The user is not permitted to remove the readmefile
+   }
 }

@@ -3,6 +3,7 @@ package bluej.pkgmgr.target;
 import bluej.Config;
 import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
+import bluej.graph.*;
 import bluej.graph.Vertex;
 import bluej.graph.GraphEditor;
 import bluej.utility.Utility;
@@ -18,9 +19,9 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 2058 2003-06-24 19:45:51Z mik $
+ * @version $Id: Target.java 2085 2003-06-30 12:03:30Z fisker $
  */
-public abstract class Target extends Vertex implements Comparable
+public abstract class Target extends Vertex implements Comparable, Selectable
 {
     static final int MIN_WIDTH = 60;
     static final int MIN_HEIGHT = 40;
@@ -45,10 +46,6 @@ public abstract class Target extends Vertex implements Comparable
     public static final int S_INVALID = 1;
     public static final int S_COMPILING = 2;
 
-    /** Flags **/
-    public static final int F_SELECTED = 1 << 0;
-    public static final int F_QUEUED = 1 << 1;
-
     private String identifierName;      // the name handle for this target within
                                         // this package (must be unique within this
                                         // package)
@@ -60,8 +57,10 @@ public abstract class Target extends Vertex implements Comparable
     protected int drag_start_x, drag_start_y;
 
     protected int state = S_INVALID;
-    protected int flags = 0;
 
+    protected boolean selected;
+    protected boolean queued;
+    
     // the following fields are needed to correctly calculate the width of
     // a target in dependence of its name and the font used to display it
     static FontRenderContext FRC= new FontRenderContext(new AffineTransform(),
@@ -168,6 +167,62 @@ public abstract class Target extends Vertex implements Comparable
     {
         identifierName = newName;
     }
+    
+    
+    /* (non-Javadoc)
+     * @see bluej.graph.Selectable#setSelected(boolean)
+     */
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+        repaint();
+    }
+
+    /* (non-Javadoc)
+     * @see bluej.graph.Selectable#isSelected()
+     */
+    public boolean isSelected() {
+        return selected;
+    }
+    
+    public void toggleSelected(){
+        selected = !selected;
+        repaint();
+    }
+    
+    /* (non-Javadoc)
+     * @see bluej.graph.Selectable#isHandle(int, int)
+     */
+    public boolean isHandle(int x, int y) {
+        boolean resizing;
+        resizing = (x - this.getX() + y - this.getY() >= getWidth() + getHeight() - HANDLE_SIZE);
+        return resizing;
+    }
+
+    /* (non-Javadoc)
+     * @see bluej.graph.Selectable#isResizing()
+     */
+    public boolean isResizing() {
+        return resizing;
+    }
+
+    /* (non-Javadoc)
+     * @see bluej.graph.Selectable#setResizing(boolean)
+     */
+    public void setResizing(boolean resizing) {
+        this.resizing = resizing;
+    }
+
+    
+    
+    public boolean isQueued() {
+        return queued;
+    }
+
+   
+    public void setQueued(boolean queued) {
+        this.queued = queued;
+    }
+    
     /**
      * Return the current state of the target (one of S_NORMAL, S_INVALID,
      * S_COMPILING)
@@ -199,35 +254,6 @@ public abstract class Target extends Vertex implements Comparable
 	{
 		setState(S_INVALID);
 	}
-	
-    public void setFlag(int flag)
-    {
-        if((this.flags & flag) != flag)
-            {
-                this.flags |= flag;
-                repaint();
-            }
-    }
-
-    public void unsetFlag(int flag)
-    {
-        if((this.flags & flag) != 0)
-            {
-                this.flags &= ~flag;
-                repaint();
-            }
-    }
-
-    public void toggleFlag(int flag)
-    {
-        this.flags ^= flag;
-        repaint();
-    }
-
-    public boolean isFlagSet(int flag)
-    {
-        return ((this.flags & flag) == flag);
-    }
 
     public boolean isResizable()
     {
@@ -297,7 +323,7 @@ public abstract class Target extends Vertex implements Comparable
      */
     protected void drawBorders(Graphics2D g)
     {
-        int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
+        int thickness = isSelected() ? 4 : 1;
         Utility.drawThickRect(g, 0, 0, getWidth(), getHeight(), thickness);
 
         // Draw lines showing resize tag
@@ -317,8 +343,6 @@ public abstract class Target extends Vertex implements Comparable
             pkg.targetSelected(this);
             return;
         }
-
-        resizing = (x - this.getX() + y - this.getY() >= getWidth() + getHeight() - HANDLE_SIZE);
         drag_start_x = x;
         drag_start_y = y;
         oldRect = new Rectangle(this.getX(), this.getY(), getWidth(), getHeight());
@@ -335,8 +359,9 @@ public abstract class Target extends Vertex implements Comparable
             for(Iterator it = pkg.getVertices(); overClass == null && it.hasNext(); ) {
                 Target v = (Target)it.next();
 
-                if((v.getX() <= x) && (x < v.getX() + v.getWidth()) && (v.getY() <= y) && (y < v.getY() + v.getHeight()))
+                if (v.contains(x,y)){
                     overClass = v;
+                }
             }
             if (overClass != null && overClass != this) {
                 pkg.targetSelected(overClass);

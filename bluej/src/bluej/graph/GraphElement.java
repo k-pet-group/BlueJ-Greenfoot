@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
  */
 public abstract class GraphElement {
     
-    //abstract public void remove();
+    abstract public void remove();
     
     /**
      * Subtypes of Graph elements must override this if it want GraphEditor
@@ -25,16 +25,11 @@ public abstract class GraphElement {
     public abstract void draw(Graphics2D g);
 
     public void mousePressed(MouseEvent evt, int x, int y, GraphEditor editor) {}
-
     public void mouseReleased(MouseEvent evt, int x, int y, GraphEditor editor) {}
-
     public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor) {}
-
     public void mouseMoved(MouseEvent evt, int x, int y, GraphEditor editor) {}
-
     public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor) {}
     public void singleClick(MouseEvent evt, int x, int y, GraphEditor editor) {}
-
     public void popupMenu(int x, int y, GraphEditor editor) {}
     
 }

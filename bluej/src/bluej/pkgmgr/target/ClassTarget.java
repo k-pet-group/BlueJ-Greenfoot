@@ -1,3 +1,4 @@
+
 package bluej.pkgmgr.target;
 
 import java.applet.Applet;
@@ -32,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2082 2003-06-26 16:05:15Z damiano $
+ * @version $Id: ClassTarget.java 2085 2003-06-30 12:03:30Z fisker $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -1121,10 +1122,10 @@ public class ClassTarget extends EditableTarget
      */
     protected void drawBorders(Graphics2D g)
     {
-        int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
+        int thickness = (isSelected()) ? 4 : 1;
         Utility.drawThickRect(g, 0, 0, getWidth(), getHeight(), thickness);
 
-        if((flags & F_SELECTED) == 0)
+        if(!isSelected())
             return;
         // Draw lines showing resize tag
         g.drawLine(getWidth() - HANDLE_SIZE - 2, getHeight(),
@@ -1180,7 +1181,8 @@ public class ClassTarget extends EditableTarget
 
     public void mouseMoved(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-        if (getPackage().getState() != Package.S_IDLE) {
+        if ((getPackage().getState() == Package.S_CHOOSE_USES_TO) ||
+            (getPackage().getState() == Package.S_CHOOSE_EXT_TO) ) {
                 // Draw a line from this Target to the current Cursor position
                 Graphics g = editor.getGraphics();
                 g.setColor(colBorder);
@@ -1200,7 +1202,7 @@ public class ClassTarget extends EditableTarget
      * to remove applicable files.
      *
      */
-    public void prepareForRemoval()
+    private void prepareForRemoval()
     {
         if(editor != null)
             editor.close();
@@ -1258,4 +1260,12 @@ public class ClassTarget extends EditableTarget
 	public void generateDoc() {
 		getPackage().generateDocumentation(this);
 	}
+    
+    public void remove(){
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+        if ( pmf.askRemoveClass() ){
+            prepareForRemoval();
+            getPackage().removeClass(this);   
+        }
+    }
 }

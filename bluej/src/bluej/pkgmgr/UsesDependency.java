@@ -10,7 +10,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: UsesDependency.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: UsesDependency.java 2085 2003-06-30 12:03:30Z fisker $
  */
 public class UsesDependency extends Dependency
 {
@@ -19,10 +19,18 @@ public class UsesDependency extends Dependency
     private static final int SELECT_DIST = 4;
 
     private static final float  dash1[] = {5.0f,2.0f};
-    private static final BasicStroke dashed = new BasicStroke(1.0f,
+    private static final BasicStroke dashedUnselected = new BasicStroke(strokeWithDefault,
                                                               BasicStroke.CAP_BUTT,
                                                               BasicStroke.JOIN_MITER,
                                                               10.0f, dash1, 0.0f);
+    private static final BasicStroke dashedSelected = new BasicStroke(strokeWithSelected,
+                                                                  BasicStroke.CAP_BUTT,
+                                                                  BasicStroke.JOIN_MITER,
+                                                                  10.0f, dash1, 0.0f);
+    private static final BasicStroke normalSelected = new BasicStroke(strokeWithSelected);
+    private static final BasicStroke normalUnselected = new BasicStroke(strokeWithDefault);
+                                                              
+                                                              
     private int src_x, src_y, dst_x, dst_y;
     private boolean start_top, end_left;
     private boolean flag;	// flag to mark some dependencies
@@ -54,7 +62,18 @@ public class UsesDependency extends Dependency
 
     void draw(Color colour, Graphics2D g)
     {
-
+        Stroke dashedStroke, normalStroke;
+        if (isSelected()) 
+        {
+            dashedStroke = dashedSelected;
+            normalStroke = normalSelected;         
+        } 
+        else
+        {
+            dashedStroke = dashedUnselected;
+            normalStroke = normalUnselected;   
+        }
+        g.setStroke(normalStroke);
         int src_x = this.src_x;
         int src_y = this.src_y;
         int dst_x = this.dst_x;
@@ -69,7 +88,7 @@ public class UsesDependency extends Dependency
 
         g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y + 4);
         g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y - 4);
-        g.setStroke(dashed);
+        g.setStroke(dashedStroke);
 
        // Draw the start
         int corner_y = src_y + (start_top ? -15 : 15);
@@ -198,5 +217,10 @@ public class UsesDependency extends Dependency
     public boolean isFlagged()
     {
         return flag;
+    }
+    
+    public void remove(){
+        //TODO implement remove
+        pkg.removeArrow(this);
     }
 }

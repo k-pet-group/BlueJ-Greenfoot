@@ -6,7 +6,6 @@ import bluej.extensions.event.*;
 import bluej.pkgmgr.*;
 import bluej.utility.*;
 import java.io.*;
-import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
 import java.util.jar.*;

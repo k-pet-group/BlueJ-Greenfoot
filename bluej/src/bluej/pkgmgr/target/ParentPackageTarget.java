@@ -16,7 +16,7 @@ import bluej.utility.JavaNames;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 1952 2003-05-15 06:04:19Z ajp $
+ * @version $Id: ParentPackageTarget.java 2085 2003-06-30 12:03:30Z fisker $
  */
 public class ParentPackageTarget extends PackageTarget
 {
@@ -138,4 +138,8 @@ public class ParentPackageTarget extends PackageTarget
             getPackage().getEditor().raiseOpenPackageEvent(t, pkgName);
         }
     }
+    public void remove(){
+            // The user is not permitted to remove a paretnPackage
+    }
+
 }

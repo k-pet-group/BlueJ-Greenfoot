@@ -17,12 +17,15 @@ import bluej.utility.Debug;
  * A dependency between two targets in a package.
  *
  * @author  Michael Cahill
- * @version $Id: Dependency.java 2038 2003-06-17 13:00:58Z fisker $
+ * @version $Id: Dependency.java 2085 2003-06-30 12:03:30Z fisker $
  */
-public abstract class Dependency extends Edge
+public abstract class Dependency extends Edge implements Selectable
 {
     Package pkg;
     private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
+    protected boolean selected = false;
+    protected static final float strokeWithDefault = 1.0f;
+    protected static final float strokeWithSelected = 2.0f;
 
     public Dependency(Package pkg, DependentTarget from, DependentTarget to)
     {
@@ -47,6 +50,14 @@ public abstract class Dependency extends Edge
     {
         return to.hashCode() - from.hashCode();
     }
+
+    public void repaint()
+    {
+        if (pkg.getEditor() != null) {
+            pkg.getEditor().repaint();
+        }
+    }
+
 
     public DependentTarget getFrom()
     {
@@ -93,8 +104,8 @@ public abstract class Dependency extends Edge
             putValue(NAME, removeStr);
         }
 
-				public void actionPerformed(ActionEvent e) {
-           pkg.removeArrow(Dependency.this);
+		public void actionPerformed(ActionEvent e) {
+           remove();
 			
 		}
     }
@@ -104,4 +115,42 @@ public abstract class Dependency extends Edge
         return getFrom().getIdentifierName() +
                 " --> " + getTo().getIdentifierName();
     }
+    
+    /* (non-Javadoc)
+     * @see bluej.graph.Selectable#setSelected(boolean)
+     */
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+        repaint();
+    }
+
+    /* (non-Javadoc)
+     * @see bluej.graph.Selectable#isSelected()
+     */
+    public boolean isSelected() {
+        return selected;
+    }
+    
+    
+    
+	/* (non-Javadoc)
+	 * @see bluej.graph.Selectable#isHandle(int, int)
+	 */
+	public boolean isHandle(int x, int y) {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see bluej.graph.Selectable#isResizeing()
+	 */
+	public boolean isResizing() {
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see bluej.graph.Selectable#setResizeing(boolean)
+	 */
+	public void setResizing(boolean resizing) {
+	}
+
 }

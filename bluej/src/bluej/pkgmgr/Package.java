@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2047 2003-06-23 12:20:21Z mik $
+ * @version $Id: Package.java 2085 2003-06-30 12:03:30Z fisker $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -98,13 +98,13 @@ public final class Package extends Graph
     /** all the extends-arrows in a package */
     private List extendsArrows;
 
-    /** the currently selected target */
-    private Target selected;
+    /** the currently selected graphElement */
+    private GraphElement selected;
 
     /** Holds the choice of "from" target for a new dependency */
     private DependentTarget fromChoice;
 
-    /** used during arrow deletion */
+    /** the currently selected arrow */
     private Dependency currentArrow;
 
     /** the CallHistory of a package */
@@ -124,7 +124,6 @@ public final class Package extends Graph
     /** state constant */ public static final int S_CHOOSE_USES_TO = 2;
     /** state constant */ public static final int S_CHOOSE_EXT_FROM = 3;
     /** state constant */ public static final int S_CHOOSE_EXT_TO = 4;
-    /** state constant */ public static final int S_DELARROW = 5;
 
     /** determines the maximum length of the CallHistory of a package */
     public static final int HISTORY_LENGTH = 6;
@@ -388,13 +387,25 @@ public final class Package extends Graph
     }
 
     /**
-     * Get the currently selected Target.  Should return null if none are
-     * selected.
+     * Get the currently selected Target.  Should return null if the selected
+     * graphelement is not a Target
      *
      * @return the currently selected Target.
      */
     public Target getSelectedTarget()
     {
+        if (selected != null && selected instanceof Target)
+        {
+            return (Target) selected;
+        }
+        return null; 
+    }
+    
+    /**
+     * Getter method for the seleceted graphElement.
+     * @return the selected graphelement
+     */
+    public GraphElement getSelectedGraphElement(){
         return selected;
     }
 
@@ -973,10 +984,10 @@ public final class Package extends Graph
      */
     private void searchCompile(ClassTarget t, int dfcount, Stack stack, CompileObserver observer)
     {
-        if((t.getState() != Target.S_INVALID) || t.isFlagSet(Target.F_QUEUED))
+        if((t.getState() != Target.S_INVALID) || t.isQueued())
             return;
 
-        t.setFlag(Target.F_QUEUED);
+        t.setQueued(true);
         t.dfn = dfcount;
         t.link = dfcount;
 
@@ -991,7 +1002,7 @@ public final class Package extends Graph
 
             ClassTarget to = (ClassTarget)d.getTo();
 
-            if(to.isFlagSet(Target.F_QUEUED)) {
+            if(to.isQueued()) {
                 if((to.dfn < t.dfn) && (stack.search(to) != -1))
                     t.link = Math.min(t.link, to.dfn);
             }
@@ -1143,7 +1154,6 @@ public final class Package extends Graph
      */
     public void removeClass(ClassTarget removableTarget)
     {
-        removableTarget.prepareForRemoval();
         removeTarget(removableTarget);
         getEditor().repaint();
     }
@@ -1152,11 +1162,10 @@ public final class Package extends Graph
      *  Removes a class from the Package
      *
      *  @param removableTarget   the ClassTarget representing the class to
-     *				 be removed.
+     *	be removed.
      */
     public void removePackage(PackageTarget removableTarget)
     {
-        removableTarget.deleteFiles();
         removeTarget(removableTarget);
         getEditor().repaint();
     }
@@ -1437,21 +1446,23 @@ public final class Package extends Graph
         }
     }
 
-    public void setActiveVertex(Vertex v)
+    /**
+     * Sets which GraphElement is currently active. If the graphElement is 
+     * selectable (implements Selectable) the element gets a message that it
+     * is selected. The element (if any) that was selected before, get a 
+     * messeage that it is no longer selected.
+     * @param ge the GraphElement that now active.
+     */
+    public void setActiveGraphElement(GraphElement ge)
     {
-        if(selected != null)
-            selected.toggleFlag(Target.F_SELECTED);
-        selected = (Target)v;
-        if(selected != null) {
-            // XXX: currently broken
-            // int index = targets.indexOf(selected);
-            // int last = targets.size() - 1;
-            // Swap selected vertex with top
-            // targets.put(targets.get(last), index);
-            // targets.put(selected, last);
-
-            selected.toggleFlag(Target.F_SELECTED);
+        if(selected != null && selected instanceof Selectable){
+            ((Selectable)selected).setSelected(false);
         }
+        selected = ge;
+        if(selected != null && selected instanceof Selectable){
+            ((Selectable)selected).setSelected(true);
+        }
+            
     }
 
     /**
@@ -1557,27 +1568,7 @@ public final class Package extends Graph
 
     public void setState(int state)
     {
-        // Clean up after current state, if necessary
-        switch(this.state) {
-        case S_DELARROW:
-            if(currentArrow != null) {
-                currentArrow.highlight(getEditor().getGraphics2D());
-                currentArrow = null;
-            }
-            getEditor().removeMouseListener(this);
-            getEditor().removeMouseMotionListener(this);
-            break;
-        }
-
         this.state = state;
-
-        // Set up new state, if necessary
-        switch(this.state) {
-        case S_DELARROW:
-            getEditor().addMouseListener(this);
-            getEditor().addMouseMotionListener(this);
-            break;
-        }
     }
 
     public int getState()
@@ -1796,7 +1787,7 @@ public final class Package extends Graph
 
         if(invalidate) {
             t.setState(Target.S_INVALID);
-            t.unsetFlag(Target.F_QUEUED);
+            t.setQueued(false);
         }
 
         if(bringToFront || !t.getEditor().isShowing())
@@ -2002,7 +1993,7 @@ public final class Package extends Graph
 	            }
 	
 	            t.setState(successful ? Target.S_NORMAL : Target.S_INVALID);
-	            t.unsetFlag(Target.F_QUEUED);
+                t.setQueued(false);
 	            if(successful && t.editorOpen())
 	                t.getEditor().setCompiled(true);
 	        }
@@ -2110,12 +2101,14 @@ public final class Package extends Graph
         return null;
     }
 
+   
+	// MouseListener interface - only used while deleting arrow
+
     /**
      * remove the arrow representing the dependency d
      * @param d the dependency to remove
      */
-    public void removeArrow(Dependency d)
-    {
+    public void removeArrow(Dependency d){
         if (!(d instanceof UsesDependency)) {
             userRemoveDependency(d);
         }
@@ -2124,29 +2117,7 @@ public final class Package extends Graph
         getEditor().repaint();
     }
 
-    // MouseListener interface - only used while deleting arrow
-
-    public void mousePressed(MouseEvent evt)
-    {
-        switch(state) {
-        case S_DELARROW:
-            Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
-            if((currentArrow != null) && (currentArrow != selectedArrow))
-                currentArrow.highlight(getEditor().getGraphics2D());
-            if(selectedArrow != null) {
-
-                if (!(selectedArrow instanceof UsesDependency)) {
-                    userRemoveDependency(selectedArrow);
-                }
-                removeDependency(selectedArrow, true);
-                getEditor().repaint();
-            }
-            currentArrow = null;
-            setState(S_IDLE);
-            break;
-        }
-    }
-
+    public void mousePressed(MouseEvent evt){}
     public void mouseReleased(MouseEvent evt) {}
     public void mouseClicked(MouseEvent evt) {}
     public void mouseEntered(MouseEvent evt) {}
@@ -2156,19 +2127,7 @@ public final class Package extends Graph
 
     public void mouseDragged(MouseEvent evt) {}
 
-    public void mouseMoved(MouseEvent evt)
-    {
-        switch(state) {
-        case S_DELARROW:	// currently deleting an arrow
-            Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
-            if((currentArrow != null) && (currentArrow != selectedArrow))
-                currentArrow.highlight(getEditor().getGraphics2D());
-            if((selectedArrow != null) && (currentArrow != selectedArrow))
-                selectedArrow.highlight(getEditor().getGraphics2D());
-            currentArrow = selectedArrow;
-            break;
-        }
-    }
-
+    public void mouseMoved(MouseEvent evt) {}
+    
 	
 }

@@ -10,7 +10,7 @@ import bluej.pkgmgr.target.*;
  * An "implements" dependency between two (class) targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: ImplementsDependency.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: ImplementsDependency.java 2085 2003-06-30 12:03:30Z fisker $
  */
 public class ImplementsDependency extends Dependency
 {
@@ -20,11 +20,17 @@ public class ImplementsDependency extends Dependency
 	static final double ARROW_ANGLE = Math.PI / 6;	// radians
 	static final int SELECT_DIST = 4;
     private static final float  dash1[] = {5.0f,2.0f};
-    private static final BasicStroke dashed = new BasicStroke(1.0f,
-                                                      BasicStroke.CAP_BUTT,
-                                                      BasicStroke.JOIN_MITER,
-                                                      10.0f, dash1, 0.0f);
-
+    private static final BasicStroke dashedUnselected = new BasicStroke(strokeWithDefault,
+                                                           BasicStroke.CAP_BUTT,
+                                                           BasicStroke.JOIN_MITER,
+                                                           10.0f, dash1, 0.0f);
+    private static final BasicStroke dashedSelected = new BasicStroke(strokeWithSelected,
+                                                           BasicStroke.CAP_BUTT,
+                                                           BasicStroke.JOIN_MITER,
+                                                           10.0f, dash1, 0.0f);
+    private static final BasicStroke normalSelected = new BasicStroke(strokeWithSelected);
+    private static final BasicStroke normalUnselected = new BasicStroke(strokeWithDefault);
+        
 
 	public ImplementsDependency(Package pkg, DependentTarget from, DependentTarget to)
 	{
@@ -38,6 +44,20 @@ public class ImplementsDependency extends Dependency
 
 	void draw(Color colour, Graphics2D g)
 	{
+        Stroke dashedStroke, normalStroke;
+        if (isSelected()) 
+        {
+            //g.setXORMode(Color.red);
+            dashedStroke = dashedSelected;
+            normalStroke = normalSelected;            
+        } 
+        else
+        {
+            //g.setPaintMode();
+            dashedStroke = dashedUnselected;
+            normalStroke = normalUnselected;
+        }
+        g.setStroke(normalStroke);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g.setColor(colour);
@@ -60,7 +80,7 @@ public class ImplementsDependency extends Dependency
         int[] yPoints =  { pTo.y, pTo.y - (int)((ARROW_SIZE) * Math.sin(angle + ARROW_ANGLE)), pTo.y - (int)(ARROW_SIZE * Math.sin(angle - ARROW_ANGLE)) };
 
         g.drawPolygon(xPoints, yPoints, 3);
-        g.setStroke(dashed);
+        g.setStroke(dashedStroke);
         g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
 
 	}
@@ -129,4 +149,8 @@ public class ImplementsDependency extends Dependency
 
 		props.put(prefix + ".type", "ImplementsDependency");
 	}
+    
+    public void remove(){
+        pkg.removeArrow(this);
+    }
 }

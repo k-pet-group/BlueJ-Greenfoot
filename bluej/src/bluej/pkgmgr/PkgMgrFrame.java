@@ -15,6 +15,8 @@ import bluej.debugger.*;
 import bluej.debugmgr.*;
 import bluej.debugmgr.inspector.*;
 import bluej.debugmgr.objectbench.*;
+import bluej.extmgr.ExtensionsManager;
+import bluej.graph.GraphElement;
 import bluej.extmgr.*;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
@@ -31,7 +33,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2083 2003-06-26 16:09:48Z damiano $
+ * @version $Id: PkgMgrFrame.java 2085 2003-06-30 12:03:30Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1468,32 +1470,47 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
-    public void doRemove(Target target)
-    {
-        if(target instanceof ClassTarget) {
-            ClassTarget t = (ClassTarget) target;
-            removeClass(t);
-        } else if(target instanceof PackageTarget) {
-            if(!(target instanceof ParentPackageTarget)) {
-                PackageTarget t = (PackageTarget) target;
-                removePackage(t);
-            }
+//    public void doRemove(Target target)
+//    {
+//        if(target instanceof ClassTarget) {
+//            ClassTarget t = (ClassTarget) target;
+//            removeClass(t);
+//        } else if(target instanceof PackageTarget) {
+//            if(!(target instanceof ParentPackageTarget)) {
+//                PackageTarget t = (PackageTarget) target;
+//                removePackage(t);
+//            }
+//        }
+//    }
+//
+//
+//    /**
+//     * Removes the currently selected ClassTarget
+//     * from the Package in this frame.
+//     */
+//    public void doRemove()
+//    {
+//        Target target = pkg.getSelectedTarget();
+//
+//        if(target == null)
+//            DialogManager.showError(this, "no-class-selected");
+//        else {
+//            doRemove(target);
+//        }
+//    }
+
+    public void doRemove(){
+        GraphElement graphElement = pkg.getSelectedGraphElement();
+        if (graphElement == null){
+            DialogManager.showError(this, "no-class-selected");
+        }
+        else{
+            graphElement.remove();
         }
     }
 
-    /**
-     * Removes the currently selected ClassTarget
-     * from the Package in this frame.
-     */
-    public void doRemove()
-    {
-        Target target = pkg.getSelectedTarget();
-
-        if(target == null)
-            DialogManager.showError(this, "no-class-selected");
-        else {
-            doRemove(target);
-        }
+    public void doRemove(GraphElement graphElement){
+        graphElement.remove();
     }
 
     /**
@@ -1516,12 +1533,13 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * The user function to remove an arrow from the dagram was invoked.
-     */
+     *
     public void doRemoveArrow()
     {
         pkg.setState(Package.S_DELARROW);
         setStatus(Config.getString("pkgmgr.chooseArrow"));
     }
+    */
 
 	/**
 	 * The user function to test all classes in a package
@@ -1614,38 +1632,37 @@ public class PkgMgrFrame extends JFrame
     }
     
     /**
-     * Remove the specified ClassTarget from the Package.
+     * Ask the user to confirm removal of package.
+     * @return zero if the user confirms removal.
      */
-    public void removeClass(ClassTarget removableTarget)
+    public boolean askRemoveClass()
     {
-        // Check they realise that this will delete the files.
         int response = DialogManager.askQuestion(this, "really-remove-class");
-
-        // if they agree
-        if(response == 0)
-            pkg.removeClass(removableTarget);
+        return response == 0;
     }
 
 
     /**
-     * Remove the specified PackageTarget from the Package.
+     * Ask the system and the user to confirm removal of package. The system
+     * prevent the package from being removed if frames holding classes in the
+     * package is open. 
+     * @param removableTarget
+     * @return true if the package should be removed.
      */
-    public void removePackage(PackageTarget removableTarget)
-    {
+    public boolean askRemovePackage(PackageTarget removableTarget){
         String name = removableTarget.getQualifiedName();
         PkgMgrFrame[] f = getAllProjectFrames(getProject(), name);
 
         if (f != null) {
             DialogManager.showError(this, "remove-package-open");
-            return;
+            return false;
         }
 
         // Check they realise that this will delete ALL the files.
         int response = DialogManager.askQuestion(this, "really-remove-package");
 
         // if they agree
-        if(response == 0)
-            pkg.removePackage(removableTarget);
+        return response == 0;
     }
 
 
@@ -2189,10 +2206,6 @@ public class PkgMgrFrame extends JFrame
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { clearStatus(); doNewInherits(); }
                            });
-            createMenuItem("menu.edit.removeArrow", menu, 0, 0, true,
-                           new ActionListener() {
-                               public void actionPerformed(ActionEvent e) { menuCall(); doRemoveArrow(); }
-                           });
         }
 
 
@@ -2371,6 +2384,29 @@ public class PkgMgrFrame extends JFrame
     {
         return toolsMenu;
     }    
+
+    /**
+     * Add or remove a separator in the tools menu for extensions as needed.
+     * To be deleted, Damiano
+    public void toolsExtensionsCheckSeparator()
+    {
+        if(extMgr.haveMenuItems( )) {   // do we need one?
+            if (toolsExtensionsSeparatorIndex > 0)          // have one already
+                return;
+
+            toolsExtensionsSeparatorIndex = toolsMenu.getItemCount();
+            toolsMenu.addSeparator();
+        } 
+        else {                                            // don't need one
+            if (toolsExtensionsSeparatorIndex <= 0)         // don't have one
+                return;
+
+            toolsMenu.remove(toolsExtensionsSeparatorIndex);
+            toolsExtensionsSeparatorIndex = 0;
+        }
+    }
+     */
+    
 
     /**
      * Called on (almost) every menu invocation to clean up.

@@ -8,7 +8,6 @@ import java.util.*;
 import java.util.List;
 
 import junit.framework.*;
-import bluej.utility.Debug;
 
 /**
  * Class that controls the runtime of code executed within BlueJ.
@@ -19,7 +18,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2062 2003-06-25 07:00:59Z ajp $
+ * @version $Id: ExecServer.java 2085 2003-06-30 12:03:30Z fisker $
  */
 public class ExecServer
 {

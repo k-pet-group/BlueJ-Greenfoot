@@ -6,7 +6,12 @@ package bluej.graph;
  * @version 
  */
 public interface Selectable {
-    
+    //selection
     public void setSelected(boolean selected);
     public boolean isSelected();
+    
+    //resizeing
+    public boolean isHandle(int x, int y);
+    public boolean isResizing();
+    public void setResizing(boolean resizeing);
 }

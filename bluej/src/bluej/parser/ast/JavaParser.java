@@ -1,12 +1,10 @@
 package bluej.parser.ast;
 
-import java.util.List;
 import java.io.*;
 import antlr.*;
 import antlr.collections.*;
 import antlr.debug.misc.*;
 import java.awt.event.*;
-import java.util.*;
 
 public class JavaParser
 {

@@ -12,7 +12,7 @@ import java.awt.*;
  * An "extends" dependency between two (class) targets in a package
  *
  * @author Michael Cahill
- * @version $Id: ExtendsDependency.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: ExtendsDependency.java 2085 2003-06-30 12:03:30Z fisker $
  */
 public class ExtendsDependency extends Dependency
 {
@@ -22,6 +22,8 @@ public class ExtendsDependency extends Dependency
     static final int ARROW_SIZE = 18;		// pixels
     static final double ARROW_ANGLE = Math.PI / 6;	// radians
     static final int SELECT_DIST = 4;
+    private static final BasicStroke normalSelected = new BasicStroke(strokeWithSelected);
+    private static final BasicStroke normalUnselected = new BasicStroke(strokeWithDefault);
 
     public ExtendsDependency(Package pkg, DependentTarget from, DependentTarget to)
     {
@@ -35,6 +37,16 @@ public class ExtendsDependency extends Dependency
 
     void draw(Color colour, Graphics2D g)
     {
+        BasicStroke normalStroke;
+        if (isSelected()) 
+        {
+            normalStroke = normalSelected;    
+        } 
+        else
+        {
+            normalStroke = normalUnselected;
+        }
+        g.setStroke(normalStroke);
         g.setColor(colour);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	    // Start from the centre of the src class
@@ -118,5 +130,10 @@ public class ExtendsDependency extends Dependency
 
         props.put(prefix + ".type", "ExtendsDependency");
     }
+    
+    public void remove(){
+        pkg.removeArrow(this);
+    }
+
 }
 
