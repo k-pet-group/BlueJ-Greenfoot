@@ -13,13 +13,13 @@ import bluej.utility.DialogManager;
 
 /**
  * Dialog for generating HTML and running applets.
- *
- * @author  Bruce Quig
- * @version $Id: RunAppletDialog.java 1954 2003-05-15 06:06:01Z ajp $
+ * 
+ * @author Bruce Quig
+ * @version $Id: RunAppletDialog.java 2845 2004-08-06 08:52:38Z mik $
  */
 
 public class RunAppletDialog extends JDialog
-	implements ListSelectionListener 
+    implements ListSelectionListener
 {
     // Internationalisation
     static final String createWebPage = Config.getString("pkgmgr.runApplet.webPageLabel");
@@ -32,13 +32,13 @@ public class RunAppletDialog extends JDialog
     static final String appletParameterLbl = Config.getString("pkgmgr.runApplet.appletParameterLbl");
     static final String nameLbl = Config.getString("pkgmgr.runApplet.nameLbl");
     static final String valueLbl = Config.getString("pkgmgr.runApplet.valueLbl");
-    
+
     public static final int EXEC_APPLETVIEWER = 0;
     public static final int EXEC_WEBBROWSER = 1;
     public static final int GENERATE_PAGE_ONLY = 2;
-    
+
     private String webPageName;
-    
+
     private JList parameterList;
     private DefaultListModel appletParameters;
     private JTextField paramNameField;
@@ -51,46 +51,53 @@ public class RunAppletDialog extends JDialog
     private JRadioButton generateWebPage;
     private JRadioButton runAppletViewer;
     private JRadioButton runWebBrowser;
-    
-    private boolean ok;		// result: which button?
-    
-    public RunAppletDialog(JFrame parent, String appletClassName) 
+
+    private boolean ok; // result: which button?
+
+    public RunAppletDialog(JFrame parent, String appletClassName)
     {
         super(parent, Config.getString("pkgmgr.runApplet.title"), true);
         this.parent = parent;
         addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent E) {
+            public void windowClosing(WindowEvent E)
+            {
                 ok = false;
                 setVisible(false);
             }
         });
-        JPanel mainPanel = (JPanel)getContentPane();  // has BorderLayout
+        JPanel mainPanel = (JPanel) getContentPane(); // has BorderLayout
         mainPanel.setBorder(BlueJTheme.dialogBorder);
-        
+
         appletParameters = new DefaultListModel();
         webPageName = appletClassName + AppletClassRole.HTML_EXTENSION;
-        
+
         // button panel at bottom of dialog
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JButton button;
         buttonPanel.add(button = BlueJTheme.getOkButton());
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) { doOK(); }        		
-		});
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt)
+            {
+                doOK();
+            }
+        });
         getRootPane().setDefaultButton(button);
         buttonPanel.add(button = BlueJTheme.getCancelButton());
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) { doCancel(); }        		
-		});
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt)
+            {
+                doCancel();
+            }
+        });
         getContentPane().add("South", buttonPanel);
-        
+
         GridBagLayout gridBag = new GridBagLayout();
         GridBagConstraints gridConstraints = new GridBagConstraints();
         gridConstraints.insets = new Insets(5, 5, 5, 5);
         JPanel webPanel = new JPanel();
-        
+
         // Radio Button group for execution options
         ButtonGroup bGroup = new ButtonGroup();
         JPanel radioPanel = new JPanel();
@@ -106,97 +113,97 @@ public class RunAppletDialog extends JDialog
         radioPanel.add(runWebBrowser);
         bGroup.add(runWebBrowser);
         getContentPane().add("North", radioPanel);
-        
-        webPanel.setBorder(BorderFactory.createCompoundBorder(
-        BorderFactory.createLineBorder(Color.darkGray),
-        BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-        
-        addGridBagComponent(webPanel, gridBag, gridConstraints,
-        new JLabel(heightLbl),
-        0, 1, 1, 1, GridBagConstraints.EAST);
-        
+
+        webPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.darkGray),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+
+        addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel(heightLbl), 0, 1, 1, 1,
+                GridBagConstraints.EAST);
+
         heightField = new JTextField(5);
-        addGridBagComponent(webPanel, gridBag, gridConstraints, heightField,
-        1, 1, 1, 1, GridBagConstraints.WEST);
-        
-        addGridBagComponent(webPanel, gridBag, gridConstraints,
-        new JLabel(widthLbl),
-        2, 1, 1, 1, GridBagConstraints.EAST);
-        
+        addGridBagComponent(webPanel, gridBag, gridConstraints, heightField, 1, 1, 1, 1, GridBagConstraints.WEST);
+
+        addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel(widthLbl), 2, 1, 1, 1,
+                GridBagConstraints.EAST);
+
         widthField = new JTextField(5);
-        addGridBagComponent(webPanel, gridBag, gridConstraints, widthField,
-        3, 1, 1, 1, GridBagConstraints.WEST);
-        
-        addGridBagComponent(webPanel, gridBag, gridConstraints,
-        new JLabel(newParameterLbl),
-        4, 2, 2, 1, GridBagConstraints.CENTER);
-        
+        addGridBagComponent(webPanel, gridBag, gridConstraints, widthField, 3, 1, 1, 1, GridBagConstraints.WEST);
+
+        addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel(newParameterLbl), 4, 2, 2, 1,
+                GridBagConstraints.CENTER);
+
         parameterList = new JList(appletParameters);
         parameterList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         parameterList.setModel(appletParameters);
         parameterList.addListSelectionListener(this);
         JScrollPane parameterScroller = new JScrollPane(parameterList);
-        parameterScroller.setColumnHeaderView(new JLabel(appletParameterLbl,
-        JLabel.CENTER));
-        addGridBagComponent(webPanel, gridBag, gridConstraints,
-        parameterScroller,
-        0, 2, 4, 4, GridBagConstraints.CENTER);
-        
-        addGridBagComponent(webPanel, gridBag, gridConstraints,
-        new JLabel(nameLbl),
-        4, 3, 1, 1, GridBagConstraints.WEST);
-        
-        paramNameField = new JTextField(16);
-        addGridBagComponent(webPanel, gridBag, gridConstraints,
-        paramNameField,
-        5, 3, 1, 1, GridBagConstraints.WEST);
-        
-        addGridBagComponent(webPanel, gridBag, gridConstraints,
-        new JLabel(valueLbl),
-        4, 4, 1, 1, GridBagConstraints.WEST);
-        
-        paramValueField = new JTextField(16);
-        addGridBagComponent(webPanel, gridBag, gridConstraints, paramValueField,
-        5, 4, 1, 1, GridBagConstraints.WEST);
-        
-        deleteButton = new JButton(Config.getString("classmgr.delete"));
-		deleteButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) { doDelete(); }        		
-		});
+        parameterScroller.setColumnHeaderView(new JLabel(appletParameterLbl, JLabel.CENTER));
+        addGridBagComponent(webPanel, gridBag, gridConstraints, parameterScroller, 0, 2, 4, 4,
+                GridBagConstraints.CENTER);
 
-        addGridBagComponent(webPanel, gridBag, gridConstraints, deleteButton,
-        4, 5, 1, 1, GridBagConstraints.EAST);
+        addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel(nameLbl), 4, 3, 1, 1,
+                GridBagConstraints.WEST);
+
+        paramNameField = new JTextField(16);
+        addGridBagComponent(webPanel, gridBag, gridConstraints, paramNameField, 5, 3, 1, 1, GridBagConstraints.WEST);
+
+        addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel(valueLbl), 4, 4, 1, 1,
+                GridBagConstraints.WEST);
+
+        paramValueField = new JTextField(16);
+        addGridBagComponent(webPanel, gridBag, gridConstraints, paramValueField, 5, 4, 1, 1, GridBagConstraints.WEST);
+
+        deleteButton = new JButton(Config.getString("classmgr.delete"));
+        deleteButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt)
+            {
+                doDelete();
+            }
+        });
+
+        addGridBagComponent(webPanel, gridBag, gridConstraints, deleteButton, 4, 5, 1, 1, GridBagConstraints.EAST);
         deleteButton.setEnabled(false);
-        
+
         addButton = new JButton(Config.getString("classmgr.add"));
-		addButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) { doAdd(); }        		
-		});
-        addGridBagComponent(webPanel, gridBag, gridConstraints, addButton,
-        5, 5, 1, 1, GridBagConstraints.WEST);
+        addButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt)
+            {
+                doAdd();
+            }
+        });
+        addGridBagComponent(webPanel, gridBag, gridConstraints, addButton, 5, 5, 1, 1, GridBagConstraints.WEST);
         addButton.setEnabled(true);
-        
+
         getContentPane().add("Center", webPanel);
-        
+
         DialogManager.centreDialog(this);
     }
-    
-    
+
     /**
-     * Method to simplify adding components to a gridbag layout and modify constraints
-     * @param container  the container the component is to be added to
-     * @param layout  the GridBagLayout object to be used
-     * @param constraints  the GridBagConstraints object being used
-     * @param component  the component to be added
-     * @param gridx  x coordinate for component starting position
-     * @param gridy  y coordinate for component starting position
-     * @param gridWidth  number of grid cells for width of component
-     * @param gridHeight  number of grid cells for height of component
-     * @param anchor  the alignment of component within grid cell
+     * Method to simplify adding components to a gridbag layout and modify
+     * constraints
+     * 
+     * @param container
+     *            the container the component is to be added to
+     * @param layout
+     *            the GridBagLayout object to be used
+     * @param constraints
+     *            the GridBagConstraints object being used
+     * @param component
+     *            the component to be added
+     * @param gridx
+     *            x coordinate for component starting position
+     * @param gridy
+     *            y coordinate for component starting position
+     * @param gridWidth
+     *            number of grid cells for width of component
+     * @param gridHeight
+     *            number of grid cells for height of component
+     * @param anchor
+     *            the alignment of component within grid cell
      */
-    private void addGridBagComponent(Container container, GridBagLayout layout,
-    GridBagConstraints constraints, Component component,
-    int gridx, int gridy, int gridWidth, int gridHeight, int anchor) 
+    private void addGridBagComponent(Container container, GridBagLayout layout, GridBagConstraints constraints,
+            Component component, int gridx, int gridy, int gridWidth, int gridHeight, int anchor)
     {
         constraints.gridx = gridx;
         constraints.gridy = gridy;
@@ -205,54 +212,48 @@ public class RunAppletDialog extends JDialog
         constraints.anchor = anchor;
         layout.setConstraints(component, constraints);
         // check that this layout has not already been set
-        if(!container.getLayout().equals(layout))
+        if (!container.getLayout().equals(layout))
             container.setLayout(layout);
         container.add(component);
     }
-    
-    
+
     /**
-     * Show this dialog and return true if "OK" was pressed, false if
-     * cancelled.
+     * Show this dialog and return true if "OK" was pressed, false if cancelled.
      */
-    public boolean display() 
+    public boolean display()
     {
         ok = false;
         pack();
         setVisible(true);
         return ok;
     }
-    
-    
+
     /**
-     * Show this dialog and return true if "OK" was pressed, false if
-     * cancelled.
+     * Show this dialog and return true if "OK" was pressed, false if cancelled.
      */
-    public String getWebPageName() 
+    public String getWebPageName()
     {
         return webPageName;
     }
-    
+
     /**
      * Add a parameter to the applet parameter list.
      */
-    public void addAppletParameter() 
+    public void addAppletParameter()
     {
-             
-        AppletParam param = 
-            new AppletParam(paramNameField.getText(), paramValueField.getText());
-        
+
+        AppletParam param = new AppletParam(paramNameField.getText(), paramValueField.getText());
+
         int index = appletParameters.indexOf(param);
-        if(index == -1)
+        if (index == -1)
             appletParameters.addElement(param);
         else
             appletParameters.set(index, param);
-        
+
         clearInput();
-     
+
     }
-    
-    
+
     /**
      * clear the input fields
      */
@@ -261,23 +262,23 @@ public class RunAppletDialog extends JDialog
         paramNameField.setText("");
         paramValueField.setText("");
     }
-    
+
     /**
-     * Clear list selection and input fields.
-     * Based on the assumption we don't want them next time.
+     * Clear list selection and input fields. Based on the assumption we don't
+     * want them next time.
      */
     private void prepareForClosure()
     {
         clearInput();
         parameterList.getSelectionModel().clearSelection();
     }
-    
+
     /**
      * Close action when OK is pressed.
      */
-    public void doOK() 
+    public void doOK()
     {
-        if(!checkFieldsAreValid()) {
+        if (!checkFieldsAreValid()) {
             DialogManager.showError(parent, "applet-height-width");
         }
         else { // collect information from fields
@@ -286,153 +287,151 @@ public class RunAppletDialog extends JDialog
             setVisible(false);
         }
     }
-    
-    
+
     /**
      * Close action when Cancel is pressed.
      */
-    public void doCancel() 
+    public void doCancel()
     {
         ok = false;
         prepareForClosure();
         setVisible(false);
     }
-    
 
-	public void doAdd()
-	{
-		if(!paramNameField.getText().equals("") && !paramValueField.getText().equals("")) {
-			addAppletParameter();
-			parameterList.getSelectionModel().clearSelection();
-			paramNameField.requestFocus();
-		}
-	}
-	
-	public void doDelete()
-	{
-		appletParameters.remove(parameterList.getSelectedIndex());
-		clearInput();
-		deleteButton.setEnabled(false);
-	}
-	
+    public void doAdd()
+    {
+        if (!paramNameField.getText().equals("") && !paramValueField.getText().equals("")) {
+            addAppletParameter();
+            parameterList.getSelectionModel().clearSelection();
+            paramNameField.requestFocus();
+        }
+    }
+
+    public void doDelete()
+    {
+        appletParameters.remove(parameterList.getSelectedIndex());
+        clearInput();
+        deleteButton.setEnabled(false);
+    }
+
     /**
-     * Check that required fields have entries.
-     * There is no checking the validity of what is entered.
+     * Check that required fields have entries. There is no checking the
+     * validity of what is entered.
+     * 
      * @return true if both width and height fields are not empty
      */
-    public boolean checkFieldsAreValid() 
+    public boolean checkFieldsAreValid()
     {
         return (!widthField.getText().equals("") && !heightField.getText().equals(""));
     }
-    
-    
+
     /**
      * Returns height of height text field.
+     * 
      * @return height of applet as a String
      */
-    public String getAppletHeight() 
+    public String getAppletHeight()
     {
         return heightField.getText();
     }
-    
-    
+
     /**
      * Returns value of width text field.
+     * 
      * @return width of Applet as a String
      */
-    public String getAppletWidth() 
+    public String getAppletWidth()
     {
         return widthField.getText();
     }
-    
-    
+
     /**
      * sets value of height text field.
-     * @param height value to set  in field
+     * 
+     * @param height
+     *            value to set in field
      */
-    public void setAppletHeight(int height) 
+    public void setAppletHeight(int height)
     {
         heightField.setText(String.valueOf(height));
     }
-    
-    
+
     /**
      * sets value of width text field.
-     * @param width value to set in field
+     * 
+     * @param width
+     *            value to set in field
      */
-    public void setAppletWidth(int width) 
+    public void setAppletWidth(int width)
     {
         widthField.setText(String.valueOf(width));
     }
-    
-    
+
     /**
      * Returns applet parameters.
+     * 
      * @return applet parameters as an array of Strings or null if no parameters
      */
-    public String[] getAppletParameters() 
+    public String[] getAppletParameters()
     {
         String[] paramStringArray = new String[appletParameters.size()];
         Enumeration e = appletParameters.elements();
-        for( int i = 0; e.hasMoreElements() && i < paramStringArray.length; i++) {
-            AppletParam ap = (AppletParam)e.nextElement();
+        for (int i = 0; e.hasMoreElements() && i < paramStringArray.length; i++) {
+            AppletParam ap = (AppletParam) e.nextElement();
             paramStringArray[i] = ap.toString();
         }
         return paramStringArray;
     }
-    
+
     /**
      * .
+     * 
      * @return applet parameters as an array of Strings or null if no parameters
      */
-    public void setAppletParameters(String[] parameters) 
+    public void setAppletParameters(String[] parameters)
     {
-        if(parameters != null) {
-            for(int i = 0; i < parameters.length; i++) {
-                
+        if (parameters != null) {
+            for (int i = 0; i < parameters.length; i++) {
+
                 appletParameters.addElement(new AppletParam(parameters[i]));
-                
+
             }
         }
     }
-    
-    
+
     /**
-     * Returns an int representing the radio button chosen
-     * for execution option.
+     * Returns an int representing the radio button chosen for execution option.
+     * 
      * @return int representing index of radio button selected
      */
-    public int getAppletExecutionOption() 
+    public int getAppletExecutionOption()
     {
-        if(runAppletViewer.isSelected())
+        if (runAppletViewer.isSelected())
             return EXEC_APPLETVIEWER;
-        else if(runWebBrowser.isSelected())
-            return  EXEC_WEBBROWSER;
+        else if (runWebBrowser.isSelected())
+            return EXEC_WEBBROWSER;
         else
-            return  GENERATE_PAGE_ONLY;
+            return GENERATE_PAGE_ONLY;
     }
-    
-    
+
     // ----- ListSelectionListener interface -----
-    
+
     /**
      * The value of the list selection has changed.
      */
-    public void valueChanged(ListSelectionEvent e) 
+    public void valueChanged(ListSelectionEvent e)
     {
-        //if(e.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
+        //if(e.getValueIsAdjusting()) // ignore mouse down, dragging, etc.
         //    return;
-        if(!parameterList.isSelectionEmpty()) {
+        if (!parameterList.isSelectionEmpty()) {
             deleteButton.setEnabled(true);
-            AppletParam param = (AppletParam)parameterList.getSelectedValue();
+            AppletParam param = (AppletParam) parameterList.getSelectedValue();
             paramNameField.setText(param.getParamName());
             paramValueField.setText(param.getParamValue());
         }
-        
+
     }
-    
+
     // ----- end of ListSelectionListener interface -----
-    
-    
-    
+
 }
