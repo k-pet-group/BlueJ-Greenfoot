@@ -38,7 +38,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1075 2002-01-08 15:47:55Z mik $
+ * @version $Id: PkgMgrFrame.java 1077 2002-01-09 09:08:21Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -800,7 +800,7 @@ public class PkgMgrFrame extends JFrame
         case HELP_COPYRIGHT:
         	JOptionPane.showMessageDialog(this,
                   new String[] {
-                      "BlueJ \u00a9 2000 Michael K\u00F6lling, John Rosenberg.",
+                      "BlueJ \u00a9 2000-2002 Michael K\u00F6lling, John Rosenberg.",
                       " ",
                       "BlueJ is available free of charge and may be",
                       "redistributed freely. It may not be sold for",

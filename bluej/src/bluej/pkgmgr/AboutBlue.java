@@ -13,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 1072 2002-01-08 12:40:26Z mik $
+ * @version $Id: AboutBlue.java 1077 2002-01-09 09:08:21Z mik $
  */
 class AboutBlue extends JDialog
 {
@@ -49,7 +49,8 @@ class AboutBlue extends JDialog
         text.setBackground(Color.white);
         text.addText(" ");
         text.addText("The BlueJ development environment was\n" +
-            		 "developed at Monash University, Australia.");
+            		 "developed at Monash University, Australia,\n" +
+                     "and the University of Southern Denmark.");
         text.addText(" ");
         text.addText("The BlueJ team:", false, true);
         text.addText("      Michael K\u00F6lling\n" +

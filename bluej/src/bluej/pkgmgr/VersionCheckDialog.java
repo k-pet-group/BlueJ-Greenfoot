@@ -16,7 +16,7 @@ import javax.swing.*;
  * Dialog implementing version check functionality.
  *
  * @author  Michael Kolling
- * @version $Id: VersionCheckDialog.java 851 2001-04-19 01:53:36Z mik $
+ * @version $Id: VersionCheckDialog.java 1077 2002-01-09 09:08:21Z mik $
  */
 
 final class VersionCheckDialog extends JDialog
@@ -107,7 +107,7 @@ final class VersionCheckDialog extends JDialog
 
             mainPanel.add(Box.createVerticalStrut(5));
 
-            textArea = new JTextArea(8, 16);
+            textArea = new JTextArea(14, 46);
             textArea.setEditable(false);
             JScrollPane scrollPane = new JScrollPane(textArea);
 
@@ -132,8 +132,8 @@ final class VersionCheckDialog extends JDialog
 
                 // try to make the OK and cancel buttons have equal width
                 closeButton.setPreferredSize(
-                                             new Dimension(checkButton.getPreferredSize().width,
-                                                           closeButton.getPreferredSize().height));
+                                 new Dimension(checkButton.getPreferredSize().width,
+                                 closeButton.getPreferredSize().height));
             }
 
             mainPanel.add(buttonPanel);
@@ -211,9 +211,11 @@ final class VersionCheckDialog extends JDialog
                 textArea.setText("Error: could not read remote version info");
             else {
                 textArea.setText(Config.getString("pkgmgr.versionDlg.currentVersion"));
+                textArea.append(" ");
                 textArea.append(Main.BLUEJ_VERSION);
                 textArea.append("\n");
                 textArea.append(Config.getString("pkgmgr.versionDlg.newVersion"));
+                textArea.append(" ");
                 textArea.append(newVersion);
                 textArea.append("\n");
 
