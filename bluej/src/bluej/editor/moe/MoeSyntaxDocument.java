@@ -27,7 +27,7 @@ import java.awt.Color;
 import javax.swing.undo.*;
 
 import bluej.utility.*;
-
+import bluej.Config;
 import org.gjt.sp.jedit.syntax.*;
 
 /**
@@ -44,8 +44,9 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
 
     public MoeSyntaxDocument()
     {
-        // should pick up number from definitions file
-        putProperty(tabSizeAttribute, new Integer(4));
+        // defaults to 4 if cannot read property
+        int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
+        putProperty(tabSizeAttribute, new Integer(tabSize));
     }
 
     /**

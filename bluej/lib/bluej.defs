@@ -247,6 +247,17 @@ bluej.compiler.type=internal
 
 
 #####################################################################
+## Editor related preferences.
+## Moe specific options should go in moe.defs
+## The following are more generalised preferences
+## Tabtype can be either hard or soft(replace with space
+#####################################################################
+
+bluej.editor.tabsize=8
+bluej.editor.tabtype=hard
+#bluej.editor.tabtype=soft
+
+#####################################################################
 ## Options for starting the internal virtual machine.
 ## This is a system specific option: It can be prefixed with an
 ## OS identifier. Known identifiers are "win9x", "win", "solaris",

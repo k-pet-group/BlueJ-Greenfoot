@@ -39,14 +39,13 @@ public class MoePrinter
     private final int PADDING = 5;
     private final char TAB_CHAR = '\t';
 
-    //private PageFormat pgfmt;         // The Pageformat
     private Book pages = new Book();  // This holds each page
     private static Font titleFont = new Font("SansSerif", Font.BOLD, 14);
     private static Font smallTitleFont = new Font("SansSerif", Font.BOLD, 10);
     private static Font footerFont = new Font("SansSerif", Font.ITALIC, 9);
      
     private String className;
-    private int tabSize = 4; 
+    private int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4); 
 
     /**
      * Default constructor
