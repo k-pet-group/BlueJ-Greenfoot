@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2317 2003-11-10 16:38:54Z polle $
+ * @version $Id: ExecControls.java 2453 2004-01-14 03:58:23Z ajp $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -660,10 +660,11 @@ public class ExecControls extends JFrame
     
     /**
      * Create a text & image button and add it to a panel.
-     *
-     * @param imgRsrcName    The name of the image resource for the button.
-     * @param panel          The panel to add the button to.
-     * @param margin         The margin around the button.
+     * 
+     * @param imgRsrcName
+     *            The name of the image resource for the button.
+     * @param panel
+     *            The panel to add the button to.
      */
     private JButton addButton(String imgRsrcName, String buttonText, JPanel panel)
     {

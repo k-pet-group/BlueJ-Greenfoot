@@ -15,7 +15,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 2449 2004-01-09 02:29:47Z ajp $
+ * @version $Id: Boot.java 2453 2004-01-14 03:58:23Z ajp $
  */
 public class Boot
 {
@@ -125,8 +125,9 @@ public class Boot
 
     /**
      * Constructor for the singleton Boot object.
-     *
-     * @param  someArgs  the arguments with which main() was invoked
+     * 
+     * @param args
+     *            the arguments with which main() was invoked
      */
     private Boot(String[] args)
     {

@@ -56,11 +56,12 @@ public class CallHistory
 
 
     /**
-     ** Gets the appropriate history for the specified data type
-     ** 
-     ** @param objectType  the name of the object's class
-     ** @return the List containing the appropriate history of invocations
-     **/	
+     * Gets the appropriate history for the specified data type.
+     * 
+     * @param objectClass
+     *            the name of the object's class
+     * @return the List containing the appropriate history of invocations
+     */
     public List getHistory(Class objectClass)
     {
         List history = null;
@@ -83,12 +84,13 @@ public class CallHistory
 
 
     /**
-     ** Adds a call to the history of a particular datatype
-     ** 
-     ** @param objectType  the object's class
-     ** @param argument  the parameter 
-     ** @return the List containing the appropriate history of invocations
-     **/
+     * Adds a call to the history of a particular datatype
+     * 
+     * @param objectType
+     *            the object's class
+     * @param argument
+     *            the parameter
+     */
     public void addCall(Class objectType, String argument)
     {
         if(argument != null) {
@@ -97,7 +99,7 @@ public class CallHistory
 
                 List history = getHistory(objectType);
                 int index = history.indexOf(argument);
-	
+    
                 // if first no change
                 if( index != 0) {
                     // if already there remove
@@ -112,7 +114,7 @@ public class CallHistory
             //else add to other object's class and param vectors
             else {
                 int index = objectParams.indexOf(argument);
-		
+        
                 // if first no change
                 if( index != 0) {
                     // if already there remove

@@ -32,7 +32,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2443 2003-12-19 14:41:17Z fisker $
+ * @version $Id: Config.java 2453 2004-01-14 03:58:23Z ajp $
  */
 
 public final class Config
@@ -260,8 +260,6 @@ public final class Config
      * defaults.
      *
      * @param filename  the properties file
-     * @param asDefault if true, the definitions are used as defaults for
-     *                  an empty properties objects.
      */
     private static Properties loadDefs(String filename)
     {
