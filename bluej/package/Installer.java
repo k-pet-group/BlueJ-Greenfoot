@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 927 2001-06-08 01:49:21Z mik $
+  * @version $Id: Installer.java 928 2001-06-08 02:28:13Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -38,7 +38,6 @@ public class Installer extends JFrame
 
     // File to test for JDK (relative to javaPath):
     static private String jdkFile = "/lib/tools.jar";
-    static private String jdkFile2 = "/Classes/jpda.jar";  // for MacOS
 
     static final int BUFFER_SIZE=8192;
 
@@ -51,8 +50,8 @@ public class Installer extends JFrame
     JLabel textLabel2;
     JButton browseDirButton;
     JButton browseJdkButton;
-    JRadioButton jdk12Button;
-    JRadioButton jdk13Button;
+    //JRadioButton jdk12Button;
+    //JRadioButton jdk13Button;
     JButton installButton;
     JButton cancelButton;
     JProgressBar progress;
@@ -238,6 +237,16 @@ public class Installer extends JFrame
 
         unpackTo(false);
         makeWindow();
+
+        if(isJDK12) {
+            notifyError("This version of BlueJ requires JDK 1.3 or newer.\n" +
+                        "You are running on JDK 1.2.x.  Please upgrade\n" +
+                        "JDK before installing BlueJ.\n\n" +
+                        "Older version of BlueJ (up to version 1.3) can\n" +
+                        "run on JDK 1.2.2 - download that version if you\n" +
+                        "cannot upgrade JDK.",
+                        "JDK 1.3 (or newer) required.");
+        }
     }
 
     private String findJavaPath()
@@ -320,12 +329,6 @@ public class Installer extends JFrame
         }
 
         try {
-            if(isJDK12)
-                notifyError("BlueJ requires JDK 1.3 or newer.\n" +
-                            "You are running on JDK 1.2. Please upgrade\n" +
-                            "JDK before installing BlueJ.",
-                            "JDK 1.3 required");
-
             if(!checkInstallDir(installationDir, true))
                 return;
 
@@ -339,20 +342,13 @@ public class Installer extends JFrame
                     writeUnix();
                 }
                 else if(osname.startsWith("Windows")) {
-                    if(isJDK12)
-                        writeWindows12();
-                    else
-                        writeWindows();
+                    writeWindows();
                 }
                 else if(osname.startsWith("Mac")) {
-                        writeMacOS();
+                    writeMacOS();
                 }
-                else if( ! isJDK12)
-                    writeUnix();      // for 1.3 and later
-                else if( osname.startsWith("Linux"))
-                    writeUnix12(false);
                 else
-                    writeUnix12(true);
+                    writeUnix();
             }
 
         } catch (Exception e) {
@@ -417,7 +413,7 @@ public class Installer extends JFrame
     {
         installationDir = directoryField.getText();
         javaPath = javaField.getText();
-        isJDK12 = jdk12Button.isSelected();
+        //isJDK12 = jdk12Button.isSelected();
     }
 
     /**
@@ -432,8 +428,8 @@ public class Installer extends JFrame
         if(new File(jdkFilePath).exists())
             return true;
         else {
-            jdkFilePath = path + jdkFile2;
-            return new File(jdkFilePath).exists();
+            // room here for additional checks should jdk structure change
+            return false;
         }
     }
 
@@ -473,11 +469,11 @@ public class Installer extends JFrame
     private void jdkPathProblem() 
     {
         notifyProblem(
-                      "The Java directory you have specified is not a valid \n" +
-                      "JDK directory. The JDK directory is the directory \n" +
-                      "that JDK (aka Java 2 SDK) was installed to. It must \n" +
-                      "have a subdirectory \"lib\" with a file named \n" +
-                      "\"tools.jar\" in it.");
+           "The Java directory you have specified is not a valid \n" +
+           "JDK directory. The JDK directory is the directory \n" +
+           "that JDK (aka Java 2 SDK) was installed to. It must \n" +
+           "have a subdirectory \"lib\" with a file named \n" +
+           "\"tools.jar\" in it.");
     }
 
     /**
@@ -598,28 +594,30 @@ public class Installer extends JFrame
         jdkDirPanel.add(browseJdkButton);
         centrePanel.add(jdkDirPanel);
 
-        centrePanel.add(Box.createVerticalStrut(5));
+        // jdk selection radio buttons - currently not used
 
-        Box jdkPanel = new Box(BoxLayout.X_AXIS);
-        jdkPanel.add(new JLabel("JDK version:", JLabel.LEFT));
-        jdkPanel.add(Box.createHorizontalStrut(20));
-        jdk12Button = new JRadioButton("jdk 1.2", isJDK12);
-        jdk13Button = new JRadioButton("jdk 1.3", !isJDK12);
-        jdk12Button.setBackground(backgroundColour);
-        jdk13Button.setBackground(backgroundColour);
+//         centrePanel.add(Box.createVerticalStrut(5));
 
-        ButtonGroup bGroup = new ButtonGroup();
-        {
-            bGroup.add(jdk12Button);
-            bGroup.add(jdk13Button);
-        }
+//         Box jdkPanel = new Box(BoxLayout.X_AXIS);
+//         jdkPanel.add(new JLabel("JDK version:", JLabel.LEFT));
+//         jdkPanel.add(Box.createHorizontalStrut(20));
+//         jdk12Button = new JRadioButton("jdk 1.2", isJDK12);
+//         jdk13Button = new JRadioButton("jdk 1.3", !isJDK12);
+//         jdk12Button.setBackground(backgroundColour);
+//         jdk13Button.setBackground(backgroundColour);
 
-        jdkPanel.add(jdk12Button);
-        jdkPanel.add(jdk13Button);
-        jdkPanel.add(Box.createHorizontalGlue());
-        centrePanel.add(jdkPanel);
+//         ButtonGroup bGroup = new ButtonGroup();
+//         {
+//             bGroup.add(jdk12Button);
+//             bGroup.add(jdk13Button);
+//         }
 
-        centrePanel.add(Box.createVerticalStrut(12));
+//         jdkPanel.add(jdk12Button);
+//         jdkPanel.add(jdk13Button);
+//         jdkPanel.add(Box.createHorizontalGlue());
+//         centrePanel.add(jdkPanel);
+
+        centrePanel.add(Box.createVerticalStrut(24));
 
         progress = new JProgressBar(); 
         centrePanel.add(progress);
@@ -709,52 +707,6 @@ public class Installer extends JFrame
     }
 
     /**
-     * Write out a Unix, Bourne shell script to start the application
-     * For JDK 1.2.2
-     */
-    public void writeUnix12(boolean localJPDA) throws IOException 
-    {
-
-        File outputFile = new File(installationDir, (String)getProperty("exeName"));
-        FileWriter out = new FileWriter(outputFile.toString());
-        out.write("#!/bin/sh\n");
-        out.write("APPBASE=" + installationDir + "\n");
-        String commands;
-        if (localJPDA)
-            commands = getProperty("unixCommands.localJPDA").toString();
-        else
-            commands = getProperty("unixCommands.systemJPDA").toString();
-        if(commands != null) {
-            commands = replace(commands, '~', "$APPBASE");
-            commands = replace(commands, '!', javaPath);
-            commands = replace(commands, '@', architecture);
-            out.write(commands);
-            out.write("\n");
-        }
-        String classpath;
-        if (localJPDA)
-            classpath = getProperty("classpath.localJPDA").toString();
-        else
-            classpath = getProperty("classpath.systemJPDA").toString();
-        classpath = classpath.replace(';', ':');
-        classpath = replace(classpath, '~', "$APPBASE");
-        classpath = replace(classpath, '!', javaPath);
-        classpath = replace(classpath, '@', architecture);
-        out.write("CLASSPATH=" + classpath + "\n");
-        out.write("export CLASSPATH\n");
-        out.write(javaPath + "/bin/java " + 
-                  getProperty("javaOpts.1.2") + " " + 
-                  getProperty("mainClass") + " $*\n");
-        out.close();
-		
-        try {
-            Runtime.getRuntime().exec("chmod 755 " + outputFile);
-        } catch(Exception e) {
-            // ignore it - might not be Unix
-        }
-    }
-
-    /**
      * Write out a MacOS X, Bourne shell script to start the application
      */
     public void writeMacOS() throws IOException 
@@ -828,42 +780,6 @@ public class Installer extends JFrame
 
         out.close();
     }
-
-    /**
-     * Write out an MSDOS style batch file to start the application.
-     */
-    public void writeWindows12() throws IOException 
-    {
-        File outputFile = new File(installationDir,
-                                   (String)getProperty("exeName") + ".bat");
-			
-        FileWriter out = new FileWriter(outputFile.toString());
-        out.write("@echo off\r\n");
-        out.write("set OLDPATH=%CLASSPATH%\r\n");
-        out.write("set APPBASE=" + installationDir + "\r\n");
-        String commands = getProperty("winCommands.12").toString();
-        if(commands != null) {
-            commands = replace(commands, '~', "%APPBASE%");
-            commands = replace(commands, '!', javaPath);
-            commands = replace(commands, '@', architecture);
-            out.write(commands);
-            out.write("\r\n");
-        }
-        String classpath = getProperty("classpath.localJPDA").toString();
-        classpath = classpath.replace('/', '\\');
-        classpath = replace(classpath, '~', "%APPBASE%");
-        classpath = replace(classpath, '!', javaPath);
-        classpath = replace(classpath, '@', architecture);
-        out.write("set CLASSPATH=" + classpath + "\r\n");
-        out.write("\"" + javaPath + "\\bin\\java\" " + 
-                  getProperty("javaOpts.1.2") + " " + 
-                  getProperty("mainClass") + 
-                  " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
-        out.write("set CLASSPATH=%OLDPATH%\r\n");
-
-        out.close();
-    }
-
 
     // ===========================================================
     // File I/O (JAR extraction)
