@@ -12,7 +12,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2912 2004-08-19 08:56:13Z mik $
+ * @version $Id: TextEvalArea.java 2992 2004-09-06 12:35:03Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements KeyListener, FocusListener
@@ -89,7 +89,8 @@ public final class TextEvalArea extends JScrollPane
      */
     public void keyTyped(KeyEvent e) {
         char ch = e.getKeyChar();
-        if(ch == '\b' || ch == '\t') {
+        final char DEL = 127;
+        if(ch == '\b' || ch == '\t' || ch == DEL) {
             e.consume();
         }
     }  

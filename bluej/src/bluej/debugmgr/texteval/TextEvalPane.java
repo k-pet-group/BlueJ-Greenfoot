@@ -30,7 +30,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 2911 2004-08-19 08:43:55Z mik $
+ * @version $Id: TextEvalPane.java 2992 2004-09-06 12:35:03Z mik $
  */
 public class TextEvalPane extends JEditorPane 
     implements ResultWatcher, MouseMotionListener
@@ -99,27 +99,10 @@ public class TextEvalPane extends JEditorPane
      */
     public void paste()
     {
-        if(!isLegalCaretPos())
-            setCaretPosition(getDocument().getLength());
+        ensureLegalCaretPosition();
         super.paste();
     }
 
-    /**
-     * Check whether the given text positiob is allowed as a caret position in
-     * the text eval area. This will only allow positions in the last line.
-     * 
-     * @param pos  The position to be checked
-     * @return  True is placing the caret to this position is okay.
-     */
-    public boolean isLegalCaretPos()
-    {
-        AbstractDocument doc = (AbstractDocument) getDocument();
-        int pos = getCaretPosition();
-        Element line = doc.getParagraphElement(doc.getLength());
-        int lineStart = line.getStartOffset() + 1;  // ignore space at front
-        return pos >= lineStart;
-    }
-    
     /**
      * This is called when we get a 'paste' action (since we are handling 
      * ordinary key input differently with the InsertCharacterAction.
@@ -128,11 +111,13 @@ public class TextEvalPane extends JEditorPane
      */
     public void replaceSelection(String content)
     {
+        ensureLegalCaretPosition();
+
         String[] lines = content.split("\n");
-        append(lines[0]);
+        super.replaceSelection(lines[0]);
         for(int i=1; i< lines.length;i++) {
             softReturnAction.actionPerformed(null);
-            append(lines[i]);
+            super.replaceSelection(lines[i]);
         }
     }
     
@@ -301,20 +286,6 @@ public class TextEvalPane extends JEditorPane
     }
     
     /**
-     * Insert some text to this area.
-     * @param s The text to insert.
-     */
-    private void insert(String s)
-    {
-        try {
-            doc.insertString(getCaretPosition(), s, null);
-        }
-        catch(BadLocationException exc) {
-            Debug.reportError("bad location in terminal operation");
-        }
-    }
-    
-    /**
      * Move the caret to the end of the text.
      */
     private void caretToEnd() 
@@ -322,6 +293,54 @@ public class TextEvalPane extends JEditorPane
         setCaretPosition(doc.getLength());
     }
 
+    /**
+     * Ensure that the caret position (including the whole
+     * selection, if any) is within the editale area (the last 
+     * line of text). If it isn't, adjust it so that it is.
+     */
+    private void ensureLegalCaretPosition()
+    {
+        Caret caret = getCaret();
+        boolean dotOK = isLastLine(caret.getDot());
+        boolean markOK = isLastLine(caret.getMark());
+        
+        if(dotOK && markOK)     // both in last line - no problem
+            return;
+        
+        if(!dotOK && !markOK) { // both not in last line - append at end
+            setCaretPosition(getDocument().getLength());
+        }
+        else {                  // selection reaches into last line
+            caret.setDot(Math.max(caret.getDot(), caret.getMark()));
+            caret.moveDot(startOfLastLine());
+        }
+    }
+    
+    /**
+     * Check whether the given text position is within the area
+     * intended for editing (the last line).
+     * 
+     * @param pos  The position to be checked
+     * @return  True if this position is within the last text line.
+     */
+    private boolean isLastLine(int pos)
+    {
+        return pos >= startOfLastLine();
+    }
+    
+    /**
+     * Return the text position of the start of the last text line
+     * (the start of the area editable by the user).
+     * 
+     * @return  The position of the start of the last text line.
+     */
+    private int startOfLastLine()
+    {
+        AbstractDocument doc = (AbstractDocument) getDocument();
+        Element line = doc.getParagraphElement(doc.getLength());
+        return line.getStartOffset() + 1;  // ignore space at front
+    }
+    
     /**
      * Get the text of the current line (the last line) of this area.
      * @return The text of the last line.
@@ -541,10 +560,7 @@ public class TextEvalPane extends JEditorPane
             String s = event.getActionCommand();  // will always be length 1
             if(s.charAt(0) != '\n') {             // bug workaround: enter goes through default
                                                   //  action as well as set action
-                if(isLegalCaretPos())
-                    insert(s);
-                else
-                    append(s);
+                replaceSelection(s);
             }
         }
     }
@@ -625,7 +641,12 @@ public class TextEvalPane extends JEditorPane
         {
             if(getCurrentColumn() > 1) {
                 try {
-                    doc.remove(getCaretPosition()-1, 1);
+                    if(getSelectionEnd() == getSelectionStart()) { // no selection
+                        doc.remove(getCaretPosition()-1, 1);
+                    }
+                    else {
+                        replaceSelection("");
+                    }
                 }
                 catch(BadLocationException exc) {
                     Debug.reportError("bad location in text eval operation");
