@@ -14,7 +14,7 @@ import java.util.Vector;
 
 
 /**
- ** @version $Id: View.java 163 1999-07-08 00:50:23Z mik $
+ ** @version $Id: View.java 166 1999-07-08 01:01:12Z ajp $
  ** @author Michael Cahill
  **
  ** View class - a representation of a Java class in BlueJ
@@ -248,9 +248,7 @@ public class View
 			
 		for(int i = 0; i < methods.length; i++) {
 		    methods[i] = new MethodView(this, cl_methods[i]);
-		    Comment c = new Comment();
-		    c.load(null, null);
-		    methods[i].setComment(c); }
+		}
 	    }
 		
 	return methods;
@@ -286,9 +284,7 @@ public class View
 	
     public Comment getComment()
     {
-	//		loadComments();
-	comment = new Comment();
-	comment.load(null,null);			
+	// loadComments();
 	return comment;
     }
 	
@@ -404,11 +400,6 @@ public class View
 	return ++instanceNum;
     }
 	
-    /*	ClasspathSearcher getSearcher()
-	{
-	return searcher;
-	}
-    */	
     /**
      ** Get a longer String describing this member
      **/
