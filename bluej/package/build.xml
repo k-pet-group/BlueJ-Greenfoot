@@ -32,6 +32,7 @@
         <include name="lib/spanish/" />
         <include name="lib/swedish/" />
         <include name="lib/extensions/" />
+        <include name="lib/userlib" />
     </patternset>
 
     <patternset id="bluej.examples">
