@@ -4,7 +4,7 @@
  * Author: Michael Kolling
  * Date:   January 1999
  */
-public class Address5
+public class Address
 {
     private String street;
     private String town;
