@@ -19,7 +19,7 @@ import bluej.utility.Debug;
  * archive) or directory, with an associated alias in either case.
  * 
  * @author Andrew Patterson
- * @version $Id: ClassMgrDialog.java 161 1999-07-06 14:40:53Z ajp $
+ * @version $Id: ClassMgrDialog.java 201 1999-07-22 03:54:27Z ajp $
  */
 public class ClassMgrDialog extends JDialog {
 
@@ -40,6 +40,11 @@ public class ClassMgrDialog extends JDialog {
 
 		setTitle(title);
 
+        JPanel contentPane = new JPanel();
+		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+		contentPane.setBorder(Config.generalBorder);
+		getContentPane().add(contentPane);
+        
 		JPanel dialogPane = new JPanel();
 		{
 			// Construct a user editable table of user libraries and add/remove buttons
@@ -149,6 +154,23 @@ public class ClassMgrDialog extends JDialog {
 				bootLibrariesTag.setLabelFor(bootLibrariesScrollPane);
 			}
 
+
+			dialogPane.setLayout(new BoxLayout(dialogPane, BoxLayout.Y_AXIS));
+			dialogPane.setBorder(Config.generalBorder);
+
+			dialogPane.add(userLibrariesTag);
+			dialogPane.add(lefttorightPane);
+			dialogPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+			dialogPane.add(systemLibrariesTag);
+			dialogPane.add(systemLibrariesScrollPane);
+			dialogPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+			dialogPane.add(bootLibrariesTag);
+			dialogPane.add(bootLibrariesScrollPane);
+//			dialogPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+//			dialogPane.add(buttonPanel);
+
+		}	// end dialogPane
+
 			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 			{
 				buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -184,29 +206,18 @@ public class ClassMgrDialog extends JDialog {
 								okButton.getPreferredSize().height));
 			}
 
-			dialogPane.setLayout(new BoxLayout(dialogPane, BoxLayout.Y_AXIS));
-			dialogPane.setBorder(Config.generalBorder);
+		JTabbedPane tabbedPane = new JTabbedPane();
 
-			dialogPane.add(userLibrariesTag);
-			dialogPane.add(lefttorightPane);
-			dialogPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
-			dialogPane.add(systemLibrariesTag);
-			dialogPane.add(systemLibrariesScrollPane);
-			dialogPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
-			dialogPane.add(bootLibrariesTag);
-			dialogPane.add(bootLibrariesScrollPane);
-			dialogPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
-			dialogPane.add(buttonPanel);
-
-		}	// end dialogPane
-
-//		JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("General", null, new JPanel());
+		tabbedPane.addTab("Classes", null, dialogPane);
 
 		// arbitrary dimensions here.. what is the best way of getting these??
-		dialogPane.setPreferredSize(new Dimension(610,410));
-//		tabbedPane.addTab("Classes", null, dialogPane);
+		contentPane.setPreferredSize(new Dimension(500,380));
 
-		getContentPane().add(dialogPane);
+        contentPane.add(tabbedPane);
+		contentPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+		contentPane.add(buttonPanel);
+
 		pack();
     }
 

@@ -287,6 +287,10 @@ public class PkgMgrFrame extends PkgFrame
 	    setStatus(chooseArrow);
 	    break;
 
+	case EDIT_PREFERENCES:
+		ClassMgrDialog.showDialog(null);
+		break;
+
 	    // Tools commands
 	case TOOLS_COMPILE:
 	    pkg.compile();
@@ -304,15 +308,11 @@ public class PkgMgrFrame extends PkgFrame
 //	    Utility.NYI(this);
   	    getBrowser().setVisible(true);
 //  	    // offset browser from this window
-  	    getBrowser().setLocation(this.getLocation().x + 100, 
-  				     this.getLocation().y + 100);
-  	    getBrowser().invalidate();
-  	    getBrowser().validate();
+//  	    getBrowser().setLocation(this.getLocation().x + 100, 
+// 				     this.getLocation().y + 100);
+//  	    getBrowser().invalidate();
+// 	    getBrowser().validate();
 	    break;
-
-	case TOOLS_PREFERENCES:
-		ClassMgrDialog.showDialog(null);
-		break;
 
 	    // View commands
 	case VIEW_SHOWUSES:

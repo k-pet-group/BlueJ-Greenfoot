@@ -20,7 +20,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 170 1999-07-08 02:12:42Z ajp $
+ ** @version $Id: PkgFrame.java 201 1999-07-22 03:54:27Z ajp $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -317,9 +317,10 @@ public abstract class PkgFrame extends JFrame
     static final int EDIT_NEWUSES = EDIT_REMOVECLASS + 1;
     static final int EDIT_NEWINHERITS = EDIT_NEWUSES + 1;
     static final int EDIT_REMOVEARROW = EDIT_NEWINHERITS + 1;
-
+    static final int EDIT_PREFERENCES = EDIT_REMOVEARROW + 1;
+    
     static final String[] EditCmds = {
-	"newClass", "removeClass", "newUses", "newInherits", "removeArrow"
+	"newClass", "removeClass", "newUses", "newInherits", "removeArrow", "preferences"
     };
 
     static final KeyStroke[] EditKeys = {
@@ -328,10 +329,11 @@ public abstract class PkgFrame extends JFrame
 	null,
 	null,
 	null,
+	null
     };
 
     static final int[] EditSeparators = {
-	EDIT_REMOVECLASS
+	EDIT_REMOVECLASS, EDIT_REMOVEARROW
     };
 
     static final int TOOLS_COMMAND = EDIT_COMMAND + 100;
@@ -339,10 +341,9 @@ public abstract class PkgFrame extends JFrame
     static final int TOOLS_COMPILESELECTED = TOOLS_COMPILE + 1;
     static final int TOOLS_REBUILD = TOOLS_COMPILESELECTED + 1;
     static final int TOOLS_BROWSE = TOOLS_REBUILD + 1;
-    static final int TOOLS_PREFERENCES = TOOLS_BROWSE + 1;
 
     static final String[] ToolsCmds = {
-	"compile", "compileSelected", "rebuild", "browse"	// ,"preferences"
+	"compile", "compileSelected", "rebuild", "browse"
     };
 
     static final KeyStroke[] ToolsKeys = {
@@ -350,7 +351,6 @@ public abstract class PkgFrame extends JFrame
 	KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.SHIFT_MASK | Event.CTRL_MASK),
 	null,
 	KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK),
-	null
     };
 
     static final int[] ToolsSeparators = {

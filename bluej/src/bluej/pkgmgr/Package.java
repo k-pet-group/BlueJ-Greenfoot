@@ -27,7 +27,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 198 1999-07-22 00:50:03Z ajp $
+ ** @version $Id: Package.java 201 1999-07-22 03:54:27Z ajp $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -323,7 +323,7 @@ public class Package extends Graph
 		// for now
 		// classdir is used to locate the class files for the corresponding java files
 		// classdir is added to the classpath for this package
-		props.put("package.classdir", ".");
+		// props.put("package.classdir", ".");
 
 		int nbrColumns = (int) Math.sqrt(new Double("" + numberOfTargets).doubleValue());
 		int rowPos = STARTROWPOS;
@@ -435,7 +435,8 @@ public class Package extends Graph
 	frame.invalidate();
 	frame.validate();
 
-	relclassdir = Config.getPath(props, "package.classdir");
+    relclassdir = null;
+	// relclassdir = Config.getPath(props, "package.classdir");
 	if(relclassdir != null) {
 	    File cd = new File(relclassdir);
 	    if(cd.isAbsolute())
@@ -544,8 +545,8 @@ public class Package extends Graph
 	props.put("package.numTargets", String.valueOf(targets.size()));
 	props.put("package.numDependencies", 
 		  String.valueOf(usesArrows.size() + extendsArrows.size()));
-	if(relclassdir != null)
-	    Config.putPath(props, "package.classdir", relclassdir);
+//	if(relclassdir != null)
+//	    Config.putPath(props, "package.classdir", relclassdir);
 
 	Enumeration t_enum = targets.elements();		// targets
 	for(int i = 0; t_enum.hasMoreElements(); i++) {
