@@ -260,13 +260,12 @@ tokens {
 			    Selection extendsInsert, Selection implementsInsert,
 			    Selection extendsReplace, Selection superReplace,
 			    Selection typeParamInsert,
-			    Vector typeParameterSelections,
 			    Vector interfaceSelections)
     {
         symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, isPublic,
         			isEnum, comment, extendsInsert, implementsInsert,
         			extendsReplace, superReplace, typeParamInsert,
-        			typeParameterSelections, interfaceSelections);
+        			interfaceSelections);
     }
 
     public void defineInterface(JavaToken theInterface,
@@ -275,12 +274,11 @@ tokens {
                                 JavaToken comment,
                                 Selection extendsInsert,
                                 Selection typeParamInsert,
-			                    Vector typeParameterSelections,
                                 Vector superInterfaceSelections)
     {
         symbolTable.defineInterface(theInterface, superInterfaces, isPublic, comment,
                                     extendsInsert, typeParamInsert,
-                                    typeParameterSelections, superInterfaceSelections);
+                                    superInterfaceSelections);
     }
 
     public void defineVar(JavaToken theVariable, JavaToken type, boolean isVarargs, JavaToken comment) {
@@ -288,9 +286,9 @@ tokens {
     }
 
 
-    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment) {
+    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment, Selection typeParameters) {
         //System.out.println("entering method" + theMethod);
-        symbolTable.defineMethod(theMethod, type, comment);
+        symbolTable.defineMethod(theMethod, type, comment, typeParameters);
     }
 
     public void addImport(JavaToken id, String className, String packageName) {
@@ -425,7 +423,7 @@ classOrInterfaceType returns [JavaToken t]
             id2:IDENT (typeArguments)? {t.setText(t.getText() + "." + id2.getText());}
         )*
     ;
-    
+
 typeArguments
 {int currentLtLevel = 0;}
     :
@@ -457,6 +455,76 @@ singleTypeArgument:
             ("extends"|"super") (classTypeSpec | builtInTypeSpec | QUESTION)
         )?
     ;
+    
+// this was modified to return information for parser which may not be needed
+// will comment out until I make sure it is not needed
+//typeArguments returns [JavaToken t]
+//    {   t = null;
+//    	JavaToken st = null;
+//    	JavaToken st1 = null;
+//    	JavaToken te = null;
+//    	int currentLtLevel = 0;
+//    }
+//    :
+//        {currentLtLevel = ltCounter;}
+//        lt:LT {ltCounter++;t = (JavaToken)lt;
+//        }
+//        st=singleTypeArgument
+//        {
+//        	t.setText(t.getText() + ((JavaToken)st).getText());
+//        }
+//        (options{greedy=true;}: // match as many as possible
+//            co:COMMA st1=singleTypeArgument
+//            {
+//                t.setText(t.getText() + ((JavaToken)co).getText() + ((JavaToken)st1).getText());
+//            }
+//        )*
+//        
+//        (   // turn warning off since Antlr generates the right code,
+//            // plus we have our semantic predicate below
+//            options{generateAmbigWarnings=false;}:
+//            te=typeArgumentsEnd
+//            {
+//                t.setText(t.getText() + ((JavaToken)te).getText());
+//            }
+//        )?
+//        
+//        // make sure we have gobbled up enough '>' characters
+//        // if we are at the "top level" of nested typeArgument productions
+//        {(currentLtLevel != 0) || ltCounter == currentLtLevel}?
+//    ;
+//
+//singleTypeArgument returns [JavaToken t]
+//    {t=null;
+//     JavaToken t1 = null;
+//    }
+//    :
+//        (
+//            t=classTypeSpec | t=builtInTypeSpec | qu:QUESTION {t = (JavaToken)qu;}          
+//        )
+//        
+//        (   // I'm pretty sure Antlr generates the right thing here:
+//            options{generateAmbigWarnings=false;}:
+//            (id1:"extends"|id2:"super"
+//                {
+//                    if(id1 != null) 
+//                        t.setText(t.getText() + ((JavaToken)id1).getText());
+//                    else if(id2 != null) 
+//                        t.setText(t.getText() + ((JavaToken)id2).getText());
+//                }
+//            ) 
+//            
+//            (t1=classTypeSpec | t1=builtInTypeSpec | qu1:QUESTION
+//                {
+//                	if(t1 != null) 
+//                        t.setText(t.getText() + t1.getText());
+//                    else if(qu1 != null) 
+//                        t.setText(t.getText() + ((JavaToken)qu1).getText());
+//                }
+//            )
+//        )?
+//    ;
+
 // this gobbles up *some* amount of '>' characters, and counts how many
 // it gobbled.
 protected typeArgumentsEnd returns [JavaToken t]
@@ -588,14 +656,13 @@ classDefinition[JavaBitSet mods, JavaToken commentToken]
     	JavaToken superClass=null;
         JavaVector interfaces = new JavaVector();
         Vector interfaceSelections = new Vector();
-        Vector typeParamSelections = new Vector();
         Selection extendsInsert=null, implementsInsert=null,
                     extendsReplace=null, superReplace=null,
                     typeParamsInsert=null;
                     
     }
     : "class" id:IDENT    // aha! a class!
-    (typeParamsInsert = typeParameters[typeParamSelections])?
+    (typeParamsInsert = typeParameters)?
         {
             // the place which we would want to insert an "extends" is at the
             // character just after the classname identifier
@@ -634,7 +701,6 @@ classDefinition[JavaBitSet mods, JavaToken commentToken]
             		  extendsInsert, implementsInsert,
             		  extendsReplace, superReplace,
             		  typeParamsInsert,
-            		  typeParamSelections,
             		  interfaceSelections); }
 
     // now parse the body of the class
@@ -651,12 +717,11 @@ interfaceDefinition[JavaBitSet mods, JavaToken commentToken]
         JavaVector superInterfaces = new JavaVector();
         Vector superInterfaceSelections = new Vector();
         Selection extendsInsert = null;
-        Vector typeParamSelections = new Vector();
         Selection typeParamsInsert = null;
     }
     : "interface" id:IDENT   // aha! an interface!
         // it _might_ have type paramaters
-        (typeParamsInsert = typeParameters[typeParamSelections])?
+        (typeParamsInsert = typeParameters)?
         {
 	    // the place which we would want to insert an "extends" is at the
 	    // character just after the interfacename identifier
@@ -676,7 +741,6 @@ interfaceDefinition[JavaBitSet mods, JavaToken commentToken]
 		            mods.get(MOD_PUBLIC), commentToken,
 		            extendsInsert,
 		            typeParamsInsert,
-            		typeParamSelections,
             		superInterfaceSelections); }
 
     // now parse the body of the interface (looks like a class...)
@@ -716,7 +780,7 @@ enumDefinition[JavaBitSet mods, JavaToken commentToken]
             		  commentToken,
             		  null, implementsInsert,
             		  null, null,
-            		  null, null,
+            		  null,
             		  interfaceSelections); }
 
     // now parse the body of the class
@@ -731,38 +795,37 @@ annotationTypeDeclaration
         AT "interface" IDENT annotationTypeBody
     ;
 
-typeParameters [Vector typeParamSelections] returns [Selection typeParamInsert]
+typeParameters returns [Selection typeParamInsert]
     {    int currentLtLevel = 0;
-    	 typeParamInsert = null;
-	     JavaToken typeParam = null;
-	     JavaToken paramEnd = null;
+         typeParamInsert = null;
+         JavaToken typeParam = null;
+         JavaToken paramEnd = null;
+         // the full token for the type parameter selection
+         JavaToken typeParameters = null;     
     }
     :
         {currentLtLevel = ltCounter;}
-        id:LT {ltCounter++;
-               typeParamInsert = new Selection((JavaToken)id);
-               typeParamSelections.add(typeParamInsert);
-              }
+        id:LT 
+            {ltCounter++;
+                typeParameters = (JavaToken)id;
+                typeParamInsert = new Selection(typeParameters);                
+            }
         typeParam = typeParameter
             {
-            	Selection s = new Selection((JavaToken)typeParam);
-                typeParamSelections.add(s);      	    
+            	typeParameters.setText(typeParameters.getText() + typeParam.getText());
+            	typeParamInsert = new Selection(typeParameters);     	    
             } 
         (co:COMMA typeParam = typeParameter
             {
-            	Selection s = new Selection((JavaToken)co);
-            	typeParamSelections.add(s);
-            	s = new Selection((JavaToken)typeParam);
-                typeParamSelections.add(s);      	    
-            } 
-        
-        
+            	typeParameters.setText(typeParameters.getText() + ((JavaToken)co).getText() + typeParam.getText());
+            	typeParamInsert = new Selection(typeParameters);     	    
+            }         
         )*
         (paramEnd = typeArgumentsEnd
             {
             	if(paramEnd != null) {
-            		Selection end = new Selection((JavaToken)paramEnd);
-            		typeParamSelections.add(end);
+            		typeParameters.setText(typeParameters.getText() + paramEnd.getText());
+            		typeParamInsert = new Selection(typeParameters);
             	}
             }
         )?
@@ -929,7 +992,7 @@ field
         JavaToken  type, commentToken = null;
         JavaVector exceptions = null;           // track thrown exceptions
         JavaBitSet mods = null;
-        Vector typeParamSelections =  new Vector();
+        Selection typeParameterSelection = null;
     }
     :   // method, constructor, or variable declaration
 	{ commentToken = findAttachedComment((JavaToken)LT(1)); }
@@ -948,29 +1011,28 @@ field
             // A generic method has the typeParameters before the return type.
             // This is not allowed for variable definitions, but this production
             // allows it, a semantic check could be used if you wanted.
-            (typeParameters[typeParamSelections])?
+            (typeParameterSelection = typeParameters)?
             type=typeSpec  // method or variable declaration(s)
             (
-                    method:IDENT  // the name of the method
-
-                    {
-		            // tell the symbol table about it.  Note that this signals that
+                method:IDENT  // the name of the method
+                {
+                    // tell the symbol table about it.  Note that this signals that
         	        // we are in a method header so we handle parameters appropriately
-        	        defineMethod((JavaToken)method, type, commentToken);
-                    }
+        	        defineMethod((JavaToken)method, type, commentToken, typeParameterSelection);
+                }
 
-                    // parse the formal parameter declarations.
-                    LPAREN parameterDeclarationList RPAREN
+                // parse the formal parameter declarations.
+                LPAREN parameterDeclarationList RPAREN
 
-                    (LBRACK RBRACK )*
+                (LBRACK RBRACK )*
 
-                    // get the list of exceptions that this method is
-                    // declared to throw
-                    (exceptions=throwsClause)?
+                // get the list of exceptions that this method is
+                // declared to throw
+                (exceptions=throwsClause)?
 
-                    // tell the symbol table we are done with the method header. Note that
-                    // this will tell the symbol table to handle variables normally
-                    {endMethodHead(exceptions);}
+                // tell the symbol table we are done with the method header. Note that
+                // this will tell the symbol table to handle variables normally
+                {endMethodHead(exceptions);}
 
 		    ( compoundStatement[BODY] | SEMI {popScope();} )
 		|
@@ -1082,7 +1144,7 @@ ctorHead[JavaToken type, JavaToken commentToken]
         {
 		// tell the symbol table about it.  Note that this signals that
         	// we are in a method header so we handle parameters appropriately
-        	defineMethod((JavaToken)method, type, commentToken);
+        	defineMethod((JavaToken)method, type, commentToken, null);
         }
 
         // parse the formal parameter declarations.  These are sent to the
@@ -1155,12 +1217,12 @@ compoundStatement[int scopeType]
                     //   treat it like a method with a special name
                     case CLASS_INIT:
                         lc.setText("~class-init~");
-                        defineMethod(null, (JavaToken)lc, null);
+                        defineMethod(null, (JavaToken)lc, null, null);
                         endMethodHead(null);
                         break;
                     case INSTANCE_INIT:
                         lc.setText("~instance-init~");
-                        defineMethod(null, (JavaToken)lc, null);
+                        defineMethod(null, (JavaToken)lc, null, null);
                         endMethodHead(null);
                         break;
 

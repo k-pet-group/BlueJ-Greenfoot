@@ -4,14 +4,10 @@
 
 import antlr.TokenBuffer;
 import antlr.TokenStreamException;
-import antlr.TokenStreamIOException;
-import antlr.ANTLRException;
-import antlr.LLkParser;
 import antlr.Token;
 import antlr.TokenStream;
 import antlr.RecognitionException;
 import antlr.NoViableAltException;
-import antlr.MismatchedTokenException;
 import antlr.SemanticException;
 import antlr.ParserSharedInputState;
 import antlr.collections.impl.BitSet;
@@ -240,13 +236,12 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
 			    Selection extendsInsert, Selection implementsInsert,
 			    Selection extendsReplace, Selection superReplace,
 			    Selection typeParamInsert,
-			    Vector typeParameterSelections,
 			    Vector interfaceSelections)
     {
         symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, isPublic,
         			isEnum, comment, extendsInsert, implementsInsert,
         			extendsReplace, superReplace, typeParamInsert,
-        			typeParameterSelections, interfaceSelections);
+        			interfaceSelections);
     }
 
     public void defineInterface(JavaToken theInterface,
@@ -255,12 +250,11 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
                                 JavaToken comment,
                                 Selection extendsInsert,
                                 Selection typeParamInsert,
-			                    Vector typeParameterSelections,
                                 Vector superInterfaceSelections)
     {
         symbolTable.defineInterface(theInterface, superInterfaces, isPublic, comment,
                                     extendsInsert, typeParamInsert,
-                                    typeParameterSelections, superInterfaceSelections);
+                                    superInterfaceSelections);
     }
 
     public void defineVar(JavaToken theVariable, JavaToken type, boolean isVarargs, JavaToken comment) {
@@ -268,9 +262,9 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
     }
 
 
-    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment) {
+    public void defineMethod(JavaToken theMethod, JavaToken type, JavaToken comment, Selection typeParameters) {
         //System.out.println("entering method" + theMethod);
-        symbolTable.defineMethod(theMethod, type, comment);
+        symbolTable.defineMethod(theMethod, type, comment, typeParameters);
     }
 
     public void addImport(JavaToken id, String className, String packageName) {
@@ -723,7 +717,6 @@ public ClassParser(ParserSharedInputState state) {
 			JavaToken superClass=null;
 		JavaVector interfaces = new JavaVector();
 		Vector interfaceSelections = new Vector();
-		Vector typeParamSelections = new Vector();
 		Selection extendsInsert=null, implementsInsert=null,
 		extendsReplace=null, superReplace=null,
 		typeParamsInsert=null;
@@ -737,7 +730,7 @@ public ClassParser(ParserSharedInputState state) {
 		switch ( LA(1)) {
 		case LT:
 		{
-			typeParamsInsert=typeParameters(typeParamSelections);
+			typeParamsInsert=typeParameters();
 			break;
 		}
 		case LITERAL_extends:
@@ -818,7 +811,6 @@ public ClassParser(ParserSharedInputState state) {
 					  extendsInsert, implementsInsert,
 					  extendsReplace, superReplace,
 					  typeParamsInsert,
-					  typeParamSelections,
 					  interfaceSelections);
 		}
 		classBlock();
@@ -836,7 +828,6 @@ public ClassParser(ParserSharedInputState state) {
 		JavaVector superInterfaces = new JavaVector();
 		Vector superInterfaceSelections = new Vector();
 		Selection extendsInsert = null;
-		Vector typeParamSelections = new Vector();
 		Selection typeParamsInsert = null;
 		
 		
@@ -847,7 +838,7 @@ public ClassParser(ParserSharedInputState state) {
 		switch ( LA(1)) {
 		case LT:
 		{
-			typeParamsInsert=typeParameters(typeParamSelections);
+			typeParamsInsert=typeParameters();
 			break;
 		}
 		case LITERAL_extends:
@@ -891,7 +882,6 @@ public ClassParser(ParserSharedInputState state) {
 					            mods.get(MOD_PUBLIC), commentToken,
 					            extendsInsert,
 					            typeParamsInsert,
-					typeParamSelections,
 					superInterfaceSelections);
 		}
 		classBlock();
@@ -947,7 +937,7 @@ public ClassParser(ParserSharedInputState state) {
 					  commentToken,
 					  null, implementsInsert,
 					  null, null,
-					  null, null,
+					  null,
 					  interfaceSelections);
 		}
 		enumBlock();
@@ -1664,17 +1654,17 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final Selection  typeParameters(
-		Vector typeParamSelections
-	) throws RecognitionException, TokenStreamException {
+	public final Selection  typeParameters() throws RecognitionException, TokenStreamException {
 		Selection typeParamInsert;
 		
 		Token  id = null;
 		Token  co = null;
 		int currentLtLevel = 0;
-			 typeParamInsert = null;
-			     JavaToken typeParam = null;
-			     JavaToken paramEnd = null;
+		typeParamInsert = null;
+		JavaToken typeParam = null;
+		JavaToken paramEnd = null;
+		// the full token for the type parameter selection
+		JavaToken typeParameters = null;     
 		
 		
 		if ( inputState.guessing==0 ) {
@@ -1684,15 +1674,15 @@ public ClassParser(ParserSharedInputState state) {
 		match(LT);
 		if ( inputState.guessing==0 ) {
 			ltCounter++;
-			typeParamInsert = new Selection((JavaToken)id);
-			typeParamSelections.add(typeParamInsert);
+			typeParameters = (JavaToken)id;
+			typeParamInsert = new Selection(typeParameters);                
 			
 		}
 		typeParam=typeParameter();
 		if ( inputState.guessing==0 ) {
 			
-				Selection s = new Selection((JavaToken)typeParam);
-			typeParamSelections.add(s);      	    
+				typeParameters.setText(typeParameters.getText() + typeParam.getText());
+				typeParamInsert = new Selection(typeParameters);     	    
 			
 		}
 		{
@@ -1704,10 +1694,8 @@ public ClassParser(ParserSharedInputState state) {
 				typeParam=typeParameter();
 				if ( inputState.guessing==0 ) {
 					
-						Selection s = new Selection((JavaToken)co);
-						typeParamSelections.add(s);
-						s = new Selection((JavaToken)typeParam);
-					typeParamSelections.add(s);      	    
+						typeParameters.setText(typeParameters.getText() + ((JavaToken)co).getText() + typeParam.getText());
+						typeParamInsert = new Selection(typeParameters);     	    
 					
 				}
 			}
@@ -1727,8 +1715,8 @@ public ClassParser(ParserSharedInputState state) {
 			if ( inputState.guessing==0 ) {
 				
 					if(paramEnd != null) {
-						Selection end = new Selection((JavaToken)paramEnd);
-						typeParamSelections.add(end);
+						typeParameters.setText(typeParameters.getText() + paramEnd.getText());
+						typeParamInsert = new Selection(typeParameters);
 					}
 				
 			}
@@ -2128,7 +2116,7 @@ public ClassParser(ParserSharedInputState state) {
 		JavaToken  type, commentToken = null;
 		JavaVector exceptions = null;           // track thrown exceptions
 		JavaBitSet mods = null;
-		Vector typeParamSelections =  new Vector();
+		Selection typeParameterSelection = null;
 		
 		
 		if ((_tokenSet_14.member(LA(1))) && (_tokenSet_15.member(LA(2)))) {
@@ -2163,7 +2151,7 @@ public ClassParser(ParserSharedInputState state) {
 					switch ( LA(1)) {
 					case LT:
 					{
-						typeParameters(typeParamSelections);
+						typeParameterSelection=typeParameters();
 						break;
 					}
 					case IDENT:
@@ -2192,9 +2180,9 @@ public ClassParser(ParserSharedInputState state) {
 						match(IDENT);
 						if ( inputState.guessing==0 ) {
 							
-									            // tell the symbol table about it.  Note that this signals that
+							// tell the symbol table about it.  Note that this signals that
 								        // we are in a method header so we handle parameters appropriately
-								        defineMethod((JavaToken)method, type, commentToken);
+								        defineMethod((JavaToken)method, type, commentToken, typeParameterSelection);
 							
 						}
 						match(LPAREN);
@@ -2546,7 +2534,7 @@ public ClassParser(ParserSharedInputState state) {
 			
 					// tell the symbol table about it.  Note that this signals that
 				// we are in a method header so we handle parameters appropriately
-				defineMethod((JavaToken)method, type, commentToken);
+				defineMethod((JavaToken)method, type, commentToken, null);
 			
 		}
 		match(LPAREN);
@@ -2720,12 +2708,12 @@ public ClassParser(ParserSharedInputState state) {
 			//   treat it like a method with a special name
 			case CLASS_INIT:
 			lc.setText("~class-init~");
-			defineMethod(null, (JavaToken)lc, null);
+			defineMethod(null, (JavaToken)lc, null, null);
 			endMethodHead(null);
 			break;
 			case INSTANCE_INIT:
 			lc.setText("~instance-init~");
-			defineMethod(null, (JavaToken)lc, null);
+			defineMethod(null, (JavaToken)lc, null, null);
 			endMethodHead(null);
 			break;
 			

@@ -23,6 +23,9 @@ class MethodDef extends ScopedDef implements TypedDef
 
     /** A list of exceptions that can be thrown */
     private JavaVector exceptions;
+    
+    /** used if method is a generic method */
+    private String genericTypeArgument;
 
 
     //==========================================================================
@@ -34,9 +37,11 @@ class MethodDef extends ScopedDef implements TypedDef
     MethodDef(String name,               // the name of the method
               Occurrence occ,            // where it was defined
               ClassDef type,             // the return type of the method
-              ScopedDef parentScope) {   // which scope owns it
+              ScopedDef parentScope,     // which scope owns it
+              String typeArgument) {     // typeArgument if generic method 
         super(name, occ, parentScope);
         this.type = type;
+        this.genericTypeArgument = typeArgument;
     }
 
 
@@ -99,6 +104,10 @@ class MethodDef extends ScopedDef implements TypedDef
     {
         StringBuffer target = new StringBuffer();  // the method signature
 
+        if(genericTypeArgument != null) {
+            target.append(genericTypeArgument);
+            target.append(" ");
+        }
         // if it has a return type, add it
         if (type != null) {
             info.addUsed(type.getQualifiedName());
