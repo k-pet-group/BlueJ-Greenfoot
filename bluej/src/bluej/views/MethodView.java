@@ -6,7 +6,7 @@ import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
 /**
- ** @version $Id: MethodView.java 717 2000-12-07 01:00:26Z ajp $
+ ** @version $Id: MethodView.java 784 2001-02-27 01:43:08Z bquig $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -22,8 +22,8 @@ public class MethodView extends CallableView
      */
     public MethodView(View view, Method method)
     {
-	super(view);
-	this.method = method;
+        super(view);
+        this.method = method;
     }
 
     /**
@@ -31,12 +31,12 @@ public class MethodView extends CallableView
      */
     public String toString()
     {
-	return method.toString();
+        return method.toString();
     }
 
     public int getModifiers()
     {
-	return method.getModifiers();
+        return method.getModifiers();
     }
 
     /**
@@ -44,7 +44,7 @@ public class MethodView extends CallableView
      */
     public boolean hasParameters()
     {
-	return (method.getParameterTypes().length > 0);
+        return (method.getParameterTypes().length > 0);
     }
 
     /**
@@ -53,12 +53,12 @@ public class MethodView extends CallableView
      */
     public String getSignature()
     {
-	String name = View.getTypeName(method.getReturnType()) +
-		      " " +
-		      method.getName();
-	Class[] params = method.getParameterTypes();
+        String name = View.getTypeName(method.getReturnType()) +
+            " " +
+            method.getName();
+        Class[] params = method.getParameterTypes();
 
-	return makeSignature(name, params);
+        return makeSignature(name, params);
     }
 
     /**
@@ -67,12 +67,12 @@ public class MethodView extends CallableView
      */
     public String getShortDesc()
     {
-	String name = View.getTypeName(method.getReturnType()) +
-		      " " +
-		      method.getName();
-	Class[] params = method.getParameterTypes();
+        String name = View.getTypeName(method.getReturnType()) +
+            " " +
+            method.getName();
+        Class[] params = method.getParameterTypes();
 
-	return makeDescription(name, params, false);
+        return makeDescription(name, params, false);
     }
 
     /**
@@ -82,12 +82,12 @@ public class MethodView extends CallableView
      */
     public String getLongDesc()
     {
-	String name = View.getTypeName(method.getReturnType()) +
-		      " " +
-		      method.getName();
-	Class[] params = method.getParameterTypes();
+        String name = View.getTypeName(method.getReturnType()) +
+            " " +
+            method.getName();
+        Class[] params = method.getParameterTypes();
 
-	return makeDescription(name, params, true);
+        return makeDescription(name, params, true);
     }
 
     /**
@@ -96,7 +96,7 @@ public class MethodView extends CallableView
      */
     public Class[] getParameters()
     {
-	return method.getParameterTypes();
+        return method.getParameterTypes();
     }
 
     /**
@@ -104,7 +104,7 @@ public class MethodView extends CallableView
      */
     public String getName()
     {
-	return method.getName();
+        return method.getName();
     }
 
     /**
@@ -132,7 +132,7 @@ public class MethodView extends CallableView
             if(c[0].isArray() && String.class.equals(c[0].getComponentType())) {
                 if(Modifier.isStatic(getModifiers()) &&
                    Modifier.isPublic(getModifiers()))
-                   return true;
+                    return true;
             }
         }
         return false;
@@ -144,10 +144,10 @@ public class MethodView extends CallableView
      */
     public View getReturnType()
     {
-	if(returnType == null)
-	    returnType = View.getView(method.getReturnType());
+        if(returnType == null)
+            returnType = View.getView(method.getReturnType());
 
-	return returnType;
+        return returnType;
     }
 
 }
