@@ -22,7 +22,7 @@
 
 include $(OS).mk
 
-PKG_VERSION = 103
+PKG_VERSION = 110a
 
 SUBDIRS = \
 	src
@@ -79,9 +79,6 @@ INSTALL_LIB_FILES = \
 	lib/moe.help.english \
 	lib/moe.help.german \
 	lib/moe.help.swedish \
-	lib/moe.labels.english \
-	lib/moe.labels.german \
-	lib/moe.labels.swedish \
 	lib/shell.tmpl \
 	lib/stdclass.tmpl
 

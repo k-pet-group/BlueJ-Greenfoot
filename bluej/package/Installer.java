@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 493 2000-05-22 04:45:21Z mik $
+  * @version $Id: Installer.java 554 2000-06-16 07:05:43Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -708,7 +708,10 @@ public class Installer extends JFrame
      */
     public void unpackTo(boolean doJar) {
 	try {
-	    InputStream cpin = getFileFromClasspath("Installer.class");
+	    InputStream cpin =
+                ClassLoader.getSystemResourceAsStream("Installer.class");
+
+            //InputStream cpin = getFileFromClasspath("Installer.class");
 	    FileOutputStream cpout = new FileOutputStream("Installer.class.tmp");
 	    byte[] buffer = new byte[8192];
 	    int len;
