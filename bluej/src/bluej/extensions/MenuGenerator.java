@@ -3,12 +3,20 @@ package bluej.extensions;
 import javax.swing.JMenuItem;
 
 /**
- * Extensions which wish to add a menu item to the BlueJ Tools menu should register an
+ * Extensions which wish to add a menu item to BlueJ's menus should register an
  * instance of MenuGenerator with the BlueJ proxy object.  
  *
- * A MenuGenerator is only required to implement one function, which should return the 
- * JMenuItem which the extension wishes to display. The JMenuItem returned can itself be a JMenu, 
- * allowing extensions to build more complex menu structures.
+ * A MenuGenerator provides a set of functions which can be called back
+ * by BlueJ to request the actual menu items which will be displayed, and
+ * to indicate that a particular menu item is about to be displayed, so
+ * that an extension can (e.g.) enable or disable appropriate items.
+ *
+ * Note that the JMenuItem which is returned by the extension can itself
+ * be a JMenu, allowing extensions to build more complex menu structures.
+ *
+ * Note also that only Tools menus are supported at BlueJ 1.3.0. Class
+ * and Object menus, and the "notification" methods will be supported from
+ * the next BlueJ maintenance release.
  *
  * Below is a more complex example which creates a menu with two active menu items. 
  * 
@@ -68,7 +76,7 @@ import javax.swing.JMenuItem;
  *  
  * </PRE>
  *
- * @version $Id: MenuGenerator.java 2098 2003-07-07 18:52:58Z damiano $
+ * @version $Id: MenuGenerator.java 2146 2003-08-04 14:20:45Z iau $
  */
 
  /*
@@ -80,9 +88,100 @@ public class MenuGenerator
   /**
    * Returns the JMenuItem to be added to the BlueJ Tools menu.
    * Extensions should not retain references to the menu items created.
+   *
+   * Note that this method will be superceded by getToolsMenuItem() at the
+   * next maintenance release of BlueJ
    */
-  public JMenuItem getMenuItem()
+  public JMenuItem getMenuItem( )
   {
       return null;
   }
+
+  /**
+   * Returns the JMenuItem to be added to the BlueJ Tools menu.
+   * Extensions should not retain references to the menu items created.
+   *
+   * Note: this method will not be called by BlueJ 1.3.0.
+   *
+   * @param bp the BlueJ package with which this menu item will be associated.
+   */
+  public JMenuItem getToolsMenuItem(BPackage bp)
+  {
+      return null;
+  }
+  
+  /**
+   * Returns the JMenuItem to be added to the BlueJ Class menu
+   * Extensions should not retain references to the menu items created.
+   *
+   * Note: this method will not be called by BlueJ 1.3.0.
+   *
+   * @param bc the BlueJ class with which this menu item will be associated.
+   */
+  public JMenuItem getClassMenuItem(BClass bc)
+  {
+      return null;
+  }
+  
+  /**
+   * Returns the JMenuItem to be added to the BlueJ Object menu
+   * Extensions should not retain references to the menu items created.
+   *
+   * Note: this method will not be called by BlueJ 1.3.0.
+   *
+   * @param bo the BlueJ object with which this menu item will be associated.
+   */
+  public JMenuItem getObjectMenuItem(BObject bo)
+  {
+      return null;
+  }
+  
+  /**
+   * Called by BlueJ when a tools menu added by an extension is about to
+   * be displayed. An extension can use this notification to decide whether
+   * to enable/disable menu items and so on.
+   *
+   * Note: this method will not be called by BlueJ 1.3.0.
+   *
+   * @param bp the BlueJ package for which the menu is to be displayed
+   * @param jmi the menu item which will be displayed (as provided by the
+   * extension in a previous call to getToolsMenuItem)
+   */
+  public void notifyPostMenu(BPackage bp, JMenuItem jmi) 
+  {
+      return;
+  }
+
+  /**
+   * Called by BlueJ when a class menu added by an extension is about to
+   * be displayed. An extension can use this notification to decide whether
+   * to enable/disable menu items and so on.
+   *
+   * Note: this method will not be called by BlueJ 1.3.0.
+   *
+   * @param bc the BlueJ class for which the menu is to be displayed
+   * @param jmi the menu item which will be displayed (as provided by the
+   * extension in a previous call to getToolsMenuItem)
+   */
+  public void notifyPostMenu(BClass bc, JMenuItem jmi) 
+  {
+      return;
+  }
+
+  /**
+   * Called by BlueJ when an object menu added by an extension is about to
+   * be displayed. An extension can use this notification to decide whether
+   * to enable/disable menu items and so on.
+   *
+   * Note: this method will not be called by BlueJ 1.3.0.
+   *
+   * @param bo the BlueJ object for which the menu is to be displayed
+   * @param jmi the menu item which will be displayed (as provided by the
+   * extension in a previous call to getToolsMenuItem)
+   */
+  public void notifyPostMenu(BObject bo, JMenuItem jmi) 
+  {
+      return;
+  }
+
 }

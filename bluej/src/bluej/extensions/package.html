@@ -8,7 +8,7 @@
 and to the classes and objects which BlueJ is manipulating via a number of wrapper classes.
 </p>
 <p>
-An extension can add a menu item to the BlueJ Tools menu, and a
+An extension can add a menu item to the BlueJ Tools, Class and/or Object menus, and a
 preference panel to the Tools/Preferences/Extensions panel. The
 <code>BlueJ</code> proxy object generates events when the user performs
 significant actions within BlueJ, and provides access to its projects,
@@ -113,7 +113,7 @@ public class SimpleExtension extends Extension implements PackageListener
    * Returns the version number of this extension
    */
   public String  getVersion () { 
-    return ("2003.05");  
+    return ("2003.08");  
   }
   
   /**
@@ -133,7 +133,7 @@ public class SimpleExtension extends Extension implements PackageListener
    */
   public URL getURL () {
     try {
-      return new URL("http://www.cs.ukc.ac.uk/projects/bluej/writingextensions.html");
+      return new URL("http://www.cs.kent.ac.uk/projects/bluej/writingextensions.html");
     }
     catch ( Exception eee ) {
       // There is no reason at all that this should throw exception...
