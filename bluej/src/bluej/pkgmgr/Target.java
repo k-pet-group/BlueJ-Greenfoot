@@ -15,7 +15,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 /**
- ** @version $Id: Target.java 233 1999-08-12 23:53:28Z mik $
+ ** @version $Id: Target.java 237 1999-08-16 06:46:31Z ajp $
  ** @author Michael Cahill
  **
  ** A general target in a package
@@ -607,6 +607,13 @@ public abstract class Target extends Vertex
     public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
     {
         Graphics g = editor.getGraphics();
+
+        // this shouldn't happen (oldRect shouldn't be null if we have got
+        // here but on Windows it has happened to me (ajp))
+        
+        if (oldRect == null)
+            return;
+            
 	int orig_x = (resizing ? oldRect.width : oldRect.x);
 	int orig_y = (resizing ? oldRect.height : oldRect.y);
 	int current_x = (resizing ? width : this.x);
