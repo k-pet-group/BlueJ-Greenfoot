@@ -3,9 +3,15 @@ package bluej.extensions.event;
 import java.io.File;
 
 /**
- * This class encapsulates compiler events
+ * This class encapsulates compiler events.
+ * It allows an extension writer to know when a compilation fails and
+ * when a compilation is successful.
  * 
- * @version $Id: CompileEvent.java 1807 2003-04-10 10:28:21Z damiano $
+ * @version $Id: CompileEvent.java 1840 2003-04-11 13:28:18Z damiano $
+ */
+
+/*
+ * Author Damiano Bolla, University of Kent at Canterbury, 2003
  */
 public class CompileEvent implements BlueJExtensionEvent 
 {
@@ -16,13 +22,13 @@ public class CompileEvent implements BlueJExtensionEvent
 
   /**
    * Event generated when a compilation WARNING is generated.
-   * A Warining event is one that will NOT invalidate the compilation
+   * A warining event is one that will not invalidate the compilation.
    */
   public static final int COMPILE_WARNING_EVENT=2;
 
   /**
    * Event generated when a compilation Error is generated.
-   * A Warining event is one that WILL invalidate the compilation
+   * An error event is one that will invalidate the compilation
    */
   public static final int COMPILE_ERROR_EVENT=3;
 
@@ -34,7 +40,7 @@ public class CompileEvent implements BlueJExtensionEvent
 
   /**
    * Event generated when a compilation is finished.
-   * This is a FAILED compilation.
+   * This is a failed compilation.
    */
   public static final int COMPILE_FAILED_EVENT=5;
 
@@ -44,12 +50,12 @@ public class CompileEvent implements BlueJExtensionEvent
   private String errorMessage;
 
   /**
-   * NOT to be used by Extension writer.
+   * Constructor for a CompileEvent.
    */
-  public CompileEvent(int i_eventId, File[] i_fileNames)
+  public CompileEvent(int anEventId, File[] aFileNames)
     {
-    eventId   = i_eventId;
-    fileNames = i_fileNames;
+    eventId   = anEventId;
+    fileNames = aFileNames;
     }
 
   /**
@@ -64,6 +70,7 @@ public class CompileEvent implements BlueJExtensionEvent
   /**
    * Returns an array of zero, one or more files related to this event.
    * In case of COMPILE_ERROR_EVENT or COMPILE_WARNING_EVENT it is normally a one element array.
+   * In all other cases it depends on the number of files being compiled.
    */
   public File[] getFiles ()
     {
@@ -71,11 +78,11 @@ public class CompileEvent implements BlueJExtensionEvent
     }
 
   /**
-   * NOT to be used by Extension writer.
+   * Sets the line number where an error or warning occourred.
    */
-  public void setErrorLineNumber ( int i_lineNumber )
+  public void setErrorLineNumber ( int aLineNumber )
     {
-    errorLineNumber = i_lineNumber;
+    errorLineNumber = aLineNumber;
     }
 
   /**
@@ -88,15 +95,15 @@ public class CompileEvent implements BlueJExtensionEvent
     }
 
   /**
-   * NOT to be used by Extension writer.
+   * Sets the error message for an error or warning event.
    */
-  public void setErrorMessage ( String i_errorMessage )
+  public void setErrorMessage ( String anErrorMessage )
     {
-    errorMessage = i_errorMessage;
+    errorMessage = anErrorMessage;
     }
   
   /**
-   * Returns the error message where the compilation error occours.
+   * Return the error message where the compilation error occours.
    * To be used only for COMPILE_ERROR_EVENT or COMPILE_WARNING_EVENT
    */
   public String getErrorMessage ( )

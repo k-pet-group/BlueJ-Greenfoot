@@ -2,10 +2,10 @@ package bluej.extensions.event;
 
 /**
  * This interface allows you to listen for BlueJ events.
- * If you want to listen for extensions events you have tom implement this interface
- * and register it using the addBluejListener of the BlueJ Class.
+ * If you want to listen for BlueJ events you have tom implement this interface
+ * and register it using the addBlueJExtensionEventListener of the BlueJ Class.
  *
- * @version $Id: BlueJExtensionEventListener.java 1806 2003-04-10 10:26:00Z damiano $
+ * @version $Id: BlueJExtensionEventListener.java 1840 2003-04-11 13:28:18Z damiano $
  */
 public interface BlueJExtensionEventListener
 {
