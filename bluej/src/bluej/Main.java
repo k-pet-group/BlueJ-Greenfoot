@@ -6,7 +6,7 @@ import bluej.utility.Debug;
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
- ** @version $Id: Main.java 217 1999-08-08 05:23:20Z mik $
+ ** @version $Id: Main.java 225 1999-08-11 06:52:15Z bruce $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -90,5 +90,4 @@ public class Main
 	Debugger.handleExit();
 	System.exit(0);
     }
-
 }

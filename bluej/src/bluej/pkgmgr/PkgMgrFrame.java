@@ -99,6 +99,7 @@ public class PkgMgrFrame extends PkgFrame
 
 	// If only one frame, close should close existing package rather
 	// than remove frame 
+
 	if(frames.size() == 1) {	// close package, leave frame
 	    frame.doSave();
 	    frame.removePackage();
@@ -258,8 +259,9 @@ public class PkgMgrFrame extends PkgFrame
 	    if(frameCount() > 1)
 		answer = Utility.askQuestion(this, "Quit all open packages?", 
 					     "Quit All", "Cancel", null);
-	    if(answer == 0)
+	    if(answer == 0) {
 		bluej.Main.exit();
+	    }
 	    break;
 
 		
@@ -1024,6 +1026,9 @@ public class PkgMgrFrame extends PkgFrame
 		{
 		    if(frameCount() == 1)
 			bluej.Main.exit();
+		    else
+			PkgMgrFrame.closeFrame((PkgMgrFrame)E.getWindow());
+
 		}
 	});
 
