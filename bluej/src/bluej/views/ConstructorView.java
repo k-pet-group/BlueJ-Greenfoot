@@ -5,112 +5,85 @@ import bluej.utility.Utility;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: ConstructorView.java 203 1999-07-23 05:32:28Z ajp $
+ ** @version $Id: ConstructorView.java 244 1999-08-20 06:42:33Z mik $
  ** @author Michael Cahill
+ ** @author Michael Kolling
  **
  ** A representation of a Java constructor in BlueJ
  **/
-public final class ConstructorView extends MemberView
+public final class ConstructorView extends CallableView
 {
-	protected Constructor cons;
+    protected Constructor cons;
 	
-	/**
-	 ** Constructor.
-	 **/
-	public ConstructorView(View view, Constructor cons)
-	{
-		super(view);
-		
-		this.cons = cons;
-	}
+    /**
+     * Constructor.
+     */
+    public ConstructorView(View view, Constructor cons)
+    {
+	super(view);
+	this.cons = cons;
+    }
 	
-	/**
-	 ** Returns a string describing this Constructor.
-	 **/
-	public String toString()
-	{
-		return cons.toString();
-	}
+    /**
+     * Returns a string describing this Constructor.
+     */
+    public String toString()
+    {
+	return cons.toString();
+    }
 
     public int getModifiers()
-	{
-		return cons.getModifiers();
-	}
+    {
+	return cons.getModifiers();
+    }
 	
-	/**
-	 ** @returns a boolean indicating whether this method has parameters
-	 **/
-	public boolean hasParameters()
-	{
-		return (cons.getParameterTypes().length > 0);
-	}
+    /**
+     * @returns a boolean indicating whether this method has parameters
+     */
+    public boolean hasParameters()
+    {
+	return (cons.getParameterTypes().length > 0);
+    }
 	
-	/**
-	 ** Returns a string describing this Method in a different format
-	 **/
-	public String getSignature(boolean includeparamnames)
-	{
-		StringBuffer sb = new StringBuffer();
+    /**
+     * Returns a signature string in the format 
+     *  name(type,type,type)
+     */
+    public String getSignature()
+    {
+	Class[] params = cons.getParameterTypes();
+	return makeSignature(cons.getName(), params);
+    }
 
-		sb.append(cons.getName());
-		sb.append("(");
-		Class[] params = cons.getParameterTypes();
-		for(int j = 0; j < params.length; j++)
-		{
-			sb.append(View.getTypeName(params[j]));
-			if(getComment() != null && includeparamnames) {
-			    String paramname = getComment().getParamName(j);
-
-			if(paramname != null) {
-			    sb.append(" ");
-			    sb.append(paramname);
-			}
-	        }
-			if (j < (params.length - 1))
-				sb.append(",");
-		}
-		sb.append(")");
-		return sb.toString();
-	}
-
-	public String getSignature()
-	{
-	    return getSignature(true);
-	}
-	/**
-	 ** Get a short String describing this member
-	 **/
-	public String getShortDesc()
-	{
-        return getSignature(true);
-	}
+    /**
+     * Get a short String describing this member. A description is similar
+     * to the signature, but it has parameter names in it instead of types.
+     */
+    public String getShortDesc()
+    {
+	Class[] params = cons.getParameterTypes();
+	return makeDescription(cons.getName(), params, false);
+    }
 	
-	/**
-	 ** Get a longer String describing this member
-	 **/
-	public String getLongDesc()
-	{
-		return getSignature(true);
-	}
+    /**
+     * Get a long String describing this member. A long description is
+     * similar to the short description, but it has type names and parameters
+     * included.
+     */
+    public String getLongDesc()
+    {
+	Class[] params = cons.getParameterTypes();
+	return makeDescription(cons.getName(), params, true);
+    }
 
-	/**
-	 ** Count of constructor's parameters
-	 ** @returns the number of parameters
-	 **/
-	public int getParameterCount()
-	{
-		return (cons.getParameterTypes().length);
-	}
-
-
-	/**
-	 ** Get an array of Class objects representing constructor's parameters
-	 ** @returns array of Class objects
-	 **/
-	public Class[] getParameters()
-	{
-		return cons.getParameterTypes();
-	}
+    /**
+     * Get an array of Class objects representing constructor's parameters
+     * @returns array of Class objects
+     */
+    public Class[] getParameters()
+    {
+	return cons.getParameterTypes();
+    }
 
 
 }

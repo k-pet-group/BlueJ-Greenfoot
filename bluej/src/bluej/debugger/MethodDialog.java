@@ -7,6 +7,7 @@ import bluej.utility.Utility;
 import bluej.pkgmgr.Package;
 import bluej.views.ConstructorView;
 import bluej.views.MemberView;
+import bluej.views.CallableView;
 import bluej.views.MethodView;
 import bluej.debugger.CallHistory;
 
@@ -18,7 +19,7 @@ import java.util.*;
 
 
 /**
- ** @version $Id: MethodDialog.java 239 1999-08-17 07:55:00Z mik $
+ ** @version $Id: MethodDialog.java 244 1999-08-20 06:42:33Z mik $
  **
  ** @author Michael Cahill
  ** @author Bruce Quig
@@ -75,15 +76,17 @@ public class MethodDialog extends JDialog
     private Class[] paramClasses;
     private boolean emptyField = false;
 
-    public MethodDialog(Package pkg, String className, String instanceName, MemberView method)
+    public MethodDialog(Package pkg, String className, String instanceName, 
+			CallableView method)
     {
         super(pkg.getFrame(), false);
 
-	boolean hasArgs = false;
 	history = pkg.getCallHistory();
 	bench = pkg.getBench();
+
+	// set up panel for error message
 	status = new MultiLineLabel("\n\n", LEFT_ALIGNMENT);
-	status.setForeground(Color.red);
+	status.setForeground(new Color(136,56,56));  // dark red
 	JPanel statusPanel = new JPanel();
 	statusPanel.setMinimumSize(new Dimension(120,40));
 
@@ -96,17 +99,14 @@ public class MethodDialog extends JDialog
 	});
 	// end of Workaround
 
-	// Find out the type of dialog and if hasArgs
+	// Find out the type of dialog 
 	if( method instanceof MethodView ) {
 	    dialogType = MD_CALL;
 	    methodName = ((MethodView)method).getName();
-	    hasArgs = ((MethodView)method).hasParameters();
 	}		
 	else if (method instanceof ConstructorView ) {
 	    dialogType = MD_CREATE;
-	    hasArgs = ((ConstructorView)method).hasParameters();
 	}
-
 
 	JPanel dialogPanel = new JPanel();
 	{
@@ -123,7 +123,7 @@ public class MethodDialog extends JDialog
 		
             	// parse method signature for param fields, there may be a better way
             	String[] paramNames = null;	
-            	if(hasArgs)
+            	if(method.hasParameters())
             	    paramNames = parseParamNames(method.getLongDesc());
 
             	//
@@ -132,7 +132,8 @@ public class MethodDialog extends JDialog
             	switch (dialogType) {
             	
 		case MD_CALL:		
-            	    makeCallDialog(instanceName, method, paramNames, centerPanel);
+            	    makeCallDialog(className, instanceName, method, paramNames, 
+				   centerPanel);
             	    break;
             
 		case MD_CREATE:
@@ -199,8 +200,9 @@ public class MethodDialog extends JDialog
     /**
      * makeCallDialog - create a dialog to make a method call
      */
-    private void makeCallDialog(String instanceName, MemberView method, 
-				String[] paramNames, JPanel panel)
+    private void makeCallDialog(String className, String instanceName, 
+				MemberView method, String[] paramNames, 
+				JPanel panel)
     {
 	JPanel tmpPanel;
 
@@ -218,7 +220,10 @@ public class MethodDialog extends JDialog
 	    constraints.insets = new Insets(2,2,2,2);
 
 	    callLabel = new JLabel("", JLabel.RIGHT);
-	    setCallLabel(instanceName, methodName);
+	    if(method.isStatic())
+		setCallLabel(className, methodName);
+	    else
+		setCallLabel(instanceName, methodName);
 
 	    gridBag.setConstraints(callLabel, constraints);
 	    tmpPanel.add(callLabel);

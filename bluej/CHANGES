@@ -56,7 +56,7 @@ Entry template (copy this for new entry and increment the bug number
 in the template for the next one):
 
 @-------
-@bug#  : 00097
+@bug#  : 00098
 @short : 
 @prio  : 
 @source: 
@@ -274,6 +274,20 @@ in the template for the next one):
 	       package name
 	       nested package/independant package(choose directory)
 @cause : new feature
+
+@-------
+@bug#  : 00097
+@short : array parameter names not recognised
+@prio  : 4
+@source: mik
+@date  : 1999-08-20
+@status: open
+@fixrel: 
+@descr : the parser seems to report String[] parameters as String (see
+	 ctxt file). The result is that signatures don't match when trying
+	 to create a comment. As a result of that, methods with array 
+	 parameters don't appear with their names in popup menus (eg main).
+@cause : incomplete original implementation
 
 @-------
 @bug#  : 00030

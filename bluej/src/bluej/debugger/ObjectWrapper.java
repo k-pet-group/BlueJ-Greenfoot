@@ -1,6 +1,6 @@
 /**
  ** bluej.debugger ObjectWrapper.java
- ** $Id: ObjectWrapper.java 243 1999-08-19 07:38:42Z mik $
+ ** $Id: ObjectWrapper.java 244 1999-08-20 06:42:33Z mik $
  **
  ** A wrapper around a Java object that handles calling methods, inspecting, 
  ** etc. The wrapper is represented by the red oval that is visible on the
@@ -15,7 +15,6 @@ import bluej.Config;
 import bluej.utility.Debug;
 import bluej.pkgmgr.Package;
 import bluej.utility.Utility;
-import bluej.views.MemberView;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
@@ -104,7 +103,8 @@ public class ObjectWrapper extends JComponent implements ActionListener
 	    // get declared methods for the class
 	    MethodView[] declaredMethods = view.getDeclaredMethods();
 
-	    createMenuItems(menu, declaredMethods, filter, 0, declaredMethods.length);	
+	    createMenuItems(menu, declaredMethods, filter, 0, 
+			    declaredMethods.length);	
 
 	    for(int i = 1; i < classes.size(); i++ ) {
 		Class currentClass = (Class)classes.elementAt(i);
@@ -149,14 +149,15 @@ public class ObjectWrapper extends JComponent implements ActionListener
      ** @param first  the index of the methods array which represents the starting point of the menu items 
      ** @param last  the index of the methods array which represents the end point of the menu items
      **/		
-    private void createMenuItems(JComponent menu, MemberView[] methods, ViewFilter filter, int first, int last)
+    private void createMenuItems(JComponent menu, MethodView[] methods, 
+				 ViewFilter filter, int first, int last)
     {
 	JMenuItem item;
 	String methodSignature;
 	
 	for(int i = first; i < last; i++) {
 	    try {
-		MemberView m = methods[i];
+		MethodView m = methods[i];
 		if(!filter.accept(m))
 		    continue;
 

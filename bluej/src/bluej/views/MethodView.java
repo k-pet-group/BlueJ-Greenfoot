@@ -5,50 +5,29 @@ import bluej.utility.Utility;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: MethodView.java 212 1999-07-28 02:13:34Z ajp $
+ ** @version $Id: MethodView.java 244 1999-08-20 06:42:33Z mik $
  ** @author Michael Cahill
+ ** @author Michael Kolling
  **
  ** A representation of a Java method in BlueJ
  **/
-public class MethodView extends MemberView
+public class MethodView extends CallableView
 {
     protected Method method;
-	
     protected View returnType;
 	
     /**
-     ** Constructor.
-     **/
+     * Constructor.
+     */
     public MethodView(View view, Method method)
     {
 	super(view);
-		
 	this.method = method;
     }
 
     /**
-     ** Returns the name of this method as a String
-     **/
-    public String getName()
-    {
-	return method.getName();
-    }
-	
-    /**
-     ** Returns a Class object that represents the formal return type
-     ** of the method represented by this Method object.
-     **/
-    public View getReturnType()
-    {
-	if(returnType == null)
-	    returnType = View.getView(method.getReturnType());
-		
-	return returnType;
-    }
-
-    /**
-     ** Returns a string describing this Method.
-     **/
+     * Returns a string describing this Method.
+     */
     public String toString()
     {
 	return method.toString();
@@ -60,8 +39,76 @@ public class MethodView extends MemberView
     }
 	
     /**
-     ** @returns a boolean indicating whether this method has no return value
-     **/
+     * @returns a boolean indicating whether this method has parameters
+     */
+    public boolean hasParameters()
+    {
+	return (method.getParameterTypes().length > 0);
+    }
+
+    /**
+     * Returns a signature string in the format 
+     *  name(type,type,type)
+     */
+    public String getSignature()
+    {
+	String name = View.getTypeName(method.getReturnType()) + 
+		      " " + 
+		      method.getName();
+	Class[] params = method.getParameterTypes();
+
+	return makeSignature(name, params);
+    }
+
+    /**
+     * Get a short String describing this member. A description is similar
+     * to the signature, but it has parameter names in it instead of types.
+     */
+    public String getShortDesc()
+    {
+	String name = View.getTypeName(method.getReturnType()) + 
+		      " " + 
+		      method.getName();
+	Class[] params = method.getParameterTypes();
+
+	return makeDescription(name, params, false);
+    }
+	
+    /**
+     * Get a long String describing this member. A long description is
+     * similar to the short description, but it has type names and parameters
+     * included.
+     */
+    public String getLongDesc()
+    {
+	String name = View.getTypeName(method.getReturnType()) + 
+		      " " + 
+		      method.getName();
+	Class[] params = method.getParameterTypes();
+
+	return makeDescription(name, params, true);
+    }
+
+    /**
+     * Get an array of Class objects representing method's parameters
+     * @returns array of Class objects
+     */
+    public Class[] getParameters()
+    {
+	return method.getParameterTypes();
+    }
+
+    /**
+     * Returns the name of this method as a String
+     */
+    public String getName()
+    {
+	return method.getName();
+    }
+	
+    /**
+     * @returns a boolean indicating whether this method has no return value
+     */
     public boolean isVoid()
     {
 	String resultName = getReturnType().getName();
@@ -69,80 +116,15 @@ public class MethodView extends MemberView
     }
 	
     /**
-     ** @returns a boolean indicating whether this method has parameters
-     **/
-    public boolean hasParameters()
+     * Returns a Class object that represents the formal return type
+     * of the method represented by this Method object.
+     */
+    public View getReturnType()
     {
-	return (method.getParameterTypes().length > 0);
-    }
-
-    /**
-     ** Returns a string describing this Method in a human-readable format
-     **/
-    public String getSignature(boolean includeparamnames)
-    {
-	StringBuffer sb = new StringBuffer();
-
-	sb.append(View.getTypeName(method.getReturnType()));
-	sb.append(" ");
-	sb.append(method.getName());
-	sb.append("(");
-	Class[] params = method.getParameterTypes();
-	for(int j = 0; j < params.length; j++) {
-	    sb.append(View.getTypeName(params[j]));
-			
-	    if(getComment() != null && includeparamnames) {
-		String paramname = getComment().getParamName(j);
+	if(returnType == null)
+	    returnType = View.getView(method.getReturnType());
 		
-		if(paramname != null) {
-		    sb.append(" ");
-		    sb.append(paramname);
-		}
-	    }
-	    if (j < (params.length - 1))
-		sb.append(",");
-	}
-	sb.append(")");
-	return sb.toString();
-    }
-
-    public String getSignature()
-    {
-        return getSignature(false);        
-    }
-
-    /**
-     ** Get a short String describing this member
-     **/
-    public String getShortDesc()
-    {
-        return getSignature(true);
-    }
-	
-    /**
-     ** Get a longer String describing this member
-     **/
-    public String getLongDesc()
-    {
-	return getSignature(true);
-    }
-		
-    /**
-     ** @returns the number of parameters
-     **/
-    public int getParameterCount()
-    {
-	return (method.getParameterTypes().length);
-    }
-
-
-    /**
-     ** Get an array of Class objects representing method's parameters
-     ** @returns array of Class objects
-     **/
-    public Class[] getParameters()
-    {
-	return method.getParameterTypes();
+	return returnType;
     }
 
 }

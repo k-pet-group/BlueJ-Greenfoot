@@ -14,7 +14,7 @@ import java.util.Vector;
 
 
 /**
- ** @version $Id: View.java 212 1999-07-28 02:13:34Z ajp $
+ ** @version $Id: View.java 244 1999-08-20 06:42:33Z mik $
  ** @author Michael Cahill
  **
  ** View class - a representation of a Java class in BlueJ
@@ -47,10 +47,10 @@ public class View
                 
         View v = (View)views.get(cl);
         if(v == null)
-        {
-            v = new View(cl);
-            views.put(cl, v);
-        }
+	    {
+		v = new View(cl);
+		views.put(cl, v);
+	    }
                 
         // Debug.message("Ended getView for class " + cl);
             
@@ -77,12 +77,12 @@ public class View
     public View[] getInterfaces()
     {
         if(interfaceViews == null)
-        {
-            Class[] interfaces = cl.getInterfaces();
-            interfaceViews = new View[interfaces.length];
-            for(int i = 0; i < interfaces.length; i++)
-                interfaceViews[i] =  getView(interfaces[i]);
-        }
+	    {
+		Class[] interfaces = cl.getInterfaces();
+		interfaceViews = new View[interfaces.length];
+		for(int i = 0; i < interfaces.length; i++)
+		    interfaceViews[i] =  getView(interfaces[i]);
+	    }
             
         return interfaceViews;
     }
@@ -99,24 +99,24 @@ public class View
     public MethodView[] getAllMethods()
     {
         if(allMethods == null)
-        {
-            Hashtable hashtable = new Hashtable();
-            getAllMethods(hashtable, 0);
-            SortableVector v = new SortableVector();
-            for(Enumeration e = hashtable.elements(); e.hasMoreElements(); )
-                v.addElement(e.nextElement());
-            v.sort(new ElementComparer());
+	    {
+		Hashtable hashtable = new Hashtable();
+		getAllMethods(hashtable, 0);
+		SortableVector v = new SortableVector();
+		for(Enumeration e = hashtable.elements(); e.hasMoreElements(); )
+		    v.addElement(e.nextElement());
+		v.sort(new ElementComparer());
                 
-            int numMethods = v.size();
-            allMethods = new MethodView[numMethods];
-            for(int i = 0; i < numMethods; i++)
-            {
-                MemberElement elem = (MemberElement)v.elementAt(i);
-                allMethods[i] = (MethodView)elem.member;
-                    // if(allMethods[i] == null)
-                //Debug.message("Warning: getAllMethods - entry == null");
-            }
-        }
+		int numMethods = v.size();
+		allMethods = new MethodView[numMethods];
+		for(int i = 0; i < numMethods; i++)
+		    {
+			MemberElement elem = (MemberElement)v.elementAt(i);
+			allMethods[i] = (MethodView)elem.member;
+			// if(allMethods[i] == null)
+			//Debug.message("Warning: getAllMethods - entry == null");
+		    }
+	    }
             
         return allMethods;
     }
@@ -128,22 +128,22 @@ public class View
     public FieldView[] getAllFields()
     {
         if(allFields == null)
-        {
-            Hashtable hashtable = new Hashtable();
-            getAllFields(hashtable, 0);
-            SortableVector v = new SortableVector();
-            for(Enumeration e = hashtable.elements(); e.hasMoreElements(); )
-                v.addElement(e.nextElement());
-            v.sort(new ElementComparer());
+	    {
+		Hashtable hashtable = new Hashtable();
+		getAllFields(hashtable, 0);
+		SortableVector v = new SortableVector();
+		for(Enumeration e = hashtable.elements(); e.hasMoreElements(); )
+		    v.addElement(e.nextElement());
+		v.sort(new ElementComparer());
                 
-            int numFields = v.size();
-            allFields = new FieldView[numFields];
-            for(int i = 0; i < numFields; i++)
-            {
-                MemberElement elem = (MemberElement)v.elementAt(i);
-                allFields[i] = (FieldView)elem.member;
-            }
-        }
+		int numFields = v.size();
+		allFields = new FieldView[numFields];
+		for(int i = 0; i < numFields; i++)
+		    {
+			MemberElement elem = (MemberElement)v.elementAt(i);
+			allFields[i] = (FieldView)elem.member;
+		    }
+	    }
             
         return allFields;
     }
@@ -156,128 +156,125 @@ public class View
      
     class MemberElement
     {
-    int index;
-    MemberView member;
+	int index;
+	MemberView member;
         
-    MemberElement(int index, MemberView member)
-    {
-        this.index = index;
-        this.member = member;
-    }
+	MemberElement(int index, MemberView member)
+	{
+	    this.index = index;
+	    this.member = member;
+	}
     }
     
     class ElementComparer implements Comparer
     {
-    /** Return { -1, 0, 1 } to represent <a> { <, ==, > } <b> **/
-    public final int cmp(Object a, Object b)
-    {
-        int cmp = ((MemberElement)a).index - ((MemberElement)b).index;
+	/** Return { -1, 0, 1 } to represent <a> { <, ==, > } <b> **/
+	public final int cmp(Object a, Object b)
+	{
+	    int cmp = ((MemberElement)a).index - ((MemberElement)b).index;
             
-        return (cmp < 0) ? -1 : ((cmp > 0) ? 1 : 0);
-    }
+	    return (cmp < 0) ? -1 : ((cmp > 0) ? 1 : 0);
+	}
     }
     
     protected int getAllMethods(Hashtable h, int methnum)
     {
-    if(allMethods != null)
-        {
-        // carefully copy from allMethods into h
-        methnum = addMembers(h, allMethods, methnum);
-        return methnum;
-        }
+	if(allMethods != null) {
+	    // carefully copy from allMethods into h
+	    methnum = addMembers(h, allMethods, methnum);
+	    return methnum;
+	}
             
-    // otherwise, do the real work
-    // carefully copy local methods into v
+	// otherwise, do the real work
+	// carefully copy local methods into v
         
-    View sView = getSuper();
-    if(sView != null)
-        methnum = sView.getAllMethods(h, methnum);
+	View sView = getSuper();
+	if(sView != null)
+	    methnum = sView.getAllMethods(h, methnum);
         
-    if(isInterface())
-        {
-        View[] ifaces = getInterfaces();
-        for(int i = 0; i < ifaces.length; i++)
-            methnum = ifaces[i].getAllMethods(h, methnum);
-        }
+	if(isInterface()) {
+	    View[] ifaces = getInterfaces();
+	    for(int i = 0; i < ifaces.length; i++)
+		methnum = ifaces[i].getAllMethods(h, methnum);
+	}
         
-    methnum = addMembers(h, getDeclaredMethods(), methnum);
-    return methnum;
+	methnum = addMembers(h, getDeclaredMethods(), methnum);
+	return methnum;
     }
     
     protected int getAllFields(Hashtable h, int fieldnum)
     {
-    if(allFields != null)
-        {
-        // carefully copy from allFields into h
-        fieldnum = addMembers(h, allFields, fieldnum);
-        return fieldnum;
-        }
+	if(allFields != null)
+	    {
+		// carefully copy from allFields into h
+		fieldnum = addMembers(h, allFields, fieldnum);
+		return fieldnum;
+	    }
             
-    // otherwise, do the real work
-    // carefully copy local fields into v
+	// otherwise, do the real work
+	// carefully copy local fields into v
         
-    View sView = getSuper();
-    if(sView != null)
-        fieldnum = sView.getAllFields(h, fieldnum);
+	View sView = getSuper();
+	if(sView != null)
+	    fieldnum = sView.getAllFields(h, fieldnum);
         
-    View[] ifaces = getInterfaces();
-    for(int i = 0; i < ifaces.length; i++)
-        fieldnum = ifaces[i].getAllFields(h, fieldnum);
+	View[] ifaces = getInterfaces();
+	for(int i = 0; i < ifaces.length; i++)
+	    fieldnum = ifaces[i].getAllFields(h, fieldnum);
         
-    fieldnum = addMembers(h, getDeclaredFields(), fieldnum);
-    return fieldnum;
+	fieldnum = addMembers(h, getDeclaredFields(), fieldnum);
+	return fieldnum;
     }
     
     private int addMembers(Hashtable h, MemberView[] members, int num)
     {
-    //Debug.message("Started addMembers for " + cl);
+	//Debug.message("Started addMembers for " + cl);
         
-    for(int i = members.length - 1; i >= 0; i--)
-        h.put(members[i].toString(), new MemberElement(num++, members[i]));
+	for(int i = members.length - 1; i >= 0; i--)
+	    h.put(members[i].toString(), new MemberElement(num++, members[i]));
         
-    //Debug.message("Ended addMembers for " + cl);
-    return num;
+	//Debug.message("Ended addMembers for " + cl);
+	return num;
     }
     
     public MethodView[] getDeclaredMethods()
     {
-    if(methods == null)
-        {
-        Method[] cl_methods = cl.getDeclaredMethods();
-        methods = new MethodView[cl_methods.length];
+	if(methods == null) {
+	    Method[] cl_methods = cl.getDeclaredMethods();
+	    methods = new MethodView[cl_methods.length];
             
-        for(int i = 0; i < methods.length; i++) {
-            methods[i] = new MethodView(this, cl_methods[i]);
-        }
+	    for(int i = 0; i < methods.length; i++) {
+		methods[i] = new MethodView(this, cl_methods[i]);
+	    }
         }
         
-    return methods;
+	return methods;
     }
     
     public FieldView[] getDeclaredFields()
     {
-    if(fields == null)
-        {
-        Field[] cl_fields= cl.getDeclaredFields();
-        fields = new FieldView[cl_fields.length];
+	if(fields == null)
+	    {
+		Field[] cl_fields= cl.getDeclaredFields();
+		fields = new FieldView[cl_fields.length];
             
-        for(int i = 0; i < cl_fields.length; i++)
-            fields[i] = new FieldView(this, cl_fields[i]);
-        }
+		for(int i = 0; i < cl_fields.length; i++)
+		    fields[i] = new FieldView(this, cl_fields[i]);
+	    }
         
-    return fields;
+	return fields;
     }
     
     public ConstructorView[] getConstructors()
     {
-    if(constructors == null)
-        {
-        Constructor[] cl_constrs = cl.getDeclaredConstructors();
-        constructors = new ConstructorView[cl_constrs.length];
+	if(constructors == null)
+	    {
+		Constructor[] cl_constrs = cl.getDeclaredConstructors();
+		constructors = new ConstructorView[cl_constrs.length];
             
-        for(int i = 0; i < constructors.length; i++)
-            constructors[i] = new ConstructorView(this, cl_constrs[i]);
-        }
+		for(int i = 0; i < constructors.length; i++)
+		    constructors[i] = new ConstructorView(this, cl_constrs[i]);
+	    }
         
         return constructors;
     }
@@ -327,11 +324,11 @@ public class View
                     in = curview.cl.getClassLoader().getResourceAsStream(filename);
     
                 if(in != null)
-                {
-                    comments = new CommentList();
-                    comments.load(in);
-                    in.close();
-                }
+		    {
+			comments = new CommentList();
+			comments.load(in);
+			in.close();
+		    }
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -357,7 +354,7 @@ public class View
                         continue;
                     }
                     else {
-                        // Debug.message("Found member for " + c.getTarget() + " in file " + filename);
+                        //Debug.message("Found member for " + c.getTarget() + " in file " + filename);
                         m.setComment(c);
                     }
                 }
@@ -384,24 +381,24 @@ public class View
     static String getTypeName(Class type)
     {
         if(type.isArray())
-        {
-        try {
-            Class primtype = type;
-            int dimensions = 0;
-            while(primtype.isArray())
-            {
-                dimensions++;
-                primtype = primtype.getComponentType();
-            }
-            StringBuffer sb = new StringBuffer();
-            sb.append(Utility.stripPackagePrefix(primtype.getName()));
-            for (int i = 0; i < dimensions; i++)
-            sb.append("[]");
-            return sb.toString();
-        } catch (Throwable e) {
-                // ignore it
-        }
-        }
+	    {
+		try {
+		    Class primtype = type;
+		    int dimensions = 0;
+		    while(primtype.isArray())
+			{
+			    dimensions++;
+			    primtype = primtype.getComponentType();
+			}
+		    StringBuffer sb = new StringBuffer();
+		    sb.append(Utility.stripPackagePrefix(primtype.getName()));
+		    for (int i = 0; i < dimensions; i++)
+			sb.append("[]");
+		    return sb.toString();
+		} catch (Throwable e) {
+		    // ignore it
+		}
+	    }
         return Utility.stripPackagePrefix(type.getName());
     }
     
@@ -445,28 +442,28 @@ public class View
         FieldView fields[] = getAllFields();
         for(int i = 0; i < fields.length; i++)
             if((filter == null) || filter.accept(fields[i]))
-            {
-                fields[i].print(out, 1);
-                out.println("");
-            }
+		{
+		    fields[i].print(out, 1);
+		    out.println("");
+		}
                 
         // print constructors
         ConstructorView constructors[] = getConstructors();
         for(int i = 0; i < constructors.length; i++)
             if((filter == null) || filter.accept(constructors[i]))
-            {
-                constructors[i].print(out, 1);
-                out.println("");
-            }
+		{
+		    constructors[i].print(out, 1);
+		    out.println("");
+		}
                 
         // print methods
         MethodView methods[] = getAllMethods();
         for(int i = 0; i < methods.length; i++)
             if((filter == null) || filter.accept(methods[i]))
-            {
-                methods[i].print(out, 1);
-                out.println("");
-            }
+		{
+		    methods[i].print(out, 1);
+		    out.println("");
+		}
             
         // end class
         out.setItalic(false);

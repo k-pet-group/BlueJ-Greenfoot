@@ -10,6 +10,7 @@ import bluej.pkgmgr.Package;
 import bluej.views.ConstructorView;
 import bluej.views.LabelPrintWriter;
 import bluej.views.MemberView;
+import bluej.views.CallableView;
 import bluej.views.MethodView;
 
 import java.awt.Component;
@@ -20,7 +21,7 @@ import java.io.StringWriter;
 import java.util.Hashtable;
 
 /**
- ** @version $Id: Invoker.java 158 1999-07-06 14:38:39Z ajp $
+ ** @version $Id: Invoker.java 244 1999-08-20 06:42:33Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -50,7 +51,7 @@ public class Invoker extends Thread
 	
     private Package pkg;
     private ResultWatcher watcher;
-    private MemberView member;
+    private CallableView member;
     private String shellName;
     private String objName;
     private String instanceName;
@@ -67,7 +68,7 @@ public class Invoker extends Thread
      * @param objName - the name of the object on which the method is called
      * @param watcher - an object interested in the result of the invocation
      */
-    public Invoker(Package pkg, MemberView member, String objName, ResultWatcher watcher)
+    public Invoker(Package pkg, CallableView member, String objName, ResultWatcher watcher)
     {
 	this.pkg = pkg;
 	this.member = member;
@@ -94,9 +95,7 @@ public class Invoker extends Thread
 	String className = member.getClassName();
 		
 	if(constructing) {
-	    ConstructorView cons = (ConstructorView)member;
-			
-	    dialog = (MethodDialog)methods.get(cons);
+	    dialog = (MethodDialog)methods.get(member);
 
 	    String baseName = className;
 	    int dot_index = baseName.lastIndexOf('.');
@@ -105,30 +104,28 @@ public class Invoker extends Thread
 
 	    String objectName = Character.toLowerCase(baseName.charAt(0)) +
 				baseName.substring(1) + "_" + 
-				cons.getDeclaringView().getInstanceNum();
+				member.getDeclaringView().getInstanceNum();
 	    if(dialog == null) {
 		dialog = new MethodDialog(pkg,
 					  className,
 					  objectName,
-					  cons);
-		methods.put(cons, dialog);
+					  member);
+		methods.put(member, dialog);
 	    }
 	    else
 		dialog.setNewInstanceName(objectName);
 	}
-	else if(member instanceof MethodView) {
-	    MethodView meth = (MethodView)member;
-			
-	    if(meth.hasParameters()) {
-		dialog = (MethodDialog)methods.get(meth);
-				
+	else {
+	    if(member.hasParameters()) {
+		dialog = (MethodDialog)methods.get(member);
+
 		if(dialog == null) {
 		    dialog = new MethodDialog(pkg,
 					      className,
 					      objName,
-					      meth);
+					      member);
 
-		    methods.put(meth, dialog);
+		    methods.put(member, dialog);
 		}
 		else
 		    dialog.setInstanceName(objName);

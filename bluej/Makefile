@@ -70,6 +70,8 @@ INSTALL_LIB_FILES = \
 
 INSTALL_EXAMPLES = \
 	examples/appletClock \
+	examples/appletdemo \
+	examples/debugdemo \
 	examples/hello \
 	examples/maze \
 	examples/people \

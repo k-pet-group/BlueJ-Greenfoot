@@ -1,13 +1,16 @@
 #BlueJ project file
-#Thu Jul 29 10:45:17 GMT+10:00 1999
+#Fri Aug 20 12:21:28 GMT+10:00 1999
 target6.valid=true
 target5.type=ClassTarget
+dependency12.type=UsesDependency
 dependency6.type=UsesDependency
 dependency2.from=Parser
 dependency8.to=Result
 target1.height=50
 dependency4.to=Parser
+dependency11.from=Result
 target5.valid=true
+dependency12.to=Result
 dependency9.type=UsesDependency
 dependency5.from=Game
 target3.name=Result
@@ -23,8 +26,9 @@ package.window.height=505
 target6.name=Room
 target4.type=ClassTarget
 target5.height=50
+dependency11.type=UsesDependency
 dependency9.to=Item
-package.numDependencies=10
+package.numDependencies=12
 dependency5.to=Room
 dependency1.to=Command
 dependency5.type=UsesDependency
@@ -67,6 +71,7 @@ dependency7.type=UsesDependency
 dependency3.from=Result
 target1.name=Item
 target3.modifiers=1
+dependency12.from=Parser
 dependency7.to=Command
 target2.modifiers=0
 dependency3.to=Item
@@ -77,6 +82,7 @@ target4.name=Parser
 target2.type=ClassTarget
 package.numTargets=6
 target5.width=80
+dependency11.to=Command
 target3.y=150
 target3.x=340
 dependency9.from=Room

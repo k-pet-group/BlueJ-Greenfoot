@@ -17,6 +17,7 @@ import bluej.utility.Utility;
 import bluej.views.ConstructorView;
 import bluej.views.EditorPrintWriter;
 import bluej.views.MemberView;
+import bluej.views.CallableView;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
@@ -39,7 +40,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 239 1999-08-17 07:55:00Z mik $
+ ** @version $Id: ClassTarget.java 244 1999-08-20 06:42:33Z mik $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -638,7 +639,7 @@ public class ClassTarget extends EditableTarget
 	
 
     protected boolean createMenuItems(JPopupMenu menu,
-				      MemberView[] members, ViewFilter filter, 
+				      CallableView[] members, ViewFilter filter, 
 				      int first, int last, String prefix)
     {
 	// Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
@@ -647,7 +648,7 @@ public class ClassTarget extends EditableTarget
 		
 	for(int i = first; i < last; i++) {
 	    try {
-		MemberView m = members[last - i - 1];
+		CallableView m = members[last - i - 1];
 		if(!filter.accept(m))
 		    continue;
 		// Debug.message("createSubMenu - creating MenuItem");
@@ -731,7 +732,7 @@ public class ClassTarget extends EditableTarget
 
 	    // create an Invoker to handle the actual invocation
 
-	    new Invoker(pkg, member, null, watcher);
+	    new Invoker(pkg, (CallableView)member, null, watcher);
 	}
 	else if(editStr.equals(cmd)) {
 	    displayedView = Editor.IMPLEMENTATION;

@@ -4,112 +4,106 @@ import java.lang.reflect.Modifier;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: MemberView.java 204 1999-07-23 05:33:43Z ajp $
+ ** @version $Id: MemberView.java 244 1999-08-20 06:42:33Z mik $
  ** @author Michael Cahill
  **
  ** A representation of a Java class member in BlueJ
  **/
 public abstract class MemberView
 {
-	private View view;
-	private Comment comment;
+    private View view;
+    private Comment comment;
 	
-	protected MemberView(View view)
-	{
-	    if (view == null)
-	        throw new NullPointerException();
+    protected MemberView(View view)
+    {
+	if (view == null)
+	    throw new NullPointerException();
 
-		this.view = view;
-	}
+	this.view = view;
+    }
 	
-	/**
-	 ** Returns the View of the class or interface that declares this member.
-	 **/
-	public View getDeclaringView()
-	{
-		return view;
-	}
+    /**
+     ** Returns the View of the class or interface that declares this member.
+     **/
+    public View getDeclaringView()
+    {
+	return view;
+    }
 	
-	/**
-	 ** Returns the name of the class or interface that declares this member.
-	 **/
-	public String getClassName()
-	{
-		return view.getName();
-	}
+    /**
+     ** Returns the name of the class or interface that declares this member.
+     **/
+    public String getClassName()
+    {
+	return view.getName();
+    }
 
-	/**
-	 ** Returns the Java language modifiers for the member or
-	 ** constructor represented by this Member, as an integer.  The
-	 ** Modifier class should be used to decode the modifiers in
-	 ** the integer.
-	 ** @see Modifier
-	 **/
-	public abstract int getModifiers();
+    /**
+     ** Returns the Java language modifiers for the member or
+     ** constructor represented by this Member, as an integer.  The
+     ** Modifier class should be used to decode the modifiers in
+     ** the integer.
+     ** @see Modifier
+     **/
+    public abstract int getModifiers();
 	
-	/**
-	 ** Returns a string describing this member in a human-readable format
-	 **/
-	public abstract String getSignature();
+    /**
+     ** Returns a string describing this member in a human-readable format
+     **/
+    public abstract String getSignature();
 	
-	/**
-	 ** Sets the (javadoc) comment for this Member
-	 **/
-	void setComment(Comment comment)
-	{
-		this.comment = comment;
-	}
+    /**
+     ** Sets the (javadoc) comment for this Member
+     **/
+    void setComment(Comment comment)
+    {
+	this.comment = comment;
+    }
 	
-	/**
-	 ** Returns the (javadoc) comment for this Member
-	 **/
-	public Comment getComment()
-	{
+    /**
+     ** Returns the (javadoc) comment for this Member
+     **/
+    public Comment getComment()
+    {
         if (view != null)
-        	view.loadComments();
+	    view.loadComments();
 		
-		return comment;
-	}
-	
-	/**
-	 ** Get a short String describing this member
-	 **/
-	public String getShortDesc()
-	{
-		return getSignature();
-	}
-	
-	/**
-	 ** Get a longer String describing this member
-	 **/
-	public String getLongDesc()
-	{
-		return getSignature();
-	}
-	
-	/**
-	 ** @returns a boolean indicating whether this member is static
-	 **/
-	public boolean isStatic()
-	{
-		return Modifier.isStatic(getModifiers());
-	}
-	
-	public void print(FormattedPrintWriter out)
-	{
-		print(out, 0);
-	}
+	return comment;
+    }
 
-	public void print(FormattedPrintWriter out, int indents)
-	{
-		Comment comment = getComment();
-		if(comment != null)
-			comment.print(out, indents);
+    /**
+     ** Get a short String describing this member
+     **/
+    public abstract String getShortDesc();
+	
+    /**
+     ** Get a longer String describing this member
+     **/
+    public abstract String getLongDesc();
+	
+    /**
+     ** @returns a boolean indicating whether this member is static
+     **/
+    public boolean isStatic()
+    {
+	return Modifier.isStatic(getModifiers());
+    }
+	
+    public void print(FormattedPrintWriter out)
+    {
+	print(out, 0);
+    }
 
-		out.setItalic(false);
-		out.setBold(true);
-		for(int i=0; i<indents; i++)
-		    out.indentLine();
-		out.println(getLongDesc());
-	}
+    public void print(FormattedPrintWriter out, int indents)
+    {
+	Comment comment = getComment();
+	if(comment != null)
+	    comment.print(out, indents);
+
+	out.setItalic(false);
+	out.setBold(true);
+	for(int i=0; i<indents; i++)
+	    out.indentLine();
+	out.println(getLongDesc());
+    }
 }
