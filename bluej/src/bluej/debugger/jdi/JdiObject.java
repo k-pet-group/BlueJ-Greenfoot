@@ -1,4 +1,6 @@
-package bluej.debugger;
+package bluej.debugger.jdi;
+
+import bluej.debugger.*;
 
 import sun.tools.debug.RemoteClass;
 import sun.tools.debug.RemoteField;
@@ -11,44 +13,45 @@ import bluej.utility.Utility;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: SunObject.java 69 1999-05-11 04:23:02Z bruce $
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
  ** Represents an object running on the user (remote) machine.
+ **
+ ** @author Michael Kolling
  **/
 
-public class SunObject extends DebuggerObject
+public class JdiObject extends DebuggerObject
 {
     RemoteObject obj;
 
-    protected SunObject(){}
+   /**
+     * Factory method that returns instances of JdiObjects.
+     * @param obj the remote debugger object (Jdi code) this encapsulates.
+     * @return a new JdiObject or a new JdiArray object if remote object is an array
+     */	
+    public static JdiObject getDebuggerObject(RemoteObject obj)
+    {
+	if(obj instanceof RemoteArray) {
+      	    return new JdiArray((RemoteArray)obj);
+	}	
+	else {
+	    return new JdiObject(obj);
+	}
+    }
+	
+
+    // -- instance methods --
+
+    protected JdiObject(){}
 
     /**
-     * Constructor is private so that instances need to use getSunObject factory method.
-     * @param obj the remote debugger object (Sun code) this encapsulates.
+     * Constructor is private so that instances need to use getJdiObject factory method.
+     * @param obj the remote debugger object (Jdi code) this encapsulates.
      */	
-    private SunObject(RemoteObject obj)
+    private JdiObject(RemoteObject obj)
     {
 	this.obj = obj;
     }
 
 
-   /**
-     * Factory method that returns instances of SunObjects.
-     * @param obj the remote debugger object (Sun code) this encapsulates.
-     * @return a new SunObject or a new SunArray object if remote object is an array
-     */	
-    public static DebuggerObject getDebuggerObject(RemoteObject obj)
-    {
-	if(obj instanceof RemoteArray) {
-      	    return new SunArray((RemoteArray)obj);
-	}	
-	else {
-	    return new SunObject(obj);
-	}
-    }
-	
     /**
      * Get the name of the class of this object.
      */
@@ -215,7 +218,7 @@ public class SunObject extends DebuggerObject
     {
 	try {
 	    RemoteValue val = obj.getClazz().getFieldValue(slot);
-	    return new SunObject((RemoteObject)val);
+	    return new JdiObject((RemoteObject)val);
 	} catch(Exception e) {
 	    return null;
 	}
@@ -230,7 +233,7 @@ public class SunObject extends DebuggerObject
     {
 	try {
 	    RemoteValue val = obj.getFieldValue(slot);
-	    return SunObject.getDebuggerObject((RemoteObject)val); 
+	    return getDebuggerObject((RemoteObject)val); 
 	} catch(Exception e) {
 	    return null;
 	}

@@ -3,10 +3,13 @@ package bluej.debugger;
 import java.util.Vector;
 
 /**
- ** @version $Id: DebuggerThread.java 36 1999-04-27 04:04:54Z mik $
- ** @author Michael Cahill
  ** A class defining the debugger thread primitives needed by BlueJ
- ** May be implemented in the local VM or remotely (via sun.tools.debug)
+ ** May be implemented in the local VM or remotely.
+ **
+ ** @author Michael Cahill
+ ** @author Michael Kolling
+ **
+ ** @version $Id: DebuggerThread.java 86 1999-05-18 02:49:53Z mik $
  **/
 
 public abstract class DebuggerThread

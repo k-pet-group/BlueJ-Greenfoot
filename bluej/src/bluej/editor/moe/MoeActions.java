@@ -733,7 +733,7 @@ public final class MoeActions
 	    (Action)(actions.get("select-line")),
 	    (Action)(actions.get("select-paragraph")),
 	    (Action)(actions.get("select-all")),
-	    (Action)(actions.get("unselect")),
+    // (Action)(actions.get("unselect")), ## currently unsupported (see #1)
 	    (Action)(actions.get("selection-backward")),
 	    (Action)(actions.get("selection-forward")),
 	    (Action)(actions.get("selection-up")),
@@ -746,8 +746,8 @@ public final class MoeActions
 	    (Action)(actions.get("selection-end-line")),
 	    (Action)(actions.get("selection-begin-paragraph")),
 	    (Action)(actions.get("selection-end-paragraph")),
-	    (Action)(actions.get("selection-page-up")),
-	    (Action)(actions.get("selection-page-down")),
+    // (Action)(actions.get("selection-page-up")),   (#1)
+    // (Action)(actions.get("selection-page-down")), (#1)
 	    (Action)(actions.get("selection-begin")),		// 30
 	    (Action)(actions.get("selection-end")),
 
@@ -806,7 +806,9 @@ public final class MoeActions
 				    "Customisation",
 				    "Help",
 				    "Misc." };
-	categoryIndex = new int[] { 0, 32, 48, 52, 54, 58, 69 };
+	// (#1) temporarily altered until next swing version
+	// categoryIndex = new int[] { 0, 32, 48, 52, 54, 58, 69 };
+	categoryIndex = new int[] { 0, 29, 45, 49, 51, 55, 66 };
     }
 
 } // end class MoeActions

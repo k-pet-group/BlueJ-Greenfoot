@@ -1,13 +1,19 @@
 package bluej.debugger;
 
+// select debugger implementation to use:
+import bluej.debugger.suntools.SunDebugger;
+//import bluej.debugger.jdi.JdiDebugger;
+
 import bluej.pkgmgr.Package;
 
 /**
- ** @version $Id: Debugger.java 65 1999-05-05 06:32:09Z mik $
+ ** A class defining the debugger primitives needed by BlueJ
+ ** May be supported by different implementations, locally or remotely.
+ **
  ** @author Michael Cahill
  ** @author Michael Kolling
- ** A class defining the debugger primitives needed by BlueJ
- ** May be implemented in the local VM or remotely (via sun.tools.debug)
+ **
+ ** @version $Id: Debugger.java 86 1999-05-18 02:49:53Z mik $
  **/
 
 public abstract class Debugger
@@ -16,16 +22,20 @@ public abstract class Debugger
     public static final int FORCED_EXIT = 1;
     public static final int EXCEPTION = 2;
 
-    /** Interface to debugger **/
+    /** Creation of the real debugger used **/
+    // the following line needs to be changed when the debugger 
+    // implementation changes (this and the import statement abobe are the 
+    // only two lines that need to be changed).
+
+    //public static Debugger debugger = new JdiDebugger();
     public static Debugger debugger = new SunDebugger();
 	
     public static void handleExit()
     {
-	if(debugger != null)
-	    {
-		debugger.finishDebugging();
-		debugger = null;
-	    }
+	if(debugger != null) {
+	    debugger.finishDebugging();
+	    debugger = null;
+	}
     }
 
     /**

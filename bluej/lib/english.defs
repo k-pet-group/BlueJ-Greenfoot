@@ -3,8 +3,6 @@ cancel=Cancel
 close=Close
 
 # Note: the following line is overwritten during a package build
-main.version=version 0.9.2
-main.title=BlueJ 
 main.about=The BlueJ Java(TM) development environment\nwas developed at the School of Computer Science\nand Software Engineering, Monash University.\n\nDesign:\n  John Rosenberg\n  Michael K\u00F6lling\n\nImplementation:\n  Michael Cahill\n  Michael K\u00F6lling\n  Justin Tan\n  Bruce Quig\n  Andrew Marks\n  Andrew Patterson\n\nFor more information contact Michael K\u00F6lling\n(mik@csse.monash.edu.au).
 main.invalidPackage=Package not found
 
@@ -124,7 +122,6 @@ editor.functions.addkey=Add Key
 editor.functions.delkey=Delete Key
 
 pkgmgr.noTitle=<noTitle>
-pkgmgr.title=BlueJ
 pkgmgr.chooseUsesFrom=Select the class where the dependency is from
 pkgmgr.chooseUsesTo=Select the class it depends on
 pkgmgr.chooseInhFrom=Select the subclass

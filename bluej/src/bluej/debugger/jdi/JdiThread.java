@@ -1,24 +1,25 @@
-package bluej.debugger;
+package bluej.debugger.jdi;
+
+import bluej.debugger.*;
 
 import bluej.utility.Debug;
 
 import java.util.Vector;
-import sun.tools.debug.*;
 
 /**
- ** @version $Id: SunThread.java 69 1999-05-11 04:23:02Z bruce $
- ** @author Michael Cahill
  ** A class implementing the debugger primitives needed by BlueJ
- ** Implemented in a remote VM (via sun.tools.debug)
+ ** Implemented in a remote VM (via Sun's JDI interface)
+ **
+ ** @author Michael Kolling
  **/
 
-public class SunThread extends DebuggerThread
+public class JdiThread extends DebuggerThread
 {
     RemoteThread rt;
     boolean halted;	// true if explicitely suspended
     RemoteStackFrame[] frames = null;
 
-    public SunThread(RemoteThread rt)
+    public JdiThread(RemoteThread rt)
     {
 	this.rt = rt;
 	halted = false;
@@ -138,7 +139,7 @@ public class SunThread extends DebuggerThread
 		RemoteValue value = thisVar.getValue();
 		if(value == null)
 		    return new Vector();
-		SunObject obj = (SunObject)SunObject.getDebuggerObject((RemoteObject)value);
+		JdiObject obj = JdiObject.getDebuggerObject((RemoteObject)value);
 
 		String[] staticVar = obj.getStaticFields(false);
 		String[] instVar = obj.getFields(false);

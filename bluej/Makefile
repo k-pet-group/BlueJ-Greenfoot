@@ -1,18 +1,9 @@
 include $(OS).mk
 
-VERSION_MAJOR = 0
-VERSION_MINOR = 9
-VERSION_RELEASE = 2
-
-VERSION = $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
-PKG_VERSION = $(VERSION_MAJOR)$(VERSION_MINOR)$(VERSION_RELEASE)
+PKG_VERSION = 093
 
 SUBDIRS = \
 	src
-
-# The supported languages. There must be a file lib/<lang>.defs for each one
-LANGUAGES = \
-	english
 
 INSTALL_FILES = \
 	images/arrow_black.gif \
@@ -49,8 +40,8 @@ INSTALL_FILES = \
 	lib/mac.jar \
 	lib/motif.jar \
 	lib/windows.jar \
-	examples \
-	$(LANGUAGES:%=lib/%.defs)
+	lib/english.defs \
+	examples
 
 PACKAGES = \
 	package/bluej-$(PKG_VERSION).jar
@@ -116,13 +107,6 @@ install/examples: install
 	# mkdir $@/bluej
 	# cp -r src/* $@/bluej
 	( cd $@ && rm -rf `$(FINDCVS)` )
-
-# Update the version number when building a package
-$(LANGUAGES:%=lib/%.defs): .PHONY
-	for f in $(LANGUAGES:%=lib/%.defs) ; do \
-		sed "s/main\.version=version [0-9A-Za-z.]*/main.version=version $(VERSION)/" < $$f > $$f.new ; \
-		mv $$f.new $$f ; \
-	done
 
 clean::
 	$(RM) $(PACKAGES)

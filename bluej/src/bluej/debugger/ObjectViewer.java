@@ -18,12 +18,8 @@ import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
-import sun.tools.debug.RemoteArray;
-import sun.tools.debug.RemoteObject;
-import sun.tools.debug.RemoteField;
-
 /**
- ** @version $Id: ObjectViewer.java 69 1999-05-11 04:23:02Z bruce $
+ ** @version $Id: ObjectViewer.java 86 1999-05-18 02:49:53Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **

@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 75 1999-05-11 05:39:14Z ajp $
+ ** @version $Id: Config.java 86 1999-05-18 02:49:53Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -43,8 +43,6 @@ public class Config
     public static final char colon = File.pathSeparatorChar;
 
     public static final String syslibs_file = "syslibs.properties";
-
-    public static String Version;
 
     private static Properties props;		// bluej properties
     private static Properties lang;		// The internationalisation
@@ -104,7 +102,6 @@ public class Config
 	String langDefs = props.getProperty("bluej.language");
 	lang = loadDefs(langDefs);
 
-	Version = getString("main.version");
 	fontsize = Integer.parseInt(props.getProperty("bluej.fontsize","12"));
 	editFontsize = Integer.parseInt(props.getProperty("bluej.fontsize.editor","12"));
 	printFontsize = Integer.parseInt(props.getProperty("bluej.fontsize.printText","10"));
@@ -138,7 +135,7 @@ public class Config
 		PrintStream outStream = 
 		    new PrintStream(new FileOutputStream(debugLogFileName));
 		System.setOut(outStream);
-		Debug.message("BlueJ " + Version);
+		Debug.message("BlueJ version " + Main.BLUEJ_VERSION);
 	    } catch (IOException e) {
 		Debug.reportError("Warning: Unable to create debug log file.");
 	    } 

@@ -359,7 +359,7 @@ public class PkgMgrFrame extends PkgFrame
 	    break;
 
 	case HELP_ABOUT:
-	    AboutBlue about = new AboutBlue(this, Config.Version);
+	    AboutBlue about = new AboutBlue(this, bluej.Main.BLUEJ_VERSION);
 	    about.setVisible(true);
 	    break;
 

@@ -20,20 +20,19 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 65 1999-05-05 06:32:09Z mik $
+ ** @version $Id: PkgFrame.java 86 1999-05-18 02:49:53Z mik $
  **/
 public abstract class PkgFrame extends JFrame 
 
     implements ActionListener, ItemListener 
 { 
-    public static final String AppTitle = Config.getString("pkgmgr.title") + " " + Config.Version;
+    public static final String AppTitle = "BlueJ version " + bluej.Main.BLUEJ_VERSION;
     static final String noTitle = Config.getString("pkgmgr.noTitle");
 
     static final Font PkgMgrFont = new Font("SansSerif", Font.PLAIN, Config.fontsize);
     // static final Color bgColor = Config.getItemColour("colour.background");
 	
     // Internal strings
-    static final String title = Config.getString("pkgmgr.title");
     static final String chooseUsesFrom = Config.getString("pkgmgr.chooseUsesFrom");
     static final String chooseInhFrom = Config.getString("pkgmgr.chooseInhFrom");
     static final String chooseArrow = Config.getString("pkgmgr.chooseArrow");
@@ -226,7 +225,7 @@ public abstract class PkgFrame extends JFrame
      * Set the window title to show the current package name.
      */
     protected void setWindowTitle() {
-	setTitle(title + " - " + pkg.getDirName());
+	setTitle("BlueJ" + " - " + pkg.getDirName());
     }
 
     public void setStatus(String status) { 

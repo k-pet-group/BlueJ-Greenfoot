@@ -1,4 +1,6 @@
-package bluej.debugger;
+package bluej.debugger.jdi;
+
+import bluej.debugger.*;
 
 import bluej.Config;
 import bluej.BlueJEvent;
@@ -8,19 +10,15 @@ import bluej.pkgmgr.Package;
 
 import java.util.Hashtable;
 import java.util.Vector;
-import sun.tools.debug.DebuggerCallback;
-import sun.tools.debug.*;
 
 /**
- ** @version $Id: SunDebugger.java 83 1999-05-14 01:13:04Z mik $
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
  ** A class implementing the debugger primitives needed by BlueJ
- ** Implemented in a remote VM (via sun.tools.debug)
+ ** Implemented in a remote VM (via JDI interface)
+ **
+ ** @author Michael Kolling
  **/
 
-public class SunDebugger extends Debugger
+public class JdiDebugger extends Debugger
 
 	implements DebuggerCallback
 {
@@ -40,7 +38,6 @@ public class SunDebugger extends Debugger
     {
 	if(remoteDebugger != null)
 	    return;
-	Debug.message("starting debugger");
 
 	try {
 	    BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM, null);
@@ -95,7 +92,7 @@ public class SunDebugger extends Debugger
 	String[] args = { BlueJRuntime.CREATE_LOADER, scopeId, classpath };
 	runtimeCmd(args, "");
 
-	return new SunClassLoader(scopeId);
+	return new JdiClassLoader(scopeId);
     }
 	
     /**
@@ -103,7 +100,7 @@ public class SunDebugger extends Debugger
      */
     public void removeClassLoader(DebuggerClassLoader loader)
     {
-	String[] args = { BlueJRuntime.REMOVE_LOADER, ((SunClassLoader)loader).getId() };
+	String[] args = { BlueJRuntime.REMOVE_LOADER, ((JdiClassLoader)loader).getId() };
 	runtimeCmd(args, "");
     }
 
@@ -135,7 +132,7 @@ public class SunDebugger extends Debugger
     public void loadClass(DebuggerClassLoader loader, String classname)
     {
 	String[] args = { BlueJRuntime.LOAD_CLASS, 
-			  ((SunClassLoader)loader).getId(), classname };
+			  ((JdiClassLoader)loader).getId(), classname };
 	runtimeCmd(args, "");
     }
 
@@ -148,7 +145,7 @@ public class SunDebugger extends Debugger
 	int length = (args == null) ? 0 : args.length;
 	String[] allArgs = new String[length + 3];
 	allArgs[0] = BlueJRuntime.START_CLASS;
-	allArgs[1] = ((SunClassLoader)loader).getId();
+	allArgs[1] = ((JdiClassLoader)loader).getId();
 	allArgs[2] = classname;
 		
 	if(args != null)
@@ -232,7 +229,7 @@ public class SunDebugger extends Debugger
     {
 	RemoteClass cl = getDebugger().findClass(className);
 	RemoteObject obj = (RemoteObject)cl.getFieldValue(fieldName);
-	DebuggerObject ret = DebuggerObject.getDebuggerObject(obj);
+	DebuggerObject ret = JdiObject.getDebuggerObject(obj);
 		
 	return ret;
     }
@@ -319,7 +316,7 @@ public class SunDebugger extends Debugger
 	    if(tgroups[i].getName().equals(MAIN_THREADGROUP)) {
 		RemoteThread[] threads = tgroups[i].listThreads(false);
 		for(int j = 0; j < threads.length; j++) {
-		    allThreads.addElement(new SunThread(threads[j]));
+		    allThreads.addElement(new JdiThread(threads[j]));
 		    //Debug.message("thread: " + threads[j].getName() +
 		    //		  " group: " + tgroups[i].getName());
 		}
@@ -341,7 +338,7 @@ public class SunDebugger extends Debugger
     public void threadStopped(DebuggerThread thread)
     {
 	Package pkg = (Package)waitqueue.get(
-				     ((SunThread)thread).getRemoteThread());
+				     ((JdiThread)thread).getRemoteThread());
 
 	if(pkg == null)
 	    Debug.reportError("cannot find class for stopped thread");
@@ -359,7 +356,7 @@ public class SunDebugger extends Debugger
     public void threadContinued(DebuggerThread thread)
     {
 	Package pkg = (Package)waitqueue.get(
-				     ((SunThread)thread).getRemoteThread());
+				     ((JdiThread)thread).getRemoteThread());
 	if(pkg != null)
 	    pkg.getFrame().continueExecution();
     }
@@ -371,7 +368,7 @@ public class SunDebugger extends Debugger
     public void showSource(DebuggerThread thread, int frameNo)
     {
 	Package pkg = (Package)waitqueue.get(
-				     ((SunThread)thread).getRemoteThread());
+				     ((JdiThread)thread).getRemoteThread());
 
 	if(pkg != null) {
 	    pkg.hitBreakpoint(thread.getClassSourceName(frameNo),
@@ -401,14 +398,14 @@ public class SunDebugger extends Debugger
      */
     public synchronized void breakpointEvent(RemoteThread rt) throws Exception
     {
-	//Debug.message("SunDebugger: breakpointEvent " + rt);
+	//Debug.message("JdiDebugger: breakpointEvent " + rt);
 
 	Package pkg = (Package)waitqueue.get(rt);
 
 	if(pkg == null)
 	    Debug.reportError("cannot find thread for breakpoint");
 	else {
-	    SunThread thread = new SunThread(rt);
+	    JdiThread thread = new JdiThread(rt);
 	    pkg.hitBreakpoint(thread.getClassSourceName(0), 
 			      thread.getLineNumber(0), 
 			      thread.getName(), true);
@@ -423,7 +420,7 @@ public class SunDebugger extends Debugger
     public synchronized void exceptionEvent(RemoteThread rt, String errorText)
 	throws Exception
     {
-	//Debug.message("SunDebugger: exception event ");
+	//Debug.message("JdiDebugger: exception event ");
 
 	// System.exit() gets caught by the security manager and translated
 	// into an exception called "BlueJ-Exit". First, we check for this.
@@ -457,7 +454,7 @@ public class SunDebugger extends Debugger
     public synchronized void threadDeathEvent(RemoteThread rt) 
 	throws Exception
     {
-	//Debug.message("SunDebugger: threadDeathEvent " + rt);
+	//Debug.message("JdiDebugger: threadDeathEvent " + rt);
 
 	if(waitqueue.containsKey(rt)) {	// someone is waiting on this...
 	    waitqueue.remove(rt);
@@ -476,6 +473,6 @@ public class SunDebugger extends Debugger
      */
     public void quitEvent() throws Exception
     {
-	Debug.message("SunDebugger: quitEvent");
+	Debug.message("JdiDebugger: quitEvent");
     }
 }

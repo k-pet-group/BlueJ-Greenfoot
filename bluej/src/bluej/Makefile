@@ -60,11 +60,8 @@ DEBUGGER_CLASSES = \
 		DebuggerClassLoader \
 		DebuggerObject \
 		DebuggerThread \
-		DebuggerValue \
-		DebuggerWatcher \
 		ExecControls \
 		Invoker \
-		LocalDebugger \
 		MachineLoader \
 		MethodDialog \
 		MethodDialogWatcher \
@@ -73,21 +70,46 @@ DEBUGGER_CLASSES = \
 		ObjectViewer \
 		ObjectWrapper \
 		ResultWatcher \
+		CallHistory
+
+LOCAL_DEBUG_CLASSES = \
+		LocalDebugger
+
+LOCAL_DEBUG_SRCS = $(LOCAL_DEBUG_CLASSES:%=debugger/local/%.java)
+LOCAL_DEBUG_SRCS_OS = $(subst /,$(SL),$(LOCAL_DEBUG_SRCS))
+LOCAL_DEBUG_CLASSFILES = $(LOCAL_DEBUG_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/debugger/local/%.class)
+
+# classes for JDI (Java Debug Interface) debugger implementation
+JDI_DEBUG_CLASSES = \
+		Array \
+		ClassLoader \
+		Debugger \
+		Object \
+		Thread
+
+JDI_DEBUG_SRCS = $(JDI_DEBUG_CLASSES:%=debugger/jdi/%.java)
+JDI_DEBUG_SRCS_OS = $(subst /,$(SL),$(JDI_DEBUG_SRCS))
+JDI_DEBUG_CLASSFILES = $(JDI_DEBUG_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/debugger/jdi/%.class)
+
+
+# classes for sun.tools debugger implementation
+SUNTOOLS_DEBUG_CLASSES = \
+		SunArray \
 		SunClassLoader \
 		SunDebugger \
 		SunObject \
-		SunThread \
-		SunValue \
-		CallHistory
-DEBUGGER_SRCS = $(DEBUGGER_CLASSES:%=debugger/%.java)
-DEBUGGER_SRCS_OS = $(subst /,$(SL),$(DEBUGGER_SRCS))
-DEBUGGER_CLASSFILES = $(DEBUGGER_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/debugger/%.class)
+		SunThread
+
+SUNTOOLS_DEBUG_SRCS = $(SUNTOOLS_DEBUG_CLASSES:%=debugger/suntools/%.java)
+SUNTOOLS_DEBUG_SRCS_OS = $(subst /,$(SL),$(SUNTOOLS_DEBUG_SRCS))
+SUNTOOLS_DEBUG_CLASSFILES = $(SUNTOOLS_DEBUG_CLASSES:%=$(CLASSROOT)/$(PKGNAME)/debugger/suntools/%.class)
 
 SUN_DEBUG_CLASSES = \
 	SunHooks
 SUN_DEBUG_SRCS = $(SUN_DEBUG_CLASSES:%=$(SRCROOT)/sun/tools/debug/%.java)
 SUN_DEBUG_SRCS_OS = $(subst /,$(SL),$(SUN_DEBUG_SRCS))
 SUN_DEBUG_CLASSFILES = $(SUN_DEBUG_CLASSES:%=$(CLASSROOT)/sun/tools/debug/%.class)
+
 
 # Browser files
 BROWSER_CLASSES = \

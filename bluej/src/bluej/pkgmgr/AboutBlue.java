@@ -9,7 +9,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: AboutBlue.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: AboutBlue.java 86 1999-05-18 02:49:53Z mik $
  ** @author Justin Tan
  **
  ** General graph edge
@@ -18,7 +18,7 @@ public class AboutBlue extends JDialog
 {
     public AboutBlue(JFrame thisFrame, String version)
     {
-	super(thisFrame, Config.getString("main.title"), true);
+	super(thisFrame, "BlueJ", true);
 
 	// Create About box text
 	JPanel aboutPanel = new JPanel();
@@ -27,7 +27,7 @@ public class AboutBlue extends JDialog
 	aboutPanel.setBackground(Color.white);
 
 	// Create Text Panel
-	String text = Config.getString("main.title") + version;
+	String text = "BlueJ version " + version;
 	JPanel textPanel = new MultiLineLabel(text + "\n" + Config.getString("main.about"), JLabel.LEFT);
 	textPanel.setBackground(Color.white);
 	aboutPanel.add(textPanel, BorderLayout.CENTER);

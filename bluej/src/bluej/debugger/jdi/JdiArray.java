@@ -1,28 +1,23 @@
-package bluej.debugger;
+package bluej.debugger.jdi;
 
-import sun.tools.debug.RemoteClass;
-import sun.tools.debug.RemoteField;
-import sun.tools.debug.RemoteObject;
-import sun.tools.debug.RemoteArray;
-import sun.tools.debug.RemoteString;
-import sun.tools.debug.RemoteValue;
+import bluej.debugger.*;
 
 import bluej.utility.Utility;
 import bluej.utility.Debug;
+
 /**
  ** Represents an array object running on the user (remote) machine.
  **
- ** @version $Id: SunArray.java 76 1999-05-11 06:01:35Z bruce $
- ** @author Bruce Quig
+ ** @author Michael Kolling
  **
  **/
 
-public class SunArray extends SunObject
+public class JdiArray extends JdiObject
 {
 	
     private RemoteArray obj;
     
-    protected SunArray(RemoteArray obj)
+    protected JdiArray(RemoteArray obj)
     {
 	this.obj = obj;
     }
@@ -74,23 +69,6 @@ public class SunArray extends SunObject
 	}
 	return name;
     }
-
-    /**
-     * Get the name of the array class of this object.  
-     * Similar to getClassName() but excludes array brackets [].
-     * @return String representing the array Class name.
-     */
-    public String getArrayClassName()
-    {
-	String name = null;
-	name = getClassName();
-	if(name != null) {
-	    int index = name.indexOf("[");
-	    name = name.substring(0, index);
-	}
-	return name;
-    }    
-
 
     /**
      * Return the name of the static field at 'slot'.
@@ -187,7 +165,7 @@ public class SunArray extends SunObject
     {
 	try {
 	    RemoteValue val = obj.getElement(slot);
-	    return SunObject.getDebuggerObject((RemoteObject)val);
+	    return JdiObject.getDebuggerObject((RemoteObject)val);
 	} catch(Exception e) {
 	    return null;
 	}
@@ -268,5 +246,22 @@ public class SunArray extends SunObject
 		
 	return fields;
     }
+
+    /**
+     * Get the name of the array class of this object.  
+     * Similar to getClassName() but excludes array brackets [].
+     * @return String representing the array Class name.
+     */
+    private String getArrayClassName()
+    {
+	String name = null;
+	name = getClassName();
+	if(name != null) {
+	    int index = name.indexOf("[");
+	    name = name.substring(0, index);
+	}
+	return name;
+    }    
+
 
 }

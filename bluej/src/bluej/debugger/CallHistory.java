@@ -8,10 +8,11 @@ import bluej.utility.Debug;
 import java.util.Enumeration;
 
 /** 
- ** @author Bruce Quig
- **
  ** Manages an invocation history of arguments used in a package when objects 
  ** created on the ObjectBench
+ **
+ ** @author Bruce Quig
+ **
  **/
 public class CallHistory
 {
