@@ -20,7 +20,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 239 1999-08-17 07:55:00Z mik $
+ ** @version $Id: ObjectViewer.java 254 1999-08-25 07:31:54Z bruce $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -331,13 +331,8 @@ public final class ObjectViewer extends JFrame
 		// first 40 elements are the same
 		if(i < ARRAY_QUERY_INDEX)
 		    newArray.add(fullArrayFieldList.elementAt(i));
-		else if(i == ARRAY_QUERY_INDEX) {
-		    String queryElement = (String)fullArrayFieldList.elementAt(i);
-		    int bracketPos = queryElement.indexOf("[");
-		     
-		    newArray.add(
-			queryElement.substring(0, (bracketPos-1)) + "[...]");
-		}
+		else if(i == ARRAY_QUERY_INDEX)
+		    newArray.add("[...]");
 		else 
 		    newArray.add(fullArrayFieldList.elementAt(
 		       i + fullArrayFieldList.size() - VISIBLE_ARRAY_FIELDS));
