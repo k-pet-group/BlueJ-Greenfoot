@@ -32,7 +32,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2730 2004-07-04 19:45:45Z mik $
+ * @version $Id: TextEvalArea.java 2736 2004-07-05 10:09:07Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher, KeyListener, FocusListener
@@ -67,6 +67,84 @@ public final class TextEvalArea extends JScrollPane
         text.requestFocus();
     }
 
+    /**
+     * Sets whether or not this component is enabled.  
+     */
+    public void setEnabled(boolean enabled)
+    {
+        text.setEnabled(enabled);
+    }
+
+    /**
+     * Clear all text in this text area.
+     */
+    public void clear()
+    {
+        text.setText(" ");
+        caretToEnd();
+    }
+
+    //   --- ResultWatcher interface ---
+
+    /**
+     * An invocation has completed - here is the result.
+     * If the invocation has a void result (note that is a void type), result == null.
+     */
+    public void putResult(DebuggerObject result, String name, InvokerRecord ir)
+    {
+        frame.getObjectBench().addInteraction(ir);
+
+        if (result != null) {
+            //Debug.message("type:"+result.getFieldValueTypeString(0));
+
+            String resultString = result.getFieldValueString(0);
+            String resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
+            boolean isObject = result.instanceFieldIsObject(0);
+            
+            if(isObject)
+                objectOutput(resultString + "   (" + resultType + ")", 
+                             new ObjectInfo(result.getFieldObject(0), ir));
+            else
+                output(resultString + "   (" + resultType + ")");
+            
+            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
+        } 
+        else {
+            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
+        }
+        text.setEditable(true);    // allow next input
+    }
+    
+    /**
+     * An invocation has failed - here is the error message
+     */
+    public void putError(String message)
+    {
+        if(firstTry) {
+            // append("   --error, first try: " + message + "\n");
+            firstTry = false;
+            invoker.tryAgain();
+        }
+        else {
+            error(message);
+            text.setEditable(true);    // allow next input
+        }
+    }
+    
+    /**
+     * A watcher shuold be able to return information about the result that it
+     * is watching. This may be used to display extra information 
+     * (about the expression that gave the result) when the result is shown.
+     * Unused for text eval expressions.
+     * 
+     * @return An object with information on the expression
+     */
+    public ExpressionInformation getExpressionInformation()
+    {
+        return null;
+    }
+
+    //   --- end of ResultWatcher interface ---
 
     /**
      * Inspect the given object.
@@ -122,69 +200,6 @@ public final class TextEvalArea extends JScrollPane
     {
         return doc.getParagraphElement(pos);
     }
-
-    //   --- ResultWatcher interface ---
-
-    /**
-     * An invocation has completed - here is the result.
-     * If the invocation has a void result (note that is a void type), result == null.
-     */
-    public void putResult(DebuggerObject result, String name, InvokerRecord ir)
-    {
-        frame.getObjectBench().addInteraction(ir);
-
-        if (result != null) {
-            //Debug.message("type:"+result.getFieldValueTypeString(0));
-
-            String resultString = result.getFieldValueString(0);
-            String resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
-            boolean isObject = result.instanceFieldIsObject(0);
-            
-            if(isObject)
-                objectOutput(resultString + "   (" + resultType + ")", 
-                             new ObjectInfo(result.getFieldObject(0), ir));
-            else
-                output(resultString + "   (" + resultType + ")");
-            
-            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
-        } 
-        else {
-            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
-        }
-        text.setEditable(true);    // allow next input
-    }
-    
-    /**
-     * An invocation has failed - here is the error message
-     */
-    public void putError(String message)
-    {
-    		if(firstTry) {
-    			// append("   --error, first try: " + message + "\n");
-    			firstTry = false;
-    	        invoker.tryAgain();
-    		}
-    		else {
-            error(message);
-            text.setEditable(true);    // allow next input
-    		}
-    }
-    
-    /**
-     * A watcher shuold be able to return information about the result that it
-     * is watching. This may be used to display extra information 
-     * (about the expression that gave the result) when the result is shown.
-     * Unused for text eval expressions.
-     * 
-     * @return An object with information on the expression
-     */
-    public ExpressionInformation getExpressionInformation()
-    {
-        return null;
-//        return new ExpressionInformation(currentCommand);
-    }
-
-    //   --- end of ResultWatcher interface ---
 
     
     // --- FocusListener interface ---
@@ -296,12 +311,6 @@ public final class TextEvalArea extends JScrollPane
         try {
             doc.insertString(doc.getLength(), s, null);
             caretToEnd();
-            
-//            int lines = text.getLineCount();
-//            if(lines > BUFFER_LINES) {
-//                int linePos = text.getLineStartOffset(lines-BUFFER_LINES);
-//                text.replaceRange("", 0, linePos);
-//            }
         }
         catch(BadLocationException exc) {
             Debug.reportError("bad location in terminal operation");
@@ -333,6 +342,13 @@ public final class TextEvalArea extends JScrollPane
         text.setCaretPosition(doc.getLength());
     }
 
+    /**
+     * Check whether the given text positiob is allowed as a caret position in
+     * the text eval area. This will only allow positions in the last line.
+     * 
+     * @param pos  The position to be checked
+     * @return  True is placing the caret to this position is okay.
+     */
     public boolean isLegalCaretPos(int pos)
     {
         Element line = doc.getParagraphElement(doc.getLength());

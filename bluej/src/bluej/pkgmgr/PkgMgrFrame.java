@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2726 2004-07-02 20:58:09Z mik $
+ * @version $Id: PkgMgrFrame.java 2736 2004-07-05 10:09:07Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -566,7 +566,8 @@ public class PkgMgrFrame extends JFrame
         editor.removeFocusListener(this);
 
         getObjectBench().removeAllObjects(getProject().getUniqueId());
-
+        clearTextEval();
+        
         getPackage().closeAllEditors();
 
         Project proj = getProject();
@@ -1938,11 +1939,22 @@ public class PkgMgrFrame extends JFrame
         }
         else {
             removeTextEvaluatorPane();
+            editor.requestFocus();
         }
         pack();
         showingTextEvaluator = show;
     }
 
+    /**
+     * Clear the text evaluation component (if it exists).
+     */
+    public void clearTextEval()
+    {
+        if(textEvaluator != null) {
+            textEvaluator.clear();
+        }
+    }
+    
     /**
      *  A BlueJEvent was raised. Check whether it is one that we're interested
      *  in.
@@ -2153,6 +2165,7 @@ public class PkgMgrFrame extends JFrame
         // create the object bench
         
         objbench = new ObjectBench();
+        itemsToDisable.add(objbench);
 
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                                    mainPanel, objbench);
@@ -2209,12 +2222,12 @@ public class PkgMgrFrame extends JFrame
         classScroller.setPreferredSize(classScroller.getSize()); // memorize current size
         if(textEvaluator == null) {
             textEvaluator = new TextEvalArea(this, PkgMgrFont);
-//            textEvaluator.setSize(300, 10);
             objectBenchSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                     objbench, textEvaluator);
             objectBenchSplitPane.setBorder(null);
             objectBenchSplitPane.setResizeWeight(1.0);
             objectBenchSplitPane.setDividerSize(5);
+            itemsToDisable.add(textEvaluator);
         }
         else {
             objectBenchSplitPane.setLeftComponent(objbench);

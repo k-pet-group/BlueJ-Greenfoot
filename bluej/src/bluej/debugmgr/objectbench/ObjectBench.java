@@ -15,7 +15,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2728 2004-07-04 17:57:55Z mik $
+ * @version $Id: ObjectBench.java 2736 2004-07-05 10:09:07Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -173,7 +173,6 @@ public class ObjectBench extends JPanel
             currentObjectWrapperIndex = objectWrappers.indexOf(aWrapper);
             selectedObjectWrapper.requestFocusInWindow();
         }
-        // TODO: make sure this object is in view; if necessary repaint bench
     }
 
     
@@ -215,6 +214,10 @@ public class ObjectBench extends JPanel
         obp.fireObjectEvent(wrapper);
     }
 
+    /**
+     * Show or hide the focus highlight (an emphasised border around
+     * the bench).
+     */
     public void showFocusHiLight(boolean hiLight)
     {
         if(hiLight)
