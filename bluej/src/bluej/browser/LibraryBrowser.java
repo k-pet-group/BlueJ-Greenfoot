@@ -15,8 +15,6 @@ import java.net.MalformedURLException;
 
 import bluej.graph.GraphEditor;
 import bluej.Config;
-import bluej.utility.ToggleMessageBox;
-import bluej.utility.ToggleMessageBoxOwner;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.utility.Debug;
@@ -29,7 +27,7 @@ import bluej.pkgmgr.Package;
  *
  * @author  Andy Marks
  * @author  Andrew Patterson
- * @cvs     $Id: LibraryBrowser.java 505 2000-05-24 05:44:24Z ajp $
+ * @cvs     $Id: LibraryBrowser.java 569 2000-06-19 05:42:42Z ajp $
  */
 public class LibraryBrowser extends JFrame implements ActionListener
 {
