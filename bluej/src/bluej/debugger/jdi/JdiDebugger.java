@@ -5,6 +5,7 @@ import bluej.debugger.*;
 import bluej.BlueJEvent;
 import bluej.utility.Debug;
 import bluej.runtime.ExecServer;
+import bluej.terminal.TerminalFrame;
 
 import bluej.pkgmgr.Package;
 
@@ -127,6 +128,7 @@ public class JdiDebugger extends Debugger
             process = machine.process();
             displayRemoteOutput(process.getErrorStream());
             displayRemoteOutput(process.getInputStream());
+            getRemoteInput(process.getOutputStream());
 	} catch (VMStartException vmse) {
             Debug.reportError("Target VM did not initialise.");
             Debug.reportError(vmse.getMessage() + "\n");
@@ -213,7 +215,6 @@ public class JdiDebugger extends Debugger
 	EventRequestManager erm = machine.eventRequestManager();
 	BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
 	bpreq.enable();
-	Debug.message(" ** breakpoint set **");
 
 	// ** remove the "class prepare" event request (not needed anymore) **
 
@@ -227,18 +228,17 @@ public class JdiDebugger extends Debugger
 
     /**
      * Create a class loader. This really creates two distinct class
-     *  loader objects: a DebuggerClassLoader (more specifically, in this case,
-     *  a JdiClassLoader) which is handed back to the caller and a
+     *  loader objects: a DebuggerClassLoader (more specifically, in this
+     *  case, a JdiClassLoader) which is handed back to the caller and a
      *  BlueJClassLoader on the remote VM.
      *  The DebuggerClassLoader serves as a handle to the BlueJClassLoader. 
      *  The connection is made by an ID (a String), stored in the 
      *  DebuggerClassLoader, with which the BlueJClassLoader can be looked up.
      */
-    public DebuggerClassLoader createClassLoader(String scopeId, String classpath)
+    public DebuggerClassLoader createClassLoader(String scopeId, 
+						 String classpath)
     {
-	//Debug.message("[createClassLoader]");
 	startServer(ExecServer.CREATE_LOADER, scopeId, classpath, "");
-
 	return new JdiClassLoader(scopeId);
     }
 	
@@ -248,9 +248,7 @@ public class JdiDebugger extends Debugger
      */
     public void removeClassLoader(DebuggerClassLoader loader)
     {
-	Debug.message("[removeClassLoader]");
-	//  	String[] args = { BlueJRuntime.REMOVE_LOADER, loader.getId() };
-	//  	runtimeCmd(args, "");
+	startServer(ExecServer.REMOVE_LOADER, loader.getId(), "", "");
     }
 
 
@@ -303,34 +301,14 @@ public class JdiDebugger extends Debugger
     }
 
     /**
-     * Show or hide the text terminal.
-     */
-    public void showTerminal(boolean show)
-    {
-	//  	String[] args = new String[2];
-	//  	args[0] = BlueJRuntime.TERM_COMMAND;
-	//  	if(show)
-	//  	    args[1] = BlueJRuntime.TC_SHOW;
-	//  	else
-	//  	    args[1] = BlueJRuntime.TC_HIDE;
-	//  	runtimeCmd(args, "");
-    }
-
-    /**
-     * Clear the text terminal.
-     */
-    public void clearTerminal()
-    {
-	//  	String[] args = { BlueJRuntime.TERM_COMMAND, BlueJRuntime.TC_CLEAR };
-	//  	runtimeCmd(args, "");
-    }
-
-
-    /**
-     * 
-     * 
+     * Start the server process on the remote machine to perform a task.
+     * Arguments to the server are a task ID specifying what we want done,
+     * and two optional string parameters. The string parameters must not
+     * be null. The task ID is one of the constants defined in
+     * runtime.ExecServer.
      *
-     * 
+     * This is done synchronously: we return once the remote execution
+     * has completed.
      */
     private void startServer(int task, String arg1, String arg2, Object pkg)
     {
@@ -347,16 +325,17 @@ public class JdiDebugger extends Debugger
 	arguments.add(vm.mirrorOf(arg2));
 
   	try {
-  	    Value returnVal = 
-		execServer.invokeMethod(serverThread, signalMethod, arguments, 0);
+  	    Value returnVal = execServer.invokeMethod(serverThread, 
+						      signalMethod, 
+						      arguments, 0);
+	    // return value currently unused (void)
   	}
   	catch(InvocationException e) {
-	    Debug.message("invok exc: " + e);
-	    // ignore exception. in fact, we _always_ exit the inviked method
-	    // with an exception, but that is handled via the exception event
-	    // in the event handler.
+	    // exception thrown in remote machine
+	    Debug.message("remote exc: " + e);
 	}
   	catch(Exception e) {
+	    // remote invocation failed
 	    Debug.message("sending command to remote VM failed: " + e);
   	}
     }
@@ -462,14 +441,16 @@ public class JdiDebugger extends Debugger
      */
     public void breakpointEvent(BreakpointEvent event)
     {
-	Debug.message("[JdiDebugger] breakpointEvent");
-
 	// if we hit a breakpoint before the VM is initialised, then it is our
 	// own breakpoint that we have been waiting for at startup
-	if(!initialised)
+	if(!initialised) {
 	    synchronized(this) {
 		notifyAll();
 	    }
+	}
+	else
+	    Debug.message("[JdiDebugger] breakpointEvent");
+
 
 //  	Package pkg = (Package)waitqueue.get(rt);
 
@@ -612,16 +593,6 @@ public class JdiDebugger extends Debugger
 
     // --- DebuggerCallback interface --- 
 	
-    /**
-     * Print text to the debugger's console window.
-     *
-     * @exception java.lang.Exception if a general exception occurs.
-     */
-    public void printToConsole(String text) throws Exception
-    {
-	//  	System.out.print(text);
-    }
-
     //      /**
     //       * An exception has occurred.
     //       *
@@ -668,15 +639,15 @@ public class JdiDebugger extends Debugger
 
 
     /**	
-     *	Create a Thread that will retrieve and display any output.
-     *	Needs to be high priority, else debugger may exit before
-     *	it can be displayed.
+     *	Create a thread that will retrieve any output from the remote
+     *  machine and direct it to our terminal.
      */
     private void displayRemoteOutput(final InputStream stream) {
 	Thread thr = new Thread("output reader") { 
 	    public void run() {
                 try {
-                    dumpStream(stream);
+                    dumpStream(stream, 
+			 TerminalFrame.getTerminalFrame().getOutputStream());
                 } catch (IOException ex) {
                     Debug.reportError("Cannot read output user VM.");
                 }
@@ -687,22 +658,46 @@ public class JdiDebugger extends Debugger
     }
 
 
-    private void dumpStream(InputStream stream) throws IOException {
-        PrintStream outStream = System.out; // should become terminal
-        BufferedReader in = 
-            new BufferedReader(new InputStreamReader(stream));
-        String line;
-        while ((line = in.readLine()) != null) {
-            outStream.println(line);
-	    outStream.flush();
-        }
+    /**	
+     *	Create a thread that will direct terminal input to the remote
+     *  machine.
+     */
+    private void getRemoteInput(final OutputStream stream) {
+	Thread thr = new Thread("input reader") { 
+	    public void run() {
+                try {
+                    dumpStream(
+			 TerminalFrame.getTerminalFrame().getInputStream(),
+			 stream);
+                } catch (IOException ex) {
+                    Debug.reportError("Cannot read output user VM.");
+                }
+	    }
+	};
+	thr.setPriority(Thread.MAX_PRIORITY-1);
+	thr.start();
     }
 
 
+    private void dumpStream(InputStream inStream, OutputStream outStream) 
+	throws IOException 
+    {
+        BufferedReader in = 
+            new BufferedReader(new InputStreamReader(inStream));
+	OutputStreamWriter out =
+	    new OutputStreamWriter(outStream);
+        String line;
+        while ((line = in.readLine()) != null) {
+            out.write(line);
+            out.write("\n");
+	    out.flush();
+        }
+    }
+
     private void dumpFailedLaunchInfo(Process process) {
         try {
-            dumpStream(process.getErrorStream());
-            dumpStream(process.getInputStream());
+            dumpStream(process.getErrorStream(), System.out);
+            dumpStream(process.getInputStream(), System.out);
         } catch (IOException e) {
             Debug.message("Unable to display process output: " +
 			  e.getMessage());

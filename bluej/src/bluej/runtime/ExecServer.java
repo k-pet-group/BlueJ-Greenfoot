@@ -33,16 +33,10 @@ public class ExecServer
     public static final int LOAD_CLASS	   = 3;
     public static final int ADD_OBJECT     = 4;
     public static final int REMOVE_OBJECT  = 5;
-    public static final int TERMINAL_SHOW  = 6;
-    public static final int TERMINAL_HIDE  = 7;
-    public static final int TERMINAL_CLEAR = 8;
 
 
     static ExecServer server = null;
-    static TerminalFrame terminal;
-
     private Hashtable loaders;
-    Queue tasks;
 
     // ==
 
@@ -55,10 +49,7 @@ public class ExecServer
     public static void main(String[] args)
 	throws Throwable
     {
-	System.out.println("[VM] creating server");
 	server = new ExecServer();
-	//server.waitForTask();
-	System.out.println("[VM] going to suspend");
 	server.suspendExecution();
     }
 
@@ -69,25 +60,12 @@ public class ExecServer
 	System.out.println("[VM] creating server object");
 
 	loaders = new Hashtable();
-	tasks = new Queue();
 
 	BlueJSecurityManager manager = new BlueJSecurityManager();
 	System.out.println("[VM] security manager created (not installed)");
 
 	//System.setSecurityManager(manager);
 	//System.out.println("[VM] security manager installed");
-			
-	terminal = new TerminalFrame();
-	System.out.println("[VM] terminal created");
-
-	//terminal.doShow(); // testing!
-	//System.out.println("[VM] terminal shown");
-
-	//System.setIn(terminal.getInputStream());
-	//PrintStream out = new PrintStream(terminal.getOutputStream());
-	//System.setOut(out);
-	// System.setErr(out);
-
     }
 
 
@@ -136,12 +114,6 @@ public class ExecServer
 	    break;
 	case REMOVE_OBJECT:
 	    break;
-	case TERMINAL_SHOW:
-	    break;
-	case TERMINAL_HIDE:
-	    break;
-	case TERMINAL_CLEAR:
-	    break;
 	}
     }
 
@@ -161,7 +133,7 @@ public class ExecServer
      */
     private void removeClassLoader(String loaderId)
     {
-	System.out.println("[VM] removeLoader");
+	System.out.println("[VM] removeLoader " + loaderId);
 	loaders.remove(loaderId);
     }
 
@@ -201,9 +173,6 @@ public class ExecServer
 	    Debug.reportError("Exception while trying to start class " 
 			      + classname
 			      + ": " + e);
-	}
-	finally {
-	    terminal.activate(false);
 	}
     }
 
@@ -258,14 +227,16 @@ public class ExecServer
     }
 	
     /**
-     * Put an object into a package scope (for possible use as parameter later)
+     * Put an object into a package scope (for possible use as parameter
+     * later)
      */
     static void putObject(String scopeId, String instanceName, Object value)
     {
-	System.out.println("[VM] putObject");
+	System.out.println("[VM] putObject: " + instanceName);
 	Hashtable scope = getScope(scopeId);
 	scope.put(instanceName, value);
     }
+
 
     /**
      * Add an object from to package scope. The object to be added is held
@@ -274,7 +245,7 @@ public class ExecServer
     static void addObject(String scopeId, String instance, String fieldName,
 			  String newName)
     {
-	System.out.println("[VM] addObject");
+	System.out.println("[VM] addObject: " + newName);
 	Hashtable scope = getScope(scopeId);
 	Object wrapObject = scope.get(instance);
 	try {
@@ -290,12 +261,13 @@ public class ExecServer
 	}
     }
 
+
     /**
      * Remove an object from a package scope.
      */
     static void removeObject(String scopeId, String instanceName)
     {
-	System.out.println("[VM] ");
+	System.out.println("[VM] removeObject: " + instanceName);
 	Hashtable scope = getScope(scopeId);
 	scope.remove(instanceName);
 
@@ -305,24 +277,5 @@ public class ExecServer
 	//  	    String s = (String)e.nextElement();
 	//  	    System.out.println("key: " + s);
 	//  	}
-    }
-
-    /**
-     * Pass a command to the terminal. The command string should be one of
-     * the constant strings defined here.
-     */
-    public static final String TC_SHOW = "show";
-    public static final String TC_HIDE = "hide";
-    public static final String TC_CLEAR = "clear";
-
-    static void terminalCommand(String command)
-    {
-	System.out.println("[VM] terminalCommand");
-	if(command.equals(TC_SHOW))
-	    terminal.doShow();
-	else if(command.equals(TC_HIDE))
-	    terminal.doClose();
-	else if(command.equals(TC_CLEAR))
-	    terminal.clear();
     }
 }

@@ -12,7 +12,7 @@ import javax.swing.*;
 
 /**
  ** Some generally useful utility methods available to all of bluej.
- ** $Id: Utility.java 69 1999-05-11 04:23:02Z bruce $
+ ** $Id: Utility.java 95 1999-05-28 06:08:18Z mik $
  ** @author Michael Cahill
  ** @author Justin Tan
  ** @author Michael Kolling
@@ -426,10 +426,12 @@ public class Utility
      */
     public static String stripPackagePrefix(String fullClassName)
     {
-	int index = fullClassName.lastIndexOf(".");
-	if(index >= 0)
-	    fullClassName = fullClassName.substring(++index);
-		
+	if(fullClassName != null) {
+	    int index = fullClassName.lastIndexOf(".");
+	    if(index >= 0)
+		return fullClassName.substring(++index);
+	}
+
 	return fullClassName;
     }
 

@@ -18,6 +18,9 @@ public class MyClass
         	// initialise instance variables
         x = a;
         	name = "Michael";
+        System.out.println(name);
+        System.out.println("value = " + x);
+
     }
     
     /**
@@ -39,21 +42,20 @@ public class MyClass
 
     public int longloop()
     {
-	int sum = 0;
+        int sum = 0;
 
-	for (int i=0; i<5000000; i++) {
-	  sum = sum + i;
-	  sum = sum -200;
-	}
-
-	return x + 5;
+        for (int i=0; i<5000000; i++) {
+          sum = sum + i;
+          sum = sum -200;
+        }
+        return x + 5;
     }
 
     public int nested()
     {
-	int sum = 0;
-	sum = nested1(sum) + 3;
-	return sum;
+        int sum = 0;
+        sum = nested1(sum) + 3;
+        return sum;
     }
 
     private int nested1(int par)

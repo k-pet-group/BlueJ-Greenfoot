@@ -13,7 +13,7 @@ import bluej.pkgmgr.Package;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Debugger.java 93 1999-05-28 00:54:37Z mik $
+ ** @version $Id: Debugger.java 95 1999-05-28 06:08:18Z mik $
  **/
 
 public abstract class Debugger
@@ -81,16 +81,6 @@ public abstract class Debugger
      */
     public abstract void startClass(DebuggerClassLoader loader, 
 				    String classname, Package pkg);
-
-    /**
-     * Show or hide the text terminal.
-     */
-    public abstract void showTerminal(boolean show);
-
-    /**
-     * Clear the text terminal.
-     */
-    public abstract void clearTerminal();
 
     /**
      * Get the value of a static field in a class

@@ -9,7 +9,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Shell.java 93 1999-05-28 00:54:37Z mik $
+ ** @version $Id: Shell.java 95 1999-05-28 06:08:18Z mik $
  **/
 
 public abstract class Shell
@@ -27,12 +27,12 @@ public abstract class Shell
 	
     protected static Hashtable getScope(String scopeId)
     {
-	return BlueJRuntime.getScope(scopeId);
+	return ExecServer.getScope(scopeId);
     }
 	
     protected static void putObject(String scopeId, String instanceName, Object value)
     {
-	BlueJRuntime.putObject(scopeId, instanceName, value);
+	ExecServer.putObject(scopeId, instanceName, value);
     }
 
 

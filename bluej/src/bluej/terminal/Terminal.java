@@ -1,4 +1,4 @@
-package bluej.runtime;
+package bluej.terminal;
 
 import java.awt.Dimension;
 import java.io.*;
@@ -15,7 +15,7 @@ import bluej.utility.Debug;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Terminal.java 65 1999-05-05 06:32:09Z mik $
+ ** @version $Id: Terminal.java 95 1999-05-28 06:08:18Z mik $
  **/
 public class Terminal
 {

@@ -23,6 +23,7 @@ import bluej.graph.GraphEditor;
 import bluej.debugger.Debugger;
 import bluej.debugger.ObjectBench;
 import bluej.debugger.ExecControls;
+import bluej.terminal.TerminalFrame;
 
 
 public class PkgMgrFrame extends PkgFrame 
@@ -700,7 +701,10 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void toggleTerminal()
     {
-	Debugger.debugger.showTerminal(showTerminalMenuItem.getState());
+	if(showTerminalMenuItem.getState())
+	    TerminalFrame.getTerminalFrame().doShow();
+	else
+	    TerminalFrame.getTerminalFrame().doClose();
     }
 
     /**
@@ -708,7 +712,7 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void clearTerminal()
     {
-	Debugger.debugger.clearTerminal();
+	TerminalFrame.getTerminalFrame().clear();
     }
 
     // ---- BlueJEventListener interface ----

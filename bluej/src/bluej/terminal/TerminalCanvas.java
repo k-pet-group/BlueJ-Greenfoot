@@ -1,4 +1,4 @@
-package bluej.runtime;
+package bluej.terminal;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -19,7 +19,7 @@ import bluej.utility.Utility;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: TerminalCanvas.java 65 1999-05-05 06:32:09Z mik $
+ ** @version $Id: TerminalCanvas.java 95 1999-05-28 06:08:18Z mik $
  **/
 
 public class TerminalCanvas extends JComponent 
@@ -218,8 +218,9 @@ public class TerminalCanvas extends JComponent
     }
 
     /**
-     ** putchar - write a character at the current position, update screen and pos.
-     **/
+     *  putchar - write a character at the current position, update screen 
+     *  and pos.
+     */
     public void putchar(char c)
     {
 	switch(c)
@@ -249,7 +250,7 @@ public class TerminalCanvas extends JComponent
 		break;
 	    }
     }
-	
+
     void carriage_return()
     {
 	if(pos.x > 0)

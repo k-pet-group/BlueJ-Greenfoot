@@ -1,13 +1,15 @@
 /**
- ** @version $Id: TerminalFrame.java 65 1999-05-05 06:32:09Z mik $
- ** @author Justin Tan
- ** @author Michael Cahill
- **
  ** The Frame part of the Terminal window used for I/O when running programs
  ** under BlueJ.
+ **
+ ** @author Justin Tan
+ ** @author Michael Cahill
+ ** @author Michael Kolling
+ **
+ ** @version $Id: TerminalFrame.java 95 1999-05-28 06:08:18Z mik $
  **/
 
-package bluej.runtime;
+package bluej.terminal;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -20,15 +22,27 @@ public class TerminalFrame extends JFrame
 {
     static final String defaultTitle = "BlueJ Terminal Window";
 
+    // -- static singleton factory method --
+
+    static TerminalFrame frame = null;
+    public synchronized static TerminalFrame getTerminalFrame()
+    {
+	if(frame == null)
+	    frame = new TerminalFrame();
+	return frame;
+    }
+
+    // -- instance --
+
     TerminalCanvas term;
     private boolean isActive;
 
-    public TerminalFrame()
+    private TerminalFrame()
     {
 	this(defaultTitle, 80, 25);
     }
 
-    public TerminalFrame(String title, int width, int height)
+    private TerminalFrame(String title, int width, int height)
     {
 	super(title);
 
@@ -44,7 +58,7 @@ public class TerminalFrame extends JFrame
 		{
 		    Window win = (Window)event.getSource();
 		    win.setVisible(false);
-		    win.dispose();
+		    //win.dispose();
 		}
 	});
     }
@@ -58,17 +72,17 @@ public class TerminalFrame extends JFrame
     }
 
 
-    protected void doShow()
+    public void doShow()
     {
 	setVisible(true);
     }
 
-    protected void doClose()
+    public void doClose()
     {
 	setVisible(false);
     }
 
-    protected void clear()
+    public void clear()
     {
 	term.clear();
     }
