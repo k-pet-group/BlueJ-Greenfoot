@@ -5,7 +5,6 @@ import java.awt.event.*;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.*;
-import javax.swing.border.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -21,7 +20,7 @@ import bluej.utility.JavaNames;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 2997 2004-09-09 12:29:52Z mik $
+ * @version $Id: TestDisplayFrame.java 3046 2004-10-13 01:36:16Z davmac $
  */
 public class TestDisplayFrame
 {
@@ -146,18 +145,21 @@ public class TestDisplayFrame
             // exception message field (text area)
             exceptionMessageField = new JTextArea("");
             exceptionMessageField.setEditable(false);
-            Border x = new CompoundBorder(new LineBorder(Color.BLACK, 1),
-                    new EmptyBorder(2,2,2,2));
-            exceptionMessageField.setBorder(x);
-            exceptionMessageField.setRows(2);
-            exceptionMessageField.setLineWrap(true);
+            //Border x = new CompoundBorder(new LineBorder(Color.BLACK, 1),
+            //        new EmptyBorder(2,2,2,2));
+            //exceptionMessageField.setBorder(x);
+            exceptionMessageField.setRows(3);
+            exceptionMessageField.setColumns(42);
+            // exceptionMessageField.setLineWrap(true);
             exceptionMessageField.setFocusable(false);
             
             Dimension size = exceptionMessageField.getPreferredSize();
             size.width = exceptionMessageField.getMaximumSize().width;
-            exceptionMessageField.setPreferredSize(size);
+            // exceptionMessageField.setPreferredSize(size);
             size.width = exceptionMessageField.getMinimumSize().width;
             exceptionMessageField.setMinimumSize(size);
+            JScrollPane exceptionScrollPane = new JScrollPane(exceptionMessageField);
+            exceptionScrollPane.setMinimumSize(size);
 
             // "show source" and "close" buttons
             showSourceButton = new JButton(Config.getString("testdisplay.showsource"));
@@ -178,7 +180,7 @@ public class TestDisplayFrame
             buttonPanel.add(closeButton);
             
             c.weighty = .1;
-            topPanel.add(exceptionMessageField, c);
+            topPanel.add(exceptionScrollPane, c);
             c.weighty = 0;
             topPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), c);
             topPanel.add(buttonPanel, c);
@@ -293,19 +295,19 @@ public class TestDisplayFrame
         }
 
         try {
-        EventQueue.invokeAndWait(new Runnable() {
-            public void run() {
-                testEntries.addElement(dtr);
-                pb.step(testEntries.getSize(), dtr.isSuccess());
-
-                cp.setFailureValue(failureCount);
-                cp.setErrorValue(errorCount);
-                cp.setRunValue(testEntries.getSize());
-                
-                if (!doingMultiple && pb.getValue() == pb.getMaximum())
-                    setResultLabel();
-            }
-        });
+            EventQueue.invokeAndWait(new Runnable() {
+                public void run() {
+                    testEntries.addElement(dtr);
+                    pb.step(testEntries.getSize(), dtr.isSuccess());
+                    
+                    cp.setFailureValue(failureCount);
+                    cp.setErrorValue(errorCount);
+                    cp.setRunValue(testEntries.getSize());
+                    
+                    if (!doingMultiple && pb.getValue() == pb.getMaximum())
+                        setResultLabel();
+                }
+            });
         }
         catch(InvocationTargetException ite) { }
         catch(InterruptedException ie) { }
@@ -343,21 +345,14 @@ public class TestDisplayFrame
 
 				if (dtr.isError() || dtr.isFailure()) {
 					// fdv.showFailure(dtr.getExceptionMessage() + "\n---\n" + dtr.getTrace());
-                    if (dtr.isError()) {
-                        String text = dtr.getTrace();
-                        int index = text.indexOf('\n');
-                        if (index == -1)
-                            index = text.length();
-                        exceptionMessageField.setText(text.substring(0, index));
-                    }
-                    else
-                        exceptionMessageField.setText(dtr.getExceptionMessage());
-                    // This puts in the stack trace as well
-                    //exceptionMessageField.setText(exceptionMessageField.getText()
-                    //        + "\n---\n" + dtr.getTrace());
+                    exceptionMessageField.setText(dtr.getExceptionMessage()
+                            + "\n---\n" + dtr.getTrace());
                     exceptionMessageField.setCaretPosition(0);
-                    if (dtr.getExceptionLocation() != null)
-                        showSourceButton.setEnabled(true);
+                    // Set the column count to a small number; the text area
+                    // will use the available space anyway, and this prevents
+                    // unncessary horizontal scrollbar from appearing
+                    exceptionMessageField.setColumns(1);
+                    showSourceButton.setEnabled(dtr.getExceptionLocation() != null);
 				} else {
                     exceptionMessageField.setText("");
                     showSourceButton.setEnabled(false);
@@ -386,6 +381,8 @@ public class TestDisplayFrame
             DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
             if (dtr != null && (dtr.isError() || dtr.isFailure())) {
                 SourceLocation exceptionLocation = dtr.getExceptionLocation();
+                if (exceptionLocation == null)
+                    return;
                 String packageName = JavaNames.getPrefix(exceptionLocation.getClassName());
 
                 Package spackage = lastProject.getExistingPackage(packageName);
