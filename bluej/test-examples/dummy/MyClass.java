@@ -100,4 +100,16 @@ public class MyClass
         System.out.println("line3");
     
    }
+
+    public int factorial(int n)
+    {
+        int temp;
+        if(n==1) {
+            return 1;
+        }
+        else {
+            temp = factorial(n-1) * n;
+            return temp;
+        }
+    }
 }

@@ -1,5 +1,5 @@
 /**
- ** A person class for a simple JavaBlue demo program. Person is used as
+ ** A person class for a simple BlueJ demo program. Person is used as
  ** an abstract superclass of more specific person classes.
  **
  ** Author:  Michael Kölling
@@ -13,8 +13,8 @@ abstract class Person
     private int yearOfBirth;
 
     /**
-     ** Create a person with given name and age.
-     **/
+     * Create a person with given name and age.
+     */
     Person(String name, int yearOfBirth)
     {
         this.name = name;
@@ -22,40 +22,40 @@ abstract class Person
     }
 
     /**
-     ** Set a new name for this person.
-     **/
+     * Set a new name for this person.
+     */
     public void setName(String newName)
     {
         name = newName;
     }
 
     /**
-     ** Return the name of this person.
-     **/
+     * Return the name of this person.
+     */
     public String getName()
     {
         return name;
     }
     
     /**
-     ** Set a new birth year for this person.
-     **/
+     * Set a new birth year for this person.
+     */
     public void setYearOfBirth(int newYearOofBirth)
     {
         yearOfBirth = newYearOofBirth;
     }
 
     /**
-     ** Return the birth year of this person.
-     **/
+     * Return the birth year of this person.
+     */
     public int getYearOfBirth()
     {
         return yearOfBirth;
     }
 
     /**
-     ** Return a string representation of this object.
-     **/
+     * Return a string representation of this object.
+     */
     public String toString()    // redefined from "Object"
     {
         return "Name: " + name + "\n" +

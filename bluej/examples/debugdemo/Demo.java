@@ -46,4 +46,16 @@ public class Demo
         return places;
     }
 
+    public int longloop()
+    {
+        int sum = 0;
+
+        for (int i=0; i<20000000; i++) {
+          sum = sum + i;
+          sum = sum -200;
+        }
+        return 42;
+    }
+
+
 }

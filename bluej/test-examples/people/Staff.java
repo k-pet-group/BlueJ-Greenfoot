@@ -1,4 +1,4 @@
-/**
+ /**
  ** A class representing staff members for a simple JavaBlue demo program.
  **
  ** Author:  Michael Kölling
@@ -15,7 +15,7 @@ class Staff extends Person
 	 **/
 	Staff()
 	{
-	    super("(unknown name)", 0000);
+	    super("(unknown name and very long too)", 0000);
 	    room = "(unknown room)";
 	}
 

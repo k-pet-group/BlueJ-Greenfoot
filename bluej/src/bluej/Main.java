@@ -6,7 +6,7 @@ import bluej.utility.Debug;
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
- ** @version $Id: Main.java 225 1999-08-11 06:52:15Z bruce $
+ ** @version $Id: Main.java 239 1999-08-17 07:55:00Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -19,7 +19,7 @@ public class Main
 
     public static int BLUEJ_VERSION_MAJOR = 0;
     public static int BLUEJ_VERSION_MINOR = 9;
-    public static int BLUEJ_VERSION_RELEASE = 7;
+    public static int BLUEJ_VERSION_RELEASE = 8;
 
     public static int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
 					BLUEJ_VERSION_MINOR * 100 +

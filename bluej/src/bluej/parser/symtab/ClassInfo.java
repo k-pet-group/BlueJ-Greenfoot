@@ -118,7 +118,25 @@ public final class ClassInfo {
     
     public void addComment(String target, String comment, String paramnames)
     {
-            comments.addElement(new SavedComment(target, comment, paramnames));
+	// remove asterisks (*) from beginning of comment
+
+	if(comment != null) {
+	    StringBuffer finalComment = new StringBuffer(comment.length());
+	    StringTokenizer tokenizer = new StringTokenizer(comment,"\n\r\f");
+
+	    while(tokenizer.hasMoreTokens()) {
+		StringBuffer line = new StringBuffer(tokenizer.nextToken());
+		char ch = (line.length() > 0 ? line.charAt(0) : 'x');
+		while(ch == ' ' || ch == '\t' || ch == '*') {
+		    line.deleteCharAt(0);
+		    ch = (line.length() > 0 ? line.charAt(0) : 'x');
+		}
+		finalComment.append(line);
+		finalComment.append('\n');
+	    }
+	    comment = finalComment.toString();
+	}
+	comments.addElement(new SavedComment(target, comment, paramnames));
     }
     
     public void setInterface(boolean b)

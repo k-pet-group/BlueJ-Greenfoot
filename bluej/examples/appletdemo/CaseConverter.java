@@ -1,4 +1,3 @@
-
 /**
  ** Class CaseConverter - A simple applet that takes input from a text field 
  ** and converts to upper or lower case in response to user button selection. 

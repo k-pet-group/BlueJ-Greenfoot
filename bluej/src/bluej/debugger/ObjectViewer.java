@@ -20,7 +20,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 124 1999-06-14 07:26:17Z mik $
+ ** @version $Id: ObjectViewer.java 239 1999-08-17 07:55:00Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -448,7 +448,6 @@ public final class ObjectViewer extends JFrame
     }
 
 
-
     /**
      * Close this viewer. Don't forget to remove it from the list of open 
      * viewers.
@@ -466,6 +465,7 @@ public final class ObjectViewer extends JFrame
 	    Debugger.debugger.removeObjectFromScope(pkgScopeId, viewerId);
     }
 
+
     /**
      * Store the object currently selected in the list.
      */
@@ -474,6 +474,7 @@ public final class ObjectViewer extends JFrame
 	selectedObject = object;
 	selectedObjectName = name;
     }
+
 
     /**
      * Enable or disable the Inspect and Get buttons.
@@ -485,8 +486,6 @@ public final class ObjectViewer extends JFrame
 	    getBtn.setEnabled(get);
     }
 
-
- 
 
     /**
      * Build the GUI interface.
@@ -518,8 +517,7 @@ public final class ObjectViewer extends JFrame
 	JPanel mainPanel = (JPanel)getContentPane();
 	mainPanel.setBorder(BorderFactory.createEmptyBorder(16,20,10,20));
 
-	int minRows = 2;
-	int maxRows = 6;
+	int maxRows = 8;
 	int rows;
 
 	if(isInspection) {
@@ -537,10 +535,8 @@ public final class ObjectViewer extends JFrame
 		staticScrollPane.setColumnHeaderView(new JLabel(staticListTitle));
 
 		// set the list sizes according to number of fields in object
-		rows = obj.getStaticFieldCount() + 1;
-		if(rows < minRows)
-		    rows = minRows;
-		else if(rows > maxRows)
+		rows = obj.getStaticFieldCount() + 2;
+		if(rows > maxRows)
 		    rows = maxRows;
 		staticFieldList.setVisibleRowCount(rows);
 	    }
@@ -553,10 +549,8 @@ public final class ObjectViewer extends JFrame
 
 	if(isInspection) {
 	    objectScrollPane.setColumnHeaderView(new JLabel(objListTitle));
-	    rows = obj.getInstanceFieldCount() + 1;
-	    if(rows < minRows)
-		rows = minRows;
-	    else if(rows > maxRows)
+	    rows = obj.getInstanceFieldCount() + 2;
+	    if(rows > maxRows)
 		rows = maxRows;
 	}
 	else

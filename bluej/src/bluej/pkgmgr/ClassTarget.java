@@ -39,7 +39,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 238 1999-08-16 06:46:54Z ajp $
+ ** @version $Id: ClassTarget.java 239 1999-08-17 07:55:00Z mik $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -781,12 +781,14 @@ public class ClassTarget extends EditableTarget
 	anchor_y = last_y = y;
     }
     
-    public void singleClick(MouseEvent evt, int x, int y, GraphEditor editor) {
+    public void singleClick(MouseEvent evt, int x, int y, GraphEditor editor)
+    {
 	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame)
 	    ((LibraryBrowserPkgMgrFrame)editor.getFrame()).openClassInAttributeChooser(this);
     }
 	
-    public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor) {
+    public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor)
+    {
 	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame)
 	    browse((LibraryBrowserPkgMgrFrame)editor.getFrame());
 	else

@@ -292,10 +292,12 @@ public class JdiObject extends DebuggerObject
 
 		if (!visible.contains(field)) {
 		    fieldString += " (hidden)";
-		} 
-		else if (!field.declaringType().equals(cls)) {
-		    fieldString += " (inherited)";
 		}
+		// the following code adds the word "inherited" to inherited
+		// fields - currently unused 
+		//else if (!field.declaringType().equals(cls)) {
+		//    fieldString += " (inherited)";
+		//}
 		fieldStrings.add(fieldString);
 	    }
 	}

@@ -8,13 +8,12 @@ import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Vector;
-import java.util.StringTokenizer;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
 import java.net.*;
 
 /**
- ** @version $Id: ClassPathEntry.java 189 1999-07-17 02:35:32Z ajp $
+ ** @version $Id: ClassPathEntry.java 239 1999-08-17 07:55:00Z mik $
  ** @author Andrew Patterson
  ** Class to maintain a single file location in a classpath
  **/

@@ -1,5 +1,5 @@
 /**
- ** A class representing staff members for a simple JavaBlue demo program.
+ ** A class representing staff members for a simple BlueJ demo program.
  **
  ** Author:  Michael Kölling
  ** Version: 1.0
@@ -11,8 +11,8 @@ class Staff extends Person
     private String room;
 
     /**
-     ** Create a staff member with default settings for detail information.
-     **/
+     * Create a staff member with default settings for detail information.
+     */
     Staff()
     {
         super("(unknown name)", 0000);
@@ -20,9 +20,9 @@ class Staff extends Person
     }
 
     /**
-     ** Create a staff member with given name, year of birth and room
-     ** number.
-     **/
+     * Create a staff member with given name, year of birth and room
+     * number.
+     */
     Staff(String name, int yearOfBirth, String roomNumber)
     {
         super(name, yearOfBirth);
@@ -30,24 +30,24 @@ class Staff extends Person
     }
 
     /**
-     ** Set a new room number for this person.
-     **/
+     * Set a new room number for this person.
+     */
     public void setRoom(String newRoom)
     {
         room = newRoom;
     }
 
     /**
-     ** Return the room number of this person.
-     **/
+     * Return the room number of this person.
+     */
     public String getRoom()
     {
         return room;
     }
 
     /**
-     ** Return a string representation of this object.
-     **/
+     * Return a string representation of this object.
+     */
     public String toString()    // redefined from "Person"
     {
         return super.toString() +

@@ -217,7 +217,7 @@ public final class MoeEditor extends JFrame
 	    info.message ("Moe version " + versionString, "New file");
 
 	setWindowTitle();
-	show();
+	//show();
 	textPane.setFont(editFont);
 
 	setCompileStatus(compiled);
@@ -893,22 +893,12 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  Implementation of "set-breakpoint" user function.
+     *  Implementation of "toggle-breakpoint" user function.
      */
 
-    void setBreakpoint()
+    void toggleBreakpoint()
     {
-	setUnsetBreakpoint(textPane.getCaretPosition(), true);
-    }
-
-    // --------------------------------------------------------------------
-    /**
-     *  Implementation of "clear-breakpoint" user function.
-     */
-
-    void clearBreakpoint()
-    {
-	setUnsetBreakpoint(textPane.getCaretPosition(), false);
+	toggleBreakpoint(textPane.getCaretPosition());
     }
 
     // --------------------------------------------------------------------
@@ -1114,8 +1104,7 @@ public final class MoeEditor extends JFrame
     private void setCompileStatus(boolean compiled)
     {
 	viewSelector.setEnabled(compiled);
-	actions.getActionByName("set-breakpoint").setEnabled(compiled);
-	actions.getActionByName("clear-breakpoint").setEnabled(compiled);
+	actions.getActionByName("toggle-breakpoint").setEnabled(compiled);
 	isCompiled = compiled;
 
 	if(compiled)

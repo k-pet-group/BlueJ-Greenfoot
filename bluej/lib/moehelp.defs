@@ -104,7 +104,5 @@ goto-line=\n Goto a specified line.
 
 compile=\n Compile the current class. The class is automatically\n saved before being compiled.
 
-set-breakpoint=\n Set a breakpoint in the current line.
-
-clear-breakpoint=\n Clear a breakpoint in the current line. (Do nothing if there\n was no breakpoint.)
+toggle-breakpoint=\n Set or clear a breakpoint in the current line.
 

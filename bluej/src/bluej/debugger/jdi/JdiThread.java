@@ -89,7 +89,7 @@ public final class JdiThread extends DebuggerThread
 	    }
 
 	    if(rt.isSuspended())
-		return "(stopped)";
+		return "stopped";
 
   	    int status = rt.status();
 	    switch(status) {

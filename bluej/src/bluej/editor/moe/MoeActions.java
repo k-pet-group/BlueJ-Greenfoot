@@ -451,29 +451,15 @@ public final class MoeActions
     // === Debug: ===
     // --------------------------------------------------------------------
 
-    class SetBreakPointAction extends MoeAbstractAction {
+    class ToggleBreakPointAction extends MoeAbstractAction {
 
-	public SetBreakPointAction() {
-	    super("set-breakpoint", 
+	public ToggleBreakPointAction() {
+	    super("toggle-breakpoint", 
 		  KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK));
 	}
 
 	public void actionPerformed(ActionEvent e) {
-	    getEditor(e).setBreakpoint();
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class ClearBreakPointAction extends MoeAbstractAction {
- 
-	public ClearBreakPointAction() {
-	    super("clear-breakpoint", 
-		  KeyStroke.getKeyStroke(KeyEvent.VK_B, SHIFT_CTRL_MASK));
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    getEditor(e).clearBreakpoint();
+	    getEditor(e).toggleBreakpoint();
 	}
     }
 
@@ -697,8 +683,7 @@ public final class MoeActions
 	    new ReplaceAction(),
 	    new GotoLineAction(),
 	    compileAction,
-	    new SetBreakPointAction(),
-	    new ClearBreakPointAction(),
+	    new ToggleBreakPointAction(),
 
 	    new PreferencesAction(),
 	    new KeyBindingsAction(),
@@ -744,7 +729,7 @@ public final class MoeActions
 	    (Action)(actions.get("select-line")),
 	    (Action)(actions.get("select-paragraph")),
 	    (Action)(actions.get("select-all")),
-    // (Action)(actions.get("unselect")), ## currently unsupported (see #1)
+	    (Action)(actions.get("unselect")),
 	    (Action)(actions.get("selection-backward")),
 	    (Action)(actions.get("selection-forward")),
 	    (Action)(actions.get("selection-up")),
@@ -757,8 +742,8 @@ public final class MoeActions
 	    (Action)(actions.get("selection-end-line")),
 	    (Action)(actions.get("selection-begin-paragraph")),
 	    (Action)(actions.get("selection-end-paragraph")),
-    // (Action)(actions.get("selection-page-up")),   (#1)
-    // (Action)(actions.get("selection-page-down")), (#1)
+	    (Action)(actions.get("selection-page-up")),
+	    (Action)(actions.get("selection-page-down")),
 	    (Action)(actions.get("selection-begin")),		// 30
 	    (Action)(actions.get("selection-end")),
 
@@ -807,9 +792,8 @@ public final class MoeActions
 	    (Action)(actions.get("replace")),
 	    (Action)(actions.get("goto-line")),
 	    (Action)(actions.get("compile")),
-	    (Action)(actions.get("set-breakpoint")),
-	    (Action)(actions.get("clear-breakpoint")),
-	};							// 69
+	    (Action)(actions.get("toggle-breakpoint")),
+	};							// 68
 
 	categories = new String[] { "Edit Functions", 
 				    "Move & Scroll",
@@ -818,8 +802,8 @@ public final class MoeActions
 				    "Help",
 				    "Misc." };
 	// (#1) temporarily altered until next swing version
-	// categoryIndex = new int[] { 0, 32, 48, 52, 54, 58, 69 };
-	categoryIndex = new int[] { 0, 29, 45, 49, 51, 55, 66 };
+	categoryIndex = new int[] { 0, 32, 48, 52, 54, 58, 68 };
+	//categoryIndex = new int[] { 0, 29, 45, 49, 51, 55, 65 };
     }
 
 } // end class MoeActions

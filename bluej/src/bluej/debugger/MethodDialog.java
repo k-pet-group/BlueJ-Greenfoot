@@ -18,7 +18,7 @@ import java.util.*;
 
 
 /**
- ** @version $Id: MethodDialog.java 213 1999-07-29 04:16:54Z mik $
+ ** @version $Id: MethodDialog.java 239 1999-08-17 07:55:00Z mik $
  **
  ** @author Michael Cahill
  ** @author Bruce Quig
@@ -282,7 +282,7 @@ public class MethodDialog extends JDialog
         setTitle(wCreateTitle);
 
         JLabel instName = new JLabel(sNameOfInstance);
-        instanceNameText = new JTextField(instanceName, 14);
+        instanceNameText = new JTextField(instanceName, 16);
 				
 	if(paramNames != null) {
 	    ConstructorView consView = (ConstructorView)method;

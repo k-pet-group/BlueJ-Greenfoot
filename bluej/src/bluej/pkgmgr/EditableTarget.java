@@ -5,7 +5,7 @@ import bluej.editor.EditorWatcher;
 import bluej.utility.Utility;
 
 /** 
- * @version $Id: EditableTarget.java 220 1999-08-10 04:23:38Z bruce $
+ * @version $Id: EditableTarget.java 239 1999-08-17 07:55:00Z mik $
  * @author Michael Cahill
  *
  * A target in a package that can be edited as text
@@ -47,11 +47,7 @@ public abstract class EditableTarget extends Target
     **/
     protected void open()
     {
-	// force getting a new editor
-	if(editor == null)
-	    getEditor();
-	else
-	    editor.show(getDisplayedView());
+	getEditor().show(getDisplayedView());
 
 	if(editor == null)
 	    Utility.showError(pkg.getFrame(),

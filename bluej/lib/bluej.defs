@@ -4,7 +4,6 @@
 
 ## BlueJ global properties
 bluej.language=english
-bluej.libPath=/home/blue/bluej/lib
 
 #####################################################################
 ## Here are the URLs for the BlueJ manuals and documentation. If you
@@ -12,13 +11,9 @@ bluej.libPath=/home/blue/bluej/lib
 ## version, edit these URLs.
 #####################################################################
 
-bluej.url.tutorial=http://www.sd.monash.edu.au/javablue/tutorial/frame/
-bluej.url.reference=http://www.sd.monash.edu.au/bluej/reference/
+bluej.url.tutorial=http://www.csse.monash.edu.au/bluej/tutorial/tutorial.pdf
+bluej.url.reference=http://www.csse.monash.edu.au/bluej/reference/
 bluej.url.javaStdLib=http://java.sun.com/products/jdk/1.2/docs/api/index.html
-
-browser.url.help.index=http://www.sd.monash.edu.au/bluej/html/browser/index.html
-browser.url.help.contents=http://www.sd.monash.edu.au/bluej/html/browser/contents.html
-browser.url.help.topics=http://www.sd.monash.edu.au/bluej/html/browser/topics.html
 
 
 #####################################################################
