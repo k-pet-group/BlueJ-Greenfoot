@@ -94,7 +94,7 @@ public class ImageButton extends Component {
     private static int                 _offset           = 1;
     private static int                 _defaultThickness = 2;
 
-    private ThreeDRectangle border  = new ThreeDRectangle(this);
+    public  ThreeDRectangle border  = new ThreeDRectangle(this);
     private boolean             isDisabled = false;
 	private boolean             armed      = false;
     private Dimension           prefSize   = new Dimension(0,0);
@@ -363,7 +363,8 @@ public class ImageButton extends Component {
                         upperLeft.x + thickness + _offset, 
                         upperLeft.y + thickness + _offset,this);
 
-            g.setColor(getBackground().darker());
+            // g.setColor(getBackground().darker());
+            g.setColor(getBackground());
             for(int i=0; i < _offset; ++i) {
                 g.drawLine(thickness+i,thickness+i,
                            size.width-thickness-i,thickness+i);
