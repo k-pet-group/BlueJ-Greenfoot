@@ -14,7 +14,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BClass.java 1969 2003-05-21 10:28:27Z damiano $
+ * @version $Id: BClass.java 1977 2003-05-22 10:25:47Z damiano $
  */
 
 public class BClass
@@ -62,31 +62,25 @@ public class BClass
       
     /**
      * Checks to see if this class has been compiled. 
-     * Returns true if it is compiled and valid.
-     * Returns true if it is a virtual class.
+     * @return true if it is compiled false othervise.
      */
     public boolean isCompiled() 
-        throws ProjectNotOpenException, PackageNotFoundException
+        throws ProjectNotOpenException, PackageNotFoundException, ClassNotInteractiveException
         {
         ClassTarget aTarget = classId.getClassTarget();
-
-        if (aTarget == null) return true;
 
         return aTarget.isCompiled();
         }
     
     /**
      * Compile this class, and any dependents. 
-     * 
      * @return true if the compilation was successful, false otherwise.
      */
     public boolean compile() 
-        throws ProjectNotOpenException, PackageNotFoundException
+        throws ProjectNotOpenException, PackageNotFoundException, ClassNotInteractiveException
         {
         ClassTarget aTarget = classId.getClassTarget();
     
-        if (aTarget == null) return true;
-        
         if (aTarget.isCompiled()) return true;
         
         aTarget.compile (null);
