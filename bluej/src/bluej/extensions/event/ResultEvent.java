@@ -8,7 +8,7 @@ import bluej.extensions.BPackage;
  * but it will be different as soon as I am able to get the returnin values.
  * Damiano
  * </pre>
- * @version $Id: ResultEvent.java 1676 2003-03-10 09:26:54Z damiano $
+ * @version $Id: ResultEvent.java 1682 2003-03-10 11:58:52Z damiano $
  */
 public class ResultEvent extends ExtEvent
 {
@@ -28,6 +28,7 @@ public class ResultEvent extends ExtEvent
     private String[] parameters;
     private int eventId;
     private bluej.pkgmgr.Package thisPackage;
+    private Object resultObj;
     
     
     /** 
@@ -49,6 +50,7 @@ public class ResultEvent extends ExtEvent
       methodName  = exevent.getMethodName();
       signature   = exevent.getSignature();
       parameters  = exevent.getParameters();
+      resultObj   = exevent.getResult();
       }
      
     /**
@@ -110,4 +112,14 @@ public class ResultEvent extends ExtEvent
         return parameters;
     } 
 
+    /**
+     * The resulting object should be one of the primitive wrappers one (like Integer, Long, etc)
+     * or a BObject that you can manage.
+     * 
+     * @return an Object of various types depending on the type. It can return null if the risul is void.
+     */
+    public Object getResult ()
+      {
+      return resultObj;
+      }
 }
