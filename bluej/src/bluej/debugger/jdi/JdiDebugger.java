@@ -33,7 +33,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 3029 2004-09-30 23:57:43Z davmac $
+ * @version $Id: JdiDebugger.java 3040 2004-10-06 03:33:59Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -75,6 +75,9 @@ public class JdiDebugger extends Debugger
 
     // indicate whether we want to see system threads
     private boolean hideSystemThreads;
+    
+    // current machine state
+    private int machineState = NOTREADY;
 
     /**
      * Construct an instance of the debugger.
@@ -120,7 +123,7 @@ public class JdiDebugger extends Debugger
 
         autoRestart = true;
 
-        raiseStateChangeEvent(Debugger.UNKNOWN, Debugger.NOTREADY);
+        raiseStateChangeEvent(Debugger.NOTREADY);
 
         // start the MachineLoader (a separate thread) to load the
         // remote virtual machine in the background
@@ -263,13 +266,17 @@ public class JdiDebugger extends Debugger
      */
     public void newClassLoader(String classPath)
     {
-        if (!vmRunning)
-            return;
+        VMReference vmr;
+        synchronized(this) {
+            if (!vmRunning)
+                return;
 
-        usedNames.clear();
+            usedNames.clear();
 
+            vmr = getVM();
+        }
         try {
-            getVM().newClassLoader(classPath);
+            vmr.newClassLoader(classPath);
         }
         catch (VMDisconnectedException vmde) {}
     }
@@ -311,12 +318,17 @@ public class JdiDebugger extends Debugger
      */
     public void removeObject(String instanceName)
     {
-        if (!vmRunning)
-            return;
+        VMReference vmr;
+        synchronized(this) {
+            if (!vmRunning)
+                return;
+            
+            vmr = getVM();
+        }
 
         Object args[] = {instanceName};
 
-        getVM().removeObject(instanceName);
+        vmr.removeObject(instanceName);
     }
 
     /**
@@ -515,15 +527,12 @@ public class JdiDebugger extends Debugger
     }
 
     /**
-     * Return the machine status; one of the "machine state" constants: (IDLE,
-     * RUNNING, SUSPENDED).
+     * Return the machine status; one of the "machine state" constants:
+     * NOTREADY, IDLE, RUNNING, or SUSPENDED.
      */
     public int getStatus()
     {
-        if (!vmRunning)
-            return Debugger.NOTREADY;
-        else
-            return getVM().getStatus();
+        return machineState;
     }
 
     /**
@@ -531,15 +540,18 @@ public class JdiDebugger extends Debugger
      */
     public void disposeWindows()
     {
-        if (!vmRunning)
-            return;
+        VMReference vmr;
+        synchronized (this) {
+            if (!vmRunning)
+                return;
 
+            vmr = getVM();
+        }
+        
         try {
-            // getVM().invokeExecServerWorker(ExecServer.DISPOSE_WINDOWS, Collections.EMPTY_LIST);
-            getVM().disposeWindows();
+            vmr.disposeWindows();
         }
         catch (VMDisconnectedException e) {}
-        // catch (InvocationException ie) {}
     }
 
     /**
@@ -662,9 +674,21 @@ public class JdiDebugger extends Debugger
         }
     }
 
-    void raiseStateChangeEvent(int oldState, int newState)
+    synchronized void raiseStateChangeEvent(int newState)
     {
-        fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.DEBUGGER_STATECHANGED, oldState, newState));
+        if (newState != machineState) {
+            
+            // If going from running state to notready state, first pass
+            // through idle state
+            if (machineState == RUNNING && newState == NOTREADY) {
+                fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.DEBUGGER_STATECHANGED, RUNNING, IDLE));
+                machineState = IDLE;
+            }
+            
+            int oldState = machineState;
+            machineState = newState;
+            fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.DEBUGGER_STATECHANGED, oldState, newState));
+        }
     }
 
     void raiseRemoveStepMarksEvent()
@@ -705,10 +729,13 @@ public class JdiDebugger extends Debugger
     }
 
     /**
-     * Called by VMReference when a BREAKPOINT is encountered in the debugger
-     * VM.
+     * Called by VMReference when a breakpoint/step is encountered in the
+     * debugger VM.
+     * 
+     * @param tr   the thread in which code hit the breakpoint/step
+     * @param bp   true for a breakpoint, false for a step
      */
-    public void breakpoint(final ThreadReference tr)
+    public void breakpoint(final ThreadReference tr, final boolean bp)
     {
         final JdiThread breakThread = allThreads.find(tr);
         treeModel.syncExec(new Runnable() {
@@ -727,7 +754,10 @@ public class JdiDebugger extends Debugger
             }
         });
 
-        fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_BREAKPOINT, breakThread));
+        if (bp)
+            fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_BREAKPOINT, breakThread));
+        else
+            fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_HALT, breakThread));
     }
 
     // - event handling
@@ -745,8 +775,6 @@ public class JdiDebugger extends Debugger
      */
     synchronized void vmDisconnect()
     {
-        // Debug.message("VM disconnect. Restart: " + autoRestart);
-
         if (autoRestart) {
             // promote garbage collection but also indicate to the
             // launch procedure that we are not in a launch (see launch()).
@@ -763,7 +791,7 @@ public class JdiDebugger extends Debugger
             launch();
 
             raiseRemoveStepMarksEvent();
-            raiseStateChangeEvent(Debugger.IDLE, Debugger.NOTREADY);
+            raiseStateChangeEvent(Debugger.NOTREADY);
 
             allThreads.clear();
             usedNames.clear();
@@ -885,7 +913,9 @@ public class JdiDebugger extends Debugger
             try {
                 vmRef = new VMReference(JdiDebugger.this, terminal, startingDirectory);
                 vmRef.waitForStartup();
-                vmRunning = true;
+                synchronized(JdiDebugger.this) {
+                    vmRunning = true;
+                }
 
                 newClassLoader(startingDirectory.getAbsolutePath());
 
@@ -893,7 +923,7 @@ public class JdiDebugger extends Debugger
                 // are waiting for us to finish
                 notifyAll();
 
-                raiseStateChangeEvent(Debugger.NOTREADY, Debugger.IDLE);
+                raiseStateChangeEvent(Debugger.IDLE);
             }
             catch (JdiVmCreationException e) {
                 BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_FAILED, null);

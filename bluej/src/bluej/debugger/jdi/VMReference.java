@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3038 2004-10-05 05:04:56Z davmac $
+ * @version $Id: VMReference.java 3040 2004-10-06 03:33:59Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -112,7 +112,6 @@ class VMReference
     // used by JdiDebugger.invokeMethod
     //private Map execServerMethods = null;
 
-    private int debuggerState; // Debugger.IDLE if idle or RUNNING otherwise
     private int exitStatus;
     private ExceptionDescription lastException;
     
@@ -289,7 +288,6 @@ class VMReference
         throws JdiVmCreationException
     {
         this.owner = owner;
-        debuggerState = Debugger.IDLE;
 
         // machine will be suspended at startup
         machine = localhostSocketLaunch(initialDirectory, term, Bootstrap.virtualMachineManager());
@@ -514,9 +512,6 @@ class VMReference
      */
     int getStatus()
     {
-        if( debuggerState == Debugger.IDLE )
-            return Debugger.IDLE;
-            
         if (serverThread.isSuspended())
             return Debugger.SUSPENDED;
         else
@@ -593,26 +588,18 @@ class VMReference
     public void runShellClass(String className)
         throws ClassNotFoundException
     {
-        //ClassType shellClass = (ClassType) loadClass(className);
-
-        //Method runMethod = findMethodByName(shellClass, "run");
-        //if (runMethod == null) {
-        //    Debug.reportError("Could not find shell run method");
-        //    return;
-        //}
-
         // Debug.message("[VMRef] starting " + className);
         // ** call Shell.run() **
         try {
             exitStatus = Debugger.NORMAL_EXIT;
 
-            owner.raiseStateChangeEvent(Debugger.IDLE, Debugger.RUNNING);
+            owner.raiseStateChangeEvent(Debugger.RUNNING);
 
             invokeShell(className);
-
         }
         catch (VMDisconnectedException e) {
             exitStatus = Debugger.TERMINATED;
+            return; // debugger state change handled elsewhere 
         }
         catch (Exception e) {
             // remote invocation failed
@@ -621,7 +608,7 @@ class VMReference
             exitStatus = Debugger.EXCEPTION;
             lastException = new ExceptionDescription("Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
-        owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.IDLE);
+        owner.raiseStateChangeEvent(Debugger.IDLE);
     }
     
     /**
@@ -732,10 +719,12 @@ class VMReference
         // indefinitely unless we kick it here.
         exitStatus = Debugger.TERMINATED;
         synchronized (this) {
-            if (!serverThreadStarted) {
-                serverThreadStarted = true;
+            if (!serverThreadStarted)
                 notifyAll();
-            }
+        }
+        synchronized (workerThread) {
+            if (!workerThreadReady)
+                workerThread.notifyAll();
         }
         owner.vmDisconnect();
     }
@@ -922,7 +911,7 @@ class VMReference
         else {
             // breakpoint set by user in user code
             if (serverThread.equals(event.thread()))
-                owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.SUSPENDED);
+                owner.raiseStateChangeEvent(Debugger.SUSPENDED);
 
             // a breakpoint/step event in our SHELL class
             // means the user has stepped past the end of a method
@@ -941,7 +930,7 @@ class VMReference
             }
             else {
                 // otherwise, signal the breakpoint/step to the user
-                owner.breakpoint(event.thread());
+                owner.breakpoint(event.thread(), breakpoint);
             }
         }
     }
@@ -1171,8 +1160,11 @@ class VMReference
     {
         synchronized(this) {
             try {
-                while (!serverThreadStarted)
+                while (!serverThreadStarted) {
+                    if (exitStatus == Debugger.TERMINATED)
+                        throw new VMDisconnectedException();
                     wait(); // wait for new thread to start
+                }
             }
             catch (InterruptedException ie) {}
         }
@@ -1185,8 +1177,11 @@ class VMReference
     private void workerThreadReadyWait()
     {
         try {
-            while (!workerThreadReady)
+            while (!workerThreadReady) {
+                if (exitStatus == Debugger.TERMINATED)
+                    throw new VMDisconnectedException();
                 workerThread.wait();
+            }
         }
         catch(InterruptedException ie) {}
     }
@@ -1209,11 +1204,9 @@ class VMReference
             setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.EXEC_SHELL));
             
             // Resume the thread, wait for it to finish and the new thread to start
-            debuggerState = Debugger.RUNNING;
             serverThreadStarted = false;
             serverThread.resume();
             serverThreadStartWait();
-            debuggerState = Debugger.IDLE;
             
             // Get return value and check for exceptions
             Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
@@ -1238,11 +1231,9 @@ class VMReference
             setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.TEST_SETUP));
             
             // Resume the thread, wait for it to finish and the new thread to start
-            debuggerState = Debugger.RUNNING;
             serverThreadStarted = false;
             serverThread.resume();
             serverThreadStartWait();
-            debuggerState = Debugger.IDLE;
             
             // Get return value and check for exceptions
             Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
@@ -1269,11 +1260,9 @@ class VMReference
             setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.TEST_RUN));
             
             // Resume the thread, wait for it to finish and the new thread to start
-            debuggerState = Debugger.RUNNING;
             serverThreadStarted = false;
             serverThread.resume();
             serverThreadStartWait();
-            debuggerState = Debugger.IDLE;
             
             Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
             if (rval == null) {
