@@ -21,18 +21,19 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 305 1999-12-09 23:50:57Z ajp $
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** A window that displays the fields in an object (also know as an
- ** "Inspect window") and method call results.
- **/
-
+ * A window that displays the fields in an object (also know as an
+ * "Inspect window") and method call results.
+ *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @version $Id: ObjectViewer.java 333 2000-01-02 13:32:06Z ajp $
+ */
 public final class ObjectViewer extends JFrame
-
 	implements ActionListener, ListSelectionListener
 {
+    private static final Image iconImage = new ImageIcon(
+                                            Config.getImageFilename("image.icon")).getImage();
+
     private static final Color bgColor = new Color(208, 212, 208);
 
     private static String inspectTitle = Config.getString("debugger.objectviewer.title");
@@ -43,6 +44,7 @@ public final class ObjectViewer extends JFrame
     private static String getLabel = Config.getString("debugger.objectviewer.get");
     private static String close = Config.getString("close");
     private static String objectClassName = Config.getString("debugger.objectviewer.objectClassName");
+
 
     private static final int VISIBLE_ARRAY_FIELDS = 45;
     private static final int ARRAY_QUERY_INDEX = 40;
@@ -63,7 +65,7 @@ public final class ObjectViewer extends JFrame
     private boolean isInScope;
     private boolean queryArrayElementSelected;
 
-    private String viewerId;		// a unique ID used to enter the 
+    private String viewerId;		// a unique ID used to enter the
 					// viewer's object into the package
 					// scope
 
@@ -71,44 +73,44 @@ public final class ObjectViewer extends JFrame
 
     protected static int count = 0;
     protected static Hashtable viewers = new Hashtable();
-	
+
     /**
      * Return a ObjectViewer for an object. The viewer is visible.
      * This is the only way to get access to viewers - they cannot be
      * directly created.
      *
-     * @param inspection  True is this is an inspection, false for result 
-     *			displays
-     * @param obj		The object displayed by this viewer
-     * @param name	The name of this object or "null" if it is not on the
-     *			object bench
-     * @param pkg		The package all this belongs to
-     * @param getEnabled	if false, the "get" button is permanently disabled
-     * @param parent	The parent frame of this frame
+     * @param inspection    True is this is an inspection, false for result
+     *                      displays
+     * @param obj           The object displayed by this viewer
+     * @param name          The name of this object or "null" if it is not on the
+     *                      object bench
+     * @param pkg           The package all this belongs to
+     * @param getEnabled    if false, the "get" button is permanently disabled
+     * @param parent        The parent frame of this frame
      */
-    public static ObjectViewer getViewer(boolean inspection, 
-					 DebuggerObject obj, String name, 
-					 Package pkg, boolean getEnabled,
-					 JFrame parent)
+    public static ObjectViewer getViewer(boolean inspection,
+                                            DebuggerObject obj, String name,
+                                            Package pkg, boolean getEnabled,
+                                            JFrame parent)
     {
-	ObjectViewer viewer = (ObjectViewer)viewers.get(obj);
-	
+        ObjectViewer viewer = (ObjectViewer)viewers.get(obj);
+
 	if(viewer == null) {
 	    String id;
 	    if(name==null) {
 		id = "#viewer" + count; // # marks viewer for internal object
-		count++;		//  which is not on bench 
+		count++;		//  which is not on bench
 	    }
 	    else
 		id = name;
 	    viewer = new ObjectViewer(inspection, obj, pkg, id, getEnabled, parent);
 	    viewers.put(obj, viewer);
 	}
-	viewer.update();
+        viewer.update();
 
-	return viewer;
+        return viewer;
     }
-	
+
     /**
      * Update all open viewers to show up-to-date values.
      */
@@ -119,7 +121,7 @@ public final class ObjectViewer extends JFrame
 	    viewer.update();
 	}
     }
-	
+
 
     // === object methods ===
 
@@ -128,12 +130,14 @@ public final class ObjectViewer extends JFrame
      * Note: protected -- Objectviewers can only be created with the static
      * "getViewer" method. 'pkg' may be null if getEnabled is false.
      */
-    protected ObjectViewer(boolean inspect, DebuggerObject obj, 
-			   Package pkg, String id, boolean getEnabled, 
+    protected ObjectViewer(boolean inspect, DebuggerObject obj,
+			   Package pkg, String id, boolean getEnabled,
 			   JFrame parent)
     {
 	super();
-	isInspection = inspect;
+
+    setIconImage(iconImage);
+    isInspection = inspect;
 	this.obj = obj;
 	this.pkg = pkg;
 	viewerId = id;
@@ -145,7 +149,7 @@ public final class ObjectViewer extends JFrame
 	    pkgScopeId = "";
 	}
 	else
-	    pkgScopeId = Utility.quoteSloshes(pkg.getId());
+	    pkgScopeId = pkg.getId();
 
 	makeFrame(parent, isInspection, obj);
     }
@@ -157,17 +161,17 @@ public final class ObjectViewer extends JFrame
     public void update()
     {
 	// if is an array and needs compressing
-	if(obj.isArray() && obj.getInstanceFieldCount() > VISIBLE_ARRAY_FIELDS) 
+	if(obj.isArray() && obj.getInstanceFieldCount() > VISIBLE_ARRAY_FIELDS)
 	    objFieldList.setListData(
 		compressArrayList(obj.getInstanceFields(isInspection)));
-	else 
+	else
 	    objFieldList.setListData(obj.getInstanceFields(isInspection));
 
 	// static fields only applicable if not an array and list not null
 	if(isInspection && !obj.isArray() && staticFieldList != null)
 	    staticFieldList.setListData(obj.getStaticFields(true));
     }
-	
+
     /**
      * Return this viewer's ID.
      */
@@ -175,7 +179,7 @@ public final class ObjectViewer extends JFrame
     {
 	return viewerId;
     }
-	
+
     /**
      * actionPerformed - something was done in the viewer dialog.
      *  Find out what it was and act.
@@ -219,16 +223,16 @@ public final class ObjectViewer extends JFrame
 		return;
 
 	    if(obj.staticFieldIsObject(slot)) {
-		
+
 		setCurrentObj(obj.getStaticFieldObject(slot),
 			      obj.getStaticFieldName(slot));
-		
+
 		if(obj.staticFieldIsPublic(slot) && !selectedObject.isArray())
 		    setButtonsEnabled(true, true);
 		else
 		    setButtonsEnabled(true, false);
 
-	    }		
+	    }
 	    else {
 		setCurrentObj(null, null);
 		setButtonsEnabled(false, false);
@@ -237,11 +241,11 @@ public final class ObjectViewer extends JFrame
 	    objFieldList.clearSelection();
 	}
 	else if(e.getSource() == objFieldList) {	// click in object list
-	    
+
 	    int slot = objFieldList.getSelectedIndex();
 
 	    // add index to slot method for truncated arrays
-	    if(obj.isArray()) 
+	    if(obj.isArray())
 		slot = indexToSlot(objFieldList.getSelectedIndex());
 
 	    // occurs if valueChanged picked up a clearSelection event from
@@ -252,9 +256,9 @@ public final class ObjectViewer extends JFrame
 	    queryArrayElementSelected = (slot == ARRAY_QUERY_SLOT_VALUE);
 
 	    // for array compression..
-	    if(queryArrayElementSelected) {	  // "..." in Array inspector 
+	    if(queryArrayElementSelected) {	  // "..." in Array inspector
 	    	setCurrentObj(null, null);	  //  selected
-		// check to see if elements are objects, 
+		// check to see if elements are objects,
 		// using the index replaced by this element
 		if(obj.instanceFieldIsObject(ARRAY_QUERY_INDEX))
 		    setButtonsEnabled(true, false);
@@ -314,8 +318,8 @@ public final class ObjectViewer extends JFrame
 
     /**
      * Compresses an array field name list to a maximum of 45 elements
-     * for display purposes.  When a selected element is chosen 
-     * indexToSlot allows the selection to be converted to the original 
+     * for display purposes.  When a selected element is chosen
+     * indexToSlot allows the selection to be converted to the original
      * array element position.
      *
      * @param  fullArrayFieldList the full field list for an array
@@ -326,14 +330,14 @@ public final class ObjectViewer extends JFrame
 	//** rewrite using Vector "remove" and "add"
 	if(fullArrayFieldList.size() > VISIBLE_ARRAY_FIELDS) {
 	    Vector newArray = new Vector(VISIBLE_ARRAY_FIELDS);
-	    
+
 	    for(int i = 0; i < VISIBLE_ARRAY_FIELDS; i++) {
 		// first 40 elements are the same
 		if(i < ARRAY_QUERY_INDEX)
 		    newArray.add(fullArrayFieldList.elementAt(i));
 		else if(i == ARRAY_QUERY_INDEX)
 		    newArray.add("[...]");
-		else 
+		else
 		    newArray.add(fullArrayFieldList.elementAt(
 		       i + fullArrayFieldList.size() - VISIBLE_ARRAY_FIELDS));
 	    }
@@ -352,7 +356,7 @@ public final class ObjectViewer extends JFrame
 	    if(response != null) {
 		try {
 		    int slot = Integer.parseInt(response);
-		    
+
 		    // check if within bounds of array
 		    if(slot >= 0 && slot < obj.getInstanceFieldCount()) {
 
@@ -373,18 +377,18 @@ public final class ObjectViewer extends JFrame
 		    }
 		    else // not within array bounds
 			DialogManager.showError(this, "out-of-bounds");
-		    
-		} 
+
+		}
 		catch(NumberFormatException e) {
 		    // input could not be parsed, eg. non integer value
 		    setCurrentObj(null, null);
 		    DialogManager.showError(this, "cannot-access-element");
 		}
-	
+
 	    }
-	    else {  
-		// set current object to null to avoid re-inspection of 
-		// previously selected wildcard 
+	    else {
+		// set current object to null to avoid re-inspection of
+		// previously selected wildcard
 	    	setCurrentObj(null, null);
 	    }
     }
@@ -400,11 +404,11 @@ public final class ObjectViewer extends JFrame
 	if(queryArrayElementSelected) {
 	    selectArrayElement();
 	}
-	
+
 	if(selectedObject != null) {
 
 	    boolean isPublic = getBtn.isEnabled();
-	    ObjectViewer viewer = getViewer(true, selectedObject, null, pkg, 
+	    ObjectViewer viewer = getViewer(true, selectedObject, null, pkg,
 					    isPublic, this);
 
 	    // If the newly opened object is public, enter it into the
@@ -431,10 +435,10 @@ public final class ObjectViewer extends JFrame
 					   wrapper.getName());
     }
 
-    
+
     /**
-     * 
-     * 
+     *
+     *
      */
     private void addToScope(String parentViewerId, String objectName)
     {
@@ -445,7 +449,7 @@ public final class ObjectViewer extends JFrame
 
 
     /**
-     * Close this viewer. Don't forget to remove it from the list of open 
+     * Close this viewer. Don't forget to remove it from the list of open
      * viewers.
      */
     private void doClose()
@@ -486,7 +490,7 @@ public final class ObjectViewer extends JFrame
     /**
      * Build the GUI interface.
      */
-    private void makeFrame(JFrame parent, boolean isInspection, 
+    private void makeFrame(JFrame parent, boolean isInspection,
 			   DebuggerObject obj)
     {
 	JScrollPane staticScrollPane = null;
@@ -500,7 +504,7 @@ public final class ObjectViewer extends JFrame
 	}
 	else
 	    setTitle(resultTitle);
-	    
+
 //	setFont(font);
 	setBackground(bgColor);
 
@@ -509,9 +513,10 @@ public final class ObjectViewer extends JFrame
 		doClose();
 	    }
 	});
-		
+
 	JPanel mainPanel = (JPanel)getContentPane();
-	mainPanel.setBorder(BorderFactory.createEmptyBorder(16,20,10,20));
+    mainPanel.setBorder(Config.generalBorder);
+//	mainPanel.setBorder(BorderFactory.createEmptyBorder(16,20,10,20));
 
 	int maxRows = 8;
 	int rows;
@@ -540,6 +545,9 @@ public final class ObjectViewer extends JFrame
 
 	objFieldList = new JList(new DefaultListModel());
 	objFieldList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    objFieldList.setCellRenderer(new MyCellRenderer());
+
+
 	objFieldList.addListSelectionListener(this);
 	objectScrollPane = new JScrollPane(objFieldList);
 
@@ -561,10 +569,10 @@ public final class ObjectViewer extends JFrame
 	    listPane.setDividerSize(Config.splitPaneDividerWidth);
 	    mainPanel.add(listPane, BorderLayout.CENTER);
 	}
-	else  
+	else
 	   mainPanel.add(objectScrollPane);
 
-	// add mouse listener to monitor for double clicks to inspect list 
+	// add mouse listener to monitor for double clicks to inspect list
 	// objects. assumption is made that valueChanged will have selected
 	// object on first click
 	MouseListener mouseListener = new MouseAdapter() {
@@ -576,14 +584,27 @@ public final class ObjectViewer extends JFrame
 	    }
 	};
 	objFieldList.addMouseListener(mouseListener);
-	
+
 	if(staticFieldList != null)
 	    staticFieldList.addMouseListener(mouseListener);
 
 
 	// Create panel with "inspect" and "get" buttons
 	JPanel buttonPanel = new JPanel();
-	buttonPanel.setLayout(new GridLayout(0, 1));
+//	buttonPanel.setLayout(new GridLayout(0, 1));
+
+
+//	JPanel buttonFramePanel = new JPanel();
+//	buttonFramePanel.setLayout(new BorderLayout(0,0));
+//	buttonFramePanel.setBorder(BorderFactory.createEmptyBorder(0,10,0,0));
+//	buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
+//	mainPanel.add(buttonFramePanel, BorderLayout.EAST);
+
+	// create bottom button pane with "Close" button
+
+	buttonPanel = new JPanel();
+	buttonPanel.setLayout(new FlowLayout());
+	buttonPanel.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 
 	inspectBtn = new JButton(inspectLabel);
 	inspectBtn.addActionListener(this);
@@ -595,23 +616,12 @@ public final class ObjectViewer extends JFrame
 	getBtn.addActionListener(this);
 	buttonPanel.add(getBtn);
 
-	JPanel buttonFramePanel = new JPanel();
-	buttonFramePanel.setLayout(new BorderLayout(0,0));
-	buttonFramePanel.setBorder(BorderFactory.createEmptyBorder(0,10,0,0));
-	buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
-	mainPanel.add(buttonFramePanel, BorderLayout.EAST);
-
-	// create bottom button pane with "Close" button
-
-	buttonPanel = new JPanel();
-	buttonPanel.setLayout(new FlowLayout());
-	buttonPanel.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 	JButton button = new JButton(close);
 	buttonPanel.add(button);
 	button.addActionListener(this);
 
 	mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-		
+
 	pack();
 	if(isInspection || pkg == null) {
 	    DialogManager.tileWindow(this, parent);
@@ -623,3 +633,37 @@ public final class ObjectViewer extends JFrame
 	button.requestFocus();
     }
 }
+
+
+
+  // Display an icon and a string for each object in the list.
+
+class MyCellRenderer extends DefaultListCellRenderer {
+
+	private static final ImageIcon object_icon =
+		new ImageIcon(Config.getImageFilename("image.objectviewer.object"));
+
+	private static final ImageIcon blank_icon =
+		new ImageIcon(Config.getImageFilename("image.objectviewer.blank"));
+
+     public Component getListCellRendererComponent(
+       JList list,
+       Object value,            // value to display
+       int index,               // cell index
+       boolean isSelected,      // is the cell selected
+       boolean cellHasFocus)    // the list and the cell have the focus
+     {
+        String s = value.toString();
+
+        if(s.endsWith("<object reference>"))
+            setIcon(object_icon);
+        else
+            setIcon(blank_icon);
+
+        Component c = super.getListCellRendererComponent(
+                                list, value, index, isSelected, cellHasFocus);
+
+        return c;
+     }
+ }
+
