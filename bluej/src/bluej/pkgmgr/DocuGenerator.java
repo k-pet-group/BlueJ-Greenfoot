@@ -12,17 +12,17 @@ import java.io.*;
 import java.net.*;
 
 /**
- * This class handles documentation generation from inside BlueJ. 
+ * This class handles documentation generation from inside BlueJ.
  * Documentation can be generated for a whole project or for a single class.
  * For each Project instance there should be one instance of DocuGenerator
  * that takes care of project documentation. Project documentation is written
- * into a directory in the project directory. 
+ * into a directory in the project directory.
  * The documentation for a single class serves merely as a preview option,
  * the documentation is thus generated in a temporary directory.
- * 
+ *
  * Information in this class belongs to one of three categories: <BR>
  * <BR>
- * Static information - valid for all runs of a generator (e.g. the name 
+ * Static information - valid for all runs of a generator (e.g. the name
  * (not the path!) of the directory where project documentation is written
  * to).<BR>
  * <BR>
@@ -140,7 +140,7 @@ public class DocuGenerator
             tmp.append((String)names.next());
         }
         String targets = new String(tmp);
-        
+
 
         // tool-specific infos for javadoc
         // get the parameter that enables javadoc to link the generated
@@ -177,7 +177,7 @@ public class DocuGenerator
         // build the call string
         String javadocCall = docCommand + fixedJavadocParams + tmpJavadocParams
             + " -d " + docTempDir.getPath() + " " + filename;
-        
+
         // build the URL for the result to be shown
         String className = new File(filename).getName();
         if (className.endsWith(".java"))
@@ -186,12 +186,12 @@ public class DocuGenerator
         String url = htmlFile.getPath();
 
         doCallThenBrowse(javadocCall,url);
-    }        
+    }
 
 
 
     /**
-     * Creates a separate thread that starts the external call for faster 
+     * Creates a separate thread that starts the external call for faster
      * return to the GUI. If the call was successful the URL given in 'url'
      * will be shown in a web browser.
      * @param call the call to the documentation generating tool.
@@ -208,9 +208,9 @@ public class DocuGenerator
 
 
     /**
-     * This class enables to run the external call for a documentation 
-     * generation in a different thread. An instance of this class gets   
-     * the string that constitutes the external call as a constructor 
+     * This class enables to run the external call for a documentation
+     * generation in a different thread. An instance of this class gets
+     * the string that constitutes the external call as a constructor
      * parameter. The second constructor parameter is the name of the
      * HTML file that should be opened by a web browser if the documentation
      * generation was successful.
@@ -237,31 +237,50 @@ public class DocuGenerator
                 Debug.message(docuCall);
                 docuRun = Runtime.getRuntime().exec(docuCall);
 
-                // consume the output of the external process, if any
-                BufferedReader reader = new BufferedReader(
-                              new InputStreamReader(docuRun.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    Debug.message(line);
+                Thread outEcho = new EchoThread(docuRun.getInputStream(), System.out);
+                Thread errEcho = new EchoThread(docuRun.getErrorStream(), System.out);
+                outEcho.start();
+                errEcho.start();
+                try {
+                    docuRun.waitFor();
+                    outEcho.join();
+                    errEcho.join();
+                }
+                catch(InterruptedException e) {
+                    System.err.println("Interrupted waiting for process");
                 }
 
-                docuRun.waitFor();
                 if (docuRun.exitValue() == 0) {
                     BlueJEvent.raiseEvent(BlueJEvent.DOCU_GENERATED,null);
                     Utility.openWebBrowser(showURL);
                 }
                 else {
-                    reader = new BufferedReader(
-                              new InputStreamReader(docuRun.getErrorStream()));
                     DialogManager.showMessageWithText(null,
-                                            "doctool-error",reader.readLine());
+                                            "doctool-error", "wow"); //reader.readLine());
                 }
             }
             catch (IOException exc) {
                 DialogManager.showMessage(null,"severe-doc-trouble");
             }
-            catch (InterruptedException exc) {
-                DialogManager.showMessage(null,"severe-doc-trouble");
+        }
+
+        private static class EchoThread extends Thread {
+            InputStream   readStream;
+            OutputStream  echoStream;
+            public EchoThread(InputStream r, OutputStream o) {
+                readStream = r;
+                echoStream = o;
+            }
+            public void run() {
+                try {
+                    byte[] buf = new byte[1000];
+                    int n;
+                    while((n = readStream.read(buf)) != -1)
+                        echoStream.write(buf, 0, n);
+                }
+                catch(IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -295,7 +314,7 @@ public class DocuGenerator
      * javadoc can link the generated documentation to existing documentation.
      * This method constructs the javadoc parameter to set the link to the
      * Java API. To make sure that javadoc is happy we test whether the file
-     * that javadoc needs (a list of all package names of the API) is 
+     * that javadoc needs (a list of all package names of the API) is
      * accessible via the link provided in the BlueJ properties file.
      * @return the link parameter if the link is working, "" otherwise.
      */
@@ -307,7 +326,7 @@ public class DocuGenerator
         if (docURL.endsWith("index.html")) {
             // this is the parameter javadoc expects
             String docURLDir=docURL.substring(0,docURL.indexOf("index.html"));
-            
+
             // test whether this URL is valid: try to read package list file
             try {
                 URL packList = new URL(docURLDir + "package-list");
