@@ -3,7 +3,6 @@ package bluej;
 import java.awt.*;
 import javax.swing.*;
 
-import java.awt.event.*;
 import java.net.URL;
 
 /**
@@ -11,42 +10,52 @@ import java.net.URL;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 2370 2003-11-19 00:50:01Z ajp $
+ * @version $Id: SplashWindow.java 2439 2003-12-11 14:52:51Z fisker $
  */
 
 public class SplashWindow extends JWindow
-    implements WindowListener
 {
-    private JLabel image;
+	
+	private class BlueJLabel extends JLabel {
+		BlueJLabel(ImageIcon iconImage){
+			super(iconImage);
+		}
+		
+		public void paint(Graphics g){
+			super.paint(g);
+			g.setColor(new Color(51,102,153));
+			g.setFont(new Font("SansSerif", Font.PLAIN, 16));
+			g.drawString("Version " + Boot.BLUEJ_VERSION, 26, image.getHeight()-20);
+			g.drawString("Version " + Boot.BLUEJ_VERSION, 26, image.getHeight()-20);
+		}
+	}
+	
+    private BlueJLabel image;
 
     public SplashWindow()
     {
-    	// must start with a forward slash or else Java converts the .
-    	// to a /
+//    	// must start with a forward slash or else Java converts the .
+//    	// to a /
     	URL iconURL = getClass().getResource("/bluej/splash.jpg");
     	
         ImageIcon icon = new ImageIcon(iconURL);
-        // Note: it is intentional that the forward slash is used here
-        // for all systems. See the documentation of 
-        // getResource()
-
-        image = new JLabel(icon);
+//        // Note: it is intentional that the forward slash is used here
+//        // for all systems. See the documentation of 
+//        // getResource()
+//
+        image = new BlueJLabel(icon);
         image.setBorder(BorderFactory.createLineBorder(Color.black, 1));
         getContentPane().add(image);
-
         pack();
 
         // centre on screen
         Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((screenDim.width - getSize().width)/2,
                     (screenDim.height - getSize().height)/2);
-        addWindowListener(this);
         setVisible(true);
-
-        // for testing - if you want to look at it a bit longer...
-        //try { Thread.sleep(8000); } catch (Exception e) {}
     }
 
+    
     /**
      * Remove this splash screen from screen. Since we never need it again,
      * throw it away completely.
@@ -55,25 +64,5 @@ public class SplashWindow extends JWindow
     {
         dispose();
     }
-
-    // -------- WindowListener methods --------
-
-    /**
-     * Draw the version string on top of the picture.
-     */
-    public void windowOpened(WindowEvent e)
-    {
-        Graphics2D g = (Graphics2D)getGlassPane().getGraphics();
-        g.setColor(new Color(51,102,153));
-        g.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        g.drawString("Version " + Boot.BLUEJ_VERSION, 26, image.getHeight()-20);
-    }
-
-    public void windowActivated(WindowEvent e) {}
-    public void windowClosed(WindowEvent e) {}
-    public void windowClosing(WindowEvent e) {}
-    public void windowDeactivated(WindowEvent e) {}
-    public void windowDeiconified(WindowEvent e) {}
-    public void windowIconified(WindowEvent e) {}
 }
 
