@@ -369,7 +369,7 @@ bluej.compiler.source14=false
 ## This can also be switched in the preferences dialog.
 #####################################################################
 
-bluej.vm.optimize=false
+bluej.vm.optimize=true
 
 
 #######################################################################
