@@ -9,39 +9,41 @@ import bluej.Config;
  *  Your class MUST have an empty parameters constructor 
  *  and it must implement all the abstract methods.
  *
- * @version    $Id: Extension.java 1644 2003-03-05 11:24:04Z damiano $
+ * @version    $Id: Extension.java 1654 2003-03-06 09:37:47Z damiano $
  */
 public abstract class Extension
 {
     /**
-     * The major version number of the Extension API
+     * The major version number of the Extension API.
      * do NOT make it final othervise the compiler will cache it and it will seem immutable
+     * do NOT make it static, if one want to mess about it will mess its own...
      */
-    public static int VERSION_MAJOR = 2;
+    public int VERSION_MAJOR = 2;
 
     /**
-     *  The minor version number of the Extension API
-     *  do NOT make it final othervise the compiler will cache it and it will seem immutable
+     * The minor version number of the Extension API.
+     * do NOT make it final othervise the compiler will cache it and it will seem immutable
+     * do NOT make it static, if one want to mess about it will mess its own...
      */
-    public static int VERSION_MINOR = 1;
+    public int VERSION_MINOR = 1;
 
     /**
-     *  Determine whether this extension is compatible with a particular version
-     *  of the extensions API. This method is called BEFORE the startup method.
-     *  The extension writer can use the Extension.VERSION_MAJOR and MINOR as an aid to determine
-     *  if his extension is compatible with the current BlueJ release.
+     * Determine whether this extension is compatible with a particular version
+     * of the extensions API. This method is called BEFORE the startup method.
+     * The extension writer can use the VERSION_MAJOR and MINOR as an aid to determine
+     * if his extension is compatible with the current BlueJ release.
      *
      * @return true or false
      */
     public abstract boolean isCompatible();
 
     /**
-     *  After your class is created this method is called A reference on the
-     *  relevant BlueJ object is passed so you can interact with BlueJ This is
-     *  NOT a thread. You MUST return as quick as possible from this method. If
-     *  you start doing something you should create your own thread.
+     * After your class is created this method is called A reference on the
+     * relevant BlueJ object is passed so you can interact with BlueJ This is
+     * NOT a thread. You MUST return as quick as possible from this method. If
+     * you start doing something you should create your own thread.
      *
-     * @param  bluej  Description of the Parameter
+     * @param  bluej  The statring point to interact with BlueJ
      */
     public abstract void startup(BlueJ bluej);
 
@@ -56,7 +58,7 @@ public abstract class Extension
      *  null message string that I may display to the user :-) In ANY case I am
      *  going to disconnect
      *
-     * @return    Description of the Return Value
+     * @return    A possible not null string that will be sent to the console
      */
     public abstract String terminate();
 
