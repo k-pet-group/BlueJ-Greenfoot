@@ -18,7 +18,7 @@ import java.util.*;
 
 
 /**
- ** @version $Id: MethodDialog.java 69 1999-05-11 04:23:02Z bruce $
+ ** @version $Id: MethodDialog.java 190 1999-07-17 02:36:27Z ajp $
  **
  ** @author Michael Cahill
  ** @author Bruce Quig
@@ -77,18 +77,15 @@ public class MethodDialog extends JDialog
 
     public MethodDialog(Package pkg, String className, String instanceName, MemberView method)
     {
-	super(pkg.getFrame(), false);
-	JPanel butPanel = new JPanel();
-	JPanel centerPanel = new JPanel();
+        super(pkg.getFrame(), false);
+
 	boolean hasArgs = false;
 	history = pkg.getCallHistory();
 	bench = pkg.getBench();
-	status = new MultiLineLabel("\n\n");
+	status = new MultiLineLabel("\n\n",JLabel.LEFT);
 	status.setForeground(Color.red);
 	JPanel statusPanel = new JPanel();
 	statusPanel.setMinimumSize(new Dimension(120,40));
-	
-	centerPanel.setLayout(new BorderLayout());
 
 	// Set up Cursor bug workaround to allow a WAIT_CURSOR to be shown
 	Component glass = getGlassPane(); 
@@ -99,74 +96,91 @@ public class MethodDialog extends JDialog
 	});
 	// end of Workaround
 
-
-	// Find out the type of dialog and if hasArgs
-	if( method instanceof MethodView ) {
-	    dialogType = MD_CALL;
-	    methodName = ((MethodView)method).getName();
-	    hasArgs = ((MethodView)method).hasParameters();
-	}		
-	else if (method instanceof ConstructorView ) {
-	    dialogType = MD_CREATE;
-	    hasArgs = ((ConstructorView)method).hasParameters();
+    // Find out the type of dialog and if hasArgs
+    if( method instanceof MethodView ) {
+        dialogType = MD_CALL;
+        methodName = ((MethodView)method).getName();
+        hasArgs = ((MethodView)method).hasParameters();
+    }		
+    else if (method instanceof ConstructorView ) {
+        dialogType = MD_CREATE;
+        hasArgs = ((ConstructorView)method).hasParameters();
 	}
 
-	getContentPane().setLayout(new BorderLayout());
 
-	descPanel = new JPanel();
-	descPanel.setLayout(new FlowLayout());
+		JPanel dialogPanel = new JPanel();
+		{
+            descPanel = new JPanel();
+            {
+				descPanel.setAlignmentX(LEFT_ALIGNMENT);
+            }
 
+            JPanel centerPanel = new JPanel();
+            {
+    			centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+				centerPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-	// Create the Button Panel
-	butPanel.setLayout(new FlowLayout());
-	butPanel.add(bOk = new JButton(okayCommand));
-	bOk.addActionListener(this);
-
-	butPanel.add(bCancel = new JButton(Config.getString("cancel")));
-	bCancel.addActionListener(this);
-
-	getContentPane().add("South", butPanel);
-	getContentPane().add("North", descPanel);
-	getRootPane().setDefaultButton(bOk);
-
-	// parse method signature for param fields, there may be a better way
-	String[] paramNames = null;	
-	if(hasArgs) 
-	    paramNames = parseParamNames(method.getLongDesc());
-
-	//
-	// Set dialog items depends on the Dialog type
-	//
-	switch (dialogType) {
+            	// parse method signature for param fields, there may be a better way
+            	String[] paramNames = null;	
+            	if(hasArgs) 
+            	    paramNames = parseParamNames(method.getLongDesc());
+            
+            	//
+            	// Set dialog items depends on the Dialog type
+            	//
+            	switch (dialogType) {
+            	
+            	 case MD_CALL:		
+            	    makeCallDialog(instanceName, method, paramNames, centerPanel);
+            	    break;
+            
+            	 case MD_CREATE:
+            	    makeCreateDialog(className, instanceName, method, paramNames, 
+            			     centerPanel);
+            	    break;
+            	    
+            	 default:	// error!
+            	    throw new Error("Invalid MethodDialog type " + dialogType);
+            	}
+            	
+            	statusPanel.add(status);	
+            	centerPanel.add(statusPanel);
+            }
+            
+            // create the Button Panel
+            JPanel butPanel = new JPanel();
+            {
+                butPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+				butPanel.setAlignmentX(LEFT_ALIGNMENT);
+                
+                butPanel.add(bOk = new JButton(Config.getString("okay")));
+                bOk.addActionListener(this);
+            
+            	butPanel.add(bCancel = new JButton(Config.getString("cancel")));
+            	bCancel.addActionListener(this);
+                getRootPane().setDefaultButton(bOk);
+            }
 	
-	case MD_CALL:		
-	    makeCallDialog(instanceName, method, paramNames, centerPanel);
-	    break;
+			dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
+			dialogPanel.setBorder(Config.generalBorder);
 
-	case MD_CREATE:
-	    makeCreateDialog(className, instanceName, method, paramNames, 
-			     centerPanel);
-	    break;
-	    
-	default:	// error!
-	    throw new Error("Invalid MethodDialog type " + dialogType);
-	}
-	
-	statusPanel.add(status);	
-	centerPanel.add("Center", statusPanel);
-	
-    
-	getContentPane().add("Center", centerPanel);
+			dialogPanel.add(descPanel);
+			dialogPanel.add(centerPanel);
+			dialogPanel.add(butPanel);
+        }
+
+		getContentPane().add(dialogPanel);
+		pack();
 		
-	// Set some attributes for this DialogBox
-	Utility.centreDialog(this);
+        // Set some attributes for this DialogBox
+        Utility.centreDialog(this);
 
-	// Close Action when close button is pressed
-	addWindowListener(new WindowAdapter() {
-	    public void windowClosing(WindowEvent event) {
-		setVisible(false);
-	    }
-	});
+        // Close Action when close button is pressed
+        addWindowListener(new WindowAdapter() {
+    	    public void windowClosing(WindowEvent event) {
+	        	setVisible(false);
+	        }
+	    });
     }
 
 
@@ -227,7 +241,8 @@ public class MethodDialog extends JDialog
 		tmpPanel.add(eol);
 	    }
 	    tmpPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-	    panel.add("North", tmpPanel);
+		tmpPanel.setAlignmentX(LEFT_ALIGNMENT);
+	    panel.add(tmpPanel);
 	}
     } // makeCallDialog
 
@@ -466,10 +481,10 @@ public class MethodDialog extends JDialog
      */
     public void setDescription(MultiLineLabel label)
     {
-	descPanel.removeAll();
-	descPanel.add(label);
-	invalidate();
-	validate();
+        descPanel.removeAll();
+        descPanel.add(label);
+        invalidate();
+        validate();
     }
 	
     /**
