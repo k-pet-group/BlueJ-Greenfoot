@@ -5,11 +5,14 @@ import java.util.*;
 
 import javax.swing.event.EventListenerList;
 
-import bluej.*;
+import bluej.BlueJEvent;
+import bluej.Config;
 import bluej.debugger.*;
+import bluej.debugger.gentype.GenType;
 import bluej.debugmgr.Invoker;
 import bluej.runtime.ExecServer;
-import bluej.utility.*;
+import bluej.utility.Debug;
+import bluej.utility.JavaNames;
 
 import com.sun.jdi.*;
 
@@ -28,7 +31,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2510 2004-04-28 04:08:57Z davmac $
+ * @version $Id: JdiDebugger.java 2689 2004-06-30 00:57:40Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -561,10 +564,16 @@ public class JdiDebugger extends Debugger
     	throws ClassNotFoundException
     {
 		// Debug.message("[getStaticValue] " + className + ", " + fieldName);
-		ObjectReference ob = getVM().getStaticValue(className, fieldName);
-		
+        ClassType rt = (ClassType)getVM().findClassByName(className);
+		Field f = rt.fieldByName(fieldName);
+        if(f == null)
+            return null;
+            
+        ObjectReference ob = getVM().getStaticFieldObject(rt, fieldName);
+		GenType expectedType = JdiReflective.fromField(f, rt);
+        
 		if (ob != null)
-			return JdiObject.getDebuggerObject(ob);
+			return JdiObject.getDebuggerObject(ob, expectedType);
 		else
 			return null;
     }

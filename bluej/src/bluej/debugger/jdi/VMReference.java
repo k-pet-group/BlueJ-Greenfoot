@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2606 2004-06-14 06:13:46Z davmac $
+ * @version $Id: VMReference.java 2689 2004-06-30 00:57:40Z davmac $
  *
  * The startup process is as follows:
  *
@@ -464,11 +464,11 @@ class VMReference
 //        								 ExecServer.EXIT_EXCEPTION_NAME);
 
 		// get our main server thread
-		serverThread = (ThreadReference) getStaticField(serverClass,
+		serverThread = (ThreadReference) getStaticFieldObject(serverClass,
 														ExecServer.MAIN_THREAD_NAME);		
 
 		// get our worker thread
-		workerThread = (ThreadReference) getStaticField(serverClass,
+		workerThread = (ThreadReference) getStaticFieldObject(serverClass,
 														ExecServer.WORKER_THREAD_NAME);		
 
 		if (serverThread == null || workerThread == null) {
@@ -970,7 +970,7 @@ class VMReference
 
         return (ObjectReference) cl.getValue(resultField);
     }
-
+    
     /**
      * Return a list of the Locations of user breakpoints in the
      * VM.
@@ -1082,7 +1082,8 @@ class VMReference
 		// go through the args and if any aren't VM reference types
 		// then fail (unless they are strings in which case we
 		// mirror them onto the vm)
-		for (ListIterator lit = args.listIterator(); lit.hasNext();) {
+		machine.suspend();
+        for (ListIterator lit = args.listIterator(); lit.hasNext();) {
 			Object o = lit.next();
 
 			if (o instanceof String) {
@@ -1094,6 +1095,7 @@ class VMReference
 				throw new IllegalArgumentException("invokeStaticRemoteMethod passed a non-Mirror argument");
 			}
 		}
+        machine.resume();
 
 		// machine.setDebugTraceMode(VirtualMachine.TRACE_EVENTS | VirtualMachine.TRACE_OBJREFS);
 
@@ -1177,7 +1179,7 @@ class VMReference
             }
             
             // Get the new thread as our server thread.
-            serverThread = (ThreadReference) getStaticField(serverClass,
+            serverThread = (ThreadReference) getStaticFieldObject(serverClass,
                     ExecServer.MAIN_THREAD_NAME);       
             
             if (propagateException)
@@ -1227,7 +1229,7 @@ class VMReference
 	 * @param fieldName
 	 * @return
 	 */
-	private ObjectReference getStaticField(ClassType cl, String fieldName)
+	ObjectReference getStaticFieldObject(ClassType cl, String fieldName)
 	{
 		Field resultField = cl.fieldByName(fieldName);
 
@@ -1266,6 +1268,21 @@ class VMReference
 		throw new ClassNotFoundException(className);
     }
 
+    /**
+     * Find the mirror of a class/interface/array in the remote VM.
+     * 
+     * @param className   the name of the class to find
+     * @return            a reference to the class
+     * 
+     * @throws ClassNotFoundException
+     */
+    public ReferenceType findClassByName(String className)
+        throws ClassNotFoundException
+    {
+        return findClassByName(className, currentLoader);
+    }
+
+    
     /**
      * Find the mirror of a method in the remote VM.
      *

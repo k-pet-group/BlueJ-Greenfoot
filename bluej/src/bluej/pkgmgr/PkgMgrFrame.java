@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2683 2004-06-29 10:54:34Z mik $
+ * @version $Id: PkgMgrFrame.java 2689 2004-06-30 00:57:40Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1292,16 +1292,16 @@ public class PkgMgrFrame extends JFrame
                         name = "result";
                         
                     if(result != null) {
-                      //BeanShell does not need to use the realresult, but can use result directly
-                        DebuggerObject realResult = result.getInstanceFieldObject(0);
+                        //BeanShell does not need to use the realresult, but can use result directly
+                        //DebuggerObject realResult = result.getInstanceFieldObject(0);
 
                         ObjectWrapper wrapper = ObjectWrapper.getWrapper(
                                                        PkgMgrFrame.this, getObjectBench(),
-                                                       realResult,
+                                                       result,
                                                        name);
                         getObjectBench().add(wrapper);
 
-                        getPackage().getDebugger().addObject(wrapper.getName(), realResult);
+                        getPackage().getDebugger().addObject(wrapper.getName(), result);
                                                 
                         getObjectBench().addInteraction(ir);
                     }

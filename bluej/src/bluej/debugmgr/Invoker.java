@@ -28,7 +28,7 @@ import bluej.views.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2673 2004-06-28 14:30:30Z mik $
+ * @version $Id: Invoker.java 2689 2004-06-30 00:57:40Z davmac $
  */
 
 public class Invoker extends Thread
@@ -422,19 +422,21 @@ public class Invoker extends Thread
         String command;             // the interactive command in text form
         boolean isVoid = false;
         
+        String constype = null;
         if(constructing) {
-            command = "new " + cleverQualifyTypeName(pkg, className);
+            constype = cleverQualifyTypeName(pkg, className);
             if(typeParams!=null && typeParams.length>0) {
-                command+="<";
+                constype+="<";
                 for (int i = 0; i < typeParams.length; i++) {
                     String typeParam = typeParams[i];
-                    command+=typeParam;
+                    constype+=typeParam;
                     if(i<(typeParams.length-1)) {
-                        command+=",";
+                        constype+=",";
                     }
                 }
-                command+=">";
+                constype+=">";
             }
+            command = "new " + constype;
             ir = new ConstructionInvokerRecord(className, instanceName, command + actualArgString);
 
 //          BeanShell
@@ -471,7 +473,7 @@ public class Invoker extends Thread
         //beanShellExecute(commandAsString);
         
         File shell = writeInvocationFile(pkg, paramInit, 
-                            command + argString, constructing, isVoid);
+                            command + argString, constructing, isVoid, constype);
 
         commandString = command + actualArgString;
         compileInvocationFile(shell);
@@ -501,7 +503,7 @@ public class Invoker extends Thread
         }
                 
         File shell = writeInvocationFile(pkg, "", commandString, 
-                                          false, !hasResult);
+                                          false, !hasResult, null);
 
         executionEvent.setCommand(commandString);
         compileInvocationFile(shell);
@@ -527,7 +529,8 @@ public class Invoker extends Thread
      */
     private File writeInvocationFile(Package pkg, 
                                      String paramInit, String callString,
-                                     boolean constructing, boolean isVoid)
+                                     boolean constructing, boolean isVoid,
+                                     String constype)
     {
         // Create package specification line ("package xyz")
 
@@ -541,8 +544,10 @@ public class Invoker extends Thread
 
         StringBuffer buffer = new StringBuffer();
         if (!isVoid) {
-            if(constructing)
-                buffer.append("public static bluej.runtime.ObjectResultWrapper");
+            if(constructing) {
+                buffer.append("public static ");
+                buffer.append(constype);
+            }
             else
                 buffer.append("public static Object");
             buffer.append(" __bluej_runtime_result;");
@@ -588,10 +593,11 @@ public class Invoker extends Thread
 
         if(constructing) {
             // A sample of the code generated (for a constructor)
-            //  __bluej_runtime_result = makeObj((Object) new SomeType(2,"adb"));
+            //  __bluej_runtime_result = new SomeType(2,"adb");
 
-            buffer.append("__bluej_runtime_result = makeObj((Object)");
-            buffer.append(callString + ");" + Config.nl);
+            buffer.append("__bluej_runtime_result = ");
+            buffer.append(callString);
+            buffer.append(";" + Config.nl);
         }
         else {
             // A sample of the code generated (for a method call)
