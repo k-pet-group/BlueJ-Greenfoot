@@ -112,7 +112,7 @@ prefmgr.misc.linkToLibNoteLine1=If this URL is used for generating documentation
 prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail. To work offline, uncheck this option.
 
 # Extensions Manager Help panel
-extmgr.title=Installed Extensions
+extmgr.title=BlueJ:  Installed Extensions
 extmgr.extensions=Extensions
 extmgr.installed=Installed
 extmgr.project=Project
