@@ -659,7 +659,6 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
-            Debug.message("describe..");
             JTextComponent textComponent = getTextComponent(e);
             textComponent.addKeyListener(keyCatcher);
             MoeEditor ed = getEditor(e);

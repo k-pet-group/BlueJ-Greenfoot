@@ -2,7 +2,7 @@
 /**
  ** hello.java
  **
- ** Test program to demonstrate JavaBlue
+ ** Test program to demonstrate BlueJ
  **/
 
 public class hello
@@ -20,7 +20,7 @@ public class hello
     }
 	
     	/**
-     * main method for testing outside JavaBlue 
+     * main method for testing outside BlueJ 
      */
     public static void main(String[] args)
     {

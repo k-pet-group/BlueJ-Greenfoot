@@ -13,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about dialog
  *
  * @author  Justin Tan
- * @version $Id: AboutBlue.java 511 2000-05-25 05:32:22Z mik $
+ * @version $Id: AboutBlue.java 549 2000-06-14 03:26:05Z mik $
  */
 class AboutBlue extends JDialog
 {
@@ -30,17 +30,31 @@ class AboutBlue extends JDialog
         // Create Text Panel
         MultiLineLabel text = new MultiLineLabel(LEFT_ALIGNMENT);
         text.setBackground(Color.white);
-        text.addText("BlueJ version " + version, true, false);
-        text.addText("\nThe BlueJ development environment was\n" +
-            		 "developed at Monash University.");
-        text.addText("\nThe BlueJ team:", false, true);
+        text.addText("BlueJ version " + version + 
+                     "  (Java version " + System.getProperty("java.version") +
+                     ")", true, false);
+        text.addText(" ");
+        text.addText("Virtual machine: " +
+                     System.getProperty("java.vm.name") + " " +
+                     System.getProperty("java.vm.version") +
+                     " (" + System.getProperty("java.vm.vendor") + ")");
+        text.addText("Running on: " + System.getProperty("os.name") +
+                     " " + System.getProperty("os.version") +
+                     " (" + System.getProperty("os.arch") + ")");
+ 
+        text.addText(" ");
+        text.addText("The BlueJ development environment was\n" +
+            		 "developed at Monash University, Australia.");
+        text.addText(" ");
+        text.addText("The BlueJ team:", false, true);
         text.addText("      Michael K\u00F6lling\n" +
                      "      Markus Ostman\n" +
                      "      Andrew Patterson\n" +
                      "      Bruce Quig\n" +
                      "      John Rosenberg\n" +
                      "      Axel Schmolitzky");
-        text.addText("\nFor more information contact Michael K\u00F6lling\n" +
+        text.addText(" ");
+        text.addText("For more information contact Michael K\u00F6lling\n" +
                      "(mik@monash.edu.au).");
 
         aboutPanel.add(text, BorderLayout.CENTER);
