@@ -17,7 +17,7 @@ import java.io.File;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 2218 2003-10-23 02:25:46Z bquig $
+ * @version $Id: Main.java 2233 2003-10-29 00:10:39Z bquig $
  */
 public class Main
 {
@@ -92,19 +92,34 @@ public class Main
                         if((openProj = Project.openProject(exists)) != null) {
                             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
                             PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
+                            oneOpened = true;
                         }
                 
+                    }
+                    // this should only happen if there was one old project to auto-open
+                    // and it cannot be found
+                    else if (!oneOpened) {
+                        openEmptyFrame();
                     }
                 }
             }
         
             else {
-            // no arguments, so start an empty package manager window
-            PkgMgrFrame frame = PkgMgrFrame.createFrame();
-            frame.setLocation(FIRST_X_LOCATION, FIRST_Y_LOCATION);
-            frame.show();
+                // no arguments, so start an empty package manager window
+                openEmptyFrame();
             }
         }
+    }
+    
+    /**
+     * Open a single empty bluej window.
+     *
+     */
+    private void openEmptyFrame()
+    {
+        PkgMgrFrame frame = PkgMgrFrame.createFrame();
+        frame.setLocation(FIRST_X_LOCATION, FIRST_Y_LOCATION);
+        frame.show(); 
     }
 
     /**
