@@ -17,7 +17,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2578 2004-06-09 11:43:24Z fisker $
+ * @version $Id: ObjectBench.java 2580 2004-06-09 17:31:43Z fisker $
  */
 public class ObjectBench
 {
@@ -89,6 +89,8 @@ public class ObjectBench
 
         // start with a clean slate recording invocations
         resetRecordingInteractions();
+        
+       containerPanel.setFocusable(false);
     }
 
     /**
@@ -448,13 +450,25 @@ public class ObjectBench
 		objectWrappers.add(wrapper);
         obp.setPreferredSize(new Dimension(obp.getLayoutWidthMin(), ObjectWrapper.HEIGHT));
         enableButtons(viewPort.getViewPosition());
-//        obp.setSize(new Dimension(obp.getLayoutWidthMin(), HEIGHT));
-//        obp.invalidate();
-//        obp.validate();
+        updateFocusability();
         obp.revalidate();
         obp.repaint();
     }
 
+    
+    //
+    private void updateFocusability(){
+    	System.err.println("updated focusabitity");
+    	if (getObjectWrapperCount() > 0){
+    		containerPanel.setFocusable(true);
+    	}
+    	else{
+    		containerPanel.transferFocusBackward();
+    		containerPanel.setFocusable(false);
+    	}
+    	
+    }
+    
     /**
      * Return all the wrappers stored in this object bench in an array
      */
@@ -527,6 +541,7 @@ public class ObjectBench
         resetRecordingInteractions();
                       
         enableButtons(viewPort.getViewPosition());
+        updateFocusability();
     	obp.revalidate();
         obp.repaint();
     }
@@ -552,7 +567,8 @@ public class ObjectBench
         // pull objects to the right if there is empty space on the right-
         // hand side 
         moveBench(0);
-
+        
+        updateFocusability();
     	obp.revalidate();
     	obp.repaint();
     }
