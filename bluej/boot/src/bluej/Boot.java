@@ -24,14 +24,14 @@ import sun.misc.*;
  * @author	Andrew Patterson
  * @author	Damiano Bolla
  * @author	Michael Kolling
- * @version $Id: Boot.java 2119 2003-07-18 04:46:18Z ajp $
+ * @version $Id: Boot.java 2149 2003-08-05 14:39:42Z mik $
  */
 public class Boot
 {
     public static int BLUEJ_VERSION_MAJOR = 1;
     public static int BLUEJ_VERSION_MINOR = 3;
     public static int BLUEJ_VERSION_RELEASE = 0;
-    public static String BLUEJ_VERSION_SUFFIX = " beta 4";
+    public static String BLUEJ_VERSION_SUFFIX = "";
 
     public static int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
                                              BLUEJ_VERSION_MINOR * 100 +
