@@ -1,17 +1,14 @@
-/**
- ** A type-ahead input buffer for the BlueJ terminal. Implemented with
- ** a circular array.
- **
- ** @author Michael Kolling
- ** @version
- **/
-
 package bluej.terminal;
-
-import bluej.utility.Debug;
 
 import java.awt.Toolkit;
 
+/**
+ * A type-ahead input buffer for the BlueJ terminal. Implemented with
+ * a circular array.
+ *
+ * @author  Michael Kolling
+ * @version $Id: InputBuffer.java 1776 2003-04-10 04:20:56Z ajp $
+ */
 public final class InputBuffer 
 {
     private char[] buffer;
@@ -102,5 +99,4 @@ public final class InputBuffer
         pos--;
         return (pos < 0 ? bufferSize - 1 : pos);
     }
-
 }

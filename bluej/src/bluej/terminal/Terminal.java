@@ -1,29 +1,22 @@
 package bluej.terminal;
 
-import bluej.Config;
-import bluej.BlueJEvent;
-import bluej.BlueJEventListener;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
-import bluej.utility.FileUtility;
-import bluej.utility.DialogManager;
-
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+
 import javax.swing.*;
-import javax.swing.text.*;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.io.FileWriter;
+import javax.swing.text.BadLocationException;
+
+import bluej.*;
+import bluej.prefmgr.PrefMgr;
+import bluej.utility.*;
 
 /**
  * The Frame part of the Terminal window used for I/O when running programs
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 1738 2003-04-02 07:48:26Z mik $
+ * @version $Id: Terminal.java 1776 2003-04-10 04:20:56Z ajp $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener

@@ -1,19 +1,16 @@
 package bluej.terminal;
 
-import bluej.Config;
+import javax.swing.JTextArea;
+import javax.swing.text.BadLocationException;
+
 import bluej.utility.Debug;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.text.*;
-
 /**
- ** A customised text area for use in the BlueJ text terminal.
- **
- ** @author Michael Kolling
- **/
-
+ * A customised text area for use in the BlueJ text terminal.
+ *
+ * @author  Michael Kolling
+ * @version $Id: TermTextArea.java 1776 2003-04-10 04:20:56Z ajp $
+ */
 public final class TermTextArea extends JTextArea
 {
     private static final int BUFFER_LINES = 48;
