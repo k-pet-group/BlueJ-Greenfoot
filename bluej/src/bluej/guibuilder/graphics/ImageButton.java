@@ -119,21 +119,43 @@ public class ImageButton extends Component {
     public ImageButton(Image image) {
         this(image, _defaultThickness);
     }
-	public ImageButton(Image image, int thickness) {
-		this(image, thickness, null);
+    public ImageButton(Image image, String bubble) {
+        this(image, _defaultThickness);
+		this.setBubbleHelp(bubble);
     }
-    public ImageButton(String imgstr) {
-		this(Toolkit.getDefaultToolkit().getImage(imgstr), _defaultThickness);
+	public ImageButton(Image image, int thickness) {
+		this(image, thickness, (ImageButtonListener)null);
+    }
+	public ImageButton(Image image, int thickness, String bubble) {
+		this(image, thickness, (ImageButtonListener)null);
+		this.setBubbleHelp(bubble);
+    }
+    public ImageButton(String image) {
+		this(Toolkit.getDefaultToolkit().getImage(image), _defaultThickness);
+    }
+    public ImageButton(String image, String bubble) {
+		this(Toolkit.getDefaultToolkit().getImage(image), _defaultThickness);
+		this.setBubbleHelp(bubble);
     }
     public ImageButton(String image, int thickness) {
-		this(Toolkit.getDefaultToolkit().getImage(image), thickness, null);
+		this(Toolkit.getDefaultToolkit().getImage(image), thickness, (ImageButtonListener)null);
     }
-    public ImageButton(String image, int thickness,
-	                   ImageButtonListener listener) {
+    public ImageButton(String image, int thickness, String bubble) {
+		this(Toolkit.getDefaultToolkit().getImage(image), thickness, (ImageButtonListener)null);
+		this.setBubbleHelp(bubble);
+    }
+    public ImageButton(String image, int thickness, ImageButtonListener listener) {
 		this(Toolkit.getDefaultToolkit().getImage(image), thickness, listener);
     }
-	public ImageButton(Image image, int thickness,
-	                   ImageButtonListener listener) {
+    public ImageButton(String image, int thickness, ImageButtonListener listener, String bubble) {
+		this(Toolkit.getDefaultToolkit().getImage(image), thickness, listener);
+		this.setBubbleHelp(bubble);
+    }
+	public ImageButton(Image image, int thickness, ImageButtonListener listener, String bubble) {
+		this(image, thickness, listener);
+		this.setBubbleHelp(bubble);
+	}
+	public ImageButton(Image image, int thickness, ImageButtonListener listener) {
 		setThickness(thickness);
 
 		if(image != null)
