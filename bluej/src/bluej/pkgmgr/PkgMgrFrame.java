@@ -47,7 +47,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2597 2004-06-12 19:44:28Z mik $
+ * @version $Id: PkgMgrFrame.java 2602 2004-06-13 18:16:54Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2176,7 +2176,7 @@ public class PkgMgrFrame extends JFrame
         Dimension pref = button.getMinimumSize();
         pref.width = Integer.MAX_VALUE;
         button.setMaximumSize(pref);
-        button.setMargin(new Insets(4, 0, 4, 2));
+        button.setMargin(new Insets(4, 2, 4, 2));
 
         return button;
     }

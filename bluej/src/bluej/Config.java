@@ -34,7 +34,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2584 2004-06-10 13:15:40Z fisker $
+ * @version $Id: Config.java 2602 2004-06-13 18:16:54Z fisker $
  */
 
 public final class Config
@@ -457,19 +457,19 @@ public final class Config
      */
     public static KeyStroke getAcceleratorKey(String strname){
         int index;
-        String modifiers = "ctrl ";
-        KeyStroke keyStroke;
+        int modifiers = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
         String str = lang_props.getProperty(strname, strname);
         String keyString;
         index = str.indexOf('@');
         index++;
         if (str.charAt(index) == '^'){ //then the modifiers is CTRL + SHIFT
             index++;
-            modifiers = "shift ctrl ";
+            modifiers |= KeyEvent.SHIFT_MASK;
         }
         keyString = str.substring(index).toUpperCase();
-        keyStroke = KeyStroke.getKeyStroke(modifiers + keyString);
-        return keyStroke;
+        KeyStroke k1= KeyStroke.getKeyStroke(keyString);
+        KeyStroke k2= KeyStroke.getKeyStroke(k1.getKeyCode(), modifiers);
+        return k2;
     }
     
     

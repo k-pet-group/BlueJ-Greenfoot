@@ -9,7 +9,7 @@ import bluej.pkgmgr.target.ReadmeTarget;
 /**
  * Paints a ReadmeTarget
  * @author fisker
- * @version $Id: ReadmeTargetPainter.java 2590 2004-06-11 11:29:14Z fisker $
+ * @version $Id: ReadmeTargetPainter.java 2602 2004-06-13 18:16:54Z fisker $
  */
 public class ReadmeTargetPainter
 {
@@ -62,6 +62,8 @@ public class ReadmeTargetPainter
                 width - 2, CORNER_SIZE);
 
         g.setStroke(new BasicStroke(1));
+        
+        //draw the lines in the paper
         for(int yPos = CORNER_SIZE+10; yPos <= height-10; yPos += 5)
             g.drawLine(10, yPos, width - 10, yPos);
     }
