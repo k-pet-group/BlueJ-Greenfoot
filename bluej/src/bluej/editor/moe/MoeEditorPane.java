@@ -21,7 +21,7 @@ import javax.swing.*;		// all the GUI components
 public class MoeEditorPane extends JEditorPane
 {
     public Dimension getPreferredSize() {
-	Dimension d = super.getPreferredSize();
+        Dimension d = super.getPreferredSize();
         d.width += MoeEditor.TAG_WIDTH + 8;  // bit of empty space looks nice
         return d;
     }

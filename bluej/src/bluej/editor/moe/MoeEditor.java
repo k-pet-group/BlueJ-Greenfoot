@@ -1299,8 +1299,8 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  Try to set or remove a breakpoint (depending on the parameter) at
-     *  the given position. Informs the watcher.
+     *  Try to set or remove a step mark (depending on the parameter) at
+     *  the given position. 
      */
     private void setStepMark(int pos)
     {
