@@ -87,11 +87,6 @@ error-open-source
 Não foi possível abrir o
 código fonte desta classe.
 
-error-open-readme
-Ocoreu um problema ao se tentar abrir o
-texto de notas deste projeto. Um novo texto vazio
-foi criado.
-
 error-writing-readme
 O arquivo README deste projeto não pôde ser atualizado
 com as informações da classe principal.
@@ -188,6 +183,11 @@ error-in-import
 Erro durante tentativa de importação
 do arquivo. Cheque os direitos de acesso
 e o espaço em disco.
+
+no-class-selected-compile
+Nenhuma classe selecionada para compilação.
+Selecione uma classe, clicando 
+nela, antes de tentar compilá-la.
 
 no-class-selected
 Nenhuma classe ou pacote foi selecionada
@@ -323,6 +323,11 @@ classmgr-changes-no-effect
 As mudanças que você efetuou na biblioteca de classes
 não terão efeito até a prómixa execução do BlueJ.
 
+pref-optimise-no-effect
+Mudanças na configuração da máquina virtual apenas terão
+efeito para projetos abertos após a mudança
+(ou se você reiniciar a máquina virtual).
+
 unittest-new-test-method
 Forneça um nome para este teste.
 A gravação irá começar.
@@ -343,6 +348,15 @@ Substituir
 Cancelar
 null
 
+unittest-method-present
+Esta classe de teste de unidade já possui um método declarado
+com o mesmo nome. Se você prosseguir, a definição do método
+será substituída.
+Deseja continuar?
+Substituir
+Cancelar
+null
+
 no-search-string
 Nenhuma palavra de pesquisa foi definida.
 (Marque algum texto ou use 'Procurar' primeiro)
@@ -354,3 +368,37 @@ os atalhos de teclas padrões?
 Usar default
 Cancelar
 null
+
+error-create-vm
+O BlueJ não pôde criar uma máquina virtual (VM) para executar os projetos.
+Isto é um problema grave - você não poderá criar objetos ou
+executar métodos sem antes ter resolvido isto.
+Geralmente, este problema é causados por configurações de redes específicas
+da usa máquina. BlueJ usa TCP/IP e sockets para conseguir criar a VM.
+A causa mais comum para isso é um firewall restingindo conexões a
+partir da sua máquina. Desligue o firewall (se você tiver um) para
+testar. Se isto resolver, tente encontrar uma configuração de firewall
+que permita conexões do localhost.
+Outras causas possíveis são configurações de rede incorretas. Verifique
+se o TCP/IP está configurado corretamente e olhe outros parâmetros da rede.
+Se o problema persistir, peça ajuda (veja http://www.bluej.org/help/ask-help.html).
+
+project-is-readonly
+O projeto é apenas para leitura. Você não pode criar objetos ou
+executar métodos.
+Ou as permissões de acesso do diretório do projeto estão definidas
+como 'apenas leitura' para você, ou o sistema de arquivos inteiro
+não permite escrita (é um CD?).
+Para usar este projeto plenamente, você deve assegurar-se que ele esteja
+num sistema de arquivos que permita gravação (geralmente um disco rígido),
+e que você tenha permissão de escrita no diretório do projeto e todos 
+os seus arquivos.
+
+could-not-write-shell-file
+A execução falhou porque o diretório do projeto não permite gravação.
+Para criar objetos ou executar métodos, nós devemos ter permissão para escrita
+no diretório do projeto. Certifique-se que o seu projeto esteja num
+sistema de arquivos que permita escrita (não um CD!) e que você tenha
+permissão de escrita no diretório do projeto e todos os seus arquivos.
+
+

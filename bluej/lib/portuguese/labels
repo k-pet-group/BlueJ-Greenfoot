@@ -1,573 +1,519 @@
-okay=Ok
+#Text for labels in BlueJ
+#Wed Dec 03 23:39:30 BRST 2003
+
 cancel=Cancelar
 close=Fechar
 continue=Continuar
 
-main.invalidPackage=Pacote não encontrado
+main.invalidPackage=Pacote n\u00E3o encontrado
 
-compileException=Exceção gerada durante a compilação
+compileException=Exce\u00E7\u00E3o gerada durante a compila\u00E7\u00E3o
+compiler.invalidcompiler=bluej.compiler.type n\u00E3o est\u00E1 definido com um tipo de compilador v\u00E1lido
+compiler.nocompiler=Compilador n\u00E3o p\u00F4de ser executado
 compiler.thread.title=Thread do compilador do BlueJ
-compiler.invalidcompiler=bluej.compiler.type não está definido com um tipo de compilador válido
-compiler.nocompiler=Compilador não pôde ser executado
-compiler.warningDialog.title=Avisos do Compilador
-compiler.warningDialog.label=Avisos da última compilação 
+compiler.warningDialog.label=Avisos da \u00FAltima compila\u00E7\u00E3o 
 compiler.warningDialog.noWarnings=Sem avisos
-	
-debugger.assert.assertThat=Asseguro que:
-debugger.assert.resultIs=resultado é
-debugger.assert.equalTo=igual a
-debugger.assert.sameAs=o mesmo que
-debugger.assert.notSameAs=não é o mesmo que
-debugger.assert.notNull=não null
-debugger.assert.null=null
+compiler.warningDialog.title=Avisos do Compilador
 
-debugger.inspector.title=BlueJ:  Inspecionador de Objetos da classe 
-debugger.inspector.result.title=BlueJ:  Resultado de método
-debugger.inspector.staticListTitle=Campos de classe
-debugger.inspector.objListTitle=Campos de instância
-debugger.inspector.showClass=Mostrar campos estáticos
-debugger.inspector.inspect=Inspecionar
-debugger.inspector.get=Obter
-debugger.inspector.objectNameLabel=Objeto da classe 
-debugger.inspector.classNameLabel=Classe
+# About
 
-debugger.objectwrapper.methodException=Exceção ao acessar métodos:
-debugger.objectwrapper.invocationException=Exceção durante invocação:
-debugger.objectwrapper.inspect=Inspecionar
-debugger.objectwrapper.remove=Remover
-debugger.objectwrapper.serializable=Serializar
-debugger.objectwrapper.redefined=redefinido em
-debugger.objectwrapper.inherited=herdado de
-
-debugger.threadstatus.finished=terminado
-debugger.threadstatus.breakpoint=no breakpoint
-debugger.threadstatus.stopped=parado
-debugger.threadstatus.monitor=no monitor
-debugger.threadstatus.notstarted=não iniciado
-debugger.threadstatus.running=executando
-debugger.threadstatus.sleeping=dormindo
-debugger.threadstatus.unknown=status desconhecido
-debugger.threadstatus.waiting=esperando
-debugger.threadstatus.zombie=zumbi
-
-#Debugger messages
-debugger.jdiDebugger.noBreakpointMsg=Limpar breakpoint: nenhum breakpoint encontrado nesta linha.
-debugger.jdiDebugger.noLineNumberMsg=Esta classe foi compilada sem informação de número \nde linha. Você não pode por breakpoint.
-debugger.jdiDebugger.noCodeMsg=Não é permitido por breakpoint: não há código nesta linha
-debugger.jdiDebugger.internalErrorMsg=Erro interno durante a tentativa de por \neste breakpoint
-
-#library browser configuration
-browser.title=BlueJ:  Library Browser
-browser.version=0.1
-browser.togglemessagebox.toggle.text=não exiba esta mensagem novamente
-
-browser.librarychooser.loading.status=Carregando bibliotecas...
-browser.librarychooser.loaded.status=Bibliotecas carregadas.
-browser.librarychooser.openingarchive.status=Abrindo arquivo de bibliotecas
-browser.librarychooser.config.user=userlibs.properties
+about.bluej.version=Vers\u00E3o do BlueJ
+about.java.version=Vers\u00E3o de Java
+about.javahome=Java Home\:
+about.logfile=Arquivo de Log do Debug\:
+about.moreInfo=Mais informa\u00E7\u00F5es em www.bluej.org
+about.runningOn=Executando em\:
+about.theTeam.deakin=Time BlueJ na Universidade de Deakin 
+about.theTeam.denmark=Time BlueJ na Universidade do Sudoeste da Dinamarca
+about.theTeam.kent=Time BlueJ na Universidade de Kent
+about.vm=M\u00E1quina virtual\:
 
 browser.classchooser.classmenu.open=Abrir
 browser.classchooser.classmenu.use=Usar...
 browser.classchooser.packagemenu.open=Abrir
 browser.classchooser.packagemenu.use=Usar...
-
-browser.usepackage.dialog.text=Selecione pacote de destino e clique Ok
-
-browser.missingclass.text=O browser não conseguiu localizar a classe $
-
-#library browser menus
-browser.menu.library=Biblioteca 
-browser.menu.library.properties=Propriedades...
-browser.menu.library.addlibrary=Adicione...
+browser.librarychooser.config.user=userlibs.properties
+browser.librarychooser.loaded.status=Bibliotecas carregadas.
+browser.librarychooser.loading.status=Carregando bibliotecas...
+browser.librarychooser.openingarchive.status=Abrindo arquivo de bibliotecas
 browser.menu.library.addlibrary.title=Adicione Biblioteca
-browser.menu.library.refresh=Atualizar
+browser.menu.library.addlibrary=Adicione...
 browser.menu.library.close=Fechar
+browser.menu.library.properties=Propriedades...
+browser.menu.library.refresh=Atualizar
+browser.menu.library=Biblioteca 
+browser.missingclass.text=O browser n\u00E3o conseguiu localizar a classe $
+browser.title=BlueJ\:  Library Browser
+browser.togglemessagebox.toggle.text=n\u00E3o exiba esta mensagem novamente
+browser.usepackage.dialog.text=Selecione pacote de destino e clique Ok
+browser.version=0.1
 
-# Class Manager panel user interface elements and error messages
-classmgr.prefpaneltitle=Bibliotecas
-classmgr.userlibraries=Bibliotecas do Usuário
-classmgr.systemlibraries=Bibliotecas do Sistema
-classmgr.bootlibraries=Biblioteca de Boot
+callLibraryDialog.classLabel=Classe\:
+callLibraryDialog.classNotFound1=N\u00E3o foi poss\u00EDvel encontar a classe.
+callLibraryDialog.classNotFound2=(Verifique o nome da classe e pressione Enter novamente.)
+callLibraryDialog.clickHere1=Entre com o nome completo da classe e pressione Enter
+callLibraryDialog.clickHere2=para exibir construtores e m\u00E9todos.
+callLibraryDialog.docButton=Documenta\u00E7\u00E3o
+callLibraryDialog.listHeading=Construtores e m\u00E9todos de classe
+callLibraryDialog.title=BlueJ\:  Chamar Biblioteca de Classes
+
 classmgr.add=Adicione
 classmgr.delete=Apague
+classmgr.error.missingbootclasspath=Sem classpath Sun para boot. O BlueJ n\u00E3o deve ser executado num ambiente anterior ao JDK 1.2..
+classmgr.error.missingclasspath=Nenhum classpath. O carrregamento das classes pode apresentar problemas\nporque as classes do diret\u00F3rio corrente ser\u00E3o resolvidas primeiro..
+classmgr.error.nodescription=Sem descri\u00E7\u00E3o
+classmgr.error.unresolvable=Caminho incorreto
+classmgr.locationcolumn=Localiza\u00E7\u00E3o
+classmgr.prefpaneltitle=Bibliotecas
+classmgr.statusbad=Erro
 classmgr.statuscolumn=Status
 classmgr.statusgood=Carregado
-classmgr.statusbad=Erro
-classmgr.statusnew=Não carregado
-classmgr.locationcolumn=Localização
-classmgr.descriptioncolumn=Descrição
-classmgr.bootclass=Biblioteca de classes de Boot
-classmgr.bluejclass=Biblioteca de classes BlueJ
-classmgr.error.unresolvable=Caminho incorreto
-classmgr.error.nodescription=Sem descrição
-classmgr.error.missingclasspath=Nenhum classpath. O carrregamento das classes pode apresentar problemas\nporque as classes do diretório corrente serão resolvidas primeiro..
-classmgr.error.missingbootclasspath=Sem classpath Sun para boot. O BlueJ não deve ser executado num ambiente anterior ao JDK 1.2..
+classmgr.statusnew=N\u00E3o carregado
+classmgr.userliblibraries=Bibliotecas do Usu\u00E1rio de
+classmgr.userlibraries=Bibliotecas do Usu\u00E1rio
 
-# Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ:  Preferências
-
-# Miscellaneous Preferences panel
-prefmgr.misc.prefpaneltitle=Miscelânea
-prefmgr.misc.editor.title=Configurações do editor
-prefmgr.misc.editorfontsize=Tamanho fonte
-prefmgr.misc.usesyntaxhilighting=Use sintaxe destacada
-prefmgr.misc.autoindent=Auto-endentação (Teclas Enter e Tab)
-prefmgr.misc.displaylinenumbers=Exibir números de linhas
-prefmgr.misc.makeBackup=Faça backup dos arquivos fontes
-prefmgr.misc.matchBrackets=Casar chaves
-prefmgr.misc.compiler.title=Configurações do compilador
-prefmgr.misc.usejdk14=Habilite opções do JDK 1.4 (assertions)
-prefmgr.misc.documentation.title=Configurações da documentação
-prefmgr.misc.jdkurlpath=URL da documentação do JDK
-prefmgr.misc.linkToLib=Use esta URL quando gerar documentação do projeto
-prefmgr.misc.linkToLibNoteLine1=Se esta URL for usada para gerar documentação, ela deve estar correta e acessível
-prefmgr.misc.linkToLibNoteLine2=Caso contrário, a operação de geração da documentação falhará. Para trabalhar desconectado (offline), desmarque esta opção.
-
-# Extensions Manager Help panel
-extmgr.title=BlueJ:  Extensões instaladas
-extmgr.extensions=Extensões
-extmgr.systemExtensionShort=Sistema
-extmgr.systemExtensionLong=Extensão de sistema (ativo para todos os projetos)
-extmgr.projectExtensionShort=Projeto
-extmgr.projectExtensionLong=Extensão de projeto (apenas para o projeto corrente)
-extmgr.statuscolumn=Status
-extmgr.namecolumn=Nome
-extmgr.typecolumn=Tipo
-extmgr.details=Detalhes
-extmgr.details.location=Localização
-extmgr.details.version=Versão
-extmgr.details.url=URL
-
-extmgr.status.notused=Não usado
-extmgr.status.loaded=Carregado
-extmgr.status.error=Erro
-extmgr.status.unloaded=Descarregado
-extmgr.version.unknown=Desconhecido
-extensions.nodescription=Nenhuma atribuída.
-
-# Extension errors
-extmgr.error.nomanifest=Sem arquivo de manifesto
-extmgr.error.nomain=Manifesto não contém atributo Main-Class
-extmgr.error.notsubclass=Classe principal não é subclasse de Extension
-extmgr.error.cannotload=Extensão não pode ser carregada
-
-#---------------
-#Editor labels
-#---------------
-editor.title=BlueJ: Editor
-
-#button lables for toolbar commands
-editor.compileLabel = Compilar
-editor.undoLabel = Desfazer
-editor.cutLabel = Recortar
-editor.copyLabel = Copiar
-editor.pasteLabel = Colar
-editor.closeLabel = Fechar
-editor.page-setupLabel = Configurar Página...
-
-# menu labels (MUST be defined)
-editor.classLabel = Classe
-editor.editLabel = Editar
-editor.toolsLabel = Ferramentas
-editor.debugLabel = Debug
-editor.optionLabel = Opções
-editor.helpLabel = Ajuda
-
-# item labels (can be omitted if same as action name)
-editor.saveLabel = Salvar
-editor.reloadLabel = Recarregar
-editor.printLabel = Inprimir...
-editor.closeLabel =Fechar
-
-editor.redoLabel = Refazer
-editor.cut-to-clipboardLabel = Recortar
-editor.copy-to-clipboardLabel = Copiar
-editor.paste-from-clipboardLabel = Colar
-editor.indent-blockLabel = Endente mais
-editor.deindent-blockLabel = Endente menos
-editor.comment-blockLabel = Comente
-editor.uncomment-blockLabel = Não comente
-editor.insert-methodLabel = Inserir método
-
-editor.findLabel = Procurar...
-editor.find-nextLabel = Procurar próximo
-editor.find-next-backwardLabel = Procurar anterior
-editor.go-to-lineLabel = Ir para a linha...
-editor.replaceLabel = Substituir...
-editor.compileLabel = Compilar
-editor.toggle-breakpointLabel = Por/Retirar Breakpoint
-editor.toggle-interface-viewLabel = Mudar Visão da Interface
-
-editor.go-to-lineLabel = Ir para a linha...
-editor.gotoline.title = Ir para a linha
-editor.gotoline.label = Forneça o número da linha
-editor.gotoline.notNumericMessage = Deve ser um número	
-
-editor.implementationLabel = Implementação
-editor.interfaceLabel = Interface
-
-editor.state.readOnly = leitura-apenas
-editor.state.saved = salvo
-editor.state.changed = alterado
-
-editor.key-bindingsLabel = Atalho de teclas...
-editor.preferencesLabel = Preferências...
-
-# Dialog titles and texts
-editor.functions.title = Funções do Editor
-editor.functions.editFunctions = Funções Editar
-editor.functions.moveScroll = Mover & Rolar
-editor.functions.classFunctions = Funções da Classe
-editor.functions.customisation = Customização
-editor.functions.help = Ajuda
-editor.functions.misc = Misc
-editor.functions.defaults=Defaults
-editor.functions.categories=Categorias:
-editor.functions.keys=Atalhos
-editor.functions.addkey=Adicione Atalho
-editor.functions.delkey=Remova Atalho
-
-editor.find.title = Procurar
-editor.find.find.label = Procurar:
-editor.find.replace.label = Substituir:
-editor.find.findNext=Próximo
+debugger.assert.assertThat=Asseguro que\:
+debugger.assert.delta=delta
+debugger.assert.equalTo=igual a
+debugger.assert.equalToFloatingPoint=igual a (double ou float)
+debugger.assert.notNull=n\u00E3o null
+debugger.assert.notSameAs=n\u00E3o \u00E9 o mesmo que
+debugger.assert.null=null
+debugger.assert.resultIs=resultado \u00E9
+debugger.assert.sameAs=o mesmo que
+debugger.execControls.continueButtonText=Continuar
+debugger.execControls.haltButtonText=Parar
+debugger.execControls.instanceTitle=Vari\u00E1veis de inst\u00E2ncia
+debugger.execControls.localTitle=Vari\u00E1veis locais
+debugger.execControls.stackTitle=Sequ\u00EAncia de chamada
+debugger.execControls.staticTitle=Vari\u00E1veis de classe
+debugger.execControls.stepButtonText=Avan\u00E7ar
+debugger.execControls.stepIntoButtonText=Entrar em
+debugger.execControls.terminateButtonText=Terminar
+debugger.execControls.threadTitle=Threads
+debugger.execControls.windowTitle=BlueJ\:  Depurador
+debugger.hideSystemThreads=Esconder threads do sistema
+debugger.inspector.class.title=BlueJ\: Inspetor de Classes
+debugger.inspector.classNameLabel=Classe
+debugger.inspector.get=Obter
+debugger.inspector.inspect=Inspecionar
+debugger.inspector.object.title=BlueJ\: Inspetor de Objetos
+debugger.inspector.result.title=BlueJ\:  Resultado de m\u00E9todo
+debugger.inspector.showClass=Mostrar campos est\u00E1ticos
+debugger.inspector.title=BlueJ\:  Inspecionador de Objetos da classe 
+debugger.jdiDebugger.internalErrorMsg=Erro interno durante a tentativa de por \neste breakpoint
+debugger.jdiDebugger.noBreakpointMsg=Limpar breakpoint\: nenhum breakpoint encontrado nesta linha.
+debugger.jdiDebugger.noCodeMsg=N\u00E3o \u00E9 permitido por breakpoint\: n\u00E3o h\u00E1 c\u00F3digo nesta linha
+debugger.jdiDebugger.noLineNumberMsg=Esta classe foi compilada sem informa\u00E7\u00E3o de n\u00FAmero \nde linha. Voc\u00EA n\u00E3o pode por breakpoint.
+debugger.objectwrapper.inherited=herdado de
+debugger.objectwrapper.inspect=Inspecionar
+debugger.objectwrapper.invocationException=Exce\u00E7\u00E3o durante invoca\u00E7\u00E3o\:
+debugger.objectwrapper.methodException=Exce\u00E7\u00E3o ao acessar m\u00E9todos\:
+debugger.objectwrapper.redefined=redefinido em
+debugger.objectwrapper.remove=Remover
+debugger.objectwrapper.serializable=Serializar
+debugger.options=Op\u00E7\u00F5es
+debugger.threadRunning = <html><center>Thread executando.<br>Threads devem estar parados para os detalhes serem visualizados.</html>
+debugger.threadstatus.breakpoint=no breakpoint
+debugger.threadstatus.finished=terminado
+debugger.threadstatus.monitor=no monitor
+debugger.threadstatus.notstarted=n\u00E3o iniciado
+debugger.threadstatus.running=executando
+debugger.threadstatus.sleeping=dormindo
+debugger.threadstatus.stopped=parado
+debugger.threadstatus.unknown=status desconhecido
+debugger.threadstatus.waiting=esperando
+debugger.threadstatus.zombie=zumbi
+dialogmgr.error=BlueJ\:  Erro
+dialogmgr.message=BlueJ\:  Mensagem
+dialogmgr.question=BlueJ\:  Pergunta 
+editor.classLabel=Classe
+editor.closeLabel=Fechar
+editor.comment-blockLabel=Comente
+editor.compileLabel=Compilar
+editor.copyLabel=Copiar
+editor.copy-to-clipboardLabel=Copiar
+editor.cutLabel=Recortar
+editor.cut-to-clipboardLabel=Recortar
+editor.debugLabel=Debug
+editor.deindent-blockLabel=Endente menos
+editor.editLabel=Editar
+editor.find.down=Procurar abaixo
+editor.find.find.label=Procurar\:
+editor.find.findNext=Pr\u00F3ximo
+editor.find.ignoreCase=Ignorar letra
+editor.find.replace.label=Substituir\:
 editor.find.replace=Substituir
 editor.find.replaceAll=Substituir Tudo
+editor.find.title=Procurar
 editor.find.up=Procurar acima
-editor.find.down=Procurar abaixo
-editor.find.ignoreCase=Ignorar letra
 editor.find.wholeWord=Palavra inteira
-
-#Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Versão do Moe 
-editor.info.readingProblem = Ocorreu um problema ao tentar ler o arquivo.
-editor.info.regularFile = (Este é um arquivo comum? Você tem permissão de leitura?)
-editor.info.newFile = Novo arquivo
-editor.info.errorSaving = Erro ao salvar arquivo!
-editor.info.compiled = Classe compilada - nenhum erro de sintaxe
-editor.info.noChanges = Nenhuma mudança a ser salva
-editor.info.cannotReload = Não é possível recarregar - este texto nunca foi salvo!
-editor.info.reload = (\"Recarregar\" recarrega a última versão salva em disco.)
-editor.info.emptySearchString = String de busca vazia.
-editor.info.notFound = Não encontrado (search again to wrap around).
-editor.info.compiling = Compilando...
-editor.info.cannotSetBreak = Não é possível por um Breakpoint:\nNenhum código associado a este editor.
-editor.info.fileDisappeared = ERRO: O arquivo parece ter desaparecido!
-editor.info.fileReadError = ERRO: Ocorreu um erro durante a leitura deste arquivo.
-editor.info.saved = Arquivo salvo
-editor.info.printing = Imprimindo...
-editor.info.printed = Imprimindo... Pronto.
-editor.info.cancelled = Cancelado.
-editor.info.generatingDoc = Gerando interface da classe...
-editor.info.loadingDoc = Carregando interface da classe...
-editor.info.docLoaded = Carregando interface da classe... Pronto.
-editor.info.docAborted = Ocorreu um erro grave ao gerar a interface \njavadoc. Abortado.
-editor.info.docDisappeared = Não foi possível encontrar o arquivo HTML: 
-editor.info.docNoFrames = Exibição de frames está desabilitada para pré-visualização.
-editor.info.tabsExpanded = Todos os TABs convertidos para espaços. (Você está trabalhando \ncom TABs fictícios, o arquivo continha TABs físicos.)
+editor.findLabel=Procurar...
+editor.find-next-backwardLabel=Procurar anterior
+editor.find-nextLabel=Procurar pr\u00F3ximo
+editor.functions.addkey=Adicione Atalho
+editor.functions.categories=Categorias\:
+editor.functions.classFunctions=Fun\u00E7\u00F5es da Classe
+editor.functions.customisation=Customiza\u00E7\u00E3o
+editor.functions.defaults=Defaults
+editor.functions.delkey=Remova Atalho
+editor.functions.editFunctions=Fun\u00E7\u00F5es Editar
+editor.functions.help=Ajuda
+editor.functions.keys=Atalhos
+editor.functions.misc=Misc
+editor.functions.moveScroll=Mover & Rolar
+editor.functions.title=Fun\u00E7\u00F5es do Editor
+editor.gotoline.label=Forne\u00E7a o n\u00FAmero da linha
+editor.gotoline.notNumericMessage=Deve ser um n\u00FAmero\t
+editor.gotoline.title=Ir para a linha
+editor.go-to-lineLabel=Ir para a linha...
+editor.helpLabel=Ajuda
+editor.implementationLabel=Implementa\u00E7\u00E3o
+editor.indent-blockLabel=Endente mais
+editor.info.cancelled=Cancelado.
+editor.info.cannotReload=N\u00E3o \u00E9 poss\u00EDvel recarregar - este texto nunca foi salvo\!
+editor.info.cannotSetBreak=N\u00E3o \u00E9 poss\u00EDvel por um Breakpoint\:\nNenhum c\u00F3digo associado a este editor.
+editor.info.compiled=Classe compilada - nenhum erro de sintaxe
+editor.info.compiling=Compilando...
+editor.info.docAborted=Ocorreu um erro grave ao gerar a interface \njavadoc. Abortado.
+editor.info.docDisappeared=N\u00E3o foi poss\u00EDvel encontrar o arquivo HTML\: 
+editor.info.docLoaded=Carregando interface da classe... Pronto.
+editor.info.docNoFrames=Exibi\u00E7\u00E3o de frames est\u00E1 desabilitada para pr\u00E9-visualiza\u00E7\u00E3o.
+editor.info.emptySearchString=String de busca vazia.
+editor.info.errorSaving=Erro ao salvar arquivo\!
+editor.info.fileDisappeared=ERRO\: O arquivo parece ter desaparecido\!
+editor.info.fileReadError=ERRO\: Ocorreu um erro durante a leitura deste arquivo.
+editor.info.generatingDoc=Gerando interface da classe...
+editor.info.loadingDoc=Carregando interface da classe...
+editor.info.newFile=Novo arquivo
+editor.info.noChanges=Nenhuma mudan\u00E7a a ser salva
+editor.info.notFound=N\u00E3o encontrado (search again to wrap around).
+editor.info.printed=Imprimindo... Pronto.
+editor.info.printing=Imprimindo...
+editor.info.readingProblem=Ocorreu um problema ao tentar ler o arquivo.
+editor.info.regularFile=(Este \u00E9 um arquivo comum? Voc\u00EA tem permiss\u00E3o de leitura?)
+editor.info.reload=("Recarregar" recarrega a \u00FAltima vers\u00E3o salva em disco.)
+editor.info.saved=Arquivo salvo
+editor.info.tabsExpanded=Todos os TABs convertidos para espa\u00E7os. (Voc\u00EA est\u00E1 trabalhando \ncom TABs fict\u00EDcios, o arquivo continha TABs f\u00EDsicos.)
+editor.info.version=Vers\u00E3o do Moe 
+editor.insert-methodLabel=Inserir m\u00E9todo
+editor.interfaceLabel=Interface
+editor.key-bindingsLabel=Atalho de teclas...
+editor.optionLabel=Op\u00E7\u00F5es
+editor.page-setupLabel=Configurar P\u00E1gina...
+editor.paste-from-clipboardLabel=Colar
+editor.pasteLabel=Colar
+editor.preferencesLabel=Prefer\u00EAncias...
 editor.printer.continued=continua
-#End Editor labels
+editor.printLabel=Inprimir...
+editor.redoLabel=Refazer
+editor.reloadLabel=Recarregar
+editor.replaceLabel=Substituir...
+editor.saveLabel=Salvar
+editor.state.changed=alterado
+editor.state.readOnly=leitura-apenas
+editor.state.saved=salvo
+editor.title=BlueJ\: Editor
+editor.toggle-breakpointLabel=Por/Retirar Breakpoint
+editor.toggle-interface-viewLabel=Mudar Vis\u00E3o da Interface
+editor.toolsLabel=Ferramentas
+editor.uncomment-blockLabel=N\u00E3o comente
+editor.undoLabel=Desfazer
+error.methodCall.duplicateName=Um objeto com este nome j\u00E1 existe.\nPor favor, escolha um nome \u00FAnico.
+error.methodCall.emptyField=Campo de par\u00E2metro vazio
+error.methodCall.illegalName=O nome da inst\u00E2ncia deve ser um identificador Java.
+extensions.nodescription=Nenhuma atribu\u00EDda.
+extmgr.details.location=Localiza\u00E7\u00E3o
+extmgr.details.url=Mais informa\u00E7\u00E3o em\:
+extmgr.details.version=Vers\u00E3o
+extmgr.details=Detalhes
+extmgr.error.cannotload=Extens\u00E3o n\u00E3o pode ser carregada
+extmgr.error.nomain=Manifesto n\u00E3o cont\u00E9m atributo Main-Class
+extmgr.error.nomanifest=Sem arquivo de manifesto
+extmgr.error.notsubclass=Classe principal n\u00E3o \u00E9 subclasse de Extension
+extmgr.extensions=Extens\u00F5es
+extmgr.namecolumn=Nome
+extmgr.projectExtensionLong=Extens\u00E3o de projeto (apenas para o projeto corrente)
+extmgr.projectExtensionShort=Projeto
+extmgr.status.error=Erro
+extmgr.status.loaded=Carregado
+extmgr.status.notused=N\u00E3o usado
+extmgr.status.unloaded=Descarregado
+extmgr.statuscolumn=Status
+extmgr.systemExtensionLong=Extens\u00E3o de sistema (ativo para todos os projetos)
+extmgr.systemExtensionShort=Sistema
+extmgr.title=BlueJ\:  Extens\u00F5es instaladas
+extmgr.typecolumn=Tipo
+extmgr.version.unknown=Desconhecido
+freeCallDialog.fieldLabel=Avalie\:
+freeCallDialog.resultLabel=Isto \u00E9
+freeCallDialog.returnsNoResult=um comando (n\u00E3o retorna resultado)
+freeCallDialog.returnsResult=uma express\u00E3o (retorna um resultado)
+freeCallDialog.title=BlueJ\:  Avalie
 
-pkgmgr.chooseUsesFrom=Selecione a classe da qual ela depende
-pkgmgr.chooseUsesTo=Selecione a classe da qual ela dependente
-pkgmgr.chooseInhFrom=Selecione a superclasse
-pkgmgr.chooseInhTo=Selecione a subclasse
-pkgmgr.chooseArrow=Selecione a seta para apagar
-pkgmgr.packageSaved=Pacote salvo
-pkgmgr.info.printing = Imprimindo...
-pkgmgr.info.printed = Imprimindo... Pronto.
-
-utility.packageChooser.previewPane1=Pré-visualização de possíveis
-utility.packageChooser.previewPane2=estrutura do pacote
-
-# dialog titles and texts
-
-pkgmgr.newPkg.title=Novo Projeto
-pkgmgr.newPkg.buttonLabel=Criar
-pkgmgr.openPkg.title=Abrir Projeto
-pkgmgr.openPkg.buttonLabel=Abrir
-pkgmgr.openNonBlueJPkg.title=Abrir Projeto Não BlueJ
-pkgmgr.openNonBlueJPkg.buttonLabel=Abrir no BlueJ
-pkgmgr.saveAs.title=Save Projeto
-pkgmgr.saveAs.buttonLabel=Savar
-pkgmgr.addClass.title=Selecione Classe Java a adicionar
-pkgmgr.addClass.buttonLabel=Adicionar
-pkgmgr.importPkg.title=Selecione Diretório a Importar
-pkgmgr.importPkg.buttonLabel=Importar
-pkgmgr.importPkgNew.title=Novo Projeto para onde Importar
-pkgmgr.importPkgNew.buttonLabel=Criar
-
-pkgmgr.newClass.msg=Entre o nome da classe
-pkgmgr.newUses=Nova Seta de Uso
-pkgmgr.newExtends=Nova Seta de Herança
-pkgmgr.unimplemented=Desculpe - esta característica ainda não está implementada
-pkgmgr.pkgChooseError=Erro ao selecionar um nome válido de pacote
-pkgmgr.chooseWebPage.title=Selecione a página HTML de destino
-
-pkgmgr.parentpackagetarget.open=Abrir
-pkgmgr.parentpackagetarget.openunamed=Abrir pacote sem nome
-
-pkgmgr.packagemenu.open=Abrir
-pkgmgr.packagemenu.remove=Remover
-
-pkgmgr.classmenu.runApplet=Executar Applet
-pkgmgr.classmenu.edit=Abrir Editor
-pkgmgr.classmenu.compile=Compilar
-pkgmgr.classmenu.inspect=Inspecionar
-pkgmgr.classmenu.remove=Remover
-pkgmgr.classmenu.createTest=Criar classe de teste
-
-pkgmgr.test.label=Testando
-pkgmgr.test.record=gravendo
-pkgmgr.test.run=Executar Testes
-pkgmgr.test.end=Fim
-pkgmgr.test.succeeded=realizado
-pkgmgr.test.noTestName=VOcê deve espexificar um nome para o teste
-pkgmgr.test.invalidTestName=O nome do teste deve ser um identificador Java válido
-pkgmgr.test.recording=gravando
-
-pkgmgr.test.popup.testAll=Testar Tudo
-pkgmgr.test.popup.noTests=Nenhum método de teste
-pkgmgr.test.popup.testPrefix=Teste
-pkgmgr.test.popup.createTest=Criar Método de Teste...
-pkgmgr.test.popup.benchToFixture=Object Bench to Test Fixture
-pkgmgr.test.popup.fixtureToBench=Test Fixture to Object Bench
-
-
-# "new class" dialog
-pkgmgr.newClass.title=BlueJ:  Criar Nova Classe
-pkgmgr.newClass.label=Nome da Classe:
-pkgmgr.newClass.classType=Tipo da Classe
-pkgmgr.newClass.stdclass=Classe
-pkgmgr.newClass.abstract=Classe abstrata
-pkgmgr.newClass.interface=Interface
-pkgmgr.newClass.applet=Applet
-pkgmgr.newClass.appletj=Applet
-pkgmgr.newClass.unittest=Testar Unidade
-
-# "new package" dialog
-pkgmgr.newPackage.title=BlueJ:  Criar Novo Pacote
-pkgmgr.newPackage.label=Nome do Pacote:
-pkgmgr.newPackage.newPackage=Pacote
-
-# "Use Library Class" dialog
-callLibraryDialog.title=BlueJ:  Chamar Biblioteca de Classes
-callLibraryDialog.classLabel=Classe:
-callLibraryDialog.docButton=Documentação
-callLibraryDialog.listHeading=Construtores e métodos de classe
-callLibraryDialog.clickHere1=Entre com o nome completo da classe e pressione Enter
-callLibraryDialog.clickHere2=para exibir construtores e métodos.
-callLibraryDialog.classNotFound1=Não foi possível encontar a classe.
-callLibraryDialog.classNotFound2=(Verifique o nome da classe e pressione Enter novamente.)
-
-# "Free Form Call" dialog
-freeCallDialog.title=BlueJ:  Avalie
-freeCallDialog.fieldLabel=Avalie:
-freeCallDialog.resultLabel=Isto é
-freeCallDialog.returnsResult=uma expressão (retorna um resultado)
-freeCallDialog.returnsNoResult=um comando (não retorna resultado)
-
-# "export" dialog
-pkgmgr.export.title=BlueJ:  Exportar projeto
-pkgmgr.export.helpLine1=Export stores a copy of the current project in
-pkgmgr.export.helpLine2=standard Java (non-BlueJ) format.
-pkgmgr.export.directoryLabel=Store as directory structure
-pkgmgr.export.jarFileLabel=Guardar como arquivo jar
-pkgmgr.export.classLabel=classe principal:
-pkgmgr.export.sourceLabel=incluir fonte
-pkgmgr.export.noClassText=nenhum (não pode ser executado)
-
-# "open-non-bluej" mismatch dialog
-pkgmgr.importmismatch.title=BlueJ:  Package Line Mismatches
-pkgmgr.importmismatch.helpLine1=CUIDADO: Este não é o diretório topo esperado deste projeto
-pkgmgr.importmismatch.helpLine2=Java conforme está declarado em algum campo package de alguma classe do projeto.
-pkgmgr.importmismatch.helpLine3=A abertura deste diretório mudará todas as declarações de pacote
-pkgmgr.importmismatch.helpLine4=nos seguintes arquivos fontes do projeto.
-pkgmgr.importmismatch.helpLine5=Você deveria abrir o diretório pai daquele que você selecionou
-pkgmgr.importmismatch.helpLine6=Por exemplo, para abrir um projeto Java que contém
-pkgmgr.importmismatch.helpLine7=o pacote "org.bluej", você deve selecionar o diretório que
-pkgmgr.importmismatch.helpLine8=_contém_ "org",  e não o diretório "org" ou o diretório "bluej".
-pkgmgr.importmismatch.helpLine9=Você deseja continuar a abertura e mudar as declarações de pacotes?
-
-# "import" failure dialog
-pkgmgr.importfailed.title=BlueJ:  Status da Importação
-pkgmgr.importfailed.helpLine1=O processo de importação falhou ao importar os seguintes arquivos.
-pkgmgr.importfailed.helpLine2=Provavelmente estes arquivos já existem
-pkgmgr.importfailed.helpLine3=no projeto de destino escolhido.
-
-# "version check" dialog
-pkgmgr.versionDlg.title=BlueJ:  Verifique nova versão
-pkgmgr.versionDlg.helpLine1=Esta função verificará se uma nova versão do BlueJ
-pkgmgr.versionDlg.helpLine2=está disponível. Você deve estar online para isto funcionar.
-pkgmgr.versionDlg.check=Verificar Versão
-pkgmgr.versionDlg.upToDate=A versão corrente está atualizada.
-pkgmgr.versionDlg.currentVersion=Sua versão atual é 
-pkgmgr.versionDlg.newVersion=A versão mais recente é 
-
-# run applet dialog
-pkgmgr.runApplet.title=BlueJ:  Executa Applet
-pkgmgr.runApplet.webPageLabel=Criar Página Web
-pkgmgr.runApplet.webPage=Gerar apenas página web
-pkgmgr.runApplet.appletviewer=Executar Applet no appletviewer
-pkgmgr.runApplet.webBrowser=Executar Applet num browser web
-pkgmgr.runApplet.heightLbl=Height =
-pkgmgr.runApplet.widthLbl=Width =
-pkgmgr.runApplet.newParameterLbl=Adicionar Novo Parâmetro
-pkgmgr.runApplet.appletParameterLbl= Parâmetros do Applet
-pkgmgr.runApplet.nameLbl=Name =
-pkgmgr.runApplet.valueLbl=Value =
-pkgmgr.runApplet.paramName=PARAM NAME
-pkgmgr.runApplet.value=VALUE
-pkgmgr.runApplet.htmlComment=<!-- Este arquivo foi gerado automaticamente pelo ambiente de desenvolvimento Java  -->\n<!-- BlueJ.  Ele é gerado automaticamente cada vez que o -->\n<!-- applet é executado.  Qualquer mudança manual feita no arquvo será perdida -->\n<!-- quando o applet for executado novamente dentro do BlueJ.  Salve-o num       -->\n<!-- diretório externo ao diretório do pacote caso você queira    -->\n<!-- mantê-lo. -->
-pkgmgr.runApplet.htmlExportedComment=<!-- Este arquivo foi gerado automaticamente pelo ambiente de desenvolvimento Java  -->\n<!-- BlueJ.  A variável codebase contém o caminho absoluto para-->\n<!-- diretório de pacote bluej do applet no momento em que esta página foi gerada. -->\n<!-- Se a localiza~çao daquela página se alerar você precisará mudar  o valor de codebase.       -->
-
-#print project dialog
-pkgmgr.printDialog.title=Imprimir Projeto
-pkgmgr.printDialog.printDiagram=Imprimir diagrama de classe
-pkgmgr.printDialog.printSource=Imprimir código fonte
-pkgmgr.printDialog.printReadme=Imprimir readme do projeto
-
-# method call dialog
-pkgmgr.methodCall.titleCreate=BlueJ:  Criar Objeto
-pkgmgr.methodCall.titleCall=BlueJ:  Chamar Método
-pkgmgr.methodCall.namePrompt=Nome da instância:
-error.methodCall.emptyField=Campo de parâmetro vazio
-error.methodCall.illegalName=O nome da instância deve ser um identificador Java.
-error.methodCall.duplicateName=Um objeto com este nome já existe.\nPor favor, escolha um nome único.
-
-# Debugger dialog (ExecControls.java)
-debugger.execControls.windowTitle = BlueJ:  Depurador
-debugger.execControls.stackTitle = Sequência de chamada
-debugger.execControls.staticTitle = Variáveis de classe
-debugger.execControls.instanceTitle = Variáveis de instância
-debugger.execControls.localTitle = Variáveis locais
-debugger.execControls.threadTitle = Threads
-debugger.execControls.updateText = Atualizar
-debugger.execControls.systemThreads = Exibir threads do sistema
-debugger.execControls.haltButtonText = Parar
-debugger.execControls.stepButtonText = Avançar
-debugger.execControls.stepIntoButtonText = Entrar em
-debugger.execControls.continueButtonText = Continuar
-debugger.execControls.terminateButtonText = Terminar
-
-# DialogManager labels
-dialogmgr.error = BlueJ:  Erro
-dialogmgr.question = BlueJ:  Pergunta 
-dialogmgr.message = BlueJ:  Mensagem
-
-#Terminal Window
-terminal.options = Opções
-terminal.title = BlueJ:  Janela de Terminal
-terminal.clear = Limpar
-terminal.copy = Copiar
-terminal.save = Salvar em arquivo...
-terminal.close = Fechar
-terminal.clearScreen = Fechar janela na chamada do método
-terminal.recordCalls = Registrar chamadas de métodos
-terminal.buffering = Buffer ilimitado
-terminal.save.title = Salvar texto do terminal
-terminal.save.buttonText = Salvar
-
-#TestDisplay Window
-testdisplay.title = BlueJ:  Resultados de Testes
-testdisplay.counter.runs=Execuções:
-testdisplay.counter.errors=Erros:
-testdisplay.counter.failures=Falhas:
-	
-# status messages
-pkgmgr.compiling=Compilando...
-pkgmgr.compileDone=Compilando... Pronto
-pkgmgr.creating=Criando objeto...
-pkgmgr.createDone=Criando objeto... Pronto
-pkgmgr.creatingVM=Criando máquina virtual...
-pkgmgr.creatingVMDone=Criando máquina virtual... Pronto
-pkgmgr.generatingDocu=Gerando documentação...
-pkgmgr.docuGenerated=Gerando documentação... Pronto
-pkgmgr.docuAborted=Gerando documentação... Abortado
-pkgmgr.webBrowserMsg=Web browser iniciado.
-pkgmgr.webBrowserError=Erro iniciando web browser.
-pkgmgr.usesArrowMsg=Dependência "Uses" declarada mas nunca usada:
-pkgmgr.breakpointMsg=A classe tem que estar compilada antes de se definir Breakpoints.
-pkgmgr.appletInViewer=Executando Applet no appletviewer
-pkgmgr.appletInBrowser=Executando Applet no browser
-pkgmgr.exported=Exportação completada.
-pkgmgr.exported.jar=Exportação para arquivo jar completada.
-pkgmgr.error.open=O projeto não existe mais
-
-properties.heading.bluej=Propriedades do BlueJ. Configurações neste arquivo sobrepõem \"bluej.defs\"
-properties.heading.moe=Propriedades do editor Moe. Configurações neste arquivo sobrepõem \"moe.defs\"
 
 # menus and menu items
 
-menu.package=Projeto
-menu.package.new=Novo Projeto
-menu.package.open=Abrir Projeto...
-menu.package.openRecent=Abrir Recentes	
-menu.package.openNonBlueJ=Abrir Projeto Não BlueJ...
-menu.package.close=Fechar
-menu.package.save=Salvar
-menu.package.saveAs=Salvar como...
-menu.package.import=Importar...
-menu.package.export=Exportar...
-menu.package.pageSetup=Configurar Página...
-menu.package.print=Imprimir...
-menu.package.quit=Sair
-
-menu.edit=Editar
-menu.edit.newClass=Nova Classe...
-menu.edit.newPackage=Novo Pacote...
 menu.edit.addClass=Adicione Classe em Arquivo...
-menu.edit.remove=Remover
+menu.edit.newClass=Nova Classe...
+menu.edit.newInherits=Nova Seta de Heran\u00E7a...
+menu.edit.newPackage=Novo Pacote...
 menu.edit.newUses=Nova Seta de Uso...
-menu.edit.newInherits=Nova Seta de Herança...
+menu.edit.remove=Remover
 menu.edit.removeArrow=Remover Seta...
+menu.edit=Editar
 
-menu.tools=Ferramentas
-menu.tools.compile=Compilar
-menu.tools.test=Executar Testes
-menu.tools.compileSelected=Compilar Selecionados
-menu.tools.rebuild=Recompile Pacote
-menu.tools.callLibrary=Usar Biblioteca de Classes...
-menu.tools.callFreeForm=Avaliar Expressão...
-menu.tools.generateDoc=Documentação do Projeto
-menu.tools.preferences=Preferências
-
-menu.view=Visualizar
-menu.view.showUses=Exibir Uso
-menu.view.showInherits=Exibir Herança
-menu.view.showExecControls=Exibir Debugger
-menu.view.showTerminal=Exibir Terminal
-menu.view.showTestDisplay=Exibir Resultados de Testes
-
-menu.group=Grupo de Trabalho
+menu.group.commitAll=Depositar Todos
+menu.group.commitSelected=Depositar Selecionados
+menu.group.configuration=Configura\u00E7\u00E3o
 menu.group.make=Fazer Pacote de Grupo
 menu.group.open=Open Group Package
-menu.group.updateSelected=Atualizar Selecionados
-menu.group.updateAll=Atualizar Todos
-menu.group.commitSelected=Depositar Selecionados
-menu.group.commitAll=Depositar Todos
-menu.group.statusSelection=Status da Seleção
 menu.group.statusAll=Status de Todos
-menu.group.users=Usuários
-menu.group.configuration=Configuração
+menu.group.statusSelection=Status da Sele\u00E7\u00E3o
+menu.group.updateAll=Atualizar Todos
+menu.group.updateSelected=Atualizar Selecionados
+menu.group.users=Usu\u00E1rios
+menu.group=Grupo de Trabalho
 
-menu.help=Ajuda
-menu.help.about=Sobre BlueJ
-menu.help.extensions=Extensões Instaladas
-menu.help.versionCheck=Checar Versão
-menu.help.extensions=Extensões Instaladas
+
+#Copyright
+
+menu.help.copyright.line1=BlueJ est\u00E1 dispon\u00EDvel sem custos e pode ser
+menu.help.copyright.line2=redistribu\u00EDdo gratuitamente. Ele n\u00E3o pode ser vendido
+menu.help.copyright.line3=visando lucro  ou inclu\u00EDdo em outros pacotes que
+menu.help.copyright.line4=sejam vendidos visando lucro sem autoriza\u00E7\u00E3o por escrito.
+menu.help.copyright.title=Copyright do BlueJ
 menu.help.copyright=Copyright
-menu.help.website=Web Site do BlueJ
-menu.help.tutorial=Tutorial do BlueJ
+
+menu.help.extensions=Extens\u00F5es Instaladas
 menu.help.standardApi=Bibliotecas de Classes de Java
+
+menu.help.tutorial=Tutorial do BlueJ
+menu.help.versionCheck=Checar Vers\u00E3o
+menu.help.website=Web Site do BlueJ
+menu.help=Ajuda
+menu.help.about=Sobre o BlueJ
+menu.package.close=Fechar
+menu.package.export=Exportar...
+menu.package.import=Importar...
+menu.package.new=Novo Projeto
+menu.package.open=Abrir Projeto...
+menu.package.openNonBlueJ=Abrir Projeto N\u00E3o BlueJ...
+menu.package.openRecent=Abrir Recentes\t
+menu.package.pageSetup=Configurar P\u00E1gina...
+menu.package.print=Imprimir...
+menu.package.quit=Sair
+menu.package.save=Salvar
+menu.package.saveAs=Salvar como...
+menu.package=Projeto
+menu.tools.callFreeForm=Avaliar Express\u00E3o...
+menu.tools.callLibrary=Usar Biblioteca de Classes...
+menu.tools.compile=Compilar
+menu.tools.compileSelected=Compilar Selecionados
+menu.tools.generateDoc=Documenta\u00E7\u00E3o do Projeto
+menu.tools.preferences=Prefer\u00EAncias
+menu.tools.rebuild=Recompile Pacote
+menu.tools.test=Executar Testes
+menu.tools=Ferramentas
+menu.view.showExecControls=Exibir Debugger
+menu.view.showInherits=Exibir Heran\u00E7a
+menu.view.showTerminal=Exibir Terminal
+menu.view.showTestDisplay=Exibir Resultados de Testes
+menu.view.showUses=Exibir Uso
+menu.view=Visualizar
+okay=Ok
+pkgmgr.addClass.buttonLabel=Adicionar
+pkgmgr.addClass.title=Selecione Classe Java a adicionar
+pkgmgr.appletInBrowser=Executando Applet no browser
+pkgmgr.appletInViewer=Executando Applet no appletviewer
+pkgmgr.breakpointMsg=A classe tem que estar compilada antes de se definir Breakpoints.
+pkgmgr.checkingVersion=Estabelecendo conex\u00E3o com o servidor de vers\u00F5es...
+pkgmgr.chooseArrow=Selecione a seta para apagar
+pkgmgr.chooseInhFrom=Selecione a superclasse
+pkgmgr.chooseInhTo=Selecione a subclasse
+pkgmgr.chooseUsesFrom=Selecione a classe da qual ela depende
+pkgmgr.chooseUsesTo=Selecione a classe da qual ela dependente
+pkgmgr.chooseWebPage.title=Selecione a p\u00E1gina HTML de destino
+pkgmgr.classmenu.compile=Compilar
+pkgmgr.classmenu.createTest=Criar classe de teste
+pkgmgr.classmenu.edit=Abrir Editor
+pkgmgr.classmenu.inspect=Inspecionar
+pkgmgr.classmenu.remove=Remover
+pkgmgr.classmenu.runApplet=Executar Applet
+pkgmgr.compileDone=Compilando... Pronto
+pkgmgr.compiling=Compilando...
+pkgmgr.createDone=Criando objeto... Pronto
+pkgmgr.creating=Criando objeto...
+pkgmgr.creatingVM=Criando m\u00E1quina virtual...
+pkgmgr.creatingVMDone=Criando m\u00E1quina virtual... Pronto
+pkgmgr.docuAborted=Gerando documenta\u00E7\u00E3o... Abortado
+pkgmgr.docuGenerated=Gerando documenta\u00E7\u00E3o... Pronto
+pkgmgr.error.open=O projeto n\u00E3o existe mais
+pkgmgr.export.classLabel=classe principal\:
+pkgmgr.export.directoryLabel=Salvar como uma estrutura de diretório
+pkgmgr.export.helpLine1=Exportar armazena uma cópia do projeto corrente no
+pkgmgr.export.helpLine2=formato padrao Java (não-BlueJ).
+pkgmgr.export.jarFileLabel=Guardar como arquivo jar
+pkgmgr.export.noClassText=nenhum (n\u00E3o pode ser executado)
+pkgmgr.export.sourceLabel=incluir fonte
+pkgmgr.export.title=BlueJ\:  Exportar projeto
+pkgmgr.exported.jar=Exporta\u00E7\u00E3o para arquivo jar completada.
+pkgmgr.exported=Exporta\u00E7\u00E3o completada.
+pkgmgr.generatingDocu=Gerando documenta\u00E7\u00E3o...
+pkgmgr.importfailed.helpLine1=O processo de importa\u00E7\u00E3o falhou ao importar os seguintes arquivos.
+pkgmgr.importfailed.helpLine2=Provavelmente estes arquivos j\u00E1 existem
+pkgmgr.importfailed.helpLine3=no projeto de destino escolhido.
+pkgmgr.importfailed.title=BlueJ\:  Status da Importa\u00E7\u00E3o
+pkgmgr.importmismatch.helpLine1=CUIDADO\: Este n\u00E3o \u00E9 o diret\u00F3rio topo esperado deste projeto
+pkgmgr.importmismatch.helpLine2=Java conforme est\u00E1 declarado em algum campo package de alguma classe do projeto.
+pkgmgr.importmismatch.helpLine3=A abertura deste diret\u00F3rio mudar\u00E1 todas as declara\u00E7\u00F5es de pacote
+pkgmgr.importmismatch.helpLine4=nos seguintes arquivos fontes do projeto.
+pkgmgr.importmismatch.helpLine5=Voc\u00EA deveria abrir o diret\u00F3rio pai daquele que voc\u00EA selecionou
+pkgmgr.importmismatch.helpLine6=Por exemplo, para abrir um projeto Java que cont\u00E9m
+pkgmgr.importmismatch.helpLine7=o pacote "org.bluej", voc\u00EA deve selecionar o diret\u00F3rio que
+pkgmgr.importmismatch.helpLine8=_cont\u00E9m_ "org",  e n\u00E3o o diret\u00F3rio "org" ou o diret\u00F3rio "bluej".
+pkgmgr.importmismatch.helpLine9=Voc\u00EA deseja continuar a abertura e mudar as declara\u00E7\u00F5es de pacotes?
+pkgmgr.importmismatch.title=BlueJ\:  Package Line Mismatches
+pkgmgr.importPkg.buttonLabel=Importar
+pkgmgr.importPkg.title=Selecione Diret\u00F3rio a Importar
+pkgmgr.importPkgNew.buttonLabel=Criar
+pkgmgr.importPkgNew.title=Novo Projeto para onde Importar
+pkgmgr.info.printed=Imprimindo... Pronto.
+pkgmgr.info.printing=Imprimindo...
+pkgmgr.methodCall.namePrompt=Nome da inst\u00E2ncia\:
+pkgmgr.methodCall.titleCall=BlueJ\:  Chamar M\u00E9todo
+pkgmgr.methodCall.titleCreate=BlueJ\:  Criar Objeto
+pkgmgr.newClass.abstract=Classe abstrata
+pkgmgr.newClass.applet=Applet
+pkgmgr.newClass.appletj=Applet
+pkgmgr.newClass.classType=Tipo da Classe
+pkgmgr.newClass.interface=Interface
+pkgmgr.newClass.label=Nome da Classe\:
+pkgmgr.newClass.msg=Entre o nome da classe
+pkgmgr.newClass.stdclass=Classe
+pkgmgr.newClass.title=BlueJ\:  Criar Nova Classe
+pkgmgr.newClass.unittest=Testar Unidade
+pkgmgr.newExtends=Nova Seta de Heran\u00E7a
+pkgmgr.newPackage.label=Nome do Pacote\:
+pkgmgr.newPackage.newPackage=Pacote
+pkgmgr.newPackage.title=BlueJ\:  Criar Novo Pacote
+pkgmgr.newPkg.buttonLabel=Criar
+pkgmgr.newPkg.title=Novo Projeto
+pkgmgr.newUses=Nova Seta de Uso
+pkgmgr.openNonBlueJPkg.buttonLabel=Abrir no BlueJ
+pkgmgr.openNonBlueJPkg.title=Abrir Projeto N\u00E3o BlueJ
+pkgmgr.openPkg.buttonLabel=Abrir
+pkgmgr.openPkg.title=Abrir Projeto
+pkgmgr.packagemenu.open=Abrir
+pkgmgr.packagemenu.remove=Remover
+pkgmgr.packageSaved=Pacote salvo
+pkgmgr.parentpackagetarget.open=Abrir
+pkgmgr.parentpackagetarget.openunamed=Abrir pacote sem nome
+pkgmgr.pkgChooseError=Erro ao selecionar um nome v\u00E1lido de pacote
+pkgmgr.printDialog.printDiagram=Imprimir diagrama de classe
+pkgmgr.printDialog.printReadme=Imprimir readme do projeto
+pkgmgr.printDialog.printSource=Imprimir c\u00F3digo fonte
+pkgmgr.printDialog.title=Imprimir Projeto
+pkgmgr.runApplet.appletParameterLbl=Par\u00E2metros do Applet
+pkgmgr.runApplet.appletviewer=Executar Applet no appletviewer
+pkgmgr.runApplet.heightLbl=Height \=
+pkgmgr.runApplet.htmlComment=<\!-- Este arquivo foi gerado automaticamente pelo ambiente de desenvolvimento Java  -->\n<\!-- BlueJ.  Ele \u00E9 gerado automaticamente cada vez que o -->\n<\!-- applet \u00E9 executado.  Qualquer mudan\u00E7a manual feita no arquvo ser\u00E1 perdida -->\n<\!-- quando o applet for executado novamente dentro do BlueJ.  Salve-o num       -->\n<\!-- diret\u00F3rio externo ao diret\u00F3rio do pacote caso voc\u00EA queira    -->\n<\!-- mant\u00EA-lo. -->
+pkgmgr.runApplet.htmlExportedComment=<\!-- Este arquivo foi gerado automaticamente pelo ambiente de desenvolvimento Java  -->\n<\!-- BlueJ.  A vari\u00E1vel codebase cont\u00E9m o caminho absoluto para-->\n<\!-- diret\u00F3rio de pacote bluej do applet no momento em que esta p\u00E1gina foi gerada. -->\n<\!-- Se a localiza~\u00E7ao daquela p\u00E1gina se alerar voc\u00EA precisar\u00E1 mudar  o valor de codebase.       -->
+pkgmgr.runApplet.nameLbl=Name \=
+pkgmgr.runApplet.newParameterLbl=Adicionar Novo Par\u00E2metro
+pkgmgr.runApplet.paramName=PARAM NAME
+pkgmgr.runApplet.title=BlueJ\:  Executa Applet
+pkgmgr.runApplet.value=VALUE
+pkgmgr.runApplet.valueLbl=Value \=
+pkgmgr.runApplet.webBrowser=Executar Applet num browser web
+pkgmgr.runApplet.webPage=Gerar apenas p\u00E1gina web
+pkgmgr.runApplet.webPageLabel=Criar P\u00E1gina Web
+pkgmgr.runApplet.widthLbl=Width \=
+pkgmgr.saveAs.buttonLabel=Savar
+pkgmgr.saveAs.title=Save Projeto
+pkgmgr.test.end=Fim
+pkgmgr.test.invalidTestName=O nome do teste deve ser um identificador Java v\u00E1lido
+pkgmgr.test.label=Testando
+pkgmgr.test.noTestName=VOc\u00EA deve espexificar um nome para o teste
+pkgmgr.test.popup.benchToFixture=Do banco de objetos para o Test Fixture
+pkgmgr.test.popup.createTest=Criar M\u00E9todo de Teste...
+pkgmgr.test.popup.fixtureToBench=Do Test Fixture para o Banco de Objetos
+pkgmgr.test.popup.noTests=Nenhum m\u00E9todo de teste
+pkgmgr.test.popup.testAll=Testar Tudo
+pkgmgr.test.popup.testPrefix=Teste
+pkgmgr.test.record=gravendo
+pkgmgr.test.recording=gravando
+pkgmgr.test.run=Executar Testes
+pkgmgr.test.succeeded=realizado
+pkgmgr.title=BlueJ\:
+pkgmgr.unimplemented=Desculpe - esta caracter\u00EDstica ainda n\u00E3o est\u00E1 implementada
+pkgmgr.usesArrowMsg=Depend\u00EAncia "Uses" declarada mas nunca usada\:
+pkgmgr.versionDlg.check=Verificar Vers\u00E3o
+pkgmgr.versionDlg.currentVersion=Sua vers\u00E3o atual \u00E9 
+pkgmgr.versionDlg.helpLine1=Esta fun\u00E7\u00E3o verificar\u00E1 se uma nova vers\u00E3o do BlueJ
+pkgmgr.versionDlg.helpLine2=est\u00E1 dispon\u00EDvel. Voc\u00EA deve estar online para isto funcionar.
+pkgmgr.versionDlg.newVersion=A vers\u00E3o mais recente \u00E9 
+pkgmgr.versionDlg.title=BlueJ\:  Verifique nova vers\u00E3o
+pkgmgr.versionDlg.upToDate=A vers\u00E3o corrente est\u00E1 atualizada.
+pkgmgr.webBrowserError=Erro iniciando web browser.
+pkgmgr.webBrowserMsg=Web browser iniciado.
+
+prefmgr.edit.autoindent=Auto-endentac\u00E3o (teclas Enter e Tab)
+prefmgr.edit.displaylinenumbers=Exibir n\u00FAmeros de linhas
+prefmgr.edit.editor.title=Configura\u00E7\u00F5es do editor
+prefmgr.edit.editorfontsize=Tamanho do fonte
+prefmgr.edit.makeBackup=Fazer backup dos arquivos fontes
+prefmgr.edit.matchBrackets=Casar colchetes
+prefmgr.edit.prefpaneltitle=Editor
+prefmgr.edit.usesyntaxhilighting=Usar sintaxe destacada
+prefmgr.misc.addLibTitle=Selecione o diret\u00F3rio ou o arquivo jar/zip
+prefmgr.misc.documentation.title=Configura\u00E7\u00F5es da documenta\u00E7\u00E3o
+prefmgr.misc.jdkurlpath=URL da documenta\u00E7\u00E3o do JDK
+prefmgr.misc.libFileFilter=Arquivos de bibliotecas (*.jar;*.zip) ou diret\u00F3rios de classes
+prefmgr.misc.linkToLib=Use esta URL quando gerar documenta\u00E7\u00E3o do projeto
+prefmgr.misc.linkToLibNoteLine1=Se esta URL for usada para gerar documenta\u00E7\u00E3o, ela deve estar correta e acess\u00EDvel
+prefmgr.misc.linkToLibNoteLine2=Caso contr\u00E1rio, a opera\u00E7\u00E3o de gera\u00E7\u00E3o da documenta\u00E7\u00E3o falhar\u00E1. Para trabalhar desconectado (offline), desmarque esta op\u00E7\u00E3o.
+prefmgr.misc.optimiseVM=Usar otimiza\u00E7\u00E3o (execu\u00E7\u00E3o mais r\u00E1pida, mas pode causar problemas com a depura\u00E7\u00E3o)
+prefmgr.misc.prefpaneltitle=Miscel\u00E2nea
+prefmgr.misc.showTesting=Exibir ferramentas para testes de unidades
+prefmgr.misc.testing.title=Configura\u00E7\u00F5es para teste de unidades
+prefmgr.misc.vm.title=Configura\u00E7\u00F5es da m\u00E1quina virtual
+prefmgr.title=BlueJ\:  Prefer\u00EAncias
+
+properties.heading.bluej=Propriedades do BlueJ. Configura\u00E7\u00F5es neste arquivo sobrep\u00F5em "bluej.defs"
+properties.heading.moe=Propriedades do editor Moe. Configura\u00E7\u00F5es neste arquivo sobrep\u00F5em "moe.defs"
+
+terminal.buffering=Buffer ilimitado
+terminal.clear=Limpar
+terminal.clearScreen=Fechar janela na chamada do m\u00E9todo
+terminal.close=Fechar
+terminal.copy=Copiar
+terminal.options=Op\u00E7\u00F5es
+terminal.recordCalls=Registrar chamadas de m\u00E9todos
+terminal.save.buttonText=Salvar
+terminal.save.title=Salvar texto do terminal
+terminal.save=Salvar em arquivo...
+terminal.title=BlueJ\:  Janela de Terminal
+
+testdisplay.counter.errors=Erros\:
+testdisplay.counter.failures=Falhas\:
+testdisplay.counter.runs=Execu\u00E7\u00F5es\:
+testdisplay.title=BlueJ\:  Resultados de Testes
 
 # tool tips
 
+tooltip.compile=Compila todas as classes n\u00E3o compiladas
 tooltip.newClass=Cria uma nova classe neste pacote
-tooltip.newUses=Insere uma relação de 'uso' 
-tooltip.newExtends=Insere uma relação de 'herança'
-tooltip.compile=Compila todas as classes não compiladas
-tooltip.test=Executa todas as classes de teste compiladas deste pacote	
-tooltip.showUses=Exibe/apaga relacionamentos de uso
-tooltip.showExtends=Exibe/apaga relacionamentos de herança
-tooltip.progress=Indicador de trabalho: indica quando a máquina virtual está trabalhando
+tooltip.newExtends=Insere uma rela\u00E7\u00E3o de 'heran\u00E7a'
+tooltip.newUses=Insere uma rela\u00E7\u00E3o de 'uso' 
+tooltip.progress=Indicador de trabalho\: indica quando a m\u00E1quina virtual est\u00E1 trabalhando
+tooltip.test.cancel=Cancelar e descartar a grava\u00E7\u00E3o de um m\u00E9todo de teste.
+tooltip.test.end=Finaliza a grava\u00E7\u00E3o de um m\u00E9todo de teste e salva-o.
+tooltip.test=Executa todas as classes de teste compiladas deste pacote\t
+
+utility.packageChooser.previewPane1=Pr\u00E9-visualiza\u00E7\u00E3o de poss\u00EDveis
+utility.packageChooser.previewPane2=estrutura do pacote
+
+# Work Indicator
+workIndicator.resetMachine=Resetar m\u00E1quina
+workIndicator.showDebugger=Exibir depurador
