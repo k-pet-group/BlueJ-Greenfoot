@@ -11,7 +11,7 @@ uses
 const
         jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
 	ibmregkey : string = '\Software\IBM\Java Development Kit';
-        bluejregkey : string = '\Software\BlueJ\BlueJ\1.3.0 beta 1';
+        bluejregkey : string = '\Software\BlueJ\BlueJ\1.3.0 beta 2';
 
         searchingstartcaption : string = 'Search drives for all Java versions...';
         searchingstopcaption : string = 'Stop Search';
@@ -214,7 +214,7 @@ begin
 
 	// vmfilename is automatically wrapped in quotes by ExecConsoleApp so
 	// there is no need for us to do it
-	vmfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\bin\java.exe';
+	vmfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\bin\javaw.exe';
 
         appdirlib := '"' + appdir + 'lib\';
 
@@ -222,7 +222,7 @@ begin
         editorjarfilename := appdirlib + 'editor.jar' + '"';
         extjarfilename := appdirlib + 'bluejext.jar' + '"';
         antlrjarfilename := appdirlib + 'antlr.jar' + '"';
-        //junitjarfilename := appdirlib + 'junit.jar' + '"';
+        junitjarfilename := appdirlib + 'junit.jar' + '"';
         mrjjarfilename := appdirlib + 'MRJToolkitStubs.zip' + '"';
 
         tooljarfilename := '"' + ExcludeTrailingPathDelimiter(jdkpath) + '\lib\tools.jar' + '"';
@@ -236,7 +236,7 @@ begin
                                            editorjarfilename + ';' +
                                            extjarfilename + ';' +
                                            antlrjarfilename + ';' +
-//                                           junitjarfilename + ';' +
+                                           junitjarfilename + ';' +
                                            mrjjarfilename + ';' +
                                            tooljarfilename + ' bluej.Main ' +
                                            goodparams.DelimitedText;

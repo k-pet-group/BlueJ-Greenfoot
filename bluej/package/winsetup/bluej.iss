@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=BlueJ
-AppVerName=BlueJ 1.3.0 beta 1
+AppVerName=BlueJ 1.3.0 beta 2
 AppPublisher=Monash University
 AppPublisherURL=http://www.bluej.org
 AppSupportURL=http://www.bluej.org
@@ -30,6 +30,9 @@ Name: "{group}\BlueJ"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"
 Name: "{userdesktop}\BlueJ"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 Name: "{group}\Select VM"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Parameters: "/select"; IconIndex: 1
 Name: "{app}\Select VM"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Parameters: "/select"; IconIndex: 1
+
+[InstallDelete]
+Type: files; Name: "{app}\lib\extensions\submission24.jar"
 
 [Files]
 Source: "..\install_tmp\*.*"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Flags: recursesubdirs
