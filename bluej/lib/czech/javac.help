@@ -1,467 +1,481 @@
-* is abstract; cannot be instantiated
-... je abstraktn\u00ed t\u0159\u00edda - nelze vytvo\u0159it jej\u00ed instanci
+as of release 1.4, 'assert' is a keyword, and may not be used as an identifier
+od verze 1.4 je "assert" kl\u00ED\u010Dov\u00E9 slovo a nem\u016F\u017Ee b\u00FDt pou\u017Eito jako identifik\u00E1tor
 |
-Tato t\u0159\u00edda je deklarov\u00e1na jako abstraktn\u00ed
-(pomoc\u00ed kl\u00ed\u010dov\u00e9ho slova "abstract").
-Abstraktn\u00ed t\u0159\u00eddy mohou (nemus\u00ed) obsahovat abstraktn\u00ed
-metody, kter\u00e9 neobsahuj\u00ed \u017e\u00e1dn\u00fd k\u00f3d - ten je dopln\u011bn
-a\u017e v odvozen\u00fdch t\u0159\u00edd\u00e1ch. Chcete-li vytvo\u0159it instanci
-odvozen\u00e9 t\u0159\u00eddy (podt\u0159\u00eddy), mus\u00edte doplnit k\u00f3d (t\u011blo)
-v\u0161ech zd\u011bd\u011bn\u00fdch abstraktn\u00edch metod.
+Slovo "assert" je nyn\u00ED sou\u010D\u00E1st\u00ED jazyka Java nesouc\u00ED speci\u00E1ln\u00ED v\u00FDznam
+(je to kl\u00ED\u010Dov\u00E9 slovo). Nelze je proto pou\u017E\u00EDt jako identifik\u00E1tor
+metody \u010Di prom\u011Bnn\u00E9. Zvolte pros\u00EDm jin\u00FD identifik\u00E1tor (n\u00E1zev).
+
+qualified new of static class
+kvalifikovan\u00E9 new p\u0159i konstrukci instance statick\u00E9 t\u0159\u00EDdy
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+* is abstract; cannot be instantiated
+... je abstraktn\u00ED t\u0159\u00EDda - nelze vytvo\u0159it jej\u00ED instanci
+|
+Tato t\u0159\u00EDda je deklarov\u00E1na jako abstraktn\u00ED
+(pomoc\u00ED kl\u00ED\u010Dov\u00E9ho slova "abstract").
+Abstraktn\u00ED t\u0159\u00EDdy mohou (nemus\u00ED) obsahovat abstraktn\u00ED
+metody, kter\u00E9 neobsahuj\u00ED \u017E\u00E1dn\u00FD k\u00F3d - ten je dopln\u011Bn
+a\u017E v odvozen\u00FDch t\u0159\u00EDd\u00E1ch. Chcete-li vytvo\u0159it instanci
+odvozen\u00E9 t\u0159\u00EDdy (podt\u0159\u00EDdy), mus\u00EDte doplnit k\u00F3d (t\u011Blo)
+v\u0161ech zd\u011Bd\u011Bn\u00FDch abstraktn\u00EDch metod.
 
 abstract methods cannot have a body
-Abstraktn\u00ed metody nesm\u00ed m\u00edt t\u011blo.
+Abstraktn\u00ED metody nesm\u00ED m\u00EDt t\u011Blo.
 |
-Pomoc\u00ed kl\u00ed\u010dov\u00e9ho slova "abstract" jste ozna\u010dili
-metodu jako abstraktn\u00ed a p\u0159itom jste definovali
-jej\u00ed t\u011blo (k\u00f3d ve slo\u017een\u00fdch z\u00e1vork\u00e1ch).
-Deklarace abstraktn\u00edch metod sm\u011bj\u00ed obsahovat
-pouze hlavi\u010dku ukon\u010denou st\u0159edn\u00edkem.
-Bu\u010fto odstra\u0148te kl\u00ed\u010dov\u00e9 slovo "abstract", nebo
-sma\u017ete t\u011blo metody v\u010detn\u011b slo\u017een\u00fdch z\u00e1vorek a
-ukon\u010dete hlavi\u010dku metody st\u0159edn\u00edkem.
+Pomoc\u00ED kl\u00ED\u010Dov\u00E9ho slova "abstract" jste ozna\u010Dili
+metodu jako abstraktn\u00ED a p\u0159itom jste definovali
+jej\u00ED t\u011Blo (k\u00F3d ve slo\u017Een\u00FDch z\u00E1vork\u00E1ch).
+Deklarace abstraktn\u00EDch metod sm\u011Bj\u00ED obsahovat
+pouze hlavi\u010Dku ukon\u010Denou st\u0159edn\u00EDkem.
+Bu\u010Fto odstra\u0148te kl\u00ED\u010Dov\u00E9 slovo "abstract", nebo
+sma\u017Ete t\u011Blo metody v\u010Detn\u011B slo\u017Een\u00FDch z\u00E1vorek a
+ukon\u010Dete hlavi\u010Dku metody st\u0159edn\u00EDkem.
 
 * is already defined in *
-... je ji\u017e definov\u00e1na v ...
+... je ji\u017E definov\u00E1na v ...
 |
-Uvnit\u0159 t\u00e9to metody je ji\u017e definov\u00e1na
-prom\u011bnn\u00e1/odkaz nebo parametr se stejn\u00fdm
-jm\u00e9nem. P\u0159ejete-li si vytvo\u0159it novou
-prom\u011bnnou/odkaz pou\u017eijte jin\u00e9 jm\u00e9no.
-Chcete-li pou\u017e\u00edt st\u00e1vaj\u00edc\u00ed prom\u011bnnou nebo
-parametr odstra\u0148te typ prom\u011bnn\u00e9/odkazu.
+Uvnit\u0159 t\u00E9to metody je ji\u017E definov\u00E1na
+prom\u011Bnn\u00E1/odkaz nebo parametr se stejn\u00FDm
+jm\u00E9nem. P\u0159ejete-li si vytvo\u0159it novou
+prom\u011Bnnou/odkaz pou\u017Eijte jin\u00E9 jm\u00E9no.
+Chcete-li pou\u017E\u00EDt st\u00E1vaj\u00EDc\u00ED prom\u011Bnnou nebo
+parametr odstra\u0148te typ prom\u011Bnn\u00E9/odkazu.
 
 * has private access in *
-... je definov\u00e1n jako soukrom\u00fd v ...
+... je definov\u00E1n jako soukrom\u00FD v ...
 |
-Pou\u017e\u00edv\u00e1te atribut (metodu), kter\u00fd(\u00e1) je definov\u00e1n(a)
-jako soukrom\u00fd(\u00e1). Jedn\u00e1-li se o atribut, zkuste
-m\u00edsto p\u0159\u00edm\u00e9ho p\u0159\u00edstupu pou\u017e\u00edt jeho p\u0159\u00edstupovou
-metodu getXxx() (m\u00e1-li ji).
+Pou\u017E\u00EDv\u00E1te atribut (metodu), kter\u00FD(\u00E1) je definov\u00E1n(a)
+jako soukrom\u00FD(\u00E1). Jedn\u00E1-li se o atribut, zkuste
+m\u00EDsto p\u0159\u00EDm\u00E9ho p\u0159\u00EDstupu pou\u017E\u00EDt jeho p\u0159\u00EDstupovou
+metodu getXxx() (m\u00E1-li ji).
 
 anonymous class implements interface; cannot have arguments
-anonymn\u00ed t\u0159\u00edda inplementuj\u00edc\u00ed rozhran\u00ed nesm\u00ed m\u00edt parametry
+anonymn\u00ED t\u0159\u00EDda inplementuj\u00EDc\u00ED rozhran\u00ED nesm\u00ED m\u00EDt parametry
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 anonymous class implements interface; cannot have qualifier for new
-nonymn\u00ed t\u0159\u00edda inplementuj\u00edc\u00ed rozhran\u00ed nesm\u00ed m\u00edt kvalifikovan\u00e9 new
+nonymn\u00ED t\u0159\u00EDda inplementuj\u00EDc\u00ED rozhran\u00ED nesm\u00ED m\u00EDt kvalifikovan\u00E9 new
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 array required, but *
-Je vy\u017eadov\u00e1no pole, ale uveden\u00fd typ je ...
+Je vy\u017Eadov\u00E1no pole, ale uveden\u00FD typ je ...
 |
-Pou\u017e\u00edv\u00e1te syntaxi p\u0159\u00edstupu k element\u016fm pole pomoc\u00ed
-hranat\u00fdch z\u00e1vorek. Prom\u011bnn\u00e1 ale nen\u00ed typu pole.
+Pou\u017E\u00EDv\u00E1te syntaxi p\u0159\u00EDstupu k element\u016Fm pole pomoc\u00ED
+hranat\u00FDch z\u00E1vorek. Prom\u011Bnn\u00E1 ale nen\u00ED typu pole.
 
 break outside switch or loop
-P\u0159\u00edkaz "break" je pou\u017eit mimo "switch" nebo cyklus
+P\u0159\u00EDkaz "break" je pou\u017Eit mimo "switch" nebo cyklus
 |
-P\u0159\u00edkaz "break" ukon\u010d\u00ed vykon\u00e1v\u00e1n\u00ed bloku "switch"
-nebo cyklu "for", "while" \u010di "do".
-P\u0159\u00edkaz "break" nesm\u00ed b\u00fdt pou\u017eit mimo tyto bloky.
+P\u0159\u00EDkaz "break" ukon\u010D\u00ED vykon\u00E1v\u00E1n\u00ED bloku "switch"
+nebo cyklu "for", "while" \u010Di "do".
+P\u0159\u00EDkaz "break" nesm\u00ED b\u00FDt pou\u017Eit mimo tyto bloky.
 
 * must be first statement in constructor
-... mus\u00ed b\u00fdt uveden jako prvn\u00ed p\u0159\u00edkaz v konstruktoru
+... mus\u00ED b\u00FDt uveden jako prvn\u00ED p\u0159\u00EDkaz v konstruktoru
 |
-Vol\u00e1-li konstruktor jin\u00fd konstruktor prost\u0159ednictv\u00edm
-this nebo super, mus\u00ed b\u00fdt toto vol\u00e1n\u00ed \u00fapln\u011b prvn\u00edm
-p\u0159\u00edkazem v t\u011ble konstruktoru. P\u0159ed t\u00edmto p\u0159\u00edkazem
-nesm\u00ed b\u00fdt nic: \u017e\u00e1dn\u00fd p\u0159\u00edkaz ani za\u010d\u00e1tek bloku
-nebo uvozen\u00ed bloku try ... catch.
-Jsou povoleny pouze b\u00edl\u00e9 znaky a koment\u00e1\u0159e.
+Vol\u00E1-li konstruktor jin\u00FD konstruktor prost\u0159ednictv\u00EDm
+this nebo super, mus\u00ED b\u00FDt toto vol\u00E1n\u00ED \u00FApln\u011B prvn\u00EDm
+p\u0159\u00EDkazem v t\u011Ble konstruktoru. P\u0159ed t\u00EDmto p\u0159\u00EDkazem
+nesm\u00ED b\u00FDt nic: \u017E\u00E1dn\u00FD p\u0159\u00EDkaz ani za\u010D\u00E1tek bloku
+nebo uvozen\u00ED bloku try ... catch.
+Jsou povoleny pouze b\u00EDl\u00E9 znaky a koment\u00E1\u0159e.
 
 cannot access *
 Nelze p\u0159istupovat k ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
-
-* cannot be applied to *
-Nelze aplikovat na ...
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 cannot assign a value to final variable *
-Nelze p\u0159i\u0159adit hodnotu konstant\u011b ...
+Nelze p\u0159i\u0159adit hodnotu konstant\u011B ...
 |
-Kl\u00ed\u010dov\u00fdm slovem "final" jsou ozna\u010den\u00e9 konstanty.
-Jejich hodnota nesm\u00ed b\u00fdt v programu zm\u011bn\u011bna.
+Kl\u00ED\u010Dov\u00FDm slovem "final" jsou ozna\u010Den\u00E9 konstanty.
+Jejich hodnota nesm\u00ED b\u00FDt v programu zm\u011Bn\u011Bna.
+
+type variables cannot be dereferenced
+prom\u011Bnn\u00E9 primitivn\u00EDch typ\u016F nemohou b\u00FDt dereferencov\u00E1ny
+|
+U prom\u011Bnn\u00FDch a atribut\u016F primitivn\u00EDch typ\u016F nem\u016F\u017Eete
+pou\u017E\u00EDt te\u010Dkovou konvenci a sna\u017Eit se oslovit
+jejich slo\u017Eky.
 
 * cannot be dereferenced
-... nem\u016f\u017ee b\u00fdt dereferencov\u00e1na
+... nem\u016F\u017Ee b\u00FDt dereferencov\u00E1na
 |
-Pomoc\u00ed oper\u00e1toru "." se sna\u017e\u00edte p\u0159istoupit k metod\u011b
-nebo atributu prom\u011bnn\u00e9, kter\u00e1 nen\u00ed objektov\u00e9ho typu.
+Pomoc\u00ED oper\u00E1toru "." se sna\u017E\u00EDte p\u0159istoupit k metod\u011B
+nebo atributu prom\u011Bnn\u00E9, kter\u00E1 nen\u00ED objektov\u00E9ho typu.
 
 cannot inherit from final *
-Nelze d\u011bdit/odvozovat od "final" t\u0159\u00eddy ...
+Nelze d\u011Bdit/odvozovat od "final" t\u0159\u00EDdy ...
 |
-Rodi\u010dovsk\u00e1 t\u0159\u00edda (tj. t\u0159\u00edda, od kter\u00e9 se odvozuje,
-a kter\u00e1 je uveden\u00e1 za kl\u00ed\u010dov\u00fdm slovem "extends")
-je deklarov\u00e1na jako "final", co\u017e zakazuje vytv\u00e1\u0159en\u00ed
-jej\u00edch potomk\u016f (dce\u0159inn\u00fdch t\u0159\u00edd).
+Rodi\u010Dovsk\u00E1 t\u0159\u00EDda (tj. t\u0159\u00EDda, od kter\u00E9 se odvozuje,
+a kter\u00E1 je uveden\u00E1 za kl\u00ED\u010Dov\u00FDm slovem "extends")
+je deklarov\u00E1na jako "final", co\u017E zakazuje vytv\u00E1\u0159en\u00ED
+jej\u00EDch potomk\u016F (dce\u0159inn\u00FDch t\u0159\u00EDd).
 
 * before supertype constructor has been called
-... bylo vol\u00e1no p\u0159ed konstruktorem rodi\u010dovsk\u00e9 t\u0159\u00eddy
+... bylo vol\u00E1no p\u0159ed konstruktorem rodi\u010Dovsk\u00E9 t\u0159\u00EDdy
 |
-Prvn\u00ed v\u011bc, kter\u00e1 by m\u011bla b\u00fdt provedena v konstruktoru
-dce\u0159inn\u00e9 t\u0159\u00eddy (podt\u0159\u00eddy), je vol\u00e1n\u00ed konstruktoru
-rodi\u010dovsk\u00e9 t\u0159\u00eddy. Nem\u00e1-li rodi\u010dovsk\u00e1 t\u0159\u00edda implicitn\u00ed
-konstruktor, mus\u00edte pou\u017e\u00edt p\u0159\u00edkazu:
+Prvn\u00ED v\u011Bc, kter\u00E1 by m\u011Bla b\u00FDt provedena v konstruktoru
+dce\u0159inn\u00E9 t\u0159\u00EDdy (podt\u0159\u00EDdy), je vol\u00E1n\u00ED konstruktoru
+rodi\u010Dovsk\u00E9 t\u0159\u00EDdy. Nem\u00E1-li rodi\u010Dovsk\u00E1 t\u0159\u00EDda implicitn\u00ED
+konstruktor, mus\u00EDte pou\u017E\u00EDt p\u0159\u00EDkazu:
     super(...);
-uveden\u00e9ho jako prvn\u00ed p\u0159\u00edkaz t\u011bla konstruktoru.
-Te\u010dky p\u0159edstavuj\u00ed parametry konstruktoru.
-Stejn\u00fd p\u0159\u00edkaz pou\u017eijte i p\u0159i pot\u0159eb\u011b vol\u00e1n\u00ed jin\u00e9ho
-ne\u017e bezparametrick\u00e9ho rodi\u010dovsk\u00e9ho konstruktoru.
+uveden\u00E9ho jako prvn\u00ED p\u0159\u00EDkaz t\u011Bla konstruktoru.
+Te\u010Dky p\u0159edstavuj\u00ED parametry konstruktoru.
+Stejn\u00FD p\u0159\u00EDkaz pou\u017Eijte i p\u0159i pot\u0159eb\u011B vol\u00E1n\u00ED jin\u00E9ho
+ne\u017E bezparametrick\u00E9ho rodi\u010Dovsk\u00E9ho konstruktoru.
 
 cannot return a value from method whose result type is void
-Nelze vracet hodnoty z metody ozna\u010den\u00e9 "void"
+Nelze vracet hodnoty z metody ozna\u010Den\u00E9 "void"
 |
-Deklarace n\u00e1vratov\u00e9ho typu "void" znamen\u00e1, \u017ee metoda nevrac\u00ed
-\u017e\u00e1dnou hodnotu. V t\u011ble "void" metody lze pou\u017e\u00edt pouze p\u0159\u00edkaz
-"return;", tj. bez ud\u00e1n\u00ed n\u00e1vratov\u00e9 hodnoty.
+Deklarace n\u00E1vratov\u00E9ho typu "void" znamen\u00E1, \u017Ee metoda nevrac\u00ED
+\u017E\u00E1dnou hodnotu. V t\u011Ble "void" metody lze pou\u017E\u00EDt pouze p\u0159\u00EDkaz
+"return;", tj. bez ud\u00E1n\u00ED n\u00E1vratov\u00E9 hodnoty.
 
 cannot select a static class from a parameterized type
-Z parametrizovan\u00e9ho typu nen\u00ed mo\u017en\u00e9 vybrat statickou t\u0159\u00eddu
+Z parametrizovan\u00E9ho typu nen\u00ED mo\u017En\u00E9 vybrat statickou t\u0159\u00EDdu
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
-* cannot be inherited with different arguments:*
-... nem\u016f\u017ee b\u00fdt zd\u011bd\u011bno s odli\u0161n\u00fdmi parametry: ...
+* cannot be inherited with different arguments: *
+... nem\u016F\u017Ee b\u00FDt zd\u011Bd\u011Bno s odli\u0161n\u00FDmi parametry: ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 'catch' without 'try'
-Je pou\u017eit p\u0159\u00edkaz 'catch' bez p\u0159edchoz\u00edho 'try'
+Je pou\u017Eit p\u0159\u00EDkaz 'catch' bez p\u0159edchoz\u00EDho 'try'
 |
-"catch" je kl\u00ed\u010dov\u00e9 slovo, kter\u00e9 m\u016f\u017ee b\u00fdt pou\u017eito pouze
-po bloku "try". Spr\u00e1vn\u00e9 pou\u017eit\u00ed:
+"catch" je kl\u00ED\u010Dov\u00E9 slovo, kter\u00E9 m\u016F\u017Ee b\u00FDt pou\u017Eito pouze
+po bloku "try". Spr\u00E1vn\u00E9 pou\u017Eit\u00ED:
    try {
-      p\u0159\u00edkazy ...
+      p\u0159\u00EDkazy ...
    }
    catch(Exception e) {
-     p\u0159\u00edkazy ...
+     p\u0159\u00EDkazy ...
    }
 
 * clashes with package of same name
-... koliduje se stejn\u011b pojmenovan\u00fdm bal\u00ed\u010dkem
+... koliduje se stejn\u011B pojmenovan\u00FDm bal\u00ED\u010Dkem
 |
-Ujist\u011bte se, \u017ee t\u0159\u00edda a bal\u00ed\u010dek, ve kter\u00e9m je t\u0159\u00edda
-um\u00edst\u011bna, maj\u00ed rozd\u00edln\u00e1 jm\u00e9na. Podle konvence by m\u011bla
-jm\u00e9na t\u0159\u00edd za\u010d\u00ednat velk\u00fdmi p\u00edsmeny a jm\u00e9na bal\u00ed\u010dk\u016f
-by m\u011bla obsahovat pouze mal\u00e1 p\u00edsmena.
+Ujist\u011Bte se, \u017Ee t\u0159\u00EDda a bal\u00ED\u010Dek, ve kter\u00E9m je t\u0159\u00EDda
+um\u00EDst\u011Bna, maj\u00ED rozd\u00EDln\u00E1 jm\u00E9na. Podle konvence by m\u011Bla
+jm\u00E9na t\u0159\u00EDd za\u010D\u00EDnat velk\u00FDmi p\u00EDsmeny a jm\u00E9na bal\u00ED\u010Dk\u016F
+by m\u011Bla obsahovat pouze mal\u00E1 p\u00EDsmena.
 
 code too large for try statement
-K\u00f3d uvnit\u0159 bloku 'try' je p\u0159\u00edli\u0161 dlouh\u00fd
+K\u00F3d uvnit\u0159 bloku 'try' je p\u0159\u00EDli\u0161 dlouh\u00FD
 |
-Uvnit\u0159 tohoto "try" bloku je p\u0159\u00edli\u0161 mnoho \u0159\u00e1dk\u016f.
-Pokuste se p\u0159esunout tento k\u00f3d do nov\u00e9 metody
+Uvnit\u0159 tohoto "try" bloku je p\u0159\u00EDli\u0161 mnoho \u0159\u00E1dk\u016F.
+Pokuste se p\u0159esunout tento k\u00F3d do nov\u00E9 metody
 a zavolejte ji z tohoto bloku.
 
 constant expression required
-Je vy\u017eadov\u00e1n konstantn\u00ed v\u00fdraz
+Je vy\u017Eadov\u00E1n konstantn\u00ED v\u00FDraz
 |
-Na tomto m\u00edst\u011b jste pou\u017eili prom\u011bnnou nebo v\u00fdraz,
-co\u017e nen\u00ed p\u0159\u00edpustn\u00e9. Zde m\u016f\u017eete pou\u017e\u00edt pouze konstanty.
-Konstanta je \u010d\u00edseln\u00e1 hodnota (jako nap\u0159\u00edklad 42),
-nebo identifik\u00e1tor deklarovan\u00fd jako "final".
+Na tomto m\u00EDst\u011B jste pou\u017Eili prom\u011Bnnou nebo v\u00FDraz,
+co\u017E nen\u00ED p\u0159\u00EDpustn\u00E9. Zde m\u016F\u017Eete pou\u017E\u00EDt pouze konstanty.
+Konstanta je \u010D\u00EDseln\u00E1 hodnota (jako nap\u0159\u00EDklad 42),
+nebo identifik\u00E1tor deklarovan\u00FD jako "final".
 
 continue outside of loop
-P\u0159\u00edkaz 'continue' je pou\u017eit mimo cyklus
+P\u0159\u00EDkaz 'continue' je pou\u017Eit mimo cyklus
 |
-P\u0159\u00edkaz "continue" je pou\u017e\u00edv\u00e1n k okam\u017eit\u00e9mu
-p\u0159echodu do dal\u0161\u00edho opakov\u00e1n\u00ed cyklu. Tento
-p\u0159\u00edkaz m\u016f\u017ee b\u00fdt pou\u017eit pouze uvnit\u0159 cyklu
+P\u0159\u00EDkaz "continue" je pou\u017E\u00EDv\u00E1n k okam\u017Eit\u00E9mu
+p\u0159echodu do dal\u0161\u00EDho opakov\u00E1n\u00ED cyklu. Tento
+p\u0159\u00EDkaz m\u016F\u017Ee b\u00FDt pou\u017Eit pouze uvnit\u0159 cyklu
 "for", "while" a "do".
 
 cyclic inheritance involving *
-Cyklick\u00e1 d\u011bdi\u010dnost v ...
+Cyklick\u00E1 d\u011Bdi\u010Dnost v ...
 |
-Sna\u017e\u00edte se tuto t\u0159\u00eddu odvodit od t\u0159\u00eddy,
-kter\u00e1 je sama od t\u00e9to t\u0159\u00eddy odvozena.
-Jin\u00fdmi slovy: sna\u017e\u00edte se, aby rodi\u010d byl
-potomkem sv\u00e9ho potomka. Mus\u00edte se rozhodnout,
-kter\u00e1 t\u0159\u00edda bude rodi\u010d a kter\u00e1 potomek.
+Sna\u017E\u00EDte se tuto t\u0159\u00EDdu odvodit od t\u0159\u00EDdy,
+kter\u00E1 je sama od t\u00E9to t\u0159\u00EDdy odvozena.
+Jin\u00FDmi slovy: sna\u017E\u00EDte se, aby rodi\u010D byl
+potomkem sv\u00E9ho potomka. Mus\u00EDte se rozhodnout,
+kter\u00E1 t\u0159\u00EDda bude rodi\u010D a kter\u00E1 potomek.
 
 * does not exist
 ... neexistuje
 |
-Pravd\u011bpodobn\u011b jste zde cht\u011bli pou\u017e\u00edt jm\u00e9no
-prom\u011bnn\u00e9 nebo t\u0159\u00eddy, av\u0161ak \u017e\u00e1dn\u00e1 prom\u011bnn\u00e1,
-t\u0159\u00edda nebo bal\u00ed\u010dek s takov\u00fdm jm\u00e9nem neexistuje.
+Pravd\u011Bpodobn\u011B jste zde cht\u011Bli pou\u017E\u00EDt jm\u00E9no
+prom\u011Bnn\u00E9 nebo t\u0159\u00EDdy, av\u0161ak \u017E\u00E1dn\u00E1 prom\u011Bnn\u00E1,
+t\u0159\u00EDda nebo bal\u00ED\u010Dek s takov\u00FDm jm\u00E9nem neexistuje.
 
 duplicate class:*
-Duplicitn\u00ed t\u0159\u00edda: ...
+Duplicitn\u00ED t\u0159\u00EDda: ...
 |
-T\u0159\u00edda se stejn\u00fdm jm\u00e9nem ji\u017e existuje.
+T\u0159\u00EDda se stejn\u00FDm jm\u00E9nem ji\u017E existuje.
 
 duplicate case label
-Duplicitn\u00ed n\u00e1v\u011b\u0161t\u00ed 'case'
+Duplicitn\u00ED n\u00E1v\u011B\u0161t\u00ED 'case'
 |
-Uvnit\u0159 bloku "switch" jste pou\u017eili dvakr\u00e1t "case xx:"
-se stejnou hodnotou. To nen\u00ed p\u0159\u00edpustn\u00e9.
+Uvnit\u0159 bloku "switch" jste pou\u017Eili dvakr\u00E1t "case xx:"
+se stejnou hodnotou. To nen\u00ED p\u0159\u00EDpustn\u00E9.
 
 duplicate default label
-Duplicitn\u00ed n\u00e1v\u011b\u0161t\u00ed 'default'
+Duplicitn\u00ED n\u00E1v\u011B\u0161t\u00ED 'default'
 |
-Uvnit\u0159 bloku "switch" m\u016f\u017ee b\u00fdt n\u00e1v\u011b\u0161t\u00ed "default"
-pou\u017eito pouze jednou.
+Uvnit\u0159 bloku "switch" m\u016F\u017Ee b\u00FDt n\u00E1v\u011B\u0161t\u00ED "default"
+pou\u017Eito pouze jednou.
 
 'else' without 'if'
-'else' je pou\u017eito bez p\u0159edchoz\u00edho 'if'
+'else' je pou\u017Eito bez p\u0159edchoz\u00EDho 'if'
 |
-Kl\u00ed\u010dov\u00e9 slovo "else" m\u016f\u017ee b\u00fdt pou\u017eito pouze
-jako sou\u010d\u00e1st p\u0159\u00edkazu "if". P\u0159\u00edklad:
-   if (podn\u00ednka)
-     podm\u00ednka spln\u011bna;
+Kl\u00ED\u010Dov\u00E9 slovo "else" m\u016F\u017Ee b\u00FDt pou\u017Eito pouze
+jako sou\u010D\u00E1st p\u0159\u00EDkazu "if". P\u0159\u00EDklad:
+   if (podn\u00EDnka)
+     podm\u00EDnka spln\u011Bna;
    else
-     podm\u00ednka nespln\u011bna;
-Mo\u017en\u00e1, \u017ee jste neuvedli spr\u00e1vn\u00fd po\u010det slo\u017een\u00fdch z\u00e1vorek.
-\u010castou p\u0159\u00ed\u010dinou t\u00e9to chyby je, \u017ee chcete ve v\u011btvi if vykonat
-n\u011bkolik p\u0159\u00edkaz\u016f a zapomn\u011bli jste je uzav\u0159\u00edt do slo\u017een\u00fdch z\u00e1vorek.
-   if (podm\u00ednka)
+     podm\u00EDnka nespln\u011Bna;
+Mo\u017En\u00E1, \u017Ee jste neuvedli spr\u00E1vn\u00FD po\u010Det slo\u017Een\u00FDch z\u00E1vorek.
+\u010Castou p\u0159\u00ED\u010Dinou t\u00E9to chyby je, \u017Ee chcete ve v\u011Btvi if vykonat
+n\u011Bkolik p\u0159\u00EDkaz\u016F a zapomn\u011Bli jste je uzav\u0159\u00EDt do slo\u017Een\u00FDch z\u00E1vorek.
+   if (podm\u00EDnka)
    {
-      p\u0159\u00edkaz1;
-      p\u0159\u00edkaz2;
+      p\u0159\u00EDkaz1;
+      p\u0159\u00EDkaz2;
    }
    else
    {
-      p\u0159\u00edkaz3;
+      p\u0159\u00EDkaz3;
    }
 
 empty character literal
-Zak\u00e1zan\u00fd znak ''
+Zak\u00E1zan\u00FD znak ''
 |
-Znakov\u00e9 liter\u00e1ly se p\u00ed\u0161\u00ed ve tvaru 'a'. Mezi apostrofy
-je v\u017edy pr\u00e1v\u011b jeden znak. V\u00fdjimkou jsou speci\u00e1ln\u00ed
-znaky psan\u00e9 pomoc\u00ed zp\u011btn\u00e9ho lom\u00edtka - nap\u0159.
-'\n' nov\u00fd \u0159\u00e1dek, '\t' tabul\u00e1tor atd.
-Pr\u00e1zdn\u00fd znak neexistuje.
+Znakov\u00E9 liter\u00E1ly se p\u00ED\u0161\u00ED ve tvaru 'a'. Mezi apostrofy
+je v\u017Edy pr\u00E1v\u011B jeden znak. V\u00FDjimkou jsou speci\u00E1ln\u00ED
+znaky psan\u00E9 pomoc\u00ED zp\u011Btn\u00E9ho lom\u00EDtka - nap\u0159.
+'\n' nov\u00FD \u0159\u00E1dek, '\t' tabul\u00E1tor atd.
+Pr\u00E1zdn\u00FD znak neexistuje.
 
 * has already been caught
-... v\u00fdjimka ji\u017e byla zachycena
+... v\u00FDjimka ji\u017E byla zachycena
 |
-Tento "catch" je \u00fapln\u011b zbyte\u010dn\u00fd, proto\u017ee
-se do tohoto m\u00edsta v\u00fdjimka nikdy nedostane.
-V\u0161echny uveden\u00e9 v\u00fdjimky budou zachyceny
-pomoc\u00ed p\u0159edchoz\u00edch "catch".
+Tento "catch" je \u00FApln\u011B zbyte\u010Dn\u00FD, proto\u017Ee
+se do tohoto m\u00EDsta v\u00FDjimka nikdy nedostane.
+V\u0161echny uveden\u00E9 v\u00FDjimky budou zachyceny
+pomoc\u00ED p\u0159edchoz\u00EDch "catch".
 
 * is never thrown in body of corresponding try statement
-... v\u00fdjimka nem\u016f\u017ee b\u00fdt vyvol\u00e1na v p\u0159\u00edslu\u0161n\u00e9m "try" bloku
+... v\u00FDjimka nem\u016F\u017Ee b\u00FDt vyvol\u00E1na v p\u0159\u00EDslu\u0161n\u00E9m "try" bloku
 |
-Zachyt\u00e1v\u00e1te v\u00fdjimku, kterou v p\u0159\u00edslu\u0161n\u00e9m bloku try
+Zachyt\u00E1v\u00E1te v\u00FDjimku, kterou v p\u0159\u00EDslu\u0161n\u00E9m bloku try
 nikdo negeneruje.
 
 'finally' without 'try'
-Pou\u017eito 'finally' bez p\u0159edchoz\u00edho 'try'
+Pou\u017Eito 'finally' bez p\u0159edchoz\u00EDho 'try'
 |
-"finally" je kl\u00ed\u010dov\u00e9 slovo, kter\u00e9 m\u016f\u017ee b\u00fdt pou\u017eito pouze
-po "try" bloku. Pou\u017eit\u00ed:
+"finally" je kl\u00ED\u010Dov\u00E9 slovo, kter\u00E9 m\u016F\u017Ee b\u00FDt pou\u017Eito pouze
+po "try" bloku. Pou\u017Eit\u00ED:
    try {
-      p\u0159\u00edkazy;
+      p\u0159\u00EDkazy;
    }
    catch(Exception e) {
-     p\u0159\u00edkazy;
+     p\u0159\u00EDkazy;
    }
    finally {
-      p\u0159\u00edkazy;
+      p\u0159\u00EDkazy;
    }
 
 floating point number too large
-zadan\u00e9 desetinn\u00e9 \u010d\u00edslo je p\u0159\u00edli\u0161 velik\u00e9
+zadan\u00E9 desetinn\u00E9 \u010D\u00EDslo je p\u0159\u00EDli\u0161 velik\u00E9
 |
-Syst\u00e9m neum\u00ed pracovat s tak velk\u00fdmi \u010d\u00edsly
-dan\u00e9ho typu.
+Syst\u00E9m neum\u00ED pracovat s tak velk\u00FDmi \u010D\u00EDsly
+dan\u00E9ho typu.
 
 floating point number too small
-zadan\u00e9 desetinn\u00e9 \u010d\u00edslo je p\u0159\u00edli\u0161 mal\u00e9
+zadan\u00E9 desetinn\u00E9 \u010D\u00EDslo je p\u0159\u00EDli\u0161 mal\u00E9
 |
-Syst\u00e9m neum\u00ed pracovat s tak mal\u00fdmi \u010d\u00edsly
-dan\u00e9ho typu.
+Syst\u00E9m neum\u00ED pracovat s tak mal\u00FDmi \u010D\u00EDsly
+dan\u00E9ho typu.
 
 inner classes cannot have static declarations
-Vnit\u0159n\u00ed t\u0159\u00edda nem\u016f\u017ee m\u00edt statick\u00e9 deklarace
+Vnit\u0159n\u00ED t\u0159\u00EDda nem\u016F\u017Ee m\u00EDt statick\u00E9 deklarace
 |
-Ve vnit\u0159n\u00ed t\u0159\u00edd\u011b nelze deklarovat statick\u00e9
-\u010dleny. Pot\u0159ebujete-li statick\u00fd atribut
-nebo metodu, vytvo\u0159te jej ve vn\u011bj\u0161\u00ed t\u0159\u00edd\u011b.
+Ve vnit\u0159n\u00ED t\u0159\u00EDd\u011B nelze deklarovat statick\u00E9
+\u010Dleny. Pot\u0159ebujete-li statick\u00FD atribut
+nebo metodu, vytvo\u0159te jej ve vn\u011Bj\u0161\u00ED t\u0159\u00EDd\u011B.
 
-illegal character:*
-Zak\u00e1zan\u00fd znak: ...
+illegal character: *
+Zak\u00E1zan\u00FD znak: ...
 |
-Na tomto \u0159\u00e1dku je ve zdrojov\u00e9m k\u00f3du zak\u00e1zan\u00fd znak.
-Tento znak nemus\u00ed b\u00fdt viditeln\u00fd. Nem\u016f\u017eete-li jej
-nal\u00e9zt, sma\u017ete cel\u00fd \u0159\u00e1dek a napi\u0161te jej znovu.
+Na tomto \u0159\u00E1dku je ve zdrojov\u00E9m k\u00F3du zak\u00E1zan\u00FD znak.
+Tento znak nemus\u00ED b\u00FDt viditeln\u00FD. Nem\u016F\u017Eete-li jej
+nal\u00E9zt, sma\u017Ete cel\u00FD \u0159\u00E1dek a napi\u0161te jej znovu.
 
 illegal combination of modifiers: *
-Zak\u00e1zan\u00e1 kombinace modifik\u00e1tor\u016f: ...
+Zak\u00E1zan\u00E1 kombinace modifik\u00E1tor\u016F: ...
 |
-Pou\u017eili jste zak\u00e1zanou kombinaci modifik\u00e1tor\u016f,
-kter\u00e9 se navz\u00e1jem vylu\u010duj\u00ed.
-P\u0159\u00edkladem je kombinace modifik\u00e1toru "abstract"
-s n\u011bkter\u00fdm z modifik\u00e1tor\u016f "native",
+Pou\u017Eili jste zak\u00E1zanou kombinaci modifik\u00E1tor\u016F,
+kter\u00E9 se navz\u00E1jem vylu\u010Duj\u00ED.
+P\u0159\u00EDkladem je kombinace modifik\u00E1toru "abstract"
+s n\u011Bkter\u00FDm z modifik\u00E1tor\u016F "native",
 "final", "private" nebo "synchronized".
 
 illegal escape character
-Neplatn\u00fd \u0159\u00edd\u00edc\u00ed znak
+Neplatn\u00FD \u0159\u00EDd\u00EDc\u00ED znak
 |
-\u0158\u00edd\u00edc\u00ed znak za\u010d\u00edn\u00e1 zp\u011btn\u00fdm lom\u00edtkem "\"
-n\u00e1sledovan\u00fdm p\u00edsmenem. Povolen\u00e9 \u0159\u00edd\u00edc\u00ed znaky jsou:
+\u0158\u00EDd\u00EDc\u00ED znak za\u010D\u00EDn\u00E1 zp\u011Btn\u00FDm lom\u00EDtkem "\"
+n\u00E1sledovan\u00FDm p\u00EDsmenem. Povolen\u00E9 \u0159\u00EDd\u00EDc\u00ED znaky jsou:
 \n, \t, \b, \r, \f, \\, \', \".
 
 illegal forward reference
-Nepovlen\u00fd dop\u0159edn\u00fd odkaz
+Nepovlen\u00FD dop\u0159edn\u00FD odkaz
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 illegal initializer for *
-Nepovolen\u00fd incializ\u00e1tor pro ...
+Nepovolen\u00FD incializ\u00E1tor pro ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 illegal line end in character literal
-Neplatn\u00fd konec \u0159\u00e1dku uvnit\u0159 znakov\u00e9ho liter\u00e1lu
+Neplatn\u00FD konec \u0159\u00E1dku uvnit\u0159 znakov\u00E9ho liter\u00E1lu
 |
-\u0158\u00e1dek v\u00e1m kon\u010d\u00ed uprost\u0159ed znakov\u00e9ho liter\u00e1lu.
-Znak pro nov\u00fd \u0159\u00e1dek je '\n'.
+\u0158\u00E1dek v\u00E1m kon\u010D\u00ED uprost\u0159ed znakov\u00E9ho liter\u00E1lu.
+Znak pro nov\u00FD \u0159\u00E1dek je '\n'.
 
-* is not an inner class
-... nen\u00ed vnit\u0159n\u00ed t\u0159\u00edda
+illegal qualifier; {0} is not an inner class
+nepovolen\u00FD modifik\u00E1tor; ... nen\u00ED vnit\u0159n\u00ED t\u0159\u00EDda
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 illegal start of expression
-Zak\u00e1zan\u00fd za\u010d\u00e1tek v\u00fdrazu
+Zak\u00E1zan\u00FD za\u010D\u00E1tek v\u00FDrazu
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 illegal start of type
-Zak\u00e1zan\u00fd za\u010d\u00e1tek typu
+Zak\u00E1zan\u00FD za\u010D\u00E1tek typu
 |
-Na t\u00e9to pozici, je o\u010dek\u00e1v\u00e1no jm\u00e9no typu,
-ale je zde n\u011bco jin\u00e9ho (pravd\u011bpodobn\u011b kl\u00ed\u010dov\u00e9
-slovo). Zkontrolujte spr\u00e1vnost definice typu.
+Na t\u00E9to pozici, je o\u010Dek\u00E1v\u00E1no jm\u00E9no typu,
+ale je zde n\u011Bco jin\u00E9ho (pravd\u011Bpodobn\u011B kl\u00ED\u010Dov\u00E9
+slovo). Zkontrolujte spr\u00E1vnost definice typu.
 
 illegal unicode escape
-Zak\u00e1zan\u00fd z\u00e1pis znaku sady unicode
+Zak\u00E1zan\u00FD z\u00E1pis znaku sady unicode
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 improperly formed type, some parameters are missing
-Nespr\u00e1vn\u011b utvo\u0159en\u00fd typ, n\u011bkter\u00e9 parametry chyb\u011bj\u00ed
+Nespr\u00E1vn\u011B utvo\u0159en\u00FD typ, n\u011Bkter\u00E9 parametry chyb\u011Bj\u00ED
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 incomparable types: *
-Tyto typy nelze navz\u00e1jem porovn\u00e1vat: ...
+Tyto typy nelze navz\u00E1jem porovn\u00E1vat: ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 integer number too large: *
-Cel\u00e9 \u010d\u00edslo je p\u0159\u00edli\u0161 velk\u00e9: ...
+Cel\u00E9 \u010D\u00EDslo je p\u0159\u00EDli\u0161 velk\u00E9: ...
 |
-Napsali jste \u010d\u00edslo, kter\u00e9 je pro tento typ p\u0159\u00edli\u0161
-dlouh\u00e9. Zkuste pou\u017e\u00edt del\u0161\u00ed typ ("int" nebo "long").
+Napsali jste \u010D\u00EDslo, kter\u00E9 je pro tento typ p\u0159\u00EDli\u0161
+dlouh\u00E9. Zkuste pou\u017E\u00EDt del\u0161\u00ED typ ("int" nebo "long").
 
 internal error; cannot instantiate *
-Vnit\u0159n\u00ed chyba; nen\u00ed mo\u017eno vytvo\u0159it instanci ...
+Vnit\u0159n\u00ED chyba; nen\u00ED mo\u017Eno vytvo\u0159it instanci ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 * but with different return type
-... existuje s jin\u00fdm typem n\u00e1vratov\u00e9 hodnoty
+... existuje s jin\u00FDm typem n\u00E1vratov\u00E9 hodnoty
 |
-Pravd\u011bpodobn\u011b se sna\u017e\u00edte napsat dv\u011b metody, kter\u00e9 se
-li\u0161\u00ed pouze v typu n\u00e1vratov\u00e9 hodnoty. To nen\u00ed dovoleno.
+Pravd\u011Bpodobn\u011B se sna\u017E\u00EDte napsat dv\u011B metody, kter\u00E9 se
+li\u0161\u00ED pouze v typu n\u00E1vratov\u00E9 hodnoty. To nen\u00ED dovoleno.
 
 interface expected here
-Zde je o\u010dek\u00e1v\u00e1no rozhran\u00ed
+Zde je o\u010Dek\u00E1v\u00E1no rozhran\u00ED
 |
-Rozhran\u00ed m\u016f\u017ee b\u00fdt odvozeno pouze od jin\u00e9ho rozhran\u00ed.
-Jm\u00e9no, kter\u00e9 jste uvedli po "extends" nen\u00ed rozhran\u00ed.
+Rozhran\u00ED m\u016F\u017Ee b\u00FDt odvozeno pouze od jin\u00E9ho rozhran\u00ED.
+Jm\u00E9no, kter\u00E9 jste uvedli po "extends" nen\u00ED rozhran\u00ED.
 
 interface methods cannot have body
-Metoda rozhran\u00ed nem\u016f\u017ee m\u00edt t\u011blo
+Metoda rozhran\u00ED nem\u016F\u017Ee m\u00EDt t\u011Blo
 |
-Rozhran\u00ed maj\u00ed pouze hlavi\u010dky metod ukon\u010den\u00e9
-st\u0159edn\u00edkem. Metody deklarovan\u00e9 v rozhran\u00ed
-nemaj\u00ed t\u011blo ve slo\u017een\u00fdch z\u00e1vork\u00e1ch.
+Rozhran\u00ED maj\u00ED pouze hlavi\u010Dky metod ukon\u010Den\u00E9
+st\u0159edn\u00EDkem. Metody deklarovan\u00E9 v rozhran\u00ED
+nemaj\u00ED t\u011Blo ve slo\u017Een\u00FDch z\u00E1vork\u00E1ch.
 
 hexadecimal numbers must contain at least one hexadecimal digit
-Hexadecim\u00e1ln\u00ed \u010d\u00edsla mus\u00ed b\u00fdt tvo\u0159ena alespo\u0148 jednou \u010d\u00edslic\u00ed
+Hexadecim\u00E1ln\u00ED \u010D\u00EDsla mus\u00ED b\u00FDt tvo\u0159ena alespo\u0148 jednou \u010D\u00EDslic\u00ED
 |
-Zadali jste hexadecim\u00e1ln\u00ed \u010d\u00edslo pomoc\u00ed z\u00e1pisu "0x".
-P\u0159i z\u00e1pisu hexa \u010d\u00edsla mus\u00ed b\u00fdt po "x" uvedena alespo\u0148 jedna
-\u010d\u00edslice 0...9 nebo a..f.
+Zadali jste hexadecim\u00E1ln\u00ED \u010D\u00EDslo pomoc\u00ED z\u00E1pisu "0x".
+P\u0159i z\u00E1pisu hexa \u010D\u00EDsla mus\u00ED b\u00FDt po "x" uvedena alespo\u0148 jedna
+\u010D\u00EDslice 0...9 nebo a..f.
 
 invalid method declaration; return type required
-Neplatn\u00e1 deklarace metody; chyb\u00ed typ n\u00e1vratov\u00e9 hodnoty
+Neplatn\u00E1 deklarace metody; chyb\u00ED typ n\u00E1vratov\u00E9 hodnoty
 |
-V\u0161echny metody mus\u00ed m\u00edt v hlavi\u010dce uveden typ n\u00e1vratov\u00e9 hodnoty.
-Vrac\u00ed-li nap\u0159. mojeMetoda() textov\u00fd \u0159et\u011bzec, mus\u00ed m\u00edt hlavi\u010dku:
+V\u0161echny metody mus\u00ED m\u00EDt v hlavi\u010Dce uveden typ n\u00E1vratov\u00E9 hodnoty.
+Vrac\u00ED-li nap\u0159. mojeMetoda() textov\u00FD \u0159et\u011Bzec, mus\u00ED m\u00EDt hlavi\u010Dku:
     public String mojeMetoda();
-Metody, kter\u00e9 nic nevrac\u00ed maj\u00ed uveden\u00fd typ "void" - nap\u0159.:
+Metody, kter\u00E9 nic nevrac\u00ED maj\u00ED uveden\u00FD typ "void" - nap\u0159.:
     public void jinaMetoda();
-N\u011bco v\u0161ak v\u017edy m\u00edt uvedeno mus\u00ed.
+N\u011Bco v\u0161ak v\u017Edy m\u00EDt uvedeno mus\u00ED.
 
 * already in use
-... u\u017e je pou\u017eito
+... u\u017E je pou\u017Eito
 |
-V programu je ji\u017e definov\u00e1na prom\u011bnn\u00e1 nebo
-parametr t\u00edmto jm\u00e9nem. P\u0159ejete-li si vytvo\u0159it
-novou prom\u011bnnou, pou\u017eijte jin\u00e9 jm\u00e9no. Chcete-li
-pou\u017e\u00edt st\u00e1vaj\u00edc\u00ed prom\u011bnnou nebo parametr
-odstra\u0148te z p\u0159\u00edkazu deklaraci typu.
+V programu je ji\u017E definov\u00E1na prom\u011Bnn\u00E1 nebo
+parametr t\u00EDmto jm\u00E9nem. P\u0159ejete-li si vytvo\u0159it
+novou prom\u011Bnnou, pou\u017Eijte jin\u00E9 jm\u00E9no. Chcete-li
+pou\u017E\u00EDt st\u00E1vaj\u00EDc\u00ED prom\u011Bnnou nebo parametr
+odstra\u0148te z p\u0159\u00EDkazu deklaraci typu.
 
 * is accessed from within inner class; needs to be declared final
-... je pou\u017eito ve vnit\u0159n\u00ed t\u0159\u00edd\u011b => mus\u00ed b\u00fdt 'final'
+... je pou\u017Eito ve vnit\u0159n\u00ED t\u0159\u00EDd\u011B => mus\u00ED b\u00FDt 'final'
 |
-Pokou\u0161\u00edte se z vnit\u0159n\u00ed t\u0159\u00eddy p\u0159istoupit k atributu jej\u00ed vn\u011bj\u0161\u00ed
-t\u0159\u00eddy \u010di k lok\u00e1ln\u00ed prom\u011bnn\u00e9 metody, v n\u00ed\u017e je t\u0159\u00edda definov\u00e1na.
-Z vnit\u0159n\u00edch t\u0159\u00edd v\u0161ak m\u016f\u017eete p\u0159istupovat pouze ke kostant\u00e1m.
-M\u00e1te dv\u011b mo\u017enosti: bu\u010fto p\u0159id\u00e1n\u00edm modifik\u00e1toru 'final' ud\u011blejte
-z pou\u017eit\u00e9 prom\u011bnn\u00e9 konstatnu, nebo nebo pro ni definujte
-ve vn\u011bj\u0161\u00ed t\u0159\u00edd\u011b metody get... a set... a p\u0159istupujte k n\u00ed
-prost\u0159ednictv\u00edm t\u011bchto metod.
+Pokou\u0161\u00EDte se z vnit\u0159n\u00ED t\u0159\u00EDdy p\u0159istoupit k atributu jej\u00ED vn\u011Bj\u0161\u00ED
+t\u0159\u00EDdy \u010Di k lok\u00E1ln\u00ED prom\u011Bnn\u00E9 metody, v n\u00ED\u017E je t\u0159\u00EDda definov\u00E1na.
+Z vnit\u0159n\u00EDch t\u0159\u00EDd v\u0161ak m\u016F\u017Eete p\u0159istupovat pouze ke kostant\u00E1m.
+M\u00E1te dv\u011B mo\u017Enosti: bu\u010Fto p\u0159id\u00E1n\u00EDm modifik\u00E1toru 'final' ud\u011Blejte
+z pou\u017Eit\u00E9 prom\u011Bnn\u00E9 konstatnu, nebo nebo pro ni definujte
+ve vn\u011Bj\u0161\u00ED t\u0159\u00EDd\u011B metody get... a set... a p\u0159istupujte k n\u00ED
+prost\u0159ednictv\u00EDm t\u011Bchto metod.
 
 malformed floating point literal
-Chyba p\u0159i z\u00e1pisu \u010d\u00edsla s plovouc\u00ed desetinnou te\u010dkou
+Chyba p\u0159i z\u00E1pisu \u010D\u00EDsla s plovouc\u00ED desetinnou te\u010Dkou
 |
-P\u0159i z\u00e1pisu \u010d\u00edsla s plovouc\u00ed desetinou te\u010dko jste
-ud\u011blali n\u011bjakou chybu.
-POZOR: v \u010de\u0161tin\u011b - desetinn\u00e1 \u010d\u00e1rka; v Jav\u011b - te\u010dka !!
-P\u0159\u00edklady korektn\u00edho z\u00e1pisu:
+P\u0159i z\u00E1pisu \u010D\u00EDsla s plovouc\u00ED desetinou te\u010Dko jste
+ud\u011Blali n\u011Bjakou chybu.
+POZOR: v \u010De\u0161tin\u011B - desetinn\u00E1 \u010D\u00E1rka; v Jav\u011B - te\u010Dka !!
+P\u0159\u00EDklady korektn\u00EDho z\u00E1pisu:
 18.0      18.     1.8e1     .18E2
 
 missing method body, or declare abstract
-Chyb\u00ed t\u011blo metody, nebo kl\u00ed\u010dov\u00e9 slovo 'abstract'
+Chyb\u00ED t\u011Blo metody, nebo kl\u00ED\u010Dov\u00E9 slovo 'abstract'
 |
-Metoda mus\u00ed m\u00edt t\u011blo, nebo mus\u00ed b\u00fdt definov\u00e1na jako
-abstraktn\u00ed. T\u011blo metody je uv\u00e1d\u011bno ve slo\u017een\u00fdch z\u00e1vork\u00e1ch.
-Abstraktn\u00ed metody nemaj\u00ed t\u011blo, jsou ozna\u010deny modifik\u00e1torem
-'abstract' a hlavi\u010dka metody je ukon\u010dena st\u0159edn\u00edkem - nap\u0159.
+Metoda mus\u00ED m\u00EDt t\u011Blo, nebo mus\u00ED b\u00FDt definov\u00E1na jako
+abstraktn\u00ED. T\u011Blo metody je uv\u00E1d\u011Bno ve slo\u017Een\u00FDch z\u00E1vork\u00E1ch.
+Abstraktn\u00ED metody nemaj\u00ED t\u011Blo, jsou ozna\u010Deny modifik\u00E1torem
+'abstract' a hlavi\u010Dka metody je ukon\u010Dena st\u0159edn\u00EDkem - nap\u0159.
     public abstract int getOdpoved();
 
 missing return statement
-Chyb\u00ed p\u0159\u00edkaz 'return'
+Chyb\u00ED p\u0159\u00EDkaz 'return'
 |
-Tato metoda m\u00e1 definov\u00e1n n\u00e1vratov\u00fd typ. Mus\u00ed proto
-vracet n\u00e1vratovou hodnotu pomoc\u00ed p\u0159\u00edkazu
-     return <v\u00fdraz>;
+Tato metoda m\u00E1 definov\u00E1n n\u00E1vratov\u00FD typ. Mus\u00ED proto
+vracet n\u00E1vratovou hodnotu pomoc\u00ED p\u0159\u00EDkazu
+     return <v\u00FDraz>;
 nap\u0159.
      return 42;
-Vracen\u00fd typ mus\u00ed odpov\u00eddat typu uveden\u00e9mu v hlavi\u010dce
-metody. Metody, kter\u00e9 nemaj\u00ed vracet \u017e\u00e1dnou hodnotu
-mus\u00ed m\u00edt deklarov\u00e1n typ n\u00e1vratov\u00e9 hodnoty "void".
+Vracen\u00FD typ mus\u00ED odpov\u00EDdat typu uveden\u00E9mu v hlavi\u010Dce
+metody. Metody, kter\u00E9 nemaj\u00ED vracet \u017E\u00E1dnou hodnotu
+mus\u00ED m\u00EDt deklarov\u00E1n typ n\u00E1vratov\u00E9 hodnoty "void".
 
 missing return value
-U p\u0159\u00edkazu return chyb\u00ed hodnota
+U p\u0159\u00EDkazu return chyb\u00ED hodnota
 |
-P\u0159\u00edkaz "return;" bez ud\u00e1n\u00ed n\u00e1vratov\u00e9 hodnoty m\u016f\u017ee b\u00fdt
-pou\u017eit pouze u "void" metod. Metody, u kter\u00fdch je uveden
-typ n\u00e1vratov\u00e9 hodnoty, mus\u00ed vracet hodnotu dan\u00e9ho typu.
-P\u0159\u00edklad:
+P\u0159\u00EDkaz "return;" bez ud\u00E1n\u00ED n\u00E1vratov\u00E9 hodnoty m\u016F\u017Ee b\u00FDt
+pou\u017Eit pouze u "void" metod. Metody, u kter\u00FDch je uveden
+typ n\u00E1vratov\u00E9 hodnoty, mus\u00ED vracet hodnotu dan\u00E9ho typu.
+P\u0159\u00EDklad:
     return 42*x;
 nebo
     return "Marvin";
@@ -469,234 +483,239 @@ nebo
 name clash: *
 Kolize jmen: ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 * is reserved for internal use
-... je rezervov\u00e1no pro intern\u00ed pou\u017eit\u00ed
+... je rezervov\u00E1no pro intern\u00ED pou\u017Eit\u00ED
 |
-Uveden\u00e9 slovo je rezervov\u00e1no, proto nem\u016f\u017ee b\u00fdt
-pou\u017eito jako jm\u00e9no prom\u011bnn\u00e9/reference nebo t\u0159\u00eddy.
+Uveden\u00E9 slovo je rezervov\u00E1no, proto nem\u016F\u017Ee b\u00FDt
+pou\u017Eito jako jm\u00E9no prom\u011Bnn\u00E9/reference nebo t\u0159\u00EDdy.
 
 native methods cannot have a body
-Metoda s modifik\u00e1torem 'native' nesm\u00ed m\u00edt t\u011blo
+Metoda s modifik\u00E1torem 'native' nesm\u00ED m\u00EDt t\u011Blo
 |
-Tato metoda je ozna\u010den\u00e1 jako "native" a z\u00e1rove\u0148 m\u00e1
-t\u011blo. Nativn\u00ed metody maj\u00ed pouze hlavi\u010dku ukon\u010denou
-st\u0159edn\u00edkem.
+Tato metoda je ozna\u010Den\u00E1 jako "native" a z\u00E1rove\u0148 m\u00E1
+t\u011Blo. Nativn\u00ED metody maj\u00ED pouze hlavi\u010Dku ukon\u010Denou
+st\u0159edn\u00EDkem.
 
 no enclosing instance of type {0} is in scope
-Neuzav\u0159en\u00ed instance typu ...
+Neuzav\u0159en\u00ED instance typu ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 no interface expected here
-Na tomto m\u00edst\u011b nem\u016f\u017ee b\u00fdt pou\u017eito rozhran\u00ed
+Na tomto m\u00EDst\u011B nem\u016F\u017Ee b\u00FDt pou\u017Eito rozhran\u00ED
 |
-Pravd\u011bpodobn\u011b se pokou\u0161\u00edte odvodit t\u0159\u00eddu od rozhran\u00ed
-pomoc\u00ed slova "extends". T\u0159\u00eddu lze odvodit pouze od
-jin\u00e9 t\u0159\u00eddy, nikoliv od rozhran\u00ed. Chcete-li, aby
-tato t\u0159\u00edda implementovala dan\u00e9 rozhran\u00ed, pou\u017eijte
-kl\u00ed\u010dov\u00e9 slovo "implements".
+Pravd\u011Bpodobn\u011B se pokou\u0161\u00EDte odvodit t\u0159\u00EDdu od rozhran\u00ED
+pomoc\u00ED slova "extends". T\u0159\u00EDdu lze odvodit pouze od
+jin\u00E9 t\u0159\u00EDdy, nikoliv od rozhran\u00ED. Chcete-li, aby
+tato t\u0159\u00EDda implementovala dan\u00E9 rozhran\u00ED, pou\u017Eijte
+kl\u00ED\u010Dov\u00E9 slovo "implements".
 
-* has no match in entry in *
-... nesouhlas\u00ed se vstupem v ...
+{0} has no match in entry in {1}; required {2}
+... nesouhlas\u00ED se vstupem v ...; je po\u017Eadov\u00E1no ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 * is not defined in a public class or interface; cannot be accessed from outside package
-... nen\u00ed deklarov\u00e1na jako ve\u0159ejn\u00e1 t\u0159\u00edda nebo rozhran\u00ed => nem\u016f\u017ee b\u00fdt pou\u017eite vn\u011b bal\u00ed\u010dku
+... nen\u00ED deklarov\u00E1na jako ve\u0159ejn\u00E1 t\u0159\u00EDda nebo rozhran\u00ED => nem\u016F\u017Ee b\u00FDt pou\u017Eite vn\u011B bal\u00ED\u010Dku
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 * cannot be accessed from outside package
-... nem\u016f\u017ee b\u00fdt pou\u017eito mimo bal\u00ed\u010dek
+... nem\u016F\u017Ee b\u00FDt pou\u017Eito mimo bal\u00ED\u010Dek
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 not a loop label: *
-Nen\u00ed n\u00e1v\u011b\u0161t\u00edm cyklu: ...
+Nen\u00ED n\u00E1v\u011B\u0161t\u00EDm cyklu: ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 not a statement
-To nen\u00ed p\u0159\u00edkaz
+To nen\u00ED p\u0159\u00EDkaz
 |
-Napsali jste k\u00f3d, kter\u00fd nen\u00ed p\u0159\u00edkazem. Zkontrolujte
-znovu tento \u0159\u00e1dek.
+Napsali jste k\u00F3d, kter\u00FD nen\u00ED p\u0159\u00EDkazem. Zkontrolujte
+znovu tento \u0159\u00E1dek.
 
 not an enclosing class: *
-T\u0159\u00edda nen\u00ed vn\u011bj\u0161\u00ed t\u0159\u00eddou: ...
+T\u0159\u00EDda nen\u00ED vn\u011Bj\u0161\u00ED t\u0159\u00EDdou: ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 * cannot be applied to *
- ... oper\u00e1tor nem\u016f\u017ee b\u00fdt pou\u017eit pro ...
+ ... oper\u00E1tor nem\u016F\u017Ee b\u00FDt pou\u017Eit pro ...
 |
-Oper\u00e1tor, kter\u00fd se zde pokou\u0161\u00edte pou\u017e\u00edt, nem\u016f\u017ee b\u00fdt
-pro tento datov\u00fd typ pou\u017eit.
-Pou\u017e\u00edv\u00e1te bu\u010fto \u0161patn\u00fd typ, nebo nevhodn\u00fd oper\u00e1tor.
+Oper\u00E1tor, kter\u00FD se zde pokou\u0161\u00EDte pou\u017E\u00EDt, nem\u016F\u017Ee b\u00FDt
+pro tento datov\u00FD typ pou\u017Eit.
+Pou\u017E\u00EDv\u00E1te bu\u010Fto \u0161patn\u00FD typ, nebo nevhodn\u00FD oper\u00E1tor.
 
 * clashes with class of same name
- ... koliduje se stejn\u011b pojmenovanou t\u0159\u00eddou
+ ... koliduje se stejn\u011B pojmenovanou t\u0159\u00EDdou
 |
-Ujist\u011bte se, \u017ee t\u0159\u00edda a bal\u00ed\u010dek maj\u00ed odli\u0161n\u00e1 jm\u00e9na.
-Jm\u00e9na t\u0159\u00edd za\u010d\u00ednaj\u00ed velk\u00fdmi p\u00edsmeny, jm\u00e9na
-bal\u00ed\u010dk\u016f za\u010d\u00ednaj\u00ed mal\u00fdmi p\u00edsmeny.
+Ujist\u011Bte se, \u017Ee t\u0159\u00EDda a bal\u00ED\u010Dek maj\u00ED odli\u0161n\u00E1 jm\u00E9na.
+Jm\u00E9na t\u0159\u00EDd za\u010D\u00EDnaj\u00ED velk\u00FDmi p\u00EDsmeny, jm\u00E9na
+bal\u00ED\u010Dk\u016F za\u010D\u00EDnaj\u00ED mal\u00FDmi p\u00EDsmeny.
 
 possible fall-through into case
-Pravd\u011bpodobn\u00fd propad do v\u011btve case"
+Pravd\u011Bpodobn\u00FD propad do v\u011Btve case"
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 error reading *
-Chyba p\u0159i \u010dten\u00ed ...
+Chyba p\u0159i \u010Dten\u00ED ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 recursive constructor invocation
-Rekurzivn\u00ed vol\u00e1n\u00ed konstruktoru
+Rekurzivn\u00ED vol\u00E1n\u00ED konstruktoru
 |
-Vytvo\u0159ili jste konstruktor, kter\u00fd vol\u00e1 s\u00e1m sebe.
-To nen\u00ed p\u0159\u00edpustn\u00e9, proto\u017ee by pravd\u011bpodobn\u011b
-vznikl nekone\u010dn\u00fd cyklus.
+Vytvo\u0159ili jste konstruktor, kter\u00FD vol\u00E1 s\u00E1m sebe.
+To nen\u00ED p\u0159\u00EDpustn\u00E9, proto\u017Ee by pravd\u011Bpodobn\u011B
+vznikl nekone\u010Dn\u00FD cyklus.
 
 * is ambiguous, both *
-... je zam\u011bniteln\u00e9 s ...
+... je zam\u011Bniteln\u00E9 s ...
 |
-Ur\u010den\u00ed jm\u00e9na t\u0159\u00eddy nebo rozhran\u00ed nen\u00ed jednozna\u010dn\u00e9.
-Pravd\u011bpodobn\u011b importujete z r\u016fzn\u00fdch bal\u00ed\u010dk\u016f t\u0159\u00eddy
-nebo rozhran\u00ed se stejn\u00fdm jm\u00e9nem. Tento probl\u00e9m
-vy\u0159e\u0161\u00edte pou\u017eit\u00edm pln\u00e9ho jm\u00e9na t\u0159\u00eddy, nap\u0159\u00edklad:
+Ur\u010Den\u00ED jm\u00E9na t\u0159\u00EDdy nebo rozhran\u00ED nen\u00ED jednozna\u010Dn\u00E9.
+Pravd\u011Bpodobn\u011B importujete z r\u016Fzn\u00FDch bal\u00ED\u010Dk\u016F t\u0159\u00EDdy
+nebo rozhran\u00ED se stejn\u00FDm jm\u00E9nem. Tento probl\u00E9m
+vy\u0159e\u0161\u00EDte pou\u017Eit\u00EDm pln\u00E9ho jm\u00E9na t\u0159\u00EDdy, nap\u0159\u00EDklad:
     import java.util.List;
 nebo
     java.util.List lst;
 
 repeated interface
-Opakovan\u00e9 uveden\u00ed rozhran\u00ed
+Opakovan\u00E9 uveden\u00ED rozhran\u00ED
 |
-Po "implements" bylo jedno rozhran\u00ed uvedeno opakovan\u011b.
-Pou\u017eit\u00e9 rozhran\u00ed m\u016f\u017ee b\u00fdt uvedeno pouze jednou.
+Po "implements" bylo jedno rozhran\u00ED uvedeno opakovan\u011B.
+Pou\u017Eit\u00E9 rozhran\u00ED m\u016F\u017Ee b\u00FDt uvedeno pouze jednou.
 
 repeated modifier
-Opakovan\u00e9 uveden\u00ed modifik\u00e1toru
+Opakovan\u00E9 uveden\u00ED modifik\u00E1toru
 |
-Modifik\u00e1tor byl uveden opakovan\u011b. Modifik\u00e1tory
+Modifik\u00E1tor byl uveden opakovan\u011B. Modifik\u00E1tory
 "final, static, public, private, volatile, ..."
-se uv\u00e1d\u011bj\u00ed pouze jednou.
+se uv\u00E1d\u011Bj\u00ED pouze jednou.
 
 {0} has {1} access in {2}
-... m\u00e1 ... p\u0159\u00edstup\u016f v ...
+... m\u00E1 ... p\u0159\u00EDstup\u016F v ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 return outside method
-P\u0159\u00edkaz return je pou\u017eit vn\u011b metod
+P\u0159\u00EDkaz return je pou\u017Eit vn\u011B metod
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
-signature does not match *
-Hlavi\u010dka neodpov\u00edd\u00e1 ...
+signature does not match {0}; incompatible interfaces
+Hlavi\u010Dka neodpov\u00EDd\u00E1 ...; nekopmatibiln\u00ED rozhran\u00ED
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+signature does not match {0}; incompatible supertype
+Hlavi\u010Dka neodpov\u00EDd\u00E1 ...; nekopmatibiln\u00ED rodi\u010Dovsk\u00FD typ
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 * should be declared abstract; it does not define *
- ... by m\u011bla b\u00fdt deklarov\u00e1na jako 'abstract'; nen\u00ed definov\u00e1no ...
+ ... by m\u011Bla b\u00FDt deklarov\u00E1na jako 'abstract'; nen\u00ED definov\u00E1no ...
 |
-Tato t\u0159\u00edda nedefinuje v\u0161echny metody uveden\u00e9
-v pou\u017eit\u00fdch rozhran\u00edch nebo chyb\u00ed implementace
-abstraktn\u00edch metod  rodi\u010dovsk\u00e9 t\u0159\u00eddy.
+Tato t\u0159\u00EDda nedefinuje v\u0161echny metody uveden\u00E9
+v pou\u017Eit\u00FDch rozhran\u00EDch nebo chyb\u00ED implementace
+abstraktn\u00EDch metod  rodi\u010Dovsk\u00E9 t\u0159\u00EDdy.
 
 error writing source; cannot overwrite input file *
-Chyba p\u0159i zapisov\u00e1n\u00ed zdroje; nelze p\u0159epsat vstupn\u00ed soubor ...
+Chyba p\u0159i zapisov\u00E1n\u00ED zdroje; nelze p\u0159epsat vstupn\u00ED soubor ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 'try' without 'catch' or 'finally'
-Pou\u017eit\u00ed 'try' bez 'catch' nebo 'finally'
+Pou\u017Eit\u00ED 'try' bez 'catch' nebo 'finally'
 |
-Pou\u017eijete-li blok "try", mus\u00edte jej ukon\u010dit
-pomoc\u00ed "catch" nebo "finally". Spr\u00e1vn\u00e9 pou\u017eit\u00ed:
+Pou\u017Eijete-li blok "try", mus\u00EDte jej ukon\u010Dit
+pomoc\u00ED "catch" nebo "finally". Spr\u00E1vn\u00E9 pou\u017Eit\u00ED:
    try {
-      p\u0159\u00edkazy;
+      p\u0159\u00EDkazy;
    }
    catch(Exception e) {
-      p\u0159\u00edkazy;
+      p\u0159\u00EDkazy;
    }
    finally {
-      p\u0159\u00edkazy;
+      p\u0159\u00EDkazy;
    }
 
 * does not take parameters
-... nem\u00e1 parametry
+... nem\u00E1 parametry
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
-type variables cannot be dereferenced
-Typov\u00e1 prom\u011bnn\u00e1 nem\u016f\u017ee b\u00fdt dereferencov\u00e1na
+wrong number of type arguments; required *
+Nespr\u00E1vn\u00FD po\u010Det parametr\u016F; po\u017Eadov\u00E1no ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 type variable {0} occurs more than once in result type of {1}; cannot be left uninstantiated
-Typov\u00e1 prom\u011bnn\u00e1 ... se vyskytuje ve v\u00fdsledku typu ... v\u00edce ne\u017e jednou; je t\u0159eba vytvo\u0159it instanci
+Typov\u00E1 prom\u011Bnn\u00E1 ... se vyskytuje ve v\u00FDsledku typu ... v\u00EDce ne\u017E jednou; je t\u0159eba vytvo\u0159it instanci
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 type variable {0} occurs more than once in type of {1}; cannot be left uninstantiated
-Typov\u00e1 prom\u011bnn\u00e1 ... se vyskytuje ve typu ... v\u00edce ne\u017e jednou; je t\u0159eba vytvo\u0159it instanci
+Typov\u00E1 prom\u011Bnn\u00E1 ... se vyskytuje ve typu ... v\u00EDce ne\u017E jednou; je t\u0159eba vytvo\u0159it instanci
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 unclosed character literal
-Neukon\u010den\u00fd znakov\u00fd liter\u00e1l
+Neukon\u010Den\u00FD znakov\u00FD liter\u00E1l
 |
-Pravd\u011bpodobn\u011b jste zapomn\u011bli ukon\u010dit znak pomoc\u00ed apostrofu: '.
+Pravd\u011Bpodobn\u011B jste zapomn\u011Bli ukon\u010Dit znak pomoc\u00ED apostrofu: '.
 
 unclosed comment
-Neukon\u010den\u00fd koment\u00e1\u0159
+Neukon\u010Den\u00FD koment\u00E1\u0159
 |
-Komet\u00e1\u0159 mus\u00ed za\u010d\u00ednat dvojic\u00ed znak\u016f "/*"
-a b\u00fdt ukon\u010den dvojic\u00ed znak\u016f "*/".
+Komet\u00E1\u0159 mus\u00ED za\u010D\u00EDnat dvojic\u00ED znak\u016F "/*"
+a b\u00FDt ukon\u010Den dvojic\u00ED znak\u016F "*/".
 
 unclosed string literal
-Neukon\u010den\u00fd znakov\u00fd \u0159et\u011bzec
+Neukon\u010Den\u00FD znakov\u00FD \u0159et\u011Bzec
 |
-Textov\u00fd \u0159et\u011bzec mus\u00ed b\u00fdt uzav\u0159en v uvozovk\u00e1ch (").
-Pot\u0159ebujete-li vlo\u017eit do \u0159et\u011bzce uvozovky, pou\u017eijte
-'\"', pot\u0159ebujete-li vlo\u017eit nov\u00fd \u0159\u00e1dek, pou\u017eijte '\n'.
+Textov\u00FD \u0159et\u011Bzec mus\u00ED b\u00FDt uzav\u0159en v uvozovk\u00E1ch (").
+Pot\u0159ebujete-li vlo\u017Eit do \u0159et\u011Bzce uvozovky, pou\u017Eijte
+'\"', pot\u0159ebujete-li vlo\u017Eit nov\u00FD \u0159\u00E1dek, pou\u017Eijte '\n'.
 
 undefined label: *
-Nedefinovan\u00e9 ozna\u010den\u00ed: ...
+Nedefinovan\u00E9 ozna\u010Den\u00ED: ...
 |
-Prom\u011bnn\u00e1 s t\u00edmto jm\u00e9nem v dan\u00e9 oblasti neexistuje.
-Mo\u017en\u00e1 jste ud\u011blali chybu ve jm\u00e9nu (pozor na velk\u00e1
-a mal\u00e1 p\u00edsmena), nebo je prom\u011bnn\u00e1 definov\u00e1na uvnit\u0159
-n\u011bjak\u00e9ho vno\u0159en\u00e9ho bloku. Obecn\u011b \u0159e\u010deno: prom\u011bnn\u00e1
-se stane neviditelnou ihned po koncov\u00e9 "}" bloku,
-v n\u011bm\u017e je definov\u00e1na.
+Prom\u011Bnn\u00E1 s t\u00EDmto jm\u00E9nem v dan\u00E9 oblasti neexistuje.
+Mo\u017En\u00E1 jste ud\u011Blali chybu ve jm\u00E9nu (pozor na velk\u00E1
+a mal\u00E1 p\u00EDsmena), nebo je prom\u011Bnn\u00E1 definov\u00E1na uvnit\u0159
+n\u011Bjak\u00E9ho vno\u0159en\u00E9ho bloku. Obecn\u011B \u0159e\u010Deno: prom\u011Bnn\u00E1
+se stane neviditelnou ihned po koncov\u00E9 "}" bloku,
+v n\u011Bm\u017E je definov\u00E1na.
 
 unreachable statement
-P\u0159\u00edkaz nebude nikdy vykon\u00e1n
+P\u0159\u00EDkaz nebude nikdy vykon\u00E1n
 |
-Tento p\u0159\u00edkaz nebude nikdy vykon\u00e1n. Metody
-nesm\u00ed obsahovat k\u00f3d, kter\u00fd nem\u016f\u017ee b\u00fdt nikdy
-vykon\u00e1n. Ov\u011b\u0159te p\u0159\u00edkazy, kter\u00e9 ovliv\u0148uj\u00ed
-vykon\u00e1v\u00e1n\u00ed k\u00f3du, pop\u0159\u00edpad\u011b tento k\u00f3d vyma\u017ete.
+Tento p\u0159\u00EDkaz nebude nikdy vykon\u00E1n. Metody
+nesm\u00ED obsahovat k\u00F3d, kter\u00FD nem\u016F\u017Ee b\u00FDt nikdy
+vykon\u00E1n. Ov\u011B\u0159te p\u0159\u00EDkazy, kter\u00E9 ovliv\u0148uj\u00ED
+vykon\u00E1v\u00E1n\u00ED k\u00F3du, pop\u0159\u00EDpad\u011B tento k\u00F3d vyma\u017Ete.
 
 initializer must be able to complete normally
-Statick\u00fd blok mus\u00ed b\u00fdt ukon\u010den norm\u00e1ln\u011b
+Statick\u00FD blok mus\u00ED b\u00FDt ukon\u010Den norm\u00E1ln\u011B
 |
-Inicializace statick\u00e9ho bloku nesm\u00ed vyvolat v\u00fdjimku
-a mus\u00ed v\u017edy skon\u010dit bez chyby.
+Inicializace statick\u00E9ho bloku nesm\u00ED vyvolat v\u00FDjimku
+a mus\u00ED v\u017Edy skon\u010Dit bez chyby.
 
-unreported exception {0}; must be caught or declared to be thrown
-Nedeklarovan\u00e1 v\u00fdjimka ...; mus\u00ed b\u00fdt zachycena nebo deklarov\u00e1na
+* must be caught or declared to be thrown
+v\u00FDjimka ... mus\u00ED b\u00FDt zachycena nebo deklarov\u00E1na jako vyvol\u00E1van\u00E1
 |
-V hlavi\u010dce metody mus\u00ed b\u00fdt uvedeny v\u0161echny v\u00fdjimky,
-kter\u00e9 mohou v t\u011ble metody nastat a nejsou uvnit\u0159 metody
-zachyceny. To znamen\u00e1: metoda zachyt\u00ed v\u00fdjimku pomoc\u00ed
-bloku "try", nebo je v z\u00e1hlav\u00ed metody uvedeno "throws"
-n\u00e1sledovan\u00e9 t\u0159\u00eddou v\u00fdjimky.
-P\u0159\u00edklad zachycen\u00ed:
+V hlavi\u010Dce metody mus\u00ED b\u00FDt uvedeny v\u0161echny v\u00FDjimky,
+kter\u00E9 mohou v t\u011Ble metody nastat a nejsou uvnit\u0159 metody
+zachyceny. To znamen\u00E1: metoda zachyt\u00ED v\u00FDjimku pomoc\u00ED
+bloku "try", nebo je v z\u00E1hlav\u00ED metody uvedeno "throws"
+n\u00E1sledovan\u00E9 t\u0159\u00EDdou v\u00FDjimky.
+P\u0159\u00EDklad zachycen\u00ED:
    try
    {
       ...
@@ -705,248 +724,304 @@ P\u0159\u00edklad zachycen\u00ed:
    {
       ...
    }
-P\u0159\u00edklad p\u0159ed\u00e1n\u00ed v\u00fdjimky d\u00e1le:
+P\u0159\u00EDklad p\u0159ed\u00E1n\u00ED v\u00FDjimky d\u00E1le:
    public void mojeMetoda() throws NejakaVyjimka
 
 'void' type not allowed here
-Typ 'void' zde nelze pou\u017e\u00edt
+Typ 'void' zde nelze pou\u017E\u00EDt
 |
-Typ "void" je mo\u017eno pou\u017e\u00edt pouze pro metody.
-Nelze ho pou\u017e\u00edt pro prom\u011bnn\u00e9 nebo reference.
+Typ "void" je mo\u017Eno pou\u017E\u00EDt pouze pro metody.
+Nelze ho pou\u017E\u00EDt pro prom\u011Bnn\u00E9 nebo reference.
 
 * not allowed here
-... nen\u00ed zde povolen
+... nen\u00ED zde povolen
 |
-Pou\u017eili jste modifik\u00e1tor ("private", "protected", ...)
-na m\u00edst\u011b, kde to nen\u00ed p\u0159\u00edpustn\u00e9.
-
-wrong number of type arguments; required *
-Nespr\u00e1vn\u00fd po\u010det parametr\u016f; po\u017eadov\u00e1no ...
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Pou\u017Eili jste modifik\u00E1tor ("private", "protected", ...)
+na m\u00EDst\u011B, kde to nen\u00ED p\u0159\u00EDpustn\u00E9.
 
 * might already have been assigned to
-... p\u0159i\u0159azen\u00ed u\u017e mohlo b\u00fdt provedeno
+... p\u0159i\u0159azen\u00ED u\u017E mohlo b\u00FDt provedeno
 |
-Konstant\u011b sm\u00ed b\u00fdt p\u0159i\u0159azena hodnota pouze jednou.
-Statick\u00e9 konstanty mus\u00ed b\u00fdt inicializov\u00e1ny v deklaraci
-nebo statick\u00e9m bloku, intan\u010dn\u00ed konstanty mus\u00ed b\u00fdt
-inicializov\u00e1ny v deklaraci nebo konstruktoru.
+Konstant\u011B sm\u00ED b\u00FDt p\u0159i\u0159azena hodnota pouze jednou.
+Statick\u00E9 konstanty mus\u00ED b\u00FDt inicializov\u00E1ny v deklaraci
+nebo statick\u00E9m bloku, intan\u010Dn\u00ED konstanty mus\u00ED b\u00FDt
+inicializov\u00E1ny v deklaraci nebo konstruktoru.
 
 * might not have been initialized
-... nemus\u00ed b\u00fdt inicializov\u00e1no
+... nemus\u00ED b\u00FDt inicializov\u00E1no
 |
-Prom\u011bnn\u00e1 mus\u00ed b\u00fdt p\u0159ed prvn\u00edm pou\u017eit\u00edm inicializovan\u00e1.
+Prom\u011Bnn\u00E1 mus\u00ED b\u00FDt p\u0159ed prvn\u00EDm pou\u017Eit\u00EDm inicializovan\u00E1.
 
-* might be assigned in loop
-... m\u016f\u017ee b\u00fdt p\u0159i\u0159azeno v cyklu
+variable {0} might be assigned in loop
+prom\u011Bnn\u00E9 ... m\u016F\u017Ee b\u00FDt p\u0159i\u0159azena hodnota v cyklu
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 error while writing *
-Chyba p\u0159i z\u00e1pisu ...
+Chyba p\u0159i z\u00E1pisu ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 * is public, should be declared in a file named *
- .. je deklarov\u00e1no jako 'public' a proto mus\u00ed b\u00fdt v souboru pojmenovan\u00e9m ...
+ .. je deklarov\u00E1no jako 'public' a proto mus\u00ED b\u00FDt v souboru pojmenovan\u00E9m ...
 |
-Zdrojov\u00fd k\u00f3d ve\u0159ejn\u00fdch t\u0159\u00edd mus\u00ed b\u00fdt v souboru se shodn\u00fdm jm\u00e9nem
-jako je jm\u00e9no t\u0159\u00eddy a s p\u0159\u00edponou .java.
-P\u0159\u00edklad: t\u0159\u00edda "Neco" mus\u00ed b\u00fdt v souboru "Neco.java".
+Zdrojov\u00FD k\u00F3d ve\u0159ejn\u00FDch t\u0159\u00EDd mus\u00ED b\u00FDt v souboru se shodn\u00FDm jm\u00E9nem
+jako je jm\u00E9no t\u0159\u00EDdy a s p\u0159\u00EDponou .java.
+P\u0159\u00EDklad: t\u0159\u00EDda "Neco" mus\u00ED b\u00FDt v souboru "Neco.java".
 
 cannot read: *
-Nelze \u010d\u00edst: ...
+Nelze \u010D\u00EDst: ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
-
-Fatal Error: Unable to locate package java.lang in classpath or bootclasspath
-Fat\u00e1ln\u00ed chyba: Bal\u00ed\u010dek java.lang nen\u00ed na cest\u011b classpath ani bootclasspath
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
-
-Fatal Error: Unable to locate method *
-Fat\u00e1ln\u00ed chyba: Nen\u00ed mo\u017en\u00e9 naj\u00edt metodu ...
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 * uses or overrides a deprecated API.
-... pou\u017e\u00edv\u00e1 nebo p\u0159ekr\u00fdv\u00e1 metodu, kter\u00e1 je 'deprecated'
+... pou\u017E\u00EDv\u00E1 nebo p\u0159ekr\u00FDv\u00E1 metodu, kter\u00E1 je 'deprecated'
 |
-Pou\u017e\u00edv\u00e1n\u00ed "deprectated" (zastaral\u00fdch) metod se nedoporu\u010duje.
-P\u0159e\u010dt\u011bte si pros\u00edm dokumentaci a pou\u017eijte jej\u00ed nov\u011bj\u0161\u00ed n\u00e1hra\u017eku.
-
-Some input files use or override a deprecated API.
-N\u011bkter\u00e9 vstupn\u00ed soubory pou\u017e\u00edvaj\u00ed \u010di p\u0159ekr\u00fdvaj\u00ed "deprecated" API
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
-
-Recompile with -deprecation for details.
-P\u0159elo\u017ete znovu s nastavenou volbou -deprecation
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
-
-* uses unchecked operations
-... pou\u017e\u00edv\u00e1 nekontrolovan\u00e9 operace
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
-
-Some input files use unchecked operations.
-N\u011bkter\u00e9 vstupn\u00ed soubory pou\u017e\u00edvaj\u00ed nekontrolovan\u00e9 operace
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Pou\u017E\u00EDv\u00E1n\u00ED "deprectated" (zastaral\u00FDch) metod se nedoporu\u010Duje.
+P\u0159e\u010Dt\u011Bte si pros\u00EDm dokumentaci a pou\u017Eijte jej\u00ED nov\u011Bj\u0161\u00ED n\u00E1hra\u017Eku.
 
 * has been deprecated
 ... je 'deprecated'
 |
-Pou\u017e\u00edv\u00e1n\u00ed t\u00e9to metody nen\u00ed doporu\u010deno, tato metoda byla ozna\u010dena
-jako zastaral\u00e1. P\u0159e\u010dt\u011bte si pros\u00edm dokumentaci a najd\u011bte si jej\u00ed
-nov\u011bj\u0161\u00ed n\u00e1hra\u017eku.
-
-unchecked assignment: *
-Nekontrolovan\u00e9 p\u0159i\u0159azen\u00ed
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
-
-unchecked call to {0} as a member of the raw type {1}
-Nekontrolovan\u00e9 vol\u00e1n\u00ed ... jako \u010dlena typu ...
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
-
-unchecked cast to type *
-Nekontrolovan\u00e9 p\u0159etypov\u00e1n\u00ed na ...
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
-
-unchecked generic array creation
-Nekontolovan\u00e9 vytvo\u0159en\u00ed generick\u00e9ho pole
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
-
-unchecked method invocation: *
-Nekontrolovan\u00e9 vol\u00e1n\u00ed metody
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Pou\u017E\u00EDv\u00E1n\u00ED t\u00E9to metody nen\u00ED doporu\u010Deno, tato metoda byla ozna\u010Dena
+jako zastaral\u00E1. P\u0159e\u010Dt\u011Bte si pros\u00EDm dokumentaci a najd\u011Bte si jej\u00ED
+nov\u011Bj\u0161\u00ED n\u00E1hra\u017Eku.
 
 ';' expected
-Je o\u010dek\u00e1v\u00e1n st\u0159edn\u00edk
+Je o\u010Dek\u00E1v\u00E1n st\u0159edn\u00EDk
 |
-Ka\u017ed\u00fd p\u0159\u00edkaz mus\u00ed b\u00fdt ukon\u010den st\u0159edn\u00edkem.
-Chyba je pravd\u011bpodobn\u011b na tomto nebo
-na p\u0159edchoz\u00edm \u0159\u00e1dku. Chyba b\u00fdv\u00e1 ob\u010das
-zavle\u010dena d\u00edky \u0161patn\u011b uzav\u0159en\u00fdm z\u00e1vork\u00e1m
-nebo uvozovk\u00e1m.
+Ka\u017Ed\u00FD p\u0159\u00EDkaz mus\u00ED b\u00FDt ukon\u010Den st\u0159edn\u00EDkem.
+Chyba je pravd\u011Bpodobn\u011B na tomto nebo
+na p\u0159edchoz\u00EDm \u0159\u00E1dku. Chyba b\u00FDv\u00E1 ob\u010Das
+zavle\u010Dena d\u00EDky \u0161patn\u011B uzav\u0159en\u00FDm z\u00E1vork\u00E1m
+nebo uvozovk\u00E1m.
 
 'case', 'default' or '}' expected
-Je o\u010dek\u00e1v\u00e1no 'case', 'defaul', nebo '}'
+Je o\u010Dek\u00E1v\u00E1no 'case', 'defaul', nebo '}'
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 'class' or 'interface' expected
-Je o\u010dek\u00e1v\u00e1no 'class', nebo 'interface'
+Je o\u010Dek\u00E1v\u00E1no 'class', nebo 'interface'
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Pobl\u00ED\u017E po\u010D\u00E1tku souboru je o\u010Dek\u00E1v\u00E1no kl\u00ED\u010Dov\u00E9 slovo
+"class" nebo "interface". Nebylo zde nalezeno nebo je
+p\u0159ed n\u00EDm n\u011Bco, co tam nepat\u0159\u00ED.
 
 '.class' expected
-Je o\u010dek\u00e1v\u00e1no .class
+Je o\u010Dek\u00E1v\u00E1no .class
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 '(' or '[' expected
-Je o\u010dek\u00e1v\u00e1no '(', nebo '['
+Je o\u010Dek\u00E1v\u00E1no '(', nebo '['
 |
-Zd\u00e1 se, \u017ee si po\u010det lev\u00fdch a prav\u00fdch z\u00e1vorek neodpov\u00edd\u00e1.
+Zd\u00E1 se, \u017Ee si po\u010Det lev\u00FDch a prav\u00FDch z\u00E1vorek neodpov\u00EDd\u00E1.
 
 * expected
-... o\u010dek\u00e1v\u00e1no
+... o\u010Dek\u00E1v\u00E1no
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Na ozna\u010Den\u00E9 pozici je ve zdrojov\u00E9m k\u00F3du o\u010Dek\u00E1v\u00E1n
+uveden\u00FD symbol. M\u00EDsto n\u011Bj tu v\u0161ak byl nalezen jin\u00FD
+symbol. Pokuste se odhalit, p\u0159o\u010D p\u0159eklada\u010D o\u010Dek\u00E1v\u00E1
+na ozna\u010Den\u00E9m m\u00EDst\u011B uveden\u00FD symbol.
 
 orphaned *
-Opu\u0161t\u011bn\u00e9 ...
+Opu\u0161t\u011Bn\u00E9 ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 cannot access *
 Nelze p\u0159istupovat k ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
-
-bad class file: *
-Vadn\u00fd soubor class:
-|
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 type parameter {0} is not within its bound *
-Parametr ... nen\u00ed uvnit\u0159 sv\u00fdch mez\u00ed ...
+Parametr ... nen\u00ED uvnit\u0159 sv\u00FDch mez\u00ED ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+type parameters of {0} cannot be determined
+Typ parametru nen\u00ED mo\u017Eno ur\u010Dit
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 incompatible types *
-Nekompatibiln\u00ed typy ...
+Nekompatibiln\u00ED typy ...
 |
-Na tomto m\u00edst\u011b je o\u010dek\u00e1v\u00e1n jin\u00fd datov\u00fd typ.
-P\u0159iklad: uvedli jste typ "String" na m\u00edst\u011b,
-kde je o\u010dek\u00e1v\u00e1n typ "int".
+Na tomto m\u00EDst\u011B je o\u010Dek\u00E1v\u00E1n jin\u00FD datov\u00FD typ.
+P\u0159iklad: uvedli jste typ "String" na m\u00EDst\u011B,
+kde je o\u010Dek\u00E1v\u00E1n typ "int".
 
 inconvertible types *
-Konverze typ\u016f nen\u00ed mo\u017en\u00e1
+Konverze typ\u016F nen\u00ED mo\u017En\u00E1
 |
-Typ uveden\u00fd na tomto m\u00edst\u011b nem\u016f\u017ee b\u00fdt automaticky konvertov\u00e1n.
+Typ uveden\u00FD na tomto m\u00EDst\u011B nem\u016F\u017Ee b\u00FDt automaticky konvertov\u00E1n.
 
 possible loss of precision
-Pravd\u011bpodobn\u00e1 ztr\u00e1ta p\u0159esnosti
+Pravd\u011Bpodobn\u00E1 ztr\u00E1ta p\u0159esnosti
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 unexpected type
-Neo\u010dek\u00e1van\u00fd typ
+Neo\u010Dek\u00E1van\u00FD typ
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Na tomto m\u00EDst\u011B je vy\u017Eadov\u00E1n v\u00FDraz n\u011Bjak\u00E9ho typu.
+V programu je v\u0161ak v\u00FDraz jin\u00E9ho typu, kter\u00FD nen\u00ED
+s po\u017Eadovan\u00FDm typem kompatibiln\u00ED (nap\u0159. pou\u017E\u00EDv\u00E1te
+String v m\u00EDst\u011B, kde je vy\u017Eadov\u00E1n int).
 
 abstract {0} {1} cannot be accessed directly
-Abstraktn\u00ed ...  ... nem\u016f\u017ee b\u00fdt p\u0159\u00edmo pou\u017eito
+Abstraktn\u00ED ...  ... nem\u016F\u017Ee b\u00FDt p\u0159\u00EDmo pou\u017Eito
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 *An explicit 'this' qualifier must be used to select the desired instance.
-... k v\u00fdb\u011bru po\u017eadovan\u00e9 instance mus\u00ed b\u00fdt pou\u017eit explicitn\u00ed kvalifik\u00e1tor "this"
+... k v\u00FDb\u011Bru po\u017Eadovan\u00E9 instance mus\u00ED b\u00FDt pou\u017Eit explicitn\u00ED kvalifik\u00E1tor "this"
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
-non-static {0} {1} cannot be referenced from a static context
-Nestatick\u00e9 ...  ... nemohou b\u00fdt pou\u017eity ze statick\u00e9ho kontextu
+* cannot be referenced from a static context
+... nemohou b\u00FDt pou\u017Eity ve statick\u00E9m kontextu
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Pokou\u0161\u00EDte se pou\u017E\u00EDt atribut nebo metodu instance
+ve statick\u00E9 metod\u011B. To nen\u00ED povoleno. Instan\u010Dn\u00ED atributy
+a metody n\u00E1le\u017Eej\u00ED v\u017Edy n\u011Bjak\u00E9mu objektu. Ten zde ale
+nem\u00E1te uveden. Instan\u010Dn\u00ED metody a atributy mohou b\u00FDt
+pou\u017E\u00EDv\u00E1ny pouze v metod\u00E1ch instanc\u00ED. P\u0159i pou\u017Eit\u00ED
+ve statick\u00FDm metod\u00E1ch mus\u00EDte explicitn\u011B uv\u00E9st
+jejich objekt.
 
-cannot resolve symbol*
+cannot resolve symbol *
 Nelze rozpoznat symbol ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Na ozna\u010Den\u00E9m m\u00EDst\u011B pou\u017E\u00EDv\u00E1te symbol (jm\u00E9no prom\u011Bn\u00E9, t\u0159\u00EDdy nebo
+metody), kter\u00E1 nen\u00ED deklarov\u00E1n\u00E1 v \u017E\u00E1dn\u00E9 viditeln\u00E9 oblasti.
+Zkontrolujte, zda jste neud\u011Blali p\u0159eklep nebo zda jste
+danou prom\u011Bnnou nezapomn\u011Bli deklarovat. Objev\u00EDte-li chybu,
+napravte ji.
 
 {0}; {1} and {2} are static
-...; ... a ... jsou statick\u00e9
+...; ... a ... jsou statick\u00E9
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 {0}; overridden method is {1}
-...; p\u0159ekryvn\u00e1 metoda je ...
+...; p\u0159ekryvn\u00E1 metoda je ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
-attempting to assign weaker access privileges; was *
-Pokus o p\u0159i\u0159azen\u00ed slab\u0161\u00edch p\u0159\u00edstupov\u00fdch pr\u00e1v
+* attempting to assign weaker access privileges; was *
+Pokus o p\u0159i\u0159azen\u00ED slab\u0161\u00EDch p\u0159\u00EDstupov\u00FDch pr\u00E1v
 |
-P\u0159\u00edstupov\u00e1 pr\u00e1va ke atribut\u016fm a metod\u00e1m dce\u0159inn\u00fdch t\u0159\u00edd
-nesm\u00ed b\u00fdt p\u0159\u00edsn\u011bj\u0161\u00ed ne\u017e p\u0159\u00edstupov\u00e1 pr\u00e1va k t\u011bm\u017ee \u010dlen\u016fm
-rodi\u010dovsk\u00fdch t\u0159\u00edd.
+P\u0159\u00EDstupov\u00E1 pr\u00E1va ke atribut\u016Fm a metod\u00E1m dce\u0159inn\u00FDch t\u0159\u00EDd
+nesm\u00ED b\u00FDt p\u0159\u00EDsn\u011Bj\u0161\u00ED ne\u017E p\u0159\u00EDstupov\u00E1 pr\u00E1va k t\u011Bm\u017Ee \u010Dlen\u016Fm
+rodi\u010Dovsk\u00FDch t\u0159\u00EDd.
 
-overridden method does not throw *
-P\u0159ekryt\u00e1 metody nevyvol\u00e1v\u00e1 v\u00fdjimku ...
+* overridden method does not throw *
+P\u0159ekryt\u00E1 metoda ... nevyvol\u00E1v\u00E1 v\u00FDjimku ...
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+P\u0159ekryli jste metodu a vyvol\u00E1v\u00E1te zde v\u00FDjimku.
+P\u0159ekryt\u00E9 metody nemohou vyhazovat jin\u00E9 v\u00FDjimky
+ne\u017E jejich rodi\u010De.
 
 * attempting to use incompatible return type
-... sna\u017e\u00edte se pou\u017e\u00edt nekompatibiln\u00ed v\u00fdstupn\u00ed typ hodnoty
+... sna\u017E\u00EDte se pou\u017E\u00EDt nekompatibiln\u00ED v\u00FDstupn\u00ED typ hodnoty
 |
-Podrobn\u011bj\u0161\u00ed n\u00e1pov\u011bda nen\u00ed k dispozici.
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+* is already defined in this compilation unit
+... je ji\u017E v t\u00E9to p\u0159ekladov\u00E9 jednotce definov\u00E1no
+|
+Pou\u017Eili jste stejn\u00E9 jm\u00E9no dvakr\u00E1t.
+Pou\u017Eijte jin\u00FD identifik\u00E1tor.
+
+{0} is already defined in a single-type import
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+* conflicts with a compiler-synthesized symbol in *
+... koliduje se symbolem vytvo\u0159en\u00FDm p\u0159eklada\u010Dem v ...
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+bad class file: *
+Vadn\u00FD soubor class:
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+unchecked assignment: *
+Nekontrolovan\u00E9 p\u0159i\u0159azen\u00ED
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+unchecked call to {0} as a member of the raw type {1}
+Nekontrolovan\u00E9 vol\u00E1n\u00ED ... jako \u010Dlena typu ...
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+unchecked cast to type *
+Nekontrolovan\u00E9 p\u0159etypov\u00E1n\u00ED na ...
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+unchecked generic array creation
+Nekontolovan\u00E9 vytvo\u0159en\u00ED generick\u00E9ho pole
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+unchecked method invocation: *
+Nekontrolovan\u00E9 vol\u00E1n\u00ED metody
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+Some input files use or override a deprecated API.
+N\u011Bkter\u00E9 vstupn\u00ED soubory pou\u017E\u00EDvaj\u00ED \u010Di p\u0159ekr\u00FDvaj\u00ED "deprecated" API
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+Recompile with -deprecation for details.
+P\u0159elo\u017Ete znovu s nastavenou volbou -deprecation
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+* uses unchecked operations
+... pou\u017E\u00EDv\u00E1 nekontrolovan\u00E9 operace
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+Some input files use unchecked operations.
+N\u011Bkter\u00E9 vstupn\u00ED soubory pou\u017E\u00EDvaj\u00ED nekontrolovan\u00E9 operace
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+Fatal Error: Unable to locate package java.lang in classpath or bootclasspath
+Fat\u00E1ln\u00ED chyba: Bal\u00ED\u010Dek java.lang nen\u00ED na cest\u011B classpath ani bootclasspath
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+Fatal Error: Unable to locate method *
+Fat\u00E1ln\u00ED chyba: Nen\u00ED mo\u017En\u00E9 naj\u00EDt metodu ...
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+type variables cannot be dereferenced
+Typov\u00E1 prom\u011Bnn\u00E1 nem\u016F\u017Ee b\u00FDt dereferencov\u00E1na
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+* cannot be applied to *
+Nelze aplikovat na ...
+|
+Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+{0} is not abstract and does not override abstract method {1} in {2}
+T\u0159\u00EDda ... nen\u00ED abstraktn\u00ED, a p\u0159itom neimplementuje metodu ... deklarovanou v ...
+|
+T\u0159\u00EDda, kter\u00E1 nen\u00ED definov\u00E1na jako abstraktn\u00ED, je potomkem abstraktn\u00ED t\u0159\u00EDdy
+nebo implementuje n\u011Bjak\u00E9 rozhran\u00ED, a p\u0159itom neimplementuje uvedenou metodu,
+kter\u00E1 je deklarov\u00E1na v implementovan\u00E9m rozhran\u00ED nebo je abstraktn\u00ED metodou
+rodi\u010Dovsk\u00E9 t\u0159\u00EDdy.
+Bu\u010Fto t\u0159\u00EDdu deklarujte jako abstraktn\u00ED, nebo uvedenou metodu implementujte.
+
+

@@ -187,8 +187,8 @@ Jestli\u017ee chcete smazat soubor nebo bal\u00ed\u010dek,
 nejd\u0159\u00edve je mus\u00edte vybrat a pak smazat.
 
 really-remove-class
-Opravdu si p\u0159ejete odstranit tuto t\u0159\u00eddu
-v\u010detn\u011b jej\u00edho zdrojov\u00e9ho souboru?
+Opravdu si p\u0159ejete odstranit tyto t\u0159\u00eddy
+v\u010detn\u011b jejich zdrojov\u00FDch soubor\u016F?
 Odstranit
 Zru\u0161it
 null
@@ -303,6 +303,11 @@ classmgr-changes-no-effect
 Zm\u011bny, kter\u00e9 jste provedli v nastaven\u00ed knihoven,
 se projev\u00ed a\u017e po p\u0159\u00ed\u0161t\u00edm spu\u0161t\u011bn\u00ed BlueJ.
 
+pref-optimise-no-effect
+Zm\u011Bny v nastaven\u00ED virtu\u00E1ln\u00EDho stroje se projev\u00ED
+pouze v projektech, kter\u00E9 otev\u0159ete po zad\u00E1n\u00ED t\u00E9to zm\u011Bny
+(nebo po restartov\u00E1n\u00ED virtu\u00E1ln\u00EDho stroje).
+
 unittest-new-test-method
 Zadejte jm\u00e9no testu.
 Pot\u00e9 bude zah\u00e1jeno zaznamen\u00e1v\u00e1n\u00ed testu.
@@ -323,6 +328,14 @@ Nahradit
 Storno
 null
 
+unittest-method-present
+V testovac\u00ED t\u0159\u00EDd\u011B je ji\u017E definov\u00E1na stejnojmenn\u00E1 metoda.
+Budete li pokra\u010Dovat, bude tato metoda nahrazena.
+Chcete pokra\u010Dovat?
+Nahradit
+Storno
+null
+
 # editor:
 #########
 
@@ -336,3 +349,41 @@ nastaven\u00ed kl\u00e1vesov\u00fdch zkratek?
 V\u00fdchoz\u00ed
 Zru\u0161it
 null
+
+error-create-vm
+BlueJ nen\u00ED schopen vytvo\u0159it virtu\u00E1ln\u00ED stroj (VM), na n\u011Bm\u017E by mohl
+b\u00FDt projekt spu\u0161t\u011Bn. To je v\u00E1\u017En\u00FD probl\u00E9m - dokud nebude vy\u0159e\u0161en,
+nebudete moci vytv\u00E1\u0159et objekty ani spou\u0161t\u011Bt metody.
+Tento probl\u00E9m je oby\u010Dejn\u011B zp\u016Fsobem nestandardn\u00EDm nastaven\u00EDm
+s\u00ED\u0165ov\u00E9ho p\u0159ipojen\u00ED. BlueJ pou\u017E\u00EDv\u00E1 p\u0159i vytv\u00E1\u0159en\u00ED virtu\u00E1ln\u00EDho stroje
+TCP/IP a sokety. Nej\u010Dast\u011Bj\u0161\u00ED p\u0159\u00ED\u010Dinou b\u00FDv\u00E1 p\u0159\u00EDli\u0161 omezuj\u00EDc\u00ED
+firewall, kter\u00FD nepovol\u00ED p\u0159ipojen\u00ED hostitele. Vypn\u011Bte firewall a
+toto podez\u0159en\u00ED otestujte. Pokud se probl\u00E9m vypnut\u00EDm firewall
+vy\u0159e\u0161\u00ED, najd\u011Bte takov\u00E9 nastaven\u00ED firewallu, kter\u00E9 p\u0159ipojen\u00ED hostitele
+umo\u017En\u00ED.
+Druhou mo\u017Enou p\u0159\u00ED\u010Dinou je nespr\u00E1vn\u00E9 nastaven\u00ED s\u00ED\u0165ov\u00E9ho
+p\u0159ipojen\u00ED. Zkontrolujte, \u017Ee m\u00E1te spr\u00E1vn\u011B nastaven\u00E9 parametry
+protokolu TCP/IP a dal\u0161\u00ED parametry p\u0159ipojen\u00ED.
+Budou li probl\u00E9my p\u0159etrv\u00E1vat, po\u017E\u00E1dejte o pomoc - viz
+http://www.bluej.org/help/ask-help.html
+
+project-is-readonly
+Projekt je ur\u010Den pouze ke \u010Dten\u00ED. Nem\u016F\u017Eete proto vytv\u00E1\u0159et objekty
+ani volat metody.
+P\u0159\u00ED\u010Dinou je bu\u010F nastaven\u00ED p\u0159\u00EDstupov\u00FDch pr\u00E1v k soubor\u016Fm v adres\u00E1\u0159i
+projektu na READ-ONLY nebo um\u00EDst\u011Bn\u00ED soubor\u016F na za\u0159\u00EDzen\u00ED,
+kter\u00E9 nedovoluje z\u00E1pis (nap\u0159. CD-ROM).
+Chcete li s projektem norm\u00E1ln\u011B pracovat, mus\u00EDte zabezpe\u010Dit,
+\u017De je um\u00EDst\u011Bn na za\u0159\u00EDzen\u00ED umo\u017E\u0148uj\u00EDc\u00EDm z\u00E1pis (nejl\u00E9pe na pevn\u00E9m
+disku) a \u017Ee m\u00E1te pr\u00E1vo zapisovat do dan\u00E9ho adres\u00E1\u0159e a do
+kter\u00E9hokoliv ze soubor\u016F projektu.
+
+could-not-write-shell-file
+Spu\u0161t\u011Bn\u00ED se nezda\u0159ilo, proto\u017Ee slo\u017Eka projektu neumo\u017E\u0148uje z\u00E1pis.
+Chcete li m\u00EDt mo\u017Enost vytv\u00E1\u0159et objekty a spou\u0161t\u011Bt metody,
+Mus\u00EDte b\u00FDt schopni zapisovat do slo\u017Eky projektu.
+Zajist\u011Bte, aby byl v\u00E1\u0161 projekt na zapisovateln\u00E9m za\u0159\u00EDzen\u00ED
+(ne na CD-ROM) a abyste m\u011Bli pr\u00E1vo z\u00E1pisu do slo\u017Eky
+projektu a jej\u00EDch soubor\u016F.
+
+
