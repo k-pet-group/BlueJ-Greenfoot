@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 96 1999-05-31 02:04:50Z mik $
+ ** @version $Id: Config.java 100 1999-05-31 06:39:59Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -43,6 +43,8 @@ public class Config
     public static final String nl = System.getProperty("line.separator");
     public static final char slash = File.separatorChar;
     public static final char colon = File.pathSeparatorChar;
+    public static final String slashstring = File.separator;
+    public static final String colonstring = File.pathSeparator;
 
     public static final String syslibs_file = "syslibs.properties";
 
@@ -253,6 +255,20 @@ public class Config
 	}
     }
 
+    /**
+     * Get a non-language-dependent string from the BlueJ properties
+     * ("bluej.defs" or "bluej.properties") with a default value
+     */
+    public static String getPropString(String strname, String def)
+    {
+	try {
+	    return bluej_props.getProperty(strname, def);
+	} catch(Exception e) {
+	    System.err.println("Something went wrong trying to getString for " + strname);
+	    e.printStackTrace(System.err);
+	    return strname;
+	}
+    }
     public static String getLibFilename(String propname)
     {
 	try {
