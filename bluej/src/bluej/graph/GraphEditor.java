@@ -12,7 +12,8 @@ import bluej.Config;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 2387 2003-11-24 12:41:25Z mik $
+ * @author  Michael Kolling
+ * @version $Id: GraphEditor.java 2397 2003-11-28 08:37:31Z mik $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -25,9 +26,9 @@ public class GraphEditor extends JComponent
     private GraphElement activeGraphElement;
     private boolean readOnly = false;
     private Marquee marquee;
-    // Contains the elements that has been selected
+    // Contains the elements that have been selected
     private GraphElementManager graphElementManager;
-    private int x,y; //coordinates for the last left clicked position
+    private int lastClickX, lastClickY; //coordinates for the last left clicked position
     
     
     public GraphEditor(Graph graph)
@@ -36,7 +37,7 @@ public class GraphEditor extends JComponent
         activeGraphElement = null;
         graphElementManager = new GraphElementManager(this);
         addMouseMotionListener(this);
-        marquee = new Marquee(graph,this);
+        marquee = new Marquee(graph, this);
     }
 
     public Dimension getPreferredSize()
@@ -81,11 +82,12 @@ public class GraphEditor extends JComponent
      * @param y the x coordinate
      * @return Edge
      */
-    private Edge findEdge(int x, int y){
+    private Edge findEdge(int x, int y)
+    {
         GraphElement graphElement = null;
-        for (Iterator it = graph.getEdges(); it.hasNext(); ){
+        for (Iterator it = graph.getEdges(); it.hasNext(); ) {
             graphElement = (GraphElement)it.next();
-            if(graphElement.contains(x,y)){
+            if(graphElement.contains(x, y)) {
                 return (Edge) graphElement;
             }
         }
@@ -99,7 +101,8 @@ public class GraphEditor extends JComponent
      * @param y the x coordinate
      * @return Vertex
      */
-    private Vertex findVertex(int x, int y){
+    private Vertex findVertex(int x, int y)
+    {
         GraphElement currentGraphElement = null;
         GraphElement topGraphElement = null;
         
@@ -107,9 +110,9 @@ public class GraphEditor extends JComponent
         // Rather than breaking when we find the vertex we keep searching
         // which will therefore find the LAST vertex containing the point
         // This turns out to be the vertex which is rendered at the front
-        for (Iterator it = graph.getVertices(); it.hasNext();){
+        for (Iterator it = graph.getVertices(); it.hasNext();) {
             currentGraphElement = (GraphElement)it.next();
-            if(currentGraphElement.contains(x,y)){
+            if(currentGraphElement.contains(x,y)) {
                 topGraphElement = currentGraphElement;
             }
         }
@@ -119,19 +122,19 @@ public class GraphEditor extends JComponent
     /**
      * Finds the graphElement that covers the coordinate x,y.
      * If no element is found, null is returned. If a Vertex and an Edge both
-     * covers x,y the Vertex will be returned.
+     * covers x, y the Vertex will be returned.
      * @param x the x coordinate
      * @param y the x coordinate
      * @return GraphElement 
      */
-    private GraphElement findGraphElement(int x, int y){
+    private GraphElement findGraphElement(int x, int y)
+    {
         GraphElement graphElement = null;
         graphElement = findVertex(x, y);
-        if (graphElement != null){
+        if (graphElement != null) {
             return graphElement;
         }
-        else
-        {
+        else {
             graphElement = findEdge(x,y);
         }
         return graphElement;
@@ -139,14 +142,15 @@ public class GraphEditor extends JComponent
         
     }
 
-    private boolean isMultiselectionKeyDown(MouseEvent evt){
+    private boolean isMultiselectionKeyDown(MouseEvent evt)
+    {
         int mKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
         //int modifiers = evt.getModifiersEx();
         /*System.out.println("mKey=" + mKey + " modifiers=" + modifiers + 
                            " CTRL_MASK=" + Event.CTRL_MASK + 
                            " CTRL_DOWN_MASK="+ MouseEvent.CTRL_DOWN_MASK);
                            */
-        if (Config.isMacOS()){
+        if(Config.isMacOS()) {
         	return evt.isShiftDown() || evt.isMetaDown();
         }
         else {
@@ -159,7 +163,6 @@ public class GraphEditor extends JComponent
 	
     public void keyPressed(KeyEvent evt)
     {
-        
     }
     
     public void keyReleased(KeyEvent evt)
@@ -192,12 +195,12 @@ public class GraphEditor extends JComponent
 
     public void mousePressed(MouseEvent evt)
     {
-        x = evt.getX();
-        y = evt.getY();
+        lastClickX = evt.getX();
+        lastClickY = evt.getY();
         
         
-        marquee.start(x, y); 
-        activeGraphElement = findGraphElement(x, y);
+        marquee.start(lastClickX, lastClickY); 
+        activeGraphElement = findGraphElement(lastClickX, lastClickY);
 
         if (activeGraphElement == null) {
             if(!isMultiselectionKeyDown(evt)) {
@@ -238,7 +241,7 @@ public class GraphEditor extends JComponent
         //then it is resizing.
         if(activeGraphElement instanceof Selectable) {
             Selectable selectable = (Selectable) activeGraphElement;
-            selectable.setResizing(selectable.isHandle(x, y));
+            selectable.setResizing(selectable.isHandle(lastClickX, lastClickY));
         }
     }
     
@@ -311,7 +314,7 @@ public class GraphEditor extends JComponent
         if(evt.isPopupTrigger() && activeGraphElement != null) {
             graphElementManager.clear();
             graphElementManager.add(activeGraphElement);
-            activeGraphElement.popupMenu(x, y, this);
+            activeGraphElement.popupMenu(lastClickX, lastClickY, this);
         }
     }
 
