@@ -18,9 +18,9 @@ import bluej.prefmgr.*;
  * A PrefPanel subclass to allow the user to interactively add a new library
  * to the browser.  The new library can be specified as a file (ZIP or JAR
  * archive) with an associated description.
- * 
+ *
  * @author  Andrew Patterson
- * @cvs     $Id: ClassMgrPrefPanel.java 280 1999-11-18 01:10:21Z ajp $
+ * @version $Id: ClassMgrPrefPanel.java 338 2000-01-02 13:36:27Z ajp $
  */
 public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
 
@@ -28,20 +28,20 @@ public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
 
 	private JTable userLibrariesTable = null;
 	private ClassPathTableModel userLibrariesModel = null;
-    
+
     /**
      * Registers the class manager preference panel with the preferences
      * dialog
      */
     public static void register() {
         ClassMgrPrefPanel p = new ClassMgrPrefPanel();
-        
+
         PrefMgrDialog.add(p, prefpaneltitle, p);
     }
 
 	/**
 	 * Setup the UI for the dialog and event handlers for the dialog's buttons.
-	 * 
+	 *
 	 * @param title the title of the dialog
 	 */
 	private ClassMgrPrefPanel() {
@@ -63,7 +63,7 @@ public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
 			{
 				// table of user library classpath entries
 				userLibrariesModel = new ClassPathTableModel(ClassMgr.getClassMgr().userLibraries);
-				userLibrariesTable = new JTable(userLibrariesModel);						
+				userLibrariesTable = new JTable(userLibrariesModel);
 				{
 					userLibrariesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				}
@@ -172,12 +172,12 @@ public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
     public void beginEditing()
     {
     }
-    
+
     public void revertEditing()
     {
 		userLibrariesModel.revertEntries();
     }
-    
+
     public void commitEditing()
     {
 		userLibrariesModel.commitEntries();
@@ -189,16 +189,16 @@ public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
 	 * to their user library classpath.
 	 **/
 	private void addUserLibrary() {
-		// when adding a new library, 
+		// when adding a new library,
 		// ask the user to select the file or directory
 		JFileChooser chooser = new JFileChooser();
 		{
 			// LibraryFileFilter is a private class defined below
-			chooser.setFileFilter(new LibraryFileFilter()); 
+			chooser.setFileFilter(new LibraryFileFilter());
 			// files for archive libraries, directories for library trees
 			chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 			chooser.setDialogTitle("Select directory or jar/zip file");
-			int returnVal = chooser.showOpenDialog(getParent()); 
+			int returnVal = chooser.showOpenDialog(getParent());
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				String librarylocation = chooser.getSelectedFile().getAbsolutePath();
 
@@ -235,7 +235,7 @@ public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
 
 /**
  * A private class to render class path entries into a list box
- * in the format of 
+ * in the format of
  * location (description)
  */
 class ClassMgrCellRenderer implements ListCellRenderer {
@@ -249,16 +249,16 @@ class ClassMgrCellRenderer implements ListCellRenderer {
 		boolean isSelected,      // is the cell selected
 		boolean cellHasFocus)    // the list and the cell have the focus
 	{
-		Component sup = 
+		Component sup =
 			new DefaultListCellRenderer().getListCellRendererComponent(list,
 							value,index,isSelected,cellHasFocus);
 
 		ClassPathEntry cpe = (ClassPathEntry)value;
-	
+
 		String s = cpe.getCanonicalPathNoException() + " (" + cpe.getDescription() + ")";;
 
 		((JLabel)sup).setText(s);
-        
+
    		return sup;
 	}
 }
@@ -270,7 +270,7 @@ class ClassMgrCellRenderer implements ListCellRenderer {
 class LibraryFileFilter extends FileFilter {
 	/**
 	 * Check if it is a valid library archive file.
-	 * 
+	 *
 	 * @param	f the file to be check.
 	 * @return	true if the file was accepted.
 	 */
@@ -283,7 +283,7 @@ class LibraryFileFilter extends FileFilter {
 	/**
 	 * Return a description of the files accepted by this filter.  Used
 	 * in the "file types" drop down list in file chooser dialogs.
-	 * 
+	 *
 	 * @return	a description of the files accepted by this filter.
 	 */
 	public String getDescription() {
