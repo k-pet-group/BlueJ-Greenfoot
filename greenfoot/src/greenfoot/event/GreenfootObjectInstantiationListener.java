@@ -45,7 +45,9 @@ public class GreenfootObjectInstantiationListener extends RInvocationListenerImp
         Object realObject = ObjectTracker.instance().getRealObject(remoteObj);
         if (realObject instanceof GreenfootObject) {
             GreenfootObject go = (GreenfootObject) realObject;
-            DragGlassPane.getInstance().startDrag(go);
+            int xoffset = -go.getImage().getIconWidth() / 2;
+            int yoffset = -go.getImage().getIconHeight() / 2;
+            DragGlassPane.getInstance().startDrag(go, xoffset, yoffset);
         }
     }
 

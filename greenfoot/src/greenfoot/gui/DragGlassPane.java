@@ -36,7 +36,7 @@ import javax.swing.SwingUtilities;
  * http://java.sun.com/docs/books/tutorial/uiswing/components/example-1dot4/GlassPaneDemo.java
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: DragGlassPane.java 3142 2004-11-23 04:06:47Z davmac $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -64,6 +64,10 @@ public class DragGlassPane extends JComponent
     /** Rectangles used for graphics update */
     private Rectangle oldRect = new Rectangle();
     private Rectangle rect = new Rectangle();
+    
+    /** Offset from top left of object being dragged to mouse cursor */
+    private int dragOffsetX;
+    private int dragOffsetY;
 
     /**
      * Keeps track of the last drop target, in order to send messages to old
@@ -158,16 +162,18 @@ public class DragGlassPane extends JComponent
     }
 
     /**
-     * Initiates a drag
+     * Initiates a drag. The xOffset and yOffset specify the offset in pixels
+     * from the mouse cursor to the image top-left corner during the drag
+     * operation (normally negative).
      * 
-     * @param image
-     *            The image that should be dragged
-     * @param rotation
-     *            Rotation of the image
      * @param object
-     *            An optional object.
+     *            The object to drag.
+     * @param xOffset
+     *            The X offset from the icon's top-left to the mouse cursor
+     * @param yOffset
+     *            The Y offset from the icon's top-left to the mouse cursor
      */
-    public void startDrag(GreenfootObject object)
+    public void startDrag(GreenfootObject object, int xOffset, int yOffset)
     {
         if (object == null || object.getImage() == null) {
             return;
@@ -176,6 +182,8 @@ public class DragGlassPane extends JComponent
         setDragObject(object);
         paintNoDropImage = false;
         setVisible(true);
+        dragOffsetX = xOffset;
+        dragOffsetY = yOffset;
         logger.info("DragGlassPane.startDrag begin: " + this);
     }
 
@@ -236,7 +244,10 @@ public class DragGlassPane extends JComponent
         if (destination != null && destination instanceof DropTarget) {
             dropTarget = (DropTarget) destination;
 
-            Point p = SwingUtilities.convertPoint(this, e.getPoint(), destination);
+            Point tp = e.getPoint().getLocation(); // copy the point
+            tp.translate(dragOffsetX, dragOffsetY);
+            //Point tp = e.getPoint().translate(dragOffsetX, dragOffsetY);
+            Point p = SwingUtilities.convertPoint(this, tp, destination);
             if (dropTarget.drag(data, p)) {
                 paintNoDropImage = false;
             }
@@ -280,7 +291,9 @@ public class DragGlassPane extends JComponent
 
         if (destination != null && destination instanceof DropTarget) {
             DropTarget dropTarget = (DropTarget) destination;
-            Point destinationPoint = SwingUtilities.convertPoint(this, e.getPoint(), destination);
+            Point tp = e.getPoint().getLocation();
+            tp.translate(dragOffsetX, dragOffsetY);
+            Point destinationPoint = SwingUtilities.convertPoint(this, tp, destination);
             Object tmpData = data;
             endDrag();
             dropTarget.drop(tmpData, destinationPoint);
@@ -343,7 +356,7 @@ public class DragGlassPane extends JComponent
     private void storePosition(MouseEvent e)
     {
         MouseEvent eThis = SwingUtilities.convertMouseEvent((Component) e.getSource(), e, this);
-        rect.x = eThis.getX();
-        rect.y = eThis.getY();
+        rect.x = eThis.getX() + dragOffsetX;
+        rect.y = eThis.getY() + dragOffsetY;
     }
 }

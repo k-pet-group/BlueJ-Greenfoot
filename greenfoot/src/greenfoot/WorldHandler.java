@@ -34,7 +34,7 @@ import rmiextension.wrappers.RObject;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: WorldHandler.java 3142 2004-11-23 04:06:47Z davmac $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget
@@ -46,7 +46,7 @@ public class WorldHandler
     private JLabel worldTitle = new JLabel();
     private int delay;
     private boolean isQuickAddActive;
-
+    
     /**
      * Creates a new worldHandler and sets up the connection between worldCanvas
      * and world
@@ -108,7 +108,9 @@ public class WorldHandler
         maybeShowPopup(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
             GreenfootObject go = getObject(e.getX(), e.getY());
-            DragGlassPane.getInstance().startDrag(go);
+            int dragOffsetX = go.getX() * world.getCellWidth() - e.getX();
+            int dragOffsetY = go.getY() * world.getCellHeight() - e.getY();
+            DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY);
         }
     }
 
@@ -255,7 +257,9 @@ public class WorldHandler
 
                 if (object instanceof GreenfootObject) {
                     GreenfootObject go = (GreenfootObject) object;
-                    DragGlassPane.getInstance().startDrag(go);
+                    int dragOffsetX = go.getImage().getIconWidth() / 2;
+                    int dragOffsetY = go.getImage().getIconHeight() / 2;
+                    DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY);
                 }
             }
         }
