@@ -36,12 +36,12 @@ import com.ice.jcvsii.*;
 
 import bluej.utility.Debug;
 /**
- ** @version $Id: BjConnectInfoPanel.java 401 2000-02-29 01:42:12Z markus $
+ ** @version $Id: ConnectInfoPanel.java 401 2000-02-29 01:42:12Z markus $
  ** @author Modifications to jCVS ConnectInfoPanel.java by Markus Ostman
  **
  ** Connect information panel for bluej group support.
  **/
-public class BjConnectInfoPanel extends JPanel
+public class ConnectInfoPanel extends JPanel
     implements ItemListener, ActionListener
 {
     private JTextField		moduleText;
@@ -61,7 +61,7 @@ public class BjConnectInfoPanel extends JPanel
     private JPasswordField	passwordText;
     
     
-    public BjConnectInfoPanel( String operation )
+    public ConnectInfoPanel( String operation )
     {
 	super();
 	this.establishContents( operation );
