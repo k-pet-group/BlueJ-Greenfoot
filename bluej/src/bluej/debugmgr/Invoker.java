@@ -11,8 +11,7 @@ import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
-import bluej.debugger.gentype.GenType;
-import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.*;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
@@ -28,7 +27,7 @@ import bluej.views.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2697 2004-06-30 11:29:03Z mik $
+ * @version $Id: Invoker.java 2702 2004-06-30 23:53:08Z davmac $
  */
 
 public class Invoker extends Thread
@@ -223,6 +222,14 @@ public class Invoker extends Thread
             } else {
                 this.objName = objWrapper.getName();
                 this.typeMap = objWrapper.getObject().getGenericParams();
+                if(typeMap == null) {
+                    typeMap = new HashMap();
+                    GenTypeClass objGenType = objWrapper.getObject().getGenType();
+                    Reflective objRefl = objGenType.getReflective();
+                    GenTypeClass.addDefaultParamBases(typeMap, objRefl);
+                    if(typeMap.isEmpty())
+                        typeMap = null;
+                }
                 executionEvent = ExecutionEvent.createObjectMethod(objName);
             }
 
@@ -389,7 +396,14 @@ public class Invoker extends Thread
                 argType = argTypes[i].mapTparsToTypes(typeMap);
             else
                 argType = argTypes[i];
-            buffer.append(cleverQualifyTypeName(pkg, argType.toString()));
+            if(argType instanceof GenTypeExtends) {
+                argType = ((GenTypeExtends)argType).getUpperBound();
+                buffer.append(cleverQualifyTypeName(pkg, argType.toString()));
+            }
+            else if(argType instanceof GenTypeWildcard)
+                buffer.append("Object");
+            else
+                buffer.append(cleverQualifyTypeName(pkg, argType.toString()));
             buffer.append(" __bluej_param" + i);
             buffer.append(" = " + args[i]);
             buffer.append(";" + Config.nl);
