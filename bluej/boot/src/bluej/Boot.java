@@ -16,7 +16,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3247 2004-12-19 11:05:13Z mik $
+ * @version $Id: Boot.java 3250 2005-01-06 03:28:59Z davmac $
  */
 public class Boot
 {
@@ -311,7 +311,7 @@ public class Boot
             File classesDir = new File(libDir.getParentFile(), "classes");
             
             if (classesDir.isDirectory()) {
-                urlList.add(classesDir.toURL());
+                urlList.add(classesDir.toURI().toURL());
                 // skip over requiring bluejcore.jar, bluejeditor.jar etc.
                 startJar = bluejBuildJars;
             }
@@ -323,7 +323,7 @@ public class Boot
             if (!toAdd.canRead())
                 throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
 
-            urlList.add(toAdd.toURL());
+            urlList.add(toAdd.toURI().toURL());
         }
     
         if (isSystem) {
@@ -364,7 +364,7 @@ public class Boot
                 continue;
 
             // This one looks good, add it to the list.
-            urlList.add(thisFile.toURL());
+            urlList.add(thisFile.toURI().toURL());
         }
  
         return (URL[]) urlList.toArray(new URL[0]);
@@ -425,12 +425,12 @@ public class Boot
 
         File toolsFile = new File(javaHomeDir, "lib/tools.jar");
         if (toolsFile.canRead())
-            return toolsFile.toURL();
+            return toolsFile.toURI().toURL();
 
         File parentDir = javaHomeDir.getParentFile();
         toolsFile = new File(parentDir, "lib/tools.jar");
         if (toolsFile.canRead())
-            return toolsFile.toURL();
+            return toolsFile.toURI().toURL();
         else {
             // on other systems where we don't find it, we just warn. We don't expect it
             // to happen, but you never know...
