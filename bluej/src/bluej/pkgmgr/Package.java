@@ -31,10 +31,10 @@ import sun.tools.javac.SourceClass;
 import sun.tools.javac.BatchEnvironment;
 import sun.tools.java.*;
 import sun.tools.javac.BlueJJavacMain;
-import sun.tools.javadoc.BlueJDocumentationGenerator;
+// import sun.tools.javadoc.BlueJDocumentationGenerator;
 
 /**
- ** @version $Id: Package.java 65 1999-05-05 06:32:09Z mik $
+ ** @version $Id: Package.java 73 1999-05-11 05:11:43Z ajp $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -1281,8 +1281,10 @@ public class Package extends Graph
 	    // Debug.message("notifyParsed: Failed to get target for " + srcName);
 	    return;	// nothing we can do without the source target
 	}
+
+	/* fix for JDK 1.2 */
 		
-	BlueJDocumentationGenerator dgen = new BlueJDocumentationGenerator(env);
+	/* BlueJDocumentationGenerator dgen = new BlueJDocumentationGenerator(env);
 	if(packageName != noPackage)
 	    dgen.addPrefix(packageName + ".");
 	CommentList comments = dgen.genComments(src);
@@ -1292,7 +1294,7 @@ public class Package extends Graph
 	    comments.save(ctxtFilename);
 	} catch (IOException ex) {
 	    Debug.reportError(docSaveError + ctxtFilename);
-	}
+	} */
     }
 	
     public void notifyCompiled(SourceClass src, BatchEnvironment env)
