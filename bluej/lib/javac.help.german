@@ -928,13 +928,13 @@ No help available.
 This final variable must be initialized: {0}
 No help available.
 
-Duplicate method declaration: {0}
+Duplicate method declaration: *
 No help available.
 
 Methods can't be redefined with a different return type: {0} was {1}
 No help available.
 
-Duplicate variable declaration: {0} was {1}
+Duplicate variable declaration: *
 No help available.
 
 Duplicate inner class declaration: {0} is already defined in this scope.

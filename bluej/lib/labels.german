@@ -123,6 +123,8 @@ pkgmgr.importPkg.title=Package Importieren
 pkgmgr.newClass.msg=Name der Klasse
 pkgmgr.newUses=Neuer Benutzt-Pfeil
 pkgmgr.newExtends=Neuer Vererbungspfeil
+pkgmgr.unimplemented=Sorry - that feature is not yet implemented
+pkgmgr.pkgChooseError=Error selecting valid package name
 pkgmgr.noPackage=<No package>
 
 pkgmgr.classmenu.runApplet=Applet ausführen
