@@ -7,6 +7,7 @@ import bluej.*;
 import bluej.classmgr.*;
 import bluej.debugger.*;
 import bluej.debugmgr.*;
+import bluej.pkgmgr.target.PackageTarget;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
 import bluej.views.View;
@@ -19,7 +20,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2081 2003-06-26 15:26:56Z mik $
+ * @version $Id: Project.java 2092 2003-07-04 06:50:13Z fisker $
  */
 public class Project
     implements DebuggerListener
@@ -750,4 +751,12 @@ public class Project
     }
 
     // ---- end of DebuggerListener interface ----
+    /**
+     * Removes a packageTarget from the map of packages in the project.
+     * @param packageTarget the packageTarget to be removed.
+     * 
+     */
+    public void removePackage(PackageTarget packageTarget){
+        packages.remove(packageTarget.getQualifiedName());
+    }
 }
