@@ -13,7 +13,6 @@ import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
 import bluej.pkgmgr.target.*;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.Package;
-import bluej.utility.Debug;
 
 
 public class GraphElementController
