@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2483 2004-03-31 09:13:31Z fisker $
+ * @version $Id: ClassTarget.java 2555 2004-05-27 08:21:23Z polle $
  */
 public class ClassTarget extends EditableTarget
 {	
@@ -123,6 +123,8 @@ public class ClassTarget extends EditableTarget
                 role = new AbstractClassRole();
             else if (template.startsWith("interface"))
                 role = new InterfaceClassRole();
+            else if (template.startsWith("enum"))
+                role = new EnumClassRole();
         }
     }
 
@@ -188,7 +190,7 @@ public class ClassTarget extends EditableTarget
     public void determineRole(Class cl)
     {
         if (cl != null) {
-			Class junitClass = null;
+            Class junitClass = null;
         	try {
 				junitClass = cl.getClassLoader().loadClass("junit.framework.TestCase");
         	}
@@ -203,6 +205,8 @@ public class ClassTarget extends EditableTarget
 			catch (ClassNotFoundException cnfe) {
 				appletClass = java.applet.Applet.class;
 			}        	
+		
+			
 			
             // if cl is non-null then it is the definitive information
             // source ie. if it thinks its an applet who are we to argue
@@ -215,8 +219,10 @@ public class ClassTarget extends EditableTarget
                 setRole(new InterfaceClassRole());
             else if (Modifier.isAbstract(cl.getModifiers())) 
                 setRole(new AbstractClassRole());
+            else if (Config.isJava15() && cl.isEnum())
+                setRole(new EnumClassRole());  
             else
-                setRole(new StdClassRole());
+                setRole(new StdClassRole());            
         }
         else {
             // try the parsed source code
@@ -251,7 +257,7 @@ public class ClassTarget extends EditableTarget
         // the class target. Be careful here as if you add role types
         // you need to add them here as well.
         String type = props.getProperty(prefix + ".type");
-
+        
         String intf = props.getProperty(prefix + ".showInterface");
         openWithInterface = Boolean.valueOf(intf).booleanValue();
         
@@ -263,6 +269,9 @@ public class ClassTarget extends EditableTarget
             setRole(new AbstractClassRole());
         else if (InterfaceClassRole.INTERFACE_ROLE_NAME.equals(type))
             setRole(new InterfaceClassRole());
+        else if (EnumClassRole.ENUM_ROLE_NAME.equals(type))
+            setRole(new EnumClassRole());
+
 
         getRole().load(props, prefix);
     }
@@ -286,7 +295,7 @@ public class ClassTarget extends EditableTarget
         props.put(prefix + ".showInterface", 
                     new Boolean(openWithInterface).toString());
 
-        getRole().save(props, 0, prefix);
+        getRole().save(props, 0, prefix);        
     }
 
     /**

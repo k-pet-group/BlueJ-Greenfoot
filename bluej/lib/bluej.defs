@@ -215,7 +215,7 @@ bluej.macos.screenmenubar=true
 ## double-backslashes (see example).
 #######################################################################
 
-bluej.classTemplates = stdclass abstract interface appletj unittest
+bluej.classTemplates = stdclass abstract interface appletj unittest enum
 #bluej.templatePath = /home/mik/bluej/lib/english/templates/newclass
 #bluej.templatePath = F:\\shared\\bluej\\templates
 
@@ -344,6 +344,7 @@ colour.class.bg.abstract=245,204,155
 colour.class.bg.interface=245,204,155
 colour.class.bg.applet=245,204,155
 colour.class.bg.unittest=197,211,165
+colour.class.bg.enum=245,204,155
 
 colour.package.bg.default=180,130,44
 
