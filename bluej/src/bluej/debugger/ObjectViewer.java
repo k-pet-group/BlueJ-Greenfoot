@@ -21,7 +21,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 267 1999-11-10 02:53:02Z mik $
+ ** @version $Id: ObjectViewer.java 269 1999-11-10 05:36:05Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -370,15 +370,13 @@ public final class ObjectViewer extends JFrame
 			    setButtonsEnabled(false, false);
 		    }
 		    else // not within array bounds
-			DialogManager.showError(this, 
-			   "Element specified is not within array bounds");
+			DialogManager.showError(this, "out-of-bounds");
 		    
 		} 
 		catch(NumberFormatException e) {
 		    // input could not be parsed, eg. non integer value
 		    setCurrentObj(null, null);
-		    DialogManager.showError(this, 
-			   "Unable to access the array element specified");
+		    DialogManager.showError(this, "cannot-access-element");
 		}
 	
 	    }

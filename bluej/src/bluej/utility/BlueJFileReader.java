@@ -1,7 +1,5 @@
 package bluej.utility;
 
-import bluej.Config;
-
 import java.util.Dictionary;
 import java.io.*;
 
@@ -42,10 +40,9 @@ public class BlueJFileReader
      *
      * @return			The help text or null.
      */
-    public static String readHelpText(String baseFileName, String textID,
+    public static String readHelpText(String fileName, String textID,
 				boolean exactMatch)
     {
-	String fileName = Config.getHelpFilename(baseFileName);
 	BufferedReader in = null;
 	boolean found = false;
 
@@ -81,7 +78,8 @@ public class BlueJFileReader
 	    }
 	}
 	catch(IOException e) {
-	    DialogManager.showError(null, "Cannot read help file:\n" + fileName);
+	    DialogManager.showErrorWithText(null, "cannot-read-help", 
+					    fileName);
 	}
 	finally {
 	    if(in != null) {

@@ -29,7 +29,7 @@ import java.net.MalformedURLException;
  *
  * @author	Andy Marks
  *		    Andrew Patterson
- * @version	$Id: LibraryBrowser.java 267 1999-11-10 02:53:02Z mik $
+ * @version	$Id: LibraryBrowser.java 269 1999-11-10 05:36:05Z mik $
  **/
 public class LibraryBrowser extends JFrame implements ActionListener
 {
@@ -84,8 +84,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
 
         // hack way of making class singleton
 	if (frame != null) {
-	    DialogManager.showMessage(this,
-				"Sorry - you can only start one copy\nof this version of the Library Browser");
+	    DialogManager.showMessage(this, "one-browser-only");
 	    return;
 	}
 
@@ -289,8 +288,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
 	Package[] possibleTargets = bluej.pkgmgr.Main.getAllOpenPackages();
 	if (possibleTargets == null || possibleTargets.length == 0) {
 //	    DialogManager.showError(LibraryBrowserPkgMgrFrame.getFrame(),
-//			      Config.getString("browser.usepackage.notargetdialog.text"));
-																		
+//			      "no-target-dialog");
 	    return;
 	}
 

@@ -21,7 +21,7 @@ import bluej.utility.DialogManager;
  * is delegated to a LibraryBrowserPkgMgrFrame object.
  * 
  * @author $Author: mik $
- * @version $Id: FindLibraryDialog.java 267 1999-11-10 02:53:02Z mik $
+ * @version $Id: FindLibraryDialog.java 269 1999-11-10 05:36:05Z mik $
  */
 public class FindLibraryDialog extends JDialog 
 
@@ -169,9 +169,7 @@ public class FindLibraryDialog extends JDialog
 	    if (chosenPackage != null)
 		searcher.openPackage(chosenPackage);
 	    else
-		DialogManager.showError(searcher,
-				  Config.getString("browser.findlibrarydialog.nolibselected.text"));
-																				  
+		DialogManager.showError(searcher, "no-lib-selected");
 	}
     }
 	

@@ -10,7 +10,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: NewClassDialog.java 267 1999-11-10 02:53:02Z mik $
+ ** @version $Id: NewClassDialog.java 269 1999-11-10 05:36:05Z mik $
  ** @author Justin Tan
  ** @author Michael Kolling
  **
@@ -36,7 +36,6 @@ public class NewClassDialog extends JDialog
     static final String newAbstractClassStr = Config.getString("pkgmgr.newClass.newAbstractClass");
     static final String newInterfaceStr = Config.getString("pkgmgr.newClass.newInterface");
     static final String newAppletStr = Config.getString("pkgmgr.newClass.newApplet");
-    static final String invalidNameStr = Config.getString("error.newClass.invalidName");
 
 
     private String newClassName = "";
@@ -202,7 +201,7 @@ public class NewClassDialog extends JDialog
 	    setVisible(false);
 	}
 	else {
-	    DialogManager.showError((JFrame)this.getParent(), invalidNameStr);
+	    DialogManager.showError((JFrame)this.getParent(), "invalid-name");
 	    textFld.selectAll();
 	    textFld.requestFocus();
 	}

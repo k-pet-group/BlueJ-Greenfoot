@@ -35,9 +35,6 @@ public class PkgMgrFrame extends PkgFrame
 
     implements BlueJEventListener
 {
-
-    public static String nameUsedError = Config.getString("error.newClass.duplicateName");
-
     private static String tutorialUrl = Config.getPropString("bluej.url.tutorial");
     private static String referenceUrl = Config.getPropString("bluej.url.reference");
     private static String libraryUrl = Config.getPropString("bluej.url.javaStdLib");
@@ -306,7 +303,7 @@ public class PkgMgrFrame extends PkgFrame
 
 	case TOOLS_BROWSE:
 /*
-	    DialogManager.showMessage(this, 
+	    DialogManager.showText(this, 
 		"The library browser is not implemented in this version.\n" +
 		"To browse the Java standard libraries, select \"Java\n" +
 		"Class Libraries...\" from the Help menu."); 
@@ -446,9 +443,7 @@ public class PkgMgrFrame extends PkgFrame
 	    // check whether name is already in use
 	    File dir = new File(newname);
 	    if(dir.exists()) {
-		DialogManager.showError(this, 
-				  "A file or directory with this\n" +
-				  "name already exists.");
+		DialogManager.showError(this, "directory-exists");
 		return;
 	    }
 
@@ -459,15 +454,9 @@ public class PkgMgrFrame extends PkgFrame
 	    Main.addPackage(pkg);	// add under new name
 
 	    if(result == Package.CREATE_ERROR)
-		DialogManager.showError(this, 
-				  "Could not write package to new\n" +
-				  "location. Please check the name\n" +
-				  "and access rights.");
+		DialogManager.showError(this, "cannot-write-package");
 	    else if(result == Package.COPY_ERROR)
-		DialogManager.showError(this, 
-				  "There was a problem copying some\n" +
-				  "of the package files. The package\n" +
-				  "may be incomplete.");
+		DialogManager.showError(this, "cannot-copy-package");
 
 	    setWindowTitle();
 	}
@@ -487,26 +476,16 @@ public class PkgMgrFrame extends PkgFrame
 		    editor.repaint();
 		    break;
 	        case Package.FILE_NOT_FOUND: 
-		    DialogManager.showError(this, 
-			      "The specified file\ndoes not exist.");
+		    DialogManager.showError(this, "file-does-not-exist");
 		    break;
 	        case Package.ILLEGAL_FORMAT: 
-		    DialogManager.showError(this, 
-			      "Cannot import file. The file must\n" +
-			      "be a Java source file (it's name\n" +
-			      "must end in \".java\").");
+		    DialogManager.showError(this, "cannot-import");
 		    break;
 	        case Package.CLASS_EXISTS: 
-		    DialogManager.showError(this, 
-			      "A class with this name already exists\n" +
-			      "in this package. You cannot have two\n" +
-			      "classes with the same name.");
+		    DialogManager.showError(this, "duplicate-name");
 		    break;
 	        case Package.COPY_ERROR: 
-		    DialogManager.showError(this, 
-			      "An error occured during the attempt to\n" +
-			      "import the file. Check access rights and\n" +
-			      "disk space.");
+		    DialogManager.showError(this, "error-in-import");
 		    break;
 	    }
 	}
@@ -606,7 +585,7 @@ public class PkgMgrFrame extends PkgFrame
 
 		// check whether name is already used
 		if(pkg.getTarget(name) != null) {
-		    DialogManager.showError(this, nameUsedError);
+		    DialogManager.showError(this, "duplicate-name");
 		    return;
 		}
 
@@ -632,9 +611,7 @@ public class PkgMgrFrame extends PkgFrame
     {
 	ClassTarget target = (ClassTarget) pkg.getSelectedTarget();
 	if(target == null)
-	    DialogManager.showError(this, "No Class selected for removal.\n" 
-			      + "Select Class by clicking on it before\n"
-			      + "trying to remove..");
+	    DialogManager.showError(this, "no-class-selected");
 	else
 	    removeClass(target);
 
@@ -867,18 +844,15 @@ public class PkgMgrFrame extends PkgFrame
 	// check whether path exists
 
 	if (!packageFile.exists()) {
-	    DialogManager.showError (this, 
-	       "Error in opening package.\nThe package \"" +
-	       path + "\"\ndoes not exist.");
+	    DialogManager.showErrorWithText(this, "package-does-not-exist", 
+					    path);
 	    return false;
 	}
 
 	// check whether path is a valid BlueJ package
 
 	if (!Utility.isJBPackage(packageFile, Package.pkgfileName)) {
-	    DialogManager.showError (this, 
-	       "Error in opening package.\nThe file/directory \"" +
-	       path + "\"\nis not a BlueJ package.");
+	    DialogManager.showErrorWithText(this, "no-bluej-package", path);
 	    return false;
 	}
 

@@ -21,7 +21,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 267 1999-11-10 02:53:02Z mik $
+ ** @version $Id: AppletClassRole.java 269 1999-11-10 05:36:05Z mik $
  **/
 public class AppletClassRole extends ClassRole 
 {
@@ -210,7 +210,8 @@ public class AppletClassRole extends ClassRole
 			Process applet = 
 			    Runtime.getRuntime().exec(execCommand);
 		    } catch (Exception e) {
-			DialogManager.showError(pkg.getFrame(), "Error executing applet in appletviewer.");	
+			DialogManager.showError(pkg.getFrame(), 
+						"appletviewer-error");	
 			Debug.reportError("Exception thrown in execution of appletviewer");
 			e.printStackTrace();
 		    }
@@ -241,11 +242,10 @@ public class AppletClassRole extends ClassRole
 	int result = newChooser.showSaveDialog(frame);
 	String fullFileName = null;
 	if (result == JFileChooser.APPROVE_OPTION) {
-	    //Debug.message("selected " + newChooser.getSelectedFile().getPath());
 	    fullFileName = newChooser.getSelectedFile().getPath();
 	}
 	else if (result != JFileChooser.CANCEL_OPTION)
-	    DialogManager.showError(frame, "You must specify a valid name.");
+	    DialogManager.showError(frame, "error-no-name");
 	
  	return fullFileName;
     }

@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: RunAppletDialog.java 267 1999-11-10 02:53:02Z mik $
+ ** @version $Id: RunAppletDialog.java 269 1999-11-10 05:36:05Z mik $
  ** @author Bruce Quig
  **
  ** Dialog for generating HTML and running applets.
@@ -260,7 +260,7 @@ public class RunAppletDialog extends JDialog
     public void doOK()
     {
 	if(!checkFieldsAreValid()) {
-	    DialogManager.showError(parent, "Applet Height and Width must be specified");
+	    DialogManager.showError(parent, "applet-height-width");
 	}
 	else { // collect information from fields
 	    ok = true;

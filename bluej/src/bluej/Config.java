@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- ** @version $Id: Config.java 267 1999-11-10 02:53:02Z mik $
+ ** @version $Id: Config.java 269 1999-11-10 05:36:05Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -331,7 +331,7 @@ public class Config
      */
     public static String getLanguageFilename(String base)
     {
-	return sys_confdir + slash + base + language;
+	return sys_confdir + slash + base + "." + language;
     }
 
     public static Color getItemColour(String itemname)

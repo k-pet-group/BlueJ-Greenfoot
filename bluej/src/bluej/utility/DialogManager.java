@@ -18,12 +18,57 @@ import javax.swing.*;
  **/
 public class DialogManager
 {
-	
+    private static final String DLG_FILE_NAME = "dialogues";
 
     /**
-     * Show an information dialog with message and "OK" button.
+     * Show an information dialog with message and "OK" button. The
+     * message itself is identified by a message ID (a short string)
+     * which is looked up in the language specific dialogue text file
+     * (eg. "dialogues.english").
      */
-    public static void showMessage(JFrame parent, String text)
+    public static void showMessage(JFrame parent, String msgID)
+    {
+	String filename = Config.getLanguageFilename(DLG_FILE_NAME);
+	String message = BlueJFileReader.readHelpText(filename, msgID, true);
+	if(message == null)
+	    JOptionPane.showMessageDialog(parent, 
+				"BlueJ configuration problem:\n" +
+				"text not found for message ID\n" +
+				msgID);
+	else
+	    JOptionPane.showMessageDialog(parent, message);
+    }
+
+
+    /**
+     * Show an information dialog with message and "OK" button. The
+     * message itself is identified by a message ID (a short string)
+     * which is looked up in the language specific dialogue text file
+     * (eg. "dialogues.english"). A text (given in a parameter) is appended
+     * to the message.
+     */
+    public static void showMessageWithText(JFrame parent, String msgID, 
+					   String text)
+    {
+	String filename = Config.getLanguageFilename(DLG_FILE_NAME);
+	String message = BlueJFileReader.readHelpText(filename, msgID, true);
+	if(message == null)
+	    JOptionPane.showMessageDialog(parent, 
+				"BlueJ configuration problem:\n" +
+				"text not found for message ID\n" +
+				msgID + "\n" + text);
+	else
+	    JOptionPane.showMessageDialog(parent, message + "\n" + text);
+    }
+
+
+    /**
+     * Show an information dialog with a text and "OK" button. The text
+     * is shown as it is passed in here. This method should only be used
+     * if the text has already been localised (translated into the local
+     * language). Most of the time "showMessage" (above) should be used.
+     */
+    public static void showText(JFrame parent, String text)
     {
 	JOptionPane.showMessageDialog(parent, text);
     }
@@ -32,10 +77,37 @@ public class DialogManager
     /**
      * Show an error dialog with message and "OK" button.
      */
-    public static void showError(JFrame parent, String text)
+    public static void showError(JFrame parent, String msgID)
     {
-	JOptionPane.showMessageDialog(parent, text, "Error",
-				      JOptionPane.ERROR_MESSAGE);
+	String filename = Config.getLanguageFilename(DLG_FILE_NAME);
+	String message = BlueJFileReader.readHelpText(filename, msgID, true);
+	if(message == null)
+	    JOptionPane.showMessageDialog(parent, 
+				"BlueJ configuration problem:\n" +
+				"text not found for message ID\n" +
+				msgID);
+	else
+	    JOptionPane.showMessageDialog(parent, message, "Error",
+					  JOptionPane.ERROR_MESSAGE);
+    }
+
+
+    /**
+     * Show an error dialog with message and "OK" button.
+     */
+    public static void showErrorWithText(JFrame parent, String msgID, 
+					 String text)
+    {
+	String filename = Config.getLanguageFilename(DLG_FILE_NAME);
+	String message = BlueJFileReader.readHelpText(filename, msgID, true);
+	if(message == null)
+	    JOptionPane.showMessageDialog(parent, 
+				"BlueJ configuration problem:\n" +
+				"text not found for message ID\n" +
+				msgID + "\n" + text);
+	else
+	    JOptionPane.showMessageDialog(parent, message + "\n" + text, 
+					  "Error", JOptionPane.ERROR_MESSAGE);
     }
 
 
@@ -79,7 +151,7 @@ public class DialogManager
 
     public static void NYI(JFrame frame)
     {
-	JOptionPane.showMessageDialog(frame, "Not Yet Implemented - sorry.");
+	showMessage(frame, "not-yet-implemented");
     }
 
 

@@ -19,7 +19,7 @@ import java.util.Properties;
  ** particular class types 
  ** 
  ** @author Bruce Quig
- ** @version $Id: ClassRole.java 267 1999-11-10 02:53:02Z mik $
+ ** @version $Id: ClassRole.java 269 1999-11-10 05:36:05Z mik $
  **
  **/
 public abstract class ClassRole
@@ -90,11 +90,7 @@ public abstract class ClassRole
 	try {
 	    BlueJFileReader.translateFile(filename, sourceFile, translations);
 	} catch(IOException e) {
-	    DialogManager.showError(pkg.getFrame(), 
-			      "The default skeleton for the class could not be\n" +
-			      "generated. This may be because of configuration\n" +
-			      "error in the setup of BlueJ, or because of file\n" +
-			      "system access problems.");
+	    DialogManager.showError(pkg.getFrame(), "skeleton-error");
 	    Debug.reportError("The default skeleton for the class could not be generated");
 	    e.printStackTrace();
 	}

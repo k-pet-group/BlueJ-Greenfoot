@@ -11,7 +11,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /** 
- ** @version $Id: PackageTarget.java 267 1999-11-10 02:53:02Z mik $
+ ** @version $Id: PackageTarget.java 269 1999-11-10 05:36:05Z mik $
  ** @author Michael Cahill
  **
  ** A link to a package embedded in another package.
@@ -80,8 +80,8 @@ public class PackageTarget extends Target implements ActionListener
      */
     public boolean copyFiles(String directory)
     {
-	DialogManager.showError(pkg.getFrame(),
-			  "\"Save As\" does not yet work for nested packages.");
+	DialogManager.showText(pkg.getFrame(),
+			"\"Save As\" does not yet work for nested packages.");
 	return true;
     }
 

@@ -6,7 +6,7 @@ import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 
 /** 
- * @version $Id: EditableTarget.java 267 1999-11-10 02:53:02Z mik $
+ * @version $Id: EditableTarget.java 269 1999-11-10 05:36:05Z mik $
  * @author Michael Cahill
  *
  * A target in a package that can be edited as text
@@ -51,9 +51,7 @@ public abstract class EditableTarget extends Target
 	getEditor().show(getDisplayedView());
 
 	if(editor == null)
-	    DialogManager.showError(pkg.getFrame(),
-			      "There is a problem opening the source of\n" +
-			      "this class.  Serious trouble!");
+	    DialogManager.showError(pkg.getFrame(), "error-open-source");
     }
 
     /**

@@ -33,7 +33,7 @@ import bluej.classmgr.ClassPathEntry;
  * 
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: LibraryChooser.java 267 1999-11-10 02:53:02Z mik $
+ * @version $Id: LibraryChooser.java 269 1999-11-10 05:36:05Z mik $
  */
 public class LibraryChooser extends JPanel implements Runnable {
 
@@ -412,7 +412,7 @@ public class LibraryChooser extends JPanel implements Runnable {
       //  if (topLevelNode == null) {
             // we couldn't find the top level node containing the package
        //     DialogManager.showError(LibraryBrowserPkgMgrFrame.getFrame(), 
-        //                      Config.getString("browser.librarychooser.classchooserresyncdialog.title") + " '" + thePackage + "'");
+        //                      "cannot-locate-lib-node");
          //   return false;
         //}
         //tmpNodesInPathToFocus[1] = topLevelNode;
@@ -427,23 +427,23 @@ public class LibraryChooser extends JPanel implements Runnable {
         int nextPosInPath = 2;
         boolean foundNode = false;
         while (nodeTokens.hasMoreElements()) {
-            Enumeration rootChildren = root.children();
+	    Enumeration rootChildren = root.children();
             String nextBitInPath = nodeTokens.nextElement().toString();
             // search in the children of root for a UserObject matching nextBitInPath
             foundNode = false;
-            while (rootChildren.hasMoreElements()) {
-                LibraryChooserNode nextChild = (LibraryChooserNode)rootChildren.nextElement();
+            while(rootChildren.hasMoreElements()) {
+	        LibraryChooserNode nextChild = (LibraryChooserNode)rootChildren.nextElement();
                 if (nextChild.getInternalName().equals(nextBitInPath)) {
-                    root = tmpNodesInPathToFocus[nextPosInPath] = nextChild;
+		    root = tmpNodesInPathToFocus[nextPosInPath] = nextChild;
                     foundNode = true;
                     break;
-                }
-            }
+		}
+	    }
             if (foundNode == true)
-                nextPosInPath++;
-            else {
-                DialogManager.showError(LibraryBrowserPkgMgrFrame.getFrame(), 
-                                  Config.getString("browser.librarychooser.classchooserresyncdialog.title") + " '" + nextBitInPath + "'");
+	        nextPosInPath++;
+	    else {
+	        DialogManager.showError(LibraryBrowserPkgMgrFrame.getFrame(), 
+			"cannot-locate-lib-node");
                 return false;
             }
         }
@@ -678,8 +678,8 @@ public class LibraryChooser extends JPanel implements Runnable {
     private void openDirectoryLibrary(LibraryChooserNode top, File file) {
         if (!file.exists() && !file.isDirectory()) {
             // because of the long startup time, this should probably be in a separate thread
-            DialogManager.showError((JFrame)getParent(),
-                      Config.getString("browser.librarychooser.missingshadowdialog.title") + " " + file.getName());
+            DialogManager.showErrorWithText((JFrame)getParent(), 
+					    "missing-shadow", file.getName());
             return;
         }
 

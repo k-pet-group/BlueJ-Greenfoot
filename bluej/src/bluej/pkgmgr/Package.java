@@ -32,7 +32,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 267 1999-11-10 02:53:02Z mik $
+ ** @version $Id: Package.java 269 1999-11-10 05:36:05Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -961,10 +961,7 @@ public class Package extends Graph
     private boolean checkCompile()
     {
 	if(Debugger.debugger.getStatus() != Debugger.IDLE) {
-	    DialogManager.showMessage(frame, 
-				"You cannot compile while the machine\n" +
-				"is executing. This could cause strange\n" +
-				"problems!");
+	    DialogManager.showMessage(frame, "compile-while-executing");
 	    return false;
 	}
 	else
@@ -1528,8 +1525,7 @@ public class Package extends Graph
      */
     public void reportException(String text)
     {
-	DialogManager.showMessage(frame,
-			    "An exception was thrown:\n" + text);
+	DialogManager.showMessageWithText(frame, "exception-thrown", text);
     }
 
     /**
@@ -1557,8 +1553,8 @@ public class Package extends Graph
 
 	if(! showEditorMessage(getFileName(sourcename), lineNo, msg,
 			       false, false, bringToFront, true, null))
-	    DialogManager.showMessage(frame, "Breakpoint hit in file: " + 
-				sourcename + "\nCannot find file!");
+	    DialogManager.showMessageWithText(frame, "break-no-source", 
+					      sourcename);
 	return bringToFront;
     }
 
@@ -1619,8 +1615,9 @@ public class Package extends Graph
     {
 	if(! showEditorMessage(filename, lineNo, message, invalidate, true,
 			       true, false, Config.compilertype))
-	    DialogManager.showMessage(frame, "Error in file: " + filename + 
-				":" + lineNo + "\n" + message);
+	    DialogManager.showMessageWithText(frame, "error-in-file",
+					      filename + ":" + lineNo + 
+					      "\n" + message);
     }
 	
     /**
@@ -1632,8 +1629,9 @@ public class Package extends Graph
     {
 	if(! showEditorMessage(filename, lineNo, message, invalidate, true, 
 			       true, false, "exception"))
-	    DialogManager.showMessage(frame, "Error in file: " + filename + 
-				":" + lineNo + "\n" + message);
+	    DialogManager.showMessageWithText(frame, "error-in-file",
+					      filename + ":" + lineNo + 
+					      "\n" + message);
     }
 	
     /**
@@ -1681,10 +1679,7 @@ public class Package extends Graph
      */
     public void reportExit(String exitCode)
     {
-	DialogManager.showMessage(frame,
-			    "The method finished through an explicit\n" +
-			    "\"exit\" instruction. No result was\n" +
-			    "returned. The exit code is " + exitCode + ".");
+	DialogManager.showMessageWithText(frame, "system-exit", exitCode);
     }
 
     /**

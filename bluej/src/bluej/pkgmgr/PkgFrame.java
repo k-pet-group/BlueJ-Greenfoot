@@ -21,7 +21,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 267 1999-11-10 02:53:02Z mik $
+ ** @version $Id: PkgFrame.java 269 1999-11-10 05:36:05Z mik $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -103,7 +103,7 @@ public abstract class PkgFrame extends JFrame
 	else if (result == JFileChooser.CANCEL_OPTION)
 	    return null;
 	else {
-	    DialogManager.showError(this, "You must specify a valid name.");
+	    DialogManager.showError(this, "error-no-name");
 	    return null;
 	}
     }
@@ -117,9 +117,7 @@ public abstract class PkgFrame extends JFrame
 	    // check whether name is already in use
 	    File dir = new File(newname);
 	    if(dir.exists()) {
-		DialogManager.showError(this, 
-				  "A file or directory with this\n" +
-				  "name already exists.");
+		DialogManager.showError(this, "directory-exists");
 		return;
 	    }
 

@@ -145,19 +145,16 @@ public final class Info extends JPanel
 
     private void displayHelp(String helpGroup)
     {
-
+	String fileName = Config.getHelpFilename(helpGroup);
 	String displayMsg = line1.getText().trim();  // message displayed
-	String helpText = BlueJFileReader.readHelpText(helpGroup, displayMsg,
+
+	String helpText = BlueJFileReader.readHelpText(fileName, displayMsg,
 						       false);
 
 	if(helpText == null)
-	    DialogManager.showMessage(null, 
-			"No help available for this message.\n\n" +
-			"Please mail the text of the error message\n" +
-			"to mik@csse.monash.edu.au - we will then\n" +
-			"add a help text to our help database. Thanks.");
+	    DialogManager.showMessage(null, "no-help");
 	else
-	    DialogManager.showMessage(null, helpText);
+	    DialogManager.showText(null, helpText);
     }
 
 }  // end class Info
