@@ -3,7 +3,7 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- * Sem napiste popis teto tridy.
+ * Aplet $CLASSNAME ... doplnte vlastni komentar
  *
  * @author     jmeno autora
  * @version    cislo verze, datum
@@ -29,8 +29,7 @@ public class $CLASSNAME extends JApplet
         JRootPane rootPane = this.getRootPane();
         rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
         
-        //Zde doplnte dalsi potrebnou inicializaci vaseho apletu
-      
+        /*# Doplnte dalsi potrebnou inicializaci vaseho apletu. */
     }
     
     
@@ -41,21 +40,7 @@ public class $CLASSNAME extends JApplet
      */
     public void start() 
     {
-        //Vlozte kod potrebny pro stusteni apletu pri kazde navsteve stranky
-        
-    }
-
-
-    /**
-     * Toto je pravdepodobne nejdulezitejsi metoda appletu - 
-     * zde je uveden kod pro vykresleni appletu na obrazovku.
-     *
-     * @param  g   objekt tridy Graphics pro vykresleni na obrazovku
-     */
-    public void paint(Graphics g) 
-    {
-        //Aplet zobrazi jednoduchy text
-        g.drawString("Ukazkovy aplet", 20, 20);
+        /*# Kod potrebny pro spusteni apletu pri kazde navsteve stranky. */
     }
 
     
@@ -63,13 +48,12 @@ public class $CLASSNAME extends JApplet
      * Tato metoda je volana prohlizecem nebo appletviewerem, který takto
      * oznamuje apletu, ze se ma svoji cinnost ukoncit. 
      * Je volana pri nahrazeni stranky s apletem jinou strankou 
-     * a pred tim nez je applet volana metoda <code>destroy</code>.
+     * a pred tim nez je aplet volana metoda <code>destroy</code>.
      * V teto metode jsou ukoncovana spustena vlakna.
      */
     public void stop() 
     {
-        //Vlozte kod potrebny pro zastaveni cinnosti apletu
-        
+        /*# Kod potrebny pro zastaveni cinnosti apletu. */
     }
 
     
@@ -80,45 +64,57 @@ public class $CLASSNAME extends JApplet
      * /
     public void destroy() 
     {
-        // vlozte kod potrebny pro uvolneni alokovanych zdroju
-    
+        /*# Kod potrebny pro uvolneni alokovanych zdroju. */
     }
 
     
     /**
-     * Vraci informace o appletu.
-     * Applet by mel tuto metodu prekryt a vratit retezec obsahujici
-     * informace o autorovi, verzi a autorskych pravech k appletu.
+     * Vraci informace o apletu.
+     * Aplet by mel tuto metodu prekryt a vratit retezec obsahujici
+     * informace o autorovi, verzi a autorskych pravech k apletu.
      *
-     * @return retezec obsahuji informace o appletu
+     * @return Retezec obsahujici informace o apletu.
      */
     public String getAppletInfo() 
     {
-        //Zde vlozte informace o appletu
+        /*# Sem vlozte informace o apletu. */
         return "Nazev:   \n" +
                "Autor:   \n" +
-               "Jednoduchy ukazkovy applet. ";
+               "Popis: Jednoduchy ukazkovy aplet. ";
     }
     
     
     /**
-     * Vraci informace o parametrech, ktere tento applet umi zpracovat.
-     * Applet by mel prekryt tuto metodu tak, aby vracela pole poli
+     * Vraci informace o parametrech, ktere tento aplet umi zpracovat.
+     * Aplet by mel prekryt tuto metodu tak, aby vracela pole poli
      * textovych retezcu popisujicich tyto parametry.
      * Kazdy prvek tohoto pole se sklada ze tri retezcu obsahujicich
      * jmeno, typ a popis.
      *
-     * @return pole retezcu reprezentujici parametry tohoto appletu
+     * @return Pole retezcu reprezentujici parametry tohoto apletu.
      */
     public String[][] getParameterInfo() 
     {
-        //Zde vlozte informace o appletu
+        /*# Sem vlozte informace o apletu. */
         String paramInfo[][] = {
-            {"prvniParametr", "1-10", "popis prvniho parametru"},
-            {"stav", "boolean", "popis druheho parametru"},
-            {"obrazky", "url", "popis tretiho parametru"}
+            {"prvniParametr", "1-10",    "popis prvniho parametru"},
+            {"stav",          "boolean", "popis druheho parametru"},
+            {"obrazky",       "url",     "popis tretiho parametru"}
         };
         return paramInfo;
     }
     
+
+    /**
+     * Toto je pravdepodobne nejdulezitejsi metoda apletu - 
+     * zde je uveden kod pro vykresleni apletu na obrazovku.
+     *
+     * @param  g   objekt tridy Graphics pro vykresleni na obrazovku
+     */
+    public void paint(Graphics g) 
+    {
+        /*# Nasledujici ukazkovy kod nahradte kodem pro zobrazeni. */
+        g.drawString("Ukazkovy aplet", 20, 20);
+    }
+
 }

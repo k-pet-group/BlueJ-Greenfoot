@@ -4,28 +4,31 @@ README - <bluej-home>/lib/<language>/templates/newclass/README
 Tato slozka obsahuje sablony trid BlueJ.
 
 Tyto sablony trid jsou zobrazeny jako moznosti pri vytvareni novych trid
-v prostredi BlueJ - volba v menu "Upravy/Nova trida ..."
+v prostredi BlueJ - volba v menu "Upravy -> Nova trida ..."
 
 
 Zmeny sablon
 ------------
-Editovanim techto souboru provedete potrebne zmeny sablon.
+Pozadavanych zmen dosahnete prostym editovanim techto souboru.
 
 
 Pridavani sablon
 ----------------
-Vytvorte v teto slozce soubor s priponou ".tmpl" (pr.: "mainclass.tmpl")
+Vytvorte v teto slozce soubor s priponou ".tmpl" (napr. mainclass.tmpl).
 
-Jmena sablon pro aplety, rozhrani a abstrakti tridy zacinaji na
-"applet", "interface" or "abstract". Vsechny ostatni sablony budou povazovany
-za standardni tridy.
+Jmena sablon pro aplety, rozhrani, abstraktni tridy a vyctove typy musi 
+zacinat predponou "applet", "interface", "abstract" a "enum". 
+Jinak je bude system povazovat za sablony standardnich trid.
 
-Implicitne bude tato sablona uvedena na konci seznamu v dialogu "Nova trida ..."
-pod jmenem shodnym se jmenem sablony bez pripony (pr.: "mainclass").
+Pridana sablona bude implicitne uvedena na konci seznamu v dialogu 
+"Nova trida ..." pod jmenem shodnym se jmenem souboru sablony bez pripony 
+(napr. mainclass).
 
 Jmeno zobrazene v tomto seznamu muze byt nastaveno pomoci vlastnosti
-"pkgmgr.newClass.<template-name>" v konfiguracnim souboru "labels" (umisteni 
-<bluej-home>/lib/<language>/labels). Priklad
+"pkgmgr.newClass.<template-name>" v konfiguracnim souboru "labels" 
+(umisteni <bluej-home>/lib/<language>/labels). 
+
+Napr. nastaveni
 
    pkgmgr.newClass.mainclass=Trida s metodou Main
 

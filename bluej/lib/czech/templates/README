@@ -1,9 +1,9 @@
-Tato slozka obsahuje nektere sablony, ktere BlueJ pouziva pro
-generovani souboru. Zmenou techto sablon dosahnete zmeny obsahu
-generovanych souboru.
+Tato slozka obsahuje sablony, 
+ktere BlueJ pouziva pro generovani souboru. 
+Zmenou techto sablon dosahnete zmeny obsahu generovanych souboru.
 
  - "readme" a "readmeexp" mohou byt libovolne meneny
  - zmeny v "html" sablonach provadejte opatrne, mohou nastat problemy
 
 Podslozka "newclass" obsahuje sablony pro generovani novych trid a rozhrani
-pomoci polozky menu "Nova trida ...".
+pomoci tlacitka "Nova trida ...", resp. prikazu "Upravy -> Nova trida...".

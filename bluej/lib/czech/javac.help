@@ -8,18 +8,22 @@ metody \u010Di prom\u011Bnn\u00E9. Zvolte pros\u00EDm jin\u00FD identifik\u00E1t
 qualified new of static class
 kvalifikovan\u00E9 new p\u0159i konstrukci instance statick\u00E9 t\u0159\u00EDdy
 |
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+Kvalifikovan\u00E9 oper\u00E1tory new se pou\u017E\u00EDvaj\u00ED pouze p\u0159i
+vytv\u00E1\u0159en\u00ED instanc\u00ED vnit\u0159n\u00EDch t\u0159\u00EDd, tj. t\u0159\u00EDd, kter\u00E9 
+jsou deklarovan\u00E9 uvnit\u0159 jin\u00E9 t\u0159\u00EDdy, av\u0161ak bez
+modifik\u00E1toru static.
 
 * is abstract; cannot be instantiated
 ... je abstraktn\u00ED t\u0159\u00EDda - nelze vytvo\u0159it jej\u00ED instanci
 |
 Tato t\u0159\u00EDda je deklarov\u00E1na jako abstraktn\u00ED
 (pomoc\u00ED kl\u00ED\u010Dov\u00E9ho slova "abstract").
-Abstraktn\u00ED t\u0159\u00EDdy mohou (nemus\u00ED) obsahovat abstraktn\u00ED
-metody, kter\u00E9 neobsahuj\u00ED \u017E\u00E1dn\u00FD k\u00F3d - ten je dopln\u011Bn
-a\u017E v odvozen\u00FDch t\u0159\u00EDd\u00E1ch. Chcete-li vytvo\u0159it instanci
-odvozen\u00E9 t\u0159\u00EDdy (podt\u0159\u00EDdy), mus\u00EDte doplnit k\u00F3d (t\u011Blo)
-v\u0161ech zd\u011Bd\u011Bn\u00FDch abstraktn\u00EDch metod.
+Abstraktn\u00ED t\u0159\u00EDdy nemohou vytv\u00E1\u0159et instance. 
+To mohou a\u017E jejich konkr\u00E9tn\u00ED dce\u0159in\u00E9 t\u0159\u00EDdy.
+Konkr\u00E9tn\u00ED t\u0159\u00EDdou je t\u0159\u00EDda, kter\u00E1 m\u00E1 implementov\u00E1ny 
+v\u0161echny metody implementovan\u00FDch rozhran\u00ED a abstraktn\u00ED
+metody rodi\u010Dovsk\u00FDch t\u0159\u00EDd. Tuto implementaci v\u0161ak 
+m\u016F\u017Ee i zd\u011Bdit.
 
 abstract methods cannot have a body
 Abstraktn\u00ED metody nesm\u00ED m\u00EDt t\u011Blo.
@@ -42,14 +46,6 @@ jm\u00E9nem. P\u0159ejete-li si vytvo\u0159it novou
 prom\u011Bnnou/odkaz pou\u017Eijte jin\u00E9 jm\u00E9no.
 Chcete-li pou\u017E\u00EDt st\u00E1vaj\u00EDc\u00ED prom\u011Bnnou nebo
 parametr odstra\u0148te typ prom\u011Bnn\u00E9/odkazu.
-
-* has private access in *
-... je definov\u00E1n jako soukrom\u00FD v ...
-|
-Pou\u017E\u00EDv\u00E1te atribut (metodu), kter\u00FD(\u00E1) je definov\u00E1n(a)
-jako soukrom\u00FD(\u00E1). Jedn\u00E1-li se o atribut, zkuste
-m\u00EDsto p\u0159\u00EDm\u00E9ho p\u0159\u00EDstupu pou\u017E\u00EDt jeho p\u0159\u00EDstupovou
-metodu getXxx() (m\u00E1-li ji).
 
 anonymous class implements interface; cannot have arguments
 anonymn\u00ED t\u0159\u00EDda inplementuj\u00EDc\u00ED rozhran\u00ED nesm\u00ED m\u00EDt parametry
@@ -87,13 +83,18 @@ Jsou povoleny pouze b\u00EDl\u00E9 znaky a koment\u00E1\u0159e.
 cannot access *
 Nelze p\u0159istupovat k ...
 |
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+Pravd\u011Bpodobn\u011B se sna\u017E\u00EDte p\u0159istupovat k metod\u011B 
+\u010Di objektu, kter\u00FD nen\u00ED z tohoto m\u00EDsta viditeln\u00FD.
+Nej\u010Dast\u011Bj\u0161\u00EDm d\u016Fvodem je pokus a pou\u017Eit\u00ED prom\u011Bnn\u00E9
+vn\u011B bloku, v n\u011Bm\u017E byl definov\u00E1na.
 
 cannot assign a value to final variable *
 Nelze p\u0159i\u0159adit hodnotu konstant\u011B ...
 |
 Kl\u00ED\u010Dov\u00FDm slovem "final" jsou ozna\u010Den\u00E9 konstanty.
 Jejich hodnota nesm\u00ED b\u00FDt v programu zm\u011Bn\u011Bna.
+Pt\u0159ebujete-li hodnotu prom\u011Bnn\u00E9 m\u011Bnit,
+odstra\u0148te v jej\u00ED deklaraci modifik\u00E1tor final.
 
 type variables cannot be dereferenced
 prom\u011Bnn\u00E9 primitivn\u00EDch typ\u016F nemohou b\u00FDt dereferencov\u00E1ny
@@ -122,7 +123,7 @@ jej\u00EDch potomk\u016F (dce\u0159inn\u00FDch t\u0159\u00EDd).
 Prvn\u00ED v\u011Bc, kter\u00E1 by m\u011Bla b\u00FDt provedena v konstruktoru
 dce\u0159inn\u00E9 t\u0159\u00EDdy (podt\u0159\u00EDdy), je vol\u00E1n\u00ED konstruktoru
 rodi\u010Dovsk\u00E9 t\u0159\u00EDdy. Nem\u00E1-li rodi\u010Dovsk\u00E1 t\u0159\u00EDda implicitn\u00ED
-konstruktor, mus\u00EDte pou\u017E\u00EDt p\u0159\u00EDkazu:
+konstruktor, mus\u00EDte pou\u017E\u00EDt p\u0159\u00EDkazu
     super(...);
 uveden\u00E9ho jako prvn\u00ED p\u0159\u00EDkaz t\u011Bla konstruktoru.
 Te\u010Dky p\u0159edstavuj\u00ED parametry konstruktoru.
@@ -176,10 +177,10 @@ a zavolejte ji z tohoto bloku.
 constant expression required
 Je vy\u017Eadov\u00E1n konstantn\u00ED v\u00FDraz
 |
-Na tomto m\u00EDst\u011B jste pou\u017Eili prom\u011Bnnou nebo v\u00FDraz,
-co\u017E nen\u00ED p\u0159\u00EDpustn\u00E9. Zde m\u016F\u017Eete pou\u017E\u00EDt pouze konstanty.
-Konstanta je \u010D\u00EDseln\u00E1 hodnota (jako nap\u0159\u00EDklad 42),
-nebo identifik\u00E1tor deklarovan\u00FD jako "final".
+Na tomto m\u00EDst\u011B je vy\u017Eadov\u00E1no pou\u017Eit\u00ED konstantn\u00EDho 
+v\u00FDrazu, kter\u00FD je mo\u017Eno vyhodnotit ji\u017E v dob\u011B p\u0159ekladu.
+Jako konstatn\u00ED v\u00FDraz je mo\u017Eno pou\u017E\u00EDt v\u00FDraz obsahuj\u00EDc\u00ED
+pouze liter\u00E1ly a jin\u00E9 konstantn\u00ED v\u00FDrazy.
 
 continue outside of loop
 P\u0159\u00EDkaz 'continue' je pou\u017Eit mimo cyklus
@@ -227,10 +228,10 @@ pou\u017Eito pouze jednou.
 |
 Kl\u00ED\u010Dov\u00E9 slovo "else" m\u016F\u017Ee b\u00FDt pou\u017Eito pouze
 jako sou\u010D\u00E1st p\u0159\u00EDkazu "if". P\u0159\u00EDklad:
-   if (podn\u00EDnka)
-     podm\u00EDnka spln\u011Bna;
+   if (podm\u00EDnka)
+     p\u0159\u00EDkaz-vykonan\u00FD-p\u0159\u00ED-spln\u011Bn\u00ED-podm\u00EDnky
    else
-     podm\u00EDnka nespln\u011Bna;
+     p\u0159\u00EDkaz-vykonan\u00FD-p\u0159\u00ED-NEspln\u011Bn\u00ED-podm\u00EDnky
 Mo\u017En\u00E1, \u017Ee jste neuvedli spr\u00E1vn\u00FD po\u010Det slo\u017Een\u00FDch z\u00E1vorek.
 \u010Castou p\u0159\u00ED\u010Dinou t\u00E9to chyby je, \u017Ee chcete ve v\u011Btvi if vykonat
 n\u011Bkolik p\u0159\u00EDkaz\u016F a zapomn\u011Bli jste je uzav\u0159\u00EDt do slo\u017Een\u00FDch z\u00E1vorek.
@@ -256,9 +257,9 @@ Pr\u00E1zdn\u00FD znak neexistuje.
 * has already been caught
 ... v\u00FDjimka ji\u017E byla zachycena
 |
-Tento "catch" je \u00FApln\u011B zbyte\u010Dn\u00FD, proto\u017Ee
-se do tohoto m\u00EDsta v\u00FDjimka nikdy nedostane.
-V\u0161echny uveden\u00E9 v\u00FDjimky budou zachyceny
+Tento "catch" je zbyte\u010Dn\u00FD, 
+proto\u017Ee se do tohoto m\u00EDsta v\u00FDjimka nikdy nedostane.
+V\u0161echny deklarovan\u00E9 v\u00FDjimky budou zachyceny
 pomoc\u00ED p\u0159edchoz\u00EDch "catch".
 
 * is never thrown in body of corresponding try statement
@@ -297,9 +298,12 @@ dan\u00E9ho typu.
 inner classes cannot have static declarations
 Vnit\u0159n\u00ED t\u0159\u00EDda nem\u016F\u017Ee m\u00EDt statick\u00E9 deklarace
 |
-Ve vnit\u0159n\u00ED t\u0159\u00EDd\u011B nelze deklarovat statick\u00E9
-\u010Dleny. Pot\u0159ebujete-li statick\u00FD atribut
-nebo metodu, vytvo\u0159te jej ve vn\u011Bj\u0161\u00ED t\u0159\u00EDd\u011B.
+Ve vnit\u0159n\u00ED t\u0159\u00EDd\u011B nelze deklarovat statick\u00E9 \u010Dleny. 
+Pot\u0159ebujete-li statick\u00FD atribut nebo metodu, 
+rozmyslete si, zda dan\u00E1 t\u0159\u00EDda nem\u016F\u017Ee b\u00FDt 
+deklarov\u00E1na pouze jako vno\u0159en\u00E1 (tj. s modifik\u00E1torem
+static), anebo vytvo\u0159te po\u017Eadovan\u00FD atribut
+\u010Di metodu ve vn\u011Bj\u0161\u00ED t\u0159\u00EDd\u011B.
 
 illegal character: *
 Zak\u00E1zan\u00FD znak: ...
@@ -318,10 +322,10 @@ s n\u011Bkter\u00FDm z modifik\u00E1tor\u016F "native",
 "final", "private" nebo "synchronized".
 
 illegal escape character
-Neplatn\u00FD \u0159\u00EDd\u00EDc\u00ED znak
+Neplatn\u00E1 escape sekvence
 |
-\u0158\u00EDd\u00EDc\u00ED znak za\u010D\u00EDn\u00E1 zp\u011Btn\u00FDm lom\u00EDtkem "\"
-n\u00E1sledovan\u00FDm p\u00EDsmenem. Povolen\u00E9 \u0159\u00EDd\u00EDc\u00ED znaky jsou:
+Escape sekvence za\u010D\u00EDn\u00E1 zp\u011Btn\u00FDm lom\u00EDtkem "\"
+n\u00E1sledovan\u00FDm p\u00EDsmenem. Povolen\u00E9 znaky jsou:
 \n, \t, \b, \r, \f, \\, \', \".
 
 illegal forward reference
@@ -348,19 +352,26 @@ Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 illegal start of expression
 Zak\u00E1zan\u00FD za\u010D\u00E1tek v\u00FDrazu
 |
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+Na t\u00E9to pozici, je o\u010Dek\u00E1v\u00E1n po\u010D\u00E1tek v\u00FDrazu,
+ale je zde n\u011Bco jin\u00E9ho. Pravd\u011Bpodobn\u011B v\u00E1m
+v p\u0159edchoz\u00EDm k\u00F3du n\u011Bco p\u0159eb\u00FDv\u00E1 nebo chyb\u00ED.
+Zkontrolujte spr\u00E1vnost definice typu.
 
 illegal start of type
 Zak\u00E1zan\u00FD za\u010D\u00E1tek typu
 |
 Na t\u00E9to pozici, je o\u010Dek\u00E1v\u00E1no jm\u00E9no typu,
-ale je zde n\u011Bco jin\u00E9ho (pravd\u011Bpodobn\u011B kl\u00ED\u010Dov\u00E9
-slovo). Zkontrolujte spr\u00E1vnost definice typu.
+ale je zde n\u011Bco jin\u00E9ho Pravd\u011Bpodobn\u011B v\u00E1m
+v p\u0159edchoz\u00EDm k\u00F3du n\u011Bco p\u0159eb\u00FDv\u00E1 nebo chyb\u00ED.
+Zkontrolujte spr\u00E1vnost definice typu.
 
 illegal unicode escape
 Zak\u00E1zan\u00FD z\u00E1pis znaku sady unicode
 |
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+Znaky definovan\u00E9 k\u00F3dem je mo\u017Eno zad\u00E1vat sekvenc\u00ED
+\uXXXX
+kde X zastupuje hexadecim\u00E1ln\u00ED \u010D\u00EDslici. Tyto \u010D\u00EDslice
+mus\u00ED b\u00FDt v\u017Edy pr\u00E1v\u011B 4.
 
 improperly formed type, some parameters are missing
 Nespr\u00E1vn\u011B utvo\u0159en\u00FD typ, n\u011Bkter\u00E9 parametry chyb\u011Bj\u00ED
@@ -386,28 +397,30 @@ Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 * but with different return type
 ... existuje s jin\u00FDm typem n\u00E1vratov\u00E9 hodnoty
 |
-Pravd\u011Bpodobn\u011B se sna\u017E\u00EDte napsat dv\u011B metody, kter\u00E9 se
+Pravd\u011Bpodobn\u011B se sna\u017E\u00EDte definovat dv\u011B metody, kter\u00E9 se
 li\u0161\u00ED pouze v typu n\u00E1vratov\u00E9 hodnoty. To nen\u00ED dovoleno.
+Metody, kter\u00E9 maj\u00ED stejn\u00FD n\u00E1zev, se mus\u00ED li\u0161it
+v po\u010Dtu a/nebo typu parametr\u016F.
 
 interface expected here
 Zde je o\u010Dek\u00E1v\u00E1no rozhran\u00ED
 |
-Rozhran\u00ED m\u016F\u017Ee b\u00FDt odvozeno pouze od jin\u00E9ho rozhran\u00ED.
+Rodi\u010Dem rozhran\u00ED m\u016F\u017Ee b\u00FDt pouze rozhran\u00ED.
 Jm\u00E9no, kter\u00E9 jste uvedli po "extends" nen\u00ED rozhran\u00ED.
 
 interface methods cannot have body
-Metoda rozhran\u00ED nem\u016F\u017Ee m\u00EDt t\u011Blo
+Metoda deklrovan\u00E1 v rozhran\u00ED nem\u016F\u017Ee m\u00EDt t\u011Blo
 |
-Rozhran\u00ED maj\u00ED pouze hlavi\u010Dky metod ukon\u010Den\u00E9
-st\u0159edn\u00EDkem. Metody deklarovan\u00E9 v rozhran\u00ED
-nemaj\u00ED t\u011Blo ve slo\u017Een\u00FDch z\u00E1vork\u00E1ch.
+Rozhran\u00ED m\u016F\u017Ee obsahovat pouze hlavi\u010Dky metod 
+ukon\u010Den\u00E9 st\u0159edn\u00EDkem. Metody deklarovan\u00E9 v rozhran\u00ED
+nesm\u00ED m\u00EDt definov\u00E1no t\u011Blo ve slo\u017Een\u00FDch z\u00E1vork\u00E1ch.
 
 hexadecimal numbers must contain at least one hexadecimal digit
 Hexadecim\u00E1ln\u00ED \u010D\u00EDsla mus\u00ED b\u00FDt tvo\u0159ena alespo\u0148 jednou \u010D\u00EDslic\u00ED
 |
 Zadali jste hexadecim\u00E1ln\u00ED \u010D\u00EDslo pomoc\u00ED z\u00E1pisu "0x".
 P\u0159i z\u00E1pisu hexa \u010D\u00EDsla mus\u00ED b\u00FDt po "x" uvedena alespo\u0148 jedna
-\u010D\u00EDslice 0...9 nebo a..f.
+\u010D\u00EDslice 0...9 nebo a...f nebo A...F.
 
 invalid method declaration; return type required
 Neplatn\u00E1 deklarace metody; chyb\u00ED typ n\u00E1vratov\u00E9 hodnoty
@@ -544,11 +557,14 @@ T\u0159\u00EDda nen\u00ED vn\u011Bj\u0161\u00ED t\u0159\u00EDdou: ...
 Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 * cannot be applied to *
- ... oper\u00E1tor nem\u016F\u017Ee b\u00FDt pou\u017Eit pro ...
+ ... oper\u00E1tor \u010Di metoda nem\u016F\u017Ee b\u00FDt pou\u017Eit(a) pro ...
 |
-Oper\u00E1tor, kter\u00FD se zde pokou\u0161\u00EDte pou\u017E\u00EDt, nem\u016F\u017Ee b\u00FDt
-pro tento datov\u00FD typ pou\u017Eit.
-Pou\u017E\u00EDv\u00E1te bu\u010Fto \u0161patn\u00FD typ, nebo nevhodn\u00FD oper\u00E1tor.
+Oper\u00E1tor, resp. metoda, kterou se zde pokou\u0161\u00EDte pou\u017E\u00EDt, 
+nem\u016F\u017Ee b\u00FDt pro tento datov\u00FD typ pou\u017Eit(a).
+Pou\u017E\u00EDv\u00E1te bu\u010Fto \u0161patn\u00FD typ dat, nebo nevhodn\u00FD oper\u00E1tor.
+Chyba je \u010Dasto vyvol\u00E1na t\u00EDm, \u017Ee pou\u017E\u00EDjete takovou
+sadu parametr\u016F, pro kterou nen\u00ED definov\u00E1na pot\u0159ebn\u00E1 
+p\u0159et\u00ED\u017Een\u00E1 verze dan\u00E9 metody.
 
 * clashes with class of same name
  ... koliduje se stejn\u011B pojmenovanou t\u0159\u00EDdou
@@ -625,6 +641,17 @@ Tato t\u0159\u00EDda nedefinuje v\u0161echny metody uveden\u00E9
 v pou\u017Eit\u00FDch rozhran\u00EDch nebo chyb\u00ED implementace
 abstraktn\u00EDch metod  rodi\u010Dovsk\u00E9 t\u0159\u00EDdy.
 
+* is not abstract and does not override abstract method *
+... nen\u00ED abstraktn\u00ED a p\u0159itom neimplementuje abstratn\u00ED metodu ...
+|
+Definovali jste t\u0159\u00EDdu, kter\u00E1 implementuje n\u011Bjak\u00E9 rozhran\u00ED, 
+resp. je potomkem n\u011Bjak\u00E9 abstraktn\u00ED t\u0159\u00EDdy, a p\u0159itom jste
+neimplementovali v\u0161echny metody deklarovan\u00E9 v dan\u00E9m rozhran\u00ED,
+resp. nep\u0159ekryli v\u0161echny abstraktn\u00ED metody dan\u00E9 t\u0159\u00EDdy.
+V chybov\u00E9m hl\u00E1\u0161en\u00ED je uvedena konkr\u00E9tn\u00ED neimplementovan\u00E1 metoda.
+Mus\u00EDte t\u0159\u00EDdu definovat jako abstraktn\u00ED
+nebo implementovat p\u0159\u00EDslu\u0161nou metodu.
+
 error writing source; cannot overwrite input file *
 Chyba p\u0159i zapisov\u00E1n\u00ED zdroje; nelze p\u0159epsat vstupn\u00ED soubor ...
 |
@@ -698,14 +725,17 @@ P\u0159\u00EDkaz nebude nikdy vykon\u00E1n
 |
 Tento p\u0159\u00EDkaz nebude nikdy vykon\u00E1n. Metody
 nesm\u00ED obsahovat k\u00F3d, kter\u00FD nem\u016F\u017Ee b\u00FDt nikdy
-vykon\u00E1n. Ov\u011B\u0159te p\u0159\u00EDkazy, kter\u00E9 ovliv\u0148uj\u00ED
+vykon\u00E1n. Nej\u010Dast\u011Bji se jedn\u00E1 o p\u0159\u00EDkaz stoj\u00EDc\u00ED
+bezprost\u0159edn\u011B za p\u0159\u00EDkazem return nebo za
+vychozen\u00EDm v\u00FDjimky. Ov\u011B\u0159te p\u0159\u00EDkazy, kter\u00E9 ovliv\u0148uj\u00ED
 vykon\u00E1v\u00E1n\u00ED k\u00F3du, pop\u0159\u00EDpad\u011B tento k\u00F3d vyma\u017Ete.
 
 initializer must be able to complete normally
 Statick\u00FD blok mus\u00ED b\u00FDt ukon\u010Den norm\u00E1ln\u011B
 |
-Inicializace statick\u00E9ho bloku nesm\u00ED vyvolat v\u00FDjimku
-a mus\u00ED v\u017Edy skon\u010Dit bez chyby.
+Statick\u00FD blok zastupuj\u00EDc\u00ED statick\u00FD konstruktor nesm\u00ED vyvolat 
+kontrolovanou v\u00FDjimku, tj. v\u00FDjimku, kter\u00E1 je potomkem t\u0159\u00EDdy
+Exception a nen\u00ED potomkem t\u0159\u00EDdy RuntimeException.
 
 * must be caught or declared to be thrown
 v\u00FDjimka ... mus\u00ED b\u00FDt zachycena nebo deklarov\u00E1na jako vyvol\u00E1van\u00E1
@@ -944,84 +974,3 @@ Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 ... koliduje se symbolem vytvo\u0159en\u00FDm p\u0159eklada\u010Dem v ...
 |
 Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-bad class file: *
-Vadn\u00FD soubor class:
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-unchecked assignment: *
-Nekontrolovan\u00E9 p\u0159i\u0159azen\u00ED
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-unchecked call to {0} as a member of the raw type {1}
-Nekontrolovan\u00E9 vol\u00E1n\u00ED ... jako \u010Dlena typu ...
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-unchecked cast to type *
-Nekontrolovan\u00E9 p\u0159etypov\u00E1n\u00ED na ...
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-unchecked generic array creation
-Nekontolovan\u00E9 vytvo\u0159en\u00ED generick\u00E9ho pole
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-unchecked method invocation: *
-Nekontrolovan\u00E9 vol\u00E1n\u00ED metody
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-Some input files use or override a deprecated API.
-N\u011Bkter\u00E9 vstupn\u00ED soubory pou\u017E\u00EDvaj\u00ED \u010Di p\u0159ekr\u00FDvaj\u00ED "deprecated" API
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-Recompile with -deprecation for details.
-P\u0159elo\u017Ete znovu s nastavenou volbou -deprecation
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-* uses unchecked operations
-... pou\u017E\u00EDv\u00E1 nekontrolovan\u00E9 operace
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-Some input files use unchecked operations.
-N\u011Bkter\u00E9 vstupn\u00ED soubory pou\u017E\u00EDvaj\u00ED nekontrolovan\u00E9 operace
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-Fatal Error: Unable to locate package java.lang in classpath or bootclasspath
-Fat\u00E1ln\u00ED chyba: Bal\u00ED\u010Dek java.lang nen\u00ED na cest\u011B classpath ani bootclasspath
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-Fatal Error: Unable to locate method *
-Fat\u00E1ln\u00ED chyba: Nen\u00ED mo\u017En\u00E9 naj\u00EDt metodu ...
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-type variables cannot be dereferenced
-Typov\u00E1 prom\u011Bnn\u00E1 nem\u016F\u017Ee b\u00FDt dereferencov\u00E1na
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-* cannot be applied to *
-Nelze aplikovat na ...
-|
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
-
-{0} is not abstract and does not override abstract method {1} in {2}
-T\u0159\u00EDda ... nen\u00ED abstraktn\u00ED, a p\u0159itom neimplementuje metodu ... deklarovanou v ...
-|
-T\u0159\u00EDda, kter\u00E1 nen\u00ED definov\u00E1na jako abstraktn\u00ED, je potomkem abstraktn\u00ED t\u0159\u00EDdy
-nebo implementuje n\u011Bjak\u00E9 rozhran\u00ED, a p\u0159itom neimplementuje uvedenou metodu,
-kter\u00E1 je deklarov\u00E1na v implementovan\u00E9m rozhran\u00ED nebo je abstraktn\u00ED metodou
-rodi\u010Dovsk\u00E9 t\u0159\u00EDdy.
-Bu\u010Fto t\u0159\u00EDdu deklarujte jako abstraktn\u00ED, nebo uvedenou metodu implementujte.
-
-
