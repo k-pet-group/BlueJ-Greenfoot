@@ -67,7 +67,6 @@ bluej.url.javaStdLib=http://java.sun.com/j2se/1.3/docs/api/index.html
 # Unix and others: First, try to open the URL in a running netscape 
 # process. If that fails, start netscape.
 browserCmd1=netscape -remote openURL($)
-
 browserCmd2=netscape $
 
 # For Windows95/98, the following should start the default browser 
