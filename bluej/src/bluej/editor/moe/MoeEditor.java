@@ -620,6 +620,17 @@ public final class MoeEditor extends JFrame
         currentTextPane.setEditable(!readOnly);
     }
 
+    /**
+     * Returns if this editor is read-only.
+     * Accessor for the setReadOnly property.
+     * 
+     *  @returns	a boolean indicating whether the editor is read-only.
+     */
+    public boolean isReadOnly ()
+    {
+        return ! currentTextPane.isEditable();
+    }
+      
     // --------------------------------------------------------------------
     /**
      *  Set this editor to display either the interface or the source code 

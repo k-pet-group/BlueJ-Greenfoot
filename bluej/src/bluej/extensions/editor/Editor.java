@@ -4,22 +4,28 @@ package bluej.extensions.editor;
 /**
  * Proxy object that allows interaction with the BlueJ Editor for a
  * particular class.
- * 
- * @version $Id: Editor.java 2835 2004-08-04 14:25:55Z damiano $
+ *
+ * @version    $Id: Editor.java 2909 2004-08-19 08:32:52Z damiano $
  */
 
 /*
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
- */ 
+ */
 public class Editor
 {
+    private bluej.editor.Editor bjEditor;
+
+
     /**
      * Constructor must not be public.
      * You get an Editor object by calling BClass.getEditor(), which
      * will create a (non-visible) editor if one does not already exist.
+     *
+     * @param  bjEditor  Description of the Parameter
      */
-    Editor()
+    Editor(bluej.editor.Editor bjEditor)
     {
+        this.bjEditor = bjEditor;
     }
 
 
@@ -28,16 +34,18 @@ public class Editor
      */
     public void saveFile()
     {
+        bjEditor.save();
     }
 
 
     /**
      * Request to the editor to shows or hide this Editor depending on the value of parameter visible.
      *
-     * @param  visible   The new visible value
+     * @param  visible  The new visible value
      */
     public void setVisible(boolean visible)
     {
+        bjEditor.setVisible(visible);
     }
 
 
@@ -48,7 +56,7 @@ public class Editor
      */
     public boolean isVisible()
     {
-        return true;
+        return bjEditor.isShowing();
     }
 
 
@@ -66,8 +74,8 @@ public class Editor
     /**
      * Sets the current Caret location within the edited text.
      *
-     * @param  location          The location in the text to set the Caret to.
-     * @throws  IllegalArgumentException if the specified TextLocation represents a position which does not exist in the text.
+     * @param  location                   The location in the text to set the Caret to.
+     * @throws  IllegalArgumentException  if the specified TextLocation represents a position which does not exist in the text.
      */
     public void setCaretLocation(TextLocation location)
     {
@@ -81,13 +89,14 @@ public class Editor
      */
     public void showMessage(String message)
     {
+        bjEditor.displayMessage("",-1,-1,false,false,null);
     }
 
 
     /**
      * Returns the location at which current selection begins.
      *
-     * @return the current beginning of the selection or null if no text is selected.
+     * @return    the current beginning of the selection or null if no text is selected.
      */
     public TextLocation getSelectionBegin()
     {
@@ -109,10 +118,10 @@ public class Editor
     /**
      * Returns the text which lies between the two TextLocations.
      *
-     * @param  begin             The beginning of the text to get
-     * @param  end               The end of the text to get
-     * @return                   The text value
-     * @throws  IllegalArgumentException if either of the specified TextLocations represent a position which does not exist in the text.
+     * @param  begin                      The beginning of the text to get
+     * @param  end                        The end of the text to get
+     * @return                            The text value
+     * @throws  IllegalArgumentException  if either of the specified TextLocations represent a position which does not exist in the text.
      */
     public String getText(TextLocation begin, TextLocation end)
     {
@@ -124,10 +133,10 @@ public class Editor
      * Request to the editor tp reeplace the text between beginning and end with the given newText
      * If begin and end are the same, the text is inserted.
      *
-     * @param  begin             where to start to replace
-     * @param  end               where to end to replace
-     * @param  newText           The new text value
-     * @throws  IllegalArgumentException if either of the specified TextLocations 
+     * @param  begin                      where to start to replace
+     * @param  end                        where to end to replace
+     * @param  newText                    The new text value
+     * @throws  IllegalArgumentException  if either of the specified TextLocations
      * represent a position which does not exist in the text.
      */
     public void setText(TextLocation begin, TextLocation end, String newText)
@@ -138,12 +147,12 @@ public class Editor
     /**
      * Request to the editor to mark the text between begin and end as selected.
      *
-     * @param  begin             where to start the selection
-     * @param  end               where to end the selection
-     * @throws  IllegalArgumentException if either of the specified TextLocations 
+     * @param  begin                      where to start the selection
+     * @param  end                        where to end the selection
+     * @throws  IllegalArgumentException  if either of the specified TextLocations
      * represent a position which does not exist in the text.
      */
-    public void setSelection(TextLocation begin, TextLocation end )
+    public void setSelection(TextLocation begin, TextLocation end)
     {
     }
 
@@ -156,17 +165,18 @@ public class Editor
      */
     void setReadOnly(boolean readOnly)
     {
+        bjEditor.setReadOnly(readOnly);
     }
 
 
     /**
      * Returns if the editor is readonly or not.
      *
-     * @return true if the user cannot change the text using the GUI, false othervise
+     * @return    true if the user cannot change the text using the GUI, false othervise
      */
     boolean isReadonly()
     {
-        return true;
+        return bjEditor.isReadOnly();
     }
 
 
@@ -241,7 +251,6 @@ public class Editor
     {
         return 0;
     }
-
 
 }
 

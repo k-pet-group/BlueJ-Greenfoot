@@ -14,7 +14,7 @@ import java.awt.print.PrinterJob;
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 2642 2004-06-21 14:53:23Z polle $
+ * @version $Id: Editor.java 2909 2004-08-19 08:32:52Z damiano $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -167,6 +167,13 @@ public interface Editor
      * @param readOnlyStatus  If true, editor is non-editable.
      */
     void setReadOnly(boolean readOnly);
+
+    /**
+     * Test if this editor is 'read-only'.
+     * @return the readOnlyStatus. If true, editor is non-editable.
+     */
+    boolean isReadOnly();
+
     
     /**
      * Set the view of this editor to display either the source or the interface
