@@ -4,6 +4,9 @@ How to make a BlueJ release                    (last update 31.08.2001, mik)
  1. Set the right BlueJ version number in bluej/src/bluej/Main.java
 
  2. Compile and build the release with:  ant dist
+    (make sure the JDK version used for the build is the lowest
+     compatible JDK for BlueJ ie don't build with 1.4 or it won't run
+     on 1.3)
     This will create .../bluej/package/bluej-dist-new.jar
     NOTE: for some mysterious reasons, distribuitions are smaller when
     built on Solaris than on Windows. Preferrably build on Solaris.
