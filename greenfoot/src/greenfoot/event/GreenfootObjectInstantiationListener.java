@@ -1,6 +1,7 @@
 package greenfoot.event;
 
 import greenfoot.GreenfootObject;
+import greenfoot.WorldHandler;
 import greenfoot.gui.DragGlassPane;
 
 import java.rmi.RemoteException;
@@ -19,11 +20,13 @@ import rmiextension.wrappers.event.RInvocationListenerImpl;
  */
 public class GreenfootObjectInstantiationListener extends RInvocationListenerImpl
 {
-
-    public GreenfootObjectInstantiationListener()
+    private WorldHandler worldHandler;
+    
+    public GreenfootObjectInstantiationListener(WorldHandler worldHandler)
         throws RemoteException
     {
         super();
+        this.worldHandler = worldHandler;
     }
 
     public void invocationFinished(RInvocationEvent event)
@@ -47,7 +50,7 @@ public class GreenfootObjectInstantiationListener extends RInvocationListenerImp
             GreenfootObject go = (GreenfootObject) realObject;
             int xoffset = -go.getImage().getIconWidth() / 2;
             int yoffset = -go.getImage().getIconHeight() / 2;
-            DragGlassPane.getInstance().startDrag(go, xoffset, yoffset);
+            DragGlassPane.getInstance().startDrag(go, xoffset, yoffset, worldHandler);
         }
     }
 

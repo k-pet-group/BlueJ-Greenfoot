@@ -2,29 +2,14 @@ package greenfoot.gui;
 
 import greenfoot.GreenfootObject;
 
-import java.awt.AWTEvent;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.AWTEventListener;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.net.URL;
 import java.util.logging.Logger;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 /**
  * Component that can be used for dragging. It should be used as a glasspane on
@@ -35,8 +20,16 @@ import javax.swing.SwingUtilities;
  * Some of this is taken from:
  * http://java.sun.com/docs/books/tutorial/uiswing/components/example-1dot4/GlassPaneDemo.java
  * 
+ * after startDrag():
+ * - drag() sent to drop target when object is dragged over it
+ * - dragEnded() sent to drop target when object is dragged off it
+ * 
+ * If the object is dropped on a drop target:
+ * - drop() is sent to the drop target (dragEnded() is not sent)
+ * - dragFinished() is sent to the drag listener
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3142 2004-11-23 04:06:47Z davmac $
+ * @version $Id: DragGlassPane.java 3165 2004-11-25 02:07:14Z davmac $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -74,6 +67,11 @@ public class DragGlassPane extends JComponent
      * drop targets when drag moves away from the component
      */
     private DropTarget lastDropTarget;
+    
+    /**
+     * The listener to be notified when the drag operation finishes.
+     */
+    private DragListener dragListener;
 
     /**
      * Event listener that captures all events and redispatches them to the
@@ -81,6 +79,8 @@ public class DragGlassPane extends JComponent
      * Mac-bug where the glasspane never got mouse events when drag initiated
      * with Shift-buttton
      */
+    // DAV remove.
+    /*
     private AWTEventListener eventListener = new AWTEventListener() {
         public void eventDispatched(AWTEvent event)
         {
@@ -95,12 +95,12 @@ public class DragGlassPane extends JComponent
             }
         }
     };
+    */
 
     public static DragGlassPane getInstance()
     {
         if (instance == null) {
             instance = new DragGlassPane();
-
         }
         return instance;
     }
@@ -109,8 +109,9 @@ public class DragGlassPane extends JComponent
     {
         //HACK this is a mac hack that is necessay because I can't get the
         // glasspane to grab the focus.
-        Toolkit.getDefaultToolkit().addAWTEventListener(eventListener,
-                (AWTEvent.MOUSE_MOTION_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK));
+        //Toolkit.getDefaultToolkit().addAWTEventListener(eventListener,
+        //        (AWTEvent.MOUSE_MOTION_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK));
+        setVisible(false);
 
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
@@ -164,7 +165,13 @@ public class DragGlassPane extends JComponent
     /**
      * Initiates a drag. The xOffset and yOffset specify the offset in pixels
      * from the mouse cursor to the image top-left corner during the drag
-     * operation (normally negative).
+     * operation (normally negative).<p>
+     * 
+     * There are two types of drag: a "genuine" drag where an object is being
+     * dragged with the mouse button down, and a "forced" drag where the button
+     * is up. In the case of a genuine drag, the DragGlassPane should bet set
+     * added as a MouseListener and MouseMotionListener to the component
+     * receiving the drag events. Otherwise, this is not necessary.
      * 
      * @param object
      *            The object to drag.
@@ -172,8 +179,10 @@ public class DragGlassPane extends JComponent
      *            The X offset from the icon's top-left to the mouse cursor
      * @param yOffset
      *            The Y offset from the icon's top-left to the mouse cursor
+     * @param dl
+     *            The listener to be notified when the operation finishes
      */
-    public void startDrag(GreenfootObject object, int xOffset, int yOffset)
+    public void startDrag(GreenfootObject object, int xOffset, int yOffset, DragListener dl)
     {
         if (object == null || object.getImage() == null) {
             return;
@@ -181,9 +190,12 @@ public class DragGlassPane extends JComponent
         setDragImage(object.getImage(), object.getRotation());
         setDragObject(object);
         paintNoDropImage = false;
-        setVisible(true);
         dragOffsetX = xOffset;
         dragOffsetY = yOffset;
+        dragListener = dl;
+        setVisible(true);
+        //Toolkit.getDefaultToolkit().addAWTEventListener(eventListener,
+        //        (AWTEvent.MOUSE_MOTION_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK));
         logger.info("DragGlassPane.startDrag begin: " + this);
     }
 
@@ -197,9 +209,21 @@ public class DragGlassPane extends JComponent
         if (lastDropTarget != null) {
             lastDropTarget.dragEnded(data);
         }
+
+        // Save the old values of dragListener and data for the "dragFinished"
+        // call below
+        DragListener dl = dragListener;
+        Object od = data;
+        
+        setVisible(false);
         data = null;
         image = null;
-        setVisible(false);
+        dragListener = null;
+        
+        // Call dragFinished
+        if (dl != null) {
+            dl.dragFinished(od);
+        }
     }
 
     /**
@@ -246,8 +270,7 @@ public class DragGlassPane extends JComponent
 
             Point tp = e.getPoint().getLocation(); // copy the point
             tp.translate(dragOffsetX, dragOffsetY);
-            //Point tp = e.getPoint().translate(dragOffsetX, dragOffsetY);
-            Point p = SwingUtilities.convertPoint(this, tp, destination);
+            Point p = SwingUtilities.convertPoint(e.getComponent(), tp, destination);
             if (dropTarget.drag(data, p)) {
                 paintNoDropImage = false;
             }
@@ -293,12 +316,12 @@ public class DragGlassPane extends JComponent
             DropTarget dropTarget = (DropTarget) destination;
             Point tp = e.getPoint().getLocation();
             tp.translate(dragOffsetX, dragOffsetY);
-            Point destinationPoint = SwingUtilities.convertPoint(this, tp, destination);
+            Point destinationPoint = SwingUtilities.convertPoint(e.getComponent(), tp, destination);
             Object tmpData = data;
-            endDrag();
             dropTarget.drop(tmpData, destinationPoint);
+            lastDropTarget = null;
         }
-
+        endDrag();
     }
 
     private Component getComponentBeneath(MouseEvent e)
@@ -309,7 +332,12 @@ public class DragGlassPane extends JComponent
         }
         Container contentPane = frame.getContentPane();
 
-        Component glassPane = this;
+        Component glassPane;
+        if (e.getSource() instanceof Component)
+            glassPane = (Component) e.getSource();
+        else
+            glassPane = null;
+            
         JMenuBar menuBar = frame.getJMenuBar();
 
         Point glassPanePoint = e.getPoint();
@@ -344,6 +372,8 @@ public class DragGlassPane extends JComponent
      * @param source
      * @param destination
      */
+    // DAV remove
+    /*
     private void translateAndDispatchEvent(MouseEvent e, Component source, Component destination)
     {
         if ((destination != null)) {
@@ -352,6 +382,7 @@ public class DragGlassPane extends JComponent
                     componentPoint.x, componentPoint.y, e.getClickCount(), e.isPopupTrigger()));
         }
     }
+    */
 
     private void storePosition(MouseEvent e)
     {

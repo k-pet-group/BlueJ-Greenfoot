@@ -51,7 +51,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: GreenfootFrame.java 3165 2004-11-25 02:07:14Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -101,6 +101,11 @@ public class GreenfootFrame extends JFrame
         Greenfoot.getInstance().addCompileListener(this);
         openProject(project);
 
+    }
+    
+    public WorldHandler getWorldHandler()
+    {
+        return worldHandler;
     }
 
     private void buildUI()

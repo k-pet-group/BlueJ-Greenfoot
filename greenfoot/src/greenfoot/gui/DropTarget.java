@@ -6,7 +6,7 @@ import java.awt.Point;
  * Interface that components can use for accepting dropping of objects
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DropTarget.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: DropTarget.java 3165 2004-11-25 02:07:14Z davmac $
  */
 public interface DropTarget
 {
@@ -27,8 +27,8 @@ public interface DropTarget
     public boolean drop(Object o, Point p);
 
     /**
-     * A drag has ended on this component - do cleanup
+     * A drag has ended on this component (the object has been dragged off
+     * the component) - do cleanup
      */
     public void dragEnded(Object o);
-
 }
