@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2101 2003-07-08 14:00:26Z mik $
+ * @version $Id: VMReference.java 2111 2003-07-15 03:29:07Z ajp $
  *
  * The startup process is as follows:
  *
@@ -821,7 +821,6 @@ class VMReference
 		} catch (ClassNotFoundException cnfe) {
 			return null;
 		}
-
 		List allTypesInFile = new ArrayList();
    	
 		// find all ReferenceType's declared in this source file
@@ -943,7 +942,9 @@ class VMReference
      */
     public List getBreakpoints()
     {
-        EventRequestManager erm = machine.eventRequestManager();
+		// Debug.message("[VMRef] getBreakpoints()");
+		
+		EventRequestManager erm = machine.eventRequestManager();
         List breaks = new LinkedList();
 
         List allBreakpoints = erm.breakpointRequests();
@@ -967,7 +968,29 @@ class VMReference
      */
     public void restoreBreakpoints(List saved)
     {
+    	// Debug.message("[VMRef] restoreBreakpoints()");
+
         EventRequestManager erm = machine.eventRequestManager();
+
+		// create the list of locations - converted to the new classloader
+		// this has to be done before we suspend the machine because
+		// loadClassesAndFindLine needs the machine running to work
+		// see bug #526
+		List newSaved = new ArrayList();
+
+		Iterator savedIterator = saved.iterator();
+
+		while (savedIterator.hasNext()) {
+			Location oldLocation = (Location) savedIterator.next();
+
+			Location newLocation = loadClassesAndFindLine(
+									oldLocation.declaringType().name(),
+									oldLocation.lineNumber());
+									
+			if (newLocation != null) {
+				newSaved.add(newLocation);
+			}
+		}
 
         // to stop our server thread getting away from us, lets halt the
         // VM temporarily
@@ -979,18 +1002,19 @@ class VMReference
         erm.deleteAllBreakpoints();
         serverClassAddBreakpoints();
 
-        Iterator it = saved.iterator();
+		// add all the new breakpoints we have created
+        Iterator it = newSaved.iterator();
 
         while (it.hasNext()) {
             Location l = (Location) it.next();
 
-            try {
-                setBreakpoint(l.declaringType().name(), l.lineNumber());
-            } catch (AbsentInformationException aie) {
-                Debug.reportError("breakpoint error: " + aie);
-            }
+			BreakpointRequest bpreq = erm.createBreakpointRequest(l);
+			bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+			bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
+			bpreq.enable();
         }
 
+		// start the machine back up
         machine.resume();
     }
 

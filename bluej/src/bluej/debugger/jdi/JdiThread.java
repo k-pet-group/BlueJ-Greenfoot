@@ -13,7 +13,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2096 2003-07-04 14:52:01Z mik $
+ * @version $Id: JdiThread.java 2111 2003-07-15 03:29:07Z ajp $
  */
 class JdiThread extends DebuggerThread
 {
@@ -297,6 +297,9 @@ class JdiThread extends DebuggerThread
 			// this is possible if the thread state changes after
 			// our check for its suspended state
 			// lets just return an empty List
+        }
+        catch(InvalidStackFrameException isfe) {
+        	// same here
         }
         return new ArrayList();
     }
