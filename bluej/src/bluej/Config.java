@@ -24,10 +24,10 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 2141 2003-08-04 08:09:49Z bquig $
+ * @version $Id: Config.java 2173 2003-08-26 11:23:50Z mik $
  */
 
-public class Config
+public final class Config
 {
     public static final String nl = System.getProperty("line.separator");
 
@@ -110,7 +110,7 @@ public class Config
         // and Java 1.4.1:
         System.setProperty("apple.laf.useScreenMenuBar", macOSscreenMenuBar);      
 
-        usingMacOSScreenMenubar = (osname.startsWith("Mac") && macOSscreenMenuBar.equals("true"));
+        usingMacOSScreenMenubar = (isMacOS() && macOSscreenMenuBar.equals("true"));
         
         boolean themed = Boolean.valueOf(
             Config.getPropString("bluej.useTheme", "false")).booleanValue();
@@ -123,6 +123,14 @@ public class Config
 //        catch (Exception e) { }
     } // initialise
 
+    
+    /**
+     * Tell us whether we are running on MacOS
+     */
+    public static boolean isMacOS()
+    {
+        return osname.startsWith("Mac");
+    }
     
     /**
      * Tell us whether we are using a Mac screen menubar
@@ -668,5 +676,13 @@ public class Config
     public static File getBlueJLibDir()
     {
         return bluej_lib_dir;
+    }
+
+    /**
+     * Returns the blueJLibDir
+     */
+    public static String getBlueJIconPath()
+    {
+        return bluej_lib_dir.getPath() + "/images/icons";
     }
 }
