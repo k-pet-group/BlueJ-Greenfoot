@@ -24,7 +24,7 @@ import javax.swing.text.Segment;
 * Java token marker.
 *
 * @author Slava Pestov
-* @version $Id: JavaTokenMarker.java 362 2000-01-14 03:33:06Z mik $
+* @version $Id: JavaTokenMarker.java 363 2000-01-14 04:35:23Z mik $
 */
 public class JavaTokenMarker extends CTokenMarker
 {
@@ -39,6 +39,9 @@ public class JavaTokenMarker extends CTokenMarker
             javaKeywords = new KeywordMap(false);
             javaKeywords.add("package",Token.KEYWORD2);
             javaKeywords.add("import",Token.KEYWORD2);
+            javaKeywords.add("class",Token.KEYWORD2);
+            javaKeywords.add("interface",Token.KEYWORD2);
+
             javaKeywords.add("byte",Token.KEYWORD3);
             javaKeywords.add("char",Token.KEYWORD3);
             javaKeywords.add("short",Token.KEYWORD3);
@@ -48,8 +51,7 @@ public class JavaTokenMarker extends CTokenMarker
             javaKeywords.add("double",Token.KEYWORD3);
             javaKeywords.add("boolean",Token.KEYWORD3);
             javaKeywords.add("void",Token.KEYWORD3);
-            javaKeywords.add("class",Token.KEYWORD3);
-            javaKeywords.add("interface",Token.KEYWORD3);
+
             javaKeywords.add("abstract",Token.KEYWORD1);
             javaKeywords.add("final",Token.KEYWORD1);
             javaKeywords.add("private",Token.KEYWORD1);
@@ -79,6 +81,7 @@ public class JavaTokenMarker extends CTokenMarker
             javaKeywords.add("finally",Token.KEYWORD1);
             javaKeywords.add("implements",Token.KEYWORD1);
             javaKeywords.add("throws",Token.KEYWORD1);
+
             javaKeywords.add("this",Token.LITERAL2);
             javaKeywords.add("null",Token.LITERAL2);
             javaKeywords.add("super",Token.LITERAL2);
@@ -95,6 +98,10 @@ public class JavaTokenMarker extends CTokenMarker
 /*
 * ChangeLog:
 * $Log$
+* Revision 1.3  2000/01/14 04:35:18  mik
+*
+* changed colours again
+*
 * Revision 1.2  2000/01/14 03:33:04  mik
 * changed syntax colours
 *
