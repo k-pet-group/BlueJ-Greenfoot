@@ -39,7 +39,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 186 1999-07-17 02:30:31Z ajp $
+ ** @version $Id: ClassTarget.java 198 1999-07-22 00:50:03Z ajp $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -532,14 +532,26 @@ public class ClassTarget extends EditableTarget
      * @return the created popup menu object
      */
     protected JPopupMenu createMenu(Class cl, JFrame editorFrame) {
-	actions = new Hashtable();
+        actions = new Hashtable();
 	
-	JPopupMenu menu = new JPopupMenu(getName() + " operations");
+        JPopupMenu menu = new JPopupMenu(getName() + " operations");
 	
-	// the only popup menu option under the Library Browser should be
-	// "open"
-	if (editorFrame != null && 
-	    (editorFrame instanceof LibraryBrowserPkgMgrFrame)) {
+        // the only popup menu option under the Library Browser should be
+        // "open"
+        if (editorFrame != null && 
+            (editorFrame instanceof LibraryBrowserPkgMgrFrame)) {
+
+            Package[] openpackages = Main.getAllOpenPackages();
+            
+            if(openpackages != null) {
+                for(int i=0; i<openpackages.length; i++) {
+
+                    addMenuItem(menu, "Use in package " + openpackages[i].getId(), true);
+                    
+                }
+            }                
+
+
 //	    addMenuItem(menu, openStr, true);
 	    // only add "use" option if the class is compiled and we're not 
 	    // running standalone

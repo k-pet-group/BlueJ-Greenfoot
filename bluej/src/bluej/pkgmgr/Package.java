@@ -27,7 +27,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 186 1999-07-17 02:30:31Z ajp $
+ ** @version $Id: Package.java 198 1999-07-22 00:50:03Z ajp $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -709,7 +709,7 @@ public class Package extends Graph
      * @return an error code indicating the status of the insert (eg. NO_ERROR)
      */
     public int insertLibClass(String packageName, String className) {
-	Debug.message("Inserting class: " + packageName + "-" + className + " in " + this.getFrame().getTitle());
+        Debug.message("Inserting class: " + packageName + "-" + className + " in " + this.getFrame().getTitle());
 
 	if (getFrame() instanceof PkgMgrFrame) {
 	    String packagePath;
@@ -720,7 +720,6 @@ public class Package extends Graph
 	    
 	    ImportedClassTarget target = new ImportedClassTarget(this, 
 								 className,
-								 packageName,
 								 packagePath);
 	    target.setState(Target.S_NORMAL);
 	    addTarget(target);

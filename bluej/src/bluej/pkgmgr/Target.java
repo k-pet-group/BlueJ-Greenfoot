@@ -15,7 +15,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 /**
- ** @version $Id: Target.java 114 1999-06-08 04:02:49Z mik $
+ ** @version $Id: Target.java 198 1999-07-22 00:50:03Z ajp $
  ** @author Michael Cahill
  **
  ** A general target in a package
@@ -118,16 +118,16 @@ public abstract class Target extends Vertex
      * properties file used by multiple targets.
      */
     public void load(Properties props, String prefix) 
-	throws NumberFormatException
+        throws NumberFormatException
     {
-	// No super.load, but need to get Vertex properties:
+        // No super.load, but need to get Vertex properties:
 	this.x = Integer.parseInt(props.getProperty(prefix + ".x"));
 	this.y = Integer.parseInt(props.getProperty(prefix + ".y"));
 	this.width = Integer.parseInt(props.getProperty(prefix + ".width"));
 	this.height = Integer.parseInt(props.getProperty(prefix + ".height"));
 
-	// Now read the properties for this
-	setName(props.getProperty(prefix + ".name"));
+        // Now read the properties for this
+        setName(props.getProperty(prefix + ".name"));
     }
 
     /**
@@ -151,6 +151,7 @@ public abstract class Target extends Vertex
 
     /**
      * Return the target's name, including the package name.
+     * eg.   bluej.pkgmgr.Target
      */
     public String getName()
     {
@@ -159,6 +160,7 @@ public abstract class Target extends Vertex
 
     /**
      * Return the target's base name (ie the name without the package name).
+     * eg.  Target
      */
     public String getBaseName()
     {
@@ -181,7 +183,7 @@ public abstract class Target extends Vertex
      */
     public Package getPackage()
     {
-	return pkg;
+        return pkg;
     }
 
     /**
@@ -190,7 +192,7 @@ public abstract class Target extends Vertex
      */
     public int getState()
     {
-	return state;
+        return state;
     }
 
     /**
@@ -473,7 +475,7 @@ public abstract class Target extends Vertex
 
     public void repaint()
     {
-	pkg.getEditor().repaint(x, y, width + SHAD_SIZE, height + SHAD_SIZE);
+        pkg.getEditor().repaint(x, y, width + SHAD_SIZE, height + SHAD_SIZE);
     }
 
     /**
@@ -589,7 +591,7 @@ public abstract class Target extends Vertex
      */
     public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-	Graphics g = editor.getGraphics();
+        Graphics g = editor.getGraphics();
 	int orig_x = (resizing ? oldRect.width : oldRect.x);
 	int orig_y = (resizing ? oldRect.height : oldRect.y);
 	int current_x = (resizing ? width : this.x);

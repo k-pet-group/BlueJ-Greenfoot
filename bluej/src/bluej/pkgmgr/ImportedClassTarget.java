@@ -6,7 +6,7 @@ import java.awt.Color;
 import java.awt.Font;
 
 /** 
- ** @version $Id: ImportedClassTarget.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: ImportedClassTarget.java 198 1999-07-22 00:50:03Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -23,22 +23,18 @@ public class ImportedClassTarget extends ClassTarget
     static Font invalidFont = new Font("SansSerif", Font.BOLD | Font.ITALIC, Config.fontsize);
 	
     String sourcePkgDir;
-    String sourcePkgName;
 
     /**
      * Create an ImportedClassTarget.
      *
      * @param pkg  the package this target belongs to
      * @param name  the name of the target
-     * @param sourcePackageName  the name of the package this class belongs was defined in
-     * @param sourcePackageDir  the directory where the class's source is stored
+     * @param sourcePackageDir  the directory/jar where the class's source is stored
      */
-    public ImportedClassTarget(Package pkg, String name, 
-			       String sourcePkgName, String sourcePkgDir)
+    public ImportedClassTarget(Package pkg, String name, String sourcePkgDir)
     {
-	super(pkg, name);
-	this.sourcePkgDir = sourcePkgDir;
-	this.sourcePkgName = sourcePkgName;
+        super(pkg, name);
+        this.sourcePkgDir = sourcePkgDir;
     }
 
     /**
@@ -47,7 +43,7 @@ public class ImportedClassTarget extends ClassTarget
      */
     public ImportedClassTarget(Package pkg)
     {
-	this(pkg, null, null, null);
+        this(pkg, null, null);
     }
 
     /**
@@ -61,7 +57,6 @@ public class ImportedClassTarget extends ClassTarget
 	super.load(props, prefix);
 
 	sourcePkgDir = Config.getPath(props, prefix + ".srcPkgDir");
-	sourcePkgName = props.getProperty(prefix + ".srcPkgName");
     }
 
     /**
@@ -76,7 +71,6 @@ public class ImportedClassTarget extends ClassTarget
 
 	props.put(prefix + ".type", "ImportedClassTarget"); // overwrites type from superclass
 	Config.putPath(props, prefix + ".srcPkgDir", sourcePkgDir);
-	props.put(prefix + ".srcPkgName", sourcePkgName);
     }
 
     /**
@@ -117,7 +111,6 @@ public class ImportedClassTarget extends ClassTarget
      */
     public void prepareFilesForRemoval()
     {
-	// Nothing happens here.
+        // Nothing happens here.
     }
-
 }

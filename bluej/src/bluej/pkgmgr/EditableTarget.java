@@ -5,11 +5,11 @@ import bluej.editor.EditorWatcher;
 import bluej.utility.Utility;
 
 /** 
- ** @version $Id: EditableTarget.java 114 1999-06-08 04:02:49Z mik $
- ** @author Michael Cahill
- **
- ** A target in a package that can be edited as text
- **/
+ * @version $Id: EditableTarget.java 198 1999-07-22 00:50:03Z ajp $
+ * @author Michael Cahill
+ *
+ * A target in a package that can be edited as text
+ */
 
 public abstract class EditableTarget extends Target
 
@@ -19,22 +19,22 @@ public abstract class EditableTarget extends Target
 	
     protected EditableTarget(Package pkg, String name)
     {
-	super(pkg, name);
+        super(pkg, name);
     }
 
     /**
-    ** @returns a boolean indicating whether this target contains source code
-    **/
+     * @returns a boolean indicating whether this target contains source code
+     */
     protected abstract boolean isCode();
 	
     /**
-    ** @returns the name of the (text) file this target corresponds to.
-    **/
+     * @returns the name of the (text) file this target corresponds to.
+     */
     protected abstract String sourceFile();
 	
     /**
-    ** @return the editor object associated with this target
-    **/
+     * @return the editor object associated with this target
+     */
     public abstract Editor getEditor();
 
     /**
