@@ -1,14 +1,6 @@
 package bluej.extensions.editor;
 
-import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.extensions.event.ExtensionEvent;
-import bluej.extmgr.*;
-import bluej.pkgmgr.*;
-import bluej.pkgmgr.Package;
-
 import bluej.pkgmgr.target.*;
-import com.sun.jdi.Value;
-import javax.swing.*;
 
 /**
  * This class acts as a bridge between the extensions.editor classes
@@ -18,7 +10,7 @@ import javax.swing.*;
  *
  * This class should be excluded when the Javadoc API documentation is generated.
  *
- * @version $Id: EditorBridge.java 2918 2004-08-20 06:40:41Z damiano $
+ * @version $Id: EditorBridge.java 3004 2004-09-15 14:15:00Z mik $
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
  */ 
 public class EditorBridge
