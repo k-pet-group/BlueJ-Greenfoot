@@ -19,7 +19,7 @@ import bluej.utility.Debug;
  * NOTE: the get method returns an Object, in most cases it is a String, Integer, Long and so on BUT
  * when a real Object is actually returned it is encapsulated into a BObject. You MUST look for this.
  * 
- * @version $Id: BField.java 1726 2003-03-24 13:33:06Z damiano $
+ * @version $Id: BField.java 1802 2003-04-10 09:55:18Z damiano $
  */
 public class BField
 {
@@ -154,13 +154,15 @@ public class BField
 
 
     /**
-     * NOT for use by the extension writer.
+     * WARNING: This is COPIED into the extension/event.
+     * if you change something you MUST keep it in sync.
+     * The reason of the copy is simply because javadoc does not (yet) have a way to hide public methods.
      * Utility to avoid duplicated code. To be used from within the bluej.extensions package
      * Given a Value that comes from th remote debugger machine, converts it into somethig
      * that is usable. The real important thing here is to return a BObject for objects 
      * that can be put into the bench.
      */
-    public static Object getVal ( Package bluej_pkg, String instanceName, Value val )
+    static Object getVal ( Package bluej_pkg, String instanceName, Value val )
         {
         if ( val == null ) return null;
         

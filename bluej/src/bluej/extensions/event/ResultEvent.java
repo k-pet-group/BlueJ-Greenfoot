@@ -5,15 +5,21 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.ObjectWrapper;
 import bluej.extensions.*;
 
-import com.sun.jdi.*;
 import bluej.pkgmgr.*;
+
+import com.sun.jdi.*;
+import bluej.debugger.jdi.JdiObject;
+
+import bluej.pkgmgr.Package;
+
+
 
 /**
  * This Class represent a Result event, an event generated when the invocation finished.
  * AN invocation may finish in a normal way or it may be interrupted.
  * From this event you can extract the actual result of the invocation.
  * 
- * @version $Id: ResultEvent.java 1795 2003-04-10 09:21:11Z damiano $
+ * @version $Id: ResultEvent.java 1802 2003-04-10 09:55:18Z damiano $
  */
 public class ResultEvent implements BluejEvent
 {
@@ -170,7 +176,7 @@ public class ResultEvent implements BluejEvent
       if ( thisField == null ) return null;
 
       // WARNING: I do not have the newly created name here....
-      return BField.getVal(bluej_pkg, "", objRef.getValue(thisField));
+      return getVal(bluej_pkg, "", objRef.getValue(thisField));
       }
 
 
@@ -197,4 +203,55 @@ public class ResultEvent implements BluejEvent
       
       return aRisul.toString();      
       }
+
+
+
+    /**
+     * WARNING: This is COPIED into the extension/event.
+     * if you change something you MUST keep it in sync.
+     * The reason of the copy is simply because javadoc does not (yet) have a way to hide public methods.
+     * Utility to avoid duplicated code. To be used from within the bluej.extensions package
+     * Given a Value that comes from th remote debugger machine, converts it into somethig
+     * that is usable. The real important thing here is to return a BObject for objects 
+     * that can be put into the bench.
+     */
+    static Object getVal ( Package bluej_pkg, String instanceName, Value val )
+        {
+        if ( val == null ) return null;
+        
+        if (val instanceof StringReference) return ((StringReference) val).value();
+        if (val instanceof BooleanValue) return new Boolean (((BooleanValue) val).value());
+        if (val instanceof ByteValue)    return new Byte (((ByteValue) val).value());
+        if (val instanceof CharValue)    return new Character (((CharValue) val).value());
+        if (val instanceof DoubleValue)  return new Double (((DoubleValue) val).value());
+        if (val instanceof FloatValue)   return new Float (((FloatValue) val).value());
+        if (val instanceof IntegerValue) return new Integer (((IntegerValue) val).value());
+        if (val instanceof LongValue)    return new Long (((LongValue) val).value());
+        if (val instanceof ShortValue)   return new Short (((ShortValue) val).value());
+
+        if (val instanceof ObjectReference)
+          {
+          PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
+          ObjectWrapper objWrap = new ObjectWrapper (pmf, pmf.getObjectBench(), JdiObject.getDebuggerObject((ObjectReference)val),instanceName);
+          return new BObject ( objWrap );
+          }
+
+        return val.toString();
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
 }
