@@ -113,7 +113,7 @@ public class BField
       if ( thisField == null ) return null;
       Debug.message("Got thisField");
        
-      return getVal(bluej_pkg, objRef.getValue(thisField));
+      return getVal(bluej_pkg, "static", objRef.getValue(thisField));
       }
 
 
@@ -133,14 +133,17 @@ public class BField
         if ( thisField == null ) return null;
        
         Package bluej_pkg = onThis.getBluejPackage();
-        return getVal(bluej_pkg, objRef.getValue(thisField));
+        return getVal(bluej_pkg, bluej_view.getName(), objRef.getValue(thisField));
         }
 
 
     /**
-     * Utility to avoid duplicated code
+     * Utility to avoid duplicated code. To be used from within the bluej.extensions package
+     * Given a Value that comes from th remote debugger machine, converts it into somethig
+     * that is kind of reasonable... The real important thing here is to return a 
+     * BObject for objects that can be put into the bench.
      */
-    private Object getVal ( Package bluej_pkg, Value val )
+    static Object getVal ( Package bluej_pkg, String instanceName, Value val )
         {
         if ( val == null ) return null;
         
@@ -157,7 +160,8 @@ public class BField
         if (val instanceof ObjectReference)
           {
           PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
-          return new BObject ( new ObjectWrapper (pmf, pmf.getObjectBench(), JdiObject.getDebuggerObject((ObjectReference)val), getName()));
+          ObjectWrapper objWrap = new ObjectWrapper (pmf, pmf.getObjectBench(), JdiObject.getDebuggerObject((ObjectReference)val),instanceName);
+          return new BObject ( objWrap );
           }
 
         return val.toString();

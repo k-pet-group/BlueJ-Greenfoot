@@ -13,7 +13,7 @@ import bluej.testmgr.*;
  * Provides a gateway to invoke methods on objects using a specified set of parameters.
  *
  * @author Clive Miller, Damiano Bolla
- * @version $Id: DirectInvoker.java 1661 2003-03-06 15:36:08Z damiano $
+ * @version $Id: DirectInvoker.java 1666 2003-03-08 11:30:11Z damiano $
  */
 class DirectInvoker
 {
@@ -22,7 +22,7 @@ class DirectInvoker
     private String error, resultName;
 
     /**
-     * For use by the beluj.extensions
+     * For use by the bluej.extensions
      */
     DirectInvoker (Package pkg, CallableView callable )
     {
@@ -41,19 +41,18 @@ class DirectInvoker
         DirectResultWatcher watcher = new DirectResultWatcher();
         Invoker invoker = new Invoker (pmf, callable, null, watcher);
         // Setting the instanceName here works but it is simpler to do it when we
-        // put it into the bench
+        // put it into the bench, maybe it should be removed from the params... Damiano
         invoker.invokeDirect (null, args);
 
         // this will wait() on the invoke to finish
         DebuggerObject result = watcher.getResult();
+        // Let me get back a possible error
+        error = watcher.getError();
 
-        if (result == null)
-            {
-            error = watcher.getError();
-            return null;
-            }
+        // No result... possible
+        if (result == null) return null;
 
-        // constructors place the result as the first field on the returned object
+        // Result is ALWAYS an Object and it is the first field on the returned object
         result = result.getInstanceFieldObject(0);
         resultName = watcher.getResultName();
         return result;
@@ -76,12 +75,14 @@ class DirectInvoker
         // this will wait() on the invoke to finish
         DebuggerObject result = watcher.getResult();
 
-        if (result == null)
-            {
-            error = watcher.getError();
-            return null;
-            }
+        // Let me get back a possible error
+        error = watcher.getError();
 
+        // No result... possible
+        if (result == null) return null;
+
+        // The "real" object is the first Field in this object.. BUT it is not always
+        // an Object, it may be a primitive one...
         resultName = watcher.getResultName();
         return result;
         }

@@ -46,25 +46,8 @@ public class BArray
     ReferenceType type = objRef.referenceType();
     
     Value val = array.getValue(itemIndex);
-    if ( val == null ) return null;
-        
-    if (val instanceof StringReference) return ((StringReference) val).value();
-    if (val instanceof BooleanValue) return new Boolean (((BooleanValue) val).value());
-    if (val instanceof ByteValue)    return new Byte (((ByteValue) val).value());
-    if (val instanceof CharValue)    return new Character (((CharValue) val).value());
-    if (val instanceof DoubleValue)  return new Double (((DoubleValue) val).value());
-    if (val instanceof FloatValue)   return new Float (((FloatValue) val).value());
-    if (val instanceof IntegerValue) return new Integer (((IntegerValue) val).value());
-    if (val instanceof LongValue)    return new Long (((LongValue) val).value());
-    if (val instanceof ShortValue)   return new Short (((ShortValue) val).value());
 
-    if (val instanceof ObjectReference)
-      {
-      PkgMgrFrame pmf = PkgMgrFrame.findFrame (thisArray.getBluejPackage());
-      return new BObject ( new ObjectWrapper (pmf, pmf.getObjectBench(), JdiObject.getDebuggerObject((ObjectReference)val), thisArray.getInstanceName()));
-      }
-
-    return val.toString();
+    return BField.getVal(thisArray.getBluejPackage(), "Array", val);
     }
 
 

@@ -11,8 +11,14 @@ import java.lang.reflect.Modifier;
 import bluej.pkgmgr.Package;
 import bluej.views.*;
 
+import com.sun.jdi.*;
+
 /**
- * The BlueJ proxy Method object. This represents a method of a class or object. 
+ * <pre>This class encapsulate a method. Its duty is to provide a way to the developer
+ * to call a method on a given object that is on the bench.
+ * What it returns is an Object that is either a primitive type encapsulation
+ * Integer for int, Long for long and so on, or it may return a BObject that can
+ * further be sent to the bench.</pre>
  */
 public class BMethod
 {
@@ -74,27 +80,27 @@ public class BMethod
      * @return name of the method. See Reflection API
      */
     public String getName()
-    {
+      {
       return bluej_view.getName();
-    }
+      }
     
     /**
      * Gets the return type of this method
      * @return a string describing the return type, eg <code>int</code>, <code>Object</code>
      */
     public Class getReturnType()
-    {
+        {
         View aView = bluej_view.getReturnType();
         return aView.getViewClass();
-    }
+        }
     
     /**
      * @return The modifiers of this method. See Reflection API
      */
     public int getModifiers()
-    {
+        {
         return bluej_view.getModifiers();
-    }
+        }
 
     /**
      * invoke a method on the given Object.<P>
@@ -113,7 +119,7 @@ public class BMethod
      * this should be set to <CODE>null</CODE>.
      * @return the resulting OBJect
      */
-    public BObject invoke (BObject onThis, String[] params)
+    public Object invoke (BObject onThis, String[] params)
         {
         invoker = new DirectInvoker (bluej_pkg, bluej_view );
         DebuggerObject result = invoker.invokeMethod (onThis.getInstanceName(), params);
@@ -122,10 +128,16 @@ public class BMethod
         if (result == null) return null;
 
         String resultName = invoker.getResultName();
-        PkgMgrFrame pmf   = PkgMgrFrame.findFrame(bluej_pkg);
-        ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
 
-        return new BObject(wrapper);
+        ObjectReference objRef = result.getObjectReference();
+        ReferenceType type = objRef.referenceType();
+
+        // It happens that the REAL result is in the result field of this Object...
+        Field thisField = type.fieldByName ("result");
+        if ( thisField == null ) return null;
+
+        // DOing this is the correct way of returning the right object. Tested 080303, Damiano
+        return BField.getVal(bluej_pkg, resultName, objRef.getValue(thisField));
         }
     
     /**
