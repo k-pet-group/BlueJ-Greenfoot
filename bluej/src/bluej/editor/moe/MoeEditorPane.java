@@ -14,7 +14,7 @@ public class MoeEditorPane extends JEditorPane
 {
     public Dimension getPreferredSize() {
 	Dimension d = super.getPreferredSize();
-        d.width += MoeEditor.TAG_WIDTH + 10;  // bit of empty space looks nice
+        d.width += MoeEditor.TAG_WIDTH + 8;  // bit of empty space looks nice
         return d;
     }
 

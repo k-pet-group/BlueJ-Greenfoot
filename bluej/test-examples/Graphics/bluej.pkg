@@ -1,5 +1,8 @@
 #BlueJ project file
-package.numDependencies=0
+dependency1.from=BasicGraphics
+dependency1.to=BasicGraphics
+dependency1.type=UsesDependency
+package.numDependencies=1
 package.numTargets=3
 package.window.height=456
 package.window.width=495

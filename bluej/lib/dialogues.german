@@ -233,3 +233,10 @@ ask-index
 Index des Arrayelementes [...]
 Arrayinspektion
 null
+
+# editor:
+#########
+
+no-search-string
+Es ist kein Suchtext definiert.
+(Zuerst Text selektieren oder 'Suchen' benutzen.)

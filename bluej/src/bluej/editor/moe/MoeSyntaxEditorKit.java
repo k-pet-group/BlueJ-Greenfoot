@@ -41,7 +41,8 @@ import org.gjt.sp.jedit.syntax.*;
  *
  * @see org.gjt.sp.jedit.syntax.SyntaxView
  */
-public class MoeSyntaxEditorKit extends DefaultEditorKit implements ViewFactory
+public class MoeSyntaxEditorKit extends DefaultEditorKit 
+        implements ViewFactory
 {
     /**
      * Returns an instance of a view factory that can be used for
@@ -78,30 +79,3 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit implements ViewFactory
         return new MoeSyntaxDocument();
     }
 }
-
-/*
- * ChangeLog:
- * $Log$
- * Revision 1.1  2000/01/12 03:39:59  bruce
- *
- * New files added to provide Syntax highlighting.  Altered document type from Styled to Plain.
- *
- * Revision 1.10  1999/06/05 00:22:58  sp
- * LGPL'd syntax package
- *
- * Revision 1.9  1999/05/02 00:07:21  sp
- * Syntax system tweaks, console bugfix for Swing 1.1.1
- *
- * Revision 1.8  1999/03/24 05:45:27  sp
- * Juha Lidfors' backup directory patch, removed debugging messages from various locations, documentation updates
- *
- * Revision 1.7  1999/03/13 09:11:46  sp
- * Syntax code updates, code cleanups
- *
- * Revision 1.6  1999/03/13 08:50:39  sp
- * Syntax colorizing updates and cleanups, general code reorganizations
- *
- * Revision 1.5  1999/03/12 23:51:00  sp
- * Console updates, uncomment removed cos it's too buggy, cvs log tags added
- *
- */

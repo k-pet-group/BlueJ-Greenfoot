@@ -49,6 +49,7 @@ public final class MoeActions
 
     private Keymap keymap;		// the editor's keymap
     private FunctionDialog functionDlg;	// the function bindings dialog
+    private KeyCatcher keyCatcher;
 
     // undo helpers
     public UndoAction undoAction;
@@ -80,11 +81,11 @@ public final class MoeActions
 
     private MoeActions(JTextComponent textComponent)
     {
-        SHIFT_CTRL_MASK = Event.CTRL_MASK;
-        SHIFT_CTRL_MASK |= Event.SHIFT_MASK;
+        SHIFT_CTRL_MASK = Event.CTRL_MASK + Event.SHIFT_MASK;
         undoManager = new UndoManager();
         keymap = textComponent.getKeymap();
         createActionTable(textComponent);
+        keyCatcher = new KeyCatcher();
     }
 
     /**
@@ -401,6 +402,39 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
+    class IndentAction extends MoeAbstractAction {
+
+        public IndentAction() {
+            super("indent",
+                  KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK));
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            JTextComponent textPane = getTextComponent(e);
+            doIndent(textPane);
+        }
+    }
+
+    // --------------------------------------------------------------------
+
+    class BreakAndIndentAction extends MoeAbstractAction {
+
+        public BreakAndIndentAction() {
+            super("insert-break-and-indent",
+                 KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK));
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            Action action = (Action)(actions.get("insert-break"));
+            action.actionPerformed(e);
+
+            JTextComponent textPane = getTextComponent(e);
+            doIndent(textPane);
+        }
+    }
+
+    // --------------------------------------------------------------------
+
     // **** not needed any more - TABs now set to 4
     // 	public HalfTabAction() {
     //  	    super("insert-half-tab",
@@ -492,22 +526,6 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
-    class GotoLineAction extends MoeAbstractAction {
-
-        public GotoLineAction() {
-            super("goto-line",
-                  KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK));
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            JTextComponent textPane = getTextComponent(e);
-            Element line = getLine(textPane, 2);
-            textPane.setCaretPosition(line.getStartOffset());
-        }
-    }
-
-    // --------------------------------------------------------------------
-
     class CompileAction extends MoeAbstractAction {
 
         public CompileAction() {
@@ -581,7 +599,7 @@ public final class MoeActions
                     "Version " + MoeEditor.versionString,
                     " ",
                     "Moe is the editor of the BlueJ programming environment.",
-                    "Written by Michael K\u00F6lling (mik@csse.monash.edu.au)."
+                    "Written by Michael K\u00F6lling (mik@monash.edu.au)."
                     },
                 "About Moe", JOptionPane.INFORMATION_MESSAGE);
         }
@@ -597,7 +615,11 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
-            DialogManager.NYI(getEditor(e));
+            JTextComponent textComponent = getTextComponent(e);
+            textComponent.addKeyListener(keyCatcher);
+            MoeEditor ed = getEditor(e);
+            keyCatcher.setEditor(ed);
+            ed.writeMessage("Describe key: ");
         }
     }
 
@@ -679,7 +701,7 @@ public final class MoeActions
 
     private Element getLine(JTextComponent text, int lineNo)
     {
-        return text.getDocument().getDefaultRootElement().getElement(lineNo-1);
+        return text.getDocument().getDefaultRootElement().getElement(lineNo);
     }
 
     // -------------------------------------------------------------------
@@ -693,16 +715,17 @@ public final class MoeActions
         return document.getParagraphElement(pos);
     }
 
-//      // -------------------------------------------------------------------
-//      /**
-//       * Return the number of the current line.
-//       */
+    // -------------------------------------------------------------------
+    /**
+     * Return the number of the current line.
+     */
 
-//      private int getCurrentLineNo(JTextComponent textComponent)
-//      {
-//  	return document.getDefaultRootElement().getElementIndex(
-//  					textPane.getCaretPosition()) + 1;
-//      }
+    private int getCurrentLineIndex(JTextComponent text)
+    {
+        MoeSyntaxDocument document = (MoeSyntaxDocument)text.getDocument();
+	return document.getDefaultRootElement().getElementIndex(
+					text.getCaretPosition());
+    }
 
 //      // -------------------------------------------------------------------
 //      /**
@@ -713,6 +736,54 @@ public final class MoeActions
 //      {
 //  	return document.getDefaultRootElement().getElementIndex(pos) + 1;
 //      }
+
+
+    // ===================== ACTION IMPLEMENTATION ======================
+
+    private void doIndent(JTextComponent textPane)
+    {
+        int lineIndex = getCurrentLineIndex(textPane);
+        if(lineIndex == 0) 
+            return;
+        
+        try {
+            // get indentation string from previous line
+
+            MoeSyntaxDocument doc = (MoeSyntaxDocument)textPane.getDocument();
+            Element line = getLine(textPane, lineIndex - 1);
+            int lineStart = line.getStartOffset();
+            int lineEnd = line.getEndOffset();
+            String lineText = doc.getText(lineStart, lineEnd-lineStart);
+            int indentPos = findFirstNonWhiteChar(lineText);
+            String indent = lineText.substring(0, indentPos);
+
+            // find and replace indentation of current line
+
+            line = getLine(textPane, lineIndex);
+            lineStart = line.getStartOffset();
+            lineEnd = line.getEndOffset();
+            lineText = doc.getText(lineStart, lineEnd-lineStart);
+            indentPos = findFirstNonWhiteChar(lineText);
+            doc.remove(lineStart, indentPos);
+            doc.insertString(lineStart, indent, null);
+
+            //textPane.setCaretPosition(lineStart + indent.length());
+        }
+        catch (Exception exc) {}
+    }
+
+    private int findFirstNonWhiteChar(String s)
+    {
+        int cnt=0;
+        char ch = s.charAt(0);
+
+        while(ch == ' ' || ch == '\t') {   // SPACE or TAB
+            cnt++;
+            ch = s.charAt(cnt);
+        }
+        return cnt;
+    }
+
 
     // --------------------------------------------------------------------
     /**
@@ -739,13 +810,14 @@ public final class MoeActions
             new CommentAction(),
             new UncommentAction(),
             new InsertMethodAction(),
+            new IndentAction(),
+            new BreakAndIndentAction(),
 
             new FindAction(),
             new FindBackwardAction(),
             new FindNextAction(),
             new FindNextReverseAction(),
             new ReplaceAction(),
-            new GotoLineAction(),
             compileAction,
             new ToggleBreakPointAction(),
 
@@ -785,11 +857,13 @@ public final class MoeActions
             (Action)(actions.get("paste-from-clipboard")),
             (Action)(actions.get("insert-tab")),
             (Action)(actions.get("insert-break")),
+            (Action)(actions.get("insert-break-and-indent")),
+            (Action)(actions.get("indent")),
             (Action)(actions.get("insert-method")),
             (Action)(actions.get("comment")),
             (Action)(actions.get("uncomment")),
 
-            (Action)(actions.get("select-word")),               // 10
+            (Action)(actions.get("select-word")),               // 12
             (Action)(actions.get("select-line")),
             (Action)(actions.get("select-paragraph")),
             (Action)(actions.get("select-all")),
@@ -797,9 +871,9 @@ public final class MoeActions
             (Action)(actions.get("selection-backward")),
             (Action)(actions.get("selection-forward")),
             (Action)(actions.get("selection-up")),
-            (Action)(actions.get("selection-down")),
+            (Action)(actions.get("selection-down")),            // 20
             (Action)(actions.get("selection-begin-word")),
-            (Action)(actions.get("selection-end-word")),        // 20
+            (Action)(actions.get("selection-end-word")),
             (Action)(actions.get("selection-previous-word")),
             (Action)(actions.get("selection-next-word")),
             (Action)(actions.get("selection-begin-line")),
@@ -807,22 +881,22 @@ public final class MoeActions
             (Action)(actions.get("selection-begin-paragraph")),
             (Action)(actions.get("selection-end-paragraph")),
             (Action)(actions.get("selection-page-up")),
-            (Action)(actions.get("selection-page-down")),
+            (Action)(actions.get("selection-page-down")),       // 30
             (Action)(actions.get("selection-begin")),
-            (Action)(actions.get("selection-end")),             // 30
+            (Action)(actions.get("selection-end")),
 
             // move and scroll functions
 
-            (Action)(actions.get("caret-backward")),            // 31
+            (Action)(actions.get("caret-backward")),            // 33
             (Action)(actions.get("caret-forward")),
             (Action)(actions.get("caret-up")),
             (Action)(actions.get("caret-down")),
             (Action)(actions.get("caret-begin-word")),
             (Action)(actions.get("caret-end-word")),
             (Action)(actions.get("caret-previous-word")),
-            (Action)(actions.get("caret-next-word")),
+            (Action)(actions.get("caret-next-word")),            // 40
             (Action)(actions.get("caret-begin-line")),
-            (Action)(actions.get("caret-end-line")),            // 40
+            (Action)(actions.get("caret-end-line")),
             (Action)(actions.get("caret-begin-paragraph")),
             (Action)(actions.get("caret-end-paragraph")),
             (Action)(actions.get("page-up")),
@@ -831,33 +905,32 @@ public final class MoeActions
             (Action)(actions.get("caret-end")),
 
             // class functions
-            (Action)(actions.get("save")),                      // 47
+            (Action)(actions.get("save")),                      // 49
             (Action)(actions.get("reload")),
             (Action)(actions.get("close")),
             (Action)(actions.get("print")),
 
             // customisation functions
-            (Action)(actions.get("key-bindings")),              // 51
+            (Action)(actions.get("key-bindings")),              // 53
             (Action)(actions.get("preferences")),
 
             // help functions
-            (Action)(actions.get("describe-key")),              // 53
+            (Action)(actions.get("describe-key")),              // 55
             (Action)(actions.get("help-mouse")),
             (Action)(actions.get("show-manual")),
             (Action)(actions.get("about-editor")),
 
             // misc functions
-            undoAction,                                         // 57
+            undoAction,                                         // 59
             redoAction,
             (Action)(actions.get("find")),
             (Action)(actions.get("find-backward")),
             (Action)(actions.get("find-next")),
             (Action)(actions.get("find-next-reverse")),
             (Action)(actions.get("replace")),
-            (Action)(actions.get("goto-line")),
             (Action)(actions.get("compile")),
             (Action)(actions.get("toggle-breakpoint")),
-        };                                                      // 67
+        };                                                      // 68
 
         categories = new String[] { "Edit Functions",
                                     "Move & Scroll",
@@ -865,7 +938,48 @@ public final class MoeActions
                                     "Customisation",
                                     "Help",
                                     "Misc." };
-        categoryIndex = new int[] { 0, 31, 47, 51, 53, 57, 67 };
+        categoryIndex = new int[] { 0, 33, 49, 53, 55, 59, 68 };
+    }
+
+    class KeyCatcher extends KeyAdapter
+    {
+        Action action;
+        boolean haveKey = false;
+        String keyName;
+        MoeEditor editor;
+
+        public void keyPressed(KeyEvent e)
+        {
+            KeyStroke key = KeyStroke.getKeyStrokeForEvent(e);
+            keyName = KeyEvent.getKeyModifiersText(key.getModifiers());
+            if(keyName.length() == 0)
+                keyName = "" + (char)key.getKeyCode();
+            else
+                keyName = keyName + "+" + (char)key.getKeyCode();
+            action = keymap.getAction(key);
+            haveKey = true;
+            e.consume();
+        }
+
+        public void keyTyped(KeyEvent e)
+        {
+            if(haveKey) {
+                if (action == null)
+                    editor.writeMessage(keyName + " is not bound to a function");
+                else {
+                    String name = (String) action.getValue(Action.NAME);
+                    editor.writeMessage(keyName + " calls the function \"" + name
+                                    + "\"");
+                }                    
+                e.getComponent().removeKeyListener(keyCatcher);
+                haveKey = false;
+            }
+        }
+
+        public void setEditor(MoeEditor ed)
+        {
+            editor = ed;
+        }
     }
 
 } // end class MoeActions

@@ -594,6 +594,14 @@ public final class MoeEditor extends JFrame
         info.clear();
     }
 
+    /**
+     *  Write a message into the info area.
+     */
+    public void writeMessage(String msg)
+    {
+        info.message(msg);
+    }
+
     // ==================== USER ACTION IMPLEMENTATIONS ===================
 
     // --------------------------------------------------------------------
@@ -1061,8 +1069,7 @@ public final class MoeEditor extends JFrame
         if (s == null) {
             s = finder.getLastSearchString();
             if (s == null) {
-                info.warning("No search string is defined.",
-                             "(You never searched for anything here before.)");
+                info.warning(DialogManager.getMessage("no-search-string"));
                 return;
             }
         }
@@ -1081,8 +1088,7 @@ public final class MoeEditor extends JFrame
         if (s == null) {
             s = finder.getLastSearchString();
             if (s == null) {
-                info.warning("No search string is defined.",
-                             "(You never searched for anything here before.)");
+                info.warning(DialogManager.getMessage("no-search-string"));
                 return;
             }
         }
@@ -1720,8 +1726,6 @@ public final class MoeEditor extends JFrame
         // **** temporary: disable all unimplemented actions ****
 
         actions.getActionByName("replace").setEnabled(false);
-        actions.getActionByName("goto-line").setEnabled(false);
-        //actions.getActionByName("preferences").setEnabled(false);
         actions.getActionByName("describe-key").setEnabled(false);
         actions.getActionByName("show-manual").setEnabled(false);
 

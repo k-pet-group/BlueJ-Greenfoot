@@ -149,7 +149,7 @@ public class DialogManager
      * Support routine for dialogues. Read the message text out of the 
      * dialogue text file (language dependent).
      */
-    private static String getMessage(String msgID) {
+    public static String getMessage(String msgID) {
 	String filename = Config.getLanguageFilename(DLG_FILE_NAME);
 	String message = BlueJFileReader.readHelpText(filename, msgID, true);
 	if(message == null)

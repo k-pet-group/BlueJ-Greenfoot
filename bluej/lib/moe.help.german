@@ -13,7 +13,8 @@ cut-to-clipboard= Cut the selecttion from the text and move it to the clipboard.
 paste-from-clipboard=\n Paste the text currently on the clipboard into the text at\n the current caret position.
 insert-tab=\n Insert a TAB character.
 insert-break=\n Insert a line break at the caret position.
-insert-half-tab=\n Insert a half-TAB (a half-TAB is four characters wide).
+insert-break-and-indent=\n Insert a line break at the caret position\n and indent as the line above.
+indent=\n Adjust the indentation of the current line to be the same as that\n of the line above.
 insert-method=\n Insert a skeleton for a Java method into the text.
 comment=\n Comment out the current selection. This can easily be removed\n later (see uncomment).
 uncomment=\n Remove comment symbols from the start of lines in the current\n selection. See comment.
@@ -99,8 +100,6 @@ find-next= If a selection is on, find the next occurrence of the selected text. 
 find-next-reverse=\n Like find-next, but reverse the search direction.
 
 replace=\n Replace one text string with another.
-
-goto-line=\n Goto a specified line.
 
 compile=\n Compile the current class. The class is automatically\n saved before being compiled.
 
