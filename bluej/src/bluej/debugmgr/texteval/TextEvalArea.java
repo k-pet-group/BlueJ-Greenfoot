@@ -12,7 +12,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2885 2004-08-17 10:37:37Z mik $
+ * @version $Id: TextEvalArea.java 2912 2004-08-19 08:56:13Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements KeyListener, FocusListener
@@ -82,13 +82,14 @@ public final class TextEvalArea extends JScrollPane
     //   --- KeyListener interface ---
 
     /**
-     * Workaround for JDK 1.4 bug: backspace keys are still handled internally
-     * even when replaced in the keymap. So we explicitly remove them here.
-     * This method (and the whole keylistener interface) can be removed
+     * Workaround for JDK 1.4 bug: backspace and tab keys are still handled 
+     * internally even when replaced in the keymap. So we explicitly remove them 
+     * here. This method (and the whole keylistener interface) can be removed
      * when we don't support 1.4 anymore. (Fixed in JDK 5.0.)
      */
     public void keyTyped(KeyEvent e) {
-        if(e.getKeyChar() == '\b') {
+        char ch = e.getKeyChar();
+        if(ch == '\b' || ch == '\t') {
             e.consume();
         }
     }  
