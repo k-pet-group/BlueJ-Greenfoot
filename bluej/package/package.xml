@@ -18,6 +18,7 @@
         <include name="lib/german/" />
         <include name="lib/swedish/" />
         <include name="lib/spanish/" />
+        <include name="lib/japanese/" />
     </patternset>
 
     <patternset id="bluej.examples">
