@@ -1,0 +1,37 @@
+How to make a BlueJ release                    (last update 31.08.2001, mik)
+---------------------------
+
+ 1. Set the right BlueJ version number in bluej/src/bluej/Main.java
+
+ 2. Compile and build the release with:  ant dist
+    This will create .../bluej/package/bluej-dist-new.jar
+    NOTE: for some mysterious reasons, distribuitions are smaller when
+    built on Solaris than on Windows. Preferrably build on Solaris.
+
+ 3. Rename (usually to bluej-XXXrcX.jar). Test.
+
+ 4. Rename to final distribution name (bluej-XXX.jar).
+
+ 5. Make an editor source release (how? ask bruce).
+
+ 6. Move the distribution jar file and the editor sourceto the public 
+    ftp server (currently ftp.bluej.org:/pub/bluej/  alias
+    dodo.infotech.monash.edu.au:/home/ftp/pub/bluej/).
+
+ 7. Make a Mac version (I will write a separate HOWTO about this one day...)
+    Move the Mac version to the public ftp server.
+
+ 8. Update the BlueJ web site to announce the new version. At least:
+     - put a notice on the front page
+     - update the "change history" section
+     - update the "download" section (bluej system and editor source)
+
+ 9. Update the file www.bluej.org/version.info
+    The real location currently is: dodo:~bluej/www/version.info
+
+10. In the bugs database, change status of all "RESOLVED" bigs to "CLOSED".
+    When doing this, write "fixed in version XXX" into status whitebord.
+
+11. Send a mail message to bluej-announce@bluej.org, announcing the
+    release.
+
