@@ -28,15 +28,15 @@
         <include name="examples/appletdemo/" />
         <include name="examples/debugdemo/" />
         <include name="examples/hello/" />
-        <include name="examples/people/*.java" />
-        <include name="examples/people/README.TXT" />
-        <include name="examples/people/bluej.pkg" />
-        <include name="examples/people/*.ctxt" />
-        <include name="examples/people/*.class" />
+        <include name="examples/people/" />
         <include name="examples/people2/" />
         <include name="examples/picture/" />
         <include name="examples/file-reader/" />
         <include name="examples/shapes/" />
+    </patternset>
+
+    <patternset id="bluej.examples.classes">
+        <include name="examples/people/*.class" />
     </patternset>
 
     <patternset id="bluej.editorclasses" >
@@ -76,7 +76,7 @@
             </fileset>
         </jar>
 
-	<chmod dir="install_tmp" perm="a+r"/>
+        <chmod dir="install_tmp" perm="a+r"/>
 
         <!-- jar the entire distribution into one jar file            -->
         <!-- (use zip instead of jar to avoid generation of manifest) -->
@@ -107,16 +107,42 @@
              manifest="manifest"
              whenempty="fail" />
 
-        <!-- cleanup (leaving install_tmp for use by window setup installer) -->
-	<!-- delete file="bluej-dist.jar"/ -->
-	<delete>
+        <!-- cleanup
+             leaves bluej-dist.jar for distribution to whoever is
+             building the windows installer and leaves
+             bluej-dist-new.jar which is the platform independant
+             distributable -->
+        <delete dir="install_tmp"/>
+        <delete>
              <fileset dir="." includes="*.class"/>
         </delete>
     </target>
 
+    <!-- windows-dist requires that a bluej-dist.jar file is placed into
+         the package directory. This is unjarred and then rebuilt into
+         the windows installer package (left as winsetup/bluejsetup.exe)-->
+    <target name="windows-dist">
+        <delete dir="install_tmp" />
+        <unzip src="bluej-dist.jar" dest="install_tmp" />
+
+        <touch datetime="1/1/2005 12:00 am">
+            <fileset dir="install_tmp" >
+                <patternset refid="bluej.examples.classes"/>
+            </fileset>
+        </touch>
+
+        <exec dir="winsetup" executable="C:\Program Files\Inno Setup 2\ISCC.exe">
+            <arg line="bluej.iss"/>
+        </exec>
+
+        <delete dir="install_tmp" />
+    </target>
+
     <target name="clean">
-	<delete file="bluej-dist-new.jar"/>
-        <delete dir="install_tmp"/>
+        <delete file="bluej-dist.jar" />
+        <delete file="bluej-dist-new.jar" />
+        <delete file="winsetup/bluejsetup.exe" />
+        <delete dir="install_tmp" />
     </target>
 
 </project>
