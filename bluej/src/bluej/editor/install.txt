@@ -1,11 +1,13 @@
-last revised: 13/06/2001
+last revised: 10/04/2002
 
 This files gives some instructions on extending, building and
 deploying the bluej source editor.
 
 NOTE: This separate editor release needs to be compiled with the
 bluej.jar file from BlueJ version 1.1.2 or higher.  It will not
- work with earlier versions.  
+ work with earlier versions.  It is recommended that you compile
+ it using the matching BlueJ version eg. editor source release 
+ 1.2.0 should be compiled against BlueJ version 1.2.0.
 
 At the moment this editor does not operate as a stand-alone
 editor, it needs a minimal number of support classes from BlueJ.  It 
