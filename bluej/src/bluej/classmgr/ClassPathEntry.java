@@ -16,7 +16,7 @@ import bluej.Config;
  * Class to maintain a single file/directory location in a classpath
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPathEntry.java 679 2000-09-01 12:49:45Z ajp $
+ * @version $Id: ClassPathEntry.java 810 2001-03-22 03:56:07Z ajp $
  */
 public class ClassPathEntry implements Cloneable
 {
@@ -24,6 +24,7 @@ public class ClassPathEntry implements Cloneable
      * Hold the class path entry location.
      */
     private File file;
+
     /**
      * Hold the class path entry description.
      */
@@ -50,72 +51,115 @@ public class ClassPathEntry implements Cloneable
     }
 
     /**
-     * Gets the description for this entry.
+     * Gets the description for this class path entry.
      *
      * @returns a string describing the contents of this classpath entry
      */
     public String getDescription()
     {
         if (description == null)
-            return "no description (" + file.getPath() + ")";
+            return Config.getString("classmgr.error.nodescription") +
+                    " (" + file.getPath() + ")";
         else
             return description;
     }
 
+    /**
+     * Set the description for this class path entry.
+     *
+     * @param description a short description of the classes represented
+     *                    by this classpath entry
+     */
     protected void setDescription(String d)
     {
         this.description = d;
     }
 
-    public File getFile() {
+    /**
+     * Gets the File for this class path entry.
+     *
+     * @returns a File identifying the file or directory that this class
+     *          path entry represents
+     */
+    public File getFile()
+    {
         return file;
     }
 
     /**
-     * Note that this path is always absolute because of our constructor
+     * Gets the path for this class path entry.
+     *
+     * @returns a File identifying the file or directory that this class
+     * @note    this path is always absolute because of our constructor
      */
-    public String getPath() {
+    public String getPath()
+    {
         return file.getPath();
     }
 
-    public String getCanonicalPath() throws IOException {
-        return file.getCanonicalPath();
-    }
-
-    /* Note that the Config.getString in this method was changed from a
-     * static class string to a local variable because we need to instantiate
-     * ClassPathEntries on the remote VM, and it has no access to the Config
-     * files and was therefore generating error message when the class was
-     * loaded (even though we don't use getCanonicalPathNoException() on
-     * the remote VM).
+    /**
+     * Gets the canonical path for this entry, or a String describing an error
+     * if the canonical path could not be found.
+     *
+     * @returns a String representing the canonical path of the file or
+     *          directory that this class path entry represents
+     * @note    the Config.getString in this method was changed from a
+     *          static class string to a local variable because we need to instantiate
+     *          ClassPathEntries on the remote VM, and it has no access to the Config
+     *          files and was therefore generating error message when the class was
+     *          loaded (even though we don't use getCanonicalPathNoException() on
+     *          the remote VM).
      */
-    public String getCanonicalPathNoException() {
+    public String getCanonicalPathNoException()
+    {
         String path;
         try {
             path = file.getCanonicalPath();
         } catch (IOException ioe) {
-            path = Config.getString("classmgr.unresolvable") + " (" + file.getPath() + ")";
+            path = Config.getString("classmgr.error.unresolvable") +
+                    " (" + file.getPath() + ")";
         }
         return path;
     }
 
-    public URL getURL() throws MalformedURLException {
+    /**
+     * Gets a URL representing this class path entry.
+     *
+     * @returns a URL representing this classpath entry
+     */
+    public URL getURL() throws MalformedURLException
+    {
         return file.toURL();
     }
 
-    public boolean isJar() {
-        String name = file.getPath();
+    /**
+     * Determine if this class path entry represents a Jar file.
+     *
+     * @returns a boolean indicating if this entry is a jar or
+     *          zip file.
+     */
+    public boolean isJar()
+    {
+        String name = file.getName().toLowerCase();
 
         return file.isFile() &&
             (name.endsWith(".zip") || name.endsWith(".jar"));
     }
 
+    /**
+     * Determine if this class path entry represents the root of
+     * a class directory.
+     *
+     * @returns a boolean indicating if this entry is a class
+     *          directory.
+     */
     public boolean isClassRoot()
     {
         return file.isDirectory();
     }
 
-    public String toString() {
+    public String toString()
+    {
         return getPath();
     }
 
