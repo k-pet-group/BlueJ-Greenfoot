@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3049 2004-10-15 02:50:11Z davmac $
+ * @version $Id: VMReference.java 3051 2004-10-15 03:15:41Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -244,8 +244,7 @@ class VMReference
                         // on our last attempt, give a stack trace to give some
                         // reason for the failure
                         if (i == CONNECT_TRIES - 1) {
-                            Debug.reportError("Unable to launch target VM.");
-                            ce.printStackTrace(System.out);
+                            throw ce;
                         }
                         else {
                             try {
