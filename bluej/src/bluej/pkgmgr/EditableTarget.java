@@ -6,7 +6,7 @@ import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 
 /** 
- * @version $Id: EditableTarget.java 375 2000-01-24 22:56:25Z mik $
+ * @version $Id: EditableTarget.java 485 2000-05-18 03:00:38Z mik $
  * @author Michael Cahill
  *
  * A target in a package that can be edited as text
@@ -48,10 +48,11 @@ public abstract class EditableTarget extends Target
     **/
     protected void open()
     {
-	getEditor().setVisible(true);
-
+	getEditor();
 	if(editor == null)
 	    DialogManager.showError(pkg.getFrame(), "error-open-source");
+        else
+            editor.setVisible(true);
     }
 
     /**

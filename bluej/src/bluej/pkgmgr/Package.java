@@ -38,7 +38,7 @@ import java.text.DateFormat;
 /**
  * A Java package (collection of Java classes).
  *
- * @version $Id: Package.java 437 2000-05-04 05:47:02Z ajp $
+ * @version $Id: Package.java 485 2000-05-18 03:00:38Z mik $
  * @author Michael Cahill
  *
  */
@@ -1132,9 +1132,13 @@ implements CompileObserver, MouseListener, MouseMotionListener
     }
 
 
-    //bq
-   public void updateTargetIdentifier(Target t, String newIdentifier)
+    public void updateTargetIdentifier(Target t, String newIdentifier)
     {
+        if(t == null || newIdentifier == null) {
+            Debug.reportError("cannot properly update target name...");
+            Debug.reportError(newIdentifier);
+            return;
+        }
         targets.remove(t.getBaseName());
         targets.put(newIdentifier, t);
     }
@@ -1163,6 +1167,14 @@ implements CompileObserver, MouseListener, MouseMotionListener
      */
     public void addDependency(Dependency d, boolean recalc)
     {
+        Target from = (Target)d.getFrom();
+        Target to = (Target)d.getTo();
+
+        if(from == null || to == null) {
+            Debug.reportError("Found invalid dependency - ignored.");
+            return;
+        }
+
         if(d instanceof UsesDependency) {
             int index = usesArrows.indexOf(d);
             if(index != -1) {
@@ -1179,10 +1191,9 @@ implements CompileObserver, MouseListener, MouseMotionListener
                 extendsArrows.addElement(d);
         }
 
-        Target from = (Target)d.getFrom();
         from.addDependencyOut(d, recalc);
-        Target to = (Target)d.getTo();
         to.addDependencyIn(d, recalc);
+
     }
 
     /**
@@ -1448,6 +1459,8 @@ implements CompileObserver, MouseListener, MouseMotionListener
      */
     public Target getTarget(String tname)
     {
+        if(tname == null)
+            return null;
         Target t = (Target)targets.get(tname);
         return t;
     }

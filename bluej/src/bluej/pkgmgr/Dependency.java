@@ -2,6 +2,7 @@ package bluej.pkgmgr;
 
 import bluej.graph.Edge;
 import bluej.utility.Utility;
+import bluej.utility.Debug;
 import java.util.Properties;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -12,7 +13,7 @@ import java.awt.Color;
  **
  ** @author Michael Cahill
  **
- ** @version $Id: Dependency.java 427 2000-04-18 04:33:04Z ajp $
+ ** @version $Id: Dependency.java 485 2000-05-18 03:00:38Z mik $
  **/
 
 public abstract class Dependency extends Edge
@@ -58,11 +59,11 @@ public abstract class Dependency extends Edge
 	String fromName = props.getProperty(prefix + ".from");
 	this.from = pkg.getTarget(fromName);
 	if(this.from == null)
-	    throw new Error("Failed to find 'from' target " + fromName);
+	    Debug.reportError("Failed to find 'from' target " + fromName);
 	String toName = props.getProperty(prefix + ".to");
 	this.to = pkg.getTarget(toName);
 	if(this.to == null)
-	    throw new Error("Failed to find 'to' target " + toName);
+	    Debug.reportError("Failed to find 'to' target " + toName);
     }
 
     public void save(Properties props, String prefix)
