@@ -387,29 +387,6 @@ public class ExtensionWrapper
     }
 
     /**
-     * Returns a reminder as to where to find <CODE>&lt;bluej&gt;/lib</CODE>.
-     * This is here to expose a method from the ExtensionsManager.
-     * 
-     * @return    a <CODE>File</CODE> which is an existing directory.
-     */
-    public File getBlueJLib()
-    {
-        return extensionsManager.getBlueJLib();
-    }
-
-
-    /**
-     * Returns an unmodifiable list of the arguments passed to BlueJ.
-     * This is here to expose a method from the ExtensionsManager.
-     *
-     * @return    a List containing each space-delimited parameter.
-     */
-    public List getArgs()
-    {
-        return extensionsManager.getArgs();
-    }
-
-    /**
      *  Registers a package listener for this extension.
      *
      * @param  el  The feature to be added to the BJEventListener attribute

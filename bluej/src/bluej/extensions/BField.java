@@ -15,7 +15,7 @@ import bluej.utility.Debug;
  * A wrapper for a field of a BlueJ class.
  * Behaviour is similar to the Reflection API.
  * 
- * @version $Id: BField.java 1852 2003-04-15 14:56:38Z iau $
+ * @version $Id: BField.java 1868 2003-04-21 09:42:26Z damiano $
  */
 
 /*
@@ -68,6 +68,15 @@ public class BField
         return bluej_view.getType().getViewClass();
         }
 
+    /**
+     * Returns the modifiers of this field
+     * Similar to reflection API
+     */
+    public int getModifiers ()
+        {
+        return bluej_view.getModifiers();
+        }
+        
 
     /**
      * When you are inspecting a static field use this one.

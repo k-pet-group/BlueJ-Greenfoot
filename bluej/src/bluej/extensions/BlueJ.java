@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1852 2003-04-15 14:56:38Z iau $
+ * @version $Id: BlueJ.java 1868 2003-04-21 09:42:26Z damiano $
  */
 
 /*
@@ -245,22 +245,13 @@ public class BlueJ
 
 
     /**
-     * Returns the arguments with which BlueJ was started.
-     * The return value is a list of strings.
-     */
-    public List getArgs()
-    {
-        return myWrapper.getArgs();
-    }
-    
-    /**
      * Returns the path of the <code>&lt;BLUEJ_HOME&gt;/lib</code> system directory.
      * This can be used to locate systemwide configuration files.
      * Having the directory you can then locate a file within it.
      */
     public File getSystemLibDir()
     {
-        return myWrapper.getBlueJLib();
+        return Config.getBlueJLibDir();
     }
 
     /**
@@ -356,12 +347,4 @@ public class BlueJ
         return Config.getString (key, key);
     }
     
-    
-    /**
-     * Request BlueJ to close.
-     */
-    public void closeBlueJ()
-    {
-        PkgMgrFrame.getMostRecent().wantToQuit();
-    }
 }

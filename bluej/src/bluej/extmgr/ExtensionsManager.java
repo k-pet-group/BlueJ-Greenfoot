@@ -21,18 +21,18 @@ public class ExtensionsManager implements BlueJEventListener
     private static ExtensionsManager instance;
 
     /**
-     *  Processes arguments passed to BlueJ, and takes a note of the location of
-     *  BlueJLib (<CODE>&lt;bluej&gt;/lib</CODE>). A call to this method must be
-     *  made before any other action to this class.
-     *
-     * @param  args      the String array passed to Main
-     * @param  bluejLib  the directory which is <CODE>&lt;bluej&gt;/lib</CODE>
+     * Create a new singleton instance of the ExtensionsManager.
      */
-    public static void initialise(String[] args, File bluejLib)
+    public static void initialise( )
     {
-        if (instance != null)
-            throw new RuntimeException("ExtensionsManager already initialised!");
-        instance = new ExtensionsManager(args, bluejLib);
+        if (instance != null) 
+          {
+          // Really, there is no need to trow an exception.
+          Debug.message("ExtensionManager is already initilized");
+          return;
+          }
+
+        instance = new ExtensionsManager( );
     }
 
 
@@ -44,24 +44,16 @@ public class ExtensionsManager implements BlueJEventListener
         return instance;
     }
 
-    private final List argsList;
     private final List extensions;
-    private final File bluejLib;
     private PrefManager prefManager;
 
     /**
      *  Constructor for the ExtensionsManager object.
      *  It is private to be a singleton.
-     *
-     * @param  args      Parameters passed to BlueJ
-     * @param  bluejLib  Where the bluej library is.
      */
-    private ExtensionsManager(String[] args, File bluejLib)
+    private ExtensionsManager()
     {
-        this.bluejLib = bluejLib;
-        argsList = Collections.unmodifiableList(Arrays.asList(args));
-
-        // There is some synchronization issues to clear out... Rare but possible
+        // Sync issues should be clear... 
         extensions = new ArrayList();
 
         // This will also register the panel with BlueJ.
@@ -78,7 +70,7 @@ public class ExtensionsManager implements BlueJEventListener
     public void loadExtensions()
     {
         // Most of the time the systemDirectory will be this.
-        File systemDir = new File(bluejLib, "extensions");
+        File systemDir = new File(Config.getBlueJLibDir(), "extensions");
 
         String dirPath = Config.getPropString("bluej.extensions.systempath", null);
         // But we allow one to override the default location of system extension.
@@ -342,26 +334,4 @@ public class ExtensionsManager implements BlueJEventListener
         // I cannot put any warining on unknown events here since I get a bunch of events in any case.
         }
 
-
-
-    /**
-     *  Returns a reminder as to where to find <CODE>&lt;bluej&gt;/lib</CODE>.
-     *
-     * @return    a <CODE>File</CODE> which is an existing directory.
-     */
-    public File getBlueJLib()
-    {
-        return bluejLib;
-    }
-
-
-    /**
-     *  Returns an unmodifiable list of the arguments passed to BlueJ.
-     *
-     * @return    a List containing each space-delimited parameter.
-     */
-    public List getArgs()
-    {
-        return argsList;
-    }
 }
