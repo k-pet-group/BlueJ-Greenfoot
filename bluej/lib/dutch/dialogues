@@ -1,0 +1,380 @@
+compile-while-executing
+Je kan niet compileren terwijl het
+programma nog draait.
+
+exception-thrown
+Java geeft een exception terug:
+
+break-no-source
+Breakpoint komt in een file waarbij
+geen sourcecode is gevonden:
+
+error-in-file
+Het ging fout in een file waarbij
+geen source code is gevonden.
+class: source code regelnummer:
+
+system-exit
+De method eindigde met een "exit".
+Er werd geen resultaat teruggegeven.
+De exit code is:
+
+no-help
+Geen help beschikbaar bij dit bericht.
+Wilt u de tekst van de foutboodschap
+opsturen naar pvdiepen@tiscali.nl?
+Dan kunnen we de tekst toevoegen aan
+de help-database.
+
+editor-crashed
+Het lijkt erop dat er iets mis is gegaan met BlueJ
+bij de laatste keer dat deze class naar disk werd
+geschreven. De source code ontbreekt of is niet
+compleet. Misschien heb je ergens nog een backup.
+   1 - Sluit BlueJ af
+   2 - Maak een extra kopie van deze project map
+       (voor het geval dat)
+   3 - Zoek de backup in de project map.
+   4 - Wijzig '.bak' weer in '.java' en probeer
+       het opnieuw.
+
+cannot-run-compiler
+BlueJ kan de compiler niet vinden. Staat Java wel
+in het PATH. Vraag dit aan een systeembeheerder.
+Naam van de compiler:
+
+compiler-error
+Compiler fout:
+
+stream-incomplete
+Compiler fout. Error stream is niet compleet.
+
+out-of-bounds
+Index ligt buiten de grenzen van de array.
+
+cannot-access-element
+Het is niet mogelijk om het array
+element te raadplegen.
+
+appletviewer-error
+Fout bij draaien van de applet in appletviewer.
+
+error-no-name
+Je moet een correcte naam specificeren.
+
+error-save-file
+Het opslaan van de file is mislukt.
+
+cannot-save-keys
+Het opslaan van de koppelingen van
+toetsen met functies is mislukt.
+
+error-no-templates
+De map waar BlueJ de class templates zoekt bestaat niet.
+Zie "bluej.templatePath" in <bluej-home>/lib/bluej.defs.
+
+
+skeleton-error
+BlueJ kon geen standaard class genereren.
+
+error-open-source
+Het is niet mogelijk de source code
+van deze class te openen.
+
+error-writing-readme
+Het opslaan van de README file van
+dit project is mislukt.
+
+error-writing-jar
+Het opslaan van de jar file van
+dit project is mislukt.
+
+error-jar-exists
+De file bestaat al.
+Wil je deze overschrijven?
+Overschrijven
+Annuleren
+null
+
+invalid-class-name
+Class naam is niet correct.
+
+invalid-package-name
+Pakket naam is niet correct.
+
+must-be-identifier
+De naam is geen correcte Java identifier.
+
+directory-exists
+Er bestaat al een file of map met deze naam.
+
+cannot-copy-package
+Er ging iets fout met het kopieëren
+van de files in het pakket. Het pakket
+bestaat niet of is niet compleet.
+
+file-does-not-exist
+De gespecificeerd file
+bestaat niet.
+
+cannot-import
+Het is niet mogelijke om deze file
+te importeren. Het moet een Java
+source code file zijn met ".java".
+
+docdir-blocked-by-file
+Het is niet mogelijk om een documentatie
+map in de project map te maken, omdat
+er al een file bestond met dezelfde naam.
+
+docdir-not-created
+Het was niet mogelijk om een documentatie
+map in de project map te maken.
+
+no-permission-for-docdir
+Het was niet mogelijk om een documentatie
+map in de project map te maken, omdat je
+niet de juiste rechten hebt.
+
+show-or-generate
+Wil je de eerder gegenereerde documentatie
+zien of wil je alle documentatie opnieuw
+genereren?
+Laat zien
+Genereren
+Annuleren
+
+doctool-error
+Javadoc geeft een fout. Er staat misschien een syntax
+fout in een van de files waarvan je de documentatie
+probeert te genereren. Of de specificatie van de URL
+voor de JDK documentatie is niet juist ingevuld.
+Zorg dat je Java files correct zijn gecompileerd en
+zorg dat de JDK documentation URL toegankelijk zijn of
+anders niet wordt gebruikt. Probeer het daarna opnieuw.
+Controleer eventueel ook de log file van Javadoc:
+
+severe-doc-trouble
+Er ging iets mis tijdens het draaien van javadoc.
+
+no-java-sources-found
+Er zijn geen Java source code files
+gevonden in deze map.
+
+duplicate-name
+Er bestaat al een class of pakket met
+deze naam in dit project.
+
+error-in-import
+Er ging iets fout bij het importeren van deze file.
+
+no-class-selected-compile
+Er is geen class geselecteerd om te compileren.
+
+no-class-selected
+Er is geen class, pijl of pakket
+geselecteerd om te verwijderen.
+
+really-remove-class
+Door het verwijderen van deze class
+verwijder je ook de source code file.
+Wil je doorgaan?
+Verwijderen
+Annuleren
+null
+
+really-remove-package
+Door het verwijderen van dit pakket
+verwijder je ook de pakket map en alle
+files in die pakket map.
+Wil je doorgaan?
+Verwijderen
+Annuleren
+null
+
+remove-package-open
+Het pakket dat je hebt geselecteerd om
+te verwijderen bevat sub-pakketten,
+die nog zijn geopend in BlueJ.
+Je moet die sub-pakketten eerst sluiten
+voordat je het pakket kan verwijderen.
+
+package-does-not-exist
+Fout bij het openen van het pakket.
+Het pakket bestaat niet:
+
+no-bluej-package
+Fout bij het openen van het pakket.
+De file of map is geen BlueJ pakket:
+
+applet-height-width
+Je moet de hoogte en breedte
+van de applet specificeren.
+
+cannot-read-help
+BlueJ kan de help file niet lezen:
+
+not-yet-implemented
+Not Yet Implemented - sorry.
+
+quit-all
+Alle open projecten afsluiten?
+Alles afsluiten
+Annuleren
+null
+
+really-reload
+Door opnieuw lezen gooi je alle wijzigingen weg.
+Weet je zeker dat je dat wilt?
+Opnieuw lezen
+Annuleren
+null
+
+really-print
+De tekst is breder dan het papier. Lange regels
+worden afgekapt. Je kan dat vermijden door de
+editor window smaller te maken.
+Wil je toch afdrukken?
+Afdrukken
+Annuleren
+null
+
+open-non-bluej-already-bluej
+De geselecteerde map is al een BlueJ project.
+
+open-non-bluej-no-java
+Er zijn geen Java source code files
+gevonden in deze map.
+
+open-non-bluej-invalid
+Je wilt deze map openen als een BlueJ
+project. Er is echter een file gevonden
+met een pakket declaratie die niet past
+bij de huidige mappen structuur.
+(For example, if the Java class
+Shape has a package line of com.aa, then the
+file Shape.java must be in a directory aa
+which is itself in a directory com. This com
+directory in turn must be in another directory
+which is the directory you should point BlueJ
+to when attempting to open it).
+
+import-into-current
+Je hebt in dit window al een pakket open.
+Wil je importeren in het huidige pakket of
+eil je een nieuw project maken en daarin
+importeren?
+Huidige pakket
+Nieuw project
+Annuleren
+
+package-name-invalid
+Je het de pakket declaratie zodanig gewijzigd
+dat die verwijst naar een pakket dat niet
+bestaat in dit project. Als je deze class
+wilt verplaatsen naar een ander pakket moet
+je dat pakket eerst maken. BlueJ heeft de
+pakket declaratie weer hersteld.
+
+package-name-clash
+Je het de pakket declaratie zodanig gewijzigd
+dat die verwijst naar een pakket dat al een
+class of pakket bevat met dezelfde naam.
+Als je deze class verplaatst, zou je die
+andere class of dat andere pakket over-
+schrijven. BlueJ heeft daarom de pakket
+declaratie weer hersteld.
+
+package-name-changed
+Je het de pakket declaratie zodanig gewijzigd
+dat die verwijst naar een ander pakket.
+Wil je deze class daadwerkelijk verplaatsen
+naar dat andere pakket? Of wil je dat BlueJ
+de pakket declaratie weer hersteld?
+Verplaatsen
+Herstellen
+null
+
+ask-index
+Geef de index voor deze array [...]
+Array inspecteren
+null
+
+classmgr-changes-no-effect
+De verwijzingen naar de class libraries
+werken pas als je BlueJ opnieuw opstart.
+
+pref-optimise-no-effect
+Wijzigingen van de instellingen van de virtual machine
+werken pas na het openen van het volgende project
+(of als je de virtual machine opnieuw start).
+
+unittest-new-test-method
+Specificeer een naam voor deze test.
+Daarna begint het opnemen van de test.
+Nieuwe Test Method
+null
+
+getobject-new-name
+Geef een naam aan het nieuwe object.
+Object naam
+null
+
+unittest-fixture-present
+Deze unit test class heeft al een object
+toestand opgeslagen met deze naam.
+Als je doorgaat, wordt deze object
+toestand vervangen.
+Wil je doorgaan?
+Vervangen
+Annuleren
+null
+
+unittest-method-present
+Deze unit test class heeft al een test method
+met deze naam. Als je doorgaat wordt deze
+test method vervangen.
+Wil je doorgaan?
+Vervangen
+Annuleren
+null
+
+no-search-string
+Geen zoektekst ingevuld.
+(Selecteer wat tekst of gebruik eerst 'Zoeken'.)
+
+default-keys
+Wil je echt alle koppelingen tussen toetsen
+en functies vervangen door de standaard
+koppelingen?
+Gebruik standaardkoppelingen
+Annuleren
+null
+
+error-create-vm
+BlueJ is niet in staat om een virtual machine (VM) te starten.
+Meestal wordt dit probleem veroorzaakt door bepaalde netwerk
+instellingen. BlueJ gebruikt TCP/IP en sockets voor de VM.
+De meest voorkomende oorzaak is een firewall die niet toestaat
+dat je contact maakt met local host. Schakel de firewall uit
+(als je die hebt) om dat te testen. Als dit werkt probeer dan
+andere firewall instellingen, die wel contact met local host
+toestaan. Andere mogelijke oorzaken zijn onjuiste netwerk
+instllingen. Controleer of TCP/IP juist is ingesteld en
+controleer andere netwerk parameters. Als de problemen nog
+niet weg zijn, moet je hulp vragen bij:
+http://www.bluej.org/help/ask-help.html.
+
+project-is-readonly
+Het project is alleen lezen. Zo kan je geen objecten maken of
+methods aanroepen.
+Je hebt niet de juiste rechten in de project map of je kan
+helemaal niet schrijven (is het een CD?). Vraag hulp aan
+de systeembeheerder.
+
+could-not-write-shell-file
+Je kunt niet schrijven in je project map. Zo kan je geen
+objecten maken of methods aanroepen.
+Je hebt niet de juiste rechten in de project map of je kan
+helemaal niet schrijven (is het een CD?). Vraag hulp aan
+de systeembeheerder.

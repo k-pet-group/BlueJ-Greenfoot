@@ -1,0 +1,136 @@
+$PKGLINE
+import java.awt.*;
+import javax.swing.*;
+
+/**
+ * Class $CLASSNAME - geef hier een beschrijving van deze class
+ *
+ * @author (jouw naam)
+ * @version (versie nummer of datum)
+ */
+public class $CLASSNAME extends JApplet
+{
+	// instance variables - vervang deze door jouw variabelen
+	private int x;
+
+	 /**
+	 * De webbrowser of appletviewer roept deze method aan om
+	 * JApplet te vertellen dat die in het geheugen is geladen.
+	 * De init method wordt aangeroepen voordat de start method
+	 * voor de eerste keer wordt aangeroepen.
+	 */
+	public void init()
+	{
+	        // Dit is een workaround voor een beveiligingsprobleem van sommige
+        	// webbrowsers (zoals een aantal versies van Internet Explorer en
+        	// Netscape), die niet toestaan dat JApplet toegang heeft tot de
+        	// AWT system event queue direct na het laden in het geheugen.
+        	// Dit is misschien overbodig met jouw versie van de webbrowser,
+        	// maar laat dit toch maar staan!
+		JRootPane rootPane = this.getRootPane();
+		rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
+
+        	// Schrijf hier jouw code voor wat JApplet allemaal moet doen voordat
+        	// die echt begint.
+	}
+
+	/**
+	 * De webbrowser of appletviewer roept deze method aan om
+	 * JApplet te vertellen dat die nu mag beginnen.
+	 * De start method wordt aangeroepen na de init method en iedere
+	 * keer als JApplet opnieuw wordt aangeroepen vanaf de webpage.
+	 */
+	public void start()
+	{
+		// Schrijf hier jouw code voor wat JApplet moet doen als die
+		// wordt gestart vanaf de webpage.
+	}
+
+	/**
+	 * De webbrowser of appletviewer roept deze method aan om
+	 * JApplet te vertellen dat die moet stoppen. Dit gebeurt
+	 * als de webpage van deze JApplet wordt vervangen door een
+	 * andere webpage, en ook voordat JApplet wordt verwijderd.
+	 */
+	public void stop()
+	{
+		// Schrijf hier jouw code voor wat JApplet moet doen als de
+		// huidige webpage wordt vervangen door een andere webpage
+		// of voordat JApplet wordt verwijderd.
+	}
+
+	/**
+	 * De webbrowser of appletviewer roept deze method aan om
+	 * JApplet te vertellen dat die uit het geheugen wordt
+	 * verwijderd en dat die alles moet opruimen en vrijgeven
+	 * voor de garbage collector.
+	 * De destroy method wordt aangeroepen na de stop method.
+	 */
+	public void destroy()
+	{
+		// Schrijf hier je code voor wat JApplet nog moet doen
+		// om alles op te ruimen voordat JApplet wordt verwijderd.
+	}
+
+	/**
+	 * Geef wat informatie over deze JApplet in een String
+	 * bij voorbeeld de naam van de applet, wie deze heeft
+	 * geschreven en een korte omschrijving.
+	 *
+	 * @return een String met daarin de informatie over deze JApplet
+	 */
+	public String getAppletInfo()
+	{
+		// Vul hier jouw informatie in over de applet
+		return "Titel: (applet naam)  \nProgrammeur: (jouw naam) \nDit is een applet.";
+	}
+
+	/**
+	 * Geef informatie over de parameters die deze JApplet kan
+	 * verwerken in een String array. Voor elke parameter zijn
+	 * er drie Strings voor naam, type en omschrijving van die
+	 * parameter.
+	 *
+	 * @return een String[] met daarin informatie per parameter van deze JApplet
+	 */
+	public String[][] getParameterInfo()
+	{
+		// Vul hier jouw informatie in per parameter van de applet
+		String paramInfo[][] = {
+				 {"eersteParameter", "1-10",    "omschrijving eerste parameter"},
+				 {"status",          "boolean", "omschrijving tweede parameter"},
+				 {"image",           "url",     "omschrijving derde parameter"}
+		};
+		return paramInfo;
+	}
+
+	/**
+	 * De webbrowser of appletviewer roept deze method aan om
+	 * het resultaat van deze applet op het scherm te zetten.
+	 * Vul hier dus in wat je wilt laten zien.
+	 *
+	 * @param  g   Graphics object voor deze applet
+	 */
+	public void paint(Graphics g)
+	{
+		// Laat een tekst zien op op deze applet
+		g.setColor(Color.white);
+		g.fillRect(0, 0, 200, 100);
+		g.setColor(Color.black);
+		g.drawString("Voorbeeld Applet", 20, 20);
+		g.setColor(Color.blue);
+		g.drawString("gemaakt met BlueJ", 20, 40);
+	}
+
+	/**
+	 * Voorbeeld van een method - schrijf hier jouw comment
+	 *
+	 * @param  y	deze method krijgt deze parameter mee in de aanroep
+	 * @return	deze method geeft de som van x en y terug
+	 */
+	public int voorbeeldMethod(int y)
+	{
+		// schrijf hier jouw code
+		return x + y;
+	}
+}

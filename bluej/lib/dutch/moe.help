@@ -1,0 +1,112 @@
+#
+# Moe user function help texts.
+#
+# Part of the BlueJ program development environment.
+#
+# Dutch translation by Peter van Diepen, Stedelijk Dalton College Alkmaar, The Netherlands
+#
+
+## edit functions
+
+delete-previous=\n Wis het teken voor de cursor.
+delete-next=\n Wis het teken na de cursor.
+copy-to-clipboard=\n Kopieer de geselecteerde tekst naar het clipboard.
+cut-to-clipboard=\n Verplaats de geselecteerde tekst naar het clipboard.
+copy-line=\n Kopieer de huidige regel naar het clipboard.
+cut-line=\n Verplaats de huidige regel naar het clipboard.
+cut-end-of-line=\n Verplaats de rest van de huidige regel naar het clipboard.
+cut-word=\n Verplaats het huidige woord naar het clipboard.
+cut-end-of-word=\n Verplaats tot het einde van het huidige woord naar\n het clipboard.
+paste-from-clipboard=\n Plak de tekst van het clipboard in de tekst na de cursor.
+indent=\n Inspringen door spaties invoegen.
+de-indent=\n Wis de spaties van inspringen.
+insert-tab=\n Inspringen door het invoegen van een TAB teken.
+new-line=\n Begin een nieuwe regel. En eventueel automatisch\n inspringen onder de vorige regel.
+insert-break=\n Begin een nieuwe regel, maar niet inspringen.
+insert-method=\n Lege Java method invoegen.
+comment-block=\n Maak commentaar van de geselecteerde regels.
+uncomment-block=\n Wis de commentaar tekens van de geselecteerde regels.
+indent-block=\n Geselecteerde regels (of huidige regel) laten inspringen.
+deindent-block=\n Wis de spaties van inspringen van de geselecteerde\n regels (of de huidige regel).
+
+select-word=\n Selecteer het huidige woord.\n Dit gebeurt door twee keer drukken op linker muisknop.
+select-line=\n Selecteer de huidige regel.\n Dit gebeurt door drie keer drukken op linker muisknop.
+select-paragraph=\n Selecteer de huidige paragraaf.
+select-all=\n Selecteer de hele tekst.
+selection-backward=\n Verplaats het einde van de selectie een positie achteruit.
+selection-forward=\n Verplaats het einde van de selectie een positie vooruit.
+selection-up=\n Verplaats het einde van de selectie een regel omhoog.
+selection-down=\n Verplaats het einde van de selectie een regel omlaag.
+selection-begin-word=\n Verplaats het einde van de selectie naar het begin\n van het huidige woord.
+selection-end-word=\n Verplaats het einde van de selectie naar het einde\n van het huidige woord.
+selection-previous-word=\n Verplaats het einde van de selectie naar het begin\n van het vorige woord.
+selection-next-word=\n Verplaats het einde van de selectie naar het begin\n van het volgende woord.
+selection-begin-line=\n Verplaats het einde van de selectie naar het begin\n van de huidige regel.
+selection-end-line=\n Verplaats het einde van de selectie naar het einde\n van de huidige regel.
+selection-begin-paragraph=\n Verplaats het einde van de selectie naar het begin\n van de huidige paragraaf.
+selection-end-paragraph=\n Verplaats het einde van de selectie naar het einde\n van de huidige paragraaf.
+selection-page-up=\n Verplaats het einde van de selectie een blad omhoog.
+selection-page-down=\n Verplaats het einde van de selectie een blad omlaag.
+selection-begin=\n Verplaats het einde van de selectie naar het begin van\n de tekst.
+selection-end=\n Verplaats het einde van de selectie naar het einde van\n de tekst.
+unselect=\n Maak de selectie ongedaan.
+
+## move and scroll functions
+
+caret-backward=\n Verplaats de cursor een teken achteruit.
+caret-forward=\n Verplaats de cursor een teken vooruit.
+caret-up=\n Verplaats de cursor een regel omhoog.
+caret-down=\n Verplaats de cursor een regel omlaag.
+caret-begin-word=\n Verplaats de cursor naar het begin van het huidige woord.
+caret-end-word=\n Verplaats de cursor naar het einde van het huidige woord.
+caret-previous-word=\n Verplaats de cursor naar het begin van het vorige woord.
+caret-next-word=\n Verplaats de cursor naar het begin van het volgende\n woord.
+caret-begin-line=\n Verplaats de cursor naar het begin van de huidige regel.
+caret-end-line=\n Verplaats de cursor naar het einde van de huidige regel.
+caret-begin-paragraph=\n Verplaats de cursor naar het begin van de huidige\n paragraaf.
+caret-end-paragraph=\n Verplaats de cursor naar het einde van de huidige\n paragraaf.
+page-up=\n Verplaats de cursor een blad omhoog.
+page-down=\n Verplaats de cursor een blad omlaag.
+caret-begin=\n Verplaats de cursor naar het begin van de tekst.
+caret-end=\n Verplaats de cursor naar het einde van de tekst.
+
+## class functions
+
+save=\n Opslaan van deze class in de source file. Dit gebeurt\n automatisch bij het afsluiten.
+reload=\n Opnieuw lezen van deze class uit de source file.\n Alle wijzigingen sinds de laatste keer opslaan\n worden ongedaan gemaakt.
+close=\n Afsluiten van deze class. Alle wijzigingen worden\n opgeslagen in de source file van deze class.
+print=\n Afdrukken window.
+page-setup=\n Pagina instellen window.
+
+## customisation functions
+
+key-bindings=\n Bekijk en wijzig de koppelingen tussen\n toetsen en functies.
+preferences=\n Specificeer de instellingen voor de editor.
+
+## help functions
+
+describe-key=\n Druk op een toets of combinatie van toetsen.\n BlueJ laat de bijbehorende functie zien.
+help-mouse=\n Laat de functies van de muistoetsen zien.
+show-manual=\n Laat de gebruiksaanwijzing van de editor zien.
+about-editor=\n Informatie over de editor laten zien.
+
+
+## misc functions
+
+undo=\n Laatste wijziging ongedaan maken.
+redo=\n Laatste wijziging herhalen.
+
+find=\n Zoeken window.
+find-next=\n Volgende zoeken in de selectie of in de hele tekst.\n Indien de laatste is gevonden vanaf het begin zoeken.
+find-next-backward=\n Vorige zoeken in de selectie of in de hele tekst.\n Indien de eerste is gevonden vanaf het einde zoeken.
+replace=\n Vervang de gevonden tekst door de gegeven tekst.
+
+compile=\n Compileer de huidige class. De class wordt automatisch\n opgeslagen in de source file van de class.
+toggle-interface-view=\n Kies voor documentatie of source file
+toggle-breakpoint=\n Breakpoint aan/uit op de huidige regel van de source file.
+go-to-line=\n Ga naar regelnummer.
+
+## help texts for adding key bindings
+
+press-key=\n Druk op een toets of combinatie van toetsen om\n aan deze functie te koppelen.
+cannot-redefine=\n Deze toetsen kan je geen andere functie geven.

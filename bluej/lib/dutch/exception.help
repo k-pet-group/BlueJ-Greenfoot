@@ -1,0 +1,146 @@
+NullPointerException*
+Je probeerde een object te bereiken
+(een variabele of een methode), maar
+dat lukte niet, omdat in de verwijzing
+'null' staat. Je programmeerde bij
+voorbeeld "iets.afdrukken()" maar
+dat "iets" verwijst nog naar 'null'.
+
+ArithmeticException*
+Er ging iets fout met een berekening.
+Je probeerde door 0 te delen of zoiets.
+
+StringIndexOutOfBoundsException*
+Er ging iets fout met een index en een string.
+Je probeerde bij voorbeeld iets met het vijfde
+teken in een string die een lengte heeft van
+slechts drie tekens.
+
+ClassCastException*
+Er ging iets fout met een cast variabele.
+Je probeerde waarschijnlijk een of ander object
+van het verkeerde type toe te kennen aan de
+cast variabele. In bij voorbeeld:
+ (String)eenObject
+moet "eenObject" verwijzen naar iets wat een
+daadwerkelijk een string bevat.
+
+IndexOutOfBoundsException*
+Er ging iets fout met een of andere index (van
+een array, string of vector). Je probeerde bij
+voorbeeld element 5 te raadplegen terwijl er
+slechts 3 elementen bestaan.
+
+ArrayIndexOutOfBoundsException*
+Er ging iets fout met een index in een array.
+Je zocht bij voorbeeld element 5 in een
+array met slechts 3 elementen. Een geldige
+index bestaat in de range 0..arraylength-1.
+
+ConcurrentModificationException*
+Je was bezig met het verwerken van een
+collection. Maar tijdens die verwerking
+is de colletion zodanig gewijzigd dat
+Java niet meer weet waar die was gebleven
+met het verwerken van die collection.
+
+AssertionError*
+Assert (=veronderstelling) blijkt niet waar
+te zijn. Hier staat een assert statement,
+omdat de programmeur veronderstelt dat deze
+assert waar moet zijn. Indien dat niet het
+geval is, is er iets vreemds aan de hand.
+Dankzij zo'n assert statement ontdek je
+waar je je programma nog kunt verbeteren.
+
+ClassNotFoundException*
+Java kan een class niet vinden tijdens het
+uitvoeren van het programma. Dat is heel
+vreemd, want dit soort dingen ontdekt Java
+normaliter al bij het compileren.
+Indien het een system class betreft zou het
+kunnen zijn dat er iets mis is met Java.
+Maar meer waarschijnlijk is het dat er iets
+mis is met je project, omdat een file niet
+goed is weggeschreven of zoiets. Compileer
+daarom je hele project opnieuw. Als dat
+niet helpt, moet je onderzoeken of andere
+projecten het nog wel goed doen. Indien
+die het ook niet meer doen, kan je nog
+proberen om Java opnieuw te installeren.
+
+StackOverflowError*
+Het stack geheugen is vol. Dit soort dingen
+gebeuren meestal als gevolg van een
+programmeerfout. Je roept bij voorbeeld een
+method aan die vervolgens een andere method
+aanroept, die vervolgens de eerste method
+weer aanroept. Dit kan natuurlijk goed zijn,
+maar als deze recursie oneindig doorgaat,
+loopt het stack geheugen dus vol.
+
+ArrayStoreException*
+Geen help beschikbaar
+
+CannotRedoException*
+Geen help beschikbaar
+
+CannotUndoException*
+Geen help beschikbaar
+
+CMMException*
+Geen help beschikbaar
+
+EmptyStackException*
+Geen help beschikbaar
+
+IllegalArgumentException*
+Geen help beschikbaar
+
+IllegalMonitorStateException*
+Geen help beschikbaar
+
+IllegalPathStateException*
+Geen help beschikbaar
+
+IllegalStateException*
+Geen help beschikbaar
+
+ImagingOpException*
+Geen help beschikbaar
+
+MissingResourceException*
+Geen help beschikbaar
+
+NegativeArraySizeException*
+Geen help beschikbaar
+
+NoSuchElementException*
+Geen help beschikbaar
+
+ProfileDataException*
+Geen help beschikbaar
+
+ProviderException*
+Geen help beschikbaar
+
+RasterFormatException*
+Geen help beschikbaar
+
+SecurityException*
+Geen help beschikbaar
+
+SystemException*
+Geen help beschikbaar
+
+UndeclaredThrowableException*
+Geen help beschikbaar
+
+UnsupportedOperationException*
+Geen help beschikbaar
+
+Exception
+Dit is een zogenaamde "general exception"
+dat betekent dat er iets fout is gegaan,
+maar dat we niet precies weten wat...
+
