@@ -28,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2120 2003-07-18 04:50:28Z ajp $
+ * @version $Id: JdiDebugger.java 2161 2003-08-06 11:57:36Z mik $
  */
 public class JdiDebugger extends Debugger
 {
@@ -176,10 +176,10 @@ public class JdiDebugger extends Debugger
 
 		int num = 1;
 		
-		while(usedNames.contains(newName + "_" + num))
+		while(usedNames.contains(newName + num))
 			num++;
 			
-		return newName + "_" + num;
+		return newName + num;
 	}
 	
 	/**

@@ -9,7 +9,7 @@ import java.net.*;
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 2114 2003-07-16 02:37:04Z bquig $
+ * @version $Id: ClassPath.java 2161 2003-08-06 11:57:36Z mik $
  */
 public class ClassPath
 {
@@ -52,7 +52,7 @@ public class ClassPath
      */
     public ClassPath(URL urls[])
     {
-	for(int i=0; i<urls.length; i++) {
+        for(int i=0; i<urls.length; i++) {
             ClassPathEntry cpe = new ClassPathEntry(urls[i].getFile(), "");
 
             if(!entries.contains(cpe))

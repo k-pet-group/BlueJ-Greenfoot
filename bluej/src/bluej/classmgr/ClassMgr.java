@@ -2,6 +2,8 @@ package bluej.classmgr;
 
 import java.io.*;
 import java.util.*;
+import java.net.URL;
+
 import bluej.utility.Debug;
 import bluej.Config;
 import bluej.*;
@@ -22,7 +24,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 2160 2003-08-06 10:50:19Z mik $
+ * @version $Id: ClassMgr.java 2161 2003-08-06 11:57:36Z mik $
  */
 public class ClassMgr
 {
@@ -109,11 +111,8 @@ public class ClassMgr
     /** Don't let anyone else instantiate this class */
     private ClassMgr()
     {
-        addConfigEntries(systemLibraries, syslibPrefix);
-        addConfigEntries(userLibraries, userlibPrefix);
-
-//        String syscp = System.getProperty("sun.boot.class.path");
-        String bootcp = Boot.getInstance().getRuntimeClassPathString();
+        URL[] bootcp = Boot.getInstance().getRuntimeClassPath();
+        URL[] syscp = Boot.getInstance().getRuntimeUserClassPath();
         String envcp = System.getProperty("java.class.path");
 
         if (bootcp == null) {        // pre JDK1.2
@@ -126,19 +125,19 @@ public class ClassMgr
         // The following should be fixed: we enter all jars as boot and system class paths.
         // Really they should be either one (most boot, but junit needs to be system, it seems... 
         // investigate!
-        bootLibraries = new ClassPath(bootcp, "");
-        systemLibraries = new ClassPath(bootcp, "");
+        bootLibraries = new ClassPath(bootcp);
+        systemLibraries = new ClassPath(syscp);
 
-        /* XXX we should add here the boot libraries which are in the JDK extension
-           directory */
-        //System.getProperty("java.ext.dirs");
-
-        /* The libraries which are in the java classpath environment variable should
-           only be the bluej libraries needed to run the program. */
+        addConfigEntries(systemLibraries, syslibPrefix);
+        addConfigEntries(userLibraries, userlibPrefix);
 
         if (envcp != null) {
             bootLibraries.addClassPath(envcp, "");
         }
+
+        /* XXX we should add here the boot libraries which are in the JDK extension
+           directory */
+        //System.getProperty("java.ext.dirs");
     }
 
     /**
