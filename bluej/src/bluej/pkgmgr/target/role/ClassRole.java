@@ -19,13 +19,13 @@ import bluej.views.*;
  * particular class types
  *
  * @author  Bruce Quig
- * @version $Id: ClassRole.java 2011 2003-06-03 07:07:52Z ajp $
+ * @version $Id: ClassRole.java 2429 2003-12-09 10:54:54Z mik $
  */
 public abstract class ClassRole
 {
     public final static String CLASS_ROLE_NAME = null;
 
-    protected final Color defaultbg = Config.getItemColour("colour.class.bg.default");
+    private final Color defaultbg = Config.getItemColour("colour.class.bg.default");
     protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
     public String getRoleName()
@@ -58,6 +58,10 @@ public abstract class ClassRole
 
     }
 
+    /**
+     * Return the default background colour for targets that don't want 
+     * to define their own colour.
+     */
     public Color getBackgroundColour()
     {
         return defaultbg;

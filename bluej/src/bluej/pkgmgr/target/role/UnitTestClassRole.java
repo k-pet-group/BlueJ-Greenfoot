@@ -27,11 +27,13 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2383 2003-11-24 04:27:08Z ajp $
+ * @version $Id: UnitTestClassRole.java 2429 2003-12-09 10:54:54Z mik $
  */
 public class UnitTestClassRole extends ClassRole
 {
     public static final String UNITTEST_ROLE_NAME = "UnitTestTarget";
+
+    private final Color unittestbg = Config.getItemColour("colour.class.bg.unittest");
 
     private static final String popupPrefix = Config.getString("pkgmgr.test.popup.testPrefix");
 	private static final String testAll = Config.getString("pkgmgr.test.popup.testAll");
@@ -56,9 +58,12 @@ public class UnitTestClassRole extends ClassRole
         return "unit test";
     }
 
+    /**
+     * Return the intended background colour for this type of target.
+     */
     public Color getBackgroundColour()
     {
-        return Config.getItemColour("colour.class.bg.unittest");
+        return unittestbg;
     }
 
     private boolean isJUnitTestMethod(Method m)

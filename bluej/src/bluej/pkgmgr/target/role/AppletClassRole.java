@@ -1,5 +1,6 @@
 package bluej.pkgmgr.target.role;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.io.*;
@@ -18,7 +19,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 2407 2003-12-02 00:12:17Z ajp $
+ * @version $Id: AppletClassRole.java 2429 2003-12-09 10:54:54Z mik $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -26,6 +27,7 @@ public class AppletClassRole extends ClassRole
     
     private RunAppletDialog dialog;
 
+    private static final Color appletbg = Config.getItemColour("colour.class.bg.applet");
     static final String runAppletStr = Config.getString("pkgmgr.classmenu.runApplet");
     static final String htmlComment = Config.getString("pkgmgr.runApplet.htmlComment");
 
@@ -59,6 +61,14 @@ public class AppletClassRole extends ClassRole
     public String getStereotypeLabel()
     {
         return "applet";
+    }
+
+    /**
+     * Return the intended background colour for this type of target.
+     */
+    public Color getBackgroundColour()
+    {
+        return appletbg;
     }
 
     /**

@@ -1,18 +1,21 @@
 package bluej.pkgmgr.target.role;
 
 import javax.swing.*;
+import java.awt.*;
 
+import bluej.Config;
 import bluej.pkgmgr.target.*;
 
 /**
  * A role object to represent the behaviour of abstract classes.
  *
  * @author  Andrew Patterson 
- * @version $Id: AbstractClassRole.java 1952 2003-05-15 06:04:19Z ajp $
+ * @version $Id: AbstractClassRole.java 2429 2003-12-09 10:54:54Z mik $
  */
 public class AbstractClassRole extends ClassRole
 {
     public final static String ABSTRACT_ROLE_NAME = "AbstractTarget";
+    private static final Color abstractbg = Config.getItemColour("colour.class.bg.abstract");
     
     /**
      * Create the abstract class role.
@@ -29,6 +32,14 @@ public class AbstractClassRole extends ClassRole
     public String getStereotypeLabel()
     {
         return "abstract";
+    }
+
+    /**
+     * Return the intended background colour for this type of target.
+     */
+    public Color getBackgroundColour()
+    {
+        return abstractbg;
     }
 
     /**

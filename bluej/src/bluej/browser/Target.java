@@ -17,7 +17,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: Target.java 1431 2002-10-21 05:22:50Z ajp $
+ ** @version $Id: Target.java 2429 2003-12-09 10:54:54Z mik $
  ** @author Michael Cahill
  **
  ** A general target for the browser
@@ -30,17 +30,6 @@ abstract public class Target extends JComponent
     static final int TEXT_HEIGHT = 16;
     static final int TEXT_BORDER = 8;
     static final int SHAD_SIZE = 5;
-
-    static final Color textbg = Config.getItemColour("colour.text.bg");
-    static final Color shadowCol = Config.getItemColour("colour.target.shadow");
-    static final Color graphbg = Config.getItemColour("colour.graph.background");
-
-    static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
-    static final Color librarybg = Config.getItemColour("colour.class.bg.imported");
-    static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
-
-    static final Color colBorder = Config.getItemColour("colour.target.border");
-    static final Color textfg = Config.getItemColour("colour.text.fg");
 
     protected String displayName;		    // the display name of the target
     protected int targetWidth;
@@ -84,9 +73,9 @@ abstract public class Target extends JComponent
     public boolean getSelected() { return selected; }
     public void setSelected(boolean sel) { this.selected = sel; repaint(); }
 
-    protected Color getBackgroundColour() { return defaultbg; }
-    protected Color getBorderColour() { return colBorder; }
-    protected Color getTextColour() { return textfg; }
+    protected abstract Color getBackgroundColour();
+    protected abstract Color getBorderColour();
+    protected abstract Color getTextColour();
 
     abstract void popupMenu(int x, int y);
 

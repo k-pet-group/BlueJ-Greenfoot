@@ -33,7 +33,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2373 2003-11-19 03:41:04Z ajp $
+ * @version $Id: ClassTarget.java 2429 2003-12-09 10:54:54Z mik $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -46,9 +46,6 @@ public class ClassTarget extends EditableTarget
 	private static final String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
 
     // Define Background Colours
-    private static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
-    private static final Color abstractbg = Config.getItemColour("colour.class.bg.abstract");
-    private static final Color interfacebg = Config.getItemColour("colour.class.bg.interface");
     private static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
 
     private static final Color shadowCol = Config.getItemColour("colour.target.shadow");
