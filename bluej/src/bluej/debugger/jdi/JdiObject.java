@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2652 2004-06-23 00:17:12Z davmac $
+ * @version $Id: JdiObject.java 2657 2004-06-25 02:11:45Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -200,7 +200,10 @@ public class JdiObject extends DebuggerObject
     public GenTypeClass getGenType()
     {
         Reflective r = new JdiReflective(obj.referenceType());
-        return new GenTypeClass(r, genericParams);
+        if(genericParams != null)
+            return new GenTypeClass(r, genericParams);
+        else
+            return new GenTypeClass(r);
     }
 
     /**
