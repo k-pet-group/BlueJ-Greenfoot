@@ -21,7 +21,7 @@ import sun.misc.*;
  * and where the java runtime is.
  *
  * @author	Damiano Bolla
- * @version $Id: Boot.java 2005 2003-06-03 06:10:09Z ajp $
+ * @version $Id: Boot.java 2021 2003-06-05 03:16:48Z ajp $
  */
 public class Boot
 {
@@ -43,7 +43,14 @@ public class Boot
 
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
+    
+	// The jar files we expect in the BlueJ lib directory
+	private static String jars[] = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
+									 "antlr.jar", "junit.jar", "MRJ141Stubs.jar",
+									 "MRJToolkitStubs.zip" };
 
+	private static boolean useClassesDir = false;
+	
     /**
      * Entry point for booting BlueJ
      * bluej.Boot should be listed in the JAR Manifest as the Main-Class
@@ -77,6 +84,10 @@ public class Boot
 			System.exit(-1);
 		}
 
+		if((args.length >= 1) && "-useclassesdir".equals(args[0])) {
+			useClassesDir = true;
+		}
+		
 		SplashWindow splash = new SplashWindow();
     	
         instance = new Boot(args);
@@ -209,7 +220,7 @@ public class Boot
 
         try {
             // Find all the "hidden" libraries needed by BlueJ
-            runtimeClassPath = getLibraryItems();
+            runtimeClassPath = getKnownJars();
             // Construct a new class loader which knows about them
             runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
 
@@ -221,7 +232,6 @@ public class Boot
             exc.printStackTrace();
         }
     }
-
 
     /**
      * Calculate the bluejLibDir value by doing some reasoning on a resource 
@@ -263,7 +273,49 @@ public class Boot
         return bluejDir;
     }
 
+	/**
+	 * Returns an array of URLs for all the required BlueJ jars
+	 *
+	 * @return                            URLs of the required JAR files
+	 * @exception  MalformedURLException  for any problems with the URLs
+	 */
+	private URL[] getKnownJars() throws MalformedURLException
+	{
+		// by default, we require all our known jars to be present
+		int startJar = 0;
+		ArrayList urlList = new ArrayList();
 
+		// a hack to let BlueJ run from within Eclipse.
+		// If specified on command line, lets add a ../classes
+		// directory to the classpath (where Eclipse stores the
+		// .class files)
+		if (useClassesDir) {
+			File classesDir = new File(bluejLibDir.getParentFile(), "classes");
+			
+			if (classesDir.isDirectory()) {
+				urlList.add(classesDir.toURI().toURL());
+				// skip over requiring bluejcore.jar, bluejeditor.jar etc.
+				startJar = 3;
+			}
+		}
+
+		for (int i=startJar; i < jars.length; i++) {
+			File toAdd;
+		
+			toAdd = new File(bluejLibDir, jars[i]);
+
+			if (!toAdd.canRead())
+				throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
+
+			urlList.add(toAdd.toURI().toURL());
+		}
+		
+		// We also need to add tools.jar
+		urlList.add(getToolsURL());
+
+		return (URL[]) urlList.toArray(new URL[0]);
+	}
+	
     /**
      * Returns an array of URLs for all the JAR files located in the lib/ext directory
      *
@@ -272,8 +324,6 @@ public class Boot
      */
     private URL[] getLibraryItems() throws MalformedURLException
     {
-    	boolean foundNeededJars = false;
-    	
         File extDir = new File(bluejLibDir, "ext");
 
         File[] files = extDir.listFiles();
@@ -294,23 +344,13 @@ public class Boot
             if (!hasValidExtension(thisFile))
                 continue;
 
-			if (thisFile.getName().equals("bluejcore.jar"))
-				foundNeededJars = true;
-				
             // This one looks good, add it to the list.
             urlList.add(thisFile.toURL());
         }
 
         // We also need to add tools.jar
-        urlList.add(getToolsUrl());
+        urlList.add(getToolsURL());
 
-		// a hack to let BlueJ from within Eclipse. If we do
-		// not find the bluejcore.jar, lets add a ../classes
-		// directory to the classpath (where Eclipse stores the
-		// .class files
-		if (!foundNeededJars)
-			urlList.add(new File(bluejLibDir.getParentFile(), "classes").toURL());
-		
         return (URL[]) urlList.toArray(new URL[0]);
     }
 
@@ -348,7 +388,7 @@ public class Boot
      * @return                            The URL of the tools.jar file for the current Java implementation
      * @exception  MalformedURLException  for any problems with the URL
      */
-    private URL getToolsUrl() throws MalformedURLException
+    private URL getToolsURL() throws MalformedURLException
     {
         File toolsFile = new File(javaHomeDir, "lib/tools.jar");
         if (toolsFile.canRead())
