@@ -97,12 +97,12 @@ public class MoeSyntaxDocument extends DefaultSyntaxDocument
      * default colours are used.
      * @author This method was added by Jo Wood (jwo@soi.city.ac.uk), 9th March, 2001.
      */
-    public void setUserColors()
+    private void setUserColors()
     { 
-    	Properties editorProps = Config.moe_user_props;
+    	    Properties editorProps = Config.moe_user_props;
         
         // Build colour table.	   
-    	Color[] colors = new Color[Token.ID_COUNT];
+        Color[] colors = new Color[Token.ID_COUNT];
     	    	 
     	// Replace with user-defined colours.
     	String colorStr;

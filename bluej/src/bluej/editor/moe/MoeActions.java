@@ -990,11 +990,11 @@ public final class MoeActions
     /**
      * Return the current line.
      */
-    private Element getCurrentLine(JTextComponent text)
-    {
-        MoeSyntaxDocument document = (MoeSyntaxDocument)text.getDocument();
-        return document.getParagraphElement(text.getCaretPosition());
-    }
+//    private Element getCurrentLine(JTextComponent text)
+//    {
+//        MoeSyntaxDocument document = (MoeSyntaxDocument)text.getDocument();
+//        return document.getParagraphElement(text.getCaretPosition());
+//    }
 
     // --------------------------------------------------------------------
     /**

@@ -27,7 +27,7 @@ import java.awt.Color;
 * care of inserting and deleting lines from the token marker's state.
 *
 * @author Slava Pestov
-* @version $Id: DefaultSyntaxDocument.java 362 2000-01-14 03:33:06Z mik $
+* @version $Id: DefaultSyntaxDocument.java 2614 2004-06-15 15:37:24Z mik $
 *
 * @see org.gjt.sp.jedit.syntax.SyntaxDocument
 */
@@ -116,20 +116,15 @@ implements SyntaxDocument
 
         len += start;
 
-        try
-            {
-                for(int i = start; i < len; i++)
-                    {
-                        Element lineElement = map.getElement(i);
-                        int lineStart = lineElement.getStartOffset();
-                        getText(lineStart,lineElement.getEndOffset()
-- lineStart - 1,lineSegment);
-                        tokenMarker.markTokens(lineSegment,i);
-                    }
+        try {
+            for(int i = start; i < len; i++) {
+                Element lineElement = map.getElement(i);
+                int lineStart = lineElement.getStartOffset();
+                getText(lineStart,lineElement.getEndOffset() - lineStart - 1,lineSegment);
+                tokenMarker.markTokens(lineSegment,i);
             }
-        catch(BadLocationException bl)
-            {
-            }
+        }
+        catch(BadLocationException bl)  {  }
     }
 
     // protected members
@@ -141,14 +136,13 @@ implements SyntaxDocument
      * inserts and deletes lines from the token marker's state.
      */
     public class DocumentHandler
-    implements DocumentListener
+        implements DocumentListener
     {
         public void insertUpdate(DocumentEvent evt)
         {
             if(tokenMarker == null)
                 return;
-            DocumentEvent.ElementChange ch = evt.getChange(
-                                                           getDefaultRootElement());
+            DocumentEvent.ElementChange ch = evt.getChange(getDefaultRootElement());
             if(ch == null)
                 return;
             tokenMarker.insertLines(ch.getIndex() + 1,
@@ -178,33 +172,3 @@ implements SyntaxDocument
     }
 }
 
-/*
-* ChangeLog:
-* $Log$
-* Revision 1.2  2000/01/14 03:33:04  mik
-* changed syntax colours
-*
-* Revision 1.1  2000/01/12 03:17:58  bruce
-*
-* Addition of Syntax Colour Highlighting Package to CVS tree.  This is LGPL code used in the Moe Editor to provide syntax highlighting.
-*
-* Revision 1.5  1999/06/05 00:22:58  sp
-* LGPL'd syntax package
-*
-* Revision 1.4  1999/05/02 00:07:21  sp
-* Syntax system tweaks, console bugfix for Swing 1.1.1
-*
-* Revision 1.3  1999/04/19 05:38:20  sp
-* Syntax API changes
-*
-* Revision 1.2  1999/03/29 06:30:25  sp
-* Documentation updates, fixed bug in DefaultSyntaxDocument, fixed bug in
-* goto-line
-*
-* Revision 1.1  1999/03/22 04:35:48  sp
-* Syntax colorizing updates
-*
-* Revision 1.1  1999/03/13 09:11:46  sp
-* Syntax code updates, code cleanups
-*
-*/
