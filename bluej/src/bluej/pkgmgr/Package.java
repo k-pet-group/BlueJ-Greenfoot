@@ -1,6 +1,7 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.compiler.CompileObserver;
 import bluej.debugger.ObjectBench;
 import bluej.debugger.ObjectWrapper;
@@ -33,7 +34,7 @@ import java.io.*;
 import java.util.*;
 
 /**
-** @version $Id: Package.java 301 1999-12-08 12:09:59Z ajp $
+** @version $Id: Package.java 305 1999-12-09 23:50:57Z ajp $
 ** @author Michael Cahill
 **
 ** A Java package (collection of Java classes).
@@ -353,7 +354,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
             String fullname = props.get("target" + (current + 1) + ".name").toString();
 
-            int targetWidth = 40 + (int)ClassTarget.normalFont.getStringBounds(fullname,
+            int targetWidth = 40 + (int)PrefMgr.getStandardFont().getStringBounds(fullname,
                                                                                new FontRenderContext(new AffineTransform(), false, false)).getWidth();
 
             // make width roughly the length of the name
@@ -1916,9 +1917,9 @@ implements CompileObserver, MouseListener, MouseMotionListener
     static final int PRINT_HMARGIN = 16;
     static final int PRINT_VMARGIN = 16;
     static final Font printTitleFont = new Font("SansSerif", Font.PLAIN, 
-                                                Config.printTitleFontsize);
+                                                12); //Config.printTitleFontsize);
     static final Font printInfoFont = new Font("SansSerif", Font.ITALIC, 
-                                               Config.printInfoFontsize);
+                                               12); //Config.printInfoFontsize);
 
     /**
      * Return the rectangle on the page in which to draw the class diagram.

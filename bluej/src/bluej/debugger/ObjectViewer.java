@@ -21,7 +21,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 271 1999-11-11 03:51:44Z mik $
+ ** @version $Id: ObjectViewer.java 305 1999-12-09 23:50:57Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -33,7 +33,6 @@ public final class ObjectViewer extends JFrame
 
 	implements ActionListener, ListSelectionListener
 {
-    private static final Font font = new Font("SansSerif", Font.PLAIN, Config.fontsize);
     private static final Color bgColor = new Color(208, 212, 208);
 
     private static String inspectTitle = Config.getString("debugger.objectviewer.title");
@@ -502,7 +501,7 @@ public final class ObjectViewer extends JFrame
 	else
 	    setTitle(resultTitle);
 	    
-	setFont(font);
+//	setFont(font);
 	setBackground(bgColor);
 
 	addWindowListener(new WindowAdapter() {

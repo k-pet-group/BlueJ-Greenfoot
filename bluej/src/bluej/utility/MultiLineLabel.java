@@ -6,7 +6,7 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: MultiLineLabel.java 213 1999-07-29 04:16:54Z mik $
+ ** @version $Id: MultiLineLabel.java 305 1999-12-09 23:50:57Z ajp $
  ** @author Justin Tan
  ** A multi-line Label-like AWT component.
  **/
@@ -62,7 +62,7 @@ public class MultiLineLabel extends JPanel
     {
         String strs[] = Utility.splitLines(text);
         JLabel l;
-        Font font = new Font("SansSerif", fontAttributes, Config.fontsize);
+        Font font = new Font("SansSerif", fontAttributes, 12);
 
         for (int i = 0; strs != null && i < strs.length; i++) {
             l = new JLabel(strs[i]);

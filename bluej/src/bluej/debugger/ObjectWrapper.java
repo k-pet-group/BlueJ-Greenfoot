@@ -1,17 +1,7 @@
-/**
- ** bluej.debugger ObjectWrapper.java
- ** $Id: ObjectWrapper.java 270 1999-11-10 07:19:39Z mik $
- **
- ** A wrapper around a Java object that handles calling methods, inspecting, 
- ** etc. The wrapper is represented by the red oval that is visible on the
- ** object bench.
- **
- ** @author Michael Kolling
- **/
-
 package bluej.debugger;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.pkgmgr.Package;
 import bluej.utility.Utility;
@@ -26,11 +16,16 @@ import java.lang.reflect.*;
 import java.util.Hashtable;
 import java.util.Vector;
 
+/**
+ * A wrapper around a Java object that handles calling methods, inspecting, 
+ * etc. The wrapper is represented by the red oval that is visible on the
+ * object bench.
+ *
+ * @author  Michael Kolling
+ * @version $Id: ObjectWrapper.java 305 1999-12-09 23:50:57Z ajp $
+ */
 public class ObjectWrapper extends JComponent implements ActionListener
 {
-    static final Font font = new Font("SansSerif", Font.BOLD, Config.fontsize);
-    static final Font menuFont = new Font("SansSerif", Font.PLAIN, Config.fontsize);
-    static final Font italicMenuFont = new Font("SansSerif", Font.ITALIC, Config.fontsize);
     static final Color shadow = Config.getItemColour("colour.wrapper.shadow");
     static final Color bg = Config.getItemColour("colour.wrapper.bg");
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
@@ -112,7 +107,7 @@ public class ObjectWrapper extends JComponent implements ActionListener
 		declaredMethods = view.getDeclaredMethods();
 		JMenu subMenu =  new JMenu("Inherited from " 
 					   + Utility.stripPackagePrefix(currentClass.getName()));
- 		subMenu.setFont(italicMenuFont);
+ 		subMenu.setFont(PrefMgr.getStandoutMenuFont());
 		createMenuItems(subMenu, declaredMethods, filter, 0, declaredMethods.length);
 		menu.insert(subMenu, 0);
 
@@ -125,11 +120,11 @@ public class ObjectWrapper extends JComponent implements ActionListener
 	JMenuItem item;
 	menu.add(item = new JMenuItem(inspect));
 	item.addActionListener(this);
-	item.setFont(italicMenuFont);
+	item.setFont(PrefMgr.getStandoutMenuFont());
 	item.setForeground(envOpColour);
 	menu.add(item = new JMenuItem(remove));
 	item.addActionListener(this);
-	item.setFont(italicMenuFont);
+	item.setFont(PrefMgr.getStandoutMenuFont());
 	item.setForeground(envOpColour);
 	
 	add(menu);
@@ -174,7 +169,7 @@ public class ObjectWrapper extends JComponent implements ActionListener
 		}
 		item = new JMenuItem(methodSignature);
 		item.addActionListener(this);
-		item.setFont(menuFont);
+		item.setFont(PrefMgr.getStandardMenuFont());
 		actions.put(item, m);
 		menu.add(item);
 	    } catch(Exception e) {
@@ -226,7 +221,7 @@ public class ObjectWrapper extends JComponent implements ActionListener
 	
     public void paint(Graphics g)
     {
-	g.setFont(font);
+        g.setFont(PrefMgr.getStandardFont());
 	FontMetrics fm = g.getFontMetrics();
 		
 	g.setColor(shadow);

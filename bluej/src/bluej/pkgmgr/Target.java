@@ -1,6 +1,7 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.graph.Vertex;
 import bluej.graph.GraphEditor;
@@ -17,7 +18,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: Target.java 284 1999-11-25 02:34:37Z ajp $
+ * @version $Id: Target.java 305 1999-12-09 23:50:57Z ajp $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -65,7 +66,6 @@ public abstract class Target extends Vertex
 
     // the following fields are needed to correctly calculate the width of
     // a target in dependence of its name and the font used to display it
-    static Font normalFont = new Font("SansSerif",Font.BOLD,Config.fontsize);
     static FontRenderContext FRC= new FontRenderContext(new AffineTransform(),
 							false, false);
 
@@ -133,7 +133,7 @@ public abstract class Target extends Vertex
     {
 	int width = 0;
 	if (name != null)
-	    width = (int)normalFont.getStringBounds(name,FRC).getWidth();
+	    width = (int)PrefMgr.getStandardFont().getStringBounds(name,FRC).getWidth();
 	if ((width+20) <= DEF_WIDTH)
 	    return DEF_WIDTH;
 	else

@@ -873,7 +873,8 @@ implements BlueJEventListener
 
     // --- the following methods set up the GUI frame ---
 
-    private void makeFrame() {
+    private void makeFrame()
+    {
 
         setFont(PkgMgrFont);
         // setBackground(bgColor);

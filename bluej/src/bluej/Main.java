@@ -6,16 +6,16 @@ import bluej.utility.Debug;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.prefmgr.MiscPrefPanel;
+import bluej.prefmgr.PrefMgr;
 
 /**
- ** @version $Id: Main.java 278 1999-11-16 00:58:12Z ajp $
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** This is the main entry point to BlueJ. Normal invocations start
- ** in this class's main method.
- **
- **/
+ * This is the main entry point to BlueJ. Normal invocations start
+ * in this class's main method.
+ *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @version $Id: Main.java 305 1999-12-09 23:50:57Z ajp $
+ */
 public class Main
 {
 
@@ -35,12 +35,12 @@ public class Main
      * main - entry point to starting up the system. Initialise the
      * system and start the first package manager frame.
      */
-    public static void main(String[] args) { 
+    public static void main(String[] args) {
 
 	if((args.length >= 1) && "-version".equals(args[0])) {
 	    System.out.println("BlueJ version " + BLUEJ_VERSION
 			       + " (Java version "
-			       + System.getProperty("java.version") 
+			       + System.getProperty("java.version")
 			       + ")");
 	    System.out.println("--");
 
@@ -77,15 +77,16 @@ public class Main
 	    Debug.reportError("BlueJ should be run from a script that sets the \"bluej.home\" property");
 	    System.exit(-1);
 	}
-		
-	Config.initialise(home);
 
-    ClassMgrPrefPanel.register();
+	Config.initialise(home);
+	PrefMgr.initialise();
+
     MiscPrefPanel.register();
-    
+    ClassMgrPrefPanel.register();
+
 	bluej.pkgmgr.Main.main(args);
     }
-		
+
     /**
      * Close all frames and exit.
      */

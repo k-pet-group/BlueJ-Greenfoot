@@ -1,6 +1,7 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.debugger.ObjectBench;
 import bluej.graph.Graph;
@@ -21,7 +22,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 294 1999-12-01 02:28:26Z axel $
+ ** @version $Id: PkgFrame.java 305 1999-12-09 23:50:57Z ajp $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -30,9 +31,8 @@ implements ActionListener, ItemListener
     public static final String AppTitle = "BlueJ version " + bluej.Main.BLUEJ_VERSION;
     static final String noTitle = Config.getString("pkgmgr.noTitle");
 
-    static final Font PkgMgrFont = new Font("SansSerif", Font.PLAIN, Config.fontsize);
     // static final Color bgColor = Config.getItemColour("colour.background");
-
+    public Font PkgMgrFont = PrefMgr.getStandardFont();
     // Internal strings
     static final String chooseUsesFrom = Config.getString("pkgmgr.chooseUsesFrom");
     static final String chooseInhFrom = Config.getString("pkgmgr.chooseInhFrom");

@@ -1,6 +1,7 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
@@ -43,7 +44,7 @@ import java.util.Vector;
  ** @author Michael Kolling
  ** @author Bruce Quig
  **
- ** @version $Id: ClassTarget.java 301 1999-12-08 12:09:59Z ajp $
+ ** @version $Id: ClassTarget.java 305 1999-12-09 23:50:57Z ajp $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -60,9 +61,6 @@ public class ClassTarget extends EditableTarget
     static final Color graphbg = Config.getItemColour("colour.graph.background");
     static final Color textfg = Config.getItemColour("colour.text.fg");
 
-    static public final Font normalFont = new Font("SansSerif", Font.BOLD, Config.fontsize);
-    static public final Font menuFont = new Font("SansSerif", Font.PLAIN, Config.fontsize);
-    static final Font italicMenuFont = new Font("SansSerif", Font.ITALIC, Config.fontsize);
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
     static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
@@ -283,12 +281,12 @@ public class ClassTarget extends EditableTarget
 
     Color getTextColour()
     {
-	return textfg;
+        return textfg;
     }
 
     Font getFont()
     {
-	return normalFont;
+        return PrefMgr.getStandardFont();
     }
 
     // --- EditableTarget interface ---
@@ -678,7 +676,7 @@ public class ClassTarget extends EditableTarget
     
     	menu.add(item = new JMenuItem(itemString));
     	item.addActionListener(this);
-    	item.setFont(menuFont);
+    	item.setFont(PrefMgr.getStandardMenuFont());
     	item.setForeground(envOpColour);
     	if(!enabled)
     	    item.setEnabled(false);
@@ -723,7 +721,7 @@ public class ClassTarget extends EditableTarget
 		// Debug.message("createSubMenu - creating MenuItem");
 		item = new JMenuItem(prefix + m.getShortDesc());
 		item.addActionListener(this);
-		item.setFont(menuFont);
+		item.setFont(PrefMgr.getStandardMenuFont());
 		actions.put(item, m);
 		menu.add(item);
 		hasEntries = true;

@@ -27,7 +27,7 @@ import java.util.*;
  * @see AttributeThread
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: AttributeChooser.java 265 1999-11-05 04:31:07Z ajp $
+ * @version $Id: AttributeChooser.java 305 1999-12-09 23:50:57Z ajp $
  */
 public class AttributeChooser extends JPanel {
 
@@ -221,11 +221,11 @@ class AttributeChooserRenderer extends JLabel implements TreeCellRenderer {
 
 	private static final Font fontTreeRoot =
 		new Font(Config.getPropString("browser.fontname.treeroot"), Font.PLAIN,
-			 Config.getPropInteger("browser.fontsize.treeroot", Config.fontsize));
+			 Config.getPropInteger("browser.fontsize.treeroot", 12));
 
 	private static final Font fontTreeLeaf =
 		new Font(Config.getPropString("browser.fontname.treeleaf"), Font.PLAIN,
-			 Config.getPropInteger("browser.fontsize.treeleaf", Config.fontsize));
+			 Config.getPropInteger("browser.fontsize.treeleaf", 12));
 
 	private static final ImageIcon CONSTRUCTOR_ICON =
 		new ImageIcon(Config.getImageFilename("browser.image.constructoricon"));

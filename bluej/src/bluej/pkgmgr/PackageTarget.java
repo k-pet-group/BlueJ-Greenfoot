@@ -1,6 +1,7 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.graph.GraphEditor;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
@@ -11,7 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /** 
- ** @version $Id: PackageTarget.java 275 1999-11-16 00:49:06Z ajp $
+ ** @version $Id: PackageTarget.java 305 1999-12-09 23:50:57Z ajp $
  ** @author Michael Cahill
  **
  ** A link to a package embedded in another package.
@@ -24,16 +25,12 @@ public class PackageTarget extends Target implements ActionListener
     static final Color textbg = Config.getItemColour("colour.text.bg");
     static final Color textfg = Config.getItemColour("colour.text.fg");
 	
-    static Font normalFont = new Font("SansSerif", Font.BOLD, Config.fontsize);
-    static Font invalidFont = new Font("SansSerif", Font.BOLD | Font.ITALIC, Config.fontsize);
-	
     protected String packageDir = null;
     protected String packageName = null;
 
     static String useStr = Config.getString("browser.classchooser.packagemenu.use");
     static String openStr = Config.getString("browser.classchooser.packagemenu.open");
 	
-    static final Font menuFont = new Font("SansSerif", Font.PLAIN, Config.fontsize);
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
     public PackageTarget(Package pkg, String shortName, String fullName)
@@ -102,7 +99,7 @@ public class PackageTarget extends Target implements ActionListener
 
     Font getFont()
     {
-	return (state == S_INVALID) ? invalidFont : normalFont;
+        return (state == S_INVALID) ? PrefMgr.getStandoutFont() : PrefMgr.getStandardFont();
     }
 
     public void draw(Graphics g) { 
@@ -176,7 +173,7 @@ public class PackageTarget extends Target implements ActionListener
 
 	menu.add(item = new JMenuItem(itemString));
 	item.addActionListener(this);
-	item.setFont(menuFont);
+	item.setFont(PrefMgr.getStandardMenuFont());
 	item.setForeground(envOpColour);
 	if(!enabled)
 	    item.setEnabled(false);

@@ -8,8 +8,8 @@ import java.io.*;
  * (allowing the resulting files to exist in CVS repositories without
  *  so much clashing)
  *
- * @author Andrew Patterson
- * @version $Id: SortedProperties.java 285 1999-11-25 05:29:25Z ajp $
+ * @author  Andrew Patterson
+ * @version $Id: SortedProperties.java 305 1999-12-09 23:50:57Z ajp $
  */
 public class SortedProperties extends Properties
 {
@@ -80,8 +80,7 @@ public class SortedProperties extends Properties
     private static final char[] hexDigit = {
         '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
     };
-    
-    
+
     public void store(OutputStream out, String header) throws IOException
     {
         BufferedWriter awriter;
@@ -92,21 +91,19 @@ public class SortedProperties extends Properties
         }
 
         TreeMap tm = new TreeMap(this);
-        
+
         Iterator it = tm.entrySet().iterator();
-        
+
         while(it.hasNext())
         {
             Map.Entry mapEntry = (Map.Entry) it.next();
-            
+
             String key = saveConvert((String)mapEntry.getKey());
             String val = saveConvert((String)mapEntry.getValue());
 
             awriter.write(key + "=" + val);
             awriter.newLine();
         }
-        awriter.flush();        
-        
+        awriter.flush();
     }
-
 }

@@ -70,7 +70,7 @@ public class FixedMultiLineLabel extends MultiLineLabel
 	if(text != null) {
 	    String strs[] = Utility.splitLines(text);
 	    lines = (strs.length < rows ? strs.length : rows);
-	    Font font = new Font("SansSerif", fontAttributes, Config.fontsize);
+	    Font font = new Font("SansSerif", fontAttributes, 12);
 
 	    for (int i = 0; i < lines; i++) {
 		labels[i].setText((strs[i].length() == 0 ? " " : strs[i]));

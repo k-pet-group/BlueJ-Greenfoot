@@ -1,6 +1,7 @@
 package bluej.browser;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.graph.Vertex;
 import bluej.graph.GraphEditor;
@@ -18,7 +19,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: Target.java 276 1999-11-16 00:55:47Z ajp $
+ ** @version $Id: Target.java 305 1999-12-09 23:50:57Z ajp $
  ** @author Michael Cahill
  **
  ** A general target for the browser
@@ -43,8 +44,6 @@ abstract public class Target extends JComponent
     static final Color colBorder = Config.getItemColour("colour.target.border");
     static final Color textfg = Config.getItemColour("colour.text.fg");
 
-    static public final Font normalFont = new Font("SansSerif", Font.BOLD, Config.fontsize);
-
     protected String displayName;		    // the display name of the target
     protected int targetWidth;
     protected boolean selected;
@@ -55,7 +54,7 @@ abstract public class Target extends JComponent
         this.selected = false;
 
         targetWidth = (int)((TEXT_BORDER * 4) + 
-                        normalFont.getStringBounds(displayName,new FontRenderContext(new AffineTransform(), false, false)).getWidth());
+                        PrefMgr.getStandardFont().getStringBounds(displayName,new FontRenderContext(new AffineTransform(), false, false)).getWidth());
 
         if (targetWidth < DEF_WIDTH)
             targetWidth = DEF_WIDTH;
@@ -124,7 +123,7 @@ abstract public class Target extends JComponent
     	drawBorders(g);
     		
     	g.setColor(getTextColour());
-    	g.setFont(normalFont);
+    	g.setFont(PrefMgr.getStandardFont());
 
     	Utility.drawCentredText(g, displayName,
     				insets.left + TEXT_BORDER, insets.top + TEXT_BORDER,

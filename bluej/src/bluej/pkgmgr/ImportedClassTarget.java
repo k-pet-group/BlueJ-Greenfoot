@@ -14,15 +14,13 @@ import java.awt.Font;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: ImportedClassTarget.java 284 1999-11-25 02:34:37Z ajp $
+ * @version $Id: ImportedClassTarget.java 305 1999-12-09 23:50:57Z ajp $
  */
 
 public class ImportedClassTarget extends ClassTarget
 {
     static Color abstractbg = defaultbg.brighter();
     static Color compcolour = Config.getItemColour("colour.target.bg.compiling");
-    static Font normalFont = new Font("SansSerif", Font.BOLD, Config.fontsize);
-    static Font invalidFont = new Font("SansSerif", Font.BOLD | Font.ITALIC, Config.fontsize);
 	
 
     String sourcePkgDir;

@@ -2,6 +2,7 @@ package bluej;
 
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.DefaultProperties;
 
 import java.awt.Color;
 import java.awt.event.KeyEvent;
@@ -28,7 +29,7 @@ import java.util.Properties;
  *  &lt;user_home>/.bluej/bluej.properties <BR>
  *  &lt;bluej_home>/moe.labels.&lt;language> <BR>
  * <BR>
- * "bluej.defs"	- contains system definitions which are not language 
+ * "bluej.defs"	- contains system definitions which are not language
  *			  specific and not user specific. <BR>
  * "labels.&lt;language>"	- contains language specific strings <BR>
  * "bluej.properties"	- contains user specific settings. Settings here
@@ -37,26 +38,26 @@ import java.util.Properties;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 294 1999-12-01 02:28:26Z axel $
+ * @version $Id: Config.java 305 1999-12-09 23:50:57Z ajp $
  */
 public class Config
 {
     public static final String nl = System.getProperty("line.separator");
 
-    private static Properties bluej_props;	// bluej properties
-    private static Properties lang_props;	// The internationalisation
+    private static DefaultProperties bluej_props;	// bluej properties
+    private static DefaultProperties lang_props;	// The internationalisation
     //  dictionary
-    public static Properties moe_props;		// moe (editor) properties
+    public static DefaultProperties moe_props;		// moe (editor) properties
     private static String dirname = (File.separatorChar == '/') ? ".bluej" : "bluej";
     private static String bluej_home;
     private static String sys_confdir;
     private static String user_confdir;
-    public static int fontsize;
+/*    public static int fontsize;
     public static int editFontsize;
     public static int printFontsize;
     public static int printTitleFontsize;
     public static int printInfoFontsize;
-
+*/
     public static String compilertype;	// current compiler (javac, jikes)
     public static String language;	// message language (english, ...)
 
@@ -64,7 +65,7 @@ public class Config
     public static final int splitPaneDividerWidth = 3;
     // Other general spacing constants. We should try to use these for consistency
     public static final int generalSpacingWidth = 5;
-    public static final Border generalBorder = 
+    public static final Border generalBorder =
                                  BorderFactory.createEmptyBorder(10,10,10,10);
     public static final Border generalBorderWithStatusBar =
                                  BorderFactory.createEmptyBorder(10,10,0,10);
@@ -73,7 +74,7 @@ public class Config
 
     /*
      * Default behaviour for JTextFields is to generate an ActionEvent when
-     * "Enter" is pressed. We don't want that. Here, we remove the Enter key 
+     * "Enter" is pressed. We don't want that. Here, we remove the Enter key
      * from the keymap used by all JTextFields. Then we can use the default
      * button for dialogs (Enter will then activate the default button).
      */
@@ -113,11 +114,13 @@ public class Config
 
         moe_props = loadDefs("moe.labels." + language, false);
 
-        fontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize","12"));
+/*        fontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize","12"));
         editFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.editor","12"));
         printFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printText","10"));
         printTitleFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printTitle","14"));
         printInfoFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printInfo","10"));
+*/
+
         checkDebug(user_confdir);
         compilertype = Config.getPropString("bluej.compiler.type");
         if(compilertype.equals("internal"))
@@ -146,13 +149,13 @@ public class Config
                 bluej_props.getProperty("bluej.debugLog");
             // simple diversion of output stream to a log file
             try {
-                PrintStream outStream = 
+                PrintStream outStream =
                     new PrintStream(new FileOutputStream(debugLogFileName));
                 System.setOut(outStream);
                 Debug.message("BlueJ version " + Main.BLUEJ_VERSION);
             } catch (IOException e) {
                 Debug.reportError("Warning: Unable to create debug log file.");
-            } 
+            }
         }
     }
 
@@ -174,10 +177,10 @@ public class Config
      * @param asDefault if true, the definitions are used as defaults for
      *                  an empty properties objects.
      */
-    private static Properties loadDefs(String filename, boolean asDefault)
+    private static DefaultProperties loadDefs(String filename, boolean asDefault)
     {
         File propsFile = new File(sys_confdir, filename);
-        Properties defs = new Properties();
+        DefaultProperties defs = new DefaultProperties();
 
         try {
             defs.load(new FileInputStream(propsFile));
@@ -187,7 +190,7 @@ public class Config
         }
 
         if(asDefault)
-            return new Properties(defs); // empty props with defs as defaults
+            return new DefaultProperties(defs); // empty props with defs as defaults
         else
             return defs;
     }
@@ -196,7 +199,7 @@ public class Config
      * Load local BlueJ properties. The properties definitions override
      * the defaults found in the definitions file.
      */
-    private static void loadProperties(String filename, Properties props)
+    private static void loadProperties(String filename, DefaultProperties props)
     {
         File propsFile = new File(user_confdir, filename + ".properties");
 
@@ -211,7 +214,7 @@ public class Config
     /**
      * Save user specific (local) BlueJ properties.
      */
-    private static void saveProperties(String filename, Properties props)
+    private static void saveProperties(String filename, DefaultProperties props)
     {
         File propsFile = new File(user_confdir, filename + ".properties");
 
@@ -220,7 +223,7 @@ public class Config
                          getString("properties.heading"));
 
         } catch(Exception e) {
-            Debug.reportError("Warning: could not save properties file " + 
+            Debug.reportError("Warning: could not save properties file " +
                               propsFile);
         }
     }
@@ -228,7 +231,7 @@ public class Config
     /**
      * find and return the moe help definitions
      */
-    public static Properties getMoeHelp()
+    public static DefaultProperties getMoeHelp()
     {
         return loadDefs("moe.help." + language, false);
     }
@@ -249,7 +252,7 @@ public class Config
     }
 
     /**
-     * Get a non-language-dependent string from the BlueJ properties 
+     * Get a non-language-dependent string from the BlueJ properties
      * ("bluej.defs" or "bluej.properties")
      */
     public static String getPropString(String strname)
@@ -279,16 +282,34 @@ public class Config
     {
         int value;
         try {
-            value = new Integer(bluej_props.getProperty(intname, String.valueOf(def))).intValue();
+            value = Integer.parseInt(bluej_props.getProperty(intname, String.valueOf(def)));
         }
-        catch(Exception e) {
-            Debug.reportError("Could not get integer for " + intname);
+        catch(NumberFormatException nfe) {
             return def;
         }
         return value;
     }
 
+    /**
+     * Get a non-language dependant integer from the BlueJ properties
+     * "bluej.defs" with a default value
+     */
+    public static int getDefaultPropInteger(String intname, int def)
+    {
+        int value;
+        try {
+            value = Integer.parseInt(bluej_props.getDefaultProperty(intname, String.valueOf(def)));
+        }
+        catch(NumberFormatException nfe) {
+            return def;
+        }
+        return value;
+    }
 
+    public static void removePropInteger(String intname)
+    {
+        bluej_props.remove(intname);
+    }
 
     public static String getLibFilename(String propname)
     {
@@ -395,10 +416,10 @@ public class Config
     }
 
     /**
-     * Set a non-language dependant integer for the BlueJ properties 
+     * Set a non-language dependant integer for the BlueJ properties
      */
     public static void putPropInteger(String intname, int value)
-    {                  
+    {
         bluej_props.setProperty(intname, Integer.toString(value));
     }
 
@@ -407,9 +428,9 @@ public class Config
      */
     public static void putPropString(String strname, String value)
     {
-        bluej_props.setProperty(strname, value);         
+        bluej_props.setProperty(strname, value);
     }
-    
+
     public static String getSystemConfigDir() {
         return sys_confdir;
     }
