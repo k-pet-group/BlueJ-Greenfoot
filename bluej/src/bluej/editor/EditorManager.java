@@ -17,7 +17,7 @@ import bluej.editor.moe.MoeEditorManager;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: EditorManager.java 1417 2002-10-18 07:56:39Z mik $
+ * @version $Id: EditorManager.java 1752 2003-04-04 13:59:55Z fisker $
  */
 public abstract class EditorManager
 {
@@ -42,15 +42,16 @@ public abstract class EditorManager
      * is visible after opening it.
      *
      * @param filename      name of the source file to open (may be null)
+     * @param docFilename	name of the documentation based on filename
      * @param windowTitle   title of window (usually class name)
      * @param watcher       an object interested in editing events
      * @param compiled      true, if the class has been compiled
      * @param breakpoints   vector of Integers: line numbers where bpts are
      * @returns		    the new editor, or null if there was a problem
      */
-    public abstract Editor openClass(String filename, String windowTitle,
-                     EditorWatcher watcher, boolean compiled,
-                     List breakpoints);
+    public abstract Editor openClass(String filename, String docFilename, 
+    								 String windowTitle, EditorWatcher watcher, 
+                     				 boolean compiled, List breakpoints);
 
 
     /**
