@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2717 2004-07-02 09:14:57Z mik $
+ * @version $Id: PkgMgrFrame.java 2723 2004-07-02 15:22:53Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2120,10 +2120,12 @@ public class PkgMgrFrame extends JFrame
             toolPanel.add(machineIcon);
         }
         mainPanel.add(toolPanel, BorderLayout.WEST);
+
         classScroller = new JScrollPane();
-        mainPanel.add(classScroller, BorderLayout.CENTER);
+        classScroller.setBorder(null);
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
         classScroller.setSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
+        mainPanel.add(classScroller, BorderLayout.CENTER);
 
 
         // create the object bench

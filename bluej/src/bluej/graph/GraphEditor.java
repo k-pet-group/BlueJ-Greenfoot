@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.util.Iterator;
 
 import javax.swing.JComponent;
+import javax.swing.border.*;
 
 import bluej.Config;
 
@@ -13,30 +14,29 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: GraphEditor.java 2641 2004-06-21 11:07:01Z polle $
+ * @version $Id: GraphEditor.java 2723 2004-07-02 15:22:53Z mik $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener, FocusListener
 {
     protected static final Color background = Config.getItemColour("colour.graph.background");
-    final static Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
-    final static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-    final static Cursor arrowCursor = new Cursor(Cursor.SE_RESIZE_CURSOR);
+    
+    private final static Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
+    private final static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+    private final static Cursor arrowCursor = new Cursor(Cursor.SE_RESIZE_CURSOR);
+
+    public static final int GRID_SIZE = 10;
+    
     private Graph graph;
     private GraphElement activeGraphElement;
     private boolean readOnly = false;
-    private Marquee marquee;
-    // Contains the elements that have been selected
+    private Marquee marquee;    // Contains the elements that have been selected
     private GraphElementManager graphElementManager;
     private int lastClickX, lastClickY; //coordinates for the last left clicked position
     private GraphPainter graphPainter;
     private MarqueePainter marqueePainter = new MarqueePainter();
     private GraphElementController graphElementController;
-    public static final int GRID_SIZE = 10;
-    private boolean hasFocus = false;
-    
-    
-    
+
     public GraphEditor(Graph graph)
     {
         this.graph = graph;
@@ -65,14 +65,12 @@ public class GraphEditor extends JComponent
             Dimension d = getSize();
             g2D.setColor(background);
             g2D.fillRect(0, 0, d.width, d.height);
-            if (hasFocus){
-            	g2D.setColor(Color.BLUE);
-            	g2D.drawRect(0, 0, d.width - 1, d.height - 1);
-            }
         }
 
         graphPainter.paint(g2D, this);
         marqueePainter.paint(g2D, marquee);
+        
+        super.paint(g);  // for border
     }
 
     
@@ -363,35 +361,41 @@ public class GraphEditor extends JComponent
      * @return Returns the graphPainter.
      */
 	
-    public GraphPainter getGraphPainter() {
+    public GraphPainter getGraphPainter() 
+    {
         return graphPainter;
     }
     
     /**
      * @param graphPainter The graphPainter to set.
      */
-    public void setGraphPainter(GraphPainter graphPainter) {
+    public void setGraphPainter(GraphPainter graphPainter) 
+    {
         this.graphPainter = graphPainter;
     }
     
     /**
      * @return Returns the graphElementController.
      */
-    public GraphElementController getGraphElementController() {
+    public GraphElementController getGraphElementController() 
+    {
         return graphElementController;
     }
     /**
      * @param graphElementController The graphElementController to set.
      */
-    public void setGraphElementController(GraphElementController graphElementController) {
+    public void setGraphElementController(GraphElementController graphElementController) 
+    {
         this.graphElementController = graphElementController;
     }
     
-    public GraphElementManager getGraphElementManager(){
+    public GraphElementManager getGraphElementManager()
+    {
         return graphElementManager;
     }
     
-    public static Point snapToGrid(Point point){
+    public static Point snapToGrid(Point point)
+    {
         int x_steps = (int)point.getX() / GraphEditor.GRID_SIZE;
         int new_x = x_steps * GraphEditor.GRID_SIZE;//new x-coor w/ respect to grid
         
@@ -400,34 +404,33 @@ public class GraphEditor extends JComponent
         return new Point(new_x, new_y);
     }
     
-    public void clearSelection(){
+    public void clearSelection()
+    {
         graphElementManager.clear();
     }
     
-    public Graph getGraph(){
-    	return graph;
+    public Graph getGraph() 
+    {
+        return graph;
     }
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.FocusListener#focusGained(java.awt.event.FocusEvent)
+	/**
+     * The graph editor received keyboard focus.
 	 */
-	public void focusGained(FocusEvent e) {
-		hasFocus = true;
+	public void focusGained(FocusEvent e) 
+    {
+        setBorder(Config.focusBorder);
 		repaint();
 	}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.FocusListener#focusLost(java.awt.event.FocusEvent)
+    /**
+     * The graph editor lost keyboard focus.
 	 */
-	public void focusLost(FocusEvent e) {
-		if (!e.isTemporary()){
-			hasFocus = false;
-			
+	public void focusLost(FocusEvent e) 
+    {
+		if(!e.isTemporary()) {
+            setBorder(Config.normalBorder);
 		}
 		repaint();
-	}
-	
-	public boolean hasFocus(){
-		return hasFocus;
 	}
 }

@@ -1,17 +1,22 @@
 package bluej.debugmgr.texteval;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.event.*;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 import javax.swing.text.*;
 
 import bluej.BlueJEvent;
+import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
@@ -31,10 +36,10 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2722 2004-07-02 13:20:26Z mik $
+ * @version $Id: TextEvalArea.java 2723 2004-07-02 15:22:53Z mik $
  */
 public final class TextEvalArea extends JScrollPane
-    implements ResultWatcher, KeyListener
+    implements ResultWatcher, KeyListener, FocusListener
 {
     private static final int BUFFER_LINES = 40;
 
@@ -220,6 +225,31 @@ public final class TextEvalArea extends JScrollPane
 
     //   --- end of ResultWatcher interface ---
 
+    
+    // --- FocusListener interface ---
+    
+    /**
+     * Note that the object bench got keyboard focus.
+     */
+    public void focusGained(FocusEvent e) 
+    {
+        setBorder(Config.focusBorder);
+        repaint();
+    }
+
+    
+    /**
+     * Note that the object bench lost keyboard focus.
+     */
+    public void focusLost(FocusEvent e) 
+    {
+        setBorder(Config.normalBorder);
+        repaint();
+    }
+
+    // --- end of FocusListener interface ---
+
+
     //   --- KeyListener interface ---
 
     /**
@@ -386,11 +416,13 @@ public final class TextEvalArea extends JScrollPane
     {
         text = new JEditorPane();
         text.setMargin(new Insets(2,2,2,2));
+
         text.setEditorKit(new MoeSyntaxEditorKit(true));
         text.setCaret(new TextEvalCaret(this));
 //        text.setCaretColor(caretColor);
         text.addKeyListener(this);
-        
+        text.addFocusListener(this);
+
         doc = (MoeSyntaxDocument) text.getDocument();
         doc.setTokenMarker(new JavaTokenMarker());
 
@@ -434,6 +466,12 @@ public final class TextEvalArea extends JScrollPane
         action = new HistoryForwardAction();
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), action);
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_KP_DOWN, 0), action);
+
+        action = new TransferFocusAction(true);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), action);
+
+        action = new TransferFocusAction(false);
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK), action);
 
         action = new NoAction();
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, Event.SHIFT_MASK), action);
@@ -595,6 +633,27 @@ public final class TextEvalArea extends JScrollPane
             if(line != null) {
                 replaceLine(line);
             }
+        }
+
+    }
+
+    final class TransferFocusAction extends AbstractAction {
+        private boolean forward;
+        /**
+         * Create a new action object.
+         */
+        public TransferFocusAction(boolean forward)
+        {
+            super("TransferFocus");
+            this.forward = forward;
+        }
+        
+        final public void actionPerformed(ActionEvent event)
+        {
+            if(forward)
+                text.transferFocus();
+            else
+                text.transferFocusBackward();
         }
 
     }

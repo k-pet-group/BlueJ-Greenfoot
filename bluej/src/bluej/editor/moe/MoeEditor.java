@@ -344,7 +344,7 @@ public final class MoeEditor extends JFrame
 
         setWindowTitle();
         sourcePane.setFont(PrefMgr.getStandardEditorFont());
-        sourcePane.setSelectionColor(selectionColour);
+//        sourcePane.setSelectionColor(selectionColour);
 
         setCompileStatus(compiled);
 

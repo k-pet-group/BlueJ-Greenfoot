@@ -9,6 +9,7 @@ import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
 import bluej.utility.*;
@@ -34,7 +35,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2602 2004-06-13 18:16:54Z fisker $
+ * @version $Id: Config.java 2723 2004-07-02 15:22:53Z mik $
  */
 
 public final class Config
@@ -72,6 +73,22 @@ public final class Config
     protected static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     
+    // a border for components with keyboard focus
+    public static final Border focusBorder = new CompoundBorder(new LineBorder(Color.BLACK),
+            new BevelBorder(BevelBorder.LOWERED, 
+                    new Color(195, 195, 195),
+                    new Color(240, 240, 240),
+                    new Color(195, 195, 195),
+                    new Color(124, 124, 124)));
+    
+    // a border for components without keyboard focus
+    public static final Border normalBorder = new CompoundBorder(new EmptyBorder(1,1,1,1),
+            new BevelBorder(BevelBorder.LOWERED, 
+                    new Color(195, 195, 195),
+                    new Color(240, 240, 240),
+                    new Color(124, 124, 124),
+                    new Color(195, 195, 195)));
+   
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
      * This method finds and opens the configuration files.

@@ -7,6 +7,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 
 import bluej.Config;
 import bluej.testmgr.record.InvokerRecord;
@@ -16,16 +18,17 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2716 2004-07-01 21:53:37Z mik $
+ * @version $Id: ObjectBench.java 2723 2004-07-02 15:22:53Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
 {
-    static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH / 3);
+    private static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH / 3);
     private static final Color BACKGROUND_COLOR = Config.getItemColour("colour.objectbench.background");
+
+    private static final Border focusBorder = new LineBorder(Color.BLACK);
     
     private ObjectBenchPanel obp;
-    public boolean hasFocus;
     private List objectWrappers;
     private ObjectWrapper selectedObjectWrapper;
     private int currentObjectWrapperIndex = -1;
@@ -46,17 +49,6 @@ public class ObjectBench extends JPanel
     }
 
     
-    /**
-     * Paint the object bench.
-     */
-    public void paint(Graphics g){
-        super.paint(g);
-        if(hasFocus){
-            g.setColor(Color.BLUE);
-            g.drawRect(0, 0, getWidth() - 2, getHeight() - 3);
-        }
-    }
-
     /**
      * Add an object (in the form of an ObjectWrapper) to this bench.
      */
@@ -80,6 +72,7 @@ public class ObjectBench extends JPanel
         obp.repaint();
     }
 
+    
     /**
      * Return all the wrappers stored in this object bench in an array
      */
@@ -88,6 +81,7 @@ public class ObjectBench extends JPanel
         return Collections.unmodifiableList(objectWrappers);
     }
 
+    
     /**
      * Get the object with name 'name', or null, if it does not
      * exist.
@@ -104,6 +98,7 @@ public class ObjectBench extends JPanel
         }
         return null;
     }
+    
 
     /**
      * Check whether the bench contains an object with name 'name'.
@@ -115,6 +110,7 @@ public class ObjectBench extends JPanel
         return getObject(name) != null;
     }
 
+    
     /**
      * Count of object bench copmponents that are object wrappers
      * @return number of ObjectWrappers on the bench
@@ -124,6 +120,7 @@ public class ObjectBench extends JPanel
         return objectWrappers.size();
     }
 
+    
     /**
      * Remove all objects from the object bench.
      */
@@ -143,6 +140,7 @@ public class ObjectBench extends JPanel
         obp.repaint();
     }
 
+    
     /**
      * Remove an object from the object bench. When this is done, the object
      * is also removed from the scope of the package (so it is not accessible
@@ -183,6 +181,7 @@ public class ObjectBench extends JPanel
         // TODO: make sure this object is in view; if necessary repaint bench
     }
 
+    
     /**
      * Returns the currently selected object wrapper. 
      * If no wrapper is selected null is returned.
@@ -192,6 +191,7 @@ public class ObjectBench extends JPanel
         return selectedObjectWrapper;
     }
 
+    
     /**
      * Add a listener for object events to this bench.
      * @param l  The listener object.
@@ -200,6 +200,7 @@ public class ObjectBench extends JPanel
     {
         obp.addObjectBenchListener(l);
     }
+    
 
     /**
      * Remove a listener for object events to this bench.
@@ -209,6 +210,7 @@ public class ObjectBench extends JPanel
     {
         obp.removeObjectBenchListener(l);
     }
+    
     
     /**
      * Fire an object event for the named object.
@@ -223,19 +225,20 @@ public class ObjectBench extends JPanel
     
     /**
      * Note that the object bench got keyboard focus.
-     * @see java.awt.event.FocusListener#focusGained(java.awt.event.FocusEvent)
      */
-    public void focusGained(FocusEvent e) {
-        hasFocus = true;
+    public void focusGained(FocusEvent e) 
+    {
+        obp.setBorder(Config.focusBorder);
         repaint();
     }
 
+    
     /**
      * Note that the object bench lost keyboard focus.
-     * @see java.awt.event.FocusListener#focusLost(java.awt.event.FocusEvent)
      */
-    public void focusLost(FocusEvent e) {
-        hasFocus = false;
+    public void focusLost(FocusEvent e) 
+    {
+        obp.setBorder(Config.normalBorder);
         repaint();
     }
 
@@ -291,19 +294,19 @@ public class ObjectBench extends JPanel
         }
     }
 
+    
     /**
      * A key was released in the object bench.
      * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
      */
-    public void keyReleased(KeyEvent e) {
-    }
+    public void keyReleased(KeyEvent e) {}
 
+    
     /**
      * A key was typed in the object bench.
      * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
      */
-    public void keyTyped(KeyEvent e) {
-    }
+    public void keyTyped(KeyEvent e) {}
     
     // --- end of KeyListener interface ---
 
@@ -313,22 +316,22 @@ public class ObjectBench extends JPanel
      * The mouse was clicked in the object bench.
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
      */
-    public void mouseClicked(MouseEvent e) {
-    }
+    public void mouseClicked(MouseEvent e) {}
 
+    
     /**
      * The mouse entered the object bench.
      * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
      */
-    public void mouseEntered(MouseEvent e) {
-    }
+    public void mouseEntered(MouseEvent e) {}
 
+    
     /**
      * The mouse left the object bench.
      * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
      */
-    public void mouseExited(MouseEvent e) {
-    }
+    public void mouseExited(MouseEvent e) {}
+    
 
     /**
      * The mouse was pressed in the object bench.
@@ -338,12 +341,13 @@ public class ObjectBench extends JPanel
         requestFocusInWindow();
     }
 
+    
     /**
      * The mouse was released in the object bench.
      * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
      */
-    public void mouseReleased(MouseEvent e) {
-    }
+    public void mouseReleased(MouseEvent e) {}
+    
 
     // --- end of MouseListener interface ---
 
@@ -368,6 +372,7 @@ public class ObjectBench extends JPanel
         invokerRecords = new LinkedList();
     }
 
+    
     public void addInteraction(InvokerRecord ir)
     {
         if (invokerRecords == null)
@@ -375,6 +380,7 @@ public class ObjectBench extends JPanel
             
         invokerRecords.add(ir);    
     }
+    
     
     public String getFixtureDeclaration()
     {
@@ -391,6 +397,7 @@ public class ObjectBench extends JPanel
         return sb.toString();
     }
     
+    
     public String getFixtureSetup()
     {
         StringBuffer sb = new StringBuffer();
@@ -405,6 +412,7 @@ public class ObjectBench extends JPanel
 
         return sb.toString();
     }
+    
     
     public String getTestMethod()
     {
@@ -421,24 +429,24 @@ public class ObjectBench extends JPanel
         return sb.toString();
     }
 
+    
     /**
      * Create the object bench as a good looking Swing component.
      */
     private void createComponent()
     {
         setLayout(new BorderLayout());
-//        setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-                
-//                BorderFactory.createCompoundBorder(
-//                BorderFactory.createBevelBorder(BevelBorder.LOWERED),
-//                BorderFactory.createEmptyBorder(5,0,5,0)));
 
         // a panel holding the actual object components
         obp = new ObjectBenchPanel();
+        obp.setBackground(BACKGROUND_COLOR);
+        obp.setBorder(Config.normalBorder);
+        
         JScrollPane scroll = new JScrollPane(obp);
+        scroll.setBorder(null);
         Dimension sz = obp.getMinimumSize();
         Insets in = scroll.getInsets();
-        sz.setSize(sz.getWidth()+in.left+in.right, sz.getHeight()+in.top+in.bottom);
+        sz.setSize(sz.getWidth()+in.left+in.right, sz.getHeight()+in.top+in.bottom+4);
         scroll.setMinimumSize(sz);
         scroll.setPreferredSize(sz);
         scroll.getVerticalScrollBar().setUnitIncrement(20);
@@ -449,9 +457,6 @@ public class ObjectBench extends JPanel
         resetRecordingInteractions();
         //when empty, the objectbench is focusable
         setFocusable(true);        
-
-        obp.setBackground(BACKGROUND_COLOR);
-        setBackground(BACKGROUND_COLOR);        
 
         addFocusListener(this);
         addKeyListener(this);
