@@ -40,7 +40,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2716 2004-07-01 21:53:37Z mik $
+ * @version $Id: ObjectWrapper.java 2725 2004-07-02 20:33:26Z mik $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -53,7 +53,6 @@ public class ObjectWrapper extends JComponent
     static String inheritedFrom = Config.getString("debugger.objectwrapper.inherited");
 
     // Colors
-    static final Color shadow = Config.getItemColour("colour.wrapper.shadow");
     static final Color bg = Config.getItemColour("colour.wrapper.bg");
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
     static final Color textColour = Color.white;
@@ -387,16 +386,15 @@ public class ObjectWrapper extends JComponent
     
     protected void drawUMLObjectShape(Graphics2D g, int x, int y, int w, int h, int shad, int corner)
     {
-    	boolean isSelected = isSelected() && ob.hasFocus();
-    	//draw shadow
+        boolean isSelected = isSelected() && ob.hasFocus();
         drawShadow(g, x, y, w, h, shad, corner);
         // draw red round rectangle
         g.setColor(bg);
-        g.fillRoundRect(x,y,w-shad,h-shad,corner,corner);
+        g.fillRoundRect(x, y, w-shad, h-shad, corner, corner);
         //draw outline
         g.setColor( Color.BLACK );
         g.setStroke(isSelected ? selectedStroke : unselectedStroke);
-        g.drawRoundRect(x,y,w-shad, h-shad,corner,corner);
+        g.drawRoundRect(x, y, w-shad, h-shad, corner, corner);
     }
 
     /**
@@ -409,8 +407,6 @@ public class ObjectWrapper extends JComponent
 	 * @param corner
 	 */
 	private void drawShadow(Graphics2D g, int x, int y, int w, int h, int shad, int corner) {
-		//g.setColor(shadow);
-		//g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
 		g.setColor(colours[0]);
 		g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
 		g.setColor(colours[1]);
@@ -606,16 +602,21 @@ public class ObjectWrapper extends JComponent
 	/**
 	 * @return Returns the isSelected.
 	 */
-	public boolean isSelected() {
+	public boolean isSelected() 
+    {
 		return isSelected;
 	}
+    
 	/**
 	 * @param isSelected The isSelected to set.
 	 */
-	public void setSelected(boolean isSelected) {
+	public void setSelected(boolean isSelected) 
+    {
 		this.isSelected = isSelected;
 		if(isSelected) {
 		    pmf.setStatus(getName() + " : " + displayClassName);
 		}
+        repaint();
+        scrollRectToVisible(new Rectangle(0, 0, WIDTH, HEIGHT));
 	}
 }

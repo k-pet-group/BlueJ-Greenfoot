@@ -15,7 +15,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2724 2004-07-02 18:51:36Z mik $
+ * @version $Id: ObjectBench.java 2725 2004-07-02 20:33:26Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -169,10 +169,10 @@ public class ObjectBench extends JPanel
         
         if (selectedObjectWrapper != null) {
             selectedObjectWrapper.setSelected(true);
+//            obp.scrollRectToVisible(new Rectangle(0, 0, 10, 10));
             currentObjectWrapperIndex = objectWrappers.indexOf(aWrapper);
             selectedObjectWrapper.requestFocusInWindow();
         }
-        obp.repaint();
         // TODO: make sure this object is in view; if necessary repaint bench
     }
 

@@ -9,24 +9,30 @@ import bluej.pkgmgr.target.ReadmeTarget;
 /**
  * Paints a ReadmeTarget
  * @author fisker
- * @version $Id: ReadmeTargetPainter.java 2610 2004-06-14 12:46:06Z fisker $
+ * @version $Id: ReadmeTargetPainter.java 2725 2004-07-02 20:33:26Z mik $
  */
 public class ReadmeTargetPainter
 {
-    static final int CORNER_SIZE = 10;
-    ReadmeTarget readmeTarget;
-    Graphics2D g;
+    private static final int CORNER_SIZE = 11;
+    private ReadmeTarget readmeTarget;
+    private Graphics2D g;
     private GraphPainterStdImpl graphPainterStdImpl;
+
     /**
-     * 
+     * Create the painter.
      */
-    public ReadmeTargetPainter(GraphPainterStdImpl graphPainterStdImpl){
-    	this.graphPainterStdImpl = graphPainterStdImpl;
+    public ReadmeTargetPainter(GraphPainterStdImpl graphPainterStdImpl)
+    {
+        this.graphPainterStdImpl = graphPainterStdImpl;
     }
     
+    /**
+     * Paint the given target on the specified graphics context.
+     * @param g  The graphics context to paint on.
+     * @param target  The target to paint.
+     */
     public void paint(Graphics2D g, Target target)
     {
-
         this.readmeTarget = (ReadmeTarget) target;
         this.g = g;
         g.translate(readmeTarget.getX(), readmeTarget.getY());
@@ -42,8 +48,8 @@ public class ReadmeTargetPainter
         drawShadow();
 
         // draw folded paper edge
-        int xpoints[] = { 1, width - CORNER_SIZE, width, width, 1 };
-        int ypoints[] = { 1, 1, CORNER_SIZE + 1, height, height };
+        int[] xpoints = { 1, width - CORNER_SIZE, width, width, 1 };
+        int[] ypoints = { 1, 1, CORNER_SIZE + 1, height, height };
 
         Polygon p = new Polygon(xpoints, ypoints, 5);
 
@@ -70,23 +76,27 @@ public class ReadmeTargetPainter
             g.drawLine(10, yPos, width - 10, yPos);
     }
     
-    private void drawShadow(){
+    /**
+     * Draw the drop shadow to the right and below the icon.
+     */
+    private void drawShadow()
+    {
 	    int height = readmeTarget.getHeight();
 	    int width = readmeTarget.getWidth();
 	
 	    g.setColor(TargetPainterConstants.colours[3]);
-	    g.drawLine(3, height + 1, width , height + 1);//bottom
+	    g.drawLine(3, height, width , height); //bottom
 	    
 	    g.setColor(TargetPainterConstants.colours[2]);
-	    g.drawLine(4, height + 2, width , height + 2);//bottom
-	    g.drawLine(width + 1, height + 2, width + 1, 3 + CORNER_SIZE);//left
+	    g.drawLine(4, height + 1, width , height + 1); //bottom
+	    g.drawLine(width + 1, height + 2, width + 1, 3 + CORNER_SIZE); //left
 	    
 	    g.setColor(TargetPainterConstants.colours[1]);
-	    g.drawLine(5, height + 3, width + 1, height + 3);//bottom
-	    g.drawLine(width + 2, height + 3, width + 2, 4 + CORNER_SIZE);//left
+	    g.drawLine(5, height + 2, width + 1, height + 2); //bottom
+	    g.drawLine(width + 2, height + 3, width + 2, 4 + CORNER_SIZE); //left
 	    
 	    g.setColor(TargetPainterConstants.colours[0]);
-	    g.drawLine(6, height + 4, width + 2, height + 4 ); //bottom
-	    g.drawLine(width + 3, height + 3, width + 3, 5 + CORNER_SIZE);//left    
+	    g.drawLine(6, height + 3, width + 2, height + 3 ); //bottom
+	    g.drawLine(width + 3, height + 3, width + 3, 5 + CORNER_SIZE); //left    
     }
 }

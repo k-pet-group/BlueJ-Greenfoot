@@ -18,7 +18,7 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 2642 2004-06-21 14:53:23Z polle $
+ * @version $Id: ReadmeTarget.java 2725 2004-07-02 20:33:26Z mik $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -95,8 +95,9 @@ public class ReadmeTarget extends Target
         return false;
     }
     
-    public boolean isHandle(){
-    	return false;
+    public boolean isHandle() 
+    {
+        return false;
     }
 
     public boolean isMoveable()
@@ -222,6 +223,9 @@ public class ReadmeTarget extends Target
        openEditor();
     }
 
+    /**
+     * Post the context menu for this target.
+     */
     public void popupMenu(int x, int y, GraphEditor editor)
     {
         JPopupMenu menu = createMenu(null);
