@@ -1,25 +1,12 @@
 package bluej.debugmgr.inspector;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.TreeSet;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import bluej.BlueJTheme;
@@ -28,14 +15,13 @@ import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
-import bluej.utility.JavaNames;
 
 /**
  * A window that displays the fields in an object or a method return value.
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ObjectInspector.java 2663 2004-06-25 10:37:01Z polle $
+ * @version $Id: ObjectInspector.java 2690 2004-06-30 01:30:58Z davmac $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -168,7 +154,7 @@ public class ObjectInspector extends Inspector
         
         //Create a header
         JComponent header = createHeader();
-        String className = JavaNames.stripPrefix(obj.getGenClassName());        
+        String className = obj.getStrippedGenClassName();        
         final String fullTitle = objName + " : " + className;    
         JLabel headerLabel = new JLabel(fullTitle, JLabel.CENTER) {
             public void paintComponent(Graphics g)
