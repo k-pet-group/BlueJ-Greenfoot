@@ -1,0 +1,22 @@
+-------------------------------
+Building a distribution package
+-------------------------------
+
+To build a distribution, do the following:
+
+  - update the version number in the top level Makefile
+  - execute "make dist"
+  - the package will be created as package/bluej-XXX.jar
+
+How it works:
+
+ - do a full make, if necessary
+ - create directory .../install/lib
+ - create .../install/lib/bluej.jar with all class files from .../classes/
+ - copy files listed in INSTALL_FILES from .../lib/ to .../install/lib/
+ - update english.defs with version number and copy to .../install/lib/
+ - remove .../package/bluej.jar
+ - create .../package/bluej.jar and add all files in .../install/ directory
+
+Note: install/examples and install/images are not always updated if they 
+      exist. To force an update, remove them before building.

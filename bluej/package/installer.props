@@ -1,0 +1,60 @@
+#
+# Installer properties
+# This properties-style file completely defines what the installer should do.
+#
+# Two special characters can be used in commands and paths:
+#  ~ (tilde) will be replaced by the installation directory
+#  ! (exclamation) will be replaced the Java home directory
+#
+
+# Logo to put at top
+install.gif.logo=installer-logo.gif
+
+# Title to center under that
+install.title=Installation
+
+# Name the JAR containing the package
+install.pkgJar=bluej-dist.jar
+
+# Name of shell/batch script to create
+install.exeName=bluej
+
+# additional commands to be added to Unix script before execution
+install.unixCommands=LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/lib/sparc; export LD_LIBRARY_PATH; THREADS_FLAG=native; export THREADS_FLAG
+
+# additional commands to be added to Windows batch file before execution
+install.winCommands=set PATH=~\\lib\\win32;%PATH%
+
+# Name of the classpath to be added to existing classpath
+install.classpath=~/lib/bluej.jar;~/lib/jpda.jar;~/lib/antlr.jar;!/../lib/tools.jar
+
+# Class that contains the main to execute
+install.mainClass=bluej.Main
+
+# Property to set equal to the install dir on startup
+install.installDirProp=bluej.home
+
+# java command-line options
+install.javaOpts=-noverify
+
+# The big text colors
+install.color.text=0 0 0
+
+# Top color, normal background 
+install.color.background=255,255,255
+
+# Initial size
+install.width=500
+install.height=340
+
+# Tag line to put at bottom (your web site, copyright, etc.)
+install.tagline=BlueJ Installer version 1.2 - Monash University
+
+# Required classes to check for
+install.requires=java.lang.Integer
+install.requires.help.java.lang.Integer=BlueJ requires that JDK 1.2.x is installed.\nIt can be downloaded from http://java.sun.com
+
+# Required files to check for
+install.requiresFile=!/../lib/tools.jar
+install.requiresFile.help=Cannot find the file "tools.jar", which usually\nis in <JDK_HOME>/lib/tools.jar.\nThe reason may be that you are running\nthis installer from a "JRE" installation\n(without the JDK tools). You need to\nrun this installer from a full JDK installation.
+
