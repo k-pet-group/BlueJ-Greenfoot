@@ -3,7 +3,7 @@ import javax.swing.*;
 import java.awt.image.*;
 import com.sun.jdi.*;
 
-public class MonashImageInspector extends bluej.debugger.Inspector
+public class MonashImageInspector extends bluej.debugger.InspectorPanel
 {
 
     private BufferedImage bufferedImage;

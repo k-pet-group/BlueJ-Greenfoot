@@ -17,7 +17,7 @@ import bluej.Config;
  *@author     Duane Buck
  */
 
-public class ObjectReferenceInspector extends Inspector
+public class ObjectReferenceInspector extends InspectorPanel
          implements Runnable, MouseListener, MouseMotionListener
 {
     boolean initialized = false;

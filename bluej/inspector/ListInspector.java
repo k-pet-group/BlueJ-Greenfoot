@@ -16,7 +16,7 @@ import bluej.debugger.*;
 import bluej.debugger.jdi.*;
 import bluej.Config;
 
-public class ListInspector extends bluej.debugger.Inspector
+public class ListInspector extends bluej.debugger.InspectorPanel
 {
     JList list;
     JButton inspectBtn, getBtn;
