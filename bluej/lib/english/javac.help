@@ -558,7 +558,6 @@ named the same as the public class name with a
 ".java" extension.  For example public class Foo
 needs to be located in a file named "Foo.java".
 
-
 error:*
 No help available
 
@@ -598,7 +597,6 @@ No help available
 Recompile with -warnunchecked for details.
 No help available
 
-
 {0} error
 No help available
 
@@ -609,24 +607,6 @@ No help available
 No help available
 
 {0} warnings
-No help available
-
-[checking {0}]
-No help available
-
-[parsing completed {0}ms]
-No help available
-
-[parsing started {0}]
-No help available
-
-[total {0}ms]
-No help available
-
-[wrote {0}]
-No help available
-
-warning:\u0020
 No help available
 
 {0} in {1} has been deprecated
@@ -649,27 +629,6 @@ No help available
 
 unchecked method invocation: {0} in {1} is applied to ({2})
 No help available
-
-## The following are tokens which are non-terminals in the language. They should
-## be named as JLS3 calls them when translated to the appropriate language.
-compiler.misc.token.identifier=\
-    <identifier>
-compiler.misc.token.character=\
-    <character>
-compiler.misc.token.string=\
-    <string>
-compiler.misc.token.integer=\
-    <integer>
-compiler.misc.token.long-integer=\
-    <long integer>
-compiler.misc.token.float=\
-    <float>
-compiler.misc.token.double=\
-    <double>
-compiler.misc.token.bad-symbol=\
-    <bad symbol>
-compiler.misc.token.end-of-input=\
-    <end of input>
 
 ';' expected
 There is a semicolon missing at the end of 
@@ -701,40 +660,11 @@ No help available
 <anonymous {0}>
 No help available
 
-cannot access {0}\n\
-{1}
+cannot access {0}\n{1}
+No help available
 
-bad class file: {0}\n\
-{1}\n\
-Please remove or make sure it appears in the correct subdirectory of the classpath.
-
-
-## The following are all possible strings for the second argument ({1}) of the
-## above strings.
-compiler.misc.bad.class.signature=\
-    bad class signature: {0}
-compiler.misc.bad.const.pool.tag=\
-    bad constant pool tag: {0}
-compiler.misc.bad.const.pool.tag.at=\
-    bad constant pool tag: {0} at {1}
-compiler.misc.bad.signature=\
-    bad signature: {0}
-compiler.misc.class.file.wrong.class=\
-    class file contains wrong class: {0}
-compiler.misc.dot.class.not.found=\
-    file {0}.class not found
-compiler.misc.file.doesnt.contain.class=\
-    file does not contain class {0}
-compiler.misc.illegal.start.of.class.file=\
-    illegal start of class file
-compiler.misc.unicode.str.not.supported=\
-    unicode string in class file not supported
-compiler.misc.undecl.type.var=\
-    undeclared type variable: {0}
-compiler.misc.wrong.version=\
-    class file has wrong version {0}.{1}, should be {2}.{3}
-
-#####
+bad class file: {0}\n{1}\nPlease remove or make sure it appears in the correct subdirectory of the classpath.
+No help available
 
 type parameter {0} is not within its bound
 No help available
@@ -742,98 +672,64 @@ No help available
 type parameter {0} is not within its bound; {1}
 No help available
 
-
-
-compiler.err.prob.found.req=\
-{0}\n\
+incompatible types\n\
 found   : {1}\n\
 required: {2}
+No help available
 
-## The following are all possible strings for the first argument ({0}) of the
-## above string.
-compiler.misc.incompatible.types=\
-    incompatible types
-compiler.misc.inconvertible.types=\
-    inconvertible types
-compiler.misc.possible.loss.of.precision=\
-    possible loss of precision
+inconvertible types\n\
+found   : {1}\n\
+required: {2}
+No help available
 
-#####
+possible loss of precision\n\
+found   : {1}\n\
+required: {2}
+No help available
 
-compiler.err.type.found.req=\
 unexpected type\n\
-found   : {0}\n\
+found   : class\n\
 required: {1}
+No help available
 
-## The following are all possible strings for the first argument ({0}) of the
-## above string.
-compiler.misc.type.req.class=\
-    class
-compiler.misc.type.req.class.array=\
-    class or array
-compiler.misc.type.req.ref=\
-    reference
+unexpected type\n\
+found   : class or array\n\
+required: {1}
+No help available
 
-#####
+unexpected type\n\
+found   : reference\n\
+required: {1}
+No help available
 
-## The first argument ({0}) is a "kindname".
-compiler.err.abstract.cant.be.accessed.directly=\
-    abstract {0} {1} cannot be accessed directly
+abstract {0} {1} cannot be accessed directly
+No help available
 
-## The third argument ({2}) is a "kindname".
-compiler.err.inherit.hides=\
-    {0} is inherited from {1} and hides {2} in outer class {3}.  An explicit ''this'' qualifier must be used to select the desired instance.
+{0} is inherited from {1} and hides {2} in outer class {3}.  An explicit ''this'' qualifier must be used to select the desired instance.
+No help available
 
-## The first argument ({0}) is a "kindname".
-compiler.err.non-static.cant.be.ref=\
-    non-static {0} {1} cannot be referenced from a static context
+non-static {0} {1} cannot be referenced from a static context
+No help available
 
-## Both arguments ({0}, {1}) are "kindname"s.  {0} is a comma-separated list
-## of kindnames (the list should be identical to that provided in source.
-compiler.err.unexpected.type=\
 unexpected type\n\
 required: {0}\n\
 found   : {1}
+No help available
 
-## The first argument ({0}) is a "kindname".
-compiler.err.cant.resolve=\
 cannot resolve symbol\n\
 symbol: {0} {1} {2} {3}
+No help available
 
-## The first argument ({0}) and fifth argument ({4}) are "kindname"s.
-compiler.err.cant.resolve.location=\
 cannot resolve symbol\n\
 symbol  : {0} {1} {2} {3}\n\
 location: {4} {5}
+No help available
 
-## The following are all possible string for "kindname".
-## They should be called whatever the JLS calls them after it been translated
-## to the appropriate language.
-compiler.misc.kindname.class=\
-    class
-compiler.misc.kindname.constructor=\
-    constructor
-compiler.misc.kindname.default=\
-    identifier({0})
-compiler.misc.kindname.interface=\
-    interface
-compiler.misc.kindname.method=\
-    method
-compiler.misc.kindname.package=\
-    package
-compiler.misc.kindname.type.variable=\
-    bound of type variable
-compiler.misc.kindname.value=\
-    value
-compiler.misc.kindname.variable=\
-    variable
+{0}; {1} and {2} are static
+No help available
 
-#####
-
-compiler.err.override.static=\
-    {0}; {1} and {2} are static
-compiler.err.override.meth=\
-    {0}; overridden method is {1}
+{0}; overridden method is {1}
+No help available
 
 # In the following string {1} is a space separated list of Java Keywords, as
 # they would have been declared in the source code
@@ -842,14 +738,11 @@ compiler.err.override.weaker.access=\
 compiler.err.override.meth.doesnt.throw=\
     {0}; overridden method does not throw {1}
 
-compiler.misc.override.incompatible.ret=\
-    {0}; attempting to use incompatible return type
+{0} in {1} cannot override {2} in {3}; attempting to use incompatible return type
+No help...
 
-## The following are all possible strings for the first argument ({0}) of the
-## above strings.
-compiler.misc.cant.override=\
-    {0} in {1} cannot override {2} in {3}
-compiler.misc.cant.implement=\
-    {0} in {1} cannot implement {2} in {3}
-compiler.misc.clashes.with=\
-    {0} in {1} clashes with {2} in {3}
+{0} in {1} cannot implement {2} in {3}; attempting to use incompatible return type
+No help...
+
+{0} in {1} clashes with {2} in {3}; attempting to use incompatible return type
+No help...
