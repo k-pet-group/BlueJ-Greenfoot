@@ -115,8 +115,8 @@ prefmgr.misc.autoindent=Auto-indent (Enter and Tab keys)
 prefmgr.misc.displaylinenumbers=Display line numbers
 prefmgr.misc.makeBackup=Make backup of source files
 prefmgr.misc.matchBrackets=Match brackets
-prefmgr.misc.compiler.title=Compiler settings
-prefmgr.misc.usejdk14=Enable JDK 1.4 features (assertions)
+prefmgr.misc.testing.title=Unit test settings
+prefmgr.misc.showTesting=Show unit testing tools
 prefmgr.misc.documentation.title=Documentation settings
 prefmgr.misc.jdkurlpath=JDK documentation URL
 prefmgr.misc.linkToLib=Use this URL when generating project documentation
@@ -468,7 +468,7 @@ terminal.save.title = Save terminal text
 terminal.save.buttonText = Save
 
 #TestDisplay Window
-testdisplay.title = BlueJ:  Test Display
+testdisplay.title = BlueJ:  Test Results
 testdisplay.counter.runs=Runs:
 testdisplay.counter.errors=Errors:
 testdisplay.counter.failures=Failures:
