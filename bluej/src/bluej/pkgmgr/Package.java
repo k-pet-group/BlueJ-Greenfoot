@@ -2,7 +2,6 @@ package bluej.pkgmgr;
 
 import bluej.Config;
 import bluej.compiler.CompileObserver;
-import bluej.compiler.JobQueue;
 import bluej.debugger.ObjectBench;
 import bluej.debugger.ObjectWrapper;
 import bluej.debugger.Debugger;
@@ -28,7 +27,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 176 1999-07-09 04:13:10Z mik $
+ ** @version $Id: Package.java 186 1999-07-17 02:30:31Z ajp $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -932,7 +931,7 @@ public class Package extends Graph
 	}
 	removeBreakpoints();
 
-	JobQueue.getJobQueue().addJob(files, this, getClassPath(), getClassDir());
+	bluej.compiler.JobQueue.getJobQueue().addJob(files, this, getClassPath(), getClassDir());
     }
 
 
@@ -1305,7 +1304,7 @@ public class Package extends Graph
 	    editor.displayMessage(message, lineNo, 0, beep, false, help);
 	return true;
     }
-	
+	                                     
     // ---- bluej.compiler.CompileObserver interface ----
 
     /**
@@ -1385,39 +1384,6 @@ public class Package extends Graph
 			    "\"exit\" instruction. No result was\n" +
 			    "returned. The exit code is " + exitCode + ".");
     }
-
-
-    /**  OBSOLETE!! **/
-    // was previously used to genrate comments - reimplement!
-
-// import sun.tools.javadoc.BlueJDocumentationGenerator;
-//      public void notifyParsed(ClassDeclaration decl, SourceClass src, 
-//  			     BatchEnvironment env)
-//      {
-//  	String srcName = src.getName().toString();
-//  	Target srcTarget = getTarget(srcName);
-		
-//  	if(srcTarget == null) {
-//  	    // Debug.message("notifyParsed: Failed to get target for " + srcName);
-//  	    return;	// nothing we can do without the source target
-//  	}
-
-//  	/* fix for JDK 1.2 */
-		
-//  	/* BlueJDocumentationGenerator dgen = new BlueJDocumentationGenerator(env);
-//  	if(packageName != noPackage)
-//  	    dgen.addPrefix(packageName + ".");
-//  	CommentList comments = dgen.genComments(src);
-		
-//  	String ctxtFilename = getClassFileName(srcTarget.getBaseName()) + ".ctxt";
-//  	try {
-//  	    comments.save(ctxtFilename);
-//  	} catch (IOException ex) {
-//  	    Debug.reportError(docSaveError + ctxtFilename);
-//  	} 
-//  	*/
-//      }
-	
 
     /**
      * getLocalClassLoader - get the ClassLoader for this package.
