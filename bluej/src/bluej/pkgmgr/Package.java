@@ -32,7 +32,7 @@ import java.io.*;
 import java.util.*;
 
 /**
-** @version $Id: Package.java 274 1999-11-12 05:30:45Z mik $
+** @version $Id: Package.java 275 1999-11-16 00:49:06Z ajp $
 ** @author Michael Cahill
 **
 ** A Java package (collection of Java classes).
@@ -740,16 +740,13 @@ implements CompileObserver, MouseListener, MouseMotionListener
      * @return an error code indicating the status of the insert (eg. NO_ERROR)
      */
     public int insertLibClass(String qualifiedName) {
-        Debug.message("Inserting class: " + qualifiedName + " in " + this.getFrame().getTitle());
+        // create class icon (ClassTarget) for new class
 
-        if (getFrame() instanceof PkgMgrFrame) {
-            // create class icon (ClassTarget) for new class
+        ImportedClassTarget target = new ImportedClassTarget(this, 
+                                                             qualifiedName);
+        target.setState(Target.S_NORMAL);
+        addTarget(target);
 
-            ImportedClassTarget target = new ImportedClassTarget(this, 
-                                                                 qualifiedName);
-            target.setState(Target.S_NORMAL);
-            addTarget(target);
-        }
         return NO_ERROR;
     }
 

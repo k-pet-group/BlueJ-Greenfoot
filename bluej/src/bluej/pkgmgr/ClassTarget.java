@@ -42,7 +42,7 @@ import java.util.Vector;
  ** @author Michael Kolling
  ** @author Bruce Quig
  **
- ** @version $Id: ClassTarget.java 271 1999-11-11 03:51:44Z mik $
+ ** @version $Id: ClassTarget.java 275 1999-11-16 00:49:06Z ajp $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -561,48 +561,21 @@ public class ClassTarget extends EditableTarget
 	
         JPopupMenu menu = new JPopupMenu(getName() + " operations");
 	
-        // the only popup menu option under the Library Browser should be
-        // "open"
-/*        if (editorFrame != null && 
-            (editorFrame instanceof LibraryBrowserPkgMgrFrame)) {
-
-            Package[] openpackages = Main.getAllOpenPackages();
-            
-            if(openpackages != null) {
-                for(int i=0; i<openpackages.length; i++) {
-
-                    addMenuItem(menu, "Use in package " + openpackages[i].getId(), true);
-                    
-                }
-            }                
-
-
-//	    addMenuItem(menu, openStr, true);
-	    // only add "use" option if the class is compiled and we're not 
-	    // running standalone
-//	    if (!((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone 
-//		)
-//		addMenuItem(menu, useStr, true);
-	    
-	    return menu;
-	}
-*/	
-	// call on role object to add any options needed
- 	role.createMenu(menu, this, state);
-
-	if ((cl != null) && (!isAbstract()))
-	    createClassMenu(menu, cl);
-	
-	addMenuItem(menu, editStr, true);
-	addMenuItem(menu, publicStr, (state == S_NORMAL));
-	addMenuItem(menu, pkgStr, (state == S_NORMAL));
-	addMenuItem(menu, inheritedStr, (state == S_NORMAL));
-	menu.addSeparator();
-	addMenuItem(menu, compileStr, true);
-	addMenuItem(menu, removeStr, true);
-	
-	return menu;
-
+    	// call on role object to add any options needed
+     	role.createMenu(menu, this, state);
+    
+    	if ((cl != null) && (!isAbstract()))
+    	    createClassMenu(menu, cl);
+    	
+    	addMenuItem(menu, editStr, true);
+    	addMenuItem(menu, publicStr, (state == S_NORMAL));
+    	addMenuItem(menu, pkgStr, (state == S_NORMAL));
+    	addMenuItem(menu, inheritedStr, (state == S_NORMAL));
+    	menu.addSeparator();
+    	addMenuItem(menu, compileStr, true);
+    	addMenuItem(menu, removeStr, true);
+    	
+    	return menu;
     }
 
     /**
@@ -615,15 +588,15 @@ public class ClassTarget extends EditableTarget
      */
     protected void addMenuItem(JPopupMenu menu, String itemString, boolean enabled)
     {
-    //	 role.addMenuItem(menu, itemString, enabled);
-	JMenuItem item;
-
-	menu.add(item = new JMenuItem(itemString));
-	item.addActionListener(this);
-	item.setFont(menuFont);
-	item.setForeground(envOpColour);
-	if(!enabled)
-	    item.setEnabled(false);
+        //	 role.addMenuItem(menu, itemString, enabled);
+    	JMenuItem item;
+    
+    	menu.add(item = new JMenuItem(itemString));
+    	item.addActionListener(this);
+    	item.setFont(menuFont);
+    	item.setForeground(envOpColour);
+    	if(!enabled)
+    	    item.setEnabled(false);
     }
 
     /**
@@ -749,14 +722,6 @@ public class ClassTarget extends EditableTarget
 	    displayedView = Editor.IMPLEMENTATION;
 	    open();
 	}
-	else if (useStr.equals(cmd)) {
-//	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
-//		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).usePackage(this);
-	}
-	else if (openStr.equals(cmd)) {
-//	    if (pkg.getEditor().getFrame() instanceof LibraryBrowserPkgMgrFrame)
-//		((LibraryBrowserPkgMgrFrame)pkg.getEditor().getFrame()).openClass(this);
-	}
 	else if(publicStr.equals(cmd)) {
 	    showView(Editor.PUBLIC);
 	}
@@ -795,22 +760,13 @@ public class ClassTarget extends EditableTarget
     
     public void singleClick(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-//	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame)
-//	    ((LibraryBrowserPkgMgrFrame)editor.getFrame()).openClassInAttributeChooser(this);
     }
 	
     public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor)
     {
-//	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame)
-//	    browse((LibraryBrowserPkgMgrFrame)editor.getFrame());
-//	else
 	    open();
     }
 
-//    private void browse(LibraryBrowserPkgMgrFrame browserFrame) {
-//	browserFrame.openClass(this);
-//    }
-		
     public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
     {	
 	if ((pkg.getState() == Package.S_CHOOSE_USES_TO) ||

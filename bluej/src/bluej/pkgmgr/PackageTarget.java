@@ -11,7 +11,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /** 
- ** @version $Id: PackageTarget.java 269 1999-11-10 05:36:05Z mik $
+ ** @version $Id: PackageTarget.java 275 1999-11-16 00:49:06Z ajp $
  ** @author Michael Cahill
  **
  ** A link to a package embedded in another package.
@@ -152,16 +152,10 @@ public class PackageTarget extends Target implements ActionListener
      * the GraphEditor is within a LibraryBrowser.
      */
     public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor) { 
-//	if (editor.getFrame() instanceof LibraryBrowserPkgMgrFrame) {
-	//    LibraryBrowserPkgMgrFrame browserFrame = (LibraryBrowserPkgMgrFrame)editor.getFrame();
-	    // use the current Frame for the new package
-//	    browserFrame.openPackage(this);
-//	} else {
 	    Package newpkg = Main.openPackage(pkg.getBaseDir(), packageName);
 	    // open a new Frame for the new package
 	    PkgFrame frame = newpkg.getFrame();
 	    frame.setVisible(true);
-//	}
     }
     public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
     {
@@ -173,16 +167,6 @@ public class PackageTarget extends Target implements ActionListener
     private JPopupMenu createMenu(Class cl, JFrame editorFrame) {
 	JPopupMenu menu = new JPopupMenu(getName() + " operations");
 
-	// the only popup menu option under the Library Browser should be "use"
-//	if (editorFrame != null && editorFrame instanceof LibraryBrowserPkgMgrFrame) {
-//	    addMenuItem(menu, openStr, true);
-				// only add the use option if the browser has been spawned by BlueJ
-//	    if (((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone == false)
-//		addMenuItem(menu, useStr, true);
-				
-//	    return menu;
-//	}
-			
 	return null;
     }
 	
