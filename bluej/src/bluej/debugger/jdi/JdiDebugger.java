@@ -10,10 +10,8 @@ import bluej.Config;
 import bluej.debugger.*;
 import bluej.debugger.gentype.GenType;
 import bluej.debugmgr.Invoker;
-import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
-import bluej.utility.JavaUtils;
 
 import com.sun.jdi.*;
 
@@ -35,7 +33,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 2963 2004-08-30 16:05:05Z polle $
+ * @version $Id: JdiDebugger.java 3029 2004-09-30 23:57:43Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -301,12 +299,7 @@ public class JdiDebugger extends Debugger
      */
     public boolean addObject(String newInstanceName, DebuggerObject dob)
     {
-        Object args[] = {newInstanceName, ((JdiObject) dob).getObjectReference()};
-
-        try {
-            getVM().invokeExecServerWorker(ExecServer.ADD_OBJECT, Arrays.asList(args));
-        }
-        catch (InvocationException ie) {}
+        getVM().addObject(newInstanceName, ((JdiObject) dob).getObjectReference());
 
         usedNames.add(newInstanceName);
 
@@ -323,16 +316,13 @@ public class JdiDebugger extends Debugger
 
         Object args[] = {instanceName};
 
-        try {
-            getVM().invokeExecServerWorker(ExecServer.REMOVE_OBJECT, Arrays.asList(args));
-        }
-        catch (VMDisconnectedException e) {}
-        catch (InvocationException ie) {}
+        getVM().removeObject(instanceName);
     }
 
     /**
      * Set the class path of the remote VM
      */
+    /*
     public void setLibraries(String classpath)
     {
         Object args[] = {classpath};
@@ -342,6 +332,7 @@ public class JdiDebugger extends Debugger
         }
         catch (InvocationException e) {}
     }
+    */
 
     // BeanShell
     //    /**
@@ -554,6 +545,7 @@ public class JdiDebugger extends Debugger
     /**
      * Supress error output on the remote machine.
      */
+    /*
     public void supressErrorOutput()
     {
         if (!vmRunning)
@@ -564,10 +556,12 @@ public class JdiDebugger extends Debugger
         }
         catch (InvocationException ie) {}
     }
+    */
 
     /**
      * Restore error output on the remote machine.
      */
+    /*
     public void restoreErrorOutput()
     {
         if (!vmRunning)
@@ -578,15 +572,13 @@ public class JdiDebugger extends Debugger
         }
         catch (InvocationException ie) {}
     }
+    */
 
     /**
      * "Start" a class (i.e. invoke its main method)
      * 
      * @param classname
      *            the class to start
-     * @param eventParam
-     *            when a BlueJEvent is generated for a breakpoint, this
-     *            parameter is passed as the event parameter
      */
     public void runClassMain(String className)
         throws ClassNotFoundException
@@ -711,20 +703,6 @@ public class JdiDebugger extends Debugger
             return Config.getString("debugger.jdiDebugger.internalErrorMsg");
         }
     }
-
-    /**
-     * Called by VMReference when a HALT is encountered in the debugger VM.
-     */
-    /*
-     * void halt(ThreadReference tr) { JdiThreadNode jtn =
-     * treeModel.findThreadNode(tr);
-     * 
-     * if (jtn != null) { treeModel.nodeChanged(jtn);
-     * 
-     * fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.THREAD_HALT, new
-     * JdiThread(treeModel, tr))); } else { Debug.message("Received HALT for
-     * unknown thread " + tr); } }
-     */
 
     /**
      * Called by VMReference when a BREAKPOINT is encountered in the debugger

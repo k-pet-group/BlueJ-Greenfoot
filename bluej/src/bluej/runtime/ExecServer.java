@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3008 2004-09-20 00:42:31Z davmac $
+ * @version $Id: ExecServer.java 3029 2004-09-30 23:57:43Z davmac $
  */
 public class ExecServer
 {
@@ -28,17 +28,17 @@ public class ExecServer
     // corresponding methods in this ExecServer source). Methods to call are
     // obtained using reflection by JdiDebugger (using these strings).
 
-    public static final String NEW_LOADER       = "newLoader";
-    public static final String LOAD_CLASS       = "loadClass";
-    public static final String ADD_OBJECT       = "addObject";
-    public static final String REMOVE_OBJECT    = "removeObject";
+    //public static final String NEW_LOADER       = "newLoader";
+    //public static final String LOAD_CLASS       = "loadClass";
+    //public static final String ADD_OBJECT       = "addObject";
+    //public static final String REMOVE_OBJECT    = "removeObject";
 //	BeanShell    
     //public static final String GET_OBJECTS      = "getObjects";
-    public static final String SET_LIBRARIES    = "setLibraries";
-    public static final String RUN_TEST_SETUP   = "runTestSetUp";
-    public static final String RUN_TEST_METHOD  = "runTestMethod";
-    public static final String SUPRESS_OUTPUT   = "supressOutput";
-    public static final String RESTORE_OUTPUT   = "restoreOutput";
+    //public static final String SET_LIBRARIES    = "setLibraries";
+    //public static final String RUN_TEST_SETUP   = "runTestSetUp";
+    //public static final String RUN_TEST_METHOD  = "runTestMethod";
+    //public static final String SUPRESS_OUTPUT   = "supressOutput";
+    //public static final String RESTORE_OUTPUT   = "restoreOutput";
     // public static final String DISPOSE_WINDOWS  = "disposeWindows";
 //	BeanShell    
     //public static final String EXECUTE_CODE     = "executeCode";
@@ -73,6 +73,28 @@ public class ExecServer
     public static final int TEST_RUN = 2;
     public static final int DISPOSE_WINDOWS = 3;
     public static final int EXIT_VM = 4;
+    
+    // Parameter for worker thread actions
+    public static int workerAction;
+    public static String objectName;
+    public static Object object;
+    public static String classPath;
+    public static String className;
+    
+    public static Object workerReturn;
+    
+    public static final String WORKER_ACTION_NAME = "workerAction";
+    public static final String OBJECTNAME_NAME = "objectName";
+    public static final String OBJECT_NAME = "object";
+    public static final String CLASSPATH_NAME = "classPath";
+    public static final String CLASSNAME_NAME = "className";
+    public static final String WORKER_RETURN_NAME = "workerReturn";
+    
+    public static final int REMOVE_OBJECT = 0;
+    public static final int ADD_OBJECT    = 1;
+    public static final int LOAD_CLASS    = 2;
+    public static final int NEW_LOADER    = 3;
+    
     
     // a BeanShell interpreter that we use for executing code
 //	BeanShell    
@@ -126,22 +148,7 @@ public class ExecServer
 		// record our main thread
 		// mainThread = Thread.currentThread();
 		
-		// create another worker thread we can use for stuff
-		workerThread = new Thread("BlueJ worker thread") {
-			public void run() {
-				//int count = 0;
-		
-				// an infinite loop.. 
-				while(true) {
-					vmSuspend();
-                    if (execAction == EXIT_VM)
-                        System.exit(0);
-				}
-				// System.err.println("worker thread bye bye");
-			}
-		};
-		workerThread.setDaemon(true);
-		workerThread.start();
+        workerThread = Thread.currentThread();
 
 		// register a listener to record all window opens and closes
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -169,6 +176,32 @@ public class ExecServer
 		// vmStarted();
         newThread();
 		
+        // an infinite loop.. 
+        while(true) {
+            vmSuspend();
+            switch(workerAction) {
+                case ADD_OBJECT:
+                    addObject(objectName, object);
+                    break;
+                case REMOVE_OBJECT:
+                    removeObject(objectName);
+                    break;
+                case LOAD_CLASS:
+                    try {
+                        workerReturn = loadClass(className);
+                    }
+                    catch(ClassNotFoundException cnfe) {
+                        workerReturn = null;
+                    }
+                    break;
+                case NEW_LOADER:
+                    workerReturn = newLoader(classPath);
+                    break;
+                case EXIT_VM:
+                    System.exit(0);
+            }
+        }
+        // System.err.println("worker thread bye bye");
 		//if(! shouldDie)
 		//    System.err.println("main thread bye bye");
     }
@@ -358,11 +391,13 @@ public class ExecServer
      * Update the remote VM with the list of user/system libraries
      * which the user has created using the ClassMgr.
      */
+    /*
     private static void setLibraries(String libraries)
     {
 		// Debug.message("[VM] setLibraries: " + libraries);
         classmgr.setLibraries(libraries);
     }
+    */
   
    
 //    /**
@@ -655,21 +690,25 @@ public class ExecServer
      *
      * Must be static because it is used by RemoteSecurityManager without a execServer reference
      */
+    /*
     static void supressOutput()
     {
         throwawayErr = new ByteArrayOutputStream();
         System.setErr(new PrintStream(throwawayErr));
     }
+    */
 
     /**
      * Restore the standard System.err.
      *
      * Must be static because it is used by RemoteSecurityManager without a execServer reference
      */
+    /*
     static void restoreOutput()
     {
         System.setErr(systemErr);
     }
+    */
 
     /**
      * Dispose of all the top level windows we think are open.
