@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1527 2002-11-28 15:36:18Z mik $
+ * @version $Id: Invoker.java 1536 2002-11-29 13:39:12Z ajp $
  */
 
 public class Invoker extends Thread
@@ -424,17 +424,21 @@ public class Invoker extends Thread
         // a parameter. Then add one line for each parameter setting the
         // parameter value.
 
+        // A sample of the code generated
+        //  java.util.Map __bluej_runtime_scope = getScope("BJIDC:\\aproject");
+        //  JavaType instnameA = (JavaType) __bluej_runtime_scope("instnameA");
+        //  OtherJavaType instnameB = (OtherJavaType) __bluej_runtime_scope("instnameB");
+
         buffer = new StringBuffer();
         String scopeId = Utility.quoteSloshes(pkg.getId());
-        Component[] wrappers = pmf.getObjectBench().getComponents();
+        ObjectWrapper[] wrappers = pmf.getObjectBench().getWrappers();
 
         if(wrappers.length > 0)
             buffer.append("java.util.Map __bluej_runtime_scope = getScope(\""
                           + scopeId + "\");" + Config.nl);
         for(int i = 0; i < wrappers.length; i++) {
-            ObjectWrapper wrapper = (ObjectWrapper)wrappers[i];
-            String type = cleverQualifyTypeName(pkg, wrapper.className);
-            String instname = wrapper.instanceName;
+            String type = cleverQualifyTypeName(pkg, wrappers[i].className);
+            String instname = wrappers[i].instanceName;
 
             buffer.append(type + " " + instname + " = ");
             buffer.append("(" + type + ")__bluej_runtime_scope.get(\"");
@@ -447,13 +451,21 @@ public class Invoker extends Thread
         buffer = new StringBuffer();
 
         if(constructing) {
+            // A sample of the code generated (for a constructor)
+            //  __bluej_runtime_result = makeObj((Object) new SomeType(2,"adb"));
+            //  putObject("BJIDC:\\aproject", instname, __bluej_runtime_result.result);
+
             buffer.append("__bluej_runtime_result = makeObj((Object)");
             buffer.append(callString + ");" + Config.nl);
             buffer.append("putObject(\"" + scopeId + "\", \"");
             buffer.append(resultName);
             buffer.append("\", __bluej_runtime_result.result);");
         }
-        else {  // it's a method call
+        else {
+            // A sample of the code generated (for a method call)
+            //  __bluej_runtime_result = makeObj(2+new String("ap").length());
+            //  putObject("BJIDC:\\aproject", instname, __bluej_runtime_result);
+            
             if(!isVoid)
                 buffer.append("__bluej_runtime_result = makeObj(");
             buffer.append(callString);
