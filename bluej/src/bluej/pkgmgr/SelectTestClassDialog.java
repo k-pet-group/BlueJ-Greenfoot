@@ -5,6 +5,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import bluej.*;
 import bluej.Config;
 import bluej.utility.DialogManager;
 
@@ -13,14 +14,10 @@ import bluej.utility.DialogManager;
  * an import.
  *
  * @author  Andrew Patterson
- * @version $Id: SelectTestClassDialog.java 1728 2003-03-28 02:01:36Z ajp $
+ * @version $Id: SelectTestClassDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class SelectTestClassDialog extends JDialog
 {
-	static final String okay = Config.getString("okay");
-	static final String cancel = Config.getString("cancel");
-
-    private static final String dialogTitle = Config.getString("pkgmgr.selecttestclass.title");
     private static final String helpLine1 = Config.getString("pkgmgr.selecttestclass.helpLine1");
     private static final String helpLine2 = Config.getString("pkgmgr.selecttestclass.helpLine2");
     private static final String helpLine3 = Config.getString("pkgmgr.selecttestclass.helpLine3");
@@ -29,7 +26,7 @@ public class SelectTestClassDialog extends JDialog
 	
     public SelectTestClassDialog(JFrame parent, Object[] objects)
     {
-        super(parent, dialogTitle, true);
+        super(parent, Config.getString("pkgmgr.selecttestclass.title"), true);
 
 		result = null;
 		
@@ -38,7 +35,7 @@ public class SelectTestClassDialog extends JDialog
         JPanel mainPanel = new JPanel();
         {
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            mainPanel.setBorder(Config.dialogBorder);
+            mainPanel.setBorder(BlueJTheme.dialogBorder);
 
             JLabel helpText1 = new JLabel(helpLine1);
             helpText1.setAlignmentX(LEFT_ALIGNMENT);
@@ -68,13 +65,13 @@ public class SelectTestClassDialog extends JDialog
             scrolly.setAlignmentX(LEFT_ALIGNMENT);
 
             mainPanel.add(scrolly);
-            mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
+            mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
 
 			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 			{
 				buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-				JButton okButton = new JButton(okay);
+				JButton okButton = BlueJTheme.getOkButton();
 				{
 					okButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt)
@@ -85,7 +82,7 @@ public class SelectTestClassDialog extends JDialog
 					});
 				}
 
-				JButton cancelButton = new JButton(cancel);
+				JButton cancelButton = BlueJTheme.getCancelButton();
 				{
 					cancelButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt)

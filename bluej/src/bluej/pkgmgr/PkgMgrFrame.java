@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1909 2003-04-28 18:04:45Z mik $
+ * @version $Id: PkgMgrFrame.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -737,7 +737,7 @@ public class PkgMgrFrame extends JFrame
         String newname = FileUtility.getFileName(this,
                                                  Config.getString("pkgmgr.newPkg.title"), 
                                                  Config.getString("pkgmgr.newPkg.buttonLabel"),
-                                                 false, null, true);
+                                                 true, null, true);
 
         if (newname == null)
             return false;
@@ -1789,7 +1789,7 @@ public class PkgMgrFrame extends JFrame
     private void makeFrame()
     {
         setFont(PkgMgrFont);
-        setIconImage(Config.frameImage);
+        setIconImage(BlueJTheme.getIconImage());
         testItems = new ArrayList();
         
         setupMenus();
@@ -1797,7 +1797,7 @@ public class PkgMgrFrame extends JFrame
         JPanel mainPanel = new JPanel();
 
         mainPanel.setLayout(new BorderLayout(5, 5));
-        mainPanel.setBorder(Config.generalBorderWithStatusBar);
+        mainPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
 
         // create the left hand side toolbar
         JPanel toolPanel = new JPanel();
@@ -1822,7 +1822,7 @@ public class PkgMgrFrame extends JFrame
     
     
                 imgDependsButton = createButton("",
-                                          Config.getImageAsIcon("image.build.depends.uml"),
+                                          Config.getImageAsIcon("image.build.depends"),
                                           Config.getString("tooltip.newUses"),
                                           true);
                 imgDependsButton.addActionListener(new ActionListener() {
@@ -1833,7 +1833,7 @@ public class PkgMgrFrame extends JFrame
                 buttonPanel.add(Box.createVerticalStrut(3));
     
                 imgExtendsButton = createButton("",
-                                          Config.getImageAsIcon("image.build.extends.uml"),
+                                          Config.getImageAsIcon("image.build.extends"),
                                           Config.getString("tooltip.newExtends"),
                                           true);
                 imgExtendsButton.addActionListener(new ActionListener() {

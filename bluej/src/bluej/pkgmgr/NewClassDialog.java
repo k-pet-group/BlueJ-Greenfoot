@@ -1,36 +1,28 @@
 package bluej.pkgmgr;
 
-import bluej.Config;
-import bluej.utility.JavaNames;
-import bluej.utility.DialogManager;
-
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-
-import java.util.StringTokenizer;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.io.File;
+import java.util.*;
+import java.util.List;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+
+import bluej.*;
+import bluej.Config;
+import
+bluej.utility.*;
 
 /**
  * Dialog for creating a new class
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: NewClassDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 class NewClassDialog extends JDialog
-    implements ActionListener
 {
-    // Internationalisation
-    static final String okay = Config.getString("okay");
-    static final String cancel = Config.getString("cancel");
-    static final String newClassTitle = Config.getString("pkgmgr.newClass.title");
-    static final String newClassLabel = Config.getString("pkgmgr.newClass.label");
-    static final String classTypeStr = Config.getString("pkgmgr.newClass.classType");
-
     private JTextField textFld;
     ButtonGroup templateButtons;
 
@@ -39,7 +31,7 @@ class NewClassDialog extends JDialog
 
     public NewClassDialog(JFrame parent)
     {
-        super(parent, newClassTitle, true);
+        super(parent, Config.getString("pkgmgr.newClass.title"), true);
 
         addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent E)
@@ -52,9 +44,9 @@ class NewClassDialog extends JDialog
         JPanel mainPanel = new JPanel();
         {
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            mainPanel.setBorder(Config.dialogBorder);
+            mainPanel.setBorder(BlueJTheme.dialogBorder);
 
-            JLabel newclassTag = new JLabel(newClassLabel);
+            JLabel newclassTag = new JLabel(Config.getString("pkgmgr.newClass.label"));
             {
                 newclassTag.setAlignmentX(LEFT_ALIGNMENT);
             }
@@ -74,9 +66,11 @@ class NewClassDialog extends JDialog
                 choicePanel.setAlignmentX(LEFT_ALIGNMENT);
 
 				//create compound border empty border outside of a titled border
-                choicePanel.setBorder(BorderFactory.createCompoundBorder(
-                                            BorderFactory.createTitledBorder(classTypeStr),
-                                            BorderFactory.createEmptyBorder(0, 10, 0, 10)));
+				Border b = BorderFactory.createCompoundBorder(
+							BorderFactory.createTitledBorder(Config.getString("pkgmgr.newClass.classType")),
+							BorderFactory.createEmptyBorder(0, 10, 0, 10));
+							
+                choicePanel.setBorder(b);
 
                 addClassTypeButtons(choicePanel);
             }
@@ -87,30 +81,38 @@ class NewClassDialog extends JDialog
                                                        choicePanel.getPreferredSize().height));
 
             mainPanel.add(choicePanel);
-            mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
+            mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
 
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {
                 buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-                JButton okButton = new JButton(okay);
+                JButton okButton = BlueJTheme.getOkButton();
                 {
-                    okButton.addActionListener(this);
+                    okButton.addActionListener(new ActionListener()
+                    {
+						public void actionPerformed(ActionEvent evt)
+						{
+							doOK();							
+						}
+                    });
                 }
 
-                JButton cancelButton = new JButton(cancel);
+                JButton cancelButton = BlueJTheme.getCancelButton();
                 {
-                    cancelButton.addActionListener(this);
+                    cancelButton.addActionListener(new ActionListener()
+					{
+						public void actionPerformed(ActionEvent evt)
+						{
+							doCancel();							
+						}
+					});
                 }
 
                 buttonPanel.add(okButton);
                 buttonPanel.add(cancelButton);
 
                 getRootPane().setDefaultButton(okButton);
-
-				// try to make the OK and cancel buttons have equal width
-                okButton.setPreferredSize(new Dimension(cancelButton.getPreferredSize().width,
-                                                        okButton.getPreferredSize().height));
             }
 
             mainPanel.add(buttonPanel);
@@ -175,8 +177,8 @@ class NewClassDialog extends JDialog
             button.setActionCommand(template);
             templateButtons.add(button);
             panel.add(button);
-            if(previousButton != null)
-                previousButton.setNextFocusableComponent(button);
+//            if(previousButton != null)
+//                previousButton.setNextFocusableComponent(button);
             previousButton = button;
         }
     }
@@ -201,15 +203,6 @@ class NewClassDialog extends JDialog
     public String getTemplateName()
     {
         return templateButtons.getSelection().getActionCommand();
-    }
-
-    public void actionPerformed(ActionEvent evt)
-    {
-        String cmd = evt.getActionCommand();
-        if(okay.equals(cmd))
-            doOK();
-        else if(cancel.equals(cmd))
-            doCancel();
     }
 
     /**

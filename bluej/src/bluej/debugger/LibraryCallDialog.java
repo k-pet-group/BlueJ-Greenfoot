@@ -1,5 +1,6 @@
 package bluej.debugger;
 
+import bluej.*;
 import bluej.Config;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
@@ -27,7 +28,7 @@ import javax.swing.event.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: LibraryCallDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener
@@ -298,21 +299,22 @@ public class LibraryCallDialog extends JDialog
         {
             buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
-            okButton = addButton(buttonPanel, Config.getString("okay"));
-            cancelButton = addButton(buttonPanel, Config.getString("cancel"));
+            okButton = BlueJTheme.getOkButton();
+            okButton.addActionListener(this);
+            
+            cancelButton = BlueJTheme.getCancelButton();
+            cancelButton.addActionListener(this);
+            
+            buttonPanel.add(okButton);
+            buttonPanel.add(cancelButton);
 
             getRootPane().setDefaultButton(okButton);
             okButton.setEnabled(false);
-
-            // try to make the OK and cancel buttons have equal width
-            okButton.setPreferredSize(
-                       new Dimension(cancelButton.getPreferredSize().width,
-                                     okButton.getPreferredSize().height));
         }
 
         //contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
         contentPane.setLayout(new BorderLayout(6,6));
-        contentPane.setBorder(Config.generalBorder);
+        contentPane.setBorder(BlueJTheme.generalBorder);
 
         contentPane.add(classPanel, BorderLayout.NORTH);
         contentPane.add(centrePanel, BorderLayout.CENTER);
@@ -327,16 +329,5 @@ public class LibraryCallDialog extends JDialog
                     setVisible(false);
                 }
             });
-    }
-
-    /**
-     * Helper method to add a button to a panel.
-     */
-    private JButton addButton(JPanel panel, String label)
-    {
-        JButton button = new JButton(label);
-        panel.add(button);
-        button.addActionListener(this);
-        return button;
     }
 }

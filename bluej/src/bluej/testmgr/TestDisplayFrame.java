@@ -6,6 +6,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import bluej.*;
 import bluej.Config;
 import bluej.debugger.DebuggerTestResult;
 
@@ -13,7 +14,7 @@ import bluej.debugger.DebuggerTestResult;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 1905 2003-04-28 05:21:24Z ajp $
+ * @version $Id: TestDisplayFrame.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class TestDisplayFrame
 {
@@ -74,7 +75,7 @@ public class TestDisplayFrame
     {
 		frame = new JFrame(Config.getString("testdisplay.title"));
 
-		frame.setIconImage(Config.frameImage);
+		frame.setIconImage(BlueJTheme.getIconImage());
 		frame.setLocation(Config.getLocation("bluej.testdisplay"));
 
 		// save position when window is moved
@@ -87,7 +88,7 @@ public class TestDisplayFrame
 		
 		JPanel topPanel = new JPanel();
 		{
-			topPanel.setBorder(Config.generalBorder);
+			topPanel.setBorder(BlueJTheme.generalBorder);
 			topPanel.setLayout(new BoxLayout(topPanel,BoxLayout.Y_AXIS));
 					
 			JScrollPane jsp = new JScrollPane();

@@ -4,7 +4,6 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
 
 /**
@@ -16,7 +15,7 @@ import bluej.utility.*;
  * @author  Michael Kolling
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: JavacCompilerInternal.java 1909 2003-04-28 18:04:45Z mik $
+ * @version $Id: JavacCompilerInternal.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class JavacCompilerInternal extends Compiler
 {

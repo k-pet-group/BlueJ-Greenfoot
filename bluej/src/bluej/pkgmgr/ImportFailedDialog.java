@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import bluej.*;
 import bluej.Config;
 import bluej.utility.DialogManager;
 
@@ -12,7 +13,7 @@ import javax.swing.*;
  * an import.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportFailedDialog.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: ImportFailedDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class ImportFailedDialog extends JDialog
     implements ActionListener
@@ -33,7 +34,7 @@ public class ImportFailedDialog extends JDialog
         JPanel mainPanel = new JPanel();
         {
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            mainPanel.setBorder(Config.dialogBorder);
+            mainPanel.setBorder(BlueJTheme.dialogBorder);
 
             JLabel helpText1 = new JLabel(helpLine1);
             helpText1.setAlignmentX(LEFT_ALIGNMENT);
@@ -63,7 +64,7 @@ public class ImportFailedDialog extends JDialog
             scrolly.setAlignmentX(LEFT_ALIGNMENT);
 
             mainPanel.add(scrolly);
-            mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
+            mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
 
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {

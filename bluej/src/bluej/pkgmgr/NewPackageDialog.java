@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import bluej.*;
 import bluej.Config;
 import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
@@ -13,18 +14,10 @@ import javax.swing.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewPackageDialog.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: NewPackageDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 class NewPackageDialog extends JDialog
-    implements ActionListener
 {
-    // Internationalisation
-    static final String okay = Config.getString("okay");
-    static final String cancel = Config.getString("cancel");
-    static final String newPackageTitle = Config.getString("pkgmgr.newPackage.title");
-    static final String newPackageLabel = Config.getString("pkgmgr.newPackage.label");
-    static final String classTypeStr = Config.getString("pkgmgr.newPackage.classType");
-
     private String newPackageName = "";
 
     private JTextField textFld;
@@ -33,7 +26,7 @@ class NewPackageDialog extends JDialog
 
 	public NewPackageDialog(JFrame parent)
 	{
-		super(parent, newPackageTitle, true);
+		super(parent, Config.getString("pkgmgr.newPackage.title"), true);
 
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent E)
@@ -46,9 +39,9 @@ class NewPackageDialog extends JDialog
 		JPanel mainPanel = new JPanel();
 		{
 			mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-			mainPanel.setBorder(Config.dialogBorder);
+			mainPanel.setBorder(BlueJTheme.dialogBorder);
 
-			JLabel newclassTag = new JLabel(newPackageLabel);
+			JLabel newclassTag = new JLabel(Config.getString("pkgmgr.newPackage.label"));
 			{
 				newclassTag.setAlignmentX(LEFT_ALIGNMENT);
 			}
@@ -62,30 +55,26 @@ class NewPackageDialog extends JDialog
 			mainPanel.add(textFld);
 			mainPanel.add(Box.createVerticalStrut(5));
 
-			mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
+			mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
 
 			JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 			{
 				buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-				JButton okButton = new JButton(okay);
-				{
-					okButton.addActionListener(this);
-				}
+				JButton okButton = BlueJTheme.getOkButton();
+				okButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent evt) { doOK(); }        		
+				});
 
-				JButton cancelButton = new JButton(cancel);
-				{
-					cancelButton.addActionListener(this);
-				}
+				JButton cancelButton = BlueJTheme.getCancelButton();
+				cancelButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent evt) { doCancel(); }        		
+				});
 
 				buttonPanel.add(okButton);
 				buttonPanel.add(cancelButton);
 
 				getRootPane().setDefaultButton(okButton);
-
-				// try to make the OK and cancel buttons have equal width
-				okButton.setPreferredSize(new Dimension(cancelButton.getPreferredSize().width,
-						okButton.getPreferredSize().height));
 			}
 
 			mainPanel.add(buttonPanel);
@@ -112,15 +101,6 @@ class NewPackageDialog extends JDialog
     public String getPackageName()
     {
         return newPackageName;
-    }
-
-    public void actionPerformed(ActionEvent evt)
-    {
-        String cmd = evt.getActionCommand();
-        if(okay.equals(cmd))
-            doOK();
-        else if(cancel.equals(cmd))
-            doCancel();
     }
 
     /**

@@ -2,6 +2,8 @@ package bluej.prefmgr;
 
 import javax.swing.*;
 import java.awt.*;
+
+import bluej.*;
 import bluej.Config;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -11,7 +13,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1909 2003-04-28 18:04:45Z mik $
+ * @version $Id: MiscPrefPanel.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -46,7 +48,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     {
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(Config.generalBorder);
+        setBorder(BlueJTheme.generalBorder);
 
         add(Box.createVerticalGlue());
 
@@ -55,7 +57,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             String editorTitle = Config.getString("prefmgr.misc.editor.title");
             editorPanel.setBorder(BorderFactory.createCompoundBorder(
                                         BorderFactory.createTitledBorder(editorTitle),
-                                        Config.generalBorder));
+                                        BlueJTheme.generalBorder));
             editorPanel.setAlignmentX(LEFT_ALIGNMENT);
 
             JPanel fontPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
@@ -79,7 +81,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         }
         add(editorPanel);
 
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
         JPanel docPanel = new JPanel();
         {
@@ -87,7 +89,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             String docTitle = Config.getString("prefmgr.misc.documentation.title");
             docPanel.setBorder(BorderFactory.createCompoundBorder(
                                         BorderFactory.createTitledBorder(docTitle),
-                                        Config.generalBorder));
+                                        BlueJTheme.generalBorder));
             docPanel.setAlignmentX(LEFT_ALIGNMENT);
 
             JPanel urlPanel = new JPanel(new BorderLayout(5, 0));
@@ -100,13 +102,13 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             urlPanel.setAlignmentX(LEFT_ALIGNMENT);
             docPanel.add(urlPanel);
 
-            docPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+            docPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
             linkToLibBox = new JCheckBox(Config.getString("prefmgr.misc.linkToLib"));
             linkToLibBox.setAlignmentX(LEFT_ALIGNMENT);
             docPanel.add(linkToLibBox);
 
-            docPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+            docPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
             JLabel linkToLibNoteLine1 = new JLabel(
                               Config.getString("prefmgr.misc.linkToLibNoteLine1"));
@@ -123,14 +125,14 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         }
         add(docPanel);
 
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
         JPanel testPanel = new JPanel(new GridLayout(1,2,0,0));
         {
             testPanel.setBorder(BorderFactory.createCompoundBorder(
                                           BorderFactory.createTitledBorder(
                                                  Config.getString("prefmgr.misc.testing.title")),
-                                          Config.generalBorder));
+                                          BlueJTheme.generalBorder));
             testPanel.setAlignmentX(LEFT_ALIGNMENT);
 
             showTestBox = new JCheckBox(Config.getString("prefmgr.misc.showTesting"));
@@ -138,7 +140,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         }
         add(testPanel);
 
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
         add(Box.createVerticalGlue());
     }

@@ -8,29 +8,13 @@
 
 package bluej.editor.moe;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
+import javax.swing.*;
+import javax.swing.text.*;
 
-import bluej.Config;
+import bluej.*;
 
 
 /**
@@ -40,8 +24,6 @@ import bluej.Config;
  */
 public class GoToLineDialog extends JDialog implements ActionListener
 {
-    static final String okay = Config.getString("okay");
-    static final String cancel = Config.getString("cancel");
     static final String goToLineTitle = Config.getString("editor.gotoline.title");
     static final String goToLineLabel = Config.getString("editor.gotoline.label");
     static final String notNumericMessage = Config.getString("editor.gotoline.notNumericMessage");
@@ -132,19 +114,16 @@ public class GoToLineDialog extends JDialog implements ActionListener
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-        okButton = new JButton(okay);
+        okButton = BlueJTheme.getOkButton();
         okButton.addActionListener(this);
 
-        cancelButton = new JButton(cancel);
+        cancelButton = BlueJTheme.getCancelButton();
         cancelButton.addActionListener(this);
 
         buttonPanel.add(okButton);
         buttonPanel.add(cancelButton);
         getRootPane().setDefaultButton(okButton);
         
-        // try to make the OK and cancel buttons have equal width
-        okButton.setPreferredSize(new Dimension(cancelButton.getPreferredSize().width,
-                                                        okButton.getPreferredSize().height));
         bodyPanel.add(buttonPanel);
         getContentPane().add(bodyPanel, BorderLayout.CENTER);
         pack();

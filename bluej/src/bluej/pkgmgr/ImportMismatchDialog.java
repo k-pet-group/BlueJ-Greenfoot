@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import bluej.*;
 import bluej.Config;
 import bluej.utility.DialogManager;
 
@@ -13,14 +14,10 @@ import javax.swing.*;
  * had mismatched package lines on an open non-BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportMismatchDialog.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: ImportMismatchDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class ImportMismatchDialog extends JDialog
-    implements ActionListener
 {
-    private static final String cont = Config.getString("continue");
-    private static final String cancel = Config.getString("cancel");
-
     private static final String dialogTitle = Config.getString("pkgmgr.importmismatch.title");
 
     private boolean result = false;
@@ -35,7 +32,7 @@ public class ImportMismatchDialog extends JDialog
         JPanel mainPanel = new JPanel();
         {
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            mainPanel.setBorder(Config.dialogBorder);
+            mainPanel.setBorder(BlueJTheme.dialogBorder);
 
             JLabel helpText1 = new JLabel(Config.getString("pkgmgr.importmismatch.helpLine1"));
             helpText1.setAlignmentX(LEFT_ALIGNMENT);
@@ -87,35 +84,26 @@ public class ImportMismatchDialog extends JDialog
             scrolly.setAlignmentX(LEFT_ALIGNMENT);
 
             mainPanel.add(scrolly);
-            mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
+            mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
 
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {
                 buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-                JButton contButton = new JButton(cont);
-                {
-                    contButton.addActionListener(this);
-                }
+                JButton continueButton = BlueJTheme.getContinueButton();
+				continueButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent evt) { doContinue(); }        		
+				});
 
-                JButton cancelButton = new JButton(cancel);
-                {
-                    cancelButton.addActionListener(this);
-                }
+                JButton cancelButton = BlueJTheme.getCancelButton();
+				cancelButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent evt) { doCancel(); }        		
+				});
 
-                buttonPanel.add(contButton);
+                buttonPanel.add(continueButton);
                 buttonPanel.add(cancelButton);
 
                 getRootPane().setDefaultButton(cancelButton);
-
-                // try to make the continue and cancel buttons have equal width
-                int biggest = Math.max(contButton.getPreferredSize().width,
-                                        cancelButton.getPreferredSize().width);
-
-                cancelButton.setPreferredSize(new Dimension(biggest,
-                                                cancelButton.getPreferredSize().height));
-                contButton.setPreferredSize(new Dimension(biggest,
-                                             contButton.getPreferredSize().height));
             }
 
             mainPanel.add(buttonPanel);
@@ -132,15 +120,15 @@ public class ImportMismatchDialog extends JDialog
         return result;
     }
 
-    public void actionPerformed(ActionEvent evt)
-    {
-        String cmd = evt.getActionCommand();
-
-        if(cont.equals(cmd))
-            result = true;
-        else
-            result = false;
-
-        dispose();
-    }
+	private void doContinue()
+	{
+		result = true;
+		dispose();
+	}
+	
+	private void doCancel()
+	{
+		result = false;
+		dispose();
+	}
 }

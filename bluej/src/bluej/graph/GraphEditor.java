@@ -10,7 +10,7 @@ import javax.swing.*;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: GraphEditor.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -30,7 +30,7 @@ public class GraphEditor extends JComponent
         activeVertex = null;
         motionListening = false;
 
-        setBackground(background);
+        //setBackground(background);
     }
 
     public Dimension getPreferredSize()

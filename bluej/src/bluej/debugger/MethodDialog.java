@@ -1,5 +1,6 @@
 package bluej.debugger;
 
+import bluej.*;
 import bluej.Config;
 import bluej.utility.MultiLineLabel;
 import bluej.utility.JavaNames;
@@ -9,7 +10,6 @@ import bluej.views.ConstructorView;
 import bluej.views.MemberView;
 import bluej.views.CallableView;
 import bluej.views.MethodView;
-import bluej.debugger.CallHistory;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -28,7 +28,7 @@ import java.util.StringTokenizer;
  * @author  Michael Kolling
  * @author  Bruce Quig
  *
- * @version $Id: MethodDialog.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: MethodDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class MethodDialog extends CallDialog
 	implements FocusListener
@@ -345,12 +345,12 @@ public class MethodDialog extends CallDialog
             }
 
             dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
-            dialogPanel.setBorder(Config.generalBorder);
+            dialogPanel.setBorder(BlueJTheme.generalBorder);
 
             dialogPanel.add(descPanel);
-            dialogPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+            dialogPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
             dialogPanel.add(new JSeparator());
-            dialogPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+            dialogPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
             dialogPanel.add(centerPanel);
             dialogPanel.add(getErrorLabel());
         }
@@ -544,9 +544,9 @@ public class MethodDialog extends CallDialog
             tmpPanel.add(instName);
             tmpPanel.add(instanceNameText);
         }
-        tmpPanel.setBorder(BorderFactory.createEmptyBorder(Config.generalSpacingWidth,
+        tmpPanel.setBorder(BorderFactory.createEmptyBorder(BlueJTheme.generalSpacingWidth,
                                                            0,
-                                                           Config.generalSpacingWidth,
+                                                           BlueJTheme.generalSpacingWidth,
                                                            0));
         panel.add("North", tmpPanel);
     } // makeCreateDialog

@@ -9,6 +9,8 @@
 package bluej.editor.moe;
 
 import javax.swing.*;
+
+import bluej.*;
 import bluej.Config;
 import bluej.prefmgr.*;
 
@@ -18,7 +20,7 @@ import bluej.prefmgr.*;
 * archive) with an associated description.
 * 
 * @author Andrew Patterson
-* @version $Id: MoeEditorPrefPanel.java 1818 2003-04-10 13:31:55Z fisker $
+* @version $Id: MoeEditorPrefPanel.java 1923 2003-04-30 06:11:12Z ajp $
 */
 public class MoeEditorPrefPanel extends JPanel implements PrefPanelListener {
 
@@ -42,7 +44,7 @@ public class MoeEditorPrefPanel extends JPanel implements PrefPanelListener {
         }
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(Config.generalBorder);
+        setBorder(BlueJTheme.generalBorder);
 
         add(fontsizeTag);
         add(sizeField);

@@ -5,13 +5,14 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import bluej.*;
 import bluej.Config;
 
 /**
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 1883 2003-04-24 06:28:41Z ajp $
+ * @version $Id: AssertPanel.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class AssertPanel extends JPanel
 {
@@ -77,12 +78,12 @@ public class AssertPanel extends JPanel
     	
         standardPanel = new JPanel();
         {
-        	standardPanel.setBorder(Config.generalBorder);
+        	standardPanel.setBorder(BlueJTheme.generalBorder);
         	standardPanel.setLayout(new BoxLayout(standardPanel, BoxLayout.X_AXIS)); 
 			standardPanel.setAlignmentX(LEFT_ALIGNMENT);
 
             standardPanel.add(assertLabel = new JLabel(Config.getString("debugger.assert.resultIs")));
-			standardPanel.add(Box.createHorizontalStrut(Config.componentSpacingSmall));
+			standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
 
             assertCombo = new JComboBox(labels);
             {
@@ -103,7 +104,7 @@ public class AssertPanel extends JPanel
 				});
 			}                       
             standardPanel.add(assertCombo);
-			standardPanel.add(Box.createHorizontalStrut(Config.componentSpacingSmall));
+			standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
             
             standardPanel.add(assertData = new JTextField(14));
         }

@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import bluej.*;
 import bluej.Main;
 import bluej.Config;
 import bluej.utility.Debug;
@@ -16,7 +17,7 @@ import javax.swing.*;
  * Dialog implementing version check functionality.
  *
  * @author  Michael Kolling
- * @version $Id: VersionCheckDialog.java 1077 2002-01-09 09:08:21Z mik $
+ * @version $Id: VersionCheckDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 
 final class VersionCheckDialog extends JDialog
@@ -93,7 +94,7 @@ final class VersionCheckDialog extends JDialog
         JPanel mainPanel = new JPanel();
         {
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            mainPanel.setBorder(Config.dialogBorder);
+            mainPanel.setBorder(BlueJTheme.dialogBorder);
 
             JLabel helpText1 = new JLabel(helpLine1);
             mainPanel.add(helpText1);
@@ -112,7 +113,7 @@ final class VersionCheckDialog extends JDialog
             JScrollPane scrollPane = new JScrollPane(textArea);
 
             mainPanel.add(scrollPane);
-            mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
+            mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
 
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {

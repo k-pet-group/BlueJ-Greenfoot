@@ -25,7 +25,7 @@ import bluej.extmgr.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1897 2003-04-25 15:19:10Z mik $
+ * @version $Id: Package.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -921,6 +921,13 @@ public final class Package extends Graph
         ct.setState(Target.S_INVALID);		// to force compile
 
         searchCompile(ct, 1, new Stack(), new PackageCompileObserver());
+
+		if (ct.getAssociation() != null) {
+			ClassTarget assocTarget = (ClassTarget) ct.getAssociation();
+
+			assocTarget.setState(Target.S_INVALID);		// to force compile
+			searchCompile(assocTarget, 1, new Stack(), new QuietPackageCompileObserver());
+		}
     }
 
 

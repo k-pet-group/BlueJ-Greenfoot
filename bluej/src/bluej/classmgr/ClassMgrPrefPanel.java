@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
 
+import bluej.*;
 import bluej.Config;
 import bluej.utility.DialogManager;
 import bluej.prefmgr.*;
@@ -20,7 +21,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 1916 2003-04-29 05:26:15Z ajp $
+ * @version $Id: ClassMgrPrefPanel.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -115,7 +116,7 @@ public class ClassMgrPrefPanel extends JPanel
 						deleteButton.getPreferredSize().height));
 
                 buttonPane.add(addButton);
-                buttonPane.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+                buttonPane.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
                 buttonPane.add(deleteButton);
             }
 
@@ -170,14 +171,14 @@ public class ClassMgrPrefPanel extends JPanel
         }
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(Config.generalBorder);
+        setBorder(BlueJTheme.generalBorder);
 
         add(userLibrariesTag);
         add(userLibPane);
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
         add(systemLibrariesTag);
         add(systemLibrariesScrollPane);
-        add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
         add(bootLibrariesTag);
         add(bootLibrariesScrollPane);
     }

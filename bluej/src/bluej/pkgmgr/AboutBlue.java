@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import bluej.*;
 import bluej.Config;
 import bluej.utility.MultiLineLabel;
 import bluej.utility.DialogManager;
@@ -12,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: AboutBlue.java 1923 2003-04-30 06:11:12Z ajp $
  */
 class AboutBlue extends JDialog
 {
@@ -22,7 +23,7 @@ class AboutBlue extends JDialog
 
         // Create About box text
         JPanel aboutPanel = new JPanel();
-        aboutPanel.setBorder(Config.dialogBorder);
+        aboutPanel.setBorder(BlueJTheme.dialogBorder);
         aboutPanel.setLayout(new BorderLayout(2,2));
         aboutPanel.setBackground(Color.white);
 
@@ -82,7 +83,7 @@ class AboutBlue extends JDialog
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(Color.white);
         buttonPanel.setLayout(new FlowLayout());
-        JButton ok = new JButton(Config.getString("okay"));
+        JButton ok = BlueJTheme.getOkButton();
         buttonPanel.add(ok);
 
         getContentPane().setLayout(new BorderLayout());

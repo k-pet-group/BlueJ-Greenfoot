@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import bluej.*;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DialogManager;
@@ -16,14 +17,11 @@ import javax.swing.*;
  * Dialog for choosing options when exporting
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: ExportDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 class ExportDialog extends JDialog
-    implements ActionListener
 {
     // Internationalisation
-    private static final String cont = Config.getString("continue");
-    private static final String cancel = Config.getString("cancel");
     private static final String dialogTitle = Config.getString("pkgmgr.export.title");
     private static final String helpLine1 = Config.getString("pkgmgr.export.helpLine1");
     private static final String helpLine2 = Config.getString("pkgmgr.export.helpLine2");
@@ -87,15 +85,6 @@ class ExportDialog extends JDialog
         return sourceBox.isSelected();
     }
 
-    public void actionPerformed(ActionEvent evt)
-    {
-        String cmd = evt.getActionCommand();
-        if(cont.equals(cmd))
-            doOK();
-        else if(cancel.equals(cmd))
-            doCancel();
-    }
-
     /**
      * Close action when OK is pressed.
      */
@@ -127,7 +116,7 @@ class ExportDialog extends JDialog
         JPanel mainPanel = new JPanel();
         {
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            mainPanel.setBorder(Config.dialogBorder);
+            mainPanel.setBorder(BlueJTheme.dialogBorder);
 
             JLabel helpText1 = new JLabel(helpLine1);
             mainPanel.add(helpText1);
@@ -182,31 +171,26 @@ class ExportDialog extends JDialog
             }
 
             mainPanel.add(inputPanel);
-            mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
+            mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
 
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {
                 buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-                JButton okButton = new JButton(cont);
-                {
-                    okButton.addActionListener(this);
-                }
+                JButton continueButton = BlueJTheme.getContinueButton();
+				continueButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent evt) { doOK(); }        		
+				});
 
-                JButton cancelButton = new JButton(cancel);
-                {
-                    cancelButton.addActionListener(this);
-                }
+                JButton cancelButton = BlueJTheme.getCancelButton();
+				cancelButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent evt) { doCancel(); }        		
+				});
 
-                buttonPanel.add(okButton);
+                buttonPanel.add(continueButton);
                 buttonPanel.add(cancelButton);
 
-                getRootPane().setDefaultButton(okButton);
-
-                // try to make the OK and cancel buttons have equal width
-                cancelButton.setPreferredSize(
-                       new Dimension(okButton.getPreferredSize().width,
-                                     cancelButton.getPreferredSize().height));
+                getRootPane().setDefaultButton(continueButton);
             }
 
             mainPanel.add(buttonPanel);

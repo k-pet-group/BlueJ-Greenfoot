@@ -7,6 +7,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import bluej.*;
 import bluej.Config;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.*;
@@ -17,7 +18,7 @@ import bluej.utility.DialogManager;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1884 2003-04-24 06:29:17Z ajp $
+ * @version    $Id: Inspector.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -96,7 +97,7 @@ public abstract class Inspector extends JFrame
     {
         super();
 
-        setIconImage(Config.frameImage);
+        setIconImage(BlueJTheme.getIconImage());
 
         this.pkg = pkg;
         this.ir = ir;
@@ -352,7 +353,7 @@ public abstract class Inspector extends JFrame
             });
 
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(Config.generalBorderWithStatusBar);
+        mainPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
 
         // if we are doing an inspection, we add a label at the top
         if (!isResult) {
@@ -435,7 +436,7 @@ public abstract class Inspector extends JFrame
         if (inspectorTabs.getTabCount() > 0) {
             inspectorTabs.insertTab("Standard", null, mainPanel, "Standard", 0);
             getContentPane().add(inspectorTabs, BorderLayout.CENTER);
-            ((JPanel) getContentPane()).setBorder(Config.generalBorderWithStatusBar);
+            ((JPanel) getContentPane()).setBorder(BlueJTheme.generalBorderWithStatusBar);
         } else {
             inspectorTabs = null;
             getContentPane().add(mainPanel, BorderLayout.CENTER);

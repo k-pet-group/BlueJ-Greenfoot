@@ -1,6 +1,7 @@
 package bluej.extmgr;
 
 import bluej.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
@@ -10,7 +11,7 @@ import javax.swing.table.*;
 /**
  *  The Extensions Manager help panel allows the user to view current  extensions.
  *
- * @version    $Id: HelpDialog.java 1885 2003-04-25 08:53:48Z damiano $
+ * @version    $Id: HelpDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 
  /*
@@ -51,7 +52,7 @@ public class HelpDialog implements ActionListener
         mainFrame = new JDialog(parent, Config.getString("extmgr.title"), true);
         JPanel rootPane = (JPanel)mainFrame.getContentPane();
         rootPane.setLayout(new BorderLayout());
-        rootPane.setBorder(Config.dialogBorder);
+        rootPane.setBorder(BlueJTheme.dialogBorder);
 
         rootPane.add(extensionsPane, BorderLayout.CENTER);
         rootPane.add(buttonPanel, BorderLayout.SOUTH);

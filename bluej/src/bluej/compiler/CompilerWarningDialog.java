@@ -1,5 +1,6 @@
 package bluej.compiler;
 
+import bluej.*;
 import bluej.Config;
 
 import bluej.utility.MultiLineLabel;
@@ -13,7 +14,7 @@ import javax.swing.*;
  * Dialog for Compiler Warning messages.  Should be used as a Singleton.  
  * The dialog is non-modal, allowing minimisation to ignore further warnings.
  * 
- * @version $Id: CompilerWarningDialog.java 1762 2003-04-09 03:02:27Z bquig $
+ * @version $Id: CompilerWarningDialog.java 1923 2003-04-30 06:11:12Z ajp $
  * @author Bruce Quig
  */
 public class CompilerWarningDialog extends JFrame implements ActionListener
@@ -51,7 +52,7 @@ public class CompilerWarningDialog extends JFrame implements ActionListener
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5,12,12,40));
         mainPanel.add(Box.createVerticalStrut(
-                              Config.dialogCommandButtonsVertical));
+                              BlueJTheme.dialogCommandButtonsVertical));
 
         JLabel subTitleLabel = new JLabel(subTitle);
         mainPanel.add(subTitleLabel);

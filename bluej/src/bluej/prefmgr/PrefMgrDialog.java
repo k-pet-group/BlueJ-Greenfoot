@@ -6,6 +6,7 @@ import java.awt.event.*;
 
 import java.util.*;
 
+import bluej.*;
 import bluej.Config;
 
 /**
@@ -16,7 +17,7 @@ import bluej.Config;
  * instance of PrefMgrDialog at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgrDialog.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: PrefMgrDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -35,7 +36,7 @@ public class PrefMgrDialog extends JFrame
      */
     private PrefMgrDialog()
     {
-        setIconImage(Config.frameImage);
+        setIconImage(BlueJTheme.getIconImage());
         setTitle(Config.getString("prefmgr.title"));
 
         tabbedPane = new JTabbedPane();
@@ -50,13 +51,13 @@ public class PrefMgrDialog extends JFrame
         JPanel contentPanel = (JPanel)getContentPane();
         {
             contentPanel.setLayout(new BorderLayout());
-            contentPanel.setBorder(Config.dialogBorder);
+            contentPanel.setBorder(BlueJTheme.dialogBorder);
 
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {
                 buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-                JButton okButton = new JButton(Config.getString("okay"));
+                JButton okButton = BlueJTheme.getOkButton();
                 {
                     okButton.addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
@@ -72,7 +73,7 @@ public class PrefMgrDialog extends JFrame
 
                 getRootPane().setDefaultButton(okButton);
 
-                JButton cancelButton = new JButton(Config.getString("cancel"));
+                JButton cancelButton = BlueJTheme.getCancelButton();
                 {
                     cancelButton.addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
@@ -88,11 +89,7 @@ public class PrefMgrDialog extends JFrame
 
                 buttonPanel.add(okButton);
                 buttonPanel.add(cancelButton);
-
-                // try to make the OK and cancel buttons have equal width
-                okButton.setPreferredSize(new Dimension(cancelButton.getPreferredSize().width,
-                                                        okButton.getPreferredSize().height));
-            } // buttonPanel
+            }
 
             contentPanel.add(tabbedPane, BorderLayout.CENTER);
             contentPanel.add(buttonPanel, BorderLayout.SOUTH);

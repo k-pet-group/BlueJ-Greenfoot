@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import bluej.*;
 import bluej.Config;
 import bluej.utility.DialogManager;
 
@@ -14,17 +15,13 @@ import javax.swing.event.ListSelectionEvent;
  * Dialog for generating HTML and running applets.
  *
  * @author  Bruce Quig
- * @version $Id: RunAppletDialog.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: RunAppletDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 
 class RunAppletDialog extends JDialog
-
-implements ActionListener, ListSelectionListener 
+	implements ListSelectionListener 
 {
     // Internationalisation
-    static final String okay = Config.getString("okay");
-    static final String cancel = Config.getString("cancel");
-    static final String runAppletTitle = Config.getString("pkgmgr.runApplet.title");
     static final String createWebPage = Config.getString("pkgmgr.runApplet.webPageLabel");
     static final String radioButtonText1 = Config.getString("pkgmgr.runApplet.webPage");
     static final String radioButtonText2 = Config.getString("pkgmgr.runApplet.appletviewer");
@@ -40,9 +37,6 @@ implements ActionListener, ListSelectionListener
     static final int EXEC_WEBBROWSER = 1;
     static final int GENERATE_PAGE_ONLY = 2;
     
-    private static final String ADD_BUTTON = Config.getString("classmgr.add");
-    private static final String DELETE_BUTTON = Config.getString("classmgr.delete");
-   
     private String webPageName;
     
     private JList parameterList;
@@ -62,7 +56,7 @@ implements ActionListener, ListSelectionListener
     
     public RunAppletDialog(JFrame parent, String appletClassName) 
     {
-        super(parent, runAppletTitle, true);
+        super(parent, Config.getString("pkgmgr.runApplet.title"), true);
         this.parent = parent;
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent E) {
@@ -71,7 +65,7 @@ implements ActionListener, ListSelectionListener
             }
         });
         JPanel mainPanel = (JPanel)getContentPane();  // has BorderLayout
-        mainPanel.setBorder(Config.dialogBorder);
+        mainPanel.setBorder(BlueJTheme.dialogBorder);
         
         appletParameters = new DefaultListModel();
         webPageName = appletClassName + ClassTarget.HTML_EXTENSION;
@@ -81,11 +75,15 @@ implements ActionListener, ListSelectionListener
         buttonPanel.setLayout(new FlowLayout());
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JButton button;
-        buttonPanel.add(button = new JButton(okay));
-        button.addActionListener(this);
+        buttonPanel.add(button = BlueJTheme.getOkButton());
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) { doOK(); }        		
+		});
         getRootPane().setDefaultButton(button);
-        buttonPanel.add(button = new JButton(cancel));
-        button.addActionListener(this);
+        buttonPanel.add(button = BlueJTheme.getCancelButton());
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) { doCancel(); }        		
+		});
         getContentPane().add("South", buttonPanel);
         
         GridBagLayout gridBag = new GridBagLayout();
@@ -161,14 +159,19 @@ implements ActionListener, ListSelectionListener
         addGridBagComponent(webPanel, gridBag, gridConstraints, paramValueField,
         5, 4, 1, 1, GridBagConstraints.WEST);
         
-        deleteButton = new JButton(DELETE_BUTTON);
-        deleteButton.addActionListener(this);
+        deleteButton = new JButton(Config.getString("classmgr.delete"));
+		deleteButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) { doDelete(); }        		
+		});
+
         addGridBagComponent(webPanel, gridBag, gridConstraints, deleteButton,
         4, 5, 1, 1, GridBagConstraints.EAST);
         deleteButton.setEnabled(false);
         
-        addButton = new JButton(ADD_BUTTON);
-        addButton.addActionListener(this);
+        addButton = new JButton(Config.getString("classmgr.add"));
+		addButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) { doAdd(); }        		
+		});
         addGridBagComponent(webPanel, gridBag, gridConstraints, addButton,
         5, 5, 1, 1, GridBagConstraints.WEST);
         addButton.setEnabled(true);
@@ -229,36 +232,6 @@ implements ActionListener, ListSelectionListener
     {
         return webPageName;
     }
-    
-    
-    /**
-     * ActionListener method
-     * @param evt  the ActionEvent that fired this event
-     */    
-    public void actionPerformed(ActionEvent evt) 
-    {
-        String cmd = evt.getActionCommand();
-        
-        if(okay.equals(cmd))
-            doOK();
-        else if(cancel.equals(cmd))
-            doCancel();
-        // adding an applet parameter
-        else if(ADD_BUTTON.equals(cmd)) {
-            if(!paramNameField.getText().equals("") && !paramValueField.getText().equals("")) {
-                addAppletParameter();
-                parameterList.getSelectionModel().clearSelection();
-                paramNameField.requestFocus();
-            }
-        }
-        // deleting selected applet parameter
-        else if(DELETE_BUTTON.equals(cmd)){
-            appletParameters.remove(parameterList.getSelectedIndex());
-            clearInput();
-            deleteButton.setEnabled(false);
-        }
-    }
-    
     
     /**
      * Add a parameter to the applet parameter list.
@@ -325,7 +298,23 @@ implements ActionListener, ListSelectionListener
         setVisible(false);
     }
     
-    
+
+	public void doAdd()
+	{
+		if(!paramNameField.getText().equals("") && !paramValueField.getText().equals("")) {
+			addAppletParameter();
+			parameterList.getSelectionModel().clearSelection();
+			paramNameField.requestFocus();
+		}
+	}
+	
+	public void doDelete()
+	{
+		appletParameters.remove(parameterList.getSelectedIndex());
+		clearInput();
+		deleteButton.setEnabled(false);
+	}
+	
     /**
      * Check that required fields have entries.
      * There is no checking the validity of what is entered.

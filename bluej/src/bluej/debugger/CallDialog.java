@@ -1,6 +1,6 @@
 package bluej.debugger;
 
-import bluej.Config;
+import bluej.*;
 import bluej.utility.MultiLineLabel;
 import bluej.utility.DialogManager;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -16,7 +16,7 @@ import javax.swing.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: CallDialog.java 1923 2003-04-30 06:11:12Z ajp $
  */
 public abstract class CallDialog extends JDialog
 	implements ObjectBenchListener
@@ -158,29 +158,24 @@ public abstract class CallDialog extends JDialog
         {
             buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
-            JButton okButton = new JButton(Config.getString("okay"));
+            JButton okButton = BlueJTheme.getOkButton();
             okButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent evt) { doOk(); }
                     });
             buttonPanel.add(okButton);
 
-            JButton cancelButton = new JButton(Config.getString("cancel"));
+            JButton cancelButton = BlueJTheme.getCancelButton();
             cancelButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent evt) { doCancel(); }
                     });
             buttonPanel.add(cancelButton);
 
             getRootPane().setDefaultButton(okButton);
-
-            // try to make the OK and cancel buttons have equal width
-            okButton.setPreferredSize(
-                       new Dimension(cancelButton.getPreferredSize().width,
-                                     okButton.getPreferredSize().height));
         }
 
         //contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
         contentPane.setLayout(new BorderLayout(6,6));
-        contentPane.setBorder(Config.generalBorder);
+        contentPane.setBorder(BlueJTheme.generalBorder);
 
         if(topComponent != null)
             contentPane.add(topComponent, BorderLayout.NORTH);

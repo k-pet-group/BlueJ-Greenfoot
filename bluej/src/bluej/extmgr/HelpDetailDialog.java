@@ -87,7 +87,7 @@ class HelpDetailDialog extends JDialog implements ActionListener
         // TIme to put the two main panels into the root pane
         JPanel rootPane = (JPanel) getContentPane();
         rootPane.setLayout(new BorderLayout());
-        rootPane.setBorder(Config.dialogBorder);
+        rootPane.setBorder(BlueJTheme.dialogBorder);
 
         rootPane.add(mainPanel, BorderLayout.CENTER);
         rootPane.add(buttonPanel, BorderLayout.SOUTH);

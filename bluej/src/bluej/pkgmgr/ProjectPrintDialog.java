@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import bluej.*;
 import bluej.Config;
 
 import bluej.utility.DialogManager;
@@ -12,22 +13,11 @@ import javax.swing.*;
 /**
  * Dialog for creating a new Package
  * 
- * @version $Id: ProjectPrintDialog.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: ProjectPrintDialog.java 1923 2003-04-30 06:11:12Z ajp $
  * @author Bruce Quig
  */
-public class ProjectPrintDialog extends JDialog implements ActionListener
+public class ProjectPrintDialog extends JDialog
 {
-    // Internationalisation
-    static final String okay = Config.getString("okay");
-    static final String cancel = Config.getString("cancel");
-    static final String projectPrintTitle = Config.getString(
-                                                    "pkgmgr.printDialog.title");
-    static final String printDiagramLabel = Config.getString(
-                                                    "pkgmgr.printDialog.printDiagram");
-    static final String printSourceLabel = Config.getString(
-                                                   "pkgmgr.printDialog.printSource");
-    static final String printReadmeLabel = Config.getString(
-                                                   "pkgmgr.printDialog.printReadme");
     private boolean ok; // result: which button?
     private JCheckBox printDiagram;
     private JCheckBox printSource;
@@ -40,7 +30,7 @@ public class ProjectPrintDialog extends JDialog implements ActionListener
      */
     public ProjectPrintDialog(PkgMgrFrame parent)
     {
-        super(parent, projectPrintTitle, true);
+        super(parent, Config.getString("pkgmgr.printDialog.title"), true);
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent E)
@@ -53,41 +43,40 @@ public class ProjectPrintDialog extends JDialog implements ActionListener
         JPanel mainPanel = new JPanel();
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(Config.dialogBorder);
+        mainPanel.setBorder(BlueJTheme.dialogBorder);
         mainPanel.add(Box.createVerticalStrut(
-                              Config.dialogCommandButtonsVertical));
+                              BlueJTheme.dialogCommandButtonsVertical));
 
-        printDiagram = new JCheckBox(printDiagramLabel);
+        printDiagram = new JCheckBox(Config.getString("pkgmgr.printDialog.printDiagram"));
         printDiagram.setSelected(true);
         mainPanel.add(printDiagram);
                 
-        printSource = new JCheckBox(printSourceLabel);
+        printSource = new JCheckBox(Config.getString("pkgmgr.printDialog.printSource"));
         mainPanel.add(printSource);
                 
-        if(((parent.getPackage()).getParent() == null)) {
-            printReadme = new JCheckBox(printReadmeLabel);
+        if(parent.getPackage().isUnnamedPackage()) {
+            printReadme = new JCheckBox(Config.getString("pkgmgr.printDialog.printReadme"));
             mainPanel.add(printReadme);
         }
-        mainPanel.add(Box.createVerticalStrut(5));
+        mainPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-        JButton okButton = new JButton(okay);
-        okButton.addActionListener(this);
-
-        JButton cancelButton = new JButton(cancel);
-        cancelButton.addActionListener(this);
+        JButton okButton = BlueJTheme.getOkButton();
+        okButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) { doOK(); }        		
+        });
+        
+        JButton cancelButton = BlueJTheme.getCancelButton();
+        cancelButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent evt) { doCancel(); }        		
+		});
 
         buttonPanel.add(okButton);
         buttonPanel.add(cancelButton);
 
         getRootPane().setDefaultButton(okButton);
-
-        // try to make the OK and cancel buttons have equal width
-        okButton.setPreferredSize(
-                new Dimension(cancelButton.getPreferredSize().width, 
-                              okButton.getPreferredSize().height));
 
         mainPanel.add(buttonPanel);
 
@@ -109,22 +98,6 @@ public class ProjectPrintDialog extends JDialog implements ActionListener
         setVisible(true);
 
         return ok;
-    }
-
-    /**
-     * ActionListener for buttons
-     * 
-     * @param evt button event (Cancel or OK)
-     */
-    public void actionPerformed(ActionEvent evt)
-    {
-        String cmd = evt.getActionCommand();
-
-        if (okay.equals(cmd)) {
-            doOK();
-        } else if (cancel.equals(cmd)) {
-            doCancel();
-        }
     }
 
     /**
