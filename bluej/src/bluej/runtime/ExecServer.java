@@ -19,7 +19,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: ExecServer.java 2012 2003-06-03 07:09:13Z ajp $
  */
 public class ExecServer
 {
@@ -62,8 +62,6 @@ public class ExecServer
     public static void main(String[] args)
         throws Throwable
     {
-    	int count = 0;
-    	
 		//Debug.message("[VM] creating server object");
 
 		classmgr = new RemoteClassMgr();
@@ -104,10 +102,14 @@ public class ExecServer
 		// signal with a breakpoint that we have performed out VM initialisation
 		vmStarted();
 		
+		int count = 0;
+		
 		// an infinite loop.. 
-		while(true) {
+		while(count++ < 1000000) {
 			vmSuspend();
 		}
+		
+		System.err.println("bye bye");
     }
 
     /**
@@ -200,7 +202,7 @@ public class ExecServer
     private static Class loadClass(String className)
         throws ClassNotFoundException
     {
-    	// Debug.message("[VM] loadClass: " + className);
+    	//Debug.message("[VM] loadClass: " + className);
 		Class cl = null;
 		
 		if (currentLoader == null) {

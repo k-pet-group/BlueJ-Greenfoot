@@ -18,7 +18,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: JdiDebugger.java 2012 2003-06-03 07:09:13Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -410,32 +410,7 @@ public class JdiDebugger extends Debugger
         BlueJEvent.raiseEvent(BlueJEvent.SHOW_SOURCE, thread);
     }
 
-/*
-    private boolean serverThreadIdle()
-    {
-        try {
-            return serverThread.isAtBreakpoint() &&
-                serverThread.frame(0).location().declaringType().name().equals(
-                                                                SERVER_CLASSNAME)
-                && (serverThread.suspendCount() == 1);
-        }
-        catch (IncompatibleThreadStateException exc) {
-            Debug.reportError("debugger thread in run-away state...");
-            return false;
-        }
-    }
-*/
     // -- support methods --
-
-    private void sleep(int millisec)
-    {
-        synchronized(this) {
-            try {
-                wait(millisec);
-            }
-            catch(InterruptedException e) {}
-        }
-    }
 
     public void dumpThreadInfo()
     {

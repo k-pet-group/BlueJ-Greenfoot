@@ -13,11 +13,11 @@ import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 
 /**
- ** @version $Id: ExecControls.java 1991 2003-05-28 08:53:06Z ajp $
- ** @author Michael Kolling
- **
- ** Window for controlling the debugger
- **/
+ * Window for controlling the debugger
+ *
+ * @author  Michael Kolling
+ * @version $Id: ExecControls.java 2012 2003-06-03 07:09:13Z ajp $
+ */
 public class ExecControls extends JFrame
 
     implements ActionListener, ListSelectionListener
