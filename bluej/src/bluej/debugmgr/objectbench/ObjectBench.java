@@ -8,7 +8,8 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.plaf.basic.BasicArrowButton;
-import bluej.testmgr.record.*;
+
+import bluej.testmgr.record.InvokerRecord;
 
 /**
  * The object responsible for the panel that displays objects
@@ -16,7 +17,7 @@ import bluej.testmgr.record.*;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2287 2003-11-06 00:55:29Z ajp $
+ * @version $Id: ObjectBench.java 2333 2003-11-14 04:53:35Z ajp $
  */
 public class ObjectBench
 {
@@ -28,11 +29,16 @@ public class ObjectBench
     private ObjectBenchPanel obp;
     private ObjectWrapper selectedObjectWrapper;
 
+    /**
+     * Construct an object bench which is used to hold
+     * a bunch of object reference Components.
+     */
     public ObjectBench()
     {
         containerPanel = new JPanel();
         containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.X_AXIS));
-            
+
+        // scroll left button
         leftArrowButton = new ObjectBenchArrowButton(SwingConstants.WEST);
         leftArrowButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -40,25 +46,17 @@ public class ObjectBench
                 moveBench(-1);
             }
         });
-                
         containerPanel.add(leftArrowButton);
 
+        // a panel holding the actual object components
         obp = new ObjectBenchPanel();
 
+        // a sliding viewport, showing us the above panel
         viewPort = new JViewport();
         viewPort.setView(obp);
-//        viewPort.setScrollMode(JViewport.SIMPLE_SCROLL_MODE);
-
-/*        obp.addComponentListener(new ComponentListener() {
-            public void componentHidden(ComponentEvent e) {}
-            public void componentMoved(ComponentEvent e) {}
-            public void componentShown(ComponentEvent e)  {}
-            public void componentResized(ComponentEvent e)
-            {
-                enableButtons(ObjectBench.this.viewPort.getViewPosition());
-            }
-        }); */
         
+        // when the view changes, we may need to enable/disable
+        // the arrow buttons
         viewPort.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e)
             {
@@ -72,6 +70,7 @@ public class ObjectBench
         
         containerPanel.add(viewPort);
             
+        // scroll right button
         rightArrowButton = new ObjectBenchArrowButton(SwingConstants.EAST);
         rightArrowButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -82,16 +81,7 @@ public class ObjectBench
         
         containerPanel.add(rightArrowButton);
 
- //       moveBench(0);
-
-/*        obpholder.setLayout(new BoxLayout(obpholder, BoxLayout.Y_AXIS));
-
-        obpholder.add(obp);        
-
-        obpholder.setMinimumSize(new Dimension(WIDTH,HEIGHT));
-        obpholder.setPreferredSize(new Dimension(WIDTH,HEIGHT));
-        obpholder.setMaximumSize(new Dimension(WIDTH*1000,HEIGHT)); */
-
+        // start with a clean slate recording invocations
         resetRecordingInteractions();
     }
 
@@ -99,7 +89,7 @@ public class ObjectBench
      * Sets what is the currently selected ObjectWrapper, null can be given to 
      * signal that no wrapper is selected.
      */
-    public void setSelectedObjectWrapper ( ObjectWrapper aWrapper )
+    public void setSelectedObjectWrapper (ObjectWrapper aWrapper)
     {
         selectedObjectWrapper = aWrapper;
     }
@@ -108,13 +98,16 @@ public class ObjectBench
      * Returns the currently selected object wrapper. 
     * If no wrapper is selected null is returned.
      */
-    public ObjectWrapper getSelectedObjectWrapper ( )
+    public ObjectWrapper getSelectedObjectWrapper()
     {
         return selectedObjectWrapper;
     }
 
-
-
+    /**
+     * Move the displayed objects on the object bench left and right.
+     * 
+     * @param xamount
+     */
     private void moveBench(int xamount)
     {        
         Point pt = viewPort.getViewPosition();
@@ -126,6 +119,14 @@ public class ObjectBench
         viewPort.setViewPosition(pt);
     }
 
+    /**
+     * Based on the state of the viewport, enable or disable
+     * the left and right scrolling arrows.
+     * 
+     * This also affects the visibility of the arrows.
+     * 
+     * @param pt
+     */
     private void enableButtons(Point pt)
     {
         boolean buttonsNeeded = false;
@@ -159,6 +160,7 @@ public class ObjectBench
         return obp.getLayoutWidthMin() - viewPort.getWidth();
     }
     
+ 
     // ------------- nested class ObjectBenchPanel --------------
 
     /**
@@ -436,8 +438,14 @@ public class ObjectBench
     	obp.repaint();
     }
 
+    /**
+     * All invocations done since our last reset.
+     */
     private List invokerRecords;
-          
+      
+    /**
+     * Reset the recording of invocations.
+     */
     public void resetRecordingInteractions()
     {
         invokerRecords = new LinkedList();
