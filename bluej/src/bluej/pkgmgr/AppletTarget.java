@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /** 
- ** @version $Id: AppletTarget.java 119 1999-06-08 05:52:38Z bruce $
+ ** @version $Id: AppletTarget.java 123 1999-06-08 06:50:12Z bruce $
  ** @author Bruce Quig
  **
  ** An Applet class target in a package, i.e. a target that is a Applet class file
@@ -134,6 +134,10 @@ public class AppletTarget extends ClassTarget
 	actions = new Hashtable();
 
 	JPopupMenu menu = new JPopupMenu(getName() + " operations");
+
+	// add run applet option
+	addMenuItem(menu, runAppletStr, (state == S_NORMAL));
+	menu.addSeparator();
 	
 	// the only popup menu option under the Library Browser should be "open"
 	if (editorFrame != null && editorFrame instanceof LibraryBrowserPkgMgrFrame) {
@@ -148,9 +152,6 @@ public class AppletTarget extends ClassTarget
 	if ((cl != null) && (!isAbstract()))
 	    createClassMenu(menu, cl);
 	
-	// add run applet option
-	addMenuItem(menu, runAppletStr, (state == S_NORMAL));
-	menu.addSeparator();
 	addMenuItem(menu, editStr, true);
 	addMenuItem(menu, publicStr, (state == S_NORMAL));
 	addMenuItem(menu, pkgStr, (state == S_NORMAL));
