@@ -25,7 +25,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2347 2003-11-14 13:53:18Z polle $
+ * @version    $Id: Inspector.java 2348 2003-11-14 14:37:58Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -68,10 +68,10 @@ public abstract class Inspector extends JFrame
     private JPanel header = new JPanel();
 
     //The maximum length of the description (modifiers + field-name)    
-    private final static int MAX_DESCRIPTION_LENGTH = 40;
+    private final static int MAX_DESCRIPTION_LENGTH = 30;
     
     //The width of the list
-    private static final int LIST_WIDTH = 420;    
+    private static final int LIST_WIDTH = 300;    
 
     // === static methods ===
 
