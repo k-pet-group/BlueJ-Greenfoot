@@ -9,12 +9,19 @@ import java.awt.Image;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: WorldVisitor.java 3211 2004-12-02 13:12:54Z polle $
  */
 public class WorldVisitor
 {
     public static Image getCanvasImage(GreenfootWorld w)
     {
         return w.getCanvasImage();
+    }
+    
+    public static int getWidthInPixels(GreenfootWorld w) {
+        return w.getWidthInPixels();
+    }
+    public static int getHeightInPixels(GreenfootWorld w) {
+        return w.getHeightInPixels();
     }
 }

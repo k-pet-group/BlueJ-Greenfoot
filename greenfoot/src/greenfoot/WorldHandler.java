@@ -33,7 +33,7 @@ import rmiextension.wrappers.RObject;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3186 2004-11-26 10:07:24Z polle $
+ * @version $Id: WorldHandler.java 3211 2004-12-02 13:12:54Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -118,10 +118,10 @@ public class WorldHandler
         if (SwingUtilities.isLeftMouseButton(e)) {
             GreenfootObject go = getObject(e.getX(), e.getY());
             if (go != null) {
-                int dragOffsetX = go.getX() - e.getX();
-                int dragOffsetY = go.getY() - e.getY();
-                dragBeginX = go.getX();
-                dragBeginY = go.getY();
+                dragBeginX = go.getX()*world.getCellSize();
+                dragBeginY = go.getY()*world.getCellSize();
+                int dragOffsetX = dragBeginX - e.getX();
+                int dragOffsetY = dragBeginY - e.getY();
                 objectDropped = false;
                 DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
                 worldCanvas.removeMouseListener(this);
@@ -168,7 +168,7 @@ public class WorldHandler
      */
     private GreenfootObject getObject(int x, int y)
     {
-        Collection objectsThere = world.getObjectsAt(x, y);
+        Collection objectsThere = world.getObjectsAtPixel(x, y);
         if (objectsThere.size() < 1) {
             return null;
         }
@@ -368,8 +368,7 @@ public class WorldHandler
         if (o instanceof GreenfootObject) {
             GreenfootObject go = (GreenfootObject) o;
             world.addObject(go);
-            go.setLocation((int) p.getX(),(int) p.getY());
-            // quickAddIfActive();
+            go.setLocationInPixels((int) p.getX(),(int) p.getY());
             objectDropped = true;
             return true;
         }
@@ -383,7 +382,7 @@ public class WorldHandler
         if (o instanceof GreenfootObject) {
             GreenfootObject go = (GreenfootObject) o;
             world.addObject(go);
-            go.setLocation((int) p.getX(),(int) p.getY());
+            go.setLocationInPixels((int) p.getX(),(int) p.getY());
             return true;
         }
         else {
@@ -413,7 +412,7 @@ public class WorldHandler
             // at its original position
             if (! objectDropped && o instanceof GreenfootObject) {
                 GreenfootObject go = (GreenfootObject) o;
-                go.setLocation(dragBeginX, dragBeginY);
+                go.setLocationInPixels(dragBeginX, dragBeginY);
                 world.addObject(go);
                 objectDropped = true;
             }

@@ -25,7 +25,7 @@ import javax.swing.JComponent;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3176 2004-11-25 15:18:59Z polle $
+ * @version $Id: WorldCanvas.java 3211 2004-12-02 13:12:54Z polle $
  */
 public class WorldCanvas extends JComponent
     implements Observer, DropTarget
@@ -43,7 +43,7 @@ public class WorldCanvas extends JComponent
     }
 
     /**
-     * Sets the world that shoudl be visualied by this canvas
+     * Sets the world that should be visualied by this canvas
      * 
      * @param world
      */
@@ -54,7 +54,9 @@ public class WorldCanvas extends JComponent
         if (world != null) {
             setBackground(world.getBackgroundColor());
             setBackgroundImage(world.getBackgroundImage());
-            this.setSize(world.getWidth(), world.getHeight());
+            int width = WorldVisitor.getWidthInPixels(world);
+            int height = WorldVisitor.getHeightInPixels(world);
+            this.setSize(width, height);
         }
     }
 
@@ -94,7 +96,7 @@ public class WorldCanvas extends JComponent
                 GreenfootObject thing = (GreenfootObject) iter.next();
 
                 Location loc = new Location(thing.getX(), thing.getY());
-
+                loc.scale(world.getCellSize(), world.getCellSize());
                 ImageIcon image = thing.getImage();
                 if (image != null) {
                     Graphics2D g2 = (Graphics2D) g;
@@ -144,7 +146,10 @@ public class WorldCanvas extends JComponent
     {
         if(world != null) {
 	        g.setColor(getBackground());
-	        g.fillRect(0, 0, (int) world.getWidth(), (int) world.getHeight());
+
+            int width = WorldVisitor.getWidthInPixels(world);
+            int height = WorldVisitor.getHeightInPixels(world);
+	        g.fillRect(0, 0, width, height);
 	
 	        if (world.isTiledBackground()) {
 	            paintTiledBackground(g);
@@ -164,8 +169,11 @@ public class WorldCanvas extends JComponent
         int imgWidth = backgroundImage.getWidth(this);
         int imgHeight = backgroundImage.getHeight(this);
 
-        int xTiles = (int) Math.ceil((double) world.getWidth() / imgWidth);
-        int yTiles = (int) Math.ceil((double) world.getHeight() / imgHeight);
+        int width = WorldVisitor.getWidthInPixels(world);
+        int height = WorldVisitor.getHeightInPixels(world);
+        
+        int xTiles = (int) Math.ceil((double) width / imgWidth);
+        int yTiles = (int) Math.ceil((double) height / imgHeight);
 
         for (int x = 0; x < xTiles; x++) {
             for (int y = 0; y < yTiles; y++) {
@@ -182,7 +190,6 @@ public class WorldCanvas extends JComponent
 
     public Dimension getMinimumSize()
     {
-
         return getPreferredSize();
     }
 
@@ -190,8 +197,8 @@ public class WorldCanvas extends JComponent
     {
         Dimension size = new Dimension();
         if (world != null) {
-            size.width = world.getWidth();
-            size.height = world.getHeight();
+            size.width = WorldVisitor.getWidthInPixels(world);
+            size.height = WorldVisitor.getHeightInPixels(world);
         }
         return size;
     }

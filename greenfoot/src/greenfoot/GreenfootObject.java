@@ -15,7 +15,7 @@ import javax.swing.ImageIcon;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3198 2004-11-29 01:32:03Z davmac $
+ * @version $Id: GreenfootObject.java 3211 2004-12-02 13:12:54Z polle $
  */
 public class GreenfootObject
 {
@@ -60,7 +60,7 @@ public class GreenfootObject
     }
 
     /**
-     * Get the current objects location in the world
+     * Get the current location of the object in the world.
      * 
      * @return The x-axis location
      */
@@ -70,7 +70,7 @@ public class GreenfootObject
     }
 
     /**
-     * Get the current objects location in the world
+     * Get the current location of the object in the world.
      * 
      * @return The y-axis location
      */
@@ -80,7 +80,7 @@ public class GreenfootObject
     }
     
     /**
-     * Get the width of object (based on the width of the image)
+     * Get the width of object (based on the width of the image).
      * 
      */
     public int getWidth()
@@ -106,7 +106,9 @@ public class GreenfootObject
     
 
     /**
-     * Gets the rotation in degrees.
+     * Gets the rotation of the object.
+     * <br>      
+     * Zero degrees is to the east. The angle is clockwise from this.
      * 
      * @see #setRotation(double)
      * 
@@ -162,6 +164,19 @@ public class GreenfootObject
             world.updateLocation(this, oldX, oldY);
         }
     }
+    
+    
+    /**
+     * 
+     * Translates the given location into cell-coordinates before setting the location.
+     * 
+     * @param x x-coordinate in pixels
+     * @param y y-coordinate in pixels
+     */
+    void setLocationInPixels(int x, int y)
+    {
+        setLocation(world.toCellFloor(x), world.toCellFloor(y));
+    }
 
     /**
      * Sets the world of this object
@@ -198,6 +213,8 @@ public class GreenfootObject
      * Sets the image of this object to the one specified by the filename. <br>
      * The file should be located in the project directory.
      * 
+     * 
+     * @see #setImage(ImageIcon)
      * @param filename
      *            The filename of the image.
      */
@@ -213,8 +230,8 @@ public class GreenfootObject
      * Sets the image of this object <br>
      * 
      * @see #setImage(String)
-     * @param filename
-     *            The filename of the image.
+     * @param image
+     *            The image.
      */
     final public void setImage(ImageIcon image)
     {
@@ -274,24 +291,23 @@ public class GreenfootObject
     /**
      * Determines whether the given location is considered to be inside this
      * object. <br>
-     * The default implementation is to use the size of the image. If it does
-     * not have an image, the entire cell will be considered to be inside the
-     * object.
+     * The default implementation is to use the size of the image.
      * 
      * @param x
-     *            The x-position relative to the top left corner of the cell
-     *            that this object is currently in
+     *            The x-position relative to the location of the object
      * @param y
-     *            The y-position relative to the top left corner of the cell
-     *            that this object is currently in
-     * @return
+     *            The y-position relative to the location of the object
+     * @return True if the image contains the point. If it has no image it will
+     *         return false.
      */
     public boolean contains(int x, int y)
     {
+        //TODO this disregards rotations. maybe this should be updated in the
+        // getWidth/height methods
         ImageIcon image = getImage();
         if (image != null) {
-            int width = image.getIconWidth();
-            int height = image.getIconHeight();
+            int width = world.toCellCeil(getWidth());
+            int height = world.toCellCeil(getHeight());
             return intersects(x, y, 0, 0, width, height);
         }
         else {
@@ -312,7 +328,7 @@ public class GreenfootObject
      */
     private boolean intersects(int x, int y, int rectX, int rectY, int rectWidth, int rectHeight)
     {
-        if (x > rectX && x < (rectX + rectWidth) && y > rectY && y < (rectY + rectHeight)) {
+        if (x >= rectX && x < (rectX + rectWidth) && y >= rectY && y < (rectY + rectHeight)) {
             return true;
         }
         else {

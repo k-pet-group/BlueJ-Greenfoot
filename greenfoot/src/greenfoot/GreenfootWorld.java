@@ -1,6 +1,7 @@
 package greenfoot;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -19,17 +20,25 @@ import javax.swing.ImageIcon;
 
 /**
  * This class represents the object world, which is a 2 dimensional grid of
- * cells. The world can be populated with
- * GreenfootObjects.
+ * cells. The world can be populated with GreenfootObjects. <br>
+ * 
+ * The most normal use of the world is using a cell size of one, which means
+ * that it is using pixel resolution. If another cell size is used you should be
+ * aware that all methods that has something to do with location and size in
+ * GreenfootObject and GreenfootWorld is using that resolution.
  * 
  * @see greenfoot.GreenfootObject
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootWorld.java 3158 2004-11-24 15:29:21Z polle $
+ * @version $Id: GreenfootWorld.java 3211 2004-12-02 13:12:54Z polle $
  */
 public class GreenfootWorld extends Observable
 {
     private Map[][] world;
     private List objects = new ArrayList();
+    
+    
+    /** The size of the cell in pixels.*/
+    private int cellSize = 1;
 
     /**
      * Map from classes to the size of the largest object of that class - used
@@ -70,6 +79,25 @@ public class GreenfootWorld extends Observable
     {
         setSize(worldWidth, worldHeight);        
     }
+    
+    /**
+     * This constructor should be used if a scenario is created that should use a grid.
+     * It creates a new world with the given size .
+     * 
+     * @see GreenfootWorld
+     * @param worldWidth
+     *            The width of the world (in cells).
+     * @param worldHeight
+     *            The height of the world (in cells).
+     * @param cellSize
+     *            Size of a cell in pixels
+     *  
+     */
+    public GreenfootWorld(int worldWidth, int worldHeight, int cellSize)
+    {
+        setSize(worldWidth, worldHeight);
+        this.cellSize = cellSize;
+    }
 
     /**
      * Sets a new background color.
@@ -85,8 +113,10 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Sets the backgroundimage of the world
+     * Sets the backgroundimage of the world.
      * 
+     * @see #setTiledBackground(boolean)
+     * @see #setBackgroundImage(String)
      * @param image
      *            The image
      */
@@ -149,9 +179,7 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Gets the width of the world.
-     * 
-     * @return Number of pixels in the x-direction
+     * Gets the width of the world.     
      */
     public int getWidth()
     {
@@ -159,13 +187,36 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Gets the height of the world.
-     * 
-     * @return Number of pixels in the y-direction
+     * Gets the height of the world. 
      */
     public int getHeight()
     {
         return world[0].length;
+    }
+    
+    /**
+     * Get the height of the world in pixels.
+     */
+    int getHeightInPixels()
+    {
+        return getHeight() * getCellSize(); 
+    }
+    
+    /**
+     * Get the width of the world in pixels.
+     */ 
+    int getWidthInPixels()
+    {
+        return getWidth() * getCellSize();
+    }
+
+    /**
+     * Get the cell size. If no cell size has been specified via the
+     * constructor, it defaults to 1.
+     */
+    public int getCellSize()
+    {
+        return cellSize;
     }
 
     /**
@@ -181,9 +232,8 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Adds a GreenfootObject to the world.
-     * 
-     * If the coordinates of the objects is outside the worlds bounds, an
+     * Adds a GreenfootObject to the world. <br>
+     * If the coordinates of the object is outside the worlds bounds, an
      * exception is thrown.
      * 
      * @param thing
@@ -237,19 +287,20 @@ public class GreenfootWorld extends Observable
     {
         Class clazz = thing.getClass();
         Integer maxSize = (Integer) objectMaxSizes.get(clazz);
-        int height = thing.getImage().getIconHeight();
-        int width = thing.getImage().getIconWidth();
+        int height = thing.getHeight();
+        int width = thing.getWidth();
         int diag = (int) Math.sqrt(width * width + height * height);
-        if (maxSize == null || maxSize.intValue() < diag) {
-            objectMaxSizes.put(clazz, new Integer(diag));
+        
+        int newSizeInCells = toCellCeil(diag);
+        
+        if (maxSize == null || maxSize.intValue() < newSizeInCells) {
+            objectMaxSizes.put(clazz, new Integer(newSizeInCells));
         }
     }
 
     
     /**
-     * @param x
-     * @param y
-     * @return
+     * Returns all the objects with the exact location (x,y)
      */
     private Collection getObjectsWithLocation(int x, int y)
     {
@@ -267,9 +318,12 @@ public class GreenfootWorld extends Observable
             return emptyCollection;
         }
     }
-    
+
     /**
-     * Gets all the objects of class cls (and subclasses) at the given pixel location
+     * Gets all the objects of class cls (and subclasses) that contains the
+     * given location.
+     * 
+     * @see GreenfootObject#contains(int, int)
      */
     public Collection getObjectsAt(int x, int y, Class cls)
     {
@@ -285,7 +339,9 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Returns all objects at the given location.
+     * Returns all objects at that contains the given location.
+     * 
+     * @see GreenfootObject#contains(int, int)
      */
     public Collection getObjectsAt(int x, int y)
     {      
@@ -329,6 +385,26 @@ public class GreenfootWorld extends Observable
                 }
             }
             return objectsThere;
+    }
+    
+    /**
+     * When we have a pixel coordinate, and the cell size > 1, we can use this
+     * method which translates into cell coordinates. 
+     * 
+     */
+    Collection getObjectsAtPixel(int x, int y)
+    {
+        return getObjectsAt(toCellFloor(x), toCellFloor(y));
+    }
+
+    /**
+     * When we have a pixel coordinate, and the cell size > 1, we can use this
+     * method which translates into cell coordinates
+     * 
+     */
+    Collection getObjectsAtPixel(int x, int y, Class cls)
+    {
+        return getObjectsAt(toCellFloor(x), toCellFloor(y), cls);
     }
 
    
@@ -376,7 +452,7 @@ public class GreenfootWorld extends Observable
      * @param oldY
      *            The old Y location of the object
      */
-    protected void updateLocation(GreenfootObject object, int oldX, int oldY)
+    void updateLocation(GreenfootObject object, int oldX, int oldY)
     {
         Map map = world[oldX][oldY];
         Class clazz = object.getClass();
@@ -400,6 +476,16 @@ public class GreenfootWorld extends Observable
         list.add(object);
         update();
     }   
+    
+    int toCellCeil(int i)
+    {
+        return (int) Math.ceil( (double) i / cellSize );        
+    }
+    
+    int toCellFloor(int i)
+    {
+        return (int) Math.floor( (double) i / cellSize );        
+    }
 
     /**
      * Sets the delay that is used in the animation loop
@@ -465,7 +551,7 @@ public class GreenfootWorld extends Observable
     public Graphics2D getCanvas()
     {
         if (canvasImage == null) {
-            canvasImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+            canvasImage = new BufferedImage(getWidthInPixels(), getHeightInPixels(), BufferedImage.TYPE_INT_ARGB);
         }
         return (Graphics2D) canvasImage.getGraphics();
     }
@@ -503,7 +589,7 @@ public class GreenfootWorld extends Observable
     public Graphics2D getCanvas(int x, int y)
     {       
         Graphics2D g = getCanvas();
-        g.translate(x, y);
+        g.translate(x * cellSize, y * cellSize);
         return g;
     }
 }
