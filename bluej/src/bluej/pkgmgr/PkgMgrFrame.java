@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2291 2003-11-06 09:39:02Z fisker $
+ * @version $Id: PkgMgrFrame.java 2293 2003-11-06 10:40:47Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -2226,7 +2226,7 @@ public class PkgMgrFrame extends JFrame
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doAddFromFile(); }
                            });
-            createMenuItem("menu.edit.remove", menu, 0, 0, true,
+            createMenuItem("menu.edit.remove", menu, KeyEvent.VK_BACK_SPACE, SHORTCUT_MASK, true,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); doRemove(); }
                            });
