@@ -18,13 +18,17 @@ import java.awt.Frame;
  * possible and try to get all info dynamically. I need this to be in sync with BlueJ
  * This MAY NOT be ENOUGH so, check it with Andrew.
  *
- * @version $Id: BPackage.java 1640 2003-03-04 20:26:52Z damiano $
+ * @version $Id: BPackage.java 1647 2003-03-05 12:00:24Z damiano $
  */
 public class BPackage
 {
-    // This should be visible from all classes of bluej.extensions
-    final Package bluej_pkg;
+    // Now this can be private, leave it private, of course. Damiano
+    private final Package bluej_pkg;
 
+    /**
+     * NOT to be used by the extensions writer. You can get packaged from Projects !
+     * Unfortunately it must be bublic since it is called by the extension manager
+     */
     public BPackage (Package i_pkg)
     {
         bluej_pkg = i_pkg;
@@ -44,22 +48,21 @@ public class BPackage
 
 
     /**
-     * Gets the name of the package. This might
-     * well be an empty String.
+     * Gets the name of the package. This might well be an empty String.
+     *
      * @return fully-qualified name of the package, or
      * an empty string if the package is the 'default' package
      * or <code>null</code> if this Package is an empty frame.
      */
     public String getName()
     {
-        if (bluej_pkg == null) return null;
+        if ( ! isValid() ) return null;
         return bluej_pkg.getQualifiedName();
     }
     
     /**
-     * Gets a handle on the package's frame, in case you 
-     * need to do modal dialogues etc.
-     * @return package Frame.
+     * Gets a handle on the package's frame, in case you need to do modal dialogues etc.
+     * @return package Frame. Can return null if none found
      */
     public Frame getFrame()
     {
@@ -68,14 +71,15 @@ public class BPackage
     }
 
     /**
-     * Determines whether this is an empty package frame.
-     * If it is, some of the other functions will not be possible!
+     * Determines whether this is a valid BPackage.
+     *
      * @return <code>true</code> if this there is no package open
      */
-    public boolean isEmptyFrame()
+    public boolean isValid()
     {
-        // TODO: this does not seems to be the right thing to be done...
-        return (bluej_pkg == null);
+        if ( bluej_pkg == null) return false;
+        // TODO: Possible other checks here
+        return (true);
     }
     
     /**
@@ -86,68 +90,36 @@ public class BPackage
      */
     public BClass getClass (String name)
     {
-        if ( bluej_pkg == null ) return null;
+        if ( ! isValid() ) return null;
 
         Target classTarget = bluej_pkg.getTarget (name);
 
-        if (classTarget == null || !(classTarget instanceof ClassTarget)) return null;
+        if (classTarget == null ) return null;
+        if ( !(classTarget instanceof ClassTarget)) return null;
         
-        return new BClass (this, (ClassTarget)classTarget);
+        return new BClass (bluej_pkg, (ClassTarget)classTarget);
     }
     
     /**
      * Gets a list of the class names contained within this package.
-     * <p>If this is an empty package, no action will be taken and <code>null</code> will be returned.
-     * @return an array containing the simple names of all the classes in the package
+     *
+     * @return an array containing all BClass of the BPackage
      */
     public BClass[] getClasses()
     {
-        if (isEmptyFrame()) return null;
+        if (! isValid()) return new BClass[0];
+        
         List names = bluej_pkg.getAllClassnames();
         BClass[] classes = new BClass [names.size()];
-        for (ListIterator li=names.listIterator(); li.hasNext();) {
-            int i=li.nextIndex();
-            String name = (String)li.next();
-            classes [i] = getClass (name);
+        for (ListIterator iter=names.listIterator(); iter.hasNext();) {
+            int index=iter.nextIndex();
+            String name = (String)iter.next();
+            classes [index] = getClass (name);
         }
         return classes;
     }
     
-    /**
-     * Get an object proxy object for an object shown on the Object Bench.
-     * @param name the name of the object
-     * @return the proxy object, or <CODE>null</CODE> if no such object exists.
-     */
-    public BObject getObject (String name)
-    {
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
-        if ( pmf == null ) return null;
 
-        ObjectWrapper[] objects = pmf.getObjectBench().getWrappers();
-        for (int i=0; i<objects.length; i++) {
-            ObjectWrapper wrapper = (ObjectWrapper)objects[i];
-            if (wrapper.getName().equals (name)) return new BObject (this, wrapper, name);
-        }
-        return null;
-    }    
-
-    /**
-     * Gets a list of the object names on the object bench of this project.
-     * @return an array containing the names of all the objects on the object bench
-     */
-    public BObject[] getObjects()
-    {
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
-   
-        ObjectWrapper[] objectWrappers = pmf.getObjectBench().getWrappers();
-        BObject[] objects = new BObject [objectWrappers.length];
-        for (int i=0; i<objectWrappers.length; i++) {
-            ObjectWrapper wrapper = (ObjectWrapper)objectWrappers[i];
-            objects[i] = new BObject (this, wrapper, wrapper.getName());
-        }
-        return objects;
-    }
-    
     /**
      * Gets a System class. This can be manipulated in the same way as other BlueJ proxy classes.
      * @param name the fully-qualified name of the System class
@@ -161,8 +133,45 @@ public class BPackage
         } catch (ClassNotFoundException ex) {
             return null;
         }
-        return new BClass (this, cl);
+        return new BClass (bluej_pkg, cl);
     }
+
+    /**
+     * Get an object proxy object for an object shown on the Object Bench.
+     * @param name the name of the object
+     * @return the proxy object, or <CODE>null</CODE> if no such object exists.
+     */
+    public BObject getObject (String name)
+    {
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
+        if ( pmf == null ) return null;
+
+        ObjectWrapper[] objects = pmf.getObjectBench().getWrappers();
+        for (int i=0; i<objects.length; i++) {
+            ObjectWrapper wrapper = objects[i];
+            if (wrapper.getName().equals (name)) return new BObject (wrapper);
+        }
+        return null;
+    }    
+
+    /**
+     * Gets a list of the object names on the object bench of this project.
+     * @return an array containing the names of all the objects on the object bench
+     */
+    public BObject[] getObjects()
+    {
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
+        if ( pmf == null ) return new BObject[0];
+   
+        ObjectWrapper[] objectWrappers = pmf.getObjectBench().getWrappers();
+        BObject[] objects = new BObject [objectWrappers.length];
+        for (int i=0; i<objectWrappers.length; i++) {
+            ObjectWrapper wrapper = (ObjectWrapper)objectWrappers[i];
+            objects[i] = new BObject (wrapper);
+        }
+        return objects;
+    }
+    
 
     /**
      * Compile classes
@@ -183,7 +192,6 @@ public class BPackage
     public void reload()
     {
         if (bluej_pkg == null) return;
-
         bluej_pkg.reload();
     }
     

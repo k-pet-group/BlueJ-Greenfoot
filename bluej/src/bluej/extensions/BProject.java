@@ -15,7 +15,7 @@ import java.util.ListIterator;
  * I do this to try to have a reasonably syncronized view between the BleuJ and this
  * Othervise I will be holding a Project object that is NO longer active !
  *
- * @version $Id: BProject.java 1640 2003-03-04 20:26:52Z damiano $
+ * @version $Id: BProject.java 1647 2003-03-05 12:00:24Z damiano $
  */
 
 public class BProject
@@ -40,7 +40,10 @@ public class BProject
      */
     BProject (Project bluejProject)
     {
-        projectKey = bluejProject.getProjectDir();
+        if ( bluejProject == null ) 
+            projectKey = null;
+        else
+            projectKey = bluejProject.getProjectDir();
     }
 
 
@@ -129,7 +132,7 @@ public class BProject
     
     /**
      * Gets all the packages
-     * @return all the packages in this project
+     * @return all the packages in this project. If for some reason none exists an empty array is returned.
      */
     public BPackage[] getPackages()
     {
