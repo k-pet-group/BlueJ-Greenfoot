@@ -15,6 +15,9 @@
 ## Each of the properties in this file may be copied to the user
 ## properties file. Settings in the user file override the system
 ## wide settings here. 
+##
+#####################################################################
+
 
 #####################################################################
 ## The interface language. A directory must exist for the language in
@@ -41,21 +44,22 @@ bluej.url.javaStdLib=http://java.sun.com/products/jdk/1.3/docs/api/index.html
 
 
 #####################################################################
-## This is the directory that the file chooser will initially display
-## when opening a project. If commented out, the directory where
-## BlueJ was started will be used.
+## Project directory. This is the directory that the file chooser
+## will initially display when opening a project. If commented out,
+## the directory where BlueJ was started will be used.
 #####################################################################
 
 #bluej.defaultProjectPath=/home/mik/bluej/test-examples
 
+
 #####################################################################
-## The following are the commands used for opening a web browser. On
-## Windows systems, the winBrowserCmd is used, on all other systems
-## the browserCmd is used. BlueJ tries "Cmd1" first, and if it fails
-## it tries "Cmd2". This gives you a chance to let you first try a 
-## command that opens a page in an already running browser and, if
-## that fails, open a new browser. Or you could try one browser first
-## and, if that's not found try another.
+## Web browser. The following are the commands used for opening a
+## web browser. On Windows systems, the winBrowserCmd is used, on all
+## other systems the browserCmd is used. BlueJ tries "Cmd1" first,
+## and if it fails it tries "Cmd2". This gives you a chance to let
+## you first try a command that opens a page in an already running
+## browser and, if that fails, open a new browser. Or you could try
+## one browser first and, if that's not found try another.
 ## The first dollar sign ($) will be replaced by the URL to be
 ## opened.
 #####################################################################
@@ -70,15 +74,16 @@ browserCmd2=netscape $
 winBrowserCmd1=rundll32 url.dll,FileProtocolHandler $
 winBrowserCmd2=
 
+
 #####################################################################
-## Commands used to execute a compiler. The first property sets the
-## type of the compiler. Currently it can be one of internal, javac
-## or jikes. The second property if it exists, specifies the name of
-## the executable to run as the compiler. This can be a fully
-## qualified path or the name of an executable in the path. If it is
-## not specified then BlueJ defaults to the standard name of the
-## specified compiler type (ie javac for type javac and jikes for 
-## type jikes).
+## Compiling. Commands used to execute a compiler. The first property
+## sets the type of the compiler. Currently it can be one of 
+## internal, javac or jikes. The second property if it exists,
+## specifies the name of the executable to run as the compiler. This
+## can be a fully qualified path or the name of an executable in the
+## path. If it is not specified then BlueJ defaults to the standard
+## name of the specified compiler type (ie javac for type javac and
+## jikes for type jikes).
 #####################################################################
 
 bluej.compiler.type=internal
@@ -89,22 +94,33 @@ bluej.compiler.type=internal
 #bluej.compiler.type=javac
 #bluej.compiler.executable=javac
 
-#####################################################################
-## User Interface "Look and Feel"
-## To get the default system look and feel, don't set this property.
-#####################################################################
 
-# For the "Java Look and Feel":
-#bluej.lookAndFeel=javax.swing.plaf.metal.MetalLookAndFeel
+#######################################################################
+## Documentation generation. This specifies the command used for 
+## generating documentation and the directory name within the project 
+## directory where the documentation is stored.
+#######################################################################
 
-# For the Windows "Look and Feel":
-#bluej.lookAndFeel=javax.swing.plaf.windows.WindowsLookAndFeel
+doctool.command=javadoc
+doctool.outputdir=doc
 
-# For the Macintosh "Look and Feel":
-#bluej.lookAndFeel=javax.swing.plaf.mac.MacLookAndFeel
 
-# For the Motif "Look and Feel":
-#bluej.lookAndFeel=javax.swing.plaf.motif.MotifLookAndFeel
+#######################################################################
+## Applets. Preferences for how applets are generated and executed.
+## These are: 
+##    - the command to start the applet viewer
+##    - the virtual machine selection for the browser
+##    - the applet type: Applet (AWT) or JApplet (Swing)
+## JApplets are still not supported by many browsers.
+#######################################################################
+
+appletViewer.command=appletviewer
+
+bluej.applet.jvm=html
+
+bluej.applet.type=applet
+#bluej.applet.type=japplet
+
 
 #####################################################################
 ## System libraries which are added to BlueJ's class path
@@ -116,14 +132,20 @@ bluej.systemlibrary1.location=S\:\\Programming\\Java\\lib\\sample.jar
 bluej.systemlibrary2.description=A Sample Library for UNIX
 bluej.systemlibrary2.location=/usr/local/java/lib/sample.jar
 
+
 #######################################################################
-## Fonts. With Java, you don't have much choice of font faces, but you
-## can set the size.
+## Fonts. You can choose a font size for most of the interface 
+## components, and a font face and size for the editor. The editor font
+## size can be redefined by a user in their preference dialogue.
 #######################################################################
 
 # font size for most of the interface components
+
 bluej.fontsize=12
-#bluej.fontsize=10
+
+# fontsize for the editor
+
+bluej.editor.fontsize=12
 
 # The editor font. This is the name of a font face with an optional 
 # "-bold" at the end. Most used are monospaced fonts, such as Courier.
@@ -134,118 +156,46 @@ bluej.editor.font=Monospaced
 # bluej.editor.font=Monospaced-bold
 # bluej.editor.font=SansSerif
 # bluej.editor.font=SansSerif-bold
-# bluej.editor.font=Verdana
-# bluej.editor.font=Verdana-bold
 # bluej.editor.font=Arial-bold
-
-# fontsize for the editor - this is just the initial default. It can be
-# changed in the individual user preferences from within BlueJ.
-bluej.editor.fontsize=12
 
 # fonts for printing
 bluej.fontsize.printText=10
 bluej.fontsize.printTitle=14
 bluej.fontsize.printInfo=10
 
-# page format for printing
-
-# should we syntax hilight
-bluej.syntaxHilighting=true
-
-# class notation style eg. uml or blue
-bluej.notation.style=uml
-#bluej.notation.style=blue
-
-## debugging: when on, debug output goes to console; when off, to log file
-debug=on
-
-##Log Files
-bluej.debugLog=debug.log
-
-#######################################################################
-## Tool used for generating documentation and its parameters
-##
-#######################################################################
-doctool.command=javadoc
-
-## name of directory in project directory where documentation is written to
-doctool.outputdir=doc
-
-#######################################################################
-## Applets -  preferences for how applets are generated and executed
-##
-#######################################################################
-
-#appletviewer command
-#appletViewer.command=c:\\jdk1.3\\bin\\appletviewer
-appletViewer.command=appletviewer
-
-# which jvm browser internal or JDK plugin
-bluej.applet.jvm=html
-
-# applet type standard AWT Applet or Swing based JApplet
-bluej.applet.type=applet
-#bluej.applet.type=japplet
-
-## Templates - skeleton files
-template.stdclass=stdclass.tmpl
-template.abstract=abstract.tmpl
-template.interface=interface.tmpl
-template.shell=shell.tmpl
-template.applet=applet.tmpl
-template.japplet=japplet.tmpl
-template.html=html.tmpl
-template.htmlplugin=htmlplugin.tmpl
-template.readme=readme.tmpl
-
-## Images
-image.icon=bluej-icon.gif
-image.logo=bluej-logo.gif
-image.build.depends=arrow_black.gif
-image.build.depends.uml=arrow_black_uml.gif
-image.build.depends.selected=arrow_red.gif
-image.build.extends=darrow_black.gif
-image.build.extends.uml=darrow_black_uml.gif
-image.build.extends.selected=darrow_red.gif
-
-image.objectviewer.object=objectIcon.gif
-image.objectviewer.blank=objectIcon_blank.gif
-
-image.working=working.gif
-image.working.disab=working-disab.gif
-image.working.stopped=working-stopped.gif
-image.breakmark=break.gif
-image.stepmark=stepmark.gif
-image.breakstepmark=stepbreak.gif
-image.packageIcon=packageIcon.gif
-image.broken=broken-arrow.gif
-image.help=help.gif
-
-# debugger:
-image.continue=continue.gif
-image.step=step.gif
-image.step_into=step_into.gif
-image.stop=stop.gif
-image.terminate=terminate.gif
-
-## images for library browser
-browser.image.constructoricon=yellow-ball-small.gif
-browser.image.privateicon=red-ball-small.gif
-browser.image.publicicon=blue-ball-small.gif
-browser.image.protectedicon=magenta-ball-small.gif
-
+# library browser fonts
 browser.fontname.treeroot=SansSerif
 browser.fontsize.treeroot=12
 
 browser.fontname.treeleaf=MonoSpaced
 browser.fontsize.treeleaf=11
 
-## images for gui builder
-guibuilder.image.selectbutton=selectarrow.gif
-guibuilder.image.jbutton=jbutton.gif
-guibuilder.image.jradiobutton=jradiobutton.gif
+# page format for printing
 
-### Colour Definitions
+
+#######################################################################
+## Syntax highlighting - should we do it?
+## This is the initial default - it can be changed by users in their
+## preferences dialogue.
+#######################################################################
+
+bluej.syntaxHilighting=true
+
+
+#######################################################################
+## Class diagram notation style. One of uml or blue.
+## This is the initial default - it can be changed by users in their
+## preferences dialogue.
+#######################################################################
+
+bluej.notation.style=uml
+#bluej.notation.style=blue
+
+
+#######################################################################
+### Colours. All are specified as RGB values.
+#######################################################################
+
 colour.background=208,212,208
 colour.graph.background=255,255,255
 colour.text.bg=255,255,255
@@ -280,3 +230,98 @@ colour.wrapper.bg=205,38,38
 colour.wrapper.shadow=152,152,152
 
 colour.menu.environOp=170,32,32
+
+
+#####################################################################
+## User Interface "Look and Feel"
+## To get the default system look and feel, don't set this property.
+#####################################################################
+
+# For the "Java Look and Feel":
+#bluej.lookAndFeel=javax.swing.plaf.metal.MetalLookAndFeel
+
+# For the Windows "Look and Feel":
+#bluej.lookAndFeel=javax.swing.plaf.windows.WindowsLookAndFeel
+
+# For the Macintosh "Look and Feel":
+#bluej.lookAndFeel=javax.swing.plaf.mac.MacLookAndFeel
+
+# For the Motif "Look and Feel":
+#bluej.lookAndFeel=javax.swing.plaf.motif.MotifLookAndFeel
+
+
+#######################################################################
+## Debugging. When on, debug output goes to console; when off, it is
+##  written to a log file in the user's bluej settings directory.
+#######################################################################
+
+debug=on
+bluej.debugLog=debug.log
+
+
+#######################################################################
+## Template files (in <BLUEJ_HOME>/lib/) used to create default texts
+## for classes, applets, readme files, etc.
+#######################################################################
+
+template.stdclass=stdclass.tmpl
+template.abstract=abstract.tmpl
+template.interface=interface.tmpl
+template.shell=shell.tmpl
+template.applet=applet.tmpl
+template.japplet=japplet.tmpl
+template.html=html.tmpl
+template.htmlplugin=htmlplugin.tmpl
+template.readme=readme.tmpl
+
+
+#######################################################################
+## Images.
+#######################################################################
+
+image.icon=bluej-icon.gif
+image.logo=bluej-logo.gif
+
+# arrow buttons
+image.build.depends=arrow_black.gif
+image.build.depends.uml=arrow_black_uml.gif
+image.build.depends.selected=arrow_red.gif
+image.build.extends=darrow_black.gif
+image.build.extends.uml=darrow_black_uml.gif
+image.build.extends.selected=darrow_red.gif
+
+image.objectviewer.object=objectIcon.gif
+image.objectviewer.blank=objectIcon_blank.gif
+
+# the machine indicator
+image.working=working.gif
+image.working.disab=working-disab.gif
+image.working.stopped=working-stopped.gif
+
+# editor breakpoint and step mark
+image.breakmark=break.gif
+image.stepmark=stepmark.gif
+image.breakstepmark=stepbreak.gif
+
+image.packageIcon=packageIcon.gif
+image.broken=broken-arrow.gif
+image.help=help.gif
+
+# debugger:
+image.continue=continue.gif
+image.step=step.gif
+image.step_into=step_into.gif
+image.stop=stop.gif
+image.terminate=terminate.gif
+
+## images for library browser
+browser.image.constructoricon=yellow-ball-small.gif
+browser.image.privateicon=red-ball-small.gif
+browser.image.publicicon=blue-ball-small.gif
+browser.image.protectedicon=magenta-ball-small.gif
+
+## images for gui builder
+guibuilder.image.selectbutton=selectarrow.gif
+guibuilder.image.jbutton=jbutton.gif
+guibuilder.image.jradiobutton=jradiobutton.gif
+
