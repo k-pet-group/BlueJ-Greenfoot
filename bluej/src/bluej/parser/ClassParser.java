@@ -1431,6 +1431,7 @@ public ClassParser(ParserSharedInputState state) {
 		case LITERAL_double:
 		case IDENT:
 		case LPAREN:
+		case PLUS:
 		case MINUS:
 		case INC:
 		case DEC:
@@ -1480,6 +1481,7 @@ public ClassParser(ParserSharedInputState state) {
 		case IDENT:
 		case LCURLY:
 		case LPAREN:
+		case PLUS:
 		case MINUS:
 		case INC:
 		case DEC:
@@ -1713,6 +1715,7 @@ public ClassParser(ParserSharedInputState state) {
 			case LITERAL_threadsafe:
 			case LITERAL_synchronized:
 			case LPAREN:
+			case PLUS:
 			case MINUS:
 			case INC:
 			case DEC:
@@ -1757,6 +1760,7 @@ public ClassParser(ParserSharedInputState state) {
 			case LITERAL_double:
 			case IDENT:
 			case LPAREN:
+			case PLUS:
 			case MINUS:
 			case INC:
 			case DEC:
@@ -1800,6 +1804,7 @@ public ClassParser(ParserSharedInputState state) {
 			case LITERAL_double:
 			case IDENT:
 			case LPAREN:
+			case PLUS:
 			case MINUS:
 			case INC:
 			case DEC:
@@ -1923,6 +1928,7 @@ public ClassParser(ParserSharedInputState state) {
 			case LITERAL_double:
 			case IDENT:
 			case LPAREN:
+			case PLUS:
 			case MINUS:
 			case INC:
 			case DEC:
@@ -2204,6 +2210,7 @@ public ClassParser(ParserSharedInputState state) {
 		case LITERAL_default:
 		case LITERAL_throw:
 		case LITERAL_try:
+		case PLUS:
 		case MINUS:
 		case INC:
 		case DEC:
@@ -2709,6 +2716,12 @@ public ClassParser(ParserSharedInputState state) {
 			castExpression();
 			break;
 		}
+		case PLUS:
+		{
+			match(PLUS);
+			castExpression();
+			break;
+		}
 		case BNOT:
 		{
 			match(BNOT);
@@ -2888,6 +2901,7 @@ public ClassParser(ParserSharedInputState state) {
 				case LITERAL_double:
 				case IDENT:
 				case LPAREN:
+				case PLUS:
 				case MINUS:
 				case INC:
 				case DEC:
@@ -3123,6 +3137,7 @@ public ClassParser(ParserSharedInputState state) {
 			case LITERAL_double:
 			case IDENT:
 			case LPAREN:
+			case PLUS:
 			case MINUS:
 			case INC:
 			case DEC:
@@ -3245,6 +3260,7 @@ public ClassParser(ParserSharedInputState state) {
 					case LITERAL_double:
 					case IDENT:
 					case LPAREN:
+					case PLUS:
 					case MINUS:
 					case INC:
 					case DEC:
@@ -3517,21 +3533,21 @@ public ClassParser(ParserSharedInputState state) {
 	public static final BitSet _tokenSet_6 = new BitSet(_tokenSet_6_data_);
 	private static final long _tokenSet_7_data_[] = { 343597383760L, 0L };
 	public static final BitSet _tokenSet_7 = new BitSet(_tokenSet_7_data_);
-	private static final long _tokenSet_8_data_[] = { 94549763314417424L, 141836433752064L, 0L, 0L };
+	private static final long _tokenSet_8_data_[] = { 94549763314417424L, 141836435849216L, 0L, 0L };
 	public static final BitSet _tokenSet_8 = new BitSet(_tokenSet_8_data_);
-	private static final long _tokenSet_9_data_[] = { 558346010368L, 1098945396736L, 0L, 0L };
+	private static final long _tokenSet_9_data_[] = { 558346010368L, 1098947493888L, 0L, 0L };
 	public static final BitSet _tokenSet_9 = new BitSet(_tokenSet_9_data_);
-	private static final long _tokenSet_10_data_[] = { 108078171562442512L, 141836433752064L, 0L, 0L };
+	private static final long _tokenSet_10_data_[] = { 108078171562442512L, 141836435849216L, 0L, 0L };
 	public static final BitSet _tokenSet_10 = new BitSet(_tokenSet_10_data_);
 	private static final long _tokenSet_11_data_[] = { -36032337145757872L, 141836999983103L, 0L, 0L };
 	public static final BitSet _tokenSet_11 = new BitSet(_tokenSet_11_data_);
-	private static final long _tokenSet_12_data_[] = { 4947802586880L, 1098945396736L, 0L, 0L };
+	private static final long _tokenSet_12_data_[] = { 4947802586880L, 1098947493888L, 0L, 0L };
 	public static final BitSet _tokenSet_12 = new BitSet(_tokenSet_12_data_);
 	private static final long _tokenSet_13_data_[] = { 1072955136L, 140737488355328L, 0L, 0L };
 	public static final BitSet _tokenSet_13 = new BitSet(_tokenSet_13_data_);
 	private static final long _tokenSet_14_data_[] = { 1073217344L, 140737488355328L, 0L, 0L };
 	public static final BitSet _tokenSet_14 = new BitSet(_tokenSet_14_data_);
-	private static final long _tokenSet_15_data_[] = { 549756075776L, 1098945396736L, 0L, 0L };
+	private static final long _tokenSet_15_data_[] = { 549756075776L, 1098947493888L, 0L, 0L };
 	public static final BitSet _tokenSet_15 = new BitSet(_tokenSet_15_data_);
 	private static final long _tokenSet_16_data_[] = { -576459927668654256L, 1099511627775L, 0L, 0L };
 	public static final BitSet _tokenSet_16 = new BitSet(_tokenSet_16_data_);
@@ -3543,7 +3559,7 @@ public ClassParser(ParserSharedInputState state) {
 	public static final BitSet _tokenSet_19 = new BitSet(_tokenSet_19_data_);
 	private static final long _tokenSet_20_data_[] = { -576454344211169328L, 1099511627775L, 0L, 0L };
 	public static final BitSet _tokenSet_20 = new BitSet(_tokenSet_20_data_);
-	private static final long _tokenSet_21_data_[] = { 549756075904L, 1098945396736L, 0L, 0L };
+	private static final long _tokenSet_21_data_[] = { 549756075904L, 1098947493888L, 0L, 0L };
 	public static final BitSet _tokenSet_21 = new BitSet(_tokenSet_21_data_);
 	
 	}

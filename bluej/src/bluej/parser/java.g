@@ -1106,6 +1106,7 @@ castExpression
     |   INC castExpression
     |   DEC castExpression
     |   MINUS castExpression
+    |   PLUS castExpression
     |   BNOT castExpression
     |   LNOT castExpression
     |   postfixExpression ( "instanceof" t=typeSpec {reference(t);})?
