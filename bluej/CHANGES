@@ -88,7 +88,7 @@ in the template for the next one):
 @prio  : 1
 @source: mik
 @date  : 1999-03-13
-@status: open
+@status: in process (mik)
 @fixrel: 
 @descr : in SunDebugger:
 	       - breakpoint handling

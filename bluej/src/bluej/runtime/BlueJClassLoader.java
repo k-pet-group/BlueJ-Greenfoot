@@ -56,8 +56,6 @@ public class BlueJClassLoader extends ClassLoader
 	    return cl;
 	else
 	    return findSystemClass(name);
-	
-	// throw new ClassNotFoundException(name);
     }
  	
     /**

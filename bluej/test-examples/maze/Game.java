@@ -19,6 +19,8 @@
  ** 
  **/
 
+import bluej.runtime.Terminal;
+
 public class Game {
 	private Parser parser;
 	private Room curr_Room;
@@ -264,38 +266,37 @@ public class Game {
 		solve_Room = lab;
 	}
 
-	/**
-	 **  Main play routine.  Loops until end of play.
-	 **/
-	public void play() {
-		
-	        boolean bFinish = false;
-		
-		Result result;
+    /**
+     **  Main play routine.  Loops until end of play.
+     **/
+    public void play() {
 	
-	        System.out.println("\nWelcome to Maze!\n\n");
-        	System.out.println("Try to solve all your problems - good luck!\n");
-	        System.out.println("Type 'help' if you need help.\n\n");
-		System.out.println(curr_Room+"\n");
-
-		// enter the main command loop.  here we read a command and
-		// then execute it until the game is over.
+        boolean bFinish = false;
 		
-		while (!bFinish) {
-	    		
-			result = parser.getCommand ();
+        Result result;
+	
+	Terminal.clear();
+        System.out.println("\nWelcome to Maze!\n\n");
+       	System.out.println("Try to solve all your problems - good luck!\n");
+        System.out.println("Type 'help' if you need help.\n\n");
+	System.out.println(curr_Room+"\n");
 
-	    		if(result.getTwo_Words() && !result.hasItem())
-				// if has_second_word is true and the item is
-				// nil, then a word was entered that was not
-				// known.
-				System.out.println
-				("I don't know what you are talking about...\n");
-			else
-				bFinish = processCommand (result);
-		}    
-		System.out.println("\nThank you for playing.  Good bye.\n");
-  	}
+	// enter the main command loop.  here we read a command and
+	// then execute it until the game is over.
+		
+	while (!bFinish) {	
+            result = parser.getCommand ();
+
+            if(result.getTwo_Words() && !result.hasItem())
+                // if has_second_word is true and the item is
+                // nil, then a word was entered that was not
+                // known.
+                System.out.println("I don't know what you are talking about...\n");
+            else
+                bFinish = processCommand (result);
+        }    
+        System.out.println("\nThank you for playing.  Good bye.\n");
+    }
 
 
 //	Main routine for starting game.

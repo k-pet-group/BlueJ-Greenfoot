@@ -8,7 +8,7 @@ import java.io.PrintStream;
 import java.util.Hashtable;
 import java.util.Enumeration;
 
-//import sun.tools.debug.SunHooks; ## fix for 1.2 ##
+import sun.tools.agent.SunHooks;
 
 /**
  ** Class that controls the runtime of code executed within BlueJ.
@@ -132,7 +132,7 @@ public class BlueJRuntime
 	else
 	    System.err.println("Unknown runtime command " + args[0]);
 
-	//	SunHooks.die(); ## fix for 1.2 ##
+	SunHooks.die();
     }
 
     static void createLoader(String loaderId, String classpath)
