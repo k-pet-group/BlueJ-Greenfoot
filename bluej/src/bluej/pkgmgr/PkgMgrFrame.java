@@ -44,7 +44,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3054 2004-10-15 11:32:47Z mik $
+ * @version $Id: PkgMgrFrame.java 3065 2004-10-25 06:45:16Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1438,16 +1438,6 @@ public class PkgMgrFrame extends JFrame
         }
         else if (cv instanceof MethodView) {
             final MethodView mv = (MethodView) cv;
-
-            // if we are calling a main method then we want to simulate a
-            // new launch of an application, so first of all we unload all our
-            // classes (prevents problems with static variables not being
-            // reinitialised because the class hangs around from a previous
-            // call)
-            if (mv.isMain()) {
-                getProject().removeLocalClassLoader();
-                getProject().newRemoteClassLoaderLeavingBreakpoints();
-            }
 
             // create a watcher
             // that waits for completion of the call and then displays the

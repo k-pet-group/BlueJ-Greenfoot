@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3064 2004-10-25 03:12:36Z davmac $
+ * @version $Id: Invoker.java 3065 2004-10-25 06:45:16Z bquig $
  */
 
 public class Invoker
@@ -278,7 +278,18 @@ public class Invoker
 	                    typeMap.put(formalType.getTparName(), actualType);
 	                }
                 }
-                
+                // if we are calling a main method then we want to simulate a
+                // new launch of an application, so first of all we unload all our
+                // classes (prevents problems with static variables not being
+                // reinitialised because the class hangs around from a previous
+                // call)
+                else if(member instanceof MethodView) {
+                    MethodView mv = (MethodView)member;
+                    if((mv).isMain()) {
+                        pmf.getProject().removeLocalClassLoader();
+                        pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();
+                    }
+                }
                 doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true, instanceMap == null), actualTypeParams);
                 pmf.setWaitCursor(true);
                 if (constructing)
