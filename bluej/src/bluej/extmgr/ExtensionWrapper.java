@@ -17,6 +17,7 @@ import java.net.URLClassLoader;
 import java.text.SimpleDateFormat;
 import java.lang.reflect.Constructor;
 import javax.swing.*;
+import bluej.extensions.MenuGenerator;
 
 /**
  * <PRE>
@@ -667,7 +668,7 @@ public class ExtensionWrapper
     {
         if (extensionBluej == null) return null;
 
-        MenuGen aMenuGen = extensionBluej.getMenuGen();
+        MenuGenerator aMenuGen = extensionBluej.getMenuGenerator();
         // The above is dafe. An extension may not have a menu generator
         if ( aMenuGen == null ) return null;
 

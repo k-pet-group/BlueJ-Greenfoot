@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1770 2003-04-09 16:24:27Z damiano $
+ * @version $Id: BlueJ.java 1780 2003-04-10 08:10:42Z damiano $
  */
 
 public class BlueJ
@@ -55,9 +55,9 @@ public class BlueJ
     private final PrefManager      prefManager;
     private final MenuManager      menuManager;
     
-    private PrefGen    currentPrefGen=null;
-    private MenuGen    currentMenuGen=null;
-    private Properties localLabels;
+    private PrefGen       currentPrefGen=null;
+    private MenuGenerator currentMenuGen=null;
+    private Properties    localLabels;
 
     /**
      * NOT to be used by Extension writer.
@@ -199,9 +199,9 @@ public class BlueJ
      * Install a new menu generator for this extension.
      * If you want no menus then set it to null
      * 
-     * @param menuGen a Class instance that implements the MenuGen interface
+     * @param MenuGenerator a Class instance that implements the MenuGenerator interface
      */
-    public void setMenuGen ( MenuGen menuGen )
+    public void setMenuGenerator ( MenuGenerator menuGen )
     {
         currentMenuGen = menuGen;
         menuManager.menuExtensionRevalidateReq();
@@ -210,7 +210,7 @@ public class BlueJ
     /**
      * Returns the currently registered MenuGen instance
      */
-    public MenuGen getMenuGen ()
+    public MenuGenerator getMenuGenerator ()
     {
         return currentMenuGen;
     }
