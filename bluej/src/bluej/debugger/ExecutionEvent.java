@@ -7,7 +7,7 @@ import bluej.pkgmgr.Package;
  * an execution.
  *
  * @author  Clive Miller
- * @version $Id: ExecutionEvent.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: ExecutionEvent.java 1718 2003-03-21 09:27:05Z damiano $
  */
 
 public class ExecutionEvent
@@ -62,6 +62,7 @@ public class ExecutionEvent
     private String result;
     private String command;
     private Package pkg;
+    private DebuggerObject resultObject;   // If there is a result object it goes here.
 
     private ExecutionEvent (String className, String objectName)
     {
@@ -90,7 +91,15 @@ public class ExecutionEvent
     {
         this.result = result;
     }
-    
+
+    /**
+     * When an invocation has some valid result it can pass it on using this method.
+     */
+    void setResultObject (DebuggerObject resultObject)
+    {
+        this.resultObject = resultObject;
+    }
+
     void setPackage (Package pkg)
     {
         this.pkg = pkg;
@@ -130,7 +139,15 @@ public class ExecutionEvent
     {
         return result;
     }
-    
+
+    /**
+     * This is the Object resulting from the invocation.
+     */
+    public DebuggerObject getResultObject()
+    {
+        return resultObject;
+    }
+
     public Package getPackage()
     {
         return pkg;

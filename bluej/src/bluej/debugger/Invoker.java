@@ -5,20 +5,16 @@ import bluej.BlueJEvent;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.JavaNames;
-import bluej.utility.BlueJFileReader;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.ConstructorView;
 import bluej.views.LabelPrintWriter;
-import bluej.views.MemberView;
 import bluej.views.CallableView;
 import bluej.views.MethodView;
 import bluej.testmgr.*;
 
-import java.awt.Component;
-import java.awt.Cursor;
 import java.io.*;
 import java.util.*;
 
@@ -29,7 +25,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: Invoker.java 1718 2003-03-21 09:27:05Z damiano $
  */
 
 public class Invoker extends Thread
@@ -633,7 +629,8 @@ public class Invoker extends Thread
                                             shellClassName,"__bluej_runtime_result");
 
                 watcher.putResult(result, instanceName, ir);
-                    
+
+                executionEvent.setResultObject(result);                    
                 executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                 break;
 
