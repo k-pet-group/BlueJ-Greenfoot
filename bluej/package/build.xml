@@ -20,6 +20,7 @@
         <exclude name="**/.#*" />
         <include name="lib/images/*.gif" />
         <include name="lib/images/*.jpg" />
+        <include name="lib/images/*.icns" />
         <include name="lib/afrikaans/" />
         <include name="lib/chinese/" />
         <include name="lib/czech/" />
