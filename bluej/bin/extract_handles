@@ -1,0 +1,12 @@
+#!/bin/awk -f
+# Given a file of the format english\nforeign\nforeign\n\n...
+# prints all the english handles
+# Skips all records which have a # anywhere which is probably
+# not what we want..
+
+BEGIN { FS=""; RS=""; }
+
+{
+	if(index($0, "#") == 0)
+		print $1;
+}

@@ -1,0 +1,43 @@
+#!/bin/sh
+# Checks our bluej languages files for discepancies against
+# the reference language
+# usage: test_lang language
+#        eg ./test_lang german
+
+test_it ()
+{
+$BINDIR/extract_handles < $LIBDIR/$1 | sort > /tmp/orig$$
+$BINDIR/extract_handles < $LIBDIR/$2 | sort > /tmp/other$$
+diff -w /tmp/orig$$ /tmp/other$$
+rm -f /tmp/orig$$ /tmp/other$$
+ }
+
+test_props ()
+ {
+$BINDIR/extract_handles_props < $LIBDIR/$1 | sort > /tmp/orig$$
+$BINDIR/extract_handles_props < $LIBDIR/$2 | sort > /tmp/other$$
+diff -w /tmp/orig$$ /tmp/other$$
+rm -f /tmp/orig$$ /tmp/other$$
+ }
+
+BINDIR=`dirname $0`
+. $BINDIR/config
+
+BLUEJ_HOME=$BINDIR/.. 
+REFERENCE_LANG=english
+LIBDIR=$BLUEJ_HOME/lib
+
+echo "# Testing dialogues"
+test_it dialogues.$REFERENCE_LANG dialogues.$1
+echo "# Testing exception.help"
+test_it exception.help.$REFERENCE_LANG exception.help.$1
+echo "# Testing jikes.help"
+test_it jikes.help.$REFERENCE_LANG jikes.help.$1
+echo "# Testing javac.help"
+test_it javac.help.$REFERENCE_LANG javac.help.$1
+
+echo "# Testing labels"
+test_props labels.$REFERENCE_LANG labels.$1
+echo "# Testing moe labels"
+test_props moe.labels.$REFERENCE_LANG moe.labels.$1
+
