@@ -1,0 +1,99 @@
+# Moe editor properties
+
+##
+##  Define the toolbar
+##
+
+toolbar = view compile undo cut copy paste find find-next close
+
+# button lables for toolbar commands
+
+viewLabel1 = Implementation
+viewLabel2 = Publik Vy
+viewLabel3 = Paket Vy
+viewLabel4 = Skyddad Vy
+compileLabel = Kompilera
+undoLabel = Ångra
+cutLabel = Klipp
+copyLabel = Kopiera
+pasteLabel = Klistra in
+findLabel = Hitta...
+find-nextLabel = Hitta nästa
+closeLabel = Stäng
+
+# actions for toolbar commands (only needed when it differs from command name
+
+openAction = open-file
+cutAction = cut-to-clipboard
+copyAction = copy-to-clipboard
+pasteAction = paste-from-clipboard
+find-nextAction = find-next
+
+##
+##  Define the menus. Each menu gets a key, which is used afterwards to
+##  define the menu's details.
+##
+
+menubar = class edit tools option
+
+# Actions for menus. Each value must be a defined moe action name. Each 
+#   action becomes an item in the menu. Use the minus sign (-) to create 
+#   a separator.
+
+class = save reload - print - close
+edit = undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - comment uncomment - insert-method
+tools = find find-backward find-next replace - compile toggle-breakpoint
+option = key-bindings preferences
+
+# menu labels (MUST be defined)
+
+classLabel = Klass
+editLabel = Edit
+toolsLabel = Verktyg
+debugLabel = Avlusa
+optionLabel = Options
+helpLabel = Hjälp
+
+# item labels (can be omitted if same as action name)
+
+saveLabel = Spara
+reloadLabel = Ladda om
+printLabel = Skriv ut...
+closeLabel = Stäng
+
+undoLabel = Ångra
+redoLabel = Gör om
+cut-to-clipboardLabel = Klipp ut
+copy-to-clipboardLabel = Kopiera
+paste-from-clipboardLabel = Klistra in
+commentLabel = Kommentera
+uncommentLabel = Ta bort kommentar
+insert-methodLabel = Infoga metod
+
+findLabel = Hitta...
+find-backwardLabel = Hitta baklänges...
+find-nextLabel = Hitta nästa
+replaceLabel = Ersätt...
+goto-lineLabel = Gå till rad...
+compileLabel = Kompilera
+toggle-breakpointLabel = Sätt/Ta bort brytpunkt
+
+state.readOnly = endast läsning 
+state.saved = sparad 
+state.changed = ändrad
+
+key-bindingsLabel = Tangentbordskommandon...
+preferencesLabel = Preferences...
+
+# Dialog titles and texts
+functions.title = Ordbehandlarfunktioner
+functions.categories.editFunctions = Ordbehandlarfunktioner
+functions.categories.moveScroll = Flytta & Scrolla
+functions.categories.classFunctions = Klassfunktioner
+functions.categories.customisation = Customisation
+functions.categories.help = Hjälp
+functions.categories.misc = Övrigt 
+
+finder.title = Hitta
+finder.textfield.label = Hitta: 
+

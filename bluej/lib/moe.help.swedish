@@ -1,0 +1,116 @@
+#
+# Moe user function help texts.
+#
+# Part of the BlueJ program development environment.
+#
+
+## edit functions
+
+delete-previous=\n Radera tecknet närmast föregående markören.
+delete-next=\n Radera tecknet närmast efter markören.
+copy-to-clipboard=\n Kopiera markerad text till klippboken. Därifrån kan den\nsedan klistras in någon annanstans (se paste-from-clipboard).
+cut-to-clipboard= Cut the selecttion from the text and move it to the clipboard.\n From there, it can be pasted somewhere else later (see\n paste-from-clipboard).
+paste-from-clipboard=\n Paste the text currently on the clipboard into the text at\n the current caret position.
+insert-tab=\n Infoga ett tabulatortecken.
+insert-break=\n Insert a line break at the caret position.
+insert-half-tab=\n Insert a half-TAB (a half-TAB is four characters wide).
+insert-method=\n Insert a skeleton for a Java method into the text.
+comment=\n Comment out the current selection. This can easily be removed\n later (see uncomment).
+uncomment=\n Remove comment symbols from the start of lines in the current\n selection. See comment.
+
+select-word=\n Select the current word (also bound to\n left-mouse-button: double-click).
+select-line=\n Select the current line (also bound to\n left-mouse-button: triple-click).
+select-paragraph=\n Select the current paragraph.
+select-all=\n Select the whole text.
+unselect=\n Remove the selection (not the selected text!).
+selection-backward=\n Move the end of the selection one character backwards.
+selection-forward=\n Move the end of the selection one character forward.
+selection-up=\n Move the end of the selection one line up.
+selection-down=\n Move the end of the selection one line down.
+selection-begin-word=\n Move the end of the selection to the beginning of\n the current word.
+selection-end-word=\n Move the end of the selection to the end of\n the current word.
+selection-previous-word=\n Move the end of the selection to the beginning of\n the previous word.
+selection-next-word=\n Move the end of the selection to the beginning of\n the next word.
+selection-begin-line=\n Move the end of the selection to the beginning of\n the current line.
+selection-end-line=\n Move the end of the selection to the end of\n the current line.
+selection-begin-paragraph=\n Move the end of the selection to the beginning of\n the current paragraph.
+selection-end-paragraph=\n Move the end of the selection to the end of\n the current paragraph.
+selection-page-up=\n Move the end of the selection one page up.
+selection-page-down=\n Move the end of the selection one page down.
+selection-begin=\n Move the end of the selection to the beginning of the text.
+selection-end=\n Move the end of the selection to the end of the text.
+
+## move and scroll functions
+
+caret-backward=\n Move the caret (cursor) one character backwards.
+caret-forward=\n Move the caret one character forward.
+caret-up=\n Move the caret one line up.
+caret-down=\n Move the caret one line down.
+caret-begin-word=\n Move the caret to the beginning of the current word.
+caret-end-word=\n Move the caret to the end of the current word.
+caret-previous-word=\n Move the caret to the beginning of the previous word.
+caret-next-word=\n Move the caret to the beginning of the next word.
+caret-begin-line=\n Move the caret to the beginning of the current line.
+caret-end-line=\n Move the caret to the end of the current line.
+caret-begin-paragraph=\n Move the caret to the beginning of the current paragraph.
+caret-end-paragraph=\n Move the caret to the end of the current paragraph.
+page-up=\n Move the caret one page up.
+page-down=\n Move the caret one page down.
+caret-begin=\n Move the caret to the beginning of the text.
+caret-end=\n Move the caret to the end of the text.
+
+## class functions
+
+save=\n Save this class. Note that it is rarely necessary to explicitely save\n the class because closing it saves it automatically.
+reload=\n Reload the class from its source file. This operation will discard\n all changes made after the last (implicit or explicit) save operation.
+close=\n Close this class. The source text is automatically saved.
+print=\n Open a print dialog to start a print job.
+
+
+## customisation functions
+
+preferences=\n Specify some preference settings for the editor.
+
+key-bindings=\n View and change the key bindings for Moe's user functions.
+
+
+## help functions
+
+describe-key=\n After invoking this function, type a key. The name of the\n function bound to this key is displayed.
+
+help-mouse=\n Display mouse button bindings.
+
+show-manual=\n Open a web browser to show the Moe User Manual.
+
+about-editor=\n Display a brief note about Moe.
+
+
+## misc functions
+
+undo=\n Undo the last edit operation. (This can then be re-done with 'redo'.)
+redo=\n Redo the last operation that was undone.
+
+find=\n Open a dialog to start a search for a string in the text. The dialog\n allows to start searches backward or forward.
+
+find-backward=\n Like find, but the make 'Backward' the default button.
+
+find-next= If a selection is on, find the next occurrence of the selected text. If no\n selection is on, search again for the same string that was used in the\n last search. Stop at the end of the text. If called again after the end\n of the text was reached, wrap around and continue search from the top.
+
+find-next-reverse=\n Like find-next, but reverse the search direction.
+
+replace=\n Replace one text string with another.
+
+goto-line=\n Goto a specified line.
+
+compile=\n Compile the current class. The class is automatically\n saved before being compiled.
+
+toggle-breakpoint=\n Set or clear a breakpoint in the current line.
+
+
+
+
+
+
+
+
+
