@@ -138,6 +138,7 @@ prefmgr.misc.editor.title=Editor settings
 prefmgr.misc.editorfontsize=Font size
 prefmgr.misc.usesyntaxhilighting=Use syntax hilighting
 prefmgr.misc.displaylinenumbers=Display line numbers
+prefmgr.misc.makeBackup=Make backup of source files
 prefmgr.misc.documentation.title=Documentation settings
 prefmgr.misc.jdkurlpath=JDK documentation URL
 prefmgr.misc.linkToLib=Use this URL when generating project documentation

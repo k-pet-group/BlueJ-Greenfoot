@@ -259,21 +259,14 @@ bluej.terminal.width=80
 
 
 #######################################################################
-## Syntax highlighting - should we do it?
-## This is the initial default - it can be changed by users in their
-## preferences dialogue. (values: true / false)
+## Some settings for editor preferences.
+## These are the initial defaults - the settings can be changed by 
+## users in their preferences dialogue. (values: true / false)
 #######################################################################
 
 bluej.editor.syntaxHilighting=true
-
-
-#######################################################################
-## Line numbers displayed in the editor - do you want it?
-## This is the initial default - it can be changed by users in their
-## preferences dialogue. (values: true / false)
-#######################################################################
-
 bluej.editor.displayLineNumbers=false
+bluej.editor.makeBackup=false
 
 
 #######################################################################

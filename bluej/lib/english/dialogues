@@ -26,6 +26,17 @@ Please mail the text of the error message
 to mik@mip.sdu.dk - we will then
 add a help text to our help database. Thanks.
 
+editor-crashed
+It seems that BlueJ crashed while writing this class
+to disk last time. The source code may be missing or 
+incomplete. There should be a backup of this class 
+in the project folder. If this class seems damaged,
+   1 - quit BlueJ
+   2 - backup your project folder (just in case)
+   3 - look into the project folder for a backup of
+       this java file. Rename it to the original
+       file name (with a '.java' suffix)
+
 # errors:
 #########
 
