@@ -48,6 +48,17 @@ public class JavaLexer extends antlr.CharScanner implements JavaLexerTokenTypes,
 		tok.setColumn(tokColumn);
 		return tok;
 	}
+
+	public void reportError(ScannerException ex)
+	{
+		// do nothing
+        }
+        /** Parser error-reporting function can be overridden in subclass */
+        public void reportError(String s)
+        {
+        	// do nothing
+        }
+
 public JavaLexer(InputStream in) {
 	this(new ByteBuffer(in));
 }

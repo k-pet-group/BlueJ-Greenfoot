@@ -1221,6 +1221,17 @@ options {
 		tok.setColumn(tokColumn);
 		return tok;
 	}
+
+	public void reportError(ScannerException ex)
+	{
+		// do nothing
+        }
+        /** Parser error-reporting function can be overridden in subclass */
+        public void reportError(String s)
+        {
+        	// do nothing
+        }
+
 }
 
 
