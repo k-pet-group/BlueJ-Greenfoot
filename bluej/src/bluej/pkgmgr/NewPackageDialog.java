@@ -11,11 +11,11 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- * Dialog for creating a new class
+ * Dialog for creating a new Package
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewPackageDialog.java 1009 2001-11-19 02:41:10Z ajp $
+ * @version $Id: NewPackageDialog.java 1524 2002-11-28 02:37:34Z bquig $
  */
 class NewPackageDialog extends JDialog
     implements ActionListener

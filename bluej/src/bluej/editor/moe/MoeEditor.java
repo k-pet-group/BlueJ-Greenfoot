@@ -18,6 +18,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.DocuGenerator;
+import bluej.pkgmgr.PkgMgrFrame;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -83,7 +84,8 @@ public final class MoeEditor extends JFrame
         Config.getImageAsIcon("image.icon.editor").getImage();
 
     // Fonts
-    public static Font printFont = new Font("Monospaced", Font.PLAIN, 10);
+    public static int printFontSize = Config.getDefaultPropInteger("bluej.fontsize.printText", 10);
+    public static Font printFont = new Font("Monospaced", Font.PLAIN, printFontSize);
 
     // Strings
     String implementationString = Config.getString("editor.implementationLabel");
@@ -110,7 +112,7 @@ public final class MoeEditor extends JFrame
     static final String COMPILED = "compiled";
 
     // PageFormat object for printing page format
-    private static PageFormat pageFormat = new PageFormat();
+    private static PageFormat pageFormat = PkgMgrFrame.getPageFormat();
     
     private static boolean matchBrackets = false; 
 
@@ -698,29 +700,51 @@ public final class MoeEditor extends JFrame
     }
 
     // --------------------------------------------------------------------
+   
     /**
-     * Implementation of the "print" user function.
-     * Printing is delegated to a PrintThread inner class to run in a low
+     * Prints source code from Editor
+     * 
+     * @param printerJob A PrinterJob to print to.
+     */
+    public void print(PrinterJob printerJob)
+    {
+        PrintHandler pt = new PrintHandler(printerJob);
+        pt.print();
+    }
+   
+    /**
+     * Generalised version of print function.  This is what is typically 
+     * called when print is initiated from within the source code editor
+     * menu.  This sets up and runs the print process as a separate lower 
      * priority thread.
      */
     public void print()
     {
-        PrintThread pt = new PrintThread();
-        pt.setPriority((Thread.currentThread().getPriority() - 1));
-        pt.start();
-    }
+        // create a printjob
+        PrinterJob job = PrinterJob.getPrinterJob(); 
 
+        // make sure the pageformat is ok
+        pageFormat = job.validatePage(pageFormat);
+        if(job.printDialog()) {
+            PrintHandler pt = new PrintHandler(job);
+            Thread printJobThread = new Thread(pt);
+            printJobThread.setPriority((Thread.currentThread().getPriority() - 1));
+            printJobThread.start();
+        }
+    }
+    
+        
 
     // --------------------------------------------------------------------
     /**
      * Implementation of the "page setup" user function.
-     * This provides a dialog for print page setup.  The resulting format
-     * is only persistent for session at present.
+     * This provides a dialog for print page setup.  
      */
     public void pageSetup()
     {
         PrinterJob job = PrinterJob.getPrinterJob();
-        pageFormat = job.pageDialog(pageFormat);
+        pageFormat = job.pageDialog(PkgMgrFrame.getPageFormat());
+        PkgMgrFrame.setPageFormat(pageFormat);
     }
 
 
@@ -1913,25 +1937,47 @@ public final class MoeEditor extends JFrame
     // --------------------------------------------------------------------
 
     /**
-     * inner class for printing thread to allow printing to occur
+     * Inner class for printing thread to allow printing to occur
      * as a background operation.
      * @author Bruce Quig
      */
-    class PrintThread extends Thread
+    class PrintHandler implements Runnable
     {
-        public void run()
+        PrinterJob printJob;
+        
+		/**
+		 * Constructor for PrintHandler.
+		 */
+		public PrintHandler(PrinterJob pj) {
+			super();
+            printJob = pj;
+		}
+
+        /**
+         * Implementation of Runnable interface
+         */
+	    public void run()
+        {
+            print();
+        }
+        
+        /**
+         * Create MoePrinter and then invoke print method
+         */
+        public void print()
         {
             if(printer == null)
                 printer = new MoePrinter();
 
-            //printer.printDocument(document, windowTitle, printFont, pageFormat);
+            
             // print document, using new pageformat object at present
             info.message (Config.getString("editor.info.printing"));
-            if(printer.printDocument(sourceDocument, windowTitle, printFont,
+            if(printer.printDocument(printJob, sourceDocument, windowTitle, printFont,
                                      pageFormat))
                 info.message (Config.getString("editor.info.printed"));
             else
                 info.message (Config.getString("editor.info.cancelled"));
+            
         }
 
     }

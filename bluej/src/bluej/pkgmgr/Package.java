@@ -1,31 +1,50 @@
 package bluej.pkgmgr;
 
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Stack;
+import java.util.Vector;
+
 import bluej.Config;
-import bluej.prefmgr.PrefMgr;
-import bluej.compiler.*;
-import bluej.debugger.*;
-import bluej.parser.ClassParser;
-import bluej.parser.symtab.ClassInfo;
-import bluej.parser.symtab.Selection;
+import bluej.compiler.CompileObserver;
+import bluej.compiler.JobQueue;
+import bluej.debugger.CallHistory;
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerClassLoader;
+import bluej.debugger.DebuggerThread;
+import bluej.debugger.ExecControls;
+import bluej.debugger.Invoker;
+import bluej.debugger.SourceLocation;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.graph.Graph;
 import bluej.graph.Vertex;
-import bluej.utility.*;
-import bluej.utility.filefilter.*;
-import bluej.classmgr.*;
-
-import java.util.List;
-import java.lang.reflect.*;
-import java.awt.*;
-import java.awt.font.*;
-import java.awt.geom.*;
-import java.awt.event.*;
-import javax.swing.JFrame;
-import java.io.*;
-import java.util.*;
-import java.text.DateFormat;
-import javax.swing.text.*;
+import bluej.parser.ClassParser;
+import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
+import bluej.utility.Debug;
+import bluej.utility.FileUtility;
+import bluej.utility.JavaNames;
+import bluej.utility.MultiIterator;
+import bluej.utility.SortedProperties;
+import bluej.utility.filefilter.JavaClassFilter;
+import bluej.utility.filefilter.JavaSourceFilter;
+import bluej.utility.filefilter.SubPackageFilter;
 
 
 /**
@@ -34,7 +53,7 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1496 2002-11-06 10:59:46Z ajp $
+ * @version $Id: Package.java 1524 2002-11-28 02:37:34Z bquig $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -257,6 +276,16 @@ public class Package extends Graph
         }
 
         return retName;
+    }
+
+    /**
+     * get the readme target for this package 
+     *
+     */ 
+    public ReadmeTarget getReadmeTarget()
+    {
+        ReadmeTarget readme = (ReadmeTarget)targets.get(ReadmeTarget.README_ID);  
+        return readme;
     }
 
     private File getRelativePath()

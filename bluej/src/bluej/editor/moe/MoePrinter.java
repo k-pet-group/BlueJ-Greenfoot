@@ -13,8 +13,11 @@ import java.awt.print.*;
 import java.awt.Graphics;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.print.PrinterJob;
 import javax.swing.*;
 import javax.swing.text.*;
+import net.sourceforge.transmogrify.symtab.printer.SynchronizedPrinter;
+
 import java.util.*;
 import java.text.DateFormat;
 
@@ -38,9 +41,12 @@ public class MoePrinter
     private final int FOOTER_SPACE = 20;
     private final int PADDING = 5;
     private final char TAB_CHAR = '\t';
-
+    
     private Book pages = new Book();  // This holds each page
-    private static Font titleFont = new Font("SansSerif", Font.BOLD, 14);
+    
+    private static int titleFontSize = Config.getDefaultPropInteger("bluej.fontsize.printTitle", 14);
+    private static int footerFontSize = Config.getDefaultPropInteger("bluej.fontsize.printInfo", 10);
+    private static Font titleFont = new Font("SansSerif", Font.BOLD, titleFontSize);
     private static Font smallTitleFont = new Font("SansSerif", Font.BOLD, 10);
     private static Font footerFont = new Font("SansSerif", Font.ITALIC, 9);
      
@@ -61,7 +67,7 @@ public class MoePrinter
      *
      * @returns   true if it was not cancelled.
      */
-    public boolean printDocument(PlainDocument document, String className, 
+    public boolean printDocument(PrinterJob printJob, PlainDocument document, String className, 
                                  Font font, PageFormat format) 
     {
         List lines = new ArrayList();
@@ -100,7 +106,7 @@ public class MoePrinter
             document.readUnlock();
         }
 
-        return printText(lines, font, format);
+        return printText(printJob, lines, font, format);
     }
 
 
@@ -130,28 +136,17 @@ public class MoePrinter
      *
      * @returns   true if it was not cancelled.
      */
-    private boolean printText(List text, Font font, PageFormat format) 
+    private synchronized boolean printText(PrinterJob job, List text, Font font, PageFormat format) 
     {
         try {
-            // create a printjob
-            PrinterJob job = PrinterJob.getPrinterJob(); 
-
-            // make sure the pageformat is ok
-            format = job.validatePage(format);           
-
             pages = paginateText(text, format, font);        
 
             // set the book pageable so the printjob knows 
             // we are printing more than one page (maybe)
             job.setPageable(pages);
-
-            if (job.printDialog()) {
-                // print.  This calls each MoePage object's print method
-                job.print();
+            job.print();
+                
                 return true;
-            }
-            else
-                return false;
         }
         catch (Exception e) {
             // should it be an error dialog?
@@ -240,7 +235,6 @@ public class MoePrinter
             }
         }
     }
-
 
 
     /* An inner class that defines one page of text based

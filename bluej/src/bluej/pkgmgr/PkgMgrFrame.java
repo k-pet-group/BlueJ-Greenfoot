@@ -41,7 +41,7 @@ import bluej.extmgr.HelpDialog;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1487 2002-10-28 12:05:02Z ajp $
+ * @version $Id: PkgMgrFrame.java 1524 2002-11-28 02:37:34Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -57,7 +57,8 @@ public class PkgMgrFrame extends JFrame
     private static final Icon notWorkingIcon = Config.getImageAsIcon("image.working.disab");
     private static final Icon stoppedIcon = Config.getImageAsIcon("image.working.stopped");
 
-    private static PageFormat pageFormat = new PageFormat();
+    // set PageFormat for default page for default printer
+    private static PageFormat pageFormat = PrinterJob.getPrinterJob().defaultPage();
 
     private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -99,6 +100,7 @@ public class PkgMgrFrame extends JFrame
 
     private LibraryCallDialog libraryCallDialog = null;
     private FreeFormCallDialog freeFormCallDialog = null;
+    private ProjectPrintDialog projectPrintDialog = null;
 
     // ============================================================
     // static methods to create and remove frames
@@ -1007,17 +1009,45 @@ public class PkgMgrFrame extends JFrame
         PrinterJob job = PrinterJob.getPrinterJob();
         pageFormat = job.validatePage(job.pageDialog(pageFormat));
     }
-
+    
+    /**
+     * accessor method for PageFormat object that can be used by various 
+     * printing subsystems eg. source code printing from editor
+     * @return common PageFormat object representing page preferences 
+     */
+    public static PageFormat getPageFormat()
+    {
+        return pageFormat;   
+    }
+    
+    /**
+     * set method for printing PageFormat.  Called by other elements 
+     * that may manipulate pageformat, at this stage the source editor
+     * is the only component that does.  The assumption is that the 
+     * PageFormat should be uniform between all components that may 
+     * want to send output to a printer.  
+     * @param page the new PageFormat
+     */
+    public static void setPageFormat(PageFormat page)
+    {
+        pageFormat = page;   
+    }
 
     /**
      * print - implementation of the "print" user function
      */
-    private void print()
+    private void print() 
     {
-        PackagePrinter printer = new PackagePrinter(pkg, pageFormat);
-        printer.setPriority((Thread.currentThread().getPriority() - 1));
-        printer.start();
+        if (projectPrintDialog == null)
+            projectPrintDialog = new ProjectPrintDialog(this);
+
+        if (projectPrintDialog.display()) {
+            PackagePrintManager printManager = new PackagePrintManager(this.getPackage(), pageFormat, projectPrintDialog);
+            printManager.start();
+        }  
     }
+
+  
 
     /**
      * About menu was chosen - redefined from MRJAboutHandler
