@@ -16,7 +16,6 @@ import java.awt.FontMetrics;
 import java.awt.print.PrinterJob;
 import javax.swing.*;
 import javax.swing.text.*;
-import net.sourceforge.transmogrify.symtab.printer.SynchronizedPrinter;
 
 import java.util.*;
 import java.text.DateFormat;
