@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3031 2004-10-01 03:23:58Z davmac $
+ * @version $Id: VMReference.java 3035 2004-10-04 06:14:00Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -1370,13 +1370,16 @@ class VMReference
     synchronized void removeObject(String instanceName)
     {
         synchronized(workerThread) {
-            breakpointWait(workerThread);
-            setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.REMOVE_OBJECT));
+        	try {
+        		breakpointWait(workerThread);
+        		setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.REMOVE_OBJECT));
         
-            // parameters
-            setStaticFieldObject(serverClass, ExecServer.OBJECTNAME_NAME, instanceName);
+        		// parameters
+        		setStaticFieldObject(serverClass, ExecServer.OBJECTNAME_NAME, instanceName);
         
-            threadResume(workerThread);
+        		threadResume(workerThread);
+        	}
+        	catch(VMDisconnectedException vmde) {}
         }
     }
 
