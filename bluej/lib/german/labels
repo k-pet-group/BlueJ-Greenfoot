@@ -112,6 +112,9 @@ browser.menu.library.close=Schlieﬂen
 
 # Preferences Manager user interface elements and error messages
 prefmgr.title=BlueJ:  Preferences
+prefmgr.notation.title=Notation Style
+prefmgr.notation.blue=Blue
+prefmgr.notation.uml=Unified Modeling Language (UML)
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Libraries

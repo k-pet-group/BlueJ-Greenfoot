@@ -22,13 +22,12 @@ import bluej.graph.Graph;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 762 2001-02-07 04:21:14Z mik $
+ * @version $Id: MiscPrefPanel.java 890 2001-05-14 04:59:09Z bquig $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
     static final String prefpaneltitle = Config.getString("prefmgr.misc.prefpaneltitle");
     static final String jdkURLPropertyName = "bluej.url.javaStdLib";
-
 
     private JTextField editorFontField;
     private JCheckBox hilightingBox;
@@ -141,13 +140,15 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         {
             notationPanel.setLayout(new BoxLayout(notationPanel, BoxLayout.Y_AXIS));
             notationPanel.setBorder(BorderFactory.createCompoundBorder(
-                                                                       BorderFactory.createTitledBorder("Notation Style"),
+                                                                       BorderFactory.createTitledBorder(Config.getString("prefmgr.notation.title")),
                                                                        Config.generalBorder));
             notationPanel.setAlignmentX(LEFT_ALIGNMENT);
 
             notationStyleGroup = new ButtonGroup();
-            umlRadioButton = new JRadioButton("Unified Modeling Language (UML)");
-            blueRadioButton = new JRadioButton("Blue");
+            umlRadioButton = 
+                new JRadioButton(Config.getString("Unified Modeling Language (UML)"));
+            blueRadioButton = 
+                new JRadioButton(Config.getString("prefmgr.notation.blue"));
             umlRadioButton.setActionCommand(Graph.UML);
             blueRadioButton.setActionCommand(Graph.BLUE);
             notationStyleGroup.add(umlRadioButton);
