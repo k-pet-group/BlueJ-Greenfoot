@@ -18,7 +18,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2012 2003-06-03 07:09:13Z ajp $
+ * @version $Id: JdiDebugger.java 2022 2003-06-05 05:04:16Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -255,6 +255,7 @@ public class JdiDebugger extends Debugger
 	 *				event parameter
 	 */
 	public void runClassMain(String className, Object eventParam)
+		throws ClassNotFoundException
 	{
 		getVM().runShellClass(className, eventParam);
 	}
@@ -264,15 +265,11 @@ public class JdiDebugger extends Debugger
      * Return null if the class could not be found.
      */
     public DebuggerClass getClass(String className)
+		throws ClassNotFoundException
     {
-		try {
-			ReferenceType classMirror = getVM().loadClass(className);
+		ReferenceType classMirror = getVM().loadClass(className);
 
-			return new JdiClass(classMirror);
-		}
-		catch (ClassNotFoundException cnfe) {
-			return null;
-		}
+		return new JdiClass(classMirror);
     }
 
     /**
@@ -280,6 +277,7 @@ public class JdiDebugger extends Debugger
      * Return null if the field or class could not be found.
      */
     public DebuggerObject getStaticValue(String className, String fieldName)
+    	throws ClassNotFoundException
     {
 		//Debug.message("[getStaticValue] " + className + ", " + fieldName);
 		ObjectReference ob = getVM().getStaticValue(className, fieldName);

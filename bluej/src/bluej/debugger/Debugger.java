@@ -12,7 +12,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: Debugger.java 2022 2003-06-05 05:04:16Z ajp $
  */
 public abstract class Debugger
 {
@@ -133,18 +133,21 @@ public abstract class Debugger
     /**
      * "Run" a class (i.e. invoke its main method without arguments)
      */
-    public abstract void runClassMain(String className, Object eventParam);
+    public abstract void runClassMain(String className, Object eventParam)
+    	throws ClassNotFoundException;
 
 
     /**
      * Get a class from the virtual machine.
      */
-    public abstract DebuggerClass getClass(String className);
+    public abstract DebuggerClass getClass(String className)
+		throws ClassNotFoundException;
 
     /**
      * Get the value of a static field in a class
      */
-    public abstract DebuggerObject getStaticValue(String className, String fieldName);
+    public abstract DebuggerObject getStaticValue(String className, String fieldName)
+		throws ClassNotFoundException;
 
     /**
      * Set/clear a breakpoint at a specified line in a class.

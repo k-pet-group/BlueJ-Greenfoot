@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2012 2003-06-03 07:09:13Z ajp $
+ * @version $Id: VMReference.java 2022 2003-06-05 05:04:16Z ajp $
  *
  * The startup process is as follows:
  *
@@ -295,7 +295,7 @@ public class VMReference
      */
     public synchronized void close()
     {
-        // causes deadlock - why bother
+        // can cause deadlock - why bother
         // lets just nuke it
         //machine.dispose();
         if (process != null) {
@@ -334,14 +334,22 @@ public class VMReference
     private void serverClassAddBreakpoints()
     {
         EventRequestManager erm = machine.eventRequestManager();
-        serverClass = (ClassType) findClassByName(SERVER_CLASSNAME, null);
+        
+        try {
+			serverClass = (ClassType) findClassByName(SERVER_CLASSNAME, null);
+        }
+		catch (ClassNotFoundException cnfe) {
+			throw new IllegalStateException(
+				"can't find class " + SERVER_CLASSNAME + " in debug virtual machine");
+		}
 
         // set a breakpoint in the vm started method
         {
             Method startedMethod = findMethodByName(serverClass, SERVER_STARTED_METHOD_NAME);
             if (startedMethod == null) {
                 throw new IllegalStateException(
-                    "can't find method ExecServer." + SERVER_STARTED_METHOD_NAME);
+                    "can't find method " + SERVER_CLASSNAME + "." +
+                    							SERVER_STARTED_METHOD_NAME);
             }
             Location loc = startedMethod.location();
             BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
@@ -357,7 +365,8 @@ public class VMReference
             Method suspendMethod = findMethodByName(serverClass, SERVER_SUSPEND_METHOD_NAME);
             if (suspendMethod == null) {
                 throw new IllegalStateException(
-                    "can't find method ExecServer." + SERVER_SUSPEND_METHOD_NAME);
+                    "can't find method " + SERVER_CLASSNAME + "." +
+                    						SERVER_SUSPEND_METHOD_NAME);
             }
             Location loc = suspendMethod.location();
             BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
@@ -467,16 +476,18 @@ public class VMReference
 
     /**
      * Load a class in the remote machine and return its reference.
+     * Note that this function never returns null.
+     * 
+     * @return a Reference to the class mirrored in the remote VM
+     * @throws ClassNotFoundException
      */
-    ReferenceType loadClass(String className) throws ClassNotFoundException
+    ReferenceType loadClass(String className)
+    	throws ClassNotFoundException
     {
         Object args[] = { className };
 
-        System.out.println(className);
-
         Value v = invokeExecServer(ExecServer.LOAD_CLASS, Arrays.asList(args));
 
-        System.out.println(v + " " + v.type());
         if (v.type().name().equals("java.lang.Class")) {
             ReferenceType rt = findClassByName(className, currentLoader);
 
@@ -497,17 +508,11 @@ public class VMReference
      *				event parameter
      */
     public void runShellClass(String className, Object eventParam)
+		throws ClassNotFoundException
     {
         ClassType shellClass = null;
 
-        try {
-            shellClass = (ClassType) loadClass(className);
-        } catch (ClassNotFoundException cfne) {}
-
-        if (shellClass == null) {
-            Debug.reportError("Could not find shell class " + className);
-            return;
-        }
+        shellClass = (ClassType) loadClass(className);
 
         Method runMethod = findMethodByName(shellClass, "run");
         if (runMethod == null) {
@@ -768,7 +773,6 @@ public class VMReference
             JdiThread thread = new JdiThread(this, remoteThread, executionUserParam);
             if (thread.getClassSourceName(0).startsWith("__SHELL")) {
                 // stepped out into the shell class - resume to finish
-                System.out.println("stepping out into SHELL class");
                 machine.resume();
             } else {
                 if (breakpoint)
@@ -799,7 +803,8 @@ public class VMReference
      * @return  null if there was no problem, or an error string
      */
     /*package*/
-    String setBreakpoint(String className, int line) throws AbsentInformationException
+    String setBreakpoint(String className, int line)
+    	throws AbsentInformationException
     {
         ReferenceType remoteClass = null;
         try {
@@ -830,7 +835,8 @@ public class VMReference
      * @return  null if there was no problem, or an error string
      */
     /*package*/
-    String clearBreakpoint(String className, int line) throws AbsentInformationException
+    String clearBreakpoint(String className, int line)
+    	throws AbsentInformationException
     {
         ReferenceType remoteClass = null;
         try {
@@ -862,25 +868,21 @@ public class VMReference
 
     /**
      * Get the value of a static field in a class.
+     * 
+     * @return a reference to the object in the field or null if the field
+     *         could not be found
+     * @throws ClassNotFoundException
      */
     public ObjectReference getStaticValue(String className, String fieldName)
+		throws ClassNotFoundException
     {
-        DebuggerObject object = null;
-        ReferenceType cl = null;
-
-        try {
-            cl = loadClass(className);
-        } catch (ClassNotFoundException cnfe) {
-            return null;
-        }
+        ReferenceType cl = loadClass(className);
 
         Field resultField = cl.fieldByName(fieldName);
         if (resultField == null)
             return null;
 
-        ObjectReference obj = (ObjectReference) cl.getValue(resultField);
-
-        return obj;
+        return (ObjectReference) cl.getValue(resultField);
     }
 
     /**
@@ -1010,6 +1012,7 @@ public class VMReference
      * and are loaded ie ExecServer etc.
      */
     private ReferenceType findClassByName(String className, ClassLoaderReference clr)
+    	throws ClassNotFoundException
     {
         // find the class
         List list = machine.classesByName(className);
@@ -1023,7 +1026,7 @@ public class VMReference
                     return cl;
             }
         }
-        return null;
+		throw new ClassNotFoundException();
     }
 
     /**

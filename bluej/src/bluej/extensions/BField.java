@@ -15,7 +15,7 @@ import bluej.utility.Debug;
  * A wrapper for a field of a BlueJ class.
  * Behaviour is similar to the Reflection API.
  * 
- * @version $Id: BField.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: BField.java 2022 2003-06-05 05:04:16Z ajp $
  */
 
 /*
@@ -96,13 +96,15 @@ public class BField
       View parentView = bluej_view.getDeclaringView();
       String className = parentView.getQualifiedName();
 
-      DebuggerClass debuggerClass = bluejPkg.getDebugger().getClass(className);
-      if ( debuggerClass == null ) 
-        {
-        // This may not be an error, the class name may be wrong...
-        Debug.message("BField.getStatucField: Class="+className+" Field="+wantFieldName+" WARNING: cannod get debuggerClass");
-        return null;
-        }
+	  DebuggerClass debuggerClass;
+	  try {
+		debuggerClass = bluejPkg.getDebugger().getClass(className);
+      }
+	  catch (java.lang.ClassNotFoundException cnfe) {
+		// This may not be an error, the class name may be wrong...
+		Debug.message("BField.getStatucField: Class="+className+" Field="+wantFieldName+" WARNING: cannod get debuggerClass");
+		return null;
+	  }
 
       // Now I want the Debugger object of that field.
       // I do it this way since there is no way to get it by name...

@@ -25,7 +25,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: Invoker.java 2022 2003-06-05 05:04:16Z ajp $
  */
 
 public class Invoker extends Thread
@@ -597,19 +597,24 @@ public class Invoker extends Thread
             int status = pkg.getDebugger().getExitStatus();
             switch(status) {
              case Debugger.NORMAL_EXIT:
-                DebuggerObject result = pkg.getDebugger().getStaticValue(
-                                            shellClassName,"__bluej_runtime_result");
+                try {
+                	DebuggerObject result = pkg.getDebugger().getStaticValue(
+												shellClassName,"__bluej_runtime_result");
 
-				if (result == null) {
+					// result will be null here for a void call
+					watcher.putResult(result, instanceName, ir);
+
+					executionEvent.setResultObject(result);                    
+					executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+
+                }
+				catch (ClassNotFoundException cnfe) {
+					// if the VM is terminated during the method call, getStaticValue
+					// cannot load the shell class and therefore ends up here
 					watcher.putError("Terminated");
 					executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
-					return;
+					return;				
 				}
-				
-                watcher.putResult(result, instanceName, ir);
-
-                executionEvent.setResultObject(result);                    
-                executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                 break;
 
              case Debugger.FORCED_EXIT:  // exit through System.exit()

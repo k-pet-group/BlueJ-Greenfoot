@@ -30,7 +30,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2011 2003-06-03 07:07:52Z ajp $
+ * @version $Id: ClassTarget.java 2022 2003-06-05 05:04:16Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -437,11 +437,15 @@ public class ClassTarget extends EditableTarget
      */
     private void inspect()
     {
-        DebuggerClass clss = getPackage().getDebugger().getClass(getQualifiedName());
-        ClassInspector insp = 
-            ClassInspector.getInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
-    }
+    	try {
+			DebuggerClass clss = getPackage().getDebugger().getClass(getQualifiedName());
 
+			ClassInspector insp = 
+				ClassInspector.getInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
+    	}
+		catch (ClassNotFoundException cnfe) { }
+    }
+    
     // --- EditorWatcher interface ---
 
     /**
