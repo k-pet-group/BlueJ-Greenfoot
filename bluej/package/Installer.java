@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 621 2000-07-05 04:58:47Z mik $
+  * @version $Id: Installer.java 645 2000-07-19 07:11:55Z mik $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -664,7 +664,7 @@ public class Installer extends JFrame
 	File outputFile = new File(installationDir, (String)getProperty("exeName"));
 	FileWriter out = new FileWriter(outputFile.toString());
 	out.write("#!/bin/sh\n");
-	out.write("APPBASE=`dirname $0`\n");
+	out.write("APPBASE=" + installationDir + "\n");
 	String commands;
         commands = getProperty("unixCommands").toString();
 	if(commands != null) {
@@ -704,7 +704,7 @@ public class Installer extends JFrame
 	File outputFile = new File(installationDir, (String)getProperty("exeName"));
 	FileWriter out = new FileWriter(outputFile.toString());
 	out.write("#!/bin/sh\n");
-	out.write("APPBASE=`dirname $0`\n");
+	out.write("APPBASE=" + installationDir + "\n");
 	String commands;
         if (localJPDA)
             commands = getProperty("unixCommands.localJPDA").toString();
