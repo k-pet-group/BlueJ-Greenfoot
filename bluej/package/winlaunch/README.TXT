@@ -1,5 +1,5 @@
 
-BlueJ verson 1.3.5        --        README.TXT
+BlueJ verson 2.0.0       --        README.TXT
 
 Information about BlueJ
 -----------------------
@@ -23,8 +23,10 @@ A history of changes in this and earlier BlueJ versions is at
 
 The BlueJ Team
 --------------
-BlueJ is being developed by John Rosenberg, Bruce Quig, Andrew Patterson
-and Michael Kolling.
+BlueJ is being developed by:
+Deakin University: John Rosenberg, Bruce Quig, Davin McCall
+University of Southern Denmark: Michael Kolling, Poul Henriksen, Kasper Fisker
+University of Kent at Canterbury: Ian Utting, Damiano Bolla
 
 The BlueJ License
 -----------------
