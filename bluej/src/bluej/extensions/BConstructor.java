@@ -16,7 +16,6 @@ public class BConstructor
   {
   private bluej.pkgmgr.Package bluej_pkg;
   private ConstructorView bluej_view;
-//  private String instanceName;
   private DirectInvoker invoker;
 
   /**
@@ -28,17 +27,6 @@ public class BConstructor
     bluej_view = i_view;
     }
 
-  /**
-   * If you want to name the object that appears in the object bench with something
-   * you like, you can do it using this method BEFORE you call the newInstance.
-  public String setInstanceName ( String i_instanceName )
-    {
-    return instanceName = i_instanceName;
-    }
-   */
-
-
-    
   /**
    * Tests if this constructor matches against the given param.
    */
@@ -75,6 +63,7 @@ public class BConstructor
 
     /**
      * Creates a new instance of the object described by this constructor
+     * TODO: Pass an array of objects and convert it into strings....
      */
     public BObject newInstance ( String[] initargs )
       {
@@ -82,12 +71,6 @@ public class BConstructor
       DebuggerObject result = invoker.invokeConstructor (initargs);
 
       if (result == null) return null;
-
-      if (result.isNullObject()) 
-        {
-        System.out.println ("BConstructor.newInstance: ERROR isNulObject == true");
-        return null;
-        }
 
       String resultName = invoker.getResultName();
       PkgMgrFrame pmf   = PkgMgrFrame.findFrame(bluej_pkg);

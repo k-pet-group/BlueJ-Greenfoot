@@ -9,22 +9,24 @@ import com.sun.jdi.*;
 import java.lang.reflect.Modifier;
 import bluej.pkgmgr.Package;
 import bluej.views.*;
+import bluej.debugger.*;
+import bluej.utility.Debug;
 
 /**
  * This is similar to the Reflection Field<P>
  * The main reason to have a field coming from a Class and not from an Object is that
  * logically we should be able to get static methods without having objects around.
- * Reflection states that to get a static field we can use a FIled and pass null as the object to work on.<P>
+ * Reflection states that to get a static field we can use a Field and pass null as the object to work on.<P>
+ * NOTE: the get method returns an Object, in most cases it is a String, Integer, Long and so on BUT
+ * when a real Object is actually returned it is encapsulated into a BObject. You MUST look for this.
  * Damiano
  */
 public class BField
 {
-    private Package bluej_pkg;
     private FieldView bluej_view;
 
-    BField (Package i_bluej_pkg, FieldView i_bluej_view )
+    BField (FieldView i_bluej_view )
     {
-        bluej_pkg = i_bluej_pkg;
         bluej_view = i_bluej_view;
     }        
 
@@ -56,12 +58,71 @@ public class BField
         return bluej_view.getDeclaringView().getClass();
         }
 
+
+    /**
+     * When you are inspecting a static Field use this one to get hold
+     * of a reference to the debgged Class
+     */
+    private Object getStaticField (BObject onThis)
+      {
+      Package bluej_pkg = onThis.getBluejPackage();
+      DebuggerClassLoader loader = bluej_pkg.getRemoteClassLoader();
+
+      View parentView = bluej_view.getDeclaringView();
+      String className = parentView.getQualifiedName();
+
+      System.out.println ("Parent Class name="+className);
+      
+      DebuggerClass debuggerClass = Debugger.debugger.getClass(className, loader);
+      if ( debuggerClass == null ) 
+        {
+        Debug.message("BField.getStatucField: Class="+className+" Field="+getName()+" ERROR: cannod get debuggerClass");
+        return null;
+        }
+
+      int staticCount=debuggerClass.getStaticFieldCount();
+      String wantField = getName();
+      DebuggerObject debugObj=null;
+      for ( int index=0; index<staticCount; index++ )
+        {
+        if ( wantField.equals(debuggerClass.getStaticFieldName(index)) )
+          {
+          debugObj = debuggerClass.getStaticFieldObject(index);
+          break;
+          }
+        }
+
+      // No need to compalin about it it may not be a static field...
+      if ( debugObj == null ) 
+        {
+        Debug.message("BField.getStatucField: Class="+className+" Field="+getName()+" DEBUG: fieldObject==null");
+        return null;
+        }
+
+      ObjectReference objRef = debugObj.getObjectReference();
+
+// I need a way to get hold of the value in a non coded form.....
+
+      
+      Debug.message("Got objRef="+objRef);
+      ReferenceType type = objRef.referenceType();
+      Debug.message("Got type="+type);
+      Field thisField = type.fieldByName (getName());
+      if ( thisField == null ) return null;
+      Debug.message("Got thisField");
+       
+      return getVal(bluej_pkg, objRef.getValue(thisField));
+      }
+
+
     /**
      * Gets this Filed Value on the given BObject
      */
     public Object get ( BObject onThis )
         {
-        if ( onThis == null ) return null;
+        // If someone gives me a null it means that he wants a static field
+        if ( onThis == null ) return getStaticField(onThis);
+        
         ObjectReference objRef = onThis.getObjectReference();
 
         ReferenceType type = objRef.referenceType();
@@ -69,7 +130,16 @@ public class BField
         Field thisField = type.fieldByName (bluej_view.getName());
         if ( thisField == null ) return null;
        
-        Value val = objRef.getValue (thisField);
+        Package bluej_pkg = onThis.getBluejPackage();
+        return getVal(bluej_pkg, objRef.getValue(thisField));
+        }
+
+
+    /**
+     * Utility to avoid duplicated code
+     */
+    private Object getVal ( Package bluej_pkg, Value val )
+        {
         if ( val == null ) return null;
         
         if (val instanceof StringReference) return ((StringReference) val).value();
@@ -90,12 +160,4 @@ public class BField
 
         return val.toString();
         }
-
-    /**
-     * TODO
-     */
-    public Object getStatic ( )
-      {
-      return null;   
-      }
     }

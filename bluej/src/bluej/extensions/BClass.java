@@ -21,7 +21,7 @@ import bluej.views.*;
  * The reasoning behind it is that is is no good to create a new standard when there 
  * is already one that can be used.
  * 
- * @version $Id: BClass.java 1661 2003-03-06 15:36:08Z damiano $
+ * @version $Id: BClass.java 1664 2003-03-07 12:10:55Z damiano $
  */
 public class BClass
 {
@@ -293,7 +293,7 @@ public class BClass
         FieldView[] fieldView = bluej_view.getAllFields();
         BField[] bFields = new BField [fieldView.length];
         for ( int index=0; index<fieldView.length; index++)
-            bFields[index] = new BField (bluej_pkg, fieldView[index]);
+            bFields[index] = new BField (fieldView[index]);
             
         return bFields;
         }
@@ -310,7 +310,7 @@ public class BClass
         FieldView[] fieldView = bluej_view.getAllFields();
         for ( int index=0; index<fieldView.length; index++)
             {
-            BField result = new BField (bluej_pkg, fieldView[index]);
+            BField result = new BField (fieldView[index]);
             if ( result.matches(fieldName) ) return result;
             }
             

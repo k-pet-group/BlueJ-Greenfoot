@@ -21,7 +21,7 @@ import bluej.debugger.*;
 /**
  * The BlueJ proxy Object object. 
  *
- * @version $Id: BObject.java 1661 2003-03-06 15:36:08Z damiano $
+ * @version $Id: BObject.java 1664 2003-03-07 12:10:55Z damiano $
  */
 public class BObject
 {
@@ -36,8 +36,7 @@ public class BObject
     }
 
     /**
-     * Tests if this BObject is still valid. It may happens for various reasons
-     * 
+     * Is this BObject still valid ?. It may happens for various reasons
      * @return true or false
      */
     public boolean isValid()
@@ -48,13 +47,26 @@ public class BObject
         }
 
     /**
+     * Is this object a null one. If so you will not be able to put it into the bench..
+     * @return true or false
+     */
+    public boolean isNullObject()
+        {
+        // Kind of cheating, but really we can think of it as a null object.
+        if ( ! isValid() ) return true;
+
+        return wrapper.getObject().isNullObject();
+        }
+
+
+    /**
      * Gets the owning Package of this object
-     * @return the originator
+     * @return the BPackage belonging to this Object
      */
     public BPackage getPackage()
     {
         if ( ! isValid() ) return null;
-        
+
         return new BPackage(wrapper.getPackage());
     }
         
@@ -81,6 +93,8 @@ public class BObject
     
     /**
      * puts this object on the Object Bench
+     * 
+     * @param instanceName  The name you want this object to have on the bench
      */
     public void putIntoBench(String instanceName)
         {
@@ -109,7 +123,6 @@ public class BObject
 
 
     /**
-     * Gets the name of the instance of this object
      * @return the instance name of the object, can return null if object is invalid
      */
     public String getInstanceName()
@@ -131,48 +144,6 @@ public class BObject
 
         return new BClass (wrapper.getPackage(), wrapper.getClassName());
     } 
-    
-    
-    
-    /**
-     * Gets the fields of this object
-     * @param includeSuper if <code>true</code> the fields from all superclasses will
-     * also be included
-     * @return the fields belonging to this object, or an empty array if none exist
-    public BField[] getFields (boolean includeSuper)
-    {
-        DebuggerObject obj = wrapper.getObject();
-        ObjectReference ref = obj.getObjectReference();
-        ReferenceType type = ref.referenceType();
-
-        return null;
-    }
-        /*
-        BField[] bFields;
-        
-        if (ref instanceof ArrayReference) {
-            ArrayReference array = (ArrayReference)ref;
-            ReferenceType type = ref.referenceType();
-            bFields = new BField [array.length()];
-            for (int i=0; i<bFields.length; i++) {
-//                bFields[i] = new BField (pkg, array, array.type(), i, instanceName);
-                bFields[i] = new BField (pkg, array, this, i);
-            }
-        } else {
-            ReferenceType type = ref.referenceType();
-            List fields = includeSuper ? type.allFields() 
-                                       : type.fields();
-            bFields = new BField [fields.size()];
-            for (ListIterator li=fields.listIterator(); li.hasNext();) {
-                int i=li.nextIndex();
-                Field field = (Field)li.next();
-                bFields[i] = new BField (pkg, obj.getObjectReference(), field);
-            }
-        }
-        return bFields;
-    }
-    */
-
 
     /**
      * This should be visible only from within the bluej.extensions
@@ -187,20 +158,16 @@ public class BObject
         return obj.getObjectReference();
         }
 
-
     /**
-     * Gets the field in this object of a given name
-     * @param name the name of the field to get
-     * @return the field belonging to this object, or an empty array if none exist
-    public BField getField (String name)
-    {
-        DebuggerObject obj = wrapper.getObject();
-        ObjectReference ref = obj.getObjectReference();
-        ReferenceType type = ref.referenceType();
-        Field field = type.fieldByName (name);
-        if (field == null) return null;
-        return new BField (wrapper.getPackage(), obj.getObjectReference(), field);
-    }
+     * This should be visible only from within the bluej.extensions
+     * Used by BField and BArray
+     */
+    Package getBluejPackage ()
+        {
+        if ( wrapper == null ) return null;
+        return wrapper.getPackage();
+        }
+
     
     /**
      * Checks if this object is an array
