@@ -11,7 +11,7 @@ import javax.swing.text.*;
  * disk.
  *
  * @author  Andrew Patterson
- * @version $Id: FileEditor.java 417 2000-04-04 02:57:53Z bquig $
+ * @version $Id: FileEditor.java 476 2000-05-16 04:18:23Z ajp $
  */
 public class FileEditor extends PlainDocument
 {
@@ -38,7 +38,7 @@ public class FileEditor extends PlainDocument
             out.write(c);
 
         try {
-            getContent().insertString(0, out.toString());
+            insertString(0, out.toString(), null);
         }
         catch(BadLocationException ble)
         {
@@ -60,13 +60,19 @@ public class FileEditor extends PlainDocument
     public void replaceSelection(Selection s, String text)
     {
         try {
-            Element line = getParagraphElement(s.getLine() - 1);
+            int lineNo = s.getLine() - 1;
 
-            remove(line.getStartOffset() + s.getColumn() - 1,
-                    s.getLength());
+            Element line = getDefaultRootElement();
 
-            insertString(line.getStartOffset() + s.getColumn() - 1,
-                            text, new SimpleAttributeSet());
+            if (lineNo < line.getElementCount()) {
+                line = line.getElement(lineNo);
+
+                remove(line.getStartOffset() + s.getColumn() - 1,
+                        s.getLength());
+
+                insertString(line.getStartOffset() + s.getColumn() - 1,
+                                text, null);
+             }
         }
         catch(BadLocationException ble)
         {
