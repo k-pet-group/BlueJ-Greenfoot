@@ -12,7 +12,7 @@ public class Address
     private String country;
 
     /**
-     * Constructan Address without country
+     * Construct an Address without country
      */
     public Address(String street, String town, String postCode)
     {
@@ -20,7 +20,7 @@ public class Address
     }
 
     /**
-     * Constructan Address with full details
+     * Construct an Address with full details
      */
     public Address(String street, String town, String postCode, String country)
     {
@@ -31,7 +31,7 @@ public class Address
     }
 
     /**
-     * Constructan Address with full details
+     * Return a string representation of this object.
      */
     public String toString()
     {
