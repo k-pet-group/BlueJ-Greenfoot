@@ -24,7 +24,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 2848 2004-08-06 11:29:43Z mik $
+ * @version $Id: ClassMgr.java 2850 2004-08-06 14:32:26Z mik $
  */
 public class ClassMgr
 {
@@ -151,16 +151,13 @@ public class ClassMgr
     {
         int resourceID = 1;
         try {
-            String location, description;
-
             while (true) {
-                location = Config.getPropString(prefix + resourceID + ".location", null);
-                description = Config.getPropString(prefix + resourceID + ".description", null);
+                String location = Config.getPropString(prefix + resourceID + ".location", null);
 
-                if (location == null || description == null)
+                if (location == null)
                     break;
 
-                cp.addClassPath(location, description);
+                cp.addClassPath(location, "");
 
                 resourceID++;
             }

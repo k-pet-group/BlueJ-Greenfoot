@@ -9,7 +9,7 @@ import java.net.*;
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 2848 2004-08-06 11:29:43Z mik $
+ * @version $Id: ClassPath.java 2850 2004-08-06 14:32:26Z mik $
  */
 public class ClassPath
 {
@@ -252,7 +252,7 @@ public class ClassPath
      */
     public String asCommaSeparatedList()
     {
-        return asList(',');
+        return asList(',', true);
     }
 
     /**
@@ -263,7 +263,7 @@ public class ClassPath
      */
     public String toString()
     {
-        return asList(File.pathSeparatorChar);
+        return asList(File.pathSeparatorChar, false);
     }
     
     /**
@@ -273,7 +273,7 @@ public class ClassPath
      * @param separator  The character to be used to separate entries.
      * @return  The classpath as string.
      */
-    private String asList(char separator)
+    private String asList(char separator, boolean useURL)
     {
         StringBuffer buf = new StringBuffer();
 
@@ -282,7 +282,13 @@ public class ClassPath
         while (it.hasNext()) {
             ClassPathEntry nextEntry = (ClassPathEntry)it.next();
 
-            buf.append(nextEntry.getPath());
+            if(useURL) {
+                try {
+                    buf.append(nextEntry.getURL());
+                }
+                catch (MalformedURLException e) {}
+            } else
+                buf.append(nextEntry.getPath());
             // we want to append a separator to all but the last entry
             if(it.hasNext())
                 buf.append(separator);

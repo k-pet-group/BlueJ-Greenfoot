@@ -9,7 +9,7 @@ import java.lang.reflect.*;
  * and from jar files within a +libs directory.
  *
  * @author  Andrew Patterson
- * @version $Id: ProjectClassLoader.java 2848 2004-08-06 11:29:43Z mik $
+ * @version $Id: ProjectClassLoader.java 2850 2004-08-06 14:32:26Z mik $
  */
 public class ProjectClassLoader extends URLClassLoader
 {
@@ -45,13 +45,11 @@ public class ProjectClassLoader extends URLClassLoader
 
         // if we found any jar files in the libs directory then add their
         // URLs
-        if (libsJars != null) {
-            for(int i=0; i<libsJars.length; i++) {
-                try {
-                    addURL(libsJars[i].toURL());
-                }
-                catch(MalformedURLException mue) { }
+        for(int i=0; i<libsJars.length; i++) {
+            try {
+                addURL(libsJars[i].toURL());
             }
+            catch(MalformedURLException mue) { }
         }
     }
 
