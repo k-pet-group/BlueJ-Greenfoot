@@ -6,7 +6,6 @@ import bluej.extensions.BlueJ;
 import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.BPrefPanel;
-import bluej.extensions.BPrefPanel.PPTextField;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +35,7 @@ import javax.swing.event.TreeModelEvent;
  * Manages the properties appropriate to the selected submission scheme.
  *
  * @author Clive Miller
- * @version $Id: SubmissionProperties.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: SubmissionProperties.java 1481 2002-10-28 09:59:55Z damiano $
  **/
 
 class SubmissionProperties
@@ -80,6 +79,8 @@ class SubmissionProperties
             }
         });
         tree.putClientProperty("JTree.lineStyle", "Angled");
+
+
         
     }
     
@@ -226,41 +227,23 @@ class SubmissionProperties
         selectedScheme = newScheme;
     }
     
-    private static final String[] globalProps = {"smtphost", "useraddr", "username"};
-    private static final String[] globalDefaults = {null, System.getProperty("user.name")+"@", System.getProperty("user.name")};
-    private static Map globalSettings;
 
     public static void addSettings (BlueJ bj)
     {
-        BPrefPanel pp = bj.getPrefPanel();
-        globalSettings = new TreeMap();
-        for (int i=0,n=globalProps.length; i<n; i++) {
-            String prop = globalProps[i];
-            PPTextField tf = pp.new PPTextField (prop, bj.getLabel ("preferences.label."+prop), 20);
-            pp.add (tf);
-            if (tf.getValue() == null) tf.setValue (globalDefaults[i]);
-            globalSettings.put (prop, tf);
-        }
+    System.out.println ("TODO: delete it !");
     }
     
     public String getGlobalProp (String item)
     {
-        PPTextField tf = (PPTextField)globalSettings.get (item);
-        if (tf == null) throw new Error ("Invalid Global property "+item+" requested");
-        return tf.getValue();
+        return bj.getExtPropString(item,"");
     }
     
+
     public Properties getGlobalProps()
     {
-        Properties props = new Properties();
-        for (Iterator it=globalSettings.keySet().iterator(); it.hasNext();) {
-            String prop = (String)it.next();
-            PPTextField tf = (PPTextField)globalSettings.get (prop);
-            props.setProperty (prop, tf.getValue());
-        }
-        return props;
+    PrefPanel myPanel = (PrefPanel)bj.getBPrefPanel();
+    return myPanel.getGlobalProps();
     }
-
 
     // A couple of useful utilities
     /**
