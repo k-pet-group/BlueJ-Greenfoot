@@ -10,7 +10,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 2617 2004-06-17 01:07:36Z davmac $
+ * @version $Id: JavaUtils15.java 2623 2004-06-18 07:15:53Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -27,6 +27,14 @@ public class JavaUtils15 extends JavaUtils {
         name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
         Type[] params = method.getGenericParameterTypes();
         return makeDescription(name, params, paramnames, method.isVarArgs(), false);
+    }
+    
+    public String getLongDesc(Method method, String [] paramnames)
+    {
+        String name = getTypeParameters(method);
+        name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
+        Type [] params = method.getGenericParameterTypes();
+        return makeDescription(name, params, paramnames, method.isVarArgs(), true);
     }
 
     public String getSignature(Constructor cons)

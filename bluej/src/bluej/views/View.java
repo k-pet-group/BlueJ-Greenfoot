@@ -1,7 +1,9 @@
 package bluej.views;
 
 import java.io.InputStream;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import bluej.utility.JavaNames;
@@ -11,7 +13,7 @@ import bluej.utility.JavaNames;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 2568 2004-06-02 05:38:07Z davmac $
+ * @version $Id: View.java 2623 2004-06-18 07:15:53Z davmac $
  */
 public class View
 {
@@ -448,7 +450,7 @@ public class View
     /**
      ** Get a longer String describing this member
      **/
-    public String getLongDesc()
+/*    public String getLongDesc()
     {
         String desc = Modifier.toString(cl.getModifiers()) + " class " + cl.getName();
 
@@ -516,4 +518,5 @@ public class View
         out.setBold(false);
         out.println("}");
     }
+    */
 }

@@ -12,7 +12,7 @@ import bluej.debugger.gentype.*;
  * Java 1.4 version of JavaUtils
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils14.java 2617 2004-06-17 01:07:36Z davmac $
+ * @version $Id: JavaUtils14.java 2623 2004-06-18 07:15:53Z davmac $
  */
 public class JavaUtils14 extends JavaUtils {
 
@@ -27,6 +27,13 @@ public class JavaUtils14 extends JavaUtils {
         String name = getTypeName(method.getReturnType()) + " " + method.getName();
         Class[] params = method.getParameterTypes();
         return makeDescription(name, params, paramnames, false);
+    }
+    
+    public String getLongDesc(Method method, String [] paramnames)
+    {
+        String name = getTypeName(method.getReturnType()) + " " + method.getName();
+        Class [] params = method.getParameterTypes();
+        return makeDescription(name, params, paramnames, true);
     }
     
     public String getSignature(Constructor cons)

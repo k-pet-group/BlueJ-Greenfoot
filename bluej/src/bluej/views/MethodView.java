@@ -9,7 +9,7 @@ import bluej.utility.JavaUtils;
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 2617 2004-06-17 01:07:36Z davmac $
+ *  @version $Id: MethodView.java 2623 2004-06-18 07:15:53Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -78,9 +78,7 @@ public class MethodView extends CallableView implements Comparable
      * included.
      */
     public String getLongDesc() {
-        String name = View.getTypeName(method.getReturnType()) + " " + method.getName();
-        Class[] params = method.getParameterTypes();
-        return makeDescription(name, params, true);
+        return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames());
     }
 
     /**
