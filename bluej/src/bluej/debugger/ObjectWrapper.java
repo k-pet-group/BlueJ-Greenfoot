@@ -23,6 +23,7 @@ import java.lang.reflect.*;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * A wrapper around a Java object that handles calling methods, inspecting,
@@ -30,7 +31,7 @@ import java.util.ArrayList;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 783 2001-02-27 01:42:22Z bquig $
+ * @version $Id: ObjectWrapper.java 808 2001-03-21 06:15:16Z mik $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -197,6 +198,7 @@ public class ObjectWrapper extends JComponent
         JMenuItem item;
         String methodSignature;
 
+        Arrays.sort(methods);
         for(int i = first; i < last; i++) {
             try {
                 MethodView m = methods[i];

@@ -6,13 +6,14 @@ import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
 /**
- ** @version $Id: MethodView.java 784 2001-02-27 01:43:08Z bquig $
+ ** @version $Id: MethodView.java 808 2001-03-21 06:15:16Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
  ** A representation of a Java method in BlueJ
  **/
 public class MethodView extends CallableView
+    implements Comparable
 {
     protected Method method;
     protected View returnType;
@@ -150,4 +151,14 @@ public class MethodView extends CallableView
         return returnType;
     }
 
+    // ==== Comparable interface ====
+
+    /**
+     * Compare operation to provide alphabetical sorting by method name.
+     */
+    public int compareTo(Object other)
+    {
+        MethodView otherView = (MethodView)other;
+        return method.getName().compareTo(otherView.method.getName());
+    }
 }
