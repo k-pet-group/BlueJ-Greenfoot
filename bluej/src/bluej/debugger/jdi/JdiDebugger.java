@@ -35,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 643 2000-07-18 03:46:08Z ajp $
+ * @version $Id: JdiDebugger.java 657 2000-07-26 07:39:59Z mik $
  *
  * The startup process is as follows:
  *
@@ -649,7 +649,6 @@ public final class JdiDebugger extends Debugger
      */
     public void exceptionEvent(ExceptionEvent exc)
     {
-        Debug.message("exc!!!");
         String excClass = exc.exception().type().name();
         ObjectReference remoteException = exc.exception();
 

@@ -28,7 +28,7 @@ import java.awt.Color;
 * the default color table.
 *
 * @author Slava Pestov
-* @version $Id: SyntaxUtilities.java 363 2000-01-14 04:35:23Z mik $
+* @version $Id: SyntaxUtilities.java 657 2000-07-26 07:39:59Z mik $
 */
 public class SyntaxUtilities
 {
@@ -190,12 +190,12 @@ public class SyntaxUtilities
     {
         Color[] colors = new Color[Token.ID_COUNT];
 
-        colors[Token.COMMENT1] = new Color(0x1a1a66);    // private comment
+        colors[Token.COMMENT1] = new Color(0x1a1a80);    // private comment
         colors[Token.COMMENT2] = colors[Token.COMMENT1]; // javadoc comment
-        colors[Token.KEYWORD1] = new Color(0x99001a);
+        colors[Token.KEYWORD1] = new Color(0xcc0033);    // red(ish)
         colors[Token.KEYWORD2] = new Color(0xcc8033);
-        colors[Token.KEYWORD3] = new Color(0x336699);
-        colors[Token.LITERAL1] = new Color(0x338033);     // string
+        colors[Token.KEYWORD3] = new Color(0x996699);
+        colors[Token.LITERAL1] = new Color(0x339933);     // string, green(ish)
         colors[Token.LITERAL2] = new Color(0x338033);
         colors[Token.LABEL] = new Color(0x990000);
         colors[Token.OPERATOR] = new Color(0xcc9900);
@@ -252,6 +252,9 @@ public class SyntaxUtilities
 /*
 * ChangeLog:
 * $Log$
+* Revision 1.4  2000/07/26 07:39:59  mik
+* - implemented "Record Method calls" option in terminal
+*
 * Revision 1.3  2000/01/14 04:35:18  mik
 *
 * changed colours again

@@ -6,10 +6,10 @@ include $(TOP)/$(OS).mk
 # DEFAULT_COMPILER can be either "javac" or "jikes"
 DEFAULT_COMPILER=jikes
 
-JIKES_CLASSPATH = /usr/jdk1.2/jre/lib/rt.jar:/usr/jdk1.2/jre/lib/i18n.jar:/usr/jdk1.2/lib/tools.jar:$(TOP)/lib/jpda.jar:$(TOP)/src:$(TOP)/lib/antlr.jar
+JIKES_CLASSPATH = /usr/java/jre/lib/rt.jar:/usr/java/jre/lib/i18n.jar:/usr/java/lib/tools.jar:$(TOP)/lib/jpda.jar:$(TOP)/src:$(TOP)/lib/antlr.jar
 JIKES_OPTS = +F
 
-JAVAC_CLASSPATH = .:$(TOP)/lib/jpda.jar:$(TOP)/lib/antlr.jar:/usr/jdk1.2/lib/tools.jar
+JAVAC_CLASSPATH = .:$(TOP)/lib/jpda.jar:$(TOP)/lib/antlr.jar:/usr/java/lib/tools.jar
 JAVAC_OPTS = -deprecation
 
 ANTLR_CLASSPATH=../../antlr

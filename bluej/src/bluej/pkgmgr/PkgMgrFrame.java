@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 656 2000-07-26 05:29:39Z bquig $
+ * @version $Id: PkgMgrFrame.java 657 2000-07-26 07:39:59Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -1118,6 +1118,7 @@ public class PkgMgrFrame extends JFrame
                             ObjectViewer viewer =
                                 ObjectViewer.getViewer(false, result, name, getPackage(), true,
                                                        outer);
+                            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());  
                         }
                     };
             }

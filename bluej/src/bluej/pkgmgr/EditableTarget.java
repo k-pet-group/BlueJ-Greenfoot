@@ -11,7 +11,7 @@ import bluej.utility.DialogManager;
  * A target in a package that can be edited as text
  *
  * @author  Michael Cahill
- * @version $Id: EditableTarget.java 533 2000-06-09 04:24:08Z ajp $
+ * @version $Id: EditableTarget.java 657 2000-07-26 07:39:59Z mik $
  */
 public abstract class EditableTarget extends DependentTarget
     implements EditorWatcher
@@ -48,10 +48,13 @@ public abstract class EditableTarget extends DependentTarget
      */
     protected void open()
     {
-        getEditor().setVisible(true);
+        Editor editor = getEditor();
 
         if(editor == null)
             getPackage().showError("error-open-source");
+        else
+            editor.setVisible(true);
+
     }
 
     /**

@@ -6,12 +6,7 @@ import bluej.utility.Debug;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.DialogManager;
 import bluej.debugger.Debugger;
-import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerClassLoader;
-import bluej.debugger.Invoker;
-import bluej.debugger.ObjectViewer;
-import bluej.debugger.ResultWatcher;
-import bluej.debugger.ObjectWrapper;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
@@ -44,7 +39,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 634 2000-07-07 02:38:22Z ajp $
+ * @version $Id: ClassTarget.java 657 2000-07-26 07:39:59Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -363,8 +358,9 @@ public class ClassTarget extends EditableTarget
     public Editor getEditor()
     {
         if(editor == null)
-            editor = getPackage().editorManager.openClass(getSourceFile().getPath(), getBaseName(), this,
-                                                 isCompiled(), breakpoints);
+            editor = getPackage().editorManager.openClass(
+                                     getSourceFile().getPath(), getBaseName(),
+                                     this, isCompiled(), breakpoints);
         return editor;
     }
 

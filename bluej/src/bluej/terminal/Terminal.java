@@ -1,6 +1,8 @@
 package bluej.terminal;
 
 import bluej.Config;
+import bluej.BlueJEvent;
+import bluej.BlueJEventListener;
 import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 import bluej.utility.DialogManager;
@@ -8,6 +10,7 @@ import bluej.utility.DialogManager;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.text.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,10 +22,10 @@ import java.io.FileWriter;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Terminal.java 644 2000-07-18 03:46:32Z ajp $
+ * @version $Id: Terminal.java 657 2000-07-26 07:39:59Z mik $
  */
 public final class Terminal extends JFrame
-    implements KeyListener
+    implements KeyListener, BlueJEventListener
 {
     private static final String WINDOWTITLE = Config.getString("terminal.title");
     private static final int FONTSIZE = 12;
@@ -61,7 +64,10 @@ public final class Terminal extends JFrame
 
     private TermTextArea text;
     private boolean isActive = false;
+    private boolean recordMethodCalls = false;
     private InputBuffer buffer;
+
+    private JCheckBoxMenuItem recordCalls;
     private JCheckBoxMenuItem unlimitedBuffering;
 
     /**
@@ -81,60 +87,8 @@ public final class Terminal extends JFrame
         super(title);
 
         buffer = new InputBuffer(256);
-
-        text = new TermTextArea(rows, columns);
-        JScrollPane scrollPane = new JScrollPane(text);
-        text.setFont(new Font("Monospaced", Font.PLAIN, FONTSIZE));
-        text.setEditable(false);
-        text.setLineWrap(false);
-        text.setForeground(fgColour);
-        text.setMargin(new Insets(6, 6, 6, 6));
-        //text.setBackground(inactiveBgColour);
-
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
-
-        text.addKeyListener(this);
-
-        JMenuBar menubar = new JMenuBar();
-        JMenu menu = new JMenu("Options");
-        JMenuItem item;
-        item = menu.add(new ClearAction());
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K,
-                                                   Event.CTRL_MASK));
-        item = menu.add(getCopyAction());
-        item.setText(Config.getString("terminal.copy"));
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,
-                                                   Event.CTRL_MASK));
-        item = menu.add(new SaveAction());
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-                                                   Event.CTRL_MASK));
-        menu.add(new JSeparator());
-
-      // the following should be replaced once jdk 1.2.x goes out of fashion.
-      // as of 1.3, the JCheckBoxMenuItem can be created with an action
-      // parameter directly
-        unlimitedBuffering = new JCheckBoxMenuItem(
-                                     Config.getString("terminal.buffering"));
-        unlimitedBuffering.addActionListener(new BufferAction());
-        menu.add(unlimitedBuffering);
-
-        menu.add(new JSeparator());
-        item = menu.add(new CloseAction());
-        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
-                                                   Event.CTRL_MASK));
-
-        menubar.add(menu);
-        setJMenuBar(menubar);
-
-        // Close Action when close button is pressed
-        addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent event) {
-                    Window win = (Window)event.getSource();
-                    win.setVisible(false);
-                }
-            });
-
-        pack();
+        makeWindow(columns, rows);
+        BlueJEvent.addListener(this);
     }
 
 
@@ -368,6 +322,103 @@ public final class Terminal extends JFrame
     }
 
 
+    // ---- BlueJEventListener interface ----
+
+    /**
+     * Called when a BlueJ event is raised. The event can be any BlueJEvent
+     * type. The implementation of this method should check first whether
+     * the event type is of interest an return immediately if it isn't.
+     *
+     * @param eventId  A constant identifying the event. One of the event id
+     *                 constants defined in BlueJEvent.
+     * @param arg      An event specific parameter. See BlueJEvent for 
+     *                 definition.
+     */
+    public void blueJEvent(int eventId, Object arg)
+    {
+        if(eventId == BlueJEvent.METHOD_CALL) {
+            if(recordMethodCalls) {
+                try {
+                    if(text.getCaretPosition() != 
+                         text.getLineStartOffset(text.getLineCount())) {
+                        writeToTerminal("\n");
+                    }
+                }
+                catch(BadLocationException exc) {
+                    writeToTerminal("\n");
+                }
+                writeToTerminal("[ ");
+                writeToTerminal((String)arg);
+                writeToTerminal(" ]\n");
+            }
+        }
+    }
+
+    // ---- make window frame ----
+
+    private void makeWindow(int columns, int rows)
+    {
+        text = new TermTextArea(rows, columns);
+        JScrollPane scrollPane = new JScrollPane(text);
+        text.setFont(new Font("Monospaced", Font.PLAIN, FONTSIZE));
+        text.setEditable(false);
+        text.setLineWrap(false);
+        text.setForeground(fgColour);
+        text.setMargin(new Insets(6, 6, 6, 6));
+        //text.setBackground(inactiveBgColour);
+
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
+
+        text.addKeyListener(this);
+
+        JMenuBar menubar = new JMenuBar();
+        JMenu menu = new JMenu("Options");
+        JMenuItem item;
+        item = menu.add(new ClearAction());
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K,
+                                                   Event.CTRL_MASK));
+        item = menu.add(getCopyAction());
+        item.setText(Config.getString("terminal.copy"));
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,
+                                                   Event.CTRL_MASK));
+        item = menu.add(new SaveAction());
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                                                   Event.CTRL_MASK));
+        menu.add(new JSeparator());
+
+      // the following should be replaced once jdk 1.2.x goes out of fashion.
+      // as of 1.3, the JCheckBoxMenuItem can be created with an action
+      // parameter directly
+        recordCalls = new JCheckBoxMenuItem(
+                                     Config.getString("terminal.recordCalls"));
+        recordCalls.addActionListener(new RecordCallAction());
+        menu.add(recordCalls);
+
+        unlimitedBuffering = new JCheckBoxMenuItem(
+                                     Config.getString("terminal.buffering"));
+        unlimitedBuffering.addActionListener(new BufferAction());
+        menu.add(unlimitedBuffering);
+
+        menu.add(new JSeparator());
+        item = menu.add(new CloseAction());
+        item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
+                                                   Event.CTRL_MASK));
+
+        menubar.add(menu);
+        setJMenuBar(menubar);
+
+        // Close Action when close button is pressed
+        addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent event) {
+                    Window win = (Window)event.getSource();
+                    win.setVisible(false);
+                }
+            });
+
+        pack();
+    }
+
+
     private class ClearAction extends AbstractAction
     {
         public ClearAction()
@@ -412,6 +463,18 @@ public final class Terminal extends JFrame
                 return textActions[i];
 
         return null;
+    }
+
+    private class RecordCallAction extends AbstractAction
+    {
+        public RecordCallAction()
+        {
+            super(Config.getString("terminal.recordCalls"));
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            recordMethodCalls = recordCalls.isSelected();
+        }
     }
 
     private class BufferAction extends AbstractAction

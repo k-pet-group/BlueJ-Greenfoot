@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 627 2000-07-06 02:37:20Z bquig $
+ * @version $Id: Invoker.java 657 2000-07-26 07:39:59Z mik $
  */
 
 public class Invoker extends Thread
@@ -79,7 +79,8 @@ public class Invoker extends Thread
      *                  relevance when we are calling a constructor or static method)
      * @param watcher   an object interested in the result of the invocation
      */
-    public Invoker(PkgMgrFrame pmf, CallableView member, String objName, ResultWatcher watcher)
+    public Invoker(PkgMgrFrame pmf, CallableView member, String objName, 
+                   ResultWatcher watcher)
     {
         if (pmf.isEmptyFrame())
             throw new IllegalArgumentException();
@@ -108,7 +109,6 @@ public class Invoker extends Thread
 
             this.objName = instanceName + "_" +
                                     member.getDeclaringView().getInstanceNum();
-
 
              constructing = true;
         }
@@ -147,9 +147,9 @@ public class Invoker extends Thread
 
             if(dialog == null) {
                 dialog = new MethodDialog(pmf,
-                                            member.getClassName(),
-                                            objName,
-                                            member);
+                                          member.getClassName(),
+                                          objName,
+                                          member);
                 methods.put(member, dialog);
             }
             else {
@@ -246,12 +246,20 @@ public class Invoker extends Thread
         // Build a string with parameter list: "(param0,param1,...)"
 
         buffer = new StringBuffer("(");
-        if(numArgs>0)
+        StringBuffer argBuffer = new StringBuffer("(");
+        if(numArgs>0) {
             buffer.append("__bluej_param0");
-        for(int i = 1; i < numArgs; i++)
+            argBuffer.append(args[0]);
+        }
+        for(int i = 1; i < numArgs; i++) {
             buffer.append(",__bluej_param" + i);
+            argBuffer.append(", ");
+            argBuffer.append(args[i]);
+        }
         buffer.append(")");
+        argBuffer.append(")");
         String argString = buffer.toString();
+        String actualArgString = argBuffer.toString();
 
           // Build scope, ie. add one line for every object on the object
           // bench that gets the object and makes it available for use as
@@ -281,9 +289,12 @@ public class Invoker extends Thread
         trans.put("SCOPEINIT", buffer.toString());
 
         buffer = new StringBuffer();
+        String command;  // the interactive command in text form
+
         if(constructing) {
-            buffer.append("__bluej_runtime_result = makeObj(new ");
-            buffer.append(className + argString + ");" + Config.nl);
+            command = "new " + className;
+            buffer.append("__bluej_runtime_result = makeObj(");
+            buffer.append(command + argString + ");" + Config.nl);
             buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
             buffer.append(instanceName);
             buffer.append("\", __bluej_runtime_result.result);");
@@ -292,12 +303,14 @@ public class Invoker extends Thread
             MethodView method = (MethodView)member;
             boolean isVoid = method.isVoid();
 
+            if(method.isStatic())
+                command = className + "." + method.getName();
+            else
+                command = objName + "." + method.getName();
+
             if(!isVoid)
                 buffer.append("__bluej_runtime_result = makeObj(");
-            if(method.isStatic())
-                buffer.append(className + "." + method.getName() + argString);
-            else
-                buffer.append(objName + "." + method.getName() + argString);
+            buffer.append(command + argString);
             if(!isVoid)
                 buffer.append(")");
             buffer.append(";" + Config.nl);
@@ -322,6 +335,8 @@ public class Invoker extends Thread
             e.printStackTrace();
             return;
         }
+
+        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, command + actualArgString);
 
         String[] files = { shellFileName };
         JobQueue.getJobQueue().addJob(files, this, pkg.getProject().getClassPath(),

@@ -26,7 +26,7 @@ import javax.swing.border.Border;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: ObjectViewer.java 589 2000-06-28 04:31:40Z mik $
+ * @version $Id: ObjectViewer.java 657 2000-07-26 07:39:59Z mik $
  */
 public final class ObjectViewer extends JFrame
     implements ActionListener, ListSelectionListener
@@ -50,7 +50,7 @@ public final class ObjectViewer extends JFrame
     private static final int ARRAY_QUERY_SLOT_VALUE = -2;
 
     private boolean isInspection;   // true if inspecting object, false if
-    //  displaying result
+                                    //  displaying result
     private JList staticFieldList = null;
     private JList objFieldList = null;
     private JButton inspectBtn;
@@ -129,7 +129,7 @@ public final class ObjectViewer extends JFrame
      * Note: protected -- Objectviewers can only be created with the static
      * "getViewer" method. 'pkg' may be null if getEnabled is false.
      */
-    protected ObjectViewer(boolean inspect, DebuggerObject obj,
+    private ObjectViewer(boolean inspect, DebuggerObject obj,
                            Package pkg, String id, boolean getEnabled,
                            JFrame parent)
     {
@@ -182,6 +182,19 @@ public final class ObjectViewer extends JFrame
         return viewerId;
     }
 
+    /**
+     * If this is the display of a method call result, return a String with 
+     * the result.  
+     */
+    public String getResult()
+    {
+        if(isInspection)
+            return "";
+        else
+            return (String)obj.getInstanceFields(false).get(0);
+    }
+
+    
     /**
      * actionPerformed - something was done in the viewer dialog.
      *  Find out what it was and act.

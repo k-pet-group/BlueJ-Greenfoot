@@ -23,6 +23,9 @@ import java.util.Vector;
  **
  **  CREATE_VM_DONE	(unused)		creation of VM completed
  **
+ **  METHOD_CALL	a String representing	an interactive method call
+ **                      the call                was started
+ **
  **  EXECUTION_STARTED	(unused)		VM execution started
  **
  **  EXECUTION_FINISHED	(unused)		VM execution finished
@@ -52,17 +55,18 @@ public class BlueJEvent
 {
     // BlueJ event types
 
-    public static final int CREATE_VM = 0;
-    public static final int CREATE_VM_DONE = CREATE_VM + 1;
-    public static final int EXECUTION_STARTED = CREATE_VM_DONE + 1;
-    public static final int EXECUTION_FINISHED = EXECUTION_STARTED + 1;
-    public static final int GENERATING_DOCU = EXECUTION_FINISHED + 1;
-    public static final int DOCU_GENERATED = GENERATING_DOCU + 1;
-    public static final int DOCU_ABORTED = DOCU_GENERATED + 1;
-    public static final int BREAKPOINT = DOCU_ABORTED + 1;
-    public static final int HALT = BREAKPOINT + 1;
-    public static final int CONTINUE = HALT + 1;
-    public static final int SHOW_SOURCE = CONTINUE + 1;
+    public static final int CREATE_VM           = 0;
+    public static final int CREATE_VM_DONE      = CREATE_VM + 1;
+    public static final int METHOD_CALL         = CREATE_VM_DONE + 1;
+    public static final int EXECUTION_STARTED   = METHOD_CALL + 1;
+    public static final int EXECUTION_FINISHED  = EXECUTION_STARTED + 1;
+    public static final int GENERATING_DOCU     = EXECUTION_FINISHED + 1;
+    public static final int DOCU_GENERATED      = GENERATING_DOCU + 1;
+    public static final int DOCU_ABORTED        = DOCU_GENERATED + 1;
+    public static final int BREAKPOINT          = DOCU_ABORTED + 1;
+    public static final int HALT                = BREAKPOINT + 1;
+    public static final int CONTINUE            = HALT + 1;
+    public static final int SHOW_SOURCE         = CONTINUE + 1;
 
 
     // other variables

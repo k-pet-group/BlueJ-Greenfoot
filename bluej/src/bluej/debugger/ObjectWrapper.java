@@ -1,6 +1,7 @@
 package bluej.debugger;
 
 import bluej.Config;
+import bluej.BlueJEvent;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.pkgmgr.Package;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 617 2000-07-04 06:28:32Z bquig $
+ * @version $Id: ObjectWrapper.java 657 2000-07-26 07:39:59Z mik $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -467,10 +468,11 @@ public class ObjectWrapper extends JComponent
             watcher = new ResultWatcher() {
                     public void putResult(DebuggerObject result, String name)
                     {
-                        ObjectViewer viewer = ObjectViewer.getViewer(false, result,
-                                                                     name,
-                                                                     pkg, true,
-                                                                     pmf);
+                        ObjectViewer viewer = 
+                            ObjectViewer.getViewer(false, result, name,
+                                                   pkg, true, pmf);
+                        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, 
+                                              viewer.getResult());  
                     }
                 };
         }
