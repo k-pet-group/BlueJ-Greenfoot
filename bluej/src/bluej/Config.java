@@ -38,7 +38,7 @@ import java.util.Properties;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 305 1999-12-09 23:50:57Z ajp $
+ * @version $Id: Config.java 344 2000-01-12 03:52:06Z ajp $
  */
 public class Config
 {
@@ -275,6 +275,20 @@ public class Config
     }
 
     /**
+     * Get a non-language-dependent string from the BlueJ properties
+     * "bluej.defs" with a default value
+     */
+    public static String getDefaultPropString(String strname, String def)
+    {
+        try {
+            return bluej_props.getDefaultProperty(strname, def);
+        } catch(Exception e) {
+            Debug.reportError("Could not get string for " + strname);
+            return def;
+        }
+    }
+
+    /**
      * Get a non-language dependant integer from the BlueJ properties
      * ("bluej.defs" or "bluej.properties") with a default value
      */
@@ -306,9 +320,9 @@ public class Config
         return value;
     }
 
-    public static void removePropInteger(String intname)
+    public static void removeProperty(String propertyName)
     {
-        bluej_props.remove(intname);
+        bluej_props.remove(propertyName);
     }
 
     public static String getLibFilename(String propname)
