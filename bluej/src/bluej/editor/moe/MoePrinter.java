@@ -105,15 +105,39 @@ public class MoePrinter
      */
     private String removeNewLines(String line)
     {
+       //  int length = line.length();
+//         char secondLastChar = (length > 1 ? line.charAt(line.length()-2) : ' ');
+//         while((secondLastChar == '\n') || (secondLastChar == '\r')) {
+//             line = line.substring(0, line.length()-2) + '\n';
+//             length = line.length();
+//             secondLastChar = (length > 1 ? line.charAt(line.length()-2) : ' ');
+//         }
+//         return line;
+
         int length = line.length();
-        char secondLastChar = (length > 1 ? line.charAt(line.length()-2) : ' ');
-        while((secondLastChar == '\n') || (secondLastChar == '\r')) {
-            line = line.substring(0, line.length()-2) + '\n';
+        System.out.print("initial length: " + length);
+
+        char lastChar = (length > 0 ? line.charAt(line.length()-1) : ' ');
+                
+        //temp debug info
+        if(lastChar == '\n')
+            System.out.println(" - newline");
+        else if(lastChar == '\r')
+            System.out.println(" - carriage return");
+        else
+            System.out.println(" - other");
+
+        while((lastChar == '\n') || (lastChar == '\r')) {
+            
+            line = line.substring(0, line.length()-1);
             length = line.length();
-            secondLastChar = (length > 1 ? line.charAt(line.length()-2) : ' ');
+            lastChar = (length > 0 ? line.charAt(line.length()-1) : ' ');
         }
+        System.out.println("reduced length: " + length);
+            
         return line;
     }
+
 
     /**
      * Prints the text.  It sets paper size (at present) and paginates text
@@ -126,25 +150,6 @@ public class MoePrinter
         try {
             // create a printjob
             PrinterJob job = PrinterJob.getPrinterJob(); 
-
-            // alter page to Moe default settings
-     //        Paper moePaper = format.getPaper();
-//             double width = moePaper.getWidth();
-//             double height = moePaper.getHeight();
-//             moePaper = format.getPaper();
-
-//             // make it A4 roughly (temp)
-//             moePaper.setSize(595, 840);
-            
-//             double leftSideMargin = 36;
-//             double rightSideMargin = 72;
-//             double topMargin = 54;
-//             double bottomMargin = 36;
-//             moePaper.setImageableArea(leftSideMargin, 
-//                                       topMargin, 
-//                                       width - (leftSideMargin + rightSideMargin), 
-//                                       height - (topMargin + bottomMargin));
-//             format.setPaper(moePaper);
 
             // make sure the pageformat is ok
             format = job.validatePage(format);           
@@ -325,7 +330,8 @@ public class MoePrinter
                 g.setFont(titleFont);
             else {
                 // don't add (continued) if there is no definition
-                if(!"".equals(CONTINUED_LABEL) && !"editor.printer.continued".equals(CONTINUED_LABEL))
+                if(!"".equals(CONTINUED_LABEL) 
+                   && !"editor.printer.continued".equals(CONTINUED_LABEL))
                     title = title + " (" + CONTINUED_LABEL + ")";
                 g.setFont(smallTitleFont);
             }
@@ -348,9 +354,6 @@ public class MoePrinter
          */
 	    private void printFooter(Graphics g, int xPos, int yPos, int width, int height) 
         {
-            // draw footer box
-            //g.drawRect(xPos, yPos, width, height);
-
             // set up font and text position
             g.setFont(footerFont);
             FontMetrics pfm = g.getFontMetrics(footerFont);
