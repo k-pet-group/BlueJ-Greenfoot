@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.image.FilteredImageSource;
 import java.awt.event.*;
 import java.util.Vector;
-import javablue.gui.image.*;
+import javablue.gui.image.BlackAndWhiteFilter;
 
 /**
  * An Image painted in a Canvas, bordered by a ThreeDRectangle.
@@ -86,7 +86,6 @@ import javablue.gui.image.*;
  * @see     ImageButtonListener
  * @see     SpringyImageButtonListener
  * @see     StickyImageButtonListener
- * @see     BleachImageFilter
  * @see     gjt.test.ImageButtonTest
  */
 public class ImageButton extends Component {
