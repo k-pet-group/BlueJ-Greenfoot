@@ -45,16 +45,4 @@ public class TerminalButtonModel extends JToggleButton.ToggleButtonModel
             pmf.getProject().getTerminal().showHide(b);
         }
     }
-    
-/*    public boolean isSelected()
-    {
-        return Terminal.getTerminal().isShown();
-    }
-
-    public void setSelected(boolean b)
-    {
-        super.setSelected(b);
-        Terminal.getTerminal().showTerminal(b);
-
-    } */
 }

@@ -17,7 +17,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2594 2004-06-11 18:36:53Z fisker $
+ * @version $Id: ObjectBench.java 2611 2004-06-14 12:46:18Z mik $
  */
 public class ObjectBench
 {
@@ -33,7 +33,6 @@ public class ObjectBench
     private int currentObjectWrapperIndex = -1;
 	
    
-    
     /**
      * Construct an object bench which is used to hold
      * a bunch of object reference Components.

@@ -17,8 +17,7 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
 import bluej.debugmgr.*;
 import bluej.debugmgr.inspector.ResultInspector;
-import bluej.debugmgr.objectbench.ObjectBench;
-import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.debugmgr.objectbench.*;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.MenuManager;
 import bluej.graph.GraphElementController;
@@ -47,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2608 2004-06-14 09:46:31Z mik $
+ * @version $Id: PkgMgrFrame.java 2611 2004-06-14 12:46:18Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -74,17 +73,18 @@ public class PkgMgrFrame extends JFrame
     private JCheckBoxMenuItem showUsesMenuItem;
     private JCheckBoxMenuItem showExtendsMenuItem;
 
-    private JButton imgExtendsButton;
-    private JButton imgDependsButton;
-    private JButton runButton;
-    private JTextField executorField;
+    private AbstractButton imgExtendsButton;
+    private AbstractButton imgDependsButton;
+    private AbstractButton runButton;
+    private AbstractButton objBenchButton;
+    private AbstractButton textEvalButton;
     
     private JLabel statusbar;
     
     private JLabel testStatusMessage;
     private JLabel recordingLabel;
-    private JButton endTestButton;
-    private JButton cancelTestButton;
+    private AbstractButton endTestButton;
+    private AbstractButton cancelTestButton;
     
     private ClassTarget testTarget = null;
     private String testTargetMethod;
@@ -114,7 +114,8 @@ public class PkgMgrFrame extends JFrame
     private PackageEditor editor = null;
 
     private ObjectBench objbench;
-
+    private boolean showingTextEvaluator = false;
+    
 	// lazy initialised dialogs
     private LibraryCallDialog libraryCallDialog = null;
     private FreeFormCallDialog freeFormCallDialog = null;
@@ -966,7 +967,6 @@ public class PkgMgrFrame extends JFrame
                         updateWindowTitle();
                     }
                 };
-
                 SwingUtilities.invokeLater(disableUI);
             }
             else {                      // all frames gone, lets quit
@@ -1864,14 +1864,46 @@ public class PkgMgrFrame extends JFrame
     }
     
     /**
-     * Clear the terminal window.
+     * Show or hide the testing tools.
      */
-//    private void clearTerminal()
-//    {
-//        Terminal.getTerminal().clear();
-//    }
+    public void showTestingTools(boolean show)
+    {
+        for (Iterator it = testItems.iterator(); it.hasNext(); ) {
+            JComponent component = (JComponent)it.next();
+            component.setVisible(show);
+        }
+    }
+    
+    /**
+     * Show the text evaluation component.
+     */
+    public void showTextEvaluator()
+    {
+        showHideTextEval(true);
+    }
 
-    // ---- BlueJEventListener interface ----
+    /**
+     * Show the object bench.
+     */
+    public void showObjectBench()
+    {
+        showHideTextEval(false);
+    }
+
+    /**
+     * Show or hide the text evaluation component.
+     */
+    private void showHideTextEval(boolean show)
+    {
+        objBenchButton.setSelected(!show);
+        textEvalButton.setSelected(show);
+
+        if(showingTextEvaluator == show)    // already showing the right thing?
+            return;
+        
+        System.out.println("show text:" + show);
+        showingTextEvaluator = show;
+    }
 
     /**
      *  A BlueJEvent was raised. Check whether it is one that we're interested
@@ -2021,22 +2053,22 @@ public class PkgMgrFrame extends JFrame
                 ImageIcon emptyIcon = Config.getImageAsIcon("image.empty");
     
                 action = NewClassAction.getInstance(); 
-                JButton button = createButton(action, false, 2, 4);
+                AbstractButton button = createButton(action, false, false, 2, 4);
                 buttonPanel.add(button);
                 buttonPanel.add(Box.createVerticalStrut(3));
         
                 action = NewUsesAction.getInstance(); 
-                imgDependsButton = createButton(action, true, 2, 4);
+                imgDependsButton = createButton(action, true, false, 2, 4);
                 buttonPanel.add(imgDependsButton);
                 buttonPanel.add(Box.createVerticalStrut(3));
     
                 action = NewInheritsAction.getInstance(); 
-                imgExtendsButton = createButton(action, true, 2, 4);
+                imgExtendsButton = createButton(action, true, false, 2, 4);
                 buttonPanel.add(imgExtendsButton);
                 buttonPanel.add(Box.createVerticalStrut(3));
     
                 action = CompileAction.getInstance(); 
-                button = createButton(action, false, 2, 4);
+                button = createButton(action, false, false, 2, 4);
                 buttonPanel.add(button);
 				buttonPanel.add(Box.createVerticalStrut(3));
 
@@ -2053,7 +2085,7 @@ public class PkgMgrFrame extends JFrame
 //                                        Config.getString("pkgmgr.test.label")));
 
 				action = RunTestsAction.getInstance(); 
-                runButton = createButton(action, false, 2, 4);
+                runButton = createButton(action, false, false, 2, 4);
                 runButton.setText(Config.getString("pkgmgr.test.run"));
                 runButton.setAlignmentX(0.15f);
                 testPanel.add(runButton);
@@ -2069,7 +2101,7 @@ public class PkgMgrFrame extends JFrame
                 testPanel.add(Box.createVerticalStrut(3));
 
                 action = EndTestRecordAction.getInstance(); 
-                endTestButton = createButton(action, false, 2, 4);
+                endTestButton = createButton(action, false, false, 2, 4);
                 //make the button use a different label than the one from action
                 endTestButton.setText(Config.getString("pkgmgr.test.end"));
                 endTestButton.setEnabled(false);
@@ -2078,7 +2110,7 @@ public class PkgMgrFrame extends JFrame
                 testPanel.add(Box.createVerticalStrut(3));
 
                 action = CancelTestRecordAction.getInstance();
-                cancelTestButton = createButton(action, false, 2, 4);
+                cancelTestButton = createButton(action, false, false, 2, 4);
                 //make the button use a different label than the one from action
                 cancelTestButton.setText(Config.getString("cancel"));
                 cancelTestButton.setEnabled(false);
@@ -2124,11 +2156,12 @@ public class PkgMgrFrame extends JFrame
             bottom.add(testStatusMessage, BorderLayout.WEST);
 
             JPanel buttons = new JPanel(new GridLayout(1,0));
-            JButton objBenchButton = createButton(ShowObjectBenchAction.getInstance(), false, 6, 2);
+            
+            objBenchButton = createButton(ShowObjectBenchAction.getInstance(), false, true, 6, 2);
             objBenchButton.setSelected(true);
             buttons.add(objBenchButton);
 
-            JButton textEvalButton = createButton(ShowTextEvalAction.getInstance(), false, 6, 2);
+            textEvalButton = createButton(ShowTextEvalAction.getInstance(), false, true, 6, 2);
             buttons.add(textEvalButton);
             
             bottom.add(buttons, BorderLayout.EAST);
@@ -2167,14 +2200,23 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Create a button for the interface.
-     * @param action : the Action abstraction dictating text, icon, tooltip, action.
-     * @param notext : set true if the action text should not appear (icon only).
-     * @param vSpacing TODO
-     * @return
+     * @param action  the Action abstraction dictating text, icon, tooltip, action.
+     * @param notext  set true if the action text should not appear (icon only).
+     * @param toggle  true if this is a toggle button, false otherwise
+     * @param hSpacing  horizontal margin (left, right) 
+     * @param vSpacing  vertical margin (top, bottom)
+     * @return  the new button
      */
-    private JButton createButton(Action action, boolean notext, int hSpacing, int vSpacing)
+    private AbstractButton createButton(Action action, boolean notext, boolean toggle, 
+                                        int hSpacing, int vSpacing)
     {
-        JButton button = new JButton(action);
+        AbstractButton button;
+        if(toggle) {
+            button = new JToggleButton(action);
+        }
+        else {
+            button = new JButton(action);
+        }
         button.setFont(PkgMgrFont);
         button.putClientProperty("JButton.buttonType", "toolbar");  // "icon"
         //button.setRequestFocusEnabled(false);// hint the laf that mouse click shouldn't request focus
@@ -2456,18 +2498,6 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
-
-    /**
-     * Show or hide the testing tools.
-     */
-    public void showTestingTools(boolean show)
-    {
-        for (Iterator it = testItems.iterator(); it.hasNext(); ) {
-            JComponent component = (JComponent)it.next();
-            component.setVisible(show);
-        }
-    }
-    
 
     class URLDisplayer implements ActionListener
     {

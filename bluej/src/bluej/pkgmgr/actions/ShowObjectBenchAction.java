@@ -29,7 +29,6 @@ final public class ShowObjectBenchAction extends PkgMgrAction {
     
     public void actionPerformed(PkgMgrFrame pmf)
     {
-//        pmf.menuCall();
-//        pmf.doOpen();
+        pmf.showObjectBench();
     }
 }
