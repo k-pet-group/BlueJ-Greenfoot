@@ -16,11 +16,16 @@ import bluej.utility.Debug;
 /**
  * A JDialog subclass to allow the user to interactively edit
  * preferences.
+ *
+ * Note that this is a singleton class. There can be only one
+ * instance of PrefMgrDialog at any time.
  * 
  * @author Andrew Patterson
- * @version $Id: PrefMgrDialog.java 262 1999-09-28 10:45:36Z ajp $
+ * @version $Id: PrefMgrDialog.java 278 1999-11-16 00:58:12Z ajp $
  */
-public class PrefMgrDialog extends JDialog {
+public class PrefMgrDialog extends JFrame
+{
+    private static final Image iconImage = new ImageIcon(Config.getImageFilename("image.icon")).getImage();
 
     private static PrefMgrDialog dialog = null;
 
@@ -35,9 +40,10 @@ public class PrefMgrDialog extends JDialog {
 	 * 
 	 * @param title the title of the dialog
 	 */
-    private PrefMgrDialog(String title)
+    private PrefMgrDialog()
     {
-        setTitle(title);
+        setIconImage(iconImage);
+        setTitle(Config.getString("prefmgr.title"));
 
         tabbedPane = new JTabbedPane();
 
@@ -107,6 +113,14 @@ public class PrefMgrDialog extends JDialog {
         pack();
     }
 
+    /**
+     * Register a panel to be shown in the preferences dialog
+     *
+     * @param panel     the panel to add
+     * @param title     a string describing the panel
+     * @param listener  an object which will be notified of events concerning the
+     *                  preferences dialog
+     */
     public static void add(JPanel panel, String title, PrefPanelListener listener)
     {
         tabs.add(panel);
@@ -115,7 +129,7 @@ public class PrefMgrDialog extends JDialog {
     }
  
 	/**
-	 * Show the initialized dialog.  The first argument should
+	 * Show the preferences dialog.  The first argument should
 	 * be null if you want the dialog to come up in the center
 	 * of the screen.  Otherwise, the argument should be the
 	 * component on top of which the dialog should appear.
@@ -124,12 +138,8 @@ public class PrefMgrDialog extends JDialog {
 	 */
 	public static boolean showDialog(Component comp) {
         if (dialog == null) {
-            dialog = new PrefMgrDialog(Config.getString("prefmgr.title"));
+            dialog = new PrefMgrDialog();
         }
-
-		if (comp != null) {
-			dialog.setLocationRelativeTo(comp);
-		}
 
         for (Iterator i = dialog.listeners.iterator(); i.hasNext(); ) {
             PrefPanelListener ppl = (PrefPanelListener)i.next();

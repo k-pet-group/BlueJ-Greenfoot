@@ -4,11 +4,11 @@ import bluej.debugger.Debugger;
 import bluej.utility.Debug;
 
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.classmgr.ClassMgr;
-
+import bluej.classmgr.ClassMgrPrefPanel;
+import bluej.prefmgr.MiscPrefPanel;
 
 /**
- ** @version $Id: Main.java 266 1999-11-09 05:00:13Z mik $
+ ** @version $Id: Main.java 278 1999-11-16 00:58:12Z ajp $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -79,8 +79,10 @@ public class Main
 	}
 		
 	Config.initialise(home);
-    ClassMgr.initialise();
 
+    ClassMgrPrefPanel.register();
+    MiscPrefPanel.register();
+    
 	bluej.pkgmgr.Main.main(args);
     }
 		

@@ -20,19 +20,31 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  * 
  * @author Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 261 1999-09-28 10:45:04Z ajp $
+ * @version $Id: ClassMgrPrefPanel.java 278 1999-11-16 00:58:12Z ajp $
  */
 public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
+
+    static final String prefpaneltitle = Config.getString("classmgr.prefpaneltitle");
 
 	private JTable userLibrariesTable = null;
 	private ClassPathTableModel userLibrariesModel = null;
     
+    /**
+     * Registers the class manager preference panel with the preferences
+     * dialog
+     */
+    public static void register() {
+        ClassMgrPrefPanel p = new ClassMgrPrefPanel();
+        
+        PrefMgrDialog.add(p, prefpaneltitle, p);
+    }
+
 	/**
 	 * Setup the UI for the dialog and event handlers for the dialog's buttons.
 	 * 
 	 * @param title the title of the dialog
 	 */
-	public ClassMgrPrefPanel() {
+	private ClassMgrPrefPanel() {
 
 		Vector bootLibrariesList = new Vector(ClassMgr.getClassMgr().bootLibraries.getEntries());
 		Vector systemLibrariesList = new Vector(ClassMgr.getClassMgr().systemLibraries.getEntries());

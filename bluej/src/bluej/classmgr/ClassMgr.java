@@ -10,7 +10,7 @@ import java.net.*;
 
 
 /**
- ** @version $Id: ClassMgr.java 261 1999-09-28 10:45:04Z ajp $
+ ** @version $Id: ClassMgr.java 278 1999-11-16 00:58:12Z ajp $
  ** @author Andrew Patterson
  **
  ** Class to maintain a global class loading environment.
@@ -36,19 +36,7 @@ public class ClassMgr
 	static final String userlibs_file = Config.getPropString("classmgr.userconfig","userlibs.properties");
 	static final String syslibs_file = Config.getPropString("classmgr.systemconfig","syslibs.properties");
 
-    static final String prefpaneltitle = Config.getPropString("classmgr.prefpaneltitle");
-
 	private static ClassMgr currentClassMgr = new ClassMgr();
-
-    /**
-     * Registers the class manager preference panel with the preferences
-     * dialog
-     */
-    public static void initialise() {
-        ClassMgrPrefPanel p = new ClassMgrPrefPanel();
-        
-        PrefMgrDialog.add(p, prefpaneltitle, p);
-    }
 
 	/**
 	 * Returns the classmgr object associated with the current BlueJ.

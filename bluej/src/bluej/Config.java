@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
-** @version $Id: Config.java 274 1999-11-12 05:30:45Z mik $
+** @version $Id: Config.java 278 1999-11-16 00:58:12Z ajp $
 ** @author Michael Cahill
 ** @author Michael Kolling
 **
@@ -395,6 +395,22 @@ public class Config
         props.put(propname, path);
     }
 
+    /**
+     * Set a non-language dependant integer for the BlueJ properties 
+     */
+    public static void putPropInteger(String intname, int value)
+    {                  
+        bluej_props.setProperty(intname, Integer.toString(value));
+    }
+
+    /**
+     * Set a non-language dependant string for the BlueJ properties
+     */
+    public static void putPropString(String strname, String value)
+    {
+        bluej_props.setProperty(strname, value);         
+    }
+    
     public static String getSystemConfigDir() {
         return sys_confdir;
     }
