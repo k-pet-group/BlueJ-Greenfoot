@@ -27,6 +27,8 @@ import java.lang.ClassNotFoundException;
  *  In ANY case we crete a wrapper for the given filename 
  *  We then load the extension ONLY if somebody else requets it...
  *  </PRE>
+ *  
+ *  Author: Damiano Bolla: 2002,2003,2004
  */
 public class ExtensionWrapper
 {

@@ -11,6 +11,8 @@ import javax.swing.border.*;
 /**
  * This manages the whole preference pane for Extensions
  * It will be loaded in the appropriate tab when the register() is called
+ * 
+ * Author: Damiano Bolla: University of Kent at Canterbury: 2003,2004
  */
 public class PrefManager implements PrefPanelListener
 {
@@ -95,22 +97,6 @@ public class PrefManager implements PrefPanelListener
         }
     }
 
-    /**
-     * Utility to make the code nicer.
-     */
-    private String stripName(String i_name)
-    {
-        int dotIndex = i_name.lastIndexOf(".");
-        // No dots around, strange but possible...
-        if (dotIndex < 0) 
-            return i_name;
-
-        // This is also strange... the dot is at the end of the string...
-        if (dotIndex+1 >= i_name.length()) 
-            return i_name;
-
-        return i_name.substring(dotIndex+1);
-    }
   
     /**
      * Being here to make code cleaner. 

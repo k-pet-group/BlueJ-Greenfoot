@@ -10,6 +10,8 @@ import javax.swing.*;
 /**
  *  This class can display info on a particular extension. It is not really
  *  bound to the HelpDialog and may be useful in the future.
+ *  
+ *  Author: Damiano Bolla: University of Kent at Canterbury, 2002,2003,2004
  */
 class HelpDetailDialog extends JDialog implements ActionListener
 {
