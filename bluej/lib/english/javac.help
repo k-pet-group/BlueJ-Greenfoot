@@ -31,7 +31,9 @@ anonymous class implements interface; cannot have qualifier for new
 No help available
 
 array required, but *
-No help available
+You are using syntax here that suggests that you are
+trying to access an array element. The variable you
+refer to is not an array, though.
 
 break outside switch or loop
 The "break" statement breaks out of a block,
@@ -63,7 +65,10 @@ need to change the value, remove the "final" keyword
 from the variable declaration.
 
 * cannot be dereferenced
-No help available
+You are using dot notation to access a field or method
+of another object. However, the variable you are using
+is not of an object type - it does not have fields or
+methods.
 
 cannot inherit from final *
 The superclass (the class listed after the 
@@ -110,7 +115,9 @@ should start with a capital letter, while
 package names start with a lowercase letter.
 
 code too large for try statement
-No help available
+You have too much code inside this try statement.
+Put the code into a separate method and insert a 
+method call here.
 
 constant expression required
 You have used a variable or an expression here, but
@@ -219,7 +226,10 @@ nested classes. If you need a static
 type here, declare it in the outer class.
 
 illegal character:*
-No help available
+There is an illegal character here in the source
+file. This character may be invisible. If you cannot
+find it to delete it, delete the whole line and type
+it again.
 
 illegal combination of modifiers: *
 You have tried to combine two Java modifiers which
@@ -245,7 +255,9 @@ illegal initializer for *
 No help available
 
 illegal line end in character literal
-No help available
+You have a line break where a character literal should
+be specified. You cannot do that. If you want to specify
+the character for a line break ("newline") write it as '\n'.
 
 * is not an inner class
 No help available
@@ -254,7 +266,10 @@ illegal start of expression
 No help available
 
 illegal start of type
-No help available
+At a position in the source where the name of
+a type was expected, there was something else
+(most likely a Java keyword). Check this line
+for incorrect type definitions.
 
 illegal unicode escape
 No help available
@@ -279,7 +294,9 @@ You may be trying to write two methods that have the same
 signature except for return type.  This is not allowed.
 
 interface expected here
-No help available
+An interface can only extend another interface. The name
+you have specified after the "extends" keyword is not an
+interface.
 
 interface methods cannot have body
 Interface methods must be declarations only.
@@ -310,8 +327,12 @@ variable here? Then remove the type name
 here so that it does not look like a new
 declaration.)
 
-local variable {0} is accessed from within inner class; needs to be declared final
-No help available
+* is accessed from within inner class; needs to be declared final
+Local variables cannot usually be accessed by inner 
+classes. But that is exactly what you are trying to
+do here. You have two options: You can remove this
+access to the local variable, or you can make the
+variable "final" - then you can access it.
 
 malformed floating point literal
 You have made some mistake in writing a floating
@@ -352,9 +373,6 @@ return a value of the correct type, for example
 or
     return "Marvin";
 
-modifier {0} not allowed here
-No help available
-
 name clash: *
 No help available
 
@@ -372,7 +390,11 @@ no enclosing instance of type {0} is in scope
 No help available
 
 no interface expected here
-No help available
+You are referring to an interface here (possibly in
+an "extends" declaration of a class). A class can only
+extend other classes (not interfaces). If you want to
+implement this interface, use the "implements" keyword
+instead.
 
 * has no match in entry in *
 No help available
@@ -387,13 +409,17 @@ not a loop label: *
 No help available
 
 not a statement
-No help available
+You have written a line of code here that is not
+a complete statement. Please check again what you
+intended to do and how you should do it.
 
 not an enclosing class:*
 No help available
 
 * cannot be applied to *
-No help available
+The operator that you use here cannot be used for the
+type of value that you are using it for. You are either
+using the wrong type here, or the wrong operator.
 
 * clashes with class of same name
 Make sure that the class and the package
@@ -413,8 +439,13 @@ constructor to call itself. That is not
 allowed (and would most likely lead to
 an infinite loop).
 
-reference to {0} is ambiguous, both {1} {2} in {3} and {4} {5} in {6} match
-No help available
+* is ambiguous, both *
+The identifier named in this message cannot be properly
+resolved, because there is more than one class or interface
+with this name defined in the packages that you have imported.
+You can either refer to the class here with its full qualified
+name (e.g. java.util.List) or import the class with its fully
+qualified name (e.g. import java.util.List).
 
 repeated interface
 You have listed the same interface
@@ -547,14 +578,24 @@ The void type cannot be used in this context.  it is
 a special type that is used to indicate no return type 
 for methods.  It cannot be used as a variable type.
 
+* not allowed here
+You have used an access modifier (such as "private", 
+"protected", etc.). This modifier is not allowed
+at this location.
+
 wrong number of type arguments; required *
 No help available
 
 * might already have been assigned to
-No help available
+A final variable can only be assigned once. (Your variable
+in question here is final.) You have two assignments to this
+variable in your code, and the compiler thinks it could 
+happen that both assignments are executed.
 
 * might not have been initialized
-No help available
+You are using a local variable that is not guaranteed
+to be initialised before it is used here. If in doubt,
+initialise it at its declaration.
 
 * might be assigned in loop
 No help available
@@ -567,9 +608,6 @@ Public classes are required to be located in a file
 named the same as the public class name with a 
 ".java" extension.  For example public class Foo
 needs to be located in a file named "Foo.java".
-
-error:*
-No help available
 
 cannot read: *
 No help available
@@ -661,11 +699,15 @@ No help available
 type parameter {0} is not within its bound *
 No help available
 
-incompatible types
-No help available
+incompatible types*
+The operation you used here cannot be applied
+to the type of variable or expression found
+in your code. Check the types of your variables
+and expressions.
 
-inconvertible types
-No help available
+inconvertible types*
+The type you have used here cannot be automatically
+converted to the type required.
 
 possible loss of precision
 No help available
