@@ -91,6 +91,7 @@ bluej.compiler.type=internal
 
 # font for most of the interface components
 bluej.fontsize=12
+#bluej.fontsize=10
 
 # fontsize for the editor (DO NOT CHANGE: changing edit font size currently 
 # does not work)

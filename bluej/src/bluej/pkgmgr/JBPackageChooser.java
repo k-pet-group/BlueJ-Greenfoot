@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.File;
+import bluej.utility.DialogManager;
 
 /**
  ** @author Michael Kolling
@@ -13,7 +14,7 @@ import java.io.File;
  ** Chooser for opening packages
  **/
 
-public class JBPackageChooser extends JFileChooser
+class JBPackageChooser extends JFileChooser
 {
     public JBPackageChooser(String startDirectory)
     {
@@ -21,15 +22,20 @@ public class JBPackageChooser extends JFileChooser
     }
 
     /**
-     *  "Open" has been selected. Check whether the selection is really a 
-     *  BlueJ package. If so, go ahead, open it, otherwise (it was just a
-     *  normal directory) change to that directory instead.
+     *  "Open" has been selected. Check whether the selected directory
+     *  is a BlueJ package. If so, let it be opened. Otherwise ask the user
+     *  whether to import the java source files in the selected directory
+     *  into a new package.
      */
     public void approveSelection() {   // redefined
-	if (Utility.isJBPackage(getSelectedFile(), Package.pkgfileName))
+	if (Package.isBlueJPackage(getSelectedFile()))
 	    super.approveSelection();
-	else
-	    super.setCurrentDirectory(getSelectedFile());
+	else {
+	    int answer = DialogManager.askQuestion(this,
+                                                   "really-import-package");
+	    if (answer == 0)  // OK
+		super.approveSelection();
+	}
     }
 
     /**
@@ -38,7 +44,7 @@ public class JBPackageChooser extends JFileChooser
      *  traverse into the directory.
      */
     public void setCurrentDirectory(File dir) {    // redefined
-	if (Utility.isJBPackage(dir, Package.pkgfileName)) {
+	if (Package.isBlueJPackage(dir)) {
 	    setSelectedFile(dir);
 	    super.approveSelection();
 	}

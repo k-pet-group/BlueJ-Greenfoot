@@ -42,7 +42,7 @@ import java.util.Vector;
  ** @author Michael Kolling
  ** @author Bruce Quig
  **
- ** @version $Id: ClassTarget.java 275 1999-11-16 00:49:06Z ajp $
+ ** @version $Id: ClassTarget.java 281 1999-11-18 03:58:18Z axel $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -448,7 +448,7 @@ public class ClassTarget extends EditableTarget
 
         try {
             ClassInfo info = ClassParser.parse(sourceFile(), 
-                               pkg.getAllClassnames());
+					       pkg.getAllClassnames());
     
             if(info.isApplet()) {
                 if( ! (role instanceof AppletClassRole))
@@ -490,7 +490,6 @@ public class ClassTarget extends EditableTarget
             vect = info.getUsed();
             for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
             String name = (String)e.nextElement();
-            // Debug.message("Uses " + name);
             Target used = pkg.getTarget(name);
             if (used != null)
                 pkg.addDependency(new UsesDependency(pkg, this, used), true);
@@ -525,7 +524,8 @@ public class ClassTarget extends EditableTarget
     public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
     {
 	if (state == S_NORMAL) {
-	    Class cl = pkg.loadClass(fullname);
+//  	    Class cl = pkg.loadClass(fullname);
+	    Class cl = pkg.loadClass(name);
 	    if ((cl != null) && (last_class != cl)) {
 		if (menu != null)
 		    editor.remove(menu);
@@ -821,7 +821,8 @@ public class ClassTarget extends EditableTarget
 	    reopen();
 	else {
 	    editor.clear();
-	    Class cl = pkg.loadClass(fullname);
+//  	    Class cl = pkg.loadClass(fullname);   // -as- 11/99
+	    Class cl = pkg.loadClass(name);
 	    if(cl != null) {
 		View view = View.getView(cl);
 		int filterType = 0;

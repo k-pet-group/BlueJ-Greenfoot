@@ -12,10 +12,12 @@ import java.util.Vector;
 import java.util.Properties;
 import java.util.Enumeration;
 import java.awt.*;
+import java.awt.font.*;
+import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- ** @version $Id: Target.java 237 1999-08-16 06:46:31Z ajp $
+ ** @version $Id: Target.java 281 1999-11-18 03:58:18Z axel $
  ** @author Michael Cahill
  **
  ** A general target in a package
@@ -61,6 +63,13 @@ public abstract class Target extends Vertex
     protected int state = S_INVALID;
     protected int flags = 0;
 
+    // the following fields are needed to correctly calculate the width of
+    // a target in dependence of its name and the font used to display it
+    static Font normalFont = new Font("SansSerif",Font.BOLD,Config.fontsize);
+    static FontRenderContext FRC= new FontRenderContext(new AffineTransform(),
+							false, false);
+
+
 
     /**
      * Create a new target at a specified position.
@@ -83,7 +92,7 @@ public abstract class Target extends Vertex
      */
     public Target(Package pkg, String name)
     {
-	this(pkg, name, nextX(), nextY(), DEF_WIDTH, DEF_HEIGHT);
+	this(pkg, name, nextX(), nextY(), calculateWidth(name), DEF_HEIGHT);
     }
 
     /** last pos used for placement of new target (use only through method) **/
@@ -110,6 +119,25 @@ public abstract class Target extends Vertex
 	if(last_pos_y > 250)
 	    last_pos_y = 65;
 	return last_pos_y;
+    }
+
+
+    /**
+     * Calculate the width of a target depending on the length of its name
+     * and the font used for displaying the name. The size returned is
+     * a multiple of 10 (to fit the interactive resizing behaviour).
+     * @param name the name of the target (may be null).
+     * @return the width the target should have to fully display its name. 
+     */
+    private static int calculateWidth(String name)
+    {
+	int width = 0;
+	if (name != null)
+	    width = (int)normalFont.getStringBounds(name,FRC).getWidth();
+	if ((width+20) <= DEF_WIDTH)
+	    return DEF_WIDTH;
+	else
+	    return (width+29)/10 * 10;
     }
 
     /**
@@ -155,7 +183,13 @@ public abstract class Target extends Vertex
      */
     public String getName()
     {
-	return fullname;
+	// This implementation currently only returns the target's base name.
+	// This is due to fact that most of BlueJ code expects to get a base
+	// name here (but not all). All calls of this methods have to be
+	// checked whether they expect a fully qualified name or just a
+	// simple name.       -as-  11/99
+//  	return fullname;
+	return name;
     }
 
     /**

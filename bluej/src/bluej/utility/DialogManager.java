@@ -26,7 +26,7 @@ public class DialogManager
      * which is looked up in the language specific dialogue text file
      * (eg. "dialogues.english").
      */
-    public static void showMessage(JFrame parent, String msgID)
+    public static void showMessage(Component parent, String msgID)
     {
 	String message = getMessage(msgID);
 	if(message != null)
@@ -41,7 +41,7 @@ public class DialogManager
      * (eg. "dialogues.english"). A text (given in a parameter) is appended
      * to the message.
      */
-    public static void showMessageWithText(JFrame parent, String msgID, 
+    public static void showMessageWithText(Component parent, String msgID, 
 					   String text)
     {
 	String message = getMessage(msgID);
@@ -56,7 +56,7 @@ public class DialogManager
      * if the text has already been localised (translated into the local
      * language). Most of the time "showMessage" (above) should be used.
      */
-    public static void showText(JFrame parent, String text)
+    public static void showText(Component parent, String text)
     {
 	JOptionPane.showMessageDialog(parent, text);
     }
@@ -65,7 +65,7 @@ public class DialogManager
     /**
      * Show an error dialog with message and "OK" button.
      */
-    public static void showError(JFrame parent, String msgID)
+    public static void showError(Component parent, String msgID)
     {
 	String message = getMessage(msgID);
 	if(message != null)
@@ -77,7 +77,7 @@ public class DialogManager
     /**
      * Show an error dialog with message and "OK" button.
      */
-    public static void showErrorWithText(JFrame parent, String msgID, 
+    public static void showErrorWithText(Component parent, String msgID, 
 					 String text)
     {
 	String message = getMessage(msgID);
@@ -93,7 +93,7 @@ public class DialogManager
      * button text is "null", it is not shown. Returns the button index that
      * was selected (0..2).
      */
-    public static int askQuestion(JFrame parent, String msgID)
+    public static int askQuestion(Component parent, String msgID)
     {
 	String message = getMessage(msgID);
 	if(message != null) {
@@ -122,7 +122,7 @@ public class DialogManager
     /**
      *
      */
-    public static String askString(JFrame parent, String msgID)
+    public static String askString(Component parent, String msgID)
     {
 	String response = "";
 	String message = getMessage(msgID);
@@ -163,7 +163,7 @@ public class DialogManager
     /**
      * Show a "Not Yet Implemented" message.
      */
-    public static void NYI(JFrame frame)
+    public static void NYI(Component frame)
     {
 	showMessage(frame, "not-yet-implemented");
     }

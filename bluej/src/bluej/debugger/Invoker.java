@@ -22,7 +22,7 @@ import java.io.StringWriter;
 import java.util.Hashtable;
 
 /**
- ** @version $Id: Invoker.java 267 1999-11-10 02:53:02Z mik $
+ ** @version $Id: Invoker.java 281 1999-11-18 03:58:18Z axel $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -312,7 +312,7 @@ public class Invoker extends Thread
 		
 	String[] files = { shellFileName };
 	JobQueue.getJobQueue().addJob(files, this, pkg.getClassPath(), 
-				      pkg.getClassDir());
+				      pkg.getDirName());
     }
 
     // -- CompileObserver interface --

@@ -13,13 +13,13 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: RunAppletDialog.java 269 1999-11-10 05:36:05Z mik $
+ ** @version $Id: RunAppletDialog.java 281 1999-11-18 03:58:18Z axel $
  ** @author Bruce Quig
  **
  ** Dialog for generating HTML and running applets.
  **/
 
-public class RunAppletDialog extends JDialog
+class RunAppletDialog extends JDialog
 
 	implements ActionListener, ListSelectionListener
 {

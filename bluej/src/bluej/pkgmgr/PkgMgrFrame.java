@@ -33,7 +33,7 @@ import bluej.browser.LibraryBrowser;
 
 public class PkgMgrFrame extends PkgFrame 
 
-    implements BlueJEventListener
+implements BlueJEventListener
 {
     private static String tutorialUrl = Config.getPropString("bluej.url.tutorial");
     private static String referenceUrl = Config.getPropString("bluej.url.reference");
@@ -67,7 +67,7 @@ public class PkgMgrFrame extends PkgFrame
 
     JCheckBoxMenuItem showUsesMenuItem;
     JCheckBoxMenuItem showExtendsMenuItem;
-	
+
     JCheckBox showUsesCheckbox;
     JCheckBox showExtendsCheckbox;
 
@@ -86,9 +86,9 @@ public class PkgMgrFrame extends PkgFrame
      * PkgMgrFrames can be created.
      */
     public static PkgMgrFrame createFrame(String packagePath) {
-	PkgMgrFrame frame = new PkgMgrFrame(packagePath);
-	frames.addElement(frame);
-	return frame;
+        PkgMgrFrame frame = new PkgMgrFrame(packagePath);
+        frames.addElement(frame);
+        return frame;
     }
 
     /**
@@ -96,17 +96,18 @@ public class PkgMgrFrame extends PkgFrame
      */
     public static void closeFrame(PkgMgrFrame frame) {
 
-	// If only one frame, close should close existing package rather
-	// than remove frame 
+        // If only one frame, close should close existing package rather
+        // than remove frame 
 
-	if(frames.size() == 1) {	// close package, leave frame
-	    frame.doSave();
-	    frame.removePackage();
-	}
-	else {				// remove package and frame
-	    frame.doClose();
-	    frames.removeElement(frame);
-	}
+        if(frames.size() == 1) {	// close package, leave frame
+            frame.doSave();
+            frame.removePackage();
+            frame.setWindowTitle();
+        }
+        else {				// remove package and frame
+            frame.doClose();
+            frames.removeElement(frame);
+        }
     }
 
     /**
@@ -114,17 +115,17 @@ public class PkgMgrFrame extends PkgFrame
      */
     private static int frameCount()
     {
-	return frames.size();
+        return frames.size();
     }
 
     /**
      * About to exit - close all open frames.
      */
     public static void handleExit() {
-	for(int i = frames.size() - 1; i >= 0; i--) {
-	    PkgMgrFrame frame = (PkgMgrFrame)frames.elementAt(i);
-	    frame.doClose();
-	}
+        for(int i = frames.size() - 1; i >= 0; i--) {
+            PkgMgrFrame frame = (PkgMgrFrame)frames.elementAt(i);
+            frame.doClose();
+        }
     }
 
     /**
@@ -134,10 +135,10 @@ public class PkgMgrFrame extends PkgFrame
      */
     public static void displayMessage(String message)
     {
-	for(Enumeration e = frames.elements(); e.hasMoreElements(); ) {
-	    PkgMgrFrame frame = (PkgMgrFrame)e.nextElement();
-	    frame.setStatus(message);
-	}
+        for(Enumeration e = frames.elements(); e.hasMoreElements(); ) {
+            PkgMgrFrame frame = (PkgMgrFrame)e.nextElement();
+            frame.setStatus(message);
+        }
     }
 
     // ================ (end of static part) ==========================
@@ -152,40 +153,40 @@ public class PkgMgrFrame extends PkgFrame
      * This constructor can only be called via createFrame().
      */
     private PkgMgrFrame(String packagePath) {
-	String pkgdir;
+        String pkgdir;
 
-	if(packagePath == null)
-	    pkgdir = noTitle;
-	else {
-	    if(checkPackage(packagePath))
-		pkgdir = packagePath;
-	    else
-		pkgdir = noTitle;
-	}
-	if(pkgdir.endsWith(File.separator))
-	    pkgdir = pkgdir.substring(0, pkgdir.length()-1);
-		
-	pkg = new Package(pkgdir, this);
-	editor = new GraphEditor(pkg, this);
+        if(packagePath == null)
+            pkgdir = noTitle;
+        else {
+            if(checkPackage(packagePath))
+                pkgdir = packagePath;
+            else
+                pkgdir = noTitle;
+        }
+        if(pkgdir.endsWith(File.separator))
+            pkgdir = pkgdir.substring(0, pkgdir.length()-1);
 
-	makeFrame();
+        pkg = new Package(pkgdir, this);
+        editor = new GraphEditor(pkg, this);
 
-	if(pkgdir != noTitle) {
-	    pkg.load(pkgdir);
-	    Main.addPackage(pkg);
-	}
-	setWindowTitle();
-	setStatus(AppTitle);
+        makeFrame();
 
-	BlueJEvent.addListener(this);
+        if(pkgdir != noTitle) {
+            pkg.load(pkgdir);
+            Main.addPackage(pkg);
+        }
+        setWindowTitle();
+        setStatus(AppTitle);
+
+        BlueJEvent.addListener(this);
     }
-  
+
     /**
      * Return the object bench.
      */
     public ObjectBench getObjectBench()
     {
-	return objbench;
+        return objbench;
     }
 
     /**
@@ -193,7 +194,7 @@ public class PkgMgrFrame extends PkgFrame
      */
     public Package getPackage()
     {
-	return pkg;
+        return pkg;
     }
 
     /**
@@ -391,19 +392,28 @@ public class PkgMgrFrame extends PkgFrame
     // --- below are implementations of particular user actions ---
 
     /**
-     * doOpen - open a BlueJ package
+     * doOpen - open a package (either a BlueJ package or import a foreign)
      */
     private void doOpen() {
-	String openPkg = openPackageDialog(true);
-	if (openPkg != null) {
-	    if(pkg.getDirName() == noTitle || pkg.getDirName() == null) 
-		doOpenPackage(openPkg);
-	    else {
-		// Otherwise open it in a new window
-		PkgMgrFrame frame = createFrame(openPkg);
-		frame.setVisible(true);
-	    }
-	}
+        String PkgPath = openPackageDialog();
+        if (PkgPath != null) {
+            File packageDir = new File(PkgPath);
+
+            // if path is not a valid BlueJ package - try to import it
+            if (!Package.isBlueJPackage(packageDir))
+                if (!Package.importPackage(packageDir,this)) {
+                    DialogManager.showMessage(this,"no-java-sources-found");
+                    return;
+                }
+
+            if(pkg.getDirName() == noTitle || pkg.getDirName() == null) 
+                doOpenPackage(PkgPath);
+            else {
+                // Otherwise open it in a new window
+                PkgMgrFrame frame = createFrame(PkgPath);
+                frame.setVisible(true);
+            }
+        }
     }
 
     /**
@@ -413,10 +423,10 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void doClose()
     {
-	doSave();
-	closePackage();
-	setVisible(false);
-	BlueJEvent.removeListener(this);
+        doSave();
+        closePackage();
+        setVisible(false);
+        BlueJEvent.removeListener(this);
     }
 
     /**
@@ -424,9 +434,9 @@ public class PkgMgrFrame extends PkgFrame
      */
     protected void doSave()
     {
-	if(pkg.getDirName() == noTitle)
-	    return;
-	pkg.save();
+        if(pkg.getDirName() == noTitle)
+            return;
+        pkg.save();
     }
 
     /**
@@ -457,16 +467,16 @@ public class PkgMgrFrame extends PkgFrame
 	    else if(result == Package.COPY_ERROR)
 		DialogManager.showError(this, "cannot-copy-package");
 
-	    setWindowTitle();
-	}
+            setWindowTitle();
+        }
     }
 
     /**
-     * importClass - implementation if the "Import Class" user function
+     * importClass - implementation of the "Import Class" user function
      */
     private void importClass()
     {
-	String className = getFileNameDialog(importClassTitle, importLabel);
+        String className = getFileNameDialog(importClassTitle, importLabel);
 
 	if(className != null) {
 	    int result = pkg.importFile(className);
@@ -526,13 +536,13 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void print()
     {
-	PrintJob printjob = getToolkit().getPrintJob(this, 
-				"BlueJ package: " + pkg.getDirName(),
-				System.getProperties());
-	if(printjob != null) {
-	    printGraph(printjob);
-	    printjob.end();
-	}
+        PrintJob printjob = getToolkit().getPrintJob(this, 
+                                                     "BlueJ package: " + pkg.getDirName(),
+                                                     System.getProperties());
+        if(printjob != null) {
+            printGraph(printjob);
+            printjob.end();
+        }
     }
 
     /**
@@ -540,33 +550,33 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void printGraph(PrintJob printjob) 
     {
-	Dimension pageSize = printjob.getPageDimension();
-	Rectangle printArea = pkg.getPrintArea(pageSize);
-	Dimension graphSize = pkg.getMinimumSize();
-	int cols = (graphSize.width + printArea.width - 1) / printArea.width;
-	int rows = (graphSize.height + printArea.height - 1) / printArea.height;
-		
-	for(int i = 0; i < rows; i++)
-	    for(int j = 0; j < cols; j++) {
-		Graphics g = printjob.getGraphics();
-		pkg.printTitle(g, pageSize, i * cols + j + 1);
-		
-		g.translate(printArea.x - j * printArea.width, 
-			    printArea.y - i * printArea.height);
-		g.setClip(j * printArea.width, i * printArea.height, 
-			  printArea.width, printArea.height);
-		editor.print(g);
-		g.dispose();
-	    }
+        Dimension pageSize = printjob.getPageDimension();
+        Rectangle printArea = pkg.getPrintArea(pageSize);
+        Dimension graphSize = pkg.getMinimumSize();
+        int cols = (graphSize.width + printArea.width - 1) / printArea.width;
+        int rows = (graphSize.height + printArea.height - 1) / printArea.height;
+
+        for(int i = 0; i < rows; i++)
+            for(int j = 0; j < cols; j++) {
+                Graphics g = printjob.getGraphics();
+                pkg.printTitle(g, pageSize, i * cols + j + 1);
+
+                g.translate(printArea.x - j * printArea.width, 
+                            printArea.y - i * printArea.height);
+                g.setClip(j * printArea.width, i * printArea.height, 
+                          printArea.width, printArea.height);
+                editor.print(g);
+                g.dispose();
+            }
     }
 
     public void resetDependencyButtons()
     {
-	// pop them up
-	if (imgUsesButton != null) {
-	    // imgUsesButton.resetState();
-	    // imgExtendButton.resetState();
-	}
+        // pop them up
+        if (imgUsesButton != null) {
+            // imgUsesButton.resetState();
+            // imgExtendButton.resetState();
+        }
     }
 
     /**
@@ -574,8 +584,8 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void createNewClass()
     {
-	NewClassDialog dlg = new NewClassDialog(this);
-	boolean okay = dlg.display();
+        NewClassDialog dlg = new NewClassDialog(this);
+        boolean okay = dlg.display();
 
 	if(okay) {
 	    String name = dlg.getClassName();
@@ -612,47 +622,46 @@ public class PkgMgrFrame extends PkgFrame
 	    DialogManager.showError(this, "no-class-selected");
 	else
 	    removeClass(target);
-
     }
 
     /**
-    /**
-     * removeClass - removes the specified ClassTarget from the Package. 
-     */
+       /**
+        * removeClass - removes the specified ClassTarget from the Package. 
+        */
     public void removeClass(ClassTarget removableTarget)
     {
 	// Check they realise that this will delete the files.
 	int response = DialogManager.askQuestion(this, "really-remove");
 
-	// if they agree
-	if(response == 0)
-	    pkg.removeClass(removableTarget);
+        // if they agree
+        if(response == 0)
+            pkg.removeClass(removableTarget);
     }
 
     public void toggleShowUses(Object src)
     {
-	if(showUsesCheckbox.isSelected() != showUsesMenuItem.isSelected()) {
-	    if(src == showUsesMenuItem)
-		showUsesCheckbox.setSelected(showUsesMenuItem.isSelected());
-	    else
-		showUsesMenuItem.setSelected(showUsesCheckbox.isSelected());
-		
-	    pkg.toggleShowUses();
-	    editor.repaint();
-	}
+        if(showUsesCheckbox.isSelected() != showUsesMenuItem.isSelected()) {
+            if(src == showUsesMenuItem)
+                showUsesCheckbox.setSelected(showUsesMenuItem.isSelected());
+            else
+                showUsesMenuItem.setSelected(showUsesCheckbox.isSelected());
+
+            pkg.toggleShowUses();
+            editor.repaint();
+        }
     }
-	
+
     public void toggleShowExtends(Object src)
     {
-	if(showExtendsCheckbox.isSelected() != showExtendsMenuItem.isSelected()) {
-	    if(src == showExtendsMenuItem)
-		showExtendsCheckbox.setSelected(showExtendsMenuItem.isSelected());
-	    else
-		showExtendsMenuItem.setSelected(showExtendsCheckbox.isSelected());
+        if(showExtendsCheckbox.isSelected() != showExtendsMenuItem.isSelected()) {
+            if(src == showExtendsMenuItem)
+                showExtendsCheckbox.setSelected(showExtendsMenuItem.isSelected());
+            else
+                showExtendsMenuItem.setSelected(showExtendsCheckbox.isSelected());
 
-	    boolean result = pkg.toggleShowExtends();
-	    editor.repaint();
-	}
+            boolean result = pkg.toggleShowExtends();
+            editor.repaint();
+        }
     }
 
     /**
@@ -660,7 +669,7 @@ public class PkgMgrFrame extends PkgFrame
      */
     public ExecControls getExecControls()
     {
-	return execCtrlWindow;
+        return execCtrlWindow;
     }
 
     /**
@@ -682,7 +691,7 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void clearTerminal()
     {
-	Terminal.getTerminal().clear();
+        Terminal.getTerminal().clear();
     }
 
     // ---- BlueJEventListener interface ----
@@ -693,42 +702,42 @@ public class PkgMgrFrame extends PkgFrame
      */
     public void blueJEvent(int eventId, Object arg)
     {
-	DebuggerThread thread;
+        DebuggerThread thread;
 
-	switch(eventId) {
-	    case BlueJEvent.CREATE_VM:
-		setStatus(creatingVM);
-		break;
-	    case BlueJEvent.CREATE_VM_DONE:
-		setStatus(creatingVMDone);
-		break;
-	    case BlueJEvent.EXECUTION_STARTED:
-		executionStarted();
-		break;
-	    case BlueJEvent.EXECUTION_FINISHED:
-		executionFinished();
-		break;
-	    case BlueJEvent.BREAKPOINT:
-		thread = (DebuggerThread)arg;
-		if(thread.getParam() == pkg)
-		    hitBreakpoint(thread);
-		break;
-	    case BlueJEvent.HALT:
-		thread = (DebuggerThread)arg;
-		if(thread.getParam() == pkg)
-		    hitHalt(thread);
-		break;
-	    case BlueJEvent.CONTINUE:
-		thread = (DebuggerThread)arg;
-		if(thread.getParam() == pkg)
-		    executionContinued();
-		break;
-	    case BlueJEvent.SHOW_SOURCE:
-		thread = (DebuggerThread)arg;
-		if(thread.getParam() == pkg)
-		    showSourcePosition(thread, false);
-		break;
-	}
+        switch(eventId) {
+        case BlueJEvent.CREATE_VM:
+            setStatus(creatingVM);
+            break;
+        case BlueJEvent.CREATE_VM_DONE:
+            setStatus(creatingVMDone);
+            break;
+        case BlueJEvent.EXECUTION_STARTED:
+            executionStarted();
+            break;
+        case BlueJEvent.EXECUTION_FINISHED:
+            executionFinished();
+            break;
+        case BlueJEvent.BREAKPOINT:
+            thread = (DebuggerThread)arg;
+            if(thread.getParam() == pkg)
+                hitBreakpoint(thread);
+            break;
+        case BlueJEvent.HALT:
+            thread = (DebuggerThread)arg;
+            if(thread.getParam() == pkg)
+                hitHalt(thread);
+            break;
+        case BlueJEvent.CONTINUE:
+            thread = (DebuggerThread)arg;
+            if(thread.getParam() == pkg)
+                executionContinued();
+            break;
+        case BlueJEvent.SHOW_SOURCE:
+            thread = (DebuggerThread)arg;
+            if(thread.getParam() == pkg)
+                showSourcePosition(thread, false);
+            break;
+        }
     }
 
     // ---- end of BlueJEventListener interface ----
@@ -739,8 +748,8 @@ public class PkgMgrFrame extends PkgFrame
      */
     public void executionStarted()
     {
-	progressButton.setEnabled(true);
-	Terminal.getTerminal().activate(true);
+        progressButton.setEnabled(true);
+        Terminal.getTerminal().activate(true);
     }
 
     /**
@@ -749,11 +758,11 @@ public class PkgMgrFrame extends PkgFrame
      */
     public void executionFinished()
     {
-	progressButton.setEnabled(false);
-	if(execCtrlWindow != null && execCtrlWindow.isVisible())
-	    execCtrlWindow.updateThreads();
-	Terminal.getTerminal().activate(false);
-	pkg.removeStepMarks();
+        progressButton.setEnabled(false);
+        if(execCtrlWindow != null && execCtrlWindow.isVisible())
+            execCtrlWindow.updateThreads();
+        Terminal.getTerminal().activate(false);
+        pkg.removeStepMarks();
     }
 
     /**
@@ -762,7 +771,7 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void executionHalted()
     {
-	progressButton.setIcon(stoppedIcon);
+        progressButton.setIcon(stoppedIcon);
     }
 
     /**
@@ -771,8 +780,8 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void executionContinued()
     {
-	pkg.removeStepMarks();
-	progressButton.setIcon(workingIcon);
+        pkg.removeStepMarks();
+        progressButton.setIcon(workingIcon);
     }
 
 
@@ -781,11 +790,11 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void hitBreakpoint(DebuggerThread thread)
     {
-	pkg.showSource(thread.getClassSourceName(0), 
-		       thread.getLineNumber(0), 
-		       thread.getName(), true);
-	showHideExecControls(true, true);
-	executionHalted();
+        pkg.showSource(thread.getClassSourceName(0), 
+                       thread.getLineNumber(0), 
+                       thread.getName(), true);
+        showHideExecControls(true, true);
+        executionHalted();
     }
 
 
@@ -794,8 +803,8 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void hitHalt(DebuggerThread thread)
     {
-	executionHalted();
-	showSourcePosition(thread, true);
+        executionHalted();
+        showSourcePosition(thread, true);
     }
 
 
@@ -803,16 +812,16 @@ public class PkgMgrFrame extends PkgFrame
      * showSourcePosition - The debugger display needs updating.
      */
     private void showSourcePosition(DebuggerThread thread, 
-				    boolean updateDebugger)
+                                    boolean updateDebugger)
     {
-	int frame = thread.getSelectedFrame();
-	if(pkg.showSource(thread.getClassSourceName(frame), 
-		       thread.getLineNumber(frame), 
-		       thread.getName(), false))
-	    execCtrlWindow.setVisible(true);
+        int frame = thread.getSelectedFrame();
+        if(pkg.showSource(thread.getClassSourceName(frame), 
+                          thread.getLineNumber(frame), 
+                          thread.getName(), false))
+            execCtrlWindow.setVisible(true);
 
-	if(updateDebugger)
-	    execCtrlWindow.updateThreads();
+        if(updateDebugger)
+            execCtrlWindow.updateThreads();
     }
 
 
@@ -824,10 +833,10 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void showWebPage(String url)
     {
-	if (Utility.openWebBrowser(url))
-	    setStatus(webBrowserMsg);
-	else
-	    setStatus(webBrowserError);
+        if (Utility.openWebBrowser(url))
+            setStatus(webBrowserMsg);
+        else
+            setStatus(webBrowserError);
     }
 
     /**
@@ -837,9 +846,9 @@ public class PkgMgrFrame extends PkgFrame
      */
     private boolean checkPackage(String path)
     {
-	File packageFile = new File(path);
+        File packageFile = new File(path);
 
-	// check whether path exists
+        // check whether path exists
 
 	if (!packageFile.exists()) {
 	    DialogManager.showErrorWithText(this, "package-does-not-exist", 
@@ -849,7 +858,7 @@ public class PkgMgrFrame extends PkgFrame
 
 	// check whether path is a valid BlueJ package
 
-	if (!Utility.isJBPackage(packageFile, Package.pkgfileName)) {
+        if (!Package.isBlueJPackage(packageFile)) {
 	    DialogManager.showErrorWithText(this, "no-bluej-package", path);
 	    return false;
 	}
@@ -861,249 +870,249 @@ public class PkgMgrFrame extends PkgFrame
 
     private void makeFrame() {
 
-	setFont(PkgMgrFont);
-	// setBackground(bgColor);
-	setIconImage(iconImage);
+        setFont(PkgMgrFont);
+        // setBackground(bgColor);
+        setIconImage(iconImage);
 
-	setupMenus();
+        setupMenus();
 
-	mainPanel = new JPanel();
-	mainPanel.setLayout(new BorderLayout(5, 5));
-	mainPanel.setBorder(Config.generalBorderWithStatusBar);
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout(5, 5));
+        mainPanel.setBorder(Config.generalBorderWithStatusBar);
 
-	if(pkg.getDirName() != noTitle) {
-	    classScroller = new JScrollPane(editor);
-	    mainPanel.add(classScroller, BorderLayout.CENTER);
-	}
+        if(pkg.getDirName() != noTitle) {
+            classScroller = new JScrollPane(editor);
+            mainPanel.add(classScroller, BorderLayout.CENTER);
+        }
 
-	// create toolbar
+        // create toolbar
 
-	JPanel toolPanel = new JPanel();
+        JPanel toolPanel = new JPanel();
 
-	buttonPanel = new JPanel();
+        buttonPanel = new JPanel();
 
-	GridLayout buttonGridLayout = new GridLayout(0, 1, 0, 3);
-	buttonGridLayout.setVgap(5);
-	buttonPanel.setLayout(buttonGridLayout);
-	buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));	
-	String newClassString = Config.getString("menu.edit." + 
-					 EditCmds[EDIT_NEWCLASS - EDIT_COMMAND]);
-	JButton button = new JButton(newClassString);
-	button.setFont(PkgMgrFont);
-	button.setMargin(new Insets(2,2,2,2));
-	button.addActionListener(this);
-	button.setRequestFocusEnabled(false);   // never get keyboard focus
-	buttonPanel.add(button);
-	actions.put(button, new Integer(EDIT_NEWCLASS));
+        GridLayout buttonGridLayout = new GridLayout(0, 1, 0, 3);
+        buttonGridLayout.setVgap(5);
+        buttonPanel.setLayout(buttonGridLayout);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,0,5));	
+        String newClassString = Config.getString("menu.edit." + 
+                                                 EditCmds[EDIT_NEWCLASS - EDIT_COMMAND]);
+        JButton button = new JButton(newClassString);
+        button.setFont(PkgMgrFont);
+        button.setMargin(new Insets(2,2,2,2));
+        button.addActionListener(this);
+        button.setRequestFocusEnabled(false);   // never get keyboard focus
+        buttonPanel.add(button);
+        actions.put(button, new Integer(EDIT_NEWCLASS));
 
-	ImageIcon usesIcon = new ImageIcon(Config.getImageFilename("image.build.depends"));
-	button = imgUsesButton = new JButton(usesIcon);
-	button.setMargin(new Insets(2,2,2,2));
-	button.addActionListener(this);
-	button.setRequestFocusEnabled(false);   // never get keyboard focus
-	buttonPanel.add(button);
-	actions.put(button, new Integer(EDIT_NEWUSES));
+        ImageIcon usesIcon = new ImageIcon(Config.getImageFilename("image.build.depends"));
+        button = imgUsesButton = new JButton(usesIcon);
+        button.setMargin(new Insets(2,2,2,2));
+        button.addActionListener(this);
+        button.setRequestFocusEnabled(false);   // never get keyboard focus
+        buttonPanel.add(button);
+        actions.put(button, new Integer(EDIT_NEWUSES));
 
-	ImageIcon extendsIcon = new ImageIcon(Config.getImageFilename("image.build.extends"));
-	button = imgExtendButton = new JButton(extendsIcon);
-	button.setMargin(new Insets(2,2,2,2));
-	button.addActionListener(this);
-	button.setRequestFocusEnabled(false);   // never get keyboard focus
-	buttonPanel.add(button);
-	actions.put(button, new Integer(EDIT_NEWINHERITS));
+        ImageIcon extendsIcon = new ImageIcon(Config.getImageFilename("image.build.extends"));
+        button = imgExtendButton = new JButton(extendsIcon);
+        button.setMargin(new Insets(2,2,2,2));
+        button.addActionListener(this);
+        button.setRequestFocusEnabled(false);   // never get keyboard focus
+        buttonPanel.add(button);
+        actions.put(button, new Integer(EDIT_NEWINHERITS));
 
-	String compileString = Config.getString("menu.tools." + ToolsCmds[TOOLS_COMPILE - TOOLS_COMMAND]);
-	button = new JButton(compileString);
-	button.setFont(PkgMgrFont);
-	button.setMargin(new Insets(2,2,2,2));
-	button.addActionListener(this);
-	button.setRequestFocusEnabled(false);   // never get keyboard focus
-	buttonPanel.add(button);
-	actions.put(button, new Integer(TOOLS_COMPILE));
+        String compileString = Config.getString("menu.tools." + ToolsCmds[TOOLS_COMPILE - TOOLS_COMMAND]);
+        button = new JButton(compileString);
+        button.setFont(PkgMgrFont);
+        button.setMargin(new Insets(2,2,2,2));
+        button.addActionListener(this);
+        button.setRequestFocusEnabled(false);   // never get keyboard focus
+        buttonPanel.add(button);
+        actions.put(button, new Integer(TOOLS_COMPILE));
 
-	viewPanel = new JPanel();
-	viewPanel.setLayout(new BorderLayout());
+        viewPanel = new JPanel();
+        viewPanel.setLayout(new BorderLayout());
 
-	TitledBorder border = 
-	    BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.darkGray),
-					     Config.getString("pkgmgr.view.label"),
-					     TitledBorder.CENTER,
-					     TitledBorder.BELOW_TOP, 
-					     PkgMgrFont);
+        TitledBorder border = 
+            BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.darkGray),
+                                             Config.getString("pkgmgr.view.label"),
+                                             TitledBorder.CENTER,
+                                             TitledBorder.BELOW_TOP, 
+                                             PkgMgrFont);
 
-	showPanel = new JPanel();
-	showPanel.setLayout(new GridLayout(0, 1));
-	showPanel.setBorder(border);
+        showPanel = new JPanel();
+        showPanel.setLayout(new GridLayout(0, 1));
+        showPanel.setBorder(border);
 
-	// Add the Checkbox to ShowUses Arrows (this must also control
-	// the Menu's Checkbox Items)
+        // Add the Checkbox to ShowUses Arrows (this must also control
+        // the Menu's Checkbox Items)
 
-	showUsesCheckbox = new JCheckBox(Config.getString("pkgmgr.view.usesLabel"), 
-					 null, true);
-	showUsesCheckbox.addItemListener(this);
-	showUsesCheckbox.setFont(PkgMgrFont);
-	// showUsesCheckbox.setMargin(new Insets(0,0,0,0));
-	actions.put(showUsesCheckbox, new Integer(VIEW_SHOWUSES));
+        showUsesCheckbox = new JCheckBox(Config.getString("pkgmgr.view.usesLabel"), 
+                                         null, true);
+        showUsesCheckbox.addItemListener(this);
+        showUsesCheckbox.setFont(PkgMgrFont);
+        // showUsesCheckbox.setMargin(new Insets(0,0,0,0));
+        actions.put(showUsesCheckbox, new Integer(VIEW_SHOWUSES));
 
-	showPanel.add(showUsesCheckbox);
-	// Add the Checkbox to ShowExtends Arrows (this must also control 
-	// the Menu's Checkbox Items)
+        showPanel.add(showUsesCheckbox);
+        // Add the Checkbox to ShowExtends Arrows (this must also control 
+        // the Menu's Checkbox Items)
 
-	showExtendsCheckbox = new JCheckBox(Config.getString("pkgmgr.view.inheritLabel"), 
-					    null, true);
-	showExtendsCheckbox.addItemListener(this);
-	showExtendsCheckbox.setFont(PkgMgrFont);
-	// showExtendsCheckbox.setMargin(new Insets(0,0,0,0));
-	actions.put(showExtendsCheckbox, new Integer(VIEW_SHOWINHERITS));
-	showPanel.add(showExtendsCheckbox);
-	viewPanel.add("North",showPanel);
-			
-	// Image Button Panel to hold the Progress Image
-	JPanel progressPanel = new JPanel ();
-			
-	progressButton = new JButton(workingIcon);
-	progressButton.setDisabledIcon(notWorkingIcon);
-	progressButton.setMargin(new Insets(0, 0, 0, 0));
-	progressButton.addActionListener(this);
-	actions.put(progressButton, new Integer(VIEW_SHOWCONTROLS));
-	progressButton.setEnabled(false);
-	progressPanel.add(progressButton);
-	viewPanel.add("South",progressPanel);
+        showExtendsCheckbox = new JCheckBox(Config.getString("pkgmgr.view.inheritLabel"), 
+                                            null, true);
+        showExtendsCheckbox.addItemListener(this);
+        showExtendsCheckbox.setFont(PkgMgrFont);
+        // showExtendsCheckbox.setMargin(new Insets(0,0,0,0));
+        actions.put(showExtendsCheckbox, new Integer(VIEW_SHOWINHERITS));
+        showPanel.add(showExtendsCheckbox);
+        viewPanel.add("North",showPanel);
 
-	toolPanel.setLayout(new BorderLayout());
-	toolPanel.add("North", buttonPanel);
-	toolPanel.add("South", viewPanel);
-			
-	JPanel bottomPanel = new JPanel();
-	bottomPanel.setLayout(new BorderLayout());
-	objScroller = new JScrollPane(objbench = new ObjectBench());
-	bottomPanel.add("North", objScroller);
-	bottomPanel.add("South", statusbar);
+        // Image Button Panel to hold the Progress Image
+        JPanel progressPanel = new JPanel ();
 
-	mainPanel.add("West", toolPanel);
-	mainPanel.add("South", bottomPanel);
+        progressButton = new JButton(workingIcon);
+        progressButton.setDisabledIcon(notWorkingIcon);
+        progressButton.setMargin(new Insets(0, 0, 0, 0));
+        progressButton.addActionListener(this);
+        actions.put(progressButton, new Integer(VIEW_SHOWCONTROLS));
+        progressButton.setEnabled(false);
+        progressPanel.add(progressButton);
+        viewPanel.add("South",progressPanel);
 
-//	getContentPane().setLayout(new GridBagLayout());
-//	GridBagConstraints constraints = new GridBagConstraints();
-//	constraints.insets = new Insets(10, 10, 10, 10);
-//	constraints.fill = GridBagConstraints.BOTH;
-//	constraints.weightx = 1;
-//	constraints.weighty = 1;
-	getContentPane().add(mainPanel);
+        toolPanel.setLayout(new BorderLayout());
+        toolPanel.add("North", buttonPanel);
+        toolPanel.add("South", viewPanel);
 
-	setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BorderLayout());
+        objScroller = new JScrollPane(objbench = new ObjectBench());
+        bottomPanel.add("North", objScroller);
+        bottomPanel.add("South", statusbar);
 
-	addWindowListener(new WindowAdapter() {
-	    public void windowClosing(WindowEvent E)
-		{
-		    if(frameCount() == 1)
-			bluej.Main.exit();
-		    else
-			PkgMgrFrame.closeFrame((PkgMgrFrame)E.getWindow());
+        mainPanel.add("West", toolPanel);
+        mainPanel.add("South", bottomPanel);
 
-		}
-	});
+        //	getContentPane().setLayout(new GridBagLayout());
+        //	GridBagConstraints constraints = new GridBagConstraints();
+        //	constraints.insets = new Insets(10, 10, 10, 10);
+        //	constraints.fill = GridBagConstraints.BOTH;
+        //	constraints.weightx = 1;
+        //	constraints.weighty = 1;
+        getContentPane().add(mainPanel);
 
-	// workaround for AWT cursor bug to show WAIT_CURSOR with Swing components
-	Component glass = getGlassPane();
-	glass.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-	glass.addMouseListener(new MouseAdapter() {
-	    public void mousePressed(MouseEvent e) {}
-	});
+        setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
-	// grey out certain functions if package not open.
-	if(pkg.getDirName() == noTitle)
-	    enableFunctions(false);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent E)
+                {
+                    if(frameCount() == 1)
+                        bluej.Main.exit();
+                    else
+                        PkgMgrFrame.closeFrame((PkgMgrFrame)E.getWindow());
+
+                }
+        });
+
+        // workaround for AWT cursor bug to show WAIT_CURSOR with Swing components
+        Component glass = getGlassPane();
+        glass.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        glass.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {}
+        });
+
+        // grey out certain functions if package not open.
+        if(pkg.getDirName() == noTitle)
+            enableFunctions(false);
     }
 
     /**
      * setupMenus - Create the menu bar
      */
     private void setupMenus() {
-	menubar = new JMenuBar();
-	JMenu menu = null;
+        menubar = new JMenuBar();
+        JMenu menu = null;
 
-	for(int menuType = 0; menuType < CmdTypes.length; menuType++) {
-	    int sep = 0;
+        for(int menuType = 0; menuType < CmdTypes.length; menuType++) {
+            int sep = 0;
 
-	    String menuId = "menu." + CmdTypeNames[menuType];
-	    String menuStr = Config.getString(menuId);
+            String menuId = "menu." + CmdTypeNames[menuType];
+            String menuStr = Config.getString(menuId);
 
-	    //Debug.message("MenuType[" + menuType + "]" + menuId + "[" + menuStr + "]" );
-	    menu = new JMenu(menuStr);
+            //Debug.message("MenuType[" + menuType + "]" + menuId + "[" + menuStr + "]" );
+            menu = new JMenu(menuStr);
 
-	    for(int i = 0; i < CmdStrings[menuType].length; i++) {
-		int actionId = CmdTypes[menuType] + i;
-		String itemId = menuId + "." + CmdStrings[menuType][i];
-		String itemStr = Config.getString(itemId);
-		KeyStroke accelerator = CmdKeys[menuType][i];
-		JMenuItem item;
-						
-		switch (actionId) {
-		case VIEW_SHOWUSES:		// Add these as CheckBoxMenuItems
-		    item = showUsesMenuItem = new JCheckBoxMenuItem(itemStr,true);
-		    item.addActionListener(this); 
-		    if (accelerator != null)
-			item.setAccelerator(accelerator);
-		    break;
+            for(int i = 0; i < CmdStrings[menuType].length; i++) {
+                int actionId = CmdTypes[menuType] + i;
+                String itemId = menuId + "." + CmdStrings[menuType][i];
+                String itemStr = Config.getString(itemId);
+                KeyStroke accelerator = CmdKeys[menuType][i];
+                JMenuItem item;
 
-		case VIEW_SHOWINHERITS:
-		    item = showExtendsMenuItem = new JCheckBoxMenuItem(itemStr,true);
-		    item.addActionListener(this);
-		    if (accelerator != null)
-			item.setAccelerator(accelerator);
-		    break;
-							
-		case VIEW_SHOWCONTROLS:
-		    item = new JCheckBoxMenuItem(itemStr,false);
-		    item.setModel(new ExecControlButtonModel(this));
-		    if (accelerator != null)
-			item.setAccelerator(accelerator);
-		    break;
+                switch (actionId) {
+                case VIEW_SHOWUSES:		// Add these as CheckBoxMenuItems
+                    item = showUsesMenuItem = new JCheckBoxMenuItem(itemStr,true);
+                    item.addActionListener(this); 
+                    if (accelerator != null)
+                        item.setAccelerator(accelerator);
+                    break;
 
-		case VIEW_SHOWTERMINAL:
-		    item = new JCheckBoxMenuItem(itemStr,false);
-		    item.setModel(new TerminalButtonModel());
-		    if (accelerator != null)
-			item.setAccelerator(accelerator);
-		    break;
-							
-		default:						// Otherwise
-		    item = new JMenuItem(itemStr);
-		    item.addActionListener(this);
-		    if (accelerator != null)
-			item.setAccelerator(accelerator);
-		    break;
-		}
+                case VIEW_SHOWINHERITS:
+                    item = showExtendsMenuItem = new JCheckBoxMenuItem(itemStr,true);
+                    item.addActionListener(this);
+                    if (accelerator != null)
+                        item.setAccelerator(accelerator);
+                    break;
 
-		if(CmdTypes[menuType] == GRP_COMMAND)
-		    item.setEnabled(false);
+                case VIEW_SHOWCONTROLS:
+                    item = new JCheckBoxMenuItem(itemStr,false);
+                    item.setModel(new ExecControlButtonModel(this));
+                    if (accelerator != null)
+                        item.setAccelerator(accelerator);
+                    break;
 
-		// Add new Item to the Menu & associate Action to it.
-		menu.add(item);
-		actions.put(item, new Integer(actionId));
+                case VIEW_SHOWTERMINAL:
+                    item = new JCheckBoxMenuItem(itemStr,false);
+                    item.setModel(new TerminalButtonModel());
+                    if (accelerator != null)
+                        item.setAccelerator(accelerator);
+                    break;
 
-		if(sep < CmdSeparators[menuType].length
-		   && CmdSeparators[menuType][sep] == actionId)
-		    {
-			menu.addSeparator();
-			++sep;
-		    }
-	    }
-	    // Hack while "setHelpMenu" does not work...
-	    if(CmdTypes[menuType] == HELP_COMMAND)
-		menubar.add(Box.createHorizontalGlue());
+                default:						// Otherwise
+                    item = new JMenuItem(itemStr);
+                    item.addActionListener(this);
+                    if (accelerator != null)
+                        item.setAccelerator(accelerator);
+                    break;
+                }
 
-	    // Add the menu to the MenuBar
-	    menubar.add(menu);
-	}
+                if(CmdTypes[menuType] == GRP_COMMAND)
+                    item.setEnabled(false);
 
-	if(menu != null) {
-	    // Always put help menu last
-	    //menubar.setHelpMenu(menu);  // not implemented in Swing 1.1
-	}
+                // Add new Item to the Menu & associate Action to it.
+                menu.add(item);
+                actions.put(item, new Integer(actionId));
 
-	setJMenuBar(menubar);
+                if(sep < CmdSeparators[menuType].length
+                   && CmdSeparators[menuType][sep] == actionId)
+                    {
+                        menu.addSeparator();
+                        ++sep;
+                    }
+            }
+            // Hack while "setHelpMenu" does not work...
+            if(CmdTypes[menuType] == HELP_COMMAND)
+                menubar.add(Box.createHorizontalGlue());
+
+            // Add the menu to the MenuBar
+            menubar.add(menu);
+        }
+
+        if(menu != null) {
+            // Always put help menu last
+            //menubar.setHelpMenu(menu);  // not implemented in Swing 1.1
+        }
+
+        setJMenuBar(menubar);
     }
 
     /**

@@ -10,14 +10,14 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: NewClassDialog.java 269 1999-11-10 05:36:05Z mik $
+ ** @version $Id: NewClassDialog.java 281 1999-11-18 03:58:18Z axel $
  ** @author Justin Tan
  ** @author Michael Kolling
  **
  ** Dialog for creating a new class
  **/
 
-public class NewClassDialog extends JDialog
+class NewClassDialog extends JDialog
 
 	implements ActionListener
 {

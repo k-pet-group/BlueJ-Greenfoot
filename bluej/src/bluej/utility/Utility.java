@@ -11,7 +11,7 @@ import javax.swing.*;
 
 /**
  ** Some generally useful utility methods available to all of bluej.
- ** $Id: Utility.java 267 1999-11-10 02:53:02Z mik $
+ ** $Id: Utility.java 281 1999-11-18 03:58:18Z axel $
  ** @author Michael Cahill
  ** @author Justin Tan
  ** @author Michael Kolling
@@ -243,26 +243,6 @@ public class Utility
 	}
 
 	return fullClassName;
-    }
-
-    /**
-     *  return true if the file is a BlueJ package directory
-     */
-    public static boolean isJBPackage(File f, String pkgFileName) {
-	if (f == null)
-	    return false;
-
-	if(!f.isDirectory())
-	    return false;
-
-	// don't try to test Windows root directories (you'll get in
-	// trouble with disks that are not in drives...).
-
-	if(f.getPath().endsWith(":\\"))
-	    return false;
-
-	File packageFile = new File(f, pkgFileName);
-	return (packageFile.exists());
     }
 
     /**

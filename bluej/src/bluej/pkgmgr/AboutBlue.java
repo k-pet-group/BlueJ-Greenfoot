@@ -10,12 +10,12 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: AboutBlue.java 267 1999-11-10 02:53:02Z mik $
+ ** @version $Id: AboutBlue.java 281 1999-11-18 03:58:18Z axel $
  ** @author Justin Tan
  **
  ** General graph edge
  **/
-public class AboutBlue extends JDialog
+class AboutBlue extends JDialog
 {
     public AboutBlue(JFrame thisFrame, String version)
     {

@@ -114,6 +114,11 @@ Cannot import file. The file must
 be a Java source file (it's name
 must end in ".java").
 
+no-java-sources-found
+No Java source files were
+found in this directory
+(or any of its subdirectories).
+
 duplicate-name
 A class with this name already exists
 in this package. You cannot have two
@@ -175,6 +180,25 @@ will be cut off. You can avoid this by resizing
 the editor window to make it narrower. Do you
 want to print anyway?
 Print
+Cancel
+null
+
+really-import-package
+You chose a directory that is not a BlueJ package.
+Do you want this directory to be searched for Java source
+files that can be displayed in a BlueJ package window?
+(If you just wanted to see the content of this directory,
+click Cancel now and then double click the directory icon)
+Search
+Cancel
+null
+
+also-search-subdirs
+The directory you chose contains subdirectories.
+Do you want these directories and all their subdirectories
+to be searched, being displayed as nested packages
+if they contain Java source files?
+Search subdirectories
 Cancel
 null
 

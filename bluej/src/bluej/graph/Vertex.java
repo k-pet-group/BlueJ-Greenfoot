@@ -1,5 +1,5 @@
 /**
- ** @version $Id: Vertex.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: Vertex.java 281 1999-11-18 03:58:18Z axel $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -34,6 +34,11 @@ public abstract class Vertex
     {
 	this.width = width;
 	this.height = height;
+    }
+
+    public int getWidth()
+    {
+	return this.width;
     }
 
     public abstract void draw(Graphics g);

@@ -206,10 +206,12 @@ PKGMGR_CLASSES = \
 		ClassRole \
 		ClassTarget \
 		Dependency \
+		DirectoryFilter \
 		EditableTarget \
 		ExtendsDependency \
 		ImplementsDependency \
 		ImportedClassTarget \
+		JavaSourceFilter \
 		JBPackageChooser \
 		JBPackageFileView \
 		LayoutComparer \

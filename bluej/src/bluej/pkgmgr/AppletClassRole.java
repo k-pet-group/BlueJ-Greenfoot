@@ -21,7 +21,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 269 1999-11-10 05:36:05Z mik $
+ ** @version $Id: AppletClassRole.java 281 1999-11-18 03:58:18Z axel $
  **/
 public class AppletClassRole extends ClassRole 
 {
@@ -191,7 +191,7 @@ public class AppletClassRole extends ClassRole
 		// generate HTML page for Applet using selected path and file name
 		String generatedFileName = chooseWebPage(pkg.getFrame());
 		if(generatedFileName != null)
-		  createWebPage(name, URL_PREFIX + pkg.getBaseDir(), generatedFileName);
+		  createWebPage(name, URL_PREFIX + pkg.getDirName(), generatedFileName);
 	    }
 	    else {
 

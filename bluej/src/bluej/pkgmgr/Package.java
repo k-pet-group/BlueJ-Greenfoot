@@ -32,7 +32,7 @@ import java.io.*;
 import java.util.*;
 
 /**
-** @version $Id: Package.java 275 1999-11-16 00:49:06Z ajp $
+** @version $Id: Package.java 281 1999-11-18 03:58:18Z axel $
 ** @author Michael Cahill
 **
 ** A Java package (collection of Java classes).
@@ -64,6 +64,8 @@ implements CompileObserver, MouseListener, MouseMotionListener
     private static final int DEFAULTTARGETCHARWIDTH = 12;
     private static final int DEFAULTTARGETHEIGHT = 50;
     private static final int TARGETGAP = 20;
+    private static final int SMALL_LAYOUT_BOUND = 600;
+    private static final int LARGE_LAYOUT_BOUND = 800;
     // used to size frame when no existing size information can be found
     private static final int DEFAULTFRAMEHEIGHT = 600;
     private static final int DEFAULTFRAMEWIDTH = 800;
@@ -73,17 +75,14 @@ implements CompileObserver, MouseListener, MouseMotionListener
     // static EditorManager editorManager = new RedEditorManager(false);
     // static EditorManager editorManager = new SimpleEditorManager();
 
-    protected String packageName = noPackage;	// name of pkg (eg java.lang)
+    protected String packageName = noPackage;	// unqualified name of pkg (eg util)
     //  or string "No Package"
+    protected String fullPackageName = noPackage;  // fully qualified name of pkg
+    // (eg java.util) or string "No Package"
     protected String dirname;			// the directory of this package (may
     //  be relative)
     protected String baseDir;			// the absolute path to the directory
     //  which contains the package directory
-    protected String classdir;			// the directory storing the class files
-    //  (usually equal to package 
-    //  directory). Is added to classpath.
-    protected String relclassdir;		// the classdir relative to package
-    //  directory
 
     protected Hashtable targets;
     protected Vector usesArrows;
@@ -147,7 +146,8 @@ implements CompileObserver, MouseListener, MouseMotionListener
     /**
      * Return the path to this package's directory (may be relative).
      */
-    public String getDirName() {
+    public String getDirName() 
+    {
         return dirname;
     }
 
@@ -169,21 +169,21 @@ implements CompileObserver, MouseListener, MouseMotionListener
     }
 
     /**
-     * Return this package's name (eg javax.swing.text or string "No Package").
+     * Return the fully qualified name of this package (eg java.util) or, 
+     * if this package has no name, the string Package.noPackage).
+     */
+    public String getFullName()
+    {
+        return fullPackageName;
+    }
+
+    /**
+     * Return this package's name (eg util) or, if this package has no name,
+     * the string Package.noPackage).
      */
     public String getName()
     {
         return packageName;
-    }
-
-    /**
-     * Return the name of the directory used to store the class files (in the
-     * current implementation equal to the package directory, but may be different
-     * in the future.
-     */
-    public String getClassDir()
-    {
-        return (classdir != null) ? classdir : getBaseDir();
     }
 
     public String getClassPath()
@@ -200,7 +200,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
             c.append(cpe.getPath());
             c.append(Config.colon);
         }
-        c.append(getClassDir());
+        c.append(getDirName());  // for classes in current package
 
         return c.toString();
     }
@@ -402,7 +402,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
     }
 
     /**
-     * Load the elements of a package from a specified directory 
+     * Load the elements of a package from a specified directory.
      *
      * @param dirname the directory from which to load the properties
      * @param props the already created properties for this package
@@ -447,15 +447,6 @@ implements CompileObserver, MouseListener, MouseMotionListener
         frame.invalidate();
         frame.validate();
 
-        relclassdir = null;
-        // relclassdir = Config.getPath(props, "package.classdir");
-        if(relclassdir != null) {
-            File cd = new File(relclassdir);
-            if(cd.isAbsolute())
-                classdir = relclassdir;
-            else
-                classdir = dirname + Config.slash + relclassdir;
-        }
 
         // read in all the targets contained in this package
 
@@ -638,11 +629,11 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
     /**
      * importFile - import a source file into this package as a new
-     *  class target. Returns an error code:
-     *   NO_ERROR       - everything is fine
-     *   FILE_NOT_FOUND - file does not exist
-     *   ILLEGAL_FORMAT - the file name does not end in ".java"
-     *   CLASS_EXISTS - a class with this name already exists
+     *  class target. Returns an error code: <br>
+     *   NO_ERROR       - everything is fine <br>
+     *   FILE_NOT_FOUND - file does not exist <br>
+     *   ILLEGAL_FORMAT - the file name does not end in ".java" <br>
+     *   CLASS_EXISTS - a class with this name already exists <br>
      *   COPY_ERROR     - could not copy 
      */
     public int importFile(String sourcePath)
@@ -681,53 +672,167 @@ implements CompileObserver, MouseListener, MouseMotionListener
         return NO_ERROR;
     }
 
-    public static boolean importDir(String dirname, String pkgname)
-    {
-        File dir = new File(dirname);
-        if(!dir.isDirectory())
-            return false;
+
+    /**
+     * Try to open a plain directory as a package by importing all source
+     * files in it into a BlueJ package. If this directory contains subdirs
+     * prompt the user if they should be searched recursively. If Java source 
+     * files are found in a directory, information about them (names, 
+     * generated layout) is written into a newly created package file in that
+     * directory. So, after this method ran the directory can be opened as if
+     * it was a BlueJ package.
+     * 
+     * @param dir the directory denoting the potential Java package.
+     * @param frame the frame where questions may be displayed.
+     * @return true if any Java source was found, false otherwise.
+     */
+    public static boolean importPackage(File dir, PkgMgrFrame frame) {
 
         Package newPkg = new Package();
+        newPkg.dirname = dir.getPath();
+        newPkg.packageName = dir.getName();
 
-        // create targets for all files in dirname
-        newPkg.dirname = dirname;
-        newPkg.packageName = pkgname;
+        // read sources in this directory; the number of layout rows used is returned
+        int rows = importJavaSources(dir,newPkg);
 
-        int targetnum = 0;
-        String[] files = dir.list();
-        for(int i = 0; i < files.length; i++) {
-            Target t = null;
-            String filename = files[i];
-            if(filename.endsWith(".java")) {  // it's a Java source file
-                String classname = filename.substring(0, filename.length() - 5);
-                t = new ClassTarget(newPkg, classname);
-            }
-            else if(pkgname != noPackage) {  // try subdirectories
-                File f = new File(dirname, filename);
-                String newname = pkgname + "." + filename;
-                if(f.isDirectory() && importDir(f.getPath(), newname))
-                    t = new PackageTarget(newPkg, filename, newname);
-            }
+        // try to find subpackages and create targets for them
+        File[] subdirs = dir.listFiles(new DirectoryFilter());
+        if (subdirs.length > 0) {
 
-            if(t != null) {
-                newPkg.addTarget(t);
-                t.setPos(20 + 100 * (targetnum % 5), 20 + 80 * (targetnum / 5));
-                ++targetnum;
+            int answer = DialogManager.askQuestion(frame,
+                                                   "also-search-subdirs");
+
+            if (answer == 0) { // yes, search subdirs
+                rows = importSubPackages(subdirs,newPkg,rows);
             }
         }
 
-        if(targetnum > 0) {
-            newPkg.save(dirname);
+        if (rows > 0) {
+            newPkg.save(newPkg.dirname);
             return true;
         }
         else
             return false;
     }
 
-    public static boolean importDir(String dirname)
+
+    /**
+     * Try to import the directories in "dirlist" as subpackages into
+     * "parent", which used "rowsSoFar" rows for the layout of previously
+     * imported class targets.
+     *
+     * @param dirlist a list of directories.
+     * @param parent the parent package for the subpackages found.
+     * @param rowsSoFar gives the number of layout rows needed for class
+     * targets already imported into "parent".
+     * @return the number of layout rows used for all targets imported into
+     * "parent".
+     */
+    private static int importSubPackages(File[] dirlist, Package parent,
+                                         int rowsSoFar)
     {
-        return importDir(dirname, noPackage);
+        int rows = rowsSoFar;
+        // layout: start a new row for subpackages
+        int horizontal = STARTCOLUMNPOS;
+        int vertical = STARTROWPOS + rowsSoFar * (Target.DEF_HEIGHT+TARGETGAP);
+        int rightBound = (rowsSoFar>3)?LARGE_LAYOUT_BOUND:SMALL_LAYOUT_BOUND;
+
+        for (int i = 0; i < dirlist.length; i++) {
+            File subdir = dirlist[i];
+            Package subpackage = importSubPackage(subdir,parent.packageName); 
+            if(subpackage != null) {
+                Target t = new PackageTarget(parent, subdir.getName(),
+                                             subpackage.packageName);
+                parent.addTarget(t);
+                t.setPos(horizontal,vertical);
+                if (rows==0) rows++;
+                horizontal += t.getWidth() + TARGETGAP;
+                if (horizontal > rightBound) {
+                    horizontal = STARTCOLUMNPOS;
+                    vertical += Target.DEF_HEIGHT + TARGETGAP;
+                    rows++;
+                }
+            }
+        }
+        if ((rows>rowsSoFar) && (horizontal==STARTCOLUMNPOS)) rows--;
+        return rows;
     }
+
+
+    /**
+     * Find Java source files in a directory that is nested in a package.
+     * If source files are found in this or any subdirectory then the
+     * appropriate package files are written.
+     * @param dir the directory denoting the potential subpackage.
+     * @param parentName the name of the parent package.
+     * @return a package for dir if sources found, null otherwise.
+     */
+
+    private static Package importSubPackage(File dir, String parentName)
+    {
+        Package newPkg = new Package();
+        newPkg.dirname = dir.getPath();
+        newPkg.packageName = parentName + "." + dir.getName();
+
+        // if it is already a BlueJ package return just the name information
+        if (isBlueJPackage(dir))
+            return newPkg;
+
+        // read sources in this directory
+        int rows = importJavaSources(dir,newPkg);
+
+        // try to find subpackages
+
+        rows = importSubPackages(dir.listFiles(new DirectoryFilter()),newPkg,
+                                 rows);
+
+        if(rows > 0) {
+            newPkg.save(newPkg.dirname);
+            return newPkg;
+        }
+        else
+            return null;
+    }
+
+
+    /**
+     * Import the Java source files from a given directory into a package and
+     * position them nicely in rows.
+     *
+     * @param dir the directory to be searched.
+     * @param pack the package the source shall be imported into.
+     * @return the number of layout rows needed for the imported Java source
+     * files.
+     */
+    private static int importJavaSources(File dir, Package pack)
+    {
+        // create targets for all Java source files and add them to pack
+        int rows = 0;
+        int horizontal = STARTCOLUMNPOS;
+        int vertical = STARTROWPOS;
+        File[] files = dir.listFiles(new JavaSourceFilter());
+        if (files.length>0) rows++;
+        int rightBound = (files.length>15)?LARGE_LAYOUT_BOUND:SMALL_LAYOUT_BOUND;
+        for (int i = 0; i < files.length; i++) {
+            String filename = files[i].getName();
+            String classname = filename.substring(0, filename.length() - 5);
+            Target t = new ClassTarget(pack, classname);
+            t.setPos(horizontal,vertical);
+            horizontal += t.getWidth() + TARGETGAP;
+            if (horizontal > rightBound) {
+                horizontal = STARTCOLUMNPOS;
+                vertical += Target.DEF_HEIGHT + TARGETGAP;
+                rows++;
+            }
+            pack.addTarget(t);
+        }
+        // if the targets just filled up the last row: correct the row counter
+        if ((rows>0) && (horizontal==STARTCOLUMNPOS))
+            rows--;
+        return rows;
+
+    } // importJavaSources
+
 
     /**
      * Add a new class to this package from a library.
@@ -797,7 +902,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
     {
         if(baseDir == null) {
             if(packageName == noPackage) {
-                baseDir = dirname;
+                baseDir = new File(dirname).getParent();
             }
             else {
                 String dir = new File(dirname).getAbsolutePath();
@@ -939,19 +1044,19 @@ implements CompileObserver, MouseListener, MouseMotionListener
     }
 
     /**
-     *  Compile every Target in 'targets'. Every compilation goes through 
+     *  Compile every Target in 'targetList'. Every compilation goes through 
      *  this method.
      */
-    private void doCompile(Vector targets)
+    private void doCompile(Vector targetList)
     {
-        String[] files = new String[targets.size()];
-        for(int i = 0; i < targets.size(); i++) {
-            ClassTarget ct = (ClassTarget)targets.get(i);
+        String[] files = new String[targetList.size()];
+        for(int i = 0; i < targetList.size(); i++) {
+            ClassTarget ct = (ClassTarget)targetList.get(i);
             files[i] = ct.sourceFile();
         }
         removeBreakpoints();
 
-        bluej.compiler.JobQueue.getJobQueue().addJob(files, this, getClassPath(), getClassDir());
+        bluej.compiler.JobQueue.getJobQueue().addJob(files, this, getClassPath(), getDirName());
     }
 
 
@@ -996,12 +1101,12 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
     public void addTarget(Target t)
     {
-        targets.put(t.getName(), t);
+        targets.put(t.getBaseName(), t);
     }
 
     public void removeTarget(Target t)
     {
-        targets.remove(t.getName());
+        targets.remove(t.getBaseName());
     }
 
     /**
@@ -1304,6 +1409,11 @@ implements CompileObserver, MouseListener, MouseMotionListener
         }
     }
 
+    /**
+     * Return the target with name "tname".
+     * @param tname the unqualified (or base) name of a target.
+     * @return the target with name "tname" if existent, null otherwise.
+     */
     public Target getTarget(String tname)
     {
         Target t = (Target)targets.get(tname);
@@ -1320,8 +1430,9 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
         for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
             Target t = (Target)e.nextElement();
-            if(t instanceof ClassTarget || t instanceof PackageTarget)
-                names.add(t.getName());
+            if(t instanceof ClassTarget || t instanceof PackageTarget) {
+                names.add(t.getBaseName());
+            }
         }
         return names;
     }
@@ -1422,15 +1533,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
 
     public String getClassFileName(String basename)
     {
-        String dir = dirname;
-
-        if(classdir != null) {
-            dir = classdir;
-            if(basename.indexOf('.') == -1)
-                basename = getQualifiedName(basename);
-        }
-
-        return dir + Config.slash + basename.replace('.', Config.slash);
+        return dirname + Config.slash + basename.replace('.', Config.slash);
     }
 
     /**
@@ -1445,6 +1548,29 @@ implements CompileObserver, MouseListener, MouseMotionListener
             return basename;
         else
             return packageName + "." + basename;
+    }
+
+
+    /**
+     *  Test whether a file instance denotes a BlueJ package directory.
+     *  @param f the file instance that is tested for denoting a BlueJ package.
+     *  @return true if f denotes a directory and a BlueJ package.
+     */
+    public static boolean isBlueJPackage(File f) {
+        if (f == null)
+            return false;
+
+        if(!f.isDirectory())
+            return false;
+
+        // don't try to test Windows root directories (you'll get in
+        // trouble with disks that are not in drives...).
+
+        if(f.getPath().endsWith(":\\"))
+            return false;
+
+        File packageFile = new File(f, pkgfileName);
+        return (packageFile.exists());
     }
 
     /**
@@ -1689,7 +1815,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
     private synchronized ClassLoader getLocalClassLoader()
     {
         if(loader == null)
-            loader = ClassMgr.getLoader(getClassDir());
+            loader = ClassMgr.getLoader(getDirName());
 
         return loader;
     }
@@ -1725,7 +1851,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
     public synchronized DebuggerClassLoader getRemoteClassLoader()
     {
         if(debuggerLoader == null)
-            debuggerLoader = Debugger.debugger.createClassLoader(getId(), getClassDir());
+            debuggerLoader = Debugger.debugger.createClassLoader(getId(), getDirName());
         return debuggerLoader;
     }
 

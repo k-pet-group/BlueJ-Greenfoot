@@ -11,7 +11,7 @@ import java.io.File;
  *
  * @author Michael Kolling
  */
-public class JBPackageFileView extends FileView {
+class JBPackageFileView extends FileView {
 
     static final Icon packageIcon = new ImageIcon(Config.getImageFilename("image.packageIcon"));
 
@@ -43,7 +43,7 @@ public class JBPackageFileView extends FileView {
      * Everything else gets handled by the system (by returning null).
      */
     public Icon getIcon(File f) {
-	if(Utility.isJBPackage(f, Package.pkgfileName))
+	if(Package.isBlueJPackage(f))
 	    return packageIcon;
 	else
 	    return null;
