@@ -17,7 +17,7 @@ import bluej.testmgr.*;
  * A window that displays the fields in an object or a method return value.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectInspector.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: ObjectInspector.java 1995 2003-05-30 06:37:46Z bquig $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -163,9 +163,16 @@ public class ObjectInspector extends Inspector
         // add index to slot method for truncated arrays
         if (obj.isArray()) {
             slot = indexToSlot(slot);
+            // if selection is the first field containing array length
+            // we treat as special case and do nothing more
+            if(slot == ARRAY_LENGTH_SLOT_VALUE) {
+                setCurrentObj(null, null);
+                setButtonsEnabled(false, false);
+                return;
+            }
         }
 
-        queryArrayElementSelected = (slot == ARRAY_QUERY_SLOT_VALUE);
+        queryArrayElementSelected = (slot == (ARRAY_QUERY_SLOT_VALUE));
 
         // for array compression..
         if (queryArrayElementSelected) {  // "..." in Array inspector
@@ -257,7 +264,7 @@ public class ObjectInspector extends Inspector
                         // it is not an object - a primitive, so lets
                         // just display it in the array list display
                         setButtonsEnabled(false, false);
-                        arraySet.add(new Integer(slot));
+                        //arraySet.add(new Integer(slot));
                         update();
                     }
                 } else {  // not within array bounds
@@ -298,7 +305,8 @@ public class ObjectInspector extends Inspector
     private final static int VISIBLE_ARRAY_TAIL = 5;  // and the last five elements
 
     private final static int ARRAY_QUERY_SLOT_VALUE = -2;  // signal marker of the [...] slot in our
-
+    private final static int ARRAY_LENGTH_SLOT_VALUE = -1;  // marker for having selected the slot containing array length
+    
     /**
      * Compress a potentially large array into a more displayable
      * shortened form.
@@ -315,55 +323,40 @@ public class ObjectInspector extends Inspector
      */
     private List compressArrayList(List fullArrayFieldList)
     {
-        if (arraySet == null) {
-            arraySet = new TreeSet();
-        }
-
+        // mimic the public length field that arrays possess
+        // according to the java spec...
+        fullArrayFieldList.add(0, ("int length = " + fullArrayFieldList.size()));
         indexToSlotList = new LinkedList();
+        indexToSlotList.add(0, new Integer(ARRAY_LENGTH_SLOT_VALUE));
 
         // the +1 here is due to the fact that if we do not have at least one more than
         // the sum of start elements and tail elements, then there is no point in displaying
         // the ... elements because there would be no elements for them to reveal
-        if (fullArrayFieldList.size() > (VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL + 1))
+        if (fullArrayFieldList.size() > (VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL + 2))
         {
 
             // the destination list
             List newArray = new ArrayList();
-
-            // make a copy which we gradually destroy
-            LinkedList arraySetAsList = new LinkedList(arraySet);
-
-            for (int i = 0; i < VISIBLE_ARRAY_START; i++)
+            for (int i = 0; i <= VISIBLE_ARRAY_START; i++)
             {
                 // first 40 elements are displayed as per normal
                 newArray.add(fullArrayFieldList.get(i));
-                indexToSlotList.add(new Integer(i));
+                if(i < VISIBLE_ARRAY_START)
+                    indexToSlotList.add(new Integer(i));
             }
 
             // now the first of our expansion slots
             newArray.add("[...]");
             indexToSlotList.add(new Integer(ARRAY_QUERY_SLOT_VALUE));
 
-            if (arraySetAsList.size() > 0) {
-                // add all the elements which they have previously indicated they want to show
-                while (arraySetAsList.size() > 0) {
-                    Integer first = (Integer) arraySetAsList.removeFirst();
-
-                    newArray.add(fullArrayFieldList.get(first.intValue()));
-                    indexToSlotList.add(new Integer(first.intValue()));
-                }
-
-                // now the second and last of our expansion slots
-                newArray.add("[...]");
-                indexToSlotList.add(new Integer(ARRAY_QUERY_SLOT_VALUE));
-            }
-
             for (int i = VISIBLE_ARRAY_TAIL; i > 0; i--) {
                 // last 5 elements are displayed
                 newArray.add(fullArrayFieldList.get(
                         fullArrayFieldList.size() - i));
+                // slot is offset by one due to length field being included in 
+                // fullArrayFieldList therefore we add 1 to compensate        
                 indexToSlotList.add(new Integer(
-                        fullArrayFieldList.size() - i));
+                        fullArrayFieldList.size() - (i + 1)));
             }
             return newArray;
         }
