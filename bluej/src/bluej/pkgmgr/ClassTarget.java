@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 533 2000-06-09 04:24:08Z ajp $
+ * @version $Id: ClassTarget.java 536 2000-06-11 12:07:53Z bquig $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -67,8 +67,8 @@ public class ClassTarget extends EditableTarget
 
     static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
 
-    static final Image brokenImage = Toolkit.getDefaultToolkit().getImage(
-                                                                          Config.getImageFilename("image.broken"));
+    static final Image brokenImage = 
+	Toolkit.getDefaultToolkit().getImage(Config.getImageFilename("image.broken"));
 
     static final String STEREOTYPE_OPEN = "<<";
     static final String STEREOTYPE_CLOSE = ">>";

@@ -889,7 +889,7 @@ public final class MoeEditor extends JFrame
         //bq StyleConstants.setFontSize(attr, size);
         int start = document.getStartPosition().getOffset();
         int length = document.getEndPosition().getOffset() - start;
-        //bq	document.setCharacterAttributes(start, length, attr, false);
+        //bq document.setCharacterAttributes(start, length, attr, false);
     }
 
     // --------------------------------------------------------------------
