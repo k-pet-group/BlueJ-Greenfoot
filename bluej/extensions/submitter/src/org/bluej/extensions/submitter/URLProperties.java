@@ -26,9 +26,9 @@ import javax.swing.text.JTextComponent;
 
 /**
  * Processes the transport URL, generating a set of properties from it.
- *
+ * 
  * @author Clive Miller
- * @version $Id: URLProperties.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: URLProperties.java 1495 2002-11-01 09:35:09Z damiano $
  */
 
 class URLProperties
