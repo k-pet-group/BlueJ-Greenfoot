@@ -15,8 +15,7 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.editor.Editor;
 import bluej.graph.GraphEditor;
-import bluej.utility.Utility;
-import bluej.utility.BlueJFileReader;
+import bluej.utility.*;
 import bluej.views.ConstructorView;
 import bluej.views.EditorPrintWriter;
 import bluej.views.MemberView;
@@ -36,17 +35,17 @@ import java.util.Properties;
 import java.util.Vector;
 
 
-/** 
- ** A class target in a package, i.e. a target that is a class file
- ** built from Java source code
- **
- ** @author Michael Cahill
- ** @author Michael Kolling
- ** @author Bruce Quig
- **
- ** @version $Id: ClassTarget.java 305 1999-12-09 23:50:57Z ajp $
- **/
-public class ClassTarget extends EditableTarget 
+/**
+ * A class target in a package, i.e. a target that is a class file
+ * built from Java source code
+ *
+ * @author Michael Cahill
+ * @author Michael Kolling
+ * @author Bruce Quig
+ *
+ * @version $Id: ClassTarget.java 330 2000-01-02 13:25:14Z ajp $
+ */
+public class ClassTarget extends EditableTarget
 
 	implements ActionListener
 {
@@ -79,7 +78,7 @@ public class ClassTarget extends EditableTarget
     // Fields used in Tarjan's algorithm:
     public int dfn, link;
 
-  
+
     /**
      * Create a new class target in package 'pkg'.
      */
@@ -113,7 +112,7 @@ public class ClassTarget extends EditableTarget
     /**
      * load existing information about this class target
      * @param props the properties object to read
-     * @param prefix an internal name used for this target to identify 
+     * @param prefix an internal name used for this target to identify
      * its properties in a properties file used by multiple targets.
      */
     public void load(Properties props, String prefix) throws NumberFormatException
@@ -128,7 +127,7 @@ public class ClassTarget extends EditableTarget
     /**
      * save information about this class target
      * @param props the properties object to save to
-     * @param prefix an internal name used for this target to identify 
+     * @param prefix an internal name used for this target to identify
      * its properties in a properties file used by multiple targets.
      */
     public void save(Properties props, String prefix)
@@ -137,7 +136,7 @@ public class ClassTarget extends EditableTarget
 	role.save(props,modifiers, prefix);
 	sourceInfo.save(props, prefix);
     }
-	
+
     /**
      * Copy all the files belonging to this target to a new location.
      * For class targets, that is the source file, and possibly (if compiled)
@@ -149,15 +148,15 @@ public class ClassTarget extends EditableTarget
     {
 	boolean okay = true;
 
-	if (!BlueJFileReader.copyFile(sourceFile(), 
+	if (!BlueJFileReader.copyFile(sourceFile(),
 				      directory + name + ".java"))
 	    okay = false;
 
 	if(upToDate()) {
-	    if(!BlueJFileReader.copyFile(classFile(), 
+	    if(!BlueJFileReader.copyFile(classFile(),
 					 directory + name + ".class"))
 		okay = false;
-	    if(!BlueJFileReader.copyFile(contextFile(), 
+	    if(!BlueJFileReader.copyFile(contextFile(),
 					 directory + name + ".ctxt"))
 		okay = false;
 	}
@@ -170,7 +169,7 @@ public class ClassTarget extends EditableTarget
      */
     public boolean upToDate()
     {
-	try {	
+	try {
 	    // Check if the class file is up to date
 	    File src = new File(sourceFile());
 	    File clss = new File(classFile());
@@ -181,17 +180,17 @@ public class ClassTarget extends EditableTarget
 	} catch(Exception e) {
 	    e.printStackTrace();
 	}
-		
+
 	return true;
     }
-	
+
     /**
      * Mark this class as modified, and mark all dependent classes too
      */
     public void invalidate()
     {
 	setState(S_INVALID);
-		
+
 	for(Enumeration e = dependents(); e.hasMoreElements(); ) {
 	    Dependency d = (Dependency)e.nextElement();
 	    Target dependent = d.getFrom();
@@ -208,7 +207,7 @@ public class ClassTarget extends EditableTarget
     {
 	return modifiers;
     }
-	
+
     /**
      * verify whether this class target is an interface
      * @return true if class target is an interface, else returns false
@@ -234,7 +233,7 @@ public class ClassTarget extends EditableTarget
     /**
      * verify whether this class target is an abstract class
      * @return true if class target is an abstract class, else returns false
-     */	
+     */
     public boolean isAbstract()
     {
 	return Modifier.isAbstract(modifiers);
@@ -252,7 +251,7 @@ public class ClassTarget extends EditableTarget
 	else
 	    modifiers &= ~Modifier.ABSTRACT;
     }
-	
+
 
     Color getDefaultBackground()
     {
@@ -306,14 +305,14 @@ public class ClassTarget extends EditableTarget
     {
 	return pkg.getFileName(name) + ".java";
     }
-    
+
     /**
      * @return the name of the context(.ctxt) file this target corresponds to.
      */
     public String contextFile()
     {
 	return pkg.getFileName(name) + ".ctxt";
-    }	
+    }
     /**
      ** @return the editor object associated with this target. May be null
      **  if there was a problem opening this editor.
@@ -325,7 +324,7 @@ public class ClassTarget extends EditableTarget
 						 isCompiled(), breakpoints);
 	return editor;
     }
-	
+
     /**
      * @return the current view being shown - one of the Editor constants
      */
@@ -333,7 +332,7 @@ public class ClassTarget extends EditableTarget
     {
 	return displayedView;
     }
-	
+
     // --- EditorWatcher interface ---
 
     /**
@@ -341,14 +340,16 @@ public class ClassTarget extends EditableTarget
      */
     public void modificationEvent(Editor editor)
     {
-	invalidate();
+        invalidate();
+
+        sourceInfo.setSourceModified();
     }
 
     /**
      * Called by Editor when a file is saved
      * @param editor	the editor object being saved
      */
-    public void saveEvent(Editor editor) 
+    public void saveEvent(Editor editor)
     {
 	analyseDependencies();
     }
@@ -365,7 +366,7 @@ public class ClassTarget extends EditableTarget
     {
 	if(isCompiled()) {
 	    DebuggerClassLoader loader = pkg.getRemoteClassLoader();
-	    return Debugger.debugger.toggleBreakpoint(name, lineNo, set, 
+	    return Debugger.debugger.toggleBreakpoint(name, lineNo, set,
 						      loader);
 	}
 	else
@@ -374,7 +375,7 @@ public class ClassTarget extends EditableTarget
 
     /**
      * Called by Editor to change the view displayed by an editor
-     * @param viewname	the name of the view to display, should be 
+     * @param viewname	the name of the view to display, should be
      * 		one of bluej.editor.Editor.PUBLIC, etc.
      * @return a boolean indicating if the change was allowed
      */
@@ -386,7 +387,7 @@ public class ClassTarget extends EditableTarget
 
 
     public void compile(Editor editor)
-    {   
+    {
 	pkg.compile(this);
     }
 
@@ -419,7 +420,7 @@ public class ClassTarget extends EditableTarget
 
 
     /**
-     * generates a source code skeleton for this class	
+     * generates a source code skeleton for this class
      *
      */
     public void generateSkeleton()
@@ -428,165 +429,158 @@ public class ClassTarget extends EditableTarget
 	role.generateSkeleton(pkg, name, sourceFile(), isAbstract(), isInterface());
 	// do we need to check whether skeleton generated before setting state?
 	setState(Target.S_INVALID);
-    }  
-
-
-
-    public void enforcePackage(String packageName)
-    {
-        packageName = packageName.trim();
-        
-        try {
-            ClassInfo info = ClassParser.parse(sourceFile(),
-                                                pkg.getAllClassnames());
-
-            Editor ed = getEditor();
-
-            int fourCases = 0;
-            
-            // there are four possible combinations of
-            // packageName.length == 0 and
-            // info.hasPackageStatement
-
-            if (packageName.length() == 0) {
-                if (info.hasPackageStatement()) {
-                    // we must delete all parts of the "package" statement
-                    fourCases = 1;    
-                }
-                else {
-                    // if we have no package statement we do not need
-                    // to do anything to turn in into an anonymous package
-                    return;
-                }
-            }
-            else {
-                if (info.hasPackageStatement()) {
-                    // we must change just the package name
-                    fourCases = 3;                              
-                }
-                else {
-                    // we must insert all the "package" statement
-                    fourCases = 4;                
-                }
-            }
-
-            if (fourCases == 1 || fourCases == 4)
-            {
-                Selection selSemi = info.getPackageSemiSelection();
-            
-                ed.setSelection(selSemi.getLine(),
-                                selSemi.getColumn(),
-                                selSemi.getLength());
-
-                if (fourCases == 1)
-                    ed.insertText("", false, false);
-                else
-                    ed.insertText(";", false, false);
-            }
-
-            Selection selName = info.getPackageNameSelection();
-            
-            ed.setSelection(selName.getLine(),
-                            selName.getColumn(),
-                            selName.getLength());
-
-            if (fourCases == 1)
-                ed.insertText("", false, false);
-            else
-                ed.insertText(packageName, false, false);
-
-            if (fourCases == 1 || fourCases == 4)
-            {
-                Selection selStatement = info.getPackageStatementSelection();
-            
-                ed.setSelection(selStatement.getLine(),
-                                selStatement.getColumn(),
-                                selStatement.getLength());
-            
-                if (fourCases == 1)
-                    ed.insertText("", false, false);
-                else
-                    ed.insertText("package ", false, false);
-            }                    
-            
-            ed.save();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-            return;
-        }
     }
 
-    /** 
+    public static void enforcePackage(String sourceFileName, String packageName) throws IOException
+    {
+        ClassInfo info;
+
+        packageName = packageName.trim();
+
+        try {
+            info = ClassParser.parse(sourceFileName);
+        }
+        catch(Exception e)
+        {
+            return;
+        }
+
+        if (info == null) {
+            return;
+        }
+
+        int fourCases = 0;
+
+        // there are four possible combinations of
+        // packageName.length == 0 and
+        // info.hasPackageStatement
+
+        if (packageName.length() == 0) {
+            if (info.hasPackageStatement()) {
+                // we must delete all parts of the "package" statement
+                fourCases = 1;
+            }
+            else {
+                // if we have no package statement we do not need
+                // to do anything to turn it into an anonymous package
+                return;
+            }
+        }
+        else {
+            if (info.hasPackageStatement()) {
+                // it is trivial to make the package name the same
+                if (info.getPackage() == packageName)
+                    return;
+                // we must change just the package name
+                fourCases = 3;
+            }
+            else {
+                // we must insert all the "package" statement
+                fourCases = 4;
+            }
+        }
+
+        FileEditor fed = new FileEditor(new File(sourceFileName));
+
+        if (fourCases == 1 || fourCases == 4)
+        {
+            Selection selSemi = info.getPackageSemiSelection();
+
+            if (fourCases == 1) {
+                fed.replaceSelection(selSemi, "");
+            }
+            else
+                fed.replaceSelection(selSemi, ";");
+        }
+
+        Selection selName = info.getPackageNameSelection();
+
+        if (fourCases == 1)
+            fed.replaceSelection(selName, "");
+        else
+            fed.replaceSelection(selName, packageName);
+
+        if (fourCases == 1 || fourCases == 4)
+        {
+            Selection selStatement = info.getPackageStatementSelection();
+
+            if (fourCases == 1)
+                fed.replaceSelection(selStatement, "");
+            else
+                fed.replaceSelection(selStatement, "package ");
+        }
+
+        fed.save();
+    }
+
+    /**
      *  Analyse the current dependencies in the source code and update the
      *  dependencies in the graphical display accordingly.
      */
     public void analyseDependencies()
     {
-	// currently we don't remove uses dependencies, but just warn
-        
-	//removeAllOutDependencies();
-	removeInheritDependencies();
-	unflagAllOutDependencies();
+    	// currently we don't remove uses dependencies, but just warn
 
-        try {
-            ClassInfo info = ClassParser.parse(sourceFile(),
-                                                pkg.getAllClassnames());
-    
-            if(info.isApplet()) {
-                if( ! (role instanceof AppletClassRole))
-                    role = new AppletClassRole();
-            }
-            else {
-                if( ! (role instanceof StdClassRole))
-                    role = new StdClassRole();
-            }
-    
-            setInterface(info.isInterface());
-            setAbstract(info.isAbstract());
-    
-            // handle superclass
-    
-            if(info.getSuperclass() != null) {
-                Target superclass = pkg.getTarget(info.getSuperclass());
-                if (superclass != null)
-                    pkg.addDependency(
-                              new ExtendsDependency(pkg, this, superclass), 
-                              false);
-            }
-    
-            // handle implemented interfaces
-    
-            Vector vect = info.getImplements();
-            for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
-            String name = (String)e.nextElement();
-            Target interfce = pkg.getTarget(name);
-            // Debug.message("Implements " + name);
-            if (interfce != null) {
-               pkg.addDependency(
-                          new ImplementsDependency(pkg, this, interfce), 
+    	//removeAllOutDependencies();
+    	removeInheritDependencies();
+    	unflagAllOutDependencies();
+
+        ClassInfo info = sourceInfo.getInfo(sourceFile(),
+                                            pkg.getAllClassnames());
+
+        // info will be null if the source was unparseable
+        if(info == null) {
+            pkg.repaint();
+            return;
+        }
+
+        if(info.isApplet()) {
+            if( ! (role instanceof AppletClassRole))
+                role = new AppletClassRole();
+        }
+        else {
+            if( ! (role instanceof StdClassRole))
+                role = new StdClassRole();
+        }
+
+        setInterface(info.isInterface());
+        setAbstract(info.isAbstract());
+
+        // handle superclass
+
+        if(info.getSuperclass() != null) {
+            Target superclass = pkg.getTarget(info.getSuperclass());
+            if (superclass != null)
+                pkg.addDependency(
+                          new ExtendsDependency(pkg, this, superclass),
                           false);
-                }
-            }
-            // handle used classes
-    
-            vect = info.getUsed();
-            for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
-            String name = (String)e.nextElement();
-            Target used = pkg.getTarget(name);
-            if (used != null)
-                pkg.addDependency(new UsesDependency(pkg, this, used), true);
-            }
-    
-            sourceInfo.setValid(true);
+        }
 
-	    checkForUsesInconsistencies();
+        // handle implemented interfaces
+
+        Vector vect = info.getImplements();
+        for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
+        String name = (String)e.nextElement();
+        Target interfce = pkg.getTarget(name);
+        // Debug.message("Implements " + name);
+        if (interfce != null) {
+           pkg.addDependency(
+                      new ImplementsDependency(pkg, this, interfce),
+                      false);
+            }
         }
-        catch(Exception e) {
-            // exception during parsing
-            sourceInfo.setValid(false);
+        // handle used classes
+
+        vect = info.getUsed();
+        for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
+        String name = (String)e.nextElement();
+        Target used = pkg.getTarget(name);
+        if (used != null)
+            pkg.addDependency(new UsesDependency(pkg, this, used), true);
         }
-    
+
+        checkForUsesInconsistencies();
+
         pkg.repaint();
     }
 
@@ -628,7 +622,7 @@ public class ClassTarget extends EditableTarget
 	if (menu != null)
 	    menu.show(editor, evt.getX(), evt.getY());
     }
-	
+
     protected Hashtable actions;
 
     /**
@@ -641,15 +635,15 @@ public class ClassTarget extends EditableTarget
      */
     protected JPopupMenu createMenu(Class cl, JFrame editorFrame) {
         actions = new Hashtable();
-	
+
         JPopupMenu menu = new JPopupMenu(getName() + " operations");
-	
+
     	// call on role object to add any options needed
      	role.createMenu(menu, this, state);
-    
+
     	if ((cl != null) && (!isAbstract()))
     	    createClassMenu(menu, cl);
-    	
+
     	addMenuItem(menu, editStr, true);
     	addMenuItem(menu, publicStr, (state == S_NORMAL));
     	addMenuItem(menu, pkgStr, (state == S_NORMAL));
@@ -657,7 +651,7 @@ public class ClassTarget extends EditableTarget
     	menu.addSeparator();
     	addMenuItem(menu, compileStr, true);
     	addMenuItem(menu, removeStr, true);
-    	
+
     	return menu;
     }
 
@@ -673,7 +667,7 @@ public class ClassTarget extends EditableTarget
     {
         //	 role.addMenuItem(menu, itemString, enabled);
     	JMenuItem item;
-    
+
     	menu.add(item = new JMenuItem(itemString));
     	item.addActionListener(this);
     	item.setFont(PrefMgr.getStandardMenuFont());
@@ -694,25 +688,25 @@ public class ClassTarget extends EditableTarget
 	View view = View.getView(cl);
 	ViewFilter filter= new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
 	ConstructorView[] constructors = view.getConstructors();
-	
+
 	if (createMenuItems(menu, constructors, filter, 0, constructors.length, "new "))
 	    menu.addSeparator();
-		
+
 	filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
 	MethodView[] allMethods = view.getAllMethods();
 	if(createMenuItems(menu, allMethods, filter, 0, allMethods.length, ""))
 	    menu.addSeparator();
     }
-	
+
 
     protected boolean createMenuItems(JPopupMenu menu,
-				      CallableView[] members, ViewFilter filter, 
+				      CallableView[] members, ViewFilter filter,
 				      int first, int last, String prefix)
     {
 	// Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
 	boolean hasEntries = false;
 	JMenuItem item;
-		
+
 	for(int i = first; i < last; i++) {
 	    try {
 		CallableView m = members[last - i - 1];
@@ -755,13 +749,13 @@ public class ClassTarget extends EditableTarget
 
 	MemberView member = (MemberView)actions.get(e.getSource());
 	String cmd = e.getActionCommand();
-		
+
 	if(member != null) {
 	    if(state != S_NORMAL) {
 		Debug.reportError("Can't instantiate modified class");
 		return;
 	    }
-			
+
 	    ResultWatcher watcher = null;
 
 	    // if we are constructing an object, create a watcher that waits for
@@ -774,7 +768,7 @@ public class ClassTarget extends EditableTarget
 			if((name == null) || (name.length() == 0))
 			name = "result";
 			if(result != null) {
-			    ObjectWrapper wrapper = 
+			    ObjectWrapper wrapper =
 			    new ObjectWrapper(result.getInstanceFieldObject(0),
 					      name, pkg);
 			    pkg.getFrame().getObjectBench().add(wrapper);
@@ -791,11 +785,11 @@ public class ClassTarget extends EditableTarget
 	    else if(!((MethodView)member).isVoid())
 		watcher = new ResultWatcher() {
 		    public void putResult(DebuggerObject result, String name) {
-			ObjectViewer viewer = 
+			ObjectViewer viewer =
 		        ObjectViewer.getViewer(false, result, name, pkg, true,
 					       pkg.getFrame());
 		    }
-		};	
+		};
 
 	    // create an Invoker to handle the actual invocation
 
@@ -840,20 +834,20 @@ public class ClassTarget extends EditableTarget
 	anchor_x = last_x = x;
 	anchor_y = last_y = y;
     }
-    
+
     public void singleClick(MouseEvent evt, int x, int y, GraphEditor editor)
     {
     }
-	
+
     public void doubleClick(MouseEvent evt, int x, int y, GraphEditor editor)
     {
 	    open();
     }
 
     public void mouseDragged(MouseEvent evt, int x, int y, GraphEditor editor)
-    {	
+    {
 	if ((pkg.getState() == Package.S_CHOOSE_USES_TO) ||
-	    (pkg.getState() == Package.S_CHOOSE_EXT_TO) ) {	
+	    (pkg.getState() == Package.S_CHOOSE_EXT_TO) ) {
 	    // Draw a line from this Target to the current Cursor position
 	    Graphics g = editor.getGraphics();
 	    g.setColor(colBorder);
@@ -866,11 +860,11 @@ public class ClassTarget extends EditableTarget
 	else
 	    super.mouseDragged(evt, x, y, editor);
     }
-	
+
     public void mouseMoved(MouseEvent evt, int x, int y, GraphEditor editor)
-    {	
+    {
 	if (pkg.getState() != Package.S_IDLE)
-	    {	
+	    {
 		// Draw a line from this Target to the current Cursor position
 		Graphics g = editor.getGraphics();
 		g.setColor(colBorder);
@@ -883,7 +877,7 @@ public class ClassTarget extends EditableTarget
 	else
 	    super.mouseMoved(evt, x, y, editor);
     }
-	
+
     public void showView(int viewType)
     {
 	if(viewType == displayedView)
@@ -891,7 +885,7 @@ public class ClassTarget extends EditableTarget
 	else
 	    showView(getEditor(), viewType);
     }
-	
+
     public void showView(Editor editor, int viewType)
     {
 	if(editor==null)
@@ -915,7 +909,7 @@ public class ClassTarget extends EditableTarget
 		    filterType = ViewFilter.PACKAGE;
 		else if(viewType == Editor.INHERITED)
 		    filterType = ViewFilter.PROTECTED;
-		
+
 		ViewFilter filter= (filterType != 0) ? new ViewFilter(filterType) : null;
 		view.print(new EditorPrintWriter(editor), filter);
 	    }
@@ -926,9 +920,9 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     * 
-     * Prepares this ClassTarget for removal from a Package.  
-     * It removes dependency arrows and calls prepareFilesForRemoval() 
+     *
+     * Prepares this ClassTarget for removal from a Package.
+     * It removes dependency arrows and calls prepareFilesForRemoval()
      * to remove applicable files.
      *
      */
@@ -945,8 +939,8 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     * 
-     * Removes applicable files (.class, .java and .ctxt) prior to 
+     *
+     * Removes applicable files (.class, .java and .ctxt) prior to
      * this ClassTarget being removed from a Package.
      *
      */
@@ -957,9 +951,9 @@ public class ClassTarget extends EditableTarget
     }
 
 
-	
+
     // Internal strings
-	
+
     static String editStr = Config.getString("pkgmgr.classmenu.edit");
     static String openStr = Config.getString("browser.classchooser.classmenu.open");
     static String useStr = Config.getString("browser.classchooser.classmenu.use");
