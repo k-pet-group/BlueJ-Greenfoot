@@ -12,24 +12,6 @@ import junit.runner.*;
 public class RemoteTestRunner extends BaseTestRunner
 {
     /**
-     * Runs a suite extracted from a TestCase subclass.
-     */
-/*    static public TestResult run(Class testClass)
-    {
-        return run(new TestSuite(testClass));
-    } */
-
-    /**
-     * Runs a single test and collects its results.
-     */
-    static public TestResult run(Test test)
-    {
-        RemoteTestRunner runner= new RemoteTestRunner();
-
-        return runner.doRun(test);
-    }
-
-    /**
      * Always use the StandardTestSuiteLoader. Overridden from
      * BaseTestRunner.
      */
@@ -60,37 +42,16 @@ public class RemoteTestRunner extends BaseTestRunner
     
     public TestResult doRun(Test suite)
     {
-//        ResultPrinter rp = new ResultPrinter(System.out);
-
         TestResult result = createTestResult();
         result.addListener(this);
-//		result.addListener(rp);
 //        long startTime= System.currentTimeMillis();
         suite.run(result);
 //        long endTime= System.currentTimeMillis();
 //        long runTime= endTime-startTime;
-//        rp.print(result, runTime);
 
         return result;
     }
 
-/*    public static void main(String args[])
-    {
-        TestRunner aTestRunner= new TestRunner();
-        try {
-            TestResult r= aTestRunner.start(args);
-            if (!r.wasSuccessful()) 
-                System.exit(FAILURE_EXIT);
-            System.exit(SUCCESS_EXIT);
-        } catch(Exception e) {
-            System.err.println(e.getMessage());
-            System.exit(EXCEPTION_EXIT);
-        }
-    }
-
-
-		//junit.runner.BaseTestRunner.getFilteredTrace(failure.trace()));
-*/     
     protected void runFailed(String message)
     {
         System.err.println(message);

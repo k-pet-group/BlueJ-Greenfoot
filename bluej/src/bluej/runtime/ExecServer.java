@@ -19,7 +19,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2036 2003-06-16 07:08:51Z ajp $
+ * @version $Id: ExecServer.java 2048 2003-06-24 05:08:17Z ajp $
  */
 public class ExecServer
 {
@@ -262,6 +262,8 @@ public class ExecServer
     private static Object[] runTestSetUp(String className)
         throws ClassNotFoundException
     {
+		// Debug.message("[VM] runTestSetUp" + className);
+
 		Class cl = loadClass(className);
         
         try {
@@ -334,6 +336,8 @@ public class ExecServer
     private static Object[] runTestMethod(String className, String methodName)
         throws ClassNotFoundException
     {
+		// Debug.message("[VM] runTestMethod" + className + " " + methodName);
+
 		Class cl = loadClass(className);
         
         TestCase testCase = null;
@@ -365,11 +369,15 @@ public class ExecServer
             catch (InstantiationException ie) { }
             catch (IllegalAccessException iae) { }
         }
-        
+
         TestSuite suite = new TestSuite("bluej");
         suite.addTest(testCase);
 
-        TestResult tr = RemoteTestRunner.run(suite);
+		RemoteTestRunner runner = new RemoteTestRunner();
+
+		System.err.println("starting run");
+        TestResult tr = runner.doRun(suite);
+		System.err.println("ended run");
 
 		if (tr.errorCount() > 1 || tr.failureCount() > 1)
 			throw new IllegalStateException("error or failure count was > 1");

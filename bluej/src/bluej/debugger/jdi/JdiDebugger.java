@@ -8,7 +8,6 @@ import javax.swing.event.EventListenerList;
 import bluej.Config;
 import bluej.debugger.*;
 import bluej.debugmgr.Invoker;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.runtime.ExecServer;
 import bluej.utility.*;
 
@@ -22,10 +21,14 @@ import com.sun.jdi.*;
  * VMEventHandler. JdiDebugger is the half of the debugger that is
  * persistent across debugger sessions. VMReference and VMEventHandler
  * will be constructed anew each time a remote VM is started.
+ * VMReference handles most of the work of making the remote VM
+ * do things. VMEventHandler starts a new thread that listens for
+ * remote VM events and calls back into VMReference on reciept of
+ * these events.
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2041 2003-06-20 04:56:33Z ajp $
+ * @version $Id: JdiDebugger.java 2048 2003-06-24 05:08:17Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -74,10 +77,10 @@ public class JdiDebugger extends Debugger
 	 */
 	public void launch()
 	{
-		raiseStateChangeEvent(Debugger.NOTREADY);
-
 		if (vmReady)
 			throw new IllegalStateException("JdiDebugger.launch() was called but the debugger was already loaded");
+
+		raiseStateChangeEvent(Debugger.NOTREADY);
 
 		// start the MachineLoader (a separate thread) to load the
 		// remote virtual machine in the background
@@ -92,9 +95,9 @@ public class JdiDebugger extends Debugger
 	 */
 	public void close()
 	{	
-		raiseStateChangeEvent(Debugger.NOTREADY);
-
 		vmReady = false;
+
+		raiseStateChangeEvent(Debugger.NOTREADY);
 
 		treeModel.setRoot(new JdiThreadNode());
 		treeModel.reload();
@@ -106,22 +109,26 @@ public class JdiDebugger extends Debugger
 
 	}
 
-	private VMReference getVM()
-	{
-		return machineLoader.getVM();
-	}
-	
 	/**
-	 * Return the machine status; one of the "machine state" constants:
-	 * (IDLE, RUNNING, SUSPENDED).
+	 * Add a listener for DebuggerEvents
+	 * 
+	 * @param l  the DebuggerListener to add
 	 */
-	public int getStatus()
+	public void addDebuggerListener(DebuggerListener l)
 	{
-		if (!vmReady)
-			return Debugger.NOTREADY;
-		else
-			return getVM().getStatus();
+		listenerList.add(DebuggerListener.class, l);
 	}
+
+	/**
+	 * Remove a listener for DebuggerEvents.
+	 * 
+	 * @param l  the DebuggerListener to remove
+	 */
+	public void removeDebuggerListener(DebuggerListener l)
+	{
+		listenerList.remove(DebuggerListener.class, l);
+	}
+
 
 	/**
 	 * Guess a suitable name for an object about to be put on the object bench.
@@ -175,9 +182,14 @@ public class JdiDebugger extends Debugger
 	}
 
 
-    /**
-     * Add an object to a package scope.
-     */
+	/**
+	 * Add a debugger object into the project scope.
+	 * 
+	 * @param   newInstanceName  the name of the object
+	 *          dob              the object itself
+	 * @return  true if the object could be added with this name,
+	 *          false if there was a name clash.
+	 */
     public boolean addObject(String newInstanceName, DebuggerObject dob)
     {
         Object args[] = { newInstanceName, ((JdiObject)dob).getObjectReference() };
@@ -214,8 +226,15 @@ public class JdiDebugger extends Debugger
 		getVM().invokeExecServer( ExecServer.SET_LIBRARIES, Arrays.asList(args));
     }
 
+	/**
+	 * Return the debugger objects that exist in the
+	 * debugger.
+	 * 
+	 * @return			a Map of (String name, DebuggerObject obj) entries
+	 */
 	public Map getObjects()
 	{
+		throw new IllegalStateException("not implemented");
 		// the returned array consists of double the number of objects
 		// they alternate, name, object, name, object
 		// ie.
@@ -224,11 +243,14 @@ public class JdiDebugger extends Debugger
 		// arrayRef[2] = a field name 1 (StringReference)
 		// arrayRef[3] = a field value 1 (ObjectReference)
 		//
-
-		return null;
 	}
 
 	/**
+	 * Run the setUp() method of a test class and return the created
+	 * objects.
+	 * 
+	 * @param className	the fully qualified name of the class
+	 * @return			a Map of (String name, DebuggerObject obj) entries
 	 */
     public Map runTestSetUp(String className)
     {
@@ -259,6 +281,11 @@ public class JdiDebugger extends Debugger
     }
 
 	/**
+	 * Run a single test method in a test class and return the result.
+	 * 
+	 * @param  className  the fully qualified name of the class
+	 * @param  methodName the name of the method
+	 * @return            a DebuggerTestResult object
 	 */
     public DebuggerTestResult runTestMethod(String className, String methodName)
     {
@@ -280,6 +307,18 @@ public class JdiDebugger extends Debugger
 		// a null means that we had success. Return a success test result
 		return new JdiTestResult(className, methodName);
     }    
+
+	/**
+	 * Return the machine status; one of the "machine state" constants:
+	 * (IDLE, RUNNING, SUSPENDED).
+	 */
+	public int getStatus()
+	{
+		if (!vmReady)
+			return Debugger.NOTREADY;
+		else
+			return getVM().getStatus();
+	}
 
     /**
      * Dispose all top level windows in the remote machine.
@@ -374,15 +413,16 @@ public class JdiDebugger extends Debugger
         return getVM().getException();
     }
 
-	public void addDebuggerListener(DebuggerListener l)
+	/**
+	 * List all threads being debugged as a TreeModel.
+	 *
+	 * @return  A tree model of all the threads.
+	 */
+	public DebuggerThreadTreeModel getThreadTreeModel()
 	{
-		listenerList.add(DebuggerListener.class, l);
+		return treeModel; 
 	}
-
-	public void removeDebuggerListener(DebuggerListener l)
-	{
-		listenerList.remove(DebuggerListener.class, l);
-	}
+	
 
 	// notify all listeners that have registered interest for
 	// notification on this event type.
@@ -436,7 +476,10 @@ public class JdiDebugger extends Debugger
         }
     }
 
-	public void halt(ThreadReference tr)
+	/**
+	 * Called by VMReference when a HALT is encountered in the debugger VM.
+	 */
+	void halt(ThreadReference tr)
 	{
 		JdiThreadNode jtn = treeModel.findThreadNode(tr);
 
@@ -452,6 +495,9 @@ public class JdiDebugger extends Debugger
 		}
 	}
 	
+	/**
+	 * Called by VMReference when a BREAKPOINT is encountered in the debugger VM.
+	 */
 	public void breakpoint(ThreadReference tr)
 	{
 		JdiThreadNode jtn = treeModel.findThreadNode(tr);
@@ -481,37 +527,34 @@ public class JdiDebugger extends Debugger
 
 
 	/**
-	 * List all threads being debugged as a TreeModel.
-	 *
-	 * @return  A tree model of all the threads.
+	 * Called by VMReference when a thread is started in
+	 * the debugger VM.
+	 * 
+	 * Use this event to keep our thread tree model up to date.
+	 * Currently we ignore the thread group and construct all
+	 * threads at the same level.
 	 */
-	public DebuggerThreadTreeModel getThreadTreeModel()
-	{
-		return treeModel; 
-	}
-	
 	void threadStart(ThreadReference tr)
 	{
-		if (treeModel == null)
-			return;
-
 		synchronized(treeModel.getRoot()) {
 			JdiThreadNode root = treeModel.findThreadNode(tr.threadGroup());
 			
 			if (root == null) {
 				// System.out.println("unknown thread group " + tr.threadGroup());
 				root = treeModel.getThreadRoot();
-			}
-						
+			}					
 			treeModel.insertNodeInto(new JdiThreadNode(new JdiThread(treeModel, tr)), root, 0);
 		}
 	}
 
+	/**
+	 * Called by VMReference when a thread dies in
+	 * the debugger VM.
+	 * 
+	 * Use this event to keep our thread tree model up to date.
+	 */
 	void threadDeath(ThreadReference tr)
 	{
-		if (treeModel == null)
-			return;
-			
 		synchronized(treeModel.getRoot()) {
 			JdiThreadNode jtn = treeModel.findThreadNode(tr);
 		
@@ -528,6 +571,11 @@ public class JdiDebugger extends Debugger
     	getVM().dumpThreadInfo();
     }
 
+	private VMReference getVM()
+	{
+		return machineLoader.getVM();
+	}
+	
 	/**
 	 * A thread which loads a new instance of the debugger.
 	 */
@@ -537,8 +585,6 @@ public class JdiDebugger extends Debugger
  
 		 public synchronized void run()
 		 {
-			PkgMgrFrame.displayMessage(Config.getString("pkgmgr.creatingVM"));
-
 			vmRef = new VMReference(JdiDebugger.this, startingDirectory);
 			vmRef.waitForStartup();
 		
@@ -550,8 +596,6 @@ public class JdiDebugger extends Debugger
 							// are waiting for us to finish
 
 			raiseStateChangeEvent(Debugger.IDLE);
-
-			PkgMgrFrame.displayMessage(Config.getString("pkgmgr.creatingVMDone"));
 		 }
 		 
 		private synchronized VMReference getVM()

@@ -22,11 +22,12 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2039 2003-06-19 06:03:24Z ajp $
+ * @version $Id: VMReference.java 2048 2003-06-24 05:08:17Z ajp $
  *
  * The startup process is as follows:
  *
- *
+ * TODO: fix this comment!!!!!!
+ * 
  *  Debugger		VMEventHandler Thread		Remote VM
  *  ----------------------------------------------------------------------
  *  startDebugger:
@@ -107,8 +108,6 @@ class VMReference
 
     private int exitStatus;
     private ExceptionDescription lastException;
-    private Object executionUserParam; // a user defined parameter set with
-    //  each execution
 
 
     /**
@@ -139,13 +138,13 @@ class VMReference
             Process p = Runtime.getRuntime().exec(launchParams, null, initDir);
 
 			// redirect error stream from process to Terminal
-			redirectIOStream(new InputStreamReader(p.getErrorStream()),
-								Terminal.getTerminal().getErrorWriter(),
+			redirectIOStream(new InputStreamReader(p.getErrorStream()), new OutputStreamWriter(System.err),
+								//Terminal.getTerminal().getErrorWriter(),
 								false);
 
 			// redirect output stream from process to Terminal
-			redirectIOStream(new InputStreamReader(p.getInputStream()),
-								Terminal.getTerminal().getWriter(),
+			redirectIOStream(new InputStreamReader(p.getInputStream()), new OutputStreamWriter(System.err),
+								//Terminal.getTerminal().getWriter(),
 								false);
 
 			// redirect Terminal input to process output stream
@@ -303,9 +302,15 @@ class VMReference
         machine = localhostSocketLaunch(initialDirectory,
         								Bootstrap.virtualMachineManager());
 
+		EventRequestManager erm = machine.eventRequestManager();
+		erm.createExceptionRequest(null, false, true).enable();
+		erm.createClassPrepareRequest().enable();
+		erm.createThreadStartRequest().enable();
+		erm.createThreadDeathRequest().enable();
+
 		eventHandler = new VMEventHandler(this, machine);
 
-		machine.resume();
+		// machine.resume();
     }
 
     /**
@@ -485,11 +490,21 @@ class VMReference
     /**
      * Return the machine status; one of the "machine state" constants:
      * (IDLE, RUNNING, SUSPENDED).
+     * 
+     * The other state NOTREADY cannot be returned by the method
+     * because NOTREADY implies that this class has not been constructed.
+     * NOTREADY may be returned in JdiDebugger.getStatus().
      */
-    public int getStatus()
+    int getStatus()
     {
-        return serverThread.isAtBreakpoint() ? Debugger.IDLE :
-          Debugger.RUNNING;
+		if (serverThread.isSuspended()) {
+			if (isAtMainBreakpoint(serverThread))
+				return Debugger.IDLE;
+			else
+				return Debugger.SUSPENDED;			
+		}
+		else
+			return Debugger.RUNNING;
     }
 
     /**
@@ -522,6 +537,9 @@ class VMReference
 
         Value v = invokeExecServer(ExecServer.LOAD_CLASS, Arrays.asList(args));
 
+		// we get back a reference to an instance of a class of type "java.lang.Class"
+		// but we know the class has been loaded in the remote VM.
+		// now we find an actual reference to the class type.
         if (v.type().name().equals("java.lang.Class")) {
             ReferenceType rt = findClassByName(className, currentLoader);
 
@@ -573,7 +591,6 @@ class VMReference
                     "Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
 		owner.raiseStateChangeEvent(Debugger.IDLE);
-        //executionUserParam = null;
     }
 
     /**
@@ -593,6 +610,7 @@ class VMReference
                 return null;
         }
 
+		Debug.message("[VMRef] Invoking " + methodName);
         Method m = (Method) execServerMethods.get(methodName);
 
         if (m == null)
@@ -617,6 +635,8 @@ class VMReference
     private Value invokeStaticRemoteMethod(ClassType cl, Method m,
         									List args, boolean propagateException)
     {
+    	int smallDelay = 100;
+    	
         // go through the args and if any aren't VM reference types
         // then fail (unless they are strings in which case we
         // mirror them onto the vm)
@@ -630,14 +650,14 @@ class VMReference
             }
         }
 
-        //machine.setDebugTraceMode(VirtualMachine.TRACE_EVENTS | VirtualMachine.TRACE_OBJREFS);
+        machine.setDebugTraceMode(VirtualMachine.TRACE_EVENTS | VirtualMachine.TRACE_OBJREFS);
 
         try {
             // if serverThread has not returned to its breakpoint yet, we
             // must be patient
 			while(!serverThread.isAtBreakpoint()) {
 				synchronized(this) {
-					try { wait(100); } catch (InterruptedException ie) {}
+					try { wait(smallDelay); } catch (InterruptedException ie) {}
 				}
 			}
 
@@ -651,25 +671,29 @@ class VMReference
 			// breakpoint
 			while(!serverThread.isAtBreakpoint()) {
 				synchronized(this) {
-					try { wait(100); } catch (InterruptedException ie) {}
+					try { wait(smallDelay); } catch (InterruptedException ie) {}
 				}
 			}
 
-            // our serverThread in the ExecServer will now continue in
-            // its infinite loop and return to a breakpoint. This will then
+            // our serverThread in the ExecServer has now
+            // returned to a breakpoint. This will then
             // suspend it (see VMEventHandler).
             // This is the state we need - all threads running
             // except serverThread (which should be waiting at a breakpoint).
             return v;
         }
-        /*
-         * IllegalArgumentException - if the method is not a member of this class or a superclass, if the size of the argument list does not match the number of declared arguemnts for the method, or if the method is an initializer, constructor or static intializer. 
-        								if any argument in the argument list is not assignable to the corresponding method argument type. 
-        	ClassNotLoadedException - if any argument type has not yet been loaded through the appropriate class loader. 
-        	IncompatibleThreadStateException - if the specified thread has not been suspended by an event. 
-        	InvocationException - if the method invocation resulted in an exception in the target VM. 
-        	InvalidTypeException - If the arguments do not meet this requirement -- Object arguments must be assignment compatible with the argument type. This implies that the argument type must be loaded through the enclosing class's class loader. Primitive arguments must be either assignment compatible with the argument type or must be convertible to the argument type without loss of information. See JLS section 5.2 for more information on assignment compatibility.
-         */
+		
+		// the first three exceptions would all be the result
+		// of errors in our code. Lets print a stack trace.
+        catch (IllegalArgumentException iae) {
+			Debug.message(iae.toString());        	
+        }
+        catch (ClassNotLoadedException cnle) {
+			Debug.message(cnle.toString());        	
+        }
+		catch (InvalidTypeException ite) {
+        	Debug.message(ite.toString());
+		}
         catch (InvocationException e) {
             // exception thrown in remote machine
             // we can either propagate the exception as a value
@@ -677,7 +701,8 @@ class VMReference
                 return e.exception();
             // or ignore it because it will be handled
             // in exceptionEvent()
-        } catch (com.sun.jdi.InternalException e) {
+        }
+        catch (com.sun.jdi.InternalException e) {
             e.printStackTrace();
             // TODO: is this true?? ajp 28/5/03
             //we regularly get an exception here when trying to load a class
@@ -685,6 +710,7 @@ class VMReference
             // so we just ignore internal exceptions for the moment.
         }
 		catch (VMDisconnectedException e) {
+			// vm has died or been killed
 			throw e;		
 		}
 		catch (Exception e) {
@@ -692,7 +718,6 @@ class VMReference
         }
 
         //machine.setDebugTraceMode(VirtualMachine.TRACE_NONE);
-
         return null;
     }
 
@@ -713,21 +738,30 @@ class VMReference
         return lastException;
     }
 
+	/**
+	 * The VM has reached its startup point.
+	 */
 	public void vmStartEvent(VMStartEvent vmse)
 	{
 		// want all uncaught exceptions and all class prepare events
-		EventRequestManager erm = machine.eventRequestManager();
+/*		EventRequestManager erm = machine.eventRequestManager();
 		erm.createExceptionRequest(null, false, true).enable();
 		erm.createClassPrepareRequest().enable();
 		erm.createThreadStartRequest().enable();
-		erm.createThreadDeathRequest().enable();
+		erm.createThreadDeathRequest().enable(); */
 	}
 	
+	/**
+	 * A thread has started.
+	 */
 	public void threadStartEvent(ThreadStartEvent tse)
 	{
 		owner.threadStart(tse.thread());
 	}
 
+	/**
+	 * A thread has died.
+	 */
 	public void threadDeathEvent(ThreadDeathEvent tde)
 	{
 		owner.threadDeath(tde.thread());
@@ -831,11 +865,14 @@ class VMReference
                 } catch (com.sun.jdi.InvalidTypeException ite) {}
             }
         } else {
+        	System.out.println("here with thread" + event.thread());
             // breakpoint set by user in user code
 			if (serverThread.equals(event.thread()))
 				owner.raiseStateChangeEvent(Debugger.SUSPENDED);
 
 			owner.breakpoint(event.thread());
+			
+			// machine.resume();
         }
     }
 
@@ -988,6 +1025,19 @@ class VMReference
 
     // -- support methods --
 
+	/**
+	 * 
+	 */
+	static boolean isAtMainBreakpoint(ThreadReference tr)
+	{
+		try {
+            return (tr.isAtBreakpoint() &&
+                  SERVER_CLASSNAME.equals(tr.frame(0).location().declaringType().name()));
+        } catch (IncompatibleThreadStateException e) {
+            return false;
+        }
+	}
+	
     /**
      * Find the mirror of a class/interface/array in the remote VM.
      *

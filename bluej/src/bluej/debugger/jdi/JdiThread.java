@@ -13,7 +13,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2033 2003-06-12 06:51:21Z ajp $
+ * @version $Id: JdiThread.java 2048 2003-06-24 05:08:17Z ajp $
  */
 class JdiThread extends DebuggerThread
 {
@@ -100,14 +100,13 @@ class JdiThread extends DebuggerThread
     public String getStatus()
     {
         try {
-            if(rt.isAtBreakpoint()) {
-                if(rt.frame(0).location().declaringType().name().equals(
-                                            "bluej.runtime.ExecServer"))
-                    return statusFinished;
-                else
-                    return statusBreakpoint;
+            if (rt.isAtBreakpoint()) {
+            	if(VMReference.isAtMainBreakpoint(rt))
+                	return statusFinished;
+            	else
+               		return statusBreakpoint;
             }
-
+                        
             if(rt.isSuspended())
                 return statusStopped;
 

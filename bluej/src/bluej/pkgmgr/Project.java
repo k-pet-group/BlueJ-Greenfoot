@@ -19,7 +19,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2039 2003-06-19 06:03:24Z ajp $
+ * @version $Id: Project.java 2048 2003-06-24 05:08:17Z ajp $
  */
 public class Project
     implements DebuggerListener
@@ -567,6 +567,8 @@ public class Project
 		// any calls to the debugger made by removeLocalClassLoader
 		// will silently fail
 		removeLocalClassLoader();
+
+		PkgMgrFrame.displayMessage(Config.getString("pkgmgr.creatingVM"));
 			
 		getDebugger().launch();
 	}
@@ -710,6 +712,10 @@ public class Project
 
 			for(int i=0; i< frames.length; i++)
 				frames[i].showDebuggerState(de.getNewState());
+				
+			if (de.getNewState() == Debugger.IDLE)
+				PkgMgrFrame.displayMessage(Config.getString("pkgmgr.creatingVMDone"));
+				
 			return;			
 		}
 		
