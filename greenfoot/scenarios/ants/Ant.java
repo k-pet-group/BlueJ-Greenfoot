@@ -49,10 +49,9 @@ public class Ant extends GreenfootObject
 
     public Ant(int x, int y, AntHill home)
     {
-
+        super(x,y);
         antCount++;
         setImage("ant.gif");
-        setLocation(x, y);
         homeX = x;
         homeY = y;
         homeHill = home;
