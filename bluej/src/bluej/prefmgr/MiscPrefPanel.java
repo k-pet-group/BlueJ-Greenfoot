@@ -13,13 +13,14 @@ import java.util.Vector;
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.prefmgr.*;
+import bluej.pkgmgr.Package;
 
 /**
  * A PrefPanel subclass to allow the user to interactively edit
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 355 2000-01-13 02:36:10Z ajp $
+ * @version $Id: MiscPrefPanel.java 357 2000-01-13 03:57:25Z ajp $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -130,6 +131,8 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         }
 
         PrefMgr.setSyntaxHilighting(hilightingBox.isSelected());
+
+	Package.editorManager.refreshAll();
 
         String jdkURL = jdkURLField.getText();
 

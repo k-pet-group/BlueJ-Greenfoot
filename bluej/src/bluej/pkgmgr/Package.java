@@ -37,7 +37,7 @@ import java.util.*;
 /**
  * A Java package (collection of Java classes).
  *
- * @version $Id: Package.java 332 2000-01-02 13:30:59Z ajp $
+ * @version $Id: Package.java 357 2000-01-13 03:57:25Z ajp $
  * @author Michael Cahill
  *
  */
@@ -84,7 +84,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
     private static final int DEFAULTFRAMEWIDTH = 800;
 
     /** Interface to editor */
-    static EditorManager editorManager = new MoeEditorManager();
+    public static EditorManager editorManager = new MoeEditorManager();
     // static EditorManager editorManager = new RedEditorManager(false);
     // static EditorManager editorManager = new SimpleEditorManager();
 
