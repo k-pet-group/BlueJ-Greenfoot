@@ -15,6 +15,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
+import javax.swing.plaf.*;
 
 /**
  * A customised caret for Moe. It gets most of its bahaviour from
@@ -26,7 +27,9 @@ import javax.swing.text.*;
 public class MoeCaret extends DefaultCaret  
 {
    
-    MoeEditor editor;
+    private MoeEditor editor;
+    // matching bracket highlight holder
+    private Object matchingBracketHighlight;
 
     /**
      * Constructs a Moe Caret
@@ -89,15 +92,43 @@ public class MoeCaret extends DefaultCaret
          }
      }
 
-
     protected void fireStateChanged()
     {
         editor.caretMoved();
         super.fireStateChanged();
     }
-
+     
+    /**
+     * paint matching bracket if caret is directly after a bracket  
+     *
+     */
+    public void paintMatchingBracket()
+    {
+        int matchBracket = editor.getBracketMatch();
+        // remove existing bracket if needed
+        removeBracket();
+        if(matchBracket != -1) {
+            try {
+                matchingBracketHighlight = getComponent().getHighlighter().addHighlight(matchBracket, matchBracket + 1, this.getSelectionPainter());
+            }
+            catch(BadLocationException ble) {
+                Debug.reportError("bad location exception thrown");
+                ble.printStackTrace();
+            }
+        }      
+    }
     
-
+    /**
+     * remove the existing matching bracket if it exists
+     */
+    public void removeBracket()
+    {
+        if(matchingBracketHighlight != null) {
+            getComponent().getHighlighter().removeHighlight(matchingBracketHighlight);
+            matchingBracketHighlight = null;        
+        }  
+    }
+    
 }
 
 

@@ -45,6 +45,7 @@ import java.awt.geom.*;
 
 import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
 
+
 /**
  * Moe is the editor of the BlueJ environment. This class is the main class of this 
  * editor and implements the top-level functionality.
@@ -110,6 +111,8 @@ public final class MoeEditor extends JFrame
 
     // PageFormat object for printing page format
     private static PageFormat pageFormat = new PageFormat();
+    
+    private static boolean matchBrackets = false; 
 
 
     // -------- INSTANCE VARIABLES --------
@@ -123,9 +126,12 @@ public final class MoeEditor extends JFrame
 
     private MoeActions actions;
 
-    private JEditorPane currentTextPane;  // text component currently dislayed
+    
+    JEditorPane currentTextPane;  // text component currently dislayed
     private JEditorPane sourcePane;	// the component holding the source text
+    
     private JEditorPane htmlPane;	// the component holding the javadoc html
+    private MoeCaret moeCaret;
 
     private Info info;	            // the info number label
     private JPanel statusArea;	    // the status area
@@ -149,7 +155,7 @@ public final class MoeEditor extends JFrame
     private boolean mayHaveBreakpoints;	// true if there were BP here
     private boolean ignoreChanges = false;
     private boolean tabsAreExpanded = false;
-
+   
     private MoePrinter printer;
 
     // =========================== NESTED CLASSES ===========================
@@ -211,6 +217,7 @@ public final class MoeEditor extends JFrame
         viewingHTML = false;
         currentStepPos = -1;
         mayHaveBreakpoints = false;
+        matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
 
         initWindow(showToolbar);
     }
@@ -346,6 +353,7 @@ public final class MoeEditor extends JFrame
         if(vis) {
             currentTextPane.setFont(PrefMgr.getStandardEditorFont());
             checkSyntaxStatus();
+            checkBracketStatus();
             setState(Frame.NORMAL);  // de-iconify
             toFront();               // window to front
         }
@@ -359,6 +367,7 @@ public final class MoeEditor extends JFrame
     public void refresh()	// inherited from Editor, redefined
     {
         currentTextPane.setFont(PrefMgr.getStandardEditorFont());
+        checkBracketStatus();
         checkSyntaxStatus();
         currentTextPane.repaint();
     }
@@ -957,7 +966,8 @@ public final class MoeEditor extends JFrame
             }
         }
         catch (BadLocationException ex) {
-            Debug.message("error in editor find operation");
+            Debug.reportError("error in editor find operation");
+            ex.printStackTrace();
         }
         return found;
     }
@@ -1440,6 +1450,33 @@ public final class MoeEditor extends JFrame
         }
         // else ??
     }
+    
+    /**
+     * Checks that current status of syntax highlighting option is
+     * consistent with desired option eg off/on.  Called when refreshing or 
+     * making visible to pick up any Preference Manager changes to 
+     * this functionality
+     */
+    private void checkBracketStatus()
+    {
+        matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
+        // tidies up leftover highlight if matching is switched off
+        // while highlighting a valid bracket or refreshes bracket in open editor
+        if(matchBrackets) 
+            doBracketMatch();
+        else 
+            moeCaret.removeBracket();
+        
+            
+    }
+    
+    /**
+     * returns status of flag for bracket matching in editor
+     */
+    public boolean matchBrackets()
+    {
+        return matchBrackets;        
+    }
 
 
     // --------------------------------------------------------------------
@@ -1492,10 +1529,45 @@ public final class MoeEditor extends JFrame
     void caretMoved()
     {
         clearMessage();
+        if(matchBrackets)
+            doBracketMatch();
         actions.userAction();
     }
-
-    // --------------------------------------------------------------------
+    
+    
+    /**
+     * returns the position of the matching bracket for the source pane's
+     * current caret position.  Returns -1 if not found or not valid/appropriate
+     * @return the int representing bracket position
+     */
+    public int getBracketMatch()
+    {
+        int pos = -1;
+        try {
+            int caretPos = sourcePane.getCaretPosition();
+            if(caretPos != 0)
+                caretPos--;
+            pos = TextUtilities.findMatchingBracket(sourceDocument, caretPos);
+        }
+        catch (BadLocationException ble) {
+            Debug.reportError("Bad document location reached while trying to match brackets");
+        }
+        return pos;
+    }
+    
+    /**
+     * delegates bracket matching to the source pane's caret
+     *
+     */
+    public void doBracketMatch()
+    {
+        Caret caret = sourcePane.getCaret();
+        if(caret instanceof MoeCaret)
+            ((MoeCaret)caret).paintMatchingBracket();
+    }
+    
+    
+       
 
     private void setWindowTitle()
     {
@@ -1599,7 +1671,8 @@ public final class MoeEditor extends JFrame
         sourcePane.setMargin(new Insets(2,2,2,2));
         sourcePane.setOpaque(true);
         sourcePane.setEditorKit(kit);
-        sourcePane.setCaret(new MoeCaret(this));
+        moeCaret = new MoeCaret(this);
+        sourcePane.setCaret(moeCaret);
         sourcePane.getCaret().setBlinkRate(0);
         sourcePane.setSelectionColor(selectionColour);
         sourcePane.setCaretColor(cursorColor);
@@ -1881,7 +1954,7 @@ public final class MoeEditor extends JFrame
                 createHTMLPane();
                 reload = true;
             }
-
+            
             if(reload) {
                 try {
                     try {
