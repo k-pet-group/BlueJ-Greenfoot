@@ -8,6 +8,7 @@ import java.util.List;
 import java.io.File;
 
 import bluej.Config;
+import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 import bluej.utility.DialogManager;
 import bluej.pkgmgr.Package;
@@ -17,7 +18,7 @@ import bluej.pkgmgr.Project;
  * A window that displays the fields in an object or a method return value.
  *
  * @author     Michael Kolling
- * @version    $Id: ObjectInspector.java 1528 2002-11-28 15:38:40Z mik $
+ * @version    $Id: ObjectInspector.java 1533 2002-11-29 13:22:07Z mik $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -112,14 +113,15 @@ public class ObjectInspector extends Inspector
             Package pkg, String id, String name, boolean getEnabled,
             JFrame parent)
     {
-        super(pkg, id, getEnabled, parent, 
-              objectNameLabel + " " + JavaNames.stripPrefix(obj.getClassName()) + " " + name, 
-              isResult);
+        super(pkg, id, getEnabled);
 
         setTitle(isResult ? resultTitle : inspectTitle);
 
         this.isResult = isResult;
         this.obj = obj;
+
+        makeFrame(parent, isResult, 
+                  objectNameLabel + " " + JavaNames.stripPrefix(obj.getClassName()) + " " + name);
     }
 
     /**
@@ -450,10 +452,12 @@ public class ObjectInspector extends Inspector
                     }
                 }
             }
-            // we catch all exceptions silently.. if there is buggy
+            // we catch and report all exceptions.. if there is buggy
             // code in an inspector, it won't affect the rest of blueJ
             // (the main inspector panel will always come up)
-            catch (Exception e) { }
+            catch (Exception e) { 
+                Debug.reportError("Error while trying to load inspector: " + e);
+            }
         }
     }
 

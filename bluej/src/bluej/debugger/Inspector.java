@@ -20,7 +20,7 @@ import javax.swing.border.Border;
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1528 2002-11-28 15:38:40Z mik $
+ * @version    $Id: Inspector.java 1533 2002-11-29 13:22:07Z mik $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -89,8 +89,7 @@ public abstract class Inspector extends JFrame
      *@param  getEnabled  Description of Parameter
      *@param  parent      Description of Parameter
      */
-    protected Inspector(Package pkg, String id, boolean getEnabled,
-                       JFrame parent, String nameLabel, boolean isResult)
+    protected Inspector(Package pkg, String id, boolean getEnabled)
     {
         super();
 
@@ -108,8 +107,6 @@ public abstract class Inspector extends JFrame
         } else {
             pkgScopeId = pkg.getId();
         }
-
-        makeFrame(parent, isResult, nameLabel);
     }
 
     /**
@@ -346,7 +343,7 @@ public abstract class Inspector extends JFrame
      *@param  isResult      Indicates if this is a result window or an inspector window
      *@param  obj           The debugger object we want to look at
      */
-    private void makeFrame(JFrame parent, boolean isResult,
+    protected void makeFrame(JFrame parent, boolean isResult,
                             String nameLabel)
     {
         //	setFont(font);
@@ -361,16 +358,13 @@ public abstract class Inspector extends JFrame
                 }
             });
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(Config.generalBorder);
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(Config.generalBorderWithStatusBar);
 
         // if we are doing an inspection, we add a label at the top
         if (!isResult) {
-            JPanel titlePanel = new JPanel();
-            titlePanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-            JLabel classNameLabel = new JLabel(nameLabel);
-            titlePanel.add(classNameLabel, BorderLayout.CENTER);
-            mainPanel.add(titlePanel, BorderLayout.NORTH);
+            JLabel classNameLabel = new JLabel(nameLabel, SwingConstants.CENTER);
+            mainPanel.add(classNameLabel, BorderLayout.NORTH);
         }
 
         // the field list is either the fields of an object or class, the elements
@@ -385,7 +379,7 @@ public abstract class Inspector extends JFrame
             scrollPane.setColumnHeaderView(new JLabel(getListTitle()));
         }
 
-        mainPanel.add(scrollPane);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         // add mouse listener to monitor for double clicks to inspect list
         // objects. assumption is made that valueChanged will have selected
@@ -423,7 +417,7 @@ public abstract class Inspector extends JFrame
 
         JPanel buttonFramePanel = new JPanel();
         buttonFramePanel.setLayout(new BorderLayout(0, 0));
-        buttonFramePanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        //buttonFramePanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
         buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(buttonFramePanel, BorderLayout.EAST);
 
@@ -434,17 +428,18 @@ public abstract class Inspector extends JFrame
         // hold them, otherwise we just add the one panel
         if (inspectorTabs.getTabCount() > 0) {
             inspectorTabs.insertTab("Standard", null, mainPanel, "Standard", 0);
-            ((JPanel) getContentPane()).add(inspectorTabs, BorderLayout.CENTER);
+            getContentPane().add(inspectorTabs, BorderLayout.CENTER);
+            ((JPanel) getContentPane()).setBorder(Config.generalBorderWithStatusBar);
         } else {
             inspectorTabs = null;
-            ((JPanel) getContentPane()).add(mainPanel, BorderLayout.CENTER);
+            getContentPane().add(mainPanel, BorderLayout.CENTER);
         }
 
         // create bottom button pane with "Close" button
 
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
         JButton button = new JButton(close);
         buttonPanel.add(button);
         button.addActionListener(new ActionListener() {

@@ -41,7 +41,7 @@ import bluej.extmgr.HelpDialog;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1527 2002-11-28 15:36:18Z mik $
+ * @version $Id: PkgMgrFrame.java 1533 2002-11-29 13:22:07Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -1758,6 +1758,13 @@ public class PkgMgrFrame extends JFrame
             }
 
             bottomPanel.add(objScroller, BorderLayout.NORTH);
+            
+            JPanel bottom = new JPanel(new BorderLayout());
+//  experiment with expression eval entry field layout
+//             bottom.setBorder(BorderFactory.createEmptyBorder(2,2,4,2));
+//             bottom.add(statusbar, BorderLayout.CENTER);
+//             bottom.add(new JTextField(30), BorderLayout.EAST);
+//             bottomPanel.add(bottom, BorderLayout.SOUTH);
             bottomPanel.add(statusbar, BorderLayout.SOUTH);
         }
 
