@@ -954,6 +954,7 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
+
     class GoToLineAction extends MoeAbstractAction {
 
         public GoToLineAction() {
@@ -967,7 +968,6 @@ public final class MoeActions
 
 
     // --------------------------------------------------------------------
-
     //     class Action extends MoeAbstractAction {
     //
     //       public Action() {
@@ -1488,7 +1488,7 @@ public final class MoeActions
                                     Config.getString("editor.functions.help"),
                                     Config.getString("editor.functions.misc")};
 
-        categoryIndex = new int[] { 0, 40, 56, 61, 63, 67, 76 };
+        categoryIndex = new int[] { 0, 40, 56, 61, 63, 67, 77 };
     }
 
     /**
@@ -1555,6 +1555,9 @@ public final class MoeActions
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_R, SHORTCUT_MASK),
                               (Action)(actions.get("replace")));
+        keymap.addActionForKeyStroke(
+                              KeyStroke.getKeyStroke(KeyEvent.VK_L, SHORTCUT_MASK),
+                              (Action)(actions.get("go-to-line")));
         keymap.addActionForKeyStroke(
                               KeyStroke.getKeyStroke(KeyEvent.VK_K, SHORTCUT_MASK),
                               (Action)(actions.get("compile")));
