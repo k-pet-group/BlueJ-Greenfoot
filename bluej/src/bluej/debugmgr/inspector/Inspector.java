@@ -25,7 +25,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2402 2003-12-01 05:09:55Z ajp $
+ * @version    $Id: Inspector.java 2428 2003-12-09 10:51:16Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -588,10 +588,12 @@ public abstract class Inspector extends JFrame
 
         private void replaceAll(StringBuffer sb, String orig, String replacement)
         {
-            int location = sb.indexOf(orig);
+            //The call to toString is not efficient, but this method will not be 
+            //called that many times anyway, so it doesn't matter that much.
+            int location = sb.toString().indexOf(orig);
             while(location != -1) {
                 sb.replace(location, location+orig.length(), replacement);
-                location = sb.indexOf(orig);
+                location = sb.toString().indexOf(orig);
             }
         }
     }
