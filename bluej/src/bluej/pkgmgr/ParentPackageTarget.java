@@ -14,7 +14,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 536 2000-06-11 12:07:53Z bquig $
+ * @version $Id: ParentPackageTarget.java 538 2000-06-12 10:20:59Z ajp $
  */
 public class ParentPackageTarget extends PackageTarget implements ActionListener
 {
@@ -48,6 +48,11 @@ public class ParentPackageTarget extends PackageTarget implements ActionListener
     }
 
     public boolean isMoveable()
+    {
+        return false;
+    }
+
+    public boolean isSaveable()
     {
         return false;
     }

@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 533 2000-06-09 04:24:08Z ajp $
+ * @version $Id: Package.java 538 2000-06-12 10:20:59Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -489,6 +489,11 @@ public class Package extends Graph
                 t.setPos(10,10);
                 addTarget(t);
             }
+            else {
+                Target t = new ReadmeTarget(this);
+                t.setPos(10,10);
+                addTarget(t);
+            }
 
             for(int i = 0; i < numDependencies; i++) {
                 Dependency dep = null;
@@ -571,8 +576,8 @@ public class Package extends Graph
         int t_count = 0;
         for(int i = 0; t_enum.hasMoreElements(); i++) {
             Target t = (Target)t_enum.nextElement();
-            // should use a better method of determining non saved targets
-            if(!(t instanceof ParentPackageTarget)) {
+            // should we save this target
+            if(t.isSaveable()) {
                 t.save(props, "target" + (t_count + 1));
                 t_count++;
             }

@@ -18,7 +18,7 @@ import java.awt.geom.*;
 import java.awt.event.*;
 
 /**
- * @version $Id: Target.java 533 2000-06-09 04:24:08Z ajp $
+ * @version $Id: Target.java 538 2000-06-12 10:20:59Z ajp $
  * @author Michael Cahill
  *
  * A general target in a package
@@ -261,6 +261,16 @@ public abstract class Target extends Vertex
     }
 
     public boolean isMoveable()
+    {
+        return true;
+    }
+
+    public boolean isSaveable()
+    {
+        return true;
+    }
+
+    public boolean isSelectable()
     {
         return true;
     }
