@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2022 2003-06-05 05:04:16Z ajp $
+ * @version $Id: VMReference.java 2025 2003-06-06 04:41:46Z ajp $
  *
  * The startup process is as follows:
  *
@@ -114,21 +114,17 @@ public class VMReference
         Process p = null;
 
         try {
-            StringBuffer launchCommand = new StringBuffer();
+        	// the parameters to launch the VM
+            String launchParams[] = { Config.getJDKExecutablePath("this.key.must.not.exist", "java"),
+            							"-classpath",
+										boot.getRuntimeClassPathString(),
+            							"-Xdebug", "-Xint",
+            							"-Xrunjdwp:transport=dt_socket,server=y,address=8000",
+            							SERVER_CLASSNAME };
 
-            launchCommand.append(Config.getJDKExecutablePath("bluej.java", "java"));
-            launchCommand.append(" ");
-            launchCommand.append("-classpath \"");
-            //launchCommand.append(System.getProperty("java.class.path"));
-            launchCommand.append(boot.getRuntimeClassPathString());
-            launchCommand.append("\" ");
-            launchCommand.append("-Xdebug -Xint -Xrunjdwp:transport=dt_socket,server=y,address=8000");
-            launchCommand.append(" ");
-            launchCommand.append(SERVER_CLASSNAME);
-
-            System.out.println(launchCommand.toString());
-            p = Runtime.getRuntime().exec(launchCommand.toString(), null, initDir);
-        } catch (IOException ioe) {
+            p = Runtime.getRuntime().exec(launchParams, null, initDir);
+        }
+        catch (IOException ioe) {
             ioe.printStackTrace();
         }
 
@@ -144,7 +140,7 @@ public class VMReference
         Writer terminalWriter = new OutputStreamWriter(System.err);
         redirectIOStream(processInputReader, terminalWriter, false);
 
-        //redirect Terminal input to process output stream
+        // redirect Terminal input to process output stream
         OutputStreamWriter processWriter = new OutputStreamWriter(p.getOutputStream());
         Reader terminalReader = new InputStreamReader(System.in);
         redirectIOStream(terminalReader, processWriter, false);
@@ -152,18 +148,23 @@ public class VMReference
         AttachingConnector connector = null;
         List connectors = mgr.attachingConnectors();
 
+		// find a socket connector
         Iterator it = connectors.iterator();
         while (it.hasNext()) {
             AttachingConnector c = (AttachingConnector) it.next();
 
             if (c.transport().name().equals("dt_socket")) {
                 connector = c;
+                break;
             }
         }
 
+		if (connector == null) {
+			throw new IllegalStateException("no JPDA socket launch connector");
+		}
+		
         Map arguments = connector.defaultArguments();
 
-        // "main" is the command line: main class and arguments
         Connector.Argument hostnameArg = (Connector.Argument) arguments.get("hostname");
         Connector.Argument portArg = (Connector.Argument) arguments.get("port");
 
@@ -174,14 +175,29 @@ public class VMReference
         hostnameArg.setValue("127.0.0.1");
         portArg.setValue("8000");
 
-        try {
-            VirtualMachine m = connector.attach(arguments);
+		// try to connect 10 times, waiting half a sec between each attempt
+		for (int i=0; i<10; i++) {
+			try {
+				VirtualMachine m = connector.attach(arguments);
 
-            return m;
-        } catch (Exception e) {
-            Debug.reportError("Unable to launch target VM.");
-            e.printStackTrace();
-        }
+				return m;
+			}
+			catch (java.net.ConnectException ce) {
+				if (i == 9)
+					ce.printStackTrace();
+					
+				try {
+					synchronized (this)
+					{ wait(500); }
+				}
+				catch (InterruptedException ie) { }
+			}
+			catch (Exception e) {
+				Debug.reportError("Unable to launch target VM.");
+				e.printStackTrace();
+				return null;
+			}
+		}
 
         return null;
     }
