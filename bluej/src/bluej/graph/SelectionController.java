@@ -149,11 +149,11 @@ public class SelectionController
             if (evt.getClickCount() > 1) {
                 selection.doubleClick(evt);
             }
-            else {
-                SelectableGraphElement clickedElement = graph.findGraphElement(evt.getX(), evt.getY());
-                if(clickedElement != null)
-                    selection.selectOnly(clickedElement);
-            }
+//            else {
+//                SelectableGraphElement clickedElement = graph.findGraphElement(evt.getX(), evt.getY());
+//                if(clickedElement != null)
+//                    selection.selectOnly(clickedElement);
+//            }
         }
     }
 
@@ -425,8 +425,10 @@ public class SelectionController
         int clickY = evt.getY();
 
         SelectableGraphElement clickedElement = graph.findGraphElement(clickX, clickY);
-        selection.selectOnly(clickedElement);
-        postMenu(clickedElement, clickX, clickY);
+        if (clickedElement != null) {
+            selection.selectOnly(clickedElement);
+            postMenu(clickedElement, clickX, clickY);
+        }
     }
     
     /**
