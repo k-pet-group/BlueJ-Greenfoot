@@ -217,7 +217,8 @@ pkgmgr.newUses=Ny Använder Pil
 pkgmgr.newExtends=Ny Extends Pil
 pkgmgr.unimplemented=Tyvärr - inte implementerat ännu
 pkgmgr.pkgChooseError=Fel vid val av giltigt Paketnamn
-pkgmgr.noPackage=<No Paket>
+pkgmgr.noPackage=<No Package>
+pkgmgr.chooseWebPage.title=Välj destination för HTML sida
 
 pkgmgr.classmenu.runApplet=Kör Applet
 pkgmgr.classmenu.edit=Editera Implementation
@@ -278,6 +279,7 @@ debugger.execControls.updateText = Uppdatera
 # DialogManager labels
 dialogmgr.error = Fel
 dialogmgr.question = Fråga
+dialogmgr.message = Meddelande
 
 #Terminal Window
 terminal.title = BlueJ Terminalfönster

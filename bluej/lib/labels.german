@@ -217,6 +217,7 @@ pkgmgr.newExtends=Neuer Vererbungspfeil
 pkgmgr.unimplemented=Sorry - that feature is not yet implemented
 pkgmgr.pkgChooseError=Error selecting valid package name
 pkgmgr.noPackage=<No package>
+pkgmgr.chooseWebPage.title=Select HTML page destination
 
 pkgmgr.classmenu.runApplet=Applet ausführen
 pkgmgr.classmenu.edit=Editieren
@@ -278,6 +279,7 @@ debugger.execControls.updateText = Update
 # DialogManager labels
 dialogmgr.error = Error
 dialogmgr.question = Question
+dialogmgr.message = Message
 
 #Terminal Window
 terminal.title = BlueJ Terminal Window
