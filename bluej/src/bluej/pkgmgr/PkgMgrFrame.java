@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2209 2003-10-10 14:02:43Z damiano $
+ * @version $Id: PkgMgrFrame.java 2210 2003-10-11 14:50:39Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1163,7 +1163,7 @@ public class PkgMgrFrame extends JFrame
      */
     public void showPreferences()
     {
-        PrefMgrDialog.showDialog(this);
+        PrefMgrDialog.showDialog();
     }
 
     /**

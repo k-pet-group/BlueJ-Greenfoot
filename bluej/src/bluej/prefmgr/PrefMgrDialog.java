@@ -17,7 +17,7 @@ import bluej.Config;
  * instance of PrefMgrDialog at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgrDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: PrefMgrDialog.java 2210 2003-10-11 14:50:39Z mik $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -108,6 +108,11 @@ public class PrefMgrDialog extends JFrame
         pack();
     }
 
+    private void selectTab(int tabNumber)
+    {
+        tabbedPane.setSelectedIndex(tabNumber);
+    }
+    
     /**
      * Register a panel to be shown in the preferences dialog
      *
@@ -131,7 +136,30 @@ public class PrefMgrDialog extends JFrame
      *
      * @param comp the parent component for the dialog.
      */
-    public static boolean showDialog(Component comp) {
+    public static void showDialog() {
+        prepareDialog();
+        dialog.setVisible(true);
+    }
+    
+    /**
+     * Show the preferences dialog.  The first argument should
+     * be null if you want the dialog to come up in the center
+     * of the screen.  Otherwise, the argument should be the
+     * component on top of which the dialog should appear.
+     *
+     * @param comp the parent component for the dialog.
+     * @param comp the parent component for the dialog.
+     */
+    public static void showDialog(int paneNumber) {
+        prepareDialog();
+        dialog.selectTab(paneNumber);
+        dialog.setVisible(true);
+    }
+
+    /**
+     * Prepare this dialog for display.
+     */
+    private static void prepareDialog() {
         if (dialog == null) {
             dialog = new PrefMgrDialog();
         }
@@ -141,9 +169,5 @@ public class PrefMgrDialog extends JFrame
 
             ppl.beginEditing();
         }
-
-        dialog.setVisible(true);
-
-        return true;
     }
 }

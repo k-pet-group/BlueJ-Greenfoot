@@ -8,6 +8,7 @@ import bluej.classmgr.ClassMgr;
 import bluej.debugger.*;
 import bluej.runtime.ExecServer;
 import bluej.terminal.Terminal;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 
 import com.sun.jdi.*;
@@ -23,7 +24,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2175 2003-08-26 11:29:18Z mik $
+ * @version $Id: VMReference.java 2210 2003-10-11 14:50:39Z mik $
  *
  * The startup process is as follows:
  *
@@ -133,15 +134,12 @@ class VMReference
             // get classpath for VM
             String allClassPath = ClassMgr.getClassMgr().getAllClassPath().toString();
             
-        	// the parameters to launch the VM
-            String optimise = Config.getPropString("bluej.vm.optimize", "false");
-            
             ArrayList paramList = new ArrayList(10);
             paramList.add(Config.getJDKExecutablePath("this.key.must.not.exist", "java"));
             paramList.add("-classpath");
             paramList.add(allClassPath);
             paramList.add("-Xdebug");
-            if(!optimise.equals("true"))
+            if(!PrefMgr.getFlag(PrefMgr.OPTIMISE_VM))
                 paramList.add("-Xint");
             if(Config.isMacOS()) {
                 paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/vm.icns");

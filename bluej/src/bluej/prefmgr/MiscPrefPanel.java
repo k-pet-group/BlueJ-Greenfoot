@@ -2,35 +2,32 @@ package bluej.prefmgr;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
-import bluej.*;
+import bluej.Main;
 import bluej.Config;
-import bluej.pkgmgr.Package;
+import bluej.BlueJTheme;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.utility.DialogManager;
 
 /**
  * A PrefPanel subclass to allow the user to interactively edit
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 1932 2003-05-01 14:04:46Z mik $
+ * @version $Id: MiscPrefPanel.java 2210 2003-10-11 14:50:39Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
-    static final String prefpaneltitle = Config.getString("prefmgr.misc.prefpaneltitle");
     static final String jdkURLPropertyName = "bluej.url.javaStdLib";
-
-    private JTextField editorFontField;
-    private JCheckBox hilightingBox;
-    private JCheckBox autoIndentBox;
-    private JCheckBox lineNumbersBox;
-    private JCheckBox makeBackupBox;
-    private JCheckBox showTestBox;
-    private JCheckBox matchBracketsBox;
 
     private JTextField jdkURLField;
     private JCheckBox linkToLibBox;
+    private JCheckBox optimiseBox;
+    private JCheckBox showTestBox;
 
+    private boolean optimiseMessageShown = false;
+    
     /**
      * Registers the misc preference panel with the preferences
      * dialog
@@ -38,7 +35,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     public static void register()
     {
         MiscPrefPanel p = new MiscPrefPanel();
-        PrefMgrDialog.add(p, prefpaneltitle, p);
+        PrefMgrDialog.add(p, Config.getString("prefmgr.misc.prefpaneltitle"), p);
     }
 
     /**
@@ -51,37 +48,6 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         setBorder(BlueJTheme.generalBorder);
 
         add(Box.createVerticalGlue());
-
-        JPanel editorPanel = new JPanel(new GridLayout(4,2,0,0));
-        {
-            String editorTitle = Config.getString("prefmgr.misc.editor.title");
-            editorPanel.setBorder(BorderFactory.createCompoundBorder(
-                                        BorderFactory.createTitledBorder(editorTitle),
-                                        BlueJTheme.generalBorder));
-            editorPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-            JPanel fontPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-            {
-                fontPanel.add(new JLabel(Config.getString("prefmgr.misc.editorfontsize")));
-                editorFontField = new JTextField(4);
-                fontPanel.add(editorFontField);
-            }
-            editorPanel.add(fontPanel);
-            editorPanel.add(new JLabel(" "));
-            autoIndentBox = new JCheckBox(Config.getString("prefmgr.misc.autoindent"));
-            editorPanel.add(autoIndentBox);
-            lineNumbersBox = new JCheckBox(Config.getString("prefmgr.misc.displaylinenumbers"));
-            editorPanel.add(lineNumbersBox);
-            hilightingBox = new JCheckBox(Config.getString("prefmgr.misc.usesyntaxhilighting"));
-            editorPanel.add(hilightingBox);
-            makeBackupBox = new JCheckBox(Config.getString("prefmgr.misc.makeBackup"));
-            editorPanel.add(makeBackupBox);
-            matchBracketsBox= new JCheckBox(Config.getString("prefmgr.misc.matchBrackets"));
-            editorPanel.add(matchBracketsBox);
-        }
-        add(editorPanel);
-
-        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
         JPanel docPanel = new JPanel();
         {
@@ -142,20 +108,35 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
         add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
+        JPanel vmPanel = new JPanel(new GridLayout(1,2,0,0));
+        {
+            vmPanel.setBorder(BorderFactory.createCompoundBorder(
+                                          BorderFactory.createTitledBorder(
+                                                 Config.getString("prefmgr.misc.vm.title")),
+                                          BlueJTheme.generalBorder));
+            vmPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+            optimiseBox = new JCheckBox(Config.getString("prefmgr.misc.optimiseVM"));
+            optimiseBox.addActionListener(new ActionListener() {
+                                                public void actionPerformed(ActionEvent e) {
+                                                    optimiseToggled();
+                                                }
+                                          });
+            vmPanel.add(optimiseBox);
+        }
+        add(vmPanel);
+
+        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+
         add(Box.createVerticalGlue());
     }
 
     public void beginEditing()
     {
-        editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize()));
-        hilightingBox.setSelected(PrefMgr.getFlag(PrefMgr.HILIGHTING));
-        autoIndentBox.setSelected(PrefMgr.getFlag(PrefMgr.AUTO_INDENT));
-        lineNumbersBox.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
-        makeBackupBox.setSelected(PrefMgr.getFlag(PrefMgr.MAKE_BACKUP));
-        matchBracketsBox.setSelected(PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS));
-        showTestBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS));
         linkToLibBox.setSelected(PrefMgr.getFlag(PrefMgr.LINK_LIB));
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
+        showTestBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS));
+        optimiseBox.setSelected(PrefMgr.getFlag(PrefMgr.OPTIMISE_VM));
     }
 
     public void revertEditing()
@@ -164,23 +145,10 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
     public void commitEditing()
     {
-        int newFontSize = 0;
-
-        try {
-            newFontSize = Integer.parseInt(editorFontField.getText());
-            PrefMgr.setEditorFontSize(newFontSize);
-        }
-        catch (NumberFormatException nfe) { }
-
-        PrefMgr.setFlag(PrefMgr.HILIGHTING, hilightingBox.isSelected());
-        PrefMgr.setFlag(PrefMgr.AUTO_INDENT, autoIndentBox.isSelected());
-        PrefMgr.setFlag(PrefMgr.LINENUMBERS, lineNumbersBox.isSelected());
-        PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
-        PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
         PrefMgr.setFlag(PrefMgr.LINK_LIB, linkToLibBox.isSelected());
         PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, showTestBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.OPTIMISE_VM, optimiseBox.isSelected());
 
-        Package.editorManager.refreshAll();
         PkgMgrFrame.updateTestingStatus();
 
         String jdkURL = jdkURLField.getText();
@@ -190,4 +158,13 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         else
             Config.putPropString(jdkURLPropertyName, jdkURL);
     }
+
+    private void optimiseToggled() 
+    {
+        if(!optimiseMessageShown) {  // show only once per session
+            DialogManager.showMessage(this, "pref-optimise-no-effect");
+            optimiseMessageShown = true;
+        }
+    }
+
 }

@@ -21,7 +21,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 2156 2003-08-06 10:31:25Z mik $
+ * @version $Id: ClassMgrPrefPanel.java 2210 2003-10-11 14:50:39Z mik $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -66,7 +66,7 @@ public class ClassMgrPrefPanel extends JPanel
                 userLibrariesTable = new JTable(userLibrariesModel);
                 {
                     userLibrariesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                    userLibrariesTable.setPreferredScrollableViewportSize(new Dimension(400, 100));
+                    userLibrariesTable.setPreferredScrollableViewportSize(new Dimension(400, 80));
                 }
 
                 TableColumn notfoundColumn = 
@@ -157,7 +157,7 @@ public class ClassMgrPrefPanel extends JPanel
                 list.setListData(bootLibrariesList.toArray());
                 list.setCellRenderer(new ClassMgrCellRenderer());
                 list.setEnabled(false);
-                list.setVisibleRowCount(4);
+                list.setVisibleRowCount(3);
             }
 
             bootLibrariesScrollPane.setViewportView(list);

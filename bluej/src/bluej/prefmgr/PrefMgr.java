@@ -14,7 +14,7 @@ import bluej.Config;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 2207 2003-10-08 11:08:52Z mik $
+ * @version $Id: PrefMgr.java 2210 2003-10-11 14:50:39Z mik $
  */
 public class PrefMgr
 {
@@ -24,8 +24,9 @@ public class PrefMgr
     public static final String LINENUMBERS = "bluej.editor.displayLineNumbers";
     public static final String MAKE_BACKUP = "bluej.editor.makeBackup";
     public static final String MATCH_BRACKETS = "bluej.editor.matchBrackets";
-    public static final String SHOW_TEST_TOOLS = "bluej.testing.showtools";
     public static final String LINK_LIB = "doctool.linkToStandardLib";
+    public static final String SHOW_TEST_TOOLS = "bluej.testing.showtools";
+    public static final String OPTIMISE_VM = "bluej.vm.optimize";
     
     public static final String USE_THEMES = "bluej.useTheme";
 
@@ -103,7 +104,7 @@ public class PrefMgr
 
         String targetFontName = Config.getPropString("bluej.target.font", "SansSerif-bold");
         targetFontSize = Config.getPropInteger("bluej.target.fontsize", 12);
-        targetFont = deriveFont(targetFontName, targetFontSize);        
+        targetFont = deriveFont(targetFontName, targetFontSize);
         
         // preferences other than fonts:
         
@@ -115,9 +116,10 @@ public class PrefMgr
         flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
         flags.put(MAKE_BACKUP, Config.getPropString(MAKE_BACKUP, "false"));
         flags.put(MATCH_BRACKETS, Config.getPropString(MATCH_BRACKETS, "true"));
-        flags.put(SHOW_TEST_TOOLS, Config.getPropString(SHOW_TEST_TOOLS, "false"));
         flags.put(LINK_LIB, Config.getPropString(LINK_LIB, "true"));
         flags.put(USE_THEMES, Config.getPropString(USE_THEMES, "false"));
+        flags.put(SHOW_TEST_TOOLS, Config.getPropString(SHOW_TEST_TOOLS, "false"));
+        flags.put(OPTIMISE_VM, Config.getPropString(OPTIMISE_VM, "false"));
     }
 
     // ----- system interface to read or set prefences: -----
@@ -248,7 +250,7 @@ public class PrefMgr
      *
      * @param size  the size of the font
      */
-    protected static void setEditorFontSize(int size)
+    public static void setEditorFontSize(int size)
     {
         if (size > 0 && size != editorFontSize) {
             editorFontSize = size;
@@ -311,7 +313,7 @@ public class PrefMgr
      * Return the editor font size as an integer size
      * (use getStandardEditorFont() if access to the actual font is required)
      */
-    protected static int getEditorFontSize()
+    public static int getEditorFontSize()
     {
         return editorFontSize;
     }

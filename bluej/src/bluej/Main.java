@@ -1,11 +1,12 @@
 package bluej;
 
-import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.MiscPrefPanel;
+import bluej.editor.moe.EditorPrefPanel;
+import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.utility.Debug;
 import java.io.File;
 
@@ -16,7 +17,7 @@ import java.io.File;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 2101 2003-07-08 14:00:26Z mik $
+ * @version $Id: Main.java 2210 2003-10-11 14:50:39Z mik $
  */
 public class Main
 {
@@ -35,6 +36,7 @@ public class Main
         
         Config.initialise(bluejLibDir);
 
+        EditorPrefPanel.register();
         MiscPrefPanel.register();
         ClassMgrPrefPanel.register();
 
