@@ -20,7 +20,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 2887 2004-08-17 15:18:28Z mik $
+ * @version $Id: AppletClassRole.java 3103 2004-11-18 04:59:24Z davmac $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -305,7 +305,7 @@ public class AppletClassRole extends ClassRole
         try{
             for(int i=0; i < libs.length; i++) {
                 if(archives.length() == 0)
-                    archives = libs[i].toURL().toString();
+                    archives = libs[i].toURI().toURL().toString();
                 else
                     archives += "," + libs[i].toURL();
             }

@@ -10,7 +10,7 @@ import bluej.Config;
  * Class to maintain a single file/directory location in a classpath
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPathEntry.java 2156 2003-08-06 10:31:25Z mik $
+ * @version $Id: ClassPathEntry.java 3103 2004-11-18 04:59:24Z davmac $
  */
 public class ClassPathEntry implements Cloneable
 {
@@ -138,7 +138,7 @@ public class ClassPathEntry implements Cloneable
      */
     public URL getURL() throws MalformedURLException
     {
-        return file.toURL();
+        return file.toURI().toURL();
     }
 
     /**

@@ -24,7 +24,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3097 2004-11-16 02:09:14Z davmac $
+ * @version $Id: Project.java 3103 2004-11-18 04:59:24Z davmac $
  */
 public class Project
     implements DebuggerListener
@@ -118,6 +118,8 @@ public class Project
             // package file in the directory heirarchy
 
             projectDir = lastDir;
+            if (projectDir == null)
+                projectDir = startingDir;
         }
         else {
             // Debug.message("no BlueJ package file found in directory " + startingDir);

@@ -1,15 +1,17 @@
 package bluej.classmgr;
 
-import java.io.*;
-import java.net.*;
-import java.lang.reflect.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * A class loader that will load classes from the current directory
  * and from jar files within a +libs directory.
  *
  * @author  Andrew Patterson
- * @version $Id: ProjectClassLoader.java 2887 2004-08-17 15:18:28Z mik $
+ * @version $Id: ProjectClassLoader.java 3103 2004-11-18 04:59:24Z davmac $
  */
 public class ProjectClassLoader extends URLClassLoader
 {
@@ -29,7 +31,7 @@ public class ProjectClassLoader extends URLClassLoader
     {
         super(getDirectoryAsURL(projectDir), parent);
 
-        setAssertions(true);
+        setDefaultAssertionStatus(true);
 
         // the subdirectory of the project which can hold project specific
         // jars and zips
@@ -47,7 +49,7 @@ public class ProjectClassLoader extends URLClassLoader
         // URLs
         for(int i=0; i<libsJars.length; i++) {
             try {
-                addURL(libsJars[i].toURL());
+                addURL(libsJars[i].toURI().toURL());
             }
             catch(MalformedURLException mue) { }
         }
@@ -95,7 +97,7 @@ public class ProjectClassLoader extends URLClassLoader
 
         // the project directory is always added as a URL
         try {
-            URL urls[] = { projectDir.toURL() };
+            URL urls[] = { projectDir.toURI().toURL() };
             return urls;
         }
         catch(MalformedURLException mue) { }
@@ -103,30 +105,6 @@ public class ProjectClassLoader extends URLClassLoader
         URL blankUrls[] = { };
 
         return blankUrls; 
-    }
-
-    /**
-     * Under a 1.4 or above VM, set default assert status in the project class loader
-     * using reflection to find the relevant method.
-     */
-    private void setAssertions(boolean status)
-    {
-        try {
-            Class cl = this.getClass();
-
-            Class[] p = new Class[] { boolean.class }; 
- 
-            Method setAssertMethod = cl.getMethod("setDefaultAssertionStatus", p);
-
-            Object[] arguments = new Object[] { new Boolean(status) };
-
-            /* Object objResult = */ setAssertMethod.invoke(this, arguments);
-        }
-        // for all these errors no need to report anything.. just assume its because
-        // assertions are not supported (ie 1.3)
-        catch (NoSuchMethodException e) { }
-        catch (IllegalAccessException e) { }
-        catch (InvocationTargetException e) { }
     }
 }
 

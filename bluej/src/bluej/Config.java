@@ -36,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3042 2004-10-08 05:21:57Z davmac $
+ * @version $Id: Config.java 3103 2004-11-18 04:59:24Z davmac $
  */
 
 public final class Config
@@ -645,7 +645,7 @@ public final class Config
     public static ImageIcon getImageAsIcon(String propname)
     {
         try {
-            java.net.URL u = getImageFile(propname).toURL();
+            java.net.URL u = getImageFile(propname).toURI().toURL();
 
             return new ImageIcon(u);
         }

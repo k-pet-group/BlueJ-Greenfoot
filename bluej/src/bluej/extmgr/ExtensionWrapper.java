@@ -106,7 +106,7 @@ public class ExtensionWrapper
                 return null;
             }
 
-            URL url = jarFileName.toURL();
+            URL url = jarFileName.toURI().toURL();
             URL[] urlList=new URL[]{url};
             FirewallLoader fireLoader = new FirewallLoader(getClass().getClassLoader());
             URLClassLoader ucl = new URLClassLoader(urlList,fireLoader);

@@ -10,7 +10,7 @@ import bluej.Config;
  * by running the job's "compile" method.
  *
  * @author  Michael Cahill
- * @version $Id: Job.java 2691 2004-06-30 05:23:41Z davmac $
+ * @version $Id: Job.java 3103 2004-11-18 04:59:24Z davmac $
  */
 class Job
 {
@@ -56,7 +56,7 @@ class Job
             if(observer != null)
                 observer.endCompile(sources, successful);
         } catch(Exception e) {
-            System.err.println(Config.getString("compileException") + e);
+            System.err.println(Config.getString("compileException") + ": " + e);
             e.printStackTrace();
         }
     }

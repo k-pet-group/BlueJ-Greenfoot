@@ -1,15 +1,16 @@
 package bluej.classmgr;
 
 import java.io.*;
-import java.util.*;
-import java.util.jar.*;
 import java.net.*;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 2895 2004-08-18 08:42:23Z mik $
+ * @version $Id: ClassPath.java 3103 2004-11-18 04:59:24Z davmac $
  */
 public class ClassPath
 {
@@ -54,10 +55,13 @@ public class ClassPath
     public ClassPath(URL urls[])
     {
         for(int i=0; i<urls.length; i++) {
-            ClassPathEntry cpe = new ClassPathEntry(urls[i].getFile(), "");
+            try {
+            ClassPathEntry cpe = new ClassPathEntry(new File(new URI(urls[i].toString())).toString(), "");
 
             if(!entries.contains(cpe))
                 entries.add(cpe);
+            }
+            catch(URISyntaxException use) { }
         }
     }
 

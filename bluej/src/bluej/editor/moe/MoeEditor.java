@@ -2437,7 +2437,7 @@ public final class MoeEditor extends JFrame
                     catch (Exception e) {}
 
                     File urlFile = new File(getDocPath());
-                    URL myURL = urlFile.toURL();
+                    URL myURL = urlFile.toURI().toURL();
                     htmlPane.setPage(myURL);
                     htmlDocument = (HTMLDocument) htmlPane.getDocument();
                     htmlDocument.setBase(myURL);
