@@ -8,10 +8,8 @@
 
 package bluej.editor.moe;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
-
-import javax.swing.JEditorPane;
+import java.awt.*;
+import javax.swing.*;
 
 /**
  * MoeJEditorPane - a variation of JEditorPane for Moe. The preferred size
@@ -20,8 +18,19 @@ import javax.swing.JEditorPane;
  * @author Michael Kolling
  */
 
-public class MoeEditorPane extends JEditorPane
+public final class MoeEditorPane extends JEditorPane
 {
+    /**
+     * Create an editor pane specifically for Moe.
+     */
+    public MoeEditorPane()
+    {
+        super();
+    }
+    
+    /**
+     * Adjust this pane's preferred size to add the tag area.
+     */
     public Dimension getPreferredSize() 
     {
         Dimension d = super.getPreferredSize();

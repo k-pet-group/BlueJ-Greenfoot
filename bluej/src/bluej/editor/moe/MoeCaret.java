@@ -52,9 +52,6 @@ public class MoeCaret extends DefaultCaret
      */
     protected void positionCaret(MouseEvent e) 
     {
-        if(e.getID() != MouseEvent.MOUSE_PRESSED)
-            return;
-
         editor.caretMoved();
         Point pt = new Point(e.getX(), e.getY());
         Position.Bias[] biasRet = new Position.Bias[1];
@@ -65,11 +62,7 @@ public class MoeCaret extends DefaultCaret
                 biasRet[0] = Position.Bias.Forward;
             if (pos >= 0) {
                 setDot(pos); 
-                
-                // clear the preferred caret position
-                // see: JCaret's UpAction/DownAction
-                setMagicCaretPosition(null);
-            
+//                setMagicCaretPosition(null);
             }
         }
         else {
