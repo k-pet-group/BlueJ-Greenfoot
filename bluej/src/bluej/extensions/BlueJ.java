@@ -1,20 +1,32 @@
 package bluej.extensions;
 
-import bluej.*;
-import bluej.debugmgr.objectbench.*;
-import bluej.extensions.event.*;
-import bluej.extmgr.*;
-import bluej.pkgmgr.*;
+import bluej.Config;
+import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions.event.ApplicationEvent;
+import bluej.extensions.event.ApplicationListener;
+import bluej.extensions.event.CompileEvent;
+import bluej.extensions.event.CompileListener;
+import bluej.extensions.event.ExtensionEvent;
+import bluej.extensions.event.ExtensionEventListener;
+import bluej.extensions.event.InvocationEvent;
+import bluej.extensions.event.InvocationListener;
+import bluej.extensions.event.PackageEvent;
+import bluej.extensions.event.PackageListener;
+import bluej.extmgr.ExtensionWrapper;
+import bluej.extmgr.PrefManager;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.target.*;
-import java.awt.*;
-import java.io.*;
-import java.util.*;
-import javax.swing.*;
-
-
-
-
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ClassTarget;
+import java.awt.Frame;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import javax.swing.JMenuItem;
 
 /**
  * A proxy object which provides services to BlueJ extensions.
@@ -50,7 +62,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 2181 2003-09-25 10:56:45Z damiano $
+ * @version    $Id: BlueJ.java 2239 2003-10-30 11:14:59Z damiano $
  */
 
 /*
@@ -538,7 +550,11 @@ public class BlueJ
      */
     private void delegateExtensionEvent(ExtensionEvent event)
     {
-        for (Iterator iter = eventListeners.iterator(); iter.hasNext(); ) {
+        if ( eventListeners.isEmpty()) return;
+        
+        List aList=Collections.unmodifiableList(eventListeners);
+
+        for (Iterator iter = aList.iterator(); iter.hasNext(); ) {
             ExtensionEventListener eventListener = (ExtensionEventListener) iter.next();
             eventListener.eventOccurred(event);
         }
@@ -552,7 +568,11 @@ public class BlueJ
      */
     private void delegateApplicationEvent(ApplicationEvent event)
     {
-        for (Iterator iter = applicationListeners.iterator(); iter.hasNext(); ) {
+        if ( applicationListeners.isEmpty()) return;
+        
+        List aList=Collections.unmodifiableList(applicationListeners);
+
+        for (Iterator iter = aList.iterator(); iter.hasNext(); ) {
             ApplicationListener eventListener = (ApplicationListener) iter.next();
             // Just this for the time being.
             eventListener.blueJReady(event);
@@ -567,9 +587,12 @@ public class BlueJ
      */
     private void delegatePackageEvent(PackageEvent event)
     {
+        if ( packageListeners.isEmpty()) return;
+        
         int thisEvent = event.getEvent();
+        List aList=Collections.unmodifiableList(packageListeners);
 
-        for (Iterator iter = packageListeners.iterator(); iter.hasNext(); ) {
+        for (Iterator iter = aList.iterator(); iter.hasNext(); ) {
             PackageListener eventListener = (PackageListener) iter.next();
             if (thisEvent == PackageEvent.PACKAGE_OPENED)
                 eventListener.packageOpened(event);
@@ -586,9 +609,12 @@ public class BlueJ
      */
     private void delegateCompileEvent(CompileEvent event)
     {
+        if ( compileListeners.isEmpty()) return;
+        
         int thisEvent = event.getEvent();
+        List aList=Collections.unmodifiableList(compileListeners);
 
-        for (Iterator iter = compileListeners.iterator(); iter.hasNext(); ) {
+        for (Iterator iter = aList.iterator(); iter.hasNext(); ) {
             CompileListener eventListener = (CompileListener) iter.next();
             if (thisEvent == CompileEvent.COMPILE_START_EVENT)
                 eventListener.compileStarted(event);
@@ -611,7 +637,11 @@ public class BlueJ
      */
     private void delegateInvocationEvent(InvocationEvent event)
     {
-        for (Iterator iter = invocationListeners.iterator(); iter.hasNext(); ) {
+        if ( invocationListeners.isEmpty()) return;
+        
+        List aList=Collections.unmodifiableList(invocationListeners);
+        
+        for (Iterator iter = aList.iterator(); iter.hasNext(); ) {
             InvocationListener eventListener = (InvocationListener) iter.next();
             eventListener.invocationFinished(event);
         }
@@ -653,7 +683,6 @@ public class BlueJ
      */
     JMenuItem getMenuItem(Object attachedObject)
     {
-        // If the extension has no menuGenerator there is nothing to do
         if (currentMenuGen == null)
             return null;
 
@@ -674,7 +703,6 @@ public class BlueJ
 
         if (attachedObject instanceof ClassTarget) {
             ClassTarget aTarget = (ClassTarget) attachedObject;
-        System.out.println ("Get class="+aTarget);
             String qualifiedClassName = aTarget.getQualifiedName();
             Package attachedPkg = aTarget.getPackage();
             Identifier anId = new Identifier(attachedPkg.getProject(), attachedPkg, qualifiedClassName);
