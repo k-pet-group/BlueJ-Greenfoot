@@ -31,7 +31,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3293 2005-01-19 03:40:00Z davmac $
+ * @version $Id: WorldHandler.java 3313 2005-02-16 09:38:33Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -214,6 +214,9 @@ public class WorldHandler
      */
     private GreenfootObject getObject(int x, int y)
     {
+        if(world == null)
+            return null;
+        
         Collection objectsThere = world.getObjectsAtPixel(x, y);
         if (objectsThere.size() < 1) {
             return null;
