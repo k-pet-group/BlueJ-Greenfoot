@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 732 2000-12-18 12:34:49Z ajp $
+ * @version $Id: ClassTarget.java 791 2001-03-06 03:27:51Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -133,7 +133,8 @@ public class ClassTarget extends EditableTarget
      * @param prefix an internal name used for this target to identify
      * its properties in a properties file used by multiple targets.
      */
-    public void load(Properties props, String prefix) throws NumberFormatException
+    public void load(Properties props, String prefix) 
+        throws NumberFormatException
     {
         super.load(props, prefix);
         role.load(props, prefix);

@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 751 2001-01-22 06:20:55Z ajp $
+ * @version $Id: PkgMgrFrame.java 791 2001-03-06 03:27:51Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -1545,7 +1545,6 @@ public class PkgMgrFrame extends JFrame
         setIconImage(iconImage);
 
         setupMenus();
-
 
         JPanel mainPanel = new JPanel();
 

@@ -45,6 +45,15 @@ public class DocuGenerator
     /** The name of the directory where project documentation is written to. */
     private static String docDirName =
                                 Config.getPropString("doctool.outputdir");
+
+    /** Header for log file when generating documentation for projects. */
+    private static String projectLogHeader =
+                                Config.getPropString("Project documentation");
+
+    /** Header for log file when generating documentation for classes. */
+    private static String classLogHeader =
+                                Config.getPropString("Class documentation");
+
     /** The directory where temporary documentation for a single class is
      *  written to. This name is unique for every instantiation of BlueJ.*/
     private static File docTempDir;
@@ -106,7 +115,7 @@ public class DocuGenerator
         File htmlFile = new File(getDocuPath(filename));
         File logFile = new File(docDir, "logfile");
 
-        generateDoc(javadocCall, htmlFile, logFile, false);
+        generateDoc(javadocCall, htmlFile, logFile, classLogHeader, false);
     }
 
     /**
@@ -155,12 +164,13 @@ public class DocuGenerator
      * @param call the call to the documentation generating tool.
      * @param url the URL to be shown after successful completion.
      */
-    private static void generateDoc(String call, File result, 
-                                    File log, boolean openBrowser)
+    private static void generateDoc(String call, File result, File log, 
+                                    String header, boolean openBrowser)
     {
         // start the call in a separate thread to allow fast return to GUI.
         Thread starterThread = new Thread(
-                        new docuRunStarter(call, result, log, openBrowser));
+                        new DocuRunStarter(call, result, log, header, 
+                                           openBrowser));
         starterThread.setPriority(Thread.MIN_PRIORITY);
         starterThread.start();
         BlueJEvent.raiseEvent(BlueJEvent.GENERATING_DOCU, null);
@@ -175,19 +185,21 @@ public class DocuGenerator
      * HTML file that should be opened by a web browser if the documentation
      * generation was successful.
      */
-    private static class docuRunStarter implements Runnable
+    private static class DocuRunStarter implements Runnable
     {
         private String docuCall;
         private File showFile;
         private File logFile;
+        private String logHeader;
         private boolean openBrowser;
 
-        public docuRunStarter(String call, File result, File log, 
-                              boolean browse)
+        public DocuRunStarter(String call, File result, File log, 
+                              String header, boolean browse)
         {
             docuCall = call;
             showFile = result;
             logFile = log;
+            logHeader = header;
             openBrowser = browse;
         }
 
@@ -203,6 +215,7 @@ public class DocuGenerator
                 OutputStream logStream = new FileOutputStream(logFile);
 //                 Writer logWriter = new OutputStreamWriter(logStream);
                 PrintWriter logWriter = new PrintWriter(logStream,true);
+                logWriter.println(logHeader);
                 logWriter.println(docuCall);
                 logWriter.flush();
                 docuRun = Runtime.getRuntime().exec(docuCall);
@@ -315,13 +328,22 @@ public class DocuGenerator
      * @return "" if the external process was started, an error message
      * otherwise.
      */
-
     public String generateProjectDocu()
     {
         // test whether the documentation directory is accessible.
         String docDirStatus = testDocDir();
         if (docDirStatus != "")
             return docDirStatus;
+
+        File startPage = new File(docDir, "index.html");
+        File logFile = new File(docDir, "logfile");
+
+        if(documentationExists(logFile)) {
+            int result = DialogManager.askQuestion(null, "show-or-generate");
+            if(result == 0)   // show only
+                Utility.openWebBrowser(startPage.getPath());
+            return "";
+        }
 
         // get the names of all the targets for the documentation tool.
         // first: get the names of all packages that contain java sources.
@@ -358,10 +380,7 @@ public class DocuGenerator
                           + titleParams + linkParam + fixedJavadocParams
                           + targets;
 
-        File startPage = new File(docDir,"index.html");
-        File logFile = new File(docDir,"logfile");
-
-        generateDoc(javadocCall, startPage, logFile, true);
+        generateDoc(javadocCall, startPage, logFile, projectLogHeader, true);
         return "";
     }
 
@@ -390,6 +409,30 @@ public class DocuGenerator
         return "";
     }
 
+    /**
+     * Test whether project documentation exists for this project.
+     * @param the logfile in the doc directory
+     */
+    private static boolean documentationExists(File logFile) 
+    {
+        if(!logFile.exists())
+           return false;
+
+        // test whether last doc generation was for project (not single class)
+        try
+        {
+            BufferedReader logReader = new BufferedReader(new FileReader(logFile));
+            String header = logReader.readLine();
+            if(header.equals(projectLogHeader))
+                return true;
+            else
+                return false;
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
+    }
 
     /**
      * javadoc can link the generated documentation to existing documentation.
