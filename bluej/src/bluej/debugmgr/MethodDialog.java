@@ -22,7 +22,7 @@ import bluej.views.*;
  * @author  Michael Kolling
  * @author  Bruce Quig
  *
- * @version $Id: MethodDialog.java 2033 2003-06-12 06:51:21Z ajp $
+ * @version $Id: MethodDialog.java 2286 2003-11-06 00:55:20Z ajp $
  */
 public class MethodDialog extends CallDialog
 	implements FocusListener
@@ -279,8 +279,10 @@ public class MethodDialog extends CallDialog
      */
     public void focusGained(FocusEvent fe)
     {
-        if(fe.getComponent() instanceof JTextField)
+        if(fe.getComponent() instanceof JTextField) {
             focusedTextField = (JTextField)fe.getComponent();
+            focusedTextField.selectAll();
+        }
     }
 
     /**
@@ -457,7 +459,14 @@ public class MethodDialog extends CallDialog
                     doOk();
                 }
             });
-
+        instanceNameText.addFocusListener(new FocusListener() {
+                public void focusGained(FocusEvent fe)
+                {
+                    ((JTextField)(fe.getComponent())).selectAll();
+                }
+                public void focusLost(FocusEvent fe) { }
+            });
+        
         if(paramNames != null) {
             ConstructorView consView = (ConstructorView)method;
             paramClasses = consView.getParameters();
