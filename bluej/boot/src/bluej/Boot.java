@@ -23,7 +23,7 @@ import sun.misc.*;
  * @author	Andrew Patterson
  * @author	Damiano Bolla
  * @author	Michael Kšlling
- * @version $Id: Boot.java 2076 2003-06-26 12:14:56Z mik $
+ * @version $Id: Boot.java 2102 2003-07-08 14:01:17Z mik $
  */
 public class Boot
 {
@@ -109,22 +109,34 @@ public class Boot
      *
      * @return    the singleton Boot object instance
      */
-    public static Boot get()
+    public static Boot getInstance()
     {
         return instance;
     }
 
 
-    // =================== Real Boot starts here =================================
+    // ---- instance part ----
+    
     private String[] args;      // Command line arguments
     private File javaHomeDir;   // The value returned by System.getProperty
     private File bluejLibDir;   // Calculated below
 
-    private URL[] bootClassPath;
+//    private URL[] bootClassPath;
     private ClassLoader bootLoader; // The loader this class is loaded with
 
     private URL[] runtimeClassPath; // The class path used to run the rest of BlueJ
     private URLClassLoader runtimeLoader;   // The class loader used for the rest of BlueJ
+
+
+    /**
+     * Constructor for the singleton Boot object.
+     *
+     * @param  someArgs  the arguments with which main() was invoked
+     */
+    private Boot(String[] args)
+    {
+        this.args = args;
+    }
 
 
     /**
@@ -197,17 +209,6 @@ public class Boot
 
 
     /**
-     * Constructor for the singleton Boot object, invoked from main()
-     *
-     * @param  someArgs  the arguments with which main() was invoked
-     */
-    private Boot(String[] someArgs)
-    {
-        args = someArgs;
-    }
-
-
-    /**
      * Calculate the various path values, create a new classloader and
      * construct a bluej.Main. This needs to be outside the constructor to
      * ensure that the singleton instance is valid by the time
@@ -215,10 +216,6 @@ public class Boot
      */
     private void bootBluej()
     {
-        // Remember the boot class path list.
-        URLClassPath aPath = Launcher.getBootstrapClassPath();
-        bootClassPath = aPath.getURLs();
-
         // Retrieve the current classLoader, this is the boot loader.
         bootLoader = getClass().getClassLoader();
 
@@ -230,7 +227,7 @@ public class Boot
 
         try {
             // Find all the "hidden" libraries needed by BlueJ
-            runtimeClassPath = getKnownJars();
+            runtimeClassPath = getKnownJars(bluejLibDir);
             // Construct a new class loader which knows about them
             runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
 
@@ -257,8 +254,7 @@ public class Boot
      */
     private File calculateBluejLibDir()
     {
-        URL bootUrl = getClass().getResource("Boot.class");
-        String bootFullName = bootUrl.getFile();
+        String bootFullName = getClass().getResource("Boot.class").getFile();
 
         // Assuming the class is in a jar file, '!' separates the jar file name from the class name.
         // Cut of the class name.
@@ -268,24 +264,55 @@ public class Boot
 
         String bootName = bootFullName.substring(0, classIndex);
 
-        if (!bootName.startsWith("file:"))
-            throw new IllegalStateException("Unexpected format of jar file URL (class Boot.java)");
+        // decode special characters (such as %20) to their original representation
+        if(System.getProperty("java.version").startsWith("1.3")) {
+            // throw this bit out when we got to jdk 1.4 
+            bootName = getURLPath(bootName);
+        }
+        else {
+            // it is important that we don't make this call on anything 
+            // before jdk 1.4, since this class uses 1.4 methods
+            bootName = URLDecoder.getPath(bootName);
+        }
 
-        // Get rid of the initial "file:" string
-        String finalName = bootName.substring(5);
-        File finalFile = new File(finalName);
-
+        File finalFile = new File(bootName);
         File bluejDir = finalFile.getParentFile();
         return bluejDir;
+    }
+
+    /**
+     * Return the path element of a URL, spaces decoded - that is: replace 
+     * each space encoded as "%20" with a real space character.
+     */
+    private String getURLPath(String url)
+    {
+        // Get rid of the initial "file:" string
+        if (!url.startsWith("file:"))
+            throw new IllegalStateException("Unexpected format of jar file URL (class Boot.java): " + url);
+        url = url.substring(5);
+        
+        // if there are any spaces...
+        int index = url.indexOf("%20");
+        if(index != -1) {
+            StringBuffer buffer = new StringBuffer(url);
+            while(index != -1) {
+                buffer.setCharAt(index, ' ');
+                buffer.delete(index+1, index+3);
+                index = buffer.indexOf("%20", index);
+            }
+            return buffer.toString();
+        }
+        else
+            return url;
     }
 
 	/**
 	 * Returns an array of URLs for all the required BlueJ jars
 	 *
-	 * @return                            URLs of the required JAR files
+	 * @return  URLs of the required JAR files
 	 * @exception  MalformedURLException  for any problems with the URLs
 	 */
-	private URL[] getKnownJars() 
+	private URL[] getKnownJars(File libDir) 
         throws MalformedURLException
 	{
 		// by default, we require all our known jars to be present
@@ -297,7 +324,7 @@ public class Boot
 		// directory to the classpath (where Eclipse stores the
 		// .class files)
 		if (useClassesDir) {
-			File classesDir = new File(bluejLibDir.getParentFile(), "classes");
+			File classesDir = new File(libDir.getParentFile(), "classes");
 			
 			if (classesDir.isDirectory()) {
 				urlList.add(classesDir.toURL());
@@ -309,7 +336,7 @@ public class Boot
 		for (int i=startJar; i < jars.length; i++) {
 			File toAdd;
 		
-			toAdd = new File(bluejLibDir, jars[i]);
+			toAdd = new File(libDir, jars[i]);
 
 			if (!toAdd.canRead())
 				throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
@@ -328,7 +355,7 @@ public class Boot
     /**
      * Returns an array of URLs for all the JAR files located in the lib/ext directory
      *
-     * @return                            URLs of the discovered JAR files
+     * @return  URLs of the discovered JAR files
      * @exception  MalformedURLException  for any problems with the URLs
      */
     private URL[] getLibraryItems() throws MalformedURLException
@@ -370,7 +397,7 @@ public class Boot
      * library
      *
      * @param  aFile  the File to be checked
-     * @return        true if the File could be library
+     * @return  true if the File could be library
      */
     private boolean hasValidExtension(File aFile)
     {
