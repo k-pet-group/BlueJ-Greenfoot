@@ -18,6 +18,12 @@ import javax.swing.JMenuItem;
  *        ExtensionMenu myMenu = new ExtensionMenu();
  *        bluej.setMenuGenerator(myMenu);
  * </pre>
+ * Note that the MenuGenerator's <code>getMenuItem()</code> method may be called more than 
+ * once during a BlueJ session, it should return a new set of MenuItems for each 
+ * invocation. This is a restriction required by the Swing implementation, which 
+ * does not allow sharing of MenuItems between menus. You can, of course, share 
+ * MenuActions between all of the appropriate MenuItems.
+ *
  * The code for the ExtensionMenu class is:
  * <PRE>
  * import bluej.extensions.*;
@@ -62,7 +68,7 @@ import javax.swing.JMenuItem;
  *  
  * </PRE>
  *
- * @version $Id: MenuGenerator.java 1852 2003-04-15 14:56:38Z iau $
+ * @version $Id: MenuGenerator.java 1947 2003-05-12 15:09:41Z iau $
  */
 
  /*
