@@ -752,19 +752,42 @@ Can't make forward reference to {0} in {1}.
 No help available.
 
 Array dimension missing.
-No help available.
+When you create an array you have to specify
+how big it should be. (This is called the
+"array dimension".) You do this by specifying
+the number of elements in the square brackets
+after the "new" instruction and the type name.
+For example:
+    new String[4]
+creates a new String array with four elements.
 
-{0} is an abstract class. It can't be instantiated.
-No help available.
+* is an abstract class. It can't be instantiated.
+The class is declared "abstract". That means that
+it contains some methods for which it does not
+provide an implementation ("abstract methods").
+You cannot create objects of abstract classes.
+You need to find or write a subclass of the
+abstract class that implements all abstract 
+methods. You can then create objects of that 
+class.
 
-No label definition found for {0}.
-No help available.
+No label definition found for *
+The label you are trying to
+access here has not been defined
+anywhere.
 
 'break' must be in loop or switch.
-No help available.
+The "break" statement breaks out of a block,
+such as a "switch" statement or a loop 
+("for", "while" or "do" loop). It cannot be 
+used outside of such a block.
 
 'continue' must be in loop.
-No help available.
+The "continue" statement is used to 
+immediately start the next loop
+iteration. It has no meaning outside
+of a loop. It can only be used inside
+a "for", "while" or "do" loop.
 
 a 'break' or 'continue' must transfer control within the same method.
 No help available.
