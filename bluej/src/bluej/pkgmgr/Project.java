@@ -7,7 +7,6 @@ import bluej.*;
 import bluej.classmgr.*;
 import bluej.debugger.*;
 import bluej.debugmgr.*;
-import bluej.pkgmgr.target.PackageTarget;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
 import bluej.views.View;
@@ -20,7 +19,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2250 2003-11-04 12:43:09Z mik $
+ * @version $Id: Project.java 2265 2003-11-05 10:58:56Z mik $
  */
 public class Project
     implements DebuggerListener
