@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3063 2004-10-25 02:37:00Z davmac $
+ * @version $Id: Invoker.java 3064 2004-10-25 03:12:36Z davmac $
  */
 
 public class Invoker
@@ -235,8 +235,8 @@ public class Invoker
 
     /**
      * After attempting a free form invocation, and gettign an error, we try
-     * again. First time round, we tried inerpreting the input as a statement,
-     * now we try as an expresssion.
+     * again. First time round, we tried inerpreting the input as an
+     * expression, now we try as a statement.
      */
     public synchronized void tryAgain()
     {
@@ -354,12 +354,14 @@ public class Invoker
                     argType = argTypes[i].mapTparsToTypes(typeMap);
                 else
                     argType = argTypes[i];
-                if (argType instanceof GenTypeExtends) {
-                    argType = ((GenTypeExtends) argType).getUpperBounds()[0];
-                    buffer.append(((GenTypeSolid) argType).toString(new CleverQualifyTypeNameTransform(pkg)));
+                
+                if (argType instanceof GenTypeWildcard) {
+                    GenTypeSolid [] ubounds = ((GenTypeWildcard) argType).getUpperBounds();
+                    if (ubounds.length != 0)
+                        buffer.append(ubounds[0].toString(new CleverQualifyTypeNameTransform(pkg)));
+                    else
+                        buffer.append("Object");
                 }
-                else if (argType instanceof GenTypeWildcard)
-                    buffer.append("Object");
                 else if (argType instanceof GenTypeParameterizable)
                     buffer.append(((GenTypeParameterizable) argType).toString(new CleverQualifyTypeNameTransform(pkg)));
                 else
@@ -485,13 +487,43 @@ public class Invoker
 
     /**
      * Write a source file for a class (the 'shell file') to do the interactive
-     * invocation. A shell file has the following form:
+     * invocation. A shell file has the following form:<p>
      * 
-     * $PKGLINE public class $CLASSNAME extends bluej.runtime.Shell { $VARDECL
+     * <pre>
+     * $PKGLINE
+     * public class $CLASSNAME extends bluej.runtime.Shell
+     * {
+     *   $VARDECL
      * 
-     * public static void run() throws Throwable { $SCOPEINIT $PARAMINIT
-     * $INVOCATION } }
+     *   public static void run() throws Throwable
+     *   {
+     *     $SCOPEINIT
+     *     $PARAMINIT
+     *     $INVOCATION
+     *   }
+     * }
+     * </pre><p>
+     * 
+     * PARAMINIT and INVOCATION correspond directly to the parameters
+     * 'paramInit' and 'callString' as passed to this method.<p>
+     * 
+     * VARDECL declares a static member variable, __bluej_runtime_result,
+     * whose type depends on 'constructing' and 'constype' parameters. Only
+     * present if 'isVoid' is false.<p>
+     * 
+     * SCOPEINIT declares a Map, __bluej_runtime_scope, which maps object
+     * names to their values (allowing objects from the object bench to be
+     * accessed).
+     * 
      *  
+     * @param pkg   the Package in which scope to execute
+     * @param paramInit  java code which initializes parameter variables
+     * @param callString java code which executes requested method/code
+     * @param constructing  true to store the result directly, false to wrap
+     *                      it in an ObjectResultWrapper
+     * @param isVoid   true if no result is returned
+     * @param constype  the exact type of the object being constructed. Only
+     *                  needed if 'constructing' is true.
      */
     private File writeInvocationFile(Package pkg, String paramInit, String callString, boolean constructing,
             boolean isVoid, String constype)
