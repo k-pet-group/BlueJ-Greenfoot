@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -48,7 +49,7 @@ public class ExecServer
      * We need to keep track of open windows so that we can dispose of them
      * when simulating a System.exit() call
      */
-    private static Set openWindows = new TreeSet();
+    private static List openWindows = Collections.synchronizedList(new LinkedList());
 
     //private ServerThread servThread;
 
@@ -380,20 +381,23 @@ public class ExecServer
      */
     static void disposeWindows()
     {
-        Iterator it = openWindows.iterator();
+        synchronized(openWindows) {
 
-        while(it.hasNext())
-        {
-            Object o = it.next();
+            Iterator it = openWindows.iterator();
 
-            if (o instanceof Window)
+            while(it.hasNext())
             {
-                Window w = (Window) o;
-                w.dispose();
-            }
-        }
+                Object o = it.next();
 
-        openWindows.clear();
+                if (o instanceof Window)
+                {
+                    Window w = (Window) o;
+                    w.dispose();
+                }
+            }
+
+            openWindows.clear();
+        }
     }
 
     /**
