@@ -1,0 +1,46 @@
+<project name="bluej-editor" default="compile" basedir=".">   
+
+    <!-- set global properties for this build -->
+
+    <!-- this is the only value you should need to change -->
+    <property name="bluej_home" value="c:\bluej" />  
+
+    <property name="src" value="src" />
+    <property name="build" value="build" />
+    <property name="dist"  value="dist" />  
+    <property name="editor"  value="editor" />  
+
+    <target name="prepare">
+        <!-- Create the time stamp -->
+        <tstamp/>
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${build}" />
+    </target>   
+    
+    <target name="compile" depends="prepare">
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src}" destdir="${build}">
+            <classpath>
+                <pathelement path="${classpath}" />
+                <!-- path to existing bluej's lib bluej.jar -->
+                <pathelement location="${bluej_home}\lib\bluej.jar" />
+            </classpath>
+            <!-- exclude the standalone Moe editor class -->
+            <exclude name="**/Moe.java" /> 
+        </javac>
+    </target>   
+    
+    <target name="dist" depends="compile">
+        <!-- Create the ${dist} directory -->
+        <mkdir dir="${dist}" />     
+        <!-- Put everything in ${build} into the ${editor}.jar file -->
+        <jar jarfile="${dist}/${editor}.jar" basedir="${build}" />
+    </target>   
+
+    <target name="clean">
+        <!-- Delete the ${build} and ${dist} directory trees -->
+        <delete dir="${build}" />
+        <delete dir="${dist}" />
+    </target>
+
+</project>
