@@ -5,6 +5,7 @@
         <include name="lib/antlr.jar" />
         <include name="lib/junit.jar" />
         <include name="lib/MRJ141Stubs.jar" />
+        <include name="lib/MRJToolkitStubs.zip" />
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
     </patternset>
