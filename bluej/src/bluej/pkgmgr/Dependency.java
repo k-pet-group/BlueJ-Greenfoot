@@ -1,8 +1,14 @@
 package bluej.pkgmgr;
 
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
 import java.util.Properties;
 
+import javax.swing.*;
+import javax.swing.AbstractAction;
+
+import bluej.Config;
+import bluej.graph.*;
 import bluej.graph.Edge;
 import bluej.pkgmgr.target.*;
 import bluej.utility.Debug;
@@ -11,11 +17,12 @@ import bluej.utility.Debug;
  * A dependency between two targets in a package.
  *
  * @author  Michael Cahill
- * @version $Id: Dependency.java 1954 2003-05-15 06:06:01Z ajp $
+ * @version $Id: Dependency.java 2038 2003-06-17 13:00:58Z fisker $
  */
 public abstract class Dependency extends Edge
 {
     Package pkg;
+    private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
 
     public Dependency(Package pkg, DependentTarget from, DependentTarget to)
     {
@@ -70,8 +77,27 @@ public abstract class Dependency extends Edge
     }
 
     public abstract void draw(Graphics2D g);
-    public abstract boolean contains(int x, int y);
     public abstract void highlight(Graphics2D g);
+
+    public void popupMenu(int x, int y, GraphEditor editor) {
+        JPopupMenu menu = new JPopupMenu();
+        menu.add(new RemoveAction());
+        editor.add(menu);
+        menu.show(editor, x, y);
+    }
+    
+    private class RemoveAction extends AbstractAction
+    {
+        public RemoveAction()
+        {
+            putValue(NAME, removeStr);
+        }
+
+				public void actionPerformed(ActionEvent e) {
+           pkg.removeArrow(Dependency.this);
+			
+		}
+    }
 
     public String toString()
     {

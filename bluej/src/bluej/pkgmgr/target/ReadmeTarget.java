@@ -18,7 +18,7 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 2034 2003-06-12 11:49:52Z fisker $
+ * @version $Id: ReadmeTarget.java 2038 2003-06-17 13:00:58Z fisker $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -233,8 +233,10 @@ public class ReadmeTarget extends Target
     public void popupMenu(int x, int y, GraphEditor editor)
     {
         JPopupMenu menu = createMenu(null);
-        if (menu != null)
+        if (menu != null){
+            editor.add(menu);
             menu.show(editor, x, y);
+        }
     }
     
     /**
