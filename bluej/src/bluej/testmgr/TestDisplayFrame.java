@@ -20,7 +20,7 @@ import bluej.utility.JavaNames;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 3052 2004-10-15 10:44:42Z mik $
+ * @version $Id: TestDisplayFrame.java 3333 2005-03-09 23:12:44Z davmac $
  */
 public class TestDisplayFrame
 {
@@ -216,16 +216,19 @@ public class TestDisplayFrame
     }
     
     /**
-     * Indicate that we are starting a bunch of tests and that we
-     * do not know how many total tests there will be. Each call to
-     * startTest from now on will add on to the previous results,
-     * until endMultipleTests() is called.
+     * Indicate that we are starting a bunch of tests.
+     * 
+     * @param num  The total number of tests to be run
      */
-    public void startMultipleTests()
+    public void startMultipleTests(int num)
     {
         doingMultiple = true;    
-
+        
         reset();
+        testTotal = num;
+        counterPanel.setTotal(testTotal);
+        progressBar.setmaximum(testTotal);  
+        showTestDisplay(true);
     }
     
     public void endMultipleTests()
@@ -251,17 +254,13 @@ public class TestDisplayFrame
 	public void startTest(Project project, int num)
 	{
         lastProject = project;
-        if (doingMultiple) {
-            testTotal += num;
-        }
-        else {
-            reset();
-            
-            testTotal = num;
-        }
 
-        counterPanel.setTotal(testTotal);
-        progressBar.setmaximum(testTotal);	
+        if (! doingMultiple) {
+            reset();
+            testTotal = num;
+            counterPanel.setTotal(testTotal);
+            progressBar.setmaximum(testTotal);  
+        }
 	}
 
     /**

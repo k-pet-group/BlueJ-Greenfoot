@@ -44,7 +44,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3312 2005-02-14 09:14:12Z damiano $
+ * @version $Id: PkgMgrFrame.java 3333 2005-03-09 23:12:44Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1736,8 +1736,19 @@ public class PkgMgrFrame extends JFrame
 
         List l = pkg.getTestTargets();
 
+        // Find the number of tests
+        int numTests = 0;
+        Iterator i = l.iterator();
+        while (i.hasNext()) {
+            ClassTarget ct = (ClassTarget) i.next();
+            if (ct.isCompiled() && ct.isUnitTest()) {
+                UnitTestClassRole utcr = (UnitTestClassRole) ct.getRole();
+                numTests += utcr.getTestCount(ct);
+            }
+        }
+        
         final Iterator it = l.iterator();
-        TestDisplayFrame.getTestDisplay().startMultipleTests();
+        TestDisplayFrame.getTestDisplay().startMultipleTests(numTests);
 
         Thread thr = new Thread() {
             public void run()

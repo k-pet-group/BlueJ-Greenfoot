@@ -32,7 +32,7 @@ import bluej.utility.JavaNames;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2985 2004-09-06 00:28:59Z davmac $
+ * @version $Id: UnitTestClassRole.java 3333 2005-03-09 23:12:44Z davmac $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -240,6 +240,29 @@ public class UnitTestClassRole extends ClassRole
 			}
 		}            
 	}
+    
+    /**
+     * Get the count of tests in the test class.
+     * @param ct  The ClassTarget of the unit test class
+     * @return    the number of tests in the unit test class
+     */
+    public int getTestCount(ClassTarget ct)
+    {
+        if (! ct.isCompiled())
+            return 0;
+        
+        Class cl = ct.getPackage().loadClass(ct.getQualifiedName());
+        Method[] allMethods = cl.getMethods();
+
+        int testCount = 0;
+
+        for (int i=0; i < allMethods.length; i++) {
+            if (isJUnitTestMethod(allMethods[i]))
+                testCount++;
+        }
+        
+        return testCount;
+    }
     
     /**
      * Start the construction of a test method.
