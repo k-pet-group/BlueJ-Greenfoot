@@ -23,7 +23,7 @@ import java.io.FileWriter;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 1168 2002-03-13 11:22:45Z mik $
+ * @version $Id: Terminal.java 1206 2002-04-01 16:52:29Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -171,7 +171,7 @@ public final class Terminal extends JFrame
      */
     private void writeToTerminal(char ch)
     {
-        text.append(new Character(ch).toString());
+        text.append(String.valueOf(ch));
         text.setCaretPosition(text.getDocument().getLength());
     }
 
