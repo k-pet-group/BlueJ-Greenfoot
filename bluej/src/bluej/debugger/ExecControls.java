@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 1229 2002-04-19 14:17:18Z mik $
+ ** @version $Id: ExecControls.java 1365 2002-10-10 23:29:23Z ajp $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -50,8 +50,8 @@ public class ExecControls extends JFrame
         Config.getString("debugger.execControls.continueButtonText");
     private static final String terminateButtonText =
         Config.getString("debugger.execControls.terminateButtonText");
-        
-        
+
+
     private static String[] empty = new String[0];
 
     // === static factory ===
@@ -177,7 +177,7 @@ public class ExecControls extends JFrame
             selectStackFrame(stackList.getSelectedIndex());
         }
 
-        // ststicList, instanceList and localList are ignored - single click 
+        // ststicList, instanceList and localList are ignored - single click
         // doesn't do anything
     }
 
@@ -198,47 +198,58 @@ public class ExecControls extends JFrame
         }
     }
 
-    public synchronized void updateThreads(DebuggerThread select)
+    public synchronized void updateThreads(final DebuggerThread select)
     {
-        DefaultListModel listModel = (DefaultListModel)threadList.getModel();
-        listModel.removeAllElements();
+        // because this is responding to events in a different thread we need
+        // to get these graphics updates to be run on the swing thread using
+        // SwingUtilities.runLater()
 
-        int machineStatus = Debugger.debugger.getStatus();
+        Runnable doAllUpdates = new Runnable() {
+            public void run() {
+                DefaultListModel listModel = (DefaultListModel)threadList.getModel();
+                listModel.removeAllElements();
 
-        if(machineStatus == Debugger.RUNNING) {
-            threads.clear();
-            clearThreadDetails();
-        }
-        else {
+                int machineStatus = Debugger.debugger.getStatus();
 
-            int selectionIndex = 0;  // default: select first
-
-            threads = Debugger.debugger.listThreads();
-            if(threads == null) {
-                Debug.reportError("cannot get thread info!");
-                listModel.addElement("(error: cannot list threads)");
-            }
-            else {
-                threads = selectThreadsForDisplay(threads, select);
-                String selectName = (select == null ? "" : select.getName());
-                for(int i = 0; i < threads.size(); i++) {
-                    DebuggerThread thread = (DebuggerThread)threads.get(i);
-                    if(thread.getName().equals(selectName))
-                        selectionIndex = i;
-                    String status = thread.getStatus();
-                    listModel.addElement(thread.getName() + " [" + status + "]");
+                if(machineStatus == Debugger.RUNNING) {
+                    threads.clear();
+                    clearThreadDetails();
                 }
-            }
-            if(listModel.getSize() > 0) {
-                if(selectionIndex != -1) {
-                    threadList.setSelectedIndex(selectionIndex);
-                    threadList.ensureIndexIsVisible(selectionIndex);
+                else {
+
+                    int selectionIndex = 0;  // default: select first
+
+                    threads = Debugger.debugger.listThreads();
+                    if(threads == null) {
+                        Debug.reportError("cannot get thread info!");
+                        listModel.addElement("(error: cannot list threads)");
+                    }
+                    else {
+                        threads = selectThreadsForDisplay(threads, select);
+                        String selectName = (select == null ? "" : select.getName());
+                        for(int i = 0; i < threads.size(); i++) {
+                            DebuggerThread thread = (DebuggerThread)threads.get(i);
+                            if(thread.getName().equals(selectName))
+                                selectionIndex = i;
+                            String status = thread.getStatus();
+                            listModel.addElement(thread.getName() + " [" + status + "]");
+                        }
+                    }
+                    if(listModel.getSize() > 0) {
+                        if(selectionIndex != -1) {
+                            threadList.setSelectedIndex(selectionIndex);
+                            threadList.ensureIndexIsVisible(selectionIndex);
+                        }
+                    }
+                    else    // no threads displayed
+                        clearThreadDetails();
                 }
+                setButtonsEnabled(machineStatus);
             }
-            else    // no threads displayed
-                clearThreadDetails();
-        }
-        setButtonsEnabled(machineStatus);
+        };
+
+        SwingUtilities.invokeLater(doAllUpdates);
+
     }
 
     /**
