@@ -1,7 +1,7 @@
 
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
-public class  Wall extends GridObject
+public class  Wall extends GreenfootObject
 {
     public Wall()
     {

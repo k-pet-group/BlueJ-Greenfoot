@@ -12,8 +12,8 @@ public class Collector extends Robot
      */
     public void act()
     {
-        pickOrDrop();
-        if (canMove()) {
+        if (canMove()) {            
+            pickOrDrop();
             move();
         }
         else {

@@ -6,7 +6,7 @@ import greenfoot.GreenfootObject;
 /**
  * A beeper.
  */
-public class Beeper extends GridObject
+public class Beeper extends GreenfootObject
 {
     public Beeper()
     {

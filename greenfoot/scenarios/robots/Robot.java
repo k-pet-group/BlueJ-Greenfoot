@@ -3,7 +3,7 @@ import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
 import java.util.*;
 
-public class Robot extends GridObject
+public class Robot extends GreenfootObject
 {
 
     /**
@@ -62,16 +62,16 @@ public class Robot extends GridObject
         }
         switch(direction) {
             case SOUTH :
-                setCellLocation(getCellX(), getCellY() + 1);
+                setLocation(getX(), getY() + 1);
                 break;
             case EAST :
-                setCellLocation(getCellX() + 1, getCellY());
+                setLocation(getX() + 1, getY());
                 break;
             case NORTH :
-                setCellLocation(getCellX(), getCellY() - 1);
+                setLocation(getX(), getY() - 1);
                 break;
             case WEST :
-                setCellLocation(getCellX() - 1, getCellY());
+                setLocation(getX() - 1, getY());
                 break;
         }
     }
@@ -84,8 +84,8 @@ public class Robot extends GridObject
     public boolean canMove()
     {
         RobotWorld myWorld = (RobotWorld) getWorld();
-        int x = getCellX();
-        int y = getCellY();
+        int x = getX();
+        int y = getY();
         switch(direction) {
             case SOUTH :
                 y++;
@@ -109,7 +109,7 @@ public class Robot extends GridObject
         }
 
         //Run through all objects and see if there is a wall.
-        Collection objectsThere = myWorld.getObjectsAtCell(x, y, Wall.class);
+        Collection objectsThere = myWorld.getObjectsAt(x, y, Wall.class);
         if (objectsThere.isEmpty()) {
             return true;
         }
@@ -176,7 +176,7 @@ public class Robot extends GridObject
     public void pickBeeper()
     {
         RobotWorld myWorld = (RobotWorld) getWorld();
-        Collection objectsHere = myWorld.getObjectsAtCell(getCellX(), getCellY(), Beeper.class);
+        Collection objectsHere = myWorld.getObjectsAt(getX(), getY(), Beeper.class);
         Iterator iter = objectsHere.iterator();
         if (iter.hasNext()) {
             Object currentObject = iter.next();
@@ -196,9 +196,9 @@ public class Robot extends GridObject
         GreenfootWorld myWorld = getWorld();
         if (!beeperBag.isEmpty()) {
             Beeper beeper = (Beeper) beeperBag.pop();
-            beeper.setCellLocation(getCellX(), getCellY());
+            beeper.setLocation(getX(), getY());
             myWorld.addObject(beeper);
-            setCellLocation(getCellX(), getCellY());
+            setLocation(getX(), getY());
         }
     }
 }
