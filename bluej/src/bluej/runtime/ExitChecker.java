@@ -1,11 +1,13 @@
 package bluej.runtime;
 
+// NOTE: CURRENTLY UNUSED. PENDING FOR REMOVAL
+
 /**
  * The ExitChecker checks whether a System.exit() call has occurred.
  * ATTENTION: The class needs jdk 1.4 to be compiled!
  *
  * @author  Michael Kolling
- * @version $Id: ExitChecker.java 2101 2003-07-08 14:00:26Z mik $
+ * @version $Id: ExitChecker.java 2253 2003-11-04 13:49:11Z mik $
  */
 public class ExitChecker
 {

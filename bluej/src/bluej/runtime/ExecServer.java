@@ -11,14 +11,14 @@ import junit.framework.*;
 
 /**
  * Class that controls the runtime of code executed within BlueJ.
- * Sets up a SecurityManager, initial thread state, etc.
+ * Sets up the initial thread state, etc.
  *
  * This class both holds runtime attributes and executes commands.
  * Execution is done through JDI reflection from the JdiDebugger class.
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2125 2003-07-21 03:24:10Z ajp $
+ * @version $Id: ExecServer.java 2253 2003-11-04 13:49:11Z mik $
  */
 public class ExecServer
 {
@@ -41,8 +41,9 @@ public class ExecServer
 	// these fields will be fetched by VMReference
 	
 	// an exception we can throw in the remote VM to signal System.exit()
-	public static final String EXIT_EXCEPTION_NAME = "exitException";
-    public static ExitException exitException = new ExitException("0");
+// pending for removal when exit scheme is tested.
+//    public static final String EXIT_EXCEPTION_NAME = "exitException";
+//    public static ExitException exitException = new ExitException("0");
     
     // the initial thread that starts main()
 	public static final String MAIN_THREAD_NAME = "mainThread";
@@ -65,7 +66,7 @@ public class ExecServer
      * when simulating a System.exit() call
      */
     private static List openWindows = Collections.synchronizedList(new LinkedList());
-    private static boolean disposingAllWindows = false; // true while we are dsposing
+    private static boolean disposingAllWindows = false; // true while we are disposing
 
     private static PrintStream systemErr = System.err;
     private static ByteArrayOutputStream throwawayErr = null;
@@ -151,10 +152,11 @@ public class ExecServer
      *
      *  See RemoteSecurityManager for details.
      */
-    public static void exitMarker()
-    {
-        // <NON SUSPENDING BREAKPOINT!>
-    }
+// pending for removal when exit scheme is tested.
+//    public static void exitMarker()
+//    {
+//        // <NON SUSPENDING BREAKPOINT!>
+//    }
 
 	/**
 	 * This method is used to suspend the execution of the

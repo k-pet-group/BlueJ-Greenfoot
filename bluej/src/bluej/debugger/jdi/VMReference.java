@@ -24,7 +24,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2231 2003-10-28 05:04:41Z ajp $
+ * @version $Id: VMReference.java 2253 2003-11-04 13:49:11Z mik $
  *
  * The startup process is as follows:
  *
@@ -62,7 +62,8 @@ class VMReference
 
     // the field name of the static field within that class
     // the name of the method used to signal a System.exit()
-    static final String SERVER_EXIT_MARKER_METHOD_NAME = "exitMarker";
+// pending for removal when exit scheme is tested.
+//    static final String SERVER_EXIT_MARKER_METHOD_NAME = "exitMarker";
 
     // the name of the method used to suspend the ExecServer
     static final String SERVER_STARTED_METHOD_NAME = "vmStarted";
@@ -103,7 +104,8 @@ class VMReference
 
     // an exception used to interrupt the main thread
     // when simulating a System.exit()
-    private ObjectReference exitException = null;
+// pending for removal when exit scheme is tested.
+//    private ObjectReference exitException = null;
 
 	// map of String names to ExecServer methods
 	// used by JdiDebugger.invokeMethod
@@ -430,16 +432,6 @@ class VMReference
             bpreq.enable();
         }
 
-        // set a breakpoint on a special exitMarker method
-        {
-			Method exitMarkerMethod = findMethodByName(serverClass, SERVER_EXIT_MARKER_METHOD_NAME);
-			Location exitMarkerLoc = exitMarkerMethod.location();
-
-			BreakpointRequest exitbpreq = erm.createBreakpointRequest(exitMarkerLoc);
-			exitbpreq.setSuspendPolicy(EventRequest.SUSPEND_NONE);
-			exitbpreq.putProperty(SERVER_EXIT_MARKER_METHOD_NAME, "yes");
-			exitbpreq.enable();       
-        }
     }
 
     /**
@@ -456,8 +448,9 @@ class VMReference
         }
 
         // set up an exit exception object on the remote machine
-        exitException = getStaticField(serverClass,
-        								 ExecServer.EXIT_EXCEPTION_NAME);
+// pending for removal when exit scheme is tested.
+//        exitException = getStaticField(serverClass,
+//        								 ExecServer.EXIT_EXCEPTION_NAME);
 
 		// get our main server thread
 		serverThread = (ThreadReference) getStaticField(serverClass,
@@ -467,7 +460,7 @@ class VMReference
 		workerThread = (ThreadReference) getStaticField(serverClass,
 														ExecServer.WORKER_THREAD_NAME);		
 
-		if (exitException == null || serverThread == null || workerThread == null) {
+		if (serverThread == null || workerThread == null) {
 			Debug.reportError("Cannot find fields on remote VM");
 			return false;
 		}
@@ -736,29 +729,18 @@ class VMReference
         Field msgField = remoteException.referenceType().fieldByName("detailMessage");
         StringReference msgVal = (StringReference) remoteException.getValue(msgField);
 
-        //better: get message via method call
-        //Method getMessageMethod = findMethodByName(
-        //				   remoteException.referenceType(),
-        //				   "getMessage");
-        //StringReference val = null;
-        //try {
-        //    val = (StringReference)serverInstance.invokeMethod(serverThread,
-        //  						getMessageMethod,
-        //  						null, 0);
-        //} catch(Exception e) {
-        //    Debug.reportError("Problem getting exception message: " + e);
-        //}
-
         String exceptionText = (msgVal == null ? null : msgVal.value());
 		String excClass = exc.exception().type().name();
 
-        if (excClass.equals("bluej.runtime.ExitException")) {
-
-            // this was a "System.exit()", not a real exception!
-            exitStatus = Debugger.FORCED_EXIT;
-			owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.IDLE);
-            lastException = new ExceptionDescription(exceptionText);
-        } else {
+// PENDING: to be removed after exit scheme is tested
+        // if (excClass.equals("bluej.runtime.ExitException")) {
+// 
+            // // this was a "System.exit()", not a real exception!
+            // exitStatus = Debugger.FORCED_EXIT;
+			// owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.IDLE);
+            // lastException = new ExceptionDescription(exceptionText);
+        // } 
+        // else {
         	// real exception
 
             Location loc = exc.location();
@@ -774,7 +756,7 @@ class VMReference
             List stack = JdiThread.getStack(exc.thread());
             exitStatus = Debugger.EXCEPTION;
             lastException = new ExceptionDescription(excClass, exceptionText, stack);
-        }
+//        }
     }
 
     /**
@@ -802,20 +784,8 @@ class VMReference
 			// do nothing except signify our change of state
 			if (serverThread != null && serverThread.equals(event.thread()))
 				owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.IDLE);
-        }
-        // if the breakpoint is marked as "ExitMarker" then this is our
-        // own breakpoint that the RemoteSecurityManager executes in order
-        // to signal to us that System.exit() has been called by the AWT
-        // thread. If our serverThread is still executing then stop it by simulating
-        // an ExitException
-        else if (event.request().getProperty(SERVER_EXIT_MARKER_METHOD_NAME) != null) {
-            // TODO: why make sure this is not suspended??? ajp 27/5/03
-            if (!serverThread.isSuspended()) {
-                try {
-                    serverThread.stop(exitException);
-                } catch (com.sun.jdi.InvalidTypeException ite) {}
-            }
-        } else {
+        } 
+        else {
             // breakpoint set by user in user code
 			if (serverThread.equals(event.thread()))
 				owner.raiseStateChangeEvent(Debugger.RUNNING, Debugger.SUSPENDED);

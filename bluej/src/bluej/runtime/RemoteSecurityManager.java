@@ -3,12 +3,14 @@ package bluej.runtime;
 import java.security.Permission;
 import java.awt.*;
 
+// NOTE: CURRENTLY UNUSED. PENDING FOR REMOVAL
+
 /**
  * A SecurityManager for the BlueJ runtime
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 2250 2003-11-04 12:43:09Z mik $
+ * @version $Id: RemoteSecurityManager.java 2253 2003-11-04 13:49:11Z mik $
  */
 public class RemoteSecurityManager extends SecurityManager
 {
@@ -44,72 +46,11 @@ public class RemoteSecurityManager extends SecurityManager
      */
     public void checkExit(int status)
     {
-        /**
-         * Many AWT programs react to a window close event by
-         * calling System.exit(). Unfortunately it is the AWT
-         * event thread which is executing at the time and so
-         * we cannot allow that thread to die as it is impossible
-         * to restart without restarting the VM. Here we check if
-         * we are running as the AWT thread and if so, set an
-         * event so that later on all the top level windows
-         * will be disposed (we assume this is the behaviour the
-         * programmer wished by calling System.exit()). We also
-         * will break the main user thread started in the
-         * virtual machine (to simulate quitting the application).
-         */
-        
-        return;
-/*        
-        if(! System.getProperty("java.version").startsWith("1.3")) {
-            // it is important that we don't make this call on anything 
-            // before jdk 1.4, since this class uses 1.4 methods
-            
-            // It is possible that checkExit gets called elsewhere
-            // than Runtime.exit(). Check whether we really have a 
-            // Runtime.exit() call.
-            if(! ExitChecker.isSystemExit())
-                return;
-        }
-
-        if (EventQueue.isDispatchThread()) {
-            // no matter what, we have to throw an exception and
-            // no matter what that exception will be printed to
-            // System.err by the AWT thread.. we play some
-            // funny business to hide the message
-
-            // there are probably numerous race conditions etc
-            // hidden in here but this is the best solution we've
-            // come up with so far
-
-            // signal local VM that we are simulating an exit
-            ExecServer.exitMarker();
-
-            // hide the exception print out which the AWT event
-            // thread handler will print
-            ExecServer.supressOutput();
-
-            EventQueue.
-                invokeLater(new Runnable() {
-                        public void run() {
-                            ExecServer.restoreOutput();
-                            ExecServer.disposeWindows();
-                        }
-                    });
-
-            // this exception will not ever be printed out
-            throw new ExitException(Integer.toString(status));
-        }
-        else {
-            // this exception will be displayed to the user
-            throw new ExitException(Integer.toString(status));
-        }
-*/
     }
 
     public void checkMemberAccess(Class clazz,
                                     int which)
     {
-
     }
 
     /**
@@ -121,7 +62,6 @@ public class RemoteSecurityManager extends SecurityManager
      */
     public void checkPermission(Permission perm)
     {
-
     }
 
     /**
@@ -134,6 +74,5 @@ public class RemoteSecurityManager extends SecurityManager
      */
     public void checkPermission(Permission perm, Object context)
     {
-
     }
 }
