@@ -11,7 +11,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 2656 2004-06-25 01:44:18Z davmac $
+ * @version $Id: GenTypeClass.java 2703 2004-06-30 23:57:40Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -115,7 +115,7 @@ public class GenTypeClass extends GenTypeSolid {
     
     public boolean isGeneric()
     {
-        return (params == null);
+        return (params != null);
     }
 
     public String toString(boolean stripPrefix)
@@ -168,10 +168,11 @@ public class GenTypeClass extends GenTypeSolid {
     }
     
     /**
-     * Map the type parameter names from a supertype to the names
-     * used in the base type. For instance, if A<T> extends B<U>, Then to map
-     * an instance of A<Integer> to B, pass "B" as the base type.
-     * On return the map is {U:Integer}.
+     * Map the type parameter in a base type to the types
+     * used in the super type. For instance, if A<T> extends B<U>, Then to map
+     * an instance of A<Integer> to B, pass "B" as the base type;
+     * on return the map is {U:Integer}.
+     * 
      * @param subType   the supertype to map from
      * @param basename    the fully-qualified name of the base type to map to
      * @return  A map of (String -> GenType), or null if the inheritance
@@ -271,7 +272,7 @@ public class GenTypeClass extends GenTypeSolid {
     public Map mapToDerived(Reflective derivedType)
     {        
         // Get a map (parameter name -> type) for this class.
-        if( derivedType.getTypeParams().isEmpty() )
+        if( derivedType.getTypeParams().isEmpty() || ! isGeneric() )
             return new HashMap();
         
         Map r = getMap();

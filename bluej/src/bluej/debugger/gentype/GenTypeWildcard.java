@@ -10,9 +10,9 @@ import java.util.Map;
  * can deduce the type of some object to be this.
  *
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 2656 2004-06-25 01:44:18Z davmac $
+ * @version $Id: GenTypeWildcard.java 2703 2004-06-30 23:57:40Z davmac $
  */
-class GenTypeWildcard extends GenTypeParameterizable
+public class GenTypeWildcard extends GenTypeParameterizable
 {
     GenTypeSolid upperBound;  // ? extends upperBound
     GenTypeSolid lowerBound;  // ? super lowerBound
@@ -96,5 +96,15 @@ class GenTypeWildcard extends GenTypeParameterizable
     public boolean isPrimitive()
     {
         return true;
+    }
+    
+    public GenTypeSolid getUpperBound()
+    {
+        return upperBound;
+    }
+    
+    public GenTypeSolid getLowerBound()
+    {
+        return lowerBound;
     }
 }
