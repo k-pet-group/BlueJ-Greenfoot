@@ -161,6 +161,7 @@ class Identifier
     {
     Class aClass = getJavaClass();
 
+    // View.getView does not fail, if the class does not exist it will be created.
     return View.getView(aClass);
     }
 }
