@@ -25,7 +25,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 2276 2003-11-05 15:02:44Z mik $
+ * @version $Id: Config.java 2297 2003-11-06 18:13:08Z mik $
  */
 
 public final class Config
@@ -37,10 +37,8 @@ public final class Config
     //  dictionary
     public static DefaultProperties moe_props;		// moe (editor) properties
 
-    private static String bluej_conf_dirname = (File.separatorChar == '/') ?
-                                               ".bluej" : "bluej";
-    private static File bluej_lib_dir;
-    private static File user_conf_dir;
+    private static File bluejLibDir;
+    private static File userPrefDir;
 
     public static String compilertype;	// current compiler (javac, jikes)
     public static String language;	// message language (english, ...)
@@ -60,7 +58,7 @@ public final class Config
      * Initialisation of BlueJ configuration. Must be called at startup.
      * This method finds and opens the configuration files.
      */
-    public static void initialise(File bluej_lib_dir)
+    public static void initialise(File bluejLibDir)
     {
         if(initialised)
             return;
@@ -71,7 +69,7 @@ public final class Config
 
         // construct paths for the configuration directories
 
-        Config.bluej_lib_dir = bluej_lib_dir;
+        Config.bluejLibDir = bluejLibDir;
 
         bluej_props = loadDefs("bluej.defs", true);	// system definitions
 
@@ -84,8 +82,8 @@ public final class Config
             userHome = new File(homeDir);
 
         // get user specific bluej property directory (in user home)
-        user_conf_dir = new File(userHome, bluej_conf_dirname);
-        checkUserDir(user_conf_dir);
+        userPrefDir = new File(userHome, getBlueJPrefDirName());
+        checkUserDir(userPrefDir);
 
         loadProperties("bluej", bluej_props);  // add user specific definitions
 
@@ -99,7 +97,7 @@ public final class Config
         moe_props = loadDefs("moe.defs", true);
         loadProperties("moe", moe_props);  // add user specific editor definitions
         
-        checkDebug(user_conf_dir);
+        checkDebug(userPrefDir);
 
         compilertype = Config.getPropString("bluej.compiler.type");
         if(compilertype.equals("internal"))
@@ -133,6 +131,30 @@ public final class Config
     public static boolean isMacOS()
     {
         return osname.startsWith("Mac");
+    }
+    
+    /**
+     * Tell us whether we are running on MS Windows
+     */
+    public static boolean isWinOS()
+    {
+        return osname.startsWith("Windows");
+    }
+    
+    /**
+     * Return the name of a directory within the user's home directory
+     * that should be used for storing BlueJ user preferences.
+     * 
+     * @return The path of the preference directory relative to the user's home
+     */
+    private static String getBlueJPrefDirName()
+    {
+        if(isMacOS())
+            return "Library/Preferences/org.bluej";
+        else if(isWinOS())
+            return "bluej";
+        else
+            return ".bluej";
     }
     
     /**
@@ -214,7 +236,7 @@ public final class Config
      */
     private static DefaultProperties loadDefs(String filename, boolean asDefault)
     {
-        File propsFile = new File(bluej_lib_dir, filename);
+        File propsFile = new File(bluejLibDir, filename);
         DefaultProperties defs = new DefaultProperties();
 
         try {
@@ -242,7 +264,7 @@ public final class Config
         // add localised labels if necessary...
         if(!DEFAULT_LANGUAGE.equals(language)) {
             String languageFileName = language + File.separator + "labels";
-            File languageFile = new File(bluej_lib_dir, languageFileName);
+            File languageFile = new File(bluejLibDir, languageFileName);
             try{
                 labels.load(new FileInputStream(languageFile));
             }
@@ -259,7 +281,7 @@ public final class Config
      */
     private static void loadProperties(String filename, DefaultProperties props)
     {
-        File propsFile = new File(user_conf_dir, filename + ".properties");
+        File propsFile = new File(userPrefDir, filename + ".properties");
 
         try {
             props.load(new FileInputStream(propsFile));
@@ -274,7 +296,7 @@ public final class Config
      */
     private static void saveProperties(String filename, String comment, DefaultProperties props)
     {
-        File propsFile = new File(user_conf_dir, filename + ".properties");
+        File propsFile = new File(userPrefDir, filename + ".properties");
 
         try {
             props.store(new FileOutputStream(propsFile), getString(comment));
@@ -436,7 +458,7 @@ public final class Config
         String filename = bluej_props.getProperty(propname);
 
         if (filename != null) {
-            return new File(bluej_lib_dir, "images" + File.separator + filename);
+            return new File(bluejLibDir, "images" + File.separator + filename);
         }
 
         return null;
@@ -569,7 +591,7 @@ public final class Config
      */
     public static File getLanguageFile(String base)
     {
-        return new File(bluej_lib_dir, language + File.separator + base);
+        return new File(bluejLibDir, language + File.separator + base);
     }
     
     /**
@@ -577,7 +599,7 @@ public final class Config
      */
     public static File getDefaultLanguageFile(String base)
     {
-        return new File(bluej_lib_dir, DEFAULT_LANGUAGE + File.separator + base);
+        return new File(bluejLibDir, DEFAULT_LANGUAGE + File.separator + base);
     }
 
     /**
@@ -586,7 +608,7 @@ public final class Config
      */
     public static File getUserConfigFile(String base)
     {
-        return new File(user_conf_dir, base);
+        return new File(userPrefDir, base);
     }
 
     /**
@@ -595,7 +617,7 @@ public final class Config
      */
     public static File getUserConfigDir()
     {
-        return user_conf_dir;
+        return userPrefDir;
     }
 
     /**
@@ -680,7 +702,7 @@ public final class Config
      */
     public static File getSystemInspectorDir()
     {
-        return new File(bluej_lib_dir, "inspector");
+        return new File(bluejLibDir, "inspector");
     }
 
     /**
@@ -688,7 +710,7 @@ public final class Config
      */
     public static File getBlueJLibDir()
     {
-        return bluej_lib_dir;
+        return bluejLibDir;
     }
 
     /**
@@ -696,6 +718,6 @@ public final class Config
      */
     public static String getBlueJIconPath()
     {
-        return bluej_lib_dir.getPath() + "/images/icons";
+        return bluejLibDir.getPath() + "/images/icons";
     }
 }
