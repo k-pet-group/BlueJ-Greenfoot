@@ -20,13 +20,13 @@ import java.util.StringTokenizer;
  * in this class's main method.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 935 2001-06-12 01:21:10Z mik $
+ * @version $Id: Main.java 976 2001-08-31 08:22:15Z mik $
  */
 public class Main
 {
     public static int BLUEJ_VERSION_MAJOR = 1;
     public static int BLUEJ_VERSION_MINOR = 1;
-    public static int BLUEJ_VERSION_RELEASE = 4;
+    public static int BLUEJ_VERSION_RELEASE = 5;
     public static String BLUEJ_VERSION_SUFFIX = "";
 
 

@@ -37,7 +37,7 @@ public class Finder extends JDialog
     static final int FORWARD = 0; 
     static final int BACKWARD = 1;
   
-  // -------- INSTANCE VARIABLES --------
+    // -------- INSTANCE VARIABLES --------
 
     protected String searchString;	// the last search string used
     protected boolean searchFound;	// true if last find was successfull
@@ -47,21 +47,21 @@ public class Finder extends JDialog
     JButton forwardButton;
     JButton backwardButton;
     JButton cancelButton;
-    //JTextField textField;
-    DefaultComboBoxModel queryModel;
-    JComboBox textField;
+    JTextField textField;
+    //DefaultComboBoxModel queryModel;
+    //JComboBox textField;
     
-  // ------------- METHODS --------------
+    // ------------- METHODS --------------
 
     public Finder()
     {
-	super((Frame)null, title, true);
+        super((Frame)null, title, true);
 
-	searchString = null;
-	searchFound = true;
-	searchDirection = FORWARD;
+        searchString = null;
+        searchFound = true;
+        searchDirection = FORWARD;
 
-	makeDialog();
+        makeDialog();
     }
 
     /**
@@ -69,7 +69,7 @@ public class Finder extends JDialog
      */
     public void setSearchString(String s)
     {
-	searchString = s;
+        searchString = s;
     }
 
      
@@ -82,27 +82,29 @@ public class Finder extends JDialog
      */
     public String getNewSearchString(JFrame parent, int direction)
     {
-	if(direction == FORWARD)
-	    getRootPane().setDefaultButton(forwardButton);
-	if(direction == BACKWARD)
-	    getRootPane().setDefaultButton(backwardButton);
+        if(direction == FORWARD)
+            getRootPane().setDefaultButton(forwardButton);
+        if(direction == BACKWARD)
+            getRootPane().setDefaultButton(backwardButton);
 
-	textField.getEditor().selectAll();
-	textField.requestFocus();
+        textField.selectAll();
+        textField.requestFocus();
         setVisible(true);
 
-	// the dialog is modal, so when we get here it was closed.
-	if(cancelled)
-	    return null;
-	else {
-            String query = (String)textField.getSelectedItem();
-            int queryIndex = queryModel.getIndexOf(query);
-            if(queryIndex != 0) {
-                if(queryIndex > 0)
-                    queryModel.removeElement(query);
-                queryModel.insertElementAt(query, 0);
-            }
-            return (String)textField.getSelectedItem();
+        // the dialog is modal, so when we get here it was closed.
+        if(cancelled)
+            return null;
+        else {
+            // unused for now: code to use combobox instead of textfield
+//             String query = (String)textField.getSelectedItem();
+//             int queryIndex = queryModel.getIndexOf(query);
+//             if(queryIndex != 0) {
+//                 if(queryIndex > 0)
+//                     queryModel.removeElement(query);
+//                 queryModel.insertElementAt(query, 0);
+//             }
+//             return (String)textField.getSelectedItem();
+            return textField.getText();
         }
     }
 
@@ -111,7 +113,7 @@ public class Finder extends JDialog
      */
     public String getLastSearchString()
     {
-	return searchString;
+        return searchString;
     }
 
     /**
@@ -119,7 +121,7 @@ public class Finder extends JDialog
      */
     public int getDirection()
     {
-	return searchDirection;
+        return searchDirection;
     }
 
     /**
@@ -127,7 +129,7 @@ public class Finder extends JDialog
      */
     public void setSearchFound(boolean found)
     {
-	searchFound = found;
+        searchFound = found;
     }
 
     /**
@@ -135,7 +137,7 @@ public class Finder extends JDialog
      */
     public boolean lastSearchFound()
     {
-	return searchFound;
+        return searchFound;
     }
 
     /**
@@ -144,61 +146,66 @@ public class Finder extends JDialog
      */
     public void actionPerformed(ActionEvent evt)
     {
-	Object src = evt.getSource();
-	if(src == forwardButton) {
-	    searchDirection = FORWARD;
-	    cancelled = false;
-	}
-	else if(src == backwardButton) {
-	    searchDirection = BACKWARD;
-	    cancelled = false;
-	}
-	else if(src == cancelButton)
-	    cancelled = true;
+        Object src = evt.getSource();
+        if(src == forwardButton) {
+            searchDirection = FORWARD;
+            cancelled = false;
+        }
+        else if(src == backwardButton) {
+            searchDirection = BACKWARD;
+            cancelled = false;
+        }
+        else if(src == cancelButton)
+            cancelled = true;
 
-	setVisible(false);
+        setVisible(false);
     }
 
     protected  void makeDialog()
     {
-	addWindowListener(new WindowAdapter() {
-	    public void windowClosing(WindowEvent E) {
-		cancelled = true;
-		setVisible(false);
-	    }
-	});
+        addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent E) {
+                    cancelled = true;
+                    setVisible(false);
+                }
+            });
         
-        //Box buttonBox = new Box(BoxLayout.Y_AXIS);  
-	JPanel buttonPanel = new JPanel();
+        JPanel textPanel = new JPanel();
+        textPanel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
+
+        // add search text field
+
+        textPanel.add(new JLabel(textfieldLabel));
+//         queryModel = new DefaultComboBoxModel();
+//         textField = new JComboBox(queryModel);
+//         Dimension dim = textField.getMinimumSize();
+//         dim.width = 220;
+//         textField.setPreferredSize(dim);
+//         textField.setEditable(true);
+        textField = new JTextField(16);
+        textPanel.add(textField);
+	
+        getContentPane().add("Center", textPanel);
+
+        // add buttons
+
+        JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(3, 0, 0, 5));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-	forwardButton = new JButton(forwardText);
-	buttonPanel.add(forwardButton);
+        forwardButton = new JButton(forwardText);
+        buttonPanel.add(forwardButton);
         forwardButton.addActionListener(this);
    
-	backwardButton = new JButton(backwardText);
+        backwardButton = new JButton(backwardText);
         buttonPanel.add(backwardButton);
-	backwardButton.addActionListener(this);
+        backwardButton.addActionListener(this);
    
-	cancelButton = new JButton(cancel);
-	buttonPanel.add(cancelButton);
-	cancelButton.addActionListener(this);
-	getContentPane().add("East", buttonPanel);
+        cancelButton = new JButton(cancel);
+        buttonPanel.add(cancelButton);
+        cancelButton.addActionListener(this);
+        getContentPane().add("East", buttonPanel);
 
-	JPanel textPanel = new JPanel();
-	textPanel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
-
-	textPanel.add(new JLabel(textfieldLabel));
-        queryModel = new DefaultComboBoxModel();
-	textField = new JComboBox(queryModel);
-        Dimension dim = textField.getMinimumSize();
-        dim.width = 220;
-        textField.setPreferredSize(dim);
-        textField.setEditable(true);
-	textPanel.add(textField);
-	
-	getContentPane().add("Center", textPanel);
-	pack();
+        pack();
     }
 
 }  // end class Finder
