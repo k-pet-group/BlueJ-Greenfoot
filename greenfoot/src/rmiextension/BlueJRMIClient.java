@@ -17,7 +17,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIClient.java 3216 2004-12-03 04:40:14Z davmac $
+ * @version $Id: BlueJRMIClient.java 3340 2005-03-24 03:26:13Z davmac $
  */
 public class BlueJRMIClient implements BlueJPropStringSource
 {
@@ -103,7 +103,10 @@ public class BlueJRMIClient implements BlueJPropStringSource
     public String getBlueJPropertyString(String property, String def)
     {
         try {
-            return blueJ.getBlueJPropertyString(property, def);
+            String val = blueJ.getExtensionPropertyString(property, null);
+            if (val == null)
+                val = blueJ.getBlueJPropertyString(property, def);
+            return val;
         }
         catch (RemoteException re) {
             return def;
@@ -118,5 +121,13 @@ public class BlueJRMIClient implements BlueJPropStringSource
         catch (RemoteException re) {
             return key;
         }
+    }
+    
+    public void setUserProperty(String property, String val)
+    {
+        try {
+            blueJ.setExtensionPropertyString(property, val);
+        }
+        catch (RemoteException re) {}
     }
 }
