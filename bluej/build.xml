@@ -3,7 +3,7 @@
     <!-- set global properties for this build -->
     <!-- the first two are the only values you should need to change -->
     <property name="bluej_home" value="U:\project\bluej\main\bluej" />
-    <property name="java_home" value="F:\programming\jdk1.4" />
+    <property name="java_home" value="F:\programming\jdk1.3" />
 
     <!-- property name="build.compiler" value="modern" /-->
     <property name="build.compiler" value="jikes" />
@@ -62,6 +62,10 @@
                  <path refid="bluej.class.path" />
             </classpath>
         </java>
+    </target>
+
+    <target name="dist">
+         <ant antfile="package.xml" dir="package" target="dist"/>
     </target>
 
     <target name="clean">
