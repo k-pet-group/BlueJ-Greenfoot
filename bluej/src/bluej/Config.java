@@ -36,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2815 2004-07-23 04:24:30Z bquig $
+ * @version $Id: Config.java 2954 2004-08-27 11:04:58Z fisker $
  */
 
 public final class Config
@@ -174,7 +174,9 @@ public final class Config
         }
 
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			if (isWinOS()){
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
