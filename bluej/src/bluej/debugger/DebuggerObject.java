@@ -6,7 +6,7 @@ import java.util.List;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 2529 2004-05-10 12:33:31Z polle $
+ *@version    $Id: DebuggerObject.java 2541 2004-05-24 08:42:48Z polle $
  */
 public abstract class DebuggerObject
 {
@@ -110,6 +110,21 @@ public abstract class DebuggerObject
      */
     public abstract DebuggerObject getFieldObject(String name);
 
+    /**
+     * Returns the a string representation of the value in 'slot' (counting static and object fields).
+     * @param slot The slot number to be returned
+     * @return     The string representation of this value
+     */
+    public abstract String getFieldValueString(int slot);
+    
+    /**
+     * Returns the a string representation of the type of the value in 'slot' (counting static and object fields).
+     * @param slot The slot number to be returned
+     * @return     The string representation of this value
+     */
+    public abstract String getFieldValueTypeString(int slot);
+    
+    
     /**
      *  Return the jdi object. This exposes the jdi to Inspectors.
      *  If jdi is not being used, it should return null, which is
