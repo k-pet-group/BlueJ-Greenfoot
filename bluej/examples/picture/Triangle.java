@@ -3,7 +3,7 @@ import java.awt.*;
 /**
  * A triangle that can be manipulated and that draws itself on a canvas.
  * 
- * @author	Michael Kolling
+ * @author	Michael Kolling and David J. Barnes
  * @version 1.0  (15 July 2000)
  */
 
@@ -14,6 +14,7 @@ public class Triangle
 	private int xPosition;
 	private int yPosition;
 	private String color;
+	private boolean isVisible;
 
     /**
      * Create a new triangle at default position with default color.
@@ -23,13 +24,31 @@ public class Triangle
 		height = 30;
 		width = 40;
 		xPosition = 50;
-		yPosition = 10;
+		yPosition = 15;
 		color = "green";
-		draw();
+		isVisible = false;
     }
 
+	/**
+	 * Make this triangle visible. If it was already visible, do nothing.
+	 */
+	public void makeVisible()
+	{
+		isVisible = true;
+		draw();
+	}
+	
+	/**
+	 * Make this triangle invisible. If it was already invisible, do nothing.
+	 */
+	public void makeInvisible()
+	{
+		erase();
+		isVisible = false;
+	}
+	
     /**
-     * Move the square a few pixels to the right.
+     * Move the triangle a few pixels to the right.
      */
     public void moveRight()
     {
@@ -37,7 +56,7 @@ public class Triangle
     }
 
     /**
-     * Move the square a few pixels to the left.
+     * Move the triangle a few pixels to the left.
      */
     public void moveLeft()
     {
@@ -45,7 +64,7 @@ public class Triangle
     }
 
     /**
-     * Move the square a few pixels up.
+     * Move the triangle a few pixels up.
      */
     public void moveUp()
     {
@@ -53,7 +72,7 @@ public class Triangle
     }
 
     /**
-     * Move the square a few pixels down.
+     * Move the triangle a few pixels down.
      */
     public void moveDown()
     {
@@ -61,7 +80,7 @@ public class Triangle
     }
 
     /**
-     * Move the square horizontally by 'distance' pixels.
+     * Move the triangle horizontally by 'distance' pixels.
      */
     public void moveHorizontal(int distance)
     {
@@ -71,7 +90,7 @@ public class Triangle
     }
 
     /**
-     * Move the square vertically by 'distance' pixels.
+     * Move the triangle vertically by 'distance' pixels.
      */
     public void moveVertical(int distance)
     {
@@ -81,7 +100,7 @@ public class Triangle
     }
 
     /**
-     * Slowly move the square horizontally by 'distance' pixels.
+     * Slowly move the triangle horizontally by 'distance' pixels.
      */
     public void slowMoveHorizontal(int distance)
     {
@@ -99,14 +118,13 @@ public class Triangle
 
 		for(int i = 0; i < distance; i++)
 		{
-			erase();
 			xPosition += delta;
 			draw();
 		}
     }
 
     /**
-     * Slowly move the square vertically by 'distance' pixels.
+     * Slowly move the triangle vertically by 'distance' pixels.
      */
     public void slowMoveVertical(int distance)
     {
@@ -124,7 +142,6 @@ public class Triangle
 
 		for(int i = 0; i < distance; i++)
 		{
-			erase();
 			yPosition += delta;
 			draw();
 		}
@@ -152,26 +169,27 @@ public class Triangle
     }
 
 	/*
-	 * Draw the square with current specifications on screen.
+	 * Draw the triangle with current specifications on screen.
 	 */
 	private void draw()
 	{
-		Canvas canvas = Canvas.getCanvas();
-		canvas.setForegroundColour(color);
-		int[] xpoints = { xPosition, xPosition + (width/2), xPosition - (width/2) };
-		int[] ypoints = { yPosition, yPosition + height, yPosition + height };
-		canvas.fill(new Polygon(xpoints, ypoints, 3));
-		canvas.wait(10);
+		if(isVisible) {
+			Canvas canvas = Canvas.getCanvas();
+			int[] xpoints = { xPosition, xPosition + (width/2), xPosition - (width/2) };
+			int[] ypoints = { yPosition, yPosition + height, yPosition + height };
+			canvas.draw(this, color, new Polygon(xpoints, ypoints, 3));
+			canvas.wait(10);
+		}
 	}
 
 	/*
-	 * Erase the square on screen.
+	 * Erase the triangle on screen.
 	 */
 	private void erase()
 	{
-		Canvas canvas = Canvas.getCanvas();
-		int[] xpoints = { xPosition, xPosition + (width/2), xPosition - (width/2) };
-		int[] ypoints = { yPosition, yPosition + height, yPosition + height };
-		canvas.erase(new Polygon(xpoints, ypoints, 3));
+		if(isVisible) {
+			Canvas canvas = Canvas.getCanvas();
+			canvas.erase(this);
+		}
 	}
 }
