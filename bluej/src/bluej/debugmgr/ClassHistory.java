@@ -6,7 +6,7 @@ package bluej.debugmgr;
  * invocations.
  *
  * @author Michael Kolling
- * @version $Id: ClassHistory.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: ClassHistory.java 2158 2003-08-06 10:39:13Z mik $
  *
  */
 public class ClassHistory extends History
@@ -29,11 +29,14 @@ public class ClassHistory extends History
 
     // ======= instance section =======
 
+    /**
+     * Initialise this history with some often-used classes for convinience.
+     */
     private ClassHistory(int maxLength)
     {
         super(maxLength, false);
-        put("String");
-        put("Math");
+        put("java.lang.String");
+        put("java.lang.Math");
         put("java.util.ArrayList");
         put("java.util.Random");
         put("java.util.");

@@ -22,7 +22,7 @@ import bluej.views.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: LibraryCallDialog.java 2158 2003-08-06 10:39:13Z mik $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener
@@ -97,6 +97,11 @@ public class LibraryCallDialog extends JDialog
     private void showDocumentation()
     {
         String className = (String)classField.getEditor().getItem();
+        
+        // Assume unqualified classes are in java.lang
+        if(className.indexOf('.') == -1)
+            className = "java.lang." + className;
+        
         Utility.showClassDocumentation(className, "#constructor_summary");
     }
 
