@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1786 2003-04-10 08:34:46Z damiano $
+ * @version $Id: BlueJ.java 1788 2003-04-10 08:43:16Z damiano $
  */
 
 public class BlueJ
@@ -246,26 +246,23 @@ public class BlueJ
     }
     
     /**
-     * Returns the path to the BlueJ system directory.
+     * Returns the path to the BlueJ/lib system directory.
      * This is used to locate systemwide configuration files.
      * Having the Directory you can then located a file within it.
      */
-    public File getSystemLib()
+    public File getSystemLibDir()
     {
         return myWrapper.getBlueJLib();
     }
 
     /**
-     * Returns the path to a file contained in the
-     * user's bluej settings &lt;user&gt;/bluej/<I>file</I>
-     * What is returned is just a File, no guarantee is made that it exists.
-     * 
-     * @param fileName the name of a file.
-     * @return the path to the user file, which may not exist.
+     * Returns the path of the user configuration directory.
+     * This is used to locate user dependent information.
+     * Having the Directory you can then located a file within it.
      */
-    public File getUserFile (String fileName)
+    public File getUserConfigDir ()
     {
-        return Config.getUserConfigFile (fileName);
+        return Config.getUserConfigDir();
     }
     
     /**

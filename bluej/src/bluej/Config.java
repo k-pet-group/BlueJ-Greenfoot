@@ -26,7 +26,7 @@ import bluej.utility.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1784 2003-04-10 08:24:47Z damiano $
+ * @version $Id: Config.java 1788 2003-04-10 08:43:16Z damiano $
  */
 
 public class Config
@@ -554,6 +554,17 @@ public class Config
     {
         return new File(user_conf_dir, base);
     }
+
+    /**
+     * Return the user config directory
+     * (<user_home>/.bluej
+     */
+    public static File getUserConfigDir()
+    {
+        return user_conf_dir;
+    }
+
+
 
     public static Color getItemColour(String itemname)
     {
