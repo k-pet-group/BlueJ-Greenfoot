@@ -17,7 +17,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version $Id: Project.java 1750 2003-04-04 13:54:31Z fisker $
  */
 public class Project
     implements BlueJEventListener
@@ -474,6 +474,18 @@ public class Project
     {
         return docuGenerator.generateProjectDocu();
     }
+
+	public String getDocumentationFile(String filename){
+		return docuGenerator.getDocuPath(filename);
+	}
+
+	/**
+     * Generate the documentation for the file in 'filename'
+	 * @param filename
+	 */
+	public void generateDocumentation(String filename) {
+		docuGenerator.generateClassDocu(filename);
+	}
 
 
     /**
