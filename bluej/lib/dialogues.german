@@ -218,6 +218,17 @@ Unterverzeichnisse durchsuchen
 Abbrechen
 null
 
+cannot-search-subdirs
+Das gewählte Verzeichnis enthält Unterverzeichnisse.
+Momentan können diese Verzeichnisse nicht nach Java-
+Quelltextdateien durchsucht werden, weil benannte
+und geschachtelte Packages in dieser BlueJ-Version
+nicht unterstützt werden. Diese Unterstützung ist
+jedoch in Arbeit.
+Wenn das gewählte Verzeichnis selbst Java-Quelltext-
+dateien enthält, dann werden diese nun in einem
+BlueJ-Packagefenster angezeigt.
+
 ask-index
 Index des Arrayelementes [...]
 Arrayinspektion
