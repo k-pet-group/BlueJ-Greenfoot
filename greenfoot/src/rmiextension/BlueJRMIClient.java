@@ -12,13 +12,14 @@ import java.util.logging.Logger;
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
+import bluej.BlueJPropStringSource;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIClient.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: BlueJRMIClient.java 3216 2004-12-03 04:40:14Z davmac $
  */
-public class BlueJRMIClient
+public class BlueJRMIClient implements BlueJPropStringSource
 {
 
     RBlueJ blueJ = null;
@@ -29,7 +30,6 @@ public class BlueJRMIClient
     private RPackage pkg;
 
     public BlueJRMIClient(String prjDir, String pkgName)
-        throws RemoteException
     {
         GreenfootLogger.init();
 
@@ -96,5 +96,27 @@ public class BlueJRMIClient
     public RPackage getPackage()
     {
         return pkg;
+    }
+    
+    // Implementation for "BlueJPropStringSource" interface
+    
+    public String getBlueJPropertyString(String property, String def)
+    {
+        try {
+            return blueJ.getBlueJPropertyString(property, def);
+        }
+        catch (RemoteException re) {
+            return def;
+        }
+    }
+
+    public String getLabel(String key)
+    {
+        try {
+            return blueJ.getLabel(key);
+        }
+        catch (RemoteException re) {
+            return key;
+        }
     }
 }
