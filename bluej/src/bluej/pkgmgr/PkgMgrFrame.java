@@ -30,7 +30,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2227 2003-10-28 02:08:15Z ajp $
+ * @version $Id: PkgMgrFrame.java 2232 2003-10-28 05:18:53Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -936,7 +936,6 @@ public class PkgMgrFrame extends JFrame
     public void doClose(boolean keepLastFrame)
     {
         doSave();
-        closePackage();
 
         // If only one frame and this was from the menu
         // "close", close should close existing package rather
@@ -944,13 +943,16 @@ public class PkgMgrFrame extends JFrame
 
         if(frameCount() == 1) {
             if(keepLastFrame) {        // close package, leave frame
+                closePackage();
                 updateWindowTitle();
                 updateRecentProjects();
             }
             else {                      // all frames gone, lets quit
+                Debug.message("doQuit called");
                 doQuit();
             }
-        } else {                          // remove package and frame
+        } else {
+            closePackage();                          // remove package and frame
             PkgMgrFrame.closeFrame(this);
         }
     }
