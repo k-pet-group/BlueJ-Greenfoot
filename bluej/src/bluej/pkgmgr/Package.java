@@ -9,7 +9,6 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
-//import bluej.editor.moe.MoeEditorManager;
 import bluej.graph.Graph;
 import bluej.graph.Vertex;
 import bluej.utility.*;
@@ -35,7 +34,7 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1258 2002-06-26 01:04:25Z ajp $
+ * @version $Id: Package.java 1296 2002-08-01 11:00:21Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1814,11 +1813,13 @@ public class Package extends Graph
     public void exceptionMessage(List stack, String message,
                                  boolean invalidate)
     {
-        if(stack.size() == 0) {
-            Debug.reportError("Stack missing in exception event");
+        if((stack == null ) || (stack.size() == 0)) {
+            Debug.message("Stack missing in exception event");
+            Debug.message("exc message: " + message);
             return;
         }
 
+        // using the stack, try to find the source code
         boolean done = false;
         Iterator iter = stack.iterator();
         boolean firstTime = true;
