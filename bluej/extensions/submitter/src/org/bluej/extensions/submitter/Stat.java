@@ -16,6 +16,7 @@ public class Stat
   // It is OK to have it here since there are really ONE properties running per thread...
   // You MUST be carefull with threading, however....
   public SubmissionProperties submiProp=null;
+  public GlobalProp globalProp=null;
 
 
   public static final int SVC_PROP=0x00000001;
