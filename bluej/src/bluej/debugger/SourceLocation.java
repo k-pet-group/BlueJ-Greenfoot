@@ -1,10 +1,10 @@
 package bluej.debugger;
 
 /**
- * This class a location in some source code
+ * This class holds a location in some source code
  *
  * @author  Michael Kolling
- * @version $Id: SourceLocation.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: SourceLocation.java 2072 2003-06-26 04:49:58Z ajp $
  */
 public final class SourceLocation
 {

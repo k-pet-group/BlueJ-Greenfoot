@@ -3,7 +3,6 @@ package bluej.debugger.jdi;
 import java.io.File;
 import java.util.*;
 
-import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
 import bluej.Config;
@@ -29,7 +28,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2063 2003-06-25 07:03:00Z ajp $
+ * @version $Id: JdiDebugger.java 2072 2003-06-26 04:49:58Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -40,7 +39,7 @@ public class JdiDebugger extends Debugger
 	// the reference to the current remote VM handler
 	private VMReference vmRef;
 	
-	// the thread that we spawned to load the current remote VM
+	// the thread that we spawn to load the current remote VM
 	private MachineLoaderThread machineLoader;
 
 	// a TreeModel exposing all the JdiThreads in the VM
@@ -76,11 +75,14 @@ public class JdiDebugger extends Debugger
 	/**
 	 * Start debugging.
 	 */
-	public void launch()
+	public synchronized void launch()
 	{
 		if (vmReady)
 			throw new IllegalStateException("JdiDebugger.launch() was called but the debugger was already loaded");
 
+		if (machineLoader != null)
+			throw new IllegalStateException("JdiDebugger.launch() was called we were already in the process of launching");
+		
 		raiseStateChangeEvent(Debugger.UNKNOWN, Debugger.NOTREADY);
 
 		// start the MachineLoader (a separate thread) to load the
@@ -94,8 +96,13 @@ public class JdiDebugger extends Debugger
 	/**
 	 * Finish debugging.
 	 */
-	public void close()
-	{	
+	public synchronized void close()
+	{
+		// if we are already closing or not started up yet
+		// we have nothing to do
+		if (vmReady == false)
+			return;
+				
 		vmReady = false;
 
 		raiseStateChangeEvent(Debugger.IDLE, Debugger.NOTREADY);
@@ -108,6 +115,9 @@ public class JdiDebugger extends Debugger
 		vmRef.close();
 		vmRef = null;
 
+		// promote garbage collection but also indicate to the
+		// launch procedure that we are not in a launch (see launch())
+		machineLoader = null;
 	}
 
 	/**
@@ -385,7 +395,7 @@ public class JdiDebugger extends Debugger
     public DebuggerObject getStaticValue(String className, String fieldName)
     	throws ClassNotFoundException
     {
-		//Debug.message("[getStaticValue] " + className + ", " + fieldName);
+		// Debug.message("[getStaticValue] " + className + ", " + fieldName);
 		ObjectReference ob = getVM().getStaticValue(className, fieldName);
 		
 		if (ob != null)
@@ -461,7 +471,7 @@ public class JdiDebugger extends Debugger
      */
     public String toggleBreakpoint(String className, int line, boolean set)
     {
-        Debug.message("[toggleBreakpoint]: " + className + " line " + line);
+        // Debug.message("[toggleBreakpoint]: " + className + " line " + line);
 
         try {
             if(set) {
@@ -470,9 +480,6 @@ public class JdiDebugger extends Debugger
             else {
                 return getVM().clearBreakpoint(className, line);
             }
-        }
-        catch(AbsentInformationException e) {
-            return Config.getString("debugger.jdiDebugger.noLineNumberMsg");
         }
         catch(Exception e) {
             Debug.reportError("breakpoint error: " + e);
@@ -582,11 +589,12 @@ public class JdiDebugger extends Debugger
 			vmRef.waitForStartup();
 		
 			vmReady = true;
-	
+
 			newClassLoader(startingDirectory.getAbsolutePath());
-				
-			notifyAll();	// wake any internal getVM() calls that
-							// are waiting for us to finish
+
+			// wake any internal getVM() calls that
+			// are waiting for us to finish				
+			notifyAll();	
 
 			raiseStateChangeEvent(Debugger.NOTREADY, Debugger.IDLE);
 		 }

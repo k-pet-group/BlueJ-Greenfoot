@@ -13,7 +13,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2064 2003-06-25 09:53:41Z mik $
+ * @version $Id: JdiThread.java 2072 2003-06-26 04:49:58Z ajp $
  */
 class JdiThread extends DebuggerThread
 {
@@ -213,6 +213,9 @@ class JdiThread extends DebuggerThread
      *
      * The thread must be suspended to do this. Otherwise an empty list
      * is returned.
+     * 
+     * If the fileName for a source location is unavailable, the location
+     * will not be added to the stack.
      *
      * @return  A List of SourceLocations
      */
@@ -226,29 +229,34 @@ class JdiThread extends DebuggerThread
                 for(int i = 0; i < frames.size(); i++) {
                     StackFrame f = (StackFrame)frames.get(i);
                     Location loc = f.location();
-                    String classname = loc.declaringType().name();
+                    String className = loc.declaringType().name();
 
-                    //
-                    if(JavaNames.getBase(classname).startsWith("__SHELL"))
+                    // must getBase on classname so that we find __SHELL
+                    // classes in other packages ie a.b.__SHELL
+					// if it is a __SHELL class, stop processing the stack
+                    if(JavaNames.getBase(className).startsWith("__SHELL"))
                         break;
 
-                    String filename = loc.sourceName();
-                    String methodname = loc.method().name();
+					String fileName = null;
+					try {
+						fileName = loc.sourceName();
+					}
+					catch(AbsentInformationException e) {
+						continue;
+					}
+                    String methodName = loc.method().name();
                     int lineNumber = loc.lineNumber();
 
-                    stack.add(new SourceLocation(classname, filename,
-                                                 methodname, lineNumber));
+                    stack.add(new SourceLocation(className, fileName,
+                                                 methodName, lineNumber));
                 }
                 return stack;
             }
         }
         catch(IncompatibleThreadStateException e) {
-            e.printStackTrace();
-            Debug.reportError("error while getting stack info");
-        }
-        catch(AbsentInformationException e) {
-            e.printStackTrace();
-            Debug.reportError("error while getting stack info");
+			// this is possible if the thread state changes after
+			// our check for its suspended state
+			// lets just return an empty List
         }
         return new ArrayList();
     }

@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2063 2003-06-25 07:03:00Z ajp $
+ * @version $Id: VMReference.java 2072 2003-06-26 04:49:58Z ajp $
  *
  * The startup process is as follows:
  *
@@ -809,6 +809,60 @@ class VMReference
 
     // ==== code for active debugging: setting breakpoints, stepping, etc ===
 
+	/**
+	 * Find and load all classes declared in the same source file as
+	 * className and then find the Location object for the source at
+	 * the line 'line'.
+	 */
+	private Location loadClassesAndFindLine(String className, int line)
+	{
+		ReferenceType remoteClass = null;
+		try {
+			remoteClass = loadClass(className);
+		} catch (ClassNotFoundException cnfe) {
+			return null;
+		}
+
+		List allTypesInFile = new ArrayList();
+   	
+		// find all ReferenceType's declared in this source file
+		// TODO: not done properly - only already initialised inner
+		// classes will be found
+		buildNestedTypes(remoteClass, allTypesInFile);		
+
+		Iterator it = allTypesInFile.iterator();
+		while(it.hasNext()) {
+			ReferenceType r = (ReferenceType) it.next();
+
+			try {
+				List list = r.locationsOfLine(line);
+				if (list.size() > 0)
+					return (Location) list.get(0);
+			}
+			catch (AbsentInformationException aie) { }
+		}
+		return null;
+	}
+
+	/**
+	 * Recursively construct a list of all Types started with
+	 * rootType and including all its nested types.
+	 * 
+	 * @param rootType  the root to start building at
+	 * @param l         the List to add the reference types to
+	 */
+	private void buildNestedTypes(ReferenceType rootType, List l)
+	{
+		l.add(rootType);
+
+		List nestedTypes = rootType.nestedTypes();
+		Iterator it = nestedTypes.iterator();
+		while(it.hasNext()) {
+			ReferenceType r = (ReferenceType) it.next();
+			buildNestedTypes(r, l);
+		}
+	}
+
     /**
      * Set a breakpoint at a specified line in a class.
      *
@@ -819,20 +873,13 @@ class VMReference
     String setBreakpoint(String className, int line)
     	throws AbsentInformationException
     {
-        ReferenceType remoteClass = null;
-        try {
-            remoteClass = loadClass(className);
-        } catch (ClassNotFoundException cnfe) {
-            return "class " + className + " not found";
-        }
-
-        Location loc = findLocationInLine(remoteClass, line);
-        if (loc == null) {
-            return Config.getString("debugger.jdiDebugger.noCodeMsg");
-        }
+		Location location = loadClassesAndFindLine(className, line);
+		if (location == null) {
+			return Config.getString("debugger.jdiDebugger.noCodeMsg");
+		}
 
         EventRequestManager erm = machine.eventRequestManager();
-        BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
+        BreakpointRequest bpreq = erm.createBreakpointRequest(location);
         bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
         bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
         bpreq.enable();
@@ -850,23 +897,17 @@ class VMReference
     String clearBreakpoint(String className, int line)
     	throws AbsentInformationException
     {
-        ReferenceType remoteClass = null;
-        try {
-            remoteClass = loadClass(className);
-        } catch (ClassNotFoundException cnfe) {
-            return "class " + className + " not found";
-        }
-
-        Location loc = findLocationInLine(remoteClass, line);
-        if (loc == null)
-            return Config.getString("debugger.jdiDebugger.noCodeMsg");
+		Location location = loadClassesAndFindLine(className, line);
+		if (location == null) {
+			return Config.getString("debugger.jdiDebugger.noCodeMsg");
+		}
 
         EventRequestManager erm = machine.eventRequestManager();
         boolean found = false;
         List list = erm.breakpointRequests();
         for (int i = 0; i < list.size(); i++) {
             BreakpointRequest bp = (BreakpointRequest) list.get(i);
-            if (bp.location().equals(loc)) {
+            if (bp.location().equals(location)) {
                 erm.deleteEventRequest(bp);
                 found = true;
             }
@@ -1141,19 +1182,6 @@ class VMReference
                 "getting method " + methodName + " resulted in " + list.size() + " methods");
         }
         return (Method) list.get(0);
-    }
-
-    /**
-     * Find the first location in a given line in a class.
-     */
-    private Location findLocationInLine(ReferenceType cl, int line)
-        throws AbsentInformationException
-    {
-        List list = cl.locationsOfLine(line);
-        if (list.size() == 0)
-            return null;
-        else
-            return (Location) list.get(0);
     }
 
     /**
