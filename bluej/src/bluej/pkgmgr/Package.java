@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2039 2003-06-19 06:03:24Z ajp $
+ * @version $Id: Package.java 2047 2003-06-23 12:20:21Z mik $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -2108,6 +2108,20 @@ public final class Package extends Graph
         }
 
         return null;
+    }
+
+    /**
+     * remove the arrow representing the dependency d
+     * @param d the dependency to remove
+     */
+    public void removeArrow(Dependency d)
+    {
+        if (!(d instanceof UsesDependency)) {
+            userRemoveDependency(d);
+        }
+        removeDependency(d, true);
+        currentArrow = null;
+        getEditor().repaint();
     }
 
     // MouseListener interface - only used while deleting arrow
