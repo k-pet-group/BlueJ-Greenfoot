@@ -30,7 +30,7 @@ import java.util.StringTokenizer;
  * @author  Bruce Quig
  * @author  Michael Kolling
  *
- * @version $Id: MethodDialog.java 397 2000-02-24 03:40:40Z bquig $
+ * @version $Id: MethodDialog.java 398 2000-02-25 03:55:40Z bquig $
  */
 
 public class MethodDialog extends JDialog 
@@ -88,6 +88,31 @@ public class MethodDialog extends JDialog
         bench = pkg.getBench();
 
 
+<<<<<<< MethodDialog.java
+	// set up panel for error message
+	status = new MultiLineLabel("\n\n", LEFT_ALIGNMENT);
+	status.setForeground(new Color(136,56,56));  // dark red
+	JPanel statusPanel = new JPanel();
+	statusPanel.setMinimumSize(new Dimension(120,40));
+
+	//  // Set up Cursor bug workaround to allow a WAIT_CURSOR to be shown
+//  	Component glass = getGlassPane(); 
+//  	glass.setCursor(Cursor.getPredefinedCursor
+//  			(Cursor.WAIT_CURSOR));
+//  	glass.addMouseListener(new MouseAdapter() {
+//  	    public void mousePressed(MouseEvent e) {}
+//  	});
+	// end of Workaround
+
+	// Find out the type of dialog 
+	if( method instanceof MethodView ) {
+	    dialogType = MD_CALL;
+	    methodName = ((MethodView)method).getName();
+	}		
+	else if (method instanceof ConstructorView ) {
+	    dialogType = MD_CREATE;
+	}
+=======
         // set up panel for error message
         status = new MultiLineLabel("\n\n", LEFT_ALIGNMENT);
         status.setForeground(new Color(136,56,56));  // dark red
@@ -102,6 +127,7 @@ public class MethodDialog extends JDialog
         else if (method instanceof ConstructorView ) {
             dialogType = MD_CREATE;
         }
+>>>>>>> 1.16
 
         JPanel dialogPanel = new JPanel();
         {
@@ -671,9 +697,12 @@ public class MethodDialog extends JDialog
      * setWaitCursor - Sets the cursor to "wait" style cursor, using swing 
      *  bug workaround at present 
      */
-    public void setWaitCursor(boolean state)
+    public void setWaitCursor(boolean wait)
     {
-        getGlassPane().setVisible(state);
+        if(wait)
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        else
+            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     // -- ObjectBenchWatcher interface --
