@@ -118,9 +118,7 @@ class MethodDef extends ScopedDef implements TypedDef
                 paramnames.append(vd.getName());
                 paramnames.append(" ");
 
-                //lets not do a getinfo on these or else we get our
-                // parameter names promoted to the status of class members
-    	        //vd.getInfo(info, symbolTable);
+    	        vd.getInfo(info, symbolTable);
     	        
     	        target.append(vd.getType().getName());
     	        target.append(",");

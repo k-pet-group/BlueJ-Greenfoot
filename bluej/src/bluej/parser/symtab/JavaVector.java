@@ -113,7 +113,8 @@ public class JavaVector extends java.util.Vector {
                     d = symbolTable.findPackage(t.getText());
                 if (d != null)
                     d.addReference(new Occurrence(t.getFile(),
-                                                  t.getLine()));
+                                                  t.getLine(),
+                                                  t.getColumn()));
             } 
         }   
     }

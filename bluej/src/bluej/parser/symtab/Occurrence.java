@@ -16,7 +16,8 @@ class Occurrence implements Reportable
     private File file; 
     
     /** The line number containing the occurrence */
-    private int line; 
+    private int line;
+    private int column; 
 
 
     //==========================================================================
@@ -25,15 +26,16 @@ class Occurrence implements Reportable
     
 
     /** Constructor to define a new occurrence */
-    Occurrence(File file, int line) {
+    Occurrence(File file, int line, int column) {
         this.file = file;
         this.line = line;
+        this.column = column;
     }   
 
 
     /** return a string representation of the occurrence */
     public String getLocation() {
-        return "[" + file + ":" + line + "]";
+        return "[" + file + ":" + line + ":" + column + "]";
     }
 
 
@@ -44,6 +46,6 @@ class Occurrence implements Reportable
 
     /** return a string representation of the occurrence */
     public String toString() {
-        return "Occurrence [" + file + "," + line + "]";
+        return "Occurrence " + getLocation();
     }
 }

@@ -79,9 +79,9 @@ public class SymbolTable
         activeScopes    = new JavaStack();
         
         // Create a package object to represent java.lang
-        Occurrence o = new Occurrence(null,0);
+        Occurrence o = new Occurrence(null,0,0);
         javaLang        = new PackageDef(getUniqueName("java.lang"),
-                                          new Occurrence(null,0),null);
+                                          new Occurrence(null,0,0),null);
 
         // Create a block to hold predefined types
         baseScope = new BlockDef(null, null, null);
@@ -201,7 +201,7 @@ public class SymbolTable
             Definition d = (Definition)packages.get(packageName);
             if (d == null) {
                 d = new PackageDef(getUniqueName(packageName),
-                                   new Occurrence(currentFile, tok.getLine()),
+                                   new Occurrence(currentFile, tok.getLine(), tok.getColumn()),
                                    null);
                 packages.put(packageName, d);
             }   
@@ -213,7 +213,7 @@ public class SymbolTable
         else {
             importedClasses.put(getUniqueName(className),
                 new DummyClass(getUniqueName(className),
-                               new Occurrence(currentFile, tok.getLine()),
+                               new Occurrence(currentFile, tok.getLine(), tok.getColumn()),
                                getUniqueName(packageName)));
             reference(tok);
         }   
@@ -485,9 +485,9 @@ public class SymbolTable
     /** Create a new occurrence object */
     Occurrence getOccurrence(JavaToken tok) {
         if (tok == null)
-            return new Occurrence(null, 0);
+            return new Occurrence(null, 0, 0);
         else
-            return new Occurrence(currentFile, tok.getLine());
+            return new Occurrence(currentFile, tok.getLine(), tok.getColumn());
     }   
 
 

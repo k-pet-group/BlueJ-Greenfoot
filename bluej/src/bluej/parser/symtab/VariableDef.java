@@ -42,7 +42,9 @@ class VariableDef extends Definition implements TypedDef
 
     /** Collect information about this variable */
     public void getInfo(ClassInfo info, SymbolTable symbolTable) {
-        info.addComment(getName(), comment, null);
+
+        if (getParentScope() instanceof ClassDef)
+            info.addComment(getName(), comment, null);
 
         info.addUsed(type.getQualifiedName());
     }   

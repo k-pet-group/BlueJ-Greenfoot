@@ -150,7 +150,7 @@ abstract class ScopedDef extends Definition
         // break any of the other aspects of what we use the parser for
 
         // for method: get info about local var's
-        // getElementInfo(info, symbolTable);
+        getElementInfo(info, symbolTable);
 
         // for method: get info things referenced in statements
         if (unresolvedStuff != null)		// search refs to other syms
