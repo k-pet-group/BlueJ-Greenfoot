@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2072 2003-06-26 04:49:58Z ajp $
+ * @version $Id: ExecControls.java 2073 2003-06-26 08:49:35Z mik $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -183,7 +183,7 @@ public class ExecControls extends JFrame
         if(event.getSource() == stackList) {
             selectStackFrame(stackList.getSelectedIndex());
         }
-        // ststicList, instanceList and localList are ignored
+        // staticList, instanceList and localList are ignored
         // a single click doesn't do anything
     }
 
