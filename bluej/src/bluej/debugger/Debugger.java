@@ -13,7 +13,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Debugger.java 158 1999-07-06 14:38:39Z ajp $
+ ** @version $Id: Debugger.java 242 1999-08-19 06:43:31Z mik $
  **/
 
 public abstract class Debugger
@@ -22,6 +22,11 @@ public abstract class Debugger
     public static final int FORCED_EXIT = 1;
     public static final int EXCEPTION = 2;
     public static final int TERMINATED = 3;
+
+    // machine states
+    public static final int IDLE = 0;
+    public static final int RUNNING = 1;
+    public static final int SUSPENDED = 2;
 
     /** Creation of the real debugger used **/
     // the following line needs to be changed when the debugger 
@@ -78,9 +83,10 @@ public abstract class Debugger
 
 
     /**
-     * Return true if the remote machine is currently executing.
+     * Return the machine status; one of the "machine state" constants:
+     * (IDLE, RUNNING, SUSPENDED).
      */
-    public abstract boolean isRunning(); 
+    public abstract int getStatus(); 
 
     /**
      * Set the remote VM classpath

@@ -4,7 +4,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
- ** @version $Id: Editor.java 226 1999-08-11 07:09:24Z ajp $
+ ** @version $Id: Editor.java 242 1999-08-19 06:43:31Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  ** Interface between an editor and the rest of BlueJ
@@ -85,6 +85,12 @@ public interface Editor
      *			view constants defined above
      */
     void show(int view);
+
+
+    /**
+     *  True is the editor is on screen.
+     */
+    boolean isShowing();
 
 
     /**

@@ -288,6 +288,18 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
+     *  True is the editor is on screen.
+     */
+    public boolean isShowing()	// inherited from Editor, redefined
+    {
+	if(isVisible() != super.isShowing())
+	    Debug.message("isVisible is not isShowing!");
+	return super.isShowing();
+    }
+
+
+    // --------------------------------------------------------------------
+    /**
      *  Save the buffer to disk under current filename.  This is often called
      *  from the outside - just in case.  Save only if really necessary, 
      *  otherwise we save much too often.

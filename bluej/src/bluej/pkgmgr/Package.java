@@ -30,7 +30,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 238 1999-08-16 06:46:54Z ajp $
+ ** @version $Id: Package.java 242 1999-08-19 06:43:31Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -97,6 +97,8 @@ public class Package extends Graph
     private CallHistory callHistory; 	
     protected boolean showExtends = true;
     protected boolean showUses = true;
+
+    private String lastSourceName = "";
 
     public static final int S_IDLE = 0;
     public static final int S_CHOOSE_USES_FROM = 1;
@@ -956,7 +958,7 @@ public class Package extends Graph
      */
     private boolean checkCompile()
     {
-	if(Debugger.debugger.isRunning()) {
+	if(Debugger.debugger.getStatus() != Debugger.IDLE) {
 	    Utility.showMessage(frame, 
 				"You cannot compile while the machine\n" +
 				"is executing. This could cause strange\n" +
@@ -1516,21 +1518,33 @@ public class Package extends Graph
     }
 
     /**
+     * Don't remember the last shown source anymore.
+     */
+    public void forgetLastSource()
+    {
+	lastSourceName = "";
+    }
+
+    /**
      * A thread has hit a breakpoint or done a step. Organise display 
      * (highlight line in source, pop up exec controls).
      */
-    public void showSource(String sourcename, int lineNo, 
-			   String threadName, boolean breakpoint)
+    public boolean showSource(String sourcename, int lineNo, 
+			      String threadName, boolean breakpoint)
     {
 	String msg = " ";
 
 	if(breakpoint)
 	    msg = "Thread \"" + threadName + "\" stopped at breakpoint.";
 
+	boolean bringToFront = !sourcename.equals(lastSourceName);
+	lastSourceName = sourcename;
+
 	if(! showEditorMessage(getFileName(sourcename), lineNo, msg,
-			       false, false, null))
+			       false, false, bringToFront, null))
 	    Utility.showMessage(frame, "Breakpoint hit in file: " + 
 				sourcename + "\nCannot find file!");
+	return bringToFront;
     }
 
     /**
@@ -1539,8 +1553,9 @@ public class Package extends Graph
      * and showing the message in the editor's information area.
      */
     private boolean showEditorMessage(String filename, int lineNo, 
-				   String message, boolean invalidate, 
-				   boolean beep, String help)
+				      String message, boolean invalidate, 
+				      boolean beep, boolean bringToFront,
+				      String help)
     {
 	ClassTarget t = getTargetFromFilename(filename);
 
@@ -1552,7 +1567,8 @@ public class Package extends Graph
 	    t.unsetFlag(Target.F_QUEUED);
 	}
 
-	t.open();
+	if(bringToFront || !t.getEditor().isShowing())
+	    t.open();
 	Editor editor = t.getEditor();
 	if(editor!=null)
 	    editor.displayMessage(message, lineNo, 0, beep, false, help);
@@ -1586,7 +1602,7 @@ public class Package extends Graph
 			     boolean invalidate)
     {
 	if(! showEditorMessage(filename, lineNo, message, invalidate, true,
-			       Config.compilertype))
+			       true, Config.compilertype))
 	    Utility.showMessage(frame, "Error in file: " + filename + 
 				       ":" + lineNo + "\n" + message);
     }
@@ -1599,7 +1615,7 @@ public class Package extends Graph
 			     boolean invalidate)
     {
 	if(! showEditorMessage(filename, lineNo, message, invalidate, true, 
-			       "exception"))
+			       true, "exception"))
 	    Utility.showMessage(frame, "Error in file: " + filename + 
 				       ":" + lineNo + "\n" + message);
     }

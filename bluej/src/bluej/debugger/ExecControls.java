@@ -11,7 +11,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 215 1999-07-30 06:58:26Z mik $
+ ** @version $Id: ExecControls.java 242 1999-08-19 06:43:31Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -64,25 +64,26 @@ public class ExecControls extends JFrame
 	    setVisible(false);
 	}
 	else if(selectedThread != null) {
-	    if(obj == stopButton) {
+	    int machineStatus = Debugger.debugger.getStatus();
+	    if(obj == stopButton && machineStatus == Debugger.RUNNING) {
 		selectedThread.stop();
 		Debugger.debugger.threadStopped(selectedThread);
 		updateThreads();
 	    }
-	    else if(obj == stepButton) {
+	    else if(obj == stepButton && machineStatus == Debugger.SUSPENDED) {
 		Debugger.debugger.threadContinued(selectedThread);
 		selectedThread.step();
 	    }
-	    else if(obj == stepIntoButton) {
+	    else if(obj==stepIntoButton && machineStatus==Debugger.SUSPENDED) {
 		Debugger.debugger.threadContinued(selectedThread);
 		selectedThread.stepInto();
 	    }
-	    else if(obj == continueButton) {
+	    else if(obj==continueButton && machineStatus==Debugger.SUSPENDED) {
 		Debugger.debugger.threadContinued(selectedThread);
 		selectedThread.cont();
 		updateThreads();
 	    }
-	    else if(obj == terminateButton) {
+	    else if(obj == terminateButton && machineStatus != Debugger.IDLE) {
 		Debugger.debugger.threadContinued(selectedThread);
 		selectedThread.terminate();
 	    }
@@ -135,30 +136,27 @@ public class ExecControls extends JFrame
 	DefaultListModel listModel = (DefaultListModel)threadList.getModel();
 	listModel.removeAllElements();
 
-//  	if(Debugger.debugger.isRunning()) {
-//  	    // machine is currently running - can't inspect
-//  	    listModel.addElement("(machine is running)");
-//  	}
-//  	else {
-	    threads = Debugger.debugger.listThreads();
-	    if(threads == null) {
-		Debug.reportError("cannot get thread info!");
-		listModel.addElement("(error: cannot list threads)");
+	threads = Debugger.debugger.listThreads();
+	if(threads == null) {
+	    Debug.reportError("cannot get thread info!");
+	    listModel.addElement("(error: cannot list threads)");
+	}
+	else {
+	    for(int i = 0; i < threads.size(); i++) {
+		DebuggerThread thread = (DebuggerThread)threads.get(i);
+		String status = thread.getStatus();
+		if(! status.equals("finished"))
+		    listModel.addElement(thread.getName() + " [" + status + "]");
 	    }
-	    else {
-		for(int i = 0; i < threads.size(); i++) {
-		    DebuggerThread thread = (DebuggerThread)threads.get(i);
-		    String status = thread.getStatus();
-		    if(! status.equals("finished"))
-			listModel.addElement(thread.getName() + " [" +
-					     status + "]");
-		}
-	    }
-	    if(listModel.getSize() > 0)
-		threadList.setSelectedIndex(0);  // select the first one
-	    else
-		clearThreadDetails();
-//  	}
+	}
+	if(listModel.getSize() > 0) {
+	    threadList.setSelectedIndex(0);  // select the first one
+	    setButtonsEnabled(true);
+	}
+	else {
+	    clearThreadDetails();
+	    setButtonsEnabled(false);
+	}
     }
 	
     private void selectThread(int index)
@@ -359,4 +357,14 @@ public class ExecControls extends JFrame
 	panel.add(button);
 	return button;
     }
+
+    private void setButtonsEnabled(boolean enable)
+    {
+	stopButton.setEnabled(enable);
+	stepButton.setEnabled(enable);
+	stepIntoButton.setEnabled(enable);
+	continueButton .setEnabled(enable);
+	terminateButton.setEnabled(enable);
+    }
+
 }

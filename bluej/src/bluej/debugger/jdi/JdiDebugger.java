@@ -92,8 +92,6 @@ public final class JdiDebugger extends Debugger
     // name of the threadgroup that contains user threads
     static final String MAIN_THREADGROUP = "main";
 
-
-
     private Process process = null;
     private VMEventHandler eventHandler = null;
 
@@ -102,7 +100,7 @@ public final class JdiDebugger extends Debugger
     private Method performTaskMethod = null;
     private ThreadReference serverThread = null;
     volatile private boolean initialised = false;
-    private boolean machineIsRunning = false;
+    private int machineStatus = IDLE;
 
     private int exitStatus;
     private ExceptionDescription lastException;
@@ -295,11 +293,12 @@ public final class JdiDebugger extends Debugger
 
 
     /**
-     * Return true if the remote machine is currently executing.
+     * Return the machine status; one of the "machine state" constants:
+     * (IDLE, RUNNING, SUSPENDED).
      */
-    public boolean isRunning()
+    public int getStatus()
     {
-	return machineIsRunning;
+	return machineStatus;
     }
 
 
@@ -334,7 +333,7 @@ public final class JdiDebugger extends Debugger
 	    // in which package (although, currently, there is always only
 	    // one thread at a time, the serverThread).
 	    activeThreads.put(serverThread, eventParam);
-	    machineIsRunning = true;
+	    machineStatus = RUNNING;
 
   	    Value returnVal = shellClass.invokeMethod(serverThread, 
 						      runMethod, 
@@ -361,7 +360,7 @@ public final class JdiDebugger extends Debugger
 					"Cannot execute remote command",
 					null, 0);
   	}
-	machineIsRunning = false;
+	machineStatus = IDLE;
 	activeThreads.remove(serverThread);
     }
 
@@ -636,7 +635,7 @@ public final class JdiDebugger extends Debugger
 	else {
 	    // breakpoint set by user in user code
 
-	    machineIsRunning = false;
+	    machineStatus = SUSPENDED;
 	    ThreadReference remoteThread = event.thread();
 	    Object pkg = activeThreads.get(remoteThread);
 	    if(pkg == null)
@@ -756,6 +755,7 @@ public final class JdiDebugger extends Debugger
      */
     public void threadStopped(DebuggerThread thread)
     {
+	machineStatus = SUSPENDED;
 	raiseEvent(BlueJEvent.HALT, thread);
     }
 
@@ -765,6 +765,7 @@ public final class JdiDebugger extends Debugger
      */
     public void threadContinued(DebuggerThread thread)
     {
+	machineStatus = RUNNING;
 	raiseEvent(BlueJEvent.CONTINUE, thread);
     }
 

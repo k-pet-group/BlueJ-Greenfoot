@@ -1,6 +1,6 @@
 /**
  ** bluej.debugger ObjectWrapper.java
- ** $Id: ObjectWrapper.java 158 1999-07-06 14:38:39Z ajp $
+ ** $Id: ObjectWrapper.java 242 1999-08-19 06:43:31Z mik $
  **
  ** A wrapper around a Java object that handles calling methods, inspecting, 
  ** etc. The wrapper is represented by the red oval that is visible on the
@@ -324,7 +324,8 @@ public class ObjectWrapper extends JComponent implements ActionListener
     private void executeMethod(MethodView method)
     {
 	ResultWatcher watcher = null;
-			
+
+	pkg.forgetLastSource();
 	if(!method.isVoid())
 	    watcher = new ResultWatcher() {
 		public void putResult(DebuggerObject result, String name)

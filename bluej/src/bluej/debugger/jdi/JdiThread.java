@@ -280,7 +280,6 @@ public final class JdiThread extends DebuggerThread
 	return selectedFrame;
     }
 
-
     public void stop()
     {
 	if(!rt.isSuspended())
