@@ -12,49 +12,68 @@ import bluej.utility.Debug;
  * The panel that displays objects at the bottom of the package manager
  *
  * @author  Michael Cahill
- * @version $Id: ObjectBench.java 1065 2002-01-07 06:08:42Z ajp $
+ * @version $Id: ObjectBench.java 1369 2002-10-11 14:57:48Z mik $
  */
 public class ObjectBench extends JPanel
 {
     static final int WIDTH = 3 * (ObjectWrapper.WIDTH + 10);
-    static final int HEIGHT = ObjectWrapper.HEIGHT + 10;
+    static final int HEIGHT = ObjectWrapper.HEIGHT;
 
+    /**
+     * Create a new, empty object bench.
+     */
     public ObjectBench()
     {
         setLayout(new FlowLayout(FlowLayout.LEFT));
     }
 
+    /**
+     * Return the minimum size that this bench wants to have.
+     */
     public Dimension getMinimumSize()
     {
         Dimension minSize = super.getMinimumSize();
         minSize.width = Math.max(minSize.width, WIDTH);
-        minSize.height = Math.max(minSize.height, HEIGHT);
+//        minSize.height = Math.max(minSize.height, HEIGHT);
+        minSize.height = HEIGHT;
         return minSize;
     }
 
+    /**
+     * Return the preferred size that this bench wants to have.
+     */
     public Dimension getPreferredSize()
     {
         Dimension prefSize = super.getPreferredSize();
         prefSize.width = Math.max(prefSize.width, WIDTH);
-        prefSize.height = Math.max(prefSize.height, HEIGHT);
+//        prefSize.height = Math.max(prefSize.height, HEIGHT);
+        prefSize.height = HEIGHT;
         return prefSize;
     }
 
-    /**
+    /*
      * This component will raise ObjectBenchEvents when nodes are
      * selected in the bench. The following functions manage this.
      */
 
+    /**
+     * Add an event listener to this bench.
+     */
     public void addObjectBenchListener(ObjectBenchListener l) {
         listenerList.add(ObjectBenchListener.class, l);
     }
 
+    /**
+     * Remove an event listener from this bench.
+     */
     public void removeObjectBenchListener(ObjectBenchListener l) {
         listenerList.remove(ObjectBenchListener.class, l);
     }
 
-    // notify all listeners that have registered interest for
-    // notification on this event type.
+    /**
+     * Notify all listeners that have registered interest for
+     * notification on this event type.
+     */
     void fireObjectEvent(ObjectWrapper wrapper)
     {
         // guaranteed to return a non-null array
@@ -70,6 +89,9 @@ public class ObjectBench extends JPanel
         }
     }
 
+    /**
+     * Add an object (in the form of an ObjectWrapper) to this bench.
+     */
     public void add(ObjectWrapper wrapper)
     {
         // check whether name is already taken

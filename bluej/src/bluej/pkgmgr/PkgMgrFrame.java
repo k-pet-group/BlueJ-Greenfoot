@@ -39,7 +39,7 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1359 2002-10-07 19:52:18Z mik $
+ * @version $Id: PkgMgrFrame.java 1369 2002-10-11 14:57:48Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, 
@@ -1671,21 +1671,22 @@ public class PkgMgrFrame extends JFrame
         JPanel bottomPanel = new JPanel();
         {
             bottomPanel.setLayout(new BorderLayout());
-
-            JScrollPane objScroller = new JScrollPane(objbench = new ObjectBench());
+            objbench = new ObjectBench();
+            
+            JScrollPane objScroller = new JScrollPane(objbench);
             {
                 objScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
             }
 
-            bottomPanel.add("North", objScroller);
-            bottomPanel.add("South", statusbar);
+            bottomPanel.add(objScroller, BorderLayout.NORTH);
+            bottomPanel.add(statusbar, BorderLayout.SOUTH);
         }
 
-        mainPanel.add("West", toolPanel);
-        mainPanel.add("South", bottomPanel);
+        mainPanel.add(toolPanel, BorderLayout.WEST);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         classScroller = new JScrollPane();
-        mainPanel.add(classScroller, "Center");
+        mainPanel.add(classScroller, BorderLayout.CENTER);
         classScroller.setPreferredSize(new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT));
 
         getContentPane().add(mainPanel);
