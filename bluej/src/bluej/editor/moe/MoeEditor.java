@@ -1698,10 +1698,11 @@ public final class MoeEditor extends JFrame
 
             if(reload) {
                 try {
-                    FileReader reader = new FileReader(getDocPath());
-                    htmlPane.read(reader, null);
-                    reader.close();
-                    
+//                     FileReader reader = new FileReader(getDocPath());
+//                     htmlPane.read(reader, null);
+//                     reader.close();
+                    htmlPane.setPage("file://" + getDocPath());
+
                     htmlDocument = (HTMLDocument)htmlPane.getDocument();
                     htmlDocument.setBase(new URL("file://" + getDocPath()));
                     info.message(Config.getString("editor.info.docLoaded"));
