@@ -46,8 +46,10 @@ public class MoeCaret extends DefaultCaret
     {
         if(e.getID() == MouseEvent.MOUSE_PRESSED)
             Debug.message("mouse pressed");
-        if(e.getID() == MouseEvent.MOUSE_RELEASED)
+        else if(e.getID() == MouseEvent.MOUSE_RELEASED)
             Debug.message("mouse released");
+        else 
+            Debug.message("other mouse event");
         editor.caretMoved();
         Point pt = new Point(e.getX(), e.getY());
         Position.Bias[] biasRet = new Position.Bias[1];
