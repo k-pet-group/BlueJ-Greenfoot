@@ -110,10 +110,8 @@ prefmgr.misc.linkToLib=Use this URL when generating project documentation
 prefmgr.misc.linkToLibNoteLine1=If this URL is used for generating documentation, it must be correct and accessible.
 prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail. To work offline, uncheck this option.
 
-# Features Panel
-prefmgr.features.title=Features
-
 # Extensions Manager Help panel
+extmgr.title=Installed Extensions
 extmgr.extensions=Extensions
 extmgr.installed=Installed
 extmgr.project=Project
@@ -127,8 +125,10 @@ extmgr.details.name=Name
 extmgr.details.location=Location
 extmgr.details.type=Type
 extmgr.details.version=Version
-extmgr.details.date=Date
+extmgr.details.date=Built date
 extmgr.details.url=URL
+extmgr.details.menus=Menus
+extmgr.details.preferences=Preferences
 extmgr.details.description=Description
 
 extmgr.status.notused=Not used
@@ -137,6 +137,12 @@ extmgr.status.error=Error
 extmgr.status.unloaded=Unloaded
 extmgr.version.unknown=Unknown
 extensions.nodescription=None given.
+
+# Extension errors
+extmgr.error.nomanifest=No manifest file
+extmgr.error.nomain=Manifest does not contain Main-Class attribute
+extmgr.error.notsubclass=Main class is not a subclass of Extension
+extmgr.error.cannotload=Extension could not be loaded
 
 #---------------
 #Editor labels
@@ -508,6 +514,7 @@ menu.help=Help
 menu.help.about=About BlueJ
 menu.help.extensions=Installed Extensions
 menu.help.versionCheck=Check Version...
+menu.help.extensions=Installed Extensions
 menu.help.copyright=Copyright
 menu.help.website=BlueJ Web Site
 menu.help.tutorial=BlueJ Tutorial

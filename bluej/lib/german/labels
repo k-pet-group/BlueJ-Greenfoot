@@ -110,6 +110,39 @@ prefmgr.misc.linkToLib=Diesen URL für die Erstellung der Interface-Doku benutzen
 prefmgr.misc.linkToLibNoteLine1=Wenn dieser URL für die Erstellung der Interface-Doku benutzt wird, muss er korrekt und erreichbar sein.
 prefmgr.misc.linkToLibNoteLine2=Andernfalls wird die Erstellung der Interface-Doku fehlschlagen. Deaktivieren Sie diese Option für Offline-Betrieb.
 
+# Extensions Manager Help panel
+extmgr.title=Installiert Erweiterungen
+extmgr.extensions=Erweiterungen
+extmgr.installed=Installiert
+extmgr.project=Projekt
+extmgr.statuscolumn=Status
+extmgr.namecolumn=Name
+extmgr.typecolumn=Typ
+extmgr.versioncolumn=Version
+extmgr.details=Detailen
+extmgr.details.status=Status
+extmgr.details.name=Name
+extmgr.details.location=Ort
+extmgr.details.type=Typ
+extmgr.details.version=Version
+extmgr.details.date=Baudatum
+extmgr.details.url=URL
+extmgr.details.description=Beschreibung
+extmgr.details.menus=Menupunkt
+
+extmgr.status.notused=Nicht verwendet
+extmgr.status.loaded=Geladen
+extmgr.status.error=Fehler
+extmgr.status.unloaded=Nicht geladen
+extmgr.version.unknown=Unbekannt
+extensions.nodescription=Keine Beschreibung
+
+# Extension errors
+extmgr.error.nomanifest=Keine Manifest Datei
+extmgr.error.nomain=Manifest enthält kein Main-Class Attribut
+extmgr.error.notsubclass=Hauptklasse ist keine Unterklasse der Erweiterung
+extmgr.error.cannotload=Erweiterung konnte nicht geladen werden
+
 #---------------
 #Editor labels
 #---------------
