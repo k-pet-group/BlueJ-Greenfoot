@@ -4,9 +4,6 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 
 import javax.swing.JEditorPane;
-import javax.swing.KeyStroke;
-import javax.swing.TransferHandler;
-import javax.swing.text.Document;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.Element;
 
@@ -18,7 +15,7 @@ import bluej.editor.moe.BlueJSyntaxView;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 2798 2004-07-14 16:22:29Z mik $
+ * @version $Id: TextEvalPane.java 2833 2004-08-04 13:52:47Z mik $
  */
 public class TextEvalPane extends JEditorPane {
 
@@ -35,9 +32,8 @@ public class TextEvalPane extends JEditorPane {
      */
     public void scrollRectToVisible(Rectangle rect)
     {
-        rect.x -= BlueJSyntaxView.TAG_WIDTH + 4;
-        rect.width += BlueJSyntaxView.TAG_WIDTH + 4;
-        super.scrollRectToVisible(rect);
+        super.scrollRectToVisible(new Rectangle(rect.x - (BlueJSyntaxView.TAG_WIDTH + 4), rect.y,
+                rect.width + BlueJSyntaxView.TAG_WIDTH + 4, rect.height));
     }
     
     /**

@@ -30,7 +30,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 2832 2004-08-04 13:02:35Z mik $
+ * @version $Id: BlueJSyntaxView.java 2833 2004-08-04 13:52:47Z mik $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -350,5 +350,4 @@ public abstract class BlueJSyntaxView extends PlainView
         }
         return r;
     }
-
 }

@@ -35,8 +35,7 @@ public class MoeEditorPane extends JEditorPane
      */
     public void scrollRectToVisible(Rectangle rect)
     {
-        rect.x -= BlueJSyntaxView.TAG_WIDTH + 4;
-        rect.width += BlueJSyntaxView.TAG_WIDTH + 4;
-        super.scrollRectToVisible(rect);
+        super.scrollRectToVisible(new Rectangle(rect.x - (BlueJSyntaxView.TAG_WIDTH + 4), rect.y,
+                                                rect.width + BlueJSyntaxView.TAG_WIDTH + 4, rect.height));
     }
 }
