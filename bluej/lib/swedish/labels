@@ -206,15 +206,17 @@ pkgmgr.info.printed = Printing... Done.
 
 # dialog titles and texts
 
-pkgmgr.newPkg.title=Nytt Paket
+pkgmgr.newPkg.title=Nytt Projekt
 pkgmgr.newPkg.buttonLabel=Skapa
-pkgmgr.openPkg.title=Öppna Paket
-pkgmgr.openPkg.buttonLabel=Öppna i BlueJ
-pkgmgr.saveAs.title=Spara Paket
+pkgmgr.openPkg.title=Öppna Projekt
+pkgmgr.openPkg.buttonLabel=Öppna
+pkgmgr.openNonBlueJPkg.title=Öppna Non-BlueJ Projekt
+pkgmgr.openNonBlueJPkg.buttonLabel=Öppna i BlueJ
+pkgmgr.saveAs.title=Spara Projekt
 pkgmgr.saveAs.buttonLabel=Spara
 pkgmgr.addClass.title=Välj Java Klass att lägga till
 pkgmgr.addClass.buttonLabel=Lägg Till
-pkgmgr.importPkg.title=Importera Paket
+pkgmgr.importPkg.title=Select Directory to Import
 pkgmgr.importPkg.buttonLabel=Importera
 pkgmgr.importPkgNew.title=Nytt Projekt att importera till
 pkgmgr.importPkgNew.buttonLabel=Skapa
