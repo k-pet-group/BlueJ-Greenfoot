@@ -12,7 +12,7 @@ import bluej.testmgr.record.InvokerRecord;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 2778 2004-07-12 03:06:37Z bquig $
+ * @version $Id: AssertPanel.java 2948 2004-08-25 15:51:37Z polle $
  */
 public class AssertPanel extends JPanel
 {
@@ -207,6 +207,13 @@ public class AssertPanel extends JPanel
         int i = 0;
         while (st.hasMoreTokens() && i<3) {
             tokens[i++] = st.nextToken();
+        }
+         
+        //For a String with spaces, we want the rest to be added as well.
+        if(st.hasMoreTokens()) {
+            //find the index of the last token, and add all from there.
+            int startIndex = resultString.indexOf(tokens[2]);
+            tokens[2] = resultString.substring(startIndex);
         }
         
         // floats and doubles, we calculate a delta
