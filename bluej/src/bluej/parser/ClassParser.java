@@ -1,23 +1,23 @@
-/*
- * ANTLR-generated file resulting from grammar java.g
- * 
- * Terence Parr, MageLang Institute
- * ANTLR Version 2.6.1; 1989-1999
- */
+// $ANTLR 2.7.0: "java.g" -> "ClassParser.java"$
 
 package bluej.parser;
 
-import java.io.IOException;
 import antlr.TokenBuffer;
+import antlr.TokenStreamException;
+import antlr.TokenStreamIOException;
+import antlr.ANTLRException;
 import antlr.LLkParser;
 import antlr.Token;
 import antlr.TokenStream;
-import antlr.ParserException;
+import antlr.RecognitionException;
 import antlr.NoViableAltException;
 import antlr.MismatchedTokenException;
 import antlr.SemanticException;
 import antlr.ParserSharedInputState;
 import antlr.collections.impl.BitSet;
+import antlr.collections.AST;
+import antlr.ASTPair;
+import antlr.collections.impl.ASTArray;
 
 import bluej.utility.Debug;
 import bluej.parser.symtab.SymbolTable;
@@ -286,7 +286,7 @@ public ClassParser(ParserSharedInputState state) {
   tokenNames = _tokenNames;
 }
 
-	public final void compilationUnit() throws ParserException, IOException {
+	public final void compilationUnit() throws RecognitionException, TokenStreamException {
 		
 		
 		{
@@ -320,7 +320,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
@@ -354,7 +354,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void packageDefinition() throws ParserException, IOException {
+	public final void packageDefinition() throws RecognitionException, TokenStreamException {
 		
 		Token  pkg = null;
 		Token  sem = null;
@@ -376,7 +376,7 @@ public ClassParser(ParserSharedInputState state) {
 				
 			}
 		}
-		catch (ParserException ex) {
+		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
 				reportError(ex);
 				consume();
@@ -387,7 +387,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void importDefinition() throws ParserException, IOException {
+	public final void importDefinition() throws RecognitionException, TokenStreamException {
 		
 		
 		try {      // for error handling
@@ -395,7 +395,7 @@ public ClassParser(ParserSharedInputState state) {
 			identifierStar();
 			match(SEMI);
 		}
-		catch (ParserException ex) {
+		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
 				reportError(ex);
 				consume();
@@ -406,7 +406,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void typeDefinition() throws ParserException, IOException {
+	public final void typeDefinition() throws RecognitionException, TokenStreamException {
 		
 		JavaBitSet mods;
 		JavaToken commentToken = null;
@@ -445,7 +445,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 				default:
 				{
-					throw new NoViableAltException(LT(1));
+					throw new NoViableAltException(LT(1), getFilename());
 				}
 				}
 				}
@@ -458,11 +458,11 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 		}
-		catch (ParserException ex) {
+		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
 				reportError(ex);
 				consume();
@@ -473,7 +473,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final JavaToken  identifier() throws ParserException, IOException {
+	public final JavaToken  identifier() throws RecognitionException, TokenStreamException {
 		JavaToken t;
 		
 		Token  id1 = null;
@@ -505,7 +505,7 @@ public ClassParser(ParserSharedInputState state) {
 		return t;
 	}
 	
-	public final void identifierStar() throws ParserException, IOException {
+	public final void identifierStar() throws RecognitionException, TokenStreamException {
 		
 		Token  id = null;
 		Token  id2 = null;
@@ -550,7 +550,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
@@ -570,7 +570,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final JavaBitSet  modifiers() throws ParserException, IOException {
+	public final JavaBitSet  modifiers() throws RecognitionException, TokenStreamException {
 		JavaBitSet mods;
 		
 		mods = new JavaBitSet();
@@ -592,7 +592,7 @@ public ClassParser(ParserSharedInputState state) {
 	
 	public final void classDefinition(
 		JavaBitSet mods, JavaToken commentToken
-	) throws ParserException, IOException {
+	) throws RecognitionException, TokenStreamException {
 		
 		Token  id = null;
 		Token  ex = null;
@@ -643,7 +643,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
@@ -660,7 +660,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
@@ -681,7 +681,7 @@ public ClassParser(ParserSharedInputState state) {
 	
 	public final void interfaceDefinition(
 		JavaBitSet mods, JavaToken commentToken
-	) throws ParserException, IOException {
+	) throws RecognitionException, TokenStreamException {
 		
 		Token  id = null;
 		
@@ -713,7 +713,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
@@ -729,7 +729,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void declaration() throws ParserException, IOException {
+	public final void declaration() throws RecognitionException, TokenStreamException {
 		
 		JavaToken type;
 		
@@ -738,7 +738,7 @@ public ClassParser(ParserSharedInputState state) {
 		variableDefinitions(type, null);
 	}
 	
-	public final JavaToken  typeSpec() throws ParserException, IOException {
+	public final JavaToken  typeSpec() throws RecognitionException, TokenStreamException {
 		JavaToken t;
 		
 		t=null;
@@ -767,7 +767,7 @@ public ClassParser(ParserSharedInputState state) {
 	
 	public final void variableDefinitions(
 		JavaToken type, JavaToken commentToken
-	) throws ParserException, IOException {
+	) throws RecognitionException, TokenStreamException {
 		
 		
 		variableDeclarator(type, commentToken);
@@ -788,7 +788,7 @@ public ClassParser(ParserSharedInputState state) {
 	
 	public final void modifier(
 		JavaBitSet mods
-	) throws ParserException, IOException {
+	) throws RecognitionException, TokenStreamException {
 		
 		
 		switch ( LA(1)) {
@@ -861,12 +861,12 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 	}
 	
-	public final JavaToken  type() throws ParserException, IOException {
+	public final JavaToken  type() throws RecognitionException, TokenStreamException {
 		JavaToken t;
 		
 		t=null;
@@ -892,13 +892,13 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		return t;
 	}
 	
-	public final JavaToken  builtInType() throws ParserException, IOException {
+	public final JavaToken  builtInType() throws RecognitionException, TokenStreamException {
 		JavaToken t;
 		
 		Token  bVoid = null;
@@ -996,7 +996,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		return t;
@@ -1004,7 +1004,7 @@ public ClassParser(ParserSharedInputState state) {
 	
 	public final Selection  implementsClause(
 		JavaVector interfaces, Vector interfaceSelections
-	) throws ParserException, IOException {
+	) throws RecognitionException, TokenStreamException {
 		Selection implementsInsert;
 		
 		Token  im = null;
@@ -1051,7 +1051,7 @@ public ClassParser(ParserSharedInputState state) {
 		return implementsInsert;
 	}
 	
-	public final void classBlock() throws ParserException, IOException {
+	public final void classBlock() throws RecognitionException, TokenStreamException {
 		
 		
 		match(LCURLY);
@@ -1104,7 +1104,7 @@ public ClassParser(ParserSharedInputState state) {
 	
 	public final Selection  interfaceExtends(
 		JavaVector interfaces, Vector interfaceSelections
-	) throws ParserException, IOException {
+	) throws RecognitionException, TokenStreamException {
 		Selection extendsInsert;
 		
 		Token  ex = null;
@@ -1151,7 +1151,7 @@ public ClassParser(ParserSharedInputState state) {
 		return extendsInsert;
 	}
 	
-	public final void field() throws ParserException, IOException {
+	public final void field() throws RecognitionException, TokenStreamException {
 		
 		JavaToken type;
 		JavaToken commentToken = null;
@@ -1200,7 +1200,7 @@ public ClassParser(ParserSharedInputState state) {
 						}
 						default:
 						{
-							throw new NoViableAltException(LT(1));
+							throw new NoViableAltException(LT(1), getFilename());
 						}
 						}
 						}
@@ -1210,13 +1210,13 @@ public ClassParser(ParserSharedInputState state) {
 						match(SEMI);
 					}
 					else {
-						throw new NoViableAltException(LT(1));
+						throw new NoViableAltException(LT(1), getFilename());
 					}
 					
 					}
 				}
 			else {
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 			}
@@ -1229,14 +1229,14 @@ public ClassParser(ParserSharedInputState state) {
 			compoundStatement(INSTANCE_INIT);
 		}
 		else {
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		
 	}
 	
 	public final void methodHead(
 		JavaToken type, JavaToken commentToken
-	) throws ParserException, IOException {
+	) throws RecognitionException, TokenStreamException {
 		
 		Token  method = null;
 		JavaVector exceptions=null;
@@ -1274,7 +1274,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
@@ -1306,7 +1306,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
@@ -1317,7 +1317,7 @@ public ClassParser(ParserSharedInputState state) {
 	
 	public final void compoundStatement(
 		int scopeType
-	) throws ParserException, IOException {
+	) throws RecognitionException, TokenStreamException {
 		
 		Token  lc = null;
 		
@@ -1368,7 +1368,7 @@ public ClassParser(ParserSharedInputState state) {
 	
 	public final void variableDeclarator(
 		JavaToken type, JavaToken commentToken
-	) throws ParserException, IOException {
+	) throws RecognitionException, TokenStreamException {
 		
 		Token  id = null;
 		
@@ -1407,7 +1407,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
@@ -1416,7 +1416,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void initializer() throws ParserException, IOException {
+	public final void initializer() throws RecognitionException, TokenStreamException {
 		
 		
 		switch ( LA(1)) {
@@ -1457,12 +1457,12 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 	}
 	
-	public final void arrayInitializer() throws ParserException, IOException {
+	public final void arrayInitializer() throws RecognitionException, TokenStreamException {
 		
 		
 		match(LCURLY);
@@ -1523,7 +1523,7 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 			}
@@ -1535,20 +1535,20 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
 		match(RCURLY);
 	}
 	
-	public final void expression() throws ParserException, IOException {
+	public final void expression() throws RecognitionException, TokenStreamException {
 		
 		
 		assignmentExpression();
 	}
 	
-	public final void parameterDeclarationList() throws ParserException, IOException {
+	public final void parameterDeclarationList() throws RecognitionException, TokenStreamException {
 		
 		
 		parameterDeclaration();
@@ -1567,7 +1567,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final JavaVector  throwsClause() throws ParserException, IOException {
+	public final JavaVector  throwsClause() throws RecognitionException, TokenStreamException {
 		JavaVector exceptions;
 		
 		JavaToken id; exceptions = new JavaVector();
@@ -1596,7 +1596,7 @@ public ClassParser(ParserSharedInputState state) {
 		return exceptions;
 	}
 	
-	public final void parameterDeclaration() throws ParserException, IOException {
+	public final void parameterDeclaration() throws RecognitionException, TokenStreamException {
 		
 		Token  id = null;
 		JavaToken type;
@@ -1623,7 +1623,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
@@ -1652,7 +1652,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void statement() throws ParserException, IOException {
+	public final void statement() throws RecognitionException, TokenStreamException {
 		
 		Token  id = null;
 		Token  bid = null;
@@ -1680,7 +1680,7 @@ public ClassParser(ParserSharedInputState state) {
 			else if ((_tokenSet_10.member(LA(1))) && (_tokenSet_11.member(LA(2)))) {
 			}
 			else {
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			
 			}
@@ -1739,7 +1739,7 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 			}
@@ -1782,7 +1782,7 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 			}
@@ -1825,7 +1825,7 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 			}
@@ -1873,7 +1873,7 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 			}
@@ -1900,7 +1900,7 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 			}
@@ -1948,7 +1948,7 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 			}
@@ -1986,14 +1986,14 @@ public ClassParser(ParserSharedInputState state) {
 							}
 							default:
 							{
-								throw new NoViableAltException(LT(1));
+								throw new NoViableAltException(LT(1), getFilename());
 							}
 							}
 							}
 							match(COLON);
 						}
 						else {
-							if ( _cnt90>=1 ) { break _loop90; } else {throw new NoViableAltException(LT(1));}
+							if ( _cnt90>=1 ) { break _loop90; } else {throw new NoViableAltException(LT(1), getFilename());}
 						}
 						
 						_cnt90++;
@@ -2049,7 +2049,7 @@ public ClassParser(ParserSharedInputState state) {
 					declaration();
 					}
 				}
-				catch (ParserException pe) {
+				catch (RecognitionException pe) {
 					synPredMatched79 = false;
 				}
 				rewind(_m79);
@@ -2080,12 +2080,12 @@ public ClassParser(ParserSharedInputState state) {
 				statement();
 			}
 		else {
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 	}
 	
-	public final void forInit() throws ParserException, IOException {
+	public final void forInit() throws RecognitionException, TokenStreamException {
 		
 		int count = -1;
 		
@@ -2099,7 +2099,7 @@ public ClassParser(ParserSharedInputState state) {
 				declaration();
 				}
 			}
-			catch (ParserException pe) {
+			catch (RecognitionException pe) {
 				synPredMatched96 = false;
 			}
 			rewind(_m96);
@@ -2112,12 +2112,12 @@ public ClassParser(ParserSharedInputState state) {
 			count=expressionList();
 		}
 		else {
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		
 	}
 	
-	public final int  expressionList() throws ParserException, IOException {
+	public final int  expressionList() throws RecognitionException, TokenStreamException {
 		int count;
 		
 		count=1;
@@ -2142,7 +2142,7 @@ public ClassParser(ParserSharedInputState state) {
 		return count;
 	}
 	
-	public final void tryBlock() throws ParserException, IOException {
+	public final void tryBlock() throws RecognitionException, TokenStreamException {
 		
 		
 		match(LITERAL_try);
@@ -2225,13 +2225,13 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
 	}
 	
-	public final void handler() throws ParserException, IOException {
+	public final void handler() throws RecognitionException, TokenStreamException {
 		
 		
 		match(LITERAL_catch);
@@ -2241,7 +2241,7 @@ public ClassParser(ParserSharedInputState state) {
 		compoundStatement(NEW_SCOPE);
 	}
 	
-	public final void assignmentExpression() throws ParserException, IOException {
+	public final void assignmentExpression() throws RecognitionException, TokenStreamException {
 		
 		
 		conditionalExpression();
@@ -2324,7 +2324,7 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 			}
@@ -2342,13 +2342,13 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
 	}
 	
-	public final void conditionalExpression() throws ParserException, IOException {
+	public final void conditionalExpression() throws RecognitionException, TokenStreamException {
 		
 		
 		logicalOrExpression();
@@ -2385,13 +2385,13 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
 	}
 	
-	public final void logicalOrExpression() throws ParserException, IOException {
+	public final void logicalOrExpression() throws RecognitionException, TokenStreamException {
 		
 		
 		logicalAndExpression();
@@ -2410,7 +2410,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void logicalAndExpression() throws ParserException, IOException {
+	public final void logicalAndExpression() throws RecognitionException, TokenStreamException {
 		
 		
 		inclusiveOrExpression();
@@ -2429,7 +2429,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void inclusiveOrExpression() throws ParserException, IOException {
+	public final void inclusiveOrExpression() throws RecognitionException, TokenStreamException {
 		
 		
 		exclusiveOrExpression();
@@ -2448,7 +2448,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void exclusiveOrExpression() throws ParserException, IOException {
+	public final void exclusiveOrExpression() throws RecognitionException, TokenStreamException {
 		
 		
 		andExpression();
@@ -2467,7 +2467,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void andExpression() throws ParserException, IOException {
+	public final void andExpression() throws RecognitionException, TokenStreamException {
 		
 		
 		equalityExpression();
@@ -2486,7 +2486,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void equalityExpression() throws ParserException, IOException {
+	public final void equalityExpression() throws RecognitionException, TokenStreamException {
 		
 		
 		relationalExpression();
@@ -2508,7 +2508,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 				default:
 				{
-					throw new NoViableAltException(LT(1));
+					throw new NoViableAltException(LT(1), getFilename());
 				}
 				}
 				}
@@ -2522,7 +2522,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void relationalExpression() throws ParserException, IOException {
+	public final void relationalExpression() throws RecognitionException, TokenStreamException {
 		
 		
 		shiftExpression();
@@ -2554,7 +2554,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 				default:
 				{
-					throw new NoViableAltException(LT(1));
+					throw new NoViableAltException(LT(1), getFilename());
 				}
 				}
 				}
@@ -2568,7 +2568,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void shiftExpression() throws ParserException, IOException {
+	public final void shiftExpression() throws RecognitionException, TokenStreamException {
 		
 		
 		additiveExpression();
@@ -2595,7 +2595,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 				default:
 				{
-					throw new NoViableAltException(LT(1));
+					throw new NoViableAltException(LT(1), getFilename());
 				}
 				}
 				}
@@ -2609,7 +2609,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void additiveExpression() throws ParserException, IOException {
+	public final void additiveExpression() throws RecognitionException, TokenStreamException {
 		
 		
 		multiplicativeExpression();
@@ -2631,7 +2631,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 				default:
 				{
-					throw new NoViableAltException(LT(1));
+					throw new NoViableAltException(LT(1), getFilename());
 				}
 				}
 				}
@@ -2645,7 +2645,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void multiplicativeExpression() throws ParserException, IOException {
+	public final void multiplicativeExpression() throws RecognitionException, TokenStreamException {
 		
 		
 		castExpression();
@@ -2672,7 +2672,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 				default:
 				{
-					throw new NoViableAltException(LT(1));
+					throw new NoViableAltException(LT(1), getFilename());
 				}
 				}
 				}
@@ -2686,7 +2686,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 	}
 	
-	public final void castExpression() throws ParserException, IOException {
+	public final void castExpression() throws RecognitionException, TokenStreamException {
 		
 		JavaToken t;
 		
@@ -2735,7 +2735,7 @@ public ClassParser(ParserSharedInputState state) {
 					castExpression();
 					}
 				}
-				catch (ParserException pe) {
+				catch (RecognitionException pe) {
 					synPredMatched148 = false;
 				}
 				rewind(_m148);
@@ -2806,18 +2806,18 @@ public ClassParser(ParserSharedInputState state) {
 				}
 				default:
 				{
-					throw new NoViableAltException(LT(1));
+					throw new NoViableAltException(LT(1), getFilename());
 				}
 				}
 				}
 			}
 		else {
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 	}
 	
-	public final void postfixExpression() throws ParserException, IOException {
+	public final void postfixExpression() throws RecognitionException, TokenStreamException {
 		
 		Token  id = null;
 		JavaToken t; int count=-1;
@@ -2859,7 +2859,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 				default:
 				{
-					throw new NoViableAltException(LT(1));
+					throw new NoViableAltException(LT(1), getFilename());
 				}
 				}
 				}
@@ -2916,7 +2916,7 @@ public ClassParser(ParserSharedInputState state) {
 				}
 				default:
 				{
-					throw new NoViableAltException(LT(1));
+					throw new NoViableAltException(LT(1), getFilename());
 				}
 				}
 				}
@@ -2995,13 +2995,13 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
 	}
 	
-	public final JavaToken  primaryExpression() throws ParserException, IOException {
+	public final JavaToken  primaryExpression() throws RecognitionException, TokenStreamException {
 		JavaToken t;
 		
 		Token  id = null;
@@ -3092,13 +3092,13 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		return t;
 	}
 	
-	public final JavaToken  newExpression() throws ParserException, IOException {
+	public final JavaToken  newExpression() throws RecognitionException, TokenStreamException {
 		JavaToken t;
 		
 		t=null; int count=-1;
@@ -3151,7 +3151,7 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 			}
@@ -3218,7 +3218,7 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 			}
@@ -3270,14 +3270,14 @@ public ClassParser(ParserSharedInputState state) {
 					}
 					default:
 					{
-						throw new NoViableAltException(LT(1));
+						throw new NoViableAltException(LT(1), getFilename());
 					}
 					}
 					}
 					match(RBRACK);
 				}
 				else {
-					if ( _cnt163>=1 ) { break _loop163; } else {throw new NoViableAltException(LT(1));}
+					if ( _cnt163>=1 ) { break _loop163; } else {throw new NoViableAltException(LT(1), getFilename());}
 				}
 				
 				_cnt163++;
@@ -3339,7 +3339,7 @@ public ClassParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				throw new NoViableAltException(LT(1));
+				throw new NoViableAltException(LT(1), getFilename());
 			}
 			}
 			}
@@ -3347,14 +3347,14 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 		}
 		return t;
 	}
 	
-	public final void constant() throws ParserException, IOException {
+	public final void constant() throws RecognitionException, TokenStreamException {
 		
 		
 		switch ( LA(1)) {
@@ -3380,7 +3380,7 @@ public ClassParser(ParserSharedInputState state) {
 		}
 		default:
 		{
-			throw new NoViableAltException(LT(1));
+			throw new NoViableAltException(LT(1), getFilename());
 		}
 		}
 	}

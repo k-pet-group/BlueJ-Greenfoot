@@ -1,3 +1,4 @@
+// $ANTLR 2.7.0: java.g -> ClassParserTokenTypes.txt$
 ClassParser    // output token vocab name
 SEMI=4
 LITERAL_import="import"=5

@@ -1,9 +1,4 @@
-/*
- * ANTLR-generated file resulting from grammar java.g
- * 
- * Terence Parr, MageLang Institute
- * ANTLR Version 2.6.1; 1989-1999
- */
+// $ANTLR 2.7.0: "java.g" -> "JavaLexer.java"$
 
 package bluej.parser;
 

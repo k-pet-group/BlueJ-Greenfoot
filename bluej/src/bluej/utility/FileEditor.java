@@ -11,7 +11,7 @@ import javax.swing.text.*;
  * disk.
  *
  * @author  Andrew Patterson
- * @version $Id: FileEditor.java 476 2000-05-16 04:18:23Z ajp $
+ * @version $Id: FileEditor.java 506 2000-05-24 05:58:24Z ajp $
  */
 public class FileEditor extends PlainDocument
 {

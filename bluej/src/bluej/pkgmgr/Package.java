@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: Package.java 506 2000-05-24 05:58:24Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -1708,77 +1708,6 @@ public class Package extends Graph
         showMessageWithText("system-exit", exitCode);
     }
 
-    /**
-     * Closes all currently open editors within package.
-     */
-    private synchronized ClassLoader getLocalClassLoader()
-    {
-        if(loader == null)
-            loader = ClassMgr.getLoader(getDirName());
-
-        return loader;
-    }
-
-    /**
-     * removeLocalClassLoader - removes the current classloader, and
-     *  removes references to classes loaded by it (this includes removing
-     *  the objects from the object bench).
-     *  Should be run whenever a source file changes
-     */
-    synchronized void removeLocalClassLoader()
-    {
-        if(loader != null) {
-            // remove objects loaded by this classloader
-            ObjectBench bench = getBench();
-            ObjectWrapper[] wrappers = bench.getWrappers();
-            for(int i = 0; i < wrappers.length; i++) {
-                if(wrappers[i].getPackage() == this)
-                    bench.remove(wrappers[i], getId());
-            }
-
-            // XXX: remove views for classes loaded by this classloader
-
-            loader = null;
-        }
-    }
-
-    /**
-     * getDebuggerClassLoader - get the DebuggerClassLoader for this
-     *  package. The DebuggerClassLoader load classes on the remote VM
-     *  (the machine used for user code execution).
-     */
-    public synchronized DebuggerClassLoader getRemoteClassLoader()
-    {
-        if(debuggerLoader == null)
-            debuggerLoader = Debugger.debugger.createClassLoader(getId(), getDirName());
-        return debuggerLoader;
-    }
-
-    /**
-     * removeRemoteClassLoader - removes the remote VM classloader
-     *  Should be run whenever a source file changes
-     */
-    synchronized void removeRemoteClassLoader()
-    {
-        if(debuggerLoader != null) {
-            Debugger.debugger.removeClassLoader(debuggerLoader);
-            debuggerLoader = null;
-        }
-    }
-
-    /**
-     * loadClass - loads a class using the current classLoader
-     * creates a classloader if none currently exists
-     */
-    public Class loadClass(String className)
-    {
-        try {
-            return getLocalClassLoader().loadClass(className);
-        } catch(ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
 
     /**

@@ -29,7 +29,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: PkgMgrFrame.java 506 2000-05-24 05:58:24Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener, Printable
@@ -837,15 +837,6 @@ public class PkgMgrFrame extends JFrame
                 DialogManager.showError(this, "directory-exists");
                 return;
             }
-
-            // save package under new name
-
-	    // check whether name is already in use
-	    File dir = new File(newname);
-	    if(dir.exists()) {
-		DialogManager.showError(this, "directory-exists");
-		return;
-	    }
 
 	    // save package under new name
 
@@ -1877,12 +1868,5 @@ public class PkgMgrFrame extends JFrame
         	    menu.setEnabled(enable);
             }
         }
-    }
-
-    public LibraryBrowser getBrowser() {
-        if (browser == null)
-            browser = new LibraryBrowser();
-
-        return browser;
     }
 }
