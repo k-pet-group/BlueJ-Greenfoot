@@ -5,7 +5,6 @@ import bluej.extensions.event.*;
 import bluej.extmgr.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.utility.*;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -40,7 +39,7 @@ import java.util.*;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1964 2003-05-20 16:08:43Z damiano $
+ * @version $Id: BlueJ.java 1968 2003-05-21 09:59:49Z damiano $
  */
 
 /*
@@ -107,35 +106,15 @@ public class BlueJ
         Package pkg = openProj.getPackage(openProj.getInitialPackageName());
         if ( pkg == null ) return null;
 
-        PkgMgrFrame pmf = getPackageFrame ( pkg );
-        pmf.show();
-        return new BProject (new Identifier(openProj));
+        // I make a new identifier out of this
+        Identifier aProject = new Identifier (openProj, pkg);
+
+        // This will make the frame if not already there.
+        try { aProject.getPackageFrame(); } catch ( ExtensionException exc ) {}
+        
+        return new BProject (aProject);
     }
 
-
-    /**
-     * Simple utility to make code cleaner
-     */
-    private PkgMgrFrame getPackageFrame ( Package thisPkg )
-        {
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame(thisPkg);
-        // If for some reason we already have a frame for this package, return it
-        if ( pmf != null ) return pmf;
-
-        PkgMgrFrame recentFrame = PkgMgrFrame.getMostRecent();
-        if (recentFrame != null && recentFrame.isEmptyFrame() )
-          {
-          // If, by chance, the current fram is an empty one, use it !
-          recentFrame.openPackage(thisPkg);
-          return recentFrame;
-          }
-
-        // No empty fram I can use, I need to create a new one
-        pmf = PkgMgrFrame.createFrame(thisPkg);
-        // Yes, recent frame may teoretically be null.
-        if ( recentFrame != null ) DialogManager.tileWindow(pmf, recentFrame);
-        return pmf;
-        }
         
     /**
      * Creates a new BlueJ project.

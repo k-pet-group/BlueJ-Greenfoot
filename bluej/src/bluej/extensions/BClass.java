@@ -14,7 +14,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BClass.java 1966 2003-05-21 09:09:15Z damiano $
+ * @version $Id: BClass.java 1968 2003-05-21 09:59:49Z damiano $
  */
 
 public class BClass
@@ -50,7 +50,7 @@ public class BClass
      * Returns the package this class belongs to.
      * Similar to reflection API.
      */
-    public BPackage getPackage() throws ProjectNotOpenException
+    public BPackage getPackage() throws ProjectNotOpenException, PackageNotFoundException
     {
         Project bluejProject = classId.getBluejProject();
         Package bluejPkg = classId.getBluejPackage();
@@ -64,22 +64,24 @@ public class BClass
      * Returns true if it is compiled and valid.
      * Returns true if it is a virtual class.
      */
-    public boolean isCompiled() throws ProjectNotOpenException
-    {
+    public boolean isCompiled() 
+        throws ProjectNotOpenException, PackageNotFoundException
+        {
         ClassTarget aTarget = classId.getClassTarget();
 
         if (aTarget == null) return true;
 
         return aTarget.isCompiled();
-    }
+        }
     
     /**
      * Compile this class, and any dependents. 
      * 
      * @return true if the compilation was successful, false otherwise.
      */
-    public boolean compile() throws ProjectNotOpenException
-    {
+    public boolean compile() 
+        throws ProjectNotOpenException, PackageNotFoundException
+        {
         ClassTarget aTarget = classId.getClassTarget();
     
         if (aTarget == null) return true;
@@ -99,7 +101,7 @@ public class BClass
      * Similar to reflection API.
      * ============ NEEDS TESTING ======================
      */
-    public BClass getSuperclass() throws ProjectNotOpenException
+    public BClass getSuperclass() throws ProjectNotOpenException, PackageNotFoundException
     {
         // This method is needed otherwise you cannot get a superclass of this BClass.
 

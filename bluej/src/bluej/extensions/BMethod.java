@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 1966 2003-05-21 09:09:15Z damiano $
+ * @version $Id: BMethod.java 1968 2003-05-21 09:59:49Z damiano $
  */
 
 /*
@@ -119,7 +119,8 @@ public class BMethod
      * @param params an array containing the arguments, or null if there are none
      * @return the resulting Object. It can be a wrapper for a primitive type or a BObject
      */
-    public Object invoke (BObject onThis, Object[] params) throws ProjectNotOpenException
+    public Object invoke (BObject onThis, Object[] params) 
+        throws ProjectNotOpenException, PackageNotFoundException
         {
         Package bluejPkg = parentId.getBluejPackage();
         

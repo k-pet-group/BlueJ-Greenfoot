@@ -28,11 +28,13 @@ package bluej.extensions;
  */
 
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 
 import java.io.File;
 import bluej.pkgmgr.target.*;
 import bluej.views.*;
+import bluej.utility.*;
 
  
 class Identifier 
@@ -65,6 +67,7 @@ class Identifier
   Project getBluejProject () throws ProjectNotOpenException
     {
     Project aProject = Project.getProject(projectId);
+
     if ( aProject == null ) throw new ProjectNotOpenException ("Project "+projectId+" is closed");
 
     return aProject;
@@ -73,11 +76,45 @@ class Identifier
   /**
    * Returns the inner bluej package given the current identifier.
    */
-  Package getBluejPackage () throws ProjectNotOpenException
+  Package getBluejPackage () throws ProjectNotOpenException, PackageNotFoundException
     {
     Project bluejProject = getBluejProject();
+
     Package bluejPkg = bluejProject.getPackage(packageId);
+    if ( bluejPkg == null ) throw new PackageNotFoundException ("Package '"+packageId+"' is deleted");
+    
     return  bluejPkg;
+    }
+
+  /**
+   * Returns the Frame associated with this Package.
+   * The nice thing about this one is that it WILL open a frame if it was not already open.
+   * This gets rid of one possible exception regarding a packageFrame not open...
+   */
+  PkgMgrFrame getPackageFrame ()
+    throws ProjectNotOpenException, PackageNotFoundException
+    {
+    Package thisPkg = getBluejPackage ();
+
+    PkgMgrFrame pmf = PkgMgrFrame.findFrame(thisPkg);
+    // If we already have a frame for this package, return it
+    if ( pmf != null ) return pmf;
+
+    PkgMgrFrame recentFrame = PkgMgrFrame.getMostRecent();
+    if (recentFrame != null && recentFrame.isEmptyFrame() )
+      {
+      // If, by chance, the current fram is an empty one, use it !
+      recentFrame.openPackage(thisPkg);
+      return recentFrame;
+      }
+
+    // No empty fram I can use, I need to create a new one
+    pmf = PkgMgrFrame.createFrame(thisPkg);
+    // Yes, recent frame may teoretically be null.
+    if ( recentFrame != null ) DialogManager.tileWindow(pmf, recentFrame);
+
+    pmf.show();
+    return pmf;
     }
 
   /**
@@ -92,7 +129,8 @@ class Identifier
   /**
    * Returns the class target of this java class by checking its existence
    */
-  ClassTarget getClassTarget () throws ProjectNotOpenException
+  ClassTarget getClassTarget () 
+    throws ProjectNotOpenException, PackageNotFoundException
     {
     Package bluejPkg = getBluejPackage();
 
@@ -105,6 +143,7 @@ class Identifier
 
     return null;
     }
+
 
   /**
    * Returns the view associated with this Class

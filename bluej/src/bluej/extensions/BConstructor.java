@@ -12,7 +12,7 @@ import bluej.pkgmgr.Package;
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API. 
  *
- * @version $Id: BConstructor.java 1966 2003-05-21 09:09:15Z damiano $
+ * @version $Id: BConstructor.java 1968 2003-05-21 09:59:49Z damiano $
  */
 
 /*
@@ -83,7 +83,8 @@ public class BConstructor
      * Creates a new instance of the object described by this constructor.
      * Similar to reflection API.
      */
-    public BObject newInstance ( Object[] initargs ) throws ProjectNotOpenException
+    public BObject newInstance ( Object[] initargs ) 
+      throws ProjectNotOpenException, PackageNotFoundException
       {
       Package bluejPkg = parentId.getBluejPackage();
       
@@ -93,7 +94,7 @@ public class BConstructor
       if (result == null) return null;
 
       String resultName = invoker.getResultName();
-      PkgMgrFrame pmf   = PkgMgrFrame.findFrame(bluejPkg);
+      PkgMgrFrame pmf   = parentId.getPackageFrame();
 
       ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
 
