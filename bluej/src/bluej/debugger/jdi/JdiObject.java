@@ -15,7 +15,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2549 2004-05-26 11:16:02Z polle $
+ * @version $Id: JdiObject.java 2551 2004-05-26 11:45:08Z polle $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -475,15 +475,16 @@ public class JdiObject extends DebuggerObject
                 }
 
                 if( jvmSupportsGenerics )
-                    fieldString += JdiGenType.fromField(field,this).toString(true)
-                           + " " + field.name()
-                           + " = " +valString;
+                    fieldString += JdiGenType.fromField(field,this).toString(true);
                 else
                     fieldString += JavaNames.stripPrefix(field.typeName());
 
                 if (!visible.contains(field)) {
                     fieldString += " (hidden)";
                 }
+                
+                fieldString += " " + field.name() + " = " +valString;
+                
                 // the following code adds the word "inherited" to inherited
                 // fields - currently unused
                 //else if (!field.declaringType().equals(cls)) {
