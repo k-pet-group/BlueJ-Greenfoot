@@ -364,12 +364,25 @@ Cancel
 null
 
 error-create-vm
-BlueJ was unable to establish connection to the debug VM.
-Possible reasons is that TCP/IP is not installed on this
-machine or that a firewall is blocking connections from localhost.
+BlueJ was unable to create a virtual machine (VM) to execute projects.
+This is a serious problem - you will not be able to create objects 
+or execute methods without solving it.
+Usually, this problem is caused by specific network settings on your
+machine. BlueJ uses TCP/IP and sockets to achieve the creation of the 
+VM. The most common cause for this is an overly restrictive firewall that
+does not allow connections from your local host. Switch off the firewall
+(if you have one) to test this. If this solves it, try to find a firewall 
+setting that allows connections from localhost.
+Other possible causes are incorrect network settings. Check that TCP/IP
+is set up correctly check other networking parameters.
+If problems persist, ask for help (see http://www.bluej.org/help/ask-help.html).
 
 project-is-readonly
-The project you are oppening is on a read-only filesystem. You will
-not be able to run any code.
-If you want to run code, copy the project to a directory on your
-harddisk in which BlueJ has permission to create files.
+The project is read-only. You will not be able to create objects
+or execute methods.
+Either the access rights of the project directory are set as 
+'read only' for you, or the whole file system is not writable (is 
+it a CD?).
+To fully use this project, you must ensure that it is on a writable
+file system (usually your hard disk), and that you have write 
+permission in the project directory and each file within it.
