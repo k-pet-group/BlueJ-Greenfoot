@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 853 2001-04-19 04:24:26Z ajp $
+ * @version $Id: Invoker.java 871 2001-04-26 00:56:38Z mik $
  */
 
 public class Invoker extends Thread
@@ -358,7 +358,7 @@ public class Invoker extends Thread
         }
         trans.put("INVOCATION", buffer.toString());
 
-        File templateFile = Config.getLibFile("template.shell");
+        File templateFile = Config.getTemplateFile("shell");
         File shellFile = new File(pkg.getPath(), shellName + ".java");
 
         try {

@@ -16,7 +16,7 @@ import bluej.utility.BlueJFileReader;
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 860 2001-04-23 02:07:10Z mik $
+ * @version $Id: ExportManager.java 871 2001-04-26 00:56:38Z mik $
  */
 final class ExportManager
 {
@@ -223,7 +223,7 @@ final class ExportManager
             translations.put("MAINCLASS", mainClass);
 
             File templateFile =
-                Config.getLibFile("template.readme.export");
+                Config.getTemplateFile("readmeexp");
             BlueJFileReader.translateFile(templateFile, readMe,
                                           translations);
             // append original README

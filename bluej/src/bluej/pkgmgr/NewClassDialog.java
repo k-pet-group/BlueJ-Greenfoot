@@ -9,14 +9,19 @@ import bluej.utility.DialogManager;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
 import java.util.StringTokenizer;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.io.File;
 
 /**
  * Dialog for creating a new class
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 860 2001-04-23 02:07:10Z mik $
+ * @version $Id: NewClassDialog.java 871 2001-04-26 00:56:38Z mik $
  */
 class NewClassDialog extends JDialog
     implements ActionListener
@@ -125,17 +130,44 @@ class NewClassDialog extends JDialog
      */
     private void addClassTypeButtons(JPanel panel)
     {
-        String templates = Config.getPropString("bluej.classTemplates");
+        String templateSuffix = ".tmpl";
+        int suffixLength = templateSuffix.length();
+
+        // first, get templates out of defined templates from bluej.defs
+        // (we do this rather than usign the directory only to be able to
+        // force an order on the templates.)
+
+        String templateString = Config.getPropString("bluej.classTemplates");
+
+        StringTokenizer t = new StringTokenizer(templateString);
+        List templates = new ArrayList();
+
+        while (t.hasMoreTokens())
+            templates.add(t.nextToken());
+
+        // next, get templates from files in template directory and
+        // merge them in
+
+        File templateDir = Config.getClassTemplateDir();
+        String[] files = templateDir.list();
+        
+        for(int i=0; i < files.length; i++) {
+            if(files[i].endsWith(templateSuffix)) {
+                String template = files[i].substring(0, files[i].length() - suffixLength);
+                if(!templates.contains(template))
+                    templates.add(template);
+            }
+        }
+            
+        // create a radio button for each template found
 
         JRadioButton button;
         JRadioButton previousButton = null;
         templateButtons = new ButtonGroup();
 
-        StringTokenizer t = new StringTokenizer(templates);
-
-        while (t.hasMoreTokens()) {
-            String template = t.nextToken();
-            String label = Config.getString("pkgmgr.newClass." + template);
+        for(Iterator i=templates.iterator(); i.hasNext(); ) {
+            String template = (String)i.next();
+            String label = Config.getString("pkgmgr.newClass." + template, template);
             button = new JRadioButton(label, (previousButton==null));  // enable first
             button.setActionCommand(template);
             templateButtons.add(button);

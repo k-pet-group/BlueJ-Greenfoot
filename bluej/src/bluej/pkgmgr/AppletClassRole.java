@@ -23,7 +23,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 860 2001-04-23 02:07:10Z mik $
+ ** @version $Id: AppletClassRole.java 871 2001-04-26 00:56:38Z mik $
  **/
 public class AppletClassRole extends ClassRole
 {
@@ -285,7 +285,7 @@ public class AppletClassRole extends ClassRole
 
         translations.put("PARAMETERS", allParameters.toString());
 
-        String filename = Config.getLibFile("template.html").getPath();
+        String filename = Config.getTemplateFile("html").getPath();
 
         try {
             BlueJFileReader.translateFile(filename, outputFileName,

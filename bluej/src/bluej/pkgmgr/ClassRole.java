@@ -19,7 +19,7 @@ import java.util.Properties;
  * particular class types
  *
  * @author  Bruce Quig
- * @version $Id: ClassRole.java 860 2001-04-23 02:07:10Z mik $
+ * @version $Id: ClassRole.java 871 2001-04-26 00:56:38Z mik $
  */
 public abstract class ClassRole
 {
@@ -70,8 +70,8 @@ public abstract class ClassRole
             translations.put("PKGLINE", "package " + pkg.getQualifiedName() + ";" + Config.nl + Config.nl);
 
         try {
-            BlueJFileReader.translateFile(Config.getTemplateFile(template),
-                                            new File(sourceFile), translations);
+            BlueJFileReader.translateFile(Config.getClassTemplateFile(template),
+                                          new File(sourceFile), translations);
         } catch(IOException e) {
             pkg.showError("skeleton-error");
             Debug.reportError("The default skeleton for the class could not be generated");

@@ -40,7 +40,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 868 2001-04-24 06:30:10Z mik $
+ * @version $Id: Config.java 871 2001-04-26 00:56:38Z mik $
  */
 
 public class Config
@@ -296,12 +296,21 @@ public class Config
 
     /**
      * get a string from the language dependent definitions file
-     * (eg. "labels.english")
+     * (eg. "english/labels").
      */
     public static String getString(String strname)
     {
+        return getString(strname, strname);
+    }
+
+    /**
+     * get a string from the language dependent definitions file
+     * (eg. "english/labels") If not found, return default.
+     */
+    public static String getString(String strname, String def)
+    {
         try {
-            return lang_props.getProperty(strname, strname);
+            return lang_props.getProperty(strname, def);
         }
         catch(Exception e) {
             Debug.reportError("Could not get string for " + strname);
@@ -454,30 +463,46 @@ public class Config
     }
 
     /**
-     * Find and return the file name for a help file (eg.
-     * "bluej/lib/javac.help.english")
+     * Return the template directory.
      */
-    //    public static String getHelpFilename(String base)
-    //{
-    //    return bluej_lib + language + File.separator + base + ".help";
-    //}
+    public static File getTemplateDir()
+    {
+        return getLanguageFile("templates");
+    }
 
     /**
-     * Find and return the file name for a help file
-     * format: <bluej-lib>/<base>.tmpl
+     * Find and return the file name for a class template file
+     * Format: <template-dir>/<base>.tmpl
      */
     public static File getTemplateFile(String base)
     {
+        return new File(getTemplateDir(), base + ".tmpl");
+    }
+
+    /**
+     * Return the template directory.
+     */
+    public static File getClassTemplateDir()
+    {
         String path = bluej_props.getProperty("bluej.templatePath" , "");
         if(path.length() == 0)
-            return new File(bluej_lib_dir, base + ".tmpl");
+            return getLanguageFile("templates/newclass");
         else
-            return new File(path, base + ".tmpl");
+            return new File(path);
+    }
+
+    /**
+     * Find and return the file name for a class template file
+     * Format: <template-dir>/<base>.tmpl
+     */
+    public static File getClassTemplateFile(String base)
+    {
+        return new File(getClassTemplateDir(), base + ".tmpl");
     }
 
     /**
      * Return the file with language specific text (eg.
-     * "bluej/lib/english/dialogs" is base is dialogs)
+     * "bluej/lib/english/dialogs" if base is dialogs)
      */
     public static File getLanguageFile(String base)
     {
