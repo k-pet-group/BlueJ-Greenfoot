@@ -29,7 +29,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2390 2003-11-26 10:30:35Z mik $
+ * @version $Id: PkgMgrFrame.java 2396 2003-11-27 13:49:39Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -965,7 +965,7 @@ public class PkgMgrFrame extends JFrame
     public void wantToQuit()
     {
         int answer = 0;
-        if(frameCount() > 1)
+        if(Project.getOpenProjectCount() > 1)
             answer = DialogManager.askQuestion(this, "quit-all");
         if(answer == 0)
             doQuit();
