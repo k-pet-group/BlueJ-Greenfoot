@@ -15,7 +15,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 /**
- ** @version $Id: Target.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: Target.java 114 1999-06-08 04:02:49Z mik $
  ** @author Michael Cahill
  **
  ** A general target in a package
@@ -237,43 +237,68 @@ public abstract class Target extends Vertex
 	
     public void addDependencyOut(Dependency d, boolean recalc)
     {
-	if(d instanceof UsesDependency)
-	    {
-		outUses.addElement(d);
-		if(recalc)
-		    recalcOutUses();
-	    }
+	if(d instanceof UsesDependency) {
+	    outUses.addElement(d);
+	    if(recalc)
+		recalcOutUses();
+	}
 	else if((d instanceof ExtendsDependency)
-		|| (d instanceof ImplementsDependency))
-	    {
-		parents.addElement(d);
-	    }
-		
+		|| (d instanceof ImplementsDependency)) {
+	    parents.addElement(d);
+	}
+
 	if(recalc)
 	    setState(S_INVALID);
     }
 	
+    public void addDependencyIn(Dependency d, boolean recalc)
+    {
+	if(d instanceof UsesDependency) {
+	    inUses.addElement(d);
+	    if(recalc)
+		recalcInUses();
+	}
+	else if((d instanceof ExtendsDependency)
+		|| (d instanceof ImplementsDependency)) {
+	    children.addElement(d);
+	}
+    }
+
+    public void removeDependencyOut(Dependency d, boolean recalc)
+    {
+	if(d instanceof UsesDependency) {
+	    outUses.removeElement(d);
+	    if(recalc)
+		recalcOutUses();
+	}
+	else if((d instanceof ExtendsDependency)
+		|| (d instanceof ImplementsDependency)) {
+	    parents.removeElement(d);
+	}
+
+	if(recalc)
+	    setState(S_INVALID);
+    }
+
+    public void removeDependencyIn(Dependency d, boolean recalc)
+    {
+	if(d instanceof UsesDependency) {
+	    inUses.removeElement(d);
+	    if(recalc)
+		recalcInUses();
+	}
+	else if((d instanceof ExtendsDependency)
+		|| (d instanceof ImplementsDependency)) {
+	    children.removeElement(d);
+	}
+    }
+
     public Enumeration dependencies()
     {
 	Vector v = new Vector(2);
 	v.addElement(parents.elements());
 	v.addElement(outUses.elements());
 	return new MultiEnumeration(v);
-    }
-
-    public void addDependencyIn(Dependency d, boolean recalc)
-    {
-	if(d instanceof UsesDependency)
-	    {
-		inUses.addElement(d);
-		if(recalc)
-		    recalcInUses();
-	    }
-	else if((d instanceof ExtendsDependency)
-		|| (d instanceof ImplementsDependency))
-	    {
-		children.addElement(d);
-	    }
     }
 
     public Enumeration dependents()
@@ -284,29 +309,62 @@ public abstract class Target extends Vertex
 	return new MultiEnumeration(v);
     }
 
-    public void removeDependencyOut(Dependency d, boolean recalc)
+
+    /**
+     *  Remove all outgoing dependencies. Also updates the package. (Don't
+     *  call from package remove method - this will cause infinite recursion.)
+     */
+    protected void removeAllOutDependencies()
     {
-	if(d instanceof UsesDependency)
-	    {
-		outUses.removeElement(d);
-		if(recalc)
-		    recalcOutUses();
-	    }
-		
-	if(recalc)
-	    setState(S_INVALID);
+	// While removing the dependencies the dependency Vector must be
+	// copied since the original is modified during this operation.
+	// Enumerations over the original would go wrong.
+
+	// delete outgoing uses dependencies
+	if(!outUses.isEmpty()) {
+	    Dependency[] outUsesArray = new Dependency[outUses.size()];
+	    outUses.copyInto(outUsesArray);
+	    for(int i = 0; i < outUsesArray.length ; i++)
+		pkg.removeDependency(outUsesArray[i], false);
+	}
+
+	// delete dependencies to super classes
+	if(!parents.isEmpty()) {
+	    Dependency[] parentsArray = new Dependency[ parents.size() ];
+	    parents.copyInto(parentsArray);
+	    for(int i = 0; i < parentsArray.length ; i++)
+		pkg.removeDependency(parentsArray[i], false);
+	} 
+
     }
 
-    public void removeDependencyIn(Dependency d, boolean recalc)
+    /**
+     *  Remove all incoming dependencies. Also updates the package. (Don't
+     *  call from package remove method - this will cause infinite recursion.)
+     */
+    protected void removeAllInDependencies()
     {
-	if(d instanceof UsesDependency)
-	    {
-		inUses.removeElement(d);
-		if(recalc)
-		    recalcInUses();
-	    }
+	// While removing the dependencies the dependency Vector must be
+	// copied since the original is modified during this operation.
+	// Enumerations over the original would go wrong.
+
+	// delete incoming uses dependencies
+	if(!inUses.isEmpty()) {
+	    Dependency[] inUsesArray = new Dependency[ inUses.size() ];
+	    inUses.copyInto(inUsesArray);
+	    for(int i = 0; i < inUsesArray.length ; i++)
+	    pkg.removeDependency(inUsesArray[i], false);
+	} 
+
+	// delete dependencies to child classes
+	if(!children.isEmpty()) {
+	    Dependency[] childrenArray = new Dependency[ children.size() ];
+	    children.copyInto(childrenArray);
+	    for(int i = 0; i < childrenArray.length ; i++) 
+		pkg.removeDependency(childrenArray[i], false);
+	}
     }
-	
+
     public void recalcOutUses()
     {
 	// Order the arrows by quadrant and then appropriate coordinate
@@ -418,6 +476,9 @@ public abstract class Target extends Vertex
 	pkg.getEditor().repaint(x, y, width + SHAD_SIZE, height + SHAD_SIZE);
     }
 
+    /**
+     *  Draw this target, including its box, border, shadow and text.
+     */
     public void draw(Graphics g)
     {
 	g.setColor(getBackgroundColour());

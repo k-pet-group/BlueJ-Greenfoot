@@ -34,7 +34,7 @@ import sun.tools.javac.BlueJJavacMain;
 // import sun.tools.javadoc.BlueJDocumentationGenerator;
 
 /**
- ** @version $Id: Package.java 111 1999-06-04 06:16:57Z mik $
+ ** @version $Id: Package.java 114 1999-06-08 04:02:49Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -91,8 +91,9 @@ public class Package extends Graph
     protected Hashtable targets;
     protected Vector usesArrows;
     protected Vector extendsArrows;
-    protected Target selected;	// Currently selected target
-    protected Target fromChoice;	// Holds the choice of "from" target for a new dependency
+    protected Target selected;		// Currently selected target
+    protected Target fromChoice;	// Holds the choice of "from" target 
+					//  for a new dependency
     PkgFrame frame;
     Dependency currentArrow;	// used during arrow deletion
 	
@@ -195,7 +196,8 @@ public class Package extends Graph
 	return (classdir != null) ? classdir : getBaseDir();
     }
 		
-    public ObjectBench getBench() { 
+    public ObjectBench getBench() 
+    { 
 	ObjectBench bench = null;
 	try {
 	    bench = ((PkgMgrFrame) frame).objbench;
@@ -205,6 +207,11 @@ public class Package extends Graph
 	return bench;
     }
 
+    public void repaint()
+    {
+	editor.revalidate();
+	editor.repaint();
+    }
 
     /**
      * Get the currently selected Target.  Should return null if none are selected.
@@ -640,6 +647,7 @@ public class Package extends Graph
 
 	ClassTarget target = new ClassTarget(this, className);
 	addTarget(target);
+	target.analyseDependencies();
 
 	return NO_ERROR;
     }
@@ -807,41 +815,37 @@ public class Package extends Graph
 	enumerations.addElement(usesArrows.elements());
 	enumerations.addElement(extendsArrows.elements());
 		
-	for(Enumeration e = new MultiEnumeration(enumerations); e.hasMoreElements();  )
-	    {
-		Dependency d = (Dependency)e.nextElement();
-		if(!(d.getTo() instanceof ClassTarget))
-		    continue;
+	for(Enumeration e = new MultiEnumeration(enumerations); 
+	    e.hasMoreElements();  ) {
+	    Dependency d = (Dependency)e.nextElement();
+	    if(!(d.getTo() instanceof ClassTarget))
+		continue;
 			
-		ClassTarget to = (ClassTarget)d.getTo();
+	    ClassTarget to = (ClassTarget)d.getTo();
 			
-		if(to.isFlagSet(Target.F_QUEUED))
-		    {
-			if((to.dfn < t.dfn) && (stack.search(to) != -1))
-			    t.link = Math.min(t.link, to.dfn);
-		    }
-		else if(to.getState() == Target.S_INVALID)
-		    {
-			search((ClassTarget)to, dfcount + 1, stack);
-			t.link = Math.min(t.link, to.link);
-		    }
+	    if(to.isFlagSet(Target.F_QUEUED)) {
+		if((to.dfn < t.dfn) && (stack.search(to) != -1))
+		    t.link = Math.min(t.link, to.dfn);
 	    }
+	    else if(to.getState() == Target.S_INVALID) {
+		search((ClassTarget)to, dfcount + 1, stack);
+		t.link = Math.min(t.link, to.link);
+	    }
+	}
 			
-	if(t.link == t.dfn)
-	    {
-		Vector v = new Vector();
-		ClassTarget x;
+	if(t.link == t.dfn) {
+	    Vector v = new Vector();
+	    ClassTarget x;
 			
-		do {
-		    x = (ClassTarget)stack.pop();
-				
-		    v.addElement(x.sourceFile());
-		} while(x != t);
+	    do {
+		x = (ClassTarget)stack.pop();
+		v.addElement(x.sourceFile());
+	    } while(x != t);
 
-		String[] files = new String[v.size()];
-		v.copyInto(files);
-		JobQueue.getJobQueue().addJob(files, this, classpath, getClassDir());
-	    }
+	    String[] files = new String[v.size()];
+	    v.copyInto(files);
+	    JobQueue.getJobQueue().addJob(files, this, classpath, getClassDir());
+	}
     }
 
     public void compileSet(Vector toCompile)
@@ -910,10 +914,11 @@ public class Package extends Graph
 	targets.remove(t.getName());
     }
 
-    /*
-     * Removes a class from the Package
+    /**
+     *  Removes a class from the Package
      *
-     * @param removableTarget the ClassTarget representing the class to be removed.
+     *  @param removableTarget   the ClassTarget representing the class to 
+     *				 be removed.
      */
     public void removeClass(Target removableTarget)
     {
@@ -925,6 +930,10 @@ public class Package extends Graph
 	save();
     }
 
+    /**
+     *  Add a dependancy in this package. The dependency is also added to the
+     *  individual targets involved.
+     */
     public void addDependency(Dependency d, boolean recalc)
     {
 	if(d instanceof UsesDependency) {
@@ -946,9 +955,12 @@ public class Package extends Graph
 	to.addDependencyIn(d, recalc);
     }
 
+    /**
+     *  Remove a dependancy from this package. The dependency is also removed
+     *  from the individual targets involved.
+     */
     public void removeDependency(Dependency d, boolean recalc)
     {
-	// Debug.message("Removing dependency " + d);
 	if(d instanceof UsesDependency)
 	    usesArrows.removeElement(d);
 	else
@@ -1219,19 +1231,20 @@ public class Package extends Graph
 	
     // ---- bluej.compiler.CompileObserver interface ----
 
+    /**
+     *  A compilation has been started. Mark the affected classes as being
+     *  currently compiled.
+     */
     public void startCompile(String[] sources)
     {
 	frame.setStatus(compiling);
-	for(int i = 0; i < sources.length; i++)
-	    {
-		String filename = sources[i];
+	for(int i = 0; i < sources.length; i++) {
+	    String filename = sources[i];
 			
-		ClassTarget t = getTargetFromFilename(filename);
-		if(t != null)
-		    t.setState(ClassTarget.S_COMPILING);
-		// else
-		// Debug.message(noTarget + filename);
-	    }
+	    ClassTarget t = getTargetFromFilename(filename);
+	    if(t != null)
+		t.setState(ClassTarget.S_COMPILING);
+	}
     }
 
     /**
@@ -1247,21 +1260,28 @@ public class Package extends Graph
 				       ":" + lineNo + "\n" + message);
     }
 	
+    /**
+     *  Compilation has ended.  Mark the affected classes as being
+     *  normal again.
+     */
     public void endCompile(String[] sources, boolean successful)
     {
-	for(int i = 0; i < sources.length; i++)
-	    {
-		String filename = sources[i];
+	for(int i = 0; i < sources.length; i++) {
+	    String filename = sources[i];
 			
-		ClassTarget t = getTargetFromFilename(filename);
-		t.setState(successful ? Target.S_NORMAL : Target.S_INVALID);
-		t.unsetFlag(Target.F_QUEUED);
-	    }
+	    ClassTarget t = getTargetFromFilename(filename);
+	    t.setState(successful ? Target.S_NORMAL : Target.S_INVALID);
+	    t.unsetFlag(Target.F_QUEUED);
+	    if(successful && t.editorOpen())
+		t.getEditor().setCompiled(true);
+	}
 	frame.setStatus(compileDone);
 	frame.editor.repaint();
+
     }
 	
-    // ---- sun.tools.javac.CompileWatcher interface ----
+    // ---- end of bluej.compiler.CompileObserver interface ----
+
 
     /**
      * Report an exit of a method through "System.exit()" where we expected
@@ -1275,91 +1295,75 @@ public class Package extends Graph
 			    "returned. The exit code is " + exitCode + ".");
     }
 
-    public void notifyParsed(ClassDeclaration decl, SourceClass src, 
-			     BatchEnvironment env)
-    {
-	String srcName = src.getName().toString();
-	Target srcTarget = getTarget(srcName);
-		
-	if(srcTarget == null) {
-	    // Debug.message("notifyParsed: Failed to get target for " + srcName);
-	    return;	// nothing we can do without the source target
-	}
+    // ---- sun.tools.javac.CompileWatcher interface ----
 
-	/* fix for JDK 1.2 */
+
+    /**  OBSOLETE!! **/
+//      public void notifyParsed(ClassDeclaration decl, SourceClass src, 
+//  			     BatchEnvironment env)
+//      {
+//  	String srcName = src.getName().toString();
+//  	Target srcTarget = getTarget(srcName);
 		
-	/* BlueJDocumentationGenerator dgen = new BlueJDocumentationGenerator(env);
-	if(packageName != noPackage)
-	    dgen.addPrefix(packageName + ".");
-	CommentList comments = dgen.genComments(src);
+//  	if(srcTarget == null) {
+//  	    // Debug.message("notifyParsed: Failed to get target for " + srcName);
+//  	    return;	// nothing we can do without the source target
+//  	}
+
+//  	/* fix for JDK 1.2 */
 		
-	String ctxtFilename = getClassFileName(srcTarget.getBaseName()) + ".ctxt";
-	try {
-	    comments.save(ctxtFilename);
-	} catch (IOException ex) {
-	    Debug.reportError(docSaveError + ctxtFilename);
-	} */
-    }
+//  	/* BlueJDocumentationGenerator dgen = new BlueJDocumentationGenerator(env);
+//  	if(packageName != noPackage)
+//  	    dgen.addPrefix(packageName + ".");
+//  	CommentList comments = dgen.genComments(src);
+		
+//  	String ctxtFilename = getClassFileName(srcTarget.getBaseName()) + ".ctxt";
+//  	try {
+//  	    comments.save(ctxtFilename);
+//  	} catch (IOException ex) {
+//  	    Debug.reportError(docSaveError + ctxtFilename);
+//  	} 
+//  	*/
+//      }
 	
+    /**  OBSOLETE!! **/
     public void notifyCompiled(SourceClass src, BatchEnvironment env)
     {
-	String srcName = src.getName().toString();
-	ClassTarget srcTarget = (ClassTarget)getTarget(srcName);
-		
-	if(srcTarget == null) {
-	    // Debug.message("notifyCompiled: Failed to get target for " + srcName);
-	    return;	// nothing we can do without the source target
-	}
-		
-	srcTarget.setModifiers(src.getModifiers());
-			
 	// XXX: remove existing dependencies???
 		
-	Hashtable used = new Hashtable();
+//  	Hashtable used = new Hashtable();
 		
-	if(src.getSuperClass() != null)	{	// needed for java.lang.Object
-	    String superName = src.getSuperClass().getName().toString();
-	    Target superTarget = getTarget(superName);
-	    if(superTarget != null) {
-		addDependency(new ExtendsDependency(this, srcTarget, 
-						    superTarget), true);
-		used.put(superName, superName);
-	    }
-	    // else
-	    // Debug.message("Skipping " + srcName + " => " + superName);
-	}
-		
-	ClassDeclaration[] interfaces = src.getInterfaces();
-	for(int i = 0; i < interfaces.length; i++) {
-	    String intName = interfaces[i].getName().toString();
-	    Target intTarget = getTarget(intName);
-	    if(intTarget != null) {
-		addDependency(new ImplementsDependency(this, srcTarget,
-						       intTarget), true);
-		used.put(intName, intName);
-	    }
-	    // else
-	    // Debug.message("Skipping " + srcName + " => " + intName);
-	}
-		
-	for(Enumeration e = BlueJJavacMain.getDependencies(src); e.hasMoreElements(); ) {
-	    ClassDeclaration to = (ClassDeclaration)e.nextElement();
-	    String toName = to.getName().toString();
-	    if(used.get(toName) != null) {
-		// Debug.message("Skipping " + srcName + " -> " + toName);
-		continue;
-	    }
-	    Target toTarget = getTarget(toName);
-	    if(toTarget != null)
-		addDependency(new UsesDependency(this, srcTarget, toTarget), true);
-	    // else
-	    // Debug.message("Can't find used class " + toName);
-	}
+//  	ClassDeclaration[] interfaces = src.getInterfaces();
+//  	for(int i = 0; i < interfaces.length; i++) {
+//  	    String intName = interfaces[i].getName().toString();
+//  	    Target intTarget = getTarget(intName);
+//  	    if(intTarget != null) {
+//  		addDependency(new ImplementsDependency(this, srcTarget,
+//  						       intTarget), true);
+//  		used.put(intName, intName);
+//  	    }
+//  	    // else
+//  	    // Debug.message("Skipping " + srcName + " => " + intName);
+//  	}
 
-	if (srcTarget.editorOpen())
-	    srcTarget.getEditor().setCompiled(true);
+//  	for(Enumeration e = BlueJJavacMain.getDependencies(src); e.hasMoreElements(); ) {
+//  	    ClassDeclaration to = (ClassDeclaration)e.nextElement();
+//  	    String toName = to.getName().toString();
+//  	    if(used.get(toName) != null) {
+//  		// Debug.message("Skipping " + srcName + " -> " + toName);
+//  		continue;
+//  	    }
+//  	    Target toTarget = getTarget(toName);
+//  	    if(toTarget != null)
+//  		addDependency(new UsesDependency(this, srcTarget, toTarget), true);
+//  	    // else
+//  	    // Debug.message("Can't find used class " + toName);
+//  	}
     }
 	
+    // ---- end of sun.tools.javac.CompileWatcher interface ----
+
+
     /**
      ** getSearcher - get the ClasspathSearcher for this package
      **/

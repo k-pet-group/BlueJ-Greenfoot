@@ -3,7 +3,9 @@
 TOP = ..
 include $(TOP)/$(OS).mk
 
-JIKES_CLASSPATH = /usr/local/jdk1.2/jre/lib/rt.jar:/usr/local/jdk1.2/jre/lib/i18n.jar:/usr/local/jdk1.2/lib/tools.jar:$(TOP)/lib/jbug.jar:$(TOP)/src
+JIKES_CLASSPATH = /usr/local/jdk1.2/jre/lib/rt.jar:/usr/local/jdk1.2/jre/lib/i18n.jar:/usr/local/jdk1.2/lib/tools.jar:$(TOP)/lib/jbug.jar:$(TOP)/src:$(TOP)/lib/antlr.jar
+
+ANTLR_CLASSPATH=../../antlr
 
 #JIKES_CLASSPATH = $(TOP)/lib/swing.jar:$(CLASSPATH)
 JIKES_OPTS = +P +F
@@ -19,4 +21,8 @@ all dep depend clean clobber::
 	done
 
 jikes:
-	jikes -classpath $(JIKES_CLASSPATH) -d $(TOP)/classes $(JIKES_OPTS) bluej/Main.java
+	jikes -nowarn -classpath $(JIKES_CLASSPATH) -d $(TOP)/classes $(JIKES_OPTS) bluej/Main.java
+
+grammar:
+	(cd bluej/parser && \
+	java -classpath $(ANTLR_CLASSPATH) antlr.Tool java.g )

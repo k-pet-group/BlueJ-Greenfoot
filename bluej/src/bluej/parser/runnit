@@ -1,0 +1,2 @@
+# CLASSPATH=".:$CLASSPATH"
+java ClassParser $*

@@ -1,5 +1,7 @@
- /**
+/**
  **/
+import java.util.Random;
+
 public class MyClass
 {
     // instance variables - replace the example below with your own - replace the example below with your own - repla
@@ -8,7 +10,7 @@ public class MyClass
     public Tester tst;
     private static String sname;
     public static Tester stst;
-
+    private Random rand;
     /**
      ** Constructor for objects of class MyClass
      **/
@@ -28,13 +30,14 @@ public class MyClass
     public int shortloop(int count)
     {
         	int sum = 0;
-        Tester t = null;
+        Tester t;
 
         	for (int i=0; i<10; i++) {
             sum = sum + i;
             sum = sum -200;
         }
-        	return x + 5;
+        t = new Tester();
+        	return t.goodtest();
     }
 
     public int loop(int count)

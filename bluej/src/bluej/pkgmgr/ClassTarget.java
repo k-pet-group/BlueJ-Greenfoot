@@ -9,6 +9,8 @@ import bluej.debugger.Invoker;
 import bluej.debugger.ObjectViewer;
 import bluej.debugger.ResultWatcher;
 import bluej.debugger.ObjectWrapper;
+import bluej.parser.ClassParser;
+import bluej.parser.symtab.ClassInfo;
 import bluej.editor.Editor;
 import bluej.graph.GraphEditor;
 import bluej.utility.Utility;
@@ -31,7 +33,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /** 
- ** @version $Id: ClassTarget.java 111 1999-06-04 06:16:57Z mik $
+ ** @version $Id: ClassTarget.java 114 1999-06-08 04:02:49Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -158,11 +160,6 @@ public class ClassTarget extends EditableTarget
 	return modifiers;
     }
 	
-    public void setModifiers(int modifiers)
-    {
-	this.modifiers = modifiers;
-    }
-
     public boolean isInterface()
     {
 	return Modifier.isInterface(modifiers);
@@ -260,7 +257,6 @@ public class ClassTarget extends EditableTarget
 	if(editor == null)
 	    editor = pkg.editorManager.openClass(sourceFile(), name, this,
 						 isCompiled(), breakpoints);
-		
 	return editor;
     }
 	
@@ -272,12 +268,23 @@ public class ClassTarget extends EditableTarget
 	return displayedView;
     }
 	
+    // --- EditorWatcher interface ---
+
     /**
      * Called by Editor when a file is changed
      */
     public void modificationEvent(Editor editor)
     {
 	invalidate();
+    }
+
+    /**
+     ** Called by Editor when a file is saved
+     ** @param editor	the editor object being saved
+     **/
+    public void saveEvent(Editor editor) 
+    {
+	analyseDependencies();
     }
 
     /**
@@ -315,6 +322,8 @@ public class ClassTarget extends EditableTarget
     {
 	    pkg.compile(this);
     }
+
+    // --- end of EditorWatcher interface ---
 
     // --- end of EditableTarget interface ---
 
@@ -354,7 +363,67 @@ public class ClassTarget extends EditableTarget
 		
 	setState(S_INVALID);
     }
+
+    /** 
+     *  Analyse the current dependencies in the source code and update the
+     *  dependencies in the graphical display accordingly.
+     */
+    public void analyseDependencies()
+    {
+	removeAllOutDependencies();
+
+	ClassInfo info = ClassParser.parse(sourceFile(), null);
+	// FIX: pass vector of classes instead of null
 	
+	if(info.isApplet()) {
+	    //if( ! this instanceof AppletTarget)
+	    //Debug.message(" convert class to applet");
+	    // FIX: convert
+	}
+	else {
+	    //if(this instanceof AppletTarget)
+	    //Debug.message(" convert applet to class");
+	    // FIX: convert
+	}
+
+	setInterface(info.isInterface());
+	setAbstract(info.isAbstract());
+
+	// handle superclass
+
+	if(info.getSuperclass() != null) {
+	    Target superclass = pkg.getTarget(info.getSuperclass());
+	    if (superclass != null)
+		pkg.addDependency(
+			new ExtendsDependency(pkg, this, superclass), 
+			false);
+	}
+
+	// handle implemented interfaces
+
+	Vector vect = info.getImplements();
+	for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
+	    String name = (String)e.nextElement();
+	    Target interfce = pkg.getTarget(name);
+	    if (interfce != null)
+		pkg.addDependency(
+			new ImplementsDependency(pkg, this, interfce), 
+			false);
+	}
+
+	// handle used classes
+
+	vect = info.getUsed();
+	for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
+	    String name = (String)e.nextElement();
+	    Target used = pkg.getTarget(name);
+	    if (used != null)
+		pkg.addDependency(new UsesDependency(pkg, this, used), true);
+	}
+
+	pkg.repaint();
+    }
+
     private Class last_class = null;
     private JPopupMenu menu = null;
     boolean compiledMenu = false;
@@ -668,37 +737,8 @@ public class ClassTarget extends EditableTarget
 	// flag dependent Targets as invalid
 	//invalidate();
 
-	// delete outgoing uses dependencies
-	if(!outUses.isEmpty()) {
-	    Dependency[] outUsesArray = new Dependency[ outUses.size() ];
-	    outUses.copyInto(outUsesArray);
-	    for(int i = 0; i < outUsesArray.length ; i++)
-		pkg.removeDependency(outUsesArray[i], true);
-	}
-
-	// delete incoming uses dependencies
-	if(!inUses.isEmpty()) {
-	    Dependency[] inUsesArray = new Dependency[ inUses.size() ];
-	    inUses.copyInto(inUsesArray);
-	    for(int i = 0; i < inUsesArray.length ; i++)
-	    pkg.removeDependency(inUsesArray[i], true);
-	} 
-
-	// delete dependencies to child classes
-	if(!children.isEmpty()) {
-	    Dependency[] childrenArray = new Dependency[ children.size() ];
-	    children.copyInto(childrenArray);
-	    for(int i = 0; i < childrenArray.length ; i++) 
-		pkg.removeDependency(childrenArray[i], true);
-	}
-
-	// delete dependencies to super classes
-	if(!parents.isEmpty()) {
-	    Dependency[] parentsArray = new Dependency[ parents.size() ];
-	    parents.copyInto(parentsArray);
-	    for(int i = 0; i < parentsArray.length ; i++)
-		pkg.removeDependency(parentsArray[i], true);
-	} 
+	removeAllInDependencies();
+	removeAllOutDependencies();
 
 	// remove associated files (.class, .java and .ctxt)
 	prepareFilesForRemoval();

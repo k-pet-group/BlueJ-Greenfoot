@@ -52,8 +52,10 @@ winBrowserCmd2=
 ## specified then BlueJ defaults to the standard name of the specified
 ## compiler type (ie javac for type javac and jikes for type jikes)
 
-bluej.compiler.type=jikes
-bluej.compiler.executable=jikes
+#bluej.compiler.type=jikes
+#bluej.compiler.executable=jikes
+bluej.compiler.type=javac
+bluej.compiler.executable=javac
 
 #####################################################################
 ## User Interface "Look and Feel"

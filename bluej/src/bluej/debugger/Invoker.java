@@ -23,7 +23,7 @@ import sun.tools.javac.SourceClass;
 import sun.tools.javac.BatchEnvironment;
 
 /**
- ** @version $Id: Invoker.java 111 1999-06-04 06:16:57Z mik $
+ ** @version $Id: Invoker.java 114 1999-06-08 04:02:49Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -455,7 +455,4 @@ public class Invoker extends Thread
 	    e.printStackTrace(System.err);
 	}
     }
-
-    public void notifyParsed(ClassDeclaration decl, SourceClass src, BatchEnvironment env) {}
-    public void notifyCompiled(SourceClass src, BatchEnvironment env) {}
 }

@@ -1036,20 +1036,26 @@ public final class MoeEditor extends JFrame
      */
     private void setView(int view)
     {
+	int newIndex = 0;
+
 	if (view == bluej.editor.Editor.IMPLEMENTATION)
-	    viewSelector.setSelectedIndex(0);
+	    newIndex = 0;
 	else if (view == bluej.editor.Editor.PUBLIC)
-	    viewSelector.setSelectedIndex(1);
+	    newIndex = 1;
 	else if (view == bluej.editor.Editor.PACKAGE)
-	    viewSelector.setSelectedIndex(2);
+	    newIndex = 2;
 	else if (view == bluej.editor.Editor.INHERITED)
-	    viewSelector.setSelectedIndex(3);
+	    newIndex = 3;
 
-	isCode = (view == bluej.editor.Editor.IMPLEMENTATION);
-	if(!isCode)
-	    setCompileStatus(true);
+	if(newIndex != viewSelector.getSelectedIndex()) {
+	    viewSelector.setSelectedIndex(newIndex);
 
-	actions.compileAction.setEnabled(isCode);
+	    isCode = (view == bluej.editor.Editor.IMPLEMENTATION);
+	    if(!isCode)
+		setCompileStatus(true);
+
+	    actions.compileAction.setEnabled(isCode);
+	}
     }
 
     // --------------------------------------------------------------------

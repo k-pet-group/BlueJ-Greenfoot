@@ -1,0 +1,2 @@
+java antlr.Tool java.g
+javac *.java symtab/*.java
