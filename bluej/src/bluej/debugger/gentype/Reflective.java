@@ -9,12 +9,15 @@ import java.util.List;
  * determine the generic type parameters, etc.
  *  
  * @author Davin McCall
- * @version $Id: Reflective.java 2951 2004-08-27 01:47:46Z davmac $
+ * @version $Id: Reflective.java 3063 2004-10-25 02:37:00Z davmac $
  */
 public abstract class Reflective {
 
     /**
      * Get the name of the class or interface represented by the reflective.
+     * The name is such that it can be passed to ClassLoader's loadClass
+     * method.
+     * 
      * @return The fully qualified class/interface name.
      */
     public abstract String getName();
@@ -35,7 +38,7 @@ public abstract class Reflective {
     /**
      * Get the supertypes of this reflective, as a list of GenTypes. The type
      * parameter names will refer to the type parameters in the parent type.
-     * @return A List of GenType.
+     * @return A List of GenTypeClass.
      */
     public abstract List getSuperTypes();
     

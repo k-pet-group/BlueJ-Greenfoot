@@ -17,7 +17,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 2982 2004-09-03 02:20:13Z davmac $
+ * @version    $Id: JdiArray.java 3063 2004-10-25 02:37:00Z davmac $
  */
 public class JdiArray extends JdiObject
 {    
@@ -66,9 +66,12 @@ public class JdiArray extends JdiObject
             
             GenTypeParameterizable component;
             
-            if(genericType instanceof GenTypeExtends)
-                genericType = ((GenTypeExtends)genericType).getUpperBound();
-            if(genericType instanceof GenTypeClass) {
+            if(genericType instanceof GenTypeWildcard) {
+                GenTypeSolid [] upperBounds = ((GenTypeWildcard)genericType).getUpperBounds();
+                if (upperBounds.length != 0)
+                    genericType = ((GenTypeWildcard)genericType).getUpperBounds()[0];
+            }
+            else if(genericType instanceof GenTypeClass) {
                 // the sig looks like "Lpackage/package/class;". Strip the 'L' and
                 // the ';'
                 String compName = ctypestr.substring(1, ctypestr.length() - 1);
@@ -86,18 +89,6 @@ public class JdiArray extends JdiObject
                     level--;
                 }
                 componentType = component;
-            }
-            else {
-                // GenTypeSuper or the like. In some cases it would be possible
-                // to map from a super type to a sub type, but it's possible
-                // that the super type is not even loaded. So don't even try.
-                
-                String compName = ctypestr.substring(1, ctypestr.length() - 1);
-                compName = compName.replace('/','.');
-                
-                Reflective compReflective = new JdiReflective(compName, obj.referenceType());
-
-                componentType = new GenTypeClass(compReflective);
             }
         }            
     }

@@ -45,8 +45,15 @@ public class GenTypeTpar extends GenTypeSolid
     
     protected void getParamsFromTemplate(Map map, GenTypeParameterizable template)
     {
-        // TODO - may need to "precisify".
-        map.put(name, template);
+        // If a mapping already exists, precisify it against the template.
+        // Otherwise, create a new mapping to the template.
+        
+        GenTypeParameterizable x = (GenTypeSolid) map.get(name);
+        if (x != null)
+            x = x.precisify(template);
+        else
+            x = template;
+        map.put(name, x);
     }
     
     protected GenTypeParameterizable precisify(GenTypeParameterizable other)

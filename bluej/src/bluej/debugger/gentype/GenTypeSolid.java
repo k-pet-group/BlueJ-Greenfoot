@@ -7,22 +7,22 @@ import java.util.Map;
  * a component type for a wildcard clause.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSolid.java 2656 2004-06-25 01:44:18Z davmac $
+ * @version $Id: GenTypeSolid.java 3063 2004-10-25 02:37:00Z davmac $
  */
 public abstract class GenTypeSolid extends GenTypeParameterizable {
 
-    /**
+    /*
      * @see bluej.debugger.gentype.GenTypeParameterizable#equals(bluej.debugger.gentype.GenTypeParameterizable)
      */
     public abstract boolean equals(GenTypeParameterizable other);
 
-    /**
+    /*
      * @see bluej.debugger.gentype.GenTypeParameterizable#getParamsFromTemplate(java.util.Map, bluej.debugger.gentype.GenTypeParameterizable)
      */
     protected abstract void getParamsFromTemplate(Map map,
             GenTypeParameterizable template);
 
-    /**
+    /*
      * @see bluej.debugger.gentype.GenType#toString(boolean)
      */
     public abstract String toString(boolean stripPrefix);

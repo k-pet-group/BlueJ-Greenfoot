@@ -4,14 +4,15 @@ import java.util.*;
 
 import bluej.utility.JavaNames;
 
-/* Represent a (possibly generic) type. This can include wildcard types,
+/**
+ * Represent a (possibly generic) type. This can include wildcard types,
  * type parameters, etc; ie. anything that JDK 1.5 "Type" can represent. But 
  * this works for java 1.4 as well...
  * 
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 2989 2004-09-06 04:55:32Z davmac $
+ * @version $Id: GenTypeClass.java 3063 2004-10-25 02:37:00Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -178,10 +179,17 @@ public class GenTypeClass extends GenTypeSolid {
     
     public boolean equals(GenTypeParameterizable other)
     {
-        if( ! (other.getClass() != GenTypeClass.class))
+        if (other == this)
+            return true;
+        if (! (other.getClass() != GenTypeClass.class))
             return false;
         
         GenTypeClass oClass = (GenTypeClass)other;
+        
+        // the class name must match
+        if (! rawName().equals(oClass.rawName()))
+            return false;
+        
         Iterator i = params.iterator();
         Iterator j = oClass.params.iterator();
         
@@ -383,6 +391,10 @@ public class GenTypeClass extends GenTypeSolid {
                 //   A<T> extends B<C<T>>;  // not so easy
                 // Just to complicate matters, we may not know exactly what X
                 // is. It could be "? extends Y" or "? super Y" for instance.
+                //
+                // In the first example argType = T, srcType = X.
+                // In the second, argType = C<T>, srcType = X. X is then
+                //                 implied to be of type C<?>.
                 
                 GenTypeParameterizable argType = (GenTypeParameterizable)baseDeclI.next();
                 GenTypeParameterizable srcType = (GenTypeParameterizable)r.get(i.next());
@@ -392,6 +404,7 @@ public class GenTypeClass extends GenTypeSolid {
            
             r = newMap;
             l = newList;
+            curBase = curSubtype;
         }
         
         return r;
@@ -462,21 +475,69 @@ public class GenTypeClass extends GenTypeSolid {
      * This method is overridden in subclasses.
      * 
      * @param r  the Map to put the entries in. 
+     * @see bluej.debugger.gentype.GenTypeParameterizable#getParamsFromTemplate(java.util.Map, bluej.debugger.gentype.GenTypeParameterizable)
      */
     protected void getParamsFromTemplate(Map r, GenTypeParameterizable template)
     {
-        // TODO. Too complicated for now.
+        // We are classA<...>, template could be anything.
+        // possibilities for template:
+        //      classA<...>  - fine, just map the parameters seperately
+        //      ?            - can't map anything
+        //      ? extends classB<...> - first map classB to classA, then
+        //                        map the parameters
+        //           - same with super clause
+        //           - with multiple bounds, map seperately and then precisify
+        
+        if (template instanceof GenTypeClass) {
+            GenTypeClass classTemplate = (GenTypeClass) template;
+            if (classTemplate.rawName().equals(rawName())) {
+                Iterator i = params.iterator();
+                Iterator j = classTemplate.params.iterator();
+
+                // loop through each parameter
+                while (i.hasNext() && j.hasNext()) {
+                    GenTypeParameterizable ip = (GenTypeParameterizable) i.next();
+                    GenTypeParameterizable jp = (GenTypeParameterizable) j.next();
+
+                    ip.getParamsFromTemplate(r, jp);
+                }
+            }
+        }
+        else if (template instanceof GenTypeWildcard) {
+            GenTypeWildcard wildcardTemplate = (GenTypeWildcard) template;
+
+            // wildcard. Map each of the upper and lower bounds to this type,
+            // and use the mapped type as a template in each case.
+
+            GenTypeSolid[] ubounds = wildcardTemplate.getUpperBounds();
+            GenTypeSolid[] lbounds = wildcardTemplate.getLowerBounds();
+
+            for (int i = 0; i < ubounds.length; i++) {
+                if (ubounds[i] instanceof GenTypeClass) {
+                    GenTypeClass uboundClass = (GenTypeClass) ubounds[i];
+                    Map m = uboundClass.mapToDerived(reflective);
+                    getParamsFromTemplate(r, new GenTypeClass(reflective, m));
+                }
+            }
+
+            for (int i = 0; i < lbounds.length; i++) {
+                if (lbounds[i] instanceof GenTypeClass) {
+                    GenTypeClass lboundClass = (GenTypeClass) lbounds[i];
+                    Map m = lboundClass.mapToSuper(reflective.getName());
+                    getParamsFromTemplate(r, new GenTypeClass(reflective, m));
+                }
+            }
+        }
+
         return;
     }
     
     /**
-     * "precisify". Return a type using the most specific information from
-     * this type and the given template in each case.
-     * For instance if:
-     *     this  = Map<? extends Runnable, ? extends Thread>
-     *     other = Map<? extends Thread, ? extends Runnable>
-     * then the result is:
-     *     Map<? extends Thread, ? extends Thread>
+     * "precisify". Return a type using the most specific information from this
+     * type and the given template in each case. For instance if: this = Map <?
+     * extends Runnable, ? extends Thread> other = Map <? extends Thread, ?
+     * extends Runnable> then the result is: Map <? extends Thread, ? extends
+     * Thread>
      */
     protected GenTypeParameterizable precisify(GenTypeParameterizable other)
     {
@@ -511,7 +572,7 @@ public class GenTypeClass extends GenTypeSolid {
             String paramName = tpar.getTparName();
 
             GenTypeSolid bound = tpar.getBound();
-            GenTypeExtends type = new GenTypeExtends(bound);
+            GenTypeWildcard type = new GenTypeExtends(bound);
             if( ! tparams.containsKey(paramName)) {
                 tparams.put(paramName, type);
             }

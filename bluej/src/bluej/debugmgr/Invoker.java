@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3032 2004-10-01 09:39:09Z mik $
+ * @version $Id: Invoker.java 3063 2004-10-25 02:37:00Z davmac $
  */
 
 public class Invoker
@@ -355,7 +355,7 @@ public class Invoker
                 else
                     argType = argTypes[i];
                 if (argType instanceof GenTypeExtends) {
-                    argType = ((GenTypeExtends) argType).getUpperBound();
+                    argType = ((GenTypeExtends) argType).getUpperBounds()[0];
                     buffer.append(((GenTypeSolid) argType).toString(new CleverQualifyTypeNameTransform(pkg)));
                 }
                 else if (argType instanceof GenTypeWildcard)
