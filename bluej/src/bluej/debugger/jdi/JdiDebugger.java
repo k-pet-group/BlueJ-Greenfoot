@@ -35,7 +35,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 599 2000-06-28 05:43:18Z mik $
+ * @version $Id: JdiDebugger.java 600 2000-06-28 07:21:39Z mik $
  *
  * The startup process is as follows:
  *
@@ -452,6 +452,15 @@ public final class JdiDebugger extends Debugger
     }
 
     /**
+     * Dispose all top level windows in the remote machine.
+     */
+    public void disposeWindows()
+    {
+        //Debug.message("[disposeWindows] ");
+        startServer(ExecServer.DISPOSE_WINDOWS, "", "", "", "");
+    }
+
+    /**
      * Start the server process on the remote machine to perform a task.
      * Arguments to the server are a task ID specifying what we want done,
      * and four optional string parameters. The string parameters must not
@@ -816,6 +825,16 @@ public final class JdiDebugger extends Debugger
         machineStatus = RUNNING;
         BlueJEvent.raiseEvent(BlueJEvent.CONTINUE, null);
         resumeMachine();
+    }
+
+    /**
+     * Terminate a thread in the machine.
+     */
+    public void terminate(DebuggerThread thread)
+    {
+        disposeWindows();
+        thread.terminate();
+        exitStatus = TERMINATED;
     }
 
     /**

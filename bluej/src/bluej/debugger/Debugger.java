@@ -13,7 +13,7 @@ import java.util.Vector;
  * @author  Michael Cahill
  * @author  Michael Kolling
  *
- * @version $Id: Debugger.java 589 2000-06-28 04:31:40Z mik $
+ * @version $Id: Debugger.java 600 2000-06-28 07:21:39Z mik $
  */
 public abstract class Debugger
 {
@@ -168,7 +168,7 @@ public abstract class Debugger
 
 
     /**
-     * A thread has been stopped.
+     * Stop the machine. It can be restarted later with "cont()".
      */
     public abstract void halt(DebuggerThread thread);
 
@@ -178,6 +178,12 @@ public abstract class Debugger
      * is indicated in the interface.
      */
     public abstract void cont();
+
+
+    /**
+     * Terminate a thread in the machine.
+     */
+    public abstract void terminate(DebuggerThread thread);
 
 
     /**

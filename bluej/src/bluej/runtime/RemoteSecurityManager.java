@@ -10,7 +10,7 @@ import java.awt.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 309 1999-12-10 05:46:35Z ajp $
+ * @version $Id: RemoteSecurityManager.java 600 2000-06-28 07:21:39Z mik $
  */
 public class RemoteSecurityManager extends SecurityManager
 {
@@ -53,13 +53,7 @@ public class RemoteSecurityManager extends SecurityManager
 
             System.setErr(new PrintStream(throwawayErr));
 
-            Toolkit.getDefaultToolkit().getSystemEventQueue().
-              invokeLater(new Runnable() {
-                public void run() {
-                    System.setErr(oldErr);
-                    ExecServer.disposeWindows();
-                }
-            });
+            ExecServer.disposeWindowsLater(oldErr);
 
             // this exception will not ever be printed out
             throw new ExitException(Integer.toString(status));

@@ -37,6 +37,7 @@ public class ExecServer
     public static final int SET_DIRECTORY  = 6;
     public static final int SERIALIZE_OBJECT = 7;
     public static final int DESERIALIZE_OBJECT = 8;
+    public static final int DISPOSE_WINDOWS = 9;
 
 
     static ExecServer server = null;
@@ -52,7 +53,6 @@ public class ExecServer
      */
     private static List openWindows = Collections.synchronizedList(new LinkedList());
 
-    //private ServerThread servThread;
 
     /**
      * Main method.
@@ -160,6 +160,9 @@ public class ExecServer
                 return null;
             case DESERIALIZE_OBJECT:
                 return deserializeObject(arg1, arg2, arg3, arg4);
+            case DISPOSE_WINDOWS:
+                disposeWindows();
+                return null;
             }
         }
         catch(Exception e) {
@@ -387,7 +390,7 @@ public class ExecServer
     /**
      * Dispose of all the top level windows we think are open
      */
-    static void disposeWindows()
+    private static void disposeWindows()
     {
         synchronized(openWindows) {
 
@@ -406,6 +409,25 @@ public class ExecServer
 
             openWindows.clear();
         }
+    }
+
+
+    /**
+     * Asynchronously (in the system event thread) dispose of all the top 
+     * level windows we think are open
+     */
+    private static PrintStream oldErr = null;
+    public static void disposeWindowsLater(PrintStream restoreErr)
+    {
+        oldErr = restoreErr;
+        Toolkit.getDefaultToolkit().getSystemEventQueue().
+            invokeLater(new Runnable() {
+                    public void run() {
+                        if(oldErr != null)
+                            System.setErr(oldErr);
+                        disposeWindows();
+                    }
+                });
     }
 
     /**

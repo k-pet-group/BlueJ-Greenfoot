@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 599 2000-06-28 05:43:18Z mik $
+ ** @version $Id: ExecControls.java 600 2000-06-28 07:21:39Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -130,7 +130,9 @@ public class ExecControls extends JFrame
                 selectedThread.stepInto();
             }
             else if(obj == terminateButton && machineStatus != Debugger.IDLE) {
-                selectedThread.terminate();
+                Debugger.debugger.terminate(selectedThread);
+                threadList.clearSelection();
+                updateThreads(null);
             }
         }
         else
