@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2214 2003-10-15 03:18:49Z ajp $
+ * @version $Id: ExecControls.java 2317 2003-11-10 16:38:54Z polle $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -419,9 +419,9 @@ public class ExecControls extends JFrame
     private void viewStaticField(int index)
     {
         if(currentClass.staticFieldIsObject(index)) {
-            ObjectInspector viewer = ObjectInspector.getInstance(false,
-                                          currentClass.getStaticFieldObject(index),
-                                          null, null, null, this);
+            ObjectInspector viewer = ObjectInspector.getInstance(currentClass.getStaticFieldObject(index),
+                                          null,
+                                          null, null, this);
         }
     }
 
@@ -431,9 +431,9 @@ public class ExecControls extends JFrame
     private void viewInstanceField(int index)
     {
         if(currentObject.instanceFieldIsObject(index)) {
-            ObjectInspector viewer = ObjectInspector.getInstance(false,
-                                          currentObject.getInstanceFieldObject(index),
-                                          null, null, null, this);
+            ObjectInspector viewer = ObjectInspector.getInstance(currentObject.getInstanceFieldObject(index),
+                                          null,
+                                          null, null, this);
         }
     }
 
@@ -443,9 +443,9 @@ public class ExecControls extends JFrame
     private void viewLocalVar(int index)
     {
         if(selectedThread.varIsObject(currentFrame, index)) {
-            ObjectInspector viewer = ObjectInspector.getInstance(false,
-                           selectedThread.getStackObject(currentFrame, index),
-                           null, null, null, this);
+            ObjectInspector viewer = ObjectInspector.getInstance(selectedThread.getStackObject(currentFrame, index),
+                           null,
+                           null, null, this);
         }
     }
 
