@@ -38,7 +38,7 @@ import java.util.Properties;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 423 2000-04-13 00:21:24Z ajp $
+ * @version $Id: Config.java 434 2000-05-04 05:30:23Z ajp $
  */
 
 public class Config
@@ -65,6 +65,17 @@ public class Config
                                  BorderFactory.createEmptyBorder(10,10,10,10);
     public static final Border generalBorderWithStatusBar =
                                  BorderFactory.createEmptyBorder(10,10,0,10);
+
+    public static final Border dialogBorder =
+                                BorderFactory.createEmptyBorder(12,12,11,11);
+
+    public static final int commandButtonSpacing = 5;
+    public static final int commandButtonPadding = 12;
+
+    public static final int componentSpacingSmall = 5;
+    public static final int componentSpacingLarge = 11;
+
+    public static final int dialogCommandButtonsVertical = 17;
 
     private static boolean initialised = false;
 
