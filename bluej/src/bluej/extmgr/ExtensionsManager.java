@@ -24,6 +24,9 @@ import bluej.extensions.event.InvocationResultEvent;
 
 /**
  *  Manages extensions and provides the main interface to PkgMgrFrame.
+ *  
+ *  Author Clive Miller, University of Kent at Canterbury, 2002
+ *  Author Damiano Bolla, University of Kent at Canterbury, 2003
  */
 public class ExtensionsManager implements BlueJEventListener
 {
@@ -115,11 +118,11 @@ public class ExtensionsManager implements BlueJEventListener
     /**
      *  Searches through the given directory for jar files that contain a valid
      *  extension. If it finds a loadable extension it will add it to the loaded
-     *  extensions... This IS the function that should be called to load
+     *  extensions. This IS the function that should be called to load
      *  extensions
      *
-     * @param  directory  Description of the Parameter
-     * @param  project    Description of the Parameter
+     * @param  directory  Where to look for extensions
+     * @param  project    A project this extension is bound to
      */
     private void loadAllExtensions(File directory, Project project)
     {
@@ -154,13 +157,10 @@ public class ExtensionsManager implements BlueJEventListener
 
 
     /**
-     * Checks if the loaded wrappers/extensions IF this wrapper/extension is already loaded
-     * In case of strange params... we return false, meaning that the given wrapper is NOT
-     * loaded in the system... it is a reasonable response, afer all this wrapper is
-     * not loaded...
-     *
-     * @param  thisWrapper  Description of the Parameter
-     * @return              The wrapperAlreadyLoaded value
+     * Checks if the loaded wrappers/extensions if is already loaded.
+     * In case of strange params we return false, meaning that the given wrapper is NOT
+     * loaded in the system. 
+     * It is a reasonable response, afer all this wrapper is not loaded...
      */
     private boolean isWrapperAlreadyLoaded(ExtensionWrapper thisWrapper)
     {
@@ -191,14 +191,8 @@ public class ExtensionsManager implements BlueJEventListener
 
     /**
      *  Searches for and loads any new extensions found in the project.
-     *  TODO: Two params are not used, remove them when you can do it.
-     *
-     *
-     * @param  pmf        NOT USED
-     * @param  toolsMenu  NOT USED
-     * @param  project    The project I am opening
      */
-    public void projectOpening(Project project, PkgMgrFrame pmf, JMenu toolsMenu)
+    public void projectOpening( Project project )
     {
         File exts = new File(project.getProjectDir(), "extensions");
         loadAllExtensions(exts, project);

@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1828 2003-04-11 08:40:48Z mik $
+ * @version $Id: PkgMgrFrame.java 1830 2003-04-11 09:28:39Z damiano $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener,
@@ -726,7 +726,7 @@ public class PkgMgrFrame extends JFrame
         if(openProj == null)
             return false;
         else {
-            extMgr.projectOpening (openProj, this, toolsMenu);
+            extMgr.projectOpening ( openProj );
             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf;
