@@ -1,21 +1,19 @@
 BlueJ interface translations and translators
 
 
-language        last update     translator
---------------------------------------------
-afrikaans       1.2.x     x     Petri Jooste    	<RKWJPJ@puknet.puk.ac.za>
-chinese         1.3.5     x     Gu Zhifeng			<gu_zhifeng@263.net>
-czech           1.3.0     x     Petr Skoda      	<petr.skoda@vslib.cz>
-english         1.2.x     x      
-french          1.2.x     x     Patrice MOREAUX 	<patrice.moreaux@univ-reims.fr>
-german          1.3.5           Ferdinand Kasper 	<fkasper@via.at>
-                                Claus Hentschel 	<claus.hentschel@mbau.fh-hannover.de>
-                          x     Thomas R?fer    	<roefer@tzi.de>
-italian         1.3.5     x     Angelo Papadia  	<angelo.papadia@libero.it>
-japanese        1.2.x           Runrun (ASANO Sei) 	<asano_sei@yahoo.co.jp>
-korean          1.2.x           Suk-Hyung Hwang 	<shwang@sunmoon.ac.kr>
-portuguese      1.2.x     x     Fred Guedes Pereira <fredguedespereira@yahoo.com.br>
-spanish         1.2.x           Ivan Guarin     	<ivanalgu@flamingo.uis.edu.co> (email doesn't work)
-swedish         1.2.x     x     Markus ?stman   	<markus@gnistra.se>
-						next
-						update
+language        last update     next update		translator
+-------------------------------------------------------------
+afrikaans       1.2.x     				x		Petri Jooste    	<RKWJPJ@puknet.puk.ac.za>
+chinese         1.3.5     				x		Gu Zhifeng			<gu_zhifeng@263.net>
+czech           1.3.0     				x		Petr Skoda      	<petr.skoda@vslib.cz>
+english         1.3.5     				x      
+french          1.2.x     				x		Patrice MOREAUX 	<patrice.moreaux@univ-reims.fr>
+german          1.3.5           				Ferdinand Kasper 	<fkasper@via.at>
+                                				Claus Hentschel 	<claus.hentschel@mbau.fh-hannover.de>
+                          				x		Thomas R?fer    	<roefer@tzi.de>
+italian         1.3.5     				x		Angelo Papadia  	<angelo.papadia@libero.it>
+japanese        1.3.5(some labels)		x		Runrun (ASANO Sei) 	<asano_sei@yahoo.co.jp>
+korean          1.2.x           				Suk-Hyung Hwang 	<shwang@sunmoon.ac.kr>
+portuguese      1.2.x     				x		Fred Guedes Pereira <fredguedespereira@yahoo.com.br>
+spanish         1.2.x           				Ivan Guarin     	<ivanalgu@flamingo.uis.edu.co> (email doesn't work)
+swedish         1.3.5(some labels)		x		Markus ?stman   	<markus@gnistra.se>
