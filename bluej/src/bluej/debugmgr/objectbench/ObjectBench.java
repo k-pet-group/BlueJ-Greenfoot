@@ -1,4 +1,4 @@
-package bluej.debugger;
+package bluej.debugmgr.objectbench;
 
 import java.util.List;
 import java.awt.*;
@@ -16,7 +16,7 @@ import bluej.testmgr.*;
  *
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2026 2003-06-11 07:55:32Z ajp $
+ * @version $Id: ObjectBench.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class ObjectBench
 {

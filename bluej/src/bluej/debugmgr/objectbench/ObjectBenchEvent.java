@@ -1,4 +1,4 @@
-package bluej.debugger;
+package bluej.debugmgr.objectbench;
 
 import java.util.*;
 
@@ -6,7 +6,7 @@ import java.util.*;
  * The event which occurs when  performing actions with the ObjectBench.
  *
  * @author  Andrew Patterson
- * @version $Id: ObjectBenchEvent.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: ObjectBenchEvent.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class ObjectBenchEvent extends EventObject
 {

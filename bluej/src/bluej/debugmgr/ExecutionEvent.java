@@ -1,5 +1,6 @@
-package bluej.debugger;
+package bluej.debugmgr;
 
+import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
 
 /**
@@ -7,7 +8,7 @@ import bluej.pkgmgr.Package;
  * an execution.
  *
  * @author  Clive Miller
- * @version $Id: ExecutionEvent.java 1763 2003-04-09 05:53:41Z ajp $
+ * @version $Id: ExecutionEvent.java 2032 2003-06-12 05:04:28Z ajp $
  */
 
 public class ExecutionEvent

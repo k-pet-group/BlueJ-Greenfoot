@@ -1,9 +1,7 @@
 package bluej.debugger;
 
 import java.io.File;
-import java.util.*;
-
-import javax.swing.tree.TreeModel;
+import java.util.Map;
 
 import bluej.debugger.jdi.JdiDebugger;
 
@@ -14,7 +12,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 2030 2003-06-11 07:58:29Z ajp $
+ * @version $Id: Debugger.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public abstract class Debugger
 {
@@ -42,17 +40,17 @@ public abstract class Debugger
 	}
 	
 	/**
-     * Start debugging
+     * Start debugging.
      */
     public abstract void launch();
 
     /**
-     * Finish debugging
+     * Finish debugging.
      */
     public abstract void close();
 
 	/**
-	 * Restart the debugger
+	 * Restart the debugger.
 	 */
 	public abstract void restart();
 	
@@ -68,13 +66,17 @@ public abstract class Debugger
 	public abstract void newClassLoaderLeavingBreakpoints(String classPath);
 
     /**
-     * Add an object to a package scope. The object is held in field
-     * 'fieldName' in object 'instanceName'.
+     * Add a debugger object into the project scope.
+     * 
+     * @param   newInstanceName  the name of the object
+     *          dob              the object itself
+     * @return  true if the object could be added with this name,
+     *          false if there was a name clash.
      */
     public abstract boolean addObject(String newInstanceName, DebuggerObject dob);
 
     /**
-     * Remove an object from a package scope (when removed from object bench)
+     * Remove a debugger object from the project scope.
      */
     public abstract void removeObject(String instanceName);
 
@@ -103,11 +105,6 @@ public abstract class Debugger
      */
     public abstract int getStatus();
     
-    /**
-     * Set the remote VM classpath
-     */
-    public abstract void setLibraries(String classPath);
-
 	/**
 	 * Run the setUp() method of a test class and return the created
 	 * objects.
@@ -178,7 +175,5 @@ public abstract class Debugger
      * @return  a TreeModel with DebuggerThread objects
      *          as the leaves.
      */
-    public abstract TreeModel getThreadTreeModel();
-    
-    public abstract List listThreads();
+    public abstract DebuggerThreadTreeModel getThreadTreeModel();
 }

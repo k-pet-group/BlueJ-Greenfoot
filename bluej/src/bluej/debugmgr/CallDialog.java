@@ -1,14 +1,14 @@
-package bluej.debugger;
-
-import bluej.*;
-import bluej.utility.MultiLineLabel;
-import bluej.utility.DialogManager;
-import bluej.pkgmgr.PkgMgrFrame;
+package bluej.debugmgr;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
+import bluej.BlueJTheme;
+import bluej.debugmgr.objectbench.*;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.utility.*;
 
 /**
  * Superclass for interactive call dialogs (method calls or free
@@ -16,7 +16,7 @@ import javax.swing.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: CallDialog.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public abstract class CallDialog extends JDialog
 	implements ObjectBenchListener

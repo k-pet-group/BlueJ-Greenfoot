@@ -6,6 +6,7 @@ import java.util.*;
 import bluej.*;
 import bluej.classmgr.*;
 import bluej.debugger.*;
+import bluej.debugmgr.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
 import bluej.views.View;
@@ -18,7 +19,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2027 2003-06-11 07:55:50Z ajp $
+ * @version $Id: Project.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class Project
     implements BlueJEventListener

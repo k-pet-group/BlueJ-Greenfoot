@@ -1,7 +1,10 @@
-package bluej.debugger;
+package bluej.debugmgr.objectbench;
 
 import bluej.Config;
 import bluej.BlueJEvent;
+import bluej.debugger.DebuggerObject;
+import bluej.debugmgr.*;
+import bluej.debugmgr.inspector.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.pkgmgr.Package;
@@ -29,7 +32,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1994 2003-05-30 06:36:58Z bquig $
+ * @version $Id: ObjectWrapper.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -63,8 +66,9 @@ public class ObjectWrapper extends JComponent
     // The Java object that this wraps
     protected DebuggerObject obj;
 
-    protected String className;
-    protected String instanceName;
+    //TODO: fix these access permissions
+    public String className;
+    public String instanceName;
     protected String displayClassName;
     protected JPopupMenu menu;
 

@@ -1,11 +1,12 @@
-package bluej.debugger;
+package bluej.debugmgr;
+
 
 /** 
  * This class implements a singleton history object for library class
  * invocations.
  *
  * @author Michael Kolling
- * @version $Id: ClassHistory.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: ClassHistory.java 2032 2003-06-12 05:04:28Z ajp $
  *
  */
 public class ClassHistory extends History

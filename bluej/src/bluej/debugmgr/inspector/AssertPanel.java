@@ -1,4 +1,4 @@
-package bluej.debugger;
+package bluej.debugmgr.inspector;
 
 import java.awt.Color;
 import java.awt.event.*;
@@ -12,7 +12,7 @@ import bluej.Config;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 1941 2003-05-05 06:07:49Z ajp $
+ * @version $Id: AssertPanel.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class AssertPanel extends JPanel
 {

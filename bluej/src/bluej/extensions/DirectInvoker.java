@@ -1,6 +1,7 @@
 package bluej.extensions;
 
 import bluej.debugger.*;
+import bluej.debugmgr.*;
 import bluej.pkgmgr.*;
 import bluej.testmgr.*;
 import bluej.views.*;
@@ -11,7 +12,7 @@ import bluej.views.*;
  * @author Damiano Bolla, University of Kent at Canterbury, 2003
  * @author Clive Miller, University of Kent at Canterbury, 2002
  * 
- * @version $Id: DirectInvoker.java 1985 2003-05-23 09:39:10Z damiano $
+ * @version $Id: DirectInvoker.java 2032 2003-06-12 05:04:28Z ajp $
  */
 class DirectInvoker
 {

@@ -1,23 +1,22 @@
-package bluej.debugger;
+package bluej.debugmgr.inspector;
+
+import java.io.File;
+import java.util.*;
 
 import javax.swing.*;
-import java.util.*;
-import java.util.List;
-import java.io.File;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.JavaNames;
-import bluej.utility.DialogManager;
+import bluej.debugger.DebuggerObject;
+import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Project;
-import bluej.testmgr.*;
+import bluej.testmgr.InvokerRecord;
+import bluej.utility.*;
 
 /**
  * A window that displays the fields in an object or a method return value.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectInspector.java 1995 2003-05-30 06:37:46Z bquig $
+ * @version $Id: ObjectInspector.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener

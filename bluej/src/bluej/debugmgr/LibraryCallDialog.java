@@ -1,25 +1,19 @@
-package bluej.debugger;
-
-import bluej.*;
-import bluej.Config;
-import bluej.utility.Utility;
-import bluej.utility.DialogManager;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Package;
-import bluej.views.View;
-import bluej.views.CallableView;
-import bluej.views.ConstructorView;
-import bluej.views.MethodView;
-import bluej.views.ViewFilter;
-import bluej.classmgr.ClassMgr;
-
-import java.util.List;
-import java.util.ArrayList;
+package bluej.debugmgr;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.util.List;
+
 import javax.swing.*;
 import javax.swing.event.*;
+
+import bluej.*;
+import bluej.classmgr.ClassMgr;
+import bluej.pkgmgr.*;
+import bluej.pkgmgr.Package;
+import bluej.utility.*;
+import bluej.views.*;
 
 /**
  * This dialog allows selection of classes and their static methods from
@@ -28,7 +22,7 @@ import javax.swing.event.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: LibraryCallDialog.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, ListSelectionListener

@@ -1,6 +1,9 @@
-package bluej.debugger;
+package bluej.debugmgr.inspector;
 
 import javax.swing.*;
+
+import bluej.debugger.DebuggerObject;
+
 import java.awt.*;
 
 public abstract class InspectorPanel extends JPanel

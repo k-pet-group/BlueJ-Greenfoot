@@ -1,4 +1,4 @@
-package bluej.debugger;
+package bluej.debugmgr;
 
 import java.util.List;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package bluej.debugger;
+package bluej.debugmgr.inspector;
 
 import java.util.*;
 
@@ -7,7 +7,7 @@ import java.util.*;
  *
  *@author     Duane Buck
  *@created    December 26, 2000
- *@version    $Id: InspectorListener.java 1818 2003-04-10 13:31:55Z fisker $
+ *@version    $Id: InspectorListener.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public interface InspectorListener extends EventListener
 {

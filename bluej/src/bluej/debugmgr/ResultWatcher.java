@@ -1,12 +1,13 @@
-package bluej.debugger;
+package bluej.debugmgr;
 
+import bluej.debugger.DebuggerObject;
 import bluej.testmgr.*;
 
 /**
  * Debugger interface implemented by classes interested in the result of an invocation
  *
  * @author  Michael Cahill
- * @version $Id: ResultWatcher.java 1626 2003-02-11 01:46:35Z ajp $
+ * @version $Id: ResultWatcher.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public interface ResultWatcher
 {

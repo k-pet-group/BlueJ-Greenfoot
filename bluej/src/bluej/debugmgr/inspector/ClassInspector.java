@@ -1,8 +1,9 @@
-package bluej.debugger;
+package bluej.debugmgr.inspector;
 
 import javax.swing.*;
 import bluej.Config;
 import bluej.utility.JavaNames;
+import bluej.debugger.*;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.*;
 
@@ -10,7 +11,7 @@ import bluej.testmgr.*;
  * A window that displays the static fields in an class.
  *
  * @author     Michael Kolling
- * @version    $Id: ClassInspector.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version    $Id: ClassInspector.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class ClassInspector extends Inspector
 {

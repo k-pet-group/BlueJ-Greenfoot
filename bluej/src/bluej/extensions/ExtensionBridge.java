@@ -1,11 +1,12 @@
 package bluej.extensions;
 
-import bluej.debugger.*;
-import bluej.extensions.event.*;
+import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions.event.ExtensionEvent;
 import bluej.extmgr.*;
-import bluej.pkgmgr.Package;
-import com.sun.jdi.*;
 import bluej.pkgmgr.*;
+import bluej.pkgmgr.Package;
+
+import com.sun.jdi.Value;
 
 /*
  * This class acts as a bridge between the extensions package and other 

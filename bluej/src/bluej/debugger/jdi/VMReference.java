@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2031 2003-06-11 08:43:09Z ajp $
+ * @version $Id: VMReference.java 2032 2003-06-12 05:04:28Z ajp $
  *
  * The startup process is as follows:
  *
@@ -778,9 +778,7 @@ class VMReference
     }
 
     /**
-     * A breakpoint has been hit or step completed in the specified thread.
-     * Find the user thread that started the execution and let it continue.
-     * (The user thread is waiting in the waitqueue.)
+     * A breakpoint has been hit or step completed in a thread.
      */
     public void breakpointEvent(LocatableEvent event, boolean breakpoint)
     {
@@ -797,7 +795,8 @@ class VMReference
         // after completing some work. We want to leave it suspended here until
         // it is required to do more work.
         else if (event.request().getProperty(SERVER_SUSPEND_METHOD_NAME) != null) {
-			// do nothing except signify to we are now in a IDLE state
+			// do nothing except signify our change of state
+			owner.breakpoint(event.thread());
 			owner.raiseStateChangeEvent();
         }
         // if the breakpoint is marked as "ExitMarker" then this is our

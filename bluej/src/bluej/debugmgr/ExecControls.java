@@ -1,4 +1,4 @@
-package bluej.debugger;
+package bluej.debugmgr;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -9,6 +9,8 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import bluej.*;
+import bluej.debugger.*;
+import bluej.debugmgr.inspector.*;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 
@@ -18,7 +20,7 @@ import com.sun.jdi.ThreadReference;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2031 2003-06-11 08:43:09Z ajp $
+ * @version $Id: ExecControls.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -69,7 +71,6 @@ public class ExecControls extends JFrame
     private JButton stopButton, stepButton, stepIntoButton, continueButton,
         terminateButton;
     private JButton updateButton, closeButton;
-    private JCheckBox showSystemThreads;
 
 	// the Project that owns this debugger
     private Project project;
@@ -131,9 +132,6 @@ public class ExecControls extends JFrame
         }
         else if(obj == closeButton) {
             setVisible(false);
-        }
-        else if(obj == showSystemThreads) {
-            updateThreads(selectedThread);
         }
 
         if(obj == stopButton) {
@@ -562,15 +560,6 @@ public class ExecControls extends JFrame
         buttonPanel.add(Box.createVerticalGlue());
 
         threadPanel.add(buttonPanel, BorderLayout.EAST);
-
-        showSystemThreads = new JCheckBox(systemThreadText);
-        Font smallFont = showSystemThreads.getFont().deriveFont(10);
-        showSystemThreads.setFont(smallFont);
-        showSystemThreads.addActionListener(this);
-        JPanel checkBoxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,5,0));
-        //checkBoxPanel.setBorder(BorderFactory.createEmptyBorder(0,5,5,0));
-        checkBoxPanel.add(showSystemThreads);
-        threadPanel.add(checkBoxPanel, BorderLayout.SOUTH);
 
         JSplitPane mainPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                                               threadPanel, splitPane);

@@ -1,4 +1,4 @@
-package bluej.debugger;
+package bluej.debugmgr;
 
 import javax.swing.JToggleButton;
 
@@ -23,12 +23,19 @@ public class ExecControlButtonModel extends JToggleButton.ToggleButtonModel
 
     public boolean isSelected()
     {
-    	if (pmf.isEmptyFrame())
-    		return false;
-    	else if (!pmf.getProject().hasExecControls())
-    		return false;
-    	else
-        	return pmf.getProject().getExecControls().isVisible();
+    	if (pmf.isEmptyFrame()) {
+			// if no project is open, we default to off
+			return false;
+    	}
+    	else if (!pmf.getProject().hasExecControls()) {
+			// we don't want to create the ExecControls frame unless we
+			// have to, so if its not made yet, default to off
+			return false;
+    	}
+    	else {
+			// otherwise, ask the ExecControls if they're visible
+			return pmf.getProject().getExecControls().isVisible();
+    	}
     }
 
     public void setSelected(boolean b)

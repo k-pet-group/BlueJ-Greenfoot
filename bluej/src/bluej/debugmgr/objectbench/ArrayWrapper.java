@@ -1,10 +1,11 @@
-package bluej.debugger;
+package bluej.debugmgr.objectbench;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 
+import bluej.debugger.*;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
 
@@ -16,7 +17,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Andrew Patterson
  * @author Bruce Quig
- * @version $Id: ArrayWrapper.java 1996 2003-05-30 06:44:30Z bquig $
+ * @version $Id: ArrayWrapper.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class ArrayWrapper extends ObjectWrapper
 {

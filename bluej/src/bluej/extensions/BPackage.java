@@ -5,7 +5,7 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.target.*;
 import bluej.pkgmgr.target.Target;
-import bluej.debugger.ObjectWrapper;
+import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.compiler.JobQueue;
 
 
@@ -19,7 +19,7 @@ import java.awt.Frame;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1990 2003-05-27 09:54:17Z damiano $
+ * @version $Id: BPackage.java 2032 2003-06-12 05:04:28Z ajp $
  */
 
 /*

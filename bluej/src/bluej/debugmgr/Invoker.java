@@ -1,4 +1,4 @@
-package bluej.debugger;
+package bluej.debugmgr;
 
 import bluej.Config;
 import bluej.BlueJEvent;
@@ -7,6 +7,9 @@ import bluej.utility.Utility;
 import bluej.utility.JavaNames;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.JobQueue;
+import bluej.debugger.*;
+import bluej.debugmgr.inspector.*;
+import bluej.debugmgr.objectbench.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.ConstructorView;
@@ -25,7 +28,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2022 2003-06-05 05:04:16Z ajp $
+ * @version $Id: Invoker.java 2032 2003-06-12 05:04:28Z ajp $
  */
 
 public class Invoker extends Thread

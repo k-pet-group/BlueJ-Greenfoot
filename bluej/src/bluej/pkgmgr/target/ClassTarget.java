@@ -12,6 +12,8 @@ import javax.swing.*;
 
 import bluej.Config;
 import bluej.debugger.*;
+import bluej.debugmgr.*;
+import bluej.debugmgr.inspector.*;
 import bluej.editor.Editor;
 import bluej.graph.GraphEditor;
 import bluej.parser.ClassParser;
@@ -30,7 +32,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2022 2003-06-05 05:04:16Z ajp $
+ * @version $Id: ClassTarget.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {

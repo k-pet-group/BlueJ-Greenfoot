@@ -4,11 +4,11 @@ import java.io.File;
 import java.util.*;
 
 import javax.swing.event.*;
-import javax.swing.tree.TreeModel;
 
 import bluej.Config;
 import bluej.classmgr.ClassMgr;
 import bluej.debugger.*;
+import bluej.debugmgr.Invoker;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.runtime.ExecServer;
 import bluej.utility.*;
@@ -21,7 +21,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2031 2003-06-11 08:43:09Z ajp $
+ * @version $Id: JdiDebugger.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -468,7 +468,7 @@ public class JdiDebugger extends Debugger
 	 *
 	 * @return  A tree model of all the threads.
 	 */
-	public TreeModel getThreadTreeModel()
+	public DebuggerThreadTreeModel getThreadTreeModel()
 	{
 		return treeModel; 
 	}

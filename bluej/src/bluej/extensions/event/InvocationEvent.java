@@ -1,8 +1,8 @@
 package bluej.extensions.event;
 
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.ExecutionEvent;
-import bluej.debugger.ObjectWrapper;
+import bluej.debugmgr.*;
+import bluej.debugmgr.objectbench.*;
 import bluej.extensions.*;
 import bluej.pkgmgr.*;
 import com.sun.jdi.*;
@@ -16,7 +16,7 @@ import com.sun.jdi.*;
  * From this event you can extract the actual result of the invocation, and access the BlueJ
  * classes and objects involved.
  * 
- * @version $Id: InvocationEvent.java 1972 2003-05-21 13:14:24Z damiano $
+ * @version $Id: InvocationEvent.java 2032 2003-06-12 05:04:28Z ajp $
  */
 
 /*

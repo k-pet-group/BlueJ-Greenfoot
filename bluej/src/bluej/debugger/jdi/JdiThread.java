@@ -4,6 +4,7 @@ import java.util.*;
 
 import bluej.Config;
 import bluej.debugger.*;
+import bluej.debugmgr.*;
 import bluej.utility.*;
 
 import com.sun.jdi.*;
@@ -13,7 +14,7 @@ import com.sun.jdi.request.*;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 2031 2003-06-11 08:43:09Z ajp $
+ * @version $Id: JdiThread.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public final class JdiThread extends DebuggerThread
 {

@@ -12,6 +12,9 @@ import javax.swing.border.BevelBorder;
 
 import bluej.*;
 import bluej.debugger.*;
+import bluej.debugmgr.*;
+import bluej.debugmgr.inspector.*;
+import bluej.debugmgr.objectbench.*;
 import bluej.extmgr.ExtensionsManager;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
@@ -28,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2026 2003-06-11 07:55:32Z ajp $
+ * @version $Id: PkgMgrFrame.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener

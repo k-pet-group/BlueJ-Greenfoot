@@ -1,13 +1,15 @@
-package bluej.debugger;
+package bluej.debugmgr.inspector;
 
 import java.util.*;
+
+import bluej.debugger.DebuggerObject;
 
 /**
  *  The event which occurs when an object is to be retrieved in an Inspector.
  *
  *@author     Duane Buck
  *@created    December 26, 2000
- *@version    $Id: InspectorEvent.java 1818 2003-04-10 13:31:55Z fisker $
+ *@version    $Id: InspectorEvent.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public class InspectorEvent extends EventObject
 {

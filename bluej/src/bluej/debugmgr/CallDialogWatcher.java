@@ -1,10 +1,10 @@
-package bluej.debugger;
+package bluej.debugmgr;
 
 /**
  * Interface implemented by classes interested in the MethodDialog
  *
  * @author  Michael Kolling
- * @version $Id: CallDialogWatcher.java 1459 2002-10-23 12:13:12Z jckm $
+ * @version $Id: CallDialogWatcher.java 2032 2003-06-12 05:04:28Z ajp $
  */
 public interface CallDialogWatcher
 {

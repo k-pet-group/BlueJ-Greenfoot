@@ -1,14 +1,16 @@
 package bluej.extmgr;
 
+import java.io.File;
+import java.util.*;
+
+import javax.swing.JFrame;
+
 import bluej.*;
-import bluej.debugger.*;
+import bluej.debugmgr.ExecutionEvent;
 import bluej.extensions.event.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.utility.*;
-import java.io.*;
-import java.util.*;
-import javax.swing.*;
+import bluej.utility.Debug;
 
 /**
  *  Manages extensions and provides the main interface to PkgMgrFrame.

@@ -1,4 +1,4 @@
-package bluej.debugger;
+package bluej.debugmgr;
 
 /** 
  * This class implements a singleton history object for library class
