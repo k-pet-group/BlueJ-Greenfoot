@@ -183,7 +183,6 @@ public class BlueJFileReader
         Reader in = null;
         Writer out = null;
         try {
-            Debug.message("opening srcFile: " + srcFile);
             in = new BufferedReader(new FileReader(srcFile));
             out = new BufferedWriter(new FileWriter(destFile));
 
@@ -197,7 +196,6 @@ public class BlueJFileReader
             try{
                 if(in != null) {
                 in.close();
-                Debug.message("closing srcFile: " + srcFile);
                 }
             if(out != null)
                 out.close();

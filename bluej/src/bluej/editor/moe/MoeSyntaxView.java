@@ -26,7 +26,7 @@ import bluej.Config;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 417 2000-04-04 02:57:53Z bquig $
+ * @version $Id: MoeSyntaxView.java 420 2000-04-05 04:52:25Z bquig $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -41,6 +41,7 @@ public class MoeSyntaxView extends PlainView
     static final Image breakStepImage = 
         new ImageIcon(Config.getImageFilename("image.breakstepmark")).getImage();
     static final int BREAKPOINT_OFFSET = MoeEditor.TAG_WIDTH + 2;
+
     /**
      * Creates a new <code>MoeSyntaxView</code> for painting the specified
      * element.
@@ -259,12 +260,77 @@ public class MoeSyntaxView extends PlainView
 
         // fill in the results and return, include breakpoint area offset
         lineArea.x += xOffs + (MoeEditor.TAG_WIDTH + 2); 
-        //        lineArea.x += xOffs + (MoeEditor.TAG_WIDTH + 1); 
         lineArea.width = 1;
         lineArea.height = metrics.getHeight();
         return lineArea;
     }
 
+
+  /**
+     * Provides a mapping from the view coordinate space to the logical
+     * coordinate space of the model.
+     *
+     * @param fx the X coordinate >= 0
+     * @param fy the Y coordinate >= 0
+     * @param a the allocated region to render into
+     * @return the location within the model that best represents the
+     *  given point in the view >= 0
+     * @see View#viewToModel
+     */
+    public int viewToModel(float fx, float fy, Shape a, Position.Bias[] bias) {
+	// PENDING(prinz) properly calculate bias
+	bias[0] = Position.Bias.Forward;
+
+        Rectangle alloc = a.getBounds();
+        Document doc = getDocument();
+        int x = (int) fx;
+        int y = (int) fy;
+        if (y < alloc.y) {
+            // above the area covered by this icon, so the the position
+            // is assumed to be the start of the coverage for this view.
+            return getStartOffset();
+        } else if (y > alloc.y + alloc.height) {
+            // below the area covered by this icon, so the the position
+            // is assumed to be the end of the coverage for this view.
+            return getEndOffset() - 1;
+        } else {
+            // positioned within the coverage of this view vertically,
+            // so we figure out which line the point corresponds to.
+            // if the line is greater than the number of lines contained, then
+            // simply use the last line as it represents the last possible place
+            // we can position to.
+            Element map = doc.getDefaultRootElement();
+            int lineIndex = Math.abs((y - alloc.y) / metrics.getHeight() );
+            if (lineIndex >= map.getElementCount()) {
+                return getEndOffset() - 1;
+            }
+            Element line = map.getElement(lineIndex);
+            if (x < alloc.x) {
+                // point is to the left of the line
+                return line.getStartOffset();
+            } else if (x > alloc.x + alloc.width) {
+                // point is to the right of the line
+                return line.getEndOffset() - 1;
+            } else {
+                // Determine the offset into the text
+                try {
+                    Segment buffer = getLineBuffer();
+                    int p0 = line.getStartOffset();
+                    int p1 = line.getEndOffset() - 1;
+                    doc.getText(p0, p1 - p0, buffer);
+                    // add Moe breakpoint offset area width
+                    int tabBase = alloc.x + MoeEditor.TAG_WIDTH + 2;
+                    //int tabBase = alloc.x;
+                    int offs = p0 + Utilities.getTabbedTextOffset(buffer, metrics,
+                                                                  tabBase, x, this, p0);
+                    return offs;
+                } catch (BadLocationException e) {
+                    // should not happen
+                    return -1;
+                }
+            }
+        }
+    }    
 
 
     // --- TabExpander interface methods -----------------------------------
