@@ -15,7 +15,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 2340 2003-11-14 10:36:56Z mik $
+ * @version $Id: Boot.java 2356 2003-11-17 05:39:11Z bquig $
  */
 public class Boot
 {
@@ -331,7 +331,7 @@ public class Boot
             if(toolsURL != null)
                 urlList.add(toolsURL);
         }
-        System.out.println(urlList);
+        
         return (URL[]) urlList.toArray(new URL[0]);
     }
     
