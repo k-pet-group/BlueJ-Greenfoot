@@ -9,6 +9,7 @@ import javax.swing.text.*;
 import org.gjt.sp.jedit.syntax.JavaTokenMarker;
 
 import bluej.BlueJEvent;
+import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.IndexHistory;
@@ -29,7 +30,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 2886 2004-08-17 11:57:08Z mik $
+ * @version $Id: TextEvalPane.java 2910 2004-08-19 08:42:50Z mik $
  */
 public class TextEvalPane extends JEditorPane 
     implements ResultWatcher, MouseMotionListener
@@ -39,6 +40,8 @@ public class TextEvalPane extends JEditorPane
     private static final Cursor objectCursor = new Cursor(Cursor.HAND_CURSOR);
     private static final Cursor textCursor = new Cursor(Cursor.TEXT_CURSOR);
     
+    private static final String nullLabel = Config.getString("debugger.null");
+
     private PkgMgrFrame frame;
     private MoeSyntaxDocument doc;  // the text document behind the editor pane
     private String currentCommand = "";
@@ -148,15 +151,20 @@ public class TextEvalPane extends JEditorPane
             //Debug.message("type:"+result.getFieldValueTypeString(0));
 
             String resultString = result.getFieldValueString(0);
-            String resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
-            boolean isObject = result.instanceFieldIsObject(0);
-            
-            if(isObject)
-                objectOutput(resultString + "   (" + resultType + ")", 
-                             new ObjectInfo(result.getFieldObject(0), ir));
-            else
-                output(resultString + "   (" + resultType + ")");
-            
+            System.out.println("r:"+resultString);
+            if(resultString.equals(nullLabel)) {
+                output(resultString);
+            }
+            else {
+                String resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
+                boolean isObject = result.instanceFieldIsObject(0);
+                
+                if(isObject)
+                    objectOutput(resultString + "   (" + resultType + ")", 
+                                 new ObjectInfo(result.getFieldObject(0), ir));
+                else
+                    output(resultString + "   (" + resultType + ")");
+            }            
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
         } 
         else {
