@@ -12,7 +12,7 @@ import java.util.Properties;
  * StdClassRole is used to represent standard Java classes.
  *
  * @author Bruce Quig
- * @version $Id: StdClassRole.java 1538 2002-11-29 13:43:32Z ajp $
+ * @version $Id: StdClassRole.java 1551 2002-12-02 05:58:45Z ajp $
  */
 public class StdClassRole extends ClassRole
 {
@@ -29,10 +29,12 @@ public class StdClassRole extends ClassRole
     }
  
     /**
-     * Generate a popup menu for this AppletClassRole.
-     * @param cl the class object that is represented by this target
-     * @param editorFrame the frame in which this targets package is displayed
-     * @return the generated JPopupMenu
+     * Generate a popup menu for this class role.
+     *
+     * @param   menu    the menu to add items to
+     * @param   ct      the ClassTarget we are constructing the role for
+     * @param   state   whether the target is COMPILED etc.
+     * @return  true if we added any menu tiems, false otherwise
      */
     protected boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, int state)
     {

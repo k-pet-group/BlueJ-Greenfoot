@@ -21,7 +21,7 @@ import java.util.Properties;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 1538 2002-11-29 13:43:32Z ajp $
+ * @version $Id: AppletClassRole.java 1551 2002-12-02 05:58:45Z ajp $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -118,11 +118,12 @@ public class AppletClassRole extends ClassRole
     }
 
     /**
-     * Generate a popup menu for this AppletClassRole.
+     * Generate a popup menu for this class role.
      *
-     * @param cl the class object that is represented by this target
-     * @param editorFrame the frame in which this targets package is displayed
-     * @return the generated JPopupMenu
+     * @param   menu    the menu to add items to
+     * @param   ct      the ClassTarget we are constructing the role for
+     * @param   state   whether the target is COMPILED etc.
+     * @return  true if we added any menu tiems, false otherwise
      */
     protected boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, int state)
     {
