@@ -337,10 +337,10 @@ public class Finder extends JDialog
             {
                 Box optionBox = new Box(BoxLayout.Y_AXIS);
                 {
-                    ignoreCase = new JCheckBox("Ignore case");
+                    ignoreCase = new JCheckBox(Config.getString("editor.find.ignoreCase"), true);
                     optionBox.add(ignoreCase);
                     optionBox.add(Box.createVerticalStrut(6));
-                    wholeWord = new JCheckBox("Whole word");
+                    wholeWord = new JCheckBox(Config.getString("editor.find.wholeWord"));
                     optionBox.add(wholeWord);
                 }
                 togglesBox.add(optionBox);
