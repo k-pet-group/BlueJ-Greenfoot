@@ -13,7 +13,7 @@ import bluej.pkgmgr.target.DependentTarget;
  * Paints a ClassTarget
  * @author fisker
  * @author  Michael Kolling
- * @version $Id: ExtendsDependencyPainter.java 2755 2004-07-07 15:52:12Z mik $
+ * @version $Id: ExtendsDependencyPainter.java 2772 2004-07-09 10:38:54Z mik $
  */
 public class ExtendsDependencyPainter implements DependencyPainter
 {
@@ -96,7 +96,7 @@ public class ExtendsDependencyPainter implements DependencyPainter
                     			  dependency.getTo().getY() + dependency.getTo().getHeight()/2);
             // Get the angle of the line from src to dst.
             double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
-            pTo = ((DependentTarget)dependency.getTo()).getAttachment(angle);
+            pTo = dependency.getTo().getAttachment(angle);
 //          draw the arrow head
             int[] xPoints =  { pTo.x, pTo.x + (int)((ARROW_SIZE) * Math.cos(angle + ARROW_ANGLE)), pTo.x + (int)(ARROW_SIZE * Math.cos(angle - ARROW_ANGLE)) };
             int[] yPoints =  { pTo.y, pTo.y - (int)((ARROW_SIZE) * Math.sin(angle + ARROW_ANGLE)), pTo.y - (int)(ARROW_SIZE * Math.sin(angle - ARROW_ANGLE)) };

@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2771 2004-07-09 09:27:41Z mik $
+ * @version $Id: PkgMgrFrame.java 2772 2004-07-09 10:38:54Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -470,8 +470,6 @@ public class PkgMgrFrame extends JFrame
 
         this.pkg = pkg;
         this.editor = new PackageEditor(pkg);
-        editor.setGraphPainter(GraphPainterStdImpl.getInstance());
-        editor.setGraphElementController(new GraphElementController(editor, pkg));
         editor.setFocusable(true);
         editor.addMouseListener(this);        // This listener MUST be before
         editor.addMouseListener(editor);      //  the editor itself!
