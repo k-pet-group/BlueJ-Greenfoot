@@ -20,7 +20,8 @@ import java.io.*;
 import javax.swing.*;
 import java.lang.reflect.*;
 import java.util.Hashtable;
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * A wrapper around a Java object that handles calling methods, inspecting,
@@ -28,7 +29,7 @@ import java.util.Vector;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 581 2000-06-23 05:55:35Z mik $
+ * @version $Id: ObjectWrapper.java 614 2000-07-03 02:35:00Z mik $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -42,6 +43,13 @@ public class ObjectWrapper extends JComponent
     static final Color umlbg = Color.red.darker();
     static final Color umlText = Color.white;
 
+    public static final int WIDTH = 100;
+    public static final int HEIGHT = 70;
+
+
+    private static int itemHeight = 19;   // wild guess until we find out
+    private static boolean itemHeightKnown = false;
+    private static int itemsOnScreen;
 
     /** The Java object that this wraps **/
     private DebuggerObject obj;
@@ -56,9 +64,6 @@ public class ObjectWrapper extends JComponent
     private Hashtable methodsUsed;
     private Hashtable actions;
 
-    public static final int WIDTH = 100;
-    public static final int HEIGHT = 70;
-
     public ObjectWrapper(PkgMgrFrame pmf, DebuggerObject obj, String instanceName)
     {
         if(pmf.isEmptyFrame())
@@ -68,6 +73,9 @@ public class ObjectWrapper extends JComponent
         this.pkg = pmf.getPackage();
         this.obj = obj;
         this.instanceName = instanceName;
+
+        if(!itemHeightKnown)
+            itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
 
         className = obj.getClassName();
         createMenu(className);
@@ -96,13 +104,13 @@ public class ObjectWrapper extends JComponent
      * Creates the popup menu structure by parsing the object's
      * class inheritance hierarchy.
      *
-     * @param   className   class name of the object for which the menu is to be built
+     * @param className   class name of the object for which the menu is to be built
      */
     private void createMenu(String className)
     {
         Class cl = pkg.loadClass(className);
 
-        Vector classes = getClassHierarchy(cl);
+        List classes = getClassHierarchy(cl);
 
         menu = new JPopupMenu(instanceName + " operations");
 
@@ -112,30 +120,35 @@ public class ObjectWrapper extends JComponent
             methodsUsed = new Hashtable();
 
             // define a view filter
-            ViewFilter filter= new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PROTECTED);
+            ViewFilter filter = 
+                new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PROTECTED);
 
             menu.addSeparator();
 
             // get declared methods for the class
             MethodView[] declaredMethods = view.getDeclaredMethods();
 
+            // create method entries for locally declared methods
+            int itemLimit = itemsOnScreen - 8 - classes.size();
             createMenuItems(menu, declaredMethods, filter, 0,
-                            declaredMethods.length);
+                            declaredMethods.length, itemLimit);
 
+            // create submenus for superclasses
             for(int i = 1; i < classes.size(); i++ ) {
-                Class currentClass = (Class)classes.elementAt(i);
+                Class currentClass = (Class)classes.get(i);
                 view = View.getView(currentClass);
                 declaredMethods = view.getDeclaredMethods();
-                JMenu subMenu =  new JMenu(inheritedFrom + " "
-                                           + JavaNames.stripPrefix(currentClass.getName()));
+                JMenu subMenu = new JMenu(inheritedFrom + " "
+                               + JavaNames.stripPrefix(currentClass.getName()));
                 subMenu.setFont(PrefMgr.getStandoutMenuFont());
-                createMenuItems(subMenu, declaredMethods, filter, 0, declaredMethods.length);
+                createMenuItems(subMenu.getPopupMenu(), declaredMethods, 
+                                filter, 0, 
+                                declaredMethods.length, (itemsOnScreen / 2));
                 menu.insert(subMenu, 0);
             }
 
             menu.addSeparator();
         }
-
 
         // add inspect, serializable and remove options
         JMenuItem item;
@@ -162,24 +175,29 @@ public class ObjectWrapper extends JComponent
     }
 
 
-
-
     /**
      * creates the individual menu items for an object's popup menu.
-     * The method checks for previously defined methods with the same signature and
-     * appends information referring to this.
+     * The method checks for previously defined methods with the same signature
+     * and appends information referring to this.
      *
      * @param menu      the menu that the items are to be created for
      * @param methods   the methods for which menu items should be created
      * @param filter    the filter which decides on which methods should be shown
-     * @param first     the index of the methods array which represents the starting point of the menu items
-     * @param last      the index of the methods array which represents the end point of the menu items
+     * @param first     the index of the methods array which represents the 
+     *                  starting point of the menu items
+     * @param last      the index of the methods array which represents the end 
+     *                  point of the menu items
+     * @param sizeLimit the limit to which the menu should grow before openeing
+     *                  submenus
      */
-    private void createMenuItems(JComponent menu, MethodView[] methods,
-                                 ViewFilter filter, int first, int last)
+    private void createMenuItems(JPopupMenu menu, MethodView[] methods,
+                                 ViewFilter filter, int first, int last,
+                                 int sizeLimit)
     {
         JMenuItem item;
         String methodSignature;
+        List subMenus = new ArrayList();
+        JPopupMenu firstMenu = menu;
 
         for(int i = first; i < last; i++) {
             try {
@@ -190,40 +208,62 @@ public class ObjectWrapper extends JComponent
                 // check if method signature has already been added to a menu
                 if(methodsUsed.containsKey(m.getShortDesc())) {
                     methodSignature = ( m.getShortDesc()
-                                        + "   [ " + redefinedIn + " "
-                                        + JavaNames.stripPrefix(((String)methodsUsed.get(m.getShortDesc())))
-                                        + " ]");
+                             + "   [ " + redefinedIn + " "
+                             + JavaNames.stripPrefix(
+                                   ((String)methodsUsed.get(m.getShortDesc())))
+                             + " ]");
                 }
                 else {
-                    methodSignature =  m.getShortDesc();
+                    methodSignature = m.getShortDesc();
                     methodsUsed.put(m.getShortDesc(), m.getClassName());
                 }
                 item = new JMenuItem(methodSignature);
                 item.addActionListener(this);
                 item.setFont(PrefMgr.getStandardMenuFont());
                 actions.put(item, m);
+
+                // check whether it's time for a submenu
+
+                if(menu.getComponentCount() >= sizeLimit) {
+                    JMenu subMenu = new JMenu("more methods");
+                    subMenu.setFont(PrefMgr.getStandoutMenuFont());
+                    subMenu.setForeground(envOpColour);
+                    //menu.add(subMenu);  // this causes an error!
+                                          // seems that you cannot add menus
+                                          // and then add items later...
+                    subMenus.add(subMenu);
+                    menu = subMenu.getPopupMenu();
+                    sizeLimit = itemsOnScreen / 2;
+                }
                 menu.add(item);
             } catch(Exception e) {
                 Debug.reportError(methodException + e);
                 e.printStackTrace();
             }
         }
+
+        // stack the menus inside each other
+
+        for(int i = subMenus.size()-2; i >= 0; i--)
+            ((JMenu)subMenus.get(i)).add((JMenu)subMenus.get(i+1));
+        if(subMenus.size() > 0)
+            firstMenu.add((JMenu)subMenus.get(0));
     }
 
 
     /**
-     ** creates a Vector containing all classes in an inheritance hierarchy
+     ** creates a List containing all classes in an inheritance hierarchy
      ** working back to Object
      **
      ** @param derivedClass the class whose hierarchy is mapped (including self)
-     ** @return the Vector containng the classes in the inheritance hierarchy
+     ** @return the List containng the classes in the inheritance hierarchy
      **/
-    public Vector getClassHierarchy(Class derivedClass)
+    public List getClassHierarchy(Class derivedClass)
     {
         Class currentClass = derivedClass;
-        Vector classVector = new Vector();
+        List classVector = new ArrayList();
         while(currentClass != null) {
-            classVector.addElement(currentClass);
+            classVector.add(currentClass);
             currentClass = currentClass.getSuperclass();
         }
         return classVector;
@@ -322,19 +362,20 @@ public class ObjectWrapper extends JComponent
         //XXX        pkg.getFrame().clearStatus();
 
         if(isPopupEvent(evt)) {
-            int itemHeight = ((JComponent)menu.getComponent(0)).getHeight();
+            if(!itemHeightKnown) {
+                int height = ((JComponent)menu.getComponent(0)).getHeight();
 
-            if (itemHeight <= 1)     // not yet shown - don't know real height
-                // take a wild guess here
-
-                // lifted higher to avoid mouse events on underlying objects - temporary
-                menuOffset = (menu.getComponentCount() - 1) * 19;
-            // lifted higher to avoid mouse events on underlying objects
-            //menuOffset = (menu.getComponentCount() - 4) * 19;
-            else
-                // from the second time: do it properly
-                menuOffset = (menu.getComponentCount() - 1) * itemHeight;
-            //menuOffset = (menu.getComponentCount() - 4) * itemHeight;
+                // first time, before it's shown, we won't get the real height
+                if(height > 1) {
+                    itemHeight = height;
+                    itemsOnScreen = (int)Config.screenBounds.getHeight() /
+                                         itemHeight;
+                    itemHeightKnown = true;
+                }
+            }
+            //lifted higher to avoid mouse events on underlying objects:
+            //  menuOffset = (menu.getComponentCount() - 1) * itemHeight;
+            menuOffset = (menu.getComponentCount() - 4) * itemHeight;
 
             menu.show(this, evt.getX(), evt.getY() - menuOffset);
         }

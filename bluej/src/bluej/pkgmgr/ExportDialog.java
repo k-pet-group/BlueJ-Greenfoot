@@ -19,7 +19,7 @@ import javax.swing.*;
  * Dialog for choosing options when exporting
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 582 2000-06-23 06:55:35Z mik $
+ * @version $Id: ExportDialog.java 614 2000-07-03 02:35:00Z mik $
  */
 class ExportDialog extends JDialog
 implements ActionListener
@@ -162,16 +162,12 @@ implements ActionListener
                     bGroup.add(directoryButton);
                     bGroup.add(jarButton);
                 }
-                //directoryButton.setNextFocusableComponent(jarButton);
 
                 inputPanel.add(directoryButton);
                 inputPanel.add(jarButton);
                 inputPanel.add(Box.createVerticalStrut(5));
 
                 JLabel classLabel = new JLabel(classLabelText);
-                {
-                    classLabel.setAlignmentX(LEFT_ALIGNMENT);
-                }
                 inputPanel.add(classLabel);
 
                 classSelect = new JComboBox();

@@ -16,7 +16,7 @@ import bluej.utility.BlueJFileReader;
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 598 2000-06-28 05:09:01Z ajp $
+ * @version $Id: ExportManager.java 614 2000-07-03 02:35:00Z mik $
  */
 final class ExportManager
 {
@@ -43,14 +43,14 @@ final class ExportManager
         String newName;
         if(dialog.saveAsJar())
             newName = FileUtility.getFileName(frame,
-                                              "Specify name for jar file",
-                                              "Create",
-                                              false);
+                                        "Specify name for jar file",
+                                        "Create",
+                                        false);
         else
             newName = FileUtility.getFileName(frame,
-                                              "Specify name for directory",
-                                              "Create",
-                                              true);
+                                        "Specify name for export directory",
+                                        "Create",
+                                        false);
         if(newName == null)
             return;
 
@@ -173,7 +173,7 @@ final class ExportManager
      */
     private void writeReadMe(String dir, String mainClass)
     {
-        if(mainClass.length() == 0)
+        if(mainClass == null || mainClass.length() == 0)
             return;
 
         try {
@@ -187,7 +187,8 @@ final class ExportManager
             Hashtable translations = new Hashtable();
             translations.put("MAINCLASS", mainClass);
 
-            String templateName = Config.getLibFilename("template.readme");
+            String templateName = 
+                Config.getLibFilename("template.readme.export");
             BlueJFileReader.translateFile(templateName, readMePath,
                                           translations);
             // append original README

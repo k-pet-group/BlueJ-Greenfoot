@@ -21,6 +21,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
 
+import java.awt.*;
+
 /**
  * Class to handle application configuration for BlueJ. The configuration
  * information is spread over several files: <BR>
@@ -38,7 +40,7 @@ import java.util.Properties;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 555 2000-06-19 00:35:11Z mik $
+ * @version $Id: Config.java 614 2000-07-03 02:35:00Z mik $
  */
 
 public class Config
@@ -56,6 +58,8 @@ public class Config
 
     public static String compilertype;	// current compiler (javac, jikes)
     public static String language;	// message language (english, ...)
+
+    public static Rectangle screenBounds;
 
     // Swing JSplitPane divider width constant for uniform look and feel
     public static final int splitPaneDividerWidth = 3;
@@ -84,6 +88,8 @@ public class Config
      * "Enter" is pressed. We don't want that. Here, we remove the Enter key
      * from the keymap used by all JTextFields. Then we can use the default
      * button for dialogs (Enter will then activate the default button).
+     *
+     * NOT NEEDED ANYMORE FOR JDK 1.3 - remove once 1.2 is out of fashion.
      */
     static {
         JTextField f = new JTextField();
@@ -103,6 +109,8 @@ public class Config
             return;
 
         initialised = true;
+
+        screenBounds = calculateScreenBounds();
 
         // construct paths for the configuration directories
 
@@ -128,6 +136,24 @@ public class Config
             compilertype = "javac";
 
     } // initialise
+
+    /**
+     * Get the screen size information
+     */
+    private static Rectangle calculateScreenBounds()
+    {
+        Rectangle bounds = new Rectangle();
+        GraphicsEnvironment ge = GraphicsEnvironment.
+            getLocalGraphicsEnvironment();
+        GraphicsDevice[] gs = ge.getScreenDevices();
+        for (int j = 0; j < gs.length; j++) { 
+            GraphicsDevice gd = gs[j];
+            GraphicsConfiguration[] gc = gd.getConfigurations();
+            for (int i=0; i < gc.length; i++)
+                bounds = bounds.union(gc[i].getBounds());
+        }
+        return bounds;
+    }
 
     /**
      * Check, and if necessary create, the user directory (~/.bluej)

@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 610 2000-06-30 04:24:58Z ajp $
+ * @version $Id: PkgMgrFrame.java 614 2000-07-03 02:35:00Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -2005,30 +2005,34 @@ public class PkgMgrFrame extends JFrame
         MenuElement[] menus = menubar.getSubElements();
         JMenu menu = null;
 
+        List dontDisable = Arrays.asList(new String [] {
+            Config.getString("menu.package.new"),
+            Config.getString("menu.package.open"),
+            Config.getString("menu.package.import"),
+            Config.getString("menu.package.quit"),
+            Config.getString("menu.tools.browse"),
+            Config.getString("menu.tools.preferences"),
+            Config.getString("menu.view.showExecControls"),
+            Config.getString("menu.view.showTerminal"),
+            Config.getString("menu.help.about"),
+            Config.getString("menu.help.copyright"),
+            Config.getString("menu.help.tutorial"),
+            Config.getString("menu.help.reference"),
+            Config.getString("menu.help.standardApi"),
+        });
+
         for (int i = 0; i < menus.length; i++) {
             if(menus[i] != null) {
                 menu = (JMenu)menus[i];
 
-                if(menu.getText().equals(Config.getString("menu.package")) ||
-                   menu.getText().equals(Config.getString("menu.tools"))) {
-                    for (int j = 0; j < menu.getItemCount(); j++) {
-                        JMenuItem item = menu.getItem(j);
-                        if(item != null) {  // separators are returned as null
-                            String label = item.getText();
-                            if(!label.equals(Config.getString("menu.package.new"))
-                               && !label.equals(Config.getString("menu.package.open"))
-                               && !label.equals(Config.getString("menu.package.quit"))
-                               && !label.equals(Config.getString("menu.package.import"))
-                               && !label.equals(Config.getString("menu.package"))
-                               && !label.equals(Config.getString("menu.tools"))
-                               && !label.equals(Config.getString("menu.tools.browse"))
-                               && !label.equals(Config.getString("menu.tools.preferences")))
-                                item.setEnabled(enable);
-                        }
+                for (int j = 0; j < menu.getItemCount(); j++) {
+                    JMenuItem item = menu.getItem(j);
+                    if(item != null) {  // separators are returned as null
+                        String label = item.getText();
+                        if(! dontDisable.contains(label))
+                            item.setEnabled(enable);
                     }
                 }
-                else if(!menu.getText().equals(Config.getString("menu.help")))
-                    menu.setEnabled(enable);
             }
         }
     }

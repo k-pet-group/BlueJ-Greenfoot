@@ -1,15 +1,17 @@
 done
-  changable font in editor
-  export
+  fixed empty-comment-bug
 
 done recently
-  fixed empty-comment-bug
-  fixed some problems with drawing arrows
-  changed debugger (unfinished)
-  added Terminal: unlimited buffering option
+  added menu stacking (works only in 1.3!)
+  "new class" works with no package open (changed manu enable/disable)
+  fixed export directory bug
 
 to do
+  investigate strange menu post bug!
+  investigate export dialog alignment
 
 other
   default text for README
   labels update for non-english
+  see Test: "import subpackage" does not work!
+  default button works again!?

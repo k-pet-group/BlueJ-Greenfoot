@@ -273,7 +273,7 @@ template.japplet=japplet.tmpl
 template.html=html.tmpl
 template.htmlplugin=htmlplugin.tmpl
 template.readme=readme.tmpl
-
+template.readme.export=readmeexp.tmpl
 
 #######################################################################
 ## Images.
