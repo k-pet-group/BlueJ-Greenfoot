@@ -9,37 +9,28 @@ import bluej.debugger.DebuggerTestResult;
  */
 public class JdiTestResult extends DebuggerTestResult
 {
-	private String className;
-	private String methodName;
-	private String exceptionMsg, traceMsg; 	// null if no failure
+	protected String className;
+	protected String methodName;
+	protected String exceptionMsg, traceMsg; 	// null if no failure
 
 	JdiTestResult(String className, String methodName)
 	{
-		this(className, methodName, null, null);
-	}
-
-    JdiTestResult(String className, String methodName, String exceptionMsg, String traceMsg)
-    {
-        if (className == null || methodName == null)
-            throw new NullPointerException("constructing JdiTestResult");
+		if (className == null || methodName == null)
+			throw new NullPointerException("constructing JdiTestResult");
 
 		this.className = className;
 		this.methodName = methodName;
 
-		this.exceptionMsg = exceptionMsg;
-
-		if (traceMsg != null)
-			this.traceMsg = getFilteredTrace(traceMsg);
-	    else
-	    	this.traceMsg = null;
-    }
-    
+		this.exceptionMsg = null;
+		this.traceMsg = null;
+	}
+  
     /**
      * @see bluej.debugger.DebuggerTestResult#getExceptionMessage()
      */
     public String getExceptionMessage()
     {
-        return exceptionMsg;
+        throw new IllegalStateException("getting Exception message from successful test");
     }
 
     /**
@@ -58,7 +49,7 @@ public class JdiTestResult extends DebuggerTestResult
      */
     public String getTrace()
     {
-        return traceMsg;
+		throw new IllegalStateException("getting stack trace from successful test");
     }
 
     /* (non-Javadoc)
@@ -66,7 +57,7 @@ public class JdiTestResult extends DebuggerTestResult
      */
     public boolean isError()
     {
-        return exceptionMsg != null;
+        return false;
     }
 
     /* (non-Javadoc)
@@ -74,7 +65,7 @@ public class JdiTestResult extends DebuggerTestResult
      */
     public boolean isFailure()
     {
-        return exceptionMsg != null;
+        return false;
     }
 
     /* (non-Javadoc)
@@ -82,7 +73,7 @@ public class JdiTestResult extends DebuggerTestResult
      */
     public boolean isSuccess()
     {
-        return exceptionMsg == null;
+        return true;
     }
 
 	/**

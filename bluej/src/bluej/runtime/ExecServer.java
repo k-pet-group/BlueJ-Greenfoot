@@ -20,7 +20,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 1826 2003-04-11 06:17:12Z ajp $
+ * @version $Id: ExecServer.java 1905 2003-04-28 05:21:24Z ajp $
  */
 public class ExecServer
 {
@@ -35,8 +35,7 @@ public class ExecServer
     public static final String REMOVE_OBJECT    = "removeObject";
     public static final String SET_LIBRARIES    = "setLibraries";
     public static final String RUN_TEST_SETUP   = "runTestSetUp";
-    public static final String RUN_TEST_CLASS   = "runTestClass";
-    public static final String RUN_TEST_METHOD   = "runTestMethod";
+    public static final String RUN_TEST_METHOD  = "runTestMethod";
     public static final String SUPRESS_OUTPUT   = "supressOutput";
     public static final String RESTORE_OUTPUT   = "restoreOutput";
     public static final String DISPOSE_WINDOWS  = "disposeWindows";
@@ -327,7 +326,7 @@ public class ExecServer
             // cannot execute setUp directly because it is protected
             // we can however use reflection to call it because this VM
             // has access protection disabled
-            // this will not execute inherited setUp methods!!!
+            // TODO: this will not execute inherited setUp methods!!!
             try {
                 Method setUpMethod = cl.getDeclaredMethod("setUp", null);
 
@@ -361,43 +360,6 @@ public class ExecServer
         }
 
         return new Object[0];
-    }
-
-    private Object[] runTestClass(String loaderId, String scopeId, String className)
-        throws ClassNotFoundException
-    {
-        Class cl = null;
-        
-        if(loaderId == null)
-            cl = classmgr.getLoader().loadClass(className);
-        else {
-            ClassLoader loader = (ClassLoader)loaders.get(loaderId);
-            if(loader != null)
-                cl = loader.loadClass(className);
-    	}
-
-        TestResult tr = null; // = RemoteTestRunner.run(cl);
-        
-        String results[] = new String[3 + tr.errorCount() + tr.failureCount()];
-
-        results[0] = String.valueOf(tr.runCount());
-        results[1] = String.valueOf(tr.errorCount());
-        results[2] = String.valueOf(tr.failureCount());
-
-        int i = 3;
-        Enumeration e;
-                
-        for (e = tr.errors(); e.hasMoreElements(); ) {
-			TestFailure tf = ((TestFailure)e.nextElement());
-			results[i++] = tf.failedTest() + "\n" + tf.trace() + "\n" + tf.exceptionMessage();
-		}
-		
-        for (e = tr.failures(); e.hasMoreElements(); ) {
-			TestFailure tf = ((TestFailure)e.nextElement());
-			results[i++] = tf.failedTest() + "\n" + tf.trace() + "\n" + tf.exceptionMessage();
-		}
-        
-        return results;
     }
 
 	/**
@@ -460,11 +422,12 @@ public class ExecServer
 			
 		if (tr.errorCount() == 1) {
 			for (Enumeration e = tr.errors(); e.hasMoreElements(); ) {
-				Object result[] = new Object[2];
+				Object result[] = new Object[3];
 				TestFailure tf = (TestFailure)e.nextElement();
 				
-				result[0] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
-				result[1] = tf.trace() != null ? tf.trace() : "no trace";
+				result[0] = tf.isFailure() ? "failure" : "error";
+				result[1] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
+				result[2] = tf.trace() != null ? tf.trace() : "no trace";
 				
 				return result;
 			}
@@ -474,11 +437,12 @@ public class ExecServer
 
 		if (tr.failureCount() == 1) {
 			for (Enumeration e = tr.failures(); e.hasMoreElements(); ) {
-				Object result[] = new Object[2];
+				Object result[] = new Object[3];
 				TestFailure tf = (TestFailure)e.nextElement();
 				
-				result[0] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
-				result[1] = tf.trace() != null ? tf.trace() : "no trace";
+				result[0] = tf.isFailure() ? "failure" : "error";
+				result[1] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
+				result[2] = tf.trace() != null ? tf.trace() : "no trace";
 
 				return result;
 			}

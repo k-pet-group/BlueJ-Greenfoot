@@ -22,7 +22,7 @@ import bluej.utility.Debug;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1844 2003-04-14 06:14:21Z ajp $
+ * @version $Id: JdiDebugger.java 1905 2003-04-28 05:21:24Z ajp $
  *
  * The startup process is as follows:
  *
@@ -506,13 +506,18 @@ public final class JdiDebugger extends Debugger
 
 		ArrayReference arrayRef = (ArrayReference) invokeExecServer(ExecServer.RUN_TEST_METHOD, Arrays.asList(args));
       
-        if (arrayRef != null && arrayRef.length() > 1) {
-			String exMsg = ((StringReference) arrayRef.getValue(0)).value();
-			String traceMsg = ((StringReference) arrayRef.getValue(1)).value();
+        if (arrayRef != null && arrayRef.length() > 2) {
+			String failureType = ((StringReference) arrayRef.getValue(0)).value();
+			String exMsg = ((StringReference) arrayRef.getValue(1)).value();
+			String traceMsg = ((StringReference) arrayRef.getValue(2)).value();
 
-			return new JdiTestResult(className, methodName, exMsg, traceMsg);        
+			if (failureType.equals("failure"))
+				return new JdiTestResultFailure(className, methodName, exMsg, traceMsg);
+			else
+				return new JdiTestResultError(className, methodName, exMsg, traceMsg);
         }
 		
+		// a null means that we had success. Return a success test result
 		return new JdiTestResult(className, methodName);
     }    
 

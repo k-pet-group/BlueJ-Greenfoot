@@ -13,7 +13,7 @@ import bluej.debugger.DebuggerTestResult;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 1882 2003-04-24 06:28:11Z ajp $
+ * @version $Id: TestDisplayFrame.java 1905 2003-04-28 05:21:24Z ajp $
  */
 public class TestDisplayFrame
 {
@@ -124,7 +124,9 @@ public class TestDisplayFrame
 
         fdv.clear();
         pb.reset();
-        cp.setTotal(0);       
+        cp.setTotal(0);
+        cp.setErrorValue(0);
+        cp.setFailureValue(0);       
     }
     
     /**
