@@ -923,7 +923,7 @@ statement
     |   "synchronized" LPAREN expression RPAREN statement
 
     // assertion statement
-    |  "assert" expression SEMI
+    |  "assert" expression (COLON expression)? SEMI
 
     // empty statement
     |   SEMI
