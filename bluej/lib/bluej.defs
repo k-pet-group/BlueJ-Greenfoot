@@ -255,7 +255,7 @@ browser.fontsize.treeleaf=11
 #######################################################################
 ## Terminal settings. Height and width are in number of characters.
 #######################################################################
-bluej.terminal.height=25
+bluej.terminal.height=22
 bluej.terminal.width=80
 
 
@@ -406,6 +406,7 @@ image.icon=bluej-icon.gif
 image.icon.terminal=bluej-icon-terminal.gif
 image.icon.editor=bluej-icon-edit.gif
 image.logo=bluej-logo.gif
+image.empty=empty.gif
 
 # arrow buttons
 image.build.depends=arrow_black.gif
