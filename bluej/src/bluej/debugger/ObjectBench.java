@@ -12,14 +12,12 @@ import bluej.utility.Debug;
  * The panel that displays objects at the bottom of the package manager
  *
  * @author  Michael Cahill
- * @version $Id: ObjectBench.java 532 2000-06-08 07:46:08Z ajp $
+ * @version $Id: ObjectBench.java 836 2001-04-04 12:25:30Z ajp $
  */
 public class ObjectBench extends JPanel
 {
     static final int WIDTH = 3 * (ObjectWrapper.WIDTH + 10);
     static final int HEIGHT = ObjectWrapper.HEIGHT + 10;
-
-    Vector watchers = new Vector();
 
     public ObjectBench()
     {
@@ -44,7 +42,7 @@ public class ObjectBench extends JPanel
 
     /**
      * This component will raise ObjectBenchEvents when nodes are
-     * selected in the tree. The following functions manage this.
+     * selected in the bench. The following functions manage this.
      */
 
     public void addObjectBenchListener(ObjectBenchListener l) {
@@ -57,7 +55,7 @@ public class ObjectBench extends JPanel
 
     // notify all listeners that have registered interest for
     // notification on this event type.
-    protected void fireObjectEvent(ObjectWrapper wrapper)
+    void fireObjectEvent(ObjectWrapper wrapper)
     {
         // guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
@@ -72,30 +70,12 @@ public class ObjectBench extends JPanel
         }
     }
 
-    public void addWatcher(ObjectBenchWatcher watcher)
-    {
-        watchers.addElement(watcher);
-    }
-
-    public void removeWatcher(ObjectBenchWatcher watcher)
-    {
-	watchers.removeElement(watcher);
-    }
-
     public ObjectWrapper[] getWrappers()
     {
         Component[] components = getComponents();
         ObjectWrapper[] wrappers = new ObjectWrapper[components.length];
         System.arraycopy(components, 0, wrappers, 0, components.length);
         return wrappers;
-    }
-
-    void objectSelected(ObjectWrapper wrapper)
-    {
-	for(Enumeration e = watchers.elements(); e.hasMoreElements(); ) {
-	    ObjectBenchWatcher watcher = (ObjectBenchWatcher)e.nextElement();
-	    watcher.objectSelected(wrapper);
-	}
     }
 
     public void add(ObjectWrapper wrapper)

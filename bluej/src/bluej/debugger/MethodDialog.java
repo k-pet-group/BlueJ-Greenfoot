@@ -32,10 +32,10 @@ import java.util.StringTokenizer;
  * @author  Bruce Quig
  * @author  Michael Kolling
  *
- * @version $Id: MethodDialog.java 815 2001-03-26 05:37:12Z mik $
+ * @version $Id: MethodDialog.java 836 2001-04-04 12:25:30Z ajp $
  */
 public class MethodDialog extends JDialog
-	implements ActionListener, FocusListener, ObjectBenchWatcher
+	implements ActionListener, FocusListener, ObjectBenchListener
 {
     static final int MD_CREATE = 0;
     static final int MD_CALL = 1;
@@ -436,7 +436,7 @@ public class MethodDialog extends JDialog
     	    clearParameters();
 
             // register a watcher for Object Bench selections
-            bench.addWatcher(this);
+            bench.addObjectBenchListener(this);
 
     	    if(params != null) {
                 params[0].requestFocus();
@@ -451,7 +451,7 @@ public class MethodDialog extends JDialog
     	else {
             // bug fix added in ver. 1.0.2 to fix refresh problem under Win NT.
     	    getOwner().repaint();
-            bench.removeWatcher(this);
+            bench.removeObjectBenchListener(this);
         }
     }
 
@@ -509,7 +509,7 @@ public class MethodDialog extends JDialog
     }
 
     /**
-     * 
+     *
      */
     public void doParamEntered(JComponent field)
     {
@@ -685,14 +685,16 @@ public class MethodDialog extends JDialog
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
-    // -- ObjectBenchWatcher interface --
+    // -- ObjectBenchListener interface --
 
     /**
      * The object was selected interactively (by clicking
      * on it with the mouse pointer).
      */
-    public void objectSelected(ObjectWrapper wrapper)
+    public void objectEvent(ObjectBenchEvent obe)
     {
+        ObjectWrapper wrapper = obe.getWrapper();
+
         insertText(wrapper.instanceName);
     }
 
