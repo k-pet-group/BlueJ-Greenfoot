@@ -11,7 +11,7 @@ import bluej.views.*;
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API. 
  *
- * @version $Id: BConstructor.java 1848 2003-04-14 10:24:47Z damiano $
+ * @version $Id: BConstructor.java 1852 2003-04-15 14:56:38Z iau $
  */
 
 /*
@@ -34,7 +34,7 @@ public class BConstructor
     }
 
   /**
-   * Tests if this constructor matches against the given signature.
+   * Tests if this constructor matches the given signature.
    * 
    * @return true if it does, false otherwise.
    */
@@ -90,7 +90,7 @@ public class BConstructor
       }
 
     /**
-     * Gets the last error that occurred.
+     * Gets the last error that occurred during construction.
      * This should be called after receiving a <code>null</code> back from newInstance.
      * 
      * @return any error as a String

@@ -10,14 +10,13 @@ import com.sun.jdi.ObjectReference;
 import bluej.debugger.*;
 
 /**
- * A wrapper for an object in the BlueJ object bench.
+ * A wrapper for an object on the BlueJ object bench.
  * This wraps an object so you can add and remove it from the bench.
- * Bobjects can be obtained from the following classes.
  *
  * @see BConstructor
  * @see BMethod
  * @see BField
- * @version $Id: BObject.java 1849 2003-04-14 14:05:01Z damiano $
+ * @version $Id: BObject.java 1852 2003-04-15 14:56:38Z iau $
  */
 
 /*
@@ -37,10 +36,10 @@ public class BObject
     }
 
     /**
-     * Tests if this BObject is still valid in BlueJ.
-     * This object may not be valid since what it represent has been modified or deleted
+     * Tests if this object is still valid in BlueJ.
+     * This object may not be valid since what it represents has been modified or deleted
      * from the main BlueJ graphical user interface.
-     * Return true if it is false otherwise.
+     * Return true if it is valid, false otherwise.
      */
     public boolean isValid()
         {
@@ -51,7 +50,7 @@ public class BObject
 
 
     /**
-     * Return the package this object belongs to.
+     * Returns the package this object belongs to.
      * It returns null if this is not a valid object anymore.
      */
     public BPackage getPackage()
@@ -62,8 +61,8 @@ public class BObject
     }
         
     /**
-     * Removes this object from the Object Bench. 
-     * This will also remove it from the visible part of the bench.
+     * Removes this object from the object bench. 
+     * This will also remove it from the view of the object bench.
      * Once the object is removed from the bench it will not be available again.
      */
     public void removeFromBench()
@@ -85,7 +84,7 @@ public class BObject
     
 
     /**
-     * Adds this object on the Object Bench.
+     * Adds this object on the object bench.
      * If you pass null as instanceName the object will have a predefined name.
      * If the object is not a valid one nothing will happen.
      * 
@@ -117,7 +116,7 @@ public class BObject
 
 
     /**
-     * Return the name of the object on the bench.
+     * Return the name of this object on the object bench.
      * It can return null if the object is invalid.
      */
     public String getInstanceName()
@@ -140,7 +139,7 @@ public class BObject
     } 
 
     /**
-     * Returns the underlyng BlueJ package.
+     * Returns the underlying BlueJ package.
      * Should remain visible only to package members.
      */
     Package getBluejPackage ()
@@ -163,7 +162,7 @@ public class BObject
 
 
     /**
-     * Return a reasonable representation of this object.
+     * Returns a reasonable representation of this object.
      */
     public String toString ()
       {

@@ -3,18 +3,22 @@ package bluej.extensions;
 import javax.swing.JMenuItem;
 
 /**
- * Extensions wich wish to add a menu item to the BlueJ tools menu must register an
- * instance of MenuGenerator with BlueJ. 
- * MenuGenerator duty is extremly simple, there is only one function to
- * implement and that should return the JMenuItem you want to display.
+ * Extensions which wish to add a menu item to the BlueJ Tools menu should register an
+ * instance of MenuGenerator with the BlueJ proxy object. 
  *
- * Adding a single menu is therefore very simple.
- * What follows is a more complex example that you may scale down or up depending on your needs, 
- * it provides you with two active menues. 
- * 
- * To activate the menues you can istantiate ExtensionMenu and then just do bluej.setMenuGenerator(myNewClass);
+ * A MenuGenerator is only required to implement one function, which should return the 
+ * JMenuItem which the extension wishes to display. The JMenuItem returned can itself be a JMenu, 
+ * allowing extensions to build more complex menu structures.
  *
+ * Below is a more complex example which creates a menu with two active menu items. 
  * 
+ * To activate the menus you instantiate an object of the ExtensionMenu class
+ * and then register it with the BlueJ proxy object, e.g.:
+ * <pre>
+ *        ExtensionMenu myMenu = new ExtensionMenu();
+ *        bluej.setMenuGenerator(myMenu);
+ * </pre>
+ * The code for the ExtensionMenu class is:
  * <PRE>
  * import bluej.extensions.*;
  * import javax.swing.*;
@@ -22,15 +26,13 @@ import javax.swing.JMenuItem;
  *
  * public class ExtensionMenu implements MenuGenerator
  *   {
- *   private BlueJ bluej;
  *   private MenuAction anAction;
  *   private MenuAction moreAction;
  *
- *   public ExtensionMenu(BlueJ bluej)
+ *   public ExtensionMenu()
  *     {
- *     this.bluej = bluej;
- *     anAction = new MenuAction ( "Hello", "Hello Damiano" );
- *     moreAction = new MenuAction ( "Wow", "It works !" );
+ *     anAction = new MenuAction ( "Hello", "Hello World" );
+ *     moreAction = new MenuAction ( "Wow", "It works!" );
  *     }
  *
  *   public JMenuItem getMenuItem ( )
@@ -45,24 +47,22 @@ import javax.swing.JMenuItem;
  *     {
  *     private String aMessage;
  *
- *    public MenuAction ( String menuName, String aMessage)
+ *     public MenuAction ( String menuName, String aMessage)
  *       {
- *      this.aMessage = aMessage;
+ *       this.aMessage = aMessage;
  *       putValue (AbstractAction.NAME,menuName);
  *       }
  *
  *    public void actionPerformed ( ActionEvent anEvent )
  *      {
- *       System.out.println ("ButtonMessage="+aMessage);
- *       // You may want the current package to play with it, if so use the following.
- *      bluej.getCurrentPackage();
+ *      System.out.println ("ButtonMessage="+aMessage);
  *      }
  *    }
  *  }
  *  
  * </PRE>
  *
- * @version $Id: MenuGenerator.java 1780 2003-04-10 08:10:42Z damiano $
+ * @version $Id: MenuGenerator.java 1852 2003-04-15 14:56:38Z iau $
  */
 
  /*
@@ -72,12 +72,8 @@ import javax.swing.JMenuItem;
 public interface MenuGenerator
 {
   /**
-   * Returns the JMenuItem you want to add to the BlueJ Tools menu.
-   * <PRE>
-   * You must follows the following guidelines:
-   * - The returned JMenuItem and all possible subtree must always be a new one.
-   * - Do not store them away in your code.
-   *</PRE>
+   * Returns the JMenuItem to be added to the BlueJ Tools menu.
+   * Extensions should not retain references to the menu items created.
    */
   public JMenuItem getMenuItem();
 }

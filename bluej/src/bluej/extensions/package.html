@@ -4,27 +4,43 @@
 </head>
 <body bgcolor="white">
 
-<P>Provides access to components of BlueJ by means of a set of proxy objects. All objects are
-obtained from a top-level proxy, <CODE>BlueJ</CODE>.</P> 
+<P>Provides access for extensions to the BlueJ application via a proxy object, 
+and to the classes and objects which BlueJ is manipulating via a number of wrapper classes.
+</p>
+<p>
+An extension can add a menu item to the BlueJ Tools menu, and a
+preference panel to the Tools/Preferences/Extensions panel. The
+<code>BlueJ</code> proxy object generates events when the user performs
+significant actions within BlueJ, and provides access to its projects,
+packages, classes and objects via a set of wrapper classes which behave in 
+a similar way to the <code>java.lang.reflect</code> classes.  
+</P> 
 
 <H2>A simple extension</H2>
-<P>The following example impelemnts an extension which logs BlueJ behaviour to System.out.
-Once it is installed you should see an entry in the "installed extensions" panel of BlueJ help menu.</P>
+<P>The following example implements an extension which logs BlueJ behaviour 
+to <code>System.out</code>. Once it is installed you should see an entry in 
+the "Installed Extensions" panel of the BlueJ help menu.</P>
 
-<H3>How to install it</H3>
+<H3>How to build and install it</H3>
 
 <UL>
-  <LI>Compile. Remembar that you must include the lib/bluejext.jar into the compiler classpath
-  <LI>Jar. If you use "ant" you can use the instructions ahead.
-  <LI>Copy. You MUST copy it into the lib/extensions of you BlueJ installation.
-  <LI>Run. To run the extension you simply start BlueJ.
+  <LI>Compile it, including <code>lib/bluejext.jar</code> from your BlueJ 
+      installation in the compiler classpath
+  <LI>Create a Jar file containing the classes of your extension, 
+      and add a <code>Main-Class</code> attribute to the Manifest of the Jar file.
+      Note that this does not mean that the extension needs to have a <code>main()</code> method.
+  <LI>Install it by copying the Jar file either into the <code>lib/extensions</code> 
+      directory of your BlueJ installation, or into an <code>extensions</code> directory in 
+      your BlueJ user configuration directory (<code>&lt;USER_HOME&gt;/.bluej/extensions</code> 
+      or <code>&lt;USER_HOME&gt;\bluej\extensions</code>), or into an <code>extensions</code> 
+      directory in the single BlueJ project you wish the extension to be active for.
+  <LI>Run it. The extension should start when you next run BlueJ, or when you open the BlueJ 
+      project into which you installed the extension.
 </UL>
-
-<P>If you are using ant to build your jar you can use the following. Of course you have to fill in the 
-missing parts, as always you should understand what you are doing.</P>
-<P>The important part is the one adding a Manifest to your jar file and specifyng what is the 
-Main_Class to be run on the jar file.</P>
-
+<!--
+<P>If you are using ant to build your extension's Jar file you can use the following.</P>
+<P>The important part is the one adding a Manifest to your jar file and specifying the 
+name of the Main-Class to be run on the jar file.</P>
 <PRE>
     &lt;target name="jarred" depends="compile">
         &lt;jar jarfile="${bluej_home}/lib/extensions/${output_jar}" compress="no" >
@@ -36,7 +52,7 @@ Main_Class to be run on the jar file.</P>
         &lt;/jar>
     &lt;/target>
 </PRE>
-
+-->
 <P>This is the actual code</P>
 
 <PRE>
@@ -51,31 +67,30 @@ import java.net.URL;
 public class SimpleExtension extends Extension implements BlueJExtensionEventListener
   {
   /**
-   * Here you can actually start using your nice extension, all pieces are in place.
+   * When this method is called, the extension may start its work.
    */
   public void startup (BlueJ bluej) {
     bluej.addBlueJExtensionEventListener(this);
     }
 
-
   /** 
-   * Something has happened in blueJ
-   * What we do is to put it into the queue of events happening
-   * and also we display it into the console.
+   * Something has happened in BlueJ
+   * Simply display the contents of the event on the console.
    */
   public void eventOccurred ( BlueJExtensionEvent ev ) {
     System.out.println ("Event="+ev.toString());
     }  
     
   /**
-   * Tryes to decide if this Extension is compatible with the current release of Extensions API
+   * This method must decide if this Extension is compatible with the 
+   * current release of the BlueJ Extensions API
    */
   public boolean isCompatible () { 
     return true; 
     }
 
   /**
-   * Returs to the system the version of this extension
+   * Returns the version number of this extension
    */
   public String  getVersion () { 
     return ("2003.03");  
@@ -87,15 +102,15 @@ public class SimpleExtension extends Extension implements BlueJExtensionEventLis
 
   /**
    * Returns a URL where you can find info on this extension.
-   * WARNING: The real problem is making shure that the link will be alive in three years...
+   * The real problem is making sure that the link will still be alive in three years...
    */
   public URL getURL () {
     try {
       return new URL("http://www.cs.ukc.ac.uk/projects/bluej/");
       }
     catch ( Exception eee ) {
-      // There is no reason at all that this should trow exception...
-      System.out.println ("BlueJscript: getURL: Exception="+eee.getMessage());
+      // There is no reason at all that this should throw exception...
+      System.out.println ("SimpleExtension: getURL: Exception="+eee.getMessage());
       return null;
       }
     }

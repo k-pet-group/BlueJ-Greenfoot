@@ -15,10 +15,10 @@ import java.awt.Frame;
 
 
 /**
- * A wrapper for a Package in the BlueJ environment.
+ * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1848 2003-04-14 10:24:47Z damiano $
+ * @version $Id: BPackage.java 1852 2003-04-15 14:56:38Z iau $
  */
 
 /*
@@ -42,9 +42,9 @@ public class BPackage
 
     /**
      * Determines whether this is a valid package.
-     * This object may not be valid since what it represent has been modified or deleted
+     * This object may not be valid since what it represents may have been modified or deleted
      * from the main BlueJ graphical user interface.
-     * Return true if it is still valid, false otherwise.
+     * Returns true if it is still valid, false otherwise.
      */
     public boolean isValid()
     {
@@ -55,7 +55,7 @@ public class BPackage
 
 
     /**
-     * Return the package's project.
+     * Returns the package's project.
      * It will return null if this is an invalid package.
      */
     public BProject getProject()
@@ -67,9 +67,9 @@ public class BPackage
 
 
     /**
-     * Return the name of the package. 
-     * This might well be an empty String if no package name has been set.
-     * It can be a null string if it is an invalid package.
+     * Returns the name of the package. 
+     * Returns an empty string if no package name has been set.
+     * Returns a null string if it is an invalid package.
      */
     public String getName()
     {
@@ -78,9 +78,9 @@ public class BPackage
     }
     
     /**
-     * Return the package frame.
-     * This may be needed for modal dialogues.
-     * It may return null if this is not a valid package.
+     * Returns the package frame.
+     * This can be used (e.g.) as the "parent" frame for positioning modal dialogues.
+     * Returns null if this is not a valid package.
      */
     public Frame getFrame()
     {
@@ -90,11 +90,11 @@ public class BPackage
 
     
     /**
-     * Return the class with the given name in this package.
-     * It may return null if this is an invalid package.
-     * It may return null if the class name does not exist.
+     * Returns the class with the given name in this package.
+     * Returns null if this is an invalid package.
+     * Returns null if the class name does not exist.
      * 
-     * @param name the simple name of the required class. For example, <CODE>Person</CODE>.
+     * @param name the simple name of the required class.
      */
     public BClass getBClass (String name)
     {
@@ -109,7 +109,7 @@ public class BPackage
     }
     
     /**
-     * Return an array containing all classes in this package.
+     * Returns an array containing all the classes in this package.
      * If there are no classes or the package is invalid an empty array will be returned.
      */
     public BClass[] getBClasses()
@@ -127,7 +127,7 @@ public class BPackage
     }
     
     /**
-     * Return an object shown on the object bench.
+     * Returns a wrapper for the object with the given name on BlueJ's object bench.
      * @param name the name of the object as shown on the object bench
      * @return the object, or null if no such object exists.
      */
@@ -150,8 +150,8 @@ public class BPackage
     }    
 
     /**
-     * Return an array of all the Objects on the Object bench.
-     * It can be an empty array if no objects are on the bench.
+     * Returns an array of all the Objects on the object bench.
+     * The array will be empty if no objects are on the bench.
      */
     public BObject[] getObjects()
     {
@@ -169,7 +169,7 @@ public class BPackage
     
 
     /**
-     * Compile this Package.
+     * Compile this package.
      * If forceAll is true it will compile all files otherwise it will compile
      * just the ones that are modified.
      * @param forceAll if <code>true</code> compile all files.
@@ -184,7 +184,7 @@ public class BPackage
     
     /**
      * Reloads the entire package.
-     * This is usually needed when a new java file has been added to the package.
+     * This is used (e.g.) when a new <code>.java</code> file has been added to the package.
      */
     public void reload()
     {

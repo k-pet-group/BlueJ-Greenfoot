@@ -3,45 +3,55 @@ package bluej.extensions;
 import javax.swing.JPanel;
 
 /**
- *  Provides a means to add preference items to the Tools-Preferences Extensions panel.
+ * Extensions which wish to add preference items to BlueJ's Tools/Preferences/Extensions 
+ * panel should register an instance of PreferenceGenerator with the BlueJ proxy object.
  *
- *  What you do is to implement getPanel(), loadValues() and saveValues() and
- *  put all your swing Components into a JPanel that will be taken for drawing.
- *  After having allocated this class you can simply call 
- *  bluej.setPreferenceGenerator (myPrefGen );  
- *  This is a simple example of how a preference panel can be implemented.
- *  
+ * The PreferenceGenerator allows the creation of a Panel to contain
+ * preference data, and the loading and saving of that data.
+ *
+ * Below is a simple example to create a preference panel with a single
+ * text item to record a user's favourite colour.
+ *
+ * To activate the preference panel you instantiate an object of the Preferences class
+ * and then register it with the BlueJ proxy object, e.g.:
+ * <pre>
+ *        Preferences myPreferences = new Preferences(bluej);
+ *        bluej.setPreferenceGenerator(myPreferences);
+ * </pre>
+ * The code for the Preferences class is:
  * <PRE>
- * public class JsPreferences implements PreferenceGenerator
+ * public class Preferences implements PreferenceGenerator
  * {
  * private JPanel myPanel;
- * private JTextField profileCmd;
+ * private JTextField color;
  * private BlueJ bluej;
- * public static final String PROFILE_LABEL="profile.cmd";
+ * public static final String PROFILE_LABEL="Favourite-Colour";
  *
- * public JsPreferences(BlueJ bluej) {
+ * public Preferences(BlueJ bluej) {
  *   this.bluej = bluej;
  *   myPanel = new JPanel();
- *   myPanel.add (new JLabel ("Profile Command"));
- *   profileCmd = new JTextField (40);
- *   myPanel.add (profileCmd);
- *   // So the user sees the previous values
+ *   myPanel.add (new JLabel ("Favourite Colour"));
+ *   color = new JTextField (40);
+ *   myPanel.add (color);
+ *   // Load the default value
  *   loadValues();
  *   }
  *
  * public JPanel getPanel ()  { return myPanel; }
  *
  * public void saveValues () {
- *   bluej.setExtensionPropertyString(PROFILE_LABEL,profileCmd.getText());
+ *   // Save the preference value in the BlueJ properties file
+ *   bluej.setExtensionPropertyString(PROFILE_LABEL, color.getText());
  *   }
  *
  * public void loadValues () {
- *   profileCmd.setText(bluej.getExtensionPropertyString(PROFILE_LABEL,""));
+ *   // Load the property value from the BlueJ proerties file, default to an empty string
+ *   color.setText(bluej.getExtensionPropertyString(PROFILE_LABEL,""));
  *   }
  * }
  * </pre>
  *
- * @version $Id: PreferenceGenerator.java 1839 2003-04-11 13:20:19Z damiano $
+ * @version $Id: PreferenceGenerator.java 1852 2003-04-15 14:56:38Z iau $
  */
 
 /*
@@ -52,9 +62,9 @@ public interface PreferenceGenerator
 {
     /**
      * Bluej will call this method to get the panel where preferences for this
-     * extension are. Preferences can be layout as desired.
+     * extension are. Preferences can be laid out as desired.
      *
-     * @return    The JPanel where preferences are.
+     * @return    The JPanel to contain preference data.
      */
     public JPanel getPanel();
 
@@ -62,16 +72,15 @@ public interface PreferenceGenerator
     /**
      * When this method is called the Extension should load its current values into
      * its preference panel.
-     * This is called from a swing thread, so be always quick in doing your job.
+     * This is called from a swing thread, so be quick.
      */
     public void loadValues();
 
 
     /**
-     * When this method is called the Extension should save values from the preference panel to 
-     * a longer term of storage. At this stage some sort of control on what is being
-     * saved can be done.
-     * This is called from a swing thread, so be always quick in doing your job
+     * When this method is called the Extension should save values from the preference panel into 
+     * its internal state. Value checking can be performed at this point.
+     * This is called from a swing thread, so be quick.
      */
     public void saveValues();
 }

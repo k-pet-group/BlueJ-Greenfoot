@@ -17,13 +17,13 @@ import java.util.*;
 import java.io.File;
 
 /**
- * Provides services to BlueJ extensions. 
- * This is the top-level object of the wrapper hierarchy. From this class
+ * A proxy object which provides services to BlueJ extensions. 
+ * From this class
  * an extension can obtain the projects and packages which BlueJ is currently displayng
- * and the Classes and Objects they contain. Fields and Mehods of these Objects 
- * can be inspected and invoked using API based on the logic of Reflection API.
+ * and the classes and objects they contain. Fields and methods of these objects 
+ * can be inspected and invoked using an API based on Java's reflection API.
  * 
- * Every effort has been made to retain the logic of Reflection API and to provide
+ * Every effort has been made to retain the logic of the Reflection API and to provide
  * methods that behave in a very similar way.
  * 
  * <PRE>
@@ -35,7 +35,7 @@ import java.io.File;
  *                      |
  *                      +--------- BClass
  *                      |            |
- *                      +- BObject   + BConstuctor
+ *                      +- BObject   + BConstructor
  *                                   |      |
  *                                   |      +- BObject
  *                                   |
@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1848 2003-04-14 10:24:47Z damiano $
+ * @version $Id: BlueJ.java 1852 2003-04-15 14:56:38Z iau $
  */
 
 /*
@@ -65,7 +65,7 @@ public class BlueJ
     private Properties             localLabels;
 
     /**
-     * Constructor for BlueJ.
+     * Constructor for a BlueJ proxy object.
      */
     public BlueJ (ExtensionWrapper aWrapper, PrefManager aPrefManager, MenuManager aMenuManager)
     {
@@ -85,8 +85,8 @@ public class BlueJ
     /**
      * Opens a project.
      * 
-     * @param directory Give the directory where the project is.
-     * @return the BProject that describes the newly opened project or null if it cannot be opened
+     * @param directory Where the project is stored.
+     * @return the BProject that describes the newly opened project or null if it cannot be opened.
      */
     public BProject openProject (File directory)
     {
@@ -130,7 +130,7 @@ public class BlueJ
         }
         
     /**
-     * Creates new BlueJ project.
+     * Creates a new BlueJ project.
      *
      * @param directory where you want the project be placed, it must be writable.
      * @return the newly created BProject if successful, null otherwise.
@@ -147,7 +147,7 @@ public class BlueJ
 
     /**
      * Returns all currently open projects.
-     * It can be an empty array if no projects are open.
+     * Returns an empty array if no projects are open.
      */
     public BProject[] getOpenProjects()
         {
@@ -171,7 +171,7 @@ public class BlueJ
 
     /**
      * Returns the currently selected package.
-     * The currently selected package is the one that is currently being selected by the
+     * The current package is the one that is currently selected by the
      * user interface.
      * It can return null if there is no currently open package.
      */
@@ -192,9 +192,10 @@ public class BlueJ
     }
 
     /**
-     * Returns the current Frame being displayed. 
-     * Used for modal dialog or similar.
-     * Use this one when there are no packages open.
+     * Returns the current frame being displayed. 
+     * Can be used (e.g.) as a "parent" frame for positioning modal dialogs.
+     * If there is a package currently open, it's probably better to use its <code>getFrame()</code>
+     * method to provide better placement.
      */
     public Frame getCurrentFrame()
     {
@@ -204,7 +205,7 @@ public class BlueJ
 
     /**
      * Install a new menu generator for this extension.
-     * If you want no menus then set it to null
+     * If you want to delete a previously installed menu, then set it to null
      * 
      * @param MenuGenerator a Class instance that implements the MenuGenerator interface
      */
@@ -215,7 +216,7 @@ public class BlueJ
     }
 
     /**
-     * Returns the currently registered MenuGenerator instance
+     * Returns the currently registered menu generator
      */
     public MenuGenerator getMenuGenerator ()
     {
@@ -224,7 +225,7 @@ public class BlueJ
 
     /**
      * Install a new preference panel for this extension.
-     * If you want to delete it set prefGen to null
+     * If you want to delete a previously installed preference panel, then set it to null
      * 
      * @param prefGen a class instance that implements the PreferenceGenerator interface.
      */
@@ -235,7 +236,7 @@ public class BlueJ
     }
     
     /**
-     * Returns the currently registered PreferenceGenerator instance.
+     * Returns the currently registered preference generator.
      */
     public PreferenceGenerator getPreferenceGenerator()
     {
@@ -245,7 +246,7 @@ public class BlueJ
 
     /**
      * Returns the arguments with which BlueJ was started.
-     * The return value is a List of Strings.
+     * The return value is a list of strings.
      */
     public List getArgs()
     {
@@ -253,9 +254,9 @@ public class BlueJ
     }
     
     /**
-     * Returns the path to the BlueJ/lib system directory.
-     * This is used to locate systemwide configuration files.
-     * Having the Directory you can then located a file within it.
+     * Returns the path of the <code>&lt;BLUEJ_HOME&gt;/lib</code> system directory.
+     * This can be used to locate systemwide configuration files.
+     * Having the directory you can then locate a file within it.
      */
     public File getSystemLibDir()
     {
@@ -264,8 +265,8 @@ public class BlueJ
 
     /**
      * Returns the path of the user configuration directory.
-     * This is used to locate user dependent information.
-     * Having the Directory you can then located a file within it.
+     * This can be used to locate user dependent information.
+     * Having the directory you can then locate a file within it.
      */
     public File getUserConfigDir ()
     {
@@ -273,7 +274,7 @@ public class BlueJ
     }
     
     /**
-     * Registers an event listener for events generated by BlueJ.
+     * Registers a listener for events generated by BlueJ.
      * 
      * @param listener an instance of a class that implements the BluejEventListener interface
      */
@@ -284,11 +285,12 @@ public class BlueJ
 
 
      /**
-      * Returns a property from BlueJ properties, includes a default value.
+      * Returns a property from BlueJ's properties, 
+      * or the given default value if the property is not currently set.
       * 
       * @param property The name of the required global property
       * @param def The default value to use if the property cannot be found.
-      * @return the value of that property.
+      * @return the value of the property.
       */
     public String getBlueJPropertyString (String property, String def)
     {
@@ -297,7 +299,7 @@ public class BlueJ
 
      /**
       * Return a property associated with this extension from the standard BlueJ property repository.
-      * You must use the setExtensionPropertyString to write the property that you want stored.
+      * You must use the setExtensionPropertyString to write any property that you want stored.
       * You can then come back and retrieve it using this function.
       * 
       * @param property The name of the required global property.
@@ -312,7 +314,7 @@ public class BlueJ
      
      /**
       * Sets a property associated with this extension into the standard BlueJ property repository.
-      * The property name does not need to be fully qulified since a prefix will be prepended to it.
+      * The property name does not need to be fully qualified since a prefix will be prepended to it.
       * 
       * @param property The name of the required global property
       * @param value the required value of that property.
@@ -324,37 +326,39 @@ public class BlueJ
     }
     
     /**
-     * Returns a language-dependent label.
-     * The search order is to look first into extensions labels and if not found into 
-     * systems label.
-     * Extensions labels are stored in a Property format and must be jarred together
-     * with the extension. The path being searched is equivalent to the bluej/lib/[language]
-     * style used for the bluej system labels. An Example can be:
+     * Returns the language-dependent label with the given key.
+     * The search order is to look first in the extension's <code>label</code> files and 
+     * if the requested label is not found in the BlueJ system <code>label</code> files.
+     * Extensions' labels are stored in a Property format and must be jarred together
+     * with the extension. The path searched is equivalent to the bluej/lib/[language]
+     * style used for the BlueJ system labels. E.g. to create a set of labels which can be used
+     * by English, Italian and German users of an extension, the following files would need to
+     * be present in the extension's Jar file:
      * <pre>
      * lib/english/label
      * lib/italian/label
      * lib/german/label
      * </pre>
-     * In the above example "label" at the end is a file that caontains the actual label values.
+     * The files named <code>label</code> would contain the actual label key/value pairs.
      */
-    public String getLabel (String thisId )
+    public String getLabel (String key)
     {
         // If there are no label for this extension I can only return the system ones.
-        if ( localLabels == null ) return Config.getString (thisId, thisId);
+        if ( localLabels == null ) return Config.getString (key, key);
 
         // In theory there are label for this extension let me try to get them
-        String aLabel = localLabels.getProperty (thisId, null);
+        String aLabel = localLabels.getProperty (key, null);
 
         // Found what I wanted, job done.
         if ( aLabel != null ) return aLabel;
 
         // ok, the only hope is to get it from the system
-        return Config.getString (thisId, thisId);
+        return Config.getString (key, key);
     }
     
     
     /**
-     * Request for BlueJ to close.
+     * Request BlueJ to close.
      */
     public void closeBlueJ()
     {

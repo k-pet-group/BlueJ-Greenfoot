@@ -13,15 +13,9 @@ import bluej.utility.Debug;
 
 /**
  * A wrapper for a field of a BlueJ class.
- * Similar to Reflection API.
- * The main reason to have a field coming from a Class and not from an Object is that
- * logically we should be able to get static Field without having objects.
- * Reflection states that to get a static field we can use a Field and pass null as the object to work on.
- * The get method returns an Object, in most cases it is a String, Integer, Long and so on but
- * when a real Object is actually returned it is encapsulated into a BObject. 
- * You must look for this.
+ * Behaviour is similar to the Reflection API.
  * 
- * @version $Id: BField.java 1848 2003-04-14 10:24:47Z damiano $
+ * @version $Id: BField.java 1852 2003-04-15 14:56:38Z iau $
  */
 
 /*
@@ -41,7 +35,7 @@ public class BField
     }        
 
     /**
-     * Used to see if this field matches with the given criteria.
+     * Check to see if the field name matches the given one.
      * 
      * @return true if it does, false othervide
      */
@@ -55,7 +49,7 @@ public class BField
 
 
     /**
-     * Return the name of the Field.
+     * Return the name of the field.
      * Similar to reflection API.
      */
     public String getName()
@@ -76,7 +70,7 @@ public class BField
 
 
     /**
-     * When you are inspecting a static Field use this one.
+     * When you are inspecting a static field use this one.
      */
     private Object getStaticField ()
       {
@@ -140,8 +134,20 @@ public class BField
 
 
     /**
-     * Return this filed value on the given object.
+     * Return the value of this field of the given object.
      * This is similar to Reflection API.
+     *
+     * In the case that the field is of primitive type (<code>int</code> etc.), 
+     * the return value is of the appropriate Java wrapper type (<code>Integer</code> etc.).
+     * In the case that the field contains an object then 
+     * an appropriate BObject will be returned. 
+     *
+     * The main reason that this method is on a field (derived from a class), 
+     * rather than directly on an object, is to allow for the retrieval of 
+     * static field values without having to create an object of the appropriate type.
+     *
+     * As in the Relection API, in order to get the value of a static field pass 
+     * null as the parameter to this method.
      */
     public Object get ( BObject onThis )
         {

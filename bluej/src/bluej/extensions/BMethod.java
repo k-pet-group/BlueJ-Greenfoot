@@ -9,13 +9,15 @@ import bluej.views.*;
 import com.sun.jdi.*;
 
 /**
- * A wrapper for a Method of a Bluej Class.
- * Its duty is to provide a way to the developer to call a method on a given object that is on the bench.
- * What it returns is an Object that is either a primitive type encapsulation
- * Integer for int, Long for long and so on, or it may return a BObject that can
- * further be sent to the bench.
+ * A wrapper for a method of a BlueJ class.
+ * Allows an extension to invoke a method on an object that is on the BlueJ object bench.
+ * When values representing types are returned, there are two cases:
+ * In the case that the returned value is of primitive type (<code>int</code> etc.), 
+ * it is represented in the appropriate Java wrapper type (<code>Integer</code> etc.).
+ * In the case that the returned value is an object type then an appropriate BObject will 
+ * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 1848 2003-04-14 10:24:47Z damiano $
+ * @version $Id: BMethod.java 1852 2003-04-15 14:56:38Z iau $
  */
 
 /*
@@ -38,10 +40,10 @@ public class BMethod
     }
 
     /**
-     * Tests if this mthod matches against the given signature.
+     * Tests if this method matches against the given signature.
      * This is similar to reflection API.
-     * It returns true if there is a match, false otherwise.
-     * A null parameter is equivaled to a zero len parameter array.
+     * Returns true if there is a match, false otherwise.
+     * Pass a zero length parameter array if the method takes no arguments.
      */
     public boolean matches ( String methodName, Class[] parameter )
       {
@@ -73,7 +75,7 @@ public class BMethod
       }
 
     /**
-     * Return the parameters type of this method.
+     * Returns the types of the parameters of this method.
      */
     public Class[] getParameterTypes()
       {
@@ -89,7 +91,7 @@ public class BMethod
       }
     
     /**
-     * Return the return type of this method
+     * Returns the return type of this method
      */
     public Class getReturnType()
         {
@@ -98,7 +100,7 @@ public class BMethod
         }
     
     /**
-     * Return he modifiers of this method.
+     * Returns the modifiers of this method.
      */
     public int getModifiers()
         {
@@ -106,11 +108,11 @@ public class BMethod
         }
 
     /**
-     * Invoke this method on the given Object.
+     * Invoke this method on the given object.
      * 
-     * @param onThis The BObject where you want to apply this method
-     * @param params an array containing the arguments. If none then null
-     * @return the resulting Object. It can be a primitive wrapper or a BObject
+     * @param onThis The BObject to which the method call should be applied
+     * @param params an array containing the arguments, or null if there are none
+     * @return the resulting Object. It can be a wrapper for a primitive type or a BObject
      */
     public Object invoke (BObject onThis, Object[] params)
         {
@@ -134,8 +136,8 @@ public class BMethod
         }
     
     /**
-     * Return the last error that occurred.
-     * This should be called after receiving a <code>null</code> back from an invoke.
+     * Returns the last error that occurred during invocation.
+     * This should be called after receiving a <code>null</code> back from a call on <code>invoke()</code>.
      * It returns a descriptive reason for the error.
      */
     public String getLastError()
@@ -145,7 +147,7 @@ public class BMethod
     }
     
     /**
-     * Return the return type, name and signature of the method
+     * Returns a string representing the return type, name and signature of this method
      */
     public String toString()
     {

@@ -12,11 +12,12 @@ import bluej.pkgmgr.Package;
 import bluej.views.*;
 
 /**
- * A wrapper for a BlueJ Class. 
- * From this BClass you can create BObjects and call methods by following the same reasoning of the reflection API.
+ * A wrapper for a BlueJ class. 
+ * From this you can create BlueJ objects and call their methods.
+ * Behaviour is similar to the Java reflection API.
  * For all methods the return value is null if the class is not compiled.
  * 
- * @version $Id: BClass.java 1848 2003-04-14 10:24:47Z damiano $
+ * @version $Id: BClass.java 1852 2003-04-15 14:56:38Z iau $
  */
 public class BClass
 {
@@ -59,14 +60,15 @@ public class BClass
 
 
     /**
-     * Returns Java Class being hidden by this BClass.
-     * This is the core point where you can get more information about the class. Es:
-     * What is the real class being hidden
-     * Is it an array
-     * What is the type of the array element
+     * Returns the Java class being wrapped by this BClass.
+     * Use this method when you need more information about the class than 
+     * is provided by the BClass interface. E.g.:
+     * What is the real class being hidden?
+     * Is it an array?
+     * What is the type of the array element?
      * 
      * Note that this is for information only. If you want to interact with BlueJ you must
-     * use the methods proviced in BClass.
+     * use the methods provided in BClass.
      */
     public Class getJavaClass ()
       {
@@ -83,8 +85,8 @@ public class BClass
     
       
     /**
-     * Checks to see if a class has been compiled. 
-     * Returns true if this class is compiled and is a valid one.
+     * Checks to see if this class has been compiled. 
+     * Returns true if it is compiled and valid.
      * Returns true if it is a virtual class.
      */
     public boolean isCompiled()
@@ -95,7 +97,7 @@ public class BClass
     }
     
     /**
-     * Compile this class, and any dependants. 
+     * Compile this class, and any dependents. 
      * 
      * @return true if the compilation was successful, false otherwise.
      */
@@ -122,7 +124,7 @@ public class BClass
     }
     
     /**
-     * Returns all constructors of this class.
+     * Returns all the constructors of this class.
      * Similar to reflection API.
      */
     public BConstructor[] getConstructors()
@@ -138,7 +140,7 @@ public class BClass
         }
      
     /**
-     * Returns constructor for this class with the given signature.
+     * Returns the constructor for this class which has the given signature.
      * Similar to reflection API.
      * 
      * @param signature the signature of the required constructor.
@@ -160,7 +162,7 @@ public class BClass
 
 
     /**
-     * Returns the declared method of this class.
+     * Returns the declared methods of this class.
      * Similar to reflection API.
      */
     public BMethod[] getDeclaredMethods()
@@ -198,7 +200,7 @@ public class BClass
 
 
     /**
-     * Returns all fileds of this class.
+     * Returns all the fields of this class.
      * Similar to reflection API.
      */
     public BField[] getFields()
@@ -215,7 +217,7 @@ public class BClass
 
 
     /**
-     * Returns a specific Field of this Class, given its name.
+     * Returns the field of this class which has the given name.
      * Similar to Reflection API.
      */
     public BField getField(String fieldName)
