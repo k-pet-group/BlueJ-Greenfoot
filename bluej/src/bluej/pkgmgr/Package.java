@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 641 2000-07-11 04:31:27Z ajp $
+ * @version $Id: Package.java 650 2000-07-26 00:29:43Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -67,11 +67,11 @@ public class Package extends Graph
     /** error code */ public static final int CLASS_EXISTS = 4;
     /** error code */ public static final int CREATE_ERROR = 5;
 
-    /** layout constant */ private static final int STARTROWPOS = 20;
-    /** layout constant */ private static final int STARTCOLUMNPOS = 20;
-    /** layout constant */ private static final int DEFAULTTARGETHEIGHT = 50;
-    /** layout constant */ private static final int TARGETGAP = 20;
-    /** layout constant */ private static final int RIGHT_LAYOUT_BOUND = 500;
+ /*    private static final int STARTROWPOS = 20;
+     private static final int STARTCOLUMNPOS = 20;
+     private static final int DEFAULTTARGETHEIGHT = 50;
+     private static final int TARGETGAP = 20;
+     private static final int RIGHT_LAYOUT_BOUND = 500; */
 
     /* In the top left corner of each package we have a fixed target -
        either a ParentPackageTarget or a ReadmeTarget. These are there
@@ -410,7 +410,7 @@ public class Package extends Graph
      * @return      the properties describing the new package
      * @exception   IOException if the package file could not be saved
      */
-    public static SortedProperties createDefaultPackage(String[] classFiles,
+/*    public static SortedProperties createDefaultPackage(String[] classFiles,
                                                           String packageLocation)
         throws IOException
     {
@@ -477,7 +477,7 @@ public class Package extends Graph
 
         return props;
     }
-
+*/
     /**
      * Load the elements of a package from a specified directory.
      * If the package file (bluej.pkg) is not found, an IOException is thrown.
@@ -635,7 +635,9 @@ public class Package extends Graph
             Target target = (Target) targets.get(subDirs[i].getName());
 
             if(target == null) {
-                addPackage(subDirs[i].getName());
+                Target newtarget = addPackage(subDirs[i].getName());
+
+                findSpaceForVertex(newtarget);
             }
         }
 
@@ -652,7 +654,9 @@ public class Package extends Graph
             Target target = (Target) targets.get(targetName);
 
             if(target == null) {
-                addClass(targetName);
+                Target newtarget = addClass(targetName);
+
+                findSpaceForVertex(newtarget);
             }
         }
 
@@ -828,51 +832,6 @@ public class Package extends Graph
         addTarget(target);
 
         return target;
-    }
-
-    /**
-     * Arrange all the targets in this package in a standard layout.
-     * It is guaranteed that after this method is called no targets in the
-     * package do overlap.
-     * This method is typically called after mass-importing targets, as with
-     * importPackage.
-     */
-    public void doDefaultLayout()
-    {
-        int horizontal = STARTCOLUMNPOS;
-        int vertical = STARTROWPOS;
-
-        // first iterate over the class targets and lay them out in rows
-        for (Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target target = (Target)e.nextElement();
-
-            if (target instanceof ClassTarget) {
-                target.setPos(horizontal, vertical);
-                horizontal += target.getWidth() + TARGETGAP;
-                if (horizontal > RIGHT_LAYOUT_BOUND) {
-                    horizontal = STARTCOLUMNPOS;
-                    vertical += Target.DEF_HEIGHT + TARGETGAP;
-                }
-            }
-        }
-
-        // then iterate over the package targets, starting on a new row
-        if (horizontal != STARTCOLUMNPOS) {
-            horizontal = STARTCOLUMNPOS;
-            vertical += Target.DEF_HEIGHT + TARGETGAP;
-        }
-        for (Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-            Target target = (Target)e.nextElement();
-
-            if (target instanceof PackageTarget) {
-                target.setPos(horizontal, vertical);
-                horizontal += target.getWidth() + TARGETGAP;
-                if (horizontal > RIGHT_LAYOUT_BOUND) {
-                    horizontal = STARTCOLUMNPOS;
-                    vertical += Target.DEF_HEIGHT + TARGETGAP;
-                }
-            }
-        }
     }
 
     /**

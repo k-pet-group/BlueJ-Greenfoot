@@ -1,16 +1,15 @@
 package bluej.graph;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.awt.geom.*;
 
 /**
  * General graph
  *
  * @author  Michael Cahill
- * @version $Id: Graph.java 532 2000-06-08 07:46:08Z ajp $
+ * @version $Id: Graph.java 650 2000-07-26 00:29:43Z ajp $
  */
 public abstract class Graph
 {
@@ -52,5 +51,32 @@ public abstract class Graph
         }
 
         return new Dimension(minWidth, minHeight);
+    }
+
+    public void findSpaceForVertex(Vertex t)
+    {
+        Area a = new Area();
+
+        for(Enumeration e = getVertices(); e.hasMoreElements(); ) {
+            Vertex vertex = (Vertex)e.nextElement();
+
+            Rectangle vr = new Rectangle(vertex.x, vertex.y,
+                                            vertex.width, vertex.height);
+
+            a.add(new Area(vr));
+        }
+
+        Dimension min = getMinimumSize();
+        Rectangle targetRect = new Rectangle(t.width + 20, t.height + 20);
+
+        for(int y=0; true; y+=20) {
+            for(int x=0; x<(min.width-t.width-20); x+=20) {
+                targetRect.setLocation(x,y);
+                if (!a.intersects(targetRect)) {
+                    t.setPos(x+10,y+10);
+                    return;
+                }
+            }
+        }
     }
 }
