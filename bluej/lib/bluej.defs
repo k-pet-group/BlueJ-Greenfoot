@@ -50,7 +50,7 @@ bluej.url.versionCheck=http://www.bluej.org/version.info
 
 #####################################################################
 ## User's home directory. This is also defined by Java, and if that's
-## fine for you, don't specify this property. This property, if 
+## fine for you, don't specify this property. This property, if
 ## specified, will override Java's user.home property.
 #####################################################################
 
@@ -137,21 +137,21 @@ appletViewer.command=appletviewer
 ## a list of templates is presented to choose from. This property
 ## defines this list. To add additional templates, you should
 ##  - choose a name <template-name> for the template
-##  - create a file named <template-name>.tmpl in 
+##  - create a file named <template-name>.tmpl in
 ##    <bluej>/lib/<language>/templates/newclass/ that contains the text
 ##  - add <template-name> to the classTemplates list below (optional)
-##  - add a property named "pkgmgr.newClass.<template-name>" in the 
-##    language label files for all languages you intend to use 
+##  - add a property named "pkgmgr.newClass.<template-name>" in the
+##    language label files for all languages you intend to use
 ##    (<bluej>/lib/<language>/labels), defining the label to appear in
 ##    the dialogue. (optional)
 ## If the template is for an applet, interface or abstract class, the
-## name you choose should start with "applet", "interface" or 
-## "abstract", respectively. Everything else will be treated as a 
+## name you choose should start with "applet", "interface" or
+## "abstract", respectively. Everything else will be treated as a
 ## standard class.
-## More information is in 
+## More information is in
 ##      <bluej-home>/lib/<language>/templates/newclass/README
 ## The bluej.templatePath property can be used to choose a different
-## directory to store the templates (the default is 
+## directory to store the templates (the default is
 ## <bluej_home>/lib/<language>/templates/newclass).
 ## Note: if the path contains backslashes, they must be written as
 ## double-backslashes (see example).
@@ -162,7 +162,7 @@ bluej.classTemplates = stdclass abstract interface applet
 #bluej.templatePath = F:\\shared\\bluej\\templates
 
 #######################################################################
-## Fonts. You can choose a font size for most of the interface 
+## Fonts. You can choose a font size for most of the interface
 ## components, and a font face and size for the editor. The editor font
 ## size can be redefined by a user in their preference dialogue.
 #######################################################################
@@ -379,7 +379,9 @@ image.breakmark=break.gif
 image.stepmark=stepmark.gif
 image.breakstepmark=stepbreak.gif
 
-image.packageIcon=packageIcon.gif
+image.classIcon=class16.gif
+image.packageIcon=package16.gif
+
 image.broken=broken-arrow.gif
 image.help=help.gif
 
@@ -398,11 +400,13 @@ image.package.import=import16.gif
 image.package.export=export16.gif
 image.package.pageSetup=pagesetup16.gif
 image.package.print=print16.gif
+image.package.edit=edit16.gif
 image.edit.newClass=newclass16.gif
 image.edit.newPackage=newpackage16.gif
 image.edit.addClass=addclass16.gif
 image.edit.remove=remove16.gif
 image.tools.preferences=preferences16.gif
+image.tools.compile=edit16.gif
 image.help.about=about16.gif
 
 ## images for library browser
