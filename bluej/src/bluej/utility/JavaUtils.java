@@ -15,7 +15,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 2660 2004-06-25 05:45:00Z davmac $
+ * @version $Id: JavaUtils.java 2827 2004-07-28 10:36:40Z polle $
  */
 public abstract class JavaUtils {
 
@@ -98,7 +98,9 @@ public abstract class JavaUtils {
     
     abstract public boolean isVarArgs(Method method);    
    
-    abstract public boolean isEnum(Class cl);
+    abstract public boolean isBridge(Method method);
+    
+    abstract public boolean isEnum(Class cl);    
     
     abstract public GenType getReturnType(Method method);
     

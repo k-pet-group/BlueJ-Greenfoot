@@ -12,7 +12,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 2777 2004-07-12 01:51:45Z davmac $
+ * @version $Id: JavaUtils14.java 2827 2004-07-28 10:36:40Z polle $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -65,6 +65,11 @@ public class JavaUtils14 extends JavaUtils
     }
 
     public boolean isVarArgs(Method method)
+    {
+        return false;
+    }
+    
+    public boolean isBridge(Method method)
     {
         return false;
     }
