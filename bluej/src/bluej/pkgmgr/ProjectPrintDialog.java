@@ -16,7 +16,7 @@ import javax.swing.*;
 /**
  * Dialog for creating a new Package
  * 
- * @version $Id: ProjectPrintDialog.java 1526 2002-11-28 02:46:38Z bquig $
+ * @version $Id: ProjectPrintDialog.java 1578 2002-12-12 05:02:10Z bquig $
  * @author Bruce Quig
  */
 public class ProjectPrintDialog extends JDialog implements ActionListener
@@ -58,16 +58,11 @@ public class ProjectPrintDialog extends JDialog implements ActionListener
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(Config.dialogBorder);
-
-        JLabel printProjectTag = new JLabel(projectPrintTitle);
-        printProjectTag.setAlignmentX(LEFT_ALIGNMENT);
-
-        mainPanel.add(printProjectTag);
-
         mainPanel.add(Box.createVerticalStrut(
                               Config.dialogCommandButtonsVertical));
 
         printDiagram = new JCheckBox(printDiagramLabel);
+        printDiagram.setSelected(true);
         mainPanel.add(printDiagram);
         printSource = new JCheckBox(printSourceLabel);
         mainPanel.add(printSource);
