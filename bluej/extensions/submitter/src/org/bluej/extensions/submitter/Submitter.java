@@ -14,7 +14,7 @@ import org.bluej.utility.*;
  * their project by the agreed method
  *
  * @author Clive Miller
- * @version $Id: Submitter.java 1580 2002-12-12 13:18:17Z damiano $
+ * @version $Id: Submitter.java 1594 2002-12-19 17:08:03Z iau $
  */
 public class Submitter extends Extension implements MenuGen, BJEventListener
 {
@@ -32,6 +32,8 @@ public class Submitter extends Extension implements MenuGen, BJEventListener
     private PrefPanel globalPreferences;
     private MenuAction anAction;
     private Stat stat;
+    
+    private int numPackagesOpen = 0;  // Counter for menu en/disable
 
     
     public boolean isCompatibleWith (int majorVersion, int minorVersion)
@@ -84,11 +86,15 @@ public class Submitter extends Extension implements MenuGen, BJEventListener
     if ( ! (ev instanceof bluej.extensions.event.PackageEvent) ) 
       return;
     
-    if ( evType == PackageEvent.PACKAGE_OPENED ) 
-      anAction.setEnabled(true);
+    if ( evType == PackageEvent.PACKAGE_OPENED ) {
+      if (numPackagesOpen == 0) anAction.setEnabled(true);
+      numPackagesOpen++;
+    }
 
-    if ( evType == PackageEvent.PACKAGE_CLOSING ) 
-      anAction.setEnabled(false);
+    if ( evType == PackageEvent.PACKAGE_CLOSING ) {
+      numPackagesOpen--;
+      if (numPackagesOpen == 0) anAction.setEnabled(false);
+    }
     }  
 
 
