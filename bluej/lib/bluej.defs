@@ -345,6 +345,7 @@ colour.wrapper.shadow=152,152,152
 
 colour.menu.environOp=152,32,32
 
+colour.inspector.list.selection=249,225,87
 
 #####################################################################
 ## Compiling. Commands used to execute a compiler. The first property
