@@ -13,10 +13,7 @@ import java.text.DateFormat;
 import bluej.Config;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.FileUtility;
-import bluej.utility.DialogManager;
+import bluej.utility.*;
 import bluej.graph.GraphEditor;
 import bluej.debugger.*;
 import bluej.views.*;
@@ -29,7 +26,7 @@ import bluej.browser.LibraryBrowser;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 537 2000-06-12 04:09:14Z mik $
+ * @version $Id: PkgMgrFrame.java 541 2000-06-13 03:45:00Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, PackageEditorListener
@@ -80,10 +77,8 @@ public class PkgMgrFrame extends JFrame
     JButton imgExtendsButton;
     JButton imgDependsButton;
 
-    static PackageChooser pkgChooser = null;	// chooser for packages only
-    static JFileChooser fileChooser = null;	// chooser for all files/dirs
-    JScrollPane classScroller = null;
-    JScrollPane objScroller = null;
+    /* The scroller which holds the PackageEditor we use to edit packages */
+    private JScrollPane classScroller = null;
 
     /* The package that this frame is working on or null for the case where
        there is no package currently being edited (check with isEmptyFrame()) */
@@ -93,7 +88,9 @@ public class PkgMgrFrame extends JFrame
         there is no package current being edited (isEmptyFrame() == true) */
     private PackageEditor editor = null;
 
-
+    /* A silly variable which is used by one of our inner classes. It is
+       initialised to be the same as 'this' because we cannot use 'this'
+       in the inner class */
     private PkgMgrFrame outer;
 
     private JLabel statusbar = new JLabel(" ");
@@ -101,13 +98,13 @@ public class PkgMgrFrame extends JFrame
     private JMenuBar menubar = null;
     private JButton progressButton;
 
-    JCheckBoxMenuItem showUsesMenuItem;
-    JCheckBoxMenuItem showExtendsMenuItem;
+    private JCheckBoxMenuItem showUsesMenuItem;
+    private JCheckBoxMenuItem showExtendsMenuItem;
 
-    JCheckBox showUsesCheckbox;
-    JCheckBox showExtendsCheckbox;
+    private JCheckBox showUsesCheckbox;
+    private JCheckBox showExtendsCheckbox;
 
-    ObjectBench objbench;
+    private ObjectBench objbench;
 
     // ============================================================
     // static methods to create and remove frames
@@ -328,10 +325,15 @@ public class PkgMgrFrame extends JFrame
         classScroller.setViewportView(editor);
         editor.addPackageEditorListener(this);
 
+        // fetch some properties from the package that interest us
         Properties p = pkg.getLastSavedProperties();
 
-        String width_str = p.getProperty("package.editor.width", Integer.toString(DEFAULT_WIDTH));
-        String height_str = p.getProperty("package.editor.height", Integer.toString(DEFAULT_HEIGHT));
+        String width_str = p.getProperty(
+                                        "package.editor.width",
+                                        Integer.toString(DEFAULT_WIDTH));
+        String height_str = p.getProperty(
+                                        "package.editor.height",
+                                        Integer.toString(DEFAULT_HEIGHT));
 
         classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str),
                                                      Integer.parseInt(height_str)));
@@ -345,7 +347,7 @@ public class PkgMgrFrame extends JFrame
         // until after menu processing has finished
         Runnable enableUI = new Runnable() {
             public void run() {
-                enableFunctions(true);
+                enableFunctions(true);  // changes menu items
                 updateWindowTitle();
                 show();
             }
@@ -379,7 +381,7 @@ public class PkgMgrFrame extends JFrame
         // until after menu processing has finished
         Runnable disableUI = new Runnable() {
             public void run() {
-                enableFunctions(false);
+                enableFunctions(false);  // changes menu items
                 updateWindowTitle();
             }
         };
@@ -389,6 +391,9 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Return the package shown by this frame.
+     *
+     * This call should be bracketed by a call to
+     * isEmptyFrame() before use.
      */
     public Package getPackage()
     {
@@ -414,44 +419,13 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * return a file chooser for choosing any directory (default behaviour)
-     */
-    private JFileChooser getFileChooser(boolean directoryOnly)
-    {
-        if(fileChooser == null) {
-            fileChooser = new JFileChooser(
-                           Config.getPropString("bluej.defaultProjectPath",
-                                                "."));
-            fileChooser.setFileView(new PackageFileView());
-        }
-        if (directoryOnly)
-            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        else
-            fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        return fileChooser;
-    }
-
-    /**
-     * Return a BlueJ package chooser, i.e. a file chooser which
-     * recognises BlueJ packages and treats them differently.
-     */
-    private PackageChooser getPackageChooser()
-    {
-        if(pkgChooser == null)
-            pkgChooser = new PackageChooser(
-                           Config.getPropString("bluej.defaultProjectPath",
-                                                "."));
-        return pkgChooser;
-    }
-
-    /**
      * Open a dialog that asks for a package to open. If the dialog is
      * cancelled by the user, null is returned. Otherwise the result is
      * the name of an existing directory (either plain or a BlueJ package).
      */
     private String openPackageDialog()
     {
-        PackageChooser chooser = getPackageChooser();
+        JFileChooser chooser = FileUtility.getPackageChooser();
 
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             String dirname = chooser.getSelectedFile().getPath();
@@ -523,6 +497,10 @@ public class PkgMgrFrame extends JFrame
         return objbench;
     }
 
+    /**
+     * Deal with an event generated by a target in the
+     * package we are currently editing.
+     */
     public void targetEvent(PackageEditorEvent e)
     {
         int evtId = e.getID();
@@ -630,10 +608,11 @@ public class PkgMgrFrame extends JFrame
             break;
 
          case PROJ_IMPORT:
-            importClass();
+            doImport();
             break;
 
          case PROJ_EXPORT:
+            doExport();
             break;
 
         case PROJ_PAGESETUP:
@@ -695,21 +674,8 @@ public class PkgMgrFrame extends JFrame
             break;
 
         case TOOLS_BROWSE:
-            LibraryBrowser lb = new LibraryBrowser();
-
-        /*
-            DialogManager.showText(this,
-        	"The library browser is not implemented in this version.\n" +
-        	"To browse the Java standard libraries, select \"Java\n" +
-        	"Class Libraries...\" from the Help menu.");
-        */
-
-            // offset browser from this window
-        /*  	    getBrowser().setLocation(this.getLocation().x + 100,
-        			     this.getLocation().y + 100);
-            getBrowser().invalidate();
-            getBrowser().validate();
-            getBrowser().setVisible(true); */
+            DialogManager.NYI(this);
+//            LibraryBrowser lb = new LibraryBrowser();
             break;
 
         case TOOLS_PREFERENCES:         // can be executed when isEmptyFrame() is true
@@ -936,7 +902,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * implementation of the "Import Class" user function
      */
-    private void importClass()
+    private void doImport()
     {
         String className = FileUtility.getFileName(this, importClassTitle, importLabel);
 
@@ -963,9 +929,9 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * exportPackage - implementation if the "Export Package" user function
+     * implementation if the "Export" user function
      */
-    private void exportPackage()
+    private void doExport()
     {
         DialogManager.NYI(this);
     }
@@ -1588,7 +1554,7 @@ public class PkgMgrFrame extends JFrame
 
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BorderLayout());
-        objScroller = new JScrollPane(objbench = new ObjectBench());
+        JScrollPane objScroller = new JScrollPane(objbench = new ObjectBench());
         bottomPanel.add("North", objScroller);
         bottomPanel.add("South", statusbar);
 
@@ -1837,7 +1803,7 @@ public class PkgMgrFrame extends JFrame
     };
 
     static final int[] ViewSeparators = {
-        VIEW_SHOWINHERITS, 
+        VIEW_SHOWINHERITS,
     };
 
     static final int GRP_COMMAND = VIEW_COMMAND + 100;
