@@ -14,7 +14,7 @@ import java.io.*;
  * to a given path on a given (attached) server.
  * 
  * @author Clive Miller
- * @version $Id: SmtpSession.java 1955 2003-05-15 18:48:07Z damiano $
+ * @version $Id: SmtpSession.java 1956 2003-05-16 08:36:43Z damiano $
  */
 
 public class SmtpSession extends TransportSession
@@ -22,8 +22,9 @@ public class SmtpSession extends TransportSession
     private final String boundaryString;
     private OutputStream out;
     private int fileCounter;
-    private static final DateFormat rfc822date = 
+    private final DateFormat rfc822date = 
         new SimpleDateFormat ("EEE, dd MMM yyyy HH:mm:ss z");
+    private final byte[] CRLF={'\r','\n'};
 
     public SmtpSession (URL url, Properties environment)
     {
@@ -118,29 +119,26 @@ public class SmtpSession extends TransportSession
     private void sendMimeHeaders() throws IOException
     {
         sendMessage ("MIME-Version: 1.0 (produced automatically by BlueJ)");
-        sendMessage ("Content-Type: multipart/mixed;");
-        sendMessage ("        boundary=\""+boundaryString+"\"");
-        sendMessage (null);
+        sendMessage ("Content-Type: multipart/mixed; boundary=\""+boundaryString+"\"");
+        sendMessage ("");
         sendMessage ("This is a multi-part message in MIME format.");
-        sendMessage (null);
+        sendMessage ("");
     }
 
     private void sendMimeText (String theText) throws IOException
     {
         sendMessage ("Content-Type: text/plain");
         sendMessage ("Content-Transfer-Encoding: 7bit");
-        sendMessage (null);
+        sendMessage ("");
         sendMessage (theText);
     }
             
   private void sendMimeBinaryFile (InputStream is, String name ) throws IOException
     {
-    sendMessage ("Content-Type: application/octet-stream;");
-    sendMessage ("        name=\""+name+"\"");
+    sendMessage ("Content-Type: application/octet-stream; name=\""+name+"\"");
     sendMessage ("Content-Transfer-Encoding: base64");
-    sendMessage ("Content-Disposition: attachment;");
-    sendMessage ("        filename=\""+name+"\"");
-    sendMessage (null);
+    sendMessage ("Content-Disposition: attachment; filename=\""+name+"\"");
+    sendMessage ("");
     SocketSession.MIMEEncode (is, out);
     reportLog ("===> sent binary file "+name);
     }
@@ -148,31 +146,26 @@ public class SmtpSession extends TransportSession
 
   private void sendMimeTextFile ( InputStream is, String name ) throws IOException
     {
+    String oneLine;
+    int lineCount=0;
+
     BufferedReader aReader = new BufferedReader(new InputStreamReader(is));
     
-    sendMessage ("Content-Type: text/plain;");
-    sendMessage ("        name=\""+name+"\"");
+    sendMessage ("Content-Type: text/plain; name=\""+name+"\"");
     sendMessage ("Content-Transfer-Encoding: 7bit");
-    sendMessage ("Content-Disposition: attachment;");
-    sendMessage ("        filename=\""+name+"\"");
-    sendMessage (null);
+    sendMessage ("Content-Disposition: attachment; filename=\""+name+"\"");
+    sendMessage ("");
 
     /* Now we have to go line by line, until EOF and spit them out watching
      * For the infamous single dot :-)
      */
-    String oneLine;
-    int lineCount=0;
     while ( (oneLine=aReader.readLine()) != null )
       {
-      lineCount++;
-
       // If the line has a single dot in it we add an extra dot to it !
       if ( oneLine.equals(".")) out.write('.');
-
-      // Then we write what we just read
-      out.write(oneLine.getBytes());
-      // and terminate with a goot string termination...
-      out.write("\r\n".getBytes());
+      out.write(oneLine.getBytes());       // Then we write what we just read
+      out.write(CRLF);       // and terminate with standard CRLF
+      lineCount++;
       }
 
     out.flush();
@@ -184,24 +177,36 @@ public class SmtpSession extends TransportSession
         sendMessage ("--"+boundaryString+ (end ? "--":""));
     }
 
-    private void sendMessage (String message) throws IOException
+
+  private void sendMessage (String message) throws IOException
     {
-        if (message == null) message = "";
-        int l = message.length();
-        String end;
-        if (l == 0) end = "";
-        else if (l == 1) end = message;
-        else end = message.substring (l-2);
-        if (end.indexOf ('\r') == -1) message += '\r';
-        if (end.indexOf ('\n') == -1) message += '\n';
-        int p=0;
-        while ((p=message.indexOf ('.', p)) != -1) {
-            if ((p==0 || message.charAt (p-1)=='\n' || message.charAt (p-1)=='\r')
-                && (message.charAt (p+1)=='\n' || message.charAt (p+1)=='\r'))
-                message = message.substring (0,p) + '.' + message.substring (p);
-            p++;
-        }
-        out.write (message.getBytes());
-        reportLog (">>"+message);
+    if ( message == null ) 
+      {
+      reportLog ("sendMessage: ERROR: message==null");
+      return;
+      }
+
+    if ( message.length() == 0 )
+      {
+      // We just want to write a newline
+      reportLog (">>");
+      out.write(CRLF);
+      return;        
+      }
+      
+    BufferedReader aReader = new BufferedReader(new StringReader(message));
+
+    String oneLine;
+    while ( (oneLine=aReader.readLine()) != null )
+      {
+      // If the line has a single dot in it we add an extra dot to it !
+      if ( oneLine.equals(".")) out.write('.');
+
+      reportLog (">> "+oneLine);
+      out.write(oneLine.getBytes());
+      out.write(CRLF);
+      }
+
+    out.flush();
     }
 }    
