@@ -10,7 +10,7 @@ import java.net.URL;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 2444 2003-12-19 15:46:04Z fisker $
+ * @version $Id: SplashWindow.java 2461 2004-01-27 11:14:34Z mik $
  */
 
 public class SplashWindow extends JFrame
@@ -26,7 +26,6 @@ public class SplashWindow extends JFrame
 			super.paint(g);
 			g.setColor(new Color(51,102,153));
 			g.setFont(new Font("SansSerif", Font.PLAIN, 16));
-			g.drawString("Version " + Boot.BLUEJ_VERSION, 26, image.getHeight()-20);
 			g.drawString("Version " + Boot.BLUEJ_VERSION, 26, image.getHeight()-20);
 		}
 	}
