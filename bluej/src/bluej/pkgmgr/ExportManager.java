@@ -16,7 +16,7 @@ import bluej.utility.BlueJFileReader;
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 636 2000-07-07 05:03:00Z mik $
+ * @version $Id: ExportManager.java 790 2001-03-06 01:07:51Z mik $
  */
 final class ExportManager
 {
@@ -101,21 +101,8 @@ final class ExportManager
             else
                 jStream = new JarOutputStream(oStream);
 
-            // write jar entries from source directory
-            File srcFile = new File(sourceDir);
-            String[] dir = srcFile.list();
-            for(int i=0; i<dir.length; i++) {
-                String srcName = sourceDir + File.separator + dir[i];
-                File file = new File(srcName);
-                if(file.isDirectory()) {
-                    ; // ignore for now
-                }
-                else {
-                    if(!FileUtility.skipFile(dir[i], true, !includeSource)) {
-                        writeJarEntry(file, jStream, dir[i]);
-                    }
-                }
-            }
+            writeDirToJar(sourceDir, "", jStream, includeSource);
+
             frame.setStatus(Config.getString("pkgmgr.exported.jar"));
         }
         catch(IOException exc) {
@@ -127,6 +114,48 @@ final class ExportManager
                     jStream.close();
             } catch (IOException e) {}
         }
+    }
+
+    /**
+     * Write the contents of a directory to a jar stream. Recursively called
+     * for subdirectories.
+     */
+    private void writeDirToJar(String sourceDir, String pathPrefix, 
+                               JarOutputStream jStream, boolean includeSource)
+        throws IOException
+    {
+        File srcFile = new File(sourceDir);
+        String[] dir = srcFile.list();
+        for(int i=0; i<dir.length; i++) {
+            String srcName = sourceDir + File.separator + dir[i];
+            File file = new File(srcName);
+            if(file.isDirectory()) {
+                if(!skipDir(dir[i]))
+                    writeDirToJar(srcName, pathPrefix + dir[i] + File.separator, 
+                                  jStream, includeSource);
+            }
+            else {
+                if(!FileUtility.skipFile(dir[i], true, !includeSource)) {
+                    writeJarEntry(file, jStream, pathPrefix + dir[i]);
+                }
+            }
+        }
+    }
+
+    /** array of directory names not to be included in jar file **/
+    private static final String[] skipDirs = { "CVS" };
+
+    /**
+     * Test whether a given directory should be skipped (not included) in
+     * export.
+     */
+    private boolean skipDir(String dirName)
+    {
+        for(int i = 0; i < skipDirs.length; i++) {
+            if(dirName.equals(skipDirs[i]))
+                return true;
+        }
+        return false;
     }
 
     /**

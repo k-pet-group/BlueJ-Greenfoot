@@ -1654,7 +1654,7 @@ public final class MoeEditor extends JFrame
     /**
      * Create a combo box for the toolbar
      */
-    private JComponent createInterfaceSelector()
+    private JComboBox createInterfaceSelector()
     {
         String[] choiceStrings = { implementationString, interfaceString };
         interfaceToggle = new JComboBox(choiceStrings);
@@ -1666,7 +1666,17 @@ public final class MoeEditor extends JFrame
         String actionName = "toggle-interface-view";
         Action action = actions.getActionByName(actionName);
         if (action != null) {	// should never be null...
-            interfaceToggle.setAction(action);
+            // for jdk 1.3 and newer only: 
+            //  interfaceToggle.setAction(action);
+
+            // code for 1.2 - remove once 1.2 is out of fashion
+            interfaceToggle.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    toggleInterface();
+                }
+            });
+            // end of 1.2 code
+
         }
         else {
             interfaceToggle.setEnabled(false);
