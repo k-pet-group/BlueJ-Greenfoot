@@ -13,7 +13,7 @@ import bluej.testmgr.*;
  * Provides a gateway to invoke methods on objects using a specified set of parameters.
  *
  * @author Clive Miller, Damiano Bolla
- * @version $Id: DirectInvoker.java 1646 2003-03-05 11:59:00Z damiano $
+ * @version $Id: DirectInvoker.java 1655 2003-03-06 09:39:14Z damiano $
  */
 class DirectInvoker
 {
@@ -34,15 +34,15 @@ class DirectInvoker
     }
     
     /**
-     * @param methodName <CODE>null</CODE> implies a constructor.
+     * Call this if you want to call a constructor
      */
-    DebuggerObject invoke (String[] args)
+    DebuggerObject invokeConstructor (String[] args)
         {
         PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
         if ( pmf == null ) return null;
         
         DirectResultWatcher watcher = new DirectResultWatcher();
-        Invoker invoker = new Invoker (pmf, callable, instanceName, watcher);
+        Invoker invoker = new Invoker (pmf, callable, null, watcher);
         invoker.invokeDirect (instanceName, args);
 
         // this will wait() on the invoke to finish
@@ -55,14 +55,39 @@ class DirectInvoker
             }
 
         // constructors place the result as the first field on the returned object
-        if ( callable instanceof ConstructorView ) 
-            result = result.getInstanceFieldObject(0);
-        
+        result = result.getInstanceFieldObject(0);
         resultName = watcher.getResultName();
-
         return result;
         }
     
+    /**
+     * This if you want a method
+     * You need to pass the object where you want it applied.
+     */
+    DebuggerObject invokeMethod (String onThisObjectInstance, String[] args)
+        {
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
+        if ( pmf == null ) return null;
+        
+        DirectResultWatcher watcher = new DirectResultWatcher();
+        Invoker invoker = new Invoker (pmf, callable, onThisObjectInstance, watcher);
+        invoker.invokeDirect (instanceName, args);
+
+        // this will wait() on the invoke to finish
+        DebuggerObject result = watcher.getResult();
+
+        if (result == null)
+            {
+            error = watcher.getError();
+            return null;
+            }
+
+        resultName = watcher.getResultName();
+        return result;
+        }
+
+
+
     public String getError()
     {
         return error;
