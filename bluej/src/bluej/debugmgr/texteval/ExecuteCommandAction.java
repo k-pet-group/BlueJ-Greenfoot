@@ -6,8 +6,8 @@ import javax.swing.*;
 /**
  * Execute a java text statement.
  * 
- * @author Michael Kšlling
- * @version $Id: ExecuteCommandAction.java 2612 2004-06-14 20:36:28Z mik $
+ * @author Michael Kolling
+ * @version $Id: ExecuteCommandAction.java 2630 2004-06-19 14:26:37Z polle $
  */
 
 final public class ExecuteCommandAction extends AbstractAction {

@@ -5,8 +5,8 @@ import org.gjt.sp.jedit.syntax.*;
 /**
  * Text Evaluator token marker.
  *
- * @author Michael Kšlling
- * @version $Id: TextEvalTokenMarker.java 2618 2004-06-17 14:03:32Z mik $
+ * @author Michael Kolling
+ * @version $Id: TextEvalTokenMarker.java 2630 2004-06-19 14:26:37Z polle $
  */
 public class TextEvalTokenMarker extends CTokenMarker
 {

@@ -6,9 +6,9 @@ import bluej.testmgr.record.*;
 /**
  * Debugger interface implemented by classes interested in the result of an invocation
  *
- * @author  Michael Kšlling
+ * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ResultWatcher.java 2612 2004-06-14 20:36:28Z mik $
+ * @version $Id: ResultWatcher.java 2630 2004-06-19 14:26:37Z polle $
  */
 public interface ResultWatcher
 {
