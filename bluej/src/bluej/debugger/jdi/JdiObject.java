@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2628 2004-06-19 13:43:11Z polle $
+ * @version $Id: JdiObject.java 2652 2004-06-23 00:17:12Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -349,10 +349,7 @@ public class JdiObject extends DebuggerObject
     {
         Field field = getField(false, slot);
         ObjectReference val = (ObjectReference) obj.getValue(field);
-        if(expectedType instanceof GenTypeClass)
-            return new JdiObject(val, (GenTypeClass)expectedType);
-        else
-            return new JdiObject(val, field, this);
+        return getDebuggerObject(val, expectedType);
     }
 
 
@@ -382,10 +379,7 @@ public class JdiObject extends DebuggerObject
     {
         Field field = (Field) fields.get(slot);
         ObjectReference val = (ObjectReference) obj.getValue(field);
-        if( expectedType instanceof GenTypeClass )
-            return new JdiObject(val, (GenTypeClass)expectedType);
-        else
-            return new JdiObject(val, field, this);
+        return getDebuggerObject(val, expectedType);
     }
 
     public DebuggerObject getFieldObject(String name)
