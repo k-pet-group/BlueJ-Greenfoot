@@ -45,7 +45,7 @@ public class JdiDebugger extends Debugger
     static final String SERVER_SUSPEND_METHOD_NAME = "suspendExecution";
 
     // the name of the method called to signal the ExecServer to start a new task
-    static final String SERVER_SIGNAL_METHOD_NAME = "signalStartTask";
+    static final String SERVER_PERFORM_METHOD_NAME = "performTask";
 
 
     //static final String MAIN_THREADGROUP = "bluej.runtime.BlueJRuntime.main";
@@ -53,7 +53,7 @@ public class JdiDebugger extends Debugger
     private Process process = null;
     private VMEventHandler eventHandler = null;
     private ObjectReference execServer = null;
-    private Method signalMethod = null;
+    private Method performTaskMethod = null;
     private ThreadReference serverThread = null;
     volatile private boolean initialised = false;
 
@@ -127,9 +127,12 @@ public class JdiDebugger extends Debugger
         try {
             machine = connector.launch(arguments);
             process = machine.process();
-            displayRemoteOutput(process.getErrorStream());
-            displayRemoteOutput(process.getInputStream());
-            getRemoteInput(process.getOutputStream());
+            redirectIOStream(process.getErrorStream(), System.out);
+            redirectIOStream(process.getInputStream(),
+			     Terminal.getTerminal().getOutputStream());
+            redirectIOStream(Terminal.getTerminal().getInputStream(),
+			     process.getOutputStream());
+			   
 	} catch (VMStartException vmse) {
             Debug.reportError("Target VM did not initialise.");
             Debug.reportError(vmse.getMessage() + "\n");
@@ -239,7 +242,7 @@ public class JdiDebugger extends Debugger
     public DebuggerClassLoader createClassLoader(String scopeId, 
 						 String classpath)
     {
-	startServer(ExecServer.CREATE_LOADER, scopeId, classpath, "");
+	startServer(ExecServer.CREATE_LOADER, scopeId, classpath, "", "", "");
 	return new JdiClassLoader(scopeId);
     }
 	
@@ -249,7 +252,7 @@ public class JdiDebugger extends Debugger
      */
     public void removeClassLoader(DebuggerClassLoader loader)
     {
-	startServer(ExecServer.REMOVE_LOADER, loader.getId(), "", "");
+	startServer(ExecServer.REMOVE_LOADER, loader.getId(), "", "", "", "");
     }
 
 
@@ -259,22 +262,20 @@ public class JdiDebugger extends Debugger
     public void startClass(DebuggerClassLoader loader, String classname, 
 			   Package pkg)
     {
-	startServer(ExecServer.LOAD_CLASS, loader.getId(), classname, pkg);
+	startServer(ExecServer.LOAD_CLASS, loader.getId(), classname, "", "",
+		    pkg);
 
-	// ** find the mirror of the server object **
+	// ** find the mirror of the class **
 
 	List list = machine.classesByName(classname);
 	if(list.size() != 1)
 	    Debug.reportError("error starting class " + classname);
 
-	ReferenceType shellType = (ReferenceType)list.get(0);
-	Field shellObjectField = shellType.fieldByName("shellObject");
-	ObjectReference shellObject = 
-	    (ObjectReference)shellType.getValue(shellObjectField);
+	ClassType shellClass = (ClassType)list.get(0);
 
 	// ** find the run method **
 
-	list = shellType.methodsByName("run");
+	list = shellClass.methodsByName("run");
 	if(list.size() != 1)
 	    Debug.reportError("Problem getting 'run' method");
 
@@ -285,12 +286,12 @@ public class JdiDebugger extends Debugger
 	    return;
 	}
 
-	// ** call shellObject.run() **
+	// ** call Shell.run() **
 
-	List arguments = new ArrayList();
+	List arguments = new ArrayList();	// empty argument list
   	try {
 	    exitStatus = NORMAL_EXIT;
-  	    Value returnVal = shellObject.invokeMethod(serverThread, 
+  	    Value returnVal = shellClass.invokeMethod(serverThread, 
 						      runMethod, 
 						      arguments, 0);
 	    // returnVal is type void
@@ -316,35 +317,36 @@ public class JdiDebugger extends Debugger
     public void addObjectToScope(String scopeId, String instanceName, 
 				 String fieldName, String newObjectName)
     {
-	Debug.message("[addObjectToScope] - NYI");
-	//  	String[] args = { BlueJRuntime.ADD_OBJECT, 
-	//  			  scopeId, instanceName, fieldName, newObjectName };
-	//  	runtimeCmd(args, "");
+	//Debug.message("[addObjectToScope]: " + newObjectName);
+	startServer(ExecServer.ADD_OBJECT, scopeId, instanceName, 
+		    fieldName, newObjectName, "");
     }
 	
     /**
-     * Remove an object from a package scope (when removed from object bench)
+     * Remove an object from a package scope (when removed from object bench).
+     * This has to be done tolerantly: If the named instance is not in the
+     * scope, we just quetly return. 
      */
     public void removeObjectFromScope(String scopeId, String instanceName)
     {
-	Debug.message("[removeObjectFromScope] - NYI");
-	//  	String[] args = { BlueJRuntime.REMOVE_OBJECT, 
-	//  			  scopeId, instanceName };
-	//  	runtimeCmd(args, "");
+	//Debug.message("[removeObjectFromScope]: " + instanceName);
+	startServer(ExecServer.REMOVE_OBJECT, scopeId, instanceName, 
+		    "", "", "");
     }
 
 
     /**
      * Start the server process on the remote machine to perform a task.
      * Arguments to the server are a task ID specifying what we want done,
-     * and two optional string parameters. The string parameters must not
+     * and four optional string parameters. The string parameters must not
      * be null. The task ID is one of the constants defined in
      * runtime.ExecServer.
      *
      * This is done synchronously: we return once the remote execution
      * has completed.
      */
-    private void startServer(int task, String arg1, String arg2, Object pkg)
+    private void startServer(int task, String arg1, String arg2, 
+			     String arg3, String arg4, Object pkg)
     {
 	VirtualMachine vm = getVM();
 
@@ -357,10 +359,12 @@ public class JdiDebugger extends Debugger
 	arguments.add(vm.mirrorOf(task));
 	arguments.add(vm.mirrorOf(arg1));
 	arguments.add(vm.mirrorOf(arg2));
+	arguments.add(vm.mirrorOf(arg3));
+	arguments.add(vm.mirrorOf(arg4));
 
   	try {
   	    Value returnVal = execServer.invokeMethod(serverThread, 
-						      signalMethod, 
+						      performTaskMethod, 
 						      arguments, 0);
 	    // returnVal currently unused (void)
 	}
@@ -372,7 +376,7 @@ public class JdiDebugger extends Debugger
 
     /**
      * Find the components on the remote VM that we need to talk to it:
-     * the execServer object, the signalMethod, and the serverThread.
+     * the execServer object, the performTaskMethod, and the serverThread.
      * These three variables (mirrors to the remote entities) are set up here.
      * This needs to be done only once.
      */
@@ -405,13 +409,13 @@ public class JdiDebugger extends Debugger
 
 	// okay, we have the server object; now get the signal method
 
-	list = serverType.methodsByName(SERVER_SIGNAL_METHOD_NAME);
+	list = serverType.methodsByName(SERVER_PERFORM_METHOD_NAME);
 	if(list.size() != 1)
 	    Debug.reportError("Problem getting server signal method");
 	else
-	    signalMethod = (Method)list.get(0);
+	    performTaskMethod = (Method)list.get(0);
   
-	if(signalMethod == null) {
+	if(performTaskMethod == null) {
 	    Debug.reportError("invalid VM server object");
 	    Debug.reportError("Fatal: User code execution will not work");
 	    return false;
@@ -680,9 +684,11 @@ public class JdiDebugger extends Debugger
 	//  	}
     }
 
-    // --- DebuggerCallback interface --- 
-	
-    private void setEventRequests(VirtualMachine vm) {
+
+    // -- support methods --
+
+    private void setEventRequests(VirtualMachine vm) 
+    {
         EventRequestManager erm = vm.eventRequestManager();
         // want all uncaught exceptions
         ExceptionRequest excReq = erm.createExceptionRequest(null, 
@@ -694,14 +700,15 @@ public class JdiDebugger extends Debugger
 
     /**	
      *	Create a thread that will retrieve any output from the remote
-     *  machine and direct it to our terminal.
+     *  machine and direct it to our terminal (or vice versa).
      */
-    private void displayRemoteOutput(final InputStream stream) {
-	Thread thr = new Thread("output reader") { 
+    private void redirectIOStream(final InputStream inStream,
+				  final OutputStream outStream) 
+    {
+	Thread thr = new Thread("I/O reader") { 
 	    public void run() {
                 try {
-                    dumpStream(stream, 
-			 Terminal.getTerminal().getOutputStream());
+                    dumpStream(inStream, outStream);
                 } catch (IOException ex) {
                     Debug.reportError("Cannot read output user VM.");
                 }
@@ -710,28 +717,6 @@ public class JdiDebugger extends Debugger
 	thr.setPriority(Thread.MAX_PRIORITY-1);
 	thr.start();
     }
-
-
-    /**	
-     *	Create a thread that will direct terminal input to the remote
-     *  machine.
-     */
-    private void getRemoteInput(final OutputStream stream) {
-	Thread thr = new Thread("input reader") { 
-	    public void run() {
-                try {
-                    dumpStream(
-			 Terminal.getTerminal().getInputStream(),
-			 stream);
-                } catch (IOException ex) {
-                    Debug.reportError("Cannot read output user VM.");
-                }
-	    }
-	};
-	thr.setPriority(Thread.MAX_PRIORITY-1);
-	thr.start();
-    }
-
 
 //      private void dumpStream(InputStream inStream, OutputStream outStream) 
 //  	throws IOException 

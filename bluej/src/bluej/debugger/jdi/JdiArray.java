@@ -148,7 +148,6 @@ public class JdiArray extends JdiObject
      */
     public DebuggerObject getInstanceFieldObject(int slot)
     {
-	Debug.message("[JdiArray] getInstanceFieldObject - NYI");
   	Value val = obj.getValue(slot);
 	return JdiObject.getDebuggerObject((ObjectReference)val);
     }

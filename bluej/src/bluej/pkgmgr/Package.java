@@ -34,7 +34,7 @@ import sun.tools.javac.BlueJJavacMain;
 // import sun.tools.javadoc.BlueJDocumentationGenerator;
 
 /**
- ** @version $Id: Package.java 73 1999-05-11 05:11:43Z ajp $
+ ** @version $Id: Package.java 104 1999-06-02 03:56:24Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -1195,14 +1195,14 @@ public class Package extends Graph
      * This is done by opening the class's source, highlighting the line
      * and showing the message in the editor's information area.
      */
-    private void showEditorMessage(String filename, int lineNo, 
+    private boolean showEditorMessage(String filename, int lineNo, 
 				   String message, boolean invalidate, 
 				   boolean beep)
     {
 	ClassTarget t = getTargetFromFilename(filename);
 
 	if(t == null)
-	    return;
+	    return false;
 
 	if(invalidate) {
 	    t.setState(Target.S_INVALID);
@@ -1213,6 +1213,7 @@ public class Package extends Graph
 	Editor editor = t.getEditor();
 	if(editor!=null)
 	    editor.displayMessage(message, lineNo, 0, beep, false);
+	return true;
     }
 	
     // ---- bluej.compiler.CompileObserver interface ----
@@ -1240,7 +1241,9 @@ public class Package extends Graph
     public void errorMessage(String filename, int lineNo, String message,
 			     boolean invalidate)
     {
-	showEditorMessage(filename, lineNo, message, invalidate, true);
+	if(! showEditorMessage(filename, lineNo, message, invalidate, true))
+	    Utility.showMessage(frame, "Error in file: " + filename + 
+				       ":" + lineNo + "\n" + message);
     }
 	
     public void endCompile(String[] sources, boolean successful)

@@ -1,4 +1,4 @@
-/**
+ /**
  ** Class MyClass - write a description of the class here
  ** 
  ** @author: 
@@ -9,6 +9,9 @@ public class MyClass
     // instance variables - replace the example below with your own - replace the example below with your own - repla
     private int x;
     private String name;
+    public Tester tst;
+    private static String sname;
+    public static Tester stst;
 
     /**
      ** Constructor for objects of class MyClass
@@ -18,11 +21,14 @@ public class MyClass
         	// initialise instance variables
         x = a;
         	name = "Michael";
-        System.out.println(name);
-        System.out.println("value = " + x);
-
+        tst  = new Tester();
     }
     
+    public Tester getTester()
+    {
+        return tst;
+    }
+
     /**
      ** An example of a method - replace this comment with your own
      ** 	

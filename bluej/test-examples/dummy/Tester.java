@@ -10,9 +10,15 @@ public class Tester
     static int st = 33;
     
     private int x;
-    private String name = "Michael";
+    public String name = "Michael";
+    private String privname = "Michael";
     Tester t;
-    private int [] intArray;
+    public static int [] sintArray;
+    private static String[] sstringArray;
+    private static Tester[] stestArray;
+    private static Object[] sobjArray;
+
+    public int [] intArray;
     private String[] stringArray;
     private Tester[] testArray;
     private Object[] objArray;
@@ -44,6 +50,9 @@ public class Tester
         stringArray = new String[] {"mik", "koe", null, "home"} ;
         testArray = new Tester[] {new Tester(), null, new SubTester()} ;
         objArray = new Object[] {"mik", new Integer(3), null} ;
+        sstringArray = new String[] {"mik", "koe", null, "home"} ;
+        stestArray = new Tester[] {new Tester(), null, new SubTester()} ;
+        sobjArray = new Object[] {"mik", new Integer(3), null} ;
     }
 
     /**

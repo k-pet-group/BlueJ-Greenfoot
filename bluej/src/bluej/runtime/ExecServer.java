@@ -77,49 +77,40 @@ public class ExecServer
 
 
     /**
-     * Add a new task to the task queue and signal the server.
-     * This method is called from the main VM to initiate a task here on the
-     * remote VM.
+     * Perform a task here on the remote VM.
      *
-     * When this task is due to be performed, the server will call
-     * "performTask" with this new task as the parameter.
+     * This method is called from the main VM to initiate a task here on 
+     * this VM.
      */
-    public void signalStartTask(int taskType, String arg1, String arg2)
-	 throws Throwable
+    public void performTask(int taskType, String arg1, String arg2, 
+			    String arg3, String arg4)
+	throws Throwable
     {
 	try {
-	    performTask(taskType, arg1, arg2);
+	    switch(taskType) {
+
+	    case CREATE_LOADER:
+		createClassLoader(arg1, arg2);
+		break;
+	    case REMOVE_LOADER:
+		removeClassLoader(arg1);
+		break;
+	    case LOAD_CLASS:
+		loadClass(arg1, arg2);
+		break;
+	    case ADD_OBJECT:
+		addObject(arg1, arg2, arg3, arg4);
+		break;
+	    case REMOVE_OBJECT:
+		removeObject(arg1, arg2);
+		break;
+	    }
 	}
 	catch(Exception e) {
 	    Debug.message("Exception while performing task: " + e);
 	}
     }
 
-
-    /**
-     * Perform a task here on the remote VM. The task is described in the 
-     * 'task' object.
-     */
-    private void performTask(int taskType, String arg1, String arg2)
-	throws Throwable
-    {
-	switch(taskType) {
-
-	case CREATE_LOADER:
-	    createClassLoader(arg1, arg2);
-	    break;
-	case REMOVE_LOADER:
-	    removeClassLoader(arg1);
-	    break;
-	case LOAD_CLASS:
-	    loadClass(arg1, arg2);
-	    break;
-	case ADD_OBJECT:
-	    break;
-	case REMOVE_OBJECT:
-	    break;
-	}
-    }
 
     /**
      * Create a new class loader for a given classpath.
@@ -198,35 +189,30 @@ public class ExecServer
 	}
     }
 
-    // ===
-
-    static Hashtable getScope(String scopeId)
-    {
-	//Debug.message("[VM] getScope");
-	Hashtable scope = (Hashtable)scopes.get(scopeId);
-
-	if(scope == null) {
-	    scope = new Hashtable();
-	    scopes.put(scopeId, scope);
-	}
-	return scope;
-    }
-	
     /**
-     * Put an object into a package scope (for possible use as parameter
-     * later)
+     *  Put an object into a package scope (for possible use as parameter
+     *  later). Used after object creation to addthe newly created object
+     *  to the scope.
      */
     static void putObject(String scopeId, String instanceName, Object value)
     {
 	//Debug.message("[VM] putObject: " + instanceName);
 	Hashtable scope = getScope(scopeId);
 	scope.put(instanceName, value);
+	// debugging
+	//  	Enumeration e = scope.keys();
+	// 	for (; e.hasMoreElements(); ) {
+	//  	    String s = (String)e.nextElement();
+	//  	    System.out.println("key: " + s);
+	//  	}
     }
 
 
     /**
-     * Add an object from to package scope. The object to be added is held
-     * in object 'instance', in field 'field'.
+     *  Add an object to package scope. The object to be added is held
+     *  in the object 'instance', in field 'field'. (This is used when
+     *  "Get" is selected in the object inspection to pull out the requested
+     *  object and add it to the scope.)
      */
     static void addObject(String scopeId, String instance, String fieldName,
 			  String newName)
@@ -240,28 +226,35 @@ public class ExecServer
 	    scope.put(newName, obj);
 	}
 	catch (Exception e) {
-	    System.err.println("Internal BlueJ error: " +
-			       "object field not found: " + fieldName +
-			       " in " + instance);
-	    System.err.println("exception: " + e);
+	    Debug.reportError("Internal BlueJ error: " +
+			      "object field not found: " + fieldName +
+			      " in " + instance);
+	    Debug.reportError("exception: " + e);
 	}
     }
 
 
     /**
-     * Remove an object from a package scope.
+     *  Remove an object from a package scope. This has to be done tolerantly:
+     *  If the named instance is not in the scope, we just quetly return. 
      */
     static void removeObject(String scopeId, String instanceName)
     {
 	//Debug.message("[VM] removeObject: " + instanceName);
 	Hashtable scope = getScope(scopeId);
 	scope.remove(instanceName);
+    }
 
-	// debugging
-	//  	Enumeration e = scope.keys();
-	//  	for (; e.hasMoreElements(); ) {
-	//  	    String s = (String)e.nextElement();
-	//  	    System.out.println("key: " + s);
-	//  	}
+
+    static Hashtable getScope(String scopeId)
+    {
+	//Debug.message("[VM] getScope");
+	Hashtable scope = (Hashtable)scopes.get(scopeId);
+
+	if(scope == null) {
+	    scope = new Hashtable();
+	    scopes.put(scopeId, scope);
+	}
+	return scope;
     }
 }

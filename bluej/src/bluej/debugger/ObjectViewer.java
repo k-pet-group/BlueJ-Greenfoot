@@ -20,7 +20,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 93 1999-05-28 00:54:37Z mik $
+ ** @version $Id: ObjectViewer.java 104 1999-06-02 03:56:24Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -406,16 +406,16 @@ public final class ObjectViewer extends JFrame
 	
 	if(selectedObject != null) {
 
-	boolean isPublic = getBtn.isEnabled();
-	ObjectViewer viewer = getViewer(true, selectedObject, null, pkg, 
-					isPublic, this);
+	    boolean isPublic = getBtn.isEnabled();
+	    ObjectViewer viewer = getViewer(true, selectedObject, null, pkg, 
+					    isPublic, this);
 
-	// If the newly opened object is public, enter it into the
-	// package scope, so that we can perform "Get" operations on it.
-	if(isPublic)
-	    Debugger.debugger.addObjectToScope(pkgScopeId, viewerId,
-					       selectedObjectName,
-					       viewer.viewerId);
+	    // If the newly opened object is public, enter it into the
+	    // package scope, so that we can perform "Get" operations on it.
+	    if(isPublic)
+		Debugger.debugger.addObjectToScope(pkgScopeId, viewerId,
+						   selectedObjectName,
+						   viewer.viewerId);
 	
 	}
     }
@@ -531,8 +531,6 @@ public final class ObjectViewer extends JFrame
 		else if(rows > maxRows)
 		    rows = maxRows;
 		staticFieldList.setVisibleRowCount(rows);
-
-
 	    }
 	}
 

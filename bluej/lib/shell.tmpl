@@ -7,18 +7,10 @@ public class $CLASSNAME extends Shell
 {
     $VARDECL
 
-    // NOTE: the names "shellObject", "prepare" and "run" are referred to by
-    // the debugger and the ExecServer - they must not be changed without
-    // changing the debugger/server implementation!
+    // NOTE: the method name "run" is referred to by the debugger - it must
+    // not be changed without changing the debugger implementation!
 
-    static $CLASSNAME shellObject;
-
-    public static void prepare()
-    {
-	shellObject = new $CLASSNAME();
-    }
-
-    public void run()
+    public static void run()
 	throws Exception
     {
 	$SCOPEINIT
