@@ -32,7 +32,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 2502 2004-04-19 13:59:05Z polle $
+ * @version $Id: Config.java 2554 2004-05-27 08:20:56Z polle $
  */
 
 public final class Config
@@ -177,6 +177,14 @@ public final class Config
     public static boolean isWinOS()
     {
         return osname.startsWith("Windows");
+    }
+    
+    /**
+     * Tell us whether we are running on a Java VM that supports 1.5 features.
+     */
+    public static boolean isJava15()
+    {
+        return System.getProperty("java.vm.version").substring(0,3).compareTo("1.5") >= 0;
     }
     
     /**

@@ -15,7 +15,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 2551 2004-05-26 11:45:08Z polle $
+ * @version $Id: JdiObject.java 2554 2004-05-27 08:20:56Z polle $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -23,8 +23,7 @@ public class JdiObject extends DebuggerObject
 		Config.getString("debugger.null");
     
     // boolean - true if our JVM supports generics
-    static boolean jvmSupportsGenerics = System.getProperty("java.vm.version")
-                            .substring(0,3).compareTo("1.5") >= 0;
+    static boolean jvmSupportsGenerics = Config.isJava15();
     
     /**
      *  Factory method that returns instances of JdiObjects.
