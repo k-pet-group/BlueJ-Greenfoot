@@ -11,7 +11,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 2965 2004-08-31 05:58:15Z davmac $
+ * @version $Id: GenTypeClass.java 2968 2004-09-01 01:54:05Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -412,6 +412,8 @@ public class GenTypeClass extends GenTypeSolid {
         if( params == null && ! formalParams.isEmpty())
             return null;
         HashMap r = new HashMap();
+        if( params == null )
+            return r;
         Iterator paramIterator = params.iterator();
         Iterator formalIterator = formalParams.iterator();
         
