@@ -21,7 +21,7 @@ import bluej.utility.DialogManager;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ObjectInspector.java 2698 2004-06-30 11:29:45Z mik $
+ * @version $Id: ObjectInspector.java 2711 2004-07-01 14:50:21Z polle $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -152,7 +152,6 @@ public class ObjectInspector extends Inspector
         buttonPanel.add(classButton, BorderLayout.WEST);        
         
         bottomPanel.add(buttonPanel);       
-        getContentPane().add(bottomPanel, BorderLayout.SOUTH);
         
         
         //Create a header
@@ -176,6 +175,7 @@ public class ObjectInspector extends Inspector
         contentPane.setLayout(new BorderLayout());        
         contentPane.add(header, BorderLayout.NORTH);        
         contentPane.add(mainPanel, BorderLayout.CENTER);
+        contentPane.add(bottomPanel, BorderLayout.SOUTH);
                
         Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
         mainPanel.setBorder(new EmptyBorder(insets));        
