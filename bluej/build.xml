@@ -1,0 +1,58 @@
+<project name="bluej" default="compile" basedir=".">
+
+    <!-- set global properties for this build -->
+    <!-- the first two are the only values you should need to change -->
+    <property name="bluej_home" value="U:\project\bluej\main\bluej" />
+    <property name="java_home" value="F:\programming\jdk1.4" />
+
+    <!-- property name="build.compiler" value="modern" /-->
+    <property name="build.compiler" value="jikes" />
+
+    <!-- set up common directories -->
+    <property name="src" value="src" />
+    <property name="build" value="classes" />
+
+    <!-- set up classpath -->
+    <path id="bluej.class.path">
+        <pathelement location="${bluej_home}\lib\antlr.jar" />
+        <pathelement location="${java_home}\lib\tools.jar" />
+    </path>
+
+    <target name="prepare">
+        <!-- Create the time stamp -->
+        <tstamp/>
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${build}" />
+    </target>
+
+    <target name="compile" depends="prepare">
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src}"
+            destdir="${build}"
+            excludes="de\**, archiver\**, gnu\**, javax\**, kopi\**,
+                        bluej\groupwork\**,
+                        bluej\browser\**,
+                        bluej\guibuilder\**,
+                        bluej\editor\moe\Moe.java" >
+            <classpath refid="bluej.class.path" />
+        </javac>
+    </target>
+
+    <target name="run" depends="compile">
+        <!-- Run the java code in ${build} -->
+        <java classname="bluej.Main" fork="yes" jvm="${java_home}\bin\java">
+            <sysproperty key="bluej.home" value="${bluej_home}"/>
+            <classpath>
+                 <pathelement location="${build}"/>
+                 <path refid="bluej.class.path" />
+            </classpath>
+        </java>
+    </target>
+
+    <target name="clean">
+        <!-- Delete the ${build} and ${dist} directory trees -->
+        <delete dir="${build}" />
+        <delete dir="${dist}" />
+    </target>
+
+</project>
