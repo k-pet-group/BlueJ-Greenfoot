@@ -2046,9 +2046,7 @@ public ClassParser(ParserSharedInputState state) {
 		case LITERAL_assert:
 		{
 			match(LITERAL_assert);
-			match(LPAREN);
 			expression();
-			match(RPAREN);
 			match(SEMI);
 			break;
 		}

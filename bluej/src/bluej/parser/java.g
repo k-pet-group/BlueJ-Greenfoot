@@ -923,7 +923,7 @@ statement
     |   "synchronized" LPAREN expression RPAREN statement
 
     // assertion statement
-    |  "assert" LPAREN expression RPAREN SEMI
+    |  "assert" expression SEMI
 
     // empty statement
     |   SEMI
