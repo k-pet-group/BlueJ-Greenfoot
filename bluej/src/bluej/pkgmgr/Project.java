@@ -17,7 +17,7 @@ import java.io.IOException;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Project.java 532 2000-06-08 07:46:08Z ajp $
+ * @version $Id: Project.java 540 2000-06-13 03:44:10Z ajp $
  */
 public class Project
 {
@@ -184,7 +184,7 @@ public class Project
     }
 
     /**
-     *
+     * Return the name of the project.
      */
     public String getProjectName()
     {
@@ -192,7 +192,7 @@ public class Project
     }
 
     /**
-     *
+     * Return the location of the project.
      */
     public File getProjectDir()
     {
@@ -200,13 +200,16 @@ public class Project
     }
 
     /**
-     *
+     * A string which uniquely identifies this project
      */
     public String getUniqueId()
     {
         return "BJID" + getProjectDir().getPath();
     }
 
+    /**
+     *
+     */
     public String getInitialPackageName()
     {
         return initialPackageName;
@@ -259,7 +262,7 @@ public class Project
     /**
      * Removes the current classloader, and removes
      * references to classes loaded by it (this includes removing
-     * the objects from all object benches of this project).
+     * the objects from all object benches of this project).\
      * Should be run whenever a source file changes
      */
     synchronized void removeLocalClassLoader()
@@ -347,6 +350,11 @@ public class Project
      * The behaviour of this function is not guaranteed if
      * you pass in a directory name. It is meant for filenames
      * like /foo/bar/p1/s1/TestName.java
+     *
+     * An example of its use is if your project was in the
+     * directory /foo/bar and you passed in
+     * /foo/bar/p1/s1/TestName.java the function would
+     * return p1.s1.TestName
      */
     public String convertPathToPackageName(String pathname)
     {
