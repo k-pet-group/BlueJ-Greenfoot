@@ -7,7 +7,7 @@ import bluej.Config;
  * The Extensions superclass, all extensions must extend this class.
  * Your class must have an empty constructor.
  * 
- * @version    $Id: Extension.java 1770 2003-04-09 16:24:27Z damiano $
+ * @version    $Id: Extension.java 1800 2003-04-10 09:36:34Z damiano $
  */
 public abstract class Extension
 {
@@ -52,14 +52,16 @@ public abstract class Extension
      * When bluej decides that this extension is not longer needed it will call this 
      * method before detaching it from the system. Note that an extension may
      * be reloaded after having been unloaded. What you Extension writer should do here is to
-     * SHUT down everything you created. The extension may return a not
+     * shut down everything you created. The extension may return a not
      * null message string that will be written to the console.
-     * In ANY case the extension will be disconnected from BlueJ.
+     * In any case the extension will be disconnected from BlueJ.
      *
      * @return    A possible not null string that will be sent to the console
      */
-    public abstract String terminate();
-
+    public String terminate()
+    {
+        return null;
+    }
 
     /**
      * Return to BlueJ the version of the loaded extension.
