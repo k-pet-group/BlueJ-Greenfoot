@@ -272,7 +272,8 @@ public class SymbolTable
         // add the imported classes/packages to the class
         def.setImports(importedClasses);
 
-        def.setComment(comment.getText());
+        if (comment != null)
+            def.setComment(comment.getText());
 
         // add the class to the current scope
         addToCurrentScope(def);
@@ -299,7 +300,8 @@ public class SymbolTable
                                              
         def.setType(ClassDef.INTERFACE);
         
-        def.setComment(comment.getText());
+        if (comment != null)
+            def.setComment(comment.getText());
 
         // add it to the current scope
         addToCurrentScope(def);
