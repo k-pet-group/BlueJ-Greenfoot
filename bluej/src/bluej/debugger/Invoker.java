@@ -27,10 +27,10 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 293 1999-11-30 11:18:42Z ajp $
+ * @version $Id: Invoker.java 324 2000-01-02 13:09:04Z ajp $
  */
 
-public class Invoker extends Thread 
+public class Invoker extends Thread
 	implements CompileObserver, MethodDialogWatcher
 {
     private static final String creating = Config.getString("pkgmgr.creating");
@@ -51,9 +51,9 @@ public class Invoker extends Thread
      * To allow each method/constructor dialog to have a call history we need
      * to cache the dialogs we create. We store the mapping from method to
      * dialog in this hashtable.
-     */	
+     */
     private static Map methods = new HashMap();
-	
+
     private Package pkg;
     private ResultWatcher watcher;
     private CallableView member;
@@ -79,7 +79,7 @@ public class Invoker extends Thread
         this.pkg = pkg;
         this.member = member;
         this.watcher = watcher;
-        
+
         this.shellName = getShellName();
 
         // in the case of a constructor, we need to construct an object name
@@ -91,21 +91,21 @@ public class Invoker extends Thread
                 baseName = baseName.substring(dot_index + 1);
 
             this.objName = Character.toLowerCase(baseName.charAt(0)) +
-                                    baseName.substring(1) + "_" + 
+                                    baseName.substring(1) + "_" +
                                     member.getDeclaringView().getInstanceNum();
 
              constructing = true;
         }
         else if(member instanceof MethodView) {
-        
+
             // in the case of a static method call, we use the class name as an
             // object name
             if(((MethodView)member).isStatic()) {
                 this.objName = Utility.stripPackagePrefix(member.getClassName());
-            } else {           
+            } else {
                 this.objName = objName;
             }
-            
+
             constructing = false;
         }
         else
@@ -113,7 +113,7 @@ public class Invoker extends Thread
 
         invoke();
     }
-	
+
     /**
      * Execute the invokation. The details of the invokation
      * (object, method, etc) have been defined on creation of
@@ -143,7 +143,7 @@ public class Invoker extends Thread
                     dialog.setInstanceName(objName);
             }
         }
-		
+
         if(dialog != null) {
             LabelPrintWriter writer = new LabelPrintWriter();
             member.print(writer);
@@ -152,7 +152,7 @@ public class Invoker extends Thread
             dialog.setVisible(true);
         }
     }
-	
+
     // -- MethodDialogWatcher interface --
 
     /**
@@ -236,7 +236,7 @@ public class Invoker extends Thread
 	    buffer.append(",__bluej_param" + i);
 	buffer.append(")");
 	String argString = buffer.toString();
- 
+
 	  // Build scope, ie. add one line for every object on the object
 	  // bench that gets the object and makes it available for use as
 	  // a parameter. Then add one line for each parameter setting the
@@ -246,13 +246,13 @@ public class Invoker extends Thread
 	buffer = new StringBuffer();
 	String scopeId = Utility.quoteSloshes(pkg.getId());
 	if(wrappers.length > 0)
-	    buffer.append("Hashtable __bluej_runtime_scope = getScope(\"" 
+	    buffer.append("Map __bluej_runtime_scope = getScope(\""
 			  + scopeId + "\");" + Config.nl);
 	for(int i = 0; i < wrappers.length; i++) {
 	    ObjectWrapper wrapper = (ObjectWrapper)wrappers[i];
 	    String type = wrapper.className;
 	    String instname = wrapper.instanceName;
-	    buffer.append("\t\t" + type + " " + instname + " = "); 
+	    buffer.append("\t\t" + type + " " + instname + " = ");
 	    buffer.append("(" + type + ")__bluej_runtime_scope.get(\"");
 	    buffer.append(instname + "\");" + Config.nl);
 	}
@@ -266,7 +266,7 @@ public class Invoker extends Thread
 
 	buffer = new StringBuffer();
 	if(constructing) {
-	    buffer.append("__bluej_runtime_result = makeObj(new "); 
+	    buffer.append("__bluej_runtime_result = makeObj(new ");
 	    buffer.append(className + argString + ");" + Config.nl);
 	    buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
 	    buffer.append(instanceName);
@@ -298,17 +298,17 @@ public class Invoker extends Thread
 
 	String templateFileName = Config.getLibFilename("template.shell");
 	String shellFileName = pkg.getFileName(shellName) + ".java";
-		
+
 	try {
-	    BlueJFileReader.translateFile(templateFileName, shellFileName, 
+	    BlueJFileReader.translateFile(templateFileName, shellFileName,
 					  trans);
 	} catch(IOException e) {
 	    e.printStackTrace();
 	    return;
 	}
-		
+
 	String[] files = { shellFileName };
-	JobQueue.getJobQueue().addJob(files, this, pkg.getClassPath(), 
+	JobQueue.getJobQueue().addJob(files, this, pkg.getClassPath(),
 				      pkg.getDirName());
     }
 
@@ -364,7 +364,7 @@ public class Invoker extends Thread
      * Execute an interactive method call. At this point, the shell
      * class has been compiled and we are ready to go. If you want to
      * extend this to support concurrency (executing in a separate
-     * thread), this is the place to do it: This could be done in 
+     * thread), this is the place to do it: This could be done in
      * another thread, which you could construct here. Careful,
      * though: you have to make sure that the clean-up (deleting
      * the class file) does not happen too early.
@@ -385,7 +385,7 @@ public class Invoker extends Thread
 	    // (this could be either a construction of a function result)
 
 	    handleResult(shellClassName);
-	    
+
 	    // update all open inspect windows
 	    ObjectViewer.updateViewers();
 
@@ -409,7 +409,7 @@ public class Invoker extends Thread
 	      case Debugger.NORMAL_EXIT:
 		  if(watcher != null) {
 		      DebuggerObject result = Debugger.debugger.getStaticValue(
-						shellClassName, 
+						shellClassName,
 						"__bluej_runtime_result");
 		      if(constructing)
 			  watcher.putResult(result, instanceName);
@@ -420,7 +420,7 @@ public class Invoker extends Thread
 
 	      case Debugger.FORCED_EXIT:  // exit through System.exit()
 		  if(watcher != null) {
-		      ExceptionDescription exc = 
+		      ExceptionDescription exc =
 			  Debugger.debugger.getException();
 		      pkg.reportExit(exc.getText());
 		  }
@@ -428,7 +428,7 @@ public class Invoker extends Thread
 
 	      case Debugger.EXCEPTION:
 		  ExceptionDescription exc = Debugger.debugger.getException();
-		  String text = 
+		  String text =
 		      Utility.stripPackagePrefix(exc.getClassName());
 		  if(exc.getText() != null)
 		      text += ":\n" + exc.getText();
