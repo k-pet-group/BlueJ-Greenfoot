@@ -11,6 +11,7 @@ import bluej.debugger.MachineLoader;
 import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.prefmgr.MiscPrefPanel;
 import bluej.prefmgr.PrefMgr;
+import bluej.extmgr.ExtensionsManager;
 
 import java.io.File;
 import java.util.StringTokenizer;
@@ -20,7 +21,7 @@ import java.util.StringTokenizer;
  * in this class's main method.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 1410 2002-10-16 13:29:41Z mik $
+ * @version $Id: Main.java 1458 2002-10-23 12:06:40Z jckm $
  */
 public class Main
 {
@@ -90,6 +91,10 @@ public class Main
         MiscPrefPanel.register();
         ClassMgrPrefPanel.register();
 
+        // You got to create it here since it is used by the Package manager frame
+        ExtensionsManager.initialise(args, bluejLib);
+//        ExtensionsManager.getExtMgr().loadExtensions();
+        
         // start the MachineLoader (a separate thread) to load the
         // remote virtual machine in the background
 
@@ -100,29 +105,36 @@ public class Main
 
         processArgs(args);
         splash.remove();
+
+
+        // called here to solve timing problems where the extension starts interact with BlueJ but it is not ready yet.
+        ExtensionsManager.getExtMgr().loadExtensions();
     }
 
     /**
      * Start everything off. This is used to open the projects
      * specified on the command line when starting BlueJ.
+     * Any parameters starting with '-' are ignored for now.
      */
     private static void processArgs(String[] args)
     {
         boolean oneOpened = false;
         if(args.length > 0) {
             for(int i = 0; i < args.length; i++) {
-                Project openProj;
-                if((openProj = Project.openProject(args[i])) != null) {
-                    oneOpened = true;
+                if (!args[i].startsWith ("-")) {
+                    Project openProj;
+                    if((openProj = Project.openProject(args[i])) != null) {
+                        oneOpened = true;
 
-                    Package pkg = openProj.getPackage(
-                                    openProj.getInitialPackageName());
+                        Package pkg = openProj.getPackage(
+                                        openProj.getInitialPackageName());
 
-                    PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
+                        PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
 
-                    pmf.setLocation(i*30 + FIRST_X_LOCATION,
-                                     i*30 + FIRST_Y_LOCATION);
-                    pmf.show();
+                        pmf.setLocation(i*30 + FIRST_X_LOCATION,
+                                         i*30 + FIRST_Y_LOCATION);
+                        pmf.show();
+                    }
                 }
             }
         }

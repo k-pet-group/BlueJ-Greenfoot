@@ -34,7 +34,7 @@ import javax.swing.text.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: Package.java 1458 2002-10-23 12:06:40Z jckm $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -470,6 +470,7 @@ public class Package extends Graph
         // try to load the package file for this package
         FileInputStream input = new FileInputStream(pkgFile);
         lastSavedProps.load(input);
+        input.close();
 
         // read in all the targets contained in this package
         Map propTargets = new HashMap();
@@ -715,6 +716,7 @@ public class Package extends Graph
         try {
             FileOutputStream output = new FileOutputStream(file);
             props.store(output, "BlueJ package file");
+            output.close();
         } catch(IOException e) {
             Debug.reportError("Error saving project file " + file + ": " + e);
             return false;

@@ -26,7 +26,7 @@ import com.sun.jdi.event.ExceptionEvent;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: JdiDebugger.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: JdiDebugger.java 1458 2002-10-23 12:06:40Z jckm $
  *
  * The startup process is as follows:
  *
@@ -253,10 +253,10 @@ public final class JdiDebugger extends Debugger
             if (machine != null) {
 
                 try {
-                    machine.dispose();
+// removed to stop deadlocks on exit
+//                    machine.dispose();
                 }
-                catch (Exception e) { }
-
+                catch (Exception e) {}
                 machine = null;
             }
         }

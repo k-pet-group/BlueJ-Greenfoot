@@ -30,7 +30,7 @@ import junit.framework.*;*/
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1304 2002-08-14 11:39:59Z mik $
+ * @version $Id: Project.java 1458 2002-10-23 12:06:40Z jckm $
  */
 public class Project
     implements BlueJEventListener
@@ -619,7 +619,7 @@ public class Project
         try {
             return getLocalClassLoader().loadClass(className);
         } catch(ClassNotFoundException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return null;
         }
     }

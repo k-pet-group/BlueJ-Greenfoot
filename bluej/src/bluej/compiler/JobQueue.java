@@ -8,7 +8,7 @@ import bluej.Config;
  * compiler.
  *
  * @author  Michael Cahill
- * @version $Id: JobQueue.java 1083 2002-01-11 16:54:51Z mik $
+ * @version $Id: JobQueue.java 1458 2002-10-23 12:06:40Z jckm $
  */
 public class JobQueue
 {
@@ -77,5 +77,16 @@ public class JobQueue
     {
         thread.addJob(new Job(sourcefile, compiler, observer,
                               classpath, destdir));
+    }
+    
+    public void waitForEmptyQueue()
+    {
+        while (thread.isBusy()) {
+            synchronized (thread) {
+                try {
+                    thread.wait();
+                } catch (InterruptedException ex) {}
+            }
+        }
     }
 }

@@ -30,7 +30,7 @@ import java.awt.*;
  * information is spread over several files: <BR>
  * <BR>
  *  &lt;bluej_home>/lib/bluej.defs <BR>
- *  &lt;bluej_home>/lib/labels.&lt;language>	(eg "labels.english") <BR>
+ *  &lt;bluej_home>/lib/&lt;language>/labels	(eg "labels.english") <BR>
  *  &lt;user_home>/.bluej/bluej.properties <BR>
  * <BR>
  * "bluej.defs"	- contains system definitions which are not language
@@ -42,7 +42,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1351 2002-10-07 12:07:59Z mik $
+ * @version $Id: Config.java 1458 2002-10-23 12:06:40Z jckm $
  */
 
 public class Config
@@ -548,8 +548,10 @@ public class Config
     }
 
     /**
-     * Return the file with language specific text (eg.
-     * "bluej/lib/english/dialogs" if base is dialogs)
+     * Return the file with language specific text. 
+     * For example,
+     * <CODE>bluej/lib/english/dialogs</CODE> if base is <CODE>dialogs</CODE>
+     * and the current language is <CODE>english</CODE>.
      */
     public static File getLanguageFile(String base)
     {

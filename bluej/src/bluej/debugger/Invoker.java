@@ -27,8 +27,9 @@ import java.util.*;
  * This class constructs a "shell" java source file, compiles it,
  * then loads the resulting class file and executes a method in a new thread.
  *
+ * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 1382 2002-10-14 14:48:48Z mik $
+ * @version $Id: Invoker.java 1458 2002-10-23 12:06:40Z jckm $
  */
 
 public class Invoker extends Thread
@@ -69,6 +70,7 @@ public class Invoker extends Thread
     private boolean expectResult;
     private String resultName;
     private String commandAsString;
+    private ExecutionEvent executionEvent;
 
     /**
      * Create an invoker for a free form statement or expression.
@@ -87,6 +89,7 @@ public class Invoker extends Thread
         this.instanceName = null;
 
         constructing = false;
+        executionEvent = ExecutionEvent.createFreeForm (this.pkg);
         doFreeForm(callDialog);
     }
         
@@ -133,6 +136,7 @@ public class Invoker extends Thread
                 member.getDeclaringView().getInstanceNum();
 
             constructing = true;
+            executionEvent = ExecutionEvent.createConstructor (member.getClassName());
         }
         else if(member instanceof MethodView) {
 
@@ -140,24 +144,25 @@ public class Invoker extends Thread
             // object name
             if(((MethodView)member).isStatic()) {
                 this.objName = JavaNames.stripPrefix(member.getClassName());
+                executionEvent = ExecutionEvent.createStaticMethod (objName);
             } else {
                 this.objName = objName;
+                executionEvent = ExecutionEvent.createObjectMethod (objName);
             }
 
             constructing = false;
         }
         else
             Debug.reportError("illegal member type in invocation");
+        executionEvent.setPackage (pkg);
 
-        invoke();
-    }
+   }
 
     /**
-     * Execute the invocation. The details of the invocation
-     * (object, method, etc) have been defined on creation of
-     * this invoker object.
+     * Open a dialog to get further information about the requested invocation.
+     * When the dialog is complete, it will call methodDialogEvent.
      */
-    private void invoke()
+    public void invokeInteractive()
     {
         // check for a method call with no parameter
         // if so, just do it
@@ -228,7 +233,7 @@ public class Invoker extends Thread
             else if(dlg instanceof FreeFormCallDialog) {
                 pmf.setWaitCursor(true);
                 FreeFormCallDialog ffDialog = (FreeFormCallDialog)dlg;
-                doFreeFormInvocation(ffDialog.getExpression(), ffDialog.hasResult());
+                doFreeFormInvocation(ffDialog.getExpression(), ffDialog.getHasResult());
             }
         }
         else
@@ -237,6 +242,26 @@ public class Invoker extends Thread
 
     // -- end of CallDialogWatcher interface --
 
+    /**
+     * Invokes a constructor or method by supplying the required parameters
+     */
+    public void invokeDirect (String instanceName, String[] params)
+    {
+        this.instanceName = instanceName;
+        Class[] paramClasses = member.getParameters();
+        if (params == null) {
+            if (member.hasParameters()) {
+                System.out.println ("Parameters expected");
+                return;
+            }
+        } else if (params.length != paramClasses.length) {
+            System.out.println ("Parameter numbers does not match");
+            return;
+        }
+        
+        doInvocation (params, paramClasses);
+    }
+    
     /**
      * After all the interactive stuff is finished, finally do
      * the invocation of the method. (This can be a constructor
@@ -252,6 +277,13 @@ public class Invoker extends Thread
      */
     protected void doInvocation(String[] args, Class[] argTypes)
     {
+        executionEvent.setParameters (argTypes, args);
+        if (constructing) {
+            executionEvent.setObjectName (instanceName);
+        } else {
+            executionEvent.setMethodName (((MethodView)member).getName());
+        }
+
         int numArgs = (args==null ? 0 : args.length);
         String className = member.getClassName();
 
@@ -343,6 +375,7 @@ public class Invoker extends Thread
                                          //constructing, isVoid);
 
         commandAsString = executionString;
+        executionEvent.setCommand (executionString);
         compileInvocationFile(shell);
     }
 
@@ -491,6 +524,7 @@ public class Invoker extends Thread
         if(dialog != null) {
             dialog.setErrorMessage("Error: " + message);
         }
+        watcher.putError (message);
     }
 
     /**
@@ -542,12 +576,12 @@ public class Invoker extends Thread
     {
         BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandAsString);
         try {
-            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, null);
+            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, executionEvent);
             DebuggerClassLoader loader = pkg.getRemoteClassLoader();
             String shellClassName = pkg.getQualifiedName(shellName);
             Debugger.debugger.startClass(loader, shellClassName,
                                          pkg.getProject());
-            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, null);
+            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, executionEvent);
 
             // the execution is completed, get the result if there was one
             // (this could be either a construction of a function result)
@@ -576,11 +610,20 @@ public class Invoker extends Thread
 
             case Debugger.NORMAL_EXIT:
                 if(expectResult) {
-                    DebuggerObject result = Debugger.debugger.getStaticValue(
-                                                shellClassName,
-                                                "__bluej_runtime_result");
-                    watcher.putResult(result, resultName);
+                    DebuggerObject result = null;
+                    if (member instanceof MethodView && ((MethodView)member).isVoid());
+                    else result = Debugger.debugger.getStaticValue(
+                                                                   shellClassName,
+                                                                   "__bluej_runtime_result");
+                    if(constructing) {
+                        watcher.putResult(result, instanceName);
+                    }
+                    else {
+                        watcher.putResult(result, resultName);
+                    }
                 }
+                executionEvent.setResult (ExecutionEvent.NORMAL_EXIT);
+
                 break;
 
             case Debugger.FORCED_EXIT:  // exit through System.exit()
@@ -591,7 +634,9 @@ public class Invoker extends Thread
                     ExceptionDescription exc =
                         Debugger.debugger.getException();
                     pkg.reportExit(exc.getText());
+                    watcher.putError (exc.getText());
                 }
+                executionEvent.setResult (ExecutionEvent.FORCED_EXIT);
                 break;
 
             case Debugger.EXCEPTION:
@@ -600,21 +645,27 @@ public class Invoker extends Thread
                 if(text != null) {
                     text = JavaNames.stripPrefix(text) + ":\n" + exc.getText();
                     pkg.exceptionMessage(exc.getStack(), text, false);
+                    watcher.putError (text);
                 } else {
                     pkg.reportException(exc.getText());
+                    watcher.putError (exc.getText());
                 }
+                executionEvent.setResult (ExecutionEvent.EXCEPTION_EXIT);
                 break;
 
             case Debugger.TERMINATED:  // terminated by user
                 // nothing to do
+                watcher.putError ("Terminated");
+                executionEvent.setResult (ExecutionEvent.TERMINATED_EXIT);
                 break;
 
             } // switch
+            BlueJEvent.raiseEvent (BlueJEvent.EXECUTION_RESULT, executionEvent);
         } catch(Throwable e) {
             e.printStackTrace(System.err);
         }
     }
-    
+
     private String cleverQualifyTypeName(Package p, String typeName)
     {
         // if we happen to have a class in this package with the

@@ -32,7 +32,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 1304 2002-08-14 11:39:59Z mik $
+ * @version $Id: ObjectWrapper.java 1458 2002-10-23 12:06:40Z jckm $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -101,6 +101,11 @@ public class ObjectWrapper extends JComponent
     public PkgMgrFrame getFrame()
     {
         return pmf;
+    }
+    
+    public String getClassName()
+    {
+        return className;
     }
 
     /**
@@ -295,6 +300,11 @@ public class ObjectWrapper extends JComponent
         Graphics2D g2 = (Graphics2D)g;
         drawUMLStyle(g2);
     }
+    
+    public DebuggerObject getObject()
+    {
+        return obj;
+    }
 
     /**
      * draw a UML style object instance
@@ -343,7 +353,7 @@ public class ObjectWrapper extends JComponent
     /**
      * Process a mouse click into this object. If it was a popup event, show the object's
      * menu. If it was a double click, inspect the object. If it was a normal mouse click,
-     * insert is into a parameter field (if any).
+     * insert it into a parameter field (if any).
      */
     protected void processMouseEvent(MouseEvent evt)
     {
@@ -456,12 +466,13 @@ public class ObjectWrapper extends JComponent
                         BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL,
                                               viewer.getResult());
                     }
+                    public void putError (String message) {}
                 };
         }
 
         Invoker invoker = new Invoker(pmf, method, instanceName, watcher);
+        invoker.invokeInteractive();
     }
-
 
     // Internationalisation
     static String methodException =

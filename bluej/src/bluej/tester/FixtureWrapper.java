@@ -33,7 +33,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: FixtureWrapper.java 1012 2001-11-30 01:26:31Z ajp $
+ * @version $Id: FixtureWrapper.java 1458 2002-10-23 12:06:40Z jckm $
  */
 public class FixtureWrapper extends JComponent
     implements ActionListener
@@ -469,6 +469,7 @@ public class FixtureWrapper extends JComponent
         }
 
         Invoker invoker = new Invoker(pmf, method, instanceName, watcher);
+        invoker.invokeInteractive();
     }
 
 

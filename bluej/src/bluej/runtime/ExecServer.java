@@ -137,7 +137,7 @@ public class ExecServer
     public void suspendExecution()
     {
         // <BREAKPOINT!>
-        Debug.message("[VM] woke up from suspend");
+//        Debug.message("[VM] woke up from suspend");
     }
 
 

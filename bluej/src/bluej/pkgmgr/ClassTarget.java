@@ -48,7 +48,7 @@ import net.sourceforge.transmogrify.symtab.parser.*;*/
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1417 2002-10-18 07:56:39Z mik $
+ * @version $Id: ClassTarget.java 1458 2002-10-23 12:06:40Z jckm $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -514,11 +514,25 @@ public class ClassTarget extends EditableTarget
             editor.removeStepMark();
     }
 
-    protected boolean isCompiled()
+    public boolean isCompiled()
     {
+        checkUpToDate();
         return (state == S_NORMAL);
     }
 
+    /**
+     * Check if the sourcefile has been changed, and if so invalidate this and all dependents
+     */
+    public void checkUpToDate()
+    {
+        // Has something mysteriously changed? Take action!
+        if (!upToDate()) {
+            invalidate();
+            sourceInfo.setSourceModified();
+        }
+
+    }
+    
     /**
      *  Called when this class target has just been successfully compiled.
      */
@@ -662,6 +676,7 @@ public class ClassTarget extends EditableTarget
 
         analysing = true;
 
+        checkUpToDate();
         ClassInfo info = sourceInfo.getInfo(getSourceFile().getPath(),
                                             getPackage().getAllClassnames());
 

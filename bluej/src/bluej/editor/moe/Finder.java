@@ -68,7 +68,6 @@ public class Finder extends JDialog
     /**
      * Ask the user for input of search details via a dialogue.
      *
-     * @param
      */
     public void show(MoeEditor currentEditor, String selection, boolean replace)
     {

@@ -34,12 +34,14 @@ import bluej.utility.filefilter.JavaSourceFilter;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.groupwork.*;
+import bluej.extmgr.ExtensionsManager;
+import bluej.extmgr.HelpDialog;
 //import bluej.tester.*;
 
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1378 2002-10-14 13:40:07Z mik $
+ * @version $Id: PkgMgrFrame.java 1458 2002-10-23 12:06:40Z jckm $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, 
@@ -72,6 +74,7 @@ public class PkgMgrFrame extends JFrame
     private JLabel statusbar = new JLabel(" ");
 
     private JMenuBar menubar = null;
+    private JMenu toolsMenu;
     private List itemsToDisable;
     private JButton progressButton;
 
@@ -101,6 +104,8 @@ public class PkgMgrFrame extends JFrame
     // static methods to create and remove frames
 
     private static List frames = new ArrayList();  // of PkgMgrFrames
+
+    private static ExtensionsManager extMgr = ExtensionsManager.getExtMgr();
 
     /**
      * Open a PkgMgrFrame with no package.
@@ -140,6 +145,7 @@ public class PkgMgrFrame extends JFrame
             pmf.openPackage(pkg);
         }
 
+        extMgr.addMenuItems (pmf.getProject(), pmf, pmf.toolsMenu);
         return pmf;
     }
 
@@ -304,6 +310,20 @@ public class PkgMgrFrame extends JFrame
         if(pmf != null)
             DialogManager.showMessageWithText(pmf, msgId, text);
     }
+    
+    /**
+     * Gets the most recently used PkgMgrFrame
+     * @return the PkgMgrFrame that currently has the focus
+     */
+    public static PkgMgrFrame getMostRecent()
+    {
+        PkgMgrFrame[] frames = getAllFrames();
+        PkgMgrFrame mostRecent = frames[0];
+        for (int i=0; i<frames.length; i++) {
+            if (frames[i].getFocusOwner() != null) mostRecent = frames[i];
+        }
+        return mostRecent;
+    }
 
 
     // ================ (end of static part) ==========================
@@ -405,6 +425,8 @@ public class PkgMgrFrame extends JFrame
             };
 
         SwingUtilities.invokeLater(enableUI);
+
+        extMgr.packageOpened (pkg);
     }
 
     /**
@@ -414,6 +436,8 @@ public class PkgMgrFrame extends JFrame
     {
         if(isEmptyFrame())
             return;
+
+        extMgr.packageClosing (pkg);
 
         classScroller.setViewportView(null);
 
@@ -476,7 +500,7 @@ public class PkgMgrFrame extends JFrame
      */
     public Project getProject()
     {
-        return pkg.getProject();
+        return pkg==null ? null : pkg.getProject();
     }
 
     /**
@@ -659,6 +683,7 @@ public class PkgMgrFrame extends JFrame
         if(openProj == null)
             return false; 
         else {
+            extMgr.projectOpening (openProj, this, isEmptyFrame()?toolsMenu:null);
             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf;
@@ -1044,6 +1069,7 @@ public class PkgMgrFrame extends JFrame
                         else
                             Debug.reportError("cannot get execution result");
                     }
+                    public void putError (String message) {}
                 };
         }
         else if(cv instanceof MethodView) {
@@ -1069,13 +1095,14 @@ public class PkgMgrFrame extends JFrame
                                                        PkgMgrFrame.this);
                             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
                         }
+                        public void putError (String message) {}
                     };
             }
         }
 
         // create an Invoker to handle the actual invocation
 
-        new Invoker(this, cv, null, watcher);
+        new Invoker(this, cv, null, watcher).invokeInteractive();
     }
 
     /**
@@ -1271,7 +1298,7 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * The user function to add a uses arrow to the dagram was invoked.
+     * The user function to add a uses arrow to the diagram was invoked.
      */
     public void doNewUses()
     {
@@ -1376,6 +1403,7 @@ public class PkgMgrFrame extends JFrame
                                                PkgMgrFrame.this);
                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
                }
+               public void putError (String error) {}
         };
         new Invoker(this, freeFormCallDialog, watcher);
     }
@@ -1850,6 +1878,7 @@ public class PkgMgrFrame extends JFrame
 
 
         menu = new JMenu(Config.getString("menu.tools"));
+        toolsMenu = menu;
         menubar.add(menu);
         {    
             createMenuItem("menu.tools.compile", menu, KeyEvent.VK_K, SHORTCUT_MASK, true, 
@@ -1886,6 +1915,10 @@ public class PkgMgrFrame extends JFrame
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); PrefMgrDialog.showDialog(frame); }
                            });
+
+            menu.addSeparator();
+
+            extMgr.addMenuItems (null, this, toolsMenu);
         }
 
 
@@ -1938,6 +1971,10 @@ public class PkgMgrFrame extends JFrame
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); VersionCheckDialog dialog = new VersionCheckDialog(frame); }
                            });
+            createMenuItem("menu.help.extensions", menu, 0, 0, false,
+                           new ActionListener() {
+                               public void actionPerformed(ActionEvent e) { menuCall(); new HelpDialog(frame); }
+                           });
             createMenuItem("menu.help.copyright", menu, 0, 0, false, 
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); showCopyright(); }
@@ -1965,6 +2002,14 @@ public class PkgMgrFrame extends JFrame
 
 
     /**
+    * just returns the menu tool bar
+    */
+    public JMenu getToolsMenu()
+      {
+          return toolsMenu;
+      }
+
+    /**
      * Add a new menu item to a menu.
      */
     private void createMenuItem(String itemStr, JMenu menu, int key, int modifiers,
@@ -1980,6 +2025,16 @@ public class PkgMgrFrame extends JFrame
             itemsToDisable.add(item);
     }
 
+    /**
+     * Register that a menu item that should be disabled when the frame is empty
+     * @param item the menu item to disable whenever the frame is empty
+     */
+    public void disableOnEmpty (JMenuItem item)
+    {
+        itemsToDisable.add (item);
+        item.setEnabled (!isEmptyFrame());
+    }
+     
 
     /**
      * Add a new menu item to a menu.

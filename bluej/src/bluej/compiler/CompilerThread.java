@@ -5,7 +5,7 @@ import bluej.utility.Debug;
 import bluej.utility.Queue;
 
 /**
- * @version $Id: CompilerThread.java 1083 2002-01-11 16:54:51Z mik $
+ * @version $Id: CompilerThread.java 1458 2002-10-23 12:06:40Z jckm $
  * @author Michael Cahill
  * @author Michael Kolling
  *
@@ -17,6 +17,7 @@ import bluej.utility.Queue;
 public class CompilerThread extends Thread
 {
     Queue jobs;
+    boolean busy;
 	
     public CompilerThread()
     {
@@ -27,13 +28,16 @@ public class CompilerThread extends Thread
     public void run()
     {
         Job job;
-		
+
         while(true) {
+            busy = true;
             while((job = (Job)jobs.dequeue()) != null) {
                 job.compile();
             }
-			
+            busy = false;
+		
             synchronized(this) {
+                notifyAll();
                 try {
                     wait();
                 } catch(InterruptedException e) {
@@ -45,8 +49,13 @@ public class CompilerThread extends Thread
     public synchronized void addJob(Job job)
     {
         jobs.enqueue(job);
-        notify();
+        notifyAll();
     }
+	
+	public synchronized boolean isBusy()
+	{
+	    return (busy || !jobs.isEmpty());
+	}
 	
     static String title = Config.getString("compiler.thread.title");
 }
