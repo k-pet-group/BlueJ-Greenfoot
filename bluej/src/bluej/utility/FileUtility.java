@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version $Id: FileUtility.java 2748 2004-07-07 02:47:40Z bquig $
  */
 public class FileUtility
 {
@@ -27,6 +27,8 @@ public class FileUtility
     private static JFileChooser pkgChooser = null;
     private static JFileChooser pkgChooserNonBlueJ = null;
     private static JFileChooser fileChooser = null;
+    private static JFileChooser multiFileChooser = null;
+    
 
     //========================= STATIC METHODS ============================
 
@@ -53,7 +55,36 @@ public class FileUtility
         return chooser.getSelectedFile();
     }
 
+    /**
+     *  Get file(s) from the user, using a file selection dialogue.
+     *  If cancelled or an invalid name was specified, return null.
+     *  @return a File array containing the selected files
+     */
+    public static File[] getMultipleFiles(Component parent, String title,
+            String buttonLabel, FileFilter filter)
+    {
+        JFileChooser newMultiChooser = getMultipleFileChooser();
 
+        newMultiChooser.setDialogTitle(title);
+
+        if(filter == null)
+            filter = newMultiChooser.getAcceptAllFileFilter();
+        newMultiChooser.setFileFilter(filter);
+        
+        int result = newMultiChooser.showDialog(parent, buttonLabel);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            
+            return newMultiChooser.getSelectedFiles();
+        }
+        else if (result == JFileChooser.CANCEL_OPTION)
+            return null;
+        else {
+            DialogManager.showError(parent, "error-no-name");
+            return null;
+        }
+    }
+    
     /**
      *  Get a file name from the user, using a file selection dialogue.
      *  If cancelled or an invalid name was specified, return null.
@@ -151,6 +182,22 @@ public class FileUtility
         return fileChooser;
     }
 
+    /**
+     * return a file chooser for choosing any directory (default behaviour)
+     * that is allows selection of multiple files
+     */
+    private static JFileChooser getMultipleFileChooser()
+    {
+        String currentDir = (new File("x")).getAbsolutePath();
+
+        if(multiFileChooser == null) {
+            multiFileChooser = new BlueJFileChooser(PrefMgr.getProjectDirectory());
+            multiFileChooser.setMultiSelectionEnabled(true);
+        }
+
+        return multiFileChooser;
+    }
+    
 
     private static class JavaSourceFilter extends FileFilter
     {
