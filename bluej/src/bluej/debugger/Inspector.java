@@ -71,5 +71,17 @@ public abstract class Inspector extends JPanel
             }
         }
     }
+    
+    /* Return the containing JFrame. 
+       Useful for JDialog invokations */
+    protected JFrame getJFrame()
+    {
+        java.awt.Container parent = getParent();
+        while (!(parent instanceof JFrame))
+        {
+            parent = parent.getParent();
+        }
+        return (JFrame) parent;
+    }
 
 }

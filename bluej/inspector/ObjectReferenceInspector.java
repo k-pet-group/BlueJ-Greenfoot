@@ -837,16 +837,6 @@ public class ObjectReferenceInspector extends Inspector
         relaxer = null;
     }
 
-    JFrame getJFrame()
-    {
-        java.awt.Container parent = ObjectReferenceInspector.this.getParent();
-        while (!(parent instanceof JFrame))
-        {
-            parent = parent.getParent();
-        }
-        return (JFrame) parent;
-    }
-
     synchronized void relax()
     {
         for (int i = 0; i < nedges; i++)

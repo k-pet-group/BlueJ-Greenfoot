@@ -29,7 +29,7 @@ import javax.swing.border.Border;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Duane Buck
- * @version $Id: ObjectViewer.java 739 2000-12-27 08:11:41Z dbuck $
+ * @version $Id: ObjectViewer.java 742 2001-01-01 21:39:48Z dbuck $
  */
 public final class ObjectViewer extends JFrame
     implements ActionListener, ListSelectionListener, InspectorListener
@@ -645,7 +645,8 @@ public final class ObjectViewer extends JFrame
         inspectorTabs.add("Standard",mainPanel);
         if (inspCnt==0) {
             loadInspectors(Config.getSystemInspectorDir());
-            loadInspectors(new File(pkg.getProject().getProjectDir(),"inspector"));
+            //loadInspectors(new File(pkg.getProject().getProjectDir(),"inspector"));
+            loadInspectors(new File (pkg.getProject().getProjectDir(),"(inspector)"));
         }
         addInspectors(inspectorTabs);
       
@@ -680,6 +681,8 @@ public final class ObjectViewer extends JFrame
                if (inspName[i].endsWith(".class")) {
                    try {
                        Class theInspClass = loader.loadClass(inspName[i].substring(0,inspName[i].length()-6));
+                       Inspector theInsp=((Inspector)theInspClass.newInstance());
+                       // If control gets here, the class implements Inspector!
                        int inspIdx=inspCnt;
                        inspCnt++;
                        if (inspCnt>=insp.length) {
@@ -688,8 +691,15 @@ public final class ObjectViewer extends JFrame
                            insp=temp;
                        }
                        insp[inspIdx]=theInspClass;
+                       //System.out.println(""+inspIdx+": "+theInspClass);
                    }
                    catch (ClassNotFoundException e) {
+                   }
+                   catch (InstantiationException e) {
+                   }
+                   catch (IllegalAccessException e) {
+                   }
+                   catch (ClassCastException e) {
                    }
                }
            }
