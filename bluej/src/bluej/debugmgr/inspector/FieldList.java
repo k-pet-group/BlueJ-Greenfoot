@@ -21,6 +21,8 @@ import bluej.Config;
 import bluej.debugger.DebuggerObject;
 
 /**
+ * A graphical representation of a list of fields from a class or object. 
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
  *
  */
@@ -28,9 +30,11 @@ public class FieldList extends JTable
 {
     
     /**
+     * Creates a new fieldlist with no data.
      * 
+     * @param maxDescriptionLength The maximum number of characters for the "description" of the field (the name and modifiers)
      */
-    public FieldList(int maxDescriptionLength) {
+	public FieldList(int maxDescriptionLength) {
         super(new ListTableModel());
         this.setShowGrid(false);
         this.setRowSelectionAllowed(true);
@@ -43,18 +47,27 @@ public class FieldList extends JTable
         this.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         this.getTableHeader().setVisible(false);
         
-        
-        //TODO make some experiments with a mehtod that does something like this:
-        //this.configureEnclosingScrollPane()
-        //this.unconfigureEnclosingScrollPane()
+        removeHeader();
     }
     
-    
+	/**
+	 * A list of fields that should be shown in this list.
+	 * 
+	 * @param listData Strings that include a "=" 
+	 */
     public void setData(Object[] listData) {
         ((ListTableModel) getModel()).setDataVector(listData);
+        removeHeader();
     }
 
-    
+    	/**
+    	 * Ensures that the header of the table is not shown at all!
+    	 *
+    	 */
+    private void removeHeader() {
+        this.unconfigureEnclosingScrollPane();
+        this.getTableHeader().setVisible(false);
+    }
     
     static class ListTableModel extends DefaultTableModel {
         public ListTableModel() {
