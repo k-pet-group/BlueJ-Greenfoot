@@ -11,7 +11,7 @@ import org.bluej.utility.*;
  *
  * @author     Clive Miller, University of Kent at Canterbury 2002
  * @author     Damiano Bolla, University of Kent at Canterbury 2003
- * @version    $Id: Submitter.java 2080 2003-06-26 15:06:11Z damiano $
+ * @version    $Id: Submitter.java 2168 2003-08-18 19:41:29Z iau $
  */
 public class Submitter extends Extension 
 {
@@ -62,7 +62,7 @@ public class Submitter extends Extension
      */
     public String getVersion()
     {
-        return "3.7";
+        return "3.8";
     }
 
     public String getName()

@@ -4,7 +4,10 @@ import java.awt.event.*;
 import java.awt.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.text.html.*;
+
+import org.bluej.utility.*;
 
 /**
  * DIsplay a result in a nice window with a OK button.
@@ -33,6 +36,17 @@ public class ResultDialog implements ActionListener
     HTMLEditorKit edKit = new HTMLEditorKit();
     resultArea.setEditorKit(edKit);
     resultArea.setEditable(false);
+    
+    // Add a link-click listener to the editor pane
+    resultArea.addHyperlinkListener( new HyperlinkListener() {
+        public void hyperlinkUpdate(HyperlinkEvent e) {
+            if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                if (! Utility.openWebBrowser(stat.bluej, e.getURL())) {
+                    stat.submitDialog.statusWriteln("Can't open external browser");
+                }
+            }
+        }
+    });
 
     JScrollPane scrollPane = new JScrollPane(resultArea);
     Dimension dimension = new Dimension (300,250);
