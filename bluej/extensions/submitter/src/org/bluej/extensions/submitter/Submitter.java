@@ -1,21 +1,20 @@
 package org.bluej.extensions.submitter;
 
-import bluej.extensions.BlueJ;
-import bluej.extensions.BMenuItem;
-import bluej.extensions.BPackage;
-import bluej.extensions.Extension;
-import bluej.extensions.MenuListener;
+import bluej.extensions.*;
 
 import java.net.URL;
+import javax.swing.*;
+import java.awt.event.*;
+import java.awt.*;
 
 /**
  * An extension that allows users to automatically submit
  * their project by the agreed method
  *
  * @author Clive Miller
- * @version $Id: Submitter.java 1482 2002-10-28 10:01:12Z damiano $
+ * @version $Id: Submitter.java 1498 2002-11-11 10:34:08Z damiano $
  */
-public class Submitter extends Extension implements MenuListener
+public class Submitter extends Extension implements MenuGen
 {
     private static final int BUILT_FOR_MAJOR = 1;
     private static final int BUILD_FOR_MINOR = 0;
@@ -24,12 +23,12 @@ public class Submitter extends Extension implements MenuListener
     private static final int VERSION_MINOR = 4;
     
     private boolean functionEnabled = false;
-    private BMenuItem menuItem;
     private BlueJ bj;
     private SubmissionProperties sp;
     private SubmissionDialog sd;
     private Thread submitterThread;
     private PrefPanel globalPreferences;
+    private MenuAction anAction;
 
     
     public boolean isCompatibleWith (int majorVersion, int minorVersion)
@@ -37,21 +36,50 @@ public class Submitter extends Extension implements MenuListener
         return (majorVersion == BUILT_FOR_MAJOR && minorVersion >= BUILD_FOR_MINOR);
     }
 
-    public Submitter (final BlueJ bj) throws Exception
+
+    public void startup (final BlueJ bj)
     {
         this.bj = bj;
         sp = null;
         
-        menuItem = new BMenuItem (bj.getLabel ("menu.submit"), true);
-        menuItem.addMenuListener (this);
-        bj.getMenu().addMenuItem (menuItem);
-
         globalPreferences = new PrefPanel(bj);   
-        bj.setBPrefPanel(globalPreferences);
+        bj.setPrefGen(globalPreferences);
+
+        anAction = new MenuAction ( bj.getLabel ("menu.submit") );
+        bj.setMenuGen(this);
+
     }
-    
-    public void menuInvoked (Object src, final BPackage pkg)
+
+    public String terminate()
     {
+        return "";
+    }
+
+  /** 
+   * If it is as expected I will have only one to give out
+   * do NOT store the menu tree you just create, rely on the 
+   * callback to know which menu gets selected.
+   */
+  public JMenuItem getMenuItem()
+    {
+    return new JMenuItem (anAction);
+    }
+
+
+  /**
+   * This is the action that has to be performed when the given menu is selected
+   * It is fairly flexible to use and the parameters are just an example...
+   */
+  private class MenuAction extends AbstractAction
+    {
+    public MenuAction ( String menuName )
+      {
+      putValue (AbstractAction.NAME,menuName);
+      }
+
+    public void actionPerformed ( ActionEvent anEvent )
+      {
+      final BPackage pkg = bj.getCurrentPackage();
         if (pkg == null) {
             return;
         }
@@ -67,7 +95,9 @@ public class Submitter extends Extension implements MenuListener
             };
             submitterThread.start();
         }
+      }
     }
+
 
     public int getVersionMajor()
     {

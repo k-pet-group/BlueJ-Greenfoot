@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 
-public class PrefPanel implements BPrefPanel 
+public class PrefPanel implements PrefGen 
 {
     private JPanel myPanel;
     private JTextField profileCmd;

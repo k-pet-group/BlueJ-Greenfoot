@@ -2,10 +2,7 @@ package org.bluej.extensions.submitter;
 
 import org.bluej.extensions.submitter.properties.*;
 
-import bluej.extensions.BlueJ;
-import bluej.extensions.BPackage;
-import bluej.extensions.BProject;
-import bluej.extensions.BPrefPanel;
+import bluej.extensions.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +32,7 @@ import javax.swing.event.TreeModelEvent;
  * Manages the properties appropriate to the selected submission scheme.
  *
  * @author Clive Miller
- * @version $Id: SubmissionProperties.java 1481 2002-10-28 09:59:55Z damiano $
+ * @version $Id: SubmissionProperties.java 1498 2002-11-11 10:34:08Z damiano $
  **/
 
 class SubmissionProperties
@@ -241,7 +238,7 @@ class SubmissionProperties
 
     public Properties getGlobalProps()
     {
-    PrefPanel myPanel = (PrefPanel)bj.getBPrefPanel();
+    PrefPanel myPanel = (PrefPanel)bj.getPrefGen();
     return myPanel.getGlobalProps();
     }
 
