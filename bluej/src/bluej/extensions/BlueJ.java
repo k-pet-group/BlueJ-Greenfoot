@@ -46,7 +46,7 @@ import java.io.File;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1765 2003-04-09 05:56:45Z ajp $
+ * @version $Id: BlueJ.java 1768 2003-04-09 08:45:35Z damiano $
  */
 
 public class BlueJ
@@ -88,32 +88,41 @@ public class BlueJ
         // Yes somebody may just call it with null, for fun... TODO: Needs error reporting
         if ( directory == null ) return null;
         
-        PkgMgrFrame currentFrame = PkgMgrFrame.getMostRecent();
-        if (currentFrame == null) return null;
-        
         Project openProj = Project.openProject (directory.getAbsolutePath());
         if(openProj == null) return null;
         
         Package pkg = openProj.getPackage(openProj.getInitialPackageName());
         if ( pkg == null ) return null;
 
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame(pkg);
-        
-        if (pmf == null) {
-            if (currentFrame.isEmptyFrame()) {
-                pmf = currentFrame;
-                currentFrame.openPackage(pkg);
-            }
-            else 
-                {
-                pmf = PkgMgrFrame.createFrame(pkg);
-                DialogManager.tileWindow(pmf, currentFrame);
-                }
-            }
-
+        PkgMgrFrame pmf = getPackageFrame ( pkg );
         pmf.show();
         return new BProject (openProj);
     }
+
+
+    /**
+     * Simple utility to make code cleaner
+     */
+    private PkgMgrFrame getPackageFrame ( Package thisPkg )
+        {
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame(thisPkg);
+        // If for some reason we already have a frame for this package, return it
+        if ( pmf != null ) return pmf;
+
+        PkgMgrFrame recentFrame = PkgMgrFrame.getMostRecent();
+        if (recentFrame != null && recentFrame.isEmptyFrame() )
+          {
+          // If, by chance, the current fram is an empty one, use it !
+          recentFrame.openPackage(thisPkg);
+          return recentFrame;
+          }
+
+        // No empty fram I can use, I need to create a new one
+        pmf = PkgMgrFrame.createFrame(thisPkg);
+        // Yes, recent frame may teoretically be null.
+        if ( recentFrame != null ) DialogManager.tileWindow(pmf, recentFrame);
+        return pmf;
+        }
         
     /**
      * Creates new BlueJ project.
