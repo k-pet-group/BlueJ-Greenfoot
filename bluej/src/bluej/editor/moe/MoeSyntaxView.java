@@ -1,7 +1,7 @@
 package bluej.editor.moe;
 
 /**
- * MoeSyntaxView.java - adapted from 
+ * MoeSyntaxView.java - adapted from
  * SyntaxView.java - jEdit's own Swing view implementation
  * to add Syntax highlighting to the BlueJ programming environment.
  */
@@ -26,7 +26,7 @@ import bluej.Config;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 420 2000-04-05 04:52:25Z bquig $
+ * @version $Id: MoeSyntaxView.java 704 2000-10-25 02:44:49Z ajp $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -34,11 +34,11 @@ public class MoeSyntaxView extends PlainView
     // private members
     private Segment line;
 
-    static final Image breakImage = 
+    static final Image breakImage =
         new ImageIcon(Config.getImageFilename("image.breakmark")).getImage();
-    static final Image stepImage = 
+    static final Image stepImage =
         new ImageIcon(Config.getImageFilename("image.stepmark")).getImage();
-    static final Image breakStepImage = 
+    static final Image breakStepImage =
         new ImageIcon(Config.getImageFilename("image.breakstepmark")).getImage();
     static final int BREAKPOINT_OFFSET = MoeEditor.TAG_WIDTH + 2;
 
@@ -55,16 +55,16 @@ public class MoeSyntaxView extends PlainView
 
     /**
      * Paints the specified line.
-     * 
+     *
      * This method performs the following:
-     * 
+     *
      *  - Gets the token marker and color table from the current document,
      *    typecast to a SyntaxDocument.
      *  - Tokenizes the required line by calling the
      *    markTokens() method of the token marker.
      *  - Paints each token, obtaining the color by looking up the
      *    the Token.id value in the color table.
-     * 
+     *
      * If either the document doesn't implement
      * SyntaxDocument, or if the returned token marker is
      * null, the line will be painted with no colorization.
@@ -102,18 +102,18 @@ public class MoeSyntaxView extends PlainView
                 if (Boolean.TRUE.equals
                     (lineElement.getAttributes().getAttribute(
                                                 MoeEditor.STEPMARK))) {
-                    g.drawImage(breakStepImage, x-1, 
+                    g.drawImage(breakStepImage, x-1,
                                 y-breakStepImage.getHeight(null), null);
                 }
                 else {  // break only
-                    g.drawImage(breakImage, x-1, 
+                    g.drawImage(breakImage, x-1,
                                 y-breakImage.getHeight(null), null);
                 }
             }
             else if (Boolean.TRUE.equals
                 (lineElement.getAttributes().getAttribute(
                                                 MoeEditor.STEPMARK))) {
-                g.drawImage(stepImage, x-1, y-stepImage.getHeight(null), 
+                g.drawImage(stepImage, x-1, y-stepImage.getHeight(null),
                             null);
             }
 
@@ -123,7 +123,7 @@ public class MoeSyntaxView extends PlainView
                 Utilities.drawTabbedText(line, offsetX, y, g, this, 0);
             }
             else {
-                paintSyntaxLine(line, lineIndex, offsetX, y, g, document, 
+                paintSyntaxLine(line, lineIndex, offsetX, y, g, document,
                                 tokenMarker, def);
 
                 // following lines were in SyntaxView.  Unsure as to whether
@@ -140,7 +140,7 @@ public class MoeSyntaxView extends PlainView
 
     /**
      * returns default foreground colour
-     * 
+     *
      */
     protected Color getDefaultColor()
     {
@@ -217,11 +217,11 @@ public class MoeSyntaxView extends PlainView
 
         if(Boolean.FALSE.equals(getDocument().getProperty(MoeEditor.COMPILED))) {
             g.setColor(Color.lightGray);
-            g.fillRect(0, 0, bounds.x + MoeEditor.TAG_WIDTH, 
+            g.fillRect(0, 0, bounds.x + MoeEditor.TAG_WIDTH,
                        bounds.y + bounds.height);
         }
         g.setColor(Color.black);
-        g.drawLine(bounds.x + MoeEditor.TAG_WIDTH, 0, 
+        g.drawLine(bounds.x + MoeEditor.TAG_WIDTH, 0,
                    bounds.x + MoeEditor.TAG_WIDTH, bounds.y + bounds.height);
 
     }
@@ -229,9 +229,9 @@ public class MoeSyntaxView extends PlainView
 
     /**
      * Provides a mapping from the document model coordinate space
-     * to the coordinate space of the view mapped to it.  This is a 
-     * redefined method from PlainView that adds an offset for the 
-     * view to allow for a breakpoint area in the associated editor.  
+     * to the coordinate space of the view mapped to it.  This is a
+     * redefined method from PlainView that adds an offset for the
+     * view to allow for a breakpoint area in the associated editor.
      *
      * @param pos the position to convert >= 0
      * @param a the allocated region to render into
@@ -240,8 +240,8 @@ public class MoeSyntaxView extends PlainView
      *   represent a valid location in the associated document
      * @see View#modelToView
      */
-    public Shape modelToView(int pos, Shape a, Position.Bias b) 
-         throws BadLocationException 
+    public Shape modelToView(int pos, Shape a, Position.Bias b)
+         throws BadLocationException
     {
         // line coordinates
         Document doc = getDocument();
@@ -249,7 +249,7 @@ public class MoeSyntaxView extends PlainView
         int lineIndex = map.getElementIndex(pos);
         Rectangle lineArea = lineToRect(a, lineIndex);
 
-        // determine span from the start of the line 
+        // determine span from the start of the line
         int tabBase = lineArea.x + MoeEditor.TAG_WIDTH + 2;
 
         Element line = map.getElement(lineIndex);
@@ -259,7 +259,7 @@ public class MoeSyntaxView extends PlainView
         int xOffs = Utilities.getTabbedTextWidth(buffer, metrics, tabBase, this, p0);
 
         // fill in the results and return, include breakpoint area offset
-        lineArea.x += xOffs + (MoeEditor.TAG_WIDTH + 2); 
+        lineArea.x += xOffs + (MoeEditor.TAG_WIDTH + 2);
         lineArea.width = 1;
         lineArea.height = metrics.getHeight();
         return lineArea;
@@ -330,7 +330,7 @@ public class MoeSyntaxView extends PlainView
                 }
             }
         }
-    }    
+    }
 
 
     // --- TabExpander interface methods -----------------------------------
@@ -338,7 +338,7 @@ public class MoeSyntaxView extends PlainView
     /**
      * Returns the next tab stop position after a given reference position.
      * This implementation does not support things like centering so it
-     * ignores the tabOffset argument.  
+     * ignores the tabOffset argument.
      *
      * @param x the current position >= 0
      * @param tabOffset the position within the text stream
@@ -351,16 +351,16 @@ public class MoeSyntaxView extends PlainView
         if (tabSize == 0) {
             return x;
         }
-        int tabStopNumber = (int)((x - BREAKPOINT_OFFSET) / tabSize) + 1; 
+        int tabStopNumber = (int)((x - BREAKPOINT_OFFSET) / tabSize) + 1;
         return (tabStopNumber * tabSize) + BREAKPOINT_OFFSET + 2;
     }
 
 
    /**
-    * redefined from PlainView private method to allow for redefinition of 
+    * redefined from PlainView private method to allow for redefinition of
     * modelToView method
     */
-    private Rectangle lineToRect(Shape a, int line) {
+    public Rectangle lineToRect(Shape a, int line) {
         Rectangle r = null;
         if (metrics != null) {
             Rectangle alloc = a.getBounds();
