@@ -9,7 +9,7 @@ import bluej.Config;
  *  Your class MUST have an empty parameters constructor 
  *  and it must implement all the abstract methods.
  *
- * @version    $Id: Extension.java 1654 2003-03-06 09:37:47Z damiano $
+ * @version    $Id: Extension.java 1662 2003-03-07 09:57:11Z damiano $
  */
 public abstract class Extension
 {
@@ -64,23 +64,15 @@ public abstract class Extension
 
 
     /**
-     *  Provide the caller with a major version number. This should not change
-     *  frequently, but only due to a significant change in the extension.
-     *  NOTE: This is NOT the verion of the Extension API, it is the Verions of the 
-     *  Extension itself !
+     * BlueJ will call this method to display the version of the extension that is implementing
+     * this method. Please limit the string to five or 10 chars.
+     * NOTE: This is NOT the verion of the Extension API, it is the Verions of the 
+     * Extension itself !
      *
-     * @return    the major part of the current version.
+     * @return    The version of this extensions
      */
-    public abstract int getVersionMajor();
+    public abstract String getVersion();
 
-
-    /**
-     *  Provide the caller with a minor version number. This should be increased
-     *  on every release.
-     *
-     * @return    the minor part of the current version.
-     */
-    public abstract int getVersionMinor();
 
     /**
      *  Gets a description of the extension's function. This should include a

@@ -414,7 +414,7 @@ public class ExtensionWrapper
         if (extensionInstance == null)
             return Config.getString("extmgr.version.unknown");
 
-        return extensionInstance.getVersionMajor() + "." + extensionInstance.getVersionMinor();
+        return extensionInstance.getVersion();
     }
 
 
