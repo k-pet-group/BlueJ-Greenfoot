@@ -7,11 +7,12 @@ import bluej.classmgr.*;
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
+import java.net.*;
 
 import javax.swing.table.*;
 
 /**
- ** @version $Id: RemoteClassMgr.java 160 1999-07-06 14:39:53Z ajp $
+ ** @version $Id: RemoteClassMgr.java 193 1999-07-20 05:46:07Z ajp $
  ** @author Andrew Patterson
  ** Class to maintain a global classpath environment.
  **/
@@ -32,7 +33,7 @@ public class RemoteClassMgr
 
 	public ClassLoader getLoader()
 	{
-		return new ClassPathLoader(null);
+		return new ClassPathLoader(new ClassPath());
 	}
 
 	public void setLibraries(String libraries)
@@ -40,19 +41,26 @@ public class RemoteClassMgr
 		otherLibraries = new ClassPath(libraries, "");
 	}
 
-	class ClassPathLoader extends ClassLoader
+	class ClassPathLoader extends URLClassLoader
 	{
-		ClassPath classpath;
+//		ClassPath classpath;
 
 		ClassPathLoader(ClassPath classpath)
 		{
-			this.classpath = classpath;
+		    super(classpath.getURLs());
+
+		    URL otherURLs[] = otherLibraries.getURLs();
+  
+		    for(int i=0; i<otherURLs.length; i++)
+		        addURL(otherURLs[i]);
+
+//			this.classpath = classpath;
 		}
 
 		/**
 		 * Read in a class file from disk. Return a class object.
 		 */
-		protected Class findClass(String name) throws ClassNotFoundException
+/*		protected Class findClass(String name) throws ClassNotFoundException
 		{
 			// Debug.message("remoteclasspathloader: finding " + name);
 
@@ -66,7 +74,7 @@ public class RemoteClassMgr
 				throw new ClassNotFoundException("RemoteClassPathLoader");
 			}
 		}
-
+*/
 		/**
 		 * Read in a class file from disk. Return the class code as a byte
 		 * array. The JDK class loader delegation model means that we are
@@ -75,7 +83,7 @@ public class RemoteClassMgr
 		 * systemLibraries. The bootLibraries will have been searched by
 		 * the system loader.
 		 */
-		protected byte[] loadClassData(String name)
+/*		protected byte[] loadClassData(String name)
 		{
 			ByteArrayOutputStream classdata = new ByteArrayOutputStream();
 
@@ -108,7 +116,7 @@ public class RemoteClassMgr
 				return null;
 			else
 				return classdata.toByteArray();
-		}
-	}
+		} */
+	} 
 }
 
