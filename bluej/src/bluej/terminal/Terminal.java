@@ -23,7 +23,7 @@ import java.io.FileWriter;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 982 2001-10-05 14:51:10Z mik $
+ * @version $Id: Terminal.java 993 2001-10-24 07:05:06Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener
@@ -44,6 +44,10 @@ public final class Terminal extends JFrame
     private static final char CHAR_COPY = 3;    // CTRL-C
     private static final char CHAR_SAVE = 19;   // CTRL-S
     private static final char CHAR_CLOSE = 23;  // CTRL-W
+
+    private static final int SHORTCUT_MASK = 
+        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        //Event.CTRL_MASK;
 
     // -- static singleton factory method --
 
@@ -395,14 +399,14 @@ public final class Terminal extends JFrame
         JMenuItem item;
         item = menu.add(new ClearAction());
         item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K,
-                                                   Event.CTRL_MASK));
+                                                   SHORTCUT_MASK));
         item = menu.add(getCopyAction());
         item.setText(Config.getString("terminal.copy"));
         item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,
-                                                   Event.CTRL_MASK));
+                                                   SHORTCUT_MASK));
         item = menu.add(new SaveAction());
         item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-                                                   Event.CTRL_MASK));
+                                                   SHORTCUT_MASK));
         menu.add(new JSeparator());
 
       // the following should be replaced once jdk 1.2.x goes out of fashion.
@@ -421,7 +425,7 @@ public final class Terminal extends JFrame
         menu.add(new JSeparator());
         item = menu.add(new CloseAction());
         item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,
-                                                   Event.CTRL_MASK));
+                                                   SHORTCUT_MASK));
 
         menubar.add(menu);
         setJMenuBar(menubar);
