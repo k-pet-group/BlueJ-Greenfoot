@@ -9,9 +9,6 @@ import bluej.utility.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
-import bluej.extensions.event.ApplicationEvent;
-import bluej.extensions.event.ExtensionEvent;
-import bluej.extensions.event.InvocationEvent;
 
 /**
  *  Manages extensions and provides the main interface to PkgMgrFrame.

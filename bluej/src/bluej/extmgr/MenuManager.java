@@ -1,11 +1,10 @@
 package bluej.extmgr;
 
 import bluej.pkgmgr.*;
-import bluej.utility.Debug;
-
+import bluej.utility.*;
 import java.awt.*;
-import javax.swing.*;
 import java.util.*;
+import javax.swing.*;
 
 /**
  * This manages the menues for a given extension-wrapper

@@ -1,28 +1,14 @@
 package bluej.extensions;
 
+import bluej.*;
 import bluej.extensions.event.*;
-import bluej.extmgr.ExtensionWrapper;
-import bluej.extmgr.PrefManager;
-import bluej.extmgr.MenuManager;
-
+import bluej.extmgr.*;
+import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Project;
-import bluej.Config;
-import bluej.utility.DialogManager;
-import java.awt.Frame;
-
-
+import bluej.utility.*;
+import java.awt.*;
+import java.io.*;
 import java.util.*;
-import java.io.File;
-import bluej.extensions.event.ExtensionEvent;
-import bluej.extensions.event.ExtensionEventListener;
-import bluej.extensions.event.InvocationEvent;
-import bluej.extensions.event.InvocationListener;
-import bluej.extensions.event.ApplicationEvent;
-import bluej.extensions.event.ApplicationListener;
-import bluej.extensions.event.CompileListener;
-import bluej.extensions.event.PackageListener;
 
 /**
  * A proxy object which provides services to BlueJ extensions. 
@@ -54,7 +40,7 @@ import bluej.extensions.event.PackageListener;
  *                                   +---- BField
  *    
  * </PRE>
- * @version $Id: BlueJ.java 1894 2003-04-25 09:53:08Z damiano $
+ * @version $Id: BlueJ.java 1896 2003-04-25 10:01:17Z damiano $
  */
 
 /*

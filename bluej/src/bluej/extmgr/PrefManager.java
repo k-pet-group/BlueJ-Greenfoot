@@ -1,12 +1,10 @@
 package bluej.extmgr;
 
-import bluej.Config;
-import bluej.prefmgr.PrefPanelListener;
-import bluej.prefmgr.PrefMgrDialog;
-
-import java.util.List;
-import java.util.Iterator;
+import bluej.*;
+import bluej.prefmgr.*;
 import java.awt.*;
+import java.util.*;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.*;
 
