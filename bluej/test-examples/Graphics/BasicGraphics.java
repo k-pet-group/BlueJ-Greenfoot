@@ -8,10 +8,162 @@ import java.awt.* ;
 import java.awt.event.* ;
 
 /*
+ * class to draw simple shapes in a window
+ */   
+public class BasicGraphics extends Frame implements ActionListener
+{
+    // maximum width of window
+    private static final int MAX_WIDTH = 600 ;
+
+    // maximum height of window
+    private static final int MAX_HEIGHT = 400 ;
+
+    /**
+     * definition of a rectangle shape
+     */
+    public static final int RECTANGLE = 1 ;
+  
+    /**
+     * definition of an oval shape
+     */
+    public static final int OVAL = 2 ;
+
+    /**
+     * definition of a triangle shape
+     */
+    public static final int TRIANGLE = 3 ;
+
+    /**
+     * definition of a filled-in rectangle
+     */
+    public static final int FILLED_RECTANGLE = 4 ;
+
+    /**
+     * definition of a filled-in oval
+     */
+    public static final int FILLED_OVAL = 5 ;
+
+    /**
+     * definition of a filled-in triangle
+     */
+    public static final int FILLED_TRIANGLE = 6 ;
+
+    BasicShape[] shapeList = new BasicShape[50];
+
+    int noOfShapes = 0;
+
+    private BasicShape newShape = new BasicShape();
+
+    private Button quit ;
+
+    /**
+     * constructor to lay out the window
+     */
+    public BasicGraphics()
+    {
+        setTitle("BasicGraphics Window") ;
+        setSize(MAX_WIDTH, MAX_HEIGHT + 50) ;
+
+        BasicCanvas c = new BasicCanvas(this) ;
+        add("Center", c) ;  
+
+        Panel p = new Panel() ;
+        p.setLayout(new FlowLayout()) ;
+        quit = new Button("Quit") ;
+        p.add(quit) ;
+        quit.addActionListener(this) ;
+        add("South", p) ;  
+    } // end of constructor method
+  
+    /**
+     * handles button depression events, etc.
+     */
+    public void actionPerformed(ActionEvent event)
+    {
+        dispose() ;
+        System.exit(0) ;
+    } // end of method actionPerformed
+      
+    /**
+     * set the type of shape that you want to draw
+     * @param shape e.g. BasicGraphics.RECTANGLE
+     */
+    public void setShape(int shape)
+    {
+        if ((shape != RECTANGLE) && (shape != FILLED_RECTANGLE) &&
+	    (shape != OVAL) && (shape != FILLED_OVAL) &&
+	    (shape != TRIANGLE) && (shape != FILLED_TRIANGLE))
+        {  
+            System.err.println("This is not a valid shape");
+            System.exit(1);
+        }
+        newShape.shape = shape ;
+    } // end of method setShape
+
+    /**
+     * set the dimensions of the shape that you want to draw
+     * @param x x-coordinate of the top left hand corner of the bounding
+     *           rectangle
+     * @param y y-coordinate of the top left hand corner of the bounding
+     *           rectangle
+     * @param w width of the bounding rectangle
+     * @param h height of the bounding rectangle
+     */
+    public void setDimensions(int x, int y, int w, int h)
+    {
+        if (newShape.shape == -1)
+            {  
+            System.err.println("You need to set the shape first");
+            System.exit(1);
+            }
+        if ((x < 5) || (y < 5) || (w < 5) || (h < 5) ||
+            (x + w > MAX_WIDTH - 5) || (y + h > MAX_HEIGHT - 5))
+            {
+            System.err.println("Invalid dimensions supplied") ;
+            System.exit(1);
+	    }
+        newShape.x = x ;
+        newShape.y = y ;
+        newShape.w = w ;
+        newShape.h = h ;
+    } // end of method setDimensions
+
+    /**
+     * set the colour of the shape that you want to draw
+     * @param colour the Color type (Color.red, Color.blue, etc.)
+     */
+    public void setColour(Color colour)
+    {
+        if (newShape.x == -1)
+            {
+            System.err.println("You need to set the dimensions first");
+            System.exit(1);
+            }
+        newShape.colour = colour ;
+        shapeList[noOfShapes] = new BasicShape(newShape.shape,
+					       newShape.x, newShape.y,
+					       newShape.w, newShape.h,
+					       newShape.colour) ;
+        noOfShapes++ ;
+        newShape = new BasicShape() ;
+    } // end of method setColour
+
+
+    /**
+     * draws the window on the screen with the specified shapes
+     */
+    public void draw()
+    {
+        setVisible(true) ;
+    } // end of method draw
+
+} // end of class BasicGraphics
+
+/*
  * class to hold details about the shape to draw
  */
 class BasicShape
-    {
+{
     // name of the shape - RECTANGLE, OVAL, etc.
     int shape ;
     // dimensions of the shape
@@ -40,14 +192,14 @@ class BasicShape
 	h = h1 ;
         colour = col ;
         } // end of constructor method
-    } // end of class BasicShape
+} // end of class BasicShape
 
 
 /*
  * a canvas to draw on
  */
 class BasicCanvas extends Canvas
-    {
+{
     BasicGraphics parent ;
 
     // constructor method
@@ -142,157 +294,6 @@ class BasicCanvas extends Canvas
             }
         } // end of method paint
 
-    } // end of class BasicCanvas
+} // end of class BasicCanvas
 
 
-/*
- * class to draw simple shapes in a window
- */   
-public class BasicGraphics extends Frame implements ActionListener
-    {
-    // maximum width of window
-    private static final int MAX_WIDTH = 600 ;
-
-    // maximum height of window
-    private static final int MAX_HEIGHT = 400 ;
-
-    /**
-     * definition of a rectangle shape
-     */
-    public static final int RECTANGLE = 1 ;
-  
-    /**
-     * definition of an oval shape
-     */
-    public static final int OVAL = 2 ;
-
-    /**
-     * definition of a triangle shape
-     */
-    public static final int TRIANGLE = 3 ;
-
-    /**
-     * definition of a filled-in rectangle
-     */
-    public static final int FILLED_RECTANGLE = 4 ;
-
-    /**
-     * definition of a filled-in oval
-     */
-    public static final int FILLED_OVAL = 5 ;
-
-    /**
-     * definition of a filled-in triangle
-     */
-    public static final int FILLED_TRIANGLE = 6 ;
-
-    BasicShape[] shapeList = new BasicShape[50];
-
-    int noOfShapes = 0;
-
-    private BasicShape newShape = new BasicShape();
-
-    private Button quit ;
-
-    /**
-     * constructor to lay out the window
-     */
-    public BasicGraphics()
-        {
-        setTitle("BasicGraphics Window") ;
-        setSize(MAX_WIDTH, MAX_HEIGHT + 50) ;
-
-        BasicCanvas c = new BasicCanvas(this) ;
-        add("Center", c) ;  
-
-        Panel p = new Panel() ;
-        p.setLayout(new FlowLayout()) ;
-        quit = new Button("Quit") ;
-        p.add(quit) ;
-        quit.addActionListener(this) ;
-        add("South", p) ;  
-        } // end of constructor method
-  
-    /**
-     * handles button depression events, etc.
-     */
-    public void actionPerformed(ActionEvent event)
-        {
-        dispose() ;
-        System.exit(0) ;
-        } // end of method actionPerformed
-      
-    /**
-     * set the type of shape that you want to draw
-     * @param shape e.g. BasicGraphics.RECTANGLE
-     */
-    public void setShape(int shape)
-        {
-        if ((shape != RECTANGLE) && (shape != FILLED_RECTANGLE) &&
-	    (shape != OVAL) && (shape != FILLED_OVAL) &&
-	    (shape != TRIANGLE) && (shape != FILLED_TRIANGLE))
-            {  
-            System.err.println("This is not a valid shape");
-            System.exit(1);
-            }
-        newShape.shape = shape ;
-        } // end of method setShape
-
-    /**
-     * set the dimensions of the shape that you want to draw
-     * @param x x-coordinate of the top left hand corner of the bounding
-     *           rectangle
-     * @param y y-coordinate of the top left hand corner of the bounding
-     *           rectangle
-     * @param w width of the bounding rectangle
-     * @param h height of the bounding rectangle
-     */
-    public void setDimensions(int x, int y, int w, int h)
-        {
-        if (newShape.shape == -1)
-            {  
-            System.err.println("You need to set the shape first");
-            System.exit(1);
-            }
-        if ((x < 5) || (y < 5) || (w < 5) || (h < 5) ||
-            (x + w > MAX_WIDTH - 5) || (y + h > MAX_HEIGHT - 5))
-            {
-            System.err.println("Invalid dimensions supplied") ;
-            System.exit(1);
-	    }
-        newShape.x = x ;
-        newShape.y = y ;
-        newShape.w = w ;
-        newShape.h = h ;
-        } // end of method setDimensions
-
-    /**
-     * set the colour of the shape that you want to draw
-     * @param colour the Color type (Color.red, Color.blue, etc.)
-     */
-    public void setColour(Color colour)
-        {
-        if (newShape.x == -1)
-            {
-            System.err.println("You need to set the dimensions first");
-            System.exit(1);
-            }
-        newShape.colour = colour ;
-        shapeList[noOfShapes] = new BasicShape(newShape.shape,
-					       newShape.x, newShape.y,
-					       newShape.w, newShape.h,
-					       newShape.colour) ;
-        noOfShapes++ ;
-        newShape = new BasicShape() ;
-        } // end of method setColour
-
-
-    /**
-     * draws the window on the screen with the specified shapes
-     */
-    public void draw()
-        {
-        setVisible(true) ;
-        } // end of method draw
-
-    } // end of class BasicGraphics
