@@ -38,7 +38,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 666 2000-08-10 03:28:53Z ajp $
+ * @version $Id: Package.java 675 2000-09-01 12:36:32Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -399,86 +399,6 @@ public class Package extends Graph
     }
 
     /**
-     * Create a set of properties for a specified set of classfiles
-     * residing in a specified directory.  Invoked when no package
-     * file exists in this directory already, or when the files come
-     * from an archive library (i.e., ZIP or JAR)
-     *
-     * @param       classFiles the array of class files to use for the package
-     * @param       packageDir the directory in which to create the package
-     * @param       fromArchive true if the package is being created for an archive (i.e., ZIP or JAR)
-     * @return      the properties describing the new package
-     * @exception   IOException if the package file could not be saved
-     */
-/*    public static SortedProperties createDefaultPackage(String[] classFiles,
-                                                          String packageLocation)
-        throws IOException
-    {
-        boolean fromArchive = false;
-        SortedProperties props = new SortedProperties();
-        int numberOfTargets = classFiles.length;
-
-        int nbrColumns = (int) Math.sqrt(new Double("" + numberOfTargets).doubleValue());
-        int rowPos = STARTROWPOS;
-        int columnPos = STARTCOLUMNPOS;
-        // try and layout the targets in a grid, one row at a time
-        for (int current = 0; current < classFiles.length; current++) {
-            String currentFile = classFiles[current];
-
-            if (currentFile.endsWith(".class")) {
-                props.put("target" + (current + 1) + ".type", "ClassTarget");
-                // trim the .class off the filename for class targets
-                props.put("target" + (current + 1) + ".name", currentFile.substring(0, currentFile.indexOf(".class")));
-            } else {
-                props.put("target" + (current + 1) + ".type", "PackageTarget");
-                props.put("target" + (current + 1) + ".name", currentFile);
-//                props.put("target" + (current + 1) + ".packageName", packageName + currentFile);
-            }
-
-            String fullname = props.get("target" + (current + 1) + ".name").toString();
-
-            int targetWidth = 40 + (int)PrefMgr.getStandardFont().getStringBounds(fullname,
-                                                                                  new FontRenderContext(new AffineTransform(), false, false)).getWidth();
-
-            // make width roughly the length of the name
-            // = DEFAULTTARGETCHARWIDTH * .length();
-            // add extra width for package targets (default equation leaves them too narrow)
-            targetWidth += props.get("target" + (current + 1) + ".type").toString().equals("PackageTarget") ? 20 : 0;
-
-            props.put("target" + (current + 1) + ".width", "" + targetWidth);
-            props.put("target" + (current + 1) + ".height", "" + DEFAULTTARGETHEIGHT);
-            props.put("target" + (current + 1) + ".x", "" + rowPos);
-            props.put("target" + (current + 1) + ".y", "" + columnPos);
-            if ((current + 1) % nbrColumns == 0) {
-                columnPos += DEFAULTTARGETHEIGHT + TARGETGAP;
-                rowPos = STARTROWPOS;
-            }
-            else
-                rowPos += targetWidth + TARGETGAP;
-        }
-
-        // specify the dimensions large enough to see the entire package
-//        props.put("package.window.width", "" + DEFAULTFRAMEWIDTH);
-//        props.put("package.window.height", "" + DEFAULTFRAMEHEIGHT);
-
-        if (fromArchive == false) {
-            // throw an exception if we cannot save
-            File file = new File(packageLocation, pkgfileName);
-            try {
-                props.store(new FileOutputStream(file),
-                            fromArchive == true ?
-                            "Default layout for archive library" :
-                            "Default package layout");
-            } catch(Exception e) {
-                Debug.reportError("could not save properties file: " +
-                                  file.getName());
-            }
-        }
-
-        return props;
-    }
-*/
-    /**
      * Load the elements of a package from a specified directory.
      * If the package file (bluej.pkg) is not found, an IOException is thrown.
      */
@@ -550,14 +470,28 @@ public class Package extends Graph
             }
 
             File srcFiles[] = getPath().listFiles(new JavaSourceFilter());
+            File classFiles[] = getPath().listFiles(new JavaClassFilter());
+
+            Set interestingSet = new HashSet();
 
             for(int i=0; i<srcFiles.length; i++) {
-                String targetName = JavaNames.stripSuffix(srcFiles[i].getName(), ".java");
-
-                if (targetName.startsWith(Invoker.SHELLNAME)) {
+                if (srcFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
                     srcFiles[i].delete();
                     continue;
                 }
+                if (srcFiles[i].getName().indexOf('$') == -1)
+                    interestingSet.add(JavaNames.stripSuffix(srcFiles[i].getName(), ".java"));
+            }
+
+            for(int i=0; i<classFiles.length; i++) {
+                if (classFiles[i].getName().indexOf('$') == -1)
+                    interestingSet.add(JavaNames.stripSuffix(classFiles[i].getName(), ".class"));
+            }
+
+            Iterator it = interestingSet.iterator();
+
+            while(it.hasNext()) {
+                String targetName = (String) it.next();
 
                 Target target = (Target) propTargets.get(targetName);
                 if(target == null || !(target instanceof ClassTarget)) {
@@ -646,14 +580,28 @@ public class Package extends Graph
         }
 
         File srcFiles[] = getPath().listFiles(new JavaSourceFilter());
+        File classFiles[] = getPath().listFiles(new JavaClassFilter());
+
+        Set interestingSet = new HashSet();
 
         for(int i=0; i<srcFiles.length; i++) {
-            String targetName = JavaNames.stripSuffix(srcFiles[i].getName(), ".java");
-
-            if (targetName.startsWith(Invoker.SHELLNAME)) {
+            if (srcFiles[i].getName().startsWith(Invoker.SHELLNAME)) {
                 srcFiles[i].delete();
                 continue;
             }
+            if (srcFiles[i].getName().indexOf('$') == -1)
+                interestingSet.add(JavaNames.stripSuffix(srcFiles[i].getName(), ".java"));
+        }
+
+        for(int i=0; i<classFiles.length; i++) {
+            if (classFiles[i].getName().indexOf('$') == -1)
+                interestingSet.add(JavaNames.stripSuffix(classFiles[i].getName(), ".class"));
+        }
+
+        Iterator it = interestingSet.iterator();
+
+        while(it.hasNext()) {
+            String targetName = (String) it.next();
 
             Target target = (Target) targets.get(targetName);
 
@@ -738,41 +686,6 @@ public class Package extends Graph
     }
 
     /**
-     * Save this package under a new name. Returns an error code out of
-     * (NO_ERROR, CREATE_ERROR, COPY_ERROR).
-     *
-     * @return An error code indicating success or failure.
-     */
-//     public int saveAs(String newname)
-//     {
-// //        if (!save(newname))
-// //            return CREATE_ERROR;
-
-//         boolean okay = true;
-//         Enumeration t_enum = targets.elements();
-//         for(int i = 0; t_enum.hasMoreElements(); i++) {
-//             Target t = (Target)t_enum.nextElement();
-//             okay = okay && t.copyFiles(newname + File.separator);
-//             if(t instanceof EditableTarget) {
-//                 // if editor is not null close it
-//                 if(((EditableTarget)t).editor != null)
-//                     ((EditableTarget)t).editor.close();
-//                 // make editor null so existing references to old file are lost
-//                 ((EditableTarget)t).editor = null;
-//             }
-
-//         }
-//         // PENDING: update all package directives in sources
-
-//  //XXX       dirname = newname;
-
-//         if(okay)
-//             return NO_ERROR;
-//         else
-//             return COPY_ERROR;
-//     }
-
-    /**
      * Import a source file into this package as a new
      * class target. Returns an error code:
      *   NO_ERROR       - everything is fine
@@ -807,6 +720,7 @@ public class Package extends Graph
 
         ClassTarget t = addClass(className);
 
+        findSpaceForVertex(t);
         t.analyseSource(false);
 
         return NO_ERROR;
