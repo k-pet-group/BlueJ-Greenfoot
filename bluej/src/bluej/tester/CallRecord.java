@@ -16,7 +16,7 @@ import bluej.runtime.*;
  * method call mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: CallRecord.java 1001 2001-10-29 05:35:57Z ajp $
+ * @version $Id: CallRecord.java 1002 2001-11-01 04:08:25Z ajp $
  */
 public class CallRecord
 {
@@ -34,45 +34,104 @@ public class CallRecord
     public static CallRecord getCallRecord(String instanceName, CallableView theCall,
                                             String[] args, Component[] objectBench)
     {
-        CallRecord newRecord = new CallRecord(instanceName, theCall, args, objectBench);
+        CallRecord newRecord = new CallRecord(instanceName, theCall, args);
 
         callRecords.put(instanceName, newRecord);
 
         return newRecord;
     }
 
+    public static CallRecord addMethodCallRecord(String instanceName, String methodName,
+                                                    CallableView theCall, String[] args)
+    {
+        ConstructorCallRecord ccr = (ConstructorCallRecord) getCallRecord(instanceName);
+
+        if (ccr == null)
+            throw new IllegalArgumentException();
+
+        MethodCallRecord mcr = new MethodCallRecord(ccr, methodName, theCall, args);
+
+        ccr.addMethodCall(mcr);
+
+        return mcr;
+    }
 
     // ======= instance section =======
 
-    private CallableView theCall;
-    private List constructorArgs = new ArrayList();
+    protected String name;
+    protected String classType;
+    protected List callArgs = new ArrayList();  // of type CallArg
 
-    private CallRecord(String instanceName, CallableView theCall,
-                         String[] args, Component[] objectBench)
+    protected CallRecord(String name, CallableView theCall, String[] args)
     {
-	if (args != null) {
-	for(int a = 0; a < args.length; a++) {
-		CallRecord cr;
+        this.name = name;
+        classType = theCall.getClassName();
 
-		if((cr = CallRecord.getCallRecord(args[a])) != null) {
-			this.args.add(cr);
-		} else {
-			this.args.add(args[a]);
-		}
-	}
-	}
+        if (args != null) {
+            for(int a = 0; a < args.length; a++) {
+                CallRecord cr;
+
+                if((cr = CallRecord.getCallRecord(args[a])) != null) {
+                    this.callArgs.add(new ReferenceCallArg(cr));
+                } else {
+                    this.callArgs.add(new LiteralCallArg(args[a]));
+                }
+            }
+        }
     }
-	
-	public String toString() {
-		String res = "CR ";
 
-		Iterator it = args.iterator();
+    String getName()
+    {
+        return name;
+    }
 
-		while(it.hasNext()) {
-			res += it.next().toString();
-		}
-		
-		return res;		
-	}
+    private abstract class CallArg 
+    {
+        public abstract boolean preConstruct();    
+    }
+
+    private class LiteralCallArg extends CallArg
+    {
+
+        private String literal;
+
+        LiteralCallArg(String lit) {
+            literal = lit;
+        }
+
+        public boolean preConstruct() {
+            return false;
+        }
+
+        public String getLiteral() {
+            return literal;
+        }
+
+        public String toString() {
+            return getLiteral();
+        }
+    }
+
+    private class ReferenceCallArg extends CallArg
+    {
+        private CallRecord reference;
+
+        ReferenceCallArg(CallRecord ref) {
+            reference = ref;
+        }
+
+        public boolean preConstruct() {
+            return true;
+        }
+
+        public CallRecord getReference() {
+            return reference;
+        }
+
+        public String toString() {
+            return "CR";
+        }
+
+    }
 
 }
