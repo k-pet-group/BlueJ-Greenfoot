@@ -15,7 +15,7 @@ import java.util.*;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  * 
- * @version $Id: BClass.java 1984 2003-05-23 09:24:49Z damiano $
+ * @version $Id: BClass.java 1988 2003-05-27 09:08:18Z damiano $
  */
 
 public class BClass
@@ -80,25 +80,28 @@ public class BClass
         }
     
     /**
-     * Compile this class, and any dependents. 
-     * @return true if the compilation was successful, false otherwise.
+     * Compile this class, and any dependents.
+     * After the compilation has finished the method isCompiled() can be used to determined the class status.
+     * A single CompileEvent with all dependent files listed will be generated.
+     * @param waitCompileEnd <code>true</code> waits for the compilation to be finished.
      * @throws ProjectNotOpenException if the project to which this class belongs has been closed by the user.
      * @throws PackageNotFoundException if the package to which this class belongs has been deleted by the user.
      */
-    public boolean compile() 
+    public void compile( boolean waitCompileEnd )  
         throws ProjectNotOpenException, PackageNotFoundException
         {
+        Package bluejPkg    = classId.getBluejPackage();
         ClassTarget aTarget = classId.getClassTarget();
     
-        if (aTarget.isCompiled()) return true;
-        
-        aTarget.compile (null);
+        // Ask for compilation of this target
+        bluejPkg.compile(aTarget);        
 
-        // Wait for the compilation to finish !
-        JobQueue.getJobQueue().waitForEmptyQueue();
+        // if requested wait for the compilation to finish.
+        if ( waitCompileEnd ) JobQueue.getJobQueue().waitForEmptyQueue();
 
-        return aTarget.isCompiled();
-    }
+        // We do not return aTarget.isCompiled() since it is meaningless when we do not wait
+        // for the compilation to be finished.
+        }
 
 
     /**

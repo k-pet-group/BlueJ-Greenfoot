@@ -6,7 +6,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.target.*;
 import bluej.pkgmgr.target.Target;
 import bluej.debugger.ObjectWrapper;
-
+import bluej.compiler.JobQueue;
 
 
 import java.util.List; 
@@ -19,7 +19,7 @@ import java.awt.Frame;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1984 2003-05-23 09:24:49Z damiano $
+ * @version $Id: BPackage.java 1988 2003-05-27 09:08:18Z damiano $
  */
 
 /*
@@ -178,22 +178,45 @@ public class BPackage
     
 
     /**
-     * Compile this package.
-     * If forceAll is true it will compile all files otherwise it will compile
-     * just the ones that are modified.
-     * @param forceAll if <code>true</code> compile all files.
+     * Compile all modified files of this package.
+     * A single CompileEvent with all modified files listed will be generated.
+     * @param  waitCompileEnd <code>true</code> waits for the compilation to be finished.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
-    public void compile (boolean forceAll) 
+    public void compile ( boolean waitCompileEnd ) 
         throws ProjectNotOpenException, PackageNotFoundException
         {
         Package bluejPkg = packageId.getBluejPackage();
 
-        if (forceAll) bluejPkg.rebuild(); 
-        else bluejPkg.compile();
+        // Start compilation
+        bluejPkg.compile();
+
+        // if requested wait for the compilation to finish.
+        if ( waitCompileEnd ) JobQueue.getJobQueue().waitForEmptyQueue();
         }
     
+
+    /**
+     * Compile all files of this package.
+     * A single CompileEvent with all modified files listed will be generated.
+     * @param  waitCompileEnd <code>true</code> waits for the compilation to be finished.
+     * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
+     * @throws PackageNotFoundException if the package has been deleted by the user.
+     */
+    public void compileAll ( boolean waitCompileEnd ) 
+        throws ProjectNotOpenException, PackageNotFoundException
+        {
+        Package bluejPkg = packageId.getBluejPackage();
+
+        // Request for ALL files to be compiled
+        bluejPkg.rebuild(); 
+
+        // if requested wait for the compilation to finish.
+        if ( waitCompileEnd ) JobQueue.getJobQueue().waitForEmptyQueue();
+        }
+
+
     /**
      * Reloads the entire package.
      * This is used (e.g.) when a new <code>.java</code> file has been added to the package.
