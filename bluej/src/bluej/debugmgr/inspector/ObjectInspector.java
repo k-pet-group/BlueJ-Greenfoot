@@ -16,7 +16,7 @@ import bluej.utility.*;
  * A window that displays the fields in an object or a method return value.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectInspector.java 2229 2003-10-28 02:09:36Z ajp $
+ * @version $Id: ObjectInspector.java 2247 2003-11-01 15:33:34Z polle $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -115,11 +115,8 @@ public class ObjectInspector extends Inspector
         this.isResult = isResult;
         this.obj = obj;
         this.objName = name;
-                
-        String fullTitle = objectNameLabel + " " + JavaNames.stripPrefix(obj.getClassName());
-        
-        if (name != null)
-            fullTitle += " (" + name + ")";
+         
+        String fullTitle = name + " : " + JavaNames.stripPrefix(obj.getClassName());
 
         makeFrame(parent, isResult, true, fullTitle, true);
     }

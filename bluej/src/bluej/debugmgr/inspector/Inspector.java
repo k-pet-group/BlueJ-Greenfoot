@@ -14,11 +14,13 @@ import bluej.testmgr.record.*;
 import bluej.utility.DialogManager;
 
 /**
+ * 
  * A window that displays the fields in an object or class. This class is subclassed
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 2231 2003-10-28 05:04:41Z ajp $
+ * @author     Poul Henriksen
+ * @version    $Id: Inspector.java 2247 2003-11-01 15:33:34Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -185,7 +187,7 @@ public abstract class Inspector extends JFrame
      */
     public void update()
     {
-        int maxRows = 7;
+        int maxRows = 8;
 
         Object[] listData = getListData();
         fieldList.setListData(listData);
@@ -355,40 +357,31 @@ public abstract class Inspector extends JFrame
                     doClose();
                 }
             });
-
+        
+        //uncomment to get the same color as on the object bench
+        //this.setBackground(Config.getItemColour("colour.wrapper.bg"));
+        
+        ((JComponent) this.getContentPane()).setBackground(getBackground());
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setOpaque(false);
         mainPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
-
-        // if we are doing an inspection, we add a label at the top
-        if (!isResult) {
-            JLabel classNameLabel = new JLabel(nameLabel, SwingConstants.CENTER);
-            if(isObject) {
-                JPanel topPanel = new JPanel();
-//                topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
-                topPanel.add(classNameLabel);
-                JButton classButton = new JButton(showClassLabel);
-                classButton.addActionListener(new ActionListener() {
-                         public void actionPerformed(ActionEvent e) { showClass(); }
-                      });
-                topPanel.add(classButton);
-                mainPanel.add(topPanel, BorderLayout.NORTH);
-            }
-            else {
-                mainPanel.add(classNameLabel, BorderLayout.NORTH);
-            }
-        }
-
+        ((JPanel) getContentPane()).setBorder(BlueJTheme.roundedShadowBorder);
         // the field list is either the fields of an object or class, the elements
         // of an array, or if we are viewing a result, the result of a method call
         fieldList = new JList(new DefaultListModel());
+        fieldList.setCellRenderer(new FieldCellRenderer(100));
         fieldList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         fieldList.addListSelectionListener(this);
+        //fieldList.setBackground(new Color(230,230,230));
+        fieldList.setBackground(this.getBackground());
+        fieldList.setBorder(null);
         JScrollPane scrollPane = new JScrollPane(fieldList);
+        scrollPane.setBorder(null);
         fieldList.requestDefaultFocus();
-
+        fieldList.setFixedCellHeight(25);
         // if we are inspecting, we need a header
         if (!isResult) {
-            scrollPane.setColumnHeaderView(new JLabel(getListTitle()));
+           // scrollPane.setColumnHeaderView(new JLabel(getListTitle()));
         }
 
         mainPanel.add(scrollPane, BorderLayout.CENTER);
@@ -411,8 +404,9 @@ public abstract class Inspector extends JFrame
 
         // Create panel with "inspect" and "get" buttons
         JPanel buttonPanel = new JPanel();
+        buttonPanel.setOpaque(false);
         buttonPanel.setLayout(new GridLayout(0, 1));
-
+        buttonPanel.setOpaque(false);
         inspectButton = new JButton(inspectLabel);
         inspectButton.addActionListener(new ActionListener() {
                          public void actionPerformed(ActionEvent e) { doInspect(); }
@@ -428,6 +422,7 @@ public abstract class Inspector extends JFrame
         buttonPanel.add(getButton);
 
         JPanel buttonFramePanel = new JPanel();
+        buttonFramePanel.setOpaque(false);
         buttonFramePanel.setLayout(new BorderLayout(0, 0));
         buttonFramePanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(buttonFramePanel, BorderLayout.EAST);
@@ -448,32 +443,55 @@ public abstract class Inspector extends JFrame
 
 
         // create bottom button pane with "Close" button
-        buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setOpaque(false);
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         if (showAssert && isResult && pkg.getProject().inTestMode()) {          
             assertPanel = new AssertPanel();
             {
 				assertPanel.setAlignmentX(LEFT_ALIGNMENT);
-                buttonPanel.add(assertPanel);
+                bottomPanel.add(assertPanel);
             }
         }
         
+        buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.setOpaque(false);
+
+        // if we are doing an inspection, we add a label at the bottom, left of the close-button
+        if (!isResult) {
+            String underlinedNameLabel = "<html><u>"+nameLabel+ "</u></font>";            
+            JLabel classNameLabel = new JLabel(underlinedNameLabel, SwingConstants.CENTER);
+            
+            if(isObject) {
+                JPanel topPanel = new JPanel();
+                topPanel.setOpaque(false);
+//                topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+                topPanel.add(classNameLabel);
+                JButton classButton = new JButton(showClassLabel);
+                classButton.addActionListener(new ActionListener() {
+                         public void actionPerformed(ActionEvent e) { showClass(); }
+                      });
+                buttonPanel.add(classButton, BorderLayout.WEST);
+                mainPanel.add(topPanel, BorderLayout.NORTH);
+            }
+            else {
+                mainPanel.add(classNameLabel, BorderLayout.NORTH);
+            }
+        }
+
         JButton button = new JButton(close);
         {
-            JPanel cbPanel = new JPanel();
-            cbPanel.add(button);
-            cbPanel.setAlignmentX(LEFT_ALIGNMENT);
-            buttonPanel.add(cbPanel);
-/*        	buttonPanel.add(button);*/
+            buttonPanel.add(button,BorderLayout.EAST);
             button.addActionListener(new ActionListener() {
                  public void actionPerformed(ActionEvent e) { doClose(); }
               });
         }
+        bottomPanel.add(buttonPanel);
 
         getRootPane().setDefaultButton(button);
-        ((JPanel) getContentPane()).add(buttonPanel, BorderLayout.SOUTH);
+        ((JPanel) getContentPane()).add(bottomPanel, BorderLayout.SOUTH);
 
         if (isResult) {
             DialogManager.centreWindow(this, parent);
@@ -481,4 +499,90 @@ public abstract class Inspector extends JFrame
             DialogManager.tileWindow(this, parent);
         }
     }
+    
+    /**
+     * Renderer to display a field. The field is split into two parts:<br>
+     *  The first contains the type and modifiers of the field.<br> 
+     *  The second contains the value of the field.
+     *
+     * @author Poul Henriksen
+     */
+    private static class FieldCellRenderer
+    extends JComponent
+    implements ListCellRenderer {
+        final static private ImageIcon objectrefIcon = Config.getImageAsIcon("image.inspector.objectref");      
+        final private JLabel descriptionLabel = new JLabel();
+        final private JLabel valueLabel;
+        
+        final private JComponent valueContainer = new JPanel();
+        
+        /**
+         * Creates new renedere to display fields of an object
+         * @param valueFieldWidth The width of value field
+         */
+        public FieldCellRenderer(final int valueFieldWidth) {
+            this.setLayout(new BorderLayout());
+            
+            valueLabel = new JLabel() {
+                public Dimension getPreferredSize() {
+                    Dimension size = super.getPreferredSize();
+                    size.width = valueFieldWidth;
+                    return size;
+                }  
+            };
+            
+            descriptionLabel.setOpaque(true);
+            valueContainer.setOpaque(true);
+            valueLabel.setOpaque(true);
+            setOpaque(true);
+            
+            valueLabel.setBackground(Color.WHITE);
+            valueLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+            valueLabel.setHorizontalAlignment(JLabel.CENTER);
+            
+            valueContainer.add(valueLabel);
+            this.add(descriptionLabel,BorderLayout.CENTER);
+            this.add(valueContainer, BorderLayout.EAST);
+        }
+        
+       public Component getListCellRendererComponent(
+                JList list,
+				Object value,				
+				int index, 
+				boolean isSelected,
+				boolean cellHasFocus)
+        {
+            String s = value.toString();
+            
+            //split on "="
+            int delimiterIndex = s.indexOf('=');
+            if (delimiterIndex >= 0) {
+                String descriptionString = s.substring(0, delimiterIndex);
+                String valueString = s.substring(delimiterIndex + 1);
+                descriptionLabel.setText(descriptionString);
+                if(valueString.equals(" <object reference>")) { //TODO is this allways the string?
+                    valueLabel.setText("");
+                    valueLabel.setIcon(objectrefIcon);
+                    this.setToolTipText(null);
+                }else {              
+                    valueLabel.setIcon(null);
+                    valueLabel.setText(valueString);   
+                    this.setToolTipText(valueString);                                            
+                }
+            }
+            
+            if (isSelected) {
+                valueContainer.setBackground(list.getSelectionBackground());
+                descriptionLabel.setBackground(list.getSelectionBackground());              
+            } else {
+                valueContainer.setBackground(list.getBackground());
+                descriptionLabel.setBackground(list.getBackground());
+            }
+            setEnabled(list.isEnabled());
+            setFont(list.getFont());
+            
+            return this;
+        }
+    }
+    
 }
