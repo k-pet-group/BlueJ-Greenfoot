@@ -22,7 +22,7 @@ import bluej.graph.Graph;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 880 2001-05-04 07:09:20Z bquig $
+ * @version $Id: PrefMgr.java 888 2001-05-10 02:16:47Z bquig $
  */
 public class PrefMgr
 {
@@ -32,13 +32,15 @@ public class PrefMgr
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
     private static final String notationStyle = "bluej.notation.style";
 
-    private static int fontsize;
+    private static int fontSize;
     private static int editFontsize;
     private static int printFontsize;
     private static int printTitleFontsize;
     private static int printInfoFontsize;
+    private static int targetFontSize;
 
     private static Font normalFont;
+    private static Font targetFont;
 
     // initialised by a call to setMenuFontSize()
     private static int menuFontSize;
@@ -65,15 +67,19 @@ public class PrefMgr
 
         //bluej menu font
         String menuFontName = Config.getPropString("bluej.menu.font", "SansSerif");
-        int menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
+        menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
         menuFont = deriveFont(menuFontName, menuFontSize);
         italicMenuFont = new Font(menuFontName, Font.ITALIC, menuFontSize);
 
         //standard font for UI components
         String normalFontName = Config.getPropString("bluej.font", "SansSerif");
-        int normalFontSize = Config.getPropInteger("bluej.fontsize", 12);
-        normalFont = deriveFont(normalFontName, normalFontSize);
+        fontSize = Config.getPropInteger("bluej.fontsize", 12);
+        normalFont = deriveFont(normalFontName, fontSize);
 
+        String targetFontName = Config.getPropString("bluej.target.font", "SansSerif-bold");
+        targetFontSize = Config.getPropInteger("bluej.target.fontsize", 12);
+        targetFont = deriveFont(targetFontName, targetFontSize);        
+        
         isSyntaxHilighting = Boolean.valueOf(
             Config.getPropString(hilightingPropertyName, "true")).booleanValue();
 
@@ -108,6 +114,11 @@ public class PrefMgr
         return italicMenuFont;
     }
 
+    public static Font getTargetFont()
+    {
+        return targetFont;        
+    }
+    
     public static Font getStandardEditorFont()
     {
         return editorStandardFont;
