@@ -7,7 +7,7 @@ import java.awt.Toolkit;
  * a circular array.
  *
  * @author  Michael Kolling
- * @version $Id: InputBuffer.java 1776 2003-04-10 04:20:56Z ajp $
+ * @version $Id: InputBuffer.java 2132 2003-07-29 04:35:53Z ajp $
  */
 public final class InputBuffer 
 {
@@ -57,7 +57,11 @@ public final class InputBuffer
                     wait();		// sleep until there is some input
                 }
             } catch(InterruptedException e) {
-                // ignore it
+				// our main process is telling us
+				// we want to exit the character
+				// reading loop
+				// we'll return a return character
+				return '\n';
             }
         }
 

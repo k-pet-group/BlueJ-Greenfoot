@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2127 2003-07-21 03:25:23Z ajp $
+ * @version $Id: VMReference.java 2132 2003-07-29 04:35:53Z ajp $
  *
  * The startup process is as follows:
  *
@@ -310,7 +310,7 @@ class VMReference
     public synchronized void close()
     {
     	// close our IO redirectors
-    	/*if (inputStreamRedirector != null) {
+    	if (inputStreamRedirector != null) {
 			inputStreamRedirector.close();
 			inputStreamRedirector.interrupt();
     	}
@@ -323,7 +323,7 @@ class VMReference
 		if (outputStreamRedirector != null) {
 			outputStreamRedirector.close();
 			outputStreamRedirector.interrupt();
-		} */
+		}
     		
         // can cause deadlock - why bother
         // lets just nuke it
