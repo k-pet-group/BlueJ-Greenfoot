@@ -12,7 +12,7 @@ import bluej.Config;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: AssertPanel.java 2076 2003-06-26 12:14:56Z mik $
  */
 public class AssertPanel extends JPanel
 {
@@ -97,7 +97,7 @@ public class AssertPanel extends JPanel
 			
 							if(index >= 0) {
 								assertData.setEnabled(labelsFieldNeeded[index]);
-								assertData.setBackground(labelsFieldNeeded[index] ? Color.WHITE : Color.LIGHT_GRAY);
+								assertData.setBackground(labelsFieldNeeded[index] ? Color.white : Color.lightGray);
 							}
 						}
 					}

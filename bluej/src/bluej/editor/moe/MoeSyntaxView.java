@@ -32,7 +32,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 2042 2003-06-23 11:44:53Z mik $
+ * @version $Id: MoeSyntaxView.java 2076 2003-06-26 12:14:56Z mik $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -156,7 +156,7 @@ public class MoeSyntaxView extends PlainView
      */
     private void drawLineNumber(Graphics g, int lineNumber, int x, int y)
     {
-        g.setColor(Color.DARK_GRAY);
+        g.setColor(Color.darkGray);
 
         String number = Integer.toString(lineNumber);
         int stringWidth = lineNumberMetrics.stringWidth(number);

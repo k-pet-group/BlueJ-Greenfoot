@@ -23,7 +23,7 @@ import sun.misc.*;
  * @author	Andrew Patterson
  * @author	Damiano Bolla
  * @author	Michael Kšlling
- * @version $Id: Boot.java 2052 2003-06-24 09:48:12Z mik $
+ * @version $Id: Boot.java 2076 2003-06-26 12:14:56Z mik $
  */
 public class Boot
 {
@@ -300,7 +300,7 @@ public class Boot
 			File classesDir = new File(bluejLibDir.getParentFile(), "classes");
 			
 			if (classesDir.isDirectory()) {
-				urlList.add(classesDir.toURI().toURL());
+				urlList.add(classesDir.toURL());
 				// skip over requiring bluejcore.jar, bluejeditor.jar etc.
 				startJar = bluejBuildJars;
 			}
@@ -314,7 +314,7 @@ public class Boot
 			if (!toAdd.canRead())
 				throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
 
-			urlList.add(toAdd.toURI().toURL());
+			urlList.add(toAdd.toURL());
 		}
 		
 		// We also need to add tools.jar on some systems
