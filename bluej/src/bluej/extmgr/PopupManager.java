@@ -50,14 +50,22 @@ public class PopupManager implements PopupMenuListener
     attachedObject  = attachedTo;
     }
 
+  /**
+   * Called just before the PopupMenu becomes visible.
+   * It is nice that we can change the contents of the menu...
+   */
   public void popupMenuWillBecomeVisible(PopupMenuEvent event) 
     {
-    System.out.println ("Before will");
+//    System.out.println ("Before will");
+
     Object source = event.getSource();
     // Let it throw an exception if it is not a JPopupMenu.
     JPopupMenu aPopup = (JPopupMenu)source;
 
+    // Let me get all menues that should be shown
     menuItems = extMgr.getMenuItems(attachedObject);
+
+    // None found, nothing to do.
     if ( menuItems.isEmpty() ) return;
 
     for ( Iterator iter = menuItems.iterator(); iter.hasNext(); )
@@ -66,7 +74,7 @@ public class PopupManager implements PopupMenuListener
 
   public void popupMenuWillBecomeInvisible(PopupMenuEvent event) 
     {
-    System.out.println ("Become Invisible");
+//    System.out.println ("Become Invisible");
     
     Object source = event.getSource();
     // Let it throw an exception if it is not a JPopupMenu.
@@ -80,7 +88,7 @@ public class PopupManager implements PopupMenuListener
 
   public void popupMenuCanceled(PopupMenuEvent event) 
     {
-    System.out.println ("Cancel");
+//    System.out.println ("Cancel");
 
     Object source = event.getSource();
     // Let it throw an exception if it is not a JPopupMenu.

@@ -33,7 +33,6 @@ public class ExtensionWrapper
 {
     private final ExtensionsManager extensionsManager;
     private final PrefManager prefManager;
-    private final MenuManager menuManager;
 
     private File extensionJarFileName;
 
@@ -43,8 +42,8 @@ public class ExtensionWrapper
     // If != null the extension is loaded. do NOT expose this unless REALLY needed
     private Extension extensionInstance;
 
-    private BlueJ  extensionBluej;
-    private String extensionStatusString;
+    private BlueJ   extensionBluej;
+    private String  extensionStatusString;
     private Project project;
 
     /**
@@ -61,7 +60,6 @@ public class ExtensionWrapper
     {
         this.extensionsManager = extensionsManager;
         this.prefManager = prefManager;
-        menuManager = new MenuManager(this);
 
         // Let me try to load the extension class
         if ((extensionClass = getExtensionClass(jarFile)) == null)  return;
@@ -167,7 +165,7 @@ public class ExtensionWrapper
         if (extensionClass == null)  return;
 
         project = aProject;
-        extensionBluej = ExtensionBridge.newBluej(this, prefManager, menuManager);
+        extensionBluej = ExtensionBridge.newBluej(this, prefManager );
 
         try {
             extensionInstance = (Extension)extensionClass.newInstance();
@@ -206,17 +204,6 @@ public class ExtensionWrapper
 
 
     /**
-     * Accessor for the MenuManager. Used by this package only.
-     *
-     * @return    The menuManager of this extension.
-     */
-    MenuManager getMenuManager()
-    {
-        return menuManager;
-    }
-
-
-    /**
      *  Checks if a this extension is valid
      *
      * @return true if it is istantiated, false if it is not.
@@ -239,7 +226,7 @@ public class ExtensionWrapper
 
 
     /**
-     *  Kills off this extension as much as possible, including removing menu
+     *  Kills off this extension as much as possible
      *  items and making access to BlueJ no longer possible.
      *  Not only ! we are even going to release the wrapper after this.
      *  So it can be loaded again, hopefully from a clean environment
@@ -255,7 +242,6 @@ public class ExtensionWrapper
 
         // Time to clean up things from the visul point of view.
         prefManager.panelRevalidate();
-        menuManager.menuExtensionRevalidateReq();
 
         // Ok, I am ready to get erased from the world.
     }
@@ -630,7 +616,7 @@ public class ExtensionWrapper
         if (extensionBluej == null) return null;
 
         MenuGenerator aMenuGen = extensionBluej.getMenuGenerator();
-        // The above is dafe. An extension may not have a menu generator
+        // The above is safe. An extension may not have a menu generator
         if ( aMenuGen == null ) return null;
 
         try

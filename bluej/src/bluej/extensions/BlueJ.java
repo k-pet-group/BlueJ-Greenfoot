@@ -43,7 +43,7 @@ import java.util.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version $Id: BlueJ.java 2053 2003-06-24 10:30:59Z damiano $
+ * @version $Id: BlueJ.java 2068 2003-06-25 14:48:09Z damiano $
  */
 
 /*
@@ -55,12 +55,10 @@ public class BlueJ
 {
     private final ExtensionWrapper myWrapper;
     private final PrefManager      prefManager;
-    private final MenuManager      menuManager;
     
     private PreferenceGenerator    currentPrefGen=null;
     private MenuGenerator          currentMenuGen=null;
     private Properties             localLabels;
-
 
     private ArrayList eventListeners;       // This is the queue for the whole of them
     private ArrayList applicationListeners;  
@@ -72,11 +70,10 @@ public class BlueJ
      * Constructor for a BlueJ proxy object.
      * See the ExtensionBridge class
      */
-    BlueJ (ExtensionWrapper aWrapper, PrefManager aPrefManager, MenuManager aMenuManager)
+    BlueJ (ExtensionWrapper aWrapper, PrefManager aPrefManager )
     {
         myWrapper   = aWrapper;
         prefManager = aPrefManager;
-        menuManager = aMenuManager;
 
         eventListeners = new ArrayList();
         applicationListeners = new ArrayList();
@@ -207,7 +204,6 @@ public class BlueJ
         if ( ! myWrapper.isValid() ) throw new ExtensionUnloadedException();
 
         currentMenuGen = menuGen;
-//        menuManager.menuExtensionRevalidateReq();
     }
 
     /**

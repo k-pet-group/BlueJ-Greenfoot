@@ -30,9 +30,9 @@ public class ExtensionBridge
     return BField.doGetVal(aFrame, instanceName, val );
     }
 
-  public static BlueJ newBluej(ExtensionWrapper aWrapper, PrefManager aPrefManager, MenuManager aMenuManager)
+  public static BlueJ newBluej(ExtensionWrapper aWrapper, PrefManager aPrefManager )
     {
-    return new BlueJ (aWrapper, aPrefManager, aMenuManager );
+    return new BlueJ (aWrapper, aPrefManager );
     }
 
   public static BObject newBObject (ObjectWrapper aWrapper)

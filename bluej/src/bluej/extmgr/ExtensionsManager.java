@@ -12,8 +12,7 @@ import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.utility.Debug;
 import javax.swing.*;
-//import JMenuItem.*;
-//
+
 /**
  *  Manages extensions and provides the main interface to PkgMgrFrame.
  *  
@@ -257,35 +256,15 @@ public class ExtensionsManager implements BlueJEventListener
 
 
     /**
-     * Adds extension menu items to a newly created frame.
-     * DELENDI, Damiano
-    public void addMenuItems( PkgMgrFrame pmf )
-    {
-        // Try to decide if this frame needs a separator or not
-        pmf.toolsExtensionsCheckSeparator();
-
-        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
-            ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
-
-            if (!aWrapper.isValid()) continue;
-
-            MenuManager aManager = aWrapper.getMenuManager();
-            if (aManager == null) continue;
-
-            aManager.menuFrameRevalidateReq(pmf);
-        }
-    }
-
-
-    /**
      * Returns a List of menues currently provided by extensions.
      * NOTE: There is a separator added here ad the beginning of the list
      * if there is something to display.
      */
     LinkedList getMenuItems( Object attachedObject )
-    {
+        {
         LinkedList menuItems = new LinkedList();
-        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) {
+        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) 
+            {
             ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
 
             if (!aWrapper.isValid()) continue;
@@ -294,41 +273,16 @@ public class ExtensionsManager implements BlueJEventListener
             if ( anItem == null ) continue;
 
             menuItems.add(anItem);
-        }
+            }
 
         // If the list is empty there is nothing else to do.
         if ( menuItems.isEmpty() ) return menuItems;
 
+        // I need to add a separator to the beginning of the list
         menuItems.addFirst(new JPopupMenu.Separator());
+        
         return menuItems;
-    }
-
-
-
-
-    /**
-     * There is a need to know if there is at least one menu present.
-     * AT the moemnt is just not to add a separator, but it may get
-     * more useful in the future. The first menu that I find I just return
-     * so this approach is not so bad in terms of performance.
-     * It returns true if there is at least one menu item, false otherwise.
-     */
-    public boolean haveMenuItems( )
-    {
-        for (Iterator iter = extensions.iterator(); iter.hasNext(); ) 
-            {
-            ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
-
-            if (!aWrapper.isValid())  continue;
-
-            // If this warpper does have a menuitem then we have some...
-            if ( aWrapper.safeMenuGenGetMenuItem() != null ) return true;
-            }
-
-        return false;
-    }
-
-
+        }
 
     /**
      * Delegates an event to all known extensions.
@@ -352,14 +306,7 @@ public class ExtensionsManager implements BlueJEventListener
      */
     public void blueJEvent(int eventId, Object arg)
         {
-/*        
-        if ( eventId == BlueJEvent.EXECUTION_STARTED )
-            {
-            ExecutionEvent exevent = (ExecutionEvent) arg;
-            delegateEvent ( new InvocationEvent ( eventId, exevent ) );
-            return;              
-            }
-*/
+
         if ( eventId == BlueJEvent.EXECUTION_RESULT )
             {
             ExecutionEvent exevent = (ExecutionEvent) arg;
@@ -376,4 +323,4 @@ public class ExtensionsManager implements BlueJEventListener
         // I cannot put any warining on unknown events here since I get a bunch of events in any case.
         }
 
-}
+    } // End of class
