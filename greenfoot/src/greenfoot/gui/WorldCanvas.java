@@ -25,7 +25,7 @@ import javax.swing.JComponent;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3158 2004-11-24 15:29:21Z polle $
+ * @version $Id: WorldCanvas.java 3176 2004-11-25 15:18:59Z polle $
  */
 public class WorldCanvas extends JComponent
     implements Observer, DropTarget
@@ -164,8 +164,8 @@ public class WorldCanvas extends JComponent
         int imgWidth = backgroundImage.getWidth(this);
         int imgHeight = backgroundImage.getHeight(this);
 
-        int xTiles = (int) Math.ceil(world.getWidth() / imgWidth);
-        int yTiles = (int) Math.ceil(world.getHeight() / imgHeight);
+        int xTiles = (int) Math.ceil((double) world.getWidth() / imgWidth);
+        int yTiles = (int) Math.ceil((double) world.getHeight() / imgHeight);
 
         for (int x = 0; x < xTiles; x++) {
             for (int y = 0; y < yTiles; y++) {
