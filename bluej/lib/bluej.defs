@@ -392,22 +392,24 @@ image.step_into=step_into.gif
 image.stop=stop.gif
 image.terminate=terminate.gif
 
-image.package.open=open16.gif
-image.package.new=new16.gif
-image.package.save=save16.gif
-image.package.saveAs=saveas16.gif
-image.package.import=import16.gif
-image.package.export=export16.gif
-image.package.pageSetup=pagesetup16.gif
-image.package.print=print16.gif
-image.package.edit=edit16.gif
-image.edit.newClass=newclass16.gif
-image.edit.newPackage=newpackage16.gif
-image.edit.addClass=addclass16.gif
-image.edit.remove=remove16.gif
-image.tools.preferences=preferences16.gif
-image.tools.compile=edit16.gif
-image.help.about=about16.gif
+## images which appear on menu items
+## currently disabled
+#image.package.open=open16.gif
+#image.package.new=new16.gif
+#image.package.save=save16.gif
+#image.package.saveAs=saveas16.gif
+#image.package.import=import16.gif
+#image.package.export=export16.gif
+#image.package.pageSetup=pagesetup16.gif
+#image.package.print=print16.gif
+#image.package.edit=edit16.gif
+#image.edit.newClass=newclass16.gif
+#image.edit.newPackage=newpackage16.gif
+#image.edit.addClass=addclass16.gif
+#image.edit.remove=remove16.gif
+#image.tools.preferences=preferences16.gif
+#image.tools.compile=edit16.gif
+#image.help.about=about16.gif
 
 ## images for library browser
 browser.image.constructoricon=yellow-ball-small.gif
