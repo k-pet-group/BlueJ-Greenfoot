@@ -16,12 +16,13 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 520 2000-05-31 06:49:05Z bquig $
+ * @version $Id: PackageTarget.java 529 2000-06-01 05:59:19Z bquig $
  */
 public class PackageTarget extends Target implements ActionListener
 {
     static final Color defaultbg = Config.getItemColour("colour.package.bg.default");
-    static final Color umldefaultbg = Config.getItemColour("colour.class.bg.uml.default");
+    //static final Color umldefaultbg = Config.getItemColour("colour.class.bg.uml.default");
+    static final Color umldefaultbg = defaultbg;
 
     static final Color ribboncolour = defaultbg.darker().darker();
     static final Color bordercolour = Config.getItemColour("colour.target.border");
@@ -29,6 +30,7 @@ public class PackageTarget extends Target implements ActionListener
     static final Color textfg = Config.getItemColour("colour.text.fg");
     
     static final int TAB_HEIGHT = 12;
+    private int tabWidth;
 
 
     protected String packageDir = null;
@@ -112,11 +114,11 @@ public class PackageTarget extends Target implements ActionListener
 
     public void drawUMLStyle(Graphics2D g)
     {
-        int tabWidth = width / 3;
+        tabWidth = width / 3;
 
         g.setColor(getBackgroundColour());
         //g.fillRect(0, 0, width, height);
-        g.fillRect(0, 0, width/3, TAB_HEIGHT);
+        g.fillRect(0, 0, tabWidth, TAB_HEIGHT);
         g.fillRect(0, TAB_HEIGHT, width, height - TAB_HEIGHT);
 
         g.setColor(shadowCol);
@@ -177,9 +179,7 @@ public class PackageTarget extends Target implements ActionListener
         if(!((flags & F_SELECTED) == 0))
             g.setStroke(selectedStroke);
 
-        //Utility.drawThickRect(g, 0, 0, width/3, height/5, thickness);
-        //Utility.drawThickRect(g, 0, height/5, width, height - height/5, thickness);
-        g.drawRect(0, 0, width/3, TAB_HEIGHT);
+        g.drawRect(0, 0, tabWidth, TAB_HEIGHT);
         g.drawRect(0, TAB_HEIGHT, width, height - TAB_HEIGHT);
 
         if((flags & F_SELECTED) == 0)
