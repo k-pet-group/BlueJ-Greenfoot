@@ -18,7 +18,7 @@ import bluej.utility.*;
  * @author  Michael Kolling
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: JavacCompilerInternal.java 1520 2002-11-27 11:34:25Z mik $
+ * @version $Id: JavacCompilerInternal.java 1733 2003-04-01 06:29:22Z bquig $
  */
 public class JavacCompilerInternal extends Compiler
 {
@@ -157,7 +157,6 @@ public class JavacCompilerInternal extends Compiler
 
         // only one of 'output' or 'firstStream' should be receiving output so
         // we will only generate one error message
-
 		if (output.hasError()) {
 			watcher.errorMessage(output.getFilename(),
 						output.getLineNo(),
@@ -170,6 +169,14 @@ public class JavacCompilerInternal extends Compiler
 						firstStream.getMessage(),true);
 		}
 
+        // Handle compiler warning messages        
+        CompilerWarningDialog warningDialog = CompilerWarningDialog.getDialog();
+        if (output.hasWarnings()) {
+            warningDialog.setWarningMessage(output.getWarning());           
+        }
+        else {
+            warningDialog.reset();
+        }
         System.setErr(systemErr);   // restore
 
         // in case we are reusing the first stream, reset the hasError boolean
@@ -187,10 +194,11 @@ public class JavacCompilerInternal extends Compiler
  */
 class ErrorStream extends PrintStream
 {
-    private boolean haserror = false, hasfollowup = false;
+    private boolean haserror = false, hasfollowup = false, hasWarnings = false;
     private int ignoreCount = 0;    // when > 0, indicates number of lines to ignore
 
     private String filename, message;
+    private String warning = "";
     private int lineno;
 
     public ErrorStream()
@@ -206,12 +214,19 @@ class ErrorStream extends PrintStream
     {
         haserror = false;
         hasfollowup = false;
+        hasWarnings = false;
         ignoreCount = 0;
+        warning = "";
     }
 
     public boolean hasError()
     {
         return haserror;
+    }
+    
+    public boolean hasWarnings()
+    {
+        return hasWarnings;
     }
 
     public String getFilename()
@@ -228,6 +243,12 @@ class ErrorStream extends PrintStream
     {
         return message;
     }
+    
+    public String getWarning()
+    {
+        return warning;
+    }
+    
 
     /**
      * Note: this class "cheats" by assuming that all output will be written by
@@ -294,9 +315,12 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
             // of the form
             // x warning(s)
 
-            if (msg.trim().endsWith("warnings") || msg.trim().endsWith("warning"))
+            if (msg.trim().endsWith("warnings") || msg.trim().endsWith("warning")) {
+                warning += msg;
+                hasWarnings = true;
                 return;
-
+            }
+            
             // otherwise, cannot read format of error message
             DialogManager.showErrorWithText(null, "compiler-error", msg);
             return;
@@ -332,8 +356,10 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
 
         if (message.startsWith("warning:")) {
             // record the warnings and display them to users!!!
-            // System.out.println(lineno + " " + message.substring(8));
-            ignoreCount = 2;           
+            warning += msg;
+            ignoreCount = 2;
+            if(!hasWarnings)
+                hasWarnings = true;           
             return;
         }
 
