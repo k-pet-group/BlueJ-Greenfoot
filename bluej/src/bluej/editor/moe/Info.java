@@ -24,7 +24,7 @@ import java.io.*;
 public final class Info extends JPanel
     implements ActionListener
 {
-    static final ImageIcon helpImage = Config.getImageAsIcon("image.help");
+    static final ImageIcon helpImage = Config.getImageAsIcon("image.editor.help");
 
     public static Font infoFont = new Font("SansSerif", Font.BOLD, 10);
 

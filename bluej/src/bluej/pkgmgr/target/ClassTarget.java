@@ -34,7 +34,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 2680 2004-06-29 05:24:00Z bquig $
+ * @version $Id: ClassTarget.java 2704 2004-07-01 09:24:22Z polle $
  */
 public class ClassTarget extends EditableTarget implements Moveable
 {	
@@ -63,7 +63,7 @@ public class ClassTarget extends EditableTarget implements Moveable
     private static String usesArrowMsg = Config.getString("pkgmgr.usesArrowMsg");
 
     private static final Image brokenImage =
-        Config.getImageAsIcon("image.broken").getImage();
+        Config.getImageAsIcon("image.class.broken").getImage();
 
     private static final String STEREOTYPE_OPEN = "<<";
     private static final String STEREOTYPE_CLOSE = ">>";

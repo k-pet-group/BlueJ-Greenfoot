@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2644 2004-06-21 20:37:08Z polle $
+ * @version $Id: ExecControls.java 2704 2004-07-01 09:24:22Z polle $
  */
 public class ExecControls extends JFrame
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -628,7 +628,7 @@ public class ExecControls extends JFrame
     {
         public StopAction()
         {
-            super(haltButtonText, Config.getImageAsIcon("image.stop"));
+            super(haltButtonText, Config.getImageAsIcon("image.debug.stop"));
         }
         
         public void actionPerformed(ActionEvent e)
@@ -649,7 +649,7 @@ public class ExecControls extends JFrame
     {
         public StepAction()
         {
-            super(stepButtonText, Config.getImageAsIcon("image.step"));
+            super(stepButtonText, Config.getImageAsIcon("image.debug.step"));
         }
         
         public void actionPerformed(ActionEvent e)
@@ -672,7 +672,7 @@ public class ExecControls extends JFrame
     {
         public StepIntoAction()
         {
-            super(stepIntoButtonText, Config.getImageAsIcon("image.step_into"));
+            super(stepIntoButtonText, Config.getImageAsIcon("image.debug.step_into"));
         }
         
         public void actionPerformed(ActionEvent e)
@@ -694,7 +694,7 @@ public class ExecControls extends JFrame
     {
         public ContinueAction()
         {
-            super(continueButtonText, Config.getImageAsIcon("image.continue"));
+            super(continueButtonText, Config.getImageAsIcon("image.debug.continue"));
         }
         
         public void actionPerformed(ActionEvent e)
@@ -716,7 +716,7 @@ public class ExecControls extends JFrame
     {
         public TerminateAction()
         {
-            super(terminateButtonText, Config.getImageAsIcon("image.terminate"));
+            super(terminateButtonText, Config.getImageAsIcon("image.debug.terminate"));           
         }
         
         public void actionPerformed(ActionEvent e)

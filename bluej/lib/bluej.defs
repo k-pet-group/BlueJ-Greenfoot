@@ -434,27 +434,30 @@ image.working.disab=working-disab.gif
 image.working.stopped=working-stopped.gif
 
 # editor breakpoint and step mark
-image.breakmark=break.gif
-image.stepmark=stepmark.gif
-image.breakstepmark=stepbreak.gif
+image.editor.breakmark=break.gif
+image.editor.stepmark=stepmark.gif
+image.editor.breakstepmark=stepbreak.gif
 
 # file chooser
-image.packageIcon=packageIcon.gif
-image.classIcon=classIcon.gif
+image.filechooser.packageIcon=packageIcon.gif
+image.filechooser.classIcon=classIcon.gif
 
-image.broken=broken-arrow.gif
-image.help=help.gif
+# class
+image.class.broken=broken-arrow.gif
+
+# editor help icon
+image.editor.help=help.gif
 
 # debugger
-image.continue=continue.gif
-image.step=step.gif
-image.step_into=step_into.gif
-image.stop=stop.gif
-image.terminate=terminate.gif
+image.debug.continue=continue.gif
+image.debug.step=step.gif
+image.debug.step_into=step_into.gif
+image.debug.stop=stop.gif
+image.debug.terminate=terminate.gif
 
 #text eval area
-image.prompt=prompt.gif
-image.continue=prompt-continue.gif
+image.eval.prompt=prompt.gif
+image.eval.continue=prompt-continue.gif
 
 # unit testing
 image.test.recording=record.gif

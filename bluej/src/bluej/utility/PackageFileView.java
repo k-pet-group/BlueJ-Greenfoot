@@ -13,11 +13,11 @@ import java.io.File;
  *
  * @author Michael Kolling
  * @see FileUtility
- * @version $Id: PackageFileView.java 900 2001-05-23 04:28:24Z ajp $
+ * @version $Id: PackageFileView.java 2704 2004-07-01 09:24:22Z polle $
  */
 public class PackageFileView extends FileView
 {
-    static final Icon packageIcon = Config.getImageAsIcon("image.packageIcon");
+    static final Icon packageIcon = Config.getImageAsIcon("image.filechooser.packageIcon");
 
     /**
      * The name of the file.  Do nothing special here. Let the system file

@@ -31,7 +31,7 @@ import org.gjt.sp.jedit.syntax.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 2676 2004-06-28 19:28:38Z mik $
+ * @version $Id: MoeSyntaxView.java 2704 2004-07-01 09:24:22Z polle $
  */
 
 public class MoeSyntaxView extends PlainView
@@ -54,15 +54,15 @@ public class MoeSyntaxView extends PlainView
     public static final String CONTINUE = "continue";
 
     static final Image breakImage =
-        Config.getImageAsIcon("image.breakmark").getImage();
+        Config.getImageAsIcon("image.editor.breakmark").getImage();
     static final Image stepImage =
-        Config.getImageAsIcon("image.stepmark").getImage();
+        Config.getImageAsIcon("image.editor.stepmark").getImage();
     static final Image breakStepImage =
-        Config.getImageAsIcon("image.breakstepmark").getImage();
+        Config.getImageAsIcon("image.editor.breakstepmark").getImage();
     static final Image promptImage =
-        Config.getImageAsIcon("image.prompt").getImage();
+        Config.getImageAsIcon("image.eval.prompt").getImage();
     static final Image continueImage =
-        Config.getImageAsIcon("image.continue").getImage();
+        Config.getImageAsIcon("image.eval.continue").getImage();
     static final int BREAKPOINT_OFFSET = MoeEditor.TAG_WIDTH + 2;
 
     static final Color outputColor = new Color(0, 120, 0);

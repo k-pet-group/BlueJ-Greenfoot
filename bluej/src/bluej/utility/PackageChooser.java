@@ -22,12 +22,12 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Markus Ostman
- * @version $Id: PackageChooser.java 1925 2003-04-30 06:29:35Z ajp $
+ * @version $Id: PackageChooser.java 2704 2004-07-01 09:24:22Z polle $
  */
 class PackageChooser extends JFileChooser
 {
-    static final Icon classIcon = Config.getImageAsIcon("image.classIcon");
-    static final Icon packageIcon = Config.getImageAsIcon("image.packageIcon");
+    static final Icon classIcon = Config.getImageAsIcon("image.filechooser.classIcon");
+    static final Icon packageIcon = Config.getImageAsIcon("image.filechooser.packageIcon");
 
     static final String previewLine1 = Config.getString("utility.packageChooser.previewPane1");
     static final String previewLine2 = Config.getString("utility.packageChooser.previewPane2");

@@ -10,7 +10,7 @@ import bluej.utility.Utility;
 /**
  * Paints a ClassTarget
  * @author fisker
- * @version $Id: ClassTargetPainter.java 2590 2004-06-11 11:29:14Z fisker $
+ * @version $Id: ClassTargetPainter.java 2704 2004-07-01 09:24:22Z polle $
  */
 
 public class ClassTargetPainter
@@ -22,7 +22,7 @@ public class ClassTargetPainter
     private static final Color colBorder = Config.getItemColour("colour.target.border");
     private static final Color compbg = Config.getItemColour("colour.target.bg.compiling");
     private static final Color stripeCol = Config.getItemColour("colour.target.stripes");
-    private static final Image brokenImage = Config.getImageAsIcon("image.broken").getImage();
+    private static final Image brokenImage = Config.getImageAsIcon("image.class.broken").getImage();
     
     private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
     private static final int TEXT_BORDER = GraphPainterStdImpl.TEXT_BORDER;
