@@ -1,10 +1,10 @@
-last revised: 10/04/2002
+last revised: 8/12/2003
 
 Notes on the distribution:
 
 This is a split of the editor source from the BlueJ 
-distribution, based on code checked out of the repository on
-on 10/04/2004. This correlates to Version 1.2.0 of BlueJ.
+distribution, based on code checked out of the repository at the 
+time of the corresponding BlueJ release.
 
 The structure of bluej is reasonably decoupled from the editor
 implementation meaning that you can quite easily enhance the editor
@@ -14,8 +14,9 @@ better suit their uses.
 
 NOTE: The separation of the editor code to a separate library was
 completed in BlueJ 1.1.2.  You will need to compile and deploy this
-editor with BlueJ 1.1.2 or later.  
-(Preferably the matching version of BlueJ)
+editor with BlueJ 1.1.2 or later as a minimum.  It is likely and 
+preferable that you will need to use the matching version of BlueJ.
+See information about versioning below.
 
 
 VERSION
