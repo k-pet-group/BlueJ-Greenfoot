@@ -14,14 +14,14 @@ import bluej.debugger.*;
  * This wraps an object so you can put and remove it from the bench.
  * You get Bobjects from BConstructor or BMethods and from BField.
  *
- * @version $Id: BObject.java 1720 2003-03-21 09:29:10Z damiano $
+ * @version $Id: BObject.java 1723 2003-03-21 11:19:28Z damiano $
  */
 public class BObject
 {
     private ObjectWrapper  wrapper;  
 
     /**
-     * Do NOT use.
+     * Not for use by the extension writer.
      * You should get BObjects from the BPackage, BConstructor, BMethod, BField
      */
     public BObject (ObjectWrapper i_wrapper)
@@ -30,7 +30,8 @@ public class BObject
     }
 
     /**
-     * Is this BObject still valid ?. It may happens for various reasons
+     * Tests if this BObject is still valid in Bluej.
+     * 
      * @return true or false
      */
     public boolean isValid()

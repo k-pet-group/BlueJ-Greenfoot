@@ -22,7 +22,7 @@ import java.awt.Window;
  * The BlueJ proxy Package object. 
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 1722 2003-03-21 09:39:02Z damiano $
+ * @version $Id: BPackage.java 1723 2003-03-21 11:19:28Z damiano $
  */
 public class BPackage
 {
@@ -129,6 +129,7 @@ public class BPackage
 
     /**
      * Gets a System class. This can be manipulated in the same way as other BlueJ proxy classes.
+     * WARNING: is this really needed ?
      * 
      * @param name the fully-qualified name of the System class
      * @return the proxy class object
@@ -212,7 +213,7 @@ public class BPackage
 
    
     /**
-     * CONVENIENCE method, tries to center a window within a parent window
+     * CONVENIENCE method, tries to center a window within a parent window.
      * @param child the window to be centered
      * @param parent the reference window
      */

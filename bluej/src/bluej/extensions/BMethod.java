@@ -32,9 +32,10 @@ public class BMethod
 
     /**
      * Tests if this mthod matches against the given param.
+     *
      * @return true if it matches false othervise.
      */
-    boolean matches ( String methodName, Class[] parameter )
+    public boolean matches ( String methodName, Class[] parameter )
       {
       // If someone is crazy enough to do this he deserves it :-)
       if ( methodName == null ) return false;
@@ -64,6 +65,8 @@ public class BMethod
       }
 
     /**
+     * Returns the parameters type of this method.
+     * 
      * @return the parameters of this method. See Reflection API
      */
     public Class[] getParameterTypes()
@@ -72,6 +75,8 @@ public class BMethod
       }
       
     /**
+     * Returns the name of this method.
+     * 
      * @return name of the method. See Reflection API
      */
     public String getName()
@@ -81,7 +86,8 @@ public class BMethod
     
     /**
      * Gets the return type of this method
-     * @return a string describing the return type, eg <code>int</code>, <code>Object</code>
+     * 
+     * @return The Class describing the return type of this method.
      */
     public Class getReturnType()
         {

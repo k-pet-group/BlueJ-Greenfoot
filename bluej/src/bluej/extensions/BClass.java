@@ -17,7 +17,7 @@ import bluej.views.*;
  * BClass allows you to know the real underlyng class because there is a need to 
  * understand what is the identity of this Class (BClass) and the identity of the hidden one.
  * 
- * @version $Id: BClass.java 1720 2003-03-21 09:29:10Z damiano $
+ * @version $Id: BClass.java 1723 2003-03-21 11:19:28Z damiano $
  */
 public class BClass
 {
@@ -83,7 +83,8 @@ public class BClass
       }
 
     /**
-     * Gets the owning Package of this class
+     * Gets the Package owning this class
+     * 
      * @return the originator
      */
     public BPackage getPackage()
@@ -95,6 +96,7 @@ public class BClass
     /**
      * Checks to see if a class has been compiled. Ignored and returns <code>true</code> if it
      * is a virtual class.
+     * 
      * @return <code>true</code> if the class has been compiled and has not been modified since.
      */
     public boolean isCompiled()
@@ -105,8 +107,10 @@ public class BClass
     }
     
     /**
-     * Compile this class, and any dependants. Performed synchronously.  Ignored and returns 
-     * <code>true</code> if it is a virtual class.
+     * Compile this class, and any dependants. 
+     * Performed synchronously.  
+     * Ignored and returns <code>true</code> if it is a virtual class.
+     * 
      * @return <code>true</code> if the compilation was successful. 
      */
     public boolean compile()
@@ -127,15 +131,14 @@ public class BClass
     public BClass getSuper()
     {
         View sup = bluej_view.getSuper();
-
         if ( sup == null ) return null;
         
         return new BClass (bluej_pkg, sup);
     }
     
     /**
-     * As From reflection: gets all constructors of this class
-     * NOTE: If the class is NOT compiled it WILL return a zero len constructors array
+     * As From reflection: gets all constructors of this class.
+     * NOTE: If the class is NOT compiled it WILL return a zero len constructors array.
      * 
      * @return an array of constructors, zero len array if none or invalid
      */
@@ -152,7 +155,8 @@ public class BClass
         }
      
     /**
-     * Gets a constructor for this class complying with the given criteria
+     * Gets a constructor for this class complying with the given criteria.
+     * 
      * @param signature the signature of the required constructor
      * @return the requested constructor of this class, or <code>null</code> if
      * the class has not been compiled or the constructor cannot be found.
@@ -172,7 +176,8 @@ public class BClass
 
 
     /**
-     * Gets the declared method of this class
+     * Gets the declared method of this class.
+     * 
      * @return the methods of this class
      */
     public BMethod[] getDeclaredMethods()
@@ -189,7 +194,8 @@ public class BClass
     }
 
     /**
-     * Gets the declared method of this class with the given signature
+     * Gets the declared method of this class with the given signature.
+     * 
      * @return the methods of this class
      */
     public BMethod getDeclaredMethod(String methodName, Class[] params )
@@ -210,7 +216,9 @@ public class BClass
 
 
     /**
-     * Returns all BFields of this Class
+     * Returns all BFields of this Class.
+     * 
+     * @return BField[] an array of all BFields of this class.
      */
     public BField[] getFields()
         {
@@ -226,7 +234,9 @@ public class BClass
 
 
     /**
-     * Returns a specific Field of this Class
+     * Returns a specific Field of this Class.
+     * 
+     * @return BField the wanted BField, null if it cannot be found.
      */
     public BField getField(String fieldName)
         {

@@ -18,6 +18,8 @@ import bluej.utility.Debug;
  * Reflection states that to get a static field we can use a Field and pass null as the object to work on.
  * NOTE: the get method returns an Object, in most cases it is a String, Integer, Long and so on BUT
  * when a real Object is actually returned it is encapsulated into a BObject. You MUST look for this.
+ * 
+ * @version $Id: BField.java 1723 2003-03-21 11:19:28Z damiano $
  */
 public class BField
 {
@@ -34,9 +36,11 @@ public class BField
     }        
 
     /**
-     * Used to see if this field matches with the given criteria
+     * Used to see if this field matches with the given criteria.
+     * 
+     * @return true if it does, false othervide
      */
-    boolean matches ( String fieldName )
+    public boolean matches ( String fieldName )
         {
         // Who is so crazy to give me a null name ?
         if ( fieldName == null ) return false;
@@ -150,10 +154,11 @@ public class BField
 
 
     /**
+     * NOT for use by the extension writer.
      * Utility to avoid duplicated code. To be used from within the bluej.extensions package
      * Given a Value that comes from th remote debugger machine, converts it into somethig
-     * that is kind of reasonable... The real important thing here is to return a 
-     * BObject for objects that can be put into the bench.
+     * that is usable. The real important thing here is to return a BObject for objects 
+     * that can be put into the bench.
      */
     public static Object getVal ( Package bluej_pkg, String instanceName, Value val )
         {

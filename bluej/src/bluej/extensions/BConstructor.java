@@ -10,6 +10,8 @@ import bluej.views.*;
 /**
  * Wrapper for a BlueJ Constructor.
  * Behaviour is similar to reflection API. 
+ *
+ * @version $Id: BConstructor.java 1723 2003-03-21 11:19:28Z damiano $
  */
 public class BConstructor 
   {
@@ -28,8 +30,10 @@ public class BConstructor
 
   /**
    * Tests if this constructor matches against the given param.
+   * 
+   * @return true if it does, false othervise.
    */
-  boolean matches ( Class[] parameter )
+  public boolean matches ( Class[] parameter )
     {
     Class[] thisArgs = bluej_view.getParameters();
 
