@@ -167,7 +167,8 @@ public class ClassDiagramPrinter implements Printable
         // write footer
         g.setFont(printInfoFont);
         DateFormat dateFormat = DateFormat.getDateTimeInstance();
-        Utility.drawRightText(g, dateFormat.format(new Date()) + ", Page " + pageNum,
+        Utility.drawRightText(g, dateFormat.format(new Date()) + 
+                              "     Page " + pageNum + " of " + pages,
                               printArea.x, printArea.y + printArea.height - PRINT_VMARGIN,
                               printArea.width, ifm.getHeight());
     }
