@@ -13,6 +13,8 @@ compiler.warningDialog.title=\u7f16\u8bd1\u5668\u8b66\u544a
 compiler.warningDialog.label=\u6700\u540e\u4e00\u6b21\u7f16\u8bd1\u7684\u8b66\u544a 
 compiler.warningDialog.noWarnings=\u6ca1\u6709\u8b66\u544a
 
+debugger.null=null
+
 debugger.assert.assertThat=\u65ad\u8a00:
 debugger.assert.resultIs=\u7ed3\u679c\u662f
 debugger.assert.equalTo=\u7b49\u4e8e
@@ -26,11 +28,16 @@ debugger.assert.delta=\u53d8\u5316
 debugger.inspector.title=BlueJ:  \u67e5\u770b\u5668
 debugger.inspector.object.title=BlueJ:  \u5bf9\u8c61\u67e5\u770b\u5668
 debugger.inspector.class.title=BlueJ:  \u7c7b\u67e5\u770b\u5668
+debugger.inspector.enum.title=BlueJ:  \u679a\u4e3e \u67e5\u770b\u5668
+debugger.inspector.interface.title=BlueJ:  \u63a5\u53e3 \u67e5\u770b\u5668
 debugger.inspector.result.title=BlueJ:  \u65b9\u6cd5\u8fd4\u56de\u503c
+debugger.inspector.result.returned=\u8fd4\u56de:
 debugger.inspector.showClass=\u663e\u793a\u9759\u6001\u6210\u5458\u53d8\u91cf
 debugger.inspector.inspect=\u67e5\u770b
 debugger.inspector.get=\u83b7\u53d6
-debugger.inspector.classNameLabel=\u7c7b\u540d
+debugger.inspector.class.nameLabel=\u7c7b
+debugger.inspector.enum.nameLabel=\u679a\u4e3e
+debugger.inspector.interface.nameLabel=\u63a5\u53e3
 
 debugger.objectwrapper.methodException=\u8bbf\u95ee\u65b9\u6cd5\u65f6\u4ea7\u751f\u4f8b\u5916:
 debugger.objectwrapper.invocationException=\u8c03\u7528\u65f6\u4ea7\u751f\u4f8b\u5916:
@@ -56,33 +63,6 @@ debugger.jdiDebugger.noBreakpointMsg=\u6e05\u9664\u65ad\u70b9: \u5728\u672c\u884
 debugger.jdiDebugger.noLineNumberMsg=\u6b64\u7c7b\u4e0d\u80fd\u7f16\u8bd1\uff0c\u56e0\u4e3a\u7f3a\u5c11\u884c\u53f7\u4fe1\u606f. \u4f60\u4e0d\u80fd\u8bbe\u7f6e\u65ad\u70b9.
 debugger.jdiDebugger.noCodeMsg=\u4e0d\u80fd\u8bbe\u7f6e\u65ad\u70b9\uff1a\u6b64\u884c\u65e0\u4ee3\u7801
 debugger.jdiDebugger.internalErrorMsg=\u8bd5\u56fe\u8bbe\u7f6e\u6b64\u65ad\u70b9\u65f6\u4ea7\u751f\u5185\u90e8\u9519\u8bef
-
-#library browser configuration
-browser.title=BlueJ:  \u5e93\u6d4f\u89c8\u5668
-browser.version=0.1
-browser.togglemessagebox.toggle.text=\u4e0d\u518d\u663e\u793a\u6b64\u4fe1\u606f
-
-browser.librarychooser.loading.status=\u88c5\u8f7d\u5e93...
-browser.librarychooser.loaded.status=\u5e93\u5df2\u88c5\u8f7d.
-browser.librarychooser.openingarchive.status=\u6b63\u5728\u6253\u5f00\u5b58\u6863\u5e93
-browser.librarychooser.config.user=userlibs.properties	
-
-browser.classchooser.classmenu.open=\u6253\u5f00
-browser.classchooser.classmenu.use=\u4f7f\u7528...
-browser.classchooser.packagemenu.open=\u6253\u5f00
-browser.classchooser.packagemenu.use=\u4f7f\u7528...
-
-browser.usepackage.dialog.text=\u9009\u62e9\u76ee\u6807\u5305\u5e76\u4e14\u70b9\u51fb\u5b8c\u6210
-
-browser.missingclass.text=\u6d4f\u89c8\u5668\u4e0d\u80fd\u5b9a\u4f4d\u7c7b$
-
-#library browser menus
-browser.menu.library=\u5e93
-browser.menu.library.properties=\u5c5e\u6027...
-browser.menu.library.addlibrary=\u589e\u52a0...
-browser.menu.library.addlibrary.title=\u589e\u52a0\u5e93
-browser.menu.library.refresh=\u5237\u65b0
-browser.menu.library.close=\u5173\u95ed
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=\u5e93
@@ -112,10 +92,11 @@ prefmgr.misc.linkToLibNoteLine1=\u5982\u679c\u7528\u6b64URL\u751f\u6210\u6587\u6
 prefmgr.misc.linkToLibNoteLine2=\u53e6\u5916\u751f\u6210\u6587\u6863\u5931\u8d25\uff0c\u8bf7\u4e0d\u8981\u4f7f\u7528\u6b64\u9009\u9879\uff0c\u4f7f\u7528\u8131\u673a\u5de5\u4f5c.
 prefmgr.misc.testing.title=\u5355\u5143\u6d4b\u8bd5\u8bbe\u7f6e
 prefmgr.misc.showTesting=\u663e\u793a\u5355\u5143\u6d4b\u8bd5\u5de5\u5177
-prefmgr.misc.vm.title=\u865a\u62df\u673a\u8bbe\u7f6e
-prefmgr.misc.optimiseVM=\u4f7f\u7528\u4f18\u5316 (\u6267\u884c\u7684\u66f4\u5feb\uff0c\u4f46\u662f\u53ef\u80fd\u5bfc\u81f4\u8c03\u8bd5\u9519\u8bef)
+prefmgr.misc.vm.title=\u7f16\u8bd1\u5668\u548c\u8fd0\u884c\u65f6\u8bbe\u7f6e
+prefmgr.misc.optimiseVM=\u4f7f\u7528\u4f18\u5316\uff08\u66f4\u5feb\u7684\u6267\u884c\u901f\u5ea6\uff0c\u4f46\u53ef\u80fd\u5bfc\u81f4\u8c03\u8bd5\u7684\u65f6\u5019\u51fa\u73b0\u95ee\u9898\uff09
 prefmgr.misc.addLibTitle=\u9009\u62e9\u76ee\u5f55\u6216\u8005 jar/zip \u6587\u4ef6
 prefmgr.misc.libFileFilter=\u5e93\u6587\u4ef6 (*.jar;*.zip) \u6216\u8005\u7c7b\u76ee\u5f55
+prefmgr.misc.showUnchecked=\u663e\u793a\u7f16\u8bd1\u5668\u8b66\u544a\u5f53\u4f7f\u7528\u4e0d\u5b89\u5168\u7684\u7c7b\u7684\u65f6\u5019\u3002
 
 # Editor Preferences panel
 prefmgr.edit.prefpaneltitle=\u7f16\u8f91\u5668
@@ -242,6 +223,19 @@ editor.find.up=\u5411\u4e0a\u67e5\u627e
 editor.find.down=\u5411\u4e0b\u67e5\u627e
 editor.find.ignoreCase=\u5ffd\u7565\u683c\u5f0f
 editor.find.wholeWord=\u6574\u8bcd
+editor.find.backward=\u540e\u9000
+editor.find.forward=\u5411\u524d
+editor.find.wrapAround=\u56de\u5377
+
+#Messages shown as a result of a search with replace all
+editor.replaceAll.replaced=\u66ff\u6362
+editor.replaceAll.intancesOf=\u5b9e\u4f8b
+editor.replaceAll.string=\u5b57\u7b26\u4e32 
+editor.replaceAll.notFoundNothingReplaced=\u6ca1\u6709\u53d1\u73b0\u3002\u672a\u66ff\u6362.
+
+#Messages shown when determining what function is bound to a given key
+editor.keypressed.keyIsNotBound=\u672a\u7ed1\u5b9a\u5230\u51fd\u6570\u3002
+editor.keypressed.callsTheFunction=\u8c03\u7528\u51fd\u6570 "
 
 #Messages, warnings, etc that is displayed by Info.java
 editor.info.version=Moe \u7248
@@ -309,6 +303,7 @@ pkgmgr.newExtends=\u65b0\u5efa\u6269\u5c55\u7bad\u5934
 pkgmgr.unimplemented=\u62b1\u6b49\u6b64\u529f\u80fd\u8fd8\u672a\u5b9e\u73b0
 pkgmgr.pkgChooseError=\u9519\u8bef\uff1a\u8bf7\u9009\u62e9\u6b63\u786e\u7684\u5305\u540d
 pkgmgr.chooseWebPage.title=\u9009\u62e9HTML\u9875\u7684\u5730\u5740
+pkgmgr.chooseWebPage.buttonLabel=\u4fdd\u5b58HTML\u9875\u9762
 
 pkgmgr.parentpackagetarget.open=\u6253\u5f00
 pkgmgr.parentpackagetarget.openunamed=\u6253\u5f00\u672a\u547d\u540d\u7684\u5305
@@ -350,6 +345,7 @@ pkgmgr.newClass.interface=\u63a5\u53e3
 pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet
 pkgmgr.newClass.unittest=\u5355\u5143\u6d4b\u8bd5
+pkgmgr.newClass.enum=\u679a\u4e3e
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  \u5efa\u65b0\u5305
@@ -366,22 +362,16 @@ callLibraryDialog.clickHere2=\u663e\u793a\u6784\u9020\u5668\u548c\u65b9\u6cd5.
 callLibraryDialog.classNotFound1=\u65e0\u6cd5\u627e\u5230\u7c7b.
 callLibraryDialog.classNotFound2=(\u68c0\u67e5\u7c7b\u540d\uff0c\u518d\u6309\u56de\u8f66.)
 
-# "Free Form Call" dialog
-freeCallDialog.title=BlueJ:  \u8ba1\u7b97
-freeCallDialog.fieldLabel=\u8ba1\u7b97:
-freeCallDialog.resultLabel=\u8fd9\u662f
-freeCallDialog.returnsResult=\u4e00\u4e2a\u8868\u8fbe\u5f0f (\u6709\u8fd4\u56de\u7ed3\u679c)
-freeCallDialog.returnsNoResult=\u4e00\u4e2a\u8bed\u53e5 (\u6ca1\u6709\u8fd4\u56de\u7ed3\u679c)
-
 # "export" dialog
-pkgmgr.export.title=BlueJ:  \u5bfc\u51fa\u9879\u76ee
-pkgmgr.export.helpLine1=\u5c06\u5f53\u524d\u9879\u76ee\u7684\u526f\u672c\u5bfc\u51fa
-pkgmgr.export.helpLine2=\u6807\u51c6Java (\u975e-BlueJ) \u683c\u5f0f.
-pkgmgr.export.directoryLabel=\u6309\u76ee\u5f55\u7ed3\u6784\u5b58\u50a8
-pkgmgr.export.jarFileLabel=\u6309jar\u6587\u4ef6\u5b58\u50a8
-pkgmgr.export.classLabel=\u4e3b\u7c7b:
+pkgmgr.export.title=BlueJ:  \u521b\u5efaJar\u6587\u4ef6
+pkgmgr.export.helpLine1=\u521b\u5efa\u4e00\u4e2a\u5355\u72ec\u7684jar\u6587\u4ef6\u5305\u542b
+pkgmgr.export.helpLine2=\u8fd9\u4e2a\u9879\u76ee\u3002\u5982\u679c\u6307\u5b9a\u4e86main\u7c7b\u5c31\u662f\u53ef\u6267\u884c\u7684\u3002
+pkgmgr.export.classLabel=Main\u7c7b:
+pkgmgr.export.includeLibs=\u5305\u542b\u7528\u6237\u81ea\u5b9a\u4e49\u5e93
 pkgmgr.export.sourceLabel=\u5305\u542b\u6e90\u6587\u4ef6
 pkgmgr.export.noClassText=\u65e0 (\u65e0\u6cd5\u6267\u884c)
+pkgmgr.export.specifyJar=\u4e3ajar\u6587\u4ef6\u6307\u5b9a\u540d\u5b57
+pkgmgr.export.createJarText=\u521b\u5efa
 
 # "open-non-bluej" mismatch dialog
 pkgmgr.importmismatch.title=BlueJ:  \u5305\u6240\u5728\u884c\u4e0d\u5339\u914d
@@ -392,7 +382,7 @@ pkgmgr.importmismatch.helpLine4=\u4e0b\u5217\u4e3a\u6b64\u9879\u76ee\u7684\u539f
 pkgmgr.importmismatch.helpLine5=\u53ef\u80fd\u4f60\u6253\u5f00\u7684\u662f\u5b83\u7684\u7236\u76ee\u5f55
 pkgmgr.importmismatch.helpLine6=\u5df2\u9009\u3002\u4f8b\u5982\uff1a\u6253\u5f00\u7684Java\u9879\u76ee\u6587\u4ef6\u5df2\u5305\u542b
 pkgmgr.importmismatch.helpLine7=\u5305 "org.bluej",\u5fc5\u987b\u9009\u62e9\u6b64\u76ee\u5f55
-pkgmgr.importmismatch.helpLine8=_\u5305\u542b_ "org", \u800c\u4e0d\u662f "org" \u6216 "bluej"\u76ee\u5f55\u672c\u8eab.
+pkgmgr.importmismatch.helpLine8=\u5305\u542b "org", \u800c\u4e0d\u662f "org" \u6216 "bluej"\u76ee\u5f55\u672c\u8eab.
 pkgmgr.importmismatch.helpLine9=\u8fd8\u60f3\u7ee7\u7eed\u6253\u5f00\u6216\u6539\u53d8 \u5305\u7684\u58f0\u660e\u5417\uff1f
 
 # "import" failure dialog
@@ -437,7 +427,10 @@ pkgmgr.printDialog.printReadme=\u6253\u5370\u9879\u76ee\u7684 readme
 pkgmgr.methodCall.titleCreate=BlueJ:  \u65b0\u5efa\u5bf9\u8c61
 pkgmgr.methodCall.titleCall=BlueJ:  \u65b9\u6cd5\u8c03\u7528
 pkgmgr.methodCall.namePrompt=\u5b9e\u4f8b\u540d
-error.methodCall.emptyField=\u7a7a\u53c2\u6570\u57df
+pkgmgr.methodCall.typeParametersPrompt=\u7c7b\u578b\u53c2\u6570\uff1a
+pkgmgr.methodCall.typeParameterPrompt=\u7c7b\u578b\u53c2\u6570:
+error.methodCall.emptyField=\u9519\u8bef: \u7a7a\u7684\u53c2\u6570\u5b57\u6bb5\u3002
+error.methodCall.emptyTypeField=\u9519\u8bef\uff1a\u7a7a\u7684\u7c7b\u578b\u53c2\u6570\u3002\n\u586b\u6ee1\u6240\u6709\u7684\u7c7b\u578b\u53c2\u6570\u6216\u8005\u5168\u90e8\u4e0d\u586b\u3002
 error.methodCall.illegalName=\u5b9e\u4f8b\u540d\u5fc5\u987b\u662fJava\u7684\u6807\u8bc6\u7b26.
 error.methodCall.duplicateName=\u6b64\u5bf9\u8c61\u540d\u5df2\u5b58\u5728.\n\u8bf7\u9009\u62e9\u4e00\u4e2a\u552f\u4e00\u7684\u540d\u5b57.
 
@@ -482,6 +475,7 @@ testdisplay.title=BlueJ:  \u6d4b\u8bd5\u7ed3\u679c
 testdisplay.counter.runs=\u8fd0\u884c:
 testdisplay.counter.errors=\u9519\u8bef:
 testdisplay.counter.failures=\u5931\u8d25:
+testdisplay.showsource=\u663e\u793a\u6e90\u7801
 
 # status messages
 pkgmgr.compiling=\u7f16\u8bd1...
@@ -499,7 +493,6 @@ pkgmgr.usesArrowMsg=\u58f0\u660e\u4e86 "Uses" \u4f46\u672a\u4f7f\u7528:
 pkgmgr.breakpointMsg=\u7c7b\u8bbe\u7f6e\u65ad\u70b9\u5fc5\u987b\u91cd\u65b0\u7f16\u8bd1.
 pkgmgr.appletInViewer=\u5728\u5c0f\u5e94\u7528\u7a0b\u5e8f\u9605\u89c8\u5176\u4e2d\u8fd0\u884cApplet
 pkgmgr.appletInBrowser=\u5728web\u6d4f\u89c8\u5668\u4e2d\u8fd0\u884cApplet
-pkgmgr.exported=\u5168\u90e8\u5bfc\u51fa.
 pkgmgr.exported.jar=\u5168\u90e8\u5bfc\u51fa\u5230jar\u6587\u4ef6.
 pkgmgr.error.open=\u9879\u76ee\u4e0d\u518d\u5b58\u5728
 pkgmgr.checkingVersion=\u8fde\u63a5\u5230\u7248\u672c\u670d\u52a1\u5668...
@@ -510,46 +503,49 @@ properties.heading.moe=Moe \u7f16\u8f91\u5668\u7279\u6027. \u53ef\u4ee5\u901a\u8
 # menus and menu items
 
 menu.package=\u9879\u76ee
-menu.package.new=\u65b0\u5efa\u9879\u76ee
-menu.package.open=\u6253\u5f00\u9879\u76ee...
+menu.package.new=\u65b0\u9879\u76ee...
+menu.package.open=\u6253\u5f00\u9879\u76ee...@O
 menu.package.openRecent=\u6253\u5f00\u6700\u8fd1\u7684
-menu.package.openNonBlueJ=\u6253\u5f00\u975eBlueJ\u6587\u4ef6...
-menu.package.close=\u5173\u95ed
-menu.package.save=\u4fdd\u5b58
-menu.package.saveAs=\u53e6\u5b58\u4e3a...
-menu.package.import=\u5bfc\u5165
-menu.package.export=\u5bfc\u51fa
-menu.package.pageSetup=\u9875\u9762\u8bbe\u7f6e
-menu.package.print=\u6253\u5370
-menu.package.quit=\u9000\u51fa
+menu.package.openNonBlueJ=\u6253\u5f00\u975eBlueJ\u9879\u76ee...
+menu.package.close=\u5173\u95ed@W
+menu.package.save=\u4fdd\u5b58@S
+menu.package.saveAs=\u4fdd\u5b58\u4e3a...
+menu.package.import=\u5bfc\u5165...
+menu.package.export=\u521b\u5efaJar\u6587\u4ef6...
+menu.package.pageSetup=\u9875\u9762\u8bbe\u7f6e...@^P
+menu.package.print=\u6253\u5370...@P
+menu.package.quit=\u9000\u51fa@Q
 
 menu.edit=\u7f16\u8f91
-menu.edit.newClass=\u65b0\u5efa\u7c7b
-menu.edit.newPackage=\u65b0\u5efa\u5305
-menu.edit.addClass=\u4ece\u6587\u4ef6\u6dfb\u52a0\u7c7b
-menu.edit.remove=\u5220\u9664
-menu.edit.newUses=\u65b0\u5efa\u4f7f\u7528\u7bad\u5934
-menu.edit.newInherits=\u65b0\u5efa\u7ee7\u627f\u7bad\u5934
+menu.edit.newClass=\u521b\u5efa\u65b0\u7c7b...@N
+menu.edit.newPackage=\u521b\u5efa\u65b0\u5305...@R
+menu.edit.addClass=\u4ece\u6587\u4ef6\u6dfb\u52a0\u7c7b...
+menu.edit.remove=\u5220\u9664@BACK_SPACE
+menu.edit.newUses=\u521b\u5efa\u65b0\u7684Uses\u7bad\u5934...
+menu.edit.newInherits=\u521b\u5efa\u65b0\u7684Inheritance\u7bad\u5934...
 menu.edit.removeArrow=\u5220\u9664\u7bad\u5934
 
 menu.tools=\u5de5\u5177
-menu.tools.compile=\u7f16\u8bd1
-menu.tools.test=\u8fd0\u884c\u6d4b\u8bd5
-menu.tools.compileSelected=\u9009\u62e9\u7f16\u8bd1
-menu.tools.rebuild=\u91cd\u65b0\u7f16\u8bd1\u5305
-menu.tools.callLibrary=\u4f7f\u7528\u7c7b\u5e93...
-menu.tools.callFreeForm=\u8ba1\u7b97\u8868\u8fbe\u5f0f...
-menu.tools.generateDoc=\u4ea7\u751f\u6587\u6863
-menu.tools.preferences=\u53c2\u6570
+menu.tools.compile=\u7f16\u8bd1@K
+menu.tools.compileSelected=\u7f16\u8bd1\u9009\u5b9a\u7684@^K
+menu.tools.rebuild=\u91cd\u65b0\u7f16\u8bd1\u6574\u4e2a\u5305
+menu.tools.callLibrary=\u4f7f\u7528\u5e93\u4e2d\u7684\u7c7b...@L
+menu.tools.generateDoc=\u9879\u76ee\u6587\u6863@J
+menu.tools.testing=\u6d4b\u8bd5
+menu.tools.run=\u8fd0\u884c\u6d4b\u8bd5
+menu.tools.end=\u7ed3\u675f\u8bb0\u5f55
+menu.tools.cancel=\u53d6\u6d88\u8bb0\u5f55
+menu.tools.preferences=\u9996\u9009\u9879...@,
 
-menu.view=\u89c6\u56fe
-menu.view.showUses=\u663e\u793a\u4f7f\u7528\u5173\u7cfb
-menu.view.showInherits=\u663e\u793a\u7ee7\u627f\u5173\u7cfb
-menu.view.showExecControls=\u663e\u793a\u8c03\u8bd5
-menu.view.showTerminal=\u663e\u793a\u7ec8\u7aef
+menu.view=\u67e5\u770b
+menu.view.showUses=\u663e\u793aUses@U
+menu.view.showInherits=\u663e\u793a\u7ee7\u627f\u5173\u7cfb@I
+menu.view.showExecControls=\u663e\u793a\u8c03\u8bd5\u5668@D
+menu.view.showTerminal=\u663e\u793a\u7ec8\u7aef@T
+menu.view.showTextEval=\u663e\u793a\u4ee3\u7801\u9762\u677f@E
 menu.view.showTestDisplay=\u663e\u793a\u6d4b\u8bd5\u7ed3\u679c
 
-menu.group=\u5de5\u4f5c\u7ec4
+menu.group=u5c0f\u7ec4\u4efb\u52a1
 menu.group.make=\u6784\u9020\u7ec4\u5305
 menu.group.open=\u6253\u5f00\u7ec4\u5305
 menu.group.updateSelected=\u9009\u62e9\u66f4\u65b0
@@ -562,14 +558,13 @@ menu.group.users=\u7528\u6237
 menu.group.configuration=\u914d\u7f6e
 
 menu.help=\u5e2e\u52a9
-menu.help.about=\u5173\u4e8e BlueJ
+menu.help.about=\u5173\u4e8eBlueJ
 menu.help.extensions=\u5b89\u88c5\u6269\u5c55
-menu.help.versionCheck=\u68c0\u67e5\u7248\u672c
-menu.help.extensions=\u5b89\u88c5\u6269\u5c55
+menu.help.versionCheck=\u68c0\u67e5\u7248\u672c...@V
 menu.help.copyright=\u7248\u6743
-menu.help.website=BlueJ \u7f51\u7ad9
-menu.help.tutorial=BlueJ \u4f7f\u7528\u6307\u5357
-menu.help.standardApi=Java \u7c7b\u5e93
+menu.help.website=BlueJ Web\u7ad9\u70b9
+menu.help.tutorial=BlueJ\u6559\u7a0b
+menu.help.standardApi=Java\u7c7b\u5e93
 
 # tool tips
 
@@ -584,11 +579,11 @@ tooltip.test.cancel=\u53d6\u6d88\u6216\u8005\u653e\u5f03\u4e00\u4e2a\u6d4b\u8bd5
 
 #Copyright
 
-menu.help.copyright.title=BlueJ \u7248\u6743
-menu.help.copyright.line1=BlueJ \u662f\u81ea\u7531\u8f6f\u4ef6\uff0c\u53ef\u4ee5\u81ea\u7531\u5c06\u5176\u91cd\u65b0\u53d1\u5e03\u3002
-menu.help.copyright.line2=\u5728\u672a\u7ecf\u6388\u6743\u7684\u60c5\u51b5\u4e0b\uff0c\u4e0d\u80fd\u591f\u5c06\u5176\u7528\u4f5c\u4efb\u4f55
-menu.help.copyright.line3=\u76c8\u5229\u7528\u9014\u6216\u8005\u5c06\u5176\u5305\u542b\u5230\u4efb\u4f55\u5176\u4ed6\u4ee5\u76c8\u5229\u4e3a
-menu.help.copyright.line4=\u76ee\u6807\u7684\u8f6f\u4ef6\u5305\u4e2d\u3002
+menu.help.copyright.title=BlueJ \u7684\u7248\u6743\uff0c\u4f7f\u7528\u8bb8\u53ef\u548c\u91cd\u53d1\u5e03
+menu.help.copyright.line1=BlueJ\u5141\u8bb8\u4e0d\u52a0\u4fee\u6539\u7684\u81ea\u7531\u4f7f\u7528\u548c\u975e\u5546\u4e1a\u91cd\u65b0\u53d1\u5e03\u3002
+menu.help.copyright.line2=\u53cd\u7f16\u8bd1\u8be5\u7cfb\u7edf\u662f\u88ab\u7981\u6b62\u7684\u3002
+menu.help.copyright.line3=\u672a\u7ecf\u6279\u51c6\uff0c\u8fd9\u4e2a\u8f6f\u4ef6\u4e0d\u80fd\u88ab\u7528\u6765\u9500\u552e\u4ee5\u725f\u53d6\u5229\u76ca\uff0c
+menu.help.copyright.line4=\u4e5f\u4e0d\u80fd\u5305\u542b\u5728\u4efb\u4f55\u4ee5\u725f\u5229\u4e3a\u76ee\u7684\u7684\u8f6f\u4ef6\u5305\u4e2d\u3002
 
 # About
 
@@ -599,10 +594,7 @@ about.runningOn=\u8fd0\u884c\u4e8e:
 about.javahome=Java Home:
 about.logfile=\u8c03\u8bd5\u65e5\u5fd7\u6587\u4ef6:
 about.moreInfo=\u66f4\u591a\u7684\u4fe1\u606f\u5728 www.bluej.org.
-about.theTeam.deakin=Deakin \u5927\u5b66 BlueJ \u5c0f\u7ec4
-about.theTeam.denmark=Southern Denmark \u5927\u5b66 BlueJ \u5c0f\u7ec4
-about.theTeam.kent=Kent \u5927\u5b66 BlurJ \u5c0f\u7ec4
+about.theTeam=BlueJ\u5f00\u53d1\u5c0f\u7ec4:
 
 # Work Indicator
-workIndicator.showDebugger=\u663e\u793a\u8c03\u8bd5\u5668
-workIndicator.resetMachine=\u91cd\u542f\u673a\u5668
+workIndicator.resetMachine=\u91cd\u542f\u673a\u5668@^R
