@@ -19,7 +19,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2063 2003-06-25 07:03:00Z ajp $
+ * @version $Id: Project.java 2071 2003-06-26 04:49:14Z ajp $
  */
 public class Project
     implements DebuggerListener
@@ -720,6 +720,11 @@ public class Project
 				PkgMgrFrame.displayMessage(Config.getString("pkgmgr.creatingVMDone"));
 				
 			return;			
+		}
+
+		if (de.getID() == DebuggerEvent.DEBUGGER_REMOVESTEPMARKS) {
+			// do this for all packages
+			// TODO: pkg.removeStepMarks();
 		}
 		
         DebuggerThread thr = de.getThread();

@@ -31,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2069 2003-06-25 15:00:01Z damiano $
+ * @version $Id: PkgMgrFrame.java 2071 2003-06-26 04:49:14Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1801,7 +1801,6 @@ public class PkgMgrFrame extends JFrame
 
 		 case Debugger.IDLE:
 		 	machineIcon.setIdle();
-			// TODO: pkg.removeStepMarks();
         	break;
 		 
 		 case Debugger.RUNNING:
