@@ -14,7 +14,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: ParentPackageTarget.java 513 2000-05-25 07:56:44Z ajp $
  */
 public class ParentPackageTarget extends PackageTarget implements ActionListener
 {
@@ -70,6 +70,9 @@ public class ParentPackageTarget extends PackageTarget implements ActionListener
         g.fillRect(TEXT_BORDER, TEXT_BORDER,
         	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
 
+        g.setColor(shadowCol);
+        drawShadow(g);
+
         g.setColor(getBorderColour());
         g.setFont(getFont());
         Utility.drawCentredText(g, getDisplayName(),
@@ -79,8 +82,6 @@ public class ParentPackageTarget extends PackageTarget implements ActionListener
         	   width - 2*TEXT_BORDER, TEXT_HEIGHT);
         drawBorders(g);
 
-        g.setColor(shadowCol);
-        drawShadow(g);
     }
 
     /**
