@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2926 2004-08-23 02:48:40Z davmac $
+ * @version $Id: ExecServer.java 2983 2004-09-03 05:46:00Z davmac $
  */
 public class ExecServer
 {
@@ -743,7 +743,7 @@ public class ExecServer
                 // in this case we will fall through the loop and exit)
                 //while(count++ < 100000 && ! shouldDie) {
                 // Wait for a command from the BlueJ VM
-                vmSuspend();
+                //vmSuspend();
                 
                 // Execute the command
                 methodReturn = null;
@@ -780,6 +780,7 @@ public class ExecServer
                     exception = t;
                 }
                 finally {
+                    execAction = EXIT_VM;
                     newThread();
                 }
             }

@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 2936 2004-08-24 01:25:58Z davmac $
+ * @version $Id: VMReference.java 2983 2004-09-03 05:46:00Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -417,6 +417,7 @@ class VMReference
             // the presence of this property indicates to breakEvent that we are
             // a special type of breakpoint
             bpreq.putProperty(SERVER_STARTED_METHOD_NAME, "yes");
+            bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
             bpreq.enable();
         }
 
@@ -596,7 +597,7 @@ class VMReference
 
             owner.raiseStateChangeEvent(Debugger.IDLE, Debugger.RUNNING);
 
-            Value v = invokeShell(className);
+            invokeShell(className);
 
         }
         catch (VMDisconnectedException e) {
@@ -1186,13 +1187,13 @@ class VMReference
      */
     synchronized private Value invokeShell(String cl)
     {
+        serverThreadStartWait();
+        
         // Store the class and method to call
         setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, cl);
         setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.EXEC_SHELL));
     
         // Resume the thread, wait for it to finish and the new thread to start
-        serverThreadStartWait();
-        breakpointWait(serverThread);
         debuggerState = Debugger.RUNNING;
         serverThreadStarted = false;
         serverThread.resume();
@@ -1212,15 +1213,14 @@ class VMReference
     synchronized public Value invokeTestSetup(String cl)
             throws InvocationException
     {
+        // Make sure the server thread has started
+        serverThreadStartWait();
+
         // Store the class and method to call
         setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, cl);
         setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.TEST_SETUP));
-
-        // Make sure the server thread has started
-        serverThreadStartWait();
         
         // Resume the thread, wait for it to finish and the new thread to start
-        breakpointWait(serverThread);
         debuggerState = Debugger.RUNNING;
         serverThreadStarted = false;
         serverThread.resume();
@@ -1242,14 +1242,14 @@ class VMReference
     synchronized public Value invokeRunTest(String cl, String method)
         throws InvocationException
     {
+        serverThreadStartWait();
+        
         // Store the class and method to call
         setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, cl);
         setStaticFieldObject(serverClass, ExecServer.METHOD_TO_RUN_NAME, method);
         setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.TEST_RUN));
 
         // Resume the thread, wait for it to finish and the new thread to start
-        serverThreadStartWait();
-        breakpointWait(serverThread);
         debuggerState = Debugger.RUNNING;
         serverThreadStarted = false;
         serverThread.resume();
@@ -1269,12 +1269,12 @@ class VMReference
 
     synchronized void disposeWindows()
     {
+        serverThreadStartWait();
+
         // set the action to "dispose windows"
         setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.DISPOSE_WINDOWS));
 
         // Resume the thread, it then proceeds to remove open windows
-        serverThreadStartWait();
-        breakpointWait(serverThread);
         serverThreadStarted = false;
         serverThread.resume();
     }
