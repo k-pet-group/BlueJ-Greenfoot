@@ -34,7 +34,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  * 
- * @version $Id: ClassTarget.java 2873 2004-08-16 05:50:32Z davmac $
+ * @version $Id: ClassTarget.java 2875 2004-08-16 06:31:15Z davmac $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable
@@ -620,6 +620,7 @@ public class ClassTarget extends EditableTarget
         else {
             role.generateSkeleton(template, getPackage(), getBaseName(), getSourceFile().getPath());
             setState(Target.S_INVALID);
+            hasSource = true;
         }
     }
 
