@@ -34,6 +34,7 @@ public final class Info extends JPanel
 
     private JLabel line1;
     private JLabel line2;
+    String originalMsg;
     boolean isClear;
     JButton helpButton;
     String helpGroup;
@@ -71,6 +72,7 @@ public final class Info extends JPanel
      */
     public void message(String msg)
     {
+        originalMsg = msg;
         int newline = msg.indexOf('\n');
         if (newline == -1)
             if(msg.length() <= 81)
@@ -88,7 +90,8 @@ public final class Info extends JPanel
     public void message(String msg1, String msg2)
     {
         line1.setText(msg1);
-        line2.setText(msg2);
+        line2.setText(msg2.replace('\n', ' '));
+
         isClear = false;
 
         hideHelp();
@@ -154,22 +157,21 @@ public final class Info extends JPanel
     private void displayHelp(String helpGroup)
     {
         File fileName = Config.getLanguageFile(helpGroup + ".help");
-        String displayMsg = (line1.getText() + line2.getText()).trim();
-
-        String helpText = BlueJFileReader.readHelpText(fileName, displayMsg,
+        String helpText = BlueJFileReader.readHelpText(fileName, 
+                                                       originalMsg.trim(),
                                                        false);
 
-        if(displayMsg.length() > 60) {
-            int half = displayMsg.length() / 2;
-            displayMsg = displayMsg.substring(0, half) + "\n" +
-                         displayMsg.substring(half);
-        }
+//         if(originalMsg.length() > 60) {
+//             int half = originalMsg.length() / 2;
+//             originalMsg = originalMsg.substring(0, half) + "\n" +
+//                          originalMsg.substring(half);
+//         }
 
         if(helpText == null)
             DialogManager.showMessageWithText(null, "no-help",
-                                              "\n" + displayMsg);
+                                              "\n" + originalMsg);
         else
-            DialogManager.showText(null, displayMsg + "\n\n" + helpText);
+            DialogManager.showText(null, originalMsg + "\n\n" + helpText);
     }
 
 }  // end class Info
