@@ -27,7 +27,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1728 2003-03-28 02:01:36Z ajp $
+ * @version $Id: ClassTarget.java 1737 2003-04-02 05:02:25Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -735,9 +735,9 @@ public class ClassTarget extends EditableTarget
             getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
             getEditor().changeName(newName, newSourceFile.getPath());
 
-            role.prepareFilesForRemoval(oldSourceFile.getPath(),
-                                         getClassFile().getPath(),
-                                         getContextFile().getPath());
+            role.prepareFilesForRemoval(this,
+                                         oldSourceFile.getPath(),
+                                         getClassFile().getPath(), getContextFile().getPath());
 
             // this is extremely dangerous code here.. must track all
             // variables which are set when ClassTarget is first
@@ -1182,7 +1182,8 @@ public class ClassTarget extends EditableTarget
             }
         }
 
-        getRole().prepareFilesForRemoval(getSourceFile().getPath(),
+        getRole().prepareFilesForRemoval(this,
+                                    getSourceFile().getPath(),
                                     getClassFile().getPath(),
                                     getContextFile().getPath());
     }

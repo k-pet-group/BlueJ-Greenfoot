@@ -21,7 +21,7 @@ import java.util.Properties;
  * particular class types
  *
  * @author  Bruce Quig
- * @version $Id: ClassRole.java 1538 2002-11-29 13:43:32Z ajp $
+ * @version $Id: ClassRole.java 1737 2003-04-02 05:02:25Z ajp $
  */
 public abstract class ClassRole
 {
@@ -208,7 +208,7 @@ public abstract class ClassRole
      * this ClassRole being removed from a Package.
      *
      */
-    public void prepareFilesForRemoval(String sourceFile, String classFile, String contextFile)
+    public void prepareFilesForRemoval(ClassTarget ct, String sourceFile, String classFile, String contextFile)
     {
         File sourceFileName = new File(sourceFile);
         if (sourceFileName.exists()) {

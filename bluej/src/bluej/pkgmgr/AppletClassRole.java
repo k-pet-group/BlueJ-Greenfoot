@@ -21,7 +21,7 @@ import java.util.Properties;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version $Id: AppletClassRole.java 1737 2003-04-02 05:02:25Z ajp $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -145,7 +145,7 @@ public class AppletClassRole extends ClassRole
             super(runAppletStr);
             this.ped = ped;
             this.t = t;
-    }
+        }
 
         public void actionPerformed(ActionEvent e)
         {
@@ -165,7 +165,7 @@ public class AppletClassRole extends ClassRole
      */
     public void run(PkgMgrFrame parent, ClassTarget ct, String param)
     {
-        String name = ct.getBaseName();
+        String name = ct.getQualifiedName();
         Package pkg = ct.getPackage();
 
         if(dialog == null) {
@@ -180,18 +180,17 @@ public class AppletClassRole extends ClassRole
             int execOption = dialog.getAppletExecutionOption();
             if(execOption == RunAppletDialog.GENERATE_PAGE_ONLY) {
                 // generate HTML page for Applet using selected path and file name
-                String generatedFileName = chooseWebPage(parent);
-                if(generatedFileName != null)
-                    createWebPage(name, URL_PREFIX + pkg.getPath().getPath(), generatedFileName);
+                File generatedFile = chooseWebPage(parent);
+                if(generatedFile != null)
+                    createWebPage(generatedFile, name, URL_PREFIX + pkg.getPath().getPath());
             }
             else {
-                String dir = pkg.getPath().getAbsolutePath();
-                String absoluteFileName = new File(dir, name + ClassTarget.HTML_EXTENSION).getPath();
+                File destFile = new File(pkg.getProject().getProjectDir(), name + ClassTarget.HTML_EXTENSION);
 
-                createWebPage(name, ".", absoluteFileName);
+                createWebPage(destFile, name, ".");
 
                 // Run applet as an external process
-                String url = URL_PREFIX + absoluteFileName;
+                String url = URL_PREFIX + destFile.getPath();
 
                 if(execOption == RunAppletDialog.EXEC_APPLETVIEWER) {
                     try {
@@ -209,7 +208,7 @@ public class AppletClassRole extends ClassRole
                 else {
                     // start in Browser
                     PkgMgrFrame.displayMessage(Config.getString("pkgmgr.appletInBrowser"));
-                    Utility.openWebBrowser(absoluteFileName);
+                    Utility.openWebBrowser(destFile.getPath());
                 }
             }
         }
@@ -223,7 +222,7 @@ public class AppletClassRole extends ClassRole
      * @return the full file name for the web page or null
      *         if cancel selected in file chooser
      */
-    private String chooseWebPage(JFrame frame)
+    private File chooseWebPage(JFrame frame)
     {
         String fullFileName = FileUtility.getFileName(frame,
                                 Config.getString("pkgmgr.chooseWebPage.title"),
@@ -233,10 +232,8 @@ public class AppletClassRole extends ClassRole
         if (fullFileName == null)
             DialogManager.showError(frame, "error-no-name");
 
-        return fullFileName;
+        return new File(fullFileName);
     }
-
-
 
     /**
      * Create a HTML page that contains this JApplet using
@@ -255,47 +252,42 @@ public class AppletClassRole extends ClassRole
         appletParams = dialog.getAppletParameters();
     }
 
-
-
     /**
      * Create a HTML page that contains this JApplet using
      * parameters input by user in RunAppletDialog class.
      *
      * @param fileName fileName for HTML file to house Applet
      */
-    private void createWebPage(String appletName, String codeBase, String fileName)
+    private void createWebPage(File outputFile, String appletName, String appletCodeBase)
     {
         updateAppletProperties();
-        generateHTMLSkeleton(appletName, fileName, codeBase, dialog.getAppletWidth(), dialog.getAppletHeight(), appletParams);
+        generateHTMLSkeleton(outputFile, appletName, appletCodeBase, dialog.getAppletWidth(), dialog.getAppletHeight(), appletParams);
     }
-
-
 
     /**
      * Creates a HTML Skeleton that contains this JApplet using
      * parameters input by user in RunAppletDialog class.
      *
-     * @param name the name of the applet class
-     * @param outputFileName the name of the generated HTML file
-     * @param appletCodeBase code base to be included in applet tag if not null
-     * @param width specified width of applet
-     * @param height specified height of applet
-     * @param parameters optional applet parameters
-     *
+     * @param name              the fully qualified name of the applet class
+     * @param outputFileName    the name of the generated HTML file
+     * @param appletCodeBase    code base to be included in applet tag if not null, if null
+     *                          then no code base tag is included
+     * @param width             specified width of applet
+     * @param height            specified height of applet
+     * @param parameters        optional applet parameters
      */
-    private void generateHTMLSkeleton(String name, String outputFileName, String appletCodeBase, String width, String height, String[] parameters)
+    private void generateHTMLSkeleton(File outputFile, String appletName, String appletCodeBase, String width, String height, String[] parameters)
     {
         Hashtable translations = new Hashtable();
 
-        translations.put("TITLE", name);
+        translations.put("TITLE", appletName);
         translations.put("COMMENT", htmlComment);
-        translations.put("CLASSFILE", name + ".class");
+        translations.put("CLASSFILE", appletName + ".class");
         // check for optional codebase tag
         if(appletCodeBase != null)
             translations.put("CODEBASE", appletCodeBase);
         translations.put("APPLETWIDTH", width);
         translations.put("APPLETHEIGHT", height);
-
 
         StringBuffer allParameters = new StringBuffer();
         for(int index = 0; index < parameters.length; index++)
@@ -303,30 +295,28 @@ public class AppletClassRole extends ClassRole
 
         translations.put("PARAMETERS", allParameters.toString());
 
-        String filename = Config.getTemplateFile("html").getPath();
+        File tmplFile = Config.getTemplateFile("html");
 
         try {
-            BlueJFileReader.translateFile(filename, outputFileName,
-                                          translations);
+            BlueJFileReader.translateFile(tmplFile, outputFile, translations);
         } catch(IOException e) {
             Debug.reportError("Exception during file translation from " +
-                              filename + " to " + outputFileName);
+                              tmplFile + " to " + outputFile);
             e.printStackTrace();
         }
     }
-
 
     /**
      * Removes applicable files (.class, .java and .ctxt) prior to
      * this AppletClassRole being removed from a Package.
      */
-    public void prepareFilesForRemoval(String sourceFile, String classFile,
-                                       String contextFile)
+    public void prepareFilesForRemoval(ClassTarget ct, String sourceFile,
+                                       String classFile, String contextFile)
     {
-        super.prepareFilesForRemoval(sourceFile, classFile, contextFile);
+        super.prepareFilesForRemoval(ct, sourceFile, classFile, contextFile);
 
         // remove associated HTML file if exists
-        File htmlFileName = new File(classFile + ClassTarget.HTML_EXTENSION);
+        File htmlFileName = new File(ct.getPackage().getProject().getProjectDir(), ct.getQualifiedName() + ClassTarget.HTML_EXTENSION);
         if (htmlFileName.exists())
             htmlFileName.delete();
     }
