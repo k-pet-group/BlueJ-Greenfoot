@@ -18,10 +18,10 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2453 2004-01-14 03:58:23Z ajp $
+ * @version $Id: ExecControls.java 2504 2004-04-21 01:48:45Z davmac $
  */
 public class ExecControls extends JFrame
-    implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
+    implements ListSelectionListener, TreeSelectionListener, TreeModelListener
 {
    // private static final String windowTitle =
         
@@ -113,60 +113,6 @@ public class ExecControls extends JFrame
 		setVisible(show);
 	}
 
-    // ----- ActionListener interface -----
-
-    public void actionPerformed(ActionEvent event)
-    {
-        Object obj = event.getSource();
-
-		if(obj == terminateButton) {
-			try {
-				// throws an illegal state exception
-				// if we press this whilst we are already
-				// restarting the remote VM
-				project.restartVM();
-			}
-			catch (IllegalStateException ise) { }
-
-			return;
-		}
-        //if(obj == closeButton) {
-        //    setVisible(false);
-        //}
-
-		// All the buttons after this require a selected
-		// thread. If no thread selected, exit now.
-		if (selectedThread == null)
-			return;
-
-        if (obj == stopButton) {
-			clearThreadDetails();
-			if (!selectedThread.isSuspended()) {
-				selectedThread.halt();
-			}
-        }
-        if (obj == continueButton) {
-			clearThreadDetails();
-			project.removeStepMarks();
-			if (selectedThread.isSuspended()) {
-				selectedThread.cont();
-			}
-        }
-        if (obj == stepButton) {
-			clearThreadDetails();
-			project.removeStepMarks();
-			if (selectedThread.isSuspended()) {
-            	selectedThread.step();
-			}
-        }
-		if (obj == stepIntoButton) {
-			clearThreadDetails();
-			project.removeStepMarks();
-			if (selectedThread.isSuspended()) {
-	            selectedThread.stepInto();
-			}
-		}
-    }
 
     // ----- ListSelectionListener interface -----
 
@@ -212,7 +158,7 @@ public class ExecControls extends JFrame
 			 (DefaultMutableTreeNode) threadTree.getLastSelectedPathComponent();
 				
 			if (node == null)
-				return;
+                return;
 
 			DebuggerThread dt = threadModel.getNodeAsDebuggerThread(node);        
 
@@ -468,13 +414,13 @@ public class ExecControls extends JFrame
         {
 			buttonBox.setLayout(new GridLayout(1,0));
 
-			stopButton = addButton("image.stop", haltButtonText, buttonBox);
-			stepButton = addButton("image.step", stepButtonText, buttonBox);
-			stepIntoButton = addButton("image.step_into", stepIntoButtonText, buttonBox);
-			continueButton = addButton("image.continue", continueButtonText, buttonBox);
+			stopButton = addButton(new StopAction(), buttonBox);
+			stepButton = addButton(new StepAction(), buttonBox);
+			stepIntoButton = addButton(new StepIntoAction(), buttonBox);
+			continueButton = addButton(new ContinueAction(), buttonBox);
 
 			// terminate is always on
-			terminateButton = addButton("image.terminate", terminateButtonText, buttonBox);
+			terminateButton = addButton(new TerminateAction(), buttonBox);
 			terminateButton.setEnabled(true);
         }
 
@@ -652,7 +598,6 @@ public class ExecControls extends JFrame
 		menu.add(new JSeparator());
 
 		item = menu.add(new CloseAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_MASK));
 
 		menubar.add(menu);
 		return menubar;
@@ -661,22 +606,128 @@ public class ExecControls extends JFrame
     /**
      * Create a text & image button and add it to a panel.
      * 
-     * @param imgRsrcName
-     *            The name of the image resource for the button.
+     * @param action
+     *            The assosciated Action (with text, icon, action, etc).
      * @param panel
      *            The panel to add the button to.
      */
-    private JButton addButton(String imgRsrcName, String buttonText, JPanel panel)
+    private JButton addButton(Action action, JPanel panel)
     {
-        JButton button;
-        button = new JButton(buttonText, Config.getImageAsIcon(imgRsrcName));
+        JButton button = new JButton(action);
         button.setVerticalTextPosition(AbstractButton.BOTTOM);
         button.setHorizontalTextPosition(AbstractButton.CENTER);
         button.setEnabled(false);
-
-        button.addActionListener(this);
         panel.add(button);
         return button;
+    }
+    
+    /**
+     * Action to halt the selected thread.
+     */
+    private class StopAction extends AbstractAction
+    {
+        public StopAction()
+        {
+            super(haltButtonText, Config.getImageAsIcon("image.stop"));
+        }
+        
+        public void actionPerformed(ActionEvent e)
+        {
+            if (selectedThread == null)
+                return;
+            clearThreadDetails();
+            if (!selectedThread.isSuspended()) {
+                selectedThread.halt();
+            }
+        }
+    }
+        
+    /**
+     * Action to step through the code.
+     */
+    private class StepAction extends AbstractAction
+    {
+        public StepAction()
+        {
+            super(stepButtonText, Config.getImageAsIcon("image.step"));
+        }
+        
+        public void actionPerformed(ActionEvent e)
+        {
+            if (selectedThread == null)
+                return;
+            clearThreadDetails();
+            project.removeStepMarks();
+            if (selectedThread.isSuspended()) {
+                selectedThread.step();
+            }
+        }
+    }
+    
+    /**
+     * Action to "step into" the code.
+     */
+    private class StepIntoAction extends AbstractAction
+    {
+        public StepIntoAction()
+        {
+            super(stepIntoButtonText, Config.getImageAsIcon("image.step_into"));
+        }
+        
+        public void actionPerformed(ActionEvent e)
+        {
+            if (selectedThread == null)
+                return;
+            clearThreadDetails();
+            project.removeStepMarks();
+            if (selectedThread.isSuspended()) {
+                selectedThread.stepInto();
+            }
+        }
+    }
+    
+    /**
+     * Action to continue a halted thread. 
+     */
+    private class ContinueAction extends AbstractAction
+    {
+        public ContinueAction()
+        {
+            super(continueButtonText, Config.getImageAsIcon("image.continue"));
+        }
+        
+        public void actionPerformed(ActionEvent e)
+        {
+            if (selectedThread == null)
+                return;
+            clearThreadDetails();
+            project.removeStepMarks();
+            if (selectedThread.isSuspended()) {
+                selectedThread.cont();
+            }
+        }
+    }
+    
+    /**
+     * Action to terminate the program, restart the VM.
+     */
+    private class TerminateAction extends AbstractAction
+    {
+        public TerminateAction()
+        {
+            super(terminateButtonText, Config.getImageAsIcon("image.terminate"));
+        }
+        
+        public void actionPerformed(ActionEvent e)
+        {
+            try {
+                // throws an illegal state exception
+                // if we press this whilst we are already
+                // restarting the remote VM
+                project.restartVM();
+            }
+            catch (IllegalStateException ise) { }
+        }
     }
     
     /**
@@ -687,7 +738,8 @@ public class ExecControls extends JFrame
 		public CloseAction()
 		{
 			super(Config.getString("close"));
-		}
+            putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, SHORTCUT_MASK));
+        }
 
 		public void actionPerformed(ActionEvent e) {
 			setVisible(false);
