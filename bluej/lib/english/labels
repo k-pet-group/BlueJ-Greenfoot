@@ -118,6 +118,8 @@ prefmgr.misc.testing.title=Unit test settings
 prefmgr.misc.showTesting=Show unit testing tools
 prefmgr.misc.vm.title=Virtual machine settings
 prefmgr.misc.optimiseVM=Use optimisation (faster execution, but may cause problems with debugging)
+prefmgr.misc.addLibTitle=Select directory or jar/zip file
+prefmgr.misc.libFileFilter=Library files (*.jar;*.zip) or class directories
 
 # Editor Preferences panel
 prefmgr.edit.prefpaneltitle=Editor
@@ -288,6 +290,8 @@ utility.packageChooser.previewPane1=Preview of possible
 utility.packageChooser.previewPane2=package structure
 
 # dialog titles and texts
+pkgmgr.title=BlueJ:  
+
 pkgmgr.newPkg.title=New Project
 pkgmgr.newPkg.buttonLabel=Create
 pkgmgr.openPkg.title=Open Project
@@ -500,6 +504,7 @@ pkgmgr.appletInBrowser=Executing Applet in web browser
 pkgmgr.exported=Export complete.
 pkgmgr.exported.jar=Export to jar file complete.
 pkgmgr.error.open=The project does not exist (anymore)
+pkgmgr.checkingVersion=Making connection to version server...
 
 properties.heading.bluej=BlueJ properties. Settings in this file override \"bluej.defs\"
 properties.heading.moe=Moe Editor properties. Settings in this file override \"moe.defs\"
@@ -578,3 +583,24 @@ tooltip.test=Run all compiled test classes in this package
 tooltip.progress=Work indicator: indicates when virtual machine is executing
 tooltip.test.end=End a recording of a test method and save it.
 tooltip.test.cancel=Cancel and discard a recording of a test method.
+
+#Copyright
+
+menu.help.copyright.title=BlueJ Copyright
+menu.help.copyright.line1=BlueJ is available free of charge and may be
+menu.help.copyright.line2=redistributed freely. It may not be sold for
+menu.help.copyright.line3=profit or included in other packages which
+menu.help.copyright.line4=are sold for profit without written authorisation.
+
+# About
+
+about.bluej.version=BlueJ version
+about.java.version=Java version
+about.vm=Virtual machine:
+about.runningOn=Running on:
+about.javahome=Java Home:
+about.logfile=Debug log file:
+about.moreInfo=More information is at www.bluej.org.
+about.theTeam.deakin=The BlueJ team at Deakin University
+about.theTeam.denmark=The BlueJ team at the University of Southern Denmark
+about.theTeam.kent=The BlueJ team at Kent University

@@ -21,7 +21,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 2210 2003-10-11 14:50:39Z mik $
+ * @version $Id: ClassMgrPrefPanel.java 2282 2003-11-05 19:46:22Z polle $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -213,7 +213,7 @@ public class ClassMgrPrefPanel extends JPanel
             chooser.setFileFilter(new LibraryFileFilter());
             // files for archive libraries, directories for library trees
             chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-            chooser.setDialogTitle("Select directory or jar/zip file");
+            chooser.setDialogTitle(Config.getString("prefmgr.misc.addLibTitle"));
             int returnVal = chooser.showOpenDialog(getParent());
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 String librarylocation = chooser.getSelectedFile().getAbsolutePath();
@@ -295,7 +295,7 @@ class LibraryFileFilter extends FileFilter
 	 * @return	a description of the files accepted by this filter.
 	 */
 	public String getDescription() {
-		return "Library files (*.jar;*.zip) or class directories";
+		return Config.getString("prefmgr.misc.libFileFilter");
 	}
 }
 

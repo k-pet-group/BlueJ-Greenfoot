@@ -30,7 +30,7 @@ import javax.swing.border.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2267 2003-11-05 11:25:24Z damiano $
+ * @version $Id: PkgMgrFrame.java 2282 2003-11-05 19:46:22Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -620,7 +620,7 @@ public class PkgMgrFrame extends JFrame
             setTitle("BlueJ");
             return "BlueJ";
         } else {
-            String title = "BlueJ:  " + getProject().getProjectName();
+            String title = Config.getString("pkgmgr.title") + getProject().getProjectName();
 
             if (!getPackage().isUnnamedPackage())
                 title = title + "  [" + getPackage().getQualifiedName() + "]";
@@ -1238,12 +1238,13 @@ public class PkgMgrFrame extends JFrame
               new String[] {
                   "BlueJ \u00a9 2000-2003 Michael K\u00F6lling, John Rosenberg.",
                   " ",
-                  "BlueJ is available free of charge and may be",
-                  "redistributed freely. It may not be sold for",
-                  "profit or included in other packages which",
-                  "are sold for profit without written authorisation."
+                  Config.getString("menu.help.copyright.line1"),
+                  Config.getString("menu.help.copyright.line2"),
+                  Config.getString("menu.help.copyright.line3"),
+                  Config.getString("menu.help.copyright.line4"),
               },
-              "BlueJ Copyright", JOptionPane.INFORMATION_MESSAGE);
+              Config.getString("menu.help.copyright.title"),
+              JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**

@@ -13,13 +13,13 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 2281 2003-11-05 17:43:53Z mik $
+ * @version $Id: AboutBlue.java 2282 2003-11-05 19:46:22Z polle $
  */
 class AboutBlue extends JDialog
 {
     public AboutBlue(JFrame parent, String version)
     {
-        super(parent, "About BlueJ", true);
+        super(parent, Config.getString("menu.help.about"), true);
 
         // Create About box text
         JPanel aboutPanel = new JPanel();
@@ -30,21 +30,21 @@ class AboutBlue extends JDialog
         // Create Text Panel
         MultiLineLabel toptext = new MultiLineLabel(LEFT_ALIGNMENT);
         toptext.setBackground(Color.white);
-        toptext.addText("BlueJ version " + version +
-                     "  (Java version " + System.getProperty("java.version") +
+        toptext.addText(Config.getString("about.bluej.version") + " "+ version +
+                     "  (" + Config.getString("about.java.version") + " " + System.getProperty("java.version") +
                      ")", true, false);
         toptext.addText(" ");
-        toptext.addText("Virtual machine: " +
+        toptext.addText(Config.getString("about.vm") + " " +
                      System.getProperty("java.vm.name") + " " +
                      System.getProperty("java.vm.version") +
                      " (" + System.getProperty("java.vm.vendor") + ")");
-        toptext.addText("Running on: " + System.getProperty("os.name") +
+        toptext.addText(Config.getString("about.runningOn") + " " + System.getProperty("os.name") +
                      " " + System.getProperty("os.version") +
                      " (" + System.getProperty("os.arch") + ")");
-        toptext.addText("Java Home: " + System.getProperty("java.home"));
+        toptext.addText(Config.getString("about.javahome") + " " + System.getProperty("java.home"));
 
         toptext.addText(" ");
-        toptext.addText("Debug log file: " + Config.getUserConfigFile(Config.debugLogName));
+        toptext.addText(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.debugLogName));
         
         aboutPanel.add(toptext, BorderLayout.NORTH);
 
@@ -52,16 +52,15 @@ class AboutBlue extends JDialog
         MultiLineLabel text = new MultiLineLabel(LEFT_ALIGNMENT);
         text.setBackground(Color.white);
         text.addText(" ");
-        text.addText("The BlueJ team at Deakin University", false, true);
+        text.addText(Config.getString("about.theTeam.deakin"), false, true);
         text.addText("      Andrew Patterson, Bruce Quig,\n" +
                      "      John Rosenberg\n");
         text.addText(" ");
-        text.addText("The BlueJ team at the University", false, true);
-        text.addText("of Southern Denmark", false, true);
+        text.addText(Config.getString("about.theTeam.denmark"), false, true);
         text.addText("      Kasper Fisker, Poul Henriksen,\n" +
                      "      Michael K\u00F6lling\n");
         text.addText(" ");
-        text.addText("The BlueJ team at Kent University", false, true);
+        text.addText(Config.getString("about.theTeam.kent"), false, true);
         text.addText("      Damiano Bolla, Ian Utting");
 
         aboutPanel.add(text, BorderLayout.CENTER);
@@ -70,7 +69,7 @@ class AboutBlue extends JDialog
         MultiLineLabel bottomtext = new MultiLineLabel(LEFT_ALIGNMENT);
         bottomtext.setBackground(Color.white);
         bottomtext.addText(" ");
-        bottomtext.addText("More information is at www.bluej.org.");
+        bottomtext.addText(Config.getString("about.moreInfo"));
 
         aboutPanel.add(bottomtext, BorderLayout.SOUTH);
 

@@ -14,7 +14,7 @@ import bluej.utility.*;
  * Dialog implementing version check functionality.
  *
  * @author  Michael Kolling
- * @version $Id: VersionCheckDialog.java 2033 2003-06-12 06:51:21Z ajp $
+ * @version $Id: VersionCheckDialog.java 2282 2003-11-05 19:46:22Z polle $
  */
 
 final class VersionCheckDialog extends JDialog
@@ -159,7 +159,7 @@ final class VersionCheckDialog extends JDialog
          */
         public void run()
         {
-            textArea.setText("Making connection to version server...");
+            textArea.setText(Config.getString("pkgmgr.checkingVersion"));
             try {
                 InputStream is = new URL(versionURL).openStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
