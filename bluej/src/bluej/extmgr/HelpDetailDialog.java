@@ -55,7 +55,7 @@ class HelpDetailDialog extends JDialog implements ActionListener
 
   
     private JLabel statusField, nameField, locationField, typeField, versionField, 
-                   dateField, urlField, menusField, preferencesField;
+                   dateField, urlField, menusField; //, preferencesField;
     private JTextArea descriptionField;
     private URL url;
     private JButton closeButton;
@@ -87,7 +87,7 @@ class HelpDetailDialog extends JDialog implements ActionListener
         panel.add (new JLabel (dateTag+":  "), tag);
         panel.add (new JLabel (urlTag+":  "), tag);
         panel.add (new JLabel (menusTag+":  "), tag);
-        panel.add (new JLabel (preferencesTag+":  "), tag);
+//        panel.add (new JLabel (preferencesTag+":  "), tag);
         panel.add (new JLabel (descriptionTag+":  "), tag);
 
         statusField = new JLabel();     
@@ -107,14 +107,14 @@ class HelpDetailDialog extends JDialog implements ActionListener
         });
 
         menusField = new JLabel();
-        preferencesField = new JLabel();
+//        preferencesField = new JLabel();
 
         descriptionField = new JTextArea (4,40);
         descriptionField.setLineWrap (true);
         descriptionField.setWrapStyleWord (true);
         descriptionField.setEnabled (false);
         descriptionField.setDisabledTextColor (Color.black);
-        descriptionField.setBackground(preferencesField.getBackground());
+        descriptionField.setBackground(dateField.getBackground());
         // I need to put into a scrollbar in case the text is too much    
         JScrollPane descriptionScroller = new JScrollPane (descriptionField);
         descriptionScroller.setBorder (null);
@@ -127,7 +127,7 @@ class HelpDetailDialog extends JDialog implements ActionListener
         panel.add (dateField, value);
         panel.add (urlField, value);
         panel.add (menusField, value);
-        panel.add (preferencesField, value);
+//        panel.add (preferencesField, value);
         panel.add (descriptionScroller, value);
 
         // I need to put this beast into a scroll pane
@@ -236,7 +236,7 @@ class HelpDetailDialog extends JDialog implements ActionListener
         descriptionField.setCaretPosition (0);
             
         menusField.setText (commaList (wrapper.getMenuNames()));
-        preferencesField.setText (commaList (ExtPrefPanel.INSTANCE.getPreferenceNames (wrapper)));
+//        preferencesField.setText (commaList (ExtPrefPanel.INSTANCE.getPreferenceNames (wrapper)));
             
         validate();
         pack();
