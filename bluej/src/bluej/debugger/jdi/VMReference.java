@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2150 2003-08-05 14:40:32Z mik $
+ * @version $Id: VMReference.java 2175 2003-08-26 11:29:18Z mik $
  *
  * The startup process is as follows:
  *
@@ -135,27 +135,23 @@ class VMReference
             
         	// the parameters to launch the VM
             String optimise = Config.getPropString("bluej.vm.optimize", "false");
-            Process vmProcess;
             
-            if(optimise.equals("true")) {
-                String launchParams[] = { Config.getJDKExecutablePath("this.key.must.not.exist", "java"),
-            							"-classpath",
-										allClassPath,
-            							"-Xdebug",
-            							"-Xrunjdwp:transport=dt_socket,server=y",
-            							SERVER_CLASSNAME };
-                vmProcess = Runtime.getRuntime().exec(launchParams, null, initDir);
+            ArrayList paramList = new ArrayList(10);
+            paramList.add(Config.getJDKExecutablePath("this.key.must.not.exist", "java"));
+            paramList.add("-classpath");
+            paramList.add(allClassPath);
+            paramList.add("-Xdebug");
+            if(!optimise.equals("true"))
+                paramList.add("-Xint");
+            if(Config.isMacOS()) {
+                paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/vm.icns");
+                paramList.add("-Xdock:name=BlueJ Virtual Machine");
             }
-            else {
-                String launchParams[] = { Config.getJDKExecutablePath("this.key.must.not.exist", "java"),
-            							"-classpath",
-										allClassPath,
-            							"-Xdebug",
-            							"-Xint",
-            							"-Xrunjdwp:transport=dt_socket,server=y",
-            							SERVER_CLASSNAME };
-                vmProcess = Runtime.getRuntime().exec(launchParams, null, initDir);
-            }
+            paramList.add("-Xrunjdwp:transport=dt_socket,server=y");
+            paramList.add(SERVER_CLASSNAME);
+            
+            String[] launchParams = (String[])paramList.toArray(new String[0]);
+            Process vmProcess = Runtime.getRuntime().exec(launchParams, null, initDir);
 
 			String listenMessage = new BufferedReader(new InputStreamReader(vmProcess.getInputStream())).readLine();
 		
