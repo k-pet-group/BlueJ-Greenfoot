@@ -13,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 1103 2002-01-16 10:04:07Z mik $
+ * @version $Id: AboutBlue.java 1259 2002-06-26 07:01:54Z ajp $
  */
 class AboutBlue extends JDialog
 {
@@ -41,6 +41,7 @@ class AboutBlue extends JDialog
         toptext.addText("Running on: " + System.getProperty("os.name") +
                      " " + System.getProperty("os.version") +
                      " (" + System.getProperty("os.arch") + ")");
+        toptext.addText("Java Home: " + System.getProperty("java.home"));
 
         aboutPanel.add(toptext, BorderLayout.NORTH);
 
