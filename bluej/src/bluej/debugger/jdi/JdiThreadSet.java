@@ -11,8 +11,8 @@ import bluej.utility.Debug;
  * A wrapper around a TreeSet that helps us
  * store JdiThreads.
  * 
- * @author  Michael Kšlling
- * @version $Id: JdiThreadSet.java 2081 2003-06-26 15:26:56Z mik $
+ * @author  Michael Kolling
+ * @version $Id: JdiThreadSet.java 2118 2003-07-18 04:39:33Z ajp $
  */
 public class JdiThreadSet extends HashSet
 {
