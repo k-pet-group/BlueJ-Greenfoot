@@ -119,7 +119,6 @@ public final class MoeActions
     //  	else
     //  	    return null;
     //      }
-
     // ============================ USER ACTIONS =============================
 
     abstract class MoeAbstractAction extends TextAction {
@@ -314,17 +313,17 @@ public final class MoeActions
             JTextComponent textPane = getTextComponent(e);
             int pos = textPane.getCaretPosition();
             textPane.replaceSelection(
-                                      "    /**\n" +
-                                      "     * An example of a method - replace this comment with your own\n" +
-                                      "     * \n" +
-                                      "     * @param  y   a sample parameter for a method \n" +
-                                      "     * @return     the sum of x and y \n" +
-                                      "     **/\n" +
-                                      "    public int sampleMethod(int y)\n" +
-                                      "    {\n" +
-                                      "        // put your code here\n" +
-                                      "        return x + y;\n" +
-                                      "    }");
+               "    /**\n" +
+               "     * An example of a method - replace this comment with your own\n" +
+               "     * \n" +
+               "     * @param  y   a sample parameter for a method \n" +
+               "     * @return     the sum of x and y \n" +
+               "     **/\n" +
+               "    public int sampleMethod(int y)\n" +
+               "    {\n" +
+               "        // put your code here\n" +
+               "        return y;\n" +
+               "    }");
             textPane.setCaretPosition(pos);
         }
     }

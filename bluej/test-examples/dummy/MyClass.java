@@ -1,11 +1,17 @@
+
 import java.util.Random;
 
 /**
  * This class is clased MyClass.
  */
+  "this is a string"
+this is null 
+public int methifd
+ 
 
 public class MyClass
 {
+start:
     // instance variables - replace the example below with your own - replace the example below with your own - repla
     private int x = 22222;
     private String name;
@@ -21,7 +27,12 @@ public class MyClass
     {
         	// initialise instance variables
         x = 4;
-        	name = "Michael";
+        	name = "K'mxnsja ";
+ 'cdsc' njcds "jcks"  
+
+  String s = "ncds";
+  
+
         tst  = new Tester();
     }
 

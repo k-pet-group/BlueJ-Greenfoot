@@ -28,7 +28,7 @@ import java.awt.Color;
  * the default color table.
  *
  * @author Slava Pestov
- * @version $Id: SyntaxUtilities.java 342 2000-01-12 03:18:00Z bruce $
+ * @version $Id: SyntaxUtilities.java 362 2000-01-14 03:33:06Z mik $
  */
 public class SyntaxUtilities
 {
@@ -190,16 +190,16 @@ public class SyntaxUtilities
 	{
 		Color[] colors = new Color[Token.ID_COUNT];
 
-		colors[Token.COMMENT1] = new Color(0x009900);
-		colors[Token.COMMENT2] = new Color(0x009900);
-		colors[Token.KEYWORD1] = new Color(0x0000ff);
-		colors[Token.KEYWORD2] = new Color(0xff9900);
-		colors[Token.KEYWORD3] = new Color(0xff0000);
-		colors[Token.LITERAL1] = new Color(0x9999ff);
-		colors[Token.LITERAL2] = new Color(0x650099);
-		colors[Token.LABEL] = new Color(0xcc00cc);
-		colors[Token.OPERATOR] = new Color(0xffc800);
-		colors[Token.INVALID] = new Color(0xff9900);
+		colors[Token.COMMENT1] = new Color(0xcc6600) ;
+		colors[Token.COMMENT2] = new Color(0xcc6600);
+		colors[Token.KEYWORD1] = new Color(0xcc0033);
+		colors[Token.KEYWORD2] = new Color(0xcc9933);
+		colors[Token.KEYWORD3] = new Color(0x336699);
+		colors[Token.LITERAL1] = new Color(0x669933);
+		colors[Token.LITERAL2] = new Color(0xcc3399);
+		colors[Token.LABEL] = new Color(0x990000);
+		colors[Token.OPERATOR] = new Color(0xcc9900);
+		colors[Token.INVALID] = new Color(0xff3300);
 
 		return colors;
 	}
@@ -252,6 +252,9 @@ public class SyntaxUtilities
 /*
  * ChangeLog:
  * $Log$
+ * Revision 1.2  2000/01/14 03:33:05  mik
+ * changed syntax colours
+ *
  * Revision 1.1  2000/01/12 03:18:00  bruce
  *
  * Addition of Syntax Colour Highlighting Package to CVS tree.  This is LGPL code used in the Moe Editor to provide syntax highlighting.
