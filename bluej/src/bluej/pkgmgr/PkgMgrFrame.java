@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 637 2000-07-07 05:29:36Z axel $
+ * @version $Id: PkgMgrFrame.java 639 2000-07-10 12:38:29Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -141,7 +141,7 @@ public class PkgMgrFrame extends JFrame
 
         if (pmf == null) {
             // check whether we've got an empty frame
-            
+
             if(frames.size() == 1)
                 pmf = (PkgMgrFrame)frames.get(0);
 
@@ -174,6 +174,21 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
+     * Find a frame which is editing a particular Package and return
+     * it or return null if it is not being edited
+     */
+    public static PkgMgrFrame findFrame(Package pkg)
+    {
+        for(Iterator i = frames.iterator(); i.hasNext(); ) {
+            PkgMgrFrame pmf = (PkgMgrFrame)i.next();
+
+            if (!pmf.isEmptyFrame() && pmf.getPackage() == pkg)
+                return pmf;
+        }
+        return null;
+    }
+
+    /**
      * @return the number of currently open top level frames
      */
     public static int frameCount()
@@ -196,48 +211,61 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
+     * Find all PkgMgrFrames which are currently editing a particular
+     * project
+     *
+     * @param   proj        the project whose packages to look for
+     *
      * @return  an array of open PkgMgrFrame objects which are currently
      *          editing a package from this project, or null if none exist
      */
     public static PkgMgrFrame[] getAllProjectFrames(Project proj)
     {
-        int count=0, j=0;
-
-        for(Iterator i = frames.iterator(); i.hasNext(); ) {
-            PkgMgrFrame pmf = (PkgMgrFrame)i.next();
-
-            if (!pmf.isEmptyFrame() && pmf.getProject() == proj)
-                count++;
-        }
-
-        if (count == 0)
-        return null;
-
-        PkgMgrFrame[] projectFrames = new PkgMgrFrame[count];
-
-        for(Iterator i = frames.iterator(); i.hasNext(); ) {
-            PkgMgrFrame pmf = (PkgMgrFrame)i.next();
-
-            if (!pmf.isEmptyFrame() && pmf.getProject() == proj)
-                projectFrames[j++] = pmf;
-        }
-
-        return projectFrames;
+        return getAllProjectFrames(proj, "");
     }
 
     /**
-     * Find a frame which is editing a particular Package and return
-     * it or return null if it is not being edited
+     * Find all PkgMgrFrames which are currently editing a particular
+     * project, and which are below a certain point in the package
+     * heirarchy.
+     *
+     * @param   proj        the project whose packages to look for
+     * @param   pkgPrefix   the package name of a package to look for
+     *                      it and all its children ie if passed
+     *                      java.lang we would return frames for java.lang,
+     *                      and java.lang.reflect if they exist
+     *
+     * @return  an array of open PkgMgrFrame objects which are currently
+     *          editing a package from this project and which have the
+     *          package prefix specified, or null if none exist
      */
-    public static PkgMgrFrame findFrame(Package pkg)
+    public static PkgMgrFrame[] getAllProjectFrames(Project proj, String pkgPrefix)
     {
+        List list = new ArrayList();
+        String pkgPrefixWithDot = pkgPrefix + ".";
+
         for(Iterator i = frames.iterator(); i.hasNext(); ) {
             PkgMgrFrame pmf = (PkgMgrFrame)i.next();
 
-            if (!pmf.isEmptyFrame() && pmf.getPackage() == pkg)
-                return pmf;
+            if (!pmf.isEmptyFrame() && pmf.getProject() == proj) {
+
+                String fullName = pmf.getPackage().getQualifiedName();
+
+                // we either match against the package prefix which a
+                // dot added (this stops false matches against similarly
+                // named package ie java.lang and java.language) or we
+                // match the full name against the package prefix
+                if (fullName.startsWith(pkgPrefixWithDot))
+                    list.add(pmf);
+                else if (fullName.equals(pkgPrefix))
+                    list.add(pmf);
+            }
         }
-        return null;
+
+        if (list.size() == 0)
+            return null;
+
+        return (PkgMgrFrame[])list.toArray(new PkgMgrFrame[list.size()]);
     }
 
     /**
@@ -1346,6 +1374,14 @@ public class PkgMgrFrame extends JFrame
      */
     public void removePackage(PackageTarget removableTarget)
     {
+        String name = removableTarget.getQualifiedName();
+        PkgMgrFrame[] f = getAllProjectFrames(getProject(), name);
+
+        if (f != null) {
+            DialogManager.showError(this, "remove-package-open");
+            return;
+        }
+
         // Check they realise that this will delete ALL the files.
         int response = DialogManager.askQuestion(this, "really-remove-package");
 
