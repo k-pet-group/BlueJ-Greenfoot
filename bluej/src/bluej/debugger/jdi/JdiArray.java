@@ -12,7 +12,7 @@ import com.sun.jdi.*;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version    $Id: JdiArray.java 2379 2003-11-24 02:26:07Z ajp $
  */
 public class JdiArray extends JdiObject
 {
@@ -152,8 +152,6 @@ public class JdiArray extends JdiObject
             values = new ArrayList();
         }
         List fields = new ArrayList(values.size());
-
-        String typeName = null;
 
         for (int i = 0; i < values.size(); i++) {
             Value val = (Value) values.get(i);
