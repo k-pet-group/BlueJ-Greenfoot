@@ -2,6 +2,7 @@ package bluej.pkgmgr;
 
 import java.util.jar.*;
 import java.util.zip.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Iterator;
 import java.io.*;
@@ -13,11 +14,10 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 
 /**
- * Component to manage exporting projects to standard Java format.
- * The format can be either a directory tree or a jar file.
+ * Component to manage storing projects to jar file format.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 2900 2004-08-18 11:52:28Z mik $
+ * @version $Id: ExportManager.java 2902 2004-08-18 13:37:04Z mik $
  */
 final class ExportManager
 {
@@ -36,9 +36,8 @@ final class ExportManager
     }
 
     /**
-     * Envoke the "export" user function. This starts by displaying the
-     * export dialog, then it calls the appropriate export implementation
-     * function (jar or directory).
+     * Envoke the "create jar" user function. This starts by displaying the
+     * export dialog, then it reads the options and performs the export to jar.
      */
     public void export()
     {
@@ -48,17 +47,14 @@ final class ExportManager
         if(!okay)
             return;
 
-        String jarName = FileUtility.getFileName(frame, specifyJar, createJarText, 
+        String fileName = FileUtility.getFileName(frame, specifyJar, createJarText, 
                                                  false, null, false);
-        if(jarName == null)
+        if(fileName == null)
             return;
-
-        if(!jarName.endsWith(".jar"))
-            jarName = jarName + ".jar";
 
         String sourceDir = frame.getProject().getProjectDir().getPath();
 
-        createJar(jarName, sourceDir, dialog.getMainClass(), dialog.getSelectedLibs(),
+        createJar(fileName, sourceDir, dialog.getMainClass(), dialog.getSelectedLibs(),
                   dialog.includeSource());
     }
 
@@ -68,30 +64,54 @@ final class ExportManager
     private void createJar(String fileName, String sourceDir, String mainClass,
                            List userLibs, boolean includeSource)
     {
-        File jarFile = new File(fileName);
+        // Construct classpath with used library jars
         
-        if(jarFile.exists()) {
-            if (DialogManager.askQuestion(frame, "error-jar-exists") != 0)
-                return;
-        }
-
-        OutputStream oStream = null;
-        JarOutputStream jStream = null;
+        String classpath = "";
 
         // add jar files from +libs to classpath
-        File[] libs = frame.getProject().getLocalClassLoader().getProjectLibs();
-        String classpath = "";
-        for(int i=0; i < libs.length; i++) {
-            classpath += " " + libs[i].getName();
+        File[] projectLibs = frame.getProject().getLocalClassLoader().getProjectLibs();
+        for(int i=0; i < projectLibs.length; i++) {
+            classpath += " " + projectLibs[i].getName();
         }
         
         // add jar files from userlibs to classpath
         for(Iterator it = userLibs.iterator(); it.hasNext(); ) {
             classpath += " " + ((File)it.next()).getName();
         }
-
-        System.out.println("classpath: " + classpath);
         
+        File jarFile = null;
+        File parent = null;
+        
+        if(classpath.length() == 0) {
+            // if we don't have library jars, just create a single jar file
+            if(!fileName.endsWith(".jar"))
+                fileName = fileName + ".jar";
+
+            jarFile = new File(fileName);
+            
+            if(jarFile.exists()) {
+                if (DialogManager.askQuestion(frame, "error-jar-exists") != 0)
+                    return;
+            }
+        }
+        else {
+            // if we have library jars, create a directory with the new jar file
+            // and all library jar files in it
+            if(fileName.endsWith(".jar"))
+                fileName = fileName.substring(0, fileName.length() - 4);
+            parent = new File(fileName);
+
+            if(parent.exists()) {
+                if (DialogManager.askQuestion(frame, "error-jar-exists") != 0)
+                    return;
+            }
+            parent.mkdir();
+            jarFile = new File(parent, parent.getName() + ".jar");
+        }
+        
+        OutputStream oStream = null;
+        JarOutputStream jStream = null;
+
         try {
             // create manifest
             Manifest manifest = new Manifest();
@@ -106,7 +126,10 @@ final class ExportManager
 
             writeDirToJar(new File(sourceDir), "", jStream, includeSource,
                             jarFile.getCanonicalFile());
-            copyUserLibsToJar(userLibs, jStream);
+            if(parent != null) {
+                copyLibsToJar(Arrays.asList(projectLibs), parent);
+                copyLibsToJar(userLibs, parent);
+            }
             
             frame.setStatus(Config.getString("pkgmgr.exported.jar"));
         }
@@ -135,12 +158,8 @@ final class ExportManager
         for(int i = 0; i < dir.length; i++) {
             if(dir[i].isDirectory()) {
                 if(!skipDir(dir[i])) {
-                    if(isLibDirectory(dir[i])) // move jars from lib directory to top level dir
-                        writeDirToJar(dir[i], pathPrefix,
-                                jStream, includeSource, outputFile);
-                    else
-                        writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/",
-                                jStream, includeSource, outputFile);
+                    writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/",
+                                  jStream, includeSource, outputFile);
                 }
             }
             else {
@@ -156,27 +175,18 @@ final class ExportManager
     }
 
     /**
-     * Write the contents of a directory to a jar stream. Recursively called
-     * for subdirectories.
-     * outputFile should be the canonical file representation of the Jar file
-     * we are creating (to prevent including itself in the Jar file)
+     * Copy all files specified in the given list to the new jar directory.
      */
-    private void copyUserLibsToJar(List userLibs, JarOutputStream jStream)
+    private void copyLibsToJar(List userLibs, File destDir)
     {
-        // add jar files from userlibs to classpath
         for(Iterator it = userLibs.iterator(); it.hasNext(); ) {
             File lib = (File)it.next();
-            try {
-                writeJarEntry(lib, jStream, lib.getName());
-            }
-            catch(IOException exc) {
-                Debug.reportError("could not write user lib " + lib.getName() + " into jar file");
-            }
+            FileUtility.copyFile(lib, new File(destDir, lib.getName()));
         }
     }
 
     /** array of directory names not to be included in jar file **/
-    private static final String[] skipDirs = { "CVS" };
+    private static final String[] skipDirs = { "CVS" , ProjectClassLoader.projectLibDirName };
 
     /**
      * Test whether a given directory should be skipped (not included) in
@@ -205,14 +215,6 @@ final class ExportManager
             return true;
 
         return false;
-    }
-
-    /**
-     * Test whether a given directory is the project +libs directory
-     */
-    private boolean isLibDirectory(File dir)
-    {
-        return ProjectClassLoader.projectLibDirName.equals(dir.getName());
     }
 
     /**

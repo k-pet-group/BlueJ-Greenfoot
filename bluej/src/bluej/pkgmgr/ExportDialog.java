@@ -18,10 +18,11 @@ import java.awt.event.*;
 import javax.swing.*;
 
 /**
- * Dialog for choosing options when exporting
+ * Dialog for exporting the project to a jar file. Here, the jar
+ * creation options can be specified.
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 2900 2004-08-18 11:52:28Z mik $
+ * @version $Id: ExportDialog.java 2902 2004-08-18 13:37:04Z mik $
  */
 class ExportDialog extends JDialog
 {
@@ -74,10 +75,12 @@ class ExportDialog extends JDialog
     public List getSelectedLibs()
     {
         List selected = new ArrayList();
-        
-        for(int i = 0; i < userLibs.length; i++) {
-            if(userLibs[i].isSelected())
-                selected.add(userLibs[i].getFile());
+
+        if(userLibs != null) {
+            for(int i = 0; i < userLibs.length; i++) {
+                if(userLibs[i].isSelected())
+                    selected.add(userLibs[i].getFile());
+            }
         }
         
         return selected;

@@ -98,8 +98,8 @@ The jar file could not be written correctly.
 disk space availability.)
 
 error-jar-exists
-The jar file you have selected already exists.
-Do you want to continue?
+The file you have selected already exists.
+Do you want to overwrite it?
 Overwrite
 Cancel
 null
