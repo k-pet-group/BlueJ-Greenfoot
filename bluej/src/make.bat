@@ -7,6 +7,6 @@ set JDK=F:\programming\jdk1.3
 set BLUEJ=F:\H\bluej
 
 set JIKES_PATH=%BLUEJ%\src;%BLUEJ%\lib\antlr.jar;%JDK%\jre\lib\rt.jar;%JDK%\jre\lib\i18n.jar;%JDK%\lib\tools.jar
-set JIKES_OPTS=-nowarn -depend +P +F -deprecation +E -g 
+set JIKES_OPTS=-nowarn -depend +P +F -deprecation +E -g -Xstdout
 
-jikes -classpath %JIKES_PATH% -d %BLUEJ%\classes %JIKES_OPTS% bluej\Main.java bluej\runtime\Shell.java
+jikes -classpath %JIKES_PATH% -d %BLUEJ%\classes %JIKES_OPTS% bluej\Main.java bluej\runtime\Shell.java | sed "s/\//\\/g"
