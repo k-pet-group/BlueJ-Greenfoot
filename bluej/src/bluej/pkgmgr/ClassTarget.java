@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 925 2001-06-06 04:45:32Z bquig $
+ * @version $Id: ClassTarget.java 960 2001-06-26 05:12:27Z bquig $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -147,6 +147,13 @@ public class ClassTarget extends EditableTarget
         throws NumberFormatException
     {
         super.load(props, prefix);
+        
+        // check type in case it is an Applet.  Mainly useful in case
+        // it inherits from Applet further up the inheritance tree
+        String type = props.getProperty(prefix + ".type");
+        if("AppletTarget".equals(type) && (!(role instanceof AppletClassRole)))
+            role = new AppletClassRole();
+        
         role.load(props, prefix);
         String modifierStr = props.getProperty(prefix + ".modifiers", "0");
         modifiers = Integer.parseInt(modifierStr, 16);
