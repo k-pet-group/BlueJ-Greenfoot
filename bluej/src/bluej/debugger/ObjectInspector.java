@@ -18,7 +18,7 @@ import bluej.pkgmgr.Project;
  * A window that displays the fields in an object or a method return value.
  *
  * @author     Michael Kolling
- * @version    $Id: ObjectInspector.java 1533 2002-11-29 13:22:07Z mik $
+ * @version    $Id: ObjectInspector.java 1560 2002-12-06 03:47:59Z ajp $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -77,16 +77,12 @@ public class ObjectInspector extends Inspector
         ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
 
         if (inspector == null) {
-            String id;
             if (name == null) {
-                id = "#viewer" + count;  // # marks viewer for internal object
                 name = "";
-                count++;  //  which is not on bench
             } else {
-                id = name;
                 name = "(" + name + ")";
             }
-            inspector = new ObjectInspector(isResult, obj, pkg, id, name, getEnabled, parent);
+            inspector = new ObjectInspector(isResult, obj, pkg, name, getEnabled, parent);
             inspectors.put(obj, inspector);
         }
         inspector.update();
@@ -110,10 +106,10 @@ public class ObjectInspector extends Inspector
      *@param  parent      Description of Parameter
      */
     private ObjectInspector(boolean isResult, DebuggerObject obj,
-            Package pkg, String id, String name, boolean getEnabled,
+            Package pkg, String name, boolean getEnabled,
             JFrame parent)
     {
-        super(pkg, id, getEnabled);
+        super(pkg, getEnabled);
 
         setTitle(isResult ? resultTitle : inspectTitle);
 

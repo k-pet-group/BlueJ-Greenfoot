@@ -16,18 +16,17 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.border.Border;
 
 /**
- * A window that displays the fields in an object or classThis class is subclassed
+ * A window that displays the fields in an object or class. This class is subclassed
  * for objects and classes separately (ObjectInspector, ClassInspector).
  *
  * @author     Michael Kolling
- * @version    $Id: Inspector.java 1553 2002-12-02 06:00:00Z ajp $
+ * @version    $Id: Inspector.java 1560 2002-12-06 03:47:59Z ajp $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
 {
     // === static variables ===
 
-    protected static int count = 0;
     protected static HashMap inspectors = new HashMap();
 
     protected final static Color bgColor = new Color(208, 212, 208);
@@ -56,10 +55,6 @@ public abstract class Inspector extends JFrame
     // either a tabbed pane or null if there is only the standard inspector
     protected JTabbedPane inspectorTabs = null;
 
-    protected String viewerId;    // a unique ID used to enter the
-                                  // viewer's object into the package scope
-
-
     // === static methods ===
 
 
@@ -80,21 +75,16 @@ public abstract class Inspector extends JFrame
     /**
      *  Constructor.
      *
-     *@param  inspect     Description of Parameter
-     *@param  obj         Description of Parameter
-     *@param  pkg         Description of Parameter
-     *@param  id          Description of Parameter
-     *@param  getEnabled  Description of Parameter
-     *@param  parent      Description of Parameter
+     * @param   pkg         Description of Parameter
+     * @param   getEnabled  Description of Parameter
      */
-    protected Inspector(Package pkg, String id, boolean getEnabled)
+    protected Inspector(Package pkg, boolean getEnabled)
     {
         super();
 
         setIconImage(Config.frameImage);
 
         this.pkg = pkg;
-        viewerId = id;
         this.getEnabled = getEnabled;
         if (pkg == null) {
             if (getEnabled) {
@@ -104,16 +94,6 @@ public abstract class Inspector extends JFrame
         } else {
             pkgScopeId = pkg.getId();
         }
-    }
-
-    /**
-     *  Return this viewer's ID.
-     *
-     *@return    The Id value
-     */
-    public String getId()
-    {
-        return viewerId;
     }
 
     public void getEvent(InspectorEvent e)
