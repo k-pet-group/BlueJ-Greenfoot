@@ -1252,6 +1252,11 @@ class JavaLexer extends Lexer;
 options {
     importVocab=Java;		// call the vocabulary "Java"
     testLiterals=false;		// don't automatically test for literals
+    charVocabulary = '\3'..'\377';	// all of useful 8 bit ASCII
+                                        // once the main code is redone to use
+                                        // Readers and the ANTLR unicode support
+                                        // fully works we can change this to support
+                                        // full unicode
     k=4;			// four characters of lookahead
 }
 
@@ -1457,10 +1462,10 @@ HEX_DIGIT
 
 // a dummy rule to force vocabulary to be all characters (except special
 //   ones that ANTLR uses internally (0 to 2)
-protected
-VOCAB
-    :   '\3'..'\377'
-    ;
+//protected
+//VOCAB
+//    :   '\3'..'\377'
+//    ;
 
 
 // an identifier.  Note that testLiterals is set to true!  This means
@@ -1468,7 +1473,8 @@ VOCAB
 // if it's a literal or really an identifer
 IDENT
     options {testLiterals=true;}
-    :   ('a'..'z'|'A'..'Z'|'_'|'$') ('a'..'z'|'A'..'Z'|'_'|'0'..'9'|'$')*
+    :   ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00c0'..'\u00ff')
+        ('a'..'z'|'A'..'Z'|'_'|'$'|'\u00c0'..'\u00ff'|'0'..'9')*
     ;
 
 

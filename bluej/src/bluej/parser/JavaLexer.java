@@ -238,24 +238,23 @@ tryAgain:
 				case 'm':  case 'n':  case 'o':  case 'p':
 				case 'q':  case 'r':  case 's':  case 't':
 				case 'u':  case 'v':  case 'w':  case 'x':
-				case 'y':  case 'z':
-                    // non-english latin characters:
-				case '\u00c0':  case '\u00c1':  case '\u00c2':  case '\u00c3':
-				case '\u00c4':  case '\u00c5':  case '\u00c6':  case '\u00c7':
-				case '\u00c8':  case '\u00c9':  case '\u00ca':  case '\u00cb':
-				case '\u00cc':  case '\u00cd':  case '\u00ce':  case '\u00cf':
-				case '\u00d0':  case '\u00d1':  case '\u00d2':  case '\u00d3':
-				case '\u00d4':  case '\u00d5':  case '\u00d6':  case '\u00d7':
-				case '\u00d8':  case '\u00d9':  case '\u00da':  case '\u00db':
-				case '\u00dc':  case '\u00dd':  case '\u00de':  case '\u00df':
-				case '\u00e0':  case '\u00e1':  case '\u00e2':  case '\u00e3':
-				case '\u00e4':  case '\u00e5':  case '\u00e6':  case '\u00e7':
-				case '\u00e8':  case '\u00e9':  case '\u00ea':  case '\u00eb':
-				case '\u00ec':  case '\u00ed':  case '\u00ee':  case '\u00ef':
-				case '\u00f0':  case '\u00f1':  case '\u00f2':  case '\u00f3':
-				case '\u00f4':  case '\u00f5':  case '\u00f6':  case '\u00f7':
-				case '\u00f8':  case '\u00f9':  case '\u00fa':  case '\u00fb':
-				case '\u00fc':  case '\u00fd':  case '\u00fe':  case '\u00ff':
+				case 'y':  case 'z':  case '\u00c0':  case '\u00c1':
+				case '\u00c2':  case '\u00c3':  case '\u00c4':  case '\u00c5':
+				case '\u00c6':  case '\u00c7':  case '\u00c8':  case '\u00c9':
+				case '\u00ca':  case '\u00cb':  case '\u00cc':  case '\u00cd':
+				case '\u00ce':  case '\u00cf':  case '\u00d0':  case '\u00d1':
+				case '\u00d2':  case '\u00d3':  case '\u00d4':  case '\u00d5':
+				case '\u00d6':  case '\u00d7':  case '\u00d8':  case '\u00d9':
+				case '\u00da':  case '\u00db':  case '\u00dc':  case '\u00dd':
+				case '\u00de':  case '\u00df':  case '\u00e0':  case '\u00e1':
+				case '\u00e2':  case '\u00e3':  case '\u00e4':  case '\u00e5':
+				case '\u00e6':  case '\u00e7':  case '\u00e8':  case '\u00e9':
+				case '\u00ea':  case '\u00eb':  case '\u00ec':  case '\u00ed':
+				case '\u00ee':  case '\u00ef':  case '\u00f0':  case '\u00f1':
+				case '\u00f2':  case '\u00f3':  case '\u00f4':  case '\u00f5':
+				case '\u00f6':  case '\u00f7':  case '\u00f8':  case '\u00f9':
+				case '\u00fa':  case '\u00fb':  case '\u00fc':  case '\u00fd':
+				case '\u00fe':  case '\u00ff':
 				{
 					mIDENT(true);
 					theRetToken=_returnToken;
@@ -1408,19 +1407,6 @@ tryAgain:
 		_returnToken = _token;
 	}
 	
-	protected final void mVOCAB(boolean _createToken) throws RecognitionException, CharStreamException, TokenStreamException {
-		int _ttype; Token _token=null; int _begin=text.length();
-		_ttype = VOCAB;
-		int _saveIndex;
-		
-		matchRange('\3','\377');
-		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {
-			_token = makeToken(_ttype);
-			_token.setText(new String(text.getBuffer(), _begin, text.length()-_begin));
-		}
-		_returnToken = _token;
-	}
-	
 	public final void mIDENT(boolean _createToken) throws RecognitionException, CharStreamException, TokenStreamException {
 		int _ttype; Token _token=null; int _begin=text.length();
 		_ttype = IDENT;
@@ -1460,6 +1446,26 @@ tryAgain:
 			match('$');
 			break;
 		}
+		case '\u00c0':  case '\u00c1':  case '\u00c2':  case '\u00c3':
+		case '\u00c4':  case '\u00c5':  case '\u00c6':  case '\u00c7':
+		case '\u00c8':  case '\u00c9':  case '\u00ca':  case '\u00cb':
+		case '\u00cc':  case '\u00cd':  case '\u00ce':  case '\u00cf':
+		case '\u00d0':  case '\u00d1':  case '\u00d2':  case '\u00d3':
+		case '\u00d4':  case '\u00d5':  case '\u00d6':  case '\u00d7':
+		case '\u00d8':  case '\u00d9':  case '\u00da':  case '\u00db':
+		case '\u00dc':  case '\u00dd':  case '\u00de':  case '\u00df':
+		case '\u00e0':  case '\u00e1':  case '\u00e2':  case '\u00e3':
+		case '\u00e4':  case '\u00e5':  case '\u00e6':  case '\u00e7':
+		case '\u00e8':  case '\u00e9':  case '\u00ea':  case '\u00eb':
+		case '\u00ec':  case '\u00ed':  case '\u00ee':  case '\u00ef':
+		case '\u00f0':  case '\u00f1':  case '\u00f2':  case '\u00f3':
+		case '\u00f4':  case '\u00f5':  case '\u00f6':  case '\u00f7':
+		case '\u00f8':  case '\u00f9':  case '\u00fa':  case '\u00fb':
+		case '\u00fc':  case '\u00fd':  case '\u00fe':  case '\u00ff':
+		{
+			matchRange('\u00c0','\u00ff');
+			break;
+		}
 		default:
 		{
 			throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());
@@ -1467,7 +1473,7 @@ tryAgain:
 		}
 		}
 		{
-		_loop252:
+		_loop251:
 		do {
 			switch ( LA(1)) {
 			case 'a':  case 'b':  case 'c':  case 'd':
@@ -1497,6 +1503,31 @@ tryAgain:
 				match('_');
 				break;
 			}
+			case '$':
+			{
+				match('$');
+				break;
+			}
+			case '\u00c0':  case '\u00c1':  case '\u00c2':  case '\u00c3':
+			case '\u00c4':  case '\u00c5':  case '\u00c6':  case '\u00c7':
+			case '\u00c8':  case '\u00c9':  case '\u00ca':  case '\u00cb':
+			case '\u00cc':  case '\u00cd':  case '\u00ce':  case '\u00cf':
+			case '\u00d0':  case '\u00d1':  case '\u00d2':  case '\u00d3':
+			case '\u00d4':  case '\u00d5':  case '\u00d6':  case '\u00d7':
+			case '\u00d8':  case '\u00d9':  case '\u00da':  case '\u00db':
+			case '\u00dc':  case '\u00dd':  case '\u00de':  case '\u00df':
+			case '\u00e0':  case '\u00e1':  case '\u00e2':  case '\u00e3':
+			case '\u00e4':  case '\u00e5':  case '\u00e6':  case '\u00e7':
+			case '\u00e8':  case '\u00e9':  case '\u00ea':  case '\u00eb':
+			case '\u00ec':  case '\u00ed':  case '\u00ee':  case '\u00ef':
+			case '\u00f0':  case '\u00f1':  case '\u00f2':  case '\u00f3':
+			case '\u00f4':  case '\u00f5':  case '\u00f6':  case '\u00f7':
+			case '\u00f8':  case '\u00f9':  case '\u00fa':  case '\u00fb':
+			case '\u00fc':  case '\u00fd':  case '\u00fe':  case '\u00ff':
+			{
+				matchRange('\u00c0','\u00ff');
+				break;
+			}
 			case '0':  case '1':  case '2':  case '3':
 			case '4':  case '5':  case '6':  case '7':
 			case '8':  case '9':
@@ -1504,14 +1535,9 @@ tryAgain:
 				matchRange('0','9');
 				break;
 			}
-			case '$':
-			{
-				match('$');
-				break;
-			}
 			default:
 			{
-				break _loop252;
+				break _loop251;
 			}
 			}
 		} while (true);
@@ -1538,17 +1564,17 @@ tryAgain:
 			{
 			if (((LA(1) >= '0' && LA(1) <= '9'))) {
 				{
-				int _cnt256=0;
-				_loop256:
+				int _cnt255=0;
+				_loop255:
 				do {
 					if (((LA(1) >= '0' && LA(1) <= '9'))) {
 						matchRange('0','9');
 					}
 					else {
-						if ( _cnt256>=1 ) { break _loop256; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());}
+						if ( _cnt255>=1 ) { break _loop255; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());}
 					}
 					
-					_cnt256++;
+					_cnt255++;
 				} while (true);
 				}
 				{
@@ -1608,17 +1634,17 @@ tryAgain:
 					}
 					}
 					{
-					int _cnt263=0;
-					_loop263:
+					int _cnt262=0;
+					_loop262:
 					do {
 						if ((_tokenSet_5.member(LA(1))) && (true) && (true) && (true)) {
 							mHEX_DIGIT(false);
 						}
 						else {
-							if ( _cnt263>=1 ) { break _loop263; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());}
+							if ( _cnt262>=1 ) { break _loop262; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());}
 						}
 						
-						_cnt263++;
+						_cnt262++;
 					} while (true);
 					}
 					break;
@@ -1627,17 +1653,17 @@ tryAgain:
 				case '4':  case '5':  case '6':  case '7':
 				{
 					{
-					int _cnt265=0;
-					_loop265:
+					int _cnt264=0;
+					_loop264:
 					do {
 						if (((LA(1) >= '0' && LA(1) <= '7'))) {
 							matchRange('0','7');
 						}
 						else {
-							if ( _cnt265>=1 ) { break _loop265; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());}
+							if ( _cnt264>=1 ) { break _loop264; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());}
 						}
 						
-						_cnt265++;
+						_cnt264++;
 					} while (true);
 					}
 					break;
@@ -1657,13 +1683,13 @@ tryAgain:
 				matchRange('1','9');
 				}
 				{
-				_loop268:
+				_loop267:
 				do {
 					if (((LA(1) >= '0' && LA(1) <= '9'))) {
 						matchRange('0','9');
 					}
 					else {
-						break _loop268;
+						break _loop267;
 					}
 					
 				} while (true);
@@ -1705,13 +1731,13 @@ tryAgain:
 				{
 					match('.');
 					{
-					_loop273:
+					_loop272:
 					do {
 						if (((LA(1) >= '0' && LA(1) <= '9'))) {
 							matchRange('0','9');
 						}
 						else {
-							break _loop273;
+							break _loop272;
 						}
 						
 					} while (true);
@@ -1826,17 +1852,17 @@ tryAgain:
 		}
 		}
 		{
-		int _cnt281=0;
-		_loop281:
+		int _cnt280=0;
+		_loop280:
 		do {
 			if (((LA(1) >= '0' && LA(1) <= '9'))) {
 				matchRange('0','9');
 			}
 			else {
-				if ( _cnt281>=1 ) { break _loop281; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());}
+				if ( _cnt280>=1 ) { break _loop280; } else {throw new NoViableAltForCharException((char)LA(1), getFilename(), getLine());}
 			}
 			
-			_cnt281++;
+			_cnt280++;
 		} while (true);
 		}
 		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {
