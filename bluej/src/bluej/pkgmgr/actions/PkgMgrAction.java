@@ -17,7 +17,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * It can also set-up an accelerator key.
  * 
  * @author Davin McCall
- * @version $Id: PkgMgrAction.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: PkgMgrAction.java 2573 2004-06-03 13:56:01Z fisker $
  */
 public abstract class PkgMgrAction extends AbstractAction {
         
@@ -74,12 +74,12 @@ public abstract class PkgMgrAction extends AbstractAction {
      * @param keycode       the keycode of the accelerator key (one of
      *                          KeyEvent.*)
      */
-    //public PkgMgrAction(String s, int keycode)
-    //{
-        //super(Config.getString(s));
-        //KeyStroke ks = KeyStroke.getKeyStroke(keycode, SHORTCUT_MASK);
-        //putValue(ACCELERATOR_KEY, ks);
-    //}
+    public PkgMgrAction(String s, int keycode)
+    {
+        super(Config.getString(s));
+        KeyStroke ks = KeyStroke.getKeyStroke(keycode, SHORTCUT_MASK);
+        putValue(ACCELERATOR_KEY, ks);
+    }
     
     /**
      * Constructor for an action with an accelerator key, not using the default modifiers.
