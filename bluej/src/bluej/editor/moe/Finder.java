@@ -42,7 +42,7 @@ public final class Finder extends JDialog
 
     public Finder()
     {
-	super(null, "Find", true);
+	super((Frame)null, "Find", true);
 
 	searchString = null;
 	searchFound = true;
