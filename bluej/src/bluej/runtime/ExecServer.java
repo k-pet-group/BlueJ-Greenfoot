@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2518 2004-05-04 04:45:58Z davmac $
+ * @version $Id: ExecServer.java 2531 2004-05-12 14:38:14Z polle $
  */
 public class ExecServer
 {
@@ -286,15 +286,44 @@ public class ExecServer
         // For our SHELL clasees, this is important.
         // This guarantees that the class is properly prepared, as well as
         // executing some init code in that shell method.
-	    try {
-	        Method m = cl.getMethod("prepare", null);
-	        m.invoke(null, null);
-	    } catch(Exception e) {
-	        // ignore - some classes don't have prepare method. attempt to
-	        // call will still prepare the class
-	    }
-
+        try {
+            Method m = cl.getMethod("prepare", null);
+            m.invoke(null, null);
+        } catch(Exception e) {
+            // ignore - some classes don't have prepare method. attempt to
+            // call will still prepare the class
+            //
+            // WRONG! we need to force the initilisation of the class.
+            // When inspecting we need the class to be initialized in order
+            // to show the values of static fields.
+            forceInitialisation(cl);              
+        }         
+       
+       
         return cl;
+    }
+    
+    /**
+     * Forces the initialisation of a class by accessing all the public static fields. 
+     * If it has no public static fields (that are not also final) it is not initialised. 
+     * 
+     * @param cl The class to initialise
+     */
+    private static void forceInitialisation(Class cl) {
+        Field[] fields = cl.getFields();
+        for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
+            int modifiers = field.getModifiers();
+            if(Modifier.isStatic(modifiers)) {
+                try {
+                    field.get(null);
+                } catch (IllegalArgumentException e1) {
+                    e1.printStackTrace();
+                } catch (IllegalAccessException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
