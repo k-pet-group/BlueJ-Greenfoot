@@ -13,13 +13,14 @@ import bluej.debugger.*;
 import bluej.utility.Debug;
 
 /**
- * This is similar to the Reflection Field<P>
+ * This is similar to the Reflection Field
  * The main reason to have a field coming from a Class and not from an Object is that
  * logically we should be able to get static methods without having objects around.
- * Reflection states that to get a static field we can use a Field and pass null as the object to work on.<P>
+ * Reflection states that to get a static field we can use a Field and pass null as the object to work on.
  * NOTE: the get method returns an Object, in most cases it is a String, Integer, Long and so on BUT
  * when a real Object is actually returned it is encapsulated into a BObject. You MUST look for this.
  * Damiano
+ * 
  */
 public class BField
 {

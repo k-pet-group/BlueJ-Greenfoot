@@ -4,12 +4,13 @@ import java.net.URL;
 import bluej.Config;
 
 /**
- *  The Extensions superclass. All extensions must extend this. <p>
+ * <pre>The Extensions superclass. All extensions must extend this.
  *
  *  Your class MUST have an empty parameters constructor 
  *  and it must implement all the abstract methods.
- *
- * @version    $Id: Extension.java 1662 2003-03-07 09:57:11Z damiano $
+ * </pre>
+ * 
+ * @version    $Id: Extension.java 1679 2003-03-10 11:52:05Z damiano $
  */
 public abstract class Extension
 {
