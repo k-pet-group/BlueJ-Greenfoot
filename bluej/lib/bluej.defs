@@ -66,7 +66,7 @@ bluej.compiler.type=internal
 #####################################################################
 
 # For the "Java Look and Feel":
-bluej.lookAndFeel=javax.swing.plaf.metal.MetalLookAndFeel
+#bluej.lookAndFeel=javax.swing.plaf.metal.MetalLookAndFeel
 
 # For the Windows "Look and Feel":
 #bluej.lookAndFeel=javax.swing.plaf.windows.WindowsLookAndFeel
@@ -76,6 +76,17 @@ bluej.lookAndFeel=javax.swing.plaf.metal.MetalLookAndFeel
 
 # For the Motif "Look and Feel":
 #bluej.lookAndFeel=javax.swing.plaf.motif.MotifLookAndFeel
+
+#####################################################################
+## Class manager configuration files
+##
+##
+#####################################################################
+
+# Found in the user's home directory
+# classmgr.userconfig=userlibs.properties
+# Found in the bluej home directory
+# classmgr.systemconfig=syslibs.properties
 
 #######################################################################
 ## Fonts. With Java, you don't have much choice of font faces, but you
@@ -145,13 +156,17 @@ image.step_into=step_into.gif
 image.stop=stop.gif
 image.terminate=terminate.gif
 
-## images for navigation buttons above graph editor panel in library browser
-browser.classchooser.backbutton.image=leftarrow.gif
-browser.classchooser.forwardbutton.image=rightarrow.gif
-browser.attributechooser.constructoricon.image=yellow-ball-small.gif
-browser.attributechooser.privateicon.image=red-ball-small.gif
-browser.attributechooser.publicicon.image=blue-ball-small.gif
-browser.attributechooser.protectedicon.image=magenta-ball-small.gif
+## images for library browser
+browser.image.constructoricon=yellow-ball-small.gif
+browser.image.privateicon=red-ball-small.gif
+browser.image.publicicon=blue-ball-small.gif
+browser.image.protectedicon=magenta-ball-small.gif
+
+browser.fontname.treeroot=SansSerif
+browser.fontsize.treeroot=12
+
+browser.fontname.treeleaf=MonoSpaced
+browser.fontsize.treeleaf=11
 
 ### Colour Definitions
 colour.background=208,212,208

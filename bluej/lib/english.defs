@@ -81,7 +81,7 @@ browser.classchooser.packagemenu.open=Open
 
 browser.usepackage.dialog.text=Select destination package and click Ok
 
-browser.attributechooser.missingclassdialog.text=This Attribute Chooser cannot locate the class\n$.\n\nThe usual cause of this error is an out-of-date package file\nin the corresponding directory
+browser.missingclass.text=The browser cannot locate the class $
 
 #library browser menus
 browser.menu.library=Library
@@ -105,14 +105,24 @@ browser.menu.help.topics=Help Topics...
 browser.menu.help.about.text=<html><center><strong><font color="#DBDB70">BlueJ Library Browser 0.1\n\nWritten by Andy Marks, January 1999</font></strong></center></html>
 browser.menu.help.about.title=About BlueJ Library Browser 0.1
 
+# Class Manager user interface elements and error messages
+#
 classmgr.title=BlueJ Class Manager
+classmgr.userlibraries=User Libraries
+classmgr.systemlibraries=System Libraries
+classmgr.bootlibraries=Boot Libraries
 classmgr.add=Add
 classmgr.delete=Delete
 classmgr.locationcolumn=Location
 classmgr.descriptioncolumn=Description
 classmgr.unresolvable=Unresolvable Path
-classmgr.missinguserconfdialog.text=The user configuration file could not be located\n\nThis file is used to specify libraries\nin addition to the standard system files.
-classmgr.missingsysconfdialog.text=The system configuration file could not be located\n\nThis file is used to specify standard libraries\nwhich are installed on your system.
+classmgr.bootclass=Boot class library
+classmgr.bluejclass=BlueJ class library
+classmgr.error.unresolvable=Unresolvable Path
+classmgr.error.loadingconfig=Missing configuration file. This file is used to specify libraries\nin addition to the standard boot libraries.
+classmgr.error.savingconfig=Saving configuration file.
+classmgr.error.missingclasspath=No java classpath. Class loading behaviour may be strange because\nclasses in the current directory will be resolved first.
+classmgr.error.missingbootclasspath=No Sun boot classpath. BlueJ should not be run on a pre JDK 1.2 environment.
 
 editor.saveError=Error saving to file 
 editor.openError=Error opening file 
