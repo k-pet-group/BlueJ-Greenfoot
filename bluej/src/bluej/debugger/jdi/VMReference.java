@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 2983 2004-09-03 05:46:00Z davmac $
+ * @version $Id: VMReference.java 2996 2004-09-09 01:45:24Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -1499,8 +1499,25 @@ class VMReference
      */
     void setStaticFieldObject(ClassType cl, String fieldName, String value)
     {
-        StringReference s = machine.mirrorOf(value);
-        setStaticFieldValue(cl, fieldName, s);
+        // Any mirror object which is created is prone to being garbage
+        // collected before we can assign it to a field. This causes an
+        // ObjectCollectedException. using the "disableCollection" method seems
+        // to help but there is still a window between object creation and that
+        // method being called, so we catch the exception and use a more
+        // forceful approach in that case.
+        
+        try {
+            StringReference s = machine.mirrorOf(value);
+            s.disableCollection();
+            setStaticFieldValue(cl, fieldName, s);
+            s.enableCollection();
+        }
+        catch(ObjectCollectedException oce) {
+            machine.suspend();
+            StringReference s = machine.mirrorOf(value);
+            setStaticFieldValue(cl, fieldName, s);
+            machine.resume();
+        }
     }
 
     /**
