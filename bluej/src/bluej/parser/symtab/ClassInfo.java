@@ -18,6 +18,10 @@ public final class ClassInfo
     private List imported = new ArrayList();
     private List used = new ArrayList();
     private List comments = new LinkedList();
+    
+    private List typeParameterSelections = new ArrayList();
+    private List typeParameterTexts;
+    private Selection typeParameterSelection = new Selection(null,1,1);
 
     private class SavedComment
     {
@@ -112,6 +116,11 @@ public final class ClassInfo
 
         if(!implemented.contains(name))
             implemented.add(name);
+    }
+    
+    public void addTypeParameter(String paramName)
+    {
+        typeParameterSelections.add(name);
     }
 
     public void addImported(String name)
@@ -278,6 +287,28 @@ public final class ClassInfo
             interfaceTexts.add(s.getText());
         }
     }
+    
+    /**
+     * set type parameter selections for this class
+     */
+    public void setTypeParameterSelections(List selections)
+    {
+        typeParameterSelections = selections;
+        typeParameterTexts = new ArrayList();
+
+        Iterator it = typeParameterSelections.iterator();
+        while(it.hasNext()) {
+            Selection s = (Selection)it.next();
+            typeParameterTexts.add(s.getText());
+        }
+    }
+    
+
+    public List getTypeParameterTexts()
+    {
+        return typeParameterTexts;
+    }
+
 
     public List getInterfaceSelections()
     {
@@ -364,6 +395,21 @@ public final class ClassInfo
         return implemented;
     }
 
+    public List getTypeParameterSelections()
+    {
+        return typeParameterSelections;
+    }
+    
+    public void setTypeParameterInsert(Selection s)
+    {
+        typeParameterSelection = s;
+    }
+
+    public Selection getTypeParameterSelection()
+    {
+        return typeParameterSelection;
+    }
+    
     public List getImported()
     {
         return imported;

@@ -2,6 +2,7 @@
 package bluej.parser.symtab;
 
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Vector;
 
 /*****************************************************************************
@@ -65,9 +66,9 @@ class ClassDef extends HasImports
 
     /**
      */
-     private Vector interfaceSelections;
+     private Vector interfaceSelections, typeParameterSelections;
      private Selection extendsInsert, implementsInsert,
-                        extendsReplace, superReplace;
+                        extendsReplace, superReplace, typeParamInsert;
 
     //==========================================================================
     //==  Methods
@@ -194,6 +195,11 @@ class ClassDef extends HasImports
         this.implementsInsert = implementsInsert;
     }
 
+    void setTypeParamInsert(Selection typeParamInsert)
+    {
+        this.typeParamInsert = typeParamInsert;
+    }
+    
     void setExtendsReplace(Selection extendsReplace)
     {
         this.extendsReplace = extendsReplace;
@@ -207,6 +213,11 @@ class ClassDef extends HasImports
     void setInterfaceSelections(Vector interfaceSelections)
     {
         this.interfaceSelections = interfaceSelections;
+    }
+    
+    void setTypeParameterSelections(Vector typeParameterSelections)
+    {
+        this.typeParameterSelections = typeParameterSelections;
     }
 
     /** Lookup a method in the class or its superclasses */
@@ -263,7 +274,15 @@ class ClassDef extends HasImports
                 }
 
                 target.append(getName());
-
+                
+                if(typeParameterSelections != null){
+                    Iterator it = typeParameterSelections.iterator();
+                    while(it.hasNext()){
+            	        Selection sel = (Selection)it.next();
+            	        target.append(sel.getText());
+                    }
+                }
+                
             	if(isAbstract)
             	    info.setAbstract(true);
 
@@ -281,6 +300,11 @@ class ClassDef extends HasImports
                 info.setImplementsInsertSelection(implementsInsert);
                 info.setExtendsReplaceSelection(extendsReplace);
                 info.setSuperReplaceSelection(superReplace);
+                if(typeParameterSelections != null)
+                    info.setTypeParameterSelections(typeParameterSelections);
+                if(typeParamInsert != null)
+                    info.setTypeParameterInsert(typeParamInsert);
+                
                 info.setInterfaceSelections(interfaceSelections);
             }
         }

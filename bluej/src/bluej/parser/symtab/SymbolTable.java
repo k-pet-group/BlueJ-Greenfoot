@@ -246,7 +246,9 @@ public class SymbolTable
     }
 
 
-    /** Define a class object */
+    /**  
+     * Define a class object
+     */
     public void defineClass(JavaToken theClass,      // class being created
                             JavaToken superClass,    // its superclass
                             JavaVector interfaces,   // implemented interfaces
@@ -256,7 +258,7 @@ public class SymbolTable
                             JavaToken comment,
                             Selection extendsInsert, Selection implementsInsert,
                             Selection extendsReplace, Selection superReplace,
-                            Vector interfaceSelections)
+                            Selection typeParamSelection, Vector typeParamSelections, Vector interfaceSelections)
     {
         // note -- we leave interfaces as a vector of JavaTokens for now
         //         we'll resolve them in pass 2.
@@ -280,7 +282,9 @@ public class SymbolTable
         def.setExtendsReplace(extendsReplace);
         def.setSuperReplace(superReplace);
         def.setInterfaceSelections(interfaceSelections);
-
+        def.setTypeParamInsert(typeParamSelection);
+        def.setTypeParameterSelections(typeParamSelections);
+        
         // add the imported classes/packages to the class
         def.setImports(importedClasses);
 
@@ -301,6 +305,8 @@ public class SymbolTable
                                 boolean isPublic,
                                 JavaToken comment,
                                 Selection extendsInsert,
+                                Selection typeParamInsert,
+                                Vector typeParamSelections,
                                 Vector superInterfaceSelections)
     {
         // note -- we leave superInterfaces as a vector of JavaTokens for now.
@@ -322,6 +328,10 @@ public class SymbolTable
 
         if (comment != null)
             def.setComment(comment.getText());
+        if(typeParamInsert != null)
+            def.setTypeParamInsert(typeParamInsert);
+        if(typeParamSelections != null)
+            def.setTypeParameterSelections(typeParamSelections);
 
         // add it to the current scope
         addToCurrentScope(def);
