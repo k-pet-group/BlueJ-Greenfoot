@@ -44,7 +44,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 2963 2004-08-30 16:05:05Z polle $
+ * @version $Id: PkgMgrFrame.java 2987 2004-09-06 04:31:03Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -80,6 +80,8 @@ public class PkgMgrFrame extends JFrame
     private JLabel recordingLabel;
     private AbstractButton endTestButton;
     private AbstractButton cancelTestButton;
+    private JMenuItem endTestMenuItem;
+    private JMenuItem cancelTestMenuItem;
 
     private ClassTarget testTarget = null;
     private String testTargetMethod;
@@ -1774,22 +1776,24 @@ public class PkgMgrFrame extends JFrame
      */
     public void doEndTest()
     {
-        testRecordingEnded();
-
-        if (testTarget.getRole() instanceof UnitTestClassRole) {
-            UnitTestClassRole utcr = (UnitTestClassRole) testTarget.getRole();
-
-            utcr.doEndMakeTestCase(this, testTarget, testTargetMethod);
+        if (testTarget != null) {
+            testRecordingEnded();
+            
+            if (testTarget.getRole() instanceof UnitTestClassRole) {
+                UnitTestClassRole utcr = (UnitTestClassRole) testTarget.getRole();
+                
+                utcr.doEndMakeTestCase(this, testTarget, testTargetMethod);
+            }
+            
+            // remove objects from object bench
+            getProject().removeLocalClassLoader();
+            getProject().newRemoteClassLoader();
+            
+            // try to compile the test class we have just changed
+            getPackage().compileQuiet(testTarget);
+            
+            testTarget = null;
         }
-
-        // remove objects from object bench
-        getProject().removeLocalClassLoader();
-        getProject().newRemoteClassLoader();
-
-        // try to compile the test class we have just changed
-        getPackage().compileQuiet(testTarget);
-
-        testTarget = null;
     }
 
     /**
@@ -1815,7 +1819,9 @@ public class PkgMgrFrame extends JFrame
         recordingLabel.setEnabled(true);
         testStatusMessage.setText(message);
         endTestButton.setEnabled(true);
+        endTestMenuItem.setEnabled(true);
         cancelTestButton.setEnabled(true);
+        cancelTestMenuItem.setEnabled(true);
 
         getProject().setTestMode(true);
     }
@@ -1828,7 +1834,9 @@ public class PkgMgrFrame extends JFrame
         recordingLabel.setEnabled(false);
         testStatusMessage.setText("");
         endTestButton.setEnabled(false);
+        endTestMenuItem.setEnabled(false);
         cancelTestButton.setEnabled(false);
+        cancelTestMenuItem.setEnabled(false);
 
         getProject().setTestMode(false);
     }
@@ -2415,8 +2423,10 @@ public class PkgMgrFrame extends JFrame
             testingMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
             {
                 createMenuItem(RunTestsAction.getInstance(), testingMenu);
-                createMenuItem(EndTestRecordAction.getInstance(), testingMenu);
-                createMenuItem(CancelTestRecordAction.getInstance(), testingMenu);
+                endTestMenuItem = createMenuItem(EndTestRecordAction.getInstance(), testingMenu);
+                cancelTestMenuItem = createMenuItem(CancelTestRecordAction.getInstance(), testingMenu);
+                //endTestMenuItem.setEnabled(false);
+                cancelTestMenuItem.setEnabled(false);
             }
             testItems.add(testingMenu);
             menu.add(testingMenu);
@@ -2481,10 +2491,11 @@ public class PkgMgrFrame extends JFrame
     /**
      * Add a new menu item to a menu.
      */
-    private void createMenuItem(Action action, JMenu menu)
+    private JMenuItem createMenuItem(Action action, JMenu menu)
     {
         JMenuItem item = menu.add(action);
         item.setIcon(null);
+        return item;
     }
 
     /**
