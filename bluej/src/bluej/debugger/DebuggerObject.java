@@ -3,17 +3,14 @@ package bluej.debugger;
 import java.util.Vector;
 
 /**
- ** A class representing an object in the debugged VM.
- **
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** @version $Id: DebuggerObject.java 111 1999-06-04 06:16:57Z mik $
- **/
-
+ * A class representing an object in the debugged VM.
+ *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @version $Id: DebuggerObject.java 334 2000-01-02 13:32:56Z ajp $
+ */
 public abstract class DebuggerObject
 {
-   
     /**
      * Get the name of the class of this object.
      */
@@ -62,7 +59,7 @@ public abstract class DebuggerObject
      * @param slot The slot number to be checked
      */
     public abstract boolean instanceFieldIsPublic(int slot);
-	
+
 
     /**
      * Return true if the static field 'slot' is an object (and not
@@ -79,7 +76,7 @@ public abstract class DebuggerObject
      * @param slot The slot number to be checked
      */
     public abstract boolean instanceFieldIsObject(int slot);
-	
+
     /**
      * Return true if the field 'slot' is an object (and not
      * a simple type). Includes static and instance fields.
@@ -87,7 +84,7 @@ public abstract class DebuggerObject
      * @param slot The slot number to be checked
      */
     public abstract boolean fieldIsObject(int slot);
-	
+
 
     /**
      * Return the object in static field 'slot'.

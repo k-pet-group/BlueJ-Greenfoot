@@ -7,15 +7,14 @@ import bluej.debugger.jdi.JdiDebugger;
 import java.util.Vector;
 
 /**
- ** A class defining the debugger primitives needed by BlueJ
- ** May be supported by different implementations, locally or remotely.
- **
- ** @author Michael Cahill
- ** @author Michael Kolling
- **
- ** @version $Id: Debugger.java 242 1999-08-19 06:43:31Z mik $
- **/
-
+ * A class defining the debugger primitives needed by BlueJ
+ * May be supported by different implementations, locally or remotely.
+ *
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ *
+ * @version $Id: Debugger.java 334 2000-01-02 13:32:56Z ajp $
+ */
 public abstract class Debugger
 {
     public static final int NORMAL_EXIT = 0;
@@ -29,19 +28,19 @@ public abstract class Debugger
     public static final int SUSPENDED = 2;
 
     /** Creation of the real debugger used **/
-    // the following line needs to be changed when the debugger 
-    // implementation changes (this and the import statement abobe are the 
+    // the following line needs to be changed when the debugger
+    // implementation changes (this and the import statement abobe are the
     // only two lines that need to be changed).
 
     public static Debugger debugger = new JdiDebugger();
     //public static Debugger debugger = new SunDebugger();
-	
+
     public static void handleExit()
     {
-	if(debugger != null) {
-	    debugger.endDebugger();
-	    debugger = null;
-	}
+        if(debugger != null) {
+            debugger.endDebugger();
+            debugger = null;
+        }
     }
 
     /**
@@ -59,7 +58,7 @@ public abstract class Debugger
     /**
      * Create a class loader
      */
-    public abstract DebuggerClassLoader createClassLoader(String scopeId, 
+    public abstract DebuggerClassLoader createClassLoader(String scopeId,
 							  String classpath);
 
     /**
@@ -72,7 +71,7 @@ public abstract class Debugger
      * Add an object to a package scope. The object is held in field
      * 'fieldName' in object 'instanceName'.
      */
-    public abstract void addObjectToScope(String scopeId, String instanceName, 
+    public abstract void addObjectToScope(String scopeId, String instanceName,
 				 String fieldName, String newObjectName);
 
 
@@ -86,7 +85,7 @@ public abstract class Debugger
      * Return the machine status; one of the "machine state" constants:
      * (IDLE, RUNNING, SUSPENDED).
      */
-    public abstract int getStatus(); 
+    public abstract int getStatus();
 
     /**
      * Set the remote VM classpath
@@ -94,9 +93,24 @@ public abstract class Debugger
     public abstract void setLibraries(String classpath);
 
     /**
+     * Serialize an object in the debugger to a file
+     */
+    public abstract void serializeObject(String scopeId, String instanceName,
+                                            String fileName);
+
+
+    /**
+     * Deserialize an object in the debugger from a file
+     */
+    public abstract DebuggerObject deserializeObject(String loaderId,
+                                                      String scopeId,
+                                                      String newInstanceName,
+                                                      String fileName);
+
+    /**
      * "Start" a class (i.e. invoke its main method without arguments)
      */
-    public abstract void startClass(DebuggerClassLoader loader, 
+    public abstract void startClass(DebuggerClassLoader loader,
 				    String classname, Object eventParam);
 
 
@@ -106,7 +120,7 @@ public abstract class Debugger
     public abstract DebuggerObject getStaticValue(String className, String fieldName)
 	throws Exception;
 
-	
+
     /**
      * Set/clear a breakpoint at a specified line in a class.
      *
@@ -114,15 +128,15 @@ public abstract class Debugger
      * @param line       The line number of the breakpoint.
      * @param set        True to set, false to clear a breakpoint.
      */
-    public abstract String toggleBreakpoint(String className, int line, 
-					    boolean set, 
+    public abstract String toggleBreakpoint(String className, int line,
+					    boolean set,
 					    DebuggerClassLoader loader);
 
 
     /**
      * Return the status of the last invocation. One of (NORMAL_EXIT,
      * FORCED_EXIT, EXCEPTION, BREAKPOINT, TERMINATED).
-     */ 
+     */
     public abstract int getExitStatus();
 
 
@@ -151,7 +165,7 @@ public abstract class Debugger
 
 
     /**
-     * A thread has been started again by the user. Make sure that it 
+     * A thread has been started again by the user. Make sure that it
      * is indicated in the interface.
      */
     public abstract void threadContinued(DebuggerThread thread);
