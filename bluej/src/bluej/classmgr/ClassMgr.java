@@ -24,7 +24,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 2161 2003-08-06 11:57:36Z mik $
+ * @version $Id: ClassMgr.java 2310 2003-11-10 00:24:54Z bquig $
  */
 public class ClassMgr
 {
@@ -92,6 +92,7 @@ public class ClassMgr
 
         all.addClassPath(systemLibraries);
         all.addClassPath(userLibraries);
+        all.addClassPath(userlibExtLibraries);
         all.addClassPath(bootLibraries);
 
         return all;
@@ -106,6 +107,7 @@ public class ClassMgr
      */
     protected ClassPath systemLibraries = new ClassPath();
     protected ClassPath userLibraries = new ClassPath();
+    protected ClassPath userlibExtLibraries = new ClassPath();
     protected ClassPath bootLibraries = new ClassPath();
 
     /** Don't let anyone else instantiate this class */
@@ -113,6 +115,7 @@ public class ClassMgr
     {
         URL[] bootcp = Boot.getInstance().getRuntimeClassPath();
         URL[] syscp = Boot.getInstance().getRuntimeUserClassPath();
+        URL[] userextcp = Boot.getInstance().getUserExtLibClassPath();
         String envcp = System.getProperty("java.class.path");
 
         if (bootcp == null) {        // pre JDK1.2
@@ -127,6 +130,7 @@ public class ClassMgr
         // investigate!
         bootLibraries = new ClassPath(bootcp);
         systemLibraries = new ClassPath(syscp);
+        userlibExtLibraries = new ClassPath(userextcp);
 
         addConfigEntries(systemLibraries, syslibPrefix);
         addConfigEntries(userLibraries, userlibPrefix);
@@ -220,15 +224,15 @@ public class ClassMgr
          */
         protected Class findClass(String name) throws ClassNotFoundException
         {
-            // Debug.message("classmgrloader: finding " + name);
+            //Debug.message("classmgrloader: finding " + name);
 
             byte[] bytes = loadClassData(name);
             if(bytes != null) {
-                // Debug.message("classmgrloader: succeeded " + name);
+                //Debug.message("classmgrloader: succeeded " + name);
                 return defineClass(name, bytes, 0, bytes.length);
             }
             else {
-                // Debug.message("classmgrloader: failed " + name);
+                //Debug.message("classmgrloader: failed " + name);
                 throw new ClassNotFoundException("BlueJLoader");
             }
         }
@@ -258,6 +262,13 @@ public class ClassMgr
                 }
                 catch (IOException ioe) { }
 
+                if(in == null) {
+                    try {
+                        in = userlibExtLibraries.getFile(filename);
+                    }
+                    catch (IOException ioe) { }
+                }
+                
                 if(in == null) {
                     try {
                         in = userLibraries.getFile(filename);

@@ -21,7 +21,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 2282 2003-11-05 19:46:22Z polle $
+ * @version $Id: ClassMgrPrefPanel.java 2310 2003-11-10 00:24:54Z bquig $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -46,8 +46,7 @@ public class ClassMgrPrefPanel extends JPanel
      */
     private ClassMgrPrefPanel()
     {
-        List bootLibrariesList = new ArrayList(ClassMgr.getClassMgr().bootLibraries.getEntries());
-        List systemLibrariesList = new ArrayList(ClassMgr.getClassMgr().systemLibraries.getEntries());
+        List userlibExtLibrariesList = new ArrayList(ClassMgr.getClassMgr().userlibExtLibraries.getEntries());
 
         // Construct a user editable table of user libraries and add/remove buttons
 
@@ -128,46 +127,26 @@ public class ClassMgrPrefPanel extends JPanel
 
         // Construct a list of system libraries
 
-        JScrollPane systemLibrariesScrollPane = new JScrollPane();
+        JScrollPane userlibExtLibrariesScrollPane = new JScrollPane();
         {
             JList list = new JList();
             {
-                list.setListData(systemLibrariesList.toArray());
+                list.setListData(userlibExtLibrariesList.toArray());
                 list.setCellRenderer(new ClassMgrCellRenderer());
                 list.setEnabled(false);
-                list.setVisibleRowCount(3);
+                list.setVisibleRowCount(6);
             }
 
-            systemLibrariesScrollPane.setViewportView(list);
-            systemLibrariesScrollPane.setAlignmentX(LEFT_ALIGNMENT);
+            userlibExtLibrariesScrollPane.setViewportView(list);
+            userlibExtLibrariesScrollPane.setAlignmentX(LEFT_ALIGNMENT);
         }
-
-        JLabel systemLibrariesTag = new JLabel(Config.getString("classmgr.systemlibraries"));
+        
+        String userlibLocation = Config.getString("classmgr.userliblibraries") 
+            + " (" + Config.getBlueJLibDir() + File.separator + "userlib)";
+        JLabel userlibExtLibrariesTag = new JLabel(userlibLocation);
         {
-            systemLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
-            systemLibrariesTag.setLabelFor(systemLibrariesScrollPane);
-        }
-
-        // Construct a list of boot libraries
-
-        JScrollPane bootLibrariesScrollPane = new JScrollPane();
-        {
-            JList list = new JList();
-            {
-                list.setListData(bootLibrariesList.toArray());
-                list.setCellRenderer(new ClassMgrCellRenderer());
-                list.setEnabled(false);
-                list.setVisibleRowCount(3);
-            }
-
-            bootLibrariesScrollPane.setViewportView(list);
-            bootLibrariesScrollPane.setAlignmentX(LEFT_ALIGNMENT);
-        }
-
-        JLabel bootLibrariesTag = new JLabel(Config.getString("classmgr.bootlibraries"));
-        {
-            bootLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
-            bootLibrariesTag.setLabelFor(bootLibrariesScrollPane);
+            userlibExtLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
+            userlibExtLibrariesTag.setLabelFor(userlibExtLibrariesScrollPane);
         }
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -176,11 +155,8 @@ public class ClassMgrPrefPanel extends JPanel
         add(userLibrariesTag);
         add(userLibPane);
         add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-        add(systemLibrariesTag);
-        add(systemLibrariesScrollPane);
-        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-        add(bootLibrariesTag);
-        add(bootLibrariesScrollPane);
+        add(userlibExtLibrariesTag);
+        add(userlibExtLibrariesScrollPane);
     }
 
     public void beginEditing()
