@@ -5,15 +5,6 @@
     <property name="inspectorbuild" value="${build}" />
     <property name="inspectorinstall" value="${bluej_home}/lib/inspector" />
 
-    <!-- set up classpath -->
-    <path id="bluej.class.path">
-        <pathelement location="${bluej_home}/classes" />
-        <pathelement location="${bluej_home}/lib/antlrall.jar" />
-        <pathelement location="${bluej_home}/lib/junit.jar" />
-        <pathelement location="${bluej_home}/lib/MRJToolkitStubs.zip" />
-        <pathelement location="${java_home}/lib/tools.jar" />
-    </path>
-
     <target name="check" unless="bluej_home">
         <fail message="You must build from the top level directory, not this directory"/>
     </target>
@@ -26,10 +17,14 @@
     </target>
 
     <target name="compile-inspector" depends="prepare-inspector">
+        <echo message="${bluej_home}"/>
         <!-- Compile the java code for the inspectors -->
         <javac srcdir="${inspectorsrc}"
                destdir="${inspectorbuild}" >
-            <classpath refid="bluej.class.path" />
+            <classpath>
+	        <pathelement location="${bluej_home}/lib/bluej.jar"/>
+                <path refid="bluej.class.path"/>
+            </classpath>
         </javac>
     </target>
 
@@ -52,10 +47,10 @@
 
     <target name="clean-inspector">
         <!-- Delete the ${build} directory trees -->
-        <delete>
+        <delete quiet="true">
             <fileset dir="${inspectorbuild}" includes="**/*.class"/>
 	</delete>
-        <delete>
+        <delete quiet="true">
             <fileset dir="${inspectorinstall}" includes="**/*.class"/>
 	</delete>
     </target>
