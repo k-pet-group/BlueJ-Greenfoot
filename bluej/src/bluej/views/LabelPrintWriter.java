@@ -4,7 +4,7 @@ import bluej.utility.MultiLineLabel;
 import java.awt.Label;
 
 /**
- ** @version $Id: LabelPrintWriter.java 156 1999-07-06 14:37:16Z ajp $
+ ** @version $Id: LabelPrintWriter.java 197 1999-07-22 00:48:02Z ajp $
  ** @author Michael Cahill
  **
  ** LabelPrintWriter - create a MultiLineLabel containing the output to a
@@ -46,12 +46,12 @@ public class LabelPrintWriter extends FormattedPrintWriter
 	
 	protected void startItalic()
 	{
-		label.setItalic(true);
+//		label.setItalic(true);
 	}
 
 	protected void endItalic()
 	{
-		label.setItalic(false);
+//		label.setItalic(false);
 	}
 
 	protected void indentLine()

@@ -14,7 +14,7 @@ import java.util.Vector;
 
 
 /**
- ** @version $Id: View.java 187 1999-07-17 02:32:38Z ajp $
+ ** @version $Id: View.java 197 1999-07-22 00:48:02Z ajp $
  ** @author Michael Cahill
  **
  ** View class - a representation of a Java class in BlueJ
@@ -305,7 +305,13 @@ public class View
         
         try {
             String filename = getName().replace('.', '/') + ".ctxt";
-            InputStream in = cl.getClassLoader().getResourceAsStream(filename);
+
+            InputStream in = null;
+            
+            if (cl.getClassLoader() == null)
+                in = ClassLoader.getSystemResourceAsStream(filename);
+            else
+                in = cl.getClassLoader().getResourceAsStream(filename);
 
             if(in != null)
             {
@@ -318,10 +324,10 @@ public class View
             e.printStackTrace();
         }
             
-        if(comments == null)
+        if(comments == null) {
             return;
-            
-        System.out.println(comments.toString());
+        }
+        
         // match the comments against this view's members
         // -> put all members into a hashtable indexed by
         // <member>.getSignature() (== <comment>.getTarget())
