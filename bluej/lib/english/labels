@@ -153,8 +153,6 @@ editor.undoLabel = Undo
 editor.cutLabel = Cut
 editor.copyLabel = Copy
 editor.pasteLabel = Paste
-editor.findLabel = Find...
-editor.find-nextLabel = Find Next
 editor.closeLabel = Close
 editor.page-setupLabel = Page Setup...
 
@@ -180,9 +178,10 @@ editor.commentLabel = Comment
 editor.uncommentLabel = Uncomment
 editor.insert-methodLabel = Insert method
 
-editor.find-backwardLabel = Find Backward...
+editor.findLabel = Find...
+editor.find-nextLabel = Find Next
+editor.find-next-backwardLabel = Find Next Backward
 editor.replaceLabel = Replace...
-editor.find.replacefield.label = Replace with:
 editor.compileLabel = Compile
 editor.toggle-breakpointLabel = Set/Clear Breakpoint
 editor.toggle-interface-viewLabel = Toggle Interface View
@@ -217,6 +216,8 @@ editor.find.replace.label = Replace:
 editor.find.findNext=Find Next
 editor.find.replace=Replace
 editor.find.replaceAll=Replace All
+editor.find.up=Search up
+editor.find.down=Search down
 
 #Messages, warnings, etc that is displayed by Info.java
 editor.info.version = Moe version
@@ -229,7 +230,7 @@ editor.info.noChanges = No changes need to be saved
 editor.info.cannotReload = Can not reload - this text was never saved!
 editor.info.reload = (\"Reload\" reloads the last saved state from disk.)
 editor.info.emptySearchString = Empty search string.
-editor.info.notFound = Not found
+editor.info.notFound = Not found (search again to wrap around).
 editor.info.compiling = Compiling...
 editor.info.cannotSetBreak = Cannot set breakpoint:\nNo code associated with this editor.
 editor.info.fileDisappeared = ERROR: The file seems to have disappeared!

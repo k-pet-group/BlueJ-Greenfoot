@@ -95,9 +95,8 @@ undo=\n Undo the last edit operation. (This can then be re-done with 'redo'.)
 redo=\n Redo the last operation that was undone.
 
 find=\n Open a dialog to start a search for a string in the text. The dialog\n allows to start searches backward or forward.
-find-backward=\n Like find, but the make 'Backward' the default button.
 find-next= If a selection is on, find the next occurrence of the selected text. If no\n selection is on, search again for the same string that was used in the\n last search. Stop at the end of the text. If called again after the end\n of the text was reached, wrap around and continue search from the top.
-find-next-reverse=\n Like find-next, but reverse the search direction.
+find-next-backward=\n Like find-next, but searches up rather than down.
 replace=\n Replace one text string with another.
 
 compile=\n Compile the current class. The class is automatically\n saved before being compiled.

@@ -27,7 +27,7 @@ menubar = class edit tools option
 
 class = save reload - page-setup print - close
 edit = undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - comment uncomment - insert-method
-tools = find find-backward find-next replace - compile toggle-breakpoint - toggle-interface-view
+tools = find find-next find-next-backward replace - compile toggle-breakpoint - toggle-interface-view
 option = key-bindings preferences
 
 # Syntax colour definitions
