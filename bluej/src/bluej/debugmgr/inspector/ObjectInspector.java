@@ -21,7 +21,7 @@ import bluej.utility.DialogManager;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ObjectInspector.java 2711 2004-07-01 14:50:21Z polle $
+ * @version $Id: ObjectInspector.java 2712 2004-07-01 14:57:19Z polle $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -113,7 +113,11 @@ public class ObjectInspector extends Inspector
         
         makeFrame();
 
-       	DialogManager.centreWindow(this, parent);
+        if(parent instanceof Inspector) {
+            DialogManager.tileWindow(this, parent);
+        } else {
+            DialogManager.centreWindow(this, parent);
+        }
     }
 
    
