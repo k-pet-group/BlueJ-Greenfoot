@@ -54,7 +54,7 @@ public final class MoeActions
     private static int DOUBLE_SHORTCUT_MASK;    // two masks (ie. CTRL + META)
 
     private static final int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
-    private static final String spaces = "                        ";
+    private static final String spaces = "                                        ";
     private static final char TAB_CHAR = '\t';
 
     // -------- INSTANCE VARIABLES --------
@@ -463,28 +463,25 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e) {
             JTextComponent textPane = getTextComponent(e);
-            Caret caret = textPane.getCaret();
-            int pos = Math.min(caret.getMark(), caret.getDot());
-            AbstractDocument doc = (AbstractDocument)textPane.getDocument();
-
             MoeEditor ed = getEditor(e);
+
+            // if necessary, convert all TABs in the current editor to spaces
             int converted = 0;
             if(ed.checkExpandTabs())        // do TABs need expanding?
-                converted = convertTabsToSpaces(doc);
-            int lineStart = doc.getParagraphElement(pos).getStartOffset();
-            int currentColumn = pos - lineStart;
+                converted = convertTabsToSpaces(textPane);
 
-            int numSpaces = tabSize - (currentColumn % tabSize);
-            textPane.replaceSelection(spaces.substring(0, numSpaces));
+            insertSpacedTab(textPane);
+
             if(converted > 0)
                 ed.writeMessage(Config.getString("editor.info.tabsExpanded"));
         }
     }
 
-    private int convertTabsToSpaces(Document doc)
+    private int convertTabsToSpaces(JTextComponent textPane)
     {
         int count = 0;
         int lineNo = 0;
+        AbstractDocument doc = (AbstractDocument)textPane.getDocument();
         Element root = doc.getDefaultRootElement();
         Element line = root.getElement(lineNo);
         try {
@@ -586,21 +583,7 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e) {
             getEditor(e);
-            JTextComponent textPane = getTextComponent(e);
-            int pos = textPane.getCaretPosition();
-            textPane.replaceSelection(
-               "    /**\n" +
-               "     * An example of a method - replace this comment with your own\n" +
-               "     * \n" +
-               "     * @param  y   a sample parameter for a method \n" +
-               "     * @return     the sum of x and y \n" +
-               "     **/\n" +
-               "    public int sampleMethod(int y)\n" +
-               "    {\n" +
-               "        // put your code here\n" +
-               "        return y;\n" +
-               "    }");
-            textPane.setCaretPosition(pos);
+            insertTemplate(getTextComponent(e), "method");
         }
     }
 
@@ -996,7 +979,6 @@ public final class MoeActions
     /**
      * Return the current line.
      */
-
     private Element getCurrentLine(JTextComponent text)
     {
         MoeSyntaxDocument document = (MoeSyntaxDocument)text.getDocument();
@@ -1005,9 +987,21 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
     /**
+     * Return the current column number.
+     */
+    private int getCurrentColumn(JTextComponent textPane)
+    {
+        Caret caret = textPane.getCaret();
+        int pos = Math.min(caret.getMark(), caret.getDot());
+        AbstractDocument doc = (AbstractDocument)textPane.getDocument();
+        int lineStart = doc.getParagraphElement(pos).getStartOffset();
+        return (pos - lineStart);
+    }
+
+    // --------------------------------------------------------------------
+    /**
      * Find and return a line by line number
      */
-
     private Element getLine(JTextComponent text, int lineNo)
     {
         return text.getDocument().getDefaultRootElement().getElement(lineNo);
@@ -1017,7 +1011,6 @@ public final class MoeActions
     /**
      * Find and return a line by text position
      */
-
     private Element getLineAt(JTextComponent text, int pos)
     {
         MoeSyntaxDocument document = (MoeSyntaxDocument)text.getDocument();
@@ -1028,7 +1021,6 @@ public final class MoeActions
     /**
      * Return the number of the current line.
      */
-
     private int getCurrentLineIndex(JTextComponent text)
     {
         MoeSyntaxDocument document = (MoeSyntaxDocument)text.getDocument();
@@ -1036,19 +1028,13 @@ public final class MoeActions
 					text.getCaretPosition());
     }
 
-//      // -------------------------------------------------------------------
-//      /**
-//       * Return the number of the line containing position 'pos'.
-//       */
-
-//      private int getLineNumberAt(JTextComponent textComponent, int pos)
-//      {
-//  	return document.getDefaultRootElement().getElementIndex(pos) + 1;
-//      }
-
-
     // ===================== ACTION IMPLEMENTATION ======================
 
+    /**
+     * Do some semi-intelligent indentation. That is: indent the current line
+     * to the same depth, using the same characters (TABs or spaces) as the
+     * line immediately above.
+     */ 
     private void doIndent(JTextComponent textPane)
     {
         int lineIndex = getCurrentLineIndex(textPane);
@@ -1080,7 +1066,10 @@ public final class MoeActions
         }
         catch (Exception exc) {}
     }
-
+        
+    /**
+     * Find the position of the first non-whitespace character in a string.
+     */ 
     private int findFirstNonWhiteChar(String s)
     {
         int cnt=0;
@@ -1093,6 +1082,57 @@ public final class MoeActions
         return cnt;
     }
 
+    /**
+     * Insert a spaced tab at the current caret position in to the textPane.
+     */ 
+    private void insertSpacedTab(JTextComponent textPane)
+    {
+        int numSpaces = tabSize - (getCurrentColumn(textPane) % tabSize);
+        textPane.replaceSelection(spaces.substring(0, numSpaces));
+    }
+
+    /**
+     * Insert text from a named template into the editor at the current
+     * cursor position. Every line in the template will be indented to
+     * the current cursor position (in addition to possible indentation
+     * in the template itself), and TAB characters at beginnings of lines 
+     * in the template will be converted to a spaced tab according to the
+     * current tabsize.
+     *
+     * @param textPane      The editor pane to enter the text into
+     * @param templateName  The name of the template (without path or suffix)
+     */ 
+    private void insertTemplate(JTextComponent textPane, String templateName)
+    {
+        try {
+            File template = Config.getTemplateFile(templateName);
+            BufferedReader in = new BufferedReader(new FileReader(template));
+            int pos = textPane.getCaretPosition();
+            int column = getCurrentColumn(textPane);
+            if(column > 40)
+                column = 40;
+            String line = in.readLine();
+            while(line != null) {
+                while((line.length() > 0) && (line.charAt(0) == '\t')) {
+                    insertSpacedTab(textPane);
+                    line = line.substring(1);
+                }
+                textPane.replaceSelection(line);
+                textPane.replaceSelection("\n");
+                textPane.replaceSelection(spaces.substring(0, column)); // indent
+                line = in.readLine();
+            }
+            textPane.setCaretPosition(pos);
+        }
+        catch(IOException exc) {
+            Debug.reportError("Could not read method template.");
+            Debug.reportError("Exception: " + exc);
+        }
+    }
+
+    /**
+     *
+     */ 
     private void blockAction(JTextComponent textPane, LineAction lineAction)
     {
         Caret caret = textPane.getCaret();
@@ -1123,10 +1163,10 @@ public final class MoeActions
     }
 
     // --------------------------------------------------------------------
+
     /**
      * Create the table of action supported by this editor
      */
-
     private void createActionTable(JTextComponent textComponent)
     {
         undoAction = new UndoAction();
