@@ -12,8 +12,8 @@ import bluej.Config;
 import bluej.debugger.*;
 import bluej.editor.Editor;
 import bluej.parser.*;
-import bluej.parser.ast.*;
-import bluej.parser.ast.gen.*;
+import bluej.parser.SourceLocation;
+import bluej.parser.ast.LocatableAST;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.target.*;
 import bluej.prefmgr.PrefMgr;
@@ -24,7 +24,7 @@ import bluej.utility.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 2252 2003-11-04 12:50:05Z ajp $
+ * @version $Id: UnitTestClassRole.java 2290 2003-11-06 05:00:57Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -311,63 +311,71 @@ public class UnitTestClassRole extends ClassRole
         ed.save();
 
         try {
-            BaseAST ast = (BaseAST) JavaParser.parseFile(new java.io.FileReader(ct.getSourceFile()));
+            UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
 
-			// operate on the first class defined in the source file.
-			// this could be a mistaken assumption but for unit tests its
-			// probably correct
-            BaseAST firstClass = (BaseAST) ast.getFirstChild();
-
-            java.util.List variables = null;
-            SourceSpan setupSpan = null;
-            LocatableAST openingBracket = null;
-            LocatableAST methodInsert = null;
-
-            openingBracket = (LocatableAST) firstClass.getFirstChild();
-            methodInsert = (LocatableAST) firstClass.getFirstChild().getNextSibling();
+            // find all the fields declared in this unit test class
+            List variables = uta.getVariableSpans();
             
-            BaseAST childAST = (BaseAST) methodInsert.getNextSibling();
-
-            while(childAST != null) {
-                if(childAST.getType() == UnitTestParserTokenTypes.OBJBLOCK) {
-                    
-                    variables = UnitTestAnalyzer.getVariableSourceSpans(childAST);
-                    setupSpan = UnitTestAnalyzer.getMethodBlockSourceSpan(childAST, "setUp");
-                    break;
-                }               
-                childAST = (BaseAST) childAST.getNextSibling();            
-            }            
-
-			if (variables != null && variables.size() > 0) {
+            // if we already have fields, ask if we are sure we want to get rid of them
+            if (variables != null && variables.size() > 0) {
 				if (DialogManager.askQuestion(null, "unittest-fixture-present") == 1)
 					return;
 			}
+
+            // if we have fields, we need to nuke them
+            // we need to make sure we delete these in reverse order (from the last
+            // field to the first) or else when we delete them, we change the line
+            // numbers for the following ones
             if (variables != null) {
-                Iterator it = variables.iterator();
+                // start iterating from the last element
+                ListIterator it = variables.listIterator(variables.size());
                 
-                while(it.hasNext()) {
-                    SourceSpan variableSpan = (SourceSpan) it.next();
+                while(it.hasPrevious()) {
+                    SourceSpan variableSpan = (SourceSpan) it.previous();
                     
                     ed.setSelection(variableSpan.getStartLine(), variableSpan.getStartColumn(),
                                      variableSpan.getEndLine(), variableSpan.getEndColumn() + 1);
                     ed.insertText("", false);
                 }
+                
+                // to get correct locations for rewriting setUp(), we need to reparse
+                // (TODO: intelligently keep track of changes to the editor and modify
+                //        line numbers accordingly - avoid this reparse)
+                ed.save();
+                uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
             }
 
-            // rewrite the setUp() method of the unit test
+            // find a location to insert new methods
+            SourceLocation fixtureInsertLocation = uta.getFixtureInsertLocation();
+            
+            // sanity check.. this shouldn't ever be null but if it is, lets not
+            // make it worse by trying to edit the source
+            if (fixtureInsertLocation == null)
+                return;
+            
+            // find the curly brackets for the setUp() method
+            SourceSpan setupSpan = uta.getMethodBlockSpan("setUp");
+            
+            // rewrite the setUp() method of the unit test (if it exists)
             if (setupSpan != null) {
                 ed.setSelection(setupSpan.getStartLine(), setupSpan.getStartColumn(),
                                  setupSpan.getEndLine(), setupSpan.getEndColumn() + 1);
-                ed.insertText("{\n" + pmf.getObjectBench().getFixtureSetup()
-                                + "\t}", false);
-            }
-
-            if (openingBracket != null) {
-                ed.setSelection(openingBracket.getLine(), openingBracket.getColumn(), 1);
-                
-                ed.insertText("{\n" + pmf.getObjectBench().getFixtureDeclaration(), false);
+            } else {
+                // otherwise, we will be inserting a brand new setUp() method
+                ed.setSelection(fixtureInsertLocation.getLine(),
+                                fixtureInsertLocation.getColumn(), 1);
+                ed.insertText("{\n\tpublic void setUp()\n\t", false);
             }
             
+            // insert the code for our setUp() method
+            ed.insertText("{\n" + pmf.getObjectBench().getFixtureSetup()
+                                + "\t}", false);
+
+            // insert our new fixture declarations
+            ed.setSelection(fixtureInsertLocation.getLine(),
+                             fixtureInsertLocation.getColumn(), 1);
+                
+            ed.insertText("{\n" + pmf.getObjectBench().getFixtureDeclaration(), false);
             ed.save();
         }
         catch (Exception e) {

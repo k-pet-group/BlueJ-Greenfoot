@@ -112,6 +112,23 @@ typeDefinition!
             #typeDefinition = #(i, lc, rc, m, ec ,ob, ([COMMENT_DEF, "COMMENT_DEF"], comment) ); 
 	    }
 	|	#(INTERFACE_DEF im:modifiers ii:IDENT iec:extendsClause ib:interfaceBlock )
+	    {
+            Token commentToken = helpFindComment(im, ii);
+            AST comment;
+            
+            if (commentToken != null)
+                comment = new LocatableAST(commentToken);
+            else
+                comment = null;
+
+			// lc and rc and the left and right curly brackets associated with this
+			// class definition. We have stored them in the LocatableAST as
+			// 'important' tokens (done inside java.g)
+            LocatableAST lc = new LocatableAST(((LocatableAST) ib).getImportantToken(0));
+            LocatableAST rc = new LocatableAST(((LocatableAST) ib).getImportantToken(1));
+            
+            #typeDefinition = #(ii, lc, rc, im, iec ,ib, ([COMMENT_DEF, "COMMENT_DEF"], comment) ); 
+	    }
 	;
 
 typeSpec

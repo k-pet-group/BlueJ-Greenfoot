@@ -52,18 +52,18 @@ public class UnitTestAnalyzer
 
         rootAST.setFirstChild(tparse.getAST());
 
-        parsedOk = true;            
+        unitTestAST = findUnitTestClass();
+
+        if (unitTestAST != null)
+            parsedOk = true;            
     }
 
     /**
      * Find the AST of the only class declared in this file that is
      * public. This class will be the unit test class.
      */
-    public AST getUnitTestClass()
+    private LocatableAST findUnitTestClass()
     {
-        if (unitTestAST != null)
-            return unitTestAST;
-
         // loop through the classes defined in the src file
         LocatableAST firstClass = (LocatableAST) rootAST.getFirstChild();
 
@@ -77,8 +77,7 @@ public class UnitTestAnalyzer
                     LocatableAST modifierTokens = (LocatableAST) modifiers.getFirstChild();
                     while(modifierTokens != null) {
                         if (modifierTokens.getText().equals("public")) {
-                            unitTestAST = firstClass;
-                            return unitTestAST;
+                            return firstClass;
                         }
                     }
                 }
@@ -86,7 +85,30 @@ public class UnitTestAnalyzer
 
             firstClass = (LocatableAST) firstClass.getNextSibling();
         }
+        return null;
+    }
 
+    private LocatableAST findUnitTestOpeningBracket()
+    {
+        return (LocatableAST) unitTestAST.getFirstChild();
+    }
+    
+    private LocatableAST findUnitTestClosingBracket()
+    {
+        return (LocatableAST) unitTestAST.getFirstChild().getNextSibling();
+        
+    }
+
+    private LocatableAST findUnitTestObjectBlock()
+    {
+        LocatableAST childAST = (LocatableAST) unitTestAST.getFirstChild().getNextSibling().getNextSibling();
+
+        while(childAST != null) {
+            if(childAST.getType() == UnitTestParserTokenTypes.OBJBLOCK) {
+                return childAST;
+            }
+            childAST = (LocatableAST) childAST.getNextSibling();            
+        }
         return null;
     }
 
@@ -107,16 +129,13 @@ public class UnitTestAnalyzer
      *
      * The list will be ordered in the order that the variables appear in the src.
      */
-    public static List getVariableSourceSpans(AST objBlock)
+    public List getVariableSpans()
     {
-        if (!(objBlock instanceof LocatableAST))
-            throw new IllegalArgumentException("using unit test parser with wrong AST type");
-
         // we are creating a list of AST nodes
         LinkedList l = new LinkedList();
 
         // the first AST in this OBJBLOCK
-        LocatableAST childAST = (LocatableAST) ((BaseAST)objBlock).getFirstChild();
+        LocatableAST childAST = (LocatableAST) (findUnitTestObjectBlock()).getFirstChild();
 
         // the children in an object block are a list of variable definitions
         // and method definitions
@@ -170,13 +189,10 @@ public class UnitTestAnalyzer
      * }
      * gives us a SourceSpan object from the second "{" to the first "}"
      */
-    public static SourceSpan getMethodBlockSourceSpan(AST objBlock, String methodName)
+    public SourceSpan getMethodBlockSpan(String methodName)
     {
-        if (!(objBlock instanceof LocatableAST))
-            throw new IllegalArgumentException("using unit test parser with wrong AST type");
-
         // the children in an object block are a list of variable defs and method defs
-        for(LocatableAST childAST = (LocatableAST) ((BaseAST)objBlock).getFirstChild();
+        for(LocatableAST childAST = (LocatableAST) (findUnitTestObjectBlock()).getFirstChild();
             childAST != null;
             childAST = (LocatableAST) childAST.getNextSibling()){
             
@@ -217,23 +233,19 @@ public class UnitTestAnalyzer
         return null;
     }
 
-
-    public static LocatableAST getOpeningBracketSelection(AST classBlock)
+    public SourceLocation getFixtureInsertLocation()
     {
-        if (!(classBlock instanceof LocatableAST))
-            throw new IllegalArgumentException("wrong AST type");
-
-        return (LocatableAST) classBlock.getNextSibling();
+        LocatableAST a = findUnitTestOpeningBracket();
+        return new SourceLocation(a.getLine(),a.getColumn());
     }
 
-    public static LocatableAST getMethodInsertSelection(AST classBlock)
+    public SourceLocation getNewMethodInsertLocation()
     {
-        if (!(classBlock instanceof LocatableAST))
-            throw new IllegalArgumentException("wrong AST type");
-
-        return (LocatableAST) classBlock.getNextSibling();
+        LocatableAST a = findUnitTestClosingBracket();
+        return new SourceLocation(a.getLine(),a.getColumn());
+        
     }
-
+    
     {
 /*            java.util.List variables = null;
             SourceSpan setupSpan = null;
@@ -255,5 +267,35 @@ public class UnitTestAnalyzer
                 childAST = (BaseAST) childAST.getNextSibling();            
             }   */
 
+        /*
+         *             BaseAST ast = (BaseAST) JavaParser.parseFile(new java.io.FileReader(ct.getSourceFile()));
+
+            // operate on the first class defined in the source file.
+            // this could be a mistaken assumption but for unit tests its
+            // probably correct
+            BaseAST firstClass = (BaseAST) ast.getFirstChild();
+
+            java.util.List variables = null;
+            SourceSpan setupSpan = null;
+            LocatableAST openingBracket = null;
+            LocatableAST methodInsert = null;
+
+            openingBracket = (LocatableAST) firstClass.getFirstChild();
+            methodInsert = (LocatableAST) firstClass.getFirstChild().getNextSibling();
+            
+            BaseAST childAST = (BaseAST) methodInsert.getNextSibling();
+
+            while(childAST != null) {
+                if(childAST.getType() == UnitTestParserTokenTypes.OBJBLOCK) {
+                    
+                    variables = UnitTestAnalyzer.getVariableSourceSpans(childAST);
+                    setupSpan = UnitTestAnalyzer.getMethodBlockSourceSpan(childAST, "setUp");
+                    break;
+                }               
+                childAST = (BaseAST) childAST.getNextSibling();            
+            }            
+
+
+         */
     }
 }
