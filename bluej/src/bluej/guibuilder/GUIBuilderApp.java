@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.Vector;
 import javax.swing.*;
 import javax.swing.Box;
+import javax.swing.table.*;
 import java.beans.*;
 
 import bluej.guibuilder.graphics.*;
@@ -114,6 +115,7 @@ public class GUIBuilderApp extends JFrame
     private int mode = SELECTMODE;
     private GUIComponent selectedComponent = null;
     private StructureContainer selectedStruct = null;
+    private PropertyTableModel selectedModel;
 
     private Vector structureVector = new Vector();
     private StructureContainer structCont = null;
@@ -146,25 +148,11 @@ public class GUIBuilderApp extends JFrame
         addWindowListener(new WindowAdapter() { public void
         	    windowClosing(WindowEvent e) { shutdown(); } } );
 //        setResizable(false);
+        registerPropertyEditors();
         createInterface();
 
         show();
     }
-
-
-    public GUIBuilderApp(Package pkg)
-    {
-        super("GUIBuilder");
-        app = this;
-        this.pkg = pkg;
-        addWindowListener(new WindowAdapter() { public void
-        	    windowClosing(WindowEvent e) { shutdown(); } } );
-//        setResizable(false);
-        createInterface();
-
-        show();
-    }
-
 
     /**
      * Shuts down the application and closes all open windows.
@@ -257,8 +245,15 @@ public class GUIBuilderApp extends JFrame
     public void setSelectedComponent (GUIComponent component)
     {
         if (selectedComponent!=null && (selectedComponent instanceof GUIComponentLeaf))
-        ((GUIComponentLeaf)selectedComponent).getContainer().setHighlight(false);
+            ((GUIComponentLeaf)selectedComponent).getContainer().setHighlight(false);
+
         selectedComponent = component;
+
+        if(selectedModel != null) {
+            selectedModel.setObject(component);
+            selectedModel.filterTable(1);
+            selectedModel.fireTableDataChanged();
+        }
     }
 
 
@@ -361,7 +356,7 @@ public class GUIBuilderApp extends JFrame
                 tools.setLayout(new BoxLayout(tools, BoxLayout.Y_AXIS));
                 tools.setBorder(BorderFactory.createEmptyBorder(0,0,0,10));
 
-                selectButton = new JToggleButton("Select");
+                selectButton = new JToggleButton("Select", Config.getImage("guibuilder.image.selectbutton"));
                 {
                     selectButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
                                                     selectButton.getPreferredSize().height));
@@ -396,6 +391,10 @@ public class GUIBuilderApp extends JFrame
                 {
                     tmpButton = new JButton(modeButton[i]);
                     tmpButton.addActionListener (buttonListener);
+
+                    tmpButton.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+                                                tmpButton.getPreferredSize().height));
+
                     tools.add(tmpButton);
                 }
             }
@@ -407,10 +406,19 @@ public class GUIBuilderApp extends JFrame
                 workarea.setPreferredSize(new Dimension(400,400));
             }
 
+            selectedModel = new PropertyTableModel();
+            PropertyColumnModel columnModel = new PropertyColumnModel();
+
+            JTable table = new JTable(selectedModel, columnModel);
+            table.setAutoResizeMode(table.AUTO_RESIZE_LAST_COLUMN);
+            table.setRowHeight(20);
+
+            JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(workarea), new JScrollPane(table));
+
             windowPanel.setLayout(new BorderLayout());
             windowPanel.setBorder(Config.generalBorder);
             windowPanel.add(tools, BorderLayout.WEST);
-            windowPanel.add(workarea, BorderLayout.CENTER);
+            windowPanel.add(splitPane, BorderLayout.CENTER);
             windowPanel.add(status, BorderLayout.SOUTH);
         }
 
@@ -427,6 +435,30 @@ public class GUIBuilderApp extends JFrame
     private void showAboutDialog()
     {
         AboutDialog about = new AboutDialog (app);
+    }
+
+    /**
+     * Method which registers property editors for types.
+     */
+    private void registerPropertyEditors()  {
+        PropertyEditorManager.registerEditor(Color.class, javax.swing.beaninfo.SwingColorEditor.class);
+        PropertyEditorManager.registerEditor(Font.class, javax.swing.beaninfo.SwingFontEditor.class);
+        PropertyEditorManager.registerEditor(Border.class, javax.swing.beaninfo.SwingBorderEditor.class);
+        PropertyEditorManager.registerEditor(Boolean.class, javax.swing.beaninfo.SwingBooleanEditor.class);
+        PropertyEditorManager.registerEditor(boolean.class, javax.swing.beaninfo.SwingBooleanEditor.class);
+
+        PropertyEditorManager.registerEditor(Integer.class, javax.swing.beaninfo.SwingIntegerEditor.class);
+        PropertyEditorManager.registerEditor(int.class, javax.swing.beaninfo.SwingIntegerEditor.class);
+
+        PropertyEditorManager.registerEditor(Float.class, javax.swing.beaninfo.SwingNumberEditor.class);
+        PropertyEditorManager.registerEditor(float.class, javax.swing.beaninfo.SwingNumberEditor.class);
+
+        PropertyEditorManager.registerEditor(java.awt.Dimension.class, javax.swing.beaninfo.SwingDimensionEditor.class);
+        PropertyEditorManager.registerEditor(java.awt.Rectangle.class, javax.swing.beaninfo.SwingRectangleEditor.class);
+        PropertyEditorManager.registerEditor(java.awt.Insets.class, javax.swing.beaninfo.SwingInsetsEditor.class);
+
+        PropertyEditorManager.registerEditor(String.class, javax.swing.beaninfo.SwingStringEditor.class);
+        PropertyEditorManager.registerEditor(Object.class, javax.swing.beaninfo.SwingObjectEditor.class);
     }
 
     /**
@@ -563,17 +595,17 @@ public class GUIBuilderApp extends JFrame
             ObjectOutput s = null;
 
 //            if (ext.equals(XMLFileFilter.EXT))  {
-                s = new XMLOutputStream(out);
+//                s = new XMLOutputStream(out);
 //            } else if (ext.equals(BSFileFilter.EXT))  {
 //                s = new BeanScriptOutputStream(out);
 //            } else if (ext.equals(JavaFileFilter.EXT)) {
-//                s = new JavaOutputStream(out);
+                  s = new JavaOutputStream(out);
 //            } else {
 //                s = new ObjectOutputStream(out);
 //            }
 
 //            s.writeObject(panel.getRoot());
-            s.writeObject(selectedStruct.getTree());
+            s.writeObject(workarea); //selectedStruct.getTree());
             s.close();
 
 //            this.filename = filename;
@@ -815,3 +847,52 @@ public class GUIBuilderApp extends JFrame
 	}
     }
 }
+
+/*                 {
+                    public int getColumnCount() { return 2; }
+                    public int getRowCount() { return 10;}
+                    public Object getValueAt(int row, int col) {
+                        if (selectedComponent != null)
+                        {
+                            try {
+                                BeanInfo binfo = Introspector.getBeanInfo(selectedComponent.getClass());
+
+                                PropertyDescriptor bdesc[] = binfo.getPropertyDescriptors();
+
+                                if(row < bdesc.length) {
+
+                                    if(col == 0)
+                                        return bdesc[row].getDisplayName();
+                                    else
+                                    {
+                                        PropertyEditor ed = PropertyEditorManager.findEditor(bdesc[row].getPropertyType());
+
+                                        if(ed == null)
+                                            return "no editor";
+
+                                        if(ed.isPaintable() || ed.supportsCustomEditor())
+                                            return "paint";
+                                       else {
+                                            try {
+                                                String ret = ed.getAsText();
+                                                if(ret != null)
+                                                    return ret;
+                                            }
+                                            catch (Exception e)
+                                            {
+
+                                            }
+                                       }
+                                    }
+
+                                }
+                            }
+                            catch(IntrospectionException iex)
+                            {
+                            }
+                        }
+
+                        return "";
+                    }
+                };
+  */
