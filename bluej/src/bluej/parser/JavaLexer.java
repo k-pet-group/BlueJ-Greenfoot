@@ -24,6 +24,30 @@ import antlr.LexerSharedInputState;
 import antlr.collections.impl.BitSet;
 public class JavaLexer extends antlr.CharScanner implements JavaLexerTokenTypes, TokenStream
  {
+
+	protected int tokColumn = 1;
+	protected int column = 1;
+
+	public void consume() throws IOException
+	{
+//		if ( inputState.guessing==0 ) {
+		if (text.length()==0) {
+			// remember token start column
+			tokColumn = column;
+		}
+//		}
+		column++;
+		super.consume();
+	}
+
+	public void newline() { super.newline(); column = 1; }
+
+	protected Token makeToken(int t)
+	{
+		Token tok = super.makeToken(t);
+		tok.setColumn(tokColumn);
+		return tok;
+	}
 public JavaLexer(InputStream in) {
 	this(new ByteBuffer(in));
 }

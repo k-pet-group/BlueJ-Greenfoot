@@ -83,7 +83,7 @@ public class ClassParser extends antlr.LLkParser
         // otherwise, if this is a java file, parse it!
         else if (f.getName().endsWith(".java")) {
             symbolTable.setFile(f);
-            parseFile(new FileInputStream(f), symbolTable);
+            parseFile(new BufferedInputStream(new FileInputStream(f)), symbolTable);
         }
     }
 
@@ -544,6 +544,9 @@ public ClassParser(ParserSharedInputState state) {
 		{
 			match(LITERAL_extends);
 			superClass=identifier();
+			if ( inputState.guessing==0 ) {
+				
+			}
 			break;
 		}
 		case LCURLY:

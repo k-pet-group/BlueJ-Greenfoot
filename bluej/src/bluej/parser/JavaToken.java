@@ -22,9 +22,8 @@ public class JavaToken extends antlr.CommonHiddenStreamToken {
     
     /** A reference to the File that was scanned to create this symbol */
     private File file = null;
-    int column;
-
-
+    protected int column;
+ 
     //==========================================================================
     //==  Methods
     //==========================================================================

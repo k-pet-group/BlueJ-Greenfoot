@@ -108,7 +108,7 @@ options {
         // otherwise, if this is a java file, parse it!
         else if (f.getName().endsWith(".java")) {
             symbolTable.setFile(f);
-            parseFile(new FileInputStream(f), symbolTable);
+            parseFile(new BufferedInputStream(new FileInputStream(f)), symbolTable);
         }
     }
 
@@ -263,7 +263,7 @@ packageDefinition
     options {defaultErrorHandler = true;} // let ANTLR handle errors
     {JavaToken id;} // define an id for the package name
     :   "package" id=identifier SEMI
-        {definePackage(id);}  // tell the symbol table about the package
+        {definePackage(id); }  // tell the symbol table about the package
     ;
 
 
@@ -434,7 +434,9 @@ classDefinition[boolean isAbstract, JavaToken commentToken]
     :   "class" id:IDENT // aha! a class!
 
             // it _might_ have a superclass...
-            ("extends" superClass=identifier )?
+            ("extends" superClass=identifier
+            { }
+            )?
 
             // it might implement some interfaces...
             (interfaces=implementsClause)?
@@ -459,8 +461,8 @@ interfaceDefinition[JavaToken commentToken]
     :   "interface" id:IDENT // aha! an interface!
             
             // it might extend some other interfaces
-            (superInterfaces=interfaceExtends)?
-
+            (superInterfaces=interfaceExtends)? 
+            
             // tell the symbol table about it!
             // Note that defineInterface pushes the interface scope, so
             //   we'll have to pop it...
@@ -487,8 +489,11 @@ classBlock
 //   of all the superinterfaces and return it
 interfaceExtends returns [JavaVector supers]
     {JavaToken id; supers = new JavaVector();}
-    :   "extends" id=identifier  {supers.addElement(dummyClass(id));}
-        (COMMA id=identifier     {supers.addElement(dummyClass(id));} )*
+    :   "extends" id=identifier
+    	{ supers.addElement(dummyClass(id)); }
+        (COMMA id=identifier
+        { supers.addElement(dummyClass(id)); }
+         )*
     ;
 
 
@@ -1074,13 +1079,39 @@ constant
 // The Java scanner
 //----------------------------------------------------------------------------
 class JavaLexer extends Lexer;
-
 options {
-    importVocab=Java;  // call the vocabulary "Java"
-    longestPossible=true;  // gobble characters to find the longest match
-    testLiterals=false;    // don't automatically test for literals
-    k=4;                   // four characters of lookahead
+    importVocab=Java;		// call the vocabulary "Java"
+    testLiterals=false;		// don't automatically test for literals
+    k=4;			// four characters of lookahead
 }
+
+{
+	protected int tokColumn = 1;
+	protected int column = 1;
+
+	public void consume() throws IOException
+	{
+//		if ( inputState.guessing==0 ) {
+		if (text.length()==0) {
+			// remember token start column
+			tokColumn = column;
+		}
+//		}
+		column++;
+		super.consume();
+	}
+
+	public void newline() { super.newline(); column = 1; }
+
+	protected Token makeToken(int t)
+	{
+		Token tok = super.makeToken(t);
+		tok.setColumn(tokColumn);
+		return tok;
+	}
+}
+
+
 
 
 
@@ -1186,7 +1217,7 @@ STRING_LITERAL
 //   the parser
 protected
 ESC
-    :   '\\'
+    :   '\\'                             
         (   'n'
         |   'r'
         |   't'
