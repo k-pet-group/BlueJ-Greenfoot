@@ -1,6 +1,6 @@
 
  Start         Length     Name                   Class
- 0001:00000000 0007ECF4H .text                   CODE
+ 0001:00000000 0007ECB8H .text                   CODE
  0002:00000000 00001CFCH .data                   DATA
  0002:00001CFC 00001CDDH .bss                    BSS
 
@@ -68,8 +68,8 @@ Detailed map of segments
  0001:00069B00 00000050 C=CODE     S=.text    G=(none)   M=JConsts  ACBP=A9
  0001:00069B50 00012E74 C=CODE     S=.text    G=(none)   M=jpeg     ACBP=A9
  0001:0007C9C4 000005B0 C=CODE     S=.text    G=(none)   M=javatest ACBP=A9
- 0001:0007CF74 000019B4 C=CODE     S=.text    G=(none)   M=main     ACBP=A9
- 0001:0007E928 000003CC C=CODE     S=.text    G=(none)   M=vmselect ACBP=A9
+ 0001:0007CF74 00001978 C=CODE     S=.text    G=(none)   M=main     ACBP=A9
+ 0001:0007E8EC 000003CC C=CODE     S=.text    G=(none)   M=vmselect ACBP=A9
  0002:00000000 0000008C C=DATA     S=.data    G=DGROUP   M=System   ACBP=A9
  0002:0000008C 00000018 C=DATA     S=.data    G=DGROUP   M=SysInit  ACBP=A9
  0002:000000A4 00000240 C=DATA     S=.data    G=DGROUP   M=SysUtils ACBP=A9
@@ -991,7 +991,7 @@ Detailed map of segments
  0001:00069ABC       Finalization
  0001:0002F378       Finalization
  0001:000569E8       Finalization
- 0001:0007E840       Finalization
+ 0001:0007E804       Finalization
  0001:0005B6D4       Finalization
  0001:00028FEC       Finalization
  0001:0005B72C       Finalization
@@ -1004,7 +1004,7 @@ Detailed map of segments
  0001:0002BE68       Finalization
  0001:0000BCE4       Finalization
  0001:00043A88       Finalization
- 0001:0007E928       Finalization
+ 0001:0007E8EC       Finalization
  0001:00026E58       Finalization
  0001:00028CC8       Finalization
  0001:00042084       Finalization
@@ -1651,7 +1651,7 @@ Detailed map of segments
  0001:0000031C       lstrcpyn
  0002:000029D0       LVarTypes
  0002:000029D4       LVarTypeSync
- 0001:0007E920       main
+ 0001:0007E8E4       main
  0002:00003CD0       MainForm
  0002:0000202C       MainInstance
  0002:00002030       MainThreadID
@@ -3708,20 +3708,20 @@ Detailed map of segments
  0002:FFB80010       TlsLast
  0001:00005BA0       TlsSetValue
  0001:0007E058       TMainForm.AddGoodVM
- 0001:0007E588       TMainForm.AdvancedSimpleButtonClickToAdvanced
- 0001:0007E5E8       TMainForm.AdvancedSimpleButtonClickToSimple
- 0001:0007E464       TMainForm.BrowseButtonClick
+ 0001:0007E54C       TMainForm.AdvancedSimpleButtonClickToAdvanced
+ 0001:0007E5AC       TMainForm.AdvancedSimpleButtonClickToSimple
+ 0001:0007E428       TMainForm.BrowseButtonClick
  0001:0007DF40       TMainForm.FindFileFound
  0001:0007D680       TMainForm.FormCreate
- 0001:0007E51C       TMainForm.FormDestroy
+ 0001:0007E4E0       TMainForm.FormDestroy
  0001:0007D97C       TMainForm.FormShow
- 0001:0007E564       TMainForm.GoodVMCheck
- 0001:0007E55C       TMainForm.GoodVMExit
- 0001:0007E544       TMainForm.GoodVMSelectItem
+ 0001:0007E528       TMainForm.GoodVMCheck
+ 0001:0007E520       TMainForm.GoodVMExit
+ 0001:0007E508       TMainForm.GoodVMSelectItem
  0001:0007E168       TMainForm.LaunchBlueJ
- 0001:0007E390       TMainForm.LaunchButtonClick
+ 0001:0007E354       TMainForm.LaunchButtonClick
  0001:0007DEA0       TMainForm.NewFolder
- 0001:0007E64C       TMainForm.ParseBlueJDefs
+ 0001:0007E610       TMainForm.ParseBlueJDefs
  0001:0007DDC8       TMainForm.SearchButtonClick
  0001:0007E11C       TMainForm.SearchDone
  0001:00049378       TMainMenu.GetHandle
@@ -4774,7 +4774,7 @@ Detailed map of segments
  0001:000003D0       VirtualFree
  0001:0000035C       VirtualQuery
  0001:0000604C       VirtualQuery
- 0001:0007EB50       vmselect
+ 0001:0007EB14       vmselect
  0001:000067B4       WaitForInputIdle
  0001:00006054       WaitForMultipleObjects
  0001:0000605C       WaitForSingleObject
@@ -9186,19 +9186,19 @@ Detailed map of segments
  0001:0007E058       TMainForm.AddGoodVM
  0001:0007E11C       TMainForm.SearchDone
  0001:0007E168       TMainForm.LaunchBlueJ
- 0001:0007E390       TMainForm.LaunchButtonClick
- 0001:0007E464       TMainForm.BrowseButtonClick
- 0001:0007E51C       TMainForm.FormDestroy
- 0001:0007E544       TMainForm.GoodVMSelectItem
- 0001:0007E55C       TMainForm.GoodVMExit
- 0001:0007E564       TMainForm.GoodVMCheck
- 0001:0007E588       TMainForm.AdvancedSimpleButtonClickToAdvanced
- 0001:0007E5E8       TMainForm.AdvancedSimpleButtonClickToSimple
- 0001:0007E64C       TMainForm.ParseBlueJDefs
- 0001:0007E840       Finalization
- 0001:0007E920       main
- 0001:0007E928       Finalization
- 0001:0007EB50       vmselect
+ 0001:0007E354       TMainForm.LaunchButtonClick
+ 0001:0007E428       TMainForm.BrowseButtonClick
+ 0001:0007E4E0       TMainForm.FormDestroy
+ 0001:0007E508       TMainForm.GoodVMSelectItem
+ 0001:0007E520       TMainForm.GoodVMExit
+ 0001:0007E528       TMainForm.GoodVMCheck
+ 0001:0007E54C       TMainForm.AdvancedSimpleButtonClickToAdvanced
+ 0001:0007E5AC       TMainForm.AdvancedSimpleButtonClickToSimple
+ 0001:0007E610       TMainForm.ParseBlueJDefs
+ 0001:0007E804       Finalization
+ 0001:0007E8E4       main
+ 0001:0007E8EC       Finalization
+ 0001:0007EB14       vmselect
  0002:00000000       ExitCode
  0002:00000004       ErrorAddr
  0002:00000008       FileMode
@@ -9687,4 +9687,4 @@ addedicon.res
 vmselect.drf
 
 
-Program entry point at 0001:0007EB50
+Program entry point at 0001:0007EB14

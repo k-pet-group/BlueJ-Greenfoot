@@ -8,27 +8,28 @@
   resources were bound to the produced executable.
 */
 
-#define ComStrs_sInvalidOwner 65312
-#define ComStrs_sInvalidComCtl32 65313
-#define JConsts_sChangeJPGSize 65314
-#define JConsts_sJPEGError 65315
-#define JConsts_sJPEGImageFile 65316
+#define HelpIntfs_hNoTopics 65312
+#define ComStrs_sInvalidOwner 65313
+#define ComStrs_sInvalidComCtl32 65314
+#define JConsts_sChangeJPGSize 65315
+#define JConsts_sJPEGError 65316
+#define JConsts_sJPEGImageFile 65317
 #define Consts_SmkcIns 65328
 #define Consts_SmkcDel 65329
 #define Consts_SmkcShift 65330
 #define Consts_SmkcCtrl 65331
 #define Consts_SmkcAlt 65332
-#define Consts_SIconToClipboard 65333
-#define Consts_SCannotOpenClipboard 65334
-#define Consts_SDuplicateMenus 65335
-#define Consts_SDockedCtlNeedsName 65336
-#define Consts_SDockTreeRemoveError 65337
-#define Consts_SDockZoneNotFound 65338
-#define Consts_SDockZoneHasNoCtl 65339
-#define HelpIntfs_hNoTableOfContents 65340
-#define HelpIntfs_hNothingFound 65341
-#define HelpIntfs_hNoContext 65342
-#define HelpIntfs_hNoTopics 65343
+#define Consts_SInsertLineError 65333
+#define Consts_SIconToClipboard 65334
+#define Consts_SCannotOpenClipboard 65335
+#define Consts_SDuplicateMenus 65336
+#define Consts_SDockedCtlNeedsName 65337
+#define Consts_SDockTreeRemoveError 65338
+#define Consts_SDockZoneNotFound 65339
+#define Consts_SDockZoneHasNoCtl 65340
+#define HelpIntfs_hNoTableOfContents 65341
+#define HelpIntfs_hNothingFound 65342
+#define HelpIntfs_hNoContext 65343
 #define Consts_SMsgDlgAll 65344
 #define Consts_SMsgDlgNoToAll 65345
 #define Consts_SMsgDlgYesToAll 65346
@@ -223,6 +224,7 @@
 #define SysConst_SInvalidOp 65535
 STRINGTABLE
 BEGIN
+	HelpIntfs_hNoTopics,	"No topic-based help system installed"
 	ComStrs_sInvalidOwner,	"Invalid owner"
 	ComStrs_sInvalidComCtl32,	"This control requires version 4.70 or greater of COMCTL32.DLL"
 	JConsts_sChangeJPGSize,	"Cannot change the size of a JPEG image"
@@ -233,6 +235,7 @@ BEGIN
 	Consts_SmkcShift,	"Shift+"
 	Consts_SmkcCtrl,	"Ctrl+"
 	Consts_SmkcAlt,	"Alt+"
+	Consts_SInsertLineError,	"Unable to insert a line"
 	Consts_SIconToClipboard,	"Clipboard does not support Icons"
 	Consts_SCannotOpenClipboard,	"Cannot open clipboard"
 	Consts_SDuplicateMenus,	"Menu '%s' is already being used by another form"
@@ -243,7 +246,6 @@ BEGIN
 	HelpIntfs_hNoTableOfContents,	"Unable to find a Table Of Contents"
 	HelpIntfs_hNothingFound,	"No help found for %s"
 	HelpIntfs_hNoContext,	"No context-sensitive help installed"
-	HelpIntfs_hNoTopics,	"No topic-based help system installed"
 	Consts_SMsgDlgAll,	"&All"
 	Consts_SMsgDlgNoToAll,	"N&o to All"
 	Consts_SMsgDlgYesToAll,	"Yes to &All"

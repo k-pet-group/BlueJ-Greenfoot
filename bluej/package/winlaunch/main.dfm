@@ -1,11 +1,11 @@
 object MainForm: TMainForm
-  Left = 444
-  Top = 209
+  Left = 287
+  Top = 315
   ActiveControl = GoodVM
   BorderStyle = bsDialog
   Caption = 'BlueJ Launcher'
-  ClientHeight = 378
-  ClientWidth = 440
+  ClientHeight = 373
+  ClientWidth = 552
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -58,9 +58,9 @@ object MainForm: TMainForm
     ParentFont = False
   end
   object StartMessage1: TLabel
-    Left = 64
+    Left = 72
     Top = 8
-    Width = 369
+    Width = 473
     Height = 13
     Alignment = taCenter
     AutoSize = False
@@ -73,9 +73,9 @@ object MainForm: TMainForm
     ParentFont = False
   end
   object StartMessage2: TLabel
-    Left = 64
+    Left = 72
     Top = 24
-    Width = 369
+    Width = 473
     Height = 13
     Alignment = taCenter
     AutoSize = False
@@ -88,9 +88,9 @@ object MainForm: TMainForm
     ParentFont = False
   end
   object StartMessage3: TLabel
-    Left = 64
+    Left = 72
     Top = 40
-    Width = 369
+    Width = 473
     Height = 13
     Alignment = taCenter
     AutoSize = False
@@ -294,8 +294,22 @@ object MainForm: TMainForm
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000}
     Transparent = True
   end
+  object Label2: TLabel
+    Left = 232
+    Top = 176
+    Width = 48
+    Height = 13
+    Caption = 'Language'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    Visible = False
+  end
   object LaunchButton: TButton
-    Left = 304
+    Left = 416
     Top = 168
     Width = 129
     Height = 25
@@ -306,7 +320,7 @@ object MainForm: TMainForm
     OnClick = LaunchButtonClick
   end
   object SearchButton: TButton
-    Left = 224
+    Left = 336
     Top = 208
     Width = 209
     Height = 25
@@ -317,13 +331,13 @@ object MainForm: TMainForm
   object GoodVM: TListView
     Left = 8
     Top = 64
-    Width = 425
+    Width = 537
     Height = 97
     Columns = <
       item
+        AutoSize = True
         Caption = 'Path'
         MinWidth = 200
-        Width = 300
       end
       item
         Caption = 'Version'
@@ -332,6 +346,7 @@ object MainForm: TMainForm
       end>
     ReadOnly = True
     RowSelect = True
+    ShowColumnHeaders = False
     TabOrder = 2
     ViewStyle = vsReport
     OnExit = GoodVMExit
@@ -340,13 +355,13 @@ object MainForm: TMainForm
   object BadVM: TListView
     Left = 7
     Top = 256
-    Width = 426
+    Width = 538
     Height = 97
     Columns = <
       item
+        AutoSize = True
         Caption = 'Path'
         MinWidth = 200
-        Width = 200
       end
       item
         Caption = 'Reason'
@@ -358,12 +373,12 @@ object MainForm: TMainForm
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 359
-    Width = 442
+    Top = 354
+    Width = 552
     Height = 19
-    Align = alNone
     Panels = <>
     SimplePanel = True
+    Visible = False
   end
   object BrowseButton: TButton
     Left = 8
@@ -386,8 +401,33 @@ object MainForm: TMainForm
     Style = bsNew
     Spacing = 14
   end
+  object LanguageComboBox: TComboBox
+    Left = 232
+    Top = 192
+    Width = 97
+    Height = 21
+    Style = csDropDownList
+    ItemHeight = 13
+    ItemIndex = 0
+    TabOrder = 7
+    Text = 'English'
+    Visible = False
+    Items.Strings = (
+      'English'
+      'Afrikaans'
+      'Chinese'
+      'Czech'
+      'French'
+      'German'
+      'Italian'
+      'Japanese'
+      'Korean'
+      'Portuguese'
+      'Spanish'
+      'Swedish')
+  end
   object OpenDialog1: TOpenDialog
-    Filter = 'Must be a java executable|java.exe'
+    Filter = 'Must be a java executable (java.exe)|java.exe'
     Left = 408
     Top = 232
   end

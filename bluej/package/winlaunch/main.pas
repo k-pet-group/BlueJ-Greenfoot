@@ -13,7 +13,7 @@ const
 
     jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
 	ibmregkey : string = '\Software\IBM\Java Development Kit';
-    bluejregkey : string = '\Software\BlueJ\BlueJ\1.3.1';
+    bluejregkey : string = '\Software\BlueJ\BlueJ\1.3.5';
 
     searchingstartcaption : string = 'Search drives for all Java versions...';
     searchingstopcaption : string = 'Stop Search';
@@ -49,6 +49,8 @@ type
     ImageList1: TImageList;
     StartMessage3: TLabel;
     Image1: TImage;
+    LanguageComboBox: TComboBox;
+    Label2: TLabel;
     procedure SearchButtonClick(Sender: TObject);
     procedure LaunchButtonClick(Sender: TObject);
     procedure BrowseButtonClick(Sender: TObject);
@@ -71,8 +73,12 @@ type
           current directory for when we launch java }
         startingcurrentdir : string;
 
+        { command line flag to tell bluej to display the VM selector
+          no matter what }
         forcedialog : boolean;
-        usejavaw : boolean;
+
+        { flag indicating that we have already launched BlueJ, so
+          lets not do it again }
         launched : boolean;
 
         procedure FindFileFound(Sender: TObject; Folder: String;
@@ -87,7 +93,7 @@ type
 
         procedure GoodVMCheck;
 
-        function LaunchBlueJ(jdkpath : string) : boolean;
+        function LaunchBlueJ(jdkpath, ver : string) : boolean;
 
         function ParseBlueJDefs : string;
 
@@ -131,7 +137,6 @@ begin
     startingcurrentdir := GetCurrentDir;
 
     forcedialog := false;
-    usejavaw := false;
     launched := false;
 
     { simulate clicking on the button to make the interface
@@ -159,20 +164,23 @@ begin
         if LowerCase(ParamStr(i)) = '/select' then
             forcedialog := true
         else if LowerCase(ParamStr(i)) = '/javaw' then
-            usejavaw := true
+            // ignore
         else
        	    goodparams.Add(ParamStr(i));
     end;
 
+    { look for a definition of a VM in the bluej.defs file }
     home := ParseBlueJDefs;
 
+    { if we find one and we are not forced to display ourselves,
+      launch BlueJ }
     if home <> '' then
     begin
         if testjdkpath(home, ver)  then
         begin
             if (not forcedialog) then
             begin
-	            LaunchBlueJ(home);
+	            LaunchBlueJ(home, ver);
                 Application.Terminate;
                 Exit;
             end
@@ -203,7 +211,7 @@ begin
             begin
                 if testjdkpath(home, ver) then
                 begin
-	                LaunchBlueJ(home);
+	                LaunchBlueJ(home, ver);
                     Application.Terminate;
                 end;
 			end;
@@ -219,7 +227,6 @@ end;
 
     This function checks known registry locations for VM's
     and adds them to a ListBox displaying the VM's.
-
 }
 procedure TMainForm.FormShow(Sender: TObject);
 var
@@ -318,7 +325,7 @@ begin
               have found only one VM, we mind as well launch }
             if (not forcedialog) then
             begin
-	            LaunchBlueJ(GoodVM.Items[0].Caption);
+	            LaunchBlueJ(GoodVM.Items[0].Caption, GoodVM.Items[0].SubItems[0] );
                 Close;
             end;
         end;
@@ -360,20 +367,20 @@ begin
         ff.Abort
     else
     begin
-                // Fills FileFile properties
-                ff.Threaded := true;
-                // - Name & Location
-                ff.Filename := 'java.exe';
-                ff.Location := BuildDriveStrings;
-                ff.Subfolders := true;
+        // Fills FileFile properties
+        ff.Threaded := true;
+        // - Name & Location
+        ff.Filename := 'java.exe';
+        ff.Location := BuildDriveStrings;
+        ff.Subfolders := true;
 
-                ff.OnFound := FindFileFound;
-                ff.OnNewFolder := NewFolder;
-                ff.OnComplete := SearchDone;
+        ff.OnFound := FindFileFound;
+        ff.OnNewFolder := NewFolder;
+        ff.OnComplete := SearchDone;
 
-                ff.Execute;
+        ff.Execute;
 
-                SearchButton.Caption := searchingstopcaption;
+        SearchButton.Caption := searchingstopcaption;
     end;
 end;
 
@@ -393,27 +400,26 @@ procedure TMainForm.FindFileFound(Sender: TObject; Folder: String;
 var
         javapath, reason : string;
 begin
-        javapath := Folder + '\' + FileInfo.Name;
-        reason := '';
+    javapath := Folder + '\' + FileInfo.Name;
+    reason := '';
 
-        StatusBar.SimpleText := 'Found VM at ' + javapath;
+    StatusBar.SimpleText := 'Found VM at ' + javapath;
 
-        if testjavapath(javapath, reason) then
+    if testjavapath(javapath, reason) then
+    begin
+        AddGoodVM(javapath, reason);
+    end
+    else
+    begin
+        with BadVM.Items.Add do
         begin
-	        AddGoodVM(javapath, reason);
-        end
-        else
-        begin
-                with BadVM.Items.Add do
-                begin
-                        Caption := javapath;
-                        SubItems.Add(reason)
-                end;
+            Caption := javapath;
+            SubItems.Add(reason)
         end;
+    end;
 
-        if not ff.Threaded then
-                Application.ProcessMessages;
-
+    if not ff.Threaded then
+        Application.ProcessMessages;
 end;
 
 procedure TMainForm.AddGoodVM(jdkpath, ver : string);
@@ -446,9 +452,9 @@ end;
     Launch BlueJ using 'jdkpath' as the location of the
     VM to use.
 }
-function TMainForm.LaunchBlueJ(jdkpath : string) : boolean;
+function TMainForm.LaunchBlueJ(jdkpath, ver : string) : boolean;
 var
-        appdir, appdirlib, vmfilename, tooljarfilename,
+        appdir, appdirlib, vmfilename,
           bluejjarfilename  : string;
         exfile : TExFile;
 begin
@@ -463,17 +469,20 @@ begin
 
 	// vmfilename is automatically wrapped in quotes by ExecConsoleApp so
 	// there is no need for us to do it
-    if usejavaw then
-    	vmfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\bin\javaw.exe'
+//    if usejavaw then
+//    else
+    if StrLIComp(PChar(ver), '"1.4', 4) >= 0 then
+     	vmfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\bin\javaw.exe'
     else
-      	vmfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\bin\java.exe';
+     	vmfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\bin\java.exe';
 
     appdirlib := '"' + appdir + 'lib\';
 
     bluejjarfilename := appdirlib + 'bluej.jar' + '"';
 
-    tooljarfilename := '"' + ExcludeTrailingPathDelimiter(jdkpath) + '\lib\tools.jar' + '"';
-
+//    if (LanguageComboBox.ItemIndex <> 0) then
+//        goodparams.Add('-Dbluej.language=' + LanguageComboBox.Items[LanguageComboBox.ItemIndex]);
+        
     exfile := TExFile.Create(MainForm);
 
     exfile.WaitUntilDone := false;
@@ -498,7 +507,7 @@ begin
     if GoodVM.Selected = nil then
         Exit;
 
-	LaunchBlueJ(GoodVM.Selected.Caption);
+	LaunchBlueJ(GoodVM.Selected.Caption, GoodVM.Selected.SubItems[0]);
 
     reg := TRegistry.Create;
     try
@@ -577,6 +586,7 @@ begin
 
     ImageList1.GetBitmap(0, AdvancedSimpleButton.Glyph);
 
+    StatusBar.Visible := True;
     ClientHeight := advancedwinheight;
 end;
 
@@ -588,9 +598,14 @@ begin
 
     ImageList1.GetBitmap(1, AdvancedSimpleButton.Glyph);
 
+    StatusBar.Visible := False;
  	ClientHeight := simplewinheight;
 end;
 
+{
+
+
+}
 function TMainForm.ParseBlueJDefs : string;
 var
     f : TextFile;

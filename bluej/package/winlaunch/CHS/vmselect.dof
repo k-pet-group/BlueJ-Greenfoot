@@ -41,7 +41,7 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=
+OutputDir=..\..\winlaunch
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
@@ -56,10 +56,6 @@ HostApplication=
 Launcher=
 UseLauncher=0
 DebugCWD=
-[Resource DLL Projects]
-Item0=Afrikaans*$00000436*AFK*AFK
-Item1=Chinese (PRC)*$00000804*CHS*CHS
-Item2=Czech*$00000405*CSY*CSY
 [RDP Source Files]
 Item0=main.dfm
 Item1=vmselect.drc
@@ -73,18 +69,18 @@ AutoIncBuild=1
 MajorVer=1
 MinorVer=3
 Release=5
-Build=41
+Build=36
 Debug=0
 PreRelease=0
 Special=0
 Private=0
 DLL=0
-Locale=1033
-CodePage=1252
+Locale=2052
+CodePage=936
 [Version Info Keys]
 CompanyName=www.bluej.org
 FileDescription=BlueJ Launcher
-FileVersion=1.3.5.41
+FileVersion=1.3.5.36
 InternalName=
 LegalCopyright=Michael Kolling and John Rosenberg
 LegalTrademarks=

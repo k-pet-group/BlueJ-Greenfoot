@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=BlueJ
-AppVerName=BlueJ 1.3.1
+AppVerName=BlueJ 1.3.5
 AppPublisher=Monash University
 AppPublisherURL=http://www.bluej.org
 AppSupportURL=http://www.bluej.org

@@ -1,13 +1,16 @@
 [Closed Files]
-File_0=SourceModule,'H:\home\ajp\BlueJ\main\package\winlaunch\filefinddemo.pas',0,1,1,1,1,0,0
-File_1=SourceModule,'H:\home\ajp\BlueJ\main\package\winlaunch\javatest.pas',0,1,121,25,60,0,0
-File_2=SourceModule,'O:\home\banjo\project\BlueJ\vmselect\javatest.pas',0,1,59,19,78,0,0
+File_0=SourceModule,'H:\home\ajp\BlueJ\main\package\winlaunch\AFK\vmselect_DRC.rc',0,1,1,1,1,0,0
+File_1=SourceModule,'O:\home\banjo\project\BlueJ\vmselect\javatest.pas',0,1,59,19,78,0,0
 
 [Modules]
 Module0=H:\home\ajp\BlueJ\main\package\winlaunch\main.pas
-Module1=H:\home\ajp\BlueJ\main\package\winlaunch\exfile.pas
-Module2=H:\home\ajp\BlueJ\main\package\winlaunch\vmselect.dpr
-Count=3
+Module1=H:\home\ajp\BlueJ\main\package\winlaunch\javatest.pas
+Module2=H:\home\ajp\BlueJ\main\package\winlaunch\CSY\vmselect.dpr
+Module3=H:\home\ajp\BlueJ\main\package\winlaunch\CHS\vmselect.dpr
+Module4=H:\home\ajp\BlueJ\main\package\winlaunch\AFK\vmselect.dpr
+Module5=H:\home\ajp\BlueJ\main\package\winlaunch\vmselect.dpr
+Module6=H:\home\ajp\BlueJ\main\package\winlaunch\exfile.pas
+Count=7
 EditWindowCount=1
 
 [H:\home\ajp\BlueJ\main\package\winlaunch\main.pas]
@@ -15,7 +18,22 @@ ModuleType=SourceModule
 FormState=1
 FormOnTop=0
 
-[H:\home\ajp\BlueJ\main\package\winlaunch\exfile.pas]
+[H:\home\ajp\BlueJ\main\package\winlaunch\javatest.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[H:\home\ajp\BlueJ\main\package\winlaunch\CSY\vmselect.dpr]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[H:\home\ajp\BlueJ\main\package\winlaunch\CHS\vmselect.dpr]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[H:\home\ajp\BlueJ\main\package\winlaunch\AFK\vmselect.dpr]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
@@ -25,16 +43,29 @@ ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
-[H:\home\ajp\BlueJ\main\package\winlaunch\ProjectGroup1.bpg]
+[H:\home\ajp\BlueJ\main\package\winlaunch\exfile.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[H:\home\ajp\BlueJ\main\package\winlaunch\AFK\main.dfm]
+FormState=1
+FormOnTop=1
+
+[H:\home\ajp\BlueJ\main\package\winlaunch.bpg]
 FormState=0
 FormOnTop=0
 
 [EditWindow0]
-ViewCount=3
+ViewCount=7
 CurrentView=1
 View0=0
 View1=1
 View2=2
+View3=3
+View4=4
+View5=5
+View6=6
 CodeExplorer=CodeExplorer@EditWindow0
 MessageView=MessageView@EditWindow0
 Create=1
@@ -48,9 +79,9 @@ MaxLeft=-1
 MaxTop=-1
 ClientWidth=1245
 ClientHeight=802
-LeftPanelSize=286
+LeftPanelSize=291
 LeftPanelClients=CodeExplorer@EditWindow0,ProjectManager,PropertyInspector
-LeftPanelData=0000040000000000C402000000000000011E010000000000000100000000EC0000000C000000436F64654578706C6F7265720100000000D80100001200000050726F6A6563744D616E61676572466F726D0100000000C40200001100000050726F7065727479496E73706563746F72FFFFFFFF
+LeftPanelData=0000040000000000C4020000000000000123010000000000000100000000610000000C000000436F64654578706C6F7265720100000000D80100001200000050726F6A6563744D616E61676572466F726D0100000000C40200001100000050726F7065727479496E73706563746F72FFFFFFFF
 RightPanelSize=0
 BottomPanelSize=91
 BottomPanelClients=MessageView@EditWindow0
@@ -58,19 +89,47 @@ BottomPanelData=0000040000000000000000000000000000000000000000000001000000000000
 
 [View0]
 Module=H:\home\ajp\BlueJ\main\package\winlaunch\vmselect.dpr
-CursorX=17
-CursorY=15
+CursorX=21
+CursorY=23
 TopLine=7
 LeftCol=1
 
 [View1]
 Module=H:\home\ajp\BlueJ\main\package\winlaunch\main.pas
-CursorX=34
-CursorY=409
-TopLine=400
+CursorX=9
+CursorY=488
+TopLine=468
 LeftCol=1
 
 [View2]
+Module=H:\home\ajp\BlueJ\main\package\winlaunch\javatest.pas
+CursorX=39
+CursorY=147
+TopLine=131
+LeftCol=1
+
+[View3]
+Module=H:\home\ajp\BlueJ\main\package\winlaunch\AFK\vmselect.dpr
+CursorX=44
+CursorY=10
+TopLine=1
+LeftCol=1
+
+[View4]
+Module=H:\home\ajp\BlueJ\main\package\winlaunch\CHS\vmselect.dpr
+CursorX=1
+CursorY=1
+TopLine=1
+LeftCol=1
+
+[View5]
+Module=H:\home\ajp\BlueJ\main\package\winlaunch\CSY\vmselect.dpr
+CursorX=13
+CursorY=9
+TopLine=1
+LeftCol=1
+
+[View6]
 Module=H:\home\ajp\BlueJ\main\package\winlaunch\exfile.pas
 CursorX=24
 CursorY=364
@@ -104,15 +163,15 @@ Create=1
 Visible=1
 State=0
 Left=0
-Top=248
-Width=286
-Height=220
+Top=109
+Width=291
+Height=359
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=286
-ClientHeight=220
+ClientWidth=291
+ClientHeight=359
 TBDockHeight=240
-LRDockWidth=286
+LRDockWidth=291
 Dockable=1
 
 [CPUWindow]
@@ -151,18 +210,18 @@ Visible=1
 State=0
 Left=0
 Top=484
-Width=286
+Width=291
 Height=224
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=286
+ClientWidth=291
 ClientHeight=224
 TBDockHeight=509
-LRDockWidth=286
+LRDockWidth=291
 Dockable=1
-SplitPos=73
+SplitPos=97
 ArrangeBy=Name
-SelectedItem=Visible
+SelectedItem=Text
 ExpandedItems=
 HiddenCategories=
 
@@ -188,14 +247,14 @@ Visible=1
 State=0
 Left=0
 Top=12
-Width=286
-Height=220
+Width=291
+Height=81
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=286
-ClientHeight=220
+ClientWidth=291
+ClientHeight=81
 TBDockHeight=305
-LRDockWidth=286
+LRDockWidth=291
 Dockable=1
 
 [MessageView@EditWindow0]
@@ -216,4 +275,7 @@ Dockable=1
 
 [DockHosts]
 DockHostCount=0
+
+[ActiveProject]
+ActiveProject=1
 
