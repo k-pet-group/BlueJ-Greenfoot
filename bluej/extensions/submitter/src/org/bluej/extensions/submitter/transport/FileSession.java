@@ -14,7 +14,7 @@ import java.net.URL;
  * to a given path on this machine.
  * 
  * @author Clive Miller
- * @version $Id: FileSession.java 1463 2002-10-23 12:40:32Z jckm $
+ * @version $Id: FileSession.java 1708 2003-03-19 09:39:47Z damiano $
  */
 
 public class FileSession extends TransportSession
@@ -51,7 +51,7 @@ public class FileSession extends TransportSession
     
     public void disconnect() throws IOException
     {
-        setStatus ("Connection closed.");
+        reportEvent ("Connection closed.");
         result = null;
     }
 }

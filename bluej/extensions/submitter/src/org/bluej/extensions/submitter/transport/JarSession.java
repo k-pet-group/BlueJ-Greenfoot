@@ -10,15 +10,13 @@ import java.io.PipedOutputStream;
 import java.net.URL;
 import java.net.UnknownServiceException;
 
-import java.util.Enumeration;
-
 /**
  * A Proxy TransportSession which Jars files and redirects them to an
  * underlying TransportSession.
  * Adapted to have some vars inserted into the jar name.
  *
  * @author     Clive Miller
- * @version    $Id: JarSession.java 1619 2003-01-31 10:32:44Z damiano $
+ * @version    $Id: JarSession.java 1708 2003-03-19 09:39:47Z damiano $
  */
 
 public class JarSession extends TransportSession
@@ -202,24 +200,9 @@ public class JarSession extends TransportSession
     }
 
 
-    /**
-     *  Gets the log attribute of the JarSession object
-     *
-     * @return    The log value
-     */
-    public String getLog()
+   public void setTransportReport (TransportReport i_transportReport)
     {
-        return onwardTS.getLog();
+        onwardTS.setTransportReport(i_transportReport);
     }
-
-
-    /**
-     *  Adds a feature to the StatusListener attribute of the JarSession object
-     *
-     * @param  listener  The feature to be added to the StatusListener attribute
-     */
-    public void addStatusListener(StatusListener listener)
-    {
-        onwardTS.addStatusListener(listener);
-    }
+ 
 }

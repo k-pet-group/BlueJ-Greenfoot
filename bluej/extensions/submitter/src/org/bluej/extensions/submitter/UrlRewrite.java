@@ -4,14 +4,12 @@ import bluej.extensions.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Window;
@@ -30,7 +28,7 @@ import javax.swing.text.JTextComponent;
  * I really need to get around to clean it up a bit, Damiano
  * 
  * @author Clive Miller
- * @version $Id: UrlRewrite.java 1683 2003-03-10 12:00:15Z damiano $
+ * @version $Id: UrlRewrite.java 1708 2003-03-19 09:39:47Z damiano $
  */
 
 class UrlRewrite
@@ -43,11 +41,21 @@ class UrlRewrite
     {
         stat = i_stat;
     }
-    
-    boolean process (Window parent) throws AbortOperationException
+
+    /**
+     * Given some params tryes to extract what the user may want...
+     * Tryed to get rid of the useless exception
+     * WHAT A MESS, Damiano
+     */
+    boolean process (Window parent) 
     {
-        Collection urlStrings = stat.submiProp.getProps (".transport");
-        if (urlStrings.isEmpty()) throw new AbortOperationException (stat.bluej.getLabel("message.notransport"));
+        Collection urlStrings = stat.treeData.getProps(".transport");
+        if (urlStrings.isEmpty()) 
+          {
+          stat.submitDialog.statusWriteln(stat.bluej.getLabel("message.notransport"));
+          return false;
+          }
+
         String urlString = (String)urlStrings.iterator().next();
         isMessage = urlString.startsWith ("message:");
         ArrayList userInfo = new ArrayList(); // of JTextComponent
@@ -68,14 +76,21 @@ class UrlRewrite
             final int start = urlString.indexOf ('<');
             final int end = urlString.indexOf ('>');
             if (start == -1 && end == -1) break;
-            if (start == -1 || start>end) throw new AbortOperationException (stat.bluej.getLabel("message.badurlrequest")+" "+urlString);
-
+            if (start == -1 || start>end) 
+              {
+              stat.submitDialog.statusWriteln(stat.bluej.getLabel("message.badurlrequest")+" "+urlString);
+              return false;
+              }
     // param
     // action:message<=param>
             String sub = urlString.substring (start+1, end);
             int equal = sub.indexOf ('=');
             int colon = sub.indexOf (':');
-            if (equal != -1 && colon > equal) throw new AbortOperationException (stat.bluej.getLabel ("message.invalidparm")+": "+sub);
+            if (equal != -1 && colon > equal) 
+              {
+              stat.submitDialog.statusWriteln( stat.bluej.getLabel ("message.invalidparm")+": "+sub);
+              return false;
+              }
             String param = sub.substring (equal+1);
             String replace = null;
             if (param.length() > 0) {
@@ -89,9 +104,11 @@ class UrlRewrite
                          && Character.isDigit (param.charAt(1))) {
                     replace = "{"+param+"}";
                 }
-                else if (colon == -1 || equal != -1) {
-                    throw new AbortOperationException (stat.bluej.getLabel ("message.unknownparm")+": "+param);
-                }
+                else if (colon == -1 || equal != -1) 
+                  {
+                  stat.submitDialog.statusWriteln(stat.bluej.getLabel ("message.unknownparm")+": "+param);
+                  return false;
+                  }
             }
 
             if (colon != -1) {
@@ -105,14 +122,23 @@ class UrlRewrite
                     tc = new JTextField (20);
                     tc.setEnabled (false);
                 }
-                else throw new AbortOperationException (stat.bluej.getLabel ("message.unknownaction")+": "+action);
+                else
+                  {   
+                  stat.submitDialog.statusWriteln(stat.bluej.getLabel ("message.unknownaction")+": "+action);
+                  return false;
+                  }
+                  
                 if (replace != null) tc.setText (replace);
                 body.add (new JLabel (message), left);
                 body.add (new JScrollPane (tc), right);
                 replace = "{"+digits.format (userInfo.size()) +"}";
                 userInfo.add (tc);
             }
-            if (replace == null) throw new AbortOperationException (stat.bluej.getLabel ("message.unknwonparm")+": "+sub);
+            if (replace == null) 
+              {
+              stat.submitDialog.statusWriteln(stat.bluej.getLabel (stat.bluej.getLabel ("message.unknwonparm")+": "+sub));
+              return false;
+              }
             urlString = urlString.substring (0,start) + replace + urlString.substring (end+1);
         }
         
@@ -137,7 +163,8 @@ class UrlRewrite
                 url = new URL (urlString);
             }
         } catch (MalformedURLException ex) {
-            throw new AbortOperationException (ex.toString());
+            stat.submitDialog.statusWriteln(ex.toString());
+            return false;
         }
         return true;
     }

@@ -14,7 +14,7 @@ import java.net.URL;
  * to a given path on a given (attached) server. It uses FTP in passive mode.
  * 
  * @author Clive Miller
- * @version $Id: FtpSession.java 1586 2002-12-13 13:29:57Z damiano $
+ * @version $Id: FtpSession.java 1708 2003-03-19 09:39:47Z damiano $
  */
 
 public class FtpSession extends TransportSession
@@ -42,15 +42,15 @@ public class FtpSession extends TransportSession
             username = (colon == -1) ? userInfo : userInfo.substring (0,colon);
             password = (colon == -1) ? "" : userInfo.substring (colon+1);
         }
-        setStatus ("Starting FTP...");
+        reportEvent ("Starting FTP...");
 
         String reply;
         int port = 21;
         if (url.getPort() != -1) port = url.getPort();
         connection = new SocketSession (ftpHost, port);
 
-        connection.setLogger (log);
-//        try { connection.setLogfile("c:/tmp/ftp.txt"); } catch ( Exception e ) {}
+        // WARNING: transportReport MUST be set to take effect here.
+        connection.setTransportReport(transportReport);
 
         connection.expect ("220 ", "421");
         connection.send ("USER "+username);
@@ -153,7 +153,7 @@ public class FtpSession extends TransportSession
         connection.expect ("221 ", "500");
         connection.close();
         connection = null;
-        setStatus ("Connection closed.");
+        reportEvent ("Connection closed.");
         result = null;
     }
 }

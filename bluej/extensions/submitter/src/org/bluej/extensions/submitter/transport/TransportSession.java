@@ -1,14 +1,9 @@
 package org.bluej.extensions.submitter.transport;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.io.InputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.UnknownServiceException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -16,7 +11,7 @@ import java.net.URLDecoder;
 /**
  * Superclass and manager of transport implementations.
  * @author Clive Miller
- * @version $Id: TransportSession.java 1597 2003-01-13 17:04:09Z damiano $
+ * @version $Id: TransportSession.java 1708 2003-03-19 09:39:47Z damiano $
  */
 
 public abstract class TransportSession
@@ -98,25 +93,15 @@ public abstract class TransportSession
      */
     protected final Properties  urlProps;
     
-    /**
-     * The actual URL itself
-     */
-    protected final URL url;
-    
-    private final Collection listeners; // StatusListener
-
-    private final StringWriter logWriter;
-    protected final PrintWriter log;
+    protected final URL url;   
     protected String result;
     protected SocketSession connection;
+    protected TransportReport transportReport;
 
     TransportSession (URL url, Properties environment)
     {
-        listeners = new ArrayList();
         this.url = url;
         this.envProps = environment;
-        logWriter = new StringWriter();
-        log = new PrintWriter (logWriter);
         urlProps = new Properties (envProps);
         String query = url.getQuery();
         if (query != null) {
@@ -186,43 +171,33 @@ public abstract class TransportSession
     {
         return url.getProtocol();
     }
-        
+            
     /**
-     * Get a snapshot of the log of the connection
-     * @return a String containing newlines describing the session events
+     * Sets the class that will get the reporting events
      */
-    public String getLog()
+    public void setTransportReport (TransportReport i_transportReport)
     {
-        try {
-            log.flush();
-            logWriter.flush();
-            if (logWriter.getBuffer().length() == 0)
-                return null;
-            else
-                return logWriter.toString();
-        }
-        catch (Throwable ex)
-        {
-            return "Cannot open log due to "+ex;
-        }
-    }
-    
-    /**
-     * Add a text listener to listen for status message changes
-     * @param listener a listener that will get informed of every status message
-     */
-    public void addStatusListener (StatusListener listener)
-    {
-        listeners.add (listener);
+        transportReport = i_transportReport;
     }
 
-    final synchronized void setStatus (String status)
-    {
-        log.println (status);
-        if (listeners == null) return;
-        for (Iterator it=listeners.iterator(); it.hasNext();) {
-            StatusListener listener = (StatusListener)it.next();
-            listener.statusChanged (status);
-        }
-    }
+    /**
+     * report an event to the one that is looking for it 
+     */
+    protected final void reportEvent (String message)
+      {
+      if ( transportReport == null ) return;
+
+      transportReport.reportEvent(message);
+      }
+
+    /**
+     * report a LOG to the one that is looking for it 
+     */
+    protected final void reportLog (String message)
+      {
+      if ( transportReport == null ) return;
+
+      transportReport.reportLog(message);
+      }
+    
 }

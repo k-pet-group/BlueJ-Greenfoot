@@ -10,24 +10,24 @@ import java.util.Stack;
 import java.io.File;
 import java.io.IOException;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import org.bluej.extensions.submitter.properties.TreeData;
 
 /**
  * FileHandler handles the selection of a set of files
  * according to a given String
  * 
  * @author Clive Miller
- * @version $Id: FileHandler.java 1641 2003-03-04 20:28:07Z damiano $
+ * @version $Id: FileHandler.java 1708 2003-03-19 09:39:47Z damiano $
  */
 class FileHandler
 {
     private final BlueJ bj;
     private final BPackage pkg;
-    private final SubmissionProperties sp;
+    private final TreeData sp;
     private final Collection essentials, include, exclude;
     private final File projectDir;
 
-    public FileHandler (BlueJ bj, BPackage pkg, SubmissionProperties sp) throws AbortOperationException
+    public FileHandler (BlueJ bj, BPackage pkg, TreeData sp) throws AbortOperationException
     {
         this.bj = bj;
         this.pkg = pkg;

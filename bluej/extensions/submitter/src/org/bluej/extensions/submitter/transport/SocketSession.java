@@ -1,20 +1,21 @@
 package org.bluej.extensions.submitter.transport;
 
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintWriter;
 import java.net.ProtocolException;
 import java.net.Socket;
 
 /**
  * Provide buffering, logging and time-out for sessions through sockets
+ * WARNING: You may think that this is a subclass of TransportSession...
+ * NOT SO, clearly, it is something that is here by itself.
+ * This makes logging and messaging quite messy. Damiano
+ * 
  * @author Clive Miller
- * @version $Id: SocketSession.java 1586 2002-12-13 13:29:57Z damiano $
+ * @version $Id: SocketSession.java 1708 2003-03-19 09:39:47Z damiano $
  */
 class SocketSession
 {
@@ -25,29 +26,47 @@ class SocketSession
     private Socket channel;
     private BufferedReader in;
     private OutputStream out;
-    private PrintWriter log;
     private String lastCommand = "";
-    
-    public SocketSession (String host, int port) throws IOException
+    private TransportReport transportReport;
+
+    /**
+     * Constructor local to this package. At least we know that it is used only here.
+     */
+    SocketSession (String host, int port) throws IOException
     {
         channel = new Socket (host, port);
         in = new BufferedReader (new InputStreamReader (channel.getInputStream()));
         out = channel.getOutputStream();
-        log = new PrintWriter(new PipedOutputStream());
     }
 
-    public void setLogfile (String filename) throws Exception
+    /**
+     * Sets the class that will get the reporting events
+     */
+    public void setTransportReport (TransportReport i_transportReport)
     {
-        FileOutputStream fos = new FileOutputStream (filename);
-        log = new PrintWriter (fos);
-        log.println ("Socket open to "+getHost());
+        transportReport = i_transportReport;
+        reportLog ("Socket open to "+getHost());
     }
 
-    public void setLogger (PrintWriter logPrinter)
-    {
-        log = logPrinter;
-        log.println ("Socket open to "+getHost());
-    }
+    /**
+     * report an event to the one that is looking for it 
+     */
+    private void reportEvent (String message)
+      {
+      if ( transportReport == null ) return;
+
+      transportReport.reportEvent(message);
+      }
+
+    /**
+     * report a LOG to the one that is looking for it 
+     */
+    private void reportLog (String message)
+      {
+      if ( transportReport == null ) return;
+
+      transportReport.reportLog(message);
+      }
     
     public String getHost()
     {
@@ -74,8 +93,7 @@ class SocketSession
         String getLine, lastLine = null;
         channel.setSoTimeout (TIMEOUT_OPEN);
         getLine = in.readLine();
-        log.println ("<<"+getLine);
-        log.flush();
+        reportLog ("<<"+getLine);
         try {
             while (getLine != null)
             {
@@ -88,14 +106,13 @@ class SocketSession
                 lastLine = getLine;
                 channel.setSoTimeout (TIMEOUT_CONT);
                 getLine = in.readLine();
-                log.println ("<<"+getLine);
-                log.flush();
+                reportLog ("<<"+getLine);
             }
             throw new IOException();
         } catch (ProtocolException ex) {
             throw ex;
         } catch (IOException ex) {
-            ex.printStackTrace (log);
+            reportLog (ex.getMessage());
             if (lastLine == null || lastLine.trim().equals (""))
                 lastLine = "No response from server";
             throw new ProtocolException (lastLine);
@@ -120,8 +137,7 @@ class SocketSession
     public void send (String data) throws IOException
     {
         out.write ((data+"\n").getBytes());
-        log.println (">>"+data);
-        log.flush();
+        reportLog (">>"+data);
         lastCommand = data;
     }
 
@@ -136,7 +152,6 @@ class SocketSession
         channel.shutdownOutput();
         channel.shutdownInput();
         channel.close();
-        log.flush();
     }
 
     /**

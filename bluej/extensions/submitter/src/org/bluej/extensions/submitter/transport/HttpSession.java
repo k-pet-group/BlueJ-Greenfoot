@@ -16,7 +16,7 @@ import java.net.HttpURLConnection;
  *
  *
  * @author     Clive Miller
- * @version    $Id: HttpSession.java 1607 2003-01-27 09:44:39Z damiano $
+ * @version    $Id: HttpSession.java 1708 2003-03-19 09:39:47Z damiano $
  */
 
 public class HttpSession extends TransportSession
@@ -59,7 +59,7 @@ public class HttpSession extends TransportSession
 
         connection = (HttpURLConnection) url.openConnection();
         connection.setDoOutput(true);
-        setStatus("Creating message...");
+        reportEvent("Creating message...");
         connection.setRequestProperty("Accept", "text/html");
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundaryString);
         connection.setRequestProperty("Connection", "Close");
@@ -100,7 +100,7 @@ public class HttpSession extends TransportSession
      */
     public void disconnect() throws IOException
     {
-        setStatus("Sending message...");
+        reportEvent("Sending message...");
         result = send();
     }
 
@@ -121,11 +121,11 @@ public class HttpSession extends TransportSession
                 + " filename=\"" + name + "\"");
         if (binary) {
             addMessage("Content-Type: application/octet-stream");
-            log.println("Adding binary file " + name);
+            reportLog("Adding binary file " + name);
         }
         else {
             addMessage("Content-Type: text/plain");
-            log.println("Adding text file " + name);
+            reportLog("Adding text file " + name);
         }
         addMessage(null);
         addStream(is);
@@ -158,7 +158,7 @@ public class HttpSession extends TransportSession
      */
     private String send() throws IOException
     {
-        setStatus("Waiting for response...");
+        reportEvent("Waiting for response...");
         out.close();
         connection.connect();
         StringWriter sr = new StringWriter();
@@ -168,7 +168,7 @@ public class HttpSession extends TransportSession
             sr.write(b);
         is.close();
         String response = sr.toString();
-        setStatus("Sent OK");
+        reportEvent("Sent OK");
         return response;
     }
 

@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
  * to a given path on a given (attached) server.
  * 
  * @author Clive Miller
- * @version $Id: SmtpSession.java 1593 2002-12-19 13:52:16Z iau $
+ * @version $Id: SmtpSession.java 1708 2003-03-19 09:39:47Z damiano $
  */
 
 public class SmtpSession extends TransportSession
@@ -47,15 +47,15 @@ public class SmtpSession extends TransportSession
         String sendAddress = url.getPath();
         String subject = urlProps.getProperty ("subject");
         String body = urlProps.getProperty ("body");
-        setStatus ("Connecting to host "+smtpHost+"...");
+        reportEvent ("Connecting to host "+smtpHost+"...");
 
         int port = 25;
         if (url.getPort() != -1) port = url.getPort();
         connection = new SocketSession (smtpHost, port);
-        setStatus ("Sending message...");
+        reportEvent ("Sending message...");
 
-        connection.setLogger (log);
-//        try { connection.setLogfile("c:/tmp/smtp.txt"); } catch ( Exception e ) {}
+        // WARNING: transportReport MUST be set to take effect here.
+        connection.setTransportReport(transportReport);
         
         out = connection.getOutputStream();
         connection.expect ("220 ", "421 ");
@@ -85,7 +85,7 @@ public class SmtpSession extends TransportSession
             sendBoundary (false);
             sendMimeText (body);
         }
-        setStatus ("OK");
+        reportEvent ("OK");
     }
     
     public void send (InputStream is, String name, boolean binary) throws IOException
@@ -98,7 +98,7 @@ public class SmtpSession extends TransportSession
 
     public void disconnect() throws IOException
     {
-        setStatus ("Disconnecting...");
+        reportEvent ("Disconnecting...");
         sendBoundary (true);
         connection.send (".");
         connection.expect (new String[] {"250 "},
@@ -107,7 +107,7 @@ public class SmtpSession extends TransportSession
         connection.expect ("221 ");
         connection.close();
         connection = null;
-        setStatus ("Sent.");
+        reportEvent ("Sent.");
         result = null;
     }
 
@@ -140,7 +140,7 @@ public class SmtpSession extends TransportSession
             sendMessage ("        filename=\""+name+"\"");
             sendMessage (null);
             SocketSession.MIMEEncode (is, out);
-            log.println ("[sent binary file "+name+"]");
+            reportLog ("[sent binary file "+name+"]");
         }
         else
         {
@@ -163,7 +163,7 @@ public class SmtpSession extends TransportSession
                 out.write(c);
             }
             out.write ('\n');
-            log.println ("[sent text file "+name+"]");
+            reportLog ("[sent text file "+name+"]");
         }
     }
 
@@ -190,6 +190,6 @@ public class SmtpSession extends TransportSession
             p++;
         }
         out.write (message.getBytes());
-        log.print (">>"+message);
+        reportLog (">>"+message);
     }
 }    

@@ -8,18 +8,20 @@ package org.bluej.extensions.submitter;
 import org.bluej.utility.*;
 import bluej.extensions.*;
 
+import org.bluej.extensions.submitter.properties.TreeData;
+
 public class Stat 
   {
   public Flexdbg aDbg=null;
   public BlueJ   bluej=null;
 
-  // It is OK to have it here since there are really ONE properties running per thread...
-  // You MUST be carefull with threading, however....
-  public SubmissionProperties submiProp=null;
-  public GlobalProp globalProp=null;
-
-
+  public GlobalProp   globalProp=null;    // Properties that are global go here
+  public TreeData     treeData=null;      // This holds the data
+  public SubmitDialog submitDialog=null;  // This allows user interaction
+  public TreeDialog   treeDialog=null;    // This display the three of data
+  
   public static final int SVC_PROP=0x00000001;
   public static final int SVC_BUTTON=0x00000002;
   public static final int SVC_PARSER=0x00000004;
+  public static final int SVC_TREE=0x00000008;
   }

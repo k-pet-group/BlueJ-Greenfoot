@@ -2,50 +2,42 @@ package org.bluej.extensions.submitter.properties;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import javax.swing.tree.DefaultTreeModel;
 import org.bluej.extensions.submitter.Stat;
+
 /**
  * Parses a given input stream, adding the information to the given node.
  * 
- * @version $Id: Parser.java 1612 2003-01-27 09:51:28Z damiano $
+ * @version $Id: ConfParser.java 1708 2003-03-19 09:39:47Z damiano $
  */
-public class Parser
+public class ConfParser
 {
     private Tokenizer token;
-    private final boolean project;
-    private final DefaultTreeModel treeModel;
+    private DefaultTreeModel treeModel;
     private Stat stat;
     
-    public Parser (Stat i_stat, boolean isProject, DefaultTreeModel treeModel)
+    public ConfParser (Stat i_stat, DefaultTreeModel treeModel)
     {
         stat = i_stat;
-        this.project = isProject;
         this.treeModel = treeModel;
     }
-    
-    public void parse (Node current, InputStream is) throws CompilationException
-    {
-        token = new Tokenizer (new InputStreamReader (is));
-        parse (current);
-    }
-        
-    public void parse (Node current, Reader reader) throws CompilationException
-    {
-        token = new Tokenizer (reader);
-        parse (current);
-    }
-        
-    public void parse (Node current) throws CompilationException
+
+    /**
+     * When you parse you give where you want to insert and where you get it from.
+     */
+    public void parse (TreeNode current, InputStream is) throws CompilationException
     {
         stat.aDbg.debug(Stat.SVC_PARSER,"Parser.parse: current="+current.toString());
+
+        token = new Tokenizer (new InputStreamReader (is));
         
         if (parseStatements (current) != Tokenizer.END) {
             throw new CompilationException ("} without {",token);
         }
     }
-    
-    private Tokenizer.Type parseStatements (Node current) throws CompilationException
+
+
+    private Tokenizer.Type parseStatements (TreeNode current) throws CompilationException
     {
         Tokenizer.Type type;
         for (;;) {
@@ -57,7 +49,7 @@ public class Parser
 
             if (type == Tokenizer.BLOCK_START) {
                 stat.aDbg.debug(Stat.SVC_PARSER,"parseStatements: new Node, title="+token.getTitle());
-                Node newNode = new Node (stat, token.getTitle(), project);
+                TreeNode newNode = new TreeNode (stat, token.getTitle());
                 if (!token.getTitle().startsWith ("#")) {
                     treeModel.insertNodeInto (newNode, current, 0);
                 }
@@ -69,7 +61,7 @@ public class Parser
             } 
 
             if (type == Tokenizer.EMPTY_SCHEME) {
-                Node newNode = new Node (stat, token.getTitle(), project);
+                TreeNode newNode = new TreeNode (stat, token.getTitle());
                 if (!token.getTitle().startsWith ("#")) {
                     treeModel.insertNodeInto (newNode, current, 0);
                 }
