@@ -12,13 +12,13 @@ import java.awt.Color;
  * A dependency between two targets in a package
  *
  * @author  Michael Cahill
- * @version $Id: Dependency.java 520 2000-05-31 06:49:05Z bquig $
+ * @version $Id: Dependency.java 533 2000-06-09 04:24:08Z ajp $
  */
 public abstract class Dependency extends Edge
 {
     Package pkg;
 
-    public Dependency(Package pkg, Target from, Target to)
+    public Dependency(Package pkg, DependentTarget from, DependentTarget to)
     {
         super(from, to);
         this.pkg = pkg;
@@ -42,14 +42,14 @@ public abstract class Dependency extends Edge
         return to.hashCode() - from.hashCode();
     }
 
-    public Target getFrom()
+    public DependentTarget getFrom()
     {
-        return (Target)from;
+        return (DependentTarget)from;
     }
 
-    public Target getTo()
+    public DependentTarget getTo()
     {
-        return (Target)to;
+        return (DependentTarget)to;
     }
 
     public void load(Properties props, String prefix)
@@ -66,8 +66,8 @@ public abstract class Dependency extends Edge
 
     public void save(Properties props, String prefix)
     {
-        props.put(prefix + ".from", ((Target)from).getIdentifierName());
-        props.put(prefix + ".to", ((Target)to).getIdentifierName());
+        props.put(prefix + ".from", ((DependentTarget)from).getIdentifierName());
+        props.put(prefix + ".to", ((DependentTarget)to).getIdentifierName());
     }
 
     public abstract void draw(Graphics2D g);

@@ -44,7 +44,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 530 2000-06-01 07:09:30Z bquig $
+ * @version $Id: ClassTarget.java 533 2000-06-09 04:24:08Z ajp $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -586,7 +586,7 @@ public class ClassTarget extends EditableTarget
         // handle superclass
 
         if(info.getSuperclass() != null) {
-            Target superclass = getPackage().getTarget(info.getSuperclass());
+            DependentTarget superclass = (DependentTarget)getPackage().getTarget(info.getSuperclass());
             if (superclass != null)
                 getPackage().addDependency(
                                   new ExtendsDependency(getPackage(), this, superclass),
@@ -598,7 +598,7 @@ public class ClassTarget extends EditableTarget
         Vector vect = info.getImplements();
         for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
             String name = (String)e.nextElement();
-            Target interfce = getPackage().getTarget(name);
+            DependentTarget interfce = getPackage().getDependentTarget(name);
             // Debug.message("Implements " + name);
             if (interfce != null) {
                 getPackage().addDependency(
@@ -611,7 +611,7 @@ public class ClassTarget extends EditableTarget
         vect = info.getUsed();
         for(Enumeration e = vect.elements(); e.hasMoreElements(); ) {
             String name = (String)e.nextElement();
-            Target used = getPackage().getTarget(name);
+            DependentTarget used = getPackage().getDependentTarget(name);
             if (used != null)
                 getPackage().addDependency(new UsesDependency(getPackage(), this, used), true);
         }
@@ -848,7 +848,7 @@ public class ClassTarget extends EditableTarget
 
         g.setColor(getBorderColour());
         drawBorders(g);
-        
+
         if(!sourceInfo.isValid())
             g.drawImage(brokenImage, x + TEXT_BORDER, y + height - 22, null);
 
@@ -864,14 +864,14 @@ public class ClassTarget extends EditableTarget
     private void drawUMLStyle(Graphics2D g)
     {
         if(state != S_NORMAL) {
-            g.setColor(umlShadowCol); 
+            g.setColor(umlShadowCol);
             // set divider if UML, different position if stereotype is present
-            int divider = (stereotype == null) ? 18 : 32; 
+            int divider = (stereotype == null) ? 18 : 32;
             Utility.stripeRect(g, 0, divider, width, height - divider, 8, 3);
         }
 
         g.setColor(getTextColour());
-        
+
         int currentY = 2;
         // draw stereotype if applicable
         Font original = getFont();
@@ -885,7 +885,7 @@ public class ClassTarget extends EditableTarget
             currentY += TEXT_HEIGHT -2;
         }
         g.setFont(original);
-        
+
         Utility.drawCentredText(g, getIdentifierName(),
                                 TEXT_BORDER, currentY,
                                 width - 2 * TEXT_BORDER, TEXT_HEIGHT);
@@ -901,7 +901,7 @@ public class ClassTarget extends EditableTarget
     private void drawBlueStyle(Graphics2D g)
     {
         if(state != S_NORMAL) {
-            g.setColor(shadowCol); 
+            g.setColor(shadowCol);
             Utility.stripeRect(g, 0, 0, width, height, 8, 3);
         }
 
@@ -921,7 +921,7 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     * Redefinition of the method found in Target.  
+     * Redefinition of the method found in Target.
      * It draws a shadow around the ClassTarget
      */
    void drawShadow(Graphics2D g)
@@ -934,15 +934,15 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     * Redefinition of the method found in Target.  
+     * Redefinition of the method found in Target.
      * It draws a shadow around the ClassTarget
      */
     void drawBorders(Graphics2D g)
     {
-        
+
         int thickness = ((flags & F_SELECTED) == 0) ? 1 : 4;
         Utility.drawThickRect(g, 0, 0, width, height, thickness);
-        if(PrefMgr.isUML()) 
+        if(PrefMgr.isUML())
             if((flags & F_SELECTED) == 0)
                 return;
         // Draw lines showing resize tag

@@ -14,7 +14,7 @@ import java.awt.*;
  ** An "extends" dependency between two (class) targets in a package
  **
  ** @author Michael Cahill
- ** @version $Id: ExtendsDependency.java 520 2000-05-31 06:49:05Z bquig $
+ ** @version $Id: ExtendsDependency.java 533 2000-06-09 04:24:08Z ajp $
  **/
 public class ExtendsDependency extends Dependency
 {
@@ -28,7 +28,7 @@ public class ExtendsDependency extends Dependency
     static final int SELECT_DIST = 4;
     static final int UML_ARROW_SIZE = 18;		// pixels
 
-    public ExtendsDependency(Package pkg, Target from, Target to)
+    public ExtendsDependency(Package pkg, DependentTarget from, DependentTarget to)
     {
         super(pkg, from, to);
     }
@@ -50,8 +50,8 @@ public class ExtendsDependency extends Dependency
         double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
 
         // Get the dest point
-        pFrom = ((Target)from).getAttachment(angle + Math.PI);
-        pTo = ((Target)to).getAttachment(angle);
+        pFrom = ((DependentTarget)from).getAttachment(angle + Math.PI);
+        pTo = ((DependentTarget)to).getAttachment(angle);
 
         int arrowSize = PrefMgr.isUML() ? UML_ARROW_SIZE : ARROW_SIZE;
         Point pArrow = new Point(pTo.x + (int)((arrowSize - 2) * Math.cos(angle)), pTo.y - (int)((arrowSize - 2) * Math.sin(angle)));
@@ -59,7 +59,7 @@ public class ExtendsDependency extends Dependency
         // draw the arrow head
         int[] xPoints =  { pTo.x, pTo.x + (int)((arrowSize) * Math.cos(angle + ARROW_ANGLE)), pTo.x + (int)(arrowSize * Math.cos(angle - ARROW_ANGLE)) };
         int[] yPoints =  { pTo.y, pTo.y - (int)((arrowSize) * Math.sin(angle + ARROW_ANGLE)), pTo.y - (int)(arrowSize * Math.sin(angle - ARROW_ANGLE)) };
-  
+
         if(PrefMgr.isUML()) {
             g.drawPolygon(xPoints, yPoints, 3);
             g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
@@ -70,7 +70,7 @@ public class ExtendsDependency extends Dependency
             g.setColor(bgGraph);
             g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
         }
-  
+
     }
 
     public void draw(Graphics2D g)
@@ -92,8 +92,8 @@ public class ExtendsDependency extends Dependency
         double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
 
         // Get the dest point
-        pFrom = ((Target)from).getAttachment(angle + Math.PI);
-        pTo = ((Target)to).getAttachment(angle);
+        pFrom = ((DependentTarget)from).getAttachment(angle + Math.PI);
+        pTo = ((DependentTarget)to).getAttachment(angle);
 
         // Now check if <p> is in the rectangle
         if(x < Math.min(pFrom.x, pTo.x) - SELECT_DIST

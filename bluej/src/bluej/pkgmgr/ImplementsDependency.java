@@ -10,11 +10,11 @@ import java.util.Properties;
 import java.awt.*;
 
 /**
- ** @version $Id: ImplementsDependency.java 520 2000-05-31 06:49:05Z bquig $
- ** @author Michael Cahill
- **
- ** An "implements" dependency between two (class) targets in a package
- **/
+ * An "implements" dependency between two (class) targets in a package
+ *
+ * @author  Michael Cahill
+ * @version $Id: ImplementsDependency.java 533 2000-06-09 04:24:08Z ajp $
+ */
 public class ImplementsDependency extends Dependency
 {
 	static final Color normalColour = Config.getItemColour("colour.arrow.implements");
@@ -32,7 +32,7 @@ public class ImplementsDependency extends Dependency
                                                       10.0f, dash1, 0.0f);
 
 
-	public ImplementsDependency(Package pkg, Target from, Target to)
+	public ImplementsDependency(Package pkg, DependentTarget from, DependentTarget to)
 	{
 		super(pkg, from, to);
 	}
@@ -44,9 +44,8 @@ public class ImplementsDependency extends Dependency
 
 	void draw(Color colour, Graphics2D g)
 	{
-
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		
+
         g.setColor(colour);
 
         // Start from the centre of the src class
@@ -57,8 +56,8 @@ public class ImplementsDependency extends Dependency
         double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
 
         // Get the dest point
-        pFrom = ((Target)from).getAttachment(angle + Math.PI);
-        pTo = ((Target)to).getAttachment(angle);
+        pFrom = ((DependentTarget)from).getAttachment(angle + Math.PI);
+        pTo = ((DependentTarget)to).getAttachment(angle);
 
         int arrowSize = PrefMgr.isUML() ? UML_ARROW_SIZE : ARROW_SIZE;
 
@@ -67,7 +66,7 @@ public class ImplementsDependency extends Dependency
         // draw the arrow head
         int[] xPoints =  { pTo.x, pTo.x + (int)((arrowSize) * Math.cos(angle + ARROW_ANGLE)), pTo.x + (int)(arrowSize * Math.cos(angle - ARROW_ANGLE)) };
         int[] yPoints =  { pTo.y, pTo.y - (int)((arrowSize) * Math.sin(angle + ARROW_ANGLE)), pTo.y - (int)(arrowSize * Math.sin(angle - ARROW_ANGLE)) };
-  
+
         if(PrefMgr.isUML()) {
             g.drawPolygon(xPoints, yPoints, 3);
             g.setStroke(dashed);
@@ -79,7 +78,7 @@ public class ImplementsDependency extends Dependency
             g.setColor(bgGraph);
             g.drawLine(pFrom.x, pFrom.y, pArrow.x, pArrow.y);
         }
-  
+
 	}
 
 	public void draw(Graphics2D g)
@@ -100,8 +99,8 @@ public class ImplementsDependency extends Dependency
 		double angle = Math.atan2(-(pFrom.y - pTo.y), pFrom.x - pTo.x);
 
 		// Get the dest point
-		pFrom = ((Target)from).getAttachment(angle + Math.PI);
-		pTo = ((Target)to).getAttachment(angle);
+		pFrom = ((DependentTarget)from).getAttachment(angle + Math.PI);
+		pTo = ((DependentTarget)to).getAttachment(angle);
 
 		// Now check if <p> is in the rectangle
 		if(x < Math.min(pFrom.x, pTo.x) - SELECT_DIST

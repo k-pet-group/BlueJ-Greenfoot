@@ -14,7 +14,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 513 2000-05-25 07:56:44Z ajp $
+ * @version $Id: ParentPackageTarget.java 533 2000-06-09 04:24:08Z ajp $
  */
 public class ParentPackageTarget extends PackageTarget implements ActionListener
 {
@@ -40,6 +40,16 @@ public class ParentPackageTarget extends PackageTarget implements ActionListener
     public boolean copyFiles(String directory)
     {
         return true;
+    }
+
+    public boolean isResizable()
+    {
+        return false;
+    }
+
+    public boolean isMoveable()
+    {
+        return false;
     }
 
     public void draw(Graphics2D g)

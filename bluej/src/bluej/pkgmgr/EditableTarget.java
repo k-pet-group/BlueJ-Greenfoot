@@ -11,9 +11,9 @@ import bluej.utility.DialogManager;
  * A target in a package that can be edited as text
  *
  * @author  Michael Cahill
- * @version $Id: EditableTarget.java 505 2000-05-24 05:44:24Z ajp $
+ * @version $Id: EditableTarget.java 533 2000-06-09 04:24:08Z ajp $
  */
-public abstract class EditableTarget extends Target
+public abstract class EditableTarget extends DependentTarget
     implements EditorWatcher
 {
     protected Editor editor;

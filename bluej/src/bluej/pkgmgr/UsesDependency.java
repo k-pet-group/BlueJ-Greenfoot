@@ -10,11 +10,11 @@ import java.util.Properties;
 import java.awt.*;
 
 /**
- ** @version $Id: UsesDependency.java 520 2000-05-31 06:49:05Z bquig $
- ** @author Michael Cahill
- **
- ** A dependency between two targets in a package
- **/
+ * A dependency between two targets in a package
+ *
+ * @author  Michael Cahill
+ * @version $Id: UsesDependency.java 533 2000-06-09 04:24:08Z ajp $
+ */
 public class UsesDependency extends Dependency
 {
     private static final Color normalColour = Config.getItemColour("colour.arrow.uses");
@@ -31,7 +31,7 @@ public class UsesDependency extends Dependency
     private boolean start_top, end_left;
     private boolean flag;	// flag to mark some dependencies
 
-    public UsesDependency(Package pkg, Target from, Target to)
+    public UsesDependency(Package pkg, DependentTarget from, DependentTarget to)
     {
         super(pkg, from, to);
         flag = false;
@@ -73,7 +73,7 @@ public class UsesDependency extends Dependency
 
         if(PrefMgr.isUML()) {
             g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y + 4);
-            g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y - 4);            
+            g.drawLine(dst_x, dst_y, dst_x + delta_x, dst_y - 4);
             g.setStroke(dashed);
         }
         else

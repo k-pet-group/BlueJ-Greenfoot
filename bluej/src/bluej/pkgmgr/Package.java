@@ -37,7 +37,7 @@ import java.awt.print.PageFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 532 2000-06-08 07:46:08Z ajp $
+ * @version $Id: Package.java 533 2000-06-09 04:24:08Z ajp $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -103,7 +103,7 @@ public class Package extends Graph
     protected Target selected;
 
     /** Holds the choice of "from" target for a new dependency */
-    protected Target fromChoice;
+    protected DependentTarget fromChoice;
 
     /** used during arrow deletion */
     Dependency currentArrow;
@@ -997,8 +997,8 @@ public class Package extends Graph
      */
     public void addDependency(Dependency d, boolean recalc)
     {
-        Target from = (Target)d.getFrom();
-        Target to = (Target)d.getTo();
+        DependentTarget from = (DependentTarget)d.getFrom();
+        DependentTarget to = (DependentTarget)d.getTo();
 
         if(from == null || to == null) {
             Debug.reportError("Found invalid dependency - ignored.");
@@ -1247,10 +1247,10 @@ public class Package extends Graph
         else
             extendsArrows.removeElement(d);
 
-        Target from = (Target)d.getFrom();
+        DependentTarget from = (DependentTarget)d.getFrom();
         from.removeDependencyOut(d, recalc);
 
-        Target to = (Target)d.getTo();
+        DependentTarget to = (DependentTarget)d.getTo();
         to.removeDependencyIn(d, recalc);
     }
 
@@ -1260,8 +1260,12 @@ public class Package extends Graph
         while(e.hasMoreElements()) {
             Target t = (Target)e.nextElement();
 
-            t.recalcInUses();
-            t.recalcOutUses();
+            if (t instanceof DependentTarget) {
+                DependentTarget dt = (DependentTarget)t;
+
+                dt.recalcInUses();
+                dt.recalcOutUses();
+            }
         }
     }
 
@@ -1283,16 +1287,36 @@ public class Package extends Graph
     }
 
     /**
-     * Return the target with name "tname".
-     * @param tname the unqualified (or base) name of a target.
-     * @return the target with name "tname" if existent, null otherwise.
+     * Return the target with name "identifierName".
+     *
+     * @param   identifierName the unique name of a target.
+     * @return  the target with name "tname" if existent, null otherwise.
      */
-    public Target getTarget(String tname)
+    public Target getTarget(String identifierName)
     {
-        if(tname == null)
+        if(identifierName == null)
             return null;
-        Target t = (Target)targets.get(tname);
+        Target t = (Target)targets.get(identifierName);
         return t;
+    }
+
+    /**
+     * Return the dependent target with name "identifierName".
+     *
+     * @param   identifierName the unique name of a target.
+     * @return  the target with name "tname" if existent and if it
+     *          is a DependentTarget, null otherwise.
+     */
+    public DependentTarget getDependentTarget(String identifierName)
+    {
+        if(identifierName == null)
+            return null;
+        Target t = (Target)targets.get(identifierName);
+
+        if (t instanceof DependentTarget)
+            return (DependentTarget) t;
+
+        return null;
     }
 
     /**
@@ -1430,57 +1454,67 @@ public class Package extends Graph
     {
         switch(getState()) {
         case S_CHOOSE_USES_FROM:
-            fromChoice = t;
-            setState(S_CHOOSE_USES_TO);
-            setStatus(chooseUsesTo);
+            if (t instanceof DependentTarget) {
+                fromChoice = (DependentTarget)t;
+                setState(S_CHOOSE_USES_TO);
+                setStatus(chooseUsesTo);
+            } else {
+                setState(S_IDLE);
+                setStatus("");
+            }
             break;
 
         case S_CHOOSE_USES_TO:
-            if (t != fromChoice) {
+            if (t != fromChoice && t instanceof DependentTarget) {
                 setState(S_IDLE);
-                addDependency(new UsesDependency(this, fromChoice, t), true);
+                addDependency(new UsesDependency(this, fromChoice,(DependentTarget)t), true);
                 setStatus("");
             }
             break;
 
         case S_CHOOSE_EXT_FROM:
-            fromChoice = t;
-            setState(S_CHOOSE_EXT_TO);
-            setStatus(chooseInhTo);
+
+            if (t instanceof DependentTarget) {
+                fromChoice = (DependentTarget)t;
+                setState(S_CHOOSE_EXT_TO);
+                setStatus(chooseInhTo);
+            } else {
+                setState(S_IDLE);
+                setStatus("");
+            }
             break;
 
         case S_CHOOSE_EXT_TO:
             if (t != fromChoice) {
                 setState(S_IDLE);
-                if(t instanceof ClassTarget && fromChoice instanceof ClassTarget)
-                    {
-                        ClassTarget from = (ClassTarget)fromChoice;
-                        ClassTarget to = (ClassTarget)t;
+                if(t instanceof ClassTarget && fromChoice instanceof ClassTarget) {
 
-                        // if the target is an interface then we have an implements
-                        // dependency
-                        if(to.isInterface())
-                            {
-                                Dependency d = new ImplementsDependency(this, from, to);
+                    ClassTarget from = (ClassTarget)fromChoice;
+                    ClassTarget to = (ClassTarget)t;
 
-                                if(from.isInterface()) {
-                                    userAddImplementsInterfaceDependency(d);
-                                } else {
-                                    userAddImplementsClassDependency(d);
-                                }
+                    // if the target is an interface then we have an implements
+                    // dependency
+                    if(to.isInterface()) {
+                        Dependency d = new ImplementsDependency(this, from, to);
 
-                                addDependency(d, true);
-                            }
-                        else {
-                            // an extends dependency can only be from a class to another
-                            // class
-                            if(!from.isInterface()) {
-                                Dependency d = new ExtendsDependency(this, from, to);
-                                userAddExtendsClassDependency(d);
-                                addDependency(d, true);
-                            }
+                        if(from.isInterface()) {
+                            userAddImplementsInterfaceDependency(d);
+                        } else {
+                            userAddImplementsClassDependency(d);
+                        }
+
+                        addDependency(d, true);
+                    }
+                    else {
+                        // an extends dependency can only be from a class to another
+                        // class
+                        if(!from.isInterface()) {
+                            Dependency d = new ExtendsDependency(this, from, to);
+                            userAddExtendsClassDependency(d);
+                            addDependency(d, true);
                         }
                     }
+                }
                 setStatus("");
             }
             break;
@@ -1489,8 +1523,6 @@ public class Package extends Graph
             // e.g. deleting arrow - selecting target ignored
             break;
         }
-//XXX        if (getState() == S_IDLE)
-//            frame.resetDependencyButtons();
     }
 
     /**
@@ -1593,10 +1625,10 @@ public class Package extends Graph
 
                 pmf.show();
 
-                t = (ClassTarget) pkg.targets.get(className);
+                t = (ClassTarget) pkg.getTarget(className);
         }
         else
-            t = (ClassTarget) targets.get(className);
+            t = (ClassTarget) getTarget(className);
 
         if(t == null)
             return false;
@@ -1632,7 +1664,7 @@ public class Package extends Graph
 
             String fullName = getProject().convertPathToPackageName(filename);
 
-            Target t = (Target) targets.get(JavaNames.getBase(fullName));
+            Target t = (Target) getTarget(JavaNames.getBase(fullName));
 
             if(t != null)
                 t.setState(ClassTarget.S_COMPILING);
@@ -1792,7 +1824,7 @@ public class Package extends Graph
     public void mousePressed(MouseEvent evt)
     {
         switch(state) {
-        case S_DELARROW:
+         case S_DELARROW:
             Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
             if((currentArrow != null) && (currentArrow != selectedArrow))
                 currentArrow.highlight(getEditor().getGraphics2D());
