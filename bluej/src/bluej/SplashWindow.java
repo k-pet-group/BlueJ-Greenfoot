@@ -1,10 +1,7 @@
 package bluej;
 
-import bluej.utility.Debug;
-
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.io.File;
 
 /**
@@ -12,14 +9,13 @@ import java.io.File;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 796 2001-03-13 04:37:47Z mik $
+ * @version $Id: SplashWindow.java 809 2001-03-21 06:20:20Z mik $
  */
 
 public class SplashWindow extends JWindow
 {
     public SplashWindow(String bluejHome)
     {
-        //super(parent);
         ImageIcon icon = new ImageIcon(bluejHome + File.separator + 
                                        "images" + File.separator + 
                                        "splash.jpg");

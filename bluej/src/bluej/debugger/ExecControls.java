@@ -13,7 +13,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 751 2001-01-22 06:20:55Z ajp $
+ ** @version $Id: ExecControls.java 809 2001-03-21 06:20:20Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -193,7 +193,7 @@ public class ExecControls extends JFrame
         }
         else {
 
-            int selectionIndex = -1;
+            int selectionIndex = 0;  // default: select first
 
             threads = Debugger.debugger.listThreads();
             if(threads == null) {

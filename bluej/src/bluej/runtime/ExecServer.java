@@ -192,7 +192,8 @@ public class ExecServer
             }
         }
         catch(Exception e) {
-            Debug.message("Exception while performing task: " + e);
+            Debug.reportError("Exception while performing task: " + e);
+            e.printStackTrace();
         }
         return null;
     }
@@ -227,8 +228,6 @@ public class ExecServer
         throws Exception
     {
         Class cl = null;
-
-        //Debug.reportError("loading class " + classname);
 
         if(loaderId == null)
             cl = classmgr.getLoader().loadClass(classname);
