@@ -9,7 +9,7 @@ A
 B
 C
 D   show debugger
-E   evaluate expression
+E   scratchpad
 F
 G
 H   <MacOS: Hide>
@@ -31,4 +31,5 @@ W   close
 X
 Y
 Z
-
+<BS> remove
+, 	preferences
