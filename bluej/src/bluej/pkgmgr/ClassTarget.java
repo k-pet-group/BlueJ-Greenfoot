@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 681 2000-09-06 06:08:12Z bquig $
+ * @version $Id: ClassTarget.java 683 2000-09-12 04:47:32Z bquig $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -940,8 +940,8 @@ public class ClassTarget extends EditableTarget
         else if(role instanceof AppletClassRole)
             type = APPLET_LABEL;
 
-        if(type != null)
-            type = STEREOTYPE_OPEN + type + STEREOTYPE_CLOSE;
+        //if(type != null)
+        //    type = STEREOTYPE_OPEN + type + STEREOTYPE_CLOSE;
 
         return type;
     }
