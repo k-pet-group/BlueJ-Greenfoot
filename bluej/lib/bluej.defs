@@ -125,11 +125,11 @@ appletViewer.command=appletviewer
 ## System libraries which are added to BlueJ's class path
 #####################################################################
 
-bluej.systemlibrary1.description=A Sample Library for Windows
-bluej.systemlibrary1.location=S\:\\Programming\\Java\\lib\\sample.jar
+#bluej.systemlibrary1.description=A Sample Library for Windows
+#bluej.systemlibrary1.location=S\:\\Programming\\Java\\lib\\sample.jar
 
-bluej.systemlibrary2.description=A Sample Library for UNIX
-bluej.systemlibrary2.location=/usr/local/java/lib/sample.jar
+#bluej.systemlibrary2.description=A Sample Library for UNIX
+#bluej.systemlibrary2.location=/usr/local/java/lib/sample.jar
 
 
 #######################################################################
@@ -150,9 +150,12 @@ bluej.systemlibrary2.location=/usr/local/java/lib/sample.jar
 ## A template for Swing applets (type JApplet) already exists - its 
 ## name is "appletj". To use it, just replace "applet" in the list
 ## below with "appletj".
+## The bluej.templatePath property can be used to choose a different
+## directory to store the templates (the default is <bluej_home>/lib/).
 #######################################################################
 
 bluej.classTemplates = stdclass abstract interface applet
+#bluej.templatePath = F:\shared\bluej\templates
 
 #######################################################################
 ## Fonts. You can choose a font size for most of the interface 

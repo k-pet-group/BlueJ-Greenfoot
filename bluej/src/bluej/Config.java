@@ -40,7 +40,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 866 2001-04-24 05:27:03Z mik $
+ * @version $Id: Config.java 868 2001-04-24 06:30:10Z mik $
  */
 
 public class Config
@@ -468,7 +468,11 @@ public class Config
      */
     public static File getTemplateFile(String base)
     {
-        return new File(bluej_lib_dir, base + ".tmpl");
+        String path = bluej_props.getProperty("bluej.templatePath" , "");
+        if(path.length() == 0)
+            return new File(bluej_lib_dir, base + ".tmpl");
+        else
+            return new File(path, base + ".tmpl");
     }
 
     /**
