@@ -340,12 +340,51 @@ public class JdiObject extends DebuggerObject
      */
     public static String getValueString(Value val)
     {
-        if(val == null)
+        if (val == null)
             return "<null>";
-        else if((val instanceof ObjectReference) &&
-                    !(val instanceof StringReference))
+        else if (val instanceof StringReference)
+        {
+            return ((StringReference)val).value();
+        }
+        else if (val instanceof ObjectReference)
         {
             return "<object reference>";
+        }
+
+        // the following should not be necessary but it seems like
+        // the 1.3 beta jpda has a bug in the toString() method.
+        // revisit this code when 1.3 is released
+        else if (val instanceof BooleanValue)
+        {
+            return String.valueOf(((BooleanValue)val).value());
+        }
+        else if (val instanceof ByteValue)
+        {
+            return String.valueOf(((ByteValue)val).value());
+        }
+        else if (val instanceof CharValue)
+        {
+            return String.valueOf(((CharValue)val).value());
+        }
+        else if (val instanceof DoubleValue)
+        {
+            return String.valueOf(((DoubleValue)val).value());
+        }
+        else if (val instanceof FloatValue)
+        {
+            return String.valueOf(((FloatValue)val).value());
+        }
+        else if (val instanceof IntegerValue)
+        {
+            return String.valueOf(((IntegerValue)val).value());
+        }
+        else if (val instanceof LongValue)
+        {
+            return String.valueOf(((LongValue)val).value());
+        }
+        else if (val instanceof ShortValue)
+        {
+            return String.valueOf(((ShortValue)val).value());
         }
         else
             return val.toString();
