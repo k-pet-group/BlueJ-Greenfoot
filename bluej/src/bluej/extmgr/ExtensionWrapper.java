@@ -1,10 +1,7 @@
 package bluej.extmgr;
 
-import bluej.extensions.BlueJ;
-import bluej.extensions.BMenuItem;
-import bluej.extensions.Extension;
-import bluej.extensions.event.BJEvent;
-import bluej.extensions.event.BJEventListener;
+import bluej.extensions.*;
+import bluej.extensions.event.*;
 
 import bluej.Config;
 import bluej.pkgmgr.Project;
@@ -28,297 +25,361 @@ import java.text.SimpleDateFormat;
 import java.lang.reflect.Constructor;
 
 /**
- * Individual Extension wrapper.
- *
- * @author Clive Miller
- * @version $Id: ExtensionWrapper.java 1476 2002-10-28 09:41:40Z damiano $
+ *  This is the wrapper for an extension. Its duties are - Keep track of an
+ *  extension class, this is to allow loading and unloading - Given a jar try to
+ *  load an extension that is in it (if any) - Hold all state that is needed to
+ *  get the whole system working There is a timing problem and is the following
+ *  - When an extension is loaded a BlueJ object is given to it This object MUST
+ *  be fully usable by the extension AND all associate components ! This means
+ *  the following - The creation of an extension Wrapper is disjoint from the
+ *  "creation" of an extension In ANY case we crete a wrapper for the given
+ *  filename We then load the extension ONLY if somebody else requets it...
  */
 public class ExtensionWrapper
 {
-    public static final DateFormat timeFormat = new SimpleDateFormat ("yyyy/MM/dd HH:mm:ss");
-    /**
-     * Searches through the given directory for jar files that contain
-     * a valid extension.
-     * @param directory a directory of extension files
-     * @return a Collection of ExtensionWrapper objects of valid extensions.
-     */
-    public static Collection findValid (File directory, Project project)
-    {
-        Collection set = new ArrayList();
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (int i=0, n=files.length; i<n; i++) {
-                if (files[i].isDirectory()) continue;
-                if (!files[i].getName().endsWith (".jar")) continue;
-                ExtensionWrapper ew = createExtensionWrapper (files[i], project);
-                if (ew != null) set.add (ew);
-            }
-        }
-        return set;
-    }
+    private ExtensionsManager extensionsManager;
+    private PrefManager prefManager;
+
+    // If != null the jar is good
+    private Class extensionClass;
+    // If != null the extension is loaded
+    private Extension extensionInstance;
+    private String extensionStatusString;
+    private File extensionJarFileName;
+    private long extensionLastModified;
+    private BlueJ extensionBluej;
+    private MenuManager menuManager;
+
 
     /**
-     * Creates an ExtensionWrapper object out of the given file.
-     * @param jarFile a <CODE>.jar</CODE> file containing one class that
-     * extends bluej.extensions.Extension. This file must be referenced by
-     * the Main-Class parameter in the jar Manifest file.
-     * @return an ExtensionWrapper object, or <CODE>null</CODE> if the file does not contain
-     * a valid extension.
+     *  We try to load the given jar, there is nothing wrong if it is NOT a good
+     *  one Simply the extension will be marked as invalid and nobody will be
+     *  able to use SInce it is not static if nobody is usin it will be garbage
+     *  collected...
+     *
+     * @param  extensionsManager  Description of the Parameter
+     * @param  prefManager        Description of the Parameter
+     * @param  jarFile            Description of the Parameter
      */
-    static ExtensionWrapper createExtensionWrapper (File file, Project project)
+    public ExtensionWrapper(ExtensionsManager extensionsManager, PrefManager prefManager, File jarFile)
     {
-        ExtensionWrapper newExtWr = null;
-        String name = null;
+        this.extensionsManager = extensionsManager;
+        this.prefManager = prefManager;
+
+        // Let me try to load the extension class
+        if ((extensionClass = getExtensionClass(jarFile)) == null)
+            return;
+
+        extensionJarFileName = jarFile;
+        extensionLastModified = jarFile.lastModified();
+    }
+
+
+    /**
+     *  This is in charge of returning a valid extension class, if any in the
+     *  given jar file, it will return the Class or null if none is found
+     *
+     * @param  jarFileName  Description of the Parameter
+     * @return              The extensionClass value
+     */
+    private Class getExtensionClass(File jarFileName)
+    {
+        Class classRisul = null;
+
+        // It may happen, no reaso to core dump for this...
+        if (jarFileName == null)
+            return null;
+
+        // Also this may happen, again, no reason to continue further
+        if (!jarFileName.getName().endsWith(".jar"))
+            return null;
+
         try {
-            name = file.getPath();
-            URL url = file.toURL();
-            URLClassLoader ucl = new URLClassLoader (new URL[]{url});
+            JarFile jarFile = new JarFile(jarFileName);
+            Manifest manifest = jarFile.getManifest();
+            if (manifest == null) {
+                extensionStatusString = Config.getString("extmgr.error.nomanifest");
+                return null;
+            }
 
-            JarFile jarFile = new JarFile (file);
-            Manifest mf = jarFile.getManifest();
-            if (mf == null) throw new Exception (Config.getString ("extmgr.error.nomanifest"));
-            
-            String className = mf.getMainAttributes().getValue (Attributes.Name.MAIN_CLASS);
-            if (className == null) throw new Exception (Config.getString ("extmgr.error.nomain"));
+            String className = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
+            if (className == null) {
+                extensionStatusString = Config.getString("extmgr.error.nomain");
+                return null;
+            }
 
-            Class c = ucl.loadClass (className);
-            if (!Extension.class.isAssignableFrom (c)) throw new Exception (Config.getString ("extmgr.error.notsubclass"));
-            
-            String time = timeFormat.format (new Date (file.lastModified()));
-            newExtWr = new ExtensionWrapper (c, file, project, time);
-        } catch (Throwable ex) {
-//            ex.printStackTrace();
-            DialogManager.showText (null, Config.getString ("extmgr.error.cannotload")+": "+name+"\n"+ex);
+            URL url = jarFileName.toURL();
+            URLClassLoader ucl = new URLClassLoader(new URL[]{url});
+
+            classRisul = ucl.loadClass(className);
+            if (!Extension.class.isAssignableFrom(classRisul)) {
+                extensionStatusString = Config.getString("extmgr.error.notsubclass");
+                return null;
+            }
+        } catch (Throwable exc) {
+            extensionStatusString = "loadExtensionClass: Exception=" + exc.getMessage();
+            return null;
         }
-        return newExtWr;
+
+        return classRisul;
     }
 
-    private final Class extensionClass;
-    private final File extensionPath;
-    private final Project project;
-    private String status;
-    private boolean valid = false;
-    private Extension instance = null;
-    private final String timestamp;
-    private final Collection menus; // of BMenuItem
-    private final Collection eventListeners;
-    private final BlueJ bj;
 
     /**
-     * Accessor for the bluej that is created
+     *  Now, assume you have the class and you want to "istantiate" the
+     *  extension You have to call this. NOTE that the extension wrapper is
+     *  ALREADY UP and running
+     *
+     * @param  project  Description of the Parameter
+     * @return          Description of the Return Value
      */
-    public BlueJ getBlueJ ()
-      {
-      return bj;
-      }
-      
-    /**
-     * A brand new extension is born.
-     */
-    private ExtensionWrapper (Class cl, File path, Project project, String timestamp)
+    public Extension newExtension(Project project)
     {
-        extensionClass = cl;
-        extensionPath = path;
         this.project = project;
-        status = Config.getString ("extmgr.status.notused");
-        menus = new ArrayList(); // of JMenuItem
-        eventListeners = new ArrayList(); // of BJEventListener
-        this.timestamp = timestamp;
+        extensionStatusString = Config.getString("extmgr.status.notused");
+        eventListeners = new ArrayList();
+        // of BJEventListener
 
-        bj = new BlueJ (this);
+        extensionBluej = new BlueJ(this, prefManager);
+        menuManager = new MenuManager(this);
+
+        // It may happen, unfortunately...
+        if (extensionClass == null)
+            return null;
+
         try {
-            Constructor cons = extensionClass.getConstructor (new Class[] {BlueJ.class});
-            instance = (Extension)cons.newInstance(new Object[] {bj});
-            if (!instance.isCompatibleWith (Extension.VERSION_MAJOR, Extension.VERSION_MINOR)) throw new InstantiationException ("Incorrect version");
-            status = Config.getString ("extmgr.status.loaded");
-            valid = true;
+            Constructor cons = extensionClass.getConstructor(new Class[]{});
+            extensionInstance = (Extension) cons.newInstance(new Object[]{});
         } catch (Throwable ex) {
-            invalidate();
-            DialogManager.showText (PkgMgrFrame.getMostRecent(), Config.getString ("extmgr.error.cannotload")+": "+extensionPath.getPath()+"\n"+ex);
-            status = Config.getString ("extmgr.status.error");
+            extensionInstance = null;
+            extensionStatusString = "newExtension: Exception=" + ex.getMessage();
+            return null;
         }
-    }        
-    
-    /**
-     * Adds menu items that the extension is responsible for to the JMenu
-     * @param pmf the frame that this menu is going to end up on
-     * @param menu the tools menu, for extension's menu items to be added to
-     */
-    public void addMenuItems (PkgMgrFrame pmf, JMenu menu)
-    {
-        for (Iterator it = menus.iterator(); it.hasNext();) {
-            BMenuItem item = (BMenuItem)it.next();
-            JMenuItem mi = item.getJMenuItem (pmf);
-            menu.add (mi);
+
+        // Let me see if this extension is somewhat compatible...
+        if (!extensionInstance.isCompatibleWith(Extension.VERSION_MAJOR, Extension.VERSION_MINOR)) {
+            extensionStatusString = "Incorrect version";
+            extensionInstance = null;
         }
+
+        // Ok, time to really start everything... This MUST be here.... after all is initialzed
+        extensionInstance.startup(extensionBluej);
+
+        extensionStatusString = Config.getString("extmgr.status.loaded");
+        return extensionInstance;
     }
-    
+
+
+    private Project project;
+    private Collection eventListeners;
+
+
     /**
-     * Registers a menu item to be added to the tools menu on request.
-     * @param item the menu item to register
-     */
-    public void registerMenuItem (BMenuItem item)
-    {
-        PkgMgrFrame []frames = PkgMgrFrame.getAllFrames();
-        for ( int index=0; index < frames.length; index ++ )
-          {
-              JMenu aMenu = frames[index].getToolsMenu();
-              if ( aMenu != null ) aMenu.add(item.getJMenuItem(frames[index]));
-          }
-        
-        menus.add (item);
-    }
-    
-    String[] getMenuNames()
-    {
-        String[] names;
-        synchronized (menus) {
-            names = new String [menus.size()];
-            int i=0;
-            for (Iterator it = menus.iterator(); it.hasNext(); i++) {
-                names[i] = ((BMenuItem)it.next()).getText();
-            }
-        }
-        return names;
-    }   
-    
-    /**
-     * Gets the project this extension is associated with (if any)
-     * @return the project owning this extension, or <code>null</code> if the extension
-     * is system-wide (more likely)
+     *  Gets the project this extension is associated with (if any)
+     *
+     * @return    the project owning this extension, or <code>null</code> if the
+     *      extension is system-wide (more likely)
      */
     public Project getProject()
     {
         return project;
     }
-    
+
+
     /**
-     * Is this extension valid?
-     * @return <CODE>true</CODE> if this extension has been successfully loaded, has no errors
-     * and has not yet been invalidated.
+     *  Accessor for the bluej that is created
+     *
+     * @return    The blueJ value
+     */
+    public BlueJ getBlueJ()
+    {
+        return extensionBluej;
+    }
+
+
+    /**
+     *  Accessor for the MenuManager
+     *
+     * @return    The menuManager value
+     */
+    public MenuManager getMenuManager()
+    {
+        return menuManager;
+    }
+
+
+    /**
+     *  Is this extension valid?
+     *
+     * @return    <CODE>true</CODE> if this extension has been successfully
+     *      loaded, has no errors and has not yet been invalidated.
      */
     public boolean isValid()
     {
-        return valid;
+        return (extensionInstance != null);
     }
-    
+
+
     /**
-     * Kills off this extension as much as possible, including removing menu items and making
-     * access to BlueJ no longer possible.
+     *  Gets the jarValid attribute of the ExtensionWrapper object
+     *
+     * @return    The jarValid value
+     */
+    public boolean isJarValid()
+    {
+        return (extensionClass != null);
+    }
+
+
+    /**
+     *  Kills off this extension as much as possible, including removing menu
+     *  items and making access to BlueJ no longer possible.
      */
     public void invalidate()
     {
-        for (Iterator it = menus.iterator(); it.hasNext();) {
-            BMenuItem item = (BMenuItem)it.next();
-            item.removeMenuItems();
-        }
-        menus.clear();
-        status = Config.getString ("extmgr.status.unloaded");
-        valid = false;
-        instance = null;
-        ExtPrefPanel.INSTANCE.panelRevalidate();;
+        extensionStatusString = Config.getString("extmgr.status.unloaded");
+        extensionInstance = null;
+
+        prefManager.panelRevalidate();
+        menuManager.menuExtensionRevalidateReq();
     }
-    
+
+
     /**
-     * Gets the current status of this extension.
-     * @return something like 'Loaded' or 'Error'.
+     *  Gets the current status of this extension.
+     *
+     * @return    something like 'Loaded' or 'Error'.
      */
     public String getStatus()
     {
-        return status;
+        return extensionStatusString;
     }
-    
+
+
     /**
-     * Gets the fully-qualified name of this extension. 
-     * @return the fully-qualified class name of the extension (the class that extends 
-     * <CODE>bluej.extensions.Extension</CODE>).
+     *  Gets the fully-qualified name of this extension.
+     *
+     * @return    the fully-qualified class name of the extension (the class
+     *      that extends <CODE>bluej.extensions.Extension</CODE>).
      */
     public String getName()
     {
+        if (extensionClass == null)
+            return "null";
+
         return extensionClass.getName();
     }
-    
+
+
     /**
-     * Gets a String representation of the path to the <CODE>.jar</CODE> file containing
-     * the extension.
-     * @return a String like <CODE>C:/bluej/lib/extensions/fun.jar</CODE>
+     *  Gets a String representation of the path to the <CODE>.jar</CODE> file
+     *  containing the extension.
+     *
+     * @return    a String like <CODE>C:/bluej/lib/extensions/fun.jar</CODE>
      */
     public String getLocation()
     {
-        return extensionPath.getPath();
+        if (extensionJarFileName == null)
+            return "";
+
+        return extensionJarFileName.getPath();
     }
-    
+
+
     /**
-     * Gets the Class for this extension
-     * @return the Class for this extension
+     *  Gets the Class for this extension
+     *
+     * @return    the Class for this extension
      */
     public Class getExtensionClass()
     {
         return extensionClass;
     }
-    
+
+
     /**
-     * Gets the extension's description of itself.
-     * @return the extension's description, perhaps even <CODE>null</CODE>.
+     *  Gets the extension's description of itself.
+     *
+     * @return    the extension's description, perhaps even <CODE>null</CODE>.
      */
     public String getDescription()
     {
-        return instance==null ? null : (instance.getDescription());
+        if (extensionInstance == null)
+            return null;
+
+        return extensionInstance.getDescription();
     }
-    
+
+
     /**
-     * Gets the extension's 'further information' URL
-     * @return the extension's URL, or <CODE>null</CODE>.
+     *  Gets the extension's 'further information' URL
+     *
+     * @return    the extension's URL, or <CODE>null</CODE>.
      */
     public URL getURL()
     {
-        return instance==null ? null : (instance.getURL());
+        if (extensionInstance == null)
+            return null;
+
+        return extensionInstance.getURL();
     }
-    
+
+
     /**
-     * Gets the timestamp of the jar file.
-     * @return yyyy/mm/dd hh:mm:ss
+     *  Gets the timestamp of the jar file.
+     *
+     * @return    yyyy/mm/dd hh:mm:ss
      */
     public String getDate()
     {
-        return timestamp;
+        SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        return timeFormat.format(new Date(extensionLastModified));
     }
-    
+
+
     /**
-     * Gets the formal version number of this extension.
-     * @return a String containing the major version, followed by a dot, followed by the minor version number.
+     *  Gets the formal version number of this extension.
+     *
+     * @return    a String containing the major version, followed by a dot,
+     *      followed by the minor version number.
      */
     public String getVersion()
     {
-        if (instance == null) return Config.getString ("extmgr.version.unknown");
-        try {
-            return instance.getVersionMajor() +"."+ instance.getVersionMinor();
-        } catch (Throwable ex) {
-            return Config.getString ("extmgr.status.error");
-        } 
-    }
-    
-    /**
-     * Registers a package listener for this extension.
-     */
-    public void addBJEventListener (BJEventListener el)
-    {
-        if (el != null) {
-            eventListeners.add (el);
-        }
-    }
-    
-    /**
-     * Informs any registered listeners that an event has occurred.
-     */
-    void eventOccurred (BJEvent event)
-    {
-        if (!isValid()) return;
-        if (eventListeners.isEmpty()) return;
-        for (Iterator it = eventListeners.iterator(); it.hasNext();) {
-            BJEventListener el = (BJEventListener) it.next();
-            el.eventOccurred (event);
-        }
+        if (extensionInstance == null)
+            return Config.getString("extmgr.version.unknown");
+
+        return extensionInstance.getVersionMajor() + "." + extensionInstance.getVersionMinor();
     }
 
+
+    /**
+     *  Registers a package listener for this extension.
+     *
+     * @param  el  The feature to be added to the BJEventListener attribute
+     */
+    public void addBJEventListener(BJEventListener el)
+    {
+        if (el != null)
+            eventListeners.add(el);
+    }
+
+
+    /**
+     *  Informs any registered listeners that an event has occurred.
+     *
+     * @param  event  Description of the Parameter
+     */
+    void eventOccurred(BJEvent event)
+    {
+        if (!isValid())
+            return;
+
+        if (eventListeners.isEmpty())
+            return;
+
+        for (Iterator it = eventListeners.iterator(); it.hasNext(); ) {
+            BJEventListener el = (BJEventListener) it.next();
+            el.eventOccurred(event);
+        }
+    }
 }

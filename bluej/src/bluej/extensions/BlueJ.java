@@ -3,7 +3,9 @@ package bluej.extensions;
 import bluej.extensions.event.BJEventListener;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionWrapper;
-import bluej.extmgr.ExtPrefPanel;
+import bluej.extmgr.PrefManager;
+import bluej.extmgr.MenuManager;
+
 
 import bluej.Config;
 import bluej.pkgmgr.Package;
@@ -33,50 +35,45 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Provides services to BlueJ extensions. This is the top-level object of the proxy hierarchy. It looks like this:<PRE>
+ * Provides services to BlueJ extensions. 
+ * This is the top-level object of the proxy hierarchy. It looks like this:
+ * 
+ * <PRE>
  * BlueJ
  *   |
  *   +---- BProject
- *   |         |
- *   |         +---- BPackage
- *   |                  |
- *   |                  +---- BClass
- *   |                  |
- *   |                  +---- BObject
- *   |                           |
- *   |                           +---- BMethod
- *   |                                     |
- *   |                                     +---- BField
- *   |
- *   |
- *   +---- BMenu
- *   |       |
- *   |       +---- BMenuItem
- *   |
- *   +---- BPrefPanel</PRE>
- *
- * It is received from the extension's {@link bluej.extensions.Extension#Extension(bluej.extensions.BlueJ) constructor}. 
- * @author Clive Miller 
- * @version $Id: BlueJ.java 1479 2002-10-28 09:52:34Z damiano $
+ *             |
+ *             +---- BPackage
+ *                      |
+ *                      +---- BClass
+ *                      |
+ *                      +---- BObject
+ *                               |
+ *                               +---- BMethod
+ *                                         |
+ *                                         +---- BField
+ *    
+ * </PRE>
+ * @version $Id: BlueJ.java 1497 2002-11-11 10:32:50Z damiano $
  */
+
 public class BlueJ
 {
-    private final ExtensionWrapper ew;
-    private BMenu menu;
-    private BPrefPanel currentBPrefPanel=null;
+    private final ExtensionWrapper myWrapper;
+    private final PrefManager      prefManager;
+
     private Properties localLabels;
+
+    private PrefGen currentPrefGen=null;
+    private MenuGen currentMenuGen=null;
 
     /**
      * Extensions should not call this constructor!
      */
-    public BlueJ (ExtensionWrapper ew)
+    public BlueJ (ExtensionWrapper myWrapper, PrefManager prefManager)
     {
-        this.ew = ew;
-    }
-
-    ExtensionWrapper getEW()
-    {
-        return ew;
+        this.myWrapper   = myWrapper;
+        this.prefManager = prefManager;
     }
     
     /**
@@ -100,7 +97,7 @@ public class BlueJ
      */
     public synchronized BProject[] getOpenProjects()
     {
-        if (!ew.isValid()) return null;
+        if (!myWrapper.isValid()) return null;
         Set projectSet = new TreeSet();
         PkgMgrFrame[] pmfs = PkgMgrFrame.getAllFrames();
         for (int i=0; i<pmfs.length; i++) projectSet.add (pmfs[i].getProject());
@@ -127,33 +124,46 @@ public class BlueJ
         return new BProject (pmf.getProject());
     }
     
+
     /**
-     * Returns a proxy menu object
-     * @return the menu object
+     * Install a new menu generator for this extension
+     * If you want no menues then just set it to null
      */
-    public BMenu getMenu()
+    public void setMenuGen ( MenuGen menuGen )
     {
-        if (menu == null) menu = new PBMenu (ew);
-        return menu;
+        currentMenuGen = menuGen;
+
+        MenuManager menuManager=myWrapper.getMenuManager();
+        if ( menuManager == null ) return;
+        menuManager.menuExtensionRevalidateReq();
+    }
+
+    /**
+     * Accessor for the bMenu. 
+     * It just returns what you have set with the setMenuGen
+     */
+    public MenuGen getMenuGen ()
+    {
+        return currentMenuGen;
     }
 
     /**
      * Install a new preference panel for this extension
      * If you want to delete it just set prefPanel to null
      */
-    public void setBPrefPanel(BPrefPanel prefPanel)
+    public void setPrefGen(PrefGen prefGen)
     {
-      currentBPrefPanel = prefPanel;
-      ExtPrefPanel.INSTANCE.panelRevalidate();
+      currentPrefGen = prefGen;
+      prefManager.panelRevalidate();
     }
     
     /**
      * Accessor for the preference panel. It returns what you have set 
      * with setBPrefPanel
      */
-    public BPrefPanel getBPrefPanel()
+    public PrefGen getPrefGen()
     {
-      return currentBPrefPanel;
+      return currentPrefGen;
     }
 
 
@@ -203,7 +213,7 @@ public class BlueJ
      */
     public void addBJEventListener (BJEventListener el)
     {
-        ew.addBJEventListener (el);
+        myWrapper.addBJEventListener (el);
     }
 
     /**
@@ -337,7 +347,7 @@ public class BlueJ
       */
     public String getExtPropString (String property, String def)
     {
-        return Config.getPropString (ExtensionsManager.getSettingsString (ew, property), def);
+        return Config.getPropString (ExtensionsManager.getSettingsString (myWrapper, property), def);
     }
      
      /**
@@ -348,7 +358,7 @@ public class BlueJ
       */
     public void setExtPropString (String property, String value)
     {
-        Config.putPropString (ExtensionsManager.getSettingsString (ew, property), value);
+        Config.putPropString (ExtensionsManager.getSettingsString (myWrapper, property), value);
     }
     
     /**
@@ -407,7 +417,7 @@ public class BlueJ
     private void loadLanguageFile (String language)
     {
         String languageFileName = "lib/" + language + "/labels";
-        InputStream is = ew.getExtensionClass().getClassLoader().getResourceAsStream (languageFileName);
+        InputStream is = myWrapper.getExtensionClass().getClassLoader().getResourceAsStream (languageFileName);
         try {
             localLabels.load (is);
             is.close();

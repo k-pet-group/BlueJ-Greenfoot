@@ -33,103 +33,113 @@ import javax.swing.ImageIcon;
 import java.awt.*;
 
 /**
- * The Extensions Manager help panel allows the user to view current extensions.
+ *  The Extensions Manager help panel allows the user to view current
+ *  extensions.
  *
- * @author  Clive Miller, Damiano Bolla
- * @version $Id: HelpDialog.java 1483 2002-10-28 11:12:14Z damiano $
+ * @version    $Id: HelpDialog.java 1497 2002-11-11 10:32:50Z damiano $
  */
 public class HelpDialog extends JDialog implements ActionListener
 {
-    private final String installedString = Config.getString ("extmgr.installed");
-    private final String projectString = Config.getString ("extmgr.project");
+    private final String installedString = Config.getString("extmgr.installed");
+    private final String projectString = Config.getString("extmgr.project");
     private final ImageIcon infoIcon = Config.getImageAsIcon("image.extmgr.info");
-  
+
     private HelpDetailDialog detailDialog;
     private JButton closeButton;
     private ExtensionsTableModel extensionsTableModel;
     private JTable extensionsTable;
 
+
     /**
-    * Setup the UI for the dialog and event handlers for the dialog's buttons.
-    */
-    public HelpDialog (PkgMgrFrame parent)
+     *  Setup the UI for the dialog and event handlers for the dialog's buttons.
+     *
+     * @param  parent  Description of the Parameter
+     */
+    public HelpDialog(PkgMgrFrame parent)
     {
-        super (parent, Config.getString ("extmgr.title"), true);
+        super(parent, Config.getString("extmgr.title"), true);
 
         extensionsTable = getExtensionTable();
         JScrollPane extensionsPane = new JScrollPane(extensionsTable);
 
         JPanel buttonPanel = new JPanel();
-        closeButton = new JButton (Config.getString ("close"));
-        closeButton.addActionListener (this);
-        buttonPanel.add (closeButton);
+        closeButton = new JButton(Config.getString("close"));
+        closeButton.addActionListener(this);
+        buttonPanel.add(closeButton);
 
-        JPanel rootPane = (JPanel)getContentPane();
-        rootPane.setLayout (new BorderLayout());
-        rootPane.setBorder (Config.dialogBorder);
+        JPanel rootPane = (JPanel) getContentPane();
+        rootPane.setLayout(new BorderLayout());
+        rootPane.setBorder(Config.dialogBorder);
 
-        rootPane.add (extensionsPane, BorderLayout.CENTER);
-        rootPane.add (buttonPanel, BorderLayout.SOUTH);
+        rootPane.add(extensionsPane, BorderLayout.CENTER);
+        rootPane.add(buttonPanel, BorderLayout.SOUTH);
         DialogManager.centreDialog(this);
 
         // save position when window is moved
-        addComponentListener(new ComponentAdapter() 
-        {
-            public void componentMoved(ComponentEvent event) 
+        addComponentListener(
+            new ComponentAdapter()
             {
-                Config.putLocation("bluej.extmgr.helpdialog", getLocation());
-            }
-        });
+                public void componentMoved(ComponentEvent event)
+                {
+                    Config.putLocation("bluej.extmgr.helpdialog", getLocation());
+                }
+            });
 
         setLocation(Config.getLocation("bluej.extmgr.helpdialog"));
         pack();
         setVisible(true);
     }
 
+
     /**
-     * Just to manage the close button
+     *  Just to manage the close button
+     *
+     * @param  evt  Description of the Parameter
      */
-    public void actionPerformed (ActionEvent evt)
+    public void actionPerformed(ActionEvent evt)
     {
         Object src = evt.getSource();
-        if ( src == null ) 
+        if (src == null)
             return;
 
-        if (src == closeButton) 
+        if (src == closeButton)
             hide();
     }
 
+
     /**
-     * Utility, to make code cleaner
+     *  Utility, to make code cleaner
      */
     private void showDetails()
     {
-        if (detailDialog == null) 
-            detailDialog = new HelpDetailDialog (this);
+        if (detailDialog == null)
+            detailDialog = new HelpDetailDialog(this);
 
         int selectedColumn = extensionsTable.getSelectedColumn();
 
         // We want the user to click on the ICON !!!
-        if ( selectedColumn != 0 ) 
+        if (selectedColumn != 0)
             return;
 
         detailDialog.updateInfo(extensionsTable.getSelectedRow());
         detailDialog.setVisible(true);
     }
-    
+
 
     /**
-     * Utility, to make the code clean.
-     * Returns the table that describes the installed extensions
-     * I really would like not to set so many preferred values...
+     *  Utility, to make the code clean. Returns the table that describes the
+     *  installed extensions I really would like not to set so many preferred
+     *  values...
+     *
+     * @return    The extensionTable value
      */
-    private JTable getExtensionTable ()
+    private JTable getExtensionTable()
     {
         extensionsTableModel = new ExtensionsTableModel();
 
-        JTable aTable = new JTable (extensionsTableModel);
-        aTable.setSelectionMode (ListSelectionModel.SINGLE_SELECTION);
-        aTable.setPreferredScrollableViewportSize (new Dimension(400, 100));
+        JTable aTable = new JTable(extensionsTableModel);
+        aTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        aTable.setPreferredScrollableViewportSize(new Dimension(400, 100));
 
         TableColumnModel tcm = aTable.getColumnModel();
         tcm.getColumn(0).setPreferredWidth(20);
@@ -138,102 +148,164 @@ public class HelpDialog extends JDialog implements ActionListener
         aTable.setRowHeight(18);
         aTable.setRowSelectionAllowed(false);
 
-        aTable.addMouseListener (new myMouseAdapter() );
+        aTable.addMouseListener(new myMouseAdapter());
         return aTable;
     }
 
+
     /**
-     * When a mouse is clicked I come here
-     * Maybe I can do it with the selected, it may be easier... next release ?
+     *  When a mouse is clicked I come here Maybe I can do it with the selected,
+     *  it may be easier... next release ?
      */
     private class myMouseAdapter extends MouseAdapter
     {
-    public void mouseClicked(MouseEvent e) 
+        /**
+         *  Description of the Method
+         *
+         * @param  e  Description of the Parameter
+         */
+        public void mouseClicked(MouseEvent e)
         {
-            if (e.getClickCount() == 1) 
+            if (e.getClickCount() == 1)
                 showDetails();
         }
     }
 
+
     /**
-     * This models the data of the table. Basically the JTable ask this class
-     * about the data to be displayed on the screen
+     *  This models the data of the table. Basically the JTable ask this class
+     *  about the data to be displayed on the screen
      */
     private class ExtensionsTableModel extends AbstractTableModel
     {
         // It does not matter very much if it is not static, it is created once only
         private String columnNames[] = {
-        "",
-        Config.getString("extmgr.statuscolumn"),
-        Config.getString("extmgr.namecolumn"),
-        Config.getString("extmgr.typecolumn"),
-        Config.getString("extmgr.versioncolumn")};
+                "",
+                Config.getString("extmgr.statuscolumn"),
+                Config.getString("extmgr.namecolumn"),
+                Config.getString("extmgr.typecolumn"),
+                Config.getString("extmgr.versioncolumn")};
 
-        public int getRowCount()     
-        {  
-            return getExtensions().size();    
-        }
 
-        public int getColumnCount()  
-        { 
-            return columnNames.length;         
-        }
-            
-        public String getColumnName(int col) 
-        {  
-            return columnNames [col]; 
+        /**
+         *  Gets the rowCount attribute of the ExtensionsTableModel object
+         *
+         * @return    The rowCount value
+         */
+        public int getRowCount()
+        {
+            return getExtensions().size();
         }
 
-        public boolean isCellEditable(int row, int col) 
-        { 
-            return false;   
+
+        /**
+         *  Gets the columnCount attribute of the ExtensionsTableModel object
+         *
+         * @return    The columnCount value
+         */
+        public int getColumnCount()
+        {
+            return columnNames.length;
         }
-        
+
+
+        /**
+         *  Gets the columnName attribute of the ExtensionsTableModel object
+         *
+         * @param  col  Description of the Parameter
+         * @return      The columnName value
+         */
+        public String getColumnName(int col)
+        {
+            return columnNames[col];
+        }
+
+
+        /**
+         *  Gets the cellEditable attribute of the ExtensionsTableModel object
+         *
+         * @param  row  Description of the Parameter
+         * @param  col  Description of the Parameter
+         * @return      The cellEditable value
+         */
+        public boolean isCellEditable(int row, int col)
+        {
+            return false;
+        }
+
+
+        /**
+         *  Gets the valueAt attribute of the ExtensionsTableModel object
+         *
+         * @param  row  Description of the Parameter
+         * @param  col  Description of the Parameter
+         * @return      The valueAt value
+         */
         public Object getValueAt(int row, int col)
         {
-            if (col == 0) 
+            if (col == 0)
                 return infoIcon;
 
             // I really need to sort this out... Do I need to call it every time ?
-            ExtensionWrapper wrapper = getWrapper (row);
-            if ( wrapper == null ) 
-                return "getValueAt: ERROR: no wrapper at row="+row+" col="+col;
-      
-            if (col == 1) 
+            ExtensionWrapper wrapper = getWrapper(row);
+            if (wrapper == null)
+                return "getValueAt: ERROR: no wrapper at row=" + row + " col=" + col;
+
+            if (col == 1)
                 return wrapper.getStatus();
 
-            if (col == 2) 
+            if (col == 2)
                 return wrapper.getName();
-                
-            if (col == 3) 
-                return (wrapper.getProject()!=null)?projectString:installedString;
-                
-            if (col == 4) 
-                return wrapper.getVersion(); 
-      
+
+            if (col == 3)
+                return (wrapper.getProject() != null) ? projectString : installedString;
+
+            if (col == 4)
+                return wrapper.getVersion();
+
             // If I trow an exception all will stop. This instead keeps going
-            return "getValueAt: ERROR at row="+row+" col="+col;
+            return "getValueAt: ERROR at row=" + row + " col=" + col;
         }
 
-        public Class getColumnClass(int col) 
+
+        /**
+         *  Gets the columnClass attribute of the ExtensionsTableModel object
+         *
+         * @param  col  Description of the Parameter
+         * @return      The columnClass value
+         */
+        public Class getColumnClass(int col)
         {
-            if ( col == 0 ) 
+            if (col == 0)
                 return new ImageIcon().getClass();
 
             return new String().getClass();
         }
 
-        private ExtensionWrapper getWrapper (int index)
+
+        /**
+         *  Gets the wrapper attribute of the ExtensionsTableModel object
+         *
+         * @param  index  Description of the Parameter
+         * @return        The wrapper value
+         */
+        private ExtensionWrapper getWrapper(int index)
         {
             // Every time I am called I reload this ?
-            List exts = getExtensions(); // of ExtensionWrapper
-            if (index > exts.size()) 
+            List exts = getExtensions();
+            // of ExtensionWrapper
+            if (index > exts.size())
                 return null;
 
-            return (ExtensionWrapper) exts.get (index);
+            return (ExtensionWrapper) exts.get(index);
         }
-        
-    
+
+
+        /**
+         *  Gets the extensions attribute of the ExtensionsTableModel object
+         *
+         * @return    The extensions value
+         */
         private List getExtensions()
         {
             // Just wondering if there is a thread sync issue here
