@@ -25,7 +25,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 2273 2003-11-05 13:27:08Z mik $
+ * @version $Id: Config.java 2276 2003-11-05 15:02:44Z mik $
  */
 
 public final class Config
@@ -52,7 +52,8 @@ public final class Config
     public static final String osname = System.getProperty("os.name", "");
     public static final String DEFAULT_LANGUAGE = "english";
     public static final String BLUEJ_OPENPACKAGE = "bluej.openPackage";
-
+    public static final String debugLogName = "bluej-debuglog.txt";
+    
     private static boolean initialised = false;
     
     /**
@@ -167,7 +168,7 @@ public final class Config
     private static void checkDebug(File userdir)
     {
         if (! "true".equals(bluej_props.getProperty("bluej.debug"))) {
-            File debugLogFile = new File(userdir, "bluej-debuglog.txt");
+            File debugLogFile = new File(userdir, debugLogName);
             // simple diversion of output stream to a log file
             try {
                 PrintStream outStream =
@@ -590,7 +591,7 @@ public final class Config
 
     /**
      * Return the user config directory
-     * (<user_home>/.bluej
+     * (<user_home>/.bluej)
      */
     public static File getUserConfigDir()
     {
