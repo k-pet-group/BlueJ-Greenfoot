@@ -25,7 +25,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1842 2003-04-11 15:41:59Z damiano $
+ * @version $Id: Config.java 1860 2003-04-16 13:28:58Z mik $
  */
 
 public class Config
@@ -46,6 +46,8 @@ public class Config
     public static String language;	// message language (english, ...)
 
     public static Rectangle screenBounds; // maximum dimensions of screen
+
+    private static boolean usingMacOSScreenMenubar;
 
     // Image to be used for setting the frames icon
     public static Image frameImage = null;
@@ -74,7 +76,7 @@ public class Config
     public static final String DEFAULT_LANGUAGE = "english";
 
     private static boolean initialised = false;
-
+    
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
      * This method finds and opens the configuration files.
@@ -128,15 +130,25 @@ public class Config
         if(compilertype.equals("internal"))
             compilertype = "javac";
 
-        String macOSscreenMenuBar = Config.getPropString("bluej.macos.screenmenubar", "false");
+        String macOSscreenMenuBar = Config.getPropString("bluej.macos.screenmenubar", "true");
         System.setProperty("apple.laf.useScreenMenuBar", macOSscreenMenuBar);
-
+        usingMacOSScreenMenubar = (osname.startsWith("Mac") && macOSscreenMenuBar.equals("true"));
+        
         boolean themed = Boolean.valueOf(
             Config.getPropString("bluej.useTheme", "false")).booleanValue();
         if(themed)    
             MetalLookAndFeel.setCurrentTheme(new BlueJTheme());
     } // initialise
 
+    
+    /**
+     * Tell us whether we are using a Mac screen menubar
+     */
+    public static boolean usingMacScreenMenubar()
+    {
+        return usingMacOSScreenMenubar;
+    }
+    
     /**
      * Get the screen size information
      */

@@ -262,6 +262,11 @@ public final class MoeActions
                 version = count;
                 count = stream.readInt();
             }
+            if(Config.osname.startsWith("Mac") && (version < 140)) {
+                // do not attempt to load old bindings on MacOS when switching to jdk 1.4.1
+                return false;
+            }
+                
             for(int i=0; i<count; i++) {
                 KeyStroke key = (KeyStroke)stream.readObject();
                 String actionName = (String)stream.readObject();

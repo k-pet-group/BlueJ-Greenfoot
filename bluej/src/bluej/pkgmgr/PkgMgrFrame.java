@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1857 2003-04-16 12:44:00Z mik $
+ * @version $Id: PkgMgrFrame.java 1860 2003-04-16 13:28:58Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1132,7 +1132,7 @@ public class PkgMgrFrame extends JFrame
     {
         JOptionPane.showMessageDialog(this,
               new String[] {
-                  "BlueJ \u00a9 2000-2002 Michael K\u00F6lling, John Rosenberg.",
+                  "BlueJ \u00a9 2000-2003 Michael K\u00F6lling, John Rosenberg.",
                   " ",
                   "BlueJ is available free of charge and may be",
                   "redistributed freely. It may not be sold for",
@@ -2050,13 +2050,15 @@ public class PkgMgrFrame extends JFrame
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); print(); }
                            });
-            menu.addSeparator();
 
-//          if(Config.osname.startsWith("Mac")) {...}   // no "Quit" here for Mac
-            createMenuItem("menu.package.quit", menu, KeyEvent.VK_Q, SHORTCUT_MASK, false,
+            if(!Config.usingMacScreenMenubar()) {   // no "Quit" here for Mac
+                menu.addSeparator();
+
+                createMenuItem("menu.package.quit", menu, KeyEvent.VK_Q, SHORTCUT_MASK, false,
                            new ActionListener() {
                                public void actionPerformed(ActionEvent e) { menuCall(); wantToQuit(); }
                            });
+            }
         }
 
 
