@@ -16,16 +16,17 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Properties;
 
-
 /**
  * An Applet class role in a package, i.e. a target that is a Applet class file
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 1521 2002-11-27 13:22:48Z mik $
+ * @version $Id: AppletClassRole.java 1538 2002-11-29 13:43:32Z ajp $
  */
 public class AppletClassRole extends ClassRole
 {
+    public static final String APPLET_ROLE_NAME = "AppletTarget";
+    
     private RunAppletDialog dialog;
 
     static final String runAppletStr = Config.getString("pkgmgr.classmenu.runApplet");
@@ -44,7 +45,6 @@ public class AppletClassRole extends ClassRole
     private int appletHeight;
     private int appletWidth;
 
-
     /**
      * Create the class role.
      */
@@ -54,6 +54,15 @@ public class AppletClassRole extends ClassRole
         appletWidth = DEFAULT_APPLET_WIDTH;
     }
 
+    public String getRoleName()
+    {
+        return APPLET_ROLE_NAME;
+    }
+
+    public String getStereotypeLabel()
+    {
+        return "applet";
+    }
 
     /**
      * Save this AppletClassRole details to file
@@ -63,7 +72,6 @@ public class AppletClassRole extends ClassRole
     public void save(Properties props, int modifiers, String prefix)
     {
         super.save(props, modifiers, prefix);
-        props.put(prefix + ".type", "AppletTarget");
         if(dialog != null) {
             appletParams = dialog.getAppletParameters();
             props.put(prefix + ".numberAppletParameters", String.valueOf(appletParams.length));
@@ -109,26 +117,40 @@ public class AppletClassRole extends ClassRole
 
     }
 
-
     /**
      * Generate a popup menu for this AppletClassRole.
+     *
      * @param cl the class object that is represented by this target
      * @param editorFrame the frame in which this targets package is displayed
      * @return the generated JPopupMenu
      */
-    protected void createMenu(JPopupMenu menu, ClassTarget ct, int state) 
+    protected boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, int state)
     {
-        final ClassTarget target = ct;
         // add run applet option
-        target.addMenuItem(menu, runAppletStr, (state == Target.S_NORMAL),
-                       new ActionListener() {
-                        public void actionPerformed(ActionEvent e) { 
-                            target.getPackage().getEditor().raiseRunTargetEvent(target);
-                        }
-                       });
+        addMenuItem(menu, new AppletAction(ct.getPackage().getEditor(),ct),
+                     (state == Target.S_NORMAL));
         menu.addSeparator();
+
+        return true;
     }
 
+    private class AppletAction extends AbstractAction
+    {
+        private Target t;
+        private PackageEditor ped;
+
+        public AppletAction(PackageEditor ped, Target t)
+        {
+            super(runAppletStr);
+            this.ped = ped;
+            this.t = t;
+    }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            ped.raiseRunTargetEvent(t, null);
+        }
+    }
 
     /**
      * Runs the applet using options provided by user RunAppletDialog dialog
@@ -140,7 +162,7 @@ public class AppletClassRole extends ClassRole
      * @param ct the class target that is represented by this applet class
      *
      */
-    void runApplet(PkgMgrFrame parent, ClassTarget ct)
+    public void run(PkgMgrFrame parent, ClassTarget ct, String param)
     {
         String name = ct.getBaseName();
         Package pkg = ct.getPackage();
@@ -294,10 +316,8 @@ public class AppletClassRole extends ClassRole
 
 
     /**
-     *
      * Removes applicable files (.class, .java and .ctxt) prior to
      * this AppletClassRole being removed from a Package.
-     *
      */
     public void prepareFilesForRemoval(String sourceFile, String classFile,
                                        String contextFile)
@@ -309,7 +329,6 @@ public class AppletClassRole extends ClassRole
         if (htmlFileName.exists())
             htmlFileName.delete();
     }
-
 
     public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width,
                      int height)

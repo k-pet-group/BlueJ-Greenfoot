@@ -12,7 +12,7 @@ import java.util.Properties;
  * StdClassRole is used to represent standard Java classes.
  *
  * @author Bruce Quig
- * @version $Id: StdClassRole.java 1521 2002-11-27 13:22:48Z mik $
+ * @version $Id: StdClassRole.java 1538 2002-11-29 13:43:32Z ajp $
  */
 public class StdClassRole extends ClassRole
 {
@@ -23,39 +23,19 @@ public class StdClassRole extends ClassRole
     {
     }
 
-    public void save(Properties props, int modifiers, String prefix)
+    public String getRoleName()
     {
-        super.save(props, modifiers, prefix);
-        props.put(prefix + ".type", "ClassTarget");
+        return "ClassTarget";
     }
-
-    /**
-     * Load existing information about this class role.
-     *
-     * @param props  the properties object to read
-     * @param prefix an internal name used for this target to identify
-     *               its properties in a properties file used by multiple targets.
-     */
-    public void load(Properties props, String prefix) throws NumberFormatException
-    {
-        // no implementation needed as yet
-    }
-
+ 
     /**
      * Generate a popup menu for this AppletClassRole.
      * @param cl the class object that is represented by this target
      * @param editorFrame the frame in which this targets package is displayed
      * @return the generated JPopupMenu
      */
-    protected void createMenu(JPopupMenu menu, ClassTarget ct, int state)
+    protected boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, int state)
     {
-        // no implementation at present
-    }
-
-
-    // overloads method in Target super class
-    public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width, int height)
-    {
-        // no implementation as yet
+        return false;
     }
 }

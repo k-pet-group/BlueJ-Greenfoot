@@ -5,6 +5,8 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
+import bluej.views.*;
+import bluej.prefmgr.PrefMgr;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -19,10 +21,19 @@ import java.util.Properties;
  * particular class types
  *
  * @author  Bruce Quig
- * @version $Id: ClassRole.java 1521 2002-11-27 13:22:48Z mik $
+ * @version $Id: ClassRole.java 1538 2002-11-29 13:43:32Z ajp $
  */
 public abstract class ClassRole
 {
+    public final static String CLASS_ROLE_NAME = null;
+
+    protected final Color defaultbg = Config.getItemColour("colour.class.bg.default");
+    protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+
+    public String getRoleName()
+    {
+        return CLASS_ROLE_NAME;
+    }
 
     /**
      * save details about the class target variant this
@@ -31,13 +42,11 @@ public abstract class ClassRole
      * @param props the properties object associated with this target and role
      * @param modifiers modifiers for
      * @param prefix prefix to identifiy this role's target
-     *
      */
     public void save(Properties props, int modifiers, String prefix)
     {
-        props.put(prefix + ".modifiers", Integer.toString(modifiers, 16));
-    }
 
+    }
 
     /**
      * load existing information about this class role
@@ -45,12 +54,24 @@ public abstract class ClassRole
      * @param prefix an internal name used for this target to identify
      * its properties in a properties file used by multiple targets.
      */
-    public abstract void load(Properties props, String prefix) throws NumberFormatException;
+    public void load(Properties props, String prefix)
+        throws NumberFormatException
+    {
 
+    }
 
+    public Color getBackgroundColour()
+    {
+        return defaultbg;
+    }
+
+    public String getStereotypeLabel()
+    {
+        return null;
+    }
 
     /**
-     * generates a source code skeleton for this class
+     * Generates a source code skeleton for this class.
      *
      * @param template the name of the particular class template (just the base
      *                 name without path and suffix)
@@ -77,25 +98,112 @@ public abstract class ClassRole
             Debug.reportError("The default skeleton for the class could not be generated");
             Debug.reportError("Exception: " + e);
         }
-
-        //setState(Target.S_INVALID);
     }
 
+    /**
+     * Adds a single item to this roles popup menu.
+     *
+     * This method is used by ClassTarget to add some standard menus as well as by
+     * the roles to add menus. It should be overridden with caution.
+     *
+     * @param menu the popup menu the item is to be added to
+     * @param action the action to be registered with this menu item
+     * @param itemString the String to be displayed on menu item
+     * @param enabled boolean value representing whether item should be enabled
+     *
+     */
+    public void addMenuItem(JPopupMenu menu, Action action, boolean enabled)
+    {
+        JMenuItem item;
+
+        item = new JMenuItem();
+        item.setAction(action);
+        item.setFont(PrefMgr.getPopupMenuFont());
+        item.setForeground(envOpColour);
+        item.setEnabled(enabled);
+
+        menu.add(item);
+    }
 
     /**
-     * adds role specific items to the popup menu for this class target.
+     * Adds role specific items to the popup menu for this class target.
      *
      * @param menu the menu object to add to
      * @param ct ClassTarget object associated with this class role
      * @param state the state of the ClassTarget
      *
-     * @return the created popup menu object
+     * @return true if any menu items have been added
      */
-    protected abstract void createMenu(JPopupMenu menu, ClassTarget ct, int state);
-
+    protected boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, int state)
+    {
+        return false;
+    }
 
     /**
+     * Creates a class menu containing the constructors.
      *
+     * @param menu the popup menu to add the class menu items to
+     * @param cl Class object associated with this class target
+     */
+    protected boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class cl)
+    {
+        ViewFilter filter;
+        View view = View.getView(cl);
+
+        if (!java.lang.reflect.Modifier.isAbstract(cl.getModifiers())) {
+            filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
+            ConstructorView[] constructors = view.getConstructors();
+
+            if (createMenuItems(menu, constructors, filter, 0, constructors.length, "new ", ct))
+                return true;
+        }
+
+        return false;
+    }
+
+    protected boolean createClassStaticMenu(JPopupMenu menu, ClassTarget ct, Class cl)
+    {
+        ViewFilter filter;
+        View view = View.getView(cl);
+
+        filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
+        MethodView[] allMethods = view.getAllMethods();
+        if (createMenuItems(menu, allMethods, filter, 0, allMethods.length, "", ct))
+            return true;
+
+        return false;
+    }
+
+    protected boolean createMenuItems(JPopupMenu menu, CallableView[] members,
+                                        ViewFilter filter, int first, int last,
+                                        String prefix, ClassTarget ct)
+    {
+        // Debug.message("Inside ClassTarget.createMenuItems\n first = " + first + " last = " + last);
+        boolean hasEntries = false;
+        JMenuItem item;
+
+        for (int i = first; i < last; i++) {
+            try {
+                CallableView m = members[last - i - 1];
+                if (!filter.accept(m))
+                    continue;
+                // Debug.message("createSubMenu - creating MenuItem");
+
+                Action callAction = new CallAction(prefix + m.getShortDesc(),
+                                                    ct.getPackage().getEditor(), ct, m);
+
+                item = menu.add(callAction);
+                item.setFont(PrefMgr.getPopupMenuFont());
+                hasEntries = true;
+            } catch (Exception e) {
+                Debug.reportError("Exception accessing methods: " + e);
+                e.printStackTrace();
+            }
+        }
+        return hasEntries;
+    }
+
+    /**
      * Removes applicable files (.class, .java and .ctxt) prior to
      * this ClassRole being removed from a Package.
      *
@@ -118,6 +226,14 @@ public abstract class ClassRole
     /**
      *  Draw this target, including its box, border, shadow and text.
      */
-    public abstract void draw(Graphics2D g, ClassTarget ct, int x, int y, int width, int height);
+    public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width, int height)
+    {
 
+    }
+
+    public void run(PkgMgrFrame pmf, ClassTarget ct, String param)
+    {
+
+
+    }
 }
