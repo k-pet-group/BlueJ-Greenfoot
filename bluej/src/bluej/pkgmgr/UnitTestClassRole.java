@@ -21,7 +21,7 @@ import bluej.utility.DialogManager;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1845 2003-04-14 06:15:46Z ajp $
+ * @version $Id: UnitTestClassRole.java 1847 2003-04-14 06:51:23Z ajp $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -237,8 +237,10 @@ public class UnitTestClassRole extends ClassRole
             e.printStackTrace();
         }
         
-        pmf.getPackage().compileQuiet(ct);
-        
+		pmf.getProject().removeLocalClassLoader();
+		pmf.getProject().removeRemoteClassLoader();
+
+        pmf.getPackage().compileQuiet(ct);	
     }
     
     public void doFixtureToBench(PkgMgrFrame pmf, ClassTarget ct)
@@ -290,6 +292,10 @@ public class UnitTestClassRole extends ClassRole
                 childAST = (BaseAST) childAST.getNextSibling();            
             }            
 
+			if (variables != null && variables.size() > 0) {
+				if (DialogManager.askQuestion(null, "unittest-fixture-present") == 1)
+					return;
+			}
             if (variables != null) {
                 Iterator it = variables.iterator();
                 
@@ -322,10 +328,17 @@ public class UnitTestClassRole extends ClassRole
                 
                 ed.insertText("{\n" + pmf.getObjectBench().getFixtureDeclaration(), false);
             }
+            
+            ed.save();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
+
+		pmf.getProject().removeLocalClassLoader();
+		pmf.getProject().removeRemoteClassLoader();
+
+		pmf.getPackage().compileQuiet(ct);	
     }
 
     /**

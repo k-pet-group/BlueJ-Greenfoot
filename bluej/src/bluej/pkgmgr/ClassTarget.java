@@ -27,7 +27,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1843 2003-04-14 02:52:19Z ajp $
+ * @version $Id: ClassTarget.java 1847 2003-04-14 06:51:23Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -886,13 +886,13 @@ public class ClassTarget extends EditableTarget
         role.addMenuItem(menu, new RemoveAction(), true);
 
         if (getRole() instanceof StdClassRole) {
-            menu.addSeparator();
 			if (getAssociation() == null) {
+				menu.addSeparator();
 				role.addMenuItem(menu, new CreateTestAction(), true);
-				role.addMenuItem(menu, new AssociateTestAction(), true);
+//				role.addMenuItem(menu, new AssociateTestAction(), true);
 			}
-			else
-            	role.addMenuItem(menu, new DisassociateTestAction(), true);
+//			else
+//            	role.addMenuItem(menu, new DisassociateTestAction(), true);
         }
 
         return menu;
@@ -902,7 +902,7 @@ public class ClassTarget extends EditableTarget
     {
         public CreateTestAction()
         {
-            putValue(NAME, "Create New Test Class");
+            putValue(NAME, "Create Test Class");
         }
 
         public void actionPerformed(ActionEvent e)
