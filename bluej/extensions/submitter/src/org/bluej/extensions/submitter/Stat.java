@@ -18,7 +18,6 @@ public class Stat
   public GlobalProp   globalProp=null;    // Properties that are global go here
   public TreeData     treeData=null;      // This holds the data
   public SubmitDialog submitDialog=null;  // This allows user interaction
-  public TreeDialog   treeDialog=null;    // This display the three of data
   
   public static final int SVC_PROP=0x00000001;
   public static final int SVC_BUTTON=0x00000002;

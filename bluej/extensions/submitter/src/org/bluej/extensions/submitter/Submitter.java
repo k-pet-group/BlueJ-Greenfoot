@@ -14,7 +14,7 @@ import org.bluej.extensions.submitter.properties.TreeData;
  * their project by the agreed method
  *
  * @author     Clive Miller, Damiano Bolla
- * @version    $Id: Submitter.java 1708 2003-03-19 09:39:47Z damiano $
+ * @version    $Id: Submitter.java 1721 2003-03-21 09:29:52Z damiano $
  */
 public class Submitter extends Extension implements MenuGen, BluejEventListener
 {
@@ -44,7 +44,6 @@ public class Submitter extends Extension implements MenuGen, BluejEventListener
 
         stat.treeData     = new TreeData(stat);
         stat.submitDialog = new SubmitDialog(stat);
-        stat.treeDialog   = new TreeDialog(stat);
 
         // Tools-Submit menu creation
         String aLabel = stat.bluej.getLabel("menu.submit");

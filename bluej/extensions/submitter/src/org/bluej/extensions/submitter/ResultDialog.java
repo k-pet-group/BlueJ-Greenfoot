@@ -47,7 +47,8 @@ public class ResultDialog implements ActionListener
     JPanel mainPanel = new JPanel(new BorderLayout());
     mainPanel.add(scrollPane,BorderLayout.CENTER);
     mainPanel.add(buttonPanel,BorderLayout.SOUTH);
-  
+
+    // This does not NEED to be a modal dialog, we may want to look at the results...
     thisDialog = new JDialog(parentFrame,stat.bluej.getLabel("message.result"));
     thisDialog.setContentPane(mainPanel);
     thisDialog.pack();
@@ -65,8 +66,11 @@ public class ResultDialog implements ActionListener
     {
     if ( result == null ) return;
 
+    // Now in any case set the content to what I requested
     resultArea.setText(result);
-    thisDialog.setVisible(true);
+
+    // But display something if there is something to display
+    if ( result.length() > 0 ) thisDialog.setVisible(true);
     }
 
 

@@ -50,6 +50,7 @@ public class SubmitDialog implements ActionListener
 //  private JProgressBar progressBar;
   private SubmitterProgressBar progressBar;
   private ResultDialog resultDialog;
+  private TreeDialog   treeDialog;
   private BPackage     curPkg;
   private Thread       backgroundThread;
   
@@ -79,6 +80,7 @@ public class SubmitDialog implements ActionListener
 
     // Now that I have the parent frame I can make a dialog
     resultDialog = new ResultDialog(stat, mainFrame);
+    treeDialog   = new TreeDialog (stat, mainFrame);
     }
 
 
@@ -102,6 +104,7 @@ public class SubmitDialog implements ActionListener
     // Need to clean up things from possible old run
     statusArea.setText("");
     logArea.setText("");
+    resultDialog.showResult("");
     
     backgroundThread = new TreeLoadThread ();
     backgroundThread.start();
@@ -278,7 +281,7 @@ public class SubmitDialog implements ActionListener
     if ( eventObject == browseButton )
       {
       // When the browse button is pressed do a browse tree.
-      stat.treeDialog.setVisible(true);
+      treeDialog.setVisible(true);
       }
     
     if ( eventObject == cancelButton )

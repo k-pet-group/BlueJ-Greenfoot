@@ -22,13 +22,13 @@ class TreeDialog implements ActionListener
    * Constructor for the TreeDialog object
    * @param  sp  Description of the Parameter
    */
-  public TreeDialog(Stat i_stat)
+  public TreeDialog(Stat i_stat, JFrame thisParent)
     {
     stat = i_stat;
 
     workJTree = getJTree();
     JScrollPane scrollPane = new JScrollPane(workJTree);
-    Dimension treeDim = new Dimension (250,150);
+    Dimension treeDim = new Dimension (300,200);
     scrollPane.setPreferredSize(treeDim);
     
     JPanel buttonPanel = new JPanel();
@@ -44,11 +44,10 @@ class TreeDialog implements ActionListener
     mainPanel.add(scrollPane,BorderLayout.CENTER);
     mainPanel.add(buttonPanel,BorderLayout.SOUTH);
   
-    thisDialog = new JDialog(stat.submitDialog.getFrame(),stat.bluej.getLabel("message.selectscheme"));
+    thisDialog = new JDialog(thisParent,stat.bluej.getLabel("message.selectscheme"),true);
     thisDialog.setContentPane(mainPanel);
     thisDialog.pack();
     thisDialog.setLocation(100,100);
-//    thisDialog.setVisible(true);
     }
 
 
