@@ -16,14 +16,14 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 2848 2004-08-06 11:29:43Z mik $
+ * @version $Id: Boot.java 2998 2004-09-10 11:46:05Z mik $
  */
 public class Boot
 {
     public static int BLUEJ_VERSION_MAJOR = 2;
     public static int BLUEJ_VERSION_MINOR = 0;
     public static int BLUEJ_VERSION_RELEASE = 0;
-    public static String BLUEJ_VERSION_SUFFIX = " beta";
+    public static String BLUEJ_VERSION_SUFFIX = "";
 
     public static int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
                                              BLUEJ_VERSION_MINOR * 100 +
