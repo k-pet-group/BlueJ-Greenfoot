@@ -8,7 +8,7 @@ import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
 import bluej.*;
-import bluej.debugger.DebuggerTerminal;
+import bluej.debugger.*;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
@@ -18,7 +18,7 @@ import bluej.utility.*;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 2342 2003-11-14 11:29:56Z polle $
+ * @version $Id: Terminal.java 2384 2003-11-24 04:27:53Z ajp $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -48,6 +48,8 @@ public final class Terminal extends JFrame
 
     // -- instance --
 
+    private Project project;
+    
     private TermTextArea text;
     private JTextArea errorText;
     private JScrollPane errorScrollPane;
@@ -75,6 +77,8 @@ public final class Terminal extends JFrame
     public Terminal(Project project)
     {
         this(WINDOWTITLE, windowWidth, windowHeight);
+
+        this.project = project;
     }
 
 
@@ -381,11 +385,20 @@ public final class Terminal extends JFrame
 
         // Close Action when close button is pressed
         addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent event) {
-                    Window win = (Window)event.getSource();
-                    win.setVisible(false);
+            public void windowClosing(WindowEvent event)
+            {
+                Window win = (Window)event.getSource();
+                
+                // don't allow them to close the window if the debug machine
+                // is running.. tries to stop them from closing down the
+                // input window before finishing off input in the terminal
+                if (project != null) {
+                    if (project.getDebugger().getStatus() == Debugger.RUNNING)
+                        return;
                 }
-            });
+                win.setVisible(false);
+            }
+        });
 
         // save position when window is moved
         addComponentListener(new ComponentAdapter() {
@@ -395,6 +408,8 @@ public final class Terminal extends JFrame
                 }
             });
 
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        
         setLocation(Config.getLocation("bluej.terminal"));
 
         pack();
@@ -545,9 +560,9 @@ public final class Terminal extends JFrame
     /**
      * A Reader which reads from the terminal.
      */
-    private class TerminalReader extends Reader {
-
-        public int read(char[] cbuf, int off, int len) throws IOException
+    private class TerminalReader extends Reader
+    {
+        public int read(char[] cbuf, int off, int len)
         {
             int charsRead = 0;
 
@@ -560,10 +575,9 @@ public final class Terminal extends JFrame
             return charsRead;
         }
 
-        public void close() throws IOException
+        public void close()
         {
         }
-
     }
 
     /**
@@ -571,8 +585,8 @@ public final class Terminal extends JFrame
      * The idea is that error output could be presented differently from standard
      * output.
      */
-    private class TerminalWriter extends Writer {
-
+    private class TerminalWriter extends Writer
+    {
         private boolean isErrorOut;
 
         TerminalWriter(boolean isError)
@@ -581,7 +595,7 @@ public final class Terminal extends JFrame
             isErrorOut = isError;
         }
 
-        public void write(char[] cbuf, int off, int len) throws IOException
+        public void write(char[] cbuf, int off, int len)
         {
             if (enabled) {
                 prepare();
@@ -592,7 +606,7 @@ public final class Terminal extends JFrame
             }
         }
 
-        public void write(int ch) throws IOException
+        public void write(int ch)
         {
             if (enabled) {
                 prepare();
@@ -603,11 +617,11 @@ public final class Terminal extends JFrame
             }
         }
 
-        public void flush() throws IOException
+        public void flush()
         {
         }
 
-        public void close() throws IOException
+        public void close()
         {
         }
     }
