@@ -17,13 +17,15 @@ import java.util.Vector;
  **
  ** Event types and their arguments:
  **
- **  type             argument
+ **  type		argument
  **  ------------------------------------------------------------
- **  CREATE_VM        (unused)
- **  CREATE_VM_DONE   (unused)
- **  BREAKPOINT	      the JdiThread object that hit the breakpoint
- **
- **
+ **  CREATE_VM		(unused)
+ **  CREATE_VM_DONE	(unused)
+ **  EXECUTION_STARTED	(unused)
+ **  EXECUTION_FINISHED	(unused)
+ **  BREAKPOINT		the JdiThread object that hit the breakpoint
+ **  STEP		the JdiThread object that did the step
+ **  SHOW_SOURCE	the JdiThread object that is selected
  **
  **/
 
@@ -33,7 +35,11 @@ public class BlueJEvent
 
     public static final int CREATE_VM = 0;
     public static final int CREATE_VM_DONE = CREATE_VM + 1;
-    public static final int BREAKPOINT = CREATE_VM_DONE + 1;
+    public static final int EXECUTION_STARTED = CREATE_VM_DONE + 1;
+    public static final int EXECUTION_FINISHED = EXECUTION_STARTED + 1;
+    public static final int BREAKPOINT = EXECUTION_FINISHED + 1;
+    public static final int STEP = BREAKPOINT + 1;
+    public static final int SHOW_SOURCE = STEP + 1;
 
 
     // other variables

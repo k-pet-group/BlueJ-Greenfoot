@@ -27,14 +27,8 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 
-import sun.tools.javac.SourceClass;
-import sun.tools.javac.BatchEnvironment;
-import sun.tools.java.*;
-import sun.tools.javac.BlueJJavacMain;
-// import sun.tools.javadoc.BlueJDocumentationGenerator;
-
 /**
- ** @version $Id: Package.java 122 1999-06-08 06:36:42Z mik $
+ ** @version $Id: Package.java 124 1999-06-14 07:26:17Z mik $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -811,8 +805,82 @@ public class Package extends Graph
 	return baseDir;
     }
 	
+    /**
+     *  The standard compile user function: Find and compile all uncompiled
+     *  classes.
+     */
+    public void compile()
+    {
+	if(!checkCompile())
+	    return;
+
+	Vector toCompile = new Vector();
+		
+	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+	    Target target = (Target)e.nextElement();
+			
+	    if(target instanceof ClassTarget) {
+		ClassTarget ct = (ClassTarget)target;
+		if (ct.editorOpen())
+		    ct.getEditor().save();
+		if(ct.getState() == Target.S_INVALID)
+		    toCompile.addElement(ct);
+	    }
+	}
+	compileSet(toCompile);
+    }
+
+    /**
+     *  Compile a single class.
+     */
+    public void compile(ClassTarget ct)
+    {
+	if(!checkCompile())
+	    return;
+
+	if (ct.editorOpen())
+	    ct.getEditor().save();
+	ct.setState(Target.S_INVALID);		// to force compile
+
+	searchCompile(ct, 1, new Stack());
+    }
+	
+
+    /**
+     * Force compile of all classes. Called by user function "rebuild".
+     */
+    public void compileAll()
+    {
+	if(!checkCompile())
+	    return;
+
+	Vector v = new Vector();
+		
+	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+	    Target target = (Target)e.nextElement();
+			
+	    if(target instanceof ClassTarget) {
+		ClassTarget ct = (ClassTarget)target;
+		if (ct.editorOpen())
+		    ct.getEditor().save();
+		ct.setState(Target.S_INVALID);
+		v.addElement(ct);
+	    }
+	}
+	doCompile(v);
+    }
+
+
+    private void compileSet(Vector toCompile)
+    {
+	for(int i = toCompile.size() - 1; i >= 0; i--)
+	    searchCompile((ClassTarget)toCompile.elementAt(i), 1, 
+			  new Stack());
+    }
+
+
     /** Use Tarjan's algorithm to construct compiler Jobs **/
-    protected void search(ClassTarget t, int dfcount, Stack stack)
+    private void searchCompile(ClassTarget t, int dfcount, Stack stack)
     {
 	if((t.getState() != Target.S_INVALID) || t.isFlagSet(Target.F_QUEUED))
 	    return;
@@ -840,7 +908,7 @@ public class Package extends Graph
 		    t.link = Math.min(t.link, to.dfn);
 	    }
 	    else if(to.getState() == Target.S_INVALID) {
-		search((ClassTarget)to, dfcount + 1, stack);
+		searchCompile((ClassTarget)to, dfcount + 1, stack);
 		t.link = Math.min(t.link, to.link);
 	    }
 	}
@@ -851,70 +919,45 @@ public class Package extends Graph
 			
 	    do {
 		x = (ClassTarget)stack.pop();
-		v.addElement(x.sourceFile());
+		v.addElement(x);
 	    } while(x != t);
 
-	    String[] files = new String[v.size()];
-	    v.copyInto(files);
-	    JobQueue.getJobQueue().addJob(files, this, classpath, getClassDir());
+	    doCompile(v);
 	}
     }
 
-    public void compileSet(Vector toCompile)
+    /**
+     *  Compile every Target in 'targets'. Every compilation goes through 
+     *  this method.
+     */
+    private void doCompile(Vector targets)
     {
-	for(int i = toCompile.size() - 1; i >= 0; i--)
-	    search((ClassTarget)toCompile.elementAt(i), 1, new Stack());
+	String[] files = new String[targets.size()];
+	for(int i = 0; i < targets.size(); i++) {
+	    ClassTarget ct = (ClassTarget)targets.get(i);
+	    ct.removeBreakpoints();
+	    files[i] = ct.sourceFile();
+	}
+	JobQueue.getJobQueue().addJob(files, this, classpath, getClassDir());
     }
 
-    /**
-     ** The standard compile user function
-     **/
-    public void compile()
-    {
-	Vector toCompile = new Vector();
-		
-	for(Enumeration e = targets.elements(); e.hasMoreElements(); )
-	    {
-		Target target = (Target)e.nextElement();
-			
-		if(target instanceof ClassTarget)
-		    {
-			ClassTarget ct = (ClassTarget)target;
-			if (ct.editorOpen())
-			    ct.getEditor().save();
-			if(ct.getState() == Target.S_INVALID)
-			    toCompile.addElement(ct);
-		    }
-	    }
-			
-	compileSet(toCompile);
-    }
 
     /**
-     ** Force compile of all classes. Called by user function "rebuild".
-     **/
-    public void compileAll()
+     *  Check whether it's okay to compile.
+     */
+    private boolean checkCompile()
     {
-	Vector v = new Vector();
-		
-	for(Enumeration e = targets.elements(); e.hasMoreElements(); )
-	    {
-		Target target = (Target)e.nextElement();
-			
-		if(target instanceof ClassTarget)
-		    {
-			ClassTarget ct = (ClassTarget)target;
-			if (ct.editorOpen())
-			    ct.getEditor().save();
-			ct.setState(Target.S_INVALID);
-			v.addElement(ct.sourceFile());
-		    }
-	    }
-			
-	String[] files = new String[v.size()];
-	v.copyInto(files);
-	JobQueue.getJobQueue().addJob(files, this, classpath, classdir);
+	if(Debugger.debugger.isRunning()) {
+	    Utility.showMessage(frame, 
+				"You cannot compile while the machine\n" +
+				"is executing. This could cause strange\n" +
+				"problems!");
+	    return false;
+	}
+	else
+	    return true;
     }
+
 
     public void addTarget(Target t)
     {
@@ -1155,9 +1198,9 @@ public class Package extends Graph
     }
 
     /**
-     ** Called when in an interesting state (e.g. adding a new dependency)
-     ** and a target is selected.
-     **/
+     * Called when in an interesting state (e.g. adding a new dependency)
+     * and a target is selected.
+     */
     void targetSelected(Target t)
     {
 	switch(getState()) {
@@ -1214,15 +1257,15 @@ public class Package extends Graph
     }
 
     /**
-     * A thread has hit a breakpoint. Organise display (highlight line
-     * in source, pop up exec controls).
+     * A thread has hit a breakpoint or done a step. Organise display 
+     * (highlight line in source, pop up exec controls).
      */
-    public void hitBreakpoint(String sourcename, int lineNo, 
-			      String threadName, boolean firstHit)
+    public void showSource(String sourcename, int lineNo, 
+			   String threadName, boolean breakpoint)
     {
 	String msg = " ";
 
-	if(firstHit)
+	if(breakpoint)
 	    msg = "Thread \"" + threadName + "\" stopped at breakpoint.";
 
 	if(! showEditorMessage(getFileName(sourcename), lineNo, msg,
@@ -1323,10 +1366,11 @@ public class Package extends Graph
 			    "returned. The exit code is " + exitCode + ".");
     }
 
-    // ---- sun.tools.javac.CompileWatcher interface ----
-
 
     /**  OBSOLETE!! **/
+    // was previously used to genrate comments - reimplement!
+
+// import sun.tools.javadoc.BlueJDocumentationGenerator;
 //      public void notifyParsed(ClassDeclaration decl, SourceClass src, 
 //  			     BatchEnvironment env)
 //      {
@@ -1354,45 +1398,10 @@ public class Package extends Graph
 //  	*/
 //      }
 	
-    /**  OBSOLETE!! **/
-    public void notifyCompiled(SourceClass src, BatchEnvironment env)
-    {
-//  	Hashtable used = new Hashtable();
-		
-//  	ClassDeclaration[] interfaces = src.getInterfaces();
-//  	for(int i = 0; i < interfaces.length; i++) {
-//  	    String intName = interfaces[i].getName().toString();
-//  	    Target intTarget = getTarget(intName);
-//  	    if(intTarget != null) {
-//  		addDependency(new ImplementsDependency(this, srcTarget,
-//  						       intTarget), true);
-//  		used.put(intName, intName);
-//  	    }
-//  	    // else
-//  	    // Debug.message("Skipping " + srcName + " => " + intName);
-//  	}
-
-//  	for(Enumeration e = BlueJJavacMain.getDependencies(src); e.hasMoreElements(); ) {
-//  	    ClassDeclaration to = (ClassDeclaration)e.nextElement();
-//  	    String toName = to.getName().toString();
-//  	    if(used.get(toName) != null) {
-//  		// Debug.message("Skipping " + srcName + " -> " + toName);
-//  		continue;
-//  	    }
-//  	    Target toTarget = getTarget(toName);
-//  	    if(toTarget != null)
-//  		addDependency(new UsesDependency(this, srcTarget, toTarget), true);
-//  	    // else
-//  	    // Debug.message("Can't find used class " + toName);
-//  	}
-    }
-	
-    // ---- end of sun.tools.javac.CompileWatcher interface ----
-
 
     /**
-     ** getSearcher - get the ClasspathSearcher for this package
-     **/
+     * getSearcher - get the ClasspathSearcher for this package
+     */
     public synchronized ClasspathSearcher getSearcher()
     {
 	if(searcher == null)
@@ -1402,9 +1411,9 @@ public class Package extends Graph
     }
 	
     /**
-     ** getLocalClassLoader - get the ClassLoader for this package.
-     **  The SimpleClassLoader load classes on the local VM.
-     **/
+     * getLocalClassLoader - get the ClassLoader for this package.
+     *  The SimpleClassLoader load classes on the local VM.
+     */
     private synchronized SimpleClassLoader getLocalClassLoader()
     {
 	if(loader == null)
@@ -1437,10 +1446,10 @@ public class Package extends Graph
     }
 
     /**
-     ** getDebuggerClassLoader - get the DebuggerClassLoader for this
-     **  package. The DebuggerClassLoader load classes on the remote VM
-     **  (the machine used for user code execution).
-     **/
+     * getDebuggerClassLoader - get the DebuggerClassLoader for this
+     *  package. The DebuggerClassLoader load classes on the remote VM
+     *  (the machine used for user code execution).
+     */
     public synchronized DebuggerClassLoader getRemoteClassLoader()
     {
 	if(debuggerLoader == null)
@@ -1583,22 +1592,12 @@ public class Package extends Graph
 	}
     }
 
-    public void compile(ClassTarget ct)
-    {
-	if (ct.editorOpen())
-	    ct.getEditor().save();
-	ct.setState(Target.S_INVALID);		// to force compile
-	Vector toCompile = new Vector();
-	toCompile.addElement(ct);
-	compileSet(toCompile);
-    }
-	
     /**
      * find an arrow, given a point on the screen
      */
     Dependency findArrow(int x, int y)
     {
-	// FIXME: check if translation necessary (scrolling, etc.)
+	// FIX: check if translation necessary (scrolling, etc.)
 		
 	for(Enumeration e = usesArrows.elements(); e.hasMoreElements(); ) {
 	    Dependency d = (Dependency)e.nextElement();

@@ -33,12 +33,13 @@ import java.util.Properties;
 import java.util.Vector;
 
 /** 
- ** @version $Id: ClassTarget.java 122 1999-06-08 06:36:42Z mik $
+ ** A class target in a package, i.e. a target that is a class file
+ ** built from Java source code
+ **
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** A class target in a package, i.e. a target that is a class file
- ** built from Java source code
+ ** @version $Id: ClassTarget.java 124 1999-06-14 07:26:17Z mik $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -79,7 +80,8 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     *
+     *  Create a new class target in package 'pkg' without a name. The
+     *  name must be set later.
      */
     public ClassTarget(Package pkg)
     {
@@ -327,6 +329,12 @@ public class ClassTarget extends EditableTarget
 
     // --- end of EditableTarget interface ---
 
+    protected void removeBreakpoints()
+    {
+	if(editor != null)
+	    editor.removeBreakpoints();
+    }
+
     protected boolean isCompiled()
     {
 	return (state == S_NORMAL);
@@ -376,13 +384,13 @@ public class ClassTarget extends EditableTarget
 	    ClassInfo info = ClassParser.parse(sourceFile(), 
 					       pkg.getAllClassnames());
 	    if(info.isApplet()) {
-		//if( ! this instanceof AppletTarget)
-		//Debug.message(" convert class to applet");
+		if( ! (this instanceof AppletTarget))
+		    Debug.message(" convert class to applet");
 		// FIX: convert
 	    }
 	    else {
-		//if(this instanceof AppletTarget)
-		//Debug.message(" convert applet to class");
+		if(this instanceof AppletTarget)
+		    Debug.message(" convert applet to class");
 		// FIX: convert
 	    }
 
@@ -464,11 +472,15 @@ public class ClassTarget extends EditableTarget
 	
 	JPopupMenu menu = new JPopupMenu(getName() + " operations");
 	
-	// the only popup menu option under the Library Browser should be "open"
-	if (editorFrame != null && editorFrame instanceof LibraryBrowserPkgMgrFrame) {
+	// the only popup menu option under the Library Browser should be
+	// "open"
+	if (editorFrame != null && 
+	    (editorFrame instanceof LibraryBrowserPkgMgrFrame)) {
 	    addMenuItem(menu, openStr, true);
-	    // only add "use" option if the class is compiled and we're not running standalone
-	    if (!((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone /*&& isCompiled()*/)
+	    // only add "use" option if the class is compiled and we're not 
+	    // running standalone
+	    if (!((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone 
+		/*&& isCompiled()*/)
 		addMenuItem(menu, useStr, true);
 	    
 	    return menu;

@@ -11,7 +11,7 @@ public class Tester
     
     private int x;
     public String name = "Michael";
-    private String privname = "Michael";
+    private String privname = "Michael"; 
     Tester t;
     public static int [] sintArray;
     private static String[] sstringArray;
@@ -27,12 +27,11 @@ public class Tester
      **/
     public Tester()
     {
-        // initialise instance variables
+        // initialise instance vari ables
         x = 0;
         intArray = new int[4];
         intArray[0] = 42;
-        intArray[2] = 84;
-    }
+    } 
 
     /**
      * An example of a method - replace this comment with your own
@@ -47,6 +46,7 @@ public class Tester
 
     public void makeArrays()
     {
+
         stringArray = new String[] {"mik", "koe", null, "home"} ;
         testArray = new Tester[] {new Tester(), null, new SubTester()} ;
         objArray = new Object[] {"mik", new Integer(3), null} ;

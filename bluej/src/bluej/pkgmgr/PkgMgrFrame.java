@@ -716,11 +716,13 @@ public class PkgMgrFrame extends PkgFrame
     // ---- BlueJEventListener interface ----
 
     /**
-     * startExecution - indicate in the interface that the machine has 
-     *  started executing.
+     *  A BlueJEvent was raised. Check whether it is one that we're interested
+     *  in.
      */
     public void blueJEvent(int eventId, Object arg)
     {
+	DebuggerThread thread;
+
 	switch(eventId) {
 	    case BlueJEvent.CREATE_VM:
 		setStatus(creatingVM);
@@ -728,10 +730,26 @@ public class PkgMgrFrame extends PkgFrame
 	    case BlueJEvent.CREATE_VM_DONE:
 		setStatus(creatingVMDone);
 		break;
+	    case BlueJEvent.EXECUTION_STARTED:
+		executionStarted();
+		break;
+	    case BlueJEvent.EXECUTION_FINISHED:
+		executionFinished();
+		break;
 	    case BlueJEvent.BREAKPOINT:
-		DebuggerThread thread = (DebuggerThread)arg;
+		thread = (DebuggerThread)arg;
 		if(thread.getParam() == pkg)
 		    hitBreakpoint(thread);
+		break;
+	    case BlueJEvent.STEP:
+		thread = (DebuggerThread)arg;
+		if(thread.getParam() == pkg)
+		    updateDebugDisplay(thread, false);
+		break;
+	    case BlueJEvent.SHOW_SOURCE:
+		thread = (DebuggerThread)arg;
+		if(thread.getParam() == pkg)
+		    updateDebugDisplay(thread, true);
 		break;
 	}
     }
@@ -739,19 +757,19 @@ public class PkgMgrFrame extends PkgFrame
     // ---- end of BlueJEventListener interface ----
 
     /**
-     * startExecution - indicate in the interface that the machine has 
+     * executionStarted - indicate in the interface that the machine has 
      *  started executing.
      */
-    public void startExecution()
+    public void executionStarted()
     {
 	progressButton.setEnabled(true);
     }
 
     /**
-     * stopExecution - indicate in the interface that the machine has
+     * executionFinished - indicate in the interface that the machine has
      *  finished an execution.
      */
-    public void stopExecution()
+    public void executionFinished()
     {
 	progressButton.setEnabled(false);
 	if(execCtrlWindow != null && execCtrlWindow.isVisible())
@@ -759,19 +777,19 @@ public class PkgMgrFrame extends PkgFrame
     }
 
     /**
-     * haltExecution - indicate in the interface that the machine
+     * executionHalted - indicate in the interface that the machine
      *  temporarily stopped executing.
      */
-    public void haltExecution()
+    private void executionHalted()
     {
 	progressButton.setIcon(stoppedIcon);
     }
 
     /**
-     * continueExecution - indicate in the interface that the machine
+     * executionContinued - indicate in the interface that the machine
      *  is executing again.
      */
-    public void continueExecution()
+    private void executionContinued()
     {
 	progressButton.setIcon(workingIcon);
     }
@@ -782,11 +800,25 @@ public class PkgMgrFrame extends PkgFrame
      */
     private void hitBreakpoint(DebuggerThread thread)
     {
-	pkg.hitBreakpoint(thread.getClassSourceName(0), 
-			  thread.getLineNumber(0), 
-			  thread.getName(), true);
+	pkg.showSource(thread.getClassSourceName(0), 
+		       thread.getLineNumber(0), 
+		       thread.getName(), true);
 	showHideExecControls(true, true);
-	haltExecution();
+	executionHalted();
+    }
+
+
+    /**
+     * updateDebugDisplay - The debugger display needs updating.
+     */
+    private void updateDebugDisplay(DebuggerThread thread, boolean sourceOnly)
+    {
+	int frame = thread.getSelectedFrame();
+	pkg.showSource(thread.getClassSourceName(frame), 
+		       thread.getLineNumber(frame), 
+		       thread.getName(), false);
+	if(!sourceOnly)
+	    execCtrlWindow.updateThreads();
     }
 
 

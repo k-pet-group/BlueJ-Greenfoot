@@ -22,7 +22,8 @@ public class MoeCaret extends DefaultCaret  {
     /**
      * Constructs a Moe Caret
      */
-    public MoeCaret(MoeEditor editor) {
+    public MoeCaret(MoeEditor editor) 
+    {
 	super();
 	this.editor = editor;
     }
@@ -32,7 +33,9 @@ public class MoeCaret extends DefaultCaret  {
      * first check whether the click was in the tag line. If it was, we
      * toggle the breakpoint, if not we just position the caret as usual.
      */
-    protected void positionCaret(MouseEvent e) {
+    protected void positionCaret(MouseEvent e) 
+    {
+	editor.clearMessage();
 	if (e.getX() > MoeEditor.TAG_WIDTH)
 	    super.positionCaret(e);
 	else {
@@ -42,5 +45,13 @@ public class MoeCaret extends DefaultCaret  {
 	    editor.toggleBreakpoint(pos);
 	}
     }
+
+    protected void fireStateChanged()
+    {
+	editor.clearMessage();
+	super.fireStateChanged();
+    }
+
 }
+
 

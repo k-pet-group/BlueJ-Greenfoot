@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /** 
- ** @version $Id: AppletTarget.java 123 1999-06-08 06:50:12Z bruce $
+ ** @version $Id: AppletTarget.java 124 1999-06-14 07:26:17Z mik $
  ** @author Bruce Quig
  **
  ** An Applet class target in a package, i.e. a target that is a Applet class file
@@ -57,7 +57,8 @@ public class AppletTarget extends ClassTarget
     }
 
     /**
-     *
+     *  Create a new applet target in package 'pkg' without a name. The
+     *  name must be set later.
      */
     public AppletTarget(Package pkg)
     {
@@ -65,8 +66,7 @@ public class AppletTarget extends ClassTarget
     }
 
 
-
-   /**
+    /**
      * Save this AppletTarget details to file
      * @param props the properties object that stores target information
      * @param prefix prefix for this target for identification
@@ -139,16 +139,20 @@ public class AppletTarget extends ClassTarget
 	addMenuItem(menu, runAppletStr, (state == S_NORMAL));
 	menu.addSeparator();
 	
-	// the only popup menu option under the Library Browser should be "open"
-	if (editorFrame != null && editorFrame instanceof LibraryBrowserPkgMgrFrame) {
+	// the only popup menu option under the Library Browser should be
+	// "open"
+	if (editorFrame != null && 
+	    (editorFrame instanceof LibraryBrowserPkgMgrFrame)) {
 	    addMenuItem(menu, openStr, true);
-	    // only add "use" option if the class is compiled and we're not running standalone
-	    if (!((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone /*&& isCompiled()*/)
+	    // only add "use" option if the class is compiled and we're not 
+	    // running standalone
+	    if (!((LibraryBrowserPkgMgrFrame)editorFrame).isStandalone 
+		/*&& isCompiled()*/)
 		addMenuItem(menu, useStr, true);
 	    
 	    return menu;
 	}
-
+	
 	if ((cl != null) && (!isAbstract()))
 	    createClassMenu(menu, cl);
 	

@@ -67,8 +67,9 @@ public final class MoeEditor extends JFrame
     //  spaces for entering half tabs
     static final String spaces = "    ";
 
-    // Attributes for lines
-    static final String BreakPoint = "break";
+    // Attributes for lines and document
+    static final String BREAKPOINT = "break";
+    static final String COMPILED = "compiled";
 
     // -------- INSTANCE VARIABLES --------
 
@@ -93,6 +94,8 @@ public final class MoeEditor extends JFrame
 
     private String newline;		// the line break character used
     private boolean isCode;		// true if current buffer is code
+
+    private boolean mayHaveBreakpoints;	// true if there were BP here
 
     // =========================== NESTED CLASSES ===========================
 
@@ -133,7 +136,7 @@ public final class MoeEditor extends JFrame
     // =========================== PUBLIC METHODS ===========================
 
     /**
-     * Constructor. Title may be null 
+     *  Constructor. Title may be null 
      */
 
     public MoeEditor(String title, boolean isCode, EditorWatcher watcher, 
@@ -150,13 +153,14 @@ public final class MoeEditor extends JFrame
 	isCompiled = false;
 	newline = System.getProperty("line.separator");
 	this.isCode = isCode;
+	mayHaveBreakpoints = false;
 
 	initWindow(showToolbar, showLineNum);
     }
 
     // --------------------------------------------------------------------
     /**
-     * Load the file "fname" and show the editor window.
+     *  Load the file "fname" and show the editor window.
      */
 
     public boolean showFile(String filename, boolean compiled,
@@ -167,7 +171,10 @@ public final class MoeEditor extends JFrame
 
 	boolean loaded = false;
 	boolean readError = false;
- 
+
+	if(breakpoints != null)
+	    Debug.reportError("breakpoints in showfile not supported.");
+
 	if (filename != null) {
 
 	    try {
@@ -229,7 +236,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Wipe out contents of the editor.  
+     *  Wipe out contents of the editor.  
      */
 
     public void clear()	// inherited from Editor, redefined
@@ -239,13 +246,13 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Insert a string into the buffer. The editor is not immediately
-     * redisplayed. This function is typically used in a sequence
-     * "clear; [insertText]*; setVisible(true)". If the selection is on,
-     * it is replaced by the new text.
+     *  Insert a string into the buffer. The editor is not immediately
+     *  redisplayed. This function is typically used in a sequence
+     *  "clear; [insertText]*; setVisible(true)". If the selection is on,
+     *  it is replaced by the new text.
      *
-     * @param text         the text to be inserted
-     * @param style         the style in which the text is to be displayed
+     *  @param text         the text to be inserted
+     *  @param style         the style in which the text is to be displayed
      */
 
     public void insertText(String text, boolean bold, boolean italic)
@@ -264,10 +271,10 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Show the editor window. This includes whatever is necessary of the
-     * following: make visible, de-iconify, bring to front of window stack.
+     *  Show the editor window. This includes whatever is necessary of the
+     *  following: make visible, de-iconify, bring to front of window stack.
      *
-     * @param view		the view to be displayed. Must be one of the 
+     *  @param view		the view to be displayed. Must be one of the 
      *			view constants defined above
      */
     public void show(int view)	// inherited from Editor, redefined
@@ -281,10 +288,10 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Save the buffer to disk under current filename.  This is often called
-     * from the outside - just in case.  Save only if really necessary, 
-     * otherwise we save much too often.
-     * PRE: filename != null
+     *  Save the buffer to disk under current filename.  This is often called
+     *  from the outside - just in case.  Save only if really necessary, 
+     *  otherwise we save much too often.
+     *  PRE: filename != null
      */
 
     public void save() // inherited from Editor
@@ -316,8 +323,8 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * The editor wants to close. Do this through the EditorManager so that
-     * we can be removed from the list of open editors.
+     *  The editor wants to close. Do this through the EditorManager so that
+     *  we can be removed from the list of open editors.
      */
 
     public void close()	// inherited from Editor
@@ -328,16 +335,16 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Display a message (used for compile/runtime errors). An editor
-     * must support at least two lines of message text, so the message
-     * can contain a newline character.
+     *  Display a message (used for compile/runtime errors). An editor
+     *  must support at least two lines of message text, so the message
+     *  can contain a newline character.
      *
-     * @param message	the message to be displayed
-     * @param line		the line to move the cursor to (the line is 
+     *  @param message	the message to be displayed
+     *  @param line		the line to move the cursor to (the line is 
      *			also highlighted)
-     * @param column		the column to move the cursor to
-     * @param beep		if true, do a system beep
-     * @param setStepMark	if true, set step mark (for single stepping)
+     *  @param column		the column to move the cursor to
+     *  @param beep		if true, do a system beep
+     *  @param setStepMark	if true, set step mark (for single stepping)
      */
 
     public void displayMessage(String message, int lineNumber, int column, 
@@ -357,9 +364,9 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Remove the step mark (the mark that shows the current line when
-     * single-stepping through code). If it is not currently displayed,
-     * do nothing.
+     *  Remove the step mark (the mark that shows the current line when
+     *  single-stepping through code). If it is not currently displayed,
+     *  do nothing.
      */
 
     public void removeStepMark()		// inherited from Editor
@@ -369,12 +376,12 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Change class name.
+     *  Change class name.
      *
-     * @param title	new window title
-     * @param filename	new file name
+     *  @param title	new window title
+     *  @param filename	new file name
      */
-    public void changeName (String title, String filename)
+    public void changeName(String title, String filename)
     // inherited from Editor
     {
 	this.filename = filename;		// error ## - need to add full path
@@ -384,11 +391,11 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Set the "compiled" status
+     *  Set the "compiled" status
      *
-     * @param compiled	true if the class has been compiled
+     *  @param compiled	true if the class has been compiled
      */
-    public void setCompiled (boolean compiled)
+    public void setCompiled(boolean compiled)
     {
 	setCompileStatus(compiled);
 	if (compiled)
@@ -397,8 +404,17 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Determine whether this buffer has been modified.
-     * @returns	a boolean indicating whether the file is modified
+     *  Remove all breakpoints in this editor.
+     */
+    public void removeBreakpoints()
+    {
+	clearAllBreakpoints();
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Determine whether this buffer has been modified.
+     *  @returns	a boolean indicating whether the file is modified
      */
     public boolean isModified()	// inherited from Editor, redefined
     {
@@ -407,7 +423,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Set this editor to read-only.
+     *  Set this editor to read-only.
      */
     public void setReadOnly(boolean readOnlyStatus) {
 	if (readOnlyStatus)
@@ -419,11 +435,20 @@ public final class MoeEditor extends JFrame
     // ------------ end of interface inherited from Editor ----------------
     // --------------------------------------------------------------------
 
+    // --------------------------------------------------------------------
+    /**
+     *  Clear the message in the info area. 
+     */
+    public void clearMessage()
+    {
+	info.clear();
+    }
+
     // ==================== USER ACTION IMPLEMENTATIONS ===================
 
     // --------------------------------------------------------------------
     /**
-     * 
+     *  
      */
     public void userSave()
     {
@@ -435,7 +460,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * 
+     *  
      */
     public void reload()
     {
@@ -456,8 +481,8 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Implementation if the "print" user function
-     * (NOTE: re-implement under jdk 1.2 with "PrinterJob"!)
+     *  Implementation if the "print" user function
+     *  (NOTE: re-implement under jdk 1.2 with "PrinterJob"!)
      */
     public void print()
     {
@@ -472,8 +497,8 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Part of the print function. Print out the class view currently
-     * visible in the editor.
+     *  Part of the print function. Print out the class view currently
+     *  visible in the editor.
      */
     private void printClass(PrintJob printjob) 
     {
@@ -530,9 +555,9 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Return the rectangle on the page in which to print the text.
-     * The rectangle is the page minus margins minus space for header and
-     * footer text.
+     *  Return the rectangle on the page in which to print the text.
+     *  The rectangle is the page minus margins minus space for header and
+     *  footer text.
      */
     private Rectangle getPrintArea(Dimension pageSize)
     {
@@ -556,8 +581,8 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * printFrame - part of the print function. Print the frame around the
-     * page, including header and footer.
+     *  printFrame - part of the print function. Print the frame around the
+     *  page, including header and footer.
      */
     private void printFrame(Graphics g, Rectangle printArea, int pageNum,
 			    String date) 
@@ -597,7 +622,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * The editor has been closed. Hide the editor window now. 
+     *  The editor has been closed. Hide the editor window now. 
      */
     public void doClose()
     {
@@ -609,12 +634,13 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Implementation of "find" user function.
+     *  Implementation of "find" user function.
      */
 
     public void find()
     {
 	Finder finder = MoeEditorManager.editorManager.getFinder();
+	Utility.centreWindow(finder, this);
 	String s = finder.getNewSearchString(this, Finder.FORWARD);
 	if(s != null)
 	    findString(finder, s, finder.getDirection() == Finder.BACKWARD);
@@ -622,7 +648,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Implementation of "find-backward" user function.
+     *  Implementation of "find-backward" user function.
      */
 
     public void findBackward()
@@ -635,7 +661,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Implementation of "find-next" user function.
+     *  Implementation of "find-next" user function.
      */
 
     public void findNext()
@@ -655,7 +681,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Implementation of "find-next-reverse" user function.
+     *  Implementation of "find-next-reverse" user function.
      */
 
     public void findNextReverse()
@@ -676,7 +702,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     *  Do a find with info in the info area.
+     *   Do a find with info in the info area.
      */
 
     private void findString(Finder finder, String s, boolean backward)
@@ -703,7 +729,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * doFind - do a find without visible feedback. Returns false if not found.
+     *  doFind - do a find without visible feedback. Returns false if not found.
      */
 
     private boolean doFind(String s, boolean wrap)
@@ -755,8 +781,8 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * doFindBackward - do a find backwards without visible feedback.
-     *  Returns false if not found.
+     *  doFindBackward - do a find backwards without visible feedback.
+     *   Returns false if not found.
      */
 
     private boolean doFindBackward(String s, boolean wrap)
@@ -811,7 +837,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Implementation of "compile" user function.
+     *  Implementation of "compile" user function.
      */
 
     public void compile()
@@ -821,116 +847,187 @@ public final class MoeEditor extends JFrame
 	if (!isCode)
 	    return;
 
-	watcher.compile(this);
 	info.message ("Compiling...");
+	watcher.compile(this);
     }
 
     // --------------------------------------------------------------------
     /**
-     * Implementation of "set-breakpoint" user function.
+     *  Implementation of "set-breakpoint" user function.
      */
 
-    public void setBreakpoint()
+    void setBreakpoint()
     {
 	setUnsetBreakpoint(textPane.getCaretPosition(), true);
-	info.message ("Breakpoint set");
     }
 
     // --------------------------------------------------------------------
     /**
-     * Implementation of "clear-breakpoint" user function.
+     *  Implementation of "clear-breakpoint" user function.
      */
 
-    public void clearBreakpoint()
+    void clearBreakpoint()
     {
 	setUnsetBreakpoint(textPane.getCaretPosition(), false);
-	info.message ("Breakpoint cleared");
     }
 
     // --------------------------------------------------------------------
     /**
-     * Toggle a breakpoint at a given position.
+     *  Toggle a breakpoint at a given position.
      */
 
-    public void toggleBreakpoint(int pos)
+    void toggleBreakpoint(int pos)
     {
-	if (hasBreakpoint(pos))
+	if (positionHasBreakpoint(pos))
 	    setUnsetBreakpoint(pos, false);  // remove
 	else
 	    setUnsetBreakpoint(pos, true);  // set
+
     }
 
     // --------------------------------------------------------------------
     /**
-     * Check weather a position has a breakpoint set
+     *   Clear all known breakpoints.
      */
 
-    private boolean hasBreakpoint(int pos)
+    private void clearAllBreakpoints()
     {
-	Element paragraph = document.getParagraphElement(pos);
-	return (Boolean.TRUE.equals(paragraph.getAttributes().getAttribute(BreakPoint)));
+	if(mayHaveBreakpoints) {
+
+	    for(int i = 1; i <= numberOfLines(); i++) {
+		if(lineHasBreakpoint(i))
+		    doRemoveBreakpoint(getPositionInLine(i));
+	    }
+	    mayHaveBreakpoints = false;
+	}
     }
 
     // --------------------------------------------------------------------
     /**
-     * Set or remove a breakpoint (depending on the parameter) at the given
-     * position.
+     *  Check weather a position has a breakpoint set
+     */
+
+    private boolean positionHasBreakpoint(int pos)
+    {
+	Element line = getLineAt(pos);
+	return (Boolean.TRUE.equals(
+			line.getAttributes().getAttribute(BREAKPOINT)));
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Check weather a line has a breakpoint set
+     */
+
+    private boolean lineHasBreakpoint(int lineNo)
+    {
+	Element line = getLine(lineNo);
+	return (Boolean.TRUE.equals(
+			line.getAttributes().getAttribute(BREAKPOINT)));
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Try to set or remove a breakpoint (depending on the parameter) at
+     *  the given position. Informs the watcher.
      */
 
     private void setUnsetBreakpoint(int pos, boolean set)
     {
 	if (watcher != null) {
-	    String result = watcher.breakpointToggleEvent(this, 
-						  getLineNumberAt(pos), set);
+	    int line = getLineNumberAt(pos);
+	    String result = watcher.breakpointToggleEvent(this, line, set);
+
 	    if(result == null) {
 		// no problem, go ahead
 		SimpleAttributeSet a = new SimpleAttributeSet();
-		a.addAttribute(BreakPoint, new Boolean(set));
+		if(set) {
+		    a.addAttribute(BREAKPOINT, Boolean.TRUE);
+		    mayHaveBreakpoints = true;
+		}
+		else
+		    a.addAttribute(BREAKPOINT, Boolean.FALSE);
 		document.setParagraphAttributes(pos, 0, a, false);
 	    }
 	    else
 		info.warning(result);
 	}
+	else
+	    info.warning("Cannot set breakpoint:\n" +
+			 "No code associated with this editor.");
+	    
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Remove a breakpoint without question.
+     */
+
+    private void doRemoveBreakpoint(int pos)
+    {
+	SimpleAttributeSet a = new SimpleAttributeSet();
+	a.addAttribute(BREAKPOINT, Boolean.FALSE);
+	document.setParagraphAttributes(pos, 0, a, false);
     }
 
     // ========================= SUPPORT ROUTINES ==========================
 
     // --------------------------------------------------------------------
     /**
-     * Return the current line.
+     *  Return the number of lines in the documant.
      */
 
-    private Element getCurrentLine ()
+    private int numberOfLines()
+    {
+	return document.getDefaultRootElement().getElementCount();
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Return the current line.
+     */
+
+    private Element getCurrentLine()
     {
 	return document.getParagraphElement(textPane.getCaretPosition());
     }
 
     // --------------------------------------------------------------------
     /**
-     * Find and return a line by line number
+     *  Find and return a line by line number
      */
 
-    private Element getLine (int lineNo)
+    private Element getLine(int lineNo)
     {
 	return document.getDefaultRootElement().getElement(lineNo-1);
     }
 
     // --------------------------------------------------------------------
     /**
-     * Find and return a line by text position
+     *  Find and return a line by text position
      */
 
-    private Element getLineAt (int pos)
+    private Element getLineAt(int pos)
     {
 	return document.getParagraphElement(pos);
     }
 
     // --------------------------------------------------------------------
     /**
-     * Return the number of the current line.
+     *  Find and return a position in a line.
      */
 
-    private int getCurrentLineNo ()
+    private int getPositionInLine(int lineNo)
+    {
+	return getLine(lineNo).getStartOffset();
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     *  Return the number of the current line.
+     */
+
+    private int getCurrentLineNo()
     {
 	return document.getDefaultRootElement().getElementIndex(
 								textPane.getCaretPosition()) + 1;
@@ -938,18 +1035,18 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Return the number of the line containing position 'pos'.
+     *  Return the number of the line containing position 'pos'.
      */
 
-    private int getLineNumberAt (int pos)
+    private int getLineNumberAt(int pos)
     {
 	return document.getDefaultRootElement().getElementIndex(pos) + 1;
     }
 
     // --------------------------------------------------------------------
     /**
-     * Revert the buffer contents to the last saved version.  Do
-     * not ask any question - just do it. Must have a file name.
+     *  Revert the buffer contents to the last saved version.  Do
+     *  not ask any question - just do it. Must have a file name.
      */
 
     public void doReload()
@@ -977,21 +1074,20 @@ public final class MoeEditor extends JFrame
     private void setCompileStatus(boolean compiled)
     {
 	viewSelector.setEnabled(compiled);
+	actions.getActionByName("set-breakpoint").setEnabled(compiled);
+	actions.getActionByName("clear-breakpoint").setEnabled(compiled);
 	isCompiled = compiled;
-	/*
-	  utility->set_sensitive (break_item, compiled);
-	  utility->set_sensitive (clr_break_item, compiled);
-	  utility->set_sensitive (interface_item, compiled);
-	  utility->set_sensitive (interface_button, compiled);
-	  screen->set_tag_grey (!compiled);
-	  if (showing_interface && !compiled)
-	  interface_toggle ();
-	*/
+
+	if(compiled)
+	    document.putProperty(COMPILED, Boolean.TRUE);
+	else
+	    document.putProperty(COMPILED, Boolean.FALSE);
+	textPane.repaint();
     }
 
     // --------------------------------------------------------------------
     /**
-     * Set the saved/changed status of this buffer to SAVED.
+     *  Set the saved/changed status of this buffer to SAVED.
      */
     private void setSaved()
     {
@@ -1003,7 +1099,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Buffer just went from saved to changed state (called by StatusLabel)
+     *  Buffer just went from saved to changed state (called by StatusLabel)
      */
     void setChanged()
     {
@@ -1029,10 +1125,10 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Sets the editor to contain a view. This is used if the view is set from
-     * the outside of the editor (not by the editor function).
+     *  Sets the editor to contain a view. This is used if the view is set from
+     *  the outside of the editor (not by the editor function).
      *
-     * @param view    the new view. Must be one of the defined view constants.
+     *  @param view    the new view. Must be one of the defined view constants.
      */
     private void setView(int view)
     {
@@ -1060,8 +1156,8 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Show or hide the line number display (depending on the parameter
-     * 'show').
+     *  Show or hide the line number display (depending on the parameter
+     *  'show').
      */
 
     private void showLineCounter(boolean show)
@@ -1126,7 +1222,7 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Create all the Window components
+     *  Create all the Window components
      */
 
     private void initWindow(boolean showTool, boolean showLine)
@@ -1200,8 +1296,6 @@ public final class MoeEditor extends JFrame
 	actions.getActionByName("uncomment").setEnabled(false);
 	actions.getActionByName("replace").setEnabled(false);
 	actions.getActionByName("goto-line").setEnabled(false);
-	actions.getActionByName("set-breakpoint").setEnabled(false);
-	actions.getActionByName("clear-breakpoint").setEnabled(false);
 	actions.getActionByName("preferences").setEnabled(false);
 	actions.getActionByName("describe-key").setEnabled(false);
 	actions.getActionByName("show-manual").setEnabled(false);
@@ -1241,7 +1335,7 @@ public final class MoeEditor extends JFrame
     // --------------------------------------------------------------------
 
     /**
-     * Create the editor's menu bar.
+     *  Create the editor's menu bar.
      */
     private JMenuBar createMenuBar()
     {
@@ -1268,8 +1362,8 @@ public final class MoeEditor extends JFrame
     // --------------------------------------------------------------------
 
     /**
-     * Create a single menu for the editor's menu bar. The key for the menu
-     * (as defined in moe.properties) is supplied.
+     *  Create a single menu for the editor's menu bar. The key for the menu
+     *  (as defined in moe.properties) is supplied.
      */
     private JMenu createMenu(String key)
     {

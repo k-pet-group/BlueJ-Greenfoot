@@ -20,7 +20,7 @@ import java.util.Hashtable;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: PkgFrame.java 111 1999-06-04 06:16:57Z mik $
+ ** @version $Id: PkgFrame.java 124 1999-06-14 07:26:17Z mik $
  **/
 public abstract class PkgFrame extends JFrame 
 
@@ -236,30 +236,6 @@ public abstract class PkgFrame extends JFrame
 	if (statusbar != null)
 	    statusbar.setText(" ");
     }
-
-    /**
-     * startExecution - indicate in the interface that the machine has 
-     *  started executing.
-     */
-    public void startExecution() {}
-
-    /**
-     * stopExecution - indicate in the interface that the machine has stopped
-     *  executing.
-     */
-    public void stopExecution() {}
-
-    /**
-     * haltExecution - indicate in the interface that the machine
-     *  temporarily stopped executing.
-     */
-    public void haltExecution() {}
-
-    /**
-     * continueExecution - indicate in the interface that the machine
-     *  is executing again.
-     */
-    public void continueExecution() {}
 
     /**
      * Set the frames cursor to a WAIT_CURSOR while system is busy

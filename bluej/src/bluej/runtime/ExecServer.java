@@ -61,6 +61,18 @@ public class ExecServer
 
 	BlueJSecurityManager manager = new BlueJSecurityManager();
 	System.setSecurityManager(manager);
+
+	// the following causes the class loader mechanism to be initialised:
+	// we attempt to load a (non-existant) class
+
+	try {
+	    createClassLoader("#dummy", ".");
+	    loadClass("#dummy", "Dummy");
+	    removeClassLoader("#dummy");
+	}
+	catch(Exception e) {
+	    // ignore - we will get a ClassNotFound exception here
+	}
     }
 
 
@@ -82,44 +94,46 @@ public class ExecServer
      * This method is called from the main VM to initiate a task here on 
      * this VM.
      */
-    public void performTask(int taskType, String arg1, String arg2, 
-			    String arg3, String arg4)
+    public BlueJClassLoader performTask(int taskType, String arg1, 
+			    String arg2, String arg3, String arg4)
 	throws Throwable
     {
 	try {
 	    switch(taskType) {
 
 	    case CREATE_LOADER:
-		createClassLoader(arg1, arg2);
-		break;
+		return createClassLoader(arg1, arg2);
 	    case REMOVE_LOADER:
 		removeClassLoader(arg1);
-		break;
+		return null;
 	    case LOAD_CLASS:
 		loadClass(arg1, arg2);
-		break;
+		return null;
 	    case ADD_OBJECT:
 		addObject(arg1, arg2, arg3, arg4);
-		break;
+		return null;
 	    case REMOVE_OBJECT:
 		removeObject(arg1, arg2);
-		break;
+		return null;
 	    }
 	}
 	catch(Exception e) {
 	    Debug.message("Exception while performing task: " + e);
 	}
+	return null;
     }
 
 
     /**
      * Create a new class loader for a given classpath.
      */
-    private void createClassLoader(String loaderId, String classpath)
+    private BlueJClassLoader createClassLoader(String loaderId, 
+					       String classpath)
     {
-	//Debug.message("[VM] createClassLoader " + loaderId);
+	//Debug.reportError("[VM] createClassLoader " + loaderId);
 	BlueJClassLoader loader = new BlueJClassLoader(classpath);
 	loaders.put(loaderId, loader);
+	return loader;
     }
 
 
@@ -128,7 +142,7 @@ public class ExecServer
      */
     private void removeClassLoader(String loaderId)
     {
-	//Debug.message("[VM] removeLoader " + loaderId);
+	//Debug.reportError("[VM] removeLoader " + loaderId);
 	loaders.remove(loaderId);
     }
 
@@ -146,31 +160,26 @@ public class ExecServer
      * Load a class in the remote runtime.
      */
     private Class loadClass(String loaderId, String classname)
-	throws Throwable
+	throws Exception
     {
 	Class cl = null;
 
-	try {
-	    //Debug.reportError("loading class " + classname);
+	//Debug.reportError("loading class " + classname);
 
-	    if(loaderId == null)
-		cl = Class.forName(classname);
-	    else {
-		BlueJClassLoader loader = getLoader(loaderId);
-		if(loader != null)
-		    cl = loader.loadClass(classname);
-	    }
-
-	    //Debug.reportError("   loaded.");
-	    if(cl == null)
-		Debug.reportError("Could not load class for execution");
-	    else
-		prepareClass(cl);
-	    
-	} catch(Exception e) {
-	    Debug.reportError ("Exception while trying to load class " + 
-			       classname + ": " + e);
+	if(loaderId == null)
+	    cl = Class.forName(classname);
+	else {
+	    BlueJClassLoader loader = getLoader(loaderId);
+	    if(loader != null)
+		cl = loader.loadClass(classname);
 	}
+
+	//Debug.reportError("   loaded.");
+	if(cl == null)
+	    Debug.reportError("Could not load class for execution");
+	else
+	    prepareClass(cl);
+	    
 	return cl;
     }
 
@@ -180,7 +189,6 @@ public class ExecServer
      *  executing some init code in that shell method.
      */
     private void prepareClass(Class cl)
-	throws Throwable
     {
 	try {
 	    Method m = cl.getMethod("prepare", null);

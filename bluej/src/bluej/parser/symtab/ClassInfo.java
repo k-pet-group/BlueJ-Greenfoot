@@ -7,6 +7,7 @@ public final class ClassInfo {
 
     private static final String[] appletClasses = { "Applet", "JApplet" };
 
+    private String name;
     private String superclass;
     private Vector implemented = new Vector();
     private Vector imported = new Vector();
@@ -15,8 +16,16 @@ public final class ClassInfo {
     private boolean isAbstract = false;
     private boolean isApplet = false;
 
+    public void setName(String name)
+    {
+	this.name = name;
+    }
+
     public void setSuperclass(String name)
     {
+	if(name.equals(this.name))
+	    return;
+
 	superclass = name;
 	if(used.contains(name))
 	    used.remove(name);
@@ -29,18 +38,27 @@ public final class ClassInfo {
 
     public void addImplements(String name)
     {
+	if(name.equals(this.name))
+	    return;
+
 	if(!implemented.contains(name))
 	    implemented.addElement(name);
     }
 
     public void addImported(String name)
     {
+	if(name.equals(this.name))
+	    return;
+
 	if(!imported.contains(name))
 	    imported.addElement(name);
     }
 
     public void addUsed(String name)
     {
+	if(name.equals(this.name))
+	    return;
+
 	// don't add predefined types (int, boolean, String, etc)
 	if(SymbolTable.getPredefined().contains(name))
 	    return;

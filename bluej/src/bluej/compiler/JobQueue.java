@@ -4,7 +4,7 @@ import bluej.utility.Debug;
 import bluej.Config;
 
 /**
- ** @version $Id: JobQueue.java 112 1999-06-07 01:38:00Z ajp $
+ ** @version $Id: JobQueue.java 124 1999-06-14 07:26:17Z mik $
  ** @author Michael Cahill
  ** Reasonably generic interface between the BlueJ IDE and the Java
  ** compiler.
@@ -61,8 +61,6 @@ public class JobQueue
 
     /**
      * Adds a job to the compile queue.
-     * @pre init() is called
-     * @see #init()
      */
     public void addJob(String[] sources, CompileObserver observer,
 			      String classpath, String destdir)
@@ -73,8 +71,6 @@ public class JobQueue
 
     /** 
      * Adds a job to the compile queue.
-     * Make sure init() is called once before.
-     * @see #init()
      */
     public void addJob(String sourcefile, CompileObserver observer,
 			      String classpath, String destdir)

@@ -41,7 +41,7 @@ public class MoeEditorKit extends StyledEditorKit {
 		} else if (kind.equals(AbstractDocument.ParagraphElementName)) {
 		    return new MoeParagraphView(elem);
 		} else if (kind.equals(AbstractDocument.SectionElementName)) {
-		    return new BoxView(elem, View.Y_AXIS);
+		    return new MoeBoxView(elem, View.Y_AXIS);
 		} else if (kind.equals(StyleConstants.ComponentElementName)) {
 		    return new ComponentView(elem);
 		} else if (kind.equals(StyleConstants.IconElementName)) {

@@ -6,7 +6,7 @@ People:
 
 	mik	Michael Kolling (mik@insect.sd.monash.edu.au)
 	bq	Bruce Quig (bruce@insect.sd.monash.edu.au)
-	ajm	Andy Marks (amarks@insect.sd.monash.edu.au)
+	ajp	Andrew Patterson
 
 
 Format:
@@ -56,7 +56,7 @@ Entry template (copy this for new entry and increment the bug number
 in the template for the next one):
 
 @-------
-@bug#  : 00077
+@bug#  : 00081
 @short : 
 @prio  : 
 @source: 
@@ -102,22 +102,11 @@ in the template for the next one):
 @prio  : 1
 @source: mik
 @date  : 1999-02-01
-@status: in process (ajm, mik)
+@status: in process (ajp)
 @fixrel: 
 @descr : create browser (browse libraries, import standard package,
 	 import class)
 @cause : new feature
-
-@-------
-@bug#  : 00064
-@short : exceptions not always reported
-@prio  : 1
-@source: Stephen Schaub
-@date  : 1999-03-22
-@status: open
-@fixrel: 
-@descr : sometimes exception are not reported. see mail in bjp
-@cause : bug in original implementation
 
 @-------
 @bug#  : 00065
@@ -204,6 +193,18 @@ in the template for the next one):
 @cause : ?
 
 @-------
+@bug#  : 00081
+@short : parser errors not shown
+@prio  : 3
+@source: mik
+@date  : 1999-06-10
+@status: open
+@fixrel: 
+@descr : when the class parser fails because of a syntax error, the class
+	 should be marked in some way indicating that parsing failed.
+@cause : new feature
+
+@-------
 @bug#  : 00021
 @short : state of read-only package must be shown
 @prio  : 3
@@ -227,17 +228,6 @@ in the template for the next one):
 @descr : When "Inspect" is invoked before the virtual machine is fully
 	 created, the system hangs. 
 @cause : feature was not fully implemented
-
-@-------
-@bug#  : 00036
-@short : make tab stops in editor smaller
-@prio  : 3
-@source: dianne
-@date  : 1999-03-11
-@status: open
-@fixrel: 
-@descr : Users want 3 (4?) space tab stops in editor.
-@cause : new feature
 
 @-------
 @bug#  : 00039
@@ -472,17 +462,6 @@ in the template for the next one):
 @cause : new feature
 
 @-------
-@bug#  : 00057
-@short : support for applets (see planning/applets.txt)
-@prio  : 5
-@source: mik
-@date  : 1999-02-01
-@status: open
-@fixrel: 
-@descr : support for applets (see planning/applets.txt)
-@cause : new feature
-
-@-------
 @bug#  : 00058
 @short : support for standalone applications
 @prio  : 5
@@ -531,6 +510,72 @@ in the template for the next one):
 =======================================================================
 
 ============================ version 0.9.3 ============================
+
+@-------
+@bug#  : 00036
+@short : make tab stops in editor smaller
+@prio  : 3
+@source: dianne
+@date  : 1999-03-11
+@status: closed, fixed (mik, 1999-06-06)
+@fixrel: 0.9.3
+@descr : Users want 3 (4?) space tab stops in editor.
+@cause : new feature
+
+@-------
+@bug#  : 00080
+@short : support for other compilers
+@prio  : 5
+@source: mik
+@date  : 1999-06-06
+@status: closed, fixed (ajp, 1999-06-06)
+@fixrel: 0.9.3
+@descr : should be possible to use different compiler 
+@cause : new feature
+
+@-------
+@bug#  : 00057
+@short : support for applets (see planning/applets.txt)
+@prio  : 5
+@source: mik
+@date  : 1999-02-01
+@status: in process (bruce)
+@fixrel: 0.9.3
+@descr : support for applets (see planning/applets.txt)
+@cause : new feature
+
+@-------
+@bug#  : 00079
+@short : exception handling does not always work
+@prio  : 3
+@source: mik
+@date  : 1999-06-06
+@status: closed, fixed (mik, 1999-06-06)
+@fixrel: 0.9.3
+@descr : exception handling must be improved
+@cause : incorrect implementation
+
+@-------
+@bug#  : 00064
+@short : exceptions not always reported
+@prio  : 1
+@source: Stephen Schaub
+@date  : 1999-03-22
+@status: open
+@fixrel: 0.9.3
+@descr : sometimes exception are not reported. see mail in bjp
+@cause : bug in original implementation
+
+@-------
+@bug#  : 00078
+@short : automatic update of arrows
+@prio  : 2
+@source: mik
+@date  : 1999-06-06
+@status: closed, fixed (mik, 1999-06-06)
+@fixrel: 0.9.3
+@descr : arrows must be automatically updated when source is changed
+@cause : new feature
 
 @-------
 @bug#  : 00077

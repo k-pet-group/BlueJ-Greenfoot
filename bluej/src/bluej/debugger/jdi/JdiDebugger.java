@@ -7,9 +7,13 @@ import bluej.utility.Debug;
 import bluej.runtime.ExecServer;
 import bluej.terminal.Terminal;
 
-import java.util.Hashtable;
-//import java.util.Vector;
+import java.io.*;
+import java.util.Vector;
+import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Hashtable;
 
 import com.sun.jdi.*;
 import com.sun.jdi.connect.*;
@@ -17,17 +21,34 @@ import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ExceptionRequest;
-import com.sun.jdi.event.BreakpointEvent;
+import com.sun.jdi.event.LocatableEvent;
 import com.sun.jdi.event.ExceptionEvent;
 
-import java.io.*;
-import java.util.Vector;
-import java.util.List;
-import java.util.ArrayList;
-
 /**
- ** A class implementing the debugger primitives needed by BlueJ
- ** Implemented in a remote VM (via JDI interface)
+ ** A class implementing the execution and debugging primitives needed by
+ ** BlueJ.
+ **
+ ** Execution and debugging is implemented here on a second ("remote") 
+ ** virtual machine, which gets started from here via the JDI interface.
+ **
+ ** The startup process is as follows:
+ **
+ **  - After creation of this object, the startDebugger method gets called.
+ **    This method creates the remote virtual machine and starts the "main"
+ **    method of the execution server class ("bluej.runtime.ExecServer",
+ **    defined in the constant SERVER_CLASSNAME). It also requests to be
+ **    notified when the class is prepared.
+ **    
+ **  - When the server class is prepared on the remote VM, the 
+ **    serverClassPrepared() method gets called.  Here, we set a breakpoint
+ **    in the remote server class to make it wait for out instructions.
+ **    
+ **  - The server on the remote VM hits the breakpoint and waits.
+ **    
+ **  - We can now execute commands on the remote VM by invoking methods
+ **    using the server thread (which is suspended at the breakpoint).
+ **    This is done in the "startServer()" method
+ **    
  **
  ** @author Michael Kolling
  **/
@@ -52,10 +73,13 @@ public class JdiDebugger extends Debugger
 
     private Process process = null;
     private VMEventHandler eventHandler = null;
-    private ObjectReference execServer = null;
+
+    private ReferenceType serverClass = null;  // the class of the exec server
+    private ObjectReference execServer = null; // the exec server object
     private Method performTaskMethod = null;
     private ThreadReference serverThread = null;
     volatile private boolean initialised = false;
+    private boolean machineIsRunning = false;
 
     private int exitStatus;
     private ExceptionDescription lastException;
@@ -68,6 +92,7 @@ public class JdiDebugger extends Debugger
 	activeThreads = new Hashtable();
     }
 
+
     private VirtualMachine machine = null;
     private synchronized VirtualMachine getVM()
     {
@@ -79,6 +104,7 @@ public class JdiDebugger extends Debugger
 	    
 	return machine;
     }
+
 
     /**
      * Start debugging. I.e. create the second virtual machine and start
@@ -115,21 +141,12 @@ public class JdiDebugger extends Debugger
         Connector.Argument mainArg = 
 	    (Connector.Argument)arguments.get("main");
 
-	// "startMode" determiones whether remote VM starts immediately
-	// or is initially halted. possible values: "interrupted", "running"
-        Connector.Argument modeArg = 
-	    (Connector.Argument)arguments.get("startMode");
-
-        if ((modeArg == null) || (mainArg == null)) {
+        if (mainArg == null) {
 	    Debug.reportError("Cannot start virtual machine.");
 	    Debug.reportError("(Incompatible launch connector)");
 	    return;
         }
-
         mainArg.setValue(SERVER_CLASSNAME);
-	//modeArg.setValue("running");  // use this to start the machine running.
-	// default is to suspend on first 
-	// instruction.
 
         try {
             machine = connector.launch(arguments);
@@ -152,7 +169,7 @@ public class JdiDebugger extends Debugger
         setEventRequests(machine);
 	eventHandler = new VMEventHandler(this, machine);
 
-	// now wait until the machine really has sterted up. We will know that
+	// now wait until the machine really has started up. We will know that
 	// it has when the first breakpoint is hit (see breakpointEvent).
 	try {
 	    wait();
@@ -167,7 +184,6 @@ public class JdiDebugger extends Debugger
      */
     protected synchronized void endDebugger()
     {
-	Debug.message("[endDebugger]");
         try {
             if (machine != null) {
                 machine.dispose();
@@ -192,8 +208,8 @@ public class JdiDebugger extends Debugger
      */
     void serverClassPrepared()
     {
-	ReferenceType serverType = findClassByName(machine, SERVER_CLASSNAME);
-	Method suspendMethod = findMethodByName(serverType, 
+	serverClass = findClassByName(machine, SERVER_CLASSNAME, null);
+	Method suspendMethod = findMethodByName(serverClass, 
 						SERVER_SUSPEND_METHOD_NAME);
 	if(suspendMethod == null) {
 	    Debug.reportError("invalid VM server object");
@@ -230,8 +246,10 @@ public class JdiDebugger extends Debugger
     public DebuggerClassLoader createClassLoader(String scopeId, 
 						 String classpath)
     {
-	startServer(ExecServer.CREATE_LOADER, scopeId, classpath, "", "");
-	return new JdiClassLoader(scopeId);
+	ClassLoaderReference loader = 
+	    startServer(ExecServer.CREATE_LOADER, scopeId, classpath, "", "");
+
+	return new JdiClassLoader(scopeId, loader);
     }
 	
 
@@ -241,6 +259,15 @@ public class JdiDebugger extends Debugger
     public void removeClassLoader(DebuggerClassLoader loader)
     {
 	startServer(ExecServer.REMOVE_LOADER, loader.getId(), "", "", "");
+    }
+
+
+    /**
+     * Return true if the remote machine is currently executing.
+     */
+    public boolean isRunning()
+    {
+	return machineIsRunning;
     }
 
 
@@ -257,7 +284,7 @@ public class JdiDebugger extends Debugger
 			   Object eventParam)
     {
 	loadClass(loader, classname);
-	ClassType shellClass = findClassByName(machine, classname);
+	ClassType shellClass = findClassByName(machine, classname, loader);
 
 	Method runMethod = findMethodByName(shellClass, "run");
 	if(runMethod == null) {
@@ -275,6 +302,7 @@ public class JdiDebugger extends Debugger
 	    // in which package (although, currently, there is always only
 	    // one thread at a time, the serverThread).
 	    activeThreads.put(serverThread, eventParam);
+	    machineIsRunning = true;
   	    Value returnVal = shellClass.invokeMethod(serverThread, 
 						      runMethod, 
 						      arguments, 0);
@@ -295,6 +323,7 @@ public class JdiDebugger extends Debugger
 					"Cannot execute remote command",
 					null, 0);
   	}
+	machineIsRunning = false;
 	activeThreads.remove(serverThread);
     }
 
@@ -339,17 +368,19 @@ public class JdiDebugger extends Debugger
      * be null. The task ID is one of the constants defined in
      * runtime.ExecServer.
      *
+     * Returns the class loader if the task is CREATE_LOADER, null otherwise.
+     *
      * This is done synchronously: we return once the remote execution
      * has completed.
      */
-    private void startServer(int task, String arg1, String arg2, 
-			     String arg3, String arg4)
+    private ClassLoaderReference startServer(int task, String arg1, 
+					String arg2, String arg3, String arg4)
     {
 	VirtualMachine vm = getVM();
 
 	if(execServer == null) {
 	    if(! setupServerConnection(vm))
-		return;
+		return null;
 	}
 
 	List arguments = new ArrayList(3);
@@ -363,11 +394,13 @@ public class JdiDebugger extends Debugger
   	    Value returnVal = execServer.invokeMethod(serverThread, 
 						      performTaskMethod, 
 						      arguments, 0);
-	    // returnVal currently unused (void)
+	    return (ClassLoaderReference)returnVal;
 	}
   	catch(Exception e) {
 	    Debug.message("sending command to remote VM failed: " + e);
+	    Debug.message("task: " + task + " " + arg1 + " " + arg2);
   	}
+	return null;
     }
 
 
@@ -379,14 +412,15 @@ public class JdiDebugger extends Debugger
      */
     private boolean setupServerConnection(VirtualMachine vm)
     {
-	ReferenceType serverType = findClassByName(vm, SERVER_CLASSNAME);
+	if(serverClass == null)
+	    Debug.reportError("server class not initialised!");
 
-	Field serverField = serverType.fieldByName(SERVER_FIELD_NAME);
-	execServer = (ObjectReference)serverType.getValue(serverField);
+	Field serverField = serverClass.fieldByName(SERVER_FIELD_NAME);
+	execServer = (ObjectReference)serverClass.getValue(serverField);
 
 	if(execServer == null) {
 	    sleep(3000);
-	    execServer = (ObjectReference)serverType.getValue(serverField);
+	    execServer = (ObjectReference)serverClass.getValue(serverField);
 	}
 	if(execServer == null) {
 	    Debug.reportError("Failed to load VM server object");
@@ -396,7 +430,7 @@ public class JdiDebugger extends Debugger
 
 	// okay, we have the server object; now get the perform method
 
-	performTaskMethod = findMethodByName(serverType, 
+	performTaskMethod = findMethodByName(serverClass, 
 					     SERVER_PERFORM_METHOD_NAME);
 	if(performTaskMethod == null) {
 	    Debug.reportError("invalid VM server object");
@@ -430,7 +464,7 @@ public class JdiDebugger extends Debugger
     {
 	DebuggerObject object = null;
 
-	ReferenceType classMirror = findClassByName(getVM(), className);
+	ReferenceType classMirror = findClassByName(getVM(), className, null);
 
 	//Debug.message("[getStaticValue] " + className);
 
@@ -469,7 +503,8 @@ public class JdiDebugger extends Debugger
 
 
     /**
-     *  An exception was thrown in the remote machine.
+     *  An exception was thrown in the remote machine. Analyse the exception
+     *  and store it in 'lastException'. It will be picked uplater.
      */
     public void exceptionEvent(ExceptionEvent exc)
     {
@@ -523,29 +558,39 @@ public class JdiDebugger extends Debugger
     }
 
     /**
-     * A breakpoint has been hit in the specified thread. Find the user
-     * thread that started the execution and let it continue. (The user
-     * thread is waiting in the waitqueue.)
+     * A breakpoint has been hit or step completed in the specified thread.
+     * Find the user thread that started the execution and let it continue.
+     * (The user thread is waiting in the waitqueue.)
      */
-    public void breakpointEvent(BreakpointEvent event)
+    public void breakEvent(LocatableEvent event, boolean breakpoint)
     {
-	// if we hit a breakpoint before the VM is initialised, then it is our
-	// own breakpoint that we have been waiting for at startup
+	// if we hit a breakpoint before the VM is initialised, then it is
+	// our own breakpoint that we have been waiting for at startup
 	if(!initialised) {
 	    synchronized(this) {
 		notifyAll();
 	    }
 	}
 	else {
-	    Debug.message("[JdiDebugger] breakpointEvent");
+	    // breakpoint set by user in user code
 
+	    machineIsRunning = false;
 	    ThreadReference remoteThread = event.thread();
 	    Object pkg = activeThreads.get(remoteThread);
 	    if(pkg == null)
 		Debug.reportError("cannot find breakpoint thread!");
 	    else {
 		JdiThread thread = new JdiThread(remoteThread, pkg);
-		BlueJEvent.raiseEvent(BlueJEvent.BREAKPOINT, thread);
+		if(thread.getClassSourceName(0).startsWith("__SHELL")) {
+		    // stepped out into the shell class - resume to finish
+		    getVM().resume();
+		}
+		else {
+		    if(breakpoint)
+			BlueJEvent.raiseEvent(BlueJEvent.BREAKPOINT, thread);
+		    else
+			BlueJEvent.raiseEvent(BlueJEvent.STEP, thread);
+		}
 	    }
 	}
     }
@@ -570,7 +615,7 @@ public class JdiDebugger extends Debugger
 	VirtualMachine vm = getVM();
 
 	loadClass(loader, className);
-  	ClassType remoteClass = findClassByName(vm, className);
+  	ClassType remoteClass = findClassByName(vm, className, loader);
   	if(remoteClass == null)
   	    return "Class not found";
 
@@ -614,11 +659,18 @@ public class JdiDebugger extends Debugger
 
     /**
      * List all the threads being debugged as a Vector containing elements
-     * of type DebuggerThread. Filter out threads that belong
-     * to system, returning only user threads.
+     * of type DebuggerThread. Filter out threads that belong to system,
+     * returning only user threads. This can be done only if the machine
+     * is currently suspended.
+     *
+     * @return  A vector of threads, or null if the machine is currently
+     *		running
      */
     public Vector listThreads()
     {
+	if(machineIsRunning)
+	    return null;
+
 	List threads = getVM().allThreads();
 	int len = threads.size();
 
@@ -673,19 +725,20 @@ public class JdiDebugger extends Debugger
     }
 
     /**
-     * Arrange to show the source location for a specific frame number
-     * of a specific thread.
+     *  Arrange to show the source location for a specific frame number
+     *  of a specific thread. The currently selected frame is stored in the
+     *  thread object itself.
      */
-    public void showSource(DebuggerThread thread, int frameNo)
+    public void showSource(DebuggerThread thread)
     {
-	//  	Package pkg = (Package)waitqueue.get(
-	//  				     ((JdiThread)thread).getRemoteThread());
-
-	//  	if(pkg != null) {
-	//  	    pkg.hitBreakpoint(thread.getClassSourceName(frameNo),
-	//  			      thread.getLineNumber(frameNo), 
-	//  			      thread.getName(), false);
-	//  	}
+	ThreadReference remoteThread = ((JdiThread)thread).getRemoteThread();
+	Object pkg = activeThreads.get(remoteThread);
+	if(pkg == null)
+	    Debug.reportError("cannot find thread for stack display!");
+	else {
+	    thread.setParam(pkg);
+	    BlueJEvent.raiseEvent(BlueJEvent.SHOW_SOURCE, thread);
+	}
     }
 
 
@@ -696,15 +749,34 @@ public class JdiDebugger extends Debugger
      *  to exist. We expect only one single class to exist with this name
      *  and report an error if more than one is found.
      */
-    private ClassType findClassByName(VirtualMachine vm, String classname) 
+    private ClassType findClassByName(VirtualMachine vm, String classname,
+				      DebuggerClassLoader loader) 
     {
+	JdiClassLoader jdiLoader = (JdiClassLoader)loader;
+
 	List list = vm.classesByName(classname);
-	if(list.size() != 1) {
-	    Debug.reportError("error finding class " + classname);
-	    Debug.reportError("number of classes found: " + list.size());
+	if(list.size() == 1) {
+	    return (ClassType)list.get(0);
+	} 
+	else if(list.size() > 1) {
+	    if(loader == null) {
+		Debug.reportError("found more than one class: " + classname);
+		return null;
+	    }
+	    Iterator iter = list.iterator();
+	    while(iter.hasNext()) {
+		ClassType cl = (ClassType)iter.next();
+		if(cl.classLoader() == jdiLoader.getLoader())
+		    return cl;
+	    }
+	    Debug.reportError("cannot load class: " + classname);
+	    Debug.reportError("classes found, but none matches loader");
 	    return null;
 	}
-	return (ClassType)list.get(0);
+	else {
+	    Debug.reportError("cannot find class " + classname);
+	    return null;
+	}
     }
 
     /** 

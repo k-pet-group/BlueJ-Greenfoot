@@ -7,7 +7,8 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 /**
- * This class manages the view of a paragraph in Moe. 
+ * This class manages the view of a paragraph in Moe. (A paragraph is one
+ * line in the source text.)
  *
  * @author  Michael Kolling
  */
@@ -52,9 +53,9 @@ public class MoeParagraphView extends ParagraphView  {
 	
 	// draw the separator line to tag bar
 	Rectangle bounds = a.getBounds();
-	g.drawLine(bounds.x + MoeEditor.TAG_WIDTH, bounds.y, 
-		   bounds.x + MoeEditor.TAG_WIDTH, bounds.y+bounds.height);
-	if (Boolean.TRUE.equals(getElement().getAttributes().getAttribute(MoeEditor.BreakPoint))) {
+	if (Boolean.TRUE.equals(
+		getElement().getAttributes().getAttribute(
+				MoeEditor.BREAKPOINT))) {
 	    // draw break symbol
 	    g.drawImage(breakImage, bounds.x-1, bounds.y, null);
 	}

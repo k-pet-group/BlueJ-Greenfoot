@@ -94,7 +94,7 @@ public final class Info extends JPanel
   public void clear()
   {
     if (!isClear) {
-      message ("", "");
+      message (" ", " ");
       isClear = true;
     }
   }

@@ -129,24 +129,16 @@ public class VMEventHandler implements Runnable {
 //          }
     }
 
-//      private void setCurrentThread(ThreadReference tr) {
-//          ThreadInfo.invalidateAll();
-//          ThreadInfo.setCurrentThread(tr); 
-//      }
-
     private boolean breakpointEvent(Event event)
     {
-        debugger.breakpointEvent((BreakpointEvent)event);
+        debugger.breakEvent((LocatableEvent)event, true);
         return false;
     }
 
     private boolean stepEvent(Event event)
     {
-	Debug.message("[VM Event] stepEvent");
-//          StepEvent se = (StepEvent)event;
-//          setCurrentThread(se.thread()); 
-//          notifier.stepEvent(se);
-        return true;
+        debugger.breakEvent((LocatableEvent)event, false);
+        return false;
     }
 
     private boolean classPrepareEvent(Event event)

@@ -13,7 +13,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: Debugger.java 111 1999-06-04 06:16:57Z mik $
+ ** @version $Id: Debugger.java 124 1999-06-14 07:26:17Z mik $
  **/
 
 public abstract class Debugger
@@ -43,20 +43,24 @@ public abstract class Debugger
      */
     protected abstract void startDebugger();
 
+
     /**
      * Finish debugging
      */
     protected abstract void endDebugger();
 
+
     /**
      * Create a class loader
      */
-    public abstract DebuggerClassLoader createClassLoader(String scopeId, String classpath);
+    public abstract DebuggerClassLoader createClassLoader(String scopeId, 
+							  String classpath);
 
     /**
      * Remove a class loader
      */
     public abstract void removeClassLoader(DebuggerClassLoader loader);
+
 
     /**
      * Add an object to a package scope. The object is held in field
@@ -65,10 +69,17 @@ public abstract class Debugger
     public abstract void addObjectToScope(String scopeId, String instanceName, 
 				 String fieldName, String newObjectName);
 
+
     /**
      * Remove an object from a package scope (when removed from object bench)
      */
     public abstract void removeObjectFromScope(String scopeId, String instanceName);
+
+
+    /**
+     * Return true if the remote machine is currently executing.
+     */
+    public abstract boolean isRunning(); 
 
 
     /**
@@ -77,11 +88,13 @@ public abstract class Debugger
     public abstract void startClass(DebuggerClassLoader loader, 
 				    String classname, Object eventParam);
 
+
     /**
      * Get the value of a static field in a class
      */
     public abstract DebuggerObject getStaticValue(String className, String fieldName)
 	throws Exception;
+
 	
     /**
      * Set/clear a breakpoint at a specified line in a class.
@@ -94,23 +107,31 @@ public abstract class Debugger
 					    boolean set, 
 					    DebuggerClassLoader loader);
 
+
     /**
      * Return the status of the last invocation. One of (NORMAL_EXIT,
      * FORCED_EXIT, EXCEPTION, BREAKPOINT).
      */ 
     public abstract int getExitStatus();
 
+
     /**
      * Return a description of the last exception.
      */
     public abstract ExceptionDescription getException();
 
+
     /**
      * List all the threads being debugged as a Vector containing elements
-     * of type DebuggerThread.
+     * of type DebuggerThread. Filter out threads that belong to system,
+     * returning only user threads. This can be done only if the machine
+     * is currently suspended.
+     *
+     * @return  A vector of threads, or null if the machine is currently
+     *		running
      */
-    public abstract Vector listThreads()
-	throws Exception;
+    public abstract Vector listThreads();
+
 
     /**
      * A thread has been stopped by the user. Make sure that the source 
@@ -118,15 +139,18 @@ public abstract class Debugger
      */
     public abstract void threadStopped(DebuggerThread thread);
 
+
     /**
      * A thread has been started again by the user. Make sure that it 
      * is indicated in the interface.
      */
     public abstract void threadContinued(DebuggerThread thread);
 
+
     /**
      * Arrange to show the source location for a specific frame number
-     * of a specific thread.
+     * of a specific thread. The currently selected frame is stored in the
+     * thread object itself.
      */
-    public abstract void showSource(DebuggerThread thread, int frameNo);
+    public abstract void showSource(DebuggerThread thread);
 }

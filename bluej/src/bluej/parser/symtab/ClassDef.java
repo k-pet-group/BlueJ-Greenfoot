@@ -178,6 +178,8 @@ class ClassDef extends HasImports
     /** Collect information about the class */
     public void getInfo(ClassInfo info, SymbolTable symbolTable) {
 
+	info.setName(getName());
+
 	if(isInterface())
 	    info.setInterface(true);
 

@@ -1,12 +1,12 @@
 package bluej.compiler;
 
-import sun.tools.javac.JavacWatcher;
-
 /**
- ** @version $Id: CompileObserver.java 114 1999-06-08 04:02:49Z mik $
- ** @author Michael Cahill
  ** CompileObserver interface - classes that are interested in compilation
  ** can implement this interface
+ **
+ ** @author Michael Cahill
+ **
+ ** @version $Id: CompileObserver.java 124 1999-06-14 07:26:17Z mik $
  **/
 
 public interface CompileObserver

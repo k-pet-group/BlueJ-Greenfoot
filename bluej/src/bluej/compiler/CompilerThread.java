@@ -1,10 +1,11 @@
 package bluej.compiler;
 
 import bluej.Config;
+import bluej.utility.Debug;
 import bluej.utility.Queue;
 
 /**
- ** @version $Id: CompilerThread.java 93 1999-05-28 00:54:37Z mik $
+ ** @version $Id: CompilerThread.java 124 1999-06-14 07:26:17Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -40,7 +41,7 @@ public class CompilerThread extends Thread
 	    }
 	}
     }
-	
+
     public synchronized void addJob(Job job)
     {
 	jobs.enqueue(job);

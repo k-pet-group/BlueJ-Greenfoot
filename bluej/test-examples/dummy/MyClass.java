@@ -15,10 +15,10 @@ public class MyClass
     /**
      ** Constructor for objects of class MyClass
      **/
-    public MyClass(int a)
+    public MyClass()
     {
         	// initialise instance variables
-        x = a;
+        x = 4;
         	name = "Michael";
         tst  = new Tester();
     }
@@ -33,12 +33,13 @@ public class MyClass
         	int sum = 44;
         Tester t;
 
-        	for (int i=0; i<10; i++) {
+        for (int i=0; i<10; i++) {
             sum = sum + i;
             sum = sum -200;
         }
         t = new Tester();
-        	return t.goodtest();
+        	sum = t.goodtest();
+        return sum + 2;
     }
 
     public int loop(int count)
@@ -56,7 +57,7 @@ public class MyClass
     {
         int sum = 0;
 
-        for (int i=0; i<5000000; i++) {
+        for (int i=0; i<20000000; i++) {
           sum = sum + i;
           sum = sum -200;
         }

@@ -20,7 +20,7 @@ import javax.swing.border.Border;
 import javax.swing.JSplitPane;
 
 /**
- ** @version $Id: ObjectViewer.java 111 1999-06-04 06:16:57Z mik $
+ ** @version $Id: ObjectViewer.java 124 1999-06-14 07:26:17Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -60,7 +60,7 @@ public final class ObjectViewer extends JFrame
     private Package pkg;
     private String pkgScopeId;
     private boolean getEnabled;
-
+    private boolean isInScope;
     private boolean queryArrayElementSelected;
 
     private String viewerId;		// a unique ID used to enter the 
@@ -138,6 +138,7 @@ public final class ObjectViewer extends JFrame
 	this.pkg = pkg;
 	viewerId = id;
 	this.getEnabled = getEnabled;
+	isInScope = false;
 	if(pkg == null) {
 	    if(getEnabled)
 		Debug.reportError("cannot enable 'get' with null package");
@@ -393,7 +394,6 @@ public final class ObjectViewer extends JFrame
     }
 
 
-
     /**
      * The "Inspect" button was pressed. Inspect the
      * selected object.
@@ -414,10 +414,7 @@ public final class ObjectViewer extends JFrame
 	    // If the newly opened object is public, enter it into the
 	    // package scope, so that we can perform "Get" operations on it.
 	    if(isPublic)
-		Debugger.debugger.addObjectToScope(pkgScopeId, viewerId,
-						   selectedObjectName,
-						   viewer.viewerId);
-	
+		viewer.addToScope(viewerId, selectedObjectName);
 	}
     }
 
@@ -438,6 +435,20 @@ public final class ObjectViewer extends JFrame
 					   wrapper.getName());
     }
 
+    
+    /**
+     * 
+     * 
+     */
+    private void addToScope(String parentViewerId, String objectName)
+    {
+	Debugger.debugger.addObjectToScope(pkgScopeId, parentViewerId,
+					   objectName, viewerId);
+	isInScope = true;
+    }
+
+
+
     /**
      * Close this viewer. Don't forget to remove it from the list of open 
      * viewers.
@@ -451,7 +462,7 @@ public final class ObjectViewer extends JFrame
 	// if the object shown here is not on the object bench, also
 	// remove it from the package scope
 
-	if(viewerId.charAt(0) == '#')
+	if(isInScope && (viewerId.charAt(0) == '#'))
 	    Debugger.debugger.removeObjectFromScope(pkgScopeId, viewerId);
     }
 

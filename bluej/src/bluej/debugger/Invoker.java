@@ -1,12 +1,12 @@
 package bluej.debugger;
 
 import bluej.Config;
+import bluej.BlueJEvent;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 import bluej.compiler.CompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.pkgmgr.Package;
-import bluej.runtime.Shell;
-import bluej.utility.Utility;
 import bluej.views.ConstructorView;
 import bluej.views.LabelPrintWriter;
 import bluej.views.MemberView;
@@ -18,12 +18,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Hashtable;
-import sun.tools.java.ClassDeclaration;
-import sun.tools.javac.SourceClass;
-import sun.tools.javac.BatchEnvironment;
 
 /**
- ** @version $Id: Invoker.java 114 1999-06-08 04:02:49Z mik $
+ ** @version $Id: Invoker.java 124 1999-06-14 07:26:17Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -384,11 +381,11 @@ public class Invoker extends Thread
     public void startClass()
     {
 	try {
-	    pkg.getFrame().startExecution();
+	    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, null);
 	    DebuggerClassLoader loader = pkg.getRemoteClassLoader();
 	    String shellClassName = pkg.getQualifiedName(shellName);
 	    Debugger.debugger.startClass(loader, shellClassName, pkg);
-	    pkg.getFrame().stopExecution();
+	    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, null);
 
 	    // the execution is completed, get the result if there was one
 	    // (this could be either a construction of a function result)

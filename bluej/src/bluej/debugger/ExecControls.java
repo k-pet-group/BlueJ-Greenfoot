@@ -3,7 +3,6 @@ package bluej.debugger;
 import bluej.Config;
 import bluej.utility.Debug;
 
-import java.util.Hashtable;
 import java.util.Vector;
 import java.awt.*;
 import java.awt.event.*;
@@ -12,7 +11,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
- ** @version $Id: ExecControls.java 111 1999-06-04 06:16:57Z mik $
+ ** @version $Id: ExecControls.java 124 1999-06-14 07:26:17Z mik $
  ** @author Michael Kolling
  **
  ** Window for controlling the debugger
@@ -42,6 +41,8 @@ public class ExecControls extends JFrame
 						//  selected
     private DebuggerObject currentObject;	// the "this" object for the
 						//  selected stack frame
+    private boolean machineIsRunning = false;
+
 
     public ExecControls()
     {
@@ -102,6 +103,9 @@ public class ExecControls extends JFrame
 	if(event.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
 	    return;
 
+	if(machineIsRunning)		// we don't show anything while the
+	    return;			//  machine is running
+
 	Object src = event.getSource();
 
 	if(src == threadList) {
@@ -135,35 +139,26 @@ public class ExecControls extends JFrame
 	DefaultListModel listModel = (DefaultListModel)threadList.getModel();
 	listModel.removeAllElements();
 
-	try {
-	    // remember all the threads that are explicitly halted
-	    Hashtable haltedThreads = new Hashtable();
+	threads = Debugger.debugger.listThreads();
+
+	if(threads == null) {
+	    // machine is currently running - can't inspect
+	    listModel.addElement("(machine is running)");
+	    machineIsRunning = true;
+	}
+	else {
+	    machineIsRunning = false;
 	    for(int i = 0; i < threads.size(); i++) {
 		DebuggerThread thread = (DebuggerThread)threads.get(i);
-		if(thread.isHalted())
-		    haltedThreads.put(thread.getName(), "");
+		String status = thread.getStatus();
+		if(! status.equals("finished"))
+		    listModel.addElement(thread.getName() + " ["+status+"]");
 	    }
-	    threads = Debugger.debugger.listThreads();
-
-	    for(int i = 0; i < threads.size(); i++) {
-		DebuggerThread thread = (DebuggerThread)threads.get(i);
-		if(haltedThreads.get(thread.getName()) != null)
-		    thread.setHalted(true);
-	    }
-	} catch(Exception e) {
-	    Debug.reportError("could not get thread information: " + e);
-	    return;
+	    if(listModel.getSize() > 0)
+		threadList.setSelectedIndex(0);  // always select the first one
+	    else
+		clearThreadDetails();
 	}
-
-	for(int i = 0; i < threads.size(); i++) {
-	    DebuggerThread thread = (DebuggerThread)threads.get(i);
-	    listModel.addElement(thread.getName() + " [" + 
-				 thread.getStatus() + "]");
-	}
-	if(listModel.getSize() > 0)
-	    threadList.setSelectedIndex(0);  // always select the first one
-	else
-	    clearThreadDetails();
     }
 	
     private void selectThread(int index)
@@ -199,9 +194,11 @@ public class ExecControls extends JFrame
 
     private void selectStackFrame(int index)
     {
-	if (index >= 0)
+	if (index >= 0) {
 	    setStackFrameDetails(index);
-	Debugger.debugger.showSource(selectedThread, index);
+	    selectedThread.setSelectedFrame(index);
+	    Debugger.debugger.showSource(selectedThread);
+	}
     }
 	
     private void setStackFrameDetails(int frameNo)

@@ -127,9 +127,12 @@ public final class MoeActions
 		keymap.addActionForKeyStroke(keyStroke, this);
 	}
 
+	/* side effect: clears message in editor! */
 	protected MoeEditor getEditor(ActionEvent e) {
 	    JTextComponent textComponent = getTextComponent(e);
-	    return (MoeEditor)textComponent.getTopLevelAncestor();
+	    MoeEditor ed = (MoeEditor)textComponent.getTopLevelAncestor();
+	    ed.clearMessage();
+	    return ed;
 	}
     }
 
@@ -304,6 +307,7 @@ public final class MoeActions
 	}
 
 	public void actionPerformed(ActionEvent e) {
+	    getEditor(e);
 	    JTextComponent textPane = getTextComponent(e);
 	    int pos = textPane.getCaretPosition();
 	    textPane.replaceSelection(
@@ -332,6 +336,7 @@ public final class MoeActions
 	}
 
 	public void actionPerformed(ActionEvent e) {
+	    getEditor(e);
 	    JTextComponent textPane = getTextComponent(e);
 	    Element line = getCurrentLine(textPane);
 	    int lineStart = line.getStartOffset();
