@@ -5,11 +5,13 @@ import java.util.Iterator;
 import java.awt.geom.*;
 
 /**
- * General graph
+ * A superclass representing a general graph structure. The graph consists of vertices
+ * and edges. All three classes (Graph, Vertex, Edge) should be subclassed to create
+ * a specific graph implementation. 
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Graph.java 2787 2004-07-12 14:12:42Z mik $
+ * @version $Id: Graph.java 2788 2004-07-12 17:04:24Z mik $
  */
 public abstract class Graph
 {
@@ -20,6 +22,13 @@ public abstract class Graph
     public abstract Iterator getEdges();
     
     
+    /**
+     * Return the minimum size of this graph. The minimum size depends on the
+     * position of the elements in this graph. It is calculated
+     * so that all graph elements are visible within it.
+     * 
+     * @return The minimum size.
+     */
     public Dimension getMinimumSize()
     {
         int minWidth = 1;
@@ -38,6 +47,13 @@ public abstract class Graph
     }
 
     
+    /**
+     * Position the given vertex nicely in the graph. Thsi usually means
+     * that it will be placed somewhere near the top where it does not
+     * overlap with existing vertices.
+     * 
+     * @param t The vertex to place.
+     */
     public void findSpaceForVertex(Vertex t)
     {
         Area a = new Area();
@@ -78,14 +94,12 @@ public abstract class Graph
     
     /**
      * Finds the graphElement that covers the coordinate x,y. If no element is
-     * found, null is returned. If a Vertex and an Edge both covers x, y the
+     * found, null is returned. If a Vertex and an Edge both cover (x,y) the
      * Vertex will be returned.
      * 
-     * @param x
-     *            the x coordinate
-     * @param y
-     *            the x coordinate
-     * @return GraphElement
+     * @param x  The x coordinate of the point to check
+     * @param y  The x coordinate of the point to check
+     * @return  A graph element at this point, or null.
      */
     public SelectableGraphElement findGraphElement(int x, int y)
     {
