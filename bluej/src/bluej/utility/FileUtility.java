@@ -10,7 +10,7 @@ import java.io.File;
 
 
 /**
- * A file utility for various file related actions. 
+ * A file utility for various file related actions.
  *
  * @version $ $
  * @author Markus Ostman, but most of the methods are just copied across
@@ -28,7 +28,7 @@ public class FileUtility
      *  Get a file name from the user, using a file selection dialogue.
      *  If cancelled or an invalid name was specified, return null.
      */
-    public static String getFileName(Component parent, String title, 
+    public static String getFileName(Component parent, String title,
                                      String buttonLabel)
     {
         JFileChooser newChooser = getFileChooser(false);
@@ -50,7 +50,8 @@ public class FileUtility
      * Return a BlueJ package chooser, i.e. a file chooser which
      * recognises BlueJ packages and treats them differently.
      */
-    public static PackageChooser getPackageChooser() {
+    public static JFileChooser getPackageChooser()
+    {
         if(pkgChooser == null)
             pkgChooser = new PackageChooser(
                            Config.getPropString("bluej.defaultProjectPath",
@@ -64,7 +65,9 @@ public class FileUtility
     public static JFileChooser getFileChooser(boolean directoryOnly)
     {
         if(fileChooser == null) {
-            fileChooser = new BluejFileChooser(Config.getPropString("bluej.defaultProjectPath", "."), directoryOnly);
+            fileChooser = new BluejFileChooser(
+                            Config.getPropString("bluej.defaultProjectPath",
+                                                 "."), directoryOnly);
         }
 
         return fileChooser;
@@ -76,11 +79,11 @@ public class FileUtility
      * To serve our purposes we need to redefine some of the methods
      * in JFileChooser.
      *
-     * Why is this Class static? Well since it is a nested class and 
-     * it needs to be instantiated in a class (static) method, this 
-     * seems to be the only way to do it. 
-     * Normally an inner class is instantiated by an instance of the 
-     * outer class but in this case it is the outer class itself that 
+     * Why is this Class static? Well since it is a nested class and
+     * it needs to be instantiated in a class (static) method, this
+     * seems to be the only way to do it.
+     * Normally an inner class is instantiated by an instance of the
+     * outer class but in this case it is the outer class itself that
      * instantiate it.
      */
     private static class BluejFileChooser extends JFileChooser
@@ -101,7 +104,7 @@ public class FileUtility
         }
 
         /**
-         * A directory was double-clicked. If it is a BlueJ package maybe 
+         * A directory was double-clicked. If it is a BlueJ package maybe
          * we want to treat it differently
          */
         public void setCurrentDirectory(File dir)    // redefined
@@ -109,7 +112,7 @@ public class FileUtility
             //Here we could treat bluej package differently
             //At the moment nothing is done.
             if (Package.isBlueJPackage(dir)) {
-                setSelectedFile(new File("")); 
+                setSelectedFile(new File(""));
                 super.setCurrentDirectory(dir);
             }
             else{
@@ -118,8 +121,8 @@ public class FileUtility
             }
         }
     }
-        
-        
+
+
 }
 
 
