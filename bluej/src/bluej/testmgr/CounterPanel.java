@@ -7,7 +7,10 @@ import javax.swing.*;
 import bluej.Config;
 
 /**
- * A panel with test run counters
+ * A panel with test run counters.
+ *
+ * @author  Andrew Patterson (derived from JUnit src)
+ * @version $Id: CounterPanel.java 1882 2003-04-24 06:28:11Z ajp $
  */
 public class CounterPanel extends JPanel
 {

@@ -1,56 +1,57 @@
 package bluej.testmgr;
 
 /**
- * Records a single user interaction with the object construction
- * mechanisms of BlueJ.
+ * Records a single user interaction with the 
+ * object inspection mechanisms of BlueJ.
+ * 
+ * This record is for objects accessed through inspectors
+ * (not currently working).
  *
  * @author  Andrew Patterson
- * @version $Id: ObjectInspectInvokerRecord.java 1727 2003-03-26 04:23:18Z ajp $
+ * @version $Id: ObjectInspectInvokerRecord.java 1882 2003-04-24 06:28:11Z ajp $
  */
 public class ObjectInspectInvokerRecord extends InvokerRecord
 {
     private String type;
     private String name;
-    
+
+	/**
+	 * Object inspection from an initial result.
+	 * 
+	 * @param type
+	 * @param name
+	 */    
     public ObjectInspectInvokerRecord(String type, String name)
     {
         this.type = type;
         this.name = name;
     }
 
+	/**
+	 * Object inspection from another inspector.
+	 * 
+	 * @param type
+	 * @param name
+	 * @param ir
+	 */
     public ObjectInspectInvokerRecord(String type, String name, InvokerRecord ir)
     {
         this.type = type;
         this.name = name;
     }
 
-    public boolean hasReturnValue()
-    {
-        return true;
-    }
-        
-    public Class getReturnType()
-    {
-        return String.class;    
-    }
-    
-    public boolean isConstructor()
-    {
-        return false;        
-    }
-
-    public String toTestMethod()
-    {
-        return "\t\t" + type + ";\n";
-    }
-
     public String toFixtureDeclaration()
     {
-        return "";
+        return null;
     }
     
     public String toFixtureSetup()
     {
-        return "\t\t" + type + ";\n";
+        return secondIndent + type + statementEnd;
     }
+
+	public String toTestMethod()
+	{
+		return firstIndent + type + statementEnd;
+	}
 }

@@ -5,7 +5,10 @@ import java.awt.Color;
 import javax.swing.JProgressBar;
 
 /**
- * A progress bar showing the green/red status
+ * A progress bar showing the green/red status.
+ *
+ * @author  Andrew Patterson (derived from JUnit src)
+ * @version $Id: ProgressBar.java 1882 2003-04-24 06:28:11Z ajp $
  */
 class ProgressBar extends JProgressBar
 {

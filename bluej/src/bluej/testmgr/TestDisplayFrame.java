@@ -11,6 +11,9 @@ import bluej.debugger.DebuggerTestResult;
 
 /**
  * A Swing based user interface to run tests.
+ *
+ * @author  Andrew Patterson
+ * @version $Id: TestDisplayFrame.java 1882 2003-04-24 06:28:11Z ajp $
  */
 public class TestDisplayFrame
 {

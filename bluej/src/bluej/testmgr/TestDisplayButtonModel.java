@@ -1,15 +1,16 @@
 package bluej.testmgr;
 
-import javax.swing.JToggleButton;
+import javax.swing.JToggleButton.ToggleButtonModel;
 
 /**
  * ButtonModel for the "Show Test Runner" checkBoxItem in the menu.
  * This model takes care that the right things happen when the checkbox
  * is shown or changed.
  *
- * @author Michael Kolling
+ * @author  Michael Kolling
+ * @version $Id: TestDisplayButtonModel.java 1882 2003-04-24 06:28:11Z ajp $
  */
-public class TestDisplayButtonModel extends JToggleButton.ToggleButtonModel
+public class TestDisplayButtonModel extends ToggleButtonModel
 {
     long timeStamp = 0;  // for bug fix
 
@@ -20,19 +21,6 @@ public class TestDisplayButtonModel extends JToggleButton.ToggleButtonModel
 
     public void setSelected(boolean b)
     {
-        // this is a workaround for a MacOS/Java bug: JCheckBoxMenuItems in menus
-        // fire twice when screenmenubar is true.
-        // -- unused at the moment because we are not using the screen menu bar
-        /*
-        long now = System.currentTimeMillis();
-        if (now - timeStamp > 1000) { // Filter redundant calls
-            System.out.println("   executing");
-            timeStamp = now;
-            super.setSelected(b);
-            Terminal.getTerminal().showTerminal(b);
-        }
-        */
-
         super.setSelected(b);
         TestDisplayFrame.getTestDisplay().showTestDisplay(b);
     }

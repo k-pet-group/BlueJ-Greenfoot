@@ -1,48 +1,37 @@
 package bluej.testmgr;
 
 /**
- * Records a single user interaction with the object construction/
+ * Records a single user interaction with the 
  * method call mechanisms of BlueJ.
+ * 
+ * This record is for method calls with no result.
  *
  * @author  Andrew Patterson
- * @version $Id: VoidMethodInvokerRecord.java 1727 2003-03-26 04:23:18Z ajp $
+ * @version $Id: VoidMethodInvokerRecord.java 1882 2003-04-24 06:28:11Z ajp $
  */
 public class VoidMethodInvokerRecord extends InvokerRecord
 {
-    private String command;
+    protected String command;
     
     public VoidMethodInvokerRecord(String command)
     {
         this.command = command;
     }
 
-    public boolean hasReturnValue()
-    {
-        return false;
-    }
-        
-    public Class getReturnType()
-    {
-        return null;    
-    }
-    
-    public boolean isConstructor()
-    {
-        return false;        
-    }
-
-    public String toTestMethod()
-    {
-        return "\t\t" + command + ";\n";
-    }
-
     public String toFixtureDeclaration()
     {
-        return "";
+        return null;
     }
     
     public String toFixtureSetup()
     {
-        return "\t\t" + command + ";\n";
+    	// code for the fixture setup involves just inserting the method call
+        return firstIndent + command + statementEnd;
     }
+
+	public String toTestMethod()
+	{
+		// code for the test method involves just inserting the method call
+		return firstIndent + command + statementEnd;
+	}
 }

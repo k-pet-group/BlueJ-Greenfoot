@@ -5,7 +5,7 @@ package bluej.testmgr;
  * mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ConstructionInvokerRecord.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: ConstructionInvokerRecord.java 1882 2003-04-24 06:28:11Z ajp $
  */
 public class ConstructionInvokerRecord extends InvokerRecord
 {
@@ -18,21 +18,6 @@ public class ConstructionInvokerRecord extends InvokerRecord
         this.type = type;
         this.name = name;
         this.command = command;
-    }
-
-    public boolean hasReturnValue()
-    {
-        return true;
-    }
-        
-    public Class getReturnType()
-    {
-        return String.class;    
-    }
-    
-    public boolean isConstructor()
-    {
-        return true;        
     }
 
     public String toTestMethod()

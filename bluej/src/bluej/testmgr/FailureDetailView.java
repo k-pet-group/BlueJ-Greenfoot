@@ -7,6 +7,9 @@ import javax.swing.*;
 
 /**
  * A view that shows a stack trace of a failure
+ *
+ * @author  Andrew Patterson (derived from JUnit src)
+ * @version $Id: FailureDetailView.java 1882 2003-04-24 06:28:11Z ajp $
  */
 public class FailureDetailView
 {
