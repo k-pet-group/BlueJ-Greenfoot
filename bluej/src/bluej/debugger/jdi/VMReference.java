@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 2844 2004-08-06 00:36:42Z davmac $
+ * @version $Id: VMReference.java 2857 2004-08-09 01:53:13Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -802,17 +802,22 @@ class VMReference
         //        }
     }
 
+    /**
+     * Invoke an arbitrary method on an object, using the worker thread.
+     * If the called method exits via an exception, this method returns null.
+     * 
+     * @param o     The object to invoke the method on
+     * @param m     The method to invoke
+     * @param args  The arguments to pass to the method (List of Values)
+     * @return      The return Value from the method
+     */
     private Value safeInvoke(ObjectReference o, Method m, List args)
     {
         breakpointWait(workerThread);
         Value v = null;
 
         try {
-        v = o.invokeMethod(workerThread, m, args, ObjectReference.INVOKE_SINGLE_THREADED);
-
-        // we shouldn't return until the thread makes it back to its
-        // breakpoint
-        breakpointWait(workerThread);
+            v = o.invokeMethod(workerThread, m, args, ObjectReference.INVOKE_SINGLE_THREADED);
         }
         catch(ClassNotLoadedException cnle) { }
         catch(InvalidTypeException ite) { }
@@ -837,7 +842,6 @@ class VMReference
             List getStackTraceMethods = remoteType.methodsByName("getStackTrace");
             Method getStackTrace = (Method)getStackTraceMethods.get(0);
             ArrayReference stackValue = (ArrayReference)safeInvoke(exc.exception(),  getStackTrace, empty);
-            machine.resume();
                                                                                                                        
             ObjectReference [] stackt = (ObjectReference [])stackValue.getValues().toArray(new ObjectReference[0]);
             List stack = new LinkedList();

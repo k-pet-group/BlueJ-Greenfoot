@@ -20,7 +20,7 @@ import junit.framework.*;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2843 2004-08-06 00:01:41Z davmac $
+ * @version $Id: ExecServer.java 2857 2004-08-09 01:53:13Z davmac $
  */
 public class ExecServer
 {
@@ -675,11 +675,11 @@ public class ExecServer
         mainThread = new Thread("main") {
             public void run()
             {
-                //try {
-                //if(oldThread != null)
-                //    oldThread.join();
-                //}
-                //catch(InterruptedException ie) { }
+                try {
+                if(oldThread != null)
+                    oldThread.join();
+                }
+                catch(InterruptedException ie) { }
                 
                 vmStarted();
                 // int count = 0;
@@ -689,45 +689,44 @@ public class ExecServer
                 // VM has failed and therefore the breakpoint has been removed -
                 // in this case we will fall through the loop and exit)
                 //while(count++ < 100000 && ! shouldDie) {
-                    // Wait for a command from the BlueJ VM
-                    vmSuspend();
-
-                    // Execute the command
-                    methodReturn = null;
-                    exception = null;
-                    try {
-                        switch(execAction) {
-                            case EXEC_SHELL:
-                                // Execute a shell class.
-                                Class c = currentLoader.loadClass(classToRun);
-                                Method m = c.getMethod("run", new Class[0]);
-                                try {
-                                    methodReturn = m.invoke(null, new Object[0]);
-                                }
-                                catch(InvocationTargetException ite) {
-                                    throw ite.getCause();
-                                }
-                                break;
-                            case TEST_SETUP:
-                                methodReturn = runTestSetUp(classToRun);
-                                break;
-                            case TEST_RUN:
-                                methodReturn = runTestMethod(classToRun, methodToRun);
-                                break;
-                            case DISPOSE_WINDOWS:
-                                disposeWindows();
-                            default:
-                        }
+                // Wait for a command from the BlueJ VM
+                vmSuspend();
+                
+                // Execute the command
+                methodReturn = null;
+                exception = null;
+                try {
+                    switch(execAction) {
+                        case EXEC_SHELL:
+                            // Execute a shell class.
+                            Class c = currentLoader.loadClass(classToRun);
+                            Method m = c.getMethod("run", new Class[0]);
+                            try {
+                                methodReturn = m.invoke(null, new Object[0]);
+                            }
+                            catch(InvocationTargetException ite) {
+                                throw ite.getCause();
+                            }
+                            break;
+                        case TEST_SETUP:
+                            methodReturn = runTestSetUp(classToRun);
+                            break;
+                        case TEST_RUN:
+                            methodReturn = runTestMethod(classToRun, methodToRun);
+                            break;
+                        case DISPOSE_WINDOWS:
+                            disposeWindows();
+                        default:
                     }
-                    catch(Throwable t) {
-                        exception = t;
-                        // throw new BlueJRuntimeException(t);
-                    }
-                    finally {
-                        newThread();
-                    }
-                //}
-           }
+                }
+                catch(Throwable t) {
+                    exception = t;
+                    // throw new BlueJRuntimeException(t);
+                }
+                finally {
+                    newThread();
+                }
+            }
         };
         mainThread.start();
     }
