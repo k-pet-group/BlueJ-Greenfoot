@@ -1,11 +1,5 @@
 <project name="bluej-package" default="dist" basedir=".">
 
-    <patternset id="bluej.images">
-        <exclude name="**/.#*" />
-        <include name="images/*.gif" />
-        <include name="images/*.jpg" />
-    </patternset>
-
     <patternset id="bluej.libfiles">
         <exclude name="**/.#*" />
         <include name="lib/antlr.jar" />
@@ -18,6 +12,8 @@
     <patternset id="bluej.libdirs">
         <exclude name="**/.#*" />
         <include name="lib/inspector/ListInspector*.class" />
+        <include name="lib/images/*.gif" />
+        <include name="lib/images/*.jpg" />
         <include name="lib/english/" />
         <include name="lib/german/" />
         <include name="lib/swedish/" />
@@ -57,7 +53,6 @@
         <!-- construct the directory structure we want for the distribution -->
         <copy todir="install_tmp">
             <fileset dir="${bluej_home}" >
-                <patternset refid="bluej.images"/>
                 <patternset refid="bluej.libfiles"/>
                 <patternset refid="bluej.libdirs"/>
                 <patternset refid="bluej.examples"/>
@@ -80,8 +75,9 @@
 
 	<chmod dir="install_tmp" perm="a+r"/>
 
-        <!-- jar the entire distribution into one jar file -->
-        <jar jarfile="bluej-dist.jar"
+        <!-- jar the entire distribution into one jar file            -->
+        <!-- (use zip instead of jar to avoid generation of manifest) -->
+        <zip zipfile="bluej-dist.jar"
              basedir="install_tmp"
              compress="yes"
         />
