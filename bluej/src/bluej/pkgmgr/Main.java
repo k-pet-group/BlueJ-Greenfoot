@@ -15,29 +15,19 @@ import java.util.Vector;
  * (i.e. whether to just start the editor or whether to start the
  * package manager.
  *
- * @version $Id: Main.java 278 1999-11-16 00:58:12Z ajp $
+ * @version $Id: Main.java 416 2000-03-14 03:03:13Z ajp $
  * @author Michael Kolling
  * @author Michael Cahill
  */
 public class Main
 {
     private static Hashtable packages = new Hashtable();
-    private static Vector libDirs = new Vector();
-	
+
     /**
-     ** Start everything off
-     **/
+     * Start everything off
+     */
     public static void main(String[] args)
     {
-        // Initialise library path
-        String libPath = Config.getPath("bluej.libPath", "");
-        int pos = 0;
-        char pathSep = File.pathSeparatorChar;
-        for(int next = libPath.indexOf(pathSep, pos); next != -1; pos = next + 1)
-            libDirs.addElement(libPath.substring(pos, next - 1));
-        if(libPath.length() > 0)
-            libDirs.addElement(libPath.substring(pos, libPath.length() - 1));
-
         if(args.length == 0) {
             // No arguments, so start an empty package manager window
             PkgMgrFrame frame = PkgMgrFrame.createFrame(null);
@@ -52,7 +42,7 @@ public class Main
 
         // start the MachineLoader (a separate thread) to load the
         // remote virtual machine in the background
-        
+
         MachineLoader machineLoader = new MachineLoader();
         // lower priority to improve GUI response time
         machineLoader.setPriority(Thread.currentThread().getPriority() - 1);
@@ -63,7 +53,7 @@ public class Main
         packages.put(pkg.getId(), pkg);
     }
 
-    public static void removePackage(Package pkg) { 
+    public static void removePackage(Package pkg) {
         packages.remove(pkg.getId());
     }
 
@@ -71,12 +61,12 @@ public class Main
     {
         return (Package)packages.get(pkgname);
     }
-	
+
     public static PkgFrame getFrame(String pkgname)
     {
         return getPackage(pkgname).getFrame();
     }
-	
+
     public static Package openPackage(String pkgname)
     {
         return openPackage(null, pkgname);
@@ -86,7 +76,7 @@ public class Main
     {
         // Check whether it's already open
         Package pkg = getPackage(pkgname);
-		
+
 	if(pkg == null) { // if not, then search the library path to open it
 	    String pkgdir = pkgname.replace('.', File.separatorChar);
 
@@ -97,18 +87,8 @@ public class Main
 		if(new File(pkgfile).exists())
 		    return PkgMgrFrame.createFrame(fulldir).getPackage();
 	    }
-
-	    for(Enumeration e = libDirs.elements(); e.hasMoreElements(); ) {
-		String dirname = (String)e.nextElement();
-
-		String fulldir = dirname + File.separator + pkgdir;
-		String pkgfile = fulldir + File.separator + Package.pkgfileName;
-		
-		if(new File(pkgfile).exists())
-		    return PkgMgrFrame.createFrame(fulldir).getPackage();
-	    }
 	}
-		
+
         return pkg;
     }
 
@@ -118,17 +98,17 @@ public class Main
     public static Package[] getAllOpenPackages() {
         if (packages.size() == 0)
             return null;
-        
+
         Package openPackages[] = new Package[packages.size()];
 
         Enumeration allPackages = packages.elements();
         for (int current = 0; current < openPackages.length && allPackages.hasMoreElements(); current++) {
             openPackages[current] = (Package)allPackages.nextElement();
         }
-        
+
         if (openPackages.length == 0)
             return null;
-        
+
         return openPackages;
     }
 }

@@ -38,7 +38,7 @@ import java.util.Properties;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 411 2000-03-13 02:54:47Z markus $
+ * @version $Id: Config.java 416 2000-03-14 03:03:13Z ajp $
  */
 
 public class Config
@@ -53,12 +53,7 @@ public class Config
     private static String bluej_home;
     private static String sys_confdir;
     private static String user_confdir;
-/*    public static int fontsize;
-    public static int editFontsize;
-    public static int printFontsize;
-    public static int printTitleFontsize;
-    public static int printInfoFontsize;
-*/
+
     public static String compilertype;	// current compiler (javac, jikes)
     public static String language;	// message language (english, ...)
 
@@ -110,17 +105,11 @@ public class Config
         bluej_props = loadDefs("bluej.defs", true);	// system definitions
         loadProperties("bluej", bluej_props);	// user specific definitions
 
-        language = bluej_props.getProperty("bluej.language");
+        // find our language (but default to english if none found)
+        language = bluej_props.getProperty("bluej.language", "english");
         lang_props = loadDefs("labels." + language, false);
 
         moe_props = loadDefs("moe.defs", false);
-
-/*        fontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize","12"));
-        editFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.editor","12"));
-        printFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printText","10"));
-        printTitleFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printTitle","14"));
-        printInfoFontsize = Integer.parseInt(bluej_props.getProperty("bluej.fontsize.printInfo","10"));
-*/
 
         checkDebug(user_confdir);
         compilertype = Config.getPropString("bluej.compiler.type");
@@ -321,9 +310,9 @@ public class Config
         return value;
     }
 
-    public static void removeProperty(String propertyName)
+    public static String removeProperty(String propertyName)
     {
-        bluej_props.remove(propertyName);
+        return (String)(bluej_props.remove(propertyName));
     }
 
     public static String getLibFilename(String propname)
@@ -391,45 +380,6 @@ public class Config
         return null;
     }
 
-    public static String getPath(String propname)
-    {
-        return getPath(bluej_props, propname, null);
-    }
-
-    public static String getPath(String propname, String defpath)
-    {
-        return getPath(bluej_props, propname, defpath);
-    }
-
-    public static String getPath(Properties props, String propname)
-    {
-        return getPath(props, propname, null);
-    }
-
-    public static String getPath(Properties props, String propname, String defPath)
-    {
-        String canonPath = props.getProperty(propname, defPath);
-
-        if(canonPath == null)
-            return null;
-
-        String path = canonPath.replace('/', File.separatorChar);
-        path = path.replace(';', File.pathSeparatorChar);
-        return path;
-    }
-
-    public static void putPath(String propname, String path)
-    {
-        putPath(bluej_props, propname, path);
-    }
-
-    public static void putPath(Properties props, String propname, String path)
-    {
-        path = path.replace(File.separatorChar, '/');
-        path = path.replace(File.pathSeparatorChar, ';');
-        props.put(propname, path);
-    }
-
     /**
      * Set a non-language dependant integer for the BlueJ properties
      */
@@ -444,14 +394,6 @@ public class Config
     public static void putPropString(String strname, String value)
     {
         bluej_props.setProperty(strname, value);
-    }
-
-    public static String getSystemConfigDir() {
-        return sys_confdir;
-    }
-
-    public static String getUserConfigDir() {
-        return user_confdir;
     }
 }
 

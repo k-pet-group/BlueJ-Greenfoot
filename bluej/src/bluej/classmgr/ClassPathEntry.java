@@ -16,7 +16,7 @@ import bluej.Config;
  * Class to maintain a single file/directory location in a classpath
  *
  * @author  Andrew Patterson
- * @cvs     $Id: ClassPathEntry.java 280 1999-11-18 01:10:21Z ajp $
+ * @version $Id: ClassPathEntry.java 416 2000-03-14 03:03:13Z ajp $
  */
 public class ClassPathEntry implements Cloneable
 {
@@ -25,7 +25,7 @@ public class ClassPathEntry implements Cloneable
      */
     private File file;
     /**
-     * Hold the class path entry description or null for no description.
+     * Hold the class path entry description.
      */
     private String description;
 
@@ -55,10 +55,10 @@ public class ClassPathEntry implements Cloneable
      *
      * @param location  the directory path or filename or a jar/zip file
      */
-    public ClassPathEntry(String location)
+/*    public ClassPathEntry(String location)
     {
         this(location, null);
-    }
+    } */
 
     /**
      * Gets the description for this entry.
@@ -110,13 +110,13 @@ public class ClassPathEntry implements Cloneable
     }
 
     public URL getURL() throws MalformedURLException {
-        return file.toURL();   
+        return file.toURL();
     }
 
     public boolean isJar() {
         String name = file.getPath();
 
-        return file.isFile() && 
+        return file.isFile() &&
             (name.endsWith(".zip") || name.endsWith(".jar"));
     }
 

@@ -23,33 +23,31 @@ import bluej.Config;
  *               and supply the directory the package lives in)
  *
  * @author  Andrew Patterson
- * @cvs     $Id: ClassMgr.java 284 1999-11-25 02:34:37Z ajp $
+ * @version $Id: ClassMgr.java 416 2000-03-14 03:03:13Z ajp $
  */
 public class ClassMgr
 {
-    static final String errorloadingconfig 
+    private static final String errorloadingconfig
                             = Config.getString("classmgr.error.loadingconfig");
-    static final String errormissingclasspath
+    private static final String errormissingclasspath
                             = Config.getString("classmgr.error.missingclasspath");
-    static final String errormissingbootclasspath 
+    private static final String errormissingbootclasspath
                             = Config.getString("classmgr.error.missingbootclasspath");
 
-    static final String userlibs_file = 
-                            Config.getPropString("classmgr.userconfig","userlibs.properties");
-    static final String syslibs_file = 
-                            Config.getPropString("classmgr.systemconfig","syslibs.properties");
+    private static final String userlibPrefix = "bluej.userlibrary";
+    private static final String syslibPrefix = "bluej.systemlibrary";
 
     private static ClassMgr currentClassMgr = new ClassMgr();
 
     /**
      * Returns the classmgr object associated with the current BlueJ.
-     * environment. Some of the methods of class <code>ClassMgr</code> are instance 
-     * methods and must be invoked with respect to the current classmgr object. 
-     * 
+     * environment. Some of the methods of class <code>ClassMgr</code> are instance
+     * methods and must be invoked with respect to the current classmgr object.
+     *
      * @return  the <code>ClassMgr</code> object associated with the current
      *          BlueJ environment.
      */
-    public static ClassMgr getClassMgr() { 
+    public static ClassMgr getClassMgr() {
         return currentClassMgr;
     }
 
@@ -74,7 +72,7 @@ public class ClassMgr
      * Returns the class loader associated with the ClassMgr.
      * This class loader is used as the parent of all
      * class loaders created within BlueJ.
-     * 
+     *
      * @return  the <code>ClassLoader</code> associated with BlueJ's
      *          current ClassMgr
      */
@@ -85,7 +83,8 @@ public class ClassMgr
 
     private BlueJLoader classloader = new BlueJLoader();
 
-    public Iterator getAllClassPathEntries() {
+    public Iterator getAllClassPathEntries()
+    {
         List fullList = new LinkedList();
 
         fullList.addAll(systemLibraries.getEntries());
@@ -95,7 +94,8 @@ public class ClassMgr
         return fullList.iterator();
     }
 
-    public String getAllClassPath() {
+    public String getAllClassPath()
+    {
         ClassPath all = new ClassPath();
 
         all.addClassPath(systemLibraries);
@@ -105,7 +105,8 @@ public class ClassMgr
         return all.toString();
     }
 
-    public Iterator getNonBootClassPathEntries() {
+    public Iterator getNonBootClassPathEntries()
+    {
         List fullList = new LinkedList();
         fullList.addAll(systemLibraries.getEntries());
         fullList.addAll(userLibraries.getEntries());
@@ -113,7 +114,8 @@ public class ClassMgr
         return fullList.iterator();
     }
 
-    public String getNonBootClassPath() {
+    public String getNonBootClassPath()
+    {
         ClassPath all = new ClassPath();
         all.addClassPath(systemLibraries);
         all.addClassPath(userLibraries);
@@ -122,8 +124,8 @@ public class ClassMgr
 
     /**
      * Protected to allow access by the class manager panel.
-     * These start off as empty classpath's. If the corresponding
-     * file does not exist and therefore throws an exception
+     * These start off as empty classpath's. If the config
+     * files do not exist and therefore throws an exception
      * when we go to open it we will still end up with a valid
      * classpath object (albeit empty)
      */
@@ -131,38 +133,12 @@ public class ClassMgr
     protected ClassPath userLibraries = new ClassPath();
     protected ClassPath bootLibraries = new ClassPath();
 
-    /**
-     * Create the user configuration file name.
-     * 
-     * @return the user configuration file
-     */
-    protected File getUserConfigFile() {
-        return new File(Config.getUserConfigDir(),userlibs_file);
-    }
-                       
-    /**
-     * Create the system configuration file name.
-     * 
-     * @return the system configuration file
-     */
-    protected File getSystemConfigFile() {
-        return new File(Config.getSystemConfigDir(),syslibs_file);
-    }
-
     /** Don't let anyone else instantiate this class */
     private ClassMgr() {
 
-        try {
-            userLibraries = new ClassPath(new FileInputStream(getUserConfigFile()));
-        } catch (IOException ioe) {
-            // Debug.message(errorloadingconfig + "\n" + ioe.getLocalizedMessage());
-        }
+        addConfigEntries(systemLibraries, syslibPrefix);
 
-        try {
-            systemLibraries = new ClassPath(new FileInputStream(getSystemConfigFile()));
-        } catch (IOException ioe) {
-            // Debug.message(errorloadingconfig + "\n" + ioe.getLocalizedMessage());
-        }
+        addConfigEntries(userLibraries, userlibPrefix);
 
         String syscp = System.getProperty("sun.boot.class.path");
         String envcp = System.getProperty("java.class.path");
@@ -177,14 +153,79 @@ public class ClassMgr
 
         bootLibraries = new ClassPath(syscp, Config.getString("classmgr.bootclass"));
 
-        /* we should add here the boot libraries which are in the JDK extension
+        /* XXX we should add here the boot libraries which are in the JDK extension
            directory */
 
         /* The libraries which are in the java classpath environment variable should
-           only be the bluej libraries needed to run the program */
+           only be the bluej libraries needed to run the program. */
 
         if (envcp != null) {
             bootLibraries.addClassPath(envcp, Config.getString("classmgr.bluejclass"));
+        }
+    }
+
+    /**
+     * Retrieve from the system wide Config entries corresponding to classpath
+     * entries. The entries to retrieve start with prefix and have 1.location,
+     * 2.location etc appended to them until an entry is not found.
+     *
+     * @param   prefix    the prefix of the property names to look up
+     */
+    private void addConfigEntries(ClassPath cp, String prefix)
+    {
+        int resourceID = 1;
+        try {
+            String location, description;
+
+            while (true) {
+                location = Config.getPropString(prefix + resourceID + ".location", null);
+                description = Config.getPropString(prefix + resourceID + ".description", null);
+
+                if (location == null || description == null)
+                    break;
+
+                cp.addClassPath(location, description);
+
+                resourceID++;
+            }
+        } catch (MissingResourceException mre) {
+            // it is normal that this is exception is thrown, it just means we've come
+            // to the end of the file
+        }
+    }
+
+    /**
+     * Save user classpath entries into the system wide Config properties object.
+     * The entries stored start with prefix and have 1.location,
+     * 2.location etc appended to them.
+     */
+    protected void saveUserLibraries()
+    {
+        String r1, r2;
+        int resourceID = 1;
+
+        while(true) {
+            r1 = Config.removeProperty(userlibPrefix + resourceID + ".location");
+            r2 = Config.removeProperty(userlibPrefix + resourceID + ".description");
+
+            if((r1 == null) || (r2 == null))
+                break;
+
+            resourceID++;
+        }
+
+        Iterator it = userLibraries.getEntries().iterator();
+        resourceID = 1;
+
+        while (it.hasNext()) {
+            ClassPathEntry nextEntry = (ClassPathEntry)it.next();
+
+            Config.putPropString(userlibPrefix + resourceID + ".location",
+                                    nextEntry.getPath());
+            Config.putPropString(userlibPrefix + resourceID + ".description",
+                                    nextEntry.getDescription());
+
+            resourceID++;
         }
     }
 

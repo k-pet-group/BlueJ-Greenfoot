@@ -20,10 +20,10 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 338 2000-01-02 13:36:27Z ajp $
+ * @version $Id: ClassMgrPrefPanel.java 416 2000-03-14 03:03:13Z ajp $
  */
-public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
-
+public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener
+{
     static final String prefpaneltitle = Config.getString("classmgr.prefpaneltitle");
 
 	private JTable userLibrariesTable = null;
@@ -33,7 +33,8 @@ public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
      * Registers the class manager preference panel with the preferences
      * dialog
      */
-    public static void register() {
+    public static void register()
+    {
         ClassMgrPrefPanel p = new ClassMgrPrefPanel();
 
         PrefMgrDialog.add(p, prefpaneltitle, p);
@@ -44,8 +45,8 @@ public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
 	 *
 	 * @param title the title of the dialog
 	 */
-	private ClassMgrPrefPanel() {
-
+	private ClassMgrPrefPanel()
+	{
 		Vector bootLibrariesList = new Vector(ClassMgr.getClassMgr().bootLibraries.getEntries());
 		Vector systemLibrariesList = new Vector(ClassMgr.getClassMgr().systemLibraries.getEntries());
 
@@ -181,14 +182,16 @@ public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
     public void commitEditing()
     {
 		userLibrariesModel.commitEntries();
-		saveUserLibraries();
+
+		ClassMgr.getClassMgr().saveUserLibraries();
     }
 
 	/**
 	 * Pop up a dialog to allow the user to add a library
 	 * to their user library classpath.
 	 **/
-	private void addUserLibrary() {
+	private void addUserLibrary()
+	{
 		// when adding a new library,
 		// ask the user to select the file or directory
 		JFileChooser chooser = new JFileChooser();
@@ -212,24 +215,12 @@ public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
 	 * of the user library table from the user library
 	 * classpath.
 	 */
-	private void deleteUserLibrary() {
+	private void deleteUserLibrary()
+	{
 		int which = userLibrariesTable.getSelectedRow();
 
 		if(which != -1)
 			userLibrariesModel.deleteEntry(which);
-	}
-
-	private void saveUserLibraries() {
-		try {
-			FileOutputStream o =
-				new FileOutputStream(ClassMgr.getClassMgr().getUserConfigFile());
-
-			ClassMgr.getClassMgr().userLibraries.putConfigFile(o);
-		}
-		catch (IOException ioe) {
-			Debug.message(Config.getString("classmgr.error.savingconfig") +
-							"\n" + ioe.getLocalizedMessage());
-		}
 	}
 }
 
@@ -238,7 +229,8 @@ public class ClassMgrPrefPanel extends JPanel implements PrefPanelListener {
  * in the format of
  * location (description)
  */
-class ClassMgrCellRenderer implements ListCellRenderer {
+class ClassMgrCellRenderer implements ListCellRenderer
+{
 	// This is the only method defined by ListCellRenderer.  We just
 	// reconfigure the Jlabel each time we're called.
 
@@ -255,7 +247,7 @@ class ClassMgrCellRenderer implements ListCellRenderer {
 
 		ClassPathEntry cpe = (ClassPathEntry)value;
 
-		String s = cpe.getCanonicalPathNoException() + " (" + cpe.getDescription() + ")";;
+		String s = cpe.getCanonicalPathNoException() + " (" + cpe.getDescription() + ")";
 
 		((JLabel)sup).setText(s);
 

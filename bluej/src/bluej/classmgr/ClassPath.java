@@ -14,8 +14,8 @@ import javax.swing.table.*;
 /**
  * Class to maintain a list of ClassPathEntry's.
  *
- * @version $Id: ClassPath.java 287 1999-11-25 05:48:24Z ajp $
- * @author Andrew Patterson
+ * @author  Andrew Patterson
+ * @version $Id: ClassPath.java 416 2000-03-14 03:03:13Z ajp $
  */
 public class ClassPath
 {
@@ -49,16 +49,6 @@ public class ClassPath
     public ClassPath(String classpath, String genericdescription)
     {
         addClassPath(classpath, genericdescription);
-    }
-
-    /**
-     * Construct a ClassPath from a configuration file
-     *
-     * @param   inputstream A stream which represents the config file to read
-     */
-    public ClassPath(InputStream configstream)
-    {
-        addConfigFile(configstream);
     }
 
     /**
@@ -145,7 +135,7 @@ public class ClassPath
             while(st.hasMoreTokens()) {
                 String entry = st.nextToken();
                 String name = (new File(entry)).getName();
-                ClassPathEntry cpentry = new ClassPathEntry(entry, genericdescription + " - " + name);
+                ClassPathEntry cpentry = new ClassPathEntry(entry, genericdescription);
 
                 if(!entries.contains(cpentry))
                     entries.add(cpentry);
@@ -156,74 +146,7 @@ public class ClassPath
         }
     }
 
-    /**
-     * Read from an inputstream a set of configuration items which describe
-     * the set of class path entries
-     *
-     * @param   configstream    an inputstream which can be parsed as
-     *              properties
-     */
-    private void addConfigFile(InputStream configstream)
-    {
-        Properties config = new SortedProperties();
 
-        try {
-            config.load(configstream);
-        } catch (IOException ioe) {
-            Debug.message("Reading library configuration: " + ioe.getLocalizedMessage());
-            return;
-        }
-
-        int resourceID = 1;
-        try {
-            String location, description;
-
-            while (true) {
-                location = config.getProperty("lib" + resourceID + ".location");
-                description = config.getProperty("lib" + resourceID + ".description");
-
-                if (description == null || location == null)
-                    break;
-
-                ClassPathEntry cpentry = new ClassPathEntry(location, description);
-
-                if(!entries.contains(cpentry))
-                    entries.add(cpentry);
-
-                resourceID++;
-            }
-        } catch (MissingResourceException mre) {
-            // it is normal that this is exception is thrown, it just means we've come to the end of the file
-        }
-    }
-
-    /**
-     * Save the current libraries back to a configuration file.
-     * Note that any comments originally appearing in this file will be removed.
-     * 
-     */
-    public void putConfigFile(OutputStream configstream)
-    {
-        Properties config = new SortedProperties();
-
-        Iterator it = entries.iterator();
-        int current = 1;
-
-        while (it.hasNext()) {
-            ClassPathEntry nextEntry = (ClassPathEntry)it.next();
-
-            config.setProperty("lib" + current + ".location", nextEntry.getPath());
-            config.setProperty("lib" + current + ".description", nextEntry.getDescription());
-
-            current++;
-        }
-
-        try {
-            config.store(configstream, "Class Libraries");
-        } catch(IOException ioe) {
-            Debug.message("Writing library configuration: " + ioe.getLocalizedMessage());
-        }
-    }
 
     /**
      * Return the class path entries as an array of URL's
@@ -236,20 +159,20 @@ public class ClassPath
 
         while (it.hasNext()) {
             ClassPathEntry nextEntry = (ClassPathEntry)it.next();
-        
+
             try {
                 u[current] = nextEntry.getURL();
                 // Debug.message(u[current].toString());
             } catch(MalformedURLException mue) {
-            
+
             }
 
             current++;
         }
-        
+
         return u;
     }
-    
+
     /**
      * Find a file in the classpath
      *
@@ -264,7 +187,7 @@ public class ClassPath
 
         while (it.hasNext()) {
             ClassPathEntry nextEntry = (ClassPathEntry)it.next();
-        
+
             // each entry can be either a jar/zip file or a directory
             // or neither in which case we ignore it
 
