@@ -1,4 +1,4 @@
-compile-while-executing
+selcompile-while-executing
 You cannot compile while the machine
 is executing. This could cause strange
 problems!
@@ -188,9 +188,14 @@ An error occured during the attempt to
 import the file. Check access rights and
 disk space.
 
+no-class-selected-compile
+No class selected for compilation.
+Select a class by clicking on
+it before trying to compile.
+
 no-class-selected
-No class or package selected for removal.
-Select a class or package by clicking on
+Nothing selected for removal.
+Select a class, arrow or package by clicking on
 it before trying to remove.
 
 really-remove-class
