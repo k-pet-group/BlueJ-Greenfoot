@@ -22,7 +22,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2315 2003-11-10 16:36:47Z polle $
+ * @version    $Id: Inspector.java 2322 2003-11-11 11:14:16Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -41,7 +41,8 @@ public abstract class Inspector extends JFrame
     protected final static String close =
         Config.getString("close");
 
-
+    private static final Color selectionColor = Config.getItemColour("colour.inspector.list.selection");
+    
     // === instance variables ===
 
     protected JList fieldList = null;
@@ -385,7 +386,7 @@ public abstract class Inspector extends JFrame
         fieldList.requestDefaultFocus();
         fieldList.setFixedCellHeight(25);
         // if we are inspecting, we need a header
-        
+        fieldList.setSelectionBackground(selectionColor);
         
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
@@ -497,7 +498,8 @@ public abstract class Inspector extends JFrame
     private static class FieldCellRenderer
     extends JComponent
     implements ListCellRenderer {
-        final static private ImageIcon objectrefIcon = Config.getImageAsIcon("image.inspector.objectref");      
+        final static private ImageIcon objectrefIcon = Config.getImageAsIcon("image.inspector.objectref");
+        
         final private JLabel descriptionLabel = new JLabel();
         final private JLabel valueLabel;
         
