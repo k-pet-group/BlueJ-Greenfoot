@@ -7,6 +7,7 @@ source distribution -->
         <include name="install.txt"/>
         <include name="readme.txt"/>
         <include name="license.txt"/>
+        <include name="license-jedit-syntax.txt"/>
         <include name="build.xml"/>
     </patternset>
             

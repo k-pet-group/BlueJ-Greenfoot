@@ -103,7 +103,7 @@ Compilation
 
 Deployment
     The editor class files need to be archived into a jar file called 
-    editor.jar and placed in the BlueJ lib directory 
+    bluejeditor.jar and placed in the BlueJ lib directory 
     (BLUEJ_INSTALL_DIR)/lib, replacing the existing editor.jar.
 
 
@@ -133,5 +133,4 @@ QUESTIONS
 If you have questions about the existing editor implementation, bluej
 editor integration or other editor issues, contact:
 
-Bruce Quig
 bluej-support@bluej.org
