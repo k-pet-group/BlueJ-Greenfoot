@@ -18,7 +18,7 @@ import bluej.utility.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 1952 2003-05-15 06:04:19Z ajp $
+ * @version $Id: PackageTarget.java 2058 2003-06-24 19:45:51Z mik $
  */
 public class PackageTarget extends Target
 {
@@ -26,7 +26,6 @@ public class PackageTarget extends Target
 
     static final Color ribboncolour = defaultbg.darker().darker();
     static final Color bordercolour = Config.getItemColour("colour.target.border");
-    static final Color textbg = Config.getItemColour("colour.text.bg");
     static final Color textfg = Config.getItemColour("colour.text.fg");
 
     static final int TAB_HEIGHT = 12;

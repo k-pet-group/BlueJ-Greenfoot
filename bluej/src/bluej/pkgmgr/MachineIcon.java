@@ -11,7 +11,8 @@ import bluej.utility.Debug;
 public class MachineIcon extends JLabel
 {
     private static final Icon workingIcon = Config.getImageAsIcon("image.working");
-    private static final Icon notWorkingIcon = Config.getImageAsIcon("image.working.disab");
+    private static final Icon notWorkingIcon = Config.getImageAsIcon("image.working.idle");
+    private static final Icon workingIconDisabled = Config.getImageAsIcon("image.working.disab");
     private static final Icon stoppedIcon = Config.getImageAsIcon("image.working.stopped");
 
     private PkgMgrFrame frame;
@@ -21,6 +22,7 @@ public class MachineIcon extends JLabel
     {
         this.frame = frame;
 	 	setIcon(notWorkingIcon);
+	 	setDisabledIcon(workingIconDisabled);
         setToolTipText(Config.getString("tooltip.progress"));
 
         popupMenu = createMachinePopup();

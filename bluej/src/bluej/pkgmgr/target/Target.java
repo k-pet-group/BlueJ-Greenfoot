@@ -18,7 +18,7 @@ import java.awt.event.*;
  * A general target in a package
  *
  * @author  Michael Cahill
- * @version $Id: Target.java 1952 2003-05-15 06:04:19Z ajp $
+ * @version $Id: Target.java 2058 2003-06-24 19:45:51Z mik $
  */
 public abstract class Target extends Vertex implements Comparable
 {
@@ -37,7 +37,6 @@ public abstract class Target extends Vertex implements Comparable
     //static final int SHAD_SIZE = 5;
     static final int SHAD_SIZE = 4;
 
-    static final Color textbg = Config.getItemColour("colour.text.bg");
     static final Color shadowCol = Config.getItemColour("colour.target.shadow");
     static final Color graphbg = Config.getItemColour("colour.graph.background");
 

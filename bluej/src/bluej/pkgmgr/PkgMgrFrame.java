@@ -31,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2057 2003-06-24 16:05:20Z mik $
+ * @version $Id: PkgMgrFrame.java 2058 2003-06-24 19:45:51Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1853,7 +1853,7 @@ public class PkgMgrFrame extends JFrame
 
 		mainPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
                               KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 
-                                   InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK)), 
+                                   InputEvent.SHIFT_MASK | InputEvent.CTRL_MASK), 
                               "restartVM");
 								
 		mainPanel.getActionMap().put("restartVM",
