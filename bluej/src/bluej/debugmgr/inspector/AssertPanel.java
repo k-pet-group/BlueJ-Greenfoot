@@ -12,7 +12,7 @@ import bluej.testmgr.record.InvokerRecord;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 2553 2004-05-26 13:17:28Z polle $
+ * @version $Id: AssertPanel.java 2778 2004-07-12 03:06:37Z bquig $
  */
 public class AssertPanel extends JPanel
 {
@@ -201,32 +201,32 @@ public class AssertPanel extends JPanel
         // we should really be dealing with the actual objects here (rather
         // than their string representations) but the DebuggerObject interface
         // forces us to do it this way
-        String tokens[] = new String[4];
+        String tokens[] = new String[3];
         
         StringTokenizer st = new StringTokenizer(resultString);
         int i = 0;
-        while (st.hasMoreTokens() && i<4) {
+        while (st.hasMoreTokens() && i<3) {
             tokens[i++] = st.nextToken();
         }
         
         // floats and doubles, we calculate a delta
         if (tokens[0].equals("float") || tokens[0].equals("double")) {
             assertCombo.setSelectedIndex(findItemIndex(equalToFloatingPointLabel));
-            assertData.setText(tokens[3]);
-            double delta = Double.parseDouble(tokens[3]);
+            assertData.setText(tokens[2]);
+            double delta = Double.parseDouble(tokens[2]);
             deltaData.setText(Double.toString(Math.abs(delta * 0.01)));
         }
-        else if (tokens[3].equals(nullLabel)) {
+        else if (tokens[2].equals(nullLabel)) {
             // an object reference that is null
             assertCombo.setSelectedIndex(findItemIndex(assertNullLabel));
         }
-        else if (tokens[3].equals("<object")) {
+        else if (tokens[2].equals("<object")) {
             // an object reference that is not null
             assertCombo.setSelectedIndex(findItemIndex(notNullLabel));
         } else {
             // anything else, which means it is one of the primitive types
             // or String
-            assertData.setText(tokens[3]);
+            assertData.setText(tokens[2]);
             assertCombo.setSelectedIndex(findItemIndex(equalToLabel));
         }
     }
