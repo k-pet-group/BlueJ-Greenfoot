@@ -32,14 +32,14 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 271 1999-11-11 03:51:44Z mik $
- ** @author Michael Cahill
- **
- ** A Java package (collection of Java classes).
- **/
+** @version $Id: Package.java 274 1999-11-12 05:30:45Z mik $
+** @author Michael Cahill
+**
+** A Java package (collection of Java classes).
+**/
 public class Package extends Graph
 
-    implements CompileObserver, MouseListener, MouseMotionListener
+implements CompileObserver, MouseListener, MouseMotionListener
 {
     static final Color titleCol = Config.getItemColour("colour.text.fg");
     static final Color lightGrey = new Color(224, 224, 224);
@@ -67,7 +67,7 @@ public class Package extends Graph
     // used to size frame when no existing size information can be found
     private static final int DEFAULTFRAMEHEIGHT = 600;
     private static final int DEFAULTFRAMEWIDTH = 800;
-	
+
     /** Interface to editor **/
     static EditorManager editorManager = new MoeEditorManager();
     // static EditorManager editorManager = new RedEditorManager(false);
@@ -93,7 +93,7 @@ public class Package extends Graph
     //  for a new dependency
     PkgFrame frame;
     Dependency currentArrow;	// used during arrow deletion
-	
+
     private ClassLoader loader;
     private DebuggerClassLoader debuggerLoader;
     private CallHistory callHistory; 	
@@ -118,14 +118,14 @@ public class Package extends Graph
      */
     public Package(String dirname, PkgFrame frame)
     {
-	this.dirname = dirname;
-	this.frame = frame;
-		
-	targets = new Hashtable();
-	usesArrows = new Vector();
-	extendsArrows = new Vector();
-	selected = null;
-	callHistory = new CallHistory(HISTORY_LENGTH);
+        this.dirname = dirname;
+        this.frame = frame;
+
+        targets = new Hashtable();
+        usesArrows = new Vector();
+        extendsArrows = new Vector();
+        selected = null;
+        callHistory = new CallHistory(HISTORY_LENGTH);
     }
 
     /**
@@ -133,31 +133,31 @@ public class Package extends Graph
      */
     public Package(String dirname)
     {
-	this(dirname, null);
+        this(dirname, null);
     }
-	
+
     /**
      * Create a new package not associated to a directory or frame.
      */
     public Package()
     {
-	this(null, null);
+        this(null, null);
     }
-	
+
     /**
      * Return the path to this package's directory (may be relative).
      */
     public String getDirName() {
-	return dirname;
+        return dirname;
     }
-	
+
     /**
      * Get the unique identifier for this package (it's directory name 
      * at present)
      */
     public String getId()
     {
-	return dirname;
+        return dirname;
     }
 
     /**
@@ -165,15 +165,15 @@ public class Package extends Graph
      */
     public PkgFrame getFrame()
     {
-	return frame;
+        return frame;
     }
-	
+
     /**
      * Return this package's name (eg javax.swing.text or string "No Package").
      */
     public String getName()
     {
-	return packageName;
+        return packageName;
     }
 
     /**
@@ -183,53 +183,54 @@ public class Package extends Graph
      */
     public String getClassDir()
     {
-	return (classdir != null) ? classdir : getBaseDir();
+        return (classdir != null) ? classdir : getBaseDir();
     }
 
     public String getClassPath()
     {		
-	// construct a class path out of all our class path entries and
-	// our current class directory
-	StringBuffer c = new StringBuffer();
+        // construct a class path out of all our class path entries and
+        // our current class directory
+        StringBuffer c = new StringBuffer();
 
-	Iterator i = ClassMgr.getClassMgr().getAllClassPathEntries();
+        Iterator i = ClassMgr.getClassMgr().getAllClassPathEntries();
 
-	while(i.hasNext()) {
-	    ClassPathEntry cpe = (ClassPathEntry)i.next();
+        while(i.hasNext()) {
+            ClassPathEntry cpe = (ClassPathEntry)i.next();
 
-	    c.append(cpe.getPath());
-	    c.append(Config.colon);
-	}
-	c.append(getClassDir());
+            c.append(cpe.getPath());
+            c.append(Config.colon);
+        }
+        c.append(getClassDir());
 
-	return c.toString();
+        return c.toString();
     }
 
     public ObjectBench getBench() 
     { 
-	ObjectBench bench = null;
-	try {
-	    bench = ((PkgMgrFrame) frame).objbench;
-	} catch (ClassCastException cce) {
-	    cce.printStackTrace();
-	}
-	return bench;
+        ObjectBench bench = null;
+        try {
+            bench = ((PkgMgrFrame) frame).objbench;
+        } catch (ClassCastException cce) {
+            cce.printStackTrace();
+        }
+        return bench;
     }
 
     public void repaint()
     {
-	editor.revalidate();
-	editor.repaint();
+        editor.revalidate();
+        editor.repaint();
     }
 
     /**
-     * Get the currently selected Target.  Should return null if none are selected.
+     * Get the currently selected Target.  Should return null if none are
+     * selected.
      *
      * @return the currently selected Target.
      */
     public Target getSelectedTarget() 
     {
-	return selected;
+        return selected;
     }
 
 
@@ -245,50 +246,50 @@ public class Package extends Graph
      * @return the package name in . delimited format, or null if none can be created
      */
     /*    private static String getPackageName(String packageDir) {
-	  System.out.println("Getting packagename for " + packageDir);
+          System.out.println("Getting packagename for " + packageDir);
 
-	  String classPath = System.getProperty("java.class.path");
-	  if (classPath == null)
-	  return null;
-	
-	  StringTokenizer classPathTokens = new StringTokenizer(classPath, File.pathSeparator);
-	  String currentClassPathDir = null;
-	  int longestClassPathMatchLength = 0;
-	  String longestClassPathMatchPath = "";
-	
-	  // check every class path entry to find the longest one that starts packageDir
-	  // because we may have two elements in the class path which are different points
-	  // in the same file system tree branch (e.g., c:\ and c:\java\).  We want the most
-	  // specific one which matches our package dir.
-	  while (classPathTokens.hasMoreElements()) {
-	  currentClassPathDir = classPathTokens.nextElement().toString().toLowerCase();
-	  if (packageDir.toLowerCase().startsWith(currentClassPathDir)) {
-	  if (currentClassPathDir.length() > longestClassPathMatchLength) {
-	  longestClassPathMatchLength = currentClassPathDir.length(); 
-	  longestClassPathMatchPath = currentClassPathDir;
-	  }
-	  }
-	  }
+          String classPath = System.getProperty("java.class.path");
+          if (classPath == null)
+          return null;
 
-	  if (longestClassPathMatchLength == 0)
-	  return null;
-	
-	  // short circuit checking if we have an exact match on a class path
-	  if (longestClassPathMatchPath.length() == packageDir.length())
-	  return "";
-	
-	  String packageNameAsDir = packageDir.substring(longestClassPathMatchPath.length(), packageDir.length());
-	  // trim leading and/or trailing directory separators
-	  if (packageNameAsDir.startsWith("/") || packageNameAsDir.startsWith("\\"))
-	  packageNameAsDir = packageNameAsDir.substring(1, packageNameAsDir.length());
-	  if (packageNameAsDir.endsWith("/") || packageNameAsDir.endsWith("\\"))
-	  packageNameAsDir = packageNameAsDir.substring(0, packageNameAsDir.length() - 1);
-		
-	  // replace both types of path separator - just in case
-	  String packageName = packageNameAsDir.replace('/', '.');
-	  packageName = packageName.replace('\\', '.');
-	  return packageName;
-	  }
+          StringTokenizer classPathTokens = new StringTokenizer(classPath, File.pathSeparator);
+          String currentClassPathDir = null;
+          int longestClassPathMatchLength = 0;
+          String longestClassPathMatchPath = "";
+
+          // check every class path entry to find the longest one that starts packageDir
+          // because we may have two elements in the class path which are different points
+          // in the same file system tree branch (e.g., c:\ and c:\java\).  We want the most
+          // specific one which matches our package dir.
+          while (classPathTokens.hasMoreElements()) {
+          currentClassPathDir = classPathTokens.nextElement().toString().toLowerCase();
+          if (packageDir.toLowerCase().startsWith(currentClassPathDir)) {
+          if (currentClassPathDir.length() > longestClassPathMatchLength) {
+          longestClassPathMatchLength = currentClassPathDir.length(); 
+          longestClassPathMatchPath = currentClassPathDir;
+          }
+          }
+          }
+
+          if (longestClassPathMatchLength == 0)
+          return null;
+
+          // short circuit checking if we have an exact match on a class path
+          if (longestClassPathMatchPath.length() == packageDir.length())
+          return "";
+
+          String packageNameAsDir = packageDir.substring(longestClassPathMatchPath.length(), packageDir.length());
+          // trim leading and/or trailing directory separators
+          if (packageNameAsDir.startsWith("/") || packageNameAsDir.startsWith("\\"))
+          packageNameAsDir = packageNameAsDir.substring(1, packageNameAsDir.length());
+          if (packageNameAsDir.endsWith("/") || packageNameAsDir.endsWith("\\"))
+          packageNameAsDir = packageNameAsDir.substring(0, packageNameAsDir.length() - 1);
+
+          // replace both types of path separator - just in case
+          String packageName = packageNameAsDir.replace('/', '.');
+          packageName = packageName.replace('\\', '.');
+          return packageName;
+          }
     */
     /**
      * Create a set of properties for a specified set of classfiles
@@ -303,93 +304,93 @@ public class Package extends Graph
      * @exception IOException if the package file could not be saved
      */
     public static Properties createDefaultPackage(String[] classFiles, 
-						  String packageLocation,
-						  String packageName,
-						  boolean fromArchive) 
-	throws IOException 
+                                                  String packageLocation,
+                                                  String packageName,
+                                                  boolean fromArchive) 
+        throws IOException 
     {	
-	Properties props = new Properties();
-	int numberOfTargets = classFiles.length;
-	// every file returned by the filter is considered valid, so the array
-	// size if the number of targets in the package
-	props.put("package.numTargets", "" + numberOfTargets);
+        Properties props = new Properties();
+        int numberOfTargets = classFiles.length;
+        // every file returned by the filter is considered valid, so the array
+        // size if the number of targets in the package
+        props.put("package.numTargets", "" + numberOfTargets);
 
-	/*	if (packageName == null)
-		packageName = "unknown";
-		else if (packageName != "") {
-		// only write the package name if it has a value, 
-		// then append the "." for later when using the
-		// package name as the root for sub package names
-		props.put("package.name", packageName);
-		packageName += ".";
-		}
-	*/	
-	props.put("package.name", packageName);
+        /*	if (packageName == null)
+                packageName = "unknown";
+                else if (packageName != "") {
+                // only write the package name if it has a value, 
+                // then append the "." for later when using the
+                // package name as the root for sub package names
+                props.put("package.name", packageName);
+                packageName += ".";
+                }
+        */	
+        props.put("package.name", packageName);
 
-	// not too sure about this one, let's make it the current directory
-	// for now
-	// classdir is used to locate the class files for the corresponding java files
-	// classdir is added to the classpath for this package
-	// props.put("package.classdir", ".");
+        // not too sure about this one, let's make it the current directory
+        // for now
+        // classdir is used to locate the class files for the corresponding java files
+        // classdir is added to the classpath for this package
+        // props.put("package.classdir", ".");
 
-	int nbrColumns = (int) Math.sqrt(new Double("" + numberOfTargets).doubleValue());
-	int rowPos = STARTROWPOS;
-	int columnPos = STARTCOLUMNPOS;
-	// try and layout the targets in a grid, one row at a time
-	for (int current = 0; current < classFiles.length; current++) {
-	    String currentFile = classFiles[current];
+        int nbrColumns = (int) Math.sqrt(new Double("" + numberOfTargets).doubleValue());
+        int rowPos = STARTROWPOS;
+        int columnPos = STARTCOLUMNPOS;
+        // try and layout the targets in a grid, one row at a time
+        for (int current = 0; current < classFiles.length; current++) {
+            String currentFile = classFiles[current];
 
-	    if (currentFile.endsWith(".class")) {
-		props.put("target" + (current + 1) + ".type", "ClassTarget");
-				// trim the .class off the filename for class targets	
-		props.put("target" + (current + 1) + ".name", currentFile.substring(0, currentFile.indexOf(".class")));
-	    } else {
-		props.put("target" + (current + 1) + ".type", "PackageTarget");
-		props.put("target" + (current + 1) + ".name", currentFile);
-		props.put("target" + (current + 1) + ".packageName", packageName + currentFile);
-	    }
+            if (currentFile.endsWith(".class")) {
+                props.put("target" + (current + 1) + ".type", "ClassTarget");
+                // trim the .class off the filename for class targets	
+                props.put("target" + (current + 1) + ".name", currentFile.substring(0, currentFile.indexOf(".class")));
+            } else {
+                props.put("target" + (current + 1) + ".type", "PackageTarget");
+                props.put("target" + (current + 1) + ".name", currentFile);
+                props.put("target" + (current + 1) + ".packageName", packageName + currentFile);
+            }
 
-	    String fullname = props.get("target" + (current + 1) + ".name").toString();
+            String fullname = props.get("target" + (current + 1) + ".name").toString();
 
-	    int targetWidth = 40 + (int)ClassTarget.normalFont.getStringBounds(fullname,
-									       new FontRenderContext(new AffineTransform(), false, false)).getWidth();
-	
-	    // make width roughly the length of the name
-	    // = DEFAULTTARGETCHARWIDTH * .length();
-	    // add extra width for package targets (default equation leaves them too narrow)
-	    targetWidth += props.get("target" + (current + 1) + ".type").toString().equals("PackageTarget") ? 20 : 0;
-	    
-	    props.put("target" + (current + 1) + ".width", "" + targetWidth);
-	    props.put("target" + (current + 1) + ".height", "" + DEFAULTTARGETHEIGHT);
-	    props.put("target" + (current + 1) + ".x", "" + rowPos);
-	    props.put("target" + (current + 1) + ".y", "" + columnPos);
-	    if ((current + 1) % nbrColumns == 0) {
-		columnPos += DEFAULTTARGETHEIGHT + TARGETGAP;
-		rowPos = STARTROWPOS;
-	    } 
-	    else
-		rowPos += targetWidth + TARGETGAP;
-	}
-				
-	// specify the dimensions large enough to see the entire package
-	props.put("package.window.width", "" + DEFAULTFRAMEWIDTH);
-	props.put("package.window.height", "" + DEFAULTFRAMEHEIGHT);
-	
-	if (fromArchive == false) {
-	    // throw an exception if we cannot save
-	    File file = new File(packageLocation, pkgfileName);
-	    try {
-		props.store(new FileOutputStream(file), 
-			    fromArchive == true ? 
-			    "Default layout for archive library" : 
-			    "Default package layout");
-	    } catch(Exception e) {
-		Debug.reportError("could not save properties file: " + 
-				  file.getName());
-	    }
-	}
-	
-	return props;
+            int targetWidth = 40 + (int)ClassTarget.normalFont.getStringBounds(fullname,
+                                                                               new FontRenderContext(new AffineTransform(), false, false)).getWidth();
+
+            // make width roughly the length of the name
+            // = DEFAULTTARGETCHARWIDTH * .length();
+            // add extra width for package targets (default equation leaves them too narrow)
+            targetWidth += props.get("target" + (current + 1) + ".type").toString().equals("PackageTarget") ? 20 : 0;
+
+            props.put("target" + (current + 1) + ".width", "" + targetWidth);
+            props.put("target" + (current + 1) + ".height", "" + DEFAULTTARGETHEIGHT);
+            props.put("target" + (current + 1) + ".x", "" + rowPos);
+            props.put("target" + (current + 1) + ".y", "" + columnPos);
+            if ((current + 1) % nbrColumns == 0) {
+                columnPos += DEFAULTTARGETHEIGHT + TARGETGAP;
+                rowPos = STARTROWPOS;
+            } 
+            else
+                rowPos += targetWidth + TARGETGAP;
+        }
+
+        // specify the dimensions large enough to see the entire package
+        props.put("package.window.width", "" + DEFAULTFRAMEWIDTH);
+        props.put("package.window.height", "" + DEFAULTFRAMEHEIGHT);
+
+        if (fromArchive == false) {
+            // throw an exception if we cannot save
+            File file = new File(packageLocation, pkgfileName);
+            try {
+                props.store(new FileOutputStream(file), 
+                            fromArchive == true ? 
+                            "Default layout for archive library" : 
+                            "Default package layout");
+            } catch(Exception e) {
+                Debug.reportError("could not save properties file: " + 
+                                  file.getName());
+            }
+        }
+
+        return props;
     }
 
     /**
@@ -397,9 +398,9 @@ public class Package extends Graph
      * @param dirname the directory from which to load the properties
      */
     void load(String dirname) {
-	this.load(dirname, null, true, false);
+        this.load(dirname, null, true, false);
     }
-    
+
     /**
      * Load the elements of a package from a specified directory 
      *
@@ -411,126 +412,126 @@ public class Package extends Graph
      *	      package for the library browser
      */
     public void load(String dirname, Properties props, boolean readyToPaint, 
-		     boolean libraryPackage)
+                     boolean libraryPackage)
     {
-	// Read the package properties
-	String fullpkgfile = dirname + Config.slash + pkgfileName;
-	this.dirname = dirname;
+        // Read the package properties
+        String fullpkgfile = dirname + Config.slash + pkgfileName;
+        this.dirname = dirname;
 
-	// if we haven't been given properties to use, load them
-	if (props == null) {
-	    // try to load the package file for this package
-	    try {
-		FileInputStream input = new FileInputStream(fullpkgfile);
+        // if we haven't been given properties to use, load them
+        if (props == null) {
+            // try to load the package file for this package
+            try {
+                FileInputStream input = new FileInputStream(fullpkgfile);
 
-		props = new Properties();
-		props.load(input);
-	    } catch(IOException e) {
-		Debug.reportError("Error loading initialisation file" + 
-				  fullpkgfile + ": " + e);
-		// if it's not found, let's create a default one
-	    }
+                props = new Properties();
+                props.load(input);
+            } catch(IOException e) {
+                Debug.reportError("Error loading initialisation file" + 
+                                  fullpkgfile + ": " + e);
+                // if it's not found, let's create a default one
+            }
 
-	    if (props == null)
-		return;
-	}
-	
-	this.packageName = props.getProperty("package.name", noPackage);
-	String width_str = props.getProperty("package.window.width", "512");
-	String height_str = props.getProperty("package.window.height", "450");
-	frame.setSize(Integer.parseInt(width_str), Integer.parseInt(height_str));
-		
-	// This is to make sure that opening a package into an empty frame
-	// works properly
+            if (props == null)
+                return;
+        }
 
-	frame.invalidate();
-	frame.validate();
+        this.packageName = props.getProperty("package.name", noPackage);
+        String width_str = props.getProperty("package.window.width", "512");
+        String height_str = props.getProperty("package.window.height", "450");
+        frame.setSize(Integer.parseInt(width_str), Integer.parseInt(height_str));
 
-	relclassdir = null;
-	// relclassdir = Config.getPath(props, "package.classdir");
-	if(relclassdir != null) {
-	    File cd = new File(relclassdir);
-	    if(cd.isAbsolute())
-		classdir = relclassdir;
-	    else
-		classdir = dirname + Config.slash + relclassdir;
-	}
+        // This is to make sure that opening a package into an empty frame
+        // works properly
 
-	// read in all the targets contained in this package
+        frame.invalidate();
+        frame.validate();
 
-	try {
-	    int numTargets = Integer.parseInt(props.getProperty("package.numTargets", "0"));
-	    int numDependencies = Integer.parseInt(props.getProperty("package.numDependencies", "0"));
+        relclassdir = null;
+        // relclassdir = Config.getPath(props, "package.classdir");
+        if(relclassdir != null) {
+            File cd = new File(relclassdir);
+            if(cd.isAbsolute())
+                classdir = relclassdir;
+            else
+                classdir = dirname + Config.slash + relclassdir;
+        }
 
-	    for(int i = 0; i < numTargets; i++) {
-		Target target = null;
-		String type = props.getProperty("target" + (i + 1) + ".type");
-		
-		if("ClassTarget".equals(type) || "AppletTarget".equals(type)) {
-		    target = new ClassTarget(this,  "AppletTarget".equals(type));
-		    // all library classes should be considered to be compiled
-		    if (libraryPackage) {
-			target.state = Target.S_NORMAL;
-			((ClassTarget)target).setLibraryTarget(true);
-		    }
-		}
-		else if("ImportedClassTarget".equals(type))
-		    target = new ImportedClassTarget(this);
-		else if("PackageTarget".equals(type))
-		    target = new PackageTarget(this);
+        // read in all the targets contained in this package
 
-		if(target != null) {
-		    target.load(props, "target" + (i + 1));
-		    //Debug.message("Load target " + target);
-		    addTarget(target);
-		}
-				// else
-		//Debug.message("Failed to load target " + (i + 1));
-	    }
+        try {
+            int numTargets = Integer.parseInt(props.getProperty("package.numTargets", "0"));
+            int numDependencies = Integer.parseInt(props.getProperty("package.numDependencies", "0"));
 
-	    for(int i = 0; i < numDependencies; i++) {
-		Dependency dep = null;
-		String type = props.getProperty("dependency" + (i+1) + ".type");
+            for(int i = 0; i < numTargets; i++) {
+                Target target = null;
+                String type = props.getProperty("target" + (i + 1) + ".type");
 
-		if("UsesDependency".equals(type))
-		    dep = new UsesDependency(this);
-		//		else if("ExtendsDependency".equals(type))
-		//		    dep = new ExtendsDependency(this);
-		//		else if("ImplementsDependency".equals(type))
-		//		    dep = new ImplementsDependency(this);
-		
-		if(dep != null) {
-		    dep.load(props, "dependency" + (i + 1));
-		    addDependency(dep, false);
-		}
-	    }
-	    recalcArrows();
-	} catch(Exception e) {
-	    Debug.reportError("Error loading from file " + 
-			      fullpkgfile + ": " + e);
-	    e.printStackTrace();
-	    return;
-	}
+                if("ClassTarget".equals(type) || "AppletTarget".equals(type)) {
+                    target = new ClassTarget(this,  "AppletTarget".equals(type));
+                    // all library classes should be considered to be compiled
+                    if (libraryPackage) {
+                        target.state = Target.S_NORMAL;
+                        ((ClassTarget)target).setLibraryTarget(true);
+                    }
+                }
+                else if("ImportedClassTarget".equals(type))
+                    target = new ImportedClassTarget(this);
+                else if("PackageTarget".equals(type))
+                    target = new PackageTarget(this);
 
-	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-	    Target target = (Target)e.nextElement();
-			
-	    if(target instanceof ClassTarget) {
-		ClassTarget ct = (ClassTarget)target;
-		ct.analyseDependencies();
-	    }
-	}
-    
-	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-	    Target t = (Target)e.nextElement();
-	    if((t instanceof ClassTarget)
-	       && ((ClassTarget)t).upToDate()) {
-		ClassTarget ct = (ClassTarget)t;
-		if (readyToPaint)
-		    ct.setState(Target.S_NORMAL);
-		// XXX: Need to invalidate things dependent on t
-	    }
-	}
+                if(target != null) {
+                    target.load(props, "target" + (i + 1));
+                    //Debug.message("Load target " + target);
+                    addTarget(target);
+                }
+                // else
+                //Debug.message("Failed to load target " + (i + 1));
+            }
+
+            for(int i = 0; i < numDependencies; i++) {
+                Dependency dep = null;
+                String type = props.getProperty("dependency" + (i+1) + ".type");
+
+                if("UsesDependency".equals(type))
+                    dep = new UsesDependency(this);
+                //		else if("ExtendsDependency".equals(type))
+                //		    dep = new ExtendsDependency(this);
+                //		else if("ImplementsDependency".equals(type))
+                //		    dep = new ImplementsDependency(this);
+
+                if(dep != null) {
+                    dep.load(props, "dependency" + (i + 1));
+                    addDependency(dep, false);
+                }
+            }
+            recalcArrows();
+        } catch(Exception e) {
+            Debug.reportError("Error loading from file " + 
+                              fullpkgfile + ": " + e);
+            e.printStackTrace();
+            return;
+        }
+
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target target = (Target)e.nextElement();
+
+            if(target instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget)target;
+                ct.analyseDependencies();
+            }
+        }
+
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target t = (Target)e.nextElement();
+            if((t instanceof ClassTarget)
+               && ((ClassTarget)t).upToDate()) {
+                ClassTarget ct = (ClassTarget)t;
+                if (readyToPaint)
+                    ct.setState(Target.S_NORMAL);
+                // XXX: Need to invalidate things dependent on t
+            }
+        }
     }
 
     /**
@@ -539,64 +540,64 @@ public class Package extends Graph
      */
     private boolean save(String dirname)
     {
-	File dir = new File(dirname);
-	if(!dir.exists())
-	    if(!dir.mkdir()) {
-		Debug.reportError("Error creating directory "+ dirname);
-		return false;
-	    }
+        File dir = new File(dirname);
+        if(!dir.exists())
+            if(!dir.mkdir()) {
+                Debug.reportError("Error creating directory "+ dirname);
+                return false;
+            }
 
-	Properties props = new Properties();
+        Properties props = new Properties();
 
-	File file = new File(dir, pkgfileName);
-	if(file.exists()) {			// make backup of original
-	    file.renameTo(new File(dir, pkgfileBackup));
-	}
+        File file = new File(dir, pkgfileName);
+        if(file.exists()) {			// make backup of original
+            file.renameTo(new File(dir, pkgfileBackup));
+        }
 
-	if(packageName != noPackage)
-	    props.put("package.name", packageName);
-	if(frame != null) {
-	    Dimension size = frame.getSize();
-	    props.put("package.window.width", String.valueOf(size.width));
-	    props.put("package.window.height", String.valueOf(size.height));
-	}
+        if(packageName != noPackage)
+            props.put("package.name", packageName);
+        if(frame != null) {
+            Dimension size = frame.getSize();
+            props.put("package.window.width", String.valueOf(size.width));
+            props.put("package.window.height", String.valueOf(size.height));
+        }
 
-	// save targets and dependencies in package
+        // save targets and dependencies in package
 
-	props.put("package.numTargets", String.valueOf(targets.size()));
-	props.put("package.numDependencies", 
-		  String.valueOf(usesArrows.size() + extendsArrows.size()));
-	//	if(relclassdir != null)
-	//	    Config.putPath(props, "package.classdir", relclassdir);
+        props.put("package.numTargets", String.valueOf(targets.size()));
+        props.put("package.numDependencies", 
+                  String.valueOf(usesArrows.size() + extendsArrows.size()));
+        //	if(relclassdir != null)
+        //	    Config.putPath(props, "package.classdir", relclassdir);
 
-	Enumeration t_enum = targets.elements();		// targets
-	for(int i = 0; t_enum.hasMoreElements(); i++) {
-	    Target t = (Target)t_enum.nextElement();
-	    t.save(props, "target" + (i + 1));
-	}
-	for(int i = 0; i < usesArrows.size(); i++) {		// uses arrows
-	    Dependency d = (Dependency)usesArrows.elementAt(i);
-	    d.save(props, "dependency" + (i + 1));
-	}
-	//	for(int i = 0; i < extendsArrows.size(); i++) {		// inherit arrows
-	//	    Dependency d = (Dependency)extendsArrows.elementAt(i);
-	//	    d.save(props, "dependency" + (usesArrows.size() + i + 1));
-	//	}
+        Enumeration t_enum = targets.elements();		// targets
+        for(int i = 0; t_enum.hasMoreElements(); i++) {
+            Target t = (Target)t_enum.nextElement();
+            t.save(props, "target" + (i + 1));
+        }
+        for(int i = 0; i < usesArrows.size(); i++) {		// uses arrows
+            Dependency d = (Dependency)usesArrows.elementAt(i);
+            d.save(props, "dependency" + (i + 1));
+        }
+        //	for(int i = 0; i < extendsArrows.size(); i++) {		// inherit arrows
+        //	    Dependency d = (Dependency)extendsArrows.elementAt(i);
+        //	    d.save(props, "dependency" + (usesArrows.size() + i + 1));
+        //	}
 
-	try {
-	    FileOutputStream output = new FileOutputStream(file);
-	    props.store(output, "BlueJ project file");
-	} catch(IOException e) {
-	    Debug.reportError("Error saving project file " + file + ": " + e);
-	    return false;
-	}
-	
-	return true;
+        try {
+            FileOutputStream output = new FileOutputStream(file);
+            props.store(output, "BlueJ project file");
+        } catch(IOException e) {
+            Debug.reportError("Error saving project file " + file + ": " + e);
+            return false;
+        }
+
+        return true;
     }
 
     public boolean save()
     {
-	return save(dirname);
+        return save(dirname);
     }
 
     /**
@@ -607,32 +608,32 @@ public class Package extends Graph
      */
     public int saveAs(String newname)
     {
-	if (!save(newname))
-	    return CREATE_ERROR;
+        if (!save(newname))
+            return CREATE_ERROR;
 
-	boolean okay = true;
-	Enumeration t_enum = targets.elements();
-	for(int i = 0; t_enum.hasMoreElements(); i++) {
-	    Target t = (Target)t_enum.nextElement();
-	    okay = okay && t.copyFiles(newname + Config.slash);
-	    if(t instanceof EditableTarget) {
-		// if editor is not null close it
-		if(((EditableTarget)t).editor != null)
-		    ((EditableTarget)t).editor.close();
-		// make editor null so existing references to old file are lost
-		((EditableTarget)t).editor = null;
-	    }
-	    
-	}
-	// PENDING: update all package directives in sources
+        boolean okay = true;
+        Enumeration t_enum = targets.elements();
+        for(int i = 0; t_enum.hasMoreElements(); i++) {
+            Target t = (Target)t_enum.nextElement();
+            okay = okay && t.copyFiles(newname + Config.slash);
+            if(t instanceof EditableTarget) {
+                // if editor is not null close it
+                if(((EditableTarget)t).editor != null)
+                    ((EditableTarget)t).editor.close();
+                // make editor null so existing references to old file are lost
+                ((EditableTarget)t).editor = null;
+            }
 
-	dirname = newname;
-	baseDir = null;		// will be recomputed
+        }
+        // PENDING: update all package directives in sources
 
-	if(okay)
-	    return NO_ERROR;
-	else
-	    return COPY_ERROR;
+        dirname = newname;
+        baseDir = null;		// will be recomputed
+
+        if(okay)
+            return NO_ERROR;
+        else
+            return COPY_ERROR;
     }
 
     /**
@@ -646,86 +647,86 @@ public class Package extends Graph
      */
     public int importFile(String sourcePath)
     {
-	// PENDING: must rewrite or remove package line in class source!
+        // PENDING: must rewrite or remove package line in class source!
 
-	// check whether specified class exists and is a java file
+        // check whether specified class exists and is a java file
 
-	File sourceFile = new File(sourcePath);
-	if(! sourceFile.exists())
-	    return FILE_NOT_FOUND;
-	String fileName = sourceFile.getName();
+        File sourceFile = new File(sourcePath);
+        if(! sourceFile.exists())
+            return FILE_NOT_FOUND;
+        String fileName = sourceFile.getName();
 
-	String className;
-	if(fileName.endsWith(".java"))		// it's a Java source file
-	    className = fileName.substring(0, fileName.length() - 5);
-	else 
-	    return ILLEGAL_FORMAT;
+        String className;
+        if(fileName.endsWith(".java"))		// it's a Java source file
+            className = fileName.substring(0, fileName.length() - 5);
+        else 
+            return ILLEGAL_FORMAT;
 
-	// check whether name is already used
-	if(getTarget(className) != null)
-	    return CLASS_EXISTS;
+        // check whether name is already used
+        if(getTarget(className) != null)
+            return CLASS_EXISTS;
 
-	// copy class source into package
+        // copy class source into package
 
-	String destPath = dirname + Config.slash + fileName;
-	if(!BlueJFileReader.copyFile(sourcePath, destPath))
-	    return COPY_ERROR;
+        String destPath = dirname + Config.slash + fileName;
+        if(!BlueJFileReader.copyFile(sourcePath, destPath))
+            return COPY_ERROR;
 
-	// create class icon (ClassTarget) for new class
+        // create class icon (ClassTarget) for new class
 
-	ClassTarget target = new ClassTarget(this, className);
-	addTarget(target);
-	target.analyseDependencies();
+        ClassTarget target = new ClassTarget(this, className);
+        addTarget(target);
+        target.analyseDependencies();
 
-	return NO_ERROR;
+        return NO_ERROR;
     }
-	
+
     public static boolean importDir(String dirname, String pkgname)
     {
-	File dir = new File(dirname);
-	if(!dir.isDirectory())
-	    return false;
-			
-	Package newPkg = new Package();
+        File dir = new File(dirname);
+        if(!dir.isDirectory())
+            return false;
 
-	// create targets for all files in dirname
-	newPkg.dirname = dirname;
-	newPkg.packageName = pkgname;
-		
-	int targetnum = 0;
-	String[] files = dir.list();
-	for(int i = 0; i < files.length; i++) {
-	    Target t = null;
-	    String filename = files[i];
-	    if(filename.endsWith(".java")) {  // it's a Java source file
-		String classname = filename.substring(0, filename.length() - 5);
-		t = new ClassTarget(newPkg, classname);
-	    }
-	    else if(pkgname != noPackage) {  // try subdirectories
-		File f = new File(dirname, filename);
-		String newname = pkgname + "." + filename;
-		if(f.isDirectory() && importDir(f.getPath(), newname))
-		    t = new PackageTarget(newPkg, filename, newname);
-	    }
+        Package newPkg = new Package();
 
-	    if(t != null) {
-		newPkg.addTarget(t);
-		t.setPos(20 + 100 * (targetnum % 5), 20 + 80 * (targetnum / 5));
-		++targetnum;
-	    }
-	}
-		
-	if(targetnum > 0) {
-	    newPkg.save(dirname);
-	    return true;
-	}
-	else
-	    return false;
+        // create targets for all files in dirname
+        newPkg.dirname = dirname;
+        newPkg.packageName = pkgname;
+
+        int targetnum = 0;
+        String[] files = dir.list();
+        for(int i = 0; i < files.length; i++) {
+            Target t = null;
+            String filename = files[i];
+            if(filename.endsWith(".java")) {  // it's a Java source file
+                String classname = filename.substring(0, filename.length() - 5);
+                t = new ClassTarget(newPkg, classname);
+            }
+            else if(pkgname != noPackage) {  // try subdirectories
+                File f = new File(dirname, filename);
+                String newname = pkgname + "." + filename;
+                if(f.isDirectory() && importDir(f.getPath(), newname))
+                    t = new PackageTarget(newPkg, filename, newname);
+            }
+
+            if(t != null) {
+                newPkg.addTarget(t);
+                t.setPos(20 + 100 * (targetnum % 5), 20 + 80 * (targetnum / 5));
+                ++targetnum;
+            }
+        }
+
+        if(targetnum > 0) {
+            newPkg.save(dirname);
+            return true;
+        }
+        else
+            return false;
     }
 
     public static boolean importDir(String dirname)
     {
-	return importDir(dirname, noPackage);
+        return importDir(dirname, noPackage);
     }
 
     /**
@@ -743,15 +744,15 @@ public class Package extends Graph
 
         if (getFrame() instanceof PkgMgrFrame) {
             // create class icon (ClassTarget) for new class
-            
+
             ImportedClassTarget target = new ImportedClassTarget(this, 
-								 qualifiedName);
+                                                                 qualifiedName);
             target.setState(Target.S_NORMAL);
             addTarget(target);
         }
         return NO_ERROR;
     }
-    
+
     /**
      * Add a new package to this package from a library.
      * Invoked by the library browser when the user
@@ -762,33 +763,33 @@ public class Package extends Graph
      * @return an error code indicating the status of the insert (e.g., INSERTOK)
      */
     public int insertLibPackage(String packageName) {
-	Debug.message("Inserting package: " + packageName + " in " + this.getFrame().getTitle());
+        Debug.message("Inserting package: " + packageName + " in " + this.getFrame().getTitle());
 
-	String packagePath = "";
-	if (getFrame() instanceof PkgMgrFrame) {
-	    //	    packagePath = ((PkgMgrFrame)getFrame()).getBrowser().getDirectoryForPackage(packageName);
-	    Debug.message("Package lives in directory: " + packagePath);
-	}
+        String packagePath = "";
+        if (getFrame() instanceof PkgMgrFrame) {
+            //	    packagePath = ((PkgMgrFrame)getFrame()).getBrowser().getDirectoryForPackage(packageName);
+            Debug.message("Package lives in directory: " + packagePath);
+        }
 
-	return NO_ERROR;
+        return NO_ERROR;
     }
-    
+
 
     public Enumeration getVertices()
     {
-	return targets.elements();
+        return targets.elements();
     }
 
     public Enumeration getEdges()
     {
-	Vector enumerations = new Vector();
-		
-	if(showUses)
-	    enumerations.addElement(usesArrows.elements());
-	if(showExtends)
-	    enumerations.addElement(extendsArrows.elements());
-		
-	return new MultiEnumeration(enumerations);
+        Vector enumerations = new Vector();
+
+        if(showUses)
+            enumerations.addElement(usesArrows.elements());
+        if(showExtends)
+            enumerations.addElement(extendsArrows.elements());
+
+        return new MultiEnumeration(enumerations);
     }
 
     /**
@@ -797,49 +798,49 @@ public class Package extends Graph
      */
     public String getBaseDir()
     {
-	if(baseDir == null) {
-	    if(packageName == noPackage) {
-		baseDir = dirname;
-	    }
-	    else {
-		String dir = new File(dirname).getAbsolutePath();
-		
-		int next = 0;
-		do {
-		    dir = new File(dir).getParent();
-		    next = packageName.indexOf('.', next + 1);
+        if(baseDir == null) {
+            if(packageName == noPackage) {
+                baseDir = dirname;
+            }
+            else {
+                String dir = new File(dirname).getAbsolutePath();
 
-		} while((next != -1) && (dir != null));
+                int next = 0;
+                do {
+                    dir = new File(dir).getParent();
+                    next = packageName.indexOf('.', next + 1);
 
-		baseDir = dir;
-	    }
-	}
-	return baseDir;
+                } while((next != -1) && (dir != null));
+
+                baseDir = dir;
+            }
+        }
+        return baseDir;
     }
-	
+
     /**
      *  The standard compile user function: Find and compile all uncompiled
      *  classes.
      */
     public void compile()
     {
-	if(!checkCompile())
-	    return;
+        if(!checkCompile())
+            return;
 
-	Vector toCompile = new Vector();
-		
-	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-	    Target target = (Target)e.nextElement();
-			
-	    if(target instanceof ClassTarget) {
-		ClassTarget ct = (ClassTarget)target;
-		if (ct.editorOpen())
-		    ct.getEditor().save();
-		if(ct.getState() == Target.S_INVALID)
-		    toCompile.addElement(ct);
-	    }
-	}
-	compileSet(toCompile);
+        Vector toCompile = new Vector();
+
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target target = (Target)e.nextElement();
+
+            if(target instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget)target;
+                if (ct.editorOpen())
+                    ct.getEditor().save();
+                if(ct.getState() == Target.S_INVALID)
+                    toCompile.addElement(ct);
+            }
+        }
+        compileSet(toCompile);
     }
 
     /**
@@ -847,97 +848,97 @@ public class Package extends Graph
      */
     public void compile(ClassTarget ct)
     {
-	if(!checkCompile())
-	    return;
+        if(!checkCompile())
+            return;
 
-	if (ct.editorOpen())
-	    ct.getEditor().save();
-	ct.setState(Target.S_INVALID);		// to force compile
+        if (ct.editorOpen())
+            ct.getEditor().save();
+        ct.setState(Target.S_INVALID);		// to force compile
 
-	searchCompile(ct, 1, new Stack());
+        searchCompile(ct, 1, new Stack());
     }
-	
+
 
     /**
      * Force compile of all classes. Called by user function "rebuild".
      */
     public void rebuild()
     {
-	if(!checkCompile())
-	    return;
+        if(!checkCompile())
+            return;
 
-	Vector v = new Vector();
-		
-	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-	    Target target = (Target)e.nextElement();
-			
-	    if(target instanceof ClassTarget) {
-		ClassTarget ct = (ClassTarget)target;
-		if (ct.editorOpen())
-		    ct.getEditor().save();
-		ct.setState(Target.S_INVALID);
-		ct.analyseDependencies();
-		v.addElement(ct);
-	    }
-	}
-	doCompile(v);
+        Vector v = new Vector();
+
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target target = (Target)e.nextElement();
+
+            if(target instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget)target;
+                if (ct.editorOpen())
+                    ct.getEditor().save();
+                ct.setState(Target.S_INVALID);
+                ct.analyseDependencies();
+                v.addElement(ct);
+            }
+        }
+        doCompile(v);
     }
 
 
     private void compileSet(Vector toCompile)
     {
-	for(int i = toCompile.size() - 1; i >= 0; i--)
-	    searchCompile((ClassTarget)toCompile.elementAt(i), 1, 
-			  new Stack());
+        for(int i = toCompile.size() - 1; i >= 0; i--)
+            searchCompile((ClassTarget)toCompile.elementAt(i), 1, 
+                          new Stack());
     }
 
 
     /** Use Tarjan's algorithm to construct compiler Jobs **/
     private void searchCompile(ClassTarget t, int dfcount, Stack stack)
     {
-	if((t.getState() != Target.S_INVALID) || t.isFlagSet(Target.F_QUEUED))
-	    return;
-		
-	t.setFlag(Target.F_QUEUED);
-	t.dfn = dfcount;
-	t.link = dfcount;
-		
-	stack.push(t);
-		
-	Enumeration dependencies = t.dependencies();
+        if((t.getState() != Target.S_INVALID) || t.isFlagSet(Target.F_QUEUED))
+            return;
 
-	while(dependencies.hasMoreElements()) {
-	    Dependency d = (Dependency)dependencies.nextElement();
-	    if(!(d.getTo() instanceof ClassTarget))
-		continue;
+        t.setFlag(Target.F_QUEUED);
+        t.dfn = dfcount;
+        t.link = dfcount;
 
-	    // XXX bad bad bad. Must fix
-	    if(d.getTo() instanceof ImportedClassTarget)
-		continue;
+        stack.push(t);
 
-	    ClassTarget to = (ClassTarget)d.getTo();
-			
-	    if(to.isFlagSet(Target.F_QUEUED)) {
-		if((to.dfn < t.dfn) && (stack.search(to) != -1))
-		    t.link = Math.min(t.link, to.dfn);
-	    }
-	    else if(to.getState() == Target.S_INVALID) {
-		searchCompile((ClassTarget)to, dfcount + 1, stack);
-		t.link = Math.min(t.link, to.link);
-	    }
-	}
-			
-	if(t.link == t.dfn) {
-	    Vector v = new Vector();
-	    ClassTarget x;
-			
-	    do {
-		x = (ClassTarget)stack.pop();
-		v.addElement(x);
-	    } while(x != t);
+        Enumeration dependencies = t.dependencies();
 
-	    doCompile(v);
-	}
+        while(dependencies.hasMoreElements()) {
+            Dependency d = (Dependency)dependencies.nextElement();
+            if(!(d.getTo() instanceof ClassTarget))
+                continue;
+
+            // XXX bad bad bad. Must fix
+            if(d.getTo() instanceof ImportedClassTarget)
+                continue;
+
+            ClassTarget to = (ClassTarget)d.getTo();
+
+            if(to.isFlagSet(Target.F_QUEUED)) {
+                if((to.dfn < t.dfn) && (stack.search(to) != -1))
+                    t.link = Math.min(t.link, to.dfn);
+            }
+            else if(to.getState() == Target.S_INVALID) {
+                searchCompile((ClassTarget)to, dfcount + 1, stack);
+                t.link = Math.min(t.link, to.link);
+            }
+        }
+
+        if(t.link == t.dfn) {
+            Vector v = new Vector();
+            ClassTarget x;
+
+            do {
+                x = (ClassTarget)stack.pop();
+                v.addElement(x);
+            } while(x != t);
+
+            doCompile(v);
+        }
     }
 
     /**
@@ -946,14 +947,14 @@ public class Package extends Graph
      */
     private void doCompile(Vector targets)
     {
-	String[] files = new String[targets.size()];
-	for(int i = 0; i < targets.size(); i++) {
-	    ClassTarget ct = (ClassTarget)targets.get(i);
-	    files[i] = ct.sourceFile();
-	}
-	removeBreakpoints();
+        String[] files = new String[targets.size()];
+        for(int i = 0; i < targets.size(); i++) {
+            ClassTarget ct = (ClassTarget)targets.get(i);
+            files[i] = ct.sourceFile();
+        }
+        removeBreakpoints();
 
-	bluej.compiler.JobQueue.getJobQueue().addJob(files, this, getClassPath(), getClassDir());
+        bluej.compiler.JobQueue.getJobQueue().addJob(files, this, getClassPath(), getClassDir());
     }
 
 
@@ -962,12 +963,12 @@ public class Package extends Graph
      */
     private boolean checkCompile()
     {
-	if(Debugger.debugger.getStatus() != Debugger.IDLE) {
-	    DialogManager.showMessage(frame, "compile-while-executing");
-	    return false;
-	}
-	else
-	    return true;
+        if(Debugger.debugger.getStatus() != Debugger.IDLE) {
+            DialogManager.showMessage(frame, "compile-while-executing");
+            return false;
+        }
+        else
+            return true;
     }
 
     /**
@@ -975,12 +976,12 @@ public class Package extends Graph
      */
     private void removeBreakpoints()
     {
-	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-	    Target target = (Target)e.nextElement();
-			
-	    if(target instanceof ClassTarget)
-		((ClassTarget)target).removeBreakpoints();
-	}
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target target = (Target)e.nextElement();
+
+            if(target instanceof ClassTarget)
+                ((ClassTarget)target).removeBreakpoints();
+        }
     }
 
     /**
@@ -988,22 +989,22 @@ public class Package extends Graph
      */
     public void removeStepMarks()
     {
-	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-	    Target target = (Target)e.nextElement();
-			
-	    if(target instanceof ClassTarget)
-		((ClassTarget)target).removeStepMark();
-	}
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target target = (Target)e.nextElement();
+
+            if(target instanceof ClassTarget)
+                ((ClassTarget)target).removeStepMark();
+        }
     }
 
     public void addTarget(Target t)
     {
-	targets.put(t.getName(), t);
+        targets.put(t.getName(), t);
     }
 
     public void removeTarget(Target t)
     {
-	targets.remove(t.getName());
+        targets.remove(t.getName());
     }
 
     /**
@@ -1014,12 +1015,12 @@ public class Package extends Graph
      */
     public void removeClass(Target removableTarget)
     {
-	if(removableTarget instanceof ClassTarget) 
-	    ((ClassTarget)removableTarget).prepareForRemoval();
+        if(removableTarget instanceof ClassTarget) 
+            ((ClassTarget)removableTarget).prepareForRemoval();
 
-	removeTarget(removableTarget);
-	editor.repaint();
-	save();
+        removeTarget(removableTarget);
+        editor.repaint();
+        save();
     }
 
     /**
@@ -1028,26 +1029,26 @@ public class Package extends Graph
      */
     public void addDependency(Dependency d, boolean recalc)
     {
-	if(d instanceof UsesDependency) {
-	    int index = usesArrows.indexOf(d);
-	    if(index != -1) {
-		((UsesDependency)usesArrows.get(index)).setFlag(true);
-		return;
-	    }
-	    else
-		usesArrows.addElement(d);
-	}
-	else {
-	    if(extendsArrows.contains(d))
-		return;
-	    else
-		extendsArrows.addElement(d);
-	}
-		
-	Target from = (Target)d.getFrom();
-	from.addDependencyOut(d, recalc);
-	Target to = (Target)d.getTo();
-	to.addDependencyIn(d, recalc);
+        if(d instanceof UsesDependency) {
+            int index = usesArrows.indexOf(d);
+            if(index != -1) {
+                ((UsesDependency)usesArrows.get(index)).setFlag(true);
+                return;
+            }
+            else
+                usesArrows.addElement(d);
+        }
+        else {
+            if(extendsArrows.contains(d))
+                return;
+            else
+                extendsArrows.addElement(d);
+        }
+
+        Target from = (Target)d.getFrom();
+        from.addDependencyOut(d, recalc);
+        Target to = (Target)d.getTo();
+        to.addDependencyIn(d, recalc);
     }
 
     /**
@@ -1059,11 +1060,11 @@ public class Package extends Graph
     public void userAddImplementsClassDependency(Dependency d)
     {
         ClassTarget from = (ClassTarget)d.getFrom();    // a class
-	ClassTarget to = (ClassTarget)d.getTo();        // an interface
+        ClassTarget to = (ClassTarget)d.getTo();        // an interface
         Editor ed = from.getEditor();
-   
+
         // Debug.message("Implements class dependency from " + from.getName() + " to " + to.getName());
-        
+
         try {
             ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
 
@@ -1074,9 +1075,9 @@ public class Package extends Graph
                 // if we already have an implements clause then we need to put a
                 // comma and the interface name but not before checking that we don't
                 // already have it
-                
+
                 Vector exists = info.getClassImplementsTexts();
-                
+
                 // XXX make this equality check against full package name
                 if(!exists.contains(to.getName()))
                     ed.insertText(", " + to.getName(), false, false);
@@ -1103,11 +1104,11 @@ public class Package extends Graph
     public void userAddImplementsInterfaceDependency(Dependency d)
     {
         ClassTarget from = (ClassTarget)d.getFrom();    // an interface
-	ClassTarget to = (ClassTarget)d.getTo();        // an interface
+        ClassTarget to = (ClassTarget)d.getTo();        // an interface
         Editor ed = from.getEditor();
-   
+
         // Debug.message("Implements interface dependency from " + from.getName() + " to " + to.getName());
-        
+
         try {
             ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
 
@@ -1118,9 +1119,9 @@ public class Package extends Graph
                 // if we already have an extends clause then we need to put a
                 // comma and the interface name but not before checking that we don't
                 // already have it
-                
+
                 Vector exists = info.getInterfaceExtendsTexts();
-                
+
                 // XXX make this equality check against full package name
                 if(!exists.contains(to.getName()))
                     ed.insertText(", " + to.getName(), false, false);
@@ -1147,12 +1148,12 @@ public class Package extends Graph
     public void userAddExtendsClassDependency(Dependency d)
     {
         ClassTarget from = (ClassTarget)d.getFrom();
-	ClassTarget to = (ClassTarget)d.getTo();
+        ClassTarget to = (ClassTarget)d.getTo();
         Editor ed = from.getEditor();
 
         try {
             ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
-            
+
             if (info.getSuperclass() == null) {
                 Selection s1 = info.getClassExtendsInsertSelection();
 
@@ -1182,8 +1183,8 @@ public class Package extends Graph
     {
         // if they are not both classtargets then I don't want to know about it
         if (!(d.getFrom() instanceof ClassTarget) ||
-	    !(d.getTo() instanceof ClassTarget))
-	    return;
+            !(d.getTo() instanceof ClassTarget))
+            return;
 
         ClassTarget from = (ClassTarget)d.getFrom();
         ClassTarget to = (ClassTarget)d.getTo();
@@ -1197,41 +1198,41 @@ public class Package extends Graph
             String sinserttext = "";
 
             if(d instanceof ImplementsDependency)
-		{
-		    Vector vsels, vtexts;
+                {
+                    Vector vsels, vtexts;
 
-		    if(info.isInterface())
-			{
-			    vsels = info.getInterfaceExtendsSelections();
-			    vtexts = info.getInterfaceExtendsTexts();
-			    sinserttext = "extends ";
-			} else {
-			    vsels = info.getClassImplementsSelections();
-			    vtexts = info.getClassImplementsTexts();
-			    sinserttext = "implements ";
-			}                    
+                    if(info.isInterface())
+                        {
+                            vsels = info.getInterfaceExtendsSelections();
+                            vtexts = info.getInterfaceExtendsTexts();
+                            sinserttext = "extends ";
+                        } else {
+                            vsels = info.getClassImplementsSelections();
+                            vtexts = info.getClassImplementsTexts();
+                            sinserttext = "implements ";
+                        }                    
 
-		    int where = vtexts.indexOf(to.getName());
-                
-		    if (where > 0)              // should always be true
-			{
-			    s1 = (Selection)vsels.get(where-1);
-			    s2 = (Selection)vsels.get(where);
-			}
-		    // we have a special case if we deleted the first bit of an "implements"
-		    // clause, yet there are still clauses left.. we have to replace the ","
-		    // with "implements" (note that there must already be a leading space so we
-		    // do not need to insert one but we may need a trailing space)
-		    if(where == 1 && vsels.size() > 2) {
-			sinsert = (Selection)vsels.get(where+1);
-		    }
-		}
+                    int where = vtexts.indexOf(to.getName());
+
+                    if (where > 0)              // should always be true
+                        {
+                            s1 = (Selection)vsels.get(where-1);
+                            s2 = (Selection)vsels.get(where);
+                        }
+                    // we have a special case if we deleted the first bit of an "implements"
+                    // clause, yet there are still clauses left.. we have to replace the ","
+                    // with "implements" (note that there must already be a leading space so we
+                    // do not need to insert one but we may need a trailing space)
+                    if(where == 1 && vsels.size() > 2) {
+                        sinsert = (Selection)vsels.get(where+1);
+                    }
+                }
             else if(d instanceof ExtendsDependency)
-		{
-		    // a class extends
-		    s1 = info.getClassExtendsReplaceSelection();
-		    s2 = info.getClassSuperClassReplaceSelection();
-		}
+                {
+                    // a class extends
+                    s1 = info.getClassExtendsReplaceSelection();
+                    s2 = info.getClassSuperClassReplaceSelection();
+                }
 
             // delete (maybe insert) text from end backwards so that our line/col positions
             // for s1 are not mucked up by the deletion
@@ -1280,36 +1281,36 @@ public class Package extends Graph
 
     public void recalcArrows()
     {
-	Enumeration e = getVertices();
-	while(e.hasMoreElements()) {
-	    Target t = (Target)e.nextElement();
-	    
-	    t.recalcInUses();
-	    t.recalcOutUses();
-	}
+        Enumeration e = getVertices();
+        while(e.hasMoreElements()) {
+            Target t = (Target)e.nextElement();
+
+            t.recalcInUses();
+            t.recalcOutUses();
+        }
     }
 
     public void setActiveVertex(Vertex v)
     {
-	if(selected != null)
-	    selected.toggleFlag(Target.F_SELECTED);
-	selected = (Target)v;
-	if(selected != null) {
-	    // XXX: currently broken
-	    // int index = targets.indexOf(selected);
-	    // int last = targets.size() - 1;
-	    // Swap selected vertex with top
-	    // targets.setElementAt(targets.elementAt(last), index);
-	    // targets.setElementAt(selected, last);
+        if(selected != null)
+            selected.toggleFlag(Target.F_SELECTED);
+        selected = (Target)v;
+        if(selected != null) {
+            // XXX: currently broken
+            // int index = targets.indexOf(selected);
+            // int last = targets.size() - 1;
+            // Swap selected vertex with top
+            // targets.setElementAt(targets.elementAt(last), index);
+            // targets.setElementAt(selected, last);
 
-	    selected.toggleFlag(Target.F_SELECTED);
-	}
+            selected.toggleFlag(Target.F_SELECTED);
+        }
     }
 
     public Target getTarget(String tname)
     {
-	Target t = (Target)targets.get(tname);
-	return t;
+        Target t = (Target)targets.get(tname);
+        return t;
     }
 
     /**
@@ -1318,14 +1319,14 @@ public class Package extends Graph
      */
     public Vector getAllClassnames()
     {
-	Vector names = new Vector();
+        Vector names = new Vector();
 
-	for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
-	    Target t = (Target)e.nextElement();
-	    if(t instanceof ClassTarget || t instanceof PackageTarget)
-		names.add(t.getName());
-	}
-	return names;
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); ) {
+            Target t = (Target)e.nextElement();
+            if(t instanceof ClassTarget || t instanceof PackageTarget)
+                names.add(t.getName());
+        }
+        return names;
     }
 
     /**
@@ -1335,80 +1336,80 @@ public class Package extends Graph
      */
     public ClassTarget getTargetFromFilename(String filename)
     {
-	for(Enumeration e = targets.elements(); e.hasMoreElements(); )
-	    {
-		Target t = (Target)e.nextElement();
-		if(!(t instanceof ClassTarget))
-		    continue;
-				
-		ClassTarget ct = (ClassTarget)t;
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); )
+            {
+                Target t = (Target)e.nextElement();
+                if(!(t instanceof ClassTarget))
+                    continue;
 
-		if(filename.equals(ct.sourceFile()))
-		    return ct;
-	    }
+                ClassTarget ct = (ClassTarget)t;
 
-	return null;
+                if(filename.equals(ct.sourceFile()))
+                    return ct;
+            }
+
+        return null;
     }
 
     public EditableTarget getTargetFromEditor(Editor editor)
     {
-	for(Enumeration e = targets.elements(); e.hasMoreElements(); )
-	    {
-		Target t = (Target)e.nextElement();
-		if(!(t instanceof EditableTarget))
-		    continue;
-				
-		EditableTarget et = (EditableTarget)t;
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); )
+            {
+                Target t = (Target)e.nextElement();
+                if(!(t instanceof EditableTarget))
+                    continue;
 
-		if(et.usesEditor(editor))
-		    return et;
-	    }
+                EditableTarget et = (EditableTarget)t;
 
-	return null;
+                if(et.usesEditor(editor))
+                    return et;
+            }
+
+        return null;
     }
 
     public boolean toggleShowUses()
     {
-	showUses = !showUses;
-	return showUses;
+        showUses = !showUses;
+        return showUses;
     }
-	
+
     public boolean toggleShowExtends()
     {
-	showExtends = !showExtends;
-	return showExtends;
+        showExtends = !showExtends;
+        return showExtends;
     }
-	
+
     public void setState(int state)
     {
-	// Clean up after current state, if necessary
-	switch(this.state) {
-	case S_DELARROW:
-	    if(currentArrow != null) {
-		currentArrow.highlight(frame.editor.getGraphics());
-		currentArrow = null;
-	    }
-	    frame.editor.removeMouseListener(this);
-	    frame.editor.removeMouseMotionListener(this);
-	    break;
-	}
-		
-	this.state = state;
-		
-	// Set up new state, if necessary
-	switch(this.state) {
-	case S_DELARROW:
-	    frame.editor.addMouseListener(this);
-	    frame.editor.addMouseMotionListener(this);
-	    break;
-	}
+        // Clean up after current state, if necessary
+        switch(this.state) {
+        case S_DELARROW:
+            if(currentArrow != null) {
+                currentArrow.highlight(frame.editor.getGraphics());
+                currentArrow = null;
+            }
+            frame.editor.removeMouseListener(this);
+            frame.editor.removeMouseMotionListener(this);
+            break;
+        }
+
+        this.state = state;
+
+        // Set up new state, if necessary
+        switch(this.state) {
+        case S_DELARROW:
+            frame.editor.addMouseListener(this);
+            frame.editor.addMouseMotionListener(this);
+            break;
+        }
     }
 
     public int getState()
     {
-	return state;
+        return state;
     }
-	
+
     /**
      * Return a path to a file in this package. This is done
      * by concatenating the path to the package and the name
@@ -1419,22 +1420,22 @@ public class Package extends Graph
      */
     public String getFileName(String basename)
     {
-	return dirname + Config.slash + basename;
+        return dirname + Config.slash + basename;
     }
-	
+
     public String getClassFileName(String basename)
     {
-	String dir = dirname;
+        String dir = dirname;
 
-	if(classdir != null) {
-	    dir = classdir;
-	    if(basename.indexOf('.') == -1)
-		basename = getQualifiedName(basename);
-	}
-			
-	return dir + Config.slash + basename.replace('.', Config.slash);
+        if(classdir != null) {
+            dir = classdir;
+            if(basename.indexOf('.') == -1)
+                basename = getQualifiedName(basename);
+        }
+
+        return dir + Config.slash + basename.replace('.', Config.slash);
     }
-	
+
     /**
      * Return the name of a target qualified by the package name (eg for
      * basename "JFrame" and package "javax.swing" return
@@ -1443,10 +1444,10 @@ public class Package extends Graph
      */
     public String getQualifiedName(String basename)
     {
-	if((packageName == noPackage) || (basename.indexOf('.', 0) != -1))
-	    return basename;
-	else
-	    return packageName + "." + basename;
+        if((packageName == noPackage) || (basename.indexOf('.', 0) != -1))
+            return basename;
+        else
+            return packageName + "." + basename;
     }
 
     /**
@@ -1455,71 +1456,71 @@ public class Package extends Graph
      */
     void targetSelected(Target t)
     {
-	switch(getState()) {
-	case S_CHOOSE_USES_FROM:
-	    fromChoice = t;
-	    setState(S_CHOOSE_USES_TO);
-	    frame.setStatus(chooseUsesTo);
-	    break;
+        switch(getState()) {
+        case S_CHOOSE_USES_FROM:
+            fromChoice = t;
+            setState(S_CHOOSE_USES_TO);
+            frame.setStatus(chooseUsesTo);
+            break;
 
-	case S_CHOOSE_USES_TO:
-	    if (t != fromChoice) {
-		setState(S_IDLE);
-		addDependency(new UsesDependency(this, fromChoice, t), true);
-		frame.clearStatus();
-	    }
-	    break;
+        case S_CHOOSE_USES_TO:
+            if (t != fromChoice) {
+                setState(S_IDLE);
+                addDependency(new UsesDependency(this, fromChoice, t), true);
+                frame.clearStatus();
+            }
+            break;
 
-	case S_CHOOSE_EXT_FROM:
-	    fromChoice = t;
-	    setState(S_CHOOSE_EXT_TO);
-	    frame.setStatus(chooseInhTo);
-	    break;
+        case S_CHOOSE_EXT_FROM:
+            fromChoice = t;
+            setState(S_CHOOSE_EXT_TO);
+            frame.setStatus(chooseInhTo);
+            break;
 
         case S_CHOOSE_EXT_TO:
             if (t != fromChoice) {
                 setState(S_IDLE);
                 if(t instanceof ClassTarget && fromChoice instanceof ClassTarget)
-		    {
-			ClassTarget from = (ClassTarget)fromChoice;
-			ClassTarget to = (ClassTarget)t;
-                    
-			// if the target is an interface then we have an implements
-			// dependency
-			if(to.isInterface())
-			    {
-				Dependency d = new ImplementsDependency(this, from, to);
+                    {
+                        ClassTarget from = (ClassTarget)fromChoice;
+                        ClassTarget to = (ClassTarget)t;
 
-				if(from.isInterface()) {
-				    userAddImplementsInterfaceDependency(d);
-				} else {
-				    userAddImplementsClassDependency(d);
-				}
+                        // if the target is an interface then we have an implements
+                        // dependency
+                        if(to.isInterface())
+                            {
+                                Dependency d = new ImplementsDependency(this, from, to);
 
-				addDependency(d, true);
-			    }
-			else {
-			    // an extends dependency can only be from a class to another
-			    // class
-			    if(!from.isInterface()) {
-				Dependency d = new ExtendsDependency(this, from, to);
-				userAddExtendsClassDependency(d);
-				addDependency(d, true);
-			    }
-			}
-		    }
+                                if(from.isInterface()) {
+                                    userAddImplementsInterfaceDependency(d);
+                                } else {
+                                    userAddImplementsClassDependency(d);
+                                }
+
+                                addDependency(d, true);
+                            }
+                        else {
+                            // an extends dependency can only be from a class to another
+                            // class
+                            if(!from.isInterface()) {
+                                Dependency d = new ExtendsDependency(this, from, to);
+                                userAddExtendsClassDependency(d);
+                                addDependency(d, true);
+                            }
+                        }
+                    }
                 frame.clearStatus();
             }
-	    break;
+            break;
 
-	default:
-	    // e.g. deleting arrow - selecting target ignored
-	    break;
-	}
-	if (getState() == S_IDLE) 
-	    frame.resetDependencyButtons();
+        default:
+            // e.g. deleting arrow - selecting target ignored
+            break;
+        }
+        if (getState() == S_IDLE) 
+            frame.resetDependencyButtons();
     }
-	
+
     /**
      * Report an execption. Usually, we do this through "errorMessage", but
      * if we cannot make sense of the message format, and thus cannot figure
@@ -1527,7 +1528,7 @@ public class Package extends Graph
      */
     public void reportException(String text)
     {
-	DialogManager.showMessageWithText(frame, "exception-thrown", text);
+        DialogManager.showMessageWithText(frame, "exception-thrown", text);
     }
 
     /**
@@ -1535,7 +1536,7 @@ public class Package extends Graph
      */
     public void forgetLastSource()
     {
-	lastSourceName = "";
+        lastSourceName = "";
     }
 
     /**
@@ -1543,21 +1544,21 @@ public class Package extends Graph
      * (highlight line in source, pop up exec controls).
      */
     public boolean showSource(String sourcename, int lineNo, 
-			      String threadName, boolean breakpoint)
+                              String threadName, boolean breakpoint)
     {
-	String msg = " ";
+        String msg = " ";
 
-	if(breakpoint)
-	    msg = "Thread \"" + threadName + "\" stopped at breakpoint.";
+        if(breakpoint)
+            msg = "Thread \"" + threadName + "\" stopped at breakpoint.";
 
-	boolean bringToFront = !sourcename.equals(lastSourceName);
-	lastSourceName = sourcename;
+        boolean bringToFront = !sourcename.equals(lastSourceName);
+        lastSourceName = sourcename;
 
-	if(! showEditorMessage(getFileName(sourcename), lineNo, msg,
-			       false, false, bringToFront, true, null))
-	    DialogManager.showMessageWithText(frame, "break-no-source", 
-					      sourcename);
-	return bringToFront;
+        if(! showEditorMessage(getFileName(sourcename), lineNo, msg,
+                               false, false, bringToFront, true, null))
+            DialogManager.showMessageWithText(frame, "break-no-source", 
+                                              sourcename);
+        return bringToFront;
     }
 
     /**
@@ -1566,29 +1567,29 @@ public class Package extends Graph
      * and showing the message in the editor's information area.
      */
     private boolean showEditorMessage(String filename, int lineNo, 
-				      String message, boolean invalidate, 
-				      boolean beep, boolean bringToFront,
-				      boolean setStepMark, String help)
+                                      String message, boolean invalidate, 
+                                      boolean beep, boolean bringToFront,
+                                      boolean setStepMark, String help)
     {
-	ClassTarget t = getTargetFromFilename(filename);
+        ClassTarget t = getTargetFromFilename(filename);
 
-	if(t == null)
-	    return false;
+        if(t == null)
+            return false;
 
-	if(invalidate) {
-	    t.setState(Target.S_INVALID);
-	    t.unsetFlag(Target.F_QUEUED);
-	}
+        if(invalidate) {
+            t.setState(Target.S_INVALID);
+            t.unsetFlag(Target.F_QUEUED);
+        }
 
-	if(bringToFront || !t.getEditor().isShowing())
-	    t.open();
-	Editor editor = t.getEditor();
-	if(editor!=null)
-	    editor.displayMessage(message, lineNo, 0, beep, setStepMark, 
-				  help);
-	return true;
+        if(bringToFront || !t.getEditor().isShowing())
+            t.open();
+        Editor editor = t.getEditor();
+        if(editor!=null)
+            editor.displayMessage(message, lineNo, 0, beep, setStepMark, 
+                                  help);
+        return true;
     }
-	                                     
+
     // ---- bluej.compiler.CompileObserver interface ----
 
     /**
@@ -1597,14 +1598,14 @@ public class Package extends Graph
      */
     public void startCompile(String[] sources)
     {
-	frame.setStatus(compiling);
-	for(int i = 0; i < sources.length; i++) {
-	    String filename = sources[i];
-			
-	    ClassTarget t = getTargetFromFilename(filename);
-	    if(t != null)
-		t.setState(ClassTarget.S_COMPILING);
-	}
+        frame.setStatus(compiling);
+        for(int i = 0; i < sources.length; i++) {
+            String filename = sources[i];
+
+            ClassTarget t = getTargetFromFilename(filename);
+            if(t != null)
+                t.setState(ClassTarget.S_COMPILING);
+        }
     }
 
     /**
@@ -1613,29 +1614,29 @@ public class Package extends Graph
      * and showing the message in the editor's information area.
      */
     public void errorMessage(String filename, int lineNo, String message,
-			     boolean invalidate)
+                             boolean invalidate)
     {
-	if(! showEditorMessage(filename, lineNo, message, invalidate, true,
-			       true, false, Config.compilertype))
-	    DialogManager.showMessageWithText(frame, "error-in-file",
-					      filename + ":" + lineNo + 
-					      "\n" + message);
+        if(! showEditorMessage(filename, lineNo, message, invalidate, true,
+                               true, false, Config.compilertype))
+            DialogManager.showMessageWithText(frame, "error-in-file",
+                                              filename + ":" + lineNo + 
+                                              "\n" + message);
     }
-	
+
     /**
      * Display an exception message. This is almost the same as "errorMessage"
      * except for different help texts.
      */
     public void exceptionMessage(String filename, int lineNo, String message,
-				 boolean invalidate)
+                                 boolean invalidate)
     {
-	if(! showEditorMessage(filename, lineNo, message, invalidate, true, 
-			       true, false, "exception"))
-	    DialogManager.showMessageWithText(frame, "error-in-file",
-					      filename + ":" + lineNo + 
-					      "\n" + message);
+        if(! showEditorMessage(filename, lineNo, message, invalidate, true, 
+                               true, false, "exception"))
+            DialogManager.showMessageWithText(frame, "error-in-file",
+                                              filename + ":" + lineNo + 
+                                              "\n" + message);
     }
-	
+
     /**
      *  Compilation has ended.  Mark the affected classes as being
      *  normal again.
@@ -1644,34 +1645,34 @@ public class Package extends Graph
     {
 
 
-	for(int i = 0; i < sources.length; i++) {
-	    String filename = sources[i];
+        for(int i = 0; i < sources.length; i++) {
+            String filename = sources[i];
 
-	    ClassTarget t = getTargetFromFilename(filename);
+            ClassTarget t = getTargetFromFilename(filename);
 
-	    if (successful) {
+            if (successful) {
 
-		try {
-		    ClassInfo info = ClassParser.parse(t.sourceFile(), getAllClassnames());
+                try {
+                    ClassInfo info = ClassParser.parse(t.sourceFile(), getAllClassnames());
 
-		    OutputStream out = new FileOutputStream(t.contextFile());
-		    info.getComments().store(out, "BlueJ class context for " + filename);
-		    out.close();
-		} catch (Exception ex) {
-		    ex.printStackTrace();
-		}    
-	    }
+                    OutputStream out = new FileOutputStream(t.contextFile());
+                    info.getComments().store(out, "BlueJ class context for " + filename);
+                    out.close();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }    
+            }
 
-	    t.setState(successful ? Target.S_NORMAL : Target.S_INVALID);
-	    t.unsetFlag(Target.F_QUEUED);
-	    if(successful && t.editorOpen())
-		t.getEditor().setCompiled(true);
-	}
-	frame.setStatus(compileDone);
-	frame.editor.repaint();
+            t.setState(successful ? Target.S_NORMAL : Target.S_INVALID);
+            t.unsetFlag(Target.F_QUEUED);
+            if(successful && t.editorOpen())
+                t.getEditor().setCompiled(true);
+        }
+        frame.setStatus(compileDone);
+        frame.editor.repaint();
 
     }
-	
+
     // ---- end of bluej.compiler.CompileObserver interface ----
 
 
@@ -1681,7 +1682,7 @@ public class Package extends Graph
      */
     public void reportExit(String exitCode)
     {
-	DialogManager.showMessageWithText(frame, "system-exit", exitCode);
+        DialogManager.showMessageWithText(frame, "system-exit", exitCode);
     }
 
     /**
@@ -1690,10 +1691,10 @@ public class Package extends Graph
      */
     private synchronized ClassLoader getLocalClassLoader()
     {
-	if(loader == null)
-	    loader = ClassMgr.getLoader(getClassDir());
-		
-	return loader;
+        if(loader == null)
+            loader = ClassMgr.getLoader(getClassDir());
+
+        return loader;
     }
 
     /**
@@ -1704,19 +1705,19 @@ public class Package extends Graph
      */
     synchronized void removeLocalClassLoader()
     {
-	if(loader != null) {
-	    // remove objects loaded by this classloader
-	    ObjectBench bench = getBench();
-	    ObjectWrapper[] wrappers = bench.getWrappers();
-	    for(int i = 0; i < wrappers.length; i++) {
-		if(wrappers[i].getPackage() == this)
-		    bench.remove(wrappers[i], getId());
-	    }
+        if(loader != null) {
+            // remove objects loaded by this classloader
+            ObjectBench bench = getBench();
+            ObjectWrapper[] wrappers = bench.getWrappers();
+            for(int i = 0; i < wrappers.length; i++) {
+                if(wrappers[i].getPackage() == this)
+                    bench.remove(wrappers[i], getId());
+            }
 
-	    // XXX: remove views for classes loaded by this classloader
+            // XXX: remove views for classes loaded by this classloader
 
-	    loader = null;
-	}
+            loader = null;
+        }
     }
 
     /**
@@ -1726,21 +1727,21 @@ public class Package extends Graph
      */
     public synchronized DebuggerClassLoader getRemoteClassLoader()
     {
-	if(debuggerLoader == null)
-	    debuggerLoader = Debugger.debugger.createClassLoader(getId(), getClassDir());
-	return debuggerLoader;
+        if(debuggerLoader == null)
+            debuggerLoader = Debugger.debugger.createClassLoader(getId(), getClassDir());
+        return debuggerLoader;
     }
-	
+
     /**
      * removeRemoteClassLoader - removes the remote VM classloader
      *  Should be run whenever a source file changes
      */
     synchronized void removeRemoteClassLoader()
     {
-	if(debuggerLoader != null) {
-	    Debugger.debugger.removeClassLoader(debuggerLoader);
-	    debuggerLoader = null;
-	}
+        if(debuggerLoader != null) {
+            Debugger.debugger.removeClassLoader(debuggerLoader);
+            debuggerLoader = null;
+        }
     }
 
     /**
@@ -1749,14 +1750,14 @@ public class Package extends Graph
      */
     public Class loadClass(String className)
     {
-	try {
-	    return getLocalClassLoader().loadClass(className);
-	} catch(ClassNotFoundException e) {
-	    e.printStackTrace();
-	    return null;
-	}
+        try {
+            return getLocalClassLoader().loadClass(className);
+        } catch(ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-	
+
 
     /**
      * closeAllEditors - closes all currently open editors within package
@@ -1764,16 +1765,16 @@ public class Package extends Graph
      */
     public void closeAllEditors()
     {
-	for(Enumeration e = targets.elements(); e.hasMoreElements(); )
-	    {
-		Target t = (Target)e.nextElement();
-		if(t instanceof ClassTarget)
-		    {
-			ClassTarget ct = (ClassTarget)t;
-			if(ct.editorOpen())
-			    ct.getEditor().close();
-		    }
-	    }
+        for(Enumeration e = targets.elements(); e.hasMoreElements(); )
+            {
+                Target t = (Target)e.nextElement();
+                if(t instanceof ClassTarget)
+                    {
+                        ClassTarget ct = (ClassTarget)t;
+                        if(ct.editorOpen())
+                            ct.getEditor().close();
+                    }
+            }
     }
 
 
@@ -1783,18 +1784,18 @@ public class Package extends Graph
      */
     public CallHistory getCallHistory()
     {
-	return callHistory;
+        return callHistory;
     }
 
 
-	
+
     // Add a title to printouts
     static final int PRINT_HMARGIN = 16;
     static final int PRINT_VMARGIN = 16;
     static final Font printTitleFont = new Font("SansSerif", Font.PLAIN, 
-						Config.printTitleFontsize);
+                                                Config.printTitleFontsize);
     static final Font printInfoFont = new Font("SansSerif", Font.ITALIC, 
-					       Config.printInfoFontsize);
+                                               Config.printInfoFontsize);
 
     /**
      * Return the rectangle on the page in which to draw the class diagram.
@@ -1803,14 +1804,14 @@ public class Package extends Graph
      */
     public Rectangle getPrintArea(Dimension pageSize)
     {
-	FontMetrics tfm = frame.getFontMetrics(printTitleFont);
-	FontMetrics ifm = frame.getFontMetrics(printInfoFont);
-		
-	return new Rectangle(PRINT_HMARGIN,
-			     PRINT_VMARGIN + tfm.getHeight() + 4,
-			     pageSize.width - 2 * PRINT_HMARGIN,
-			     pageSize.height - 2 * PRINT_VMARGIN - 
-			     tfm.getHeight() - ifm.getHeight() - 4 );
+        FontMetrics tfm = frame.getFontMetrics(printTitleFont);
+        FontMetrics ifm = frame.getFontMetrics(printInfoFont);
+
+        return new Rectangle(PRINT_HMARGIN,
+                             PRINT_VMARGIN + tfm.getHeight() + 4,
+                             pageSize.width - 2 * PRINT_HMARGIN,
+                             pageSize.height - 2 * PRINT_VMARGIN - 
+                             tfm.getHeight() - ifm.getHeight() - 4 );
     }
 
     /**
@@ -1818,50 +1819,50 @@ public class Package extends Graph
      */
     public void printTitle(Graphics g, Dimension pageSize, int pageNum)
     {
-	FontMetrics tfm = frame.getFontMetrics(printTitleFont);
-	FontMetrics ifm = frame.getFontMetrics(printInfoFont);
-	Rectangle printArea = getPrintArea(pageSize);
+        FontMetrics tfm = frame.getFontMetrics(printTitleFont);
+        FontMetrics ifm = frame.getFontMetrics(printInfoFont);
+        Rectangle printArea = getPrintArea(pageSize);
 
-	// frame header area
-	g.setColor(lightGrey);
-	g.fillRect(printArea.x, PRINT_VMARGIN, printArea.width, 
-		   printArea.y - PRINT_VMARGIN);
+        // frame header area
+        g.setColor(lightGrey);
+        g.fillRect(printArea.x, PRINT_VMARGIN, printArea.width, 
+                   printArea.y - PRINT_VMARGIN);
 
-	g.setColor(titleCol);
-	g.drawRect(printArea.x, PRINT_VMARGIN, printArea.width, 
-		   printArea.y - PRINT_VMARGIN);
+        g.setColor(titleCol);
+        g.drawRect(printArea.x, PRINT_VMARGIN, printArea.width, 
+                   printArea.y - PRINT_VMARGIN);
 
-	// frame print area
-	g.drawRect(printArea.x, printArea.y, printArea.width, 
-		   printArea.height);
+        // frame print area
+        g.drawRect(printArea.x, printArea.y, printArea.width, 
+                   printArea.height);
 
-	// write header
-	String title = (packageName == noPackage) ? dirname : packageName;
-	g.setFont(printTitleFont);
-	Utility.drawCentredText(g, "BlueJ package - " + title,
-				printArea.x, PRINT_VMARGIN, 
-				printArea.width, tfm.getHeight());
+        // write header
+        String title = (packageName == noPackage) ? dirname : packageName;
+        g.setFont(printTitleFont);
+        Utility.drawCentredText(g, "BlueJ package - " + title,
+                                printArea.x, PRINT_VMARGIN, 
+                                printArea.width, tfm.getHeight());
 
-	// write footer
-	g.setFont(printInfoFont);
-	Utility.drawRightText(g, (new Date()) + ", page " + pageNum,
-			      printArea.x, printArea.y + printArea.height,
-			      printArea.width, ifm.getHeight());
+        // write footer
+        g.setFont(printInfoFont);
+        Utility.drawRightText(g, (new Date()) + ", page " + pageNum,
+                              printArea.x, printArea.y + printArea.height,
+                              printArea.width, ifm.getHeight());
     }
-	
+
     /**
      * Called after a change to a Target
      */
     public void invalidate(Target t)
     {
-	if(t instanceof ClassTarget) {
-	    ClassTarget ct = (ClassTarget)t;
+        if(t instanceof ClassTarget) {
+            ClassTarget ct = (ClassTarget)t;
 
-	    if((loader != null) /*&& loader.hasClass(ct.getName())*/) {
-		removeLocalClassLoader();
-		removeRemoteClassLoader();
-	    }
-	}
+            if((loader != null) /*&& loader.hasClass(ct.getName())*/) {
+                removeLocalClassLoader();
+                removeRemoteClassLoader();
+            }
+        }
     }
 
     /**
@@ -1869,48 +1870,48 @@ public class Package extends Graph
      */
     Dependency findArrow(int x, int y)
     {
-	// FIX: check if translation necessary (scrolling, etc.)
-		
-	for(Enumeration e = usesArrows.elements(); e.hasMoreElements(); ) {
-	    Dependency d = (Dependency)e.nextElement();
-	    if(d.contains(x, y))
-		return d;
-	}
-		
-	for(Enumeration e = extendsArrows.elements(); e.hasMoreElements(); ) {
-	    Dependency d = (Dependency)e.nextElement();
-	    if(d.contains(x, y))
-		return d;
-	}
-		
-	return null;
+        // FIX: check if translation necessary (scrolling, etc.)
+
+        for(Enumeration e = usesArrows.elements(); e.hasMoreElements(); ) {
+            Dependency d = (Dependency)e.nextElement();
+            if(d.contains(x, y))
+                return d;
+        }
+
+        for(Enumeration e = extendsArrows.elements(); e.hasMoreElements(); ) {
+            Dependency d = (Dependency)e.nextElement();
+            if(d.contains(x, y))
+                return d;
+        }
+
+        return null;
     }
-	
+
     // MouseListener interface
 
     public void mousePressed(MouseEvent evt)
     {
-	switch(state) {
-	case S_DELARROW:
-	    Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
-	    if((currentArrow != null) && (currentArrow != selectedArrow))
-		currentArrow.highlight(frame.editor.getGraphics());
-	    if(selectedArrow != null)
-		{
+        switch(state) {
+        case S_DELARROW:
+            Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
+            if((currentArrow != null) && (currentArrow != selectedArrow))
+                currentArrow.highlight(frame.editor.getGraphics());
+            if(selectedArrow != null)
+                {
 
-		    if (!(selectedArrow instanceof UsesDependency))
-			{
-			    userRemoveDependency(selectedArrow);
-			}
-		    removeDependency(selectedArrow, true);
-		    frame.editor.repaint();
-		}
-	    currentArrow = null;
-	    setState(S_IDLE);
-	    break;
-	}
+                    if (!(selectedArrow instanceof UsesDependency))
+                        {
+                            userRemoveDependency(selectedArrow);
+                        }
+                    removeDependency(selectedArrow, true);
+                    frame.editor.repaint();
+                }
+            currentArrow = null;
+            setState(S_IDLE);
+            break;
+        }
     }
-	
+
     public void mouseReleased(MouseEvent evt) {}
     public void mouseClicked(MouseEvent evt) {}
     public void mouseEntered(MouseEvent evt) {}
@@ -1922,15 +1923,15 @@ public class Package extends Graph
 
     public void mouseMoved(MouseEvent evt)
     {
-	switch(state) {
-	case S_DELARROW:	// currently deleting an arrow
-	    Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
-	    if((currentArrow != null) && (currentArrow != selectedArrow))
-		currentArrow.highlight(frame.editor.getGraphics());
-	    if((selectedArrow != null) && (currentArrow != selectedArrow))
-		selectedArrow.highlight(frame.editor.getGraphics());
-	    currentArrow = selectedArrow;
-	    break;
-	}
+        switch(state) {
+        case S_DELARROW:	// currently deleting an arrow
+            Dependency selectedArrow = findArrow(evt.getX(), evt.getY());
+            if((currentArrow != null) && (currentArrow != selectedArrow))
+                currentArrow.highlight(frame.editor.getGraphics());
+            if((selectedArrow != null) && (currentArrow != selectedArrow))
+                selectedArrow.highlight(frame.editor.getGraphics());
+            currentArrow = selectedArrow;
+            break;
+        }
     }
 }
