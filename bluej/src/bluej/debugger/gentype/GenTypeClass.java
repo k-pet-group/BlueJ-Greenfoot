@@ -11,7 +11,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 2621 2004-06-18 01:58:59Z davmac $
+ * @version $Id: GenTypeClass.java 2640 2004-06-21 05:08:18Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -299,7 +299,8 @@ public class GenTypeClass extends GenTypeSolid {
             // Check that the super inherits from the generic version of base
             GenTypeClass baseDecl = curSubtype.superTypeByName(curBase.getName());
             if( baseDecl.params == null )
-                return null;
+                // Note, must return a mutable map - not Collections.EMPTY_MAP
+                return new HashMap();
             
             Iterator i = l.iterator();
             Iterator baseDeclI = baseDecl.params.iterator();

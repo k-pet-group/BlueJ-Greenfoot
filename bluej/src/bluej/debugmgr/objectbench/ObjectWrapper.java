@@ -1,25 +1,36 @@
 package bluej.debugmgr.objectbench;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
 
-import bluej.*;
+import bluej.BlueJEvent;
+import bluej.Config;
 import bluej.debugger.DebuggerObject;
-import bluej.debugmgr.*;
-import bluej.debugmgr.inspector.*;
-import bluej.pkgmgr.*;
+import bluej.debugmgr.ExpressionInformation;
+import bluej.debugmgr.Invoker;
+import bluej.debugmgr.ResultWatcher;
+import bluej.debugmgr.inspector.Inspector;
+import bluej.debugmgr.inspector.ObjectInspector;
+import bluej.debugmgr.inspector.ResultInspector;
+import bluej.extmgr.MenuManager;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
-import bluej.testmgr.record.*;
-import bluej.utility.*;
-import bluej.views.*;
-import bluej.extmgr.*;
+import bluej.testmgr.record.InvokerRecord;
+import bluej.testmgr.record.ObjectInspectInvokerRecord;
+import bluej.utility.Debug;
+import bluej.utility.JavaNames;
+import bluej.utility.Utility;
+import bluej.views.MethodView;
+import bluej.views.View;
+import bluej.views.ViewFilter;
 
 /**
  * A wrapper around a Java object that handles calling methods, inspecting, etc.
@@ -28,7 +39,7 @@ import bluej.extmgr.*;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 2633 2004-06-19 14:46:42Z polle $
+ * @version $Id: ObjectWrapper.java 2640 2004-06-21 05:08:18Z davmac $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -114,9 +125,10 @@ public class ObjectWrapper extends JComponent
         this.obj = obj;
         this.setName(instanceName);
 
-        className = obj.getGenClassName();
+        // Must use the raw class name for createMenu call
+        createMenu(obj.getClassName());
 
-        createMenu(className);
+        className = obj.getGenClassName();
 
         int dot_index = className.lastIndexOf('.');
         if(dot_index >= 0)
@@ -161,6 +173,7 @@ public class ObjectWrapper extends JComponent
      * class inheritance hierarchy.
      *
      * @param className   class name of the object for which the menu is to be built
+     *                    ("raw" name only)
      */
     protected void createMenu(String className)
     {
