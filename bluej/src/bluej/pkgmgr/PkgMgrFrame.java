@@ -27,7 +27,7 @@ import bluej.utility.filefilter.JavaSourceFilter;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 639 2000-07-10 12:38:29Z ajp $
+ * @version $Id: PkgMgrFrame.java 647 2000-07-24 23:32:46Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -560,7 +560,7 @@ public class PkgMgrFrame extends JFrame
 
         switch(evtId) {
         case PackageEditorEvent.TARGET_CALLABLE:   // user has initiated method
-                                                   //  call or constructor
+            //  call or constructor
             callMethod(e.getCallable());
             break;
 
@@ -569,8 +569,8 @@ public class PkgMgrFrame extends JFrame
             doRemove((Target) e.getSource());
             break;
 
-         case PackageEditorEvent.TARGET_OPEN:       // user has initiated a
-                                                    //   package open operation
+        case PackageEditorEvent.TARGET_OPEN:       // user has initiated a
+            //   package open operation
             openPackageTarget(e.getName());
             break;
 
@@ -665,7 +665,7 @@ public class PkgMgrFrame extends JFrame
             createNewPackage();
             break;
 
-         case EDIT_ADDCLASS:
+        case EDIT_ADDCLASS:
             doAddFromFile();
             break;
 
@@ -701,7 +701,7 @@ public class PkgMgrFrame extends JFrame
             pkg.rebuild();
             break;
 
-         case TOOLS_GENERATEDOC:
+        case TOOLS_GENERATEDOC:
             String message = pkg.generateDocumentation();
             if (message!="")
                 DialogManager.showText(this,message);
@@ -919,12 +919,12 @@ public class PkgMgrFrame extends JFrame
         // project or a new project
         if (!isEmptyFrame()) {
             switch (DialogManager.askQuestion(this, "import-into-current")) {
-             case 0:
+            case 0:
                 intoNewProject = false;
                 break;
-             case 2:
+            case 2:
                 return;
-             default:
+            default:
                 break;
             }
         }
@@ -932,9 +932,9 @@ public class PkgMgrFrame extends JFrame
         // prompt for the directory to import from
         File importDir;
         String importName = FileUtility.getFileName(this,
-                                Config.getString("pkgmgr.importPkg.title"),
-                                Config.getString("pkgmgr.importPkg.buttonLabel"),
-                                false);
+                                                    Config.getString("pkgmgr.importPkg.title"),
+                                                    Config.getString("pkgmgr.importPkg.buttonLabel"),
+                                                    false);
 
         if (importName == null)
             return;
@@ -947,9 +947,9 @@ public class PkgMgrFrame extends JFrame
         // prompt for the new project to create (if required)
         if (intoNewProject) {
             String newProj = FileUtility.getFileName(this,
-                                Config.getString("pkgmgr.importPkgNew.title"),
-                                Config.getString("pkgmgr.importPkgNew.buttonLabel"),
-                                false);
+                                                     Config.getString("pkgmgr.importPkgNew.title"),
+                                                     Config.getString("pkgmgr.importPkgNew.buttonLabel"),
+                                                     false);
 
             if (newProj == null)
                 return;
@@ -968,7 +968,7 @@ public class PkgMgrFrame extends JFrame
 
         // recursively copy files from import directory to package directory
         Object[] fails = FileUtility.recursiveCopyFile(
-                                        new File(importName), getPackage().getPath());
+                                                       new File(importName), getPackage().getPath());
 
         // if we have any files which failed the copy, we show them now
         if (fails != null) {
@@ -990,8 +990,8 @@ public class PkgMgrFrame extends JFrame
     private void doAddFromFile()
     {
         String className = FileUtility.getFileName(this,
-                            addClassTitle, addLabel, false,
-                            FileUtility.getJavaSourceFilter());
+                                                   addClassTitle, addLabel, false,
+                                                   FileUtility.getJavaSourceFilter());
 
         if(className == null)
             return;
@@ -1000,19 +1000,19 @@ public class PkgMgrFrame extends JFrame
 
         int result = pkg.importFile(classFile);
         switch (result) {
-         case Package.NO_ERROR:
+        case Package.NO_ERROR:
             editor.repaint();
             break;
-         case Package.FILE_NOT_FOUND:
+        case Package.FILE_NOT_FOUND:
             DialogManager.showError(this, "file-does-not-exist");
             break;
-         case Package.ILLEGAL_FORMAT:
+        case Package.ILLEGAL_FORMAT:
             DialogManager.showError(this, "cannot-import");
             break;
-         case Package.CLASS_EXISTS:
+        case Package.CLASS_EXISTS:
             DialogManager.showError(this, "duplicate-name");
             break;
-         case Package.COPY_ERROR:
+        case Package.COPY_ERROR:
             DialogManager.showError(this, "error-in-import");
             break;
         }
@@ -1043,138 +1043,12 @@ public class PkgMgrFrame extends JFrame
      */
     private void print()
     {
-        PrinterThread printer = new PrinterThread();
+        PackagePrinter printer = new PackagePrinter(pkg, pageFormat);
         printer.setPriority((Thread.currentThread().getPriority() - 1));
         printer.start();
     }
 
-    class PrinterThread extends Thread implements Printable
-    {
-        public void run()
-        {
-            this.printPackage();
-        }
-
-        private void printPackage()
-        {
-
-            PrinterJob printerJob = PrinterJob.getPrinterJob();
-
-            Dimension graphSize = pkg.getMinimumSize();
-            printerJob.setPrintable(this, pageFormat);
-
-            if (printerJob.printDialog()) {
-                setStatus(Config.getString("pkgmgr.info.printing"));
-                try {
-                    // call the Printable interface to do the actual printing
-                    printerJob.print();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-                setStatus(Config.getString("pkgmgr.info.printed"));
-            }
-        }
-
-        private int pageColumns = 0;
-        private int pageRows = 0;
-        private int currentColumn = 0;
-        private int currentRow = 0;
-
-        final static int a4Width = 595;
-        final static int a4Height = 840;
-
-        /**
-         * Method that implements Printable interface and does that actual printing of
-         * class diagram.
-         */
-        public int print(Graphics g, PageFormat pageFormat, int pageIndex)
-        {
-            // temporary solution that only prints one page
-            if(pageIndex >= 1)
-                return Printable.NO_SUCH_PAGE;
-
-            Dimension pageSize = new Dimension((int)pageFormat.getImageableWidth(),
-                                               (int)pageFormat.getImageableHeight());
-            Dimension graphSize = pkg.getMinimumSize();
-            Rectangle printArea = getPrintArea(pageFormat);
-            pageColumns = (graphSize.width + printArea.width - 1) / printArea.width;
-            pageRows = (graphSize.height + printArea.height - 1) / printArea.height;
-
-            // loop does not do much at present, only first page printed
-            for(int i = 0; i < pageRows; i++) {
-                for(int j = 0; j < 1; j++) {
-                    printTitle(g, pageFormat, i * pageColumns + j + 1);
-                    g.translate(printArea.x - j * printArea.width,
-                                printArea.y - i * printArea.height);
-                    g.setClip(j * printArea.width, i * printArea.height,
-                              printArea.width, printArea.height);
-                    editor.paint(g);
-                }
-            }
-            return Printable.PAGE_EXISTS;
-        }
-    } // end of nested class PrinterThread
-
-    // Add a title to printouts
-    static final int PRINT_HMARGIN = 6;
-    static final int PRINT_VMARGIN = 24;
-    static final Font printTitleFont = new Font("SansSerif", Font.PLAIN,
-                                                12); //Config.printTitleFontsize);
-    static final Font printInfoFont = new Font("SansSerif", Font.ITALIC,
-                                               10); //Config.printInfoFontsize);
-
-    /**
-     * Return the rectangle on the page in which to draw the class diagram.
-     * The rectangle is the page minus margins minus space for header and
-     * footer text.
-     */
-    public Rectangle getPrintArea(PageFormat pageFormat)
-    {
-        FontMetrics tfm = getFontMetrics(printTitleFont);
-        FontMetrics ifm = getFontMetrics(printInfoFont);
-        return new Rectangle((int)pageFormat.getImageableX() + PRINT_HMARGIN,
-                             (int)pageFormat.getImageableY() + 2 * PRINT_VMARGIN,
-                             (int)pageFormat.getImageableWidth() - (2 * PRINT_HMARGIN),
-                             (int)pageFormat.getImageableHeight() - (2 * PRINT_VMARGIN));
-    }
-
-    /**
-     * Print the page title and other page decorations (frame, footer).
-     */
-    public void printTitle(Graphics g, PageFormat pageFormat, int pageNum)
-    {
-        FontMetrics tfm = getFontMetrics(printTitleFont);
-        FontMetrics ifm = getFontMetrics(printInfoFont);
-        Rectangle printArea = new Rectangle((int)pageFormat.getImageableX(),
-                                            (int)pageFormat.getImageableY(),
-                                            (int)pageFormat.getImageableWidth(),
-                                            (int)pageFormat.getImageableHeight());
-
-        // frame header area
-        //XXX        g.setColor(lightGrey);
-        g.fillRect(printArea.x, printArea.y, printArea.width, PRINT_VMARGIN);
-
-        //XXX        g.setColor(titleCol);
-        g.drawRect(printArea.x, printArea.y, printArea.width, PRINT_VMARGIN);
-
-        // frame print area
-        g.drawRect(printArea.x, printArea.y, printArea.width,
-                   printArea.height - PRINT_VMARGIN);
-
-        // write header
-        /*XXX        String title = (packageName == noPackage) ? dirname : packageName;
-          g.setFont(printTitleFont);
-          Utility.drawCentredText(g, "BlueJ package - " + title,
-          printArea.x, printArea.y,
-          printArea.width, tfm.getHeight());
-          // write footer
-          g.setFont(printInfoFont);
-          DateFormat dateFormat = DateFormat.getDateTimeInstance();
-          Utility.drawRightText(g, dateFormat.format(new Date()) + ", page " + pageNum,
-          printArea.x, printArea.y + printArea.height - PRINT_VMARGIN,
-          printArea.width, ifm.getHeight()); */
-    }
-
+   
     /**
      * Interactively call a method or a constructor
      */
@@ -2099,3 +1973,4 @@ public class PkgMgrFrame extends JFrame
         }
     }
 }
+
