@@ -1,11 +1,14 @@
 package bluej.pkgmgr;
 
 import java.awt.EventQueue;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 import bluej.Config;
-import bluej.classmgr.*;
+import bluej.classmgr.ClassMgr;
+import bluej.classmgr.ClassPath;
+import bluej.classmgr.ProjectClassLoader;
 import bluej.debugger.*;
 import bluej.debugmgr.ExecControls;
 import bluej.extmgr.ExtensionsManager;
@@ -21,7 +24,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2985 2004-09-06 00:28:59Z davmac $
+ * @version $Id: Project.java 2986 2004-09-06 00:58:01Z davmac $
  */
 public class Project
     implements DebuggerListener
@@ -810,7 +813,12 @@ public class Project
 	 */
 	public synchronized void newRemoteClassLoader()
 	{
-		getDebugger().newClassLoader(getProjectDir().getPath());
+	    new Thread() {
+	        public void run()
+	        {
+	            getDebugger().newClassLoader(getProjectDir().getPath());
+	        }
+	    }.start();
 	}
 
     /**
@@ -819,7 +827,12 @@ public class Project
      */
     public synchronized void newRemoteClassLoaderLeavingBreakpoints()
     {
-        getDebugger().newClassLoaderLeavingBreakpoints(getProjectDir().getPath());
+        new Thread() {
+            public void run()
+            {
+                getDebugger().newClassLoaderLeavingBreakpoints(getProjectDir().getPath());
+            }
+        }.start();
     }
 
 	public Debugger getDebugger()
