@@ -81,12 +81,19 @@
         />
 
         <!-- compile and run the installer -->
-        <javac srcdir="."
+        <javac
+               executable="${build_java_home}/bin/javac"
+               fork="yes"
+               srcdir="."
                destdir="."
                includes="Installer.java"
         />
 
-        <java classname="Installer" fork="yes" jvm="${build_java_home}/bin/java">
+        <java
+               classname="Installer"
+               fork="yes"
+               jvm="${build_java_home}/bin/java"
+            >
             <classpath>
                  <pathelement location="." />
             </classpath>

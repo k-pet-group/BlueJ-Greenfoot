@@ -9,7 +9,7 @@
          tools.jar file to use with it. Note that in general all
          compilation should be done on the minimum supported JDK for
          BlueJ (which is currently 1.3) -->
-    <property name="build_java_home" value="o:\programming\jdk1.3"/>
+    <property name="build_java_home" value="/usr/jdk-1.3.1_08"/>
 
     <!-- set to the location of the test bluej installation
          the extension jar will be installed into this installations extension
@@ -42,7 +42,10 @@
                 cache="depcache"
                 closure="no" -->
         <!-- Compile the java code from ${src} into ${build} -->
-        <javac srcdir="${src}"
+        <javac
+            executable="${build_java_home}/bin/javac"
+            fork="yes"
+            srcdir="${src}"
             destdir="${build}"
             deprecation = "yes"
             debug = "yes">
@@ -77,8 +80,8 @@
     </target>
 
     <target name="clean">
-        <!-- Delete the ${build} directory trees -->
-        <delete dir="${build}" />
+        <!-- Delete the classes in the ${build} directory trees -->
+        <delete dir="${build}/org" />
         <delete file="${bluej_home}/lib/extensions/${output_jar}" />
     </target>
 
