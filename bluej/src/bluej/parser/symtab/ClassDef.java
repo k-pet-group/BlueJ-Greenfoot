@@ -2,7 +2,6 @@
 package bluej.parser.symtab;
 
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Vector;
 
 /*****************************************************************************
