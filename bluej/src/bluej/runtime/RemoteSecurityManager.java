@@ -8,8 +8,9 @@ import java.awt.*;
 /**
  * A SecurityManager for the BlueJ runtime
  *
- * @author Michael Cahill
- * @author Michael Kolling
+ * @author  Michael Cahill
+ * @author  Michael Kolling
+ * @version $Id: RemoteSecurityManager.java 309 1999-12-10 05:46:35Z ajp $
  */
 public class RemoteSecurityManager extends SecurityManager
 {
@@ -34,7 +35,7 @@ public class RemoteSecurityManager extends SecurityManager
          * we are running as the AWT thread and if so, set an
          * event so that later on all the top level windows
          * will be disposed (we assume this is the behaviour the
-         * programmer wished by calling System.exit()
+         * programmer wished by calling System.exit())
          */
         if (EventQueue.isDispatchThread())
         {
@@ -50,7 +51,7 @@ public class RemoteSecurityManager extends SecurityManager
             oldErr = System.err;
             throwawayErr = new ByteArrayOutputStream();
 
-            System.setErr(new PrintStream(throwawayErr));            
+            System.setErr(new PrintStream(throwawayErr));
 
             Toolkit.getDefaultToolkit().getSystemEventQueue().
               invokeLater(new Runnable() {
@@ -60,7 +61,7 @@ public class RemoteSecurityManager extends SecurityManager
                 }
             });
 
-            // this exception will not ever be printed out            
+            // this exception will not ever be printed out
             throw new ExitException(Integer.toString(status));
         }
         else {
@@ -72,28 +73,34 @@ public class RemoteSecurityManager extends SecurityManager
      * With the exception of checkExit(int) we want to
      * behave just as if there were no SecurityManager
      * installed, so we override to do nothing.
-     * 
+     *
      * @param perm The permission object to ignore.
      */
-    public void checkPermission(Permission perm) {}
-     
+    public void checkPermission(Permission perm)
+    {
+
+    }
+
     /**
      * With the exception of checkExit(int) we want to
      * behave just as if there were no SecurityManager
      * installed, so we override to do nothing.
-     * 
+     *
      * @param perm The permission object to ignore.
      * @param context The context object to ignore.
      */
-    public void checkPermission(Permission perm, Object context)  {} 
-	
+    public void checkPermission(Permission perm, Object context)
+    {
+
+    }
+
     ThreadGroup threadGroup;
 
     public void setThreadGroup(ThreadGroup threadGroup)
     {
         this.threadGroup = threadGroup;
     }
-	
+
     public ThreadGroup getThreadGroup()
     {
         if(threadGroup != null)

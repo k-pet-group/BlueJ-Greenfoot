@@ -16,7 +16,7 @@ import java.awt.event.*;
  * Class that controls the runtime of code executed within BlueJ.
  * Sets up a SecurityManager, initial thread state, etc.
  *
- * This class both holds runtime attibutes and executes commands. 
+ * This class both holds runtime attibutes and executes commands.
  * Execution is done through a call to the "main" method. The main method
  * is executed on the remote machine; its parameters encode the actual
  * action to be taken. See "main" for more detail.
@@ -41,13 +41,13 @@ public class ExecServer
     private RemoteClassMgr classmgr;
     private Hashtable loaders;
     private static Hashtable scopes = new Hashtable();
-    
+
     /**
      * We need to keep track of open windows so that we can dispose of them
      * when simulating a System.exit() call
      */
     private static Set openWindows = new TreeSet();
-    
+
     //private ServerThread servThread;
 
     /**
@@ -55,41 +55,40 @@ public class ExecServer
      *
      */
     public static void main(String[] args)
-	throws Throwable
+        throws Throwable
     {
-	server = new ExecServer();
-	server.suspendExecution();
+        server = new ExecServer();
+        server.suspendExecution();
     }
 
     // -- instance methods --
 
     ExecServer()
     {
-	//Debug.message("[VM] creating server object");
+        //Debug.message("[VM] creating server object");
 
-	loaders = new Hashtable();
+        loaders = new Hashtable();
 
-	BlueJSecurityManager manager = new BlueJSecurityManager();
-	System.setSecurityManager(manager);
+        System.setSecurityManager(new RemoteSecurityManager());
 
-	classmgr = new RemoteClassMgr();
+        classmgr = new RemoteClassMgr();
 
-	// the following causes the class loader mechanism to be initialised:
-	// we attempt to load a (non-existent) class
+        // the following causes the class loader mechanism to be initialised:
+        // we attempt to load a (non-existent) class
 
-	try {
-	    createClassLoader("#dummy", ".");
-	    loadClass("#dummy", "Dummy");
-	    removeClassLoader("#dummy");
-	}
-	catch(Exception e) {
-	    // ignore - we will get a ClassNotFound exception here
-	}
+        try {
+            createClassLoader("#dummy", ".");
+            loadClass("#dummy", "Dummy");
+            removeClassLoader("#dummy");
+        }
+        catch(ClassNotFoundException cfe) {
+            // ignore - we will get a ClassNotFound exception here
+        }
 
         // register a listener to record all window opens and closes
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
-        
+
         AWTEventListener listener = new AWTEventListener()
         {
             public void eventDispatched(AWTEvent event)
@@ -101,7 +100,7 @@ public class ExecServer
                 }
             }
         };
-        
+
         toolkit.addAWTEventListener(listener, AWTEvent.WINDOW_EVENT_MASK);
 
 	//	servThread = new ServerThread();
@@ -120,7 +119,7 @@ public class ExecServer
 //      }
 
 //      /**
-//       *  
+//       *
 //       */
 //      public synchronized void waitForever()
 //      {
@@ -147,46 +146,45 @@ public class ExecServer
     /**
      * Perform a task here on the remote VM.
      *
-     * This method is called from the main VM to initiate a task here on 
+     * This method is called from the main VM to initiate a task here on
      * this VM.
      */
-    public ClassLoader performTask(int taskType, String arg1, 
-			    String arg2, String arg3, String arg4)
+    public ClassLoader performTask(int taskType, String arg1,
+                                    String arg2, String arg3, String arg4)
 	throws Throwable
     {
-	try {
-	    switch(taskType) {
-
-	    case CREATE_LOADER:
-		return createClassLoader(arg1, arg2);
-	    case REMOVE_LOADER:
-		removeClassLoader(arg1);
-		return null;
-	    case LOAD_CLASS:
-		loadClass(arg1, arg2);
-		return null;
-	    case ADD_OBJECT:
-		addObject(arg1, arg2, arg3, arg4);
-		return null;
-	    case REMOVE_OBJECT:
-		removeObject(arg1, arg2);
-		return null;
-	    case SET_LIBRARIES:
-		setLibraries(arg1);
-		return null;
-	    }
-	}
-	catch(Exception e) {
-	    Debug.message("Exception while performing task: " + e);
-	}
-	return null;
+        try {
+            switch(taskType) {
+            case CREATE_LOADER:
+                return createClassLoader(arg1, arg2);
+            case REMOVE_LOADER:
+                removeClassLoader(arg1);
+                return null;
+            case LOAD_CLASS:
+                loadClass(arg1, arg2);
+                return null;
+            case ADD_OBJECT:
+                addObject(arg1, arg2, arg3, arg4);
+                return null;
+            case REMOVE_OBJECT:
+                removeObject(arg1, arg2);
+                return null;
+            case SET_LIBRARIES:
+                setLibraries(arg1);
+                return null;
+            }
+        }
+        catch(Exception e) {
+            Debug.message("Exception while performing task: " + e);
+        }
+        return null;
     }
 
 
     /**
      * Create a new class loader for a given classpath.
      */
-    private ClassLoader createClassLoader(String loaderId, 
+    private ClassLoader createClassLoader(String loaderId,
 					       String classpath)
     {
 	//Debug.reportError("[VM] createClassLoader " + loaderId);
@@ -238,7 +236,7 @@ public class ExecServer
 	    Debug.reportError("Could not load class for execution");
 	else
 	    prepareClass(cl);
-	    
+
 	return cl;
     }
 
@@ -305,7 +303,7 @@ public class ExecServer
 
     /**
      *  Remove an object from a package scope. This has to be done tolerantly:
-     *  If the named instance is not in the scope, we just quetly return. 
+     *  If the named instance is not in the scope, we just quetly return.
      */
     static void removeObject(String scopeId, String instanceName)
     {
@@ -335,9 +333,9 @@ public class ExecServer
      */
     static void addWindow(Object o)
     {
-        openWindows.add(o);            
+        openWindows.add(o);
     }
-    
+
     /**
      * Remove the object from our list of open windows
      *
@@ -345,28 +343,28 @@ public class ExecServer
      */
     static void removeWindow(Object o)
     {
-        openWindows.remove(o);            
+        openWindows.remove(o);
     }
 
     /**
      * Dispose of all the top level windows we think are open
-     */    
+     */
     static void disposeWindows()
     {
         Iterator it = openWindows.iterator();
-        
+
         while(it.hasNext())
         {
             Object o = it.next();
-            
+
             if (o instanceof Window)
             {
                 Window w = (Window) o;
                 w.dispose();
             }
         }
-        
-        openWindows.clear();    
+
+        openWindows.clear();
     }
 
     /**
@@ -376,5 +374,5 @@ public class ExecServer
     private void setLibraries(String libraries)
     {
         classmgr.setLibraries(libraries);
-    } 
+    }
 }
