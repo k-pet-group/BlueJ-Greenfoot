@@ -3,10 +3,7 @@ package bluej.browser;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.tree.*;
-import javax.swing.plaf.basic.*;
-
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -28,35 +25,32 @@ import bluej.classmgr.ClassMgr;
 import bluej.classmgr.ClassPathEntry;
 
 /**
+ * Display packages in a tree form.
+ *
  * A JPanel subclass with a JTree containing all the packages specified in the
- * configuration files.
+ * class manager.
  * 
- * @author Andy Marks
- * @author Andrew Patterson
- * @version $Id: LibraryChooser.java 277 1999-11-16 00:57:17Z ajp $
+ * @author  Andy Marks
+ * @author  Andrew Patterson
+ * @cvs     $Id: LibraryChooser.java 282 1999-11-18 10:36:00Z ajp $
  */
 public class LibraryChooser extends JPanel implements Runnable
 {
-
     private LibraryChooserNode root = null;
     private JTree tree = null;
     private DefaultTreeModel treeModel = null;
     
-    // popup menus
-    //  private LibraryPopupMenu libPopup = new LibraryPopupMenu(this);
-
     /**
-     * Create a new LibraryChooser.  Initialize the tree from the libraries
-     * specified in the configuration files.
-     * 
-     * @param parent the LibraryBrowser object containing the LibraryChooser.
+     * Create a new LibraryChooser.
+     *
+     * Initialize the tree from the libraries specified by the class manager.
      */
     public LibraryChooser()
     {
         setBackground(Color.white);
+        setLayout(new BorderLayout());
     
         loadLibraries();
-
     }
 
     /**
@@ -88,7 +82,23 @@ public class LibraryChooser extends JPanel implements Runnable
         }
     }	
 
+    protected void fireFinishedEvent() {
+        // huaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i] == LibraryChooserListener.class) {
+                ((LibraryChooserListener)listeners[i+1]).nodeEvent(
+                        new LibraryChooserEvent(this,
+                                LibraryChooserEvent.FINISHED_LOADING, null));
+            }	       
+        }
+    }	
+
     /**
+     * Find all classes belong to a package in our tree.
+     *
      * Create and return an array of Strings to identify all the 
      * classes that belong to the package represented by the node
      * ie if the node represented the package java.lang, the returned
@@ -132,10 +142,7 @@ public class LibraryChooser extends JPanel implements Runnable
     }
 
     /**
-     * Use the user and system configuration files to load the libraries
-     * into the tree.  Create a hashtable of all the libraries and their
-     * aliases, and then use the hashtable to build the tree in a separate
-     * thread.
+     * Use the class manager to load the libraries into the tree. 
      */
     public void loadLibraries()
     {
@@ -169,8 +176,9 @@ public class LibraryChooser extends JPanel implements Runnable
      * No attempt at thread synchronization is made here, so beware of any
      * attemps to access the tree's contents before this method has completed.
      */
-    public void run() {
-
+    public void run()
+    {
+        // iterate through all the libraries the class manager knows about
         Iterator libraries = ClassMgr.getClassMgr().getAllClassPathEntries();
     
         while (libraries.hasNext()) {
@@ -179,26 +187,7 @@ public class LibraryChooser extends JPanel implements Runnable
             addLibraryToTree(new ClassPathEntryNode(cpe));
         }
                                
-        setupTree();
-    
-        // dont' add tree to UI until all it's data has been loaded.
-        JScrollPane scrollPane = new JScrollPane(tree);
-
-        setLayout(new BorderLayout());
-        add(scrollPane, BorderLayout.CENTER);
-    
-        revalidate();
-    }
-    
-    /**
-     * Perform tree initialization such as setting up
-     * listeners to display information about a selected
-     * tree node on the status line, expanding the tree
-     * to make all the top level nodes visible and setting
-     * the renderer to a LibraryTreeCellRenderer.
-     */
-    private void setupTree() {
-        tree.getSelectionModel().setSelectionMode (TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         // listen for when the selection changes.
 
@@ -206,7 +195,8 @@ public class LibraryChooser extends JPanel implements Runnable
             new TreeSelectionListener()
             {
                 public void valueChanged(TreeSelectionEvent e) {
-                    LibraryChooserNode node = (LibraryChooserNode)(e.getPath().getLastPathComponent());
+                    LibraryChooserNode node = (LibraryChooserNode)
+                                                (e.getPath().getLastPathComponent());
 
                     fireNodeEvent(node);
                 }
@@ -219,24 +209,35 @@ public class LibraryChooser extends JPanel implements Runnable
     
         Enumeration topLevelNodes = root.children();
         while (topLevelNodes.hasMoreElements())
-            tree.expandPath(new TreePath(((DefaultMutableTreeNode)topLevelNodes.nextElement()).getPath()));
+            tree.expandPath(new TreePath(((DefaultMutableTreeNode)
+                                            topLevelNodes.nextElement()).getPath()));
             
-        // let's use the same icon for all nodes
+        // make it so it doesn't show any leaf icons
         DefaultTreeCellRenderer rend = new DefaultTreeCellRenderer();
         rend.setLeafIcon(null);
         rend.setClosedIcon(null);
         rend.setOpenIcon(null);
         
-        tree.setCellRenderer(rend); //new LibraryTreeCellRenderer(this));
-    }
+        tree.setCellRenderer(rend);
+    
+        // now add the tree to the scroller
+        JScrollPane scrollPane = new JScrollPane(tree);
 
+        add(scrollPane, BorderLayout.CENTER);
+    
+        revalidate();
+
+        fireFinishedEvent();
+    }
+    
     /**
      * Remove all branches of the tree that do not contain any files
      * (unless they are .class files).
      * 
      * @param node the node of the tree from which to start pruning.
      */
-    private void pruneNodeOfEmptyDirectories(LibraryChooserNode node) {
+    private void pruneNodeOfEmptyDirectories(LibraryChooserNode node)
+    {
         boolean prunedOnLastPass = true;
         
         // short circuit the pruning for a completely empty node
@@ -266,78 +267,6 @@ public class LibraryChooser extends JPanel implements Runnable
         }
     }
 
-    /**
-     * Make sure the node for the <code>thePackage</code> is visible in
-     * the tree.  Invoked when a new package in the class chooser is
-     * double clicked.
-     * <strong>Note: will not select the root node.</strong>
-     * <strong>Known bugs: will not work with a package with more than 20 elements (i.e., 1.2.,19.20.21)</strong>
-     * 
-     * @param thePackage the name of the package to select in absolute path format
-     * @return true if the package was found and selected
-     */
-    public boolean selectPackageInTree(String thePackage) {
-        /*
-          Sample thePackage parameter: "C:\bluej.src\bluej.debugger"
-          Algorithm to find tree node to select based on thePackage parameter:
-          (1) find alias matching start of string
-          (2) if no alias found, no matching node
-          (3) open node containing alias
-          (4) tokenize rest of parameter based on File.separator
-          (5) take next token
-          (6) find node from previous root matching token
-          (7) select that node
-          (8) go to step 5
-        */
-//        LibraryChooserNode tmpNodesInPathToFocus[] = new LibraryChooserNode[20];
-  //      tmpNodesInPathToFocus[0] = root;
-    //    LibraryChooserNode topLevelNode = getFirstNodeContainingDir(thePackage);
-      //  if (topLevelNode == null) {
-            // we couldn't find the top level node containing the package
-       //     DialogManager.showError(LibraryBrowserPkgMgrFrame.getFrame(), 
-        //                      "cannot-locate-lib-node");
-         //   return false;
-        //}
-        //tmpNodesInPathToFocus[1] = topLevelNode;
-    
-        // tokenize the remainder of thePackage that is left over after what is matching
-        // in topLevelNode is removed (i.e., if thePackage = c:\a\b\c and topLevelNode 
-        // includes c:\a, then tokenize on \b\c).  If nothing is left to tokenize, then the
-        // top level node is an exact match for thePackage, so skip the loop and select it.
-   /*     String stringToTokenize = thePackage.substring(topLevelNode.getInternalName().toString().length(), thePackage.length());
-        StringTokenizer nodeTokens = new StringTokenizer(stringToTokenize, File.separator);
-        LibraryChooserNode root = topLevelNode;
-        int nextPosInPath = 2;
-        boolean foundNode = false;
-        while (nodeTokens.hasMoreElements()) {
-	    Enumeration rootChildren = root.children();
-            String nextBitInPath = nodeTokens.nextElement().toString();
-            // search in the children of root for a UserObject matching nextBitInPath
-            foundNode = false;
-            while(rootChildren.hasMoreElements()) {
-	        LibraryChooserNode nextChild = (LibraryChooserNode)rootChildren.nextElement();
-                if (nextChild.getInternalName().equals(nextBitInPath)) {
-		    root = tmpNodesInPathToFocus[nextPosInPath] = nextChild;
-                    foundNode = true;
-                    break;
-		}
-	    }
-            if (foundNode == true)
-	        nextPosInPath++;
-	    else {
-	        DialogManager.showError(LibraryBrowserPkgMgrFrame.getFrame(), 
-			"cannot-locate-lib-node");
-                return false;
-            }
-        }
-        
-        LibraryChooserNode nodesInPathToFocus[] = new LibraryChooserNode[nextPosInPath];
-        System.arraycopy(tmpNodesInPathToFocus, 0, nodesInPathToFocus, 0, nextPosInPath);
-        tree.setSelectionPath(new TreePath(nodesInPathToFocus));        
-                    */
-        return true;
-    }
-    
     /**
      * Return an array of TreePath objects containing all nodes in the tree
      * that contain the <code>pattern</code>.  Called (originally) by the
@@ -419,37 +348,29 @@ public class LibraryChooser extends JPanel implements Runnable
     }
     
     /**
-     * Add a new library to the tree. New libraries can only be added
-     * to the root of the tree.  The library is checked to ensure the path is
-     * a valid one on the current filesystem and that the library
-     * hasn't already been added to the tree.  Responsibility for
-     * adding the library is delegated to a function specialized for
-     * adding this <em>type</em> of library (i.e., ZIP/JAR or directory)
+     * Add a new library to the tree.
+     *
+     * New libraries can only be added to the root of the tree.
+     * The library is checked to ensure the path is
+     * a valid one on the current filesystem.
+     * Responsibility for adding the library is delegated
+     * to a function specialized for adding this type of
+     * library (i.e., ZIP/JAR or directory)
      * 
      * @param cpeNode the ClassPathEntryNode object to add to the tree
      */
     private void addLibraryToTree(ClassPathEntryNode cpeNode)
     {     
-        //        if (getFirstNodeWithObject(root, library) != null) {
-        //          System.err.println(library + " already exists");
-        //          return;
-        //      }
-
         // add the new node to the root
         treeModel.insertNodeInto(cpeNode, root, root.getChildCount());
         
         if (cpeNode.isJar()) {
-            //                setStatusText("Opening jarzip " + alias + " " + library + "...");
             openArchiveLibrary(cpeNode);
         } else if (cpeNode.isClassRoot()) {
-            //      setStatusText("Opening dir " + alias + " " + library + "...");
             openDirectoryLibrary(cpeNode);
         }
 
-        // we need to prune with each new node,
-        // rather than the entire tree because when new
-        // libraries are added - we only need to worry about
-        // the new library, not the entire tree
+        // prune the node of empty branches
         pruneNodeOfEmptyDirectories(cpeNode);
     }
     
@@ -463,8 +384,8 @@ public class LibraryChooser extends JPanel implements Runnable
      * @param file the file representation of the library
      * @param alias the display name for the library
      */
-    private void openArchiveLibrary(ClassPathEntryNode cpe) {
-
+    private void openArchiveLibrary(ClassPathEntryNode cpe)
+    {
         try {
             JarFile archiveFile = new JarFile(cpe.getFile());
 
@@ -634,35 +555,7 @@ public class LibraryChooser extends JPanel implements Runnable
         
         return null;
     }
-
-    /**
-     * Handle all popup menu commands.
-     * 
-     * @param ae the popup menu command to handle.
-     */
-    /*    public void actionPerformed(ActionEvent ae) {
-      String command = ae.getActionCommand();
-      Object source = ae.getSource();
-      TreePath pathToUse = new TreePath(this.selectedNode.getPath());
-      if (command == LibraryPopupMenu.EXPANDCOMMAND) {
-      tree.expandPath(pathToUse);
-      } else if (command == LibraryPopupMenu.CONTRACTCOMMAND) {
-      tree.collapsePath(pathToUse);
-      } else if (command == LibraryPopupMenu.USECOMMAND) {
-      TreePath selectedPath = new TreePath(selectedNode.getPath());
-      if (selectedPath == null)
-      return;
-      String packageName = pathToPackageName(selectedPath);
-      if (packageName != null)
-      parent.usePackage(packageName, false);
-      } else if (command == LibraryPopupMenu.OPENCOMMAND) {
-      openSelectedPackageInClassChooser();
-      } 
-      else if (command == LibraryPopupMenu.PROPCOMMAND) {
-      }
-      }
-    */
-    
+  
     /**
      * Convert a tree path to a dot delimited package name,
      * based on the current contents of the tree.
@@ -687,11 +580,4 @@ public class LibraryChooser extends JPanel implements Runnable
         
         return packageName;
     }
-    
-
 }
-
-
-
-
-

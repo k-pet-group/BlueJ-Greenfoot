@@ -11,12 +11,15 @@ import java.io.*;
  * The event which occurs when a node is chosen in the LibraryChooser.
  * 
  * @author Andrew Patterson
- * @version $Id: LibraryChooserEvent.java 277 1999-11-16 00:57:17Z ajp $
+ * @version $Id: LibraryChooserEvent.java 282 1999-11-18 10:36:00Z ajp $
  */
 public class LibraryChooserEvent extends EventObject {
 
-    public final static int NODE_CLICKED = 1;
-    public final static int NODE_POPUP = 2;         // not used yet
+    public final static int FINISHED_LOADING = 1;   // a hack event to indicate that
+                                                    // the library chooser has finished
+                                                    // loading. 'node' should be null.
+    public final static int NODE_CLICKED = 2;
+    public final static int NODE_POPUP = 3;         // not used yet
 
     protected LibraryChooserNode node;
     protected int id;

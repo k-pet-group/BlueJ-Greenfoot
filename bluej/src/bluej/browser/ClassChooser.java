@@ -35,7 +35,7 @@ import bluej.pkgmgr.Main;
  * 
  * @author Andy Marks
  * @author Andrew Patterson
- * @version $Id: ClassChooser.java 279 1999-11-16 07:06:32Z ajp $
+ * @version $Id: ClassChooser.java 282 1999-11-18 10:36:00Z ajp $
  */
 public class ClassChooser extends JPanel {
 
@@ -114,6 +114,7 @@ public class ClassChooser extends JPanel {
             flowpanel.add(new PackageTarget(nestedPackageName));
         }
                 
+        flowpanel.invalidate();
         flowpanel.revalidate();        
         flowpanel.repaint();
     }
@@ -150,7 +151,7 @@ public class ClassChooser extends JPanel {
      *  contained within one level of a java package.
      *
      *  @param packageName  a dot delimitered package name ie. "java.io"
-     *  @param classNames   an array of strings indicated the classes within this
+     *  @param classNames   an array of strings indicating the classes within this
      *                      package ie { "File", "PrintStream" }
      */
     private TreeModel analysePackage(String packageName, String[] classNames)

@@ -3,10 +3,15 @@ package bluej.browser;
 import javax.swing.*;
 import javax.swing.filechooser.*;
 import javax.swing.tree.*;
+import javax.swing.border.TitledBorder;
 
 import java.awt.event.*;
 import java.awt.*;
-import javax.swing.border.TitledBorder;
+
+import java.util.*;
+import java.io.File;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 import bluej.graph.GraphEditor;
 import bluej.Config;
@@ -16,32 +21,28 @@ import bluej.utility.Utility;
 import bluej.utility.DialogManager;
 import bluej.utility.Debug;
 import bluej.editor.Editor;
-
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageCacheMgr;
 
-import java.util.*;
-import java.io.File;
-import java.net.URL;
-import java.net.MalformedURLException;
 
 /**
- * Implements a  browser for BlueJ class libraries.
+ * Implements a browser for BlueJ class libraries.
  *
- * @author	Andy Marks
- *		    Andrew Patterson
- * @version	$Id: LibraryBrowser.java 277 1999-11-16 00:57:17Z ajp $
- **/
+ * @author  Andy Marks
+ * @author  Andrew Patterson
+ * @cvs     $Id: LibraryBrowser.java 282 1999-11-18 10:36:00Z ajp $
+ */
 public class LibraryBrowser extends JFrame implements ActionListener
 {
-    private static final Image iconImage = new ImageIcon(Config.getImageFilename("image.icon")).getImage();
+    private static final Image iconImage = new ImageIcon(
+                                            Config.getImageFilename("image.icon")).getImage();
 
+	// panel which holds tree listing class heirarchy
+	private LibraryChooser libraryChooser = null;
 	// panel which holds display of the list of classes
 	private ClassChooser classChooser = null;
 	// panel which holds display of methods/fields of current class
 	private AttributeChooser attributeChooser = null;
-	// panel which holds tree listing class heirarchy
-	private LibraryChooser libraryChooser = null;
 
     private CodeViewer codeViewer = null;
     
@@ -93,11 +94,35 @@ public class LibraryBrowser extends JFrame implements ActionListener
     	setIconImage(iconImage);
     	setSize(new Dimension(780,580));
     	
-    	// don't create these during declaration or they'll be 
-    	// instantiated before we even know if we want to/can
-    	// create another Library Browser
+        setWaitCursor(true);
+        
+    	// lazy instantiation of our panels
         classChooser = new ClassChooser();
+
     	libraryChooser = new LibraryChooser();
+
+        /**
+         * Register a listener for when the user selects a node in the
+         * library chooser. When they do, give the package selected to
+         * the class chooser (also handle when the library chooser
+         * finished initialisation).
+         */
+        libraryChooser.addLibraryChooserListener(
+            new LibraryChooserListener()
+            {
+                public void nodeEvent(LibraryChooserEvent e) {
+                    switch(e.getID()) {
+                     case LibraryChooserEvent.FINISHED_LOADING:
+                        setWaitCursor(false);
+                        break;
+                     case LibraryChooserEvent.NODE_CLICKED:
+                        libraryChooserNodeClicked(e.getNode());
+                        break;
+                    }
+                }
+            }            
+        );
+
     	attributeChooser = new AttributeChooser();
     	codeViewer = new CodeViewer();
     	
@@ -121,26 +146,23 @@ public class LibraryBrowser extends JFrame implements ActionListener
 //	    }
 //       });
 
-        /**
-         * Register a listener for when the user selects a node in the
-         * library chooser. When they do, give the package selected to
-         * the class chooser.
-         */
-        libraryChooser.addLibraryChooserListener(
-            new LibraryChooserListener()
-            {
-                public void nodeEvent(LibraryChooserEvent e) {
+    }
 
-                    String packageName = libraryChooser.pathToPackageName(
-                                                new TreePath(e.getNode().getPath()));
+    /**
+     * Set the frames cursor to a WAIT_CURSOR while system is busy
+     */
+    private void setWaitCursor(boolean wait)    
+    {
+        getGlassPane().setVisible(wait);
+    }
 
-                    String classes[] = libraryChooser.findClassesOfPackage(e.getNode());
-                    String packages[] = libraryChooser.findNestedPackagesOfPackage(e.getNode());
+    private void libraryChooserNodeClicked(LibraryChooserNode node)
+    {
+        String packageName = libraryChooser.pathToPackageName(new TreePath(node.getPath()));
+        String classes[] = libraryChooser.findClassesOfPackage(node);
+        String packages[] = libraryChooser.findNestedPackagesOfPackage(node);
 
-                    classChooser.openPackage(packageName, classes, packages);
-                }
-            }            
-        );
+        classChooser.openPackage(packageName, classes, packages);
     }
 
     /**
@@ -217,7 +239,7 @@ public class LibraryBrowser extends JFrame implements ActionListener
 
 	/**
 	 * Create menu bar, menus and menuitems.  Setup listeners for menu items.
-	 **/
+	 */
 	protected void setupMenus() {
 		menuBar = new JMenuBar();
 		JMenu libraryM = new JMenu(Config.getString("browser.menu.library"));
@@ -235,7 +257,23 @@ public class LibraryBrowser extends JFrame implements ActionListener
 	
 		libraryM.setEnabled(false);
 		menuBar.add(libraryM);
-	
+
+/*    private class UseAction extends AbstractAction
+    {
+        private Package pkg;
+        
+        public UseAction(String menu, Package pkg)
+        {
+            super(menu);
+
+            this.pkg = pkg;
+        }    
+
+        public void actionPerformed(ActionEvent e) {
+            pkg.insertLibClass(cl.getName());
+        }
+    }
+	*/
 //		JMenu editM = new JMenu(Config.getString("browser.menu.edit"));
 //		findMI = new JMenuItem(Config.getString("browser.menu.edit.find"));
 //		findMI.addActionListener(this);
@@ -284,36 +322,6 @@ public class LibraryBrowser extends JFrame implements ActionListener
 	}
     }
 
-
-    /**
-     * A package has been chosen to be used, now we need to identify where
-     * to use the package.  If only one package is open, use that, otherwise
-     * show a dialog listing all open packages and ask the user to choose. 
-     * Either way, ask for confirmation before proceeding.
-     * 
-     * @param thePackage the name of the package to use in Java format (i.e., java.awt.Frame)
-     * @param isClass true if the package is a single class, false otherwise
-     */
-    public void usePackage(String thePackage, boolean isClass) {
-    
-        Package[] possibleTargets = bluej.pkgmgr.Main.getAllOpenPackages();
-
-        if (possibleTargets == null || possibleTargets.length == 0) {
-//	    DialogManager.showError(LibraryBrowserPkgMgrFrame.getFrame(),
-//			      "no-target-dialog");
-            return;
-        }
-
-	if (possibleTargets.length > 1) {
-//	    ChooseUseDestinationDIalog chooser = new ChooseUseDestinationDIalog(this, thePackage, isClass);
-//	    chooser.setDestinations(possibleTargets);
-//	    chooser.display();
-	} else if (possibleTargets.length == 1) {
-	    // no point giving them a choice of one
-//	    usePackage(possibleTargets[0], thePackage, isClass);
-	}
-		
-    }
 
     /**
      * Call the appropraite method in the package to use the selected package.
@@ -400,7 +408,6 @@ public class LibraryBrowser extends JFrame implements ActionListener
 	// check cache for package before creating a new one
 	Package cachePackage = (Package)packageCache.getPackageFromCache(packageName);
 	//openPackage(packageName, cachePackage);
-	libraryChooser.selectPackageInTree(packageName);
    }
 	
 
