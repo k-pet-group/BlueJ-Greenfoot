@@ -92,10 +92,11 @@ prefmgr.misc.linkToLibNoteLine1=If this URL is used for generating documentation
 prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail. To work offline, uncheck this option.
 prefmgr.misc.testing.title=Unit test settings
 prefmgr.misc.showTesting=Show unit testing tools
-prefmgr.misc.vm.title=Virtual machine settings
+prefmgr.misc.vm.title=Compiler and runtime settings
 prefmgr.misc.optimiseVM=Use optimization (faster execution, but may cause problems with debugging)
 prefmgr.misc.addLibTitle=Select directory or jar/zip file
 prefmgr.misc.libFileFilter=Library files (*.jar;*.zip) or class directories
+prefmgr.misc.showUnchecked=Show compiler warnings when unsafe collections are used
 
 # Editor Preferences panel
 prefmgr.edit.prefpaneltitle=Editor

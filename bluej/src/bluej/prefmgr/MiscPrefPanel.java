@@ -14,7 +14,7 @@ import bluej.utility.DialogManager;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 2745 2004-07-06 19:38:04Z mik $
+ * @version $Id: MiscPrefPanel.java 3241 2004-12-16 01:48:47Z davmac $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -23,6 +23,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     private JTextField jdkURLField;
     private JCheckBox linkToLibBox;
     private JCheckBox optimiseBox;
+    private JCheckBox showUncheckedBox; // show "unchecked" compiler warning
     private JCheckBox showTestBox;
 
     private boolean optimiseMessageShown = false;
@@ -104,6 +105,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
                                                  Config.getString("prefmgr.misc.vm.title")),
                                           BlueJTheme.generalBorder));
             vmPanel.setAlignmentX(LEFT_ALIGNMENT);
+            vmPanel.setLayout(new BoxLayout(vmPanel, BoxLayout.Y_AXIS));
 
             optimiseBox = new JCheckBox(Config.getString("prefmgr.misc.optimiseVM"));
             optimiseBox.addActionListener(new ActionListener() {
@@ -111,7 +113,12 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
                                                     optimiseToggled();
                                                 }
                                           });
+            showUncheckedBox = new JCheckBox(Config.getString("prefmgr.misc.showUnchecked"));
             vmPanel.add(optimiseBox);
+            if (Config.isJava15()) {
+                // "unchecked" warnings only occur in Java 5.
+                vmPanel.add(showUncheckedBox);
+            }
         }
         add(vmPanel);
 
@@ -126,6 +133,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
         showTestBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS));
         optimiseBox.setSelected(PrefMgr.getFlag(PrefMgr.OPTIMISE_VM));
+        showUncheckedBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED));
     }
 
     public void revertEditing()
@@ -137,6 +145,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.LINK_LIB, linkToLibBox.isSelected());
         PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, showTestBox.isSelected());
         PrefMgr.setFlag(PrefMgr.OPTIMISE_VM, optimiseBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.SHOW_UNCHECKED, showUncheckedBox.isSelected());
 
         PkgMgrFrame.updateTestingStatus();
 

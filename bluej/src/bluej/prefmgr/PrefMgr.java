@@ -14,7 +14,7 @@ import bluej.Config;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 2612 2004-06-14 20:36:28Z mik $
+ * @version $Id: PrefMgr.java 3241 2004-12-16 01:48:47Z davmac $
  */
 public class PrefMgr
 {
@@ -28,6 +28,7 @@ public class PrefMgr
     public static final String SHOW_TEST_TOOLS = "bluej.testing.showtools";
     public static final String SHOW_TEXT_EVAL = "bluej.startWithTextEval";
     public static final String OPTIMISE_VM = "bluej.vm.optimize";
+    public static final String SHOW_UNCHECKED = "bluej.compiler.showunchecked";
     
     public static final String USE_THEMES = "bluej.useTheme";
 
@@ -123,6 +124,7 @@ public class PrefMgr
         flags.put(SHOW_TEXT_EVAL, Config.getPropString(SHOW_TEXT_EVAL, "false"));
         
         flags.put(OPTIMISE_VM, Config.getPropString(OPTIMISE_VM, "false"));
+        flags.put(SHOW_UNCHECKED, Config.getPropString(SHOW_UNCHECKED, "true"));
     }
 
     // ----- system interface to read or set prefences: -----

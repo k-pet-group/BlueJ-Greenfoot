@@ -9,7 +9,7 @@ import bluej.utility.Debug;
  * Reasonably generic interface between the BlueJ IDE and the Java compiler.
  * 
  * @author Michael Cahill
- * @version $Id: JobQueue.java 2812 2004-07-22 06:41:02Z davmac $
+ * @version $Id: JobQueue.java 3241 2004-12-16 01:48:47Z davmac $
  */
 public class JobQueue
 {
@@ -68,10 +68,17 @@ public class JobQueue
 
     /**
      * Adds a job to the compile queue.
+     * 
+     * @param sources   The files to compile
+     * @param observer  Observer to be notified when compilation begins,
+     *                  errors/warnings, completes
+     * @param classPath The classpath to use to locate objects/source code
+     * @param destDir   Destination for class files?
+     * @param suppressUnchecked    Suppress "unchecked" warning in java 1.5
      */
-    public void addJob(File[] sources, CompileObserver observer, String classPath, File destDir, boolean internal)
+    public void addJob(File[] sources, CompileObserver observer, String classPath, File destDir, boolean suppressUnchecked)
     {
-        thread.addJob(new Job(sources, compiler, observer, classPath, destDir, internal));
+        thread.addJob(new Job(sources, compiler, observer, classPath, destDir, suppressUnchecked));
     }
 
     /**
