@@ -16,6 +16,8 @@ import javax.swing.text.Keymap;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
+import org.gjt.sp.jedit.syntax.*;
+
 /**
  ** A set of actions supported by the Moe editor. This is a singleton: the
  ** actions are shared between all editor instances.
@@ -329,23 +331,23 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
-    class HalfTabAction extends MoeAbstractAction {
+//     class HalfTabAction extends MoeAbstractAction {
 
-	public HalfTabAction() {
-	    super("insert-half-tab",
-		  KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0));
-	}
+// 	public HalfTabAction() {
+//  	    super("insert-half-tab",
+//  		  KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0));
+// 	}
 
-	public void actionPerformed(ActionEvent e) {
-	    getEditor(e);
-	    JTextComponent textPane = getTextComponent(e);
-	    Element line = getCurrentLine(textPane);
-	    int lineStart = line.getStartOffset();
-	    int cursorPos = textPane.getCaretPosition();
-	    int numSpaces = 4 - ((cursorPos - lineStart) % 4);
-	    textPane.replaceSelection(spaces.substring(0, numSpaces));
-	}
-    }
+// 	public void actionPerformed(ActionEvent e) {
+// 	    getEditor(e);
+// 	    JTextComponent textPane = getTextComponent(e);
+// 	    Element line = getCurrentLine(textPane);
+// 	    int lineStart = line.getStartOffset();
+// 	    int cursorPos = textPane.getCaretPosition();
+// 	    int numSpaces = 4 - ((cursorPos - lineStart) % 4);
+// 	    textPane.replaceSelection(spaces.substring(0, numSpaces));
+// 	}
+//     }
 
     // === Tools: ===
 
@@ -588,7 +590,7 @@ public final class MoeActions
     {
 	//return text.getDocument().getDefaultRootElement().getElement(
 	//		text.getCaretPosition());
-	DefaultStyledDocument doc = (DefaultStyledDocument)text.getDocument();
+	MoeSyntaxDocument doc = (MoeSyntaxDocument)text.getDocument();
 	return doc.getParagraphElement(text.getCaretPosition());
     }
 
@@ -658,7 +660,7 @@ public final class MoeActions
 	    new CommentAction(),
 	    new UncommentAction(),
 	    new InsertMethodAction(),
- 	    new HalfTabAction(),
+        // 	    new HalfTabAction(),
 
 	    new FindAction(),
 	    new FindBackwardAction(),
