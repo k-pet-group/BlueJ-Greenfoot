@@ -27,7 +27,7 @@ import javax.swing.border.Border;
  *@author     Michael Cahill
  *@author     Michael Kolling
  *@author     Duane Buck
- *@version    $Id: ObjectViewer.java 811 2001-03-25 23:11:51Z mik $
+ *@version    $Id: ObjectViewer.java 815 2001-03-26 05:37:12Z mik $
  */
 public final class ObjectViewer extends JFrame
          implements ActionListener, ListSelectionListener, InspectorListener
@@ -838,6 +838,7 @@ public final class ObjectViewer extends JFrame
         JButton button = new JButton(close);
         buttonPanel.add(button);
         button.addActionListener(this);
+        getRootPane().setDefaultButton(button);
         ((JPanel) getContentPane()).add(buttonPanel, BorderLayout.SOUTH);
 
         pack();

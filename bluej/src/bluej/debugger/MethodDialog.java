@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
  * @author  Bruce Quig
  * @author  Michael Kolling
  *
- * @version $Id: MethodDialog.java 811 2001-03-25 23:11:51Z mik $
+ * @version $Id: MethodDialog.java 815 2001-03-26 05:37:12Z mik $
  */
 public class MethodDialog extends JDialog
 	implements ActionListener, FocusListener, ObjectBenchWatcher
@@ -42,6 +42,7 @@ public class MethodDialog extends JDialog
 
     static final String CMD_OKAY = "okay";
     static final String CMD_CANCEL = "cancel";
+    static final String CMD_PARAM = "param";
 
     static final int OK = 0;
     static final int CANCEL = 1;
@@ -241,6 +242,8 @@ public class MethodDialog extends JDialog
                 params[i] = new JComboBox(historyList.toArray());
                 params[i].insertItemAt(defaultParamValue, 0);
                 params[i].setEditable(true);
+                params[i].setActionCommand(CMD_PARAM);
+                params[i].addActionListener(this);
 
                 // add FocusListener for text insertion
                 ((JTextField)params[i].getEditor().getEditorComponent()).addFocusListener(this);
@@ -463,6 +466,8 @@ public class MethodDialog extends JDialog
             doOk();
         else if (CMD_CANCEL.equals(command))
             doCancel();
+        else if (CMD_PARAM.equals(command))
+            doParamEntered((JComponent)event.getSource());
     }
 
     /**
@@ -501,6 +506,14 @@ public class MethodDialog extends JDialog
     public void doCancel()
     {
         callWatcher(CANCEL);
+    }
+
+    /**
+     * 
+     */
+    public void doParamEntered(JComponent field)
+    {
+        field.transferFocus();
     }
 
     /**

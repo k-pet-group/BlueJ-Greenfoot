@@ -24,7 +24,7 @@ import javax.swing.event.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 811 2001-03-25 23:11:51Z mik $
+ * @version $Id: LibraryCallDialog.java 815 2001-03-26 05:37:12Z mik $
  */
 public class LibraryCallDialog extends JDialog
 	implements ActionListener, FocusListener, ListSelectionListener
@@ -72,7 +72,8 @@ public class LibraryCallDialog extends JDialog
     {
     	super.setVisible(show);
     	if (show) {
-            //okButton.requestFocus();
+            okButton.setEnabled(false);
+            classField.setModel(new DefaultComboBoxModel(history.getHistory()));
     	}
     	else {
         }
@@ -241,6 +242,9 @@ public class LibraryCallDialog extends JDialog
             classField = new JComboBox(historyList);
             classField.addFocusListener(this);
             classField.setEditable(true);
+            classField.setMaximumRowCount(10);
+            JTextField textField = (JTextField)classField.getEditor().getEditorComponent();
+            textField.setColumns(16);
             classField.addActionListener(this);
             classPanel.add(classField, BorderLayout.CENTER);
 

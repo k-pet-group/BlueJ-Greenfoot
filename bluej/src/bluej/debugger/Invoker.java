@@ -29,7 +29,7 @@ import java.util.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Invoker.java 811 2001-03-25 23:11:51Z mik $
+ * @version $Id: Invoker.java 815 2001-03-26 05:37:12Z mik $
  */
 
 public class Invoker extends Thread
@@ -324,7 +324,7 @@ public class Invoker extends Thread
         if(constructing) {
             command = "new " + (dontQualify ? JavaNames.getBase(className) : className);
 
-            buffer.append("__bluej_runtime_result = makeObj(");
+            buffer.append("__bluej_runtime_result = makeObj((Object)");
             buffer.append(command + argString + ");" + Config.nl);
             buffer.append("\t\tputObject(\"" + scopeId + "\", \"");
             buffer.append(instanceName);
@@ -414,7 +414,7 @@ public class Invoker extends Thread
             startClass();
 
         File srcFile = new File(pkg.getPath(), shellName + ".java");
-        //srcFile.delete();
+        srcFile.delete();
 
         File classFile = new File(pkg.getPath(), shellName + ".class");
         classFile.delete();

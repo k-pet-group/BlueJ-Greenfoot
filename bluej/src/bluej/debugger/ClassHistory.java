@@ -18,6 +18,7 @@ public class ClassHistory
     {
         this.maxLength = maxLength;
         history = new Vector(maxLength);
+        history.add("");
         history.add("java.lang.String");
         history.add("java.lang.Math");
         history.add("java.util.");
@@ -35,16 +36,24 @@ public class ClassHistory
 
 
     /**
-     * Adds a call to the history of a particular datatype
+     * Add a class to the history of used class names.
      * 
-     * @param objectType  the object's class
-     * @param argument  the parameter 
-     * @return the List containing the appropriate history of invocations
+     * @param className  the fully qualified name of the class to add
      */
     public void addClass(String className)
     {
         if(className != null && (className.length() != 0)) {
+            // remove empty entry at front
+            if(((String)history.get(0)).length() == 0)
+                history.remove(0);
+
+            // remove at old position (if present) and add at front
+            history.remove(className);
             history.add(0, className);
+
+            // don't let it grow too big
+            if(history.size() > 10)
+                history.remove(10);
         }
     }
 }
