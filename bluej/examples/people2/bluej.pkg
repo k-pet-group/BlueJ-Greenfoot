@@ -1,5 +1,5 @@
 #BlueJ project file
-#Mon Aug 16 17:58:02 GMT+10:00 1999
+#Mon Aug 23 11:58:07 GMT+10:00 1999
 target4.name=Database
 target5.type=ClassTarget
 target1.height=50
@@ -18,8 +18,8 @@ target2.valid=true
 target5.modifiers=1
 target5.x=320
 target4.valid=true
-target3.y=200
-target3.x=110
+target3.y=110
+target3.x=170
 dependency2.from=Person
 target1.y=200
 target1.x=220
@@ -28,7 +28,7 @@ target5.width=80
 target5.height=50
 target1.valid=true
 target3.valid=true
-target2.modifiers=400
+target2.modifiers=0
 package.numTargets=5
 target2.width=80
 target4.width=80
@@ -39,14 +39,14 @@ target1.width=80
 target2.type=ClassTarget
 target3.width=80
 package.numDependencies=4
-target3.modifiers=0
-target2.name=Person
+target3.modifiers=400
+target2.name=Staff
 target3.type=ClassTarget
 target4.y=30
-target3.name=Staff
+target3.name=Person
 target4.x=30
 target4.type=ClassTarget
 target3.height=50
-target2.y=110
-target2.x=170
+target2.y=200
+target2.x=110
 target1.modifiers=0

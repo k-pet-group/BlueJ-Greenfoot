@@ -1,11 +1,10 @@
 /**
- ** A class representing staff members for a simple BlueJ demo program.
- **
- ** Author:  Michael Kölling
- ** Version: 1.0
- ** Date:    January 1999
- **/
-
+ * A class representing staff members for a simple JavaBlue demo program.
+ *
+ * Author:  Michael Kölling
+ * Version: 1.0
+ * Date:    January 1999
+ */
 class Staff extends Person
 {
     private String room;
@@ -54,5 +53,5 @@ class Staff extends Person
                "Staff member\n" +
                "Room: " + room + "\n";
     }
-
 }
+

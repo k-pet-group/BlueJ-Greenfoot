@@ -1,10 +1,10 @@
 
 /**
- ** This class is part of a simple Database program, made to demonstrate
- ** JavaBlue by Michael Kolling.
- ** @author Morten Knudsen & Kent Hansen
- ** @version 1.0 July 1998
- **/
+ * This class is part of a simple Database program, made to demonstrate
+ * JavaBlue by Michael Kolling.
+ * @author Morten Knudsen & Kent Hansen
+ * @version 1.0 July 1998
+ */
 public class Person
 {
     /** This person's first name **/

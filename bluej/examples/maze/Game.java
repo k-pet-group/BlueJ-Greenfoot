@@ -1,23 +1,23 @@
 /**
- ** Author:  Morten Knudsen & Kent Hansen
- **          Ported from the Blue program "Maze" by Michael Kolling.
- ** Version: 1.0
- ** Date:    July 1998
- ** Short:   Main class of "Maze", a simple adventure gam
- ** 
- **  This class is the main class of the "Maze" application.
- **  Maze is a very simple, text based adventure game.  Users can walk around
- **  some scenery and take items which they find on the way with them.
- ** 
- **  To play this game, create an instance of this class and call the "play"
- **  routine.
- ** 
- **  This main class creates and initialises all the others: it creates all
- **  rooms, creates all item, places the items into the rooms, creates and
- **  calls the parser and starts the game.  It also evaluates the commands
- **  that the parser returns.
- ** 
- **/
+  * Author:  Morten Knudsen & Kent Hansen
+  *          Ported from the Blue program "Maze" by Michael Kolling.
+  * Version: 1.0
+  * Date:    July 1998
+  * Short:   Main class of "Maze", a simple adventure gam
+  * 
+  *  This class is the main class of the "Maze" application.
+  *  Maze is a very simple, text based adventure game.  Users can walk around
+  *  some scenery and take items which they find on the way with them.
+  * 
+  *  To play this game, create an instance of this class and call the "play"
+  *  routine.
+  * 
+  *  This main class creates and initialises all the others: it creates all
+  *  rooms, creates all item, places the items into the rooms, creates and
+  *  calls the parser and starts the game.  It also evaluates the commands
+  *  that the parser returns.
+  * 
+  */
 
 public class Game {
     private Parser parser;
@@ -30,8 +30,8 @@ public class Game {
     Command cmd = new Command();
     
     /** Try to go to one direction. If there is an exit, enter the new
-     ** room, otherwise print an error message.
-     **/
+     * room, otherwise print an error message.
+     */
     private void goRoom(Command dir) {
         // Try to leave current room.
         Room new_Room = curr_Room.nextRoom(dir);
@@ -46,8 +46,8 @@ public class Game {
 
 
     /** Go back to the last room we've been to. If we've been to no
-     ** other room before, print an error message.
-     **/
+     * other room before, print an error message.
+     */
     private void goBack() {
         if (last_Room == null)
             System.out.println
@@ -63,8 +63,8 @@ public class Game {
 
 
     /** Try to take an object. If the object is really there and we are
-     ** not carrying anything, take it. Otherwise print an error message.
-     **/
+     * not carrying anything, take it. Otherwise print an error message.
+     */
     private void takeObject(Item anObject) {
         if (carrying.equals(""))
             if(curr_Room.takeObject(anObject)) {
@@ -86,10 +86,10 @@ public class Game {
 
 
     /**
-     ** Try to drop an object. If we do not have that object or there
-     ** is already an object in the room, print an error message.
-     ** Otherwise drop it.
-     **/
+     * Try to drop an object. If we do not have that object or there
+     * is already an object in the room, print an error message.
+     * Otherwise drop it.
+     */
     private void dropObject(Item anObject) {
         if (!(carrying.equals(anObject)))
             System.out.println("You don't have a "
@@ -109,12 +109,12 @@ public class Game {
     }
 
     /**
-     ** Try to solve your problem. If the problem and the brain are 
-     ** here and the current room is the "solve room" then the game is
-     ** finished. Otherwise the solve attempt was unsuccessful. In any  
-     ** case an appropriate message is printed.
-     ** 'finished' is true if the game was successfully completed.
-     **/
+     * Try to solve your problem. If the problem and the brain are 
+     * here and the current room is the "solve room" then the game is
+     * finished. Otherwise the solve attempt was unsuccessful. In any  
+     * case an appropriate message is printed.
+     * 'finished' is true if the game was successfully completed.
+     */
     private boolean trySolve() {
         boolean bFinished = true;
 
@@ -143,10 +143,10 @@ public class Game {
     }
 
     /**
-     ** Print out some help information.
-     ** Here we print some stupid, cryptic message and a list of the 
-     ** command words.
-     **/
+     * Print out some help information.
+     * Here we print some stupid, cryptic message and a list of the 
+     * command words.
+     */
     private void printHelp() {
         System.out.println
         ("\nYou are lost. You are alone. You have problem. But");
@@ -163,12 +163,12 @@ public class Game {
     }
 
     /**
-     ** Given a command and an item, process the command.  
-     ** 'cmd' might be nil if the word was not recognised. The item
-     ** might be nil in case no second word was entered.
-     ** If this command finishes the game 'done' returns true, otherwise
-     ** 'done' is false.
-     **/
+     * Given a command and an item, process the command.  
+     * 'cmd' might be nil if the word was not recognised. The item
+     * might be nil in case no second word was entered.
+     * If this command finishes the game 'done' returns true, otherwise
+     * 'done' is false.
+     */
     private boolean processCommand(Result result) {
         boolean bDone = false;
         cmd = result.getCommand();
@@ -219,8 +219,8 @@ public class Game {
     }
 
     /**
-     ** Create the game object and initialise internal map and items.
-     **/
+     * Create the game object and initialise internal map and items.
+     */
     public Game() {
         Room out, wentworth, corr1, corr2, tute, lab;
       
@@ -265,8 +265,8 @@ public class Game {
     }
 
     /**
-     **  Main play routine.  Loops until end of play.
-     **/
+     *  Main play routine.  Loops until end of play.
+     */
     public void play() {
         
         boolean bFinish = false;

@@ -1,8 +1,8 @@
 /**
- ** Class Hello
- **
- ** Test program to demonstrate BlueJ
- **/
+ * Class Hello
+ *
+ * Test program to demonstrate BlueJ
+ */
 public class Hello
 {
     /** 

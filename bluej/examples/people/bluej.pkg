@@ -1,5 +1,5 @@
 #BlueJ project file
-#Fri Aug 20 17:47:43 GMT+10:00 1999
+#Mon Aug 23 12:03:48 GMT+10:00 1999
 target4.name=Database
 target1.height=50
 dependency1.to=Person
@@ -37,5 +37,5 @@ target4.x=20
 target4.type=ClassTarget
 target3.height=50
 target2.y=180
-target2.x=100
+target2.x=90
 target1.modifiers=0

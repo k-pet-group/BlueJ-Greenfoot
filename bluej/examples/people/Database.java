@@ -2,15 +2,15 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
- ** A very simple database of people in a university. This class simply stores
- ** persons and, at request, lists them on standard output.
- **
- ** Written as a first demo program for BlueJ.
- **
- ** Author:  Michael Kölling
- ** Version: 1.0
- ** Date:    January 1999
- **/
+ * A very simple database of people in a university. This class simply stores
+ * persons and, at request, lists them on standard output.
+ *
+ * Written as a first demo program for JavaBlue.
+ *
+ * Author:  Michael Kölling
+ * Version: 1.0
+ * Date:    January 1999
+ */
 
 public class Database {
 
@@ -23,7 +23,7 @@ public class Database {
         personVector = new Vector ();
     }
 
-    /** 
+    /**
      * Add a person to the database.
      */
     public void addPerson(Person p) {
@@ -38,5 +38,4 @@ public class Database {
             System.out.println(e.nextElement());
         }
     }
-
 }

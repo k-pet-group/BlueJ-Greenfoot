@@ -1,12 +1,12 @@
 #BlueJ project file
-#Mon Aug 23 10:35:56 GMT+10:00 1999
+#Mon Aug 23 12:04:39 GMT+10:00 1999
 target1.height=50
 dependency1.to=Car
 dependency1.type=UsesDependency
 package.window.height=456
 dependency1.from=Demo
 target2.valid=true
-target1.y=50
+target1.y=40
 target1.x=60
 target2.height=50
 target1.valid=true
@@ -20,6 +20,6 @@ target1.width=80
 target2.type=ClassTarget
 package.numDependencies=1
 target2.name=Car
-target2.y=110
+target2.y=100
 target2.x=220
 target1.modifiers=0

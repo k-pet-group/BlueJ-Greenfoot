@@ -1,11 +1,11 @@
 /**
- ** A person class for a simple BlueJ demo program. Person is used as
- ** an abstract superclass of more specific person classes.
- **
- ** Author:  Michael Kölling
- ** Version: 1.0
- ** Date:    January 1999
- **/
+ * A person class for a simple JavaBlue demo program. Person is used as
+ * an abstract superclass of more specific person classes.
+ *
+ * Author:  Michael Kölling
+ * Version: 1.0
+ * Date:    January 1999
+ */
 
 abstract class Person
 {

@@ -1,9 +1,9 @@
 /**
- ** Class Address - used to store address details for a post address
- ** 
- ** Author: Michael Kolling
- ** Date: 
- **/
+ * Class Address - used to store address details for a post address
+ * 
+ * Author: Michael Kolling
+ * Date: 
+ */
 public class Address
 {
     private String street;
@@ -12,16 +12,16 @@ public class Address
     private String country;
 
     /**
-     ** Constructan Address without country
-     **/
+     * Constructan Address without country
+     */
     public Address(String street, String town, String postCode)
     {
         this(street, town, postCode, "");
     }
 
     /**
-     ** Constructan Address with full details
-     **/
+     * Constructan Address with full details
+     */
     public Address(String street, String town, String postCode, String country)
     {
         this.street = street;
@@ -31,8 +31,8 @@ public class Address
     }
 
     /**
-     ** Constructan Address with full details
-     **/
+     * Constructan Address with full details
+     */
     public String toString()
     {
         return street + "\n" +
