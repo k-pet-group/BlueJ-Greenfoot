@@ -16,6 +16,7 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.ExpressionInformation;
+import bluej.debugmgr.IndexHistory;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
@@ -28,7 +29,7 @@ import org.gjt.sp.jedit.syntax.*;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 2673 2004-06-28 14:30:30Z mik $
+ * @version $Id: TextEvalArea.java 2674 2004-06-28 15:00:03Z mik $
  */
 public final class TextEvalArea extends JScrollPane
     implements ResultWatcher
@@ -42,6 +43,7 @@ public final class TextEvalArea extends JScrollPane
     private PkgMgrFrame frame;
     private Invoker invoker = null;
     private boolean firstTry;
+    private IndexHistory history;
     
     /**
      * Create a new text area with given size.
@@ -68,6 +70,8 @@ public final class TextEvalArea extends JScrollPane
         
         setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
         setPreferredSize(new Dimension(200,100));
+        
+        history = new IndexHistory(20);
     }
 
     /**
@@ -201,8 +205,8 @@ public final class TextEvalArea extends JScrollPane
     private String getCurrentLine()
     {
         Element line = doc.getParagraphElement(doc.getLength());
-        int lineStart = line.getStartOffset();
-        int lineEnd = line.getEndOffset();
+        int lineStart = line.getStartOffset() + 1;  // ignore space at front
+        int lineEnd = line.getEndOffset() - 1;      // ignore newline char
         
         try {
             return doc.getText(lineStart, lineEnd-lineStart);
@@ -291,12 +295,16 @@ public final class TextEvalArea extends JScrollPane
          */
         final public void actionPerformed(ActionEvent event)
         {
-            currentCommand += getCurrentLine();
-            append("\n ");      // ensure space at the beginning of every line, because
-                                // line properties do not work otherwise
-            firstTry = true;
-            System.out.println("comm:"+currentCommand);
-            invoker = new Invoker(frame, currentCommand, TextEvalArea.this);
+            String line = getCurrentLine();
+            currentCommand += line;
+            if(currentCommand.trim().length() != 0) {
+                       
+                history.add(line);
+                append("\n ");      // ensure space at the beginning of every line, because
+                                    // line properties do not work otherwise
+                firstTry = true;
+                invoker = new Invoker(frame, currentCommand, TextEvalArea.this);
+            }
             currentCommand = "";
         }
     }
@@ -319,7 +327,9 @@ public final class TextEvalArea extends JScrollPane
          */
         final public void actionPerformed(ActionEvent event)
         {
-            currentCommand += getCurrentLine() + " ";
+            String line = getCurrentLine();
+            currentCommand += line + " ";
+            history.add(line);
             append("\n ");      // ensure space at the beginning of every line, because
                                 // line properties do not work otherwise
         }
@@ -356,6 +366,8 @@ public final class TextEvalArea extends JScrollPane
         
         final public void actionPerformed(ActionEvent event)
         {
+            String line = history.getPrevious();
+            append(line);
         }
 
     }

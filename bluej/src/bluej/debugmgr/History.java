@@ -13,8 +13,8 @@ import java.util.ArrayList;
  */
 public class History
 {
-    private List history = null;
-    private int maxLength;
+    protected List history = null;
+    protected int maxLength;
     private boolean blankAtStart;
     
     /**
