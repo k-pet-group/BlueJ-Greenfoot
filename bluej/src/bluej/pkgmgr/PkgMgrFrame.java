@@ -542,26 +542,33 @@ public class PkgMgrFrame extends PkgFrame
         if(pageFormat == null)
             pageFormat = new PageFormat();
 
-        Paper paper = pageFormat.getPaper();
+        //Paper paper = pageFormat.getPaper();
             
         // make it A4 roughly
 	// this gives a one size fit all approach adopted at present due to
 	// inconsistent page size handling in the 2D printing framework.
 	// This should be unified with printing also done in the editor (moe)
-        paper.setSize(a4Width, a4Height);
+        //paper.setSize(a4Width, a4Height);
         
         // manipulate borders for a reasonable size print area
-        double leftSideMargin = 36;
-        double rightSideMargin = 72;
-        double topMargin = 36;
-        double bottomMargin = 72;
+        //double leftSideMargin = 36;
+        //double rightSideMargin = 72;
+        //double topMargin = 36;
+        //double bottomMargin = 72;
         
-        paper.setImageableArea(leftSideMargin, 
-                               topMargin, 
-                               paper.getWidth() - (leftSideMargin + rightSideMargin), 
-                               paper.getHeight() - (topMargin + bottomMargin));
+        //paper.setImageableArea(leftSideMargin, 
+        //                       topMargin, 
+        //                       paper.getWidth() - (leftSideMargin + rightSideMargin), 
+        //                       paper.getHeight() - (topMargin + bottomMargin));
             
         //pageFormat.setPaper(paper);
+
+        Dimension graphSize = pkg.getMinimumSize();
+	if(graphSize.width > graphSize.height)
+	    pageFormat.setOrientation(PageFormat.LANDSCAPE);
+	else
+	    pageFormat.setOrientation(PageFormat.PORTRAIT);
+	    
         pageFormat = printerJob.validatePage(pageFormat); 
         printerJob.setPrintable(this, pageFormat);
 
@@ -595,8 +602,8 @@ public class PkgMgrFrame extends PkgFrame
             
         Dimension pageSize = new Dimension((int)pageFormat.getImageableWidth(), 
                                            (int)pageFormat.getImageableHeight());
-        Rectangle printArea = pkg.getPrintArea(pageFormat);
         Dimension graphSize = pkg.getMinimumSize();
+        Rectangle printArea = pkg.getPrintArea(pageFormat);
         pageColumns = (graphSize.width + printArea.width - 1) / printArea.width;
         pageRows = (graphSize.height + printArea.height - 1) / printArea.height;
 

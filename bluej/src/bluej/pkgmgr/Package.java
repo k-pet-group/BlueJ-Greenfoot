@@ -41,7 +41,7 @@ import java.awt.print.PageFormat;
 /**
  * A Java package (collection of Java classes).
  *
- * @version $Id: Package.java 487 2000-05-18 05:21:45Z bquig $
+ * @version $Id: Package.java 489 2000-05-18 08:55:04Z bquig $
  * @author Michael Cahill
  *
  */
@@ -1995,7 +1995,7 @@ implements CompileObserver, MouseListener, MouseMotionListener
         FontMetrics tfm = frame.getFontMetrics(printTitleFont);
         FontMetrics ifm = frame.getFontMetrics(printInfoFont);
         return new Rectangle((int)pageFormat.getImageableX() + PRINT_HMARGIN,
-                             (int)pageFormat.getImageableY() + 2 * PRINT_VMARGIN + 2 ,
+                             (int)pageFormat.getImageableY() + 2 * PRINT_VMARGIN,
                              (int)pageFormat.getImageableWidth() - (2 * PRINT_HMARGIN),
                              (int)pageFormat.getImageableHeight() - (2 * PRINT_VMARGIN));
     }
