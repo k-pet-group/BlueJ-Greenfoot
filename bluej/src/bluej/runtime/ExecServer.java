@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.SwingUtilities;
 
 /**
  * Class that controls the runtime of code executed within BlueJ.
@@ -42,8 +43,9 @@ public class ExecServer
     public static final int DISPOSE_WINDOWS = 11;
 
 
-    static ExecServer server = null;
-    static TerminateException terminateExc = new TerminateException("term");
+    /*package*/ static ExecServer server = null;
+    /*package*/ static TerminateException terminateExc = new TerminateException("term");
+    /*package*/ static ExitException exitExc = new ExitException("0");
 
     private RemoteClassMgr classmgr;
     private Map loaders;
@@ -69,6 +71,16 @@ public class ExecServer
         server.suspendExecution();
     }
 
+    /**
+     *  This method is used to generate an event which is recorded
+     *  by the local VM when handling System.exit(). See RemoteSecurityManager
+     *  for details.
+     */
+    public static void exitMarker()
+    {
+        // <NON SUSPENDING BREAKPOINT!>
+    }
+
     // -- instance methods --
 
     /**
@@ -78,10 +90,8 @@ public class ExecServer
     {
         //Debug.message("[VM] creating server object");
 
-        System.setSecurityManager(new RemoteSecurityManager());
         loaders = new HashMap();
         classmgr = new RemoteClassMgr();
-
 
         // the following causes the class loader mechanism to be initialised:
         // we attempt to load a (non-existent) class
@@ -112,6 +122,12 @@ public class ExecServer
         };
 
         toolkit.addAWTEventListener(listener, AWTEvent.WINDOW_EVENT_MASK);
+
+        // we create the security manager last so that hopefully, all the system/AWT
+        // threads will have been created and we can then rig our security manager
+        // to make all user-created threads go into a single thread group
+
+        System.setSecurityManager(new RemoteSecurityManager());
     }
 
     /**
@@ -124,6 +140,7 @@ public class ExecServer
         // <BREAKPOINT!>
         Debug.message("[VM] woke up from suspend");
     }
+
 
 
     /**
@@ -375,15 +392,23 @@ public class ExecServer
         return scope;
     }
 
-
     /**
      * Add the object to our list of open windows
      *
      * @param   o   a window object which has just been opened
      */
-    private static void addWindow(Object o)
+    private static void addWindow(final Object o)
     {
         openWindows.add(o);
+        // experiment to try to fix windows bug where window
+        // is hidden behind bluej window
+/*        if (o instanceof Window) {
+            SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        ((Window)o).toFront();
+                    }
+                });
+        } */
     }
 
     /**
@@ -419,20 +444,16 @@ public class ExecServer
     static void disposeWindows()
     {
         synchronized(openWindows) {
-
             Iterator it = openWindows.iterator();
 
-            while(it.hasNext())
-            {
+            while(it.hasNext()) {
                 Object o = it.next();
 
-                if (o instanceof Window)
-                {
+                if (o instanceof Window) {
                     Window w = (Window) o;
                     w.dispose();
                 }
             }
-
             openWindows.clear();
         }
     }

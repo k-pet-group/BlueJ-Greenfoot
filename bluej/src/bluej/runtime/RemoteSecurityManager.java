@@ -10,10 +10,33 @@ import java.awt.*;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 601 2000-06-29 05:09:38Z mik $
+ * @version $Id: RemoteSecurityManager.java 719 2000-12-12 04:15:18Z ajp $
  */
 public class RemoteSecurityManager extends SecurityManager
 {
+    /**
+     * All user threads will be created into this group
+     */
+    ThreadGroup threadGroup = null;
+
+    /**
+     * This method returns the thread group that any new
+     * threads should be constructed in. We rig it so that
+     * if threadGroup is null, a new ThreadGroup is created and
+     * this will contain all user threads. Then when we simulate
+     * System.exit(), we can dispose all these threads (remembering
+     * to set threadGroup back to null to reset everything).
+     * Currently not implemented - we leave all user created threads
+     * alone when simulating System.exit()
+     */
+    public ThreadGroup getThreadGroup()
+    {
+        if(threadGroup == null) {
+            threadGroup = new ThreadGroup(super.getThreadGroup(), "BlueJ user threads");
+        }
+        return threadGroup;
+    }
+
     /**
      * The only thing BlueJ applications are currently not allowed to
      * do is exit normally. We handle this by signalling the exit as
@@ -32,8 +55,11 @@ public class RemoteSecurityManager extends SecurityManager
          * we are running as the AWT thread and if so, set an
          * event so that later on all the top level windows
          * will be disposed (we assume this is the behaviour the
-         * programmer wished by calling System.exit())
+         * programmer wished by calling System.exit()). We also
+         * will break the main user thread started in the
+         * virtual machine (to simulate quitting the application).
          */
+
         if (EventQueue.isDispatchThread())
         {
             // no matter what, we have to throw an exception and
@@ -45,6 +71,11 @@ public class RemoteSecurityManager extends SecurityManager
             // hidden in here but this is the best solution we've
             // come up with so far
 
+            // signal local VM that we are simulating an exit
+            ExecServer.exitMarker();
+
+            // hide the exception print out which the AWT event
+            // thread handler will print
             ExecServer.supressErrorOutput();
 
             Toolkit.getDefaultToolkit().getSystemEventQueue().
@@ -59,6 +90,7 @@ public class RemoteSecurityManager extends SecurityManager
             throw new ExitException(Integer.toString(status));
         }
         else {
+            // this exception will be displayed to the user
             throw new ExitException(Integer.toString(status));
         }
     }
@@ -86,20 +118,5 @@ public class RemoteSecurityManager extends SecurityManager
     public void checkPermission(Permission perm, Object context)
     {
 
-    }
-
-    ThreadGroup threadGroup;
-
-    public void setThreadGroup(ThreadGroup threadGroup)
-    {
-        this.threadGroup = threadGroup;
-    }
-
-    public ThreadGroup getThreadGroup()
-    {
-        if(threadGroup != null)
-            return threadGroup;
-        else
-            return Thread.currentThread().getThreadGroup();
     }
 }
