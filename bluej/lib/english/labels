@@ -27,6 +27,7 @@ debugger.inspector.title=BlueJ:  Inspector
 debugger.inspector.object.title=BlueJ:  Object Inspector
 debugger.inspector.class.title=BlueJ:  Class Inspector
 debugger.inspector.result.title=BlueJ:  Method Result
+debugger.inspector.result.returned=returned:
 debugger.inspector.showClass=Show static fields
 debugger.inspector.inspect=Inspect
 debugger.inspector.get=Get
