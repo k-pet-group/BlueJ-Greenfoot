@@ -151,6 +151,14 @@ The directory for the documentation could
 not be created in the project directory
 because of insufficient rights.
 
+show-or-generate
+Do you want to show the documentation
+generated previously, or do you want
+to regenerate the whole documentation?
+Just Show
+Regenerate
+null
+
 doctool-error
 Javadoc reported an error. It could be that there is a 
 syntax error in one of the files you tried to generate 
