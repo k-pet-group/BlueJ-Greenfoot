@@ -27,15 +27,16 @@ public class ClassDiagramPrinter implements Printable
     private int currentPage;
     private int currentColumn = 0;
     private int currentRow = 0;
-
+    private double scaleFactor = Config.getPropInteger("bluej.print.scale", 50) / 100.0;
    
    // Add a title to printouts
-    static final int PRINT_HMARGIN = 6;
-    static final int PRINT_VMARGIN = 24;
-    static final Font printTitleFont = new Font("SansSerif", Font.PLAIN,
-                                                12); //Config.printTitleFontsize);
-    static final Font printInfoFont = new Font("SansSerif", Font.ITALIC,
-                                               10); //Config.printInfoFontsize);
+    static final int TITLEBOX_HEIGHT = 20;
+    static final int PRINT_HMARGIN = 1;
+    static final int PRINT_VMARGIN = TITLEBOX_HEIGHT + 1;
+    static final Font printTitleFont = new Font("SansSerif", Font.PLAIN, 12);
+                                           //Config.printTitleFontsize);
+    static final Font printInfoFont = new Font("SansSerif", Font.ITALIC, 9);
+                                           //Config.printInfoFontsize);
     
     public ClassDiagramPrinter(PrinterJob printer, Package pkg, PageFormat pageFormat)
     {
@@ -44,11 +45,11 @@ public class ClassDiagramPrinter implements Printable
         this.pageFormat = pageFormat;
     }
 
-   
-
+    /**
+     * Print the package class diagram for the package that is held by this printer.
+     */
     public void printPackage()
     {
-        Dimension graphSize = pkg.getMinimumSize();
         printerJob.setPrintable(this, pageFormat);
 
         calculatePages();
@@ -62,7 +63,11 @@ public class ClassDiagramPrinter implements Printable
         pkg.setStatus(Config.getString("pkgmgr.info.printed"));
     }
 
- 
+
+    /**
+     * Calculate how many pages, rows and columns are needed to print this diagram.
+     * This method initialises the instance fields with this information.
+     */
     private void calculatePages()
     {
         Dimension pageSize = new Dimension((int)pageFormat.getImageableWidth(),
@@ -75,8 +80,6 @@ public class ClassDiagramPrinter implements Printable
         pages = pageColumns * pageRows;
         currentColumn = currentRow = 0;
     }
-
-
 
 
     /**
@@ -106,12 +109,12 @@ public class ClassDiagramPrinter implements Printable
                     printArea.y - currentRow * printArea.height);
         g.setClip(currentColumn * printArea.width, currentRow * printArea.height,
                   printArea.width, printArea.height);
+        ((Graphics2D)g).scale(scaleFactor, scaleFactor);
 
         pkg.getEditor().paint(g);
 
         currentPage = pageIndex;
         return Printable.PAGE_EXISTS;
-         
     }
 
  
@@ -142,34 +145,25 @@ public class ClassDiagramPrinter implements Printable
                                             (int)pageFormat.getImageableWidth(),
                                             (int)pageFormat.getImageableHeight());
 
-        // frame header area
+        // shade and frame header area
         g.setColor(Color.lightGray);
-        g.fillRect(printArea.x, printArea.y, printArea.width, PRINT_VMARGIN);
-
-        //    Rectangle titleRectangle = new Rectangle(printArea.x, 
-        //                                                  printArea.y, 
-        //                                                  printArea.width, 
-        //                                                  PRINT_VMARGIN);
-        
-        //         g.fill(titleRectangle);
-
-        // g.setColor(titleCol);
+        g.fillRect(printArea.x, printArea.y, printArea.width-1, TITLEBOX_HEIGHT);
         g.setColor(Color.black);
-
-        g.drawRect(printArea.x, printArea.y, printArea.width, PRINT_VMARGIN);
-        // g.draw(titleRectangle);
+        g.drawRect(printArea.x, printArea.y, printArea.width-1, TITLEBOX_HEIGHT);
 
         // frame print area
-        g.drawRect(printArea.x, printArea.y, printArea.width,
+        g.drawRect(printArea.x, printArea.y, printArea.width-1,
                    printArea.height - PRINT_VMARGIN);
 
         // write header
-        //String title = (packageName == noPackage) ? dirname : packageName;
-        String title = pkg.getQualifiedName();
+        String title = "Project " + pkg.getProject().getProjectName();
+        String packageName = pkg.getQualifiedName();
+        if(packageName.length() > 0)
+            title += " [package " + packageName + "]";
+        
         g.setFont(printTitleFont);
-        Utility.drawCentredText(g, "BlueJ package - " + title,
-                                printArea.x, printArea.y,
-                                printArea.width, tfm.getHeight());
+        Utility.drawCentredText(g, title, printArea.x, printArea.y,
+                                printArea.width, TITLEBOX_HEIGHT);
         // write footer
         g.setFont(printInfoFont);
         DateFormat dateFormat = DateFormat.getDateTimeInstance();
@@ -177,6 +171,4 @@ public class ClassDiagramPrinter implements Printable
                               printArea.x, printArea.y + printArea.height - PRINT_VMARGIN,
                               printArea.width, ifm.getHeight());
     }
-
-
 }

@@ -15,7 +15,7 @@ import com.apple.mrj.MRJFileUtils;
  * @author  Michael Cahill
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: Utility.java 1824 2003-04-10 21:19:18Z mik $
+ * @version $Id: Utility.java 1897 2003-04-25 15:19:10Z mik $
  */
 public class Utility
 {
@@ -205,6 +205,8 @@ public class Utility
                 else
                     url = encodeURLSpaces(url);
                 MRJFileUtils.openURL(url);
+                // when we get rid of 1.3.1 on MacOS, replace with: 
+                //com.apple.eio.FileManager.openURL(url);
             }
             catch(IOException e) {
                 Debug.reportError("could not start web browser. exc: " + e);

@@ -26,7 +26,7 @@ import bluej.views.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 1871 2003-04-22 11:55:38Z mik $
+ * @version $Id: PkgMgrFrame.java 1897 2003-04-25 15:19:10Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -557,8 +557,7 @@ public class PkgMgrFrame extends JFrame
             setTitle("BlueJ");
             return "BlueJ";
         } else {
-            String title = "BlueJ:  " + getProject().
-                getProjectName();
+            String title = "BlueJ:  " + getProject().getProjectName();
 
             if (!getPackage().isUnnamedPackage())
                 title = title + "  [" + getPackage().getQualifiedName() + "]";

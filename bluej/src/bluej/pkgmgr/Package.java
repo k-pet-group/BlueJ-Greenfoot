@@ -25,9 +25,9 @@ import bluej.extmgr.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 1871 2003-04-22 11:55:38Z mik $
+ * @version $Id: Package.java 1897 2003-04-25 15:19:10Z mik $
  */
-public class Package extends Graph
+public final class Package extends Graph
     implements MouseListener, MouseMotionListener
 {
     /** message to be shown on the status bar */
@@ -88,30 +88,30 @@ public class Package extends Graph
     private SortedProperties lastSavedProps = new SortedProperties();
 
     /* all the targets in a package */
-    protected TargetCollection targets;
+    private TargetCollection targets;
 
     /** all the uses-arrows in a package */
-    protected List usesArrows;
+    private List usesArrows;
 
     /** all the extends-arrows in a package */
-    protected List extendsArrows;
+    private List extendsArrows;
 
     /** the currently selected target */
-    protected Target selected;
+    private Target selected;
 
     /** Holds the choice of "from" target for a new dependency */
-    protected DependentTarget fromChoice;
+    private DependentTarget fromChoice;
 
     /** used during arrow deletion */
-    Dependency currentArrow;
+    private Dependency currentArrow;
 
     /** the CallHistory of a package */
     private CallHistory callHistory;
 
     /** whether extends-arrows should be shown */
-    protected boolean showExtends = true;
+    private boolean showExtends = true;
     /** whether uses-arrows should be shown */
-    protected boolean showUses = true;
+    private boolean showUses = true;
 
     /** needed when debugging with breakpoints to see if the editor window
      *  needs to be brought to the front */
