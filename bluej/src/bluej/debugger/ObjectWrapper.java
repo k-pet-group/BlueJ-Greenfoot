@@ -31,7 +31,7 @@ import java.util.Arrays;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 808 2001-03-21 06:15:16Z mik $
+ * @version $Id: ObjectWrapper.java 837 2001-04-04 12:27:53Z ajp $
  */
 public class ObjectWrapper extends JComponent
     implements ActionListener
@@ -80,7 +80,9 @@ public class ObjectWrapper extends JComponent
             itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
 
         className = obj.getClassName();
-        createMenu(className);
+
+        if (!obj.isArray())
+            createMenu(className);
 
         int dot_index = className.lastIndexOf('.');
         if(dot_index >= 0)
@@ -122,7 +124,7 @@ public class ObjectWrapper extends JComponent
             methodsUsed = new Hashtable();
 
             // define a view filter
-            ViewFilter filter = 
+            ViewFilter filter =
                 new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PROTECTED);
 
             menu.addSeparator();
@@ -143,7 +145,7 @@ public class ObjectWrapper extends JComponent
                 JMenu subMenu = new JMenu(inheritedFrom + " "
                                + JavaNames.stripPrefix(currentClass.getName()));
                 subMenu.setFont(PrefMgr.getStandoutMenuFont());
-                createMenuItems(subMenu, declaredMethods, filter, 0, 
+                createMenuItems(subMenu, declaredMethods, filter, 0,
                                 declaredMethods.length, (itemsOnScreen / 2));
                 menu.insert(subMenu, 0);
             }
@@ -184,9 +186,9 @@ public class ObjectWrapper extends JComponent
      * @param menu      the menu that the items are to be created for
      * @param methods   the methods for which menu items should be created
      * @param filter    the filter which decides on which methods should be shown
-     * @param first     the index of the methods array which represents the 
+     * @param first     the index of the methods array which represents the
      *                  starting point of the menu items
-     * @param last      the index of the methods array which represents the end 
+     * @param last      the index of the methods array which represents the end
      *                  point of the menu items
      * @param sizeLimit the limit to which the menu should grow before openeing
      *                  submenus
@@ -204,7 +206,7 @@ public class ObjectWrapper extends JComponent
                 MethodView m = methods[i];
                 if(!filter.accept(m))
                     continue;
-                
+
                 // check if method signature has already been added to a menu
                 if(methodsUsed.containsKey(m.getSignature())) {
                     methodSignature = ( m.getSignature()
@@ -223,7 +225,7 @@ public class ObjectWrapper extends JComponent
                 actions.put(item, m);
 
                 // check whether it's time for a submenu
-                
+
                 int itemCount;
                 if(menu instanceof JMenu)
                     itemCount =((JMenu)menu).getMenuComponentCount();
@@ -247,12 +249,12 @@ public class ObjectWrapper extends JComponent
 
 
     /**
-     ** creates a List containing all classes in an inheritance hierarchy
-     ** working back to Object
-     **
-     ** @param derivedClass the class whose hierarchy is mapped (including self)
-     ** @return the List containng the classes in the inheritance hierarchy
-     **/
+     * Creates a List containing all classes in an inheritance hierarchy
+     * working back to Object
+     *
+     * @param   derivedClass    the class whose hierarchy is mapped (including self)
+     * @return                  the List containng the classes in the inheritance hierarchy
+     */
     public List getClassHierarchy(Class derivedClass)
     {
         Class currentClass = derivedClass;
@@ -263,7 +265,6 @@ public class ObjectWrapper extends JComponent
         }
         return classVector;
     }
-
 
     public Dimension getMinimumSize()
     {
@@ -336,7 +337,7 @@ public class ObjectWrapper extends JComponent
         g.fillRoundRect(5, 5, WIDTH - 10, HEIGHT - 15, 8, 8);
         g.setColor(Color.black);
         g.drawRoundRect(5, 5, WIDTH - 10, HEIGHT - 15, 8, 8);
-        
+
         g.setColor(umlText);
 
         int maxWidth = WIDTH - 20;
@@ -353,7 +354,7 @@ public class ObjectWrapper extends JComponent
         int lineY = h + 12;
 
         g.drawLine(lineX, lineY, lineX + w, lineY);
-        
+
         // draw class name
         w = fm.stringWidth(displayClassName);
         if(w > maxWidth)
@@ -375,6 +376,9 @@ public class ObjectWrapper extends JComponent
         //XXX        pkg.getFrame().clearStatus();
 
         if(isPopupEvent(evt)) {
+            if(menu == null)
+                return;
+
             if(!itemHeightKnown) {
                 int height = ((JComponent)menu.getComponent(0)).getHeight();
 
@@ -397,7 +401,7 @@ public class ObjectWrapper extends JComponent
                 inspectObject();
             else {
                 ObjectBench bench = (ObjectBench)getParent();
-                bench.objectSelected(this);
+                bench.fireObjectEvent(this);
             }
 
         }
@@ -470,11 +474,11 @@ public class ObjectWrapper extends JComponent
             watcher = new ResultWatcher() {
                     public void putResult(DebuggerObject result, String name)
                     {
-                        ObjectViewer viewer = 
+                        ObjectViewer viewer =
                             ObjectViewer.getViewer(false, result, name,
                                                    pkg, true, pmf);
-                        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, 
-                                              viewer.getResult());  
+                        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL,
+                                              viewer.getResult());
                     }
                 };
         }

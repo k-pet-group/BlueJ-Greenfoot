@@ -4,9 +4,7 @@ import bluej.utility.Queue;
 import bluej.utility.Debug;
 import bluej.classmgr.ClassMgr;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -351,12 +349,20 @@ public class ExecServer
                             String newName)
     {
         //Debug.message("[VM] addObject: " + instance + ", " + fieldName + ", " + newName);
+
         Map scope = getScope(scopeId);
         Object wrapObject = scope.get(instance);
-
         try {
-            Field field = wrapObject.getClass().getField(fieldName);
-            Object obj = field.get(wrapObject);
+            Object obj;
+
+            if (wrapObject.getClass().isArray()) {
+                int slot = Integer.valueOf(fieldName.substring(5)).intValue();
+                obj = Array.get(wrapObject, slot);
+            } else {
+                Field field = wrapObject.getClass().getField(fieldName);
+                obj = field.get(wrapObject);
+            }
+
             scope.put(newName, obj);
         }
         catch (Exception e) {

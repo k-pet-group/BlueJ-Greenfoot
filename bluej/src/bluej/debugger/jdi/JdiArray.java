@@ -10,15 +10,14 @@ import java.util.ArrayList;
 import com.sun.jdi.*;
 
 /**
- *  Represents an array object running on the user (remote) machine.
+ * Represents an array object running on the user (remote) machine.
  *
- *@author     Michael Kolling
- *@created    December 26, 2000
- *@version    $Id: JdiArray.java 757 2001-01-27 03:03:32Z dbuck $
+ * @author     Michael Kolling
+ * @created    December 26, 2000
+ * @version    $Id: JdiArray.java 837 2001-04-04 12:27:53Z ajp $
  */
 public class JdiArray extends JdiObject
 {
-
     private ArrayReference obj;
 
     protected JdiArray(ArrayReference obj)
@@ -85,7 +84,7 @@ public class JdiArray extends JdiObject
      */
     public String getStaticFieldName(int slot)
     {
-        return "field";
+        throw new UnsupportedOperationException("getStaticFieldName");
     }
 
     /**
@@ -96,7 +95,7 @@ public class JdiArray extends JdiObject
      */
     public String getInstanceFieldName(int slot)
     {
-        return "[...]";
+        return "array" + String.valueOf(slot);
     }
 
     /**
@@ -107,7 +106,7 @@ public class JdiArray extends JdiObject
      */
     public DebuggerObject getStaticFieldObject(int slot)
     {
-        return null;
+        throw new UnsupportedOperationException("getStaticFieldObject");
     }
 
     /**
@@ -132,7 +131,8 @@ public class JdiArray extends JdiObject
      */
     public List getStaticFields(boolean includeModifiers)
     {
-        return new ArrayList(0);
+        throw new UnsupportedOperationException("getStaticFields");
+        //        return new ArrayList(0);
     }
 
     /**
@@ -145,34 +145,26 @@ public class JdiArray extends JdiObject
     public List getInstanceFields(boolean includeModifiers)
     {
         List values;
-        if (obj.length() > 0)
-        {
+
+        if (obj.length() > 0) {
             values = obj.getValues();
-        }
-        else
-        {
+        } else {
             values = new ArrayList();
         }
         List fields = new ArrayList(values.size());
 
         String typeName = null;
 
-        for (int i = 0; i < values.size(); i++)
-        {
+        for (int i = 0; i < values.size(); i++) {
             Value val = (Value) values.get(i);
             String valString;
 
-            if (val == null)
-            {
+            if (val == null) {
                 valString = "<null>";
-            }
-            else if ((val instanceof ObjectReference) &&
-                    !(val instanceof StringReference))
-            {
+            } else if ((val instanceof ObjectReference) &&
+                        !(val instanceof StringReference)) {
                 valString = "<object reference>";
-            }
-            else
-            {
+            } else {
                 valString = val.toString();
             }
 
@@ -182,10 +174,10 @@ public class JdiArray extends JdiObject
     }
 
     /**
-     *  Is an object of this class assignable to the given fully qualified type?
+     * Is an object of this class assignable to the given fully qualified type?
      *
-     *@param  type  Description of Parameter
-     *@return       The AssignableTo value
+     * @param   type    Description of Parameter
+     * @return          The AssignableTo value
      */
     public boolean isAssignableTo(String type)
     {
@@ -258,7 +250,7 @@ public class JdiArray extends JdiObject
      */
     public boolean staticFieldIsPublic(int slot)
     {
-        return false;
+        throw new UnsupportedOperationException("getStaticFieldObject");
     }
 
     /**
@@ -269,7 +261,7 @@ public class JdiArray extends JdiObject
      */
     public boolean instanceFieldIsPublic(int slot)
     {
-        return false;
+        return true;
     }
 
 
@@ -282,27 +274,25 @@ public class JdiArray extends JdiObject
      */
     public boolean staticFieldIsObject(int slot)
     {
-        return false;
+        throw new UnsupportedOperationException("getStaticFieldObject");
     }
 
     /**
-     *  Return true if the object field 'slot' is an object (and not
-     *  a simple type).
+     * Return true if the object field 'slot' is an object (and not
+     * a simple type).
      *
-     *@param  slot  The slot number to be checked
-     *@return       Description of the Returned Value
+     * @param   slot    The slot number to be checked
+     * @return          true if the object in slot is an object
      */
     public boolean instanceFieldIsObject(int slot)
     {
         Value val = obj.getValue(slot);
-        if (val == null)
-        {
+
+        if (val == null) {
             return false;
         }
-        else
-        {
+        else {
             return (val instanceof ObjectReference);
         }
     }
-
 }
