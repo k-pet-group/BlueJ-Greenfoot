@@ -10,9 +10,9 @@ import java.io.File;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Compiler.java 1765 2003-04-09 05:56:45Z ajp $
+ * @version $Id: Compiler.java 2197 2003-10-02 04:12:34Z ajp $
  */
-public abstract class Compiler
+abstract class Compiler
 {
 	public abstract void setDestDir(File destDir);
 	public abstract void setClassPath(String classPath);

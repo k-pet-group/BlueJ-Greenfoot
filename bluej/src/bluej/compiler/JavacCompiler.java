@@ -13,9 +13,9 @@ import bluej.utility.DialogManager;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- * @version $Id: JavacCompiler.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: JavacCompiler.java 2197 2003-10-02 04:12:34Z ajp $
  */
-public class JavacCompiler extends Compiler
+class JavacCompiler extends Compiler
 {
     private String executable;
     private File destDir;

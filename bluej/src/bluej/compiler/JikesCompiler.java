@@ -11,9 +11,9 @@ import bluej.utility.DialogManager;
  * compiler. Verified working with Jikes 1.12.
  *
  * @author  Andrew Patterson
- * @version $Id: JikesCompiler.java 1765 2003-04-09 05:56:45Z ajp $
+ * @version $Id: JikesCompiler.java 2197 2003-10-02 04:12:34Z ajp $
  */
-public class JikesCompiler extends Compiler
+class JikesCompiler extends Compiler
 {
     String executable;
     File destDir;

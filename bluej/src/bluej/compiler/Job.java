@@ -10,9 +10,9 @@ import bluej.Config;
  * by running the job's "compile" method.
  *
  * @author  Michael Cahill
- * @version $Id: Job.java 1765 2003-04-09 05:56:45Z ajp $
+ * @version $Id: Job.java 2197 2003-10-02 04:12:34Z ajp $
  */
-public class Job
+class Job
 {
     Compiler compiler;		// The compiler for this job
     CompileObserver observer;

@@ -10,7 +10,7 @@ import bluej.utility.Debug;
  * compiler.
  *
  * @author  Michael Cahill
- * @version $Id: JobQueue.java 2100 2003-07-08 11:49:41Z mik $
+ * @version $Id: JobQueue.java 2197 2003-10-02 04:12:34Z ajp $
  */
 public class JobQueue
 {
@@ -44,12 +44,12 @@ public class JobQueue
         } else if (compilertype.equals("javac")) {
 
             compiler = new JavacCompiler(
-                                         Config.getPropString("bluej.compiler.executable","javac"));
+						Config.getJDKExecutablePath("bluej.compiler.executable","javac"));
 
         } else if (compilertype.equals("jikes")) {
 
             compiler = new JikesCompiler(
-                                         Config.getPropString("bluej.compiler.executable","jikes"));
+                        Config.getPropString("bluej.compiler.executable","jikes"));
 
         } else {
             Debug.message(Config.getString("compiler.invalidcompiler"));

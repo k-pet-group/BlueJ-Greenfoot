@@ -10,9 +10,9 @@ import bluej.utility.Queue;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: CompilerThread.java 2100 2003-07-08 11:49:41Z mik $
+ * @version $Id: CompilerThread.java 2197 2003-10-02 04:12:34Z ajp $
  */
-public class CompilerThread extends Thread
+class CompilerThread extends Thread
 {
     private Queue jobs;
     private boolean busy;

@@ -15,9 +15,9 @@ import bluej.utility.*;
  * @author  Michael Kolling
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: JavacCompilerInternal.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: JavacCompilerInternal.java 2197 2003-10-02 04:12:34Z ajp $
  */
-public class JavacCompilerInternal extends Compiler
+class JavacCompilerInternal extends Compiler
 {
     private ErrorStream firstStream = null;
 
