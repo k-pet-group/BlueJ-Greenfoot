@@ -700,10 +700,10 @@ type parameter {0} is not within its bound *
 No help available
 
 incompatible types*
-The operation you used here cannot be applied
-to the type of variable or expression found
-in your code. Check the types of your variables
-and expressions.
+There was an expression of a certain type required
+here. You provided an expression of a different
+type that is not compatible. (E.g. you wrote a
+String where an int was expected.)
 
 inconvertible types*
 The type you have used here cannot be automatically
