@@ -30,7 +30,7 @@ install.commands.unix=CP=~/lib/bluej.jar:~/lib/editor.jar:~/lib/antlr.jar:~/lib/
 install.commands.win=set CP=~\\lib\\bluej.jar;~\\lib\\editor.jar;~\\lib\\antlr.jar;~\\lib\\MRJToolkitStubs.zip;!\\lib\\tools.jar
 
 # java command-line options for unix (icluding MacOS)
-install.javaOpts.unix=-cp $CP -native
+install.javaOpts.unix=-cp $CP
 
 # java command-line options for windows
 install.javaOpts.win=-cp %CP%
