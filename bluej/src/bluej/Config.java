@@ -24,7 +24,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 2090 2003-07-03 08:33:04Z damiano $
+ * @version $Id: Config.java 2094 2003-07-04 07:08:52Z damiano $
  */
 
 public class Config
@@ -105,8 +105,9 @@ public class Config
         String macOSscreenMenuBar = Config.getPropString("bluej.macos.screenmenubar", "true");
         System.setProperty("apple.laf.useScreenMenuBar", macOSscreenMenuBar);
 
-        // You still need this one to have the correct behaviour on mac with java 1.3.1, Damiano
-        System.setProperty("com.apple.macos.useScreenMenuBar", macOSscreenMenuBar);
+        // You still need this one to have the screen menubar on mac with java 1.3.1, Damiano
+        // Do not set the following property, it does not work correctly on Mac with java 1.3.1, Michael
+//        System.setProperty("com.apple.macos.useScreenMenuBar", macOSscreenMenuBar);
 
         usingMacOSScreenMenubar = (osname.startsWith("Mac") && macOSscreenMenuBar.equals("true"));
         
