@@ -49,19 +49,22 @@ public final class FunctionDialog extends JDialog
     JList keyList;
     MultiLineLabel helpLabel;
 
-    Vector functions;
-    MoeActions actions;
+    MoeActions actions;		// The Moe action manager
+
+    Action[] functions;		// all user functions
+    int[] categoryIndex;	// an array of indecees into "functions"
+    int firstDisplayedFunc;	// index of first function in function list
 
   // ------------- METHODS --------------
 
-    public FunctionDialog(Hashtable actiontable)
+    public FunctionDialog(Action[] actiontable, String[] categories,
+			  int[] categoryIndex)
     {
 	super(null, "Editor Functions", true);
 	actions = MoeActions.getActions(null);;
-	functions = new Vector(actiontable.size());
-	for (Enumeration e = actiontable.keys(); e.hasMoreElements() ;)
-	    functions.addElement(e.nextElement());
-	makeDialog();
+  	functions = actiontable;
+	this.categoryIndex = categoryIndex;
+	makeDialog(categories);
     }
 
     /**
@@ -92,14 +95,16 @@ public final class FunctionDialog extends JDialog
     private void handleFuncListSelect()
     {
 	int index = functionList.getSelectedIndex();
-	Debug.message("func: " + index);
-	String funcName = (String)functions.elementAt(index);
-	KeyStroke[] keys = actions.getKeyStrokesForName(funcName);
-	if(keys == null) {
-	    keyList.setListData(new String[0]);
-	}
+	if(index == -1)
+	    return;	// deselection event - ignore
+
+	Action action = functions[firstDisplayedFunc + index];
+	KeyStroke[] keys = actions.getKeyStrokesForAction(action);
+	if(keys == null)
+	    clearKeyList();
 	else {
-	    keyList.setListData(keys);
+	    String[] keyStrings = getKeyStrings(keys);
+	    keyList.setListData(keyStrings);
 	    addKeyButton.setEnabled(false); // should be true once implemented
 	    delKeyButton.setEnabled(false);
 	}
@@ -127,6 +132,29 @@ public final class FunctionDialog extends JDialog
     {
     }
 
+    /**
+     * Translate KeyStrokes into String representation.
+     */
+    private String[] getKeyStrings(KeyStroke[] keys)
+    {
+	String[] keyStrings = new String[keys.length];
+	for(int i = 0; i < keys.length; i++) {
+	    int modifiers = keys[i].getModifiers();
+	    keyStrings[i] = KeyEvent.getKeyModifiersText(modifiers);
+	    if(keyStrings[i].length() > 0)
+		keyStrings[i] += "+";
+	    keyStrings[i] += KeyEvent.getKeyText(keys[i].getKeyCode());
+	}
+	return keyStrings;
+    }
+
+    private void clearKeyList()
+    {
+	keyList.setListData(new String[0]);
+    }
+
+    // ======== EVENT HANDLING INTERFACES =========
+
     // ----- ActionListener interface -----
 
     /**
@@ -145,14 +173,30 @@ public final class FunctionDialog extends JDialog
 
     // ----- ItemListener interface -----
 
+    /**
+     * The selected item in the category menu has changed.
+     */
     public void itemStateChanged(ItemEvent evt)
     {
-	functionList.setListData(functions);
-	// ...there is only one category at the moment...
+	int selected = categoryMenu.getSelectedIndex();
+
+	firstDisplayedFunc = categoryIndex[selected];
+	int lastFunc = categoryIndex[selected + 1];
+
+	String[] names = new String[lastFunc - firstDisplayedFunc];
+
+	for(int i = firstDisplayedFunc; i < lastFunc; i++)
+	    names[i-firstDisplayedFunc] = 
+		(String)functions[i].getValue(Action.NAME);
+	functionList.setListData(names);
+	clearKeyList();
     }
 
     // ----- ListSelectionListener interface -----
 
+    /**
+     * The selected item in a list has changed.
+     */
     public void valueChanged(ListSelectionEvent event)
     {
 	if(event.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
@@ -168,7 +212,7 @@ public final class FunctionDialog extends JDialog
     
     // ----- end of ListSelectionListener interface -----
 
-    private void makeDialog()
+    private void makeDialog(String[] categories)
     {
 	JPanel mainPanel = (JPanel)getContentPane();  // has BorderLayout
 	mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
@@ -262,7 +306,8 @@ public final class FunctionDialog extends JDialog
 		categoryPanel.add(label);
 		categoryMenu = new JComboBox();
 		categoryMenu.addItemListener(this);
-		categoryMenu.addItem("All functions");
+		for(int i=0; i<categories.length; i++)
+		    categoryMenu.addItem(categories[i]);
 	        categoryPanel.add(categoryMenu);
 
 	    funcPanel.add(categoryPanel, BorderLayout.NORTH);

@@ -12,6 +12,8 @@ import java.io.Reader;
  ** @version 1.0, July 1998
  **/
 public class Database {
+        static int dummy = 33;
+
 	public PersonList theList;
 
 	public static void main (String[] args) {

@@ -18,7 +18,7 @@ import javax.swing.border.Border;
 
 
 /**
- ** @version $Id: ObjectViewer.java 53 1999-04-29 23:43:58Z mik $
+ ** @version $Id: ObjectViewer.java 62 1999-05-03 07:46:23Z mik $
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
@@ -192,8 +192,13 @@ public final class ObjectViewer extends JFrame
      */
     public void valueChanged(ListSelectionEvent e)
     {
+	if(e.getValueIsAdjusting())  // ignore mouse down, dragging, etc.
+	    return;
+
 	if(e.getSource() == staticFieldList) {		// click in static list
 	    int slot = staticFieldList.getSelectedIndex();
+	    if(slot == -1)
+		return;
 
 	    if(obj.staticFieldIsObject(slot)) {
 		setCurrentObj(obj.getStaticFieldObject(slot),
@@ -209,11 +214,12 @@ public final class ObjectViewer extends JFrame
 	    }
 
 	    objFieldList.clearSelection();
-	    //staticFieldList.setSelectedIndex(slot);
 	}
 	else if(e.getSource() == objFieldList) {	// click in object list
 			
 	    int slot = objFieldList.getSelectedIndex();
+	    if(slot == -1)
+		return;
 			
 	    if(obj.fieldIsObject(slot)) {
 		setCurrentObj(obj.getFieldObject(slot),
@@ -230,7 +236,6 @@ public final class ObjectViewer extends JFrame
 
 	    if(staticFieldList != null)
 		staticFieldList.clearSelection();
-	    //objFieldList.setSelectedIndex(slot);
 	}
     }
 

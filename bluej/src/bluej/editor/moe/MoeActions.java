@@ -19,6 +19,10 @@ import javax.swing.undo.*;
  ** A set of actions supported by the Moe editor. This is a singleton: the
  ** actions are shared between all editor instances.
  **
+ ** Actions are stores both in a hashtable and in an array. The hashtable is
+ ** used for fast lookup by name, whereas the array is needed to support
+ ** complete, ordered access.
+ **
  ** @author Michael Kolling
  **
  **/
@@ -34,7 +38,11 @@ public final class MoeActions
 
     // -------- INSTANCE VARIABLES --------
 
-    private Hashtable actions;		// table of all known actions
+    private Action[] actionTable;	// table of all known actions
+    private Hashtable actions;		// the same actions in a hashtable
+    private String[] categories;
+    private int[] categoryIndex;
+
     private Keymap keymap;		// the editor's keymap
     private FunctionDialog functionDlg;	// the function bindings dialog
 
@@ -96,15 +104,15 @@ public final class MoeActions
      * Get a keystroke for an action by action name. Return null is there
      * is none.
      */
-    public KeyStroke[] getKeyStrokesForName(String actionName)
-    {
-	Action action = getActionByName(actionName);
-	KeyStroke[] keys = keymap.getKeyStrokesForAction(action);
-	if (keys != null && keys.length > 0) 
-	    return keys;
-	else
-	    return null;
-    }
+//      public KeyStroke[] getKeyStrokesForName(String actionName)
+//      {
+//  	Action action = getActionByName(actionName);
+//  	KeyStroke[] keys = keymap.getKeyStrokesForAction(action);
+//  	if (keys != null && keys.length > 0) 
+//  	    return keys;
+//  	else
+//  	    return null;
+//      }
 
     // ============================ USER ACTIONS =============================
 
@@ -316,7 +324,7 @@ public final class MoeActions
     class HalfTabAction extends MoeAbstractAction {
 
 	public HalfTabAction() {
-	    super("half-tab",
+	    super("insert-half-tab",
 		  KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0));
 	}
 
@@ -461,58 +469,6 @@ public final class MoeActions
 	}
     }
 
-    // --------------------------------------------------------------------
-
-    class StepAction extends MoeAbstractAction {
-
-	public StepAction() {
-	    super("step", null);
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class StepIntoAction extends MoeAbstractAction {
- 
-	public StepIntoAction() {
-	    super("step-into", null);
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class ContinueAction extends MoeAbstractAction {
-
-	public ContinueAction() {
-	    super("continue", null);
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class TerminateAction extends MoeAbstractAction {
-
-	public TerminateAction() {
-	    super("terminate", null);
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
-	}
-    }
-
     // === Options: ===
     // --------------------------------------------------------------------
 
@@ -547,7 +503,7 @@ public final class MoeActions
     class AboutAction extends MoeAbstractAction {
 
 	public AboutAction() {
-	    super("help-about", null);
+	    super("about-editor", null);
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -569,7 +525,7 @@ public final class MoeActions
     class CopyrightAction extends MoeAbstractAction {
  
 	public CopyrightAction() {
-	    super("help-copyright", null);
+	    super("copyright", null);
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -582,7 +538,7 @@ public final class MoeActions
     class DescribeKeyAction extends MoeAbstractAction {
 
 	public DescribeKeyAction() {
-	    super("help-describe-key", 
+	    super("describe-key", 
 		  KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK));
 	}
 
@@ -609,7 +565,7 @@ public final class MoeActions
     class ShowManualAction extends MoeAbstractAction {
 
 	public ShowManualAction() {
-	    super("help-show-manual", null);
+	    super("show-manual", null);
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -623,19 +579,6 @@ public final class MoeActions
 
 	public ReportErrorAction() {
 	    super("report-errors", null);
-	}
-
-	public void actionPerformed(ActionEvent e) {
-	    Utility.NYI(getEditor(e));
-	}
-    }
-
-    // --------------------------------------------------------------------
-
-    class EmptyAction extends MoeAbstractAction {
-
-	public EmptyAction() {
-	    super("nothing", null);
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -671,7 +614,8 @@ public final class MoeActions
     private FunctionDialog getFunctionDialog()
     {
 	if(functionDlg == null)
-	    functionDlg = new FunctionDialog(actions);
+	    functionDlg = new FunctionDialog(actionTable, categories, 
+					     categoryIndex);
 	return functionDlg;
     }
 
@@ -736,30 +680,25 @@ public final class MoeActions
 
     private void createActionTable(JTextComponent textComponent)
     {
-	actions = new Hashtable();
-
-	// first, create our own actions
-
 	undoAction = new UndoAction();
 	redoAction = new RedoAction();
 
-	Action[] myActions = {
+	// get all actions into arrays
 
-	    // class actions
+	Action[] textActions = textComponent.getActions();
+	Action[] myActions = {
 	    new SaveAction(),
 	    new ReloadAction(),
 	    new PrintAction(),
 	    new CloseAction(),
 
-	    // edit actions
 	    undoAction,
 	    redoAction,
 	    new CommentAction(),
 	    new UncommentAction(),
 	    new InsertMethodAction(),
-	    new HalfTabAction(),
+ 	    new HalfTabAction(),
 
-	    // tool actions
 	    new FindAction(),
 	    new FindBackwardAction(),
 	    new FindNextAction(),
@@ -767,20 +706,12 @@ public final class MoeActions
 	    new ReplaceAction(),
 	    new GotoLineAction(),
 	    new CompileAction(),
-
-	    // debug actions
 	    new SetBreakPointAction(),
 	    new ClearBreakPointAction(),
-	    new StepAction(),
-	    new StepIntoAction(),
-	    new ContinueAction(),
-	    new TerminateAction(),
 
-	    // option actions
 	    new PreferencesAction(),
 	    new KeyBindingsAction(),
 
-	    // help actions
 	    new AboutAction(),
 	    new CopyrightAction(),
 	    new DescribeKeyAction(),
@@ -788,24 +719,119 @@ public final class MoeActions
 	    new ShowManualAction(),
 	    new ReportErrorAction(),
 
-	    // internal actions
-	    new EmptyAction()
 	};
 
-	// now, get the actions already defined in the editor and merge them
-	// with our own actions
+	// insert all actions into a hashtable
 
-	Action[] allActions = TextAction.augmentList(
-					     textComponent.getActions(),
-					     myActions);
-
-	// next, enter all those actions into our hash table
+	actions = new Hashtable();
 
 	Action action;
-	for (int i=0; i < allActions.length; i++) {
-	    action = allActions[i];
+	for (int i=0; i < textActions.length; i++) {
+	    action = textActions[i];
 	    actions.put(action.getValue(Action.NAME), action);
 	}
+	for (int i=0; i < myActions.length; i++) {
+	    action = myActions[i];
+	    actions.put(action.getValue(Action.NAME), action);
+	}
+
+	// sort all actions into a big, ordered table
+
+	actionTable = new Action[] {
+
+	    // edit functions
+	    (Action)(actions.get("delete-previous")),		// 0
+	    (Action)(actions.get("delete-next")),
+	    (Action)(actions.get("copy-to-clipboard")),
+	    (Action)(actions.get("cut-to-clipboard")),
+	    (Action)(actions.get("paste-from-clipboard")),
+	    (Action)(actions.get("insert-tab")),
+	    (Action)(actions.get("insert-break")),
+	    (Action)(actions.get("insert-half-tab")),
+	    (Action)(actions.get("insert-method")),
+	    (Action)(actions.get("comment")),
+	    (Action)(actions.get("uncomment")),			// 10
+
+	    (Action)(actions.get("select-word")),
+	    (Action)(actions.get("select-line")),
+	    (Action)(actions.get("select-paragraph")),
+	    (Action)(actions.get("select-all")),
+	    (Action)(actions.get("unselect")),
+	    (Action)(actions.get("selection-backward")),
+	    (Action)(actions.get("selection-forward")),
+	    (Action)(actions.get("selection-up")),
+	    (Action)(actions.get("selection-down")),
+	    (Action)(actions.get("selection-begin-word")),	// 20
+	    (Action)(actions.get("selection-end-word")),
+	    (Action)(actions.get("selection-previous-word")),
+	    (Action)(actions.get("selection-next-word")),
+	    (Action)(actions.get("selection-begin-line")),
+	    (Action)(actions.get("selection-end-line")),
+	    (Action)(actions.get("selection-begin-paragraph")),
+	    (Action)(actions.get("selection-end-paragraph")),
+	    (Action)(actions.get("selection-page-up")),
+	    (Action)(actions.get("selection-page-down")),
+	    (Action)(actions.get("selection-begin")),		// 30
+	    (Action)(actions.get("selection-end")),
+
+	    // move and scroll functions
+
+	    (Action)(actions.get("caret-backward")),		// 32
+	    (Action)(actions.get("caret-forward")),
+	    (Action)(actions.get("caret-up")),
+	    (Action)(actions.get("caret-down")),
+	    (Action)(actions.get("caret-begin-word")),
+	    (Action)(actions.get("caret-end-word")),
+	    (Action)(actions.get("caret-previous-word")),
+	    (Action)(actions.get("caret-next-word")),
+	    (Action)(actions.get("caret-begin-line")),		// 40
+	    (Action)(actions.get("caret-end-line")),
+	    (Action)(actions.get("caret-begin-paragraph")),
+	    (Action)(actions.get("caret-end-paragraph")),
+	    (Action)(actions.get("page-up")),
+	    (Action)(actions.get("page-down")),
+	    (Action)(actions.get("caret-begin")),
+	    (Action)(actions.get("caret-end")),
+
+	    // class functions
+	    (Action)(actions.get("save")),			// 48
+	    (Action)(actions.get("reload")),
+	    (Action)(actions.get("close")),			// 50
+	    (Action)(actions.get("print")),
+
+	    // customisation functions
+	    (Action)(actions.get("preferences")),		// 52
+	    (Action)(actions.get("key-bindings")),
+
+	    // help functions
+	    (Action)(actions.get("describe-key")),		// 54
+	    (Action)(actions.get("show-manual")),
+	    (Action)(actions.get("about-editor")),
+	    (Action)(actions.get("copyright")),
+	    (Action)(actions.get("report-errors")),
+
+	    // misc functions
+	    undoAction,						// 59
+	    redoAction,						// 60
+
+	    (Action)(actions.get("find")),
+	    (Action)(actions.get("find-backward")),
+	    (Action)(actions.get("find-next")),
+	    (Action)(actions.get("find-next-reverse")),
+	    (Action)(actions.get("replace")),
+	    (Action)(actions.get("goto-line")),
+	    (Action)(actions.get("compile")),
+	    (Action)(actions.get("set-breakpoint")),
+	    (Action)(actions.get("clear-breakpoint")),		// 69
+	};
+
+	categories = new String[] { "Edit Functions", 
+				    "Move & Scroll",
+				    "Class Functions",
+				    "Customisation",
+				    "Help",
+				    "Misc." };
+	categoryIndex = new int[] { 0, 32, 48, 52, 54, 59, 70 };
     }
 
 } // end class MoeActions
