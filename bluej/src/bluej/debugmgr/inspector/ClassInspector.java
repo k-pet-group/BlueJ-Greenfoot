@@ -21,7 +21,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: ClassInspector.java 2543 2004-05-24 08:53:48Z polle $
+ * @version    $Id: ClassInspector.java 2552 2004-05-26 12:53:33Z polle $
  */
 public class ClassInspector extends Inspector
 {
@@ -85,7 +85,7 @@ public class ClassInspector extends Inspector
         setBorder(BlueJTheme.shadowBorder);        
        
         makeFrame();
-       	DialogManager.tileWindow(this, parent);
+       	DialogManager.centreWindow(this, parent);
     }
     
     

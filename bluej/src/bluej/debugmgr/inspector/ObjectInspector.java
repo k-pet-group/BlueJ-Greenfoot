@@ -33,7 +33,7 @@ import bluej.utility.JavaNames;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ObjectInspector.java 2543 2004-05-24 08:53:48Z polle $
+ * @version $Id: ObjectInspector.java 2552 2004-05-26 12:53:33Z polle $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -121,7 +121,8 @@ public class ObjectInspector extends Inspector
         this.objName = name;        
         
         makeFrame();
-       	DialogManager.tileWindow(this, parent);
+
+       	DialogManager.centreWindow(this, parent);
     }
 
    
