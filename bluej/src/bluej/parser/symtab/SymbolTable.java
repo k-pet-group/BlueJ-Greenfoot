@@ -729,6 +729,10 @@ public class SymbolTable
         currentFile = file;
     }   
 
+    /** Return the current file that is being parsed */
+    public File getFile() {
+        return currentFile;
+    }
 
     /** set the lookup scope to the nearest enclosing class (for "this.x") */
     public void setNearestClassScope() {

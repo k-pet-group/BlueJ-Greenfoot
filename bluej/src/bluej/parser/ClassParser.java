@@ -79,9 +79,7 @@ public class ClassParser extends antlr.LLkParser
     {
         // If this is a directory, walk each file/dir in that directory
         if (f.isDirectory()) {
-            String files[] = f.list();
-            for(int i=0; i < files.length; i++)
-                doFile(new File(f, files[i]), symbolTable, info);
+		throw new Exception("Attempt to parse directory");
         }
 
         // otherwise, if this is a java file, parse it!
@@ -200,12 +198,22 @@ public class ClassParser extends antlr.LLkParser
                             JavaVector interfaces,
 			    boolean isAbstract,
 			    JavaToken comment) {
+
+	// if the class we just processed has the same name as the src file it
+	// is in then we indicate that we have found the main class for this file			    
+	if (symbolTable.getFile().getName().compareToIgnoreCase(theClass.getText() + ".java") == 0) {
+		info.setParsedFileHeader(true);
+	}
         symbolTable.defineClass(theClass, superClass, interfaces, isAbstract, comment);
     }
 
     public void defineInterface(JavaToken theInterface,
                                 JavaVector subInterfaces,
                                 JavaToken comment) {
+
+	if (symbolTable.getFile().getName().compareToIgnoreCase(theInterface.getText() + ".java") == 0) {
+		info.setParsedFileHeader(true);
+	}
         symbolTable.defineInterface(theInterface, subInterfaces, comment);
     }
 

@@ -149,6 +149,20 @@ public final class ClassInfo {
         isAbstract = b;
     }
 
+    /**
+     * If we have parsed the definition of the main class or
+     * interface for this file then we switch off processing of
+     * any more src locations in the file.. this protects us from
+     * picking up inner class, private classes etc defined
+     * later on in the file
+     */
+    private boolean parsedfileheader = false;
+
+    public void setParsedFileHeader(boolean status)
+    {
+        this.parsedfileheader = status;
+    }
+
     // where we would insert the string "extends" in a class
     private Selection classextendsinsertselection;
     // how we would replace the string "extends" in a class
@@ -176,7 +190,8 @@ public final class ClassInfo {
     private Vector interfaceextendstexts;
 
     public void setClassExtendsInsertSelection(Selection s) {
-        classextendsinsertselection = s;
+        if(!parsedfileheader)
+            classextendsinsertselection = s;
     }
 
     public Selection getClassExtendsInsertSelection() {
@@ -184,7 +199,8 @@ public final class ClassInfo {
     }
     
     public void setClassExtendsReplaceSelection(Selection s) {
-        classextendsreplaceselection = s;
+        if(!parsedfileheader)
+            classextendsreplaceselection = s;
     }
 
     public Selection getClassExtendsReplaceSelection() {
@@ -193,7 +209,8 @@ public final class ClassInfo {
 
     public void setClassSuperClassReplaceSelection(Selection s)
     {
-        classsuperclassreplaceselection = s;
+        if(!parsedfileheader)
+            classsuperclassreplaceselection = s;
     }
 
     public Selection getClassSuperClassReplaceSelection() {
@@ -201,7 +218,8 @@ public final class ClassInfo {
     }
 
     public void setClassImplementsInsertSelection(Selection s) {
-        classimplementsinsertselection = s;
+        if(!parsedfileheader)
+            classimplementsinsertselection = s;
     }
 
     public Selection getClassImplementsInsertSelection() {
@@ -209,7 +227,8 @@ public final class ClassInfo {
     }
 
     public void setInterfaceExtendsInsertSelection(Selection s) {
-        interfaceextendsinsertselection = s;
+        if(!parsedfileheader)
+            interfaceextendsinsertselection = s;
     }
 
     public Selection getInterfaceExtendsInsertSelection() {
@@ -217,8 +236,10 @@ public final class ClassInfo {
     }
 
     public void setClassImplementsSelections(Vector sels, Vector texts) {
-        classimplementsselections = sels;
-        classimplementstexts = texts;
+        if(!parsedfileheader) {
+            classimplementsselections = sels;
+            classimplementstexts = texts;
+        }
     }
 
     public Vector getClassImplementsSelections() {
@@ -234,8 +255,10 @@ public final class ClassInfo {
     }
 
     public void setInterfaceExtendsSelections(Vector sels, Vector texts) {
-        interfaceextendsselections = sels;
-        interfaceextendstexts = texts;
+        if(!parsedfileheader) {
+            interfaceextendsselections = sels;
+            interfaceextendstexts = texts;
+        }
     }
 
     public Vector getInterfaceExtendsSelections() {
