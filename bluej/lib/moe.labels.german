@@ -44,7 +44,7 @@ menubar = class edit tools option
 class = save reload - print - close
 edit = undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - comment uncomment - insert-method
 tools = find find-backward find-next replace - compile toggle-breakpoint
-option = preferences key-bindings
+option = key-bindings
 
 # menu labels (MUST be defined)
 
@@ -79,5 +79,4 @@ goto-lineLabel = Gehe nach...
 compileLabel = Compile
 toggle-breakpointLabel = Breakpoint setzen/entfernen
 
-preferencesLabel = Einstellungen...
 key-bindingsLabel = Tastendefinitionen...
