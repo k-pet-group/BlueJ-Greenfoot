@@ -1,6 +1,7 @@
 package bluej.graph;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -183,11 +184,19 @@ public class SelectionController
     {
         if (isButtonOne(evt)) {
             if (marquee.isActive()) {
+                Rectangle oldRect = (Rectangle) marquee.getRectangle();                
                 marquee.move(evt.getX(), evt.getY());
-                graphEditor.repaint();
+                Rectangle newRect = (Rectangle) marquee.getRectangle().clone();  
+                if(oldRect != null) {
+                    newRect.add(oldRect);
+                }
+                newRect.width++;
+                newRect.height++;
+                graphEditor.repaint(newRect);
             }
             else if (rubberBand != null) {
                 rubberBand.setEnd(evt.getX(), evt.getY());
+                graphEditor.repaint();
             }
             else 
             {
@@ -202,9 +211,9 @@ public class SelectionController
                         selection.move(deltaX, deltaY);
                     }
                 }
+                graphEditor.repaint();
             }
         }
-        graphEditor.repaint();
     }
 
     // ======= end of MouseMotionListener interface =======

@@ -11,7 +11,7 @@ import bluej.utility.Utility;
  * Paints a ClassTarget
  * 
  * @author fisker
- * @version $Id: ClassTargetPainter.java 2787 2004-07-12 14:12:42Z mik $
+ * @version $Id: ClassTargetPainter.java 2877 2004-08-16 15:12:46Z polle $
  */
 
 public class ClassTargetPainter
@@ -48,6 +48,7 @@ public class ClassTargetPainter
         
         // draw the stationary class
         drawSkeleton(g, classTarget, width, height);
+        drawShadow(g, width, height);
         drawUMLStyle(g, classTarget, hasFocus, width, height);
         // drawRole(g);  // currently, roles don't draw
         g.translate(-classTarget.getX(), -classTarget.getY());
@@ -70,15 +71,13 @@ public class ClassTargetPainter
     }
 
     /**
-     * Draw the Coloured rectangle, the shadow and the borders.
+     * Draw the Coloured rectangle and the borders.
      *  
      */
     private void drawSkeleton(Graphics2D g, ClassTarget classTarget, int width, int height)
     {
         g.setColor(getBackgroundColour(classTarget));
         g.fillRect(0, 0, width, height);
-
-        drawShadow(g, width, height);
     }
 
     /**

@@ -16,7 +16,7 @@ import bluej.pkgmgr.Package;
  * Paints a Graph using TargetPainters
  * 
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 2789 2004-07-12 18:08:11Z mik $
+ * @version $Id: GraphPainterStdImpl.java 2877 2004-08-16 15:12:46Z polle $
  */
 public class GraphPainterStdImpl
     implements GraphPainter
@@ -24,14 +24,18 @@ public class GraphPainterStdImpl
     /**
      * Colors used for shadows. On white background Color(0,0,0,a) displayes as
      * Color(255-a,255-a,255-a)
+     * 
+     * We no longer use alpha values because it had very poor performance on
+     * some systems (linux+win)
      */
-    public static final Color[] colours = {new Color(0, 0, 0, 13),//on white
-                                                                  // background
-                                                                  // this is
-                                                                  // (242,242,242)
-            new Color(0, 0, 0, 44),//on white background this is (211,211,211)
-            new Color(0, 0, 0, 66),//on white background this is (189,189,189)
-            new Color(0, 0, 0, 172)//on white background this is (83,83,83)
+    public static final Color[] colours = {new Color(242, 242, 242), //with
+                                                                     // alpha
+                                                                     // values
+                                                                     // this is
+                                                                     // (0,0,0,13)
+            new Color(211, 211, 211), //with alpha values this is (0,0,0,44)
+            new Color(189, 189, 189), //with alpha values this is (0,0,0,66)
+            new Color(83, 83, 83) //with alpha values this is (0,0,0,172)
     };
     static final int TEXT_HEIGHT = Integer.parseInt(Config.getPropString("bluej.target.fontsize")) + 4; //16;
     static final int TEXT_BORDER = 4;
