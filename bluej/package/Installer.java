@@ -17,7 +17,7 @@ import java.util.zip.*;
   * 
   *   java Installer
   *
-  * @version $Id: Installer.java 759 2001-02-05 01:10:22Z bquig $
+  * @version $Id: Installer.java 760 2001-02-05 03:11:05Z bquig $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -871,19 +871,7 @@ public class Installer extends JFrame
             InputStream cpin =
                 ClassLoader.getSystemResourceAsStream("Installer.class");
 
-            //InputStream cpin = getFileFromClasspath("Installer.class");
-            // 			String fullTempClassName = "Installer.class.tmp";
-            // 			String homePath = System.getProperty("user.home");		
-            // 			if(homePath != null)
-            // 				fullTempClassName = homePath + File.separator + fullTempClassName;
-							
-            // 			File tempInstallerClass = new File(fullTempClassName);
-
-
 			File tempInstallerClass = File.createTempFile("bluej", null);
-
-			System.out.println("Installer.class is " + fullTempClassName);
-
 			FileOutputStream cpout = new FileOutputStream(tempInstallerClass);
             byte[] buffer = new byte[8192];
             int len;
