@@ -10,13 +10,13 @@
 //   4) ((caseLabel|"default")+ (statement)* )*
 //      nasty conflict, but proper code is generated
 //
-// Each of these conflicts are noted in the grammar where they occur, and 
-// these are no worry as long as these are the only conflicts reported by 
+// Each of these conflicts are noted in the grammar where they occur, and
+// these are no worry as long as these are the only conflicts reported by
 // ANTLR
 //
 
 
-// include an ANTLR "header" so all generated code will be in 
+// include an ANTLR "header" so all generated code will be in
 // package bluej.parser
 header {
 package bluej.parser;
@@ -72,10 +72,16 @@ options {
     private SymbolTable symbolTable;
     private TokenStreamHiddenTokenFilter filter;
     private ClassInfo info;
-	    
+
+    public static ClassInfo parse(String filename)
+        throws Exception
+    {
+    	return parse(filename, null);
+    }
+
     // the main entry point to parse a file
     public static ClassInfo parse(String filename, Vector classes)
-        throws Exception 
+        throws Exception
     {
 	// create a new symbol table
 	SymbolTable symbolTable = new SymbolTable();
@@ -89,7 +95,8 @@ options {
 
 
 	// add existing classes to the symbol table
-	symbolTable.addClasses(classes);
+	if(classes != null)
+		symbolTable.addClasses(classes);
 
 	symbolTable.getInfo(info);
 
@@ -100,7 +107,7 @@ options {
     // This method decides what action to take based on the type of
     //   file we are looking at
     public static void doFile(File f, SymbolTable symbolTable, ClassInfo info)
-	throws Exception 
+	throws Exception
     {
         // If this is a directory, walk each file/dir in that directory
         if (f.isDirectory()) {
@@ -117,7 +124,7 @@ options {
     // Here's where we do the real work...
     public static void parseFile(InputStream s,
                                  SymbolTable symbolTable, ClassInfo info)
-	throws Exception 
+	throws Exception
     {
 	// Create a scanner that reads from the input stream passed to us
 	JavaLexer lexer = new JavaLexer(s);
@@ -162,7 +169,7 @@ options {
         this.filter = filter;
     }
 
-    
+
     // redefined from antlr.LLkParser to supress error messages
     public void reportError(ParserException ex) {
         // do nothing
@@ -188,9 +195,9 @@ options {
 			}
 		}
 
-		return (JavaToken)ctok;		
+		return (JavaToken)ctok;
 	}
-	    
+
     //------------------------------------------------------------------------
     // Symboltable adapter methods
     // The following methods are provided to give a single set of entry
@@ -225,7 +232,7 @@ options {
 			    JavaToken comment) {
 
 	// if the class we just processed has the same name as the src file it
-	// is in then we indicate that we have found the main class for this file			    
+	// is in then we indicate that we have found the main class for this file
 	if (symbolTable.getFile().getName().compareToIgnoreCase(theClass.getText() + ".java") == 0) {
 		info.setParsedFileHeader(true);
 	}
@@ -259,7 +266,7 @@ options {
     public Selection selectionAfterToken(JavaToken id) {
 	return new Selection(id.getFile(), id.getLine(),
                               id.getColumn() + id.getText().length(),0);
-    }    
+    }
 }
 
 
@@ -295,11 +302,11 @@ packageDefinition
     :   pkg:"package" id=identifier sem:SEMI
         {
             info.setPackageSelections(new Selection((JavaToken)pkg),
-                                        new Selection(id),
+                                        new Selection(id), id.getText(),
                                         new Selection((JavaToken)sem));
 
             definePackage(id);  // tell the symbol table about the package
-        } 
+        }
     ;
 
 
@@ -353,8 +360,8 @@ declaration
 modifiers returns [boolean isAbstract]
     {isAbstract = false;
      boolean abs;}
-    :   ( abs=modifier 
-	  {isAbstract|=abs;} 
+    :   ( abs=modifier
+	  {isAbstract|=abs;}
 	)*
     ;
 
@@ -364,7 +371,10 @@ modifiers returns [boolean isAbstract]
 //   give the "interested reader" something simple to try to add.
 typeSpec returns [JavaToken t]
     {t=null;}
-    :   t=type (LBRACK RBRACK )*
+    :   t=type (LBRACK RBRACK
+    		{ if(t != null)
+			t.setText(t.getText() + "[]");
+    		} )*
     ;
 
 
@@ -497,7 +507,7 @@ classDefinition[boolean isAbstract, JavaToken commentToken]
             {
             	info.setClassImplementsSelections(interfaces.positions,
             	                                   interfaces.texts);
-            }           
+            }
             )?
 
             // tell the symbol table about it
@@ -526,15 +536,15 @@ interfaceDefinition[JavaToken commentToken]
 		// character just after the interfacename identifier
 		info.setInterfaceExtendsInsertSelection(selectionAfterToken((JavaToken)id));
             }
-            
+
             // it might extend some other interfaces
             (superInterfaces=interfaceExtends
             {
                 info.setInterfaceExtendsSelections(superInterfaces.positions,
                 				    superInterfaces.texts);
             }
-            )? 
-            
+            )?
+
             // tell the symbol table about it!
             // Note that defineInterface pushes the interface scope, so
             //   we'll have to pop it...
@@ -651,14 +661,14 @@ field
 
             |   variableDefinitions[type, commentToken] SEMI
             )
-        ) 
-          
+        )
+
 
     // "static { ... }" class initializer
     |   "static" compoundStatement[CLASS_INIT]
 
     // "{ ... }" instance initializer
-    |   compoundStatement[INSTANCE_INIT]         
+    |   compoundStatement[INSTANCE_INIT]
     ;
 
 
@@ -673,7 +683,9 @@ variableDefinitions[JavaToken type, JavaToken commentToken]
 // It can also include possible initialization.  Note again that the
 //   array brackets are ignored...
 variableDeclarator[JavaToken type, JavaToken commentToken]
-    :   id:IDENT (LBRACK RBRACK)* ( ASSIGN initializer )?
+    :   id:IDENT (LBRACK RBRACK  { if(type != null)
+    					type.setText(type.getText() + "[]");
+    				   } )* ( ASSIGN initializer )?
         {defineVar((JavaToken)id, type, commentToken);}
     ;
 
@@ -710,7 +722,7 @@ methodHead[JavaToken type, JavaToken commentToken]
     :   method:IDENT  // the name of the method
 
         {
-		// tell the symbol table about it.  Note that this signals that 
+		// tell the symbol table about it.  Note that this signals that
         	// we are in a method header so we handle parameters appropriately
         	defineMethod((JavaToken)method, type, commentToken);
         }
@@ -752,8 +764,10 @@ parameterDeclarationList
 //   the symbol table adds it to the parameter list of the current method
 //   header.
 parameterDeclaration
-    {JavaToken type;}
-    :   ("final")? type=typeSpec id:IDENT (LBRACK RBRACK)*
+    {JavaToken type; }
+    :   ("final")? type=typeSpec id:IDENT (LBRACK RBRACK
+         		{ if(type != null)
+			       type.setText(type.getText() + "[]"); } )*
         {defineVar((JavaToken)id, type, null);}
     ;
 
@@ -797,7 +811,7 @@ compoundStatement[int scopeType]
 
             // include the (poosibly-empty) list of statements
             (statement)*
-            
+
             // tell the symbol table we're leaving a scope
             {popScope();}
         RCURLY
@@ -832,7 +846,7 @@ statement
         // is to keep it as close to the corresponding "if"
         // as possible.  The generated code will do this,
         // so we can live with the ambiguity.  We could do
-        //      (   ("else")=> "else" statement 
+        //      (   ("else")=> "else" statement
         //      |   // no else clause
         //      )
         // instead, but that's less efficient...
@@ -944,7 +958,7 @@ handler
 // to point out that new has a higher precedence than '.', so you
 // can validy use
 //     new Frame().show()
-// 
+//
 // Note that the above precedence levels map to the rules below...
 // Once you have a precedence chart, writing the appropriate rules as below
 //   is usually very straightfoward
@@ -1086,7 +1100,7 @@ postfixExpression
 
     :   t=primaryExpression // start with a primary
 
-        
+
         (   // qualified id (id.id.id.id...) -- buid the name
             DOT ( id:IDENT {if (t!=null) t.setText(t.getText()+"."+id.getText());}
                 | "this"   {if (t!=null) t.setText(t.getText()+".this");}
@@ -1156,7 +1170,7 @@ newExpression returns [JavaToken t]
                 ( count=expressionList
                 | /*nothing*/ {count=0;}
                 )
-            RPAREN 
+            RPAREN
                 {
                     t.setText(t.getText()+".~constructor~");
                     t.setParamCount(count);
@@ -1365,7 +1379,7 @@ STRING_LITERAL
 // the FOLLOW ambig warnings.
 protected
 ESC
-    :   '\\'                             
+    :   '\\'
         (   'n'
         |   'r'
         |   't'
@@ -1374,14 +1388,14 @@ ESC
         |   '"'
         |   '\''
         |   '\\'
-        |   ('u')+ HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT 
+        |   ('u')+ HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
 		|	('0'..'3')
 			(
 				options {
 					warnWhenFollowAmbig = false;
 				}
 			:	('0'..'9')
-				(	
+				(
 					options {
 						warnWhenFollowAmbig = false;
 					}
@@ -1446,7 +1460,7 @@ NUM_INT
         |   ('1'..'9') ('0'..'9')*  {isDecimal=true;}       // non-zero decimal
         )
         (   ('l'|'L')
-        
+
         // only check to see if it's a float if looks like decimal so far
         |   {isDecimal}?
             (   '.' ('0'..'9')* (EXPONENT)? (FLOAT_SUFFIX)?

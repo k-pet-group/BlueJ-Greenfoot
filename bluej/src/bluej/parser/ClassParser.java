@@ -47,10 +47,16 @@ public class ClassParser extends antlr.LLkParser
     private SymbolTable symbolTable;
     private TokenStreamHiddenTokenFilter filter;
     private ClassInfo info;
-	    
+
+    public static ClassInfo parse(String filename)
+        throws Exception
+    {
+    	return parse(filename, null);
+    }
+
     // the main entry point to parse a file
     public static ClassInfo parse(String filename, Vector classes)
-        throws Exception 
+        throws Exception
     {
 	// create a new symbol table
 	SymbolTable symbolTable = new SymbolTable();
@@ -64,7 +70,8 @@ public class ClassParser extends antlr.LLkParser
 
 
 	// add existing classes to the symbol table
-	symbolTable.addClasses(classes);
+	if(classes != null)
+		symbolTable.addClasses(classes);
 
 	symbolTable.getInfo(info);
 
@@ -75,7 +82,7 @@ public class ClassParser extends antlr.LLkParser
     // This method decides what action to take based on the type of
     //   file we are looking at
     public static void doFile(File f, SymbolTable symbolTable, ClassInfo info)
-	throws Exception 
+	throws Exception
     {
         // If this is a directory, walk each file/dir in that directory
         if (f.isDirectory()) {
@@ -92,7 +99,7 @@ public class ClassParser extends antlr.LLkParser
     // Here's where we do the real work...
     public static void parseFile(InputStream s,
                                  SymbolTable symbolTable, ClassInfo info)
-	throws Exception 
+	throws Exception
     {
 	// Create a scanner that reads from the input stream passed to us
 	JavaLexer lexer = new JavaLexer(s);
@@ -137,7 +144,7 @@ public class ClassParser extends antlr.LLkParser
         this.filter = filter;
     }
 
-    
+
     // redefined from antlr.LLkParser to supress error messages
     public void reportError(ParserException ex) {
         // do nothing
@@ -163,9 +170,9 @@ public class ClassParser extends antlr.LLkParser
 			}
 		}
 
-		return (JavaToken)ctok;		
+		return (JavaToken)ctok;
 	}
-	    
+
     //------------------------------------------------------------------------
     // Symboltable adapter methods
     // The following methods are provided to give a single set of entry
@@ -200,7 +207,7 @@ public class ClassParser extends antlr.LLkParser
 			    JavaToken comment) {
 
 	// if the class we just processed has the same name as the src file it
-	// is in then we indicate that we have found the main class for this file			    
+	// is in then we indicate that we have found the main class for this file
 	if (symbolTable.getFile().getName().compareToIgnoreCase(theClass.getText() + ".java") == 0) {
 		info.setParsedFileHeader(true);
 	}
@@ -234,7 +241,7 @@ public class ClassParser extends antlr.LLkParser
     public Selection selectionAfterToken(JavaToken id) {
 	return new Selection(id.getFile(), id.getLine(),
                               id.getColumn() + id.getText().length(),0);
-    }    
+    }
 
 protected ClassParser(TokenBuffer tokenBuf, int k) {
   super(tokenBuf,k);
@@ -342,7 +349,7 @@ public ClassParser(ParserSharedInputState state) {
 			if ( inputState.guessing==0 ) {
 				
 				info.setPackageSelections(new Selection((JavaToken)pkg),
-				new Selection(id),
+				new Selection(id), id.getText(),
 				new Selection((JavaToken)sem));
 				
 				definePackage(id);  // tell the symbol table about the package
@@ -726,6 +733,11 @@ public ClassParser(ParserSharedInputState state) {
 			if ((LA(1)==LBRACK)) {
 				match(LBRACK);
 				match(RBRACK);
+				if ( inputState.guessing==0 ) {
+					if(t != null)
+								t.setText(t.getText() + "[]");
+							
+				}
 			}
 			else {
 				break _loop17;
@@ -1212,7 +1224,7 @@ public ClassParser(ParserSharedInputState state) {
 		match(IDENT);
 		if ( inputState.guessing==0 ) {
 			
-					// tell the symbol table about it.  Note that this signals that 
+					// tell the symbol table about it.  Note that this signals that
 				// we are in a method header so we handle parameters appropriately
 				defineMethod((JavaToken)method, type, commentToken);
 			
@@ -1347,6 +1359,11 @@ public ClassParser(ParserSharedInputState state) {
 			if ((LA(1)==LBRACK)) {
 				match(LBRACK);
 				match(RBRACK);
+				if ( inputState.guessing==0 ) {
+					if(type != null)
+										type.setText(type.getText() + "[]");
+									
+				}
 			}
 			else {
 				break _loop51;
@@ -1598,6 +1615,10 @@ public ClassParser(ParserSharedInputState state) {
 			if ((LA(1)==LBRACK)) {
 				match(LBRACK);
 				match(RBRACK);
+				if ( inputState.guessing==0 ) {
+					if(type != null)
+								       type.setText(type.getText() + "[]");
+				}
 			}
 			else {
 				break _loop73;
