@@ -1,6 +1,7 @@
 package bluej;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.util.ArrayList;
 
@@ -23,7 +24,7 @@ import sun.misc.*;
  * @author	Andrew Patterson
  * @author	Damiano Bolla
  * @author	Michael Kšlling
- * @version $Id: Boot.java 2104 2003-07-08 14:20:01Z mik $
+ * @version $Id: Boot.java 2105 2003-07-08 14:35:44Z mik $
  */
 public class Boot
 {
@@ -264,16 +265,7 @@ public class Boot
 
         String bootName = bootFullName.substring(0, classIndex);
 
-        // decode special characters (such as %20) to their original representation
-        if(System.getProperty("java.version").startsWith("1.3")) {
-            // throw this bit out when we got to jdk 1.4 
-            bootName = getURLPath(bootName);
-        }
-        else {
-            // it is important that we don't make this call on anything 
-            // before jdk 1.4, since this class uses 1.4 methods
-            bootName = URLDecoder.getPath(bootName);
-        }
+        bootName = getURLPath(bootName);
 
         File finalFile = new File(bootName);
         File bluejDir = finalFile.getParentFile();
@@ -281,8 +273,8 @@ public class Boot
     }
 
     /**
-     * Return the path element of a URL, spaces decoded - that is: replace 
-     * each space encoded as "%20" with a real space character.
+     * Return the path element of a URL, properly decoded - that is: replace 
+     * each char encoded as "%xx" with its real character.
      */
     private String getURLPath(String url)
     {
@@ -290,7 +282,12 @@ public class Boot
         if (!url.startsWith("file:"))
             throw new IllegalStateException("Unexpected format of jar file URL (class Boot.java): " + url);
         url = url.substring(5);
-        return java.net.URLDecoder.decode(url);
+        try {
+            return java.net.URLDecoder.decode(url, "UTF-8");
+        }
+        catch(UnsupportedEncodingException exc) {
+            return null;
+        }
     }
 
 	/**
