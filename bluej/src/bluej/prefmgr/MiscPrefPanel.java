@@ -19,7 +19,7 @@ import bluej.prefmgr.*;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 304 1999-12-09 23:48:13Z ajp $
+ * @version $Id: MiscPrefPanel.java 337 2000-01-02 13:35:23Z ajp $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -27,6 +27,9 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     static final String prefpaneltitle = Config.getString("prefmgr.misc.prefpaneltitle");
 
     private JTextField editorFontField;
+    private JTextField tutorialURLField;
+    private JTextField referenceURLField;
+    private JTextField jdkURLField;
 
     /**
      * Registers the misc preference panel with the preferences
@@ -50,23 +53,74 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 			userLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
 		}
 
-        editorFontField = new JTextField(16);
+        editorFontField = new SingleLineTextField(8);
         {
             editorFontField.setAlignmentX(LEFT_ALIGNMENT);
+        }
+
+		JLabel tutorialURLTag = new JLabel(Config.getString("BlueJ tutorial URL"));
+		{
+			tutorialURLTag.setAlignmentX(LEFT_ALIGNMENT);
+		}
+        tutorialURLField = new SingleLineTextField(8);
+        {
+            tutorialURLField.setAlignmentX(LEFT_ALIGNMENT);
+        }
+
+		JLabel jdkURLTag = new JLabel(Config.getString("JDK documentation URL"));
+		{
+			jdkURLTag.setAlignmentX(LEFT_ALIGNMENT);
+		}
+        jdkURLField = new SingleLineTextField(8);
+        {
+            jdkURLField.setAlignmentX(LEFT_ALIGNMENT);
+        }
+
+        JPanel compilerPanel = new JPanel();
+        {
+		    compilerPanel.setLayout(new BoxLayout(compilerPanel, BoxLayout.Y_AXIS));
+            compilerPanel.setBorder(BorderFactory.createCompoundBorder(
+                                    BorderFactory.createTitledBorder("Compiler"),
+                                    Config.generalBorder));
+            compilerPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+            compilerPanel.add(new JRadioButton("internal"));
+            compilerPanel.add(new JRadioButton("javac"));
+            compilerPanel.add(new JRadioButton("jikes"));
+
+            JLabel executableTag = new JLabel(Config.getString("Compiler Executable"));
+
+		    compilerPanel.add(Box.createVerticalStrut(Config.generalSpacingWidth));
+            compilerPanel.add(executableTag);
+            compilerPanel.add(new SingleLineTextField(8));
         }
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBorder(Config.generalBorder);
 
 		add(userLibrariesTag);
-		add(Box.createVerticalStrut(Config.generalSpacingWidth));
 		add(editorFontField);
+		add(Box.createVerticalStrut(Config.generalSpacingWidth));
+		add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(tutorialURLTag);
+		add(tutorialURLField);
+		add(Box.createVerticalStrut(Config.generalSpacingWidth));
+        add(jdkURLTag);
+		add(jdkURLField);
+
+		add(Box.createVerticalStrut(Config.generalSpacingWidth));
+		add(Box.createVerticalStrut(Config.generalSpacingWidth));
+		add(compilerPanel);
+
 		add(Box.createGlue());
     }
 
     public void beginEditing()
     {
         editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize()));
+
+        jdkURLField.setText(Config.getPropString("bluej.url.javaStdLib"));
+
     }
 
     public void revertEditing()
@@ -87,4 +141,20 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         }
     }
 
+    class SingleLineTextField extends JTextField
+    {
+        public SingleLineTextField(int col)
+        {
+            super(col);
+        }
+
+        public Dimension getMaximumSize()
+        {
+            Dimension d = super.getPreferredSize();
+
+            d.width = Integer.MAX_VALUE;
+
+            return d;
+        }
+    }
 }

@@ -14,16 +14,17 @@ import bluej.Config;
 import bluej.utility.Debug;
 
 /**
+ * A class to manage the user editable preferences
+ * settings.
+ *
  * Note that this is a singleton class. There can be only one
  * instance of PrefMgr at any time.
  *
- * @author Andrew Patterson
- * @version $Id: PrefMgr.java 307 1999-12-10 00:29:57Z ajp $
+ * @author  Andrew Patterson
+ * @version $Id: PrefMgr.java 337 2000-01-02 13:35:23Z ajp $
  */
 public class PrefMgr
 {
-    private static PrefMgr prefmgr = new PrefMgr();
-
     private static int fontsize;
     private static int editFontsize;
     private static int printFontsize;
@@ -32,12 +33,16 @@ public class PrefMgr
 
     private static Font normalFont = new Font("SansSerif", Font.BOLD, 12);
 
+    // initialised by a call to setMenuFontSize()
+    private static int menuFontSize;
     static final Font menuFont = new Font("SansSerif", Font.PLAIN, 12);
     static final Font italicMenuFont = new Font("SansSerif", Font.ITALIC, 12);
 
     // initialised by a call to setEditorFontSize()
-    private static int editorFontSize = 0;
+    private static int editorFontSize;
     private static Font editorStandardFont, editorStandoutFont;
+
+    private static PrefMgr prefmgr = new PrefMgr();
 
 	/**
 	 */
