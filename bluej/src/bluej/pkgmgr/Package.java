@@ -30,7 +30,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: Package.java 233 1999-08-12 23:53:28Z mik $
+ ** @version $Id: Package.java 238 1999-08-16 06:46:54Z ajp $
  ** @author Michael Cahill
  **
  ** A Java package (collection of Java classes).
@@ -1034,28 +1034,42 @@ public class Package extends Graph
 	to.addDependencyIn(d, recalc);
     }
 
-    public void correctAddDependency(Dependency d)
+    /**
+     * A user initiated addition of an "implements" clause from a class to
+     * an interface
+     *
+     * @pre d.getFrom() and d.getTo() are both instances of ClassTarget
+     */
+    public void userAddImplementsClassDependency(Dependency d)
     {
-        Target from = (Target)d.getFrom();
-	    Target to = (Target)d.getTo();
-
+        ClassTarget from = (ClassTarget)d.getFrom();    // a class
+	    ClassTarget to = (ClassTarget)d.getTo();        // an interface
+        Editor ed = from.getEditor();
+   
+        // Debug.message("Implements class dependency from " + from.getName() + " to " + to.getName());
+        
         try {
-            if (from instanceof ClassTarget) {
-                ClassTarget t = (ClassTarget)from;
+            ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
+
+            Selection s1 = info.getClassImplementsInsertSelection();
+            ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
+
+            if (info.hasClassImplementsSelections()) {
+                // if we already have an implements clause then we need to put a
+                // comma and the interface name but not before checking that we don't
+                // already have it
                 
-                ClassInfo info = ClassParser.parse(t.sourceFile(), getAllClassnames());
-
-                System.out.println(info.getSuperclass());
+                Vector exists = info.getClassImplementsTexts();
                 
-                if (info.getSuperclass() == null) {
-                    Selection s1 = info.getClassExtendsInsertSelection();
-
-                    t.getEditor().setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
-                    t.getEditor().insertText(" extends " + to.getName(), true, false);
-
-                    t.showView(Editor.IMPLEMENTATION);
-                }
+                // XXX make this equality check against full package name
+                if(!exists.contains(to.getName()))
+                    ed.insertText(", " + to.getName(), false, false);
+            } else {
+                // otherwise we need to put the actual "implements" word
+                // and the interface name
+                ed.insertText(" implements " + to.getName(), false, false);
             }
+            ed.save();
         }
         catch(Exception e) {
             // exception during parsing so we have to ignore
@@ -1064,35 +1078,167 @@ public class Package extends Graph
         }
     }
 
-    public void correctRemoveDependency(Dependency d)
+    /**
+     * A user initiated addition of an "extends" clause from an interface to
+     * an interface
+     *
+     * @pre d.getFrom() and d.getTo() are both instances of ClassTarget
+     */
+    public void userAddImplementsInterfaceDependency(Dependency d)
     {
-        Target from = (Target)d.getFrom();
-
+        ClassTarget from = (ClassTarget)d.getFrom();    // an interface
+	    ClassTarget to = (ClassTarget)d.getTo();        // an interface
+        Editor ed = from.getEditor();
+   
+        // Debug.message("Implements interface dependency from " + from.getName() + " to " + to.getName());
+        
         try {
-            if (from instanceof ClassTarget) {
-                ClassTarget t = (ClassTarget)from;
+            ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
+
+            Selection s1 = info.getInterfaceExtendsInsertSelection();
+            ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
+
+            if (info.hasInterfaceExtendsSelections()) {
+                // if we already have an extends clause then we need to put a
+                // comma and the interface name but not before checking that we don't
+                // already have it
                 
-                ClassInfo info = ClassParser.parse(t.sourceFile(), getAllClassnames());
-
-                Selection s1 = info.getClassExtendsReplaceSelection();
-                Selection s2 = info.getClassSuperClassReplaceSelection();
-
-                t.getEditor().setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
-                t.getEditor().insertText("", false, false);
+                Vector exists = info.getInterfaceExtendsTexts();
                 
-                if(s1.getLine() == s2.getLine())
-                    t.getEditor().setSelection(s2.getLine(), s2.getColumn() - s1.getLength(), s2.getLength());
-                else
-                    t.getEditor().setSelection(s2.getLine(), s2.getColumn(), s2.getLength());
-                    
-                t.getEditor().insertText("", false, false);
-
-                t.showView(Editor.IMPLEMENTATION);
+                // XXX make this equality check against full package name
+                if(!exists.contains(to.getName()))
+                    ed.insertText(", " + to.getName(), false, false);
+            } else {
+                // otherwise we need to put the actual "extends" word
+                // and the interface name
+                ed.insertText(" extends " + to.getName(), false, false);
             }
+            ed.save();
         }
         catch(Exception e) {
             // exception during parsing so we have to ignore
             // perhaps we should display a message here
+            return;
+        }
+    }
+
+    /**
+     * A user initiated addition of an "extends" clause from a class to
+     * a class
+     *
+     * @pre d.getFrom() and d.getTo() are both instances of ClassTarget
+     */
+    public void userAddExtendsClassDependency(Dependency d)
+    {
+        ClassTarget from = (ClassTarget)d.getFrom();
+	    ClassTarget to = (ClassTarget)d.getTo();
+        Editor ed = from.getEditor();
+
+        try {
+            ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
+            
+            if (info.getSuperclass() == null) {
+                Selection s1 = info.getClassExtendsInsertSelection();
+
+                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
+                ed.insertText(" extends " + to.getName(), false, false);
+            } else {
+                Selection s1 = info.getClassSuperClassReplaceSelection();    
+
+                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
+                ed.insertText(to.getName(), false, false);
+            }
+            ed.save();
+        }
+        catch(Exception e) {
+            // exception during parsing so we have to ignore
+            // perhaps we should display a message here
+            return;
+        }
+    }
+
+    /**
+     * A user initiated removal of a dependency
+     *
+     * @pre d is an instance of an Implements or Extends dependency
+     */
+    public void userRemoveDependency(Dependency d)
+    {
+        // if they are not both classtargets then I don't want to know about it
+        if (!(d.getFrom() instanceof ClassTarget) ||
+             !(d.getTo() instanceof ClassTarget))
+                return;
+
+        ClassTarget from = (ClassTarget)d.getFrom();
+        ClassTarget to = (ClassTarget)d.getTo();
+        Editor ed = from.getEditor();
+
+        try {
+            ClassInfo info = ClassParser.parse(from.sourceFile(), getAllClassnames());
+            Selection s1 = null;
+            Selection s2 = null;               // set to the selections we wish to delete
+            Selection sinsert = null;          // our selection if we want to insert something
+            String sinserttext = "";
+
+            if(d instanceof ImplementsDependency)
+            {
+                Vector vsels, vtexts;
+
+                if(info.isInterface())
+                {
+                    vsels = info.getInterfaceExtendsSelections();
+                    vtexts = info.getInterfaceExtendsTexts();
+                    sinserttext = "extends ";
+                } else {
+                    vsels = info.getClassImplementsSelections();
+                    vtexts = info.getClassImplementsTexts();
+                    sinserttext = "implements ";
+                }                    
+
+                int where = vtexts.indexOf(to.getName());
+                
+                if (where > 0)              // should always be true
+                {
+                    s1 = (Selection)vsels.get(where-1);
+                    s2 = (Selection)vsels.get(where);
+                }
+                // we have a special case if we deleted the first bit of an "implements"
+                // clause, yet there are still clauses left.. we have to replace the ","
+                // with "implements" (note that there must already be a leading space so we
+                // do not need to insert one but we may need a trailing space)
+                if(where == 1 && vsels.size() > 2) {
+                    sinsert = (Selection)vsels.get(where+1);
+                }
+            }
+            else if(d instanceof ExtendsDependency)
+            {
+                // a class extends
+                s1 = info.getClassExtendsReplaceSelection();
+                s2 = info.getClassSuperClassReplaceSelection();
+            }
+
+            // delete (maybe insert) text from end backwards so that our line/col positions
+            // for s1 are not mucked up by the deletion
+            if(sinsert != null) {
+                ed.setSelection(sinsert.getLine(), sinsert.getColumn(), sinsert.getLength());
+                ed.insertText(sinserttext, false, false);
+            }
+            if(s2 != null) {
+                ed.setSelection(s2.getLine(), s2.getColumn(), s2.getLength());
+                ed.insertText("", false, false);
+            }
+            if(s1 != null) {
+                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
+                ed.insertText("", false, false);
+            }
+
+            ed.save();
+        }
+        catch(Exception e) {
+            // exception during parsing so we have to ignore
+            // perhaps we should display a message here
+            e.printStackTrace();
+            Debug.message("Parse error attempting to delete dependency arrow");
             return;
         }
     }
@@ -1314,20 +1460,40 @@ public class Package extends Graph
 		frame.setStatus(chooseInhTo);
 		break;
 
-	    case S_CHOOSE_EXT_TO:
-		if (t != fromChoice) {
-		    setState(S_IDLE);
-		    if(t instanceof ClassTarget) {
-			if(((ClassTarget)t).isInterface())
-			    addDependency(new ImplementsDependency(this, fromChoice, t), true);
-			else {
-                Dependency d = new ExtendsDependency(this, fromChoice, t);
-                correctAddDependency(d);
-			    addDependency(d, true);
-			    }
-		    }
-		    frame.clearStatus();
-		}
+        case S_CHOOSE_EXT_TO:
+            if (t != fromChoice) {
+                setState(S_IDLE);
+                if(t instanceof ClassTarget && fromChoice instanceof ClassTarget)
+                {
+                    ClassTarget from = (ClassTarget)fromChoice;
+                    ClassTarget to = (ClassTarget)t;
+                    
+                    // if the target is an interface then we have an implements
+                    // dependency
+                    if(to.isInterface())
+                    {
+                        Dependency d = new ImplementsDependency(this, from, to);
+
+                        if(from.isInterface()) {
+                            userAddImplementsInterfaceDependency(d);
+                        } else {
+                            userAddImplementsClassDependency(d);
+                        }
+
+                        addDependency(d, true);
+                    }
+                    else {
+                        // an extends dependency can only be from a class to another
+                        // class
+                        if(!from.isInterface()) {
+                            Dependency d = new ExtendsDependency(this, from, to);
+                            userAddExtendsClassDependency(d);
+                            addDependency(d, true);
+                        }
+                    }
+                }
+                frame.clearStatus();
+            }
 		break;
 
 	    default:
@@ -1702,7 +1868,11 @@ public class Package extends Graph
 		    currentArrow.highlight(frame.editor.getGraphics());
 		if(selectedArrow != null)
 		    {
-            correctRemoveDependency(selectedArrow);
+
+            if (!(selectedArrow instanceof UsesDependency))
+            {
+                userRemoveDependency(selectedArrow);
+            }
 			removeDependency(selectedArrow, true);
 			frame.editor.repaint();
 		    }

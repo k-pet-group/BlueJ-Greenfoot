@@ -39,7 +39,7 @@ import java.util.Vector;
  ** @author Michael Cahill
  ** @author Michael Kolling
  **
- ** @version $Id: ClassTarget.java 233 1999-08-12 23:53:28Z mik $
+ ** @version $Id: ClassTarget.java 238 1999-08-16 06:46:54Z ajp $
  **/
 public class ClassTarget extends EditableTarget 
 
@@ -467,12 +467,12 @@ public class ClassTarget extends EditableTarget
             String name = (String)e.nextElement();
             Target interfce = pkg.getTarget(name);
             // Debug.message("Implements " + name);
-            if (interfce != null)
-                pkg.addDependency(
+            if (interfce != null) {
+               pkg.addDependency(
                           new ImplementsDependency(pkg, this, interfce), 
                           false);
+                }
             }
-    
             // handle used classes
     
             vect = info.getUsed();
