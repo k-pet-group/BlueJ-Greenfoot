@@ -13,12 +13,13 @@ import bluej.Config;
 import bluej.debugger.DebuggerTestResult;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
+import bluej.utility.JavaNames;
 
 /**
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 2926 2004-08-23 02:48:40Z davmac $
+ * @version $Id: TestDisplayFrame.java 2927 2004-08-23 04:38:38Z davmac $
  */
 public class TestDisplayFrame
 {
@@ -205,6 +206,8 @@ public class TestDisplayFrame
         
         topPanel.remove(PROGRESS_BAR_INDEX);
         topPanel.add(pb, pbConstraints, PROGRESS_BAR_INDEX);
+        topPanel.validate();
+        pb.repaint();
     }
     
     /**
@@ -349,23 +352,7 @@ public class TestDisplayFrame
         {
             DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
             if (dtr != null && (dtr.isError() || dtr.isFailure())) {
-                String trace = dtr.getTrace();
-                int index1 = trace.indexOf('\n');
-                index1 = trace.indexOf("at ", index1) + 3;
-                int index2 = trace.indexOf('\n', index1 + 1);
-                String loc = trace.substring(index1, index2).trim();
-
-                // Now loc is:
-                // "package.class$innerclass.method(filename.java:lineno"
-                index1 = loc.indexOf('(');
-                String packageClassMethod = loc.substring(0, index1);
-                index2 = packageClassMethod.lastIndexOf('.');
-                index2 = packageClassMethod.lastIndexOf('.', index2 - 1);
-                String packageName;
-                if (index2 != -1)
-                    packageName = packageClassMethod.substring(0, index2);
-                else
-                    packageName = "";
+                String packageName = JavaNames.getPrefix(dtr.getExceptionLocation().getClassName());
 
                 Package spackage = lastProject.getExistingPackage(packageName);
                 if (spackage == null)
@@ -373,11 +360,7 @@ public class TestDisplayFrame
 
                 // We have the package name. Now get the source name and
                 // line number.
-                //index2 = loc.lastIndexOf(':');
-                //String sourceName = loc.substring(index1 + 1, index2);
                 String sourceName = dtr.getExceptionLocation().getFileName();
-                //index1 = loc.indexOf(')');
-                //int lineno = Integer.parseInt(loc.substring(index2 + 1, index1));
                 int lineno = dtr.getExceptionLocation().getLineNumber();
 
                 spackage.showSource(sourceName, lineno, "", false);
