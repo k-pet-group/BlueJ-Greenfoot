@@ -139,7 +139,7 @@ editor.insert-methodLabel = Insert method
 editor.find-backwardLabel = Find Backward...
 editor.replaceLabel = Replace...
 editor.compileLabel = Compile
-editor.preview-docLabel = Preview Documentation
+editor.preview-docLabel = Run Javadoc
 editor.toggle-breakpointLabel = Set/Clear Breakpoint
 
 editor.state.readOnly = read-only
