@@ -40,7 +40,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3263 2005-01-12 04:22:40Z davmac $
+ * @version $Id: ClassView.java 3314 2005-02-16 09:41:30Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -118,6 +118,9 @@ public class ClassView extends JToggleButton
             e.printStackTrace();
         }
         catch (java.lang.ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (NoClassDefFoundError e) {
             e.printStackTrace();
         }
         return cls;
