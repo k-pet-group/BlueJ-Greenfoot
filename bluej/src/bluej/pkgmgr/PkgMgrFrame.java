@@ -31,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2037 2003-06-17 05:54:51Z ajp $
+ * @version $Id: PkgMgrFrame.java 2039 2003-06-19 06:03:24Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1762,12 +1762,6 @@ public class PkgMgrFrame extends JFrame
         case BlueJEvent.CREATE_VM_DONE:
             setStatus(Config.getString("pkgmgr.creatingVMDone"));
             break;
-        case BlueJEvent.EXECUTION_STARTED:
-            executionStarted();
-            break;
-        case BlueJEvent.EXECUTION_FINISHED:
-            executionFinished();
-            break;
         case BlueJEvent.GENERATING_DOCU:
             setStatus(Config.getString("pkgmgr.generatingDocu"));
             break;
@@ -1783,46 +1777,32 @@ public class PkgMgrFrame extends JFrame
     // ---- end of BlueJEventListener interface ----
 
     /**
-     * executionStarted - indicate in the interface that the machine has
-     *  started executing.
+     * Indicate in our interface the debugger worker
+     * thread state.
      */
-    public void executionStarted()
+    public void showDebuggerState(int state)
     {
-		progressButton.setIcon(workingIcon);
-        Terminal.getTerminal().activate(true);
-    }
+		switch (state) {
+		 case Debugger.NOTREADY:
+		 	progressButton.setText("NOTREADY");
+		 	break;
+		 case Debugger.IDLE:
+		 progressButton.setText("IDLE");
+		 	//progressButton.setIcon(stoppedIcon);
+			// TODO: pkg.removeStepMarks();
+        	break;
+		 
+		 case Debugger.RUNNING:
+		    progressButton.setText("RUNNING");
+		 	//progressButton.setIcon(workingIcon);
+		 	break;
+	 
+		 case Debugger.SUSPENDED:
+			 progressButton.setText("SUSPENDED");
+			 break;
 
-    /**
-     * executionFinished - indicate in the interface that the machine has
-     *  finished an execution.
-     */
-    private void executionFinished()
-    {
-		progressButton.setIcon(stoppedIcon);
-        	
-        Terminal.getTerminal().activate(false);
-        pkg.removeStepMarks();
+		}
     }
-
-    /**
-     * executionHalted - indicate in the interface that the machine
-     *  temporarily stopped executing.
-     */
-    private void executionHalted()
-    {
-        progressButton.setIcon(stoppedIcon);
-    }
-
-    /**
-     * executionContinued - indicate in the interface that the machine
-     *  is executing again.
-     */
-    private void executionContinued()
-    {
-        pkg.removeStepMarks();
-        progressButton.setIcon(workingIcon);
-    }
-
 
     // --- general support functions for user function implementations ---
 
@@ -2022,8 +2002,9 @@ public class PkgMgrFrame extends JFrame
             // Image Button Panel to hold the Progress Image
             //        JPanel progressPanel = new JPanel ();
     
-            progressButton = new JButton(stoppedIcon);
-            progressButton.setDisabledIcon(notWorkingIcon);
+//            progressButton = new JButton(stoppedIcon);
+//            progressButton.setDisabledIcon(notWorkingIcon);
+            progressButton = new JButton("NOTREADY");
             progressButton.setMargin(new Insets(0, 0, 0, 0));
             progressButton.setToolTipText(Config.getString("tooltip.progress"));
             progressButton.addActionListener(new ActionListener() {

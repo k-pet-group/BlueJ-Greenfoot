@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2037 2003-06-17 05:54:51Z ajp $
+ * @version $Id: Package.java 2039 2003-06-19 06:03:24Z ajp $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1074,7 +1074,8 @@ public final class Package extends Graph
 	 * Generate documentation for class in 'filename'
 	 * @param filename
 	 */
-	public void generateDocumentation(ClassTarget ct) {
+	public void generateDocumentation(ClassTarget ct)
+	{
 		ct.getEditor().save();
 		String filename = ct.getSourceFile().getPath();
 		project.generateDocumentation(filename);

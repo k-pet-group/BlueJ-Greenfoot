@@ -19,7 +19,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2037 2003-06-17 05:54:51Z ajp $
+ * @version $Id: Project.java 2039 2003-06-19 06:03:24Z ajp $
  */
 public class Project
     implements DebuggerListener
@@ -703,7 +703,13 @@ public class Project
         DebuggerThread thread;
 
 		if (de.getID() == DebuggerEvent.DEBUGGER_STATE) {
+			PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
 
+			if (frames == null)
+				return;
+
+			for(int i=0; i< frames.length; i++)
+				frames[i].showDebuggerState(de.getNewState());
 			return;			
 		}
 		

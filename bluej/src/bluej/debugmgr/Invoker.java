@@ -28,7 +28,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2036 2003-06-16 07:08:51Z ajp $
+ * @version $Id: Invoker.java 2039 2003-06-19 06:03:24Z ajp $
  */
 
 public class Invoker extends Thread
@@ -568,15 +568,12 @@ public class Invoker extends Thread
     {
         BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandAsString);
         try {
-            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, executionEvent);
             String shellClassName = pkg.getQualifiedName(shellName);
             
             pkg.getProject().getDebugger().runClassMain(shellClassName);
                                          
-            BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, executionEvent);
-
             // the execution is completed, get the result if there was one
-            // (this could be either a construction of a function result)
+            // (this could be either a construction or a function result)
 
             handleResult(shellClassName);
 

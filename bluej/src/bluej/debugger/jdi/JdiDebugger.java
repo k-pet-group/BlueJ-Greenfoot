@@ -20,7 +20,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2037 2003-06-17 05:54:51Z ajp $
+ * @version $Id: JdiDebugger.java 2039 2003-06-19 06:03:24Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -69,6 +69,8 @@ public class JdiDebugger extends Debugger
 	 */
 	public void launch()
 	{
+		raiseStateChangeEvent(Debugger.NOTREADY);
+
 		if (vmReady)
 			throw new IllegalStateException("JdiDebugger.launch() was called but the debugger was already loaded");
 
@@ -85,6 +87,8 @@ public class JdiDebugger extends Debugger
 	 */
 	public void close()
 	{	
+		raiseStateChangeEvent(Debugger.NOTREADY);
+
 		vmReady = false;
 
 		treeModel.setRoot(new JdiThreadNode());
@@ -108,7 +112,10 @@ public class JdiDebugger extends Debugger
 	 */
 	public int getStatus()
 	{
-		return getVM().getStatus();
+		if (!vmReady)
+			return Debugger.NOTREADY;
+		else
+			return getVM().getStatus();
 	}
 
 	/**
@@ -385,9 +392,9 @@ public class JdiDebugger extends Debugger
 		}
 	}
 
-	void raiseStateChangeEvent()
+	void raiseStateChangeEvent(int newState)
 	{
-		fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.DEBUGGER_STATE));
+		fireTargetEvent(new DebuggerEvent(this, DebuggerEvent.DEBUGGER_STATE, newState));
 	}
 
     // ==== code for active debugging: setting breakpoints, stepping, etc ===
@@ -534,6 +541,8 @@ public class JdiDebugger extends Debugger
 				
 			notifyAll();	// wake any internal getVM() calls that
 							// are waiting for us to finish
+
+			raiseStateChangeEvent(Debugger.IDLE);
 
 			PkgMgrFrame.displayMessage(Config.getString("pkgmgr.creatingVMDone"));
 		 }

@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2036 2003-06-16 07:08:51Z ajp $
+ * @version $Id: VMReference.java 2039 2003-06-19 06:03:24Z ajp $
  *
  * The startup process is as follows:
  *
@@ -488,7 +488,8 @@ class VMReference
      */
     public int getStatus()
     {
-        return serverThread.isAtBreakpoint() ? Debugger.IDLE : Debugger.RUNNING;
+        return serverThread.isAtBreakpoint() ? Debugger.IDLE :
+          Debugger.RUNNING;
     }
 
     /**
@@ -555,7 +556,7 @@ class VMReference
         try {
             exitStatus = Debugger.NORMAL_EXIT;
 
-			owner.raiseStateChangeEvent();
+			owner.raiseStateChangeEvent(Debugger.RUNNING);
 
             Value v =
                 invokeStaticRemoteMethod(shellClass, runMethod, Collections.EMPTY_LIST, false);
@@ -571,7 +572,7 @@ class VMReference
                 new ExceptionDescription(
                     "Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
-		owner.raiseStateChangeEvent();
+		owner.raiseStateChangeEvent(Debugger.IDLE);
         //executionUserParam = null;
     }
 
@@ -634,15 +635,25 @@ class VMReference
         try {
             // if serverThread has not returned to its breakpoint yet, we
             // must be patient
-            while (!serverThread.isAtBreakpoint()) {
-                // System.out.print(".");
-            }
+			while(!serverThread.isAtBreakpoint()) {
+				synchronized(this) {
+					try { wait(100); } catch (InterruptedException ie) {}
+				}
+			}
 
             Value v = cl.invokeMethod(serverThread, m, args, 0);
 
             // invokeMethod leaves everything suspended, so restart
             // all the threads
             machine.resume();
+
+			// we shouldn't return until server thread makes it back to its
+			// breakpoint
+			while(!serverThread.isAtBreakpoint()) {
+				synchronized(this) {
+					try { wait(100); } catch (InterruptedException ie) {}
+				}
+			}
 
             // our serverThread in the ExecServer will now continue in
             // its infinite loop and return to a breakpoint. This will then
@@ -760,7 +771,7 @@ class VMReference
 
             // this was a "System.exit()", not a real exception!
             exitStatus = Debugger.FORCED_EXIT;
-			owner.raiseStateChangeEvent();
+			owner.raiseStateChangeEvent(Debugger.IDLE);
             lastException = new ExceptionDescription(exceptionText);
         } else {
         	// real exception
@@ -799,8 +810,13 @@ class VMReference
         // after completing some work. We want to leave it suspended here until
         // it is required to do more work.
         else if (event.request().getProperty(SERVER_SUSPEND_METHOD_NAME) != null) {
+        	if (serverThread != null)
+	        	synchronized(this) {
+	        		notifyAll();
+	        	}
+
 			// do nothing except signify our change of state
-			owner.raiseStateChangeEvent();
+			owner.raiseStateChangeEvent(Debugger.IDLE);
         }
         // if the breakpoint is marked as "ExitMarker" then this is our
         // own breakpoint that the RemoteSecurityManager executes in order
@@ -816,7 +832,8 @@ class VMReference
             }
         } else {
             // breakpoint set by user in user code
-			owner.raiseStateChangeEvent();
+			if (serverThread.equals(event.thread()))
+				owner.raiseStateChangeEvent(Debugger.SUSPENDED);
 
 			owner.breakpoint(event.thread());
         }
@@ -967,34 +984,6 @@ class VMReference
         }
 
         machine.resume();
-    }
-
-	public List topThreads()
-	{
-		return machine.topLevelThreadGroups();
-	}
-	
-    /**
-     * List all the threads being debugged as a list containing elements
-     * of type DebuggerThread. 
-     *
-     * @return  A list of threads (type JdiThread)
-     */
-    public List listThreads()
-    {
-        return machine.allThreads();
-/*        List filteredThreads = new ArrayList();
-
-		ListIterator lit = threads.listIterator();
-		
-        while (lit.hasNext()) {
-            ThreadReference thread = (ThreadReference) lit.next();
-            filteredThreads.add(new JdiThread(thread));
-        }
-
-		// reverse order to make display nicer (newer threads first)
-        Collections.reverse(filteredThreads);
-        return filteredThreads; */
     }
 
     // -- support methods --
@@ -1155,7 +1144,7 @@ class VMReference
         Debug.message("threads:");
         Debug.message("--------");
 
-        List threads = listThreads();
+        List threads = machine.allThreads();
         if (threads == null)
             Debug.message("cannot get thread info!");
         else {

@@ -15,21 +15,27 @@ public class DebuggerEvent extends EventObject
 
 	private int id;
 	private DebuggerThread thr;
+	private int newState;
 
 	public DebuggerEvent(Object source, int id)
 	{
 		super(source);
 
 		this.id = id;
-		this.thr = null;
 	}
 
 	public DebuggerEvent(Object source, int id, DebuggerThread thr)
 	{
-		super(source);
+		this(source, id);
 
-		this.id = id;
 		this.thr = thr;
+	}
+
+	public DebuggerEvent(Object source, int id, int newState)
+	{
+		this(source, id);
+
+		this.newState = newState;
 	}
 	
 	public int getID()
@@ -42,4 +48,8 @@ public class DebuggerEvent extends EventObject
 		return thr;
 	}
 
+	public int getNewState()
+	{
+		return newState;
+	}
 }
