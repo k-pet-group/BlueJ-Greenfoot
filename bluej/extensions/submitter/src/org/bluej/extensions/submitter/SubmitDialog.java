@@ -162,15 +162,6 @@ public class SubmitDialog implements ActionListener
 
 
   /**
-   * For dialog you need to know this frame.
-   */
-  JFrame getFrame()
-    {
-    return mainFrame;
-    }
-
-
-  /**
    * This will manage to return a nice workPanel, where you shoose what to do
    */
   private JPanel getWorkPanel ()
@@ -186,7 +177,10 @@ public class SubmitDialog implements ActionListener
     JPanel aPanel = new JPanel();
     aPanel.setLayout(new BoxLayout(aPanel,BoxLayout.Y_AXIS));
     aPanel.setBorder(new EtchedBorder(EtchedBorder.RAISED));
-
+    // I want the Y size to be bound. but no real max X size....
+    // By doing this the Status and Log panel will get the space.
+    aPanel.setMaximumSize(new Dimension (2000,100));
+    
     aPanel.add(getSubmitPanel());
     aPanel.add(progressBar);
     aPanel.add(getButtonPanel());
@@ -577,7 +571,6 @@ public class SubmitDialog implements ActionListener
 
 
 // ===================== UTILITY CLASSES HERE === ALIGNED LEFT ====================
-
 
 
 /**
