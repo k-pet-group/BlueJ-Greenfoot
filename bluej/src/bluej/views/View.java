@@ -4,7 +4,6 @@ import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Comparer;
 import bluej.utility.SortableVector;
-import bluej.utility.ClasspathSearcher;
 import bluej.utility.Utility;
 
 import java.lang.reflect.*;
@@ -15,7 +14,7 @@ import java.util.Vector;
 
 
 /**
- ** @version $Id: View.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: View.java 156 1999-07-06 14:37:16Z ajp $
  ** @author Michael Cahill
  **
  ** View class - a representation of a Java class in BlueJ
@@ -24,12 +23,7 @@ public class View
 {
 	/** The class that this view is for **/
 	protected Class cl;
-	/** The default classpath searcher **/
-	protected static final ClasspathSearcher defaultSearcher =
-		new ClasspathSearcher(System.getProperty("java.class.path"));
-	/** The ClassLoader for this class **/
-	protected ClasspathSearcher searcher;
-	
+
 	protected View superView;
 	protected View[] interfaceViews;
 	
@@ -44,7 +38,7 @@ public class View
 	
 	protected static Hashtable views = new Hashtable();
 	
-	public static View getView(Class cl, ClasspathSearcher searcher)
+	public static View getView(Class cl)
 	{
 		if(cl == null)
 			return null;
@@ -54,7 +48,7 @@ public class View
 		View v = (View)views.get(cl);
 		if(v == null)
 		{
-			v = new View(cl, searcher);
+			v = new View(cl);
 			views.put(cl, v);
 		}
 			
@@ -63,10 +57,9 @@ public class View
 		return v;
 	}
 	
-	public View(Class cl, ClasspathSearcher searcher)
+	public View(Class cl)
 	{
 		this.cl = cl;
-		this.searcher = searcher;
 	}
 	
 	public String getName()
@@ -77,7 +70,7 @@ public class View
 	public View getSuper()
 	{
 		if(superView == null)
-			superView = getView(cl.getSuperclass(), searcher);
+			superView = getView(cl.getSuperclass());
 		return superView;
 	}
 	
@@ -88,7 +81,7 @@ public class View
 			Class[] interfaces = cl.getInterfaces();
 			interfaceViews = new View[interfaces.length];
 			for(int i = 0; i < interfaces.length; i++)
-				interfaceViews[i] =  getView(interfaces[i], searcher);
+				interfaceViews[i] =  getView(interfaces[i]);
 		}
 		
 		return interfaceViews;
@@ -253,8 +246,11 @@ public class View
 			Method[] cl_methods = cl.getDeclaredMethods();
 			methods = new MethodView[cl_methods.length];
 			
-			for(int i = 0; i < methods.length; i++)
+			for(int i = 0; i < methods.length; i++) {
 				methods[i] = new MethodView(this, cl_methods[i]);
+			Comment c = new Comment();
+			c.load(null, null);
+			methods[i].setComment(c); }
 		}
 		
 		return methods;
@@ -290,8 +286,9 @@ public class View
 	
 	public Comment getComment()
 	{
-		loadComments();
-			
+//		loadComments();
+		comment = new Comment();
+		comment.load(null,null);			
 		return comment;
 	}
 	
@@ -300,6 +297,8 @@ public class View
 		this.comment = comment;
 	}
 	
+/*	Removed until we replace JavaDoc with something
+
 	boolean comments_loaded = false;
 	protected void loadComments()
 	{
@@ -363,6 +362,7 @@ public class View
 			m.setComment(c);
 		}
 	}
+*/
 	
 	private void addMembers(Hashtable table, MemberView[] members)
 	{
@@ -404,11 +404,11 @@ public class View
 		return ++instanceNum;
 	}
 	
-	ClasspathSearcher getSearcher()
+/*	ClasspathSearcher getSearcher()
 	{
 		return searcher;
 	}
-	
+*/	
 	/**
 	 ** Get a longer String describing this member
 	 **/
@@ -452,8 +452,9 @@ public class View
 		for(int i = 0; i < fields.length; i++)
 			if((filter == null) || filter.accept(fields[i]))
 			{
-				fields[i].print(out, "\t");
-				out.println("");
+				out.indentLine();
+				fields[i].print(out, "");
+//				out.println("");
 			}
 			
 		// print constructors
@@ -461,8 +462,9 @@ public class View
 		for(int i = 0; i < constructors.length; i++)
 			if((filter == null) || filter.accept(constructors[i]))
 			{
-				constructors[i].print(out, "\t");
-				out.println("");
+				out.indentLine();
+				constructors[i].print(out, "");
+//				out.println("");
 			}
 			
 		// print methods
@@ -471,7 +473,7 @@ public class View
 			if((filter == null) || filter.accept(methods[i]))
 			{
 				methods[i].print(out, "\t");
-				out.println("");
+//				out.println("");
 			}
 		
 		// end class

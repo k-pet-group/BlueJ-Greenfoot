@@ -4,7 +4,7 @@ import java.lang.reflect.*;
 import bluej.utility.Utility;
 
 /**
- ** @version $Id: MethodView.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: MethodView.java 156 1999-07-06 14:37:16Z ajp $
  ** @author Michael Cahill
  **
  ** A representation of a Java method in BlueJ
@@ -40,7 +40,7 @@ public final class MethodView extends MemberView
 	public View getReturnType()
 	{
 		if(returnType == null)
-			returnType = View.getView(method.getReturnType(), view.getSearcher());
+			returnType = View.getView(method.getReturnType());
 		
 		return returnType;
 	}

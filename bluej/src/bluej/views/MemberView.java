@@ -3,7 +3,7 @@ package bluej.views;
 import java.lang.reflect.Modifier;
 
 /**
- ** @version $Id: MemberView.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: MemberView.java 156 1999-07-06 14:37:16Z ajp $
  ** @author Michael Cahill
  **
  ** A representation of a Java class member in BlueJ
@@ -61,7 +61,7 @@ public abstract class MemberView
 	 **/
 	public Comment getComment()
 	{
-		view.loadComments();
+//		view.loadComments();
 		
 		return comment;
 	}

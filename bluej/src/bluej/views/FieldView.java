@@ -4,7 +4,7 @@ import java.lang.reflect.*;
 import bluej.utility.Utility;
 
 /**
- ** @version $Id: FieldView.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: FieldView.java 156 1999-07-06 14:37:16Z ajp $
  ** @author Michael Cahill
  **
  ** A representation of a Java field in BlueJ
@@ -39,7 +39,7 @@ public final class FieldView extends MemberView
 	public View getType()
 	{
 		if(type == null)
-			type = View.getView(field.getType(), view.getSearcher());
+			type = View.getView(field.getType());
 		
 		return type;
 	}

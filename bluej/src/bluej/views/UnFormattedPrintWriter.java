@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 /**
- ** @version $Id: UnFormattedPrintWriter.java 36 1999-04-27 04:04:54Z mik $
+ ** @version $Id: UnFormattedPrintWriter.java 156 1999-07-06 14:37:16Z ajp $
  ** @author Michael Cahill
  **
  ** UnFormattedPrintWriter - ignore any formatting in a FormattedPrintWriter
@@ -36,4 +36,5 @@ public class UnFormattedPrintWriter extends FormattedPrintWriter
 	protected void endBold() {}
 	protected void startItalic() {}
 	protected void endItalic() {}
+	protected void indentLine() {}
 }

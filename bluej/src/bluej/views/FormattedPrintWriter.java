@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 /**
- ** @version $Id: FormattedPrintWriter.java 87 1999-05-18 03:28:18Z ajp $
+ ** @version $Id: FormattedPrintWriter.java 156 1999-07-06 14:37:16Z ajp $
  ** @author Michael Cahill
  **
  ** FormattedPrintWriter - provides formatting on top of a PrintWriter
@@ -63,4 +63,6 @@ public abstract class FormattedPrintWriter extends PrintWriter
 	}
 	protected abstract void startItalic();
 	protected abstract void endItalic();
+
+	protected abstract void indentLine();
 }
