@@ -46,7 +46,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2655 2004-06-24 05:53:55Z davmac $
+ * @version $Id: PkgMgrFrame.java 2670 2004-06-28 11:54:13Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1343,6 +1343,11 @@ public class PkgMgrFrame extends JFrame
                     
                     // a void result returns a name of null
                     if (name == null)
+                        return;
+                    
+                    //The result can be null when terminating the program while
+                    // at a breakpoint in a method that has a return value.
+                    if (result == null)
                         return;
                         
                     ResultInspector viewer =
