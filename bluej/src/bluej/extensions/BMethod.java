@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 1904 2003-04-27 17:12:42Z iau $
+ * @version $Id: BMethod.java 1948 2003-05-13 13:41:15Z damiano $
  */
 
 /*
@@ -76,6 +76,7 @@ public class BMethod
 
     /**
      * Returns the types of the parameters of this method.
+     * Similar to Reflection API
      */
     public Class[] getParameterTypes()
       {
@@ -84,6 +85,7 @@ public class BMethod
       
     /**
      * Returns the name of this method.
+     * Similar to Reflection API
      */
     public String getName()
       {
@@ -92,6 +94,7 @@ public class BMethod
     
     /**
      * Returns the return type of this method
+     * Similar to Reflection API
      */
     public Class getReturnType()
         {
@@ -111,14 +114,19 @@ public class BMethod
     /**
      * Invoke this method on the given object.
      * 
-     * @param onThis The BObject to which the method call should be applied
+     * @param onThis The BObject to which the method call should be applied, null if a static method.
      * @param params an array containing the arguments, or null if there are none
      * @return the resulting Object. It can be a wrapper for a primitive type or a BObject
      */
     public Object invoke (BObject onThis, Object[] params)
         {
+        String instanceName=null;
+
+        // If it is a method call on a live object get the identifier for it.
+        if ( onThis != null ) instanceName = onThis.getInstanceName();
+        
         invoker = new DirectInvoker (bluej_pkg, bluej_view );
-        DebuggerObject result = invoker.invokeMethod (onThis.getInstanceName(), params);
+        DebuggerObject result = invoker.invokeMethod (instanceName, params);
 
         // Result can be null if the method returns void. It is Reflection standard
         if (result == null) return null;
