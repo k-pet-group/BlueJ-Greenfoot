@@ -14,7 +14,7 @@ import java.io.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: ReadmeTarget.java 1938 2003-05-02 13:40:01Z mik $
  */
 public class ReadmeTarget extends Target
     implements ActionListener, EditorWatcher
@@ -218,7 +218,7 @@ public class ReadmeTarget extends Target
             getEditor().setVisible(true);
     }
 
-    public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void popupMenu(int x, int y, GraphEditor editor)
     {
     }
 

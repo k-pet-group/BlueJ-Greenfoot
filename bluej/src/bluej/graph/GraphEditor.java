@@ -1,6 +1,7 @@
 package bluej.graph;
 
 import bluej.Config;
+import bluej.utility.Debug;
 import java.util.Iterator;
 import java.awt.*;
 import java.awt.event.*;
@@ -10,7 +11,7 @@ import javax.swing.*;
  * Canvas to allow editing of general graphs
  *
  * @author  Michael Cahill
- * @version $Id: GraphEditor.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: GraphEditor.java 1938 2003-05-02 13:40:01Z mik $
  */
 public class GraphEditor extends JComponent
     implements MouseListener, MouseMotionListener, KeyListener
@@ -86,8 +87,22 @@ public class GraphEditor extends JComponent
     {
     }
     
-	// ---- MouseListener interface ----
+    // ---- MouseListener interface ----
 	
+    public void mouseClicked(MouseEvent evt)
+    {
+        if(activeVertex != null) {
+            if(evt.getClickCount() > 1 && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
+                activeVertex.doubleClick(evt, evt.getX(), evt.getY(), this);
+            }
+            else
+                activeVertex.singleClick(evt, evt.getX(), evt.getY(), this);
+        }
+    }
+
+    public void mouseEntered(MouseEvent evt) {}
+    public void mouseExited(MouseEvent evt) {}
+
     public void mousePressed(MouseEvent evt)
     {
         int x = evt.getX();
@@ -118,19 +133,6 @@ public class GraphEditor extends JComponent
         }
     }
 
-    public void startMotionListening()
-    {
-		addMouseMotionListener(this);
-		motionListening = true;
-    }
-
-    public void stopMotionListening()
-    {
-        // if we're not choosing anymore, remove listener
-        removeMouseMotionListener(this);
-        motionListening = false;
-    }
-
     public void mouseReleased(MouseEvent evt)
     {
         if(activeVertex != null && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
@@ -142,20 +144,10 @@ public class GraphEditor extends JComponent
         }
     }
 
-    public void mouseClicked(MouseEvent evt)
-    {
-        if(activeVertex != null) {
-            if(evt.getClickCount() > 1 && ((evt.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
-                activeVertex.doubleClick(evt, evt.getX(), evt.getY(), this);
-            }
-            else
-                activeVertex.singleClick(evt, evt.getX(), evt.getY(), this);
-        }
-    }
+    // ---- end of MouseListener interface ----
 
-    public void mouseEntered(MouseEvent evt) {}
-    public void mouseExited(MouseEvent evt) {}
-
+    // ---- MouseMotionListener interface: ----
+	
     public void mouseDragged(MouseEvent evt)
     {
         if (readOnly)
@@ -171,13 +163,30 @@ public class GraphEditor extends JComponent
             activeVertex.mouseMoved(evt, evt.getX(), evt.getY(), this);
     }
 
+    // ---- end of MouseMotionListener interface ----
+	
+
+    public void startMotionListening()
+    {
+		addMouseMotionListener(this);
+		motionListening = true;
+    }
+
+    public void stopMotionListening()
+    {
+        // if we're not choosing anymore, remove listener
+        removeMouseMotionListener(this);
+        motionListening = false;
+    }
+
     protected void processMouseEvent(MouseEvent evt)
     {
         super.processMouseEvent(evt);
 
-        if (evt.isPopupTrigger())
-            if((activeVertex != null))
+        if(evt.isPopupTrigger())
+            if((activeVertex != null)) {
                 activeVertex.popupMenu(evt.getX(), evt.getY(), this);
+            }
     }
 
     public void setReadOnly(boolean state)

@@ -17,7 +17,7 @@ import javax.swing.*;
  * A sub package (or parent package)
  *
  * @author  Michael Cahill
- * @version $Id: PackageTarget.java 1829 2003-04-11 09:23:23Z damiano $
+ * @version $Id: PackageTarget.java 1938 2003-05-02 13:40:01Z mik $
  */
 public class PackageTarget extends Target
 {
@@ -180,11 +180,11 @@ public class PackageTarget extends Target
         pe.raiseOpenPackageEvent(this, getPackage().getQualifiedName(getBaseName()));
     }
 
-    public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void popupMenu(int x, int y, GraphEditor editor)
     {
         JPopupMenu menu = createMenu(null);
         if (menu != null)
-            menu.show(editor, evt.getX(), evt.getY());
+            menu.show(editor, x, y);
     }
 
     /**

@@ -24,7 +24,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1933 2003-05-02 09:06:52Z mik $
+ * @version $Id: Config.java 1938 2003-05-02 13:40:01Z mik $
  */
 
 public class Config
@@ -641,7 +641,7 @@ public class Config
     /**
      * Returns the blueJLibDir
      */
-    public static File getBlueJLibDir ()
+    public static File getBlueJLibDir()
     {
         return bluej_lib_dir;
     }

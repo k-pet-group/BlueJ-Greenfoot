@@ -13,7 +13,7 @@ import javax.swing.*;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: ParentPackageTarget.java 1938 2003-05-02 13:40:01Z mik $
  */
 public class ParentPackageTarget extends PackageTarget
 {
@@ -81,11 +81,11 @@ public class ParentPackageTarget extends PackageTarget
                 JavaNames.getPrefix(getPackage().getQualifiedName()));
     }
 
-    public void popupMenu(MouseEvent evt, int x, int y, GraphEditor editor)
+    public void popupMenu(int x, int y, GraphEditor editor)
     {
         JPopupMenu menu = createMenu(null);
         if (menu != null)
-            menu.show(editor, evt.getX(), evt.getY());
+            menu.show(editor, x, y);
     }
 
     /**
