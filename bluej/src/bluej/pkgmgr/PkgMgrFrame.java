@@ -44,7 +44,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 2822 2004-07-26 13:01:30Z polle $
+ * @version $Id: PkgMgrFrame.java 2873 2004-08-16 05:50:32Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -774,7 +774,103 @@ public class PkgMgrFrame extends JFrame
     // ============ end of PackageEditorListener interface ===============
 
     // --- below are implementations of particular user actions ---
+    // These are broken into "interactive" methods (which can display dialogs
+    // etc) and "non-interactive". In general interactive methods delegate to
+    // the non-interactive variants.
 
+    // --- non-interactive methods ---
+    
+    /**
+     * Create a new project and display it in a frame.
+     * @param dirName  The directory to create the project in
+     * @return     true if successful, false otherwise
+     */
+    public boolean newProject(String dirName)
+    {
+        if (Project.createNewProject(dirName)) {
+            Project proj = Project.openProject(dirName);
+
+            if (isEmptyFrame()) {
+                openPackage(proj.getPackage(""));
+            }
+            else {
+                PkgMgrFrame pmf = createFrame(proj.getPackage(""));
+                DialogManager.tileWindow(pmf, this);
+                pmf.show();
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Import a project from a directory into the current package. 
+     * @param dir               The directory to import
+     * @param showFailureDialog True to show a dialog with files which failed
+     *                          to copy
+     * @return An array of Files which failed to copy
+     */
+    public File[] importProjectDir(File dir, boolean showFailureDialog)
+    {
+        // recursively copy files from import directory to package directory
+        File[] fails = FileUtility.recursiveCopyFile(dir, getPackage().getPath());
+
+        // if we have any files which failed the copy, we show them now
+        if (fails != null && showFailureDialog) {
+            JDialog ifd = new ImportFailedDialog(this, fails);
+            ifd.show();
+        }
+
+        // add bluej.pkg files through the imported directory structure
+        List dirsToConvert = Import.findInterestingDirectories(getPackage().getPath());
+        Import.convertDirectory(dirsToConvert);
+
+        // reload all the packages (which discovers classes which may have
+        // been added by the import)
+        getProject().reloadAll();
+        
+        return fails;
+    }
+    
+    /**
+     * Creates a new class using the given name and template
+     * 
+     * @param name
+     *            is not a fully qualified class name
+     * @param template
+     *            can be null in this case no template will be generated
+     * @param showErr
+     *            true if a "duplicate name" dialog should be shown if
+     *            the named class already exists
+     * @return  true if successful, false is the named class already exists
+     */
+    public boolean createNewClass(String name, String template, boolean showErr)
+    {
+        // check whether name is already used
+        if (pkg.getTarget(name) != null) {
+            DialogManager.showError(this, "duplicate-name");
+            return false;
+        }
+
+        ClassTarget target = null;
+        target = new ClassTarget(pkg, name, template);
+
+        target.generateSkeleton(template);
+
+        pkg.findSpaceForVertex(target);
+        pkg.addTarget(target);
+
+        editor.revalidate();
+        editor.scrollRectToVisible(target.getRectangle());
+        editor.repaint();
+
+        if (target.getRole() instanceof UnitTestClassRole)
+            pkg.compileQuiet(target);
+        return true;
+    }
+
+    // --- interactive methods ---
+    
     /**
      * Allow the user to select a directory into which we create a project.
      */
@@ -786,18 +882,11 @@ public class PkgMgrFrame extends JFrame
         if (newname == null)
             return false;
 
-        if (Project.createNewProject(newname)) {
-            Project proj = Project.openProject(newname);
-
-            if (isEmptyFrame()) {
-                openPackage(proj.getPackage(""));
-            }
-            else {
-                PkgMgrFrame pmf = createFrame(proj.getPackage(""));
-                DialogManager.tileWindow(pmf, this);
-                pmf.show();
-            }
+        if(! newProject(newname)) {
+            DialogManager.showError(null, "directory-exists");
+            return false;
         }
+
         return true;
     }
 
@@ -816,7 +905,8 @@ public class PkgMgrFrame extends JFrame
 
     /**
      * Open the project specified by 'projectPath'. Return false if not
-     * successful.
+     * successful. Displays a warning dialog if the opened project resides in
+     * a read-only directory.
      */
     private boolean openProject(String projectPath)
     {
@@ -1130,23 +1220,9 @@ public class PkgMgrFrame extends JFrame
             return;
 
         // recursively copy files from import directory to package directory
-        Object[] fails = FileUtility.recursiveCopyFile(new File(importName), getPackage().getPath());
-
-        // if we have any files which failed the copy, we show them now
-        if (fails != null) {
-            JDialog ifd = new ImportFailedDialog(this, fails);
-            ifd.show();
-        }
-
-        // add bluej.pkg files through the imported directory structure
-        List dirsToConvert = Import.findInterestingDirectories(getPackage().getPath());
-        Import.convertDirectory(dirsToConvert);
-
-        // reload all the packages (which discovers classes which may have
-        // been added by the import)
-        getProject().reloadAll();
+        importProjectDir(new File(importName), true);
     }
-
+    
     /**
      * Implementation of the "Add Class from File" user function
      */
@@ -1499,62 +1575,41 @@ public class PkgMgrFrame extends JFrame
             String name = dlg.getClassName();
             String template = dlg.getTemplateName();
 
-            createNewClass(name, template);
-        }
-    }
-
-    /**
-     * Creates a new class using the given name and template
-     * 
-     * @param name
-     *            is not a fully qualified class name
-     * @param template
-     *            can be null in this case no template will be generated
-     */
-    public void createNewClass(String name, String template)
-    {
-        if (name.length() > 0) {
-            // check whether name is already used
-            if (pkg.getTarget(name) != null) {
-                DialogManager.showError(this, "duplicate-name");
-                return;
-            }
-
-            ClassTarget target = null;
-            target = new ClassTarget(pkg, name, template);
-
-            target.generateSkeleton(template);
-
-            pkg.findSpaceForVertex(target);
-            pkg.addTarget(target);
-
-            editor.revalidate();
-            editor.scrollRectToVisible(target.getRectangle());
-            editor.repaint();
-
-            if (target.getRole() instanceof UnitTestClassRole)
-                pkg.compileQuiet(target);
+            createNewClass(name, template, true);
         }
     }
 
     /**
      * Prompts the user with a dialog asking for the name of a package to
-     * create. Package name can be fully qualified and all intermediate packages
-     * will also be created.
+     * create. Package name can be fully qualified in which case all
+     * intermediate packages will also be created as necessary.
      */
-    public void createNewPackage()
+    public void doCreateNewPackage()
     {
         NewPackageDialog dlg = new NewPackageDialog(this);
         boolean okay = dlg.display();
-
+        
         if (!okay)
             return;
-
+        
         String name = dlg.getPackageName();
 
         if (name.length() == 0)
             return;
 
+    }
+    
+    /**
+     * Create a package. Package name can be fully qualified in which case all
+     * intermediate packages will also be created as necessary.
+     * 
+     * @param name    The name of the package to create
+     * @param showErrDialog   If true, and a duplicate name exists, a dialog
+     *                    will be displayed informing the user of the error.
+     * @return true if successful
+     */
+    public boolean createNewPackage(String name, boolean showErrDialog)
+    {
         String fullName;
 
         // if the name is fully qualified then we leave it as is but
@@ -1567,8 +1622,9 @@ public class PkgMgrFrame extends JFrame
 
         // check whether name is already used as an existing package
         if (getProject().getPackage(fullName) != null) {
-            DialogManager.showError(this, "duplicate-name");
-            return;
+            if (showErrDialog)
+                DialogManager.showError(this, "duplicate-name");
+            return false;
         }
 
         // check whether name is already used for a class in the
@@ -1579,8 +1635,9 @@ public class PkgMgrFrame extends JFrame
         Package basePkg = getProject().getPackage(prefix);
         if (basePkg != null) {
             if (basePkg.getTarget(base) != null) {
-                DialogManager.showError(this, "duplicate-name");
-                return;
+                if (showErrDialog)
+                    DialogManager.showError(this, "duplicate-name");
+                return false;
             }
         }
 
@@ -1592,12 +1649,14 @@ public class PkgMgrFrame extends JFrame
 
         if (newPackage == null) {
             Debug.reportError("creation of new package failed unexpectedly");
+            return false;
         }
 
         while (newPackage != null) {
             newPackage.reload();
             newPackage = newPackage.getParent();
         }
+        return true;
     }
 
     /**

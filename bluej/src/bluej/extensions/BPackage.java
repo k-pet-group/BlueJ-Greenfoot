@@ -16,7 +16,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2716 2004-07-01 21:53:37Z mik $
+ * @version $Id: BPackage.java 2873 2004-08-16 05:50:32Z davmac $
  */
 
 /*
@@ -111,7 +111,7 @@ public class BPackage
         if ( ! classJavaFile.canWrite() ) 
             throw new MissingJavaFileException (classJavaFile.toString());
         
-        bluejFrame.createNewClass(className,null);
+        bluejFrame.createNewClass(className,null,true);
         return getBClass ( className );
         }
 

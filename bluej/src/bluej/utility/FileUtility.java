@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 2748 2004-07-07 02:47:40Z bquig $
+ * @version $Id: FileUtility.java 2873 2004-08-16 05:50:32Z davmac $
  */
 public class FileUtility
 {
@@ -351,7 +351,7 @@ public class FileUtility
      * @return An array contained each source file which was
      *         not successfully copied or null if everything went well
      */
-    public static Object[] recursiveCopyFile(File srcDir, File destDir)
+    public static File[] recursiveCopyFile(File srcDir, File destDir)
     {
         if (srcDir == null || destDir == null)
             throw new IllegalArgumentException();
@@ -362,7 +362,7 @@ public class FileUtility
         // of the source (which would lead to infinite recursion)
         while(parentDir != null) {
             if (parentDir.equals(srcDir))
-                return new Object[] { srcDir };
+                return new File[] { srcDir };
 
             parentDir = parentDir.getParentFile();
         }
@@ -370,7 +370,7 @@ public class FileUtility
         return actualRecursiveCopyFile(srcDir, destDir);
     }
 
-    private static Object[] actualRecursiveCopyFile(File srcDir, File destDir)
+    private static File[] actualRecursiveCopyFile(File srcDir, File destDir)
     {
         // remember every file which we don't successfully copy
         List failed = new ArrayList();
@@ -410,7 +410,7 @@ public class FileUtility
         }
 
         if (failed.size() > 0)
-            return failed.toArray();
+            return (File [])failed.toArray(new File[0]);
         else
             return null;
     }

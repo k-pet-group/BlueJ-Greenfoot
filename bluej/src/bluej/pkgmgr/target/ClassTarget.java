@@ -34,7 +34,7 @@ import bluej.extmgr.*;
  * @author Michael Kolling
  * @author Bruce Quig
  * 
- * @version $Id: ClassTarget.java 2870 2004-08-13 11:33:36Z mik $
+ * @version $Id: ClassTarget.java 2873 2004-08-16 05:50:32Z davmac $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable
@@ -1042,7 +1042,7 @@ public class ClassTarget extends EditableTarget
 
             if (pmf != null) {
                 String testClassName = getIdentifierName() + "Test";
-                pmf.createNewClass(testClassName, "unittest");
+                pmf.createNewClass(testClassName, "unittest", true);
                 // we want to check that the previous called actually
                 // created a unit test class as a name clash with an existing
                 // class would not. This prevents a non unit test becoming

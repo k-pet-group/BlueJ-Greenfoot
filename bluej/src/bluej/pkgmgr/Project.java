@@ -20,7 +20,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2860 2004-08-10 05:55:35Z davmac $
+ * @version $Id: Project.java 2873 2004-08-16 05:50:32Z davmac $
  */
 public class Project
     implements DebuggerListener
@@ -195,10 +195,8 @@ public class Project
 
             // check whether name is already in use
             File dir = new File(projectPath);
-            if(dir.exists()) {
-                DialogManager.showError(null, "directory-exists");
+            if(dir.exists())
                 return false;
-            }
 
             if(dir.mkdir()) {
                 File newpkgFile = new File(dir, Package.pkgfileName);
