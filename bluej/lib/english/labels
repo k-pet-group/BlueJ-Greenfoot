@@ -113,7 +113,7 @@ prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail
 prefmgr.misc.testing.title=Unit test settings
 prefmgr.misc.showTesting=Show unit testing tools
 prefmgr.misc.vm.title=Virtual machine settings
-prefmgr.misc.optimiseVM=Use optimisation (faster execution, but may cause problems with debugging)
+prefmgr.misc.optimiseVM=Use optimization (faster execution, but may cause problems with debugging)
 prefmgr.misc.addLibTitle=Select directory or jar/zip file
 prefmgr.misc.libFileFilter=Library files (*.jar;*.zip) or class directories
 
