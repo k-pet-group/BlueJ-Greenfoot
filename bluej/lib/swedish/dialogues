@@ -20,14 +20,10 @@ Metoden avslutades genom en explicit "exit"
 instruktion. Inget resultat returnerades.
 utgångskoden är:
 
-one-browser-only
-Tyvärr - du kan endast starta en upplaga av
-den här versionen av biblioteksbläddraren.
-
 no-help
 Ingen hjälp tillgänglig för det här meddelandet.
-Var vänlig e-posta felmeddelandet till 
-mik@monash.edu.au - vi kommer då lägga till en 
+Var vänlig e-posta felmeddelandet till
+mik@monash.edu.au - vi kommer då lägga till en
 hjälptext i vår hjälpdatabas. Tack!
 
 # errors:
@@ -40,7 +36,7 @@ och och klicka därefter på "Gå till"-knappen.
 
 no-target-dialog
 Innan du använder ett paket från
-biblioteksbläddraren, måste du ha 
+biblioteksbläddraren, måste du ha
 minst ett "mål"-paket öppet i Bluej
 fönstret.
 
@@ -88,8 +84,8 @@ försökte sparas. Kommandona sparades inte.
 
 skeleton-error
 Klassens default-mall kunde inte skapas.
-Detta kan bero på ett konfigurationsfel 
-i Bluej's "setup", eller på grund av 
+Detta kan bero på ett konfigurationsfel
+i Bluej's "setup", eller på grund av
 tillträdesproblem i filsystemet.
 
 error-open-source
@@ -108,7 +104,7 @@ Ett fel uppstod vid ändring av den här filen.
 
 error-exporting
 Ett fel uppstod vid försök att exportera
-applikationen. Det är möjligt att några eller 
+applikationen. Det är möjligt att några eller
 alla filer inte har blivit korrekt kopierade.
 
 invalid-class-name
@@ -123,17 +119,17 @@ existerar redan.
 
 cannot-copy-package
 Det uppstod problem vid kopiering av
-några av paketets filer. Paketet kan 
+några av paketets filer. Paketet kan
 vara inkomplett.
 
 file-does-not-exist
-Den angivna filen 
+Den angivna filen
 existerar inte.
 
 cannot-import
-Den här filen kunde inte 
-importeras. Filen måste 
-vara en Java källkodsfil 
+Den här filen kunde inte
+importeras. Filen måste
+vara en Java källkodsfil
 (namnet måste sluta med ".java")
 
 docdir-blocked-by-file
@@ -172,12 +168,12 @@ med samma namn i ett paket.
 
 error-in-import
 Ett fel uppstod vid försök att importera
-den här filen. Kontrollera tillträdesrättigheter 
+den här filen. Kontrollera tillträdesrättigheter
 och minnesutrymme.
 
 no-class-selected
 Ingen klass markerad för borttagning.
-Välj klass genom att klicka på den 
+Välj klass genom att klicka på den
 och försök igen.
 
 package-does-not-exist
@@ -186,7 +182,7 @@ Paketet existerar inte:
 
 no-bluej-package
 Fel vid öppning av paket.
-Filen/Katalogen är inte ett 
+Filen/Katalogen är inte ett
 Bluej paket:
 
 applet-height-width
@@ -205,12 +201,21 @@ Avsluta allt
 Avbryt
 null
 
-really-remove
+really-remove-class
 Borttagning av den har klassen betyder
 permanent radering av källfilen.
 Vill du fortsätta?
 Ta bort
 Avbryt
+null
+
+really-remove-package
+Removing this package will permanently
+delete the package directory (including ALL
+the contents of that directory).
+Do you want to continue?
+Remove
+Cancel
 null
 
 really-reload
@@ -228,33 +233,13 @@ Skriv ut
 Avbryt
 null
 
-really-import-package
-Du har valt en katalog som inte är ett Bluej paket.
-Vill du att katalogen ska genomsökas efter Java
-källkodsfiler som kan visas i Bluej?
-(Om du bara vill se innehållet i katalogen, klicka 
-på Avbryt nu och dubbelklicka sedan på katalogikonen).
-Sök
-Avbryt
-null
-
 import-into-current
 Du har redan ett paket öppet i det här fönstret.
-Vill du importera till det öppna paketet eller 
+Vill du importera till det öppna paketet eller
 vill du skapa ett nytt projekt och importera till
 det.
 Till Öppet
 Nytt Projekt
-null
-
-also-search-subdirs
-Katalogen du valde innehåller underkataloger.
-Vill du att dessa kataloger, och alla deras 
-underkataloger, ska genomsökas och visas som 
-nästlade paket om de innehåller Java källkods-
-filer?
-Sök underkataloger
-Avbryt
 null
 
 ask-index

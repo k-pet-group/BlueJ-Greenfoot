@@ -21,14 +21,10 @@ Der Aufruf ist durch eine explizite "exit"-
 Operation beendet worden. Ein Ergebnis wurde
 nicht zurückgegeben. Der "exit" code ist:
 
-one-browser-only
-Vom Library Browser kann nur eine
-Kopie zur Zeit geöffnet werden.
-
 no-help
 Für diese Fehlermeldung ist kein Hilfetext
 verfügbar. Bitte schicken Sie den Text der
-Fehlermeldung an mik@monash.edu.au - 
+Fehlermeldung an mik@monash.edu.au -
 wir werden dann einen Hilfstext hinzufügen.
 
 # errors:
@@ -49,8 +45,8 @@ in a BlueJ window.
 
 cannot-locate-lib-node
 <Dieser Hilfstext ist noch nicht übersetzt worden.>
-Cannot locate the selected node in the 
-LibraryChooser tree.  The usual cause of 
+Cannot locate the selected node in the
+LibraryChooser tree.  The usual cause of
 this error is an out-of-date package file
 in the directory containing the package.
 
@@ -67,11 +63,11 @@ compiler-error
 Compilerfehler:
 
 stream-incomplete
-Compilerfehler. Der "error stream" 
+Compilerfehler. Der "error stream"
 ist unvollständig.
 
 out-of-bounds
-Der angegebene Array-Index liegt 
+Der angegebene Array-Index liegt
 außerhalb der Array-Grenzen.
 
 cannot-access-element
@@ -79,7 +75,7 @@ Das angegebene Arrayelement konnte
 nicht gelesen werden.
 
 appletviewer-error
-Bei dem Versuch, den Appletviewer zu 
+Bei dem Versuch, den Appletviewer zu
 starten, ist ein Fehler aufgetreten.
 
 error-no-name
@@ -102,11 +98,14 @@ inkorrekte Installation oder Probleme, das
 Dateisystem zu lesen.
 
 error-open-source
-Die Quelltextdatei der Klasse konnte nicht 
+Die Quelltextdatei der Klasse konnte nicht
 geöffnet werden. Das sieht böse aus!
 
-invalid-name
+invalid-class-name
 Ungültiger Klassenname.
+
+invalid-package-name
+Invalid Package Name.
 
 directory-exists
 Ein Verzeichnis mit diesem Namen
@@ -175,7 +174,7 @@ Selektieren Sie erst eine Klasse
 (durch draufklicken).
 
 package-does-not-exist
-Das Package konnte nicht geöffnet werden - 
+Das Package konnte nicht geöffnet werden -
 es scheint nicht zu existieren:
 
 no-bluej-package
@@ -183,7 +182,7 @@ Das Package konnte nicht geöffnet werden.
 Es ist kein BlueJ package:
 
 applet-height-width
-Höhe und Breite des Applets 
+Höhe und Breite des Applets
 müssen angegeben werden.
 
 cannot-read-help
@@ -199,7 +198,7 @@ Alle schließen
 Abbrechen
 null
 
-really-remove
+really-remove-class
 Das Löschen der Klasse kann nicht
 rückgängig gemacht werden.
 Wirklich löschen?
@@ -207,8 +206,17 @@ Löschen
 Abbrechen
 null
 
+really-remove-package
+Removing this package will permanently
+delete the package directory (including ALL
+the contents of that directory).
+Do you want to continue?
+Remove
+Cancel
+null
+
 really-reload
-Durch nochmaliges Laden gehen alle Änderungen 
+Durch nochmaliges Laden gehen alle Änderungen
 seid dem letzten Speichern verloren. Wirklich
 laden?
 Laden
@@ -224,38 +232,33 @@ Drucken
 Abbrechen
 null
 
-really-import-package
-Das gewählte Verzeichnis ist kein BlueJ-Package.
-Soll dieses Verzeichnis nach Java-Quelltextdateien
-durchsucht werden, die in einem BlueJ-Package-Fenster
-dargestellt werden können?
-(Wenn lediglich der Inhalt dieses Verzeichnisses 
-angezeigt werden sollte, dann bitte jetzt "Abbrechen"
-wählen und anschließend das Verzeichnis mit einem
-Doppelklick öffnen).
-Durchsuchen
-Abbrechen
-null
+import-into-current
+You currently have a package open in this window.
+Do you want to import into the current package
+or would you like to create a new project and
+import into that?
+Current
+New Project
+Cancel
 
-also-search-subdirs
-Das gewählte Verzeichnis enthält Unterverzeichnisse.
-Sollen diese Verzeichnisse sowie ihre Unterverzeichnisse
-ebenfalls durchsucht werden und als geschachtelte Packages
-dargestellt werden, wenn sie Java-Quelltextdateien enthalten?
-Unterverzeichnisse durchsuchen
-Abbrechen
-null
+package-name-invalid
+You have changed the package statement which
+to a package which does not exist in this project.
+If you wish to move this class to another
+package you must create the destination
+package first. The package statement has been
+reverted back to its original form.
 
-cannot-search-subdirs
-Das gewählte Verzeichnis enthält Unterverzeichnisse.
-Momentan können diese Verzeichnisse nicht nach Java-
-Quelltextdateien durchsucht werden, weil benannte
-und geschachtelte Packages in dieser BlueJ-Version
-nicht unterstützt werden. Diese Unterstützung ist
-jedoch in Arbeit.
-Wenn das gewählte Verzeichnis selbst Java-Quelltext-
-dateien enthält, dann werden diese nun in einem
-BlueJ-Packagefenster angezeigt.
+package-name-changed
+You have changed the package statement which
+tells Java the package this class is in. Do you
+want to move this class to the indicated package
+or do you want to leave the class where it is
+(the package statement will be reverted back to
+its original form)?
+Move
+Revert
+null
 
 ask-index
 Index des Arrayelementes [...]
