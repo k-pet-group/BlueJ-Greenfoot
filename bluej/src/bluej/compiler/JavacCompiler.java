@@ -6,7 +6,6 @@ import java.util.Vector;
 import java.util.List;
 import java.util.Iterator;
 
-import bluej.utility.CompileUtility;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.DialogManager;
@@ -19,7 +18,8 @@ import bluej.Config;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: JavacCompiler.java 1134 2002-02-21 05:06:37Z bquig $
+ * @author Bruce Quig
+ * @version $Id: JavacCompiler.java 1174 2002-03-13 13:30:49Z bquig $
  */
 public class JavacCompiler extends Compiler
 {
@@ -77,6 +77,7 @@ public class JavacCompiler extends Compiler
         if(deprecation)
             args.addElement("-deprecation");
         
+         /** Not used at present...
         // add user specified compiler options
         List userOptions = CompileUtility.getUserCompilerOptions();
         if(userOptions != null && userOptions.size() > 0) {
@@ -85,6 +86,7 @@ public class JavacCompiler extends Compiler
                 args.addElement((String)it.next());
             }
         }
+        */
 
         for(int i = 0; i < sources.length; i++)
             args.addElement(sources[i]);

@@ -17,7 +17,8 @@ import bluej.utility.*;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JavacCompilerInternal.java 1134 2002-02-21 05:06:37Z bquig $
+ * @author  Bruce Quig
+ * @version $Id: JavacCompilerInternal.java 1174 2002-03-13 13:30:49Z bquig $
  */
 public class JavacCompilerInternal extends Compiler
 {
@@ -73,6 +74,7 @@ public class JavacCompilerInternal extends Compiler
 		if(deprecation)
 			args.addElement("-deprecation");
 
+        /** Not used at present...
         // add user specified compiler options
         List userOptions = CompileUtility.getUserCompilerOptions();
         if(userOptions != null && userOptions.size() > 0) {
@@ -81,6 +83,7 @@ public class JavacCompilerInternal extends Compiler
                 args.addElement((String)it.next());
             }
         }
+        */
                 
         for(int i = 0; i < sources.length; i++)
             args.addElement(sources[i]);
