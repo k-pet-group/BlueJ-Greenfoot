@@ -37,29 +37,6 @@ in the project folder. If this class seems damaged,
        this java file. Rename it to the original
        file name (with a '.java' suffix)
 
-# errors:
-#########
-
-no-lib-selected
-You have not specified a library to go to.
-Click on a library in the "Search results" list
-and then press the "Go to" button.
-
-no-target-dialog
-Before you use a package from
-the Library Browser, you need
-at least one target package open
-in a BlueJ window.
-
-cannot-locate-lib-node
-Cannot locate the selected node in the
-LibraryChooser tree.  The usual cause of
-this error is an out-of-date package file
-in the directory containing the package.
-
-missing-shadow
-Cannot locate shadow area:
-
 cannot-run-compiler
 Cannot run compiler. Is the
 program in your path?
@@ -202,13 +179,9 @@ No Java source files were
 found in this directory.
 
 duplicate-name
-A class with this name already exists
-in this package. You cannot have two
-classes with the same name.
-
-duplicate-package-name
-A package with this name already exists
-in this project.
+A class or package with this name already exists
+in this project. You cannot have two
+classes or packages with the same name.
 
 error-in-import
 An error occured during the attempt to
@@ -323,6 +296,14 @@ package you must create the destination
 package first. The package statement has been
 reverted back to its original form.
 
+package-name-clash
+You have changed the package statement to 
+a package that already has a class or package
+of this name. If the class is moved, the
+existing class or package would be overwritten,
+so the package statement has been reverted
+back to its original form.
+
 package-name-changed
 You have changed the package statement which
 tells Java the package this class is in. Do you
@@ -364,9 +345,6 @@ Do you want to continue?
 Replace
 Cancel
 null
-
-# editor:
-#########
 
 no-search-string
 No search string is defined.
