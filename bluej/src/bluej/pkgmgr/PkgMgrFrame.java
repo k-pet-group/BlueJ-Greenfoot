@@ -10,9 +10,9 @@ import java.awt.*;
 import java.awt.print.*;
 import java.text.DateFormat;
 
-//import com.apple.mrj.MRJApplicationUtils;  // for handling MacOS specific events
-//import com.apple.mrj.MRJQuitHandler;
-//import com.apple.mrj.MRJAboutHandler;
+import com.apple.mrj.MRJApplicationUtils;  // for handling MacOS specific events
+import com.apple.mrj.MRJQuitHandler;
+import com.apple.mrj.MRJAboutHandler;
 
 import bluej.Config;
 import bluej.BlueJEvent;
@@ -35,11 +35,11 @@ import bluej.groupwork.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 986 2001-10-23 14:22:23Z mik $
+ * @version $Id: PkgMgrFrame.java 987 2001-10-23 14:35:38Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
-               PackageEditorListener //, MRJQuitHandler, MRJAboutHandler
+               PackageEditorListener, MRJQuitHandler, MRJAboutHandler
 {
     // static final Color bgColor = Config.getItemColour("colour.background");
     public Font PkgMgrFont = PrefMgr.getStandardFont();
@@ -352,8 +352,8 @@ public class PkgMgrFrame extends JFrame
         makeFrame();
 
         updateWindowTitle();
-	//MRJApplicationUtils.registerQuitHandler(this);
-	//MRJApplicationUtils.registerAboutHandler(this);
+	MRJApplicationUtils.registerQuitHandler(this);
+	MRJApplicationUtils.registerAboutHandler(this);
 
         setStatus(bluej.Main.BLUEJ_VERSION_TITLE);
     }
@@ -970,15 +970,14 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * Quit menu was chosen - redefined from MRJQuitHandler
+     * MacOS Quit menu was chosen - redefined from MRJQuitHandler
      */
     public void handleQuit()
     {
-        Debug.message("exiting through MacOS quit handler!");
-        // this is an error on MacOS: when run from the MacOS quithandler
-	// no event handling is possible! showing the dialog breaks everything.
-	// fix: show the dialog from another thread... (or don't show dialog)
-        wantToQuit();
+        // On MacOS, no event handling is possible in the quithandler. That's why
+        // we don't show the dialog here (wantToQuit), but exit straight out.
+	// possible fix: show the dialog from another thread.
+        doQuit();
     }
         
     /**
