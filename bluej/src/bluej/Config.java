@@ -2,6 +2,7 @@ package bluej;
 
 import java.awt.*;
 import java.io.*;
+import java.util.Date;
 
 import javax.swing.*;
 import bluej.utility.*;
@@ -24,7 +25,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 2218 2003-10-23 02:25:46Z bquig $
+ * @version $Id: Config.java 2273 2003-11-05 13:27:08Z mik $
  */
 
 public final class Config
@@ -165,15 +166,25 @@ public final class Config
      */
     private static void checkDebug(File userdir)
     {
-        if (! "on".equals(bluej_props.getProperty("debug"))) {
-            File debugLogFile = new File(userdir,
-                                          bluej_props.getProperty("bluej.debugLog"));
+        if (! "true".equals(bluej_props.getProperty("bluej.debug"))) {
+            File debugLogFile = new File(userdir, "bluej-debuglog.txt");
             // simple diversion of output stream to a log file
             try {
                 PrintStream outStream =
                     new PrintStream(new FileOutputStream(debugLogFile));
                 System.setOut(outStream);
-                Debug.message("BlueJ version " + Boot.BLUEJ_VERSION);
+                Debug.message("BlueJ run started: " + new Date());
+                Debug.message("BlueJ version " + Boot.BLUEJ_VERSION + "    Java version " + 
+                                    System.getProperty("java.version"));
+                Debug.message("Virtual machine: " +
+                                    System.getProperty("java.vm.name") + " " +
+                                    System.getProperty("java.vm.version") +
+                                    " (" + System.getProperty("java.vm.vendor") + ")");
+                Debug.message("Running on: " + System.getProperty("os.name") +
+                                    " " + System.getProperty("os.version") +
+                                    " (" + System.getProperty("os.arch") + ")");
+                Debug.message("Java Home: " + System.getProperty("java.home"));            
+                Debug.message("----");            
             }
             catch (IOException e) {
                 Debug.reportError("Warning: Unable to create debug log file.");
