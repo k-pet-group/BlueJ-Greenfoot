@@ -23,7 +23,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 2859 2004-08-09 06:25:04Z davmac $
+ * @version $Id: VMReference.java 2936 2004-08-24 01:25:58Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -1156,7 +1156,7 @@ class VMReference
         while (!thr.isAtBreakpoint()) {
             synchronized (this) {
                 try {
-                    wait(smallDelay);
+                    Thread.sleep(smallDelay);
                 }
                 catch (InterruptedException ie) {}
             }
@@ -1630,16 +1630,6 @@ class VMReference
             catch (IOException ex) {
                 // Debug.reportError("Cannot read output user VM.");
             }
-        }
-    }
-
-    private void sleep(int millisec)
-    {
-        synchronized (this) {
-            try {
-                wait(millisec);
-            }
-            catch (InterruptedException e) {}
         }
     }
 

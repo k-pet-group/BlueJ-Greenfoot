@@ -2,6 +2,7 @@ package bluej.testmgr;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -19,7 +20,7 @@ import bluej.utility.JavaNames;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 2927 2004-08-23 04:38:38Z davmac $
+ * @version $Id: TestDisplayFrame.java 2936 2004-08-24 01:25:58Z davmac $
  */
 public class TestDisplayFrame
 {
@@ -80,7 +81,7 @@ public class TestDisplayFrame
      */
     public void showTestDisplay(boolean doShow)
     {
-		frame.setVisible(doShow);
+        frame.setVisible(doShow);
     }
 
     /**
@@ -226,6 +227,16 @@ public class TestDisplayFrame
     public void endMultipleTests()
     {
         doingMultiple = false;
+        
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                public void run() {
+                    setResultLabel();
+                }
+            });
+        }
+        catch(InvocationTargetException ite) { }
+        catch(InterruptedException ie) { }
     }  
 
     /**
@@ -258,7 +269,11 @@ public class TestDisplayFrame
 	{
         addResultQuietly(dtr);
         
-		showTestDisplay(true);
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                showTestDisplay(true);
+            }
+        });
 	}
 
     /**
@@ -269,39 +284,50 @@ public class TestDisplayFrame
      */ 
     public void addResultQuietly(final DebuggerTestResult dtr)
     {
+        if (!dtr.isSuccess()) {
+            if (dtr.isFailure())
+                ++failureCount;
+            else
+                ++errorCount;
+        }
+
         EventQueue.invokeLater(new Runnable() {
             public void run() {
+                cp.setFailureValue(failureCount);
+                cp.setErrorValue(errorCount);
+                
                 testEntries.addElement(dtr);
                 
                 cp.setRunValue(testEntries.getSize());
                 pb.step(testEntries.getSize(), dtr.isSuccess());
                 
-                if (pb.getValue() == pb.getMaximum()) {
-                    statusLabel = new JPanel();
-
-                    if (errorCount + failureCount == 0)
-                        statusLabel.setBackground(Color.GREEN);
-                    else
-                        statusLabel.setBackground(Color.RED);
-
-                    statusLabel.setMinimumSize(pb.getMinimumSize());
-                    statusLabel.setMaximumSize(pb.getMaximumSize());
-                    statusLabel.setPreferredSize(pb.getSize());
-                    statusLabel.setOpaque(true);
-                    topPanel.remove(PROGRESS_BAR_INDEX);
-                    topPanel.add(statusLabel, pbConstraints, PROGRESS_BAR_INDEX);
-                    topPanel.validate();
-                    statusLabel.repaint();
-                }
-                
-                if (!dtr.isSuccess()) {
-                    if (dtr.isFailure())
-                        cp.setFailureValue(++failureCount);
-                    else
-                        cp.setErrorValue(++errorCount);
-                }
+                if (!doingMultiple)
+                    setResultLabel();
             }
         });
+    }
+    
+    /**
+     * Change the progress bar into a red or green label, depending on
+     * success/failure status. Should be called on the swing event thread.
+     */
+    private void setResultLabel()
+    {
+        statusLabel = new JPanel();
+
+        if (errorCount + failureCount == 0)
+            statusLabel.setBackground(Color.GREEN);
+        else
+            statusLabel.setBackground(Color.RED);
+
+        statusLabel.setMinimumSize(pb.getMinimumSize());
+        statusLabel.setMaximumSize(pb.getMaximumSize());
+        statusLabel.setPreferredSize(pb.getSize());
+        statusLabel.setOpaque(true);
+        topPanel.remove(PROGRESS_BAR_INDEX);
+        topPanel.add(statusLabel, pbConstraints, PROGRESS_BAR_INDEX);
+        topPanel.validate();
+        statusLabel.repaint();
     }
 
 	class MyListSelectionListener implements ListSelectionListener
