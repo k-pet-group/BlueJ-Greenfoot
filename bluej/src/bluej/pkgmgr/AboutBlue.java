@@ -13,7 +13,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 2687 2004-06-29 13:59:27Z mik $
+ * @version $Id: AboutBlue.java 2724 2004-07-02 18:51:36Z mik $
  */
 class AboutBlue extends JDialog
 {
@@ -24,44 +24,23 @@ class AboutBlue extends JDialog
         // Create About box text
         JPanel aboutPanel = new JPanel();
         aboutPanel.setBorder(BlueJTheme.dialogBorder);
-        aboutPanel.setLayout(new BorderLayout(2,2));
+        aboutPanel.setLayout(new BorderLayout(12,0));
         aboutPanel.setBackground(Color.white);
 
-        // Create Text Panel
-        MultiLineLabel toptext = new MultiLineLabel(LEFT_ALIGNMENT);
-        toptext.setBackground(Color.white);
-        toptext.addText(Config.getString("about.bluej.version") + " "+ version +
-                     "  (" + Config.getString("about.java.version") + " " + System.getProperty("java.version") +
-                     ")", true, false);
-        toptext.addText(" ");
-        toptext.addText(Config.getString("about.vm") + " " +
-                     System.getProperty("java.vm.name") + " " +
-                     System.getProperty("java.vm.version") +
-                     " (" + System.getProperty("java.vm.vendor") + ")");
-        toptext.addText(Config.getString("about.runningOn") + " " + System.getProperty("os.name") +
-                     " " + System.getProperty("os.version") +
-                     " (" + System.getProperty("os.arch") + ")");
-        toptext.addText(Config.getString("about.javahome") + " " + System.getProperty("java.home"));
-
-        toptext.addText(" ");
-        toptext.addText(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.debugLogName));
-        
-        aboutPanel.add(toptext, BorderLayout.NORTH);
+        // insert logo
+        Icon icon = Config.getImageAsIcon("image.logo");
+        JLabel logoLabel = new JLabel(icon);
+        aboutPanel.add(logoLabel, BorderLayout.WEST);
 
         // Create Text Panel
-        MultiLineLabel text = new MultiLineLabel(LEFT_ALIGNMENT);
+        MultiLineLabel text = new MultiLineLabel(LEFT_ALIGNMENT, 6);
         text.setBackground(Color.white);
-        text.addText(" ");
-        text.addText(Config.getString("about.theTeam.deakin"), false, true);
-        text.addText("      Davin McCall, Andrew Patterson, \n" +
-                     "      Bruce Quig, John Rosenberg\n");
-        text.addText(" ");
-        text.addText(Config.getString("about.theTeam.denmark"), false, true);
-        text.addText("      Kasper Fisker, Poul Henriksen,\n" +
-                     "      Michael K\u00F6lling\n");
-        text.addText(" ");
-        text.addText(Config.getString("about.theTeam.kent"), false, true);
-        text.addText("      Damiano Bolla, Ian Utting");
+        text.addText(Config.getString("about.theTeam") + "\n ", false, true);
+        text.addText("      Damiano Bolla, Kasper Fisker,\n");
+        text.addText("      Poul Henriksen, Michael K\u00F6lling,\n");
+        text.addText("      Davin McCall, Andrew Patterson,\n");
+        text.addText("      Bruce Quig, John Rosenberg,\n");
+        text.addText("      Ian Utting");
 
         aboutPanel.add(text, BorderLayout.CENTER);
 
@@ -69,14 +48,24 @@ class AboutBlue extends JDialog
         MultiLineLabel bottomtext = new MultiLineLabel(LEFT_ALIGNMENT);
         bottomtext.setBackground(Color.white);
         bottomtext.addText(" ");
+        bottomtext.addText(Config.getString("about.bluej.version") + " "+ version +
+                "  (" + Config.getString("about.java.version") + " " + System.getProperty("java.version") +
+                ")", 14);
+        bottomtext.addText(" ");
+        bottomtext.addText(Config.getString("about.vm") + " " +
+                System.getProperty("java.vm.name") + " " +
+                System.getProperty("java.vm.version") +
+                " (" + System.getProperty("java.vm.vendor") + ")");
+        bottomtext.addText(Config.getString("about.runningOn") + " " + System.getProperty("os.name") +
+                " " + System.getProperty("os.version") +
+                " (" + System.getProperty("os.arch") + ")");
+        bottomtext.addText(Config.getString("about.javahome") + " " + System.getProperty("java.home"));
+        bottomtext.addText(" ");
         bottomtext.addText(Config.getString("about.moreInfo"));
-
+        bottomtext.addText(" ");
+        bottomtext.addText(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.debugLogName));
+        
         aboutPanel.add(bottomtext, BorderLayout.SOUTH);
-
-        // insert logo
-        Icon icon = Config.getImageAsIcon("image.logo");
-        JLabel logoLabel = new JLabel(icon);
-        aboutPanel.add(logoLabel, BorderLayout.WEST);
 
         // Create Button Panel
         JPanel buttonPanel = new JPanel();
@@ -108,9 +97,9 @@ class AboutBlue extends JDialog
         	}
         });
 
-        DialogManager.centreDialog(this);
         setResizable(false);
         pack();
+        DialogManager.centreDialog(this);
     }
 }
 

@@ -6,9 +6,6 @@ import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 
 import bluej.Config;
 import bluej.testmgr.record.InvokerRecord;
@@ -18,7 +15,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 2723 2004-07-02 15:22:53Z mik $
+ * @version $Id: ObjectBench.java 2724 2004-07-02 18:51:36Z mik $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -26,8 +23,6 @@ public class ObjectBench extends JPanel
     private static final int SCROLL_AMOUNT = (ObjectWrapper.WIDTH / 3);
     private static final Color BACKGROUND_COLOR = Config.getItemColour("colour.objectbench.background");
 
-    private static final Border focusBorder = new LineBorder(Color.BLACK);
-    
     private ObjectBenchPanel obp;
     private List objectWrappers;
     private ObjectWrapper selectedObjectWrapper;

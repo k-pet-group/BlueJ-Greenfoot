@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- ** @version $Id: MultiLineLabel.java 2542 2004-05-24 08:45:29Z polle $
+ ** @version $Id: MultiLineLabel.java 2724 2004-07-02 18:51:36Z mik $
  ** @author Justin Tan
  ** A multi-line Label-like AWT component.
  **/
@@ -13,7 +13,8 @@ public class MultiLineLabel extends JPanel
     protected int fontAttributes = Font.PLAIN;
     protected float alignment;
     protected Color col = null;
-	
+	protected int spacing = 0;
+    
     /**
      ** Constructor - make a multiline label
      **/
@@ -34,11 +35,20 @@ public class MultiLineLabel extends JPanel
     }
 
     /**
-     ** Constructor, empty with the given alignment
-     **/
+     * Constructor, empty with the given alignment
+     */
     public MultiLineLabel(float alignment)
     {
         this(null, alignment);
+    }
+
+    /**
+     * Constructor, empty with the given alignment and line spacing
+     */
+    public MultiLineLabel(float alignment, int spacing)
+    {
+        this(null, alignment);
+        this.spacing = spacing;
     }
 
     /**
@@ -58,9 +68,17 @@ public class MultiLineLabel extends JPanel
 	
     public void addText(String text)
     {
+        addText(text, 12);
+    }
+    
+    public void addText(String text, int size)
+    {
+        if(spacing > 0)
+            add(Box.createVerticalStrut(spacing));
+
         String strs[] = Utility.splitLines(text);
         JLabel l;
-        Font font = new Font("SansSerif", fontAttributes, 12);
+        Font font = new Font("SansSerif", fontAttributes, size);
 
         for (int i = 0; strs != null && i < strs.length; i++) {
             l = new JLabel(strs[i]);
@@ -71,9 +89,9 @@ public class MultiLineLabel extends JPanel
                 l.setForeground(col);
 
             add(l);
-        }	
+        }   
     }
-	
+    
     public void addText(String text, boolean bold, boolean italic)
     {
         int oldAttributes = fontAttributes;

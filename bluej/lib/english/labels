@@ -612,9 +612,7 @@ about.runningOn=Running on:
 about.javahome=Java Home:
 about.logfile=Debug log file:
 about.moreInfo=More information is at www.bluej.org.
-about.theTeam.deakin=The BlueJ team at Deakin University
-about.theTeam.denmark=The BlueJ team at the University of Southern Denmark
-about.theTeam.kent=The BlueJ team at Kent University
+about.theTeam=The BlueJ team:
 
 # Work Indicator
 workIndicator.showDebugger=Show Debugger

@@ -16,12 +16,12 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 2595 2004-06-12 19:30:25Z mik $
+ * @version $Id: Boot.java 2724 2004-07-02 18:51:36Z mik $
  */
 public class Boot
 {
-    public static int BLUEJ_VERSION_MAJOR = 1;
-    public static int BLUEJ_VERSION_MINOR = 4;
+    public static int BLUEJ_VERSION_MAJOR = 2;
+    public static int BLUEJ_VERSION_MINOR = 0;
     public static int BLUEJ_VERSION_RELEASE = 0;
     public static String BLUEJ_VERSION_SUFFIX = " beta";
 
@@ -31,7 +31,7 @@ public class Boot
 
     public static String BLUEJ_VERSION = BLUEJ_VERSION_MAJOR
                                          + "." + BLUEJ_VERSION_MINOR
-                                         + "." + BLUEJ_VERSION_RELEASE
+                                       //  + "." + BLUEJ_VERSION_RELEASE  // removed for .0.0 release
                                          + BLUEJ_VERSION_SUFFIX;
 
     public static String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
