@@ -12,14 +12,14 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 1824 2003-04-10 21:19:18Z mik $
+ * @version	$Id: DependentTarget.java 1913 2003-04-29 03:19:48Z ajp $
  */
 public abstract class DependentTarget extends Target
 {
-    protected List inUses;
-    protected List outUses;
-    protected List parents;
-    protected List children;
+    private List inUses;
+    private List outUses;
+    private List parents;
+    private List children;
 
 	protected Target assoc;
 	
@@ -137,6 +137,10 @@ public abstract class DependentTarget extends Target
         return new MultiIterator(v);
     }
 
+	public Iterator usesDependencies()
+	{
+		return Collections.unmodifiableList(outUses).iterator();
+	}
     /**
      *  Remove all outgoing dependencies. Also updates the package. (Don't
      *  call from package remove method - this will cause infinite recursion.)

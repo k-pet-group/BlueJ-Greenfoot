@@ -27,7 +27,7 @@ import bluej.utility.*;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 1911 2003-04-28 21:35:13Z mik $
+ * @version $Id: ClassTarget.java 1913 2003-04-29 03:19:48Z ajp $
  */
 public class ClassTarget extends EditableTarget
 {
@@ -37,7 +37,7 @@ public class ClassTarget extends EditableTarget
     private static final String compileStr = Config.getString("pkgmgr.classmenu.compile");
     private static final String inspectStr = Config.getString("pkgmgr.classmenu.inspect");
     private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
-    private static final String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
+	private static final String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
 
     // Define Background Colours
     private static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
@@ -721,13 +721,18 @@ public class ClassTarget extends EditableTarget
         for(Iterator it = vect.iterator(); it.hasNext(); ) {
             String name = (String)it.next();
             DependentTarget used = getPackage().getDependentTarget(name);
-            if (used != null)
-                getPackage().addDependency(new UsesDependency(getPackage(), this, used), true);
+            if (used != null) {
+				if (used.getAssociation() == this || this.getAssociation() == used)
+					continue;
+
+				getPackage().addDependency(new UsesDependency(getPackage(), this, used), true);
+            	
+            }
         }
 
         // check for inconsistent use dependencies
-        for(int i = 0; i < outUses.size(); i++) {
-            UsesDependency usesDep = ((UsesDependency)outUses.get(i));
+        for(Iterator it = usesDependencies(); it.hasNext();) {
+            UsesDependency usesDep = ((UsesDependency)it.next());
             if(! usesDep.isFlagged())
                 getPackage().setStatus(usesArrowMsg + usesDep);
         }
@@ -818,7 +823,7 @@ public class ClassTarget extends EditableTarget
         Class cl = null;
 
         if (state == S_NORMAL) {
-            // handle error caused when loading 1.4 compiled classes
+            // handle error causes when loading 1.4 compiled classes
             // on a 1.3 VM
             // we detect the error, remove the class file, and invalidate
             // to allow them to be recompiled
@@ -838,10 +843,10 @@ public class ClassTarget extends EditableTarget
             }
         }
 
-        // check that the class loading hasn't changed our state
+        // check that the class loading hasn't changed out state
         if (state == S_NORMAL) {
             if (true) { //(cl != null) && (last_class != cl)) {
-                if (menu != null)
+               if (menu != null)
                     editor.remove(menu);
                 menu = createMenu(cl);
                 editor.add(menu);
