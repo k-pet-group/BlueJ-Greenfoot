@@ -19,7 +19,7 @@ import java.util.List;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 3012 2004-09-22 11:05:04Z iau $
+ * @version    $Id: BClass.java 3018 2004-09-28 09:21:48Z iau $
  */
 
 /*
@@ -449,7 +449,7 @@ public class BClass
      *
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
-     * @deprecated As of BlueJ 2.0, replaced by {@link #getEditor()}
+     * @deprecated As of BlueJ 2.0, replaced by {@link Editor#setReadOnly(boolean readOnly)}
      */
     public void beginChangeSource()
              throws ProjectNotOpenException, PackageNotFoundException
@@ -471,7 +471,7 @@ public class BClass
      *
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
-     * @deprecated As of BlueJ 2.0, replaced by {@link #getEditor()}
+     * @deprecated As of BlueJ 2.0, replaced by {@link Editor#setReadOnly(boolean readOnly)}
      */
     public void endChangeSource()
              throws ProjectNotOpenException, PackageNotFoundException

@@ -51,12 +51,14 @@ private void addComment(BClass curClass) {
         return;
     }
     
+    classEditor.setReadOnly(true);  // Stop the user changing the text
     int textLen = classEditor.getTextLength();
     TextLocation lastLine = classEditor.getTextLocationFromOffset(textLen);
     lastLine.setColumn(0);
     // The TextLocation now points before the first character of the last line of the current text
     // which we'll assume contains the closing } bracket for the class
     classEditor.setText(lastLine, lastLine, "// Comment added by SimpleExtension\n");
+    classEditor.setReadOnly(false);
 }
 </pre>
 </body>

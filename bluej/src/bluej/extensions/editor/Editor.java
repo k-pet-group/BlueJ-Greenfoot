@@ -9,7 +9,7 @@ import javax.swing.text.*;
  * Except as marked, methods of this class must be called from a swing compatible thread.
  *
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
- * @version    $Id: Editor.java 3012 2004-09-22 11:05:04Z iau $
+ * @version    $Id: Editor.java 3018 2004-09-28 09:21:48Z iau $
  */
 
 public class Editor
@@ -173,18 +173,18 @@ public class Editor
      *
      * @param  readOnly  If true user cannot change the editor content using the GUI, false allows user interaction.
      */
-    void setReadOnly(boolean readOnly)
+    public void setReadOnly(boolean readOnly)
     {
         bjEditor.setReadOnly(readOnly);
     }
 
 
     /**
-     * Is the editor currently set to readonly?.
+     * Is the editor currently set to readOnly?.
      *
      * @return    true if the user cannot change the text using the GUI, false othervise
      */
-    boolean isReadonly()
+    public boolean isReadOnly()
     {
         return bjEditor.isReadOnly();
     }
