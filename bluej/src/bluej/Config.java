@@ -1,27 +1,27 @@
-   package bluej;
+package bluej;
 
-   import bluej.utility.Debug;
-   import bluej.utility.Utility;
-   import bluej.utility.DefaultProperties;
+import bluej.utility.Debug;
+import bluej.utility.Utility;
+import bluej.utility.DefaultProperties;
 
-   import java.awt.Color;
-   import java.awt.event.KeyEvent;
-   import javax.swing.filechooser.FileSystemView;
-   import javax.swing.text.JTextComponent;
-   import javax.swing.JTextField;
-   import javax.swing.KeyStroke;
-   import javax.swing.text.Keymap;
-   import javax.swing.*;
-   import javax.swing.border.*;
-   import java.io.File;
-   import java.io.FileInputStream;
-   import java.io.FileOutputStream;
-   import java.io.PrintStream;
-   import java.io.FileWriter;
-   import java.io.IOException;
-   import java.util.Properties;
+import java.awt.Color;
+import java.awt.event.KeyEvent;
+import javax.swing.filechooser.FileSystemView;
+import javax.swing.text.JTextComponent;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.text.Keymap;
+import javax.swing.*;
+import javax.swing.border.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Properties;
 
-   import java.awt.*;
+import java.awt.*;
 
 /**
  * Class to handle application configuration for BlueJ. The configuration
@@ -40,13 +40,13 @@
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 723 2000-12-12 04:43:19Z mik $
+ * @version $Id: Config.java 750 2001-01-22 05:09:04Z ajp $
  */
 
-    public class Config
-   {
+public class Config
+{
       public static final String nl = System.getProperty("line.separator");
-   
+
       private static DefaultProperties bluej_props;	// bluej properties
       private static DefaultProperties lang_props;	// The internationalisation
     //  dictionary
@@ -55,12 +55,12 @@
       private static String bluej_home;
       private static String sys_confdir;
       private static String user_confdir;
-   
+
       public static String compilertype;	// current compiler (javac, jikes)
       public static String language;	// message language (english, ...)
-   
-      public static Rectangle screenBounds;
-   
+
+      public static Rectangle screenBounds; // maximum dimensions of screen
+
     // Swing JSplitPane divider width constant for uniform look and feel
       public static final int splitPaneDividerWidth = 3;
     // Other general spacing constants. We should try to use these for consistency
@@ -69,20 +69,20 @@
       BorderFactory.createEmptyBorder(10,10,10,10);
       public static final Border generalBorderWithStatusBar =
       BorderFactory.createEmptyBorder(10,10,0,10);
-   
+
       public static final Border dialogBorder =
       BorderFactory.createEmptyBorder(12,12,11,11);
-   
+
       public static final int commandButtonSpacing = 5;
       public static final int commandButtonPadding = 12;
-   
+
       public static final int componentSpacingSmall = 5;
       public static final int componentSpacingLarge = 11;
-   
+
       public static final int dialogCommandButtonsVertical = 17;
-   
+
       private static boolean initialised = false;
-   
+
     /*
      * Default behaviour for JTextFields is to generate an ActionEvent when
      * "Enter" is pressed. We don't want that. Here, we remove the Enter key
@@ -97,8 +97,8 @@
          Keymap map = f.getKeymap();
          map.removeKeyStrokeBinding(enter);
       }
-   
-   
+
+
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
      * This method finds and opens the configuration files.
@@ -107,56 +107,57 @@
       {
          if(initialised)
             return;
-      
+
          initialised = true;
-      
+
          screenBounds = calculateScreenBounds();
-      
+
         // construct paths for the configuration directories
-      
+
          Config.bluej_home = bluej_home;
          sys_confdir = bluej_home + File.separator + "lib";
          user_confdir = FileSystemView.getFileSystemView().
             getHomeDirectory().getAbsolutePath() + File.separator + dirname;
-      
+
          checkUserDir(user_confdir);
-      
+
          bluej_props = loadDefs("bluej.defs", true);	// system definitions
          loadProperties("bluej", bluej_props);	// user specific definitions
-      
+
         // find our language (but default to english if none found)
          language = bluej_props.getProperty("bluej.language", "english");
          lang_props = loadDefs(language + File.separator + "labels", false);
-      
+
          moe_props = loadDefs("moe.defs", false);
-      
+
          checkDebug(user_confdir);
          compilertype = Config.getPropString("bluej.compiler.type");
          if(compilertype.equals("internal"))
             compilertype = "javac";
-      
+
       } // initialise
-   
+
     /**
      * Get the screen size information
      */
-       private static Rectangle calculateScreenBounds()
-      {
+    private static Rectangle calculateScreenBounds()
+    {
       //         Rectangle bounds = new Rectangle();
       //         GraphicsEnvironment ge = GraphicsEnvironment.
       //             getLocalGraphicsEnvironment();
       //         GraphicsDevice[] gs = ge.getScreenDevices();
-      //         for (int j = 0; j < gs.length; j++) { 
+      //         for (int j = 0; j < gs.length; j++) {
       //             GraphicsDevice gd = gs[j];
       //             GraphicsConfiguration[] gc = gd.getConfigurations();
       //             for (int i=0; i < gc.length; i++)
       //                 bounds = bounds.union(gc[i].getBounds());
       //         }
         // for jdk 1.2:
-         Rectangle bounds = new Rectangle(0,0,800,600);
-         return bounds;
-      }
-   
+        Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+
+        return new Rectangle(d);
+    }
+
     /**
      * Check, and if necessary create, the user directory (~/.bluej)
      */
@@ -166,7 +167,7 @@
          if(!dir.exists())
             dir.mkdirs();
       }
-   
+
     /**
      * Check whether we want to see debug information. If not, redirect it to
      * a file.
@@ -182,13 +183,13 @@
                new PrintStream(new FileOutputStream(debugLogFileName));
                System.setOut(outStream);
                Debug.message("BlueJ version " + Main.BLUEJ_VERSION);
-            } 
+            }
                 catch (IOException e) {
                   Debug.reportError("Warning: Unable to create debug log file.");
                }
          }
       }
-   
+
     /**
      * Called on system exit. Do whatever there is to do before exiting.
      */
@@ -196,7 +197,7 @@
       {
          saveProperties("bluej", bluej_props);
       }
-   
+
     /**
      * Load a BlueJ definition file. This creates a new properties object.
      * The new properties object can be returned directly, or an empty
@@ -211,21 +212,21 @@
       {
          File propsFile = new File(sys_confdir, filename);
          DefaultProperties defs = new DefaultProperties();
-      
+
          try {
             defs.load(new FileInputStream(propsFile));
-         
-         } 
+
+         }
              catch(Exception e) {
                Debug.reportError("Unable to load definitions file: " + propsFile);
             }
-      
+
          if(asDefault)
             return new DefaultProperties(defs); // empty props with defs as defaults
          else
             return defs;
       }
-   
+
     /**
      * Load local BlueJ properties. The properties definitions override
      * the defaults found in the definitions file.
@@ -233,34 +234,34 @@
        private static void loadProperties(String filename, DefaultProperties props)
       {
          File propsFile = new File(user_confdir, filename + ".properties");
-      
+
          try {
             props.load(new FileInputStream(propsFile));
-         
-         } 
+
+         }
              catch(Exception e) {
             // ignore
             }
       }
-   
+
     /**
      * Save user specific (local) BlueJ properties.
      */
        private static void saveProperties(String filename, DefaultProperties props)
       {
          File propsFile = new File(user_confdir, filename + ".properties");
-      
+
          try {
             props.store(new FileOutputStream(propsFile),
                getString("properties.heading"));
-         
-         } 
+
+         }
              catch(Exception e) {
                Debug.reportError("Warning: could not save properties file " +
                   propsFile);
             }
       }
-   
+
     /**
      * find and return the moe help definitions
      */
@@ -268,7 +269,7 @@
       {
          return loadDefs(language + File.separator + "moe.help", false);
       }
-   
+
     /**
      * get a string from the language dependent definitions file
      * (eg. "labels.english")
@@ -277,14 +278,14 @@
       {
          try {
             return lang_props.getProperty(strname, strname);
-         } 
+         }
              catch(Exception e) {
                Debug.reportError("Could not get string for " + strname);
                e.printStackTrace(System.err);
                return strname;
             }
       }
-   
+
     /**
      * Get a non-language-dependent string from the BlueJ properties
      * ("bluej.defs" or "bluej.properties")
@@ -293,10 +294,10 @@
       {
          return getPropString(strname, strname);
       }
-   
+
     /**
      * Get a system-dependent string from the BlueJ properties
-     * ("bluej.defs" or "bluej.properties"). System-dependent strings 
+     * ("bluej.defs" or "bluej.properties"). System-dependent strings
      * start with an OS ID prefix.
      */
        public static String getSystemPropString(String propName)
@@ -304,7 +305,7 @@
          String osname = System.getProperty("os.name");
         //Debug.message(osname);
          String sysID;
-      
+
          if(osname != null && osname.startsWith("Windows 9"))     // win95/98
             sysID = "win9x";
          else if(osname != null && osname.startsWith("Windows"))  // NT/2000
@@ -317,15 +318,15 @@
             sysID = "macos";
          else
             sysID = "";
-      
+
          String value = bluej_props.getProperty(sysID + propName);
          if(value == null)
             value = bluej_props.getProperty(propName, "");
-      
+
          return value;
       }
-   
-   
+
+
     /**
      * Get a non-language-dependent string from the BlueJ properties
      * ("bluej.defs" or "bluej.properties") with a default value
@@ -334,7 +335,7 @@
       {
          return bluej_props.getProperty(strname, def);
       }
-   
+
     /**
      * Get a non-language-dependent string from the BlueJ properties
      * "bluej.defs" with a default value
@@ -343,13 +344,13 @@
       {
          try {
             return bluej_props.getDefaultProperty(strname, def);
-         } 
+         }
              catch(Exception e) {
                Debug.reportError("Could not get string for " + strname);
                return def;
             }
       }
-   
+
     /**
      * Get a non-language dependant integer from the BlueJ properties
      * ("bluej.defs" or "bluej.properties") with a default value
@@ -365,7 +366,7 @@
             }
          return value;
       }
-   
+
     /**
      * Get a non-language dependant integer from the BlueJ properties
      * "bluej.defs" with a default value
@@ -381,24 +382,24 @@
             }
          return value;
       }
-   
+
        public static String removeProperty(String propertyName)
       {
          return (String)(bluej_props.remove(propertyName));
       }
-   
+
        public static String getLibFilename(String propname)
       {
          try {
             String filename = bluej_props.getProperty(propname);
             return bluej_home + File.separator + "lib" + File.separator + filename;
-         } 
+         }
              catch(Exception e) {
                Debug.reportError("Could not get library name: " + propname);
                return null;
             }
       }
-   
+
     /**
      * Find and return the file name for an image.
      */
@@ -407,13 +408,13 @@
          try {
             String filename = bluej_props.getProperty(propname);
             return bluej_home + File.separator + "images" + File.separator + filename;
-         } 
+         }
              catch(Exception e) {
                Debug.reportError("Could not find image: " + propname);
                return null;
             }
       }
-   
+
     /**
      * Find and return the icon for an image.
      */
@@ -421,27 +422,27 @@
       {
          try {
             String filename = bluej_props.getProperty(propname);
-         
+
             return new ImageIcon(bluej_home + File.separator + "images" + File.separator + filename);
-         
-         } 
+
+         }
              catch(Exception e) {
                Debug.reportError("Could not find image: " + propname);
                return null;
             }
       }
-   
-   
+
+
     /**
      * Find and return the file name for a help file (eg.
      * "bluej/lib/javac.help.english")
      */
        public static String getHelpFilename(String base)
       {
-         return sys_confdir + File.separator + language + File.separator + 
+         return sys_confdir + File.separator + language + File.separator +
             base + ".help";
       }
-   
+
     /**
      * Return the file name for a file with language specific text (eg.
      * "bluej/lib/dialogs.english")
@@ -450,7 +451,7 @@
       {
          return sys_confdir + File.separator + language + File.separator + base;
       }
-   
+
     /**
      * Return the file name for a file in the user config directory
      * (<user_home>/.bluej/<base>)
@@ -459,30 +460,65 @@
       {
          return user_confdir + File.separator + base;
       }
-   
+
        public static Color getItemColour(String itemname)
       {
          try {
             String rgbStr = bluej_props.getProperty(itemname, "255,0,255");
             String rgbVal[] = Utility.split(rgbStr, ",");
-         
+
             if (rgbVal.length < 3)
                Debug.reportError("Error reading colour ["+itemname+"]");
             else {
                int r = Integer.parseInt(rgbVal[0].trim());
                int g = Integer.parseInt(rgbVal[1].trim());
                int b = Integer.parseInt(rgbVal[2].trim());
-            
+
                return new Color(r, g, b);
             }
-         } 
+         }
              catch(Exception e) {
                Debug.reportError("Could not get colour for " + itemname);
             }
-      
+
          return null;
       }
-   
+
+    /**
+     * Store a point in the config files. The config properties
+     * are formed by adding ".x" and ".y" to the itemPrefix.
+     */
+    public static void putLocation(String itemPrefix, Point p)
+    {
+        putPropInteger(itemPrefix + ".x", p.x);
+        putPropInteger(itemPrefix + ".y", p.y);
+    }
+
+    /**
+     * Return a point, read from the config files. The config properties
+     * are formed by adding ".x" and ".y" to the itemPrefix.
+     */
+    public static Point getLocation(String itemPrefix)
+    {
+        try {
+            int x = getPropInteger(itemPrefix + ".x", 16);
+            int y = getPropInteger(itemPrefix + ".y", 16);
+
+            if (x > (screenBounds.width - 16))
+                x = screenBounds.width - 16;
+
+            if (y > (screenBounds.height - 16))
+                y = screenBounds.height - 16;
+
+            return new Point(x,y);
+        }
+        catch(Exception e) {
+            Debug.reportError("Could not get screen location for " + itemPrefix);
+        }
+
+        return new Point(16,16);
+    }
+
     /**
      * Set a non-language dependant integer for the BlueJ properties
      */
@@ -490,7 +526,7 @@
       {
          bluej_props.setProperty(intname, Integer.toString(value));
       }
-   
+
     /**
      * Set a non-language dependant string for the BlueJ properties
      */
@@ -498,13 +534,13 @@
       {
          bluej_props.setProperty(strname, value);
       }
-   
+
     /**
      * Get the Inspector directory for the system
      */
        public static File getSystemInspectorDir() {
          return new File(sys_confdir,"inspector");
       }
-   
+
    }
 
