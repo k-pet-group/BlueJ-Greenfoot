@@ -1,0 +1,119 @@
+$PKGLINE
+import java.applet.Applet;
+import java.awt.*;
+
+/**
+ * Klas $CLASSNAME - gee hier 'n beskrywing van die klas
+ * 
+ * @outeur: (tik die outeurs se name hier)
+ * @datum:  (tik die datum of weergawe hier)
+ */
+
+public class $CLASSNAME extends Applet
+{
+	// eksemplaarveranderlikes - vervang die volgende voorbeeld met u eie
+	private int x;
+
+	 /**
+	 * Die init() metode word deur die webleser of "applet viewer" uitgevoer sodat 
+	 * hierdie mini-toepassing kan weet dat dit gelaai is. Dit word altyd geroep voor die 
+	 * eerste keer wat die start() metode geroep word.
+	 */
+	public void init()
+	{
+		// verskaf hier enige inisialisering wat nodig is vir jou mini-toepassing
+
+	}
+
+
+	/**
+	 * start() word geroep deur die webleser of "applet viewer" om hierdie mini-toepasing te laat weet 
+	 * dat dit moet begin uitvoer. Dit word gedoen na die init() metode geroep is en
+	 * elke keer as die mini-toepassing weer besoek word in 'n webbladsy. 
+	 */
+	public void start()
+	{
+		// skryf enige kode wat nodig is om uit te voer elke keer as die webblad weer besoek word
+
+	}
+
+	/**
+	 * Hierdie metode paint() is moontlik die belangrikste metode in die mini-toepassing: Die vertoon van 
+	 * mini-toepassing word hier gedoen. Metode paint() word elke keer geroep as die mini-toepassing
+	 * vertoon moet word. 
+	 * Die g-objek is die grafiese objek waarop die paint() metode sy vertoonfunksies kan verrig.
+	 *
+	 * @param  g   the Graphics object for this applet
+	 */
+	public void paint(Graphics g)
+	{
+		// eenvoudige teks word op die mini-toepassing vertoon
+		g.setColor(Color.white);
+		g.fillRect(0, 0, 200, 100);
+		g.setColor(Color.black);
+		g.drawString("mini-toepassingvoorbeeld", 20, 20);
+		g.setColor(Color.blue);
+		g.drawString("geskep deur BlueJ", 20, 40);
+	}
+
+
+	/** 
+	 * stop() word geroep deur  die webleser of "applet viewer" om hierdie mini-toepasssing te laat weet 
+	 * dat sy uitvoer gestaak moet word. Dit word geroep as die webblad wat hierdie mini-toepassing bevat
+	 * vervang word deur 'n ander webblad, en ook net voordat die mini-toepassing vernietig word.
+	 * Indien daar geen hulpbronne is wat vrygestel moet word nie (bv. uitvoerdrade wat u wil stop)
+	 * dan kan u maar hierdie metode uitvee.
+	 */
+	public void stop()
+	{
+		// skryf enige kode wat nodig is om uit te voer elke keer voordat die 
+		// mini-toepassing vernietig word.
+	}
+
+
+	/**
+	 * destroy() word geroep deur die webleser of "applet viewer" om hierdie mini-toepassing te laat weet 
+	 * dat hulpbronne vrygestel moet word omdat die mini-toepassing self vernietig gaan word.
+	 * Die stop() metode sal altyd voor destroy() geroep word. 
+	 */
+	public void destroy()
+	{
+		// skryf enige kode wat nodig is om hulpbronne vry te stel voordat die 
+		// mini-toepassing vernietig word.
+	
+	}
+
+	/**
+	 * getAppletInfo() verskaf inligting aangaande hierdie mini-toepassing aan die roepende program. 
+	 * Daarom behoort hierdie mini-toepassing 'n String terug te stuur wat die volgende inligting bevat:
+	 * inligting oor die outeur, weergawe en kopiereg van hierdie mini-toepassing.
+	 *
+	 * @return a String representation of information about this applet
+	 */
+	public String getAppletInfo()
+	{
+		// Verskaf die inligting deur dit hieronder in te tik
+		return "Title:   \nAuthor:   \nA Hierdie is die beskrywing van 'n eenvoudige mini-toepassing. ";
+	}
+
+
+	/**
+	 * getParameterInfo() verskaf parameter inligting aangaande hierdie mini-toepassing aan die roepende program. 
+	 * Daarom behoort hierdie mini-toepassing 'n skikking van Stringe terug te stuur wat die parameters beskryf:
+	 * Elke element van die skikking moet 'n stel van drie Stringe bevat met die volgende inligting:
+	 * die naam, die tipe, en 'n beskrywing van die parameter.
+	 *
+	 * @return a String[][] representation of parameter information about this applet
+	 */
+	public String[][] getParameterInfo()
+	{
+		// verskaf inligting oor die mini-toepassing se parameters
+		String paramInfo[][] = {
+				 {"firstParameter",	"1-10",	"description of first parameter"},
+				 {"status", "boolean", "description of second parameter"},
+				 {"images",   "url",	 "description of third parameter"}
+		};
+		return paramInfo;
+	}
+
+}

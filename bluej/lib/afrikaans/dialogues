@@ -1,0 +1,347 @@
+compile-while-executing
+U kan nie kompileer terwyl die masjien 
+uitvoer nie. Dit kan vreemde foute
+veroorsaak
+
+exception-thrown
+'n Uitsondering is aangemeld:
+
+break-no-source
+Inbreekpunt is bereik in 'n lêer waarvoor die
+bronkode nie gevind kan word nie. Lêernaam:
+
+error-in-file
+'n Fout het voorgekom in 'n lêer waarvoor die
+bronkode nie gevind kan word nie. 
+klas:  bronkode lynnommer:
+
+system-exit
+Die metode het getermineer deur 'n
+eksplisiete "exit"-instruksie. Geen resultaat
+is verkry nie. Die verlaatkode was:
+
+no-help
+Geen hulp is beskikbaar vir hierdie boodskap nie.
+Stuur asb. die teks van die foutboodskap aan
+mik@monash.edu.au - dan kan ons 'n foutboodskap
+by ons databasis voeg. Dankie.
+
+editor-crashed
+Dit lyk of BlueJ onderbreek is toe die klas laas
+na die skyf geskryf is. Die bronkode is moontlik 
+beskadig of vernietig. Daar behoort 'n rugsteunkopie te wees
+in die projekgids. As die klas beskadig is,
+   1 - verlaat BlueJ
+   2 - maak nog 'n kopie van die projectgids (net vir ingeval)
+   3 - soek in die projekgids vir 'n rugsteunkopie van hierdie
+       java lêer. Hernoem dit met die oorsproklike naam
+       (met 'n '.java' uitgang)
+
+# errors:
+#########
+
+no-lib-selected
+U het nie 'n biblioteek gespesifiseer om heen te gaan nie.
+Klik op 'n biblioteek in die lys van "Soekresultate" en
+druk dan die "Gaan na" knoppie.
+
+no-target-dialog
+Voordat u 'n pakket uit die klasbiblioteek 
+rondblaaier gebruik, moet u ten minste een
+pakket oop hê in BlueJ as bestemming.
+
+cannot-locate-lib-node
+Die geselekteerde node kan nie in die
+biblioteekselekteerder gevind word nie.
+Gewoonlik beteken dit dat daar 'n verouderde
+pakket in die lêergids is.
+
+missing-shadow
+Kan nie skadu-area vind nie:
+
+cannot-run-compiler
+Kan nie die kompileerder loop nie.
+Is die program in u padveranderlike?
+Naam van kompileerder:
+
+compiler-error
+Kompileerderfout:
+
+stream-incomplete
+Kompileerderfout. Foutstroom onvolledig.
+
+out-of-bounds
+Die spesifieke element val buite 
+die skikkinggrense.
+
+cannot-access-element
+Geen toegang tot die spesifieke
+skikkingelement .
+
+appletviewer-error
+Fout  met die uitvoer van die
+mini-toepassing in die "appletviewer".
+
+error-no-name
+U moet 'n geldige naam verskaf.
+
+error-save-file
+'n Fout het voorgekom met die stoor
+van die lêer.  Die lêer is nie gestoor nie.
+
+cannot-save-keys
+'n Fout het voorgekom met die stoor
+van die sleutelbindings.
+Sleutelbindings is nie gestoor nie.
+
+error-no-templates
+Die gespesifiseerde sjabloongids (die lêergids waar
+BlueJ die klassjablone kry) bestaan nie. Dit word gedefinieer
+met die eienskap "bluej.templatePath" in die lêer
+<bluej-home>/lib/bluej/defs. U kan dit nagaan
+en self regstel.
+
+skeleton-error
+Die verstek kodegeraamte vir die klas kon nie 
+gegenereer word nie.  Moontlik weens 'n 
+konfigurasiefout van BlueJ, of omdat daar
+probleme is met lêerstelsel toegang.
+
+error-open-source
+Die bronkode van hierdie klas kon nie
+oopgemaak word nie.
+
+error-open-readme
+Daar is 'n probleem met die oopmaak van die teksnota
+van die projek.  'n Nuwe, leë teksnota is geskep.
+
+error-writing-readme
+Die "README"-lêer vir hierdie projek kon nie opdateer
+word om die hoofklas se inligting by te voeg nie.
+Daar was probleme met wysiging van die lêer.
+
+error-exporting
+'n Fout het voorgekom terwyl die toepassing se kode uitgeskryf is
+Sommige of al die lêers is dalk nie reg gekopieer nie.
+
+error-writing-jar
+Die jar-lêer kon nie korrek uitgeskryf word nie.
+(Maak seker u het toegangsregte en oop spasie op die lêerstelsel.)
+
+error-jar-exists
+Die jar-lêer wat u gekies het, bestaan reeds.
+Wil u voortgaan?
+Oorskryf
+Kanselleer
+null
+
+invalid-class-name
+Ongeldige klasnaam.
+
+invalid-package-name
+Ongeldige pakketnaam.
+
+directory-exists
+'n Lêer of gids met hierdie naam bestaan reeds.
+
+cannot-copy-package
+Daar was 'n probleem met die kopiëring
+van die pakketlêers. Die pakket is nie geskryf
+nie of is dalk onvolledig.
+
+file-does-not-exist
+Die gespesifeseerde lêer
+bestaan nie.
+
+cannot-import
+Die lêer kan nie ingetrek word nie.
+Dit moet 'n Java bronkode lêer wees (die naam
+moet eindig met ".java").
+
+docdir-blocked-by-file
+Die subgids vir die dokumentasie kon nie
+in die projekgids geskep word nie,
+want daar is 'n lêer met dieselfde naam.
+
+docdir-not-created
+Die subgids vir die dokumentasie kon nie
+in die projekgids geskep word nie.
+
+no-permission-for-docdir
+Die subgids vir die dokumentasie kon nie
+in die projekgids geskep word nie,
+want die toegangsregte is te min.
+
+show-or-generate
+Wil u die dokumentasie wat voorheen geskep is
+vertoon, of wil u weer die dokumentasie hergenereer?
+Vertoon slegs
+Genereer weer
+Kanselleer
+
+doctool-error
+Javadoc het 'n fout aangemeld. Daar kan moontlik 'n sintaksfout
+in een van die lêers wees waarvoor u dokumentasie probeer
+genereer het. Daar kan dalk ook fout wees met die URL wat
+gespesifiseer is vir die JDK dokumentasie in die "voorkeure"
+Maak seker dat al die Javalêers gekompileer is en dat die
+dokumentasie-URL toeganklik is (of afgeskakel). Probeer dan weer.
+As hierdie boodskap weer voorkom, gaan kyk dan in die
+log-lêer vir die foutboodskappe van Javadoc:
+
+severe-doc-trouble
+'n Uitsondering het voorgekom tydens die roep na
+die eksterne dokumenteringsprogram.
+
+no-java-sources-found
+Geen Java bronkodelêers is gevind \
+in hierdie gids nie.
+
+duplicate-name
+Daar bestaan reeds 'n klas met hierdie naam
+in hierdie pakket. Daar mag nie twee klasse
+met dieselfde naam in een pakket wees nie.
+
+duplicate-package-name
+Daar bestaan reeds 'n pakket met hierdie naam
+in hierdie projek.
+
+error-in-import
+'n Fout het voorgekom tydens die intrekking van
+die lêer. Kyk vir toegangsregte en skyfspasie.
+
+no-class-selected
+Geen klas of pakket is geselekteer omte verwyser nie.
+Kies die naam van 'n klas of pakket deur daarop te 
+klik en kies dan om dit te verwyder.
+
+really-remove-class
+As hierdie klas verwyder word sal die bronkode
+daarvan permanent uitegevee word.
+Wil u voortgaan?
+Vee uit
+Kanselleer
+null
+
+really-remove-package
+As hierdie pakket verwyder word sal die betrokke
+subgids (met al die bronkode en ander lêers daarin) 
+permanent uitegevee word.
+Wil u voortgaan?
+Vee uit
+Kanselleer
+null
+
+remove-package-open
+Daar is subpakette van die een wat u wil uitvee
+wat steeds oopgemaak is in BlueJ.
+U moet eers die subpakette toemaak voordat
+hierdie pakket uitgevee kan word.
+
+package-does-not-exist
+Fout met die oopmaak van pakket.
+Pakket bestaan nie:
+
+no-bluej-package
+Fout met die oopmaak van pakket.
+Die lêer/gids is nie 'n
+BlueJ pakket nie:
+
+applet-height-width
+Die minitoepassing se hoogte en wydte
+moet gespesifiseer word.
+
+cannot-read-help
+Die hulplêer kan nie gelees word nie:
+
+not-yet-implemented
+Nog nie geïmplementeer nie - jammer.
+
+quit-all
+Moet alle oop projekte afgeskuit word?
+Sluit almal
+Kanselleer
+null
+
+really-reload
+Herlaai vernietig alle veranderinge sedert dit laas gestoor is.
+Is u seker?
+Herlaai
+Kanselleer
+null
+
+really-print
+Die teks is breër as die papier. Lang reëeltjies sal
+afgekap word. U kan dit vermy deur die redigeerdervenster
+se grootte te stel sodat dit smaller is.
+Wil u nogtans voortgaan en nou druk?
+Druk
+Kanselleer
+null
+
+open-non-bluej-already-bluej
+Die gids wat u geselekteer het is reeds 'n BlueJ projek.
+
+open-non-bluej-no-java
+Geen Java bronkodelêers kon in 
+hierdie gids gevind word nie.
+
+open-non-bluej-invalid
+U het aangedui dat u hierdie gids wil oopmaak
+as 'n BlueJ projek, maar dit bevat 'n java lêer
+met 'n pakketreël ("package") wat nie pas by die
+huidige gidsstruktuur nie. (Byvoorbeeld, as die 
+Java klas Shape 'n pakketreël het naamlik com.aa, 
+dan moet die lêer Shape.java in 'n gids wees met
+die naam aa, wat op sy beurt weer binne die gids com is. 
+Hierdie com gids moet weer in ander gids wees. (Dit is
+hierdie ander gids wat in Bluej gekies word wanneer
+die projek oopgemaak moet word).
+
+import-into-current
+Daar is tans 'n pakket oop in hierdie venster.
+Wil u die lêer intrek binne hierdie pakket, 
+of wil u 'n nuwe projek skep en die lêer daarheen intrek.
+In huidige
+Nuwe projek
+Kanselleer
+
+package-name-invalid
+U het die pakketstelling verander na 'n pakket wat
+nie in hierdie projek bestaan nie.
+As u hierdie klas wil skuif na 'n ander pakket,
+dan moet u eers die nuwe pakket skep.
+Die pakketstelling is terugverander na wat dit was.
+
+package-name-changed
+U het die pakketstelling verander na 'n ander pakket.
+Wil u dus hê dat die klas verskuif moet word na
+die nuwe pakket, of moet dit bly waar dit is
+(in welke geval die pakketstelling herstel 
+sal word na wat dit was.)
+Verskuif
+Herstel
+null
+
+ask-index
+Verskaf die indeks van die skikkingelement [...]
+Array Inspection
+null
+
+classmgr-changes-no-effect
+Die veranderinge aan die klasbiblioteke sal eers in werking
+tree wanneer u BlueJ volgende keer weer aan die gang sit.
+
+# editor:
+#########
+
+no-search-string
+Geen soekstring is gedefinieer nie.
+(Verlig 'n stuk teks of doen eers 'n gewone 'Soek'.)
+
+default-keys
+Wil u regtig al u eie sleutelopstellings weggooi 
+en die verstekwaardes aanvaar?
+Verstekwaardes
+Kanselleer
+null

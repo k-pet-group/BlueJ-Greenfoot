@@ -1,0 +1,129 @@
+$PKGLINE/**
+ * Klas $CLASSNAME - gee hier 'n beskrywing van die klas
+ * 
+ * @outeur: (tik die outeurs se name hier)
+ * @datum:  (tik die datum of weergawe hier)
+ */
+
+import javax.swing.JApplet;
+import javax.swing.JRootPane;
+import java.awt.Graphics;
+
+public class $CLASSNAME extends JApplet
+{
+	// eksemplaarveranderlikes - vervang die volgende voorbeeld met u eie
+	private int x;
+
+	 /**
+	 * Die init() metode word deur die webleser of "applet viewer" uitgevoer sodat 
+	 * hierdie JApplet kan weet dat dit gelaai is. Dit word altyd geroep voor die 
+	 * eerste keer wat die start() metode geroep word.
+	 */
+	public void init()
+	{
+		// Hierdie is 'n manier om verby te kom by die sekuriteitskonflik wat in sekere
+		// weblesers (soos Netscape & Internet Explorer) bestaan, waar toegang geweier word tot
+		// die "AWT system event queue" wat JApplets aanvanklik uitvoer om te toets vir toegang. 
+		JRootPane rootPane = this.getRootPane();	
+		rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
+	
+		// verskaf hier enige inisialisering wat nodig is vir jou JApplet
+
+	}
+
+	/**
+	 * start() word geroep deur die webleser of "applet viewer" om hierdie JApplet te laat weet 
+	 * dat dit moet begin uitvoer. Dit word gedoen na die init() metode geroep is en
+	 * elke keer as die JApplet weer besoek word in 'n webbladsy. 
+	 */
+	public void start()
+	{
+		// skryf enige kode wat nodig is om uit te voer elke keer as die webblad weer besoek word
+
+	}
+
+	/** 
+	 * stop() word geroep deur  die webleser of "applet viewer" om hierdie JApplet te laat weet 
+	 * dat sy uitvoer gestaak moet word. Dit word geroep as die webblad wat hierdie JApplet bevat
+	 * vervang word deur 'n ander webblad, en ook net voordat die JApplet vernietig word.
+	 * Indien daar geen hulpbronne is wat vrygestel moet word nie (bv. uitvoerdrade wat u wil stop)
+	 * dan kan u maar hierdie metode uitvee.
+	 */
+	public void stop()
+	{
+		// skryf enige kode wat nodig is om uit te voer elke keer voordat die JApplet vernietig word.
+	
+	}
+
+	/**
+	 * destroy() word geroep deur die webleser of "applet viewer" om hierdie JApplet te laat weet 
+	 * dat hulpbronne vrygestel moet word omdat die JApplet self vernietig gaan word.
+	 * Die stop() metode sal altyd voor destroy() geroep word. 
+	 */
+	public void destroy()
+	{
+		// skryf enige kode wat nodig is om hulpbronne vry te stel voordat die JApplet vernietig word.
+	
+	}
+
+
+	/**
+	 * getAppletInfo() verskaf inligting aangaande hierdie mini-toepassing aan die roepende program. 
+	 * Daarom behoort hierdie JApplet 'n String terug te stuur wat die volgende inligting bevat:
+	 * inligting oor die outeur, weergawe en kopiereg van hierdie JApplet.
+	 *
+	 * @return a String representation of information about this JApplet
+	 */
+	public String getAppletInfo()
+	{
+		// Verskaf die inligting deur dit hieronder in te tik
+		return "Title:   \nAuthor:   \nA Hierdie is die beskrywing van 'n eenvoudige mini-toepassing. ";
+	}
+
+
+	/**
+	 * getParameterInfo() verskaf parameter inligting aangaande hierdie mini-toepassing aan die roepende program. 
+	 * Daarom behoort hierdie JApplet 'n skikking van Stringe terug te stuur wat die parameters beskryf:
+	 * Elke element van die skikking moet 'n stel van drie Stringe bevat met die volgende inligting:
+	 * die naam, die tipe, en 'n beskrywing van die parameter.
+	 *
+	 * @return a String[][] representation of parameter information about this JApplet
+	 */
+	public String[][] getParameterInfo()
+	{
+		// verskaf inligting oor die mini-toepassing se parameters
+		String paramInfo[][] = {
+				 {"firstParameter",	"1-10",	"description of first parameter"},
+				 {"status", "boolean", "description of second parameter"},
+				 {"images",   "url",	 "description of third parameter"}
+		};
+		return paramInfo;
+	}
+
+	/**
+	 * Hierdie metode paint() is moontlik die belangrikste metode in die mini-toepassing: Die vertoon van 
+	 * mini-toepassing word hier gedoen. Metode paint() word elke keer geroep as die mini-toepassing
+	 * vertoon moet word. 
+	 * Die g-objek is die grafiese objek waarop die paint() metode sy vertoonfunksies kan verrig.
+	 * 
+	 * @param  g   the Graphics object for this applet
+	 */
+	public void paint(Graphics g)
+	{
+		// eenvoudige teksvertoon op die mini-toepassing
+		g.drawString("Hierdie is 'n JApplet voorbeeld ", 20, 20);
+	}
+
+
+	/**
+	 * 'n Voorbeeld van 'n metode - vervang hierdie kommentaar met u eie
+	 * 	
+	 * @param  y   'n voorbeeldparameter vir 'n voorbeeldmetode
+	 * @return	 die som van x en y 
+	 */
+	public int sampleMethod(int y)
+	{
+		// skryf u eie kode hier
+		return x + y;
+	}
+}

@@ -1,0 +1,118 @@
+NullPointerException*
+Jy het probeer om na 'n objek te verwys (òf na 'n veld 
+binne 'n objek òf na 'n metode van 'n objek). Dit wou nie 
+werk nie omdat die objekverwysing 'null' was, byvoorbeeld:
+Jy het geskryf "thing.print()", en "thing"
+was null op daardie stadium.
+
+ArithmeticException*
+Iets het foutgegaan tydens 'n berekening, byvoorbeeld
+'n poging om deur nul te deel of so iets.
+
+StringIndexOutOfBoundsException*
+Jy het probeer om 'n karakter of 'n substring binne 'n string
+aan te spreek en die indeks wat jy gebruik het bestaan nie
+in daardie string nie.  Byvoorbeeld as mens probeer om die
+vyfde karakter in 'n string wat slegs drie karakters lank is
+te gebruik.
+Onshou dfat met die substringbewerking, die tweede parameter
+die lengte van die substring aandui en nie die indeks nie.
+
+ClassCastException*
+Jy het 'n dwangtipe gebruik - dit is 'n instruksie wat 'n objek 
+forseer om 'n ander statiese tipe te word
+voorbeeld:
+       (String)someObject
+Hier word "someObject" gedring om 'n "String" te wees. Dit is wettig
+slegs as die objek wat in die objek gestoor, wel van tipe "String" is
+Dit wil sê: jy kan slegs dwangtipe T gebruik as die objek wat gedwing word
+'n String is of een van die subtipes.  In hierdie geval was dit nie so nie.
+
+IndexOutOfBoundsException*
+'n Indeks van een of ander soort (bv. na 'n vektor, of 'n string)
+buite bestek is. "Buite bestek" beteken dat die indeks wat gebruik
+word nie in die vektor of ander versameling bestaan nie
+(bv. Jy probeer element 5 aanspreek, maar daar bestaan net 3).
+
+ArrayIndexOutOfBoundsException*
+'n Indeks van 'n skikking is buite bestek. 
+"Buite bestek" beteken dat die indeks wat gebruik
+word nie in die vektor of ander versameling bestaan nie
+(bv. Jy probeer element 5 aanspreek, maar daar bestaan net 3).
+Die wettige indeksbestek van 'n skikking is 0..skikkinglengte-1.
+
+ConcurrentModificationException*
+Jy doen hier iterasie (herhaling) oor 'n versameling.
+Terwyl jy dit gedoen het is die versameling gewysig.
+Dit skep 'n probleem, want versamelings mag nie tydens 
+iterasie gewysig word nie. Of alternatiewelik:
+jy kannie met die iterasie voortgaan nadat 'n versameling
+gewysig is nie. Die enigste wysiging wat toegelaat word
+tydens iterasie is wanneer elemente deur die Iterator se
+verwydermetode verwyder word (nie deur die versameling se
+eie verwydermetode nie).
+
+ArrayStoreException*
+Geen hulp beskikbaar nie - Jammer.
+
+CannotRedoException*
+Geen hulp beskikbaar nie - Jammer.
+
+CannotUndoException*
+Geen hulp beskikbaar nie - Jammer.
+
+CMMException*
+Geen hulp beskikbaar nie - Jammer.
+
+EmptyStackException*
+Geen hulp beskikbaar nie - Jammer.
+
+IllegalArgumentException*
+Geen hulp beskikbaar nie - Jammer.
+
+IllegalMonitorStateException*
+Geen hulp beskikbaar nie - Jammer.
+
+IllegalPathStateException*
+Geen hulp beskikbaar nie - Jammer.
+
+IllegalStateException*
+Geen hulp beskikbaar nie - Jammer.
+
+ImagingOpException*
+Geen hulp beskikbaar nie - Jammer.
+
+MissingResourceException*
+Geen hulp beskikbaar nie - Jammer.
+
+NegativeArraySizeException*
+Geen hulp beskikbaar nie - Jammer.
+
+NoSuchElementException*
+Geen hulp beskikbaar nie - Jammer.
+
+ProfileDataException*
+Geen hulp beskikbaar nie - Jammer.
+
+ProviderException*
+Geen hulp beskikbaar nie - Jammer.
+
+RasterFormatException*
+Geen hulp beskikbaar nie - Jammer.
+
+SecurityException*
+Geen hulp beskikbaar nie - Jammer.
+
+SystemException*
+Geen hulp beskikbaar nie - Jammer.
+
+UndeclaredThrowableException*
+Geen hulp beskikbaar nie - Jammer.
+
+UnsupportedOperationException*
+Geen hulp beskikbaar nie - Jammer.
+
+Exception
+Hierdie is 'n algemene uitsondering wat maar net aandui
+dat iets verkeerd gegaan het.  Ek het geen idee wat dit was nie ...
+

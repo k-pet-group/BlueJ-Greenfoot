@@ -1,0 +1,12 @@
+LEESMY - <bluej-home>/lib/<language>/templates/LEESMY.txt
+--------------------------------------------------------------
+
+Hierdie lêergids bevat sjablone wat deur BlueJ gebruik word om lêers te genereer.
+Hierdie sjablone kan geredigeer word om die verstekinhoud van die gegenereerde
+lêers aan te pas by u eie behoeftes.
+
+ - Die readme.tmpl en readmeexp.tmpl sjablone kan vrylik verander word.
+ - Die html sjabloon moet versigtig geredigeer word - die werking van sekere dinge word daardeur beïnvloed
+ - Die shell.tmpl sjabloon moet waarskynlik nie verander word nie (tensy u REGTIG weet wat u doen).
+
+Die subgids "newclass" bevat sjablone vir klasse wat met die "New Class" funksie in BlueJ gegenereer word.

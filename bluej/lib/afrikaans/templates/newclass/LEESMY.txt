@@ -1,0 +1,40 @@
+LEESMY - <bluej-home>/lib/<language>/templates/newclass/LEESMY.txt
+------------------------------------------------------------------
+
+Hierdie lêergids bevat klas-sjablone wat deur BlueJ gebruik word om lêers te genereer.
+Hierdie sjablone word gebruik vir klasse wat met die "New Class" funksie in BlueJ gegenereer word.
+
+Aanpassing van sjablone
+------------------------
+Hierdie sjablone kan maklik geredigeer word om die verstekinhoud van die gegenereerde
+lêers aan te pas by u eie behoeftes.
+
+Byvoeging van nuwe sjablone
+---------------------------
+Om 'n nuwe sjabloon daar te stel, skep 'n nuwe tekslêer met die ".tmpl" uitgang
+(byvoorbeeld: "hoofklas.tmpl")
+
+Name van mini-toepassings, koppelvlakke en abstrakte klasse moet onderskeidelik
+begin met "applet", "interface" en "abstract".  As die naam met enigiets anders
+begin sal dit beskou word as 'n standaard klas.
+
+Hierdie nuwe (selfgemaakte) sjablone sal dan as opsies onderaan die lys van klastipes
+bygevoeg word wanneer die "Maak nuwe klas" dialoogkassie in BlueJ vertoon word.
+
+Die naam wat in die dialoogkassie moet verskyn kan ook apart gedefinieer word
+deur die eienskap "pkgmgr.newClass.<sjabloonnaam>" in die "labels"-lêer te definieer.
+( Die "labels"-lêer is by <bluej-home>/lib/<language>/labels. ) 
+Byvoorbeeld as die volgende gedefinieer word
+
+   pkgmgr.newClass.hoofklas=Klas met main() metode
+
+dan sal die opsie "Klas met main() metode" in die dialoogkassie verskyn en dit sal
+gebruik maak van die hoofklas.tmpl sjabloon om die kodegeraamte te genereer.
+
+Indien die verstekposisie in die lys (d.w.s. onderaan) nie gewens is nie, kan die
+posisie gespesifiseer word deur die nuwe sjabloon by te voeg by die lys
+van die "bluej.classTemplates" eienskap in die BlueJ definisieslêer
+(<bluej-home>/lib/bluej.defs). Al die sjablone wat daar gelys word sal dan
+in daardie spesifieke volgorde verskyn in die dialoogkassie.  Sjablone
+wat nie daar gespesifiseer is nie, maar wel in die "templates/newclass" subgids
+voorkom sal dan ongeorden onderaan die lys bygevoeg word.
