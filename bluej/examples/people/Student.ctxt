@@ -1,0 +1,17 @@
+#BlueJ class context
+comment0.target=class\ Student
+comment0.text=\nA\ class\ representing\ students\ for\ a\ simple\ BlueJ\ demo\ program.\n\n@author\ \ Michael\ Kolling\n@version\ 1.0,\ January\ 1999\n\n
+comment1.params=
+comment1.target=Student()
+comment1.text=\nCreate\ a\ student\ with\ default\ settings\ for\ detail\ information.\n\n
+comment2.params=name\ yearOfBirth\ studentID
+comment2.target=Student(String,int,String)
+comment2.text=\nCreate\ a\ student\ with\ given\ name,\ year\ of\ birth\ and\ student\ ID\n\n
+comment3.params=
+comment3.target=String\ toString()
+comment3.text=\nReturn\ a\ string\ representation\ of\ this\ object.\n\n
+comment4.params=
+comment4.target=String\ getStudentID()
+comment4.text=\nReturn\ the\ student\ ID\ of\ this\ student.\n\n
+comment5.target=SID
+numComments=6

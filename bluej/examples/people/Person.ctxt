@@ -1,0 +1,24 @@
+#BlueJ class context
+comment0.target=class\ Person
+comment0.text=\nA\ person\ class\ for\ a\ simple\ BlueJ\ demo\ program.\ Person\ is\ used\ as\nan\ abstract\ superclass\ of\ more\ specific\ person\ classes.\n\n@author\ \ Michael\ Kolling\n@version\ 1.0,\ January\ 1999\n\n
+comment1.params=
+comment1.target=int\ getYearOfBirth()
+comment1.text=\nReturn\ the\ birth\ year\ of\ this\ person.\n\n
+comment2.params=name\ yearOfBirth
+comment2.target=Person(String,int)
+comment2.text=\nCreate\ a\ person\ with\ given\ name\ and\ age.\n\n
+comment3.target=name
+comment4.params=newYearOofBirth
+comment4.target=void\ setYearOfBirth(int)
+comment4.text=\nSet\ a\ new\ birth\ year\ for\ this\ person.\n\n
+comment5.params=
+comment5.target=String\ getName()
+comment5.text=\nReturn\ the\ name\ of\ this\ person.\n\n
+comment6.params=
+comment6.target=String\ toString()
+comment6.text=\nReturn\ a\ string\ representation\ of\ this\ object.\n\n
+comment7.params=newName
+comment7.target=void\ setName(String)
+comment7.text=\nSet\ a\ new\ name\ for\ this\ person.\n\n
+comment8.target=yearOfBirth
+numComments=9
