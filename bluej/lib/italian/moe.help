@@ -1,0 +1,110 @@
+#
+# Testi di aiuto delle funzioni utente di Moe.
+#
+# Parte integrante dell'ambiente di sviluppo BlueJ.
+#
+
+## funzioni di modifica
+
+delete-previous=\n Cancella il carattere a sinistra del cursore.
+delete-next=\n Cancella il carattere a destra del cursore.
+copy-to-clipboard=\n Copia il testo selezionato negli appunti. Da qui può poi\n essere incollato altrove (vedi paste-from-clipboard).
+cut-to-clipboard=\n Taglia il testo selezionato e lo salva negli appunti.\n Da qui può poi essere incollato altrove (vedi paste-from-clipboard).
+copy-line=\n Copia la linea corrente negli appunti. Operazioni\n successive di copia si aggiungono agli appunti.
+cut-line=\n Taglia la linea corrente e la salva negli appunti.\n Operazioni successive di taglio si aggiungono agli appunti.
+cut-end-of-line=\n Taglia la fine della linea corrente e la salva negli appunti.\n Operazioni successive di taglio si aggiungono agli appunti.
+cut-word=\n Taglia la parola corrente e la copia negli appunti.\n Operazioni successive di taglio si aggiungono agli appunti.
+cut-end-of-word=\n Taglia la fine della parola corrente e la salva negli appunti.\n Operazioni successive di taglio si aggiungono agli appunti.
+paste-from-clipboard=\n Incolla il contenuto degli appunti nel testo,\n subito dopo il cursore.
+indent=Se nelle preferenze dell'editor è attivato il rientro automatico,\n aggiunge un rientro come nelle linee precedenti. Altrimenti\n inserisce un TAB (composto di spazi).
+insert-tab=\n Inserisce un carattere TAB.
+new-line=\n Inserisce un accapo. Se nelle preferenze dell'editor è selezionato\n il rientro automatico, aggiunge un rientro come nelle linee precedenti
+insert-break=\n Inserisce un accapo senza mettere rientro.
+insert-method=\n Inserisce nel testo lo schema di un metodo Java.
+comment-block=\n Commenta le linee selezionate. Il commento può facilmente\n essere rimosso successivamente (vedi uncomment-block)
+uncomment-block=\n Rimuove i simboli di commento dall'inizio delle line selezionate.\n Vedi anche comment-block.
+indent-block=\n Aggiunge un livello di rientro a ciascuna delle linee selezionate\n (o alla linea corrente se non è stato selezionato nulla).
+deindent-block=\n Elimina un livello di rientro da ciascuna delle linee selezionate\n (o dalla linea corrente se non è stato selezionato nulla).
+
+select-word=\n Seleziona la parola corrente (anche con\n un doppio click del tasto sinistro del mouse).
+select-line=\n Seleziona la linea corrente (anche con\n un triplo click del tasto sinistro del mouse).
+select-paragraph=\n Seleziona il paragrafo corrente.
+select-all=\n Seleziona l'intero testo.
+selection-backward=\n Sposta la fine della selezione un carattere indietro.
+selection-forward=\n Sposta la fine della selezione un carattere avanti.
+selection-up=\n Sposta la fine della selezione una linea in alto.
+selection-down=\n Sposta la fine della selezione un carattere in basso.
+selection-begin-word=\n Sposta la fine della selezione all'inizio\n della parola corrente.
+selection-end-word=\n Sposta la fine della selezione alla fine\n della parola corrente.
+selection-previous-word=\n Sposta la fine della selezione all'inizio\n della parola precedente.
+selection-next-word=\n Sposta la fine della selezione all'inizio\n della parola successiva.
+selection-begin-line=\n Sposta la fine della selezione all'inizio\n della linea corrente.
+selection-end-line=\n Sposta la fine della selezione alla fine\n della linea corrente.
+selection-begin-paragraph=\n Sposta la fine della selezione all'inizio\n del paragrafo corrente.
+selection-end-paragraph=\n Sposta la fine della selezione alla fine\n del paragrafo corrente.
+selection-page-up=\n Sposta la fine della selezione una pagina in alto.
+selection-page-down=\n Sposta la fine della selezione una pagina in basso.
+selection-begin=\n Sposta la fine della selezione all'inizio del testo.
+selection-end=\n Sposta la fine della selezione alla fine del testo.
+unselect=\n Annulla la selezione (non il testo selezionato!).
+
+## funzioni di muovi e trascina
+
+caret-backward=\n Sposta il cursore indietro di un carattere.
+caret-forward=\n Sposta il cursore avanti di un carattere.
+caret-up=\n Sposta il cursore alla linea precedente.
+caret-down=\n Sposta il cursore alla linea successiva.
+caret-begin-word=\n Sposta il cursore all'inizio della parola corrente.
+caret-end-word=\n Sposta il cursore alla fine della parola corrente.
+caret-previous-word=\n Sposta il cursore all'inizio della parola precedente.
+caret-next-word=\n Sposta il cursore all'inizio della parola successiva.
+caret-begin-line=\n Sposta il cursore all'inizio della linea corrente.
+caret-end-line=\n Sposta il cursore alla fine della linea corrente.
+caret-begin-paragraph=\n Sposta il cursore all'inizio del paragrafo corrente.
+caret-end-paragraph=\n Sposta il cursore alla fine del paragrafo corrente.
+page-up=\n Sposta il cursore una pagina in basso.
+page-down=\n Sposta il cursore una pagina in alto.
+caret-begin=\n Sposta il cursore all'inizio del testo.
+caret-end=\n Sposta il cursore alla fine del testo.
+
+## funzioni di classe
+
+save=\n Salva la classe. Da notare che raramente è necessario salvare esplicitamente\n la classe, dato che viene salvata automaticamente alla chiusura.
+reload=\n Ricarica la classe dal file sorgente. Questa operazione annulla tutti\n i cambiamenti fatti dall'ultimo salvataggio (implicito o esplicito).
+close=\n Chiude la classe. Il testo sorgente è salvato automaticamente.
+print=\n Apre una finestra di dialogo per iniziare una stampa.
+page-setup=\n Apre una finestra di dialogo per specificare le impostazioni della pagina.
+
+
+## funzioni di personalizzazione
+
+key-bindings=\n Controlla e modifica le combinazioni di tasti per le funzioni utente dell'editor Moe.
+preferences=\n Specifica alcune impostazioni per l'editor.
+
+
+## funzioni d'aiuto
+
+describe-key=\n Dopo aver richiamato questa funzione, premi un tasto.\n Verrà mostrato il nome della funzione collegata al tasto.
+help-mouse=\n Mostra le associazioni del tasto del mouse.
+show-manual=\n Apre il Manuale Utente dell'editor Moe in un browser web.
+about-editor=\n Mostra una breve nota riguardo Moe.
+
+
+## funzioni varie
+
+undo=\n Annulla l'ultima modifica (che può però essere ripetuta con 'redo').
+redo=\n Ripete l'ultima operazione che è stata annullata.
+
+find=\n Apre una finestra di dialogo per la ricerca di una stringa in un testo.\n E' possibile fare ricerche sia in avanti che indietro.
+find-next= Se è selezionato qualcosa, ricerca la successiva occorrenza del testo selezionato.\n Se non è selezionato nulla, ricerca nuovamente l'ultima stringa che è stata\n usata per la ricerca. Si ferma alla fine del file, ma se richiamato ancora\n riparte dall'inizio.
+find-next-backward=\n Come find-next, ma ricerca indietro anziché in avanti.
+replace=\n Sostituisce una stringa con un'altra.
+
+compile=\n Compila la classe corrente. La classe è automaticamente\n salvata prima della compilazione.
+toggle-interface-view=\n Mostra o le specifiche o il codice sorgente dell'implementazione.\n Le specifiche di classe sono mostrate in formato Javadoc.
+toggle-breakpoint=\n Aggiunge o rimuove un breakpoint nella linea corrente.
+
+## testi d'aiuto per aggiungere associazioni di tasti
+
+press-key=\n  Premi il tasto che vuoi aggiungere...
+cannot-redefine=\n  I tasti stampabili non possono essere ridefiniti.

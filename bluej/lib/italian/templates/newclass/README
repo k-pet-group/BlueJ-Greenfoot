@@ -1,0 +1,38 @@
+README - <bluej-home>/lib/italian/templates/newclass/README
+--------------------------------------------------------------
+
+Questa directory contiene template di classe per BlueJ.
+
+Questi template di classe appaiono come scelte nel menù "Nuova classe"
+dell'ambiente BlueJ.
+
+
+Cambiare i template
+-------------------
+I template possono facilmente essere modificati intervenendo su questi file.
+
+Aggiungere nuovi template
+-------------------------
+Per aggiungere un template, crea in questa directory un nuovo file con
+estensione ".tmpl" (ad esempio "principale.tmpl").
+
+I nomi per gli applet, le interfacce o le classi astratte dovrebbero iniziare,
+rispettivamente, con "applet", "interface" o "abstract". Tutto il resto sarà
+trattato come classe standard.
+
+Normalmente queste classi saranno elencate nel menù "Nuova classe" al fondo della
+lista, con il nome del file relativo privo di estensione ("principale").
+
+Tuttavia il nome che appare nel menù può essere ridefinito specificando la proprietà
+"pkgmgr.newClass.<nome_del_template>" nel file di etichette (il file delle etichette
+è in <bluej-home>/lib/italian/labels). Ad esempio, definendo
+
+   pkgmgr.newClass.mainclass=Classe con main
+
+nel menù si avrà corrispondentemente la voce "Classe con main" fra le nuove scelte.
+
+La posizione nella lista può essere definita aggiungendo questo nuovo template
+alla lista specificata dalla proprietà "bluej.classTemplates" nel file di
+definizioni di BlueJ (<bluej-home>/lib/bluej.defs). Tutti i template elencati
+appariranno nell'ordine specificato, gli altri template in questa directory
+saranno aggiunti al fondo in un ordine non definito.

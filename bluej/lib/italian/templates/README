@@ -1,0 +1,12 @@
+Questa directory contiene alcuni template usati da BlueJ per generare file.
+I template possono essere modificati per cambiare il contenuto predefinito
+dei file generati.
+
+ - I template readme e readmeexp possono essere modificati liberamente.
+ - Il template html dovrebbe essere modificato con attenzione: se
+   danneggiato le cose potrebbero non funzionare.
+ - Il template di shell probabilmente sarebbe meglio se non fosse
+   modificato (a meno che non si sappia ESATTAMENTE ciò che si fa).
+
+La sottodirectory "newclass" contiene alcuni template per le classi generate
+tramite la funzione "Nuova classe" in BlueJ.

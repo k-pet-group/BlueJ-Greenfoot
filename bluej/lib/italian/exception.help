@@ -1,0 +1,126 @@
+NullPointerException*
+Si è tentato l'accesso ad un oggetto (ad un suo
+campo o ad un suo metodo), ma l'operazione non 
+è riuscita in quanto il riferimento usato per 
+accedervi è 'null'.
+Ad esempio: c'è una istruzione "thing.print()", 
+ma "thing" in quel punto è nullo.
+
+ArithmeticException*
+Una operazione aritmetica non è andata a buon fine.
+Ad esempio: si è tentata una divisione per 0,
+o qualcosa di simile.
+
+StringIndexOutOfBoundsException*
+Si è tentato di accedere ad un carattere o ad una
+sottostringa, ma l'indice usato non esiste nella
+stringa.
+Ad esempio: è stato tentato l'accesso al quinto
+carattere di una stringa lunga solo tre caratteri.
+Per le operazioni con le sottostringhe, ricordarsi che
+il secondo parametro è la lunghezza della sottostringa
+e non l'indice.
+
+ClassCastException*
+E' stato usato un "cast", che è una istruzione che
+assegna un differente tipo statico ad un oggetto; ciò
+è corretto solo se l'oggetto di cui si cambia il tipo
+è effettivamente del nuovo tipo o di un tipo derivato,
+ed in questo caso non lo è.
+Ad esempio:
+	(String)unOggetto
+converte "unOggetto" al tipo "String"; 
+ciò è consentito solo se l'oggetto in unOggetto è 
+effettivamente di tipo "String".
+
+IndexOutOfBoundsException*
+Un indice di qualche tipo (ad esempio di un array, di
+una stringa o di un vettore) è fuori dal range.
+"Fuori dal range" vuol dire che il valore puntato
+dall'indice non esiste.
+Ad esempio: si è tentato l'accesso al quinto elemento,
+ma esistono solo tre elementi.
+
+ArrayIndexOutOfBoundsException*
+L'indice di un array è fuori dal range.
+"Fuori dal range" vuol dire che il valore puntato
+dall'indice non esiste nell'array.
+Ad esempio: si è tentato l'accesso al quinto elemento,
+ma esistono solo tre elementi. Il range valido è
+0..lunghezza_array-1.
+
+ConcurrentModificationException*
+E' stata eseguita una modifica su una collezione
+mentre era in esecuzione una iterazione su di essa;
+ciò non è consentito. In altri termini, non è
+possibile continuare una iterazione su una collezione
+dopo aver eseguito su di essa una modifica.
+La sola modifica consentita durante una iterazione è la 
+rimozione di elementi con il metodo remove di Iterator 
+(NON col metodo remove della collezione stessa).
+
+ArrayStoreException*
+Spiacente: non è disponibile nessun aiuto.
+
+CannotRedoException*
+Spiacente: non è disponibile nessun aiuto.
+
+CannotUndoException*
+Spiacente: non è disponibile nessun aiuto.
+
+CMMException*
+Spiacente: non è disponibile nessun aiuto.
+
+EmptyStackException*
+Spiacente: non è disponibile nessun aiuto.
+
+IllegalArgumentException*
+Spiacente: non è disponibile nessun aiuto.
+
+IllegalMonitorStateException*
+Spiacente: non è disponibile nessun aiuto.
+
+IllegalPathStateException*
+Spiacente: non è disponibile nessun aiuto.
+
+IllegalStateException*
+Spiacente: non è disponibile nessun aiuto.
+
+ImagingOpException*
+Spiacente: non è disponibile nessun aiuto.
+
+MissingResourceException*
+Spiacente: non è disponibile nessun aiuto.
+
+NegativeArraySizeException*
+Spiacente: non è disponibile nessun aiuto.
+
+NoSuchElementException*
+Spiacente: non è disponibile nessun aiuto.
+
+ProfileDataException*
+Spiacente: non è disponibile nessun aiuto.
+
+ProviderException*
+Spiacente: non è disponibile nessun aiuto.
+
+RasterFormatException*
+Spiacente: non è disponibile nessun aiuto.
+
+SecurityException*
+Spiacente: non è disponibile nessun aiuto.
+
+SystemException*
+Spiacente: non è disponibile nessun aiuto.
+
+UndeclaredThrowableException*
+Spiacente: non è disponibile nessun aiuto.
+
+UnsupportedOperationException*
+Spiacente: non è disponibile nessun aiuto.
+
+Exception
+Si è verificata una eccezione generica.
+Spiacente ma l'unica informazione disponibile
+è che qualcosa è andato storto...
+

@@ -1,0 +1,362 @@
+compile-while-executing
+Non puoi compilare mentre la macchina
+è in esecuzione: potresti ottenere
+strani problemi.
+
+exception-thrown
+Si è verificata una eccezione:
+
+break-no-source
+C'è un breakpoint in un file di cui non
+si trova il sorgente. Il nome del file è:
+
+error-in-file
+Si è verificato un errore in un file di
+cui non si trova il sorgente.
+classe: numero di linea nel sorgente:
+
+system-exit
+Il metodo è terminato con una istruzione
+"exit" esplicita. Non è stato restituito
+nessun valore. Il codice di uscita è:
+
+no-help
+Per questo messaggio non è disponibile nessun aiuto.
+Per favore, invia il testo di questo messaggio
+all'indirizzo: mik@mip.sdu.dk - il relativo testo di
+aiuto sarà aggiunto al nostro database. Grazie.
+
+editor-crashed
+Probabilmente BlueJ è andato in crash mentre salvava
+su disco questa classe. Il codice sorgente potrebbe
+essere incompleto o mancante. Dovrebbe esserci una copia
+di sicurezza di questa classe nella directory del
+progetto. Se ti sembra che il codice sia danneggiato:
+   1 - chiudi BlueJ
+   2 - fai una copia di sicurezza della directory
+       del progetto (se esiste)
+   3 - cerca nella directory del progetto la copia
+       del file java di questa classe; rinominalo col
+       nome del file originale (con estensione '.java').
+
+# errors:
+#########
+
+no-lib-selected
+Non hai specificato una libreria a cui andare.
+Scegli una libreria fra quelle in "Risultati
+della ricerca", e premi il pulsante "Vai a".
+
+no-target-dialog
+Prima di usare un package dal
+Browser di Libreria, devi sceglierne
+almeno uno come obiettivo fra quelli
+aperti in BlueJ.
+
+cannot-locate-lib-node
+Non è possibile individuare il nodo scelto
+nell'albero del LibraryChooser. In genere
+ciò è dovuto ad un file di package non 
+aggiornato nella directory col package.
+
+missing-shadow
+Non è possibile localizzare l'area shadow:
+
+cannot-run-compiler
+Non è possibile avviare il compilatore.
+Verifica se il programma è nel path.
+Il nome del compilatore è:
+
+compiler-error
+Errore del compilatore:
+
+stream-incomplete
+Errore del compilatore. Stream incompleto.
+
+out-of-bounds
+L'elemento specificato non
+è nei limiti dell'array.
+
+cannot-access-element
+Non è possibile accedere
+all'elemento specificato dell'array.
+
+appletviewer-error
+Errore nell'esecuzione dell'applet nell'appletviewer.
+
+error-no-name
+Hai specificato un nome non valido.
+
+error-save-file
+Si è verificato un errore durante il
+salvataggio del file. Salvataggio non eseguito.
+
+cannot-save-keys
+Si è verificatoun errore durante il salvataggio
+delle combinazioni di tasti. Le combinazioni
+non sono state salvate.
+
+error-no-templates
+La directory specificata del template (quella in cui
+BlueJ trova i template di classe) non esiste.
+E' definita dalla proprietà "bluej.templatePath" in
+<bluej-home>/lib/bluej.defs. Verifica questa proprietà.
+
+skeleton-error
+Lo schema predefinito della classe non può essere
+generato. Ciò può essere dovuto a configurazioni
+errate in BlueJ, oppure a problemi di accesso
+al file system.
+
+error-open-source
+Non è possibile aprire
+il sorgente di questa classe.
+
+error-open-readme
+Si è verificato un problema aprendo le
+note di questo progetto. E' stato creato
+un nuovo file vuoto per le note.
+
+error-writing-readme
+Si è verificato un errore nell'aggiornamento
+del file README di questo progetto: non è possibile
+aggiungere le informazioni della classe main.
+
+error-exporting
+Si è verificato un errore durante l'esportazione
+dell'applicazione. Alcuni o tutti i file potrebbero
+non essere stati copiati correttamente.
+
+error-writing-jar
+Il file jar non può essere scritto correttamente.
+Verifica i diritti di accesso al file system e
+la disponibilità di spazio disco.
+
+error-jar-exists
+Un file jar col nome scelto esiste già.
+Vuoi continuare comunque?
+Sovrascrivi
+Annulla
+null
+
+invalid-class-name
+Nome di classe non valido.
+
+invalid-package-name
+Nome di package non valido.
+
+directory-exists
+Un file o una directory con
+questo nome esiste già.
+
+cannot-copy-package
+Si è verificato un problema durante
+la copia dei file del package. Potrebbero
+essere incompleti o mancanti.
+
+file-does-not-exist
+Il file specificato
+non esiste.
+
+cannot-import
+Non riesco ad importare il file.
+Deve essere un file sorgente Java
+(deve terminare con estensione ".java").
+
+docdir-blocked-by-file
+Non riesco a creare la directory della 
+documentazione nella directory del progetto
+perché esiste già un file con lo stesso nome.
+
+docdir-not-created
+Non riesco a creare la directory della 
+documentazione nella directory del progetto.
+
+no-permission-for-docdir
+Non riesco a creare la directory della 
+documentazione nella directory del progetto
+perché i diritti d'accesso sono insufficienti.
+
+show-or-generate
+Vuoi utilizzare la documentazione preesistente,
+o preferisci rigenerarla interamente?
+Utilizza la preesistente
+Rigenerala
+Annulla
+
+doctool-error
+Javadoc ha riportato un errore. Potrebbe esserci un errore
+di sintassi in uno dei file per i quali hai tentato di
+generare la documentazione, oppure l'URL della documentazione
+del JDK specificato nelle preferenze non è corretto.
+Assicurati che tutti i tuoi file Java siano compilati e che
+l'URL della documentazione è accessibile o disabilitato, quindi
+prova di nuovo. Se questo messaggio appare ancora cerca maggiori
+informazioni sugli errori da Javadoc nel file di log:
+
+severe-doc-trouble
+Si è verificata una eccezione nella chiamata
+allo strumento di documentazione esterno.
+
+no-java-sources-found
+Non trovo file sorgenti
+Java in questa directory.
+
+duplicate-name
+In questo package esiste già una classe
+con questo nome. Non puoi usare lo stesso
+nome per due classi.
+
+duplicate-package-name
+In questo progetto esiste già un
+package con questo nome.
+
+error-in-import
+Si è verificato un errore durante il
+tentativo di importazione del file.
+Verifica i diritti d'accesso e lo spazio disco.
+
+no-class-selected
+Non sono stati selezionati classi o package
+da rimuovere. Scegli le classi e i package
+da rimuovere facendo click su essi.
+
+really-remove-class
+L'eliminazione di questa classe cancellerà
+definitivamente il file sorgente.
+Vuoi continuare?
+Elimina
+Annulla
+null
+
+really-remove-package
+L'eliminazione di questo package cancellerà
+definitivamente la directory relativa
+(compreso TUTTO il contenuto della directory).
+Vuoi continuare?
+Elimina
+Annulla
+null
+
+remove-package-open
+Alcuni dei sub package del package
+che hai scelto di cancellare sono
+aperti con BlueJ. Devi chiuderli
+prima che ti sia permesso
+cancellare il package.
+
+package-does-not-exist
+Errore nell'apertura del package.
+Il package non esiste:
+
+no-bluej-package
+Errore nell'apertura del package.
+Il file o directory non è un
+package di BlueJ:
+
+applet-height-width
+Devi specificare l'altezza
+e la larghezza del package.
+
+cannot-read-help
+Non riesco a leggere il file di aiuto:
+
+not-yet-implemented
+Spiacente: non ancora implementato.
+
+quit-all
+Chiudo tutti i progetti aperti?
+Chiudi tutto
+Annulla
+null
+
+really-reload
+Ricaricando perderai tutti i cambiamenti
+fatti dall'ultimo salvataggio.
+Sei sicuro?
+Ricarica
+Annulla
+null
+
+really-print
+Il testo è più ampio della carta, per cui le
+linee lunghe saranno troncate. Per evitarlo
+rimpicciolisci la finestra dell'Editor.
+Vuoi stampare comunque?
+Stampa
+Annulla
+null
+
+open-non-bluej-already-bluej
+La directory che hai scelto è già
+un progetto BlueJ.
+
+open-non-bluej-no-java
+In questa directory non ci
+sono file sorgenti Java.
+
+open-non-bluej-invalid
+La directory che hai indicato di voler aprire
+come un progetto BlueJ contiene un file con
+una istruzione di package incompatibile con la
+struttura corrente di directory (ad esempio,
+se la classe Java Shape.java ha una riga con
+l'istruzione di package com.aa, allora il file
+Shape.java deve essere in una directory aa
+contenuta in una directory com. A sua volta la
+directory com deve essere in un'altra directory
+che è quella da indicare a BlueJ quando si
+tenta di aprire il progetto).
+
+import-into-current
+In questa finestra è già aperto un package.
+Vuoi importare nel package corrente,
+o preferisci creare un nuovo progetto
+e importare in quest'ultimo?
+Nel corrente
+In un nuovo progetto
+Annulla
+
+package-name-invalid
+Il package indicato nell'istruzione di package
+che hai modificato non esiste in questo progetto.
+Se vuoi spostare questa classe in un altro package
+devi prima creare il package di destinazione.
+L'istruzione di package è stata riportata
+alla forma originale.
+
+package-name-changed
+Hai modificato l'istruzione di package che
+specifica in quale package si trova la classe.
+Vuoi spostare questa classe nel package indicato
+o vuoi lasciare la classe dove si trova
+(l'istruzione di package sarà riportata alla
+sua forma originale)?
+Sposta
+Lascia dov'è
+null
+
+ask-index
+Immetti l'indice dell'elemento dell'array [...]
+Ispeziona l'Array
+null
+
+classmgr-changes-no-effect
+I cambiamenti che hai fatto alle librerie di
+classe non avranno effetto sino al successivo
+riavvio di BlueJ.
+
+# editor:
+#########
+
+no-search-string
+Non è definita alcuna stringa di ricerca.
+(Evidenzia del testo, oppure prima usa 'Trova').
+
+default-keys
+Vuoi davvero annullare tutte le
+combinazioni di tasti e tornare
+alla configurazione iniziale?
+Configurazione iniziale
+Annulla
+null

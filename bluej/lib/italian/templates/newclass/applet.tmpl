@@ -1,0 +1,122 @@
+$PKGLINE
+import java.applet.Applet;
+import java.awt.*;
+
+/**
+ *  Aggiungi qui una descrizione della classe applet $CLASSNAME
+ *
+ * @author (il tuo nome) 
+ * @version (un numero di versione o una data)
+ */
+public class $CLASSNAME extends Applet
+{
+	// variabili d'istanza - sostituisci l'esempio che segue con il tuo
+	private int x;
+
+	/**
+	 * Richiamato dal browser o dall'appletviewer per informare l'Applet che
+	 * è stato caricato nel sistema. E' sempre richiamato prima che il metodo
+	 * start sia richiamato per la prima volta.
+	 */
+	public void init()
+	{
+		// aggiungi tutte le inizializzazioni necessarie all'Applet
+
+	}
+
+	/**
+	 * Richiamato dal browser o dall'appletviewer per informare l'Applet che
+	 * dovrebbe essere avviata l'esecuzione. E' richiamato dopo il metodo init
+	 * e ogni volta che l' Applet è caricato in una pagina Web.
+	 */
+	public void start()
+	{
+		// aggiungi il codice necessario all'avvio
+		// ogni volta che è caricata una pagina web
+
+	}
+
+
+	/**
+	 * Questo potrebbe essere il metodo più importante dell'applet:
+	 * qui parte la visualizzazione. "paint" è richiamato ogni volta
+	 * che l'applet deve essere disegnato sullo schermo.
+	 * Metti qui il codice che visualizza l'applet.
+	 *
+	 * @param  g   l'oggetto Graphics per questo applet
+	 */
+	public void paint(Graphics g)
+	{
+		// breve testo mostrato dall'applet
+		g.setColor(Color.white);
+		g.fillRect(0, 0, 200, 100);
+		g.setColor(Color.black);
+		g.drawString("Applet d'esempio", 20, 20);
+		g.setColor(Color.blue);
+		g.drawString("creato da BlueJ", 20, 40);
+	}
+
+
+	/** 
+	 * Richiamato dal browser o dall'appletviewer per informare l'Applet che
+	 * dovrebbe fermare la sua esecuzione. E' richiamato quando la pagina Web
+	 * che contiene questo Applet è stata sostituita da un'altra pagina, e anche
+	 * subito prima che l'Applet sia distrutto. Se non ci sono risorse da
+	 * rilasciare (quali thread che vuoi fermare) puoi eliminare questo metodo.
+	 */
+	public void stop()
+	{
+		// aggiungi il codice da eseguire quando la pagina è
+		// sostituita da un'altra pagina o prima che l'Applet sia distrutto
+	}
+
+
+	/**
+	 * Richiamato dal browser o dall'appletviewer per informare l'Applet che
+	 * deve rilasciare qualsiasi risorsa è stata allocata prima di essere
+	 * distrutto. Prima del metodo destroy è sempre richiamato il metodo stop.
+	 * Se non ci sono risorse da rilasciare puoi eliminare questo metodo.
+	 */
+	public void destroy()
+	{
+		// aggiungi il codice che dev'essere eseguito subito
+		// prima della distruzione dell'Applet
+	}
+
+
+	/**
+	 * Restituisce informazioni riguardo l'applet.
+	 * Un applet dovrebbe ridefinire questo metodo in modo da restituire una String
+	 * contenente informazioni sull'autore, la versione, il copyright dell'Applet.
+	 *
+	 * @return una rappresentazione String delle informazioni circa questo Applet
+	 */
+	public String getAppletInfo()
+	{
+		// aggiungi le principali informazioni riguardo l'applet
+		return "Titolo: BlueJ Applet Demo\n" + 
+			   "Autore: Bruce Quig\n" +
+			   "Un semplice applet che visualizza due stringhe.";
+	}
+
+
+	/**
+	 * Restituisce informazioni sui parametri dell'Applet.
+	 * Un applet dovrebbe ridefinire questo metodo per restituire un array
+	 * di String che descrivono i parametri separatamente.
+	 * Ciascun elemento dell'array dovrebbe consistere in tre String contenenti il nome,
+	 * il tipo ed una descrizione.
+	 *
+	 * @return  una rappresentazione String[][] delle informazioni
+	 * sui parametri di questo Applet
+	 */
+	public String[][] getParameterInfo()
+	{
+		// aggiungi informazioni sui parametri dell'applet
+		String paramInfo[][] = {
+			 {"primoParametro", "1-10", "descrizione del primo parametro"},
+			 {"secondoParametro", "boolean", "descrizione del secondo parametro"}
+		};
+		return paramInfo;
+	}
+}
