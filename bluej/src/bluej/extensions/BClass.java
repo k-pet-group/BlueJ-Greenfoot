@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.lang.reflect.Modifier;
 import java.awt.Point;
 import bluej.pkgmgr.Package;
+import bluej.views.*;
 
 /**
  * This should behave as much as possible like the Java reflection API.
@@ -20,7 +21,7 @@ import bluej.pkgmgr.Package;
  * The reasoning behind it is that is is no good to create a new standard when there 
  * is already one that can be used.
  * 
- * @version $Id: BClass.java 1648 2003-03-05 12:01:14Z damiano $
+ * @version $Id: BClass.java 1651 2003-03-05 17:03:15Z damiano $
  */
 public class BClass
 {
@@ -37,7 +38,7 @@ public class BClass
         primitiveArrayNameMap.put ("double", "D");
     }
 
-    private static String transJavaToClass (final String javaStyle)
+    private String transJavaToClass (final String javaStyle)
     {
         String className = javaStyle;
         int array = 0;
@@ -60,7 +61,7 @@ public class BClass
     private Package  bluej_pkg;
     private final ClassTarget classTarget;
     private final Class loadedClass;
-    private final View view;
+    private final View  bluej_view;
 
 
     /**
@@ -71,7 +72,7 @@ public class BClass
         bluej_pkg = i_bluej_pkg;
         this.classTarget = classTarget;
         this.loadedClass = bluej_pkg.loadClass (classTarget.getQualifiedName());
-        this.view = View.getView (loadedClass);
+        bluej_view = View.getView (loadedClass);
     }
 
     BClass (Package i_bluej_pkg, Class systemClass)
@@ -79,7 +80,7 @@ public class BClass
         bluej_pkg = i_bluej_pkg;
         this.classTarget = null;
         this.loadedClass = systemClass;
-        this.view = View.getView (loadedClass);
+        bluej_view = View.getView (loadedClass);
     }
 
 
@@ -88,7 +89,7 @@ public class BClass
         bluej_pkg = i_bluej_pkg;
         this.classTarget = null;
         this.loadedClass = bluej_pkg.loadClass (view.getQualifiedName());
-        this.view = view;
+        bluej_view = view;
     }
 
     /**
@@ -99,7 +100,7 @@ public class BClass
         bluej_pkg = i_bluej_pkg;
         this.classTarget = null;
         this.loadedClass = bluej_pkg.loadClass (transJavaToClass (className));
-        this.view = View.getView (loadedClass);
+        bluej_view = View.getView (loadedClass);
     }
 
 
@@ -120,16 +121,7 @@ public class BClass
         return new BPackage (bluej_pkg);
     }
     
-    /**
-     * Loads a class of the given name.
-     * @param name the simple name of the required class. For example, <CODE>Person</CODE>.
-     * @return Class object of the requested Class, or <CODE>null</CODE> if no such class exists.
-     */
-    public Class loadClass()
-    {
-        return loadedClass;
-    }
-    
+   
     /**
      * Gets the name of this class
      * @return the simple name of the class, ie no package name
@@ -163,7 +155,10 @@ public class BClass
      */
     public boolean isCompiled()
     {
+        if ( ! isValid () ) return false;
+        
         if (classTarget == null) return true;
+
         return classTarget.isCompiled();
     }
     
@@ -187,7 +182,7 @@ public class BClass
      */
     public BClass getSuper()
     {
-        View sup = view.getSuper();
+        View sup = bluej_view.getSuper();
 
         if ( sup == null ) return null;
         
@@ -212,11 +207,9 @@ public class BClass
      */
     public BConstructor[] getConstructors()
         {
-        if ( ! isValid() ) return new BConstructor[0];
-
         if ( ! isCompiled() ) return new BConstructor[0];
 
-        ConstructorView[] constructorViews = view.getConstructors();
+        ConstructorView[] constructorViews = bluej_view.getConstructors();
         BConstructor[] result = new BConstructor [constructorViews.length];
         for (int index=0; index<constructorViews.length; index++) 
             result[index] = new BConstructor (bluej_pkg, constructorViews[index]);
@@ -229,117 +222,75 @@ public class BClass
      * @param signature the signature of the required constructor
      * @return the requested constructor of this class, or <code>null</code> if
      * the class has not been compiled or the constructor cannot be found.
-    public BMethod getConstructor (Class[] signature)
-    {
+     */
+    public BConstructor getConstructor (Class[] signature)
+        {
         if (!isCompiled()) return null;
-        ConstructorView[] constructorViews = view.getConstructors();
-        for (int i=0; i<constructorViews.length; i++) {
-            BMethod method = new BMethod (pkg, constructorViews[i], null);
-            if (BMethod.matches (method, null, signature)) return method;
-        }
+        
+        ConstructorView[] constructorViews = bluej_view.getConstructors();
+        for (int index=0; index<constructorViews.length; index++) 
+            {
+            BConstructor aConstr = new BConstructor (bluej_pkg, constructorViews[index]);
+            if (aConstr.matches (signature)) return aConstr;
+            }
         return null;
-    }
-     */
-    
-    /**
-     * Gets the static methods available for this class
-     * @return the methods of this class, or an empty array if none exist, or <code>null</code> if
-     * the class has not been compiled.
-     */
-    public BMethod[] getStaticMethods()
-    {
-        if (!isCompiled()) return null;
-        MethodView[] methodViews = view.getDeclaredMethods();
-        BMethod[] methods = new BMethod [methodViews.length];
-        for (int i=0; i<methods.length; i++) {
-            methods[i] = new BMethod (bluej_pkg, methodViews[i], null);
         }
+
+
+    /**
+     * Gets the declared method of this class
+     * @return the methods of this class
+     */
+    public BMethod[] getDeclaredMethods()
+    {
+        if (!isCompiled()) return new BMethod[0];
+        
+        MethodView[] methodView = bluej_view.getDeclaredMethods();
+        BMethod[] methods = new BMethod [methodView.length];
+
+        for (int index=0; index<methods.length; index++)
+            methods[index] = new BMethod (bluej_pkg, methodView[index] );
+
         return methods;
     }
 
     /**
-     * Gets a static method that matches the given criteria
-     * @param name the name of the static method
-     * @param signature the signature of the method wanted
-     * @return the methods of this class, or an empty array if none exist, or <code>null</code> if
-     * the class has not been compiled.
+     * Gets the declared method of this class with the given signature
+     * @return the methods of this class
      */
-    public BMethod getStaticMethod (String name, Class[] signature)
-    {
+    public BMethod getDeclaredMethod(String methodName, Class[] params )
+        {
         if (!isCompiled()) return null;
-        MethodView[] methodViews = view.getAllMethods();
-        for (int i=0; i<methodViews.length; i++) {
-            BMethod method = new BMethod (bluej_pkg, methodViews[i], null);
-            if (BMethod.matches (method, name, signature)) return method;
-        }
+        
+        MethodView[] methodView = bluej_view.getDeclaredMethods();
+        BMethod[] methods = new BMethod [methodView.length];
+
+        for (int index=0; index<methods.length; index++)
+            {
+            BMethod aResul = new BMethod (bluej_pkg, methodView[index]);
+            if ( aResul.matches(methodName, params) ) return aResul;
+            }
+
         return null;
-    }
+        }
+
 
     /**
-     * Gets the static fields of this class.
-     * <p>This function is not yet implemented.
-     * @return the static fields belonging to this class, or an empty array if none exist, or <code>null</code> if
-     * the class has not been compiled.
-     * <p>Always returns <code>null</code>
+     * Returns all Bfileds of this Class.
      */
-    public BField[] getStaticFields()
-    {
+    public BField[] getFields()
+        {
         if (!isCompiled()) return null;
-        return null;
-/*        
+
+        FieldView[] fieldView = bluej_view.getAllFields();
+        BField[] bFields = new BField [fieldView.length];
         
-        ((JdiClassLoader)pkg.getRemoteClassLoader()).getLoader()
-        .getId()
-
-        ReferenceType classMirror = findClassByName(getVM(), className, null);
-
-        //Debug.message("[getStaticValue] " + className + ", " + fieldName);
-
-        if(classMirror == null) {
-            Debug.reportError("Cannot find class for result value");
-            object = null;
-        }
-        else {
-            Field resultField = classMirror.fieldByName(fieldName);
-            ObjectReference obj = (ObjectReference)classMirror.getValue(resultField);
-            object = JdiObject.getDebuggerObject(obj);
-        }
-
-        return object;
-        
-        
-        
-        Class cl = loadClass();
-        View view = View.getView(cl);
-        FieldView[] fieldViews = view.getAllFields();
-
-        DebuggerObject obj = wrapper.getObject();
-        ObjectReference ref = obj.getObjectReference();
-        ReferenceType type = ref.referenceType();
-        List fields = type.fields();
-        BField[] bFields = new BField [fields.size());
-        for (ListIterator li=fields.listIterator(); li.hasNext();) {
-            int i=li.nextIndex();
-            Field field = (Field)li.next();
-            bFields[i] = new BField (pkg, field);
-        }
+        for ( int index=0; index<fieldView.length; index++)
+            bFields[index] = new BField (bluej_pkg, fieldView[index]);
+            
         return bFields;
-*/
-    }
+        }
 
-    /**
-     * Gets a static field in this class of the given name.
-     * <p>This function is not yet implemented.
-     * @param name the name of the field to get
-     * @return the static field belonging to this class of the given name, or <code>null</code> if
-     * the class has not been compiled or the field does not exist.
-     * <p>Always returns <code>null</code>
-     */
-    public BField getStaticField (String name)
-    {
-        if (!isCompiled()) return null;
-        return null;
-    }
 
     /**
      * Returns an array containing <code>Method</code> objects reflecting all
@@ -353,19 +304,6 @@ public class BClass
         return loadedClass.getModifiers();
     }
 
-    /**
-     * Determines the position of this class if it is real!
-     * @return the location on the screen of the centre of this class,
-     * or <code>null</code> if it's a virtual object
-    public Point getLocationOnScreen()
-    {
-        if (classTarget == null) return null;
-        Rectangle rec = classTarget.getRectangle;
-        int y = classTarget.y + classTarget.height/2;
-        return new Point (x,y);
-    }
-     */
-    
     /**
      * Gets a description of this object
      * @return the classname of this class

@@ -22,20 +22,19 @@ import bluej.debugger.*;
  * got from {@link bluej.extensions.BPackage#getObject(java.lang.String) getObject}.
  * The Idea is that this behaves much as the normal Java Object but with added properties.
  *
- * @version $Id: BObject.java 1649 2003-03-05 12:01:40Z damiano $
+ * @version $Id: BObject.java 1651 2003-03-05 17:03:15Z damiano $
  */
 public class BObject
 {
-    private ObjectWrapper wrapper;      // Not final because it can be nullified
+    private ObjectWrapper  wrapper;  
 
     /**
      * Do NOT use: You should get BObjects from the BPackage or by the BConstructors
      */
-    BObject (ObjectWrapper wrapper)
+    BObject (ObjectWrapper i_wrapper)
     {
-        this.wrapper = wrapper;
+        wrapper = i_wrapper;
     }
-    
 
     /**
      * Tests if this BObject is still valid. It may happens for various reasons
@@ -64,8 +63,8 @@ public class BObject
      * Removes this object from the Object Bench. Having done this, it will no longer be accessible in
      * any way, shape or form.
      */
-    public void remove()
-    {
+    public void removeFromBench()
+        {
         if ( ! isValid() ) return;
 
         // This should really always exists, no need to check
@@ -78,21 +77,39 @@ public class BObject
         ObjectBench aBench = aFrame.getObjectBench();
         aBench.remove(wrapper, aPackage.getId());
 
-
-        //(pkg.bluej_pkg).getObjectBench().remove (wrapper, pkg.bluej_pkg.getId());
         wrapper = null;
-    }
+        }
     
     /**
-     * Gets the name of the instance of this object
-     * @return the name of the object, can return null if object is invalid
+     * puts this object on the Object Bench
      */
-    public String getName()
-    {
+    public void putIntoBench()
+        {
+        if ( ! isValid() ) return;
+
+        // This should really always exists, no need to check
+        bluej.pkgmgr.Package aPackage = wrapper.getPackage();
+
+        // This may reasonably fail
+        PkgMgrFrame aFrame = PkgMgrFrame.findFrame ( aPackage );
+        if ( aFrame == null ) return;
+
+        ObjectBench aBench = aFrame.getObjectBench();
+        aBench.add(wrapper);
+        }
+
+
+
+    /**
+     * Gets the name of the instance of this object
+     * @return the instance name of the object, can return null if object is invalid
+     */
+    public String getInstanceName()
+        {
         if ( ! isValid() ) return null;
 
         return wrapper.getName();
-    }
+        }
     
     /**
      * Similar to Reflection API this gets the object BClass and from that you get
@@ -107,42 +124,7 @@ public class BObject
         return new BClass (wrapper.getPackage(), wrapper.getClassName());
     } 
     
-    /**
-     * Gets the methods available for this object
-     * @param includeSuper if <code>true</code> the methods from all superclasses will
-     * also be included
-     * @return the methods of this object, or an empty array if none exist
-     
-    public BMethod[] getMethods (boolean includeSuper)
-    {
-        String className = wrapper.getClassName();
-        if (className.endsWith ("[]")) className = "[L"+className.substring (0, className.length()-2)+";";
-        Class cl = pkg.getRealPackage().loadClass (className);
-        MethodView[] methodViews = includeSuper ? View.getView (cl).getAllMethods()
-                                                : View.getView (cl).getDeclaredMethods();
-        BMethod[] methods = new BMethod [methodViews.length];
-        for (int i=0; i<methods.length; i++) {
-            methods[i] = new BMethod (pkg, methodViews[i], instanceName);
-        }
-        return methods;
-    }
     
-    /**
-     * Gets a method available in this object complying with the given critera
-     * @param name the name of the method
-     * @param signature the signature, given as an array of classes of the parameters
-     * @return a method of this object, or <code>null</code> if none matched
-     
-    public BMethod getMethod (String name, Class[] signature)
-    {
-        Class cl = pkg.getRealPackage().loadClass (wrapper.getClassName());
-        MethodView[] methodViews = View.getView (cl).getDeclaredMethods();
-        for (int i=0; i<methodViews.length; i++) {
-            BMethod method = new BMethod (pkg, methodViews[i], instanceName);
-            if (BMethod.matches (method, name, signature)) return method;
-        }
-        return null;
-    }
     
     /**
      * Gets the fields of this object
@@ -195,7 +177,7 @@ public class BObject
     /**
      * Checks if this object is an array
      * @return <code>true</code> if this object is an array
-     
+     */     
     public boolean isArray()
     {
         return wrapper.getObject().isArray();
@@ -209,31 +191,20 @@ public class BObject
      * a standard Java language integer. If this object
      * represents an array, this value will probably
      * be meaningless.
-     
+     */
     public int getModifiers()
     {
         return wrapper.getObject().getObjectReference().referenceType().modifiers();
     }
 
     /**
-     * Determines the position of this object, if it is real!
-     * @return the location on the screen of the centre of this object,
-     * or <code>null</code> if it's a virtual object
-    public Point getLocationOnScreen()
-    {
-        return wrapper == null ? null : wrapper.getLocationOnScreen();
-    }
-     */
-    
-    /**
      * Gets a description of this object
      * @return the classname and instance name of this object
-     
+     */     
     public String toString()
     {
         String mod = Modifier.toString (getModifiers());
         if (mod.length() > 0) mod += " ";
-        return mod+getType().getName() + ": " + getName();
+        return mod+": " + getInstanceName();
     }
-    */
 }   

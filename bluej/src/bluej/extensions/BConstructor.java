@@ -38,12 +38,32 @@ public class BConstructor
     }
     
   /**
-   * Get the name of this constructor
+   * Tests if this constructor matches against the given param.
    */
-  public String getName ()
+  public boolean matches ( Class[] parameter )
     {
-    return "TODO";  
+    Class[] thisArgs = bluej_view.getParameters();
+
+    // An empty array is equivalent to a null array
+    if (thisArgs  != null && thisArgs.length  <= 0)  thisArgs  = null;
+    if (parameter != null && parameter.length <= 0 ) parameter = null;
+
+    // If both are null the we are OK
+    if ( thisArgs == null && parameter == null ) return true;
+
+    // If ANY of them is null we are in trouble now. (They MUST be both NOT null)
+    if ( thisArgs == null || parameter == null ) return false;
+
+    // Now I know that BOTH are NOT empty. They MUST be the same length
+    if ( thisArgs.length != parameter.length ) return false;
+    
+    for ( int index=0; index<thisArgs.length; index++ )
+      if ( ! thisArgs[index].isAssignableFrom(parameter[index]) ) return false;
+
+    return true;
     }
+    
+
 
   /**
    * Creates a new instance of the object described by this constructor
@@ -62,12 +82,13 @@ public class BConstructor
       }
 
     String resultName = invoker.getResultName();
-    PkgMgrFrame pmf = PkgMgrFrame.findFrame (bluej_pkg);
+    PkgMgrFrame pmf   = PkgMgrFrame.findFrame(bluej_pkg);
 
     ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
-    pmf.getObjectBench().add(wrapper);
 
-    // load the object into runtime scope
+    // This adds the object to the bench, mandatory for constructors.
+    pmf.getObjectBench().add(wrapper);
+    // load the object into runtime scope. This is needed
     Debugger.debugger.addObjectToScope(pmf.getPackage().getId(), wrapper.getName(), result);
 
     return new BObject(wrapper);

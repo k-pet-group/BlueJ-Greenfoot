@@ -20,12 +20,13 @@ import com.sun.jdi.BooleanValue;
 
 import java.lang.reflect.Modifier;
 import bluej.pkgmgr.Package;
+import bluej.views.*;
 
 /**
  * The BlueJ proxy Field object. This represents a field of a class or object.
  *
  * @author Clive Miller
- * @version $Id: BField.java 1649 2003-03-05 12:01:40Z damiano $
+ * @version $Id: BField.java 1651 2003-03-05 17:03:15Z damiano $
  * @see bluej.extensions.BObject#getField(java.lang.String)
  * @see bluej.extensions.BObject#getFields(boolean)
  * @see bluej.extensions.BClass#getStaticField(java.lang.String)
@@ -39,7 +40,21 @@ public class BField
     private final BObject obj;
     private final boolean array;
     private final int element;
-   
+    private FieldView bluej_view;
+
+    BField (Package i_bluej_pkg, FieldView i_bluej_view )
+    {
+        bluej_pkg = i_bluej_pkg;
+        bluej_view = i_bluej_view;
+        element = 0;
+        array = false;
+        obj = null;
+        field = null;
+        ref = null;
+    }        
+
+
+  /*
     BField (Package i_bluej_pkg, ObjectReference ref, Field field)
     {
         bluej_pkg = i_bluej_pkg;
@@ -52,7 +67,7 @@ public class BField
     
     /**
      * Constructor for an array
-     */
+
     BField (Package i_bluej_pkg, ArrayReference ref, BObject obj, int element)
     {
         bluej_pkg = i_bluej_pkg;
@@ -62,7 +77,32 @@ public class BField
         this.array = true;
         this.element = element;
     }
-    
+
+
+    /**
+     * The name of the Field, as from reflection.
+     */
+    public String getName()
+        {
+        return bluej_view.getName();
+        }
+
+    /**
+     * The type of the field, as from reflection
+     */
+    public Class getType()
+        {
+        return bluej_view.getDeclaringView().getClass();
+        }
+
+    /**
+     * Gets this Filed Value on the given BObject
+     */
+    public Object get ( BObject onThisObject )
+        {
+        return null;  
+        }
+        
     /**
      * Gets the name of the type of this field object.
      * @return the name of the type of the value held in this field. For example,
@@ -82,12 +122,12 @@ public class BField
     /**
      * Gets the name of the field
      * @return a String containing the fully-qualified type name
-     */
     public String getName()
     {
-        return array ? obj.getName()+"["+element+"]" 
+        return array ? obj.getInstanceName()+"["+element+"]" 
                      : field.name();
     }
+     */
     
     /**
      * Gets the value of this field object. 
@@ -156,30 +196,4 @@ public class BField
         }
     }
     
-    /**
-     * Determines the modifiers for this method.
-     * Use <code>java.lang.reflect.Modifiers</code> to
-     * decode the meaning of this integer
-     * @return The modifiers of this method, encoded in
-     * a standard Java language integer. If this field
-     * is an array element, this value will probably
-     * be meaningless.
-     
-    public int getModifiers()
-    {
-        return array ? obj.getType().getModifiers()
-                     : field.modifiers();
-    }
-*/
-    /**
-     * Gets a description of this field
-     * @return the type, name and value of the field
-     
-    public String toString()
-    {
-        String mod = Modifier.toString (getModifiers());
-        if (mod.length() > 0) mod += " ";
-        return mod + getTypeName()+": "+getName()+"="+getValue();
-    }
-    */
 }
