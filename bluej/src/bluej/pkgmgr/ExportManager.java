@@ -16,7 +16,7 @@ import bluej.utility.BlueJFileReader;
  * The format can be either a directory tree or a jar file.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 853 2001-04-19 04:24:26Z ajp $
+ * @version $Id: ExportManager.java 860 2001-04-23 02:07:10Z mik $
  */
 final class ExportManager
 {
@@ -213,7 +213,8 @@ final class ExportManager
 
         try {
             // copy README to tmp file
-            File readMe = new File(dir, Package.readmeName);
+            String readMePath = dir + File.separator + Package.readmeName;
+            File readMe = new File(readMePath);
             File tmp = File.createTempFile("bluej", "txt");
             FileUtility.copyFile(readMe, tmp);
 
@@ -228,7 +229,7 @@ final class ExportManager
             // append original README
             InputStream in = new BufferedInputStream(new FileInputStream(tmp));
             OutputStream out = new BufferedOutputStream(
-                new FileOutputStream(readMe, true));
+                new FileOutputStream(readMePath, true));
             FileUtility.copyStream(in, out);
             in.close();
             out.close();

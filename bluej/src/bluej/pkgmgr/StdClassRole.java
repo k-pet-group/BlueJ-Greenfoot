@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.util.Properties;
 
 /**
- ** @version $Id: StdClassRole.java 427 2000-04-18 04:33:04Z ajp $
+ ** @version $Id: StdClassRole.java 860 2001-04-23 02:07:10Z mik $
  ** @author Bruce Quig
  **
  ** A role object which a class target uses to delegate behaviour to.
@@ -16,12 +16,18 @@ import java.util.Properties;
  **/
 public class StdClassRole extends ClassRole
 {
+    /**
+     * Create the class role.
+     */
+    public StdClassRole()
+    {
+    }
 
 
     public void save(Properties props, int modifiers, String prefix)
     {
-	super.save(props, modifiers, prefix);
-	props.put(prefix + ".type", "ClassTarget");
+        super.save(props, modifiers, prefix);
+        props.put(prefix + ".type", "ClassTarget");
     }
 
 
@@ -33,52 +39,32 @@ public class StdClassRole extends ClassRole
      */
     public void load(Properties props, String prefix) throws NumberFormatException
     {
-	// no implementation needed as yet
+        // no implementation needed as yet
     }
-
 
 
     /**
-     * generates a source code skeleton for this class
-     *
-     * @param template the name of the particular class template
-     * @param pkg the package that the class target resides in
-     * @param name the name of the class
-     * @param sourceFile the name of the source file to be generated
-     */
-    public void generateSkeleton(Package pkg, String name, String sourceFile,
-				 boolean isAbstract, boolean isInterface)
-    {
-	String template = isAbstract ? "template.abstract" :
-	    isInterface ? "template.interface" :
-	    "template.stdclass";
-
-	generateSkeleton(template, pkg, name, sourceFile);
-    }
-
-
-   /**
      * Generate a popup menu for this AppletClassRole.
      * @param cl the class object that is represented by this target
      * @param editorFrame the frame in which this targets package is displayed
      * @return the generated JPopupMenu
      */
     protected void createMenu(JPopupMenu menu, ClassTarget ct, int state) {
-	// no implementation at present
+        // no implementation at present
     }
 
 
     // overloads method in Target super class
     public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width, int height)
     {
-	// no implementation as yet
+        // no implementation as yet
     }
 
 
     // -- modified ActionListener interface --
 
     public void actionPerformed(ActionEvent e, ClassTarget ct) {
-	// no implementation
+        // no implementation
     }
 
 }

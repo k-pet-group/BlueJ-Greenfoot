@@ -40,7 +40,7 @@ import java.applet.Applet;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 853 2001-04-19 04:24:26Z ajp $
+ * @version $Id: ClassTarget.java 860 2001-04-23 02:07:10Z mik $
  */
 public class ClassTarget extends EditableTarget
 	implements ActionListener
@@ -75,6 +75,7 @@ public class ClassTarget extends EditableTarget
 
     // variables
     private ClassRole role;
+    private String template = null;
 
     protected int modifiers;
     protected Vector breakpoints = new Vector();
@@ -91,22 +92,29 @@ public class ClassTarget extends EditableTarget
      */
     public ClassTarget(Package pkg, String baseName)
     {
-        this(pkg, baseName, false);
+        this(pkg, baseName, null);
     }
 
     /**
      * Create a new class target in package 'pkg'.
      */
-    public ClassTarget(Package pkg, String baseName, boolean isApplet)
+    public ClassTarget(Package pkg, String baseName, String template)
     {
         super(pkg, baseName);
 
-        if(isApplet) {
+        boolean isApplet = (template!=null) && (template.startsWith("applet"));
+        boolean isAbstract = (template!=null) && 
+                             (template.startsWith("abstract"));
+        boolean isInterface = (template!=null) && 
+                              (template.startsWith("interface"));
+        if(isApplet)
             role = new AppletClassRole();
-        }
         else
             role = new StdClassRole();
 
+        setInterface(isInterface);
+        setAbstract(isAbstract);
+        this.template = template;
     }
 
     /**
@@ -474,10 +482,13 @@ public class ClassTarget extends EditableTarget
     public void generateSkeleton()
     {
         // delegate to role object
-        role.generateSkeleton(getPackage(), getBaseName(), getSourceFile().getPath(),
-                                isAbstract(), isInterface());
-        // do we need to check whether skeleton generated before setting state?
-        setState(Target.S_INVALID);
+        if(template == null) 
+            Debug.reportError("generate class skeleton error");
+        else {
+            role.generateSkeleton(template, getPackage(), getBaseName(), 
+                                  getSourceFile().getPath());
+            setState(Target.S_INVALID);
+        }
     }
 
     public void enforcePackage(String packageName) throws IOException

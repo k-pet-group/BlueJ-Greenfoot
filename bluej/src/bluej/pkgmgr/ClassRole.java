@@ -19,10 +19,11 @@ import java.util.Properties;
  * particular class types
  *
  * @author  Bruce Quig
- * @version $Id: ClassRole.java 853 2001-04-19 04:24:26Z ajp $
+ * @version $Id: ClassRole.java 860 2001-04-23 02:07:10Z mik $
  */
 public abstract class ClassRole
 {
+
     /**
      * save details about the class target variant this
      * role represents.
@@ -48,31 +49,17 @@ public abstract class ClassRole
 
 
 
-
-    /**
-     * abstract class that generates source code skeleton for class
-     *
-     * @param pkg the package that the class target belongs to
-     * @param name name of the class
-     * @param sourceFile full name of the source file to be created
-     * @param isAbstract boolean value that is true if class is abstract
-     * @param isInterface boolean value that is true if class is an interface
-     *
-     */
-    public abstract void generateSkeleton(Package pkg, String name, String sourceFile,
-                                          boolean isAbstract, boolean isInterface);
-
-
-
     /**
      * generates a source code skeleton for this class
      *
-     * @param template the name of the particular class template
+     * @param template the name of the particular class template (just the base
+     *                 name without path and suffix)
      * @param pkg the package that the class target resides in
      * @param name the name of the class
      * @param sourceFile the name of the source file to be generated
      */
-    public void generateSkeleton(String template, Package pkg, String name, String sourceFile )
+    public void generateSkeleton(String template, Package pkg, String name, 
+                                 String sourceFile )
     {
         Hashtable translations = new Hashtable();
         translations.put("CLASSNAME", name);
@@ -83,7 +70,7 @@ public abstract class ClassRole
             translations.put("PKGLINE", "package " + pkg.getQualifiedName() + ";" + Config.nl + Config.nl);
 
         try {
-            BlueJFileReader.translateFile(Config.getLibFile(template),
+            BlueJFileReader.translateFile(Config.getTemplateFile(template),
                                             new File(sourceFile), translations);
         } catch(IOException e) {
             pkg.showError("skeleton-error");

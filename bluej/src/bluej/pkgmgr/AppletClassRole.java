@@ -23,7 +23,7 @@ import java.util.Properties;
  **
  ** @author Bruce Quig
  **
- ** @version $Id: AppletClassRole.java 853 2001-04-19 04:24:26Z ajp $
+ ** @version $Id: AppletClassRole.java 860 2001-04-23 02:07:10Z mik $
  **/
 public class AppletClassRole extends ClassRole
 {
@@ -31,8 +31,6 @@ public class AppletClassRole extends ClassRole
 
     static final String runAppletStr = Config.getString("pkgmgr.classmenu.runApplet");
     static final String htmlComment = Config.getString("pkgmgr.runApplet.htmlComment");
-    static final String htmlType = Config.getPropString("bluej.applet.jvm");
-    static final String appletType = Config.getPropString("bluej.applet.type");
 	static final String APPLETVIEWER_COMMAND = Config.getPropString("appletViewer.command");
 
     static final String HTML_EXTENSION = ".html";
@@ -47,11 +45,8 @@ public class AppletClassRole extends ClassRole
     private int appletWidth;
 
 
-
     /**
-     * Save this AppletClassRole details to file
-     * @param props the properties object that stores target information
-     * @param prefix prefix for this target for identification
+     * Create the class role.
      */
     public AppletClassRole()
     {
@@ -112,30 +107,6 @@ public class AppletClassRole extends ClassRole
         if(value != null)
             appletWidth = Integer.parseInt(value);
 
-    }
-
-
-
-    /**
-     * generates a source code skeleton for this class
-     *
-     * @param template the name of the particular class template
-     * @param pkg the package that the class target resides in
-     * @param name the name of the class
-     * @param sourceFile the name of the source file to be generated
-     */
-    public void generateSkeleton(Package pkg, String name, String sourceFile,
-                                 boolean isAbstract, boolean isInterface)
-    {
-        String template;
-
-        if(appletType.equals("japplet"))
-            template = "template.japplet";
-        else
-            template = "template.applet";
-
-        // inherited method from ClassRole
-        generateSkeleton(template, pkg, name, sourceFile);
     }
 
 
@@ -314,15 +285,7 @@ public class AppletClassRole extends ClassRole
 
         translations.put("PARAMETERS", allParameters.toString());
 
-        String template = "template.html";
-
-        // commented out plugin code until fully implemented
-        // if(htmlType.equals("plugin"))
-        //     template = "template.htmlplugin";
-        // else
-        //    template = "template.html";
-
-        String filename = Config.getLibFile(template).getPath();
+        String filename = Config.getLibFile("template.html").getPath();
 
         try {
             BlueJFileReader.translateFile(filename, outputFileName,

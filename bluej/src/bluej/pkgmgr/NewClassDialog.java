@@ -9,43 +9,29 @@ import bluej.utility.DialogManager;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.StringTokenizer;
 
 /**
  * Dialog for creating a new class
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 517 2000-05-25 07:58:59Z ajp $
+ * @version $Id: NewClassDialog.java 860 2001-04-23 02:07:10Z mik $
  */
 class NewClassDialog extends JDialog
     implements ActionListener
 {
-    static final int NC_DEFAULT = 0;
-    static final int NC_ABSTRACT = 1;
-    static final int NC_INTERFACE = 2;
-    static final int NC_APPLET = 3;
-
     // Internationalisation
     static final String okay = Config.getString("okay");
     static final String cancel = Config.getString("cancel");
     static final String newClassTitle = Config.getString("pkgmgr.newClass.title");
     static final String newClassLabel = Config.getString("pkgmgr.newClass.label");
     static final String classTypeStr = Config.getString("pkgmgr.newClass.classType");
-    static final String newClassStr = Config.getString("pkgmgr.newClass.newClass");
-    static final String newAbstractClassStr = Config.getString("pkgmgr.newClass.newAbstractClass");
-    static final String newInterfaceStr = Config.getString("pkgmgr.newClass.newInterface");
-    static final String newAppletStr = Config.getString("pkgmgr.newClass.newApplet");
 
+    private JTextField textFld;
+    ButtonGroup templateButtons;
 
     private String newClassName = "";
-    private int classType = NC_DEFAULT;
-
-    private JRadioButton typeNormal;
-    private JRadioButton typeAbstract;
-    private JRadioButton typeInterface;
-    private JRadioButton typeApplet;
-    private JTextField textFld;
-
     private boolean ok;		// result: which button?
 
 	public NewClassDialog(JFrame parent)
@@ -53,12 +39,12 @@ class NewClassDialog extends JDialog
 		super(parent, newClassTitle, true);
 
 		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent E)
-			{
-				ok = false;
-				setVisible(false);
-			}
-		});
+                public void windowClosing(WindowEvent E)
+                {
+                    ok = false;
+                    setVisible(false);
+                }
+            });
 
 		JPanel mainPanel = new JPanel();
 		{
@@ -86,36 +72,16 @@ class NewClassDialog extends JDialog
 
 				//create compound border empty border outside of a titled border
 				choicePanel.setBorder(BorderFactory.createCompoundBorder(
-						BorderFactory.createTitledBorder(classTypeStr),
-						BorderFactory.createEmptyBorder(0, 10, 0, 10)));
+                                                                         BorderFactory.createTitledBorder(classTypeStr),
+                                                                         BorderFactory.createEmptyBorder(0, 10, 0, 10)));
 
-				typeNormal = new JRadioButton(newClassStr, true);
-				typeAbstract = new JRadioButton(newAbstractClassStr, false);
-				typeInterface = new JRadioButton(newInterfaceStr, false);
-				typeApplet = new JRadioButton(newAppletStr, false);
-
-				ButtonGroup bGroup = new ButtonGroup();
-				{
-					bGroup.add(typeNormal);
-					bGroup.add(typeAbstract);
-					bGroup.add(typeInterface);
-					bGroup.add(typeApplet);
-				}
-
-				choicePanel.add(typeNormal);
-				choicePanel.add(typeAbstract);
-				choicePanel.add(typeInterface);
-				choicePanel.add(typeApplet);
-
-				typeNormal.setNextFocusableComponent(typeAbstract);
-				typeAbstract.setNextFocusableComponent(typeInterface);
-				typeInterface.setNextFocusableComponent(typeApplet);
+                addClassTypeButtons(choicePanel);
 			}
 
 			choicePanel.setMaximumSize(new Dimension(textFld.getMaximumSize().width,
-						choicePanel.getMaximumSize().height));
+                                                     choicePanel.getMaximumSize().height));
 			choicePanel.setPreferredSize(new Dimension(textFld.getPreferredSize().width,
-						choicePanel.getPreferredSize().height));
+                                                       choicePanel.getPreferredSize().height));
 
 			mainPanel.add(choicePanel);
 			mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
@@ -141,7 +107,7 @@ class NewClassDialog extends JDialog
 
 				// try to make the OK and cancel buttons have equal width
 				okButton.setPreferredSize(new Dimension(cancelButton.getPreferredSize().width,
-						okButton.getPreferredSize().height));
+                                                        okButton.getPreferredSize().height));
 			}
 
 			mainPanel.add(buttonPanel);
@@ -154,6 +120,33 @@ class NewClassDialog extends JDialog
 	}
 
     /**
+     * Add the class type buttons (defining the class template to be used
+     * to the panel. The templates are defined in the "defs" file.
+     */
+    private void addClassTypeButtons(JPanel panel)
+    {
+        String templates = Config.getPropString("bluej.classTemplates");
+
+        JRadioButton button;
+        JRadioButton previousButton = null;
+        templateButtons = new ButtonGroup();
+
+        StringTokenizer t = new StringTokenizer(templates);
+
+        while (t.hasMoreTokens()) {
+            String template = t.nextToken();
+            String label = Config.getString("pkgmgr.newClass." + template);
+            button = new JRadioButton(label, (previousButton==null));  // enable first
+            button.setActionCommand(template);
+            templateButtons.add(button);
+            panel.add(button);
+            if(previousButton != null)
+                previousButton.setNextFocusableComponent(button);
+            previousButton = button;
+        }
+    }
+
+    /**
      * Show this dialog and return true if "OK" was pressed, false if
      * cancelled.
      */
@@ -161,7 +154,7 @@ class NewClassDialog extends JDialog
     {
         ok = false;
         textFld.requestFocus();
-        setVisible(true);
+        setVisible(true);  // modal - we sit here until closed
         return ok;
     }
 
@@ -170,9 +163,9 @@ class NewClassDialog extends JDialog
         return newClassName;
     }
 
-    public int getClassType()
+    public String getTemplateName()
     {
-        return classType;
+        return templateButtons.getSelection().getActionCommand();
     }
 
     public void actionPerformed(ActionEvent evt)
@@ -192,12 +185,6 @@ class NewClassDialog extends JDialog
         newClassName = textFld.getText().trim();
 
         if (JavaNames.isIdentifier(newClassName)) {
-            if(typeAbstract.isSelected())
-            classType = NC_ABSTRACT;
-            else if(typeInterface.isSelected())
-            classType = NC_INTERFACE;
-            else if(typeApplet.isSelected())
-            classType = NC_APPLET;
             ok = true;
             setVisible(false);
         }

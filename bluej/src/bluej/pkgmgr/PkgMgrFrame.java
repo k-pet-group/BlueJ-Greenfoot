@@ -29,7 +29,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 858 2001-04-20 05:52:24Z ajp $
+ * @version $Id: PkgMgrFrame.java 860 2001-04-23 02:07:10Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, ActionListener, ItemListener, MouseListener,
@@ -1243,11 +1243,9 @@ public class PkgMgrFrame extends JFrame
                 }
 
                 ClassTarget target =  null;
-                int classType = dlg.getClassType();
-                target = new ClassTarget(pkg, name, classType == NewClassDialog.NC_APPLET);
+                String template = dlg.getTemplateName();
+                target = new ClassTarget(pkg, name, template);
 
-                target.setAbstract(classType == NewClassDialog.NC_ABSTRACT);
-                target.setInterface(classType == NewClassDialog.NC_INTERFACE);
                 target.generateSkeleton();
 
                 pkg.findSpaceForVertex(target);

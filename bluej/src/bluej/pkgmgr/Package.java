@@ -37,7 +37,7 @@ import java.text.DateFormat;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 727 2000-12-15 06:53:24Z mik $
+ * @version $Id: Package.java 860 2001-04-23 02:07:10Z mik $
  */
 public class Package extends Graph
     implements CompileObserver, MouseListener, MouseMotionListener
@@ -487,7 +487,7 @@ public class Package extends Graph
                 String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
 
                 if("ClassTarget".equals(type) || "AppletTarget".equals(type)) {
-                    target = new ClassTarget(this, identifierName, "AppletTarget".equals(type));
+                    target = new ClassTarget(this, identifierName);
                 }
                 else if("PackageTarget".equals(type))
                     target = new PackageTarget(this, identifierName);
@@ -583,6 +583,7 @@ public class Package extends Graph
         } catch(Exception e) {
             Debug.reportError("Error loading from bluej.pkg file " +
                               pkgFile + ": " + e);
+            e.printStackTrace();
             return;
         }
 

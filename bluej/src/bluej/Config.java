@@ -40,7 +40,7 @@ import java.awt.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 857 2001-04-20 05:50:29Z ajp $
+ * @version $Id: Config.java 860 2001-04-23 02:07:10Z mik $
  */
 
 public class Config
@@ -440,10 +440,26 @@ public class Config
         }
         catch (java.net.MalformedURLException mue) { }
         catch (NullPointerException npe) { }
-
         return null;
     }
 
+    /**
+     * Find and return the file name for a help file (eg.
+     * "bluej/lib/javac.help.english")
+     */
+    //    public static String getHelpFilename(String base)
+    //{
+    //    return bluej_lib + language + File.separator + base + ".help";
+    //}
+
+    /**
+     * Find and return the file name for a help file
+     * format: <bluej-lib>/<base>.tmpl
+     */
+    public static File getTemplateFile(String base)
+    {
+        return new File(bluej_lib_dir, base + ".tmpl");
+    }
 
     /**
      * Return the file with language specific text (eg.
