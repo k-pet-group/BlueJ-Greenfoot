@@ -12,47 +12,76 @@ import bluej.utility.Debug;
  * The panel that displays objects at the bottom of the package manager
  *
  * @author  Michael Cahill
- * @version $Id: ObjectBench.java 291 1999-11-30 06:24:36Z ajp $
+ * @version $Id: ObjectBench.java 335 2000-01-02 13:33:42Z ajp $
  */
 public class ObjectBench extends JPanel
 {
     static final int WIDTH = 3 * (ObjectWrapper.WIDTH + 10);
     static final int HEIGHT = ObjectWrapper.HEIGHT + 10;
-	
+
     Vector watchers = new Vector();
-	
+
     public ObjectBench()
     {
-	setLayout(new FlowLayout(FlowLayout.LEFT));
-	setSize(WIDTH, HEIGHT);
+        setLayout(new FlowLayout(FlowLayout.LEFT));
     }
-	
+
     public Dimension getMinimumSize()
     {
-	Dimension minSize = super.getMinimumSize();
-	minSize.width = Math.max(minSize.width, WIDTH);
-	minSize.height = Math.max(minSize.height, HEIGHT);
-	return minSize;
+        Dimension minSize = super.getMinimumSize();
+        minSize.width = Math.max(minSize.width, WIDTH);
+        minSize.height = Math.max(minSize.height, HEIGHT);
+        return minSize;
     }
-	
+
     public Dimension getPreferredSize()
     {
-	Dimension prefSize = super.getPreferredSize();
-	prefSize.width = Math.max(prefSize.width, WIDTH);
-	prefSize.height = Math.max(prefSize.height, HEIGHT);
-	return prefSize;
+        Dimension prefSize = super.getPreferredSize();
+        prefSize.width = Math.max(prefSize.width, WIDTH);
+        prefSize.height = Math.max(prefSize.height, HEIGHT);
+        return prefSize;
     }
-	
+
+    /**
+     * This component will raise ObjectBenchEvents when nodes are
+     * selected in the tree. The following functions manage this.
+     */
+
+    public void addObjectBenchListener(ObjectBenchListener l) {
+        listenerList.add(ObjectBenchListener.class, l);
+    }
+
+    public void removeObjectBenchListener(ObjectBenchListener l) {
+        listenerList.remove(ObjectBenchListener.class, l);
+    }
+
+    // notify all listeners that have registered interest for
+    // notification on this event type.
+    protected void fireObjectEvent(ObjectWrapper wrapper)
+    {
+        // guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i] == ObjectBenchListener.class) {
+                ((ObjectBenchListener)listeners[i+1]).objectEvent(
+                        new ObjectBenchEvent(this,
+                                ObjectBenchEvent.OBJECT_SELECTED, wrapper));
+            }
+        }
+    }
+
     public void addWatcher(ObjectBenchWatcher watcher)
     {
 	watchers.addElement(watcher);
     }
-	
+
     public void removeWatcher(ObjectBenchWatcher watcher)
     {
 	watchers.removeElement(watcher);
     }
-	
+
     public ObjectWrapper[] getWrappers()
     {
 	Component[] components = getComponents();
@@ -60,7 +89,7 @@ public class ObjectBench extends JPanel
 	System.arraycopy(components, 0, wrappers, 0, components.length);
 	return wrappers;
     }
-	
+
     void objectSelected(ObjectWrapper wrapper)
     {
 	for(Enumeration e = watchers.elements(); e.hasMoreElements(); ) {
@@ -68,7 +97,7 @@ public class ObjectBench extends JPanel
 	    watcher.objectSelected(wrapper);
 	}
     }
-	
+
     public void add(ObjectWrapper wrapper)
     {
 	// check whether name is already taken
@@ -91,7 +120,7 @@ public class ObjectBench extends JPanel
 
     /**
      * Check whether the bench contains an object with name 'name'.
-     * 
+     *
      * @param name  The name to check for.
      */
     public boolean hasObject(String name)
@@ -110,7 +139,7 @@ public class ObjectBench extends JPanel
      */
     public void remove(ObjectWrapper wrapper)
     {
-	Debug.reportError("attempt to incorrectly remove object from bench");
+        Debug.reportError("attempt to incorrectly remove object from bench");
     }
 
     /**
@@ -120,7 +149,7 @@ public class ObjectBench extends JPanel
      */
     public void remove(ObjectWrapper wrapper, String scopeId)
     {
-	super.remove(wrapper);
+    super.remove(wrapper);
 	Debugger.debugger.removeObjectFromScope(scopeId, wrapper.getName());
 
 	doLayout();
