@@ -5,6 +5,8 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 
 import bluej.*;
@@ -20,7 +22,7 @@ import bluej.utility.DialogManager;
  *
  * @author     Michael Kolling
  * @author     Poul Henriksen
- * @version    $Id: Inspector.java 2247 2003-11-01 15:33:34Z polle $
+ * @version    $Id: Inspector.java 2279 2003-11-05 16:41:58Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -60,6 +62,9 @@ public abstract class Inspector extends JFrame
 
     // either a tabbed pane or null if there is only the standard inspector
     protected JTabbedPane inspectorTabs = null;
+
+    // The top component of the UI
+	private JPanel header = new JPanel();
 
     // === static methods ===
 
@@ -205,6 +210,15 @@ public abstract class Inspector extends JFrame
             fieldList.revalidate();
         }
 
+        //Ensures that an element is always seleceted (if there is any)       
+        if(fieldList.isSelectionEmpty()) {
+            try {
+                fieldList.setSelectedIndex(0);
+            } catch (IndexOutOfBoundsException e) {
+                //the list is empty
+            }            
+        }
+        
         // Ensure a minimum width for the lists: if list is narrower
         // than 200 pixels, set it to 200.
 
@@ -335,20 +349,33 @@ public abstract class Inspector extends JFrame
 			ir.addAssertion(assertPanel.getAssertStatement());
 		}
 	}
+	
+	/**
+	 * Sets the component that will be displayed in the top left.
+	 * @param icon The icon.
+	 */
+	public void setHeader(JComponent newComponent) {       
+        header.setLayout(new GridLayout(1,1));
+		this.header.add(newComponent);	
+	}
+	
+	public void setBorder(Border border) {
+		((JPanel) getContentPane()).setBorder(border);
+	}
+	
 
     /**
      * Build the GUI interface.
      *
-     * @param  parent        Description of Parameter
+     * @param  parent        The parent frame
      * @param  isResult      Indicates if this is a result window or an inspector window
-     * @param  obj           The debugger object we want to look at
+     * @param  isObject      Indicates if this is a object inspector window
+     * @param  showAssert    Indicates if assertions should be shown.
      */
     protected void makeFrame(JFrame parent, boolean isResult, boolean isObject,
-                            String nameLabel, boolean showAssert)
+                            boolean showAssert)
     {
-        //	setFont(font);
-        // setBackground(bgColor);
-
+       
         addWindowListener(
             new WindowAdapter()
             {
@@ -358,14 +385,11 @@ public abstract class Inspector extends JFrame
                 }
             });
         
-        //uncomment to get the same color as on the object bench
-        //this.setBackground(Config.getItemColour("colour.wrapper.bg"));
         
         ((JComponent) this.getContentPane()).setBackground(getBackground());
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setOpaque(false);
-        mainPanel.setBorder(BlueJTheme.generalBorderWithStatusBar);
-        ((JPanel) getContentPane()).setBorder(BlueJTheme.roundedShadowBorder);
+        
         // the field list is either the fields of an object or class, the elements
         // of an array, or if we are viewing a result, the result of a method call
         fieldList = new JList(new DefaultListModel());
@@ -383,7 +407,7 @@ public abstract class Inspector extends JFrame
         if (!isResult) {
            // scrollPane.setColumnHeaderView(new JLabel(getListTitle()));
         }
-
+        
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         // add mouse listener to monitor for double clicks to inspect list
@@ -461,24 +485,14 @@ public abstract class Inspector extends JFrame
 
         // if we are doing an inspection, we add a label at the bottom, left of the close-button
         if (!isResult) {
-            String underlinedNameLabel = "<html><u>"+nameLabel+ "</u></font>";            
-            JLabel classNameLabel = new JLabel(underlinedNameLabel, SwingConstants.CENTER);
-            
-            if(isObject) {
-                JPanel topPanel = new JPanel();
-                topPanel.setOpaque(false);
-//                topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
-                topPanel.add(classNameLabel);
+            mainPanel.add(header, BorderLayout.NORTH);
+            if(isObject) {                
                 JButton classButton = new JButton(showClassLabel);
                 classButton.addActionListener(new ActionListener() {
                          public void actionPerformed(ActionEvent e) { showClass(); }
                       });
-                buttonPanel.add(classButton, BorderLayout.WEST);
-                mainPanel.add(topPanel, BorderLayout.NORTH);
-            }
-            else {
-                mainPanel.add(classNameLabel, BorderLayout.NORTH);
-            }
+                buttonPanel.add(classButton, BorderLayout.WEST);                
+            }            
         }
 
         JButton button = new JButton(close);
@@ -490,6 +504,13 @@ public abstract class Inspector extends JFrame
         }
         bottomPanel.add(buttonPanel);
 
+        //because the class inspector header needs to draw a line
+        //from left to right border we can't have an empty border
+        //Instead we put these borders on the sub-components        
+        Insets insets = BlueJTheme.generalBorderWithStatusBar.getBorderInsets(mainPanel);
+        buttonFramePanel.setBorder(new EmptyBorder(0, 0, 0, insets.right));
+        fieldList.setBorder(BorderFactory.createEmptyBorder(0,insets.left,0,0));        
+        
         getRootPane().setDefaultButton(button);
         ((JPanel) getContentPane()).add(bottomPanel, BorderLayout.SOUTH);
 
@@ -560,7 +581,7 @@ public abstract class Inspector extends JFrame
                 String descriptionString = s.substring(0, delimiterIndex);
                 String valueString = s.substring(delimiterIndex + 1);
                 descriptionLabel.setText(descriptionString);
-                if(valueString.equals(" <object reference>")) { //TODO is this allways the string?
+                if(valueString.equals(" <object reference>")) {
                     valueLabel.setText("");
                     valueLabel.setIcon(objectrefIcon);
                     this.setToolTipText(null);

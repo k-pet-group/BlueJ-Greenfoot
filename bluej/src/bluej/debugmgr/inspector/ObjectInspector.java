@@ -5,6 +5,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.*;
@@ -16,7 +17,7 @@ import bluej.utility.*;
  * A window that displays the fields in an object or a method return value.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectInspector.java 2275 2003-11-05 13:38:49Z mik $
+ * @version $Id: ObjectInspector.java 2279 2003-11-05 16:41:58Z polle $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -24,7 +25,7 @@ public class ObjectInspector extends Inspector
     // === static variables ===
 
     protected final static String inspectTitle =
-        Config.getString("debugger.inspector.title");
+        Config.getString("debugger.inspector.object.title");
     protected final static String resultTitle =
         Config.getString("debugger.inspector.result.title");
     protected final static String objListTitle =
@@ -109,16 +110,19 @@ public class ObjectInspector extends Inspector
                             JFrame parent)
     {
         super(pkg, ir);
-
-        setTitle(isResult ? resultTitle : inspectTitle);
-
+        String className = JavaNames.stripPrefix(obj.getClassName());
+        
+        setTitle(isResult ? resultTitle : inspectTitle);        
+        setBorder(BlueJTheme.roundedShadowBorder);
+        
+        String fullTitle = name + " : " + className;        
+        String underlinedNameLabel = "<html><u>"+fullTitle+ "</u></font>";
+        setHeader(new JLabel(underlinedNameLabel, JLabel.CENTER));
         this.isResult = isResult;
         this.obj = obj;
-        this.objName = name;
-         
-        String fullTitle = name + " : " + JavaNames.stripPrefix(obj.getClassName());
-
-        makeFrame(parent, isResult, true, fullTitle, true);
+        this.objName = name;        
+        
+        makeFrame(parent, isResult, true, true);
     }
 
     /**
@@ -425,7 +429,7 @@ public class ObjectInspector extends Inspector
                                 System.arraycopy(inspectorClasses, 0, temp, 0, inspectorClasses.length);
                                 inspectorClasses = temp;
                             }
-                            inspectorClasses[inspIdx] = theInspClass;
+                            inspectorClasses[inspIdx] = theInspClass;  
                         }
                         catch (ClassNotFoundException e) {
                         }

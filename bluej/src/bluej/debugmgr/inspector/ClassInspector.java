@@ -1,7 +1,11 @@
 package bluej.debugmgr.inspector;
 
+import java.awt.Dimension;
+import java.awt.Graphics;
+
 import javax.swing.*;
 
+import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.pkgmgr.Package;
@@ -12,14 +16,15 @@ import bluej.utility.JavaNames;
  * A window that displays the static fields in an class.
  *
  * @author     Michael Kolling
- * @version    $Id: ClassInspector.java 2229 2003-10-28 02:09:36Z ajp $
+ * @author     Poul Henriksen
+ * @version    $Id: ClassInspector.java 2279 2003-11-05 16:41:58Z polle $
  */
 public class ClassInspector extends Inspector
 {
     // === static variables ===
 
     protected final static String inspectTitle =
-        Config.getString("debugger.inspector.title");
+        Config.getString("debugger.inspector.class.title");
     protected final static String staticListTitle =
         Config.getString("debugger.inspector.staticListTitle");
     protected final static String classNameLabel =
@@ -80,9 +85,19 @@ public class ClassInspector extends Inspector
         setTitle(inspectTitle);
 
         myClass = clss;
-
-        makeFrame(parent, false, false,
-                  classNameLabel + " " + JavaNames.stripPrefix(clss.getName()), false);
+        setBorder(BlueJTheme.shadowBorder);
+        
+        String className = JavaNames.stripPrefix(clss.getName());
+        JComponent header = new JPanel() {
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Dimension size = this.getSize();
+                g.drawLine(0,size.height-1, size.width, size.height-1);
+            }            
+        };
+        header.add(new JLabel(classNameLabel + " " + className));
+        setHeader(header);
+        makeFrame(parent, false, false, false);
     }
 
     /**
