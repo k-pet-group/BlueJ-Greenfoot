@@ -1775,7 +1775,7 @@ public final class MoeEditor extends JFrame
                     try {
                         // this statement fails, but it is needed to avoid
                         // caching of html page
-                        htmlPane.setPage("");
+                        htmlPane.setPage("file:/dummy");
                     }
                     catch(Exception e) {}
 
