@@ -1,0 +1,17 @@
+#BlueJ project file
+#Fri Jul 09 16:09:27 GMT+10:00 1999
+target1.height=50
+target1.numberAppletParameters=0
+package.window.height=450
+target1.y=30
+target1.x=60
+target1.valid=true
+package.numTargets=1
+target1.appletHeight=100
+target1.appletWidth=250
+target1.type=AppletTarget
+package.window.width=512
+target1.name=CaseConverter
+target1.width=110
+package.numDependencies=0
+target1.modifiers=0
