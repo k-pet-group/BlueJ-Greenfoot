@@ -628,12 +628,7 @@ public final class MoeEditor extends JFrame
      */
     public void showInterface(boolean interfaceStatus) 
     {
-        if(interfaceStatus) {
-            switchToInterfaceView();
-        }
-        else {
-            switchToSourceView();
-        }
+        interfaceToggle.setSelectedIndex(interfaceStatus ? 1 : 0);
     }
     
     // --------------------------------------------------------------------
