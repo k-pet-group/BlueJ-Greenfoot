@@ -12,7 +12,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 2036 2003-06-16 07:08:51Z ajp $
+ * @version $Id: Debugger.java 2037 2003-06-17 05:54:51Z ajp $
  */
 public abstract class Debugger
 {
@@ -164,19 +164,22 @@ public abstract class Debugger
      * @param className  The class in which to set the breakpoint.
      * @param line       The line number of the breakpoint.
      * @param set        True to set, false to clear a breakpoint.
+     * @return           a string of the error message generated performing
+     *                   this operation or null
      */
     public abstract String toggleBreakpoint(String className, int line,
                                             boolean set);
 
     /**
-     * Return the status of the last invocation. One of (NORMAL_EXIT,
+     * Return the status of the last runClassMain(). One of (NORMAL_EXIT,
      * FORCED_EXIT, EXCEPTION, BREAKPOINT, TERMINATED).
      */
     public abstract int getExitStatus();
 
 
     /**
-     * Return a description of the last exception.
+     * Return a description of the last exception if the status of
+     * the last runClassMain() was EXCEPTION.
      */
     public abstract ExceptionDescription getException();
 

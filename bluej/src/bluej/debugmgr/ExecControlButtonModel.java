@@ -42,7 +42,7 @@ public class ExecControlButtonModel extends JToggleButton.ToggleButtonModel
     {
 		if (!pmf.isEmptyFrame()) {
 			super.setSelected(b);
-			pmf.getProject().getExecControls().showHide(b, true, null);
+			pmf.getProject().getExecControls().showHide(b);
 		}
     }
 }

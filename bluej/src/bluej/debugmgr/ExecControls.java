@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2036 2003-06-16 07:08:51Z ajp $
+ * @version $Id: ExecControls.java 2037 2003-06-17 05:54:51Z ajp $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -68,8 +68,10 @@ public class ExecControls extends JFrame
     private JList stackList, staticList, instanceList, localList;
     private JButton stopButton, stepButton, stepIntoButton, continueButton,
         terminateButton;
-    private JButton updateButton, closeButton;
-
+    private JButton closeButton;
+	private CardLayout cardLayout;
+	private JPanel flipPanel;
+	
 	// the Project that owns this debugger
     private Project project;
 
@@ -102,12 +104,9 @@ public class ExecControls extends JFrame
 	/**
 	 * Show or hide the exec control window.
 	 */
-	public void showHide(boolean show, boolean update,
-								DebuggerThread thread)
+	public void showHide(boolean show)
 	{
 		setVisible(show);
-		if(show && update)
-			updateThreads(thread);
 	}
 
 	
@@ -119,8 +118,6 @@ public class ExecControls extends JFrame
 
 		if(obj == terminateButton) {
 			project.restartVM();
-			//threadTree.expandRow(0);
-			// dispose();
 			return;
 		}
         if(obj == closeButton) {
@@ -133,21 +130,25 @@ public class ExecControls extends JFrame
 			return;
 
         if (obj == stopButton) {
+			clearThreadDetails();
 			if (!selectedThread.isSuspended()) {
 				selectedThread.halt();
 			}
         }
         if (obj == continueButton) {
+			clearThreadDetails();
 			if (selectedThread.isSuspended()) {
 				selectedThread.cont();
 			}
         }
         if (obj == stepButton) {
+			clearThreadDetails();
 			if (selectedThread.isSuspended()) {
             	selectedThread.step();
 			}
         }
 		if (obj == stepIntoButton) {
+			clearThreadDetails();
 			if (selectedThread.isSuspended()) {
 	            selectedThread.stepInto();
 			}
@@ -177,23 +178,31 @@ public class ExecControls extends JFrame
 
     // ----- end of ListSelectionListener interface -----
 
+	/**
+	 * A tree item was selected.
+	 */
 	public void valueChanged(TreeSelectionEvent event)
 	{
 		Object src = event.getSource();
-
+		
 		if(src == threadTree) {
 			clearThreadDetails();
 
 			DefaultMutableTreeNode node =
 			 (DefaultMutableTreeNode) threadTree.getLastSelectedPathComponent();
 
+			// check for "unselecting" a node
+			// (happens when the VM is restarted)
+			if (!event.isAddedPath())
+				unselectThread();
+				
 			if (node == null)
 				return;
 
 			DebuggerThread dt = threadModel.getNodeAsDebuggerThread(node);        
 
 			if (dt != null)
-				selectThread(dt);
+				setSelectedThread(dt);
 			else
 				unselectThread();
 		}
@@ -208,7 +217,7 @@ public class ExecControls extends JFrame
 				return;
 			
 			if (selectedThread.equals(threadModel.getNodeAsDebuggerThread(nodes[i])))
-				selectThread(selectedThread);
+				setSelectedThread(selectedThread);
 		}	
 	}
 	
@@ -232,77 +241,6 @@ public class ExecControls extends JFrame
         }
     }
 
-    public void updateThreads(final DebuggerThread select)
-    {
-    	return;
-    	/*
-        // because this is responding to events in a different thread we need
-        // to get these graphics updates to be run on the swing thread using
-        // SwingUtilities.invokeLater()
-        Runnable doAllUpdates = new Runnable() {
-            public void run() {
-                DefaultListModel listModel = (DefaultListModel)threadList.getModel();
-                listModel.removeAllElements();
-
-				threads = debugger.listThreads();
-
-                int selectionIndex = 0;  // default: select first
-
-                threads = selectThreadsForDisplay(threads, select);
-
-                String selectName = (select == null ? "" : select.getName());
-
-				Iterator it = threads.iterator();
-				while(it.hasNext()) {
-					DebuggerThread thread = (DebuggerThread) it.next();
-
-					if(thread.getName().equals(selectName))
-						;					
-
-					String status = thread.getStatus();
-					listModel.addElement(thread.getName() + " [" + status + "]");
-				}
-*/
-/*                    if(listModel.getSize() > 0) {
-                        if(selectionIndex != -1) {
-                            threadList.setSelectedIndex(selectionIndex);
-                            threadList.ensureIndexIsVisible(selectionIndex);
-                        }
-                    }
-                    else    // no threads displayed
-                        clearThreadDetails(); */
-  /*          }
-        };
-
-        SwingUtilities.invokeLater(doAllUpdates); */
-    }
-
-    /**
-     * Delete from the threads list all those threads that we don't want to
-     * see.
-     * We want to see
-     *     - the selected thread (system or not)
-     *     - the user threads is they are not finished
-     *     - other system threads only if system thread checkbox is selected
-     */
-    private List selectThreadsForDisplay(List threads, DebuggerThread selected)
-    {
- /*       boolean showSystem = showSystemThreads.isSelected();
-
-        List displayThreads = new ArrayList();
-        String selectedName = (selected == null? "" : selected.getName());
-
-        for(Iterator i=threads.iterator(); i.hasNext(); ) {
-            DebuggerThread thread = (DebuggerThread)i.next();
-            boolean showThread = (showSystem ||
-                                  !thread.isKnownSystemThread() ||
-                                  thread.getName().equals(selectedName));
-            if(showThread && !thread.getStatus().equals("finished"))
-               displayThreads.add(thread);
-        } */
-        return threads;
-    }
-
 	private void unselectThread()
 	{
 		selectedThread = null;
@@ -310,12 +248,48 @@ public class ExecControls extends JFrame
 		stepButton.setEnabled(false);
 		stepIntoButton.setEnabled(false);
 		continueButton.setEnabled(false);
+
+		cardLayout.show(flipPanel, "blank");
 	}
 	
-	private void selectThread(DebuggerThread dt)
+	/**
+	 * Selects a thread for display of its details.
+	 * 
+	 * If the thread is already selected, this method
+	 * will ensure that the status details are up to date.
+	 * 
+	 * @param  dt  the thread to hilight in the thread
+	 *             tree and whose status we want to display.
+	 */
+	public void selectThread(DebuggerThread dt)
+	{
+		TreePath tp = threadModel.findNodeForThread(dt);
+		
+		if (tp != null) {
+			threadTree.clearSelection();
+			threadTree.addSelectionPath(tp);
+		}
+		else {
+			Debug.message("Thread " + dt + " no longer available for selection");
+		}
+	}
+
+	/**
+	 * Set our internally selected thread and update the
+	 * UI to reflect its status.
+	 * 
+	 * It is currently true that this thread will be
+	 * selected in the tree view before this method is called.
+	 * At the moment, this method does not rely on this fact
+	 * but if the method is changed _to_ rely on it, this
+	 * comment should be fixed.
+	 * 
+	 * @param dt  the thread to select
+	 */
+	private void setSelectedThread(DebuggerThread dt)
 	{
 		selectedThread = dt;
-
+		
 		boolean isSuspended = selectedThread.isSuspended();
 		
 		stopButton.setEnabled(!isSuspended);
@@ -324,7 +298,9 @@ public class ExecControls extends JFrame
 		continueButton .setEnabled(isSuspended);
 		terminateButton.setEnabled(true);
 
-		setThreadDetails();
+		cardLayout.show(flipPanel, isSuspended ? "split" : "blank");
+
+		setThreadDetails();		
 	}
 
     private void setThreadDetails()
@@ -419,61 +395,72 @@ public class ExecControls extends JFrame
         // Create the control button panel
 
         JPanel buttonBox = new JPanel();
-        buttonBox.setLayout(new GridLayout(1,0));
+        {
+			buttonBox.setLayout(new GridLayout(1,0));
 
-        Insets margin = new Insets(0, 0, 0, 0);
-        stopButton = addButton("image.stop", haltButtonText, buttonBox, margin);
-        stepButton = addButton("image.step", stepButtonText, buttonBox, margin);
-        stepIntoButton = addButton("image.step_into", stepIntoButtonText, buttonBox, margin);
-        continueButton = addButton("image.continue", continueButtonText, buttonBox, margin);
-        terminateButton = addButton("image.terminate", terminateButtonText, buttonBox, margin);
+			Insets margin = new Insets(0, 0, 0, 0);
+			stopButton = addButton("image.stop", haltButtonText, buttonBox, margin);
+			stepButton = addButton("image.step", stepButtonText, buttonBox, margin);
+			stepIntoButton = addButton("image.step_into", stepIntoButtonText, buttonBox, margin);
+			continueButton = addButton("image.continue", continueButtonText, buttonBox, margin);
+			terminateButton = addButton("image.terminate", terminateButtonText, buttonBox, margin);
+        }
 
         contentPane.add(buttonBox, BorderLayout.SOUTH);
 
-        // Create static variable panel
+		// create a mouse listener to monitor for double clicks
+		MouseListener mouseListener = new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					listDoubleClick(e);
+				}
+			}
+		};
 
-        staticList = new JList(new DefaultListModel());
-        staticList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        staticList.addListSelectionListener(this);
-        staticList.setVisibleRowCount(3);
-        staticList.setFixedCellWidth(150);
-        JScrollPane staticScrollPane = new JScrollPane(staticList);
-        staticScrollPane.setColumnHeaderView(new JLabel(staticTitle));
+		// create static variable panel
+		JScrollPane staticScrollPane = new JScrollPane();
+		{
+			staticList = new JList(new DefaultListModel());
+			{
+				staticList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				staticList.addListSelectionListener(this);
+				staticList.setVisibleRowCount(3);
+				staticList.setFixedCellWidth(150);
+				staticList.addMouseListener(mouseListener);
+			}
+			staticScrollPane.setViewportView(staticList);
+			staticScrollPane.setColumnHeaderView(new JLabel(staticTitle));
+		}
 
+        // create instance variable panel
+		JScrollPane instanceScrollPane = new JScrollPane();
+    	{
+			instanceList = new JList(new DefaultListModel());
+    		{
+				instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				instanceList.addListSelectionListener(this);
+				instanceList.setVisibleRowCount(4);
+				instanceList.setFixedCellWidth(150);
+				instanceList.addMouseListener(mouseListener);
+    		}
+			instanceScrollPane.setViewportView(instanceList);
+			instanceScrollPane.setColumnHeaderView(new JLabel(instanceTitle));
+    	}
 
-        // Create instance variable panel
-
-        instanceList = new JList(new DefaultListModel());
-        instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        instanceList.addListSelectionListener(this);
-        instanceList.setVisibleRowCount(4);
-        instanceList.setFixedCellWidth(150);
-        JScrollPane instanceScrollPane = new JScrollPane(instanceList);
-        instanceScrollPane.setColumnHeaderView(new JLabel(instanceTitle));
-
-
-        // Create local variable panel
-
-        localList = new JList(new DefaultListModel());
-        localList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        localList.addListSelectionListener(this);
-        localList.setVisibleRowCount(4);
-        localList.setFixedCellWidth(150);
-        JScrollPane localScrollPane = new JScrollPane(localList);
-        localScrollPane.setColumnHeaderView(new JLabel(localTitle));
-
-        // add mouse listener to monitor for double clicks
-
-        MouseListener mouseListener = new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    listDoubleClick(e);
-                }
-            }
-        };
-        staticList.addMouseListener(mouseListener);
-        instanceList.addMouseListener(mouseListener);
-        localList.addMouseListener(mouseListener);
+        // create local variable panel
+		JScrollPane localScrollPane = new JScrollPane();
+    	{
+			localList = new JList(new DefaultListModel());
+			{
+				localList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				localList.addListSelectionListener(this);
+				localList.setVisibleRowCount(4);
+				localList.setFixedCellWidth(150);
+				localList.addMouseListener(mouseListener);
+			}
+			localScrollPane.setViewportView(localList);
+			localScrollPane.setColumnHeaderView(new JLabel(localTitle));
+    	}
 
         // Create variable display area
 
@@ -501,21 +488,37 @@ public class ExecControls extends JFrame
         // Create thread panel
         JPanel threadPanel = new JPanel(new BorderLayout());
         
-        
-/*        threadList = new JList(new DefaultListModel());
-        threadList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        threadList.addListSelectionListener(this);
-        threadList.setVisibleRowCount(4); */
+
+		MouseListener treeMouseListener = new MouseAdapter() {
+			 public void mousePressed(MouseEvent e) {
+				 TreePath selPath = threadTree.getPathForLocation(e.getX(), e.getY());
+				 if(selPath != null) {
+					DefaultMutableTreeNode node =
+					 (DefaultMutableTreeNode) selPath.getLastPathComponent();
+
+					if (node != null) {
+						DebuggerThread dt = threadModel.getNodeAsDebuggerThread(node);        
+
+						if (dt != null)
+							setSelectedThread(dt);				 	
+					}
+				 }
+			 }
+		 };
+		 
 		threadModel = (DebuggerThreadTreeModel) debugger.getThreadTreeModel();
 		threadModel.addTreeModelListener(this);
 		
 		threadTree = new JTree(threadModel);
-		threadTree.addTreeSelectionListener(this);		       
-		threadTree.getSelectionModel().setSelectionMode
-										(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		threadTree.setVisibleRowCount(8);
-		threadTree.setShowsRootHandles(false);
-		threadTree.setRootVisible(false);
+		{
+			threadTree.addTreeSelectionListener(this);		       
+			threadTree.addMouseListener(treeMouseListener);
+			threadTree.getSelectionModel().
+						setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+			threadTree.setVisibleRowCount(8);
+			threadTree.setShowsRootHandles(false);
+			threadTree.setRootVisible(false);
+		}
 										        
         JScrollPane threadScrollPane = new JScrollPane(threadTree);
         threadScrollPane.setColumnHeaderView(new JLabel(threadTitle));
@@ -527,11 +530,6 @@ public class ExecControls extends JFrame
                                                 BoxLayout.Y_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
-        updateButton = new JButton(updateText);
-        updateButton.addActionListener(this);
-        buttonPanel.add(updateButton);
-        makeButtonNotGrow(updateButton);
-
         closeButton = new JButton(closeText);
         closeButton.addActionListener(this);
         buttonPanel.add(closeButton);
@@ -541,8 +539,19 @@ public class ExecControls extends JFrame
 
         threadPanel.add(buttonPanel, BorderLayout.EAST);
 
+		flipPanel = new JPanel();
+		{
+			flipPanel.setLayout(cardLayout = new CardLayout());
+   
+			flipPanel.add(splitPane, "split");
+			JPanel tempPanel = new JPanel();
+			tempPanel.add(new JLabel("<html><center><b>You cannot view the details of a running thread.<br>Threads must be stopped at a<br>breakpoint, or halted by pressing \"Halt\"<br>to view their details<br></html>"));
+			flipPanel.add(tempPanel, "blank");
+		}
+
         JSplitPane mainPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                                              threadPanel, splitPane);
+                                              threadPanel, flipPanel);
+
         mainPanel.setDividerSize(6);
 
         contentPane.add(mainPanel, BorderLayout.CENTER);
@@ -552,7 +561,6 @@ public class ExecControls extends JFrame
             public void windowClosing(WindowEvent event){
                 Window win = (Window)event.getSource();
                 win.setVisible(false);
-                // Main.execWindowHidden();  // inform all frames that exec win is gone
             }
         });
 
@@ -596,6 +604,4 @@ public class ExecControls extends JFrame
         panel.add(button);
         return button;
     }
-
-
 }

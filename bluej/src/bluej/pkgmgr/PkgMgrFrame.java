@@ -31,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2036 2003-06-16 07:08:51Z ajp $
+ * @version $Id: PkgMgrFrame.java 2037 2003-06-17 05:54:51Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1799,8 +1799,6 @@ public class PkgMgrFrame extends JFrame
     private void executionFinished()
     {
 		progressButton.setIcon(stoppedIcon);
-        if(getProject().getExecControls().isVisible())
-        	getProject().getExecControls().updateThreads(null);
         	
         Terminal.getTerminal().activate(false);
         pkg.removeStepMarks();
@@ -1860,7 +1858,7 @@ public class PkgMgrFrame extends JFrame
 		item = new JMenuItem("Show Debugger");
 		item.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent e) {
-									getProject().getExecControls().showHide(true, true, null);
+									getProject().getExecControls().showHide(true);
 								}
 							 });
 		p.add(item);

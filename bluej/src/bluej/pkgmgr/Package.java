@@ -27,7 +27,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Package.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: Package.java 2037 2003-06-17 05:54:51Z ajp $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1811,39 +1811,43 @@ public final class Package extends Graph
     }
 
     /**
-     * hitBreakpoint - A breakpoint in this package was hit.
+     * A breakpoint in this package was hit.
      */
     public void hitBreakpoint(DebuggerThread thread)
     {
         showSource(thread.getClassSourceName(0),
                    thread.getLineNumber(0),
                    thread.getName(), true);
-                   
-        getProject().getExecControls().showHide(true, true, thread);
+
+		getProject().getExecControls().showHide(true);
+		getProject().getExecControls().selectThread(thread);                   
     }
 
     /**
-     * hitHalt - execution stopped interactively or after a step.
+     * Execution stopped by someone pressing the "halt" button
+     * or we have just done a "step".
      */
     public void hitHalt(DebuggerThread thread)
     {
-        showSourcePosition(thread, true);
+        showSourcePosition(thread);
+
+		getProject().getExecControls().showHide(true);
+		getProject().getExecControls().selectThread(thread);                   
     }
 
     /**
      * showSourcePosition - The debugger display needs updating.
      */
-    public void showSourcePosition(DebuggerThread thread,
-                                   boolean updateDebugger)
+    public void showSourcePosition(DebuggerThread thread)
     {
         int frame = thread.getSelectedFrame();
         if(showSource(thread.getClassSourceName(frame),
                       thread.getLineNumber(frame),
                       thread.getName(), false))
-            getProject().getExecControls().setVisible(true);
-
-        if(updateDebugger)
-            getProject().getExecControls().updateThreads(thread);
+        {
+			getProject().getExecControls().setVisible(true);
+			getProject().getExecControls().selectThread(thread);
+        }
     }
 
 	/**

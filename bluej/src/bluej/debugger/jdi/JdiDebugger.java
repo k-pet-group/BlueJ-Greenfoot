@@ -20,7 +20,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2036 2003-06-16 07:08:51Z ajp $
+ * @version $Id: JdiDebugger.java 2037 2003-06-17 05:54:51Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -464,42 +464,7 @@ public class JdiDebugger extends Debugger
 				BlueJEvent.raiseEvent(BlueJEvent.HALT, thread);
 		} */
 	}
-	
-    /**
-     * List all the threads being debugged as a list containing elements
-     * of type DebuggerThread.
-     *
-     * @return  A list of DebuggerThread objects (actually type JdiThread)
-     */
-    public List listThreads()
-    {
-    	return getVM().listThreads();
-    }
 
-	private JdiThreadNode populate(JdiThreadNode root, List threadGroups)
-	{
-		Iterator it = threadGroups.iterator();
-		while(it.hasNext()) {
-			ThreadGroupReference tgr = (ThreadGroupReference) it.next();
-
-			// add this thread group as a child
-			JdiThreadNode newChild = new JdiThreadNode(tgr);		
-			root.add(newChild);		
-
-			// add all the threads in this group as leaves
-			Iterator th = tgr.threads().iterator();
-			while(th.hasNext()) {
-				ThreadReference tr = (ThreadReference) th.next();
-				JdiThreadNode newThreadChild = new JdiThreadNode(new JdiThread(treeModel, tr));
-				newChild.add(newThreadChild);
-			}
-
-			// now add all sub thread groups as children
-			populate(newChild, tgr.threadGroups());
-		}
-		
-		return root;
-	}
 
 	/**
 	 * List all threads being debugged as a TreeModel.
@@ -546,32 +511,7 @@ public class JdiDebugger extends Debugger
 
     public void dumpThreadInfo()
     {
-        Debug.message("threads:");
-        Debug.message("--------");
-
-        List threads = listThreads();
-        if(threads == null)
-            Debug.message("cannot get thread info!");
-        else {
-            for(int i = 0; i < threads.size(); i++) {
-                JdiThread thread = (JdiThread)threads.get(i);
-                String status = thread.getStatus();
-                Debug.message(thread.getName() + " [" + status + "]");
-                try{
-                    Debug.message("  group: " +
-                                  ((JdiThread)thread).getRemoteThread().
-                                  threadGroup());
-                    Debug.message("  suspend count: " +
-                                  ((JdiThread)thread).getRemoteThread().
-                                  suspendCount());
-                    Debug.message("  monitor: " +
-                                  ((JdiThread)thread).getRemoteThread().
-                                  currentContendedMonitor());
-                }
-                catch (Exception e) {
-                    Debug.message("  monitor: exc: " + e); }
-            }
-        }
+    	getVM().dumpThreadInfo();
     }
 
 	/**

@@ -1,13 +1,13 @@
 package bluej.debugger;
 
-import javax.swing.tree.TreeModel;
+import javax.swing.tree.*;
 
 /**
  * An interface defining the trees the debugger uses to
  * represent threads.
  *
  * @author  Andrew Patterson
- * @version $Id: DebuggerThreadTreeModel.java 2030 2003-06-11 07:58:29Z ajp $
+ * @version $Id: DebuggerThreadTreeModel.java 2037 2003-06-17 05:54:51Z ajp $
  */
 public interface DebuggerThreadTreeModel extends TreeModel
 {
@@ -22,4 +22,6 @@ public interface DebuggerThreadTreeModel extends TreeModel
 	 *              DebuggerThread.
 	 */
 	public DebuggerThread getNodeAsDebuggerThread(Object node);
+	
+	public TreePath findNodeForThread(DebuggerThread thr);
 }

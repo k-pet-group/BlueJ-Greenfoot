@@ -19,7 +19,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2036 2003-06-16 07:08:51Z ajp $
+ * @version $Id: Project.java 2037 2003-06-17 05:54:51Z ajp $
  */
 public class Project
     implements DebuggerListener
@@ -721,7 +721,7 @@ public class Project
 			 case DebuggerEvent.THREAD_CONTINUE:
 				break;
 			 case DebuggerEvent.THREAD_SHOWSOURCE:
-				pkg.showSourcePosition(thr, true);
+				pkg.showSourcePosition(thr);
 				break;
 			}
 		}
