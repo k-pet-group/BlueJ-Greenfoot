@@ -19,16 +19,15 @@ import bluej.prefmgr.*;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 337 2000-01-02 13:35:23Z ajp $
+ * @version $Id: MiscPrefPanel.java 345 2000-01-12 03:52:49Z ajp $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
-
     static final String prefpaneltitle = Config.getString("prefmgr.misc.prefpaneltitle");
+    static final String jdkURLPropertyName = "bluej.url.javaStdLib";
+
 
     private JTextField editorFontField;
-    private JTextField tutorialURLField;
-    private JTextField referenceURLField;
     private JTextField jdkURLField;
 
     /**
@@ -48,23 +47,14 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 	private MiscPrefPanel()
 	{
 
-		JLabel userLibrariesTag = new JLabel(Config.getString("Editor font size"));
+		JLabel editorFontTag = new JLabel(Config.getString("Editor font size"));
 		{
-			userLibrariesTag.setAlignmentX(LEFT_ALIGNMENT);
+			editorFontTag.setAlignmentX(LEFT_ALIGNMENT);
 		}
 
         editorFontField = new SingleLineTextField(8);
         {
             editorFontField.setAlignmentX(LEFT_ALIGNMENT);
-        }
-
-		JLabel tutorialURLTag = new JLabel(Config.getString("BlueJ tutorial URL"));
-		{
-			tutorialURLTag.setAlignmentX(LEFT_ALIGNMENT);
-		}
-        tutorialURLField = new SingleLineTextField(8);
-        {
-            tutorialURLField.setAlignmentX(LEFT_ALIGNMENT);
         }
 
 		JLabel jdkURLTag = new JLabel(Config.getString("JDK documentation URL"));
@@ -76,7 +66,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             jdkURLField.setAlignmentX(LEFT_ALIGNMENT);
         }
 
-        JPanel compilerPanel = new JPanel();
+/*        JPanel compilerPanel = new JPanel();
         {
 		    compilerPanel.setLayout(new BoxLayout(compilerPanel, BoxLayout.Y_AXIS));
             compilerPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -94,23 +84,17 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             compilerPanel.add(executableTag);
             compilerPanel.add(new SingleLineTextField(8));
         }
+*/
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBorder(Config.generalBorder);
 
-		add(userLibrariesTag);
+		add(editorFontTag);
 		add(editorFontField);
 		add(Box.createVerticalStrut(Config.generalSpacingWidth));
 		add(Box.createVerticalStrut(Config.generalSpacingWidth));
-        add(tutorialURLTag);
-		add(tutorialURLField);
-		add(Box.createVerticalStrut(Config.generalSpacingWidth));
         add(jdkURLTag);
 		add(jdkURLField);
-
-		add(Box.createVerticalStrut(Config.generalSpacingWidth));
-		add(Box.createVerticalStrut(Config.generalSpacingWidth));
-		add(compilerPanel);
 
 		add(Box.createGlue());
     }
@@ -119,8 +103,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     {
         editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize()));
 
-        jdkURLField.setText(Config.getPropString("bluej.url.javaStdLib"));
-
+        jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
     }
 
     public void revertEditing()
@@ -139,6 +122,13 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         catch (NumberFormatException nfe)
         {
         }
+
+        String jdkURL = jdkURLField.getText();
+
+        if (Config.getDefaultPropString(jdkURLPropertyName, "") == jdkURL)
+            Config.removeProperty(jdkURLPropertyName);
+        else
+            Config.putPropString(jdkURLPropertyName, jdkURL);
     }
 
     class SingleLineTextField extends JTextField

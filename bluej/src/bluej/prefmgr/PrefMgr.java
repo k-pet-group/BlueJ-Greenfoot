@@ -21,7 +21,7 @@ import bluej.utility.Debug;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 337 2000-01-02 13:35:23Z ajp $
+ * @version $Id: PrefMgr.java 345 2000-01-12 03:52:49Z ajp $
  */
 public class PrefMgr
 {
@@ -100,7 +100,7 @@ public class PrefMgr
             // file to a minimum size)
 
             if (Config.getDefaultPropInteger("bluej.fontsize.editor", -1) == size)
-                Config.removePropInteger("bluej.fontsize.editor");
+                Config.removeProperty("bluej.fontsize.editor");
             else
                 Config.putPropInteger("bluej.fontsize.editor", size);
 
