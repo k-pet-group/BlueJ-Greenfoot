@@ -29,7 +29,7 @@ ModuleType=SourceModule
 FormState=0
 FormOnTop=0
 
-[O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\ProjectGroup1.bpg]
+[C:\Program Files\Borland\Delphi6\Projects\ProjectGroup1.bpg]
 FormState=0
 FormOnTop=0
 
@@ -70,9 +70,9 @@ LeftCol=1
 
 [View1]
 Module=O:\home\banjo\project\BlueJ\main\bluej\package\winlaunch\main.pas
-CursorX=23
-CursorY=435
-TopLine=425
+CursorX=60
+CursorY=14
+TopLine=229
 LeftCol=1
 
 [View2]
@@ -163,14 +163,14 @@ Visible=1
 State=0
 Left=0
 Top=224
-Width=322
+Width=314
 Height=357
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=322
+ClientWidth=314
 ClientHeight=357
 TBDockHeight=509
-LRDockWidth=322
+LRDockWidth=314
 Dockable=1
 SplitPos=105
 ArrangeBy=Name
@@ -184,14 +184,14 @@ Visible=1
 State=0
 Left=0
 Top=12
-Width=322
+Width=314
 Height=196
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=322
+ClientWidth=314
 ClientHeight=196
 TBDockHeight=344
-LRDockWidth=322
+LRDockWidth=314
 Dockable=1
 
 [CodeExplorer@EditWindow0]

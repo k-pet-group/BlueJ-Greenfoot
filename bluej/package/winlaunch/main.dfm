@@ -1,11 +1,11 @@
 object MainForm: TMainForm
-  Left = 443
-  Top = 208
+  Left = 444
+  Top = 209
   ActiveControl = GoodVM
   BorderStyle = bsDialog
   Caption = 'BlueJ Launcher'
-  ClientHeight = 379
-  ClientWidth = 442
+  ClientHeight = 378
+  ClientWidth = 440
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

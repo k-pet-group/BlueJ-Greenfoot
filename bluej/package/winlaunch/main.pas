@@ -11,7 +11,7 @@ uses
 const
         jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
 	ibmregkey : string = '\Software\IBM\Java Development Kit';
-        bluejregkey : string = '\Software\BlueJ\BlueJ\1.2.0';
+        bluejregkey : string = '\Software\BlueJ\BlueJ\1.2.1';
 
         searchingstartcaption : string = 'Search drives for all Java versions...';
         searchingstopcaption : string = 'Stop Search';
@@ -28,10 +28,7 @@ const
         nojavacaption2 : string = 'installed to run BlueJ. If one is installed on your system,';
         nojavacaption3 : string = 'select "Advanced" and then browse to its installation directory';
 
-        simplewinheight : integer = 224;
         simplecaption : string = 'Simple';
-
-        advancedwinheight : integer = 406;
         advancedcaption : string = 'Advanced';
 
 type
@@ -87,6 +84,8 @@ var
   MainForm: TMainForm;
 
   forcedialog : boolean = false;
+  simplewinheight : integer = 10;
+  advancedwinheight : integer = 10;
 
 implementation
 
@@ -295,6 +294,9 @@ var
         i : integer;
         home, mode, ver : string;
 begin
+	advancedwinheight := ClientHeight;
+	simplewinheight := LaunchButton.Height + LaunchButton.Top + 8;
+        
 	BitBtn1ClickToSimple(Sender);
 
         ff := TFindFile.Create(MainForm);
@@ -471,7 +473,7 @@ begin
 
         ImageList1.GetBitmap(0, BitBtn1.Glyph);
 
-        Height := advancedwinheight;
+        ClientHeight := advancedwinheight;
 end;
 
 procedure TMainForm.BitBtn1ClickToSimple(Sender: TObject);
@@ -482,7 +484,7 @@ begin
 
         ImageList1.GetBitmap(1, BitBtn1.Glyph);
 
- 	Height := simplewinheight;
+ 	ClientHeight := simplewinheight;
 end;
 
 end.
