@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- ** @version $Id: ClassMgr.java 161 1999-07-06 14:40:53Z ajp $
+ ** @version $Id: ClassMgr.java 179 1999-07-09 06:33:25Z ajp $
  ** @author Andrew Patterson
  **
  ** Class to maintain a global class loading environment.
@@ -149,13 +149,13 @@ public class ClassMgr
 		try {
 			userLibraries = new ClassPath(new FileInputStream(getUserConfigFile()));
 		} catch (IOException ioe) {
-			Debug.message(errorloadingconfig + "\n" + ioe.getLocalizedMessage());
+//			Debug.message(errorloadingconfig + "\n" + ioe.getLocalizedMessage());
 		}
 
 		try {
 			systemLibraries = new ClassPath(new FileInputStream(getSystemConfigFile()));
 		} catch (IOException ioe) {
-			Debug.message(errorloadingconfig + "\n" + ioe.getLocalizedMessage());
+//			Debug.message(errorloadingconfig + "\n" + ioe.getLocalizedMessage());
 		}
 
 		String syscp = System.getProperty("sun.boot.class.path");
