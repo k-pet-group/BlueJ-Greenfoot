@@ -31,7 +31,7 @@ import com.apple.eawt.*;
 /**
  * The main user interface frame which allows editing of packages
  *
- * @version $Id: PkgMgrFrame.java 2033 2003-06-12 06:51:21Z ajp $
+ * @version $Id: PkgMgrFrame.java 2036 2003-06-16 07:08:51Z ajp $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener
@@ -1210,8 +1210,10 @@ public class PkgMgrFrame extends JFrame
                                                 
                         getObjectBench().addInteraction(ir);
                     }
-                    else
-                        Debug.reportError("cannot get execution result");
+                    else {
+                    	// we can get here if the machine is terminated mid way through
+                    	// a construction. If so, lets do nothing
+                    }
                 }
                 public void putError(String msg) { }
             };
@@ -1707,7 +1709,7 @@ public class PkgMgrFrame extends JFrame
 	public void restartDebugger()
 	{
 		if (!isEmptyFrame())
-			getProject().getDebugger().restart();
+			getProject().restartVM();
 	}
 	
     /**

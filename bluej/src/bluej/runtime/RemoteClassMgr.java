@@ -19,7 +19,7 @@ import java.net.*;
  *              (one for each project)
  *
  * @author  Andrew Patterson
- * @version $Id: RemoteClassMgr.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: RemoteClassMgr.java 2036 2003-06-16 07:08:51Z ajp $
  */
 public class RemoteClassMgr
 {
@@ -69,6 +69,16 @@ public class RemoteClassMgr
         {
             super(getStringAsURLArray(libraries));
         }
+
+		protected Class findClass(String name)
+		throws ClassNotFoundException
+		{
+			System.out.println("BlueJ loader looking for " + name);
+			Class cl = super.findClass(name);
+			System.out.println("BlueJ loader classloader for it is" + cl.getClassLoader());
+			return cl;
+		}
+
     }
 
     private static URL[] getStringAsURLArray(String libraries)

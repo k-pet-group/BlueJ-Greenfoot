@@ -9,7 +9,7 @@ import java.lang.reflect.*;
  * and from jar files within a +libs directory.
  *
  * @author  Andrew Patterson
- * @version $Id: ProjectClassLoader.java 1818 2003-04-10 13:31:55Z fisker $
+ * @version $Id: ProjectClassLoader.java 2036 2003-06-16 07:08:51Z ajp $
  */
 public class ProjectClassLoader extends URLClassLoader
 {
@@ -53,6 +53,17 @@ public class ProjectClassLoader extends URLClassLoader
         }
     }
 
+	/* Use me for debugger class loading problems
+	protected Class findClass(String name)
+	throws ClassNotFoundException
+	{
+		System.out.println(this + " findClass(" + name + ")");
+		Class cl = super.findClass(name);
+		System.out.println(this + " result in a class with classloader " + cl.getClassLoader());
+		
+		return cl;
+	} */
+	
     /**
      * Construct and return a ClassPath representing all the entries
      * managed by this class loader

@@ -22,7 +22,7 @@ import com.sun.jdi.request.*;
  * virtual machine, which gets started from here via the JDI interface.
  *
  * @author  Michael Kolling
- * @version $Id: VMReference.java 2033 2003-06-12 06:51:21Z ajp $
+ * @version $Id: VMReference.java 2036 2003-06-16 07:08:51Z ajp $
  *
  * The startup process is as follows:
  *
@@ -136,7 +136,6 @@ class VMReference
             							"-Xint",
             							"-Xrunjdwp:transport=dt_socket,server=y,address=" + PORT_NUM,
             							SERVER_CLASSNAME };
-
             Process p = Runtime.getRuntime().exec(launchParams, null, initDir);
 
 			// redirect error stream from process to Terminal
@@ -306,12 +305,7 @@ class VMReference
 
 		eventHandler = new VMEventHandler(this, machine);
 
-        // want all uncaught exceptions and all class prepare events
-        EventRequestManager erm = machine.eventRequestManager();
-        erm.createExceptionRequest(null, false, true).enable();
-        erm.createClassPrepareRequest().enable();
-		erm.createThreadStartRequest().enable();
-		erm.createThreadDeathRequest().enable();
+		machine.resume();
     }
 
     /**
@@ -546,7 +540,7 @@ class VMReference
      *				breakpoint, this parameter is passed as the
      *				event parameter
      */
-    public void runShellClass(String className, Object eventParam)
+    public void runShellClass(String className)
 		throws ClassNotFoundException
     {
         ClassType shellClass = (ClassType) loadClass(className);
@@ -561,11 +555,6 @@ class VMReference
         try {
             exitStatus = Debugger.NORMAL_EXIT;
 
-            // store the users execution parameter. currently, we use this to
-            // store the project that started this execution, so that we can
-            // find classes for breakpoints later (in case several projects
-            // are open).
-            executionUserParam = eventParam;
 			owner.raiseStateChangeEvent();
 
             Value v =
@@ -683,7 +672,11 @@ class VMReference
             //we regularly get an exception here when trying to load a class
             // while the machine is suspended. It doesn't seem to be fatal.
             // so we just ignore internal exceptions for the moment.
-        } catch (Exception e) {
+        }
+		catch (VMDisconnectedException e) {
+			throw e;		
+		}
+		catch (Exception e) {
             Debug.message("sending command " + m.name() + " to remote VM failed: " + e);
         }
 
@@ -709,6 +702,16 @@ class VMReference
         return lastException;
     }
 
+	public void vmStartEvent(VMStartEvent vmse)
+	{
+		// want all uncaught exceptions and all class prepare events
+		EventRequestManager erm = machine.eventRequestManager();
+		erm.createExceptionRequest(null, false, true).enable();
+		erm.createClassPrepareRequest().enable();
+		erm.createThreadStartRequest().enable();
+		erm.createThreadDeathRequest().enable();
+	}
+	
 	public void threadStartEvent(ThreadStartEvent tse)
 	{
 		owner.threadStart(tse.thread());
@@ -751,7 +754,7 @@ class VMReference
         String exceptionText = (msgVal == null ? null : msgVal.value());
 		String excClass = exc.exception().type().name();
 
-        System.out.println(exceptionText);
+        System.out.println("Exception text: " + exceptionText);
 
         if (excClass.equals("bluej.runtime.ExitException")) {
 

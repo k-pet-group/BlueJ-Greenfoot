@@ -19,7 +19,7 @@ import bluej.utility.Debug;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 2033 2003-06-12 06:51:21Z ajp $
+ * @version $Id: ExecServer.java 2036 2003-06-16 07:08:51Z ajp $
  */
 public class ExecServer
 {
@@ -62,7 +62,7 @@ public class ExecServer
     public static void main(String[] args)
         throws Throwable
     {
-		//Debug.message("[VM] creating server object");
+		// Debug.message("[VM] creating server object");
 
 		classmgr = new RemoteClassMgr();
 

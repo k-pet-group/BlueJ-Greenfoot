@@ -3,10 +3,9 @@ package bluej.debugger.jdi;
 import java.io.File;
 import java.util.*;
 
-import javax.swing.event.*;
+import javax.swing.event.EventListenerList;
 
 import bluej.Config;
-import bluej.classmgr.ClassMgr;
 import bluej.debugger.*;
 import bluej.debugmgr.Invoker;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -21,7 +20,7 @@ import com.sun.jdi.*;
  * 
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: JdiDebugger.java 2033 2003-06-12 06:51:21Z ajp $
+ * @version $Id: JdiDebugger.java 2036 2003-06-16 07:08:51Z ajp $
  */
 public class JdiDebugger extends Debugger
 {
@@ -98,12 +97,6 @@ public class JdiDebugger extends Debugger
 
 	}
 
-	public void restart()
-	{
-		close();
-		launch();	
-	}
-	
 	private VMReference getVM()
 	{
 		return machineLoader.getVM();
@@ -189,6 +182,9 @@ public class JdiDebugger extends Debugger
      */
     public void removeObject(String instanceName)
     {
+		if (!vmReady)
+			return;
+    		
         Object args[] = { instanceName };
 
 		getVM().invokeExecServer( ExecServer.REMOVE_OBJECT, Arrays.asList(args) );
@@ -276,6 +272,9 @@ public class JdiDebugger extends Debugger
      */
     public void disposeWindows()
     {
+		if (!vmReady)
+			return;
+
 		getVM().invokeExecServer(ExecServer.DISPOSE_WINDOWS, Collections.EMPTY_LIST);
     }
 
@@ -284,6 +283,9 @@ public class JdiDebugger extends Debugger
      */
     public void supressErrorOutput()
     {
+		if (!vmReady)
+			return;
+
 		getVM().invokeExecServer( ExecServer.SUPRESS_OUTPUT, Collections.EMPTY_LIST );
     }
 
@@ -292,6 +294,9 @@ public class JdiDebugger extends Debugger
      */
     public void restoreErrorOutput()
     {
+		if (!vmReady)
+			return;
+
 		getVM().invokeExecServer( ExecServer.RESTORE_OUTPUT, Collections.EMPTY_LIST );
     }
 
@@ -303,10 +308,10 @@ public class JdiDebugger extends Debugger
 	 *				breakpoint, this parameter is passed as the
 	 *				event parameter
 	 */
-	public void runClassMain(String className, Object eventParam)
+	public void runClassMain(String className)
 		throws ClassNotFoundException
 	{
-		getVM().runShellClass(className, eventParam);
+		getVM().runShellClass(className);
 	}
 
     /**
@@ -586,7 +591,6 @@ public class JdiDebugger extends Debugger
 			vmReady = true;
 	
 			newClassLoader(startingDirectory.getAbsolutePath());
-			setLibraries(ClassMgr.getClassMgr().getAllClassPath().toString());
 				
 			notifyAll();	// wake any internal getVM() calls that
 							// are waiting for us to finish

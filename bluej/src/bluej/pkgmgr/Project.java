@@ -19,7 +19,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 2033 2003-06-12 06:51:21Z ajp $
+ * @version $Id: Project.java 2036 2003-06-16 07:08:51Z ajp $
  */
 public class Project
     implements DebuggerListener
@@ -562,10 +562,12 @@ public class Project
 
 	public void restartVM()
 	{
-		removeLocalClassLoader();
-		
 		getDebugger().close();
-		
+
+		// any calls to the debugger made by removeLocalClassLoader
+		// will silently fail
+		removeLocalClassLoader();
+			
 		getDebugger().launch();
 	}
 	
@@ -599,7 +601,9 @@ public class Project
             // remove views for classes loaded by this classloader
             View.removeAll(loader);
 
-			//TODO: dispose windows for local classes
+			// dispose windows for local classes
+			getDebugger().disposeWindows();
+			
             loader = null;
         }
     }

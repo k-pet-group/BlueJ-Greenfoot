@@ -28,7 +28,7 @@ import java.util.*;
  *
  * @author  Clive Miller
  * @author  Michael Kolling
- * @version $Id: Invoker.java 2032 2003-06-12 05:04:28Z ajp $
+ * @version $Id: Invoker.java 2036 2003-06-16 07:08:51Z ajp $
  */
 
 public class Invoker extends Thread
@@ -540,7 +540,8 @@ public class Invoker extends Thread
             startClass();
 
         File srcFile = new File(pkg.getPath(), shellName + ".java");
-//        srcFile.delete();
+		// TODO: renable me
+		// srcFile.delete();
 
         File classFile = new File(pkg.getPath(), shellName + ".class");
         classFile.delete();
@@ -570,8 +571,7 @@ public class Invoker extends Thread
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_STARTED, executionEvent);
             String shellClassName = pkg.getQualifiedName(shellName);
             
-            pkg.getProject().getDebugger().runClassMain(shellClassName,
-                                         pkg.getProject());
+            pkg.getProject().getDebugger().runClassMain(shellClassName);
                                          
             BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_FINISHED, executionEvent);
 

@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 2033 2003-06-12 06:51:21Z ajp $
+ * @version $Id: ExecControls.java 2036 2003-06-16 07:08:51Z ajp $
  */
 public class ExecControls extends JFrame
     implements ActionListener, ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -589,6 +589,7 @@ public class ExecControls extends JFrame
         button = new JButton(buttonText, Config.getImageAsIcon(imgRsrcName));
         button.setVerticalTextPosition(AbstractButton.BOTTOM);
         button.setHorizontalTextPosition(AbstractButton.CENTER);
+        button.setEnabled(false);
 
         button.setMargin(margin);
         button.addActionListener(this);
