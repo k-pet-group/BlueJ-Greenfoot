@@ -40,7 +40,6 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 
-
 /**
  * Moe is the editor of the BlueJ environment. This class is the main class of this
  * editor and implements the top-level functionality.
@@ -210,6 +209,7 @@ public final class MoeEditor extends JFrame
             updateRedoControls();
         }
     }
+
 
     /**
      *  Constructor. Title may be null
@@ -385,6 +385,7 @@ public final class MoeEditor extends JFrame
         return true;
     }
 
+
     /**
      *  Description of the Method
      */
@@ -393,6 +394,7 @@ public final class MoeEditor extends JFrame
         // inherited from Editor, redefined
         doReload();
     }
+
 
     /**
      *  Wipe out contents of the editor.
@@ -404,6 +406,7 @@ public final class MoeEditor extends JFrame
         sourcePane.setText( "" );
         ignoreChanges = false;
     }
+
 
     /**
      *  Insert a string into the buffer. The editor is not immediately
@@ -424,6 +427,7 @@ public final class MoeEditor extends JFrame
             sourcePane.setCaretPosition( sourcePane.getCaretPosition() - text.length() );
         }
     }
+
 
     /**
      *  Show the editor window. This includes whatever is necessary of the
@@ -448,6 +452,7 @@ public final class MoeEditor extends JFrame
         // show the window
     }
 
+
     /**
      *  Refresh the editor window.
      */
@@ -460,6 +465,7 @@ public final class MoeEditor extends JFrame
         checkSyntaxStatus();
         currentTextPane.repaint();
     }
+
 
     /**
      *  True is the editor is on screen.
@@ -475,6 +481,7 @@ public final class MoeEditor extends JFrame
         }
         return super.isShowing();
     }
+
 
     /**
      *  Save the buffer to disk under current filename.  This is often called
@@ -520,6 +527,7 @@ public final class MoeEditor extends JFrame
         }
     }
 
+
     /**
      *  The editor wants to close. Do this through the EditorManager so that
      *  we can be removed from the list of open editors.
@@ -532,6 +540,7 @@ public final class MoeEditor extends JFrame
         // temporary - should really be done by watcher from outside
         doClose();
     }
+
 
     /**
      *  Display a message (used for compile/runtime errors). An editor
@@ -631,6 +640,7 @@ public final class MoeEditor extends JFrame
         return currentTextPane.getSelectedText();
     }
 
+
     /**
      *  Remove the step mark (the mark that shows the current line when
      *  single-stepping through code). If it is not currently displayed,
@@ -652,6 +662,7 @@ public final class MoeEditor extends JFrame
         }
     }
 
+
     /**
      *  Change class name.
      *
@@ -668,6 +679,7 @@ public final class MoeEditor extends JFrame
         setWindowTitle();
     }
 
+
     /**
      *  Set the "compiled" status
      *
@@ -681,6 +693,7 @@ public final class MoeEditor extends JFrame
         }
     }
 
+
     /**
      *  Remove all breakpoints in this editor.
      */
@@ -688,6 +701,7 @@ public final class MoeEditor extends JFrame
     {
         clearAllBreakpoints();
     }
+
 
     /**
      *  Determine whether this buffer has been modified.
@@ -701,6 +715,7 @@ public final class MoeEditor extends JFrame
 
         return ( saveState.isChanged() );
     }
+
 
     /**
      *  Set this editor to read-only.
@@ -718,10 +733,10 @@ public final class MoeEditor extends JFrame
         currentTextPane.setEditable( !readOnly );
     }
 
+
     /**
      * Returns if this editor is read-only.
      * Accessor for the setReadOnly property.
-     *
      *
      * @return     The readOnly value
      * @returns    a boolean indicating whether the editor is read-only.
@@ -730,6 +745,7 @@ public final class MoeEditor extends JFrame
     {
         return !currentTextPane.isEditable();
     }
+
 
     /**
      *  Set this editor to display either the interface or the source code
@@ -741,6 +757,7 @@ public final class MoeEditor extends JFrame
     {
         interfaceToggle.setSelectedIndex( interfaceStatus ? 1 : 0 );
     }
+
 
     /**
      *  Tell whether the editor is currently displaying the interface or the
@@ -800,38 +817,12 @@ public final class MoeEditor extends JFrame
      */
     public void setCaretLocation( LineColumn location )
     {
-        if ( location == null ) {
-            throw new IllegalArgumentException( "setCaretLocation: location == null" );
-        }
-
-        if ( location.getLine() < 0 ) {
-            throw new IllegalArgumentException( "setCaretLocation: line < 0 " );
-        }
-
-        Element lineElement = document.getDefaultRootElement().getElement( location.getLine() );
-        if ( lineElement == null ) {
-            throw new IllegalArgumentException( "setCaretLocation: line=" + location.getLine() + " is out of bound" );
-        }
-
-        int lineOffset = lineElement.getStartOffset();
-
-        if ( location.getColumn() < 0 ) {
-            throw new IllegalArgumentException( "setCaretLocation: column < 0 " );
-        }
-
-        // lineLen includes the "hidden" cr, so it is one more than the number of chars in the line.
-        int lineLen = lineElement.getEndOffset() - lineOffset;
-
-        if ( location.getColumn() >= lineLen ) {
-            throw new IllegalArgumentException( "setCaretLocation: column=" + location.getColumn() + " greater than line len=" + lineLen );
-        }
-
-        currentTextPane.setCaretPosition( lineOffset + location.getColumn() );
+        currentTextPane.setCaretPosition( getOffsetFromLineColumn( location ) );
     }
 
 
     /**
-     * Returns the location at which current selection begins.
+     * Returns the location where the current selection begins.
      *
      * @return    the current beginning of the selection or null if no text is selected.
      */
@@ -850,7 +841,87 @@ public final class MoeEditor extends JFrame
     }
 
 
+    /**
+     * Returns the location where the current selection ends.
+     *
+     * @return    the current end of the selection or null if no text is selected.
+     */
+    public LineColumn getSelectionEnd()
+    {
+        Caret aCaret = currentTextPane.getCaret();
 
+        // If the dot is == as the mark then there is no selection.
+        if ( aCaret.getDot() == aCaret.getMark() ) {
+            return null;
+        }
+
+        int endOffset = Math.max( aCaret.getDot(), aCaret.getMark() );
+
+        return getLineColumnFromOffset( endOffset );
+    }
+
+
+    /**
+     * Returns the text which lies between the two LineColumn.
+     *
+     * @param  begin                      The beginning of the text to get
+     * @param  end                        The end of the text to get
+     * @return                            The text value
+     * @throws  IllegalArgumentException  if either of the specified TextLocations represent a position which does not exist in the text.
+     */
+    public String getText( LineColumn begin, LineColumn end )
+    {
+
+        int first = getOffsetFromLineColumn( begin );
+        int last = getOffsetFromLineColumn( end );
+        int beginOffset = Math.min( first, last );
+        int endOffset = Math.max( first, last );
+
+        try {
+            return document.getText( beginOffset, endOffset - beginOffset );
+        }
+        catch ( BadLocationException exc ) {
+            throw new IllegalArgumentException( exc.getMessage() );
+        }
+    }
+
+
+
+
+    /**
+     * Translates a LineColumn into an offset into the text held by the editor.
+     *
+     * @param  location                   position to be translated
+     * @return                            the offset into the content of this editor
+     * @throws  IllegalArgumentException  if the specified LineColumn
+     * represent a position which does not exist in the text.
+     */
+    public int getOffsetFromLineColumn( LineColumn location )
+    {
+        if ( location.getLine() < 0 ) {
+            throw new IllegalArgumentException( "line < 0" );
+        }
+
+        Element lineElement = document.getDefaultRootElement().getElement( location.getLine() );
+        if ( lineElement == null ) {
+            throw new IllegalArgumentException( "line=" + location.getLine() + " is out of bound" );
+        }
+
+        int lineOffset = lineElement.getStartOffset();
+
+        if ( location.getColumn() < 0 ) {
+            throw new IllegalArgumentException( "column < 0 " );
+        }
+
+        // lineLen includes the "hidden" cr, so it is one more than the number of chars in the line.
+        int lineLen = lineElement.getEndOffset() - lineOffset;
+
+        if ( location.getColumn() >= lineLen ) {
+            throw new IllegalArgumentException( "column=" + location.getColumn() + " greater than line len=" + lineLen );
+        }
+
+        return lineOffset + location.getColumn();
+    }
 
 
 
@@ -942,7 +1013,6 @@ public final class MoeEditor extends JFrame
     /**
      *  Display a message into the info area.
      *
-     *
      * @param  msg  the message to display
      */
     public void writeMessage( String msg )
@@ -1004,7 +1074,6 @@ public final class MoeEditor extends JFrame
 
     /**
      * Prints source code from Editor
-     *
      *
      * @param  printerJob  A PrinterJob to print to.
      */
@@ -2282,6 +2351,7 @@ public final class MoeEditor extends JFrame
         pack();
 
     }
+
     // init_window
 
 

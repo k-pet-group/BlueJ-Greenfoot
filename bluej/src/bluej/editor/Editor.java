@@ -14,7 +14,7 @@ import java.awt.print.PrinterJob;
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 2924 2004-08-22 05:47:12Z damiano $
+ * @version $Id: Editor.java 2925 2004-08-22 13:42:42Z damiano $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -230,6 +230,22 @@ public interface Editor
      */
     public LineColumn getSelectionBegin();
     
+    /**
+     * Returns the location where the current selection ends.
+     *
+     * @return    the current end of the selection or null if no text is selected.
+     */
+    public LineColumn getSelectionEnd();
+
+    /**
+     * Returns the text which lies between the two LineColumn.
+     *
+     * @param  begin                      The beginning of the text to get
+     * @param  end                        The end of the text to get
+     * @return                            The text value
+     * @throws  IllegalArgumentException  if either of the specified TextLocations represent a position which does not exist in the text.
+     */
+    public String getText( LineColumn begin, LineColumn end );    
     
     /**
      * Returns the LineColumn object from the given offset in the text.
@@ -237,5 +253,15 @@ public interface Editor
      * @return    the LineColumn object or null if the offset points outside the text.
      */
     public LineColumn getLineColumnFromOffset(int offset);
+    
+    /**
+     * Translates a LineColumn into an offset into the text held by the editor.
+     *
+     * @param  location  position to be translated
+     * @return           the offset into the content of this editor
+     * @throws  IllegalArgumentException  if the specified LineColumn
+     * represent a position which does not exist in the text.
+     */
+    public int getOffsetFromLineColumn( LineColumn location );
     
 } // end interface Editor

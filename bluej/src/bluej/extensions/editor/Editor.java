@@ -5,8 +5,10 @@ import bluej.editor.*;
 /**
  * Proxy object that allows interaction with the BlueJ Editor for a
  * particular class.
+ * Most method of this class must be called from a swing compatile thread,
+ * if a method is thread safe it will be marked so.
  *
- * @version    $Id: Editor.java 2924 2004-08-22 05:47:12Z damiano $
+ * @version    $Id: Editor.java 2925 2004-08-22 13:42:42Z damiano $
  */
 
 /*
@@ -63,8 +65,6 @@ public class Editor
 
     /**
      * Returns the current caret location within the edited text.
-     * This method must be called from a swing thread.
-     *
      *
      * @return    the textLocation.
      */
@@ -77,18 +77,13 @@ public class Editor
 
     /**
      * Sets the current Caret location within the edited text.
-     * This method must be called from a swing thread.
      *
      * @param  location                   The location in the text to set the Caret to.
      * @throws  IllegalArgumentException  if the specified TextLocation represents a position which does not exist in the text.
      */
     public void setCaretLocation( TextLocation location )
     {
-        if ( location == null ) {
-            throw new IllegalArgumentException( "setCaretLocation: location == null " );
-        }
-
-        bjEditor.setCaretLocation( new LineColumn( location.getLine(), location.getColumn() ) );
+        bjEditor.setCaretLocation(convertLocation(location));
     }
 
 
@@ -117,7 +112,7 @@ public class Editor
         }
 
         return new TextLocation( lineColumn.getLine(), lineColumn.getColumn() );
-    }    
+    }
 
 
     /**
@@ -127,7 +122,12 @@ public class Editor
      */
     public TextLocation getSelectionEnd()
     {
-        return null;
+        LineColumn lineColumn = bjEditor.getSelectionEnd();
+        if ( lineColumn == null ) {
+            return null;
+        }
+
+        return new TextLocation( lineColumn.getLine(), lineColumn.getColumn() );
     }
 
 
@@ -141,13 +141,13 @@ public class Editor
      */
     public String getText( TextLocation begin, TextLocation end )
     {
-        return "";
+        return bjEditor.getText(convertLocation(begin),convertLocation(end));
     }
 
 
     /**
-     * Request to the editor tp reeplace the text between beginning and end with the given newText
-     * If begin and end are the same, the text is inserted.
+     * Request to the editor to reeplace the text between beginning and end with the given newText
+     * If begin and end are the same object, the text is inserted.
      *
      * @param  begin                      where to start to replace
      * @param  end                        where to end to replace
@@ -225,12 +225,14 @@ public class Editor
      * Translates a text location into an offset into the text held
      * by the editor.
      *
-     * @param  location  position to be translated
-     * @return           the offset into the text of this text or -1 if the text location is invalid
+     * @param  location                   position to be translated
+     * @return                            the offset into the text of this text
+     * @throws  IllegalArgumentException  if the specified TextLocations
+     * represent a position which does not exist in the text.
      */
     public int getOffsetFromTextLocation( TextLocation location )
     {
-        return 0;
+        return bjEditor.getOffsetFromLineColumn( convertLocation(location) );
     }
 
 
@@ -274,5 +276,16 @@ public class Editor
         return 0;
     }
 
+
+    /**
+     * Utility to convert a TextLocation into a LineColumn.
+     *
+     * @param  location  The point in the editor to convert to a LineColumn.
+     * @return           The LineColumn object describing a point in the editor.
+     */
+    private LineColumn convertLocation( TextLocation location )
+    {
+        return new LineColumn( location.getLine(), location.getColumn() );
+    }
 }
 
