@@ -6,12 +6,11 @@ import bluej.debugmgr.objectbench.*;
 import bluej.pkgmgr.*;
 import bluej.views.*;
 
-
 /**
  * A wrapper for a constructor of a BlueJ class.
- * Behaviour is similar to reflection API. 
+ * Behaviour is similar to reflection API.
  *
- * @version $Id: BConstructor.java 2314 2003-11-10 14:49:48Z damiano $
+ * @version    $Id: BConstructor.java 2782 2004-07-12 09:54:24Z damiano $
  */
 
 /*
@@ -21,87 +20,129 @@ import bluej.views.*;
  * What I will do is to have an Identifier with Project,Package,Class given and before doing
  * anythink I will check with it. If everything is still there it should be OK.
  * In any case, it it goes wrong we will get an invoker exception !
- * 
- * Author Damiano Bolla, University of Kent at Canterbury, 2003
+ *
+ * Author Damiano Bolla, University of Kent at Canterbury, 2003,2004
  */
- 
-public class BConstructor 
-  {
-  private Identifier parentId;
-  private ConstructorView bluej_view;
+public class BConstructor
+{
+    private Identifier parentId;
+    private ConstructorView bluej_view;
 
-  /**
-   * Constructor.
-   * It is duty of the caller to make shure that the parent is valid.
-   */
-  BConstructor(Identifier aParentId, ConstructorView i_view )
+
+    /**
+     * Constructor.
+     * It is duty of the caller to make shure that the parent is valid.
+     *
+     * @param  aParentId  Description of the Parameter
+     * @param  i_view     Description of the Parameter
+     */
+    BConstructor(Identifier aParentId, ConstructorView i_view)
     {
-    parentId = aParentId;
-    bluej_view = i_view;
+        parentId = aParentId;
+        bluej_view = i_view;
     }
 
-  /**
-   * Tests if this constructor matches the given signature.
-   * 
-   * @return true if it does, false otherwise.
-   */
-  public boolean matches ( Class[] parameter )
+
+    /**
+     * Tests if this constructor matches the given signature.
+     *
+     * @param  parameter  Description of the Parameter
+     * @return            true if it does, false otherwise.
+     */
+    public boolean matches(Class[] parameter)
     {
-    Class[] thisArgs = bluej_view.getParameters();
+        Class[] thisArgs = bluej_view.getParameters();
 
-    // An empty array is equivalent to a null array
-    if (thisArgs  != null && thisArgs.length  <= 0)  thisArgs  = null;
-    if (parameter != null && parameter.length <= 0 ) parameter = null;
+        // An empty array is equivalent to a null array
+        if (thisArgs != null && thisArgs.length <= 0) {
+            thisArgs = null;
+        }
+        if (parameter != null && parameter.length <= 0) {
+            parameter = null;
+        }
 
-    // If both are null the we are OK
-    if ( thisArgs == null && parameter == null ) return true;
+        // If both are null the we are OK
+        if (thisArgs == null && parameter == null) {
+            return true;
+        }
 
-    // If ANY of them is null we are in trouble now. (They MUST be both NOT null)
-    if ( thisArgs == null || parameter == null ) return false;
+        // If ANY of them is null we are in trouble now. (They MUST be both NOT null)
+        if (thisArgs == null || parameter == null) {
+            return false;
+        }
 
-    // Now I know that BOTH are NOT empty. They MUST be the same length
-    if ( thisArgs.length != parameter.length ) return false;
-    
-    for ( int index=0; index<thisArgs.length; index++ )
-      if ( ! thisArgs[index].isAssignableFrom(parameter[index]) ) return false;
+        // Now I know that BOTH are NOT empty. They MUST be the same length
+        if (thisArgs.length != parameter.length) {
+            return false;
+        }
 
-    return true;
+        for (int index = 0; index < thisArgs.length; index++) {
+            if (!thisArgs[index].isAssignableFrom(parameter[index])) {
+                return false;
+            }
+        }
+
+        return true;
     }
+
 
     /**
      * Returns the parameters of this constructor.
      * Similar to reflection API.
+     *
+     * @return    The parameterTypes value
      */
-    public Class[] getParameterTypes ()
-      {
-      return bluej_view.getParameters();
-      }
+    public Class[] getParameterTypes()
+    {
+        return bluej_view.getParameters();
+    }
+
 
     /**
      * Creates a new instance of the object described by this constructor.
      * Similar to reflection API.
-     * @throws ProjectNotOpenException if the project to which this constructor belongs has been closed by the user.
-     * @throws PackageNotFoundException if the package to which this constructor belongs has been deleted by the user.
-     * @throws InvocationArgumentException if the <code>initargs</code> don't match the constructor's arguments.
-     * @throws InvocationErrorException if an error occurs during the invocation.
+     *
+     * @param  initargs                      Description of the Parameter
+     * @return                               Description of the Return Value
+     * @throws  ProjectNotOpenException      if the project to which this constructor belongs has been closed by the user.
+     * @throws  PackageNotFoundException     if the package to which this constructor belongs has been deleted by the user.
+     * @throws  InvocationArgumentException  if the <code>initargs</code> don't match the constructor's arguments.
+     * @throws  InvocationErrorException     if an error occurs during the invocation.
      */
-    public BObject newInstance ( Object[] initargs ) 
-      throws ProjectNotOpenException, PackageNotFoundException, 
-             InvocationArgumentException, InvocationErrorException
-      {
-      PkgMgrFrame pkgFrame = parentId.getPackageFrame();
-      
-      DirectInvoker invoker = new DirectInvoker (pkgFrame, bluej_view );
-      DebuggerObject result = invoker.invokeConstructor (initargs);
+    public BObject newInstance(Object[] initargs)
+             throws ProjectNotOpenException, PackageNotFoundException,
+            InvocationArgumentException, InvocationErrorException
+    {
+        PkgMgrFrame pkgFrame = parentId.getPackageFrame();
 
-      if (result == null) return null;
+        DirectInvoker invoker = new DirectInvoker(pkgFrame, bluej_view);
+        DebuggerObject result = invoker.invokeConstructor(initargs);
 
-      String resultName = invoker.getResultName();
-      PkgMgrFrame pmf   = parentId.getPackageFrame();
+        if (result == null) {
+            return null;
+        }
 
-      ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
+        String resultName = invoker.getResultName();
+        PkgMgrFrame pmf = parentId.getPackageFrame();
 
-      return new BObject(wrapper);
-      }
+        ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
 
+        return new BObject(wrapper);
+    }
+
+
+    /**
+     *  Description of the Method
+     *
+     * @return    Description of the Return Value
+     */
+    public String toString()
+    {
+        if (bluej_view != null) {
+            return "BConstructor: " + bluej_view.getLongDesc();
+        }
+        else {
+            return "BConstructor: ";
+        }
+    }
 }
