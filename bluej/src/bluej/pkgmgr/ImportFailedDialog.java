@@ -1,0 +1,97 @@
+package bluej.pkgmgr;
+
+import bluej.Config;
+import bluej.utility.Debug;
+import bluej.utility.Utility;
+import bluej.utility.JavaNames;
+import bluej.utility.DialogManager;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+/**
+ * Dialog for showing the user a list of files which failed
+ * an import.
+ *
+ * @author  Andrew Patterson
+ * @version $Id: ImportFailedDialog.java 592 2000-06-28 05:01:49Z ajp $
+ */
+public class ImportFailedDialog extends JDialog
+    implements ActionListener
+{
+    private static final String cont = Config.getString("continue");
+
+    private static final String dialogTitle = Config.getString("pkgmgr.importfailed.title");
+    private static final String helpLine1 = Config.getString("pkgmgr.importfailed.helpLine1");
+    private static final String helpLine2 = Config.getString("pkgmgr.importfailed.helpLine2");
+    private static final String helpLine3 = Config.getString("pkgmgr.importfailed.helpLine3");
+
+    public ImportFailedDialog(JFrame parent, Object[] objects)
+    {
+        super(parent, dialogTitle, true);
+
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
+        JPanel mainPanel = new JPanel();
+        {
+            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+            mainPanel.setBorder(Config.dialogBorder);
+
+            JLabel helpText1 = new JLabel(helpLine1);
+            helpText1.setAlignmentX(LEFT_ALIGNMENT);
+            mainPanel.add(helpText1);
+
+            JLabel helpText2 = new JLabel(helpLine2);
+            helpText2.setAlignmentX(LEFT_ALIGNMENT);
+            mainPanel.add(helpText2);
+
+            JLabel helpText3 = new JLabel(helpLine3);
+            helpText3.setAlignmentX(LEFT_ALIGNMENT);
+            mainPanel.add(helpText3);
+
+            Font smallFont = helpText1.getFont().deriveFont(10);
+            helpText1.setFont(smallFont);
+            helpText2.setFont(smallFont);
+            helpText3.setFont(smallFont);
+
+            mainPanel.add(Box.createVerticalStrut(5));
+
+            JList failedList = new JList(objects);
+            {
+                failedList.setAlignmentX(LEFT_ALIGNMENT);
+            }
+
+            JScrollPane scrolly = new JScrollPane(failedList);
+
+            mainPanel.add(scrolly);
+            mainPanel.add(Box.createVerticalStrut(Config.dialogCommandButtonsVertical));
+
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            {
+                buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+                JButton contButton = new JButton(cont);
+                {
+                    contButton.addActionListener(this);
+                }
+
+                buttonPanel.add(contButton);
+
+                getRootPane().setDefaultButton(contButton);
+            }
+
+            mainPanel.add(buttonPanel);
+        }
+
+        getContentPane().add(mainPanel);
+        pack();
+
+        DialogManager.centreDialog(this);
+    }
+
+    public void actionPerformed(ActionEvent evt)
+    {
+        dispose();
+    }
+}
