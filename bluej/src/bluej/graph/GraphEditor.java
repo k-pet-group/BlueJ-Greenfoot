@@ -19,7 +19,7 @@ import bluej.prefmgr.PrefMgr;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 3170 2004-11-25 12:31:58Z fisker $
+ * @version $Id: GraphEditor.java 3205 2004-11-29 15:48:03Z fisker $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener
@@ -218,5 +218,15 @@ public class GraphEditor extends JComponent
         JMenuItem item = menu.add(action);
         item.setFont(PrefMgr.getPopupMenuFont());
         item.setForeground(envOpColour);
+    }
+    
+    private boolean hasFocus;
+    
+    public boolean hasFocus(){
+        return hasFocus;
+    }
+    
+    public void setHasFocus(boolean hasFocus){
+        this.hasFocus = hasFocus;
     }
 }

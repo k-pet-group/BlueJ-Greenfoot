@@ -16,7 +16,7 @@ import bluej.pkgmgr.Package;
  * Paints a Graph using TargetPainters
  * 
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 2929 2004-08-23 11:51:06Z polle $
+ * @version $Id: GraphPainterStdImpl.java 3205 2004-11-29 15:48:03Z fisker $
  */
 public class GraphPainterStdImpl
     implements GraphPainter
@@ -213,8 +213,9 @@ public class GraphPainterStdImpl
      */
     private boolean isPermanentFocusOwner()
     {
-        Component permanentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getPermanentFocusOwner();
-        return (permanentFocusOwner == graphEditor);
+        return graphEditor.hasFocus();// graphEditor.hasFocus is overloaded
+        //Component permanentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getPermanentFocusOwner();
+        //return (permanentFocusOwner == graphEditor);
     }
 
     /**

@@ -44,7 +44,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3065 2004-10-25 06:45:16Z bquig $
+ * @version $Id: PkgMgrFrame.java 3205 2004-11-29 15:48:03Z fisker $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -691,6 +691,7 @@ public class PkgMgrFrame extends JFrame
     public void focusGained(FocusEvent e)
     {
         classScroller.setBorder(Config.focusBorder);
+        editor.setHasFocus(true);
     }
 
     /**
@@ -700,6 +701,7 @@ public class PkgMgrFrame extends JFrame
     {
         if (!e.isTemporary()) {
             classScroller.setBorder(Config.normalBorder);
+            editor.setHasFocus(false);
         }
     }
 
@@ -2648,4 +2650,5 @@ public class PkgMgrFrame extends JFrame
                 setStatus(Config.getString("pkgmgr.error.open"));
         }
     }
+    
 }
