@@ -29,7 +29,7 @@ public final class MoeEditorManager
     extends bluej.editor.EditorManager
 {
     // public static variables
-    //bq?
+
     protected static MoeEditorManager editorManager;   // the manager object itself
 
     // private variables
@@ -37,7 +37,7 @@ public final class MoeEditorManager
     private Properties resources;
     private Vector editors;			// open editors
     private Finder finder;			// the finder object
-
+    private Replacer replacer;		// the replacer object
     // user preferences
 
     private boolean showLineNum;
@@ -49,7 +49,8 @@ public final class MoeEditorManager
     {
         editors = new Vector(4,4);
         finder = new Finder();
-
+        replacer = new Replacer();
+        
         showToolBar = true;
         showLineNum = false;
 
@@ -208,6 +209,16 @@ public final class MoeEditorManager
         return finder;
     }
 
+       // ------------------------------------------------------------------------
+    /**
+    ** Return the shared replacer object
+    **/
+
+    Replacer getReplacer()
+    {
+        return replacer;
+    }
+    
     // ========================== PRIVATE METHODS ===========================
 
     // ------------------------------------------------------------------------

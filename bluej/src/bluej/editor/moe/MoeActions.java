@@ -852,7 +852,8 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e) {
-            DialogManager.NYI(getEditor(e));
+           // DialogManager.NYI(getEditor(e));
+           getEditor(e).replace();
         }
     }
 
