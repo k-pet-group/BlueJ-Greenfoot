@@ -18,7 +18,7 @@ import bluej.extmgr.*;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 1991 2003-05-28 08:53:06Z ajp $
+ * @version $Id: Project.java 2027 2003-06-11 07:55:50Z ajp $
  */
 public class Project
     implements BlueJEventListener
@@ -308,7 +308,7 @@ public class Project
     private Debugger debugger;
     
     /** the ExecControls for this project */
-	private ExecControls execControls;
+	private ExecControls execControls = null;
 
 	/** the documentation generator for this project. */
 	private DocuGenerator docuGenerator;
@@ -352,7 +352,6 @@ public class Project
 		debugger = Debugger.getDebuggerImpl(getProjectDir());
 		debugger.launch();
 
-		execControls = new ExecControls(this, debugger);	
         docuGenerator = new DocuGenerator(this);
     }
 
@@ -561,6 +560,15 @@ public class Project
         }
     }
 
+	public void restartVM()
+	{
+		removeLocalClassLoader();
+		
+		getDebugger().close();
+		
+		getDebugger().launch();
+	}
+	
     /**
      * Get the ClassLoader for this project.
      * The ClassLoader load classes on the local VM.
@@ -621,8 +629,16 @@ public class Project
 		return debugger;
 	}
 
+	public boolean hasExecControls()
+	{
+		return execControls != null;
+	}
+	
 	public ExecControls getExecControls()
 	{
+		if (execControls == null)
+			execControls = new ExecControls(this, getDebugger());
+			
 		return execControls;
 	}
 	
