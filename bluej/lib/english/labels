@@ -442,13 +442,14 @@ debugger.execControls.staticTitle = Static variables
 debugger.execControls.instanceTitle = Instance variables
 debugger.execControls.localTitle = Local variables
 debugger.execControls.threadTitle = Threads
-debugger.execControls.updateText = Update
-debugger.execControls.systemThreads = Show system threads
 debugger.execControls.haltButtonText = Halt
 debugger.execControls.stepButtonText = Step
 debugger.execControls.stepIntoButtonText = Step Into
 debugger.execControls.continueButtonText = Continue
 debugger.execControls.terminateButtonText = Terminate
+
+debugger.options = Options
+debugger.hideSystemThreads = Hide system threads
 
 # DialogManager labels
 dialogmgr.error = BlueJ:  Error
