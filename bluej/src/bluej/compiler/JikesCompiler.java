@@ -9,7 +9,7 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 
 /**
- ** @version $Id: JikesCompiler.java 84 1999-05-17 07:13:18Z ajp $
+ ** @version $Id: JikesCompiler.java 85 1999-05-17 07:16:31Z ajp $
  ** @author Andrew Patterson
  **
  ** JikesCompiler class - an implementation for the BlueJ "Compiler"
@@ -97,7 +97,7 @@ public class JikesCompiler extends Compiler
 			result = true;
 		}
 		else {
-			BufferedReader d = new BufferedReader(new InputStreamReader(comp.getInputStream()));
+			BufferedReader d = new BufferedReader(new InputStreamReader(compiler.getInputStream()));
 			String line;
 
 			while((line = d.readLine()) != null) {
