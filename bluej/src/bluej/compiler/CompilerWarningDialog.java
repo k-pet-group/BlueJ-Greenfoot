@@ -13,7 +13,7 @@ import javax.swing.*;
  * Dialog for Compiler Warning messages.  Should be used as a Singleton.  
  * The dialog is non-modal, allowing minimisation to ignore further warnings.
  * 
- * @version $Id: CompilerWarningDialog.java 1732 2003-04-01 06:28:39Z bquig $
+ * @version $Id: CompilerWarningDialog.java 1762 2003-04-09 03:02:27Z bquig $
  * @author Bruce Quig
  */
 public class CompilerWarningDialog extends JFrame implements ActionListener
@@ -27,7 +27,7 @@ public class CompilerWarningDialog extends JFrame implements ActionListener
     private MultiLineLabel warningLabel;
     
     // singleton
-    private static CompilerWarningDialog dialog = new CompilerWarningDialog();
+    private static CompilerWarningDialog dialog;
     
     /**
      * Creates a new CompilerWarningDialog object.  Needs to be accessed through
@@ -79,6 +79,8 @@ public class CompilerWarningDialog extends JFrame implements ActionListener
     
     public static CompilerWarningDialog getDialog()
     {
+        if(dialog==null)
+            dialog = new CompilerWarningDialog();
         return dialog;
     }
 
