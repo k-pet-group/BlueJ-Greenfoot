@@ -23,47 +23,67 @@
     <!-- do not edit below here for local customisation -->
 
     <!-- Set up common directories -->
-    <property name="src" value="src"/>
-    <property name="build" value="classes"/>
     <property name="doc" value="doc/all"/>
     <property name="extdoc" value="doc/extensions"/>
+
+    <property name="core.src" value="src"/>
+    <property name="core.build" value="classes"/>
     <property name="boot.src" value="boot/src"/>
     <property name="boot.build" value="boot/classes"/>
     <property name="test.src" value="test/src"/>
     <property name="test.build" value="test/classes"/>
     <property name="test.report" value="test/report"/>
 
+	<property name="boot.jar" value="${bluej_home}/lib/bluej.jar"/>
+	<property name="core.jar" value="${bluej_home}/lib/bluejcore.jar"/>
+	<property name="extension.jar" value="${bluej_home}/lib/bluejext.jar"/>
+
     <!-- Set up classpath (does not include jar files built by us) -->
     <path id="bluej.class.path">
-        <pathelement location="${bluej_home}/lib/ext/MRJToolkitStubs.zip"/>
-        <pathelement location="${bluej_home}/lib/ext/MRJ141Stubs.jar"/>
-        <pathelement location="${bluej_home}/lib/ext/antlr.jar"/>
-        <pathelement location="${bluej_home}/lib/ext/junit.jar"/>
+        <pathelement location="${bluej_home}/lib/MRJToolkitStubs.zip"/>
+        <pathelement location="${bluej_home}/lib/MRJ141Stubs.jar"/>
+        <pathelement location="${bluej_home}/lib/antlr.jar"/>
+        <pathelement location="${bluej_home}/lib/junit.jar"/>
         <!--pathelement location="${bluej_home}/lib/jcvsii.jar" /-->
     </path>
 
-    <target name="prepare">
-        <!-- Create the time stamp -->
-        <tstamp/>
-        <!-- Create the build directory structure used by compile -->
-        <mkdir dir="${build}"/>
-    </target>
-
+    <!--
+      -  Generate the parser Java code - not a dependency of any other
+      -  target. Must be explicitly specified on ant command line
+     -->
     <target name="parser">
-        <!-- Generate the parser Java code - not a dependency of any other
-             target. Must be explicitly specified on ant command line -->
-        <antlr target="${src}/bluej/parser/java.g"/>
-        <antlr target="${src}/bluej/parser/ast/java.g"/>
-        <antlr target="${src}/bluej/parser/ast/unittest.tree.g"/>
+        <antlr target="${core.src}/bluej/parser/java.g"/>
+        <antlr target="${core.src}/bluej/parser/ast/java.g"/>
+        <antlr target="${core.src}/bluej/parser/ast/unittest.tree.g"/>
     </target>
 
-    <target name="compile" depends="prepare">
-        <!-- Compile the java code from ${src} into ${build} -->
+    <!--
+      -  Compile the boot strap loader
+     -->
+    <target name="compile-boot">
+        <mkdir dir="${boot.build}"/>
+        <!-- Compile the java code from ${boot.src} into ${boot.build} -->
+        <!-- Boot should not need any other jars or classes other than standard JDK -->
         <javac
                 executable="${build_java_home}/bin/javac"
                 fork="yes"
-                srcdir="${src}"
-                destdir="${build}"
+                srcdir="${boot.src}"
+                destdir="${boot.build}"
+                deprecation="yes"
+        />
+    </target>
+
+    <!--
+      -  Compile the core classes (including extension classes)
+     -->
+    <target name="compile-core">
+        <mkdir dir="${core.build}"/>
+        <!-- Compile the java code from ${core.src} into ${core.build} -->
+        <javac
+                executable="${build_java_home}/bin/javac"
+                fork="yes"
+                srcdir="${core.src}"
+                destdir="${core.build}"
                 debug="on"
                 deprecation="yes"
                 excludes="de/**,
@@ -78,16 +98,16 @@
                 >
             <classpath>
                 <path refid="bluej.class.path"/>
-                <pathelement location="${bluej_home}/lib/bluej.jar"/>
+                <pathelement location="${boot.jar}"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
         </javac>
     </target>
 
-    <target name="compile-test">
+    <target name="compile-test" depends="compile-boot, compile-core">
         <mkdir dir="${test.build}"/>
         <mkdir dir="${test.report}"/>
-        <!-- Compile the java code from ${testsrc} into ${testbuild} -->
+        <!-- Compile the java code from ${test.src} into ${test.build} -->
         <javac
                 executable="${build_java_home}/bin/javac"
                 fork="yes"
@@ -97,29 +117,18 @@
                 >
             <classpath>
                 <path refid="bluej.class.path"/>
-                <pathelement location="${build}"/>
+                <pathelement location="${boot.build}"/>
+                <pathelement location="${core.build}"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
         </javac>
     </target>
 
-    <target name="compile-boot">
-        <mkdir dir="${boot.build}"/>
-        <!-- Compile the java code from ${boot.src} into ${boot.build} -->
-        <javac
-                executable="${build_java_home}/bin/javac"
-                fork="yes"
-                srcdir="${boot.src}"
-                destdir="${boot.build}"
-                deprecation="yes"
-        />
-    </target>
-
     <target name="jar-boot" depends="compile-boot">
         <!-- Delete the old jar first. To make sure it gets recreated -->
-        <delete quiet="true" file="${bluej_home}/lib/bluej.jar"/>
+        <delete quiet="true" file="${boot.jar}"/>
         <!-- This is the Boot, the resulting jar is bluej.jar for historic reasons -->
-        <jar compress="yes" jarfile="${bluej_home}/lib/bluej.jar">
+        <jar compress="yes" jarfile="${boot.jar}">
             <fileset dir="${boot.build}">
                 <include name="bluej/Boot*.class"/>
                 <include name="bluej/Splash*.class"/>
@@ -133,25 +142,27 @@
         </jar>
     </target>
 
-    <target name="jarred" depends="compile, jar-boot">
-        <!-- Delete the old jars first. To make shure they get recreated -->
-        <delete quiet="true" file="${bluej_home}/lib/ext/bluejcore.jar"/>
-        <delete quiet="true" file="${bluej_home}/lib/ext/bluejext.jar"/>
-
-        <jar compress="no" jarfile="${bluej_home}/lib/ext/bluejcore.jar">
-            <fileset dir="${build}">
+    <target name="jar-core" depends="jar-boot, compile-core">
+        <!-- delete the old jar first. To make sure it gets recreated -->
+        <delete quiet="true" file="${core.jar}"/>
+        <jar compress="no" jarfile="${core.jar}">
+            <fileset dir="${core.build}">
                 <exclude name="bluej/extensions/**" />
             </fileset>
         </jar>
+    </target>
 
-        <jar compress="no" jarfile="${bluej_home}/lib/ext/bluejext.jar">
-            <fileset dir="${build}">
+    <target name="jar-extension" depends="jar-boot, compile-core">
+        <!-- delete the old jar first. To make sure it gets recreated -->
+        <delete quiet="true" file="${extension.jar}"/>
+        <jar compress="no" jarfile="${extension.jar}">
+            <fileset dir="${core.build}">
                 <include name="bluej/extensions/**" />
             </fileset>
         </jar>
     </target>
 
-    <target name="ready-to-run" depends="jarred, inspector">
+    <target name="ready-to-run" depends="jar-core, jar-extension">
     </target>
 
     <target name="editor-dist">
@@ -165,8 +176,8 @@
     </target>
 
     <target name="run">
-        <!-- Run the java code in ${build} -->
-        <java jar="${bluej_home}/lib/bluej.jar" fork="yes" jvm="${run_java_home}/bin/java">
+        <!-- run the java code built into the jar files -->
+        <java jar="${boot.jar}" fork="yes" jvm="${run_java_home}/bin/java">
             <!-- <arg path="${bluej_home}/test-examples/dummy/bluej.pkg"/> -->
         </java>
     </target>
@@ -181,11 +192,13 @@
         <ant antfile="package.xml" dir="package" target="windows-dist"/>
     </target>
 
-    <target name="test" depends="compile,compile-test">
+    <target name="test" depends="compile-core, compile-test">
         <junit printsummary="yes" haltonfailure="yes">
             <classpath>
                 <path refid="bluej.class.path"/>
-                <pathelement location="${bluej_home}/lib/bluej.jar"/>
+                <pathelement location="${boot.jar}"/>
+                <pathelement location="${core.jar}"/>
+                <pathelement location="${extension.jar}"/>
                 <pathelement location="${run_java_home}/lib/tools.jar"/>
                 <pathelement location="${test.build}"/>
             </classpath>
@@ -210,7 +223,7 @@
                "bluej.guibuilder.*,
                 bluej.groupwork.*,
                 bluej.browser.*"
-            sourcepath="${src}"
+            sourcepath="${core.src}"
             Windowtitle="BlueJ API"
             Doctitle="BlueJ API"
             bottom="&lt;a href=//www.bluej.org/&gt;BlueJ homepage&lt;/a&gt;">
@@ -219,7 +232,7 @@
         <mkdir dir="${extdoc}"/>
         <javadoc destdir="${extdoc}"
             packagenames="bluej.extensions.event"
-            sourcepath="${src}"
+            sourcepath="${core.src}"
 
             Windowtitle="BlueJ Extensions API"
             Doctitle="BlueJ Extensions API"
@@ -233,14 +246,20 @@
        </javadoc>
     </target>
 
-    <target name="clean">
-        <!-- Delete the ${build} directory trees -->
-        <delete quiet="true" dir="${build}/bluej"/>
-        <delete quiet="true" dir="${build}/org"/>
-        <delete quiet="true" dir="${build}/net"/>
-        <delete quiet="true" file="${bluej_home}/lib/bluej.jar"/>
-        <delete quiet="true" file="${bluej_home}/lib/ext/bluejcore.jar"/>
-        <delete quiet="true" file="${bluej_home}/lib/ext/bluejext.jar"/>
+    <target name="clean-boot">
+        <delete quiet="true" dir="${boot.build}/bluej"/>
+        <delete quiet="true" file="${boot.jar}"/>
+    </target>
+
+    <target name="clean-core">
+        <delete quiet="true" dir="${core.build}/bluej"/>
+        <delete quiet="true" dir="${core.build}/org"/>
+        <delete quiet="true" dir="${core.build}/net"/>
+        <delete quiet="true" file="${core.jar}"/>
+        <delete quiet="true" file="${extension.jar}"/>
+    </target>
+
+    <target name="clean" depends="clean-boot, clean-core">
         <!-- Clean inspectors -->
         <ant antfile="inspector.xml" dir="inspector" target="clean-inspector"/>
     	<!-- Clean extensions -->
