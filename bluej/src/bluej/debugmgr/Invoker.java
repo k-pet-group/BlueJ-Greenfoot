@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 2969 2004-09-01 05:07:49Z davmac $
+ * @version $Id: Invoker.java 2970 2004-09-01 06:03:09Z davmac $
  */
 
 public class Invoker
@@ -258,6 +258,7 @@ public class Invoker
 
             if (dlg instanceof MethodDialog) {
                 MethodDialog mDialog = (MethodDialog) dlg;
+                mDialog.setEnabled(false);
                 instanceName = mDialog.getNewInstanceName();                
                 String[] actualTypeParams = mDialog.getTypeParams();
                 
@@ -656,6 +657,9 @@ public class Invoker
         numberCompiling--;
         if (numberCompiling == 0)
             deleteShellFiles();
+        
+        if (! successful && dialog != null)
+            dialog.setEnabled(true);
     }
 
     /**

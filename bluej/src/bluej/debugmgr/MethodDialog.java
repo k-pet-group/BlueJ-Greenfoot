@@ -27,7 +27,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 2969 2004-09-01 05:07:49Z davmac $
+ * @version $Id: MethodDialog.java 2970 2004-09-01 06:03:09Z davmac $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -36,6 +36,7 @@ public class MethodDialog extends CallDialog implements FocusListener
     private static final int MD_CALL = 1;
 
     private int dialogType;
+    private boolean listeningObjects; // listening on the object bench
 
     // Window Titles
     static final String wCreateTitle = Config.getString("pkgmgr.methodCall.titleCreate");
@@ -102,7 +103,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 2969 2004-09-01 05:07:49Z davmac $
+     * @version $Id: MethodDialog.java 2970 2004-09-01 06:03:09Z davmac $
      */
     public static class ParameterList
     {
@@ -252,27 +253,11 @@ public class MethodDialog extends CallDialog implements FocusListener
      */
     public void setVisible(boolean show)
     {
-        // reset error label message
-        setErrorMessage("");
-
-        if (show) {
-            show();
-            clearParameters();
-            startObjectBenchListening();
-
-            if (parameterList != null) {
-                parameterList.getParameter(0).getEditor().getEditorComponent().requestFocus();
-            } else if (dialogType == MD_CREATE) {
-                instanceNameText.selectAll();
-                instanceNameText.requestFocus();
-            }
-            
-            if (typeParameterList != null) {
-                typeParameterList.getParameter(0).getEditor().getEditorComponent().requestFocus();
-            }
-        } else {
-            stopObjectBenchListening();
-            hide();
+        if (! show) {
+            if(listeningObjects)
+                stopObjectBenchListening();
+            listeningObjects = false;
+            super.setVisible(false);
         }
     }
 
@@ -431,6 +416,27 @@ public class MethodDialog extends CallDialog implements FocusListener
         else
             instanceNameText.setText(instanceName);
         createDescription();
+        
+        // reset error label message
+        setErrorMessage("");
+
+        clearParameters();
+        if(! listeningObjects) {
+            startObjectBenchListening();
+            listeningObjects = true;
+        }
+        show();
+
+        if (parameterList != null) {
+            parameterList.getParameter(0).getEditor().getEditorComponent().requestFocus();
+        } else if (dialogType == MD_CREATE) {
+            instanceNameText.selectAll();
+            instanceNameText.requestFocus();
+        }
+        
+        if (typeParameterList != null) {
+            typeParameterList.getParameter(0).getEditor().getEditorComponent().requestFocus();
+        }
     }
     
     /**
