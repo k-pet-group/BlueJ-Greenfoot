@@ -12,6 +12,9 @@ How to make a BlueJ release for Windows               (last update 1.04.2002, aj
     BlueJ version so that each bluej version uses a different registry
     key for storing VM information.
 
+    In the properties of the project increment the version number that 
+    is associated with the .exe.
+
  4. Do a "build all" of the project. Delphi will automatically
     incremement the projects build number. Quit Delphi.
 
