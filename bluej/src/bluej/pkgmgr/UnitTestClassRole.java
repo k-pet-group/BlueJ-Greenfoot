@@ -31,7 +31,7 @@ import antlr.*;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 1638 2003-03-04 04:04:27Z ajp $
+ * @version $Id: UnitTestClassRole.java 1697 2003-03-11 19:58:20Z mik $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -56,7 +56,7 @@ public class UnitTestClassRole extends ClassRole
 
     public Color getBackgroundColour()
     {
-        return new Color(200,200,200);
+        return Config.getItemColour("colour.class.bg.unittest");
     }
 
     /**
