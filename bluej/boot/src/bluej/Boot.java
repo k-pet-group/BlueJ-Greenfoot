@@ -15,7 +15,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 2453 2004-01-14 03:58:23Z ajp $
+ * @version $Id: Boot.java 2464 2004-01-28 02:39:23Z ajp $
  */
 public class Boot
 {
@@ -46,7 +46,7 @@ public class Boot
     // The jar files we expect in the BlueJ lib directory
     // The first lot are the ones to run BlueJ itself
     private static String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
-                                          "antlr.jar", "bsh.jar", "MRJ141Stubs.jar", "MRJToolkitStubs.zip" };
+                                          "antlr.jar", "bsh.jar", "MRJ141Stubs.jar" };
     // The second group are available to user code (and to bluej)
     private static String[] bluejUserJars = { "junit.jar" };
     
