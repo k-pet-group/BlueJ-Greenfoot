@@ -15,23 +15,16 @@ package org.bluej.extensions.submitter;
  * - It is not a property of the dialog either....
  */
 
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
+import javax.swing.tree.*;
 import org.bluej.extensions.submitter.transport.*;
 import org.bluej.utility.*;
-
-import bluej.extensions.*;
-
-import java.awt.event.*;
-import java.awt.*;
-
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
-import javax.swing.tree.*;
-
-import java.util.Collection;
-import java.util.Properties;
-
-import java.io.*;
 
  
 public class SubmitDialog implements ActionListener
