@@ -26,7 +26,7 @@ import bluej.utility.*;
  *
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Config.java 1773 2003-04-10 02:11:25Z ajp $
+ * @version $Id: Config.java 1775 2003-04-10 04:18:49Z ajp $
  */
 
 public class Config
@@ -323,15 +323,17 @@ public class Config
     {
         String sysID;
 
-        if(osname != null && osname.startsWith("Windows 9"))     // win95/98
+        if (osname != null && osname.startsWith("Windows 9"))     // win95/98
             sysID = "win9x";
-        else if(osname != null && osname.startsWith("Windows"))  // NT/2000/XP
+        else if (osname != null && osname.equals("Windows Me"))  // winME (same as 95/98)
+            sysID = "win9x";
+        else if (osname != null && osname.startsWith("Windows"))  // NT/2000/XP
             sysID = "win";
-        else if(osname != null && osname.startsWith("Linux"))    // Linux
+        else if (osname != null && osname.startsWith("Linux"))    // Linux
             sysID = "linux";
-        else if(osname != null && osname.startsWith("SunOS"))    // Solaris
+        else if (osname != null && osname.startsWith("SunOS"))    // Solaris
             sysID = "solaris";
-        else if(osname != null && osname.startsWith("Mac"))      // MacOS
+        else if (osname != null && osname.startsWith("Mac"))      // MacOS
             sysID = "macos";
         else
             sysID = "";
