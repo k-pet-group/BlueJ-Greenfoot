@@ -14,7 +14,7 @@ import java.util.Vector;
 
 
 /**
-** @version $Id: View.java 358 2000-01-13 06:12:26Z mik $
+** @version $Id: View.java 365 2000-01-14 06:33:17Z mik $
 ** @author Michael Cahill
 **
 ** View class - a representation of a Java class in BlueJ
@@ -323,12 +323,11 @@ public class View
                 else
                     in = curview.cl.getClassLoader().getResourceAsStream(filename);
 
-                if(in != null)
-                    {
-                        comments = new CommentList();
-                        comments.load(in);
-                        in.close();
-                    }
+                if(in != null) {
+                    comments = new CommentList();
+                    comments.load(in);
+                    in.close();
+                }
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -426,8 +425,10 @@ public class View
     {
         // print self
         Comment comment = getComment();
-        if(comment != null)
+        if(comment != null) {
             comment.print(out);
+            out.println("");
+        }
 
         out.setItalic(false);
         out.setBold(true);
@@ -440,7 +441,7 @@ public class View
 
         // print fields
         out.setItalic(true);
-        out.println("  fields:");
+        out.println("fields:");
         out.setItalic(false);
         FieldView fields[] = getAllFields();
         for(int i = 0; i < fields.length; i++)
@@ -451,7 +452,7 @@ public class View
 
         // print constructors
         out.setItalic(true);
-        out.println("  constructors:");
+        out.println("constructors:");
         out.setItalic(false);
         ConstructorView constructors[] = getConstructors();
         for(int i = 0; i < constructors.length; i++)
@@ -462,7 +463,7 @@ public class View
 
         // print methods
         out.setItalic(true);
-        out.println("  methods:");
+        out.println("methods:");
         out.setItalic(false);
         MethodView methods[] = getAllMethods();
         for(int i = methods.length-1 ; i >= 0; i--)

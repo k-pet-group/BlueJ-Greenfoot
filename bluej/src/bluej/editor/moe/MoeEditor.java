@@ -36,6 +36,10 @@ import org.gjt.sp.jedit.syntax.*; // Syntax highlighting package
  **
  **/
 
+// PENDING: add "finalize" method that does:
+//        MoeEditorManager.editorManager.removeEditor(this);
+// cuurently, editors never get removed from editor manager!
+
 public final class MoeEditor extends JFrame
     implements bluej.editor.Editor, ItemListener 
 {
@@ -54,6 +58,7 @@ public final class MoeEditor extends JFrame
     static final Color frameBgColor = new Color(196, 196, 196);
     static final Color infoColor = new Color(240, 240, 240);
     static final Color lightGrey = new Color(224, 224, 224);
+    static final Color selectionColour = new Color(204, 204, 204);
     static final Color titleCol = Config.getItemColour("colour.text.fg");
 
     //bq are these still relevant?
@@ -87,7 +92,7 @@ public final class MoeEditor extends JFrame
     private MoeSyntaxDocument document;
     private MoeActions actions;
 
-    private JEditorPane textPane;		// the component holding the text
+    private JEditorPane textPane;	// the component holding the text
     private Info info;			// the info number label
     private JPanel statusArea;		// the status area
     private LineNumberLabel lineCounter;	// the line number label
@@ -235,6 +240,7 @@ public final class MoeEditor extends JFrame
         setWindowTitle();
         //show();
         textPane.setFont(PrefMgr.getStandardEditorFont());
+        textPane.setSelectionColor(selectionColour);
 
         setCompileStatus(compiled);
         if (!isCode)
@@ -335,6 +341,7 @@ public final class MoeEditor extends JFrame
     {
         textPane.setFont(PrefMgr.getStandardEditorFont());
         setView(view);
+        checkSyntaxStatus();
         setVisible(true);		// show the window
         //  ## NYI: de-iconify
     }
@@ -444,7 +451,6 @@ public final class MoeEditor extends JFrame
     }
 
     /**
-     *
      * Set the selection of the editor to be a len characters on the
      * line lineNumber, starting with column columnNumber
      *
@@ -969,7 +975,7 @@ public final class MoeEditor extends JFrame
     public void doClose()
     {
         setVisible(false);
-        MoeEditorManager.editorManager.removeEditor(this);
+        //MoeEditorManager.editorManager.removeEditor(this);
         if (watcher != null)
             watcher.closeEvent(this);
     }

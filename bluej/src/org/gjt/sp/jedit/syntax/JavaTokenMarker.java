@@ -24,7 +24,7 @@ import javax.swing.text.Segment;
 * Java token marker.
 *
 * @author Slava Pestov
-* @version $Id: JavaTokenMarker.java 363 2000-01-14 04:35:23Z mik $
+* @version $Id: JavaTokenMarker.java 365 2000-01-14 06:33:17Z mik $
 */
 public class JavaTokenMarker extends CTokenMarker
 {
@@ -41,6 +41,8 @@ public class JavaTokenMarker extends CTokenMarker
             javaKeywords.add("import",Token.KEYWORD2);
             javaKeywords.add("class",Token.KEYWORD2);
             javaKeywords.add("interface",Token.KEYWORD2);
+            javaKeywords.add("extends",Token.KEYWORD2);
+            javaKeywords.add("implements",Token.KEYWORD2);
 
             javaKeywords.add("byte",Token.KEYWORD3);
             javaKeywords.add("char",Token.KEYWORD3);
@@ -77,9 +79,7 @@ public class JavaTokenMarker extends CTokenMarker
             javaKeywords.add("throw",Token.KEYWORD1);
             javaKeywords.add("try",Token.KEYWORD1);
             javaKeywords.add("catch",Token.KEYWORD1);
-            javaKeywords.add("extends",Token.KEYWORD1);
             javaKeywords.add("finally",Token.KEYWORD1);
-            javaKeywords.add("implements",Token.KEYWORD1);
             javaKeywords.add("throws",Token.KEYWORD1);
 
             javaKeywords.add("this",Token.LITERAL2);
@@ -98,6 +98,9 @@ public class JavaTokenMarker extends CTokenMarker
 /*
 * ChangeLog:
 * $Log$
+* Revision 1.4  2000/01/14 06:33:16  mik
+* fixed little font pref bug
+*
 * Revision 1.3  2000/01/14 04:35:18  mik
 *
 * changed colours again

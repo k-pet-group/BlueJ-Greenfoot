@@ -43,7 +43,7 @@ import java.util.Vector;
  * @author Michael Kolling
  * @author Bruce Quig
  *
- * @version $Id: ClassTarget.java 330 2000-01-02 13:25:14Z ajp $
+ * @version $Id: ClassTarget.java 365 2000-01-14 06:33:17Z mik $
  */
 public class ClassTarget extends EditableTarget
 
@@ -915,6 +915,7 @@ public class ClassTarget extends EditableTarget
 	    }
 	    editor.setReadOnly(true);
 	    setState(S_NORMAL);
+	    editor.setSelection(1, 1, 0);  // move cursor to top of editor
 	    editor.show(viewType);
 	}
     }

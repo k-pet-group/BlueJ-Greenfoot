@@ -5,7 +5,7 @@ import bluej.utility.Utility;
 import java.util.*;
 
 /**
-** @version $Id: Comment.java 358 2000-01-13 06:12:26Z mik $
+** @version $Id: Comment.java 365 2000-01-14 06:33:17Z mik $
 ** @author Michael Cahill
 **
 ** Comment class - the source information associated with a class or field
@@ -98,7 +98,7 @@ public final class Comment
             for(int i = first; i<=last; i++) { 
                 for(int j=0; j<indents; j++)
                     out.indentLine(); 
-                out.println(lines[i]); 
+                out.println("// " + lines[i]); 
             } 
         } 
     } 
