@@ -461,7 +461,9 @@ debugger.execControls.terminateButtonText = Terminate
 debugger.options = Options
 debugger.hideSystemThreads = Hide system threads
 debugger.threadRunning = <html><center>Thread is running.<br>Threads must be stopped to view details.</html>
+
 # DialogManager labels
+
 dialogmgr.error = BlueJ:  Error
 dialogmgr.question = BlueJ:  Question
 dialogmgr.message = BlueJ:  Message
@@ -604,3 +606,7 @@ about.moreInfo=More information is at www.bluej.org.
 about.theTeam.deakin=The BlueJ team at Deakin University
 about.theTeam.denmark=The BlueJ team at the University of Southern Denmark
 about.theTeam.kent=The BlueJ team at Kent University
+
+# Work Indicator
+workIndicator.showDebugger=Show Debugger
+workIndicator.resetMachine=Reset Machine

@@ -97,7 +97,7 @@ public class MachineIcon extends JLabel
 		JMenuItem item;
 		
 		//TODO: internationalization
-		item = new JMenuItem("Show Debugger");
+		item = new JMenuItem(Config.getString("workIndicator.showDebugger"));
 		item.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent e) {
 									showDebugger();
@@ -105,7 +105,7 @@ public class MachineIcon extends JLabel
 							 });
 		menu.add(item);
 
-		item = new JMenuItem("Reset Machine");
+		item = new JMenuItem(Config.getString("workIndicator.resetMachine"));
 		item.setAccelerator(PkgMgrFrame.restartKey);
 		item.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent e) {
