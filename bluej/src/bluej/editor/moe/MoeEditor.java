@@ -458,7 +458,7 @@ public final class MoeEditor extends JFrame
         Element line = getLine (lineNumber);
 
         currentTextPane.select(line.getStartOffset()+columnNumber-1,
-                        line.getStartOffset()+columnNumber+len-1);
+                               line.getStartOffset()+columnNumber+len-1);
     }
 
     // --------------------------------------------------------------------
@@ -828,7 +828,7 @@ public final class MoeEditor extends JFrame
                     int foundPos = lineText.lastIndexOf(s);
                     if (foundPos != -1) {
                         currentTextPane.select(lineStart+foundPos,
-                                        lineStart+foundPos+s.length());
+                                               lineStart+foundPos+s.length());
                         found = true;
                     }
                 }
@@ -1235,7 +1235,7 @@ public final class MoeEditor extends JFrame
     private int getCurrentLineNo()
     {
         return document.getDefaultRootElement().getElementIndex(
-                                   currentTextPane.getCaretPosition()) + 1;
+                                                                currentTextPane.getCaretPosition()) + 1;
     }
 
     // --------------------------------------------------------------------
@@ -1280,7 +1280,7 @@ public final class MoeEditor extends JFrame
     }
 
 
-   // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
     /**
      * Checks that current status of syntax highlighting option is
      * consistent with desired option eg off/on.
@@ -1310,7 +1310,7 @@ public final class MoeEditor extends JFrame
     private void setCompileStatus(boolean compiled)
     {
         actions.getActionByName("toggle-breakpoint").setEnabled(
-                                                compiled && viewingCode());
+                                                                compiled && viewingCode());
         isCompiled = compiled;
 
         if(compiled)
@@ -1725,18 +1725,25 @@ public final class MoeEditor extends JFrame
             if(reload) {
                 try {
                     String fileName = getDocPath();
-                    if(fileName.charAt(1) == ':')  // has Windows drive letter
-                        fileName = fileName.substring(2);
-                    htmlPane.setPage("file://" + fileName);
+                    Debug.message("doc path: " + fileName);
+                    // if(fileName.charAt(1) == ':')  // has Windows drive letter
+                    //       fileName = fileName.substring(2);
+
+                    //  htmlPane.setPage("file://" + fileName);
+                    htmlPane.setPage("file://localhost/" + fileName);
 
                     htmlDocument = (HTMLDocument)htmlPane.getDocument();
+                    Debug.message("after htmlDocument.getDocument");
+           
                     htmlDocument.setBase(new URL("file://" + getDocPath()));
+                    Debug.message("after htmlDocument.setBase");
+
                     info.message(Config.getString("editor.info.docLoaded"));
                 }
                 catch (Exception exc) {
                     info.warning(
-                             Config.getString("editor.info.docDisappeared"),
-                             getDocPath());
+                                 Config.getString("editor.info.docDisappeared"),
+                                 getDocPath());
                     Debug.reportError("loading class interface failed: "+exc);
                 }
             }
