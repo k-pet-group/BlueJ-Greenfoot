@@ -8,23 +8,16 @@ import java.util.ArrayList;
 import sun.misc.*;
 
 /**
- * This class is now the starting point of BlueJ.
- * In order to isolate the libraries used by BlueJ (antlr etc.) from the
- * Extensions, we need to keep those libraries out of the classpath and 
- * start BlueJ with a ClassLoader that understands how to find them.
- * To make sure that classloader is used by by BlueJ we need bluej.Main itself to
- * be loaded by it.
+ * This class is the BlueJ boot loader. bluej.Boot is the class that should be 
+ * started to execute BlueJ. No other external classpath settings are necessary. 
  *
- * So, we need this bootstrap Class, which just sets up the new ClassLoader and 
- * then constructs a bluej.Main object with it.
- *
- * A side effect is that this class also understands where BlueJ is
- * and where the java runtime is.
+ * This loader finds and loads the known BlueJ classes and sets up the classpath.
+ * While doing this, it displays a splash screen.
  *
  * @author	Andrew Patterson
  * @author	Damiano Bolla
  * @author	Michael Kolling
- * @version $Id: Boot.java 2163 2003-08-06 16:40:21Z mik $
+ * @version $Id: Boot.java 2183 2003-09-28 14:56:11Z mik $
  */
 public class Boot
 {
@@ -43,7 +36,7 @@ public class Boot
                                          + BLUEJ_VERSION_SUFFIX;
 
     public static String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
-
+    
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
     
@@ -60,10 +53,9 @@ public class Boot
     private static String[] bluejUserJars = { "junit.jar" };
     
     private static boolean useClassesDir = false;
-	
+
     /**
      * Entry point for booting BlueJ
-     * bluej.Boot should be listed in the JAR Manifest as the Main-Class
      *
      * @param  args  The command line arguments
      */
@@ -94,12 +86,12 @@ public class Boot
 			System.exit(-1);
 		}
 
+		SplashWindow splash = new SplashWindow();
+    	
 		if((args.length >= 1) && "-useclassesdir".equals(args[0])) {
 			useClassesDir = true;
 		}
 		
-		SplashWindow splash = new SplashWindow();
-    	
         instance = new Boot(args);
         instance.bootBluej();
 
@@ -224,8 +216,9 @@ public class Boot
 
             // Use the new class loader to find and construct a
             // bluej.Main object. This starts BlueJ "proper".
-            Class theMainClass = Class.forName("bluej.Main", true, runtimeLoader);
-            Object theMain = theMainClass.newInstance();
+            Class mainClass = Class.forName("bluej.Main", true, runtimeLoader);
+            Object main = mainClass.newInstance();
+            
         } catch (Exception exc) {
             exc.printStackTrace();
         }
