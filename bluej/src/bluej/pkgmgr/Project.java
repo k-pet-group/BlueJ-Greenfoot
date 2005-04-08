@@ -5,23 +5,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import javax.swing.JFrame;
+
 import bluej.Config;
 import bluej.classmgr.ClassMgr;
 import bluej.classmgr.ClassPath;
 import bluej.classmgr.ProjectClassLoader;
-import bluej.debugger.Debugger;
-import bluej.debugger.DebuggerEvent;
-import bluej.debugger.DebuggerListener;
-import bluej.debugger.DebuggerThread;
+import bluej.debugger.*;
 import bluej.debugmgr.ExecControls;
+import bluej.debugmgr.ExpressionInformation;
+import bluej.debugmgr.inspector.*;
 import bluej.extmgr.ExtensionsManager;
 import bluej.prefmgr.PrefMgr;
 import bluej.terminal.Terminal;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.FileUtility;
-import bluej.utility.JavaNames;
-import bluej.utility.Utility;
+import bluej.testmgr.record.ClassInspectInvokerRecord;
+import bluej.testmgr.record.InvokerRecord;
+import bluej.utility.*;
 import bluej.views.View;
 
 /**
@@ -31,7 +30,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3307 2005-01-31 01:44:34Z davmac $
+ * @version $Id: Project.java 3342 2005-04-08 04:21:47Z bquig $
  */
 public class Project
     implements DebuggerListener
@@ -348,6 +347,12 @@ public class Project
        /home/user/foo is the project directory, this variable
        will be set to com.sun */
     private String initialPackageName = "";
+    
+    /** This holds all object inspectors and class inspectors 
+        for a project. It should only hold object inspectors that 
+        have a wrapper on the object bench. Inspectors of fields of 
+        object inspectors should be handled at the object wrapper level */
+    private Map inspectors;
 
     private boolean inTestMode = false;
 
@@ -364,7 +369,7 @@ public class Project
             throw new NullPointerException();
 
         this.projectDir = projectDir;
-
+        inspectors = new HashMap();
         packages = new TreeMap();
         try {
             packages.put("", new Package(this));
@@ -372,12 +377,191 @@ public class Project
         catch (IOException exc) {
             Debug.reportError("could not read package file (unnamed package)");
         }
-
+        
+        
 		debugger = Debugger.getDebuggerImpl(getProjectDir(), getTerminal());
 		debugger.addDebuggerListener(this);
 		debugger.launch();
 
         docuGenerator = new DocuGenerator(this);
+    }
+    
+    /**
+     * Return an ObjectInspector for an object. 
+     * 
+     * @param obj
+     *            The object displayed by this viewer
+     * @param name
+     *            The name of this object or "null" if the name is unobtainable
+     * @param pkg
+     *            The package all this belongs to
+     * @param ir
+     *            the InvokerRecord explaining how we got this result/object if
+     *            null, the "get" button is permanently disabled
+     * @param parent
+     *            The parent frame of this frame
+     * @return The Viewer value
+     */
+    public ObjectInspector getInspectorInstance(DebuggerObject obj, String name, Package pkg, InvokerRecord ir,
+            JFrame parent)
+    {
+        ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
+
+        if (inspector == null) {
+            inspector = new ObjectInspector(obj, name, pkg, ir, parent);
+            inspectors.put(obj, inspector);
+        }        
+
+        final ObjectInspector insp = inspector;
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                insp.update();
+                insp.setVisible(true);
+                insp.bringToFront();
+            }
+        });
+
+        return inspector;
+    }
+    
+    /**
+     * Get the inspector
+     * @param obj
+     * @return the inspector
+     */
+    public Inspector getInspector(Object obj)
+    {
+        return (Inspector)inspectors.get(obj);
+    }
+    
+    /**
+     * Remove an inspector from the list of inspectors for this project
+     * @param obj the inspector
+     */
+    public void removeInspector(Object obj)
+    {
+        inspectors.remove(obj);
+    }
+    
+    /**
+     * Removes an inspector instance from the collection of inspectors
+     * for this project. It firstly retrieves the inspector object and 
+     * then calls it's doClose method to 
+     * @param obj
+     */
+    public void removeInspectorInstance(Object obj)
+    {
+        Inspector inspect = getInspector(obj);
+        if(inspect != null) {
+            inspect.doClose();
+        }
+    }
+    
+    /**
+     * Removes all inspector instances for this project.
+     * This is used when VM is reset or the project is recompiled.
+     *
+     */
+    public void removeAllInspectors()
+    {
+        for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
+            Inspector inspector = (Inspector) it.next();
+            inspector.setVisible(false);
+            inspector.dispose();
+        }
+        inspectors.clear();
+    }
+    
+    /**
+     * Return a ClassInspector for a class. The inspector is visible. 
+     * 
+     * @param clss
+     *            The class displayed by this viewer
+     * @param name
+     *            The name of this object or "null" if it is not on the object
+     *            bench
+     * @param pkg
+     *            The package all this belongs to
+     * @param getEnabled
+     *            if false, the "get" button is permanently disabled
+     * @param parent
+     *            The parent frame of this frame
+     * @return The Viewer value
+     */
+    public ClassInspector getClassInspectorInstance(DebuggerClass clss, Package pkg, JFrame parent)
+    {
+        ClassInspector inspector = (ClassInspector) inspectors.get(clss.getName());
+
+        if (inspector == null) {
+            ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
+            inspector = new ClassInspector(clss, pkg, ir, parent);
+            inspectors.put(clss.getName(), inspector);
+        }        
+
+        final Inspector insp = inspector;
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                insp.update();
+                insp.setVisible(true);
+                insp.bringToFront();
+            }
+        });
+        return inspector;
+    }
+    
+    /**
+     * Return an ObjectInspector for an object. The inspector is visible.
+     * 
+     * @param obj
+     *            The object displayed by this viewer
+     * @param name
+     *            The name of this object or "null" if the name is unobtainable
+     * @param pkg
+     *            The package all this belongs to
+     * @param ir
+     *            the InvokerRecord explaining how we got this result/object if
+     *            null, the "get" button is permanently disabled
+     * @param info
+     *            The information about the the expression that gave this result
+     * @param parent
+     *            The parent frame of this frame
+     * @return The Viewer value
+     */
+    public ResultInspector getResultInspectorInstance(DebuggerObject obj, String name, Package pkg, InvokerRecord ir,
+            ExpressionInformation info, JFrame parent)
+    {
+        ResultInspector inspector = (ResultInspector) pkg.getProject().getInspector(obj);
+
+        if (inspector == null) {
+            inspector = new ResultInspector(obj, name, pkg, ir, info, parent);
+            inspectors.put(obj, inspector);
+        }
+
+        final ResultInspector insp = inspector;
+        insp.update();
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                insp.setVisible(true);
+                insp.bringToFront();
+            }
+        });
+
+        return inspector;
+    }
+    
+    /**
+     * Iterates through all inspectors and updates them
+     *
+     */
+    public void updateInspectors()
+    {
+        for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
+            Inspector inspector = (Inspector) it.next();
+            inspector.update();
+        }
     }
 
     /**
@@ -397,7 +581,7 @@ public class Project
     }
 
     /**
-     * Return wether the project is located in a readonly directory
+     * Return whether the project is located in a readonly directory
      * @return
      */
     public boolean isReadOnly()
@@ -817,6 +1001,10 @@ public class Project
                 frames[i].clearTextEval();
             }
 
+            // get rid of any inspectors that are open that were not cleaned up
+            // as part of removing objects from the bench
+            removeAllInspectors();
+            
             // remove views for classes loaded by this classloader
             View.removeAll(loader);
 

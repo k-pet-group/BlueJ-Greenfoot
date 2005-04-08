@@ -59,7 +59,7 @@ import javax.swing.JPopupMenu;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3334 2005-03-14 03:53:16Z davmac $
+ * @version $Id: ClassTarget.java 3342 2005-04-08 04:21:47Z bquig $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable
@@ -236,7 +236,7 @@ public class ClassTarget extends EditableTarget
      */
     public void setState(int newState)
     {
-        Inspector.removeInstance(getQualifiedName());
+        getPackage().getProject().removeInspectorInstance(getQualifiedName());
         super.setState(newState);
     }
 
@@ -650,7 +650,7 @@ public class ClassTarget extends EditableTarget
         try {
             DebuggerClass clss = getPackage().getDebugger().getClass(getQualifiedName());
 
-            ClassInspector.getInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
+            getPackage().getProject().getClassInspectorInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
             // show dialog
         }
         catch (ClassNotFoundException cnfe) {}
