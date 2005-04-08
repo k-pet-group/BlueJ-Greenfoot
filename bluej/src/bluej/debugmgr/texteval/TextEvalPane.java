@@ -27,7 +27,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3292 2005-01-19 01:16:01Z davmac $
+ * @version $Id: TextEvalPane.java 3341 2005-04-08 04:12:53Z bquig $
  */
 public class TextEvalPane extends JEditorPane 
     implements ResultWatcher, MouseMotionListener
@@ -246,7 +246,7 @@ public class TextEvalPane extends JEditorPane
         final TextEvalPane.ObjectInfo oi = objInfo;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                ObjectInspector.getInstance(oi.obj, null, frame.getPackage(), oi.ir, frame);
+                frame.getProject().getInspectorInstance(oi.obj, null, frame.getPackage(), oi.ir, frame);
             }
         });
     }

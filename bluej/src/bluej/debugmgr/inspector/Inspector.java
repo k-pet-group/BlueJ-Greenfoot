@@ -25,14 +25,14 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Inspector.java 2960 2004-08-30 12:39:41Z mik $
+ * @author Bruce Quig
+ * @version $Id: Inspector.java 3341 2005-04-08 04:12:53Z bquig $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
 {
     // === static variables ===
 
-    protected static HashMap inspectors = new HashMap();
 
     protected final static String showClassLabel = Config.getString("debugger.inspector.showClass");
     protected final static String inspectLabel = Config.getString("debugger.inspector.inspect");
@@ -64,27 +64,7 @@ public abstract class Inspector extends JFrame
     //The width of the list
     private static final int LIST_WIDTH = 200;
 
-    /**
-     * Update all open inspectors to show up-to-date values.
-     */
-    public static void updateInspectors()
-    {
-        for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
-            Inspector inspector = (Inspector) it.next();
-            inspector.update();
-        }
-    }
-
-    /**
-     * Remove an Inspector from the pool of existing inspectors.
-     */
-    public static void removeInstance(Object key)
-    {
-        Inspector insp = (Inspector) inspectors.get(key);
-        if (insp != null)
-            insp.doClose();
-    }
-
+  
     /**
      * Constructor.
      * 
@@ -335,7 +315,7 @@ public abstract class Inspector extends JFrame
 
             InvokerRecord newIr = new ObjectInspectInvokerRecord("Math", selectedObjectName, ir);
 
-            ObjectInspector.getInstance(selectedObject, selectedObjectName, pkg, isPublic ? newIr : null, this);
+            pkg.getProject().getInspectorInstance(selectedObject, selectedObjectName, pkg, isPublic ? newIr : null, this);
         }
     }
 
@@ -354,7 +334,7 @@ public abstract class Inspector extends JFrame
      * Close this viewer. Don't forget to remove it from the list of open
      * inspectors.
      */
-    private void doClose()
+    public void doClose()
     {
         handleAssertions();
 

@@ -44,7 +44,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3333 2005-03-09 23:12:44Z davmac $
+ * @version $Id: PkgMgrFrame.java 3341 2005-04-08 04:12:53Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1461,7 +1461,7 @@ public class PkgMgrFrame extends JFrame
                     if (result == null)
                         return;
 
-                    ResultInspector viewer = ResultInspector.getInstance(result, name, getPackage(), ir,
+                    ResultInspector viewer = getProject().getResultInspectorInstance(result, name, getPackage(), ir,
                             expressionInformation, PkgMgrFrame.this);
                     BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, viewer.getResult());
                 }

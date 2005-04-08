@@ -21,7 +21,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 2949 2004-08-26 10:37:04Z polle $
+ * @version $Id: ClassInspector.java 3341 2005-04-08 04:12:53Z bquig $
  */
 public class ClassInspector extends Inspector
 {
@@ -41,52 +41,13 @@ public class ClassInspector extends Inspector
 
     protected DebuggerClass myClass;
 
-    /**
-     * Return a ClassInspector for a class. The inspector is visible. This is
-     * the only way to get access to viewers - they cannot be directly created.
-     * 
-     * @param clss
-     *            The class displayed by this viewer
-     * @param name
-     *            The name of this object or "null" if it is not on the object
-     *            bench
-     * @param pkg
-     *            The package all this belongs to
-     * @param getEnabled
-     *            if false, the "get" button is permanently disabled
-     * @param parent
-     *            The parent frame of this frame
-     * @return The Viewer value
-     */
-    public static ClassInspector getInstance(DebuggerClass clss, Package pkg, JFrame parent)
-    {
-        ClassInspector inspector = (ClassInspector) inspectors.get(clss.getName());
-
-        if (inspector == null) {
-            // XXX
-            ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
-            inspector = new ClassInspector(clss, pkg, ir, parent);
-            inspectors.put(clss.getName(), inspector);
-        }        
-
-        final Inspector insp = inspector;
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                insp.update();
-                insp.setVisible(true);
-                insp.bringToFront();
-            }
-        });
-        return inspector;
-    }
+   
 
     /**
-     * Constructor Note: private -- ClassInspectors can only be created with the
-     * static "getInstance" method. 'pkg' may be null if getEnabled is false.
+     * Note: 'pkg' may be null if getEnabled is false.
      *  
      */
-    private ClassInspector(DebuggerClass clss, Package pkg, InvokerRecord ir, final JFrame parent)
+    public ClassInspector(DebuggerClass clss, Package pkg, InvokerRecord ir, final JFrame parent)
     {
         super(pkg, ir);
 
@@ -236,7 +197,7 @@ public class ClassInspector extends Inspector
      */
     protected void remove()
     {
-        inspectors.remove(myClass.getName());
+        pkg.getProject().removeInspector(myClass.getName());
     }
 
     /**

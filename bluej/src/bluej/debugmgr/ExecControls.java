@@ -22,7 +22,7 @@ import bluej.utility.Debug;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 3043 2004-10-12 00:10:37Z davmac $
+ * @version $Id: ExecControls.java 3341 2005-04-08 04:12:53Z bquig $
  */
 public class ExecControls extends JFrame
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -383,7 +383,7 @@ public class ExecControls extends JFrame
     private void viewStaticField(int index)
     {
         if(currentClass.staticFieldIsObject(index)) {
-            ObjectInspector viewer = ObjectInspector.getInstance(currentClass.getStaticFieldObject(index),
+            ObjectInspector viewer = project.getInspectorInstance(currentClass.getStaticFieldObject(index),
                                           null,
                                           null, null, this);
         }
@@ -395,7 +395,7 @@ public class ExecControls extends JFrame
     private void viewInstanceField(int index)
     {
         if(currentObject.instanceFieldIsObject(index)) {
-            ObjectInspector viewer = ObjectInspector.getInstance(currentObject.getInstanceFieldObject(index),
+            ObjectInspector viewer = project.getInspectorInstance(currentObject.getInstanceFieldObject(index),
                                           null,
                                           null, null, this);
         }
@@ -407,7 +407,7 @@ public class ExecControls extends JFrame
     private void viewLocalVar(int index)
     {
         if(selectedThread.varIsObject(currentFrame, index)) {
-            ObjectInspector viewer = ObjectInspector.getInstance(selectedThread.getStackObject(currentFrame, index),
+            ObjectInspector viewer = project.getInspectorInstance(selectedThread.getStackObject(currentFrame, index),
                            null,
                            null, null, this);
         }
@@ -702,7 +702,7 @@ public class ExecControls extends JFrame
             if (selectedThread.isSuspended()) {
                 selectedThread.step();
             }
-            ObjectInspector.updateInspectors();
+            project.updateInspectors();
         }
     }
     

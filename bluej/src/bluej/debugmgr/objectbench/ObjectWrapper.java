@@ -45,7 +45,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3337 2005-03-22 04:00:51Z davmac $
+ * @version $Id: ObjectWrapper.java 3341 2005-04-08 04:12:53Z bquig $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -178,7 +178,7 @@ public class ObjectWrapper extends JComponent
      */
     public void prepareRemove()
     {
-        Inspector.removeInstance(obj);
+        pkg.getProject().removeInspectorInstance(obj);
     }
 
     /**
@@ -589,7 +589,7 @@ public class ObjectWrapper extends JComponent
     protected void inspectObject()
     {
         InvokerRecord ir = new ObjectInspectInvokerRecord(getTypeName(), getName());
-      	ObjectInspector.getInstance(obj, getName(), pkg, ir, pmf);  // shows the inspector
+      	pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf);  // shows the inspector
     }
 
     protected void removeObject()
@@ -620,7 +620,7 @@ public class ObjectWrapper extends JComponent
                     return;
                                     
                 ResultInspector viewer =
-                    ResultInspector.getInstance(result, name, pkg,
+                    pkg.getProject().getResultInspectorInstance(result, name, pkg,
                                            ir, expressionInformation, pmf);
                 BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL,
                                       viewer.getResult());

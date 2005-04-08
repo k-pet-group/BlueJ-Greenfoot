@@ -25,7 +25,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: Invoker.java 3341 2005-04-08 04:12:53Z bquig $
  */
 
 public class Invoker
@@ -773,7 +773,7 @@ public class Invoker
             handleResult(shellClassName);
 
             // update all open inspect windows
-            Inspector.updateInspectors();
+            pkg.getProject().updateInspectors();
 
         }
         catch (Throwable e) {

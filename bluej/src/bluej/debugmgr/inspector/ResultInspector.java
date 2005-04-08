@@ -34,7 +34,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 3338 2005-03-23 01:06:54Z davmac $
+ * @version $Id: ResultInspector.java 3341 2005-04-08 04:12:53Z bquig $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -53,52 +53,10 @@ public class ResultInspector extends Inspector
     private ExpressionInformation expressionInformation;
     private GenType resultType; // static result type
 
-    /**
-     * Return an ObjectInspector for an object. The inspector is visible. This
-     * is the only way to get access to viewers - they cannot be directly
-     * created.
-     * 
-     * @param obj
-     *            The object displayed by this viewer
-     * @param name
-     *            The name of this object or "null" if the name is unobtainable
-     * @param pkg
-     *            The package all this belongs to
-     * @param ir
-     *            the InvokerRecord explaining how we got this result/object if
-     *            null, the "get" button is permanently disabled
-     * @param info
-     *            The information about the the expression that gave this result
-     * @param parent
-     *            The parent frame of this frame
-     * @return The Viewer value
-     */
-    public static ResultInspector getInstance(DebuggerObject obj, String name, Package pkg, InvokerRecord ir,
-            ExpressionInformation info, JFrame parent)
-    {
-        ResultInspector inspector = (ResultInspector) inspectors.get(obj);
-
-        if (inspector == null) {
-            inspector = new ResultInspector(obj, name, pkg, ir, info, parent);
-            inspectors.put(obj, inspector);
-        }
-
-        final ResultInspector insp = inspector;
-        insp.update();
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                insp.setVisible(true);
-                insp.bringToFront();
-            }
-        });
-
-        return inspector;
-    }
+    
 
     /**
-     * Constructor Note: private -- Object viewers can only be created with the
-     * static "getInstance" method. 'pkg' may be null if 'ir' is null.
+     * Note: 'pkg' may be null if 'ir' is null.
      * 
      * @param obj
      *            The object displayed by this viewer
@@ -115,7 +73,7 @@ public class ResultInspector extends Inspector
      * @param parent
      *            The parent frame of this frame
      */
-    private ResultInspector(DebuggerObject obj, String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
+    public ResultInspector(DebuggerObject obj, String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
             final JFrame parent)
     {
         super(pkg, ir);
@@ -333,7 +291,7 @@ public class ResultInspector extends Inspector
      */
     protected void showClass()
     {
-        ClassInspector.getInstance(obj.getClassRef(), pkg, this);
+        pkg.getProject().getClassInspectorInstance(obj.getClassRef(), pkg, this);
     }
 
     /**
@@ -347,7 +305,7 @@ public class ResultInspector extends Inspector
      */
     protected void remove()
     {
-        inspectors.remove(obj);
+        pkg.getProject().removeInspector(obj);
     }
 
     /**
@@ -362,7 +320,7 @@ public class ResultInspector extends Inspector
 
     public void inspectEvent(InspectorEvent e)
     {
-        getInstance(e.getDebuggerObject(), null, pkg, null, null, this);
+        pkg.getProject().getInspectorInstance(e.getDebuggerObject(), null, pkg, null, this);
     }
 
     protected int getPreferredRows()

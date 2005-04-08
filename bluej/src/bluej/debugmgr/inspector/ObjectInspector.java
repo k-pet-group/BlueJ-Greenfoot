@@ -21,7 +21,8 @@ import bluej.utility.DialogManager;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ObjectInspector.java 2949 2004-08-26 10:37:04Z polle $
+ * @author Bruce Quig
+ * @version $Id: ObjectInspector.java 3341 2005-04-08 04:12:53Z bquig $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -39,55 +40,13 @@ public class ObjectInspector extends Inspector
     // array indexes from
     // a large array that have been selected for viewing
     protected List indexToSlotList = null; // list which is built when viewing
-
     // an array
     // that records the object slot corresponding to each
     // array index
 
-    /**
-     * Return an ObjectInspector for an object. The inspector is visible. This
-     * is the only way to get access to viewers - they cannot be directly
-     * created.
-     * 
-     * @param obj
-     *            The object displayed by this viewer
-     * @param name
-     *            The name of this object or "null" if the name is unobtainable
-     * @param pkg
-     *            The package all this belongs to
-     * @param ir
-     *            the InvokerRecord explaining how we got this result/object if
-     *            null, the "get" button is permanently disabled
-     * @param parent
-     *            The parent frame of this frame
-     * @return The Viewer value
-     */
-    public static ObjectInspector getInstance(DebuggerObject obj, String name, Package pkg, InvokerRecord ir,
-            JFrame parent)
-    {
-        ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
-
-        if (inspector == null) {
-            inspector = new ObjectInspector(obj, name, pkg, ir, parent);
-            inspectors.put(obj, inspector);
-        }        
-
-        final ObjectInspector insp = inspector;
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                insp.update();
-                insp.setVisible(true);
-                insp.bringToFront();
-            }
-        });
-
-        return inspector;
-    }
 
     /**
-     * Constructor Note: private -- Objectviewers can only be created with the
-     * static "getViewer" method. 'pkg' may be null if 'ir' is null.
+     *  Note: 'pkg' may be null if 'ir' is null.
      * 
      * @param obj
      *            The object displayed by this viewer
@@ -101,7 +60,7 @@ public class ObjectInspector extends Inspector
      * @param parent
      *            The parent frame of this frame
      */
-    private ObjectInspector(DebuggerObject obj, String name, Package pkg, InvokerRecord ir, final JFrame parent)
+    public ObjectInspector(DebuggerObject obj, String name, Package pkg, InvokerRecord ir, final JFrame parent)
     {
         super(pkg, ir);
 
@@ -282,7 +241,7 @@ public class ObjectInspector extends Inspector
      */
     protected void showClass()
     {
-        ClassInspector.getInstance(obj.getClassRef(), pkg, this);
+        pkg.getProject().getClassInspectorInstance(obj.getClassRef(), pkg, this);
     }
 
     /**
@@ -301,7 +260,7 @@ public class ObjectInspector extends Inspector
      */
     protected void remove()
     {
-        inspectors.remove(obj);
+        pkg.getProject().removeInspector(obj);
     }
 
     /**
@@ -437,7 +396,7 @@ public class ObjectInspector extends Inspector
 
     public void inspectEvent(InspectorEvent e)
     {
-        getInstance(e.getDebuggerObject(), null, pkg, null, this);
+        pkg.getProject().getInspectorInstance(e.getDebuggerObject(), null, pkg, null, this);
     }
 
     protected int getPreferredRows()
