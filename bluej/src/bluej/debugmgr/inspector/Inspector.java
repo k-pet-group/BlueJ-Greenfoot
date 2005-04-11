@@ -1,11 +1,16 @@
 package bluej.debugmgr.inspector;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Frame;
+import java.awt.GridLayout;
 import java.awt.event.*;
-import java.util.HashMap;
-import java.util.Iterator;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -26,7 +31,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 3341 2005-04-08 04:12:53Z bquig $
+ * @version $Id: Inspector.java 3343 2005-04-11 00:47:29Z davmac $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -240,6 +245,15 @@ public abstract class Inspector extends JFrame
                 if (assertPanel != null) {
                     assertPanel.updateWithResultData((String) listData[0]);
                 }
+                
+                int slot = fieldList.getSelectedRow();
+
+                // occurs if valueChanged picked up a clearSelection event from
+                // the list
+                if (slot != -1) {
+                    listElementSelected(slot);
+                }
+
                 repaint();
             }
         });
