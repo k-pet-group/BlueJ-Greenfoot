@@ -16,7 +16,7 @@ import java.io.File;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
- * @version $Id: PackageChooserStrict.java 2981 2004-09-02 23:46:35Z davmac $
+ * @version $Id: PackageChooserStrict.java 3344 2005-04-11 01:57:42Z davmac $
  */
 class PackageChooserStrict extends PackageChooser
 {
@@ -27,7 +27,7 @@ class PackageChooserStrict extends PackageChooser
      */
     public PackageChooserStrict(File startDirectory)
     {
-        super(startDirectory, false);
+        super(startDirectory, false, false);
     }
 
     /**

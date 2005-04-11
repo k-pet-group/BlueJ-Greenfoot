@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 2891 2004-08-18 08:29:05Z mik $
+ * @version $Id: FileUtility.java 3344 2005-04-11 01:57:42Z davmac $
  */
 public class FileUtility
 {
@@ -150,8 +150,7 @@ public class FileUtility
     private static JFileChooser getNonBlueJPackageChooser()
     {
         if(pkgChooserNonBlueJ == null)
-            pkgChooserNonBlueJ = new PackageChooser(
-                                          new File(PrefMgr.getProjectDirectory()));
+            pkgChooserNonBlueJ = new PackageChooser(new File(PrefMgr.getProjectDirectory()), true);
 
         pkgChooserNonBlueJ.setDialogTitle(Config.getString("pkgmgr.openNonBlueJPkg.title"));
         pkgChooserNonBlueJ.setApproveButtonText(Config.getString("pkgmgr.openNonBlueJPkg.buttonLabel"));

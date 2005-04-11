@@ -1,8 +1,17 @@
 package bluej.pkgmgr;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
+import javax.swing.JFrame;
+
+import bluej.parser.ClassParser;
+import bluej.parser.symtab.ClassInfo;
+import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 
 /**
@@ -13,10 +22,81 @@ import bluej.utility.JavaNames;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Import.java 1700 2003-03-13 03:34:20Z ajp $
+ * @version $Id: Import.java 3344 2005-04-11 01:57:42Z davmac $
  */
 class Import
 {
+    /**
+     * Attempt to convert a non-bluej Path to a Bluej project.
+     * 
+     * <p>If no java source files are found, a warning dialog is displayed and
+     * the conversion doesn't take place.
+     * 
+     * <p>If source files are found whose package line mismatches the apparent
+     * package, a warning dialog is displayed and the user is prompted to
+     * either allow the package line to be corrected, or to cancel the
+     * conversion.
+     *
+     * @param parentWin  The parent window (used for centering dialogs)
+     * @param path       The path of the directory containing the project-to-be
+     * @return  true if the conversion was successfully completed
+     */
+    public static boolean convertNonBlueJ(JFrame parentWin, File path)
+    {
+        // find all sub directories with Java files in them
+        // then find all the Java files in those directories
+        List interestingDirs = Import.findInterestingDirectories(path);
+
+        // check to make sure the path contains some java source files
+        if (interestingDirs.size() == 0) {
+            DialogManager.showError(parentWin, "open-non-bluej-no-java");
+            return false;
+        }
+
+        List javaFiles = Import.findJavaFiles(interestingDirs);
+
+        // for each Java file, lets check its package line against the
+        // package line we think that it should have
+        // for each mismatch we collect the file, the package line it had,
+        // and what we want to convert it to
+        List mismatchFiles = new ArrayList();
+        List mismatchPackagesOriginal = new ArrayList();
+        List mismatchPackagesChanged = new ArrayList();
+
+        Iterator it = javaFiles.iterator();
+
+        while (it.hasNext()) {
+            File f = (File) it.next();
+
+            try {
+                ClassInfo info = ClassParser.parse(f);
+
+                String qf = JavaNames.convertFileToQualifiedName(path, f);
+
+                if (!JavaNames.getPrefix(qf).equals(info.getPackage())) {
+                    mismatchFiles.add(f);
+                    mismatchPackagesOriginal.add(info.getPackage());
+                    mismatchPackagesChanged.add(qf);
+                }
+            }
+            catch (Exception e) {}
+        }
+
+        // now ask if they want to continue if we have detected mismatches
+        if (mismatchFiles.size() > 0) {
+            ImportMismatchDialog imd = new ImportMismatchDialog(parentWin, mismatchFiles, mismatchPackagesOriginal,
+                    mismatchPackagesChanged);
+            imd.show();
+
+            if (!imd.getResult())
+                return false;
+        }
+
+        // now add bluej.pkg files through the directory structure
+        Import.convertDirectory(interestingDirs);
+        return true;
+    }
+    
     /**
      * Find all directories under a certain directory which
      * we deem 'interesting'.

@@ -23,7 +23,7 @@ import javax.swing.*;
  * creation options can be specified.
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 3175 2004-11-25 14:33:52Z fisker $
+ * @version $Id: ExportDialog.java 3344 2005-04-11 01:57:42Z davmac $
  */
 class ExportDialog extends EscapeDialog
 {
@@ -34,12 +34,15 @@ class ExportDialog extends EscapeDialog
     private static final String classLabelText = Config.getString("pkgmgr.export.classLabel");
     private static final String libsLabel = Config.getString("pkgmgr.export.includeLibs");
     private static final String sourceLabel = Config.getString("pkgmgr.export.sourceLabel");
+    private static final String pkgFilesLabel = Config.getString("pkgmgr.export.pkgFilesLabel");
     private static final String noClassText = Config.getString("pkgmgr.export.noClassText");
 
     private String mainClassName = "";
 
     private JComboBox classSelect;
     private JCheckBox sourceBox;
+    private JCheckBox pkgFilesBox;
+    private JCheckBox otherFilesBox;
     private UserLibInfo[] userLibs;
     
     private boolean ok;		// result: which button?
@@ -94,7 +97,16 @@ class ExportDialog extends EscapeDialog
     {
         return sourceBox.isSelected();
     }
-
+    
+    /**
+     * Return true if the user wants to include the BlueJ project info files
+     * (.pkg files)
+     */
+    public boolean includePkgFiles()
+    {
+        return pkgFilesBox.isSelected();
+    }
+    
     /**
      * Close action when OK is pressed.
      */
@@ -171,6 +183,9 @@ class ExportDialog extends EscapeDialog
                 sourceBox = new JCheckBox(sourceLabel, false);
                 sourceBox.setAlignmentX(LEFT_ALIGNMENT);
                 inputPanel.add(sourceBox);
+                inputPanel.add(Box.createVerticalStrut(5));
+                pkgFilesBox = new JCheckBox(pkgFilesLabel);
+                inputPanel.add(pkgFilesBox);
             }
 
             mainPanel.add(inputPanel);

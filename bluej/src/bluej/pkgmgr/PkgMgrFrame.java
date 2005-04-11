@@ -4,24 +4,33 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
-import java.io.File;
-import java.util.*;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 
 import javax.swing.*;
 
-import bluej.*;
+import bluej.BlueJEvent;
+import bluej.BlueJEventListener;
+import bluej.BlueJTheme;
+import bluej.Config;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
-import bluej.debugmgr.*;
+import bluej.debugmgr.ExpressionInformation;
+import bluej.debugmgr.Invoker;
+import bluej.debugmgr.LibraryCallDialog;
+import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.texteval.TextEvalArea;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.MenuManager;
-import bluej.parser.ClassParser;
-import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.actions.*;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.target.ClassTarget;
@@ -33,7 +42,11 @@ import bluej.prefmgr.PrefMgrDialog;
 import bluej.testmgr.TestDisplayFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.MethodInvokerRecord;
-import bluej.utility.*;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
+import bluej.utility.JavaNames;
+import bluej.utility.Utility;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -44,7 +57,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3341 2005-04-08 04:12:53Z bquig $
+ * @version $Id: PkgMgrFrame.java 3344 2005-04-11 01:57:42Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -959,95 +972,182 @@ public class PkgMgrFrame extends JFrame
         if (dirName == null)
             return;
 
-        if (dirName != null) {
-            File absDirName = dirName.getAbsoluteFile();
-
+        File absDirName = dirName.getAbsoluteFile();
+        
+        if (absDirName.isDirectory()) {
+            // Check to make sure it's not already a project
             if (Project.isProject(absDirName.getPath())) {
                 DialogManager.showError(this, "open-non-bluej-already-bluej");
                 return;
             }
-
-            // find all sub directories with Java files in them
-            // then find all the Java files in those directories
-            List interestingDirs = Import.findInterestingDirectories(absDirName);
-
-            if (interestingDirs.size() == 0) {
-                DialogManager.showError(this, "open-non-bluej-no-java");
+            
+            // Try and convert it to a project
+            if (! Import.convertNonBlueJ(this, absDirName))
                 return;
-            }
-
-            List javaFiles = Import.findJavaFiles(interestingDirs);
-
-            // for each Java file, lets check its package line against the
-            // package line we think that it should have
-            // for each mismatch we collect the file, the package line it had,
-            // and what we want to convert it to
-            List mismatchFiles = new ArrayList();
-            List mismatchPackagesOriginal = new ArrayList();
-            List mismatchPackagesChanged = new ArrayList();
-
-            Iterator it = javaFiles.iterator();
-
-            while (it.hasNext()) {
-                File f = (File) it.next();
-
-                try {
-                    ClassInfo info = ClassParser.parse(f);
-
-                    String qf = JavaNames.convertFileToQualifiedName(absDirName, f);
-
-                    if (!JavaNames.getPrefix(qf).equals(info.getPackage())) {
-                        mismatchFiles.add(f);
-                        mismatchPackagesOriginal.add(info.getPackage());
-                        mismatchPackagesChanged.add(qf);
-                    }
-                }
-                catch (Exception e) {}
-            }
-
-            // now ask if they want to continue if we have detected mismatches
-            if (mismatchFiles.size() > 0) {
-                ImportMismatchDialog imd = new ImportMismatchDialog(this, mismatchFiles, mismatchPackagesOriginal,
-                        mismatchPackagesChanged);
-                imd.show();
-
-                if (!imd.getResult())
-                    return;
-            }
-
-            // now add bluej.pkg files through the directory structure
-            Import.convertDirectory(interestingDirs);
-
+            
             // then construct it as a project
-            Project openProj = Project.openProject(absDirName.getPath());
-
-            // if after converting the directory, the project still doesn't open
-            // then who knows what has gone wrong
-            if (openProj == null) {
-                return;
-            }
-
-            // now lets display the new project in a frame
-            Package pkg = openProj.getPackage(openProj.getInitialPackageName());
-
-            PkgMgrFrame pmf;
-
-            if ((pmf = findFrame(pkg)) == null) {
-                if (isEmptyFrame()) {
-                    pmf = this;
-                    openPackage(pkg);
-                }
-                else {
-                    pmf = createFrame(pkg);
-
-                    DialogManager.tileWindow(pmf, this);
-                }
-            }
-
-            pmf.show();
+            openProject(absDirName.getPath());
+        }
+        else {
+            // Presumably it's an archive file
+            openJar(absDirName);
         }
     }
 
+    /**
+     * Open a jar file as a BlueJ project.
+     * The file contents are extracted, the containing directory is then
+     * converted into a BlueJ project if necessary, and opened.
+     */
+    private void openJar(File jarName)
+    {
+        JarInputStream jarInStream = null;
+
+        try { 
+            // first need to determine the output path. If the jar file
+            // contains a root-level (eg bluej.pkg) entry, extract into a directory
+            // whose name is the basename of the archive file. Otherwise, if
+            // all entries have a common ancestor, extract to that directory
+            // (after checking it doesn't exist).
+            
+            String prefixFolder = getArchivePrefixFolder(jarName);
+            
+            // Determine the output path.
+            File oPath = jarName.getParentFile();
+            if (prefixFolder == null) {
+                // Try to extract to directory which has same name as the jar
+                // file, with the .jar extension stripped.
+                
+                oPath = new File(oPath, jarName.getName().substring(0, jarName.getName().length() - 4));
+                if (! oPath.mkdir()) {
+                    DialogManager.showErrorWithText(this, "jar-output-dir-exists", oPath.toString());
+                    return;
+                }
+            }
+            else {
+                File prefixFolderFile = new File(oPath, prefixFolder);
+                if (! prefixFolderFile.mkdir()) {
+                    DialogManager.showErrorWithText(this, "jar-output-dir-exists", prefixFolderFile.toString());
+                    return;
+                }
+            }
+            
+            // Need to extract the project somewhere, then open it
+            FileInputStream is = new FileInputStream(jarName);
+            jarInStream = new JarInputStream(is);
+            
+            // Extract entries in the jar file
+            JarEntry je = jarInStream.getNextJarEntry();
+            while (je != null) {
+                File outFile = new File(oPath, je.getName());
+                
+                // An entry could represent a file or directory
+                if (je.getName().endsWith("/"))
+                    outFile.mkdirs();
+                else {
+                    outFile.getParentFile().mkdirs();
+                    OutputStream os = new FileOutputStream(outFile);
+                    
+                    // try to read 8k at a time
+                    byte [] buffer = new byte[8192];
+                    int rlength = jarInStream.read(buffer);
+                    while (rlength != -1) {
+                        os.write(buffer, 0, rlength);
+                        rlength = jarInStream.read(buffer);
+                    }
+                    
+                    jarInStream.closeEntry();
+                }
+                je = jarInStream.getNextJarEntry();
+            }
+            
+            // Now, the jar file may contain a bluej project, or it may
+            // be a regular jar file in which case we should convert it
+            // to a bluej project first.
+            
+            if (prefixFolder != null)
+                oPath = new File(oPath, prefixFolder);
+            if (Project.isProject(oPath.getPath())) {
+                openProject(oPath.getPath());
+            }
+            else {
+                // Convert to a BlueJ project
+                if (Import.convertNonBlueJ(this, oPath))
+                    openProject(oPath.getPath());
+            }
+            return;
+            
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            DialogManager.showError(this, "jar-extraction-error");
+        }
+        finally {
+            try {
+                if (jarInStream != null)
+                    jarInStream.close();
+            }
+            catch (IOException ioe) {}
+        }
+    }
+    
+    /**
+     * Attempt to determine the prefix folder of a zip or jar archive.
+     * That is, if all files in the archive are stored under a first-level
+     * folder, return the name of that folder; otherwise return null.
+     * 
+     * @param arName   The archive file
+     * @return         The prefix folder of the archive, or null.
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    private String getArchivePrefixFolder(File arName)
+    throws FileNotFoundException, IOException
+    {
+        JarInputStream jarInStream = null;
+        FileInputStream is = null;
+        String prefixFolder = null;
+        try {
+            is = new FileInputStream(arName);
+            jarInStream = new JarInputStream(is);
+            
+            // Extract entries in the jar file
+            JarEntry je = jarInStream.getNextJarEntry();
+            while (je != null) {
+                String entryName = je.getName();
+                int slashIndex = entryName.indexOf('/');
+                if (slashIndex == -1) {
+                    prefixFolder = null;
+                    break;
+                }
+                
+                String prefix = entryName.substring(0, slashIndex);
+                if (prefixFolder == null)
+                    prefixFolder = prefix;
+                else if (! prefixFolder.equals(prefix)) {
+                    prefixFolder = null;
+                    break;
+                }
+                
+                je = jarInStream.getNextJarEntry();
+            }
+        }
+        catch (FileNotFoundException fnfe) {
+            throw fnfe;  // rethrow after processing finally block
+        }
+        catch (IOException ioe) {
+            throw ioe; // rethrow after processing finally block
+        }
+        finally {
+            if (jarInStream != null)
+                jarInStream.close();
+            if (is != null)
+                is.close();
+        }
+        
+        return prefixFolder;
+    }
+       
     /**
      * Perform a user initiated close of this frame/package.
      * 

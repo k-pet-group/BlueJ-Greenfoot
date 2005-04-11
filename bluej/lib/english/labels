@@ -371,6 +371,7 @@ pkgmgr.export.helpLine2=the project. Executable if main class is specified.
 pkgmgr.export.classLabel=Main class:
 pkgmgr.export.includeLibs=Include user libraries
 pkgmgr.export.sourceLabel=Include source
+pkgmgr.export.pkgFilesLabel=Include Bluej project files
 pkgmgr.export.noClassText=none (cannot be executed)
 pkgmgr.export.specifyJar=Specify name for jar file
 pkgmgr.export.createJarText=Create

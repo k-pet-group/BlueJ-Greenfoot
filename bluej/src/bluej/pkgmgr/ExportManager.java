@@ -17,7 +17,7 @@ import bluej.utility.FileUtility;
  * Component to manage storing projects to jar file format.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 2902 2004-08-18 13:37:04Z mik $
+ * @version $Id: ExportManager.java 3344 2005-04-11 01:57:42Z davmac $
  */
 final class ExportManager
 {
@@ -27,6 +27,7 @@ final class ExportManager
     private static final String sourceSuffix = ".java";
     private static final String contextSuffix = ".ctxt";
     private static final String packageFilePrefix = "bluej.pk";
+    private static final String packageFileBackup = "bluej.pkh";
 
     private PkgMgrFrame frame;
 
@@ -55,14 +56,14 @@ final class ExportManager
         String sourceDir = frame.getProject().getProjectDir().getPath();
 
         createJar(fileName, sourceDir, dialog.getMainClass(), dialog.getSelectedLibs(),
-                  dialog.includeSource());
+                  dialog.includeSource(), dialog.includePkgFiles());
     }
 
     /**
      * Export this project to a jar file.
      */
     private void createJar(String fileName, String sourceDir, String mainClass,
-                           List userLibs, boolean includeSource)
+                           List userLibs, boolean includeSource, boolean includePkgFiles)
     {
         // Construct classpath with used library jars
         
@@ -125,6 +126,7 @@ final class ExportManager
             jStream = new JarOutputStream(oStream, manifest);
 
             writeDirToJar(new File(sourceDir), "", jStream, includeSource,
+                            includePkgFiles,
                             jarFile.getCanonicalFile());
             if(parent != null) {
                 copyLibsToJar(Arrays.asList(projectLibs), parent);
@@ -151,22 +153,22 @@ final class ExportManager
      * we are creating (to prevent including itself in the Jar file)
      */
     private void writeDirToJar(File sourceDir, String pathPrefix,
-                               JarOutputStream jStream, boolean includeSource, File outputFile)
+                               JarOutputStream jStream, boolean includeSource, boolean includePkg, File outputFile)
         throws IOException
     {
         File[] dir = sourceDir.listFiles();
         for(int i = 0; i < dir.length; i++) {
             if(dir[i].isDirectory()) {
-                if(!skipDir(dir[i])) {
+                if(!skipDir(dir[i], includePkg)) {
                     writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/",
-                                  jStream, includeSource, outputFile);
+                                  jStream, includeSource, includePkg, outputFile);
                 }
             }
             else {
                 // check against a list of file we don't want to export and also
                 // check that we don't try to export the jar file we are writing
                 // (hangs the machine)
-                if(!skipFile(dir[i].getName(), !includeSource) &&
+                if(!skipFile(dir[i].getName(), !includeSource, !includePkg) &&
                     !outputFile.equals(dir[i].getCanonicalFile())) {
                         writeJarEntry(dir[i], jStream, pathPrefix + dir[i].getName());
                 }
@@ -186,14 +188,17 @@ final class ExportManager
     }
 
     /** array of directory names not to be included in jar file **/
-    private static final String[] skipDirs = { "CVS" , ProjectClassLoader.projectLibDirName };
+    private static final String[] skipDirs = { "CVS" };
 
     /**
      * Test whether a given directory should be skipped (not included) in
      * export.
      */
-    private boolean skipDir(File dir)
+    private boolean skipDir(File dir, boolean includePkg)
     {
+        if (dir.getName().equals(ProjectClassLoader.projectLibDirName))
+            return ! includePkg;
+        
         for(int i = 0; i < skipDirs.length; i++) {
             if(dir.getName().equals(skipDirs[i]))
                 return true;
@@ -206,13 +211,16 @@ final class ExportManager
      * BlueJ specific files (bluej.pkg and *.ctxt) and - optionally - Java
      * source files are skipped.
      */
-    private boolean skipFile(String fileName, boolean skipSource)
+    private boolean skipFile(String fileName, boolean skipSource, boolean skipPkg)
     {
-        if(fileName.startsWith(packageFilePrefix) || fileName.endsWith(contextSuffix))
+        if(fileName.equals(packageFileBackup))
             return true;
+        
+        if(fileName.endsWith(sourceSuffix))
+            return skipSource;
 
-        if(skipSource && fileName.endsWith(sourceSuffix))
-            return true;
+        if(fileName.startsWith(packageFilePrefix) || fileName.endsWith(contextSuffix))
+            return skipPkg;
 
         return false;
     }

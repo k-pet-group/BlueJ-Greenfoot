@@ -22,7 +22,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Markus Ostman
- * @version $Id: PackageChooser.java 2704 2004-07-01 09:24:22Z polle $
+ * @version $Id: PackageChooser.java 3344 2005-04-11 01:57:42Z davmac $
  */
 class PackageChooser extends JFileChooser
 {
@@ -34,9 +34,9 @@ class PackageChooser extends JFileChooser
 
     PackageDisplay displayPanel;
 
-    public PackageChooser(File startDirectory)
+    public PackageChooser(File startDirectory, boolean showArchives)
     {
-        this(startDirectory, true);
+        this(startDirectory, true, showArchives);
     }
 
     /**
@@ -44,14 +44,18 @@ class PackageChooser extends JFileChooser
      * 
      * @param startDirectory 	the directory to start the package selection in.
      * @param preview           whether to show the package structure preview pane
+     * @param showArchives      whether to allow choosing jar and zip files
      */
-    public PackageChooser(File startDirectory, boolean preview)
+    public PackageChooser(File startDirectory, boolean preview, boolean showArchives)
     {
         super(startDirectory);
 
-        setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if (! showArchives)
+            setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        else
+            setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         setFileView(new PackageFileView());
-
+        
         if (preview) {
             displayPanel = new PackageDisplay(startDirectory);
 
@@ -72,11 +76,21 @@ class PackageChooser extends JFileChooser
 
                     displayPanel.setDisplayDirectory(dir.getAbsoluteFile());
 
-                    if (e.getPropertyName().equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY)) { }
-                    if (e.getPropertyName().equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) { }
+                    // if (e.getPropertyName().equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY)) { }
+                    // if (e.getPropertyName().equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) { }
                 }
             });
         }
+    }
+    
+    public boolean accept(File f)
+    {
+        if (f.isDirectory())
+            return true;
+        
+        String fname = f.getName();
+        return fname.endsWith(".jar") || fname.endsWith(".JAR") ||
+                fname.endsWith(".zip") || fname.endsWith(".ZIP");
     }
 
     class PackageDisplay extends JList
