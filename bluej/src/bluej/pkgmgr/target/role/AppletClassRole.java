@@ -20,7 +20,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 3103 2004-11-18 04:59:24Z davmac $
+ * @version $Id: AppletClassRole.java 3345 2005-04-13 02:41:31Z davmac $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -199,11 +199,9 @@ public class AppletClassRole extends ClassRole
                 createWebPage(destFile, name, ".", libs);
 
                 // Run applet as an external process
-                String url = URL_PREFIX + destFile.getPath();
-
                 if(execOption == RunAppletDialog.EXEC_APPLETVIEWER) {
                     try {
-                        String[] execCommand = {APPLETVIEWER_COMMAND, url};
+                        String[] execCommand = {APPLETVIEWER_COMMAND, destFile.toString()};
                         PkgMgrFrame.displayMessage(Config.getString("pkgmgr.appletInViewer"));
 
                         Runtime.getRuntime().exec(execCommand, null, pkg.getProject().getProjectDir());
@@ -216,7 +214,7 @@ public class AppletClassRole extends ClassRole
                 else {
                     // start in Browser
                     PkgMgrFrame.displayMessage(Config.getString("pkgmgr.appletInBrowser"));
-                    Utility.openWebBrowser(destFile.getPath());
+                    Utility.openWebBrowser(destFile);
                 }
             }
         }

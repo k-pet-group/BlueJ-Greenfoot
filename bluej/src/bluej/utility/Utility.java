@@ -1,8 +1,13 @@
 package bluej.utility;
 
-import java.awt.*;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Shape;
+import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import bluej.Config;
@@ -12,7 +17,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 3242 2004-12-16 09:41:33Z mik $
+ * @version $Id: Utility.java 3345 2005-04-13 02:41:31Z davmac $
  */
 public class Utility
 {
@@ -192,25 +197,12 @@ public class Utility
 
     /**
      * Let the given URL be shown in a browser window.
-     * @param url the URL to be shown.
+     * @param  url  the URL or file path to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
     public static boolean openWebBrowser(String url) {
 
-        if(Config.isMacOS()) {                           // Mac
-            try {
-                if((!url.startsWith("http:")) && (!url.startsWith("file:")))
-                    url = encodeURLSpaces("file://" + url);
-                else
-                    url = encodeURLSpaces(url);
-                com.apple.eio.FileManager.openURL(url);
-            }
-            catch(IOException e) {
-                Debug.reportError("could not start web browser. exc: " + e);
-                return false;
-            }
-        }
-        else if(Config.osname.startsWith("Windows")) {                 // Windows
+        if(Config.osname.startsWith("Windows")) {                 // Windows
 
             String cmd;
             // catering for stupid differences in Windows shells...
@@ -235,14 +227,43 @@ public class Utility
                 return false;
             }
         }
+        else {                                                      // Mac, Unix and other
+        
+            // The string should be either a URL or a file path
+            try {
+                return openWebBrowser(new URL(url));
+            }
+            catch (MalformedURLException mfue) {
+                return openWebBrowser(new File(url));
+            }
+            
+        }
+        return true;
+    }
+    
+    /**
+     * Let the given URL be shown in a browser window.
+     * @param url the URL to be shown.
+     * @return true if the web browser could be started, false otherwise.
+     */
+    public static boolean openWebBrowser(URL url) {
+
+        if(Config.isMacOS()) {                           // Mac
+            try {
+                com.apple.eio.FileManager.openURL(url.toString());
+            }
+            catch(IOException e) {
+                Debug.reportError("could not start web browser. exc: " + e);
+                return false;
+            }
+        }
+        else if(Config.osname.startsWith("Windows")) {                 // Windows
+
+            return openWebBrowser(url.toString());
+        }
         else {                                                      // Unix and other
         
-            if((!url.startsWith("http:")) && (!url.startsWith("file:")))
-                url = encodeURLSpaces("file://" + url);
-            else
-                url = encodeURLSpaces(url);
-
-            String cmd = mergeStrings(Config.getPropString("browserCmd1"), url);
+            String cmd = mergeStrings(Config.getPropString("browserCmd1"), url.toString());
 
             try {
                 Process p = Runtime.getRuntime().exec(cmd);
@@ -254,7 +275,7 @@ public class Utility
                 cmd = Config.getPropString("browserCmd2");
 
                 if(exitCode != 0 && cmd != null && cmd.length() > 0) {
-                    cmd = mergeStrings(cmd, url);
+                    cmd = mergeStrings(cmd, url.toString());
                     // Debug.message(cmd);
                     p = Runtime.getRuntime().exec(cmd);
                 }
@@ -270,6 +291,30 @@ public class Utility
             }
         }
         return true;
+    }
+
+    /**
+     * Let the given file be shown in a browser window.
+     * @param file the file to be shown.
+     * @return true if the web browser could be started, false otherwise.
+     */
+    public static boolean openWebBrowser(File file) {
+
+        if(Config.osname.startsWith("Windows")) {                 // Windows
+
+            return openWebBrowser(file.toString());
+            
+        }
+        else {                                                      // Mac, Unix and other
+        
+            try {
+                return openWebBrowser(file.toURI().toURL());
+            }
+            catch (MalformedURLException mfue) {
+                // This shouldn't happen.
+                return false;
+            }
+        }
     }
 
     /**
@@ -335,27 +380,6 @@ public class Utility
 	    }
 
 	    return s1;
-    }
-
-    /**
-     * Remove spaces in a URL - that is: replace each space with the
-     * string "%20".
-     */
-    public static String encodeURLSpaces(String url)
-    {
-        // if there are any spaces...
-        if(url.indexOf(' ') != -1) {
-            StringBuffer buffer = new StringBuffer(url);
-            for(int i = 0; i < buffer.length(); i++) {
-                if(buffer.charAt(i) == ' ') {
-                    buffer.deleteCharAt(i);
-                    buffer.insert(i, "%20");
-                }
-            }
-            return buffer.toString();
-        }
-        else
-            return url;
     }
 
     /**
