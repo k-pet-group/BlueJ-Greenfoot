@@ -1,7 +1,13 @@
 package bluej.debugmgr;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import bluej.BlueJEvent;
 import bluej.Config;
@@ -11,13 +17,18 @@ import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.*;
-import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.*;
-import bluej.utility.*;
-import bluej.views.*;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.JavaNames;
+import bluej.utility.Utility;
+import bluej.views.CallableView;
+import bluej.views.ConstructorView;
+import bluej.views.MethodView;
+import bluej.views.TypeParamView;
 
 /**
  * Debugger class that arranges invocation of constructors or methods. This
@@ -25,7 +36,7 @@ import bluej.views.*;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3341 2005-04-08 04:12:53Z bquig $
+ * @version $Id: Invoker.java 3347 2005-04-14 02:00:15Z davmac $
  */
 
 public class Invoker
@@ -190,12 +201,7 @@ public class Invoker
         // the class in which the method was declared. So we need to map tpars
         // from the object's class to that class.
         this.objName = objWrapper.getName();
-        this.typeMap = objWrapper.getObject().getGenType().mapToSuper(member.getClassName());
-        instanceMap = typeMap;
-        if (typeMap == null)
-            typeMap = new HashMap();
-        Reflective superRefl = new JavaReflective(member.getDeclaringView().getViewClass());
-        GenTypeClass.addDefaultParamBases(typeMap, superRefl);
+        this.typeMap = objWrapper.getObject().getGenType().mapToSuper2(member.getClassName()).getMap();
 
         executionEvent = new ExecutionEvent(member.getClassName(), objName);
         

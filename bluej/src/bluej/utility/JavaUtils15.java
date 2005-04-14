@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 3331 2005-03-09 03:40:08Z davmac $
+ * @version $Id: JavaUtils15.java 3347 2005-04-14 02:00:15Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -547,7 +547,55 @@ public class JavaUtils15 extends JavaUtils {
         // Assume we have an array
         GenericArrayType gat = (GenericArrayType)t;
         GenType componentType = genTypeFromType(gat.getGenericComponentType());
-        return new GenArray(componentType);
+        
+        Reflective reflective = new JavaReflective(getRclass(gat));
+        return new GenTypeArray(componentType, reflective);
     }
     
+    /**
+     * Get the raw name of some type, such as would be returned by
+     * Class.getName()
+     */
+    static private Class getRclass(Type t)
+    {
+        int arrnum = 0;
+        while (! (t instanceof Class)) {
+            if (t instanceof ParameterizedType)
+                t = ((ParameterizedType) t).getRawType();
+        
+            if (t instanceof TypeVariable)
+                t = ((TypeVariable) t).getBounds()[0];
+            
+            if (t instanceof WildcardType)
+                t = ((WildcardType) t).getUpperBounds()[0];
+            
+            if (t instanceof GenericArrayType) {
+                arrnum++;
+                t = ((GenericArrayType) t).getGenericComponentType();
+            }
+        }
+        
+        String rName;
+        Class rClass = (Class) t;
+        ClassLoader classLoader = rClass.getClassLoader();
+        
+        if (arrnum == 0) {
+            rName = rClass.getName();
+        }
+        else {
+            // arrnum > 0 !
+            rName = genTypeFromType(t).arrayComponentName();
+            while (arrnum > 0) {
+                rName = "[" + rName;
+                arrnum--;
+            }
+        }
+            
+        try {
+            if (classLoader == null)
+                classLoader = ClassLoader.getSystemClassLoader();
+            return classLoader.loadClass(rName);
+        }
+        catch (ClassNotFoundException cnfe) { return null; }
+    }
 }

@@ -9,7 +9,7 @@ import java.util.List;
  * determine the generic type parameters, etc.
  *  
  * @author Davin McCall
- * @version $Id: Reflective.java 3102 2004-11-18 01:39:18Z davmac $
+ * @version $Id: Reflective.java 3347 2005-04-14 02:00:15Z davmac $
  */
 public abstract class Reflective {
 
@@ -24,7 +24,9 @@ public abstract class Reflective {
     
     /**
      * Get the formal type parameters of the class/interface this reflective
-     * represents.
+     * represents. Note that this does not give the type parameters from
+     * outer classes which may still parameterize this reflective's class.
+     * 
      * @return  The parameters as a List of GenTypeDeclTpar
      */
     public abstract List getTypeParams();
@@ -85,4 +87,18 @@ public abstract class Reflective {
         }
         return null;
     }
+    
+    /**
+     * Find another class as if it were to be loaded by this one. Ie. use this
+     * class's classloader.
+     * 
+     * @param name  The name of the class to locate
+     * @return
+     */
+    abstract public Reflective getRelativeClass(String name);
+    
+    /**
+     * Determine whether this class is a static inner class.
+     */
+    abstract public boolean isStatic();
 }

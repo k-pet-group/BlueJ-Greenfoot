@@ -111,6 +111,13 @@ public class GenTypePrimitive
         return typeNames[myIndex];
     }
     
+    public String arrayComponentName()
+    {
+        // Simple lookup by index. It's not possible to have an array of
+        // void or null types.
+        return "!!ZCBSIJFD".substring(myIndex, myIndex + 1);
+    }
+    
     public boolean isAssignableFrom(GenType o)
     {
         int [] assignables = assignableFrom[myIndex];
@@ -142,6 +149,11 @@ public class GenTypePrimitive
             return (gtype != GT_BYTE && gtype != GT_SHORT);
         else
             return gtype >= myIndex;
+    }
+    
+    public GenType getErasedType()
+    {
+        return this;
     }
 
     /*

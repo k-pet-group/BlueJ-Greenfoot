@@ -9,7 +9,7 @@ import java.util.Map;
  * methods are provided.
  * 
  * @author Davin McCall
- * @version $Id: GenType.java 3240 2004-12-16 00:04:59Z davmac $
+ * @version $Id: GenType.java 3347 2005-04-14 02:00:15Z davmac $
  */
 
 public abstract class GenType
@@ -66,6 +66,18 @@ public abstract class GenType
      */
     abstract public String toString();
 
+    /**
+     * Get the name of this type as it must appear in the class name of an
+     * array with this type as the component type. The array class name is
+     * as defined in documentation for Class.getName().<p>
+     * 
+     * For instance, primitive types are represented as a single upper case
+     * character (boolean = Z, byte = B etc). Reference types are encoded
+     * as "Lpkg1.pkg2.classname;" ie the fully qualified name preceded by
+     * "L" and with ";" appended.
+     */
+    abstract public String arrayComponentName();
+    
     /**
      * Determine whether the type represents a primitive type such as "int".
      * This includes the null type, void, and numeric constants.
@@ -124,6 +136,11 @@ public abstract class GenType
     }
     
     /**
+     * Get the erased type of this type.
+     */
+    abstract public GenType getErasedType();
+    
+    /**
      * Determine whether a variable of this type could legally be assigned
      * (without casting etc) a value of the given type.
      * 
@@ -144,7 +161,8 @@ public abstract class GenType
     
     /**
      * Get an equivalent type where the type parameters have been mapped to
-     * an actual type.
+     * an actual type. Type parameters not present in the map are instead
+     * mapped to their bound (as a wildcard, ? extends X).
      * 
      * @param tparams A map (String->GenType) mapping the name of the type
      *                parameter to the corresponding type

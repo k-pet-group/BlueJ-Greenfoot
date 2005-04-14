@@ -27,6 +27,12 @@ public class GenTypeTpar extends GenTypeSolid
         return name;
     }
     
+    public String arrayComponentName()
+    {
+        // We don't know the erased type.
+        throw new UnsupportedOperationException();
+    }
+    
     public boolean isInterface()
     {
         return false;
@@ -41,6 +47,9 @@ public class GenTypeTpar extends GenTypeSolid
     
     public GenType mapTparsToTypes(Map tparams)
     {
+        if (tparams == null)
+            return this;
+        
         GenTypeParameterizable newType = (GenTypeParameterizable)tparams.get(name);
         if( newType == null )
             return this;
@@ -66,12 +75,6 @@ public class GenTypeTpar extends GenTypeSolid
         return other;
     }
     
-    public GenTypeParameterizable getTparGcd(GenTypeParameterizable other)
-    {
-        // TODO fix this.
-        return new GenTypeUnbounded();
-    }
-
     public boolean isPrimitive()
     {
         return false;
@@ -88,20 +91,25 @@ public class GenTypeTpar extends GenTypeSolid
     
     public boolean isAssignableFromRaw(GenType t)
     {
-        // TODO.
-        return false;
+        // We don't know the erased type.
+        throw new UnsupportedOperationException();
     }
     
     public GenTypeClass [] getUpperBoundsC()
     {
-        // TODO.
-        return new GenTypeClass[0];
+        // We don't know the erased type.
+        throw new UnsupportedOperationException();
     }
     
     public GenTypeSolid [] getLowerBounds()
     {
-        // TODO.
-        return new GenTypeSolid[0];
+        // We don't know the erased type.
+        throw new UnsupportedOperationException();
     }
 
+    public GenType getErasedType()
+    {
+        // We don't know the erased type.
+        throw new UnsupportedOperationException();
+    }
 }

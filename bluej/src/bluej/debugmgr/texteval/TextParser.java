@@ -23,7 +23,7 @@ import bluej.utility.JavaUtils;
  * Parsing routines for the code pad.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3331 2005-03-09 03:40:08Z davmac $
+ * @version $Id: TextParser.java 3347 2005-04-14 02:00:15Z davmac $
  */
 public class TextParser
 {
@@ -1337,7 +1337,13 @@ public class TextParser
         // check for array declarators
         AST arrayNode = firstChild.getNextSibling();
         while (arrayNode != null && arrayNode.getType() == JavaTokenTypes.ARRAY_DECLARATOR) {
-            baseType = new GenArray(baseType);
+            // make a reflective for the array
+            // figure out the class name of the array class
+            String xName = "[" + baseType.arrayComponentName();
+            try {
+                baseType = new GenTypeArray(baseType, new JavaReflective(classLoader.loadClass(xName)));
+            }
+            catch (ClassNotFoundException cnfe) {}
             arrayNode = arrayNode.getFirstChild();
         }
         

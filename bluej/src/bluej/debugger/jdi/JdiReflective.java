@@ -13,7 +13,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 3331 2005-03-09 03:40:08Z davmac $
+ * @version $Id: JdiReflective.java 3347 2005-04-14 02:00:15Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -89,8 +89,10 @@ public class JdiReflective extends Reflective
     {
         if (rclass == null) {
             rclass = findClass(name, sourceLoader, sourceVM);
-            if (rclass == null)
+            if (rclass == null) {
                 Debug.message("Attempt to use unloaded type: " + name);
+                Debug.message("  name = " +  name + ", sourceLoader = " + sourceLoader);
+            }
             name = null;
             sourceLoader = null;
             sourceVM = null;
@@ -374,16 +376,16 @@ public class JdiReflective extends Reflective
                     return ct;
             }
         }
-
-        // If not, it may have been initated by a parent class loader.
-        // TODO. Technically what we do here is incorrect. We should walk up
-        // the chain of classloaders and check each in turn until we reach
-        // the system clas loader.
-        i = vm.classesByName(name).iterator();
-        while (i.hasNext()) {
-            ReferenceType ct = (ReferenceType) i.next();
-            if (ct.name().equals(name))
-                return ct;
+        else {
+            // A null classloader means the bootstrap class loader was used.
+            // So look for the class with the correct name which was loaded
+            // by the bootstrap loader.
+            i = vm.classesByName(name).iterator();
+            while (i.hasNext()) {
+                ReferenceType ct = (ReferenceType) i.next();
+                if (ct.classLoader() == null)
+                    return ct;
+            }
         }
 
         return null;
@@ -454,7 +456,13 @@ public class JdiReflective extends Reflective
         if (c == '[') {
             // array
             GenType t = fromSignature(i, tparams, parent);
-            t = new GenArray(t);
+            
+            // figure out the class name of the array class
+            String xName = "[" + t.arrayComponentName();
+            
+            // return the array
+            Reflective areflective = new JdiReflective(xName, parent); 
+            t = new GenTypeArray(t, areflective);
             return t;
         }
         if (c == 'T') {
@@ -588,12 +596,7 @@ public class JdiReflective extends Reflective
         else {
             // The class may or may not be loaded.
             Reflective ref;
-            if (t == null)
-                ref = new JdiReflective(typeName, clr, vm);
-            else {
-                ReferenceType rt = findClass(t.name(), clr, vm);
-                ref = new JdiReflective(rt);
-            }
+            ref = new JdiReflective(typeName, clr, vm);
             return new GenTypeClass(ref, (List) null);
         }
     }
@@ -650,6 +653,12 @@ public class JdiReflective extends Reflective
         // Map from containing object type to the type in which the field was
         // declared. Then extract the type parameter mappings.
         Map tparams = genType.mapToSuper2(f.declaringType().name()).getMap();
+        if (tparams == null) {
+            // raw parent
+            Reflective r = new JdiReflective(f.typeName(), parent.obj.referenceType());
+            return new GenTypeClass(r);
+        }
+        
         StringIterator iterator = new StringIterator(gensig);
 
         // Parse the signature, using the determined tpar mappings.
@@ -735,12 +744,55 @@ public class JdiReflective extends Reflective
 
         // if the generic signature wasn't null, get the type from it.
         StringIterator iterator = new StringIterator(gensig);
-        // Map tparams = null;
         Map tparams = new HashMap();
-        GenTypeClass.addDefaultParamBases(tparams, new JdiReflective(declType));
+        addDefaultParamBases(tparams, new JdiReflective(declType));
         return fromSignature(iterator, tparams, declType);
     }
 
+    /**
+     * For all type parameters which don't already occur in the given Map,
+     * add them in as the "default" given by the class definition. For instance
+     * with List&lt;T&gt;, add in the mapping "T : ? extends Object".
+     * @param tparams       The map (String -> GenTypeClass)
+     * @param declaringType the type for which to add default mappings
+     */
+    private static void addDefaultParamBases(Map tparams, JdiReflective declaringType)
+    {
+        while (declaringType != null) {
+            Iterator i = declaringType.getTypeParams().iterator();
+            
+            while( i.hasNext() ) {
+                GenTypeDeclTpar tpar = (GenTypeDeclTpar) i.next();
+                
+                String paramName = tpar.getTparName();
+                
+                GenTypeSolid [] ubounds = tpar.upperBounds();
+                GenTypeWildcard type = new GenTypeWildcard(ubounds, new GenTypeSolid[0]);
+                if( ! tparams.containsKey(paramName)) {
+                    tparams.put(paramName, type);
+                }
+            }
+            declaringType = declaringType.getOuterType();
+        }
+    }
+    
+    /**
+     * Get the reflective representing the outer class of this reflective,
+     * or null if none.
+     */
+    private JdiReflective getOuterType()
+    {
+        checkLoaded();
+        String myName = getName();
+        int x = myName.indexOf('$');
+        if (x != -1 && ! rclass.isStatic()) {
+            String outerName = myName.substring(0, x);
+            return (JdiReflective) getRelativeClass(outerName);
+        }
+        else
+            return null;
+    }
+    
     static class StringIterator
     {
         int i = 0;

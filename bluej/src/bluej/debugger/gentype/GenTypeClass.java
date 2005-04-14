@@ -12,7 +12,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 3324 2005-02-25 01:30:38Z davmac $
+ * @version $Id: GenTypeClass.java 3347 2005-04-14 02:00:15Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -52,7 +52,10 @@ public class GenTypeClass extends GenTypeSolid {
      * New GenTypeClass from a reflective and an ordered list of type
      * parameters, representing an inner class of a specified class.
      * This should only be used if the outer class is generic AND this inner
-     * class is a non-static inner class.
+     * class is a non-static inner class.<p>
+     * 
+     * <i>outer</i> may be null, to specify no outer class. In this case this
+     * constructor is equivalent to GenTypeClass(r, params). 
      * 
      * @param r  The Reflective representing the class.
      * @param params  A list of GenTypeParameterizables giving the type
@@ -73,8 +76,9 @@ public class GenTypeClass extends GenTypeSolid {
      * is treated as a raw type.
      * 
      * @param r  The Reflective representing the class.
-     * @param mparams  A list of GenTypeParameterizables giving the type
-     *                  parameters in declaration order
+     * @param mparams  A map of String -> GenTypeParameterizable giving the
+     *                 type parameters. The map may be modified (if it is not
+     *                 empty) by this constructor.
      */
     public GenTypeClass(Reflective r, Map mparams)
     {
@@ -88,13 +92,30 @@ public class GenTypeClass extends GenTypeSolid {
         Iterator declParmsI = r.getTypeParams().iterator();
         while( declParmsI.hasNext() ) {
             GenTypeDeclTpar next = (GenTypeDeclTpar)declParmsI.next();
-            if(mparams.get(next.getTparName()) == null)
+            String nextName = next.getTparName();
+            if(mparams.get(nextName) == null)
                 params.add(new GenTypeExtends(next.getBound()));
-            else
-                params.add(mparams.get(next.getTparName()));
+            else {
+                params.add(mparams.get(nextName));
+                mparams.remove(nextName);
+            }
         }
         if( params.isEmpty() )
             params = null;
+        
+        // If there are still entries in the map, they belong to an outer
+        // class
+        if (! mparams.isEmpty()) {
+            String rName = r.getName();
+            int p = rName.lastIndexOf('$');
+            if (p == -1)
+                return;
+            String outerName = rName.substring(0, p);
+            Reflective outerReflective = r.getRelativeClass(outerName);
+            if (outerReflective != null) {
+                outer = new GenTypeClass(outerReflective, mparams);
+            }
+        }
     }
     
     // ---------- instance methods -------------
@@ -104,8 +125,16 @@ public class GenTypeClass extends GenTypeSolid {
         return this;
     }
     
+    public GenType getErasedType()
+    {
+        return new GenTypeClass(reflective);
+    }
+    
     /**
-     * Get the raw name of the type.
+     * Get the raw name of the type. The name returned is encoded so that it
+     * can be passed to a ClassLoader's "loadClass" method (ie, dots between
+     * outer and inner class names are changed to $).
+     * 
      * @return the raw name
      */
     public String rawName()
@@ -113,30 +142,9 @@ public class GenTypeClass extends GenTypeSolid {
         return reflective.getName();
     }
     
-    /**
-     * Get the type parameters as a string, for instance:<p>
-     *    &lt;? extends java.lang.Object, java.lang.Thread&gt;
-     * @return The type parameter string including angle brackets
-     *         (empty string if no parameters)
-     */
-    public String getParamString()
+    public String arrayComponentName()
     {
-        if( params == null )
-            return "";
-        
-        StringBuffer sb = new StringBuffer();
-        sb.append("<");
-        
-        Iterator i = params.iterator();
-        while( i.hasNext() ) {
-            GenType next = (GenType)i.next();
-            sb.append(next.toString());
-            if( i.hasNext() )
-                sb.append(",");
-        }
-        
-        sb.append(">");
-        return sb.toString();
+        return "L" + rawName() + ";";
     }
     
     /**
@@ -426,7 +434,7 @@ public class GenTypeClass extends GenTypeSolid {
         tparams.putAll(baseClass.getMap());
         return tparams;
     }
-    
+
     /**
      * Worker function for mapGenericParamsToBase. Maps only to a direct base.
      * @param tparams   a Map of String -> GenTypeClass
@@ -437,9 +445,6 @@ public class GenTypeClass extends GenTypeSolid {
             Reflective subType, Reflective baseType)
     {
         GenTypeClass baseClass = subType.superTypeByName(baseType.getName());
-
-        // The derived type inherits from the non-raw version of the base type.
-        // This should usually be the case.
         baseClass = (GenTypeClass) baseClass.mapTparsToTypes(tparams);
         return baseClass;
     }
@@ -449,20 +454,27 @@ public class GenTypeClass extends GenTypeSolid {
      * corresponding actual types, as defined by a Map (String -> GenType).
      * 
      * @param tparams  A map definining the translation from type parameter
-     *                 name (String) to its actual type (GenType).
+     *                 name (String) to its actual type (GenType). The map
+     *                 can be null to return the raw type.
      * @return the corresponding type structure, with parameters mapped.
      */
     public GenType mapTparsToTypes(Map tparams)
     {
+        // If tparams is null, return the erased type
+        if (tparams == null)
+            return getErasedType();
+        
         // If there are no generic parameters, there's nothing to map...
-        if( params == null )
+        if( params == null && outer == null )
             return this;
         
         // Otherwise map each parameter, return the result.
-        Iterator i = params.iterator();
         List retlist = new ArrayList();
-        while( i.hasNext() ) {
-            retlist.add(((GenTypeParameterizable)i.next()).mapTparsToTypes(tparams));
+        if (params != null) {
+            Iterator i = params.iterator();
+            while( i.hasNext() ) {
+                retlist.add(((GenTypeParameterizable)i.next()).mapTparsToTypes(tparams));
+            }
         }
         
         GenTypeClass newOuter = null;
@@ -586,7 +598,7 @@ public class GenTypeClass extends GenTypeSolid {
     public GenTypeParameterizable mapToDerived2(Reflective derivedType)
     {        
         // Get a map (parameter name -> type) for this class.
-        if( derivedType.getTypeParams().isEmpty() || ! isGeneric() )
+        if(! isGeneric() )
             return new GenTypeClass(derivedType);
         
         // One simple class is when super class = this.
@@ -641,8 +653,7 @@ public class GenTypeClass extends GenTypeSolid {
      */
     public Map getMap()
     {
-        List formalParams = reflective.getTypeParams();
-        if( params == null && ! formalParams.isEmpty())
+        if (isRaw())
             return null;
         
         HashMap r = new HashMap();
@@ -654,7 +665,7 @@ public class GenTypeClass extends GenTypeSolid {
      * Get a map of type parameter names to the corresponding types, for this
      * type. Existing entries in the map will be overwritten. 
      * 
-     * There is no way to tell if this type is a raw type.
+     * The returned does not indicate if this type is a raw type.
      */
     public void mergeMap(Map m)
     {
@@ -805,32 +816,7 @@ public class GenTypeClass extends GenTypeSolid {
         }
         return new GenTypeClass(reflective,l);
     }
-    
-    /**
-     * For all type parameters which don't already occur in the given Map,
-     * add them in as the "default" given by the class definition. For instance
-     * with List&lt;T&gt;, add in the mapping "T : ? extends Object".
-     * @param tparams       The map (String -> GenTypeClass)
-     * @param declaringType the type for which to add default mappings
-     */
-    public static void addDefaultParamBases(Map tparams, Reflective declaringType)
-    {
-        Iterator i = declaringType.getTypeParams().iterator();
         
-        while( i.hasNext() ) {
-            GenTypeDeclTpar tpar = (GenTypeDeclTpar)i.next();
-            
-            String paramName = tpar.getTparName();
-
-            GenTypeSolid bound = tpar.getBound();
-            GenTypeWildcard type = new GenTypeExtends(bound);
-            if( ! tparams.containsKey(paramName)) {
-                tparams.put(paramName, type);
-            }
-        }
-        return;
-    }
-    
     public GenTypeClass[] getUpperBoundsC()
     {
         return new GenTypeClass [] {this};

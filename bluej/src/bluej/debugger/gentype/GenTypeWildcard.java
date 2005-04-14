@@ -14,7 +14,7 @@ import bluej.utility.Debug;
  * This is an Immutable type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: GenTypeWildcard.java 3347 2005-04-14 02:00:15Z davmac $
  */
 public class GenTypeWildcard extends GenTypeParameterizable
 {
@@ -86,6 +86,11 @@ public class GenTypeWildcard extends GenTypeParameterizable
         }
         else
             return "?";
+    }
+    
+    public String arrayComponentName()
+    {
+        return getErasedType().arrayComponentName();
     }
     
     // TODO refactor.
@@ -161,8 +166,8 @@ public class GenTypeWildcard extends GenTypeParameterizable
                 if (upperBounds[i] instanceof GenTypeClass) {
                     GenTypeClass bound = (GenTypeClass) upperBounds[i];
                     
-                    Map m = bound.mapToDerived(bound.getReflective());
-                    otherClass = (GenTypeClass) new GenTypeClass(bound.getReflective(), m).precisify(otherClass);
+                    GenTypeClass mapped = (GenTypeClass) bound.mapToDerived2(bound.getReflective());
+                    otherClass = (GenTypeClass) mapped.precisify(otherClass);
                     if (otherClass == null)
                         return null;
                 }
@@ -173,9 +178,7 @@ public class GenTypeWildcard extends GenTypeParameterizable
                 if (lowerBounds[i] instanceof GenTypeClass) {
                     GenTypeClass bound = (GenTypeClass) lowerBounds[i];
                     
-                    Map m = bound.mapToSuper(otherClass.getReflective().getName());
-                    
-                    otherClass = (GenTypeClass) new GenTypeClass(bound.getReflective(), m).precisify(otherClass);
+                    otherClass = (GenTypeClass) bound.mapToSuper2(otherClass.getReflective().getName()).precisify(otherClass);
                     if (otherClass == null)
                         return null;
                 }
@@ -239,8 +242,7 @@ public class GenTypeWildcard extends GenTypeParameterizable
                     if (a instanceof GenTypeClass && b instanceof GenTypeClass) {
                         GenTypeClass aClass = (GenTypeClass) a;
                         GenTypeClass bClass = (GenTypeClass) b;
-                        Map m = aClass.mapToDerived(bClass.getReflective());
-                        GenTypeClass mapped = new GenTypeClass(bClass.getReflective(), m);
+                        GenTypeClass mapped = (GenTypeClass) aClass.mapToDerived2(bClass.getReflective());
                         mapped = (GenTypeClass) mapped.precisify(bClass);
                         ubounds.set(i, mapped);
                     }
@@ -254,8 +256,7 @@ public class GenTypeWildcard extends GenTypeParameterizable
                     if (a instanceof GenTypeClass && b instanceof GenTypeClass) {
                         GenTypeClass aClass = (GenTypeClass) a;
                         GenTypeClass bClass = (GenTypeClass) b;
-                        Map m = bClass.mapToDerived(aClass.getReflective());
-                        GenTypeClass mapped = new GenTypeClass(aClass.getReflective(), m);
+                        GenTypeClass mapped = (GenTypeClass) bClass.mapToDerived2(aClass.getReflective());
                         mapped = (GenTypeClass) mapped.precisify(aClass);
                         ubounds.set(i, mapped);
                     }
@@ -277,8 +278,7 @@ public class GenTypeWildcard extends GenTypeParameterizable
                     if (a instanceof GenTypeClass && b instanceof GenTypeClass) {
                         GenTypeClass aClass = (GenTypeClass) a;
                         GenTypeClass bClass = (GenTypeClass) b;
-                        Map m = bClass.mapToSuper(aClass.rawName());
-                        GenTypeClass mapped = new GenTypeClass(aClass.getReflective(), m);
+                        GenTypeClass mapped = bClass.mapToSuper2(aClass.rawName());
                         mapped = (GenTypeClass) mapped.precisify(aClass);
                         lbounds.set(i, mapped);
                     }
@@ -289,8 +289,7 @@ public class GenTypeWildcard extends GenTypeParameterizable
                     if (a instanceof GenTypeClass && b instanceof GenTypeClass) {
                         GenTypeClass aClass = (GenTypeClass) a;
                         GenTypeClass bClass = (GenTypeClass) b;
-                        Map m = aClass.mapToSuper(bClass.rawName());
-                        GenTypeClass mapped = new GenTypeClass(bClass.getReflective(), m);
+                        GenTypeClass mapped = aClass.mapToSuper2(bClass.rawName());
                         mapped = (GenTypeClass) mapped.precisify(bClass);
                         lbounds.set(i, mapped);
                     }
@@ -390,9 +389,14 @@ public class GenTypeWildcard extends GenTypeParameterizable
         return;
     }
     
+    public GenType getErasedType()
+    {
+        return upperBounds[0].getErasedType();
+    }
+    
     public boolean isPrimitive()
     {
-        return true;
+        return false;
     }
     
     public boolean isAssignableFrom(GenType t)
