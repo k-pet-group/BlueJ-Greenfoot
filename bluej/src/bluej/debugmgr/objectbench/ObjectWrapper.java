@@ -22,8 +22,6 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
-import bluej.debugmgr.inspector.Inspector;
-import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.extmgr.MenuManager;
 import bluej.pkgmgr.Package;
@@ -45,7 +43,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3341 2005-04-08 04:12:53Z bquig $
+ * @version $Id: ObjectWrapper.java 3348 2005-04-15 02:36:36Z davmac $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -626,6 +624,7 @@ public class ObjectWrapper extends JComponent
                                       viewer.getResult());
             }
             public void putError(String msg) { }
+            public void putException(String msg) { }
             public ExpressionInformation getExpressionInformation() {
                 return expressionInformation;
             }              

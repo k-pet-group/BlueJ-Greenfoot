@@ -31,7 +31,7 @@ import bluej.views.View;
  * Tests for the debugger.
  *  
  * @author Davin McCall
- * @version $Id: JdiTests.java 3139 2004-11-23 01:13:47Z davmac $
+ * @version $Id: JdiTests.java 3348 2005-04-15 02:36:36Z davmac $
  */
 public class JdiTests extends TestCase
 {
@@ -414,6 +414,8 @@ public class JdiTests extends TestCase
                     }
 
                     public void putError(String msg)
+                    {}
+                    public void putException(String msg)
                     {}
 
                     /**

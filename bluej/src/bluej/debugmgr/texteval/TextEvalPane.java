@@ -12,7 +12,6 @@ import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.*;
-import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.editor.moe.BlueJSyntaxView;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEditorKit;
@@ -27,7 +26,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3341 2005-04-08 04:12:53Z bquig $
+ * @version $Id: TextEvalPane.java 3348 2005-04-15 02:36:36Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ResultWatcher, MouseMotionListener
@@ -187,17 +186,34 @@ public class TextEvalPane extends JEditorPane
             }
         }
         else {
-            currentCommand = "";
-            EventQueue.invokeLater(new Runnable() {
-                public void run()
-                {
-                    append(" ");
-                    error(message);
-                    setEditable(true);    // allow next input
-                    busy = false;
-                }
-            });
+            showErrorMsg(message);
         }
+    }
+    
+    /**
+     * A runtime exception occurred.
+     */
+    public void putException(String message)
+    {
+        showErrorMsg(message);
+    }
+    
+    /**
+     * Show an error message, and allow further command input. This can be
+     * called from outside the GUI event thread.
+     */
+    private void showErrorMsg(final String message)
+    {
+        currentCommand = "";
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                append(" ");
+                error(message);
+                setEditable(true);    // allow next input
+                busy = false;
+            }
+        });
     }
     
     /**
@@ -559,6 +575,9 @@ public class TextEvalPane extends JEditorPane
 
         action = new TransferFocusAction(false);
         newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK), action);
+        
+        action = new CursorHomeAction();
+        newmap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0), action);
 
         setKeymap(newmap);
     }
@@ -715,6 +734,32 @@ public class TextEvalPane extends JEditorPane
                 Caret caret = getCaret();
                 caret.setDot(caret.getDot() - 1);
             }
+        }
+    }
+    
+    final class CursorHomeAction extends AbstractAction {
+        
+        /**
+         * Create a new action object.
+         */
+        public CursorHomeAction()
+        {
+            super("CursorHome");
+        }
+        
+        /**
+         * Home the cursor. This overrides the default behaviour (move to
+         * column 0) to "move to column 1".
+         */
+        public void actionPerformed(ActionEvent event)
+        {
+            if (busy)
+                return;
+            
+            Caret caret = getCaret();
+            int curCol = getColumnFromPosition(caret.getDot());
+            if (curCol != 1)
+                caret.setDot(caret.getDot() - curCol + 1);
         }
     }
 

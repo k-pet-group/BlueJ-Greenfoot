@@ -57,7 +57,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3344 2005-04-11 01:57:42Z davmac $
+ * @version $Id: PkgMgrFrame.java 3348 2005-04-15 02:36:36Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1529,6 +1529,8 @@ public class PkgMgrFrame extends JFrame
 
                 public void putError(String msg)
                 {}
+                public void putException(String msg)
+                {}
 
                 /**
                  * We have no use of this information when using the constructor
@@ -1567,6 +1569,8 @@ public class PkgMgrFrame extends JFrame
                 }
 
                 public void putError(String msg)
+                {}
+                public void putException(String msg)
                 {}
 
                 public ExpressionInformation getExpressionInformation()

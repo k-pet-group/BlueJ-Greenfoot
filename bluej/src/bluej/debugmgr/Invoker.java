@@ -36,7 +36,7 @@ import bluej.views.TypeParamView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3347 2005-04-14 02:00:15Z davmac $
+ * @version $Id: Invoker.java 3348 2005-04-15 02:36:36Z davmac $
  */
 
 public class Invoker
@@ -826,7 +826,7 @@ public class Invoker
                     if (instanceName != null) {
                         // always report System.exit for non-void calls
                         pkg.reportExit(excMsg);
-                        watcher.putError(excMsg);
+                        watcher.putException(excMsg);
                     }
                     else {
                         // for void calls, only report non-zero exits
@@ -843,18 +843,18 @@ public class Invoker
                     if (text != null) {
                         text = JavaNames.stripPrefix(text) + ":\n" + msg;
                         pkg.exceptionMessage(exc.getStack(), text, false);
-                        watcher.putError(text);
+                        watcher.putException(text);
                     }
                     else {
                         pkg.reportException(msg);
-                        watcher.putError(msg);
+                        watcher.putException(msg);
                     }
                     executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
                     break;
 
                 case Debugger.TERMINATED : // terminated by user
                     // nothing to do
-                    watcher.putError("Terminated");
+                    watcher.putException("Terminated");
                     executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
                     break;
 

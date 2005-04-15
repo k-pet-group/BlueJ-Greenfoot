@@ -13,7 +13,7 @@ import bluej.views.*;
  * @author     Damiano Bolla, University of Kent at Canterbury, 2003,2004
  * @author     Clive Miller, University of Kent at Canterbury, 2002
  *
- * @version    $Id: DirectInvoker.java 2955 2004-08-30 06:15:11Z davmac $
+ * @version    $Id: DirectInvoker.java 3348 2005-04-15 02:36:36Z davmac $
  */
 
 class DirectInvoker
@@ -307,6 +307,17 @@ class DirectInvoker
             isFailed = true;
             resultReady = true;
             notifyAll();
+        }
+        
+
+        /**
+         * Treat run-time error the same as compile-time error.
+         * 
+         * @param  msg  The exception message
+         */
+        public void putException(String msg)
+        {
+            putError(msg);
         }
 
 

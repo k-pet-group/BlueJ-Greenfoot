@@ -8,7 +8,7 @@ import bluej.testmgr.record.*;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ResultWatcher.java 2630 2004-06-19 14:26:37Z polle $
+ * @version $Id: ResultWatcher.java 3348 2005-04-15 02:36:36Z davmac $
  */
 public interface ResultWatcher
 {
@@ -21,10 +21,15 @@ public interface ResultWatcher
 	void putResult(DebuggerObject result, String name, InvokerRecord ir);
 	
 	/**
-	 * An invocation has failed - here is the error message
+	 * An invocation has failed (compilation error) - here is the error message
 	 */
 	void putError(String message);
 	
+    /**
+     * A runtime exception occurred - here is the exception text
+     */
+    void putException(String message);
+    
 	/**
 	 * A watcher shuold be able to return information about the result that it
 	 * is watching. T is used to display extra information (about the expression
