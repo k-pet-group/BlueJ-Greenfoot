@@ -1,6 +1,7 @@
 package greenfoot.event;
 
 import greenfoot.GreenfootObject;
+import greenfoot.GreenfootWorld;
 import greenfoot.WorldHandler;
 import greenfoot.gui.DragGlassPane;
 
@@ -60,6 +61,9 @@ public class GreenfootObjectInstantiationListener extends RInvocationListenerImp
             int xoffset = -go.getImage().getWidth() / 2;
             int yoffset = -go.getImage().getHeight() / 2;
             DragGlassPane.getInstance().startDrag(go, xoffset, yoffset, worldHandler);
+        } 
+        else if(realObject instanceof greenfoot.GreenfootWorld) {
+            worldHandler.installNewWorld((GreenfootWorld) realObject);
         }
     }
 
