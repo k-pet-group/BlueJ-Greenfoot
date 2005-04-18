@@ -34,8 +34,10 @@ import bluej.views.MethodView;
  * an inspector window for the result (method call). For constructed objects,
  * the greenfoot object instantiation listener is notified.
  * 
+ * When a method call has been executed the world is repainted.
+ * 
  * @author Davin McCall
- * @version $Id: WorldInvokeListener.java 3262 2005-01-12 03:30:49Z davmac $
+ * @version $Id: WorldInvokeListener.java 3350 2005-04-18 12:32:39Z polle $
  */
 public class WorldInvokeListener
     implements InvokeListener, CallDialogWatcher
@@ -46,9 +48,11 @@ public class WorldInvokeListener
     private MethodView mv;
     private ConstructorView cv;
     private Class cl;
+    private WorldHandler worldHandler;
     
-    public WorldInvokeListener(Object obj)
+    public WorldInvokeListener(Object obj, WorldHandler worldHandler)
     {
+        this.worldHandler = worldHandler;
         this.obj = obj;
     }
     
@@ -75,6 +79,7 @@ public class WorldInvokeListener
                     public void run() {
                         try {
                             Object r = m.invoke(obj, null);
+                            worldHandler.repaint();
                             if (m.getReturnType() != void.class) {
                                 ExpressionInformation ei = new ExpressionInformation(WorldInvokeListener.this.mv, instanceName);
                                 ResultInspector ri = ResultInspector.getInstance(wrapResult(r, m.getReturnType()), instanceName, null, null, ei, Greenfoot.getInstance().getFrame());
@@ -236,6 +241,8 @@ public class WorldInvokeListener
                 catch (ProjectNotOpenException pnoe) {}
                 catch (PackageNotFoundException pnfe) {}
             }
+
+            worldHandler.repaint();
         }
     }
     

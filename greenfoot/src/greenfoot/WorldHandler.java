@@ -1,6 +1,5 @@
 package greenfoot;
 
-import greenfoot.event.WorldCreationListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
@@ -31,7 +30,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3321 2005-02-21 15:44:21Z polle $
+ * @version $Id: WorldHandler.java 3350 2005-04-18 12:32:39Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -68,12 +67,6 @@ public class WorldHandler
         worldCanvas.addMouseListener(this);
         worldCanvas.addKeyListener(this);
         worldCanvas.setDropTargetListener(this);
-        try {
-            Greenfoot.getInstance().addInvocationListener(new WorldCreationListener(this));
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
         installNewWorld(world);
         DragGlassPane.getInstance().addKeyListener(this);
 
@@ -168,7 +161,7 @@ public class WorldHandler
     private JPopupMenu makePopupMenu(final GreenfootObject obj)
     {
         JPopupMenu menu = new JPopupMenu();
-        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj), Collections.EMPTY_MAP);
+        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this), Collections.EMPTY_MAP);
         menu.addSeparator();
         
         // "inspect" menu item
@@ -342,7 +335,7 @@ public class WorldHandler
         installNewWorld(world);
     }
 
-    private void installNewWorld(GreenfootWorld world)
+    public void installNewWorld(GreenfootWorld world)
     {
         this.world = world;
 
@@ -377,18 +370,15 @@ public class WorldHandler
                 Object world = WorldHandler.this.world;
                 if (e.isPopupTrigger() && world != null) {
                     JPopupMenu menu = new JPopupMenu();
-                    ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world), Collections.EMPTY_MAP);
+                    ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world, WorldHandler.this), Collections.EMPTY_MAP);
+                    menu.addSeparator();
+                    //"inspect" menu item
+                    JMenuItem m = getInspectMenuItem(world);
+                    menu.add(m);
                     menu.show(worldTitle, e.getX(), e.getY());
                 }
             }
         });
-
-    }
-
-    public void installNewWorld(RObject rWorld)
-    {
-        Object world = ObjectTracker.instance().getRealObject(rWorld);
-        installNewWorld((GreenfootWorld) world);
 
     }
 
