@@ -12,7 +12,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 3347 2005-04-14 02:00:15Z davmac $
+ * @version $Id: GenTypeClass.java 3349 2005-04-18 04:47:40Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -148,6 +148,29 @@ public class GenTypeClass extends GenTypeSolid {
     }
     
     /**
+     * Return an unmodifiable list of the type parameters applied to the
+     * innermost class in this generic type. 
+     */
+    public List getTypeParamList()
+    {
+        if (params == null)
+            return Collections.EMPTY_LIST;
+        else
+            return params;
+    }
+    
+    /**
+     * Get the containing type. If this is a generic type whose class is an
+     * inner class, and an outer class is also generic, this will return the
+     * outer class of the class type. NOTE, it will not necessarily work if
+     * no outer class is generic, or if this is a raw type!
+     */
+    public GenTypeClass getOuterType()
+    {
+        return outer;
+    }
+    
+    /**
      * Check whether the type is a generic type (with type parameters).
      * Returns false for parameterless types and raw types.
      * 
@@ -233,7 +256,6 @@ public class GenTypeClass extends GenTypeSolid {
         r += '>';
         return r;
     }
-    
     
     public boolean equals(GenTypeParameterizable other)
     {

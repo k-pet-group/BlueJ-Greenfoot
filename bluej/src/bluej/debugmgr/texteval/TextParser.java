@@ -23,7 +23,7 @@ import bluej.utility.JavaUtils;
  * Parsing routines for the code pad.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3347 2005-04-14 02:00:15Z davmac $
+ * @version $Id: TextParser.java 3349 2005-04-18 04:47:40Z davmac $
  */
 public class TextParser
 {
@@ -33,6 +33,8 @@ public class TextParser
 
     private static JavaUtils jutils = JavaUtils.getJavaUtils();
     private static boolean java15 = Config.isJava15();
+    
+    private List declVars; // variables declared in the parsed statement block
     
     /**
      * TextParser constructor. Defines the class loader and package scope
@@ -65,7 +67,25 @@ public class TextParser
             parser.compoundStatement();
             rootAST = parser.getAST();
             parsedOk = true;
-            // Debug.message("It seems to be a statement.");
+
+            // Extract the declared variables
+            AST fcnode = rootAST.getFirstChild();
+            try {
+                declVars = new ArrayList();
+                while (fcnode != null) {
+                    if (fcnode != null && fcnode.getType() == JavaTokenTypes.VARIABLE_DEF) {
+                        AST modnode = fcnode.getFirstChild(); // modifiers
+                        AST typenode = modnode.getNextSibling();
+                        GenType declVarType = getTypeFromTypeNode(typenode);
+                        AST namenode = typenode.getNextSibling();
+                        String varName = namenode.getText();
+                        boolean isVarInit = namenode.getNextSibling() != null;
+                        declVars.add(new DeclaredVar(isVarInit, declVarType, varName));
+                    }
+                    fcnode = fcnode.getNextSibling();
+                }
+            }
+            catch (SemanticException se) {}
         }
         catch(RecognitionException re) { }
         catch(TokenStreamException tse) { }
@@ -97,7 +117,16 @@ public class TextParser
         }
         return null;
     }
-
+    
+    /**
+     * Get a list of the variables declared in the recently parsed statement
+     * block. The return is a List of TextParser.DeclaredVar
+     */
+    public List getDeclaredVars()
+    {
+        return declVars;
+    }
+    
     /**
      * Java 1.4 & prior version of trinary "? :" operator. See JLS 2nd ed. 
      * section 15.25.
@@ -319,13 +348,8 @@ public class TextParser
      */
     private GenTypeClass Candidate(Reflective t, GenTypeClass [] ubounds, Stack lubBt)
     {
-        if (t.getTypeParams().isEmpty())
-            return new GenTypeClass(t);
-        else {
-            // CandidateInvocation(G) = lci(Inv(G))
-            GenTypeClass [] ri = relevantInvocations(t, ubounds);
-            return leastContainingInvocation(ri, lubBt);
-        }
+        GenTypeClass [] ri = relevantInvocations(t, ubounds);
+        return leastContainingInvocation(ri, lubBt);
     }
     
     /**
@@ -357,24 +381,28 @@ public class TextParser
         if (! a.getReflective().getName().equals(b.getReflective().getName()))
             throw new IllegalArgumentException("Class types must be the same.");
         
-        Map ma = a.getMap();
-        Map mb = b.getMap();
-        if (ma == null || mb == null)
-            return new GenTypeClass(a.getReflective());
+        if (a.isRaw() || b.isRaw())
+            return (a.isRaw()) ? a : b;
         
-        Map rmap = new HashMap();
-        Iterator i = ma.entrySet().iterator();
+        List lc = new ArrayList();
+        Iterator i = a.getTypeParamList().iterator();
+        Iterator j = b.getTypeParamList().iterator();
+        
+        GenTypeClass oa = a.getOuterType();
+        GenTypeClass ob = b.getOuterType();
+        GenTypeClass oc = null;
+        if (oa != null && ob != null)
+            oc = leastContainingInvocation(oa, ob, lubBt);
 
         // lci(G<X1,...,Xn>, G<Y1,...,Yn>) =
         //       G<lcta(X1,Y1), ..., lcta(Xn,Yn)>
         while (i.hasNext()) {
-            Map.Entry mentry = (Map.Entry) i.next();
-            GenTypeParameterizable atype = (GenTypeParameterizable) mentry.getValue();
-            GenTypeParameterizable btype = (GenTypeParameterizable) mb.get(mentry.getKey());
+            GenTypeParameterizable atype = (GenTypeParameterizable) i.next();
+            GenTypeParameterizable btype = (GenTypeParameterizable) j.next();
             GenTypeParameterizable rtype = leastContainingTypeArgument(atype, btype, lubBt);
-            rmap.put(mentry.getKey(), rtype);
+            lc.add(rtype);
         }
-        return new GenTypeClass(a.getReflective(), rmap);
+        return new GenTypeClass(a.getReflective(), lc, oc);
     }
     
     /**
@@ -967,7 +995,7 @@ public class TextParser
             String nodeText = node.getText();
             ObjectWrapper ow = objectBench.getObject(nodeText);
             if (ow != null)
-                return new ValueEntity(ow.getGenType());
+                return new ValueEntity(getObjectType(nodeText));
             
             try {
                 Class c = loadUnqualifiedClass(nodeText);
@@ -1522,7 +1550,7 @@ public class TextParser
                 if (secondDotArg.getType() == JavaTokenTypes.LITERAL_class) {
                     if (! Config.isJava15())
                         return new ExprValue(new GenTypeClass(new JavaReflective(Class.class)));
-                    // TODO return "Class<X>", not just "Class"
+                    // TODO return "Class<X>", not just "Class". Beware int!
                     return new ExprValue(new GenTypeClass(new JavaReflective(Class.class)));
                 }
                 
@@ -1538,12 +1566,13 @@ public class TextParser
             case JavaTokenTypes.IDENT:
             {
                 String objectName = fcNode.getText();
-                ObjectWrapper ow = objectBench.getObject(objectName);
+                //ObjectWrapper ow = objectBench.getObject(objectName);
+                GenType gt = getObjectType(objectName);
                 
-                if (ow == null)
+                if (gt == null)
                     throw new SemanticException();
                 
-                return new ExprValue(ow.getGenType());
+                return new ExprValue(gt);
             }
             
             // type cast.
@@ -1581,9 +1610,11 @@ public class TextParser
             case JavaTokenTypes.NUM_DOUBLE:
                 return getDoubleLiteral(fcNode, false);
             
-            // TODO these should return an ExprValue with assosciated values
+            // true & false literals, "instanceof" expressions
             case JavaTokenTypes.LITERAL_true:
+                return BooleanValue.getBooleanValue(true);
             case JavaTokenTypes.LITERAL_false:
+                return BooleanValue.getBooleanValue(false);
             case JavaTokenTypes.LITERAL_instanceof:
                 return new ExprValue(GenTypePrimitive.getBoolean());
             
@@ -1747,6 +1778,35 @@ public class TextParser
         }
         
         // bluej.utility.Debug.message("Unknown type: " + fcNode.getType());
+        return null;
+    }
+        
+    /**
+     * Get the type of an object on the bench. Make sure the reflectives are
+     * all JavaReflectives - do this by converting the type to string and
+     * then re-parsing it.
+     * 
+     * @param objectName   The name of the bench object
+     * @return  The type of the selected object (or null if no such object
+     *          exists)
+     * @throws SemanticException
+     * @throws RecognitionException
+     */
+    private GenType getObjectType(String objectName)
+        throws SemanticException, RecognitionException
+    {
+        ObjectWrapper ow = objectBench.getObject(objectName);
+
+        if (ow == null)
+            throw new SemanticException();
+
+        try {
+            JavaRecognizer jr = getParser(ow.getGenType().toString() + ")))");
+            jr.type();
+            AST n = jr.getAST();
+            return getType(n);
+        }
+        catch (TokenStreamException tse) {}
         return null;
     }
     
@@ -1995,10 +2055,14 @@ public class TextParser
             Field f = null;
             try {
                 f = thisClass.getField(name);
-                GenType fieldType = JavaUtils.getJavaUtils().getFieldType(f);
+                GenType fieldType;
                 Map tparmap = getClassType().getMap();
-                if (tparmap != null)
-                    fieldType.mapTparsToTypes(tparmap);
+                if (tparmap != null) {
+                    fieldType = JavaUtils.getJavaUtils().getFieldType(f);
+                    fieldType = fieldType.mapTparsToTypes(tparmap);
+                }
+                else
+                    fieldType = JavaUtils.getJavaUtils().getRawFieldType(f);
                 return new ValueEntity(fieldType);
             }
             catch (NoSuchFieldException nsfe) {}
@@ -2083,7 +2147,7 @@ public class TextParser
     /**
      * A value (possibly unknown) with assosciated type
      */
-    class ExprValue
+    static class ExprValue
     {
         // default implementation has no known value
         public GenType type;
@@ -2129,6 +2193,44 @@ public class TextParser
         }
     }
     
+    static class BooleanValue extends ExprValue
+    {
+        boolean val;
+
+        // constructor is private: use getBooleanValue instead
+        private BooleanValue(boolean val)
+        {
+            super(GenTypePrimitive.getBoolean());
+            this.val = val;
+        }
+        
+        // cache the two values
+        public static BooleanValue trueVal = null;
+        public static BooleanValue falseVal = null;
+        
+        /**
+         * Get an instance of BooleanValue, representing either true or false.
+         */
+        public static BooleanValue getBooleanValue(boolean val)
+        {
+            if (val == true) {
+                if (trueVal == null)
+                    trueVal = new BooleanValue(true);
+                return trueVal;
+            }
+            else {
+                if (falseVal == null)
+                    falseVal = new BooleanValue(false);
+                return falseVal;
+            }
+        }
+        
+        public boolean booleanValue()
+        {
+            return val;
+        }
+    }
+    
     class NumValue extends ExprValue
     {
         private Number val;
@@ -2162,6 +2264,50 @@ public class TextParser
         public double doubleValue()
         {
             return val.doubleValue();
+        }
+    }
+    
+    /**
+     * A class to represent a variable declared by a statement. This contains
+     * the variable name and type, and whether or not it was initialized.
+     */
+    public class DeclaredVar
+    {
+        private boolean isVarInit = false;
+        private GenType declVarType;
+        private String varName;
+        
+        public DeclaredVar(boolean isVarInit, GenType varType, String varName)
+        {
+            this.isVarInit = isVarInit;
+            this.declVarType = varType;
+            this.varName = varName;
+        }
+        
+        /**
+         * Check whether the variable declaration included an initialization.
+         * First call checkVarDecl to make sure that this is a declaration.
+         */
+        public boolean checkVarInit()
+        {
+            return isVarInit;
+        }
+        
+        /**
+         * Get the type of variable which was declared by the recently parsed
+         * statement. 
+         */
+        public GenType getDeclaredVarType()
+        {
+            return declVarType;
+        }
+        
+        /**
+         * Get the name of the declared variable.
+         */
+        public String getName()
+        {
+            return varName;
         }
     }
 }
