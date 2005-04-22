@@ -1,12 +1,14 @@
 package bluej;
 
-import bluej.extensions.event.*;
-import bluej.extmgr.*;
 import java.io.File;
+import java.net.URL;
 import java.util.Properties;
 
-import bluej.pkgmgr.*;
+import bluej.extensions.event.ApplicationEvent;
+import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 
 /**
@@ -16,7 +18,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 3097 2004-11-16 02:09:14Z davmac $
+ * @version $Id: Main.java 3352 2005-04-22 02:39:57Z davmac $
  */
 public class Main
 {
@@ -35,6 +37,14 @@ public class Main
 
         Config.initialise(bluejLibDir, processCommandLineProperties(args));
 
+        // workaround java's broken UNC path handling on Windows
+        if (Config.getPropString("bluej.windows.customUNCHandler", "false").equals("true")) {
+            String osname = System.getProperty("os.name", "");
+            if(osname.startsWith("Windows"))
+                URL.setURLStreamHandlerFactory(new BluejURLStreamHandlerFactory());
+        }
+        
+        // process command line arguments, start BlueJ!
         processArgs(args);
     }
 
