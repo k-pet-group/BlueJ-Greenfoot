@@ -1,10 +1,10 @@
-// Copyright (c) 2000 BlueJ Group, Monash University
+// Copyright (c) 2000, 2005 BlueJ Group, Deakin University
 //
 // This software is made available under the terms of the "MIT License"
 // A copy of this license is included with this source distribution
 // in "license.txt" and is also available at:
-// http://www.opensource.org/licenses/mit-license.html
-// Any queries should be directed to Michael Kolling mik@mip.sdu.dk
+// http://www.opensource.org/licenses/mit-license.html 
+// Any queries should be directed to Michael Kolling mik@bluej.org
 
 package bluej.editor.moe;
 
@@ -997,7 +997,7 @@ public final class MoeActions
         {
             JOptionPane.showMessageDialog(getEditor(e), new String[]{"Moe", "Version " + MoeEditor.versionString, " ",
                     "Moe is the editor of the BlueJ programming environment.",
-                    "Written by Michael K\u00F6lling (mik@mip.sdu.dk)."}, "About Moe", JOptionPane.INFORMATION_MESSAGE);
+                    "Written by Michael K\u00F6lling (mik@bluej.org)."}, "About Moe", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

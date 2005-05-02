@@ -1,10 +1,10 @@
-// Copyright (c) 2000 BlueJ Group, Monash University
+// Copyright (c) 2000, 2005 BlueJ Group, Deakin University
 //
 // This software is made available under the terms of the "MIT License"
 // A copy of this license is included with this source distribution
 // in "license.txt" and is also available at:
 // http://www.opensource.org/licenses/mit-license.html 
-// Any queries should be directed to Michael Kolling mik@mip.sdu.dk
+// Any queries should be directed to Michael Kolling mik@bluej.org
 
 package bluej.editor.moe;
 
@@ -24,7 +24,7 @@ import bluej.utility.EscapeDialog;
  *
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Finder.java 3175 2004-11-25 14:33:52Z fisker $
+ * @version $Id: Finder.java 3357 2005-05-02 03:23:33Z davmac $
  */
 
 public class Finder extends EscapeDialog

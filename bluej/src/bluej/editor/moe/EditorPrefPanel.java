@@ -1,10 +1,10 @@
-// Copyright (c) 2000 BlueJ Group, Monash University
+// Copyright (c) 2000, 2005 BlueJ Group, Deakin University
 //
 // This software is made available under the terms of the "MIT License"
 // A copy of this license is included with this source distribution
 // in "license.txt" and is also available at:
-// http://www.opensource.org/licenses/mit-license.html
-// Any queries should be directed to Michael Kolling mik@mip.sdu.dk
+// http://www.opensource.org/licenses/mit-license.html 
+// Any queries should be directed to Michael Kolling mik@bluej.org
 
 package bluej.editor.moe;
 
@@ -21,7 +21,7 @@ import bluej.prefmgr.*;
  * editor settings
  *
  * @author  Michael Kolling
- * @version $Id: EditorPrefPanel.java 2747 2004-07-06 21:57:23Z mik $
+ * @version $Id: EditorPrefPanel.java 3357 2005-05-02 03:23:33Z davmac $
  */
 public class EditorPrefPanel extends JPanel implements PrefPanelListener
 {
