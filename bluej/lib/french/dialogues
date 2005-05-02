@@ -1,10 +1,10 @@
 compile-while-executing
 Vous ne pouvez pas compiler pendant
-une exécution.  Cela pourrait créer
-des problèmes !
+une exï¿½cution.  Cela pourrait crï¿½er
+des problï¿½mes !
 
 exception-thrown
-Une exception a été levée :
+Une exception a ï¿½tï¿½ levï¿½e :
 
 break-no-source
 Point d'interruption dans un fichier dont
@@ -16,30 +16,30 @@ le source est introuvable.
 classe : ligne de la source :
 
 system-exit
-Méthode terminée par un appel explicite à "exit".
-Pas de résultat retourné.
+Mï¿½thode terminï¿½e par un appel explicite ï¿½ "exit".
+Pas de rï¿½sultat retournï¿½.
 Argument d'"exit" :
 
 no-help
 Pas d'aide disponible pour ce message.
-Faites suivre le texte du message d'erreur à
-mik@mip.sdu.dk - nous ajouterons un texte d'aide
-à notre banque de données d'aide.  Merci.
+Faites suivre le texte du message d'erreur ï¿½
+mik@bluej.org - nous ajouterons un texte d'aide
+ï¿½ notre banque de donnï¿½es d'aide.  Merci.
 
 editor-crashed
-Il semble que BlueJ se soit planté pendant l'écriture
+Il semble que BlueJ se soit plantï¿½ pendant l'ï¿½criture
 de cette classe sur disque.  Le code source pourrait
-être endommagé ou incomplet.  Il devrait y avoir une
-sauvegarde de cette classe dans le répertoire du
-projet.  Si cette classe est effectivement endommagée,
+ï¿½tre endommagï¿½ ou incomplet.  Il devrait y avoir une
+sauvegarde de cette classe dans le rï¿½pertoire du
+projet.  Si cette classe est effectivement endommagï¿½e,
    1 - quittez BlueJ
-   2 - sauvegardez votre répertoire projet (au cas où)
-   3 - cherchez dans le répertoire projet une sauvegarde
-       de ce fichier java.  Rétablissez-la.
+   2 - sauvegardez votre rï¿½pertoire projet (au cas oï¿½)
+   3 - cherchez dans le rï¿½pertoire projet une sauvegarde
+       de ce fichier java.  Rï¿½tablissez-la.
 
 cannot-run-compiler
-Exécution du compilateur impossible.
-Se trouve-t-il dans votre chemin d'accès ?
+Exï¿½cution du compilateur impossible.
+Se trouve-t-il dans votre chemin d'accï¿½s ?
 Nom du compilateur :
 
 compiler-error
@@ -49,58 +49,58 @@ stream-incomplete
 Erreur de compilation.  Flot d'erreur incomplet.
 
 out-of-bounds
-L'indice spécifié est hors
+L'indice spï¿½cifiï¿½ est hors
 des bornes du tableau.
 
 cannot-access-element
-Impossible d'accéder à l'élément
-de tableau spécifié.
+Impossible d'accï¿½der ï¿½ l'ï¿½lï¿½ment
+de tableau spï¿½cifiï¿½.
 
 appletviewer-error
-Erreur d'exécution du visualiseur d'applet.
+Erreur d'exï¿½cution du visualiseur d'applet.
 
 error-no-name
-Vous devez spécifier un nom valide.
+Vous devez spï¿½cifier un nom valide.
 
 error-save-file
 Une erreur est survenue lors de l'enregistrement
-du fichier.  Le fichier n'a pas été enregistré.
+du fichier.  Le fichier n'a pas ï¿½tï¿½ enregistrï¿½.
 
 cannot-save-keys
 Une erreur est survenue lors de l'enregistrement
 des raccourcis-clavier.  Les raccourcis-clavier
-n'ont pas été enregistrés.
+n'ont pas ï¿½tï¿½ enregistrï¿½s.
 
 error-no-templates
-Le répertoire des modèles (répertoire où BlueJ cherche
-les modèles de classe) n'existe pas.  Corrigez la
-propriété "bluej.templatePath" du fichier
+Le rï¿½pertoire des modï¿½les (rï¿½pertoire oï¿½ BlueJ cherche
+les modï¿½les de classe) n'existe pas.  Corrigez la
+propriï¿½tï¿½ "bluej.templatePath" du fichier
 "<bluej-home>/lib/bluej.defs".
 
 skeleton-error
-Impossible de générer le squelette par défaut pour
+Impossible de gï¿½nï¿½rer le squelette par dï¿½faut pour
 cette classe.  Cela peut provenir d'une erreur de
-configuration de BlueJ ou d'un problème d'accès au
-système de fichiers.
+configuration de BlueJ ou d'un problï¿½me d'accï¿½s au
+systï¿½me de fichiers.
 
 error-open-source
 Impossible d'ouvrir le fichier
 source de cette classe.
 
 error-writing-readme
-L'information de classe 'main' n'a pu être mise à jour
+L'information de classe 'main' n'a pu ï¿½tre mise ï¿½ jour
 dans le fichier README de ce projet.  Un erreur est
 survenue pendant la modification du fichier.
 
 error-writing-jar
-Le fichier jar n'a pu être enregistré correctement.
-Assurez-vous d'avoir les privilèges d'accès
-et l'espace disque nécessaires.
+Le fichier jar n'a pu ï¿½tre enregistrï¿½ correctement.
+Assurez-vous d'avoir les privilï¿½ges d'accï¿½s
+et l'espace disque nï¿½cessaires.
 
 error-jar-exists
-Le fichier jar sélectionné existe déjà.
+Le fichier jar sï¿½lectionnï¿½ existe dï¿½jï¿½.
 Voulez-vous continuer ?
-Écraser
+ï¿½craser
 Annuler
 null
 
@@ -112,88 +112,88 @@ Nom de paquetage invalide.
 
 must-be-identifier
 Le nom n'est pas valide.
-Ce doit être un identificateur Java.
+Ce doit ï¿½tre un identificateur Java.
 
 directory-exists
-Un fichier ou répertoire de ce nom
-existe déjà.
+Un fichier ou rï¿½pertoire de ce nom
+existe dï¿½jï¿½.
 
 cannot-copy-package
-Problème lors de la copie des fichiers du
-paquetage.  Le paquetage n'a pas été
-enregistré au complet.
+Problï¿½me lors de la copie des fichiers du
+paquetage.  Le paquetage n'a pas ï¿½tï¿½
+enregistrï¿½ au complet.
 
 file-does-not-exist
-Le fichier spécifié
+Le fichier spï¿½cifiï¿½
 n'existe pas.
 
 cannot-import
 Importation du fichier impossible.
-Le fichier doit être une source Java
+Le fichier doit ï¿½tre une source Java
 (son nom doit se terminer par ".java").
 
 docdir-blocked-by-file
-Impossible de créer le répertoire de
-documentation dans le répertoire projet
-car un fichier du même nom existe déjà.
+Impossible de crï¿½er le rï¿½pertoire de
+documentation dans le rï¿½pertoire projet
+car un fichier du mï¿½me nom existe dï¿½jï¿½.
 
 docdir-not-created
-Impossible de créer le répertoire de
-documentation dans le répertoire projet.
+Impossible de crï¿½er le rï¿½pertoire de
+documentation dans le rï¿½pertoire projet.
 
 no-permission-for-docdir
-Vos privilèges d'accès ne vous permettent
-pas de créer le répertoire de documentation
-dans le répertoire projet.
+Vos privilï¿½ges d'accï¿½s ne vous permettent
+pas de crï¿½er le rï¿½pertoire de documentation
+dans le rï¿½pertoire projet.
 
 show-or-generate
 Voulez-vous voir la documentation
-existante ou régénérer
+existante ou rï¿½gï¿½nï¿½rer
 toute la documentation ?
 Existante
-Régénérer
+Rï¿½gï¿½nï¿½rer
 Annuler
 
 doctool-error
-JavaDoc a signalé une erreur.  Il pourrait y avoir
-une erreur de syntaxe dans un des fichiers à documenter.
+JavaDoc a signalï¿½ une erreur.  Il pourrait y avoir
+une erreur de syntaxe dans un des fichiers ï¿½ documenter.
 Il se pourrait aussi que l'adresse Web de la documentation
-du JDK spécifiée dans les préférences soit incorrecte.
-Assurez-vous que tous vos fichiers Java soient compilés
+du JDK spï¿½cifiï¿½e dans les prï¿½fï¿½rences soit incorrecte.
+Assurez-vous que tous vos fichiers Java soient compilï¿½s
 et que l'adresse de la documentation soit accessible
-(ou désactivée), puis essayez à nouveau.
+(ou dï¿½sactivï¿½e), puis essayez ï¿½ nouveau.
 Si cela ne suffit pas, consultez le journal de Javadoc :
 
 severe-doc-trouble
 Une exception est survenue lors d'un appel
-à l'outil externe de documentation.
+ï¿½ l'outil externe de documentation.
 
 no-java-sources-found
 Pas de sources Java dans
-ce répertoire.
+ce rï¿½pertoire.
 
 duplicate-name
-Une classe ou paquetage de même nom existe
-déjà dans ce projet.  Les noms de classes et
-de paquetages doivent être uniques.
+Une classe ou paquetage de mï¿½me nom existe
+dï¿½jï¿½ dans ce projet.  Les noms de classes et
+de paquetages doivent ï¿½tre uniques.
 
 error-in-import
 Une erreur est survenue pendant la tentative
-d'importation de ce fichier.  Vérifiez vos
-privilèges d'accès et votre espace disque.
+d'importation de ce fichier.  Vï¿½rifiez vos
+privilï¿½ges d'accï¿½s et votre espace disque.
 
 no-class-selected-compile
-Pas de classe sélectionnée pour la compilation.
-Sélectionnez une classe en cliquant
+Pas de classe sï¿½lectionnï¿½e pour la compilation.
+Sï¿½lectionnez une classe en cliquant
 dessus pour la compiler.
 
 no-class-selected
-Pas de classe ni de paquetage sélectionné.
+Pas de classe ni de paquetage sï¿½lectionnï¿½.
 Cliquez d'abord sur l'un ou l'autre.
 
 really-remove-class
-Supprimer cette classe supprimera également
-le fichier source de façon définitive.
+Supprimer cette classe supprimera ï¿½galement
+le fichier source de faï¿½on dï¿½finitive.
 Voulez-vous continuer ?
 Supprimer
 Annuler
@@ -201,7 +201,7 @@ null
 
 really-remove-package
 Supprimer ce paquetage supprimera
-définitivement son répertoire (ainsi
+dï¿½finitivement son rï¿½pertoire (ainsi
 que TOUS les fichiers s'y trouvant).
 Voulez-vous continuer ?
 Supprimer
@@ -209,7 +209,7 @@ Annuler
 null
 
 remove-package-open
-Le paquetage à supprimer compte au
+Le paquetage ï¿½ supprimer compte au
 moins un sous-paquetage ouvert par BlueJ.
 Vous devez fermer tous ces
 sous-paquetages avant de pouvoir
@@ -221,18 +221,18 @@ Paquetage inexistant :
 
 no-bluej-package
 Erreur d'ouverture du paquetage.
-Le fichier/répertoire n'est
+Le fichier/rï¿½pertoire n'est
 pas un paquetage BlueJ :
 
 applet-height-width
-Il faut définir les hauteur et
+Il faut dï¿½finir les hauteur et
 largeur de l'applet.
 
 cannot-read-help
 Impossible de lire le fichier d'aide :
 
 not-yet-implemented
-Pas encore implémenté - désolé.
+Pas encore implï¿½mentï¿½ - dï¿½solï¿½.
 
 quit-all
 Quitter tous les projets ouverts ?
@@ -241,159 +241,159 @@ Annuler
 null
 
 really-reload
-Rétablir supprime toutes les modifications effectuées
-depuis le dernier enregistrement.  Êtes-vous certain ?
-Rétablir
+Rï¿½tablir supprime toutes les modifications effectuï¿½es
+depuis le dernier enregistrement.  ï¿½tes-vous certain ?
+Rï¿½tablir
 Annuler
 null
 
 really-print
 Le texte est plus large que la zone d'impression.  Les
-lignes trop longues seront tronquées.  Vous pouvez
-éviter cela en rétrécissant la fenêtre d'édition.
-Voulez-vous malgré tout imprimer ?
+lignes trop longues seront tronquï¿½es.  Vous pouvez
+ï¿½viter cela en rï¿½trï¿½cissant la fenï¿½tre d'ï¿½dition.
+Voulez-vous malgrï¿½ tout imprimer ?
 Imprimer
 Annuler
 null
 
 open-non-bluej-already-bluej
-Le répertoire sélectionné est déjà
+Le rï¿½pertoire sï¿½lectionnï¿½ est dï¿½jï¿½
 un projet BlueJ.
 
 open-non-bluej-no-java
-Pas de sources Java trouvées
-dans ce répertoire.
+Pas de sources Java trouvï¿½es
+dans ce rï¿½pertoire.
 
 open-non-bluej-invalid
-Ce répertoire ne semble pas être un projet
+Ce rï¿½pertoire ne semble pas ï¿½tre un projet
 BlueJ car un fichier contient une instruction
 de paquetage incompatible avec la structure
-actuelle du répertoire.  Par exemple, si la
+actuelle du rï¿½pertoire.  Par exemple, si la
 classe Shape contient une instruction
 "package com.aa", le fichier Shape.java doit
-être dans le répertoire "aa", qui doit lui-même
-être dans le répertoire "com".  Enfin, le
-répertoire qui contient "com" doit être celui
-que vous désignez à BlueJ.
+ï¿½tre dans le rï¿½pertoire "aa", qui doit lui-mï¿½me
+ï¿½tre dans le rï¿½pertoire "com".  Enfin, le
+rï¿½pertoire qui contient "com" doit ï¿½tre celui
+que vous dï¿½signez ï¿½ BlueJ.
 
 import-into-current
 Vous avez un paquetage ouvert dans cette
-fenêtre.  Voulez-vous importer dans ce
-paquetage ou créer un nouveau projet pour
+fenï¿½tre.  Voulez-vous importer dans ce
+paquetage ou crï¿½er un nouveau projet pour
 l'importation ?
 Courant
 Nouveau projet
 Annuler
 
 package-name-invalid
-Vous avez changé l'instruction "package" en
+Vous avez changï¿½ l'instruction "package" en
 indiquant un paquetage qui n'existe pas dans
-ce projet.  Si vous voulez déplacer cette classe
-vers un autre paquetage, vous devez d'abord créer
+ce projet.  Si vous voulez dï¿½placer cette classe
+vers un autre paquetage, vous devez d'abord crï¿½er
 ce dernier.  L'instruction "package" originale a
-été rétablie.
+ï¿½tï¿½ rï¿½tablie.
 
 package-name-clash
-Vous avez changé l'instruction "package" en
-indiquant un paquetage dont le nom est déjà
-utilisé par une autre classe ou paquetage.
-Si la classe était déplacée, le fichier
-original serait écrasé, aussi l'ancienne
-instruction "package" a-t-elle été rétablie.
+Vous avez changï¿½ l'instruction "package" en
+indiquant un paquetage dont le nom est dï¿½jï¿½
+utilisï¿½ par une autre classe ou paquetage.
+Si la classe ï¿½tait dï¿½placï¿½e, le fichier
+original serait ï¿½crasï¿½, aussi l'ancienne
+instruction "package" a-t-elle ï¿½tï¿½ rï¿½tablie.
 
 package-name-changed
-Vous avez changé l'instruction "package" qui
-indique à Java dans quel paquetage se trouve
-cette classe.  Voulez-vous déplacer cette
-classe dans le paquetage indiqué ou rétablir
+Vous avez changï¿½ l'instruction "package" qui
+indique ï¿½ Java dans quel paquetage se trouve
+cette classe.  Voulez-vous dï¿½placer cette
+classe dans le paquetage indiquï¿½ ou rï¿½tablir
 l'instruction "package" originale ?
-Déplacer
-Rétablir
+Dï¿½placer
+Rï¿½tablir
 null
 
 ask-index
-Spécifiez l'indice de l'élément de tableau [...]
+Spï¿½cifiez l'indice de l'ï¿½lï¿½ment de tableau [...]
 Inspection de tableau
 null
 
 classmgr-changes-no-effect
-Avant que les changements apportés aux
-bibliothèques de classes ne soient pris en charge,
+Avant que les changements apportï¿½s aux
+bibliothï¿½ques de classes ne soient pris en charge,
 vous devrez quitter et relancer BlueJ.
 
 pref-optimise-no-effect
-Les modifications des paramètres de machine virtuelle ne s'appliquent
-qu'aux projets ouverts après ces modifications
-(ou si vous redémarrez la machine virtuelle).
+Les modifications des paramï¿½tres de machine virtuelle ne s'appliquent
+qu'aux projets ouverts aprï¿½s ces modifications
+(ou si vous redï¿½marrez la machine virtuelle).
 
 unittest-new-test-method
-Spécifiez un nom pour cette méthode de test.
-Son enregistrement débutera ensuite.
-Enregistrer une méthode de test
+Spï¿½cifiez un nom pour cette mï¿½thode de test.
+Son enregistrement dï¿½butera ensuite.
+Enregistrer une mï¿½thode de test
 null
 
 getobject-new-name
-Spécifiez un nom pour le nouvel objet
-destiné au présentoir.
+Spï¿½cifiez un nom pour le nouvel objet
+destinï¿½ au prï¿½sentoir.
 Nom du nouvel objet
 null
 
 unittest-fixture-present
-Cette classe de test comprend déjà des engagements.
-Si vous continuez, les engagements seront remplacés
-par les objets du présentoir.
+Cette classe de test comprend dï¿½jï¿½ des engagements.
+Si vous continuez, les engagements seront remplacï¿½s
+par les objets du prï¿½sentoir.
 Voulez-vous continuer ?
 Remplacer
 Annuler
 null
 
 unittest-method-present
-Cette classe de test unitaire possède déjà une méthode
-de ce nom. Si vous poursuivez, cette définition
-sera remplacé par la nouvelle.
+Cette classe de test unitaire possï¿½de dï¿½jï¿½ une mï¿½thode
+de ce nom. Si vous poursuivez, cette dï¿½finition
+sera remplacï¿½ par la nouvelle.
 Voulez-vous poursuivre?
 Remplacer
 Annuler
 null
 
 no-search-string
-Chaîne à chercher non définie.
-(Sélectionnez d'abord du texte ou utilisez 'Chercher').
+Chaï¿½ne ï¿½ chercher non dï¿½finie.
+(Sï¿½lectionnez d'abord du texte ou utilisez 'Chercher').
 
 default-keys
 Voulez-vous vraiment supprimer tous
-vos raccourcis-clavier et rétablir
-les raccourcis par défaut ?
-Rétablir
+vos raccourcis-clavier et rï¿½tablir
+les raccourcis par dï¿½faut ?
+Rï¿½tablir
 Annuler
 null
 
 error-create-vm
-BlueJ n'a pas pu créer une machine virtuelle (MV) pour exécuter les projets.
-C'est un problème sévère - vous ne pourrez pas créer des objets
-ni exécuter des méthodes avant de l'avoir résolu.
-En général ce problème provient d'une configuration spécifique du réseau sur votre
-machine. BlueJ utilise TCP/IP et des "sockets" pour créer la MV.
-Le problème le plus fréquent est une configuration trop stricte du pare-feu
-qui empêche les connexions depuis votre ordinateur. Arrêtez le pare-feu
-(si vous en avez un) pour vérifier ce point. Si le problème est résolu, essayez
+BlueJ n'a pas pu crï¿½er une machine virtuelle (MV) pour exï¿½cuter les projets.
+C'est un problï¿½me sï¿½vï¿½re - vous ne pourrez pas crï¿½er des objets
+ni exï¿½cuter des mï¿½thodes avant de l'avoir rï¿½solu.
+En gï¿½nï¿½ral ce problï¿½me provient d'une configuration spï¿½cifique du rï¿½seau sur votre
+machine. BlueJ utilise TCP/IP et des "sockets" pour crï¿½er la MV.
+Le problï¿½me le plus frï¿½quent est une configuration trop stricte du pare-feu
+qui empï¿½che les connexions depuis votre ordinateur. Arrï¿½tez le pare-feu
+(si vous en avez un) pour vï¿½rifier ce point. Si le problï¿½me est rï¿½solu, essayez
 de configurer le pare-feu pour autoriser ces connexions.
-La configuration réseau est une autre cause possible du problème. Vérifiez
-que TCP/IP et les autres paramètres réseau sont correctement configurés.
-Si les problèmes persistent demandez de l'aide (voir http://www.bluej.org/help/ask-help.html).
+La configuration rï¿½seau est une autre cause possible du problï¿½me. Vï¿½rifiez
+que TCP/IP et les autres paramï¿½tres rï¿½seau sont correctement configurï¿½s.
+Si les problï¿½mes persistent demandez de l'aide (voir http://www.bluej.org/help/ask-help.html).
 
 project-is-readonly
-Le projet est en lecture seule. Vous ne pourrez pas créer d'objet
-ni exécuter de méthode.
-Le répertoire du projet ou l'ensemble du système de fichiers
+Le projet est en lecture seule. Vous ne pourrez pas crï¿½er d'objet
+ni exï¿½cuter de mï¿½thode.
+Le rï¿½pertoire du projet ou l'ensemble du systï¿½me de fichiers
 est en lecture seule (est-ce un CD?).
-Pour exploiter totalement ce projet, assurez-vous qu'il est sur un système de
-fichiers modifiable (votre disque dur en général) et que vous
-avez les droits d'écriture sur le répertoire du projet et tous ses fichiers.
+Pour exploiter totalement ce projet, assurez-vous qu'il est sur un systï¿½me de
+fichiers modifiable (votre disque dur en gï¿½nï¿½ral) et que vous
+avez les droits d'ï¿½criture sur le rï¿½pertoire du projet et tous ses fichiers.
 
 could-not-write-shell-file
-Échec de l'exécution dû à un répertoire de projet en lecture seule.
-Pour créer des objets ou exécuter des méthodes, vous devez pouvoir écrire
-dans le répertoire du projet. Assurez-vous que le projet est
-sur un système de fichier modifiable (pas un CD!) et que vous avez
-les droits d'écriture sur le répertoire du projet et ses fichiers.
+ï¿½chec de l'exï¿½cution dï¿½ ï¿½ un rï¿½pertoire de projet en lecture seule.
+Pour crï¿½er des objets ou exï¿½cuter des mï¿½thodes, vous devez pouvoir ï¿½crire
+dans le rï¿½pertoire du projet. Assurez-vous que le projet est
+sur un systï¿½me de fichier modifiable (pas un CD!) et que vous avez
+les droits d'ï¿½criture sur le rï¿½pertoire du projet et ses fichiers.

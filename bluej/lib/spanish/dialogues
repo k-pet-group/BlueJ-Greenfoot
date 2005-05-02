@@ -1,34 +1,34 @@
 compile-while-executing
-Usted no puede compilar mientras la máquina
-está ejecutando. Esto podría causar problemas
-extraños!
+Usted no puede compilar mientras la mï¿½quina
+estï¿½ ejecutando. Esto podrï¿½a causar problemas
+extraï¿½os!
 
 exception-thrown
-Una excepción fue lanzada:
+Una excepciï¿½n fue lanzada:
 
 break-no-source
-Se alcanzó un Breakpoint en un archivo para el
-cual no se encontró código fuente.  Nombre de Archivo:
+Se alcanzï¿½ un Breakpoint en un archivo para el
+cual no se encontrï¿½ cï¿½digo fuente.  Nombre de Archivo:
 
 error-in-file
-Un error ocurrió en un archivo para el cual el
-código fuente no pudo ser encontrado.
-NombredeArchivo:número de línea / mensaje de error:
+Un error ocurriï¿½ en un archivo para el cual el
+cï¿½digo fuente no pudo ser encontrado.
+NombredeArchivo:nï¿½mero de lï¿½nea / mensaje de error:
 
 system-exit
-El método finalizó a través de una instrucción
-"exit" explícita. Ningún resultado fue
-retornado. El código de salida es:
+El mï¿½todo finalizï¿½ a travï¿½s de una instrucciï¿½n
+"exit" explï¿½cita. Ningï¿½n resultado fue
+retornado. El cï¿½digo de salida es:
 
 no-help
 NO existe ayuda disponible para este mensaje.
-Por favor envíe por e-mail el mensaje de error a
-mik@mip.sdu.dk - luego nosotros le agregaremos un
+Por favor envï¿½e por e-mail el mensaje de error a
+mik@bluej.org - luego nosotros le agregaremos un
 texto de ayuda a nuestra base de datos de ayuda. Gracias.
 
 cannot-run-compiler
 No puede ejecutar el compilador. El programa
-está en su ruta de acceso?
+estï¿½ en su ruta de acceso?
 Nombre del compilador:
 
 compiler-error
@@ -38,8 +38,8 @@ stream-incomplete
 Error de Compilador. Error flujo incompeto.
 
 out-of-bounds
-El elemento especificado no está
-dentro de los límites del arreglo.
+El elemento especificado no estï¿½
+dentro de los lï¿½mites del arreglo.
 
 cannot-access-element
 No disponible para acceder el
@@ -49,40 +49,40 @@ appletviewer-error
 Error ejecutando applet en appletviewer.
 
 error-no-name
-Usted debe especificar un nombre válido.
+Usted debe especificar un nombre vï¿½lido.
 
 error-save-file
-Un error ocurió cuando trataba de guardar
+Un error ocuriï¿½ cuando trataba de guardar
 el archivo. El archivo no fue guardado.
 
 cannot-save-keys
-Un error occurrió mientras trataba de guardar
+Un error occurriï¿½ mientras trataba de guardar
 los enlaces clave. Los enlaces no fueron
 guardados.
 
 skeleton-error
 El esqueleto por defecto para la clase no pudo ser
-generado. Esto puede ser debido a un error de configuración
-en la instalación de BlueJ, o debido a problemas de acceso
+generado. Esto puede ser debido a un error de configuraciï¿½n
+en la instalaciï¿½n de BlueJ, o debido a problemas de acceso
 a archivos del sistema.
 
 error-open-source
-No puede abrir el código fuente
+No puede abrir el cï¿½digo fuente
 de esta clase.
 
 error-open-readme
 Existe un problema abriendo la nota de texto
 de este proyecto. Una nueva nota de texto
-vacía ha sido creada.
+vacï¿½a ha sido creada.
 
 error-writing-readme
 El archivo README para este proyecto no pudo ser
-actualizado para agregar la información de la clase principal.
+actualizado para agregar la informaciï¿½n de la clase principal.
 Hubo un error cambiando este archivo.
 
 error-exporting
-Un error ocurrió mientras trataba de exportar la
-aplicación. Algunos o todos los archivos npudieron no
+Un error ocurriï¿½ mientras trataba de exportar la
+aplicaciï¿½n. Algunos o todos los archivos npudieron no
 haber sido copiados correctamente.
 
 error-writing-jar
@@ -98,10 +98,10 @@ Cancel
 null
 
 invalid-class-name
-Nombre de Clase Inválido.
+Nombre de Clase Invï¿½lido.
 
 invalid-package-name
-Nombre de Paquete Inválido.
+Nombre de Paquete Invï¿½lido.
 
 directory-exists
 Un archivo o directorio con este
@@ -122,21 +122,21 @@ ser un archivo fuente Java (su nombre
 debe terminar en ".java").
 
 docdir-blocked-by-file
-El directorio para la documentación no pudo ser
+El directorio para la documentaciï¿½n no pudo ser
 creado en el directorio de proyecto debido a
 que existe un archivo con el mismo nombre.
 
 docdir-not-created
-El directorio para la documentación no pudo
+El directorio para la documentaciï¿½n no pudo
 ser creado en el directorio del proyecto.
 
 no-permission-for-docdir
-El directorio para la documentación no pudo
+El directorio para la documentaciï¿½n no pudo
 ser creado en el directorio de proyectos
 compile-while-executing
-Usted no puede compilar mientras la máquina
-está ejecutando. Esto podría causar problemas
-extraños!
+Usted no puede compilar mientras la mï¿½quina
+estï¿½ ejecutando. Esto podrï¿½a causar problemas
+extraï¿½os!
 
 show-or-generate
 Do you want to show the documentation

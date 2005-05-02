@@ -4,60 +4,60 @@ exekverar. Det skulle kunna skapa konstiga
 problem!
 
 exception-thrown
-Ett undantag inträffade:
+Ett undantag intrï¿½ffade:
 
 break-no-source
-Brytpunkt hittad i en fil vars källkod inte
+Brytpunkt hittad i en fil vars kï¿½llkod inte
 kunde hittas. Filnamn:
 
 error-in-file
-Ett fel inträffade i en fil vars källkod inte
+Ett fel intrï¿½ffade i en fil vars kï¿½llkod inte
 kunde hittas.
 Filnamn:radnummer / felmeddelande:
 
 system-exit
 Metoden avslutades genom en explicit "exit"
 instruktion. Inget resultat returnerades.
-utgångskoden är:
+utgï¿½ngskoden ï¿½r:
 
 no-help
-Ingen hjälp tillgänglig för det här meddelandet.
-Var vänlig e-posta felmeddelandet till
-mik@mip.sdu.dk - vi kommer då lägga till en
-hjälptext i vår hjälpdatabas. Tack!
+Ingen hjï¿½lp tillgï¿½nglig fï¿½r det hï¿½r meddelandet.
+Var vï¿½nlig e-posta felmeddelandet till
+mik@bluej.org - vi kommer dï¿½ lï¿½gga till en
+hjï¿½lptext i vï¿½r hjï¿½lpdatabas. Tack!
 
 cannot-run-compiler
-Kan inte köra kompilatorn. Finns den i
-din sökväg?
+Kan inte kï¿½ra kompilatorn. Finns den i
+din sï¿½kvï¿½g?
 Kompilatorns namn:
 
 compiler-error
 Kompilatorfel
 
 stream-incomplete
-Kompilatorfel. Felströmmen är ej komplett.
+Kompilatorfel. Felstrï¿½mmen ï¿½r ej komplett.
 
 out-of-bounds
-Det angivna elementet är
-ej inom arrayens gränser.
+Det angivna elementet ï¿½r
+ej inom arrayens grï¿½nser.
 
 cannot-access-element
-Kunde ej nå det angivna
+Kunde ej nï¿½ det angivna
 arrrayelementet.
 
 appletviewer-error
-Fel under körning av applet i Appletviewer
+Fel under kï¿½rning av applet i Appletviewer
 
 error-no-name
-Du måste ange ett godkänt namn.
+Du mï¿½ste ange ett godkï¿½nt namn.
 
 error-save-file
-Ett fel inträffade när filen försökte sparas.
+Ett fel intrï¿½ffade nï¿½r filen fï¿½rsï¿½kte sparas.
 Filen sparades inte.
 
 cannot-save-keys
-Ett fel inträffade när tangentbordskommandona
-försökte sparas. Kommandona sparades inte.
+Ett fel intrï¿½ffade nï¿½r tangentbordskommandona
+fï¿½rsï¿½kte sparas. Kommandona sparades inte.
 
 error-no-templates
 The specified template directory (the directory where
@@ -67,27 +67,27 @@ is defined with the property "bluej.templatePath" in
 
 skeleton-error
 Klassens default-mall kunde inte skapas.
-Detta kan bero på ett konfigurationsfel
-i Bluej's "setup", eller på grund av
-tillträdesproblem i filsystemet.
+Detta kan bero pï¿½ ett konfigurationsfel
+i Bluej's "setup", eller pï¿½ grund av
+tilltrï¿½desproblem i filsystemet.
 
 error-open-source
-Det gick inte att öppna källfilen till den
-här klassen. Allvarligt problem!
+Det gick inte att ï¿½ppna kï¿½llfilen till den
+hï¿½r klassen. Allvarligt problem!
 
 error-open-readme
-Det gick inte att öppna textnoteringarna för det
-här projektet. En ny, tom textnotering
+Det gick inte att ï¿½ppna textnoteringarna fï¿½r det
+hï¿½r projektet. En ny, tom textnotering
 har skapats.
 
 error-writing-readme
-README filen för det här projektet kunde inte
+README filen fï¿½r det hï¿½r projektet kunde inte
 uppdateras med information om huvudklassen.
-Ett fel uppstod vid ändring av den här filen.
+Ett fel uppstod vid ï¿½ndring av den hï¿½r filen.
 
 error-exporting
-Ett fel uppstod vid försök att exportera
-applikationen. Det är möjligt att några eller
+Ett fel uppstod vid fï¿½rsï¿½k att exportera
+applikationen. Det ï¿½r mï¿½jligt att nï¿½gra eller
 alla filer inte har blivit korrekt kopierade.
 
 error-writing-jar
@@ -103,18 +103,18 @@ Cancel
 null
 
 invalid-class-name
-Icke godkänt klassnamn.
+Icke godkï¿½nt klassnamn.
 
 invalid-package-name
-Icke godkänt paketnamn.
+Icke godkï¿½nt paketnamn.
 
 directory-exists
-En fil eller katalog med det här namnet
+En fil eller katalog med det hï¿½r namnet
 existerar redan.
 
 cannot-copy-package
 Det uppstod problem vid kopiering av
-några av paketets filer. Paketet kan
+nï¿½gra av paketets filer. Paketet kan
 vara inkomplett.
 
 file-does-not-exist
@@ -122,10 +122,10 @@ Den angivna filen
 existerar inte.
 
 cannot-import
-Den här filen kunde inte
-importeras. Filen måste
-vara en Java källkodsfil
-(namnet måste sluta med ".java")
+Den hï¿½r filen kunde inte
+importeras. Filen mï¿½ste
+vara en Java kï¿½llkodsfil
+(namnet mï¿½ste sluta med ".java")
 
 docdir-blocked-by-file
 The directory for the documentation could
@@ -164,28 +164,28 @@ An exception occured during the call
 to the external documentation tool.
 
 no-java-sources-found
-Inga Java källkodsfiler kunde
-hittas i den här katalogen
+Inga Java kï¿½llkodsfiler kunde
+hittas i den hï¿½r katalogen
 
 duplicate-name
-En klass med det här namnet existerar redan
-i det här paketet. Man kan inte ha två klasser
+En klass med det hï¿½r namnet existerar redan
+i det hï¿½r paketet. Man kan inte ha tvï¿½ klasser
 med samma namn i ett paket.
 
 error-in-import
-Ett fel uppstod vid försök att importera
-den här filen. Kontrollera tillträdesrättigheter
+Ett fel uppstod vid fï¿½rsï¿½k att importera
+den hï¿½r filen. Kontrollera tilltrï¿½desrï¿½ttigheter
 och minnesutrymme.
 
 no-class-selected
-Ingen klass markerad för borttagning.
-Välj klass genom att klicka på den
-och försök igen.
+Ingen klass markerad fï¿½r borttagning.
+Vï¿½lj klass genom att klicka pï¿½ den
+och fï¿½rsï¿½k igen.
 
 really-remove-class
 Borttagning av den har klassen betyder
-permanent radering av källfilen.
-Vill du fortsätta?
+permanent radering av kï¿½llfilen.
+Vill du fortsï¿½tta?
 Ta bort
 Avbryt
 null
@@ -207,41 +207,41 @@ packages before you will be allowed
 to delete this package.
 
 package-does-not-exist
-Fel vid öppning av paket.
+Fel vid ï¿½ppning av paket.
 Paketet existerar inte:
 
 no-bluej-package
-Fel vid öppning av paket.
-Filen/Katalogen är inte ett
+Fel vid ï¿½ppning av paket.
+Filen/Katalogen ï¿½r inte ett
 Bluej paket:
 
 applet-height-width
-Appletens höjd och bredd
-måste specificeras.
+Appletens hï¿½jd och bredd
+mï¿½ste specificeras.
 
 cannot-read-help
-Kan inte läsa hjälp fil.
+Kan inte lï¿½sa hjï¿½lp fil.
 
 not-yet-implemented
-Inte implementerat ännu - tyvärr
+Inte implementerat ï¿½nnu - tyvï¿½rr
 
 quit-all
-Avsluta alla öppna paket?
+Avsluta alla ï¿½ppna paket?
 Avsluta allt
 Avbryt
 null
 
 really-reload
-Vid omladdning förloras icke sparade ändringar.
+Vid omladdning fï¿½rloras icke sparade ï¿½ndringar.
 Vill du verkligen ladda om?
 Ladda om
 Avbryt
 null
 
 really-print
-Texten ar bredare än papperet. Långa rader kommer
-klippas av. Du kan undvika detta genom att göra
-textfönstret smalare. Vill du skriva ut iallafall?
+Texten ar bredare ï¿½n papperet. Lï¿½nga rader kommer
+klippas av. Du kan undvika detta genom att gï¿½ra
+textfï¿½nstret smalare. Vill du skriva ut iallafall?
 Skriv ut
 Avbryt
 null
@@ -264,11 +264,11 @@ which is the directory you should point BlueJ
 to when attempting to open it).
 
 import-into-current
-Du har redan ett paket öppet i det här fönstret.
-Vill du importera till det öppna paketet eller
+Du har redan ett paket ï¿½ppet i det hï¿½r fï¿½nstret.
+Vill du importera till det ï¿½ppna paketet eller
 vill du skapa ett nytt projekt och importera till
 det.
-Till Öppet
+Till ï¿½ppet
 Nytt Projekt
 null
 
@@ -305,8 +305,8 @@ start BlueJ.
 #########
 
 no-search-string
-Ingen söksträng är angiven.
-(Markera en text eller använd 'Hitta' först.)
+Ingen sï¿½kstrï¿½ng ï¿½r angiven.
+(Markera en text eller anvï¿½nd 'Hitta' fï¿½rst.)
 
 default-keys
 Do you really want to discard all your
