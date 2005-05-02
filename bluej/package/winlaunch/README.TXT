@@ -1,5 +1,5 @@
 
-BlueJ verson 2.0.4       --        README.TXT
+BlueJ version 2.1.0       --        README.TXT
 
 Information about BlueJ
 -----------------------
@@ -11,7 +11,7 @@ If you are new to BlueJ, we recommend that you read the tutorial at
 
   http://www.bluej.org/tutorial/tutorial.pdf
 
-If you have problems with installing ot running BlueJ, please read
+If you have problems with installing or running BlueJ, please read
 
   http://www.bluej.org/help/ask-help.html
 
@@ -25,8 +25,8 @@ The BlueJ Team
 --------------
 BlueJ is being developed by:
 Deakin University: John Rosenberg, Bruce Quig, Davin McCall
-University of Southern Denmark: Michael Kolling, Poul Henriksen, Kasper Fisker
-University of Kent at Canterbury: Ian Utting, Damiano Bolla
+University of Southern Denmark: Kasper Fisker
+University of Kent at Canterbury: Ian Utting, Damiano Bolla, Michael Kolling, Poul Henriksen
 
 The BlueJ License
 -----------------
