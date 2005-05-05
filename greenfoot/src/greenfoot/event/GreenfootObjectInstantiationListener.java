@@ -60,8 +60,8 @@ public class GreenfootObjectInstantiationListener extends RInvocationListenerImp
             GreenfootObject go = (GreenfootObject) realObject;
             int xoffset = -go.getImage().getWidth() / 2;
             int yoffset = -go.getImage().getHeight() / 2;
-            DragGlassPane.getInstance().startDrag(go, xoffset, yoffset, worldHandler);
-        } 
+            DragGlassPane.getInstance().startDrag(go, xoffset, yoffset, null);
+        }
         else if(realObject instanceof greenfoot.GreenfootWorld) {
             worldHandler.installNewWorld((GreenfootWorld) realObject);
         }

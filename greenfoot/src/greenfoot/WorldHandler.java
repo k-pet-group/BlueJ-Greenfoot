@@ -11,7 +11,6 @@ import greenfoot.localdebugger.LocalObject;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.*;
-import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -19,8 +18,6 @@ import java.util.logging.Logger;
 
 import javax.swing.*;
 
-import rmiextension.ObjectTracker;
-import rmiextension.wrappers.RObject;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -30,7 +27,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3350 2005-04-18 12:32:39Z polle $
+ * @version $Id: WorldHandler.java 3363 2005-05-05 01:32:27Z davmac $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -115,6 +112,9 @@ public class WorldHandler
                 int dragOffsetY = dragBeginY - e.getY();
                 objectDropped = false;
                 DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
+                
+                // While the drag is occuring, the world handler no longer
+                // processes mouse/key events
                 worldCanvas.removeMouseListener(this);
                 worldCanvas.removeKeyListener(this);
                 worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
@@ -298,6 +298,7 @@ public class WorldHandler
                     int dragOffsetY = -go.getImage().getHeight() / 2;
                     objectDropped = false;
                     DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
+                    
                     // On the mac, the glass pane doesn't seem to receive
                     // mouse move events; the shift/move is treated like a drag
                     worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
@@ -318,10 +319,6 @@ public class WorldHandler
         worldCanvas.requestFocus();
         if (isQuickAddActive) {
             isQuickAddActive = e.isShiftDown();
-            if (! isQuickAddActive) {
-                worldCanvas.removeMouseMotionListener(DragGlassPane.getInstance());
-                worldCanvas.removeMouseListener(DragGlassPane.getInstance());
-            }
         }
     }
 
@@ -343,7 +340,7 @@ public class WorldHandler
             world.addObserver(worldCanvas);
             worldTitle.setText(world.getClass().getName());
         }
-        worldCanvas.setWorld(world); //TODO consider remoivng this and only
+        worldCanvas.setWorld(world); //TODO consider removing this and only
                                      // rely on observer
         worldTitle.setEnabled(true);
         worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
@@ -432,11 +429,12 @@ public class WorldHandler
     
     public void dragFinished(Object o)
     {
-        // restore listeners
+        DragGlassPane drag = DragGlassPane.getInstance();
+        worldCanvas.removeMouseListener(drag);
+        worldCanvas.removeMouseMotionListener(drag);
+        
         if (! isQuickAddActive ) {
-            DragGlassPane drag = DragGlassPane.getInstance();
-            worldCanvas.removeMouseListener(drag);
-            worldCanvas.removeMouseMotionListener(drag);
+            // re-enable keylistener after object drag
             worldCanvas.addMouseListener(this);
             worldCanvas.addKeyListener(this);
 
@@ -449,7 +447,9 @@ public class WorldHandler
                 objectDropped = true;
             }
         }
-        else if (objectDropped)
+        else if (objectDropped) {
+            // Quick-add another object
             quickAddIfActive();
+        }
     }
 }
