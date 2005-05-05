@@ -3,18 +3,17 @@ package greenfoot.localdebugger;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenType;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.Reflective;
+import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
+import bluej.utility.JavaUtils;
 
 import com.sun.jdi.ObjectReference;
 
@@ -22,12 +21,16 @@ import com.sun.jdi.ObjectReference;
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 3268 2005-01-13 01:20:25Z davmac $
+ * @version $Id: LocalObject.java 3364 2005-05-05 01:33:47Z davmac $
  */
 public class LocalObject extends DebuggerObject
 {
+    // static fields
+    private static Field [] noFields = new Field[0];
+    
+    // instance fields
     private Object object;
-    private static Field [] noFields = new Field[0]; 
+    private Map genericParams = null; // Map of parameter names to types
     
     /**
      * Construct a LocalObject to represent a local object as a DebuggerObject.
@@ -36,6 +39,18 @@ public class LocalObject extends DebuggerObject
     public LocalObject(Object o)
     {
         object = o;
+    }
+    
+    /**
+     * Construct a LocalObject of generic type
+     * @param o   The local object to represent
+     * @param genericParams  The mapping of type parameter names to types
+     *                       (String to GenType).
+     */
+    public LocalObject(Object o, Map genericParams)
+    {
+        object = o;
+        this.genericParams = genericParams;
     }
     
     // hash and equality defined in terms of the underlying object
@@ -68,8 +83,13 @@ public class LocalObject extends DebuggerObject
      */
     public String getGenClassName()
     {
-        // TODO support generics?
-        return object.getClass().getName();
+        if (object == null)
+            return "";
+        if(genericParams != null)
+            return new GenTypeClass(new JavaReflective(object.getClass()),
+                    genericParams).toString();
+        else
+            return getClassName();
     }
 
     /* (non-Javadoc)
@@ -77,8 +97,13 @@ public class LocalObject extends DebuggerObject
      */
     public String getStrippedGenClassName()
     {
-        // TODO support generics?
-        return object.getClass().getName();
+        if(object == null)
+            return "";
+        if(genericParams != null)
+            return new GenTypeClass(new JavaReflective(object.getClass()),
+                    genericParams).toString(true);
+        else
+            return JavaNames.stripPrefix(getClassName());
     }
 
     /* (non-Javadoc)
@@ -94,8 +119,11 @@ public class LocalObject extends DebuggerObject
      */
     public GenTypeClass getGenType()
     {
-        // TODO support generics?
-        return new GenTypeClass(new JavaReflective(object.getClass()));
+        Reflective r = new JavaReflective(object.getClass());
+        if(genericParams != null)
+            return new GenTypeClass(r, genericParams);
+        else
+            return new GenTypeClass(r);
     }
 
     /* (non-Javadoc)
@@ -103,8 +131,28 @@ public class LocalObject extends DebuggerObject
      */
     public Map getGenericParams()
     {
-        // TODO support generics?
-        return null;
+        Map r = null;
+        if( genericParams != null ) {
+            r = new HashMap();
+            r.putAll(genericParams);
+        }
+        else if (! isRaw())
+            r = new HashMap();
+        return r;
+    }
+
+    /**
+     * Determine whether this is a raw object. That is, an object of a class
+     * which has formal type parameters, but for which no actual types have
+     * been given.
+     * @return  true if the object is raw, otherwise false.
+     */
+    private boolean isRaw()
+    {
+        if ((! JavaUtils.getJavaUtils().getTypeParams(object.getClass()).isEmpty()) && genericParams == null)
+            return true;
+        else
+            return false;
     }
 
     /* (non-Javadoc)
@@ -233,6 +281,37 @@ public class LocalObject extends DebuggerObject
         return getInstanceFieldSlot(slot).getName();
     }
 
+    /**
+     * Get an object with expected type from a field. This is used when the
+     * type of the field is known to a greater extent than is represented by
+     * the static type of the field.
+     * 
+     * @param field         The field
+     * @param expectedType  The expected tyoe
+     * @return a DebuggerObject representing the value and type of the field
+     */
+    private LocalObject getFieldObject(Field field, GenType expectedType)
+    {
+        GenTypeClass expectedCtype = expectedType.asClass();
+        try {
+            if (expectedCtype != null && !isRaw()) {
+                Object o = field.get(object);
+                Class c = o.getClass();
+                if (genericParams != null)
+                    expectedType.mapTparsToTypes(genericParams);
+                Map m = expectedCtype.mapToDerived(new JavaReflective(c));
+                return new LocalObject(o, m);
+            }
+
+            // raw
+            Object o = field.get(object);
+            return new LocalObject(o);
+        }
+        catch (IllegalAccessException iae) {
+            return null;
+        }
+    }
+    
     /* (non-Javadoc)
      * @see bluej.debugger.DebuggerObject#getStaticFieldObject(int)
      */
@@ -264,8 +343,8 @@ public class LocalObject extends DebuggerObject
      */
     public DebuggerObject getInstanceFieldObject(int slot, GenType expectedType)
     {
-        // TODO generics support
-        return getInstanceFieldObject(slot);
+        Field field = getInstanceFieldSlot(slot);
+        return getFieldObject(field, expectedType);
     }
 
     /* (non-Javadoc)
@@ -286,8 +365,8 @@ public class LocalObject extends DebuggerObject
      */
     public DebuggerObject getFieldObject(int slot, GenType expectedType)
     {
-        // TODO generics support
-        return getFieldObject(slot);
+        Field field = getAllFields()[slot];
+        return getFieldObject(field, expectedType);
     }
 
     /* (non-Javadoc)
@@ -331,8 +410,15 @@ public class LocalObject extends DebuggerObject
     public String getFieldValueTypeString(int slot)
     {
         Field f = getAllFields()[slot];
-        // TODO decode arrays from "[Lxxx;" notation, handle generic types
-        return f.getType().toString();
+        JavaUtils.getJavaUtils().getFieldType(f);
+        Class c = f.getType();
+        
+        String tname = "";
+        while (c.isArray()) {
+            tname += "[]";
+            c = c.getComponentType();
+        }
+        return c.getName() + tname;
     }
 
     /* (non-Javadoc)
@@ -397,15 +483,6 @@ public class LocalObject extends DebuggerObject
         }
         
         return r;
-    }
-
-    /* (non-Javadoc)
-     * @see bluej.debugger.DebuggerObject#getAllFields(boolean)
-     */
-    public List getAllFields(boolean includeModifiers)
-    {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /* (non-Javadoc)
