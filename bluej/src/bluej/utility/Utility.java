@@ -17,7 +17,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 3345 2005-04-13 02:41:31Z davmac $
+ * @version $Id: Utility.java 3365 2005-05-09 15:39:02Z mik $
  */
 public class Utility
 {
@@ -323,7 +323,15 @@ public class Utility
      */
     public static void bringToFront()
     {
+        // This method implementation could be replaced by the following, once we use 1.5:
+        
+        //frame.setVisible(true); // necessary and idiomatically correct
+        //frame.setAlwaysOnTop(true); // This brings it to the top immediately
+        //frame.setAlwaysOnTop(false); // Oh no, I actually did not want
+
         if(Config.isMacOS()) {
+            
+            
             // The following code executes these calls:
             //    NSApplication app = NSApplication.sharedApplication();
             //    app.activateIgnoringOtherApps(true);
