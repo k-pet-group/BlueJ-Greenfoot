@@ -57,7 +57,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3348 2005-04-15 02:36:36Z davmac $
+ * @version $Id: PkgMgrFrame.java 3366 2005-05-09 15:52:33Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2576,7 +2576,7 @@ public class PkgMgrFrame extends JFrame
 
         menu = new JMenu(Config.getString("menu.help"));
         menu.setMnemonic(Config.getMnemonicKey("menu.help"));
-        menubar.add(Box.createHorizontalGlue());
+//        menubar.add(Box.createHorizontalGlue());
         menubar.add(menu);
         {
             if (!Config.usingMacScreenMenubar()) { // no "About" here for Mac
