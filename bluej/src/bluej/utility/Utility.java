@@ -17,7 +17,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 3365 2005-05-09 15:39:02Z mik $
+ * @version $Id: Utility.java 3370 2005-05-10 11:11:00Z bquig $
  */
 public class Utility
 {
@@ -213,7 +213,7 @@ public class Utility
 
             try {
                 // more stupid Windows differences...
-                if(Config.osname.startsWith("Windows 98")) {
+                if(Config.osname.startsWith("Windows 98") || Config.osname.equals("Windows Me")) {
                     Runtime.getRuntime().exec(
                          new String[] { cmd, "/c", "start", '"' + url + '"' });
                 }
