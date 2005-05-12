@@ -36,7 +36,7 @@ import bluej.views.TypeParamView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3348 2005-04-15 02:36:36Z davmac $
+ * @version $Id: Invoker.java 3372 2005-05-12 03:50:16Z davmac $
  */
 
 public class Invoker
@@ -68,7 +68,6 @@ public class Invoker
     private String shellName;
     private String objName;
     private Map typeMap; // map type parameter names to types
-    private Map instanceMap;  // original map from the object
 
     /**
      * The instance name for any object we create. For a constructed object the
@@ -225,12 +224,12 @@ public class Invoker
             MethodDialog mDialog = (MethodDialog) methods.get(member);
 
             if (mDialog == null) {
-                mDialog = new MethodDialog(pmf, objName, member, instanceMap);
+                mDialog = new MethodDialog(pmf, objName, member, typeMap);
                 methods.put(member, mDialog);
                 mDialog.setVisible(true);
             }
             else {
-                mDialog.setInstanceInfo(objName, instanceMap);
+                mDialog.setInstanceInfo(objName, typeMap);
             }
 
             mDialog.setEnabled(true);
@@ -296,7 +295,7 @@ public class Invoker
                         pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();
                     }
                 }
-                doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true, instanceMap == null), actualTypeParams);
+                doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true, typeMap == null), actualTypeParams);
                 pmf.setWaitCursor(true);
                 if (constructing)
                     pkg.setStatus(creating);
