@@ -16,7 +16,7 @@ import java.awt.*;
  * A simple text style class. It can specify the color, italic flag,
  * and bold flag of a run of text.
  * @author Slava Pestov
- * @version $Id: SyntaxStyle.java 3074 2004-11-08 04:24:58Z bquig $
+ * @version $Id: SyntaxStyle.java 3374 2005-05-12 09:30:42Z mik $
  */
 public class SyntaxStyle
 {
@@ -87,22 +87,23 @@ public class SyntaxStyle
 	/**
 	 * Returns the font metrics for the styled font.
 	 */
-	public FontMetrics getFontMetrics(Font font)
-	{
-		if(font == null)
-			throw new NullPointerException("font param must not"
-				+ " be null");
-		if(font.equals(lastFont) && fontMetrics != null)
-			return fontMetrics;
-		lastFont = font;
-		lastStyledFont = new Font(font.getFamily(),
-			(bold ? Font.BOLD : 0)
-			| (italic ? Font.ITALIC : 0),
-			font.getSize());
-		fontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(
-			lastStyledFont);
-		return fontMetrics;
-	}
+//	public FontMetrics getFontMetrics(Font font)
+//	{
+//		if(font == null)
+//			throw new NullPointerException("font param must not"
+//				+ " be null");
+//		if(font.equals(lastFont) && fontMetrics != null)
+//			return fontMetrics;
+//		lastFont = font;
+//		lastStyledFont = new Font(font.getFamily(),
+//			(bold ? Font.BOLD : 0)
+//			| (italic ? Font.ITALIC : 0),
+//			font.getSize());
+//		fontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(
+//			lastStyledFont);
+//        
+//		return fontMetrics;
+//	}
 
 	/**
 	 * Sets the foreground color and font of the specified graphics
