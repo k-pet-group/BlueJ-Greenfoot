@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 3347 2005-04-14 02:00:15Z davmac $
+ * @version $Id: JavaUtils15.java 3376 2005-05-15 23:55:34Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -477,28 +477,44 @@ public class JavaUtils15 extends JavaUtils {
     }
     
     /**
-     * Build a GenType structure from a "Type" oject.
+     * Build a GenType structure from a "Type" object.
      */
     static private GenType genTypeFromType(Type t)
+    {
+        return genTypeFromType(t, new LinkedList());
+    }
+    
+    /**
+     * Build a GenType structure from a "Type" oject, using the given backTrace
+     * stack to avoid infinite recursion.
+     */
+    static private GenType genTypeFromType(Type t, List backTrace)
     {
         if( t instanceof Class )
             return JavaUtils14.genTypeFromClass((Class)t);
         if (t instanceof TypeVariable) {
             TypeVariable tv = (TypeVariable) t;
-
+            if (backTrace.contains(t))
+                return new GenTypeUnbounded();
+            
             // get the bounds, convert to GenType
             Type[] bounds = tv.getBounds();
             GenTypeSolid[] gtBounds = new GenTypeSolid[bounds.length];
+            backTrace.add(t);
             for (int i = 0; i < bounds.length; i++) {
-                gtBounds[i] = (GenTypeSolid) genTypeFromType(bounds[i]);
+                gtBounds[i] = (GenTypeSolid) genTypeFromType(bounds[i], backTrace);
             }
 
             return new GenTypeDeclTpar(tv.getName(), gtBounds);
         }
         if( t instanceof WildcardType ) {
+            if (backTrace.contains(t))
+                return new GenTypeUnbounded();
+            
             WildcardType wtype = (WildcardType)t;
             Type[] upperBounds = wtype.getUpperBounds();
             Type[] lowerBounds = wtype.getLowerBounds();
+            backTrace.add(t);
             // The check for lowerBounds[0] == null is necessary. Appears to be
             // a bug in Java 1.5 beta2.
             if( lowerBounds.length == 0 || lowerBounds[0] == null ) {
@@ -506,7 +522,7 @@ public class JavaUtils15 extends JavaUtils {
                     return new GenTypeUnbounded();
                 }
                 else {
-                    GenTypeSolid gtp = (GenTypeSolid)genTypeFromType(upperBounds[0]);
+                    GenTypeSolid gtp = (GenTypeSolid)genTypeFromType(upperBounds[0], backTrace);
                     if( upperBounds.length != 1 )
                         Debug.message("GenTypeFromType: multiple upper bounds for wildcard type?");
                     return new GenTypeExtends(gtp);
@@ -521,7 +537,7 @@ public class JavaUtils15 extends JavaUtils {
                         Debug.message("getTypeName: upper and lower bound?");
                     if (lowerBounds.length != 1)
                         Debug.message("getTypeName: multiple lower bounds for wildcard type?");
-                    GenTypeSolid lbound = (GenTypeSolid) genTypeFromType(lowerBounds[0]);
+                    GenTypeSolid lbound = (GenTypeSolid) genTypeFromType(lowerBounds[0], backTrace);
                     return new GenTypeSuper(lbound);
                 }
             }
@@ -534,7 +550,7 @@ public class JavaUtils15 extends JavaUtils {
             
             // Convert the Type [] into a List of GenType
             for( int i = 0; i < argtypes.length; i++ )
-                arggentypes.add(genTypeFromType(argtypes[i]));
+                arggentypes.add(genTypeFromType(argtypes[i], backTrace));
             
             // Check for outer type
             GenTypeClass outer = null;
@@ -546,7 +562,7 @@ public class JavaUtils15 extends JavaUtils {
         
         // Assume we have an array
         GenericArrayType gat = (GenericArrayType)t;
-        GenType componentType = genTypeFromType(gat.getGenericComponentType());
+        GenType componentType = genTypeFromType(gat.getGenericComponentType(), backTrace);
         
         Reflective reflective = new JavaReflective(getRclass(gat));
         return new GenTypeArray(componentType, reflective);
