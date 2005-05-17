@@ -1,24 +1,20 @@
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
-import greenfoot.Utilities;
+
 public class SquareTurtle extends Turtle
 {
-  public SquareTurtle()
-  {
-    penDown();
-  }
+    public SquareTurtle()
+    {
+       penDown();
+    }
 
-  public void act()
-  {
-    drawSquare();
-  }
+    public void act()
+    {
+        goAndTurn();
+    }
   
-  public void drawSquare() {
-    for(int i=0; i<4; i++) {
+    public void goAndTurn() {
         move(50);  
         turn(90);
-        Utilities.delay();
     }
-  }
-
 }
