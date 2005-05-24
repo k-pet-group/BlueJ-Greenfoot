@@ -1,3 +1,9 @@
+#
+# Traduzione a cura di Luzio Menna
+# Mail: luzio@dazeroadieci.org
+# URL: http://www.dazeroadieci.org
+#
+
 okay=Ok
 cancel=Annulla
 close=Chiudi
@@ -13,6 +19,8 @@ compiler.warningDialog.title=Warning del compilatore
 compiler.warningDialog.label=Warning dall'ultima compilazione
 compiler.warningDialog.noWarnings=Nessun warning
 
+debugger.null=nullo
+
 debugger.assert.assertThat=Asserisce che:
 debugger.assert.resultIs=il risultato è
 debugger.assert.equalTo=uguale a
@@ -26,11 +34,16 @@ debugger.assert.delta=delta
 debugger.inspector.title=BlueJ:  Ispettore
 debugger.inspector.object.title=BlueJ:  Ispettore di oggetti
 debugger.inspector.class.title=BlueJ:  Ispettore di classi
+debugger.inspector.enum.title=BlueJ:  Ispettore di enum
+debugger.inspector.interface.title=BlueJ:  Ispettore di interfaccie
 debugger.inspector.result.title=BlueJ:  Risultato del Metodo
+debugger.inspector.result.returned=ritornato:
 debugger.inspector.showClass=Mostra i campi statici
 debugger.inspector.inspect=Ispeziona
 debugger.inspector.get=Recupera
-debugger.inspector.classNameLabel=Classe
+debugger.inspector.class.nameLabel=Classe
+debugger.inspector.enum.nameLabel=Enum
+debugger.inspector.interface.nameLabel=Interfaccia
 
 debugger.objectwrapper.methodException=Eccezione nell'accesso ai metodi:
 debugger.objectwrapper.invocationException=Eccezione all'invocazione:
@@ -56,33 +69,6 @@ debugger.jdiDebugger.noBreakpointMsg=Togliere il breakpoint: su questa linea non
 debugger.jdiDebugger.noLineNumberMsg=Questa classe è stata compilata senza informazioni\nsui numeri di riga. Non puoi mettere breakpoint.
 debugger.jdiDebugger.noCodeMsg=Non puoi mettere un breakpoint: in questa linea non c'è codice
 debugger.jdiDebugger.internalErrorMsg=Si è verificato un errore interno\nmentre si tentava di mettere un breakpoint
-
-#library browser configuration
-browser.title=BlueJ:  Browser di libreria
-browser.version=0.1
-browser.togglemessagebox.toggle.text=non mostrare più questo messaggio
-
-browser.librarychooser.loading.status=Carico le librerie...
-browser.librarychooser.loaded.status=Librerie caricate.
-browser.librarychooser.openingarchive.status=Apro la libreria di archivio
-browser.librarychooser.config.user=userlibs.properties
-
-browser.classchooser.classmenu.open=Apri
-browser.classchooser.classmenu.use=Usa...
-browser.classchooser.packagemenu.open=Apri
-browser.classchooser.packagemenu.use=Usa...
-
-browser.usepackage.dialog.text=Seleziona il package di destinazione e scegli Ok
-
-browser.missingclass.text=Il browser non trova la classe $
-
-#library browser menus
-browser.menu.library=Libreria
-browser.menu.library.properties=Proprietà...
-browser.menu.library.addlibrary=Aggiungi...
-browser.menu.library.addlibrary.title=Aggiungi una libreria
-browser.menu.library.refresh=Aggiorna
-browser.menu.library.close=Chiudi
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Librerie
@@ -116,6 +102,7 @@ prefmgr.misc.vm.title=Preferenze della Virtual Machine
 prefmgr.misc.optimiseVM=Usa l'ottimizzazione (l'esecuzione è più veloce, ma può dare qualche problema nel debug)
 prefmgr.misc.addLibTitle=Scegli la  directory o il file jar/zip
 prefmgr.misc.libFileFilter=File di libreria (*.jar;*.zip) o directory di classe
+prefmgr.misc.showUnchecked=Mostra i warning di compilazione quando sono usate collezioni pericolose
 
 # Editor Preferences panel
 prefmgr.edit.prefpaneltitle=Editor
@@ -126,6 +113,7 @@ prefmgr.edit.autoindent=Attiva il rientro automatico (con Invio e Tab)
 prefmgr.edit.displaylinenumbers=Mostra i numeri di linea
 prefmgr.edit.makeBackup=Tieni una copia di sicurezza dei file sorgente
 prefmgr.edit.matchBrackets=Mostra le parentesi corrispondenti
+
 
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Estensioni installate
@@ -241,6 +229,19 @@ editor.find.up=Cerca il precedente
 editor.find.down=Cerca il successivo
 editor.find.ignoreCase=Ignora maiuscolo/minuscolo
 editor.find.wholeWord=Parola intera
+editor.find.backward=indietro
+editor.find.forward=avanti
+editor.find.wrapAround=a capo automatico
+
+#Messages shown as a result of a search with replace all
+editor.replaceAll.replaced=Sostituisci 
+editor.replaceAll.intancesOf=\ instanza di 
+editor.replaceAll.string=Stringa
+editor.replaceAll.notFoundNothingReplaced=\ non trovato. Nessuna sostituzione.
+
+#Messages shown when determining what function is bound to a given key
+editor.keypressed.keyIsNotBound=\ non legato alla funzione.
+editor.keypressed.callsTheFunction=\ chiamate alla funzione "
 
 #Messages, warnings, etc that is displayed by Info.java
 editor.info.version = versione Moe
@@ -285,7 +286,7 @@ utility.packageChooser.previewPane1=Anteprima della
 utility.packageChooser.previewPane2=struttura del package
 
 # dialog titles and texts
-pkgmgr.title=BlueJ:
+pkgmgr.title=BlueJ:  
 
 pkgmgr.newPkg.title=Nuovo progetto
 pkgmgr.newPkg.buttonLabel=Crea
@@ -308,6 +309,7 @@ pkgmgr.newExtends=Nuovo relazione estendi
 pkgmgr.unimplemented=Spiacente - non ancora implementato
 pkgmgr.pkgChooseError=Errore nella scelta del nome di un package valido
 pkgmgr.chooseWebPage.title=Scegli la pagina HTML di destinazione
+pkgmgr.chooseWebPage.buttonLabel=Salva la pagina HTML
 
 pkgmgr.parentpackagetarget.open=Apri
 pkgmgr.parentpackagetarget.openunamed=Apri un package senza nome
@@ -348,7 +350,8 @@ pkgmgr.newClass.abstract=Classe astratta
 pkgmgr.newClass.interface=Interfaccia
 pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet
-pkgmgr.newClass.unittest=Test
+pkgmgr.newClass.unittest=Test Unitari
+pkgmgr.newClass.enum=Enum
 
 # "new package" dialog
 pkgmgr.newPackage.title=BlueJ:  Crea un nuovo package
@@ -365,22 +368,16 @@ callLibraryDialog.clickHere2=per mostrare metodi e costruttori.
 callLibraryDialog.classNotFound1=Non riesco a trovare la classe.
 callLibraryDialog.classNotFound2=Controlla il nome della classe e premi nuovamente Invio.
 
-# "Free Form Call" dialog
-freeCallDialog.title=BlueJ:  Valuta
-freeCallDialog.fieldLabel=Valuta:
-freeCallDialog.resultLabel=Questa è
-freeCallDialog.returnsResult=una espressione (restituisce un risultato)
-freeCallDialog.returnsNoResult=una istruzione (non restituisce un risultato)
-
 # "export" dialog
-pkgmgr.export.title=BlueJ:  Esporta progetto
-pkgmgr.export.helpLine1=L'esportazione genera una copia del progetto
-pkgmgr.export.helpLine2=in formato standard Java (non BlueJ).
-pkgmgr.export.directoryLabel=Genera come struttura di directory
-pkgmgr.export.jarFileLabel=Genera come file jar
+pkgmgr.export.title=BlueJ:  Crea File Jar
+pkgmgr.export.helpLine1=Crea un singolo file d'archivio Java (jar) contenente
+pkgmgr.export.helpLine2=il progetto. Eseguibile se la classe principale è specificata.
 pkgmgr.export.classLabel=classe principale:
+pkgmgr.export.includeLibs=Includi librerie utente
 pkgmgr.export.sourceLabel=includi sorgente
 pkgmgr.export.noClassText=nessuna (non può essere eseguito)
+pkgmgr.export.specifyJar=Specifica un nome per il file Jar
+pkgmgr.export.createJarText=Crea
 
 # "open-non-bluej" mismatch dialog
 pkgmgr.importmismatch.title=BlueJ:  La linea del package non corrisponde
@@ -430,13 +427,16 @@ pkgmgr.runApplet.htmlExportedComment=<!-- ************ Generato da BlueJ Java De
 pkgmgr.printDialog.title=BlueJ:  Stampa il progetto
 pkgmgr.printDialog.printDiagram=Stampa il diagramma delle classi
 pkgmgr.printDialog.printSource=Stampa il codice sorgente
-pkgmgr.printDialog.printReadme=Stampa il readme del progetto
+pkgmgr.printDialog.printReadme=Stampa il readme del progetto 
 
 # method call dialog
 pkgmgr.methodCall.titleCreate=BlueJ:  Crea oggetto
 pkgmgr.methodCall.titleCall=BlueJ:  Chiama un metodo
 pkgmgr.methodCall.namePrompt=Nome dell'istanza:
+pkgmgr.methodCall.typeParametersPrompt=Tipo parametri:
+pkgmgr.methodCall.typeParameterPrompt=Tipo parametro:
 error.methodCall.emptyField=Campo di parametro vuoto
+error.methodCall.emptyTypeField=Error: Trovato campo di parametro vuoto.\nOppure tutti i camppi dei parametri sono vuoti.
 error.methodCall.illegalName=Il nome dell'istanza deve essere un identificatore Java.
 error.methodCall.duplicateName=Un oggetto con questo nome esiste già.\nScegli un altro nome non ancora utilizzato.
 
@@ -456,7 +456,9 @@ debugger.execControls.terminateButtonText = Termina
 debugger.options = Opzioni
 debugger.hideSystemThreads = Nascondi i thread di sistema
 debugger.threadRunning = <html><center>Thread in esecuzione.<br>I thread devono essere fermati per vedere i dettagli.</html>
+
 # DialogManager labels
+
 dialogmgr.error = BlueJ:  Errore
 dialogmgr.question = BlueJ:  Domanda
 dialogmgr.message = BlueJ:  Messaggio
@@ -479,6 +481,7 @@ testdisplay.title = BlueJ:  Risultati dei test
 testdisplay.counter.runs=Eseguiti:
 testdisplay.counter.errors=Errori:
 testdisplay.counter.failures=Fallimenti:
+testdisplay.showsource=Mostra il sorgente
 
 # status messages
 pkgmgr.compiling=Compilo...
@@ -496,7 +499,6 @@ pkgmgr.usesArrowMsg=Dipendenza "Usa" dichiarata ma mai usata:
 pkgmgr.breakpointMsg=La classe deve essere compilata prima di poter mettere breakpoint.
 pkgmgr.appletInViewer=Eseguo l'applet nell'appletviewer
 pkgmgr.appletInBrowser=Eseguo l'applet nel browser web
-pkgmgr.exported=Esportazione completata.
 pkgmgr.exported.jar=Esportazione verso file jar completata.
 pkgmgr.error.open=Il progetto non esiste (non più)
 pkgmgr.checkingVersion=Connessione al server in corso...
@@ -506,47 +508,50 @@ properties.heading.moe=Proprietà dell'Editor Moe. Le configurazioni in questo fi
 
 # menus and menu items
 
-menu.package=Progetto
-menu.package.new=Nuovo progetto
-menu.package.open=Apri un progetto...
+menu.package=_Progetto
+menu.package.new=_Nuovo progetto
+menu.package.open=Apri un progetto...@O
 menu.package.openRecent=Apri un progetto recente
-menu.package.openNonBlueJ=Apri un progetto non BlueJ...
-menu.package.close=Chiudi
-menu.package.save=Salva
-menu.package.saveAs=Salva con nome...
-menu.package.import=Importa...
-menu.package.export=Esporta...
-menu.package.pageSetup=Imposta pagina...
-menu.package.print=Stampa...
-menu.package.quit=Esci
+menu.package.openNonBlueJ=Apri un progetto non _BlueJ...
+menu.package.close=Chiudi@W
+menu.package.save=Salva@S
+menu.package.saveAs=S_alva con nome...
+menu.package.import=_Importa...
+menu.package.export=_Crea file Jar
+menu.package.pageSetup=Imposta pagina...@^P
+menu.package.print=Stampa...@P
+menu.package.quit=_Esci@Q
 
-menu.edit=Modifica
-menu.edit.newClass=Nuova classe
-menu.edit.newPackage=Nuovo package
-menu.edit.addClass=Aggiungi una classe da file
-menu.edit.remove=Elimina
-menu.edit.newUses=Nuova relazione 'usa'
-menu.edit.newInherits=Nuova relazione 'eredità'
+menu.edit=_Modifica
+menu.edit.newClass=Nuova classe@N
+menu.edit.newPackage=Nuovo package@R
+menu.edit.addClass=_Aggiungi una classe da file
+menu.edit.remove=Elimina@BACK_SPACE
+menu.edit.newUses=Nuova relazione '_Usa'
+menu.edit.newInherits=Nuova relazione '_Eredità'
 menu.edit.removeArrow=Elimina relazione
 
-menu.tools=Strumenti
-menu.tools.compile=Compila tutto
-menu.tools.test=Esegui Test
-menu.tools.compileSelected=Compila solo selezionati
-menu.tools.rebuild=Ricostruisci il package
-menu.tools.callLibrary=Usa la libreria di classe...
-menu.tools.callFreeForm=Valuta l'espressione...
-menu.tools.generateDoc=Documentazione di progetto
-menu.tools.preferences=Preferenze...
+menu.tools=_Strumenti
+menu.tools.compile=Compila tutto@K
+menu.tools.compileSelected=Compila solo selezionati@^K
+menu.tools.rebuild=_Ricostruisci il package
+menu.tools.callLibrary=Usa la libreria di classe...@L
+menu.tools.generateDoc=Documentazione di progetto@J
+menu.tools.testing=Esegui i _Test
+menu.tools.run=esegui i Test
+menu.tools.end=Termina Registrazione
+menu.tools.cancel=Cancella Registrazione
+menu.tools.preferences=_Preferenze...@,
 
-menu.view=Visualizza
-menu.view.showUses=Relazioni 'usa'
-menu.view.showInherits=Relazioni 'eredità'
-menu.view.showExecControls=Debugger
-menu.view.showTerminal=Terminale
-menu.view.showTestDisplay=Mostra i risultati dei test
+menu.view=_Visualizza
+menu.view.showUses=Relazioni 'usa'@U
+menu.view.showInherits=Relazioni 'eredità'@I
+menu.view.showExecControls=Debugger@D
+menu.view.showTerminal=Terminale@T
+menu.view.showTextEval=Mostra il Code Pad@E
+menu.view.showTestDisplay=Mostra i _risultati dei test
 
-menu.group=Lavoro di gruppo
+menu.group=Lavoro di _gruppo
 menu.group.make=Crea un package di gruppo
 menu.group.open=Apri un package di gruppo
 menu.group.updateSelected=Aggiorna selezionati
@@ -558,15 +563,14 @@ menu.group.statusAll=Stato di tutto
 menu.group.users=Utenti
 menu.group.configuration=Configurazione
 
-menu.help=Aiuto
-menu.help.about=Informazioni su BlueJ
-menu.help.extensions=Installed Extensions
-menu.help.versionCheck=Verifica della versione
-menu.help.extensions=Estensioni installate
-menu.help.copyright=Copyright
-menu.help.website=Sito web di BlueJ
-menu.help.tutorial=Tutorial per BlueJ
-menu.help.standardApi=Librerie di classe Java
+menu.help=_Aiuto
+menu.help.about=_Informazioni su BlueJ
+menu.help.extensions=E_stensioni installate
+menu.help.versionCheck=Verifica della versione@V
+menu.help.copyright=_Copyright
+menu.help.website=Sito _web di BlueJ
+menu.help.tutorial=Tutorial _per BlueJ
+menu.help.standardApi=Librerie di classe _Java
 
 # tool tips
 
@@ -596,10 +600,7 @@ about.runningOn=Sistema:
 about.javahome=Java Home:
 about.logfile=File di log del debug:
 about.moreInfo=Maggiori informazioni al sito www.bluej.org.
-about.theTeam.deakin=Il team BlueJ alla Deakin University
-about.theTeam.denmark=Il team BlueJ alla University of Southern Denmark
-about.theTeam.kent=Il team BlueJ alla Kent University
+about.theTeam=Il team BlueJ:
 
 # Work Indicator
-workIndicator.showDebugger=Mostra il debugger
-workIndicator.resetMachine=Reset della macchina
+workIndicator.resetMachine=Reset della macchina@^R
