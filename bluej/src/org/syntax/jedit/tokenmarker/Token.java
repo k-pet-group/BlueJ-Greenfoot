@@ -17,7 +17,7 @@ package org.syntax.jedit.tokenmarker;
  * token in the text, and a pointer to the next token in the list.
  *
  * @author Slava Pestov
- * @version $Id: Token.java 3074 2004-11-08 04:24:58Z bquig $
+ * @version $Id: Token.java 3384 2005-05-25 03:49:43Z bquig $
  */
 
 public class Token
@@ -39,7 +39,7 @@ public class Token
     public static final byte COMMENT2 = 2;
 
     /**
-     * Comment 2 token id. This can be used to mark a comment.
+     * Comment 3 token id. This can be used to mark a comment.
      */
     public static final byte COMMENT3 = 3;
 

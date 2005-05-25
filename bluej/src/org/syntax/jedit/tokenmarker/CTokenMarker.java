@@ -16,7 +16,7 @@ import javax.swing.text.Segment;
  * C token marker.
  *
  * @author Slava Pestov
- * @version $Id: CTokenMarker.java 3074 2004-11-08 04:24:58Z bquig $
+ * @version $Id: CTokenMarker.java 3384 2005-05-25 03:49:43Z bquig $
  */
 public class CTokenMarker extends TokenMarker
 {
@@ -115,6 +115,8 @@ loop:		for(int i = offset; i < length; i++)
 							lastOffset = lastKeyword = i;
 							if(length - i > 2 && array[i+2] == '*')
 								token = Token.COMMENT2;
+                            else if(length - i > 2 && array[i+2] == '#')
+                                token = Token.COMMENT3;
 							else
 								token = Token.COMMENT1;
 							break;
@@ -135,7 +137,8 @@ loop:		for(int i = offset; i < length; i++)
 				}
 				break;
 			case Token.COMMENT1:
-			case Token.COMMENT2:
+            case Token.COMMENT2:
+			case Token.COMMENT3:
 				backslash = false;
 				if(c == '*' && length - i > 1)
 				{
