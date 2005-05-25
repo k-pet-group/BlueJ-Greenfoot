@@ -2,7 +2,13 @@
 
     package bluej.parser.ast.gen;
     
-    
+    import bluej.parser.SourceSpan;
+    import bluej.parser.SourceLocation;
+	import bluej.parser.ast.LocatableAST;
+	    
+    import java.util.*;
+    import antlr.BaseAST;
+
 public interface UnitTestParserTokenTypes {
 	int EOF = 1;
 	int NULL_TREE_LOOKAHEAD = 3;

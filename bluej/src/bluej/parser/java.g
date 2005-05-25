@@ -2056,7 +2056,7 @@ WS  :   (   ' '
 SL_COMMENT
     :       "//"
             (~('\n'|'\r'))* 
-            { $setType(Token.SKIP); newline(); }
+            { $setType(Token.SKIP);}
     ;
 
 // multiple-line comments

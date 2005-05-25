@@ -367,7 +367,7 @@ protected typeArgumentsEnd:
 typeArgumentBounds[boolean addImagNode]
     {boolean isUpperBounds = false;}
     :
-        ( "extends"! {isUpperBounds=true;} | "super"! ) classOrInterfaceType[addImagNode]
+        ( "extends"! {isUpperBounds=true;} | "super"! ) classTypeSpec[addImagNode]
 		{
 		    if (isUpperBounds)
 		    {
@@ -1594,8 +1594,8 @@ WS	:	(	' '
 // Single-line comments
 SL_COMMENT
 	:	"//"
-		(~('\n'|'\r'))* ('\n'|'\r'('\n')?)
-		{$setType(Token.SKIP); newline();}
+		(~('\n'|'\r'))* 
+		{$setType(Token.SKIP);}
 	;
 
 // multiple-line comments
