@@ -30,7 +30,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3342 2005-04-08 04:21:47Z bquig $
+ * @version $Id: Project.java 3387 2005-05-26 02:02:33Z bquig $
  */
 public class Project
     implements DebuggerListener
@@ -192,6 +192,7 @@ public class Project
         if (project.terminal != null)
             project.terminal.dispose();
 
+        project.removeAllInspectors();
 		project.getDebugger().removeDebuggerListener(project);
 		project.getDebugger().close(false);
 		
@@ -378,7 +379,6 @@ public class Project
             Debug.reportError("could not read package file (unnamed package)");
         }
         
-        
 		debugger = Debugger.getDebuggerImpl(getProjectDir(), getTerminal());
 		debugger.addDebuggerListener(this);
 		debugger.launch();
@@ -408,7 +408,7 @@ public class Project
         ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
 
         if (inspector == null) {
-            inspector = new ObjectInspector(obj, name, pkg, ir, parent);
+            inspector = new ObjectInspector(obj, this, name, pkg, ir, parent);
             inspectors.put(obj, inspector);
         }        
 
@@ -495,7 +495,7 @@ public class Project
 
         if (inspector == null) {
             ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
-            inspector = new ClassInspector(clss, pkg, ir, parent);
+            inspector = new ClassInspector(clss, this, pkg, ir, parent);
             inspectors.put(clss.getName(), inspector);
         }        
 
@@ -535,7 +535,7 @@ public class Project
         ResultInspector inspector = (ResultInspector) pkg.getProject().getInspector(obj);
 
         if (inspector == null) {
-            inspector = new ResultInspector(obj, name, pkg, ir, info, parent);
+            inspector = new ResultInspector(obj, this, name, pkg, ir, info, parent);
             inspectors.put(obj, inspector);
         }
 
