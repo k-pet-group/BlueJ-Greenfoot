@@ -13,6 +13,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 
@@ -22,7 +23,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: ObjectInspector.java 3341 2005-04-08 04:12:53Z bquig $
+ * @version $Id: ObjectInspector.java 3388 2005-05-26 02:05:43Z bquig $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -60,9 +61,9 @@ public class ObjectInspector extends Inspector
      * @param parent
      *            The parent frame of this frame
      */
-    public ObjectInspector(DebuggerObject obj, String name, Package pkg, InvokerRecord ir, final JFrame parent)
+    public ObjectInspector(DebuggerObject obj, Project proj, String name, Package pkg, InvokerRecord ir, final JFrame parent)
     {
-        super(pkg, ir);
+        super(proj, pkg, ir);
 
         this.obj = obj;
         if (name == null)
@@ -241,7 +242,7 @@ public class ObjectInspector extends Inspector
      */
     protected void showClass()
     {
-        pkg.getProject().getClassInspectorInstance(obj.getClassRef(), pkg, this);
+        project.getClassInspectorInstance(obj.getClassRef(), pkg, this);
     }
 
     /**
@@ -260,7 +261,7 @@ public class ObjectInspector extends Inspector
      */
     protected void remove()
     {
-        pkg.getProject().removeInspector(obj);
+        project.removeInspector(obj);
     }
 
     /**
@@ -396,7 +397,7 @@ public class ObjectInspector extends Inspector
 
     public void inspectEvent(InspectorEvent e)
     {
-        pkg.getProject().getInspectorInstance(e.getDebuggerObject(), null, pkg, null, this);
+        project.getInspectorInstance(e.getDebuggerObject(), null, pkg, null, this);
     }
 
     protected int getPreferredRows()

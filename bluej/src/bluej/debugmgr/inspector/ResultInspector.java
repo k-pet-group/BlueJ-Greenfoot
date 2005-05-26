@@ -1,10 +1,6 @@
 package bluej.debugmgr.inspector;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.EventQueue;
-import java.awt.Insets;
+import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -21,11 +17,9 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.DialogManager;
-import bluej.utility.JavaNames;
-import bluej.utility.JavaUtils;
-import bluej.utility.MultiLineLabel;
+import bluej.utility.*;
 import bluej.views.Comment;
 import bluej.views.LabelPrintWriter;
 import bluej.views.MethodView;
@@ -34,7 +28,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 3386 2005-05-26 01:28:52Z davmac $
+ * @version $Id: ResultInspector.java 3388 2005-05-26 02:05:43Z bquig $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -73,10 +67,10 @@ public class ResultInspector extends Inspector
      * @param parent
      *            The parent frame of this frame
      */
-    public ResultInspector(DebuggerObject obj, String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
+    public ResultInspector(DebuggerObject obj, Project proj, String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
             final JFrame parent)
     {
-        super(pkg, ir);
+        super(proj, pkg, ir);
 
         expressionInformation = info;
         this.obj = obj;
@@ -229,7 +223,7 @@ public class ResultInspector extends Inspector
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 
-        if (pkg.getProject().inTestMode()) {
+        if (project.inTestMode()) {
             assertPanel = new AssertPanel();
             {
                 assertPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -291,7 +285,7 @@ public class ResultInspector extends Inspector
      */
     protected void showClass()
     {
-        pkg.getProject().getClassInspectorInstance(obj.getClassRef(), pkg, this);
+        project.getClassInspectorInstance(obj.getClassRef(), pkg, this);
     }
 
     /**
@@ -305,7 +299,7 @@ public class ResultInspector extends Inspector
      */
     protected void remove()
     {
-        pkg.getProject().removeInspector(obj);
+        project.removeInspector(obj);
     }
 
     /**

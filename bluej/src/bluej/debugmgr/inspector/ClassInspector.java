@@ -11,7 +11,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.pkgmgr.Package;
-import bluej.testmgr.record.ClassInspectInvokerRecord;
+import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
@@ -21,7 +21,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 3341 2005-04-08 04:12:53Z bquig $
+ * @version $Id: ClassInspector.java 3388 2005-05-26 02:05:43Z bquig $
  */
 public class ClassInspector extends Inspector
 {
@@ -47,9 +47,9 @@ public class ClassInspector extends Inspector
      * Note: 'pkg' may be null if getEnabled is false.
      *  
      */
-    public ClassInspector(DebuggerClass clss, Package pkg, InvokerRecord ir, final JFrame parent)
+    public ClassInspector(DebuggerClass clss, Project proj, Package pkg, InvokerRecord ir, final JFrame parent)
     {
-        super(pkg, ir);
+        super(proj, pkg, ir);
 
         myClass = clss;
 
@@ -197,7 +197,7 @@ public class ClassInspector extends Inspector
      */
     protected void remove()
     {
-        pkg.getProject().removeInspector(myClass.getName());
+        project.removeInspector(myClass.getName());
     }
 
     /**

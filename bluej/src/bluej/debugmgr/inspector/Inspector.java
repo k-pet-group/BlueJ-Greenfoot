@@ -1,16 +1,9 @@
 package bluej.debugmgr.inspector;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Frame;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.*;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -19,6 +12,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 
@@ -31,7 +25,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 3343 2005-04-11 00:47:29Z davmac $
+ * @version $Id: Inspector.java 3388 2005-05-26 02:05:43Z bquig $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -61,6 +55,7 @@ public abstract class Inspector extends JFrame
     // object (if possible, else null)
 
     protected Package pkg;
+    protected Project project;
     protected InvokerRecord ir;
 
     //The maximum length of the description (modifiers + field-name)
@@ -78,12 +73,13 @@ public abstract class Inspector extends JFrame
      * @param ir
      *            the InvokerRecord for this inspector (or null)
      */
-    protected Inspector(Package pkg, InvokerRecord ir)
+    protected Inspector(Project proj, Package pkg, InvokerRecord ir)
     {
         super();
 
         setIconImage(BlueJTheme.getIconImage());
 
+        this.project = proj;
         this.pkg = pkg;
         this.ir = ir;
 
@@ -329,7 +325,7 @@ public abstract class Inspector extends JFrame
 
             InvokerRecord newIr = new ObjectInspectInvokerRecord("Math", selectedObjectName, ir);
 
-            pkg.getProject().getInspectorInstance(selectedObject, selectedObjectName, pkg, isPublic ? newIr : null, this);
+            project.getInspectorInstance(selectedObject, selectedObjectName, pkg, isPublic ? newIr : null, this);
         }
     }
 
