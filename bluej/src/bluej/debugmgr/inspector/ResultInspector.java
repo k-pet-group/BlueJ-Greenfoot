@@ -34,7 +34,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 3341 2005-04-08 04:12:53Z bquig $
+ * @version $Id: ResultInspector.java 3386 2005-05-26 01:28:52Z davmac $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -118,7 +118,7 @@ public class ResultInspector extends Inspector
             // type parameters of the object:
             Map tparmap;
             if (instanceType != null)
-                tparmap = instanceType.mapToSuper2(m.getDeclaringClass().getName()).getMap();
+                tparmap = instanceType.mapToSuper(m.getDeclaringClass().getName()).getMap();
             else
                 tparmap = new HashMap();
             

@@ -36,7 +36,7 @@ import bluej.views.TypeParamView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3372 2005-05-12 03:50:16Z davmac $
+ * @version $Id: Invoker.java 3386 2005-05-26 01:28:52Z davmac $
  */
 
 public class Invoker
@@ -200,7 +200,7 @@ public class Invoker
         // the class in which the method was declared. So we need to map tpars
         // from the object's class to that class.
         this.objName = objWrapper.getName();
-        this.typeMap = objWrapper.getObject().getGenType().mapToSuper2(member.getClassName()).getMap();
+        this.typeMap = objWrapper.getObject().getGenType().mapToSuper(member.getClassName()).getMap();
 
         executionEvent = new ExecutionEvent(member.getClassName(), objName);
         

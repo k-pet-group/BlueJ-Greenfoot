@@ -43,7 +43,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3348 2005-04-15 02:36:36Z davmac $
+ * @version $Id: ObjectWrapper.java 3386 2005-05-26 01:28:52Z davmac $
  */
 public class ObjectWrapper extends JComponent
 {
@@ -233,7 +233,7 @@ public class ObjectWrapper extends JComponent
                     filter = otherPackageFilter;
                 
                 // map generic type paramaters to the current superclass
-                curType = curType.mapToSuper2(currentClass.getName());
+                curType = curType.mapToSuper(currentClass.getName());
                 
                 declaredMethods = view.getDeclaredMethods();
                 JMenu subMenu = new JMenu(inheritedFrom + " "

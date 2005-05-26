@@ -23,7 +23,7 @@ import bluej.utility.JavaUtils;
  * Parsing routines for the code pad.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3349 2005-04-18 04:47:40Z davmac $
+ * @version $Id: TextParser.java 3386 2005-05-26 01:28:52Z davmac $
  */
 public class TextParser
 {
@@ -531,7 +531,7 @@ public class TextParser
     {
         GenTypeClass [] rlist = new GenTypeClass[ubounds.length];
         for (int i = 0; i < ubounds.length; i++) {
-            rlist[i] = ubounds[i].mapToSuper2(r.getName());
+            rlist[i] = ubounds[i].mapToSuper(r.getName());
         }
         
         return rlist;
@@ -2125,7 +2125,7 @@ public class TextParser
                 f = c.getField(name);
                 // Map type parameters to declaring class
                 Class declarer = f.getDeclaringClass();
-                Map tparMap = thisClass.mapToSuper2(declarer.getName()).getMap();
+                Map tparMap = thisClass.mapToSuper(declarer.getName()).getMap();
 
                 GenType fieldType;
                 if (tparMap != null) {

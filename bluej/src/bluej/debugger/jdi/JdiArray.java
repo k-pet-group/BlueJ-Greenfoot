@@ -2,7 +2,6 @@ package bluej.debugger.jdi;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.*;
@@ -17,7 +16,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 3324 2005-02-25 01:30:38Z davmac $
+ * @version    $Id: JdiArray.java 3386 2005-05-26 01:28:52Z davmac $
  */
 public class JdiArray extends JdiObject
 {    
@@ -78,9 +77,7 @@ public class JdiArray extends JdiObject
                 compName = compName.replace('/', '.');
 
                 Reflective compReflective = new JdiReflective(compName, obj.referenceType());
-
-                Map genericParams = ((GenTypeClass) genericType).mapToDerived(compReflective);
-                component = new GenTypeClass(compReflective, genericParams);
+                component = (GenTypeClass) ((GenTypeClass) genericType).mapToDerived(compReflective);
 
                 while (level > 1) {
                     component = new GenTypeArray(component, new JdiArrayReflective(component, obj.referenceType()));

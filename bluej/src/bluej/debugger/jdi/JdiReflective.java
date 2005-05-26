@@ -13,7 +13,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 3347 2005-04-14 02:00:15Z davmac $
+ * @version $Id: JdiReflective.java 3386 2005-05-26 01:28:52Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -652,7 +652,7 @@ public class JdiReflective extends Reflective
         
         // Map from containing object type to the type in which the field was
         // declared. Then extract the type parameter mappings.
-        Map tparams = genType.mapToSuper2(f.declaringType().name()).getMap();
+        Map tparams = genType.mapToSuper(f.declaringType().name()).getMap();
         if (tparams == null) {
             // raw parent
             Reflective r = new JdiReflective(f.typeName(), parent.obj.referenceType());

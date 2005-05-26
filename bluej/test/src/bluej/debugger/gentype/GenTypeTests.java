@@ -9,7 +9,7 @@ import bluej.utility.JavaReflective;
  * Tests for the GenType classes.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeTests.java 3336 2005-03-18 06:26:03Z davmac $
+ * @version $Id: GenTypeTests.java 3386 2005-05-26 01:28:52Z davmac $
  */
 public class GenTypeTests extends TestCase
 {
@@ -53,7 +53,7 @@ public class GenTypeTests extends TestCase
         basePars.add(oBound);
         GenTypeClass baseClass = new GenTypeClass(baseReflective, basePars);
         //Map m = baseClass.mapToDerived(derivedR2);
-        GenTypeClass mapped = (GenTypeClass) baseClass.mapToDerived2(derivedR2);
+        GenTypeClass mapped = (GenTypeClass) baseClass.mapToDerived(derivedR2);
         
         //assertTrue(m.get("T").equals(oBound));
         assertEquals("derived2<java.lang.Object>", mapped.toString());
@@ -109,7 +109,7 @@ public class GenTypeTests extends TestCase
 
         // Make a raw version of the derived type
         GenTypeClass derived = new GenTypeClass(derivedR, noTpars);
-        GenTypeClass mapped = derived.mapToSuper2("base");
+        GenTypeClass mapped = derived.mapToSuper("base");
         
         assertEquals(mapped.toString(), "base");
     }
@@ -140,7 +140,7 @@ public class GenTypeTests extends TestCase
         
         // test!
         GenTypeClass instanceAClass = new GenTypeClass(aReflective);
-        GenTypeClass mapped = instanceAClass.mapToSuper2("CClass");
+        GenTypeClass mapped = instanceAClass.mapToSuper("CClass");
         assertEquals(mapped.toString(), "CClass");
     }
 }
