@@ -52,6 +52,8 @@ debugger.objectwrapper.remove=Rimuovi
 debugger.objectwrapper.serializable=Serializza
 debugger.objectwrapper.redefined=ridefinito in
 debugger.objectwrapper.inherited=ereditato da
+debugger.objectwrapper.noMethods=(Metodi non accesibili)
+debugger.objectwrapper.moreMethods=molti metodi
 
 debugger.threadstatus.finished=finito
 debugger.threadstatus.breakpoint=al breakpoint
@@ -375,6 +377,7 @@ pkgmgr.export.helpLine2=il progetto. Eseguibile se la classe principale è specif
 pkgmgr.export.classLabel=classe principale:
 pkgmgr.export.includeLibs=Includi librerie utente
 pkgmgr.export.sourceLabel=includi sorgente
+pkgmgr.export.pkgFilesLabel=Includi i file del progetto BlueJ
 pkgmgr.export.noClassText=nessuna (non può essere eseguito)
 pkgmgr.export.specifyJar=Specifica un nome per il file Jar
 pkgmgr.export.createJarText=Crea
