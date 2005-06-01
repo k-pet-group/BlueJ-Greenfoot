@@ -28,7 +28,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3390 2005-06-01 12:30:33Z polle $
+ * @version $Id: WorldHandler.java 3392 2005-06-01 14:01:26Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -297,8 +297,8 @@ public class WorldHandler
 
                 if (object instanceof GreenfootObject) {
                     GreenfootObject go = (GreenfootObject) object;
-                    int dragOffsetX = -go.getImage().getWidth() / 2;
-                    int dragOffsetY = -go.getImage().getHeight() / 2;
+                    int dragOffsetX = 0;
+                    int dragOffsetY = 0;
                     objectDropped = false;
                     DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
                     

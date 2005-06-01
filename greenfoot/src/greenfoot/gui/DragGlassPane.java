@@ -34,7 +34,7 @@ import javax.swing.*;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3238 2004-12-14 18:43:54Z polle $
+ * @version $Id: DragGlassPane.java 3392 2005-06-01 14:01:26Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -63,7 +63,7 @@ public class DragGlassPane extends JComponent
     private Rectangle oldRect = new Rectangle();
     private Rectangle rect = new Rectangle();
     
-    /** Offset from top left of object being dragged to mouse cursor */
+    /** Offset from center of object being dragged to mouse cursor */
     private int dragOffsetX;
     private int dragOffsetY;
 
@@ -360,7 +360,7 @@ public class DragGlassPane extends JComponent
     private void storePosition(MouseEvent e)
     {
         MouseEvent eThis = SwingUtilities.convertMouseEvent((Component) e.getSource(), e, this);
-        rect.x = eThis.getX() + dragOffsetX;
-        rect.y = eThis.getY() + dragOffsetY;
+        rect.x = eThis.getX() + dragOffsetX - image.getWidth()/2;
+        rect.y = eThis.getY() + dragOffsetY - image.getHeight()/2;
     }
 }

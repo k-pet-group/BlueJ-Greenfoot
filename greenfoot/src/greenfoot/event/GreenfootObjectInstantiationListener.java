@@ -58,8 +58,8 @@ public class GreenfootObjectInstantiationListener extends RInvocationListenerImp
     {
         if (realObject instanceof GreenfootObject) {
             GreenfootObject go = (GreenfootObject) realObject;
-            int xoffset = -go.getImage().getWidth() / 2;
-            int yoffset = -go.getImage().getHeight() / 2;
+            int xoffset = 0;
+            int yoffset = 0;
             DragGlassPane.getInstance().startDrag(go, xoffset, yoffset, null);
         }
         else if(realObject instanceof greenfoot.GreenfootWorld) {
