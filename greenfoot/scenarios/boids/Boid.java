@@ -108,7 +108,7 @@ public abstract class Boid extends GreenfootObject
     
     public Boid()  {
         setImage("bird.png");
-        setRotation(90 + 180 * getVector().getDirection() / Math.PI);
+        setRotation((int) (90 + 180 * getVector().getDirection() / Math.PI));
     }
     
     public abstract void doStuff();
@@ -136,7 +136,7 @@ public abstract class Boid extends GreenfootObject
             vector.setX(vectorPlan.getX());            
             vector.setY(vectorPlan.getY());
             
-            setRotation(90 + 180 * getVector().getDirection() / Math.PI);
+            setRotation((int) (90 + 180 * getVector().getDirection() / Math.PI));
             moveForward();
             planning = true;
         }
@@ -151,7 +151,7 @@ public abstract class Boid extends GreenfootObject
             x += getVector().getX() ;
             y += getVector().getY() ;  
         }
-        limit();
+       // limit();
         
     //    System.out.println("" + x + " , " + y + " rot: " + getRotation());
         
@@ -179,7 +179,7 @@ public abstract class Boid extends GreenfootObject
         }
     }
     
-    private void limit() {
+  /*  private void limit() {
         if(x<=0) {
          //  vectorPlan.setX(10);// -10 * vectorPlan.getX());
            x=0;
@@ -197,7 +197,7 @@ public abstract class Boid extends GreenfootObject
             y=getWorld().getHeight() -2 ;
         }
         
-    }
+    }*/
     
    /* public static void setSeparationFactor(double factor) {
         separationFactor = factor;
@@ -228,7 +228,7 @@ public abstract class Boid extends GreenfootObject
         return vector;
     }
     
-    public Vector getFlockRepulsion(double distance) {
+    public Vector getFlockRepulsion(int distance) {
         Iterator flock = getNeighbours(distance).iterator();       
         int nBirds = 0;
         
@@ -266,7 +266,7 @@ public abstract class Boid extends GreenfootObject
     }*/
     
    
-    public Vector getFlockAttraction(double distance) {
+    public Vector getFlockAttraction(int distance) {
         Iterator flock = getNeighbours(distance).iterator();
        
         int nBirds = 1; //this bird is the first one
@@ -291,7 +291,7 @@ public abstract class Boid extends GreenfootObject
     }
     
     
-    public Vector getFlockDirection(double distance) {
+    public Vector getFlockDirection(int distance) {
         Iterator flock = getNeighbours(distance).iterator();
        
         int nBirds = 1;
@@ -309,7 +309,7 @@ public abstract class Boid extends GreenfootObject
     }
     
  
-    private Collection getNeighbours(double distance) {
+    private Collection getNeighbours(int distance) {
         return getWorld().getObjectsInRange(getX(),getY(),distance, Boid.class);
         //TODO for greenfoot it would be nice to be able to get obecjts within a certain radius
         //TODO and to get all obejcts of a certain type in the world.

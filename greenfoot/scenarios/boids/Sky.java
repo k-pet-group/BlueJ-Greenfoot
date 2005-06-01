@@ -6,15 +6,11 @@ import java.awt.*;
 public class Sky extends GreenfootWorld
 {
     private static int WIDTH = 800;
-    private static int HEIGHT = 800;
+    private static int HEIGHT = 600;
     
    
-    /**
-     * Creates a new world with 20x20 cells and
-     * with a cell size of 50x50 pixels
-     */
     public Sky() {
-        super(WIDTH,HEIGHT);
+        super(WIDTH,HEIGHT,1,true);
         getBackground().fill(new Color(90,90,255));
       //  populate(20);
       

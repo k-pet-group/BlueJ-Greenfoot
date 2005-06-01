@@ -4,11 +4,11 @@ public class Naive extends Boid
 {
 
     private static final double MAX_SPEED = 5;
-    private static final double FLOCK_DISTANCE = 150;
+    private static final int FLOCK_DISTANCE = 100;
     
     private static double separationFactor = 1;
-    private static double alignmentFactor = 0.2;
-    private static double cohesionFactor = 5;
+    private static double alignmentFactor = 0.5;
+    private static double cohesionFactor = 8;
     
     public Naive()
     {
