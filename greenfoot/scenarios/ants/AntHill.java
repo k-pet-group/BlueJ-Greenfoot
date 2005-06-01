@@ -2,7 +2,7 @@ import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
 
 import java.util.Random;
-
+ 
 public class AntHill extends GreenfootObject
 {
     private final static Random randomizer = AntWorld.getRandomizer();
@@ -29,7 +29,7 @@ public class AntHill extends GreenfootObject
     {
         if(ants < maxAnts) {
             if(randomizer.nextInt(100) < 10) {            
-                getWorld().addObject(new Ant(getX() + getWidth()/2, getY() + getHeight()/2, this));
+                getWorld().addObject(new Ant(getX(), getY(), this));
                 ants++;
             }
         }

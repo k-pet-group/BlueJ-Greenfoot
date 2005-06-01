@@ -14,7 +14,7 @@ public class Pheromone extends GreenfootObject
     {
         intensity = MAX_INTENSITY;
         updateImage();
-    }
+    } 
 
     public Pheromone(int x, int y)
     {
@@ -25,7 +25,7 @@ public class Pheromone extends GreenfootObject
 
     public void act()
     {
-        intensity--;
+        intensity-=1;
         if(intensity <= 0) {
             getWorld().removeObject(this);
         }
@@ -39,7 +39,7 @@ public class Pheromone extends GreenfootObject
      */
     private void updateImage() 
     {
-        int size = (intensity / 2) + 10;
+        int size = intensity;
         BufferedImage image = new BufferedImage(size+1, size+1,
                                                 BufferedImage.TYPE_INT_ARGB);
         Graphics g = image.getGraphics();
@@ -48,22 +48,8 @@ public class Pheromone extends GreenfootObject
         g.fillOval(0, 0, size, size);
         g.setColor(Color.DARK_GRAY);
         g.fillRect(size/2, size/2, 1, 1);
+        
         setImage(new Image(image));
     }
     
-   /* public int getWidth() {        
-        return getImage().getWidth();
-    }
-    
-    public int getHeight() {        
-        return getImage().getWidth();
-    }*/
-    
-    public int getCenterX() {
-        return getX() + getWidth()/2;
-    }
-    
-    public int getCenterY() {
-        return getY() + getHeight()/2;
-    }
 }

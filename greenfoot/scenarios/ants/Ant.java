@@ -13,14 +13,14 @@ public class Ant extends GreenfootObject
     private static final Random randomizer = AntWorld.getRandomizer();
     
     // every how many steps can we place a pheromone drop
-    private static final int MAX_PH_LEVEL = 5;
+    private static final int MAX_PH_LEVEL = 10;
 
     // how long to we keep direction after finding pheromones:
-    private static final int PH_TIME = 15;
+    private static final int PH_TIME = 20;
     
     // the speed the ant moves with - in pizels per update
-    private static final int SPEED = 4; 
-    
+    private static final int SPEED = 2; 
+     
     // current movement
     private int deltaX = 0;
     private int deltaY = 0;
@@ -62,8 +62,6 @@ public class Ant extends GreenfootObject
      */
     public void act()
     {
-        long t1 = System.currentTimeMillis();
-        //randomWalk();
         if(haveFood()) {
             headHome();
         }
@@ -173,46 +171,26 @@ public class Ant extends GreenfootObject
      */
     private void checkHome()
     {
-        Collection antHills = getWorld().getObjectsAt(getX(), getY(), AntHill.class);
-        Iterator it = antHills.iterator();
-        if( it.hasNext()) {
-            Object hill = it.next();
-            if(hill == homeHill) {
-                dropFood();
-            
-                // move one step to where we came from so that we set out back in the 
-                // right direction
-                deltaX = -deltaX;
-                deltaY = -deltaY;
-                move();
-                move();
-            }
-        }
-        //NOT WORKING - need to check home extent
-        /*if((getX() == homeX) && (getY() == homeY)) {
+        if(intersects(homeHill)) {
             dropFood();
-            
             // move one step to where we came from so that we set out back in the 
             // right direction
             deltaX = -deltaX;
             deltaY = -deltaY;
             move();
-            move();
-        }*/
+            move();    
+        }
     }
     
     /**
      * Is there any food here where we are? If so, take some!.
      */
     public void checkFood()
-    {
-       
-        Collection objectsHere = getWorld().getObjectsAt(getX(), getY(), Food.class);
-        Iterator it = objectsHere.iterator();
-        if( it.hasNext()) {
-            Object thing = it.next();
+    {  
+        List objectsHere = getIntersectingObjects(Food.class);
+        if( ! objectsHere.isEmpty()) {
+            Object thing = objectsHere.get(0);
             takeFood((Food)thing);
-            return;
         }
     }
     
@@ -230,22 +208,16 @@ public class Ant extends GreenfootObject
      */
     public boolean smellPheromone()
     {
-        long t1 = System.currentTimeMillis();
-        Collection objectsHere = getWorld().getObjectsAt(getX(), getY(), Pheromone.class);
-                   int i=0;
-       for(Iterator it = objectsHere.iterator(); it.hasNext(); ) {
+        List objectsHere = getIntersectingObjects(Pheromone.class);
+        for(Iterator it = objectsHere.iterator(); it.hasNext(); ) {
             Object thing = it.next();
-
-            
-                Pheromone ph = (Pheromone)thing;
-                
-                deltaX = capSpeed(ph.getCenterX() - getX());
-                deltaY = capSpeed(ph.getCenterY() - getY());
-                if(deltaX == 0 && deltaY == 0) {
-                    foundLastPheromone = PH_TIME;
-                } 
-                return true;
-            
+            Pheromone ph = (Pheromone)thing;
+            deltaX = capSpeed(ph.getX() - getX());
+            deltaY = capSpeed(ph.getY() - getY());
+            if(deltaX == 0 && deltaY == 0) {
+                foundLastPheromone = PH_TIME;
+            } 
+            return true;            
         }
         return false;
     }
@@ -256,7 +228,7 @@ public class Ant extends GreenfootObject
     private void dropPheromone()
     {
         Pheromone ph = new Pheromone();
-        ph.setLocation(getX() - ph.getWidth() / 2, getY() - ph.getHeight() / 2);
+        ph.setLocation(getX(), getY());
        
         getWorld().addObject(ph);
         pheromoneLevel = 0;
@@ -312,8 +284,12 @@ public class Ant extends GreenfootObject
      */
     private void move()
     {
-        setLocation(getX() + deltaX, getY() + deltaY);
-        setRotation(180*Math.atan2(deltaY,deltaX)/Math.PI+90 -45);
+        try {
+            setLocation(getX() + deltaX, getY() + deltaY);
+        } catch (IndexOutOfBoundsException e) {
+            //We don't care - just leave it
+        }
+        setRotation((int) (180*Math.atan2(deltaY,deltaX)/Math.PI+90 -45));
     }
     
     /**
