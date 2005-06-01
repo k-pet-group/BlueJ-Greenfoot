@@ -5,6 +5,8 @@ import greenfoot.event.SimulationListener;
 import greenfoot.gui.ControlPanel;
 
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.event.ChangeEvent;
@@ -16,7 +18,7 @@ import javax.swing.event.EventListenerList;
  * obejcts in the world and then paints them.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Simulation.java 3238 2004-12-14 18:43:54Z polle $
+ * @version $Id: Simulation.java 3390 2005-06-01 12:30:33Z polle $
  */
 public class Simulation extends Thread
     implements ChangeListener
@@ -31,7 +33,6 @@ public class Simulation extends Thread
     private SimulationEvent startedEvent;
     private SimulationEvent stoppedEvent;
     private static Simulation instance;
-    
 
     /** for timing the animation */
     private long lastDelayTime;    
@@ -61,6 +62,7 @@ public class Simulation extends Thread
 
     /**
      * Returns the simulation if it is initialised. If not, it will return null.
+     * 
      * @return
      */
     public static Simulation getInstance()
@@ -68,10 +70,11 @@ public class Simulation extends Thread
         return instance;
     }
 
-    public WorldHandler getWorldHandler() {
+    public WorldHandler getWorldHandler()
+    {
         return worldHandler;
     }
-    
+
     /**
      * Runs the simulation from the current state.
      *  
@@ -109,17 +112,20 @@ public class Simulation extends Thread
 
     /**
      * Performs one step in the simulation. Calls act() on all actors.
-     *  
+     * 
      */
     public void runOnce()
     {
         try {
-            for (Iterator i = worldHandler.getGreenfootObjects(); i.hasNext();) {
+
+            List objects = new LinkedList(worldHandler.getGreenfootObjects());
+
+            for (Iterator i = objects.iterator(); i.hasNext();) {
                 GreenfootObject actor = (GreenfootObject) i.next();
                 actor.act();
             }
         }
-        catch(Throwable t) {
+        catch (Throwable t) {
             // If an exception occurs, halt the simulation
             paused = true;
             t.printStackTrace();
@@ -164,20 +170,22 @@ public class Simulation extends Thread
 
     /**
      * Probably an update in the speedslider
-     *  
+     * 
      */
     public void stateChanged(ChangeEvent e)
     {
         if (e.getSource() instanceof ControlPanel) {
-            delay = ((ControlPanel) e.getSource()).getDelay();            
+            delay = ((ControlPanel) e.getSource()).getDelay();
         }
     }
-    
-    public void setDelay(int millis) {
+
+    public void setDelay(int millis)
+    {
         this.delay = millis;
     }
-    
-    public void delay() {
+
+    public void delay()
+    {
         try {
             long timeElapsed = System.currentTimeMillis() - this.lastDelayTime;
             long actualDelay = delay - timeElapsed;

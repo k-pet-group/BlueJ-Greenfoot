@@ -1,16 +1,15 @@
 package greenfoot;
 
+import greenfoot.collision.CollisionChecker;
+import greenfoot.collision.GridCollisionChecker;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Observable;
 
-
-/** 
+/**
  * This class represents the object world, which is a 2 dimensional grid of
  * cells. The world can be populated with GreenfootObjects. <br>
  * 
@@ -19,55 +18,64 @@ import java.util.Observable;
  * aware that all methods that has something to do with location and size in
  * GreenfootObject and GreenfootWorld is using that resolution.
  * 
- * TODO: wrapping
+ * TODO: wrapping <br>
+ * TODO: Paint order. The set of object should be painted in the order of which
+ * they are added/updated. Use a proper collection to handle this. <br>
+ * TODO: lazy add of new objects. Wait till current simulation loop is done. The
+ * world then needs a "locked state" where objects acn not be removed and or
+ * added
  * 
  * @see greenfoot.GreenfootObject
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootWorld.java 3322 2005-02-21 15:57:35Z polle $
+ * @version $Id: GreenfootWorld.java 3390 2005-06-01 12:30:33Z polle $
  */
 public class GreenfootWorld extends Observable
 {
-    private Map[][] world;
-    private Collection objects = new LinkedHashSet();
 
-    /** The size of the cell in pixels.*/
+    private CollisionChecker collisionChecker = new GridCollisionChecker();
+
+    /** All the objects currently in the world */
+    private List objects = new ArrayList();
+
+    /** The size of the cell in pixels. */
     private int cellSize = 1;
 
-    /**
-     * Map from classes to the size of the largest object of that class - used
-     * for collision checks. <br>
-     * 
-     * TODO find a better way to do this. It is not fail safe if the object size
-     * is changed after obejcts has been added to the world Map from classes to
-     * sizes. Used for collision
-     */
-    private Map objectMaxSizes = new HashMap();
+    /** Size of the world */
+    private int width;
+    private int height;
 
-    private static Collection emptyCollection = Collections.unmodifiableCollection(new LinkedHashSet());
+    /** Whether the world should wrap around the edges */
+    private boolean wrapWorld;
 
     /** Image painted in the background. */
     private Image backgroundImage;
+
+    /** Whether the background image should be tiled */
     private boolean tiledBackground;
 
-    private int delay = 500;
-
+    /**
+     * The order in which objects should be painted
+     * 
+     * @see #setPaintOrder(List)
+     */
+    private List classPaintOrder;
 
     /**
-     * Create a new world with the given size.
+     * Create a new world with the given size in pixels.
      * 
      * @param worldWidth
-     *            The width of the world. 
+     *            The width of the world.
      * @param worldHeight
      *            The height of the world.
      */
     public GreenfootWorld(int worldWidth, int worldHeight)
     {
-        setSize(worldWidth, worldHeight);
+        initialize(worldWidth, worldHeight, 1, false);
     }
 
     /**
-     * This constructor should be used if a scenario is created that should use a grid.
-     * It creates a new world with the given size .
+     * This constructor should be used if a scenario is created that should use
+     * a grid. It creates a new world with the given size.
      * 
      * @see GreenfootWorld
      * @param worldWidth
@@ -78,12 +86,27 @@ public class GreenfootWorld extends Observable
      *            Size of a cell in pixels
      * @param wrap
      *            Whether the world should wrap around the edges
-     *  
+     * 
      */
     public GreenfootWorld(int worldWidth, int worldHeight, int cellSize, boolean wrap)
-    {        
-        setSize(worldWidth, worldHeight);
+    {
+        initialize(worldWidth, worldHeight, cellSize, wrap);
+    }
+
+    /**
+     * Sets the size of the world. <br>
+     * 
+     * This will remove all objects from the world. TODO Maybe it shouldn't!
+     * 
+     */
+    private void initialize(int width, int height, int cellSize, boolean wrap)
+    {
+        this.width = width;
+        this.height = height;
         this.cellSize = cellSize;
+        this.wrapWorld = wrap;
+        collisionChecker.initialize(width, height, wrap);
+        update();
     }
 
     /**
@@ -98,7 +121,7 @@ public class GreenfootWorld extends Observable
     {
         backgroundImage = image;
         update();
-    }   
+    }
 
     /**
      * Gets the background image
@@ -107,31 +130,31 @@ public class GreenfootWorld extends Observable
      */
     public Image getBackground()
     {
-        if(backgroundImage == null) {
-            backgroundImage =new Image(getWidthInPixels(), getHeightInPixels());
+        if (backgroundImage == null) {
+            backgroundImage = new Image(getWidthInPixels(), getHeightInPixels());
         }
         return backgroundImage;
     }
 
     /**
-     * Gets the width of the world.     
+     * Gets the width of the world.
      */
     public int getWidth()
     {
-        return world.length;
+        return width;
     }
 
     /**
-     * Gets the height of the world. 
+     * Gets the height of the world.
      */
     public int getHeight()
     {
-        return world[0].length;
+        return height;
     }
 
     /**
      * Get the cell size. If no cell size has been specified via the
-     * constructor, it defaults to 1.
+     * constructor, the cell size is 1.
      */
     public int getCellSize()
     {
@@ -139,256 +162,28 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Sets the size of the world. <br>
-     * This will remove all objects from the world. TODO Maybe it shouldn't!
-     */
-    private void setSize(int width, int height)
-    {
-        world = new Map[width][height];
-        update();
-    }
-
-    /**
-     * Adds a GreenfootObject to the world. <br>
-     * If the coordinates of the object is outside the worlds bounds, an
-     * exception is thrown.
+     * Adds a GreenfootObject to the world.
      * 
-     * @param thing
+     * @param object
      *            The new object to add.
+     * @throws IndexOutOfBoundsException
+     *             If the coordinates are outside the bounds of the world. Note
+     *             that a wrapping world has not bounds.
      */
-    public synchronized void addObject(GreenfootObject thing)
-        throws ArrayIndexOutOfBoundsException
+
+    public synchronized void addObject(GreenfootObject object)
+        throws IndexOutOfBoundsException
     {
-        if (thing.getX() >= getWidth()) {
-            throw new ArrayIndexOutOfBoundsException(thing.getX());
+        // TODO bad performance when using a List for the objects. But if we
+        // want to have paint order, a List is necessary.
+        if (objects.contains(object)) {
+            return;
         }
-        if (thing.getY() >= getHeight()) {
-            throw new ArrayIndexOutOfBoundsException(thing.getY());
-        }
-        if (thing.getX() < 0) {
-            throw new ArrayIndexOutOfBoundsException(thing.getX());
-        }
-        if (thing.getY() < 0) {
-            throw new ArrayIndexOutOfBoundsException(thing.getY());
-        }
-
-        if (!objects.contains(thing)) {
-
-            HashMap map = (HashMap) world[thing.getX()][thing.getY()];
-            if (map == null) {
-                map = new HashMap();
-                world[thing.getX()][thing.getY()] = map;
-            }
-            Class clazz = thing.getClass();
-            Collection myClasses = (Collection) map.get(clazz);
-            if (myClasses == null) {
-                myClasses = new LinkedHashSet();
-                map.put(clazz, myClasses);
-            }
-            myClasses.add(thing);
-            thing.setWorld(this);
-            objects.add(thing);
-
-            updateMaxSize(thing);
-
-            update();
-        }
-    }
-
-    /**
-     * Updates the map of maximum object sizes with the given object (if
-     * necessary).
-     *  
-     */
-    private void updateMaxSize(GreenfootObject thing)
-    {
-        Class clazz = thing.getClass();
-        Integer maxSize = (Integer) objectMaxSizes.get(clazz);
-        int height = thing.getHeight();
-        int width = thing.getWidth();
-        int diag = (int) Math.sqrt(width * width + height * height);
-        	
-        
-        int newSizeInCells = toCellCeil(diag);
-
-        if (maxSize == null || maxSize.intValue() < newSizeInCells) {
-            objectMaxSizes.put(clazz, new Integer(newSizeInCells));
-        }
-    }
-
-    /**
-     * Returns all the objects with the exact location (x,y)
-     */
-    private Collection getObjectsWithLocation(int x, int y)
-    {
-        Map map = (Map) world[x][y];
-        if (map != null) {
-            Collection values = map.values();
-            Collection objectsHere = new LinkedHashSet();
-            for (Iterator iter = values.iterator(); iter.hasNext();) {
-                Collection element = (Collection) iter.next();
-                objectsHere.addAll(element);
-            }
-            return objectsHere;
-        }
-        else {
-            return emptyCollection;
-        }
-    }
-
-    /**
-     * Gets all the objects of class cls (and subclasses) that contains the
-     * given location.
-     * 
-     * @see GreenfootObject#contains(int, int)
-     */
-    public Collection getObjectsAt(int x, int y, Class cls)
-    {
-        Collection objectsThere = new LinkedHashSet();
-        Collection objectsAtCell = getObjectsAt(x, y);
-        for (Iterator iter = objectsAtCell.iterator(); iter.hasNext();) {
-            GreenfootObject go = (GreenfootObject) iter.next();
-            if (cls.isInstance(go)) {
-                objectsThere.add(go);
-            }
-        }
-        return objectsThere;
-    }
-
-    /**
-     * Returns all objects at that contains the given location.
-     * 
-     * @see GreenfootObject#contains(int, int)
-     */
-    public Collection getObjectsAt(int x, int y)
-    {
-        int maxSize = getMaxSize();
-
-        Collection objectsThere = new LinkedHashSet();
-        int xStart = (x - maxSize) + 1;
-        int yStart = (y - maxSize) + 1;
-        if (xStart < 0) {
-            xStart = 0;
-        }
-        if (yStart < 0) {
-            yStart = 0;
-        }
-        if (x >= getWidth()) {
-            x = getWidth() - 1;
-        }
-        if (y >= getHeight()) {
-            y = getHeight() - 1;
-        }
-
-        for (int xi = xStart; xi <= x; xi++) {
-            for (int yi = yStart; yi <= y; yi++) {
-//                System.out.println("Looking at: " + xi + "," + yi);
-                Map map = world[xi][yi];
-                if (map != null) {
-                    Collection candidates = getObjectsWithLocation(xi, yi);
-                    for (Iterator iter = Collections.unmodifiableCollection(candidates).iterator(); iter.hasNext();) {
-                        GreenfootObject go = (GreenfootObject) iter.next();
-                        if (go.contains(x - xi, y - yi)) {
-  //                          System.out.println("Bingo: " + go);
-                            objectsThere.add(go);
-                        }
-                    }
-                }
-            }
-        }
-        return objectsThere;
-    }
-    
-    /**
-     * @return
-     */
-    private int getMaxSize()
-    {
-        int maxSize = 0;
-        Collection maxSizes = objectMaxSizes.values();
-        for (Iterator iter = maxSizes.iterator(); iter.hasNext();) {
-            Integer element = (Integer) iter.next();
-            if (element.intValue() > maxSize) {
-                maxSize = element.intValue();
-            }
-        }
-        return maxSize;
-    }
-
-    /**
-     * Gets all objects within the given radius and of the given class (or
-     * subclass).
-     * 
-     * 
-     * The center of the circle is considered to be at the center of the cell.
-     * Objects which have the center within the circle is considered to be in range.
-     * 
-     * @param x
-     *            The x-coordinate of the center
-     * @param y
-     *            The y-coordinate of the center
-     * @param r
-     *            The radius
-     * @param cls
-     *            Only objects of this class (or subclasses) are returned
-     * @return
-     */
-    public Collection getObjectsInRange(int x, int y, double r, Class cls)
-    {
-        Iterator objects = getObjects();
-
-        Collection neighbours = new LinkedHashSet();
-        while (objects.hasNext()) {
-            Object o = objects.next();
-            if (cls.isInstance(o) && o != this) {
-                GreenfootObject go = (GreenfootObject) o;
-                if (distance(x, y, go) <= r) {
-                    neighbours.add(go);
-                }
-            }
-        }
-        return neighbours;       
-    }
-
-  
-    /**
-     * Returns the shortest distance from the cell (center of cell ) to the
-     * center of the greenfoot object.
-     * 
-     * @param x
-     *            x-coordinate of the cell
-     * @param y
-     *            y-coordinate of the cell
-     * @param go
-     * @return
-     */
-    private double distance(int x, int y, GreenfootObject go)
-    {
-        double gx = go.getX() + (go.getWidth() / 2.) / cellSize;
-        double gy = go.getY() + (go.getHeight() / 2.) / cellSize;
-        double dx = gx - (x + 0.5);
-        double dy = gy - (y + 0.5);
-        return Math.sqrt(dx * dx + dy * dy);
-    }
-
-    /**
-     * When we have a pixel coordinate, and the cell size > 1, we can use this
-     * method which translates into cell coordinates. 
-     * 
-     */
-    Collection getObjectsAtPixel(int x, int y)
-    {
-        return getObjectsAt(toCellFloor(x), toCellFloor(y));
-    }
-
-    /**
-     * When we have a pixel coordinate, and the cell size > 1, we can use this
-     * method which translates into cell coordinates
-     * 
-     */
-    Collection getObjectsAtPixel(int x, int y, Class cls)
-    {
-        return getObjectsAt(toCellFloor(x), toCellFloor(y), cls);
+        checkAndWrapLocation(object);
+        object.setWorld(this);
+        collisionChecker.addObject(object);
+        objects.add(object);
+        update();
     }
 
     /**
@@ -399,94 +194,165 @@ public class GreenfootWorld extends Observable
      */
     public synchronized void removeObject(GreenfootObject object)
     {
-        Map allHere = world[object.getX()][object.getY()];
-        if (allHere != null) {
-            Collection myClasses = (Collection) allHere.get(object.getClass());
-            if (myClasses != null) {
-                myClasses.remove(object);
-                object.setWorld(null);
-            }
-        }
+        collisionChecker.removeObject(object);
         objects.remove(object);
         update();
     }
 
     /**
-     * Provides an Iterator to all the things in the world.
-     *  
+     * Get all the objects in the world.
      */
-    public synchronized Iterator getObjects()
+    public synchronized List getObjects()
     {
-        //TODO: Make sure that the iterator returns things in the correct
-        // paint-order (whatever that is)
-        Collection c = new LinkedHashSet();
-        c.addAll(objects);
-        return c.iterator();
+        // TODO: Make sure that the iterator returns things in the correct
+        // paint-order (last update first.
+        // TODO would be good if it was possible to avoid the copy of the list.
+        // If this should be done, we should not be allowed to add objects into
+        // the list while running through the simulation loop
+        // List c = new ArrayList();
+        // c.addAll(objects);
+        return Collections.unmodifiableList(objects);
     }
 
     /**
-     * Refreshes the world. <br>
-     * Should be called to see the changes after painting on the graphics
-     * 
-     * @see #getCanvas()
-     * @see #getCanvas(int, int)
+     * Get all objects in the world that is of the given class
      */
-    final void update()
+    public synchronized List getObjects(Class cls)
     {
-        setChanged();
-        notifyObservers();
+        // TODO: implement
+        return null;
+    }
+
+    public boolean isWrapped()
+    {
+        return wrapWorld;
     }
 
     /**
-     * Updates the location of the object in the world.
+     * Sets the paint order of objects based on their class. <br>
      * 
+     * Objects of the classes that are first in the list will be painted on top
+     * of objects of the classes later in the list. <br>
      * 
-     * @param object
-     *            The object which should be updated
-     * @param oldX
-     *            The old X location of the object
-     * @param oldY
-     *            The old Y location of the object
+     * If there are objcts in the world that is not specified in this paint
+     * order, the top object will be the one that was updated last (change of
+     * location)
+     * 
+     * @param classOrder
+     *            List of classes.
+     * 
      */
-    void updateLocation(GreenfootObject object, int oldX, int oldY)
+    public void setPaintOrder(List classPaintOrder)
     {
-        Map allHere = world[oldX][oldY];
-        Class clazz = object.getClass();
-        if (allHere != null) {
-            Collection myClasses = (Collection) allHere.get(object.getClass());
-            if (myClasses != null) {
-                myClasses.remove(object);
-                if (myClasses.isEmpty()) {
-                    allHere.remove(object.getClass());
-                    if (allHere.isEmpty())
-                        world[oldX][oldY] = null;
-                }
-            }
-        }
-
-        allHere = world[object.getX()][object.getY()];
-        if (allHere == null) {
-            allHere = new HashMap();
-            world[object.getX()][object.getY()] = allHere;
-        }
-        Collection myClasses = (Collection) allHere.get(clazz);
-        if (myClasses == null) {
-            myClasses = new LinkedHashSet();
-            allHere.put(clazz, myClasses);
-        }
-        myClasses.add(object);
-        update();
+        this.classPaintOrder = classPaintOrder;
     }
 
-    int toCellCeil(int i)
+    // =================================================
+    //
+    // COLLISION STUFF
+    //
+    // =================================================
+
+    /**
+     * Returns all objects that intersects the given location.
+     * 
+     * @param x
+     *            Location
+     * @param y
+     *            Location
+     * @param cls
+     *            Class of objects to look for (null or Object.class will find
+     *            all classes)
+     */
+    public List getObjectsAt(int x, int y, Class cls)
     {
-        return (int) Math.ceil((double) i / cellSize);
+        return collisionChecker.getObjectsAt(x, y, cls);
     }
 
-    int toCellFloor(int i)
+    /**
+     * Returns all the objects that intersects the given object. This takes the
+     * graphical extent of objects into consideration.
+     * 
+     * @param go
+     *            A GreenfootObject in the world
+     * @param cls
+     *            Class of objects to look for (null or Object.class will find
+     *            all classes)
+     */
+    public List getIntersectingObjects(GreenfootObject go, Class cls)
     {
-        return (int) Math.floor((double) i / cellSize);
+        return collisionChecker.getIntersectingObjects(go, cls);
     }
+
+    /**
+     * Returns all objects with the logical location within the specified
+     * circle. In other words an object A is within the range of an object B if
+     * the distance between the center of the two objects is less thatn r.
+     * 
+     * @param x
+     *            Center of the cirle
+     * @param y
+     *            Center of the cirle
+     * @param r
+     *            Radius of the cirle
+     * @param cls
+     *            Class of objects to look for (null or Object.class will find
+     *            all classes)
+     */
+    public List getObjectsInRange(int x, int y, int r, Class cls)
+    {
+        return collisionChecker.getObjectsInRange(x, y, r, cls);
+    }
+
+    /**
+     * Returns the neighbours to the given location. This method only looks at
+     * the logical location and not the extent of objects. Hence it is most
+     * useful in scenarios where objects only span one cell.
+     * 
+     * @param x
+     *            Location
+     * @param y
+     *            Location
+     * @param distance
+     *            Distance in which to look for other objects
+     * @param diag
+     *            Is the distance also diagonal?
+     * @param cls
+     *            Class of objects to look for (null or Object.class will find
+     *            all classes)
+     * @return A collection of all neighbours found
+     */
+    public List getNeighbours(int x, int y, int distance, boolean diag, Class cls)
+    {
+        return collisionChecker.getNeighbours(x, y, distance, diag, cls);
+    }
+
+    /**
+     * Get all objects that lie on the line between the two points.
+     * 
+     * @param x1
+     *            Location of point 1
+     * @param y1
+     *            Location of point 1
+     * @param x2
+     *            Location of point 2
+     * @param y2
+     *            Location of point 2
+     * @param cls
+     *            Class of objects to look for (null or Object.class will find
+     *            all classes)
+     */
+    public List getObjectsAtLine(int x1, int y1, int x2, int y2, Class cls)
+    {
+        return collisionChecker.getObjectsAtLine(x1, y1, x2, y2, cls);
+    }
+
+    // =================================================
+    //
+    // PROTECTED MEHTHODS
+    //
+    // used by other classes internally in greenfoot
+    // =================================================
 
     /**
      * Get the height of the world in pixels.
@@ -502,6 +368,140 @@ public class GreenfootWorld extends Observable
     int getWidthInPixels()
     {
         return getWidth() * getCellSize();
+    }
+
+    int toCellCeil(int i)
+    {
+        return (int) Math.ceil((double) i / cellSize);
+    }
+
+    int toCellFloor(int i)
+    {
+        return (int) Math.floor((double) i / cellSize);
+    }
+
+    /**
+     * Refreshes the world. <br>
+     * Should be called to see the changes after painting on the graphics
+     * 
+     * @see #getCanvas()
+     * @see #getCanvas(int, int)
+     */
+    final void update()
+    {
+        setChanged();
+        notifyObservers();
+    }
+
+    Collection getObjectsAtPixel(int x, int y)
+    {
+        return collisionChecker.getObjectsAt(toCellFloor(x), toCellFloor(y), null);
+    }
+
+    void updateObjectLocation(GreenfootObject object, int oldX, int oldY)
+    {
+        checkAndWrapLocation(object);
+        collisionChecker.updateObjectLocation(object, oldX, oldY);
+    }
+
+    void updateObjectSize(GreenfootObject object)
+    {
+        collisionChecker.updateObjectSize(object);
+    }
+
+    // =================================================
+    //
+    // PRIVATE MEHTHODS
+    //
+    // =================================================
+
+    /**
+     * Throws an exception if the object's location is out of the bounds of the
+     * world. <br>
+     * If the world is wrapping around the edges, it will convert the location
+     * to be within the actual size of the world. <br>
+     * This method only checks the logical location.
+     * 
+     */
+    private void checkAndWrapLocation(GreenfootObject object)
+        throws IndexOutOfBoundsException
+    {
+        if (!wrapWorld) {
+            ensureWithinBounds(object);
+        }
+        else {
+            wrapLocation(object);
+        }
+    }
+
+    /**
+     * Makes sure that the location of the object is wrapped into a location
+     * within the worlds bounds.
+     * 
+     * @param object
+     */
+    private void wrapLocation(GreenfootObject object)
+    {
+        int x = object.getX();
+        int y = object.getY();
+
+        if (x >= getWidth()) {
+            x = wrap(x, getWidth());
+        }
+        if (y >= getHeight()) {
+            y = wrap(y, getHeight());
+        }
+        if (x < 0) {
+            x = wrap(x, getWidth());
+        }
+        if (object.getY() < 0) {
+            y = wrap(y, getHeight());
+        }
+        object.x = x;
+        object.y = y;
+    }
+
+    /**
+     * wraps the number x with the width
+     */
+    int wrap(int x, int width)
+    {
+        int remainder = x % width;
+        if (remainder < 0) {
+            return width + remainder;
+        }
+        else {
+            return remainder;
+        }
+    }
+
+    /**
+     * Methods that throws an exception if the location of the world is out of
+     * bounds.
+     * 
+     * @param object
+     * @return
+     * @throws IndexOutOfBoundsException
+     */
+    private void ensureWithinBounds(GreenfootObject object)
+        throws IndexOutOfBoundsException
+    {
+        if (object.getX() >= getWidth()) {
+            throw new IndexOutOfBoundsException("The x-coordinate is: " + object.getX() + ". It must be smaller than: "
+                    + getWidth());
+        }
+        if (object.getY() >= getHeight()) {
+            throw new IndexOutOfBoundsException("The y-coordinate is: " + +object.getY()
+                    + ". It must be smaller than: " + getHeight());
+        }
+        if (object.getX() < 0) {
+            throw new IndexOutOfBoundsException("The x-coordinate is: " + +object.getX()
+                    + ". It must be larger than: 0");
+        }
+        if (object.getY() < 0) {
+            throw new IndexOutOfBoundsException("The y-coordinate is: " + +object.getY()
+                    + ". It must be larger than: 0");
+        }
     }
 
 }

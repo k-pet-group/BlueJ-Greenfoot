@@ -4,7 +4,6 @@ import greenfoot.GreenfootObject;
 import greenfoot.GreenfootWorld;
 import greenfoot.ImageVisitor;
 import greenfoot.WorldVisitor;
-import greenfoot.util.Location;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,7 +13,11 @@ import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Logger;
@@ -26,7 +29,7 @@ import javax.swing.JComponent;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3238 2004-12-14 18:43:54Z polle $
+ * @version $Id: WorldCanvas.java 3390 2005-06-01 12:30:33Z polle $
  */
 public class WorldCanvas extends JComponent
     implements Observer, DropTarget
@@ -49,14 +52,14 @@ public class WorldCanvas extends JComponent
     public void setWorld(GreenfootWorld world)
     {
         this.world = world;
-        this.setSize(0,0);
+        this.setSize(0, 0);
         if (world != null) {
             int width = WorldVisitor.getWidthInPixels(world);
             int height = WorldVisitor.getHeightInPixels(world);
             this.setSize(width, height);
         }
     }
-    
+
     /**
      * Paints all the objects
      * 
@@ -67,38 +70,62 @@ public class WorldCanvas extends JComponent
         if (world == null) {
             return;
         }
-        for (Iterator iter = world.getObjects(); iter.hasNext();) {
+        List objects = new LinkedList(world.getObjects());
+        Collections.reverse(objects);        
+        for (Iterator iter = objects.iterator(); iter.hasNext();) {
             try {
                 GreenfootObject thing = (GreenfootObject) iter.next();
 
-                Location loc = new Location(thing.getX(), thing.getY());
+                // Location loc = new Location(thing.getX(), thing.getY());
+                // int cellSize = WorldVisitor.getCellSize(world);
+                // loc.scale(cellSize, cellSize);
+                // greenfoot.Image image = thing.getImage();
+                // if (image != null) {
+                // Graphics2D g2 = (Graphics2D) g;
+                //
+                // double halfWidth = image.getWidth() / 2.;
+                // double halfHeight = image.getHeight() / 2.;
+                // double rotateX = halfWidth + loc.getX();
+                // double rotateY = halfHeight + loc.getY();
+                // AffineTransform oldTx = g2.getTransform();
+                // g2.rotate(Math.toRadians(thing.getRotation()), rotateX,
+                // rotateY);
+                // ImageVisitor.drawImage(image, g, loc.getX(), loc.getY(),
+                // this);
+                // g2.setTransform(oldTx);
+                // }
+
                 int cellSize = WorldVisitor.getCellSize(world);
-                loc.scale(cellSize, cellSize);
+
                 greenfoot.Image image = thing.getImage();
                 if (image != null) {
-                    Graphics2D g2 = (Graphics2D) g;
-
                     double halfWidth = image.getWidth() / 2.;
                     double halfHeight = image.getHeight() / 2.;
-                    double rotateX = halfWidth + loc.getX();
-                    double rotateY = halfHeight + loc.getY();
+
+                    double xCenter = thing.getX() * cellSize + cellSize / 2.;
+                    int paintX = (int) Math.floor(xCenter - halfWidth);
+                    double yCenter = thing.getY() * cellSize + cellSize / 2.;
+                    int paintY = (int) Math.floor(yCenter - halfHeight);
+
+                    Graphics2D g2 = (Graphics2D) g;
                     AffineTransform oldTx = g2.getTransform();
-                    g2.rotate(Math.toRadians(thing.getRotation()), rotateX, rotateY);
-                    ImageVisitor.drawImage(image, g, loc.getX(), loc.getY(), this);
+                    g2.rotate(Math.toRadians(thing.getRotation()), xCenter, yCenter);
+                    ImageVisitor.drawImage(image, g, paintX, paintY, this);
                     g2.setTransform(oldTx);
                 }
+
             }
             catch (NullPointerException e) {
-                //Sometimes the world.getObjects has null objects... because of
+                // Sometimes the world.getObjects has null objects... because of
                 // the impl. which uses addAll()
             };
         }
 
     }
-   
+
     /**
      * TODO optimize performance... double buffering?
-     *  
+     * 
      */
     public void paintComponent(Graphics g)
     {
@@ -112,20 +139,20 @@ public class WorldCanvas extends JComponent
 
     private void paintBackground(Graphics g)
     {
-        if(world != null) {
-	        g.setColor(getBackground());
+        if (world != null) {
+            g.setColor(getBackground());
 
             int width = WorldVisitor.getWidthInPixels(world);
             int height = WorldVisitor.getHeightInPixels(world);
-	        g.fillRect(0, 0, width, height);
-	
-	        greenfoot.Image backgroundImage = world.getBackground();
-	        if (backgroundImage.isTiled()) {
-	            paintTiledBackground(g);
-	        }
-	        else if (backgroundImage != null) {
-	            ImageVisitor.drawImage(backgroundImage, g, 0, 0, this);
-	        }
+            g.fillRect(0, 0, width, height);
+
+            greenfoot.Image backgroundImage = world.getBackground();
+            if (backgroundImage.isTiled()) {
+                paintTiledBackground(g);
+            }
+            else if (backgroundImage != null) {
+                ImageVisitor.drawImage(backgroundImage, g, 0, 0, this);
+            }
         }
 
     }
@@ -141,7 +168,7 @@ public class WorldCanvas extends JComponent
 
         int width = WorldVisitor.getWidthInPixels(world);
         int height = WorldVisitor.getHeightInPixels(world);
-        
+
         int xTiles = (int) Math.ceil((double) width / imgWidth);
         int yTiles = (int) Math.ceil((double) height / imgHeight);
 

@@ -14,6 +14,7 @@ import java.awt.event.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.*;
@@ -27,7 +28,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3363 2005-05-05 01:32:27Z davmac $
+ * @version $Id: WorldHandler.java 3390 2005-06-01 12:30:33Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -201,6 +202,8 @@ public class WorldHandler
      * TODO: this method should be removed when it is posisble to select among
      * multiple objects from a popup menu.
      * 
+     * Returns the object at the given pixel location.
+     * 
      * @param x
      * @param y
      * @return
@@ -257,7 +260,7 @@ public class WorldHandler
      * add/remove objects in the world while iterating.
      *  
      */
-    public Iterator getGreenfootObjects()
+    public List getGreenfootObjects()
     {
         return world.getObjects();
     }
@@ -411,7 +414,12 @@ public class WorldHandler
         if (o instanceof GreenfootObject && world != null) {
             GreenfootObject go = (GreenfootObject) o;
             world.addObject(go);
-            go.setLocationInPixels((int) p.getX(),(int) p.getY());
+            try{
+                go.setLocationInPixels((int) p.getX(),(int) p.getY());
+            }
+            catch(IndexOutOfBoundsException e) {
+                return false;
+            }
             return true;
         }
         else {
