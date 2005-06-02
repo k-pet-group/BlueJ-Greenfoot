@@ -12,7 +12,7 @@ import javax.swing.ImageIcon;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3401 2005-06-02 14:30:00Z polle $
+ * @version $Id: GreenfootObject.java 3402 2005-06-02 19:18:25Z polle $
  */
 public class GreenfootObject
 {
@@ -28,6 +28,8 @@ public class GreenfootObject
 
     private GreenfootWorld world;
     private Image image;
+    
+    private static Image greenfootImage = new Image("greenfoot/greenfoot-logo.png");
 
     /**
      * Constructor that creates an object with a default image. <br>
@@ -39,7 +41,7 @@ public class GreenfootObject
      */
     public GreenfootObject()
     {
-        setImage("greenfoot/greenfoot-logo.png");
+        setImage(greenfootImage);
     }
 
     /**
