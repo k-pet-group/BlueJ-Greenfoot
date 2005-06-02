@@ -43,12 +43,12 @@ public class AntHill extends GreenfootObject
         if(foodCounter == null) {
             foodCounter = new Counter("Food: ");
             int x = getX();
-            int y = getY() + 8;
+            int y = getYMax() + 8;
             if(y >= getWorld().getHeight()) {
                 y = getWorld().getHeight();    
             }
 
-            foodCounter.setLocation(getX(), getY() + 8);
+            foodCounter.setLocation(x, y);
             getWorld().addObject(foodCounter);
         }        
         foodCounter.increment();
