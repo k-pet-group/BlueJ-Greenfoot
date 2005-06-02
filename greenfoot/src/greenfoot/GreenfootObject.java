@@ -12,7 +12,7 @@ import javax.swing.ImageIcon;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3390 2005-06-01 12:30:33Z polle $
+ * @version $Id: GreenfootObject.java 3401 2005-06-02 14:30:00Z polle $
  */
 public class GreenfootObject
 {
@@ -209,13 +209,8 @@ public class GreenfootObject
      */
     public void setLocation(int x, int y)
     {
-        if (world != null && !world.isWrapped()) {
-            if (world.getWidth() <= x || x < 0) {
-                throw new IndexOutOfBoundsException("x is out of bounds: " + x);
-            }
-            if (world.getHeight() <= y || y < 0) {
-                throw new IndexOutOfBoundsException("y is out of bounds: " + x);
-            }
+        if(!world.isWrapped()) {
+            boundsCheck(x, y);
         }
         int oldX = this.x;
         int oldY = this.y;
@@ -224,6 +219,18 @@ public class GreenfootObject
         this.y = y;
         if (world != null) {
             world.updateObjectLocation(this, oldX, oldY);
+        }
+    }
+
+    private void boundsCheck(int x, int y)
+    {
+        if (world != null) {
+            if (world.getWidth() <= x || x < 0) {
+                throw new IndexOutOfBoundsException("x is out of bounds: " + x);
+            }
+            if (world.getHeight() <= y || y < 0) {
+                throw new IndexOutOfBoundsException("y is out of bounds: " + x);
+            }
         }
     }
 
@@ -296,7 +303,10 @@ public class GreenfootObject
     void setLocationInPixels(int x, int y)
     {
         if (world != null) {
-            setLocation(world.toCellFloor(x), world.toCellFloor(y));
+            int xCell = world.toCellFloor(x);
+            int yCell = world.toCellFloor(y);
+            boundsCheck(xCell, yCell);
+            setLocation(xCell, yCell);
         }
     }
 

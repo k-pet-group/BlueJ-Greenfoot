@@ -30,7 +30,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3397 2005-06-02 11:11:08Z polle $
+ * @version $Id: WorldHandler.java 3401 2005-06-02 14:30:00Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -407,8 +407,14 @@ public class WorldHandler
         if (o instanceof GreenfootObject) {
             GreenfootObject go = (GreenfootObject) o;
             world.addObject(go);
-            go.setLocationInPixels((int) p.getX(), (int) p.getY());
-            objectDropped = true;
+            try {
+                go.setLocationInPixels((int) p.getX(), (int) p.getY());
+                objectDropped = true;
+            }
+            catch(IndexOutOfBoundsException e) {
+                //it happens...
+                return false;
+            }
             return true;
         }
         else {
