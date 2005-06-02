@@ -1,20 +1,17 @@
 package greenfoot.collision;
 
 import greenfoot.GreenfootObject;
-import greenfoot.collision.CopyOfGridCollisionChecker.Cell;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-/**
+/**<
  * Very good when objects only span one cell. <br>
  * Good when most of the cells are occupied by objects. It has a store for each
  * cell location, so it could potentially take up a lot of memory if the world
