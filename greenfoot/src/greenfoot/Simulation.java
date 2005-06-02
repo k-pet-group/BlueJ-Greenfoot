@@ -4,8 +4,8 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.gui.ControlPanel;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -18,7 +18,7 @@ import javax.swing.event.EventListenerList;
  * obejcts in the world and then paints them.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Simulation.java 3390 2005-06-01 12:30:33Z polle $
+ * @version $Id: Simulation.java 3397 2005-06-02 11:11:08Z polle $
  */
 public class Simulation extends Thread
     implements ChangeListener
@@ -35,7 +35,7 @@ public class Simulation extends Thread
     private static Simulation instance;
 
     /** for timing the animation */
-    private long lastDelayTime;    
+    private long lastDelayTime;
     private int delay;
 
     /**
@@ -52,11 +52,13 @@ public class Simulation extends Thread
         if (instance == null) {
             instance = new Simulation();
         }
+     
         instance.worldHandler = worldHandler;
+     
         instance.startedEvent = new SimulationEvent(instance, SimulationEvent.STARTED);
         instance.stoppedEvent = new SimulationEvent(instance, SimulationEvent.STOPPED);
         instance.paused = true;
-        instance.setPriority(Thread.MIN_PRIORITY);        
+        instance.setPriority(Thread.MIN_PRIORITY);
         instance.start();
     }
 
@@ -77,7 +79,7 @@ public class Simulation extends Thread
 
     /**
      * Runs the simulation from the current state.
-     *  
+     * 
      */
     public void run()
     {
@@ -117,12 +119,19 @@ public class Simulation extends Thread
     public void runOnce()
     {
         try {
+            List objects = null;
 
-            List objects = new LinkedList(worldHandler.getGreenfootObjects());
+            // We need to sync, so that the collection is not changed while
+            // copying it ( to avoid ConcurrentModificationException)
+            synchronized (worldHandler.getWorldLock()) {
+                // We need to copy it, to avoid ConcurrentModificationException
+                objects = new ArrayList(worldHandler.getGreenfootObjects());
+            
 
             for (Iterator i = objects.iterator(); i.hasNext();) {
                 GreenfootObject actor = (GreenfootObject) i.next();
                 actor.act();
+            }
             }
         }
         catch (Throwable t) {

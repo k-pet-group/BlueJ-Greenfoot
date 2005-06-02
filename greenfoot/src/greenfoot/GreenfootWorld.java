@@ -6,6 +6,7 @@ import greenfoot.collision.GridCollisionChecker;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Observable;
 
@@ -18,19 +19,18 @@ import java.util.Observable;
  * aware that all methods that has something to do with location and size in
  * GreenfootObject and GreenfootWorld is using that resolution.
  * 
- * TODO: wrapping <br>
- * TODO: Paint order. The set of object should be painted in the order of which
- * they are added/updated. Use a proper collection to handle this. <br>
- * TODO: lazy add of new objects. Wait till current simulation loop is done. The
- * world then needs a "locked state" where objects acn not be removed and or
- * added
  * 
  * @see greenfoot.GreenfootObject
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootWorld.java 3390 2005-06-01 12:30:33Z polle $
+ * @version $Id: GreenfootWorld.java 3397 2005-06-02 11:11:08Z polle $
  */
 public class GreenfootWorld extends Observable
 {
+    // TODO: wrapping
+
+    // TODO: Maybe we want to be able to force the world into "single-cell"
+    // mode. With that we avoid accidently going into sprite mode if an object
+    // is rotated and therefor get out of cell bounds
 
     private CollisionChecker collisionChecker = new GridCollisionChecker();
 
@@ -200,9 +200,15 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Get all the objects in the world.
+     * Get all the objects in the world.<br>
+     * 
+     * If iterating through these objects, you should synchronize on this world to avoid ConcurrentModificationException. <br> 
+     * 
+     * The order in which they are returned, is the paint order. The first
+     * object in the List should be painted first. This means that the lasat
+     * object will always be painted on top of all the other objects.<br>
      */
-    public synchronized List getObjects()
+    public List getObjects()
     {
         // TODO: Make sure that the iterator returns things in the correct
         // paint-order (last update first.

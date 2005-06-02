@@ -13,7 +13,9 @@ import java.awt.Point;
 import java.awt.event.*;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -28,7 +30,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3392 2005-06-01 14:01:26Z polle $
+ * @version $Id: WorldHandler.java 3397 2005-06-02 11:11:08Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -40,17 +42,17 @@ public class WorldHandler
     private JLabel worldTitle = new JLabel();
     private int delay;
     private boolean isQuickAddActive;
-    
+
     // where did the the drag/drop operation begin?
     private int dragBeginX;
     private int dragBeginY;
-    
+
     /**
-     * Whether the object was dropped, or more specifically, whether it
-     * does not need to be replaced if the drop is cancelled.
+     * Whether the object was dropped, or more specifically, whether it does not
+     * need to be replaced if the drop is cancelled.
      */
     private boolean objectDropped = true; // true if the object was dropped
-    
+
     /**
      * Creates a new worldHandler and sets up the connection between worldCanvas
      * and world
@@ -89,9 +91,9 @@ public class WorldHandler
     public void mouseClicked(MouseEvent e)
     {
         if (e.getClickCount() > 1 && ((e.getModifiers() & MouseEvent.BUTTON1_DOWN_MASK) != 0)) {
-            //GreenfootObject gObject = getObject(e.getX(), e.getY());
-            //RObject rObject = ObjectTracker.instance().getRObject(gObject);
-            //TODO: inspect rObject
+            // GreenfootObject gObject = getObject(e.getX(), e.getY());
+            // RObject rObject = ObjectTracker.instance().getRObject(gObject);
+            // TODO: inspect rObject
 
         }
     }
@@ -107,13 +109,13 @@ public class WorldHandler
         if (SwingUtilities.isLeftMouseButton(e)) {
             GreenfootObject go = getObject(e.getX(), e.getY());
             if (go != null) {
-                dragBeginX = go.getX()*world.getCellSize();
-                dragBeginY = go.getY()*world.getCellSize();
+                dragBeginX = go.getX() * world.getCellSize();
+                dragBeginY = go.getY() * world.getCellSize();
                 int dragOffsetX = dragBeginX - e.getX();
                 int dragOffsetY = dragBeginY - e.getY();
                 objectDropped = false;
                 DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
-                
+
                 // While the drag is occuring, the world handler no longer
                 // processes mouse/key events
                 worldCanvas.removeMouseListener(this);
@@ -132,7 +134,7 @@ public class WorldHandler
     public void mouseReleased(MouseEvent e)
     {
         maybeShowPopup(e);
-        
+
     }
 
     private boolean maybeShowPopup(MouseEvent e)
@@ -142,11 +144,12 @@ public class WorldHandler
             GreenfootObject obj = getObject(e.getX(), e.getY());
             if (obj != null) {
                 JPopupMenu menu = makePopupMenu(obj);
-                //JPopupMenu menu = new JPopupMenu();
+                // JPopupMenu menu = new JPopupMenu();
                 // ObjectWrapper.createMenuItems(menu, ...);
                 // new ObjectWrapper();
-                //JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(obj, e);
-                //menu.setVisible(true);
+                // JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(obj,
+                // e);
+                // menu.setVisible(true);
                 menu.show(worldCanvas, e.getX(), e.getY());
             }
             return true;
@@ -154,7 +157,7 @@ public class WorldHandler
         }
         return false;
     }
-    
+
     /**
      * Make a popup menu suitable for calling methods on, inspecting and
      * removing an object in the world.
@@ -162,13 +165,14 @@ public class WorldHandler
     private JPopupMenu makePopupMenu(final GreenfootObject obj)
     {
         JPopupMenu menu = new JPopupMenu();
-        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this), Collections.EMPTY_MAP);
+        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this),
+                Collections.EMPTY_MAP);
         menu.addSeparator();
-        
+
         // "inspect" menu item
         JMenuItem m = getInspectMenuItem(obj);
         menu.add(m);
-        
+
         // "remove" menu item
         m = new JMenuItem("Remove");
         m.addActionListener(new ActionListener() {
@@ -180,7 +184,7 @@ public class WorldHandler
         menu.add(m);
         return menu;
     }
-    
+
     /**
      * Create a menu item to inspect an object.
      */
@@ -197,7 +201,7 @@ public class WorldHandler
         });
         return m;
     }
-    
+
     /**
      * TODO: this method should be removed when it is posisble to select among
      * multiple objects from a popup menu.
@@ -210,9 +214,9 @@ public class WorldHandler
      */
     private GreenfootObject getObject(int x, int y)
     {
-        if(world == null)
+        if (world == null)
             return null;
-        
+
         Collection objectsThere = world.getObjectsAtPixel(x, y);
         if (objectsThere.size() < 1) {
             return null;
@@ -243,7 +247,7 @@ public class WorldHandler
      */
     public void mouseExited(MouseEvent e)
     {
-        
+
     }
 
     /**
@@ -255,14 +259,16 @@ public class WorldHandler
     }
 
     /**
-     * Provides an Iterator to all the things in the world. This iterator is not
-     * updated on calls to the worlds add/remove methods. So it is safe to
-     * add/remove objects in the world while iterating.
-     *  
+     * Returns a list of all objects.
+     * 
      */
     public List getGreenfootObjects()
     {
         return world.getObjects();
+    }
+    
+    public Object getWorldLock() {
+        return world;
     }
 
     /*
@@ -291,8 +297,8 @@ public class WorldHandler
         if (isQuickAddActive) {
             ClassView cls = (ClassView) classSelectionManager.getSelected();
             if (cls != null) {
-                //Object selected = classSelectionManager.getSelected();
-                //ClassView classView = (ClassView) selected;
+                // Object selected = classSelectionManager.getSelected();
+                // ClassView classView = (ClassView) selected;
                 Object object = cls.createInstance();
 
                 if (object instanceof GreenfootObject) {
@@ -301,7 +307,7 @@ public class WorldHandler
                     int dragOffsetY = 0;
                     objectDropped = false;
                     DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
-                    
+
                     // On the mac, the glass pane doesn't seem to receive
                     // mouse move events; the shift/move is treated like a drag
                     worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
@@ -343,8 +349,8 @@ public class WorldHandler
             world.addObserver(worldCanvas);
             worldTitle.setText(world.getClass().getName());
         }
-        worldCanvas.setWorld(world); //TODO consider removing this and only
-                                     // rely on observer
+        worldCanvas.setWorld(world); // TODO consider removing this and only
+        // rely on observer
         worldTitle.setEnabled(true);
         worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
         MouseListener listeners[] = worldTitle.getMouseListeners();
@@ -363,16 +369,17 @@ public class WorldHandler
             {
                 maybeShowPopup(e);
             }
-            
+
             private void maybeShowPopup(MouseEvent e)
             {
 
                 Object world = WorldHandler.this.world;
                 if (e.isPopupTrigger() && world != null) {
                     JPopupMenu menu = new JPopupMenu();
-                    ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world, WorldHandler.this), Collections.EMPTY_MAP);
+                    ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world,
+                            WorldHandler.this), Collections.EMPTY_MAP);
                     menu.addSeparator();
-                    //"inspect" menu item
+                    // "inspect" menu item
                     JMenuItem m = getInspectMenuItem(world);
                     menu.add(m);
                     menu.show(worldTitle, e.getX(), e.getY());
@@ -400,7 +407,7 @@ public class WorldHandler
         if (o instanceof GreenfootObject) {
             GreenfootObject go = (GreenfootObject) o;
             world.addObject(go);
-            go.setLocationInPixels((int) p.getX(),(int) p.getY());
+            go.setLocationInPixels((int) p.getX(), (int) p.getY());
             objectDropped = true;
             return true;
         }
@@ -414,10 +421,10 @@ public class WorldHandler
         if (o instanceof GreenfootObject && world != null) {
             GreenfootObject go = (GreenfootObject) o;
             world.addObject(go);
-            try{
-                go.setLocationInPixels((int) p.getX(),(int) p.getY());
+            try {
+                go.setLocationInPixels((int) p.getX(), (int) p.getY());
             }
-            catch(IndexOutOfBoundsException e) {
+            catch (IndexOutOfBoundsException e) {
                 return false;
             }
             return true;
@@ -434,21 +441,22 @@ public class WorldHandler
             world.removeObject(go);
         }
     }
-    
+
     public void dragFinished(Object o)
     {
         DragGlassPane drag = DragGlassPane.getInstance();
         worldCanvas.removeMouseListener(drag);
         worldCanvas.removeMouseMotionListener(drag);
-        
-        if (! isQuickAddActive ) {
+
+        if (!isQuickAddActive) {
             // re-enable keylistener after object drag
             worldCanvas.addMouseListener(this);
             worldCanvas.addKeyListener(this);
 
-            // if the operation was cancelled, add the object back into the world
+            // if the operation was cancelled, add the object back into the
+            // world
             // at its original position
-            if (! objectDropped && o instanceof GreenfootObject) {
+            if (!objectDropped && o instanceof GreenfootObject) {
                 GreenfootObject go = (GreenfootObject) o;
                 go.setLocationInPixels(dragBeginX, dragBeginY);
                 world.addObject(go);

@@ -29,7 +29,7 @@ import javax.swing.JComponent;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3390 2005-06-01 12:30:33Z polle $
+ * @version $Id: WorldCanvas.java 3397 2005-06-02 11:11:08Z polle $
  */
 public class WorldCanvas extends JComponent
     implements Observer, DropTarget
@@ -70,31 +70,13 @@ public class WorldCanvas extends JComponent
         if (world == null) {
             return;
         }
-        List objects = new LinkedList(world.getObjects());
-        Collections.reverse(objects);        
-        for (Iterator iter = objects.iterator(); iter.hasNext();) {
-            try {
+        List objects = world.getObjects();
+        
+        //we need to sync, so that objects are not added and removed when we traverse the list.
+        synchronized (world) {
+            for (Iterator iter = objects.iterator(); iter.hasNext();) {
+
                 GreenfootObject thing = (GreenfootObject) iter.next();
-
-                // Location loc = new Location(thing.getX(), thing.getY());
-                // int cellSize = WorldVisitor.getCellSize(world);
-                // loc.scale(cellSize, cellSize);
-                // greenfoot.Image image = thing.getImage();
-                // if (image != null) {
-                // Graphics2D g2 = (Graphics2D) g;
-                //
-                // double halfWidth = image.getWidth() / 2.;
-                // double halfHeight = image.getHeight() / 2.;
-                // double rotateX = halfWidth + loc.getX();
-                // double rotateY = halfHeight + loc.getY();
-                // AffineTransform oldTx = g2.getTransform();
-                // g2.rotate(Math.toRadians(thing.getRotation()), rotateX,
-                // rotateY);
-                // ImageVisitor.drawImage(image, g, loc.getX(), loc.getY(),
-                // this);
-                // g2.setTransform(oldTx);
-                // }
-
                 int cellSize = WorldVisitor.getCellSize(world);
 
                 greenfoot.Image image = thing.getImage();
@@ -113,12 +95,7 @@ public class WorldCanvas extends JComponent
                     ImageVisitor.drawImage(image, g, paintX, paintY, this);
                     g2.setTransform(oldTx);
                 }
-
             }
-            catch (NullPointerException e) {
-                // Sometimes the world.getObjects has null objects... because of
-                // the impl. which uses addAll()
-            };
         }
 
     }
