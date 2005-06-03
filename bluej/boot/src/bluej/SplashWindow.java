@@ -14,7 +14,7 @@ import java.net.URL;
  * is starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 3235 2004-12-14 15:42:21Z mik $
+ * @version $Id: SplashWindow.java 3404 2005-06-03 14:51:08Z mik $
  */
 
 public class SplashWindow extends Frame
@@ -44,7 +44,7 @@ public class SplashWindow extends Frame
         setLocation((screenDim.width - getSize().width)/2,
                     (screenDim.height - getSize().height)/2);
         setVisible(true);
-        //try { Thread.sleep(7000);} catch(Exception e) {}  // for testing: show longer
+        //try { Thread.sleep(11000);} catch(Exception e) {}  // for testing: show longer
     }
 
     /**
@@ -67,9 +67,9 @@ public class SplashWindow extends Frame
         
         public void paintComponent(Graphics g) {
             g.drawImage(image, 0, 0, null);
-            g.setColor(new Color(31,70,110));
-            g.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            g.drawString("Version " + Boot.BLUEJ_VERSION, 24, image.getHeight()-14);
+            g.setColor(new Color(255,255,255));
+            g.setFont(new Font("SansSerif", Font.BOLD, 16));
+            g.drawString("Version " + Boot.BLUEJ_VERSION, 36, image.getHeight()-28);
         }
         
         public Dimension getMinimumSize() {
