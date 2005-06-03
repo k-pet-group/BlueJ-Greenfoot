@@ -22,7 +22,7 @@ import java.util.Observable;
  * 
  * @see greenfoot.GreenfootObject
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootWorld.java 3397 2005-06-02 11:11:08Z polle $
+ * @version $Id: GreenfootWorld.java 3405 2005-06-03 15:10:56Z polle $
  */
 public class GreenfootWorld extends Observable
 {
@@ -48,7 +48,7 @@ public class GreenfootWorld extends Observable
     private boolean wrapWorld;
 
     /** Image painted in the background. */
-    private Image backgroundImage;
+    private GreenfootImage backgroundImage;
 
     /** Whether the background image should be tiled */
     private boolean tiledBackground;
@@ -59,19 +59,6 @@ public class GreenfootWorld extends Observable
      * @see #setPaintOrder(List)
      */
     private List classPaintOrder;
-
-    /**
-     * Create a new world with the given size in pixels.
-     * 
-     * @param worldWidth
-     *            The width of the world.
-     * @param worldHeight
-     *            The height of the world.
-     */
-    public GreenfootWorld(int worldWidth, int worldHeight)
-    {
-        initialize(worldWidth, worldHeight, 1, false);
-    }
 
     /**
      * This constructor should be used if a scenario is created that should use
@@ -117,27 +104,27 @@ public class GreenfootWorld extends Observable
      * @param image
      *            The image
      */
-    final public void setBackground(Image image)
+    final public void setBackground(GreenfootImage image)
     {
         backgroundImage = image;
         update();
     }
 
     /**
-     * Gets the background image
+     * Gets the background image.
      * 
      * @return The background image
      */
-    public Image getBackground()
+    public GreenfootImage getBackground()
     {
         if (backgroundImage == null) {
-            backgroundImage = new Image(getWidthInPixels(), getHeightInPixels());
+            backgroundImage = new GreenfootImage(getWidthInPixels(), getHeightInPixels());
         }
         return backgroundImage;
     }
 
     /**
-     * Gets the width of the world.
+     * Gets the width of the world. This is the number of cells horisontally.
      */
     public int getWidth()
     {
@@ -145,7 +132,7 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Gets the height of the world.
+     * Gets the height of the world. This is the number of cells vertically.
      */
     public int getHeight()
     {
@@ -202,33 +189,28 @@ public class GreenfootWorld extends Observable
     /**
      * Get all the objects in the world.<br>
      * 
-     * If iterating through these objects, you should synchronize on this world to avoid ConcurrentModificationException. <br> 
+     * If iterating through these objects, you should synchronize on this world
+     * to avoid ConcurrentModificationException. <br>
      * 
      * The order in which they are returned, is the paint order. The first
      * object in the List should be painted first. This means that the lasat
      * object will always be painted on top of all the other objects.<br>
+     * 
+     * @param cls
+     *            Class of objects to look for (null or Object.class will find
+     *            all classes)
+     * 
+     * @return An unmodifiable list of objects.
      */
-    public List getObjects()
+    public synchronized List getObjects(Class cls)
     {
-        // TODO: Make sure that the iterator returns things in the correct
-        // paint-order (last update first.
-        // TODO would be good if it was possible to avoid the copy of the list.
-        // If this should be done, we should not be allowed to add objects into
-        // the list while running through the simulation loop
-        // List c = new ArrayList();
-        // c.addAll(objects);
         return Collections.unmodifiableList(objects);
     }
 
     /**
-     * Get all objects in the world that is of the given class
+     * Whether the world is wrapped around the edges.
+     * 
      */
-    public synchronized List getObjects(Class cls)
-    {
-        // TODO: implement
-        return null;
-    }
-
     public boolean isWrapped()
     {
         return wrapWorld;
@@ -285,7 +267,7 @@ public class GreenfootWorld extends Observable
      *            Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    public List getIntersectingObjects(GreenfootObject go, Class cls)
+    List getIntersectingObjects(GreenfootObject go, Class cls)
     {
         return collisionChecker.getIntersectingObjects(go, cls);
     }
@@ -305,7 +287,7 @@ public class GreenfootWorld extends Observable
      *            Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    public List getObjectsInRange(int x, int y, int r, Class cls)
+    List getObjectsInRange(int x, int y, int r, Class cls)
     {
         return collisionChecker.getObjectsInRange(x, y, r, cls);
     }
@@ -328,7 +310,7 @@ public class GreenfootWorld extends Observable
      *            all classes)
      * @return A collection of all neighbours found
      */
-    public List getNeighbours(int x, int y, int distance, boolean diag, Class cls)
+    List getNeighbours(int x, int y, int distance, boolean diag, Class cls)
     {
         return collisionChecker.getNeighbours(x, y, distance, diag, cls);
     }
@@ -348,7 +330,7 @@ public class GreenfootWorld extends Observable
      *            Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    public List getObjectsAtLine(int x1, int y1, int x2, int y2, Class cls)
+    List getObjectsAtLine(int x1, int y1, int x2, int y2, Class cls)
     {
         return collisionChecker.getObjectsAtLine(x1, y1, x2, y2, cls);
     }

@@ -25,9 +25,9 @@ import bluej.extensions.ProjectNotOpenException;
  * scenraio creators that wnats to do more advanced stuff.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Image.java 3238 2004-12-14 18:43:54Z polle $
+ * @version $Id: GreenfootImage.java 3405 2005-06-03 15:10:56Z polle $
  */
-public class Image
+public class GreenfootImage
 {
     /** The image name is primarily use for debuging. */
     private String imageFileName; 
@@ -45,7 +45,7 @@ public class Image
      * @param filename
      * @throws FileNotFoundException
      */
-    public Image(String filename)
+    public GreenfootImage(String filename)
     {
         if(filename == null) {
             throw new NullPointerException("Filename must not be null.");
@@ -90,7 +90,7 @@ public class Image
      * 
      * @param imageURL
      */
-    public Image(URL imageURL)
+    public GreenfootImage(URL imageURL)
     {
         if(imageURL == null) {
             throw new NullPointerException("Image URL must not be null.");
@@ -100,7 +100,7 @@ public class Image
         initGraphics();
     }
 
-    public Image(int width, int height)
+    public GreenfootImage(int width, int height)
     {
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         initGraphics();
@@ -109,7 +109,7 @@ public class Image
     /**
      * Constructs a new Image from specified AWT image
      */
-    public Image(java.awt.Image image)
+    public GreenfootImage(java.awt.Image image)
     {
         setImage(image);
         initGraphics();
@@ -195,7 +195,7 @@ public class Image
      * @param x
      * @param y
      */
-    public void drawImage(Image image, int x, int y)
+    public void drawImage(GreenfootImage image, int x, int y)
     {
         Graphics thisGraphics = getGraphics();
         image.drawImage(thisGraphics, x, y, null);

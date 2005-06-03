@@ -29,7 +29,7 @@ import javax.swing.JComponent;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3397 2005-06-02 11:11:08Z polle $
+ * @version $Id: WorldCanvas.java 3405 2005-06-03 15:10:56Z polle $
  */
 public class WorldCanvas extends JComponent
     implements Observer, DropTarget
@@ -70,7 +70,7 @@ public class WorldCanvas extends JComponent
         if (world == null) {
             return;
         }
-        List objects = world.getObjects();
+        List objects = world.getObjects(null);
         
         //we need to sync, so that objects are not added and removed when we traverse the list.
         synchronized (world) {
@@ -79,7 +79,7 @@ public class WorldCanvas extends JComponent
                 GreenfootObject thing = (GreenfootObject) iter.next();
                 int cellSize = WorldVisitor.getCellSize(world);
 
-                greenfoot.Image image = thing.getImage();
+                greenfoot.GreenfootImage image = thing.getImage();
                 if (image != null) {
                     double halfWidth = image.getWidth() / 2.;
                     double halfHeight = image.getHeight() / 2.;
@@ -123,7 +123,7 @@ public class WorldCanvas extends JComponent
             int height = WorldVisitor.getHeightInPixels(world);
             g.fillRect(0, 0, width, height);
 
-            greenfoot.Image backgroundImage = world.getBackground();
+            greenfoot.GreenfootImage backgroundImage = world.getBackground();
             if (backgroundImage.isTiled()) {
                 paintTiledBackground(g);
             }
@@ -136,7 +136,7 @@ public class WorldCanvas extends JComponent
 
     private void paintTiledBackground(Graphics g)
     {
-        greenfoot.Image backgroundImage = world.getBackground();
+        greenfoot.GreenfootImage backgroundImage = world.getBackground();
         if (backgroundImage == null || world == null) {
             return;
         }

@@ -11,11 +11,11 @@ import java.awt.image.ImageObserver;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ImageVisitor.java 3238 2004-12-14 18:43:54Z polle $
+ * @version $Id: ImageVisitor.java 3405 2005-06-03 15:10:56Z polle $
  */
 public class ImageVisitor
 {
-    public static  void drawImage(Image image, Graphics g, int x, int y, ImageObserver observer)
+    public static  void drawImage(GreenfootImage image, Graphics g, int x, int y, ImageObserver observer)
     {
         image.drawImage(g, x, y, observer);
     }

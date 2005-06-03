@@ -30,7 +30,7 @@ import bluej.extensions.ProjectNotOpenException;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3238 2004-12-14 18:43:54Z polle $
+ * @version $Id: GreenfootClassRole.java 3405 2005-06-03 15:10:56Z polle $
  *  
  */
 public class GreenfootClassRole extends ClassRole
@@ -152,7 +152,7 @@ public class GreenfootClassRole extends ClassRole
         }
         else if (object instanceof GreenfootObject) {
             GreenfootObject so = (GreenfootObject) object;
-            greenfoot.Image image = so.getImage();
+            greenfoot.GreenfootImage image = so.getImage();
             //rotate it.
             if (image != null) {
                 BufferedImage bImg = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);

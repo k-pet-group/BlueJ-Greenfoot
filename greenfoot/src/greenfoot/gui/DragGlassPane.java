@@ -34,7 +34,7 @@ import javax.swing.*;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3392 2005-06-01 14:01:26Z polle $
+ * @version $Id: DragGlassPane.java 3405 2005-06-03 15:10:56Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -47,7 +47,7 @@ public class DragGlassPane extends JComponent
     private static DragGlassPane instance;
 
     /** The image displayed when dragging where no DropTarget is below */
-    private greenfoot.Image image;
+    private greenfoot.GreenfootImage image;
     private Icon noParkingIcon;
 
     /** Should the dragGlassPane display the no drop image? */
@@ -227,7 +227,7 @@ public class DragGlassPane extends JComponent
      * @param rotation
      *            The rotation of the image
      */
-    public void setDragImage(greenfoot.Image image, double rotation)
+    public void setDragImage(greenfoot.GreenfootImage image, double rotation)
     {
         this.image = image;
         int width = image.getWidth();

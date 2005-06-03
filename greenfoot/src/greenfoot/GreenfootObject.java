@@ -8,28 +8,35 @@ import javax.swing.ImageIcon;
 /**
  * A GreenfootObject is a thing that can be in a world. To be in a world means
  * that it has a graphically representation and a location. Futhermore it has an
- * act method which will be called when the simulation is started.
+ * act method which will be called when the simulation is started when using the
+ * 'play' and 'act' buttons from the greenfoot user interface..
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3403 2005-06-03 09:04:58Z polle $
+ * @version $Id: GreenfootObject.java 3405 2005-06-03 15:10:56Z polle $
  */
 public class GreenfootObject
 {
 
-    /** x position of the objects center */
+    /**
+     * x-coordinate of the object's location in the world. The object is
+     * centered aroudn this location.
+     */
     int x;
 
-    /** x position of the objects center */
+    /**
+     * y-coordinate of the object's location in the world. The object is
+     * centered aroudn this location.
+     */
     int y;
 
-    /** rotation in degrees (0-359) */
+    /** Rotation in degrees (0-359) */
     private int rotation = 0;
 
     private GreenfootWorld world;
-    private Image image;
-    
-    private static Image greenfootImage = new Image("greenfoot/greenfoot-logo.png");
+    private GreenfootImage image;
+
+    private static GreenfootImage greenfootImage = new GreenfootImage("greenfoot/greenfoot-logo.png");
 
     /**
      * Constructor that creates an object with a default image. <br>
@@ -47,6 +54,8 @@ public class GreenfootObject
     /**
      * Constructor that creates an object with a default image and a specified
      * location.
+     * 
+     * @see #setLocation(int, int)
      */
     public GreenfootObject(int x, int y)
     {
@@ -70,9 +79,10 @@ public class GreenfootObject
     }
 
     /**
-     * Get the current location of the object in the world.
+     * Get the x-coordinate of the object's current location in the world. The
+     * object is centered around this location.
      * 
-     * @return The x-axis location
+     * @return The x-coordinate of the object's current location
      */
     public int getX()
     {
@@ -80,9 +90,10 @@ public class GreenfootObject
     }
 
     /**
-     * Get the current location of the object in the world.
+     * Get the y-coordinate of the object's current location in the world. The
+     * object is centered arounn this location.
      * 
-     * @return The y-axis location
+     * @return The y-coordinate of the object's current location
      */
     public int getY()
     {
@@ -90,14 +101,13 @@ public class GreenfootObject
     }
 
     /**
-     * Get the width of object in cells. The width is the number of cells that
-     * an object occupies horisontally, based on the image.
+     * Get the width of the object in cells. The width is the number of cells
+     * that an object occupies horisontally, based on the image.
      * 
      * @returns the width, or -1 if no image or world
      */
     public int getWidth()
     {
-
         if (image == null || world == null) {
             return -1;
         }
@@ -107,8 +117,8 @@ public class GreenfootObject
     }
 
     /**
-     * Get the height of object in cells. The height is the number of cells that
-     * an object occupies vertically, based on the image.
+     * Get the height of the object in cells. The height is the number of cells
+     * that an object occupies vertically, based on the image.
      * 
      * @returns the height, or -1 if no image or world
      */
@@ -127,7 +137,7 @@ public class GreenfootObject
      * object.
      * 
      */
-    public int getXMin()
+    private int getXMin()
     {
         return toCellFloor(getPaintX());
     }
@@ -137,7 +147,7 @@ public class GreenfootObject
      * object.
      * 
      */
-    public int getXMax()
+    private int getXMax()
     {
         return toCellFloor(getPaintX() + image.getWidth() - 1);
     }
@@ -147,7 +157,7 @@ public class GreenfootObject
      * object.
      * 
      */
-    public int getYMin()
+    private int getYMin()
     {
         return toCellFloor(getPaintY());
     }
@@ -157,7 +167,7 @@ public class GreenfootObject
      * object.
      * 
      */
-    public int getYMax()
+    private int getYMax()
     {
         return toCellFloor(getPaintY() + image.getHeight() - 1);
     }
@@ -197,9 +207,8 @@ public class GreenfootObject
     }
 
     /**
-     * Sets a new location for this object.
-     * 
-     * <br>
+     * Sets a new location for this object. The object is centered around this
+     * location. <br>
      * 
      * If this method is overridden it is important to call this method with
      * super.setLocation(x,y) at the end of the overriding method.
@@ -217,7 +226,7 @@ public class GreenfootObject
         this.x = x;
         this.y = y;
         if (world != null) {
-            if(!world.isWrapped()) {
+            if (!world.isWrapped()) {
                 boundsCheck(x, y);
             }
             world.updateObjectLocation(this, oldX, oldY);
@@ -251,7 +260,7 @@ public class GreenfootObject
      * 
      * @return The image
      */
-    public Image getImage()
+    public GreenfootImage getImage()
     {
         return image;
     }
@@ -269,7 +278,7 @@ public class GreenfootObject
     {
         URL imageURL = this.getClass().getClassLoader().getResource(filename);
         if (imageURL != null) {
-            image = new Image(imageURL);
+            image = new GreenfootImage(imageURL);
         }
     }
 
@@ -280,7 +289,7 @@ public class GreenfootObject
      * @param image
      *            The image.
      */
-    final public void setImage(Image image)
+    final public void setImage(GreenfootImage image)
     {
         this.image = image;
     }
@@ -459,7 +468,8 @@ public class GreenfootObject
     }
 
     /**
-     * Returns all objects that intersects the given location.
+     * Returns all objects that intersects the given location relative to this
+     * objects location.
      * 
      * @param dx
      *            x-coordinate relative to this objects location
@@ -507,6 +517,23 @@ public class GreenfootObject
     public List getIntersectingObjects(Class cls)
     {
         return world.getIntersectingObjects(this, cls);
+    }
+
+    /**
+     * Returns all the objects that intersects the line going out from this
+     * object at the specified angle. The angle is clockwise relative to the
+     * current rotation of the object.
+     * 
+     * @param angle
+     *            The angle relative to current rotation of the object.
+     *            Clockwise.
+     * @param cls
+     *            Class of objects to look for (null or Object.class will find
+     *            all classes)
+     */
+    public List getObjectsInDirection(int angle, Class cls)
+    {
+        return null;
     }
 
     /**
