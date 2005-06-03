@@ -155,8 +155,24 @@ public abstract class Boid extends GreenfootObject
         
     //    System.out.println("" + x + " , " + y + " rot: " + getRotation());
         
-        setLocation((int) Math.floor(x), (int) Math.floor(y));
+        setLocation(x, y);
     }
+    
+    public void setLocation(double x, double y) {
+        this.x = x;
+        this.y = y;
+        super.setLocation((int) Math.floor(x), (int) Math.floor(y));
+    }
+    
+    /**
+     * We need to override this method, so we can interactively move objects.
+     */
+    public void setLocation(int x, int y) {
+        this.x = x;
+        this.y = y;
+        super.setLocation(x,y);
+    }
+
     
     public void avoidBorders() {
          //if we see a border, we mo
@@ -310,7 +326,7 @@ public abstract class Boid extends GreenfootObject
     
  
     private Collection getNeighbours(int distance) {
-        return getWorld().getObjectsInRange(getX(),getY(),distance, Boid.class);
+        return getObjectsInRange(distance, Boid.class);
         //TODO for greenfoot it would be nice to be able to get obecjts within a certain radius
         //TODO and to get all obejcts of a certain type in the world.
       /*  Iterator objects = getWorld().getObjects();

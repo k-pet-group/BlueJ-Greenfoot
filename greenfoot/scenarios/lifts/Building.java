@@ -62,7 +62,7 @@ public class Building extends GreenfootWorld
             Button button = new Button();
             addObject(button);
             floors[i] = new Floor(i, button);
-            newObject(floors[i], 20, (numberOfFloors-1-i) * 72 + 20);
+            newObject(floors[i], 100, (numberOfFloors-1-i) * 72 + 40);
         }
     }
     
@@ -76,7 +76,7 @@ public class Building extends GreenfootWorld
 
         for(int i=0; i<numberOfLifts; i++) {
             background.fillRect(218 + i * 56, 18, 54, (numberOfFloors)*72 + 2);
-            newObject(new Lift(), 220 + i * 56, (numberOfFloors-1)*72 + 20);
+            newObject(new Lift(), 240 + i * 56, (numberOfFloors-1)*72 + 40);
         }
     }
     

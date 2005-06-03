@@ -1,5 +1,5 @@
 import greenfoot.GreenfootObject;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 import greenfoot.Utilities;
 
 import java.awt.Color;
@@ -29,7 +29,7 @@ public class Triangle extends GreenfootObject
      * Draws the triangle
      */
     public void draw() {
-        Image im = new Image(width, height);
+        GreenfootImage im = new GreenfootImage(width, height);
         im.setColor(color);
         int[] xpoints = {0, 0 + (width / 2), width};
         int[] ypoints = {height, 0, height};

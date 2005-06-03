@@ -1,5 +1,5 @@
 import greenfoot.GreenfootObject;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 import greenfoot.Utilities;
 
 import java.awt.Color;
@@ -30,9 +30,9 @@ public class Circle extends GreenfootObject
      * Draws the circle.
      */
     public void draw() {
-        Image im = new Image(diameter, diameter);
+        GreenfootImage im = new GreenfootImage(diameter, diameter);
         im.setColor(color);
-        im.fillOval(0,0,diameter,diameter);
+        im.fillOval(0,0,diameter-1,diameter-1);
         setImage(im);
         Utilities.repaint();
     }
@@ -162,4 +162,15 @@ public class Circle extends GreenfootObject
         color = newColor;
         draw();
     }
+    
+    public boolean contains(int dx, int dy) {
+        int dist = dx * dx + dy * dy;
+        int radius = (int) (diameter/2.);
+        if(dist < radius*radius) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    } 
 }

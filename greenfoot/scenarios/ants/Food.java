@@ -1,5 +1,5 @@
 import greenfoot.GreenfootObject;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -60,7 +60,7 @@ public class Food extends GreenfootObject
             image.setRGB(x, y+1, color2);
             image.setRGB(x+1, y+1, color3);
         }
-        setImage(new Image(image));
+        setImage(new GreenfootImage(image));
     }
     
     private int randomCoord()

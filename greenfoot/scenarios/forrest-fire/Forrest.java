@@ -38,7 +38,6 @@ public class Forrest extends GreenfootWorld
                     long t4 = System.currentTimeMillis();
                     n++;
                     sum+= t2-t1;
-                //   System.out.println("" + (t2 -t1) + " " + (t3 -t2) + " " + (t4-t3));
                 }
             }
         }

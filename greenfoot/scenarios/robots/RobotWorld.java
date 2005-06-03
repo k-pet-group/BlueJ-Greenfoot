@@ -1,6 +1,6 @@
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 import java.util.Collection;
@@ -20,9 +20,9 @@ public class RobotWorld extends GreenfootWorld
      */
     public RobotWorld()
     {
-        super(10, 10, cellSize, false);
+        super(8, 8, cellSize, false);
 
-        Image background = new Image("road.gif");
+        GreenfootImage background = new GreenfootImage("road.gif");
         setBackground(background);
         background.setTiled(true);
     }

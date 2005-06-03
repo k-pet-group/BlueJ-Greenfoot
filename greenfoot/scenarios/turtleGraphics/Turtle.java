@@ -1,6 +1,6 @@
 
 import greenfoot.GreenfootObject;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 import greenfoot.Utilities;
 
 import java.awt.Color;
@@ -109,12 +109,12 @@ public class Turtle extends GreenfootObject
 
     private void drawLine(double x1, double y1, double x2, double y2)
     {
-        Image image = getWorld().getBackground();
+        GreenfootImage image = getWorld().getBackground();
         Color awtColor = decode(color);
 
         image.setColor(awtColor);
-        int xOffset = getImage().getWidth() / 2;
-        int yOffset = getImage().getHeight() / 2;
+        int xOffset = 0;//getImage().getWidth() / 2;
+        int yOffset = 0;//getImage().getHeight() / 2;
         image.drawLine((int) Math.ceil(x1) + xOffset, (int) Math.ceil(y1) + yOffset, (int) Math.ceil(x2) + xOffset,
                 (int) Math.ceil(y2) + yOffset);
     }
@@ -124,13 +124,13 @@ public class Turtle extends GreenfootObject
         if (penDown) {
             drawPen();
         }
-        setRotation(direction);
+        setRotation((int)direction);
         Utilities.repaint();
     }
 
     private void drawPen()
     {
-        Image image = getImage();
+        GreenfootImage image = getImage();
         double halfWidth = image.getWidth() / 2.;
         double halfHeight = image.getHeight() / 2.;
         int penWidth = (int) halfWidth / 2;

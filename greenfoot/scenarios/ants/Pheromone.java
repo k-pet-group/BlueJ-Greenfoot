@@ -1,5 +1,5 @@
 import greenfoot.GreenfootObject;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -49,7 +49,7 @@ public class Pheromone extends GreenfootObject
         g.setColor(Color.DARK_GRAY);
         g.fillRect(size/2, size/2, 1, 1);
         
-        setImage(new Image(image));
+        setImage(new GreenfootImage(image));
     }
     
 }

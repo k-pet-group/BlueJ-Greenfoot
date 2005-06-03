@@ -1,7 +1,7 @@
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
 
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 import greenfoot.Utilities;
 
 import java.awt.Color;
@@ -13,21 +13,23 @@ import java.util.*;
 public class Tree extends GreenfootObject
 {
     private final static int SIZE = 5;
-    private final static int BURN_RADIUS = 2;
+    private final static int BURN_RADIUS = 1;
 
     private static final Color green = new Color(12, 130, 2);
     private static final Color black = new Color(12, 0, 2);
     private static final Color red = Color.RED;
     
-    private static Image tree = new Image(SIZE, SIZE);
-    private static Image burntTree = new Image(SIZE, SIZE);
-    private static Image burningTree = new Image(SIZE, SIZE);
+    private static GreenfootImage tree = new GreenfootImage(SIZE, SIZE);
+    private static GreenfootImage burntTree = new GreenfootImage(SIZE, SIZE);
+    private static GreenfootImage burningTree = new GreenfootImage(SIZE, SIZE);
     private boolean burnt;
     private boolean burning;
 
     private boolean inPreAct = true;
     
     private boolean doBurnNeighbors = true;
+    
+   
     
     static {
         tree.setColor(green);
@@ -38,12 +40,11 @@ public class Tree extends GreenfootObject
 
         burningTree.setColor(red);
         burningTree.fillOval(0, 0, SIZE-1, SIZE-1);
+        
     }
     
     public Tree()
     {        
-      //  setImage(new Image(SIZE, SIZE));
-
         burnt = false;
         burning = false;
         draw();

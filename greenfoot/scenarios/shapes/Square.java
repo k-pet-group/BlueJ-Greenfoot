@@ -1,5 +1,5 @@
 import greenfoot.GreenfootObject;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 import greenfoot.Utilities;
 
 import java.awt.Color;
@@ -28,7 +28,7 @@ public class Square extends GreenfootObject{
      */
     public void draw()
     {
-        Image im = new Image(size, size);
+        GreenfootImage im = new GreenfootImage(size, size);
         im.setColor(color);
         im.fillRect(0, 0, size, size);
         setImage(im);

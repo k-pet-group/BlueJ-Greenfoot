@@ -1,5 +1,5 @@
 import greenfoot.GreenfootObject;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -46,6 +46,6 @@ public class Counter extends GreenfootObject
         Graphics g = image.getGraphics();
         g.setColor(Color.BLACK);
         g.drawString(text + value, 1, 12);
-        setImage(new Image(image));
+        setImage(new GreenfootImage(image));
     }
 }
