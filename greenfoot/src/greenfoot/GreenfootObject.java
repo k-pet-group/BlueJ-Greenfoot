@@ -12,7 +12,7 @@ import javax.swing.ImageIcon;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3402 2005-06-02 19:18:25Z polle $
+ * @version $Id: GreenfootObject.java 3403 2005-06-03 09:04:58Z polle $
  */
 public class GreenfootObject
 {
@@ -211,15 +211,15 @@ public class GreenfootObject
      */
     public void setLocation(int x, int y)
     {
-        if(!world.isWrapped()) {
-            boundsCheck(x, y);
-        }
         int oldX = this.x;
         int oldY = this.y;
 
         this.x = x;
         this.y = y;
         if (world != null) {
+            if(!world.isWrapped()) {
+                boundsCheck(x, y);
+            }
             world.updateObjectLocation(this, oldX, oldY);
         }
     }
@@ -373,7 +373,7 @@ public class GreenfootObject
     // ============================
 
     /**
-     * Whether one object intersects another object. <br>
+     * Whether this object intersect another object <br>
      * 
      */
     public boolean intersects(GreenfootObject other)
