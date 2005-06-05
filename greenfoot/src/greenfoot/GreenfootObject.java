@@ -13,7 +13,7 @@ import javax.swing.ImageIcon;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3405 2005-06-03 15:10:56Z polle $
+ * @version $Id: GreenfootObject.java 3415 2005-06-05 19:35:54Z polle $
  */
 public class GreenfootObject
 {
@@ -59,7 +59,7 @@ public class GreenfootObject
      */
     public GreenfootObject(int x, int y)
     {
-        setImage("greenfoot/greenfoot-logo.png");
+        setImage(greenfootImage);
         this.x = x;
         this.y = y;
     }
