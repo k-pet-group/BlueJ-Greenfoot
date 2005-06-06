@@ -1,45 +1,45 @@
 compile-while-executing
-Vocï¿½ nï¿½o pode compilar enquanto a mï¿½quina
+Você não pode compilar enquanto a máquina
 estiver executando. Isto pode causar
 problemas.
 
 exception-thrown
-Uma exceï¿½ï¿½o foi lanï¿½ada:
+Uma exceção foi lançada:
 
 break-no-source
 Breakpoint colocado num arquivo cujo
-cï¿½digo fonte nï¿½o pï¿½de ser encontrado. Nome do arquivo:
+código fonte não pôde ser encontrado. Nome do arquivo:
 
 error-in-file
 Aconteceu um erro num arquivo cujo 
-cï¿½digo fonte nï¿½o pï¿½de ser encontrado.
-classe: nï¿½mero da linha fonte:
+código fonte não pôde ser encontrado.
+classe: número da linha fonte:
 
 system-exit
-O mï¿½todo terminou atravï¿½s de uma chamada
-explï¿½cita ao comando "exit". Nenhum resultado
-foi retornado. O cï¿½digo de retorno ï¿½:
+O método terminou através de uma chamada
+explícita ao comando "exit". Nenhum resultado
+foi retornado. O código de retorno é:
 
 no-help
-Nenhuma ajuda disponï¿½vel para esta mensagem.
+Nenhuma ajuda disponível para esta mensagem.
 Por favor, envie o texto da mensagem de erro para
-mik@bluej.org - nï¿½s iremos adicionar um texto 
-de ajuda ï¿½ nossa base de dados. Obrigado.
+mik@bluej.org - nós iremos adicionar um texto 
+de ajuda à nossa base de dados. Obrigado.
 
 editor-crashed
 Parece que o BlueJ travou enquanto salvava esta classe
-para o disco na ï¿½ltima vez. O cï¿½digo fonte pode estar perdido
-ou incompleto. Deve haver uma cï¿½pia de backup desta classe
+para o disco na última vez. O código fonte pode estar perdido
+ou incompleto. Deve haver uma cópia de backup desta classe
 na pasta do projeto. Se a classe parecer corrompida,
    1 - saia do BlueJ
-   2 - faï¿½a backup da pasta do seu projeto (sï¿½ para prevenir)
+   2 - faça backup da pasta do seu projeto (só para prevenir)
    3 - procure na pasta do projeto por um 
        backup deste arquivo. Renomei-o com 
-       o nome original (com uma extensï¿½o '.java')
+       o nome original (com uma extensão '.java')
 
 cannot-run-compiler
-Nï¿½o foi possivel executar o compilador. O programa
-estï¿½ no seu path?
+Não foi possivel executar o compilador. O programa
+está no seu path?
 Nome do compilador:
 
 compiler-error
@@ -49,152 +49,152 @@ stream-incomplete
 Erro do compilador. Stream incompleto.
 
 out-of-bounds
-Elemento especificado nï¿½o se encontra 
+Elemento especificado não se encontra 
 dentro dos limites do arranjo.
 
 cannot-access-element
-ï¿½ impossï¿½vel acessar o elemento especificado
+É impossível acessar o elemento especificado
 no arranjo.
 
 appletviewer-error
 Erro ao executar o applet no appletviewer.
 
 error-no-name
-Vocï¿½ deve especificar um nome vï¿½lido.
+Você deve especificar um nome válido.
 
 error-save-file
-Ocorreu um erro durante a operaï¿½ï¿½o de
-salvamento do arquivo. O arquivo nï¿½o foi salvo.
+Ocorreu um erro durante a operação de
+salvamento do arquivo. O arquivo não foi salvo.
 
 cannot-save-keys
 Erro durante tentativa de salvamento dos
 atalhos de teclas (key bindings). Os atalhos
-nï¿½o foram salvos.
+não foram salvos.
 
 error-no-templates
-O diretï¿½rio de templates (diretï¿½rio onde o BlueJ
-encontra os templates de classe) nï¿½o existe. Ele estï¿½
+O diretório de templates (diretório onde o BlueJ
+encontra os templates de classe) não existe. Ele está
 definido na propriedade "bluej.templatePath" em
 <bluej-home>/lib/bluej.defs. Cheque e corrija esta propriedade.
 
 skeleton-error
-O esqueleto default para a classe nï¿½o pï¿½de ser gerado.
-Isto pode ter sido causado por um erro de configuraï¿½ï¿½o
-durante instalaï¿½ï¿½o do BlueJ, ou devido a problemas
+O esqueleto default para a classe não pôde ser gerado.
+Isto pode ter sido causado por um erro de configuração
+durante instalação do BlueJ, ou devido a problemas
 de acesso ao sistema de arquivos.
 
 error-open-source
-Nï¿½o foi possï¿½vel abrir o
-cï¿½digo fonte desta classe.
+Não foi possível abrir o
+código fonte desta classe.
 
 error-writing-readme
-O arquivo README deste projeto nï¿½o pï¿½de ser atualizado
-com as informaï¿½ï¿½es da classe principal.
+O arquivo README deste projeto não pôde ser atualizado
+com as informações da classe principal.
 Ocorreu um erro ao alterar este arquivo.
 
 error-writing-jar
-O arquivo jar nï¿½o foi gravado corretamente.
-(Cheque as permissï¿½es do sistema de arquivos
-e o espaï¿½o livre em disco).
+O arquivo jar não foi gravado corretamente.
+(Cheque as permissões do sistema de arquivos
+e o espaço livre em disco).
 
 error-jar-exists
-O arquivo jar selecionado jï¿½ existe.
+O arquivo jar selecionado já existe.
 Deseja continuar?
 Sobrescreve
 Cancelar
 null
 
 invalid-class-name
-Nome de classe invï¿½lido.
+Nome de classe inválido.
 
 invalid-package-name
-Nome de pacote invï¿½lido.
+Nome de pacote inválido.
 
 must-be-identifier
-Nome nï¿½o vï¿½lido. Tem 
+Nome não válido. Tem 
 que ser um identificador Java.
 
 directory-exists
-Um arquivo ou diretï¿½rio com 
-este nome jï¿½ existe.
+Um arquivo ou diretório com 
+este nome já existe.
 
 cannot-copy-package
-Ocorreu um erro durante a cï¿½pia dos
-arquivos do pacote. O pacote nï¿½o foi
+Ocorreu um erro durante a cópia dos
+arquivos do pacote. O pacote não foi
 gravado ou pode estar incompleto.
 
 file-does-not-exist
 O arquivo especificado
-nï¿½o existe.
+não existe.
 
 cannot-import
-Impossï¿½vel importar arquivo. O arquivo
-tem que ser um cï¿½digo fonte Java (seu nome
+Impossível importar arquivo. O arquivo
+tem que ser um código fonte Java (seu nome
 deve terminar com ".java").
 
 docdir-blocked-by-file
-O diretï¿½rio da documentaï¿½ï¿½o nï¿½o pï¿½de ser
-criado no diretï¿½rio do projeto porque
-hï¿½ um arquivo com o mesmo nome.
+O diretório da documentação não pôde ser
+criado no diretório do projeto porque
+há um arquivo com o mesmo nome.
 
 docdir-not-created
-O diretï¿½rio para a documentaï¿½ï¿½o nï¿½o pï¿½de ser
-criado no diretï¿½rio do projeto.
+O diretório para a documentação não pôde ser
+criado no diretório do projeto.
 
 no-permission-for-docdir
-O diretï¿½rio para documentaï¿½ï¿½o nï¿½o pï¿½de ser
-criado no diretï¿½rio do projeto devido a
-insuficiï¿½ncia de direitos.
+O diretório para documentação não pôde ser
+criado no diretório do projeto devido a
+insuficiência de direitos.
 
 show-or-generate
-Vocï¿½ deseja exibir a documentaï¿½ï¿½o gerada
+Você deseja exibir a documentação gerada
 previamente ou deseja gerar novamente toda
-a documentaï¿½ï¿½o?
+a documentação?
 Apenas exiba
 Gerar novamente
 Cancelar
 
 doctool-error
 O Javadoc reportou um erro. Pode ser devido a um erro
-de sintaxe em um dos arquivos sobre os quais vocï¿½
-solicitou a geraï¿½ï¿½o da documentaï¿½ï¿½o. Pode ser que a URL
-da documentaï¿½ï¿½o do JDK, especificada em preferï¿½ncias, possa
+de sintaxe em um dos arquivos sobre os quais você
+solicitou a geração da documentação. Pode ser que a URL
+da documentação do JDK, especificada em preferências, possa
 estar incorreta. Certifique-se de que todos os seus arquivos
-Java estï¿½o compilados e a URL da documentaï¿½ï¿½o esteja acessï¿½vel
+Java estão compilados e a URL da documentação esteja acessível
 ou desabilitada. Tente novamente. Se esta mensagem aparecer
-novamente vocï¿½ deve checar o arquivo de log com a 
+novamente você deve checar o arquivo de log com a 
 mensagem de erro do Javadoc:
 
 severe-doc-trouble
-Uma exceï¿½ï¿½o foi gerada durante a chamada
-a uma ferramenta externa de documentaï¿½ï¿½o.
+Uma exceção foi gerada durante a chamada
+a uma ferramenta externa de documentação.
 
 no-java-sources-found
 Nenhum arquivo Java foi encontrado
-neste diretï¿½rio.
+neste diretório.
 
 duplicate-name
-Uma classe com este nome jï¿½ existe neste
-pacote. Vocï¿½ nï¿½o pode ter duas classes
+Uma classe com este nome já existe neste
+pacote. Você não pode ter duas classes
 com o mesmo nome no mesmo pacote.
 
 error-in-import
-Erro durante tentativa de importaï¿½ï¿½o
+Erro durante tentativa de importação
 do arquivo. Cheque os direitos de acesso
-e o espaï¿½o em disco.
+e o espaço em disco.
 
 no-class-selected-compile
-Nenhuma classe selecionada para compilaï¿½ï¿½o.
+Nenhuma classe selecionada para compilação.
 Selecione uma classe, clicando 
-nela, antes de tentar compilï¿½-la.
+nela, antes de tentar compilá-la.
 
 no-class-selected
 Nenhuma classe ou pacote foi selecionada
-para remoï¿½ï¿½o. Selecione uma classe ou pacote,
-clicando sobre ela, antes de tentar removï¿½-la.
+para remoção. Selecione uma classe ou pacote,
+clicando sobre ela, antes de tentar removê-la.
 
 really-remove-class
-A remoï¿½ï¿½o desta classe irï¿½ apagar
+A remoção desta classe irá apagar
 permanentemente o arquivo fonte.
 Deseja continuar?
 Remover
@@ -202,27 +202,27 @@ Cancelar
 null
 
 really-remove-package
-A remoï¿½ï¿½o deste pacote irï¿½ apagar
-permanentemente o diretï¿½rio do pacote
-(inclusive TODO o conteï¿½do dele).
+A remoção deste pacote irá apagar
+permanentemente o diretório do pacote
+(inclusive TODO o conteúdo dele).
 Deseja continuar?
 Remover
 Cancelar
 null
 
 remove-package-open
-O pacote que vocï¿½ selecionou para remoï¿½ï¿½o
+O pacote que você selecionou para remoção
 possui sub-pacotes abertos no BlueJ.
-Vocï¿½ deve fechar estes pacotes antes
-que possa removï¿½-lo.
+Você deve fechar estes pacotes antes
+que possa removê-lo.
 
 package-does-not-exist
 Erro ao abrir pacote.
-Pacote nï¿½o existe:
+Pacote não existe:
 
 no-bluej-package
 Erro ao abrir pacote.
-O arquivo/diretï¿½rio nï¿½o ï¿½
+O arquivo/diretório não é
 um pacote BlueJ:
 
 applet-height-width
@@ -230,10 +230,10 @@ A altura (height) e a largura (width) do
 applet devem ser especificados.
 
 cannot-read-help
-Impossï¿½vel ler arquivo de ajuda:
+Impossível ler arquivo de ajuda:
 
 not-yet-implemented
-Nï¿½o implementado ainda - desculpe.
+Não implementado ainda - desculpe.
 
 quit-all
 Sair de todos os projetos abertos?
@@ -242,95 +242,95 @@ Cancelar
 null
 
 really-reload
-A recarga descartarï¿½ todas as mudanï¿½as desde a ï¿½ltima ediï¿½ï¿½o.
-Vocï¿½ tem certeza?
+A recarga descartará todas as mudanças desde a última edição.
+Você tem certeza?
 Recarregar
 Cancelar
 null
 
 really-print
-O texto ï¿½ mais largo que o papel. Linhas longas
-serï¿½o cortadas. Vocï¿½ pode evitar isto redimensionando
+O texto é mais largo que o papel. Linhas longas
+serão cortadas. Você pode evitar isto redimensionando
 a janela do editor. Deseja imprimir mesmo assim?
 Imprimir
 Cancelar
 null
 
 open-non-bluej-already-bluej
-O diretï¿½rio selecionado jï¿½ ï¿½ um
+O diretório selecionado já é um
 projeto BlueJ.
 
 open-non-bluej-no-java
 Nenhum arquivo fonte Java
-foi encontrado neste diretï¿½rio.
+foi encontrado neste diretório.
 
 open-non-bluej-invalid
-Vocï¿½ indicou que deseja abrir este diretï¿½rio
+Você indicou que deseja abrir este diretório
 como um projeto BlueJ; entretanto, foi encontrado 
-um arquivo com um comando package que ï¿½
-imcompatï¿½vel com a estrutura do diretï¿½rio
+um arquivo com um comando package que é
+imcompatível com a estrutura do diretório
 corrente. (Por exemplo, se a classe Java Shape
-define que pertence ao pacote com.aa, entï¿½o
-o arquivo Shape.java deverï¿½ estar num diretï¿½rio
-aa que por sua vez deverï¿½ estar num diretï¿½rio com. Este
-diretï¿½rio com deve estar num outro diretï¿½rio,
-que ï¿½ o que vocï¿½ deve abrir no BlueJ).
+define que pertence ao pacote com.aa, então
+o arquivo Shape.java deverá estar num diretório
+aa que por sua vez deverá estar num diretório com. Este
+diretório com deve estar num outro diretório,
+que é o que você deve abrir no BlueJ).
 
 import-into-current
-Vocï¿½ estï¿½ com um pacote aberto nesta janela.
-Vocï¿½ gostaria de importar para este pacote ou
-vocï¿½ gostaria de criar um novo projeto e importar
+Você está com um pacote aberto nesta janela.
+Você gostaria de importar para este pacote ou
+você gostaria de criar um novo projeto e importar
 para ele?
 Corrente
 Novo Projeto
 Cancelar
 
 package-name-invalid
-Vocï¿½ mudou o comando package para um pacote
-que nï¿½o existe neste projeto.
-Se vocï¿½ deseja mover esta classe para outro
-pacote deverï¿½, primeiro, criar o pacote
+Você mudou o comando package para um pacote
+que não existe neste projeto.
+Se você deseja mover esta classe para outro
+pacote deverá, primeiro, criar o pacote
 de destino. O comando package foi revertido
 para sua forma anterior.
 
 package-name-clash
-Vocï¿½ alterou o comando package para um 
-nome que jï¿½ ï¿½ utilizado por outra classe
+Você alterou o comando package para um 
+nome que já é utilizado por outra classe
 ou pacote. Se esta classe for transferida
 para este novo pacote, a classe ou pacote 
-original poderï¿½ ser destruï¿½do. Assim, o
+original poderá ser destruído. Assim, o
 comando package foi revertido para sua 
 forma anterior.
 
 package-name-changed
-Vocï¿½ mudou o comando package que define o
-pacote desta classe. Vocï¿½
+Você mudou o comando package que define o
+pacote desta classe. Você
 gostaria de mover esta classe para o pacote 
 indicado ou gostaria de deixar a classe onde
-estï¿½ (o comando package serï¿½ revertido para
+está (o comando package será revertido para
 sua forma original)?
 Mover
 Reverter
 null
 
 ask-index
-Entre com o ï¿½ndice do elemento do arranjo [...]
-Inspeï¿½ï¿½o de arranjo
+Entre com o índice do elemento do arranjo [...]
+Inspeção de arranjo
 null
 
 classmgr-changes-no-effect
-As mudanï¿½as que vocï¿½ efetuou na biblioteca de classes
-nï¿½o terï¿½o efeito atï¿½ a prï¿½mixa execuï¿½ï¿½o do BlueJ.
+As mudanças que você efetuou na biblioteca de classes
+não terão efeito até a prómixa execução do BlueJ.
 
 pref-optimise-no-effect
-Mudanï¿½as na configuraï¿½ï¿½o da mï¿½quina virtual apenas terï¿½o
-efeito para projetos abertos apï¿½s a mudanï¿½a
-(ou se vocï¿½ reiniciar a mï¿½quina virtual).
+Mudanças na configuração da máquina virtual apenas terão
+efeito para projetos abertos após a mudança
+(ou se você reiniciar a máquina virtual).
 
 unittest-new-test-method
-Forneï¿½a um nome para este teste.
-A gravaï¿½ï¿½o irï¿½ comeï¿½ar.
-Novo Mï¿½todo de Teste
+Forneça um nome para este teste.
+A gravação irá começar.
+Novo Método de Teste
 null
 
 getobject-new-name
@@ -340,17 +340,17 @@ Novo Nome do Objeto
 null
 
 unittest-fixture-present
-Esta classe de teste jï¿½ possui um "fixture" declarado.
-Se vocï¿½ continuar, a declaraï¿½ï¿½o deste "fixture" serï¿½ substituï¿½da.
+Esta classe de teste já possui um "fixture" declarado.
+Se você continuar, a declaração deste "fixture" será substituída.
 Deseja continuar?
 Substituir
 Cancelar
 null
 
 unittest-method-present
-Esta classe de teste de unidade jï¿½ possui um mï¿½todo declarado
-com o mesmo nome. Se vocï¿½ prosseguir, a definiï¿½ï¿½o do mï¿½todo
-serï¿½ substituï¿½da.
+Esta classe de teste de unidade já possui um método declarado
+com o mesmo nome. Se você prosseguir, a definição do método
+será substituída.
 Deseja continuar?
 Substituir
 Cancelar
@@ -361,43 +361,43 @@ Nenhuma palavra de pesquisa foi definida.
 (Marque algum texto ou use 'Procurar' primeiro)
 
 default-keys
-Vocï¿½ deseja realmente descartar todas
+Você deseja realmente descartar todas
 os seus atalhos de teclas e voltar a usar
-os atalhos de teclas padrï¿½es?
+os atalhos de teclas padrões?
 Usar default
 Cancelar
 null
 
 error-create-vm
-O BlueJ nï¿½o pï¿½de criar uma mï¿½quina virtual (VM) para executar os projetos.
-Isto ï¿½ um problema grave - vocï¿½ nï¿½o poderï¿½ criar objetos ou
-executar mï¿½todos sem antes ter resolvido isto.
-Geralmente, este problema ï¿½ causados por configuraï¿½ï¿½es de redes especï¿½ficas
-da usa mï¿½quina. BlueJ usa TCP/IP e sockets para conseguir criar a VM.
-A causa mais comum para isso ï¿½ um firewall restingindo conexï¿½es a
-partir da sua mï¿½quina. Desligue o firewall (se vocï¿½ tiver um) para
-testar. Se isto resolver, tente encontrar uma configuraï¿½ï¿½o de firewall
-que permita conexï¿½es do localhost.
-Outras causas possï¿½veis sï¿½o configuraï¿½ï¿½es de rede incorretas. Verifique
-se o TCP/IP estï¿½ configurado corretamente e olhe outros parï¿½metros da rede.
-Se o problema persistir, peï¿½a ajuda (veja http://www.bluej.org/help/ask-help.html).
+O BlueJ não pôde criar uma máquina virtual (VM) para executar os projetos.
+Isto é um problema grave - você não poderá criar objetos ou
+executar métodos sem antes ter resolvido isto.
+Geralmente, este problema é causados por configurações de redes específicas
+da usa máquina. BlueJ usa TCP/IP e sockets para conseguir criar a VM.
+A causa mais comum para isso é um firewall restingindo conexões a
+partir da sua máquina. Desligue o firewall (se você tiver um) para
+testar. Se isto resolver, tente encontrar uma configuração de firewall
+que permita conexões do localhost.
+Outras causas possíveis são configurações de rede incorretas. Verifique
+se o TCP/IP está configurado corretamente e olhe outros parâmetros da rede.
+Se o problema persistir, peça ajuda (veja http://www.bluej.org/help/ask-help.html).
 
 project-is-readonly
-O projeto ï¿½ apenas para leitura. Vocï¿½ nï¿½o pode criar objetos ou
-executar mï¿½todos.
-Ou as permissï¿½es de acesso do diretï¿½rio do projeto estï¿½o definidas
-como 'apenas leitura' para vocï¿½, ou o sistema de arquivos inteiro
-nï¿½o permite escrita (ï¿½ um CD?).
-Para usar este projeto plenamente, vocï¿½ deve assegurar-se que ele esteja
-num sistema de arquivos que permita gravaï¿½ï¿½o (geralmente um disco rï¿½gido),
-e que vocï¿½ tenha permissï¿½o de escrita no diretï¿½rio do projeto e todos 
+O projeto é apenas para leitura. Você não pode criar objetos ou
+executar métodos.
+Ou as permissões de acesso do diretório do projeto estão definidas
+como 'apenas leitura' para você, ou o sistema de arquivos inteiro
+não permite escrita (é um CD?).
+Para usar este projeto plenamente, você deve assegurar-se que ele esteja
+num sistema de arquivos que permita gravação (geralmente um disco rígido),
+e que você tenha permissão de escrita no diretório do projeto e todos 
 os seus arquivos.
 
 could-not-write-shell-file
-A execuï¿½ï¿½o falhou porque o diretï¿½rio do projeto nï¿½o permite gravaï¿½ï¿½o.
-Para criar objetos ou executar mï¿½todos, nï¿½s devemos ter permissï¿½o para escrita
-no diretï¿½rio do projeto. Certifique-se que o seu projeto esteja num
-sistema de arquivos que permita escrita (nï¿½o um CD!) e que vocï¿½ tenha
-permissï¿½o de escrita no diretï¿½rio do projeto e todos os seus arquivos.
+A execução falhou porque o diretório do projeto não permite gravação.
+Para criar objetos ou executar métodos, nós devemos ter permissão para escrita
+no diretório do projeto. Certifique-se que o seu projeto esteja num
+sistema de arquivos que permita escrita (não um CD!) e que você tenha
+permissão de escrita no diretório do projeto e todos os seus arquivos.
 
 

@@ -7,11 +7,11 @@ exception-thrown
 'n Uitsondering is aangemeld:
 
 break-no-source
-Inbreekpunt is bereik in 'n lï¿½er waarvoor die
-bronkode nie gevind kan word nie. Lï¿½ernaam:
+Inbreekpunt is bereik in 'n lêer waarvoor die
+bronkode nie gevind kan word nie. Lêernaam:
 
 error-in-file
-'n Fout het voorgekom in 'n lï¿½er waarvoor die
+'n Fout het voorgekom in 'n lêer waarvoor die
 bronkode nie gevind kan word nie. 
 klas:  bronkode lynnommer:
 
@@ -34,7 +34,7 @@ in die projekgids. As die klas beskadig is,
    1 - verlaat BlueJ
    2 - maak nog 'n kopie van die projectgids (net vir ingeval)
    3 - soek in die projekgids vir 'n rugsteunkopie van hierdie
-       java lï¿½er. Hernoem dit met die oorsproklike naam
+       java lêer. Hernoem dit met die oorsproklike naam
        (met 'n '.java' uitgang)
 
 cannot-run-compiler
@@ -65,7 +65,7 @@ U moet 'n geldige naam verskaf.
 
 error-save-file
 'n Fout het voorgekom met die stoor
-van die lï¿½er.  Die lï¿½er is nie gestoor nie.
+van die lêer.  Die lêer is nie gestoor nie.
 
 cannot-save-keys
 'n Fout het voorgekom met die stoor
@@ -73,9 +73,9 @@ van die sleutelbindings.
 Sleutelbindings is nie gestoor nie.
 
 error-no-templates
-Die gespesifiseerde sjabloongids (die lï¿½ergids waar
+Die gespesifiseerde sjabloongids (die lêergids waar
 BlueJ die klassjablone kry) bestaan nie. Dit word gedefinieer
-met die eienskap "bluej.templatePath" in die lï¿½er
+met die eienskap "bluej.templatePath" in die lêer
 <bluej-home>/lib/bluej/defs. U kan dit nagaan
 en self regstel.
 
@@ -83,27 +83,27 @@ skeleton-error
 Die verstek kodegeraamte vir die klas kon nie 
 gegenereer word nie.  Moontlik weens 'n 
 konfigurasiefout van BlueJ, of omdat daar
-probleme is met lï¿½erstelsel toegang.
+probleme is met lêerstelsel toegang.
 
 error-open-source
 Die bronkode van hierdie klas kon nie
 oopgemaak word nie.
 
 error-writing-readme
-Die "README"-lï¿½er vir hierdie projek kon nie opdateer
+Die "README"-lêer vir hierdie projek kon nie opdateer
 word om die hoofklas se inligting by te voeg nie.
-Daar was probleme met wysiging van die lï¿½er.
+Daar was probleme met wysiging van die lêer.
 
 error-exporting
 'n Fout het voorgekom terwyl die toepassing se kode uitgeskryf is
-Sommige of al die lï¿½ers is dalk nie reg gekopieer nie.
+Sommige of al die lêers is dalk nie reg gekopieer nie.
 
 error-writing-jar
-Die jar-lï¿½er kon nie korrek uitgeskryf word nie.
-(Maak seker u het toegangsregte en oop spasie op die lï¿½erstelsel.)
+Die jar-lêer kon nie korrek uitgeskryf word nie.
+(Maak seker u het toegangsregte en oop spasie op die lêerstelsel.)
 
 error-jar-exists
-Die jar-lï¿½er wat u gekies het, bestaan reeds.
+Die jar-lêer wat u gekies het, bestaan reeds.
 Wil u voortgaan?
 Oorskryf
 Kanselleer
@@ -120,26 +120,26 @@ Die naam is ongeldig. dit moet
 'n Java identifiseerder wees.
 
 directory-exists
-'n Lï¿½er of gids met hierdie naam bestaan reeds.
+'n Lêer of gids met hierdie naam bestaan reeds.
 
 cannot-copy-package
-Daar was 'n probleem met die kopiï¿½ring
-van die pakketlï¿½ers. Die pakket is nie geskryf
+Daar was 'n probleem met die kopiëring
+van die pakketlêers. Die pakket is nie geskryf
 nie of is dalk onvolledig.
 
 file-does-not-exist
-Die gespesifeseerde lï¿½er
+Die gespesifeseerde lêer
 bestaan nie.
 
 cannot-import
-Die lï¿½er kan nie ingetrek word nie.
-Dit moet 'n Java bronkode lï¿½er wees (die naam
+Die lêer kan nie ingetrek word nie.
+Dit moet 'n Java bronkode lêer wees (die naam
 moet eindig met ".java").
 
 docdir-blocked-by-file
 Die subgids vir die dokumentasie kon nie
 in die projekgids geskep word nie,
-want daar is 'n lï¿½er met dieselfde naam.
+want daar is 'n lêer met dieselfde naam.
 
 docdir-not-created
 Die subgids vir die dokumentasie kon nie
@@ -159,20 +159,20 @@ Kanselleer
 
 doctool-error
 Javadoc het 'n fout aangemeld. Daar kan moontlik 'n sintaksfout
-in een van die lï¿½ers wees waarvoor u dokumentasie probeer
+in een van die lêers wees waarvoor u dokumentasie probeer
 genereer het. Daar kan dalk ook fout wees met die URL wat
 gespesifiseer is vir die JDK dokumentasie in die "voorkeure"
-Maak seker dat al die Javalï¿½ers gekompileer is en dat die
+Maak seker dat al die Javalêers gekompileer is en dat die
 dokumentasie-URL toeganklik is (of afgeskakel). Probeer dan weer.
 As hierdie boodskap weer voorkom, gaan kyk dan in die
-log-lï¿½er vir die foutboodskappe van Javadoc:
+log-lêer vir die foutboodskappe van Javadoc:
 
 severe-doc-trouble
 'n Uitsondering het voorgekom tydens die roep na
 die eksterne dokumenteringsprogram.
 
 no-java-sources-found
-Geen Java bronkodelï¿½ers is gevind \
+Geen Java bronkodelêers is gevind \
 in hierdie gids nie.
 
 duplicate-name
@@ -182,7 +182,7 @@ met dieselfde naam in een pakket wees nie.
 
 error-in-import
 'n Fout het voorgekom tydens die intrekking van
-die lï¿½er. Kyk vir toegangsregte en skyfspasie.
+die lêer. Kyk vir toegangsregte en skyfspasie.
 
 no-class-selected-compile
 Geen klas is gekies om te kompileer nie.
@@ -204,7 +204,7 @@ null
 
 really-remove-package
 As hierdie pakket verwyder word sal die betrokke
-subgids (met al die bronkode en ander lï¿½ers daarin) 
+subgids (met al die bronkode en ander lêers daarin) 
 permanent uitegevee word.
 Wil u voortgaan?
 Vee uit
@@ -223,7 +223,7 @@ Pakket bestaan nie:
 
 no-bluej-package
 Fout met die oopmaak van pakket.
-Die lï¿½er/gids is nie 'n
+Die lêer/gids is nie 'n
 BlueJ pakket nie:
 
 applet-height-width
@@ -231,10 +231,10 @@ Die minitoepassing se hoogte en wydte
 moet gespesifiseer word.
 
 cannot-read-help
-Die hulplï¿½er kan nie gelees word nie:
+Die hulplêer kan nie gelees word nie:
 
 not-yet-implemented
-Nog nie geï¿½mplementeer nie - jammer.
+Nog nie geïmplementeer nie - jammer.
 
 quit-all
 Moet alle oop projekte afgeskuit word?
@@ -250,7 +250,7 @@ Kanselleer
 null
 
 really-print
-Die teks is breï¿½r as die papier. Lang reï¿½eltjies sal
+Die teks is breër as die papier. Lang reëeltjies sal
 afgekap word. U kan dit vermy deur die redigeerdervenster
 se grootte te stel sodat dit smaller is.
 Wil u nogtans voortgaan en nou druk?
@@ -263,16 +263,16 @@ Die gids wat u geselekteer het is
 reeds 'n BlueJ projek.
 
 open-non-bluej-no-java
-Geen Java bronkodelï¿½ers kon in 
+Geen Java bronkodelêers kon in 
 hierdie gids gevind word nie.
 
 open-non-bluej-invalid
 U het aangedui dat u hierdie gids wil oopmaak
-as 'n BlueJ projek, maar dit bevat 'n java lï¿½er
-met 'n pakketreï¿½l ("package") wat nie pas by die
+as 'n BlueJ projek, maar dit bevat 'n java lêer
+met 'n pakketreël ("package") wat nie pas by die
 huidige gidsstruktuur nie. (Byvoorbeeld, as die 
-Java klas Shape 'n pakketreï¿½l het naamlik com.aa, 
-dan moet die lï¿½er Shape.java in 'n gids wees met
+Java klas Shape 'n pakketreël het naamlik com.aa, 
+dan moet die lêer Shape.java in 'n gids wees met
 die naam aa, wat op sy beurt weer binne die gids com is. 
 Hierdie com gids moet weer in ander gids wees. (Dit is
 hierdie ander gids wat in Bluej gekies word wanneer
@@ -280,8 +280,8 @@ die projek oopgemaak moet word).
 
 import-into-current
 Daar is tans 'n pakket oop in hierdie venster.
-Wil u die lï¿½er intrek binne hierdie pakket, 
-of wil u 'n nuwe projek skep en die lï¿½er daarheen intrek.
+Wil u die lêer intrek binne hierdie pakket, 
+of wil u 'n nuwe projek skep en die lêer daarheen intrek.
 In huidige
 Nuwe projek
 Kanselleer
@@ -304,7 +304,7 @@ terugverander na die oorspronklike naam.
 
 package-name-changed
 U het die pakketstelling verander na 'n ander pakket.
-Wil u dus hï¿½ dat die klas verskuif moet word na
+Wil u dus hê dat die klas verskuif moet word na
 die nuwe pakket, of moet dit bly waar dit is
 (in welke geval die pakketstelling herstel 
 sal word na wat dit was.)
@@ -388,14 +388,14 @@ project-is-readonly
 Die projek het lees-alleen toegang.  U sal nie objekte kan skep
 of metodes kan uitvoer nie.
 Moontlik is die toegangsregte van die projekgids gestel na 'read-only'
-of die hele lï¿½erstelsel is onskryfbaar (bv. as dit op 'n CD is).
+of die hele lêerstelsel is onskryfbaar (bv. as dit op 'n CD is).
 Om hierdie projek ten volle te kan gebruik
-moet dit op 'n skryfbare lï¿½erstelsel wees (normaalweg die hardeskyf)
+moet dit op 'n skryfbare lêerstelsel wees (normaalweg die hardeskyf)
 en die toegangsregte moet so gestel wees dat u skryftoegang het
-na die gids en elke lï¿½er daarin.
+na die gids en elke lêer daarin.
 
 could-not-write-shell-file
 Uitvoering het gefaal omdat die projekgids nie skryfbaar is nie.
 Om objekte te kan skep en metodes te kan uitvoer moet BlueJ na 
-die betrokke gids en lï¿½ers kan skryf.  Maak seker dit is nie 'n CD
-nie en dat jy skryftoegang het na die gids en alle lï¿½ers daarin.
+die betrokke gids en lêers kan skryf.  Maak seker dit is nie 'n CD
+nie en dat jy skryftoegang het na die gids en alle lêers daarin.
