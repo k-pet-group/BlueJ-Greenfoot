@@ -13,7 +13,7 @@ import javax.swing.ImageIcon;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3415 2005-06-05 19:35:54Z polle $
+ * @version $Id: GreenfootObject.java 3421 2005-06-07 15:02:20Z polle $
  */
 public class GreenfootObject
 {
@@ -437,11 +437,13 @@ public class GreenfootObject
         if (image != null && world != null) {
             int width = getXMax() - getXMin() + 1;
             int height = getYMax() - getYMin() + 1;
+            int left = getXMin() - getX();
+            int top = getYMin() - getY();
             if (world.isWrapped()) {
                 x = world.wrap(x, world.getWidth());
                 y = world.wrap(y, world.getHeight());
             }
-            return intersects(x, y, 0, 0, width, height);
+            return intersects(x, y, left, top, width, height);
         }
         else {
             return false;
