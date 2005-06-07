@@ -30,7 +30,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3405 2005-06-03 15:10:56Z polle $
+ * @version $Id: WorldHandler.java 3420 2005-06-07 14:25:26Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -288,8 +288,10 @@ public class WorldHandler
      */
     public void keyPressed(KeyEvent e)
     {
-        isQuickAddActive = e.isShiftDown();
-        quickAddIfActive();
+    	if( ! isQuickAddActive) {
+    		isQuickAddActive = e.isShiftDown();
+    		quickAddIfActive();
+    	}
     }
 
     private void quickAddIfActive()
