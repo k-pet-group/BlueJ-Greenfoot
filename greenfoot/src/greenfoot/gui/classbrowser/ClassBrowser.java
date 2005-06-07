@@ -37,14 +37,14 @@ import bluej.extensions.ProjectNotOpenException;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: ClassBrowser.java 3419 2005-06-07 13:39:12Z polle $
  */
 public class ClassBrowser extends JPanel
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
-    private static String simObj = GreenfootObject.class.getName();
-    private static String worldObj = GreenfootWorld.class.getName();
+    private static String simObj = "greenfoot.GreenfootObject"; //.class.getName();
+    private static String worldObj = "greenfoot.GreenfootWorld"; //.class.getName();
 
     private EditClassAction editClassAction;
 
