@@ -25,7 +25,7 @@ import bluej.extensions.ProjectNotOpenException;
  * scenraio creators that wnats to do more advanced stuff.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootImage.java 3405 2005-06-03 15:10:56Z polle $
+ * @version $Id: GreenfootImage.java 3417 2005-06-07 11:02:00Z polle $
  */
 public class GreenfootImage
 {
@@ -37,9 +37,9 @@ public class GreenfootImage
     private boolean tiled;
 
     /**
-     * Loads an image from a file.
+     * Loads an image from a file.<br>
      * 
-     * It first tries to sue the filename as an absolute path, and if that fails
+     * It first tries to use the filename as an absolute path, and if that fails
      * it looks for the filename in the projects directory.
      * 
      * @param filename
@@ -55,12 +55,19 @@ public class GreenfootImage
         try {
             imageURL = new URL(filename);
             setImage(new ImageIcon(imageURL).getImage());
-            initGraphics();
             return;
         }
         catch (MalformedURLException e) {
+            Greenfoot greenfoot = Greenfoot.getInstance();
+            if (greenfoot == null) {
+                // If there is no greenfoot instance, we should just return
+                // without trying to load the image. This should never happen
+                // when running greenfoot normally, but will be the case when
+                // doing some of unit tests.
+                return;
+            }
             try {
-                URI dir = Greenfoot.getInstance().getPackage().getDir().toURI();
+                URI dir = greenfoot.getPackage().getDir().toURI();
                 URL url = null;
                 try {
                     url = dir.resolve(filename).toURL();
