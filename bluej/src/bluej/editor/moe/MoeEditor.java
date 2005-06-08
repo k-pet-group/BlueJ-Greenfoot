@@ -98,7 +98,7 @@ public final class MoeEditor extends JFrame
     final static String COMPILED = "compiled";
 
     // PageFormat object for printing page format
-    private static PageFormat pageFormat = PkgMgrFrame.getPageFormat();
+    private static PageFormat pageFormat;
 
     private static boolean matchBrackets = false;
 
@@ -1072,6 +1072,9 @@ public final class MoeEditor extends JFrame
         PrinterJob job = PrinterJob.getPrinterJob();
 
         // make sure the pageformat is ok
+        if(pageFormat == null) {
+            pageFormat = PkgMgrFrame.getPageFormat();
+        }
         pageFormat = job.validatePage(pageFormat);
         if (job.printDialog()) {
             PrintHandler pt = new PrintHandler(job);
