@@ -1,6 +1,7 @@
+import greenfoot.*;
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootWorld;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 
 import java.util.Collection;
 
@@ -16,7 +17,7 @@ public class GameBoard extends GreenfootWorld
     public GameBoard() 
     {
         super(8,8,50,false);
-        Image background = new Image("board.gif");
+        GreenfootImage background = new GreenfootImage("board.gif");
         setBackground(background);
         background.setTiled(true);
         playerOne = new Player("blue", true);
