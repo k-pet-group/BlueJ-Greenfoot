@@ -30,7 +30,7 @@ import bluej.extensions.ProjectNotOpenException;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3405 2005-06-03 15:10:56Z polle $
+ * @version $Id: GreenfootClassRole.java 3428 2005-06-08 14:04:58Z polle $
  *  
  */
 public class GreenfootClassRole extends ClassRole
@@ -211,15 +211,15 @@ public class GreenfootClassRole extends ClassRole
             //        if(pkg != null && pkg.getName() != "") {
             // writer.write("import " + rClass.getQualifiedName() + ";\n");
             //      }
-            writer.write("public class " + className + " extends " + superClassName + newline + "{" + newline);
+            writer.write(newline + "public class " + className + " extends " + superClassName + newline + "{" + newline);
 
-            writer.write("  public " + className + "()" + newline + "  {" + newline);
-            writer.write("    //setImage(\"name of the image file\");" + newline);
-            writer.write("  }" + newline + newline);
+            writer.write("    public " + className + "()" + newline + "    {" + newline);
+            writer.write("        //setImage(\"name of the image file\");" + newline);
+            writer.write("    }" + newline + newline);
 
-            writer.write("  public void act()" + newline + "  {" + newline);
-            writer.write("    //here you can create the behaviour of your object" + newline);
-            writer.write("  }" + newline + newline);
+            writer.write("    public void act()" + newline + "    {" + newline);
+            writer.write("        //here you can create the behaviour of your object" + newline);
+            writer.write("    }" + newline + newline);
 
             writer.write("}");
             writer.flush();
