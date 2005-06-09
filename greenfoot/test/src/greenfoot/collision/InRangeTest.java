@@ -55,7 +55,7 @@ public class InRangeTest extends TestCase
     
     public void testWrap()
     {
-        world = new GreenfootWorld(10, 10, 10, false);
+        world = new GreenfootWorld(10, 10, 10, true);
 
         TestObject go1 = new TestObject(20, 20);
         go1.setLocation(0, 2);

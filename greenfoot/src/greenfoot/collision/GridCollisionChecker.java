@@ -281,7 +281,7 @@ public class GridCollisionChecker
         double dx = Math.abs(gx - x);
         double dy = Math.abs(gy - y);
 
-        if (!wrap) {
+        if (wrap) {
             double dxWrap = getWidth() - dx;
             double dyWrap = getWidth() - dy;
             if (dx >= dxWrap) {
@@ -395,6 +395,7 @@ public class GridCollisionChecker
      */
     public List getNeighbours(int x, int y, int distance, boolean diag, Class cls)
     {
+        //TODO: consider the class.
         List c = new ArrayList();
         if (diag) {
             for (int dx = x - distance; dx <= x + distance; dx++) {
