@@ -32,7 +32,7 @@ import bluej.utility.FileUtility;
  * The main class for greenfoot. This is a singelton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Greenfoot.java 3262 2005-01-12 03:30:49Z davmac $
+ * @version $Id: Greenfoot.java 3437 2005-06-09 11:13:20Z mik $
  */
 public class Greenfoot
 {
@@ -115,6 +115,7 @@ public class Greenfoot
     {
         if (instance == null) {
             instance = new Greenfoot(rBlueJ, project, package1);
+            System.setProperty("apple.laf.useScreenMenuBar", "true");
         }
     }
 
