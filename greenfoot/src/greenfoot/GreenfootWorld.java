@@ -22,7 +22,7 @@ import java.util.Observable;
  * 
  * @see greenfoot.GreenfootObject
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootWorld.java 3405 2005-06-03 15:10:56Z polle $
+ * @version $Id: GreenfootWorld.java 3433 2005-06-09 09:45:10Z polle $
  */
 public class GreenfootWorld extends Observable
 {
@@ -65,14 +65,10 @@ public class GreenfootWorld extends Observable
      * a grid. It creates a new world with the given size.
      * 
      * @see GreenfootWorld
-     * @param worldWidth
-     *            The width of the world (in cells).
-     * @param worldHeight
-     *            The height of the world (in cells).
-     * @param cellSize
-     *            Size of a cell in pixels
-     * @param wrap
-     *            Whether the world should wrap around the edges
+     * @param worldWidth The width of the world (in cells).
+     * @param worldHeight The height of the world (in cells).
+     * @param cellSize Size of a cell in pixels
+     * @param wrap Whether the world should wrap around the edges
      * 
      */
     public GreenfootWorld(int worldWidth, int worldHeight, int cellSize, boolean wrap)
@@ -101,8 +97,7 @@ public class GreenfootWorld extends Observable
      * 
      * @see #setTiledBackground(boolean)
      * @see #setBackgroundImage(String)
-     * @param image
-     *            The image
+     * @param image The image
      */
     final public void setBackground(GreenfootImage image)
     {
@@ -151,11 +146,10 @@ public class GreenfootWorld extends Observable
     /**
      * Adds a GreenfootObject to the world.
      * 
-     * @param object
-     *            The new object to add.
-     * @throws IndexOutOfBoundsException
-     *             If the coordinates are outside the bounds of the world. Note
-     *             that a wrapping world has not bounds.
+     * @param object The new object to add.
+     * @throws IndexOutOfBoundsException If the coordinates are outside the
+     *             bounds of the world. Note that a wrapping world has not
+     *             bounds.
      */
 
     public synchronized void addObject(GreenfootObject object)
@@ -176,8 +170,7 @@ public class GreenfootWorld extends Observable
     /**
      * Removes the object from the world.
      * 
-     * @param object
-     *            the object to remove
+     * @param object the object to remove
      */
     public synchronized void removeObject(GreenfootObject object)
     {
@@ -196,8 +189,7 @@ public class GreenfootWorld extends Observable
      * object in the List should be painted first. This means that the lasat
      * object will always be painted on top of all the other objects.<br>
      * 
-     * @param cls
-     *            Class of objects to look for (null or Object.class will find
+     * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      * 
      * @return An unmodifiable list of objects.
@@ -226,8 +218,7 @@ public class GreenfootWorld extends Observable
      * order, the top object will be the one that was updated last (change of
      * location)
      * 
-     * @param classOrder
-     *            List of classes.
+     * @param classOrder List of classes.
      * 
      */
     public void setPaintOrder(List classPaintOrder)
@@ -242,14 +233,13 @@ public class GreenfootWorld extends Observable
     // =================================================
 
     /**
-     * Returns all objects that intersects the given location.
+     * Returns all objects that intersects the given location. <br>
      * 
-     * @param x
-     *            Location
-     * @param y
-     *            Location
-     * @param cls
-     *            Class of objects to look for (null or Object.class will find
+     * NOTE: has not been tested when the world is wrapped.
+     * 
+     * @param x Location
+     * @param y Location
+     * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
     public List getObjectsAt(int x, int y, Class cls)
@@ -261,10 +251,8 @@ public class GreenfootWorld extends Observable
      * Returns all the objects that intersects the given object. This takes the
      * graphical extent of objects into consideration.
      * 
-     * @param go
-     *            A GreenfootObject in the world
-     * @param cls
-     *            Class of objects to look for (null or Object.class will find
+     * @param go A GreenfootObject in the world
+     * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
     List getIntersectingObjects(GreenfootObject go, Class cls)
@@ -277,14 +265,10 @@ public class GreenfootWorld extends Observable
      * circle. In other words an object A is within the range of an object B if
      * the distance between the center of the two objects is less thatn r.
      * 
-     * @param x
-     *            Center of the cirle
-     * @param y
-     *            Center of the cirle
-     * @param r
-     *            Radius of the cirle
-     * @param cls
-     *            Class of objects to look for (null or Object.class will find
+     * @param x Center of the cirle
+     * @param y Center of the cirle
+     * @param r Radius of the cirle
+     * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
     List getObjectsInRange(int x, int y, int r, Class cls)
@@ -297,16 +281,13 @@ public class GreenfootWorld extends Observable
      * the logical location and not the extent of objects. Hence it is most
      * useful in scenarios where objects only span one cell.
      * 
-     * @param x
-     *            Location
-     * @param y
-     *            Location
-     * @param distance
-     *            Distance in which to look for other objects
-     * @param diag
-     *            Is the distance also diagonal?
-     * @param cls
-     *            Class of objects to look for (null or Object.class will find
+     * NOTE: class argument does not work. It returns all types of objects.
+     * 
+     * @param x Location
+     * @param y Location
+     * @param distance Distance in which to look for other objects
+     * @param diag Is the distance also diagonal?
+     * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      * @return A collection of all neighbours found
      */
@@ -318,16 +299,11 @@ public class GreenfootWorld extends Observable
     /**
      * Get all objects that lie on the line between the two points.
      * 
-     * @param x1
-     *            Location of point 1
-     * @param y1
-     *            Location of point 1
-     * @param x2
-     *            Location of point 2
-     * @param y2
-     *            Location of point 2
-     * @param cls
-     *            Class of objects to look for (null or Object.class will find
+     * @param x1 Location of point 1
+     * @param y1 Location of point 1
+     * @param x2 Location of point 2
+     * @param y2 Location of point 2
+     * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
     List getObjectsAtLine(int x1, int y1, int x2, int y2, Class cls)

@@ -13,7 +13,7 @@ import javax.swing.ImageIcon;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3421 2005-06-07 15:02:20Z polle $
+ * @version $Id: GreenfootObject.java 3433 2005-06-09 09:45:10Z polle $
  */
 public class GreenfootObject
 {
@@ -102,7 +102,10 @@ public class GreenfootObject
 
     /**
      * Get the width of the object in cells. The width is the number of cells
-     * that an object occupies horisontally, based on the image.
+     * that an object occupies horisontally, based on the image. <br>
+     * 
+     * NOTE: Does not take rotation into consideration, and has not been tested
+     * when the world is wrapped.
      * 
      * @returns the width, or -1 if no image or world
      */
@@ -118,7 +121,10 @@ public class GreenfootObject
 
     /**
      * Get the height of the object in cells. The height is the number of cells
-     * that an object occupies vertically, based on the image.
+     * that an object occupies vertically, based on the image. <br>
+     * 
+     * NOTE: Does not take rotation into consideration, and has not been tested
+     * when the world is wrapped.
      * 
      * @returns the height, or -1 if no image or world
      */
@@ -191,8 +197,7 @@ public class GreenfootObject
      * 
      * Zero degrees is to the east. The angle is clockwise from this.
      * 
-     * @param rotation
-     *            The rotation in degress
+     * @param rotation The rotation in degress
      */
     public void setRotation(int rotation)
     {
@@ -213,10 +218,8 @@ public class GreenfootObject
      * If this method is overridden it is important to call this method with
      * super.setLocation(x,y) at the end of the overriding method.
      * 
-     * @param x
-     *            Location on the x-axis
-     * @param y
-     *            Location on the y-axis
+     * @param x Location on the x-axis
+     * @param y Location on the y-axis
      */
     public void setLocation(int x, int y)
     {
@@ -271,8 +274,7 @@ public class GreenfootObject
      * 
      * 
      * @see #setImage(ImageIcon)
-     * @param filename
-     *            The filename of the image.
+     * @param filename The filename of the image.
      */
     final public void setImage(String filename)
     {
@@ -286,8 +288,7 @@ public class GreenfootObject
      * Sets the image of this object <br>
      * 
      * @see #setImage(String)
-     * @param image
-     *            The image.
+     * @param image The image.
      */
     final public void setImage(GreenfootImage image)
     {
@@ -306,10 +307,8 @@ public class GreenfootObject
      * 
      * Used by the WorldHandler to drag objects.
      * 
-     * @param x
-     *            x-coordinate in pixels
-     * @param y
-     *            y-coordinate in pixels
+     * @param x x-coordinate in pixels
+     * @param y y-coordinate in pixels
      */
     void setLocationInPixels(int x, int y)
     {
@@ -383,6 +382,10 @@ public class GreenfootObject
 
     /**
      * Whether this object intersect another object <br>
+     * <br>
+     * 
+     * NOTE: Does not take rotation into consideration, and has not been tested
+     * when the world is wrapped.
      * 
      */
     public boolean intersects(GreenfootObject other)
@@ -422,11 +425,13 @@ public class GreenfootObject
      * that has to do with collision checks. Therefor, this method can be
      * overridden if we want to use other shapes than the bounding box.
      * 
+     * <br>
      * 
-     * @param x
-     *            The x-position relative to the location of the object
-     * @param y
-     *            The y-position relative to the location of the object
+     * NOTE: Does not take rotation into consideration, and has not been tested
+     * when the world is wrapped.
+     * 
+     * @param x The x-position relative to the location of the object
+     * @param y The y-position relative to the location of the object
      * @return True if the image contains the point. If it has no image it will
      *         return false.
      */
@@ -451,16 +456,17 @@ public class GreenfootObject
     }
 
     /**
-     * Returns the neighbours to the given this object. This method only looks
-     * at the logical location and not the extent of objects. Hence it is most
-     * useful in scenarios where objects only span one cell.
+     * Returns the neighbours to the this object. This method only looks at the
+     * logical location and not the extent of objects. Hence it is most useful
+     * in scenarios where objects only span one cell.
      * 
-     * @param distance
-     *            Distance in which to look for other objects
-     * @param diag
-     *            Is the distance also diagonal?
-     * @param cls
-     *            Class of objects to look for (null or Object.class will find
+     * <br>
+     * 
+     * NOTE: Class argument does not work. It returns all types of obejcts.
+     * 
+     * @param distance Distance in which to look for other objects
+     * @param diag Is the distance also diagonal?
+     * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      * @return A collection of all neighbours found
      */
@@ -471,14 +477,13 @@ public class GreenfootObject
 
     /**
      * Returns all objects that intersects the given location relative to this
-     * objects location.
+     * objects location. <br>
      * 
-     * @param dx
-     *            x-coordinate relative to this objects location
-     * @param dy
-     *            y-coordinate relative to this objects location
-     * @param cls
-     *            Class of objects to look for (null or Object.class will find
+     * NOTE: has not been tested when the world is wrapped.
+     * 
+     * @param dx x-coordinate relative to this objects location
+     * @param dy y-coordinate relative to this objects location
+     * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
     public List getObjectsAt(int dx, int dy, Class cls)
@@ -489,16 +494,12 @@ public class GreenfootObject
     /**
      * Returns all objects with the logical location within the specified
      * circle. In other words an object A is within the range of an object B if
-     * the distance between the center of the two objects is less thatn r.
+     * the distance between the center of the two objects is less than r.
      * 
-     * @param x
-     *            Center of the cirle
-     * @param y
-     *            Center of the cirle
-     * @param r
-     *            Radius of the cirle
-     * @param cls
-     *            Class of objects to look for (null or Object.class will find
+     * @param x Center of the cirle
+     * @param y Center of the cirle
+     * @param r Radius of the cirle
+     * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
     public List getObjectsInRange(int r, Class cls)
@@ -510,10 +511,12 @@ public class GreenfootObject
 
     /**
      * Returns all the objects that intersects this object. This takes the
-     * graphical extent of objects into consideration.
+     * graphical extent of objects into consideration. <br>
      * 
-     * @param cls
-     *            Class of objects to look for (null or Object.class will find
+     * NOTE: Does not take rotation into consideration, and has not been tested
+     * when the world is wrapped.
+     * 
+     * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
     public List getIntersectingObjects(Class cls)
@@ -526,11 +529,13 @@ public class GreenfootObject
      * object at the specified angle. The angle is clockwise relative to the
      * current rotation of the object.
      * 
-     * @param angle
-     *            The angle relative to current rotation of the object.
+     * <br>
+     * 
+     * NOTE: Not implemented yet.
+     * 
+     * @param angle The angle relative to current rotation of the object.
      *            Clockwise.
-     * @param cls
-     *            Class of objects to look for (null or Object.class will find
+     * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
     public List getObjectsInDirection(int angle, Class cls)
