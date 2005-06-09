@@ -26,4 +26,23 @@ public class GreenfootObjectTest extends TestCase
         assertEquals(3, o.getWidth());
         assertEquals(5, o.getHeight());
     }
+    
+    public void testOutOfBounds()
+    {
+        world = new GreenfootWorld(10, 10, 10, false);
+        TestObject o = new TestObject(11, 31);
+        world.addObject(o);
+        int x = 2;
+        int y = 3;
+        o.setLocation(x, y);
+        IndexOutOfBoundsException exception = null;
+        try {
+            o.setLocation(11,11);
+        } catch (IndexOutOfBoundsException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+        assertEquals(x, o.getX());
+        assertEquals(y, o.getY());        
+    }
 }
