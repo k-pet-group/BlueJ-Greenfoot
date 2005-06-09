@@ -13,10 +13,10 @@ public class Ant extends GreenfootObject
     private static final Random randomizer = AntWorld.getRandomizer();
     
     // every how many steps can we place a pheromone drop
-    private static final int MAX_PH_LEVEL = 10;
+    private static final int MAX_PH_LEVEL = 18;
 
     // how long to we keep direction after finding pheromones:
-    private static final int PH_TIME = 20;
+    private static final int PH_TIME = 30;
     
     // the speed the ant moves with - in pizels per update
     private static final int SPEED = 2; 
@@ -95,8 +95,10 @@ public class Ant extends GreenfootObject
     private void randomWalk()
     {
         //System.out.println("Random walking.");
-        deltaX = adjustSpeed(deltaX);
-        deltaY = adjustSpeed(deltaY);
+        if(randomChance(50)) {
+            deltaX = adjustSpeed(deltaX);
+            deltaY = adjustSpeed(deltaY);
+        }
         move();
     }
     
@@ -227,6 +229,7 @@ public class Ant extends GreenfootObject
      */
     private void dropPheromone()
     {
+        // otherwise drop a new one
         Pheromone ph = new Pheromone();
         ph.setLocation(getX(), getY());
        
@@ -256,7 +259,7 @@ public class Ant extends GreenfootObject
     
     /**
      * Adjust the speed randomly (start moving, continue or slow down).
-     * The speed returned is in the range [-1 .. 1].
+     * The speed returned is in the range [-SPEED .. SPEED].
      */
     private int adjustSpeed(int speed)
     {

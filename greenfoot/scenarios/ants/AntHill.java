@@ -6,7 +6,7 @@ import java.util.Random;
 public class AntHill extends GreenfootObject
 {
     private final static Random randomizer = AntWorld.getRandomizer();
-    private final static int DEFAULT_MAX_ANTS = 20;
+    private final static int DEFAULT_ANTS = 40;
     
     // number of ants created so far
     private int ants = 0;
@@ -15,7 +15,7 @@ public class AntHill extends GreenfootObject
     
     public AntHill()
     {
-        maxAnts = DEFAULT_MAX_ANTS;
+        maxAnts = DEFAULT_ANTS;
         setImage("anthill.gif");
     }
 

@@ -27,10 +27,13 @@ public class AntWorld extends GreenfootWorld
     
     public void scenario1()
     {
-        newObject(new AntHill(40), SIZE - 17, SIZE - 20);
-        newObject(new Food(), 73, 21);
-        newObject(new Food(), 20, 19);
-        newObject(new Food(), 36, 86);
+        newObject(new AntHill(70), SIZE / 2, SIZE / 2);
+        newObject(new Food(), SIZE/2, SIZE/2 - 260);
+        newObject(new Food(), SIZE/2 + 215, SIZE/2 - 100);
+        newObject(new Food(), SIZE/2 + 215, SIZE/2 + 100);
+        newObject(new Food(), SIZE/2, SIZE/2 + 260);
+        newObject(new Food(), SIZE/2 - 215, SIZE/2 + 100);
+        newObject(new Food(), SIZE/2 - 215, SIZE/2 - 100);
     }
 
     public void scenario2()
