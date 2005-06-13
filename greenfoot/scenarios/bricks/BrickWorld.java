@@ -1,6 +1,6 @@
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 
@@ -20,13 +20,13 @@ public class BrickWorld extends GreenfootWorld
      * A brave new BrickWorld.
      */
     public BrickWorld() {
-        super(SIZEX, SIZEY);
-        Image background = new Image(20,20);
+        super(SIZEX, SIZEY, 1, false);
+        GreenfootImage background = new GreenfootImage(20,20);
         background.fill(Color.BLACK);
         background.setTiled(true);
         setBackground(background);
         
-        for (int i = BRICKLEFTBORDER; i+BRICKWIDTH < SIZEX - BRICKRIGHTBORDER; i+=BRICKWIDTH+BRICKSPACING) {
+        for (int i = BRICKLEFTBORDER + BRICKWIDTH / 2; i+BRICKWIDTH/2 < SIZEX - BRICKRIGHTBORDER; i+=BRICKWIDTH+BRICKSPACING) {
             for (int j = 0; j < 4; j++ ) {
                 Brick newBrick = new Brick();
                 newBrick.setLocation(i, BRICKTOPBORDER + (BRICKHEIGHT + BRICKSPACING) * j);

@@ -35,33 +35,15 @@ public class Ball extends GreenfootObject
         setLocation(x,y);
     }
     
-    public int getCenterX()
-    {
-        return getX() + BALLSIZEX / 2;
-    }
-    
-    public int getCenterY()
-    {
-        return getY() + BALLSIZEY / 2;
-    }
-    
-    public static int getCenterX(GreenfootObject go)
-    {
-        return go.getX() + go.getWidth() / 2;
-    }
-    
-    public static int getCenterY(GreenfootObject go)
-    {
-        return go.getY() + go.getHeight() / 2;
-    }
-    
     public static Bounds getBounds(GreenfootObject go)
     {
         Bounds b = new Bounds();
-        b.lx = go.getX();
-        b.ty = go.getY();
-        b.rx = b.lx + go.getWidth();
-        b.by = b.ty + go.getHeight();
+        int width = go.getWidth();
+        int height = go.getHeight();
+        b.lx = go.getX() - width / 2;
+        b.ty = go.getY() - height / 2;
+        b.rx = b.lx + width;
+        b.by = b.ty + height;
         return b;
     }
     
@@ -94,30 +76,32 @@ public class Ball extends GreenfootObject
         }
 
         // bounce off walls
-        if (newX < 0) {
-            newX = 0;
+        if (newX < BALLSIZEX / 2) {
+            newX = BALLSIZEX / 2;
             motionX = -motionX;
         }
-        else if (newX + BALLSIZEX >= BrickWorld.SIZEX) {
-            newX = BrickWorld.SIZEX;
+        else if (newX + BALLSIZEX / 2 >= BrickWorld.SIZEX) {
+            newX = BrickWorld.SIZEX - BALLSIZEX / 2;
             motionX = -motionX;
         }
         
-        if (newY < 0) {
-            newY = 0;
+        if (newY < BALLSIZEY / 2) {
+            newY = BALLSIZEY / 2;
             motionY = -motionY;
         }
-        else if (newY + BALLSIZEY >= BrickWorld.SIZEY) {
-            newY = BrickWorld.SIZEY;
+        else if (newY + BALLSIZEY / 2 >= BrickWorld.SIZEY) {
+            newY = BrickWorld.SIZEY - BALLSIZEY / 2;
             motionY = -motionY;
         }
         
         setLocation(newX, newY);
-        int centerX = getCenterX();
-        int centerY = getCenterY();
+        int centerX = getX();
+        int centerY = getY();
         
         // check for collision with bricks
-        Collection objs = getWorld().getObjectsInRange(centerX, centerY, 30.0, GreenfootObject.class);
+        //Collection objs = getObjectsInRange(centerX, centerY, 30, GreenfootObject.class);
+        //Collection objs = getObjectsInRange(30, GreenfootObject.class);
+        Collection objs = getIntersectingObjects(GreenfootObject.class);
         Iterator i = objs.iterator();
         while (i.hasNext()) {
             GreenfootObject go = (GreenfootObject) i.next();
@@ -199,7 +183,7 @@ public class Ball extends GreenfootObject
             
             else if (go instanceof Paddle && motionY > 0) {
                 motionY = -motionY;
-                motionX += centerX - getCenterX(go);
+                motionX += centerX - go.getX();
                 if (newY > go.getY() - 10)
                     newY = go.getY() - 10;
                 correctMotion();

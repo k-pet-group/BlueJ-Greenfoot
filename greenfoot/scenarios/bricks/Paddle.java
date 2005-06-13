@@ -1,6 +1,6 @@
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 
@@ -9,7 +9,7 @@ public class Paddle extends GreenfootObject
     public Paddle()
     {
         //setImage("name of the image file");
-        Image pic = new Image(60, 10);
+        GreenfootImage pic = new GreenfootImage(60, 10);
         pic.fill(Color.GREEN);
         setImage(pic);
     }
