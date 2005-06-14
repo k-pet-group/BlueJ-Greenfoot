@@ -15,7 +15,7 @@ import rmiextension.wrappers.RClass;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 3428 2005-06-08 14:04:58Z polle $
+ * @version $Id: WorldClassRole.java 3440 2005-06-14 13:51:48Z polle $
  */
 public class WorldClassRole extends ClassRole
 {
@@ -68,7 +68,7 @@ public class WorldClassRole extends ClassRole
             writer.write(newline + "public class " + className + " extends " + superClassName + newline + "{" + newline);
             writer.write("    /**" + newline + "     * Creates a new world with 20x20 cells and" + newline
                     + "     * with a cell size of 50x50 pixels" + newline + "     */" + newline + "    public "
-                    + className + "() {" + newline + "        super(20,20,50,50);" + newline + "    }" + newline);
+                    + className + "() {" + newline + "        super(20,20,10,false);" + newline + "    }" + newline);
 
             //            writer.write(" public " + className + "()" + newline + " {" +
             // newline);
