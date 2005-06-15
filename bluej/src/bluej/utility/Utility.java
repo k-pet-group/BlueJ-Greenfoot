@@ -17,7 +17,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 3370 2005-05-10 11:11:00Z bquig $
+ * @version $Id: Utility.java 3441 2005-06-15 08:01:25Z mik $
  */
 public class Utility
 {
@@ -318,7 +318,7 @@ public class Utility
     }
 
     /**
-     * Bring the current process to the fron in the OS window stacking order.
+     * Bring the current process to the front in the OS window stacking order.
      * Curently: only implemented for MacOS.
      */
     public static void bringToFront()

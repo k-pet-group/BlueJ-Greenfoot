@@ -36,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3240 2004-12-16 00:04:59Z davmac $
+ * @version $Id: Config.java 3441 2005-06-15 08:01:25Z mik $
  */
 
 public final class Config
@@ -160,9 +160,6 @@ public final class Config
         // Whether or not to use the screen menu bar on a Mac
         String macOSscreenMenuBar = Config.getPropString("bluej.macos.screenmenubar", "true");
         // The value of the BlueJ property overrides the system setting
-        // for Java 1.3:
-        System.setProperty("com.apple.macos.useScreenMenuBar", macOSscreenMenuBar);
-        // and Java 1.4.1:
         System.setProperty("apple.laf.useScreenMenuBar", macOSscreenMenuBar);      
 
         usingMacOSScreenMenubar = (isMacOS() && macOSscreenMenuBar.equals("true"));
