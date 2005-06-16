@@ -4,6 +4,7 @@ import greenfoot.Greenfoot;
 import greenfoot.GreenfootWorld;
 import greenfoot.Simulation;
 import greenfoot.WorldHandler;
+import greenfoot.actions.AboutGreenfootAction;
 import greenfoot.actions.CompileAllAction;
 import greenfoot.actions.CompileClassAction;
 import greenfoot.actions.EditClassAction;
@@ -43,7 +44,7 @@ import bluej.utility.DialogManager;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3454 2005-06-16 13:58:10Z polle $
+ * @version $Id: GreenfootFrame.java 3456 2005-06-16 15:09:55Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -301,10 +302,14 @@ public class GreenfootFrame extends JFrame
 
         JMenu projectMenu = new JMenu("Project");
         menuBar.add(projectMenu);
-
         projectMenu.add(new NewProjectAction("New"));
         projectMenu.add(new OpenProjectAction("Open"));
 
+        JMenu helpMenu = new JMenu("Help");
+        menuBar.add(helpMenu);
+        helpMenu.add(new AboutGreenfootAction("About Greenfoot", this)); 
+
+       // helpMenu.add(new CopyrightAction("Copyright", this)); 
         return menuBar;
     }
 
