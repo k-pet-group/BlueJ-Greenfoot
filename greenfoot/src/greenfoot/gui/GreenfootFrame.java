@@ -37,12 +37,13 @@ import bluej.debugmgr.inspector.Inspector;
 import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.DialogManager;
 
 /**
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3283 2005-01-18 05:05:19Z davmac $
+ * @version $Id: GreenfootFrame.java 3454 2005-06-16 13:58:10Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -147,10 +148,18 @@ public class GreenfootFrame extends JFrame
 
         buttonPanel.add(Box.createVerticalStrut(5));
 
-        button = new JButton("New Class...");
+        //TODO create proper implementation.
+        Action newClassAction = new AbstractAction("New Class...") {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                GreenfootFrame.this.showNYIMessage();
+            }
+
+        };
+        button = new JButton(newClassAction);
         pref = button.getMinimumSize();
         pref.width = Integer.MAX_VALUE;
         button.setMaximumSize(pref);
+        
         buttonPanel.add(button);
 
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -170,6 +179,11 @@ public class GreenfootFrame extends JFrame
         worldHandler.setSelectionManager(classBrowser.getSelectionManager());
 
     }
+
+    public void showNYIMessage()
+    {
+        JOptionPane.showMessageDialog(this, "Not Yet Implemented - sorry.");
+    } 
 
     public void pack()
     {
@@ -290,11 +304,6 @@ public class GreenfootFrame extends JFrame
 
         projectMenu.add(new NewProjectAction("New"));
         projectMenu.add(new OpenProjectAction("Open"));
-
-        JMenu classMenu = new JMenu("Class");
-        menuBar.add(classMenu);
-        classMenu.add(compileClassAction);
-        classMenu.add(editClassAction);
 
         return menuBar;
     }
