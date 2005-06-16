@@ -69,7 +69,7 @@
 
         <!-- make sure the people .class files are dated in the future so they
              will appear to be compiled -->
-        <touch datetime="1/1/2005 12:00 pm">
+        <touch datetime="1/1/2010 12:00 pm">
             <fileset dir="install_tmp" >
                 <patternset refid="bluej.examples.classes"/>
             </fileset>
