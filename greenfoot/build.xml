@@ -40,6 +40,19 @@
         <include name="greenfoot/greenfoot-logo.png"/>
     </patternset>
 
+	<!-- scenarios to be included in standard distribution -->
+    <patternset id="distribution.scenarios">
+        <exclude name="**/*.pkh" />
+        <exclude name="**/.#*" />
+        <include name="ants/" />
+        <include name="boids/" />
+	    <include name="bricks/" />
+        <include name="draughts/" />
+        <include name="robots/" />
+        <include name="shapes/" />
+        <include name="turtleGraphics/" />
+    </patternset>
+
     <target name="init">
         <!-- Create the time stamp -->
         <tstamp/>
@@ -78,6 +91,11 @@
         <copy todir="${bluej.lib}">
             <fileset dir="projects"/>
         </copy>
+        <copy todir="${bluej.projectdir}/package/scenarios">
+            <fileset dir="scenarios">
+                <patternset refid="distribution.scenarios"/>
+            </fileset>
+        </copy>
     </target>
 
     <target name="dist" depends="ready-to-run" description="Generate the distribution. Also runs the bluej-dist" >
@@ -91,18 +109,8 @@
         <!-- Run the BlueJ dist-->
         <ant dir="${bluej.projectdir}" target="dist-no-win" />
         
-        <copy file="${bluej.package.jar}" tofile="${package}/greenfoot-installer.jar"/>    
-        <antcall target="zip-examples"/>
-    </target>
-
-    <target name="zip-examples" depends="init" description="ZIP the scenarios in the scenarios directory">
-        <mkdir dir="${package}/scenarios/"/>
-        <zip destfile="${package}/scenarios/ants.zip" basedir="scenarios/ants" />
-        <zip destfile="${package}/scenarios/robots.zip" basedir="scenarios/robots" />
-        <zip destfile="${package}/scenarios/lifts.zip" basedir="scenarios/lifts" />
-        <zip destfile="${package}/scenarios/shapes.zip" basedir="scenarios/shapes" />
-        <zip destfile="${package}/scenarios/turtleGraphics.zip" basedir="scenarios/turtleGraphics" />
-            
+        <move file="${bluej.package.jar}" tofile="${package}/greenfoot-installer.jar"/> 
+	    <echo message="The greenfoot installer is in ${package}/greenfoot-installer.jar"/>
     </target>
 
     <target name="clean" description="clean up" >
