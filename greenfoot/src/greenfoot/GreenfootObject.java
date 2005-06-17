@@ -6,21 +6,29 @@ import java.util.List;
 import javax.swing.ImageIcon;
 
 /**
- * A GreenfootObject is a thing that can be in a world. To be in a world means
- * that it has a graphically representation and a location. Futhermore it has an
- * act method which will be called when the simulation is started when using the
- * 'play' and 'act' buttons from the greenfoot user interface..
+ * A GreenfootObject is an object that exists in the greenfoot world. 
+ * Every GreenfootObject has a location in the world, and an appearance (that is:
+ * an icon).
  * 
+ * A GreenfootObject is not normally instantiated, but instead used as a superclass
+ * to more specific objects in the world. Every object that is intended to appear
+ * in the world must extend GreenfootObject. Subclasses can then define their own 
+ * appearance and behaviour.
  * 
- * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootObject.java 3434 2005-06-09 10:06:15Z polle $
+ * One of the most important aspects of this class is the 'act' method. This method
+ * is called when the 'Act' or 'Play' buttons are activated in the greenfoot interface.
+ * The method here is empty, and subclasses normally provide their own implementations.
+ * 
+ * @author Poul Henriksen
+ * @version 0.2
+ * @cvs-version $Id: GreenfootObject.java 3459 2005-06-17 22:25:13Z mik $
  */
 public class GreenfootObject
 {
 
     /**
      * x-coordinate of the object's location in the world. The object is
-     * centered aroudn this location.
+     * centered around this location.
      */
     int x;
 
@@ -39,10 +47,11 @@ public class GreenfootObject
     private static GreenfootImage greenfootImage = new GreenfootImage("greenfoot/greenfoot-logo.png");
 
     /**
-     * Constructor that creates an object with a default image. <br>
-     * If this method is called from within the code (programmatically) note
-     * that the object gets assigned a random position. You would probably want
-     * to use the constructor GreenfootObject(int, int).
+     * Construct a GreenfootObject.
+     * If this method is called from within the code (programmatically),
+     * the object will be assigned a random position. Usually the constructor
+     * GreenfootObject(int, int) should be used in preference.
+     * The object will have a default image.
      * 
      * @see GreenfootObject#GreenfootObject(int, int)
      */
@@ -52,8 +61,9 @@ public class GreenfootObject
     }
 
     /**
-     * Constructor that creates an object with a default image and a specified
-     * location.
+     * Construct a GreenfootObject with a default image at a specified
+     * location. The location is specified as the horizontal and vertical index
+     * of the world cell where the object is placed.
      * 
      * @see #setLocation(int, int)
      */
@@ -65,24 +75,22 @@ public class GreenfootObject
     }
 
     /**
-     * This method is called each time the object should do its stuff. The act
-     * methods of different objects gets executed in a sequential way, in no
-     * guarantied order. <br>
+     * The act method is called by the greenfoot framework to give objects a chance
+     * to perform some action. At each action step in the environment, each object's
+     * act method is invoked, in unspecified order.
      * 
-     * This implementation does nothing, so it should be overridden to create
-     * custom behaviour for the objects.
-     * 
+     * This method does nothing. It should be overridden in subclasses to implement
+     * an object's action.
      */
     public void act()
     {
-
     }
 
     /**
-     * Get the x-coordinate of the object's current location in the world. The
-     * object is centered around this location.
+     * Return the x-coordinate of the object's current location. The
+     * value returned is the horizontal index of the object's cell in the world.
      * 
-     * @return The x-coordinate of the object's current location
+     * @return The x-coordinate of the object's current location.
      */
     public int getX()
     {
@@ -90,8 +98,8 @@ public class GreenfootObject
     }
 
     /**
-     * Get the y-coordinate of the object's current location in the world. The
-     * object is centered arounn this location.
+     * Return the y-coordinate of the object's current location. The
+     * value returned is the vertical index of the object's cell in the world.
      * 
      * @return The y-coordinate of the object's current location
      */
@@ -101,13 +109,10 @@ public class GreenfootObject
     }
 
     /**
-     * Get the width of the object in cells. The width is the number of cells
-     * that an object occupies horisontally, based on the image. <br>
+     * Return the width of the object. The width is the number of cells
+     * that an object's image overlaps horizontally.
      * 
-     * NOTE: Does not take rotation into consideration, and has not been tested
-     * when the world is wrapped.
-     * 
-     * @returns the width, or -1 if no image or world
+     * @returns The width of the object, or -1 if it has no image.
      */
     public int getWidth()
     {
@@ -120,13 +125,10 @@ public class GreenfootObject
     }
 
     /**
-     * Get the height of the object in cells. The height is the number of cells
-     * that an object occupies vertically, based on the image. <br>
+     * Return the height of the object. The height is the number of cells
+     * that an object's image overlaps vertically.
      * 
-     * NOTE: Does not take rotation into consideration, and has not been tested
-     * when the world is wrapped.
-     * 
-     * @returns the height, or -1 if no image or world
+     * @returns The height of the object, or -1 if it has no image.
      */
     public int getHeight()
     {
@@ -179,13 +181,13 @@ public class GreenfootObject
     }
 
     /**
-     * Gets the rotation of the object. <br>
-     * 
-     * Zero degrees is to the east. The angle is clockwise from this.
+     * Return the current rotation of the object. Rotation is expressed as a degree
+     * value, range (0..359). Zero degrees is to the east. The angle increases 
+     * clockwise.
      * 
      * @see #setRotation(int)
      * 
-     * @return The rotation in degress
+     * @return The rotation in degrees.
      */
     public int getRotation()
     {
@@ -193,11 +195,11 @@ public class GreenfootObject
     }
 
     /**
-     * Sets the rotation of the object. <br>
+     * Set the rotation of the object. Rotation is expressed as a degree
+     * value, range (0..359). Zero degrees is to the east. The angle increases 
+     * clockwise.
      * 
-     * Zero degrees is to the east. The angle is clockwise from this.
-     * 
-     * @param rotation The rotation in degress
+     * @param rotation The rotation in degrees.
      */
     public void setRotation(int rotation)
     {
@@ -212,14 +214,14 @@ public class GreenfootObject
     }
 
     /**
-     * Sets a new location for this object. The object is centered around this
-     * location. <br>
+     * Assign a new location for this object. The location is specified as a cell
+     * index in the world.
      * 
      * If this method is overridden it is important to call this method with
-     * super.setLocation(x,y) at the end of the overriding method.
+     * super.setLocation(x,y) from the overriding method.
      * 
-     * @param x Location on the x-axis
-     * @param y Location on the y-axis
+     * @param x Location index on the x-axis
+     * @param y Location index on the y-axis
      */
     public void setLocation(int x, int y)
     {
@@ -253,9 +255,9 @@ public class GreenfootObject
     }
 
     /**
-     * Gets the world that this object lives in
+     * Return the world that this object lives in.
      * 
-     * @return The world
+     * @return The world.
      */
     final public GreenfootWorld getWorld()
     {
@@ -263,9 +265,10 @@ public class GreenfootObject
     }
 
     /**
-     * Returns an image representing this GreenfootObject.
+     * Returns the image used to represent this GreenfootObject. This image can be 
+     * modified to change the object's appearance.
      * 
-     * @return The image
+     * @return The object's image.
      */
     public GreenfootImage getImage()
     {
@@ -273,12 +276,11 @@ public class GreenfootObject
     }
 
     /**
-     * Sets the image of this object to the one specified by the filename. <br>
-     * The file should be located in the project directory.
-     * 
+     * Set an image for this object from an image file. The file may be in
+     * jpeg, gif or tiff format. The file should be located in the project directory.
      * 
      * @see #setImage(ImageIcon)
-     * @param filename The filename of the image.
+     * @param filename The name of the image file.
      */
     final public void setImage(String filename)
     {
@@ -289,7 +291,7 @@ public class GreenfootObject
     }
 
     /**
-     * Sets the image of this object <br>
+     * Set the image for this object to the specified image.
      * 
      * @see #setImage(String)
      * @param image The image.
@@ -385,12 +387,12 @@ public class GreenfootObject
     // ============================
 
     /**
-     * Whether this object intersect another object <br>
-     * <br>
+     * Check whether this object intersects with another given object.
      * 
      * NOTE: Does not take rotation into consideration, and has not been tested
      * when the world is wrapped.
      * 
+     * @return True if the object's intersect, false otherwise.
      */
     public boolean intersects(GreenfootObject other)
     {
@@ -419,27 +421,26 @@ public class GreenfootObject
     }
 
     /**
-     * Determines whether the given relative cell-location is considered to be
-     * inside this object. <br>
+     * Checks whether the specified relative cell-location is considered to be
+     * inside this object.<p>
      * 
-     * This implementation uses the size of the image to determine which cells
-     * it spans. <br>
+     * A location is considered to be inside an object, if the object's image
+     * overlaps at least partially with that cell.<p>
      * 
-     * This method is used by several of the methods internally in greenfoot
-     * that has to do with collision checks. Therefor, this method can be
-     * overridden if we want to use other shapes than the bounding box.
-     * 
+     * This method is used by collision checking methods. Therefor, this method 
+     * can be overridden if, for example, other than rectangular image shapes
+     * should be considered.
      * <br>
      * 
      * NOTE: Does not take rotation into consideration, and has not been tested
      * when the world is wrapped.
      * 
-     * @param x The x-position relative to the location of the object
-     * @param y The y-position relative to the location of the object
-     * @return True if the image contains the point. If it has no image it will
-     *         return false.
+     * @param dx The x-position relative to the location of the object
+     * @param dy The y-position relative to the location of the object
+     * @return True if the image contains the cell. If the object has no image,
+     *         false will be returned.
      */
-    public boolean contains(int x, int y)
+    public boolean contains(int dx, int dy)
     {
         // TODO this disregards rotations. maybe this should be updated in the
         // getWidth/height methods
@@ -449,10 +450,10 @@ public class GreenfootObject
             int left = getXMin() - getX();
             int top = getYMin() - getY();
             if (world.isWrapped()) {
-                x = world.wrap(x, world.getWidth());
-                y = world.wrap(y, world.getHeight());
+                dx = world.wrap(dx, world.getWidth());
+                dy = world.wrap(dy, world.getHeight());
             }
-            return intersects(x, y, left, top, width, height);
+            return intersects(dx, dy, left, top, width, height);
         }
         else {
             return false;
@@ -460,35 +461,38 @@ public class GreenfootObject
     }
 
     /**
-     * Returns the neighbours to the this object. This method only looks at the
-     * logical location and not the extent of objects. Hence it is most useful
-     * in scenarios where objects only span one cell.
+     * Return the neighbours to the this object within a given distance. 
+     * This method considers only logical location, ignoring extent of the image.
+     * Thus, it is most useful in scenarios where objects are contained in a single
+     * cell. <p>
      * 
-     * <br>
+     * All cells that can be reached in the number of steps given in 'distance' from
+     * this object are considered. Steps may be only in the four main directions, or
+     * may include diagonal steps, depending on the 'diagonal' parameter. Thus, a 
+     * distance/diagonal specification of (1,false) will inspect four cells, 
+     * (1,true) will inspect eight cells. <p>
      * 
-     * NOTE: Class argument does not work. It returns all types of obejcts.
+     * NOTE: Class argument does not work. It currently returns all types of objects.
      * 
-     * @param distance Distance in which to look for other objects
-     * @param diag Is the distance also diagonal?
-     * @param cls Class of objects to look for (null or Object.class will find
-     *            all classes)
-     * @return A collection of all neighbours found
+     * @param distance Distance (in cells) in which to look for other objects.
+     * @param diagonal If true, include diagonal steps.
+     * @param cls Class of objects to look for (passing 'null' will find all objects).
+     * @return A list of all neighbours found.
      */
-    public List getNeighbours(int distance, boolean diag, Class cls)
+    public List getNeighbours(int distance, boolean diagonal, Class cls)
     {
-        return getWorld().getNeighbours(getX(), getY(), distance, diag, cls);
+        return getWorld().getNeighbours(getX(), getY(), distance, diagonal, cls);
     }
 
     /**
-     * Returns all objects that intersects the given location relative to this
-     * objects location. <br>
+     * Return all objects that intersect the given location (relative to this
+     * object's location). <br>
      * 
      * NOTE: has not been tested when the world is wrapped.
      * 
-     * @param dx x-coordinate relative to this objects location
-     * @param dy y-coordinate relative to this objects location
-     * @param cls Class of objects to look for (null or Object.class will find
-     *            all classes)
+     * @param dx X-coordinate relative to this objects location.
+     * @param dy y-coordinate relative to this objects location.
+     * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
     public List getObjectsAt(int dx, int dy, Class cls)
     {
@@ -496,15 +500,12 @@ public class GreenfootObject
     }
 
     /**
-     * Returns all objects with the logical location within the specified
-     * circle. In other words an object A is within the range of an object B if
-     * the distance between the center of the two objects is less than r.
+     * Return all objects within range 'r' around this object. 
+     * An object is within range if the distance between its centre and this
+     * object's centre is less than r.
      * 
-     * @param x Center of the cirle
-     * @param y Center of the cirle
-     * @param r Radius of the cirle
-     * @param cls Class of objects to look for (null or Object.class will find
-     *            all classes)
+     * @param r Radius of the cirle (in pixels)
+     * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
     public List getObjectsInRange(int r, Class cls)
     {
@@ -514,14 +515,13 @@ public class GreenfootObject
     }
 
     /**
-     * Returns all the objects that intersects this object. This takes the
+     * Return all the objects that intersect this object. This takes the
      * graphical extent of objects into consideration. <br>
      * 
      * NOTE: Does not take rotation into consideration, and has not been tested
      * when the world is wrapped.
      * 
-     * @param cls Class of objects to look for (null or Object.class will find
-     *            all classes)
+     * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
     public List getIntersectingObjects(Class cls)
     {
@@ -529,18 +529,14 @@ public class GreenfootObject
     }
 
     /**
-     * Returns all the objects that intersects the line going out from this
-     * object at the specified angle. The angle is clockwise relative to the
-     * current rotation of the object.
+     * Return all objects that intersect a straight line from this object at
+     * a specified angle. The angle is clockwise relative to the current 
+     * rotation of the object.   <br>
      * 
-     * <br>
-     * 
-     * NOTE: Not implemented yet.
+     * NOTE: Not yet implemented.
      * 
      * @param angle The angle relative to current rotation of the object.
-     *            Clockwise.
-     * @param cls Class of objects to look for (null or Object.class will find
-     *            all classes)
+     * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
     public List getObjectsInDirection(int angle, Class cls)
     {
