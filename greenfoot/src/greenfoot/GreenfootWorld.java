@@ -11,18 +11,23 @@ import java.util.List;
 import java.util.Observable;
 
 /**
- * This class represents the object world, which is a 2 dimensional grid of
- * cells. The world can be populated with GreenfootObjects. <br>
+ * GreenfootWorld is the world that GreenfootObjects live in. It is a two-dimensional 
+ * grid of cells. <br>
  * 
- * The most normal use of the world is using a cell size of one, which means
- * that it is using pixel resolution. If another cell size is used you should be
- * aware that all methods that has something to do with location and size in
- * GreenfootObject and GreenfootWorld is using that resolution.
+ * All GreenfootObject are associated with a GreenfootWorld and can get access to the 
+ * world object. The size of cells can be specified at world creation time, and is 
+ * constant after creation. Simple scenarios may use large cells that entirely contain
+ * the representations of objects in a single cell. More elaborate scenarios may use
+ * smaller cells (down to single pixel size) to achieve fine-grained placement and 
+ * smoother animation.
  * 
+ * The world background can be decorated with drawings or images.
  * 
  * @see greenfoot.GreenfootObject
- * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootWorld.java 3433 2005-06-09 09:45:10Z polle $
+ * @author Poul Henriksen
+ * @author Michael Kolling
+ * @version 0.2
+ * @cvs-version $Id: GreenfootWorld.java 3461 2005-06-20 11:33:14Z mik $
  */
 public class GreenfootWorld extends Observable
 {
@@ -30,7 +35,7 @@ public class GreenfootWorld extends Observable
 
     // TODO: Maybe we want to be able to force the world into "single-cell"
     // mode. With that we avoid accidently going into sprite mode if an object
-    // is rotated and therefor get out of cell bounds
+    // is rotated and therefore get out of cell bounds
 
     private CollisionChecker collisionChecker = new GridCollisionChecker();
 
@@ -50,9 +55,6 @@ public class GreenfootWorld extends Observable
     /** Image painted in the background. */
     private GreenfootImage backgroundImage;
 
-    /** Whether the background image should be tiled */
-    private boolean tiledBackground;
-
     /**
      * The order in which objects should be painted
      * 
@@ -61,14 +63,15 @@ public class GreenfootWorld extends Observable
     private List classPaintOrder;
 
     /**
-     * This constructor should be used if a scenario is created that should use
-     * a grid. It creates a new world with the given size.
+     * Construct a new world. The size of the world (in number of cells) and the size 
+     * of each cell (in pixels) must be specified. The world may be specified to 'wrap'.
+     * In a wrapping world, an object moving out of the world at one edge automatically
+     * enters the world at the opposite edge.
      * 
-     * @see GreenfootWorld
      * @param worldWidth The width of the world (in cells).
      * @param worldHeight The height of the world (in cells).
-     * @param cellSize Size of a cell in pixels
-     * @param wrap Whether the world should wrap around the edges
+     * @param cellSize Size of a cell in pixels.
+     * @param wrap If true, the world wraps around at its edges.
      * 
      */
     public GreenfootWorld(int worldWidth, int worldHeight, int cellSize, boolean wrap)
@@ -93,11 +96,16 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Sets the backgroundimage of the world.
+     * Set a background image for the world. If the image size is larger than the 
+     * world in pixels, it is clipped. If it is smaller than the world, it is tiled.
+     * A pattern showing the cells can easily be shown by setting a background image
+     * with a size equal to the cell size.
      * 
-     * @see #setTiledBackground(boolean)
-     * @see #setBackgroundImage(String)
-     * @param image The image
+     * NOTE: Incomplete implementation. Tiling is currently not automatic and must be
+     * specified in the GreenfootImage.
+     * 
+     * @see #setBackground(String)
+     * @param image The image to be shown
      */
     final public void setBackground(GreenfootImage image)
     {
@@ -106,7 +114,24 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Gets the background image.
+     * Set a background image for the world from an image file. Images of type 'jpeg',
+     * 'gif' and 'png' are supported. If the image size is larger than the 
+     * world in pixels, it is clipped. If it is smaller than the world, it is tiled.
+     * A pattern showing the cells can easily be shown by setting a background image
+     * with a size equal to the cell size.
+     * 
+     * NOTE: Incomplete implementation. NOT IMPLEMENTED.
+     * 
+     * @see #setBackground(GreenfootImage)
+     * @param image The image to be shown
+     */
+    final public void setBackground(String filename)
+    {
+    }
+
+    /**
+     * Return the world's background image. The image may be used to draw onto the
+     * world's background.
      * 
      * @return The background image
      */
@@ -119,7 +144,7 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Gets the width of the world. This is the number of cells horisontally.
+     * Return the width of the world (in number of cells).
      */
     public int getWidth()
     {
@@ -127,7 +152,7 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Gets the height of the world. This is the number of cells vertically.
+     * Return the height of the world (in number of cells).
      */
     public int getHeight()
     {
@@ -135,8 +160,7 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Get the cell size. If no cell size has been specified via the
-     * constructor, the cell size is 1.
+     * Return the size of a cell (in pixels).
      */
     public int getCellSize()
     {
@@ -144,7 +168,7 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Adds a GreenfootObject to the world.
+     * Add a GreenfootObject to the world (at the object's specified location).
      * 
      * @param object The new object to add.
      * @throws IndexOutOfBoundsException If the coordinates are outside the
@@ -168,7 +192,7 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Removes the object from the world.
+     * Remove an object from the world.
      * 
      * @param object the object to remove
      */
@@ -183,25 +207,31 @@ public class GreenfootWorld extends Observable
      * Get all the objects in the world.<br>
      * 
      * If iterating through these objects, you should synchronize on this world
-     * to avoid ConcurrentModificationException. <br>
+     * to avoid ConcurrentModificationException. <p>
      * 
-     * The order in which they are returned, is the paint order. The first
-     * object in the List should be painted first. This means that the lasat
-     * object will always be painted on top of all the other objects.<br>
+     * The objects are returned in their paint order. The first object in the
+     * List is the one painted first. The last object is the one painted on top 
+     * of all other objects.<p>
      * 
-     * @param cls Class of objects to look for (null or Object.class will find
-     *            all classes)
+     * If a class is specified as a parameter, only objects of that class (or its
+     * subclasses) will be returned. <p>
+     * 
+     * NOTE: Incomplete implementation. the cls parameter is currently ignored.
+     * 
+     * @param cls Class of objects to look for ('null' will find all objects).
      * 
      * @return An unmodifiable list of objects.
      */
     public synchronized List getObjects(Class cls)
     {
+        //TODO: implement cls parameter
         return Collections.unmodifiableList(objects);
     }
 
     /**
-     * Whether the world is wrapped around the edges.
+     * Check whether the world is wrapped around the edges.
      * 
+     * @return True if we have a wrapped world, false otherwise.
      */
     public boolean isWrapped()
     {
@@ -209,16 +239,18 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Sets the paint order of objects based on their class. <br>
+     * Sets the paint order of objects based on their class. <p>
      * 
      * Objects of the classes that are first in the list will be painted on top
-     * of objects of the classes later in the list. <br>
+     * of objects of the classes later in the list. Objects of classes not mentioned
+     * in the list will be painted below objects explicitly named here.
      * 
-     * If there are objcts in the world that is not specified in this paint
-     * order, the top object will be the one that was updated last (change of
-     * location)
+     * Within the same class, or within classes that have unspecified paint order,
+     * the last object that has moved into a cell is painted on top of others.
      * 
-     * @param classOrder List of classes.
+     * NOTE: NOT IMPLEMENTED.
+     * 
+     * @param classOrder List of class objects.
      * 
      */
     public void setPaintOrder(List classPaintOrder)
@@ -233,14 +265,16 @@ public class GreenfootWorld extends Observable
     // =================================================
 
     /**
-     * Returns all objects that intersects the given location. <br>
+     * Return all objects at a given cell. <p>
      * 
-     * NOTE: has not been tested when the world is wrapped.
+     * An object is defined to be at that cell if its graphical representation overlaps
+     * with the cell at any point.
      * 
-     * @param x Location
-     * @param y Location
-     * @param cls Class of objects to look for (null or Object.class will find
-     *            all classes)
+     * NOTE: Incomplete implementation. May be faulty at the edges when the world is wrapped.
+     * 
+     * @param x  X-coordinate of the cell to be checked.
+     * @param y  Y-coordinate of the cell to be checked.
+     * @param cls Class of objects to look return ('null' will return all objects).
      */
     public List getObjectsAt(int x, int y, Class cls)
     {
@@ -248,7 +282,7 @@ public class GreenfootWorld extends Observable
     }
 
     /**
-     * Returns all the objects that intersects the given object. This takes the
+     * Return all the objects that intersect the given object. This takes the
      * graphical extent of objects into consideration.
      * 
      * @param go A GreenfootObject in the world

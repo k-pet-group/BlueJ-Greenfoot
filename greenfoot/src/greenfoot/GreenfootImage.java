@@ -10,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.rmi.RemoteException;
-import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 
@@ -18,14 +17,12 @@ import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
- * An image that can be loaded from a file and/or drawn by using the draw
- * methods.
+ * An image to be shown on screen. The image may be loaded from an image file
+ * and/or drawn by using various drawing methods.
  * 
- * Do we want to make the AWT image available? It might be useful for some
- * scenraio creators that wnats to do more advanced stuff.
- * 
- * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootImage.java 3417 2005-06-07 11:02:00Z polle $
+ * @author Poul Henriksen
+ * @version 0.2
+ * @cvs-version $Id: GreenfootImage.java 3461 2005-06-20 11:33:14Z mik $
  */
 public class GreenfootImage
 {
@@ -37,12 +34,12 @@ public class GreenfootImage
     private boolean tiled;
 
     /**
-     * Loads an image from a file.<br>
+     * Create an image from an image file. Supported file formats are JPEG, GIF and PNG.<p>
      * 
-     * It first tries to use the filename as an absolute path, and if that fails
-     * it looks for the filename in the projects directory.
+     * The file name may be an absolute path, a base name for a file located in the
+     * project directory.
      * 
-     * @param filename
+     * @param filename The name of the file to be loaded.
      * @throws FileNotFoundException
      */
     public GreenfootImage(String filename)
@@ -93,9 +90,9 @@ public class GreenfootImage
     }
 
     /**
-     * Loads an image from an URL.
+     * Create an image from an URL.
      * 
-     * @param imageURL
+     * @param imageURL The URL of the image file.
      */
     public GreenfootImage(URL imageURL)
     {
@@ -107,6 +104,12 @@ public class GreenfootImage
         initGraphics();
     }
 
+    /**
+     * Create an empty (white) image with a specified size.
+     * 
+     * @param width The width of the image in pixels.
+     * @param height The height of the image in pixels.
+     */
     public GreenfootImage(int width, int height)
     {
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -114,7 +117,7 @@ public class GreenfootImage
     }
 
     /**
-     * Constructs a new Image from specified AWT image
+     * Create a GreenfootImage from specified AWT image.
      */
     public GreenfootImage(java.awt.Image image)
     {
@@ -132,6 +135,7 @@ public class GreenfootImage
         this.image = image;
         initGraphics();
     }
+    
     
     private void initGraphics() {
         try {
@@ -152,7 +156,7 @@ public class GreenfootImage
     }
 
     /**
-     * Gets the width of the image.
+     * Return the width of the image.
      * 
      * @return Width of the image, or -1 if the width can't be determined
      */
@@ -167,7 +171,7 @@ public class GreenfootImage
     }
 
     /**
-     * Gets the height of the image.
+     * Return the height of the image.
      * 
      * @return Height of the image, or -1 if the width can't be determined
      */
@@ -182,7 +186,7 @@ public class GreenfootImage
     }
 
     /**
-     * Fills the entire image with the given color.
+     * Fill the entire image with the given color.
      * 
      * @param color
      */
@@ -198,9 +202,9 @@ public class GreenfootImage
     /**
      * Draws the given Image onto this image
      * 
-     * @param image
-     * @param x
-     * @param y
+     * @param image The image to draw onto this one.
+     * @param x  x-coordinate for drawing the image.
+     * @param y  y-coordinate for drawing the image.
      */
     public void drawImage(GreenfootImage image, int x, int y)
     {
@@ -238,17 +242,27 @@ public class GreenfootImage
         return tiled;
     }
 
+    /**
+     * Set a color to be used for subsequent drawing operations.
+     * 
+     * @param color The color to be used.
+     */
     public void setColor(Color color)
     {
         getGraphics().setColor(color);
     }
-    
+
+    /**
+     * Return the current drawing color.
+     * 
+     * @return The current color.
+     */
     public Color getColor() {
         return getGraphics().getColor();
     }
 
     /**
-     * Fills the specified rectangle. The left and right edges of the rectangle
+     * Fill the specified rectangle. The left and right edges of the rectangle
      * are at <code>x</code> and
      * <code>x&nbsp;+&nbsp;width&nbsp;-&nbsp;1</code>. The top and bottom
      * edges are at <code>y</code> and
@@ -272,7 +286,7 @@ public class GreenfootImage
     }
 
     /**
-     * Draws the outline of the specified rectangle. The left and right edges of
+     * Draw the outline of the specified rectangle. The left and right edges of
      * the rectangle are at <code>x</code> and
      * <code>x&nbsp;+&nbsp;width</code>. The top and bottom edges are at
      * <code>y</code> and <code>y&nbsp;+&nbsp;height</code>. The rectangle
@@ -293,7 +307,7 @@ public class GreenfootImage
     }
 
     /**
-     * Draws the text given by the specified string, using the current font and
+     * Draw the text given by the specified string, using the current font and
      * color. The baseline of the leftmost character is at position ( <i>x
      * </i>,&nbsp; <i>y </i>).
      * 
@@ -310,7 +324,7 @@ public class GreenfootImage
     }
 
     /**
-     * Fills an oval bounded by the specified rectangle with the current color.
+     * Fill an oval bounded by the specified rectangle with the current color.
      * 
      * @param x
      *            the <i>x </i> coordinate of the upper left corner of the oval
@@ -329,7 +343,7 @@ public class GreenfootImage
     }
 
     /**
-     * Fills a closed polygon defined by arrays of <i>x </i> and <i>y </i>
+     * Fill a closed polygon defined by arrays of <i>x </i> and <i>y </i>
      * coordinates.
      * <p>
      * This method draws the polygon defined by <code>nPoint</code> line
@@ -357,7 +371,7 @@ public class GreenfootImage
     }
 
     /**
-     * Draws a line, using the current color, between the points
+     * Draw a line, using the current color, between the points
      * <code>(x1,&nbsp;y1)</code> and <code>(x2,&nbsp;y2)</code>.
      * 
      * @param x1
@@ -374,6 +388,9 @@ public class GreenfootImage
         getGraphics().drawLine(x1, y1, x2, y2);
     }
     
+    /**
+     * Return a text representation of the image for debugging purposes.
+     */
     public String toString() {        
         String superString = super.toString();
         if(imageFileName == null) {

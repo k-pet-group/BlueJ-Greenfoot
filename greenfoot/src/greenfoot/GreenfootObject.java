@@ -21,7 +21,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.2
- * @cvs-version $Id: GreenfootObject.java 3459 2005-06-17 22:25:13Z mik $
+ * @cvs-version $Id: GreenfootObject.java 3461 2005-06-20 11:33:14Z mik $
  */
 public class GreenfootObject
 {
@@ -48,8 +48,7 @@ public class GreenfootObject
 
     /**
      * Construct a GreenfootObject.
-     * If this method is called from within the code (programmatically),
-     * the object will be assigned a random position. Usually the constructor
+     * The default position is (0,0). Usually the constructor
      * GreenfootObject(int, int) should be used in preference.
      * The object will have a default image.
      * 
