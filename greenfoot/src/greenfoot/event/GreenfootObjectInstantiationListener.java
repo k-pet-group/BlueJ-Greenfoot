@@ -2,6 +2,7 @@ package greenfoot.event;
 
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootWorld;
+import greenfoot.ObjectDragProxy;
 import greenfoot.WorldHandler;
 import greenfoot.gui.DragGlassPane;
 
@@ -56,11 +57,14 @@ public class GreenfootObjectInstantiationListener extends RInvocationListenerImp
      */
     public void localObjectCreated(Object realObject)
     {
-        if (realObject instanceof GreenfootObject) {
+        if (realObject instanceof ObjectDragProxy) {
             GreenfootObject go = (GreenfootObject) realObject;
             int xoffset = 0;
             int yoffset = 0;
             DragGlassPane.getInstance().startDrag(go, xoffset, yoffset, null);
+        }
+        else if(realObject instanceof GreenfootObject) {
+            //We do nothing, since the object is automatically added to the world in the constructor of GreenfootObject
         }
         else if(realObject instanceof greenfoot.GreenfootWorld) {
             worldHandler.installNewWorld((GreenfootWorld) realObject);

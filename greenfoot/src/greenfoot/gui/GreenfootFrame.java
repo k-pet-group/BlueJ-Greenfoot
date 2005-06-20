@@ -44,7 +44,7 @@ import bluej.utility.DialogManager;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3456 2005-06-16 15:09:55Z polle $
+ * @version $Id: GreenfootFrame.java 3462 2005-06-20 14:00:42Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -55,7 +55,6 @@ public class GreenfootFrame extends JFrame
     private CompileClassAction compileClassAction = new CompileClassAction("Compile");
     private EditClassAction editClassAction = new EditClassAction("Edit");
     private ClassBrowser classBrowser;
-    private WorldHandler worldHandler;
     private JSplitPane splitPane;
     private final static Dimension MAX_SIZE = new Dimension(800, 600);
 
@@ -99,10 +98,6 @@ public class GreenfootFrame extends JFrame
 
     }
     
-    public WorldHandler getWorldHandler()
-    {
-        return worldHandler;
-    }
 
     private void buildUI()
     {
@@ -117,7 +112,8 @@ public class GreenfootFrame extends JFrame
         classBrowser = buildClassBrowser();
         classBrowser.setBackground(Color.WHITE);
         JScrollPane classScrollPane = new JScrollPane(classBrowser);
-        worldHandler = buildWorld();
+        buildWorld();
+        WorldHandler worldHandler = WorldHandler.instance();
         Simulation.initialize(worldHandler);
         Simulation sim = Simulation.getInstance();
         JScrollPane worldScrollPane = new JScrollPane(worldHandler.getWorldCanvas());
@@ -217,11 +213,12 @@ public class GreenfootFrame extends JFrame
         while (worldClasses.hasNext()) {
             ClassView classView = (ClassView) worldClasses.next();
             if (!classView.getClassName().equals("GreenfootWorld")) {
+                classView.reloadClass();
                 Object o = classView.createInstance();
                 if (o instanceof GreenfootWorld) {
                     GreenfootWorld world = (GreenfootWorld) o;
                     if (world != null) {
-                        worldHandler.setWorld(world);
+                        WorldHandler.instance().setWorld(world);
                     }
                     return world;
                 }
@@ -234,13 +231,11 @@ public class GreenfootFrame extends JFrame
     /**
      *  
      */
-    private WorldHandler buildWorld()
+    private void buildWorld()
     {
         GreenfootWorld world = null;
         WorldCanvas worldCanvas = new WorldCanvas(world);
-
-        WorldHandler worldHandler = new WorldHandler(worldCanvas, world);
-        return worldHandler;
+        WorldHandler.initialise(worldCanvas, world);
     }
 
     private ClassBrowser buildClassBrowser()
@@ -302,6 +297,7 @@ public class GreenfootFrame extends JFrame
 
         JMenu projectMenu = new JMenu("Project");
         menuBar.add(projectMenu);
+
         projectMenu.add(new NewProjectAction("New"));
         projectMenu.add(new OpenProjectAction("Open"));
 
@@ -363,7 +359,7 @@ public class GreenfootFrame extends JFrame
     public void compileStarted(RCompileEvent event)
     {
         Inspector.removeInspectors();
-        worldHandler.setWorld(null);
+        WorldHandler.instance().setWorld(null);
     }
 
     public void compileError(RCompileEvent event)

@@ -17,9 +17,13 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
+import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
@@ -31,6 +35,7 @@ import rmiextension.wrappers.event.RCompileEvent;
 import bluej.extensions.MissingJavaFileException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.prefmgr.PrefMgr;
 import bluej.runtime.ExecServer;
 import bluej.utility.Utility;
 import bluej.views.ConstructorView;
@@ -40,7 +45,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3314 2005-02-16 09:41:30Z polle $
+ * @version $Id: ClassView.java 3462 2005-06-20 14:00:42Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -146,67 +151,64 @@ public class ClassView extends JToggleButton
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        //try {
-            //MenuSerializer serializableMenu = getRClass().getMenu();
-            //if (serializableMenu == null) {
-            //    return;
-            //}
-            //JMenu menu = serializableMenu.getMenu();
 
-            if (popupMenu != null) {
-                remove(popupMenu);
+        if (popupMenu != null) {
+            remove(popupMenu);
+        }
+        // popupMenu = menu.getPopupMenu();
+        popupMenu = new JPopupMenu();
+
+        if (realClass != null) {
+
+            if (!java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
+                List constructorItems = role.createConstructorActions(realClass);
+
+                boolean hasEntries = false;
+                for (Iterator iter = constructorItems.iterator(); iter.hasNext();) {
+                    Action callAction = (Action) iter.next();
+                    JMenuItem item = popupMenu.add(callAction);
+                    item.setFont(PrefMgr.getPopupMenuFont());
+                    hasEntries = true;
+                }
+
+                if (hasEntries) {
+                    popupMenu.addSeparator();
+                }
             }
-            //popupMenu = menu.getPopupMenu();
-            popupMenu = new JPopupMenu();
-            
-            ViewFilter filter;
+
+            ViewFilter filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
             View view = View.getView(realClass);
+            MethodView[] allMethods = view.getAllMethods();
             WorldInvokeListener invocListener = new WorldInvokeListener(realClass);
 
-            if (realClass != null) {
-                if (!java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
-                    filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
-                    ConstructorView[] constructors = view.getConstructors();
-                    
-                    if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, constructors, filter, "new ", invocListener))
-                        popupMenu.addSeparator();
-                }
-                
-                filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
-                MethodView[] allMethods = view.getAllMethods();
-                if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, "", invocListener))
-                    popupMenu.addSeparator();
+            if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, "", invocListener))
+                popupMenu.addSeparator();
+        }
+
+        popupMenu.setInvoker(this);
+
+        popupMenu.add(new NewSubclassAction("New subclass", this, classBrowser));
+        // popupMenu.insert( JPopupMenu.);
+        add(popupMenu);
+        addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e)
+            {
+                maybeShowPopup(e);
             }
-            
-            popupMenu.setInvoker(this);
 
-            popupMenu.add(new NewSubclassAction("New subclass", this, classBrowser));
-            //popupMenu.insert( JPopupMenu.);
-            add(popupMenu);
-            addMouseListener(new MouseAdapter() {
-                public void mousePressed(MouseEvent e)
-                {
-                    maybeShowPopup(e);
+            public void mouseReleased(MouseEvent e)
+            {
+                maybeShowPopup(e);
+            }
+
+            private void maybeShowPopup(MouseEvent e)
+            {
+                if (e.isPopupTrigger()) {
+                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
                 }
+            }
+        });
 
-                public void mouseReleased(MouseEvent e)
-                {
-                    maybeShowPopup(e);
-                }
-
-                private void maybeShowPopup(MouseEvent e)
-                {
-                    if (e.isPopupTrigger()) {
-                        popupMenu.show(e.getComponent(), e.getX(), e.getY());
-                    }
-                }
-            });
-
-        //}
-        //catch (RemoteException e) {
-            // TODO Auto-generated catch block
-        //    e.printStackTrace();
-        //}
 
     }
 
@@ -383,9 +385,6 @@ public class ClassView extends JToggleButton
     public Object createInstance()
     {
         try {
-            reloadClass(); //TODO: hack to fix bug: when compiling, it tries to
-                           // instantiate world, before the correct class is
-                           // loaded
             Class cls = getRealClass();
             logger.info("real class: " + cls);
             logger.info("*** Class LOADER1: " + this.getClass().getClassLoader());
@@ -530,7 +529,7 @@ public class ClassView extends JToggleButton
         reloadClass();
     }
 
-    private void reloadClass()
+    public void reloadClass()
     {
         realClass = getClass(remoteClass);
         createPopupMenu();

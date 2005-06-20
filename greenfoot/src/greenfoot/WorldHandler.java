@@ -6,6 +6,8 @@ import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
+import greenfoot.gui.classbrowser.role.ClassRole;
+import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.localdebugger.LocalObject;
 
 import java.awt.Component;
@@ -13,9 +15,7 @@ import java.awt.Point;
 import java.awt.event.*;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -30,7 +30,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3420 2005-06-07 14:25:26Z polle $
+ * @version $Id: WorldHandler.java 3462 2005-06-20 14:00:42Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -53,6 +53,8 @@ public class WorldHandler
      */
     private boolean objectDropped = true; // true if the object was dropped
 
+    private static WorldHandler instance;
+    
     /**
      * Creates a new worldHandler and sets up the connection between worldCanvas
      * and world
@@ -60,7 +62,7 @@ public class WorldHandler
      * @param worldCanvas
      * @param world
      */
-    public WorldHandler(WorldCanvas worldCanvas, GreenfootWorld world)
+    private WorldHandler(WorldCanvas worldCanvas, GreenfootWorld world)
     {
 
         this.worldCanvas = worldCanvas;
@@ -71,7 +73,20 @@ public class WorldHandler
         DragGlassPane.getInstance().addKeyListener(this);
 
     }
+    
+    public synchronized static WorldHandler instance() 
+    {
+        return instance;
+    }
 
+    public static synchronized void initialise(WorldCanvas worldCanvas, GreenfootWorld world) 
+    {
+        if(instance == null) {
+            instance = new WorldHandler(worldCanvas, world);
+        } else {
+            throw (new IllegalStateException("Can only intiliase this singleton once."));
+        }
+    }
     /**
      * Sets the selection manager.
      * 
@@ -298,23 +313,21 @@ public class WorldHandler
     {
         if (isQuickAddActive) {
             ClassView cls = (ClassView) classSelectionManager.getSelected();
-            if (cls != null) {
-                // Object selected = classSelectionManager.getSelected();
-                // ClassView classView = (ClassView) selected;
-                Object object = cls.createInstance();
+            
+            if (cls != null && cls.getRole() instanceof GreenfootClassRole) {
+                GreenfootClassRole role = (GreenfootClassRole) cls.getRole();
+                Object object = role.createObjectDragProxy();//cls.createInstance();
 
-                if (object instanceof GreenfootObject) {
-                    GreenfootObject go = (GreenfootObject) object;
-                    int dragOffsetX = 0;
-                    int dragOffsetY = 0;
-                    objectDropped = false;
-                    DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
+                GreenfootObject go = (GreenfootObject) object;
+                int dragOffsetX = 0;
+                int dragOffsetY = 0;
+                objectDropped = false;
+                DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
 
-                    // On the mac, the glass pane doesn't seem to receive
-                    // mouse move events; the shift/move is treated like a drag
-                    worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
-                    worldCanvas.addMouseListener(DragGlassPane.getInstance());
-                }
+                // On the mac, the glass pane doesn't seem to receive
+                // mouse move events; the shift/move is treated like a drag
+                worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
+                worldCanvas.addMouseListener(DragGlassPane.getInstance());
             }
         }
     }
@@ -398,6 +411,10 @@ public class WorldHandler
     {
         return worldTitle;
     }
+    
+    public GreenfootWorld getWorld() {
+        return world;
+    }
 
     public WorldCanvas getWorldCanvas()
     {
@@ -406,11 +423,20 @@ public class WorldHandler
 
     public boolean drop(Object o, Point p)
     {
-        if (o instanceof GreenfootObject) {
-            GreenfootObject go = (GreenfootObject) o;
-            world.addObject(go);
+        if( o instanceof ObjectDragProxy) {
+            //create the real object
+            ObjectDragProxy to = (ObjectDragProxy) o;
+            to.createRealObject();
+            world.removeObject(to);
+            objectDropped = true;
+            return true;
+        }
+        else if (o instanceof GreenfootObject) {
             try {
-                go.setLocationInPixels((int) p.getX(), (int) p.getY());
+                GreenfootObject go = (GreenfootObject) o;
+                int x = (int) p.getX();
+                int y = (int) p.getY();
+                go.setLocationInPixels(x, y);
                 objectDropped = true;
             }
             catch(IndexOutOfBoundsException e) {
@@ -427,12 +453,18 @@ public class WorldHandler
     public boolean drag(Object o, Point p)
     {
         if (o instanceof GreenfootObject && world != null) {
+            int x = (int) p.getX();
+            int y = (int) p.getY();
+            
+            LocationTracker.instance().setLocation(x, y);
             GreenfootObject go = (GreenfootObject) o;
             world.addObject(go);
             try {
-                go.setLocationInPixels((int) p.getX(), (int) p.getY());
+                go.setLocationInPixels(x, y);
             }
             catch (IndexOutOfBoundsException e) {
+                LocationTracker.instance().reset();
+                world.removeObject(go);
                 return false;
             }
             return true;
@@ -444,6 +476,7 @@ public class WorldHandler
 
     public void dragEnded(Object o)
     {
+        LocationTracker.instance().reset();
         if (o instanceof GreenfootObject) {
             GreenfootObject go = (GreenfootObject) o;
             world.removeObject(go);

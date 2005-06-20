@@ -1,5 +1,7 @@
 package greenfoot;
 
+import greenfoot.util.Location;
+
 import java.net.URL;
 import java.util.List;
 
@@ -21,7 +23,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.2
- * @cvs-version $Id: GreenfootObject.java 3461 2005-06-20 11:33:14Z mik $
+ * @cvs-version $Id: GreenfootObject.java 3462 2005-06-20 14:00:42Z polle $
  */
 public class GreenfootObject
 {
@@ -56,7 +58,7 @@ public class GreenfootObject
      */
     public GreenfootObject()
     {
-        setImage(greenfootImage);
+        init();
     }
 
     /**
@@ -68,10 +70,40 @@ public class GreenfootObject
      */
     public GreenfootObject(int x, int y)
     {
-        setImage(greenfootImage);
+        init();
         this.x = x;
         this.y = y;
     }
+    
+    private void init()
+    {
+        
+        setImage(greenfootImage);
+        WorldHandler worldHandler = WorldHandler.instance();
+        if( worldHandler == null ||  worldHandler.getWorld() == null) {
+            //we are probably doing some unit testing...
+            return;
+        }
+        
+        if( ! (this instanceof ObjectDragProxy)) {
+
+            world = worldHandler.getWorld();
+            LocationTracker tracker = LocationTracker.instance();
+            if(tracker.hasLocation()) {
+                Location location = tracker.getLocation();
+                x = location.getX();
+                y = location.getY();                
+            } else  {
+                x = 0;
+                y = 0;
+            }
+            
+            setLocationInPixels(x, y);
+            world.addObject(this);
+            
+        }
+    }
+
 
     /**
      * The act method is called by the greenfoot framework to give objects a chance

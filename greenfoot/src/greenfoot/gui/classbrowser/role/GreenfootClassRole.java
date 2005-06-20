@@ -1,7 +1,11 @@
 package greenfoot.gui.classbrowser.role;
 
+import greenfoot.GreenfootImage;
 import greenfoot.GreenfootObject;
 import greenfoot.ImageVisitor;
+import greenfoot.ObjectDragProxy;
+import greenfoot.WorldInvokeListener;
+import greenfoot.actions.DragProxyAction;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.Color;
@@ -17,21 +21,37 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RObject;
+import bluej.debugmgr.ConstructAction;
+import bluej.debugmgr.objectbench.InvokeAction;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
+import bluej.views.CallableView;
+import bluej.views.ConstructorView;
+import bluej.views.MethodView;
+import bluej.views.View;
+import bluej.views.ViewFilter;
 
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3428 2005-06-08 14:04:58Z polle $
- *  
+ * @version $Id: GreenfootClassRole.java 3462 2005-06-20 14:00:42Z polle $
+ * 
  */
 public class GreenfootClassRole extends ClassRole
 {
@@ -84,7 +104,8 @@ public class GreenfootClassRole extends ClassRole
 
         image = renderImage();
         if (image != null) {
-            java.awt.Image scaledImage = image.getScaledInstance(iconSize.width, iconSize.height, java.awt.Image.SCALE_SMOOTH);
+            java.awt.Image scaledImage = image.getScaledInstance(iconSize.width, iconSize.height,
+                    java.awt.Image.SCALE_SMOOTH);
             JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
             c.insets.left = 4;
             c.insets.right = 4;
@@ -92,6 +113,14 @@ public class GreenfootClassRole extends ClassRole
         }
     }
 
+    public GreenfootImage getGreenfootImage() {
+        Image im = getImage();
+        if(im == null) {
+            return null;
+        }
+        return new GreenfootImage(im);
+    }
+    
     /**
      * Gets the image for this simulation class if one is available
      * 
@@ -167,7 +196,8 @@ public class GreenfootClassRole extends ClassRole
                 ImageVisitor.drawImage(image, g2, 0, 0, classView);
 
                 return bImg;
-            } else {
+            }
+            else {
                 System.err.println("Could not render the image: " + image + " for the class: " + cls);
             }
         }
@@ -201,7 +231,7 @@ public class GreenfootClassRole extends ClassRole
     /**
      * 
      * Creates the skeleton for a new class of this type/role
-     *  
+     * 
      */
     public void createSkeleton(String className, String superClassName, FileWriter writer)
     {
@@ -227,5 +257,39 @@ public class GreenfootClassRole extends ClassRole
         catch (IOException e2) {
             e2.printStackTrace();
         }
+    }
+
+    /**
+     * Need to overide this method in order to delay the invocation of the
+     * constructor until the object is placed into the world.
+     */
+    public List createConstructorActions(Class realClass)
+    {
+        List realActions = super.createConstructorActions(realClass);
+        List tempActions = new ArrayList();
+        for (Iterator iter = realActions.iterator(); iter.hasNext();) {
+            Action realAction = (Action) iter.next();
+            Action tempAction = createDragProxyAction(realAction);
+            tempActions.add(tempAction);
+        }
+ 
+        return tempActions;
+    }
+    
+    public ObjectDragProxy createObjectDragProxy() {
+        GreenfootImage greenfootImage = getGreenfootImage();
+        Action dropAction = new AbstractAction() {
+            public void actionPerformed(java.awt.event.ActionEvent arg0) {
+                classView.createInstance();
+            }
+        };
+        ObjectDragProxy object = new ObjectDragProxy(greenfootImage, dropAction);
+        return object;
+    }
+
+    private Action createDragProxyAction(Action realAction)
+    {
+        GreenfootImage greenfootImage = getGreenfootImage();
+        return new DragProxyAction(greenfootImage, realAction);
     }
 }

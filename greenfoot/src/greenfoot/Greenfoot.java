@@ -32,7 +32,7 @@ import bluej.utility.FileUtility;
  * The main class for greenfoot. This is a singelton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Greenfoot.java 3437 2005-06-09 11:13:20Z mik $
+ * @version $Id: Greenfoot.java 3462 2005-06-20 14:00:42Z polle $
  */
 public class Greenfoot
 {
@@ -92,7 +92,7 @@ public class Greenfoot
                 frame.toFront();
                 logger.info("Frame visible");
                 try {
-                    instantiationListener = new GreenfootObjectInstantiationListener(frame.getWorldHandler());
+                    instantiationListener = new GreenfootObjectInstantiationListener(WorldHandler.instance());
                     Greenfoot.this.rBlueJ.addInvocationListener(instantiationListener);
                     compileListenerForwarder = new CompileListenerForwarder(compileListeners);
                     Greenfoot.this.rBlueJ.addCompileListener(compileListenerForwarder);
