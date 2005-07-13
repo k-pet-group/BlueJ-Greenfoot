@@ -80,11 +80,7 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
 	SymbolTable symbolTable = new SymbolTable();
         ClassInfo info = new ClassInfo();
 
-        // DAV !
-        Debug.message("About to do file...");
         doFile(file, symbolTable, info); // parse it
-        // DAV !
-        Debug.message("Done file.");
 
 	// resolve the types of all symbols in the symbol table
 	//  -- we don't need this for BlueJ
@@ -111,7 +107,7 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
         }
 
         // otherwise, if this is a java file, parse it!
-        else if (f.getName().endsWith(".java")) {
+        else /* if (f.getName().endsWith(".java")) */ {
             symbolTable.setFile(f);
             parseFile(new BufferedReader(new FileReader(f)), symbolTable, info);
         }
