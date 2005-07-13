@@ -12,7 +12,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 3386 2005-05-26 01:28:52Z davmac $
+ * @version $Id: GenTypeClass.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -125,7 +125,7 @@ public class GenTypeClass extends GenTypeSolid {
         return this;
     }
     
-    public GenType getErasedType()
+    public JavaType getErasedType()
     {
         return new GenTypeClass(reflective);
     }
@@ -311,7 +311,7 @@ public class GenTypeClass extends GenTypeSolid {
         return reflective;
     }
     
-    public boolean isAssignableFrom(GenType t)
+    public boolean isAssignableFrom(JavaType t)
     {
         if (! (t instanceof GenTypeClass))
             return false;
@@ -341,7 +341,7 @@ public class GenTypeClass extends GenTypeSolid {
         return false;
     }
     
-    public boolean isAssignableFromRaw(GenType t)
+    public boolean isAssignableFromRaw(JavaType t)
     {
         if (! (t instanceof GenTypeClass))
             return false;
@@ -419,7 +419,7 @@ public class GenTypeClass extends GenTypeSolid {
      *                 can be null to return the raw type.
      * @return the corresponding type structure, with parameters mapped.
      */
-    public GenType mapTparsToTypes(Map tparams)
+    public JavaType mapTparsToTypes(Map tparams)
     {
         // If tparams is null, return the erased type
         if (tparams == null)
@@ -531,7 +531,7 @@ public class GenTypeClass extends GenTypeSolid {
         // go through each type parameter, assign it the type from our
         // params list.
         while( paramIterator.hasNext() ) {
-            GenType paramType = (GenType)paramIterator.next();
+            JavaType paramType = (JavaType)paramIterator.next();
             GenTypeDeclTpar formalType = (GenTypeDeclTpar)formalIterator.next();
             
             String paramName = formalType.getTparName();

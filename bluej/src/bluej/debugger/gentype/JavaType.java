@@ -9,26 +9,26 @@ import java.util.Map;
  * methods are provided.
  * 
  * @author Davin McCall
- * @version $Id: GenType.java 3347 2005-04-14 02:00:15Z davmac $
+ * @version $Id: JavaType.java 3463 2005-07-13 01:55:27Z davmac $
  */
 
-public abstract class GenType
+public abstract class JavaType
 {
-    public static int GT_VOID = 0;
-    public static int GT_NULL = 1;
-    public static int GT_BOOLEAN = 2;
-    public static int GT_CHAR = 3;
-    public static int GT_BYTE = 4;
-    public static int GT_SHORT = 5;
-    public static int GT_INT = 6;
-    public static int GT_LONG = 7;
-    public static int GT_FLOAT = 8;
-    public static int GT_DOUBLE = 9;
+    public static int JT_VOID = 0;
+    public static int JT_NULL = 1;
+    public static int JT_BOOLEAN = 2;
+    public static int JT_CHAR = 3;
+    public static int JT_BYTE = 4;
+    public static int JT_SHORT = 5;
+    public static int JT_INT = 6;
+    public static int JT_LONG = 7;
+    public static int JT_FLOAT = 8;
+    public static int JT_DOUBLE = 9;
     
-    public static int GT_MAX = 9;
+    public static int JT_MAX = 9;
     
-    public static int GT_LOWEST_NUMERIC = GT_CHAR; // all above are numeric
-    public static int GT_LOWEST_FLOAT = GT_FLOAT; // all above are float point
+    public static int JT_LOWEST_NUMERIC = JT_CHAR; // all above are numeric
+    public static int JT_LOWEST_FLOAT = JT_FLOAT; // all above are float point
     
     /**
      * Get a string representation of a type, optionally stripping pacakge
@@ -115,7 +115,7 @@ public abstract class GenType
      */
     final public boolean isVoid()
     {
-        return typeIs(GT_VOID);
+        return typeIs(JT_VOID);
     }
     
     /**
@@ -138,7 +138,7 @@ public abstract class GenType
     /**
      * Get the erased type of this type.
      */
-    abstract public GenType getErasedType();
+    abstract public JavaType getErasedType();
     
     /**
      * Determine whether a variable of this type could legally be assigned
@@ -147,7 +147,7 @@ public abstract class GenType
      * @param t  The type to check against
      * @return   true if the type is assignable to this type
      */
-    abstract public boolean isAssignableFrom(GenType t);
+    abstract public boolean isAssignableFrom(JavaType t);
     
     /**
      * Determine whether a variable of this type could legally be assigned
@@ -157,7 +157,7 @@ public abstract class GenType
      * @param t  The type to check against
      * @return   true if the type is assignable to this type
      */
-    abstract public boolean isAssignableFromRaw(GenType t);
+    abstract public boolean isAssignableFromRaw(JavaType t);
     
     /**
      * Get an equivalent type where the type parameters have been mapped to
@@ -168,13 +168,13 @@ public abstract class GenType
      *                parameter to the corresponding type
      * @return A type with parameters mapped
      */
-    abstract public GenType mapTparsToTypes(Map tparams);
+    abstract public JavaType mapTparsToTypes(Map tparams);
     
     /**
      * If this is an array type, get the component type. If this is not an
      * array type, return null.
      */
-    public GenType getArrayComponent()
+    public JavaType getArrayComponent()
     {
         return null;
     }

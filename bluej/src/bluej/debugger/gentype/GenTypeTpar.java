@@ -45,7 +45,7 @@ public class GenTypeTpar extends GenTypeSolid
         return name.equals(((GenTypeTpar)other).name);
     }
     
-    public GenType mapTparsToTypes(Map tparams)
+    public JavaType mapTparsToTypes(Map tparams)
     {
         if (tparams == null)
             return this;
@@ -80,7 +80,7 @@ public class GenTypeTpar extends GenTypeSolid
         return false;
     }
     
-    public boolean isAssignableFrom(GenType t)
+    public boolean isAssignableFrom(JavaType t)
     {
         if (t instanceof GenTypeTpar)
             if (((GenTypeTpar)t).name.equals(name))
@@ -89,7 +89,7 @@ public class GenTypeTpar extends GenTypeSolid
         return false;
     }
     
-    public boolean isAssignableFromRaw(GenType t)
+    public boolean isAssignableFromRaw(JavaType t)
     {
         // We don't know the erased type.
         throw new UnsupportedOperationException();
@@ -107,7 +107,7 @@ public class GenTypeTpar extends GenTypeSolid
         throw new UnsupportedOperationException();
     }
 
-    public GenType getErasedType()
+    public JavaType getErasedType()
     {
         // We don't know the erased type.
         throw new UnsupportedOperationException();

@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import bluej.Config;
-import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 
@@ -16,7 +16,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: JavaUtils.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -131,16 +131,16 @@ public abstract class JavaUtils {
     /**
      * Get the return type of a method.
      */
-    abstract public GenType getReturnType(Method method);
+    abstract public JavaType getReturnType(Method method);
     
-    abstract public GenType getRawReturnType(Method method);
+    abstract public JavaType getRawReturnType(Method method);
 
     /**
      * Get the declared type of a field.
      */
-    abstract public GenType getFieldType(Field field);
+    abstract public JavaType getFieldType(Field field);
     
-    abstract public GenType getRawFieldType(Field field);
+    abstract public JavaType getRawFieldType(Field field);
     
     /**
      * Get a list of the type parameters for a generic method.
@@ -183,7 +183,7 @@ public abstract class JavaUtils {
      * @param raw     whether to return the raw versions of argument types
      * @return  the argument types
      */
-    abstract public GenType[] getParamGenTypes(Method method, boolean raw);
+    abstract public JavaType[] getParamGenTypes(Method method, boolean raw);
     
     /**
      * Gets an array of nicely formatted strings with the types of the parameters.
@@ -202,7 +202,7 @@ public abstract class JavaUtils {
      * @param method  the method whose argument types to get
      * @return  the argument types
      */
-    abstract public GenType[] getParamGenTypes(Constructor constructor);
+    abstract public JavaType[] getParamGenTypes(Constructor constructor);
 
     /**
      * Change a list of type parameters (with bounds) into a map, which maps

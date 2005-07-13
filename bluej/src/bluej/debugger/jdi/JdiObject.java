@@ -5,7 +5,7 @@ import java.util.*;
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.Debug;
@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 3386 2005-05-26 01:28:52Z davmac $
+ * @version $Id: JdiObject.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -40,7 +40,7 @@ public class JdiObject extends DebuggerObject
             return new JdiObject(obj);
     }
     
-    public static JdiObject getDebuggerObject(ObjectReference obj, GenType expectedType)
+    public static JdiObject getDebuggerObject(ObjectReference obj, JavaType expectedType)
     {
         if( obj instanceof ArrayReference )
             return new JdiArray((ArrayReference) obj, expectedType);
@@ -66,7 +66,7 @@ public class JdiObject extends DebuggerObject
             return getDebuggerObject(obj);
         
         // Handle all cases.
-        GenType expectedType = JdiReflective.fromField(field, parent);
+        JavaType expectedType = JdiReflective.fromField(field, parent);
         if (obj instanceof ArrayReference)
             return new JdiArray((ArrayReference) obj, expectedType);
         
@@ -344,7 +344,7 @@ public class JdiObject extends DebuggerObject
      * @param expectedType  The static type of the value in the field
      * @return   The value in the field, as a DebuggerObject.
      */
-    public DebuggerObject getInstanceFieldObject(int slot, GenType expectedType)
+    public DebuggerObject getInstanceFieldObject(int slot, JavaType expectedType)
     {
         Field field = getField(false, slot);
         ObjectReference val = (ObjectReference) obj.getValue(field);
@@ -374,7 +374,7 @@ public class JdiObject extends DebuggerObject
      * @param expectedType  The static type of the value in the field
      * @return              The field object value (as a DebuggerObject)
      */
-    public DebuggerObject getFieldObject(int slot, GenType expectedType)
+    public DebuggerObject getFieldObject(int slot, JavaType expectedType)
     {
         Field field = (Field) fields.get(slot);
         ObjectReference val = (ObjectReference) obj.getValue(field);

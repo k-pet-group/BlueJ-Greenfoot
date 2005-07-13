@@ -16,11 +16,11 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 3386 2005-05-26 01:28:52Z davmac $
+ * @version    $Id: JdiArray.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class JdiArray extends JdiObject
 {    
-    private GenType componentType; 
+    private JavaType componentType; 
     
     protected JdiArray(ArrayReference obj)
     {
@@ -32,14 +32,14 @@ public class JdiArray extends JdiObject
      * @param obj           The reference to the the remote object
      * @param expectedType  The known type of the object
      */
-    protected JdiArray(ArrayReference obj, GenType expectedType)
+    protected JdiArray(ArrayReference obj, JavaType expectedType)
     {
         this.obj = obj;
         // All arrays extend java.lang.Object - so it's possible that the
         // expected type is java.lang.Object and not an array type at all.
         if(expectedType instanceof GenTypeArray) {
             String ctypestr = obj.referenceType().signature();
-            GenType genericType = expectedType;
+            JavaType genericType = expectedType;
             int level = 0;
             
             // Go downwards until we find the base component type

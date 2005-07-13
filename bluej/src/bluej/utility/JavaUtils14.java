@@ -14,7 +14,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 3102 2004-11-18 01:39:18Z davmac $
+ * @version $Id: JavaUtils14.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -91,23 +91,23 @@ public class JavaUtils14 extends JavaUtils
         return false;
     }
 
-    public GenType getReturnType(Method method)
+    public JavaType getReturnType(Method method)
     {
         Class retType = method.getReturnType();
         return genTypeFromClass(retType);
     }
     
-    public GenType getRawReturnType(Method method)
+    public JavaType getRawReturnType(Method method)
     {
         return getReturnType(method);
     }
     
-    public GenType getFieldType(Field field)
+    public JavaType getFieldType(Field field)
     {
         return genTypeFromClass(field.getType());
     }
     
-    public GenType getRawFieldType(Field field)
+    public JavaType getRawFieldType(Field field)
     {
         return genTypeFromClass(field.getType());
     }
@@ -147,10 +147,10 @@ public class JavaUtils14 extends JavaUtils
         return getParameterTypes(params);
     }
 
-    public GenType[] getParamGenTypes(Method method, boolean raw)
+    public JavaType[] getParamGenTypes(Method method, boolean raw)
     {
         Class[] params = method.getParameterTypes();
-        GenType[] gentypes = new GenType[params.length];
+        JavaType[] gentypes = new JavaType[params.length];
         for (int i = 0; i < params.length; i++) {
             gentypes[i] = genTypeFromClass(params[i]);
         }
@@ -163,10 +163,10 @@ public class JavaUtils14 extends JavaUtils
         return getParameterTypes(params);
     }
 
-    public GenType[] getParamGenTypes(Constructor constructor)
+    public JavaType[] getParamGenTypes(Constructor constructor)
     {
         Class[] params = constructor.getParameterTypes();
-        GenType[] gentypes = new GenType[params.length];
+        JavaType[] gentypes = new JavaType[params.length];
         for (int i = 0; i < params.length; i++) {
             gentypes[i] = genTypeFromClass(params[i]);
         }
@@ -229,31 +229,31 @@ public class JavaUtils14 extends JavaUtils
         return sb.toString();
     }
 
-    static public GenType genTypeFromClass(Class c)
+    static public JavaType genTypeFromClass(Class c)
     {
         if (c.isPrimitive()) {
             if (c == boolean.class)
-                return GenTypePrimitive.getBoolean();
+                return JavaPrimitiveType.getBoolean();
             if (c == char.class)
-                return GenTypePrimitive.getChar();
+                return JavaPrimitiveType.getChar();
             if (c == byte.class)
-                return GenTypePrimitive.getByte();
+                return JavaPrimitiveType.getByte();
             if (c == short.class)
-                return GenTypePrimitive.getShort();
+                return JavaPrimitiveType.getShort();
             if (c == int.class)
-                return GenTypePrimitive.getInt();
+                return JavaPrimitiveType.getInt();
             if (c == long.class)
-                return GenTypePrimitive.getLong();
+                return JavaPrimitiveType.getLong();
             if (c == float.class)
-                return GenTypePrimitive.getFloat();
+                return JavaPrimitiveType.getFloat();
             if (c == double.class)
-                return GenTypePrimitive.getDouble();
+                return JavaPrimitiveType.getDouble();
             if (c == void.class)
-                return GenTypePrimitive.getVoid();
+                return JavaPrimitiveType.getVoid();
             Debug.message("getReturnType: Unknown primitive type");
         }
         if (c.isArray()) {
-            GenType componentT = genTypeFromClass(c.getComponentType());
+            JavaType componentT = genTypeFromClass(c.getComponentType());
             return new GenTypeArray(componentT, new JavaReflective(c));
         }
         return new GenTypeClass(new JavaReflective(c));

@@ -13,10 +13,10 @@ import javax.swing.*;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.debugger.gentype.GenType;
 import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeDeclTpar;
-import bluej.debugger.gentype.GenTypeTpar;
+import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.TextType;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.ComponentFactory;
@@ -35,7 +35,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 3338 2005-03-23 01:06:54Z davmac $
+ * @version $Id: MethodDialog.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -113,7 +113,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 3338 2005-03-23 01:06:54Z davmac $
+     * @version $Id: MethodDialog.java 3463 2005-07-13 01:55:27Z davmac $
      */
     public static class ParameterList
     {
@@ -548,7 +548,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * @param raw
      *            if true, raw types will be returned
      */
-    public GenType[] getArgGenTypes(boolean varArgsExpanded, boolean ignored)
+    public JavaType[] getArgGenTypes(boolean varArgsExpanded, boolean ignored)
     {
         boolean raw = rawObject;
         
@@ -564,12 +564,12 @@ public class MethodDialog extends CallDialog implements FocusListener
         for (int i = 0; i < len; i++) {
             TypeParamView view = formalTypeParamViews[i];
             GenTypeDeclTpar formalType = view.getParamType();
-            GenType actualType = new GenTypeTpar(typeParameterList.getType(i));
+            JavaType actualType = new TextType(typeParameterList.getType(i));
             typeMap.put(formalType.getTparName(), actualType);
         }
         
         // Map type parameter names in arguments to the corresponding types
-        GenType[] params = method.getParamTypes(raw);
+        JavaType[] params = method.getParamTypes(raw);
         for (int i = 0; i < params.length; i++) {
             params[i] = params[i].mapTparsToTypes(typeMap);
         }
@@ -579,9 +579,9 @@ public class MethodDialog extends CallDialog implements FocusListener
                 && parameterList.size() >= params.length;
         if (hasVarArgs && varArgsExpanded) {
             int totalParams = parameterList.size();
-            GenType[] allParams = new GenType[totalParams];
+            JavaType[] allParams = new JavaType[totalParams];
             System.arraycopy(params, 0, allParams, 0, params.length);
-            GenType varArgType = ((GenTypeArray)params[params.length - 1]).getArrayComponent();
+            JavaType varArgType = ((GenTypeArray)params[params.length - 1]).getArrayComponent();
             for (int i = params.length - 1; i < totalParams; i++) {
                 allParams[i] = varArgType;
             }

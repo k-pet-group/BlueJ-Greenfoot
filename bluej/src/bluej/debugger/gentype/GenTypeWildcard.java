@@ -14,7 +14,7 @@ import bluej.utility.Debug;
  * This is an Immutable type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 3386 2005-05-26 01:28:52Z davmac $
+ * @version $Id: GenTypeWildcard.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class GenTypeWildcard extends GenTypeParameterizable
 {
@@ -196,7 +196,7 @@ public class GenTypeWildcard extends GenTypeParameterizable
      *   "? extends ? extends X"    => "? extends X".
      *   "? super ? super X"        => "? super X".
      */
-    public GenType mapTparsToTypes(Map tparams)
+    public JavaType mapTparsToTypes(Map tparams)
     {
         ArrayList newUpper = new ArrayList();
         ArrayList newLower = new ArrayList();
@@ -389,7 +389,7 @@ public class GenTypeWildcard extends GenTypeParameterizable
         return;
     }
     
-    public GenType getErasedType()
+    public JavaType getErasedType()
     {
         return upperBounds[0].getErasedType();
     }
@@ -399,13 +399,13 @@ public class GenTypeWildcard extends GenTypeParameterizable
         return false;
     }
     
-    public boolean isAssignableFrom(GenType t)
+    public boolean isAssignableFrom(JavaType t)
     {
         // TODO fix
         return false;
     }
     
-    public boolean isAssignableFromRaw(GenType t)
+    public boolean isAssignableFromRaw(JavaType t)
     {
         // TODO fix
         return false;

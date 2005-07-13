@@ -7,10 +7,10 @@ import java.util.Map;
  * 
  * @author Davin McCall
  */
-public class GenTypePrimitive
-    extends GenType
+public class JavaPrimitiveType
+    extends JavaType
 {
-    private static GenTypePrimitive [] primitiveTypes = new GenTypePrimitive[GenType.GT_MAX+1];
+    private static JavaPrimitiveType [] primitiveTypes = new JavaPrimitiveType[JavaType.JT_MAX+1];
     private static String [] typeNames = { "void", "java.lang.Object", "boolean", "char",
             "byte", "short", "int", "long", "float", "double" };
     // note, the types above should be valid java types. So the type of null
@@ -18,18 +18,18 @@ public class GenTypePrimitive
     
     // each element represents a primitive type, and contains an array of
     // other types that this type can be assigned from
-    private static int assignableFrom [][] = new int [GT_MAX+1][];
+    private static int assignableFrom [][] = new int [JT_MAX+1][];
     {
-        assignableFrom[GT_VOID]    = new int[] {};
-        assignableFrom[GT_NULL]    = new int[] {};
-        assignableFrom[GT_BOOLEAN] = new int[] { GT_BOOLEAN };
-        assignableFrom[GT_CHAR]    = new int[] { GT_CHAR };
-        assignableFrom[GT_BYTE]    = new int[] { GT_BYTE };
-        assignableFrom[GT_SHORT]   = new int[] { GT_SHORT, GT_BYTE };
-        assignableFrom[GT_INT]     = new int[] { GT_INT, GT_BYTE, GT_SHORT, GT_CHAR };
-        assignableFrom[GT_LONG]    = new int[] { GT_LONG, GT_BYTE, GT_SHORT, GT_CHAR, GT_INT };
-        assignableFrom[GT_FLOAT]   = new int[] { GT_FLOAT, GT_LONG, GT_BYTE, GT_SHORT, GT_CHAR, GT_INT, GT_LONG };
-        assignableFrom[GT_DOUBLE]  = new int[] { GT_DOUBLE, GT_LONG, GT_BYTE, GT_SHORT, GT_CHAR, GT_INT, GT_LONG, GT_FLOAT };
+        assignableFrom[JT_VOID]    = new int[] {};
+        assignableFrom[JT_NULL]    = new int[] {};
+        assignableFrom[JT_BOOLEAN] = new int[] { JT_BOOLEAN };
+        assignableFrom[JT_CHAR]    = new int[] { JT_CHAR };
+        assignableFrom[JT_BYTE]    = new int[] { JT_BYTE };
+        assignableFrom[JT_SHORT]   = new int[] { JT_SHORT, JT_BYTE };
+        assignableFrom[JT_INT]     = new int[] { JT_INT, JT_BYTE, JT_SHORT, JT_CHAR };
+        assignableFrom[JT_LONG]    = new int[] { JT_LONG, JT_BYTE, JT_SHORT, JT_CHAR, JT_INT };
+        assignableFrom[JT_FLOAT]   = new int[] { JT_FLOAT, JT_LONG, JT_BYTE, JT_SHORT, JT_CHAR, JT_INT, JT_LONG };
+        assignableFrom[JT_DOUBLE]  = new int[] { JT_DOUBLE, JT_LONG, JT_BYTE, JT_SHORT, JT_CHAR, JT_INT, JT_LONG, JT_FLOAT };
     }
     
     // instance fields
@@ -39,15 +39,15 @@ public class GenTypePrimitive
     /*
      * Private constructor. Use "getXXX" methods to get a primitive instance. 
      */
-    protected GenTypePrimitive(int index)
+    protected JavaPrimitiveType(int index)
     {
         myIndex = index;
     }
     
-    private static GenTypePrimitive getType(int v)
+    private static JavaPrimitiveType getType(int v)
     {
         if (primitiveTypes[v] == null)
-            primitiveTypes[v] = new GenTypePrimitive(v);
+            primitiveTypes[v] = new JavaPrimitiveType(v);
         
         return primitiveTypes[v];
     }
@@ -55,54 +55,54 @@ public class GenTypePrimitive
     /**
      * Obtain an instance of "void".
      */
-    public static GenTypePrimitive getVoid()
+    public static JavaPrimitiveType getVoid()
     {
-        return getType(GT_VOID);
+        return getType(JT_VOID);
     }
     
-    public static GenTypePrimitive getNull()
+    public static JavaPrimitiveType getNull()
     {
-        return getType(GT_NULL);
+        return getType(JT_NULL);
     }
     
-    public static GenTypePrimitive getBoolean()
+    public static JavaPrimitiveType getBoolean()
     {
-        return getType(GT_BOOLEAN);
+        return getType(JT_BOOLEAN);
     }
     
-    public static GenTypePrimitive getByte()
+    public static JavaPrimitiveType getByte()
     {
-        return getType(GT_BYTE);
+        return getType(JT_BYTE);
     }
     
-    public static GenTypePrimitive getChar()
+    public static JavaPrimitiveType getChar()
     {
-        return getType(GT_CHAR);
+        return getType(JT_CHAR);
     }
     
-    public static GenTypePrimitive getShort()
+    public static JavaPrimitiveType getShort()
     {
-        return getType(GT_SHORT);
+        return getType(JT_SHORT);
     }
     
-    public static GenTypePrimitive getInt()
+    public static JavaPrimitiveType getInt()
     {
-        return getType(GT_INT);
+        return getType(JT_INT);
     }
     
-    public static GenTypePrimitive getLong()
+    public static JavaPrimitiveType getLong()
     {
-        return getType(GT_LONG);
+        return getType(JT_LONG);
     }
     
-    public static GenTypePrimitive getFloat()
+    public static JavaPrimitiveType getFloat()
     {
-        return getType(GT_FLOAT);
+        return getType(JT_FLOAT);
     }
     
-    public static GenTypePrimitive getDouble()
+    public static JavaPrimitiveType getDouble()
     {
-        return getType(GT_DOUBLE);
+        return getType(JT_DOUBLE);
     }
     
     
@@ -118,7 +118,7 @@ public class GenTypePrimitive
         return "!!ZCBSIJFD".substring(myIndex, myIndex + 1);
     }
     
-    public boolean isAssignableFrom(GenType o)
+    public boolean isAssignableFrom(JavaType o)
     {
         int [] assignables = assignableFrom[myIndex];
         for (int i = 0; i < assignables.length; i++) {
@@ -130,14 +130,14 @@ public class GenTypePrimitive
     
     public boolean couldHold(int n)
     {
-        if (myIndex >= GT_INT)
+        if (myIndex >= JT_INT)
             return true;
         
-        if (myIndex == GT_BYTE)
+        if (myIndex == JT_BYTE)
             return n >= -128 && n <= 127;
-        else if (myIndex == GT_CHAR)
+        else if (myIndex == JT_CHAR)
             return n >=0 && n <= 65535;
-        else if (myIndex == GT_SHORT)
+        else if (myIndex == JT_SHORT)
             return n >= -32768 && n <= 32767;
 
         return false;
@@ -145,13 +145,13 @@ public class GenTypePrimitive
     
     public boolean fitsType(int gtype)
     {
-        if (myIndex == GT_CHAR)
-            return (gtype != GT_BYTE && gtype != GT_SHORT);
+        if (myIndex == JT_CHAR)
+            return (gtype != JT_BYTE && gtype != JT_SHORT);
         else
             return gtype >= myIndex;
     }
     
-    public GenType getErasedType()
+    public JavaType getErasedType()
     {
         return this;
     }
@@ -160,7 +160,7 @@ public class GenTypePrimitive
      * For primitive types, "isAssignableFromRaw" is equivalent to
      * "isAssignableFrom".
      */
-    public boolean isAssignableFromRaw(GenType t)
+    public boolean isAssignableFromRaw(JavaType t)
     {
         return isAssignableFrom(t);
     }
@@ -172,12 +172,12 @@ public class GenTypePrimitive
     
     public boolean isNumeric()
     {
-        return myIndex >= GT_LOWEST_NUMERIC;
+        return myIndex >= JT_LOWEST_NUMERIC;
     }
     
     public boolean isIntegralType()
     {
-        return myIndex >= GT_CHAR && myIndex <= GT_LONG;
+        return myIndex >= JT_CHAR && myIndex <= JT_LONG;
     }
     
     public boolean typeIs(int v)
@@ -185,15 +185,15 @@ public class GenTypePrimitive
         return myIndex == v;
     }
     
-    public GenType mapTparsToTypes(Map tparams)
+    public JavaType mapTparsToTypes(Map tparams)
     {
         return this;
     }
     
     public boolean equals(Object other)
     {
-        if (other instanceof GenType) {
-            GenType gto = (GenType) other;
+        if (other instanceof JavaType) {
+            JavaType gto = (JavaType) other;
             return (gto.typeIs(myIndex));
         }
         else
@@ -205,10 +205,10 @@ public class GenTypePrimitive
         return myIndex;
     }
     
-    public GenType opBNot()
+    public JavaType opBNot()
     {
         // binary-not is defined for integer types
-        if (myIndex >= GT_CHAR && myIndex <= GT_LONG)
+        if (myIndex >= JT_CHAR && myIndex <= JT_LONG)
             return this;
         
         return null;

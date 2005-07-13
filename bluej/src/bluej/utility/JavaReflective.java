@@ -4,14 +4,14 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 
 /**
  * A reflective for GenTypeClass which uses the standard java reflection API.  
  * 
  * @author Davin McCall
- * @version $Id: JavaReflective.java 3347 2005-04-14 02:00:15Z davmac $
+ * @version $Id: JavaReflective.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class JavaReflective extends Reflective {
 
@@ -87,11 +87,11 @@ public class JavaReflective extends Reflective {
     public List getSuperTypes() {
         List l = new ArrayList();
         
-        GenType superclass = JavaUtils.getJavaUtils().getSuperclass(c);
+        JavaType superclass = JavaUtils.getJavaUtils().getSuperclass(c);
         if( superclass != null )
             l.add(superclass);
         
-        GenType [] interfaces = JavaUtils.getJavaUtils().getInterfaces(c);
+        JavaType [] interfaces = JavaUtils.getJavaUtils().getInterfaces(c);
         for( int i = 0; i < interfaces.length; i++ ) {
             l.add(interfaces[i]);
         }

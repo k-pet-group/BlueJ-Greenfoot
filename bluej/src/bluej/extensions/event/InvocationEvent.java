@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * classes and objects involved.
  *
  *
- * @version    $Id: InvocationEvent.java 2781 2004-07-12 09:32:18Z damiano $
+ * @version    $Id: InvocationEvent.java 3463 2005-07-13 01:55:27Z davmac $
  */
 
 /*
@@ -48,7 +48,7 @@ public class InvocationEvent implements ExtensionEvent
     public final static int TERMINATED_EXIT = 4;
 
     private String className, objectName, methodName;
-    private GenType[] signature;
+    private JavaType[] signature;
     private String[] parameters;
     private int invocationStatus;
     private bluej.pkgmgr.Package bluej_pkg;

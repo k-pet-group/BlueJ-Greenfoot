@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 3376 2005-05-15 23:55:34Z davmac $
+ * @version $Id: JavaUtils15.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -56,9 +56,9 @@ public class JavaUtils15 extends JavaUtils {
         }
         
         String name = getTypeParameters(method);
-        GenType rtype = getReturnType(method);
+        JavaType rtype = getReturnType(method);
         name += rtype.mapTparsToTypes(newMap).toString(true) + " " + method.getName();
-        GenType[] paramTypes = getParamGenTypes(method, false);
+        JavaType[] paramTypes = getParamGenTypes(method, false);
         String[] paramTypeNames = new String[paramTypes.length];
         for(int i = 0; i < paramTypes.length; i++)
             paramTypeNames[i] = paramTypes[i].mapTparsToTypes(newMap).toString(true);
@@ -104,9 +104,9 @@ public class JavaUtils15 extends JavaUtils {
         }
         
         String name = getTypeParameters(method);
-        GenType rtype = getReturnType(method);
+        JavaType rtype = getReturnType(method);
         name += rtype.mapTparsToTypes(newMap).toString(true) + " " + method.getName();
-        GenType[] paramTypes = getParamGenTypes(method, false);
+        JavaType[] paramTypes = getParamGenTypes(method, false);
         String[] paramTypeNames = new String[paramTypes.length];
         for(int i = 0; i < paramTypes.length; i++)
             paramTypeNames[i] = paramTypes[i].mapTparsToTypes(newMap).toString(true);
@@ -184,24 +184,24 @@ public class JavaUtils15 extends JavaUtils {
         return cl.isEnum();
     }
     
-    public GenType getReturnType(Method method)
+    public JavaType getReturnType(Method method)
     {
         Type rt = method.getGenericReturnType();
         return genTypeFromType(rt);
     }
     
-    public GenType getRawReturnType(Method method)
+    public JavaType getRawReturnType(Method method)
     {
         Class c = method.getReturnType();
         return JavaUtils14.genTypeFromClass(c);
     }
     
-    public GenType getFieldType(Field field)
+    public JavaType getFieldType(Field field)
     {
         return genTypeFromType(field.getGenericType());
     }
     
-    public GenType getRawFieldType(Field field)
+    public JavaType getRawFieldType(Field field)
     {
         Class c = field.getType();
         return JavaUtils14.genTypeFromClass(c);
@@ -268,14 +268,14 @@ public class JavaUtils15 extends JavaUtils {
         return getParameterTypes(params, isVarArgs);
     }
     
-    public GenType[] getParamGenTypes(Method method, boolean raw)
+    public JavaType[] getParamGenTypes(Method method, boolean raw)
     {
         Type [] params;
         if (raw)
             params = method.getParameterTypes();
         else
             params = method.getGenericParameterTypes();
-        GenType [] gentypes = new GenType[params.length];
+        JavaType [] gentypes = new JavaType[params.length];
         for(int i = 0; i < params.length; i++) {
             gentypes[i] = genTypeFromType(params[i]);
         }
@@ -289,10 +289,10 @@ public class JavaUtils15 extends JavaUtils {
         return getParameterTypes(params, isVarArgs);
     }
 
-    public GenType[] getParamGenTypes(Constructor constructor)
+    public JavaType[] getParamGenTypes(Constructor constructor)
     {
         Type [] params = constructor.getGenericParameterTypes();
-        GenType [] gentypes = new GenType[params.length];
+        JavaType [] gentypes = new JavaType[params.length];
         for(int i = 0; i < params.length; i++) {
             gentypes[i] = genTypeFromType(params[i]);
         }
@@ -479,7 +479,7 @@ public class JavaUtils15 extends JavaUtils {
     /**
      * Build a GenType structure from a "Type" object.
      */
-    static private GenType genTypeFromType(Type t)
+    static private JavaType genTypeFromType(Type t)
     {
         return genTypeFromType(t, new LinkedList());
     }
@@ -488,7 +488,7 @@ public class JavaUtils15 extends JavaUtils {
      * Build a GenType structure from a "Type" oject, using the given backTrace
      * stack to avoid infinite recursion.
      */
-    static private GenType genTypeFromType(Type t, List backTrace)
+    static private JavaType genTypeFromType(Type t, List backTrace)
     {
         if( t instanceof Class )
             return JavaUtils14.genTypeFromClass((Class)t);
@@ -562,7 +562,7 @@ public class JavaUtils15 extends JavaUtils {
         
         // Assume we have an array
         GenericArrayType gat = (GenericArrayType)t;
-        GenType componentType = genTypeFromType(gat.getGenericComponentType(), backTrace);
+        JavaType componentType = genTypeFromType(gat.getGenericComponentType(), backTrace);
         
         Reflective reflective = new JavaReflective(getRclass(gat));
         return new GenTypeArray(componentType, reflective);

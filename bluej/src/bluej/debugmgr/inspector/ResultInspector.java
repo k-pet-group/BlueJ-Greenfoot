@@ -12,7 +12,7 @@ import javax.swing.border.EmptyBorder;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugmgr.ExpressionInformation;
@@ -28,7 +28,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 3388 2005-05-26 02:05:43Z bquig $
+ * @version $Id: ResultInspector.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -45,7 +45,7 @@ public class ResultInspector extends Inspector
     protected String objName; // name on the object bench
 
     private ExpressionInformation expressionInformation;
-    private GenType resultType; // static result type
+    private JavaType resultType; // static result type
 
     
 
@@ -101,7 +101,7 @@ public class ResultInspector extends Inspector
         Method m = methodView.getMethod();
 
         // Find the expected return type
-        GenType methodReturnType = JavaUtils.getJavaUtils().getReturnType(m);
+        JavaType methodReturnType = JavaUtils.getJavaUtils().getReturnType(m);
 
         // TODO: infer type of generic parameters based on the actual
         // arguments passed to the method.

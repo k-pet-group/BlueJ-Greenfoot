@@ -36,7 +36,7 @@ import bluej.views.TypeParamView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3386 2005-05-26 01:28:52Z davmac $
+ * @version $Id: Invoker.java 3463 2005-07-13 01:55:27Z davmac $
  */
 
 public class Invoker
@@ -276,7 +276,7 @@ public class Invoker
 	                for (int i = 0; i < len; i++) {
 	                    TypeParamView view = formalTypeParamViews[i];
 	                    GenTypeDeclTpar formalType = view.getParamType();
-	                    GenType actualType = new GenTypeTpar(actualTypeParams[i]);
+	                    JavaType actualType = new TextType(actualTypeParams[i]);
 	                    if (typeMap == null) {
 	                        typeMap = new HashMap();
 	                    }
@@ -330,7 +330,7 @@ public class Invoker
      * will be executed by the CompilerThread.
      *  
      */
-    protected void doInvocation(String[] args, GenType[] argTypes, String[] typeParams)
+    protected void doInvocation(String[] args, JavaType[] argTypes, String[] typeParams)
     {
         //Store the arguments in order to show them in the result inspetor
         // later
@@ -365,7 +365,7 @@ public class Invoker
         StringBuffer buffer = new StringBuffer();
         if (! isGenericMethod) {
             for (int i = 0; i < numArgs; i++) {
-                GenType argType;
+                JavaType argType;
                 if (typeMap != null)
                     argType = argTypes[i].mapTparsToTypes(typeMap);
                 else

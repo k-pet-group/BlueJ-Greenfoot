@@ -13,7 +13,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 3386 2005-05-26 01:28:52Z davmac $
+ * @version $Id: JdiReflective.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -426,7 +426,7 @@ public class JdiReflective extends Reflective
      *            loader of this type is used to locate embedded types.
      * @return The GenType structure determined from the signature.
      */
-    private static GenType fromSignature(StringIterator i, Map tparams, ReferenceType parent)
+    private static JavaType fromSignature(StringIterator i, Map tparams, ReferenceType parent)
     {
         char c = i.next();
         if (c == '*') {
@@ -455,7 +455,7 @@ public class JdiReflective extends Reflective
         }
         if (c == '[') {
             // array
-            GenType t = fromSignature(i, tparams, parent);
+            JavaType t = fromSignature(i, tparams, parent);
             
             // figure out the class name of the array class
             String xName = "[" + t.arrayComponentName();
@@ -469,41 +469,41 @@ public class JdiReflective extends Reflective
             // type parameter
             String tname = readClassName(i);
             if (tparams != null && tparams.get(tname) != null)
-                return (GenType) tparams.get(tname);
+                return (JavaType) tparams.get(tname);
             else
                 return new GenTypeTpar(tname);
         }
         if (c == 'I') {
             // integer
-            return GenTypePrimitive.getInt();
+            return JavaPrimitiveType.getInt();
         }
         if (c == 'C') {
             // character
-            return GenTypePrimitive.getChar();
+            return JavaPrimitiveType.getChar();
         }
         if (c == 'Z') {
             // boolean
-            return GenTypePrimitive.getBoolean();
+            return JavaPrimitiveType.getBoolean();
         }
         if (c == 'B') {
             // byte
-            return GenTypePrimitive.getByte();
+            return JavaPrimitiveType.getByte();
         }
         if (c == 'S') {
             // short
-            return GenTypePrimitive.getShort();
+            return JavaPrimitiveType.getShort();
         }
         if (c == 'J') {
             // long
-            return GenTypePrimitive.getLong();
+            return JavaPrimitiveType.getLong();
         }
         if (c == 'F') {
             // float
-            return GenTypePrimitive.getFloat();
+            return JavaPrimitiveType.getFloat();
         }
         if (c == 'D') {
             // double
-            return GenTypePrimitive.getDouble();
+            return JavaPrimitiveType.getDouble();
         }
 
         if (c != 'L')
@@ -522,7 +522,7 @@ public class JdiReflective extends Reflective
 
         List params = new ArrayList();
         do {
-            GenType ptype = fromSignature(i, tparams, parent);
+            JavaType ptype = fromSignature(i, tparams, parent);
             if (ptype == null)
                 return null;
             params.add(ptype);
@@ -553,7 +553,7 @@ public class JdiReflective extends Reflective
         if (c == '<') {
             List params = new ArrayList();
             do {
-                GenType ptype = fromSignature(i, tparams, parent);
+                JavaType ptype = fromSignature(i, tparams, parent);
                 if (ptype == null)
                     return null;
                 params.add(ptype);
@@ -575,24 +575,24 @@ public class JdiReflective extends Reflective
         }
     }
 
-    private static GenType getNonGenericType(String typeName, Type t, ClassLoaderReference clr, VirtualMachine vm)
+    private static JavaType getNonGenericType(String typeName, Type t, ClassLoaderReference clr, VirtualMachine vm)
     {
         if (t instanceof BooleanType)
-            return GenTypePrimitive.getBoolean();
+            return JavaPrimitiveType.getBoolean();
         else if (t instanceof ByteType)
-            return GenTypePrimitive.getByte();
+            return JavaPrimitiveType.getByte();
         else if (t instanceof CharType)
-            return GenTypePrimitive.getChar();
+            return JavaPrimitiveType.getChar();
         else if (t instanceof DoubleType)
-            return GenTypePrimitive.getDouble();
+            return JavaPrimitiveType.getDouble();
         else if (t instanceof FloatType)
-            return GenTypePrimitive.getFloat();
+            return JavaPrimitiveType.getFloat();
         else if (t instanceof IntegerType)
-            return GenTypePrimitive.getInt();
+            return JavaPrimitiveType.getInt();
         else if (t instanceof LongType)
-            return GenTypePrimitive.getLong();
+            return JavaPrimitiveType.getLong();
         else if (t instanceof ShortType)
-            return GenTypePrimitive.getShort();
+            return JavaPrimitiveType.getShort();
         else {
             // The class may or may not be loaded.
             Reflective ref;
@@ -610,7 +610,7 @@ public class JdiReflective extends Reflective
      *            The object in which the field is located
      * @return The type of the field value
      */
-    public static GenType fromField(Field f, JdiObject parent)
+    public static JavaType fromField(Field f, JdiObject parent)
     {
         Type t = null;
 
@@ -674,7 +674,7 @@ public class JdiReflective extends Reflective
      *            The object in which the field is located
      * @return The type of the field value
      */
-    public static GenType fromField(Field f, ReferenceType parent)
+    public static JavaType fromField(Field f, ReferenceType parent)
     {
         Type t = null;
 
@@ -709,7 +709,7 @@ public class JdiReflective extends Reflective
         return fromSignature(iterator, null, parent);
     }
 
-    public static GenType fromLocalVar(StackFrame sf, LocalVariable var)
+    public static JavaType fromLocalVar(StackFrame sf, LocalVariable var)
     {
         Type t = null;
         // For a variable whose value is unset/null, the corresponding class

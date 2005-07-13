@@ -10,19 +10,19 @@ import com.sun.jdi.VirtualMachine;
  * A proxy-type reflective for arrays.
  * 
  * @author Davin McCall
- * @version $Id: JdiArrayReflective.java 3102 2004-11-18 01:39:18Z davmac $
+ * @version $Id: JdiArrayReflective.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class JdiArrayReflective extends JdiReflective {
 
-    private GenType componentType;
+    private JavaType componentType;
     
-    public JdiArrayReflective(GenType t, ReferenceType srctype)
+    public JdiArrayReflective(JavaType t, ReferenceType srctype)
     {
         super(null, srctype);
         componentType = t;
     }
     
-    public JdiArrayReflective(GenType t, ClassLoaderReference classLoader, VirtualMachine vm)
+    public JdiArrayReflective(JavaType t, ClassLoaderReference classLoader, VirtualMachine vm)
     {
         super(null, classLoader, vm);
     }
@@ -45,21 +45,21 @@ public class JdiArrayReflective extends JdiReflective {
      */
     private String componentName()
     {
-        if (componentType.typeIs(GenType.GT_BOOLEAN))
+        if (componentType.typeIs(JavaType.JT_BOOLEAN))
             return "Z";
-        if (componentType.typeIs(GenType.GT_BYTE))
+        if (componentType.typeIs(JavaType.JT_BYTE))
             return "B";
-        if (componentType.typeIs(GenType.GT_CHAR))
+        if (componentType.typeIs(JavaType.JT_CHAR))
             return "C";
-        if (componentType.typeIs(GenType.GT_DOUBLE))
+        if (componentType.typeIs(JavaType.JT_DOUBLE))
             return "D";
-        if (componentType.typeIs(GenType.GT_FLOAT))
+        if (componentType.typeIs(JavaType.JT_FLOAT))
             return "F";
-        if (componentType.typeIs(GenType.GT_INT))
+        if (componentType.typeIs(JavaType.JT_INT))
             return "I";
-        if (componentType.typeIs(GenType.GT_LONG))
+        if (componentType.typeIs(JavaType.JT_LONG))
             return "J";
-        if (componentType.typeIs(GenType.GT_SHORT))
+        if (componentType.typeIs(JavaType.JT_SHORT))
             return "S";
 
         if (componentType instanceof GenTypeArray) {

@@ -4,9 +4,9 @@ import java.util.Map;
 
 public class GenTypeArray extends GenTypeClass
 {
-    GenType baseType;
+    JavaType baseType;
     
-    public GenTypeArray(GenType baseType, Reflective r)
+    public GenTypeArray(JavaType baseType, Reflective r)
     {
         super(r);
         this.baseType = baseType;
@@ -25,14 +25,14 @@ public class GenTypeArray extends GenTypeClass
             return baseType.toString() + "[]";
     }
     
-    public GenType getArrayComponent()
+    public JavaType getArrayComponent()
     {
         return baseType;
     }
     
-    public GenType mapTparsToTypes(Map tparams)
+    public JavaType mapTparsToTypes(Map tparams)
     {
-        GenType newBase = baseType.mapTparsToTypes(tparams);
+        JavaType newBase = baseType.mapTparsToTypes(tparams);
         if( newBase == baseType )
             return this;
         else

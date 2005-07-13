@@ -2,31 +2,21 @@
 
     package bluej.parser;
 
-import antlr.TokenBuffer;
-import antlr.TokenStreamException;
-import antlr.TokenStreamIOException;
-import antlr.ANTLRException;
-import antlr.LLkParser;
-import antlr.Token;
-import antlr.TokenStream;
-import antlr.RecognitionException;
-import antlr.NoViableAltException;
-import antlr.MismatchedTokenException;
-import antlr.SemanticException;
-import antlr.ParserSharedInputState;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.Reader;
+import java.util.Iterator;
+import java.util.Vector;
+
+import antlr.*;
 import antlr.collections.impl.BitSet;
-
-    //import bluej.utility.Debug;
-    import bluej.parser.symtab.SymbolTable;
-    import bluej.parser.symtab.JavaVector;
-    import bluej.parser.symtab.DummyClass;
-    import bluej.parser.symtab.ClassInfo;
-    import bluej.parser.symtab.Selection;
-
-    import antlr.*;
-
-    import java.util.*;
-    import java.io.*;
+import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.DummyClass;
+import bluej.parser.symtab.JavaVector;
+import bluej.parser.symtab.Selection;
+import bluej.parser.symtab.SymbolTable;
+import bluej.utility.Debug;
 
     class JavaBitSet extends java.util.BitSet
     {
@@ -90,7 +80,11 @@ public class ClassParser extends antlr.LLkParser       implements JavaTokenTypes
 	SymbolTable symbolTable = new SymbolTable();
         ClassInfo info = new ClassInfo();
 
-	doFile(file, symbolTable, info); // parse it
+        // DAV !
+        Debug.message("About to do file...");
+        doFile(file, symbolTable, info); // parse it
+        // DAV !
+        Debug.message("Done file.");
 
 	// resolve the types of all symbols in the symbol table
 	//  -- we don't need this for BlueJ

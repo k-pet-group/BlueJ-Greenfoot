@@ -1,7 +1,7 @@
 package bluej.debugmgr;
 
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.JavaType;
 import bluej.pkgmgr.Package;
 
 /**
@@ -9,7 +9,7 @@ import bluej.pkgmgr.Package;
  * an execution.
  *
  * @author  Clive Miller
- * @version $Id: ExecutionEvent.java 3019 2004-09-28 09:51:57Z damiano $
+ * @version $Id: ExecutionEvent.java 3463 2005-07-13 01:55:27Z davmac $
  */
 
 public class ExecutionEvent
@@ -36,7 +36,7 @@ public class ExecutionEvent
     
     private String className, objectName;
     private String methodName;
-    private GenType[] signature;
+    private JavaType[] signature;
     private String[] parameters;
     private String result;
     private String command;
@@ -73,7 +73,7 @@ public class ExecutionEvent
         this.methodName = methodName;
     }
     
-    void setParameters (GenType[] signature, String[] parameters)
+    void setParameters (JavaType[] signature, String[] parameters)
     {
         this.signature = signature;
         this.parameters = parameters;
@@ -117,7 +117,7 @@ public class ExecutionEvent
         return methodName;
     }
     
-    public GenType[] getSignature()
+    public JavaType[] getSignature()
     {
         return signature;
     }

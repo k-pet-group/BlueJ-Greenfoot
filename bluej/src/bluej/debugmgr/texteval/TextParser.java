@@ -23,7 +23,7 @@ import bluej.utility.JavaUtils;
  * Parsing routines for the code pad.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3386 2005-05-26 01:28:52Z davmac $
+ * @version $Id: TextParser.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class TextParser
 {
@@ -76,7 +76,7 @@ public class TextParser
                     if (fcnode != null && fcnode.getType() == JavaTokenTypes.VARIABLE_DEF) {
                         AST modnode = fcnode.getFirstChild(); // modifiers
                         AST typenode = modnode.getNextSibling();
-                        GenType declVarType = getTypeFromTypeNode(typenode);
+                        JavaType declVarType = getTypeFromTypeNode(typenode);
                         AST namenode = typenode.getNextSibling();
                         String varName = namenode.getText();
                         boolean isVarInit = namenode.getNextSibling() != null;
@@ -101,7 +101,7 @@ public class TextParser
                 parsedOk = true; // it parses as an expression.
                 
                 ExprValue ev = getExpressionType(rootAST);
-                GenType t = ev != null ? ev.getType() : null;
+                JavaType t = ev != null ? ev.getType() : null;
 
                 if (t == null)
                     return "";
@@ -134,14 +134,14 @@ public class TextParser
      * @throws RecognitionException
      * @throws SemanticException
      */
-    private GenType questionOperator14(AST node) throws RecognitionException, SemanticException
+    private JavaType questionOperator14(AST node) throws RecognitionException, SemanticException
     {
         AST trueAlt = node.getFirstChild().getNextSibling();
         AST falseAlt = trueAlt.getNextSibling();
         ExprValue trueAltEv = getExpressionType(trueAlt);
         ExprValue falseAltEv = getExpressionType(falseAlt);
-        GenType trueAltType = trueAltEv.getType();
-        GenType falseAltType = falseAltEv.getType();
+        JavaType trueAltType = trueAltEv.getType();
+        JavaType falseAltType = falseAltEv.getType();
         
         // if the operands have the same type, that is the result type
         if (trueAltType.equals(falseAltType))
@@ -149,19 +149,19 @@ public class TextParser
         
         if (trueAltType.isNumeric() && falseAltType.isNumeric()) {
             // if one type is short and the other is byte, result type is short
-            if (trueAltType.typeIs(GenType.GT_SHORT) && falseAltType.typeIs(GenType.GT_BYTE))
-                return GenTypePrimitive.getShort();
-            if (falseAltType.typeIs(GenType.GT_SHORT) && trueAltType.typeIs(GenType.GT_BYTE))
-                return GenTypePrimitive.getShort();
+            if (trueAltType.typeIs(JavaType.JT_SHORT) && falseAltType.typeIs(JavaType.JT_BYTE))
+                return JavaPrimitiveType.getShort();
+            if (falseAltType.typeIs(JavaType.JT_SHORT) && trueAltType.typeIs(JavaType.JT_BYTE))
+                return JavaPrimitiveType.getShort();
             
             // if one type is byte/short/char and the other is a constant of
             // type int whose value fits, the result type is byte/short/char
-            if (falseAltType.typeIs(GenType.GT_INT) && falseAltEv.knownValue()) {
+            if (falseAltType.typeIs(JavaType.JT_INT) && falseAltEv.knownValue()) {
                 int fval = falseAltEv.intValue();
                 if (isMinorInteger(trueAltType) && trueAltType.couldHold(fval))
                     return trueAltType;
             }
-            if (trueAltType.typeIs(GenType.GT_INT) && trueAltEv.knownValue()) {
+            if (trueAltType.typeIs(JavaType.JT_INT) && trueAltEv.knownValue()) {
                 int fval = trueAltEv.intValue();
                 if (isMinorInteger(falseAltType) && falseAltType.couldHold(fval))
                     return falseAltType;
@@ -185,9 +185,9 @@ public class TextParser
      * Test if a given type is one of the "minor" integral types: byte, char
      * or short.
      */
-    private static boolean isMinorInteger(GenType a)
+    private static boolean isMinorInteger(JavaType a)
     {
-        return a.typeIs(GenType.GT_BYTE) || a.typeIs(GenType.GT_CHAR) || a.typeIs(GenType.GT_SHORT); 
+        return a.typeIs(JavaType.JT_BYTE) || a.typeIs(JavaType.JT_CHAR) || a.typeIs(JavaType.JT_SHORT); 
     }
     
     /**
@@ -198,14 +198,14 @@ public class TextParser
      * @throws RecognitionException
      * @throws SemanticException
      */
-    private GenType questionOperator15(AST node) throws RecognitionException, SemanticException
+    private JavaType questionOperator15(AST node) throws RecognitionException, SemanticException
     {
         AST trueAlt = node.getFirstChild().getNextSibling();
         AST falseAlt = trueAlt.getNextSibling();
         ExprValue trueAltEv = getExpressionType(trueAlt);
         ExprValue falseAltEv = getExpressionType(falseAlt);
-        GenType trueAltType = trueAltEv.getType();
-        GenType falseAltType = falseAltEv.getType();
+        JavaType trueAltType = trueAltEv.getType();
+        JavaType falseAltType = falseAltEv.getType();
         
         // if we don't know the type of both alternatives, we don't
         // know the result type:
@@ -221,12 +221,12 @@ public class TextParser
         if (trueAltType.equals(falseAltType))
             return trueAltType;
         
-        GenType trueUnboxed = unBox(trueAltType);
-        GenType falseUnboxed = unBox(falseAltType);
+        JavaType trueUnboxed = unBox(trueAltType);
+        JavaType falseUnboxed = unBox(falseAltType);
         
         // if one the arguments is of type boolean and the other
         // Boolean, the result type is boolean.
-        if (trueUnboxed.typeIs(GenType.GT_BOOLEAN) && falseUnboxed.typeIs(GenType.GT_BOOLEAN))
+        if (trueUnboxed.typeIs(JavaType.JT_BOOLEAN) && falseUnboxed.typeIs(JavaType.JT_BOOLEAN))
             return trueUnboxed;
         
         // if one type is null and the other is a reference type, the
@@ -237,9 +237,9 @@ public class TextParser
         // are involved)
         // 
         // This precludes either type from being null later on.
-        if (trueAltType.typeIs(GenType.GT_NULL))
+        if (trueAltType.typeIs(JavaType.JT_NULL))
             return boxType(falseAltType);
-        if (falseAltType.typeIs(GenType.GT_NULL))
+        if (falseAltType.typeIs(JavaType.JT_NULL))
             return boxType(trueAltType);
         
         // if the two alternatives are convertible to numeric types,
@@ -247,9 +247,9 @@ public class TextParser
         if (trueUnboxed.isNumeric() && falseUnboxed.isNumeric()) {
             // If one is byte/Byte and the other is short/Short, the
             // result type is short.
-            if (trueUnboxed.typeIs(GenType.GT_BYTE) && falseUnboxed.typeIs(GenType.GT_SHORT))
+            if (trueUnboxed.typeIs(JavaType.JT_BYTE) && falseUnboxed.typeIs(JavaType.JT_SHORT))
                 return falseUnboxed;
-            if (falseUnboxed.typeIs(GenType.GT_BYTE) && trueUnboxed.typeIs(GenType.GT_SHORT))
+            if (falseUnboxed.typeIs(JavaType.JT_BYTE) && trueUnboxed.typeIs(JavaType.JT_SHORT))
                 return trueUnboxed;
             
             // If one type, when unboxed, is byte/short/char, and the
@@ -257,12 +257,12 @@ public class TextParser
             // first, the result type is the (unboxed) former type. (The JLS
             // takes four paragraphs to say this, but the result is the
             // same).
-            if (isMinorInteger(trueUnboxed) && falseAltType.typeIs(GenType.GT_INT) && falseAltEv.knownValue()) {
+            if (isMinorInteger(trueUnboxed) && falseAltType.typeIs(JavaType.JT_INT) && falseAltEv.knownValue()) {
                 int kval = falseAltEv.intValue();
                 if (trueUnboxed.couldHold(kval))
                     return trueUnboxed;
             }
-            if (isMinorInteger(falseUnboxed) && trueAltType.typeIs(GenType.GT_INT) && trueAltEv.knownValue()) {
+            if (isMinorInteger(falseUnboxed) && trueAltType.typeIs(JavaType.JT_INT) && trueAltEv.knownValue()) {
                 int kval = trueAltEv.intValue();
                 if (falseUnboxed.couldHold(kval))
                     return falseUnboxed;
@@ -623,23 +623,23 @@ public class TextParser
      * binary numeric promotion, as defined by JLS section 5.6.2. Both
      * operands must be (possibly boxed) numeric types.
      */
-    private GenType binaryNumericPromotion(GenType a, GenType b)
+    private JavaType binaryNumericPromotion(JavaType a, JavaType b)
         throws SemanticException
     {
-        GenType ua = unBox(a);
-        GenType ub = unBox(b);
+        JavaType ua = unBox(a);
+        JavaType ub = unBox(b);
 
-        if (a.typeIs(GenType.GT_DOUBLE) || b.typeIs(GenType.GT_DOUBLE))
-            return GenTypePrimitive.getDouble();
+        if (a.typeIs(JavaType.JT_DOUBLE) || b.typeIs(JavaType.JT_DOUBLE))
+            return JavaPrimitiveType.getDouble();
 
-        if (a.typeIs(GenType.GT_FLOAT) || b.typeIs(GenType.GT_FLOAT))
-            return GenTypePrimitive.getFloat();
+        if (a.typeIs(JavaType.JT_FLOAT) || b.typeIs(JavaType.JT_FLOAT))
+            return JavaPrimitiveType.getFloat();
 
-        if (a.typeIs(GenType.GT_LONG) || b.typeIs(GenType.GT_LONG))
-            return GenTypePrimitive.getLong();
+        if (a.typeIs(JavaType.JT_LONG) || b.typeIs(JavaType.JT_LONG))
+            return JavaPrimitiveType.getLong();
 
         if (a.isNumeric() && b.isNumeric())
-            return GenTypePrimitive.getInt();
+            return JavaPrimitiveType.getInt();
         else
             throw new SemanticException();
     }
@@ -655,7 +655,7 @@ public class TextParser
         String x = node.getText();
         x = x.substring(1, x.length() - 1); // strip single quotes
         
-        final GenType charType = GenTypePrimitive.getChar();
+        final JavaType charType = JavaPrimitiveType.getChar();
         if (! x.startsWith("\\")) {
             // This is the normal case
             if (x.length() != 1)
@@ -725,7 +725,7 @@ public class TextParser
         
         try {
             Integer val = Integer.decode(x);
-            return new NumValue(GenTypePrimitive.getInt(), val);
+            return new NumValue(JavaPrimitiveType.getInt(), val);
         }
         catch (NumberFormatException nfe) {
             throw new RecognitionException();
@@ -744,7 +744,7 @@ public class TextParser
         
         try {
             Long val = Long.decode(x);
-            return new NumValue(GenTypePrimitive.getLong(), val);
+            return new NumValue(JavaPrimitiveType.getLong(), val);
         }
         catch (NumberFormatException nfe) {
             throw new RecognitionException();
@@ -763,7 +763,7 @@ public class TextParser
         
         try {
             Float val = Float.valueOf(x);
-            return new NumValue(GenTypePrimitive.getFloat(), val);
+            return new NumValue(JavaPrimitiveType.getFloat(), val);
         }
         catch (NumberFormatException nfe) {
             throw new RecognitionException();
@@ -782,7 +782,7 @@ public class TextParser
         
         try {
             Double val = Double.valueOf(x);
-            return new NumValue(GenTypePrimitive.getDouble(), val);
+            return new NumValue(JavaPrimitiveType.getDouble(), val);
         }
         catch (NumberFormatException nfe) {
             throw new RecognitionException();
@@ -876,7 +876,7 @@ public class TextParser
         // get the type parameters
         while(node != null && node.getType() == JavaTokenTypes.TYPE_ARGUMENT) {
             AST childNode = node.getFirstChild();
-            GenType tparType;
+            JavaType tparType;
             
             if (childNode.getType() == JavaTokenTypes.WILDCARD_TYPE) {
                 // wildcard parameter
@@ -941,7 +941,7 @@ public class TextParser
      * @throws SemanticException
      * @throws RecognitionException
      */
-    GenType getInnerType(AST node, GenTypeClass outer) throws SemanticException, RecognitionException
+    JavaType getInnerType(AST node, GenTypeClass outer) throws SemanticException, RecognitionException
     {
         if (node.getType() == JavaTokenTypes.IDENT) {
             // A simple name<params> expression
@@ -1019,7 +1019,7 @@ public class TextParser
         }
         
         // Anything else must be an expression, therefore a value:
-        GenType exprType = getExpressionType(node).getType();
+        JavaType exprType = getExpressionType(node).getType();
         return new ValueEntity(exprType);
     }
     
@@ -1076,10 +1076,10 @@ public class TextParser
      * @throws SemanticException
      * @throws RecognitionException
      */
-    private GenType [] getExpressionList(AST node) throws SemanticException, RecognitionException
+    private JavaType [] getExpressionList(AST node) throws SemanticException, RecognitionException
     {
         int num = node.getNumberOfChildren();
-        GenType [] r = new GenType[num];
+        JavaType [] r = new JavaType[num];
         AST child = node.getFirstChild();
         
         // loop through the child nodes
@@ -1104,7 +1104,7 @@ public class TextParser
      * @return   A record with information about the method call
      * @throws RecognitionException
      */
-    private MethodCallDesc isMethodApplicable(GenTypeClass targetType, Map tpars, Method m, GenType [] args)
+    private MethodCallDesc isMethodApplicable(GenTypeClass targetType, Map tpars, Method m, JavaType [] args)
         throws RecognitionException
     {
         // TODO support varargs, autoboxing/unboxing, generic methods
@@ -1115,7 +1115,7 @@ public class TextParser
         // First check that at least the number of parameters is correct. If
         // type parameters are explicitly stated, also check that their number
         // is correct.
-        GenType [] mparams = JavaUtils.getJavaUtils().getParamGenTypes(m, targetType.isRaw());
+        JavaType [] mparams = JavaUtils.getJavaUtils().getParamGenTypes(m, targetType.isRaw());
         if (mparams.length != args.length)
             return null;
         List tparams = JavaUtils.getJavaUtils().getTypeParams(m);
@@ -1144,8 +1144,8 @@ public class TextParser
         // contract as well.
         
         for (int i = 0; i < args.length; i++) {
-            GenType formalArg = mparams[i];
-            GenType givenParam = args[i];
+            JavaType formalArg = mparams[i];
+            JavaType givenParam = args[i];
             
             // If type arguments specified, use those. Also bring in class
             // type parameters.
@@ -1157,7 +1157,7 @@ public class TextParser
                 return null;
         }
         
-        GenType rType = jutils.getReturnType(m).mapTparsToTypes(targetType.getMap());
+        JavaType rType = jutils.getReturnType(m).mapTparsToTypes(targetType.getMap());
         return new MethodCallDesc(m, Arrays.asList(mparams), false, false, rType);
     }
     
@@ -1168,7 +1168,7 @@ public class TextParser
      * @throws RecognitionException
      * @throws SemanticException
      */
-    private GenType getMethodCallReturnType(AST node) throws RecognitionException, SemanticException
+    private JavaType getMethodCallReturnType(AST node) throws RecognitionException, SemanticException
     {
         // For a method call node, the first child is the method name
         // (possibly a dot-name) and the second is an ELIST.
@@ -1199,11 +1199,11 @@ public class TextParser
         if (firstArg.getType() == JavaTokenTypes.DOT) {
             AST targetNode = firstArg.getFirstChild();
             Entity callTarget = getEntity(targetNode);
-            GenType targetType = callTarget.getType();
+            JavaType targetType = callTarget.getType();
                             
             // now get method name, and argument types;
             List typeArgs = new ArrayList(5);
-            GenType [] argumentTypes = getExpressionList(secondArg);
+            JavaType [] argumentTypes = getExpressionList(secondArg);
             String methodName = null;
             AST searchNode = targetNode.getNextSibling();
             
@@ -1212,7 +1212,7 @@ public class TextParser
                 int nodeType = searchNode.getType();
                 // type argument?
                 if (nodeType == JavaTokenTypes.TYPE_ARGUMENT) {
-                    GenType taType = getType(searchNode.getFirstChild());
+                    JavaType taType = getType(searchNode.getFirstChild());
                     typeArgs.add(taType);
                 }
                 // method name?
@@ -1327,35 +1327,35 @@ public class TextParser
      * @throws RecognitionException
      * @throws SemanticException
      */
-    GenType getTypeFromTypeNode(AST node) throws RecognitionException, SemanticException
+    JavaType getTypeFromTypeNode(AST node) throws RecognitionException, SemanticException
     {
         AST firstChild = node.getFirstChild();
-        GenType baseType;
+        JavaType baseType;
         
         switch (firstChild.getType()) {
             case JavaTokenTypes.LITERAL_char:
-                baseType = GenTypePrimitive.getChar();
+                baseType = JavaPrimitiveType.getChar();
                 break;
             case JavaTokenTypes.LITERAL_byte:
-                baseType = GenTypePrimitive.getByte();
+                baseType = JavaPrimitiveType.getByte();
                 break;
             case JavaTokenTypes.LITERAL_boolean:
-                baseType = GenTypePrimitive.getBoolean();
+                baseType = JavaPrimitiveType.getBoolean();
                 break;
             case JavaTokenTypes.LITERAL_short:
-                baseType = GenTypePrimitive.getShort();
+                baseType = JavaPrimitiveType.getShort();
                 break;
             case JavaTokenTypes.LITERAL_int:
-                baseType = GenTypePrimitive.getInt();
+                baseType = JavaPrimitiveType.getInt();
                 break;
             case JavaTokenTypes.LITERAL_long:
-                baseType = GenTypePrimitive.getLong();
+                baseType = JavaPrimitiveType.getLong();
                 break;
             case JavaTokenTypes.LITERAL_float:
-                baseType = GenTypePrimitive.getFloat();
+                baseType = JavaPrimitiveType.getFloat();
                 break;
             case JavaTokenTypes.LITERAL_double:
-                baseType = GenTypePrimitive.getDouble();
+                baseType = JavaPrimitiveType.getDouble();
                 break;
             default:
                 // not a primitive type
@@ -1391,27 +1391,27 @@ public class TextParser
      * @param b  The type to unbox
      * @return  The unboxed type
      */
-    private GenType unBox(GenType b)
+    private JavaType unBox(JavaType b)
     {
         if (b instanceof GenTypeClass) {
             GenTypeClass c = (GenTypeClass) b;
             String cName = c.rawName();
             if (c.equals("java.lang.Integer"))
-                return GenTypePrimitive.getInt();
+                return JavaPrimitiveType.getInt();
             else if (c.equals("java.lang.Long"))
-                return GenTypePrimitive.getLong();
+                return JavaPrimitiveType.getLong();
             else if (c.equals("java.lang.Short"))
-                return GenTypePrimitive.getShort();
+                return JavaPrimitiveType.getShort();
             else if (c.equals("java.lang.Byte"))
-                return GenTypePrimitive.getByte();
+                return JavaPrimitiveType.getByte();
             else if (c.equals("java.lang.Character"))
-                return GenTypePrimitive.getChar();
+                return JavaPrimitiveType.getChar();
             else if (c.equals("java.lang.Float"))
-                return GenTypePrimitive.getFloat();
+                return JavaPrimitiveType.getFloat();
             else if (c.equals("java.lang.Double"))
-                return GenTypePrimitive.getDouble();
+                return JavaPrimitiveType.getDouble();
             else if (c.equals("java.lang.Boolean"))
-                return GenTypePrimitive.getBoolean();
+                return JavaPrimitiveType.getBoolean();
             else
                 return b;
         }
@@ -1431,24 +1431,24 @@ public class TextParser
      * @param b  The type to box
      * @return  The boxed type
      */
-    private GenType boxType(GenType u)
+    private JavaType boxType(JavaType u)
     {
-        if (u instanceof GenTypePrimitive) {
-            if (u.typeIs(GenType.GT_INT))
+        if (u instanceof JavaPrimitiveType) {
+            if (u.typeIs(JavaType.JT_INT))
                 return new GenTypeClass(new JavaReflective(Integer.class));
-            else if (u.typeIs(GenType.GT_LONG))
+            else if (u.typeIs(JavaType.JT_LONG))
                 return new GenTypeClass(new JavaReflective(Long.class));
-            else if (u.typeIs(GenType.GT_SHORT))
+            else if (u.typeIs(JavaType.JT_SHORT))
                 return new GenTypeClass(new JavaReflective(Short.class));
-            else if (u.typeIs(GenType.GT_BYTE))
+            else if (u.typeIs(JavaType.JT_BYTE))
                 return new GenTypeClass(new JavaReflective(Byte.class));
-            else if (u.typeIs(GenType.GT_CHAR))
+            else if (u.typeIs(JavaType.JT_CHAR))
                 return new GenTypeClass(new JavaReflective(Character.class));
-            else if (u.typeIs(GenType.GT_FLOAT))
+            else if (u.typeIs(JavaType.JT_FLOAT))
                 return new GenTypeClass(new JavaReflective(Float.class));
-            else if (u.typeIs(GenType.GT_DOUBLE))
+            else if (u.typeIs(JavaType.JT_DOUBLE))
                 return new GenTypeClass(new JavaReflective(Double.class));
-            else if (u.typeIs(GenType.GT_BOOLEAN))
+            else if (u.typeIs(JavaType.JT_BOOLEAN))
                 return new GenTypeClass(new JavaReflective(Boolean.class));
             else
                 return u;
@@ -1457,7 +1457,7 @@ public class TextParser
             return u;
     }
     
-    static public boolean isBoxedBoolean(GenType t)
+    static public boolean isBoxedBoolean(JavaType t)
     {
         GenTypeClass ct = t.asClass();
         if (ct != null) {
@@ -1473,13 +1473,13 @@ public class TextParser
      * 
      * This is a helper method to improve readability.<p>
      * 
-     * @see TextParser#boxType(GenType)
+     * @see TextParser#boxType(JavaType)
      * 
      * @param u    The type to box
      * @param box  The flag indicating whether boxing should occur
      * @return
      */
-    private GenType maybeBox(GenType u, boolean box)
+    private JavaType maybeBox(JavaType u, boolean box)
     {
         if (box)
             return boxType(u);
@@ -1522,12 +1522,12 @@ public class TextParser
                 if (secondDotArg.getType() == JavaTokenTypes.LITERAL_new) {
                     // The class being instantiated needs to be resolved in terms
                     // of the type of the expression to the left.
-                    GenType fpType = getExpressionType(firstDotArg).getType();
+                    JavaType fpType = getExpressionType(firstDotArg).getType();
                     
                     // now evaluate the qualified new in the context of the type
                     // of the expression
                     if (fpType.asClass() != null) {
-                        GenType type = getInnerType(secondDotArg.getFirstChild(), fpType.asClass());
+                        JavaType type = getInnerType(secondDotArg.getFirstChild(), fpType.asClass());
                         return new ExprValue(type);
                     }
                     
@@ -1567,7 +1567,7 @@ public class TextParser
             {
                 String objectName = fcNode.getText();
                 //ObjectWrapper ow = objectBench.getObject(objectName);
-                GenType gt = getObjectType(objectName);
+                JavaType gt = getObjectType(objectName);
                 
                 if (gt == null)
                     throw new SemanticException();
@@ -1582,8 +1582,8 @@ public class TextParser
             // array element access
             case JavaTokenTypes.INDEX_OP:
             {
-                GenType t = getExpressionType(fcNode.getFirstChild()).getType();
-                GenType componentType = t.getArrayComponent();
+                JavaType t = getExpressionType(fcNode.getFirstChild()).getType();
+                JavaType componentType = t.getArrayComponent();
                 if (componentType != null)
                     return new ExprValue(componentType);
                 else
@@ -1616,10 +1616,10 @@ public class TextParser
             case JavaTokenTypes.LITERAL_false:
                 return BooleanValue.getBooleanValue(false);
             case JavaTokenTypes.LITERAL_instanceof:
-                return new ExprValue(GenTypePrimitive.getBoolean());
+                return new ExprValue(JavaPrimitiveType.getBoolean());
             
             case JavaTokenTypes.LITERAL_null:
-                return new ExprValue(GenTypePrimitive.getNull());
+                return new ExprValue(JavaPrimitiveType.getNull());
             
             // unary operators
             case JavaTokenTypes.UNARY_PLUS:
@@ -1654,7 +1654,7 @@ public class TextParser
             case JavaTokenTypes.LNOT:
             case JavaTokenTypes.LAND:
             case JavaTokenTypes.LOR:
-                return new ExprValue(GenTypePrimitive.getBoolean());
+                return new ExprValue(JavaPrimitiveType.getBoolean());
             
             // shift operators. The result type is the unary-promoted
             // first operand type.
@@ -1663,9 +1663,9 @@ public class TextParser
             case JavaTokenTypes.SR:
             case JavaTokenTypes.BSR:
             {
-                GenType rtype = unBox(getExpressionType(fcNode.getFirstChild()).getType());
+                JavaType rtype = unBox(getExpressionType(fcNode.getFirstChild()).getType());
                 if (isMinorInteger(rtype))
-                    rtype = GenTypePrimitive.getInt();
+                    rtype = JavaPrimitiveType.getInt();
                 
                 return new ExprValue(rtype);
             }
@@ -1697,15 +1697,15 @@ public class TextParser
             {
                 AST leftNode = fcNode.getFirstChild();
                 AST rightNode = leftNode.getNextSibling();
-                GenType leftType = unBox(getExpressionType(leftNode).getType());
-                GenType rightType = unBox(getExpressionType(rightNode).getType());
+                JavaType leftType = unBox(getExpressionType(leftNode).getType());
+                JavaType rightType = unBox(getExpressionType(rightNode).getType());
                 
-                if (leftType.typeIs(GenType.GT_BOOLEAN) && rightType.typeIs(GenType.GT_BOOLEAN))
+                if (leftType.typeIs(JavaType.JT_BOOLEAN) && rightType.typeIs(JavaType.JT_BOOLEAN))
                 {
                     // TODO handle constants
                     int ntype = fcNode.getType();
                     if (ntype == JavaTokenTypes.BAND || ntype == JavaTokenTypes.BOR || ntype == JavaTokenTypes.BXOR)
-                        return new ExprValue(GenTypePrimitive.getBoolean());
+                        return new ExprValue(JavaPrimitiveType.getBoolean());
                 }
                 
                 return new ExprValue(binaryNumericPromotion(leftType, rightType));
@@ -1718,8 +1718,8 @@ public class TextParser
             {
                 AST leftNode = fcNode.getFirstChild();
                 AST rightNode = leftNode.getNextSibling();
-                GenType leftType = unBox(getExpressionType(leftNode).getType());
-                GenType rightType = unBox(getExpressionType(rightNode).getType());
+                JavaType leftType = unBox(getExpressionType(leftNode).getType());
+                JavaType rightType = unBox(getExpressionType(rightNode).getType());
                 if (leftType == null || rightType == null)
                     return null;
                 
@@ -1741,27 +1741,27 @@ public class TextParser
             case JavaTokenTypes.BNOT:
             {
                 ExprValue oval = getExpressionType(fcNode.getFirstChild());
-                GenType ntype = unBox(oval.getType());
+                JavaType ntype = unBox(oval.getType());
                 if (! ntype.isIntegralType())
                     throw new SemanticException();
                 
                 if (! oval.knownValue()) {
                     // unary numeric promotion means the result is long/int
-                    if (ntype.typeIs(GenType.GT_LONG))
+                    if (ntype.typeIs(JavaType.JT_LONG))
                         return new ExprValue(ntype);
                     else
-                        return new ExprValue(GenTypePrimitive.getInt());
+                        return new ExprValue(JavaPrimitiveType.getInt());
                 }
                 
                 // handle case where operand (and result) type is "long"
-                if (ntype.typeIs(GenType.GT_LONG)) {
+                if (ntype.typeIs(JavaType.JT_LONG)) {
                     long newval = ~ oval.longValue();
                     return new NumValue(ntype, new Long(newval));
                 }
                 
                 // unary numeric promotion means the result must be "int".
                 int newval = ~ oval.intValue();
-                return new NumValue(GenTypePrimitive.getInt(), new Integer(newval));
+                return new NumValue(JavaPrimitiveType.getInt(), new Integer(newval));
             }
             
             // ? : operator  (trinary operator)
@@ -1792,7 +1792,7 @@ public class TextParser
      * @throws SemanticException
      * @throws RecognitionException
      */
-    private GenType getObjectType(String objectName)
+    private JavaType getObjectType(String objectName)
         throws SemanticException, RecognitionException
     {
         ObjectWrapper ow = objectBench.getObject(objectName);
@@ -1855,7 +1855,7 @@ public class TextParser
         public List argTypes; // list of GenType
         public boolean vararg;   // is a vararg call
         public boolean autoboxing; // requires autoboxing
-        public GenType retType; // effective return type
+        public JavaType retType; // effective return type
         
         /**
          * Constructor for MethodCallDesc.
@@ -1868,7 +1868,7 @@ public class TextParser
          * @param autoboxing  Whether autoboxing is required for parameters
          * @param retType     The effective return type
          */
-        public MethodCallDesc(Method m, List argTypes, boolean vararg, boolean autoboxing, GenType retType)
+        public MethodCallDesc(Method m, List argTypes, boolean vararg, boolean autoboxing, JavaType retType)
         {
             this.method = m;
             this.argTypes = argTypes;
@@ -1902,8 +1902,8 @@ public class TextParser
             int downCount = 0;
             
             while (i.hasNext()) {
-                GenType myArg = (GenType) i.next();
-                GenType otherArg = (GenType) j.next();
+                JavaType myArg = (JavaType) i.next();
+                JavaType otherArg = (JavaType) j.next();
                 
                 if (myArg.isAssignableFrom(otherArg)) {
                     if (! otherArg.isAssignableFrom(myArg))
@@ -1958,7 +1958,7 @@ public class TextParser
         
         // getType throws SemanticException if the entity doesn't have an
         // assosciated type (for instance a package)
-        abstract GenType getType() throws SemanticException;
+        abstract JavaType getType() throws SemanticException;
         
         abstract Entity getSubentity(String name) throws SemanticException;
     }
@@ -1980,7 +1980,7 @@ public class TextParser
             packageName = pname;
         }
         
-        GenType getType() throws SemanticException
+        JavaType getType() throws SemanticException
         {
             throw new SemanticException();
         }
@@ -2038,7 +2038,7 @@ public class TextParser
             this.tparams = tparams;
         }
 
-        GenType getType()
+        JavaType getType()
         {
             return getClassType();
         }
@@ -2055,7 +2055,7 @@ public class TextParser
             Field f = null;
             try {
                 f = thisClass.getField(name);
-                GenType fieldType;
+                JavaType fieldType;
                 Map tparmap = getClassType().getMap();
                 if (tparmap != null) {
                     fieldType = JavaUtils.getJavaUtils().getFieldType(f);
@@ -2088,14 +2088,14 @@ public class TextParser
     
     class ValueEntity extends Entity
     {
-        GenType type;
+        JavaType type;
         
-        ValueEntity(GenType type)
+        ValueEntity(JavaType type)
         {
             this.type = type;
         }
         
-        GenType getType()
+        JavaType getType()
         {
             return type;
         }
@@ -2127,7 +2127,7 @@ public class TextParser
                 Class declarer = f.getDeclaringClass();
                 Map tparMap = thisClass.mapToSuper(declarer.getName()).getMap();
 
-                GenType fieldType;
+                JavaType fieldType;
                 if (tparMap != null) {
                     // Not raw. Apply type parameters to field declaration.
                     fieldType = JavaUtils.getJavaUtils().getFieldType(f);
@@ -2150,14 +2150,14 @@ public class TextParser
     static class ExprValue
     {
         // default implementation has no known value
-        public GenType type;
+        public JavaType type;
         
-        public ExprValue(GenType type)
+        public ExprValue(JavaType type)
         {
             this.type = type;
         }
         
-        public GenType getType()
+        public JavaType getType()
         {
             return type;
         }
@@ -2200,7 +2200,7 @@ public class TextParser
         // constructor is private: use getBooleanValue instead
         private BooleanValue(boolean val)
         {
-            super(GenTypePrimitive.getBoolean());
+            super(JavaPrimitiveType.getBoolean());
             this.val = val;
         }
         
@@ -2235,7 +2235,7 @@ public class TextParser
     {
         private Number val;
         
-        NumValue(GenType type, Number val)
+        NumValue(JavaType type, Number val)
         {
             super(type);
             this.val = val;
@@ -2274,10 +2274,10 @@ public class TextParser
     public class DeclaredVar
     {
         private boolean isVarInit = false;
-        private GenType declVarType;
+        private JavaType declVarType;
         private String varName;
         
-        public DeclaredVar(boolean isVarInit, GenType varType, String varName)
+        public DeclaredVar(boolean isVarInit, JavaType varType, String varName)
         {
             this.isVarInit = isVarInit;
             this.declVarType = varType;
@@ -2297,7 +2297,7 @@ public class TextParser
          * Get the type of variable which was declared by the recently parsed
          * statement. 
          */
-        public GenType getDeclaredVarType()
+        public JavaType getDeclaredVarType()
         {
             return declVarType;
         }

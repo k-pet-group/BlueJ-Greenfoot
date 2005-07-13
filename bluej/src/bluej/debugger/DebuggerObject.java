@@ -2,14 +2,14 @@ package bluej.debugger;
 
 import java.util.List;
 
-import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
 
 /**
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 3337 2005-03-22 04:00:51Z davmac $
+ *@version    $Id: DebuggerObject.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public abstract class DebuggerObject
 {
@@ -118,7 +118,7 @@ public abstract class DebuggerObject
      * @param expectedType  The static type of the value in the field
      * @return   The value in the field, as a DebuggerObject.
      */
-    public abstract DebuggerObject getInstanceFieldObject(int slot, GenType expectedType);
+    public abstract DebuggerObject getInstanceFieldObject(int slot, JavaType expectedType);
     
     /**
      *  Return the object in field 'slot' (counting static and object fields).
@@ -136,7 +136,7 @@ public abstract class DebuggerObject
      * @param expectedType  The static type of the value in the field
      * @return              The field object value (as a DebuggerObject)
      */
-    public abstract DebuggerObject getFieldObject(int slot, GenType expectedType);
+    public abstract DebuggerObject getFieldObject(int slot, JavaType expectedType);
 
     /**
      *  Return the object in field 'slot' (counting static and object fields).

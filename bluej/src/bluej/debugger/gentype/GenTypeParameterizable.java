@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Davin McCall
  */
 public abstract class GenTypeParameterizable
-    extends GenType
+    extends JavaType
 {
 
     private static GenTypeSolid [] noBounds = new GenTypeSolid[0];
@@ -23,7 +23,7 @@ public abstract class GenTypeParameterizable
      *            A map of (String name -> GenType type).
      * @return An equivalent type with parameters mapped.
      */
-    abstract public GenType mapTparsToTypes(Map tparams);
+    abstract public JavaType mapTparsToTypes(Map tparams);
 
     abstract public boolean equals(GenTypeParameterizable other);
     

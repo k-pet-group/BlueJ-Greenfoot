@@ -4,7 +4,7 @@ import java.util.*;
 
 import bluej.Config;
 import bluej.debugger.*;
-import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.JavaType;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
@@ -16,7 +16,7 @@ import com.sun.jdi.request.StepRequest;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 3043 2004-10-12 00:10:37Z davmac $
+ * @version $Id: JdiThread.java 3463 2005-07-13 01:55:27Z davmac $
  */
 class JdiThread extends DebuggerThread
 {
@@ -331,7 +331,7 @@ class JdiThread extends DebuggerThread
                     LocalVariable var = (LocalVariable)vars.get(i);
 
                     // Add "type name = value" to the list
-                    GenType vartype = JdiReflective.fromLocalVar(frame, var);
+                    JavaType vartype = JdiReflective.fromLocalVar(frame, var);
                     String val = JdiUtils.getJdiUtils().getValueString(frame.getValue(var));
                     localVars.add(vartype.toString(true) + " " + var.name()
                             + " = " + val);
@@ -379,7 +379,7 @@ class JdiThread extends DebuggerThread
                 StackFrame frame = rt.frame(frameNo);
                 List vars = frame.visibleVariables();
                 LocalVariable var = (LocalVariable)vars.get(index);
-                GenType vartype = JdiReflective.fromLocalVar(frame, var);
+                JavaType vartype = JdiReflective.fromLocalVar(frame, var);
                 ObjectReference val = (ObjectReference)frame.getValue(var);
                 return JdiObject.getDebuggerObject(val, vartype);
             }

@@ -8,7 +8,7 @@ import javax.swing.event.EventListenerList;
 import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.*;
-import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.Invoker;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
@@ -33,7 +33,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 3043 2004-10-12 00:10:37Z davmac $
+ * @version $Id: JdiDebugger.java 3463 2005-07-13 01:55:27Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -627,7 +627,7 @@ public class JdiDebugger extends Debugger
             return null;
 
         ObjectReference ob = getVM().getStaticFieldObject(rt, fieldName);
-        GenType expectedType = JdiReflective.fromField(f, rt);
+        JavaType expectedType = JdiReflective.fromField(f, rt);
 
         if (ob != null)
             return JdiObject.getDebuggerObject(ob, expectedType);
