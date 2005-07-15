@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 2433 2003-12-09 12:18:54Z mik $
+ * @version $Id: BProject.java 3466 2005-07-15 09:11:13Z damiano $
  */
 
 /*
@@ -156,6 +156,19 @@ public class BProject
         return packages;
     }
 
+
+    /**
+     * Returns a BClassLoader that should be used to load Project classes.
+     * @return A class loader that should be used to load project classes.
+     * @throws ProjectNotOpenException if the project has been closed by the user.
+     */
+    public BClassLoader getClassLoader() throws ProjectNotOpenException
+    {
+        Project thisProject = projectId.getBluejProject();
+
+        return thisProject.getClassLoader();
+    }
+    
     /**
      * Returns a string representation of this package object
      */

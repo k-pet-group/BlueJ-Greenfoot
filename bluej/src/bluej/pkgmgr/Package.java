@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3305 2005-01-27 01:05:20Z bquig $
+ * @version $Id: Package.java 3466 2005-07-15 09:11:13Z damiano $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1019,6 +1019,8 @@ public final class Package extends Graph
         if (!checkCompile())
             return;
 
+        getProject().setCompileStarted();
+
         if (ct.editorOpen())
             ct.getEditor().save();
         ct.setInvalidState(); // to force compile
@@ -1102,13 +1104,14 @@ public final class Package extends Graph
     }
 
     /**
-     * Compile every Target in 'targetList'. Every compilation goes through this
-     * method.
+     * Compile every Target in 'targetList'. Every compilation goes through this method.
      */
     private void doCompile(List targetList, CompileObserver observer)
     {
         if (targetList.size() == 0)
             return;
+
+        getProject().setCompileStarted();
 
         File[] srcFiles = new File[targetList.size()];
         for (int i = 0; i < targetList.size(); i++) {

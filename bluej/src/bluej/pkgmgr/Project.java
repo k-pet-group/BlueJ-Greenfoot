@@ -13,6 +13,8 @@ import bluej.debugmgr.ExpressionInformation;
 
 import bluej.debugmgr.inspector.*;
 
+import bluej.extensions.BClassLoader;
+
 import bluej.extmgr.ExtensionsManager;
 
 import bluej.prefmgr.PrefMgr;
@@ -31,6 +33,8 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 
+import java.net.URL;
+
 import java.util.*;
 
 import javax.swing.JFrame;
@@ -43,7 +47,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3465 2005-07-14 11:06:45Z damiano $
+ * @version $Id: Project.java 3466 2005-07-15 09:11:13Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -100,6 +104,9 @@ public class Project implements DebuggerListener {
         object inspectors should be handled at the object wrapper level */
     private Map inspectors;
     private boolean inTestMode = false;
+    private BClassLoader currentClassLoader;
+    private URL[] currentUrls; // will be removed at the end of class loading refactoring.
+    private boolean compileStarted; // Used to decide if to generate a new ClassLoader.
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -1101,6 +1108,71 @@ public class Project implements DebuggerListener {
         allcp.addClassPath(getLocalClassLoader().getAsClassPath());
 
         return allcp.toString();
+    }
+
+    /**
+    * Will be removed at the end of refactoring.
+    * @param newUrls
+    * @return
+    */
+    private boolean sameUrls(URL[] newUrls) {
+        if (currentUrls == null) {
+            return false;
+        }
+
+        if (compileStarted) {
+            // If we have a compilation started then we have to assume the usrls are different.
+            return false;
+        }
+
+        if (newUrls.length != currentUrls.length) {
+            return false;
+        }
+
+        for (int index = 0; index < newUrls.length; index++)
+            if (!currentUrls[index].equals(newUrls[index])) {
+                return false;
+            }
+
+        return true;
+    }
+
+    /**
+     * Return a ClassLoader that should be used to load or reflect on the project classes.
+     * The same BClassLoader object is returned until the Project is compiled or the content of the
+     * user class list is changed, this is needed to load "compatible" classes in the same classloader space.
+     * Note: there is a threading issue here if you are using this method from different threads, normally this method should be
+     * called from a swing thread, but it needs to be checked with the rest of the code.
+     * Note2: since this is called from extensions it is probably best to make it synchronized to avoid any threading issues.
+     * @return a BClassLoader that provides class loading services for this Project.
+     */
+    public synchronized BClassLoader getClassLoader() {
+        // At the moment I do this to find out what has changed. It will be done differently at the end.
+        ClassPath allcp = ClassMgr.getClassMgr().getAllClassPath();
+        allcp.addClassPath(getLocalClassLoader().getAsClassPath());
+
+        URL[] newUrls = allcp.getURLs();
+
+        if (sameUrls(newUrls)) {
+            return currentClassLoader;
+        }
+
+        currentClassLoader = new BClassLoader(newUrls);
+        currentUrls = newUrls;
+        compileStarted = false; // Clear the flag.
+
+        return currentClassLoader;
+    }
+
+    /**
+     * A Package should tell to a project when a compilation has started.
+     * When a package of a project is recompiled the class loader for that project must be recreated
+     * and in order to do so the Project should know if something has been recompiled.
+     * Note: there is a time gap between compilation start and end, in theory no classLoader can be retrieved
+     * until the compilation ends, in practice it does not make any difference.
+     */
+    void setCompileStarted() {
+        compileStarted = true;
     }
 
     /**
