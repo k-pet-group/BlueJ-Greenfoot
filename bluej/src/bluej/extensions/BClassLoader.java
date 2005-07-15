@@ -12,13 +12,25 @@ import java.util.Iterator;
 
 /**
  * A URLClassLoader that can be used to load or obtain information about classes loadable in a BProject.
- * author: Damiano Bolla
+ * Different BProject have different class loaders since they shoule each have a well defined and unique namespace.
+ * Every time a BProject is compiled, even when the compilation is started from the GUI, a new BClassLoader is created and
+ * if the Extension currently have a copy of the old one it should discard it.
  * 
- * @version    $Id: BClassLoader.java 3466 2005-07-15 09:11:13Z damiano $
+ * @version    $Id: BClassLoader.java 3467 2005-07-15 13:26:18Z damiano $
  */
+
+ /*
+  * Author: Damiano Bolla
+  */
 public class BClassLoader extends URLClassLoader {
-    public BClassLoader(URL[] urls) {
-        super(urls);
+
+    /**
+     * Constructructor.
+     * @param parent the parent loader that is searched first to resolve classes.
+     * @param urls the list of jars and directory that are searched next.
+     */
+    public BClassLoader(URL[] urls, ClassLoader parent) {
+        super(urls,parent);
     }
 
     /**

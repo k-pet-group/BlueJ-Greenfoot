@@ -16,7 +16,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3404 2005-06-03 14:51:08Z mik $
+ * @version $Id: Boot.java 3467 2005-07-15 13:26:18Z damiano $
  */
 public class Boot
 {
@@ -182,13 +182,22 @@ public class Boot
     /**
      * Returns the runtime user classpath. This is available to code within BlueJ.
      *
-     * @return    The runtimeUserClassPath value
+     * @return    The runtimeUserClassPath value.
      */
     public URL[] getRuntimeUserClassPath()
     {
         return runtimeUserClassPath;
     }
 
+    /**
+     * Returns the boot class loader, the one that is used to load this class.
+     *
+     * @return The bootClassLoader value.
+     */
+    public ClassLoader getBootClassLoader ()
+    {
+        return bootLoader;
+    }
 
     /**
      * Calculate the various path values, create a new classloader and

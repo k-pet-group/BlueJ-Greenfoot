@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import bluej.Boot;
 import bluej.Config;
 
 import bluej.classmgr.ClassMgr;
@@ -47,7 +48,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3466 2005-07-15 09:11:13Z damiano $
+ * @version $Id: Project.java 3467 2005-07-15 13:26:18Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -1144,6 +1145,7 @@ public class Project implements DebuggerListener {
      * Note: there is a threading issue here if you are using this method from different threads, normally this method should be
      * called from a swing thread, but it needs to be checked with the rest of the code.
      * Note2: since this is called from extensions it is probably best to make it synchronized to avoid any threading issues.
+     *
      * @return a BClassLoader that provides class loading services for this Project.
      */
     public synchronized BClassLoader getClassLoader() {
@@ -1157,7 +1159,9 @@ public class Project implements DebuggerListener {
             return currentClassLoader;
         }
 
-        currentClassLoader = new BClassLoader(newUrls);
+        // The Project Class Loader must not "see" the BlueJ classes, this is teh reason to 
+        // have BClassLoader created with the boot loader as parent.
+        currentClassLoader = new BClassLoader(newUrls,Boot.getInstance().getBootClassLoader());
         currentUrls = newUrls;
         compileStarted = false; // Clear the flag.
 
