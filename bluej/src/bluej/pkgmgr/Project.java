@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import bluej.Boot;
 import bluej.Config;
 
+import bluej.classmgr.BPClassLoader;
 import bluej.classmgr.ClassMgr;
 import bluej.classmgr.ClassPath;
 import bluej.classmgr.ProjectClassLoader;
@@ -13,8 +14,6 @@ import bluej.debugmgr.ExecControls;
 import bluej.debugmgr.ExpressionInformation;
 
 import bluej.debugmgr.inspector.*;
-
-import bluej.extensions.BClassLoader;
 
 import bluej.extmgr.ExtensionsManager;
 
@@ -48,7 +47,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3467 2005-07-15 13:26:18Z damiano $
+ * @version $Id: Project.java 3468 2005-07-18 12:50:39Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -105,7 +104,7 @@ public class Project implements DebuggerListener {
         object inspectors should be handled at the object wrapper level */
     private Map inspectors;
     private boolean inTestMode = false;
-    private BClassLoader currentClassLoader;
+    private BPClassLoader currentClassLoader;
     private URL[] currentUrls; // will be removed at the end of class loading refactoring.
     private boolean compileStarted; // Used to decide if to generate a new ClassLoader.
 
@@ -1148,7 +1147,7 @@ public class Project implements DebuggerListener {
      *
      * @return a BClassLoader that provides class loading services for this Project.
      */
-    public synchronized BClassLoader getClassLoader() {
+    public synchronized BPClassLoader getClassLoader() {
         // At the moment I do this to find out what has changed. It will be done differently at the end.
         ClassPath allcp = ClassMgr.getClassMgr().getAllClassPath();
         allcp.addClassPath(getLocalClassLoader().getAsClassPath());
@@ -1161,7 +1160,7 @@ public class Project implements DebuggerListener {
 
         // The Project Class Loader must not "see" the BlueJ classes, this is teh reason to 
         // have BClassLoader created with the boot loader as parent.
-        currentClassLoader = new BClassLoader(newUrls,Boot.getInstance().getBootClassLoader());
+        currentClassLoader = new BPClassLoader(newUrls,Boot.getInstance().getBootClassLoader());
         currentUrls = newUrls;
         compileStarted = false; // Clear the flag.
 

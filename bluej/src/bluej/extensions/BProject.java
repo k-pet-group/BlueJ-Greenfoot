@@ -4,12 +4,13 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Package;
 
 import java.io.*;
+import java.net.URLClassLoader;
 import java.util.*;
 
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 3466 2005-07-15 09:11:13Z damiano $
+ * @version $Id: BProject.java 3468 2005-07-18 12:50:39Z damiano $
  */
 
 /*
@@ -162,7 +163,7 @@ public class BProject
      * @return A class loader that should be used to load project classes.
      * @throws ProjectNotOpenException if the project has been closed by the user.
      */
-    public BClassLoader getClassLoader() throws ProjectNotOpenException
+    public URLClassLoader getClassLoader() throws ProjectNotOpenException
     {
         Project thisProject = projectId.getBluejProject();
 
