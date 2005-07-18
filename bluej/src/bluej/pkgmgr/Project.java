@@ -47,7 +47,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3468 2005-07-18 12:50:39Z damiano $
+ * @version $Id: Project.java 3470 2005-07-18 13:49:30Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -1100,23 +1100,15 @@ public class Project implements DebuggerListener {
     }
 
     /**
-     * Return a string representing the classpath for this project.
+     * Compare to arrays of urls to see if they are the same.
+     * Note that is the order of the array is different then the two are considered different.
+     * Note that there is an extra check for compileStarted in it that may suggest a different name to the method.
+     * @param original URLs to compare against.
+     * @param compare URLs to compare with the original.
+     * @return true if the two arrays are the same.
      */
-    public String getClassPath() {
-        ClassPath allcp = ClassMgr.getClassMgr().getAllClassPath();
-
-        allcp.addClassPath(getLocalClassLoader().getAsClassPath());
-
-        return allcp.toString();
-    }
-
-    /**
-    * Will be removed at the end of refactoring.
-    * @param newUrls
-    * @return
-    */
-    private boolean sameUrls(URL[] newUrls) {
-        if (currentUrls == null) {
+    private boolean sameUrls(URL[] original, URL[] compare) {
+        if (original == null) {
             return false;
         }
 
@@ -1125,12 +1117,12 @@ public class Project implements DebuggerListener {
             return false;
         }
 
-        if (newUrls.length != currentUrls.length) {
+        if (original.length != compare.length) {
             return false;
         }
 
-        for (int index = 0; index < newUrls.length; index++)
-            if (!currentUrls[index].equals(newUrls[index])) {
+        for (int index = 0; index < original.length; index++)
+            if (!original[index].equals(compare[index])) {
                 return false;
             }
 
@@ -1154,7 +1146,7 @@ public class Project implements DebuggerListener {
 
         URL[] newUrls = allcp.getURLs();
 
-        if (sameUrls(newUrls)) {
+        if (sameUrls(currentUrls,newUrls)) {
             return currentClassLoader;
         }
 

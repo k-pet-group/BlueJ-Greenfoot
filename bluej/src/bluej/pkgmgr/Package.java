@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3466 2005-07-15 09:11:13Z damiano $
+ * @version $Id: Package.java 3470 2005-07-18 13:49:30Z damiano $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1122,7 +1122,7 @@ public final class Package extends Graph
         removeBreakpoints();
         //Terminal.getTerminal().clear();
 
-        JobQueue.getJobQueue().addJob(srcFiles, observer, getProject().getClassPath(), getProject().getProjectDir(),
+        JobQueue.getJobQueue().addJob(srcFiles, observer, getProject().getClassLoader(), getProject().getProjectDir(),
                 ! PrefMgr.getFlag("bluej.compiler.showunchecked"));
     }
 
