@@ -1,5 +1,6 @@
 package bluej.compiler;
 
+import bluej.classmgr.BPClassLoader;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +17,14 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Compiler.java 2773 2004-07-09 10:39:08Z polle $
+ * @version $Id: Compiler.java 3469 2005-07-18 13:41:54Z damiano $
  */
 abstract class Compiler
 {
     public static final String COMPILER_OPTIONS = "bluej.compiler.options";
 
     private File destDir;
-    private String classPath;
+    private BPClassLoader bpClassLoader;
     private boolean debug;
     private boolean deprecation;
 
@@ -32,9 +33,9 @@ abstract class Compiler
         this.destDir = destDir;
     }
 
-    public void setClassPath(String classPath)
+    public void setProjectClassLoader(BPClassLoader bpClassLoader)
     {
-        this.classPath = classPath;
+        this.bpClassLoader = bpClassLoader;
     }
 
     public void setDebug(boolean debug)
@@ -47,9 +48,9 @@ abstract class Compiler
         this.deprecation = deprecation;
     }
 
-    public String getClassPath()
+    public BPClassLoader getProjectClassLoader()
     {
-        return classPath;
+        return bpClassLoader;
     }
 
     public boolean isDebug()
@@ -81,9 +82,9 @@ abstract class Compiler
             args.add(getDestDir().getPath());
         }
 
-        if (getClassPath() != null) {
+        if (getProjectClassLoader() != null) {
             args.add("-classpath");
-            args.add(getClassPath());
+            args.add(getProjectClassLoader().getClassPathAsString());
         }
 
         if (isDebug())

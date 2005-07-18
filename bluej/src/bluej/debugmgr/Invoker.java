@@ -36,7 +36,7 @@ import bluej.views.TypeParamView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: Invoker.java 3469 2005-07-18 13:41:54Z damiano $
  */
 
 public class Invoker
@@ -675,8 +675,7 @@ public class Invoker
     {
         File[] files = {shellFile};
         numberCompiling++;
-        JobQueue.getJobQueue().addJob(files, this, pkg.getProject().getClassPath(), pkg.getProject().getProjectDir(),
-                true);
+        JobQueue.getJobQueue().addJob(files, this, pkg.getProject().getClassLoader(), pkg.getProject().getProjectDir(),true);
     }
 
     // -- CompileObserver interface --

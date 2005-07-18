@@ -1,5 +1,6 @@
 package bluej.compiler;
 
+import bluej.classmgr.BPClassLoader;
 import java.io.File;
 
 import bluej.Config;
@@ -9,7 +10,7 @@ import bluej.utility.Debug;
  * Reasonably generic interface between the BlueJ IDE and the Java compiler.
  * 
  * @author Michael Cahill
- * @version $Id: JobQueue.java 3241 2004-12-16 01:48:47Z davmac $
+ * @version $Id: JobQueue.java 3469 2005-07-18 13:41:54Z damiano $
  */
 public class JobQueue
 {
@@ -76,9 +77,9 @@ public class JobQueue
      * @param destDir   Destination for class files?
      * @param suppressUnchecked    Suppress "unchecked" warning in java 1.5
      */
-    public void addJob(File[] sources, CompileObserver observer, String classPath, File destDir, boolean suppressUnchecked)
+    public void addJob(File[] sources, CompileObserver observer, BPClassLoader bpClassLoader, File destDir, boolean suppressUnchecked)
     {
-        thread.addJob(new Job(sources, compiler, observer, classPath, destDir, suppressUnchecked));
+        thread.addJob(new Job(sources, compiler, observer, bpClassLoader, destDir, suppressUnchecked));
     }
 
     /**

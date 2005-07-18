@@ -21,7 +21,7 @@ import java.util.Iterator;
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
  * 
- * @version    $Id: BPClassLoader.java 3468 2005-07-18 12:50:39Z damiano $
+ * @version    $Id: BPClassLoader.java 3469 2005-07-18 13:41:54Z damiano $
  */
 
  /*
@@ -40,6 +40,8 @@ public class BPClassLoader extends URLClassLoader {
 
     /**
      * Create a string with this class path as a separated list of strings.
+     * Note that a classpath to be used to start another local JVM cannot refer to a URL but to a local file.
+     * It is therefore advisable to move as much as possible from a Classpath oriented vew to a ClassLoader.
      *
      * @return  The classpath as string.
      */
@@ -58,7 +60,9 @@ public class BPClassLoader extends URLClassLoader {
                 buf.append(File.pathSeparatorChar);
             }
 
-            buf.append(urls[index]);
+            URL url = urls[index];
+            // A class path is always without the qualifier file in front of it.
+            buf.append(url.getPath());
 
             // From now on, you have to add a separator.
             addSeparator = true;

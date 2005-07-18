@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 3468 2005-07-18 12:50:39Z damiano $
+ * @version $Id: BProject.java 3469 2005-07-18 13:41:54Z damiano $
  */
 
 /*
@@ -159,7 +159,10 @@ public class BProject
 
 
     /**
-     * Returns a BClassLoader that should be used to load Project classes.
+     * Returns a URLClassLoader that should be used to load project classes.
+     * Every time a project is compiled, even when the compilation is started from the GUI, 
+     * a new URLClassLoader is created and if the Extension currently have a copy of the old one it should discard it
+     * and use getClassLoader() to acquire the new one.
      * @return A class loader that should be used to load project classes.
      * @throws ProjectNotOpenException if the project has been closed by the user.
      */
