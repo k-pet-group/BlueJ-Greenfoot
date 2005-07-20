@@ -1,5 +1,6 @@
 package bluej.debugger;
 
+import bluej.classmgr.BPClassLoader;
 import java.io.File;
 import java.net.URLClassLoader;
 import java.util.Map;
@@ -13,7 +14,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 3471 2005-07-20 05:47:21Z davmac $
+ * @version $Id: Debugger.java 3473 2005-07-20 18:00:29Z damiano $
  */
 public abstract class Debugger
 {
@@ -73,21 +74,14 @@ public abstract class Debugger
     /**
      * Create a class loader in the debugger.
      */
-    public abstract void newClassLoader(String classPath);
+    public abstract void newClassLoader(BPClassLoader bpClassLoader);
 
 	/**
      * Create a class loader in the debugger but retain
      * any user created breakpoints.
 	 */
-	public abstract void newClassLoaderLeavingBreakpoints(String classPath);
+	public abstract void newClassLoaderLeavingBreakpoints(BPClassLoader bpClassLoader);
 
-    /**
-     * Set the complete classpath for the remote VM, including
-     * user libraries and all necessary jar files, and the
-     * project directory itself. Doesn't take effect until
-     * newClassLoader() is called.
-     */
-    public abstract void setClassPath(URLClassLoader uclPath);
 
     /**
      * Add a debugger object into the project scope.

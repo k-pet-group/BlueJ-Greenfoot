@@ -1,10 +1,8 @@
 package bluej.classmgr;
 
-
-
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
@@ -15,26 +13,25 @@ import java.net.URLDecoder;
  * Different projects have different class loaders since they shoule each have a well defined and unique namespace.
  * Every time a project is compiled, even when the compilation is started from the GUI, a new ProjectLoader is created and
  * if the Extension currently have a copy of the old one it should discard it.
- * Note: There is a name clash with ProjectClassLoader that should be deleted at the end of refactornig, 
+ * Note: There is a name clash with ProjectClassLoader that should be deleted at the end of refactornig,
  * unfortunately ProjectClassLoader has different semantic and it would be unvise to break the current behaviour before
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
- * 
- * @version    $Id: BPClassLoader.java 3472 2005-07-20 05:48:21Z davmac $
+ *
+ * @version    $Id: BPClassLoader.java 3473 2005-07-20 18:00:29Z damiano $
  */
 
- /*
-  * Author: Damiano Bolla
-  */
-public class BPClassLoader extends URLClassLoader {
-
+/*
+ * Author: Damiano Bolla
+ */
+public final class BPClassLoader extends URLClassLoader {
     /**
      * Constructructor.
      * @param parent the parent loader that is searched first to resolve classes.
      * @param urls the list of jars and directory that are searched next.
      */
     public BPClassLoader(URL[] urls, ClassLoader parent) {
-        super(urls,parent);
+        super(urls, parent);
     }
 
     /**
@@ -60,17 +57,22 @@ public class BPClassLoader extends URLClassLoader {
             }
 
             URL url = urls[index];
+
             // A class path is always without the qualifier file in front of it.
             // However some characters (such as space) are encoded.
             try {
                 buf.append(URLDecoder.decode(url.getPath(), "UTF-8"));
+            } catch (UnsupportedEncodingException uee) {
             }
-            catch (UnsupportedEncodingException uee) {}
-            
+
             // From now on, you have to add a separator.
             addSeparator = true;
         }
 
         return buf.toString();
+    }
+
+    public String toString() {
+        return "BPClassLoader path=" + getClassPathAsString();
     }
 }

@@ -1,5 +1,6 @@
 package bluej.runtime;
 
+import bluej.utility.Debug;
 import java.awt.AWTEvent;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -14,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import javax.swing.*;
 import junit.framework.TestCase;
 import junit.framework.TestFailure;
 import junit.framework.TestResult;
@@ -30,7 +32,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3471 2005-07-20 05:47:21Z davmac $
+ * @version $Id: ExecServer.java 3473 2005-07-20 18:00:29Z damiano $
  */
 public class ExecServer
 {
@@ -88,7 +90,7 @@ public class ExecServer
     public static int workerAction;
     public static String objectName;
     public static Object object;
-    public static String classPath;
+    public static String classPath;     // This is set by the Jdi connection, do not change the name.
     public static String className;
     public static String scopeId;
     public static String newLoaderPath; // a series of URLs separated by '\n'.
@@ -295,17 +297,13 @@ public class ExecServer
 
     /**
      * Create a new class loader for a given classpath.
+     * @param urlListAsString a URL list written as a single string (the \n is used to divide entries)
      */
-    private static ClassLoader newLoader(String classPath)
+    private static ClassLoader newLoader(String urlListAsString )
     {
-        //Debug.message("[VM] newLoader " + classPath);
+//        JOptionPane.showMessageDialog(null,"ExecServer.newLoader() urlListAsString="+urlListAsString);
     	
-        // If the newLoaderPath has been set, use it to generate a
-        // new classloader for the whole classpath.
-        if (newLoaderPath != null)
-            classmgr.setClassPath(newLoaderPath);
-        
-        currentLoader = classmgr.getLoader(classPath);
+        currentLoader = classmgr.newURLClassLoader( urlListAsString);
         objectMaps.clear();
 
 //    	BeanShell    

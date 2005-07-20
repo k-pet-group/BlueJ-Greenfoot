@@ -11,7 +11,7 @@ import bluej.utility.DialogManager;
  * compiler. Verified working with Jikes 1.12.
  *
  * @author  Andrew Patterson
- * @version $Id: JikesCompiler.java 2691 2004-06-30 05:23:41Z davmac $
+ * @version $Id: JikesCompiler.java 3473 2005-07-20 18:00:29Z damiano $
  */
 class JikesCompiler extends Compiler
 {
@@ -42,9 +42,9 @@ class JikesCompiler extends Compiler
         // as of Jikes 0.50, jikes will not automatically find the standard
         // JDK 1.2 classes because of changes Sun has made to the classpath
         // mechanism. We will supply jikes with the sun boot classes
-        if(getClassPath() != null) {
+        if(getProjectClassLoader() != null) {
             args.add("-classpath");
-            args.add(getClassPath() + File.pathSeparator + System.getProperty("sun.boot.class.path"));
+            args.add(getProjectClassLoader().getClassPathAsString() + File.pathSeparator + System.getProperty("sun.boot.class.path"));
         }
 
         if(isDebug())

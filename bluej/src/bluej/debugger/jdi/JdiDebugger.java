@@ -1,10 +1,12 @@
 package bluej.debugger.jdi;
 
+import bluej.classmgr.BPClassLoader;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
+import javax.swing.JOptionPane;
 import javax.swing.event.EventListenerList;
 
 import bluej.BlueJEvent;
@@ -35,7 +37,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 3471 2005-07-20 05:47:21Z davmac $
+ * @version $Id: JdiDebugger.java 3473 2005-07-20 18:00:29Z damiano $
  */
 public class JdiDebugger extends Debugger
 {
@@ -81,8 +83,8 @@ public class JdiDebugger extends Debugger
     // current machine state
     private int machineState = NOTREADY;
     
-    // classpath for the remote VM
-    private URL [] remoteClassPath;
+    // classpath to be used for the remote VM
+    private BPClassLoader lastProjectClassLoader;
 
     /**
      * Construct an instance of the debugger.
@@ -268,9 +270,15 @@ public class JdiDebugger extends Debugger
    
     /**
      * Create a class loader in the debugger.
+     * @param bpClassLoader the class loader that should be used to load the user classes in the remote VM.
      */
-    public void newClassLoader(String classPath)
+    public void newClassLoader(BPClassLoader bpClassLoader)
     {
+//JOptionPane.showMessageDialog(null,"JDiDebugger.newClassLoader() loader="+bpClassLoader);
+
+        // lastProjectClassLoader is used if there is a VM restart
+        if ( bpClassLoader != null ) lastProjectClassLoader = bpClassLoader;
+    
         VMReference vmr;
         synchronized(this) {
             if (!vmRunning)
@@ -280,13 +288,22 @@ public class JdiDebugger extends Debugger
 
             vmr = getVM();
         }
+        
+        // If what we are been given is null then let me try to use the old one.
+        // This is a bit strange...
+        if ( bpClassLoader == null ) bpClassLoader = lastProjectClassLoader;
+        
+        // If it is still null then there is nothing to load.
+        if ( bpClassLoader== null ) return;
+
         // May have a null vm reference if the project is closed
         if (vmr != null) {
             try {
-                vmr.newClassLoader(classPath);
+                vmr.newClassLoader(bpClassLoader.getURLs());
             }
             catch (VMDisconnectedException vmde) {}
         }
+        
     }
     
     /**
@@ -294,7 +311,7 @@ public class JdiDebugger extends Debugger
      * user libraries and all necessary jar files, and the
      * project directory itself. Doesn't take effect until
      * newClassLoader() is called.<p>
-     */
+     *
     public void setClassPath(URLClassLoader uclPath)
     {
         setClassPath(uclPath.getURLs());
@@ -330,14 +347,14 @@ public class JdiDebugger extends Debugger
      * Create a class loader in the debugger but retain any user created
      * breakpoints.
      */
-    public void newClassLoaderLeavingBreakpoints(String classPath)
+    public void newClassLoaderLeavingBreakpoints(BPClassLoader bpClassLoader)
     {
         // a list of Location's representing a temporarily
         // saved list of breakpoints we want to keep
         List savedBreakpoints;
 
         savedBreakpoints = getVM().getBreakpoints();
-        newClassLoader(classPath);
+        newClassLoader(bpClassLoader);
         getVM().restoreBreakpoints(savedBreakpoints);
     }
 
@@ -963,10 +980,7 @@ public class JdiDebugger extends Debugger
                     vmRunning = true;
                 }
 
-                if (remoteClassPath != null)
-                    setClassPath(remoteClassPath);
-                
-                newClassLoader(startingDirectory.getAbsolutePath());
+                newClassLoader(lastProjectClassLoader);
 
                 // wake any internal getVM() calls that
                 // are waiting for us to finish

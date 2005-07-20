@@ -47,7 +47,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3471 2005-07-20 05:47:21Z davmac $
+ * @version $Id: Project.java 3473 2005-07-20 18:00:29Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -131,7 +131,8 @@ public class Project implements DebuggerListener {
         }
 
         debugger = Debugger.getDebuggerImpl(getProjectDir(), getTerminal());
-        debugger.setClassPath(getClassLoader());
+        // The debugger should have a new classLoader, may it go into the getDebuggerImpl ?
+        debugger.newClassLoader(getClassLoader());
         debugger.addDebuggerListener(this);
         debugger.launch();
 
@@ -1040,7 +1041,7 @@ public class Project implements DebuggerListener {
      * Should be run whenever a source file changes.
      */
     public synchronized void newRemoteClassLoader() {
-        getDebugger().newClassLoader(getProjectDir().getPath());
+        getDebugger().newClassLoader(getClassLoader());
     }
 
     /**
@@ -1048,7 +1049,7 @@ public class Project implements DebuggerListener {
      * Should be run whenever a source file changes.
      */
     public synchronized void newRemoteClassLoaderLeavingBreakpoints() {
-        getDebugger().newClassLoaderLeavingBreakpoints(getProjectDir().getPath());
+        getDebugger().newClassLoaderLeavingBreakpoints(getClassLoader());
     }
 
     public Debugger getDebugger() {

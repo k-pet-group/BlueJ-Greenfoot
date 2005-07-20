@@ -1,6 +1,7 @@
 package bluej.debugger.jdi;
 
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -29,6 +30,7 @@ import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
+import javax.swing.JOptionPane;
 
 /**
  * A class implementing the execution and debugging primitives needed by BlueJ.
@@ -37,7 +39,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3471 2005-07-20 05:47:21Z davmac $
+ * @version $Id: VMReference.java 3473 2005-07-20 18:00:29Z damiano $
  * 
  * The startup process is as follows:
  * 
@@ -633,16 +635,24 @@ class VMReference
     }
 
     /**
-     * Instruct the remote machine to construct a new class loader and return
-     * its reference.
+     * Instruct the remote machine to construct a new class loader and return its reference.
+     * @param classPath as an array of URL
      */
-    ClassLoaderReference newClassLoader(String classPath)
+    ClassLoaderReference newClassLoader(URL []urls)
     {
         synchronized(workerThread) {
             workerThreadReadyWait();
             setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.NEW_LOADER));
             
-            setStaticFieldObject(serverClass, ExecServer.CLASSPATH_NAME, classPath);
+            StringBuffer newcpath = new StringBuffer(200);
+            for (int index = 0; index < urls.length; index++) {
+                newcpath.append ( urls[index].toString());
+                newcpath.append ('\n');
+            }
+
+//JOptionPane.showMessageDialog(null,"VMReference.newClassLoader() newcpath=" + newcpath.toString());
+            
+            setStaticFieldObject(serverClass, ExecServer.CLASSPATH_NAME, newcpath.toString());
             
             workerThreadReady = false;
             workerThread.resume();
@@ -656,7 +666,7 @@ class VMReference
     
     /**
      * Set the classpath on the remote machine.
-     */
+     *
     void setClassPathString(String classPath)
     {
         setStaticFieldObject(serverClass, ExecServer.NEW_LOADER_PATH_NAME, classPath);
