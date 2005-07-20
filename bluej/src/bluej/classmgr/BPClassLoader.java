@@ -4,11 +4,10 @@ package bluej.classmgr;
 
 
 import java.io.File;
-
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLClassLoader;
-
-import java.util.Iterator;
+import java.net.URLDecoder;
 
 
 /**
@@ -21,7 +20,7 @@ import java.util.Iterator;
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
  * 
- * @version    $Id: BPClassLoader.java 3469 2005-07-18 13:41:54Z damiano $
+ * @version    $Id: BPClassLoader.java 3472 2005-07-20 05:48:21Z davmac $
  */
 
  /*
@@ -62,8 +61,12 @@ public class BPClassLoader extends URLClassLoader {
 
             URL url = urls[index];
             // A class path is always without the qualifier file in front of it.
-            buf.append(url.getPath());
-
+            // However some characters (such as space) are encoded.
+            try {
+                buf.append(URLDecoder.decode(url.getPath(), "UTF-8"));
+            }
+            catch (UnsupportedEncodingException uee) {}
+            
             // From now on, you have to add a separator.
             addSeparator = true;
         }
