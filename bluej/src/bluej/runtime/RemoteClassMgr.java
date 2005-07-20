@@ -1,9 +1,13 @@
 package bluej.runtime;
 
-import bluej.classmgr.*;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 
-import java.io.*;
-import java.net.*;
+import bluej.classmgr.ClassPath;
+import bluej.classmgr.ProjectClassLoader;
 
 /**
  * Class to maintain a global classpath environment on the
@@ -19,7 +23,7 @@ import java.net.*;
  *              (one for each project)
  *
  * @author  Andrew Patterson
- * @version $Id: RemoteClassMgr.java 2096 2003-07-04 14:52:01Z mik $
+ * @version $Id: RemoteClassMgr.java 3471 2005-07-20 05:47:21Z davmac $
  */
 public class RemoteClassMgr
 {
@@ -38,20 +42,33 @@ public class RemoteClassMgr
     private ClassLoader bluejLoader = ClassLoader.getSystemClassLoader();
 
     /**
-     * Return a non-project specific class loader
-     */
-    public ClassLoader getLoader()
-    {
-        return bluejLoader;
-    }
-
-    /**
      * Return a project specific class loader
      */
     public ClassLoader getLoader(String projectDirName)
     {
         return new ProjectClassLoader(new File(projectDirName),
                                       bluejLoader);
+    }
+    
+    /**
+     * Return a class loader which uses the specified classpath
+     * (a '\n' seperated list of URLs).
+     */
+    public void setClassPath(String urls)
+    {
+        ArrayList urlsList = new ArrayList();
+        int index = 0;
+        int nindex = urls.indexOf('\n');
+        while (nindex != -1) {
+            try {
+                urlsList.add(new URL(urls.substring(index, nindex)));
+            }
+            catch (MalformedURLException mfue) {}
+            index = nindex;
+            nindex = urls.indexOf(nindex, '\n');
+        }
+            
+        bluejLoader =  new URLClassLoader((URL []) urlsList.toArray(new URL[urlsList.size()]));
     }
 
     /**

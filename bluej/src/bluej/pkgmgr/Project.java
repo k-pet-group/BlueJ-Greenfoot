@@ -47,7 +47,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3470 2005-07-18 13:49:30Z damiano $
+ * @version $Id: Project.java 3471 2005-07-20 05:47:21Z davmac $
  */
 public class Project implements DebuggerListener {
     /**
@@ -131,6 +131,7 @@ public class Project implements DebuggerListener {
         }
 
         debugger = Debugger.getDebuggerImpl(getProjectDir(), getTerminal());
+        debugger.setClassPath(getClassLoader());
         debugger.addDebuggerListener(this);
         debugger.launch();
 

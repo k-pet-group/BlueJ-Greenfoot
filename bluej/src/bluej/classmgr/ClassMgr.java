@@ -24,7 +24,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 3057 2004-10-21 02:52:15Z bquig $
+ * @version $Id: ClassMgr.java 3471 2005-07-20 05:47:21Z davmac $
  */
 public class ClassMgr
 {
@@ -122,6 +122,21 @@ public class ClassMgr
         all.addClassPath(bootLibraries);
 
         return all;
+    }
+    
+    /**
+     * Get a classpath containing all elements required for the bluej runtime.
+     * This should include junit and essential bluej runtime classes (those in
+     * the bluej.runtime package) but little else.
+     * 
+     * At the moment it contains quite a bit more than that...
+     */
+    public ClassPath getRuntimeUserClassPath()
+    {
+        ClassPath rt = new ClassPath();
+        rt.addClassPath(systemLibraries);
+        
+        return rt;
     }
 
     /**

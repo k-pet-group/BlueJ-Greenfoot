@@ -1,11 +1,18 @@
 package bluej.debugger.jdi;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import bluej.Config;
 import bluej.classmgr.ClassMgr;
-import bluej.debugger.*;
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerTerminal;
+import bluej.debugger.ExceptionDescription;
+import bluej.debugger.SourceLocation;
 import bluej.prefmgr.PrefMgr;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
@@ -13,8 +20,15 @@ import bluej.utility.Debug;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector;
-import com.sun.jdi.event.*;
-import com.sun.jdi.request.*;
+import com.sun.jdi.event.ExceptionEvent;
+import com.sun.jdi.event.LocatableEvent;
+import com.sun.jdi.event.ThreadDeathEvent;
+import com.sun.jdi.event.ThreadStartEvent;
+import com.sun.jdi.event.VMStartEvent;
+import com.sun.jdi.request.BreakpointRequest;
+import com.sun.jdi.request.ClassPrepareRequest;
+import com.sun.jdi.request.EventRequest;
+import com.sun.jdi.request.EventRequestManager;
 
 /**
  * A class implementing the execution and debugging primitives needed by BlueJ.
@@ -23,7 +37,7 @@ import com.sun.jdi.request.*;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3140 2004-11-23 01:15:45Z davmac $
+ * @version $Id: VMReference.java 3471 2005-07-20 05:47:21Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -138,7 +152,7 @@ class VMReference
 
         // launch the VM
         // get classpath for VM
-        String allClassPath = ClassMgr.getClassMgr().getAllClassPath().toString();
+        String allClassPath = ClassMgr.getClassMgr().getRuntimeUserClassPath().toString();
         
         ArrayList paramList = new ArrayList(10);
         paramList.add(Config.getJDKExecutablePath("this.key.must.not.exist", "java"));
@@ -624,9 +638,6 @@ class VMReference
      */
     ClassLoaderReference newClassLoader(String classPath)
     {
-        ClassLoaderReference loader = null;
-        Object args[] = {classPath};
-
         synchronized(workerThread) {
             workerThreadReadyWait();
             setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.NEW_LOADER));
@@ -642,6 +653,14 @@ class VMReference
             return currentLoader;
         }
     }
+    
+    /**
+     * Set the classpath on the remote machine.
+     */
+    void setClassPathString(String classPath)
+    {
+        setStaticFieldObject(serverClass, ExecServer.NEW_LOADER_PATH_NAME, classPath);
+    }
 
     /**
      * Load a class in the remote machine and return its reference. Note that
@@ -653,9 +672,6 @@ class VMReference
     ReferenceType loadClass(String className)
         throws ClassNotFoundException
     {
-        Value v = null;
-        Object args[] = {className};
-
         synchronized(workerThread) {
             workerThreadReadyWait();
             setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.LOAD_CLASS));
@@ -1400,7 +1416,7 @@ class VMReference
      * @param instanceName  the name of the object to add
      * @param object        a reference to the object to add
      */
-    void addObject(String instanceName, ObjectReference object)
+    void addObject(String scopeId, String instanceName, ObjectReference object)
     {
         synchronized(workerThread) {
             workerThreadReadyWait();
@@ -1409,6 +1425,7 @@ class VMReference
             // parameters
             setStaticFieldObject(serverClass, ExecServer.OBJECTNAME_NAME, instanceName);
             setStaticFieldValue(serverClass, ExecServer.OBJECT_NAME, object);
+            setStaticFieldObject(serverClass, ExecServer.SCOPE_ID_NAME, scopeId);
             
             workerThreadReady = false;
             workerThread.resume();
@@ -1419,7 +1436,7 @@ class VMReference
      * Remove an object from the object map on the debug vm.
      * @param instanceName   the name of the object to remove
      */
-    synchronized void removeObject(String instanceName)
+    synchronized void removeObject(String scopeId, String instanceName)
     {
         synchronized(workerThread) {
             try {
@@ -1428,6 +1445,7 @@ class VMReference
         
                 // parameters
                 setStaticFieldObject(serverClass, ExecServer.OBJECTNAME_NAME, instanceName);
+                setStaticFieldObject(serverClass, ExecServer.SCOPE_ID_NAME, scopeId);
         
                 workerThreadReady = false;
                 workerThread.resume();

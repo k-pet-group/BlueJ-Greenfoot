@@ -30,7 +30,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3315 2005-02-17 00:21:15Z davmac $
+ * @version $Id: ExecServer.java 3471 2005-07-20 05:47:21Z davmac $
  */
 public class ExecServer
 {
@@ -90,6 +90,8 @@ public class ExecServer
     public static Object object;
     public static String classPath;
     public static String className;
+    public static String scopeId;
+    public static String newLoaderPath; // a series of URLs separated by '\n'.
     
     public static Object workerReturn;
     
@@ -99,6 +101,8 @@ public class ExecServer
     public static final String CLASSPATH_NAME = "classPath";
     public static final String CLASSNAME_NAME = "className";
     public static final String WORKER_RETURN_NAME = "workerReturn";
+    public static final String SCOPE_ID_NAME = "scopeId";
+    public static final String NEW_LOADER_PATH_NAME = "newLoaderPath";
     
     public static final int REMOVE_OBJECT = 0;
     public static final int ADD_OBJECT    = 1;
@@ -116,7 +120,8 @@ public class ExecServer
     // the current class loader
 	private static ClassLoader currentLoader;
 	// a hashmap of names to objects
-    private static Map objects = new HashMap();
+    // private static Map objects = new HashMap();
+    private static Map objectMaps = new HashMap();
     
     /**
      * We need to keep track of open windows so that we can dispose of them
@@ -159,10 +164,10 @@ public class ExecServer
                     vmSuspend();
                     switch(workerAction) {
                         case ADD_OBJECT:
-                            addObject(objectName, object);
+                            addObject(scopeId, objectName, object);
                             break;
                         case REMOVE_OBJECT:
-                            removeObject(objectName);
+                            removeObject(scopeId, objectName);
                             break;
                         case LOAD_CLASS:
                             try {
@@ -255,10 +260,14 @@ public class ExecServer
     /**
      * Find a scoping Map for the given scopeId
      */
-    static Map getScope()
+    static Map getScope(String scopeId)
     {
-        //Debug.message("[VM] getScope");
-        return objects;
+        Map m = (Map) objectMaps.get(scopeId);
+        if (m == null) {
+            m = new HashMap();
+            objectMaps.put(scopeId, m);
+        }
+        return m;
 
 //    	BeanShell    
         //Map hashMap = new HashMap();
@@ -290,7 +299,14 @@ public class ExecServer
     private static ClassLoader newLoader(String classPath)
     {
         //Debug.message("[VM] newLoader " + classPath);
-    	currentLoader = classmgr.getLoader(classPath);
+    	
+        // If the newLoaderPath has been set, use it to generate a
+        // new classloader for the whole classpath.
+        if (newLoaderPath != null)
+            classmgr.setClassPath(newLoaderPath);
+        
+        currentLoader = classmgr.getLoader(classPath);
+        objectMaps.clear();
 
 //    	BeanShell    
         //if (classPath.equals("."))
@@ -368,10 +384,10 @@ public class ExecServer
      *
      * Must be static because it is used by Shell without a execServer reference
      */
-    static void addObject(String instanceName, Object value)
+    static void addObject(String scopeId, String instanceName, Object value)
     {
         // Debug.message("[VM] addObject: " + instanceName + " " + value);
-        Map scope = getScope();
+        Map scope = getScope(scopeId);
         scope.put(instanceName, value);
 //    	BeanShell    
         //try {
@@ -668,10 +684,10 @@ public class ExecServer
     /**
      * Remove an object from the scope.
      */
-    private static void removeObject(String instanceName)
+    private static void removeObject(String scopeId, String instanceName)
     {
         //Debug.message("[VM] removeObject: " + instanceName);
-        Map scope = getScope();
+        Map scope = getScope(scopeId);
         scope.remove(instanceName);
 //		BeanShell
         //try {
@@ -679,31 +695,6 @@ public class ExecServer
         //}
         //catch (EvalError ee) { }
     }
-
-    /**
-     * Redirect System.err to an invisible sink.
-     *
-     * Must be static because it is used by RemoteSecurityManager without a execServer reference
-     */
-    /*
-    static void supressOutput()
-    {
-        throwawayErr = new ByteArrayOutputStream();
-        System.setErr(new PrintStream(throwawayErr));
-    }
-    */
-
-    /**
-     * Restore the standard System.err.
-     *
-     * Must be static because it is used by RemoteSecurityManager without a execServer reference
-     */
-    /*
-    static void restoreOutput()
-    {
-        System.setErr(systemErr);
-    }
-    */
 
     /**
      * Dispose of all the top level windows we think are open.

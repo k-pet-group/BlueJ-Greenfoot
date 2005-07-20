@@ -1,6 +1,8 @@
 package bluej.debugger.jdi;
 
 import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 
 import javax.swing.event.EventListenerList;
@@ -33,7 +35,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: JdiDebugger.java 3471 2005-07-20 05:47:21Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -78,6 +80,9 @@ public class JdiDebugger extends Debugger
     
     // current machine state
     private int machineState = NOTREADY;
+    
+    // classpath for the remote VM
+    private URL [] remoteClassPath;
 
     /**
      * Construct an instance of the debugger.
@@ -283,6 +288,43 @@ public class JdiDebugger extends Debugger
             catch (VMDisconnectedException vmde) {}
         }
     }
+    
+    /**
+     * Set the complete classpath for the remote VM, including
+     * user libraries and all necessary jar files, and the
+     * project directory itself. Doesn't take effect until
+     * newClassLoader() is called.<p>
+     */
+    public void setClassPath(URLClassLoader uclPath)
+    {
+        setClassPath(uclPath.getURLs());
+    }
+    
+    private void setClassPath(URL [] urls)
+    {
+        remoteClassPath = urls;
+
+        // If the remote machine isn't running, don't bother
+        // trying to communicate with it.
+        VMReference vmr;
+        synchronized(this) {
+            if (!vmRunning)
+                return;
+            vmr = getVM();
+        }
+        
+        if (vmr != null) {
+            // The remote machine is (or was) running.
+            String newcpath = "";
+            for (int i = 0; i < urls.length; i++) {
+                newcpath += urls[i].toString() + '\n';
+            }
+            try {
+                vmr.setClassPathString(newcpath);
+            }
+            catch (VMDisconnectedException vmde) {}
+        }
+    }
 
     /**
      * Create a class loader in the debugger but retain any user created
@@ -307,9 +349,9 @@ public class JdiDebugger extends Debugger
      * @return true if the object could be added with this name, false if there
      *         was a name clash.
      */
-    public boolean addObject(String newInstanceName, DebuggerObject dob)
+    public boolean addObject(String scopeId, String newInstanceName, DebuggerObject dob)
     {
-        getVM().addObject(newInstanceName, ((JdiObject) dob).getObjectReference());
+        getVM().addObject(scopeId, newInstanceName, ((JdiObject) dob).getObjectReference());
 
         usedNames.add(newInstanceName);
 
@@ -319,7 +361,7 @@ public class JdiDebugger extends Debugger
     /**
      * Remove an object from a package scope (when removed from object bench).
      */
-    public void removeObject(String instanceName)
+    public void removeObject(String scopeId, String instanceName)
     {
         VMReference vmr;
         synchronized(this) {
@@ -329,9 +371,7 @@ public class JdiDebugger extends Debugger
             vmr = getVM();
         }
 
-        Object args[] = {instanceName};
-
-        vmr.removeObject(instanceName);
+        vmr.removeObject(scopeId, instanceName);
     }
 
     /**
@@ -923,6 +963,9 @@ public class JdiDebugger extends Debugger
                     vmRunning = true;
                 }
 
+                if (remoteClassPath != null)
+                    setClassPath(remoteClassPath);
+                
                 newClassLoader(startingDirectory.getAbsolutePath());
 
                 // wake any internal getVM() calls that

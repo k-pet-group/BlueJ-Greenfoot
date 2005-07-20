@@ -16,7 +16,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3467 2005-07-15 13:26:18Z damiano $
+ * @version $Id: Boot.java 3471 2005-07-20 05:47:21Z davmac $
  */
 public class Boot
 {
@@ -49,7 +49,9 @@ public class Boot
     private static String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
                                           "antlr.jar", "MRJ141Stubs.jar" };
     // The second group are available to user code (and to bluej)
-    private static String[] bluejUserJars = { "junit.jar" };
+    // bluejcore.jar is necessary as it contains the support runtime
+    // (bluej.runtime.* classes).
+    private static String[] bluejUserJars = { "bluejcore.jar", "junit.jar" };
     
     private static boolean useClassesDir = false;
 

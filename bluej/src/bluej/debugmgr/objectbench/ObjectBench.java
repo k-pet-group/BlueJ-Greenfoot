@@ -15,7 +15,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 3054 2004-10-15 11:32:47Z mik $
+ * @version $Id: ObjectBench.java 3471 2005-07-20 05:47:21Z davmac $
  */
 public class ObjectBench extends JPanel 
     implements FocusListener, KeyListener, MouseListener
@@ -125,7 +125,7 @@ public class ObjectBench extends JPanel
         for(Iterator i = objects.iterator(); i.hasNext(); ) {
             ObjectWrapper wrapper = (ObjectWrapper) i.next();
             wrapper.prepareRemove();
-            wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
+            wrapper.getPackage().getDebugger().removeObject(scopeId, wrapper.getName());
             obp.remove(wrapper);
         }
         objects.clear();
@@ -146,7 +146,7 @@ public class ObjectBench extends JPanel
             setSelectedObject(null);
             
         wrapper.prepareRemove();
-        wrapper.getPackage().getDebugger().removeObject(wrapper.getName());
+        wrapper.getPackage().getDebugger().removeObject(scopeId, wrapper.getName());
         obp.remove(wrapper);
         objects.remove(wrapper);
 

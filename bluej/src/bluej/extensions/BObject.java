@@ -14,7 +14,7 @@ import java.util.*;
  * @see        BConstructor
  * @see        BMethod
  * @see        BField
- * @version    $Id: BObject.java 2783 2004-07-12 09:56:31Z damiano $
+ * @version    $Id: BObject.java 3471 2005-07-20 05:47:21Z davmac $
  */
 
 /*
@@ -119,7 +119,7 @@ public class BObject
         aBench.addObject(objectWrapper);
 
         // load the object into runtime scope
-        aPackage.getDebugger().addObject(objectWrapper.getName(), objectWrapper.getObject());
+        aPackage.getDebugger().addObject(aPackage.getId(), objectWrapper.getName(), objectWrapper.getObject());
     }
 
 

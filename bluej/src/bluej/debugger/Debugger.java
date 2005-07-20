@@ -1,6 +1,7 @@
 package bluej.debugger;
 
 import java.io.File;
+import java.net.URLClassLoader;
 import java.util.Map;
 
 import bluej.debugger.jdi.JdiDebugger;
@@ -12,7 +13,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 2963 2004-08-30 16:05:05Z polle $
+ * @version $Id: Debugger.java 3471 2005-07-20 05:47:21Z davmac $
  */
 public abstract class Debugger
 {
@@ -81,6 +82,14 @@ public abstract class Debugger
 	public abstract void newClassLoaderLeavingBreakpoints(String classPath);
 
     /**
+     * Set the complete classpath for the remote VM, including
+     * user libraries and all necessary jar files, and the
+     * project directory itself. Doesn't take effect until
+     * newClassLoader() is called.
+     */
+    public abstract void setClassPath(URLClassLoader uclPath);
+
+    /**
      * Add a debugger object into the project scope.
      * 
      * @param   newInstanceName  the name of the object
@@ -88,12 +97,12 @@ public abstract class Debugger
      * @return  true if the object could be added with this name,
      *          false if there was a name clash.
      */
-    public abstract boolean addObject(String newInstanceName, DebuggerObject dob);
+    public abstract boolean addObject(String scopeId, String newInstanceName, DebuggerObject dob);
 
     /**
      * Remove a debugger object from the project scope.
      */
-    public abstract void removeObject(String instanceName);
+    public abstract void removeObject(String scopeId, String instanceName);
 
 	/**
 	 * Return the debugger objects that exist in the
