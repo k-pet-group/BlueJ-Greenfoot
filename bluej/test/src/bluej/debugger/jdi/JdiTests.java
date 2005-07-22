@@ -14,8 +14,8 @@ import java.util.Properties;
 import junit.framework.TestCase;
 import bluej.Boot;
 import bluej.Config;
+import bluej.classmgr.BPClassLoader;
 import bluej.debugger.*;
-import bluej.debugger.jdi.JdiDebugger;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
@@ -31,7 +31,7 @@ import bluej.views.View;
  * Tests for the debugger.
  *  
  * @author Davin McCall
- * @version $Id: JdiTests.java 3348 2005-04-15 02:36:36Z davmac $
+ * @version $Id: JdiTests.java 3474 2005-07-22 02:43:00Z davmac $
  */
 public class JdiTests extends TestCase
 {
@@ -41,7 +41,7 @@ public class JdiTests extends TestCase
     protected File javaHomeDir = new File(System.getProperty("java.home"));
     private static String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
             "antlr.jar", "MRJ141Stubs.jar" };
-    private static String[] bluejUserJars = { "junit.jar" };
+    private static String[] bluejUserJars = { "bluejcore.jar", "junit.jar" };
     
     // various vars useful for testing
     boolean failed = false;
@@ -286,6 +286,7 @@ public class JdiTests extends TestCase
         DebuggerTerminal term = new TestTerminal();
         final JdiDebugger debugger = new JdiDebugger(launchDir,term);
         debugger.launch();
+        debugger.newClassLoader(new BPClassLoader(new URL[] {launchDir.toURI().toURL()}, null));
         
         // load the test class, execute it
         new Thread() {
@@ -398,7 +399,7 @@ public class JdiTests extends TestCase
                             ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, "result");
                             pmf.getObjectBench().addObject(wrapper);
 
-                            pmf.getPackage().getDebugger().addObject(wrapper.getName(), result);
+                            pmf.getPackage().getDebugger().addObject(pmf.getPackage().getId(), wrapper.getName(), result);
 
                             // pmf.getObjectBench().addInteraction(ir);
                             
@@ -473,6 +474,7 @@ public class JdiTests extends TestCase
         DebuggerTerminal term = new TestTerminal();
         final JdiDebugger debugger = new JdiDebugger(launchDir,term);
         debugger.launch();
+        debugger.newClassLoader(new BPClassLoader(new URL[] {launchDir.toURI().toURL()}, null));
         
         // wait til the debugger process has actually started
         debugger.getClass("breakpointTester");
@@ -546,8 +548,7 @@ public class JdiTests extends TestCase
         DebuggerTerminal term = new TestTerminal();
         final JdiDebugger debugger = new JdiDebugger(launchDir,term);
         debugger.launch();
-        
-        TestDebuggerListener tdl = new TestDebuggerListener(this);
+        debugger.newClassLoader(new BPClassLoader(new URL[] {launchDir.toURI().toURL()}, null));
         
         // load the test class, execute it
         Thread n = new Thread() {
@@ -584,6 +585,7 @@ public class JdiTests extends TestCase
         launchDir = new File(launchDir, "test1");
         DebuggerTerminal term = new TestTerminal();
         final JdiDebugger debugger = new JdiDebugger(launchDir,term);
+        debugger.newClassLoader(new BPClassLoader(new URL[] {launchDir.toURI().toURL()}, null));
 
         // wait until it is ready
         TestDebuggerListener tdl = new TestDebuggerListener(this);
@@ -596,9 +598,9 @@ public class JdiTests extends TestCase
             {
                 try {
                     debugger.getClass("initException");
+                    flag1 = true;
                 }
                 catch (ClassNotFoundException cnfe) {}
-                flag1 = true;
             }
         };
         n.start();
