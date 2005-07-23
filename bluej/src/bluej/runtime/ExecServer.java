@@ -13,6 +13,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 
 import javax.swing.*;
@@ -32,7 +35,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3473 2005-07-20 18:00:29Z damiano $
+ * @version $Id: ExecServer.java 3475 2005-07-23 09:21:48Z damiano $
  */
 public class ExecServer
 {
@@ -110,18 +113,10 @@ public class ExecServer
     public static final int ADD_OBJECT    = 1;
     public static final int LOAD_CLASS    = 2;
     public static final int NEW_LOADER    = 3;
-    
-    
-    // a BeanShell interpreter that we use for executing code
-//	BeanShell    
-    //private static Interpreter interpreter;
-        
-	// the class manager on this machine
-    private static RemoteClassMgr classmgr;
 
     // the current class loader
-	private static ClassLoader currentLoader;
-	// a hashmap of names to objects
+  	private static ClassLoader currentLoader;
+	  // a hashmap of names to objects
     // private static Map objects = new HashMap();
     private static Map objectMaps = new HashMap();
     
@@ -144,7 +139,6 @@ public class ExecServer
     {
 		// Debug.message("[VM] creating server object");
 
-		classmgr = new RemoteClassMgr();
 
         // Set up an input stream filter to detect "End of file" signals
         // (CTRL-Z or CTRL-D typed in terminal)
@@ -298,12 +292,25 @@ public class ExecServer
     /**
      * Create a new class loader for a given classpath.
      * @param urlListAsString a URL list written as a single string (the \n is used to divide entries)
+     * @return a URLClassLoader that can be used to load user classes.
      */
     private static ClassLoader newLoader(String urlListAsString )
     {
 //        JOptionPane.showMessageDialog(null,"ExecServer.newLoader() urlListAsString="+urlListAsString);
     	
-        currentLoader = classmgr.newURLClassLoader( urlListAsString);
+        String [] splits = urlListAsString.split("\n");
+        URL []urls = new URL[splits.length];
+
+        for ( int index=0; index<splits.length; index++ )  
+            try {
+                urls[index]=new URL(splits[index]);
+            }
+            catch (MalformedURLException mfue) {
+                // Should never happen but if it does we want to know about it
+                JOptionPane.showMessageDialog(null,"ExecServer.newLoader() Malformed URL="+splits[index]);
+            }
+            
+        currentLoader = new URLClassLoader(urls);
         objectMaps.clear();
 
 //    	BeanShell    
