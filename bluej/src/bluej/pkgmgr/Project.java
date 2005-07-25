@@ -47,7 +47,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3473 2005-07-20 18:00:29Z damiano $
+ * @version $Id: Project.java 3477 2005-07-25 19:47:45Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -72,9 +72,6 @@ public class Project implements DebuggerListener {
        The unnamed package ie root package of the package tree
        can be obtained by retrieving "" from this collection */
     private Map packages;
-
-    /** a ClassLoader for the local virtual machine */
-    private ProjectClassLoader loader;
 
     /** the debugger for this project */
     private Debugger debugger;
@@ -990,25 +987,13 @@ public class Project implements DebuggerListener {
     }
 
     /**
-     * Get the ClassLoader for this project.
-     * The ClassLoader load classes on the local VM.
-     */
-    public synchronized ProjectClassLoader getLocalClassLoader() {
-        if (loader == null) {
-            loader = ClassMgr.getProjectLoader(getProjectDir());
-        }
-
-        return loader;
-    }
-
-    /**
      * Removes the current classloader, and removes
      * references to classes loaded by it (this includes removing
      * the objects from all object benches of this project).
      * Should be run whenever a source file changes
      */
     public synchronized void removeLocalClassLoader() {
-        if (loader != null) {
+        if (currentClassLoader != null) {
             // remove bench objects for all frames in this project
             PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
 
@@ -1022,7 +1007,7 @@ public class Project implements DebuggerListener {
             removeAllInspectors();
 
             // remove views for classes loaded by this classloader
-            View.removeAll(loader);
+            View.removeAll(currentClassLoader);
 
             // dispose windows for local classes. Should not run user code
             // on the event queue, so run it in a seperate thread.
@@ -1032,7 +1017,7 @@ public class Project implements DebuggerListener {
                     }
                 }.start();
 
-            loader = null;
+            currentClassLoader = null;
         }
     }
 
@@ -1085,7 +1070,7 @@ public class Project implements DebuggerListener {
      */
     public Class loadClass(String className) {
         try {
-            return getLocalClassLoader().loadClass(className);
+            return getClassLoader().loadClass(className);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
 
@@ -1144,7 +1129,9 @@ public class Project implements DebuggerListener {
     public synchronized BPClassLoader getClassLoader() {
         // At the moment I do this to find out what has changed. It will be done differently at the end.
         ClassPath allcp = ClassMgr.getClassMgr().getAllClassPath();
-        allcp.addClassPath(getLocalClassLoader().getAsClassPath());
+        
+        ProjectClassLoader todelete = ClassMgr.getProjectLoader(getProjectDir());     
+        allcp.addClassPath(todelete.getAsClassPath());
 
         URL[] newUrls = allcp.getURLs();
 
