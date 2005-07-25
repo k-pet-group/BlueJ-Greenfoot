@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: JavaUtils15.java 3476 2005-07-25 05:48:39Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -117,7 +117,7 @@ public class JavaUtils15 extends JavaUtils {
     public String getShortDesc(Constructor constructor, String [] paramnames)
     {
         String name = constructor.getName();        
-        name += getTypeParams(constructor);        
+        name += getTypeParamsString(constructor);        
 
         // Get the names without introducing ellipsis for varargs
         Type[] paramTypes = constructor.getGenericParameterTypes();       
@@ -130,7 +130,7 @@ public class JavaUtils15 extends JavaUtils {
     public String getLongDesc(Constructor constructor, String [] paramnames)
     {
         String name = constructor.getName();        
-        name += getTypeParams(constructor); 
+        name += getTypeParamsString(constructor); 
 
         // Get the names without introducing ellipsis for varargs
         Type[] paramTypes = constructor.getGenericParameterTypes();       
@@ -140,7 +140,7 @@ public class JavaUtils15 extends JavaUtils {
         return makeDescription(name, paramTypeNames, paramnames, true, constructor.isVarArgs());
     }
     
-    private String getTypeParams(Constructor constructor)
+    private String getTypeParamsString(Constructor constructor)
     {
         String typeString = "";
         List typeParams = getTypeParams(constructor.getDeclaringClass());
@@ -209,37 +209,17 @@ public class JavaUtils15 extends JavaUtils {
     
     public List getTypeParams(Method method)
     {
-        List rlist = new ArrayList();
-        TypeVariable [] tvars = method.getTypeParameters();
-        for( int i = 0; i < tvars.length; i++ ) {
-            // find the bounds.
-            Type [] bounds = tvars[i].getBounds();
-            GenTypeSolid [] upperBounds = new GenTypeSolid[bounds.length];
-            for (int j = 0; j < bounds.length; j++)
-                upperBounds[j] = (GenTypeSolid) genTypeFromType(bounds[j]);
-            
-            // add the type parameter to the list.
-            rlist.add(new GenTypeDeclTpar(tvars[i].getName(), upperBounds));
-        }
-        return rlist;
+        return getTypeParams((GenericDeclaration) method);
+    }
+    
+    public List getTypeParams(Constructor cons)
+    {
+        return getTypeParams((GenericDeclaration) cons);
     }
 
     public List getTypeParams(Class cl)
     {
-        List rlist = new ArrayList();
-        TypeVariable [] tvars = cl.getTypeParameters();
-        for (int i = 0; i < tvars.length; i++) {
-            
-            // find the bounds.
-            Type [] bounds = tvars[i].getBounds();
-            GenTypeSolid [] upperBounds = new GenTypeSolid[bounds.length];
-            for (int j = 0; j < bounds.length; j++)
-                upperBounds[j] = (GenTypeSolid) genTypeFromType(bounds[j]);
-            
-            // add the type parameter to the list.
-            rlist.add(new GenTypeDeclTpar(tvars[i].getName(), upperBounds));
-        }
-        return rlist;
+        return getTypeParams((GenericDeclaration) cl);
     }
     
     public GenTypeClass getSuperclass(Class cl)
@@ -300,6 +280,27 @@ public class JavaUtils15 extends JavaUtils {
     }
     
     /* -------------- Internal methods ---------------- */
+    
+    /**
+     * Get the type parameters for any GenericDeclaration implementor. This
+     * includes Methods, Constructors and Classes.
+     */
+    private static List getTypeParams(GenericDeclaration decl)
+    {
+        List rlist = new ArrayList();
+        TypeVariable [] tvars = decl.getTypeParameters();
+        for( int i = 0; i < tvars.length; i++ ) {
+            // find the bounds.
+            Type [] bounds = tvars[i].getBounds();
+            GenTypeSolid [] upperBounds = new GenTypeSolid[bounds.length];
+            for (int j = 0; j < bounds.length; j++)
+                upperBounds[j] = (GenTypeSolid) genTypeFromType(bounds[j]);
+            
+            // add the type parameter to the list.
+            rlist.add(new GenTypeDeclTpar(tvars[i].getName(), upperBounds));
+        }
+        return rlist;
+    }
     
     /**
      * Gets nicely formatted strings describing the parameter types.

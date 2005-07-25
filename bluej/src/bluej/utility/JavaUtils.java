@@ -16,7 +16,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: JavaUtils.java 3476 2005-07-25 05:48:39Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -151,6 +151,22 @@ public abstract class JavaUtils {
      */
     abstract public List getTypeParams(Method method);
     
+    /**
+     * Get a list of the type parameters for a generic constructor.
+     * (return an empty list if the method is not generic).
+     * 
+     * @param method   The method fro which to find the type parameters
+     * @return  A list of GenTypeDeclTpar
+     */
+    abstract public List getTypeParams(Constructor cons);
+    
+    /**
+     * Get a list of the type parameters for a class. Return an empty list if
+     * the class is not generic.
+     * 
+     * @param cl the class
+     * @return A List of GenTypeDeclTpar
+     */
     abstract public List getTypeParams(Class cl);
     
     /**

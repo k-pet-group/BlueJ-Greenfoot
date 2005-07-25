@@ -1,6 +1,7 @@
 package bluej.views;
 
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.GenTypeDeclTpar;
 
 /**
  * A "callable" is the generalisation of a Constructor and a Method. This class
@@ -29,15 +30,9 @@ public abstract class CallableView extends MemberView
     public abstract boolean isVarArgs();
 
     /**
-     * Changes an array type name (Object[]) to a var arg (Object ...)
-     * 
-     * @param typeName The name of the type
-     * @return A var arg representation of the type
+     * Indicates whether the callable view has type parameters.
      */
-    private String createVarArg(String typeName) {
-        String lastArrayStripped = typeName.substring(0,typeName.length()-2);
-        return lastArrayStripped + " ...";        
-    }
+    public abstract boolean isGeneric();
 
     /**
      * Count of parameters
@@ -54,19 +49,19 @@ public abstract class CallableView extends MemberView
     public abstract Class[] getParameters();
     
     /**
-     * Get an array of GenType objects representing parameter types. For a
-     * generic method the types returned will be the base type of any type
-     * parameters, rather than the type parameters themselves.<p>
-     * 
-     * For instance, <code>&lt;T extends Object&gt; T genMethod(T a)</code><p>
-     * 
-     * ... would return Object as the type parameter. 
+     * Get an array of GenType objects representing the parameter types of the
+     * callable.
      * 
      * @param raw  whether to return raw versions of the parameter types
      * @return  the parameter types
      */
     public abstract JavaType[] getParamTypes(boolean raw);
 
+    /**
+     * Get the type paraemters for this callable as an array of GenTypeDeclTpar
+     */
+    public abstract GenTypeDeclTpar[] getTypeParams();
+    
     /**
      * Gets an array of strings with the names of the parameters
      * @return

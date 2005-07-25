@@ -1,14 +1,16 @@
 package bluej.views;
 
 import java.lang.reflect.Constructor;
+import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.utility.JavaUtils;
 
 /**
  * A representation of a Java constructor in BlueJ
  * 
- * @version $Id: ConstructorView.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: ConstructorView.java 3476 2005-07-25 05:48:39Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -40,6 +42,11 @@ public final class ConstructorView extends CallableView
      */
     public boolean hasParameters() {
         return (cons.getParameterTypes().length > 0);
+    }
+
+    public boolean isGeneric()
+    {
+        return !JavaUtils.getJavaUtils().getTypeParams(cons).isEmpty();
     }
 
     /**
@@ -85,6 +92,13 @@ public final class ConstructorView extends CallableView
     public JavaType[] getParamTypes(boolean raw)
     {
         return JavaUtils.getJavaUtils().getParamGenTypes(cons);
+    }
+    
+    public GenTypeDeclTpar[] getTypeParams()
+    {
+        JavaUtils jutils = JavaUtils.getJavaUtils();
+        List tparams = jutils.getTypeParams(cons);
+        return (GenTypeDeclTpar[]) tparams.toArray(new GenTypeDeclTpar[0]);
     }
 
     /**

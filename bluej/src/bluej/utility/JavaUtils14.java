@@ -14,7 +14,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: JavaUtils14.java 3476 2005-07-25 05:48:39Z davmac $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -113,6 +113,11 @@ public class JavaUtils14 extends JavaUtils
     }
 
     public List getTypeParams(Method method)
+    {
+        return Collections.EMPTY_LIST;
+    }
+    
+    public List getTypeParams(Constructor cons)
     {
         return Collections.EMPTY_LIST;
     }
