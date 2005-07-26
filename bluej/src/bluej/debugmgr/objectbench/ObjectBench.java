@@ -1,13 +1,19 @@
 package bluej.debugmgr.objectbench;
 
-import java.util.*;
-import java.util.List;
-
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import bluej.Config;
+import bluej.debugmgr.NamedValue;
+import bluej.debugmgr.ValueCollection;
 import bluej.testmgr.record.InvokerRecord;
 
 /**
@@ -15,10 +21,10 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 3471 2005-07-20 05:47:21Z davmac $
+ * @version $Id: ObjectBench.java 3478 2005-07-26 02:46:05Z davmac $
  */
-public class ObjectBench extends JPanel 
-    implements FocusListener, KeyListener, MouseListener
+public class ObjectBench extends JPanel implements ValueCollection,
+    FocusListener, KeyListener, MouseListener
 {
     private static final Color BACKGROUND_COLOR = Config.getItemColour("colour.objectbench.background");
 
@@ -42,7 +48,6 @@ public class ObjectBench extends JPanel
         createComponent();
     }
 
-    
     /**
      * Add an object (in the form of an ObjectWrapper) to this bench.
      */
@@ -75,6 +80,14 @@ public class ObjectBench extends JPanel
         return Collections.unmodifiableList(objects);
     }
 
+    /**
+     * Return an iterator through all the objects on the bench (to meet
+     * the ValueCollection interface)
+     */
+    public Iterator getValueIterator()
+    {
+        return getObjects().iterator();
+    }
     
     /**
      * Get the object with name 'name', or null, if it does not
@@ -93,6 +106,10 @@ public class ObjectBench extends JPanel
         return null;
     }
     
+    public NamedValue getNamedValue(String name)
+    {
+        return getObject(name);
+    }
 
     /**
      * Check whether the bench contains an object with name 'name'.

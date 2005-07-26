@@ -19,8 +19,10 @@ import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
+import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.extmgr.MenuManager;
@@ -43,9 +45,9 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3386 2005-05-26 01:28:52Z davmac $
+ * @version $Id: ObjectWrapper.java 3478 2005-07-26 02:46:05Z davmac $
  */
-public class ObjectWrapper extends JComponent
+public class ObjectWrapper extends JComponent implements NamedValue
 {
     // Strings
     static String methodException = Config.getString("debugger.objectwrapper.methodException");
@@ -166,9 +168,19 @@ public class ObjectWrapper extends JComponent
         return className;
     }
 
-    public GenTypeClass getGenType()
+    public JavaType getGenType()
     {
         return obj.getGenType();
+    }
+    
+    public boolean isFinal()
+    {
+        return true;
+    }
+    
+    public boolean isInitialized()
+    {
+        return true;
     }
     
     /**
@@ -217,7 +229,7 @@ public class ObjectWrapper extends JComponent
             MethodView[] declaredMethods = view.getDeclaredMethods();
             
             // create method entries for locally declared methods
-            GenTypeClass curType = (GenTypeClass) obj.getGenType();
+            GenTypeClass curType = obj.getGenType();
             int itemLimit = itemsOnScreen - 8 - classes.size();
             createMenuItems(menu, declaredMethods, filter, itemLimit, curType.getMap());
 

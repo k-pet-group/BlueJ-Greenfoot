@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import bluej.BlueJEvent;
@@ -16,7 +15,11 @@ import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
-import bluej.debugger.gentype.*;
+import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.GenTypeSolid;
+import bluej.debugger.gentype.GenTypeWildcard;
+import bluej.debugger.gentype.NameTransform;
+import bluej.debugger.gentype.TextType;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -28,7 +31,6 @@ import bluej.utility.Utility;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
-import bluej.views.TypeParamView;
 
 /**
  * Debugger class that arranges invocation of constructors or methods. This
@@ -36,7 +38,7 @@ import bluej.views.TypeParamView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3469 2005-07-18 13:41:54Z damiano $
+ * @version $Id: Invoker.java 3478 2005-07-26 02:46:05Z davmac $
  */
 
 public class Invoker
@@ -68,6 +70,7 @@ public class Invoker
     private String shellName;
     private String objName;
     private Map typeMap; // map type parameter names to types
+    private ValueCollection localVars;
 
     /**
      * The instance name for any object we create. For a constructed object the
@@ -87,7 +90,7 @@ public class Invoker
     /**
      * Create an invoker for a free form statement or expression.
      */
-    public Invoker(PkgMgrFrame pmf, String command, ResultWatcher watcher, String retType)
+    public Invoker(PkgMgrFrame pmf, ValueCollection localVars, String command, ResultWatcher watcher, String retType)
     {
         if (pmf.isEmptyFrame())
             throw new IllegalArgumentException();
@@ -102,6 +105,7 @@ public class Invoker
         this.shellName = getShellName();
         this.objName = null;
         this.instanceName = null;
+        this.localVars = localVars;
 
         constructing = false;
         executionEvent = new ExecutionEvent(this.pkg);
@@ -209,8 +213,12 @@ public class Invoker
     }
 
     /**
-     * Open a dialog to get further information about the requested invocation.
-     * When the dialog is complete, it will call methodDialogEvent.
+     * Open a dialog to get further information about the requested invocation, or
+     * if no information is needed (ie. no parameters) then just proceed with the
+     * invocation.
+     * 
+     * When the dialog is complete, it will call proceed with the invocation
+     * (see callDialogEvent).
      */
     public void invokeInteractive()
     {
@@ -218,7 +226,7 @@ public class Invoker
         // if so, just do it
         if (!constructing && !member.hasParameters()) {
             dialog = null;
-            doInvocation(null, null, null);
+            doInvocation(null, (JavaType []) null, null);
         }
         else {
             MethodDialog mDialog = (MethodDialog) methods.get(member);
@@ -239,8 +247,8 @@ public class Invoker
     }
 
     /**
-     * After attempting a free form invocation, and gettign an error, we try
-     * again. First time round, we tried inerpreting the input as an
+     * After attempting a free form invocation, and getting an error, we try
+     * again. First time round, we tried interpreting the input as an
      * expression, now we try as a statement.
      */
     public synchronized void tryAgain()
@@ -268,27 +276,12 @@ public class Invoker
                 instanceName = mDialog.getNewInstanceName();                
                 String[] actualTypeParams = mDialog.getTypeParams();
                 
-                if(constructing) {
-	                TypeParamView[] formalTypeParamViews = mDialog.getFormalTypeParams();	               
-	                int len = (formalTypeParamViews == null ? 0 : formalTypeParamViews.length);
-                    if(len > actualTypeParams.length)
-                        len = 0;
-	                for (int i = 0; i < len; i++) {
-	                    TypeParamView view = formalTypeParamViews[i];
-	                    GenTypeDeclTpar formalType = view.getParamType();
-	                    JavaType actualType = new TextType(actualTypeParams[i]);
-	                    if (typeMap == null) {
-	                        typeMap = new HashMap();
-	                    }
-	                    typeMap.put(formalType.getTparName(), actualType);
-	                }
-                }
                 // if we are calling a main method then we want to simulate a
                 // new launch of an application, so first of all we unload all our
                 // classes (prevents problems with static variables not being
                 // reinitialised because the class hangs around from a previous
                 // call)
-                else if(member instanceof MethodView) {
+                if(member instanceof MethodView) {
                     MethodView mv = (MethodView)member;
                     if((mv).isMain()) {
                         pmf.getProject().removeLocalClassLoader();
@@ -315,7 +308,12 @@ public class Invoker
         if (instanceName == null)
             instanceName = objName;
 
-        doInvocation(params, member.getParamTypes(false), null);
+        final JavaType[] argTypes = member.getParamTypes(false);
+        for (int i = 0; i < argTypes.length; i++) {
+            argTypes[i] = argTypes[i].mapTparsToTypes(typeMap);
+        }
+        
+        doInvocation(params, argTypes, null);
     }
 
     /**
@@ -329,9 +327,41 @@ public class Invoker
      * This method is still executed in the interface thread, while "endCompile"
      * will be executed by the CompilerThread.
      *  
+     * @param args  The arguments to the method/constructor as they will appear
+     *              in the generated source
+     * @param argTypes  The argument types (ignored for generic callables);
+     *              type parameters have been mapped to actual types
+     * @param typeParams  Specifies the type parameters as supplied by the
+     *                    user
      */
     protected void doInvocation(String[] args, JavaType[] argTypes, String[] typeParams)
     {
+        int numArgs = (args == null ? 0 : args.length);
+
+        // prepare variables (assigned with actual values) for each parameter
+        String [] argTypeStrings;
+        if (argTypes != null)
+            argTypeStrings = new String[argTypes.length];
+        else
+            argTypeStrings = null;
+        
+        if (! member.isGeneric()) {
+            for (int i = 0; i < numArgs; i++) {
+                JavaType argType = argTypes[i];
+                
+                if (argType instanceof GenTypeWildcard) {
+                    GenTypeSolid [] ubounds = ((GenTypeWildcard) argType).getUpperBounds();
+                    
+                    if (ubounds.length != 0)
+                        argType = ubounds[0];
+                    else
+                        argType = new TextType("java.lang.Object");
+                }
+                
+                argTypeStrings[i] = argType.toString(new CleverQualifyTypeNameTransform(pkg));
+            }
+        }
+
         //Store the arguments in order to show them in the result inspetor
         // later
         ExpressionInformation info = watcher.getExpressionInformation();
@@ -340,7 +370,6 @@ public class Invoker
             //TODO also set type parameters?
         }
 
-        // if here with null, null then no arguments, no constructor
         executionEvent.setParameters(argTypes, args);
         if (constructing) {
             executionEvent.setObjectName(instanceName);
@@ -349,39 +378,27 @@ public class Invoker
             executionEvent.setMethodName(((MethodView) member).getName());
         }
 
+        doInvocation(args, argTypeStrings, typeParams);
+    }
+
+    /**
+     * Workhorse doInvocation method which takes a string array for the
+     * argument types instead of a GenType array. This constructs the code strings,
+     * writes the invocation file, compiles it and eventually executes it.
+     */
+    private void doInvocation(String[] args, String[] argTypes, String[] typeParams)
+    {
         int numArgs = (args == null ? 0 : args.length);
         String className = member.getClassName();
 
-        boolean isGenericMethod = false;
+        // Generic methods currently require special handling
+        boolean isGenericMethod = member.isGeneric();
         
-        // Generic methods require special handling
-        if (! constructing) {
-            MethodView method = (MethodView) member;
-            if (method.isGeneric())
-                isGenericMethod = true;
-        }
-
         // prepare variables (assigned with actual values) for each parameter
         StringBuffer buffer = new StringBuffer();
         if (! isGenericMethod) {
             for (int i = 0; i < numArgs; i++) {
-                JavaType argType;
-                if (typeMap != null)
-                    argType = argTypes[i].mapTparsToTypes(typeMap);
-                else
-                    argType = argTypes[i];
-                
-                if (argType instanceof GenTypeWildcard) {
-                    GenTypeSolid [] ubounds = ((GenTypeWildcard) argType).getUpperBounds();
-                    if (ubounds.length != 0)
-                        buffer.append(ubounds[0].toString(new CleverQualifyTypeNameTransform(pkg)));
-                    else
-                        buffer.append("Object");
-                }
-                else if (argType instanceof GenTypeParameterizable)
-                    buffer.append(((GenTypeParameterizable) argType).toString(new CleverQualifyTypeNameTransform(pkg)));
-                else
-                    buffer.append(argType.toString());
+                buffer.append(argTypes[i]);
                 buffer.append(" __bluej_param" + i);
                 buffer.append(" = " + args[i]);
                 buffer.append(";" + Config.nl);
@@ -393,27 +410,15 @@ public class Invoker
         // "(__bluej_param0,__bluej_param1,...)" for internal use, one using the
         // actual values for interface display.
 
-        buffer = new StringBuffer("(");
-        StringBuffer argBuffer = new StringBuffer("(");
-        if (numArgs > 0) {
-            buffer.append("__bluej_param0");
-            argBuffer.append(args[0]);
-        }
-        for (int i = 1; i < numArgs; i++) {
-            buffer.append(",__bluej_param" + i);
-            argBuffer.append(", ");
-            argBuffer.append(args[i]);
-        }
-        buffer.append(")");
-        argBuffer.append(")");
+        buffer.setLength(0);
+        StringBuffer argBuffer = new StringBuffer();
+        buildArgStrings(buffer, argBuffer, args);
         String argString = buffer.toString();
-        String actualArgString = argBuffer.toString();
-        if (isGenericMethod)
-            argString = actualArgString;
-
+        String actualArgString = argBuffer.toString(); 
+        
         // build the invocation string
 
-        buffer = new StringBuffer();
+        buffer.setLength(0);
         String command; // the interactive command in text form
         boolean isVoid = false;
 
@@ -473,6 +478,38 @@ public class Invoker
         compileInvocationFile(shell);
     }
 
+    /**
+     * Build up two strings representing the arguments to a method/constructor
+     * call as a comma-seperated list enclosed in braces ie. (x, y, z)<p>
+     * 
+     * The first buffer gets the form (__bluej_param0, __bluej_param1 ...)
+     * while the second gets the arguments as supplied by the user.<p>
+     * 
+     * @param buffer    The first buffer
+     * @param argBuffer The second buffer
+     * @param args      The arguments supplied by the user
+     */
+    protected void buildArgStrings(StringBuffer buffer, StringBuffer argBuffer, String[] args)
+    {
+        int numArgs = args == null ? 0 : args.length;
+        
+        buffer.append("(");
+        if (numArgs > 0) {
+            if (buffer != null)
+                buffer.append("__bluej_param0");
+            argBuffer.append(args[0]);
+        }
+        for (int i = 1; i < numArgs; i++) {
+            if (buffer != null)
+                buffer.append(",__bluej_param" + i);
+            argBuffer.append(", ");
+            argBuffer.append(args[i]);
+        }
+        if (buffer != null)
+            buffer.append(")");
+        argBuffer.append(")");
+    }
+    
     /**
      * Arrange to execute a free form (text) invocation.
      * 
@@ -566,8 +603,8 @@ public class Invoker
             else
                 buffer.append("public static Object");
             buffer.append(" __bluej_runtime_result;");
+            buffer.append(Config.nl);
         }
-        String vardecl = buffer.toString();
 
         // Build scope, ie. add one line for every object on the object
         // bench that gets the object and makes it available for use as
@@ -580,36 +617,30 @@ public class Invoker
         //  OtherJavaType instnameB = (OtherJavaType)
         // __bluej_runtime_scope("instnameB");
 
-        buffer = new StringBuffer();
         String scopeId = Utility.quoteSloshes(pkg.getId());
-        List wrappers = pmf.getObjectBench().getObjects();
+        Iterator wrappers = pmf.getObjectBench().getValueIterator();
+        NameTransform cqtTransform = new CleverQualifyTypeNameTransform(pkg);
 
-        if (wrappers.size() > 0)
-            buffer.append("java.util.Map __bluej_runtime_scope = getScope(\"" + scopeId + "\");" + Config.nl);
-        for (Iterator i = wrappers.iterator(); i.hasNext();) {
-            ObjectWrapper wrapper = (ObjectWrapper) i.next();
-            String type = wrapper.getGenType().toString(new CleverQualifyTypeNameTransform(pkg));
-            String instname = wrapper.getName();
-
-            buffer.append("final ");
-            buffer.append(type);
-
-            buffer.append(" " + instname + " = ");
-            buffer.append("(" + type);
-            buffer.append(")__bluej_runtime_scope.get(\"");
-            buffer.append(instname + "\");" + Config.nl);
+        if (wrappers.hasNext() || localVars != null) {
+            buffer.append("final static java.util.Map __bluej_runtime_scope = getScope(\"" + scopeId + "\");" + Config.nl);
+        
+            writeVariables("", buffer, true, wrappers, cqtTransform);
         }
-        String scopeInit = buffer.toString();
+        String vardecl = buffer.toString();
 
         // build the invocation string
 
         buffer = new StringBuffer();
 
+        if (localVars != null)
+            writeVariables("lv:", buffer, false, localVars.getValueIterator(), cqtTransform);
+        
         if (constructing) {
             // A sample of the code generated (for a constructor)
             //  __bluej_runtime_result = new SomeType(2,"adb");
 
-            buffer.append("__bluej_runtime_result = ");
+            buffer.append(shellName);
+            buffer.append(".__bluej_runtime_result = ");
             buffer.append(callString);
         }
         else {
@@ -617,10 +648,11 @@ public class Invoker
             //  __bluej_runtime_result = makeObj(2+new String("ap").length());
 
             if (!isVoid) {
+                buffer.append(shellName);
                 if (constype == null)
-                    buffer.append("__bluej_runtime_result = makeObj(");
+                    buffer.append(".__bluej_runtime_result = makeObj(");
                 else {
-                    buffer.append("__bluej_runtime_result = new Object() {");
+                    buffer.append(".__bluej_runtime_result = new Object() {");
                     buffer.append(" " + constype + " result = ");
                 }
             }
@@ -638,6 +670,22 @@ public class Invoker
         buffer.append(Config.nl);
 
         String invocation = buffer.toString();
+        
+        // save altered local variable values
+        buffer = new StringBuffer();
+        if (localVars != null) {
+            for (Iterator i = localVars.getValueIterator(); i.hasNext();) {
+                NamedValue wrapper = (NamedValue) i.next();
+                if (! wrapper.isFinal() || ! wrapper.isInitialized()) {
+                    String instname = wrapper.getName();
+                    
+                    buffer.append("__bluej_runtime_scope.put(\"lv:" + instname + "\", "); 
+                    wrapValue(buffer, instname, wrapper.getGenType());
+                    buffer.append(");" + Config.nl);
+                }
+            }
+        }
+        String scopeSave = buffer.toString();
 
         File shellFile = new File(pkg.getPath(), shellName + ".java");
         try {
@@ -653,9 +701,9 @@ public class Invoker
             shell.newLine();
             shell.write("public static void run() throws Throwable {");
             shell.newLine();
-            shell.write(scopeInit);
             shell.write(paramInit);
             shell.write(invocation);
+            shell.write(scopeSave);
             shell.newLine();
             shell.write("}}");
             shell.close();
@@ -665,6 +713,134 @@ public class Invoker
             DialogManager.showError(pmf, "could-not-write-shell-file");
         }
         return shellFile;
+    }
+    
+    /**
+     * Write out shell code to retrieve the values of variables or bench objects.
+     * 
+     * #param scopePx  The scope prefix ("lv:" for local variables)
+     * @param buffer   The string buffer to write the code to
+     * @param isStatic  True if the variables should be declared static
+     * @param i        An iterator through the variables to write
+     * @param nt       The name transform to use
+     */
+    private void writeVariables(String scopePx, StringBuffer buffer, boolean isStatic, Iterator i, NameTransform nt)
+    {
+        for (; i.hasNext();) {
+            NamedValue wrapper = (NamedValue) i.next();
+            if (wrapper.isInitialized()) {
+                String type = wrapper.getGenType().toString(nt);
+                String instname = wrapper.getName();
+                
+                if (wrapper.isFinal())
+                    buffer.append("final ");
+                if (isStatic)
+                    buffer.append("static ");
+                
+                buffer.append(type);
+                
+                buffer.append(" " + instname + " = ");
+                extractValue(buffer, scopePx, instname, wrapper.getGenType(), type);
+                buffer.append(Config.nl);
+            }
+        }
+    }
+
+    /**
+     * Write code to extract a value of a given type.
+     * @param buffer    The buffer in which the expression is stored
+     * @param scopePx   The scope prefix ("" for object bench, "lv:" for codepad)
+     * @param instname  The name of the value (used as map key)
+     * @param type      The type of the value
+     */
+    private void extractValue(StringBuffer buffer, String scopePx, String instname, JavaType type, String typeStr)
+    {
+        if (type.isPrimitive()) {
+            // primitive type. Must pull a wrapped object out, and then
+            // unwrap it.
+            
+            String castType;
+            String extractMethod;
+            
+            if (type.typeIs(JavaType.JT_BOOLEAN)) {
+                castType = "java.lang.Boolean";
+                extractMethod = "booleanValue";
+            }
+            else if (type.typeIs(JavaType.JT_CHAR)) {
+                castType = "java.lang.Character";
+                extractMethod = "charValue";
+            }
+            else if (type.typeIs(JavaType.JT_BYTE)) {
+                castType = "java.lang.Byte";
+                extractMethod = "byteValue";
+            }
+            else if (type.typeIs(JavaType.JT_SHORT)) {
+                castType = "java.lang.Short";
+                extractMethod = "shortValue";
+            }
+            else if (type.typeIs(JavaType.JT_INT)) {
+                castType = "java.lang.Integer";
+                extractMethod = "intValue";
+            }
+            else if (type.typeIs(JavaType.JT_LONG)) {
+                castType = "java.lang.Long";
+                extractMethod = "longValue";
+            }
+            else if (type.typeIs(JavaType.JT_FLOAT)) {
+                castType = "java.lang.Float";
+                extractMethod = "floatValue";
+            }
+            else if (type.typeIs(JavaType.JT_DOUBLE)) {
+                castType = "java.lang.Double";
+                extractMethod = "doubleValue";
+            }
+            else {
+                throw new UnsupportedOperationException("unhandled primitive type");
+            }
+            
+            buffer.append("((" + castType + ")__bluej_runtime_scope.get(\"");
+            buffer.append(scopePx + instname + "\"))." + extractMethod + "();");
+        }
+        else {
+            // reference (object) type. Much easier.
+            buffer.append("(" + typeStr);
+            buffer.append(")__bluej_runtime_scope.get(\"");
+            buffer.append(scopePx + instname + "\");" + Config.nl);
+        }
+    }
+    
+    /**
+     * Wrap a value, if necessary, as an appropriate object type.
+     * @param buffer  The resulting expression is written to this buffer
+     * @param name    The name of the variable holding the value
+     * @param type    The type of the value
+     */
+    private void wrapValue(StringBuffer buffer, String name, JavaType type)
+    {
+        if (type.isPrimitive()) {
+            if (type.typeIs(JavaType.JT_BOOLEAN))
+                buffer.append("java.lang.Boolean.valueOf(" + name + ")");
+            else if (type.typeIs(JavaType.JT_BYTE))
+                buffer.append("new java.lang.Byte(" + name + ")");
+            else if (type.typeIs(JavaType.JT_CHAR))
+                buffer.append("new java.lang.Character(" + name + ")");
+            else if (type.typeIs(JavaType.JT_DOUBLE))
+                buffer.append("new java.lang.Double(" + name + ")");
+            else if (type.typeIs(JavaType.JT_FLOAT))
+                buffer.append("new java.lang.Float(" + name + ")");
+            else if (type.typeIs(JavaType.JT_LONG))
+                buffer.append("new java.lang.Long(" + name + ")");
+            else if (type.typeIs(JavaType.JT_INT))
+                buffer.append("new java.lang.Integer(" + name + ")");
+            else if (type.typeIs(JavaType.JT_SHORT))
+                buffer.append("new java.lang.Short(" + name + ")");
+            else {
+                throw new UnsupportedOperationException("unhandled primitive type.");
+            }
+        }
+        else {
+            buffer.append(name);
+        }
     }
 
     /**
