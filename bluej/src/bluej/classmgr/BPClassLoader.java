@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import javax.swing.*;
 
 
 /**
@@ -18,7 +19,7 @@ import java.net.URLDecoder;
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
  *
- * @version    $Id: BPClassLoader.java 3473 2005-07-20 18:00:29Z damiano $
+ * @version    $Id: BPClassLoader.java 3480 2005-07-27 18:47:08Z damiano $
  */
 
 /*
@@ -33,6 +34,33 @@ public final class BPClassLoader extends URLClassLoader {
     public BPClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }
+
+
+    /**
+     * Compare the current array of URLS with the given one.
+     * Note that is the order of the array is different then the two are considered different.
+     * @param compare URLs to compare with the original.
+     * @return true if the two arrays are the same.
+     */
+    public final boolean sameUrls( URL[] compare ) {
+        URL [] original = getURLs();
+        
+        if (original == null) {
+            return false;
+        }
+
+        if (original.length != compare.length) {
+            return false;
+        }
+
+        for (int index = 0; index < original.length; index++)
+            if (!original[index].equals(compare[index])) {
+                return false;
+            }
+
+        return true;
+    }
+
 
     /**
      * Create a string with this class path as a separated list of strings.
@@ -63,6 +91,8 @@ public final class BPClassLoader extends URLClassLoader {
             try {
                 buf.append(URLDecoder.decode(url.getPath(), "UTF-8"));
             } catch (UnsupportedEncodingException uee) {
+                // Should never happend.  If there is a problem with the conversion we want to know about it.
+                JOptionPane.showMessageDialog(null,"BPClassLoader.getClassPathAsString() invalid url="+url.getPath());
             }
 
             // From now on, you have to add a separator.
@@ -72,6 +102,41 @@ public final class BPClassLoader extends URLClassLoader {
         return buf.toString();
     }
 
+
+    /**
+     * Return the class path as an array of files.
+     * Note that there is no guarantee that all files are indeed local files althout this is true for the
+     * current BlueJ.
+     * @return a non null array of Files, may be empty if no library at all is defined.
+     */
+    public File [] getClassPathAsFiles ()
+    {
+        URL[] urls = super.getURLs();
+
+        if ((urls == null) || (urls.length < 1)) {
+            return new File[0];
+        }
+
+        File [] risul = new File[urls.length];
+        
+        for (int index = 0; index < urls.length; index++) {
+
+            URL url = urls[index];
+
+            // A class path is always without the qualifier file in front of it.
+            // However some characters (such as space) are encoded.
+            try {
+                risul[index] = new File((URLDecoder.decode(url.getPath(), "UTF-8")));
+            } catch (UnsupportedEncodingException uee) {
+                // Should never happend. If there is a problem with the conversion we want to know about it.
+                JOptionPane.showMessageDialog(null,"BPClassLoader.getClassPathAsFiles() invalid url="+url.getPath());
+            }
+        }
+
+        return risul;
+    }
+    
+    
     public String toString() {
         return "BPClassLoader path=" + getClassPathAsString();
     }

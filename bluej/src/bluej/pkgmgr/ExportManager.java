@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.io.*;
 
 import bluej.Config;
-import bluej.classmgr.ProjectClassLoader;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
@@ -17,7 +16,7 @@ import bluej.utility.FileUtility;
  * Component to manage storing projects to jar file format.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 3344 2005-04-11 01:57:42Z davmac $
+ * @version $Id: ExportManager.java 3480 2005-07-27 18:47:08Z damiano $
  */
 final class ExportManager
 {
@@ -70,7 +69,8 @@ final class ExportManager
         String classpath = "";
 
         // add jar files from +libs to classpath
-        File[] projectLibs = frame.getProject().getLocalClassLoader().getProjectLibs();
+        // TODO: This logic is not correct, all libraries are in a single place now, no need to look in multiple places.
+        File[] projectLibs = frame.getProject().getClassLoader().getClassPathAsFiles();
         for(int i=0; i < projectLibs.length; i++) {
             classpath += " " + projectLibs[i].getName();
         }
@@ -196,7 +196,7 @@ final class ExportManager
      */
     private boolean skipDir(File dir, boolean includePkg)
     {
-        if (dir.getName().equals(ProjectClassLoader.projectLibDirName))
+        if (dir.getName().equals(Project.projectLibDirName))
             return ! includePkg;
         
         for(int i = 0; i < skipDirs.length; i++) {

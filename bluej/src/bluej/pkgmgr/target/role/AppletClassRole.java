@@ -20,7 +20,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 3346 2005-04-13 03:22:25Z davmac $
+ * @version $Id: AppletClassRole.java 3480 2005-07-27 18:47:08Z damiano $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -184,7 +184,8 @@ public class AppletClassRole extends ClassRole
         }
         
         if(dialog.display()) {  // if OK was clicked
-            File[] libs = parent.getProject().getLocalClassLoader().getProjectLibs();
+            // TODO: check is the class path handling can be simplified.
+            File[] libs = parent.getProject().getClassLoader().getClassPathAsFiles();
 
             int execOption = dialog.getAppletExecutionOption();
             if(execOption == RunAppletDialog.GENERATE_PAGE_ONLY) {

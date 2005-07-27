@@ -6,7 +6,6 @@ import bluej.Config;
 import bluej.classmgr.BPClassLoader;
 import bluej.classmgr.ClassMgr;
 import bluej.classmgr.ClassPath;
-import bluej.classmgr.ProjectClassLoader;
 
 import bluej.debugger.*;
 
@@ -33,10 +32,12 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import java.util.*;
 
+import javax.swing.*;
 import javax.swing.JFrame;
 
 
@@ -47,7 +48,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3479 2005-07-27 10:25:01Z damiano $
+ * @version $Id: Project.java 3480 2005-07-27 18:47:08Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -59,6 +60,8 @@ public class Project implements DebuggerListener {
     public static final int NEW_PACKAGE_EXIST = 1;
     public static final int NEW_PACKAGE_BAD_NAME = 2;
     public static final int NEW_PACKAGE_NO_PARENT = 3;
+
+    public static final String projectLibDirName = "+libs";
 
     /* ------------------- end of static declarations ------------------ */
 
@@ -102,7 +105,6 @@ public class Project implements DebuggerListener {
     private Map inspectors;
     private boolean inTestMode = false;
     private BPClassLoader currentClassLoader;
-    private URL[] currentUrls; // will be removed at the end of class loading refactoring.
     private boolean compileStarted; // Used to decide if to generate a new ClassLoader.
 
     /* ------------------- end of field declarations ------------------- */
@@ -1086,16 +1088,59 @@ public class Project implements DebuggerListener {
         inTestMode = mode;
     }
 
+
+  
     /**
-     * Compare to arrays of urls to see if they are the same.
-     * Note that is the order of the array is different then the two are considered different.
-     * Note that there is an extra check for compileStarted in it that may suggest a different name to the method.
-     * @param original URLs to compare against.
-     * @param compare URLs to compare with the original.
-     * @return true if the two arrays are the same.
+     * Returns a list of URL having in it all libraries that are in the +libs directory
+     * of this project.
+     * @return a non null but possibly empty list of URL.
      */
-    private boolean sameUrls(URL[] original, URL[] compare) {
-        if (original == null) {
+    private ArrayList getPlusLibsContent () {
+        ArrayList risul = new ArrayList();
+        
+        // the subdirectory of the project which can hold project specific jars and zips
+        File libsDirectory = new File(projectDir, projectLibDirName);
+
+        // If it is not a directory or we cannot read it then there is nothing to do.
+        if ( ! libsDirectory.isDirectory() || ! libsDirectory.canRead() ) 
+          return risul;
+          
+        // the list of jars and zips we find
+        File []libs = libsDirectory.listFiles();
+
+        // If there are no files there then again just return.
+        if ( libs==null || libs.length < 1 ) 
+          return risul;
+
+        // if we found any jar files in the libs directory then add their URLs
+        for(int index=0; index<libs.length; index++) {
+            File lib = libs[index];
+
+            // Is this a normal file and is it readable ?
+            if ( ! (lib.isFile() && lib.canRead()) ) continue;
+            
+            String libname = lib.getName().toLowerCase();
+            if ( ! (libname.endsWith(".jar") || libname.endsWith(".zip")) ) continue;
+            
+            try {
+                risul.add(libs[index].toURI().toURL());
+            }
+            catch(MalformedURLException mue) { 
+            }
+        }
+        return risul;
+    }
+    
+
+    /**
+     * Decide if the current class loader is good, meaning it hosuld not be changed.
+     * Note that is the order of the array is different then the two are considered different.
+     * Note that there is an extra check for compileStarted.
+     * @param compare URLs to compare with the original.
+     * @return true if the current class loader can be reused.
+     */
+    private boolean currentClassloaderGood( URL[] compare) {
+        if (currentClassLoader == null) {
             return false;
         }
 
@@ -1104,23 +1149,10 @@ public class Project implements DebuggerListener {
             return false;
         }
 
-        if (original.length != compare.length) {
-            return false;
-        }
-
-        for (int index = 0; index < original.length; index++)
-            if (!original[index].equals(compare[index])) {
-                return false;
-            }
-
-        return true;
+        return currentClassLoader.sameUrls(compare);
     }
 
 
-    public ProjectClassLoader getLocalClassLoader() {
-        return ClassMgr.getProjectLoader(getProjectDir());     
-    }
-    
     /**
      * Return a ClassLoader that should be used to load or reflect on the project classes.
      * The same BClassLoader object is returned until the Project is compiled or the content of the
@@ -1133,21 +1165,32 @@ public class Project implements DebuggerListener {
      */
     public synchronized BPClassLoader getClassLoader() {
         // At the moment I do this to find out what has changed. It will be done differently at the end.
-        ClassPath allcp = ClassMgr.getClassMgr().getAllClassPath();
+        URL[] allcp = ClassMgr.getClassMgr().getAllClassPath().getURLs();
+
+        ArrayList pathList = getPlusLibsContent();
+
+        for (int index=0; index<allcp.length; index++ ) {
+            pathList.add(allcp[index]);
+        }
+
+        try {
+            // The current paroject dir must be added to the project class path too.
+            pathList.add(getProjectDir().toURI().toURL());
+        } catch ( Exception exc ) {
+            // Hould never happen, but if it does we want to know about it immediatly.
+            JOptionPane.showMessageDialog(null,"Project.getClassLoader() invalid project url="+getProjectDir());
+        }
         
-        ProjectClassLoader todelete = ClassMgr.getProjectLoader(getProjectDir());     
-        allcp.addClassPath(todelete.getAsClassPath());
 
-        URL[] newUrls = allcp.getURLs();
-
-        if (sameUrls(currentUrls,newUrls)) {
+        URL [] newUrls = (URL [])pathList.toArray(new URL[pathList.size()]);
+        
+        if (currentClassloaderGood(newUrls)) {
             return currentClassLoader;
         }
 
         // The Project Class Loader must not "see" the BlueJ classes, this is teh reason to 
         // have BClassLoader created with the boot loader as parent.
         currentClassLoader = new BPClassLoader(newUrls,Boot.getInstance().getBootClassLoader());
-        currentUrls = newUrls;
         compileStarted = false; // Clear the flag.
 
         return currentClassLoader;

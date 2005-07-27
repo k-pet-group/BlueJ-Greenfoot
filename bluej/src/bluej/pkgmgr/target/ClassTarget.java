@@ -59,7 +59,7 @@ import javax.swing.JPopupMenu;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3342 2005-04-08 04:21:47Z bquig $
+ * @version $Id: ClassTarget.java 3480 2005-07-27 18:47:08Z damiano $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable
@@ -621,7 +621,7 @@ public class ClassTarget extends EditableTarget
             String filename = getSourceFile().getPath();
             String docFilename = getPackage().getProject().getDocumentationFile(filename);
             editor = EditorManager.getEditorManager().openClass(filename, docFilename, getBaseName(), this,
-                    isCompiled(), breakpoints, getPackage().getProject().getLocalClassLoader(), editorBounds);
+                    isCompiled(), breakpoints, getPackage().getProject().getClassLoader(), editorBounds);
             editor.showInterface(showInterface);
         }
         return editor;
