@@ -47,7 +47,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3477 2005-07-25 19:47:45Z damiano $
+ * @version $Id: Project.java 3479 2005-07-27 10:25:01Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -1116,6 +1116,11 @@ public class Project implements DebuggerListener {
         return true;
     }
 
+
+    public ProjectClassLoader getLocalClassLoader() {
+        return ClassMgr.getProjectLoader(getProjectDir());     
+    }
+    
     /**
      * Return a ClassLoader that should be used to load or reflect on the project classes.
      * The same BClassLoader object is returned until the Project is compiled or the content of the
