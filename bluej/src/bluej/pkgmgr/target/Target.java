@@ -2,7 +2,6 @@ package bluej.pkgmgr.target;
 
 import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
-import bluej.graph.*;
 import bluej.graph.Vertex;
 import bluej.graph.GraphEditor;
 
@@ -15,7 +14,7 @@ import java.awt.geom.*;
  * A general target in a package
  * 
  * @author Michael Cahill
- * @version $Id: Target.java 2787 2004-07-12 14:12:42Z mik $
+ * @version $Id: Target.java 3481 2005-07-28 01:52:38Z davmac $
  */
 public abstract class Target extends Vertex
     implements Comparable
@@ -95,9 +94,22 @@ public abstract class Target extends Vertex
         throws NumberFormatException
     {
         // No super.load, but need to get Vertex properties:
-        setPos(Integer.parseInt(props.getProperty(prefix + ".x")), Integer.parseInt(props.getProperty(prefix + ".y")));
-        setSize(Integer.parseInt(props.getProperty(prefix + ".width")), Integer.parseInt(props.getProperty(prefix
-                + ".height")));
+        int xpos = 0;
+        int ypos = 0;
+        int width = 20; // arbitrary fallback values
+        int height = 10;
+        
+        // Try to get the positional properties in a robust manner.
+        try {
+            xpos = Math.max(Integer.parseInt(props.getProperty(prefix + ".x")), 0);
+            ypos = Math.max(Integer.parseInt(props.getProperty(prefix + ".y")), 0);
+            width = Math.max(Integer.parseInt(props.getProperty(prefix + ".width")), 1);
+            height = Math.max(Integer.parseInt(props.getProperty(prefix + ".height")), 1);
+        }
+        catch (NumberFormatException nfe) {}
+        
+        setPos(xpos, ypos);
+        setSize(width, height);
     }
 
     /**
