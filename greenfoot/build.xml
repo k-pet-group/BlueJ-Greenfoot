@@ -17,6 +17,7 @@
     <!-- The classpath to the bluej classes-->
     <path id="bluej.class.path">
         <pathelement location="${bluej.projectdir}/classes"/>
+    	<pathelement location="${bluej.projectdir}/boot/classes"/>
     </path>
     <!-- Location of the jar file packed by BlueJ dist target -->
     <property name="bluej.package.jar"  location="${bluej.projectdir}/package/bluej-dist-new.jar"/>
