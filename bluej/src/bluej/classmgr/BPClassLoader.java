@@ -1,6 +1,7 @@
 package bluej.classmgr;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -18,7 +19,7 @@ import javax.swing.JOptionPane;
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
  *
- * @version    $Id: BPClassLoader.java 3482 2005-07-28 04:04:57Z davmac $
+ * @version    $Id: BPClassLoader.java 3483 2005-07-28 14:59:17Z polle $
  */
 
 /*
@@ -88,7 +89,7 @@ public final class BPClassLoader extends URLClassLoader {
             // A class path is always without the qualifier file in front of it.
             // However some characters (such as space) are encoded.
             try {
-                buf.append(new File(url.toURI()).toString());
+                buf.append(new File(new URI(url.toString())).toString());
             } catch (URISyntaxException use) {
                 // Should never happend.  If there is a problem with the conversion we want to know about it.
                 JOptionPane.showMessageDialog(null,"BPClassLoader.getClassPathAsString() invalid url="+url.getPath());
@@ -125,7 +126,7 @@ public final class BPClassLoader extends URLClassLoader {
             // A class path is always without the qualifier file in front of it.
             // However some characters (such as space) are encoded.
             try {
-                risul[index] = new File(url.toURI());
+                risul[index] = new File(new URI(url.toString()));
             } catch (URISyntaxException use) {
                 // Should never happend. If there is a problem with the conversion we want to know about it.
                 JOptionPane.showMessageDialog(null,"BPClassLoader.getClassPathAsFiles() invalid url="+url.getPath());
