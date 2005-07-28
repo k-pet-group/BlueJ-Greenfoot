@@ -1,12 +1,11 @@
 package bluej.classmgr;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLDecoder;
-import javax.swing.*;
+
+import javax.swing.JOptionPane;
 
 
 /**
@@ -19,7 +18,7 @@ import javax.swing.*;
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
  *
- * @version    $Id: BPClassLoader.java 3480 2005-07-27 18:47:08Z damiano $
+ * @version    $Id: BPClassLoader.java 3482 2005-07-28 04:04:57Z davmac $
  */
 
 /*
@@ -89,8 +88,8 @@ public final class BPClassLoader extends URLClassLoader {
             // A class path is always without the qualifier file in front of it.
             // However some characters (such as space) are encoded.
             try {
-                buf.append(URLDecoder.decode(url.getPath(), "UTF-8"));
-            } catch (UnsupportedEncodingException uee) {
+                buf.append(new File(url.toURI()).toString());
+            } catch (URISyntaxException use) {
                 // Should never happend.  If there is a problem with the conversion we want to know about it.
                 JOptionPane.showMessageDialog(null,"BPClassLoader.getClassPathAsString() invalid url="+url.getPath());
             }
@@ -126,8 +125,8 @@ public final class BPClassLoader extends URLClassLoader {
             // A class path is always without the qualifier file in front of it.
             // However some characters (such as space) are encoded.
             try {
-                risul[index] = new File((URLDecoder.decode(url.getPath(), "UTF-8")));
-            } catch (UnsupportedEncodingException uee) {
+                risul[index] = new File(url.toURI());
+            } catch (URISyntaxException use) {
                 // Should never happend. If there is a problem with the conversion we want to know about it.
                 JOptionPane.showMessageDialog(null,"BPClassLoader.getClassPathAsFiles() invalid url="+url.getPath());
             }
