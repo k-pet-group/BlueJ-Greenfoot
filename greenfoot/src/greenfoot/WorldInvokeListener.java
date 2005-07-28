@@ -37,7 +37,7 @@ import bluej.views.MethodView;
  * When a method call has been executed the world is repainted.
  * 
  * @author Davin McCall
- * @version $Id: WorldInvokeListener.java 3462 2005-06-20 14:00:42Z polle $
+ * @version $Id: WorldInvokeListener.java 3486 2005-07-28 15:58:27Z polle $
  */
 public class WorldInvokeListener
     implements InvokeListener, CallDialogWatcher
@@ -82,7 +82,7 @@ public class WorldInvokeListener
                             update();
                             if (m.getReturnType() != void.class) {
                                 ExpressionInformation ei = new ExpressionInformation(WorldInvokeListener.this.mv, instanceName);
-                                ResultInspector ri = ResultInspector.getInstance(wrapResult(r, m.getReturnType()), instanceName, null, null, ei, Greenfoot.getInstance().getFrame());
+                                ResultInspector ri = worldHandler.getResultInspectorInstance(wrapResult(r, m.getReturnType()), instanceName, null, null, ei,  Greenfoot.getInstance().getFrame());
                                 ri.show();
                             }
                         }
@@ -200,7 +200,7 @@ public class WorldInvokeListener
                                 Object resultw = ObjectTracker.instance().getRealObject(rresult);
                                 rresult.removeFromBench();
                                 
-                                ResultInspector ri = ResultInspector.getInstance(new LocalObject(resultw), instanceName, null, null, ei, Greenfoot.getInstance().getFrame());
+                                ResultInspector ri = worldHandler.getResultInspectorInstance(new LocalObject(resultw), instanceName, null, null, ei, Greenfoot.getInstance().getFrame());
                                 ri.show();
                             }
                             catch (PackageNotFoundException pnfe) {}

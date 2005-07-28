@@ -11,26 +11,32 @@ import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.localdebugger.LocalObject;
 
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.Point;
 import java.awt.event.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.swing.*;
 
 import bluej.debugger.DebuggerObject;
+import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.inspector.ObjectInspector;
+import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.pkgmgr.Package;
+import bluej.testmgr.record.InvokerRecord;
 
 /**
  * The worldhandler handles the connection between the GreenfootWorld and the
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3462 2005-06-20 14:00:42Z polle $
+ * @version $Id: WorldHandler.java 3486 2005-07-28 15:58:27Z polle $
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -54,6 +60,10 @@ public class WorldHandler
     private boolean objectDropped = true; // true if the object was dropped
 
     private static WorldHandler instance;
+    
+    /** This holds all object inspectors and class inspectors
+    for a world. */
+    private Map inspectors; 
     
     /**
      * Creates a new worldHandler and sets up the connection between worldCanvas
@@ -180,8 +190,7 @@ public class WorldHandler
     private JPopupMenu makePopupMenu(final GreenfootObject obj)
     {
         JPopupMenu menu = new JPopupMenu();
-        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this),
-                Collections.EMPTY_MAP);
+        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this), new LocalObject(obj));
         menu.addSeparator();
 
         // "inspect" menu item
@@ -211,12 +220,69 @@ public class WorldHandler
             {
                 JFrame parent = (JFrame) worldCanvas.getTopLevelAncestor();
                 DebuggerObject dObj = new LocalObject(obj);
-                ObjectInspector.getInstance(dObj, "", null, null, parent);
+                getInspectorInstance(dObj, "", null, null, parent);
             }
         });
         return m;
     }
+    
+    public ObjectInspector getInspectorInstance(DebuggerObject obj,
+            String name, Package pkg, InvokerRecord ir, JFrame parent) {
+        ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
+        
+        if (inspector == null) {
+            inspector = new ObjectInspector(obj, null, name, pkg, ir, parent);
+            inspectors.put(obj, inspector);
+        }
+        
+        final ObjectInspector insp = inspector;
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                insp.update();
+                insp.setVisible(true);
+                insp.bringToFront();
+            }
+        });
+        
+        return inspector;
+    }
+    
+    /**
+     * Return an ObjectInspector for an object. The inspector is visible.
+     * 
+     * @param obj The object displayed by this viewer
+     * @param name The name of this object or "null" if the name is unobtainable
+     * @param pkg The package all this belongs to
+     * @param ir the InvokerRecord explaining how we got this result/object if
+     *            null, the "get" button is permanently disabled
+     * @param info The information about the the expression that gave this
+     *            result
+     * @param parent The parent frame of this frame
+     * @return The Viewer value
+     */
+    public ResultInspector getResultInspectorInstance(DebuggerObject obj,
+        String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
+        JFrame parent) {
+        ResultInspector inspector = (ResultInspector) pkg.getProject()
+                                                         .getInspector(obj);
 
+        if (inspector == null) {
+            inspector = new ResultInspector(obj, null, name, pkg, ir, info, parent);
+            inspectors.put(obj, inspector);
+        }
+
+        final ResultInspector insp = inspector;
+        insp.update();
+        EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    insp.setVisible(true);
+                    insp.bringToFront();
+        }
+            });
+
+        return inspector;
+        }
+    
     /**
      * TODO: this method should be removed when it is posisble to select among
      * multiple objects from a popup menu.
@@ -392,7 +458,7 @@ public class WorldHandler
                 if (e.isPopupTrigger() && world != null) {
                     JPopupMenu menu = new JPopupMenu();
                     ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world,
-                            WorldHandler.this), Collections.EMPTY_MAP);
+                            WorldHandler.this), new LocalObject(world));
                     menu.addSeparator();
                     // "inspect" menu item
                     JMenuItem m = getInspectMenuItem(world);

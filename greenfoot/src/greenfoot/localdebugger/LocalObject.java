@@ -8,7 +8,8 @@ import java.util.*;
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.GenType;
+import bluej.debugger.gentype.GenTypeParameterizable;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaNames;
@@ -21,7 +22,7 @@ import com.sun.jdi.ObjectReference;
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 3364 2005-05-05 01:33:47Z davmac $
+ * @version $Id: LocalObject.java 3486 2005-07-28 15:58:27Z polle $
  */
 public class LocalObject extends DebuggerObject
 {
@@ -290,7 +291,7 @@ public class LocalObject extends DebuggerObject
      * @param expectedType  The expected tyoe
      * @return a DebuggerObject representing the value and type of the field
      */
-    private LocalObject getFieldObject(Field field, GenType expectedType)
+    private LocalObject getFieldObject(Field field, JavaType expectedType)
     {
         GenTypeClass expectedCtype = expectedType.asClass();
         try {
@@ -299,7 +300,9 @@ public class LocalObject extends DebuggerObject
                 Class c = o.getClass();
                 if (genericParams != null)
                     expectedType.mapTparsToTypes(genericParams);
-                Map m = expectedCtype.mapToDerived(new JavaReflective(c));
+                GenTypeParameterizable g = expectedCtype.mapToDerived(new JavaReflective(c));
+                Map m = new HashMap();
+                g.getParamsFromTemplate(m, g);
                 return new LocalObject(o, m);
             }
 
@@ -337,11 +340,11 @@ public class LocalObject extends DebuggerObject
         catch (IllegalAccessException iae) {}
         return null;
     }
-
+ 
     /* (non-Javadoc)
      * @see bluej.debugger.DebuggerObject#getInstanceFieldObject(int, bluej.debugger.gentype.GenType)
      */
-    public DebuggerObject getInstanceFieldObject(int slot, GenType expectedType)
+    public DebuggerObject getInstanceFieldObject(int slot, JavaType expectedType)
     {
         Field field = getInstanceFieldSlot(slot);
         return getFieldObject(field, expectedType);
@@ -363,7 +366,7 @@ public class LocalObject extends DebuggerObject
     /* (non-Javadoc)
      * @see bluej.debugger.DebuggerObject#getFieldObject(int, bluej.debugger.gentype.GenType)
      */
-    public DebuggerObject getFieldObject(int slot, GenType expectedType)
+    public DebuggerObject getFieldObject(int slot, JavaType expectedType)
     {
         Field field = getAllFields()[slot];
         return getFieldObject(field, expectedType);
@@ -540,5 +543,11 @@ public class LocalObject extends DebuggerObject
             return v != null;
         }
         catch (IllegalAccessException iae) { return false; }
+    }
+
+    public List getAllFields(boolean includeModifiers)
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

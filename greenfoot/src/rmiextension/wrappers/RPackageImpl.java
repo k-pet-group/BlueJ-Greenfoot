@@ -23,7 +23,7 @@ import bluej.views.View;
  * @see bluej.extensions.BPackage
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackageImpl.java 3306 2005-01-28 04:47:22Z davmac $
+ * @version $Id: RPackageImpl.java 3486 2005-07-28 15:58:27Z polle $
  */
 public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     implements RPackage
@@ -316,7 +316,8 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
             
             ObjectWrapper newOw = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), watcher.resultObj, "result");
             pmf.getObjectBench().addObject(newOw);
-            pmf.getPackage().getDebugger().addObject(newOw.getName(), newOw.getObject());
+            Package pkg = pmf.getPackage();
+            pkg.getDebugger().addObject(pkg.getId(), newOw.getName(), newOw.getObject());
             //BObject newBObject = bObject.getPackage().getObject(newOw.getName());
             //WrapperPool.instance().getWrapper(newBObject);
             //new RObjectImpl(newBObject);
