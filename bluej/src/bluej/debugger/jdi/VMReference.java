@@ -1,5 +1,7 @@
 package bluej.debugger.jdi;
 
+import bluej.Boot;
+import bluej.classmgr.BPClassLoader;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -39,7 +41,7 @@ import javax.swing.JOptionPane;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3473 2005-07-20 18:00:29Z damiano $
+ * @version $Id: VMReference.java 3488 2005-07-29 08:45:56Z damiano $
  * 
  * The startup process is as follows:
  * 
@@ -107,8 +109,8 @@ class VMReference
     // invocation.
 
     // the worker thread running inside the ExecServer
-    private ThreadReference workerThread = null;
-    private boolean workerThreadReady = false;
+    private volatile ThreadReference workerThread = null;
+    private volatile boolean workerThreadReady = false;
 
     // a record of the threads we start up for
     // redirecting ExecServer streams
@@ -152,9 +154,12 @@ class VMReference
         int portNumber;
         String [] launchParams;
 
-        // launch the VM
-        // get classpath for VM
-        String allClassPath = ClassMgr.getClassMgr().getRuntimeUserClassPath().toString();
+        // launch the VM, get classpath for VM, this is independent from the Project
+        // NOTE: At the moment the runtime needs junit to boot, but junit is also in the 
+        // project classloader since it is "part" of a project. Junit should not be needed to boot the remote VM.
+        Boot boot = Boot.getInstance();
+        File [] filesPath = BPClassLoader.toFiles(boot.getRuntimeUserClassPath());
+        String allClassPath = BPClassLoader.toClasspathString(filesPath);
         
         ArrayList paramList = new ArrayList(10);
         paramList.add(Config.getJDKExecutablePath("this.key.must.not.exist", "java"));
@@ -587,6 +592,7 @@ class VMReference
 
         if (serverThread == null || workerThread == null) {
             Debug.reportError("Cannot find fields on remote VM");
+            JOptionPane.showMessageDialog(null,"VMReference.setupServerConnection() Cannot find fields on remote VM");
             return false;
         }
 
@@ -848,6 +854,7 @@ class VMReference
             if (!serverThreadStarted)
                 notifyAll();
         }
+        
         synchronized (workerThread) {
             if (!workerThreadReady)
                 workerThread.notifyAll();

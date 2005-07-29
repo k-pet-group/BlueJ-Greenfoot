@@ -35,7 +35,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3475 2005-07-23 09:21:48Z damiano $
+ * @version $Id: ExecServer.java 3488 2005-07-29 08:45:56Z damiano $
  */
 public class ExecServer
 {
@@ -340,8 +340,10 @@ public class ExecServer
     {
     	//Debug.message("[VM] loadClass: " + className);
         
-        if (currentLoader == null)
-            newLoader(".");
+        if (currentLoader == null) {
+          // It does not make much sense to load something without a loader, better signal it immediatly.
+          JOptionPane.showMessageDialog(null,"ExecServer.loadClass() currentLoader=null");
+        }
         
         Class cl;
         try {

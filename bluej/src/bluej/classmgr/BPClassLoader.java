@@ -1,6 +1,7 @@
 package bluej.classmgr;
 
 import java.io.File;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -19,7 +20,7 @@ import javax.swing.JOptionPane;
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
  *
- * @version    $Id: BPClassLoader.java 3483 2005-07-28 14:59:17Z polle $
+ * @version    $Id: BPClassLoader.java 3488 2005-07-29 08:45:56Z damiano $
  */
 
 /*
@@ -35,16 +36,15 @@ public final class BPClassLoader extends URLClassLoader {
         super(urls, parent);
     }
 
-
     /**
      * Compare the current array of URLS with the given one.
      * Note that is the order of the array is different then the two are considered different.
      * @param compare URLs to compare with the original.
      * @return true if the two arrays are the same.
      */
-    public final boolean sameUrls( URL[] compare ) {
-        URL [] original = getURLs();
-        
+    public final boolean sameUrls(URL[] compare) {
+        URL[] original = getURLs();
+
         if (original == null) {
             return false;
         }
@@ -61,7 +61,6 @@ public final class BPClassLoader extends URLClassLoader {
         return true;
     }
 
-
     /**
      * Create a string with this class path as a separated list of strings.
      * Note that a classpath to be used to start another local JVM cannot refer to a URL but to a local file.
@@ -70,30 +69,36 @@ public final class BPClassLoader extends URLClassLoader {
      * @return  The classpath as string.
      */
     public String getClassPathAsString() {
-        URL[] urls = super.getURLs();
+        return toClasspathString(getClassPathAsFiles());
+    }
 
-        if ((urls == null) || (urls.length < 1)) {
+    /**
+     * Convert an array of files into a classpath string that can be used to start a VM.
+     * If files is null or files is empty then an empty string is returned.
+     * @param files an array of files.
+     * @return a non null string, possibly empty.
+     */
+    public static final String toClasspathString(File[] files) {
+        if ((files == null) || (files.length < 1)) {
             return "";
         }
 
         boolean addSeparator = false; // Do not add a separator at the beginning
         StringBuffer buf = new StringBuffer();
 
-        for (int index = 0; index < urls.length; index++) {
+        for (int index = 0; index < files.length; index++) {
+            File file = files[index];
+
+            // It may happen that one entry is null, strange, but just skip it.
+            if (file == null) {
+                continue;
+            }
+
             if (addSeparator) {
                 buf.append(File.pathSeparatorChar);
             }
 
-            URL url = urls[index];
-
-            // A class path is always without the qualifier file in front of it.
-            // However some characters (such as space) are encoded.
-            try {
-                buf.append(new File(new URI(url.toString())).toString());
-            } catch (URISyntaxException use) {
-                // Should never happend.  If there is a problem with the conversion we want to know about it.
-                JOptionPane.showMessageDialog(null,"BPClassLoader.getClassPathAsString() invalid url="+url.getPath());
-            }
+            buf.append(file.toString());
 
             // From now on, you have to add a separator.
             addSeparator = true;
@@ -102,25 +107,30 @@ public final class BPClassLoader extends URLClassLoader {
         return buf.toString();
     }
 
-
     /**
      * Return the class path as an array of files.
      * Note that there is no guarantee that all files are indeed local files althout this is true for the
      * current BlueJ.
      * @return a non null array of Files, may be empty if no library at all is defined.
      */
-    public File [] getClassPathAsFiles ()
-    {
-        URL[] urls = super.getURLs();
+    public final File[] getClassPathAsFiles() {
+        return toFiles(super.getURLs());
+    }
 
+    /**
+     * Transform an array of URL into an array of files.
+     * Note that if the given URL points to a "non file" then the result conversion will be null.
+     * @param urls an array or URL
+     * @return a non null array of Files, may be empty if urls is null or empty.
+     */
+    public static final File[] toFiles(URL[] urls) {
         if ((urls == null) || (urls.length < 1)) {
             return new File[0];
         }
 
-        File [] risul = new File[urls.length];
-        
-        for (int index = 0; index < urls.length; index++) {
+        File[] risul = new File[urls.length];
 
+        for (int index = 0; index < urls.length; index++) {
             URL url = urls[index];
 
             // A class path is always without the qualifier file in front of it.
@@ -129,14 +139,14 @@ public final class BPClassLoader extends URLClassLoader {
                 risul[index] = new File(new URI(url.toString()));
             } catch (URISyntaxException use) {
                 // Should never happend. If there is a problem with the conversion we want to know about it.
-                JOptionPane.showMessageDialog(null,"BPClassLoader.getClassPathAsFiles() invalid url="+url.getPath());
+                JOptionPane.showMessageDialog(null,
+                    "BPClassLoader.toFiles(urls) invalid url=" + url.getPath());
             }
         }
 
         return risul;
     }
-    
-    
+
     public String toString() {
         return "BPClassLoader path=" + getClassPathAsString();
     }
