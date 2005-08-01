@@ -24,7 +24,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 3471 2005-07-20 05:47:21Z davmac $
+ * @version $Id: ClassMgr.java 3494 2005-08-01 14:08:07Z damiano $
  */
 public class ClassMgr
 {
@@ -55,11 +55,12 @@ public class ClassMgr
      * Returns a ProjectClassLoader which can load classes from a particular 
      * directory (while delegating other class loading to the default BlueJ
      * class loader).
-     */
+     *
     public static ProjectClassLoader getProjectLoader(File projectDir)
     {
         return new ProjectClassLoader(projectDir, getClassMgr().bluejloader);
     }
+    */
     
     // =========== instance part ============
     

@@ -23,7 +23,7 @@ import bluej.views.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 3318 2005-02-17 05:04:12Z davmac $
+ * @version $Id: LibraryCallDialog.java 3494 2005-08-01 14:08:07Z damiano $
  */
 public class LibraryCallDialog extends EscapeDialog
 	implements ActionListener, ListSelectionListener
@@ -150,8 +150,10 @@ public class LibraryCallDialog extends EscapeDialog
 
         boolean loaded;
         try {
-            File file = pkg.getProject().getProjectDir();
-            cl = Class.forName(className, true, ClassMgr.getProjectLoader(file));
+//            File file = pkg.getProject().getProjectDir();
+//            cl = Class.forName(className, true, ClassMgr.getProjectLoader(file));
+            ClassLoader loader = pkg.getProject().getClassLoader();
+            cl = loader.loadClass(className);
             loaded = true;
         }
         catch(Exception exc) {
@@ -159,9 +161,10 @@ public class LibraryCallDialog extends EscapeDialog
         }
         if (!loaded) {   // try for unqualified names in java.lang
             try {
-                File file = pkg.getProject().getProjectDir();
-                cl = Class.forName("java.lang." + className, true,
-                                                 ClassMgr.getProjectLoader(file));
+//                File file = pkg.getProject().getProjectDir();
+//                cl = Class.forName("java.lang." + className, true,ClassMgr.getProjectLoader(file));
+            ClassLoader loader = pkg.getProject().getClassLoader();
+            cl = loader.loadClass("java.lang."+className);
             }
             catch(Exception exc) {
                 displayTextInClassList(classNotFound);
