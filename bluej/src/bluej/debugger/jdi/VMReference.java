@@ -41,7 +41,7 @@ import javax.swing.JOptionPane;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3488 2005-07-29 08:45:56Z damiano $
+ * @version $Id: VMReference.java 3492 2005-08-01 08:04:22Z damiano $
  * 
  * The startup process is as follows:
  * 
@@ -592,7 +592,6 @@ class VMReference
 
         if (serverThread == null || workerThread == null) {
             Debug.reportError("Cannot find fields on remote VM");
-            JOptionPane.showMessageDialog(null,"VMReference.setupServerConnection() Cannot find fields on remote VM");
             return false;
         }
 

@@ -1,5 +1,6 @@
 package bluej.classmgr;
 
+import bluej.utility.*;
 import java.io.File;
 
 import java.net.URI;
@@ -20,7 +21,7 @@ import javax.swing.JOptionPane;
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
  *
- * @version    $Id: BPClassLoader.java 3488 2005-07-29 08:45:56Z damiano $
+ * @version    $Id: BPClassLoader.java 3492 2005-08-01 08:04:22Z damiano $
  */
 
 /*
@@ -139,8 +140,7 @@ public final class BPClassLoader extends URLClassLoader {
                 risul[index] = new File(new URI(url.toString()));
             } catch (URISyntaxException use) {
                 // Should never happend. If there is a problem with the conversion we want to know about it.
-                JOptionPane.showMessageDialog(null,
-                    "BPClassLoader.toFiles(urls) invalid url=" + url.getPath());
+                Debug.reportError("BPClassLoader.toFiles(urls) invalid url=" + url.getPath());
             }
         }
 

@@ -48,7 +48,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3480 2005-07-27 18:47:08Z damiano $
+ * @version $Id: Project.java 3492 2005-08-01 08:04:22Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -1178,7 +1178,7 @@ public class Project implements DebuggerListener {
             pathList.add(getProjectDir().toURI().toURL());
         } catch ( Exception exc ) {
             // Hould never happen, but if it does we want to know about it immediatly.
-            JOptionPane.showMessageDialog(null,"Project.getClassLoader() invalid project url="+getProjectDir());
+            Debug.reportError("Project.getClassLoader() invalid project url="+getProjectDir());
         }
         
 
