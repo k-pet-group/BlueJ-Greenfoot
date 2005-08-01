@@ -35,7 +35,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3488 2005-07-29 08:45:56Z damiano $
+ * @version $Id: ExecServer.java 3493 2005-08-01 13:03:12Z damiano $
  */
 public class ExecServer
 {
@@ -297,7 +297,7 @@ public class ExecServer
     private static ClassLoader newLoader(String urlListAsString )
     {
 //        JOptionPane.showMessageDialog(null,"ExecServer.newLoader() urlListAsString="+urlListAsString);
-    	
+
         String [] splits = urlListAsString.split("\n");
         URL []urls = new URL[splits.length];
 
@@ -307,7 +307,7 @@ public class ExecServer
             }
             catch (MalformedURLException mfue) {
                 // Should never happen but if it does we want to know about it
-                JOptionPane.showMessageDialog(null,"ExecServer.newLoader() Malformed URL="+splits[index]);
+                System.err.println("ExecServer.newLoader() Malformed URL="+splits[index]);
             }
             
         currentLoader = new URLClassLoader(urls);
@@ -342,7 +342,7 @@ public class ExecServer
         
         if (currentLoader == null) {
           // It does not make much sense to load something without a loader, better signal it immediatly.
-          JOptionPane.showMessageDialog(null,"ExecServer.loadClass() currentLoader=null");
+          System.err.println("ExecServer.loadClass() currentLoader=null");
         }
         
         Class cl;
