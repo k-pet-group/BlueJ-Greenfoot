@@ -1,10 +1,17 @@
 package bluej.pkgmgr;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
 
-import bluej.*;
-import bluej.utility.*;
+import bluej.BlueJEvent;
+import bluej.Config;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
+import bluej.utility.Utility;
 
 /**
  * This class handles documentation generation from inside BlueJ.
@@ -113,7 +120,7 @@ public class DocuGenerator
         call.add(docDir.getPath());
         call.add("-classpath");
         File junitFile = new File(Config.getBlueJLibDir(), "junit.jar");
-        call.add(junitFile.getAbsolutePath());
+        call.add(junitFile.getAbsolutePath() + File.pathSeparator + projectDirPath);
         call.add(filename);
 
         String[] javadocCall = (String[])call.toArray(new String[0]);
@@ -217,7 +224,7 @@ public class DocuGenerator
          */
         public void run()
         {
-            Process docuRun;
+            // Process docuRun;
             try {
 //                 Debug.message(docuCall);
                 OutputStream logStream = new FileOutputStream(logFile);
