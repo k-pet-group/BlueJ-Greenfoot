@@ -119,8 +119,7 @@ public class DocuGenerator
         call.add("-d");
         call.add(docDir.getPath());
         call.add("-classpath");
-        File junitFile = new File(Config.getBlueJLibDir(), "junit.jar");
-        call.add(junitFile.getAbsolutePath() + File.pathSeparator + projectDirPath);
+        call.add(project.getClassLoader().getClassPathAsString());
         call.add(filename);
 
         String[] javadocCall = (String[])call.toArray(new String[0]);
