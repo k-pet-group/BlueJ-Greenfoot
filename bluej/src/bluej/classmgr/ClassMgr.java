@@ -24,7 +24,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 3494 2005-08-01 14:08:07Z damiano $
+ * @version $Id: ClassMgr.java 3502 2005-08-04 09:48:13Z damiano $
  */
 public class ClassMgr
 {
@@ -64,7 +64,7 @@ public class ClassMgr
     
     // =========== instance part ============
     
-    private BlueJLoader bluejloader = new BlueJLoader();
+//    private BlueJLoader bluejloader = new BlueJLoader();
 
     /**
      * Protected to allow access by the class manager panel.
@@ -76,14 +76,14 @@ public class ClassMgr
     protected ClassPath bootLibraries;
     protected ClassPath systemLibraries;
     protected ClassPath userLibraries;
-    protected ClassPath userlibExtLibraries;
+//    protected ClassPath userlibExtLibraries;
 
     /** Don't let anyone else instantiate this class */
     private ClassMgr()
     {
         URL[] bootcp = Boot.getInstance().getRuntimeClassPath();
         URL[] syscp = Boot.getInstance().getRuntimeUserClassPath();
-        URL[] userextcp = Boot.getInstance().getUserLibClassPath();
+//        URL[] userextcp = Boot.getInstance().getUserLibClassPath();
         String envcp = System.getProperty("java.class.path");
 
         if (bootcp == null) {        // pre JDK1.2
@@ -99,7 +99,7 @@ public class ClassMgr
         bootLibraries = new ClassPath(bootcp);
         systemLibraries = new ClassPath(syscp);
         userLibraries = new ClassPath();
-        userlibExtLibraries = new ClassPath(userextcp);
+//        userlibExtLibraries = new ClassPath(userextcp);
 
         addConfigEntries(systemLibraries, syslibPrefix);
         addConfigEntries(userLibraries, userlibPrefix);
@@ -119,7 +119,7 @@ public class ClassMgr
 
         all.addClassPath(systemLibraries);
         all.addClassPath(userLibraries);
-        all.addClassPath(userlibExtLibraries);
+//        all.addClassPath(userlibExtLibraries);
         all.addClassPath(bootLibraries);
 
         return all;
@@ -150,7 +150,7 @@ public class ClassMgr
     {
         ClassPath usercp = new ClassPath();
 
-        usercp.addClassPath(userlibExtLibraries);
+//        usercp.addClassPath(userlibExtLibraries);
         usercp.addClassPath(userLibraries);
 
         return usercp;
@@ -221,12 +221,12 @@ public class ClassMgr
      * We aim to construct a class hierarchy like this
      *
      *  DefaultSystemLoader
-     */
+     *
     class BlueJLoader extends ClassLoader
     {
         /**
          * Read in a class file from disk. Return a class object.
-         */
+         *
         protected Class findClass(String name) throws ClassNotFoundException
         {
             //Debug.message("classmgrloader: finding " + name);
@@ -249,7 +249,7 @@ public class ClassMgr
          * has failed. Therefore we need only look in our userLibraries and
          * systemLibraries. The bootLibraries will have been searched by
          * the system loader.
-         */
+         *
         protected byte[] loadClassData(String name)
         {
             ByteArrayOutputStream classdata = new ByteArrayOutputStream();
@@ -268,13 +268,14 @@ public class ClassMgr
                 catch (IOException ioe) { }
 
                 // if can't find it in system libraries, try 'userlibs' directory
+/*
                 if(in == null) {
                     try {
                         in = userlibExtLibraries.getFile(filename);
                     }
                     catch (IOException ioe) { }
                 }
-                
+*                
                 // if still can't find it, try the defined user libraries
                 if(in == null) {
                     try {
@@ -302,5 +303,6 @@ public class ClassMgr
                 return classdata.toByteArray();
         }
     }
+    */
 }
 

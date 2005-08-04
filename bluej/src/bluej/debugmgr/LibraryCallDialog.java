@@ -10,7 +10,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import bluej.*;
-import bluej.classmgr.ClassMgr;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.utility.*;
@@ -23,7 +22,7 @@ import bluej.views.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 3494 2005-08-01 14:08:07Z damiano $
+ * @version $Id: LibraryCallDialog.java 3502 2005-08-04 09:48:13Z damiano $
  */
 public class LibraryCallDialog extends EscapeDialog
 	implements ActionListener, ListSelectionListener

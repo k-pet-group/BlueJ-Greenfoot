@@ -48,7 +48,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3492 2005-08-01 08:04:22Z damiano $
+ * @version $Id: Project.java 3502 2005-08-04 09:48:13Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -1114,23 +1114,60 @@ public class Project implements DebuggerListener {
 
         // if we found any jar files in the libs directory then add their URLs
         for(int index=0; index<libs.length; index++) {
-            File lib = libs[index];
-
-            // Is this a normal file and is it readable ?
-            if ( ! (lib.isFile() && lib.canRead()) ) continue;
-            
-            String libname = lib.getName().toLowerCase();
-            if ( ! (libname.endsWith(".jar") || libname.endsWith(".zip")) ) continue;
-            
-            try {
-                risul.add(libs[index].toURI().toURL());
-            }
-            catch(MalformedURLException mue) { 
-            }
+            attemptAddLibrary(risul, libs[index]);
         }
         return risul;
     }
     
+    /**
+     * Attempts to add a library to the given list of libraies.
+     * A valid library file is one that is a file, readable, ends either with zip or jar.
+     * Before addition the file is transformaed to a URL.
+     * @param risul where to add the file
+     * @param aFile the file to be added.
+     */
+    private static final void attemptAddLibrary ( ArrayList risul, File aFile ) {
+        if ( aFile == null ) return;
+        
+        // Is this a normal file and is it readable ?
+        if ( ! (aFile.isFile() && aFile.canRead()) ) return;
+        
+        String libname = aFile.getName().toLowerCase();
+        if ( ! (libname.endsWith(".jar") || libname.endsWith(".zip")) ) return;
+        
+        try {
+            risul.add(aFile.toURI().toURL());
+        }
+        catch(MalformedURLException mue) { 
+            Debug.reportError("Project.attemptAddLibrary() malformaed file="+aFile);
+        }
+    }
+      
+
+    /**
+     * Returns an array of URLs for all the JAR files located in the lib/userlib directory.
+     * The result is calculated every time the method is called, in this way it is possible
+     * to capture a change in the library content in a reasonable timing.
+     *
+     * @return  URLs of the discovered JAR files
+     */
+    public static final ArrayList getUserlibContent() 
+    {
+        ArrayList risul = new ArrayList();
+        
+        File userLibDir = new File(Boot.getInstance().getBluejLibDir(), "userlib");
+
+        File[] files = userLibDir.listFiles();
+        if (files == null) {
+            return risul;
+        }
+        
+        for (int index = 0; index < files.length; index++) {
+            attemptAddLibrary(risul, files[index]);
+        }
+ 
+    return risul;
+    }
 
     /**
      * Decide if the current class loader is good, meaning it hosuld not be changed.
@@ -1167,7 +1204,8 @@ public class Project implements DebuggerListener {
         // At the moment I do this to find out what has changed. It will be done differently at the end.
         URL[] allcp = ClassMgr.getClassMgr().getAllClassPath().getURLs();
 
-        ArrayList pathList = getPlusLibsContent();
+        ArrayList pathList = getUserlibContent();
+        pathList.addAll(getPlusLibsContent());
 
         for (int index=0; index<allcp.length; index++ ) {
             pathList.add(allcp[index]);
@@ -1192,6 +1230,8 @@ public class Project implements DebuggerListener {
         // have BClassLoader created with the boot loader as parent.
         currentClassLoader = new BPClassLoader(newUrls,Boot.getInstance().getBootClassLoader());
         compileStarted = false; // Clear the flag.
+
+//Debug.message("New classpath="+currentClassLoader.getClassPathAsString());
 
         return currentClassLoader;
     }

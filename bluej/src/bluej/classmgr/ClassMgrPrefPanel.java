@@ -1,5 +1,7 @@
 package bluej.classmgr;
 
+import bluej.pkgmgr.Project;
+import java.net.URL;
 import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.filechooser.FileFilter;
@@ -21,7 +23,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 2745 2004-07-06 19:38:04Z mik $
+ * @version $Id: ClassMgrPrefPanel.java 3502 2005-08-04 09:48:13Z damiano $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -34,7 +36,17 @@ public class ClassMgrPrefPanel extends JPanel
      */
     public ClassMgrPrefPanel()
     {
-        List userlibExtLibrariesList = new ArrayList(ClassMgr.getClassMgr().userlibExtLibraries.getEntries());
+        // TODO: There a re a few historical issues here, the first one is that this list is calculated here
+        // but in reality now it is much more dinamic, there is no need to restart BlueJ to have the 
+        // new value applied, so this list should also be dynamic.
+        // The second point is that it does not make much sense to say loaded or unloaded since
+        // if it is a valid jar the it is in the project classloader.
+        // Somthing to fix in the future.
+        // It may have more meaning to show what is the project classloader, that would include all
+        // libraries, and paths, including +libs 
+        ArrayList userlibList = Project.getUserlibContent();
+        ClassPath aa = new ClassPath((URL[])userlibList.toArray(new URL[userlibList.size()]));
+        List userlibExtLibrariesList = new ArrayList(aa.getEntries());
 
         // Construct a user editable table of user libraries and add/remove buttons
 

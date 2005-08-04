@@ -16,7 +16,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3471 2005-07-20 05:47:21Z davmac $
+ * @version $Id: Boot.java 3502 2005-08-04 09:48:13Z damiano $
  */
 public class Boot
 {
@@ -122,7 +122,7 @@ public class Boot
 
     private URL[] runtimeClassPath; // The class path used to run the rest of BlueJ
     private URL[] runtimeUserClassPath; // The initial class path used to run code within BlueJ
-    private URL[] userLibClassPath; // The class path of user libs in the "ext" directory (lib/userlib)
+//    private URL[] userLibClassPath; // The class path of user libs in the "ext" directory (lib/userlib)
     private URLClassLoader runtimeLoader;   // The class loader used for the rest of BlueJ
 
 
@@ -222,7 +222,7 @@ public class Boot
             runtimeClassPath = getKnownJars(bluejLibDir, bluejJars, true);
             runtimeUserClassPath = getKnownJars(bluejLibDir, bluejUserJars, false);
             runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
-            userLibClassPath = getUserExtLibItems();
+//            userLibClassPath = getUserExtLibItems();
 
             // Construct a bluej.Main object. This starts BlueJ "proper".
             Class mainClass = Class.forName("bluej.Main", true, runtimeLoader);
@@ -352,7 +352,7 @@ public class Boot
      *
      * @return  URLs of the discovered JAR files
      * @exception  MalformedURLException  for any problems with the URLs
-     */
+     *
     private URL[] getUserExtLibItems() throws MalformedURLException
     {
         File userLibDir = new File(bluejLibDir, "userlib");
@@ -385,7 +385,7 @@ public class Boot
      * Return the classpath for valid libs (jars & zips) 
      * in the lib/userlib directory
      * @return the classpath for valid libs
-     */
+     *
     public URL[] getUserLibClassPath()
     {
         return userLibClassPath;
