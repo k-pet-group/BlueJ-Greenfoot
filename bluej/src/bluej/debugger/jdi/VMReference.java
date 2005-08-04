@@ -1,7 +1,5 @@
 package bluej.debugger.jdi;
 
-import bluej.Boot;
-import bluej.classmgr.BPClassLoader;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -10,8 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import bluej.Boot;
 import bluej.Config;
-import bluej.classmgr.ClassMgr;
+import bluej.classmgr.BPClassLoader;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugger.ExceptionDescription;
@@ -32,7 +31,6 @@ import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
-import javax.swing.JOptionPane;
 
 /**
  * A class implementing the execution and debugging primitives needed by BlueJ.
@@ -41,7 +39,7 @@ import javax.swing.JOptionPane;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3492 2005-08-01 08:04:22Z damiano $
+ * @version $Id: VMReference.java 3499 2005-08-04 00:51:16Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -624,22 +622,6 @@ class VMReference
     // -- all methods below here are for after the VM has started up
 
     /**
-     * Return the machine status; one of the "machine state" constants: (IDLE,
-     * RUNNING, SUSPENDED).
-     * 
-     * The other state NOTREADY cannot be returned by the method because
-     * NOTREADY implies that this class has not been constructed. NOTREADY may
-     * be returned in JdiDebugger.getStatus().
-     */
-    int getStatus()
-    {
-        if (serverThread.isSuspended())
-            return Debugger.SUSPENDED;
-        else
-            return Debugger.RUNNING;
-    }
-
-    /**
      * Instruct the remote machine to construct a new class loader and return its reference.
      * @param classPath as an array of URL
      */
@@ -702,6 +684,53 @@ class VMReference
                 throw new ClassNotFoundException(className);
             
             return robject.reflectedType();
+        }
+        
+    }
+    
+    /**
+     * Load and initialize a class in the remote machine, and return a reference to it.
+     * Initialization causes static initializer assignments and blocks to be executed in
+     * the remote machine. This method will not return until all such blocks have completed
+     * execution.
+     * 
+     * @param className  The name of the class to load
+     * @return           A reference to the class
+     * @throws ClassNotFoundException  If the class could not be found
+     */
+    ReferenceType loadInitClass(String className)
+        throws ClassNotFoundException
+    {
+        try {
+            owner.raiseStateChangeEvent(Debugger.RUNNING);
+            synchronized(serverThreadLock) {
+                serverThreadStartWait();
+                
+                // Store the class and method to call
+                setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, className);
+                setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.LOAD_INIT_CLASS));
+                
+                // Resume the thread, wait for it to finish and the new thread to start
+                serverThreadStarted = false;
+                serverThread.resume();
+                serverThreadStartWait();
+                owner.raiseStateChangeEvent(Debugger.IDLE);
+                
+                // Get return value
+                ClassObjectReference rval = (ClassObjectReference) getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
+                if (rval == null)
+                    throw new ClassNotFoundException("Remote class not found: " + className);
+                
+                // check for and report exceptions which occurred during initialization
+                ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
+                if (exception != null)
+                    exceptionEvent(new InvocationException(exception));
+                
+                return rval.reflectedType();
+            }
+        }
+        catch (VMDisconnectedException vde) {
+            throw new ClassNotFoundException("Remote class not loaded due to VM termination.");
         }
     }
 
@@ -1181,25 +1210,6 @@ class VMReference
             return null;
         else
             return Config.getString("debugger.jdiDebugger.noBreakpointMsg");
-    }
-
-    /**
-     * Get the value of a static field in a class.
-     * 
-     * @return a reference to the object in the field or null if the field could
-     *         not be found
-     * @throws ClassNotFoundException
-     */
-    public ObjectReference getStaticValue(String className, String fieldName)
-        throws ClassNotFoundException
-    {
-        ReferenceType cl = loadClass(className);
-
-        Field resultField = cl.fieldByName(fieldName);
-        if (resultField == null)
-            return null;
-
-        return (ObjectReference) cl.getValue(resultField);
     }
 
     /**

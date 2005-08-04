@@ -1,16 +1,13 @@
 package bluej.debugger.jdi;
 
-import bluej.classmgr.BPClassLoader;
 import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
 
-import javax.swing.JOptionPane;
 import javax.swing.event.EventListenerList;
 
 import bluej.BlueJEvent;
 import bluej.Config;
+import bluej.classmgr.BPClassLoader;
 import bluej.debugger.*;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.Invoker;
@@ -37,7 +34,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 3473 2005-07-20 18:00:29Z damiano $
+ * @version $Id: JdiDebugger.java 3499 2005-08-04 00:51:16Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -659,13 +656,19 @@ public class JdiDebugger extends Debugger
     }
 
     /**
-     * Get a class from the virtual machine. Return null if the class could not
-     * be found.
+     * Get a class from the virtual machine. Throws ClassNotFoundException
+     * if the class cannot be found.
      */
     public DebuggerClass getClass(String className)
         throws ClassNotFoundException
     {
-        ReferenceType classMirror = getVM().loadClass(className);
+        ReferenceType classMirror;
+        if (machineState != Debugger.RUNNING) {
+            classMirror = getVM().loadInitClass(className);
+        }
+        else {
+            classMirror = getVM().loadClass(className);
+        }
 
         return new JdiClass(classMirror);
     }

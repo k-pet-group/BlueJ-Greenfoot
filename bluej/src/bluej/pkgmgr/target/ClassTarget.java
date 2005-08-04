@@ -1,9 +1,24 @@
 package bluej.pkgmgr.target;
 
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+
+import javax.swing.AbstractAction;
+import javax.swing.JPopupMenu;
+
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
-import bluej.debugmgr.inspector.ClassInspector;
-import bluej.debugmgr.inspector.Inspector;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.extmgr.MenuManager;
@@ -20,34 +35,9 @@ import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
-import bluej.pkgmgr.target.role.AbstractClassRole;
-import bluej.pkgmgr.target.role.AppletClassRole;
-import bluej.pkgmgr.target.role.ClassRole;
-import bluej.pkgmgr.target.role.EnumClassRole;
-import bluej.pkgmgr.target.role.InterfaceClassRole;
-import bluej.pkgmgr.target.role.StdClassRole;
-import bluej.pkgmgr.target.role.UnitTestClassRole;
+import bluej.pkgmgr.target.role.*;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.FileEditor;
-import bluej.utility.FileUtility;
-import bluej.utility.JavaNames;
-import bluej.utility.JavaUtils;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import javax.swing.AbstractAction;
-import javax.swing.JPopupMenu;
+import bluej.utility.*;
 
 /**
  * A class target in a package, i.e. a target that is a class file built from
@@ -59,7 +49,7 @@ import javax.swing.JPopupMenu;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3480 2005-07-27 18:47:08Z damiano $
+ * @version $Id: ClassTarget.java 3499 2005-08-04 00:51:16Z davmac $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable
@@ -647,13 +637,29 @@ public class ClassTarget extends EditableTarget
      */
     private void inspect()
     {
-        try {
-            DebuggerClass clss = getPackage().getDebugger().getClass(getQualifiedName());
-
-            getPackage().getProject().getClassInspectorInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
-            // show dialog
-        }
-        catch (ClassNotFoundException cnfe) {}
+        new Thread() {
+            
+            int state = 0;
+            DebuggerClass clss;
+            
+            public void run() {
+                switch (state) {
+                    // This is the intial state. Try and load the class.
+                    case 0:
+                        try {
+                            clss = getPackage().getDebugger().getClass(getQualifiedName());
+                            state = 1;
+                            EventQueue.invokeLater(this);
+                        }
+                        catch (ClassNotFoundException cnfe) {}
+                        break;
+                
+                    // Once this state is reached, we're running on the Swing event queue.
+                    case 1:
+                        getPackage().getProject().getClassInspectorInstance(clss, getPackage(), PkgMgrFrame.findFrame(getPackage()));
+                }
+            }
+        }.start();
     }
 
     // --- EditorWatcher interface ---
