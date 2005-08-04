@@ -33,7 +33,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3500 2005-08-04 01:00:50Z davmac $
+ * @version $Id: ExecServer.java 3501 2005-08-04 01:10:05Z davmac $
  */
 public class ExecServer
 {
@@ -171,7 +171,11 @@ public class ExecServer
                             break;
                         case LOAD_CLASS:
                             try {
-                                workerReturn = Class.forName(className, false, currentLoader);  
+                                workerReturn = Class.forName(className, false, currentLoader);
+                                // Cause the class to be prepared (ie. its fields and methods
+                                // enumerated). Otherwise we can get ClassNotPreparedException
+                                // when we try and get the fields on the other VM.
+                                ((Class) workerReturn).getFields();
                             }
                             catch(Throwable cnfe) {
                                 workerReturn = null;
