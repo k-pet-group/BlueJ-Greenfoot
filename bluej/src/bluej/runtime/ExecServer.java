@@ -1,6 +1,5 @@
 package bluej.runtime;
 
-import bluej.utility.Debug;
 import java.awt.AWTEvent;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -18,7 +17,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
-import javax.swing.*;
 import junit.framework.TestCase;
 import junit.framework.TestFailure;
 import junit.framework.TestResult;
@@ -35,7 +33,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3493 2005-08-01 13:03:12Z damiano $
+ * @version $Id: ExecServer.java 3500 2005-08-04 01:00:50Z davmac $
  */
 public class ExecServer
 {
@@ -88,6 +86,7 @@ public class ExecServer
     public static final int TEST_RUN = 2;
     public static final int DISPOSE_WINDOWS = 3;
     public static final int EXIT_VM = 4;
+    public static final int LOAD_INIT_CLASS = 5;  // load and initialize a class
     
     // Parameter for worker thread actions
     public static int workerAction;
@@ -109,10 +108,12 @@ public class ExecServer
     public static final String SCOPE_ID_NAME = "scopeId";
     public static final String NEW_LOADER_PATH_NAME = "newLoaderPath";
     
+    // possible actions for worker thread
     public static final int REMOVE_OBJECT = 0;
     public static final int ADD_OBJECT    = 1;
     public static final int LOAD_CLASS    = 2;
     public static final int NEW_LOADER    = 3;
+    // EXIT_VM ( = 4) is also used in the worker thread
 
     // the current class loader
   	private static ClassLoader currentLoader;
@@ -152,6 +153,9 @@ public class ExecServer
 		// record our main thread
 		// mainThread = Thread.currentThread();
 		
+        // Set up the worker thread. The worker thread can be used to perform certain actions
+        // when the main thread is busy. Actions on the worker thread are guarenteed to execute
+        // in a timely manner - for this reason they must not execute user code.
         workerThread = new Thread("BlueJ worker thread")
         {
             public void run()
@@ -167,7 +171,7 @@ public class ExecServer
                             break;
                         case LOAD_CLASS:
                             try {
-                                workerReturn = loadClass(className);
+                                workerReturn = Class.forName(className, false, currentLoader);  
                             }
                             catch(Throwable cnfe) {
                                 workerReturn = null;
@@ -209,7 +213,10 @@ public class ExecServer
         // initialization, at the same time, create the initial server thread.
         newThread();
 		
-        // set the worker thread in motion also.
+        // Set the worker thread in motion also. Give it maximum priority so that it can
+        // be guarenteed to execute in a timely manner, and won't get starved by user code
+        // executing in other threads.
+        workerThread.setPriority(Thread.MAX_PRIORITY);
         workerThread.start();
     }
 
@@ -333,10 +340,10 @@ public class ExecServer
     }
 
     /**
-     * Load (and prepare) a class in the remote runtime.
+     * Load (and prepare) a class in the remote runtime. Return null if the class could not
+     * be loaded.
      */
-    private static Class loadClass(String className)
-        throws ClassNotFoundException
+    private static Class loadAndInitClass(String className)
     {
     	//Debug.message("[VM] loadClass: " + className);
         
@@ -345,45 +352,67 @@ public class ExecServer
           System.err.println("ExecServer.loadClass() currentLoader=null");
         }
         
+        Throwable exception = null;
         Class cl;
         try {
             cl = Class.forName(className, true, currentLoader);
         }
-        catch (Error eiie) {
-            // This could ExceptionInInitializer, or NoClassDefFound, etc.
-            // The class may exist, but cannot be initialized for some reason.
-            cl = Class.forName(className, false, currentLoader);
-            cl.getFields();
+        catch (ClassNotFoundException cnfe) {
+            // class definitely doesn't exist
+            cl = null;
+        }
+        catch (ExceptionInInitializerError eiie) {
+            // The class was loaded it, but an exception occurred during initialization.
+            // As this is an error in user code, we want to report it.
+            exception = eiie.getCause();
+            
+            // Now get the class again, uninitialized this time
+            try {
+                cl = Class.forName(className, false, currentLoader);
+            }
+            catch (ClassNotFoundException cnfe) {
+                // this shouldn't happen anyway.
+                cl = null;
+            }
+        }
+        catch (Throwable err) {
+            // There are numerous other linkage problems. Also there is the possibility that
+            // a static initialization block will throw an instance of java.lang.Error, which
+            // will not be wrapped in an ExceptionInInitializerError (unfortunately). In either
+            // case we probably should let the user know what happened.
+            
+            exception = err;
+
+            // The class may exist, but not be initializable for some reason.
+            try {
+                cl = Class.forName(className, false, currentLoader);
+            }
+            catch (Throwable t) {
+                cl = null;
+            }
+        }
+        
+        // If we have an exception to report, filter and report it.
+        if (exception != null) {
+            StackTraceElement [] stackTrace = exception.getStackTrace();
+            
+            // filter bluej.runtime.ExecServer from the stack trace
+            int i;
+            for (i = stackTrace.length - 1; i > 0; i--) {
+                String stClassName = stackTrace[i].getClassName();
+                if (! stClassName.startsWith("bluej.runtime.ExecServer")
+                        && ! stClassName.startsWith("java.lang.Class"))
+                    break;
+            }
+            StackTraceElement [] newStackTrace = new StackTraceElement[i+1];
+            System.arraycopy(stackTrace, 0, newStackTrace, 0, i+1);
+            exception.setStackTrace(newStackTrace);
+            recordException(exception);
         }
        
         return cl;
     }
     
-    /**
-     * Forces the initialisation of a class by accessing all the public static fields. 
-     * If it has no public static fields (that are not also final) it is not initialised. 
-     * 
-     * @param cl The class to initialise
-     */
-    /*
-    private static void forceInitialisation(Class cl) {
-        Field[] fields = cl.getFields();
-        for (int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
-            int modifiers = field.getModifiers();
-            if(Modifier.isStatic(modifiers)) {
-                try {
-                    field.get(null);
-                } catch (IllegalArgumentException e1) {
-                    e1.printStackTrace();
-                } catch (IllegalAccessException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        }
-    }
-    */
-
     /**
      * Add an object into a package scope (for possible use as parameter
      * later). Used after object creation to add the newly created object
@@ -405,19 +434,6 @@ public class ExecServer
         //}
     }
 
-    /**
-     * Update the remote VM with the list of user/system libraries
-     * which the user has created using the ClassMgr.
-     */
-    /*
-    private static void setLibraries(String libraries)
-    {
-		// Debug.message("[VM] setLibraries: " + libraries);
-        classmgr.setLibraries(libraries);
-    }
-    */
-  
-   
 //    /**
 //     * Get all objects in this machine
 //     */
@@ -465,7 +481,7 @@ public class ExecServer
     {
 		// Debug.message("[VM] runTestSetUp" + className);
 
-		Class cl = loadClass(className);
+		Class cl = loadAndInitClass(className);
         
         try {
             // construct an instance of the test case (firstly trying the
@@ -573,7 +589,7 @@ public class ExecServer
     {
 		// Debug.message("[VM] runTestMethod" + className + " " + methodName);
 
-		Class cl = loadClass(className);
+		Class cl = loadAndInitClass(className);
         
         TestCase testCase = null;
         
@@ -799,6 +815,14 @@ public class ExecServer
                         case DISPOSE_WINDOWS:
                             disposeWindows();
                             break;
+                        case LOAD_INIT_CLASS:
+                            try {
+                                methodReturn = loadAndInitClass(classToRun);
+                            }
+                            catch(Throwable cnfe) {
+                                methodReturn = null;
+                            }
+                            break;
                         case EXIT_VM:
                             System.exit(0);
                         default:
@@ -806,21 +830,11 @@ public class ExecServer
                 }
                 catch(Throwable t) {
                     // record that an exception occurred
-                    exception = t;
-                    
-                    // print a filtered stack trace to System.err
-                    StackTraceElement [] stackTrace = t.getStackTrace();
-                    int i;
-                    for(i = 0; i < stackTrace.length; i++) {
-                        if(stackTrace[i].getClassName().startsWith("__SHELL"))
-                            break;
-                    }
-                    StackTraceElement [] newStackTrace = new StackTraceElement[i];
-                    System.arraycopy(stackTrace, 0, newStackTrace, 0, i);
-                    t.setStackTrace(newStackTrace);
-                    t.printStackTrace();
+                    recordException(t);
                 }
                 finally {
+                    // Set execAction to EXIT_VM, so if the main bluej process has died,
+                    // this vm will exit also.
                     execAction = EXIT_VM;
                     newThread();
                 }
@@ -828,4 +842,27 @@ public class ExecServer
         };
         mainThread.start();
     }
+    
+    /**
+     * Record that an exception occurred, as well as printing a filtered stack trace.
+     * @param t  the exception which was caught
+     */
+    private static void recordException(Throwable t)
+    {
+        // record that an exception occurred
+        exception = t;
+        
+        // print a filtered stack trace to System.err
+        StackTraceElement [] stackTrace = t.getStackTrace();
+        int i;
+        for(i = 0; i < stackTrace.length; i++) {
+            if(stackTrace[i].getClassName().startsWith("__SHELL"))
+                break;
+        }
+        StackTraceElement [] newStackTrace = new StackTraceElement[i];
+        System.arraycopy(stackTrace, 0, newStackTrace, 0, i);
+        t.setStackTrace(newStackTrace);
+        t.printStackTrace();
+    }
+    
 }
