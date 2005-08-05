@@ -1,5 +1,6 @@
 package bluej.classmgr;
 
+import bluej.utility.Debug;
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -10,7 +11,7 @@ import java.util.jar.JarFile;
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 3103 2004-11-18 04:59:24Z davmac $
+ * @version $Id: ClassPath.java 3505 2005-08-05 15:43:20Z damiano $
  */
 public class ClassPath
 {
@@ -56,7 +57,7 @@ public class ClassPath
     {
         for(int i=0; i<urls.length; i++) {
             try {
-            ClassPathEntry cpe = new ClassPathEntry(new File(new URI(urls[i].toString())).toString(), "");
+            ClassPathEntry cpe = new ClassPathEntry(new File(new URI(urls[i].toString())), "");
 
             if(!entries.contains(cpe))
                 entries.add(cpe);
@@ -64,6 +65,19 @@ public class ClassPath
             catch(URISyntaxException use) { }
         }
     }
+
+
+    /**
+     * Construct a Classpath from an array of Files.
+     * @param files an array of File
+     */
+    public ClassPath(File files[])
+    {
+        for(int index=0; index<files.length; index++) {
+            entries.add( new ClassPathEntry(files[index], ""));
+        }
+    }
+
 
     /**
      * Return the list of entries (mutable, so only for close friends)

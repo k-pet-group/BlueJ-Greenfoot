@@ -24,7 +24,7 @@ import bluej.*;
  *               and supply the directory the project lives in)
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgr.java 3502 2005-08-04 09:48:13Z damiano $
+ * @version $Id: ClassMgr.java 3505 2005-08-05 15:43:20Z damiano $
  */
 public class ClassMgr
 {
@@ -51,20 +51,6 @@ public class ClassMgr
         return currentClassMgr;
     }
 
-    /**
-     * Returns a ProjectClassLoader which can load classes from a particular 
-     * directory (while delegating other class loading to the default BlueJ
-     * class loader).
-     *
-    public static ProjectClassLoader getProjectLoader(File projectDir)
-    {
-        return new ProjectClassLoader(projectDir, getClassMgr().bluejloader);
-    }
-    */
-    
-    // =========== instance part ============
-    
-//    private BlueJLoader bluejloader = new BlueJLoader();
 
     /**
      * Protected to allow access by the class manager panel.
@@ -76,14 +62,12 @@ public class ClassMgr
     protected ClassPath bootLibraries;
     protected ClassPath systemLibraries;
     protected ClassPath userLibraries;
-//    protected ClassPath userlibExtLibraries;
 
     /** Don't let anyone else instantiate this class */
     private ClassMgr()
     {
         URL[] bootcp = Boot.getInstance().getRuntimeClassPath();
         URL[] syscp = Boot.getInstance().getRuntimeUserClassPath();
-//        URL[] userextcp = Boot.getInstance().getUserLibClassPath();
         String envcp = System.getProperty("java.class.path");
 
         if (bootcp == null) {        // pre JDK1.2
@@ -99,7 +83,6 @@ public class ClassMgr
         bootLibraries = new ClassPath(bootcp);
         systemLibraries = new ClassPath(syscp);
         userLibraries = new ClassPath();
-//        userlibExtLibraries = new ClassPath(userextcp);
 
         addConfigEntries(systemLibraries, syslibPrefix);
         addConfigEntries(userLibraries, userlibPrefix);
@@ -119,41 +102,9 @@ public class ClassMgr
 
         all.addClassPath(systemLibraries);
         all.addClassPath(userLibraries);
-//        all.addClassPath(userlibExtLibraries);
         all.addClassPath(bootLibraries);
 
         return all;
-    }
-    
-    /**
-     * Get a classpath containing all elements required for the bluej runtime.
-     * This should include junit and essential bluej runtime classes (those in
-     * the bluej.runtime package) but little else.
-     * 
-     * At the moment it contains quite a bit more than that...
-     */
-    public ClassPath getRuntimeUserClassPath()
-    {
-        ClassPath rt = new ClassPath();
-        rt.addClassPath(systemLibraries);
-        
-        return rt;
-    }
-
-    /**
-     * Return the classpath for user defined libraries (from lib/userlib
-     * and from Preferences/Libraries)
-     * 
-     * @return The classpath containing all user libraries.
-     */
-    public ClassPath getUserClassPath()
-    {
-        ClassPath usercp = new ClassPath();
-
-//        usercp.addClassPath(userlibExtLibraries);
-        usercp.addClassPath(userLibraries);
-
-        return usercp;
     }
 
     /**
@@ -214,95 +165,5 @@ public class ClassMgr
         }
     }
 
-    /**
-     * A ClassLoader which can load classes from the user library
-     * list as well as the system library list.
-     *
-     * We aim to construct a class hierarchy like this
-     *
-     *  DefaultSystemLoader
-     *
-    class BlueJLoader extends ClassLoader
-    {
-        /**
-         * Read in a class file from disk. Return a class object.
-         *
-        protected Class findClass(String name) throws ClassNotFoundException
-        {
-            //Debug.message("classmgrloader: finding " + name);
-
-            byte[] bytes = loadClassData(name);
-            if(bytes != null) {
-                //Debug.message("classmgrloader: succeeded " + name);
-                return defineClass(name, bytes, 0, bytes.length);
-            }
-            else {
-                //Debug.message("classmgrloader: failed " + name);
-                throw new ClassNotFoundException("BlueJLoader");
-            }
-        }
-
-        /**
-         * Read in a class file from disk. Return the class code as a byte
-         * array. The JDK class loader delegation model means that we are
-         * only ever asked to look up a class if the parent system loader
-         * has failed. Therefore we need only look in our userLibraries and
-         * systemLibraries. The bootLibraries will have been searched by
-         * the system loader.
-         *
-        protected byte[] loadClassData(String name)
-        {
-            ByteArrayOutputStream classdata = new ByteArrayOutputStream();
-
-            try {
-                String filename = name.replace('.', File.separatorChar) + ".class";
-
-                InputStream in = null;
-
-                // try to get these input streams but catch IO exceptions because there
-                // is no reason why an error reading here should spoil the rest of
-                // the party
-                try {
-                   in = systemLibraries.getFile(filename);
-                }
-                catch (IOException ioe) { }
-
-                // if can't find it in system libraries, try 'userlibs' directory
-/*
-                if(in == null) {
-                    try {
-                        in = userlibExtLibraries.getFile(filename);
-                    }
-                    catch (IOException ioe) { }
-                }
-*                
-                // if still can't find it, try the defined user libraries
-                if(in == null) {
-                    try {
-                        in = userLibraries.getFile(filename);
-                    }
-                    catch (IOException ioe) { }
-                }
-
-                if(in != null) {
-                    BufferedInputStream bufin = new BufferedInputStream(in);
-                    int b;
-                    while ((b = bufin.read()) != -1) {
-                        classdata.write(b);
-                    }
-                    // Debug.message("classmgrloader: " + classdata.size() + " bytes");
-                }
-
-            } catch(Exception e) {
-                Debug.reportError("Exception attempting to load class " + name + ": " + e);
-                return null;
-            }
-            if (classdata.size() == 0)
-                return null;
-            else
-                return classdata.toByteArray();
-        }
-    }
-    */
 }
 

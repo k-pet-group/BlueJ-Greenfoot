@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import bluej.*;
 import bluej.Config;
 import bluej.classmgr.ClassMgr;
+import bluej.classmgr.ClassPath;
 import bluej.classmgr.ClassPathEntry;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DialogManager;
@@ -23,7 +24,7 @@ import javax.swing.*;
  * creation options can be specified.
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 3344 2005-04-11 01:57:42Z davmac $
+ * @version $Id: ExportDialog.java 3505 2005-08-05 15:43:20Z damiano $
  */
 class ExportDialog extends EscapeDialog
 {
@@ -173,7 +174,7 @@ class ExportDialog extends EscapeDialog
                 inputPanel.add(mainClassPanel);
                 inputPanel.add(Box.createVerticalStrut(5));
                 
-                JPanel userLibPanel = createUserLibPanel();
+                JPanel userLibPanel = createUserLibPanel(project);
                 if(userLibPanel != null) {
                     userLibPanel.setAlignmentX(LEFT_ALIGNMENT);
                     inputPanel.add(userLibPanel);
@@ -250,23 +251,27 @@ class ExportDialog extends EscapeDialog
     }
     
     /**
-     * Return a prepared panel listing the user libraries with check boxes,
-     * or null if there are no user libraries.
+     * Return a prepared panel listing the user libraries with check boxes.
+     * @param project the project the libraries belong to.
      */
-    private JPanel createUserLibPanel()
+    private JPanel createUserLibPanel(Project project)
     {
-        // collect info about jar files from lib/userlib and Preferences
-        
-        List libs = ClassMgr.getClassMgr().getUserClassPath().getPathEntries();
-        if(libs.size() == 0)
-            return null;
-        
-        userLibs = new UserLibInfo[libs.size()];
-        int idx = 0;
-        for(Iterator it = libs.iterator(); it.hasNext(); ) {
-            ClassPathEntry cpe = (ClassPathEntry) it.next();
-            userLibs[idx++] = new UserLibInfo(cpe.getFile());
+        // collect info about jar files from the project classloader.
+        ArrayList userlibList = new ArrayList();
+        File [] fileClasspath = project.getClassLoader().getClassPathAsFiles();
+
+        for (int index=0; index<fileClasspath.length;index++) {
+            File file = fileClasspath[index];
+            
+            // Skip directories.
+            if ( file == null || file.isDirectory() ) continue;
+            
+            userlibList.add (new UserLibInfo(file));
         }
+        
+        if ( userlibList.size() < 1 ) return null;
+        
+        userLibs = (UserLibInfo[])userlibList.toArray(new UserLibInfo[userlibList.size()]);
 
         // Create the panel with the user libs listed
         
