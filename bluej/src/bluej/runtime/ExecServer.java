@@ -33,7 +33,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3501 2005-08-04 01:10:05Z davmac $
+ * @version $Id: ExecServer.java 3503 2005-08-05 05:03:07Z davmac $
  */
 public class ExecServer
 {
@@ -95,7 +95,7 @@ public class ExecServer
     public static String classPath;     // This is set by the Jdi connection, do not change the name.
     public static String className;
     public static String scopeId;
-    public static String newLoaderPath; // a series of URLs separated by '\n'.
+    public static ClassLoader classLoader = null; // null to use current loader.
     
     public static Object workerReturn;
     
@@ -106,7 +106,7 @@ public class ExecServer
     public static final String CLASSNAME_NAME = "className";
     public static final String WORKER_RETURN_NAME = "workerReturn";
     public static final String SCOPE_ID_NAME = "scopeId";
-    public static final String NEW_LOADER_PATH_NAME = "newLoaderPath";
+    public static final String CLASSLOADER_NAME = "classLoader";
     
     // possible actions for worker thread
     public static final int REMOVE_OBJECT = 0;
@@ -171,11 +171,16 @@ public class ExecServer
                             break;
                         case LOAD_CLASS:
                             try {
+                                if (classLoader == null)
+                                    classLoader = currentLoader;
+                                
                                 workerReturn = Class.forName(className, false, currentLoader);
                                 // Cause the class to be prepared (ie. its fields and methods
                                 // enumerated). Otherwise we can get ClassNotPreparedException
                                 // when we try and get the fields on the other VM.
                                 ((Class) workerReturn).getFields();
+                                
+                                classLoader = null;  // reset for next call
                             }
                             catch(Throwable cnfe) {
                                 workerReturn = null;

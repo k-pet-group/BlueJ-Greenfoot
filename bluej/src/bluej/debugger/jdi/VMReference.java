@@ -2,6 +2,7 @@ package bluej.debugger.jdi;
 
 import java.io.*;
 import java.net.URL;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -39,7 +40,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3499 2005-08-04 00:51:16Z davmac $
+ * @version $Id: VMReference.java 3503 2005-08-05 05:03:07Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -82,6 +83,9 @@ class VMReference
     // the name of the method used to suspend the ExecServer
     static final String SERVER_SUSPEND_METHOD_NAME = "vmSuspend";
 
+    // A map which can be used to map instances of VirtualMachine to VMReference 
+    private static Map vmToReferenceMap = new HashMap();
+    
     // ==== instance data ====
 
     // we have a tight coupling between us and the JdiDebugger
@@ -421,6 +425,9 @@ class VMReference
         // start the VM event handler (will handle the VMStartEvent
         // which will set the machine running)
         eventHandler = new VMEventHandler(this, machine);
+        
+        // Add our machine into the map
+        vmToReferenceMap.put(machine, this);
     }
 
     /**
@@ -623,7 +630,7 @@ class VMReference
 
     /**
      * Instruct the remote machine to construct a new class loader and return its reference.
-     * @param classPath as an array of URL
+     * @param urls  the classpath as an array of URL
      */
     ClassLoaderReference newClassLoader(URL []urls)
     {
@@ -686,6 +693,29 @@ class VMReference
             return robject.reflectedType();
         }
         
+    }
+    
+    /**
+     * Load a class in the remote VM using the given class loader.
+     * @param className  The name of the class to load
+     * @param clr        The remote classloader reference to use
+     * @return     A reference to the loaded class, or null if the class could not be loaded.
+     */
+    ReferenceType loadClass(String className, ClassLoaderReference clr)
+    {
+        synchronized(workerThread) {
+            workerThreadReadyWait();
+            setStaticFieldValue(serverClass, ExecServer.CLASSLOADER_NAME, clr);
+            
+            try {
+                ReferenceType rt = loadClass(className);
+                return rt;
+            }
+            catch (Exception cnfe) {
+                // ClassNotFoundException or VMDisconnectedException
+                return null;
+            }
+        }
     }
     
     /**
@@ -888,6 +918,7 @@ class VMReference
                 workerThread.notifyAll();
         }
         owner.vmDisconnect();
+        vmToReferenceMap.remove(machine);
     }
 
     /**
@@ -1865,41 +1896,14 @@ class VMReference
         }
     }
 
-    public void dumpBreakpoints()
+    /**
+     * Find the VMReference which corresponds to the supplied VirtualMachine instance.
+     */
+    public static VMReference getVmForMachine(VirtualMachine mc)
     {
-        List l = machine.eventRequestManager().breakpointRequests();
-        Iterator it = l.iterator();
-        while (it.hasNext()) {
-            BreakpointRequest bp = (BreakpointRequest) it.next();
-            Debug.message(bp + " " + bp.location().declaringType().classLoader());
-        }
+        return (VMReference) vmToReferenceMap.get(mc);
     }
-
-    public void dumpThreadInfo()
-    {
-        Debug.message("threads:");
-        Debug.message("--------");
-
-        List threads = machine.allThreads();
-        if (threads == null)
-            Debug.message("cannot get thread info!");
-        else {
-            for (int i = 0; i < threads.size(); i++) {
-                JdiThread thread = (JdiThread) threads.get(i);
-                String status = thread.getStatus();
-                Debug.message(thread.getName() + " [" + status + "]");
-                try {
-                    Debug.message("  group: " + thread.getRemoteThread().threadGroup());
-                    Debug.message("  suspend count: " + thread.getRemoteThread().suspendCount());
-                    Debug.message("  monitor: " + thread.getRemoteThread().currentContendedMonitor());
-                }
-                catch (Exception e) {
-                    Debug.message("  monitor: exc: " + e);
-                }
-            }
-        }
-    }
-
+    
     /*
     public void dumpConnectorArgs(Map arguments)
     {

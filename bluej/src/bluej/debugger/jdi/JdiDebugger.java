@@ -34,19 +34,20 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 3499 2005-08-04 00:51:16Z davmac $
+ * @version $Id: JdiDebugger.java 3503 2005-08-05 05:03:07Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
     private static final int loaderPriority = Thread.NORM_PRIORITY - 2;
 
-    // the synch object for loading.
-    // See the inner class MachineLoaderThread (at the bottom of this source)
+    // indicates whether the debug VM has been successfully loaded and started
     volatile private boolean vmRunning = false;
 
+    // If false, specifies that a new VM should be started when the old one dies
     private boolean autoRestart = true;
 
-    // Did we order the VM to restart ourself?
+    // Did we order the VM to restart ourself? This is used to flag the launch()
+    // method that a new loader thread doesn't need to be re-created.
     private boolean selfRestart = false;
 
     // the reference to the current remote VM handler
@@ -389,80 +390,6 @@ public class JdiDebugger extends Debugger
     }
 
     /**
-     * Set the class path of the remote VM
-     */
-    /*
-    public void setLibraries(String classpath)
-    {
-        Object args[] = {classpath};
-
-        try {
-            getVM().invokeExecServerWorker(ExecServer.SET_LIBRARIES, Arrays.asList(args));
-        }
-        catch (InvocationException e) {}
-    }
-    */
-
-    // BeanShell
-    //    /**
-    //     * Return the debugger objects that exist in the
-    //     * debugger.
-    //     *
-    //     * @return a Map of (String name, DebuggerObject obj) entries
-    //     */
-    //    public Map getObjects()
-    //    {
-    //        ArrayReference arrayRef = null;
-    //        
-    //        try {
-    //            arrayRef = (ArrayReference)
-    // getVM().invokeExecServer(ExecServer.GET_OBJECTS, Collections.EMPTY_LIST);
-    //        }
-    //        catch (InvocationException ie) {
-    //            return null;
-    //        }
-    //
-    //        // the returned array consists of double the number of objects
-    //        // they alternate, name, object, name, object
-    //        // ie.
-    //        // arrayRef[0] = a field name 0 (StringReference)
-    //        // arrayRef[1] = a field value 0 (ObjectReference)
-    //        // arrayRef[2] = a field name 1 (StringReference)
-    //        // arrayRef[3] = a field value 1 (ObjectReference)
-    //        //
-    //        Map returnMap = new HashMap();
-    //
-    //        if (arrayRef != null) {
-    //            for(int i=0; i<arrayRef.length(); i+=2)
-    //                returnMap.put(((StringReference) arrayRef.getValue(i)).value(),
-    //                        JdiObject.getDebuggerObject((ObjectReference)arrayRef.getValue(i+1)));
-    //        }
-    //
-    //        // the resulting map consists of entries (String fieldName, JdiObject
-    // obj)
-    //        return returnMap;
-    //    }
-
-    //    public DebuggerObject executeCode(String code)
-    //    {
-    //        Value obRef = null;
-    //        Object args[] = { code };
-    //
-    //        try {
-    //            obRef = getVM().invokeExecServerWorker( ExecServer.EXECUTE_CODE,
-    // Arrays.asList(args));
-    //        }
-    //        catch (InvocationException ie)
-    //        {
-    //            ie.printStackTrace();
-    //        }
-    //        if (obRef == null)
-    //            return null;
-    //        
-    //        return JdiObject.getDebuggerObject((ObjectReference)obRef);
-    //    }
-
-    /**
      * Return the debugger objects that exist in the debugger.
      * 
      * @return a Map of (String name, DebuggerObject obj) entries
@@ -511,8 +438,7 @@ public class JdiDebugger extends Debugger
         // with the last slot being reserved for the ObjectReference of the actual 
         // test object. This is used to extract (potentially generic) fields.
         // we could return a Map from RUN_TEST_SETUP but then we'd have to use
-        // JDI
-        // reflection to make method calls on Map in order to extract the values
+        // JDI reflection to make method calls on Map in order to extract the values
         Map returnMap = new HashMap();
         // The test case object
         ObjectReference testObject = (ObjectReference)arrayRef.getValue(arrayRef.length()-1);
@@ -947,10 +873,12 @@ public class JdiDebugger extends Debugger
 
     // -- support methods --
 
+    /*
     public void dumpThreadInfo()
     {
         getVM().dumpThreadInfo();
     }
+    */
 
     /**
      * Get the VM, waiting for it to finish loading first (if necessary). In
