@@ -1,10 +1,9 @@
 package bluej.debugger;
 
-import bluej.classmgr.BPClassLoader;
 import java.io.File;
-import java.net.URLClassLoader;
 import java.util.Map;
 
+import bluej.classmgr.BPClassLoader;
 import bluej.debugger.jdi.JdiDebugger;
 
 /**
@@ -14,7 +13,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 3473 2005-07-20 18:00:29Z damiano $
+ * @version $Id: Debugger.java 3504 2005-08-05 05:09:55Z davmac $
  */
 public abstract class Debugger
 {
@@ -166,7 +165,8 @@ public abstract class Debugger
     	throws ClassNotFoundException;
 
     /**
-     * Get a class from the virtual machine.
+     * Get a class from the virtual machine, using the current classloader. The class will be
+     * initialized if possible. This can cause execution of user code.
      */
     public abstract DebuggerClass getClass(String className)
 		throws ClassNotFoundException;
