@@ -2,6 +2,8 @@ package bluej.classmgr;
 
 import bluej.pkgmgr.Project;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.MissingResourceException;
 import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.filechooser.FileFilter;
@@ -23,19 +25,29 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 3502 2005-08-04 09:48:13Z damiano $
+ * @version $Id: ClassMgrPrefPanel.java 3506 2005-08-07 18:58:32Z damiano $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
 {
+    private static final String userlibPrefix = "bluej.userlibrary";
+
     private JTable userLibrariesTable = null;
     private ClassPathTableModel userLibrariesModel = null;
+
+    private ClassPath userLibraries;
 
     /**
      * Setup the UI for the dialog and event handlers for the dialog's buttons.
      */
     public ClassMgrPrefPanel()
     {
+        // Get the list of user libraries from the configuration.
+        // This list os the one that is saved into the config file.
+        userLibraries = new ClassPath();
+        addConfigEntries(userLibraries, userlibPrefix);
+
+
         // TODO: There a re a few historical issues here, the first one is that this list is calculated here
         // but in reality now it is much more dinamic, there is no need to restart BlueJ to have the 
         // new value applied, so this list should also be dynamic.
@@ -47,6 +59,7 @@ public class ClassMgrPrefPanel extends JPanel
         ArrayList userlibList = Project.getUserlibContent();
         ClassPath aa = new ClassPath((URL[])userlibList.toArray(new URL[userlibList.size()]));
         List userlibExtLibrariesList = new ArrayList(aa.getEntries());
+
 
         // Construct a user editable table of user libraries and add/remove buttons
 
@@ -61,7 +74,7 @@ public class ClassMgrPrefPanel extends JPanel
             JScrollPane scrollPane = new JScrollPane();
             {
 				// table of user library classpath entries
-                userLibrariesModel = new ClassPathTableModel(ClassMgr.getClassMgr().userLibraries);
+                userLibrariesModel = new ClassPathTableModel(userLibraries);
                 userLibrariesTable = new JTable(userLibrariesModel);
                 {
                     userLibrariesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -159,6 +172,43 @@ public class ClassMgrPrefPanel extends JPanel
         add(userlibExtLibrariesScrollPane);
     }
 
+    /**
+     * Returns an ArrayList of URLS holding jars that the user wish to be added to 
+     * the Project classloader.
+     * @return a non null but possibly empty arrayList of URL.
+     */
+    public ArrayList getUserConfigContent () {
+        return userLibraries.getURLs();
+    }
+    
+    
+    /**
+     * Retrieve from the system wide Config entries corresponding to classpath
+     * entries. The entries to retrieve start with prefix and have 1.location,
+     * 2.location etc appended to them until an entry is not found.
+     *
+     * @param   prefix    the prefix of the property names to look up
+     */
+    private void addConfigEntries(ClassPath cp, String prefix)
+    {
+        int resourceID = 1;
+        try {
+            while (true) {
+                String location = Config.getPropString(prefix + resourceID + ".location", null);
+
+                if (location == null)
+                    break;
+
+                cp.addClassPath(location, "");
+
+                resourceID++;
+            }
+        } catch (MissingResourceException mre) {
+            // it is normal that this is exception is thrown, it just means we've come
+            // to the end of the file
+        }
+    }
+
     public void beginEditing()
     {
     }
@@ -171,9 +221,42 @@ public class ClassMgrPrefPanel extends JPanel
     public void commitEditing()
     {
         userLibrariesModel.commitEntries();
-
-        ClassMgr.getClassMgr().saveUserLibraries();
+        saveUserLibraries();
     }
+
+
+    /**
+     * Save user classpath entries into the system wide Config properties object.
+     * The entries stored start with prefix and have 1.location,
+     * 2.location etc appended to them.
+     */
+    private void saveUserLibraries()
+    {
+        String r1;
+        int resourceID = 1;
+
+        while(true) {
+            r1 = Config.removeProperty(userlibPrefix + resourceID + ".location");
+
+            if(r1 == null)
+                break;
+
+            resourceID++;
+        }
+
+        Iterator it = userLibraries.getEntries().iterator();
+        resourceID = 1;
+
+        while (it.hasNext()) {
+            ClassPathEntry nextEntry = (ClassPathEntry)it.next();
+
+            Config.putPropString(userlibPrefix + resourceID + ".location",
+                                    nextEntry.getPath());
+            resourceID++;
+        }
+    }
+
+
 
     /**
      * Pop up a dialog to allow the user to add a library

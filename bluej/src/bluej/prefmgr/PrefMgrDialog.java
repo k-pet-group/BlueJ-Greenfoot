@@ -22,7 +22,7 @@ import bluej.extmgr.ExtensionPrefManager;
  *
  * @author  Andrew Patterson
  * @author  Michael Kolling
- * @version $Id: PrefMgrDialog.java 2745 2004-07-06 19:38:04Z mik $
+ * @version $Id: PrefMgrDialog.java 3506 2005-08-07 18:58:32Z damiano $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -66,6 +66,19 @@ public class PrefMgrDialog extends JFrame
         dialog.startEditing();
     }
     
+    /**
+     * Returns the current instance of the dialog, can be null.
+     * @return the current instance of the dialog, can be null.
+     */
+    public static final PrefMgrDialog getInstance ()
+    {
+        if (dialog == null) {
+            dialog = new PrefMgrDialog();
+        }
+
+        return dialog;
+    }
+    
     // ============ instance part ==============
     
     private ArrayList listeners = new ArrayList();
@@ -74,6 +87,7 @@ public class PrefMgrDialog extends JFrame
 
     private JTabbedPane tabbedPane = null;
 
+    private ClassMgrPrefPanel userConfigLibPanel;
     /**
      * Setup the UI for the dialog and event handlers for the dialog's buttons.
      *
@@ -94,10 +108,20 @@ public class PrefMgrDialog extends JFrame
         add(panel, Config.getString("prefmgr.edit.prefpaneltitle"), panel);    
         MiscPrefPanel panel2 = new MiscPrefPanel();
         add(panel2, Config.getString("prefmgr.misc.prefpaneltitle"), panel2);
-        ClassMgrPrefPanel panel3 = new ClassMgrPrefPanel();
-        add(panel3, Config.getString("classmgr.prefpaneltitle"), panel3);
+        userConfigLibPanel = new ClassMgrPrefPanel();
+        add(userConfigLibPanel, Config.getString("classmgr.prefpaneltitle"), userConfigLibPanel);
         ExtensionPrefManager mgr = ExtensionsManager.getInstance().getPrefManager();
         add(mgr.getPanel(), Config.getString("extmgr.extensions"), mgr);
+    }
+    
+    /**
+     * Returns the istance of the UserConfigLibPanel.
+     * It is possible to retrieve the current list of libraries from it.
+     * @return a user config lib panel.
+     */
+    public ClassMgrPrefPanel getUserConfigLibPanel ()
+    {
+        return userConfigLibPanel;
     }
     
     /**

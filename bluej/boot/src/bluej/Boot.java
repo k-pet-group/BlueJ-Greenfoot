@@ -16,7 +16,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3502 2005-08-04 09:48:13Z damiano $
+ * @version $Id: Boot.java 3506 2005-08-07 18:58:32Z damiano $
  */
 public class Boot
 {
@@ -117,13 +117,9 @@ public class Boot
     private File javaHomeDir;   // The value returned by System.getProperty
     private File bluejLibDir;   // Calculated below
 
-//    private URL[] bootClassPath;
     private ClassLoader bootLoader; // The loader this class is loaded with
 
-    private URL[] runtimeClassPath; // The class path used to run the rest of BlueJ
     private URL[] runtimeUserClassPath; // The initial class path used to run code within BlueJ
-//    private URL[] userLibClassPath; // The class path of user libs in the "ext" directory (lib/userlib)
-    private URLClassLoader runtimeLoader;   // The class loader used for the rest of BlueJ
 
 
     /**
@@ -159,7 +155,6 @@ public class Boot
         return javaHomeDir;
     }
 
-
     /**
      * Returns the BlueJ library directory.
      *
@@ -170,17 +165,20 @@ public class Boot
         return bluejLibDir;
     }
 
-
     /**
-     * Returns the runtime classpath. The one used to run BlueJ.
-     *
-     * @return    The runtimeClassPath value
+     * Return the path of the Junit library.
+     * @return a File pointing to the local Junit library.
      */
-    public URL[] getRuntimeClassPath()
+    public File getJunitLib ()
     {
-        return runtimeClassPath;
-    }
+        File risul = new File(bluejLibDir, "junit.jar");
 
+        if (!risul.canRead())
+            throw new IllegalStateException("junit.jar is missing or unreadable");
+
+        return risul;
+    }
+    
     /**
      * Returns the runtime user classpath. This is available to code within BlueJ.
      *
@@ -219,10 +217,10 @@ public class Boot
         bluejLibDir = calculateBluejLibDir();
 
         try {
-            runtimeClassPath = getKnownJars(bluejLibDir, bluejJars, true);
+            URL[] runtimeClassPath = getKnownJars(bluejLibDir, bluejJars, true);
+            URLClassLoader runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
+
             runtimeUserClassPath = getKnownJars(bluejLibDir, bluejUserJars, false);
-            runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
-//            userLibClassPath = getUserExtLibItems();
 
             // Construct a bluej.Main object. This starts BlueJ "proper".
             Class mainClass = Class.forName("bluej.Main", true, runtimeLoader);
@@ -347,50 +345,7 @@ public class Boot
     }
     
     
-    /**
-     * Returns an array of URLs for all the JAR files located in the lib/userlib directory
-     *
-     * @return  URLs of the discovered JAR files
-     * @exception  MalformedURLException  for any problems with the URLs
-     *
-    private URL[] getUserExtLibItems() throws MalformedURLException
-    {
-        File userLibDir = new File(bluejLibDir, "userlib");
-
-        File[] files = userLibDir.listFiles();
-        if (files == null) {
-            return new URL[0];
-        }
-        
-        ArrayList urlList = new ArrayList();
-        for (int index = 0; index < files.length; index++) {
-            File thisFile = files[index];
-
-            // Skip nested directories
-            if (thisFile.isDirectory())
-                continue;
-
-            // Skip files that do not end in .jar or .zip
-            if (!hasValidExtension(thisFile))
-                continue;
-
-            // This one looks good, add it to the list.
-            urlList.add(thisFile.toURI().toURL());
-        }
- 
-        return (URL[]) urlList.toArray(new URL[0]);
-    }
     
-    /**
-     * Return the classpath for valid libs (jars & zips) 
-     * in the lib/userlib directory
-     * @return the classpath for valid libs
-     *
-    public URL[] getUserLibClassPath()
-    {
-        return userLibClassPath;
-    }
-
     /**
      * Try to decide if this filename has the right extension to be a
      * library

@@ -4,7 +4,6 @@ import bluej.Boot;
 import bluej.Config;
 
 import bluej.classmgr.BPClassLoader;
-import bluej.classmgr.ClassMgr;
 import bluej.classmgr.ClassPath;
 
 import bluej.debugger.*;
@@ -18,6 +17,7 @@ import bluej.extmgr.ExtensionsManager;
 
 import bluej.prefmgr.PrefMgr;
 
+import bluej.prefmgr.PrefMgrDialog;
 import bluej.terminal.Terminal;
 
 import bluej.testmgr.record.ClassInspectInvokerRecord;
@@ -48,7 +48,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3502 2005-08-04 09:48:13Z damiano $
+ * @version $Id: Project.java 3506 2005-08-07 18:58:32Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -1191,6 +1191,15 @@ public class Project implements DebuggerListener {
 
 
     /**
+     * TIny utility to make code cleaner.
+     */
+    private void addArrayToList ( ArrayList list, URL []urls)
+    {
+        for (int index=0; index<urls.length; index++)
+            list.add(urls[index]);
+    }
+    
+    /**
      * Return a ClassLoader that should be used to load or reflect on the project classes.
      * The same BClassLoader object is returned until the Project is compiled or the content of the
      * user class list is changed, this is needed to load "compatible" classes in the same classloader space.
@@ -1201,22 +1210,32 @@ public class Project implements DebuggerListener {
      * @return a BClassLoader that provides class loading services for this Project.
      */
     public synchronized BPClassLoader getClassLoader() {
-        // At the moment I do this to find out what has changed. It will be done differently at the end.
-        URL[] allcp = ClassMgr.getClassMgr().getAllClassPath().getURLs();
-
-        ArrayList pathList = getUserlibContent();
-        pathList.addAll(getPlusLibsContent());
-
-        for (int index=0; index<allcp.length; index++ ) {
-            pathList.add(allcp[index]);
-        }
+        ArrayList pathList = new ArrayList();
 
         try {
+            // Junit is always part of the project libraries, only Junit, not the core Bluej.
+//            pathList.add( Boot.getInstance().getJunitLib().toURI().toURL());
+            
+            // Until the rest of BlueJ is clean we also need to add bluejcore
+            // It should be possible to run BlueJ only with Junit
+            addArrayToList (pathList, Boot.getInstance().getRuntimeUserClassPath());
+    
+            // Next part is the libraries that are added trough the config panel.
+            pathList.addAll ( PrefMgrDialog.getInstance().getUserConfigLibPanel().getUserConfigContent() );
+    
+            // Then the libraries that are in the userlib directory
+            pathList.addAll ( getUserlibContent() );
+            
+            // The libraries that are in the project +libs directory
+            pathList.addAll ( getPlusLibsContent() );
+          
             // The current paroject dir must be added to the project class path too.
             pathList.add(getProjectDir().toURI().toURL());
+
         } catch ( Exception exc ) {
             // Hould never happen, but if it does we want to know about it immediatly.
-            Debug.reportError("Project.getClassLoader() invalid project url="+getProjectDir());
+            Debug.reportError("Project.getClassLoader() exception="+exc);
+            exc.printStackTrace();
         }
         
 

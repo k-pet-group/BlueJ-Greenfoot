@@ -11,7 +11,7 @@ import java.util.jar.JarFile;
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 3505 2005-08-05 15:43:20Z damiano $
+ * @version $Id: ClassPath.java 3506 2005-08-07 18:58:32Z damiano $
  */
 public class ClassPath
 {
@@ -185,28 +185,25 @@ public class ClassPath
 
 
     /**
-     * Return the class path entries as an array of URL's
+     * Return the class path entries as an ArrayList of URL.
+     * @return a non null but possibly empty ArrayList of URL.
      */
-    public URL[] getURLs()
+    public ArrayList getURLs()
     {
         Iterator it = entries.iterator();
-        URL u[] = new URL[entries.size()];
-        int current = 0;
+        ArrayList risul = new ArrayList();
 
         while (it.hasNext()) {
-            ClassPathEntry nextEntry = (ClassPathEntry)it.next();
+            ClassPathEntry path = (ClassPathEntry)it.next();
 
             try {
-                u[current] = nextEntry.getURL();
-                // Debug.message(u[current].toString());
+                risul.add(path.getURL());
             } catch(MalformedURLException mue) {
-
+                Debug.reportError("ClassPath.getURLs() bad path="+path);
             }
-
-            current++;
         }
 
-        return u;
+        return risul;
     }
 
     /**

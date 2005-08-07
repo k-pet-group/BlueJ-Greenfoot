@@ -2,7 +2,6 @@ package bluej.pkgmgr;
 
 import bluej.*;
 import bluej.Config;
-import bluej.classmgr.ClassMgr;
 import bluej.classmgr.ClassPath;
 import bluej.classmgr.ClassPathEntry;
 import bluej.prefmgr.PrefMgr;
@@ -24,7 +23,7 @@ import javax.swing.*;
  * creation options can be specified.
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 3505 2005-08-05 15:43:20Z damiano $
+ * @version $Id: ExportDialog.java 3506 2005-08-07 18:58:32Z damiano $
  */
 class ExportDialog extends EscapeDialog
 {

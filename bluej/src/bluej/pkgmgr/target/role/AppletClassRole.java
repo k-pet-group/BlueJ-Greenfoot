@@ -9,7 +9,6 @@ import java.net.MalformedURLException;
 import javax.swing.*;
 
 import bluej.Config;
-import bluej.classmgr.ClassMgr;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.*;
@@ -20,7 +19,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 3505 2005-08-05 15:43:20Z damiano $
+ * @version $Id: AppletClassRole.java 3506 2005-08-07 18:58:32Z damiano $
  */
 public class AppletClassRole extends ClassRole
 {
