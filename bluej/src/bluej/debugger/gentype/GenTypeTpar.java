@@ -1,6 +1,7 @@
 package bluej.debugger.gentype;
 
 import java.util.Map;
+import java.util.Set;
 
 
 public class GenTypeTpar extends GenTypeSolid
@@ -40,9 +41,8 @@ public class GenTypeTpar extends GenTypeSolid
     
     public boolean equals(GenTypeParameterizable other)
     {
-        if( ! (other instanceof GenTypeTpar) )
-            return false;
-        return name.equals(((GenTypeTpar)other).name);
+        // For tpars to be equal, they must be the *same* tpar.
+        return other == this;
     }
     
     public JavaType mapTparsToTypes(Map tparams)
@@ -72,6 +72,7 @@ public class GenTypeTpar extends GenTypeSolid
     
     public GenTypeParameterizable precisify(GenTypeParameterizable other)
     {
+        // shouldn't get called.
         return other;
     }
     
@@ -82,10 +83,19 @@ public class GenTypeTpar extends GenTypeSolid
     
     public boolean isAssignableFrom(JavaType t)
     {
-        if (t instanceof GenTypeTpar)
-            if (((GenTypeTpar)t).name.equals(name))
-                return true;
-
+        if (t.isNull())
+            return true;
+        
+        // If the other type has an upper bound which is this tpar, it's assignable
+        if (t instanceof GenTypeParameterizable) {
+            GenTypeParameterizable tp = (GenTypeParameterizable) t;
+            GenTypeSolid [] ubounds = tp.getUpperBounds();
+            for (int i = 0; i < ubounds.length; i++) {
+                if (ubounds[i] == this)
+                    return true;
+            }
+        }
+        
         return false;
     }
     
@@ -95,21 +105,24 @@ public class GenTypeTpar extends GenTypeSolid
         throw new UnsupportedOperationException();
     }
     
-    public GenTypeClass [] getUpperBoundsC()
+    public JavaType getErasedType()
     {
         // We don't know the erased type.
         throw new UnsupportedOperationException();
     }
     
-    public GenTypeSolid [] getLowerBounds()
+    public void erasedSuperTypes(Set s)
     {
-        // We don't know the erased type.
         throw new UnsupportedOperationException();
     }
-
-    public JavaType getErasedType()
+    
+    public GenTypeClass [] getReferenceSupertypes()
     {
-        // We don't know the erased type.
         throw new UnsupportedOperationException();
+    }
+    
+    public boolean contains(GenTypeParameterizable other)
+    {
+        return other == this;
     }
 }

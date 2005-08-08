@@ -3,6 +3,7 @@ package bluej.debugmgr.texteval;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import antlr.RecognitionException;
@@ -11,25 +12,29 @@ import antlr.TokenStreamHiddenTokenFilter;
 import antlr.collections.AST;
 import bluej.Config;
 import bluej.debugger.gentype.*;
-import bluej.debugmgr.objectbench.ObjectBench;
-import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.debugmgr.NamedValue;
+import bluej.debugmgr.ValueCollection;
 import bluej.parser.ast.gen.JavaLexer;
 import bluej.parser.ast.gen.JavaRecognizer;
 import bluej.parser.ast.gen.JavaTokenTypes;
+import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 
 /**
- * Parsing routines for the code pad.
+ * Parsing routines for the code pad.<p>
+ * 
+ * This is pretty tricky stuff, we try to following the Java Language Specification
+ * (JLS) where possible.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: TextParser.java 3508 2005-08-08 04:18:26Z davmac $
  */
 public class TextParser
 {
     private ClassLoader classLoader;
     private String packageScope;  // evaluation package
-    private ObjectBench objectBench;
+    private ValueCollection objectBench;
 
     private static JavaUtils jutils = JavaUtils.getJavaUtils();
     private static boolean java15 = Config.isJava15();
@@ -40,7 +45,7 @@ public class TextParser
      * TextParser constructor. Defines the class loader and package scope
      * for evaluation.
      */
-    public TextParser(ClassLoader classLoader, String packageScope, ObjectBench ob)
+    public TextParser(ClassLoader classLoader, String packageScope, ValueCollection ob)
     {
         this.classLoader = classLoader;
         this.packageScope = packageScope;
@@ -49,9 +54,8 @@ public class TextParser
     
     /**
      * Parse a string entered into the code pad. Return is null if the string
-     * is a statement, the empty string if it is an expression whose type cannot
-     * be determined, or a string representing the result type (of an
-     * expression).
+     * is a statement; otherwise the string is an expression and the returned
+     * string if the type of the expression (empty if the type cannot be determined).
      */
     public String parseCommand(String command)
     {
@@ -62,7 +66,7 @@ public class TextParser
         // parse
         JavaRecognizer parser = getParser("{" + command + "};;;;;");
         
-        // start parsing at the classBlock rule
+        // start parsing at the compoundStatement rule
         try {
             parser.compoundStatement();
             rootAST = parser.getAST();
@@ -73,14 +77,23 @@ public class TextParser
             try {
                 declVars = new ArrayList();
                 while (fcnode != null) {
+                    // is a variable declared?
                     if (fcnode != null && fcnode.getType() == JavaTokenTypes.VARIABLE_DEF) {
+                        boolean isFinal = false;
+
+                        // check modifiers for "final"
                         AST modnode = fcnode.getFirstChild(); // modifiers
+                        AST firstMod = modnode.getFirstChild();
+                        if (firstMod != null && firstMod.getType() == JavaTokenTypes.FINAL)
+                            isFinal = true;
+                        
+                        // get type and name
                         AST typenode = modnode.getNextSibling();
                         JavaType declVarType = getTypeFromTypeNode(typenode);
                         AST namenode = typenode.getNextSibling();
                         String varName = namenode.getText();
                         boolean isVarInit = namenode.getNextSibling() != null;
-                        declVars.add(new DeclaredVar(isVarInit, declVarType, varName));
+                        declVars.add(new DeclaredVar(isVarInit, isFinal, declVarType, varName));
                     }
                     fcnode = fcnode.getNextSibling();
                 }
@@ -105,14 +118,29 @@ public class TextParser
 
                 if (t == null)
                     return "";
-                else if (t.isVoid())
+                else if (t.isVoid()) {
+                    declVars = Collections.EMPTY_LIST;
                     return null;
-                else
+                }
+                else {
+                    // If the result type is a type parameter (a capture),
+                    // or an intersection type, extract the bound
+                    if (t instanceof GenTypeSolid) {
+                        GenTypeSolid st = (GenTypeSolid) t;
+                        GenTypeClass [] bounds = st.getReferenceSupertypes();
+                        t = bounds[0];
+                    }
+                    // remove capture/type variables from the type
+                    t = t.mapTparsToTypes(null);
                     return t.toString();
+                }
             }
             catch(RecognitionException re) { }
             catch(SemanticException se) { }
             catch(TokenStreamException tse) { }
+            catch(Exception e) {
+                e.printStackTrace(System.out);
+            }
             return "";
         }
         return null;
@@ -192,7 +220,7 @@ public class TextParser
     
     /**
      * Java 1.5 version of the trinary "? :" operator.
-     * See JLS section 15.24. Note that JLS 3rd ed. differs extensively
+     * See JLS section 15.25. Note that JLS 3rd ed. differs extensively
      * from JLS 2nd edition. The changes are not backwards compatible.
      * 
      * @throws RecognitionException
@@ -276,347 +304,78 @@ public class TextParser
         trueAltType = boxType(trueAltType);
         falseAltType = boxType(falseAltType);
         
-        if (trueAltType instanceof GenTypeParameterizable && falseAltType instanceof GenTypeParameterizable) {
+        if (trueAltType instanceof GenTypeSolid && falseAltType instanceof GenTypeSolid) {
             // apply capture conversion (JLS 5.1.10) to lub() of both
-            // alternatives (JLS 15.12.2.7)
-            GenTypeSolid [] trueUbounds = ((GenTypeParameterizable) trueAltType).getUpperBounds();
-            GenTypeSolid [] falseUbounds = ((GenTypeParameterizable) falseAltType).getUpperBounds();
-            GenTypeClass [] ctypes = new GenTypeClass[2];
-            ctypes[0] = trueUbounds[0].asClass();
-            ctypes[1] = falseUbounds[0].asClass();
-            return lub(ctypes).getUpperBounds()[0];
+            // alternatives (JLS 15.12.2.7). I have no idea why capture conversion
+            // should be performed here, but I follow the spec blindly.
+            GenTypeSolid [] lubArgs = new GenTypeSolid[2];
+            lubArgs[0] = (GenTypeSolid) trueAltType;
+            lubArgs[1] = (GenTypeSolid) falseAltType;
+            return captureConversion(GenTypeSolid.lub(lubArgs));
         }
         
         return null;
     }
     
-    
     /**
-     * Calculate lub, as defined in revised JLS 15.12.2. Essentially this
-     * means, calculate the type to which all the given types are
-     * convertible.<p>
-     * 
-     * The JLS specifies lub returns a set of types A & B ...
-     * This method actually returns a wildcard "? extends A & B ...".
+     * Capture conversion, as in the JLS 5.1.10
      */
-    private GenTypeParameterizable lub(GenTypeClass [] ubounds)
+    private JavaType captureConversion(JavaType o)
     {
-        Stack btstack = new Stack();
-        return lub(ubounds, btstack);
+        GenTypeClass c = o.asClass();
+        if (c != null)
+            return captureConversion(c, new HashMap());
+        else
+            return o;
     }
     
-    private GenTypeParameterizable lub(GenTypeClass [] ubounds, Stack lubBt)
+    private GenTypeClass captureConversion(GenTypeClass c, Map tparMap)
     {
-        // "lowest(/least) upper bound"?
+        // capture the outer type
+        GenTypeClass newOuter = null;
+        GenTypeClass oldOuter = c.getOuterType();
+        if (oldOuter != null)
+            newOuter = captureConversion(oldOuter, tparMap);
         
-        // first check for infinite recursion:
-        Iterator si = lubBt.iterator();
-        while (si.hasNext()) {
-            GenTypeClass [] sbounds = (GenTypeClass []) si.next();
-            int i;
-            for (i = 0; i < sbounds.length; i++) {
-                if (! sbounds[i].equals(ubounds[i]))
-                    break;
-            }
-            if (i == sbounds.length)
-                return new GenTypeUnbounded();
-            // TODO this is really supposed to result in a recursively-
-            // defined type.
-        }
-
-        lubBt.push(ubounds);
-        List l = new ArrayList();
-        Reflective [] mec = MinimalErasedCandidateSet(ubounds);
-        for (int i = 0; i < mec.length; i++) {
-            l.add(Candidate(mec[i], ubounds, lubBt));
-        }
-        lubBt.pop();
-        
-        GenTypeSolid [] lbounds = new GenTypeSolid[0];
-        GenTypeSolid [] rubounds = (GenTypeSolid []) l.toArray(lbounds);
-        return new GenTypeWildcard(rubounds, lbounds);
-    }
-    
-    /**
-     * This is the "Candidate" (and "CandidateInvocation") function as defined
-     * in the proposed JLS, section 15.12.2.7
-     * 
-     * @param t        The class type to find the candidate type for
-     * @param ubounds  The complete set of bounding types (see lub())
-     * @param lubBt    A backtrace used to avoid infinite recursion
-     * @return  The candidate type
-     */
-    private GenTypeClass Candidate(Reflective t, GenTypeClass [] ubounds, Stack lubBt)
-    {
-        GenTypeClass [] ri = relevantInvocations(t, ubounds);
-        return leastContainingInvocation(ri, lubBt);
-    }
-    
-    /**
-     * Find the least containing invocation from a set of invocations. The
-     * invocations a, b, ... are types based on the same class G. The return is
-     * a generic type G<...> such that all  a, b, ... are convertible to the
-     * return type.<p>
-     * 
-     * This is "lci" as defined in the proposed JLS section 15.12.2.7 
-     * 
-     * @param types   The invocations
-     * @param lubBt   A backtrace used to avoid infinite recursion
-     * @return   The least containing type
-     */
-    private GenTypeClass leastContainingInvocation(GenTypeClass [] types, Stack lubBt)
-    {
-        GenTypeClass rtype = types[0];
-        for (int i = 1; i < types.length; i++) {
-            rtype = leastContainingInvocation(rtype, types[i], lubBt);
-        }
-        return rtype;
-    }
-    
-    /**
-     * Find the least containing invocation from two invocations.
-     */
-    private GenTypeClass leastContainingInvocation(GenTypeClass a, GenTypeClass b, Stack lubBt)
-    {
-        if (! a.getReflective().getName().equals(b.getReflective().getName()))
-            throw new IllegalArgumentException("Class types must be the same.");
-        
-        if (a.isRaw() || b.isRaw())
-            return (a.isRaw()) ? a : b;
-        
-        List lc = new ArrayList();
-        Iterator i = a.getTypeParamList().iterator();
-        Iterator j = b.getTypeParamList().iterator();
-        
-        GenTypeClass oa = a.getOuterType();
-        GenTypeClass ob = b.getOuterType();
-        GenTypeClass oc = null;
-        if (oa != null && ob != null)
-            oc = leastContainingInvocation(oa, ob, lubBt);
-
-        // lci(G<X1,...,Xn>, G<Y1,...,Yn>) =
-        //       G<lcta(X1,Y1), ..., lcta(Xn,Yn)>
+        // capture the arguments
+        List oldArgs = c.getTypeParamList();
+        List newArgs = new ArrayList(oldArgs.size());
+        Iterator i = oldArgs.iterator();
+        Iterator boundsIterator = c.getReflective().getTypeParams().iterator();
         while (i.hasNext()) {
-            GenTypeParameterizable atype = (GenTypeParameterizable) i.next();
-            GenTypeParameterizable btype = (GenTypeParameterizable) j.next();
-            GenTypeParameterizable rtype = leastContainingTypeArgument(atype, btype, lubBt);
-            lc.add(rtype);
-        }
-        return new GenTypeClass(a.getReflective(), lc, oc);
-    }
-    
-    /**
-     * Find the "least containing" type of two type parameters. This is "lcta"
-     * as defined in the JLS section 15.12.2.7 
-     * 
-     * @param a      The first type parameter
-     * @param b      The second type parameter
-     * @param lubBt  The backtrace for avoiding infinite recursion
-     * @return   The least containing type
-     */
-    private GenTypeParameterizable leastContainingTypeArgument(GenTypeParameterizable a, GenTypeParameterizable b, Stack lubBt)
-    {
-        GenTypeClass ac = a.asClass();
-        GenTypeClass bc = b.asClass();
-        
-        // Both arguments are of solid type
-        if (ac != null && bc != null) {
-            if (ac.equals(bc))
-                return ac;
-            else
-                return lub(new GenTypeClass [] {ac, bc}, lubBt);
-        }
-        
-        
-        if (ac != null || bc != null) {
-            // One is a solid type and the other is a wilcard type. Ensure
-            // that ac is the solid and b is the wildcard:
-            if (ac == null) {
-                ac = bc;
-                b = a;
-            }
-
-            GenTypeSolid [] lbounds = b.getLowerBounds();
-            if (lbounds.length != 0) {
-                // lcta(U, ? super V) = ? super glb(U,V)
-                GenTypeSolid [] newlbounds = new GenTypeSolid[lbounds.length + 1];
-                System.arraycopy(lbounds, 0, newlbounds, 1, lbounds.length);
-                newlbounds[0] = ac;
-                return new GenTypeWildcard(new GenTypeSolid[0], newlbounds);
-            }
-        }
-        
-        GenTypeSolid [] lboundsa = a.getLowerBounds();
-        GenTypeSolid [] lboundsb = b.getLowerBounds();
-        if (lboundsa != null && lboundsb != null) {
-            // lcta(? super U, ? super V = ? super glb(U,V)
-            GenTypeSolid [] newlbounds = new GenTypeSolid[lboundsa.length + lboundsb.length];
-            System.arraycopy(lboundsa, 0, newlbounds, 0, lboundsa.length);
-            System.arraycopy(lboundsb, 0, newlbounds, lboundsa.length, lboundsb.length);
-            return new GenTypeWildcard(new GenTypeSolid[0], newlbounds);
-        }
-        
-        if (lboundsa != null || lboundsb != null) {
-            // lcta(? super U, ? extends V)
-            GenTypeSolid [] ubounds;
-            if (lboundsa == null) {
-                lboundsa = lboundsb;
-                ubounds = a.getUpperBounds();
-            }
-            else
-                ubounds = b.getUpperBounds();
-            
-            // we'll check if any upper bounds matches any lower bounds. This
-            // is not exactly as in the JLS, which doesn't really specify what
-            // to do in the case of multiple types
-            for (int i = 0; i < lboundsa.length; i++) {
-                for (int j = 0; j < ubounds.length; j++) {
-                    if (lboundsa[i].equals(ubounds[j]))
-                        return lboundsa[i];
+            GenTypeParameterizable targ = (GenTypeParameterizable) i.next();
+            GenTypeDeclTpar tpar = (GenTypeDeclTpar) boundsIterator.next();
+            GenTypeSolid newArg;
+            if (targ instanceof GenTypeWildcard) {
+                GenTypeWildcard wc = (GenTypeWildcard) targ;
+                GenTypeSolid [] ubounds = wc.getUpperBounds();
+                GenTypeSolid lbound = wc.getLowerBound();
+                GenTypeSolid [] tpbounds = tpar.upperBounds();
+                for (int j = 0; j < tpbounds.length; j++) {
+                    tpbounds[j] = (GenTypeSolid) tpbounds[j].mapTparsToTypes(tparMap);
+                }
+                if (lbound != null) {
+                    // ? super XX
+                    // We only use the first lower bound. A wildcard is not really
+                    // allowed to have more than one lower bound anyway...
+                    newArg = new WildcardCapture(tpbounds, lbound);
+                }
+                else {
+                    // ? extends ...
+                    GenTypeSolid [] newBounds = new GenTypeSolid[ubounds.length + tpbounds.length];
+                    System.arraycopy(ubounds, 0, newBounds, 0, ubounds.length);
+                    System.arraycopy(tpbounds, 0, newBounds, ubounds.length, tpbounds.length);
+                    newArg = new WildcardCapture(newBounds);
                 }
             }
-            
-            // otherwise return good old '?'.
-            return new GenTypeUnbounded();
-        }
-        
-        // The only option left is lcta(? extends U, ? extends V)
-        GenTypeSolid [] uboundsa = a.getUpperBounds();
-        GenTypeSolid [] uboundsb = b.getUpperBounds();
-        GenTypeClass [] args = new GenTypeClass[uboundsa.length + uboundsb.length];
-        System.arraycopy(uboundsa, 0, args, 0, uboundsa.length);
-        System.arraycopy(uboundsb, 0, args, uboundsa.length, uboundsb.length);
-        return lub(args);
-    }
-    
-    /**
-     * Aggregate types, checking for consistency. This is "glb" as defined
-     * in the JLS section 5.1.10
-     * 
-     * @throws SemanticException
-     */
-    private GenTypeSolid [] glb(GenTypeSolid [] args) throws SemanticException
-    {
-        for (int i = 0; i < args.length; i++) {
-
-            // if i is an interface (not a class), continue
-            if (args[i].isInterface())
-                continue;
-            
-            for (int j = 0; j < args.length; j++) {
-                if (i == j || args[j].isInterface())
-                    continue;
-                
-                // if both are class types, and neither is assignable to the
-                // other, it is a "compile time" error.
-                if (! (args[i].isAssignableFrom(args[j]) || args[j].isAssignableFrom(args[i])))
-                    throw new SemanticException();
+            else {
+                // The argument is not a wildcard. Capture doesn't affect it.
+                newArg = (GenTypeSolid) targ;
             }
+            newArgs.add(newArg);
+            tparMap.put(tpar.getTparName(), newArg);
         }
-        return args;
-    }
-    
-    /**
-     * Find the "relevant invocations" of some class. That is, given the class,
-     * find the generic types corresponding to that class which occur in the
-     * given parameter list.<P>
-     * 
-     * This is "Inv" described in the JLS section 15.12.2.7
-     *  
-     * @param r       The class whose invocations to find
-     * @param ubounds The parameter list to search
-     * @return        A list of generic types all based on the class r
-     */
-    private GenTypeClass [] relevantInvocations(Reflective r, GenTypeClass [] ubounds)
-    {
-        GenTypeClass [] rlist = new GenTypeClass[ubounds.length];
-        for (int i = 0; i < ubounds.length; i++) {
-            rlist[i] = ubounds[i].mapToSuper(r.getName());
-        }
-        
-        return rlist;
-    }
-    
-    /**
-     * Get the erased (raw) super types of some type, put them in the given
-     * map. The given type itself is also stored in the map. This is a
-     * recursive method which also uses the map to avoid processing types
-     * more than once.<P>
-     * 
-     * This is "EST" as defined in the proposed JLS section 15.12.2.7
-     * 
-     * @param r    The type whose supertypes to find
-     * @param rmap The map (String -&gt; Reflective) in which to store the
-     *             supertypes.
-     */
-    private void ErasedSuperTypes(Reflective r, Map rmap)
-    {
-        String rname = r.getName();
-        if (! rmap.containsKey(rname)) {
-            rmap.put(rname, r);
-            List supertypes = r.getSuperTypesR();
-            Iterator i = supertypes.iterator();
-            while (i.hasNext()) {
-                ErasedSuperTypes((Reflective) i.next(), rmap);
-            }
-        }
-    }
-    
-    /**
-     * Find the "minimal erased candidate set" of a set of types (MEC as
-     * defined in the JLS, section 15.12.2.7. This is the set of all (raw)
-     * supertypes common to each type in the given set, with no duplicates or
-     * redundant types (types whose presence is dictated by the presence of a
-     * subtype).
-     * 
-     * @param types   The types for which to find the MEC.
-     * @return        The MEC as an array of Reflective.
-     */
-    private Reflective [] MinimalErasedCandidateSet(GenTypeClass [] types)
-    {
-        // have to find *intersection* of all sets and remove redundant types
-        
-        Map rmap = new HashMap();
-        ErasedSuperTypes(types[0].getReflective(), rmap);
-        
-        for (int i = 1; i < types.length; i++) {
-            Map rmap2 = new HashMap();
-            ErasedSuperTypes(types[i].getReflective(), rmap2);
-            
-            // find the intersection incrementally
-            Iterator j = rmap2.keySet().iterator();
-            while (j.hasNext()) {
-                if( ! rmap.containsKey(j.next()))
-                    j.remove();
-            }
-            rmap = rmap2;
-        }
-        
-        // Now remove redundant types
-        Set entryset = rmap.entrySet();
-        Iterator i = entryset.iterator();
-        while (i.hasNext()) {
-            Iterator j = entryset.iterator();
-            Map.Entry ielem = (Map.Entry) i.next();
-            
-            while (j.hasNext()) {
-                Map.Entry jelem = (Map.Entry) j.next();
-                if (ielem == jelem)
-                    continue;
-                
-                Reflective ri = (Reflective) ielem.getValue();
-                Reflective ji = (Reflective) jelem.getValue();
-                if (ri.isAssignableFrom(ji)) {
-                    i.remove();
-                    break;
-                }
-            }
-        }
-        
-        Reflective [] rval = new Reflective[rmap.values().size()];
-        rmap.values().toArray(rval);
-        
-        return rval;
+        return new GenTypeClass(c.getReflective(), newArgs, newOuter);
     }
     
     /**
@@ -629,16 +388,16 @@ public class TextParser
         JavaType ua = unBox(a);
         JavaType ub = unBox(b);
 
-        if (a.typeIs(JavaType.JT_DOUBLE) || b.typeIs(JavaType.JT_DOUBLE))
+        if (ua.typeIs(JavaType.JT_DOUBLE) || ub.typeIs(JavaType.JT_DOUBLE))
             return JavaPrimitiveType.getDouble();
 
-        if (a.typeIs(JavaType.JT_FLOAT) || b.typeIs(JavaType.JT_FLOAT))
+        if (ua.typeIs(JavaType.JT_FLOAT) || ub.typeIs(JavaType.JT_FLOAT))
             return JavaPrimitiveType.getFloat();
 
-        if (a.typeIs(JavaType.JT_LONG) || b.typeIs(JavaType.JT_LONG))
+        if (ua.typeIs(JavaType.JT_LONG) || ub.typeIs(JavaType.JT_LONG))
             return JavaPrimitiveType.getLong();
 
-        if (a.isNumeric() && b.isNumeric())
+        if (ua.isNumeric() && ub.isNumeric())
             return JavaPrimitiveType.getInt();
         else
             throw new SemanticException();
@@ -796,9 +555,6 @@ public class TextParser
      */
     private Class loadUnqualifiedClass(String className) throws ClassNotFoundException
     {
-        boolean qualified = false;
-        int index = 0;
-        
         // It's an unqualified name - try package scope
         try {
             if (packageScope.length() != 0)
@@ -993,8 +749,8 @@ public class TextParser
         if (node.getType() == JavaTokenTypes.IDENT) {
             // Treat it first as a variable, then a type, then as a package.
             String nodeText = node.getText();
-            ObjectWrapper ow = objectBench.getObject(nodeText);
-            if (ow != null)
+            NamedValue nv = objectBench.getNamedValue(nodeText);
+            if (nv != null)
                 return new ValueEntity(getObjectType(nodeText));
             
             try {
@@ -1098,44 +854,165 @@ public class TextParser
      * @param targetType   The type of object/class to which the method is
      *                     being applied
      * @param tpars     The explicitly specified type parameters used in the
-     *                  invocation of a generic method
+     *                  invocation of a generic method (list of GenTypeClass)
      * @param m       The method to check
      * @param args    The types of the arguments supplied to the method
      * @return   A record with information about the method call
      * @throws RecognitionException
      */
-    private MethodCallDesc isMethodApplicable(GenTypeClass targetType, Map tpars, Method m, JavaType [] args)
+    private MethodCallDesc isMethodApplicable(GenTypeClass targetType, List tpars, Method m, JavaType [] args)
         throws RecognitionException
     {
-        // TODO support varargs, autoboxing/unboxing, generic methods
-        // the rule for autoboxing seems to be, if two methods are applicable
-        // but one requires autoboxing and the other doesn't, choose the one
-        // that doesn't. Otherwise amibiguity.
+        boolean methodIsVarargs = JavaUtils.getJavaUtils().isVarArgs(m);
+        MethodCallDesc rdesc = null;
         
-        // First check that at least the number of parameters is correct. If
-        // type parameters are explicitly stated, also check that their number
-        // is correct.
-        JavaType [] mparams = JavaUtils.getJavaUtils().getParamGenTypes(m, targetType.isRaw());
-        if (mparams.length != args.length)
+        // First try without varargs expansion. If that fails, try with expansion.
+        rdesc = isMethodApplicable(targetType, tpars, m, args, false);
+        if (rdesc == null && methodIsVarargs) {
+            rdesc = isMethodApplicable(targetType, tpars, m, args, true);
+        }
+        return rdesc;
+    }
+
+    /**
+     * Check whether a particular method is callable with particular
+     * parameters. If so return information about how specific the call is.
+     * If the parameters cannot be applied to this method, return null.<p>
+     * 
+     * Normally this is called by the other variant of this method, which
+     * does not take the varargs parameter.
+     * 
+     * @param targetType   The type of object/class to which the method is
+     *                     being applied
+     * @param tpars     The explicitly specified type parameters used in the
+     *                  invocation of a generic method (list of GenTypeClass)
+     * @param m       The method to check
+     * @param args    The types of the arguments supplied to the method
+     * @param varargs Whether to expand vararg parameters
+     * @return   A record with information about the method call
+     * @throws RecognitionException
+     */
+    private MethodCallDesc isMethodApplicable(GenTypeClass targetType, List tpars, Method m, JavaType [] args, boolean varargs)
+    throws RecognitionException
+    {
+        boolean rawTarget = targetType.isRaw();
+        boolean boxingRequired = false;
+        
+        // Check that the number of parameters supplied is allowable. Expand varargs
+        // arguments if necessary.
+        JavaType [] mparams = JavaUtils.getJavaUtils().getParamGenTypes(m, rawTarget);
+        if (varargs) {
+            // first basic check. The number of supplied arguments must be at least one less than
+            // the number of formal parameters.
+            if (mparams.length > args.length + 1)
+                return null;
+
+            GenTypeArray lastArgType = (GenTypeArray) mparams[mparams.length - 1];
+            JavaType vaType = lastArgType.getArrayComponent();
+            JavaType [] expandedParams = new JavaType[args.length];
+            System.arraycopy(mparams, 0, expandedParams, 0, mparams.length - 1);
+            for (int i = mparams.length; i < args.length; i++) {
+                expandedParams[i] = vaType;
+            }
+            mparams = expandedParams;
+        }
+        else {
+            // Not varargs: supplied arguments must match formal parameters
+            if (mparams.length != args.length)
+                return null;
+        }
+        
+        // Get type parameters of the method
+        List tparams = Collections.EMPTY_LIST;
+        if ((! rawTarget) || Modifier.isStatic(m.getModifiers()))
+            tparams = JavaUtils.getJavaUtils().getTypeParams(m);
+        
+        // Number of type parameters supplied must match number declared, unless either
+        // is zero. Section 15.12.2 of the JLS, "a non generic method may be applicable
+        // to an invocation which supplies type arguments" (in which case the type args
+        // are ignored).
+        if (! tpars.isEmpty() && ! tparams.isEmpty() && tpars.size() != tparams.size())
             return null;
-        List tparams = JavaUtils.getJavaUtils().getTypeParams(m);
-        if (! tpars.isEmpty() && tpars.size() != tparams.size())
-            return null;
-        // Map methodTPars = JavaUtils.TParamsToMap(tparams);
         
-        // at the moment, doesn't handle generic methods.
-        if (! tparams.isEmpty())
-            throw new RecognitionException();
-        
-        // Get a map of type parameter names to types from the target type,
-        // but remove mappings for type parameter names which also occur as
-        // part of the generic method declaration (as these override those
-        // from the class declaration)
-        Map targetTpars = targetType.getMap();
-        if (targetTpars != null) {
+        // Set up a map we can use to put actual/inferred type arguments. Initialise it
+        // with the target type's arguments.
+        Map tparMap;
+        if (rawTarget)
+            tparMap = new HashMap();
+        else
+            tparMap = targetType.getMap();
+
+        // Perform type inference, if necessary
+        if (! tparams.isEmpty() && tpars.isEmpty()) {
+            // Our initial map has the class type parameters, minus those which are
+            // shadowed by the method's type parameters (map to themselves).
+            for (Iterator i = tparams.iterator(); i.hasNext(); ) {
+                GenTypeDeclTpar tpar = (GenTypeDeclTpar) i.next();
+                tparMap.put(tpar.getTparName(), tpar);
+            }
+            
+            Map tlbConstraints = new HashMap(); // multi-map: map -> set -> GenTypeSolid
+            Map teqConstraints = new HashMap();
+            
+            // Time for some type inference
+            for (int i = 0; i < mparams.length; i++) {
+                if (mparams[i].isPrimitive())
+                    continue;
+                
+                GenTypeSolid mparam = (GenTypeSolid) mparams[i];
+                mparam = (GenTypeSolid) mparam.mapTparsToTypes(tparMap);
+                processAtoFConstraint(args[i], mparam, tlbConstraints, teqConstraints);
+            }
+            
+            // what we have now is a map with tpar constraints.
+            // Some tpars may not have been constrained: these are inferred to be the
+            // intersection of their upper bounds.
+            tpars = new ArrayList();
             Iterator i = tparams.iterator();
-            while (i.hasNext())
-                targetTpars.remove(((GenTypeDeclTpar) i.next()).getTparName());
+            while (i.hasNext()) {
+                GenTypeDeclTpar fTpar = (GenTypeDeclTpar) i.next();
+                String tparName = fTpar.getTparName();
+                GenTypeSolid eqConstraint = (GenTypeSolid) teqConstraints.get(tparName);
+                // If there's no equality constraint, use the lower bound constraints
+                if (eqConstraint == null) {
+                    Set lbConstraintSet = (Set) tlbConstraints.get(tparName);
+                    if (lbConstraintSet != null) {
+                        GenTypeSolid [] lbounds = (GenTypeSolid []) lbConstraintSet.toArray(new GenTypeSolid[lbConstraintSet.size()]);
+                        eqConstraint = GenTypeSolid.lub(lbounds); 
+                    }
+                    else {
+                        // no equality or lower bound constraints: use the upper
+                        // bounds of the tpar
+                        eqConstraint = fTpar.getBound();
+                    }
+                }
+                eqConstraint = (GenTypeSolid) eqConstraint.mapTparsToTypes(tparMap);
+                tpars.add(eqConstraint);
+                tparMap.put(tparName, eqConstraint);
+            }
+        }
+        else {
+            // Get a map of type parameter names to types from the target type
+            // complete the type parameter map with tpars of the method
+            Iterator formalI = tparams.iterator();
+            Iterator actualI = tpars.iterator();
+            while (formalI.hasNext()) {
+                GenTypeDeclTpar formalTpar = (GenTypeDeclTpar) formalI.next();
+                GenTypeSolid argTpar = (GenTypeSolid) actualI.next();
+                
+                // first we check that the argument type is a subtype of the
+                // declared type.
+                GenTypeSolid [] formalUbounds = formalTpar.upperBounds();
+                for (int i = 0; i < formalUbounds.length; i++) {
+                    formalUbounds[i] = (GenTypeSolid) formalUbounds[i].mapTparsToTypes(tparMap);
+                    if (formalUbounds[i].isAssignableFrom(argTpar))
+                        break;
+                    if (i == formalUbounds.length - 1)
+                        return null;
+                }
+                
+                tparMap.put(formalTpar.getTparName(), argTpar);
+            }
         }
         
         // For each argument, must check the compatibility of the supplied
@@ -1147,20 +1024,303 @@ public class TextParser
             JavaType formalArg = mparams[i];
             JavaType givenParam = args[i];
             
-            // If type arguments specified, use those. Also bring in class
-            // type parameters.
-            formalArg = formalArg.mapTparsToTypes(targetTpars);
-            formalArg = formalArg.mapTparsToTypes(tpars);
+            // Substitute type arguments.
+            formalArg = formalArg.mapTparsToTypes(tparMap);
             
             // check if the given parameter doesn't match the formal argument
-            if (! formalArg.isAssignableFrom(givenParam))
-                return null;
+            if (! formalArg.isAssignableFrom(givenParam)) {
+                // a boxing conversion followed by a widening reference conversion
+                if (! formalArg.isAssignableFrom(boxType(givenParam))) {
+                    // an unboxing conversion followed by a widening primitive conversion
+                    if (! formalArg.isAssignableFrom(unBox(givenParam))) {
+                        return null;
+                    }
+                }
+                boxingRequired = true;
+            }
         }
         
-        JavaType rType = jutils.getReturnType(m).mapTparsToTypes(targetType.getMap());
-        return new MethodCallDesc(m, Arrays.asList(mparams), false, false, rType);
+        JavaType rType = jutils.getReturnType(m).mapTparsToTypes(tparMap);
+        return new MethodCallDesc(m, Arrays.asList(mparams), varargs, boxingRequired, rType);
+    }
+
+    
+    
+    /**
+     * Process a type inference constraint of the form "A is convertible to F".
+     * Note F must be a valid formal parameter: it can't be a wildcard with multiple
+     * bounds or an intersection type.
+     * 
+     * @param a  The argument type
+     * @param f  The formal parameter type
+     * @param tlbConstraints   lower bound constraints (a Map to Set of GenTypeSolid)
+     * @param teqConstraints   equality constraints (a Map to GenTypeSolid)
+     */
+    private void processAtoFConstraint(JavaType a, GenTypeSolid f, Map tlbConstraints, Map teqConstraints)
+    {
+        a = boxType(a);
+        if (a.isPrimitive())
+            return; // no constraint
+        
+        if (f instanceof GenTypeTpar) {
+            // The constraint T :> A is implied
+            GenTypeTpar t = (GenTypeTpar) f;
+            Set constraintsSet = (Set) tlbConstraints.get(t.getTparName());
+            if (constraintsSet == null) {
+                constraintsSet = new HashSet();
+                tlbConstraints.put(t.getTparName(), constraintsSet);
+            }
+            
+            constraintsSet.add(a);
+        }
+        
+        // If F is an array of the form U[], and a is an array of the form V[]...
+        else if (f.getArrayComponent() != null) {
+            if (a.getArrayComponent() != null) {
+                if (f.getArrayComponent() instanceof GenTypeSolid) {
+                    a = a.getArrayComponent();
+                    f = (GenTypeSolid) f.getArrayComponent();
+                    processAtoFConstraint(a, f, tlbConstraints, teqConstraints);
+                }
+            }
+        }
+        
+        // If F is of the form G<...> and A is convertible to the same form...
+        else {
+            GenTypeClass cf = (GenTypeClass) f;
+            Map fMap = cf.getMap();
+            if (fMap != null && a instanceof GenTypeSolid) {
+                GenTypeClass [] asts = ((GenTypeSolid) a).getReferenceSupertypes();
+                for (int i = 0; i < asts.length; i++) {
+                    try {
+                        GenTypeClass aMapped = asts[i].mapToSuper(cf.rawName());
+                        // Superclass relationship is by capture conversion
+                        if (! asts[i].rawName().equals(cf.rawName()))
+                            aMapped = (GenTypeClass) captureConversion(aMapped);
+                        Map aMap = aMapped.getMap();
+                        if (aMap != null) {
+                            Iterator j = fMap.keySet().iterator();
+                            while (j.hasNext()) {
+                                String tpName = (String) j.next();
+                                GenTypeParameterizable fPar = (GenTypeParameterizable) fMap.get(tpName);
+                                GenTypeParameterizable aPar = (GenTypeParameterizable) aMap.get(tpName);
+                                processAtoFtpar(aPar, fPar, tlbConstraints, teqConstraints);
+                            }
+                        }
+                    }
+                    catch (BadInheritanceChainException bice) {}
+                }
+            }
+        }
+        return;
     }
     
+    /**
+     * Process type parameters from a type inference constraint A convertible-to F.
+     */
+    private void processAtoFtpar(GenTypeParameterizable aPar, GenTypeParameterizable fPar, Map tlbConstraints, Map teqConstraints)
+    {
+        if (fPar instanceof GenTypeSolid) {
+            if (aPar instanceof GenTypeSolid) {
+                // aPar = fPar
+                processAeqFConstraint((GenTypeSolid) aPar, (GenTypeSolid) fPar, tlbConstraints, teqConstraints);
+            }
+        } else {
+            GenTypeSolid flbound = fPar.getLowerBound();
+            if (flbound != null) {
+                // F-par is of form "? super ..."
+                GenTypeSolid albound = aPar.getLowerBound();
+                if (albound != null) {
+                    // there should only be one element in albounds
+                    // recurse with albounds[0] >> flbound[0]
+                    processFtoAConstraint(albound, flbound, tlbConstraints, teqConstraints);
+                }
+            } else {
+                // F-par is of form "? extends ..."
+                GenTypeSolid [] fubounds = fPar.getUpperBounds();
+                GenTypeSolid [] aubounds = aPar.getUpperBounds();
+                if (fubounds.length > 0 && aubounds.length > 0) {
+                    // recurse with aubounds << fubounds[0]
+                    processAtoFConstraint(IntersectionType.getIntersection(aubounds), fubounds[0], tlbConstraints, teqConstraints);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Process a type inference constraint of the form "A is equal to F".
+     */
+    void processAeqFConstraint(GenTypeSolid a, GenTypeSolid f, Map tlbConstraints, Map teqConstraints)
+    {
+        if (f instanceof GenTypeTpar) {
+            // The constraint T == A is implied.
+            GenTypeTpar t = (GenTypeTpar) f;
+            teqConstraints.put(t.getTparName(), a);
+        }
+        
+        else if (f.getArrayComponent() instanceof GenTypeSolid) {
+            // "If F = U[] ... if A is an array type V[], or a type variable with an
+            // upper bound that is an array type V[]..."
+            GenTypeSolid [] asts;
+            if (a instanceof GenTypeDeclTpar)
+                asts = ((GenTypeDeclTpar) a).upperBounds();
+            else
+                asts = new GenTypeSolid[] {a};
+            
+            for (int i = 0; i < asts.length; i++) {
+                JavaType act = asts[i].getArrayComponent();
+                if (act instanceof GenTypeSolid) {
+                    processAeqFConstraint((GenTypeSolid) act, (GenTypeSolid) f.getArrayComponent(), tlbConstraints, teqConstraints);
+                }
+            }
+        }
+        
+        else {
+            GenTypeClass cf = f.asClass();
+            GenTypeClass af = a.asClass();
+            if (af != null && cf != null) {
+                if (cf.rawName().equals(af.rawName())) {
+                    Map fMap = cf.getMap();
+                    Map aMap = af.getMap();
+                    if (fMap != null && aMap != null) {
+                        Iterator j = fMap.keySet().iterator();
+                        while (j.hasNext()) {
+                            String tpName = (String) j.next();
+                            GenTypeParameterizable fPar = (GenTypeParameterizable) fMap.get(tpName);
+                            GenTypeParameterizable aPar = (GenTypeParameterizable) aMap.get(tpName);
+                            processAeqFtpar(aPar, fPar, tlbConstraints, teqConstraints);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Process type parameters from a type inference constraint A equal-to F.
+     */
+    private void processAeqFtpar(GenTypeParameterizable aPar, GenTypeParameterizable fPar, Map tlbConstraints, Map teqConstraints)
+    {
+        if (aPar instanceof GenTypeSolid && fPar instanceof GenTypeSolid) {
+            processAeqFConstraint((GenTypeSolid) aPar, (GenTypeSolid) fPar, tlbConstraints, teqConstraints);
+        }
+        else if (aPar instanceof GenTypeWildcard && fPar instanceof GenTypeWildcard) {
+            GenTypeSolid flBound = fPar.getLowerBound();
+            GenTypeSolid [] fuBounds = fPar.getUpperBounds();
+            // F = ? super U,  A = ? super V
+            if (flBound != null) {
+                GenTypeSolid alBound = aPar.getLowerBound();
+                if (alBound != null)
+                    processAeqFConstraint(alBound, flBound, tlbConstraints, teqConstraints);
+            }
+            // F = ? extends U, A = ? extends V
+            else if (fuBounds.length != 0) {
+                GenTypeSolid [] auBounds = aPar.getUpperBounds();
+                if (auBounds.length != 0)
+                    processAeqFConstraint(IntersectionType.getIntersection(auBounds), fuBounds[0], tlbConstraints, teqConstraints);
+            }
+        }
+    }
+
+    /**
+     * Process a type inference constraint of the form "F is convertible to A".
+     */
+    private void processFtoAConstraint(GenTypeSolid a, GenTypeSolid f, Map tlbConstraints, Map teqConstraints)
+    {
+        // This is pretty much nothing like what the JLS says it should be. As far as I can
+        // make out, the JLS is just plain wrong.
+        
+        // If F = T, then T <: A is implied: but we cannot make use of such a constraint.
+        // If F = U[] ...
+        if (f.getArrayComponent() instanceof GenTypeSolid) {
+            // "If F = U[] ... if A is an array type V[], or a type variable with an
+            // upper bound that is an array type V[]..."
+            GenTypeSolid [] asts;
+            if (a instanceof GenTypeDeclTpar)
+                asts = ((GenTypeDeclTpar) a).upperBounds();
+            else
+                asts = new GenTypeSolid[] {a};
+            
+            for (int i = 0; i < asts.length; i++) {
+                JavaType act = asts[i].getArrayComponent();
+                if (act instanceof GenTypeSolid) {
+                    processFtoAConstraint((GenTypeSolid) act, (GenTypeSolid) f.getArrayComponent(), tlbConstraints, teqConstraints);
+                }
+            }
+        }
+        
+        else if (f.asClass() != null) {
+            GenTypeClass cf = f.asClass();
+            if (! (a instanceof GenTypeTpar)) {
+                GenTypeClass [] asts = a.getReferenceSupertypes();
+                for (int i = 0; i < asts.length; i++) {
+                    try {
+                        GenTypeClass fMapped = cf.mapToSuper(asts[i].rawName());
+                        Map aMap = asts[i].getMap();
+                        Map fMap = fMapped.getMap();
+                        if (aMap != null && fMap != null) {
+                            Iterator j = fMap.keySet().iterator();
+                            while (j.hasNext()) {
+                                String tpName = (String) j.next();
+                                GenTypeParameterizable fPar = (GenTypeParameterizable) fMap.get(tpName);
+                                GenTypeParameterizable aPar = (GenTypeParameterizable) aMap.get(tpName);
+                                processFtoAtpar(aPar, fPar, tlbConstraints, teqConstraints);
+                            }
+                        }
+                    }
+                    catch (BadInheritanceChainException bice) {}
+                }
+            }
+        }
+    }
+
+    /**
+     * Process type parameters from a type inference constraint F convertible-to A.
+     */
+    private void processFtoAtpar(GenTypeParameterizable aPar, GenTypeParameterizable fPar, Map tlbConstraints, Map teqConstraints)
+    {
+        if (fPar instanceof GenTypeSolid) {
+            if (aPar instanceof GenTypeSolid) {
+                processAeqFConstraint((GenTypeSolid) aPar, (GenTypeSolid) fPar, tlbConstraints, teqConstraints);
+            }
+            else {
+                GenTypeSolid alBound = aPar.getLowerBound();
+                if (alBound != null) {
+                    // aPar is of the form "? super ..."
+                    processAtoFConstraint(alBound, (GenTypeSolid) fPar, tlbConstraints, teqConstraints);
+                }
+                else {
+                    GenTypeSolid [] auBounds = aPar.getUpperBounds();
+                    if (auBounds.length != 0) {
+                        processFtoAConstraint(auBounds[0], (GenTypeSolid) fPar, tlbConstraints, teqConstraints);
+                    }
+                }
+            }
+        }
+        
+        else {
+            // fPar must be a wildcard
+            GenTypeSolid flBound = fPar.getLowerBound();
+            if (flBound != null) {
+                if (aPar instanceof GenTypeWildcard) {
+                    // fPar is ? super ...
+                    GenTypeSolid alBound = aPar.getLowerBound();
+                    if (alBound != null) {
+                        processAtoFConstraint(alBound, flBound, tlbConstraints, teqConstraints);
+                    }
+                }
+                else {
+                    // fPar is ? extends ...
+                    GenTypeSolid [] fuBounds = fPar.getUpperBounds();
+                    GenTypeSolid [] auBounds = aPar.getUpperBounds();
+                    if (auBounds.length != 0 && fuBounds.length != 0) {
+                        processFtoAConstraint(auBounds[0], fuBounds[0], tlbConstraints, teqConstraints);
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Get the return type of a method call expression. This is quite
      * complicated; see JLS section 15.12
@@ -1181,10 +1341,6 @@ public class TextParser
         //
         // Where <object-expression> may actually be a type (ie. invoking
         // a static method).
-        // TODO getClass() is a special case, it should return Class<? extends
-        // basetype>
-        
-        JavaUtils jutils = JavaUtils.getJavaUtils();
         
         AST firstArg = node.getFirstChild();
         AST secondArg = firstArg.getNextSibling();
@@ -1192,9 +1348,9 @@ public class TextParser
             throw new RecognitionException();
         
         // we don't handle method calls where the object/class is not
-        // specified...
-        // that would be calling a shell class method. The user shouldn't
-        // do that.
+        // specified... that would be calling a shell class method. The user
+        // shouldn't do that. Nor do we handle a variety of cases such
+        // as "this.xxx()" or "super.xxxx()".
         
         if (firstArg.getType() == JavaTokenTypes.DOT) {
             AST targetNode = firstArg.getFirstChild();
@@ -1230,91 +1386,112 @@ public class TextParser
             if (methodName == null)
                 throw new RecognitionException();
             
-            // match the call to a method:
-            if (targetType instanceof GenTypeClass) {
-                GenTypeClass targetClass = (GenTypeClass) targetType;
-                try {
-                    Class c = classLoader.loadClass(targetClass.rawName());
-                    Method [] methods = c.getMethods();
-                        
-                    ArrayList suitableMethods = new ArrayList();
-                    
-                    // Find methods that are applicable, and
-                    // accessible. See JLS 15.12.2.1.
-                    // The JLS doesn't cover some 1.5 features though,
-                    // such as varargs, generic methods/parameters, etc,
-                    // so we take a best-guess approach.
-                        
-                    for (int i = 0; i < methods.length; i++) {
-                        // ignore bridge methods
-                        if (jutils.isBridge(methods[i]))
-                            continue;
-                        
-                        // check method name
-                        if (methods[i].getName().equals(methodName)) {
-                            // map target type to declaring type
-                            Class declClass = methods[i].getDeclaringClass();
-                            //Map m = targetClass.mapToSuper(declClass.getName());
-                            
-                            // check that the method is applicable (and under
-                            // what constraints)
-                            
-                            // TODO should pass a map constructed from typeArgs
-                            // as the second parameter here, when support for
-                            // generic methods is added.
-                            MethodCallDesc mcd = isMethodApplicable(targetClass, new HashMap(), methods[i], argumentTypes);
-                            
-                            // Iterate through the current candidates, and:
-                            // - replace one or more of them with this one
-                            //   (this one is more precise)
-                            //   OR
-                            // - add this one (no more or less precise than
-                            //   any other candidates)
-                            //   OR
-                            // - discard this one (less precise than another)
-
-                            if (mcd != null) {
-                                boolean replaced = false;
-                                for (int j = 0; j < suitableMethods.size(); j++) {
-                                    //suitableMethods.add(methods[i]);
-                                    MethodCallDesc mc = (MethodCallDesc) suitableMethods.get(j);
-                                    int compare = mcd.compareSpecificity(mc);
-                                    if (compare == 1) {
-                                        // this method is more specific
-                                        suitableMethods.remove(j);
-                                        j--;
-                                    }
-                                    else if (compare == -1) {
-                                        // other method is more specific
-                                        replaced = true;
-                                        break;
-                                    }
-                                }
-                                
-                                if (! replaced)
-                                    suitableMethods.add(mcd);
-                            }
-                        }
-                    }
-
-                    if (suitableMethods.size() == 1) {
-                        MethodCallDesc mcd = (MethodCallDesc) suitableMethods.get(0);
-                        return mcd.retType;
-                    }
-                    else
-                        throw new SemanticException();
-                }
-                catch (ClassNotFoundException cnfe) {
-                    return null; // shouldn't happen
+            // getClass() is a special case, it should return Class<? extends
+            // basetype>
+            if (targetType instanceof GenTypeParameterizable) {
+                if (methodName.equals("getClass") && argumentTypes.length == 0) {
+                    List paramsl = new ArrayList(1);
+                    paramsl.add(new GenTypeExtends((GenTypeSolid) targetType.getErasedType()));
+                    return new GenTypeClass(new JavaReflective(Class.class), paramsl);
                 }
             }
             
-            // method call on a non-class type
+            // apply capture conversion to target
+            targetType = captureConversion(targetType);
+            
+            if (! (targetType instanceof GenTypeSolid))
+                throw new SemanticException();
+                
+            GenTypeSolid targetTypeS = (GenTypeSolid) targetType;
+            GenTypeClass [] rsts = targetTypeS.getReferenceSupertypes();
+            
+            // match the call to a method:
+            ArrayList suitableMethods = getSuitableMethods(methodName, rsts, argumentTypes, typeArgs);
+            
+            if (suitableMethods.size() == 1) {
+                MethodCallDesc mcd = (MethodCallDesc) suitableMethods.get(0);
+                // JLS 15.12.2.6, we must apply capture conversion
+                return captureConversion(mcd.retType);
+            }
+            // ambiguity
             throw new SemanticException();
         }
         
         // don't try and handle unqualified method calls
         return null;
+    }
+    
+    /**
+     * Get the candidate list of methods with the given name and argument types.
+     * @param methodName    The name of the method
+     * @param targetTypes   The types to search for declarations of this method
+     * @param argumentTypes The types of the arguments supplied in the method invocation
+     * @param typeArgs      The type arguments, if any, supplied in the method invocation
+     * @return  an ArrayList of MethodCallDesc - the list of candidate methods
+     * @throws RecognitionException
+     */
+    private ArrayList getSuitableMethods(String methodName, GenTypeClass [] targetTypes, JavaType [] argumentTypes, List typeArgs)
+        throws RecognitionException
+    {
+        ArrayList suitableMethods = new ArrayList();
+        for (int k = 0; k < targetTypes.length; k++) {
+            GenTypeClass targetClass = targetTypes[k];
+            try {
+                Class c = classLoader.loadClass(targetClass.rawName());
+                Method [] methods = c.getMethods();
+                
+                // Find methods that are applicable, and
+                // accessible. See JLS 15.12.2.1.
+                for (int i = 0; i < methods.length; i++) {
+                    // ignore bridge methods
+                    if (jutils.isBridge(methods[i]))
+                        continue;
+                    
+                    // check method name
+                    if (methods[i].getName().equals(methodName)) {
+                        // check that the method is applicable (and under
+                        // what constraints)
+                        MethodCallDesc mcd = isMethodApplicable(targetClass, typeArgs, methods[i], argumentTypes);
+                        
+                        // Iterate through the current candidates, and:
+                        // - replace one or more of them with this one
+                        //   (this one is more precise)
+                        //   OR
+                        // - add this one (no more or less precise than
+                        //   any other candidates)
+                        //   OR
+                        // - discard this one (less precise than another)
+
+                        if (mcd != null) {
+                            boolean replaced = false;
+                            for (int j = 0; j < suitableMethods.size(); j++) {
+                                //suitableMethods.add(methods[i]);
+                                MethodCallDesc mc = (MethodCallDesc) suitableMethods.get(j);
+                                int compare = mcd.compareSpecificity(mc);
+                                if (compare == 1) {
+                                    // this method is more specific
+                                    suitableMethods.remove(j);
+                                    j--;
+                                }
+                                else if (compare == -1) {
+                                    // other method is more specific
+                                    replaced = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (! replaced)
+                                suitableMethods.add(mcd);
+                        }
+                    }
+                }
+
+            }
+            catch (ClassNotFoundException cnfe) {
+                return null; // shouldn't happen
+            }
+        }
+        return suitableMethods;
     }
     
     /**
@@ -1396,21 +1573,21 @@ public class TextParser
         if (b instanceof GenTypeClass) {
             GenTypeClass c = (GenTypeClass) b;
             String cName = c.rawName();
-            if (c.equals("java.lang.Integer"))
+            if (cName.equals("java.lang.Integer"))
                 return JavaPrimitiveType.getInt();
-            else if (c.equals("java.lang.Long"))
+            else if (cName.equals("java.lang.Long"))
                 return JavaPrimitiveType.getLong();
-            else if (c.equals("java.lang.Short"))
+            else if (cName.equals("java.lang.Short"))
                 return JavaPrimitiveType.getShort();
-            else if (c.equals("java.lang.Byte"))
+            else if (cName.equals("java.lang.Byte"))
                 return JavaPrimitiveType.getByte();
-            else if (c.equals("java.lang.Character"))
+            else if (cName.equals("java.lang.Character"))
                 return JavaPrimitiveType.getChar();
-            else if (c.equals("java.lang.Float"))
+            else if (cName.equals("java.lang.Float"))
                 return JavaPrimitiveType.getFloat();
-            else if (c.equals("java.lang.Double"))
+            else if (cName.equals("java.lang.Double"))
                 return JavaPrimitiveType.getDouble();
-            else if (c.equals("java.lang.Boolean"))
+            else if (cName.equals("java.lang.Boolean"))
                 return JavaPrimitiveType.getBoolean();
             else
                 return b;
@@ -1795,13 +1972,14 @@ public class TextParser
     private JavaType getObjectType(String objectName)
         throws SemanticException, RecognitionException
     {
-        ObjectWrapper ow = objectBench.getObject(objectName);
+        // ObjectWrapper ow = objectBench.getObject(objectName);
+        NamedValue nv = objectBench.getNamedValue(objectName);
 
-        if (ow == null)
+        if (nv == null)
             throw new SemanticException();
 
         try {
-            JavaRecognizer jr = getParser(ow.getGenType().toString() + ")))");
+            JavaRecognizer jr = getParser(nv.getGenType().toString() + ")))");
             jr.type();
             AST n = jr.getAST();
             return getType(n);
@@ -1855,7 +2033,7 @@ public class TextParser
         public List argTypes; // list of GenType
         public boolean vararg;   // is a vararg call
         public boolean autoboxing; // requires autoboxing
-        public JavaType retType; // effective return type
+        public JavaType retType; // effective return type (before capture conversion)
         
         /**
          * Constructor for MethodCallDesc.
@@ -1878,8 +2056,8 @@ public class TextParser
         }
         
         /**
-         * Find out which (if any) method call is more specific than the other.
-         * Both calls must be valid calls to the same method with the same
+         * Find out which (if any) method call is strictly more specific than the
+         * other. Both calls must be valid calls to the same method with the same
          * number of parameters.
          * 
          * @param other  The method to compare with
@@ -1918,13 +2096,14 @@ public class TextParser
             else if (downCount > 0 && upCount == 0)
                 return 1;  // other is less specific
             
-            // finally, if one method is declared in an interface and the
-            // other in a class, the one from the class is "more specific".
-            // TODO this should only be true if the method signatures are
-            // actually the same. Is it even necessary?
-            if (method.getDeclaringClass().isInterface() && ! other.method.getDeclaringClass().isInterface())
+            // finally, if one method is abstract and the other is not,
+            // then the non-abstract method is more specific.
+            method.getModifiers();
+            boolean isAbstract = Modifier.isAbstract(method.getModifiers());
+            boolean otherAbstract = Modifier.isAbstract(other.method.getModifiers());
+            if (isAbstract && ! otherAbstract)
                 return -1;
-            else if (! method.getDeclaringClass().isInterface() && other.method.getDeclaringClass().isInterface())
+            else if (! isAbstract && otherAbstract)
                 return 1;
             else
                 return 0;
@@ -2057,12 +2236,20 @@ public class TextParser
                 f = thisClass.getField(name);
                 JavaType fieldType;
                 Map tparmap = getClassType().getMap();
-                if (tparmap != null) {
-                    fieldType = JavaUtils.getJavaUtils().getFieldType(f);
-                    fieldType = fieldType.mapTparsToTypes(tparmap);
-                }
-                else
+                
+                // raw type? (though won't affect static fields)
+                if (tparmap == null && ! Modifier.isStatic(f.getModifiers()))
                     fieldType = JavaUtils.getJavaUtils().getRawFieldType(f);
+                else {
+                    tparmap = captureConversion(getClassType(), new HashMap()).getMap();
+                    fieldType = JavaUtils.getJavaUtils().getFieldType(f);
+                    if (tparmap != null)
+                        fieldType = fieldType.mapTparsToTypes(tparmap);
+                    // JLS 15.11.1, field access using a primary, capture conversion must
+                    // be applied.
+                    fieldType = captureConversion(fieldType);
+                }
+                
                 return new ValueEntity(fieldType);
             }
             catch (NoSuchFieldException nsfe) {}
@@ -2108,7 +2295,7 @@ public class TextParser
                 throw new SemanticException();
 
             // get the class part of our type
-            GenTypeClass thisClass = (GenTypeClass) type;
+            GenTypeClass thisClass = (GenTypeClass) captureConversion(type);
             Reflective r = thisClass.getReflective();
             Class c;
             try {
@@ -2122,16 +2309,20 @@ public class TextParser
             //  Try and find the field
             Field f = null;
             try {
+                // TODO getField() is not enough, won't find package privates
                 f = c.getField(name);
                 // Map type parameters to declaring class
                 Class declarer = f.getDeclaringClass();
                 Map tparMap = thisClass.mapToSuper(declarer.getName()).getMap();
 
                 JavaType fieldType;
-                if (tparMap != null) {
+                if (tparMap != null || Modifier.isStatic(f.getModifiers())) {
                     // Not raw. Apply type parameters to field declaration.
                     fieldType = JavaUtils.getJavaUtils().getFieldType(f);
-                    fieldType = fieldType.mapTparsToTypes(tparMap);
+                    if (tparMap != null)
+                        fieldType = fieldType.mapTparsToTypes(tparMap);
+                    // JLS 15.11.1 says we must apply capture conversion
+                    fieldType = captureConversion(fieldType);
                 }
                 else
                     fieldType = JavaUtils.getJavaUtils().getRawFieldType(f);
@@ -2276,12 +2467,14 @@ public class TextParser
         private boolean isVarInit = false;
         private JavaType declVarType;
         private String varName;
+        private boolean isFinal = false;
         
-        public DeclaredVar(boolean isVarInit, JavaType varType, String varName)
+        public DeclaredVar(boolean isVarInit, boolean isFinal, JavaType varType, String varName)
         {
             this.isVarInit = isVarInit;
             this.declVarType = varType;
             this.varName = varName;
+            this.isFinal = isFinal;
         }
         
         /**
@@ -2308,6 +2501,14 @@ public class TextParser
         public String getName()
         {
             return varName;
+        }
+        
+        /**
+         * Check whether the variable was declared "final".
+         */
+        public boolean checkFinal()
+        {
+            return isFinal;
         }
     }
 }

@@ -4,12 +4,12 @@ package bluej.debugger.gentype;
 /* An unbounded wildcard.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeUnbounded.java 3063 2004-10-25 02:37:00Z davmac $
+ * @version $Id: GenTypeUnbounded.java 3508 2005-08-08 04:18:26Z davmac $
  */
 public class GenTypeUnbounded extends GenTypeWildcard
 {
     public GenTypeUnbounded()
     {
-        super(noBounds, noBounds);
+        super((GenTypeSolid) null, null);
     }
 }

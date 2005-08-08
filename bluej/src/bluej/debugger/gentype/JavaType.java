@@ -3,13 +3,13 @@ package bluej.debugger.gentype;
 import java.util.Map;
 
 /**
- * GenType, a tree structure describing a type (including generic types).
+ * JavaType, a tree structure describing a type (including generic types).
  * 
  * Most functionality is in subclasses. Default implementations for many
  * methods are provided.
  * 
  * @author Davin McCall
- * @version $Id: JavaType.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: JavaType.java 3508 2005-08-08 04:18:26Z davmac $
  */
 
 public abstract class JavaType
@@ -119,6 +119,14 @@ public abstract class JavaType
     }
     
     /**
+     * Determine whether the type represents the null type. 
+     */
+    final public boolean isNull()
+    {
+        return typeIs(JT_NULL);
+    }
+    
+    /**
      * Test whether the type is one of the types represented by the constants
      * GT_VOID, GT_NULL, GT_INT, GT_LONG etc.
      */
@@ -142,7 +150,7 @@ public abstract class JavaType
     
     /**
      * Determine whether a variable of this type could legally be assigned
-     * (without casting etc) a value of the given type.
+     * (without casting, boxing, unchecked conversion etc) a value of the given type.
      * 
      * @param t  The type to check against
      * @return   true if the type is assignable to this type

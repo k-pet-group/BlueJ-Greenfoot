@@ -5,7 +5,7 @@ package bluej.debugger.gentype;
  * "? super ..." type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSuper.java 3063 2004-10-25 02:37:00Z davmac $
+ * @version $Id: GenTypeSuper.java 3508 2005-08-08 04:18:26Z davmac $
  */
 public class GenTypeSuper extends GenTypeWildcard
 {
@@ -15,11 +15,11 @@ public class GenTypeSuper extends GenTypeWildcard
     
     public String toString(boolean stripPrefix)
     {
-        return "? super " + lowerBounds[0].toString(stripPrefix);
+        return "? super " + lowerBound.toString(stripPrefix);
     }
     
     public String toString(NameTransform nt)
     {
-        return "? super " + lowerBounds[0].toString(nt);
+        return "? super " + lowerBound.toString(nt);
     }
 }

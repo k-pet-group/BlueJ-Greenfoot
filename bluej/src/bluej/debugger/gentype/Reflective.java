@@ -9,7 +9,7 @@ import java.util.List;
  * determine the generic type parameters, etc.
  *  
  * @author Davin McCall
- * @version $Id: Reflective.java 3347 2005-04-14 02:00:15Z davmac $
+ * @version $Id: Reflective.java 3508 2005-08-08 04:18:26Z davmac $
  */
 public abstract class Reflective {
 
@@ -32,7 +32,9 @@ public abstract class Reflective {
     public abstract List getTypeParams();
     
     /**
-     * Get the supertypes of this reflective, as a list of reflectives. 
+     * Get the (direct) supertypes of this reflective, as a list of reflectives.
+     * Supertypes of an array include the "Object" class as well as arrays whose
+     * component type is a supertype of this array's component type.
      * @return A List of Reflectives
      */
     public abstract List getSuperTypesR();

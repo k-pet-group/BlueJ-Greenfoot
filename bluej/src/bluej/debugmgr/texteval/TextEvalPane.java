@@ -1,9 +1,19 @@
 package bluej.debugmgr.texteval;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JEditorPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.text.*;
 
 import org.syntax.jedit.tokenmarker.JavaTokenMarker;
@@ -11,6 +21,7 @@ import org.syntax.jedit.tokenmarker.JavaTokenMarker;
 import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.*;
 import bluej.editor.moe.BlueJSyntaxView;
 import bluej.editor.moe.MoeSyntaxDocument;
@@ -26,10 +37,10 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3480 2005-07-27 18:47:08Z damiano $
+ * @version $Id: TextEvalPane.java 3508 2005-08-08 04:18:26Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
-    implements ResultWatcher, MouseMotionListener
+    implements ValueCollection, ResultWatcher, MouseMotionListener
 {
     // The cursor to use while hovering over object icon
     private static final Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
@@ -49,6 +60,9 @@ public class TextEvalPane extends JEditorPane
     private boolean mouseOverObject = false;
     private boolean busy = false;
     private Action softReturnAction;
+    
+    private List localVars = new ArrayList();
+    private List newlyDeclareds;
 
     public TextEvalPane(PkgMgrFrame frame)
     {
@@ -91,6 +105,14 @@ public class TextEvalPane extends JEditorPane
         setText(" ");
         caretToEnd();
     }
+    
+    /**
+     * Clear the local variables.
+     */
+    public void clearVars()
+    {
+        localVars.clear();
+    }
 
     /**
      * Paste the contents of the clipboard.
@@ -119,6 +141,25 @@ public class TextEvalPane extends JEditorPane
         }
     }
     
+    //   --- ValueCollection interface ---
+    
+    public Iterator getValueIterator()
+    {
+        return localVars.iterator();
+    }
+    
+    public NamedValue getNamedValue(String name)
+    {
+        Iterator i = localVars.iterator();
+        while (i.hasNext()) {
+            NamedValue nv = (NamedValue) i.next();
+            if (nv.getName().equals(name))
+                return nv;
+        }
+        
+        return frame.getObjectBench().getNamedValue(name);
+    }
+    
     //   --- ResultWatcher interface ---
 
     /**
@@ -131,6 +172,16 @@ public class TextEvalPane extends JEditorPane
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 frame.getObjectBench().addInteraction(ir);
+                
+                // Newly declared variables are now initialized
+                if (newlyDeclareds != null) {
+                    Iterator i = newlyDeclareds.iterator();
+                    while (i.hasNext()) {
+                        CodepadVar cpv = (CodepadVar) i.next();
+                        cpv.setInitialized();
+                    }
+                    newlyDeclareds = null;
+                }
                 
                 append(" ");
                 if (result != null) {
@@ -178,7 +229,7 @@ public class TextEvalPane extends JEditorPane
                 // was a compile time error. So try again, assuming that we
                 // got it wrong.
                 wrappedResult = false;
-                invoker = new Invoker(frame, null, currentCommand, TextEvalPane.this, "");
+                invoker = new Invoker(frame, this, currentCommand, TextEvalPane.this, "");
             }
             else {
                 firstTry = false;
@@ -186,6 +237,8 @@ public class TextEvalPane extends JEditorPane
             }
         }
         else {
+            // An error. Remove declared variables.
+            removeNewlyDeclareds();
             showErrorMsg(message);
         }
     }
@@ -195,7 +248,23 @@ public class TextEvalPane extends JEditorPane
      */
     public void putException(String message)
     {
+        removeNewlyDeclareds();
         showErrorMsg(message);
+    }
+    
+    /**
+     * Compile or execution failed, so remove the newly declared variables
+     * from the vale collection.
+     */
+    private void removeNewlyDeclareds()
+    {
+        if (newlyDeclareds != null) {
+            Iterator i = newlyDeclareds.iterator();
+            while (i.hasNext()) {
+                localVars.remove(i.next());
+            }
+            newlyDeclareds = null;
+        }
     }
     
     /**
@@ -642,7 +711,25 @@ public class TextEvalPane extends JEditorPane
                 TextParser tp = new TextParser(frame.getProject().getClassLoader(), frame.getPackage().getQualifiedName(), frame.getObjectBench());
                 String retType = tp.parseCommand(currentCommand);
                 wrappedResult = (retType != null && retType.length() != 0);
-                invoker = new Invoker(frame, null, currentCommand, TextEvalPane.this, retType);
+                
+                // see if any variables were declared
+                if (retType == null) {
+                    List declaredVars = tp.getDeclaredVars();
+                    if (declaredVars != null) {
+                        Iterator i = tp.getDeclaredVars().iterator();
+                        while (i.hasNext()) {
+                            if (newlyDeclareds == null)
+                                newlyDeclareds = new ArrayList();
+                            
+                            TextParser.DeclaredVar dv = (TextParser.DeclaredVar) i.next();
+                            CodepadVar cpv = new CodepadVar(dv.getName(), dv.getDeclaredVarType(), dv.checkFinal());
+                            newlyDeclareds.add(cpv);
+                            localVars.add(cpv);
+                        }
+                    }
+                }
+                
+                invoker = new Invoker(frame, TextEvalPane.this, currentCommand, TextEvalPane.this, retType);
             }
             else {
                 markAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);
@@ -852,5 +939,44 @@ public class TextEvalPane extends JEditorPane
         }
     }
     
-
+    final class CodepadVar implements NamedValue {
+        
+        String name;
+        boolean finalVar;
+        boolean initialized = false;
+        JavaType type;
+        
+        public CodepadVar(String name, JavaType type, boolean finalVar)
+        {
+            this.name = name;
+            this.finalVar = finalVar;
+            this.type = type;
+        }
+        
+        public String getName()
+        {
+            return name;
+        }
+        
+        public JavaType getGenType()
+        {
+            return type;
+        }
+        
+        public boolean isFinal()
+        {
+            return finalVar;
+        }
+        
+        public boolean isInitialized()
+        {
+            return initialized;
+        }
+        
+        public void setInitialized()
+        {
+            initialized = true;
+        }
+    }
+    
 }
