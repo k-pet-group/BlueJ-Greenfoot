@@ -2,20 +2,37 @@ package bluej.utility;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.GenTypeArray;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
 
 /**
  * A reflective for GenTypeClass which uses the standard java reflection API.  
  * 
  * @author Davin McCall
- * @version $Id: JavaReflective.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: JavaReflective.java 3507 2005-08-08 04:12:15Z davmac $
  */
 public class JavaReflective extends Reflective {
 
     private Class c;
+    
+    public int hashCode()
+    {
+        return c.hashCode();
+    }
+    
+    public boolean equals(Object other)
+    {
+        if (other instanceof JavaReflective) {
+            JavaReflective jrOther = (JavaReflective) other;
+            return jrOther.c == c;
+        }
+        return false;
+    }
     
     public JavaReflective(Class c)
     {
@@ -51,7 +68,10 @@ public class JavaReflective extends Reflective {
             rname = "[L" + c.getName() + ";";
         
         try {
-            Class arrClass = c.getClassLoader().loadClass(rname);
+            ClassLoader cloader = c.getClassLoader();
+            if (cloader == null)
+                cloader = ClassLoader.getSystemClassLoader();
+            Class arrClass = cloader.loadClass(rname);
             return new JavaReflective(arrClass);
         }
         catch (ClassNotFoundException cnfe) {}
@@ -62,7 +82,10 @@ public class JavaReflective extends Reflective {
     public Reflective getRelativeClass(String name)
     {
         try {
-            Class cr = c.getClassLoader().loadClass(name);
+            ClassLoader cloader = c.getClassLoader();
+            if (cloader == null)
+                cloader = ClassLoader.getSystemClassLoader();
+            Class cr = cloader.loadClass(name);
             return new JavaReflective(cr);
         }
         catch (ClassNotFoundException cnfe) {
@@ -73,6 +96,18 @@ public class JavaReflective extends Reflective {
     public List getSuperTypesR() {
         List l = new ArrayList();
         
+        // Arrays must be specially handled
+        if (c.isArray()) {
+            Class ct = c.getComponentType();  // could be primitive, but won't matter
+            JavaReflective ctR = new JavaReflective(ct);
+            List componentSuperTypes = ctR.getSuperTypesR();
+            Iterator i = componentSuperTypes.iterator();
+            while (i.hasNext()) {
+                JavaReflective componentSuperType = (JavaReflective) i.next();
+                l.add(componentSuperType.getArrayOf());
+            }
+        }
+        
         Class superclass = c.getSuperclass();
         if( superclass != null )
             l.add(new JavaReflective(superclass));
@@ -81,12 +116,29 @@ public class JavaReflective extends Reflective {
         for( int i = 0; i < interfaces.length; i++ ) {
             l.add(new JavaReflective(interfaces[i]));
         }
+        
+        // Interfaces with no direct superinterfaces have a supertype of Object
+        if (superclass == null && interfaces.length == 0 && c.isInterface())
+            l.add(new JavaReflective(Object.class));
+        
         return l;
     }
 
     public List getSuperTypes() {
         List l = new ArrayList();
-        
+
+        // Arrays must be specially handled
+        if (c.isArray()) {
+            Class ct = c.getComponentType();   // could be primitive (is ok)
+            JavaReflective ctR = new JavaReflective(ct);
+            List componentSuperTypes = ctR.getSuperTypes(); // generic types
+            Iterator i = componentSuperTypes.iterator();
+            while (i.hasNext()) {
+                GenTypeClass componentSuperType = (GenTypeClass) i.next();
+                l.add(new GenTypeArray(componentSuperType, componentSuperType.getReflective().getArrayOf()));
+            }
+        }
+
         JavaType superclass = JavaUtils.getJavaUtils().getSuperclass(c);
         if( superclass != null )
             l.add(superclass);
@@ -95,6 +147,11 @@ public class JavaReflective extends Reflective {
         for( int i = 0; i < interfaces.length; i++ ) {
             l.add(interfaces[i]);
         }
+
+        // Interfaces with no direct superinterfaces have a supertype of Object
+        if (superclass == null && interfaces.length == 0 && c.isInterface())
+            l.add(new GenTypeClass(new JavaReflective(Object.class)));
+        
         return l;
     }
     

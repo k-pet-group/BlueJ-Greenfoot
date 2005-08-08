@@ -13,7 +13,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: JdiReflective.java 3507 2005-08-08 04:12:15Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -89,9 +89,19 @@ public class JdiReflective extends Reflective
     {
         if (rclass == null) {
             rclass = findClass(name, sourceLoader, sourceVM);
+            outOk:
             if (rclass == null) {
+                // Try and load the class.
+                VMReference vmr = VMReference.getVmForMachine(sourceVM);
+                if (vmr != null) {
+                    rclass = vmr.loadClass(name, sourceLoader);
+                    if (rclass != null)
+                        break outOk;
+                }
                 Debug.message("Attempt to use unloaded type: " + name);
                 Debug.message("  name = " +  name + ", sourceLoader = " + sourceLoader);
+                new Exception().printStackTrace(System.out);
+                return;
             }
             name = null;
             sourceLoader = null;
@@ -208,6 +218,12 @@ public class JdiReflective extends Reflective
             Iterator i = ((InterfaceType) rclass).superinterfaces().iterator();
             while (i.hasNext())
                 l.add(new JdiReflective((ReferenceType) i.next()));
+            
+            // interfaces with no direct superinterfaces have a supertype of Object
+            if (l.isEmpty()) {
+                l.add(new JdiReflective("java.lang.Object", this.rclass));
+            }
+            
             return l;
         }
         else
@@ -244,6 +260,12 @@ public class JdiReflective extends Reflective
                     Reflective r = new JdiReflective((InterfaceType) i.next());
                     rlist.add(new GenTypeClass(r));
                 }
+                
+                // interfaces with no direct superinterfaces have a supertype of Object
+                if (rlist.isEmpty()) {
+                    rlist.add(new GenTypeClass(new JdiReflective("java.lang.Object", this.rclass)));
+                }
+
                 return rlist;
             }
         }
@@ -387,7 +409,7 @@ public class JdiReflective extends Reflective
                     return ct;
             }
         }
-
+        
         return null;
     }
 
@@ -638,9 +660,6 @@ public class JdiReflective extends Reflective
 
         final String gensig = JdiUtils.getJdiUtils().genericSignature(f);
 
-        ReferenceType rt = null;
-        if (t instanceof ReferenceType)
-            rt = (ReferenceType) t;
         // check for primitive type, or raw type
         //if (gensig == null && (rt == null || rt.genericSignature() != null))
         if (gensig == null)
