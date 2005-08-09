@@ -48,7 +48,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3506 2005-08-07 18:58:32Z damiano $
+ * @version $Id: Project.java 3510 2005-08-09 08:47:25Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -105,7 +105,6 @@ public class Project implements DebuggerListener {
     private Map inspectors;
     private boolean inTestMode = false;
     private BPClassLoader currentClassLoader;
-    private boolean compileStarted; // Used to decide if to generate a new ClassLoader.
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -985,46 +984,47 @@ public class Project implements DebuggerListener {
 
         // any calls to the debugger made by removeLocalClassLoader
         // will silently fail
-        removeLocalClassLoader();
+        removeClassLoader();
     }
 
     /**
-     * Removes the current classloader, and removes
-     * references to classes loaded by it (this includes removing
+     * Removes the current classloader, and removes references to classes loaded by it (this includes removing
      * the objects from all object benches of this project).
      * Should be run whenever a source file changes
      */
-    public synchronized void removeLocalClassLoader() {
-        if (currentClassLoader != null) {
-            // remove bench objects for all frames in this project
-            PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
+    public synchronized void removeClassLoader() {
 
-            for (int i = 0; i < frames.length; i++) {
-                frames[i].getObjectBench().removeAllObjects(getUniqueId());
-                frames[i].clearTextEval();
-            }
+        // There is nothing to do if the current classloader is null.
+        if (currentClassLoader == null) return;
+    
+        // remove bench objects for all frames in this project
+        PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
 
-            // get rid of any inspectors that are open that were not cleaned up
-            // as part of removing objects from the bench
-            removeAllInspectors();
-
-            // remove views for classes loaded by this classloader
-            View.removeAll(currentClassLoader);
-
-            // dispose windows for local classes. Should not run user code
-            // on the event queue, so run it in a seperate thread.
-            new Thread() {
-                    public void run() {
-                        getDebugger().disposeWindows();
-                    }
-                }.start();
-
-            currentClassLoader = null;
+        for (int i = 0; i < frames.length; i++) {
+            frames[i].getObjectBench().removeAllObjects(getUniqueId());
+            frames[i].clearTextEval();
         }
+
+        // get rid of any inspectors that are open that were not cleaned up
+        // as part of removing objects from the bench
+        removeAllInspectors();
+
+        // remove views for classes loaded by this classloader
+        View.removeAll(currentClassLoader);
+
+        // dispose windows for local classes. Should not run user code
+        // on the event queue, so run it in a seperate thread.
+        new Thread() {
+                public void run() {
+                    getDebugger().disposeWindows();
+                }
+            }.start();
+
+        currentClassLoader = null;
     }
 
     /**
-     * Removes the remote VM classloader.
+     * Creates a new debugging VM classloader.
      * Should be run whenever a source file changes.
      */
     public synchronized void newRemoteClassLoader() {
@@ -1032,7 +1032,7 @@ public class Project implements DebuggerListener {
     }
 
     /**
-     * Removes the remote VM classloader.
+     * Creates a new debugging VM classloader, leaving current breakpoints.
      * Should be run whenever a source file changes.
      */
     public synchronized void newRemoteClassLoaderLeavingBreakpoints() {
@@ -1170,27 +1170,6 @@ public class Project implements DebuggerListener {
     }
 
     /**
-     * Decide if the current class loader is good, meaning it hosuld not be changed.
-     * Note that is the order of the array is different then the two are considered different.
-     * Note that there is an extra check for compileStarted.
-     * @param compare URLs to compare with the original.
-     * @return true if the current class loader can be reused.
-     */
-    private boolean currentClassloaderGood( URL[] compare) {
-        if (currentClassLoader == null) {
-            return false;
-        }
-
-        if (compileStarted) {
-            // If we have a compilation started then we have to assume the usrls are different.
-            return false;
-        }
-
-        return currentClassLoader.sameUrls(compare);
-    }
-
-
-    /**
      * TIny utility to make code cleaner.
      */
     private void addArrayToList ( ArrayList list, URL []urls)
@@ -1241,29 +1220,18 @@ public class Project implements DebuggerListener {
 
         URL [] newUrls = (URL [])pathList.toArray(new URL[pathList.size()]);
         
-        if (currentClassloaderGood(newUrls)) {
+        // Check if the current classloader is still valid to be returned.
+        if (currentClassLoader != null && currentClassLoader.sameUrls(newUrls) ) {
             return currentClassLoader;
         }
 
         // The Project Class Loader must not "see" the BlueJ classes, this is teh reason to 
         // have BClassLoader created with the boot loader as parent.
         currentClassLoader = new BPClassLoader(newUrls,Boot.getInstance().getBootClassLoader());
-        compileStarted = false; // Clear the flag.
 
-//Debug.message("New classpath="+currentClassLoader.getClassPathAsString());
+        //Debug.message("New classpath="+currentClassLoader.getClassPathAsString());
 
         return currentClassLoader;
-    }
-
-    /**
-     * A Package should tell to a project when a compilation has started.
-     * When a package of a project is recompiled the class loader for that project must be recreated
-     * and in order to do so the Project should know if something has been recompiled.
-     * Note: there is a time gap between compilation start and end, in theory no classLoader can be retrieved
-     * until the compilation ends, in practice it does not make any difference.
-     */
-    void setCompileStarted() {
-        compileStarted = true;
     }
 
     /**

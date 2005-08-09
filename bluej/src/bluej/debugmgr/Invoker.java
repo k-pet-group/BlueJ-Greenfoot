@@ -38,7 +38,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3478 2005-07-26 02:46:05Z davmac $
+ * @version $Id: Invoker.java 3510 2005-08-09 08:47:25Z damiano $
  */
 
 public class Invoker
@@ -284,7 +284,7 @@ public class Invoker
                 if(member instanceof MethodView) {
                     MethodView mv = (MethodView)member;
                     if((mv).isMain()) {
-                        pmf.getProject().removeLocalClassLoader();
+                        pmf.getProject().removeClassLoader();
                         pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();
                     }
                 }

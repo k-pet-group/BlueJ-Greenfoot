@@ -32,7 +32,7 @@ import bluej.utility.JavaNames;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 3333 2005-03-09 23:12:44Z davmac $
+ * @version $Id: UnitTestClassRole.java 3510 2005-08-09 08:47:25Z damiano $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -313,7 +313,7 @@ public class UnitTestClassRole extends ClassRole
         pmf.testRecordingStarted(Config.getString("pkgmgr.test.recording") + " "
         						 + ct.getBaseName() + "." + newTestName + "()");
 
-        pmf.getProject().removeLocalClassLoader();
+        pmf.getProject().removeClassLoader();
 
         final String testName = newTestName;
         
@@ -530,7 +530,7 @@ public class UnitTestClassRole extends ClassRole
             e.printStackTrace();
         }
 
-		pmf.getProject().removeLocalClassLoader();
+		pmf.getProject().removeClassLoader();
 		pmf.getProject().newRemoteClassLoader();
 
 		pmf.getPackage().compileQuiet(ct);	
