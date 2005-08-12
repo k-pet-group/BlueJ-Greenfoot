@@ -45,7 +45,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3462 2005-06-20 14:00:42Z polle $
+ * @version $Id: ClassView.java 3512 2005-08-12 14:03:24Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -116,13 +116,10 @@ public class ClassView extends JToggleButton
         try {
             String className = rClass.getQualifiedName();
             //it is important that we use the right classloader
-            cls = ExecServer.loadClass(className);
+            cls = ExecServer.loadAndInitClass(className);
         }
         catch (RemoteException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (java.lang.ClassNotFoundException e) {
             e.printStackTrace();
         }
         catch (NoClassDefFoundError e) {
