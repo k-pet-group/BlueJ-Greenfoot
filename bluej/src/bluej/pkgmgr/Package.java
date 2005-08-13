@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3510 2005-08-09 08:47:25Z damiano $
+ * @version $Id: Package.java 3521 2005-08-13 18:30:54Z polle $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -687,9 +687,13 @@ public final class Package extends Graph
             Target t = (Target) it.next();
             if ((t instanceof ClassTarget) && ((ClassTarget) t).upToDate()) {
                 ClassTarget ct = (ClassTarget) t;
-                //                if (readyToPaint)
-                ct.setState(Target.S_NORMAL);
-                // XXX: Need to invalidate things dependent on t
+                //If, for some reason, we can't load the class, it should not
+                // set the state to S_NORMAL.
+                try {
+                    loadClass(ct.getQualifiedName());
+                    ct.setState(Target.S_NORMAL);
+                }
+                catch (LinkageError le) {}
             }
         }
     }
@@ -2066,12 +2070,6 @@ public final class Package extends Graph
          */
         public void endCompile(File[] sources, boolean successful)
         {
-            // The following three lines will send a compilation event to
-            // extensions.
-            int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
-            CompileEvent aCompileEvent = new CompileEvent(eventId, sources);
-            ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
-
             for (int i = 0; i < sources.length; i++) {
                 String filename = sources[i].getPath();
 
@@ -2107,7 +2105,14 @@ public final class Package extends Graph
                     t.getEditor().setCompiled(true);
             }
             setStatus(compileDone);
-            getEditor().repaint();
+            if(getEditor() != null) {
+                getEditor().repaint();
+            }
+            // The following three lines will send a compilation event to
+            // extensions.ing
+            int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
+            CompileEvent aCompileEvent = new CompileEvent(eventId, sources);
+            ExtensionsManager.getInstance().delegateEvent(aCompileEvent);        
         }
     }
 
