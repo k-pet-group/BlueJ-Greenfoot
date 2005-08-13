@@ -3,6 +3,8 @@ package bluej.debugger.gentype;
 import java.util.ArrayList;
 import java.util.Map;
 
+import bluej.utility.Debug;
+
 /**
  * A wildcard type with an upper and/or lower bound.<p>
  * 
@@ -13,7 +15,7 @@ import java.util.Map;
  * This is an Immutable type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 3508 2005-08-08 04:18:26Z davmac $
+ * @version $Id: GenTypeWildcard.java 3518 2005-08-13 14:31:04Z polle $
  */
 public class GenTypeWildcard extends GenTypeParameterizable
 {
@@ -139,6 +141,16 @@ public class GenTypeWildcard extends GenTypeParameterizable
             return false;
         
         return true;
+    }
+    
+    public void getParamsFromTemplate(Map map, GenTypeParameterizable template)
+    {
+        // This should never actually be called on a wildcard type (I think).
+        // TODO fix. Actually it probably can get called. When it is called, it
+        // should only be on an actual java type (not a type with multiple
+        // bounds), and it may match against a wildcard or a class.
+        Debug.reportError("getParamsFromTemplate called on GenTypeWildcard.");
+        return;
     }
     
     public JavaType getErasedType()

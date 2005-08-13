@@ -183,7 +183,7 @@ public class IntersectionType extends GenTypeSolid
         return isAssignableFrom(other) && other.isAssignableFrom(this);
     }
 
-    protected void getParamsFromTemplate(Map map, GenTypeParameterizable template)
+    public void getParamsFromTemplate(Map map, GenTypeParameterizable template)
     {
         // This won't be needed
         return;

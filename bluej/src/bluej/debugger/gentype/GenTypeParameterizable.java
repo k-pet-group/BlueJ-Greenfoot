@@ -8,7 +8,7 @@ import java.util.Map;
  * parameters themselves.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeParameterizable.java 3508 2005-08-08 04:18:26Z davmac $
+ * @version $Id: GenTypeParameterizable.java 3518 2005-08-13 14:31:04Z polle $
  */
 public abstract class GenTypeParameterizable
     extends JavaType
@@ -36,6 +36,21 @@ public abstract class GenTypeParameterizable
             return false;
     }
 
+    /**
+     * Assuming that this is some type which encloses some type parameters by
+     * name, and the given template is a similar type but with actual type
+     * arguments, obtain a map which maps the name of the argument (in this
+     * type) to the actual type (from the template type).<p>
+     * 
+     * The given map may already contain some mappings. In this case, the
+     * existing mappings will be retained or made more specific.
+     * 
+     * @param map   A map (String -> GenTypeSolid) to which mappings should
+     *              be added
+     * @param template   The template to use
+     */
+    abstract public void getParamsFromTemplate(Map map, GenTypeParameterizable template);
+    
     /**
      * Find the most precise type that can be determined by taking into account
      * commonalities between this type and the given type. For instance if the

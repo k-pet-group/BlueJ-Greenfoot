@@ -14,7 +14,7 @@ import java.util.Set;
  * a component type for a wildcard clause.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSolid.java 3508 2005-08-08 04:18:26Z davmac $
+ * @version $Id: GenTypeSolid.java 3518 2005-08-13 14:31:04Z polle $
  */
 public abstract class GenTypeSolid extends GenTypeParameterizable {
 
@@ -68,7 +68,7 @@ public abstract class GenTypeSolid extends GenTypeParameterizable {
      *              be added
      * @param template   The template to use
      */
-    abstract protected void getParamsFromTemplate(Map map, GenTypeParameterizable template);
+    abstract public void getParamsFromTemplate(Map map, GenTypeParameterizable template);
     
     /*
      *  Implement methods from GenTypeParameterizable

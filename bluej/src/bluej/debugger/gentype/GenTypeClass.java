@@ -12,7 +12,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 3508 2005-08-08 04:18:26Z davmac $
+ * @version $Id: GenTypeClass.java 3518 2005-08-13 14:31:04Z polle $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -654,7 +654,7 @@ public class GenTypeClass extends GenTypeSolid {
     /*
      * see bluej.debugger.gentype.GenTypeSolid#getParamsFromTemplate(java.util.Map, bluej.debugger.gentype.GenTypeParameterizable)
      */
-    protected void getParamsFromTemplate(Map r, GenTypeParameterizable template)
+    public void getParamsFromTemplate(Map r, GenTypeParameterizable template)
     {
         // We are classA<...>, template could be anything.
         // possibilities for template:
