@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 3352 2005-04-22 02:39:57Z davmac $
+ * @version $Id: Main.java 3516 2005-08-13 13:45:47Z polle $
  */
 public class Main
 {
@@ -33,9 +33,10 @@ public class Main
     {
         Boot boot = Boot.getInstance();
         String [] args = boot.getArgs();
+        Properties commandLineProps = boot.getCommandLineProperties();
 		File bluejLibDir = boot.getBluejLibDir();
 
-        Config.initialise(bluejLibDir, processCommandLineProperties(args));
+        Config.initialise(bluejLibDir,commandLineProps);
 
         // workaround java's broken UNC path handling on Windows
         if (Config.getPropString("bluej.windows.customUNCHandler", "false").equals("true")) {
@@ -48,36 +49,7 @@ public class Main
         processArgs(args);
     }
 
-    /**
-     * Analyse and process command line specified properties.
-     * Properties can be specified with -D... command line options.
-     * 
-     * @param args The command line parameters
-     * @return The property object
-     */
-    private Properties processCommandLineProperties(String[] args)
-    {
-        Properties props = new Properties();
-
-        for(int i = 0; i < args.length; i++) {
-            if (!args[i].startsWith("-D"))
-                continue;
-            
-            String definition = args[i].substring(2);
-            int definitionEquals = definition.indexOf('=');
-            
-            if (definitionEquals < 0)
-                continue;
-            
-            String propName = definition.substring(0, definitionEquals); 
-            String propValue = definition.substring(definitionEquals+1);
-            
-            if (!propName.equals("") && !propValue.equals(""))
-                props.put(propName, propValue);
-        }
-
-        return props;
-    }
+   
     
     /**
      * Start everything off. This is used to open the projects
@@ -131,7 +103,12 @@ public class Main
 
         // Make sure at least one frame exists
         if (!oneOpened) {
+            if (Config.isGreenfoot()) {
+                // TODO: open default project
+            }
+            else {
             openEmptyFrame();
+        }
         }
 
         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
