@@ -57,7 +57,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3510 2005-08-09 08:47:25Z damiano $
+ * @version $Id: PkgMgrFrame.java 3522 2005-08-13 18:45:39Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -588,9 +588,11 @@ public class PkgMgrFrame extends JFrame
      */
     public void show()
     {
-        super.show();
-        setState(Frame.NORMAL);
-        toFront();
+        if (!Config.isGreenfoot()) {
+            super.show();
+            setState(Frame.NORMAL);
+            toFront();
+        }
     }
 
     /**
@@ -1251,15 +1253,25 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
-     * Checks if there were oprphan packages on last exit by looking for
-     * existence of the value saved for the first orphaned package.
+     * Checks if there were orphan packages on last exit by looking for
+     * existence of a valid BlueJ project among the saved values for the
+     * orphaned packages.
      * 
-     * @return whether a value could be found indicating orphan package(s)
+     * @return whether a valid orphaned package exist.
      */
     public static boolean hadOrphanPackages()
     {
-        // check if bluej.openPackage1 exists
-        return (Config.getPropString(Config.BLUEJ_OPENPACKAGE + 1, null) != null);
+        String dir = "";
+        // iterate through unknown number of orphans
+        for (int i = 1; dir != null; i++) {
+            dir = Config.getPropString(Config.BLUEJ_OPENPACKAGE + i, null);
+            if (dir != null) {
+                if(Project.isBlueJProject(dir)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

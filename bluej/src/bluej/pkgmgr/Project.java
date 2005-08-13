@@ -48,7 +48,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3510 2005-08-09 08:47:25Z damiano $
+ * @version $Id: Project.java 3522 2005-08-13 18:45:39Z polle $
  */
 public class Project implements DebuggerListener {
     /**
@@ -384,6 +384,28 @@ public class Project implements DebuggerListener {
         return null;
     }
 
+    /**
+     * Check if the given path contains a BlueJ project.
+     * 
+     * @param projectPath
+     */
+    public static boolean isBlueJProject(String projectPath) {
+        File startingDir = null;
+        try {
+            startingDir = pathIntoStartingDirectory(projectPath);
+        }
+        catch(IOException ioe)
+        {
+            return false;
+        }
+
+        if (startingDir == null) {
+            return false;
+        }
+
+        return Package.isBlueJPackage(startingDir);
+    }
+    
     /**
      * Helper function to take a path (either a directory or a file)
      * and return either the canonical path to the directory
@@ -1210,7 +1232,13 @@ public class Project implements DebuggerListener {
           
             // The current paroject dir must be added to the project class path too.
             pathList.add(getProjectDir().toURI().toURL());
-
+            if(Config.isGreenfoot()) {
+                // If this is greenfoot, we also need access to all the BlueJ jars.
+                addArrayToList(pathList, Boot.getInstance().getRuntimeClassPath());
+                // And the greenfoot.jar as well 
+                File extDir = new File(Config.getBlueJLibDir(), "extensions/greenfoot.jar");
+                pathList.add(extDir.toURI().toURL());
+            }
         } catch ( Exception exc ) {
             // Hould never happen, but if it does we want to know about it immediatly.
             Debug.reportError("Project.getClassLoader() exception="+exc);
