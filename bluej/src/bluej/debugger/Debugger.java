@@ -13,7 +13,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 3504 2005-08-05 05:09:55Z davmac $
+ * @version $Id: Debugger.java 3517 2005-08-13 14:05:57Z polle $
  */
 public abstract class Debugger
 {
@@ -163,6 +163,13 @@ public abstract class Debugger
      */
     public abstract void runClassMain(String className)
     	throws ClassNotFoundException;
+
+    /**
+     * Instantiate a class using the default constructor for that class.
+     * @param className  The name of the class to instantiate
+     * @return   A DebuggerObject representing the newly constructed object
+     */
+    public abstract DebuggerObject instantiateClass(String className);
 
     /**
      * Get a class from the virtual machine, using the current classloader. The class will be

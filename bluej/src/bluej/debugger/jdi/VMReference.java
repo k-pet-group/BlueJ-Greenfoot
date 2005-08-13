@@ -40,7 +40,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3503 2005-08-05 05:03:07Z davmac $
+ * @version $Id: VMReference.java 3517 2005-08-13 14:05:57Z polle $
  * 
  * The startup process is as follows:
  * 
@@ -181,8 +181,13 @@ class VMReference
         if (!PrefMgr.getFlag(PrefMgr.OPTIMISE_VM))
             paramList.add("-Xint");
         if (Config.isMacOS()) {
-            paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/vm.icns");
-            paramList.add("-Xdock:name=BlueJ Virtual Machine");
+            if(Config.isGreenfoot()) {
+                paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/greenfootvm.icns");
+                paramList.add("-Xdock:name=Greenfoot");
+            } else {
+                paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/vm.icns");
+                paramList.add("-Xdock:name=BlueJ Virtual Machine");
+            }
         }
         paramList.add("-Xrunjdwp:transport=dt_socket,server=y");
         paramList.add(SERVER_CLASSNAME);
@@ -801,6 +806,34 @@ class VMReference
         owner.raiseStateChangeEvent(Debugger.IDLE);
     }
     
+    public JdiObject instantiateClass(String className)
+    {
+        ObjectReference obj = null;
+        try {
+            exitStatus = Debugger.NORMAL_EXIT;
+
+            owner.raiseStateChangeEvent(Debugger.RUNNING);
+
+            obj = invokeConstructor(className);
+        }
+        catch (VMDisconnectedException e) {
+            exitStatus = Debugger.TERMINATED;
+            return null; // debugger state change handled elsewhere 
+        }
+        catch (Exception e) {
+            // remote invocation failed
+            Debug.reportError("starting shell class failed: " + e);
+            e.printStackTrace();
+            exitStatus = Debugger.EXCEPTION;
+            lastException = new ExceptionDescription("Internal BlueJ error: unexpected exception in remote VM\n" + e);
+        }
+        owner.raiseStateChangeEvent(Debugger.IDLE);
+        if (obj == null)
+            return null;
+        else
+            return JdiObject.getDebuggerObject(obj);
+    }
+    
     /**
      * Cause the exec server to execute a method. Note that all arguments to
      * methods must be either String's or objects that are already mirrored onto
@@ -1391,6 +1424,31 @@ class VMReference
                     exceptionEvent(new InvocationException(exception));
             }
             return rval;
+        }
+    }
+    
+    private ObjectReference invokeConstructor(String className)
+    {
+        synchronized(serverThreadLock) {
+            serverThreadStartWait();
+            
+            // Store the class and method to call
+            setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, className);
+            setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.INSTANTIATE_CLASS));
+            
+            // Resume the thread, wait for it to finish and the new thread to start
+            serverThreadStarted = false;
+            serverThread.resume();
+            serverThreadStartWait();
+            
+            // Get return value and check for exceptions
+            Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
+            if (rval == null) {
+                ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
+                if (exception != null)
+                    exceptionEvent(new InvocationException(exception));
+            }
+            return (ObjectReference) rval;
         }
     }
     

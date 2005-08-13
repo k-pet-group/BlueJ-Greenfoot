@@ -17,6 +17,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
+import bluej.Config;
+
 import junit.framework.TestCase;
 import junit.framework.TestFailure;
 import junit.framework.TestResult;
@@ -33,7 +35,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3503 2005-08-05 05:03:07Z davmac $
+ * @version $Id: ExecServer.java 3517 2005-08-13 14:05:57Z polle $
  */
 public class ExecServer
 {
@@ -87,6 +89,7 @@ public class ExecServer
     public static final int DISPOSE_WINDOWS = 3;
     public static final int EXIT_VM = 4;
     public static final int LOAD_INIT_CLASS = 5;  // load and initialize a class
+    public static final int INSTANTIATE_CLASS = 6; // use default constructor
     
     // Parameter for worker thread actions
     public static int workerAction;
@@ -116,7 +119,16 @@ public class ExecServer
     // EXIT_VM ( = 4) is also used in the worker thread
 
     // the current class loader
-  	private static ClassLoader currentLoader;
+	private static ClassLoader currentLoader;
+
+    // The loader that loads the greenfoot application classes. This is the
+    // loader that gets used the first time anything is loaded in the debugvm.
+    // This loader will be the parent loader for all loaders created later on.
+    // The reason we need to do this, is to keep using the same class for
+    // GreenfootObject and GreenfootWorld in order to cast newly created objects
+    // into these types.
+    private static ClassLoader greenfootLoader;
+    
 	  // a hashmap of names to objects
     // private static Map objects = new HashMap();
     private static Map objectMaps = new HashMap();
@@ -317,16 +329,26 @@ public class ExecServer
         String [] splits = urlListAsString.split("\n");
         URL []urls = new URL[splits.length];
 
-        for ( int index=0; index<splits.length; index++ )  
+        for (int index = 0; index < splits.length; index++)
             try {
-                urls[index]=new URL(splits[index]);
+                urls[index] = new URL(splits[index]);
             }
             catch (MalformedURLException mfue) {
                 // Should never happen but if it does we want to know about it
-                System.err.println("ExecServer.newLoader() Malformed URL="+splits[index]);
+                System.err.println("ExecServer.newLoader() Malformed URL=" + splits[index]);
             }
+
             
-        currentLoader = new URLClassLoader(urls);
+            
+        // For greenfoot we need to use the greenfootLoader as parent for all
+        // class loaders.
+        if (currentLoader != null && Config.isInitialised() && Config.isGreenfoot()) {
+            currentLoader = new URLClassLoader(urls, greenfootLoader);
+        }
+        else {
+            greenfootLoader = new URLClassLoader(urls);
+            currentLoader = greenfootLoader;
+        }
         objectMaps.clear();
 
 //    	BeanShell    
@@ -352,7 +374,7 @@ public class ExecServer
      * Load (and prepare) a class in the remote runtime. Return null if the class could not
      * be loaded.
      */
-    private static Class loadAndInitClass(String className)
+    public static Class loadAndInitClass(String className)
     {
     	//Debug.message("[VM] loadClass: " + className);
         
@@ -804,6 +826,7 @@ public class ExecServer
                 try {
                     switch(execAction) {
                         case EXEC_SHELL:
+                        {
                             // Execute a shell class.
                             clearInputBuffer();
                             Class c = currentLoader.loadClass(classToRun);
@@ -815,6 +838,23 @@ public class ExecServer
                                 throw ite.getCause();
                             }
                             break;
+                        }
+                        case INSTANTIATE_CLASS:
+                        {
+                            // Instantiate a class using the default
+                            // constructor
+                            clearInputBuffer();
+                            Class c = currentLoader.loadClass(classToRun);
+                            Constructor cons = c.getDeclaredConstructor(new Class[0]);
+                            cons.setAccessible(true);
+                            try {
+                                methodReturn = cons.newInstance(null);
+                            }
+                            catch (InvocationTargetException ite) {
+                                throw ite.getCause();
+                            }
+                            break;
+                        }   
                         case TEST_SETUP:
                             methodReturn = runTestSetUp(classToRun);
                             break;
@@ -874,4 +914,17 @@ public class ExecServer
         t.printStackTrace();
     }
     
+
+    /**
+     * Gets an object in the scope.
+     * <br>
+     * 
+     * Used by greenfoot.
+     * 
+     * @param instanceName The name of the object
+     * @return The object
+     */
+    public static Object getObject(String instanceName) {
+        return getScope(scopeId).get(instanceName);
+    }
 }

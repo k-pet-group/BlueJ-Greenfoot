@@ -34,7 +34,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 3503 2005-08-05 05:03:07Z davmac $
+ * @version $Id: JdiDebugger.java 3517 2005-08-13 14:05:57Z polle $
  */
 public class JdiDebugger extends Debugger
 {
@@ -579,6 +579,11 @@ public class JdiDebugger extends Debugger
         throws ClassNotFoundException
     {
         getVM().runShellClass(className);
+    }
+
+    public DebuggerObject instantiateClass(String className)
+    {
+        return getVM().instantiateClass(className);
     }
 
     /**
