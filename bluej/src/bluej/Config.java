@@ -36,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3441 2005-06-15 08:01:25Z mik $
+ * @version $Id: Config.java 3514 2005-08-13 13:38:38Z polle $
  */
 
 public final class Config
@@ -55,6 +55,8 @@ public final class Config
     
     private static Properties lang_props;	// international labels
 
+    private static BlueJPropStringSource propSource; // source for properties
+
     private static File bluejLibDir;
     private static File userPrefDir;
 
@@ -68,7 +70,9 @@ public final class Config
     public static final String osname = System.getProperty("os.name", "");
     public static final String DEFAULT_LANGUAGE = "english";
     public static final String BLUEJ_OPENPACKAGE = "bluej.openPackage";
-    public static final String debugLogName = "bluej-debuglog.txt";
+    public static final String bluejDebugLogName = "bluej-debuglog.txt";
+    public static final String greenfootDebugLogName = "greenfoot-debuglog.txt";
+    public static String debugLogName = bluejDebugLogName;
     
     private static boolean initialised = false;
     protected static final int SHORTCUT_MASK =
@@ -95,7 +99,9 @@ public final class Config
 
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
-     * This method finds and opens the configuration files.
+     * This method finds and opens the configuration files.<p>
+     * 
+     * See also initializeVMside().
      */
     public static void initialise(File bluejLibDir, Properties tempCommandLineProps)
     {
@@ -143,6 +149,11 @@ public final class Config
         // add user specific definitions
         loadProperties("bluej", user_props);
 
+        // set a new name for the log file if we are running in greenfoot mode
+        if(isGreenfoot()) {
+            debugLogName = greenfootDebugLogName;
+        }
+        
         checkDebug(userPrefDir);
         
         // find our language (but default to english if none found)
@@ -180,6 +191,78 @@ public final class Config
         command_props.setProperty("bluej.version", Boot.BLUEJ_VERSION);
     } // initialise
 
+    /**
+     * Alternative to "initialise", to be used in the debugee-VM by
+     * applications which require it (ie. greenfoot).
+     */
+    public static void initializeVMside(File bluejLibDir, BlueJPropStringSource propSource)
+    {
+        if(initialised)
+            return;
+    
+        initialised = true;
+        Config.bluejLibDir = bluejLibDir;
+        Config.propSource = propSource;
+        screenBounds = calculateScreenBounds();
+        
+        system_props = new Properties() {
+          public String getProperty(String key)
+          {
+              return Config.propSource.getBlueJPropertyString(key, null);
+          }
+          
+          public String getProperty(String key, String def)
+          {
+              return Config.propSource.getBlueJPropertyString(key, def);
+          }
+        };
+        user_props = new Properties(system_props) {
+            public Object setProperty(String key, String val) {
+                String rval = getProperty(key);
+                Config.propSource.setUserProperty(key, val);
+                return rval;
+            }
+        };
+        command_props = new Properties(user_props);
+        
+        lang_props =  new Properties() {
+            public String getProperty(String key)
+            {
+                return Config.propSource.getLabel(key);
+            }
+            
+            public String getProperty(String key, String def)
+            {
+                return Config.propSource.getLabel(key);
+            }
+        };
+
+        // get user home directory
+        {
+            File userHome;
+            String homeDir = command_props.getProperty("bluej.userHome", null);
+            if(homeDir == null)
+                userHome = new File(System.getProperty("user.home"));
+            else
+                userHome = new File(homeDir);
+
+            // get user specific bluej property directory (in user home)
+            userPrefDir = new File(userHome, getBlueJPrefDirName());
+
+            if(!userPrefDir.isDirectory())
+                userPrefDir.mkdirs();
+        }
+
+        // compiler type
+        
+        compilertype = Config.getPropString("bluej.compiler.type");
+        if(compilertype.equals("internal"))
+            compilertype = "javac";
+    }
+    
+    public static boolean isInitialised() {
+        return initialised;
+    }
     
     /**
      * Tell us whether we are running on MacOS
@@ -241,12 +324,17 @@ public final class Config
      */
     private static String getBlueJPrefDirName()
     {
+        
+        String programName = "bluej";
+        if(isGreenfoot()) {
+            programName = "greenfoot";
+        }
         if(isMacOS())
-            return "Library/Preferences/org.bluej";
+            return "Library/Preferences/org." + programName;
         else if(isWinOS())
-            return "bluej";
+            return programName;
         else
-            return ".bluej";
+            return "." + programName;
     }
     
     /**
@@ -988,5 +1076,18 @@ public final class Config
     public static List getDebugVMArgs()
     {
         return debugVMArgs;
+    }
+    
+    /**
+     * Method to determine if BlueJ is running in greenfoot mode. Greenfoot mode
+     * is used when we are launching BlueJ to be used for greenfoot.
+     * 
+     * To switch on greenfoot mode the property greenfoot should be set to true.
+     * This can be done by starting BlueJ with this command line argument
+     * -greenfoot=true
+     */
+    public static boolean isGreenfoot()
+    {
+        return getPropString("greenfoot", "false").equalsIgnoreCase("true");
     }
 }
