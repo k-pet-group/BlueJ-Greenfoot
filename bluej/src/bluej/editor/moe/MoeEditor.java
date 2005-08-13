@@ -38,6 +38,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.Utility;
 
 /**
  * Moe is the editor of the BlueJ environment. This class is the main class of
@@ -366,6 +367,7 @@ public final class MoeEditor extends JFrame
             setState(Frame.NORMAL);         // de-iconify
             toFront();                      // window to front
         }
+        Utility.bringToFront();
         super.setVisible(vis);              // show the window
     }
 
