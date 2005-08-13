@@ -1,5 +1,6 @@
 package bluej;
 
+import java.awt.Frame;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
@@ -16,7 +17,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3506 2005-08-07 18:58:32Z damiano $
+ * @version $Id: Boot.java 3513 2005-08-13 13:30:18Z polle $
  */
 public class Boot
 {
@@ -36,6 +37,9 @@ public class Boot
 
     public static final String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
     
+    public static String GREENFOOT_VERSION = " 0.2";
+
+    
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
     
@@ -53,8 +57,6 @@ public class Boot
     // (bluej.runtime.* classes).
     private static String[] bluejUserJars = { "bluejcore.jar", "junit.jar" };
     
-    private static boolean useClassesDir = false;
-
     /**
      * Entry point for booting BlueJ
      *
@@ -87,16 +89,22 @@ public class Boot
             System.exit(-1);
         }
 
-        SplashWindow splash = new SplashWindow();
+        Properties commandLineProps = processCommandLineProperties(args);
+        boolean isGreenfoot = commandLineProps.getProperty("greenfoot", "false").equals("true");
         
-        if((args.length >= 1) && "-useclassesdir".equals(args[0])) {
-            useClassesDir = true;
+        SplashLabel image = null;
+        if(isGreenfoot) {
+            image = new GreenfootLabel();
+        } else {
+            image = new BlueJLabel();
         }
         
-        instance = new Boot(args);
+        Frame splash = new SplashWindow(image);
+        
+        instance = new Boot(args, commandLineProps);
         instance.bootBluej();
 
-        splash.remove();
+        splash.dispose();
     }
 
 
@@ -112,7 +120,7 @@ public class Boot
 
 
     // ---- instance part ----
-    
+    private Properties commandLineProps; //Properties specified a the command line (-....)
     private String[] args;      // Command line arguments
     private File javaHomeDir;   // The value returned by System.getProperty
     private File bluejLibDir;   // Calculated below
@@ -120,17 +128,19 @@ public class Boot
     private ClassLoader bootLoader; // The loader this class is loaded with
 
     private URL[] runtimeUserClassPath; // The initial class path used to run code within BlueJ
+    private URL[] runtimeClassPath;     // The class path containing all the BlueJ classes
 
 
     /**
      * Constructor for the singleton Boot object.
      * 
-     * @param args
-     *            the arguments with which main() was invoked
+     * @param args the arguments with which main() was invoked
+     * @param props the properties (created from the args)
      */
-    private Boot(String[] args)
+    private Boot(String[] args, Properties props)
     {
         this.args = args;
+        this.commandLineProps = props;
     }
 
 
@@ -165,6 +175,7 @@ public class Boot
         return bluejLibDir;
     }
 
+
     /**
      * Return the path of the Junit library.
      * @return a File pointing to the local Junit library.
@@ -177,6 +188,16 @@ public class Boot
             throw new IllegalStateException("junit.jar is missing or unreadable");
 
         return risul;
+    }
+
+    /**
+     * Returns the runtime classpath. This contains all the classes for BlueJ.
+     *
+     * @return    The runtimeClassPath value.
+     */
+    public URL[] getRuntimeClassPath()
+    {
+        return runtimeClassPath;
     }
     
     /**
@@ -217,7 +238,7 @@ public class Boot
         bluejLibDir = calculateBluejLibDir();
 
         try {
-            URL[] runtimeClassPath = getKnownJars(bluejLibDir, bluejJars, true);
+            runtimeClassPath = getKnownJars(bluejLibDir, bluejJars, true);
             URLClassLoader runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
 
             runtimeUserClassPath = getKnownJars(bluejLibDir, bluejUserJars, false);
@@ -308,6 +329,8 @@ public class Boot
     private URL[] getKnownJars(File libDir, String[] jars, boolean isSystem) 
         throws MalformedURLException
     {
+        boolean useClassesDir = commandLineProps.getProperty("useclassesdir", "false").equals("true");
+        
         // by default, we require all our known jars to be present
         int startJar = 0;
         ArrayList urlList = new ArrayList();
@@ -404,4 +427,45 @@ public class Boot
             return null;
         }
     }
+    
+    /**
+     * Analyse and process command line specified properties.
+     * Properties can be specified with -... command line options. For example: -bluej.debug=true
+     * 
+     * @param args The command line parameters
+     * @return The property object
+     */
+    private static Properties processCommandLineProperties(String[] args)
+    {
+        Properties props = new Properties();
+
+        for(int i = 0; i < args.length; i++) {
+            if (!args[i].startsWith("-"))
+                continue;
+            
+            String definition = args[i].substring(1);
+            int definitionEquals = definition.indexOf('=');
+            
+            if (definitionEquals < 0)
+                continue;
+            
+            String propName = definition.substring(0, definitionEquals); 
+            String propValue = definition.substring(definitionEquals+1);
+            
+            if (!propName.equals("") && !propValue.equals(""))
+                props.put(propName, propValue);
+        }
+        return props;
+    }
+
+    /**
+     * Returns command line specified properties. <br>
+     * 
+     * Properties can be specified with -... command line options. For example: -bluej.debug=true
+     */
+    public Properties getCommandLineProperties()
+    {
+        return commandLineProps;
+    }
+    
 }

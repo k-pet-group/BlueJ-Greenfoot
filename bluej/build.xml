@@ -128,9 +128,12 @@
             <fileset dir="${boot.build}">
                 <include name="bluej/Boot*.class"/>
                 <include name="bluej/Splash*.class"/>
+                <include name="bluej/BlueJLabel.class"/>
+                <include name="bluej/GreenfootLabel.class"/>
             </fileset>
             <fileset dir="${boot.src}">
             	<include name="bluej/splash.jpg"/>
+            	<include name="bluej/greenfootsplash.jpg"/>
             </fileset>
             <manifest>
                 <attribute name="Main-Class" value="bluej.Boot"/>
