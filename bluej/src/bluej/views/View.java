@@ -15,7 +15,7 @@ import bluej.utility.JavaUtils;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 3318 2005-02-17 05:04:12Z davmac $
+ * @version $Id: View.java 3524 2005-08-13 21:43:58Z polle $
  */
 public class View
 {
@@ -237,6 +237,15 @@ public class View
         }
     }
 
+    /**
+     * Helper method to get all methods from the class represented by this
+     * view and all its superclasses. If all methods have already been cached
+     * (in "allMethods"), simply returns the cached list.
+     * 
+     * @param h        The hashmap into which to put all the methods
+     * @param methnum  The number of methods presently in the map
+     * @return         The number of methods in the map at completion
+     */
     protected int getAllMethods(HashMap h, int methnum)
     {
         if(allMethods != null) {
