@@ -18,7 +18,7 @@ import bluej.utility.*;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 3315 2005-02-17 00:21:15Z davmac $
+ * @version $Id: Terminal.java 3523 2005-08-13 21:43:34Z polle $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -176,6 +176,7 @@ public final class Terminal extends JFrame
      */
     private void writeToTerminal(char ch)
     {
+        prepare();
         if(ch == '\f') {
             clear();
         }
@@ -208,7 +209,9 @@ public final class Terminal extends JFrame
             
             // TEMPORARY: filter out known annoying but harmless error messages
             // from MacOS Java v. 1.4.1
-            if(erroutBuffer.indexOf("Java_apple_awt_") == -1) {
+            if((erroutBuffer.indexOf("CFMessagePort") == -1) &&
+                    (erroutBuffer.indexOf("bootstrap_defs.h") == -1)) {
+                prepare();
                 showErrorPane();
                 
                 errorText.append(erroutBuffer.toString());
@@ -658,7 +661,6 @@ public final class Terminal extends JFrame
         public void write(int ch)
         {
             if (enabled) {
-                prepare();
                 if(isErrorOut)
                     writeToErrorOut((char)ch);
                 else
