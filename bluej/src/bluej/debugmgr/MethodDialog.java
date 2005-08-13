@@ -17,6 +17,7 @@ import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.TextType;
+import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.ComponentFactory;
@@ -35,7 +36,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: MethodDialog.java 3519 2005-08-13 18:01:44Z polle $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -113,7 +114,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 3463 2005-07-13 01:55:27Z davmac $
+     * @version $Id: MethodDialog.java 3519 2005-08-13 18:01:44Z polle $
      */
     public static class ParameterList
     {
@@ -239,7 +240,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      *                     (a Map of String -> GenType).
      */
     public MethodDialog(PkgMgrFrame pmf, String instanceName, CallableView method, Map typeMap) {
-        super(pmf, "");
+        super(pmf, pmf.getObjectBench(), "");
 
         Package pkg = pmf.getPackage();
 
@@ -257,6 +258,37 @@ public class MethodDialog extends CallDialog implements FocusListener
         makeDialog(method.getClassName(), instanceName, method);
         setInstanceInfo(instanceName, typeMap);
     }
+
+    /**
+     * MethodDialog constructor.
+     * 
+     * @param parentFrame  The parent window for the dialog
+     * @param ob           The object bench to listen for object selection on
+     * @param callHistory  The call history tracker
+     * @param instanceName The initial instance name (for a constructor dialog)
+     *                     or the object instance on which the method is being called
+     * @param method       The constructor or method being used
+     * @param typeMap      The mapping of type parameter names to runtime types
+     *                     (a Map of String -> GenType).
+     */
+    public MethodDialog(JFrame parentFrame, ObjectBench ob, CallHistory callHistory, String instanceName, CallableView method, Map typeMap) {
+        super(parentFrame, ob, "");
+
+        history = callHistory;
+
+        // Find out the type of dialog
+        if (method instanceof MethodView) {
+            dialogType = MD_CALL;
+            methodName = ((MethodView) method).getName();
+        }
+        else if (method instanceof ConstructorView) {
+            dialogType = MD_CREATE;
+        }
+
+        makeDialog(method.getClassName(), instanceName, method);
+        setInstanceInfo(instanceName, typeMap);
+    }
+
 
     /**
      * Set the visibility of the dialog, clearing parameter edit fields
@@ -285,7 +317,8 @@ public class MethodDialog extends CallDialog implements FocusListener
                     setErrorMessage(illegalNameMsg);
                     return;
                 }
-                if (getObjectBench().hasObject(getNewInstanceName())) {
+                ObjectBench ob = getObjectBench();
+                if (ob != null && ob.hasObject(getNewInstanceName())) {
                     setErrorMessage(duplicateNameMsg);
                     return;
                 }
@@ -802,13 +835,17 @@ public class MethodDialog extends CallDialog implements FocusListener
         constraints.gridy = 0;
         constraints.gridx = 0;
         gridBag.setConstraints(instName, constraints);
-        tmpPanel.add(instName);
+        if(!Config.isGreenfoot()) {
+            tmpPanel.add(instName);
+        }
         constraints.gridx = 1;
         constraints.gridwidth = 1;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         gridBag.setConstraints(instanceNameText, constraints);
-        tmpPanel.add(instanceNameText);
+        if(!Config.isGreenfoot()) {
+            tmpPanel.add(instanceNameText);
+        }
 
         View clazz = method.getDeclaringView();
         if (clazz.isGeneric()) {

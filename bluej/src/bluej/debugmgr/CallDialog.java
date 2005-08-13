@@ -1,14 +1,28 @@
 package bluej.debugmgr;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import bluej.BlueJTheme;
-import bluej.debugmgr.objectbench.*;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.utility.*;
+import bluej.debugmgr.objectbench.ObjectBench;
+import bluej.debugmgr.objectbench.ObjectBenchEvent;
+import bluej.debugmgr.objectbench.ObjectBenchListener;
+import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.utility.DialogManager;
+import bluej.utility.EscapeDialog;
+import bluej.utility.MultiLineLabel;
 
 /**
  * Superclass for interactive call dialogs (method calls or free
@@ -16,13 +30,13 @@ import bluej.utility.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 3175 2004-11-25 14:33:52Z fisker $
+ * @version $Id: CallDialog.java 3519 2005-08-13 18:01:44Z polle $
  */
 public abstract class CallDialog extends EscapeDialog
 	implements ObjectBenchListener
 {
-    static final int OK = 0;
-    static final int CANCEL = 1;
+    public static final int OK = 0;
+    public static final int CANCEL = 1;
 
     private MultiLineLabel errorLabel;
 
@@ -31,10 +45,10 @@ public abstract class CallDialog extends EscapeDialog
     
     protected JButton okButton;
 
-    public CallDialog(PkgMgrFrame pmf, String title)
+    public CallDialog(JFrame parentFrame, ObjectBench objectBench, String title)
     {
-        super(pmf, title, false);
-        bench = pmf.getObjectBench();
+        super(parentFrame, title, false);
+        bench = objectBench;
     }
 
     /**
@@ -101,7 +115,8 @@ public abstract class CallDialog extends EscapeDialog
      */
     protected void startObjectBenchListening()
     {
-        bench.addObjectBenchListener(this);
+        if (bench != null)
+            bench.addObjectBenchListener(this);
     }
 
     /**
@@ -109,7 +124,8 @@ public abstract class CallDialog extends EscapeDialog
      */
     protected void stopObjectBenchListening()
     {
-        bench.removeObjectBenchListener(this);
+        if (bench != null)
+            bench.removeObjectBenchListener(this);
     }
 
     /**

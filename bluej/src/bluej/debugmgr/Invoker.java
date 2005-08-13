@@ -20,6 +20,7 @@ import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.GenTypeWildcard;
 import bluej.debugger.gentype.NameTransform;
 import bluej.debugger.gentype.TextType;
+import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -38,7 +39,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3510 2005-08-09 08:47:25Z damiano $
+ * @version $Id: Invoker.java 3519 2005-08-13 18:01:44Z polle $
  */
 
 public class Invoker
@@ -222,9 +223,13 @@ public class Invoker
      */
     public void invokeInteractive()
     {
+        //in greenfoot mode we don't ever want to ask for instance name
+        if(constructing && Config.isGreenfoot()) {     
+            instanceName = objName;
+        }
         // check for a method call with no parameter
         // if so, just do it
-        if (!constructing && !member.hasParameters()) {
+        if ((!constructing || Config.isGreenfoot()) && !member.hasParameters()) {
             dialog = null;
             doInvocation(null, (JavaType []) null, null);
         }
@@ -471,11 +476,34 @@ public class Invoker
 
         //      BeanShell
         //beanShellExecute(commandAsString);
+        if (constructing && numArgs == 0 && (typeParams == null || typeParams.length == 0)) {
+            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandString);
+            DebuggerObject result = pkg.getProject().getDebugger().instantiateClass(className);
 
-        File shell = writeInvocationFile(pkg, paramInit, command + argString, constructing, isVoid, constype);
+            // the execution is completed, get the result if there was one
+            // (this could be either a construction or a function result)
+            
+            int status = pkg.getDebugger().getExitStatus();
+            if (status == Debugger.NORMAL_EXIT) {
+                watcher.putResult(result, instanceName, ir);
+                
+                executionEvent.setResultObject(result);
+                executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+            }
+            else
+                handleResult(""); // handles error situations
+            
+            closeCallDialog();
+            
+            // update all open inspect windows
+            Inspector.updateInspectors();
+        }
+        else {
+            File shell = writeInvocationFile(pkg, paramInit, command + argString, constructing, isVoid, constype);
 
-        commandString = command + actualArgString;
-        compileInvocationFile(shell);
+            commandString = command + actualArgString;
+            compileInvocationFile(shell);
+        }
     }
 
     /**
@@ -884,11 +912,8 @@ public class Invoker
         if (dialog != null) {
             dialog.setWaitCursor(false);
             if (successful) {
-                dialog.setVisible(false);
-                if (dialog instanceof MethodDialog)
-                    ((MethodDialog) dialog).updateParameters();
+                closeCallDialog();
             }
-
         }
 
         pmf.setWaitCursor(false);
@@ -913,6 +938,16 @@ public class Invoker
         
         if (! successful && dialog != null)
             dialog.setEnabled(true);
+    }
+
+    private void closeCallDialog()
+    {
+        if (dialog != null) {
+            dialog.setWaitCursor(false);
+            dialog.setVisible(false);
+            if (dialog instanceof MethodDialog)
+                ((MethodDialog) dialog).updateParameters();
+        }
     }
 
     /**

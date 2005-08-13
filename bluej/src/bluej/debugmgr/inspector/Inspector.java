@@ -1,9 +1,19 @@
 package bluej.debugmgr.inspector;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Frame;
+import java.awt.GridLayout;
 import java.awt.event.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -25,13 +35,14 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 3388 2005-05-26 02:05:43Z bquig $
+ * @version $Id: Inspector.java 3519 2005-08-13 18:01:44Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
 {
     // === static variables ===
 
+    protected static HashMap inspectors = new HashMap();
 
     protected final static String showClassLabel = Config.getString("debugger.inspector.showClass");
     protected final static String inspectLabel = Config.getString("debugger.inspector.inspect");
@@ -66,6 +77,40 @@ public abstract class Inspector extends JFrame
 
   
     /**
+     * Update all open inspectors to show up-to-date values.
+     */
+    public static void updateInspectors()
+    {
+        for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
+            Inspector inspector = (Inspector) it.next();
+            inspector.update();
+        }
+    }
+  
+    /**
+     * Remove an Inspector from the pool of existing inspectors.
+     */
+    public static void removeInstance(Object key)
+    {
+        Inspector insp = (Inspector) inspectors.get(key);
+        if (insp != null)
+            insp.doClose();
+    }
+    
+    /**
+     * Remove all inspectors (for all projects).
+     */
+    public static void removeInspectors()
+    {
+        Iterator i = inspectors.entrySet().iterator();
+        while (i.hasNext()) {
+            Map.Entry mapEntry = (Map.Entry) i.next();
+            Inspector inspector = (Inspector) mapEntry.getValue();
+            inspector.doClose();
+        }
+    }
+
+    /**
      * Constructor.
      * 
      * @param pkg
@@ -79,13 +124,13 @@ public abstract class Inspector extends JFrame
 
         setIconImage(BlueJTheme.getIconImage());
 
+        if (pkg == null && ir != null) {
+            // Get button cannot be enabled when pkg==null
+            ir = null;
+        }
         this.project = proj;
         this.pkg = pkg;
         this.ir = ir;
-
-        if (pkg == null && ir != null) {
-            throw new IllegalArgumentException("Get button cannot be enabled when pkg==null");
-        }
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent E)
