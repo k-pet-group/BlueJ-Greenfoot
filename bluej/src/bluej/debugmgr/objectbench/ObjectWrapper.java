@@ -10,6 +10,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -34,6 +35,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
+import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
@@ -45,9 +47,9 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3478 2005-07-26 02:46:05Z davmac $
+ * @version $Id: ObjectWrapper.java 3528 2005-08-14 23:03:37Z polle $
  */
-public class ObjectWrapper extends JComponent implements NamedValue
+public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
     // Strings
     static String methodException = Config.getString("debugger.objectwrapper.methodException");
@@ -92,8 +94,6 @@ public class ObjectWrapper extends JComponent implements NamedValue
     private PkgMgrFrame pmf;
     private ObjectBench ob;
 
-    private Hashtable methodsUsed;
-    private Hashtable actions;
     private boolean isSelected = false;
     
     private Color[] colours = {
@@ -203,60 +203,11 @@ public class ObjectWrapper extends JComponent implements NamedValue
         // System.out.println ("Bobject createMenu");    Damiano, marker for dynamic menu
         Class cl = pkg.loadClass(className);
 
-        List classes = getClassHierarchy(cl);
 
         menu = new JPopupMenu(getName() + " operations");
 
-        if (cl != null) {
-            View view = View.getView(cl);
-            actions = new Hashtable();
-            methodsUsed = new Hashtable();
-
-            // define two view filters for different package visibility
-            ViewFilter samePackageFilter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
-            ViewFilter otherPackageFilter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PUBLIC);
-            
-            // define a view filter
-            ViewFilter filter;
-            if (view.getPackageName().equals(pkg.getQualifiedName()))
-                filter = samePackageFilter;
-            else
-                filter = otherPackageFilter;
-
-            menu.addSeparator();
-
-            // get declared methods for the class
-            MethodView[] declaredMethods = view.getDeclaredMethods();
-            
-            // create method entries for locally declared methods
-            GenTypeClass curType = obj.getGenType();
-            int itemLimit = itemsOnScreen - 8 - classes.size();
-            createMenuItems(menu, declaredMethods, filter, itemLimit, curType.getMap());
-
-            // create submenus for superclasses
-            for(int i = 1; i < classes.size(); i++ ) {
-                Class currentClass = (Class)classes.get(i);
-                view = View.getView(currentClass);
-                
-                // Determine visibility of package private / protected members
-                if (view.getPackageName().equals(pkg.getQualifiedName()))
-                    filter = samePackageFilter;
-                else
-                    filter = otherPackageFilter;
-                
-                // map generic type paramaters to the current superclass
-                curType = curType.mapToSuper(currentClass.getName());
-                
-                declaredMethods = view.getDeclaredMethods();
-                JMenu subMenu = new JMenu(inheritedFrom + " "
-                               + JavaNames.stripPrefix(currentClass.getName()));
-                subMenu.setFont(PrefMgr.getStandoutMenuFont());
-                createMenuItems(subMenu, declaredMethods, filter, (itemsOnScreen / 2), curType.getMap());
-                menu.insert(subMenu, 0);
-            }
-
-            menu.addSeparator();
-        }
+        // add the menu items to call the methods
+        createMethodMenuItems(menu, cl, this, obj, pkg.getQualifiedName());
 
         // add inspect and remove options
         JMenuItem item;
@@ -284,22 +235,103 @@ public class ObjectWrapper extends JComponent implements NamedValue
     }
     
     /**
+     * Creates the menu items for all the methods in the class
+     * 
+     * @param menu
+     * @param cl
+     * @param il
+     * @param obj
+     * @param currentPackageName Name of the package that this object will be
+     *            shown from (used to determine wheter to show package protected
+     *            methods)
+     */
+    public static void createMethodMenuItems(JPopupMenu menu, Class cl, InvokeListener il, DebuggerObject obj,
+            String currentPackageName)
+    {
+        if (cl != null) {
+            View view = View.getView(cl);
+            Hashtable actions = new Hashtable();
+            Hashtable methodsUsed = new Hashtable();
+            List classes = getClassHierarchy(cl);
+
+            // define two view filters for different package visibility
+            ViewFilter samePackageFilter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
+            ViewFilter otherPackageFilter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PUBLIC);
+            
+            // define a view filter
+            ViewFilter filter;
+            if (currentPackageName.equals(view.getPackageName()))
+                filter = samePackageFilter;
+            else
+                filter = otherPackageFilter;
+
+
+            menu.addSeparator();
+
+            // get declared methods for the class
+            MethodView[] declaredMethods = view.getDeclaredMethods();
+            
+            // create method entries for locally declared methods
+            GenTypeClass curType = obj.getGenType();
+            
+            // HACK to make it work in greenfoot.
+            if(itemsOnScreen <= 0 ) {
+                itemsOnScreen = 30; 
+            }
+
+            int itemLimit = itemsOnScreen - 8 - classes.size();
+          
+            createMenuItems(menu, declaredMethods, il, filter, itemLimit, curType.getMap(), actions, methodsUsed);
+
+            // create submenus for superclasses
+            for(int i = 1; i < classes.size(); i++ ) {
+                Class currentClass = (Class)classes.get(i);
+                view = View.getView(currentClass);
+                
+                // Determine visibility of package private / protected members
+                if (currentPackageName.equals(view.getPackageName()))
+                    filter = samePackageFilter;
+                else
+                    filter = otherPackageFilter;
+                
+                
+                filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PROTECTED);
+                
+                // map generic type paramaters to the current superclass
+                curType = curType.mapToSuper(currentClass.getName());
+                
+                declaredMethods = view.getDeclaredMethods();
+                JMenu subMenu = new JMenu(inheritedFrom + " "
+                               + JavaNames.stripPrefix(currentClass.getName()));
+                subMenu.setFont(PrefMgr.getStandoutMenuFont());
+                createMenuItems(subMenu, declaredMethods, il, filter, (itemsOnScreen / 2), curType.getMap(), actions, methodsUsed);
+                menu.insert(subMenu, 0);
+            }
+
+            menu.addSeparator();
+        }
+    }
+    
+    /**
      * creates the individual menu items for an object's popup menu.
      * The method checks for previously defined methods with the same signature
      * and appends information referring to this.
      *
      * @param menu      the menu that the items are to be created for
      * @param methods   the methods for which menu items should be created
+     * @param il the listener to be notified when a method should be called
+     *            interactively
      * @param filter    the filter which decides on which methods should be shown
      * @param sizeLimit the limit to which the menu should grow before openeing
      *                  submenus
-     * @param genericParams  the mapping of generic type parameter names to
-     *                  their corresponding types in the object instance
-     *                  (a map of String -> GenType).
+     * @param genericParams the mapping of generic type parameter names to their
+     *            corresponding types in the object instance (a map of String ->
+     *            GenType).
+     * @param methodsUsed 
+     * @param actions 
      */
-    private void createMenuItems(JComponent menu, MethodView[] methods,
-                                 ViewFilter filter, int sizeLimit,
-                                 Map genericParams)
+    private static void createMenuItems(JComponent menu, MethodView[] methods, InvokeListener il, ViewFilter filter,
+            int sizeLimit, Map genericParams, Hashtable actions, Hashtable methodsUsed)
     {
         JMenuItem item;
         boolean menuEmpty = true;
@@ -326,13 +358,10 @@ public class ObjectWrapper extends JComponent implements NamedValue
                 else {
                     methodsUsed.put(methodSignature, m.getClassName());
                 }
-                item = new JMenuItem(methodDescription);
-                item.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        invokeMethod(e.getSource());
-                    }
-                });
+
+                Action a = new InvokeAction(m, il, methodDescription);
+                item = new JMenuItem(a);
+               
                 item.setFont(PrefMgr.getPopupMenuFont());
                 actions.put(item, m);
 
@@ -379,7 +408,7 @@ public class ObjectWrapper extends JComponent implements NamedValue
      * @param   derivedClass    the class whose hierarchy is mapped (including self)
      * @return                  the List containng the classes in the inheritance hierarchy
      */
-    public List getClassHierarchy(Class derivedClass)
+    public static List getClassHierarchy(Class derivedClass)
     {
         Class currentClass = derivedClass;
         List classVector = new ArrayList();
@@ -586,7 +615,7 @@ public class ObjectWrapper extends JComponent implements NamedValue
 	/**
      * Invoke a method on this object.
      */
-    protected void invokeMethod(Object eventSource)
+    protected void invokeMethod(Object eventSource, Map actions)
     {
         MethodView method = (MethodView)actions.get(eventSource);
         if(method != null)
@@ -612,7 +641,7 @@ public class ObjectWrapper extends JComponent implements NamedValue
      * create a watcher to watch out for the result coming back, do the
      * actual invocation, and update open object viewers after the call.
      */
-    private void executeMethod(final MethodView method)
+    public void executeMethod(final MethodView method)
     {
         ResultWatcher watcher = null;
 
@@ -644,6 +673,11 @@ public class ObjectWrapper extends JComponent implements NamedValue
 
         Invoker invoker = new Invoker(pmf, method, this, watcher);
         invoker.invokeInteractive();
+    }
+    
+    public void callConstructor(ConstructorView cv)
+    {
+        // do nothing (satisfy the InvokeListener interface)
     }
     
 	/**

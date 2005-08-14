@@ -7,6 +7,9 @@ import java.util.*;
 import javax.swing.*;
 
 import bluej.Config;
+import bluej.debugmgr.ConstructAction;
+import bluej.debugmgr.objectbench.InvokeAction;
+import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.ClassTarget;
@@ -19,7 +22,7 @@ import bluej.views.*;
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 3318 2005-02-17 05:04:12Z davmac $
+ * @version $Id: ClassRole.java 3528 2005-08-14 23:03:37Z polle $
  */
 public abstract class ClassRole
 {
@@ -211,8 +214,12 @@ public abstract class ClassRole
         return false;
     }
 
-    public boolean createMenuItems(JPopupMenu menu, CallableView[] members, ViewFilter filter, int first, int last,
-            String prefix, ClassTarget ct)
+    /**
+     * Create the menu items for the given members (constructors or methods).
+     * @return  true if any items were created
+     */
+    public static boolean createMenuItems(JPopupMenu menu, CallableView[] members, ViewFilter filter, int first, int last,
+            String prefix, InvokeListener il)
     {
         // Debug.message("Inside ClassTarget.createMenuItems\n first = " + first
         // + " last = " + last);
@@ -226,11 +233,17 @@ public abstract class ClassRole
                     continue;
                 // Debug.message("createSubMenu - creating MenuItem");
 
-                Action callAction = new CallAction(prefix + m.getLongDesc(), ct.getPackage().getEditor(), ct, m);
+                Action callAction = null;
+                if (m instanceof MethodView)
+                    callAction = new InvokeAction((MethodView) m, il, prefix + m.getLongDesc());
+                else if (m instanceof ConstructorView)
+                    callAction = new ConstructAction((ConstructorView) m, il, prefix + m.getLongDesc());
 
-                item = menu.add(callAction);
-                item.setFont(PrefMgr.getPopupMenuFont());
-                hasEntries = true;
+                if (callAction != null) {
+                    item = menu.add(callAction);
+                    item.setFont(PrefMgr.getPopupMenuFont());
+                    hasEntries = true;
+                }
             }
             catch (Exception e) {
                 Debug.reportError("Exception accessing methods: " + e);

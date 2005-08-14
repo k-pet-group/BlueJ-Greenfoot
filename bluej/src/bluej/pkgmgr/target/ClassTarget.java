@@ -19,6 +19,7 @@ import javax.swing.JPopupMenu;
 
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
+import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.extmgr.MenuManager;
@@ -38,6 +39,8 @@ import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.role.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.*;
+import bluej.views.ConstructorView;
+import bluej.views.MethodView;
 
 /**
  * A class target in a package, i.e. a target that is a class file built from
@@ -49,10 +52,10 @@ import bluej.utility.*;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3499 2005-08-04 00:51:16Z davmac $
+ * @version $Id: ClassTarget.java 3528 2005-08-14 23:03:37Z polle $
  */
 public class ClassTarget extends EditableTarget
-    implements Moveable
+    implements Moveable, InvokeListener
 {
     final static int MIN_WIDTH = 60;
     final static int MIN_HEIGHT = 30;
@@ -781,6 +784,7 @@ public class ClassTarget extends EditableTarget
     {
         // delegate to role object
         if (template == null) {
+            //when using the extensions framework to create a new class, we always end up here.
             Debug.reportError("generate class skeleton error");
         }
         else {
@@ -1151,8 +1155,8 @@ public class ClassTarget extends EditableTarget
     /**
      * Post the context menu for this target.
      * 
-     * @param x Description of the Parameter
-     * @param y Description of the Parameter
+     * @param x  the x coordinate for the menu, relative to graph editor
+     * @param y  the y coordinate for the menu, relative to graph editor
      */
     public void popupMenu(int x, int y)
     {
@@ -1612,5 +1616,20 @@ public class ClassTarget extends EditableTarget
     {
         this.isMoveable = isMoveable;
     }
-
+    
+    /**
+     * perform interactive method call
+     */
+    public void executeMethod(MethodView mv)
+    {
+        getPackage().getEditor().raiseMethodCallEvent(this, mv);
+    }
+    
+    /**
+     * interactive constructor call
+     */
+    public void callConstructor(ConstructorView cv)
+    {
+        getPackage().getEditor().raiseMethodCallEvent(this, cv);
+    }
 }
