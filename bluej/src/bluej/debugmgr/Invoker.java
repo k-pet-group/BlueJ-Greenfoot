@@ -39,7 +39,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3519 2005-08-13 18:01:44Z polle $
+ * @version $Id: Invoker.java 3527 2005-08-14 23:00:56Z polle $
  */
 
 public class Invoker
@@ -293,8 +293,9 @@ public class Invoker
                         pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();
                     }
                 }
-                doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true, typeMap == null), actualTypeParams);
                 pmf.setWaitCursor(true);
+                doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true, typeMap == null), actualTypeParams);
+                
                 if (constructing)
                     pkg.setStatus(creating);
             }
@@ -494,6 +495,8 @@ public class Invoker
                 handleResult(""); // handles error situations
             
             closeCallDialog();
+
+            pmf.setWaitCursor(false);
             
             // update all open inspect windows
             Inspector.updateInspectors();
