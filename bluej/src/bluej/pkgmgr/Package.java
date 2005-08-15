@@ -1,5 +1,7 @@
 package bluej.pkgmgr;
 
+import bluej.extensions.BPackage;
+import bluej.extensions.ExtensionBridge;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -49,7 +51,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3521 2005-08-13 18:30:54Z polle $
+ * @version $Id: Package.java 3529 2005-08-15 16:37:12Z damiano $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -227,6 +229,22 @@ public final class Package extends Graph
     {
         return project;
     }
+
+    private BPackage singleBPackage;  // Every Package has none or one BPackage
+    
+    /**
+     * Return the extensions BPackage associated with this Package.
+     * There should be only one BPackage object associated with each Package.
+     * @return the BPackage associated with this Package.
+     */
+    public synchronized final BPackage getBPackage ()
+    {
+        if ( singleBPackage == null )
+          singleBPackage = ExtensionBridge.newBPackage(this);
+          
+        return singleBPackage;
+    }
+
 
     /**
      * Get the unique identifier for this package (it's directory name at

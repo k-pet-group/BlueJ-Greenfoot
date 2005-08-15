@@ -56,6 +56,4 @@ public class ExtensionBridge
     {
     aBluej.postMenuItem(attachedObject, onThisItem);
     }
-
-  
   }

@@ -10,12 +10,12 @@ import java.util.*;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 3469 2005-07-18 13:41:54Z damiano $
+ * @version $Id: BProject.java 3529 2005-08-15 16:37:12Z damiano $
  */
 
 /*
  * Author Clive Mille, Univeristy of Kent at Canterbury, 2002
- * Author Damiano Bolla, University of Kent at Canterbury, 2003
+ * Author Damiano Bolla, University of Kent at Canterbury, 2003,2004,2005
  */
 
 public class BProject
@@ -135,7 +135,7 @@ public class BProject
         if(pkg == null) 
             return null;
 
-        return new BPackage (new Identifier (bluejProject,pkg));
+        return pkg.getBPackage();
     }
     
     /**

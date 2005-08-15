@@ -19,7 +19,7 @@ import java.util.List;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 3018 2004-09-28 09:21:48Z iau $
+ * @version    $Id: BClass.java 3529 2005-08-15 16:37:12Z damiano $
  */
 
 /*
@@ -94,7 +94,7 @@ public class BClass
         Project bluejProject = classId.getBluejProject();
         Package bluejPkg = classId.getBluejPackage();
 
-        return new BPackage(new Identifier(bluejProject, bluejPkg));
+        return bluejPkg.getBPackage();
     }
 
 
