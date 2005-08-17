@@ -39,7 +39,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3527 2005-08-14 23:00:56Z polle $
+ * @version $Id: Invoker.java 3530 2005-08-17 01:54:06Z davmac $
  */
 
 public class Invoker
@@ -72,6 +72,7 @@ public class Invoker
     private String objName;
     private Map typeMap; // map type parameter names to types
     private ValueCollection localVars;
+    private String imports; // import statements to include in shell file
 
     /**
      * The instance name for any object we create. For a constructed object the
@@ -89,9 +90,11 @@ public class Invoker
     private InvokerRecord ir;
 
     /**
-     * Create an invoker for a free form statement or expression.
+     * Create an invoker for a free form statement or expression. After using this
+     * constructor, optionally call setImports(), then call doFreeFormInvocation()
+     * to perform compilation and execution.
      */
-    public Invoker(PkgMgrFrame pmf, ValueCollection localVars, String command, ResultWatcher watcher, String retType)
+    public Invoker(PkgMgrFrame pmf, ValueCollection localVars, String command, ResultWatcher watcher)
     {
         if (pmf.isEmptyFrame())
             throw new IllegalArgumentException();
@@ -111,7 +114,6 @@ public class Invoker
         constructing = false;
         executionEvent = new ExecutionEvent(this.pkg);
         commandString = command;
-        doFreeFormInvocation(retType);
     }
 
     /**
@@ -214,6 +216,17 @@ public class Invoker
     }
 
     /**
+     * Set the import statements that should be in effect when this invocation
+     * is performed.
+     * 
+     * @param importStatements   The import statements in complete and valid java syntax
+     */
+    public void setImports(String importStatements)
+    {
+        imports = importStatements;
+    }
+    
+    /**
      * Open a dialog to get further information about the requested invocation, or
      * if no information is needed (ie. no parameters) then just proceed with the
      * invocation.
@@ -294,7 +307,7 @@ public class Invoker
                     }
                 }
                 pmf.setWaitCursor(true);
-                doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true, typeMap == null), actualTypeParams);
+                doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true), actualTypeParams);
                 
                 if (constructing)
                     pkg.setStatus(creating);
@@ -551,7 +564,7 @@ public class Invoker
      * This method is still executed in the interface thread, while "endCompile"
      * will be executed by the CompilerThread.
      */
-    protected void doFreeFormInvocation(String resultType)
+    public void doFreeFormInvocation(String resultType)
     {
         boolean hasResult = resultType != null;
         if (hasResult) {
@@ -578,6 +591,7 @@ public class Invoker
      * 
      * <pre>
      * $PKGLINE
+     * $IMPORTS
      * public class $CLASSNAME extends bluej.runtime.Shell
      * {
      *   $VARDECL
@@ -724,6 +738,10 @@ public class Invoker
 
             shell.write(packageLine);
             shell.newLine();
+            if (imports != null) {
+                shell.write(imports);
+                shell.newLine();
+            }
             shell.write("public class ");
             shell.write(shellName);
             shell.write(" extends bluej.runtime.Shell {");
@@ -749,7 +767,7 @@ public class Invoker
     /**
      * Write out shell code to retrieve the values of variables or bench objects.
      * 
-     * #param scopePx  The scope prefix ("lv:" for local variables)
+     * @param scopePx  The scope prefix ("lv:" for local variables)
      * @param buffer   The string buffer to write the code to
      * @param isStatic  True if the variables should be declared static
      * @param i        An iterator through the variables to write

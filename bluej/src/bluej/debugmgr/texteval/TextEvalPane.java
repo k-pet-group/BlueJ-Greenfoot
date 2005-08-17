@@ -37,7 +37,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3508 2005-08-08 04:18:26Z davmac $
+ * @version $Id: TextEvalPane.java 3530 2005-08-17 01:54:06Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -229,7 +229,8 @@ public class TextEvalPane extends JEditorPane
                 // was a compile time error. So try again, assuming that we
                 // got it wrong.
                 wrappedResult = false;
-                invoker = new Invoker(frame, this, currentCommand, TextEvalPane.this, "");
+                invoker = new Invoker(frame, this, currentCommand, TextEvalPane.this);
+                invoker.doFreeFormInvocation("");
             }
             else {
                 firstTry = false;
@@ -729,7 +730,8 @@ public class TextEvalPane extends JEditorPane
                     }
                 }
                 
-                invoker = new Invoker(frame, TextEvalPane.this, currentCommand, TextEvalPane.this, retType);
+                invoker = new Invoker(frame, TextEvalPane.this, currentCommand, TextEvalPane.this);
+                invoker.doFreeFormInvocation(retType);
             }
             else {
                 markAs(TextEvalSyntaxView.OUTPUT, Boolean.TRUE);

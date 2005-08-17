@@ -36,7 +36,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 3519 2005-08-13 18:01:44Z polle $
+ * @version $Id: MethodDialog.java 3530 2005-08-17 01:54:06Z davmac $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -114,7 +114,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 3519 2005-08-13 18:01:44Z polle $
+     * @version $Id: MethodDialog.java 3530 2005-08-17 01:54:06Z davmac $
      */
     public static class ParameterList
     {
@@ -581,7 +581,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * @param raw
      *            if true, raw types will be returned
      */
-    public JavaType[] getArgGenTypes(boolean varArgsExpanded, boolean ignored)
+    public JavaType[] getArgGenTypes(boolean varArgsExpanded)
     {
         boolean raw = rawObject;
         
