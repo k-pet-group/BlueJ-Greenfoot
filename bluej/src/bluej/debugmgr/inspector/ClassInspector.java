@@ -21,7 +21,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 3388 2005-05-26 02:05:43Z bquig $
+ * @version $Id: ClassInspector.java 3531 2005-08-18 13:26:35Z polle $
  */
 public class ClassInspector extends Inspector
 {
@@ -197,7 +197,9 @@ public class ClassInspector extends Inspector
      */
     protected void remove()
     {
-        project.removeInspector(myClass.getName());
+        if(project != null) {
+            project.removeInspector(myClass.getName());
+        }
     }
 
     /**

@@ -39,7 +39,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3530 2005-08-17 01:54:06Z davmac $
+ * @version $Id: Invoker.java 3531 2005-08-18 13:26:35Z polle $
  */
 
 public class Invoker
@@ -512,7 +512,7 @@ public class Invoker
             pmf.setWaitCursor(false);
             
             // update all open inspect windows
-            Inspector.updateInspectors();
+            pkg.getProject().updateInspectors();
         }
         else {
             File shell = writeInvocationFile(pkg, paramInit, command + argString, constructing, isVoid, constype);

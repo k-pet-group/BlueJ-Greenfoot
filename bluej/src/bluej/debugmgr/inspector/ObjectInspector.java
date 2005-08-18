@@ -23,7 +23,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: ObjectInspector.java 3388 2005-05-26 02:05:43Z bquig $
+ * @version $Id: ObjectInspector.java 3531 2005-08-18 13:26:35Z polle $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -261,7 +261,9 @@ public class ObjectInspector extends Inspector
      */
     protected void remove()
     {
-        project.removeInspector(obj);
+        if(project != null) {
+            project.removeInspector(obj);
+        }
     }
 
     /**
