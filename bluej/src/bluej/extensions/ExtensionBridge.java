@@ -19,7 +19,7 @@ import javax.swing.*;
  */
 
 
-public class ExtensionBridge 
+public final class ExtensionBridge 
   {
   public static void delegateEvent ( BlueJ thisBluej, ExtensionEvent anEvent )
     {
@@ -41,10 +41,14 @@ public class ExtensionBridge
     return new BObject (aWrapper);
     }
 
+  public static BProject newBProject (Project bluejPrj)
+    {
+    return new BProject (new Identifier (bluejPrj));
+    }
+
   public static BPackage newBPackage (Package bluejPkg)
     {
-    Identifier  anId = new Identifier (bluejPkg.getProject(), bluejPkg);
-    return new BPackage (anId);
+    return new BPackage (new Identifier (bluejPkg.getProject(), bluejPkg));
     }
 
   public static JMenuItem getMenuItem ( BlueJ aBluej, Object attachedObject )

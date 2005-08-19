@@ -13,6 +13,9 @@ import bluej.debugmgr.ExpressionInformation;
 
 import bluej.debugmgr.inspector.*;
 
+import bluej.extensions.BPackage;
+import bluej.extensions.BProject;
+import bluej.extensions.ExtensionBridge;
 import bluej.extmgr.ExtensionsManager;
 
 import bluej.prefmgr.PrefMgr;
@@ -48,7 +51,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3522 2005-08-13 18:45:39Z polle $
+ * @version $Id: Project.java 3534 2005-08-19 06:56:40Z damiano $
  */
 public class Project implements DebuggerListener {
     /**
@@ -690,6 +693,23 @@ public class Project implements DebuggerListener {
 
         throw new IllegalStateException("Project.getPackage()");
     }
+
+
+    private BProject singleBProject;  // Every Project has none or one BProject
+    
+    /**
+     * Return the extensions BProject associated with this Project.
+     * There should be only one BProject object associated with each Project.
+     * @return the BProject associated with this Project.
+     */
+    public synchronized final BProject getBProject ()
+    {
+        if ( singleBProject == null )
+          singleBProject = ExtensionBridge.newBProject(this);
+          
+        return singleBProject;
+    }
+
 
     /**
      * Returns a package from the project.

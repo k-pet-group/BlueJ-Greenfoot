@@ -47,14 +47,14 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 3529 2005-08-15 16:37:12Z damiano $
+ * @version    $Id: BlueJ.java 3534 2005-08-19 06:56:40Z damiano $
  */
 
 /*
  * Author Clive Miller, University of Kent at Canterbury, 2002
- * Author Damiano Bolla, University of Kent at Canterbury, 2003
+ * Author Damiano Bolla, University of Kent at Canterbury, 2003, 2004, 2005
  */
-public class BlueJ
+public final class BlueJ
 {
     private final ExtensionWrapper myWrapper;
     private final ExtensionPrefManager prefManager;
@@ -105,7 +105,7 @@ public class BlueJ
      * @param  directory  Where the project is stored.
      * @return            the BProject that describes the newly opened project or null if it cannot be opened.
      */
-    public BProject openProject(File directory)
+    public final BProject openProject(File directory)
     {
         if (!myWrapper.isValid())
             throw new ExtensionUnloadedException();
@@ -118,6 +118,9 @@ public class BlueJ
         if (openProj == null)
             return null;
 
+        // a hack, since bluej does not handle "opening" of projects correctly.
+        // this code should really be into openProject or it should not be possible to open
+        // a project is the initial package name is not there.
         Package pkg = openProj.getCachedPackage(openProj.getInitialPackageName());
         if (pkg == null)
             return null;
@@ -125,12 +128,13 @@ public class BlueJ
         // I make a new identifier out of this
         Identifier aProject = new Identifier(openProj, pkg);
 
-        // This will make the frame if not already there.
+        // This will make the frame if not already there. should not be needed...
         try {
             aProject.getPackageFrame();
         } catch (ExtensionException exc) {}
 
-        return new BProject(aProject);
+        // Note: the previous Identifier is not used here.
+        return openProj.getBProject();
     }
 
 
@@ -148,8 +152,10 @@ public class BlueJ
         String pathString = directory.getAbsolutePath();
         if (!pathString.endsWith(File.separator))
             pathString += File.separator;
+            
         if (!Project.createNewProject(pathString))
             return null;
+            
         return openProject(directory);
     }
 
@@ -166,13 +172,14 @@ public class BlueJ
         if (!myWrapper.isValid())
             throw new ExtensionUnloadedException();
 
-        int index;
-        Iterator iter;
         Collection projects = Project.getProjects();
         BProject[] result = new BProject[projects.size()];
 
-        for (iter = projects.iterator(), index = 0; iter.hasNext(); index++)
-            result[index] = new BProject(new Identifier((Project) iter.next()));
+        Iterator iter; int index;
+        for (iter = projects.iterator(), index = 0; iter.hasNext(); index++) {
+            Project prj = (Project) iter.next();
+            result[index] = prj.getBProject();
+        }
 
         return result;
     }

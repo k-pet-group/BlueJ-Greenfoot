@@ -16,7 +16,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 2873 2004-08-16 05:50:32Z davmac $
+ * @version $Id: BPackage.java 3534 2005-08-19 06:56:40Z damiano $
  */
 
 /*
@@ -60,7 +60,7 @@ public class BPackage
     {
         Project bluejProject = packageId.getBluejProject();
 
-        return new BProject (new Identifier(bluejProject));
+        return bluejProject.getBProject();
     }
 
 
