@@ -17,7 +17,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3513 2005-08-13 13:30:18Z polle $
+ * @version $Id: Boot.java 3533 2005-08-19 06:01:50Z davmac $
  */
 public class Boot
 {
@@ -228,6 +228,21 @@ public class Boot
      */
     private void bootBluej()
     {
+        initializeBoot();
+        try {
+            URLClassLoader runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
+ 
+            // Construct a bluej.Main object. This starts BlueJ "proper".
+            Class mainClass = Class.forName("bluej.Main", true, runtimeLoader);
+            mainClass.newInstance();
+            
+        } catch (Exception exc) {
+            exc.printStackTrace();
+        }
+    }
+    
+    private void initializeBoot()
+    {
         // Retrieve the current classLoader, this is the boot loader.
         bootLoader = getClass().getClassLoader();
 
@@ -238,16 +253,11 @@ public class Boot
         bluejLibDir = calculateBluejLibDir();
 
         try {
-            runtimeClassPath = getKnownJars(bluejLibDir, bluejJars, true);
-            URLClassLoader runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
-
-            runtimeUserClassPath = getKnownJars(bluejLibDir, bluejUserJars, false);
-
-            // Construct a bluej.Main object. This starts BlueJ "proper".
-            Class mainClass = Class.forName("bluej.Main", true, runtimeLoader);
-            mainClass.newInstance();
-            
-        } catch (Exception exc) {
+        	runtimeClassPath = getKnownJars(bluejLibDir, bluejJars, true);
+        
+        	runtimeUserClassPath = getKnownJars(bluejLibDir, bluejUserJars, false);
+        }
+        catch (Exception exc) {
             exc.printStackTrace();
         }
     }

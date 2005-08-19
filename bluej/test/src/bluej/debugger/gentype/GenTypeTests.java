@@ -9,7 +9,7 @@ import bluej.utility.JavaReflective;
  * Tests for the GenType classes.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeTests.java 3386 2005-05-26 01:28:52Z davmac $
+ * @version $Id: GenTypeTests.java 3533 2005-08-19 06:01:50Z davmac $
  */
 public class GenTypeTests extends TestCase
 {
@@ -141,6 +141,6 @@ public class GenTypeTests extends TestCase
         // test!
         GenTypeClass instanceAClass = new GenTypeClass(aReflective);
         GenTypeClass mapped = instanceAClass.mapToSuper("CClass");
-        assertEquals(mapped.toString(), "CClass");
+        assertEquals("CClass", mapped.toString());
     }
 }

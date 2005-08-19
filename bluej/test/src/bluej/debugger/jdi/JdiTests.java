@@ -5,10 +5,8 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.net.MalformedURLException;
+import java.lang.reflect.Method;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Properties;
 
 import junit.framework.TestCase;
@@ -16,7 +14,6 @@ import bluej.Boot;
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.*;
-import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -31,55 +28,13 @@ import bluej.views.View;
  * Tests for the debugger.
  *  
  * @author Davin McCall
- * @version $Id: JdiTests.java 3474 2005-07-22 02:43:00Z davmac $
+ * @version $Id: JdiTests.java 3533 2005-08-19 06:01:50Z davmac $
  */
 public class JdiTests extends TestCase
 {
-    public static final String bluejLibDir = calculateBluejLibDir().getPath();
-    public static final boolean useClassesDir = true;
-    
-    protected File javaHomeDir = new File(System.getProperty("java.home"));
-    private static String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
-            "antlr.jar", "MRJ141Stubs.jar" };
-    private static String[] bluejUserJars = { "bluejcore.jar", "junit.jar" };
-    
     // various vars useful for testing
     boolean failed = false;
     boolean flag1 = false;
-    
-    private static File calculateBluejLibDir()
-    {
-        File bluejDir = null;
-        String bootFullName = JdiTests.class.getResource("JdiTests.class").getFile();
-
-        // Assuming the class is in a jar file, '!' separates the jar file name from the class name.        
-        int classIndex = bootFullName.indexOf("!");
-        String bootName = null;
-        if (classIndex < 0) {
-            // Boot.class is not in a jar-file. Find a lib directory somewhere
-            // above us to use
-            File startingDir = (new File(bootFullName).getParentFile());
-
-            while((startingDir != null) &&
-                   !(new File(startingDir.getParentFile(), "lib").isDirectory())) {
-                        startingDir = startingDir.getParentFile();
-            }
-            
-            if (startingDir == null)
-                bluejDir = null;
-            else
-                bluejDir = new File(startingDir.getParentFile(), "lib");            
-        } else {
-            //It was in a jar. Cut of the class name
-            bootName = bootFullName.substring(0, classIndex);
-            bootName = getURLPath(bootName);
-
-            File finalFile = new File(bootName);
-            bluejDir = finalFile.getParentFile();
-        }   
-        
-        return bluejDir;
-    }
     
     /**
      * Return the path element of a URL, properly decoded - that is: replace 
@@ -104,8 +59,6 @@ public class JdiTests extends TestCase
     
     protected void setUp()
     {
-        Config.initialise(new File(bluejLibDir), new Properties());
-        
         try {
             
             // Create a new instance of "Boot" and set the static instance
@@ -113,27 +66,22 @@ public class JdiTests extends TestCase
 
             Class bootClass = Class.forName("bluej.Boot");
             
-            Constructor bootConstructor = bootClass.getDeclaredConstructor(new Class[] { String[].class });
+            Constructor bootConstructor = bootClass.getDeclaredConstructor(new Class[] { String[].class, Properties.class });
             bootConstructor.setAccessible(true);
-            Boot bootInstance = (Boot) bootConstructor.newInstance(new Object[] { new String[0] });
+            Boot bootInstance = (Boot) bootConstructor.newInstance(new Object[] { new String[0], new Properties() });
+            
+            // call initializeBoot method
+            Method initMethod = bootClass.getDeclaredMethod("initializeBoot", null);
+            initMethod.setAccessible(true);
+            initMethod.invoke(bootInstance, null);
 
+            // set bootInstance field
             Field [] fields =  bootClass.getDeclaredFields();
             setStaticField(fields, "instance", bootInstance);
-            ClassLoader bootLoader = bootClass.getClassLoader();
-            setInstanceField(fields, bootInstance, "bootLoader", bootLoader);
-            setInstanceField(fields, bootInstance, "javaHomeDir", javaHomeDir);
-            File bluejLibDirFile = new File(bluejLibDir);
-            setInstanceField(fields, bootInstance, "bluejLibDir", bluejLibDirFile);
-            
-            //runtimeClassPath = getKnownJars(bluejLibDir, bluejJars, true);
-            //runtimeUserClassPath = getKnownJars(bluejLibDir, bluejUserJars, false);
-            //runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
-            //userLibClassPath = getUserExtLibItems();
-            URL [] runtimeClassPath = getKnownJars(bluejLibDirFile, bluejJars, true);
-            setInstanceField(fields, bootInstance, "runtimeClassPath", runtimeClassPath);
-            setInstanceField(fields, bootInstance, "runtimeUserClassPath", getKnownJars(bluejLibDirFile, bluejUserJars, false));
-            setInstanceField(fields, bootInstance, "runtimeLoader", new URLClassLoader(runtimeClassPath, bootLoader));
-            setInstanceField(fields, bootInstance, "userLibClassPath", new URL[0]);
+
+            // initialize Config
+            Config.initialise(Boot.getInstance().getBluejLibDir(), new Properties());
+
         }
         catch(Throwable t) {
             t.printStackTrace();
@@ -154,19 +102,6 @@ public class JdiTests extends TestCase
         throw new IllegalStateException();
     }
 
-    protected void setInstanceField(Field [] fields, Object instance, String fieldName, Object value) throws IllegalAccessException
-    {
-        int i = 0;
-        for (i = 0; i < fields.length; i++) {
-            if (fields[i].getName() == fieldName) {
-                fields[i].setAccessible(true);
-                fields[i].set(instance, value);
-                return;
-            }
-        }
-        throw new IllegalStateException();
-    }
-    
     protected Object getInstanceFieldObj(Field [] fields, Object instance, String fieldName)
                                                                 throws IllegalAccessException
     {
@@ -179,86 +114,6 @@ public class JdiTests extends TestCase
         }
         return null;
     }
-    
-    /**
-     * This is borrowed from the Boot class. Should really use the version
-     * there rather than maintain this private copy.
-     * 
-     * @param libDir
-     * @param jars
-     * @param isSystem
-     * @return
-     * @throws MalformedURLException
-     */
-    private URL[] getKnownJars(File libDir, String[] jars, boolean isSystem) 
-        throws MalformedURLException
-    {
-        // by default, we require all our known jars to be present
-        int startJar = 0;
-        ArrayList urlList = new ArrayList();
-        
-        // a hack to let BlueJ run from within Eclipse.
-        // If specified on command line, lets add a ../classes
-        // directory to the classpath (where Eclipse stores the
-        // .class files)
-        if (isSystem && useClassesDir) {
-            File classesDir = new File(libDir.getParentFile(), "classes");
-            
-            if (classesDir.isDirectory()) {
-                urlList.add(classesDir.toURL());
-                // skip over requiring bluejcore.jar, bluejeditor.jar etc.
-                startJar = 3;
-            }
-        }
-        
-        for (int i=startJar; i < jars.length; i++) {
-            File toAdd = new File(libDir, jars[i]);
-            
-            if (!toAdd.canRead())
-                throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
-            
-            urlList.add(toAdd.toURL());
-        }
-        
-        if (isSystem) {
-            // We also need to add tools.jar on some systems
-            URL toolsURL = getToolsURL();
-            if(toolsURL != null)
-                urlList.add(toolsURL);
-        }
-        return (URL[]) urlList.toArray(new URL[0]);
-    }
-
-    /**
-     * Also borrowed from Boot class. Should use that version rather than
-     * maintain this private copy.
-     * 
-     * @return
-     * @throws MalformedURLException
-     */
-    private URL getToolsURL() 
-        throws MalformedURLException
-    {
-        String osname = System.getProperty("os.name", "");
-        if(osname.startsWith("Mac"))     // we know it does not exist on a Mac...
-            return null;
-        
-        File toolsFile = new File(javaHomeDir, "lib/tools.jar");
-        if (toolsFile.canRead())
-            return toolsFile.toURL();
-        
-        File parentDir = javaHomeDir.getParentFile();
-        toolsFile = new File(parentDir, "lib/tools.jar");
-        if (toolsFile.canRead())
-            return toolsFile.toURL();
-        else {
-            // on other systems where we don't find it, we just warn. We don't expect it
-            // to happen, but you never know...
-            System.err.println("class Boot: tools.jar not found. Potential problem for execution.");
-            return null;
-        }
-    }
-
     
     protected void tearDown()
     {
@@ -276,7 +131,7 @@ public class JdiTests extends TestCase
     public void test1() throws Throwable
     {
         // locate the test project
-        File launchDir = new File(bluejLibDir);
+        File launchDir = Boot.getInstance().getBluejLibDir();
         launchDir = launchDir.getParentFile();
         launchDir = new File(launchDir, "test");
         launchDir = new File(launchDir, "testprojects");
@@ -288,6 +143,9 @@ public class JdiTests extends TestCase
         debugger.launch();
         debugger.newClassLoader(new BPClassLoader(new URL[] {launchDir.toURI().toURL()}, null));
         
+        // wait til the debugger process has actually started
+        debugger.getClass("shellInfiniteLoop");
+
         // load the test class, execute it
         new Thread() {
             public void run() {
@@ -299,9 +157,6 @@ public class JdiTests extends TestCase
                 }
             }
         }.start();
-        
-        // wait til the debugger process has actually started
-        debugger.getClass("shellInfiniteLoop");
         
         // find the debugger process
         Field [] fields =  debugger.getClass().getDeclaredFields();
@@ -342,10 +197,11 @@ public class JdiTests extends TestCase
             process.destroy();
         
         assertTrue(passed);
+        bluej.utility.Debug.message("TEST1 COMPLETED.");
     }
     
     /**
-     * This tests that restarting the debug vm when an object on the bench
+     * This tests that restarting the debug vm when an object is on the bench
      * goes smoothly.  Previously this caused a VMDisconnectedException.
      * (fails in version 2.0.1)<p>
      * 
@@ -356,7 +212,7 @@ public class JdiTests extends TestCase
     public void test2() throws Exception
     {
         // Open up a project in a Package Manager frame
-        File launchDir = new File(bluejLibDir);
+        File launchDir = Boot.getInstance().getBluejLibDir();
         launchDir = launchDir.getParentFile();
         launchDir = new File(launchDir, "test");
         launchDir = new File(launchDir, "testprojects");
@@ -418,14 +274,6 @@ public class JdiTests extends TestCase
                     {}
                     public void putException(String msg)
                     {}
-
-                    /**
-                     * We have no use of this information when using the constructor
-                     */
-                    public ExpressionInformation getExpressionInformation()
-                    {
-                        return null;
-                    }
                 };
                 
                 synchronized(JdiTests.this) {
@@ -466,7 +314,7 @@ public class JdiTests extends TestCase
     public void test3() throws Exception
     {
         // launch the debugger
-        File launchDir = new File(bluejLibDir);
+        File launchDir = Boot.getInstance().getBluejLibDir();
         launchDir = launchDir.getParentFile();
         launchDir = new File(launchDir, "test");
         launchDir = new File(launchDir, "testprojects");
@@ -540,7 +388,7 @@ public class JdiTests extends TestCase
     public void test4() throws Exception
     {
         // launch the debugger
-        File launchDir = new File(bluejLibDir);
+        File launchDir = Boot.getInstance().getBluejLibDir();
         launchDir = launchDir.getParentFile();
         launchDir = new File(launchDir, "test");
         launchDir = new File(launchDir, "testprojects");
@@ -578,7 +426,7 @@ public class JdiTests extends TestCase
     public void test5() throws Exception
     {
         // launch the debugger
-        File launchDir = new File(bluejLibDir);
+        File launchDir = Boot.getInstance().getBluejLibDir();
         launchDir = launchDir.getParentFile();
         launchDir = new File(launchDir, "test");
         launchDir = new File(launchDir, "testprojects");
