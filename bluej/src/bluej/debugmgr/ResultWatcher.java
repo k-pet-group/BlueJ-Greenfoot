@@ -8,34 +8,31 @@ import bluej.testmgr.record.*;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ResultWatcher.java 3348 2005-04-15 02:36:36Z davmac $
+ * @version $Id: ResultWatcher.java 3532 2005-08-19 06:01:30Z davmac $
  */
 public interface ResultWatcher
 {
 	/**
-	 * An invocation has completed - here is the result.
-	 * If the invocation has a void result (note that is a void type), name == null.
-	 * It should be possible for result to be null and name to not be,
-	 * though no code currently creates this situation.
+	 * An invocation has completed - here is the result. This is called
+     * asynchronously (not on the AWT event thread).
+     * 
+     * @param result   The invocation result object (null for a void result).
+     * @param name     The name of the result. For a constructed object, this
+     *                 is the name supplied by the user. Otherwise this is  the
+     *                 literal "result", or null if the result is void type.
+     * @param ir       The record for the completed invocation
 	 */
 	void putResult(DebuggerObject result, String name, InvokerRecord ir);
 	
 	/**
-	 * An invocation has failed (compilation error) - here is the error message
+	 * An invocation has failed (compilation error) - here is the error message.
+     * This is called asynchronously.
 	 */
 	void putError(String message);
 	
     /**
      * A runtime exception occurred - here is the exception text
+     * This is called asynchronously.
      */
     void putException(String message);
-    
-	/**
-	 * A watcher shuold be able to return information about the result that it
-	 * is watching. T is used to display extra information (about the expression
-	 * that gave the result) when the result is shown.
-	 * 
-	 * @return An object with information on the expression
-	 */
-	public ExpressionInformation getExpressionInformation();
 }

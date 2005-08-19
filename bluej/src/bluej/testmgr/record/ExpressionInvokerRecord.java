@@ -7,18 +7,17 @@ package bluej.testmgr.record;
  * This record is for method calls with no result.
  *
  * @author  Bruce Quig
- * @version $Id: ExpressionInvokerRecord.java 2376 2003-11-19 23:16:33Z bquig $
+ * @version $Id: ExpressionInvokerRecord.java 3532 2005-08-19 06:01:30Z davmac $
  */
 public class ExpressionInvokerRecord extends MethodInvokerRecord 
 {
     
-
 	/**
 	 * @param command
 	 */
 	public ExpressionInvokerRecord(String command) 
     {
-		super(Object.class, command);
+		super(Object.class, command, null);
 	}
     
     /**

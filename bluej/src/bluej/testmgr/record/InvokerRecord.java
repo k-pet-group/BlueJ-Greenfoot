@@ -10,7 +10,7 @@ import java.util.*;
  * construction and maintenance of assertion data.
  *
  * @author  Andrew Patterson
- * @version $Id: InvokerRecord.java 2287 2003-11-06 00:55:29Z ajp $
+ * @version $Id: InvokerRecord.java 3532 2005-08-19 06:01:30Z davmac $
  */
 public abstract class InvokerRecord
 {
@@ -21,7 +21,27 @@ public abstract class InvokerRecord
     
     final static String fieldDeclarationStart = firstIndent + "private ";
 
-	/**
+    // -------------- instance fields ----------------
+    
+    /**
+     * A collection of assertion skeletons made about the invoker
+     * record.
+     */
+    private ArrayList assertions = new ArrayList();
+    
+    // -------------- instance methods -----------------
+    
+    /**
+     * If this invoker record represents a method or constructor call,
+     * this method returns the argument values used in the call.
+     * Otherwise it returns null.
+     */
+    public String [] getArgumentValues()
+    {
+        return null;
+    }
+    
+    /**
 	 * Construct a declaration for any objects constructed
 	 * by this invoker record.
 	 * 
@@ -46,12 +66,6 @@ public abstract class InvokerRecord
 	 * @return a String representing the test method src
 	 */
 	public abstract String toTestMethod();
-
-    /**
-     * A collection of assertion skeletons made about the invoker
-     * record.
-     */
-    private ArrayList assertions = new ArrayList();
     
     /**
      * Add the skeleton of an assertion statement to our list of

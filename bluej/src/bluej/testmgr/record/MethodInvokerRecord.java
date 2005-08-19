@@ -9,7 +9,7 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 2376 2003-11-19 23:16:33Z bquig $
+ * @version $Id: MethodInvokerRecord.java 3532 2005-08-19 06:01:30Z davmac $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
@@ -23,9 +23,9 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
      * @param returnType  the Class of the return type of the method
      * @param command     the method statement to execute
      */
-    public MethodInvokerRecord(Class returnType, String command)
+    public MethodInvokerRecord(Class returnType, String command, String [] argumentValues)
     {
-    	super(command);
+    	super(command, argumentValues);
     	
         this.returnType = returnType;
         this.benchType = returnType.getName();

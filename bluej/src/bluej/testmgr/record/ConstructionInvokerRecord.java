@@ -5,19 +5,26 @@ package bluej.testmgr.record;
  * mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ConstructionInvokerRecord.java 2287 2003-11-06 00:55:29Z ajp $
+ * @version $Id: ConstructionInvokerRecord.java 3532 2005-08-19 06:01:30Z davmac $
  */
 public class ConstructionInvokerRecord extends InvokerRecord
 {
     private String type;
     private String name;
     private String command;
+    private String [] argumentValues;
     
-    public ConstructionInvokerRecord(String type, String name, String command)
+    public ConstructionInvokerRecord(String type, String name, String command, String [] argVals)
     {
         this.type = type;
         this.name = name;
         this.command = command;
+        this.argumentValues = argVals;
+    }
+    
+    public String [] getArgumentValues()
+    {
+        return argumentValues;
     }
 
 	/**

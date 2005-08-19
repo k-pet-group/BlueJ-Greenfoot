@@ -8,15 +8,22 @@ package bluej.testmgr.record;
  * This record is for method calls with no result.
  *
  * @author  Andrew Patterson
- * @version $Id: VoidMethodInvokerRecord.java 2287 2003-11-06 00:55:29Z ajp $
+ * @version $Id: VoidMethodInvokerRecord.java 3532 2005-08-19 06:01:30Z davmac $
  */
 public class VoidMethodInvokerRecord extends InvokerRecord
 {
     protected String command;
+    private String [] argumentValues;
     
-    public VoidMethodInvokerRecord(String command)
+    public VoidMethodInvokerRecord(String command, String [] argVals)
     {
         this.command = command;
+        this.argumentValues = argVals;
+    }
+    
+    public String [] getArgumentValues()
+    {
+        return argumentValues;
     }
 
     /**

@@ -1,5 +1,6 @@
 package bluej.debugmgr;
 
+import java.awt.EventQueue;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -15,12 +16,11 @@ import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
-import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.GenTypeWildcard;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.NameTransform;
 import bluej.debugger.gentype.TextType;
-import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -39,7 +39,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3531 2005-08-18 13:26:35Z polle $
+ * @version $Id: Invoker.java 3532 2005-08-19 06:01:30Z davmac $
  */
 
 public class Invoker
@@ -381,14 +381,6 @@ public class Invoker
             }
         }
 
-        //Store the arguments in order to show them in the result inspetor
-        // later
-        ExpressionInformation info = watcher.getExpressionInformation();
-        if (info != null) {
-            info.setArgumentValues(args);
-            //TODO also set type parameters?
-        }
-
         executionEvent.setParameters(argTypes, args);
         if (constructing) {
             executionEvent.setObjectName(instanceName);
@@ -408,7 +400,7 @@ public class Invoker
     private void doInvocation(String[] args, String[] argTypes, String[] typeParams)
     {
         int numArgs = (args == null ? 0 : args.length);
-        String className = member.getClassName();
+        final String className = member.getClassName();
 
         // Generic methods currently require special handling
         boolean isGenericMethod = member.isGeneric();
@@ -456,7 +448,7 @@ public class Invoker
                 constype += ">";
             }
             command = "new " + constype;
-            ir = new ConstructionInvokerRecord(constype, instanceName, command + actualArgString);
+            ir = new ConstructionInvokerRecord(constype, instanceName, command + actualArgString, args);
 
             //          BeanShell
             //commandAsString = command + actualArgString;
@@ -475,11 +467,11 @@ public class Invoker
                 if (method.isMain())
                     ir = new StaticVoidMainMethodInvokerRecord();
                 else
-                    ir = new VoidMethodInvokerRecord(command + actualArgString);
+                    ir = new VoidMethodInvokerRecord(command + actualArgString, args);
                 instanceName = null;
             }
             else {
-                ir = new MethodInvokerRecord(method.getReturnType().getViewClass(), command + actualArgString);
+                ir = new MethodInvokerRecord(method.getReturnType().getViewClass(), command + actualArgString, args);
                 instanceName = "result";
             }
 
@@ -488,31 +480,42 @@ public class Invoker
             // actualArgString + ");";
         }
 
-        //      BeanShell
-        //beanShellExecute(commandAsString);
         if (constructing && numArgs == 0 && (typeParams == null || typeParams.length == 0)) {
+            // Special case for construction of a class using the default constructor.
+            // We can do this without writing and compiling a shell file.
+            
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandString);
-            DebuggerObject result = pkg.getProject().getDebugger().instantiateClass(className);
-
-            // the execution is completed, get the result if there was one
-            // (this could be either a construction or a function result)
             
-            int status = pkg.getDebugger().getExitStatus();
-            if (status == Debugger.NORMAL_EXIT) {
-                watcher.putResult(result, instanceName, ir);
-                
-                executionEvent.setResultObject(result);
-                executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
-            }
-            else
-                handleResult(""); // handles error situations
-            
-            closeCallDialog();
-
-            pmf.setWaitCursor(false);
-            
-            // update all open inspect windows
-            pkg.getProject().updateInspectors();
+            // We must however do so in a seperate thread. Otherwise a constructor which
+            // goes into an infinite loop can hang BlueJ.
+            new Thread() {
+                public void run() {
+                    DebuggerObject result = pkg.getProject().getDebugger().instantiateClass(className);
+                    
+                    // the execution is completed, get the result if there was one
+                    // (this could be either a construction or a function result)
+                    
+                    int status = pkg.getDebugger().getExitStatus();
+                    if (status == Debugger.NORMAL_EXIT) {
+                        watcher.putResult(result, instanceName, ir);
+                        
+                        executionEvent.setResultObject(result);
+                        executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+                    }
+                    else
+                        handleResult(""); // handles error situations
+                    
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            closeCallDialog();
+                            pmf.setWaitCursor(false);
+                            
+                            // update all open inspect windows
+                            pkg.getProject().updateInspectors();
+                        }
+                    });
+                }
+            }.start();
         }
         else {
             File shell = writeInvocationFile(pkg, paramInit, command + argString, constructing, isVoid, constype);
@@ -538,19 +541,17 @@ public class Invoker
         int numArgs = args == null ? 0 : args.length;
         
         buffer.append("(");
+        argBuffer.append("(");
         if (numArgs > 0) {
-            if (buffer != null)
-                buffer.append("__bluej_param0");
+            buffer.append("__bluej_param0");
             argBuffer.append(args[0]);
         }
         for (int i = 1; i < numArgs; i++) {
-            if (buffer != null)
-                buffer.append(",__bluej_param" + i);
+            buffer.append(",__bluej_param" + i);
             argBuffer.append(", ");
             argBuffer.append(args[i]);
         }
-        if (buffer != null)
-            buffer.append(")");
+        buffer.append(")");
         argBuffer.append(")");
     }
     
@@ -576,7 +577,7 @@ public class Invoker
         else {
             instanceName = null;
             // this is a statement, treat as a void method result
-            ir = new VoidMethodInvokerRecord(commandString);
+            ir = new VoidMethodInvokerRecord(commandString, null);
         }
 
         File shell = writeInvocationFile(pkg, "", commandString, false, !hasResult, resultType);
@@ -1009,7 +1010,11 @@ public class Invoker
             handleResult(shellClassName);
 
             // update all open inspect windows
-            pkg.getProject().updateInspectors();
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    pkg.getProject().updateInspectors();
+                }
+            });
 
         }
         catch (Throwable e) {
@@ -1021,6 +1026,8 @@ public class Invoker
      * After an execution has finished, check whether there is a result (such as
      * a freshly created object, a function result or an exception) and make
      * sure that it gets processed appropriately.
+     * 
+     * This is called asynchronously (not from the AWT EventQueue thread)
      */
     public void handleResult(String shellClassName)
     {
