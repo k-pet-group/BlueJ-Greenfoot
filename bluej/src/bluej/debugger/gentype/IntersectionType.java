@@ -121,29 +121,26 @@ public class IntersectionType extends GenTypeSolid
         return new GenTypeClass(a.reflective, newParams, outer);
     }
     
-    public String toString(boolean stripPrefix)
-    {
-        // This must return a valid java type
-        return intersectTypes[0].toString(stripPrefix);
-        // String xx = "";
-        // for (int i = 0; i < intersectTypes.length; i++) {
-        //     xx += intersectTypes[i].toString(stripPrefix);
-        //     if (i != intersectTypes.length - 1)
-        //         xx += '&';
-        // }
-        // return xx;
-    }
-
     public String toString(NameTransform nt)
     {
-        return intersectTypes[0].toString(nt);
-        // String xx = "";
-        // for (int i = 0; i < intersectTypes.length; i++) {
-        //     xx += intersectTypes[i].toString(nt);
-        //     if (i != intersectTypes.length - 1)
-        //         xx += '&';
-        // }
-        // return xx;
+        // This must return a valid java type. We can throw away all but one of
+        // the intersection types, and it will be ok. So let's not use
+        // java.lang.Object if we have any other choice.
+        
+        String xx = intersectTypes[0].toString();
+        if (intersectTypes.length > 1 && xx.equals("java.lang.Object")) {
+            return intersectTypes[1].toString(nt);
+        }
+        else {
+            return intersectTypes[0].toString(nt);
+        }
+    }
+    
+    public String toTypeArgString(NameTransform nt)
+    {
+        // As a type argument, we can only go to a wildcard
+        
+        return "? extends " + toString(nt);
     }
 
     public boolean isInterface()

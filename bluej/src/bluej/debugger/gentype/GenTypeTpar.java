@@ -28,6 +28,11 @@ public class GenTypeTpar extends GenTypeSolid
         return name;
     }
     
+    public String toTypeArgString(NameTransform nt)
+    {
+        return name;
+    }
+    
     public String arrayComponentName()
     {
         // We don't know the erased type.

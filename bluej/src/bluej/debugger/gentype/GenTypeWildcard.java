@@ -15,7 +15,7 @@ import bluej.utility.Debug;
  * This is an Immutable type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 3518 2005-08-13 14:31:04Z polle $
+ * @version $Id: GenTypeWildcard.java 3535 2005-08-22 06:12:16Z davmac $
  */
 public class GenTypeWildcard extends GenTypeParameterizable
 {
@@ -47,20 +47,7 @@ public class GenTypeWildcard extends GenTypeParameterizable
     {
         return toString(false);
     }
-    
-    public String toString(boolean stripPrefix)
-    {
-        if (lowerBound != null) {
-            return "? super " + lowerBound.toString(stripPrefix);
-        }
-        else if (upperBound != null) {
-            String uboundStr = upperBound.toString();
-            if (! uboundStr.equals("java.lang.Object"))
-                return "? extends " + upperBound.toString(stripPrefix);
-        }
-        return "?";
-    }
-    
+        
     public String toString(NameTransform nt)
     {
         if (lowerBound != null) {
@@ -72,6 +59,11 @@ public class GenTypeWildcard extends GenTypeParameterizable
                 return "? extends " + upperBound.toString(nt);
         }
         return "?";
+    }
+    
+    public String toTypeArgString(NameTransform nt)
+    {
+        return toString(nt);
     }
     
     public String arrayComponentName()

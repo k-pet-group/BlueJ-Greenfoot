@@ -2,19 +2,33 @@ package bluej.debugger.gentype;
 
 import java.util.Map;
 
+import bluej.utility.JavaNames;
+
 /**
  * Interface for a parameterizable type, that is, a type which could have type
  * parameters. This includes classes, arrays, wild card types, and type
  * parameters themselves.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeParameterizable.java 3518 2005-08-13 14:31:04Z polle $
+ * @version $Id: GenTypeParameterizable.java 3535 2005-08-22 06:12:16Z davmac $
  */
 public abstract class GenTypeParameterizable
     extends JavaType
 {
 
     private static GenTypeSolid [] noBounds = new GenTypeSolid[0];
+    
+    private static NameTransform stripPrefixNt = new NameTransform() {
+        public String transform(String x) {
+            return JavaNames.stripPrefix(x);
+        }
+    };
+    
+    private static NameTransform nullTransform = new NameTransform() {
+        public String transform(String x) {
+            return x;
+        }
+    };
     
     /**
      * Return an equivalent type where all the type parameters have been mapped
@@ -122,4 +136,26 @@ public abstract class GenTypeParameterizable
      * @return True if this type contains the other type
      */
     abstract public boolean contains(GenTypeParameterizable other);
+    
+    /*
+     * Provide a default version of 
+     * @see bluej.debugger.gentype.JavaType#toString(boolean)
+     */
+    public String toString(boolean stripPrefix)
+    {
+        if (stripPrefix)
+            return toString(stripPrefixNt);
+        else
+            return toString(nullTransform);
+    }
+    
+    public String toTypeArgString(boolean stripPrefix)
+    {
+        if (stripPrefix)
+            return toString(stripPrefixNt);
+        else
+            return toString(nullTransform);
+    }
+    
+    abstract public String toTypeArgString(NameTransform nt);
 }

@@ -2,8 +2,6 @@ package bluej.debugger.gentype;
 
 import java.util.*;
 
-import bluej.utility.JavaNames;
-
 /**
  * Represent a (possibly generic) type. This can include wildcard types,
  * type parameters, etc; ie. anything that JDK 1.5 "Type" can represent. But 
@@ -12,7 +10,7 @@ import bluej.utility.JavaNames;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 3518 2005-08-13 14:31:04Z polle $
+ * @version $Id: GenTypeClass.java 3535 2005-08-22 06:12:16Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -171,6 +169,15 @@ public class GenTypeClass extends GenTypeSolid {
     }
     
     /**
+     * Determine whether this class is an inner type. This works regardless
+     * of whether outer types are generic etc.
+     */
+    public boolean isInnerType()
+    {
+        return reflective.getName().indexOf('$') != -1;
+    }
+    
+    /**
      * Check whether the type is a generic type (with type parameters).
      * Returns false for parameterless types and raw types.
      * 
@@ -208,37 +215,6 @@ public class GenTypeClass extends GenTypeSolid {
         return reflective.isInterface();
     }
     
-    public String toString(boolean stripPrefix)
-    {
-        String baseClass = rawName();
-        
-        if (outer != null) {
-            int i = baseClass.lastIndexOf('$');
-            baseClass = outer.toString(stripPrefix) + '.' + baseClass.substring(i + 1);
-        }
-        else {
-            if( stripPrefix )
-                baseClass = JavaNames.stripPrefix(baseClass);
-            int i = baseClass.lastIndexOf('$');
-            while (i != -1) {
-                baseClass = baseClass.substring(0, i) + '.' + baseClass.substring(i + 1);
-                i = baseClass.lastIndexOf('$');
-            }
-        }
-        
-        // Append type parameters, if any
-        if( params == null )
-            return baseClass;
-        String r = baseClass + '<';
-        for(Iterator i = params.iterator(); i.hasNext(); ) {
-            r += ((GenTypeParameterizable)i.next()).toString(stripPrefix);
-            if( i.hasNext() )
-                r += ',';
-        }
-        r += '>';
-        return r;
-    }
-    
     // transform is only applied to outermost class
     public String toString(NameTransform nt)
     {
@@ -262,12 +238,17 @@ public class GenTypeClass extends GenTypeSolid {
             return baseClass;
         String r = baseClass + '<';
         for(Iterator i = params.iterator(); i.hasNext(); ) {
-            r += ((GenTypeParameterizable)i.next()).toString(nt);
+            r += ((GenTypeParameterizable)i.next()).toTypeArgString(nt);
             if( i.hasNext() )
                 r += ',';
         }
         r += '>';
         return r;
+    }
+    
+    public String toTypeArgString(NameTransform nt)
+    {
+        return toString(nt);
     }
     
     public boolean equals(GenTypeParameterizable other)

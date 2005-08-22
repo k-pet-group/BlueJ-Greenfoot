@@ -14,13 +14,10 @@ import java.util.Set;
  * a component type for a wildcard clause.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSolid.java 3518 2005-08-13 14:31:04Z polle $
+ * @version $Id: GenTypeSolid.java 3535 2005-08-22 06:12:16Z davmac $
  */
 public abstract class GenTypeSolid extends GenTypeParameterizable {
 
-    // force toString(boolean) to be reimplemented
-    public abstract String toString(boolean stripPrefix);
-    
     // force toString(NameTransform) to be reimplemented
     public abstract String toString(NameTransform nt);
     
@@ -270,16 +267,9 @@ public abstract class GenTypeSolid extends GenTypeParameterizable {
             }
         }
         
-//        GenTypeSolid [] lboundsa = a.getLowerBounds();
-//        GenTypeSolid [] lboundsb = b.getLowerBounds();
         GenTypeSolid lboundsa = a.getLowerBound();
         GenTypeSolid lboundsb = b.getLowerBound();
         if (lboundsa != null && lboundsb != null) {
-            // lcta(? super U, ? super V = ? super glb(U,V)
-//            GenTypeSolid [] newlbounds = new GenTypeSolid[lboundsa.length + lboundsb.length];
-//            System.arraycopy(lboundsa, 0, newlbounds, 0, lboundsa.length);
-//            System.arraycopy(lboundsb, 0, newlbounds, lboundsa.length, lboundsb.length);
-//            return new GenTypeWildcard(new GenTypeSolid[0], newlbounds);
             return new GenTypeWildcard(null, IntersectionType.getIntersection(lboundsa, lboundsb));
         }
         
