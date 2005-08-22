@@ -4,6 +4,7 @@ import bluej.debugger.*;
 import bluej.debugmgr.objectbench.*;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.target.ClassTarget;
 import com.sun.jdi.*;
 import java.util.*;
 
@@ -14,7 +15,7 @@ import java.util.*;
  * @see        BConstructor
  * @see        BMethod
  * @see        BField
- * @version    $Id: BObject.java 3471 2005-07-20 05:47:21Z davmac $
+ * @version    $Id: BObject.java 3538 2005-08-22 09:46:50Z damiano $
  */
 
 /*
@@ -146,15 +147,19 @@ public class BObject
      * @return                           The bClass value
      * @throws  ProjectNotOpenException  if the project to which this object belongs has been closed by the user.
      * @throws  ClassNotFoundException   if the class has been deleted by the user.
+     * @throws  PackageNotFoundException if the Package has been deleted by the user.
      */
     public BClass getBClass()
-             throws ProjectNotOpenException, ClassNotFoundException
+             throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException
     {
         // Tis is to test if the Bobject is till valid
         wrapperId.getJavaClass();
 
-        // Tested also with string array. 20 may 2003, Damiano
-        return new BClass(wrapperId);
+        // BClasses are retrieved from the BlueJ classTarget
+        ClassTarget classTarget = wrapperId.getClassTarget();
+        
+        // There is only one instance of BClass foer each ClassTarget
+        return classTarget.getBClass();
     }
 
 

@@ -16,7 +16,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 3534 2005-08-19 06:56:40Z damiano $
+ * @version $Id: BPackage.java 3538 2005-08-22 09:46:50Z damiano $
  */
 
 /*
@@ -147,12 +147,15 @@ public class BPackage
 
         Target aTarget = bluejPkg.getTarget (name);
 
+        // We may consider reporting this as a not found
         if ( aTarget == null ) return null;
+        
+        // And this in a different way
         if ( !(aTarget instanceof ClassTarget)) return null;
 
         ClassTarget classTarget = (ClassTarget)aTarget;
         
-        return new BClass (new Identifier (bluejPrj,bluejPkg, classTarget.getQualifiedName()));
+        return classTarget.getBClass();
         }
     
     /**
@@ -167,17 +170,14 @@ public class BPackage
         Project bluejPrj = packageId.getBluejProject();
         Package bluejPkg = packageId.getBluejPackage();
 
-        String pkgBasename = bluejPkg.getQualifiedName();
-        if ( pkgBasename.length() > 1 ) pkgBasename = pkgBasename+".";
+        ArrayList classTargets = bluejPkg.getClassTargets();
         
-        List names = bluejPkg.getAllClassnames();
-        
-        BClass[] classes = new BClass [names.size()];
-        for (ListIterator iter=names.listIterator(); iter.hasNext();) {
-            int index=iter.nextIndex();
-            String className = pkgBasename+(String)iter.next();
-            classes [index] = new BClass (new Identifier (bluejPrj,bluejPkg,className));
+        BClass[] classes = new BClass [classTargets.size()];
+        for (int index=0; index<classTargets.size(); index++) {
+            ClassTarget target = (ClassTarget)classTargets.get(index);
+            classes [index] = target.getBClass();
             }
+            
         return classes;
         }
     
@@ -295,11 +295,8 @@ public class BPackage
             {
             if ( !(targets[index] instanceof ClassTarget )) continue; 
           
-            ClassTarget aClass = (ClassTarget)targets[index];
-            String qualifiedClassName = aClass.getQualifiedName();
-            Package attachedPkg       = aClass.getPackage();
-            Identifier anId = new Identifier (attachedPkg.getProject(),attachedPkg, qualifiedClassName);
-            aList.add(new BClass(anId));
+            ClassTarget target = (ClassTarget)targets[index];
+            aList.add(target.getBClass());
             }
 
         return (BClass[]) aList.toArray(new BClass[aList.size()]);

@@ -1,5 +1,7 @@
 package bluej.pkgmgr.target;
 
+import bluej.extensions.BClass;
+import bluej.extensions.ExtensionBridge;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -52,7 +54,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3528 2005-08-14 23:03:37Z polle $
+ * @version $Id: ClassTarget.java 3538 2005-08-22 09:46:50Z damiano $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable, InvokeListener
@@ -165,6 +167,22 @@ public class ClassTarget extends EditableTarget
         setGhostPosition(0, 0);
         setGhostSize(0, 0);
     }
+
+    private BClass singleBClass;  // Every Target has none or one BClass
+    
+    /**
+     * Return the extensions BProject associated with this Project.
+     * There should be only one BProject object associated with each Project.
+     * @return the BProject associated with this Project.
+     */
+    public synchronized final BClass getBClass ()
+    {
+        if ( singleBClass == null )
+          singleBClass = ExtensionBridge.newBClass(this);
+          
+        return singleBClass;
+    }
+
 
     /**
      * Return the target's name, including the package name. eg.

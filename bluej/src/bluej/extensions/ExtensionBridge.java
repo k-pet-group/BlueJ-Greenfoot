@@ -1,63 +1,70 @@
 package bluej.extensions;
 
 import bluej.debugmgr.objectbench.ObjectWrapper;
+
 import bluej.extensions.event.ExtensionEvent;
+
 import bluej.extmgr.*;
+
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 
+import bluej.pkgmgr.target.ClassTarget;
+
 import com.sun.jdi.Value;
+
 import javax.swing.*;
 
+
 /*
- * This class acts as a bridge between the extensions package and other 
+ * This class acts as a bridge between the extensions package and other
  * BlueJ-internal packages (extmgr) to provide access to methods which
- * shouldn't be documented in the Extensions API Javadoc. By using this class, 
+ * shouldn't be documented in the Extensions API Javadoc. By using this class,
  * those methods can be made package-local.
  *
  * This class should be excluded when the Javadoc API documentation is generated.
  */
-
-
-public final class ExtensionBridge 
-  {
-  public static void delegateEvent ( BlueJ thisBluej, ExtensionEvent anEvent )
-    {
-    thisBluej.delegateEvent(anEvent);
+public final class ExtensionBridge {
+    public static void delegateEvent(BlueJ thisBluej, ExtensionEvent anEvent) {
+        thisBluej.delegateEvent(anEvent);
     }
 
-  public static Object getVal ( PkgMgrFrame aFrame, String instanceName, Value val )
-    {
-    return BField.doGetVal(aFrame, instanceName, val );
+    public static Object getVal(PkgMgrFrame aFrame, String instanceName,
+        Value val) {
+        return BField.doGetVal(aFrame, instanceName, val);
     }
 
-  public static BlueJ newBluej(ExtensionWrapper aWrapper, ExtensionPrefManager aPrefManager )
-    {
-    return new BlueJ (aWrapper, aPrefManager );
+    public static BlueJ newBluej(ExtensionWrapper aWrapper,
+        ExtensionPrefManager aPrefManager) {
+        return new BlueJ(aWrapper, aPrefManager);
     }
 
-  public static BObject newBObject (ObjectWrapper aWrapper)
-    {
-    return new BObject (aWrapper);
+    public static BObject newBObject(ObjectWrapper aWrapper) {
+        return new BObject(aWrapper);
     }
 
-  public static BProject newBProject (Project bluejPrj)
-    {
-    return new BProject (new Identifier (bluejPrj));
+    public static BProject newBProject(Project bluejPrj) {
+        return new BProject(new Identifier(bluejPrj));
     }
 
-  public static BPackage newBPackage (Package bluejPkg)
-    {
-    return new BPackage (new Identifier (bluejPkg.getProject(), bluejPkg));
+    public static BPackage newBPackage(Package bluejPkg) {
+        return new BPackage(new Identifier(bluejPkg.getProject(), bluejPkg));
     }
 
-  public static JMenuItem getMenuItem ( BlueJ aBluej, Object attachedObject )
-    {
-    return aBluej.getMenuItem(attachedObject);
+    public static BClass newBClass(ClassTarget classTarget) {
+        Package bluejPkg = classTarget.getPackage();
+        Project bluejPrj = bluejPkg.getProject();
+
+        return new BClass(new Identifier(bluejPrj, bluejPkg,
+                classTarget.getQualifiedName()));
     }
 
-  public static void postMenuItem ( BlueJ aBluej, Object attachedObject, JMenuItem onThisItem )
-    {
-    aBluej.postMenuItem(attachedObject, onThisItem);
+    public static JMenuItem getMenuItem(BlueJ aBluej, Object attachedObject) {
+        return aBluej.getMenuItem(attachedObject);
     }
-  }
+
+    public static void postMenuItem(BlueJ aBluej, Object attachedObject,
+        JMenuItem onThisItem) {
+        aBluej.postMenuItem(attachedObject, onThisItem);
+    }
+}

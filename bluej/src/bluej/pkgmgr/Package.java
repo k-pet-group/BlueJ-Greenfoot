@@ -51,7 +51,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3529 2005-08-15 16:37:12Z damiano $
+ * @version $Id: Package.java 3538 2005-08-22 09:46:50Z damiano $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1609,6 +1609,25 @@ public final class Package extends Graph
             return (DependentTarget) t;
 
         return null;
+    }
+
+    
+    /**
+     * Returns an ArrayList of ClassTargets holding all targets of this package.
+     * @return a not null but possibly empty array list of ClassTargets for this package.
+     */
+    public final ArrayList getClassTargets()
+    {
+        ArrayList risul = new ArrayList();
+
+        for (Iterator it = targets.iterator(); it.hasNext();) {
+            Target target = (Target) it.next();
+
+            if (target instanceof ClassTarget) {
+                risul.add(target);
+            }
+        }
+        return risul;
     }
 
     /**
