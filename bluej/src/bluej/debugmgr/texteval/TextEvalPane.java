@@ -37,7 +37,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3530 2005-08-17 01:54:06Z davmac $
+ * @version $Id: TextEvalPane.java 3537 2005-08-22 07:12:11Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -48,12 +48,18 @@ public class TextEvalPane extends JEditorPane
     private static final Cursor textCursor = new Cursor(Cursor.TEXT_CURSOR);
     
     private static final String nullLabel = Config.getString("debugger.null");
+    
+    private static final String uninitializedWarning = Config.getString("pkgmgr.codepad.uninitialized");
+    private static final String shortUnininitializedWarning = Config.getString("pkgmgr.codepad.uninitializedShort");
+    
+    private static boolean uninitializedWarningGiven = false;
 
     private PkgMgrFrame frame;
     private MoeSyntaxDocument doc;  // the text document behind the editor pane
     private String currentCommand = "";
     private IndexHistory history;
     private Invoker invoker = null;
+    private TextParser textParser = null;
     private boolean firstTry;
     private boolean wrappedResult;
     private boolean mouseInTag = false;
@@ -63,6 +69,7 @@ public class TextEvalPane extends JEditorPane
     
     private List localVars = new ArrayList();
     private List newlyDeclareds;
+    private List autoInitializedVars;
 
     public TextEvalPane(PkgMgrFrame frame)
     {
@@ -112,6 +119,8 @@ public class TextEvalPane extends JEditorPane
     public void clearVars()
     {
         localVars.clear();
+        if (textParser != null)
+            textParser.newClassLoader(frame.getProject().getClassLoader());
     }
 
     /**
@@ -184,6 +193,43 @@ public class TextEvalPane extends JEditorPane
                 }
                 
                 append(" ");
+                if (autoInitializedVars != null && autoInitializedVars.size() != 0) {
+                    // Some variables were automatically initialized - warn the user that
+                    // this won't happen in "real" code.
+                    
+                    // We use a long warning the first time, a shorter one thereafter.
+                    String warning = uninitializedWarningGiven ? 
+                            shortUnininitializedWarning 
+                            : uninitializedWarning;
+                    
+                    int findex = 0;
+                    while (findex < warning.length()) {
+                        int nindex = warning.indexOf('\n', findex);
+                        if (nindex == -1)
+                            nindex = warning.length();
+                        
+                        String warnLine = warning.substring(findex, nindex);
+                        //if (warnLine.indexOf('\n') != -1)
+                        //    Debug.message("?? Contains newline");
+                        append(warnLine);
+                        markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
+                        //append(" ");
+                        findex = nindex + 1; // skip the newline character
+                    }
+                    
+                    // make a list of comma-seperated variable names
+                    Iterator i = autoInitializedVars.iterator();
+                    String varnames = (String) i.next();
+                    while (i.hasNext()) {
+                        varnames += ", " + (String) i.next();
+                    }
+                    append(varnames);
+                    markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
+                    
+                    autoInitializedVars.clear();
+                    uninitializedWarningGiven = true;
+                }
+                
                 if (result != null) {
                     //Debug.message("type:"+result.getFieldValueTypeString(0));
                     
@@ -211,6 +257,7 @@ public class TextEvalPane extends JEditorPane
                 else {
                     BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
                 }
+                textParser.confirmCommand();
                 setEditable(true);    // allow next input
                 busy = false;
             }
@@ -230,6 +277,7 @@ public class TextEvalPane extends JEditorPane
                 // got it wrong.
                 wrappedResult = false;
                 invoker = new Invoker(frame, this, currentCommand, TextEvalPane.this);
+                invoker.setImports(textParser.getImportStatements());
                 invoker.doFreeFormInvocation("");
             }
             else {
@@ -239,6 +287,9 @@ public class TextEvalPane extends JEditorPane
         }
         else {
             // An error. Remove declared variables.
+            if (autoInitializedVars != null)
+                autoInitializedVars.clear();
+            
             removeNewlyDeclareds();
             showErrorMsg(message);
         }
@@ -249,13 +300,16 @@ public class TextEvalPane extends JEditorPane
      */
     public void putException(String message)
     {
+        if (autoInitializedVars != null)
+            autoInitializedVars.clear();
+        
         removeNewlyDeclareds();
         showErrorMsg(message);
     }
     
     /**
-     * Compile or execution failed, so remove the newly declared variables
-     * from the vale collection.
+     * Remove the newly declared variables from the value collection.
+     * (This is needed if compilation fails, or execution bombs with an exception).
      */
     private void removeNewlyDeclareds()
     {
@@ -284,19 +338,6 @@ public class TextEvalPane extends JEditorPane
                 busy = false;
             }
         });
-    }
-    
-    /**
-     * A watcher shuold be able to return information about the result that it
-     * is watching. This may be used to display extra information 
-     * (about the expression that gave the result) when the result is shown.
-     * Unused for text eval expressions.
-     * 
-     * @return An object with information on the expression
-     */
-    public ExpressionInformation getExpressionInformation()
-    {
-        return null;
     }
 
     //   --- end of ResultWatcher interface ---
@@ -709,28 +750,40 @@ public class TextEvalPane extends JEditorPane
                 firstTry = true;
                 setEditable(false);    // don't allow input while we're thinking
                 busy = true;
-                TextParser tp = new TextParser(frame.getProject().getClassLoader(), frame.getPackage().getQualifiedName(), frame.getObjectBench());
-                String retType = tp.parseCommand(currentCommand);
+                if (textParser == null)
+                    textParser = new TextParser(frame.getProject().getClassLoader(), frame.getPackage().getQualifiedName(), frame.getObjectBench());
+                String retType = textParser.parseCommand(currentCommand);
                 wrappedResult = (retType != null && retType.length() != 0);
                 
                 // see if any variables were declared
                 if (retType == null) {
-                    List declaredVars = tp.getDeclaredVars();
+                    currentCommand = textParser.getAmendedCommand();
+                    List declaredVars = textParser.getDeclaredVars();
                     if (declaredVars != null) {
-                        Iterator i = tp.getDeclaredVars().iterator();
+                        Iterator i = textParser.getDeclaredVars().iterator();
                         while (i.hasNext()) {
                             if (newlyDeclareds == null)
                                 newlyDeclareds = new ArrayList();
+                            if (autoInitializedVars == null)
+                                autoInitializedVars = new ArrayList();
                             
                             TextParser.DeclaredVar dv = (TextParser.DeclaredVar) i.next();
                             CodepadVar cpv = new CodepadVar(dv.getName(), dv.getDeclaredVarType(), dv.checkFinal());
                             newlyDeclareds.add(cpv);
                             localVars.add(cpv);
+
+                            // If the variable was declared but not initialized, the codepad
+                            // auto-initializes it. We add to a list so that we can display
+                            // a warning to that effect, once the command has completed.
+                            if (! dv.checkVarInit()) {
+                                autoInitializedVars.add(dv.getName());
+                            }
                         }
                     }
                 }
                 
                 invoker = new Invoker(frame, TextEvalPane.this, currentCommand, TextEvalPane.this);
+                invoker.setImports(textParser.getImportStatements());
                 invoker.doFreeFormInvocation(retType);
             }
             else {

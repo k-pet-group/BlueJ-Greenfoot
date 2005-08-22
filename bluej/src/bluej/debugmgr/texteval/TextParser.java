@@ -6,7 +6,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
+import antlr.ParserSharedInputState;
 import antlr.RecognitionException;
+import antlr.TokenBuffer;
 import antlr.TokenStreamException;
 import antlr.TokenStreamHiddenTokenFilter;
 import antlr.collections.AST;
@@ -14,10 +16,10 @@ import bluej.Config;
 import bluej.debugger.gentype.*;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
+import bluej.parser.ast.LocatableAST;
 import bluej.parser.ast.gen.JavaLexer;
 import bluej.parser.ast.gen.JavaRecognizer;
 import bluej.parser.ast.gen.JavaTokenTypes;
-import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 
@@ -28,7 +30,7 @@ import bluej.utility.JavaUtils;
  * (JLS) where possible.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3508 2005-08-08 04:18:26Z davmac $
+ * @version $Id: TextParser.java 3537 2005-08-22 07:12:11Z davmac $
  */
 public class TextParser
 {
@@ -40,6 +42,12 @@ public class TextParser
     private static boolean java15 = Config.isJava15();
     
     private List declVars; // variables declared in the parsed statement block
+    private String amendedCommand;  // command string amended with initializations for
+                                    // all variables
+    
+    private ImportsCollection imports;
+    private String importCandidate; // any import candidates.
+    private JavaRecognizer parser;
     
     /**
      * TextParser constructor. Defines the class loader and package scope
@@ -50,55 +58,63 @@ public class TextParser
         this.classLoader = classLoader;
         this.packageScope = packageScope;
         this.objectBench = ob;
+        imports = new ImportsCollection();
+    }
+    
+    /**
+     * Set a new class loader, and clear the imports list.
+     */
+    public void newClassLoader(ClassLoader newLoader)
+    {
+        classLoader = newLoader;
+        imports.clear();
     }
     
     /**
      * Parse a string entered into the code pad. Return is null if the string
      * is a statement; otherwise the string is an expression and the returned
      * string if the type of the expression (empty if the type cannot be determined).
+     * 
+     * <p>After calling this method, getDeclaredVars() and getAmendedCommand() can be
+     * called - see the documentation for those methods respectively.
+     * 
+     * <p>If the parsed string is then executed, the confirmCommand() method should
+     * subsequently be called.
      */
     public String parseCommand(String command)
     {
+        importCandidate = "";
+        amendedCommand = command;
         boolean parsedOk = false;
         AST rootAST;
 
-        // Multiple semi-colon to avoid hitting "end-of-file" which breaks
-        // parse
-        JavaRecognizer parser = getParser("{" + command + "};;;;;");
+        if (parser == null)
+            parser = getParser();
+        
+        // check if it's an import statement
+        try {
+            parser.setTokenBuffer(new TokenBuffer(getTokenStream(command)));
+            parser.getInputState().reset();
+            
+            parser.importDefinition();
+            amendedCommand = "";
+            importCandidate = command;
+            return null;
+        }
+        catch (RecognitionException re) { }
+        catch (TokenStreamException tse) { }
         
         // start parsing at the compoundStatement rule
         try {
+            parser.setTokenBuffer(new TokenBuffer(getTokenStream("{" + command + "};;;;;")));
+            parser.getInputState().reset();
             parser.compoundStatement();
             rootAST = parser.getAST();
             parsedOk = true;
 
             // Extract the declared variables
             AST fcnode = rootAST.getFirstChild();
-            try {
-                declVars = new ArrayList();
-                while (fcnode != null) {
-                    // is a variable declared?
-                    if (fcnode != null && fcnode.getType() == JavaTokenTypes.VARIABLE_DEF) {
-                        boolean isFinal = false;
-
-                        // check modifiers for "final"
-                        AST modnode = fcnode.getFirstChild(); // modifiers
-                        AST firstMod = modnode.getFirstChild();
-                        if (firstMod != null && firstMod.getType() == JavaTokenTypes.FINAL)
-                            isFinal = true;
-                        
-                        // get type and name
-                        AST typenode = modnode.getNextSibling();
-                        JavaType declVarType = getTypeFromTypeNode(typenode);
-                        AST namenode = typenode.getNextSibling();
-                        String varName = namenode.getText();
-                        boolean isVarInit = namenode.getNextSibling() != null;
-                        declVars.add(new DeclaredVar(isVarInit, isFinal, declVarType, varName));
-                    }
-                    fcnode = fcnode.getNextSibling();
-                }
-            }
-            catch (SemanticException se) {}
+            checkVars((LocatableAST) fcnode, command);
         }
         catch(RecognitionException re) { }
         catch(TokenStreamException tse) { }
@@ -106,7 +122,8 @@ public class TextParser
         if (! parsedOk) {
             // It might just be an expression. Multiple semi-colon to ensure
             // end-of-file not hit (causes parse failure).
-            parser = getParser(command + ";;;;;");
+            parser.setTokenBuffer(new TokenBuffer(getTokenStream(command + ";;;;;")));
+            parser.getInputState().reset();
             
             try {
                 parser.expression();
@@ -147,12 +164,150 @@ public class TextParser
     }
     
     /**
+     * Called to confirm that the recently parsed command has successfully
+     * executed. This allows TextParser to update internal state to reflect
+     * changes caused by the execution of the command.
+     */
+    public void confirmCommand()
+    {
+        if (importCandidate.length() != 0) {
+            try {
+                AST rr = parser.getAST();
+                if (rr.getType() == JavaTokenTypes.IMPORT) {
+                    // Non-static import
+                    AST classNode = rr.getFirstChild();
+                    AST fpNode = classNode.getFirstChild();
+                    AST className = fpNode.getNextSibling();
+                    
+                    // if className == '*' this is a wildcard
+                    if (className.getType() == JavaTokenTypes.STAR) {
+                        PackageOrClass importEntity = getPackageOrType(fpNode, true);
+                        imports.addWildcardImport(importEntity);
+                    }
+                    else {
+                        // A non-wildcard import.
+                        PackageOrClass importEntity = getPackageOrType(classNode, true);
+                        if (importEntity.isClass()) {
+                            imports.addNormalImport(className.getText(), importEntity);
+                        }
+                    }
+                }
+                else if (rr.getType() == JavaTokenTypes.STATIC_IMPORT) {
+                    // static import
+                    AST impNode = rr.getFirstChild().getFirstChild();
+                    AST impNameNode = impNode.getNextSibling();
+                    if (impNameNode.getType() == JavaTokenTypes.STAR) {
+                        ClassEntity importEntity = (ClassEntity) getPackageOrType(impNode, true);
+                        imports.addStaticWildcardImport(importEntity);
+                    }
+                    else {
+                        String impName = impNameNode.getText();
+                        ClassEntity importEntity = (ClassEntity) getPackageOrType(impNode, true);
+                        imports.addStaticImport(impName, importEntity);
+                    }
+                }
+            }
+            catch (RecognitionException re) { }
+            catch (SemanticException se) { }
+        }
+    }
+    
+    /**
+     * Check the command string for variable declarations/definitions.
+     * @param fcnode  The AST root.
+     * 
+     * @throws RecognitionException
+     */
+    private void checkVars(LocatableAST fcnode, String command)
+        throws RecognitionException
+    {
+        try {
+            declVars = new ArrayList();
+            ArrayList insPoint = new ArrayList(); // list of initializer insertion points
+            ArrayList insText = new ArrayList();  // list of initializer insertion texts
+            
+            while (fcnode != null) {
+
+                // store the end position of the AST
+                int ecol = fcnode.getEndColumn() - 2; // column numbers start at 1
+                    // additionally, the end column is the column just beyond the
+                    // semicolon or comma
+
+                // is a variable declared?
+                if (fcnode.getType() == JavaTokenTypes.VARIABLE_DEF) {
+                    boolean isFinal = false;
+
+                    // check modifiers for "final"
+                    AST modnode = fcnode.getFirstChild(); // modifiers
+                    AST firstMod = modnode.getFirstChild();
+                    if (firstMod != null && firstMod.getType() == JavaTokenTypes.FINAL)
+                        isFinal = true;
+                    
+                    // get type and name
+                    AST typenode = modnode.getNextSibling();
+                    JavaType declVarType = getTypeFromTypeNode(typenode);
+                    AST namenode = typenode.getNextSibling();
+                    String varName = namenode.getText();
+                    boolean isVarInit = namenode.getNextSibling() != null;
+                    declVars.add(new DeclaredVar(isVarInit, isFinal, declVarType, varName));
+                    
+                    if (! isVarInit) {
+                        insPoint.add(new Integer(ecol - 1));
+                        String text;
+                        if (declVarType.isPrimitive()) {
+                            if (declVarType.isNumeric()) {
+                                text = "= 0";
+                            }
+                            else {
+                                text = "= false";
+                            }
+                        }
+                        else {
+                            // reference type
+                            text = "= null";
+                        }
+                        insText.add(text);
+                    }
+                }
+                fcnode = (LocatableAST) fcnode.getNextSibling();
+            }
+            
+            // insert the initialization strings
+            amendedCommand = command;
+            int i = insPoint.size();
+            while (i-- > 0) {
+                int ipoint = ((Integer) insPoint.get(i)).intValue();
+                String itext = (String) insText.get(i);
+                amendedCommand = amendedCommand.substring(0, ipoint) + itext + amendedCommand.substring(ipoint);
+            }
+        }
+        catch (SemanticException se) {}
+    }
+    
+    /**
      * Get a list of the variables declared in the recently parsed statement
      * block. The return is a List of TextParser.DeclaredVar
      */
     public List getDeclaredVars()
     {
         return declVars;
+    }
+    
+    /**
+     * Get the amended command string, which has initializers inserted for variable
+     * declarations which were missing initializers.
+     */
+    public String getAmendedCommand()
+    {
+        return amendedCommand;
+    }
+    
+    /**
+     * Return the imports collection as a sequence of java import statements.
+     */
+    public String getImportStatements()
+    {
+        return imports.toString() + importCandidate;
     }
     
     /**
@@ -329,6 +484,14 @@ public class TextParser
             return o;
     }
     
+    /**
+     * Capture conversion, storing converted type parameters in the supplied Map so
+     * that they are accessible to inner classes.
+     *  
+     * @param c   The type to perform the conversion on
+     * @param tparMap   The map used for storing type parameter conversions
+     * @return   The converted type.
+     */
     private GenTypeClass captureConversion(GenTypeClass c, Map tparMap)
     {
         // capture the outer type
@@ -356,8 +519,6 @@ public class TextParser
                 }
                 if (lbound != null) {
                     // ? super XX
-                    // We only use the first lower bound. A wildcard is not really
-                    // allowed to have more than one lower bound anyway...
                     newArg = new WildcardCapture(tpbounds, lbound);
                 }
                 else {
@@ -548,13 +709,28 @@ public class TextParser
         }
     }
     
-    
     /**
      * Attempt to load, by its unqualified name,  a class which might be in the
      * current package or which might be in java.lang.
+     * 
+     * @param className   the name of the class to try to load
+     * @param tryWildcardImports    indicates whether the class name can be resolved by
+     *                              checking wildcard imports (including java.lang.*)
+     * @throws ClassNotFoundException  if the class cannot be resolved/loaded
      */
-    private Class loadUnqualifiedClass(String className) throws ClassNotFoundException
+    private Class loadUnqualifiedClass(String className, boolean tryWildcardImports)
+        throws ClassNotFoundException
     {
+        // Try singly imported types first
+        ClassEntity imported = imports.getTypeImport(className);
+        if (imported != null) {
+            try {
+                String cname = ((GenTypeClass) imported.getType()).rawName();
+                return classLoader.loadClass(cname);
+            }
+            catch (ClassNotFoundException cnfe) { }
+        }
+        
         // It's an unqualified name - try package scope
         try {
             if (packageScope.length() != 0)
@@ -564,13 +740,54 @@ public class TextParser
         }
         catch(ClassNotFoundException cnfe) {}
         
-        // Finally, try java.lang
+        // If not trying wildcard imports, bail out now
+        if (! tryWildcardImports)
+            throw new ClassNotFoundException(className);
+        
+        // Try wildcard imports
+        imported = imports.getTypeImportWC(className);
+        if (imported != null) {
+            try {
+                String cname = ((GenTypeClass) imported.getType()).rawName();
+                return classLoader.loadClass(cname);
+            }
+            catch (ClassNotFoundException cnfe) { }
+        }
+        
+        // Try java.lang
+        return classLoader.loadClass("java.lang." + className);
+    }
+    
+    /**
+     * Try to find a suitable wildcard import (including the implicit java.lang.*)
+     * which can be used to resolve a class name, and load that class.
+     * 
+     * @param className   The name of the class to resolve and load
+     * @return     The loaded Class
+     * @throws ClassNotFoundException  if the class cannot be resolved or loaded.
+     */
+    private Class loadWildcardImportedType(String className)
+        throws ClassNotFoundException
+    {
+        // Try wildcard imports
+        ClassEntity imported = imports.getTypeImportWC(className);
+        if (imported != null) {
+            try {
+                String cname = ((GenTypeClass) imported.getType()).rawName();
+                return classLoader.loadClass(cname);
+            }
+            catch (ClassNotFoundException cnfe) { }
+        }
+        
+        // Try java.lang
         return classLoader.loadClass("java.lang." + className);
     }
     
     /**
      * Extract the type from a node. The type is in the form of a qualified
-     * or unqualified class name, with optional type parameters.
+     * or unqualified class name, with optional type parameters. Note, this
+     * specifically doesn't handle array types and primitive types - see
+     * getTypeFromTypeNode for that.
      * 
      * @param node   The node representing the type
      * 
@@ -584,7 +801,7 @@ public class TextParser
             List params = getTParams(node.getFirstChild());
             
             try {
-                Class c = loadUnqualifiedClass(node.getText());
+                Class c = loadUnqualifiedClass(node.getText(), true);
                 Reflective r = new JavaReflective(c);
                 return new GenTypeClass(r, params);
             }
@@ -743,18 +960,54 @@ public class TextParser
      * @throws SemanticException
      * @throws RecognitionException
      */
-    Entity getEntity(AST node) throws SemanticException, RecognitionException
+    JavaEntity getEntity(AST node) throws SemanticException, RecognitionException
     {
         // simple case first:
         if (node.getType() == JavaTokenTypes.IDENT) {
-            // Treat it first as a variable, then a type, then as a package.
+            
+            // Treat it first as a variable...
             String nodeText = node.getText();
             NamedValue nv = objectBench.getNamedValue(nodeText);
             if (nv != null)
-                return new ValueEntity(getObjectType(nodeText));
+                return new ValueEntity(nv.getGenType());
             
+            // It's not a codepad or object bench variable, perhaps it's an import
+            List l = imports.getStaticImports(nodeText);
+            if (l != null) {
+                Iterator i = l.iterator();
+                while (i.hasNext()) {
+                    ClassEntity importEntity = (ClassEntity) i.next();
+                    try {
+                        JavaEntity fieldEnt = importEntity.getStaticField(nodeText);
+                        return fieldEnt;
+                    }
+                    catch (SemanticException se) { }
+                }
+            }
+            
+            // It might be a type
             try {
-                Class c = loadUnqualifiedClass(nodeText);
+                Class c = loadUnqualifiedClass(nodeText, false);
+                return new TypeEntity(c);
+            }
+            catch (ClassNotFoundException cnfe) { }
+            
+            // Wildcard static imports of fields override wildcard
+            // imports of types
+            l = imports.getStaticWildcardImports();
+            Iterator i = l.iterator();
+            while (i.hasNext()) {
+                ClassEntity importEntity = (ClassEntity) i.next();
+                try {
+                    JavaEntity fieldEnt = importEntity.getStaticField(nodeText);
+                    return fieldEnt;
+                }
+                catch (SemanticException se) { }
+            }
+            
+            // Finally try wildcard type imports
+            try {
+                Class c = loadWildcardImportedType(nodeText);
                 return new TypeEntity(c);
             }
             catch (ClassNotFoundException cnfe) {
@@ -767,7 +1020,7 @@ public class TextParser
             AST firstChild = node.getFirstChild();
             AST secondChild = firstChild.getNextSibling();
             if (secondChild.getType() == JavaTokenTypes.IDENT) {
-                Entity firstpart = getEntity(firstChild);
+                JavaEntity firstpart = getEntity(firstChild);
                 return firstpart.getSubentity(secondChild.getText());
             }
             // Don't worry about xxx.super, it shouldn't be used at this
@@ -782,10 +1035,25 @@ public class TextParser
     /**
      * Get an entity which by context must be either a package or a (possibly
      * generic) type.
-     * *
+     */
+    private PackageOrClass getPackageOrType(AST node)
+        throws SemanticException, RecognitionException
+    {
+        return getPackageOrType(node, false);
+    }
+    
+    /**
+     * Get an entity which by context must be either a package or a (possibly
+     * generic) type.
+     * @param node  The AST node representing the package/type
+     * @param fullyQualified   True if the type must be fully qualified
+     *            (if false, imports and the current package are checked for
+     *            definitions of a class with the initial name)
+     * 
      * @throws SemanticException
      */
-    private PackageOrClass getPackageOrType(AST node) throws SemanticException, RecognitionException
+    private PackageOrClass getPackageOrType(AST node, boolean fullyQualified)
+        throws SemanticException, RecognitionException
     {
         // simple case first:
         if (node.getType() == JavaTokenTypes.IDENT) {
@@ -794,9 +1062,14 @@ public class TextParser
             List tparams = getTParams(node.getFirstChild());
             
             try {
-                Class c = loadUnqualifiedClass(nodeText);
-                TypeEntity r = new TypeEntity(c);
-                r.setTypeParams(tparams);
+                Class c;
+                if (fullyQualified) {
+                    c = classLoader.loadClass(nodeText);
+                }
+                else {
+                    c = loadUnqualifiedClass(nodeText, true);
+                }
+                TypeEntity r = new TypeEntity(c, tparams);
                 return r;
             }
             catch (ClassNotFoundException cnfe) {
@@ -813,11 +1086,17 @@ public class TextParser
             AST secondChild = firstChild.getNextSibling();
             if (secondChild.getType() == JavaTokenTypes.IDENT) {
                 List tparams = getTParams(secondChild.getFirstChild());
-                PackageOrClass firstpart = getPackageOrType(firstChild);
+                PackageOrClass firstpart = getPackageOrType(firstChild, fullyQualified);
 
                 PackageOrClass entity = firstpart.getPackageOrClassMember(secondChild.getText());
-                if (! tparams.isEmpty())
-                    entity.setTypeParams(tparams);
+                if (! tparams.isEmpty()) {
+                    // There are type parmaters, so we must have a type
+                    if (entity.isClass()) {
+                        entity = ((ClassEntity) entity).setTypeParams(tparams);
+                    }
+                    else
+                        throw new SemanticException();
+                }
                 
                 return entity;
             }
@@ -1354,7 +1633,7 @@ public class TextParser
         
         if (firstArg.getType() == JavaTokenTypes.DOT) {
             AST targetNode = firstArg.getFirstChild();
-            Entity callTarget = getEntity(targetNode);
+            JavaEntity callTarget = getEntity(targetNode);
             JavaType targetType = callTarget.getType();
                             
             // now get method name, and argument types;
@@ -1717,7 +1996,7 @@ public class TextParser
                 // member field/type of some type
                 if (secondDotArg.getType() == JavaTokenTypes.IDENT) {
                     
-                    Entity entity = getEntity(firstDotArg);
+                    JavaEntity entity = getEntity(firstDotArg);
                     entity = entity.getSubentity(secondDotArg.getText());
                     
                     return new ExprValue(entity.getType());
@@ -1727,8 +2006,22 @@ public class TextParser
                 if (secondDotArg.getType() == JavaTokenTypes.LITERAL_class) {
                     if (! Config.isJava15())
                         return new ExprValue(new GenTypeClass(new JavaReflective(Class.class)));
-                    // TODO return "Class<X>", not just "Class". Beware int!
-                    return new ExprValue(new GenTypeClass(new JavaReflective(Class.class)));
+                    
+                    // we want "Class<X>", where X is the boxed type (or Void)
+                    int fdType = firstDotArg.getType();
+                    JavaReflective classReflective = new JavaReflective(Class.class);
+                    List l = new ArrayList();
+
+                    // add appropriate type to the type parameter list
+                    if (fdType == JavaTokenTypes.LITERAL_void) {
+                        l.add(new GenTypeClass(new JavaReflective(Void.class)));
+                    }
+                    else {
+                        l.add(boxType(getTypeFromTypeNode(fcNode)));
+                    }
+                    
+                    // ... then return Class<X>
+                    return new ExprValue(new GenTypeClass(classReflective, l));
                 }
                 
                 // not worrying about - .this, .super etc. They can't be used in
@@ -1742,14 +2035,8 @@ public class TextParser
             // Object bench object
             case JavaTokenTypes.IDENT:
             {
-                String objectName = fcNode.getText();
-                //ObjectWrapper ow = objectBench.getObject(objectName);
-                JavaType gt = getObjectType(objectName);
-                
-                if (gt == null)
-                    throw new SemanticException();
-                
-                return new ExprValue(gt);
+                JavaEntity entity = getEntity(fcNode);
+                return new ExprValue(entity.getType());
             }
             
             // type cast.
@@ -1959,40 +2246,23 @@ public class TextParser
     }
         
     /**
-     * Get the type of an object on the bench. Make sure the reflectives are
-     * all JavaReflectives - do this by converting the type to string and
-     * then re-parsing it.
-     * 
-     * @param objectName   The name of the bench object
-     * @return  The type of the selected object (or null if no such object
-     *          exists)
-     * @throws SemanticException
-     * @throws RecognitionException
-     */
-    private JavaType getObjectType(String objectName)
-        throws SemanticException, RecognitionException
-    {
-        // ObjectWrapper ow = objectBench.getObject(objectName);
-        NamedValue nv = objectBench.getNamedValue(objectName);
-
-        if (nv == null)
-            throw new SemanticException();
-
-        try {
-            JavaRecognizer jr = getParser(nv.getGenType().toString() + ")))");
-            jr.type();
-            AST n = jr.getAST();
-            return getType(n);
-        }
-        catch (TokenStreamException tse) {}
-        return null;
-    }
-    
-    /**
      * Obtain a parser which can be used to parse a command string.
      * @param s  the string to parse
      */
-    static JavaRecognizer getParser(String s)
+    static JavaRecognizer getParser()
+    {
+        JavaRecognizer jr = new JavaRecognizer(new ParserSharedInputState());
+        jr.setASTNodeClass("bluej.parser.ast.LocatableAST");
+        
+        return jr;
+    }
+    
+    /**
+     * Return an appropriate token filter for parsing java command sequences.
+     * @param s  The command sequence in question
+     * @return   A filter (to remove comments) over the java command sequence
+     */
+    static TokenStreamHiddenTokenFilter getTokenStream(String s)
     {
         StringReader r = new StringReader(s);
         
@@ -2014,14 +2284,71 @@ public class TextParser
         filter = new TokenStreamHiddenTokenFilter(lexer);
         filter.hide(JavaRecognizer.SL_COMMENT);
         filter.hide(JavaRecognizer.ML_COMMENT);
-
-        // create a parser that reads from the scanner
-        JavaRecognizer parser = new JavaRecognizer(filter);
-        parser.setASTNodeClass("bluej.parser.ast.LocatableAST");
         
-        return parser;
+        return filter;
     }
 
+    /**
+     * Find (if one exists) an accessible field with the given name in the given class (and
+     * its supertypes). The "getField(String)" method in java.lang.Class does the same thing,
+     * except it doesn't take into account accessible package-private fields which is
+     * important.
+     * 
+     * @param c    The class in which to find the field
+     * @param fieldName   The name of the accessible field to find
+     * @param pkg         The package context from which the field is accessed
+     * @return      The field
+     * @throws NoSuchFieldException  if no accessible field with the given name exists
+     */
+    static Field getAccessibleField(Class c, String fieldName, String pkg)
+        throws NoSuchFieldException
+    {
+        String className = c.getName();
+        int lastDot = className.lastIndexOf('.');
+        if (lastDot == -1)
+            lastDot = 0;
+        
+        String classPkg = className.substring(0, lastDot);
+        
+        // package private members accessible if the package is the same
+        boolean pprivateAccessible = classPkg.equals(pkg);
+
+        try {
+            // Try fields declared in this class
+            Field [] cfields = c.getDeclaredFields();
+            for (int i = 0; i < cfields.length; i++) {
+                if (cfields[i].getName().equals(fieldName)) {
+                    int mods = cfields[i].getModifiers();
+                    // rule out private fields
+                    if (! Modifier.isPrivate(mods)) {
+                        // now, if the fields is public, or package-private fields are
+                        // accessible, then the field is accessible.
+                        if (pprivateAccessible || Modifier.isPublic(mods)) {
+                            return cfields[i];
+                        }
+                    }
+                }
+            }
+            
+            // Try fields declared in superinterfaces
+            Class [] ifaces = c.getInterfaces();
+            for (int i = 0; i < ifaces.length; i++) {
+                try {
+                    return getAccessibleField(ifaces[i], fieldName, pkg);
+                }
+                catch (NoSuchFieldException nsfe) { }
+            }
+            
+            // Try fields declared in superclass
+            Class sclass = c.getSuperclass();
+            if (sclass != null)
+                return getAccessibleField(sclass, fieldName, pkg);
+        }
+        catch (LinkageError le) { }
+        
+        throw new NoSuchFieldException();
+    }
+    
     /**
      * A simple structure to hold various information about a method call.
      * 
@@ -2121,35 +2448,6 @@ public class TextParser
         // Nothing to see here.
     }
     
-    /**
-     * An entity which occurs in the source in a place where context alone
-     * cannot determine whether the entity is a package, class or value.
-     * 
-     * @author Davin McCall
-     */
-    abstract class Entity
-    {
-        //static final int ENTITY_PACKAGE = 0;
-        //static final int ENTITY_CLASS = 1;
-        //static final int ENTITY_VALUE = 2;
-        
-        // abstract int entityType();
-        
-        // getType throws SemanticException if the entity doesn't have an
-        // assosciated type (for instance a package)
-        abstract JavaType getType() throws SemanticException;
-        
-        abstract Entity getSubentity(String name) throws SemanticException;
-    }
-    
-    abstract class PackageOrClass extends Entity
-    {
-        // same as getSubentity, but cannot yield a value
-        abstract PackageOrClass getPackageOrClassMember(String name) throws SemanticException;
-        
-        abstract void setTypeParams(List tparams) throws SemanticException;
-    }
-    
     class PackageEntity extends PackageOrClass
     {
         String packageName;
@@ -2170,7 +2468,7 @@ public class TextParser
             throw new SemanticException();
         }
         
-        Entity getSubentity(String name) throws SemanticException
+        JavaEntity getSubentity(String name) throws SemanticException
         {
             Class c;
             try {
@@ -2187,13 +2485,18 @@ public class TextParser
             return (PackageOrClass) getSubentity(name);
         }
         
-        public String toString()
+        public String getName()
         {
-            return "package: " + packageName;
+            return packageName;
+        }
+        
+        public boolean isClass()
+        {
+            return false;
         }
     }
     
-    class TypeEntity extends PackageOrClass
+    class TypeEntity extends ClassEntity
     {
         Class thisClass;
         List tparams;
@@ -2205,16 +2508,30 @@ public class TextParser
             tparams = Collections.EMPTY_LIST;
         }
         
+        TypeEntity(Class c, List tparams)
+        {
+            thisClass = c;
+            this.tparams = tparams;
+        }
+        
         TypeEntity(Class c, GenTypeClass outer)
         {
             thisClass = c;
             this.outer = outer;
             tparams = Collections.EMPTY_LIST;
         }
-
-        void setTypeParams(List tparams) throws SemanticException
+        
+        TypeEntity(Class c, GenTypeClass outer, List tparams)
         {
+            thisClass = c;
+            this.outer = outer;
             this.tparams = tparams;
+        }
+
+        ClassEntity setTypeParams(List tparams) throws SemanticException
+        {
+            // this.tparams = tparams;
+            return new TypeEntity(thisClass, outer, tparams);
         }
 
         JavaType getType()
@@ -2227,13 +2544,13 @@ public class TextParser
             return new GenTypeClass(new JavaReflective(thisClass), tparams, outer);
         }
         
-        Entity getSubentity(String name) throws SemanticException
+        JavaEntity getSubentity(String name) throws SemanticException
         {
             // subentity of a class could be a member type or field
             // Is it a field?
             Field f = null;
             try {
-                f = thisClass.getField(name);
+                f = getAccessibleField(thisClass, name, packageScope);
                 JavaType fieldType;
                 Map tparmap = getClassType().getMap();
                 
@@ -2250,7 +2567,7 @@ public class TextParser
                     fieldType = captureConversion(fieldType);
                 }
                 
-                return new ValueEntity(fieldType);
+                return new ValueEntity(fieldType, getName() + "." + name);
             }
             catch (NoSuchFieldException nsfe) {}
 
@@ -2260,26 +2577,80 @@ public class TextParser
         
         PackageOrClass getPackageOrClassMember(String name) throws SemanticException
         {
+            // A class cannot have a package member...
+            return new TypeEntity(getMemberClass(name), getClassType());
+        }
+        
+        Class getMemberClass(String name) throws SemanticException
+        {
             // Is it a member type?
             Class c;
             try {
                 c = classLoader.loadClass(thisClass.getName() + '$' + name);
-                return new TypeEntity(c, (GenTypeClass) getType());
+                return c;
+                //return new TypeEntity(c, (GenTypeClass) getType());
             }
             catch (ClassNotFoundException cnfe) {
                 // No more options - it must be an error
                 throw new SemanticException();
             }
         }
+        
+        ClassEntity getStaticMemberClass(String name) throws SemanticException
+        {
+            Class c = getMemberClass(name);
+            if (Modifier.isStatic(c.getModifiers()))
+                return new TypeEntity(c, (GenTypeClass) getType());
+            
+            // Not a static member - we fail
+            throw new SemanticException();
+        }
+        
+        JavaEntity getStaticField(String name) throws SemanticException
+        {
+            Field f = null;
+            try {
+                f = getAccessibleField(thisClass, name, packageScope);
+                
+                if (Modifier.isStatic(f.getModifiers())) {
+                    JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(f);
+                    // JLS 15.11.1, field access using a primary, capture conversion must
+                    // be applied.
+                    fieldType = captureConversion(fieldType);
+
+                    // TODO for final fields, return an entity with a value
+                    return new ValueEntity(fieldType, getName() + "." + name);
+                }
+            }
+            catch (NoSuchFieldException nsfe) {}
+            throw new SemanticException();
+        }
+        
+        String getName()
+        {
+            return getType().toString();
+        }
+        
+        public boolean isClass()
+        {
+            return true;
+        }
     }
     
-    class ValueEntity extends Entity
+    class ValueEntity extends JavaEntity
     {
         JavaType type;
+        String name;
         
         ValueEntity(JavaType type)
         {
             this.type = type;
+        }
+        
+        ValueEntity(JavaType type, String name)
+        {
+            this.type = type;
+            this.name = name;
         }
         
         JavaType getType()
@@ -2287,7 +2658,7 @@ public class TextParser
             return type;
         }
         
-        Entity getSubentity(String name)
+        JavaEntity getSubentity(String name)
             throws SemanticException
         {
             // Should be a member field.
@@ -2309,8 +2680,7 @@ public class TextParser
             //  Try and find the field
             Field f = null;
             try {
-                // TODO getField() is not enough, won't find package privates
-                f = c.getField(name);
+                f = getAccessibleField(c, name, packageScope);
                 // Map type parameters to declaring class
                 Class declarer = f.getDeclaringClass();
                 Map tparMap = thisClass.mapToSuper(declarer.getName()).getMap();
@@ -2327,11 +2697,24 @@ public class TextParser
                 else
                     fieldType = JavaUtils.getJavaUtils().getRawFieldType(f);
 
-                return new ValueEntity(fieldType);
+                if (name == null)
+                    return new ValueEntity(fieldType);
+                else
+                    return new ValueEntity(fieldType, this.name + "." + name);
             }
             catch (NoSuchFieldException nsfe) {
                 throw new SemanticException();
             }
+        }
+        
+        String getName()
+        {
+            return name;
+        }
+        
+        public boolean isClass()
+        {
+            return false;
         }
     }
     
@@ -2479,7 +2862,6 @@ public class TextParser
         
         /**
          * Check whether the variable declaration included an initialization.
-         * First call checkVarDecl to make sure that this is a declaration.
          */
         public boolean checkVarInit()
         {

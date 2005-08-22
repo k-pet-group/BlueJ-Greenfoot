@@ -47,7 +47,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3528 2005-08-14 23:03:37Z polle $
+ * @version $Id: ObjectWrapper.java 3537 2005-08-22 07:12:11Z davmac $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -652,6 +652,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
             
             public void putResult(DebuggerObject result, String name, InvokerRecord ir)
             {
+                expressionInformation.setArgumentValues(ir.getArgumentValues());
                 ob.addInteraction(ir);
                 
                 // a void result returns a name of null
@@ -666,9 +667,6 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
             }
             public void putError(String msg) { }
             public void putException(String msg) { }
-            public ExpressionInformation getExpressionInformation() {
-                return expressionInformation;
-            }              
         };
 
         Invoker invoker = new Invoker(pmf, method, this, watcher);
