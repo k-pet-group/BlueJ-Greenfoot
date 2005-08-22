@@ -11,43 +11,78 @@ import antlr.*;
  */
 public class LocatableAST extends antlr.CommonASTWithHiddenTokens
 {
-  private int line;
-  private int column;
-  protected ArrayList importantTokens;
-  
-  /**
-   * Sets the line number of this node
-   */
+    private int line;
+    private int column;
+    protected ArrayList importantTokens;
+    
+    private int endLine;
+    private int endColumn;
+    
+    /**
+     * Sets the line number of this node
+     */
     public void setLine(int line)
     {
         this.line = line;
     }
 
-  /**
-   * Gets the line number of this node
-   */
+    /**
+     * Gets the line number of this node
+     */
     public int getLine()
     {
         return line;
     }
 
-  /**
-   * sets the column where this node reside
-   * @param column
-   */
+    /**
+     * sets the column where this node reside
+     * @param column
+     */
     public void setColumn(int column)
     {
         this.column = column;
     }
-
-  /**
-   * gets the column where this node reside
-   * @return <code>int</code>
-   */
+        
+    /**
+     * gets the column where this node reside
+     * @return <code>int</code>
+     */
     public int getColumn() {
         return column;
     }
 
+    /**
+     * Set the location where this AST ends. This is used to mark the end of a statement,
+     * for example, so that a statement sequence string can be broken up into individual
+     * statements.
+     * 
+     * @param endline  The line the AST ends
+     * @param endcol   The column the AST ends
+     */
+    public void setEndPos(int endline, int endcol)
+    {
+        endLine = endline;
+        endColumn = endcol;
+    }
+    
+    /**
+     * Get the line where this AST ends.
+     * @return  the end line
+     */
+    public int getEndLine()
+    {
+        return endLine;
+    }
+    
+    /**
+     * Get the column where this AST ends.
+     * @return  the end column
+     */
+    public int getEndColumn()
+    {
+        return endColumn;
+    }
+    
     public LocatableAST()
     {
         super();

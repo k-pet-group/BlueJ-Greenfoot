@@ -190,6 +190,26 @@ tokens {
         if (h instanceof bluej.parser.ast.LocatableAST)
             ((bluej.parser.ast.LocatableAST) h).addImportantToken(t);
     }
+    
+    static void setEndToken(AST h, Token t)
+    {
+    	if (h instanceof bluej.parser.ast.LocatableAST) {
+    		bluej.parser.ast.LocatableToken lt = (bluej.parser.ast.LocatableToken) t;
+    		int l = lt.getLine();
+    		int c = lt.getColumn() + lt.getText().length();
+    		((bluej.parser.ast.LocatableAST) h).setEndPos(l, c);
+    	}
+    }
+    
+    static void setEndAst(AST h, AST e)
+    {
+    	if (h instanceof bluej.parser.ast.LocatableAST) {
+    		bluej.parser.ast.LocatableAST le = (bluej.parser.ast.LocatableAST) e;
+    		int l = le.getEndLine();
+    		int c = le.getEndColumn();
+    		((bluej.parser.ast.LocatableAST) h).setEndPos(l, c);
+    	}
+    }
 
     /**
      * Counts the number of LT seen in the typeArguments production.
@@ -525,9 +545,12 @@ classDefinition![AST modifiers]
 		ic:implementsClause
 		// now parse the body of the class
 		cb:classBlock
-		{#classDefinition = #(#[CLASS_DEF,"CLASS_DEF"],
+		{
+			#classDefinition = #(#[CLASS_DEF,"CLASS_DEF"],
 							   modifiers,IDENT,tp,sc,ic,cb);
-	      addImportantToken(#classDefinition, c);   }
+	    	addImportantToken(#classDefinition, c);
+	    	setEndAst(#classDefinition, #cb);
+	    }
 	;
 
 superClassClause!
@@ -608,9 +631,11 @@ classBlock
 	:	lc:LCURLY!
 			( field | SEMI! )*
 		rc:RCURLY!
-		{#classBlock = #([OBJBLOCK, "OBJBLOCK"], #classBlock);
-		 addImportantToken(#classBlock, lc);
-		 addImportantToken(#classBlock, rc);
+		{
+			#classBlock = #([OBJBLOCK, "OBJBLOCK"], #classBlock);
+		 	addImportantToken(#classBlock, lc);
+		 	addImportantToken(#classBlock, rc);
+		 	setEndToken(#classBlock, rc);
 		}
 	;
 
@@ -842,12 +867,15 @@ explicitConstructorInvocation
 		{#lp2.setType(SUPER_CTOR_CALL);}
     ;
 
-variableDefinitions[AST mods, AST t]
-	:	variableDeclarator[getASTFactory().dupTree(mods),
+variableDefinitions[AST mods, AST t] { AST lastVarDeclarator = null; }
+	:	vd:variableDeclarator[getASTFactory().dupTree(mods),
 						   getASTFactory().dupTree(t)]
-		(	COMMA!
-			variableDeclarator[getASTFactory().dupTree(mods),
-							   getASTFactory().dupTree(t)]
+			{
+				lastVarDeclarator = #vd;
+			}
+		(	comma:COMMA! { setEndToken(lastVarDeclarator, comma); }
+			vdn:variableDeclarator[getASTFactory().dupTree(mods),
+							   getASTFactory().dupTree(t)] { lastVarDeclarator = #vdn; }
 		)*
 	;
 
@@ -972,10 +1000,20 @@ compoundStatement
 		rc:RCURLY!
         {
 		     addImportantToken(#lc, rc);
+		     setEndToken(#lc, rc);
         }
 	;
 
 
+// A single statement. The location of the exact end of the statement is stored
+// (if the AST is a LocatableAST). In most cases the statement ends with the ';'
+// character, but sometimes it is a closing curly brace ('}'), and in the case
+// of a multiple variable declaration it can be a comma.
+//
+// For instance "int i, j, k;" is broken up into three statements:
+//     "int i,"
+//     "j,"
+//     "k;"
 statement
 	// A list of statements in curly braces -- start a new scope!
 	:	compoundStatement
@@ -984,21 +1022,30 @@ statement
 	// statements.  Must backtrack to be sure.  Could use a semantic
 	// predicate to test symbol table to see what the type was coming
 	// up, but that's pretty hard without a symbol table ;)
-	|	(declaration)=> declaration SEMI!
+	|	(declaration)=> decl:declaration semi:SEMI!
+		{
+			AST nn = #decl;
+			AST ns = nn.getNextSibling();
+			while (ns != null) {
+				nn = ns;
+				ns = nn.getNextSibling();
+			}
+			setEndToken(nn, semi);
+		}
 
 	// An expression statement.  This could be a method call,
 	// assignment statement, or any other expression evaluated for
 	// side-effects.
-	|	expression SEMI!
+	|	expr:expression semi2:SEMI! { setEndToken(#expr, semi2); }
 
 	// class definition
 	|	m:modifiers! classDefinition[#m]
 
 	// Attach a label to the front of a statement
-	|	IDENT c:COLON^ {#c.setType(LABELED_STAT);} statement
+	|	IDENT c:COLON^ {#c.setType(LABELED_STAT);} stmt:statement { setEndAst(#c, #stmt); }
 
 	// If-else statement
-	|	"if"^ LPAREN! expression RPAREN! statement
+	|	ifstmt:"if"^ LPAREN! expression RPAREN! stmt2:statement { setEndAst(#ifstmt, #stmt2); }
 		(
 			// CONFLICT: the old "dangling-else" problem...
 			//           ANTLR generates proper code matching
@@ -1007,46 +1054,61 @@ statement
 				warnWhenFollowAmbig = false;
 			}
 		:
-			"else"! statement
+			"else"! stmt3:statement { setEndAst(#ifstmt, #stmt3); }
 		)?
 
 	// For statement
 	|	forStatement
 
 	// While statement
-	|	"while"^ LPAREN! expression RPAREN! statement
+	|	wstmt:"while"^ LPAREN! expression RPAREN! stmt4:statement
+	{
+		setEndAst(#wstmt, #stmt4);
+	}
 
 	// do-while statement
-	|	"do"^ statement "while"! LPAREN! expression RPAREN! SEMI!
+	|	dostmt:"do"^ statement "while"! LPAREN! expression RPAREN! semi3:SEMI!
+	{
+		setEndToken(#dostmt, semi3);
+	}
 
 	// get out of a loop (or switch)
-	|	"break"^ (IDENT)? SEMI!
+	|	brstmt:"break"^ (IDENT)? semi4:SEMI!  { setEndToken(#brstmt, semi4); }
 
 	// do next iteration of a loop
-	|	"continue"^ (IDENT)? SEMI!
+	|	contstmt:"continue"^ (IDENT)? semi5:SEMI!  { setEndToken(#contstmt, semi5); }
 
 	// Return an expression
-	|	"return"^ (expression)? SEMI!
+	|	retstmt:"return"^ (expression)? semi6:SEMI!  { setEndToken(#retstmt, semi6); }
 
 	// switch/case statement
-	|	"switch"^ LPAREN! expression RPAREN! LCURLY!
+	|	swstmt:"switch"^ LPAREN! expression RPAREN! LCURLY!
 			( casesGroup )*
-		RCURLY!
+		rcurly:RCURLY!
+		{
+			setEndToken(#swstmt, rcurly);
+		}
 
 	// exception try-catch block
 	|	tryBlock
 
 	// throw an exception
-	|	"throw"^ expression SEMI!
+	|	throwkw:"throw"^ expression semi7:SEMI!  { setEndToken(#throwkw, semi7); }
 
 	// synchronize a statement
-	|	"synchronized"^ LPAREN! expression RPAREN! compoundStatement
+	|	synckw:"synchronized"^ LPAREN! expression RPAREN! stmt5:compoundStatement
+		{
+			setEndAst(#synckw, #stmt5);
+		}
 
 	// asserts (uncomment if you want 1.4 compatibility)
-	|	"assert"^ expression ( COLON! expression )? SEMI!
+	|	assertkw:"assert"^ expression ( COLON! expression )? semi8:SEMI!
+		{
+			setEndToken(#assertkw, semi8);
+		}
 
 	// empty statement
-	|	s:SEMI {#s.setType(EMPTY_STAT);}
+	|	s:SEMI { #s.setType(EMPTY_STAT); setEndToken(#s,s); }
 	;
 
 forStatement
@@ -1056,7 +1118,7 @@ forStatement
               |
               forEachStatement {#f.setType(FOR_EACH);})
         RPAREN!
-        statement                     // statement to loop over
+        stmt:statement { setEndAst(#f, #stmt); }   // statement to loop over
     ;
 
 traditionalForStatement
@@ -1117,18 +1179,21 @@ forIter
 
 // an exception handler try/catch block
 tryBlock
-	:	"try"^ compoundStatement
-		(handler)*
-		( finallyClause )?
+	:	trykw:"try"^ compoundStatement
+		(hndlr:handler { setEndAst(#trykw, #hndlr); } )*
+		( fclause:finallyClause { setEndAst(#trykw, #fclause); } )?
 	;
 
 finallyClause
-	:	"finally"^ compoundStatement
+	:	fc:"finally"^ cs:compoundStatement  { setEndAst(#fc, #cs); }
 	;
 
 // an exception handler
 handler
-	:	"catch"^ LPAREN! parameterDeclaration RPAREN! compoundStatement
+	:	catchkw:"catch"^ LPAREN! parameterDeclaration RPAREN! cs:compoundStatement
+		{
+			setEndAst(#catchkw, #cs);
+		}
 	;
 
 
