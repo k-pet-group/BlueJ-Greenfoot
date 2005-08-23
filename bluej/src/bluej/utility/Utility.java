@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import bluej.Config;
 
@@ -17,11 +19,15 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 3441 2005-06-15 08:01:25Z mik $
+ * @version $Id: Utility.java 3540 2005-08-23 05:50:40Z davmac $
  */
 public class Utility
 {
-
+    /**
+     * Used to track which events have occurred for firstTimeThisRun()
+     */
+    private static Set occurredEvents = new HashSet();
+    
     /**
      * Draw a thick rectangle - another of the things missing from the AWT
      */
@@ -144,35 +150,35 @@ public class Utility
     }
 
     /**
-     * return a string in which all the '\' characters of the
-     * original string are quoted ('\\').
+     * Return a string in which all the quotable characters (tab, newline, ' and ", etc)
+     * are quoted, Java-style. 
      */
-    public static String quoteSloshes(String src)
+    public static String quoteString(String src)
     {
         StringBuffer buf = new StringBuffer();
 
         for(int i = 0; i < src.length(); i++)
-            {
-                if(src.charAt(i) == '\\')
+        {
+            char c = src.charAt(i);    
+            if (c == '\n')
+                buf.append("\\n");
+            else if (c == '\r')
+                buf.append("\\r");
+            else if (c == '\t')
+                buf.append("\\g");
+            else if (c < 32 || c > 128) {
+                    // Character is outside normal ASCII range, output it as unicode
+                    // escape sequence.
+                    String n = Integer.toHexString(c);
+                    n = "0000".substring(n.length()) + n;
+                    buf.append("\\u");
+                    buf.append(n);
+            }
+            else {
+                if(c == '\\' || c == '"' || c == '\'')
                     buf.append('\\');
                 buf.append(src.charAt(i));
             }
-
-        return buf.toString();
-    }
-
-    /**
-     * Return a string in which all the ' ' characters of the
-     * original string are quoted with a passed in string.
-     */
-    public static String quoteSpaces(String src, String quote)
-    {
-        StringBuffer buf = new StringBuffer();
-
-        for(int i=0; i < src.length(); i++) {
-            if(src.charAt(i) == ' ')
-                buf.append(quote);
-            buf.append(src.charAt(i));
         }
 
         return buf.toString();
@@ -418,4 +424,39 @@ public class Utility
             return originalString;
     }
 
+    /**
+     * Check if this is the first time a particular event (identified by the
+     * context string) has occurred during this run of BlueJ.
+     * 
+     * @param context  Identifies the event (suggested: fully-qualified-class-name:event-id)
+     * @return  true the first time the method was called with the given context; false
+     *          every subsequent time.
+     */
+    public static boolean firstTimeThisRun(String context)
+    {
+        if (occurredEvents.contains(context))
+            return false;
+        
+        occurredEvents.add(context);
+        return true;
+    }
+    
+    /**
+     * Check if this is the first time a particular event (identified by the
+     * context string) has occurred "ever" (in this BlueJ installation).
+     * 
+     * @param context  Identifies the event (a property name)
+     * @return  true the first time the method was called with the given context; false
+     *          every subsequent time.
+     */
+    public static boolean firstTimeEver(String context)
+    {
+        String eventIndicator = Config.getPropString(context, "false");
+        if (eventIndicator.equals("true"))
+            return false;
+        
+        Config.putPropString(context, "true");
+        return true;
+    }
+    
 }

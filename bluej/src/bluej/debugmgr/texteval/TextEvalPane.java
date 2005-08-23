@@ -22,7 +22,11 @@ import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaType;
-import bluej.debugmgr.*;
+import bluej.debugmgr.IndexHistory;
+import bluej.debugmgr.Invoker;
+import bluej.debugmgr.NamedValue;
+import bluej.debugmgr.ResultWatcher;
+import bluej.debugmgr.ValueCollection;
 import bluej.editor.moe.BlueJSyntaxView;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEditorKit;
@@ -30,6 +34,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
+import bluej.utility.Utility;
 
 /**
  * A modified editor pane for the text evaluation area.
@@ -37,7 +42,7 @@ import bluej.utility.JavaNames;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3537 2005-08-22 07:12:11Z davmac $
+ * @version $Id: TextEvalPane.java 3540 2005-08-23 05:50:40Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -52,8 +57,6 @@ public class TextEvalPane extends JEditorPane
     private static final String uninitializedWarning = Config.getString("pkgmgr.codepad.uninitialized");
     private static final String shortUnininitializedWarning = Config.getString("pkgmgr.codepad.uninitializedShort");
     
-    private static boolean uninitializedWarningGiven = false;
-
     private PkgMgrFrame frame;
     private MoeSyntaxDocument doc;  // the text document behind the editor pane
     private String currentCommand = "";
@@ -198,6 +201,7 @@ public class TextEvalPane extends JEditorPane
                     // this won't happen in "real" code.
                     
                     // We use a long warning the first time, a shorter one thereafter.
+                    boolean uninitializedWarningGiven = ! Utility.firstTimeThisRun("TextEvalPane.uninitializedWarning");
                     String warning = uninitializedWarningGiven ? 
                             shortUnininitializedWarning 
                             : uninitializedWarning;
@@ -227,7 +231,6 @@ public class TextEvalPane extends JEditorPane
                     markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
                     
                     autoInitializedVars.clear();
-                    uninitializedWarningGiven = true;
                 }
                 
                 if (result != null) {

@@ -39,7 +39,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3532 2005-08-19 06:01:30Z davmac $
+ * @version $Id: Invoker.java 3540 2005-08-23 05:50:40Z davmac $
  */
 
 public class Invoker
@@ -663,7 +663,7 @@ public class Invoker
         //  OtherJavaType instnameB = (OtherJavaType)
         // __bluej_runtime_scope("instnameB");
 
-        String scopeId = Utility.quoteSloshes(pkg.getId());
+        String scopeId = Utility.quoteString(pkg.getId());
         Iterator wrappers = pmf.getObjectBench().getValueIterator();
         NameTransform cqtTransform = new CleverQualifyTypeNameTransform(pkg);
 
