@@ -20,6 +20,7 @@ import bluej.parser.ast.LocatableAST;
 import bluej.parser.ast.gen.JavaLexer;
 import bluej.parser.ast.gen.JavaRecognizer;
 import bluej.parser.ast.gen.JavaTokenTypes;
+import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 
@@ -30,7 +31,7 @@ import bluej.utility.JavaUtils;
  * (JLS) where possible.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3537 2005-08-22 07:12:11Z davmac $
+ * @version $Id: TextParser.java 3539 2005-08-23 01:40:13Z davmac $
  */
 public class TextParser
 {
@@ -86,6 +87,7 @@ public class TextParser
         importCandidate = "";
         amendedCommand = command;
         boolean parsedOk = false;
+        declVars = Collections.EMPTY_LIST;
         AST rootAST;
 
         if (parser == null)
@@ -133,10 +135,10 @@ public class TextParser
                 ExprValue ev = getExpressionType(rootAST);
                 JavaType t = ev != null ? ev.getType() : null;
 
-                if (t == null)
+                if (t == null) {
                     return "";
+                }
                 else if (t.isVoid()) {
-                    declVars = Collections.EMPTY_LIST;
                     return null;
                 }
                 else {
@@ -156,6 +158,7 @@ public class TextParser
             catch(SemanticException se) { }
             catch(TokenStreamException tse) { }
             catch(Exception e) {
+                Debug.reportError("TextParser: Unexpected error during parsing:");
                 e.printStackTrace(System.out);
             }
             return "";
