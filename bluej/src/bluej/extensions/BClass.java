@@ -6,6 +6,7 @@ import bluej.extensions.editor.EditorBridge;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
 import bluej.views.ConstructorView;
 import bluej.views.FieldView;
 import bluej.views.MethodView;
@@ -19,7 +20,7 @@ import java.util.List;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 3529 2005-08-15 16:37:12Z damiano $
+ * @version    $Id: BClass.java 3542 2005-08-24 10:22:28Z damiano $
  */
 
 /*
@@ -246,7 +247,18 @@ public class BClass
         // Let me get the package I want now...
         Package bluejPkg = bluejPrj.getCachedPackage(classPkgName);
 
-        return new BClass(new Identifier(bluejPrj, bluejPkg, superView.getQualifiedName()));
+        // I need the Target for the class I want.
+        Target aTarget = bluejPkg.getTarget (superView.getBaseName());
+
+        // We may consider reporting this as a not found
+        if ( aTarget == null ) return null;
+        
+        // And this in a different way
+        if ( !(aTarget instanceof ClassTarget)) return null;
+
+        ClassTarget classTarget = (ClassTarget)aTarget;
+        
+        return classTarget.getBClass();
     }
 
 

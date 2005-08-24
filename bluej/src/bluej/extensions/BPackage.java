@@ -16,7 +16,7 @@ import java.util.List;
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 3538 2005-08-22 09:46:50Z damiano $
+ * @version $Id: BPackage.java 3542 2005-08-24 10:22:28Z damiano $
  */
 
 /*
@@ -202,7 +202,7 @@ public class BPackage
         for(Iterator i=objects.iterator(); i.hasNext(); ) {
             ObjectWrapper wrapper = (ObjectWrapper)i.next();
             if (instanceName.equals(wrapper.getName())) 
-                return new BObject(wrapper);
+                return wrapper.getBObject();
         }
         return null;
     }    
@@ -224,7 +224,7 @@ public class BPackage
         int index = 0;
         for(Iterator i=objectWrappers.iterator(); i.hasNext(); ) {
             ObjectWrapper wrapper = (ObjectWrapper)i.next();
-            objects[index] = new BObject(wrapper);
+            objects[index] = wrapper.getBObject();
             index++;
         }
         return objects;
@@ -318,7 +318,7 @@ public class BPackage
         ArrayList aList  = new ArrayList();
         // In the futire we will really return more than one element
         ObjectWrapper aWrapper = aBench.getSelectedObject();
-        if ( aWrapper != null ) aList.add(new BObject(aWrapper));
+        if ( aWrapper != null ) aList.add(aWrapper.getBObject());
 
         return (BObject[]) aList.toArray(new BObject[aList.size()]);
     }

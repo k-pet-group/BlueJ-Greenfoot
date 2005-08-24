@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 3529 2005-08-15 16:37:12Z damiano $
+ * @version $Id: BProject.java 3542 2005-08-24 10:22:28Z damiano $
  */
 
 /*
@@ -109,14 +109,14 @@ public class BProject
             throw new IllegalStateException("newPackage: getPackage '"+fullyQualifiedName+"' returned null");
 
         Package reloadPkg=pkg;
-        while(reloadPkg != null) {
+        for(int index=0; index<10 && reloadPkg != null; index++) {
             // This is needed since the GUI is not sync with the state
+            // It would be better is core BlueJ did fix this..
             reloadPkg.reload();
             reloadPkg = reloadPkg.getParent();
         }
 
-
-        return new BPackage (new Identifier (bluejProject,pkg));
+        return pkg.getBPackage();
     }
     
     /**

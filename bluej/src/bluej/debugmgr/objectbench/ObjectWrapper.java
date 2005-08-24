@@ -1,5 +1,7 @@
 package bluej.debugmgr.objectbench;
 
+import bluej.extensions.BObject;
+import bluej.extensions.ExtensionBridge;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,7 +49,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3537 2005-08-22 07:12:11Z davmac $
+ * @version $Id: ObjectWrapper.java 3542 2005-08-24 10:22:28Z damiano $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -181,6 +183,22 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     public boolean isInitialized()
     {
         return true;
+    }
+    
+    
+    private BObject singleBObject;  // Every ObjectWrapper has none or one BObject
+    
+    /**
+     * Return the extensions BObject associated with this ObjectWrapper.
+     * There should be only one BObject object associated with each Package.
+     * @return the BPackage associated with this Package.
+     */
+    public synchronized final BObject getBObject ()
+    {
+        if ( singleBObject == null )
+          singleBObject = ExtensionBridge.newBObject(this);
+          
+        return singleBObject;
     }
     
     /**

@@ -15,7 +15,7 @@ import java.util.*;
  * @see        BConstructor
  * @see        BMethod
  * @see        BField
- * @version    $Id: BObject.java 3538 2005-08-22 09:46:50Z damiano $
+ * @version    $Id: BObject.java 3542 2005-08-24 10:22:28Z damiano $
  */
 
 /*
@@ -58,9 +58,9 @@ public class BObject
     public BPackage getPackage()
              throws ProjectNotOpenException, PackageNotFoundException
     {
-        Project bluejPrj = wrapperId.getBluejProject();
         Package bluejPkg = wrapperId.getBluejPackage();
-        return new BPackage(new Identifier(bluejPrj, bluejPkg));
+
+        return bluejPkg.getBPackage();
     }
 
 
@@ -152,7 +152,7 @@ public class BObject
     public BClass getBClass()
              throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException
     {
-        // Tis is to test if the Bobject is till valid
+        // Tis is to test if the Bobject is still valid
         wrapperId.getJavaClass();
 
         // BClasses are retrieved from the BlueJ classTarget
