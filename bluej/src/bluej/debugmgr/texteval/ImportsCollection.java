@@ -1,10 +1,6 @@
 package bluej.debugmgr.texteval;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import bluej.Config;
 
@@ -12,7 +8,7 @@ import bluej.Config;
  * Maintain and manage a collection of import statements.
  * 
  * @author Davin McCall
- * @version $Id: ImportsCollection.java 3537 2005-08-22 07:12:11Z davmac $
+ * @version $Id: ImportsCollection.java 3543 2005-08-26 02:40:53Z davmac $
  */
 public class ImportsCollection
 {
@@ -116,13 +112,17 @@ public class ImportsCollection
     }
     
     /**
-     * Retrieve all the static import classes for a given import name.
-     * May return null if there are no class for the given name.
+     * Retrieve all the static import classes for a given import name. The
+     * returned list must not be modified.
+     * 
      * @param name  The name of the import to retrieve.
      */
     public List getStaticImports(String name)
     {
-        return (List) staticImports.get(name);
+        List l = (List) staticImports.get(name);
+        if (l == null)
+            l = Collections.EMPTY_LIST;
+        return l;
     }
     
     /**

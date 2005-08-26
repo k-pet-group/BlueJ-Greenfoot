@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 3476 2005-07-25 05:48:39Z davmac $
+ * @version $Id: JavaUtils15.java 3543 2005-08-26 02:40:53Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -175,9 +175,9 @@ public class JavaUtils15 extends JavaUtils {
         return method.isVarArgs();
     }
 
-    public boolean isBridge(Method method)
+    public boolean isSynthetic(Method method)
     {
-        return method.isBridge();
+        return method.isSynthetic();
     }
     
     public boolean isEnum(Class cl) {

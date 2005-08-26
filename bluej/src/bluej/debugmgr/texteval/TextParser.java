@@ -31,7 +31,7 @@ import bluej.utility.JavaUtils;
  * (JLS) where possible.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3539 2005-08-23 01:40:13Z davmac $
+ * @version $Id: TextParser.java 3543 2005-08-26 02:40:53Z davmac $
  */
 public class TextParser
 {
@@ -1629,10 +1629,31 @@ public class TextParser
         if (secondArg.getType() != JavaTokenTypes.ELIST)
             throw new RecognitionException();
         
-        // we don't handle method calls where the object/class is not
-        // specified... that would be calling a shell class method. The user
-        // shouldn't do that. Nor do we handle a variety of cases such
+        // we don't handle a variety of cases such
         // as "this.xxx()" or "super.xxxx()".
+        
+        if (firstArg.getType() == JavaTokenTypes.IDENT) {
+            // It's an unqualified method call. In the context of a code pad
+            // statement, it can only be an imported static method call.
+            
+            String mname = firstArg.getText();
+            JavaType [] argumentTypes = getExpressionList(secondArg);
+            
+            List l = imports.getStaticImports(mname);
+            MethodCallDesc candidate = findImportedMethod(l, mname, argumentTypes);
+            
+            if (candidate == null) {
+                // There were no non-wildcard static imports. Try wildcard imports.
+                l = imports.getStaticWildcardImports();
+                candidate = findImportedMethod(l, mname, argumentTypes);
+            }
+            
+            if (candidate != null)
+                return captureConversion(candidate.retType);
+            
+            // no suitable candidates
+            throw new SemanticException();
+        }
         
         if (firstArg.getType() == JavaTokenTypes.DOT) {
             AST targetNode = firstArg.getFirstChild();
@@ -1690,7 +1711,7 @@ public class TextParser
             // match the call to a method:
             ArrayList suitableMethods = getSuitableMethods(methodName, rsts, argumentTypes, typeArgs);
             
-            if (suitableMethods.size() == 1) {
+            if (suitableMethods.size() != 0) {
                 MethodCallDesc mcd = (MethodCallDesc) suitableMethods.get(0);
                 // JLS 15.12.2.6, we must apply capture conversion
                 return captureConversion(mcd.retType);
@@ -1699,9 +1720,49 @@ public class TextParser
             throw new SemanticException();
         }
         
-        // don't try and handle unqualified method calls
-        return null;
+        // anything else is an unknown
+        throw new RecognitionException();
     }
+    
+    /**
+     * Find the most specific imported method with the given name and argument types
+     * in the given list of imports.
+     * 
+     * @param imports         A list of imports (ClassEntity)
+     * @param mname           The name of the method to find
+     * @param argumentTypes   The type of each supplied argument
+     * @return   A descriptor for the most specific method, or null if none found
+     */
+    private MethodCallDesc findImportedMethod(List imports, String mname, JavaType [] argumentTypes)
+        throws RecognitionException
+    {
+        MethodCallDesc candidate = null;
+        
+        // Iterate through the imports
+        Iterator i = imports.iterator();
+        while (i.hasNext()) {
+            ClassEntity importEntity = (ClassEntity) i.next();
+            List r = importEntity.getStaticMethods(mname);
+            Iterator j = r.iterator();
+            while (j.hasNext()) {
+                // For each matching method, assess its applicability. If applicable,
+                // and it is the most specific method yet found, keep it.
+                Method m = (Method) j.next();
+                MethodCallDesc mcd = isMethodApplicable(importEntity.getClassType(), Collections.EMPTY_LIST, m, argumentTypes);
+                if (mcd != null) {
+                    if (candidate == null) {
+                        candidate = mcd;
+                    }
+                    else {
+                        if (mcd.compareSpecificity(candidate) == 1)
+                            candidate = mcd;
+                    }
+                }
+            }
+        }
+        return candidate;
+    }
+    
     
     /**
      * Get the candidate list of methods with the given name and argument types.
@@ -1726,7 +1787,7 @@ public class TextParser
                 // accessible. See JLS 15.12.2.1.
                 for (int i = 0; i < methods.length; i++) {
                     // ignore bridge methods
-                    if (jutils.isBridge(methods[i]))
+                    if (jutils.isSynthetic(methods[i]))
                         continue;
                     
                     // check method name
@@ -2292,6 +2353,38 @@ public class TextParser
     }
 
     /**
+     * Check if a member of some class is accessible from the context of the given
+     * package. This will be the case if the member is public, if the member is
+     * protected and declared in the same class, or if the member is package-
+     * private and declared in the same class.
+     * 
+     * @param declaringClass  The class which declares the member
+     * @param mods            The member modifier flags (as returned by getModifiers())
+     * @param pkg             The package to check access for
+     * @return  true if the package has access to the member
+     */
+    static boolean isAccessible(Class declaringClass, int mods, String pkg)
+    {
+        if (Modifier.isPrivate(mods))
+            return false;
+        
+        if (Modifier.isPublic(mods))
+            return true;
+        
+        // get the package of the class
+        String className = declaringClass.getName();
+        int lastDot = className.lastIndexOf('.');
+        if (lastDot == -1)
+            lastDot = 0;
+        String classPkg = className.substring(0, lastDot);
+        
+        // it's not private nor public - so it's package private (or protected).
+        // It is therefore accessible if the accessing package is the same as
+        // the declaring package.
+        return classPkg.equals(pkg);
+    }
+    
+    /**
      * Find (if one exists) an accessible field with the given name in the given class (and
      * its supertypes). The "getField(String)" method in java.lang.Class does the same thing,
      * except it doesn't take into account accessible package-private fields which is
@@ -2300,10 +2393,11 @@ public class TextParser
      * @param c    The class in which to find the field
      * @param fieldName   The name of the accessible field to find
      * @param pkg         The package context from which the field is accessed
+     * @param searchSupertypes  Whether to search in supertypes for the field
      * @return      The field
      * @throws NoSuchFieldException  if no accessible field with the given name exists
      */
-    static Field getAccessibleField(Class c, String fieldName, String pkg)
+    static Field getAccessibleField(Class c, String fieldName, String pkg, boolean searchSupertypes)
         throws NoSuchFieldException
     {
         String className = c.getName();
@@ -2333,23 +2427,75 @@ public class TextParser
                 }
             }
             
-            // Try fields declared in superinterfaces
-            Class [] ifaces = c.getInterfaces();
-            for (int i = 0; i < ifaces.length; i++) {
-                try {
-                    return getAccessibleField(ifaces[i], fieldName, pkg);
+            if (searchSupertypes) {
+                // Try fields declared in superinterfaces
+                Class [] ifaces = c.getInterfaces();
+                for (int i = 0; i < ifaces.length; i++) {
+                    try {
+                        return getAccessibleField(ifaces[i], fieldName, pkg, true);
+                    }
+                    catch (NoSuchFieldException nsfe) { }
                 }
-                catch (NoSuchFieldException nsfe) { }
+                
+                // Try fields declared in superclass
+                Class sclass = c.getSuperclass();
+                if (sclass != null)
+                    return getAccessibleField(sclass, fieldName, pkg, true);
             }
-            
-            // Try fields declared in superclass
-            Class sclass = c.getSuperclass();
-            if (sclass != null)
-                return getAccessibleField(sclass, fieldName, pkg);
         }
         catch (LinkageError le) { }
         
         throw new NoSuchFieldException();
+    }
+    
+    /**
+     * Get a list of accessible static methods declared in the given class with the
+     * given name. The list includes public methods and, if the class is in the designated
+     * package, package-private and protected methods.
+     * 
+     * @param c  The class in which to find the methods
+     * @param methodName  The name of the methods to find
+     * @param pkg   The accessing package
+     * @return  A list of java.lang.reflect.Method
+     */
+    static List getAccessibleStaticMethods(Class c, String methodName, String pkg)
+    {
+        String className = c.getName();
+        int lastDot = className.lastIndexOf('.');
+        if (lastDot == -1)
+            lastDot = 0;
+        
+        String classPkg = className.substring(0, lastDot);
+        
+        // package private members accessible if the package is the same
+        boolean pprivateAccessible = classPkg.equals(pkg);
+
+        try {
+            List rlist = new ArrayList();
+            
+            // Now find methods declared in this class
+            Method [] cmethods = c.getDeclaredMethods();
+            methodLoop:
+            for (int i = 0; i < cmethods.length; i++) {
+                if (cmethods[i].getName().equals(methodName)) {
+                    int mods = cmethods[i].getModifiers();
+                    if (Modifier.isPrivate(mods) || ! Modifier.isStatic(mods))
+                        continue methodLoop;
+                    
+                    if (! Modifier.isPublic(mods) && ! pprivateAccessible)
+                        continue methodLoop;
+                    
+                    if (jutils.isSynthetic(cmethods[i]))
+                        continue methodLoop;
+                    
+                    rlist.add(cmethods[i]);
+                }
+            }
+            return rlist;
+        }
+        catch (LinkageError le) { }
+        
+        return Collections.EMPTY_LIST;
     }
     
     /**
@@ -2395,7 +2541,9 @@ public class TextParser
          *         -1 if the other method is more specific;
          *         0 if neither method is more specific than the other.
          * 
-         * See JLS 15.12.2.2
+         * See JLS 15.12.2.5 (by "more specific", we mean what the JLS calls
+         * "strictly more specific", more or less. We also take arity and
+         * abstractness into account)
          */
         public int compareSpecificity(MethodCallDesc other)
         {
@@ -2404,6 +2552,9 @@ public class TextParser
             if (! other.vararg && vararg)
                 return -1; // we are less specific
             
+            // I am reasonably sure this gives the same result as the algorithm
+            // described in the JLS section 15.12.2.5, and it has the advantage
+            // of being a great deal simpler.
             Iterator i = argTypes.iterator();
             Iterator j = other.argTypes.iterator();
             int upCount = 0;
@@ -2553,7 +2704,7 @@ public class TextParser
             // Is it a field?
             Field f = null;
             try {
-                f = getAccessibleField(thisClass, name, packageScope);
+                f = getAccessibleField(thisClass, name, packageScope, true);
                 JavaType fieldType;
                 Map tparmap = getClassType().getMap();
                 
@@ -2613,7 +2764,7 @@ public class TextParser
         {
             Field f = null;
             try {
-                f = getAccessibleField(thisClass, name, packageScope);
+                f = getAccessibleField(thisClass, name, packageScope, false);
                 
                 if (Modifier.isStatic(f.getModifiers())) {
                     JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(f);
@@ -2627,6 +2778,11 @@ public class TextParser
             }
             catch (NoSuchFieldException nsfe) {}
             throw new SemanticException();
+        }
+        
+        List getStaticMethods(String name)
+        {
+            return getAccessibleStaticMethods(thisClass, name, packageScope);
         }
         
         String getName()
@@ -2683,7 +2839,7 @@ public class TextParser
             //  Try and find the field
             Field f = null;
             try {
-                f = getAccessibleField(c, name, packageScope);
+                f = getAccessibleField(c, name, packageScope, true);
                 // Map type parameters to declaring class
                 Class declarer = f.getDeclaringClass();
                 Map tparMap = thisClass.mapToSuper(declarer.getName()).getMap();

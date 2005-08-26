@@ -14,7 +14,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 3476 2005-07-25 05:48:39Z davmac $
+ * @version $Id: JavaUtils14.java 3543 2005-08-26 02:40:53Z davmac $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -81,7 +81,7 @@ public class JavaUtils14 extends JavaUtils
         return false;
     }
     
-    public boolean isBridge(Method method)
+    public boolean isSynthetic(Method method)
     {
         return false;
     }

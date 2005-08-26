@@ -15,7 +15,7 @@ import bluej.utility.JavaUtils;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 3524 2005-08-13 21:43:58Z polle $
+ * @version $Id: View.java 3543 2005-08-26 02:40:53Z davmac $
  */
 public class View
 {
@@ -310,27 +310,35 @@ public class View
     private boolean hideMethodName(Method method)
     {
         String name = method.getName();
-        return (name.startsWith(classIgnore) || name.startsWith(accessIgnore) || JavaUtils.getJavaUtils().isBridge(method));
+        return (name.startsWith(classIgnore) || name.startsWith(accessIgnore) || JavaUtils.getJavaUtils().isSynthetic(method));
     }
 
     public MethodView[] getDeclaredMethods()
     {
         int count = 0;
         if(methods == null) {
-            Method[] cl_methods = cl.getDeclaredMethods();
-
-            for(int i = 0; i < cl_methods.length; i++) {
-                if (!hideMethodName(cl_methods[i]))
-                    count++;
-            }
-            methods = new MethodView[count];
-
-            count = 0;
-            for(int i = 0; i < cl_methods.length; i++) {
-                if (!hideMethodName(cl_methods[i])) {
-                    methods[count] = new MethodView(this, cl_methods[i]);
-                    count++;
+            try {
+                Method[] cl_methods = cl.getDeclaredMethods();
+                
+                for(int i = 0; i < cl_methods.length; i++) {
+                    if (!hideMethodName(cl_methods[i]))
+                        count++;
                 }
+                methods = new MethodView[count];
+                
+                count = 0;
+                for(int i = 0; i < cl_methods.length; i++) {
+                    if (!hideMethodName(cl_methods[i])) {
+                        methods[count] = new MethodView(this, cl_methods[i]);
+                        count++;
+                    }
+                }
+            }
+            catch (LinkageError le) {
+                // getDeclaredMethods can cause attempts for other classes to be loaded.
+                // This in turn can cause a LinkageError variant to be thrown. (For
+                // instance, NoClassDefFoundError).
+                methods = new MethodView[0];
             }
         }
 
@@ -340,13 +348,21 @@ public class View
     public FieldView[] getDeclaredFields()
     {
         if(fields == null)
-            {
+        {
+            try {
                 Field[] cl_fields= cl.getDeclaredFields();
                 fields = new FieldView[cl_fields.length];
-
+            
                 for(int i = 0; i < cl_fields.length; i++)
                     fields[i] = new FieldView(this, cl_fields[i]);
             }
+            catch (LinkageError le) {
+                // getDeclaredFields can cause attempts for other classes to be loaded.
+                // This in turn can cause a LinkageError variant to be thrown. (For
+                // instance, NoClassDefFoundError).
+                fields = new FieldView[0];
+            }
+        }
 
         return fields;
     }

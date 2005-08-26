@@ -16,7 +16,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 3476 2005-07-25 05:48:39Z davmac $
+ * @version $Id: JavaUtils.java 3543 2005-08-26 02:40:53Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -124,7 +124,7 @@ public abstract class JavaUtils {
     
     abstract public boolean isVarArgs(Method method);    
    
-    abstract public boolean isBridge(Method method);
+    abstract public boolean isSynthetic(Method method);
     
     abstract public boolean isEnum(Class cl);    
     
