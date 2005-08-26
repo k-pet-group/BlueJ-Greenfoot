@@ -42,7 +42,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3540 2005-08-23 05:50:40Z davmac $
+ * @version $Id: TextEvalPane.java 3544 2005-08-26 06:11:58Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -754,7 +754,7 @@ public class TextEvalPane extends JEditorPane
                 setEditable(false);    // don't allow input while we're thinking
                 busy = true;
                 if (textParser == null)
-                    textParser = new TextParser(frame.getProject().getClassLoader(), frame.getPackage().getQualifiedName(), frame.getObjectBench());
+                    textParser = new TextParser(frame.getProject().getClassLoader(), frame.getPackage().getQualifiedName(), TextEvalPane.this);
                 String retType = textParser.parseCommand(currentCommand);
                 wrappedResult = (retType != null && retType.length() != 0);
                 

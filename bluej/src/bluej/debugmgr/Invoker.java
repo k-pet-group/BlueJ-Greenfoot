@@ -39,7 +39,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3540 2005-08-23 05:50:40Z davmac $
+ * @version $Id: Invoker.java 3544 2005-08-26 06:11:58Z davmac $
  */
 
 public class Invoker
@@ -678,7 +678,9 @@ public class Invoker
 
         buffer = new StringBuffer();
 
-        if (localVars != null)
+        // put the local variables here if we don't know the result type. If we do know the
+        // result type, we put the local variables inside the result wrapper object.
+        if (localVars != null && constype == null)
             writeVariables("lv:", buffer, false, localVars.getValueIterator(), cqtTransform);
         
         if (constructing) {
@@ -695,19 +697,24 @@ public class Invoker
 
             if (!isVoid) {
                 buffer.append(shellName);
-                if (constype == null)
+                if (constype == null) {
                     buffer.append(".__bluej_runtime_result = makeObj(");
+                }
                 else {
-                    buffer.append(".__bluej_runtime_result = new Object() {");
-                    buffer.append(" " + constype + " result = ");
+                    buffer.append(".__bluej_runtime_result = new Object() { ");
+                    buffer.append(constype + " result;");
+                    if (localVars != null) {
+                        buffer.append("{ ");
+                        writeVariables("lv:", buffer, false, localVars.getValueIterator(), cqtTransform);
+                        buffer.append("this.result = ");
+                    }
                 }
             }
             buffer.append(callString);
             if (!isVoid) {
-                if (constype == null)
+                if (constype == null) {
                     buffer.append(")");
-                if (constype != null)
-                    buffer.append("; }");
+                }
             }
         }
 
@@ -754,6 +761,9 @@ public class Invoker
             shell.write(paramInit);
             shell.write(invocation);
             shell.write(scopeSave);
+            if (! isVoid && constype != null) {
+                shell.write("} };");
+            }
             shell.newLine();
             shell.write("}}");
             shell.close();
