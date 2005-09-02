@@ -20,7 +20,7 @@ import java.util.List;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 3542 2005-08-24 10:22:28Z damiano $
+ * @version    $Id: BClass.java 3548 2005-09-02 06:50:51Z damiano $
  */
 
 /*
@@ -42,6 +42,21 @@ public class BClass
         classId = thisClassId;
     }
 
+
+    /**
+     * Returns the name of this BClass.
+     * The returned name is always the fully qualified name of the undelying java class.
+     * @see java.lang.Class.getName()
+     * 
+     * @return the fully qualified name of the wrapped java class.
+     * @exception  ProjectNotOpenException  thrown if the underlying project has been closed by the user.
+     * @exception  ClassNotFoundException   thrown if the wrapped class has been deleted by the user.
+     */
+    public final String getName ()
+              throws ProjectNotOpenException, ClassNotFoundException
+   {
+        return classId.getJavaClass().getName();
+    }
 
     /**
      * Removes this class from BlueJ, including the underlying files.
