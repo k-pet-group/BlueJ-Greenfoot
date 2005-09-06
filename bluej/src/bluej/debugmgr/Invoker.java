@@ -39,7 +39,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3544 2005-08-26 06:11:58Z davmac $
+ * @version $Id: Invoker.java 3550 2005-09-06 03:42:47Z davmac $
  */
 
 public class Invoker
@@ -518,7 +518,7 @@ public class Invoker
             }.start();
         }
         else {
-            File shell = writeInvocationFile(pkg, paramInit, command + argString, constructing, isVoid, constype);
+            File shell = writeInvocationFile(paramInit, command + argString, isVoid, constype);
 
             commandString = command + actualArgString;
             compileInvocationFile(shell);
@@ -580,7 +580,7 @@ public class Invoker
             ir = new VoidMethodInvokerRecord(commandString, null);
         }
 
-        File shell = writeInvocationFile(pkg, "", commandString, false, !hasResult, resultType);
+        File shell = writeInvocationFile("", commandString, !hasResult, resultType);
 
         executionEvent.setCommand(commandString);
         compileInvocationFile(shell);
@@ -627,7 +627,7 @@ public class Invoker
      * @param constype  the exact type of the object being constructed. Only
      *                  needed if 'constructing' is true.
      */
-    private File writeInvocationFile(Package pkg, String paramInit, String callString, boolean constructing,
+    private File writeInvocationFile(String paramInit, String callString,
             boolean isVoid, String constype)
     {
         // Create package specification line ("package xyz")
@@ -678,8 +678,9 @@ public class Invoker
 
         buffer = new StringBuffer();
 
-        // put the local variables here if we don't know the result type. If we do know the
-        // result type, we put the local variables inside the result wrapper object.
+        // put the local variables here if we don't know the result type. If we do know
+        // the result type, we put the local variables inside the result wrapper object
+        // later on.
         if (localVars != null && constype == null)
             writeVariables("lv:", buffer, false, localVars.getValueIterator(), cqtTransform);
         
@@ -761,7 +762,7 @@ public class Invoker
             shell.write(paramInit);
             shell.write(invocation);
             shell.write(scopeSave);
-            if (! isVoid && constype != null) {
+            if (! isVoid && constype != null && ! constructing) {
                 shell.write("} };");
             }
             shell.newLine();
