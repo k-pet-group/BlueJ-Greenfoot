@@ -1,6 +1,8 @@
 package greenfoot.gui.classbrowser;
 
 import greenfoot.actions.NewSubclassAction;
+import greenfoot.core.GClass;
+import greenfoot.core.GPackage;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.CompileListener;
 import greenfoot.gui.classbrowser.role.ClassRole;
@@ -29,31 +31,26 @@ import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import rmiextension.wrappers.RClass;
-import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.extensions.MissingJavaFileException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.pkgmgr.target.ClassTarget;
 import bluej.prefmgr.PrefMgr;
 import bluej.runtime.ExecServer;
 import bluej.utility.Utility;
-import bluej.views.CallableView;
-import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3551 2005-09-06 09:31:41Z polle $
+ * @version $Id: ClassView.java 3552 2005-09-06 15:53:28Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
-    private RClass remoteClass;
+    private GClass gClass;
     private Class realClass; // null if not compiled
     private ClassRole role;
     private final static int SHADOW = 2;
@@ -65,15 +62,15 @@ public class ClassView extends JToggleButton
             + newline;
     private JPopupMenu popupMenu;
 
-    public ClassView(ClassRole role, RClass rClass)
+    public ClassView(ClassRole role, GClass gClass)
     {
-        this.remoteClass = rClass;
-        realClass = getClass(rClass);
+        this.gClass = gClass;
+        realClass = getClass(gClass);
         setRole(role);
         addChangeListener(this);
         this.setOpaque(false);
         try {
-            logger.info("Creating view: " + role + " for " + rClass.getQualifiedName());
+            logger.info("Creating view: " + role + " for " + gClass.getQualifiedName());
         }
         catch (RemoteException e) {
             e.printStackTrace();
@@ -95,11 +92,11 @@ public class ClassView extends JToggleButton
      * @param class1
      * @return null if the class can't be loaded
      */
-    private Class getClass(RClass rClass)
+    private Class getClass(GClass gClass)
     {
         Class cls = null;
         try {
-            if (!rClass.isCompiled()) {
+            if (!gClass.isCompiled()) {
                 return cls;
             }
         }
@@ -116,7 +113,7 @@ public class ClassView extends JToggleButton
             e1.printStackTrace();
         }
         try {
-            String className = rClass.getQualifiedName();
+            String className = gClass.getQualifiedName();
             //it is important that we use the right classloader
             cls = ExecServer.loadAndInitClass(className);
         }
@@ -136,15 +133,15 @@ public class ClassView extends JToggleButton
         createPopupMenu();
     }
 
-    public RClass getRClass()
+    public GClass getGClass()
     {
-        return remoteClass;
+        return gClass;
     }
 
     private void createPopupMenu()
     {
         try {
-            logger.info("Creating new popup for: " + remoteClass.getQualifiedName());
+            logger.info("Creating new popup for: " + gClass.getQualifiedName());
         }
         catch (RemoteException e1) {
             // TODO Auto-generated catch block
@@ -228,7 +225,7 @@ public class ClassView extends JToggleButton
     private void update()
     {
         clearUI();
-        role.buildUI(this, remoteClass);
+        role.buildUI(this, gClass);
         revalidate();
         //       repaint();
     }
@@ -289,7 +286,7 @@ public class ClassView extends JToggleButton
     public String getQualifiedClassName()
     {
         try {
-            return remoteClass.getQualifiedName();
+            return gClass.getQualifiedName();
         }
         catch (RemoteException e) {
             e.printStackTrace();
@@ -300,7 +297,7 @@ public class ClassView extends JToggleButton
     public String getClassName()
     {
         try {
-            String qName = remoteClass.getQualifiedName();
+            String qName = gClass.getQualifiedName();
             String name = qName;
             int index = qName.lastIndexOf('.');
             if (index >= 0) {
@@ -433,13 +430,13 @@ public class ClassView extends JToggleButton
 
     }
 
-    public RClass createSubclass(String className)
+    public GClass createSubclass(String className)
     {
         FileWriter writer = null;
         try {
             //get the default package which is the one containing the user
             // code.
-            RPackage pkg = remoteClass.getPackage().getProject().getPackage("");
+            GPackage pkg = gClass.getPackage().getProject().getDefaultPackage();
             //write the java file as this is required to exist
             File dir = pkg.getProject().getDir();
 
@@ -460,7 +457,7 @@ public class ClassView extends JToggleButton
             }
             writer.write(imports);
             role.createSkeleton(className, superClassName, writer);
-            RClass newClass = pkg.newClass(className);
+            GClass newClass = pkg.newClass(className);
             return newClass;
         }
         catch (ProjectNotOpenException e) {
@@ -529,7 +526,7 @@ public class ClassView extends JToggleButton
 
     public void reloadClass()
     {
-        realClass = getClass(remoteClass);
+        realClass = getClass(gClass);
         createPopupMenu();
         update();
     }
@@ -555,7 +552,7 @@ public class ClassView extends JToggleButton
         //int clicks = e.getClickCount();
         if (e.getClickCount() > 1 && ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
             try {
-                remoteClass.edit();
+                gClass.edit();
             }
             catch (ProjectNotOpenException e1) {
                 // TODO Auto-generated catch block

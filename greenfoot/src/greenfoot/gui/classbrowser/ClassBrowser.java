@@ -1,9 +1,8 @@
 package greenfoot.gui.classbrowser;
 
-import greenfoot.GreenfootObject;
-import greenfoot.GreenfootWorld;
 import greenfoot.actions.CompileClassAction;
 import greenfoot.actions.EditClassAction;
+import greenfoot.core.GClass;
 import greenfoot.core.Greenfoot;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
@@ -25,7 +24,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import rmiextension.wrappers.RClass;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
@@ -37,7 +35,7 @@ import bluej.extensions.ProjectNotOpenException;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3551 2005-09-06 09:31:41Z polle $
+ * @version $Id: ClassBrowser.java 3552 2005-09-06 15:53:28Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -82,30 +80,30 @@ public class ClassBrowser extends JPanel
         layoutClasses();
     }
 
-    public ClassView addClass(RClass rClass)
+    public ClassView addClass(GClass gClass)
     {
         ClassView classLabel = null;
 
         try {
-            if (rClass.getQualifiedName().equals(simObj)) {
+            if (gClass.getQualifiedName().equals(simObj)) {
                 //the class GreenfootObject
-                classLabel = new ClassView(new GreenfootClassRole(), rClass);
+                classLabel = new ClassView(new GreenfootClassRole(), gClass);
             }
-            else if (rClass.getQualifiedName().equals(worldObj)) {
+            else if (gClass.getQualifiedName().equals(worldObj)) {
                 //The class GreenfootWorld
-                classLabel = new ClassView(new WorldClassRole(), rClass);
+                classLabel = new ClassView(new WorldClassRole(), gClass);
             }
-            else if (rClass.isSubclassOf(simObj)) {
+            else if (gClass.isSubclassOf(simObj)) {
                 //A subclass of GreenfootObject
-                classLabel = new ClassView(new GreenfootClassRole(), rClass);
+                classLabel = new ClassView(new GreenfootClassRole(), gClass);
             }
-            else if (rClass.isSubclassOf(worldObj)) {
+            else if (gClass.isSubclassOf(worldObj)) {
                 //A subclass of World
-                classLabel = new ClassView(new WorldClassRole(), rClass);
+                classLabel = new ClassView(new WorldClassRole(), gClass);
             }
             else {
                 //everything else
-                classLabel = new ClassView(new NormalClassRole(), rClass);
+                classLabel = new ClassView(new NormalClassRole(), gClass);
             }
             if (classLabel != null) {
                 classLabel.setClassBrowser(this);

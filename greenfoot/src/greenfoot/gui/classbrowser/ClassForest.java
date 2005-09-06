@@ -1,5 +1,7 @@
 package greenfoot.gui.classbrowser;
 
+import greenfoot.core.GClass;
+
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -10,7 +12,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import rmiextension.wrappers.RClass;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
@@ -19,7 +20,7 @@ import bluej.extensions.ProjectNotOpenException;
  * A forest of trees. The roots are sorted alphabeticaly on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: ClassForest.java 3552 2005-09-06 15:53:28Z polle $
  */
 public class ClassForest
 {
@@ -183,7 +184,7 @@ public class ClassForest
         List classNames = new ArrayList();
         List superclassNames = new ArrayList();
         for (Iterator iter = classesList.iterator(); iter.hasNext();) {
-            RClass element = ((ClassView) iter.next()).getRClass();
+            GClass element = ((ClassView) iter.next()).getGClass();
             try {
                 String name = element.getQualifiedName();
                 int index = name.lastIndexOf('.');

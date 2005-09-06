@@ -1,5 +1,6 @@
 package greenfoot.gui.classbrowser.role;
 
+import greenfoot.core.GClass;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.GridBagConstraints;
@@ -9,16 +10,15 @@ import java.rmi.RemoteException;
 
 import javax.swing.JLabel;
 
-import rmiextension.wrappers.RClass;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NormalClassRole.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: NormalClassRole.java 3552 2005-09-06 15:53:28Z polle $
  */
 public class NormalClassRole extends ClassRole
 {
 
-    public void buildUI(ClassView classView, RClass rClass)
+    public void buildUI(ClassView classView, GClass gClass)
     {
 
         //TODO get this color from the bluej config
@@ -30,7 +30,7 @@ public class NormalClassRole extends ClassRole
 
         String name = "";
         try {
-            name = rClass.getQualifiedName();
+            name = gClass.getQualifiedName();
         }
         catch (RemoteException e) {
             e.printStackTrace();

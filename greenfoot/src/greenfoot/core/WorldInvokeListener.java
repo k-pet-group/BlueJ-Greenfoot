@@ -10,7 +10,6 @@ import java.rmi.RemoteException;
 
 import rmiextension.ObjectTracker;
 import rmiextension.wrappers.RObject;
-import rmiextension.wrappers.RPackage;
 import bluej.debugmgr.CallDialog;
 import bluej.debugmgr.CallDialogWatcher;
 import bluej.debugmgr.CallHistory;
@@ -166,6 +165,23 @@ public class WorldInvokeListener
             for (int i = 0; i < params.length; i++) {
                 params[i] = cparams[i].getName();
             }
+
+            GPackage pkg = null;
+            try {
+                pkg = Greenfoot.getInstance().getProject().getDefaultPackage();
+            }
+            catch (ProjectNotOpenException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            if(pkg == null) {
+                return;
+            }
             
             if (mv != null) {
                 // method call
@@ -174,7 +190,7 @@ public class WorldInvokeListener
                     if (rObj != null)
                         resultName = rObj.invokeMethod(mv.getName(), params, mdlg.getArgs());
                     else
-                        resultName = Greenfoot.getInstance().getPackage().invokeMethod(cl.getName(), mv.getName(), params, mdlg.getArgs());
+                        resultName = pkg.invokeMethod(cl.getName(), mv.getName(), params, mdlg.getArgs());
                     
                     // error is indicated by result beginning with "!"
                     if (resultName != null && resultName.charAt(0) == '!') {
@@ -196,7 +212,7 @@ public class WorldInvokeListener
                             ExpressionInformation ei = new ExpressionInformation(mv, instanceName);
                             
                             try {
-                                RObject rresult = Greenfoot.getInstance().getPackage().getObject(resultName);
+                                RObject rresult = pkg.getObject(resultName);
                                 Object resultw = ObjectTracker.instance().getRealObject(rresult);
                                 rresult.removeFromBench();
                                 
@@ -215,7 +231,6 @@ public class WorldInvokeListener
             }
             else if (cv != null) {
                 // Constructor call
-                RPackage pkg = Greenfoot.getInstance().getPackage();
                 try {
                     String resultName = pkg.invokeConstructor(cl.getName(), params, mdlg.getArgs());
                     if (resultName != null && resultName.charAt(0) == '!') {
@@ -227,7 +242,7 @@ public class WorldInvokeListener
                         // Construction went ok (or there was a runtime error).
                         mdlg.dispose();
                         if (resultName != null) {
-                            RObject rresult = Greenfoot.getInstance().getPackage().getObject(resultName);
+                            RObject rresult = pkg.getObject(resultName);
                             Object resultw = ObjectTracker.instance().getRealObject(rresult);
                             rresult.removeFromBench();
                             GreenfootObjectInstantiationListener invocListener = Greenfoot.getInstance().getInvocationListener();

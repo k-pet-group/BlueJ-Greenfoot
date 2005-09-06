@@ -10,26 +10,33 @@ import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
-import greenfoot.gui.classbrowser.role.ClassRole;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.localdebugger.LocalObject;
 
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Point;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.rmi.RemoteException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.swing.*;
-
-import rmiextension.wrappers.RPackage;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.ExpressionInformation;
@@ -201,7 +208,7 @@ public class WorldHandler
     private JPopupMenu makePopupMenu(final GreenfootObject obj)
     {
         JPopupMenu menu = new JPopupMenu();
-        RPackage currentPackage = Greenfoot.getInstance().getPackage();
+        GPackage currentPackage = Greenfoot.getInstance().getPackage();
         String packageName = null;
         try {
             packageName = currentPackage.getName();
@@ -215,6 +222,7 @@ public class WorldHandler
         catch (RemoteException e1) {
             e1.printStackTrace();
         }
+        
         ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this), new LocalObject(obj), packageName);
        
         
@@ -503,7 +511,7 @@ public class WorldHandler
                 Object world = WorldHandler.this.world;
                 if (e.isPopupTrigger() && world != null) {
                     JPopupMenu menu = new JPopupMenu();
-                    RPackage currentPackage = Greenfoot.getInstance().getPackage();
+                    GPackage currentPackage = Greenfoot.getInstance().getPackage();
                     String packageName = null;
                     try {
                         packageName = currentPackage.getName();
@@ -517,6 +525,7 @@ public class WorldHandler
                     catch (RemoteException e1) {
                         e1.printStackTrace();
                     }
+                    
                     ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world,
                             WorldHandler.this), new LocalObject(world), packageName);
                     menu.addSeparator();

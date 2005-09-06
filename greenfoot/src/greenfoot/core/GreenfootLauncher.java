@@ -36,7 +36,7 @@ public class GreenfootLauncher
             try {
                 File libdir = blueJ.getSystemLibDir();
                 Config.initializeVMside(libdir, client);
-                Greenfoot.initialize(blueJ, client.getProject(), client.getPackage());
+                Greenfoot.initialize(blueJ, client.getPackage());
                 logger.info("Greenfoot initialized");
             }
             catch (RemoteException re) {

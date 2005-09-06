@@ -1,23 +1,23 @@
 package greenfoot.actions;
 
+import greenfoot.core.GClass;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.Selectable;
 import greenfoot.gui.classbrowser.SelectionListener;
 
 import javax.swing.AbstractAction;
 
-import rmiextension.wrappers.RClass;
 
 /**
  * Superclass for actions that depends on the selected class.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassAction.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: ClassAction.java 3552 2005-09-06 15:53:28Z polle $
  */
 public abstract class ClassAction extends AbstractAction
     implements SelectionListener
 {
-    protected RClass selectedClass;
+    protected GClass selectedClass;
 
     public ClassAction(String name)
     {
@@ -31,9 +31,9 @@ public abstract class ClassAction extends AbstractAction
         }
         else if (source instanceof ClassView) {
             ClassView classLabel = (ClassView) source;
-            RClass rClass = classLabel.getRClass();
+            GClass gClass = classLabel.getGClass();
             if (classLabel.isSelected()) {
-                selectedClass = rClass;
+                selectedClass = gClass;
             }
             else {
                 selectedClass = null;

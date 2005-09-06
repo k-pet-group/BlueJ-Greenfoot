@@ -17,7 +17,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIClient.java 3340 2005-03-24 03:26:13Z davmac $
+ * @version $Id: BlueJRMIClient.java 3552 2005-09-06 15:53:28Z polle $
  */
 public class BlueJRMIClient implements BlueJPropStringSource
 {
@@ -26,7 +26,6 @@ public class BlueJRMIClient implements BlueJPropStringSource
     private transient final static Logger logger = Logger.getLogger("greenfoot");
     private static BlueJRMIClient instance;
 
-    private RProject project;
     private RPackage pkg;
 
     public BlueJRMIClient(String prjDir, String pkgName)
@@ -54,15 +53,15 @@ public class BlueJRMIClient implements BlueJPropStringSource
         if (blueJ != null) {
             try {
                 RProject[] openProjects = blueJ.getOpenProjects();
+                RProject prj = null;
                 for (int i = 0; i < openProjects.length; i++) {
-                    RProject prj = openProjects[i];
+                    prj = openProjects[i];
                     File passedDir = new File(prjDir);
                     if (prj.getDir().equals(passedDir)) {
-                        project = prj;
                         break;
                     }
                 }
-                pkg = project.getPackage(pkgName);
+                pkg = prj.getPackage(pkgName);
 
             }
             catch (RemoteException e1) {
@@ -86,11 +85,6 @@ public class BlueJRMIClient implements BlueJPropStringSource
     public RBlueJ getBlueJ()
     {
         return blueJ;
-    }
-
-    public RProject getProject()
-    {
-        return project;
     }
 
     public RPackage getPackage()

@@ -1,5 +1,6 @@
 package greenfoot.gui.classbrowser.role;
 
+import greenfoot.core.GClass;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.classbrowser.ClassView;
 
@@ -9,9 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 
 import bluej.debugmgr.ConstructAction;
 import bluej.utility.Debug;
@@ -20,15 +18,14 @@ import bluej.views.ConstructorView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
 
-import rmiextension.wrappers.RClass;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 3551 2005-09-06 09:31:41Z polle $
+ * @version $Id: ClassRole.java 3552 2005-09-06 15:53:28Z polle $
  */
 public abstract class ClassRole
 {
-    public abstract void buildUI(ClassView classView, RClass rClass);
+    public abstract void buildUI(ClassView classView, GClass rClass);
 
     public Image getImage()
     {

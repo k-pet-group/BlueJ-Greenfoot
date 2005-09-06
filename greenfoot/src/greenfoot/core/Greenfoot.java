@@ -7,7 +7,13 @@ import greenfoot.gui.FrameBoundsManager;
 import greenfoot.gui.GreenfootFrame;
 
 import java.awt.Rectangle;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,8 +47,8 @@ public class Greenfoot
 
     private RBlueJ rBlueJ;
     private GreenfootFrame frame;
-    private RProject project;
-    private RPackage pkg;
+    private GProject project;
+    private GPackage pkg;
 
     private CompileListenerForwarder compileListenerForwarder;
     private List compileListeners = new ArrayList();
@@ -52,13 +58,13 @@ public class Greenfoot
     
     private CallHistory callHistory = new CallHistory();
 
-    private Greenfoot(RBlueJ rBlueJ, RProject project, RPackage package1)
+    private Greenfoot(RBlueJ rBlueJ, RPackage pkg)
     {
 
-        this.project = project;
-        this.pkg = package1;
         this.rBlueJ = rBlueJ;
         try {
+            this.pkg = new GPackage(pkg);
+            this.project = this.pkg.getProject();
             File libFile = rBlueJ.getSystemLibDir();
             logger.info("Found systemlib: " + libFile);
             Config.initialise(libFile, new Properties());
@@ -67,11 +73,14 @@ public class Greenfoot
         catch (RemoteException e) {
             e.printStackTrace();
         }
+        catch (ProjectNotOpenException e) {
+            e.printStackTrace();
+        }
 
         //Threading avoids deadlock when classbrowser tries to instantiate
         // objects to get images. this is necessy beacsuse greenfoot is started
         // from BlueJ-VM which waits for this call to return.
-        final RProject finalProject = project;
+        final GProject finalProject = project;
         Thread t = new Thread() {
             public void run()
             {
@@ -111,10 +120,10 @@ public class Greenfoot
      * Initializes the singleton. This can only be done once - subsequent calls
      * will have no effect.
      */
-    public static void initialize(RBlueJ rBlueJ, RProject project, RPackage package1)
+    public static void initialize(RBlueJ rBlueJ, RPackage pkg)
     {
         if (instance == null) {
-            instance = new Greenfoot(rBlueJ, project, package1);
+            instance = new Greenfoot(rBlueJ, pkg);
             System.setProperty("apple.laf.useScreenMenuBar", "true");
         }
     }
@@ -160,10 +169,16 @@ public class Greenfoot
     /**
      * Gets the package for this.
      */
-    public RPackage getPackage()
+    public GPackage getPackage()
     {
         return pkg;
     }
+    
+    public GProject getProject() {
+        return project;
+    }
+    
+    
 
     /**
      * Closes this greenfoot frame
@@ -181,8 +196,7 @@ public class Greenfoot
                 RInvocationListener element = (RInvocationListener) iter.next();
                 rBlueJ.removeInvocationListener(element);
             }
-            RProject[] openProjects = rBlueJ.getOpenProjects();
-            if (openProjects.length <= 1) {
+            if (rBlueJ.getOpenProjects().length <= 1) {
                 //Close everything
                 //TODO maybe open dummy project instead
                 logger.info("exit greenfoot");
@@ -274,9 +288,13 @@ public class Greenfoot
         if (newname != null) {
             try {
                 RProject newProject = rBlueJ.newProject(new File(newname));
-                prepareGreenfootProject(newProject);
+                GProject gProject = new GProject(newProject);
+                prepareGreenfootProject(gProject);
             }
             catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            catch (ProjectNotOpenException e) {
                 e.printStackTrace();
             }
         }
@@ -312,7 +330,7 @@ public class Greenfoot
      * 
      * @param project
      */
-    private void prepareGreenfootProject(RProject project)
+    private void prepareGreenfootProject(GProject project)
     {
         try {
             File projectDir = project.getDir();

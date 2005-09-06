@@ -4,8 +4,8 @@ import greenfoot.GreenfootImage;
 import greenfoot.GreenfootObject;
 import greenfoot.ImageVisitor;
 import greenfoot.actions.DragProxyAction;
+import greenfoot.core.GClass;
 import greenfoot.core.ObjectDragProxy;
-import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.Color;
@@ -29,34 +29,17 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-
-import rmiextension.wrappers.RClass;
-import rmiextension.wrappers.RObject;
-import bluej.debugmgr.ConstructAction;
-import bluej.debugmgr.objectbench.InvokeAction;
-import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
-import bluej.views.CallableView;
-import bluej.views.ConstructorView;
-import bluej.views.MethodView;
-import bluej.views.View;
-import bluej.views.ViewFilter;
 
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3551 2005-09-06 09:31:41Z polle $
+ * @version $Id: GreenfootClassRole.java 3552 2005-09-06 15:53:28Z polle $
  * 
  */
 public class GreenfootClassRole extends ClassRole
 {
     private final static float SUPER_CLASS_FONT_SHRINK_FACTOR = 0.8f;
-    private RClass rClass;
+    private GClass gClass;
     private final static Dimension iconSize = new Dimension(16, 16);
     private Image image;
     private ClassView classView;
@@ -66,9 +49,9 @@ public class GreenfootClassRole extends ClassRole
      * 
      * @see dk.sdu.mip.dit.ui.classbrowser.role.ClassRole#buildUI()
      */
-    public void buildUI(ClassView classView, RClass rClass)
+    public void buildUI(ClassView classView, GClass gClass)
     {
-        this.rClass = rClass;
+        this.gClass = gClass;
         this.classView = classView;
         //TODO get this color from the bluej config
         classView.setBackground(new Color(245, 204, 155));
@@ -87,7 +70,7 @@ public class GreenfootClassRole extends ClassRole
         c.gridy = 2;
         String name = "";
         try {
-            name = rClass.getQualifiedName();
+            name = gClass.getQualifiedName();
         }
         catch (RemoteException e) {
             e.printStackTrace();
@@ -204,29 +187,7 @@ public class GreenfootClassRole extends ClassRole
         return null;
     }
 
-    private String getSuperClassName(RClass rClass)
-    {
-        String name = null;
-        try {
-            RClass superClass = rClass.getSuperclass();
-            if (superClass != null) {
-                name = superClass.getQualifiedName();
-            }
-        }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-        }
-        catch (PackageNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        return name;
-    }
+  
 
     /**
      * 

@@ -1,5 +1,6 @@
 package greenfoot.gui.classbrowser.role;
 
+import greenfoot.core.GClass;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.Color;
@@ -11,16 +12,15 @@ import java.rmi.RemoteException;
 
 import javax.swing.JLabel;
 
-import rmiextension.wrappers.RClass;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 3440 2005-06-14 13:51:48Z polle $
+ * @version $Id: WorldClassRole.java 3552 2005-09-06 15:53:28Z polle $
  */
 public class WorldClassRole extends ClassRole
 {
 
-    public void buildUI(ClassView classView, RClass rClass)
+    public void buildUI(ClassView classView, GClass gClass)
     {
 
         //TODO get this color from the bluej config
@@ -33,7 +33,7 @@ public class WorldClassRole extends ClassRole
 
         String name = "";
         try {
-            name = rClass.getQualifiedName();
+            name = gClass.getQualifiedName();
         }
         catch (RemoteException e) {
             e.printStackTrace();

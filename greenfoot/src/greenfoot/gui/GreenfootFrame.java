@@ -7,6 +7,9 @@ import greenfoot.actions.CompileClassAction;
 import greenfoot.actions.EditClassAction;
 import greenfoot.actions.NewProjectAction;
 import greenfoot.actions.OpenProjectAction;
+import greenfoot.core.GClass;
+import greenfoot.core.GPackage;
+import greenfoot.core.GProject;
 import greenfoot.core.Greenfoot;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -25,26 +28,36 @@ import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 
 import rmiextension.wrappers.RBlueJ;
-import rmiextension.wrappers.RClass;
-import rmiextension.wrappers.RPackage;
-import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.Config;
-import bluej.debugmgr.inspector.Inspector;
 import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.utility.DialogManager;
 
 /**
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3551 2005-09-06 09:31:41Z polle $
+ * @version $Id: GreenfootFrame.java 3552 2005-09-06 15:53:28Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -62,7 +75,7 @@ public class GreenfootFrame extends JFrame
      * Creates a new frame with all the basic components (menus...)
      *  
      */
-    public GreenfootFrame(RBlueJ blueJ, RProject project)
+    public GreenfootFrame(RBlueJ blueJ, GProject project)
         throws HeadlessException, ProjectNotOpenException, RemoteException
     {
         super("greenfoot:" + project.getName());
@@ -107,7 +120,7 @@ public class GreenfootFrame extends JFrame
         setGlassPane(DragGlassPane.getInstance());
     }
 
-    private void openProject(RProject project)
+    private void openProject(GProject project)
     {
         classBrowser = buildClassBrowser();
         classBrowser.setBackground(Color.WHITE);
@@ -244,32 +257,29 @@ public class GreenfootFrame extends JFrame
         classBrowser.addCompileClassAction(compileClassAction);
         classBrowser.addEditClassAction(editClassAction);
 
-        RPackage pkg;
         try {
             //pkg = Greenfoot.getInstance().getCurrentPackage();
-            pkg = Greenfoot.getInstance().getPackage();
+            GProject prj = Greenfoot.getInstance().getProject();
             //	TODO when project is empty (a new project) the systemclasses get
             // loaded twice
-            pkg = pkg.getProject().getPackage("");
+            GPackage pkg = prj.getDefaultPackage();
 
-            RClass[] classes = pkg.getRClasses();
+            GClass[] classes = pkg.getClasses();
             //add the system classes
-            RProject prj = pkg.getProject();
-
-            RPackage sysPkg = prj.getPackage("greenfoot");
+            GPackage sysPkg = prj.getGreenfootPackage();
             if (sysPkg == null) {
                 sysPkg = prj.newPackage("greenfoot");
             }
 
-            RClass[] rClasses = sysPkg.getRClasses();
-            for (int i = 0; i < rClasses.length; i++) {
-                RClass rClass = rClasses[i];
-                classBrowser.addClass(rClass);
+            GClass[] gClasses = sysPkg.getClasses();
+            for (int i = 0; i < gClasses.length; i++) {
+                GClass gClass = gClasses[i];
+                classBrowser.addClass(gClass);
             }
 
             for (int i = 0; i < classes.length; i++) {
-                RClass rClass = classes[i];
-                classBrowser.addClass(rClass);
+                GClass gClass = classes[i];
+                classBrowser.addClass(gClass);
             }
 
         }

@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import greenfoot.core.GClass;
 import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
@@ -10,11 +11,10 @@ import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import rmiextension.wrappers.RClass;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: NewSubclassAction.java 3552 2005-09-06 15:53:28Z polle $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -47,9 +47,9 @@ public class NewSubclassAction extends AbstractAction
         }
 
         String className = dialog.getClassName();
-        RClass rClass = superclass.createSubclass(className);
+        GClass gClass = superclass.createSubclass(className);
 
-        ClassView classView = classBrowser.addClass(rClass);
+        ClassView classView = classBrowser.addClass(gClass);
         classView.select();
         classBrowser.revalidate();
     }
