@@ -1,7 +1,7 @@
 package greenfoot.actions;
 
-import greenfoot.Greenfoot;
-import greenfoot.Simulation;
+import greenfoot.core.Greenfoot;
+import greenfoot.core.Simulation;
 
 import java.awt.event.ActionEvent;
 
@@ -11,7 +11,7 @@ import javax.swing.AbstractAction;
  * Action that compiles all classes that needs compilation.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileAllAction.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: CompileAllAction.java 3551 2005-09-06 09:31:41Z polle $
  */
 public class CompileAllAction extends AbstractAction
 {

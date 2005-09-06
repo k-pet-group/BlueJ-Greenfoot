@@ -1,6 +1,6 @@
 package greenfoot.actions;
 
-import greenfoot.Simulation;
+import greenfoot.core.Simulation;
 
 import java.awt.event.ActionEvent;
 
@@ -9,7 +9,7 @@ import javax.swing.Icon;
 
 /**
  * @author Poul Henriksen
- * @version $Id: PauseSimulationAction.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: PauseSimulationAction.java 3551 2005-09-06 09:31:41Z polle $
  */
 public class PauseSimulationAction extends AbstractAction
 {

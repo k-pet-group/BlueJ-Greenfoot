@@ -25,7 +25,7 @@ import bluej.utility.DialogManager;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: RBlueJImpl.java 3551 2005-09-06 09:31:41Z polle $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -313,7 +313,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public void frameResized(Rectangle bounds)
         throws RemoteException
     {
-        DialogManager.setParentBounds(bounds);
+     //   DialogManager.setParentBounds(bounds);
     }
 
 }

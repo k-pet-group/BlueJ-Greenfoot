@@ -1,6 +1,6 @@
 package rmiextension;
 
-import greenfoot.GreenfootLauncher;
+import greenfoot.core.GreenfootLauncher;
 
 import java.util.logging.Logger;
 
@@ -9,7 +9,7 @@ import java.util.logging.Logger;
  * object in the Debug-VM.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectLauncher.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: ProjectLauncher.java 3551 2005-09-06 09:31:41Z polle $
  */
 public class ProjectLauncher
     implements ProjectListener

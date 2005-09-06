@@ -1,5 +1,8 @@
 package greenfoot;
 
+import greenfoot.core.LocationTracker;
+import greenfoot.core.ObjectDragProxy;
+import greenfoot.core.WorldHandler;
 import greenfoot.util.Location;
 
 import java.net.URL;
@@ -23,7 +26,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.2
- * @cvs-version $Id: GreenfootObject.java 3462 2005-06-20 14:00:42Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3551 2005-09-06 09:31:41Z polle $
  */
 public class GreenfootObject
 {

@@ -1,10 +1,10 @@
 package greenfoot.gui.classbrowser;
 
-import greenfoot.Greenfoot;
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootWorld;
 import greenfoot.actions.CompileClassAction;
 import greenfoot.actions.EditClassAction;
+import greenfoot.core.Greenfoot;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
@@ -37,7 +37,7 @@ import bluej.extensions.ProjectNotOpenException;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3419 2005-06-07 13:39:12Z polle $
+ * @version $Id: ClassBrowser.java 3551 2005-09-06 09:31:41Z polle $
  */
 public class ClassBrowser extends JPanel
 {

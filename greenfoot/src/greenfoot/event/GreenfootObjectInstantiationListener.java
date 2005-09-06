@@ -2,8 +2,8 @@ package greenfoot.event;
 
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootWorld;
-import greenfoot.ObjectDragProxy;
-import greenfoot.WorldHandler;
+import greenfoot.core.ObjectDragProxy;
+import greenfoot.core.WorldHandler;
 import greenfoot.gui.DragGlassPane;
 
 import java.rmi.RemoteException;

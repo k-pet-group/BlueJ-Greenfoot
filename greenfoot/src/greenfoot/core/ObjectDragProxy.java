@@ -1,4 +1,7 @@
-package greenfoot;
+package greenfoot.core;
+
+import greenfoot.GreenfootImage;
+import greenfoot.GreenfootObject;
 
 import javax.swing.Action;
 

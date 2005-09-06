@@ -1,5 +1,6 @@
-package greenfoot;
+package greenfoot.core;
 
+import greenfoot.GreenfootObject;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.gui.ControlPanel;
@@ -18,7 +19,7 @@ import javax.swing.event.EventListenerList;
  * obejcts in the world and then paints them.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Simulation.java 3397 2005-06-02 11:11:08Z polle $
+ * @version $Id$
  */
 public class Simulation extends Thread
     implements ChangeListener

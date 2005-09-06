@@ -1,4 +1,4 @@
-package greenfoot;
+package greenfoot.core;
 
 import greenfoot.util.GreenfootLogger;
 
@@ -18,11 +18,10 @@ import bluej.Config;
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @version 22-05-2003
- * @version $Id: GreenfootLauncher.java 3216 2004-12-03 04:40:14Z davmac $
+ * @version $Id$
  */
 public class GreenfootLauncher
 {
-    RBlueJ blueJ = null;
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
     public GreenfootLauncher()

@@ -1,7 +1,7 @@
 package greenfoot.actions;
 
 import greenfoot.GreenfootImage;
-import greenfoot.ObjectDragProxy;
+import greenfoot.core.ObjectDragProxy;
 import greenfoot.gui.DragGlassPane;
 
 import java.awt.event.ActionEvent;

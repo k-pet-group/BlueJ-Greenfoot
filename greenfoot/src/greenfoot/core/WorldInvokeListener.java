@@ -1,4 +1,4 @@
-package greenfoot;
+package greenfoot.core;
 
 import greenfoot.event.GreenfootObjectInstantiationListener;
 import greenfoot.localdebugger.LocalObject;
@@ -37,7 +37,7 @@ import bluej.views.MethodView;
  * When a method call has been executed the world is repainted.
  * 
  * @author Davin McCall
- * @version $Id: WorldInvokeListener.java 3486 2005-07-28 15:58:27Z polle $
+ * @version $Id$
  */
 public class WorldInvokeListener
     implements InvokeListener, CallDialogWatcher

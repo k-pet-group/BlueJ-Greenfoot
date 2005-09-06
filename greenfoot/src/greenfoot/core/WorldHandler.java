@@ -1,5 +1,9 @@
-package greenfoot;
+package greenfoot.core;
 
+import greenfoot.GreenfootObject;
+import greenfoot.GreenfootObjectVisitor;
+import greenfoot.GreenfootWorld;
+import greenfoot.WorldVisitor;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
@@ -14,8 +18,10 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Point;
 import java.awt.event.*;
+import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,11 +29,16 @@ import java.util.logging.Logger;
 
 import javax.swing.*;
 
+import rmiextension.wrappers.RPackage;
+
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.ExpressionInformation;
+import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 
@@ -36,7 +47,7 @@ import bluej.testmgr.record.InvokerRecord;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldHandler.java 3486 2005-07-28 15:58:27Z polle $
+ * @version $Id$
  */
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
@@ -63,7 +74,7 @@ public class WorldHandler
     
     /** This holds all object inspectors and class inspectors
     for a world. */
-    private Map inspectors; 
+    private Map inspectors = new HashMap(); 
     
     /**
      * Creates a new worldHandler and sets up the connection between worldCanvas
@@ -190,7 +201,23 @@ public class WorldHandler
     private JPopupMenu makePopupMenu(final GreenfootObject obj)
     {
         JPopupMenu menu = new JPopupMenu();
-        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this), new LocalObject(obj));
+        RPackage currentPackage = Greenfoot.getInstance().getPackage();
+        String packageName = null;
+        try {
+            packageName = currentPackage.getName();
+        }
+        catch (ProjectNotOpenException e1) {
+            e1.printStackTrace();
+        }
+        catch (PackageNotFoundException e1) {
+            e1.printStackTrace();
+        }
+        catch (RemoteException e1) {
+            e1.printStackTrace();
+        }
+        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this), new LocalObject(obj), packageName);
+       
+        
         menu.addSeparator();
 
         // "inspect" menu item
@@ -263,6 +290,10 @@ public class WorldHandler
     public ResultInspector getResultInspectorInstance(DebuggerObject obj,
         String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
         JFrame parent) {
+        System.out.println(pkg);
+        System.out.println(pkg.getProject());
+        System.out.println(pkg.getProject().getInspector(obj));
+        System.out.println("");
         ResultInspector inspector = (ResultInspector) pkg.getProject()
                                                          .getInspector(obj);
 
@@ -281,7 +312,22 @@ public class WorldHandler
             });
 
         return inspector;
+    }
+    
+    /**
+     * Removes all inspector instances for this project.
+     * This is used when VM is reset or the project is recompiled.
+     *
+     */
+    public void removeAllInspectors() {
+        for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
+            Inspector inspector = (Inspector) it.next();
+            inspector.setVisible(false);
+            inspector.dispose();
         }
+
+        inspectors.clear();
+    }
     
     /**
      * TODO: this method should be removed when it is posisble to select among
@@ -298,7 +344,7 @@ public class WorldHandler
         if (world == null)
             return null;
 
-        Collection objectsThere = world.getObjectsAtPixel(x, y);
+        Collection objectsThere = WorldVisitor.getObjectsAtPixel(world, x, y);
         if (objectsThere.size() < 1) {
             return null;
         }
@@ -457,8 +503,22 @@ public class WorldHandler
                 Object world = WorldHandler.this.world;
                 if (e.isPopupTrigger() && world != null) {
                     JPopupMenu menu = new JPopupMenu();
+                    RPackage currentPackage = Greenfoot.getInstance().getPackage();
+                    String packageName = null;
+                    try {
+                        packageName = currentPackage.getName();
+                    }
+                    catch (ProjectNotOpenException e1) {
+                        e1.printStackTrace();
+                    }
+                    catch (PackageNotFoundException e1) {
+                        e1.printStackTrace();
+                    }
+                    catch (RemoteException e1) {
+                        e1.printStackTrace();
+                    }
                     ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world,
-                            WorldHandler.this), new LocalObject(world));
+                            WorldHandler.this), new LocalObject(world), packageName);
                     menu.addSeparator();
                     // "inspect" menu item
                     JMenuItem m = getInspectMenuItem(world);
@@ -502,7 +562,7 @@ public class WorldHandler
                 GreenfootObject go = (GreenfootObject) o;
                 int x = (int) p.getX();
                 int y = (int) p.getY();
-                go.setLocationInPixels(x, y);
+                GreenfootObjectVisitor.setLocationInPixels(go, x, y);
                 objectDropped = true;
             }
             catch(IndexOutOfBoundsException e) {
@@ -526,7 +586,7 @@ public class WorldHandler
             GreenfootObject go = (GreenfootObject) o;
             world.addObject(go);
             try {
-                go.setLocationInPixels(x, y);
+                GreenfootObjectVisitor.setLocationInPixels(go, x, y);
             }
             catch (IndexOutOfBoundsException e) {
                 LocationTracker.instance().reset();
@@ -565,7 +625,7 @@ public class WorldHandler
             // at its original position
             if (!objectDropped && o instanceof GreenfootObject) {
                 GreenfootObject go = (GreenfootObject) o;
-                go.setLocationInPixels(dragBeginX, dragBeginY);
+                GreenfootObjectVisitor.setLocationInPixels(go, dragBeginX, dragBeginY);
                 world.addObject(go);
                 objectDropped = true;
             }
@@ -574,5 +634,15 @@ public class WorldHandler
             // Quick-add another object
             quickAddIfActive();
         }
+    }
+
+    /**
+     * Resets the world.
+     *
+     */
+    public void reset()
+    {
+        removeAllInspectors();
+        setWorld(null);
     }
 }

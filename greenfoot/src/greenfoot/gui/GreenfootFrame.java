@@ -1,15 +1,15 @@
 package greenfoot.gui;
 
-import greenfoot.Greenfoot;
 import greenfoot.GreenfootWorld;
-import greenfoot.Simulation;
-import greenfoot.WorldHandler;
 import greenfoot.actions.AboutGreenfootAction;
 import greenfoot.actions.CompileAllAction;
 import greenfoot.actions.CompileClassAction;
 import greenfoot.actions.EditClassAction;
 import greenfoot.actions.NewProjectAction;
 import greenfoot.actions.OpenProjectAction;
+import greenfoot.core.Greenfoot;
+import greenfoot.core.Simulation;
+import greenfoot.core.WorldHandler;
 import greenfoot.event.CompileListener;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
@@ -44,7 +44,7 @@ import bluej.utility.DialogManager;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3462 2005-06-20 14:00:42Z polle $
+ * @version $Id: GreenfootFrame.java 3551 2005-09-06 09:31:41Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -357,9 +357,8 @@ public class GreenfootFrame extends JFrame
     {}
 
     public void compileStarted(RCompileEvent event)
-    {
-        Inspector.removeInspectors();
-        WorldHandler.instance().setWorld(null);
+    {        
+        WorldHandler.instance().reset();
     }
 
     public void compileError(RCompileEvent event)

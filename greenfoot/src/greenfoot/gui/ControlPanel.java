@@ -1,9 +1,9 @@
 package greenfoot.gui;
 
-import greenfoot.Simulation;
 import greenfoot.actions.PauseSimulationAction;
 import greenfoot.actions.RunOnceSimulationAction;
 import greenfoot.actions.RunSimulationAction;
+import greenfoot.core.Simulation;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 
@@ -20,7 +20,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 3197 2004-11-29 01:23:16Z davmac $
+ * @version $Id: ControlPanel.java 3551 2005-09-06 09:31:41Z polle $
  */
 public class ControlPanel extends JPanel
     implements ChangeListener, SimulationListener

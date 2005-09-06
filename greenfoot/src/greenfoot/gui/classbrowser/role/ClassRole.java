@@ -1,6 +1,6 @@
 package greenfoot.gui.classbrowser.role;
 
-import greenfoot.WorldInvokeListener;
+import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.Image;
@@ -24,7 +24,7 @@ import rmiextension.wrappers.RClass;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 3462 2005-06-20 14:00:42Z polle $
+ * @version $Id: ClassRole.java 3551 2005-09-06 09:31:41Z polle $
  */
 public abstract class ClassRole
 {

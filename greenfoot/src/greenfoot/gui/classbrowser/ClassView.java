@@ -1,7 +1,7 @@
 package greenfoot.gui.classbrowser;
 
-import greenfoot.WorldInvokeListener;
 import greenfoot.actions.NewSubclassAction;
+import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.CompileListener;
 import greenfoot.gui.classbrowser.role.ClassRole;
 
@@ -35,9 +35,11 @@ import rmiextension.wrappers.event.RCompileEvent;
 import bluej.extensions.MissingJavaFileException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.pkgmgr.target.ClassTarget;
 import bluej.prefmgr.PrefMgr;
 import bluej.runtime.ExecServer;
 import bluej.utility.Utility;
+import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import bluej.views.View;
@@ -45,7 +47,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3512 2005-08-12 14:03:24Z polle $
+ * @version $Id: ClassView.java 3551 2005-09-06 09:31:41Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -177,8 +179,7 @@ public class ClassView extends JToggleButton
             View view = View.getView(realClass);
             MethodView[] allMethods = view.getAllMethods();
             WorldInvokeListener invocListener = new WorldInvokeListener(realClass);
-
-            if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, "", invocListener))
+            if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, 0, allMethods.length, "", invocListener))
                 popupMenu.addSeparator();
         }
 

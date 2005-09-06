@@ -1,4 +1,4 @@
-package greenfoot;
+package greenfoot.core;
 
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
@@ -32,7 +32,7 @@ import bluej.utility.FileUtility;
  * The main class for greenfoot. This is a singelton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Greenfoot.java 3462 2005-06-20 14:00:42Z polle $
+ * @version $Id$
  */
 public class Greenfoot
 {

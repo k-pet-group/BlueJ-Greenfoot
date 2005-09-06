@@ -1,4 +1,4 @@
-package greenfoot;
+package greenfoot.core;
 
 import greenfoot.util.Location;
 

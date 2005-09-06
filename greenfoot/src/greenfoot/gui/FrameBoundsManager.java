@@ -1,6 +1,6 @@
 package greenfoot.gui;
 
-import greenfoot.Greenfoot;
+import greenfoot.core.Greenfoot;
 
 import java.awt.Component;
 import java.awt.event.ComponentEvent;
@@ -16,7 +16,7 @@ import java.awt.event.ComponentListener;
  * 
  * @see bluej.utility.DialogManager
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: FrameBoundsManager.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: FrameBoundsManager.java 3551 2005-09-06 09:31:41Z polle $
  *  
  */
 public class FrameBoundsManager

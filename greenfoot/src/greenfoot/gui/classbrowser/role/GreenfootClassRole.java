@@ -3,9 +3,9 @@ package greenfoot.gui.classbrowser.role;
 import greenfoot.GreenfootImage;
 import greenfoot.GreenfootObject;
 import greenfoot.ImageVisitor;
-import greenfoot.ObjectDragProxy;
-import greenfoot.WorldInvokeListener;
 import greenfoot.actions.DragProxyAction;
+import greenfoot.core.ObjectDragProxy;
+import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.Color;
@@ -50,7 +50,7 @@ import bluej.views.ViewFilter;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3462 2005-06-20 14:00:42Z polle $
+ * @version $Id: GreenfootClassRole.java 3551 2005-09-06 09:31:41Z polle $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -148,7 +148,7 @@ public class GreenfootClassRole extends ClassRole
             Constructor constructor = cls.getConstructor(new Class[]{});
 
             if (!Modifier.isAbstract(cls.getModifiers())) {
-                object = (GreenfootObject) constructor.newInstance(null);
+                object =  constructor.newInstance(null);
             }
         }
         catch (SecurityException e2) {
@@ -175,7 +175,7 @@ public class GreenfootClassRole extends ClassRole
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
+            
         if (object == null) {
             return null;
         }

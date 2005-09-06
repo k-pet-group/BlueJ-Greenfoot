@@ -1,6 +1,6 @@
 package greenfoot.actions;
 
-import greenfoot.Simulation;
+import greenfoot.core.Simulation;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 

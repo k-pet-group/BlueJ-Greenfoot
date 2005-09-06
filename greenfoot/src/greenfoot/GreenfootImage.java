@@ -1,5 +1,7 @@
 package greenfoot;
 
+import greenfoot.core.Greenfoot;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -22,7 +24,7 @@ import bluej.extensions.ProjectNotOpenException;
  * 
  * @author Poul Henriksen
  * @version 0.2
- * @cvs-version $Id: GreenfootImage.java 3461 2005-06-20 11:33:14Z mik $
+ * @cvs-version $Id: GreenfootImage.java 3551 2005-09-06 09:31:41Z polle $
  */
 public class GreenfootImage
 {
