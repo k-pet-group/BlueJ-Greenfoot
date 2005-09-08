@@ -1,5 +1,6 @@
 package rmiextension.wrappers;
 
+import java.io.File;
 import java.rmi.RemoteException;
 
 import bluej.extensions.*;
@@ -7,7 +8,7 @@ import bluej.extensions.ClassNotFoundException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClass.java 3262 2005-01-12 03:30:49Z davmac $
+ * @version $Id: RClass.java 3553 2005-09-08 15:24:52Z polle $
  */
 public interface RClass
     extends java.rmi.Remote
@@ -133,9 +134,9 @@ public interface RClass
     public abstract String getQualifiedName()
         throws RemoteException;
 
-    public boolean isSubclassOf(String className)
-        throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
-
+  
+    public File getJavaFile()
+        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
     //public MenuSerializer getMenu()
     //    throws RemoteException;
 }

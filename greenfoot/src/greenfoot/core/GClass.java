@@ -1,16 +1,22 @@
 package greenfoot.core;
 
+import greenfoot.event.CompileListener;
+
 import java.rmi.RemoteException;
+import java.util.Vector;
 
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RConstructor;
 import rmiextension.wrappers.RField;
+import rmiextension.wrappers.event.RCompileEvent;
 import bluej.extensions.BField;
 import bluej.extensions.BMethod;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.parser.ClassParser;
+import bluej.parser.symtab.ClassInfo;
 
 
 /**
@@ -22,15 +28,18 @@ import bluej.extensions.ProjectNotOpenException;
  * @author Poul Henriksen
  * 
  */
-public class GClass
+public class GClass implements CompileListener
 {
     private RClass rmiClass;
     private GPackage pkg;
+    private String superclassGuess;
 
     public GClass(RClass cls, GPackage pkg)
     {
         this.rmiClass = cls;
         this.pkg = pkg;
+        Greenfoot.getInstance().addCompileListener(this);
+        guessSuperclass();
     }
 
     public void compile(boolean waitCompileEnd)
@@ -99,12 +108,132 @@ public class GClass
         return rmiClass.getQualifiedName();
     }
 
-    public String getSuperclassName()
-        throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
+    /**
+     * Returns the superclass or null if no superclass can be found.
+     * @return superclass, or null if the superclass is not part of this project.
+     */
+    public GClass getSuperclass()
     {
-        return rmiClass.getSuperclassName();
+        return pkg.getClass(getSuperclassGuess());
     }
+    
+    /**
+     * This method tries to guess which class is the superclass. This can be used for non compilable and non parseable classes.
+     * <p>
+     * If the class is compiled, it will return the real superclass.
+     * <br>
+     * If the class is parseable this information will be used to extract the superclass.
+     * <br>
+     * If the is not parseable it will use the last superclass that was known.
+     * <br>
+     * In general, we will try to remember the last known superclass, and report that back.
+     * 
+     * @return Best guess of the fully qualified name of the superclass.
+     */
+    public String getSuperclassGuess() {
+        //First we try to get the superclass from the compiled class
+        return superclassGuess;
+    }
+    
+    /**
+     * Sets the superclass guess that will be returned if it is not possible to find it in another way.
+     * @param superclass
+     */
+    public void setSuperclassGuess(String superclassName) {
+        superclassGuess = superclassName;
+    }
+    /**
+     * This method tries to guess which class is the superclass. This can be used for non compilable and non parseable classes.
+     * <p>
+     * If the class is compiled, it will return the real superclass.
+     * <br>
+     * If the class is parseable this information will be used to extract the superclass.
+     * <br>
+     * If the is not parseable it will use the last superclass that was known.
+     * <br>
+     * In general, we will try to remember the last known superclass, and report that back.
+     * 
+     * @return Best guess of the fully qualified name of the superclass.
+     */
+    private void guessSuperclass()
+    {
+        // This should be called each time the source file is saved. However,
+        // this is not possible at the moment, so we jsut do it when it is
+        // compiled.
+        
+        //First, try to get the real super class.
+        String realSuperclass = null;
+        try {
+            if(isCompiled()) {                
+                realSuperclass = rmiClass.getSuperclass().getQualifiedName();
+            }
+        }
+        catch (RemoteException e) {
+        }
+        catch (ProjectNotOpenException e) {
+        }
+        catch (PackageNotFoundException e) {
+        }
+        catch (ClassNotFoundException e) {
+        }
+        catch (NullPointerException e) {
+        }
+        if(realSuperclass != null) {
+            superclassGuess = realSuperclass;
+            try {
+                System.out.println("Found real superclass. "  + getQualifiedName() +" extends " + superclassGuess);
+            }
+            catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return;
+        }
+        
+        
+        //Second, try to parse the file
+        String parsedSuperclass = null;
+        try {
+            //GClass[] gClasses = pkg.getClasses();
 
+           /* Vector classes = new Vector();
+            for (int i = 0; i < gClasses.length; i++) {
+                GClass cls = gClasses[i];
+                classes.add(cls.getQualifiedName());
+            }*/
+            ClassInfo info = ClassParser.parse(rmiClass.getJavaFile());//, classes);
+            parsedSuperclass = info.getSuperclass();
+        }
+        catch (ProjectNotOpenException e) {}
+        catch (PackageNotFoundException e) {}
+        catch (RemoteException e) {}
+        catch (Exception e) {}
+        
+        if(parsedSuperclass != null) {
+            superclassGuess = parsedSuperclass;
+            try {
+                System.out.println("Found parsed superclass. "  + getQualifiedName() +" extends " + superclassGuess);
+            }
+            catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            return;
+        }
+        
+        //Ok, nothing more to do. We just let the superclassGuess be whatever it is.   
+        if(superclassGuess != null) {
+            try {
+                System.out.println("Keeping superclass "  + getQualifiedName() +" extends " + superclassGuess);
+            }
+            catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+    
     public String getToString()
         throws RemoteException
     {
@@ -120,6 +249,42 @@ public class GClass
     public boolean isSubclassOf(String className)
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
     {
-        return rmiClass.isSubclassOf(className);
+        guessSuperclass();
+        GClass superclass = this;
+
+        //Recurse through superclasses
+        while (superclass != null) {
+            String superclassName = superclass.getSuperclassGuess();
+            //TODO bug: also matches partly. ex Beeper and SubBeeper
+            if (superclassName != null && className.endsWith(superclassName)) {
+                return true;
+            }
+            superclass = superclass.getSuperclass();
+        }
+        return false;
+    }   
+
+    public void compileError(RCompileEvent event)
+    {
+        guessSuperclass();
+    }
+
+    public void compileWarning(RCompileEvent event)
+    {
+        guessSuperclass();
+    }
+
+    public void compileSucceeded(RCompileEvent event)
+    {
+        guessSuperclass();
+    }
+
+    public void compileFailed(RCompileEvent event)
+    {
+        guessSuperclass();
+    }
+
+    public void compileStarted(RCompileEvent event)
+    {   
     }
 }

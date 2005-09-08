@@ -20,7 +20,7 @@ import bluej.extensions.ProjectNotOpenException;
  * A forest of trees. The roots are sorted alphabeticaly on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 3552 2005-09-06 15:53:28Z polle $
+ * @version $Id: ClassForest.java 3553 2005-09-08 15:24:52Z polle $
  */
 public class ClassForest
 {
@@ -192,21 +192,13 @@ public class ClassForest
                     name = name.substring(index + 1);
                 }
                 classNames.add(name);
-                superclassNames.add(element.getSuperclassName());
+                superclassNames.add(element.getSuperclassGuess());
                 //classesAndSupers.put(element.getSuperclassName(), element);
             }
             catch (RemoteException e) {
 
             }
-            catch (ProjectNotOpenException e) {
-                e.printStackTrace();
-            }
-            catch (PackageNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            
         }
         buildForest(classesList, classNames, superclassNames);
     }

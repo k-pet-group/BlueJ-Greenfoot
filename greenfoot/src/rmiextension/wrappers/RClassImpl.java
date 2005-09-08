@@ -1,5 +1,6 @@
 package rmiextension.wrappers;
 
+import java.io.File;
 import java.rmi.RemoteException;
 
 import javax.swing.SwingUtilities;
@@ -10,7 +11,7 @@ import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 3262 2005-01-12 03:30:49Z davmac $
+ * @version $Id: RClassImpl.java 3553 2005-09-08 15:24:52Z polle $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -225,36 +226,14 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         return bClass.getQualifiedName();
     }
 
-    /**
-     * Checks if the class represented by this object is an instanceof
-     * className.
-     * 
-     * @param className
-     *            Fully qualified classname
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     * @throws ClassNotFoundException
-     * @throws RemoteException
-     */
-    public boolean isSubclassOf(String className)
-        throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
+  
+
+    public File getJavaFile()
+        throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-
-        RClass superclass = this;
-
-        //Recurse through superclasses
-        while (superclass != null) {
-            String superclassName = superclass.getSuperclassName();
-            //TODO bug: also matches partly. ex Beeper and SubBeeper
-            if (superclassName != null && className.endsWith(superclassName)) {
-                return true;
-            }
-            superclass = superclass.getSuperclass();
-        }
-
-        return false;
+        return bClass.getJavaFile();
     }
+
 
     // No longer needed. TODO: remove.
 //    public MenuSerializer getMenu()

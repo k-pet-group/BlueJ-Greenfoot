@@ -121,6 +121,29 @@ public class GPackage
     {
         return new GClass(pkg.newClass(className), this);
     }
+    
+    public GClass getClass(String className) {
+        GClass cls = (GClass) classPool.get(className);
+        if(cls == null) {
+            try {
+                RClass rClass = pkg.getRClass(className);
+                if(rClass != null) {
+                    cls = new GClass(rClass, this);
+                    classPool.put(rClass, cls);
+                }                
+            }
+            catch (ProjectNotOpenException e) {
+                e.printStackTrace();
+            }
+            catch (PackageNotFoundException e) {
+                e.printStackTrace();
+            }
+            catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        return cls;
+    }
 
     public void reload()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException

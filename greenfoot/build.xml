@@ -18,9 +18,10 @@
     <path id="bluej.class.path">
         <pathelement location="${bluej.projectdir}/classes"/>
     	<pathelement location="${bluej.projectdir}/boot/classes"/>
+    	<pathelement location="${bluej.projectdir}/lib/antlr.jar"/>
     </path>
     <!-- Location of the jar file packed by BlueJ dist target -->
-    <property name="bluej.package.jar"  location="${bluej.projectdir}/package/bluej-dist-new.jar"/>
+    <property name="bluej.package.jar"  location="${bluej.projectdir}/package/greenfoot-dist-new.jar"/>
         
     
 
@@ -99,7 +100,7 @@
         </copy>
     </target>
 
-    <target name="dist" depends="ready-to-run" description="Generate the distribution. Also runs the bluej-dist" >
+    <target name="dist" depends="ready-to-run" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
         <!-- Put everything in ${build} into the the jar file-->
         <jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
             <manifest>
@@ -108,7 +109,7 @@
             </manifest>
         </jar>
         <!-- Run the BlueJ dist-->
-        <ant dir="${bluej.projectdir}" target="dist-no-win" />
+        <ant dir="${bluej.projectdir}" target="dist-greenfoot" />
         
         <move file="${bluej.package.jar}" tofile="${package}/greenfoot-installer.jar"/> 
 	    <echo message="The greenfoot installer is in ${package}/greenfoot-installer.jar"/>
