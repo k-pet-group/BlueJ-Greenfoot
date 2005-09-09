@@ -1,6 +1,6 @@
 #
 # Installer properties
-# This properties-style file completely defines what the installer should do.
+# This properties-style file defines what the installer should do.
 #
 # Some special characters can be used in commands and paths:
 #  ~ (tilde) will be replaced by the installation directory
@@ -9,27 +9,27 @@
 #        (eg. i386, sparc, ...)
 
 # Logo to put at top
-install.gif.logo=installer-logo.gif
+install.gif.logo=greenfoot-logo.png
 
 # Title to center under that
-install.title=BlueJ Installation
+install.title=Greenfoot Installation
 
 # Name the JAR containing the package
-install.pkgJar=bluej-dist.jar
+install.pkgJar=greenfoot-dist.jar
 
 # Name of shell/batch script to create
-install.exeName=bluej
+install.exeName=greenfoot
 
 # additional commands to be added to MacOS script before execution
-install.commands.mac = CP="~/lib/bluej.jar:!/lib/tools.jar"
+install.commands.mac = CP="~/lib/bluej.jar:~/lib/junit.jar:~/lib/bluejcore.jar:~/lib/bluejext.jar:~/lib/bluejeditor.jar:~/lib/editor.jar:~/lib/antlr.jar:!/lib/tools.jar:~/lib/MRJ141Stubs.jar:~/lib/extensions/greenfoot.jar"
 
 # additional commands to be added to Unix script before execution
-install.commands.unix = CP="~/lib/bluej.jar:!/lib/tools.jar"
+install.commands.unix = CP="~/lib/bluej.jar:~/lib/junit.jar:~/lib/bluejcore.jar:~/lib/bluejext.jar:~/lib/bluejeditor.jar:~/lib/editor.jar:~/lib/antlr.jar:!/lib/tools.jar:~/lib/MRJ141Stubs.jar:~/lib/extensions/greenfoot.jar"
 
 # additional commands to be added to Windows batch file before execution
 # (windows should not have quotes surrounding CP string
 # the quotes around APPBASE are enough
-install.commands.win = set CP=~\\lib\\bluej.jar;!\\lib\\tools.jar
+install.commands.win = set CP=~\\lib\\bluej.jar;~\\lib\\junit.jar;~\\lib\\bluejcore.jar;~\\lib\\bluejext.jar;~\\lib\\bluejeditor.jar;~\\lib\\editor.jar;~\\lib\\antlr.jar;!\\lib\\tools.jar;~\\lib\\MRJ141Stubs.jar;~\\lib\\extensions\\greenfoot.jar
 
 # java command-line options for unix (icluding MacOS)
 # (UNIX must have quotes around the $CP on the actual
@@ -43,9 +43,8 @@ install.javaOpts.win=-cp %CP%
 # Class that contains the main to execute
 install.mainClass=bluej.Boot
 
-
-# The big text colors
-install.color.text=0 0 0
+# Arguments to the main class
+install.arguments=-greenfoot=true
 
 # Top color, normal background 
 install.color.background=255,255,255
@@ -55,16 +54,17 @@ install.width=500
 install.height=340
 
 # Tag line to put at bottom
-install.tagline=BlueJ Installer version 2.3 - University of Southern Denmark
+install.tagline=Greenfoot Installer
 
 # Name of the directory to which greenfoot should be installed
-install.installDirName=bluej
+install.installDirName=greenfoot
 
 # Error message to show when incorrect JDK version is used.
-install.jdkError1=This version of BlueJ requires JDK 1.4 or newer.\nYou are running on JDK
+install.jdkError1=This version of Greenfoot requires JDK 1.4 or newer.\nYou are running on JDK
 # The actual java version will be inserted here.
-install.jdkError2= Please upgrade\nJDK before installing BlueJ.\n\nOlder versions of BlueJ (prior to version 2.0.0) can\nrun on JDK 1.3 - download that version if you\ncannot upgrade JDK.
+install.jdkError2= Please upgrade\nJDK before installing Greenfoot.
 install.jdkMsg=JDK 1.4 (or newer) required.
                         
 # Name of the application                       
-install.appName=BlueJ
+install.appName=Greenfoot
+

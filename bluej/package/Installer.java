@@ -17,7 +17,7 @@ import java.util.zip.*;
   *
   *   java Installer
   *
-  * @version $Id: Installer.java 3062 2004-10-25 00:30:59Z bquig $
+  * @version $Id: Installer.java 3557 2005-09-09 14:42:25Z polle $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -42,8 +42,6 @@ public class Installer extends JFrame
     static final int BUFFER_SIZE=8192;
 
     // user interface components
-    Color backgroundColour;
-    Color textColour;
     JTextField directoryField;
     JTextField javaField;
     JLabel textLabel1;
@@ -221,10 +219,8 @@ public class Installer extends JFrame
     {
         super();
         currentDirectory = System.getProperty("user.dir");
-        if(currentDirectory.endsWith("bluej"))
-            installationDir = currentDirectory;
-        else
-            installationDir = currentDirectory + File.separator + "bluej";
+        
+        
         osname = System.getProperty("os.name");
         architecture = System.getProperty("os.arch");
         javaVersion = System.getProperty("java.version");
@@ -236,18 +232,18 @@ public class Installer extends JFrame
         //System.out.println(osname);
         //System.out.println(javaVersion);
         //System.out.println(architecture);
-
         unpackTo(false);
+
+        String installDirName = (String) getProperty("installDirName");
+        if(currentDirectory.endsWith(installDirName))
+            installationDir = currentDirectory;
+        else
+            installationDir = currentDirectory + File.separator + installDirName;
+        
         makeWindow();
 
         if(isJDK12 || isJDK13) {
-            notifyError("This version of BlueJ requires JDK 1.4 or newer.\n" +
-                        "You are running on JDK " + javaVersion +" Please upgrade\n" +
-                        "JDK before installing BlueJ.\n\n" +
-                        "Older versions of BlueJ (prior to version 2.0.0) can\n" +
-                        "run on JDK 1.3 - download that version if you\n" +
-                        "cannot upgrade JDK.",
-                        "JDK 1.4 (or newer) required.");
+            notifyError((String) getProperty("jdkError1") + javaVersion + " " + (String) getProperty("jdkError2"), (String) getProperty("jdkMsg"));
         }
     }
 
@@ -360,7 +356,7 @@ public class Installer extends JFrame
         }
 
         if (getProperty("exeName") != null) {
-            finish("BlueJ has been installed to " + installationDir,
+            finish(getProperty("appName") + " has been installed to " + installationDir,
                    "To run it, execute \"" +
                    (String)getProperty("exeName") + "\".");
         } else {
@@ -384,10 +380,10 @@ public class Installer extends JFrame
     {
         String dirName = getDirName("Select installation directory");
         if(dirName != null) {
-            if(dirName.endsWith("bluej"))
+            if(dirName.endsWith((String) getProperty("installDirName")))
                 installationDir = dirName;
             else
-                installationDir = dirName + File.separator + "bluej";
+                installationDir = dirName + File.separator + (String) getProperty("installDirName");
             directoryField.setText(installationDir);
             checkInstallDir(installationDir, false);
         }
@@ -536,8 +532,7 @@ public class Installer extends JFrame
      */
     public void makeWindow()
     {
-        backgroundColour = (Color)getProperty("color.background");
-        textColour = (Color)getProperty("color.text");
+        Color backgroundColour = (Color)getProperty("color.background");
         setBackground(backgroundColour);
 
         String title = (String)getProperty("title");
@@ -699,7 +694,8 @@ public class Installer extends JFrame
             out.write("\n");
         }
         out.write("\"" + javaName + "\" " + getProperty("javaOpts.unix") + " " +
-                  getProperty("mainClass") + " $*\n");
+                  getProperty("mainClass") + " " +
+                  getProperty("arguments") + " $*\n");
         out.close();
 
         try {
@@ -732,7 +728,8 @@ public class Installer extends JFrame
         }
         out.write("\"" + javaPath + "\\bin\\java\" " +
                   getProperty("javaOpts.win") + " " +
-                  getProperty("mainClass") +
+                  getProperty("mainClass") + " " +
+                  getProperty("arguments") +
                   " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
         out.close();
     }

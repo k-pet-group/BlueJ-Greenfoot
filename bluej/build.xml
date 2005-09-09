@@ -199,6 +199,10 @@
         <ant dir="package" target="dist"/>
         <ant dir="package" target="windows-dist"/>
     </target>
+	
+    <target name="dist-greenfoot" depends="ready-to-run">
+	    <ant dir="package" antfile="greenfoot-build.xml" target="dist"/>
+    </target>
 
     <target name="windows-dist">
         <ant dir="package" target="windows-dist"/>
