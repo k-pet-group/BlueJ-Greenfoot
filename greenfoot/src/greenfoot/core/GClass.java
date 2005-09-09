@@ -131,7 +131,6 @@ public class GClass implements CompileListener
      * @return Best guess of the fully qualified name of the superclass.
      */
     public String getSuperclassGuess() {
-        //First we try to get the superclass from the compiled class
         return superclassGuess;
     }
     
@@ -158,7 +157,7 @@ public class GClass implements CompileListener
     private void guessSuperclass()
     {
         // This should be called each time the source file is saved. However,
-        // this is not possible at the moment, so we jsut do it when it is
+        // this is not possible at the moment, so we just do it when it is
         // compiled.
         
         //First, try to get the real super class.
@@ -180,13 +179,6 @@ public class GClass implements CompileListener
         }
         if(realSuperclass != null) {
             superclassGuess = realSuperclass;
-            try {
-                System.out.println("Found real superclass. "  + getQualifiedName() +" extends " + superclassGuess);
-            }
-            catch (RemoteException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
             return;
         }
         
@@ -255,6 +247,11 @@ public class GClass implements CompileListener
         //Recurse through superclasses
         while (superclass != null) {
             String superclassName = superclass.getSuperclassGuess();
+            //TODO Fix this hack. Should be done when non-greenfoot classes gets support.
+            //HACK to ensure that a class with no superclass has "" as superclass. This is becuase of the ClassForest building which then allows the clas to show up even though it doesn't have any superclass.
+            if(superclassName == null) {
+                superclassName = "";
+            }
             //TODO bug: also matches partly. ex Beeper and SubBeeper
             if (superclassName != null && className.endsWith(superclassName)) {
                 return true;
