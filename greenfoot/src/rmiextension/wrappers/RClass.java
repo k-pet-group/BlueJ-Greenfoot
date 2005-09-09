@@ -8,7 +8,7 @@ import bluej.extensions.ClassNotFoundException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClass.java 3553 2005-09-08 15:24:52Z polle $
+ * @version $Id: RClass.java 3556 2005-09-09 13:40:58Z polle $
  */
 public interface RClass
     extends java.rmi.Remote
@@ -105,15 +105,6 @@ public interface RClass
      * @return
      * @throws ProjectNotOpenException
      * @throws PackageNotFoundException
-     * @throws ClassNotFoundException
-     */
-    public abstract String getSuperclassName()
-        throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
-
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
      */
     public abstract boolean isCompiled()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
@@ -124,15 +115,19 @@ public interface RClass
      * throw RemoteException.
      * 
      * @return
+     * @throws ClassNotFoundException 
+     * @throws ProjectNotOpenException 
      */
     public String getToString()
-        throws RemoteException;
+        throws RemoteException, ProjectNotOpenException, ClassNotFoundException;
 
     /**
      * @return
+     * @throws ClassNotFoundException 
+     * @throws ProjectNotOpenException 
      */
     public abstract String getQualifiedName()
-        throws RemoteException;
+        throws RemoteException, ProjectNotOpenException, ClassNotFoundException;
 
   
     public File getJavaFile()

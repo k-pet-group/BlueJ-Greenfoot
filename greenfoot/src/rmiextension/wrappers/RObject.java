@@ -8,7 +8,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RObject.java 3262 2005-01-12 03:30:49Z davmac $
+ * @version $Id: RObject.java 3556 2005-09-09 13:40:58Z polle $
  */
 public interface RObject
     extends java.rmi.Remote
@@ -25,9 +25,10 @@ public interface RObject
      * @return
      * @throws ProjectNotOpenException
      * @throws ClassNotFoundException
+     * @throws PackageNotFoundException 
      */
     public abstract RClass getRClass()
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
+        throws ProjectNotOpenException, ClassNotFoundException, RemoteException, PackageNotFoundException;
 
     /**
      * @return

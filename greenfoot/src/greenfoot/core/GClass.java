@@ -103,14 +103,23 @@ public class GClass implements CompileListener
     }
 
     public String getQualifiedName()
-        throws RemoteException
     {
-        return rmiClass.getQualifiedName();
+        try {
+            return rmiClass.getQualifiedName();
+        }
+        catch (RemoteException e) {
+            // TODO error reporting
+        }
+        catch (ProjectNotOpenException e) {}
+        catch (ClassNotFoundException e) {}
+        return null;
     }
 
     /**
      * Returns the superclass or null if no superclass can be found.
-     * @return superclass, or null if the superclass is not part of this project.
+     * 
+     * @return superclass, or null if the superclass is not part of this
+     *         project.
      */
     public GClass getSuperclass()
     {
@@ -203,43 +212,40 @@ public class GClass implements CompileListener
         
         if(parsedSuperclass != null) {
             superclassGuess = parsedSuperclass;
-            try {
-                System.out.println("Found parsed superclass. "  + getQualifiedName() +" extends " + superclassGuess);
-            }
-            catch (RemoteException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
             return;
         }
         
         //Ok, nothing more to do. We just let the superclassGuess be whatever it is.   
-        if(superclassGuess != null) {
-            try {
-                System.out.println("Keeping superclass "  + getQualifiedName() +" extends " + superclassGuess);
-            }
-            catch (RemoteException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+        
     }
     
     public String getToString()
-        throws RemoteException
     {
-        return rmiClass.getToString();
+        try {
+            return rmiClass.getToString();
+        }
+        catch (RemoteException e) {
+            // TODO error reporting
+        }
+        catch (ProjectNotOpenException e) {}
+        catch (ClassNotFoundException e) {}
+        return "Error getting real toString. super: " + super.toString();
     }
 
     public boolean isCompiled()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-        return rmiClass.isCompiled();
+        try {
+            return rmiClass.isCompiled();
+        }
+        catch (ProjectNotOpenException e) {
+            // TODO error reporting
+        }
+        catch (PackageNotFoundException e) {}
+        catch (RemoteException e) {}
+        return false;
     }
 
     public boolean isSubclassOf(String className)
-        throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
     {
         guessSuperclass();
         GClass superclass = this;

@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NormalClassRole.java 3552 2005-09-06 15:53:28Z polle $
+ * @version $Id: NormalClassRole.java 3556 2005-09-09 13:40:58Z polle $
  */
 public class NormalClassRole extends ClassRole
 {
@@ -29,12 +29,7 @@ public class NormalClassRole extends ClassRole
         c.gridy = 0;
 
         String name = "";
-        try {
-            name = gClass.getQualifiedName();
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
+        name = gClass.getQualifiedName();
         JLabel className = new JLabel(name);
 
         classView.add(className, c);

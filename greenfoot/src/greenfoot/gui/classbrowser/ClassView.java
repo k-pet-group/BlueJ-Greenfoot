@@ -44,7 +44,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3552 2005-09-06 15:53:28Z polle $
+ * @version $Id: ClassView.java 3556 2005-09-09 13:40:58Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -69,12 +69,7 @@ public class ClassView extends JToggleButton
         setRole(role);
         addChangeListener(this);
         this.setOpaque(false);
-        try {
-            logger.info("Creating view: " + role + " for " + gClass.getQualifiedName());
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
+        logger.info("Creating view: " + role + " for " + gClass.getQualifiedName());
         this.addMouseListener(this);
         this.setBorder(BorderFactory.createEmptyBorder(SELECTED_BORDER + 2, SELECTED_BORDER + 2, SELECTED_BORDER
                 + SHADOW + 2, SELECTED_BORDER + SHADOW + 2));
@@ -95,31 +90,13 @@ public class ClassView extends JToggleButton
     private Class getClass(GClass gClass)
     {
         Class cls = null;
-        try {
-            if (!gClass.isCompiled()) {
-                return cls;
-            }
-        }
-        catch (ProjectNotOpenException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (PackageNotFoundException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (RemoteException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+        if (!gClass.isCompiled()) {
+            return cls;
         }
         try {
             String className = gClass.getQualifiedName();
             //it is important that we use the right classloader
             cls = ExecServer.loadAndInitClass(className);
-        }
-        catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
         catch (NoClassDefFoundError e) {
             e.printStackTrace();
@@ -140,13 +117,7 @@ public class ClassView extends JToggleButton
 
     private void createPopupMenu()
     {
-        try {
-            logger.info("Creating new popup for: " + gClass.getQualifiedName());
-        }
-        catch (RemoteException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
+        logger.info("Creating new popup for: " + gClass.getQualifiedName());
 
         if (popupMenu != null) {
             remove(popupMenu);
@@ -285,30 +256,18 @@ public class ClassView extends JToggleButton
 
     public String getQualifiedClassName()
     {
-        try {
-            return gClass.getQualifiedName();
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return gClass.getQualifiedName();
     }
 
     public String getClassName()
     {
-        try {
-            String qName = gClass.getQualifiedName();
-            String name = qName;
-            int index = qName.lastIndexOf('.');
-            if (index >= 0) {
-                name = qName.substring(index + 1);
-            }
-            return name;
+        String qName = gClass.getQualifiedName();
+        String name = qName;
+        int index = qName.lastIndexOf('.');
+        if (index >= 0) {
+            name = qName.substring(index + 1);
         }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return name;
     }
 
     /*

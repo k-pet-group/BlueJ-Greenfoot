@@ -15,7 +15,7 @@ import javax.swing.JLabel;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 3552 2005-09-06 15:53:28Z polle $
+ * @version $Id: WorldClassRole.java 3556 2005-09-09 13:40:58Z polle $
  */
 public class WorldClassRole extends ClassRole
 {
@@ -32,12 +32,7 @@ public class WorldClassRole extends ClassRole
         c.gridy = 0;
 
         String name = "";
-        try {
-            name = gClass.getQualifiedName();
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
+        name = gClass.getQualifiedName();
         int index = name.lastIndexOf('.');
         if (index >= 0) {
             name = name.substring(index + 1);

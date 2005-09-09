@@ -1,6 +1,7 @@
 package rmiextension.wrappers;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,7 +24,7 @@ import bluej.views.View;
  * @see bluej.extensions.BPackage
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackageImpl.java 3486 2005-07-28 15:58:27Z polle $
+ * @version $Id: RPackageImpl.java 3556 2005-09-09 13:40:58Z polle $
  */
 public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     implements RPackage

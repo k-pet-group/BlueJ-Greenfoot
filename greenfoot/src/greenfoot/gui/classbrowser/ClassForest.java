@@ -20,7 +20,7 @@ import bluej.extensions.ProjectNotOpenException;
  * A forest of trees. The roots are sorted alphabeticaly on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 3553 2005-09-08 15:24:52Z polle $
+ * @version $Id: ClassForest.java 3556 2005-09-09 13:40:58Z polle $
  */
 public class ClassForest
 {
@@ -178,26 +178,21 @@ public class ClassForest
     /**
      * @param worldClassesList
      */
-    public void buildForest(List classesList)
+    public void buildForest(List classesList) 
     {
         Map classesAndSupers = new Hashtable();
         List classNames = new ArrayList();
         List superclassNames = new ArrayList();
         for (Iterator iter = classesList.iterator(); iter.hasNext();) {
             GClass element = ((ClassView) iter.next()).getGClass();
-            try {
-                String name = element.getQualifiedName();
-                int index = name.lastIndexOf('.');
-                if (index >= 0) {
-                    name = name.substring(index + 1);
-                }
-                classNames.add(name);
-                superclassNames.add(element.getSuperclassGuess());
-                //classesAndSupers.put(element.getSuperclassName(), element);
+            String name = element.getQualifiedName();
+            int index = name.lastIndexOf('.');
+            if (index >= 0) {
+                name = name.substring(index + 1);
             }
-            catch (RemoteException e) {
-
-            }
+            classNames.add(name);
+            superclassNames.add(element.getSuperclassGuess());
+            //classesAndSupers.put(element.getSuperclassName(), element);
             
         }
         buildForest(classesList, classNames, superclassNames);

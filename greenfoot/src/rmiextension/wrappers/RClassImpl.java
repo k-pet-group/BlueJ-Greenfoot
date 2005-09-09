@@ -11,7 +11,7 @@ import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 3553 2005-09-08 15:24:52Z polle $
+ * @version $Id: RClassImpl.java 3556 2005-09-09 13:40:58Z polle $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -191,20 +191,6 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     /**
-     * Gets the name of the superclass.
-     * 
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     * @throws ClassNotFoundException
-     */
-    public String getSuperclassName()
-        throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
-    {
-        return bClass.getSuperclassName();
-    }
-
-    /**
      * @return
      * @throws ProjectNotOpenException
      * @throws PackageNotFoundException
@@ -215,15 +201,15 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         return bClass.isCompiled();
     }
 
-    public String getToString()
+    public String getToString() throws ProjectNotOpenException, ClassNotFoundException
     {
-        return bClass.getQualifiedName();
+        return bClass.getName();
     }
 
     public String getQualifiedName()
-        throws RemoteException
+        throws RemoteException, ProjectNotOpenException, ClassNotFoundException
     {
-        return bClass.getQualifiedName();
+        return bClass.getName();
     }
 
   

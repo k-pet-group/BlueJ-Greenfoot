@@ -35,7 +35,7 @@ import bluej.extensions.ProjectNotOpenException;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3552 2005-09-06 15:53:28Z polle $
+ * @version $Id: ClassBrowser.java 3556 2005-09-09 13:40:58Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -84,46 +84,29 @@ public class ClassBrowser extends JPanel
     {
         ClassView classLabel = null;
 
-        try {
-            if (gClass.getQualifiedName().equals(simObj)) {
-                //the class GreenfootObject
-                classLabel = new ClassView(new GreenfootClassRole(), gClass);
-            }
-            else if (gClass.getQualifiedName().equals(worldObj)) {
-                //The class GreenfootWorld
-                classLabel = new ClassView(new WorldClassRole(), gClass);
-            }
-            else if (gClass.isSubclassOf(simObj)) {
-                //A subclass of GreenfootObject
-                classLabel = new ClassView(new GreenfootClassRole(), gClass);
-            }
-            else if (gClass.isSubclassOf(worldObj)) {
-                //A subclass of World
-                classLabel = new ClassView(new WorldClassRole(), gClass);
-            }
-            else {
-                //everything else
-                classLabel = new ClassView(new NormalClassRole(), gClass);
-            }
-            if (classLabel != null) {
-                classLabel.setClassBrowser(this);
-                addClass(classLabel);
-            }
+        if (gClass.getQualifiedName().equals(simObj)) {
+            //the class GreenfootObject
+            classLabel = new ClassView(new GreenfootClassRole(), gClass);
         }
-        catch (RemoteException e) {
-            e.printStackTrace();
+        else if (gClass.getQualifiedName().equals(worldObj)) {
+            //The class GreenfootWorld
+            classLabel = new ClassView(new WorldClassRole(), gClass);
         }
-        catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        else if (gClass.isSubclassOf(simObj)) {
+            //A subclass of GreenfootObject
+            classLabel = new ClassView(new GreenfootClassRole(), gClass);
         }
-        catch (PackageNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        else if (gClass.isSubclassOf(worldObj)) {
+            //A subclass of World
+            classLabel = new ClassView(new WorldClassRole(), gClass);
         }
-        catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        else {
+            //everything else
+            classLabel = new ClassView(new NormalClassRole(), gClass);
+        }
+        if (classLabel != null) {
+            classLabel.setClassBrowser(this);
+            addClass(classLabel);
         }
         Greenfoot.getInstance().addCompileListener(classLabel);
         return classLabel;

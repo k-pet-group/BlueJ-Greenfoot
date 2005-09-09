@@ -14,7 +14,7 @@ import bluej.views.View;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RObjectImpl.java 3262 2005-01-12 03:30:49Z davmac $
+ * @version $Id: RObjectImpl.java 3556 2005-09-09 13:40:58Z polle $
  */
 public class RObjectImpl extends UnicastRemoteObject
     implements RObject
@@ -54,9 +54,10 @@ public class RObjectImpl extends UnicastRemoteObject
      * @return
      * @throws ProjectNotOpenException
      * @throws ClassNotFoundException
+     * @throws PackageNotFoundException 
      */
     public RClass getRClass()
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException
+        throws ProjectNotOpenException, ClassNotFoundException, RemoteException, PackageNotFoundException
     {
         BClass wrapped = bObject.getBClass();
         RClass wrapper = WrapperPool.instance().getWrapper(wrapped);

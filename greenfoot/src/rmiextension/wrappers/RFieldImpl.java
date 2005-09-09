@@ -13,7 +13,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RFieldImpl.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: RFieldImpl.java 3556 2005-09-09 13:40:58Z polle $
  */
 public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
     implements RField
@@ -96,7 +96,7 @@ public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
 
                 String newInstanceName = "noName";
                 try {
-                    newInstanceName = bFieldValue.getBClass().getQualifiedName();
+                    newInstanceName = bFieldValue.getBClass().getName();
                     newInstanceName = newInstanceName.substring(0, 1).toLowerCase() + newInstanceName.substring(1);
                 }
                 catch (ClassNotFoundException e1) {
