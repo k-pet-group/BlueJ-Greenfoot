@@ -1,6 +1,7 @@
 package greenfoot.core;
 
 import java.io.File;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
@@ -119,6 +120,9 @@ public class GPackage
     public GClass newClass(String className)
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
     {
+
+        File pkgDir = getDir();
+        File classFile = new File(pkgDir, className + ".java");
         return new GClass(pkg.newClass(className), this);
     }
     
