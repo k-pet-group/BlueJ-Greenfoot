@@ -34,7 +34,7 @@ import javax.swing.*;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3405 2005-06-03 15:10:56Z polle $
+ * @version $Id: DragGlassPane.java 3559 2005-09-12 12:56:50Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -60,7 +60,6 @@ public class DragGlassPane extends JComponent
     private Object data;
 
     /** Rectangles used for graphics update */
-    private Rectangle oldRect = new Rectangle();
     private Rectangle rect = new Rectangle();
     
     /** Offset from center of object being dragged to mouse cursor */
@@ -131,7 +130,7 @@ public class DragGlassPane extends JComponent
         }
     }
 
-    private Rectangle getClip()
+   /* private Rectangle getClip()
     {
         int width = rect.width;
         int height = rect.height;
@@ -141,7 +140,7 @@ public class DragGlassPane extends JComponent
         Rectangle oldClip = new Rectangle(oldRect.x - widthDiff, oldRect.y - heightDiff, diag, diag);
         Rectangle newClip = new Rectangle(rect.x - widthDiff, rect.y - heightDiff, diag, diag);
         return oldClip.union(newClip);
-    }
+    }*/
 
     /**
      * Initiates a drag. The xOffset and yOffset specify the offset in pixels
@@ -234,8 +233,6 @@ public class DragGlassPane extends JComponent
         int height = image.getHeight();
         rect.width = width;
         rect.height = height;
-        oldRect.width = width;
-        oldRect.height = height;
         this.rotation = rotation;
     }
 
@@ -252,8 +249,6 @@ public class DragGlassPane extends JComponent
     private void move(MouseEvent e)
     {
         //logger.info("DragGlassPane.move" + e.paramString());
-        oldRect.x = rect.x;
-        oldRect.y = rect.y;
         storePosition(e);
         paintNoDropImage = true;
         Component destination = getComponentBeneath(e);
@@ -273,9 +268,9 @@ public class DragGlassPane extends JComponent
             lastDropTarget.dragEnded(data);
         }
         lastDropTarget = dropTarget;
-
         if (isVisible()) {
-            repaint(getClip());
+            //We need to repaint everything, because other objects might depend on this object's state.
+            repaint();
         }
     }
 
