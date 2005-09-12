@@ -2,6 +2,7 @@ package greenfoot.gui.classbrowser.role;
 
 import greenfoot.GreenfootImage;
 import greenfoot.GreenfootObject;
+import greenfoot.GreenfootWorld;
 import greenfoot.ImageVisitor;
 import greenfoot.actions.DragProxyAction;
 import greenfoot.core.GClass;
@@ -33,7 +34,7 @@ import javax.swing.JLabel;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3556 2005-09-09 13:40:58Z polle $
+ * @version $Id: GreenfootClassRole.java 3561 2005-09-12 15:09:18Z polle $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -172,12 +173,16 @@ public class GreenfootClassRole extends ClassRole
                 g2.rotate(Math.toRadians(so.getRotation()), rotateX, rotateY);
 
                 ImageVisitor.drawImage(image, g2, 0, 0, classView);
-
+                GreenfootWorld world = so.getWorld();
+                if(world != null) {
+                    world.removeObject(so);
+                } 
                 return bImg;
             }
             else {
                 System.err.println("Could not render the image: " + image + " for the class: " + cls);
             }
+            
         }
         return null;
     }
