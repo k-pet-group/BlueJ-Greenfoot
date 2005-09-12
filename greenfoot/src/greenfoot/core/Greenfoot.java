@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -346,8 +347,9 @@ public class Greenfoot
             File blueJLibDir = rBlueJ.getSystemLibDir();
             File src = new File(blueJLibDir, "skeletonProject");
             File dst = projectDir;
-            copyDir(src, dst);
 
+            validateClassFiles(src, dst);
+            copyDir(src, dst);
         }
         catch (ProjectNotOpenException e) {
             e.printStackTrace();
@@ -359,10 +361,72 @@ public class Greenfoot
     }
 
     /**
+     * Checks whether the odl and new source files for GreenfootObject and
+     * GreenfootWorld are the same. If they are not, the class files are
+     * deleted.
+     */
+    private void validateClassFiles(File src, File dst)
+    {
+        File newGO = new File(src, "greenfoot/GreenfootObject.java");
+        File oldGO = new File(dst, "greenfoot/GreenfootObject.java");
+        File goClassFile= new File(dst, "greenfoot/GreenfootObject.class");
+        
+        File newGW = new File(src, "greenfoot/GreenfootWorld.java");
+        File oldGW = new File(dst, "greenfoot/GreenfootWorld.java");
+        File gwClassFile= new File(dst, "greenfoot/GreenfootWorld.class");
+        
+        if(! sameFileContents(newGO, oldGO) || ! sameFileContents(newGW, oldGW)) {
+            try {
+                project.getDefaultPackage().deleteClassFiles();
+                project.getGreenfootPackage().deleteClassFiles();
+            }
+            catch (ProjectNotOpenException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+        } 
+    }
+
+    private boolean sameFileContents(File f1, File f2)
+    {
+        if (f1.canRead() && f2.canRead()) {
+            if (f1.length() != f2.length()) {
+                return false;
+            }
+            try {
+                FileReader reader1 = new FileReader(f1);
+                FileReader reader2 = new FileReader(f2);
+                int read1;
+
+                try {
+                    while ((read1 = reader1.read()) != -1) {
+                        int read2 = reader2.read();
+                        if (read1 != read2) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            catch (FileNotFoundException e) {}
+        }
+        return false;
+    }
+
+    /**
      * Checks if the project is the default startup project that is used when no
      * other project is open. It is necessary to have this dummy project,
      * becuase we must have a project in order to launch the DebugVM.
-     *  
+     * 
      */
     private boolean isStartupProject(File projectDir)
     {

@@ -102,6 +102,10 @@ public class GClass implements CompileListener
         return pkg;
     }
 
+    /**
+     * Gets the qulified name of this class.
+     * @return
+     */
     public String getQualifiedName()
     {
         try {
@@ -115,6 +119,18 @@ public class GClass implements CompileListener
         return null;
     }
 
+    /**
+     * Gets the name of this class. NOT the qualified name.
+     * @return
+     */
+    public String getName() {
+        String name = getQualifiedName();
+        int index = name.lastIndexOf('.');
+        if (index >= 0) {
+            name = name.substring(index + 1);
+        }
+        return name;
+    }
     /**
      * Returns the superclass or null if no superclass can be found.
      * 

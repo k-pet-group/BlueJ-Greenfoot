@@ -155,4 +155,28 @@ public class GPackage
         pkg.reload();
     }
 
+    /**
+     * Delete class files for all classes in the project.
+     *
+     */
+    public void deleteClassFiles()
+    {
+        try {
+            GClass[] classes = getClasses();
+            for (int i = 0; i < classes.length; i++) {
+                GClass cls = classes[i];
+                File classFile = new File(getDir(), cls.getName() + ".class");
+                classFile.delete();
+            }
+
+            this.reload();
+        }
+        catch (ProjectNotOpenException e) {
+        }
+        catch (PackageNotFoundException e) {
+        }
+        catch (RemoteException e) {
+        }
+    }
+
 }

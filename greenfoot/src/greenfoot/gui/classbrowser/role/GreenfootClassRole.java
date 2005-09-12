@@ -34,7 +34,7 @@ import javax.swing.JLabel;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3561 2005-09-12 15:09:18Z polle $
+ * @version $Id: GreenfootClassRole.java 3563 2005-09-12 17:46:12Z polle $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -69,12 +69,8 @@ public class GreenfootClassRole extends ClassRole
          * //component.add(new Arrow(), c);
          */
         c.gridy = 2;
-        String name = "";
-        name = gClass.getQualifiedName();
-        int index = name.lastIndexOf('.');
-        if (index >= 0) {
-            name = name.substring(index + 1);
-        }
+        String name = gClass.getName();
+        
         JLabel className = new JLabel(name);
         classView.add(className, c);
         classView.setBackground(new Color(245, 204, 155));
