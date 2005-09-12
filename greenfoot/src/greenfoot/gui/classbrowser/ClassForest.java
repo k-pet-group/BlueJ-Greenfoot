@@ -20,7 +20,7 @@ import bluej.extensions.ProjectNotOpenException;
  * A forest of trees. The roots are sorted alphabeticaly on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 3556 2005-09-09 13:40:58Z polle $
+ * @version $Id: ClassForest.java 3560 2005-09-12 14:36:47Z polle $
  */
 public class ClassForest
 {
@@ -29,11 +29,11 @@ public class ClassForest
     {
         private List children = new ArrayList();
         private TreeEntry parent;
-        private Object data;
+        private ClassView data;
         private String parentKey;
         private String key;
 
-        public TreeEntry(Object data, String key, String parentKey)
+        public TreeEntry(ClassView data, String key, String parentKey)
         {
             this.data = data;
             this.parentKey = parentKey;
@@ -84,7 +84,7 @@ public class ClassForest
         /**
          * @return
          */
-        public Object getData()
+        public ClassView getData()
         {
             return data;
         }
@@ -99,6 +99,10 @@ public class ClassForest
             String name1 = this.getKey();
             String name2 = ((TreeEntry) o).getKey();
             return name1.compareTo(name2);
+        }
+        
+        public boolean isSubclassOf(String superclass) {
+            return data.getGClass().isSubclassOf(superclass);
         }
 
     }
@@ -124,7 +128,7 @@ public class ClassForest
         treeEntryMap = new java.util.Hashtable();
         roots = new TreeSet();
         for (int i = 0; i < objects.size(); i++) {
-            TreeEntry treeEntry = new TreeEntry(objects.get(i), (String) keys.get(i), (String) parents.get(i));
+            TreeEntry treeEntry = new TreeEntry((ClassView) objects.get(i), (String) keys.get(i), (String) parents.get(i));
             treeEntryMap.put(keys.get(i), treeEntry);
         }
 
@@ -143,7 +147,14 @@ public class ClassForest
 
             TreeEntry parentTreeEntry = null;
             if (parent != null) {
-                parentTreeEntry = (TreeEntry) treeEntryMap.get(parent);
+                Set parentKeys = treeEntryMap.keySet();
+                for (Iterator iterator = parentKeys.iterator(); iterator.hasNext();) {
+                    String element = (String) iterator.next();
+                    if( treeEntry.isSubclassOf(element) ) {
+                        parentTreeEntry = (TreeEntry) treeEntryMap.get(element);
+                        break;
+                    }
+                }
             }
             if (parentTreeEntry != null) {
                 parentTreeEntry.addChild(treeEntry);

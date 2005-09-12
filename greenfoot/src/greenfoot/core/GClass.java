@@ -187,6 +187,7 @@ public class GClass implements CompileListener
         catch (NullPointerException e) {
         }
         if(realSuperclass != null) {
+            
             superclassGuess = realSuperclass;
             return;
         }
@@ -249,7 +250,7 @@ public class GClass implements CompileListener
     {
         guessSuperclass();
         GClass superclass = this;
-
+        
         //Recurse through superclasses
         while (superclass != null) {
             String superclassName = superclass.getSuperclassGuess();
@@ -259,7 +260,7 @@ public class GClass implements CompileListener
                 superclassName = "";
             }
             //TODO bug: also matches partly. ex Beeper and SubBeeper
-            if (superclassName != null && className.endsWith(superclassName)) {
+            if (superclassName != null && (className.endsWith(superclassName) ||superclassName.endsWith(className) )) {
                 return true;
             }
             superclass = superclass.getSuperclass();

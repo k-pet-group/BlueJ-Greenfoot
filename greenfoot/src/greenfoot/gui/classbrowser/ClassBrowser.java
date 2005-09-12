@@ -35,7 +35,7 @@ import bluej.extensions.ProjectNotOpenException;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3556 2005-09-09 13:40:58Z polle $
+ * @version $Id: ClassBrowser.java 3560 2005-09-12 14:36:47Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -289,7 +289,7 @@ public class ClassBrowser extends JPanel
             constraints.insets.bottom = 0; //SPACE
             constraints.insets.top = SPACE;
             constraints.insets.right = 3;
-            JComponent classView = (JComponent) element.getData();
+            JComponent classView = element.getData();
             classPanel.add(classView, constraints);
             constraints.insets.bottom = 0;
             constraints.insets.top = 0;
