@@ -415,7 +415,8 @@ public final class MoeEditor extends JFrame
                 FileUtility.copyFile(filename, crashFilename);
 
                 writer = new BufferedWriter(new FileWriter(filename));
-                sourcePane.write(writer);                
+                sourcePane.write(writer);
+                writer.close();
                 setSaved();
 
                 if (PrefMgr.getFlag(PrefMgr.MAKE_BACKUP)) {
