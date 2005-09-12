@@ -58,7 +58,7 @@ public class Greenfoot
     
     private CallHistory callHistory = new CallHistory();
 
-    private Greenfoot(RBlueJ rBlueJ, RPackage pkg)
+    private Greenfoot(RBlueJ rBlueJ, final RPackage pkg)
     {
 
         this.rBlueJ = rBlueJ;
@@ -104,9 +104,12 @@ public class Greenfoot
                     instantiationListener = new GreenfootObjectInstantiationListener(WorldHandler.instance());
                     Greenfoot.this.rBlueJ.addInvocationListener(instantiationListener);
                     compileListenerForwarder = new CompileListenerForwarder(compileListeners);
-                    Greenfoot.this.rBlueJ.addCompileListener(compileListenerForwarder);
+                    Greenfoot.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
                 }
                 catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                catch (ProjectNotOpenException e) {
                     e.printStackTrace();
                 }
                 long t2 = System.currentTimeMillis();

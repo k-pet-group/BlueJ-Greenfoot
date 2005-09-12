@@ -25,7 +25,7 @@ import bluej.utility.DialogManager;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 3551 2005-09-06 09:31:41Z polle $
+ * @version $Id: RBlueJImpl.java 3562 2005-09-12 15:51:02Z polle $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -54,9 +54,22 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     /**
      * @param listener
      */
-    public void addCompileListener(RCompileListener listener)
+    public void addCompileListener(RCompileListener listener, String projectName)
     {
-        RCompileListenerWrapper wrapper = new RCompileListenerWrapper(listener);
+        BProject[] projects = blueJ.getOpenProjects();
+        BProject project = null;
+        for (int i = 0; i < projects.length; i++) {
+            BProject prj = projects[i];
+            try {
+                if(prj.getName().equals(projectName)) {
+                    project = prj;
+                }
+            }
+            catch (ProjectNotOpenException e) {
+                e.printStackTrace();
+            }
+        }
+        RCompileListenerWrapper wrapper = new RCompileListenerWrapper(listener, project);
         listeners.put(listener, wrapper);
         blueJ.addCompileListener(wrapper);
     }

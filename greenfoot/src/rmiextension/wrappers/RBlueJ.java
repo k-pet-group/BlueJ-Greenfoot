@@ -18,7 +18,7 @@ import bluej.extensions.event.PackageListener;
  * Interface for accessing BlueJ-functionality
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJ.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: RBlueJ.java 3562 2005-09-12 15:51:02Z polle $
  */
 public interface RBlueJ
     extends java.rmi.Remote
@@ -31,8 +31,9 @@ public interface RBlueJ
 
     /**
      * @param listener
+     * @param project 
      */
-    public void addCompileListener(RCompileListener listener)
+    public void addCompileListener(RCompileListener listener, String project)
         throws RemoteException;
 
     /**
