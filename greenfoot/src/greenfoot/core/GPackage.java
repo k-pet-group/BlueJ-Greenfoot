@@ -54,6 +54,12 @@ public class GPackage
     {
         pkg.compile(waitCompileEnd);
     }
+    
+
+    public void compileAll(boolean waitCompileEnd) throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException
+    {
+        pkg.compileAll(waitCompileEnd);
+    }
 
     public File getDir()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
@@ -178,5 +184,6 @@ public class GPackage
         catch (RemoteException e) {
         }
     }
+
 
 }

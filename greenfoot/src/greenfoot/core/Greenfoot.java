@@ -242,12 +242,14 @@ public class Greenfoot
     }
 
     /**
-     * Compiles all files that needs compilation
+     * Compiles all files 
      */
     public void compileAll()
     {
         try {
-            pkg.compile(false);
+            // we recompile all files in ccase something has been modified
+            // externally and the isCompiled state is no longer up-to-date.
+            pkg.compileAll(false);
         }
         catch (ProjectNotOpenException e) {
             e.printStackTrace();
@@ -377,18 +379,21 @@ public class Greenfoot
         
         if(! sameFileContents(newGO, oldGO) || ! sameFileContents(newGW, oldGW)) {
             try {
-                project.getDefaultPackage().deleteClassFiles();
-                project.getGreenfootPackage().deleteClassFiles();
+                GPackage defaultPkg = project.getDefaultPackage();
+                if(defaultPkg != null) {
+                    defaultPkg.deleteClassFiles();
+                }
+                GPackage greenfootPkg = project.getGreenfootPackage();
+                if(greenfootPkg != null) {
+                    greenfootPkg.deleteClassFiles();
+                }                
             }
             catch (ProjectNotOpenException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             catch (RemoteException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
-            }
-            
+            }            
         } 
     }
 

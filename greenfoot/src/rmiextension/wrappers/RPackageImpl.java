@@ -24,7 +24,7 @@ import bluej.views.View;
  * @see bluej.extensions.BPackage
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackageImpl.java 3556 2005-09-09 13:40:58Z polle $
+ * @version $Id: RPackageImpl.java 3564 2005-09-13 14:02:04Z polle $
  */
 public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     implements RPackage
@@ -53,6 +53,12 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
     {
         bPackage.compile(waitCompileEnd);
+    }
+    
+    public void compileAll(boolean waitCompileEnd)
+    throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
+    {
+        bPackage.compileAll(waitCompileEnd);
     }
 
     /**
