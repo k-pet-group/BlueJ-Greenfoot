@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.2
- * @cvs-version $Id: GreenfootObject.java 3551 2005-09-06 09:31:41Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3565 2005-09-13 14:46:09Z polle $
  */
 public class GreenfootObject
 {
@@ -89,13 +89,14 @@ public class GreenfootObject
         }
         
         if( ! (this instanceof ObjectDragProxy)) {
-
+            int x = 0;
+            int y = 0;
             world = worldHandler.getWorld();
             LocationTracker tracker = LocationTracker.instance();
             if(tracker.hasLocation()) {
                 Location location = tracker.getLocation();
                 x = location.getX();
-                y = location.getY();                
+                y = location.getY();      
             } else  {
                 x = 0;
                 y = 0;
@@ -295,9 +296,9 @@ public class GreenfootObject
      */
     final public GreenfootWorld getWorld()
     {
-        return world;
+        return world; 
     }
-
+ 
     /**
      * Returns the image used to represent this GreenfootObject. This image can be 
      * modified to change the object's appearance.
