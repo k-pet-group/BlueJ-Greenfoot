@@ -154,8 +154,8 @@ public class WorldHandler
             if (go != null) {
                 dragBeginX = go.getX() * world.getCellSize();
                 dragBeginY = go.getY() * world.getCellSize();
-                int dragOffsetX = dragBeginX - e.getX();
-                int dragOffsetY = dragBeginY - e.getY();
+                int dragOffsetX = dragBeginX - e.getX() + world.getCellSize()/2;
+                int dragOffsetY = dragBeginY - e.getY() + world.getCellSize()/2;
                 objectDropped = false;
                 DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
 
