@@ -558,7 +558,15 @@ public class WorldHandler
 
     public boolean drop(Object o, Point p)
     {
-        if( o instanceof ObjectDragProxy) {
+        int maxHeight = WorldVisitor.getHeightInPixels(world);
+        int maxWidth = WorldVisitor.getWidthInPixels(world);
+        int x = (int) p.getX();
+        int y = (int) p.getY();
+        
+        if(x >= maxWidth || y >= maxHeight) {
+            return false;
+        }
+        else if( o instanceof ObjectDragProxy) {
             //create the real object
             ObjectDragProxy to = (ObjectDragProxy) o;
             to.createRealObject();
@@ -569,8 +577,6 @@ public class WorldHandler
         else if (o instanceof GreenfootObject) {
             try {
                 GreenfootObject go = (GreenfootObject) o;
-                int x = (int) p.getX();
-                int y = (int) p.getY();
                 GreenfootObjectVisitor.setLocationInPixels(go, x, y);
                 objectDropped = true;
             }
