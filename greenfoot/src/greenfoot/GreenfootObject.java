@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.2
- * @cvs-version $Id: GreenfootObject.java 3567 2005-09-14 12:54:39Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3569 2005-09-14 13:39:32Z polle $
  */
 public class GreenfootObject
 {
@@ -95,6 +95,19 @@ public class GreenfootObject
             Location location = tracker.getLocation();
             int x = location.getX();
             int y = location.getY();
+            
+            // If an object that shouldn't really use the location from the
+            // object tracker gets a location which is out of the world bounds,
+            // it should just set the location to something else. We make no
+            // promises of where the obecjt will be added if no location is
+            // specified.
+            if(x >= world.getWidthInPixels()) {
+                x = 0;
+            }
+            if(y >= world.getWidthInPixels()) {
+                y = 0;
+            }
+            
             setLocationInPixels(x, y); 
             
             world.addObject(this);            
