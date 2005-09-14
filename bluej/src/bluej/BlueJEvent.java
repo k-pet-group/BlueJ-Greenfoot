@@ -1,6 +1,7 @@
 package bluej;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,7 +38,7 @@ import java.util.List;
   *
   * </PRE>
   * @author Michael Kolling
-  * @version $Id: BlueJEvent.java 2307 2003-11-09 10:01:02Z fisker $
+  * @version $Id: BlueJEvent.java 3570 2005-09-14 13:46:40Z polle $
   *
   */
 
@@ -59,7 +60,7 @@ public class BlueJEvent
 
     // other variables
 
-    private static List listeners = new ArrayList();
+    private static List listeners = Collections.synchronizedList(new ArrayList());
 
     /**
      * Raise a BlueJ event with an argument. All registered listeners
@@ -67,9 +68,9 @@ public class BlueJEvent
      */
     public static void raiseEvent(int eventId, Object arg)
     {
-        for(int i = listeners.size() - 1; i >= 0; i--) {
-            BlueJEventListener listener = 
-            (BlueJEventListener)listeners.get(i);
+        Object[] listenersCopy = listeners.toArray();
+        for (int i = listenersCopy.length - 1; i >= 0; i--) {
+            BlueJEventListener listener = (BlueJEventListener) listenersCopy[i];
             listener.blueJEvent(eventId, arg);
         }
     }
