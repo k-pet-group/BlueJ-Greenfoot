@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.2
- * @cvs-version $Id: GreenfootObject.java 3565 2005-09-13 14:46:09Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3567 2005-09-14 12:54:39Z polle $
  */
 public class GreenfootObject
 {
@@ -88,34 +88,27 @@ public class GreenfootObject
             return;
         }
         
-        if( ! (this instanceof ObjectDragProxy)) {
-            int x = 0;
-            int y = 0;
+        if( ! (this instanceof ObjectDragProxy)) {            
             world = worldHandler.getWorld();
+            
             LocationTracker tracker = LocationTracker.instance();
-            if(tracker.hasLocation()) {
-                Location location = tracker.getLocation();
-                x = location.getX();
-                y = location.getY();      
-            } else  {
-                x = 0;
-                y = 0;
-            }
+            Location location = tracker.getLocation();
+            int x = location.getX();
+            int y = location.getY();
+            setLocationInPixels(x, y); 
             
-            setLocationInPixels(x, y);
-            world.addObject(this);
-            
+            world.addObject(this);            
         }
     }
 
 
     /**
-     * The act method is called by the greenfoot framework to give objects a chance
-     * to perform some action. At each action step in the environment, each object's
-     * act method is invoked, in unspecified order.
+     * The act method is called by the greenfoot framework to give objects a
+     * chance to perform some action. At each action step in the environment,
+     * each object's act method is invoked, in unspecified order.
      * 
-     * This method does nothing. It should be overridden in subclasses to implement
-     * an object's action.
+     * This method does nothing. It should be overridden in subclasses to
+     * implement an object's action.
      */
     public void act()
     {

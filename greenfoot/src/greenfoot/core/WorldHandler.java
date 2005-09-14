@@ -598,7 +598,6 @@ public class WorldHandler
                 GreenfootObjectVisitor.setLocationInPixels(go, x, y);
             }
             catch (IndexOutOfBoundsException e) {
-                LocationTracker.instance().reset();
                 world.removeObject(go);
                 return false;
             }
@@ -611,7 +610,6 @@ public class WorldHandler
 
     public void dragEnded(Object o)
     {
-        LocationTracker.instance().reset();
         if (o instanceof GreenfootObject) {
             GreenfootObject go = (GreenfootObject) o;
             world.removeObject(go);

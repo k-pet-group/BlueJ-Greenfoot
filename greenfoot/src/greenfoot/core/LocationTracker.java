@@ -6,10 +6,8 @@ import greenfoot.util.Location;
  * This singleton keeps track of where to add an object. This location is used
  * to initialise the object with a location in the constructor. <br>
  * 
- * A location can only be retrieved one time. This is done so it is possible to
- * create objects that did not have a location tracked for it, and then make
- * some desicion on where to place it, instead of just placing it where the last
- * obejct was tracked to.
+ * 
+ * A location will always be returned. 
  * 
  * @author Poul Henriksen
  * 
@@ -18,7 +16,6 @@ public class LocationTracker
 {
     private static LocationTracker instance;
     private Location location = new Location();
-    private boolean hasLocation = false;
 
     private LocationTracker()
     {
@@ -37,7 +34,6 @@ public class LocationTracker
     {
         location.setX(x);
         location.setY(y);
-        hasLocation = true;
     }
 
     /**
@@ -46,23 +42,10 @@ public class LocationTracker
      */
     public Location getLocation()
     {
-        if (hasLocation) {
-            reset();
-            return location;
-        }
-        else {
-            return null;
-        }
+        return location;
+      
     }
 
-    public boolean hasLocation()
-    {
-        return hasLocation;
-    }
-
-    public void reset()
-    {
-        hasLocation = false;
-    }
+   
 
 }
