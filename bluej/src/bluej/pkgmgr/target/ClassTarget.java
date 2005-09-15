@@ -27,7 +27,6 @@ import bluej.editor.EditorManager;
 import bluej.extmgr.MenuManager;
 import bluej.graph.GraphEditor;
 import bluej.graph.Moveable;
-import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.Package;
@@ -54,7 +53,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3538 2005-08-22 09:46:50Z damiano $
+ * @version $Id: ClassTarget.java 3571 2005-09-15 03:15:44Z davmac $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable, InvokeListener
@@ -321,6 +320,9 @@ public class ClassTarget extends EditableTarget
             else if (JavaUtils.getJavaUtils().isEnum(cl)) {
                 setRole(new EnumClassRole());
             }
+            else {
+                setRole(new StdClassRole());
+            }
         }
         else {
             // try the parsed source code
@@ -342,9 +344,13 @@ public class ClassTarget extends EditableTarget
                 else if (classInfo.isEnum()) {
                     setRole(new EnumClassRole());
                 }
+                else {
+                    setRole(new StdClassRole());
+                }
             }
+            // If no information gained from parsing the file (classInfo = null),
+            // then we don't really know the role: let's leave it as it was
         }
-        // don't really know, lets leave the role as it was
     }
 
     /**
@@ -693,16 +699,7 @@ public class ClassTarget extends EditableTarget
     public void modificationEvent(Editor editor)
     {
         invalidate();
-
-        //Lazy remove breakpoints
-        Thread t = new Thread() {
-            public void run()
-            {
-                removeBreakpoints();
-            }
-        };
-        t.start();
-
+        removeBreakpoints();
         sourceInfo.setSourceModified();
     }
 
@@ -828,7 +825,7 @@ public class ClassTarget extends EditableTarget
         }
 
         try {
-            info = ClassParser.parse(getSourceFile());
+            info = sourceInfo.getInfo(getSourceFile().getPath(), getPackage().getAllClassnames());
         }
         catch (Exception e) {
             return;
