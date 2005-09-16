@@ -1,13 +1,26 @@
 // NO PACKAGE.
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipInputStream;
+
 import javax.swing.*;
 import javax.swing.text.Keymap;
-import java.io.*;
-import java.util.*;
-import java.util.zip.*;
 
 /**
   * Usage:
@@ -17,7 +30,7 @@ import java.util.zip.*;
   *
   *   java Installer
   *
-  * @version $Id: Installer.java 3557 2005-09-09 14:42:25Z polle $
+  * @version $Id: Installer.java 3572 2005-09-16 04:51:25Z davmac $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -26,6 +39,8 @@ import java.util.zip.*;
   * it under the terms of the GNU General Public License as published by
   * the Free Software Foundation; either version 2 of the License, or
   * (at your option) any later version.
+  * 
+  * Modified by Davin McCall, 2005-09-06.
   */
 
 public class Installer extends JFrame
@@ -54,9 +69,7 @@ public class Installer extends JFrame
     JButton cancelButton;
     JProgressBar progress;
 
-
-    int progressPercent = 0;
-    javax.swing.Timer timer;
+    UpdateProgress progressUpdater = new UpdateProgress();
 
     String currentDirectory;    // the user's working dir
     String osname;              // "SunOS", "Windows*", "Linux*", etc
@@ -68,8 +81,8 @@ public class Installer extends JFrame
     String installationDir = "";
     String javaPath = "";
 
-    Hashtable properties;
-    long myTotalBytes;
+    Properties properties;
+    long myTotalBytes = 2402789;
 
 
     /*
@@ -88,127 +101,16 @@ public class Installer extends JFrame
 
     public static void main(String[] args)
     {
-        if (args.length > 0) {
-            if (args[0].equals("build"))
-                buildInstaller(args[1]);
-            else
-                System.out.println("unknown argument: " + args[0]);
-            System.exit(0);
-        }
-        else    // Install time
-            new Installer();
-    }
-
-
-    // ===========================================================
-    // Build Time
-    // ===========================================================
-
-    private static void buildInstaller(String filename)
-    {
+        // Run the installer on the AWT event dispatch thread.
         try {
-            Hashtable capsule = loadProperties(filename);
-            RandomAccessFile out = new RandomAccessFile("Installer.class",
-                                                        "rw");
-            BufferedInputStream in = new BufferedInputStream(
-                                            new FileInputStream((String)capsule.get("pkgJar")));
-            long totalBytes = 0;
-            int bytesRead;
-            byte[] cbuf = new byte[BUFFER_SIZE];
-            out.seek(out.length());
-            System.err.println ("Original file is " + out.length());
-            long orig = out.length();
-
-            // First, write out the capsule values
-            ObjectOutputStream ostr =
-                new ObjectOutputStream(new FileOutputStream(out.getFD()));
-            if (ostr == null)
-                System.err.println ("Could not open output file");
-            ostr.writeObject(capsule);
-            ostr.flush();
-
-            // Then copy the jar.
-            while ((bytesRead = in.read(cbuf,0,BUFFER_SIZE)) != -1) {
-                out.write(cbuf,0,bytesRead);
-                totalBytes += bytesRead;
-            }
-
-            System.err.println ("Jar is " + totalBytes + " bytes.");
-            totalBytes = out.length() - orig;
-            System.err.println ("Added a total of " + totalBytes + " bytes.");
-            System.err.println ("New size is " + out.length());
-            out.writeLong(totalBytes);
-            out.close();
-            in.close();
-            System.err.println ("Done.");
-        } catch (IOException e) {
-            System.err.println ("Couldn't build installer: " + e.getMessage());
-            System.exit(1);
+            EventQueue.invokeAndWait(new Runnable() {
+                public void run() {
+                    new Installer();
+                }
+            });
         }
-    }
-
-
-    /**
-     * Helper function to read a GIF off the disk.
-     */
-    public static byte[] readGIF(String name)
-    {
-        int len = (int)(new File((String)name)).length();
-        byte[] buffer = new byte[len];
-        System.err.println ("Loading gif '" + name + "' (" + len + " bytes)");
-        try {
-            FileInputStream fs = new FileInputStream((String)name);
-            fs.read(buffer,0,len);
-            fs.close();
-        } catch (IOException ge) {
-            System.err.println ("Couldn't load gif: " + ge.getMessage());
-        }
-
-        return buffer;
-    }
-
-    /**
-     * Load the properties file and create a capsule to be used at install
-     * time.
-     */
-    public static Hashtable loadProperties(String fileName)
-    {
-        Hashtable capsule = new Hashtable();
-        Properties props = new Properties();
-        try {
-            FileInputStream rdr = new FileInputStream(fileName);
-            props.load(rdr);
-        } catch (Exception e) {
-            System.err.println ("Exception " + e.getMessage());
-        }
-
-        String cspec = "color.";
-        String gspec = "gif.";
-        Enumeration list = props.keys();
-        while (list.hasMoreElements()) {
-            String key = (String)list.nextElement();
-            Object value = props.getProperty(key);
-            // take out the install. prefix
-            key = key.substring(key.indexOf('.')+1);
-
-            // If value is something we need to translate (like a GIF, or a
-            // color) do it here and now.
-            if (key.regionMatches(0,cspec,0,cspec.length())) {
-				// It's a color
-                StringTokenizer tok = new StringTokenizer((String)value," \t,",false);
-                int r = (Integer.valueOf(tok.nextToken())).intValue();
-                int g = (Integer.valueOf(tok.nextToken())).intValue();
-                int b = (Integer.valueOf(tok.nextToken())).intValue();
-                value = new Color(r,g,b);
-            } else if (key.regionMatches(0,gspec,0,gspec.length())) {
-				// It's a GIF89A
-                byte[] buffer = readGIF((String)value);
-                value = buffer;
-            }
-            capsule.put(key,value);
-        }
-
-        return capsule;
+        catch (InterruptedException ie) { }
+        catch (InvocationTargetException ite) { }
     }
 
     // ===========================================================
@@ -219,7 +121,6 @@ public class Installer extends JFrame
     {
         super();
         currentDirectory = System.getProperty("user.dir");
-        
         
         osname = System.getProperty("os.name");
         architecture = System.getProperty("os.arch");
@@ -232,9 +133,9 @@ public class Installer extends JFrame
         //System.out.println(osname);
         //System.out.println(javaVersion);
         //System.out.println(architecture);
-        unpackTo(false);
+        loadProperties();
 
-        String installDirName = (String) getProperty("installDirName");
+        String installDirName = getProperty("installDirName");
         if(currentDirectory.endsWith(installDirName))
             installationDir = currentDirectory;
         else
@@ -243,10 +144,32 @@ public class Installer extends JFrame
         makeWindow();
 
         if(isJDK12 || isJDK13) {
-            notifyError((String) getProperty("jdkError1") + javaVersion + " " + (String) getProperty("jdkError2"), (String) getProperty("jdkMsg"));
+            notifyError(getProperty("jdkError1") + javaVersion + " " + getProperty("jdkError2"), getProperty("jdkMsg"));
         }
     }
 
+    /**
+     * Load installer properties - name of the archive to extract, the logo, color scheme,
+     * etc.
+     */
+    private void loadProperties()
+    {
+        InputStream propStream = ClassLoader.getSystemResourceAsStream("installer.props");
+        properties = new Properties();
+        try {
+            properties.load(propStream);
+        }
+        catch (IOException ioe) {
+            System.err.println("Error loading installer configuration:");
+            ioe.printStackTrace(System.err);
+            System.exit(1);
+        }
+    }
+    
+    /**
+     * Try and figure out the path to the currently-running JDK
+     * @return  The path, or an empty string if could not be determined
+     */
     private String findJavaPath()
     {
         String javaHome = System.getProperty("java.home");
@@ -299,10 +222,10 @@ public class Installer extends JFrame
             getJDKDirectory();
         }
         else if(src == installButton) {
+            installButton.setEnabled(false);
             InstallThread p = new InstallThread();
             p.setPriority(Thread.MIN_PRIORITY + 1);
             p.start();
-            timer.start();
         }
         else if(src == cancelButton)
             doCancel();
@@ -316,7 +239,48 @@ public class Installer extends JFrame
 
 
     /**
-     * Install button action
+     * Cancel button action
+     */
+    private void doCancel() {
+        System.exit(0);
+    }
+
+    /**
+     * Get an installtion directory from the user via a file selection
+     * dialogue.
+     */
+    private void getInstallDirectory()
+    {
+        String dirName = getDirName("Select installation directory");
+        if(dirName != null) {
+            if(dirName.endsWith(getProperty("installDirName")))
+                installationDir = dirName;
+            else
+                installationDir = dirName + File.separator + getProperty("installDirName");
+            directoryField.setText(installationDir);
+            checkInstallDir(installationDir, false);
+        }
+    }
+
+    /**
+     * Get the jdk directory from the user via a file selection
+     * dialogue.
+     */
+    private void getJDKDirectory()
+    {
+        String dirName = getDirName("Select JDK directory");
+        if(dirName != null) {
+            javaPath = dirName;
+            javaField.setText(javaPath);
+            if(! isJDKPath(javaPath))
+                jdkPathProblem();
+        }
+    }
+
+    
+    
+    /**
+     * Install button action. This gets executed on a seperate thread.
      */
     public void doInstall()
     {
@@ -330,7 +294,7 @@ public class Installer extends JFrame
             if(!checkInstallDir(installationDir, true))
                 return;
 
-            unpackTo(true);
+            unpackTo();
 
             // Write the scripts, if this is an application
             if (getProperty("exeName") != null) {
@@ -358,50 +322,11 @@ public class Installer extends JFrame
         if (getProperty("exeName") != null) {
             finish(getProperty("appName") + " has been installed to " + installationDir,
                    "To run it, execute \"" +
-                   (String)getProperty("exeName") + "\".");
+                   getProperty("exeName") + "\".");
         } else {
             finish("The package has been installed to "+installationDir, " ");
         }
 
-    }
-
-    /**
-     * Cancel button action
-     */
-    private void doCancel() {
-        System.exit(0);
-    }
-
-    /**
-     * Get an installtion directory from the user via a file selection
-     * dialogue.
-     */
-    private void getInstallDirectory()
-    {
-        String dirName = getDirName("Select installation directory");
-        if(dirName != null) {
-            if(dirName.endsWith((String) getProperty("installDirName")))
-                installationDir = dirName;
-            else
-                installationDir = dirName + File.separator + (String) getProperty("installDirName");
-            directoryField.setText(installationDir);
-            checkInstallDir(installationDir, false);
-        }
-    }
-
-    /**
-     * Get the jdk directory from the user via a file selection
-     * dialogue.
-     */
-    private void getJDKDirectory()
-    {
-        String dirName = getDirName("Select JDK directory");
-        if(dirName != null) {
-            javaPath = dirName;
-            javaField.setText(javaPath);
-            if(! isJDKPath(javaPath))
-                jdkPathProblem();
-        }
     }
 
     /**
@@ -432,12 +357,16 @@ public class Installer extends JFrame
     }
 
     /**
-     * Update the status dialog
+     * Update the status dialog. Called on the installer thread.
      */
-    public void setStatus(String text)
+    public void setStatus(final String text)
     {
-        textLabel1.setText(text);
-        textLabel1.repaint();
+        EventQueue.invokeLater(new Runnable() {
+           public void run() {
+               textLabel1.setText(text);
+               textLabel1.repaint();
+           }
+        });
     }
 
     /**
@@ -522,8 +451,12 @@ public class Installer extends JFrame
      * Pop up a dialog box with the message. After a problem,
      * installation can proceed.
      */
-    private void notifyProblem(String problem) {
-        JOptionPane.showMessageDialog(this, problem);
+    private void notifyProblem(final String problem) {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                JOptionPane.showMessageDialog(Installer.this, problem);
+            }
+        });
     }
 
 
@@ -532,10 +465,10 @@ public class Installer extends JFrame
      */
     public void makeWindow()
     {
-        Color backgroundColour = (Color)getProperty("color.background");
+        Color backgroundColour = colorFromString(getProperty("color.background"));
         setBackground(backgroundColour);
 
-        String title = (String)getProperty("title");
+        String title = getProperty("title");
         if(title != null)
             setTitle(title);
 
@@ -545,7 +478,8 @@ public class Installer extends JFrame
         mainPanel.setBackground(backgroundColour);
 
         // insert logo
-        Image img = getToolkit().createImage((byte[])getProperty("gif.logo"));
+        URL logoUrl = ClassLoader.getSystemResource(getProperty("gif.logo"));
+        Image img = getToolkit().createImage(logoUrl);
         JLabel logoLabel = new JLabel(new ImageIcon(img));
         mainPanel.add(logoLabel, BorderLayout.NORTH);
 
@@ -630,7 +564,7 @@ public class Installer extends JFrame
 
         centrePanel.add(labelPanel);
 
-        String tagline = (String)getProperty("tagline");
+        String tagline = getProperty("tagline");
         if(tagline != null)
             textLabel2.setText(tagline);
 
@@ -642,13 +576,6 @@ public class Installer extends JFrame
         pack();
         setLocation(100,100);
         setVisible(true);
-
-        //Create a timer to update progress
-        timer = new javax.swing.Timer(50, new ActionListener() {
-                public void actionPerformed(ActionEvent evt) {
-                    progress.setValue(progressPercent);
-                }
-            });
 
         addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {
@@ -671,7 +598,7 @@ public class Installer extends JFrame
     public void writeUnix(boolean isMacOS)
         throws IOException
     {
-        File outputFile = new File(installationDir, (String)getProperty("exeName"));
+        File outputFile = new File(installationDir, getProperty("exeName"));
         FileWriter out = new FileWriter(outputFile.toString());
         out.write("#!/bin/sh\n");
         out.write("APPBASE=\"" + installationDir + "\"\n");
@@ -713,7 +640,7 @@ public class Installer extends JFrame
     public void writeWindows() throws IOException
     {
         File outputFile = new File(installationDir,
-                                   (String)getProperty("exeName") + ".bat");
+                                   getProperty("exeName") + ".bat");
 
         FileWriter out = new FileWriter(outputFile.toString());
         out.write("@echo off\r\n");
@@ -743,42 +670,16 @@ public class Installer extends JFrame
      * Grab the jar data from the class file and unjar it into the
      * install directory.
      */
-    public void unpackTo(boolean doJar) {
+    public void unpackTo() {
         try {
-            InputStream cpin =
-                ClassLoader.getSystemResourceAsStream("Installer.class");
-
-			File tempInstallerClass = File.createTempFile("bluej", null);
-			FileOutputStream cpout = new FileOutputStream(tempInstallerClass);
-            byte[] buffer = new byte[8192];
-            int len;
-            while((len = cpin.read(buffer)) != -1)
-                cpout.write(buffer, 0, len);
-            cpin.close();
-            cpout.close();
-
-            RandomAccessFile in = new RandomAccessFile(tempInstallerClass, "r");
-            in.seek(in.length() - 8);
-            long size = in.readLong();
-            in.seek(in.length() - 8 - size);
-            myTotalBytes = size; // this is wrong!!
-            ObjectInputStream istr = new ObjectInputStream(new FileInputStream(in.getFD()));
-            try {
-                properties = (Hashtable)istr.readObject();
-            } catch (ClassNotFoundException nf) {
-                System.err.println (nf.getMessage());
-            }
-            if (doJar) {
-                dumpJar(installationDir, new FileInputStream(in.getFD()));
-            }
-            in.close();
-            tempInstallerClass.deleteOnExit();
-        } catch (Exception e) {
-            notifyError("Installer failed to open: " + e,
-                        "Could not open install file.");
+            InputStream in = ClassLoader.getSystemResourceAsStream(getProperty("pkgJar"));
+            dumpJar(installationDir, new ProgressTrackerStream(in));
+        }
+        catch (Exception e) {
+          notifyError("Installer failed to open: " + e,
+          "Could not open install file.");
         }
     }
-
 
     /**
      * Recursively make directories needed for a file.
@@ -802,7 +703,7 @@ public class Installer extends JFrame
     /**
      * Extract a JAR from a file stream to the given directory on disk.
      */
-    public void dumpJar(String dir, FileInputStream in)
+    public void dumpJar(String dir, InputStream in)
         throws IOException, ZipException
     {
         makeDirsFor(dir,"");
@@ -846,7 +747,6 @@ public class Installer extends JFrame
                 bytesRead += len;
                 out.write(buffer,0,len);
             }
-            progressPercent = (int)((bytesRead*100/myTotalBytes)/4);
             out.close();
 
             if (z.getTime() != -1) {
@@ -858,7 +758,6 @@ public class Installer extends JFrame
         }
 
         zip.close();
-        timer.stop();
         progress.setValue(100);
     }
 
@@ -906,10 +805,96 @@ public class Installer extends JFrame
     /**
      * property access
      */
-    public Object getProperty(String key) {
-        return properties.get(key);
+    public String getProperty(String key) {
+        return (String) properties.get("install." + key);
     }
 
+    private Color colorFromString(String value)
+    {
+        // It's a color
+        StringTokenizer tok = new StringTokenizer(value," \t,",false);
+        int r = (Integer.valueOf(tok.nextToken())).intValue();
+        int g = (Integer.valueOf(tok.nextToken())).intValue();
+        int b = (Integer.valueOf(tok.nextToken())).intValue();
+        return new Color(r,g,b);
+    }
 
+    /*
+     * Progress tracking
+     */
+    
+    /**
+     * Update the progress bar with a percentage value. This is called from
+     * the installation thread.
+     */
+    private void updateProgress(int value)
+    {
+        progressUpdater.value = value;
+        try {
+            EventQueue.invokeAndWait(progressUpdater);
+        }
+        catch (Exception e) { }
+    }
+    
+    /**
+     * A stream which keeps track of progress through the underlying stream,
+     * updating the progress bar at appropriate occassions.
+     * 
+     * @author Davin McCall
+     */
+    private class ProgressTrackerStream extends InputStream
+    {
+        InputStream underlying;
+        long readCount = 0;
+        long markerIncrement = (myTotalBytes / 100);
+        long nextMarker = (myTotalBytes / 100);
+        
+        public ProgressTrackerStream(InputStream over)
+        {
+            underlying = over;
+        }
+        
+        public int read() throws IOException
+        {
+            int r = underlying.read();
+            if (r != -1)
+                readCount++;
+            
+            if (readCount > nextMarker) {
+                updateProgress((int) (readCount / markerIncrement));
+                nextMarker = nextMarker + markerIncrement;
+            }
+            
+            return r;
+        }
+        
+        public int read(byte[] b, int off, int len) throws IOException
+        {
+            int r = underlying.read(b, off, len);
+            readCount += r;
+
+            if (readCount > nextMarker) {
+                updateProgress((int) (readCount / markerIncrement));
+                nextMarker = nextMarker + markerIncrement;
+            }
+            
+            return r;
+        }
+    }
+    
+    /**
+     * A runnable used to update the progress bar.
+     * 
+     * @author Davin McCall
+     */
+    private class UpdateProgress implements Runnable
+    {
+        int value;
+        public void run()
+        {
+            progress.setValue(value);
+        }
+    }
+    
 } // End class install
 

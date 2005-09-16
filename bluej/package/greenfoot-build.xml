@@ -69,7 +69,41 @@
              compress="yes"
         />
 
-        <!-- compile and run the installer -->
+        <delete dir="install_tmp" />
+        <mkdir dir="install_tmp"/>
+
+        <!-- Build the program which calculates the length of the  -->
+        <!-- distribution jar, and stores its length in the        -->
+        <!-- installer properties                                  -->
+        <javac
+               executable="${build_java_home}/bin/javac"
+               fork="yes"
+               srcdir="."
+               destdir="install_tmp"
+               includes="InstallerProps.java"
+               debug="true"
+        />
+
+        <!-- Now run it -->
+        <java
+               classname="InstallerProps"
+               fork="yes"
+               jvm="${build_java_home}/bin/java"
+            >
+            <classpath>
+                 <pathelement location="install_tmp" />
+            </classpath>
+            <arg line="greenfoot-installer.props"/>
+        </java>
+
+        <!-- And delete it as it's no longer needed   -->
+        <delete file="install_tmp/InstallerProps.class"/>
+
+        <!-- Copy other files needed by the installer -->
+        <copy todir="install_tmp" file="greenfoot-dist.jar"/>
+        <copy todir="install_tmp" file="greenfoot-logo.png"/>
+
+        <!-- compile the installer -->
         <javac
                executable="${build_java_home}/bin/javac"
                fork="yes"
@@ -81,22 +115,10 @@
     		<compilerarg line="-target 1.3"/>
     	</javac>
 
-        <java
-               classname="Installer"
-               fork="yes"
-               jvm="${build_java_home}/bin/java"
-            >
-            <classpath>
-                 <pathelement location="." />
-            </classpath>
-            <arg line="build greenfoot-installer.props"/>
-        </java>
-
         <!-- bundle the resulting class into the final distribution jar file -->
         <jar jarfile="greenfoot-dist-new.jar"
-             basedir="."
+             basedir="install_tmp"
              compress="no"
-             includes="*.class"
              manifest="manifest"
              whenempty="fail" />
 
@@ -106,9 +128,6 @@
              greenfoot-dist-new.jar which is the platform independant
              distributable -->
         <delete dir="install_tmp"/>
-        <delete>
-             <fileset dir="." includes="*.class"/>
-        </delete>
     </target>
 
     <!-- windows-dist requires that a greenfoot-dist.jar file is placed into
