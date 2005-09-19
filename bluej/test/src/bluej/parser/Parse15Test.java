@@ -2,6 +2,11 @@ package bluej.parser;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
+
+import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
 
 /**
  * Run sample source file(s) containing Java 1.5 specific features
@@ -59,19 +64,42 @@ public class Parse15Test extends junit.framework.TestCase
         throws Exception
     {
         ClassParser.parse(getFile("15_generic.dat"), null);
-    } 
-
-//    public void testValidClassInfo()
-//        throws Exception
-//    {
-//        ClassInfo info;
-//        File file = getFile("AffinedTransformer.dat");
-//        info = bluej.parser.ClassParser.parse(file);
-//
-//        assertEquals("AffinedTransformer",info.getName());
-//        assertEquals("JFrame",info.getSuperclass());
-//        assertEquals("bluej.parser.ast.data",info.getPackage());
-//
-//        assertEquals(6, info.getUsed().size());
-//    }
+    }
+    
+    public void testSelections()
+        throws Exception
+    {
+        ClassInfo info = ClassParser.parse(getFile("generic_selections.dat"));
+        
+        Selection testSel = info.getTypeParametersSelection();
+        assertEquals(3, testSel.getLine());
+        assertEquals(19, testSel.getColumn());
+        assertEquals(3, testSel.getEndLine());
+        assertEquals(40, testSel.getEndColumn());
+        
+        testSel = info.getSuperReplaceSelection();
+        assertEquals(3, testSel.getLine());
+        assertEquals(49, testSel.getColumn());
+        assertEquals(4, testSel.getEndLine());
+        assertEquals(31, testSel.getEndColumn());
+        
+        List l = info.getInterfaceSelections();
+        assertEquals(4, l.size());
+        // "implements"  "List<Thread>"  ","  "GenInt<U>"
+        Iterator i = l.iterator();
+        i.next();
+        
+        testSel = (Selection) i.next();
+        assertEquals(5, testSel.getLine());
+        assertEquals(16, testSel.getColumn());
+        assertEquals(5, testSel.getEndLine());
+        assertEquals(28, testSel.getEndColumn());
+        
+        i.next();
+        testSel = (Selection) i.next();
+        assertEquals(5, testSel.getLine());
+        assertEquals(30, testSel.getColumn());
+        assertEquals(5, testSel.getEndLine());
+        assertEquals(39, testSel.getEndColumn());
+    }
 }

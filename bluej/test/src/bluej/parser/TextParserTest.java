@@ -2,13 +2,12 @@ package bluej.parser;
 
 import junit.framework.TestCase;
 import bluej.debugmgr.objectbench.ObjectBench;
-import bluej.debugmgr.texteval.TextParser;
 
 /**
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 3327 2005-03-03 01:10:45Z davmac $
+ * @version $Id: TextParserTest.java 3574 2005-09-19 02:23:11Z davmac $
  */
 public class TextParserTest extends TestCase
 {

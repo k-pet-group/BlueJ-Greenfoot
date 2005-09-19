@@ -1,9 +1,12 @@
-package bluej.parser.ast;
+package bluej.parser;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URL;
 
-import antlr.*;
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
+import bluej.parser.ClassParser;
 
 /**
  * Run a whole directory of sample source files through our parser.
@@ -11,7 +14,7 @@ import antlr.*;
  * @author  Andrew Patterson
  * @version (a version number or a date)
  */
-public class BasicParseTest extends junit.framework.TestCase
+public class Java14ParseTest extends junit.framework.TestCase
 {
     /**
      * Get a data or result file from our hidden stash..
@@ -48,25 +51,14 @@ public class BasicParseTest extends junit.framework.TestCase
     }
 
     /**
-     * Lots of sample files, none of which should cause exceptions
-     * in our parser.
-     * 
+     * A sample test case method
      * @throws RecognitionException
      * @throws TokenStreamException
      * @throws FileNotFoundException
      */
-    public void testNoParseExceptionsOnStandardCode()
+    public void testStandardAssertion()
         throws RecognitionException, TokenStreamException, FileNotFoundException
     {
-        // this file came from some guys web page.. it just includes lots of
-        // Java constructs
-        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("java_basic.dat"))));
-
-        // these files came from the test suite accompanying antlr
-        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("A.dat"))));
-        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("B.dat"))));
-        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("C.dat"))));
-        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("D.dat"))));
-        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("E.dat"))));
+        ClassParser.parse(getFile("14_assertion.dat"), null);
     } 
 }

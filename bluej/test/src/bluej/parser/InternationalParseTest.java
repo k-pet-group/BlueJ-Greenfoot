@@ -1,9 +1,14 @@
-package bluej.parser.ast;
+package bluej.parser;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.net.URL;
 
-import antlr.*;
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
+import bluej.parser.ClassParser;
 
 /**
  * Run a whole directory of sample source files through our parser.
@@ -11,7 +16,7 @@ import antlr.*;
  * @author  Andrew Patterson
  * @version (a version number or a date)
  */
-public class Java14ParseTest extends junit.framework.TestCase
+public class InternationalParseTest extends junit.framework.TestCase
 {
     /**
      * Get a data or result file from our hidden stash..
@@ -36,6 +41,8 @@ public class Java14ParseTest extends junit.framework.TestCase
      */
     protected void setUp()
     {
+        //i18n1data = ;
+        //i18n1result = getFile("i18n3.res");
     }
 
     /**
@@ -49,13 +56,11 @@ public class Java14ParseTest extends junit.framework.TestCase
 
     /**
      * A sample test case method
-     * @throws RecognitionException
-     * @throws TokenStreamException
-     * @throws FileNotFoundException
      */
-    public void testStandardAssertion()
+    public void testInternationalization()
         throws RecognitionException, TokenStreamException, FileNotFoundException
     {
-        new JavaAnalyzer(new BufferedReader(new FileReader(getFile("14_assertion.dat"))));
+        ClassParser.parse(getFile("escaped_unicode_string.dat"), null);
+        ClassParser.parse(getFile("escaped_unicode_method.dat"), null);
     } 
 }
