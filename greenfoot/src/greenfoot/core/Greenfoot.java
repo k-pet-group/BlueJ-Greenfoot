@@ -97,7 +97,6 @@ public class Greenfoot
                     e2.printStackTrace();
                 }
                 logger.info("Frame created");
-                new FrameBoundsManager(frame);
                 frame.setVisible(true);
                 frame.toFront();
                 logger.info("Frame visible");
@@ -265,23 +264,7 @@ public class Greenfoot
         }
     }
 
-    /**
-     * This method updates BlueJ so that dialogs a showed at the correct
-     * positions.
-     * 
-     * HACK to get dialogs positioned correctly
-     * 
-     * @param bounds
-     */
-    public void frameResized(Rectangle bounds)
-    {
-        try {
-            rBlueJ.frameResized(bounds);
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
+   
 
     /**
      * Creates a new project
