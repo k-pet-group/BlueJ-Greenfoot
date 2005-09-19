@@ -53,7 +53,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3571 2005-09-15 03:15:44Z davmac $
+ * @version $Id: ClassTarget.java 3573 2005-09-19 02:21:52Z davmac $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable, InvokeListener
@@ -960,12 +960,19 @@ public class ClassTarget extends EditableTarget
      */
     public void setTypeParameters(ClassInfo info)
     {
+        String newTypeParameters = "";
         if (info.hasTypeParameter()) {
-            String newTypeParameters = info.getTypeParameterText().getText();
-            if (!newTypeParameters.equals(typeParameters)) {
-                typeParameters = newTypeParameters;
-                updateSize();
+            Iterator i = info.getTypeParameterTexts().iterator();
+            newTypeParameters = "<" + i.next();
+           
+            while (i.hasNext()) {
+                newTypeParameters += "," + i.next();
             }
+            newTypeParameters += ">";
+        }
+        if (!newTypeParameters.equals(typeParameters)) {
+            typeParameters = newTypeParameters;
+            updateSize();
         }
     }
 

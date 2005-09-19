@@ -11,7 +11,7 @@ import java.util.*;
  * automatic editing of the source.
  *
  * @author  Michael Kolling
- * @version $Id: SourceInfo.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: SourceInfo.java 3573 2005-09-19 02:21:52Z davmac $
  */
 public final class SourceInfo
 {
@@ -39,7 +39,7 @@ public final class SourceInfo
         if(info == null)
         {
             try {
-                info = ClassParser.parse(sourceFile, new Vector(classNames));
+                info = ClassParser.parse(sourceFile, classNames);
                 valid = true;
             }
             catch(Exception e) {

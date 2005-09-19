@@ -4,6 +4,25 @@ import java.util.*;
 
 import bluej.utility.SortedProperties;
 
+/**
+ * Information about a class found in a source file. The information is
+ * gathered and stored in an object of this class by a parser.<p>
+ * 
+ * The information includes:<ul> 
+ * <li>what is the name of this class or interface;
+ * <li>is it a class or an interface or an enum;
+ * <li>is it declared abstract;
+ * <li>what classes are extended and interfaces are implemented;
+ * <li>what are the type parameters;
+ * <li>what other types are referenced from within this type;
+ * <li>what javadoc comments are present; 
+ * <li>the selection (location in text) for the superclass, superinterfaces,
+ * and various other things including type parameters.
+ * </ul><p>
+ * 
+ * Some other information, such as classes which are imported, is stored but
+ * not used in BlueJ.
+ */
 public final class ClassInfo
 {
     private static final String[] appletClasses = { "Applet", "JApplet" };
@@ -19,9 +38,8 @@ public final class ClassInfo
     private List used = new ArrayList();
     private List comments = new LinkedList();
     
-    private List typeParameterSelections;
     private List typeParameterTexts;
-    private Selection typeParameterText = new Selection(null,1,1);
+    private Selection typeParametersSelection;
 
     private class SavedComment
     {
@@ -118,16 +136,11 @@ public final class ClassInfo
             implemented.add(name);
     }
     
-    public void addTypeParameter(String paramName)
-    {
-        typeParameterSelections.add(name);
-    }
-
     public void addImported(String name)
     {
         if(name.equals(this.name))
             return;
-
+    
         if(!imported.contains(name))
             imported.add(name);
     }
@@ -138,8 +151,8 @@ public final class ClassInfo
             return;
 
         // don't add predefined types (int, boolean, String, etc)
-        if(SymbolTable.getPredefined().contains(name))
-            return;
+        //if(SymbolTable.getPredefined().contains(name))
+        //    return;
 
         // don't add superclass
         if(name.equals(superclass))
@@ -155,6 +168,27 @@ public final class ClassInfo
         addComment(target, comment, null);
     }
 
+    /**
+     * Add a javadoc comment to this class. The target specifies the method or constructor
+     * which the comment applies to. It takes the form:<p>
+     * 
+     *  <code>&lt;type-pars&gt; return_type method_name(arg_type_1,arg_type2,arg_type3)</code>
+     * 
+     * <p>Where:
+     * <ul>
+     * <li>type-pars are the type parameters, in the form
+     *    "&ltT extends bound-type,U extends bound-type&gt;". Should be null if there are no
+     *    type parameters.
+     * <li>return_type is the generic return type, or null for a constructor
+     * <li>method_name is the name of the method (or the class name for a constructor)
+     * <li>arg_type_X is the generic parameter type, followed by "[]" if an array type
+     *     (eg. List&lt;Thread&gt;[][]), followed by " ..." for a vararg parameter.
+     * 
+     * @param target  The method/constructor the comment applies to (see description above)
+     * @param comment   The comment text
+     * @param paramnames  The parameter names from the method definition, as a space-seperated
+     *                    list. May be null if there are no parameter names.
+     */
     public void addComment(String target, String comment, String paramnames)
     {
         // remove asterisks (*) from beginning of comment
@@ -199,10 +233,12 @@ public final class ClassInfo
     private Selection extendsInsertSelection;
 
     /**
-     * Record where we would insert the string "extends" in a class/interface
+     * Record where we would insert the string "extends" in a class or interface.
+     * For a class/interface which already extends other classes/interfaces, records
+     * where to insert an additional class/interface (after the existing ones). 
      *
      * @param s the Selection object which records a location to
-     *          insert the "extends" keyword
+     *          insert the "extends" keyword or additional interface
      */
     public void setExtendsInsertSelection(Selection s)
     {
@@ -210,7 +246,9 @@ public final class ClassInfo
     }
 
     /**
-     * Returns where we would insert the string "extends" in a class/interface
+     * Returns where we would insert the string "extends" in a class/interface.
+     * For a class/interface which already extends other classes/interfaces, returns
+     * where to insert an additional class/interface (after the existing ones). 
      *
      * @returns s the Selection object which records a location to
      *          insert the "extends" keyword
@@ -219,23 +257,37 @@ public final class ClassInfo
         return extendsInsertSelection;
     }
 
-    /*
-     * Where we would insert the string "implements" in a class
+    /**
+     * Where we would insert the string " implements " in a class, or, if the
+     * class has existing interfaces, where we would add a new one in
+     * (as ", [interfacename]").
      */
     private Selection implementsInsertSelection;
 
+    /**
+     * Where we would insert the string " implements " in a class, or, if the
+     * class has existing interfaces, where we would add a new one in
+     * (as ", [interfacename]").
+     */
     public void setImplementsInsertSelection(Selection s)
     {
         implementsInsertSelection = s;
     }
 
+    /**
+     * Where we would insert the string " implements " in a class, or, if the
+     * class has existing interfaces, where we would add a new one in
+     * (as ", [interfacename]").
+     */
     public Selection getImplementsInsertSelection()
     {
         return implementsInsertSelection;
     }
 
     /**
-     * Record how we would replace the string "extends" in a class
+     * Record how we would replace the string "extends" in a class.
+     * (For an interface, this is the first selection in the
+     *  InterfaceSelections list - see setInterfaceSelections)
      *
      * @param s the Section object which records the location of
      *          the "extends" keyword for a class
@@ -245,6 +297,11 @@ public final class ClassInfo
         extendsReplaceSelection = s;
     }
 
+    /**
+     * How we would replace the string "extends" in a class.
+     * (For an interface, this is the first selection in the
+     *  InterfaceSelections list - see setInterfaceSelections)
+     */
     public Selection getExtendsReplaceSelection()
     {
         return extendsReplaceSelection;
@@ -267,40 +324,21 @@ public final class ClassInfo
     }
 
     // a vector of Selections of all the elements in a classes
-    // "implements" clause
-    // ie "implements" "InterfaceA" "," "InterfaceB"
-    // or a interfaces "extends" clause
-    // ie "extends" "InterfaceA" "," "InterfaceB"
-    // or null if there is no clause
+    // "implements" clause ie.
+    //     "implements" "InterfaceA" "," "InterfaceB"
+    // ... or an interface's "extends" clause ie.
+    //     "extends" "InterfaceA" "," "InterfaceB"
+    // ... or null if there is no clause
     private List interfaceSelections;
-    private List interfaceTexts;
 
     public void setInterfaceSelections(List selections)
     {
         interfaceSelections = selections;
-
-        interfaceTexts = new ArrayList();
-
-        Iterator it = interfaceSelections.iterator();
-        while(it.hasNext()) {
-            Selection s = (Selection)it.next();
-            // we don't want the interface texts to show type argument info
-            // which may be present in the selections. The texts are used to
-            // match to the base name of a ClassTarget when dependencies are
-            // removed. It would probably be nicer to bring these back from
-            // the parser at a lower level. The interfaces however start to
-            // get even more cluttered...
-            String sel = s.getText();
-            int index = sel.indexOf("<");
-            if(index > 0)
-                sel = sel.substring(0, index);
-            interfaceTexts.add(sel);
-        }
     }
     
-    public void setTypeParameterSelections(List selections)
+    public void setTypeParameterTexts(List newTexts)
     {
-        typeParameterSelections = selections;
+        typeParameterTexts = newTexts;
     }
     
     public List getTypeParameterTexts()
@@ -314,10 +352,10 @@ public final class ClassInfo
         return interfaceSelections;
     }
 
-    public List getInterfaceTexts()
-    {
-        return interfaceTexts;
-    }
+//    public List getInterfaceTexts()
+//    {
+//        return interfaceTexts;
+//    }
 
     public boolean hasInterfaceSelections()
     {
@@ -334,11 +372,21 @@ public final class ClassInfo
      * want to insert a package line if we were to add one)
      */
     private boolean packageStatementExists = false;
-    private Selection packageStatementSelection = new Selection(null,1,1);
-    private Selection packageNameSelection = new Selection(null,1,1);
-    private Selection packageSemiSelection = new Selection(null,1,1);
+    private Selection packageStatementSelection = new Selection(1,1);
+    private Selection packageNameSelection = new Selection(1,1);
+    private Selection packageSemiSelection = new Selection(1,1);
     private String packageName = "";
 
+    /**
+     * Set the selections for the "package" line of the source file, including the "pakage"
+     * keyword (pkgStatement), the named package (pkgName), and the trailing semicolon
+     * (pkgSemi).
+     * 
+     * @param pkgStatement
+     * @param pkgName
+     * @param pkgNameText
+     * @param pkgSemi
+     */
     public void setPackageSelections(Selection pkgStatement, Selection pkgName, String pkgNameText,
                                         Selection pkgSemi)
     {
@@ -394,31 +442,24 @@ public final class ClassInfo
         return implemented;
     }
 
-    public void setTypeParameterText(Selection s)
+    public void setTypeParametersSelection(Selection s)
     {
-        typeParameterText = s;
+        typeParametersSelection = s;
     }
     
     public boolean hasTypeParameter()
     {
-        return (typeParameterText != null);
+        return (typeParametersSelection != null);
     }
     
-    public Selection getTypeParameterText()
+    public Selection getTypeParametersSelection()
     {
-        return typeParameterText;
+        return typeParametersSelection;
     }
     
-    public void setTypeParameterSelections(Selection s)
-    {
-        typeParameterText = s;
-    }
-    
-    public List getImported()
-    {
-        return imported;
-    }
-
+    /**
+     * Get the list of referenced classes (a list of String).
+     */
     public List getUsed()
     {
         return used;

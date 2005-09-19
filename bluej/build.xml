@@ -39,8 +39,6 @@
       -  target. Must be explicitly specified on ant command line
      -->
     <target name="parser">
-        <antlr target="${core.src}/bluej/parser/java.g"/>
-        
         <antlr target="${core.src}/bluej/parser/ast/java.g"
                outputdirectory="${core.src}/bluej/parser/ast/gen"/>
         <antlr target="${core.src}/bluej/parser/ast/unittest.tree.g"

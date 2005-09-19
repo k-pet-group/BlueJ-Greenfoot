@@ -26,6 +26,7 @@ class UnitTestParser extends TreeParser;
 options {
 	importVocab = Java;
     buildAST = true;
+    defaultErrorHandler = false;
 }
 
 {
@@ -135,11 +136,11 @@ typeDefinition!
 	;
 
 typeParameters
-    :   (typeParameter)*
+    :   (#(TYPE_PARAMETERS (typeParameter)+))?
     ;
 
 typeParameter
-    :   #(TYPE_PARAMETER IDENT (typeUpperBounds)?)
+    :   IDENT (typeUpperBounds)?
     ;
 
 typeUpperBounds
@@ -161,8 +162,8 @@ type
 	;
 
 classOrInterfaceType
-	:	IDENT typeArguments
-	|	#( DOT identifier IDENT typeArguments )
+	:	#( IDENT typeArguments )
+	|	#( DOT identifier #( IDENT typeArguments ) )
 	;
 
 typeArguments
@@ -213,9 +214,9 @@ modifier
     |   "final"
     |   "abstract"
     |   "native"
-    |   "threadsafe"
+//    |   "threadsafe"
     |   "synchronized"
-    |   "const"
+//    |   "const"
     |   "volatile"
 	|	"strictfp"
 	|   annotation

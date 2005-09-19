@@ -1,96 +1,112 @@
 package bluej.parser.symtab;
 
-import bluej.parser.JavaToken;
-import java.io.File;
+import bluej.parser.SourceLocation;
+import bluej.parser.SourceSpan;
 
 /*******************************************************************************
  * An occurrence of an indentifier in a file
  ******************************************************************************/
-public class Selection extends Occurrence
+// TODO, get rid of this class, just use SourceSpan
+public class Selection /* extends Occurrence */
 {
-    private int len;
-    private String origText;
+    // private int len;
+    private SourceSpan sspan;
+    //private String origText;
 
     //==========================================================================
     //==  Methods
     //==========================================================================
 
-
-    /** Constructor to define an empty selection */
-    public Selection(File f, int line, int column)
-    {
-        super(f, line, column);
-
-        this.len = 0;
-        this.origText = "";
-    }
-
     /**
-     * Constructor to define a selection representing a token
-     *  in the source file
+     * Constructor to define an empty selection at a given location.
      */
-    public Selection(JavaToken tok)
+    public Selection(int line, int column)
     {
-        super(tok.getFile(), tok.getLine(), tok.getColumn());
-
-        this.len = tok.getText().length();
-        this.origText = new String(tok.getText());
+        SourceLocation sl = new SourceLocation(line, column);
+        sspan = new SourceSpan(sl, sl);
     }
-
-/*    public Selection(Occurrence o, int len)
+    
+    public Selection(SourceSpan ss)
     {
-        super(o.file, o.line, o.column);
-
-        this.len = len;
-    } */
-
-    public int getLine() { return line; }
-    public int getColumn() { return column; }
-    public int getLength() { return len; }
-    public String getText() { return origText; }
-    //public void setLength(int length) { len = length; }
-    public File getFile() { return file; }
+        sspan = ss;
+    }
     
     /**
-     * The idea is that to assist in adding type parameters where applicable
-     * this Selection might represent more than one token. Tokens to be added 
-     * need to be on the same line (at the moment) or are ignored. Any gaps between
-     * the existing token and one added are assumed to be whitespace. 
-     *
-     * @param token JavaToken to be added. Must not be null and should be on same 
-     * line as existing Selection.
-     * 
+     * Constructor for a selection which occupies part of a single line.
+     * @param line    The line
+     * @param column  The starting column
+     * @param length  The length of the selection
      */
-    public void addToken(JavaToken token)
+    public Selection(int line, int column, int length)
     {
-        //check if on the same line
-        if(line == token.getLine()){
-            StringBuffer buf = new StringBuffer(origText);
-            int endOfExisting = column + len;
-            int gap = token.getColumn() - endOfExisting;
-            // if the added token is not already part of the Selection 
-            // add whitespace up to the beginning of new token
-            if(gap > 0){
-                for (int i = 0; i < gap; i++){
-                    buf.append(' ');
-                }
-                buf.append(token.getText());               
-            }
-            // Token is a part of the Selection already, replace that 
-            // part of the selection. This may occur if you add a 
-            // number of tokens in a non-sequential order. 
-            else {
-                String text = token.getText();
-                buf.replace(token.getColumn() - column, token.getColumn() - column + text.length(), text);
-            }
-            origText = buf.toString();
-            len = origText.length();
+        SourceLocation start = new SourceLocation(line, column);
+        SourceLocation end = new SourceLocation(line, column + length);
+        sspan = new SourceSpan(start, end);
+    }
+    
+    /**
+     * Combine two selections. The result will comprise of both the original and
+     * the other selection, plus any space in between.
+     */
+    public void combineWith(Selection other)
+    {
+        int otherstartl = other.getLine();
+        int otherstartc = other.getColumn();
+        int mystartl = getLine();
+        int mystartc = getColumn();
+        
+        SourceLocation newStart = null;
+        SourceLocation newEnd = null;
+        
+        if (otherstartl < mystartl || (otherstartl == mystartl && otherstartc < mystartc))
+            newStart = other.getStartLocation();
+        
+        int otherendl = other.getEndLine();
+        int otherendc = other.getEndColumn();
+        int myendl = getEndLine();
+        int myendc = getEndColumn();
+        
+        if (otherendl > myendl || (otherendl == myendl && otherendc > myendc))
+            newEnd = other.getEndLocation();
+     
+        if (newStart != null || newEnd != null) {
+            if (newStart == null)
+                newStart = getStartLocation();
+            if (newEnd == null)
+                newEnd = getEndLocation();
+            sspan = new SourceSpan(newStart, newEnd);
         }
     }
+    
+    public void extendEnd(int line, int column)
+    {
+        int myline = getEndLine();
+        if (line >= myline) {
+            int mycol = getEndColumn();
+            if (column >= mycol || line > myline) {
+                SourceLocation newEnd = new SourceLocation(line, column);
+                SourceLocation newStart = getStartLocation();
+                sspan = new SourceSpan(newStart, newEnd);
+            }
+        }
+    }
+    
+    public void extendEnd(SourceLocation sl)
+    {
+        extendEnd(sl.getLine(), sl.getColumn());
+    }
 
+    public int getLine() { return sspan.getStartLine(); }
+    public int getColumn() { return sspan.getStartColumn(); }
+    public SourceLocation getStartLocation() { return sspan.getStartLocation(); }
+    
+    public int getEndLine() { return sspan.getEndLine(); }
+    public int getEndColumn() { return sspan.getEndColumn(); }
+    public SourceLocation getEndLocation() { return sspan.getEndLocation(); }
+        
     /** return a string representation of the occurrence */
     public String getLocation() {
-        return "[" + file + ":" + line + ":" + column + ":" + len + "]";
+        return "[" + sspan.toString() + "]";
     }
 
     /** return a string representation of the occurrence */

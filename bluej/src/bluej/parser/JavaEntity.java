@@ -1,16 +1,13 @@
-package bluej.debugmgr.texteval;
-
-import java.util.List;
+package bluej.parser;
 
 import bluej.debugger.gentype.JavaType;
-import bluej.debugmgr.texteval.TextParser.SemanticException;
 
 /**
  * A general abstraction for handling entities which may have fields or
  * members - including packages, classes, and values.
  * 
  * @author Davin McCall
- * @version $Id: JavaEntity.java 3537 2005-08-22 07:12:11Z davmac $
+ * @version $Id$
  */
 abstract class JavaEntity
 {

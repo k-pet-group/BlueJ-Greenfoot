@@ -1,9 +1,9 @@
 package bluej.parser.ast;
 
-import java.util.*;
+import java.util.ArrayList;
 
-import antlr.collections.*;
-import antlr.*;
+import antlr.Token;
+import antlr.collections.AST;
 
 /**
  * An AST type that keeps track of line and columns, as well
@@ -34,18 +34,16 @@ public class LocatableAST extends antlr.CommonASTWithHiddenTokens
         return line;
     }
 
-    /**
-     * sets the column where this node reside
-     * @param column
-     */
+  /**
+   * sets the column where this node resides
+   */
     public void setColumn(int column)
     {
         this.column = column;
     }
         
     /**
-     * gets the column where this node reside
-     * @return <code>int</code>
+     * gets the column where this node resides
      */
     public int getColumn() {
         return column;
@@ -94,8 +92,7 @@ public class LocatableAST extends antlr.CommonASTWithHiddenTokens
     }
 
   /**
-   * initialized this node with input node
-   * @param t
+   * initialized this node with input node.
    */
     public void initialize(AST t)
     {
@@ -111,8 +108,7 @@ public class LocatableAST extends antlr.CommonASTWithHiddenTokens
     }
 
   /**
-   * initializes the node with input <code>Token</code>
-   * @param t
+   * initializes the node with input <code>Token</code>.
    */
     public void initialize(Token t)
     {

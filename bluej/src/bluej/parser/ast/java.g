@@ -1,5 +1,7 @@
 header {
     package bluej.parser.ast.gen;
+	
+	import bluej.parser.ast.LocatableAST;
 }
 
 /** Java 1.5 Recognizer
@@ -171,7 +173,7 @@ tokens {
 	STRICTFP="strictfp"; SUPER_CTOR_CALL; CTOR_CALL; VARIABLE_PARAMETER_DEF;
 	STATIC_IMPORT; ENUM_DEF; ENUM_CONSTANT_DEF; FOR; FOR_EACH; ANNOTATION_DEF; ANNOTATION;
 	ANNOTATION_MEMBER_VALUE_PAIR; ANNOTATION_FIELD_DEF; ANNOTATION_ARRAY_INIT; TYPE_ARGUMENT;
-	TYPE_PARAMETER; WILDCARD_TYPE; TYPE_UPPER_BOUNDS; TYPE_LOWER_BOUNDS; COMMENT_DEF;
+	TYPE_PARAMETERS; WILDCARD_TYPE; TYPE_UPPER_BOUNDS; TYPE_LOWER_BOUNDS; COMMENT_DEF;
 }
 
 {
@@ -190,6 +192,10 @@ tokens {
         if (h instanceof bluej.parser.ast.LocatableAST)
             ((bluej.parser.ast.LocatableAST) h).addImportantToken(t);
     }
+    
+    // Keep track of the most recently hit type end (>, >>, or >>>)
+    Token mostRecentTypeEnd;
+    
     
     static void setEndToken(AST h, Token t)
     {
@@ -323,12 +329,16 @@ classTypeSpec[boolean addImagNode]
 	;
 
 classOrInterfaceType[boolean addImagNode]
-	:   IDENT^ (typeArguments[addImagNode])?
+	:	nameWithTypeArgs[addImagNode]
         (options{greedy=true;}: // match as many as possible
             DOT^
-            IDENT (typeArguments[addImagNode])?
+			nameWithTypeArgs[addImagNode]
         )*
     ;
+    
+nameWithTypeArgs[boolean addImagNode]
+	:	IDENT^ (typeArguments[addImagNode])?
+	;
 
 // A generic type argument is a class type, a possibly bounded wildcard type or a built-in type array
 typeArgument[boolean addImagNode]
@@ -339,10 +349,12 @@ typeArgument[boolean addImagNode]
     ;
 
 wildcardType[boolean addImagNode]
-    :   q:QUESTION {#q.setType(WILDCARD_TYPE);}
+    :   q:QUESTION^ {#q.setType(WILDCARD_TYPE);}
         (("extends" | "super")=> typeArgumentBounds[addImagNode])?
     ;
 
+// A series of type arguments for a generic type. The first will have the
+// closing '>' (or '>>' or '>>>') token as an important token.
 typeArguments[boolean addImagNode]
 {int currentLtLevel = 0;}
     :
@@ -351,7 +363,7 @@ typeArguments[boolean addImagNode]
         typeArgument[addImagNode]
         (options{greedy=true;}: // match as many as possible
             // If there are any '>' to reconcile
-            // (i.e. we've recently encountered a DT, SR or BSR
+            // (i.e. we've recently encountered a GT, SR or BSR
             // - the end of one or more type arguments and
             // possibly an enclosing type parameter)
             // then further type arguments are not possible
@@ -361,8 +373,13 @@ typeArguments[boolean addImagNode]
         (   // turn warning off since Antlr generates the right code,
             // plus we have our semantic predicate below
             options{generateAmbigWarnings=false;}:
-            typeArgumentsEnd
+            typeArgumentsEnd!
         )?
+        
+        {
+			if (#typeArguments instanceof LocatableAST)
+				((LocatableAST) #typeArguments).addImportantToken(mostRecentTypeEnd);
+		}
 
         // As we are leaving a typeArguments production, the enclosing '>'
         // we've just read (and we've possibly seen more than one in the
@@ -378,10 +395,10 @@ typeArguments[boolean addImagNode]
 
 // this gobbles up *some* amount of '>' characters, and counts how many
 // it gobbled.
-protected typeArgumentsEnd:
-        GT! {ltCounter-=1;gtToReconcile+=1;}
-    |   SR! {ltCounter-=2;gtToReconcile+=2;}
-    |   BSR! {ltCounter-=3;gtToReconcile+=3;}
+protected typeArgumentsEnd!:
+        gt:GT {ltCounter-=1;gtToReconcile+=1;mostRecentTypeEnd=gt;}
+    |   sr:SR {ltCounter-=2;gtToReconcile+=2;mostRecentTypeEnd=sr;}
+    |   bsr:BSR {ltCounter-=3;gtToReconcile+=3;mostRecentTypeEnd=bsr;}
     ;
 
 typeArgumentBounds[boolean addImagNode]
@@ -473,7 +490,7 @@ modifier
 	|	"final"
 	|	"abstract"
 	|	"native"
-	|	"threadsafe"
+//	|	"threadsafe"
 	|	"synchronized"
 //	|	"const"			// reserved word, but not valid
 	|	"volatile"
@@ -595,10 +612,15 @@ typeParameters
 {int currentLtLevel = 0;}
     :
         {currentLtLevel = ltCounter;}
-        LT! {ltCounter++;}
-        typeParameter (COMMA! typeParameter)*
-        (typeArgumentsEnd)?
+        lt:LT! {ltCounter++;}
+        lastTp:typeParameter (COMMA! tp:typeParameter {#lastTp = #tp;})*
+        (tae:typeArgumentsEnd!)?
 
+		{
+			if (#typeParameters instanceof LocatableAST)
+				((LocatableAST) #typeParameters).addImportantToken(mostRecentTypeEnd);
+		}
+		
         // There should be only one '>' to reconcile - the enclosing
         // '>' for the type parameter. Any other adjacent '>' seen should
         // have been reconciled with type arguments for the last type parameter
@@ -609,13 +631,20 @@ typeParameters
         // make sure we have gobbled up enough '>' characters
         // if we are at the "top level" of nested typeArgument productions
         {(currentLtLevel != 0) || ltCounter == currentLtLevel}?
+        {
+			// DM: in BlueJ we introduce a new node type to vastly
+			// simplify the representation
+        	#typeParameters = #(#[TYPE_PARAMETERS,"TYPE_PARAMETERS"], #typeParameters);
+        	addImportantToken(#typeParameters, lt);
+        	setEndToken(#typeParameters, mostRecentTypeEnd);
+        }
     ;
 
 typeParameter
     :
         // I'm pretty sure Antlr generates the right thing here:
-        (id:IDENT) ( options{generateAmbigWarnings=false;}: typeParameterBounds )?
-		{#typeParameter = #(#[TYPE_PARAMETER,"TYPE_PARAMETER"], #typeParameter);}
+        (id:IDENT^) ( options{generateAmbigWarnings=false;}: typeParameterBounds )?
+		// {#typeParameter = #(#[TYPE_PARAMETER,"TYPE_PARAMETER"], #typeParameter);}
     ;
 
 typeParameterBounds
@@ -802,7 +831,7 @@ field!
 			{#field = #id;}
 
 		|	ed:enumDefinition[#mods]        // inner enum
-			{#field = #id;}
+			{#field = #ed;}
 
 		|	ad:annotationDefinition[#mods]   // inner annotation
 			{#field = #ad;}
@@ -812,23 +841,27 @@ field!
                 h:ctorHead s:constructorBody // constructor
                 {#field = #(#[CTOR_DEF,"CTOR_DEF"], mods, h, s);}
 
-                |	// A generic method/ctor has the typeParameters before the return type.
+                |
+            
+            // A generic method/ctor has the typeParameters before the return type.
             // This is not allowed for variable definitions, but this production
             // allows it, a semantic check could be used if you wanted.
-                    t:typeSpec[false]  // method or variable declaration(s)
-			(	IDENT  // the name of the method
+                
+                t:typeSpec[false]  // method or variable declaration(s)
+				(
+					IDENT  // the name of the method
 
-				// parse the formal parameter declarations.
-				LPAREN! param:parameterDeclarationList RPAREN!
+					// parse the formal parameter declarations.
+					LPAREN! param:parameterDeclarationList RPAREN!
 
-				rt:declaratorBrackets[#t]
+					rt:declaratorBrackets[#t]
 
-				// get the list of exceptions that this method is
-				// declared to throw
-				(tc:throwsClause)?
+					// get the list of exceptions that this method is
+					// declared to throw
+					(tc:throwsClause)?
 
-				( s2:compoundStatement | SEMI )
-				{#field = #(#[METHOD_DEF,"METHOD_DEF"],
+					( s2:compoundStatement | SEMI )
+					{#field = #(#[METHOD_DEF,"METHOD_DEF"],
 						     mods,
 						     tp,
 							 #(#[TYPE,"TYPE"],rt),
@@ -836,11 +869,11 @@ field!
 							 param,
 							 tc,
 							 s2);}
-			|	v:variableDefinitions[#mods,#t] se:SEMI
-				{#field = #v;
-                 addImportantToken(#field, se);  }
+				|	v:variableDefinitions[#mods,#t] se:SEMI
+					{#field = #v;
+                 	addImportantToken(#field, se);  }
+				)
 			)
-		)
 		)
 
     // "static { ... }" class initializer
@@ -869,7 +902,7 @@ explicitConstructorInvocation
 
 variableDefinitions[AST mods, AST t] { AST lastVarDeclarator = null; }
 	:	vd:variableDeclarator[getASTFactory().dupTree(mods),
-						   getASTFactory().dupTree(t)]
+						   getASTFactory().dupList(t)]
 			{
 				lastVarDeclarator = #vd;
 			}
@@ -1684,7 +1717,10 @@ ML_COMMENT
 		|	~('*'|'\n'|'\r')
 		)*
 		"*/"
-		{$setType(Token.SKIP);}
+		// We could skip multiline comments in the lexer, but that
+		// would prevent us from seeing javadoc comments. We can use
+		// a TokenStream filter instead.
+		//{$setType(Token.SKIP);}
 	;
 
 

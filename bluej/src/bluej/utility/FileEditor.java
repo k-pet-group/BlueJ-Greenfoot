@@ -1,16 +1,19 @@
 package bluej.utility;
 
-import bluej.parser.symtab.Selection;
-
 import java.io.*;
-import javax.swing.text.*;
+
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.PlainDocument;
+
+import bluej.parser.symtab.Selection;
 
 /**
  * An object which allows (semi) direct editing of files on
  * disk.
  *
  * @author  Andrew Patterson
- * @version $Id: FileEditor.java 1819 2003-04-10 13:47:50Z fisker $
+ * @version $Id: FileEditor.java 3573 2005-09-19 02:21:52Z davmac $
  */
 public class FileEditor extends PlainDocument
 {
@@ -60,14 +63,18 @@ public class FileEditor extends PlainDocument
     {
         try {
             int lineNo = s.getLine() - 1;
+            int endLineNo = s.getEndLine() - 1;
 
-            Element line = getDefaultRootElement();
+            Element root = getDefaultRootElement();
 
-            if (lineNo < line.getElementCount()) {
-                line = line.getElement(lineNo);
+            if (endLineNo < root.getElementCount()) {
+                Element line = root.getElement(lineNo);
+                Element endLine = root.getElement(endLineNo);
 
-                remove(line.getStartOffset() + s.getColumn() - 1,
-                        s.getLength());
+                int pos = line.getStartOffset() + s.getColumn() - 1;
+                int len = endLine.getStartOffset() + s.getEndColumn() - pos - 1;
+                
+                remove(pos, len);
 
                 insertString(line.getStartOffset() + s.getColumn() - 1,
                                 text, null);

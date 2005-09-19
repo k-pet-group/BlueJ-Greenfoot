@@ -1,4 +1,4 @@
-package bluej.debugmgr.texteval;
+package bluej.parser;
 
 import java.util.*;
 
@@ -8,7 +8,7 @@ import bluej.Config;
  * Maintain and manage a collection of import statements.
  * 
  * @author Davin McCall
- * @version $Id: ImportsCollection.java 3543 2005-08-26 02:40:53Z davmac $
+ * @version $Id$
  */
 public class ImportsCollection
 {
@@ -104,7 +104,7 @@ public class ImportsCollection
                     r = (ClassEntity) r.getPackageOrClassMember(name);
                     return r;
                 }
-                catch (TextParser.SemanticException se) { }
+                catch (SemanticException se) { }
             }
         }
         
@@ -153,7 +153,7 @@ public class ImportsCollection
                     return (ClassEntity) member;
                 }
             }
-            catch (TextParser.SemanticException se) { }
+            catch (SemanticException se) { }
         }
         
         // Now try static wildcard imports
@@ -164,7 +164,7 @@ public class ImportsCollection
                 ClassEntity member = importEntity.getStaticMemberClass(name);
                 return member;
             }
-            catch (TextParser.SemanticException se) { }
+            catch (SemanticException se) { }
         }
         
         return null;

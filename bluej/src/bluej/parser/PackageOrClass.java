@@ -1,10 +1,9 @@
-package bluej.debugmgr.texteval;
+package bluej.parser;
 
 import java.util.List;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
-import bluej.debugmgr.texteval.TextParser.SemanticException;
 
 /**
  * An entity representing either a package or a class (but not a value).

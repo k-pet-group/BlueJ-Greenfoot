@@ -22,6 +22,7 @@ import bluej.debugger.SourceLocation;
 import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.Invoker;
 import bluej.editor.Editor;
+import bluej.editor.LineColumn;
 import bluej.extensions.event.CompileEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.graph.Edge;
@@ -51,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3538 2005-08-22 09:46:50Z damiano $
+ * @version $Id: Package.java 3573 2005-09-19 02:21:52Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -936,6 +937,7 @@ public final class Package extends Graph
 
     /**
      * Loads a class using the current project class loader.
+     * Return null if the class cannot be loaded.
      */
     public Class loadClass(String className)
     {
@@ -1337,10 +1339,10 @@ public final class Package extends Graph
         // " to " + to.getName());
 
         try {
-            ClassInfo info = ClassParser.parse(from.getSourceFile(), new Vector(getAllClassnames()));
+            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
 
             Selection s1 = info.getImplementsInsertSelection();
-            ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
+            ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
 
             if (info.hasInterfaceSelections()) {
                 // if we already have an implements clause then we need to put a
@@ -1348,7 +1350,7 @@ public final class Package extends Graph
                 // don't
                 // already have it
 
-                List exists = info.getInterfaceTexts();
+                List exists = getInterfaceTexts(ed, info.getInterfaceSelections());
 
                 // XXX make this equality check against full package name
                 if (!exists.contains(to.getBaseName()))
@@ -1385,10 +1387,10 @@ public final class Package extends Graph
         // from.getName() + " to " + to.getName());
 
         try {
-            ClassInfo info = ClassParser.parse(from.getSourceFile(), new Vector(getAllClassnames()));
+            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
 
             Selection s1 = info.getExtendsInsertSelection();
-            ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
+            ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
 
             if (info.hasInterfaceSelections()) {
                 // if we already have an extends clause then we need to put a
@@ -1396,7 +1398,7 @@ public final class Package extends Graph
                 // don't
                 // already have it
 
-                List exists = info.getInterfaceTexts();
+                List exists = getInterfaceTexts(ed, info.getInterfaceSelections());
 
                 // XXX make this equality check against full package name
                 if (!exists.contains(to.getBaseName()))
@@ -1430,18 +1432,18 @@ public final class Package extends Graph
         ed.save();
 
         try {
-            ClassInfo info = ClassParser.parse(from.getSourceFile(), new Vector(getAllClassnames()));
+            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
 
             if (info.getSuperclass() == null) {
                 Selection s1 = info.getExtendsInsertSelection();
 
-                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
+                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
                 ed.insertText(" extends " + to.getBaseName(), false);
             }
             else {
                 Selection s1 = info.getSuperReplaceSelection();
 
-                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
+                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
                 ed.insertText(to.getBaseName(), false);
             }
             ed.save();
@@ -1470,63 +1472,36 @@ public final class Package extends Graph
         ed.save();
 
         try {
-            ClassInfo info = ClassParser.parse(from.getSourceFile(), new Vector(getAllClassnames()));
+            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
             Selection s1 = null;
-            Selection s2 = null; // set to the selections we wish to delete
-            Selection sinsert = null; // our selection if we want to insert
-                                      // something
-            String sinserttext = "";
 
             if (d instanceof ImplementsDependency) {
                 List vsels, vtexts;
 
-                if (info.isInterface()) {
-                    vsels = info.getInterfaceSelections();
-                    vtexts = info.getInterfaceTexts();
-                    sinserttext = "extends ";
-                }
-                else {
-                    vsels = info.getInterfaceSelections();
-                    vtexts = info.getInterfaceTexts();
-                    sinserttext = "implements ";
-                }
-
+                vsels = info.getInterfaceSelections();
+                vtexts = getInterfaceTexts(ed, vsels);
                 int where = vtexts.indexOf(to.getBaseName());
 
+                // we have a special case if we deleted the first bit of an
+                // "implements" clause, yet there are still clauses left.. we have
+                // to delete the following "," instead of the preceding one.
+                if (where == 1 && vsels.size() > 2)
+                    where = 2;
+                
                 if (where > 0) { // should always be true
                     s1 = (Selection) vsels.get(where - 1);
-                    s2 = (Selection) vsels.get(where);
-                }
-                // we have a special case if we deleted the first bit of an
-                // "implements"
-                // clause, yet there are still clauses left.. we have to replace
-                // the ","
-                // with "implements" (note that there must already be a leading
-                // space so we
-                // do not need to insert one but we may need a trailing space)
-                if (where == 1 && vsels.size() > 2) {
-                    sinsert = (Selection) vsels.get(where + 1);
+                    s1.combineWith((Selection) vsels.get(where));
                 }
             }
             else if (d instanceof ExtendsDependency) {
                 // a class extends
                 s1 = info.getExtendsReplaceSelection();
-                s2 = info.getSuperReplaceSelection();
+                s1.combineWith(info.getSuperReplaceSelection());
             }
 
-            // delete (maybe insert) text from the end backwards so that our
-            // line/col positions
-            // for s1 are not mucked up by the deletion
-            if (sinsert != null) {
-                ed.setSelection(sinsert.getLine(), sinsert.getColumn(), sinsert.getLength());
-                ed.insertText(sinserttext, false);
-            }
-            if (s2 != null) {
-                ed.setSelection(s2.getLine(), s2.getColumn(), s2.getLength());
-                ed.insertText("", false);
-            }
+            // delete the text from the end backwards so that our
             if (s1 != null) {
-                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getLength());
+                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
                 ed.insertText("", false);
             }
 
@@ -1539,6 +1514,30 @@ public final class Package extends Graph
             Debug.message("Parse error attempting to delete dependency arrow");
             return;
         }
+    }
+    
+    /**
+     * Using a list of selections, retrieve a list of text strings from the editor which
+     * correspond to those selections.
+     */
+    private List getInterfaceTexts(Editor ed, List selections)
+    {
+        List r = new ArrayList(selections.size());
+        Iterator i = selections.iterator();
+        while (i.hasNext()) {
+            Selection sel = (Selection) i.next();
+            String text = ed.getText(new LineColumn(sel.getLine() - 1, sel.getColumn() -1),
+                    new LineColumn(sel.getEndLine() - 1, sel.getEndColumn() - 1));
+            
+            // check for type arguments: don't include them in the text
+            int taIndex = text.indexOf('<');
+            if (taIndex != -1)
+                text = text.substring(0, taIndex);
+            text = text.trim();
+            
+            r.add(text);
+        }
+        return r;
     }
 
     /**
@@ -1686,22 +1685,6 @@ public final class Package extends Graph
 
             if (filename.equals(ct.getSourceFile().getPath()))
                 return ct;
-        }
-
-        return null;
-    }
-
-    public EditableTarget getTargetFromEditor(Editor editor)
-    {
-        for (Iterator it = targets.iterator(); it.hasNext();) {
-            Target t = (Target) it.next();
-            if (!(t instanceof EditableTarget))
-                continue;
-
-            EditableTarget et = (EditableTarget) t;
-
-            if (et.usesEditor(editor))
-                return et;
         }
 
         return null;
@@ -2125,7 +2108,7 @@ public final class Package extends Graph
                      * names)
                      */
                     try {
-                        ClassInfo info = ClassParser.parse(t.getSourceFile(), new Vector(getAllClassnames()));
+                        ClassInfo info = ClassParser.parse(t.getSourceFile(), getAllClassnames());
 
                         OutputStream out = new FileOutputStream(t.getContextFile());
                         info.getComments().store(out, "BlueJ class context");

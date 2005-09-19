@@ -1,4 +1,4 @@
-package bluej.debugmgr.texteval;
+package bluej.parser;
 
 import java.io.StringReader;
 import java.lang.reflect.Field;
@@ -16,6 +16,7 @@ import bluej.Config;
 import bluej.debugger.gentype.*;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
+import bluej.debugmgr.texteval.WildcardCapture;
 import bluej.parser.ast.LocatableAST;
 import bluej.parser.ast.gen.JavaLexer;
 import bluej.parser.ast.gen.JavaRecognizer;
@@ -31,7 +32,7 @@ import bluej.utility.JavaUtils;
  * (JLS) where possible.
  *  
  * @author Davin McCall
- * @version $Id: TextParser.java 3543 2005-08-26 02:40:53Z davmac $
+ * @version $Id$
  */
 public class TextParser
 {
@@ -175,43 +176,57 @@ public class TextParser
     {
         if (importCandidate.length() != 0) {
             try {
-                AST rr = parser.getAST();
-                if (rr.getType() == JavaTokenTypes.IMPORT) {
-                    // Non-static import
-                    AST classNode = rr.getFirstChild();
-                    AST fpNode = classNode.getFirstChild();
-                    AST className = fpNode.getNextSibling();
-                    
-                    // if className == '*' this is a wildcard
-                    if (className.getType() == JavaTokenTypes.STAR) {
-                        PackageOrClass importEntity = getPackageOrType(fpNode, true);
-                        imports.addWildcardImport(importEntity);
-                    }
-                    else {
-                        // A non-wildcard import.
-                        PackageOrClass importEntity = getPackageOrType(classNode, true);
-                        if (importEntity.isClass()) {
-                            imports.addNormalImport(className.getText(), importEntity);
-                        }
-                    }
-                }
-                else if (rr.getType() == JavaTokenTypes.STATIC_IMPORT) {
-                    // static import
-                    AST impNode = rr.getFirstChild().getFirstChild();
-                    AST impNameNode = impNode.getNextSibling();
-                    if (impNameNode.getType() == JavaTokenTypes.STAR) {
-                        ClassEntity importEntity = (ClassEntity) getPackageOrType(impNode, true);
-                        imports.addStaticWildcardImport(importEntity);
-                    }
-                    else {
-                        String impName = impNameNode.getText();
-                        ClassEntity importEntity = (ClassEntity) getPackageOrType(impNode, true);
-                        imports.addStaticImport(impName, importEntity);
-                    }
-                }
+                addImportToCollection(parser.getAST());
             }
             catch (RecognitionException re) { }
             catch (SemanticException se) { }
+        }
+    }
+
+    /**
+     * Add an import (be it regular or wildcard, normal or static) to the collection
+     * of imports.
+     * 
+     * @param importNode  The AST node representing the import statement
+     * 
+     * @throws SemanticException
+     * @throws RecognitionException
+     */
+    void addImportToCollection(AST importNode)
+        throws SemanticException, RecognitionException
+    {
+        if (importNode.getType() == JavaTokenTypes.IMPORT) {
+            // Non-static import
+            AST classNode = importNode.getFirstChild();
+            AST fpNode = classNode.getFirstChild();
+            AST className = fpNode.getNextSibling();
+            
+            // if className == '*' this is a wildcard
+            if (className.getType() == JavaTokenTypes.STAR) {
+                PackageOrClass importEntity = getPackageOrType(fpNode, true);
+                imports.addWildcardImport(importEntity);
+            }
+            else {
+                // A non-wildcard import.
+                PackageOrClass importEntity = getPackageOrType(classNode, true);
+                if (importEntity.isClass()) {
+                    imports.addNormalImport(className.getText(), importEntity);
+                }
+            }
+        }
+        else if (importNode.getType() == JavaTokenTypes.STATIC_IMPORT) {
+            // static import
+            AST impNode = importNode.getFirstChild().getFirstChild();
+            AST impNameNode = impNode.getNextSibling();
+            if (impNameNode.getType() == JavaTokenTypes.STAR) {
+                ClassEntity importEntity = (ClassEntity) getPackageOrType(impNode, true);
+                imports.addStaticWildcardImport(importEntity);
+            }
+            else {
+                String impName = impNameNode.getText();
+                ClassEntity importEntity = (ClassEntity) getPackageOrType(impNode, true);
+                imports.addStaticImport(impName, importEntity);
+            }
         }
     }
     
@@ -801,7 +816,7 @@ public class TextParser
         if (node.getType() == JavaTokenTypes.IDENT) {
             // A class name
             // the children are the type parameters
-            List params = getTParams(node.getFirstChild());
+            List params = getTypeArgs(node.getFirstChild());
             
             try {
                 Class c = loadUnqualifiedClass(node.getText(), true);
@@ -821,7 +836,7 @@ public class TextParser
             // String packagen = combineDotNames(packageNode, '.');
 
             AST classNode = packageNode.getNextSibling();
-            List params = getTParams(classNode.getNextSibling());
+            List params = getTypeArgs(classNode.getFirstChild());
 
             PackageOrClass nodePorC = porc.getPackageOrClassMember(classNode.getText());
             GenTypeClass nodeClass = (GenTypeClass) nodePorC.getType();
@@ -838,14 +853,14 @@ public class TextParser
     }
     
     /**
-     * Get a sequence of type parameters.
+     * Get a sequence of type arguments.
      * 
-     * @param node  The node representing the first tpar (or null).
-     * @return      A list of GenType representing the type parameters
+     * @param node  The node representing the first type argument (or null).
+     * @return      A list of GenType representing the type arguments
      * @throws RecognitionException
      * @throws SemanticException
      */
-    private List getTParams(AST node) throws RecognitionException, SemanticException
+    private List getTypeArgs(AST node) throws RecognitionException, SemanticException
     {
         List params = new LinkedList();
         
@@ -856,7 +871,7 @@ public class TextParser
             
             if (childNode.getType() == JavaTokenTypes.WILDCARD_TYPE) {
                 // wildcard parameter
-                AST boundNode = childNode.getNextSibling();
+                AST boundNode = childNode.getFirstChild();
                 if (boundNode != null) {
                     int boundType = boundNode.getType();
                     
@@ -894,7 +909,7 @@ public class TextParser
      * @return        The string representation of the node
      * @throws RecognitionException
      */
-    String combineDotNames(AST node, char seperator) throws RecognitionException
+    static String combineDotNames(AST node, char seperator) throws RecognitionException
     {
         if (node.getType() == JavaTokenTypes.IDENT)
             return node.getText();
@@ -921,7 +936,7 @@ public class TextParser
     {
         if (node.getType() == JavaTokenTypes.IDENT) {
             // A simple name<params> expression
-            List params = getTParams(node.getFirstChild());
+            List params = getTypeArgs(node.getFirstChild());
             
             String name = outer.rawName() + '$' + node.getText();
             try {
@@ -941,7 +956,7 @@ public class TextParser
             String dotnames = combineDotNames(packageNode, '$');
 
             AST classNode = packageNode.getNextSibling();
-            List params = getTParams(classNode.getNextSibling());
+            List params = getTypeArgs(classNode.getFirstChild());
 
             String name = outer.rawName() + '$' + dotnames + '$' + node.getText();
             try {
@@ -1062,7 +1077,7 @@ public class TextParser
         if (node.getType() == JavaTokenTypes.IDENT) {
             // Treat it first as a type, then as a package.
             String nodeText = node.getText();
-            List tparams = getTParams(node.getFirstChild());
+            List tparams = getTypeArgs(node.getFirstChild());
             
             try {
                 Class c;
@@ -1088,7 +1103,7 @@ public class TextParser
             AST firstChild = node.getFirstChild();
             AST secondChild = firstChild.getNextSibling();
             if (secondChild.getType() == JavaTokenTypes.IDENT) {
-                List tparams = getTParams(secondChild.getFirstChild());
+                List tparams = getTypeArgs(secondChild.getFirstChild());
                 PackageOrClass firstpart = getPackageOrType(firstChild, fullyQualified);
 
                 PackageOrClass entity = firstpart.getPackageOrClassMember(secondChild.getText());
@@ -2068,7 +2083,7 @@ public class TextParser
                 
                 // class literal
                 if (secondDotArg.getType() == JavaTokenTypes.LITERAL_class) {
-                    if (! Config.isJava15())
+                    if (! java15)
                         return new ExprValue(new GenTypeClass(new JavaReflective(Class.class)));
                     
                     // we want "Class<X>", where X is the boxed type (or Void)
@@ -2589,17 +2604,6 @@ public class TextParser
             else
                 return 0;
         }
-    }
-    
-    /**
-     * An exception class used to indicate that a semantic occur was detected
-     * in the code being parsed.
-     * 
-     * @author Davin McCall
-     */
-    class SemanticException extends Exception
-    {
-        // Nothing to see here.
     }
     
     class PackageEntity extends PackageOrClass

@@ -46,7 +46,7 @@ public class UnitTestAnalyzer
         try {
             tparse.compilationUnit(ja.getAST());
         }
-        catch (RecognitionException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
 
