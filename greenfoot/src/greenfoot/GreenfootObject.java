@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.2
- * @cvs-version $Id: GreenfootObject.java 3569 2005-09-14 13:39:32Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3577 2005-09-19 14:05:08Z polle $
  */
 public class GreenfootObject
 {
@@ -543,7 +543,7 @@ public class GreenfootObject
     /**
      * Return all objects within range 'r' around this object. 
      * An object is within range if the distance between its centre and this
-     * object's centre is less than r.
+     * object's centre is less than or equal to r.
      * 
      * @param r Radius of the cirle (in pixels)
      * @param cls Class of objects to look for (passing 'null' will find all objects).
