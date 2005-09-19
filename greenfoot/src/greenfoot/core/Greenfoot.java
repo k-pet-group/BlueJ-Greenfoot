@@ -3,10 +3,8 @@ package greenfoot.core;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
 import greenfoot.event.GreenfootObjectInstantiationListener;
-import greenfoot.gui.FrameBoundsManager;
 import greenfoot.gui.GreenfootFrame;
 
-import java.awt.Rectangle;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
