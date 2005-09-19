@@ -6,7 +6,7 @@ import bluej.pkgmgr.Package;
 /**
  * This class encapsulates events on BlueJ packages.
  *
- * @version $Id: PackageEvent.java 1885 2003-04-25 08:53:48Z damiano $
+ * @version $Id: PackageEvent.java 3575 2005-09-19 12:59:34Z polle $
  */
 
 /*
@@ -51,7 +51,7 @@ public class PackageEvent implements ExtensionEvent
      */
     public BPackage getPackage ()
       {
-      return ExtensionBridge.newBPackage (thisPackage);
+      return thisPackage.getBPackage();
       }
 
     /**

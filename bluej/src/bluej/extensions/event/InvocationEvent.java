@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * classes and objects involved.
  *
  *
- * @version    $Id: InvocationEvent.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version    $Id: InvocationEvent.java 3575 2005-09-19 12:59:34Z polle $
  */
 
 /*
@@ -107,7 +107,7 @@ public class InvocationEvent implements ExtensionEvent
      */
     public BPackage getPackage()
     {
-        return ExtensionBridge.newBPackage(bluej_pkg);
+        return bluej_pkg.getBPackage();
     }
 
 
