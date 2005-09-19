@@ -30,7 +30,9 @@
     <property name="src" location="src"/>
     <!-- Location of the image files for greenfoot -->
     <property name="images" location="images"/>
-
+	
+	<!-- Location where javadoc for the API classes will be stored. -->
+	<property name="apidoc" location="apidoc"/>
     <!-- Location of the build-dir where the class files will be stored -->
     <property name="build" location="classes"/>
     <!-- Location of the packed files for distribution -->
@@ -79,7 +81,21 @@
 
     <target name="ready-to-run" depends="compile, copy-projects" description="Builds everything so it is ready to run" >
     </target>
-
+	
+	<target name="create-api-doc">
+	  <mkdir dir="${apidoc}"/>
+	  <javadoc destdir="${apidoc}"
+	           Windowtitle="Greenfoot API"
+		       Doctitle="Greenfoot API"
+		       bottom="&lt;a href=http://www.greenfoot.org/&gt;Greenfoot homepage&lt;/a&gt;">
+               
+	  	<fileset dir="${src}" defaultexcludes="yes">
+	  		<include name="greenfoot/GreenfootObject.java" />
+	  		<include name="greenfoot/GreenfootWorld.java" />
+	  		<include name="greenfoot/GreenfootImage.java" />
+	  	</fileset>
+	  </javadoc>
+	</target>	
 
     <target name="skeleton" depends="compile"  description="Copy the framework files from the build-dir to the skeletonproject." >
         <copy todir="projects/skeletonProject">
