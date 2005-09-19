@@ -44,7 +44,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3556 2005-09-09 13:40:58Z polle $
+ * @version $Id: ClassView.java 3576 2005-09-19 13:52:49Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -409,13 +409,10 @@ public class ClassView extends JToggleButton
              * e1.printStackTrace(); return; }
              */
             writer = new FileWriter(newJavaFile);
-            String packageName = "";
-            String superClassName = getClassName();
-            if (pkg != null) {
-                packageName = pkg.getName();
-            }
+            String superClassName = getClassName();            
             writer.write(imports);
             role.createSkeleton(className, superClassName, writer);
+            writer.close();
             GClass newClass = pkg.newClass(className);
             return newClass;
         }

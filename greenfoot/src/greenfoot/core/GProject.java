@@ -19,19 +19,10 @@ import bluej.extensions.ProjectNotOpenException;
 public class GProject
 {
     private RProject rProject;
-    private GPackage pkg;
-    private Map classes = new HashMap();
     
-
-    public GProject(RProject rmiProject, GPackage pkg) {
-        this.rProject = rmiProject;
-        this.pkg = pkg;
-    }
-    
-    GProject(RProject rmiProject) throws ProjectNotOpenException, RemoteException
+    public GProject(RProject rmiProject) throws ProjectNotOpenException, RemoteException
     {
         this.rProject = rmiProject;
-        this.pkg = getDefaultPackage();
     }
 
     public void close()
@@ -51,10 +42,12 @@ public class GProject
      * 
      */
     public GPackage getDefaultPackage() throws ProjectNotOpenException, RemoteException {
-        if(pkg == null) {
-            pkg = new GPackage(rProject.getPackage(""), this);
+    	RPackage rPkg = rProject.getPackage("");
+        if(rPkg == null) {
+            return null;
+        } else {
+            return new GPackage(rPkg, this);
         }
-        return pkg;
     }
 
     /**
@@ -66,7 +59,7 @@ public class GProject
         if(rPkg == null) {
             return null;
         } else {
-            return new GPackage(rProject.getPackage("greenfoot"), this);
+            return new GPackage(rPkg, this);
         }
     }
 

@@ -89,7 +89,7 @@ public class GPackage
         throws ProjectNotOpenException, RemoteException
     {
         if(project == null) {
-            project = new GProject(pkg.getProject(), this);
+            project = new GProject(pkg.getProject());
         }
         return project;
     }
@@ -126,10 +126,7 @@ public class GPackage
     public GClass newClass(String className)
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
     {
-
-        File pkgDir = getDir();
-        File classFile = new File(pkgDir, className + ".java");
-        return new GClass(pkg.newClass(className), this);
+    	return new GClass(pkg.newClass(className), this);
     }
     
     public GClass getClass(String className) {
