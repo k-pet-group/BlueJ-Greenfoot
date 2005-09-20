@@ -108,8 +108,9 @@
                executable="${build_java_home}/bin/javac"
                fork="yes"
                srcdir="."
-               destdir="."
+               destdir="install_tmp"
                includes="Installer.java"
+               debug="true"
         >
         	<compilerarg line="-source 1.3"/>
     		<compilerarg line="-target 1.3"/>
