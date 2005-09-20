@@ -25,8 +25,8 @@ import javax.swing.ImageIcon;
  * The method here is empty, and subclasses normally provide their own implementations.
  * 
  * @author Poul Henriksen
- * @version 0.2
- * @cvs-version $Id: GreenfootObject.java 3577 2005-09-19 14:05:08Z polle $
+ * @version 0.2.1
+ * @cvs-version $Id: GreenfootObject.java 3581 2005-09-20 13:21:16Z polle $
  */
 public class GreenfootObject
 {

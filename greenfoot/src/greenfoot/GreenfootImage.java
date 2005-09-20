@@ -23,13 +23,14 @@ import bluej.extensions.ProjectNotOpenException;
  * and/or drawn by using various drawing methods.
  * 
  * @author Poul Henriksen
- * @version 0.2
- * @cvs-version $Id: GreenfootImage.java 3551 2005-09-06 09:31:41Z polle $
+ * @version 0.2.1
+ * @cvs-version $Id: GreenfootImage.java 3581 2005-09-20 13:21:16Z polle $
  */
 public class GreenfootImage
 {
     /** The image name is primarily use for debuging. */
     private String imageFileName; 
+    
     
     private java.awt.Image image; 
     private Graphics2D graphics;
@@ -313,7 +314,7 @@ public class GreenfootImage
      * color. The baseline of the leftmost character is at position ( <i>x
      * </i>,&nbsp; <i>y </i>).
      * 
-     * @param str
+     * @param string
      *            the string to be drawn.
      * @param x
      *            the <i>x </i> coordinate.
@@ -360,9 +361,9 @@ public class GreenfootImage
      * The area inside the polygon is defined using an even-odd fill rule, also
      * known as the alternating rule.
      * 
-     * @param xPoints
+     * @param xpoints
      *            a an array of <code>x</code> coordinates.
-     * @param yPoints
+     * @param ypoints
      *            a an array of <code>y</code> coordinates.
      * @param nPoints
      *            a the total number of points.

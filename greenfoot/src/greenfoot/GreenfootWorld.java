@@ -26,8 +26,8 @@ import java.util.Observable;
  * @see greenfoot.GreenfootObject
  * @author Poul Henriksen
  * @author Michael Kolling
- * @version 0.2
- * @cvs-version $Id: GreenfootWorld.java 3461 2005-06-20 11:33:14Z mik $
+ * @version 0.2.1
+ * @cvs-version $Id: GreenfootWorld.java 3581 2005-09-20 13:21:16Z polle $
  */
 public class GreenfootWorld extends Observable
 {
@@ -123,7 +123,7 @@ public class GreenfootWorld extends Observable
      * NOTE: Incomplete implementation. NOT IMPLEMENTED.
      * 
      * @see #setBackground(GreenfootImage)
-     * @param image The image to be shown
+     * @param filename The file holding the image to be shown
      */
     final public void setBackground(String filename)
     {
@@ -250,7 +250,7 @@ public class GreenfootWorld extends Observable
      * 
      * NOTE: NOT IMPLEMENTED.
      * 
-     * @param classOrder List of class objects.
+     * @param classPaintOrder List of class objects.
      * 
      */
     public void setPaintOrder(List classPaintOrder)
