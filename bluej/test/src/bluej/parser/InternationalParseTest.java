@@ -1,14 +1,13 @@
 package bluej.parser;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.net.URL;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-import bluej.parser.ClassParser;
+import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
 
 /**
  * Run a whole directory of sample source files through our parser.
@@ -61,6 +60,15 @@ public class InternationalParseTest extends junit.framework.TestCase
         throws RecognitionException, TokenStreamException, FileNotFoundException
     {
         ClassParser.parse(getFile("escaped_unicode_string.dat"), null);
-        ClassParser.parse(getFile("escaped_unicode_method.dat"), null);
+        
+        ClassInfo info = ClassParser.parse(getFile("escaped_unicode_method.dat"), null);
+        
+        // Superclass name is EE (encoded)
+        assertEquals("EE", info.getSuperclass());
+        
+        // The selection should be 12 characters long (2 * 6)
+        Selection testSel = info.getSuperReplaceSelection();
+        assertEquals(48, testSel.getColumn());
+        assertEquals(60, testSel.getEndColumn());
     } 
 }
