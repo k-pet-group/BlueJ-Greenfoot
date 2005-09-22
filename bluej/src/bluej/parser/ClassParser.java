@@ -34,7 +34,7 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 3584 2005-09-22 01:44:44Z davmac $
+ * @version $Id: ClassParser.java 3585 2005-09-22 03:19:53Z davmac $
  */
 public class ClassParser
 {
@@ -530,11 +530,8 @@ public class ClassParser
                     break;
                 
                 case JavaTokenTypes.METHOD_DEF:
-                    processMethodDef(cnode, scope);
-                    break;
-                
                 case JavaTokenTypes.CTOR_DEF:
-                    processCtorDef(cnode, scope);
+                    processMethodDef(cnode, scope);
                     break;
                     
                 case JavaTokenTypes.ENUM_CONSTANT_DEF:
@@ -594,39 +591,6 @@ public class ClassParser
             cnode = cnode.getNextSibling();
         
         processObjBlock(cnode, new Scope(scope));
-    }
-    
-    private void processCtorDef(AST node, Scope scope)
-    {
-        // CTOR_DEF
-        //  MODIFIERS identifier PARAMETERS body
-
-        AST cnode = node.getFirstChild(); // Modifiers
-        cnode = cnode.getNextSibling();  // identifier
-        cnode = cnode.getNextSibling();  // parameter block
-
-        // process parameter block
-        Scope constructorScope = new Scope(scope);
-        AST paramDef = cnode.getFirstChild();
-        while (paramDef != null) {
-            processParameterDef(paramDef, constructorScope);
-            paramDef = paramDef.getNextSibling();
-        }
-
-        // check "throws" clause
-        cnode = cnode.getNextSibling();
-        if (cnode.getType() == JavaTokenTypes.LITERAL_throws) {
-            AST tnode = cnode.getFirstChild();
-            while (tnode != null) {
-                String tname = getFirstLevelName(tnode);
-                scope.checkType(tname);
-                tnode = tnode.getNextSibling();
-            }
-            cnode = cnode.getNextSibling();
-        }
-
-        // process constructor body
-        processCodeBlock(cnode, constructorScope);
     }
     
     /**
@@ -1105,6 +1069,8 @@ public class ClassParser
         // METHOD_DEF
         //   MODIFIERS TYPE_PARAMETERS? TYPE identifier PARAMETERS block?
 
+        boolean isConstructor = node.getType() == JavaTokenTypes.CTOR_DEF;
+        
         List paramTypes = new ArrayList();
         List paramNames = new ArrayList();
         String typeParams = null;
@@ -1130,12 +1096,19 @@ public class ClassParser
             cnode = cnode.getNextSibling();
         }
         
-        // Generate a reference to the return type
-        String rtypeName = getFirstLevelName(cnode.getFirstChild());
-        scope.checkType(rtypeName);
-        rtypeName = getCompleteTypeString(cnode.getFirstChild());
+        // Get the return type as a string
+        String rtypeName;
+        if (! isConstructor) {
+            // Generate a reference to the return type
+            rtypeName = getFirstLevelName(cnode.getFirstChild());
+            scope.checkType(rtypeName);
+            rtypeName = getCompleteTypeString(cnode.getFirstChild());
+            cnode = cnode.getNextSibling();  // identifier
+        }
+        else {
+            rtypeName = null;
+        }
         
-        cnode = cnode.getNextSibling();  // identifier
         String methodName = cnode.getText();
         cnode = cnode.getNextSibling();  // parameter block
         AST paramDef = cnode.getFirstChild();

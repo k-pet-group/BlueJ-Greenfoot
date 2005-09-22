@@ -74,7 +74,7 @@ public class Scope
      * @param name  The name of the method
      * @param tpars   The type parameters, in the form required by ClassInfo.addComment().
      *                May be null.
-     * @param retType  The return type of this method
+     * @param retType  The return type of this method (null for a constructor)
      * @param paramTypes  The parameter types (may be null if no parameters)
      * @param paramNames  The parameter names as declared in the method definition
      *                    (may be null)

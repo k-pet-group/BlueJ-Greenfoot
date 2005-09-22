@@ -841,7 +841,7 @@ field!
         |   (tp:typeParameters)?
             (
                 h:ctorHead s:constructorBody // constructor
-                {#field = #(#[CTOR_DEF,"CTOR_DEF"], mods, h, s);}
+                {#field = #(#[CTOR_DEF,"CTOR_DEF"], mods, tp, h, s);}
 
                 |
             
