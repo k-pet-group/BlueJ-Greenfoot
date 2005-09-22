@@ -16,7 +16,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 3543 2005-08-26 02:40:53Z davmac $
+ * @version $Id: JavaUtils.java 3586 2005-09-22 06:02:25Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -237,6 +237,18 @@ public abstract class JavaUtils {
         return rmap;
     }
 
+    /**
+     * Make a descriptive signature. This includes the method/constructor name (which may
+     * be preceded by type parameters), and parameter types or names or types and names.
+     * (The type is always substituted if the name is missing). 
+     * 
+     * @param name       The method/constructor name (including preceding
+     *                          type parameters if any)
+     * @param paramTypes   The parameter types
+     * @param paramNames   The parameter names (may be null)
+     * @param includeTypeNames   True if the parameter type should always be included
+     * @param isVarArgs      True if the method is varargs (requires ellipsis insertion)
+     */
     protected static String makeDescription(String name, String[] paramTypes, String[] paramNames, boolean includeTypeNames, boolean isVarArgs)
     {
         StringBuffer sb = new StringBuffer();

@@ -9,44 +9,83 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 3543 2005-08-26 02:40:53Z davmac $
+ * @version $Id: JavaUtils15.java 3586 2005-09-22 06:02:25Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
-    public String getSignature(Method method) {
-        String name = getTypeParameters(method);
-        name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
-        Type[] params = method.getGenericParameterTypes();
-        return makeSignature(name, params, method.isVarArgs());
-    }
+    /*
+     * Make signatures for methods, constructors
+     */
     
-    // TODO refactor getShortDesc/getLongDesc variants.
-    public String getShortDesc(Method method, String [] paramnames)
+    public String getSignature(Method method)
     {
         String name = getTypeParameters(method);
         name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
-
-        // Get the names without introducing ellipsis for varargs
-        Type[] paramTypes = method.getGenericParameterTypes();       
-        String[] paramTypeNames = getParameterTypes(paramTypes, false);
-        
-        return makeDescription(name, paramTypeNames, paramnames, false, method.isVarArgs());
+        Type[] params = method.getGenericParameterTypes();
+        String [] paramStrings = typeArrayToStrings(params, method.isVarArgs());
+        return makeDescription(name, paramStrings, null, true, method.isVarArgs());
+        //return makeSignature(name, params, method.isVarArgs());
     }
     
-    public String getShortDesc(Method method, String [] paramnames, Map tparams)
+    public String getSignature(Constructor cons)
+    {
+        String name = getTypeParameters(cons);
+        name += JavaNames.getBase(cons.getName());
+        Type[] params = cons.getGenericParameterTypes();
+        
+        return makeSignature(name, params, cons.isVarArgs());
+    }
+    
+    /**
+     * Build the signature string. Format: name(type,type,type)
+     */
+    static private String makeSignature(String name, Type[] params, boolean isVarArgs)
+    {
+        String [] typeStrings = typeArrayToStrings(params, isVarArgs);
+        return makeDescription(name, typeStrings, null, true, isVarArgs);
+    }
+    
+    /**
+     * Convert an array of types to an array of strings representing those types.
+     * Optionally convert the last type to var-args ellipsis form ("int ...").
+     * 
+     * @param types     The array of types to convert
+     * @param isVarArgs True if the last arg should be treated as having var-arity
+     */
+    private static String [] typeArrayToStrings(Type [] types, boolean isVarArgs)
+    {
+        String [] rval = new String[types.length];
+        for (int i = 0; i < types.length; i++) {
+            rval[i] = getTypeName(types[i]);
+        }
+        
+        if (isVarArgs)
+            rval[types.length - 1] = createVarArg(rval[types.length - 1]);
+        
+        return rval;
+    }
+    
+    /*
+     * Make descriptions of methods
+     */
+    
+    /**
+     * Get a short or long method description which maps type parameters to types using
+     * the supplied map. 
+     */
+    public String getDescription(Method method, String [] paramnames, Map tparams, boolean longDesc)
     {
         // If tparams is null, the parent object is raw.
         if(tparams == null) {
             String name = JavaUtils14.getTypeName(method.getReturnType()) + " " + method.getName();
             Class[] params = method.getParameterTypes();
             String[] paramTypes = JavaUtils14.getParameterTypes(params);
-            return makeDescription(name, paramTypes, paramnames, false, false);
+            return makeDescription(name, paramTypes, paramnames, longDesc, false);
         }
         
-        // Don't want to modify the map which was passed in, so make a copy
-        // of it:
+        // Don't want to modify the map which was passed in, so make a copy:
         Map newMap = new HashMap(tparams);
-        
+
         // add any method type parameters into the map, replacing existing
         // map entries.
         List myParams = getTypeParams(method);
@@ -55,6 +94,7 @@ public class JavaUtils15 extends JavaUtils {
             newMap.put(tpar.getTparName(), tpar);
         }
         
+        // assemble the type parameters, return type, method name, parameters
         String name = getTypeParameters(method);
         JavaType rtype = getReturnType(method);
         name += rtype.mapTparsToTypes(newMap).toString(true) + " " + method.getName();
@@ -62,6 +102,28 @@ public class JavaUtils15 extends JavaUtils {
         String[] paramTypeNames = new String[paramTypes.length];
         for(int i = 0; i < paramTypes.length; i++)
             paramTypeNames[i] = paramTypes[i].mapTparsToTypes(newMap).toString(true);
+        
+        return makeDescription(name, paramTypeNames, paramnames, longDesc, method.isVarArgs());
+    }
+
+    public String getShortDesc(Method method, String [] paramnames, Map tparams)
+    {
+        return getDescription(method, paramnames, tparams, false);
+    }
+
+    public String getLongDesc(Method method, String [] paramnames, Map tparams)
+    {
+        return getDescription(method, paramnames, tparams, true);
+    }
+    
+    public String getShortDesc(Method method, String [] paramnames)
+    {
+        String name = getTypeParameters(method);
+        name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
+
+        // Get the names without introducing ellipsis for varargs
+        Type[] paramTypes = method.getGenericParameterTypes();       
+        String[] paramTypeNames = getParameterTypes(paramTypes, false);
         
         return makeDescription(name, paramTypeNames, paramnames, false, method.isVarArgs());
     }
@@ -79,92 +141,41 @@ public class JavaUtils15 extends JavaUtils {
         return makeDescription(name, paramTypeNames, paramnames, true, method.isVarArgs());
     }
     
-    public String getLongDesc(Method method, String [] paramnames, Map tparams)
-    {
-        // If tparams is null, the parent object is raw.
-        if(tparams == null) {
-            String name = JavaUtils14.getTypeName(method.getReturnType()) + " " + method.getName();
-            Class[] params = method.getParameterTypes();
-            String[] paramTypes = JavaUtils14.getParameterTypes(params);
-            return makeDescription(name, paramTypes, paramnames, true, false);
-        }
-        
-        // Don't want to modify the map which was passed in, so make a copy
-        // of it:
-        Map newMap = new HashMap();
-        if (tparams != null)
-            newMap.putAll(tparams);
-        
-        // add any method type parameters into the map, replacing existing
-        // map entries.
-        List myParams = getTypeParams(method);
-        for(Iterator i = myParams.iterator(); i.hasNext(); ) {
-            GenTypeDeclTpar tpar = (GenTypeDeclTpar)i.next();
-            newMap.put(tpar.getTparName(), tpar);
-        }
-        
-        String name = getTypeParameters(method);
-        JavaType rtype = getReturnType(method);
-        name += rtype.mapTparsToTypes(newMap).toString(true) + " " + method.getName();
-        JavaType[] paramTypes = getParamGenTypes(method, false);
-        String[] paramTypeNames = new String[paramTypes.length];
-        for(int i = 0; i < paramTypes.length; i++)
-            paramTypeNames[i] = paramTypes[i].mapTparsToTypes(newMap).toString(true);
-        
-        return makeDescription(name, paramTypeNames, paramnames, true, method.isVarArgs());
-    }
+    /*
+     * Make descriptions of constructors
+     */
     
-    public String getShortDesc(Constructor constructor, String [] paramnames)
+    /**
+     * Make a constructor description (short or long).
+     */
+    public String getDescription(Constructor constructor, String [] paramnames, boolean longDesc)
     {
-        String name = constructor.getName();        
-        name += getTypeParamsString(constructor);        
+        String name = getTypeParameters(constructor);
+        name += constructor.getName();        
+        name += typeParamsToString(constructor.getDeclaringClass().getTypeParameters(), false); 
 
         // Get the names without introducing ellipsis for varargs
         Type[] paramTypes = constructor.getGenericParameterTypes();       
         String[] paramTypeNames = getParameterTypes(paramTypes, false);
 
         //String[] paramTypes = getParameterTypes(constructor);
-        return makeDescription(name, paramTypeNames, paramnames, false, constructor.isVarArgs());
+        return makeDescription(name, paramTypeNames, paramnames, longDesc, constructor.isVarArgs());
+    }
+    
+    public String getShortDesc(Constructor constructor, String [] paramnames)
+    {
+        return getDescription(constructor, paramnames, false);
     }
 
     public String getLongDesc(Constructor constructor, String [] paramnames)
     {
-        String name = constructor.getName();        
-        name += getTypeParamsString(constructor); 
-
-        // Get the names without introducing ellipsis for varargs
-        Type[] paramTypes = constructor.getGenericParameterTypes();       
-        String[] paramTypeNames = getParameterTypes(paramTypes, false);
-
-        // String[] paramTypes = getParameterTypes(constructor);
-        return makeDescription(name, paramTypeNames, paramnames, true, constructor.isVarArgs());
+        return getDescription(constructor, paramnames, true);
     }
     
-    private String getTypeParamsString(Constructor constructor)
-    {
-        String typeString = "";
-        List typeParams = getTypeParams(constructor.getDeclaringClass());
-        if(typeParams.size()>0) {
-            typeString += "<";
-	        for (Iterator iter = typeParams.iterator(); iter.hasNext();) {
-	            GenTypeDeclTpar element = (GenTypeDeclTpar) iter.next();
-	            typeString += element.toString(true);
-	            if(iter.hasNext()) {
-	                typeString += ",";
-	            }
-	        }
-	        typeString += ">";
-        }
-        return typeString;
-    }
+    /*
+     * Check various attributes of constructors / methods
+     */
     
-    public String getSignature(Constructor cons)
-    {
-        String name = JavaNames.getBase(cons.getName());
-        Type[] params = cons.getGenericParameterTypes();
-        return makeSignature(name, params, cons.isVarArgs());
-    }
-
     public boolean isVarArgs(Constructor cons)
     {
         return cons.isVarArgs();
@@ -408,26 +419,9 @@ public class JavaUtils15 extends JavaUtils {
     }
 
     /**
-     * Build the signature string. Format: name(type,type,type)
+     * Convert a type name into its vararg form. For instance,
+     * "int []" becomes "int ...".
      */
-    static private String makeSignature(String name, Type[] params, boolean isVarArgs)
-    {
-        StringBuffer sb = new StringBuffer();
-        sb.append(name);
-        sb.append("(");
-        for (int j = 0; j < params.length; j++) {
-            String typeName = getTypeName(params[j]);
-            if(isVarArgs && j==(params.length-1)) {
-                typeName = createVarArg(typeName);
-            }                
-            sb.append(typeName);
-            if (j < (params.length - 1))
-                sb.append(",");
-        }
-        sb.append(")");
-        return sb.toString();
-    }
-
     static private String createVarArg(String typeName) {
         String lastArrayStripped = typeName.substring(0,typeName.length()-2);
         return lastArrayStripped + " ...";        
@@ -444,7 +438,21 @@ public class JavaUtils15 extends JavaUtils {
      */
     static private String getTypeParameters(Method method)
     {
-        TypeVariable[] tparams = method.getTypeParameters();
+        return typeParamsToString(method.getTypeParameters(), true);
+    }
+    
+    static private String getTypeParameters(Constructor cons)
+    {
+        return typeParamsToString(cons.getTypeParameters(), true);
+    }
+    
+    /**
+     * Convert a TypeVariable array into a string representing a type parameter sequence,
+     * surrounded by angle brackets, with an optional trailing space (omitted if there
+     * are no type parameters).
+     */
+    static private String typeParamsToString(TypeVariable [] tparams, boolean extraSpace)
+    {
         if( tparams.length != 0 ) {
             String name = "<";
             for( int i = 0; i < tparams.length; i++ ) {
@@ -471,7 +479,10 @@ public class JavaUtils15 extends JavaUtils {
                 if( i != tparams.length - 1 )
                     name += ',';
             }
-            return name + "> ";
+            name += ">";
+            if (extraSpace)
+                name += " ";
+            return name;
         }
         else
             return "";

@@ -8,7 +8,7 @@ import java.util.*;
  * java names.
  *
  * @author  Andrew Patterson
- * @version $Id: JavaNames.java 3075 2004-11-09 00:10:18Z davmac $
+ * @version $Id: JavaNames.java 3586 2005-09-22 06:02:25Z davmac $
  */
 public class JavaNames
 {
@@ -41,7 +41,7 @@ public class JavaNames
         StringTokenizer st = new StringTokenizer(str, ".");
 
         while(st.hasMoreTokens()) {
-            if(!JavaNames.isIdentifier((String)(st.nextToken())))
+            if(!JavaNames.isIdentifier(st.nextToken()))
                 return false;
         }
 
@@ -84,9 +84,6 @@ public class JavaNames
      */
     public static String getBase(String qualifiedName)
     {
-        if(qualifiedName == null)
-            throw new NullPointerException();
-
         int index = qualifiedName.lastIndexOf(".");
         if(index >= 0)
             return qualifiedName.substring(++index);
