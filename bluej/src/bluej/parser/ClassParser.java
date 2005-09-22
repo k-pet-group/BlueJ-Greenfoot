@@ -3,6 +3,7 @@ package bluej.parser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -10,8 +11,8 @@ import java.util.List;
 
 import antlr.RecognitionException;
 import antlr.Token;
+import antlr.TokenStream;
 import antlr.TokenStreamException;
-import antlr.TokenStreamHiddenTokenFilter;
 import antlr.collections.AST;
 import bluej.parser.ast.LocatableAST;
 import bluej.parser.ast.LocatableToken;
@@ -33,7 +34,7 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 3573 2005-09-19 02:21:52Z davmac $
+ * @version $Id: ClassParser.java 3584 2005-09-22 01:44:44Z davmac $
  */
 public class ClassParser
 {
@@ -60,17 +61,18 @@ public class ClassParser
         try {
             fr = new FileInputStream(file);
 
-            JavaLexer lexer = new JavaLexer(fr);
+            // We use a lexer pipeline:
+            // First, deal with escaped unicode characters:
+            EscapedUnicodeReader eur = new EscapedUnicodeReader(new InputStreamReader(fr));
+
+            // Next create the initial lexer stage
+            JavaLexer lexer = new JavaLexer(eur);
             lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
             lexer.setTabSize(1);
-
-            // create a filter to handle our comments
-            TokenStreamHiddenTokenFilter filter;
-            filter = new TokenStreamHiddenTokenFilter(lexer);
-            //DavFilter filter;
-            //filter = new DavFilter(lexer);
-            filter.hide(JavaRecognizer.SL_COMMENT);
-            filter.hide(JavaRecognizer.ML_COMMENT);
+            eur.setAttachedScanner(lexer);
+            
+            // Finally filter out comments and whitespace
+            TokenStream filter = new JavaTokenFilter(lexer);
 
             // create a parser that reads from the scanner
             JavaRecognizer parser = new JavaRecognizer(filter);
@@ -302,12 +304,11 @@ public class ClassParser
             LocatableAST packageNameNode = (LocatableAST) packageNode.getFirstChild();
             
             String pkgName = getQualifiedName(packageNameNode);
-            LocatableAST packageNodeL = packageNode;
-            Token semi = packageNodeL.getImportantToken(0);
+            LocatableToken semi = packageNode.getImportantToken(0);
             
-            Selection pkgSel = new Selection(packageNodeL.getLine(), packageNodeL.getColumn(), packageNode.getText().length());
+            Selection pkgSel = new Selection(packageNode.getLine(), packageNode.getColumn(), packageNode.getLength());
             Selection pkgNameSel = getTypeSel(packageNameNode);
-            Selection semiSel = new Selection(semi.getLine(), semi.getColumn(), 1);
+            Selection semiSel = new Selection(semi.getLine(), semi.getColumn(), semi.getLength());
             info.setPackageSelections(pkgSel, pkgNameSel, pkgName, semiSel);
         }
     }
@@ -326,8 +327,8 @@ public class ClassParser
             
             // set "extends" keyword selection
             LocatableAST extendsN = (LocatableAST) cnode;
-            Token extendsTok = extendsN.getImportantToken(0);
-            Selection sel = new Selection(extendsTok.getLine(), extendsTok.getColumn(), extendsTok.getText().length());
+            LocatableToken extendsTok = extendsN.getImportantToken(0);
+            Selection sel = new Selection(extendsTok.getLine(), extendsTok.getColumn(), extendsTok.getLength());
             ArrayList superInterfaces = new ArrayList();
             //info.setExtendsReplaceSelection(sel);
 
@@ -363,7 +364,7 @@ public class ClassParser
             Selection s;
             if (tparSel == null) {
                 // No type parameters
-                s = new Selection(nameNode.getLine(), nameNode.getColumn() + nameNode.getText().length());
+                s = new Selection(nameNode.getLine(), nameNode.getEndColumn());
             }
             else {
                 // insert extends after type parametrs
@@ -1312,13 +1313,13 @@ public class ClassParser
     throws RecognitionException
     {
         if (node.getType() == JavaTokenTypes.IDENT) {
-            Selection s = new Selection(node.getLine(), node.getColumn(), node.getText().length());
+            Selection s = new Selection(node.getLine(), node.getColumn(), node.getLength());
             LocatableAST c = (LocatableAST) node.getFirstChild();
             if (c != null) {
                 if (c.getType() == JavaTokenTypes.TYPE_ARGUMENT && c.getImportantTokenCount() != 0) {
-                    LocatableToken tend = (LocatableToken) c.getImportantToken(0);
+                    LocatableToken tend = c.getImportantToken(0);
                     int line = tend.getLine();
-                    int col = tend.getColumn() + tend.getText().length();
+                    int col = tend.getEndColumn();
                     s.extendEnd(line, col);
                 }
             }
@@ -1344,7 +1345,7 @@ public class ClassParser
             throw new RecognitionException();
         
         // finally add in the leftmost part
-        Selection ns = new Selection(lnode.getLine(), lnode.getColumn(), lnode.getText().length() + 1);
+        Selection ns = new Selection(lnode.getLine(), lnode.getColumn(), lnode.getLength());
         ns.combineWith(s);
         return ns;
     }

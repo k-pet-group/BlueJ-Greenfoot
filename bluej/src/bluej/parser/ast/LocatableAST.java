@@ -7,16 +7,30 @@ import antlr.collections.AST;
 
 /**
  * An AST type that keeps track of line and columns, as well
- * as maintaining a list of "important" tokens.
+ * as maintaining a list of "important" tokens, and a "hidden"
+ * token. The hidden token is used to store the previous javadoc
+ * comment, if any.
  */
-public class LocatableAST extends antlr.CommonASTWithHiddenTokens
+public class LocatableAST extends antlr.CommonAST
 {
     private int line;
     private int column;
     protected ArrayList importantTokens;
     
+    protected LocatableToken hiddenBefore;
+    
     private int endLine;
     private int endColumn;
+    
+    public LocatableAST()
+    {
+        super();
+    }
+
+    public LocatableAST(Token tok)
+    {
+        super(tok);
+    }
     
     /**
      * Sets the line number of this node
@@ -81,23 +95,22 @@ public class LocatableAST extends antlr.CommonASTWithHiddenTokens
         return endColumn;
     }
     
-    public LocatableAST()
+    /**
+     * Get the length of this AST node selection. Only works if the node is on one line.
+     * This is true for most nodes derived from a token.
+     */
+    public int getLength()
     {
-        super();
+        return endColumn - column;
     }
-
-    public LocatableAST(Token tok)
-    {
-        super(tok);
-    }
-
+    
   /**
    * initialized this node with input node.
    */
     public void initialize(AST t)
     {
         super.initialize(t);
-
+        
         LocatableAST tree = (LocatableAST)t;
         setLine(tree.getLine());
         setColumn(tree.getColumn());
@@ -112,16 +125,15 @@ public class LocatableAST extends antlr.CommonASTWithHiddenTokens
    */
     public void initialize(Token t)
     {
-        super.initialize(t);
+        LocatableToken lt = (LocatableToken) t;
+        
+        super.initialize(lt);
 
         setLine(t.getLine());
         setColumn(t.getColumn());
-
-/*    if ( (getColumn() != 0) && (getText() != null) ) {
-      setSpan( new Span( getLine(), getColumn(), getLine(),
-                         getColumn() + getText().length() - 1 ) );
-    } */
-    
+        hiddenBefore = (LocatableToken) lt.getHiddenBefore();
+        
+        setEndPos(t.getLine(), lt.getEndColumn());
     }
 
     public void addImportantToken(Token tok)
@@ -132,9 +144,9 @@ public class LocatableAST extends antlr.CommonASTWithHiddenTokens
         importantTokens.add(tok);           
     }
 
-    public Token getImportantToken(int id)
+    public LocatableToken getImportantToken(int id)
     {
-        return (Token) importantTokens.get(id);    
+        return (LocatableToken) importantTokens.get(id);    
     }
 
     public int getImportantTokenCount()
@@ -143,6 +155,11 @@ public class LocatableAST extends antlr.CommonASTWithHiddenTokens
             return 0;
         else
             return importantTokens.size();
+    }
+    
+    public LocatableToken getHiddenBefore()
+    {
+        return hiddenBefore;
     }
     
 }

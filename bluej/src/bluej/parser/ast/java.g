@@ -174,6 +174,8 @@ tokens {
 	STATIC_IMPORT; ENUM_DEF; ENUM_CONSTANT_DEF; FOR; FOR_EACH; ANNOTATION_DEF; ANNOTATION;
 	ANNOTATION_MEMBER_VALUE_PAIR; ANNOTATION_FIELD_DEF; ANNOTATION_ARRAY_INIT; TYPE_ARGUMENT;
 	TYPE_PARAMETERS; WILDCARD_TYPE; TYPE_UPPER_BOUNDS; TYPE_LOWER_BOUNDS; COMMENT_DEF;
+
+	ML_COMMENT;  // used by the lexer
 }
 
 {
@@ -1616,7 +1618,7 @@ options {
 	testLiterals=false;    // don't automatically test for literals
     defaultErrorHandler=false;
 	k=4;                   // four characters of lookahead
-	charVocabulary='\u0003'..'\uFFFF';
+	charVocabulary='\u0000'..'\uFFFF';
 	// without inlining some bitset tests, couldn't do unicode;
 	// I need to make ANTLR generate smaller bitsets; see
 	// bottom of JavaLexer.java
@@ -1686,7 +1688,7 @@ WS	:	(	' '
 			)
 			{ newline(); }
 		)+
-		{ _ttype = Token.SKIP; }
+		// { _ttype = Token.SKIP; }
 	;
 
 // Single-line comments
@@ -1788,25 +1790,25 @@ HEX_DIGIT
 
 // a dummy rule to force vocabulary to be all characters (except special
 //   ones that ANTLR uses internally (0 to 2)
-protected
-VOCAB
-	:	'\3'..'\377'
-	;
+//protected
+//VOCAB
+//	:	'\3'..'\377'
+//	;
 
 
-protected
-IDENT_LETTER
-    :   ( '$' | 'A'..'Z' | '_' | 'a'..'z' |
-          '\u00c0'..'\u00d6' |
-          '\u00d8'..'\u00f6' |
-          '\u00f8'..'\u00ff' |
-          '\u0100'..'\u1fff' |
-          '\u3040'..'\u318f' |
-          '\u3300'..'\u337f' |
-          '\u3400'..'\u3d2d' |
-          '\u4e00'..'\u9fff' |
-          '\uf900'..'\ufaff' )
-    ;
+//protected
+//IDENT_LETTER
+//    :   ( '$' | 'A'..'Z' | '_' | 'a'..'z' |
+//          '\u00c0'..'\u00d6' |
+//          '\u00d8'..'\u00f6' |
+//          '\u00f8'..'\u00ff' |
+//          '\u0100'..'\u1fff' |
+//          '\u3040'..'\u318f' |
+//          '\u3300'..'\u337f' |
+//          '\u3400'..'\u3d2d' |
+//          '\u4e00'..'\u9fff' |
+//          '\uf900'..'\ufaff' )
+//    ;
     
 // an identifier.  Note that testLiterals is set to true!  This means
 // that after we match the rule, we look in the literals table to see

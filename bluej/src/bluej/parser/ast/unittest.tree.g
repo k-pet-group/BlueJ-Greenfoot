@@ -47,16 +47,16 @@ options {
     static antlr.CommonToken helpFindComment(AST mods, AST keyword)
     {
         if (mods != null && mods.getFirstChild() != null) {
-		    antlr.CommonASTWithHiddenTokens caht = (antlr.CommonASTWithHiddenTokens) mods.getFirstChild();
+		    LocatableAST caht = (LocatableAST) mods.getFirstChild();
             if(caht.getHiddenBefore() != null) {
-                antlr.CommonHiddenStreamToken chst = caht.getHiddenBefore();
+                antlr.CommonToken chst = (antlr.CommonToken) caht.getHiddenBefore();
                 return chst;
             }
         }
 
-	    antlr.CommonASTWithHiddenTokens caht = (antlr.CommonASTWithHiddenTokens) keyword.getFirstChild();
+	    LocatableAST caht = (LocatableAST) keyword.getFirstChild();
         if(caht != null && caht.getHiddenBefore() != null) {
-            antlr.CommonHiddenStreamToken chst = caht.getHiddenBefore();
+            antlr.CommonToken chst = (antlr.CommonToken) caht.getHiddenBefore();
             return chst;
         }
         
