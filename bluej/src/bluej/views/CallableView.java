@@ -35,6 +35,11 @@ public abstract class CallableView extends MemberView
     public abstract boolean isGeneric();
 
     /**
+     * Indicates whether the callable view represents a constructor.
+     */
+    public abstract boolean isConstructor();
+    
+    /**
      * Count of parameters
      * @returns the number of parameters
      */

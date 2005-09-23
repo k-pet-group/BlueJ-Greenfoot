@@ -13,7 +13,7 @@ import bluej.utility.JavaUtils;
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 3476 2005-07-25 05:48:39Z davmac $
+ *  @version $Id: MethodView.java 3587 2005-09-23 00:54:31Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -38,26 +38,32 @@ public class MethodView extends CallableView implements Comparable
     /**
      * Returns a string describing this Method.
      */
-    public String toString() {
+    public String toString()
+    {
         return method.toString();
     }
 
-    public int getModifiers() {
+    public int getModifiers()
+    {
         return method.getModifiers();
     }
 
-    /**
-     * @returns a boolean indicating whether this method has parameters
-     */
-    public boolean hasParameters() {
+    public boolean hasParameters()
+    {
         return (method.getParameterTypes().length > 0);
+    }
+    
+    public boolean isConstructor()
+    {
+        return false;
     }
 
     /**
      * Returns a signature string in the format
      * "type name(type,type,type)".
      */
-    public String getSignature() {
+    public String getSignature()
+    {
         return JavaUtils.getJavaUtils().getSignature(method);
     }
     

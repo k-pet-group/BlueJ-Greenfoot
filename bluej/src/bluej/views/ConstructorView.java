@@ -10,7 +10,7 @@ import bluej.utility.JavaUtils;
 /**
  * A representation of a Java constructor in BlueJ
  * 
- * @version $Id: ConstructorView.java 3476 2005-07-25 05:48:39Z davmac $
+ * @version $Id: ConstructorView.java 3587 2005-09-23 00:54:31Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -47,6 +47,11 @@ public final class ConstructorView extends CallableView
     public boolean isGeneric()
     {
         return !JavaUtils.getJavaUtils().getTypeParams(cons).isEmpty();
+    }
+    
+    public boolean isConstructor()
+    {
+        return true;
     }
 
     /**

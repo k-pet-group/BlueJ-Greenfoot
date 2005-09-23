@@ -39,7 +39,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3550 2005-09-06 03:42:47Z davmac $
+ * @version $Id: Invoker.java 3587 2005-09-23 00:54:31Z davmac $
  */
 
 public class Invoker
@@ -364,7 +364,7 @@ public class Invoker
         else
             argTypeStrings = null;
         
-        if (! member.isGeneric()) {
+        if (! member.isGeneric() || member.isConstructor()) {
             for (int i = 0; i < numArgs; i++) {
                 JavaType argType = argTypes[i];
                 
@@ -403,7 +403,7 @@ public class Invoker
         final String className = member.getClassName();
 
         // Generic methods currently require special handling
-        boolean isGenericMethod = member.isGeneric();
+        boolean isGenericMethod = member.isGeneric() && ! member.isConstructor();
         
         // prepare variables (assigned with actual values) for each parameter
         StringBuffer buffer = new StringBuffer();
@@ -425,7 +425,9 @@ public class Invoker
         StringBuffer argBuffer = new StringBuffer();
         buildArgStrings(buffer, argBuffer, args);
         String argString = buffer.toString();
-        String actualArgString = argBuffer.toString(); 
+        String actualArgString = argBuffer.toString();
+        if (isGenericMethod)
+            argString = actualArgString; 
         
         // build the invocation string
 
@@ -631,7 +633,6 @@ public class Invoker
             boolean isVoid, String constype)
     {
         // Create package specification line ("package xyz")
-
         String packageLine;
         if (pkg.isUnnamedPackage())
             packageLine = "";
