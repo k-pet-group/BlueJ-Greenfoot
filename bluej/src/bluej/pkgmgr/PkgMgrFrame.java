@@ -5,11 +5,8 @@ import java.awt.event.*;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -57,7 +54,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3529 2005-08-15 16:37:12Z damiano $
+ * @version $Id: PkgMgrFrame.java 3588 2005-09-26 00:18:07Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -977,6 +974,13 @@ public class PkgMgrFrame extends JFrame
 
         File absDirName = dirName.getAbsoluteFile();
         
+        // First confirm the chosen file exists
+        if (! absDirName.exists()) {
+            // file doesn't exist
+            DialogManager.showError(this, "file-does-not-exist");
+            return;
+        }
+        
         if (absDirName.isDirectory()) {
             // Check to make sure it's not already a project
             if (Project.isProject(absDirName.getPath())) {
@@ -1544,14 +1548,6 @@ public class PkgMgrFrame extends JFrame
                 {}
                 public void putException(String msg)
                 {}
-
-                /**
-                 * We have no use of this information when using the constructor
-                 */
-                public ExpressionInformation getExpressionInformation()
-                {
-                    return null;
-                }
             };
         }
         else if (cv instanceof MethodView) {
@@ -1565,6 +1561,7 @@ public class PkgMgrFrame extends JFrame
 
                 public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
+                    expressionInformation.setArgumentValues(ir.getArgumentValues());
                     getObjectBench().addInteraction(ir);
 
                     // a void result returns a name of null
@@ -1585,11 +1582,6 @@ public class PkgMgrFrame extends JFrame
                 {}
                 public void putException(String msg)
                 {}
-
-                public ExpressionInformation getExpressionInformation()
-                {
-                    return expressionInformation;
-                }
             };
         }
 
@@ -1855,42 +1847,33 @@ public class PkgMgrFrame extends JFrame
 
         // Find the number of tests
         int numTests = 0;
-        Iterator i = l.iterator();
+        ListIterator i = l.listIterator();
         while (i.hasNext()) {
             ClassTarget ct = (ClassTarget) i.next();
-            if (ct.isCompiled() && ct.isUnitTest()) {
+            if (ct.isCompiled() && ! ct.isAbstract()) {
                 UnitTestClassRole utcr = (UnitTestClassRole) ct.getRole();
                 numTests += utcr.getTestCount(ct);
+            }
+            else {
+                i.remove();
             }
         }
         
         final Iterator it = l.iterator();
         TestDisplayFrame.getTestDisplay().startMultipleTests(numTests);
 
-        Thread thr = new Thread() {
-            public void run()
-            {
-                while (it.hasNext()) {
-                    ClassTarget ct = (ClassTarget) it.next();
-                    if (ct.isCompiled() && ct.isUnitTest()) {
-                        UnitTestClassRole utcr = (UnitTestClassRole) ct.getRole();
-
-                        utcr.doRunTest(PkgMgrFrame.this, ct, null);
-                    }
-                }
-
-                TestDisplayFrame.getTestDisplay().endMultipleTests();
-
-                EventQueue.invokeLater(new Runnable() {
-                    public void run()
-                    {
-                        runButton.setEnabled(true);
-                    }
-                });
-            }
-        };
-
-        thr.start();
+        TestRunnerThread trt = new TestRunnerThread(this, it);
+        trt.start();
+    }
+    
+    /**
+     * Called by the test runner thread when the test run has finished.
+     * Re-enables the "run all tests" button.
+     */
+    public void endTestRun()
+    {
+        TestDisplayFrame.getTestDisplay().endMultipleTests();
+        runButton.setEnabled(true);
     }
 
     /**
@@ -2155,8 +2138,6 @@ public class PkgMgrFrame extends JFrame
                 setStatus(Config.getString("pkgmgr.creatingVM"));
                 break;
             case BlueJEvent.CREATE_VM_DONE :
-                // TODO: This seems never to be generated (a DebuggerEvent is
-                // not used instead) fix!
                 setStatus(Config.getString("pkgmgr.creatingVMDone"));
                 break;
             case BlueJEvent.GENERATING_DOCU :

@@ -53,7 +53,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3573 2005-09-19 02:21:52Z davmac $
+ * @version $Id: ClassTarget.java 3588 2005-09-26 00:18:07Z davmac $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable, InvokeListener
@@ -91,16 +91,17 @@ public class ClassTarget extends EditableTarget
     private boolean openWithInterface = false;
 
     // the set of breakpoints set in this class
-    /**
-     * Description of the Field
-     */
     protected List breakpoints = new ArrayList();
 
     // cached information obtained by parsing the source code
     // automatically becomes invalidated when the source code is
     // edited
     private SourceInfo sourceInfo = new SourceInfo();
-
+    
+    // caches whether the class is abstract. Only accurate when the
+    // classtarget state is normal (ie. the class is compiled).
+    private boolean isAbstract;
+    
     /**
      * fields used in Tarjan's algorithm:
      */
@@ -285,7 +286,11 @@ public class ClassTarget extends EditableTarget
      */
     public void determineRole(Class cl)
     {
+        isAbstract = false;
+        
         if (cl != null) {
+            isAbstract = Modifier.isAbstract(cl.getModifiers());
+            
             Class junitClass = null;
             try {
                 junitClass = cl.getClassLoader().loadClass("junit.framework.TestCase");
@@ -314,11 +319,11 @@ public class ClassTarget extends EditableTarget
             else if (Modifier.isInterface(cl.getModifiers())) {
                 setRole(new InterfaceClassRole());
             }
-            else if (Modifier.isAbstract(cl.getModifiers())) {
-                setRole(new AbstractClassRole());
-            }
             else if (JavaUtils.getJavaUtils().isEnum(cl)) {
                 setRole(new EnumClassRole());
+            }
+            else if (isAbstract) {
+                setRole(new AbstractClassRole());
             }
             else {
                 setRole(new StdClassRole());
@@ -338,14 +343,21 @@ public class ClassTarget extends EditableTarget
                 else if (classInfo.isInterface()) {
                     setRole(new InterfaceClassRole());
                 }
-                else if (classInfo.isAbstract()) {
-                    setRole(new AbstractClassRole());
-                }
                 else if (classInfo.isEnum()) {
                     setRole(new EnumClassRole());
                 }
+                else if (classInfo.isAbstract()) {
+                    setRole(new AbstractClassRole());
+                }
                 else {
-                    setRole(new StdClassRole());
+                    // We shouldn't override applet/unit test class roles based only
+                    // on source analysis: if they inherit only indirectly from Applet
+                    // or UnitTest, source analysis won't give the correct role
+                    if (! (role instanceof AppletClassRole) &&
+                            ! (role instanceof UnitTestClassRole))
+                    {
+                        setRole(new StdClassRole());
+                    }
                 }
             }
             // If no information gained from parsing the file (classInfo = null),
@@ -419,34 +431,9 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     * Copy all the files belonging to this target to a new location. For class
-     * targets, that is the source file, and possibly (if compiled) class and
-     * context files.
-     * 
-     * @param directory The directory to copy into (ending with "/")
-     * @return Description of the Return Value
-     */
-    public boolean copyFiles(String directory)
-    {
-        boolean okay = true;
-
-        if (!FileUtility.copyFile(getSourceFile(), new File(directory, getBaseName() + ".java"))) {
-            okay = false;
-        }
-
-        if (upToDate()) {
-            if (!FileUtility.copyFile(getClassFile(), new File(directory, getBaseName() + ".class"))) {
-                okay = false;
-            }
-            if (!FileUtility.copyFile(getContextFile(), new File(directory, getBaseName() + ".ctxt"))) {
-                okay = false;
-            }
-        }
-        return okay;
-    }
-
-    /**
      * Check if the compiled class and the source are up to date.
+     * (Specifically, check if a recompilation is needed. This will
+     * always be false if the target has no source).
      * 
      * @return true if they are in sync otherwise false.
      */
@@ -504,6 +491,17 @@ public class ClassTarget extends EditableTarget
         return (getRole() instanceof UnitTestClassRole);
     }
 
+    /**
+     * Check whether this class target represents an abstract class. This
+     * can be true regardless of the role (unit test, applet, standard class).
+     * 
+     * The return is only valid if isCompiled() is true.
+     */
+    public boolean isAbstract()
+    {
+        return isAbstract;
+    }
+    
     // --- Target interface ---
 
     /**
@@ -691,11 +689,6 @@ public class ClassTarget extends EditableTarget
 
     // --- EditorWatcher interface ---
 
-    /**
-     * Called by Editor when a file is changed
-     * 
-     * @param editor Description of the Parameter
-     */
     public void modificationEvent(Editor editor)
     {
         invalidate();
@@ -703,27 +696,15 @@ public class ClassTarget extends EditableTarget
         sourceInfo.setSourceModified();
     }
 
-    /**
-     * Called by Editor when a file is saved
-     * 
-     * @param editor the editor object being saved
-     */
     public void saveEvent(Editor editor)
     {
-        analyseSource(true);
+        ClassInfo info = analyseSource();
+        if (info != null) {
+            updateTargetFile(info);
+        }
         determineRole(null);
     }
 
-    /**
-     * Called by Editor when a breakpoint is been set/cleared
-     * 
-     * 
-     * @param lineNo the line number of the breakpoint
-     * @param set whether the breakpoint is set (true) or cleared
-     * 
-     * @param editor Description of the Parameter
-     * @return null if there was no problem, or an error string
-     */
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     {
         if (isCompiled()) {
@@ -818,33 +799,28 @@ public class ClassTarget extends EditableTarget
     public void enforcePackage(String packageName)
         throws IOException
     {
-        ClassInfo info;
-
         if (!JavaNames.isQualifiedIdentifier(packageName)) {
             throw new IllegalArgumentException();
         }
 
-        try {
-            info = sourceInfo.getInfo(getSourceFile().getPath(), getPackage().getAllClassnames());
-        }
-        catch (Exception e) {
-            return;
-        }
-
+        ClassInfo info = sourceInfo.getInfo(getSourceFile(), getPackage());
         if (info == null) {
             return;
         }
 
-        int fourCases = 0;
-
-        // there are four possible combinations of
-        // packageName.length == 0 and
-        // info.hasPackageStatement
-
+        // We may or may not need to change each of the semi colon selection text,
+        // package name selection text, and package statement selection text.
+        String semiReplacement = null;
+        String nameReplacement = null;
+        String pkgStatementReplacement = null;
+        
+        // Figure out if we need to change anything, and if so, what:
         if (packageName.length() == 0) {
             if (info.hasPackageStatement()) {
                 // we must delete all parts of the "package" statement
-                fourCases = 1;
+                semiReplacement = "";
+                nameReplacement = "";
+                pkgStatementReplacement = "";
             }
             else {
                 // if we have no package statement we do not need
@@ -859,49 +835,32 @@ public class ClassTarget extends EditableTarget
                     return;
                 }
                 // we must change just the package name
-                fourCases = 3;
+                nameReplacement = packageName;
             }
             else {
                 // we must insert all the "package" statement
-                fourCases = 4;
+                semiReplacement = ";\n\n";
+                nameReplacement = packageName;
+                pkgStatementReplacement = "package ";
             }
         }
 
-        // this allows us to make the changes to the file
+        // Change the relevant parts of the file
         FileEditor fed = new FileEditor(getSourceFile());
 
-        // first delete or insert the semicolon
-        if (fourCases == 1 || fourCases == 4) {
+        if (semiReplacement != null) {
             Selection selSemi = info.getPackageSemiSelection();
-
-            if (fourCases == 1) {
-                fed.replaceSelection(selSemi, "");
-            }
-            else {
-                fed.replaceSelection(selSemi, ";\n\n");
-            }
+            fed.replaceSelection(selSemi, semiReplacement);
+        }
+        
+        if (nameReplacement != null) {
+            Selection selName = info.getPackageNameSelection();
+            fed.replaceSelection(selName, nameReplacement);
         }
 
-        // then delete or insert the package name
-        Selection selName = info.getPackageNameSelection();
-
-        if (fourCases == 1) {
-            fed.replaceSelection(selName, "");
-        }
-        else {
-            fed.replaceSelection(selName, packageName);
-        }
-
-        // finally delete or insert the package statement
-        if (fourCases == 1 || fourCases == 4) {
+        if (pkgStatementReplacement != null) {
             Selection selStatement = info.getPackageStatementSelection();
-
-            if (fourCases == 1) {
-                fed.replaceSelection(selStatement, "");
-            }
-            else {
-                fed.replaceSelection(selStatement, "package ");
-            }
+            fed.replaceSelection(selStatement, pkgStatementReplacement);
         }
 
         // save changes back to disk
@@ -909,19 +868,17 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     * Analyse the source code.
-     * 
-     * @param modifySource Description of the Parameter
+     * Analyse the source code, and save retrieived information.
      */
-    public void analyseSource(boolean modifySource)
+    public ClassInfo analyseSource()
     {
         if (analysing) {
-            return;
+            return null;
         }
 
         analysing = true;
 
-        ClassInfo info = sourceInfo.getInfo(getSourceFile().getPath(), getPackage().getAllClassnames());
+        ClassInfo info = sourceInfo.getInfo(getSourceFile(), getPackage());
 
         // info will be null if the source was unparseable
         if (info != null) {
@@ -930,27 +887,32 @@ public class ClassTarget extends EditableTarget
             determineRole(null);
             setTypeParameters(info);
             analyseDependencies(info);
-
-            // these two however will potentially modify the source
-            if (modifySource) {
-                if (analyseClassName(info)) {
-                    if (nameEqualsIgnoreCase(info.getName())) {
-                        // this means file has same name but different case
-                        // to trick Windows OS to do a name change we need to
-                        // rename to temp name and then rename to desired name
-                        doClassNameChange(info.getName() + TEMP_FILE_EXTENSION);
-                    }
-                    doClassNameChange(info.getName());
-                }
-                if (analysePackageName(info)) {
-                    doPackageNameChange(info.getPackage());
-                }
-            }
         }
 
-        getPackage().repaint();
+        // getPackage().repaint();
 
         analysing = false;
+        return info;
+    }
+    
+    /**
+     * Change file name and package to match that found in the source file.
+     * @param info  The information from source analysis
+     */
+    private void updateTargetFile(ClassInfo info)
+    {
+        if (analyseClassName(info)) {
+            if (nameEqualsIgnoreCase(info.getName())) {
+                // this means file has same name but different case
+                // to trick Windows OS to do a name change we need to
+                // rename to temp name and then rename to desired name
+                doClassNameChange(info.getName() + TEMP_FILE_EXTENSION);
+            }
+            doClassNameChange(info.getName());
+        }
+        if (analysePackageName(info)) {
+            doPackageNameChange(info.getPackage());
+        }
     }
 
     /**
@@ -1125,7 +1087,6 @@ public class ClassTarget extends EditableTarget
     {
         Project proj = getPackage().getProject();
 
-        // This should be a WIzard one, Damiano
         Package dstPkg = proj.getPackage(newName);
 
         if (dstPkg == null) {
@@ -1625,14 +1586,10 @@ public class ClassTarget extends EditableTarget
     }
 
     /*
-     * (non-Javadoc)
+     * Set whether this ClassTarget can be moved by the user (dragged around).
+     * This is set false for unit tests which are assosciated with another class.
      * 
      * @see bluej.graph.Moveable#setIsMoveable(boolean)
-     */
-    /**
-     * Sets the isMoveable attribute of the ClassTarget object
-     * 
-     * @param isMoveable The new isMoveable value
      */
     public void setIsMoveable(boolean isMoveable)
     {

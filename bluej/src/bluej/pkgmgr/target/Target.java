@@ -14,7 +14,7 @@ import java.awt.geom.*;
  * A general target in a package
  * 
  * @author Michael Cahill
- * @version $Id: Target.java 3481 2005-07-28 01:52:38Z davmac $
+ * @version $Id: Target.java 3588 2005-09-26 00:18:07Z davmac $
  */
 public abstract class Target extends Vertex
     implements Comparable
@@ -124,12 +124,6 @@ public abstract class Target extends Vertex
 
         props.put(prefix + ".name", getIdentifierName());
     }
-
-    /**
-     * Copy all the files belonging to this target to a new location.
-     * @arg directory The directory to copy into
-     */
-    public abstract boolean copyFiles(String directory);
 
     /**
      * Return this target's package (ie the package that this target is

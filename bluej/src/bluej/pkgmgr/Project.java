@@ -1,47 +1,39 @@
 package bluej.pkgmgr;
 
+import java.awt.EventQueue;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+
+import javax.swing.JFrame;
+
+import bluej.BlueJEvent;
 import bluej.Boot;
 import bluej.Config;
-
 import bluej.classmgr.BPClassLoader;
-import bluej.classmgr.ClassPath;
-
 import bluej.debugger.*;
-
 import bluej.debugmgr.ExecControls;
 import bluej.debugmgr.ExpressionInformation;
-
-import bluej.debugmgr.inspector.*;
-
-import bluej.extensions.BPackage;
+import bluej.debugmgr.inspector.ClassInspector;
+import bluej.debugmgr.inspector.Inspector;
+import bluej.debugmgr.inspector.ObjectInspector;
+import bluej.debugmgr.inspector.ResultInspector;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extmgr.ExtensionsManager;
-
 import bluej.prefmgr.PrefMgr;
-
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.terminal.Terminal;
-
 import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
-
-import bluej.utility.*;
-
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
+import bluej.utility.JavaNames;
+import bluej.utility.Utility;
 import bluej.views.View;
-
-import java.awt.EventQueue;
-
-import java.io.File;
-import java.io.IOException;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import java.util.*;
-
-import javax.swing.*;
-import javax.swing.JFrame;
 
 
 /**
@@ -51,7 +43,7 @@ import javax.swing.JFrame;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3534 2005-08-19 06:56:40Z damiano $
+ * @version $Id: Project.java 3588 2005-09-26 00:18:07Z davmac $
  */
 public class Project implements DebuggerListener {
     /**
@@ -1005,10 +997,10 @@ public class Project implements DebuggerListener {
     /**
      * The remote VM for this project has just been initialised and is ready now.
      */
-    private void vmReady() {
-        PkgMgrFrame.displayMessage(Project.this,
-            Config.getString("pkgmgr.creatingVMDone"));
-        Utility.bringToFront(); // only works on MacOS currently
+    private void vmReady()
+    {
+        BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
+        Utility.bringToFront();  // only works on MacOS currently
     }
 
     /**
@@ -1030,7 +1022,8 @@ public class Project implements DebuggerListener {
     }
 
     /**
-     * Removes the current classloader, and removes references to classes loaded by it (this includes removing
+     * Removes the current classloader, and removes
+     * references to classes loaded by it (this includes removing
      * the objects from all object benches of this project).
      * Should be run whenever a source file changes
      */
@@ -1067,7 +1060,7 @@ public class Project implements DebuggerListener {
 
     /**
      * Creates a new debugging VM classloader.
-     * Should be run whenever a source file changes.
+     * Should be run whenever a class file changes.
      */
     public synchronized void newRemoteClassLoader() {
         getDebugger().newClassLoader(getClassLoader());
@@ -1112,12 +1105,15 @@ public class Project implements DebuggerListener {
     /**
      * Loads a class using the current classLoader
      */
-    public Class loadClass(String className) {
+    public Class loadClass(String className)
+    {
         try {
             return getClassLoader().loadClass(className);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-
+        }
+        catch (ClassNotFoundException e) {
+            return null;
+        }
+        catch (LinkageError le) {
             return null;
         }
     }
@@ -1235,7 +1231,7 @@ public class Project implements DebuggerListener {
 
         try {
             // Junit is always part of the project libraries, only Junit, not the core Bluej.
-//            pathList.add( Boot.getInstance().getJunitLib().toURI().toURL());
+			//   pathList.add( Boot.getInstance().getJunitLib().toURI().toURL());
             
             // Until the rest of BlueJ is clean we also need to add bluejcore
             // It should be possible to run BlueJ only with Junit
@@ -1276,8 +1272,6 @@ public class Project implements DebuggerListener {
         // The Project Class Loader must not "see" the BlueJ classes, this is teh reason to 
         // have BClassLoader created with the boot loader as parent.
         currentClassLoader = new BPClassLoader(newUrls,Boot.getInstance().getBootClassLoader());
-
-        //Debug.message("New classpath="+currentClassLoader.getClassPathAsString());
 
         return currentClassLoader;
     }

@@ -6,13 +6,19 @@ import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.DebuggerTestResult;
 import bluej.editor.Editor;
 import bluej.editor.moe.MoeEditor;
 import bluej.parser.SourceLocation;
@@ -20,6 +26,7 @@ import bluej.parser.SourceSpan;
 import bluej.parser.UnitTestAnalyzer;
 import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.TestRunnerThread;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
@@ -32,7 +39,7 @@ import bluej.utility.JavaNames;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 3510 2005-08-09 08:47:25Z damiano $
+ * @version $Id: UnitTestClassRole.java 3588 2005-09-26 00:18:07Z davmac $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -96,7 +103,7 @@ public class UnitTestClassRole extends ClassRole
     {
 		boolean enableTestAll = false;
 		
-		if (state == Target.S_NORMAL && cl != null) {
+		if (state == Target.S_NORMAL && cl != null && ! ct.isAbstract()) {
 			Method[] allMethods = cl.getMethods();
 		
 			for (int i=0; i < allMethods.length; i++) {
@@ -129,26 +136,34 @@ public class UnitTestClassRole extends ClassRole
 
         Method[] allMethods = cl.getMethods();
 		
-        for (int i=0; i < allMethods.length; i++) {
-            Method m = allMethods[i];
-
-			if (!isJUnitTestMethod(m))
-				continue;
-				
-            Action testAction = new TestAction(popupPrefix + " " + m.getName().substring(4),
-            									 ct.getPackage().getEditor(), ct, m.getName());
-
-            JMenuItem item = new JMenuItem();
-            item.setAction(testAction);
-            item.setFont(PrefMgr.getPopupMenuFont());
-            menu.add(item);
-            hasEntries = true;
+        if (! ct.isAbstract()) {
+            for (int i=0; i < allMethods.length; i++) {
+                Method m = allMethods[i];
+                
+                if (!isJUnitTestMethod(m))
+                    continue;
+                
+                Action testAction = new TestAction(popupPrefix + " " + m.getName().substring(4),
+                        ct.getPackage().getEditor(), ct, m.getName());
+                
+                JMenuItem item = new JMenuItem();
+                item.setAction(testAction);
+                item.setFont(PrefMgr.getPopupMenuFont());
+                menu.add(item);
+                hasEntries = true;
+            }
+            if (!hasEntries) {
+                JMenuItem item = new JMenuItem(Config.getString("pkgmgr.test.popup.noTests"));
+                item.setFont(PrefMgr.getPopupMenuFont());
+                item.setEnabled(false);
+                menu.add(item);
+            }
         }
-        if (!hasEntries) {
-			JMenuItem item = new JMenuItem(Config.getString("pkgmgr.test.popup.noTests"));
-			item.setFont(PrefMgr.getPopupMenuFont());
-			item.setEnabled(false);
-			menu.add(item);
+        else {
+            JMenuItem item = new JMenuItem(Config.getString("pkgmgr.test.popup.abstract"));
+            item.setFont(PrefMgr.getPopupMenuFont());
+            item.setEnabled(false);
+            menu.add(item);
         }
         return true;
     }
@@ -161,7 +176,7 @@ public class UnitTestClassRole extends ClassRole
      */
     public boolean createClassStaticMenu(JPopupMenu menu, ClassTarget ct, Class cl)
     {
-        boolean enable = !ct.getPackage().getProject().inTestMode() && ct.hasSourceCode();
+        boolean enable = !ct.getPackage().getProject().inTestMode() && ct.hasSourceCode() && ! ct.isAbstract();
             
         addMenuItem(menu, new MakeTestCaseAction(createTest,
                                                     ct.getPackage().getEditor(), ct), enable);
@@ -175,71 +190,47 @@ public class UnitTestClassRole extends ClassRole
 
     public void run(final PkgMgrFrame pmf, final ClassTarget ct, final String param)
     {
-    	Thread thr = new Thread() {
-    		public void run() {
-				doRunTest(pmf, ct, param);
-			}
-		};		
-
-    	thr.start();
-    }
-
-    /**
-     * Actually execute unit tests in a unit test class.
-     * 
-     * @param pmf  the PkgMgrFrame this is all occurring in
-     * @param ct   the ClassTarget of the unit test class
-     * @param param either null (which means run all tests in the class)
-     *              or a name of the method to run
-     */
-	public void doRunTest(PkgMgrFrame pmf, ClassTarget ct, String param)
-	{
-		DebuggerTestResult dtr = null;
-
-		if (param != null) {
-			// Test a single method
+        if (param != null) {
+            // Only running a single test
             TestDisplayFrame.getTestDisplay().startTest(pmf.getProject(), 1);
-
-            dtr = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), param);
-
-			if (dtr.isSuccess()) {
-				pmf.setStatus(param + " " + Config.getString("pkgmgr.test.succeeded"));
-				TestDisplayFrame.getTestDisplay().addResultQuietly(dtr);
-			}
-			else {
-				TestDisplayFrame.getTestDisplay().addResult(dtr);
-			}
-		}
-		else {
-			Class cl = pmf.getPackage().loadClass(ct.getQualifiedName());
-
-			if (cl == null)
-				return;
-				
-			// Test the whole class
-			Method[] allMethods = cl.getMethods();
-
-			int testCount = 0;
-
-			for (int i=0; i < allMethods.length; i++) {
-				if (isJUnitTestMethod(allMethods[i]))
-					testCount++;
-			}
-
-			TestDisplayFrame.getTestDisplay().startTest(pmf.getProject(), testCount);
-				
-			for (int i=0; i < allMethods.length; i++) {
-				Method m = allMethods[i];
-
-				if (!isJUnitTestMethod(m))
-					continue;
-					
-				dtr = pmf.getProject().getDebugger().runTestMethod(ct.getQualifiedName(), m.getName());
-
-				TestDisplayFrame.getTestDisplay().addResult(dtr);			
-			}
-		}            
-	}
+        }
+        
+        new TestRunnerThread(pmf, ct, param).start();
+    }
+    
+    /**
+     * Set up a test run. This just involves going through the methods in the class
+     * and creating a list of those which are test methods.
+     * 
+     * @param pmf   The package manager frame
+     * @param ct    The class target
+     * @param trt   The test runner thread
+     */
+    public void doRunTest(PkgMgrFrame pmf, ClassTarget ct, TestRunnerThread trt)
+    {
+        Class cl = pmf.getPackage().loadClass(ct.getQualifiedName());
+        
+        if (cl == null)
+            return;
+        
+        // Test the whole class
+        Method[] allMethods = cl.getMethods();
+        
+        ArrayList testMethods = new ArrayList();
+        
+        int testCount = 0;
+        
+        for (int i=0; i < allMethods.length; i++) {
+            if (isJUnitTestMethod(allMethods[i])) {
+                testCount++;
+                testMethods.add(allMethods[i].getName());
+            }
+        }
+        
+        String [] testMethodsArr = (String []) testMethods.toArray(new String[testCount]);
+        trt.setMethods(testMethodsArr);
+        TestDisplayFrame.getTestDisplay().startTest(pmf.getProject(), testCount);
+    }
     
     /**
      * Get the count of tests in the test class.

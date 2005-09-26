@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3573 2005-09-19 02:21:52Z davmac $
+ * @version $Id: Package.java 3588 2005-09-26 00:18:07Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -579,7 +579,7 @@ public final class Package extends Graph
         }
 
         for (int i = 0; i < numTargets; i++) {
-            Target target = null;
+            Target target;
             String type = lastSavedProps.getProperty("target" + (i + 1) + ".type");
             String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
 
@@ -589,12 +589,8 @@ public final class Package extends Graph
                 target = new ClassTarget(this, identifierName);
             }
 
-            if (target != null) {
-                //Debug.message("Load target " + target);
-                target.load(lastSavedProps, "target" + (i + 1));
-                //Debug.message("Putting " + identifierName);
-                propTargets.put(identifierName, target);
-            }
+            target.load(lastSavedProps, "target" + (i + 1));
+            propTargets.put(identifierName, target);
         }
 
         addImmovableTargets();
@@ -689,37 +685,23 @@ public final class Package extends Graph
                 ClassTarget ct = (ClassTarget) target;
 
                 if (ct.hasSourceCode())
-                    ct.analyseSource(false);
-                else
-                    try {
-                        Class cl = loadClass(ct.getQualifiedName());
-                        ct.determineRole(cl);
-                    }
-                    catch (LinkageError le) {
-                        Debug.message(le.toString());
-                    }
+                    ct.analyseSource();
 
-            }
-        }
-
-        for (it = targets.iterator(); it.hasNext();) {
-            Target t = (Target) it.next();
-            if ((t instanceof ClassTarget) && ((ClassTarget) t).upToDate()) {
-                ClassTarget ct = (ClassTarget) t;
-                //If, for some reason, we can't load the class, it should not
-                // set the state to S_NORMAL.
-                try {
-                    loadClass(ct.getQualifiedName());
+                Class cl = loadClass(ct.getQualifiedName());
+                ct.determineRole(cl);
+                if (cl != null && ct.upToDate()) {
                     ct.setState(Target.S_NORMAL);
                 }
-                catch (LinkageError le) {}
             }
         }
     }
 
+    /**
+     * Add our immovable targets (the readme file, and possibly a link to the
+     * parent package)
+     */ 
     private void addImmovableTargets()
     {
-        // add our immovable targets (either a text note or a package
         // which goes to the parent package)
         //        if (isUnnamedPackage()) {
         //            Target t = new ReadmeTarget(this);
@@ -791,7 +773,7 @@ public final class Package extends Graph
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
-                ct.analyseSource(false);
+                ct.analyseSource();
             }
         }
 
@@ -900,7 +882,7 @@ public final class Package extends Graph
         ClassTarget t = addClass(className);
 
         findSpaceForVertex(t);
-        t.analyseSource(false);
+        t.analyseSource();
 
         return NO_ERROR;
     }
@@ -1071,7 +1053,7 @@ public final class Package extends Graph
                     if (ct.editorOpen())
                         ct.getEditor().save();
                     ct.setState(Target.S_INVALID);
-                    ct.analyseSource(false);
+                    ct.analyseSource();
                     compileTargets.add(ct);
                 }
             }

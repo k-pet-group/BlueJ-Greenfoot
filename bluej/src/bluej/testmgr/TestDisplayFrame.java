@@ -1,8 +1,10 @@
 package bluej.testmgr;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.*;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -20,7 +22,7 @@ import bluej.utility.JavaNames;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 3333 2005-03-09 23:12:44Z davmac $
+ * @version $Id: TestDisplayFrame.java 3588 2005-09-26 00:18:07Z davmac $
  */
 public class TestDisplayFrame
 {
@@ -234,16 +236,7 @@ public class TestDisplayFrame
     public void endMultipleTests()
     {
         doingMultiple = false;
-        
-        try {
-            EventQueue.invokeAndWait(new Runnable() {
-                public void run() {
-                    setResultLabel();
-                }
-            });
-        }
-        catch(InvocationTargetException ite) { }
-        catch(InterruptedException ie) { }
+        setResultLabel();
     }  
 
     /**
@@ -266,24 +259,23 @@ public class TestDisplayFrame
     /**
      * Add a test result to the test displayer.
      * 
-     * @param dtr
+     * @param dtr  The test result to add
+     * @param quiet  True if the result should be added "quietly" (do not make
+     *               test frame visible or bring it to front)
      */	
-	public void addResult(DebuggerTestResult dtr)
+	public void addResult(DebuggerTestResult dtr, boolean quiet)
 	{
         addResultQuietly(dtr);
         
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                showTestDisplay(true);
-            }
-        });
+        if (! quiet)
+            showTestDisplay(true);
 	}
 
     /**
      * Add a test result to the test displayer but do not
      * bring the test display window to the front.
      * 
-     * @param dtr
+     * @param dtr  The test result to add
      */ 
     public void addResultQuietly(final DebuggerTestResult dtr)
     {
@@ -294,23 +286,15 @@ public class TestDisplayFrame
                 ++errorCount;
         }
 
-        try {
-            EventQueue.invokeAndWait(new Runnable() {
-                public void run() {
-                    testEntries.addElement(dtr);
-                    progressBar.step(testEntries.getSize(), dtr.isSuccess());
-                    
-                    counterPanel.setFailureValue(failureCount);
-                    counterPanel.setErrorValue(errorCount);
-                    counterPanel.setRunValue(testEntries.getSize());
-                    
-                    if (!doingMultiple && progressBar.getValue() == progressBar.getMaximum())
-                        setResultLabel();
-                }
-            });
-        }
-        catch(InvocationTargetException ite) { }
-        catch(InterruptedException ie) { }
+        testEntries.addElement(dtr);
+        progressBar.step(testEntries.getSize(), dtr.isSuccess());
+        
+        counterPanel.setFailureValue(failureCount);
+        counterPanel.setErrorValue(errorCount);
+        counterPanel.setRunValue(testEntries.getSize());
+        
+        if (!doingMultiple && progressBar.getValue() == progressBar.getMaximum())
+            setResultLabel();
     }
     
     /**

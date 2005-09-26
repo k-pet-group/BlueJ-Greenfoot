@@ -1,9 +1,10 @@
 package bluej.pkgmgr;
 
+import java.io.File;
+import java.util.List;
+
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
-
-import java.util.*;
 
 /**
  * A container holding information about a class's source file. The
@@ -11,7 +12,7 @@ import java.util.*;
  * automatic editing of the source.
  *
  * @author  Michael Kolling
- * @version $Id: SourceInfo.java 3573 2005-09-19 02:21:52Z davmac $
+ * @version $Id: SourceInfo.java 3588 2005-09-26 00:18:07Z davmac $
  */
 public final class SourceInfo
 {
@@ -34,11 +35,12 @@ public final class SourceInfo
         info = null;
     }
 
-    public ClassInfo getInfo(String sourceFile, List classNames)
+    public ClassInfo getInfo(File sourceFile, Package pkg)
     {
         if(info == null)
         {
             try {
+                List classNames = pkg.getAllClassnames();
                 info = ClassParser.parse(sourceFile, classNames);
                 valid = true;
             }
@@ -66,13 +68,4 @@ public final class SourceInfo
     {
         return info;
     }
-
-    public void save(Properties props, String prefix)
-    {
-    }
-
-    public void load(Properties props, String prefix)
-    {
-    }
-
 }
