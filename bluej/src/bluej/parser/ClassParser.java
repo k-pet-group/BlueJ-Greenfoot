@@ -34,7 +34,7 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 3585 2005-09-22 03:19:53Z davmac $
+ * @version $Id: ClassParser.java 3589 2005-09-26 05:41:25Z davmac $
  */
 public class ClassParser
 {
@@ -45,12 +45,6 @@ public class ClassParser
         throws RecognitionException
     {
         return parse(file, null);
-    }
-    
-    public static ClassInfo parse(String filename, List classes)
-        throws RecognitionException
-    {
-        return parse(new File(filename), classes);
     }
     
     public static ClassInfo parse(File file, List packageClasses)
@@ -795,8 +789,18 @@ public class ClassParser
                 processStatement(node.getNextSibling(), scope);
             }
             
+            case JavaTokenTypes.LITERAL_assert:
+            {
+                node = node.getFirstChild();
+                while (node != null) {
+                    processExpression(node, scope);
+                    node = node.getNextSibling();
+                }
+            }
+            
             case JavaTokenTypes.LITERAL_break:
             case JavaTokenTypes.LITERAL_continue:
+            case JavaTokenTypes.EMPTY_STAT:
                 break;
 
             default:
