@@ -34,7 +34,7 @@ import javax.swing.*;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3559 2005-09-12 12:56:50Z polle $
+ * @version $Id: DragGlassPane.java 3600 2005-09-27 10:42:46Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -248,6 +248,10 @@ public class DragGlassPane extends JComponent
 
     private void move(MouseEvent e)
     {
+        if(image == null) {
+            //No valid drag object available.
+            return;
+        }
         //logger.info("DragGlassPane.move" + e.paramString());
         storePosition(e);
         paintNoDropImage = true;
