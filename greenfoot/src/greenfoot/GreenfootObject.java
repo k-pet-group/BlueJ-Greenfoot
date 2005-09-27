@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.2.1
- * @cvs-version $Id: GreenfootObject.java 3596 2005-09-27 10:35:25Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3604 2005-09-27 13:22:34Z polle $
  */
 public class GreenfootObject
 {
@@ -505,22 +505,26 @@ public class GreenfootObject
     }
 
     /**
-     * Return the neighbours to the this object within a given distance. 
-     * This method considers only logical location, ignoring extent of the image.
-     * Thus, it is most useful in scenarios where objects are contained in a single
-     * cell. <p>
+     * Return the neighbours to the this object within a given distance. This
+     * method considers only logical location, ignoring extent of the image.
+     * Thus, it is most useful in scenarios where objects are contained in a
+     * single cell.
+     * <p>
      * 
-     * All cells that can be reached in the number of steps given in 'distance' from
-     * this object are considered. Steps may be only in the four main directions, or
-     * may include diagonal steps, depending on the 'diagonal' parameter. Thus, a 
-     * distance/diagonal specification of (1,false) will inspect four cells, 
-     * (1,true) will inspect eight cells. <p>
+     * All cells that can be reached in the number of steps given in 'distance'
+     * from this object are considered. Steps may be only in the four main
+     * directions, or may include diagonal steps, depending on the 'diagonal'
+     * parameter. Thus, a distance/diagonal specification of (1,false) will
+     * inspect four cells, (1,true) will inspect eight cells.
+     * <p>
      * 
-     * NOTE: Class argument does not work. It currently returns all types of objects.
+     * NOTE: Class argument does not work. It does not return subclasses of the
+     * given class, but only the actual class.
      * 
      * @param distance Distance (in cells) in which to look for other objects.
      * @param diagonal If true, include diagonal steps.
-     * @param cls Class of objects to look for (passing 'null' will find all objects).
+     * @param cls Class of objects to look for (passing 'null' will find all
+     *            objects).
      * @return A list of all neighbours found.
      */
     public List getNeighbours(int distance, boolean diagonal, Class cls)
