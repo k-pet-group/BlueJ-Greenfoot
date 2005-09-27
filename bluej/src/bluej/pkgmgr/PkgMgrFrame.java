@@ -54,7 +54,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3588 2005-09-26 00:18:07Z davmac $
+ * @version $Id: PkgMgrFrame.java 3590 2005-09-27 04:33:52Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2127,6 +2127,8 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
+    // ---- BlueJEventListener interface ----
+    
     /**
      * A BlueJEvent was raised. Check whether it is one that we're interested
      * in.

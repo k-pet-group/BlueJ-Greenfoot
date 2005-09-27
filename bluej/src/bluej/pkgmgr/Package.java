@@ -1,7 +1,5 @@
 package bluej.pkgmgr;
 
-import bluej.extensions.BPackage;
-import bluej.extensions.ExtensionBridge;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -15,6 +13,7 @@ import java.util.*;
 
 import bluej.Config;
 import bluej.compiler.CompileObserver;
+import bluej.compiler.EventqueueCompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerThread;
@@ -23,6 +22,8 @@ import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.Invoker;
 import bluej.editor.Editor;
 import bluej.editor.LineColumn;
+import bluej.extensions.BPackage;
+import bluej.extensions.ExtensionBridge;
 import bluej.extensions.event.CompileEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.graph.Edge;
@@ -52,7 +53,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3588 2005-09-26 00:18:07Z davmac $
+ * @version $Id: Package.java 3590 2005-09-27 04:33:52Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1112,6 +1113,7 @@ public final class Package extends Graph
      */
     private void doCompile(List targetList, CompileObserver observer)
     {
+        observer = new EventqueueCompileObserver(observer);
         if (targetList.size() == 0)
             return;
 
@@ -1244,7 +1246,7 @@ public final class Package extends Graph
     }
 
     /**
-     * Removes a class from the Package
+     * Removes a subpackage from the Package
      * 
      * @param removableTarget
      *            the ClassTarget representing the class to be removed.
@@ -1256,7 +1258,7 @@ public final class Package extends Graph
     }
 
     /**
-     * remove the arrow representing the dependency d
+     * remove the arrow representing the given dependency
      * 
      * @param d  the dependency to remove
      */
@@ -1301,7 +1303,6 @@ public final class Package extends Graph
 
         from.addDependencyOut(d, recalc);
         to.addDependencyIn(d, recalc);
-
     }
 
     /**
@@ -2040,11 +2041,12 @@ public final class Package extends Graph
          * This is done by opening the class's source, highlighting the line and
          * showing the message in the editor's information area.
          */
-        public void errorMessage(String filename, int lineNo, String message, boolean invalidate)
+        public void errorMessage(String filename, int lineNo, String message)
         {
             // The following lines will send a compilation Error event to
             // extensions.
-            int eventId = invalidate ? CompileEvent.COMPILE_ERROR_EVENT : CompileEvent.COMPILE_WARNING_EVENT;
+            //int eventId = invalidate ? CompileEvent.COMPILE_ERROR_EVENT : CompileEvent.COMPILE_WARNING_EVENT;
+            int eventId = CompileEvent.COMPILE_ERROR_EVENT;
             File[] sources = new File[1];
             sources[0] = new File(filename);
             CompileEvent aCompileEvent = new CompileEvent(eventId, sources);
@@ -2052,18 +2054,13 @@ public final class Package extends Graph
             aCompileEvent.setErrorMessage(message);
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
 
-            if (!showEditorMessage(filename, lineNo, message, invalidate, true, true, false, Config.compilertype))
+            if (!showEditorMessage(filename, lineNo, message, true, true, true, false, Config.compilertype))
                 showMessageWithText("error-in-file", filename + ":" + lineNo + "\n" + message);
         }
 
         public void exceptionMessage(List stack, String message, boolean invalidate)
         {
             Package.this.exceptionMessage(stack, message, invalidate);
-        }
-
-        public void checkTarget(String qualifiedName)
-        {
-
         }
 
         /**

@@ -15,7 +15,7 @@ import bluej.utility.*;
  * @author  Michael Kolling
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: JavacCompilerInternal.java 2691 2004-06-30 05:23:41Z davmac $
+ * @version $Id: JavacCompilerInternal.java 3590 2005-09-27 04:33:52Z davmac $
  */
 class JavacCompilerInternal extends Compiler
 {
@@ -104,7 +104,7 @@ class JavacCompilerInternal extends Compiler
 		if (output.hasError()) {
 			watcher.errorMessage(output.getFilename(),
 						output.getLineNo(),
-						output.getMessage(),true);
+						output.getMessage());
 		}
 
         //if (firstStream != null && firstStream != output && firstStream.hasError()) {

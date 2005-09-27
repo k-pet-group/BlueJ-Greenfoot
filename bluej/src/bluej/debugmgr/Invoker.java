@@ -12,6 +12,7 @@ import java.util.Map;
 import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.compiler.CompileObserver;
+import bluej.compiler.EventqueueCompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
@@ -39,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3587 2005-09-23 00:54:31Z davmac $
+ * @version $Id: Invoker.java 3590 2005-09-27 04:33:52Z davmac $
  */
 
 public class Invoker
@@ -492,23 +493,24 @@ public class Invoker
             // goes into an infinite loop can hang BlueJ.
             new Thread() {
                 public void run() {
-                    DebuggerObject result = pkg.getProject().getDebugger().instantiateClass(className);
-                    
-                    // the execution is completed, get the result if there was one
-                    // (this could be either a construction or a function result)
-                    
-                    int status = pkg.getDebugger().getExitStatus();
-                    if (status == Debugger.NORMAL_EXIT) {
-                        watcher.putResult(result, instanceName, ir);
-                        
-                        executionEvent.setResultObject(result);
-                        executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
-                    }
-                    else
-                        handleResult(""); // handles error situations
+                    final DebuggerObject result = pkg.getProject().getDebugger().instantiateClass(className);
                     
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
+                            // the execution is completed, get the result if there was one
+                            // (this could be either a construction or a function result)
+                            
+                            int status = pkg.getDebugger().getExitStatus();
+                            if (status == Debugger.NORMAL_EXIT) {
+                                watcher.putResult(result, instanceName, ir);
+                                
+                                executionEvent.setResultObject(result);
+                                executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+                            }
+                            else {
+                                handleResult(""); // handles error situations
+                            }
+                                
                             closeCallDialog();
                             pmf.setWaitCursor(false);
                             
@@ -913,7 +915,7 @@ public class Invoker
     {
         File[] files = {shellFile};
         numberCompiling++;
-        JobQueue.getJobQueue().addJob(files, this, pkg.getProject().getClassLoader(), pkg.getProject().getProjectDir(),true);
+        JobQueue.getJobQueue().addJob(files, new EventqueueCompileObserver(this), pkg.getProject().getClassLoader(), pkg.getProject().getProjectDir(),true);
     }
 
     // -- CompileObserver interface --
@@ -922,13 +924,10 @@ public class Invoker
     public void startCompile(File[] sources)
     {}
 
-    public void checkTarget(String sources)
-    {}
-
     /**
      * An error was detected during compilation of the shell class.
      */
-    public void errorMessage(String filename, int lineNo, String message, boolean invalidate)
+    public void errorMessage(String filename, int lineNo, String message)
     {
         if (dialog != null) {
             dialog.setErrorMessage("Error: " + message);
@@ -1022,12 +1021,7 @@ public class Invoker
             handleResult(shellClassName);
 
             // update all open inspect windows
-            EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    pkg.getProject().updateInspectors();
-                }
-            });
-
+            pkg.getProject().updateInspectors();
         }
         catch (Throwable e) {
             e.printStackTrace(System.err);
@@ -1038,8 +1032,6 @@ public class Invoker
      * After an execution has finished, check whether there is a result (such as
      * a freshly created object, a function result or an exception) and make
      * sure that it gets processed appropriately.
-     * 
-     * This is called asynchronously (not from the AWT EventQueue thread)
      */
     public void handleResult(String shellClassName)
     {
@@ -1061,9 +1053,8 @@ public class Invoker
                     }
                     catch (ClassNotFoundException cnfe) {
                         // if the VM is terminated during the method call,
-                        // getStaticValue
-                        // cannot load the shell class and therefore ends up
-                        // here
+                        // getStaticValue cannot load the shell class and
+                        // therefore ends up here
                         watcher.putError("Terminated");
                         executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
                         return;

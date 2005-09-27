@@ -43,7 +43,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3588 2005-09-26 00:18:07Z davmac $
+ * @version $Id: Project.java 3590 2005-09-27 04:33:52Z davmac $
  */
 public class Project implements DebuggerListener {
     /**
@@ -1027,7 +1027,7 @@ public class Project implements DebuggerListener {
      * the objects from all object benches of this project).
      * Should be run whenever a source file changes
      */
-    public synchronized void removeClassLoader() {
+    public void removeClassLoader() {
 
         // There is nothing to do if the current classloader is null.
         if (currentClassLoader == null) return;
@@ -1062,7 +1062,8 @@ public class Project implements DebuggerListener {
      * Creates a new debugging VM classloader.
      * Should be run whenever a class file changes.
      */
-    public synchronized void newRemoteClassLoader() {
+    public void newRemoteClassLoader()
+    {
         getDebugger().newClassLoader(getClassLoader());
     }
 
@@ -1070,7 +1071,8 @@ public class Project implements DebuggerListener {
      * Creates a new debugging VM classloader, leaving current breakpoints.
      * Should be run whenever a source file changes.
      */
-    public synchronized void newRemoteClassLoaderLeavingBreakpoints() {
+    public void newRemoteClassLoaderLeavingBreakpoints()
+    {
         getDebugger().newClassLoaderLeavingBreakpoints(getClassLoader());
     }
 
@@ -1220,13 +1222,11 @@ public class Project implements DebuggerListener {
      * Return a ClassLoader that should be used to load or reflect on the project classes.
      * The same BClassLoader object is returned until the Project is compiled or the content of the
      * user class list is changed, this is needed to load "compatible" classes in the same classloader space.
-     * Note: there is a threading issue here if you are using this method from different threads, normally this method should be
-     * called from a swing thread, but it needs to be checked with the rest of the code.
-     * Note2: since this is called from extensions it is probably best to make it synchronized to avoid any threading issues.
      *
      * @return a BClassLoader that provides class loading services for this Project.
      */
-    public synchronized BPClassLoader getClassLoader() {
+    public BPClassLoader getClassLoader()
+    {
         ArrayList pathList = new ArrayList();
 
         try {

@@ -43,7 +43,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3573 2005-09-19 02:21:52Z davmac $
+ * @version $Id: TextEvalPane.java 3590 2005-09-27 04:33:52Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -182,90 +182,86 @@ public class TextEvalPane extends JEditorPane
     public void putResult(final DebuggerObject result, final String name, final InvokerRecord ir)
     {
         currentCommand = "";
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                frame.getObjectBench().addInteraction(ir);
-                
-                // Newly declared variables are now initialized
-                if (newlyDeclareds != null) {
-                    Iterator i = newlyDeclareds.iterator();
-                    while (i.hasNext()) {
-                        CodepadVar cpv = (CodepadVar) i.next();
-                        cpv.setInitialized();
-                    }
-                    newlyDeclareds = null;
-                }
-                
-                append(" ");
-                if (autoInitializedVars != null && autoInitializedVars.size() != 0) {
-                    // Some variables were automatically initialized - warn the user that
-                    // this won't happen in "real" code.
-                    
-                    // We use a long warning the first time, a shorter one thereafter.
-                    boolean uninitializedWarningGiven = ! Utility.firstTimeThisRun("TextEvalPane.uninitializedWarning");
-                    String warning = uninitializedWarningGiven ? 
-                            shortUnininitializedWarning 
-                            : uninitializedWarning;
-                    
-                    int findex = 0;
-                    while (findex < warning.length()) {
-                        int nindex = warning.indexOf('\n', findex);
-                        if (nindex == -1)
-                            nindex = warning.length();
-                        
-                        String warnLine = warning.substring(findex, nindex);
-                        //if (warnLine.indexOf('\n') != -1)
-                        //    Debug.message("?? Contains newline");
-                        append(warnLine);
-                        markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
-                        //append(" ");
-                        findex = nindex + 1; // skip the newline character
-                    }
-                    
-                    // make a list of comma-seperated variable names
-                    Iterator i = autoInitializedVars.iterator();
-                    String varnames = (String) i.next();
-                    while (i.hasNext()) {
-                        varnames += ", " + (String) i.next();
-                    }
-                    append(varnames);
-                    markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
-                    
-                    autoInitializedVars.clear();
-                }
-                
-                if (result != null) {
-                    //Debug.message("type:"+result.getFieldValueTypeString(0));
-                    
-                    String resultString = result.getFieldValueString(0);
-                    
-                    if(resultString.equals(nullLabel)) {
-                        output(resultString);
-                    }
-                    else {
-                        String resultType;
-                        boolean isObject = result.instanceFieldIsObject(0);
-                        
-                        if(isObject) {
-                            resultType = result.getFieldObject(0).getStrippedGenClassName();
-                            objectOutput(resultString + "   (" + resultType + ")", 
-                                    new ObjectInfo(result.getFieldObject(0), ir));
-                        }
-                        else {
-                            resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
-                            output(resultString + "   (" + resultType + ")");
-                        }
-                    }            
-                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
-                } 
-                else {
-                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
-                }
-                textParser.confirmCommand();
-                setEditable(true);    // allow next input
-                busy = false;
+        frame.getObjectBench().addInteraction(ir);
+        
+        // Newly declared variables are now initialized
+        if (newlyDeclareds != null) {
+            Iterator i = newlyDeclareds.iterator();
+            while (i.hasNext()) {
+                CodepadVar cpv = (CodepadVar) i.next();
+                cpv.setInitialized();
             }
-        });
+            newlyDeclareds = null;
+        }
+        
+        append(" ");
+        if (autoInitializedVars != null && autoInitializedVars.size() != 0) {
+            // Some variables were automatically initialized - warn the user that
+            // this won't happen in "real" code.
+            
+            // We use a long warning the first time, a shorter one thereafter.
+            boolean uninitializedWarningGiven = ! Utility.firstTimeThisRun("TextEvalPane.uninitializedWarning");
+            String warning = uninitializedWarningGiven ? 
+                    shortUnininitializedWarning 
+                    : uninitializedWarning;
+            
+            int findex = 0;
+            while (findex < warning.length()) {
+                int nindex = warning.indexOf('\n', findex);
+                if (nindex == -1)
+                    nindex = warning.length();
+                
+                String warnLine = warning.substring(findex, nindex);
+                //if (warnLine.indexOf('\n') != -1)
+                //    Debug.message("?? Contains newline");
+                append(warnLine);
+                markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
+                //append(" ");
+                findex = nindex + 1; // skip the newline character
+            }
+            
+            // make a list of comma-seperated variable names
+            Iterator i = autoInitializedVars.iterator();
+            String varnames = (String) i.next();
+            while (i.hasNext()) {
+                varnames += ", " + (String) i.next();
+            }
+            append(varnames);
+            markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
+            
+            autoInitializedVars.clear();
+        }
+        
+        if (result != null) {
+            //Debug.message("type:"+result.getFieldValueTypeString(0));
+            
+            String resultString = result.getFieldValueString(0);
+            
+            if(resultString.equals(nullLabel)) {
+                output(resultString);
+            }
+            else {
+                String resultType;
+                boolean isObject = result.instanceFieldIsObject(0);
+                
+                if(isObject) {
+                    resultType = result.getFieldObject(0).getStrippedGenClassName();
+                    objectOutput(resultString + "   (" + resultType + ")", 
+                            new ObjectInfo(result.getFieldObject(0), ir));
+                }
+                else {
+                    resultType = JavaNames.stripPrefix(result.getFieldValueTypeString(0));
+                    output(resultString + "   (" + resultType + ")");
+                }
+            }            
+            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, resultString);
+        } 
+        else {
+            BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, null);
+        }
+        textParser.confirmCommand();
+        setEditable(true);    // allow next input
+        busy = false;
     }
     
     /**

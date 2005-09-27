@@ -4,17 +4,17 @@ import bluej.debugger.DebuggerObject;
 import bluej.testmgr.record.*;
 
 /**
- * Debugger interface implemented by classes interested in the result of an invocation
+ * Debugger interface implemented by classes interested in the result of an invocation.
+ * All methods should be called on the GUI thread.
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ResultWatcher.java 3532 2005-08-19 06:01:30Z davmac $
+ * @version $Id: ResultWatcher.java 3590 2005-09-27 04:33:52Z davmac $
  */
 public interface ResultWatcher
 {
 	/**
-	 * An invocation has completed - here is the result. This is called
-     * asynchronously (not on the AWT event thread).
+	 * An invocation has completed - here is the result.
      * 
      * @param result   The invocation result object (null for a void result).
      * @param name     The name of the result. For a constructed object, this
@@ -26,13 +26,11 @@ public interface ResultWatcher
 	
 	/**
 	 * An invocation has failed (compilation error) - here is the error message.
-     * This is called asynchronously.
 	 */
 	void putError(String message);
 	
     /**
      * A runtime exception occurred - here is the exception text
-     * This is called asynchronously.
      */
     void putException(String message);
 }

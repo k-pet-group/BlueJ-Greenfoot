@@ -11,7 +11,7 @@ import bluej.utility.DialogManager;
  * compiler. Verified working with Jikes 1.12.
  *
  * @author  Andrew Patterson
- * @version $Id: JikesCompiler.java 3473 2005-07-20 18:00:29Z damiano $
+ * @version $Id: JikesCompiler.java 3590 2005-09-27 04:33:52Z davmac $
  */
 class JikesCompiler extends Compiler
 {
@@ -137,7 +137,7 @@ class JikesCompiler extends Compiler
 		    //System.out.println("Indicating error " + filename + " " + lineNo);
 		    readerror = true;
 
-		    watcher.errorMessage(filename, lineNo, line, true);
+		    watcher.errorMessage(filename, lineNo, line);
 		    break;
 		}
 		else {
