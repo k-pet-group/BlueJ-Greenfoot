@@ -150,7 +150,7 @@ public class GridCollisionChecker
         }
     }
 
-    private Set objects = new HashSet();
+    private Set objects;
 
     private static List emptyList = new Vector();
     private boolean wrap;
@@ -160,6 +160,8 @@ public class GridCollisionChecker
     public void initialize(int width, int height, boolean wrap)
     {
         this.wrap = wrap;
+        
+        objects = new HashSet();
         if (wrap) {
             world = new WrappingGridWorld(width, height);
         }

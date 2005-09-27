@@ -28,12 +28,11 @@ import java.util.Observable;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.2.1
- * @cvs-version $Id: GreenfootWorld.java 3605 2005-09-27 13:42:16Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3606 2005-09-27 14:20:59Z polle $
  */
 public class GreenfootWorld extends Observable
 {
-    // TODO: wrapping
-
+   
     // TODO: Maybe we want to be able to force the world into "single-cell"
     // mode. With that we avoid accidently going into sprite mode if an object
     // is rotated and therefore get out of cell bounds
@@ -65,19 +64,16 @@ public class GreenfootWorld extends Observable
 
     /**
      * Construct a new world. The size of the world (in number of cells) and the size 
-     * of each cell (in pixels) must be specified. The world may be specified to 'wrap'.
-     * In a wrapping world, an object moving out of the world at one edge automatically
-     * enters the world at the opposite edge.
+     * of each cell (in pixels) must be specified.
      * 
      * @param worldWidth The width of the world (in cells).
      * @param worldHeight The height of the world (in cells).
      * @param cellSize Size of a cell in pixels.
-     * @param wrap If true, the world wraps around at its edges.
      * 
      */
-    public GreenfootWorld(int worldWidth, int worldHeight, int cellSize, boolean wrap)
+    public GreenfootWorld(int worldWidth, int worldHeight, int cellSize)
     {
-        initialize(worldWidth, worldHeight, cellSize, wrap);
+        initialize(worldWidth, worldHeight, cellSize);
     }
 
     /**
@@ -86,13 +82,13 @@ public class GreenfootWorld extends Observable
      * This will remove all objects from the world. TODO Maybe it shouldn't!
      * 
      */
-    private void initialize(int width, int height, int cellSize, boolean wrap)
+    private void initialize(int width, int height, int cellSize)
     {
         this.width = width;
         this.height = height;
         this.cellSize = cellSize;
-        this.wrapWorld = wrap;
-        collisionChecker.initialize(width, height, wrap);
+        this.wrapWorld = false;
+        collisionChecker.initialize(width, height, wrapWorld);
         update();
     }
 
@@ -254,6 +250,20 @@ public class GreenfootWorld extends Observable
     public boolean isWrapped()
     {
         return wrapWorld;
+    }
+    
+    /**
+     * 
+     * The world may be specified to 'wrap'. In a wrapping world, an object
+     * moving out of the world at one edge automatically enters the world at the
+     * opposite edge.
+     * 
+     * @param b If true, the world wraps around at its edges.
+     */
+    public void setWrapped(boolean b)
+    {
+        wrapWorld = true;
+        collisionChecker.initialize(getWidth(), getHeight(), wrapWorld);
     }
 
     /**
