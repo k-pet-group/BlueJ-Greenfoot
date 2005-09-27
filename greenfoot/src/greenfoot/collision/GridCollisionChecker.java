@@ -37,8 +37,12 @@ public class GridCollisionChecker
                 list = new ArrayList();
                 classMap.put(clazz, list);
             }
-            list.add(thing);
-            objects.add(thing);
+            if(!list.contains(thing)) {
+                list.add(thing);
+            }
+            if(!objects.contains(thing)) {
+                objects.add(thing);
+            }
         }
 
         public List get(Class cls)
@@ -49,7 +53,10 @@ public class GridCollisionChecker
         public void remove(GreenfootObject object)
         {
             objects.remove(object);
-            classMap.remove(object);
+            List classes = (List) classMap.get(object.getClass());
+            if(classes != null) {
+                classes.remove(object);
+            }
         }
 
         public boolean isEmpty()
@@ -310,8 +317,7 @@ public class GridCollisionChecker
                 // Do we really want to do this?
                 world.set(object.getX(), object.getY(), null);
             }
-
-        }
+        } 
         objects.remove(object);
     }
 
