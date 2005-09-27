@@ -59,7 +59,7 @@ public class Greenfoot
 
     private Greenfoot(RBlueJ rBlueJ, final RPackage pkg)
     {
-
+        instance = this;
         this.rBlueJ = rBlueJ;
         try {
             this.pkg = new GPackage(pkg);
