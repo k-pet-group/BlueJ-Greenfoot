@@ -27,7 +27,7 @@ import java.util.Observable;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.2.1
- * @cvs-version $Id: GreenfootWorld.java 3581 2005-09-20 13:21:16Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3603 2005-09-27 13:06:22Z polle $
  */
 public class GreenfootWorld extends Observable
 {
@@ -120,13 +120,15 @@ public class GreenfootWorld extends Observable
      * A pattern showing the cells can easily be shown by setting a background image
      * with a size equal to the cell size.
      * 
-     * NOTE: Incomplete implementation. NOT IMPLEMENTED.
      * 
      * @see #setBackground(GreenfootImage)
      * @param filename The file holding the image to be shown
      */
     final public void setBackground(String filename)
     {
+        GreenfootImage bg = new GreenfootImage(filename);
+        bg.setTiled(true);
+        setBackground(bg);
     }
 
     /**
