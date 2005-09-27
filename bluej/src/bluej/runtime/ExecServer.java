@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLStreamHandlerFactory;
 import java.util.*;
 
 import bluej.Config;
@@ -35,7 +36,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3517 2005-08-13 14:05:57Z polle $
+ * @version $Id: ExecServer.java 3593 2005-09-27 10:26:13Z polle $
  */
 public class ExecServer
 {
@@ -337,18 +338,18 @@ public class ExecServer
                 // Should never happen but if it does we want to know about it
                 System.err.println("ExecServer.newLoader() Malformed URL=" + splits[index]);
             }
-
-            
             
         // For greenfoot we need to use the greenfootLoader as parent for all
         // class loaders.
         if (currentLoader != null && Config.isInitialised() && Config.isGreenfoot()) {
-            currentLoader = new URLClassLoader(urls, greenfootLoader);
+            currentLoader = new GreenfootClassLoader(urls, greenfootLoader);
         }
         else {
+            //For BlueJ and the first time we create classloader for greenfoot
             greenfootLoader = new URLClassLoader(urls);
             currentLoader = greenfootLoader;
         }
+            
         objectMaps.clear();
 
 //    	BeanShell    
@@ -926,5 +927,51 @@ public class ExecServer
      */
     public static Object getObject(String instanceName) {
         return getScope(scopeId).get(instanceName);
+    }
+}
+
+/**
+ * Classloader used in greenfoot to ensure that the user's classes are reloaded.
+ * 
+ * For now, this is done by checking whether the class is in the default
+ * package, which indicates that it is a user class.
+ * 
+ * @author Poul Henriksen
+ */
+class GreenfootClassLoader extends URLClassLoader {
+    public GreenfootClassLoader(URL[] urls)
+    {
+        super(urls);
+     
+    }
+    public GreenfootClassLoader(URL[] urls, ClassLoader parent)
+    {
+        super(urls, parent);
+     
+    }
+    public GreenfootClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory)
+    {
+        super(urls, parent, factory);
+     
+    }
+    
+    /**
+     * If the class is in the default package (the name contains no '.') it will
+     * be reloaded. If not, it will use the normal URLClassloader mechanism.
+     */
+    public Class loadClass(String filename)
+        throws ClassNotFoundException
+    {
+        Class c = null;
+        if (filename.indexOf(".") == -1) {
+            try {
+                c = findClass(filename);
+            }
+            catch (ClassNotFoundException e) {}
+        }
+        if (c == null) {
+            c = super.loadClass(filename);
+        }
+        return c;
     }
 }
