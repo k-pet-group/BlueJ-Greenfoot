@@ -28,7 +28,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 3531 2005-08-18 13:26:35Z polle $
+ * @version $Id: ResultInspector.java 3595 2005-09-27 10:31:14Z polle $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -223,7 +223,7 @@ public class ResultInspector extends Inspector
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 
-        if (project.inTestMode()) {
+        if (project != null && project.inTestMode()) {
             assertPanel = new AssertPanel();
             {
                 assertPanel.setAlignmentX(LEFT_ALIGNMENT);
