@@ -3,8 +3,10 @@ package greenfoot;
 import greenfoot.core.Greenfoot;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.MediaTracker;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.FileNotFoundException;
@@ -24,7 +26,7 @@ import bluej.extensions.ProjectNotOpenException;
  * 
  * @author Poul Henriksen
  * @version 0.2.1
- * @cvs-version $Id: GreenfootImage.java 3581 2005-09-20 13:21:16Z polle $
+ * @cvs-version $Id: GreenfootImage.java 3601 2005-09-27 12:48:10Z polle $
  */
 public class GreenfootImage
 {
@@ -46,6 +48,11 @@ public class GreenfootImage
      * @throws FileNotFoundException
      */
     public GreenfootImage(String filename)
+    {
+        loadFile(filename);
+    }
+
+    private void loadFile(String filename)
     {
         if(filename == null) {
             throw new NullPointerException("Filename must not be null.");
@@ -89,7 +96,6 @@ public class GreenfootImage
             }
 
         }
-
     }
 
     /**
@@ -142,12 +148,25 @@ public class GreenfootImage
     
     private void initGraphics() {
         try {
+            if(image==null && imageFileName!=null) {
+                loadFile(imageFileName);
+            }
+            MediaTracker tracker = new MediaTracker(new Container());
+            tracker.addImage(image, 0);
+            try {
+                tracker.waitForAll();
+            }
+            catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
             graphics = (Graphics2D) image.getGraphics();
         }
         catch (Throwable e) {
+            int width = image.getWidth(null);
+            int height = image.getHeight(null);           
+            
             //we MUST be able to get the graphics!
-            BufferedImage bImage = new BufferedImage(image.getWidth(null), image.getHeight(null),
-                    BufferedImage.TYPE_INT_ARGB);
+            BufferedImage bImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
             graphics = (Graphics2D) bImage.getGraphics();
             graphics.drawImage(image, 0, 0, null);
             image = bImage;
