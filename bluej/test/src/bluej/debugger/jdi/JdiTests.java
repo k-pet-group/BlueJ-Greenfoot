@@ -1,6 +1,7 @@
 package bluej.debugger.jdi;
 
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
@@ -28,7 +29,7 @@ import bluej.views.View;
  * Tests for the debugger.
  *  
  * @author Davin McCall
- * @version $Id: JdiTests.java 3533 2005-08-19 06:01:50Z davmac $
+ * @version $Id: JdiTests.java 3591 2005-09-27 05:03:14Z davmac $
  */
 public class JdiTests extends TestCase
 {
@@ -276,6 +277,11 @@ public class JdiTests extends TestCase
                     {}
                 };
                 
+                // The result watcher gets its messages on the GUI event queue.
+                // However, junit runs on the GUI queue. To avoid deadlock, we
+                // install a new queue for the result watcher.
+                MyEventQueue myEventQueue = new MyEventQueue();
+                Toolkit.getDefaultToolkit().getSystemEventQueue().push(myEventQueue);
                 synchronized(JdiTests.this) {
                     // new Invoker(this, cv, watcher).invokeInteractive();
                     new Invoker(pmf, defObjCons, watcher).invokeDirect(new String[0]);
@@ -287,6 +293,7 @@ public class JdiTests extends TestCase
                         throw new RuntimeException("test failure");
                     }
                 }
+                myEventQueue.pop();
             }
         }
         
@@ -504,6 +511,14 @@ public class JdiTests extends TestCase
                 
                 syncObject.notify();
             }
+        }
+    }
+    
+    private class MyEventQueue extends EventQueue
+    {
+        public void pop()
+        {
+            super.pop();
         }
     }
 }
