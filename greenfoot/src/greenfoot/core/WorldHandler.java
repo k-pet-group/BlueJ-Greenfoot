@@ -64,7 +64,6 @@ public class WorldHandler
     private WorldCanvas worldCanvas;
     private SelectionManager classSelectionManager;
     private JLabel worldTitle = new JLabel();
-    private int delay;
     private boolean isQuickAddActive;
 
     // where did the the drag/drop operation begin?
@@ -298,13 +297,15 @@ public class WorldHandler
     public ResultInspector getResultInspectorInstance(DebuggerObject obj,
         String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
         JFrame parent) {
-        System.out.println(pkg);
-        System.out.println(pkg.getProject());
-        System.out.println(pkg.getProject().getInspector(obj));
+       /* System.out.println("pkg:" + pkg);
+        System.out.println("prj: " + pkg.getProject());
+        System.out.println("insp: " + pkg.getProject().getInspector(obj));
         System.out.println("");
-        ResultInspector inspector = (ResultInspector) pkg.getProject()
-                                                         .getInspector(obj);
-
+        */
+        
+        ResultInspector inspector = (ResultInspector) inspectors.get(obj);
+        
+      
         if (inspector == null) {
             inspector = new ResultInspector(obj, null, name, pkg, ir, info, parent);
             inspectors.put(obj, inspector);
