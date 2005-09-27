@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.2.1
- * @cvs-version $Id: GreenfootObject.java 3581 2005-09-20 13:21:16Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3596 2005-09-27 10:35:25Z polle $
  */
 public class GreenfootObject
 {
@@ -491,9 +491,12 @@ public class GreenfootObject
             int left = getXMin() - getX();
             int top = getYMin() - getY();
             if (world.isWrapped()) {
-                dx = world.wrap(dx, world.getWidth());
-                dy = world.wrap(dy, world.getHeight());
+                //TODO dx, dy is relative and should not be wrapped in this way. If at all...
+          //      dx = world.wrap(dx, world.getWidth());
+            //    dy = world.wrap(dy, world.getHeight());
             }
+           // System.out.println("dx,dy: " + dx +"," + dy +"  left: " + left + "  top: " + top + "  width:" + width + "  height:" + height);
+            
             return intersects(dx, dy, left, top, width, height);
         }
         else {
