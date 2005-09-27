@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Observable;
 
@@ -27,7 +28,7 @@ import java.util.Observable;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.2.1
- * @cvs-version $Id: GreenfootWorld.java 3603 2005-09-27 13:06:22Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3605 2005-09-27 13:42:16Z polle $
  */
 public class GreenfootWorld extends Observable
 {
@@ -202,6 +203,21 @@ public class GreenfootWorld extends Observable
     {
         collisionChecker.removeObject(object);
         objects.remove(object);
+        update();
+    }
+    
+    /**
+     * Remove a list of objects from the world.
+     * 
+     * @param objects A list of GreenfootObjects to remove.
+     */    
+    public synchronized void removeObjects(Collection objects)
+    {
+        for (Iterator iter = objects.iterator(); iter.hasNext();) {
+            GreenfootObject go = (GreenfootObject) iter.next();
+            collisionChecker.removeObject(go);
+            this.objects.remove(go);
+        }
         update();
     }
 
