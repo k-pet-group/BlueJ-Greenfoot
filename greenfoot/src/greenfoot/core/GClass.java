@@ -3,7 +3,6 @@ package greenfoot.core;
 import greenfoot.event.CompileListener;
 
 import java.rmi.RemoteException;
-import java.util.Vector;
 
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RConstructor;
@@ -160,11 +159,16 @@ public class GClass implements CompileListener
     }
     
     /**
-     * Sets the superclass guess that will be returned if it is not possible to find it in another way.
+     * Sets the superclass guess that will be returned if it is not possible to
+     * find it in another way.
+     * 
+     * This name will be stripped of any qualifications
+     * 
      * @param superclass
      */
-    public void setSuperclassGuess(String superclassName) {
-        superclassGuess = superclassName;
+    public void setSuperclassGuess(String superclassName)
+    {
+        superclassGuess = removeQualification(superclassName);
     }
     /**
      * This method tries to guess which class is the superclass. This can be used for non compilable and non parseable classes.
@@ -177,7 +181,7 @@ public class GClass implements CompileListener
      * <br>
      * In general, we will try to remember the last known superclass, and report that back.
      * 
-     * @return Best guess of the fully qualified name of the superclass.
+     * @return Best guess of the name of the superclass (NOT the qualified name).
      */
     private void guessSuperclass()
     {
@@ -203,8 +207,7 @@ public class GClass implements CompileListener
         catch (NullPointerException e) {
         }
         if(realSuperclass != null) {
-            
-            superclassGuess = realSuperclass;
+            superclassGuess = removeQualification(realSuperclass);
             return;
         }
         
@@ -228,7 +231,7 @@ public class GClass implements CompileListener
         catch (Exception e) {}
         
         if(parsedSuperclass != null) {
-            superclassGuess = parsedSuperclass;
+            superclassGuess = removeQualification(parsedSuperclass);
             return;
         }
         
@@ -236,6 +239,19 @@ public class GClass implements CompileListener
         
     }
     
+    /**
+     * Strips the name of a class for its qualified part.
+     */
+    private String removeQualification(String classname)
+    {
+        int lastDotIndex = classname.lastIndexOf(".");
+        if(lastDotIndex != -1) {
+            return classname.substring(lastDotIndex+1);
+        } else {
+            return classname;
+        }
+    }
+
     public String getToString()
     {
         try {
@@ -262,11 +278,25 @@ public class GClass implements CompileListener
         return false;
     }
 
+    /**
+     * Returns true if this class is a subclass of the given class.
+     * 
+     * A class is not considered a subclass of itself. So, if the two classes
+     * are same it returns false.
+     * 
+     * It only looks at the name of class and not the fully qualified name.
+     * 
+     * @param className
+     * @return
+     */
     public boolean isSubclassOf(String className)
-    {
+    {        
+        className = removeQualification(className);
         guessSuperclass();
         GClass superclass = this;
-        
+        if(this.getName().equals(className)) {
+            return false;
+        }
         //Recurse through superclasses
         while (superclass != null) {
             String superclassName = superclass.getSuperclassGuess();
@@ -275,8 +305,7 @@ public class GClass implements CompileListener
             if(superclassName == null) {
                 superclassName = "";
             }
-            //TODO bug: also matches partly. ex Beeper and SubBeeper
-            if (superclassName != null && (className.endsWith(superclassName) ||superclassName.endsWith(className) )) {
+            if (superclassName != null && (className.equals(superclassName))) {
                 return true;
             }
             superclass = superclass.getSuperclass();
