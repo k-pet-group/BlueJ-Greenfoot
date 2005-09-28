@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3590 2005-09-27 04:33:52Z davmac $
+ * @version $Id: Invoker.java 3608 2005-09-28 07:49:08Z davmac $
  */
 
 public class Invoker
@@ -953,7 +953,12 @@ public class Invoker
 
         if (successful)
             startClass();
+        else
+            finishCall(false);
+    }
 
+    private void finishCall(boolean successful)
+    {
         if (constructing && successful) {
             pkg.setStatus(createDone);
         }
@@ -972,7 +977,7 @@ public class Invoker
         if (! successful && dialog != null)
             dialog.setEnabled(true);
     }
-
+    
     private void closeCallDialog()
     {
         if (dialog != null) {
@@ -1005,27 +1010,38 @@ public class Invoker
      * here. Careful, though: you have to make sure that the clean-up (deleting
      * the class file) does not happen too early.
      * 
-     * This method is executed by the CompilerThread after compilation.
+     * This method is executed on the GUI thread.
      */
     public void startClass()
     {
         BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandString);
-        try {
-            String shellClassName = pkg.getQualifiedName(shellName);
-
-            pkg.getProject().getDebugger().runClassMain(shellClassName);
-
-            // the execution is completed, get the result if there was one
-            // (this could be either a construction or a function result)
-
-            handleResult(shellClassName);
-
-            // update all open inspect windows
-            pkg.getProject().updateInspectors();
-        }
-        catch (Throwable e) {
-            e.printStackTrace(System.err);
-        }
+        final String shellClassName = pkg.getQualifiedName(shellName);
+        
+        new Thread() {
+            public void run() {
+                try {
+                    pkg.getProject().getDebugger().runClassMain(shellClassName);
+                    
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            // the execution is completed, get the result if there was one
+                            // (this could be either a construction or a function result)
+                            
+                            handleResult(shellClassName);
+                            
+                            // update all open inspect windows
+                            pkg.getProject().updateInspectors();
+                            
+                            finishCall(true);
+                        }
+                    });
+                    
+                }
+                catch (Throwable e) {
+                    e.printStackTrace(System.err);
+                }
+            }
+        }.start();
     }
 
     /**
