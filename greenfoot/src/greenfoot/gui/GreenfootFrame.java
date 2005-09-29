@@ -19,6 +19,7 @@ import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.event.WindowEvent;
@@ -42,6 +43,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
@@ -57,7 +59,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3612 2005-09-29 11:42:26Z polle $
+ * @version $Id: GreenfootFrame.java 3616 2005-09-29 16:20:41Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -75,7 +77,7 @@ public class GreenfootFrame extends JFrame
      * Creates a new frame with all the basic components (menus...)
      *  
      */
-    public GreenfootFrame(RBlueJ blueJ, GProject project)
+    public GreenfootFrame(RBlueJ blueJ, final GProject project)
         throws HeadlessException, ProjectNotOpenException, RemoteException
     {
         super("greenfoot:" + project.getName());
@@ -107,8 +109,14 @@ public class GreenfootFrame extends JFrame
         buildUI();
         addWindowListener(this);
         Greenfoot.getInstance().addCompileListener(this);
-        openProject(project);
-
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        Thread t = new Thread() {
+            public void run() {
+                openProject(project);
+                GreenfootFrame.this.setCursor(Cursor.getDefaultCursor());
+            }
+        };
+        SwingUtilities.invokeLater(t);
     }
     
 
@@ -279,7 +287,7 @@ public class GreenfootFrame extends JFrame
                 GClass gClass = classes[i];
                 classBrowser.addClass(gClass);
             }
-
+            
         }
         catch (RemoteException e) {
             e.printStackTrace();
