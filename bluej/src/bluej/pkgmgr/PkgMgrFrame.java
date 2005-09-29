@@ -54,7 +54,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3590 2005-09-27 04:33:52Z davmac $
+ * @version $Id: PkgMgrFrame.java 3610 2005-09-29 06:38:44Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2171,6 +2171,7 @@ public class PkgMgrFrame extends JFrame
     {
         switch(state) {
             case Debugger.NOTREADY :
+            case Debugger.LAUNCH_FAILED:
                 break;
 
             case Debugger.IDLE :

@@ -19,7 +19,7 @@ import java.util.List;
   *  -----------------------------------------------------------------------
   *  CREATE_VM      (unused)        creation of VM has started
   * 
-  *  CREATE_VM_FAILURE (unused)     creation of VM has failed
+  *  CREATE_VM_FAILED (unused)      creation of VM has failed
   *
   *  CREATE_VM_DONE (unused)        creation of VM completed
   *
@@ -38,7 +38,7 @@ import java.util.List;
   *
   * </PRE>
   * @author Michael Kolling
-  * @version $Id: BlueJEvent.java 3570 2005-09-14 13:46:40Z polle $
+  * @version $Id: BlueJEvent.java 3610 2005-09-29 06:38:44Z davmac $
   *
   */
 

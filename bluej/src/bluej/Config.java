@@ -36,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3514 2005-08-13 13:38:38Z polle $
+ * @version $Id: Config.java 3610 2005-09-29 06:38:44Z davmac $
  */
 
 public final class Config
@@ -753,18 +753,21 @@ public final class Config
 
     /**
      * Find the path to an executable command that may be located
-     * in the JDK bin directory
+     * in the JDK bin directory, and whose location may optionally
+     * be explicitly specified in the properties.
      *
-     * The logic goes like this, some tools such as javac, appletviewer
+     * The logic goes like this: some tools such as javac, appletviewer
      * etc should be run from the same bin directory as the JDK that
      * launched bluej (rather than the first one in the path which may
      * be of a different version). So for all these properties, if the
      * property DOES NOT exist, we try to locate the executable in the
      * JDK directory and if we can't find it we use just the command
      * name.
+     * 
      * If the property DOES exist we return it and it will be resolved
      * by the Runtime.exec call (ie looked for in the current path if
-     * the command name is not an absolute path)
+     * the command name is not an absolute path). The specified property
+     * may be null, in which case the property is assumed not to exist.
      *
      * This method never returns null (at the very least it returns the
      * executableName)
@@ -774,7 +777,7 @@ public final class Config
         if (executableName == null)
             throw new IllegalArgumentException("must provide an executable name");
 
-        String p = getSystemPropString(propName);
+        String p = propName == null ? null : getSystemPropString(propName);
 
         if (p == null) {
             // look for it in the JDK bin directory

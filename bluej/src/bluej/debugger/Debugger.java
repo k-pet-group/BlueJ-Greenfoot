@@ -13,7 +13,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 3517 2005-08-13 14:05:57Z polle $
+ * @version $Id: Debugger.java 3610 2005-09-29 06:38:44Z davmac $
  */
 public abstract class Debugger
 {
@@ -29,6 +29,7 @@ public abstract class Debugger
     public static final int IDLE = 2;
 	public static final int RUNNING = 3;
     public static final int SUSPENDED = 4;
+    public static final int LAUNCH_FAILED = 5; // failed to launch
 
 	/**
 	 * Create an instance of a debugger.

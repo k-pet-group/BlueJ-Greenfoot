@@ -43,7 +43,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3590 2005-09-27 04:33:52Z davmac $
+ * @version $Id: Project.java 3610 2005-09-29 06:38:44Z davmac $
  */
 public class Project implements DebuggerListener {
     /**
@@ -1317,22 +1317,30 @@ public class Project implements DebuggerListener {
                         if (frames == null) {
                             return;
                         }
+                        
+                        int newState = event.getNewState();
+                        int oldState = event.getOldState();
 
                         for (int i = 0; i < frames.length; i++)
-                            frames[i].setDebuggerState(event.getNewState());
+                            frames[i].setDebuggerState(newState);
 
                         // check whether we just got a freshly created VM
-                        if ((event.getOldState() == Debugger.NOTREADY) &&
-                                (event.getNewState() == Debugger.IDLE)) {
+                        if ((oldState == Debugger.NOTREADY) &&
+                                (newState == Debugger.IDLE)) {
                             vmReady();
                         }
 
                         // check whether a good VM just disappeared
-                        if ((event.getOldState() == Debugger.IDLE) &&
-                                (event.getNewState() == Debugger.NOTREADY)) {
+                        if ((oldState == Debugger.IDLE) &&
+                                (newState == Debugger.NOTREADY)) {
                             vmClosed();
                         }
 
+                        // check whether we failed to create the VM
+                        if (newState == Debugger.LAUNCH_FAILED) {
+                            BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_FAILED, null);
+                        }
+                        
                         return;
                     }
 
