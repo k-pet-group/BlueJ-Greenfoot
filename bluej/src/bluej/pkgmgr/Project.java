@@ -18,6 +18,7 @@ import bluej.debugmgr.ExecControls;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.inspector.ClassInspector;
 import bluej.debugmgr.inspector.Inspector;
+import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.extensions.BProject;
@@ -43,9 +44,9 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3610 2005-09-29 06:38:44Z davmac $
+ * @version $Id: Project.java 3611 2005-09-29 11:37:50Z polle $
  */
-public class Project implements DebuggerListener {
+public class Project implements DebuggerListener, InspectorManager {
     /**
      * Collection of all open projects. the canonical name of the project
      * directory is used as the key.
@@ -478,10 +479,18 @@ public class Project implements DebuggerListener {
 
     /**
      * Remove an inspector from the list of inspectors for this project
-     * @param obj the inspector
+     * @param obj the inspector.
      */
-    public void removeInspector(Object obj) {
+    public void removeInspector(DebuggerObject obj) {
         inspectors.remove(obj);
+    }
+    
+    /**
+     * Remove an inspector from the list of inspectors for this project
+     * @param obj the inspector. 
+     */
+    public void removeInspector(DebuggerClass cls) {
+        inspectors.remove(cls.getName());
     }
 
     /**

@@ -28,7 +28,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 3595 2005-09-27 10:31:14Z polle $
+ * @version $Id: ResultInspector.java 3611 2005-09-29 11:37:50Z polle $
  */
 public class ResultInspector extends Inspector
     implements InspectorListener
@@ -67,10 +67,10 @@ public class ResultInspector extends Inspector
      * @param parent
      *            The parent frame of this frame
      */
-    public ResultInspector(DebuggerObject obj, Project proj, String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
+    public ResultInspector(DebuggerObject obj, InspectorManager inspectorManager, String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
             final JFrame parent)
     {
-        super(proj, pkg, ir);
+        super(inspectorManager, pkg, ir);
 
         expressionInformation = info;
         this.obj = obj;
@@ -223,7 +223,7 @@ public class ResultInspector extends Inspector
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 
-        if (project != null && project.inTestMode()) {
+        if (inspectorManager != null && inspectorManager.inTestMode()) {
             assertPanel = new AssertPanel();
             {
                 assertPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -285,7 +285,7 @@ public class ResultInspector extends Inspector
      */
     protected void showClass()
     {
-        project.getClassInspectorInstance(obj.getClassRef(), pkg, this);
+        inspectorManager.getClassInspectorInstance(obj.getClassRef(), pkg, this);
     }
 
     /**
@@ -299,8 +299,8 @@ public class ResultInspector extends Inspector
      */
     protected void remove()
     {
-        if(project != null) {
-            project.removeInspector(obj);
+        if(inspectorManager != null) {
+            inspectorManager.removeInspector(obj);
         }
     }
 

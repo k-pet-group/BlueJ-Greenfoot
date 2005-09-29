@@ -23,7 +23,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: ObjectInspector.java 3531 2005-08-18 13:26:35Z polle $
+ * @version $Id: ObjectInspector.java 3611 2005-09-29 11:37:50Z polle $
  */
 public class ObjectInspector extends Inspector
     implements InspectorListener
@@ -61,9 +61,9 @@ public class ObjectInspector extends Inspector
      * @param parent
      *            The parent frame of this frame
      */
-    public ObjectInspector(DebuggerObject obj, Project proj, String name, Package pkg, InvokerRecord ir, final JFrame parent)
+    public ObjectInspector(DebuggerObject obj, InspectorManager inspectorManager, String name, Package pkg, InvokerRecord ir, final JFrame parent)
     {
-        super(proj, pkg, ir);
+        super(inspectorManager, pkg, ir);
 
         this.obj = obj;
         if (name == null)
@@ -242,7 +242,7 @@ public class ObjectInspector extends Inspector
      */
     protected void showClass()
     {
-        project.getClassInspectorInstance(obj.getClassRef(), pkg, this);
+        inspectorManager.getClassInspectorInstance(obj.getClassRef(), pkg, this);
     }
 
     /**
@@ -261,8 +261,8 @@ public class ObjectInspector extends Inspector
      */
     protected void remove()
     {
-        if(project != null) {
-            project.removeInspector(obj);
+        if(inspectorManager != null) {
+            inspectorManager.removeInspector(obj);
         }
     }
 
@@ -399,7 +399,7 @@ public class ObjectInspector extends Inspector
 
     public void inspectEvent(InspectorEvent e)
     {
-        project.getInspectorInstance(e.getDebuggerObject(), null, pkg, null, this);
+        inspectorManager.getInspectorInstance(e.getDebuggerObject(), null, pkg, null, this);
     }
 
     protected int getPreferredRows()

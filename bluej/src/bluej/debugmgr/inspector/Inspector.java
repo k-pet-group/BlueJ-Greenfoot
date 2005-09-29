@@ -32,7 +32,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 3531 2005-08-18 13:26:35Z polle $
+ * @version $Id: Inspector.java 3611 2005-09-29 11:37:50Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -62,7 +62,7 @@ public abstract class Inspector extends JFrame
     // object (if possible, else null)
 
     protected Package pkg;
-    protected Project project;
+    protected InspectorManager inspectorManager;
     protected InvokerRecord ir;
 
     //The maximum length of the description (modifiers + field-name)
@@ -80,17 +80,20 @@ public abstract class Inspector extends JFrame
      * @param ir
      *            the InvokerRecord for this inspector (or null)
      */
-    protected Inspector(Project proj, Package pkg, InvokerRecord ir)
+    protected Inspector(InspectorManager inspectorManager, Package pkg, InvokerRecord ir)
     {
         super();
 
+        if(inspectorManager == null) {
+            throw new NullPointerException("An inspector must have an InspectorManager.");
+        }
         setIconImage(BlueJTheme.getIconImage());
 
         if (pkg == null && ir != null) {
             // Get button cannot be enabled when pkg==null
             ir = null;
         }
-        this.project = proj;
+        this.inspectorManager = inspectorManager;
         this.pkg = pkg;
         this.ir = ir;
 
@@ -332,7 +335,7 @@ public abstract class Inspector extends JFrame
 
             InvokerRecord newIr = new ObjectInspectInvokerRecord("Math", selectedObjectName, ir);
 
-            project.getInspectorInstance(selectedObject, selectedObjectName, pkg, isPublic ? newIr : null, this);
+            inspectorManager.getInspectorInstance(selectedObject, selectedObjectName, pkg, isPublic ? newIr : null, this);
         }
     }
 

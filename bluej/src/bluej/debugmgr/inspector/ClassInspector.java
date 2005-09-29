@@ -21,7 +21,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 3531 2005-08-18 13:26:35Z polle $
+ * @version $Id: ClassInspector.java 3611 2005-09-29 11:37:50Z polle $
  */
 public class ClassInspector extends Inspector
 {
@@ -47,9 +47,9 @@ public class ClassInspector extends Inspector
      * Note: 'pkg' may be null if getEnabled is false.
      *  
      */
-    public ClassInspector(DebuggerClass clss, Project proj, Package pkg, InvokerRecord ir, final JFrame parent)
+    public ClassInspector(DebuggerClass clss, InspectorManager inspectorManager, Package pkg, InvokerRecord ir, final JFrame parent)
     {
-        super(proj, pkg, ir);
+        super(inspectorManager, pkg, ir);
 
         myClass = clss;
 
@@ -197,8 +197,8 @@ public class ClassInspector extends Inspector
      */
     protected void remove()
     {
-        if(project != null) {
-            project.removeInspector(myClass.getName());
+        if(inspectorManager != null) {
+            inspectorManager.removeInspector(myClass);
         }
     }
 
