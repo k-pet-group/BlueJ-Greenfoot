@@ -180,6 +180,9 @@ public class GClass implements CompileListener
      * If the is not parseable it will use the last superclass that was known.
      * <br>
      * In general, we will try to remember the last known superclass, and report that back.
+     * <p>
+     * 
+     * OBS: This method can be very slow and shouldn't be called unless needed. Especially if the class isn't compiled it can be very slow.
      * 
      * @return Best guess of the name of the superclass (NOT the qualified name).
      */
@@ -188,6 +191,12 @@ public class GClass implements CompileListener
         // This should be called each time the source file is saved. However,
         // this is not possible at the moment, so we just do it when it is
         // compiled.
+        
+        String name = this.getName();
+        if(name.equals("GreenfootWorld") || name.equals("GreenfootObject")) {
+            //We do not want to waste time on guessing the name of the superclass for these to classes.
+            return;
+        }
         
         //First, try to get the real super class.
         String realSuperclass = null;
@@ -292,7 +301,7 @@ public class GClass implements CompileListener
     public boolean isSubclassOf(String className)
     {        
         className = removeQualification(className);
-        guessSuperclass();
+       // guessSuperclass();
         GClass superclass = this;
         if(this.getName().equals(className)) {
             return false;
