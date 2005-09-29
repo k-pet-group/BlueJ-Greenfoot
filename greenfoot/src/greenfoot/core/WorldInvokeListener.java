@@ -15,6 +15,7 @@ import bluej.debugmgr.CallDialogWatcher;
 import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.MethodDialog;
+import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.extensions.PackageNotFoundException;
@@ -48,11 +49,13 @@ public class WorldInvokeListener
     private ConstructorView cv;
     private Class cl;
     private WorldHandler worldHandler;
+    private InspectorManager inspectorManager;
     
-    public WorldInvokeListener(Object obj, WorldHandler worldHandler)
+    public WorldInvokeListener(Object obj, WorldHandler worldHandler, InspectorManager inspectorManager)
     {
         this.worldHandler = worldHandler;
         this.obj = obj;
+        this.inspectorManager = inspectorManager;
     }
     
     public WorldInvokeListener(Class cl)
@@ -81,7 +84,7 @@ public class WorldInvokeListener
                             update();
                             if (m.getReturnType() != void.class) {
                                 ExpressionInformation ei = new ExpressionInformation(WorldInvokeListener.this.mv, instanceName);
-                                ResultInspector ri = worldHandler.getResultInspectorInstance(wrapResult(r, m.getReturnType()), instanceName, null, null, ei,  Greenfoot.getInstance().getFrame());
+                                ResultInspector ri = inspectorManager.getResultInspectorInstance(wrapResult(r, m.getReturnType()), instanceName, null, null, ei,  Greenfoot.getInstance().getFrame());
                                 ri.show();
                             }
                         }
@@ -216,7 +219,7 @@ public class WorldInvokeListener
                                 Object resultw = ObjectTracker.instance().getRealObject(rresult);
                                 rresult.removeFromBench();
                                 
-                                ResultInspector ri = worldHandler.getResultInspectorInstance(new LocalObject(resultw), instanceName, null, null, ei, Greenfoot.getInstance().getFrame());
+                                ResultInspector ri = inspectorManager.getResultInspectorInstance(new LocalObject(resultw), instanceName, null, null, ei, Greenfoot.getInstance().getFrame());
                                 ri.show();
                             }
                             catch (PackageNotFoundException pnfe) {}

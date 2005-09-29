@@ -78,20 +78,17 @@ public class WorldHandler
 
     private static WorldHandler instance;
     
-    /** This holds all object inspectors and class inspectors
-    for a world. */
-    private Map inspectors = new HashMap(); 
+    
+    private GProject project; 
     
     /**
      * Creates a new worldHandler and sets up the connection between worldCanvas
-     * and world
-     * 
-     * @param worldCanvas
-     * @param world
+     * and world.
      */
-    private WorldHandler(WorldCanvas worldCanvas, GreenfootWorld world)
+    private WorldHandler(GProject project, WorldCanvas worldCanvas, GreenfootWorld world)
     {
 
+        this.project = project;
         this.worldCanvas = worldCanvas;
         worldCanvas.addMouseListener(this);
         worldCanvas.addKeyListener(this);
@@ -106,10 +103,10 @@ public class WorldHandler
         return instance;
     }
 
-    public static synchronized void initialise(WorldCanvas worldCanvas, GreenfootWorld world) 
+    public static synchronized void initialise(GProject project, WorldCanvas worldCanvas, GreenfootWorld world) 
     {
         if(instance == null) {
-            instance = new WorldHandler(worldCanvas, world);
+            instance = new WorldHandler(project, worldCanvas, world);
         } else {
             throw (new IllegalStateException("Can only intiliase this singleton once."));
         }
@@ -222,7 +219,7 @@ public class WorldHandler
             e1.printStackTrace();
         }
         
-        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this), new LocalObject(obj), packageName);
+        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this, project), new LocalObject(obj), packageName);
        
         
         menu.addSeparator();
@@ -254,89 +251,14 @@ public class WorldHandler
             {
                 JFrame parent = (JFrame) worldCanvas.getTopLevelAncestor();
                 DebuggerObject dObj = new LocalObject(obj);
-                getInspectorInstance(dObj, "", null, null, parent);
+                project.getInspectorInstance(dObj, "", null, null, parent);
             }
         });
         return m;
     }
     
-    public ObjectInspector getInspectorInstance(DebuggerObject obj,
-            String name, Package pkg, InvokerRecord ir, JFrame parent) {
-        ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
-        
-        if (inspector == null) {
-            inspector = new ObjectInspector(obj, null, name, pkg, ir, parent);
-            inspectors.put(obj, inspector);
-        }
-        
-        final ObjectInspector insp = inspector;
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                insp.update();
-                insp.setVisible(true);
-                insp.bringToFront();
-            }
-        });
-        
-        return inspector;
-    }
     
-    /**
-     * Return an ObjectInspector for an object. The inspector is visible.
-     * 
-     * @param obj The object displayed by this viewer
-     * @param name The name of this object or "null" if the name is unobtainable
-     * @param pkg The package all this belongs to
-     * @param ir the InvokerRecord explaining how we got this result/object if
-     *            null, the "get" button is permanently disabled
-     * @param info The information about the the expression that gave this
-     *            result
-     * @param parent The parent frame of this frame
-     * @return The Viewer value
-     */
-    public ResultInspector getResultInspectorInstance(DebuggerObject obj,
-        String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
-        JFrame parent) {
-       /* System.out.println("pkg:" + pkg);
-        System.out.println("prj: " + pkg.getProject());
-        System.out.println("insp: " + pkg.getProject().getInspector(obj));
-        System.out.println("");
-        */
-        
-        ResultInspector inspector = (ResultInspector) inspectors.get(obj);
-        
-      
-        if (inspector == null) {
-            inspector = new ResultInspector(obj, null, name, pkg, ir, info, parent);
-            inspectors.put(obj, inspector);
-        }
 
-        final ResultInspector insp = inspector;
-        insp.update();
-        EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    insp.setVisible(true);
-                    insp.bringToFront();
-        }
-            });
-
-        return inspector;
-    }
-    
-    /**
-     * Removes all inspector instances for this project.
-     * This is used when VM is reset or the project is recompiled.
-     *
-     */
-    public void removeAllInspectors() {
-        for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
-            Inspector inspector = (Inspector) it.next();
-            inspector.setVisible(false);
-            inspector.dispose();
-        }
-
-        inspectors.clear();
-    }
     
     /**
      * TODO: this method should be removed when it is posisble to select among
@@ -528,7 +450,7 @@ public class WorldHandler
                     }
                     
                     ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world,
-                            WorldHandler.this), new LocalObject(world), packageName);
+                            WorldHandler.this, project), new LocalObject(world), packageName);
                     menu.addSeparator();
                     // "inspect" menu item
                     JMenuItem m = getInspectMenuItem(world);
@@ -656,7 +578,7 @@ public class WorldHandler
      */
     public void reset()
     {
-        removeAllInspectors();
+        project.removeAllInspectors();
         setWorld(null);
     }
 }

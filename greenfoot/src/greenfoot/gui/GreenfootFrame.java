@@ -57,7 +57,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3552 2005-09-06 15:53:28Z polle $
+ * @version $Id: GreenfootFrame.java 3612 2005-09-29 11:42:26Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -125,7 +125,7 @@ public class GreenfootFrame extends JFrame
         classBrowser = buildClassBrowser();
         classBrowser.setBackground(Color.WHITE);
         JScrollPane classScrollPane = new JScrollPane(classBrowser);
-        buildWorld();
+        buildWorld(project);
         WorldHandler worldHandler = WorldHandler.instance();
         Simulation.initialize(worldHandler);
         Simulation sim = Simulation.getInstance();
@@ -241,14 +241,12 @@ public class GreenfootFrame extends JFrame
         return null;
     }
 
-    /**
-     *  
-     */
-    private void buildWorld()
+
+    private void buildWorld(GProject project)
     {
         GreenfootWorld world = null;
         WorldCanvas worldCanvas = new WorldCanvas(world);
-        WorldHandler.initialise(worldCanvas, world);
+        WorldHandler.initialise(project, worldCanvas, world);
     }
 
     private ClassBrowser buildClassBrowser()
