@@ -21,7 +21,7 @@ install.pkgJar=greenfoot-dist.jar
 install.exeName=greenfoot
 
 # additional commands to be added to MacOS script before execution
-install.commands.mac = CP="~/lib/bluej.jar:~/lib/junit.jar:~/lib/bluejcore.jar:~/lib/bluejext.jar:~/lib/bluejeditor.jar:~/lib/editor.jar:~/lib/antlr.jar:!/lib/tools.jar:~/lib/MRJ141Stubs.jar:~/lib/extensions/greenfoot.jar"
+install.commands.mac = CP="~/lib/bluej.jar:~/lib/junit.jar:~/lib/bluejcore.jar:~/lib/bluejext.jar:~/lib/bluejeditor.jar:~/lib/editor.jar:~/lib/antlr.jar:!/lib/tools.jar:~/lib/MRJ141Stubs.jar:~/lib/extensions/greenfoot.jar:~/System/Library/Java"
 
 # additional commands to be added to Unix script before execution
 install.commands.unix = CP="~/lib/bluej.jar:~/lib/junit.jar:~/lib/bluejcore.jar:~/lib/bluejext.jar:~/lib/bluejeditor.jar:~/lib/editor.jar:~/lib/antlr.jar:!/lib/tools.jar:~/lib/MRJ141Stubs.jar:~/lib/extensions/greenfoot.jar"
