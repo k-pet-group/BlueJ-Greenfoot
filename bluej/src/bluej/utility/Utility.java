@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -19,7 +20,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 3540 2005-08-23 05:50:40Z davmac $
+ * @version $Id: Utility.java 3627 2005-09-30 15:16:43Z polle $
  */
 public class Utility
 {
@@ -344,8 +345,17 @@ public class Utility
             // but does so by reflection so that this compiles on non-Apple machines.
             
             try {
-                Class nsapp = Class.forName("com.apple.cocoa.application.NSApplication");
-                
+                Class nsapp = null;
+                try {
+                    nsapp = Class.forName("com.apple.cocoa.application.NSApplication");
+                }
+                catch (ClassNotFoundException e) {}
+                if (nsapp == null) {
+                    // Using a custom class loader avoids having to set up the
+                    // class path on the mac.
+                    nsapp = Class.forName("com.apple.cocoa.application.NSApplication", true, new URLClassLoader(
+                            new URL[]{new File("/System/Library/Java/").toURI().toURL()}));
+                }
                 java.lang.reflect.Method sharedApp = nsapp.getMethod("sharedApplication", null);
                 Object obj = sharedApp.invoke(null, null);
                 
