@@ -18,7 +18,7 @@ public class InRangeTest extends TestCase
 
     public void testNoWrap()
     {
-        world = new GreenfootWorld(10, 10, 10, false);
+        world = new GreenfootWorld(10, 10, 10);
 
         TestObject go1 = new TestObject(20, 20);
         go1.setLocation(2, 2);
@@ -26,7 +26,7 @@ public class InRangeTest extends TestCase
 
         TestObject go2 = new TestObject(10, 10);
         world.addObject(go2);
-
+        
         go2.setLocation(2, 4);
         Collection inRange = go1.getObjectsInRange(3, TestObject.class);
         assertTrue(inRange.contains(go2));
@@ -55,7 +55,8 @@ public class InRangeTest extends TestCase
     
     public void testWrap()
     {
-        world = new GreenfootWorld(10, 10, 10, true);
+        world = new GreenfootWorld(10, 10, 10);
+        world.setWrapped(true);
 
         TestObject go1 = new TestObject(20, 20);
         go1.setLocation(0, 2);

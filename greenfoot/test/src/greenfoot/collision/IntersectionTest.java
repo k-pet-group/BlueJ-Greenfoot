@@ -18,7 +18,7 @@ public class IntersectionTest extends TestCase
 
     public void testIntersectingSingleCell()
     {
-        world = new GreenfootWorld(10, 10, 10, false);
+        world = new GreenfootWorld(10, 10, 10);
         TestObject o1 = new TestObject(10,10);
         o1.setLocation(2,2);
         world.addObject(o1);
@@ -41,7 +41,7 @@ public class IntersectionTest extends TestCase
     
     public void testIntersectingPixelLevelOdd()
     {
-        world = new GreenfootWorld(70, 70, 1, false);
+        world = new GreenfootWorld(70, 70, 1);
         TestObject o1 = new TestObject(7,7);
         o1.setLocation(0,0);
         world.addObject(o1);
@@ -64,7 +64,7 @@ public class IntersectionTest extends TestCase
     
     public void testIntersectingPixelLevelEven()
     {
-        world = new GreenfootWorld(80, 80, 1, false);
+        world = new GreenfootWorld(80, 80, 1);
         TestObject o1 = new TestObject(8,8);
         o1.setLocation(0,0);
         world.addObject(o1);

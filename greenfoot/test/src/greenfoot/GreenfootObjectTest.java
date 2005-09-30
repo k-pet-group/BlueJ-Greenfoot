@@ -15,7 +15,8 @@ public class GreenfootObjectTest extends TestCase
 
     public void testSize()
     {
-        world = new GreenfootWorld(10, 10, 10, true);
+        world = new GreenfootWorld(10, 10, 10);
+        world.setWrapped(true);
         TestObject o = new TestObject(11, 31);
         world.addObject(o);
         assertEquals(2, o.getWidth());
@@ -29,7 +30,7 @@ public class GreenfootObjectTest extends TestCase
     
     public void testOutOfBounds()
     {
-        world = new GreenfootWorld(10, 10, 10, false);
+        world = new GreenfootWorld(10, 10, 10);
         TestObject o = new TestObject(11, 31);
         world.addObject(o);
         int x = 2;

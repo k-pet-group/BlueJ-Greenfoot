@@ -15,7 +15,7 @@ public class GetAtTest extends TestCase
 
     public void testPixelOdd()
     {
-        world = new GreenfootWorld(100, 100, 1, false);
+        world = new GreenfootWorld(100, 100, 1);
 
         TestObject go1 = new TestObject(21, 21);
         world.addObject(go1);
@@ -41,7 +41,7 @@ public class GetAtTest extends TestCase
 
     public void testPixelEven()
     {
-        world = new GreenfootWorld(100, 100, 1, false);
+        world = new GreenfootWorld(100, 100, 1);
 
         TestObject go1 = new TestObject(20, 20);
         world.addObject(go1);
