@@ -3,6 +3,7 @@ package bluej.parser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +35,7 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 3589 2005-09-26 05:41:25Z davmac $
+ * @version $Id: ClassParser.java 3619 2005-09-30 06:45:46Z davmac $
  */
 public class ClassParser
 {
@@ -50,14 +51,31 @@ public class ClassParser
     public static ClassInfo parse(File file, List packageClasses)
         throws RecognitionException
     {
-        // Debug.message("Parsing file: " + file);
-        FileInputStream fr;
+        FileInputStream fr = null;
         try {
             fr = new FileInputStream(file);
-
+            return parse(new InputStreamReader(fr), packageClasses);
+        }
+        catch (FileNotFoundException fnfe) {
+            throw new RecognitionException();
+        }
+        finally {
+            try {
+                if (fr != null)
+                    fr.close();
+            }
+            catch (IOException ioe) {}
+        }
+    }
+    
+    public static ClassInfo parse(InputStreamReader ir, List packageClasses)
+        throws RecognitionException
+    {
+        // Debug.message("Parsing file: " + file);
+        try {
             // We use a lexer pipeline:
             // First, deal with escaped unicode characters:
-            EscapedUnicodeReader eur = new EscapedUnicodeReader(new InputStreamReader(fr));
+            EscapedUnicodeReader eur = new EscapedUnicodeReader(ir);
 
             // Next create the initial lexer stage
             JavaLexer lexer = new JavaLexer(eur);
@@ -88,8 +106,9 @@ public class ClassParser
                 throw new RecognitionException();
             }
         }
-        catch (FileNotFoundException fnfe) { throw new RecognitionException(); }
-        catch (TokenStreamException tse) { throw new RecognitionException(); }
+        catch (TokenStreamException tse) {
+            throw new RecognitionException();
+        }
     }
     
     /**
