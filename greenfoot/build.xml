@@ -63,7 +63,9 @@
         <!-- Create the build directory structure used by compile -->
         <mkdir dir="${build}"/>
         <mkdir dir="${bluej.extensions.lib}"/>
-        <copydir src="${images}" dest="${build}"/>
+        <copy  todir="${build}">
+            <fileset dir="${images}"/>
+        </copy>
         <mkdir dir="${package}"/>
     </target>
 
