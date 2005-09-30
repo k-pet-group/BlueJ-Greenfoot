@@ -12,6 +12,7 @@ import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.localdebugger.LocalObject;
+import greenfoot.util.Location;
 
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -93,6 +94,7 @@ public class WorldHandler
         worldCanvas.addMouseListener(this);
         worldCanvas.addKeyListener(this);
         worldCanvas.setDropTargetListener(this);
+        worldCanvas.addMouseMotionListener(LocationTracker.instance());
         installNewWorld(world);
         DragGlassPane.getInstance().addKeyListener(this);
 
@@ -356,7 +358,6 @@ public class WorldHandler
     {
         if (isQuickAddActive) {
             ClassView cls = (ClassView) classSelectionManager.getSelected();
-            
             if (cls != null && cls.getRole() instanceof GreenfootClassRole) {
                 GreenfootClassRole role = (GreenfootClassRole) cls.getRole();
                 Object object = role.createObjectDragProxy();//cls.createInstance();
@@ -366,7 +367,11 @@ public class WorldHandler
                 int dragOffsetY = 0;
                 objectDropped = false;
                 DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this);
-
+                
+                //Force painting of drag image
+                Location l = LocationTracker.instance().getLocation();
+                Point p = new Point(l.getX(), l.getY());
+                drag(go, p);
                 // On the mac, the glass pane doesn't seem to receive
                 // mouse move events; the shift/move is treated like a drag
                 worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
