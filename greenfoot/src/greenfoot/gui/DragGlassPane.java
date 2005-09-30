@@ -2,6 +2,8 @@ package greenfoot.gui;
 
 import greenfoot.GreenfootObject;
 import greenfoot.ImageVisitor;
+import greenfoot.core.LocationTracker;
+import greenfoot.util.Location;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -34,7 +36,7 @@ import javax.swing.*;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3600 2005-09-27 10:42:46Z polle $
+ * @version $Id: DragGlassPane.java 3625 2005-09-30 12:09:43Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -145,7 +147,8 @@ public class DragGlassPane extends JComponent
     /**
      * Initiates a drag. The xOffset and yOffset specify the offset in pixels
      * from the mouse cursor to the image top-left corner during the drag
-     * operation (normally negative).<p>
+     * operation (normally negative).
+     * <p>
      * 
      * There are two types of drag: a "genuine" drag where an object is being
      * dragged with the mouse button down, and a "forced" drag where the button
@@ -153,16 +156,16 @@ public class DragGlassPane extends JComponent
      * added as a MouseListener and MouseMotionListener to the component
      * receiving the drag events. Otherwise, this is not necessary.
      * 
-     * @param object
-     *            The object to drag.
-     * @param xOffset
-     *            The X offset from the icon's top-left to the mouse cursor
-     * @param yOffset
-     *            The Y offset from the icon's top-left to the mouse cursor
-     * @param dl
-     *            The listener to be notified when the operation finishes
+     * @param object The object to drag.
+     * @param xOffset The X offset from the icon's top-left to the mouse cursor
+     * @param yOffset The Y offset from the icon's top-left to the mouse cursor
+     * @param dl The listener to be notified when the operation finishes
+     * @param initialDropTarget An initial drop target. It can be null. Used
+     *            when we want to imediately paint a dragimage unto the drop
+     *            target.
+     * 
      */
-    public void startDrag(GreenfootObject object, int xOffset, int yOffset, DragListener dl)
+    public void startDrag(GreenfootObject object, int xOffset, int yOffset, DragListener dl, DropTarget initialDropTarget)
     {
         if (object == null || object.getImage() == null) {
             return;
@@ -174,6 +177,13 @@ public class DragGlassPane extends JComponent
         dragOffsetY = yOffset;
         dragListener = dl;
         setVisible(true);
+        if(initialDropTarget != null) {
+            lastDropTarget = initialDropTarget;
+            //force painting of drag object
+            Location l = LocationTracker.instance().getLocation();
+            Point p = new Point(l.getX(), l.getY());
+            lastDropTarget.drag(object, p);
+        }
         //Toolkit.getDefaultToolkit().addAWTEventListener(eventListener,
         //        (AWTEvent.MOUSE_MOTION_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK));
         logger.info("DragGlassPane.startDrag begin: " + this);
@@ -292,7 +302,11 @@ public class DragGlassPane extends JComponent
     {}
 
     public void mouseEntered(MouseEvent e)
-    {}
+    {
+        if(!e.isShiftDown() && ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK)==0) ) {
+            cancelDrag();
+        }
+    }
 
     public void mouseExited(MouseEvent e)
     {}

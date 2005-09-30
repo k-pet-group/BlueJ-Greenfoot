@@ -32,7 +32,7 @@ public class DragProxyAction extends AbstractAction
     public void actionPerformed(ActionEvent e)
     {
         ObjectDragProxy object = new ObjectDragProxy(dragImage, dropAction);
-        DragGlassPane.getInstance().startDrag(object, 0, 0, null);
+        DragGlassPane.getInstance().startDrag(object, 0, 0, null, null);
     }
 
 }
