@@ -48,6 +48,10 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 
+import com.apple.eawt.Application;
+import com.apple.eawt.ApplicationAdapter;
+import com.apple.eawt.ApplicationEvent;
+
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.Config;
@@ -59,16 +63,16 @@ import bluej.extensions.ProjectNotOpenException;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3616 2005-09-29 16:20:41Z polle $
+ * @version $Id: GreenfootFrame.java 3626 2005-09-30 15:08:56Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
-    private RBlueJ blueJ;
     private CompileClassAction compileClassAction = new CompileClassAction("Compile");
     private EditClassAction editClassAction = new EditClassAction("Edit");
+    private AboutGreenfootAction aboutGreenfootAction;
     private ClassBrowser classBrowser;
     private JSplitPane splitPane;
     private final static Dimension MAX_SIZE = new Dimension(800, 600);
@@ -101,7 +105,7 @@ public class GreenfootFrame extends JFrame
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        this.blueJ = blueJ;
+        aboutGreenfootAction = new AboutGreenfootAction("About Greenfoot", this);
         setSize(400, 300);
         URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
         ImageIcon icon = new ImageIcon(iconFile);
@@ -110,6 +114,8 @@ public class GreenfootFrame extends JFrame
         addWindowListener(this);
         Greenfoot.getInstance().addCompileListener(this);
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        
+        prepareMacOSApp();
         Thread t = new Thread() {
             public void run() {
                 openProject(project);
@@ -120,6 +126,37 @@ public class GreenfootFrame extends JFrame
     }
     
 
+    /**
+     * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
+     * menu)
+     */
+    private Application prepareMacOSApp()
+    {
+        Application macApp = new Application();
+        macApp.setEnabledPreferencesMenu(true);
+        macApp.addApplicationListener(new ApplicationAdapter() {
+            public void handleAbout(ApplicationEvent e)
+            {
+                aboutGreenfootAction.actionPerformed(null);
+                e.setHandled(true);
+            }
+
+            public void handlePreferences(ApplicationEvent e)
+            {
+               // PreferencesAction.getInstance().actionPerformed(getMostRecent());
+               // e.setHandled(true);
+            }
+
+            public void handleQuit(ApplicationEvent e)
+            {
+                exit();
+                e.setHandled(true);
+            }
+        });
+
+        return macApp;
+    }
+    
     private void buildUI()
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -319,7 +356,7 @@ public class GreenfootFrame extends JFrame
 
         JMenu helpMenu = new JMenu("Help");
         menuBar.add(helpMenu);
-        helpMenu.add(new AboutGreenfootAction("About Greenfoot", this)); 
+        helpMenu.add(aboutGreenfootAction); 
 
        // helpMenu.add(new CopyrightAction("Copyright", this)); 
         return menuBar;
