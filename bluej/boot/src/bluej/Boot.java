@@ -17,7 +17,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3533 2005-08-19 06:01:50Z davmac $
+ * @version $Id: Boot.java 3628 2005-09-30 16:29:24Z polle $
  */
 public class Boot
 {
@@ -57,6 +57,12 @@ public class Boot
     // (bluej.runtime.* classes).
     private static String[] bluejUserJars = { "bluejcore.jar", "junit.jar" };
     
+    // In greenfoot we need access to the BlueJ classes.
+    // When running from eclipse, the first jar files will be excluded as explained above at the bluejBuildJars field.
+    private static String[] greenfootUserJars = {"bluejcore.jar", "bluejeditor.jar", "bluejext.jar","antlr.jar", "MRJ141Stubs.jar",
+         "junit.jar" };
+    
+    private static boolean isGreenfoot = false;
     /**
      * Entry point for booting BlueJ
      *
@@ -90,11 +96,12 @@ public class Boot
         }
 
         Properties commandLineProps = processCommandLineProperties(args);
-        boolean isGreenfoot = commandLineProps.getProperty("greenfoot", "false").equals("true");
+        isGreenfoot = commandLineProps.getProperty("greenfoot", "false").equals("true");
         
         SplashLabel image = null;
         if(isGreenfoot) {
             image = new GreenfootLabel();
+            bluejUserJars = greenfootUserJars;
         } else {
             image = new BlueJLabel();
         }
@@ -349,7 +356,7 @@ public class Boot
         // If specified on command line, lets add a ../classes
         // directory to the classpath (where Eclipse stores the
         // .class files)
-        if (isSystem && useClassesDir) {
+        if ((isSystem || isGreenfoot) && useClassesDir) {
             File classesDir = new File(libDir.getParentFile(), "classes");
             
             if (classesDir.isDirectory()) {
