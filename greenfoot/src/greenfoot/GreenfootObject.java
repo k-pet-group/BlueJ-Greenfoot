@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.2.1
- * @cvs-version $Id: GreenfootObject.java 3633 2005-10-03 09:37:21Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3636 2005-10-03 12:12:24Z polle $
  */
 public class GreenfootObject
 {
@@ -318,7 +318,7 @@ public class GreenfootObject
 
     /**
      * Set an image for this object from an image file. The file may be in
-     * jpeg, gif or tiff format. The file should be located in the project directory.
+     * jpeg, gif or png format. The file should be located in the project directory.
      * 
      * @see #setImage(ImageIcon)
      * @param filename The name of the image file.
@@ -440,7 +440,7 @@ public class GreenfootObject
      * 
      * @return True if the object's intersect, false otherwise.
      */
-    public boolean intersects(GreenfootObject other)
+    protected boolean intersects(GreenfootObject other)
     {
 
         // TODO: Take wrapping of the world into consideration.
@@ -486,7 +486,7 @@ public class GreenfootObject
      * @return True if the image contains the cell. If the object has no image,
      *         false will be returned.
      */
-    public boolean contains(int dx, int dy)
+    protected boolean contains(int dx, int dy)
     {
         // TODO this disregards rotations. maybe this should be updated in the
         // getWidth/height methods
@@ -532,7 +532,7 @@ public class GreenfootObject
      *            objects).
      * @return A list of all neighbours found.
      */
-    public List getNeighbours(int distance, boolean diagonal, Class cls)
+    protected List getNeighbours(int distance, boolean diagonal, Class cls)
     {
         return getWorld().getNeighbours(getX(), getY(), distance, diagonal, cls);
     }
@@ -547,7 +547,7 @@ public class GreenfootObject
      * @param dy y-coordinate relative to this objects location.
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    public List getObjectsAt(int dx, int dy, Class cls)
+    protected List getObjectsAt(int dx, int dy, Class cls)
     {
         return world.getObjectsAt(getX() + dx, getY() + dy, cls);
     }
@@ -560,7 +560,7 @@ public class GreenfootObject
      * @param r Radius of the cirle (in pixels)
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    public List getObjectsInRange(int r, Class cls)
+    protected List getObjectsInRange(int r, Class cls)
     {
         List inRange = world.getObjectsInRange(getX(), getY(), r, cls);
         inRange.remove(this);
@@ -576,7 +576,7 @@ public class GreenfootObject
      * 
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    public List getIntersectingObjects(Class cls)
+    protected List getIntersectingObjects(Class cls)
     {
         return world.getIntersectingObjects(this, cls);
     }
@@ -591,7 +591,7 @@ public class GreenfootObject
      * @param angle The angle relative to current rotation of the object.
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    public List getObjectsInDirection(int angle, Class cls)
+    protected List getObjectsInDirection(int angle, Class cls)
     {
         return null;
     }

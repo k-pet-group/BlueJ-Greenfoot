@@ -1,6 +1,7 @@
 package greenfoot.collision;
 
 import greenfoot.GreenfootObject;
+import greenfoot.GreenfootObjectVisitor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -226,7 +227,7 @@ public class GridCollisionChecker
         List objectsThere = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
             GreenfootObject go = (GreenfootObject) iter.next();
-            if ((cls == null || cls.isInstance(go)) && go.contains(x - go.getX(), y - go.getY())) {
+            if ((cls == null || cls.isInstance(go)) && GreenfootObjectVisitor.contains(go,x - go.getX(), y - go.getY())) {
                 objectsThere.add(go);
             }
         }
@@ -388,7 +389,7 @@ public class GridCollisionChecker
         List intersecting = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
             GreenfootObject element = (GreenfootObject) iter.next();
-            if (element != go && go.intersects(element) && cls.isInstance(element)) {
+            if (element != go && GreenfootObjectVisitor.intersects(go, element) && cls.isInstance(element)) {
                 intersecting.add(element);
             }
         }

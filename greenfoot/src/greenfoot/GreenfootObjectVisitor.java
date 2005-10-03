@@ -14,4 +14,15 @@ public class GreenfootObjectVisitor
     public static void setLocationInPixels(GreenfootObject go, int dragBeginX, int dragBeginY) {
         go.setLocationInPixels(dragBeginX, dragBeginY);
     }
+    
+   
+    public static boolean contains(GreenfootObject go, int dx, int dy)
+    {
+        return go.contains(dx, dy);
+    }
+
+    public static boolean intersects(GreenfootObject go, GreenfootObject other)
+    {
+        return go.intersects(other);
+    }
 }
