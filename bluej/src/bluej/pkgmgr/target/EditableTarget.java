@@ -11,7 +11,7 @@ import bluej.pkgmgr.Package;
  * A target in a package that can be edited as text
  *
  * @author  Michael Cahill
- * @version $Id: EditableTarget.java 2642 2004-06-21 14:53:23Z polle $
+ * @version $Id: EditableTarget.java 3629 2005-10-03 00:19:53Z davmac $
  */
 public abstract class EditableTarget extends DependentTarget
     implements EditorWatcher
@@ -55,11 +55,6 @@ public abstract class EditableTarget extends DependentTarget
         getEditor().close();
     }
 
-    public boolean usesEditor(Editor editor)
-    {
-        return (this.editor == editor);
-    }
-
     public boolean editorOpen()
     {
         return (editor!=null);
@@ -93,34 +88,28 @@ public abstract class EditableTarget extends DependentTarget
     // --- EditorWatcher interface ---
     // (The EditorWatcher methods are typically redefined in subclasses)
 
-    /**
+    /*
      * Called by Editor when a file is changed
-     * @param filename	the name of the file that was modified
      */
     public void modificationEvent(Editor editor) {}
 
-    /**
+    /*
      * Called by Editor when a file is saved
-     * @param editor	the editor object being saved
      */
     public void saveEvent(Editor editor) {}
 
-    /**
+    /*
      * Called by Editor when a file is closed
-     * @param editor	the editor object being closed
      */
     public void closeEvent(Editor editor) {}
 
-    /**
+    /*
      * Called by Editor when a breakpoint is been set/cleared
-     * @param filename	the name of the file that was modified
-     * @param lineNo	the line number of the breakpoint
-     * @param set	whether the breakpoint is set (true) or cleared
      */
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     { return null; }
 
-    /**
+    /*
      * The "compile" function was invoked in the editor
      */
     public void compile(Editor editor) {}

@@ -394,6 +394,8 @@ it a CD?).
 To fully use this project, you must ensure that it is on a writable
 file system (usually your hard disk), and that you have write 
 permission in the project directory and each file within it.
+This can often be accomplished by choosing "save as" from the
+Project menu after closing this dialog.
 
 could-not-write-shell-file
 Execution failed because the project directory is not writable.
@@ -411,4 +413,8 @@ jar-extraction-error
 An error occurred in extracting the archive contents. The debug
 log may contain more information.
 
+file-save-error-before-compile
+One or more files could not be saved, so compilation was cancelled.
 
+generic-file-save-error
+An error was encountered when trying to save a file.

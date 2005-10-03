@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3608 2005-09-28 07:49:08Z davmac $
+ * @version $Id: Invoker.java 3629 2005-10-03 00:19:53Z davmac $
  */
 
 public class Invoker
@@ -1098,7 +1098,7 @@ public class Invoker
                     String text = exc.getClassName();
                     if (text != null) {
                         text = JavaNames.stripPrefix(text) + ":\n" + msg;
-                        pkg.exceptionMessage(exc.getStack(), text, false);
+                        pkg.exceptionMessage(exc.getStack(), text);
                         watcher.putException(text);
                     }
                     else {

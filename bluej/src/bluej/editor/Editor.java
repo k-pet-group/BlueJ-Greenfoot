@@ -9,13 +9,15 @@ package bluej.editor;
 
 import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
-import javax.swing.text.*;
+import java.io.IOException;
+
+import javax.swing.text.BadLocationException;
 
 
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 3357 2005-05-02 03:23:33Z davmac $
+ * @version $Id: Editor.java 3629 2005-10-03 00:19:53Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -95,8 +97,11 @@ public interface Editor
      * Save the buffer to disk under the current file name. This is an error if
      * the editor has not been given a file name (ie. if readFile was not
      * executed).
+     * 
+     * If save() is called on an unmodified file, it returns immediately without
+     * re-writing the file to disk.
      */
-    void save();
+    void save() throws IOException;
 
     /**
      * Close the editor window.

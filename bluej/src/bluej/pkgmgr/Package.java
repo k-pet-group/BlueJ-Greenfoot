@@ -53,7 +53,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3590 2005-09-27 04:33:52Z davmac $
+ * @version $Id: Package.java 3629 2005-10-03 00:19:53Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -981,15 +981,16 @@ public final class Package extends Graph
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
-                if (ct.editorOpen())
-                    ct.getEditor().save();
                 if (ct.isInvalidState())
                     toCompile.add(ct);
             }
         }
 
-        for (int i = toCompile.size() - 1; i >= 0; i--)
-            searchCompile((ClassTarget) toCompile.get(i), 1, new Stack(), new PackageCompileObserver());
+        for (int i = toCompile.size() - 1; i >= 0; i--) {
+            boolean success = searchCompile((ClassTarget) toCompile.get(i), 1, new Stack(), new PackageCompileObserver());
+            if (! success)
+                break;
+        }
     }
 
     /**
@@ -1000,9 +1001,6 @@ public final class Package extends Graph
         if (!checkCompile())
             return;
 
-        if (ct.editorOpen())
-            ct.getEditor().save();
-        
         // we don't want to try and compile if it is a class target without src
         // it may be better to avoid calling this method on such targets
         if (ct.hasSourceCode())
@@ -1026,8 +1024,6 @@ public final class Package extends Graph
         if (!checkCompile())
             return;
 
-        if (ct.editorOpen())
-            ct.getEditor().save();
         ct.setInvalidState(); // to force compile
 
         searchCompile(ct, 1, new Stack(), new QuietPackageCompileObserver());
@@ -1049,12 +1045,9 @@ public final class Package extends Graph
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
                 // we don't want to try and compile if it is a class target without src
-                // it may be better to avoid calling this method on such targets
                 if (ct.hasSourceCode()) {
-                    if (ct.editorOpen())
-                        ct.getEditor().save();
                     ct.setState(Target.S_INVALID);
-                    ct.analyseSource();
+                    ct.setQueued(true);
                     compileTargets.add(ct);
                 }
             }
@@ -1065,10 +1058,10 @@ public final class Package extends Graph
     /**
      * Use Tarjan's algorithm to construct compiler Jobs.
      */
-    private void searchCompile(ClassTarget t, int dfcount, Stack stack, CompileObserver observer)
+    private boolean searchCompile(ClassTarget t, int dfcount, Stack stack, CompileObserver observer)
     {
         if ((t.getState() != Target.S_INVALID) || t.isQueued())
-            return;
+            return true;
 
         t.setQueued(true);
         t.dfn = dfcount;
@@ -1090,7 +1083,11 @@ public final class Package extends Graph
                     t.link = Math.min(t.link, to.dfn);
             }
             else if (to.getState() == Target.S_INVALID) {
-                searchCompile(to, dfcount + 1, stack, observer);
+                boolean success = searchCompile(to, dfcount + 1, stack, observer);
+                if (! success) {
+                    t.setQueued(false);
+                    return false;
+                }
                 t.link = Math.min(t.link, to.link);
             }
         }
@@ -1104,30 +1101,50 @@ public final class Package extends Graph
                 compileTargets.add(x);
             } while (x != t);
 
-            doCompile(compileTargets, observer);
+            boolean success = doCompile(compileTargets, observer);
+            if (! success) {
+                Iterator i = compileTargets.iterator();
+                while (i.hasNext()) {
+                    x = (ClassTarget) i.next();
+                    x.setQueued(false);
+                }
+                return false;
+            }
         }
+        return true;
     }
 
     /**
      * Compile every Target in 'targetList'. Every compilation goes through this method.
+     * Return true if the compilation is proceeding, false if it was aborted.
      */
-    private void doCompile(List targetList, CompileObserver observer)
+    private boolean doCompile(List targetList, CompileObserver observer)
     {
         observer = new EventqueueCompileObserver(observer);
         if (targetList.size() == 0)
-            return;
+            return true;
 
         File[] srcFiles = new File[targetList.size()];
-        for (int i = 0; i < targetList.size(); i++) {
-            ClassTarget ct = (ClassTarget) targetList.get(i);
-            ct.ensureSaved();
-            srcFiles[i] = ct.getSourceFile();
+        
+        try {
+            for (int i = 0; i < targetList.size(); i++) {
+                ClassTarget ct = (ClassTarget) targetList.get(i);
+                ct.ensureSaved();
+                srcFiles[i] = ct.getSourceFile();
+            }
+            
+            removeBreakpoints();
+            //Terminal.getTerminal().clear();
+            
+            JobQueue.getJobQueue().addJob(srcFiles, observer, getProject().getClassLoader(), getProject().getProjectDir(),
+                    ! PrefMgr.getFlag("bluej.compiler.showunchecked"));
+            
+            return true;
         }
-        removeBreakpoints();
-        //Terminal.getTerminal().clear();
-
-        JobQueue.getJobQueue().addJob(srcFiles, observer, getProject().getClassLoader(), getProject().getProjectDir(),
-                ! PrefMgr.getFlag("bluej.compiler.showunchecked"));
+        catch (IOException ioe) {
+            showMessageWithText("file-save-error-before-compile", ioe.getLocalizedMessage());
+            return false;
+        }
     }
 
     /**
@@ -1173,7 +1190,7 @@ public final class Package extends Graph
      */
     public void generateDocumentation(ClassTarget ct)
     {
-        ct.getEditor().save();
+        // editor file is already saved: no need to save it here
         String filename = ct.getSourceFile().getPath();
         project.generateDocumentation(filename);
     }
@@ -1316,40 +1333,40 @@ public final class Package extends Graph
         ClassTarget from = (ClassTarget) d.getFrom(); // a class
         ClassTarget to = (ClassTarget) d.getTo(); // an interface
         Editor ed = from.getEditor();
-        ed.save();
-
-        // Debug.message("Implements class dependency from " + from.getName() +
-        // " to " + to.getName());
-
         try {
-            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
-
-            Selection s1 = info.getImplementsInsertSelection();
-            ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-
-            if (info.hasInterfaceSelections()) {
-                // if we already have an implements clause then we need to put a
-                // comma and the interface name but not before checking that we
-                // don't
-                // already have it
-
-                List exists = getInterfaceTexts(ed, info.getInterfaceSelections());
-
-                // XXX make this equality check against full package name
-                if (!exists.contains(to.getBaseName()))
-                    ed.insertText(", " + to.getBaseName(), false);
-            }
-            else {
-                // otherwise we need to put the actual "implements" word
-                // and the interface name
-                ed.insertText(" implements " + to.getBaseName(), false);
-            }
             ed.save();
+            
+            // Debug.message("Implements class dependency from " + from.getName() +
+            // " to " + to.getName());
+            
+            ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
+            if (info != null) {
+                
+                Selection s1 = info.getImplementsInsertSelection();
+                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                
+                if (info.hasInterfaceSelections()) {
+                    // if we already have an implements clause then we need to put a
+                    // comma and the interface name but not before checking that we
+                    // don't
+                    // already have it
+                    
+                    List exists = getInterfaceTexts(ed, info.getInterfaceSelections());
+                    
+                    // XXX make this equality check against full package name
+                    if (!exists.contains(to.getBaseName()))
+                        ed.insertText(", " + to.getBaseName(), false);
+                }
+                else {
+                    // otherwise we need to put the actual "implements" word
+                    // and the interface name
+                    ed.insertText(" implements " + to.getBaseName(), false);
+                }
+                ed.save();
+            }
         }
-        catch (Exception e) {
-            // exception during parsing so we have to ignore
-            // perhaps we should display a message here
-            return;
+        catch (IOException ioe) {
+            showMessageWithText("generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
 
@@ -1364,40 +1381,40 @@ public final class Package extends Graph
         ClassTarget from = (ClassTarget) d.getFrom(); // an interface
         ClassTarget to = (ClassTarget) d.getTo(); // an interface
         Editor ed = from.getEditor();
-        ed.save();
+        try {
+            ed.save();
 
         // Debug.message("Implements interface dependency from " +
         // from.getName() + " to " + to.getName());
 
-        try {
-            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
+            ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
 
-            Selection s1 = info.getExtendsInsertSelection();
-            ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-
-            if (info.hasInterfaceSelections()) {
-                // if we already have an extends clause then we need to put a
-                // comma and the interface name but not before checking that we
-                // don't
-                // already have it
-
-                List exists = getInterfaceTexts(ed, info.getInterfaceSelections());
-
-                // XXX make this equality check against full package name
-                if (!exists.contains(to.getBaseName()))
-                    ed.insertText(", " + to.getBaseName(), false);
+            if (info != null) {
+                Selection s1 = info.getExtendsInsertSelection();
+                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                
+                if (info.hasInterfaceSelections()) {
+                    // if we already have an extends clause then we need to put a
+                    // comma and the interface name but not before checking that we
+                    // don't
+                    // already have it
+                    
+                    List exists = getInterfaceTexts(ed, info.getInterfaceSelections());
+                    
+                    // XXX make this equality check against full package name
+                    if (!exists.contains(to.getBaseName()))
+                        ed.insertText(", " + to.getBaseName(), false);
+                }
+                else {
+                    // otherwise we need to put the actual "extends" word
+                    // and the interface name
+                    ed.insertText(" extends " + to.getBaseName(), false);
+                }
+                ed.save();
             }
-            else {
-                // otherwise we need to put the actual "extends" word
-                // and the interface name
-                ed.insertText(" extends " + to.getBaseName(), false);
-            }
-            ed.save();
         }
-        catch (Exception e) {
-            // exception during parsing so we have to ignore
-            // perhaps we should display a message here
-            return;
+        catch (IOException ioe) {
+            showMessageWithText("generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
 
@@ -1412,29 +1429,29 @@ public final class Package extends Graph
         ClassTarget from = (ClassTarget) d.getFrom();
         ClassTarget to = (ClassTarget) d.getTo();
         Editor ed = from.getEditor();
-        ed.save();
-
         try {
-            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
-
-            if (info.getSuperclass() == null) {
-                Selection s1 = info.getExtendsInsertSelection();
-
-                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                ed.insertText(" extends " + to.getBaseName(), false);
-            }
-            else {
-                Selection s1 = info.getSuperReplaceSelection();
-
-                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                ed.insertText(to.getBaseName(), false);
-            }
             ed.save();
+
+            ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
+
+            if (info != null) {
+                if (info.getSuperclass() == null) {
+                    Selection s1 = info.getExtendsInsertSelection();
+                    
+                    ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                    ed.insertText(" extends " + to.getBaseName(), false);
+                }
+                else {
+                    Selection s1 = info.getSuperReplaceSelection();
+                    
+                    ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                    ed.insertText(to.getBaseName(), false);
+                }
+                ed.save();
+            }
         }
-        catch (Exception e) {
-            // exception during parsing so we have to ignore
-            // perhaps we should display a message here
-            return;
+        catch (IOException ioe) {
+            showMessageWithText("generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
 
@@ -1452,50 +1469,48 @@ public final class Package extends Graph
         ClassTarget from = (ClassTarget) d.getFrom();
         ClassTarget to = (ClassTarget) d.getTo();
         Editor ed = from.getEditor();
-        ed.save();
-
         try {
-            ClassInfo info = ClassParser.parse(from.getSourceFile(), getAllClassnames());
-            Selection s1 = null;
-
-            if (d instanceof ImplementsDependency) {
-                List vsels, vtexts;
-
-                vsels = info.getInterfaceSelections();
-                vtexts = getInterfaceTexts(ed, vsels);
-                int where = vtexts.indexOf(to.getBaseName());
-
-                // we have a special case if we deleted the first bit of an
-                // "implements" clause, yet there are still clauses left.. we have
-                // to delete the following "," instead of the preceding one.
-                if (where == 1 && vsels.size() > 2)
-                    where = 2;
-                
-                if (where > 0) { // should always be true
-                    s1 = (Selection) vsels.get(where - 1);
-                    s1.combineWith((Selection) vsels.get(where));
-                }
-            }
-            else if (d instanceof ExtendsDependency) {
-                // a class extends
-                s1 = info.getExtendsReplaceSelection();
-                s1.combineWith(info.getSuperReplaceSelection());
-            }
-
-            // delete the text from the end backwards so that our
-            if (s1 != null) {
-                ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
-                ed.insertText("", false);
-            }
-
             ed.save();
+
+            ClassInfo info = from.getSourceInfo().getInfo(from.getSourceFile(), this);
+            if (info != null) {
+                Selection s1 = null;
+                
+                if (d instanceof ImplementsDependency) {
+                    List vsels, vtexts;
+                    
+                    vsels = info.getInterfaceSelections();
+                    vtexts = getInterfaceTexts(ed, vsels);
+                    int where = vtexts.indexOf(to.getBaseName());
+                    
+                    // we have a special case if we deleted the first bit of an
+                    // "implements" clause, yet there are still clauses left.. we have
+                    // to delete the following "," instead of the preceding one.
+                    if (where == 1 && vsels.size() > 2)
+                        where = 2;
+                    
+                    if (where > 0) { // should always be true
+                        s1 = (Selection) vsels.get(where - 1);
+                        s1.combineWith((Selection) vsels.get(where));
+                    }
+                }
+                else if (d instanceof ExtendsDependency) {
+                    // a class extends
+                    s1 = info.getExtendsReplaceSelection();
+                    s1.combineWith(info.getSuperReplaceSelection());
+                }
+                
+                // delete the text from the end backwards so that our
+                if (s1 != null) {
+                    ed.setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                    ed.insertText("", false);
+                }
+                
+                ed.save();
+            }
         }
-        catch (Exception e) {
-            // exception during parsing so we have to ignore
-            // perhaps we should display a message here
-            e.printStackTrace();
-            Debug.message("Parse error attempting to delete dependency arrow");
-            return;
+        catch (IOException ioe) {
+            showMessageWithText("generic-file-save-error", ioe.getLocalizedMessage());
         }
     }
     
@@ -1869,7 +1884,7 @@ public final class Package extends Graph
         boolean bringToFront = !sourcename.equals(lastSourceName);
         lastSourceName = sourcename;
 
-        if (!showEditorMessage(new File(getPath(), sourcename).getPath(), lineNo, msg, false, false, bringToFront,
+        if (!showEditorMessage(new File(getPath(), sourcename).getPath(), lineNo, msg, false, bringToFront,
                 true, null))
             showMessageWithText("break-no-source", sourcename);
 
@@ -1881,7 +1896,7 @@ public final class Package extends Graph
      * is done by opening the class's source, highlighting the line and showing
      * the message in the editor's information area.
      */
-    private boolean showEditorMessage(String filename, int lineNo, String message, boolean invalidate, boolean beep,
+    private boolean showEditorMessage(String filename, int lineNo, String message, boolean beep,
             boolean bringToFront, boolean setStepMark, String help)
     {
         String fullName = getProject().convertPathToPackageName(filename);
@@ -1909,11 +1924,6 @@ public final class Package extends Graph
 
         if (t == null)
             return false;
-
-        if (invalidate) {
-            t.setState(Target.S_INVALID);
-            t.setQueued(false);
-        }
 
         if (bringToFront || !t.getEditor().isShowing())
             t.open();
@@ -1964,7 +1974,7 @@ public final class Package extends Graph
      * Display an exception message. This is almost the same as "errorMessage"
      * except for different help texts.
      */
-    public void exceptionMessage(List stack, String message, boolean invalidate)
+    public void exceptionMessage(List stack, String message)
     {
         if ((stack == null) || (stack.size() == 0)) {
             // Stack empty or missing. This can happen when an exception is
@@ -1981,7 +1991,7 @@ public final class Package extends Graph
             SourceLocation loc = (SourceLocation) iter.next();
             String filename = new File(getPath(), loc.getFileName()).getPath();
             int lineNo = loc.getLineNumber();
-            done = showEditorMessage(filename, lineNo, message, invalidate, true, true, false, "exception");
+            done = showEditorMessage(filename, lineNo, message, true, true, false, "exception");
             if (firstTime && !done) {
                 message += " (in " + loc.getClassName() + ")";
                 firstTime = false;
@@ -2054,13 +2064,8 @@ public final class Package extends Graph
             aCompileEvent.setErrorMessage(message);
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
 
-            if (!showEditorMessage(filename, lineNo, message, true, true, true, false, Config.compilertype))
+            if (!showEditorMessage(filename, lineNo, message, true, true, false, Config.compilertype))
                 showMessageWithText("error-in-file", filename + ":" + lineNo + "\n" + message);
-        }
-
-        public void exceptionMessage(List stack, String message, boolean invalidate)
-        {
-            Package.this.exceptionMessage(stack, message, invalidate);
         }
 
         /**

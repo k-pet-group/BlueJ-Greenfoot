@@ -1,7 +1,10 @@
 package bluej.extensions.editor;
 
-import bluej.editor.*;
-import javax.swing.text.*;
+import java.io.IOException;
+
+import javax.swing.text.BadLocationException;
+
+import bluej.editor.LineColumn;
 
 /**
  * Proxy object that allows interaction with the BlueJ Editor for a
@@ -9,7 +12,7 @@ import javax.swing.text.*;
  * Except as marked, methods of this class must be called from a swing compatible thread.
  *
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
- * @version    $Id: Editor.java 3239 2004-12-15 07:12:54Z damiano $
+ * @version    $Id: Editor.java 3629 2005-10-03 00:19:53Z davmac $
  */
 
 public class Editor
@@ -35,7 +38,10 @@ public class Editor
      */
     public void saveFile()
     {
-        bjEditor.save();
+        try {
+            bjEditor.save();
+        }
+        catch (IOException ioe) {}
     }
 
     /**

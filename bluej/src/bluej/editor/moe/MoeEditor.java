@@ -401,7 +401,9 @@ public final class MoeEditor extends JFrame
      * save much too often. PRE: filename != null
      */
     public void save()       // inherited from Editor, redefined
+        throws IOException
     {
+        IOException failureException = null;
         if (saveState.isChanged()) {
             BufferedWriter writer = null;
             try {
@@ -432,15 +434,26 @@ public final class MoeEditor extends JFrame
                 }
             }
             catch (IOException ex) {
-                info.warning(Config.getString("editor.info.errorSaving"));
+                failureException = ex;
+                info.warning(Config.getString("editor.info.errorSaving") + " - " + ex.getLocalizedMessage());
             }
             finally {
                 try {
                    if(writer != null)
                       writer.close();
                 }
-                catch (IOException ex) { }
+                catch (IOException ex) {
+                    failureException = ex;
+                }
             }
+        }
+        
+        // If an error occurred, set a message in the editor status bar, and
+        // re-throw the exception.
+        if (failureException != null) {
+            info.warning(Config.getString("editor.info.errorSaving")
+                    + " - " + failureException.getLocalizedMessage());
+            throw failureException;
         }
     }
 
@@ -450,7 +463,10 @@ public final class MoeEditor extends JFrame
      */
     public void close()       // inherited from Editor, redefined
     {
-        save();
+        try {
+            save();
+        }
+        catch (IOException ioe) {}
         // temporary - should really be done by watcher from outside
         doClose();
     }
@@ -1028,8 +1044,14 @@ public final class MoeEditor extends JFrame
     {
         if (saveState.isSaved())
             info.message(Config.getString("editor.info.noChanges"));
-        else
-            save();
+        else {
+            try {
+                save();
+            }
+            catch (IOException ioe) {}
+            // Note we can safely ignore the exception here: a message has
+            // already been displayed in the editor status bar
+        }
     }
 
     // --------------------------------------------------------------------
@@ -1536,15 +1558,22 @@ public final class MoeEditor extends JFrame
 
         // disable print menu option until implemented
         enablePrinting(false);
-        save();
-        if (docUpToDate()) {
-            displayInterface(false);
+        try {
+            save();
+            if (docUpToDate()) {
+                displayInterface(false);
+            }
+            else {
+                // interface needs to be re-generated
+                info.message(Config.getString("editor.info.generatingDoc"));
+                BlueJEvent.addListener(this);
+                watcher.generateDoc();
+            }
         }
-        else {
-            // interface needs to be re-generated
-            info.message(Config.getString("editor.info.generatingDoc"));
-            BlueJEvent.addListener(this);
-            watcher.generateDoc();
+        catch (IOException ioe) {
+            // Could display a dialog here. However, the error message
+            // (from save() call) will already be displayed in the editor
+            // status bar.
         }
     }
 

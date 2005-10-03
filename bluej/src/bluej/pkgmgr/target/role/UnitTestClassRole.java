@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ import bluej.utility.JavaNames;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 3588 2005-09-26 00:18:07Z davmac $
+ * @version $Id: UnitTestClassRole.java 3629 2005-10-03 00:19:53Z davmac $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -347,9 +348,8 @@ public class UnitTestClassRole extends ClassRole
     public void doEndMakeTestCase(PkgMgrFrame pmf, ClassTarget ct, String name)
     {
         Editor ed = ct.getEditor();
-        ed.save();
-
         try {
+            ed.save();
             UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
 
             SourceSpan existingSpan = uta.getMethodBlockSpan(name);
@@ -373,6 +373,10 @@ public class UnitTestClassRole extends ClassRole
             ed.save();
         }
         catch (FileNotFoundException fnfe) { /* shouldn't happen */ }
+        catch (IOException ioe) {
+            PkgMgrFrame.showMessageWithText(pmf.getPackage(),
+                    "generic-file-save-error", ioe.getLocalizedMessage());
+        }
     }
     
     /**
@@ -385,7 +389,6 @@ public class UnitTestClassRole extends ClassRole
     public void doFixtureToBench(PkgMgrFrame pmf, ClassTarget ct)
     {
         MoeEditor ed = (MoeEditor) ct.getEditor();
-        ed.save();
 
         // our first step is to save all the existing code that creates the
         // fixture into a special invoker record
@@ -394,6 +397,7 @@ public class UnitTestClassRole extends ClassRole
         ExistingFixtureInvokerRecord existing = new ExistingFixtureInvokerRecord();
         
         try {
+            ed.save();
             UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
 
             // iterate through all the declarations of fields (fixture items) in the class
@@ -424,6 +428,9 @@ public class UnitTestClassRole extends ClassRole
             
         }
         catch (FileNotFoundException fnfe) { fnfe.printStackTrace(); }
+        catch (IOException ioe) {
+            PkgMgrFrame.showMessageWithText(pmf.getPackage(), "generic-file-save-error", ioe.getLocalizedMessage());
+        }
         
         Map dobs = pmf.getProject().getDebugger().runTestSetUp(ct.getQualifiedName());
 
@@ -447,9 +454,8 @@ public class UnitTestClassRole extends ClassRole
             return;
                 
         Editor ed = ct.getEditor();
-        ed.save();
-
         try {
+            ed.save();
             UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
 
             // find all the fields declared in this unit test class
@@ -516,6 +522,10 @@ public class UnitTestClassRole extends ClassRole
                 
             ed.insertText("{\n" + pmf.getObjectBench().getFixtureDeclaration(), false);
             ed.save();
+        }
+        catch (IOException ioe) {
+            PkgMgrFrame.showMessageWithText(pmf.getPackage(),
+                    "generic-file-save-error", ioe.getLocalizedMessage());
         }
         catch (Exception e) {
             e.printStackTrace();

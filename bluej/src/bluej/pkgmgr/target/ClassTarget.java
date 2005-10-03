@@ -53,7 +53,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3588 2005-09-26 00:18:07Z davmac $
+ * @version $Id: ClassTarget.java 3629 2005-10-03 00:19:53Z davmac $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable, InvokeListener
@@ -647,7 +647,7 @@ public class ClassTarget extends EditableTarget
      * that any possible unsaved changes in an open editor window are 
      * saved).
      */
-    public void ensureSaved()
+    public void ensureSaved() throws IOException
     {
         if(editor != null) {
             editor.save();
