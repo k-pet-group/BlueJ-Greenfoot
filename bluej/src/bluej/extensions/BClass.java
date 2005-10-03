@@ -1,5 +1,10 @@
 package bluej.extensions;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+
 import bluej.compiler.JobQueue;
 import bluej.extensions.editor.Editor;
 import bluej.extensions.editor.EditorBridge;
@@ -11,16 +16,13 @@ import bluej.views.ConstructorView;
 import bluej.views.FieldView;
 import bluej.views.MethodView;
 import bluej.views.View;
-import java.io.File;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * A wrapper for a BlueJ class.
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 3548 2005-09-02 06:50:51Z damiano $
+ * @version    $Id: BClass.java 3631 2005-10-03 06:30:19Z davmac $
  */
 
 /*
@@ -462,7 +464,10 @@ public class BClass
         ClassTarget aTarget = classId.getClassTarget();
         bluej.editor.Editor anEditor = aTarget.getEditor();
         if (anEditor != null) {
-            anEditor.save();
+            try {
+                anEditor.save();
+            }
+            catch (IOException ioe) {}
         }
 
         return aTarget.getSourceFile();
@@ -487,7 +492,10 @@ public class BClass
             return;
         }
 
-        anEditor.save();
+        try {
+            anEditor.save();
+        }
+        catch (IOException ioe) {}
         anEditor.setReadOnly(true);
     }
 
