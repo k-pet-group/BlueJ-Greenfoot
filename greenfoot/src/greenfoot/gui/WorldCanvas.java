@@ -12,6 +12,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,15 +25,17 @@ import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
 
 /**
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3405 2005-06-03 15:10:56Z polle $
+ * @version $Id: WorldCanvas.java 3637 2005-10-03 13:53:06Z polle $
  */
 public class WorldCanvas extends JComponent
-    implements Observer, DropTarget
+    implements Observer, DropTarget, Scrollable
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
@@ -218,6 +221,60 @@ public class WorldCanvas extends JComponent
         if (dropTargetListener != null) {
             dropTargetListener.dragEnded(o);
         }
+    }
+
+    public Dimension getPreferredScrollableViewportSize()
+    {
+        return getPreferredSize();
+    }
+
+    public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction)
+    {
+        int cellSize = world.getCellSize();
+        double scrollPos = 0;
+        if(orientation == SwingConstants.HORIZONTAL) {
+            //scrolling left
+            if(direction < 0) {
+                scrollPos = visibleRect.getMinX();
+               
+            }
+            //scrolling right
+            else if (direction > 0) {
+                scrollPos = visibleRect.getMaxX();
+            }
+        } else {
+            //scrolling up
+            if(direction < 0) {
+                scrollPos = visibleRect.getMinY();
+            }
+            //scrolling down
+            else if (direction > 0) {
+                scrollPos = visibleRect.getMaxY();
+            }
+        }
+        int increment = Math.abs((int) Math.IEEEremainder(scrollPos, cellSize));
+        if(increment == 0) {
+            increment = cellSize;
+        }
+      
+        return  increment;
+    }
+
+    public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction)
+    {
+         return getScrollableUnitIncrement(visibleRect, orientation, direction);
+    }
+
+    public boolean getScrollableTracksViewportWidth()
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public boolean getScrollableTracksViewportHeight()
+    {
+        // TODO Auto-generated method stub
+        return false;
     }
 
 }
