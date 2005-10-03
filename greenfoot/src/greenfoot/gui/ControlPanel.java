@@ -10,8 +10,18 @@ import greenfoot.event.SimulationListener;
 import java.awt.CardLayout;
 import java.awt.FlowLayout;
 import java.net.URL;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
@@ -20,7 +30,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 3551 2005-09-06 09:31:41Z polle $
+ * @version $Id: ControlPanel.java 3634 2005-10-03 10:34:22Z polle $
  */
 public class ControlPanel extends JPanel
     implements ChangeListener, SimulationListener
@@ -37,7 +47,7 @@ public class ControlPanel extends JPanel
 
     public ControlPanel(Simulation simulation)
     {
-        setLayout(new FlowLayout());
+        setLayout(new FlowLayout(FlowLayout.CENTER, 10 ,10));
         URL stepIconFile = this.getClass().getClassLoader().getResource("step.gif");
         Icon stepIcon = new ImageIcon(stepIconFile);
         RunOnceSimulationAction stepSimulationAction = new RunOnceSimulationAction("Act", stepIcon, simulation);
@@ -67,11 +77,29 @@ public class ControlPanel extends JPanel
         runpauseContainer.add(new JButton(pauseSimulationAction), "pause");
         add(runpauseContainer);
 
-        speedSlider = new JSlider(JSlider.HORIZONTAL, 0, 400, 200);
-        speedSlider.addChangeListener(this);
-        add(speedSlider);
+        createSpeedSlider();
         
         simulation.addSimulationListener(this);
+    }
+
+    private void createSpeedSlider()
+    {
+        int min = 0;
+        int max = 400;
+        speedSlider = new JSlider(JSlider.HORIZONTAL, min, max, 200);
+        speedSlider.setPaintLabels(true);
+        speedSlider.setMajorTickSpacing( (min+max) /2);
+        speedSlider.setMinorTickSpacing( (min+max) /4);
+        speedSlider.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        speedSlider.setPaintTicks(true);
+        speedSlider.addChangeListener(this);
+        Dictionary labelTable = new Hashtable();
+        JLabel startLabel = new JLabel("Slow");
+        JLabel endLabel = new JLabel("Fast");
+        labelTable.put(new Integer(min), startLabel);
+        labelTable.put(new Integer(max), endLabel);
+        speedSlider.setLabelTable(labelTable );
+        add(speedSlider);
     }
 
     public void simulationChanged(SimulationEvent e)
