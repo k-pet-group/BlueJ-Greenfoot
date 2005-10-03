@@ -32,6 +32,7 @@ import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.FileUtility;
+import bluej.utility.Utility;
 
 /**
  * The main class for greenfoot. This is a singelton.
@@ -97,6 +98,7 @@ public class Greenfoot
                 logger.info("Frame created");
                 frame.setVisible(true);
                 frame.toFront();
+                Utility.bringToFront();
                 logger.info("Frame visible");
                 try {
                     instantiationListener = new GreenfootObjectInstantiationListener(WorldHandler.instance());
