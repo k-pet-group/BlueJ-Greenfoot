@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
+import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.net.URL;
@@ -63,7 +64,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3626 2005-09-30 15:08:56Z polle $
+ * @version $Id: GreenfootFrame.java 3635 2005-10-03 10:55:48Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -105,6 +106,8 @@ public class GreenfootFrame extends JFrame
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
+        
         aboutGreenfootAction = new AboutGreenfootAction("About Greenfoot", this);
         setSize(400, 300);
         URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
@@ -427,13 +430,18 @@ public class GreenfootFrame extends JFrame
     public void compileSucceeded(RCompileEvent event)
     {
         instantiateNewWorld(classBrowser);
+        pack();
     }
 
     public void compileFailed(RCompileEvent event)
     {}
 
+    
+    /**
+     * Returns the maximum size, which is the size of the screen.
+     */
     public Dimension getMaximumSize()
     {
-        return MAX_SIZE;
+        return Toolkit.getDefaultToolkit().getScreenSize();
     }
 }
