@@ -6,12 +6,14 @@ import java.awt.Point;
  * Interface that components can use for accepting dropping of objects
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DropTarget.java 3165 2004-11-25 02:07:14Z davmac $
+ * @version $Id: DropTarget.java 3633 2005-10-03 09:37:21Z polle $
  */
 public interface DropTarget
 {
     /**
      * Tells this component to do whatever when a component is dragged along it.
+     * 
+     * The component is responsible for repainting itself.
      * 
      * @param o
      * @return true if the drag was processed, false otherwise

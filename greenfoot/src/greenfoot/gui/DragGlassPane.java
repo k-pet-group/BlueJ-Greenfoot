@@ -36,7 +36,7 @@ import javax.swing.*;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3625 2005-09-30 12:09:43Z polle $
+ * @version $Id: DragGlassPane.java 3633 2005-10-03 09:37:21Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -265,6 +265,7 @@ public class DragGlassPane extends JComponent
         //logger.info("DragGlassPane.move" + e.paramString());
         storePosition(e);
         paintNoDropImage = true;
+        boolean doRepaint = true;
         Component destination = getComponentBeneath(e);
         DropTarget dropTarget = null;
         if (destination != null && destination instanceof DropTarget) {
@@ -274,16 +275,24 @@ public class DragGlassPane extends JComponent
             tp.translate(dragOffsetX, dragOffsetY);
             Point p = SwingUtilities.convertPoint(e.getComponent(), tp, destination);
             if (dropTarget.drag(data, p)) {
-                paintNoDropImage = false;
+                if(paintNoDropImage) {
+                    paintNoDropImage = false;
+                }
+                else {
+                    // The dropTarget has handled repaint, and since
+                    // paintNoDropImage didn't changed state we do not need a
+                    // repaint
+                    doRepaint = false;
+                }
             }
-        }
+        } 
 
         if (lastDropTarget != null && dropTarget != lastDropTarget) {
             lastDropTarget.dragEnded(data);
         }
         lastDropTarget = dropTarget;
-        if (isVisible()) {
-            //We need to repaint everything, because other objects might depend on this object's state.
+        if (isVisible() && doRepaint) {
+            //We need to repaint because the drag was not processed by another component.
             repaint();
         }
     }

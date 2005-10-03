@@ -520,12 +520,18 @@ public class WorldHandler
         if (o instanceof GreenfootObject && world != null) {
             int x = (int) p.getX();
             int y = (int) p.getY();
+            GreenfootObject go = (GreenfootObject) o;
             
             LocationTracker.instance().setLocation(x, y);
-            GreenfootObject go = (GreenfootObject) o;
             world.addObject(go);
             try {
+                int oldX = go.getX();
+                int oldY = go.getY();
                 GreenfootObjectVisitor.setLocationInPixels(go, x, y);
+
+                if(oldX != go.getX() || oldY != go.getY()) {
+                    repaint();
+                }                
             }
             catch (IndexOutOfBoundsException e) {
                 world.removeObject(go);

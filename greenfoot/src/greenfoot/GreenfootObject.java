@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.2.1
- * @cvs-version $Id: GreenfootObject.java 3604 2005-09-27 13:22:34Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3633 2005-10-03 09:37:21Z polle $
  */
 public class GreenfootObject
 {
@@ -362,6 +362,11 @@ public class GreenfootObject
         if (world != null) {
             int xCell = world.toCellFloor(x);
             int yCell = world.toCellFloor(y);
+            
+            if(x == getX() && y == getY()) {
+                return;
+            }
+            
             boundsCheck(xCell, yCell);
             setLocation(xCell, yCell);
         }
