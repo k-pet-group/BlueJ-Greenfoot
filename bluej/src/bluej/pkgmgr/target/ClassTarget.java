@@ -53,7 +53,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3629 2005-10-03 00:19:53Z davmac $
+ * @version $Id: ClassTarget.java 3630 2005-10-03 00:50:38Z davmac $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable, InvokeListener
@@ -772,21 +772,23 @@ public class ClassTarget extends EditableTarget
 
     /**
      * generates a source code skeleton for this class
-     * 
-     * 
-     * @param template Description of the Parameter
      */
-    public void generateSkeleton(String template)
+    public boolean generateSkeleton(String template)
     {
         // delegate to role object
         if (template == null) {
-            //when using the extensions framework to create a new class, we always end up here.
             Debug.reportError("generate class skeleton error");
+            return false;
         }
         else {
-            role.generateSkeleton(template, getPackage(), getBaseName(), getSourceFile().getPath());
-            setState(Target.S_INVALID);
-            hasSource = true;
+            boolean success = role.generateSkeleton(template, getPackage(), getBaseName(), getSourceFile().getPath());
+            if (success) {
+                // skeleton successfully generated
+                setState(Target.S_INVALID);
+                hasSource = true;
+                return true;
+            }
+            return false;
         }
     }
 

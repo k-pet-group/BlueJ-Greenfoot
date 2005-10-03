@@ -22,7 +22,7 @@ import bluej.views.*;
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 3528 2005-08-14 23:03:37Z polle $
+ * @version $Id: ClassRole.java 3630 2005-10-03 00:50:38Z davmac $
  */
 public abstract class ClassRole
 {
@@ -92,7 +92,7 @@ public abstract class ClassRole
      * @param sourceFile
      *            the name of the source file to be generated
      */
-    public void generateSkeleton(String template, Package pkg, String name, String sourceFile)
+    public boolean generateSkeleton(String template, Package pkg, String name, String sourceFile)
     {
         Hashtable translations = new Hashtable();
         translations.put("CLASSNAME", name);
@@ -103,12 +103,21 @@ public abstract class ClassRole
             translations.put("PKGLINE", "package " + pkg.getQualifiedName() + ";" + Config.nl + Config.nl);
 
         try {
+            // Check for existing file. Normally this won't happen (the check for duplicate
+            // target occurs prior to this) but on Windows filenames are case insensitive.
+            File dest = new File(sourceFile);
+            if (dest.exists()) {
+                pkg.showError("duplicate-name");
+                return false;
+            }
             BlueJFileReader.translateFile(Config.getClassTemplateFile(template), new File(sourceFile), translations);
+            return true;
         }
         catch (IOException e) {
             pkg.showError("skeleton-error");
             Debug.reportError("The default skeleton for the class could not be generated");
             Debug.reportError("Exception: " + e);
+            return false;
         }
     }
 

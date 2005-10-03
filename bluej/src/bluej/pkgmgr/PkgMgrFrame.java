@@ -54,7 +54,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3610 2005-09-29 06:38:44Z davmac $
+ * @version $Id: PkgMgrFrame.java 3630 2005-10-03 00:50:38Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -872,8 +872,11 @@ public class PkgMgrFrame extends JFrame
         ClassTarget target = null;
         target = new ClassTarget(pkg, name, template);
 
-        if ( template != null ) 
-            target.generateSkeleton(template);
+        if ( template != null ) { 
+            boolean success = target.generateSkeleton(template);
+            if (! success)
+                return false;
+        }
 
         pkg.findSpaceForVertex(target);
         pkg.addTarget(target);
