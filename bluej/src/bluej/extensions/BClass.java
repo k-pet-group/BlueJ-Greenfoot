@@ -22,7 +22,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 3631 2005-10-03 06:30:19Z davmac $
+ * @version    $Id: BClass.java 3642 2005-10-04 12:30:21Z polle $
  */
 
 /*
@@ -72,8 +72,7 @@ public class BClass
     {
         Package bluejPkg = classId.getBluejPackage();
         ClassTarget bluejClass = classId.getClassTarget();
-
-        bluejPkg.removeClass(bluejClass);
+        bluejClass.remove();
     }
 
 
