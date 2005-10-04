@@ -23,6 +23,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
@@ -35,7 +36,7 @@ import bluej.extensions.ProjectNotOpenException;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3560 2005-09-12 14:36:47Z polle $
+ * @version $Id: ClassBrowser.java 3639 2005-10-04 09:20:42Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -353,6 +354,20 @@ public class ClassBrowser extends JPanel
     public Iterator getWorldClasses()
     {
         return worldClasses.iterator();
+    }
+
+    /**
+     * Rebuilds the class browser: updating the hierachy.
+     *
+     */
+    public void rebuild()
+    {
+        Thread t = new Thread() {
+            public void run() {
+                layoutClasses();
+            }
+        };
+        SwingUtilities.invokeLater(t);        
     }
 
 }

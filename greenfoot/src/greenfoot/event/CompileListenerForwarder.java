@@ -64,9 +64,11 @@ public class CompileListenerForwarder extends RCompileListenerImpl
         throws RemoteException
     {
         logger.info("compileSucceeded");
-        for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
-            CompileListener element = (CompileListener) iter.next();
-            element.compileSucceeded(event);
+        CompileListener[] listenersCopy = new CompileListener[compileListeners.size()];
+        listenersCopy = (CompileListener[]) compileListeners.toArray(listenersCopy);
+        for (int i = 0; i < listenersCopy.length; i++) {
+            CompileListener listener = listenersCopy[i];
+            listener.compileSucceeded(event);
         }
     }
 
