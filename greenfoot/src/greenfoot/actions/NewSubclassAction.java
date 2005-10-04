@@ -14,7 +14,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 3553 2005-09-08 15:24:52Z polle $
+ * @version $Id: NewSubclassAction.java 3640 2005-10-04 09:53:37Z polle $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -41,7 +41,7 @@ public class NewSubclassAction extends AbstractAction
     {
         JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
         NewClassDialog dialog = new NewClassDialog(f, superclass.getQualifiedClassName());
-        dialog.show();
+        dialog.setVisible(true);
         if (!dialog.okPressed()) {
             return;
         }
@@ -49,9 +49,6 @@ public class NewSubclassAction extends AbstractAction
         String className = dialog.getClassName();
         GClass gClass = superclass.createSubclass(className);
         
-        //We know what the superclass should be, so we set it.
-        gClass.setSuperclassGuess(superclass.getQualifiedClassName());
-
         ClassView classView = classBrowser.addClass(gClass);
         classView.select();
         classBrowser.revalidate();

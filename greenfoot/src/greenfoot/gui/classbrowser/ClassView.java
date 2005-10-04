@@ -44,7 +44,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3576 2005-09-19 13:52:49Z polle $
+ * @version $Id: ClassView.java 3640 2005-10-04 09:53:37Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -398,22 +398,15 @@ public class ClassView extends JToggleButton
             GPackage pkg = gClass.getPackage().getProject().getDefaultPackage();
             //write the java file as this is required to exist
             File dir = pkg.getProject().getDir();
-
             File newJavaFile = new File(dir, className + ".java");
-            /*
-             * try { boolean fileExist = newJavaFile.createNewFile();
-             * if(fileExist) { logger.info("File exist: " + newJavaFile); //TODO
-             * Do something if java file exist return; } else {
-             * logger.info("File created: " + newJavaFile); } } catch
-             * (IOException e1) { // TODO Auto-generated catch block
-             * e1.printStackTrace(); return; }
-             */
             writer = new FileWriter(newJavaFile);
             String superClassName = getClassName();            
             writer.write(imports);
             role.createSkeleton(className, superClassName, writer);
             writer.close();
             GClass newClass = pkg.newClass(className);
+            //We know what the superclass should be, so we set it.
+            newClass.setSuperclassGuess(this.getQualifiedClassName());
             return newClass;
         }
         catch (ProjectNotOpenException e) {
