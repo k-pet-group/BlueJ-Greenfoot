@@ -36,7 +36,7 @@ import bluej.extensions.ProjectNotOpenException;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3639 2005-10-04 09:20:42Z polle $
+ * @version $Id: ClassBrowser.java 3643 2005-10-04 12:37:52Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -111,6 +111,15 @@ public class ClassBrowser extends JPanel
         }
         Greenfoot.getInstance().addCompileListener(classLabel);
         return classLabel;
+    }
+    
+    public void removeClass(ClassView classView) {
+        classes.remove(classView);
+        buttonGroup.remove(classView);
+        Greenfoot.getInstance().removeCompileListener(classView);
+
+        classView.removeSelectionChangeListener(selectionManager);
+        rebuild();
     }
 
     /**
@@ -365,6 +374,8 @@ public class ClassBrowser extends JPanel
         Thread t = new Thread() {
             public void run() {
                 layoutClasses();
+                revalidate();
+                repaint();
             }
         };
         SwingUtilities.invokeLater(t);        

@@ -53,6 +53,12 @@ public class GClass implements CompileListener
         rmiClass.edit();
     }
 
+
+    public void remove() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
+    {
+        rmiClass.remove();
+    }
+    
     public RConstructor getConstructor(Class[] signature)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException
     {
@@ -345,4 +351,5 @@ public class GClass implements CompileListener
     public void compileStarted(RCompileEvent event)
     {   
     }
+
 }

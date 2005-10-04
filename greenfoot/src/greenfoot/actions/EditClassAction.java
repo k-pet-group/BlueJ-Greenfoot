@@ -1,5 +1,7 @@
 package greenfoot.actions;
 
+import greenfoot.core.GClass;
+
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 
@@ -8,7 +10,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: EditClassAction.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: EditClassAction.java 3643 2005-10-04 12:37:52Z polle $
  */
 public class EditClassAction extends ClassAction
 {
@@ -16,6 +18,12 @@ public class EditClassAction extends ClassAction
     public EditClassAction(String name)
     {
         super(name);
+    }
+    
+    public EditClassAction(String name, GClass cls)
+    {
+        super(name);
+        selectedClass = cls;
     }
 
     /**

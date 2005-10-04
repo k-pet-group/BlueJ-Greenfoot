@@ -227,6 +227,16 @@ public class Greenfoot
     {
         compileListeners.add(listener);
     }
+    
+    /**
+     * removes a listener for compile events
+     * 
+     * @param listener
+     */
+    public void removeCompileListener(CompileListener listener)
+    {
+        compileListeners.remove(listener);
+    }
 
     /**
      * Adds a listener for invocation events

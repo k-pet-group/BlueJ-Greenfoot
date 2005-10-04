@@ -8,7 +8,7 @@ import bluej.extensions.ClassNotFoundException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClass.java 3556 2005-09-09 13:40:58Z polle $
+ * @version $Id: RClass.java 3643 2005-10-04 12:37:52Z polle $
  */
 public interface RClass
     extends java.rmi.Remote
@@ -134,4 +134,6 @@ public interface RClass
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
     //public MenuSerializer getMenu()
     //    throws RemoteException;
+
+    public abstract void remove() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 }

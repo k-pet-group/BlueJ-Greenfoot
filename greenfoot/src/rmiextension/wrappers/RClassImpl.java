@@ -11,7 +11,7 @@ import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 3556 2005-09-09 13:40:58Z polle $
+ * @version $Id: RClassImpl.java 3643 2005-10-04 12:37:52Z polle $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -218,6 +218,11 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         return bClass.getJavaFile();
+    }
+
+    public void remove() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
+    {
+        bClass.remove();
     }
 
 

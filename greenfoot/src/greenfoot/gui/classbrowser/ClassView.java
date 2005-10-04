@@ -1,10 +1,13 @@
 package greenfoot.gui.classbrowser;
 
+import greenfoot.actions.EditClassAction;
 import greenfoot.actions.NewSubclassAction;
+import greenfoot.actions.RemoveClassAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.CompileListener;
+import greenfoot.event.CompileListenerForwarder;
 import greenfoot.gui.classbrowser.role.ClassRole;
 
 import java.awt.Color;
@@ -32,6 +35,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import rmiextension.wrappers.event.RCompileEvent;
+import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.MissingJavaFileException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
@@ -44,7 +48,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3640 2005-10-04 09:53:37Z polle $
+ * @version $Id: ClassView.java 3643 2005-10-04 12:37:52Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -153,27 +157,13 @@ public class ClassView extends JToggleButton
 
         popupMenu.setInvoker(this);
 
-        popupMenu.add(new NewSubclassAction("New subclass", this, classBrowser));
+        popupMenu.add(new NewSubclassAction("Create new subclass", this, classBrowser));
+        popupMenu.addSeparator();
+        popupMenu.add(new RemoveClassAction("Remove class", this));
+        popupMenu.add(new EditClassAction("Edit class", gClass));
         // popupMenu.insert( JPopupMenu.);
         add(popupMenu);
-        addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e)
-            {
-                maybeShowPopup(e);
-            }
-
-            public void mouseReleased(MouseEvent e)
-            {
-                maybeShowPopup(e);
-            }
-
-            private void maybeShowPopup(MouseEvent e)
-            {
-                if (e.isPopupTrigger()) {
-                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        });
+        
 
 
     }
@@ -319,8 +309,7 @@ public class ClassView extends JToggleButton
     }
 
     /**
-     * Add a changeListener to listen for changes in this LanguagePack.
-     * ChangeEvents are fired when the file is saved.
+     * Add a changeListener to listen for changes.
      * 
      * @param l
      *            Listener to add
@@ -328,6 +317,20 @@ public class ClassView extends JToggleButton
     public void addSelectionChangeListener(SelectionListener l)
     {
         listenerList.add(SelectionListener.class, l);
+    }
+    
+    /**
+     * Remove a changeListener.
+     * 
+     * @param l
+     *            Listener to remove
+     */
+    public void removeSelectionChangeListener(SelectionListener l)
+    {
+        if(isSelected()) {
+            deselect();
+        }
+        listenerList.remove(SelectionListener.class, l);
     }
 
     /**
@@ -537,24 +540,48 @@ public class ClassView extends JToggleButton
     {
 
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-     */
+    
     public void mousePressed(MouseEvent e)
     {
-
+        select();
+        maybeShowPopup(e);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-     */
     public void mouseReleased(MouseEvent e)
     {
+        maybeShowPopup(e);
+    }
 
+    private void maybeShowPopup(MouseEvent e)
+    {
+        if (e.isPopupTrigger()) {
+            popupMenu.show(e.getComponent(), e.getX(), e.getY());
+        }
+    }
+
+    public void remove()
+    {
+        
+        classBrowser.removeClass(this);
+        removeChangeListener(this);
+        try {
+            gClass.remove();
+        }
+        catch (ProjectNotOpenException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (PackageNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }
