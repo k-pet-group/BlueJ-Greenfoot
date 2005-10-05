@@ -182,5 +182,16 @@ public class GPackage
         }
     }
 
+    public void close()
+    {
+        try {
+            pkg.close();
+        }
+        catch (RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
 
 }

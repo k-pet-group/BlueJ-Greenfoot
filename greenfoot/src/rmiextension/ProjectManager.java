@@ -19,10 +19,10 @@ import bluej.extensions.event.PackageListener;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 3167 2004-11-25 02:38:59Z davmac $
+ * @version $Id: ProjectManager.java 3648 2005-10-05 16:22:34Z polle $
  */
 public class ProjectManager
-    implements PackageListener, CompileListener
+    implements PackageListener
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
@@ -54,26 +54,7 @@ public class ProjectManager
     public void packageOpened(PackageEvent event)
     {
         ProjectEvent projectEvent = new ProjectEvent(event);
-        try {
-            createObjectTracker(projectEvent.getProject());
-        }
-        catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (PackageNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (InvocationArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (InvocationErrorException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
+        
         logger.info("Creating bluejRMIClient");
         ObjectBench.createObject(projectEvent.getProject(), BlueJRMIClient.class.getName(), "blueJRMIClient",
                 new Object[]{projectEvent.getProject().getDir(), projectEvent.getProject().getName()});
@@ -153,114 +134,8 @@ public class ProjectManager
         return projectIsOpen;
     }
 
-    private synchronized void createObjectTracker(Project prj)
-        throws ProjectNotOpenException, PackageNotFoundException, InvocationArgumentException, InvocationErrorException
-    {
-        ObjectBench.removeObject(prj, ObjectTracker.INSTANCE_NAME);
-        logger.info("ProjectManager creating ObjectTracker");
-        ObjectBench.createObject(prj, ObjectTracker.class.getName(), ObjectTracker.INSTANCE_NAME);
-    }
+   
 
-    /**
-     * TODO: make this nicer...
-     */
-    public void compileSucceeded(CompileEvent event)
-    {
-        //run through all the packages and search for an obejctracker.
-        //if a package dont have an objecttracker it should get one!
-        for (Iterator iter = openedPackages.iterator(); iter.hasNext();) {
-            final BPackage element = (BPackage) iter.next();
-            final Project prj = new Project(element);
-            BObject objTracker;
-            try {
-                objTracker = element.getObject(ObjectTracker.INSTANCE_NAME);
-                logger.info("objTracker: " + objTracker);
-                if (objTracker == null) {
-                    logger.info("Createing thread to create ObjectTracker");
-
-                    Thread t = new Thread() {
-                        public void run()
-                        {
-                            try {
-                                createObjectTracker(prj);
-                            }
-                            catch (ProjectNotOpenException e) {
-                                // TODO Handle this properly. Trck the closing
-                                // of projects
-                                //e.printStackTrace();
-                            }
-                            catch (PackageNotFoundException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-                            catch (InvocationArgumentException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-                            catch (InvocationErrorException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-                        }
-                    };
-                    t.start();
-                }
-            }
-            catch (ProjectNotOpenException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            catch (PackageNotFoundException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-
-        }
-        //  createObjectTracker();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.extensions.event.CompileListener#compileStarted(bluej.extensions.event.CompileEvent)
-     */
-    public void compileStarted(CompileEvent event)
-    {
-    // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.extensions.event.CompileListener#compileError(bluej.extensions.event.CompileEvent)
-     */
-    public void compileError(CompileEvent event)
-    {
-    // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.extensions.event.CompileListener#compileWarning(bluej.extensions.event.CompileEvent)
-     */
-    public void compileWarning(CompileEvent event)
-    {
-    // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.extensions.event.CompileListener#compileFailed(bluej.extensions.event.CompileEvent)
-     */
-    public void compileFailed(CompileEvent event)
-    {
-    // TODO Auto-generated method stub
-
-    }
+  
 
 }

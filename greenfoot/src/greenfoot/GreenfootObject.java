@@ -6,9 +6,19 @@ import greenfoot.core.WorldHandler;
 import greenfoot.util.Location;
 
 import java.net.URL;
+import java.rmi.RemoteException;
+import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+
+import rmiextension.BlueJRMIClient;
+import rmiextension.wrappers.RClass;
+import rmiextension.wrappers.RObject;
+import rmiextension.wrappers.RPackage;
+import bluej.extensions.ClassNotFoundException;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 
 /**
  * A GreenfootObject is an object that exists in the greenfoot world. 
@@ -26,7 +36,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.2.1
- * @cvs-version $Id: GreenfootObject.java 3636 2005-10-03 12:12:24Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3648 2005-10-05 16:22:34Z polle $
  */
 public class GreenfootObject
 {
@@ -51,6 +61,7 @@ public class GreenfootObject
 
     private static GreenfootImage greenfootImage = new GreenfootImage("greenfoot/greenfoot-logo.png");
 
+    
     /**
      * Construct a GreenfootObject.
      * The default position is (0,0). Usually the constructor
@@ -341,10 +352,10 @@ public class GreenfootObject
     {
         this.image = image;
     }
-
+    
     // ==================================
     //
-    // PROTECTED METHODS
+    // PACKAGE PROTECTED METHODS
     //
     // ==================================
     /**
@@ -510,7 +521,7 @@ public class GreenfootObject
     }
 
     /**
-     * Return the neighbours to the this object within a given distance. This
+     * Return the neighbours to this object within a given distance. This
      * method considers only logical location, ignoring extent of the image.
      * Thus, it is most useful in scenarios where objects are contained in a
      * single cell.
@@ -536,7 +547,7 @@ public class GreenfootObject
     {
         return getWorld().getNeighbours(getX(), getY(), distance, diagonal, cls);
     }
-
+    
     /**
      * Return all objects that intersect the given location (relative to this
      * object's location). <br>
@@ -552,6 +563,31 @@ public class GreenfootObject
         return world.getObjectsAt(getX() + dx, getY() + dy, cls);
     }
 
+    /**
+     * Return one object that is located at the specified cell (relative to this
+     * objects location). Objects found can be restricted to a specific class
+     * (and its subclasses) by supplying the 'cls' parameter. If more than one
+     * object of the specified class resides at that location, one of them will
+     * be chosen and returned.
+     * 
+     * NOTE: has not been tested when the world is wrapped.
+     * 
+     * @param dx X-coordinate relative to this objects location.
+     * @param dy y-coordinate relative to this objects location.
+     * @param cls Class of objects to look for (passing 'null' will find all objects).
+     * @return An object at the given location, or null if none found.
+     */
+    protected GreenfootObject getOneObjectAt(int dx, int dy, Class cls)
+    {
+        //return world.getOneObjectAt(getX() + dx, getY() + dy, cls);
+        List neighbours = getObjectsAt(dx, dy, cls);
+        if(!neighbours.isEmpty()) {
+            return (GreenfootObject) neighbours.get(0);
+        } else {
+            return null;
+        }
+    }
+    
     /**
      * Return all objects within range 'r' around this object. 
      * An object is within range if the distance between its centre and this
@@ -580,6 +616,26 @@ public class GreenfootObject
     {
         return world.getIntersectingObjects(this, cls);
     }
+    
+    /**
+     * Return an object that intersects this object. This takes the
+     * graphical extent of objects into consideration. <br>
+     * 
+     * NOTE: Does not take rotation into consideration, and has not been tested
+     * when the world is wrapped.
+     * 
+     * @param cls Class of objects to look for (passing 'null' will find all objects).
+     */
+    protected GreenfootObject getOneIntersectingObject(Class cls)
+    {
+        //return world.getOneIntersectingObject(this, cls);
+        List intersecting = world.getIntersectingObjects(this, cls);
+        if(!intersecting.isEmpty()) {
+            return (GreenfootObject) intersecting.get(0);
+        } else {
+            return null;
+        }
+    }
 
     /**
      * Return all objects that intersect a straight line from this object at
@@ -595,7 +651,7 @@ public class GreenfootObject
     {
         return null;
     }
-
+    
     /**
      * Determines if the given position intersects with the rectangle.<br>
      * 
@@ -627,4 +683,75 @@ public class GreenfootObject
             return true;
         return false;
     }
+    
+    
+    private static RClass remoteObjectTracker;
+    public static  Object transportField;
+    public static  Object lock = new Object();
+    //TODO The cached objects should be cleared at recompile.
+    private  static Hashtable cachedObjects = new Hashtable();
+    
+    /**
+     * Gets the remote reference to the obj
+     * 
+     */
+    static RObject getRObject(Object obj)
+    {
+        synchronized (lock) {
+
+            setRemote();
+
+            RObject rObject = (RObject) cachedObjects.get(obj);
+            if (rObject != null) {
+                return rObject;
+            }
+            transportField = obj;
+            try {
+                rObject = remoteObjectTracker.getField("transportField").getValue(null);
+                cachedObjects.put(obj, rObject);
+                return rObject;
+            }
+            catch (ProjectNotOpenException e) {
+                e.printStackTrace();
+            }
+            catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            catch (PackageNotFoundException e) {
+                e.printStackTrace();
+            }
+            return null;
+
+        }
+    }
+    
+
+    /**
+     * Ensures that the ObjectTracker in the Debug-VM has a ref. to the BlueJ-VM
+     * instance
+     * 
+     * @param remoteObjectTracker
+     */
+    static private void setRemote()
+    {
+        if (remoteObjectTracker == null) {
+            try {
+                RPackage greenfootPkg = BlueJRMIClient.instance().getPackage().getProject().getPackage("greenfoot");
+                remoteObjectTracker = greenfootPkg.getRClass("GreenfootObject");                
+            }
+            catch (ProjectNotOpenException e) {
+                e.printStackTrace();
+            }
+            catch (PackageNotFoundException e) {
+                e.printStackTrace();
+            }
+            catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
 }

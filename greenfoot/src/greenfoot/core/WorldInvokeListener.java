@@ -1,5 +1,7 @@
 package greenfoot.core;
 
+import greenfoot.GreenfootObject;
+import greenfoot.ObjectTracker;
 import greenfoot.event.GreenfootObjectInstantiationListener;
 import greenfoot.localdebugger.LocalObject;
 
@@ -8,7 +10,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 
-import rmiextension.ObjectTracker;
 import rmiextension.wrappers.RObject;
 import bluej.debugmgr.CallDialog;
 import bluej.debugmgr.CallDialogWatcher;
@@ -72,7 +73,7 @@ public class WorldInvokeListener
         
         try {
             if (obj != null)
-                rObj = ObjectTracker.instance().getRObject(obj);
+                rObj = ObjectTracker.getRObject(obj);
             final String instanceName = obj != null ? rObj.getInstanceName() : cl.getName();
             
             if (mv.getParameterCount() == 0) {
@@ -160,7 +161,7 @@ public class WorldInvokeListener
         else if (event == CallDialog.OK) {
             MethodDialog mdlg = (MethodDialog) dlg;
             mdlg.setEnabled(false);
-            RObject rObj = obj != null ? ObjectTracker.instance().getRObject(obj) : null;
+            RObject rObj = obj != null ? ObjectTracker.getRObject(obj) : null;
 
             CallableView callv = mv == null ? (CallableView)cv : mv;
             Class [] cparams = callv.getParameters();
@@ -216,7 +217,7 @@ public class WorldInvokeListener
                             
                             try {
                                 RObject rresult = pkg.getObject(resultName);
-                                Object resultw = ObjectTracker.instance().getRealObject(rresult);
+                                Object resultw =  ObjectTracker.getRealObject(rresult);
                                 rresult.removeFromBench();
                                 
                                 ResultInspector ri = inspectorManager.getResultInspectorInstance(new LocalObject(resultw), instanceName, null, null, ei, Greenfoot.getInstance().getFrame());
@@ -246,7 +247,7 @@ public class WorldInvokeListener
                         mdlg.dispose();
                         if (resultName != null) {
                             RObject rresult = pkg.getObject(resultName);
-                            Object resultw = ObjectTracker.instance().getRealObject(rresult);
+                            Object resultw =  ObjectTracker.getRealObject(rresult);
                             rresult.removeFromBench();
                             GreenfootObjectInstantiationListener invocListener = Greenfoot.getInstance().getInvocationListener();
                             invocListener.localObjectCreated(resultw);

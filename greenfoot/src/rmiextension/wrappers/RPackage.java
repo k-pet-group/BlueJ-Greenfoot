@@ -12,7 +12,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The interface for a package.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackage.java 3564 2005-09-13 14:02:04Z polle $
+ * @version $Id: RPackage.java 3648 2005-10-05 16:22:34Z polle $
  */
 public interface RPackage
     extends java.rmi.Remote
@@ -140,5 +140,7 @@ public interface RPackage
      */
     public String invokeMethod(String className, String methodName, String [] argTypes, String [] args)
         throws RemoteException;
+
+    public void close() throws RemoteException;
 
 }

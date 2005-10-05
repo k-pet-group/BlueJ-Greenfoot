@@ -15,7 +15,7 @@ import bluej.extensions.BlueJ;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIServer.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: BlueJRMIServer.java 3648 2005-10-05 16:22:34Z polle $
  */
 public class BlueJRMIServer
 {
@@ -24,7 +24,6 @@ public class BlueJRMIServer
         try {
             Registry reg = LocateRegistry.createRegistry(1099);
             blueJ.addPackageListener(ProjectManager.instance());
-            blueJ.addCompileListener(ProjectManager.instance());
             RBlueJ rBlueJ = new RBlueJImpl(blueJ);
             Naming.rebind("//127.0.0.1/BlueJService", rBlueJ);
         }

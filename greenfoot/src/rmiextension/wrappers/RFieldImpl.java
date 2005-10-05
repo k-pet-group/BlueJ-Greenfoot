@@ -13,7 +13,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RFieldImpl.java 3556 2005-09-09 13:40:58Z polle $
+ * @version $Id: RFieldImpl.java 3648 2005-10-05 16:22:34Z polle $
  */
 public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
     implements RField
@@ -76,32 +76,21 @@ public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
     public RObject getValue(RObject onThis)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-
-        //We need to get the BObject that is represented by RObject onThis.
-        //This is a bit tricky...
-        String instanceName = onThis.getInstanceName();
         try {
-            RPackage rPkg = onThis.getPackage();
-            String pkgName = rPkg.getName();
-            String prjName = rPkg.getProject().getName();
-
-            BPackage bPkg = ProjectManager.instance().getPackage(prjName, pkgName);
-
-            BObject bObj = bPkg.getObject(instanceName);
-            Object fieldValue = bField.getValue(bObj);
+            Object fieldValue = bField.getValue(null);
 
             if (fieldValue instanceof BObject) {
 
                 BObject bFieldValue = (BObject) fieldValue;
 
                 String newInstanceName = "noName";
-                try {
+       /*         try {
                     newInstanceName = bFieldValue.getBClass().getName();
                     newInstanceName = newInstanceName.substring(0, 1).toLowerCase() + newInstanceName.substring(1);
                 }
                 catch (ClassNotFoundException e1) {
                     e1.printStackTrace();
-                }
+                }*/
                 //must add to object bench in order to get the menu later
                 bFieldValue.addToBench(newInstanceName);
 

@@ -24,7 +24,7 @@ import bluej.views.View;
  * @see bluej.extensions.BPackage
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackageImpl.java 3564 2005-09-13 14:02:04Z polle $
+ * @version $Id: RPackageImpl.java 3648 2005-10-05 16:22:34Z polle $
  */
 public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     implements RPackage
@@ -356,5 +356,24 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         catch (NoSuchMethodException nsme) { nsme.printStackTrace(); }
         catch (InvocationTargetException ite) { ite.printStackTrace(); }
         return null;
+    }
+
+    public void close()
+        throws RemoteException
+    {
+
+        //Make sure that we first close "greenfoot" package becuase we don't want that to auto open the next time.
+        try {
+            PkgMgrFrame pkgMgrFrame = (PkgMgrFrame) bPackage.getFrame();
+            pkgMgrFrame.doClose(false);
+        }
+        catch (ProjectNotOpenException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (PackageNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }

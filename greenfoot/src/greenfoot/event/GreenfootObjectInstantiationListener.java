@@ -2,13 +2,13 @@ package greenfoot.event;
 
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootWorld;
+import greenfoot.ObjectTracker;
 import greenfoot.core.ObjectDragProxy;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.DragGlassPane;
 
 import java.rmi.RemoteException;
 
-import rmiextension.ObjectTracker;
 import rmiextension.wrappers.RObject;
 import rmiextension.wrappers.event.RInvocationEvent;
 import rmiextension.wrappers.event.RInvocationListenerImpl;
@@ -47,7 +47,7 @@ public class GreenfootObjectInstantiationListener extends RInvocationListenerImp
             return;
         }
 
-        Object realObject = ObjectTracker.instance().getRealObject(remoteObj);
+        Object realObject = ObjectTracker.getRealObject(remoteObj);
         localObjectCreated(realObject);
     }
     
