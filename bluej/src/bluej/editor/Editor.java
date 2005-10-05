@@ -17,7 +17,7 @@ import javax.swing.text.BadLocationException;
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 3629 2005-10-03 00:19:53Z davmac $
+ * @version $Id: Editor.java 3644 2005-10-05 00:56:32Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -36,6 +36,7 @@ public interface Editor
 
     /**
      * Reload and display the same file that was displayed before.
+     * This should generated a modificationEvent followed by a saveEvent.
      */
     void reloadFile();
 

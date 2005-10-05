@@ -53,7 +53,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3629 2005-10-03 00:19:53Z davmac $
+ * @version $Id: Package.java 3644 2005-10-05 00:56:32Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -985,6 +985,11 @@ public final class Package extends Graph
                     toCompile.add(ct);
             }
         }
+        
+        if (! toCompile.isEmpty()) {
+            project.removeClassLoader();
+            project.newRemoteClassLoader();
+        }
 
         for (int i = toCompile.size() - 1; i >= 0; i--) {
             boolean success = searchCompile((ClassTarget) toCompile.get(i), 1, new Stack(), new PackageCompileObserver());
@@ -1005,6 +1010,9 @@ public final class Package extends Graph
         // it may be better to avoid calling this method on such targets
         if (ct.hasSourceCode())
             ct.setInvalidState(); // to force compile
+
+        project.removeClassLoader();
+        project.newRemoteClassLoader();
 
         searchCompile(ct, 1, new Stack(), new PackageCompileObserver());
 
@@ -1039,36 +1047,58 @@ public final class Package extends Graph
 
         List compileTargets = new ArrayList();
 
-        for (Iterator it = targets.iterator(); it.hasNext();) {
-            Target target = (Target) it.next();
-
-            if (target instanceof ClassTarget) {
-                ClassTarget ct = (ClassTarget) target;
-                // we don't want to try and compile if it is a class target without src
-                if (ct.hasSourceCode()) {
-                    ct.setState(Target.S_INVALID);
-                    ct.setQueued(true);
-                    compileTargets.add(ct);
+        try {
+            for (Iterator it = targets.iterator(); it.hasNext();) {
+                Target target = (Target) it.next();
+                
+                if (target instanceof ClassTarget) {
+                    ClassTarget ct = (ClassTarget) target;
+                    // we don't want to try and compile if it is a class target without src
+                    if (ct.hasSourceCode()) {
+                        ct.ensureSaved();
+                        ct.setState(Target.S_INVALID);
+                        ct.setQueued(true);
+                        compileTargets.add(ct);
+                    }
                 }
             }
+            project.removeClassLoader();
+            project.newRemoteClassLoader();
+            doCompile(compileTargets, new PackageCompileObserver());
         }
-        doCompile(compileTargets, new PackageCompileObserver());
+        catch (IOException ioe) {
+            showMessageWithText("file-save-error-before-compile", ioe.getLocalizedMessage());
+        }
     }
 
     /**
-     * Use Tarjan's algorithm to construct compiler Jobs.
+     * Use Tarjan's algorithm to construct compiler Jobs. (Cyclic dependencies are
+     * submitted together as one job; otherwise we attempt to submit every file as
+     * a seperate job, compiling dependencies before their dependents).
      */
     private boolean searchCompile(ClassTarget t, int dfcount, Stack stack, CompileObserver observer)
     {
         if ((t.getState() != Target.S_INVALID) || t.isQueued())
             return true;
 
+        try {
+            // Dependencies may be out-of-date if file is modified.
+            t.ensureSaved();
+            if (t.getPackage() != this) {
+                return true;
+            }
+        }
+        catch (IOException ioe) {
+            showMessageWithText("file-save-error-before-compile", ioe.getLocalizedMessage());
+            return false;
+        }
+
         t.setQueued(true);
         t.dfn = dfcount;
         t.link = dfcount;
 
         stack.push(t);
-
+        
         Iterator dependencies = t.dependencies();
 
         while (dependencies.hasNext()) {
@@ -1101,50 +1131,33 @@ public final class Package extends Graph
                 compileTargets.add(x);
             } while (x != t);
 
-            boolean success = doCompile(compileTargets, observer);
-            if (! success) {
-                Iterator i = compileTargets.iterator();
-                while (i.hasNext()) {
-                    x = (ClassTarget) i.next();
-                    x.setQueued(false);
-                }
-                return false;
-            }
+            doCompile(compileTargets, observer);
         }
         return true;
     }
 
     /**
      * Compile every Target in 'targetList'. Every compilation goes through this method.
-     * Return true if the compilation is proceeding, false if it was aborted.
+     * All targets in the list should have been saved beforehand.
      */
-    private boolean doCompile(List targetList, CompileObserver observer)
+    private void doCompile(List targetList, CompileObserver observer)
     {
         observer = new EventqueueCompileObserver(observer);
         if (targetList.size() == 0)
-            return true;
+            return;
 
         File[] srcFiles = new File[targetList.size()];
         
-        try {
-            for (int i = 0; i < targetList.size(); i++) {
-                ClassTarget ct = (ClassTarget) targetList.get(i);
-                ct.ensureSaved();
-                srcFiles[i] = ct.getSourceFile();
-            }
-            
-            removeBreakpoints();
-            //Terminal.getTerminal().clear();
-            
-            JobQueue.getJobQueue().addJob(srcFiles, observer, getProject().getClassLoader(), getProject().getProjectDir(),
-                    ! PrefMgr.getFlag("bluej.compiler.showunchecked"));
-            
-            return true;
+        for (int i = 0; i < targetList.size(); i++) {
+            ClassTarget ct = (ClassTarget) targetList.get(i);
+            srcFiles[i] = ct.getSourceFile();
         }
-        catch (IOException ioe) {
-            showMessageWithText("file-save-error-before-compile", ioe.getLocalizedMessage());
-            return false;
-        }
+        
+        removeBreakpoints();
+        //Terminal.getTerminal().clear();
+        
+        JobQueue.getJobQueue().addJob(srcFiles, observer, getProject().getClassLoader(), getProject().getProjectDir(),
+                ! PrefMgr.getFlag("bluej.compiler.showunchecked"));
     }
 
     /**
@@ -1233,6 +1246,7 @@ public final class Package extends Graph
     {
         targets.remove(t.getIdentifierName());
         getEditor().removeFromSelection(t);
+        t.setRemoved();
     }
 
     /**
@@ -2037,11 +2051,6 @@ public final class Package extends Graph
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
 
             setStatus(compiling);
-
-            if (sources.length > 0) {
-                getProject().removeClassLoader();
-                getProject().newRemoteClassLoader();
-            }
 
             markAsCompiling(sources);
         }

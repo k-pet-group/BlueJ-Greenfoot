@@ -53,7 +53,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3630 2005-10-03 00:50:38Z davmac $
+ * @version $Id: ClassTarget.java 3644 2005-10-05 00:56:32Z davmac $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable, InvokeListener
@@ -960,10 +960,8 @@ public class ClassTarget extends EditableTarget
     }
 
     /**
-     * Description of the Method
-     * 
-     * @param info Description of the Parameter
-     * @return Description of the Return Value
+     * Check whether the package name has been changed by comparing the package
+     * name in the information from the parser with the current package name
      */
     public boolean analysePackageName(ClassInfo info)
     {

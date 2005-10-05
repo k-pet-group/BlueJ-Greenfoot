@@ -1726,8 +1726,6 @@ public final class MoeEditor extends JFrame
     private void setUnsetBreakpoint(int pos, boolean set)
     {
         if (watcher != null) {
-            // TODO: this should be changed one day:
-            // maybe text documents have watchers one day
             int line = getLineNumberAt(pos);
             String result = watcher.breakpointToggleEvent(this, line, set);
 
@@ -1861,29 +1859,41 @@ public final class MoeEditor extends JFrame
      */
     public void doReload()
     {
-        //        Debug.assert (filename != null);
-
+        FileReader reader = null;
         try {
-            FileReader reader = new FileReader(filename);
+            reader = new FileReader(filename);
             sourcePane.read(reader, null);
             reader.close();
 
             sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
 
             // flag document type as a java file by associating a
-            // JavaTokenMarker
-            // for syntax colouring if specified
+            // JavaTokenMarker for syntax colouring if specified
             checkSyntaxStatus();
             sourceDocument.addDocumentListener(this);
             sourceDocument.addUndoableEditListener(new MoeUndoableEditListener());
+            
+            // We want to inform the watcher that the editor content has changed,
+            // and then inform it that we are in "saved" state (synced with file).
+            // But first set state to saved to avoid unnecessary writes to disk.
+            saveState.setState(StatusLabel.SAVED);
+            setChanged(); // contents may have changed - notify watcher
+            setSaved();  // notify watcher that we are saved
         }
         catch (FileNotFoundException ex) {
             info.warning(Config.getString("editor.info.fileDisappeared"));
         }
         catch (IOException ex) {
             info.warning(Config.getString("editor.info.fileReadError"));
+            setChanged();
         }
-        setSaved();
+        finally {
+            try {
+                if (reader != null)
+                    reader.close();
+            }
+            catch (IOException ioe) {}
+        }
     }
 
     // --------------------------------------------------------------------

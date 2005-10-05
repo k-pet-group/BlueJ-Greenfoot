@@ -14,7 +14,7 @@ import java.awt.geom.*;
  * A general target in a package
  * 
  * @author Michael Cahill
- * @version $Id: Target.java 3588 2005-09-26 00:18:07Z davmac $
+ * @version $Id: Target.java 3644 2005-10-05 00:56:32Z davmac $
  */
 public abstract class Target extends Vertex
     implements Comparable
@@ -83,6 +83,15 @@ public abstract class Target extends Vertex
             return DEF_WIDTH;
         else
             return (width + 29) / GraphEditor.GRID_SIZE * GraphEditor.GRID_SIZE;
+    }
+    
+    /**
+     * This target has been removed from its package.
+     */
+    public void setRemoved()
+    {
+        // This can be used to detect that a class target has been removed.
+        pkg = null;
     }
 
     /**
