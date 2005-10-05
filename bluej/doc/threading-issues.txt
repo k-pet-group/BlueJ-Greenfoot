@@ -1,0 +1,127 @@
+Threading and synchronization issues in BlueJ
+=============================================
+
+Getting multi-threading right is important as errors in how threads are handled can be
+subtle, and lead to problems which are difficult to reproduce (and therefore difficult
+to solve).
+
+These notes apply to BlueJ code; extensions should also follow these rules. See section
+6 below.
+
+This document is current for BlueJ 2.1.0.
+
+
+1. GUI (Swing/AWT) event thread
+
+Most synchronization in BlueJ is done by ensuring that code is run on the GUI event
+thread. In some ways this is not ideal but it has several advantages:
+
+ - GUI events are automatically synchronized
+ - the need to explicitly synchronize many methods is eliminated
+ - the potential for deadlock is reduced as there is effectively only a single
+   mutex (or "monitor").
+
+It is ensured by one the following means:
+
+a) Methods which are invoked only by Swing/AWT (i.e. event handler methods) are always
+   invoked on the GUI event thread (we get this for free).
+   
+b) Methods only invoked by other methods which are always on the GUI thread, will
+   also always be on the GUI thread (which is obvious really). This includes most
+   public methods in BlueJ! (the main exception is the debugger, see below).
+   
+c) In some cases, code which may be running on a non-GUI thread will need to execute
+   some method which should be run on the GUI thread (remember, this includes nearly
+   every method). There are two ways to accomplish this:
+   
+    - EventQueue.invokeLater(Runnable)
+    - EventQueue.invokeAndWait(Runnable)
+
+   Both take a Runnable as an argument, which may be an inline (anonymous inner) class.
+   It's normally better to use invokeLater as it is less prone to deadlock, it works if
+   called from the GUI thread or another thread (invokeAndWait only works from another
+   thread), and it doesn't require catching several exceptions.
+
+Note that it's important not to hold up the event thread too long - any long calculation,
+I/O or asynchronous event waiting should generally be performed in another thread.
+Otherwise BlueJ will temporarily stop responding to user interaction.
+
+
+2. The Debugger
+
+The Debugger abstract class (or more specifically its current implementation, JdiDebugger)
+is one of the few thread-safe classes in BlueJ - that is, its methods do not need to be
+called on the GUI thread.
+
+In fact, several Debugger methods should NEVER be called on the GUI thread, because they
+execute user code on the debug VM which may run for a long time, or run forever,
+or generate events which need to be handled on the event thread before they complete (such
+as hitting of breakpoints). See Invoker for an example of how to handle this. These are 
+the Debugger calls which are required to be executed on another thread:
+
+	runTestSetUp()
+	runTestMethod()
+	disposeWindows()  (because it calls Window.dispose(), which may be overridden, in the
+	                   debug VM)
+	runClassMain()
+	instantiateClass()
+
+Unfortunately, at this time, the Debugger is not 100% thread safe because the result of
+invocation is stored and must be retrieved using a seperate method call to the invocation
+itself, leaving open the possibility that another invocation will occur in between the
+previous invocation finishing and the result of that invocation being fetched.
+	
+
+3. The compiler thread
+
+Currently there is only one compiler thread for the whole BlueJ process (not one per
+Project). Compiler events (notified through the CompileObserver interface) will excute on
+this thread.
+
+The EventqueueCompileObserver class provides a wrapper for CompileObserver instances which
+first transfers control to the GUI thread before delivering the event notification.
+
+Because there is only a single compiler thread, it's important not to hold up the thread
+too long (i.e. a call to a method in CompileObserver should return quickly). When using
+EventqueueCompileObserver, this is particularly true, because the GUI thread would also
+be held up were a CompileObserver method to run for too long.
+
+
+4. The Invoker
+
+The invoker is a self-contained unit with respect to threading. Though parts of the Invoker
+run on different threads, public Invoker methods should be called on the GUI thread and
+invocation watchers will always be messaged on the GUI thread.
+
+In other words, the Invoker should be treated just like most other parts of BlueJ.
+
+
+5. Event notifications
+
+ * BlueJ events (BlueJEventListener interface) are always delivered on the GUI thread.
+ 
+ * Debugger events (DebuggerListener interface) are delivered on a debugger event thread
+   (one thread per project). To make calls to other parts of BlueJ (other than the
+   debugger) from this thread requires explicit synchronization (i.e. EventQueue methods).
+ 
+ * Compilation events (CompileObserver interface) are delivered on the compiler thread.
+   EventqueueCompileObserver can be used to cause the events to be delivered on the GUI
+   thread instead; otherwise, explicit synchronization is required to call BlueJ methods.
+   
+   There are no cases presently where EventqueueCompileObserver is not used.
+
+ * All extension events are delivered on the GUI thread. This includes compilation events
+   and invocation events.
+
+ * All (?) other events are delivered on the GUI thread.
+
+
+6. Implications for extensions
+
+In general, all access to the BlueJ extension API should be on the GUI thread. If an
+extension does not create its own threads, then this is trivial as all extension entry
+points are executed on the GUI thread anyway.
+
+If an extension does create a thread, it must be sure to make all access to the extension
+API synchronised. It is certainly possible for an extension to use the EventQueue methods
+described above.
