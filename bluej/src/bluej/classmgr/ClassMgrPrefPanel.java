@@ -25,7 +25,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 3506 2005-08-07 18:58:32Z damiano $
+ * @version $Id: ClassMgrPrefPanel.java 3646 2005-10-05 05:14:09Z davmac $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -36,6 +36,8 @@ public class ClassMgrPrefPanel extends JPanel
     private ClassPathTableModel userLibrariesModel = null;
 
     private ClassPath userLibraries;
+    
+    private boolean classPathModified = false;
 
     /**
      * Setup the UI for the dialog and event handlers for the dialog's buttons.
@@ -220,6 +222,11 @@ public class ClassMgrPrefPanel extends JPanel
 
     public void commitEditing()
     {
+        if (classPathModified) {
+            DialogManager.showMessage(null, "classmgr-changes-no-effect");
+            classPathModified = false;
+        }
+        
         userLibrariesModel.commitEntries();
         saveUserLibraries();
     }
@@ -278,8 +285,8 @@ public class ClassMgrPrefPanel extends JPanel
                 String librarylocation = chooser.getSelectedFile().getAbsolutePath();
 
                 userLibrariesModel.addEntry(new ClassPathEntry(librarylocation,"", true));
-
-                DialogManager.showMessage(null, "classmgr-changes-no-effect");
+                
+                classPathModified = true;
             }
         }
     }
@@ -293,8 +300,10 @@ public class ClassMgrPrefPanel extends JPanel
     {
         int which = userLibrariesTable.getSelectedRow();
 
-        if(which != -1)
+        if(which != -1) {
+            classPathModified = true;
             userLibrariesModel.deleteEntry(which);
+        }
     }
 }
 

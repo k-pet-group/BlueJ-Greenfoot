@@ -322,7 +322,7 @@ null
 classmgr-changes-no-effect
 The changes you have made to the class libraries
 will not take effect until the next time you
-start BlueJ.
+compile or restart the Virtual Machine.
 
 pref-optimise-no-effect
 Changes to the virtual machine settings will only take 

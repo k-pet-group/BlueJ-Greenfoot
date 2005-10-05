@@ -44,7 +44,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3611 2005-09-29 11:37:50Z polle $
+ * @version $Id: Project.java 3646 2005-10-05 05:14:09Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager {
     /**
@@ -997,7 +997,8 @@ public class Project implements DebuggerListener, InspectorManager {
      * Explicitly restart the remote debug VM. The VM first gets shut down, and then
      * freshly restarted.
      */
-    public void restartVM() {
+    public void restartVM()
+    {
         getDebugger().close(true);
         vmClosed();
         PkgMgrFrame.displayMessage(this, Config.getString("pkgmgr.creatingVM"));
@@ -1016,7 +1017,8 @@ public class Project implements DebuggerListener, InspectorManager {
      * The remote VM for this project has just been closed. Remove everything in this
      * project that depended on that VM.
      */
-    private void vmClosed() {
+    private void vmClosed()
+    {
         // remove breakpoints for all packages
         Iterator i = packages.values().iterator();
 
@@ -1028,6 +1030,11 @@ public class Project implements DebuggerListener, InspectorManager {
         // any calls to the debugger made by removeLocalClassLoader
         // will silently fail
         removeClassLoader();
+        
+        // The configured extra libraries may have changed, so
+        // rebuild the class loader (do this now so the new loader
+        // will be installed as soon as the VM has restarted).
+        newRemoteClassLoader();
     }
 
     /**
@@ -1236,6 +1243,9 @@ public class Project implements DebuggerListener, InspectorManager {
      */
     public BPClassLoader getClassLoader()
     {
+        if (currentClassLoader != null)
+            return currentClassLoader;
+        
         ArrayList pathList = new ArrayList();
 
         try {
@@ -1265,21 +1275,17 @@ public class Project implements DebuggerListener, InspectorManager {
                 pathList.add(extDir.toURI().toURL());
             }
         } catch ( Exception exc ) {
-            // Hould never happen, but if it does we want to know about it immediatly.
-            Debug.reportError("Project.getClassLoader() exception="+exc);
+            // Should never happen
+            Debug.reportError("Project.getClassLoader() exception: " + exc.getMessage());
             exc.printStackTrace();
         }
         
 
         URL [] newUrls = (URL [])pathList.toArray(new URL[pathList.size()]);
         
-        // Check if the current classloader is still valid to be returned.
-        if (currentClassLoader != null && currentClassLoader.sameUrls(newUrls) ) {
-            return currentClassLoader;
-        }
-
-        // The Project Class Loader must not "see" the BlueJ classes, this is teh reason to 
-        // have BClassLoader created with the boot loader as parent.
+        // The Project Class Loader should not see the BlueJ classes (the necessary
+        // ones have been added to the URL list anyway). So we use the boot loader
+        // as parent.
         currentClassLoader = new BPClassLoader(newUrls,Boot.getInstance().getBootClassLoader());
 
         return currentClassLoader;
