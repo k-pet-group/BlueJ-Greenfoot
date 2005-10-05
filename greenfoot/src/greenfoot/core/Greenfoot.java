@@ -100,6 +100,9 @@ public class Greenfoot
                 frame.toFront();
                 Utility.bringToFront();
                 logger.info("Frame visible");
+                
+                //We must wait for the frame to finish preparing:
+                frame.waitForProjectOpen();
                 try {
                     instantiationListener = new GreenfootObjectInstantiationListener(WorldHandler.instance());
                     Greenfoot.this.rBlueJ.addInvocationListener(instantiationListener);

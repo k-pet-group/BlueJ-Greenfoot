@@ -25,6 +25,7 @@ import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.Iterator;
@@ -64,7 +65,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3640 2005-10-04 09:53:37Z polle $
+ * @version $Id: GreenfootFrame.java 3649 2005-10-05 16:56:06Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -76,6 +77,8 @@ public class GreenfootFrame extends JFrame
     private AboutGreenfootAction aboutGreenfootAction;
     private ClassBrowser classBrowser;
     private JSplitPane splitPane;
+
+    private Thread projectOpenThread ;
     private final static Dimension MAX_SIZE = new Dimension(800, 600);
 
     /**
@@ -119,15 +122,24 @@ public class GreenfootFrame extends JFrame
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         
         prepareMacOSApp();
-        Thread t = new Thread() {
+        
+        projectOpenThread = new Thread() {
             public void run() {
                 openProject(project);
                 GreenfootFrame.this.setCursor(Cursor.getDefaultCursor());
             }
         };
-        SwingUtilities.invokeLater(t);
+        projectOpenThread.start();
     }
     
+    public void waitForProjectOpen() {
+        try {
+            projectOpenThread.join();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
