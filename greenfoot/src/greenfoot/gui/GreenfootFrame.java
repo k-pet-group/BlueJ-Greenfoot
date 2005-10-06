@@ -23,6 +23,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.lang.reflect.InvocationTargetException;
@@ -45,6 +46,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -65,7 +67,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3649 2005-10-05 16:56:06Z polle $
+ * @version $Id: GreenfootFrame.java 3656 2005-10-06 14:32:35Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -368,13 +370,25 @@ public class GreenfootFrame extends JFrame
         JMenuBar menuBar = new JMenuBar();
 
         JMenu projectMenu = new JMenu("Project");
+        projectMenu.setMnemonic('p');
         menuBar.add(projectMenu);
-
-        projectMenu.add(new NewProjectAction("New"));
-        projectMenu.add(new OpenProjectAction("Open"));
+        
+        Action newProjectAction = new NewProjectAction("New");
+        newProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
+        newProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_N));
+        projectMenu.add(newProjectAction);
+        
+        Action openProjectAction = new OpenProjectAction("Open");
+        openProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
+        openProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_O));
+        
+        projectMenu.add(openProjectAction);
 
         JMenu helpMenu = new JMenu("Help");
+        helpMenu.setMnemonic('h');
         menuBar.add(helpMenu);
+        aboutGreenfootAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_A));
+        
         helpMenu.add(aboutGreenfootAction); 
 
        // helpMenu.add(new CopyrightAction("Copyright", this)); 
