@@ -49,7 +49,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3654 2005-10-06 13:51:17Z polle $
+ * @version $Id: ObjectWrapper.java 3655 2005-10-06 13:59:43Z polle $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -278,7 +278,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
             
             // define a view filter
             ViewFilter filter;
-            if (currentPackageName.equals(view.getPackageName()))
+            if (currentPackageName != null && currentPackageName.equals(view.getPackageName()))
                 filter = samePackageFilter;
             else
                 filter = otherPackageFilter;
@@ -308,7 +308,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                 view = View.getView(currentClass);
                 
                 // Determine visibility of package private / protected members
-                if (currentPackageName.equals(view.getPackageName()))
+                if (currentPackageName != null && currentPackageName.equals(view.getPackageName()))
                     filter = samePackageFilter;
                 else
                     filter = otherPackageFilter;

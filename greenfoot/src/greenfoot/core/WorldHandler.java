@@ -208,21 +208,8 @@ public class WorldHandler
     {
         JPopupMenu menu = new JPopupMenu();
         GPackage currentPackage = Greenfoot.getInstance().getPackage();
-        String packageName = null;
-        try {
-            packageName = currentPackage.getName();
-        }
-        catch (ProjectNotOpenException e1) {
-            e1.printStackTrace();
-        }
-        catch (PackageNotFoundException e1) {
-            e1.printStackTrace();
-        }
-        catch (RemoteException e1) {
-            e1.printStackTrace();
-        }
         
-        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this, project), new LocalObject(obj), packageName);
+        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this, project), new LocalObject(obj), null);
        
         
         menu.addSeparator();
@@ -443,22 +430,9 @@ public class WorldHandler
                 if (e.isPopupTrigger() && world != null) {
                     JPopupMenu menu = new JPopupMenu();
                     GPackage currentPackage = Greenfoot.getInstance().getPackage();
-                    String packageName = null;
-                    try {
-                        packageName = currentPackage.getName();
-                    }
-                    catch (ProjectNotOpenException e1) {
-                        e1.printStackTrace();
-                    }
-                    catch (PackageNotFoundException e1) {
-                        e1.printStackTrace();
-                    }
-                    catch (RemoteException e1) {
-                        e1.printStackTrace();
-                    }
                     
                     ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world,
-                            WorldHandler.this, project), new LocalObject(world), packageName);
+                            WorldHandler.this, project), new LocalObject(world), null);
                     menu.addSeparator();
                     // "inspect" menu item
                     JMenuItem m = getInspectMenuItem(world);
