@@ -5,15 +5,15 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 
-import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.JavaType;
 import bluej.utility.JavaUtils;
 
 /**
  *
  *  A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 3587 2005-09-23 00:54:31Z davmac $
+ *  @version $Id: MethodView.java 3650 2005-10-06 03:35:55Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -130,7 +130,12 @@ public class MethodView extends CallableView implements Comparable
      */
     public String getLongDesc(Map genericParams)
     {
-        return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames(), genericParams);
+        if (genericParams == null && isStatic()) {
+            return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames());
+        }
+        else {
+            return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames(), genericParams);
+        }
     }
 
     /**
