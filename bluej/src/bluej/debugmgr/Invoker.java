@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3645 2005-10-05 00:57:54Z davmac $
+ * @version $Id: Invoker.java 3651 2005-10-06 03:47:03Z davmac $
  */
 
 public class Invoker
@@ -522,6 +522,9 @@ public class Invoker
             }.start();
         }
         else {
+            if (isVoid)
+                argString += ';';
+            
             File shell = writeInvocationFile(paramInit, command + argString, isVoid, constype);
 
             commandString = command + actualArgString;
