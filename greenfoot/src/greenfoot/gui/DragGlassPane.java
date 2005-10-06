@@ -36,7 +36,7 @@ import javax.swing.*;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3633 2005-10-03 09:37:21Z polle $
+ * @version $Id: DragGlassPane.java 3653 2005-10-06 13:21:09Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -78,6 +78,8 @@ public class DragGlassPane extends JComponent
      * The listener to be notified when the drag operation finishes.
      */
     private DragListener dragListener;
+
+    private boolean forcedDrag;
 
     public static DragGlassPane getInstance()
     {
@@ -163,13 +165,17 @@ public class DragGlassPane extends JComponent
      * @param initialDropTarget An initial drop target. It can be null. Used
      *            when we want to imediately paint a dragimage unto the drop
      *            target.
+     * @param forcedDrag indicates whether the drag is done without any buttons
+     *            pressed. This allows the drag to continue even if no keyboard
+     *            or mouse buttons are pressed.
      * 
      */
-    public void startDrag(GreenfootObject object, int xOffset, int yOffset, DragListener dl, DropTarget initialDropTarget)
+    public void startDrag(GreenfootObject object, int xOffset, int yOffset, DragListener dl, DropTarget initialDropTarget, boolean forcedDrag)
     {
         if (object == null || object.getImage() == null) {
             return;
         }
+        this.forcedDrag = forcedDrag;
         setDragImage(object.getImage(), object.getRotation());
         setDragObject(object);
         paintNoDropImage = false;
@@ -312,7 +318,7 @@ public class DragGlassPane extends JComponent
 
     public void mouseEntered(MouseEvent e)
     {
-        if(!e.isShiftDown() && ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK)==0) ) {
+        if(!forcedDrag && !e.isShiftDown() && ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK)==0) ) {
             cancelDrag();
         }
     }

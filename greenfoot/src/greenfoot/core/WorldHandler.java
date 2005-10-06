@@ -156,7 +156,7 @@ public class WorldHandler
                 int dragOffsetX = dragBeginX - e.getX() + world.getCellSize()/2;
                 int dragOffsetY = dragBeginY - e.getY() + world.getCellSize()/2;
                 objectDropped = false;
-                DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this, this);
+                DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this, this, false);
 
                 // While the drag is occuring, the world handler no longer
                 // processes mouse/key events
@@ -373,7 +373,7 @@ public class WorldHandler
                 int dragOffsetX = 0;
                 int dragOffsetY = 0;
                 objectDropped = false;
-                DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this, this);
+                DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this, this, false);
                 
                 // On the mac, the glass pane doesn't seem to receive
                 // mouse move events; the shift/move is treated like a drag

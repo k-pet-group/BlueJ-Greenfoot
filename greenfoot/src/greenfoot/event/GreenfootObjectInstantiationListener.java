@@ -61,7 +61,7 @@ public class GreenfootObjectInstantiationListener extends RInvocationListenerImp
             GreenfootObject go = (GreenfootObject) realObject;
             int xoffset = 0;
             int yoffset = 0;
-            DragGlassPane.getInstance().startDrag(go, xoffset, yoffset, null, null);
+            DragGlassPane.getInstance().startDrag(go, xoffset, yoffset, null, null, false);
         }
         else if(realObject instanceof GreenfootObject) {
             //We do nothing, since the object is automatically added to the world in the constructor of GreenfootObject
