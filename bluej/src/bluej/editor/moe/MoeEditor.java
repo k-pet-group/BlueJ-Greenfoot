@@ -610,7 +610,15 @@ public final class MoeEditor extends JFrame
      */
     public void removeBreakpoints()
     {
-        clearAllBreakpoints();
+        // This may be a callback in response to a modification event.
+        // If we try to remove breakpoints during the modification notification,
+        // AbstractDocument throws an exception.
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                clearAllBreakpoints();
+            }
+        });
     }
 
     /**
