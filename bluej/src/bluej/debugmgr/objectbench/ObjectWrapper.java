@@ -49,7 +49,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3542 2005-08-24 10:22:28Z damiano $
+ * @version $Id: ObjectWrapper.java 3654 2005-10-06 13:51:17Z polle $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -283,7 +283,8 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
             else
                 filter = otherPackageFilter;
 
-
+            
+            
             menu.addSeparator();
 
             // get declared methods for the class
@@ -312,8 +313,6 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                 else
                     filter = otherPackageFilter;
                 
-                
-                filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PROTECTED);
                 
                 // map generic type paramaters to the current superclass
                 curType = curType.mapToSuper(currentClass.getName());
