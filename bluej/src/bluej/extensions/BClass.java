@@ -22,7 +22,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 3642 2005-10-04 12:30:21Z polle $
+ * @version    $Id: BClass.java 3658 2005-10-07 15:35:48Z iau $
  */
 
 /*
@@ -47,17 +47,15 @@ public class BClass
 
     /**
      * Returns the name of this BClass.
-     * The returned name is always the fully qualified name of the undelying java class.
-     * @see java.lang.Class.getName()
+     * The name is not guaranteed to be correct if the class has been 
+     * renamed by the user, or deleted. However, it can be retrieved 
+     * even if the class is not currently compiled (or even compileable).
      * 
-     * @return the fully qualified name of the wrapped java class.
-     * @exception  ProjectNotOpenException  thrown if the underlying project has been closed by the user.
-     * @exception  ClassNotFoundException   thrown if the wrapped class has been deleted by the user.
+     * @return the fully qualified name of the wrapped BlueJ class.
      */
     public final String getName ()
-              throws ProjectNotOpenException, ClassNotFoundException
-   {
-        return classId.getJavaClass().getName();
+    {
+        return classId.getClassName();
     }
 
     /**

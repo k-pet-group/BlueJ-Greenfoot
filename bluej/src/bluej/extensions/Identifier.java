@@ -43,9 +43,9 @@ class Identifier
      *
      * @param  bleujProject  Description of the Parameter
      */
-    Identifier(Project bleujProject)
+    Identifier(Project bluejProject)
     {
-        projectId = bleujProject.getProjectDir();
+        this(bluejProject, null, null);
     }
 
 
@@ -57,13 +57,12 @@ class Identifier
      */
     Identifier(Project bluejProject, Package bluejPackage)
     {
-        projectId = bluejProject.getProjectDir();
-        packageId = bluejPackage.getQualifiedName();
+        this(bluejProject, bluejPackage, null);
     }
 
 
     /**
-     *Constructor for the Identifier object
+     * Constructor for the Identifier object
      *
      * @param  bluejProject         Description of the Parameter
      * @param  bluejPackage         Description of the Parameter
@@ -72,7 +71,7 @@ class Identifier
     Identifier(Project bluejProject, Package bluejPackage, String aQualifiedClassName)
     {
         projectId = bluejProject.getProjectDir();
-        packageId = bluejPackage.getQualifiedName();
+        if (bluejPackage != null) packageId = bluejPackage.getQualifiedName();
         qualifiedClassName = aQualifiedClassName;
     }
 
@@ -112,6 +111,18 @@ class Identifier
         return bluejPkg;
     }
 
+    /**
+     * Returns the name of the class. No checks are made for validity of 
+     * the name, to avoid having to compile the class in order to get 
+     * its name.
+     * This means that the name may not be valid, if the class has 
+     * been renamed or deleted.
+     * @return    The qualified name of the class represented by this identifier, or null if it doesn't represent a class
+     */
+    String getClassName()
+    {
+        return qualifiedClassName;
+    }
 
     /**
      * Returns the Frame associated with this Package.
@@ -148,7 +159,6 @@ class Identifier
         pmf.show();
         return pmf;
     }
-
 
     /**
      * Returns the Java class that is associated with this name in this package
