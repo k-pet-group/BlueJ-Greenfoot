@@ -48,7 +48,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3643 2005-10-04 12:37:52Z polle $
+ * @version $Id: ClassView.java 3659 2005-10-07 22:32:59Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -251,13 +251,7 @@ public class ClassView extends JToggleButton
 
     public String getClassName()
     {
-        String qName = gClass.getQualifiedName();
-        String name = qName;
-        int index = qName.lastIndexOf('.');
-        if (index >= 0) {
-            name = qName.substring(index + 1);
-        }
-        return name;
+        return gClass.getName();
     }
 
     /*

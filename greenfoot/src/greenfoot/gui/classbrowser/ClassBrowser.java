@@ -36,7 +36,7 @@ import bluej.extensions.ProjectNotOpenException;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3643 2005-10-04 12:37:52Z polle $
+ * @version $Id: ClassBrowser.java 3659 2005-10-07 22:32:59Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -354,11 +354,10 @@ public class ClassBrowser extends JPanel
     }
 
     /**
-     * Gets a world that have a default constructor.
+     * Gets all the classes that is in the GreenfootWorls classes section.
      * 
-     * TODO make it return an iterator
      * 
-     * @return A random world. Or null if no worlds are available
+     * @return A list of ClassViews
      */
     public Iterator getWorldClasses()
     {

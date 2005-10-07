@@ -2,7 +2,6 @@ package greenfoot.gui.classbrowser;
 
 import greenfoot.core.GClass;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -12,15 +11,13 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 
 /**
  * A forest of trees. The roots are sorted alphabeticaly on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 3560 2005-09-12 14:36:47Z polle $
+ * @version $Id: ClassForest.java 3659 2005-10-07 22:32:59Z polle $
  */
 public class ClassForest
 {
@@ -28,44 +25,27 @@ public class ClassForest
         implements Comparable
     {
         private List children = new ArrayList();
-        private TreeEntry parent;
         private ClassView data;
-        private String parentKey;
         private String key;
 
-        public TreeEntry(ClassView data, String key, String parentKey)
+        public TreeEntry(ClassView data, String key)
         {
             this.data = data;
-            this.parentKey = parentKey;
             this.key = key;
         }
 
         public void addChild(TreeEntry child)
         {
             children.add(child);
-            child.setParent(this);
         }
 
-        private void setParent(TreeEntry entry)
-        {
-            this.parent = entry;
-        }
-
-        public boolean hasParent()
-        {
-            return (parent != null);
-        }
 
         public List getChildren()
         {
             return children;
         }
 
-        public Object getParentKey()
-        {
-            return parentKey;
-        }
-
+       
         public String toString()
         {
             StringBuffer str = new StringBuffer();
@@ -81,30 +61,17 @@ public class ClassForest
             return key;
         }
 
-        /**
-         * @return
-         */
         public ClassView getData()
         {
             return data;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Comparable#compareTo(java.lang.Object)
-         */
         public int compareTo(Object o)
         {
             String name1 = this.getKey();
             String name2 = ((TreeEntry) o).getKey();
             return name1.compareTo(name2);
         }
-        
-        public boolean isSubclassOf(String superclass) {
-            return data.getGClass().isSubclassOf(superclass);
-        }
-
     }
 
     private SortedSet roots;
@@ -112,65 +79,6 @@ public class ClassForest
 
     public ClassForest()
     {}
-
-    public ClassForest(List objects, List keys, List parents)
-    {
-        buildForest(objects, keys, parents);
-    }
-
-    public ClassForest(Set entrySet)
-    {
-        buildForest(entrySet);
-    }
-
-    public void buildForest(List objects, List keys, List parents)
-    {
-        treeEntryMap = new java.util.Hashtable();
-        roots = new TreeSet();
-        for (int i = 0; i < objects.size(); i++) {
-            TreeEntry treeEntry = new TreeEntry((ClassView) objects.get(i), (String) keys.get(i), (String) parents.get(i));
-            treeEntryMap.put(keys.get(i), treeEntry);
-        }
-
-        Set entrySet = treeEntryMap.entrySet();
-        buildForest(entrySet);
-    }
-
-    public void buildForest(Set entrySet)
-    {
-        for (Iterator iter = entrySet.iterator(); iter.hasNext();) {
-            Map.Entry mapEntry = (Map.Entry) iter.next();
-
-            Object key = mapEntry.getKey();
-            TreeEntry treeEntry = (TreeEntry) mapEntry.getValue();
-            Object parent = treeEntry.getParentKey();
-
-            TreeEntry parentTreeEntry = null;
-            if (parent != null) {
-                Set parentKeys = treeEntryMap.keySet();
-                for (Iterator iterator = parentKeys.iterator(); iterator.hasNext();) {
-                    String element = (String) iterator.next();
-                    if( treeEntry.isSubclassOf(element) ) {
-                        parentTreeEntry = (TreeEntry) treeEntryMap.get(element);
-                        break;
-                    }
-                }
-            }
-            if (parentTreeEntry != null) {
-                parentTreeEntry.addChild(treeEntry);
-                if (!treeEntry.hasParent()) {
-                    roots.add(parentTreeEntry);
-                }
-                roots.remove(treeEntry);
-            }
-            else {
-                if (!treeEntry.hasParent()) {
-                    roots.add(treeEntry);
-                }
-            }
-
-        }
-    }
 
     public Set getRoots()
     {
@@ -187,28 +95,51 @@ public class ClassForest
     }
 
     /**
-     * @param worldClassesList
+     * Builds a forest from the list of classes
+     * @param classesList List of instances of ClassView
      */
     public void buildForest(List classesList) 
     {
-        Map classesAndSupers = new Hashtable();
-        List classNames = new ArrayList();
-        List superclassNames = new ArrayList();
+        Map nameMap = new Hashtable();
+        treeEntryMap = new Hashtable();
+        roots = new TreeSet();
         for (Iterator iter = classesList.iterator(); iter.hasNext();) {
-            GClass element = ((ClassView) iter.next()).getGClass();
-            String name = element.getQualifiedName();
-            int index = name.lastIndexOf('.');
-            if (index >= 0) {
-                name = name.substring(index + 1);
+            ClassView cls = ((ClassView) iter.next());
+            String name =  cls.getClassName();
+            nameMap.put(name, cls); 
+            TreeEntry root = new TreeEntry(cls, name);
+            treeEntryMap.put(name, root);
+        }        
+        
+        for (Iterator iter = classesList.iterator(); iter.hasNext();) {
+        	ClassView clsView = ((ClassView) iter.next());
+            GClass cls = clsView.getGClass();
+            String superName = cls.getSuperclassGuess();
+
+        	TreeEntry child = (TreeEntry) treeEntryMap.get(cls.getName());
+            if(superName == null || superName.equals("")) {
+            	roots.add(child);
+            } else {
+            	int index = superName.lastIndexOf('.');
+                if (index >= 0) {
+                	superName = superName.substring(index + 1);
+                }
+            	TreeEntry parent = (TreeEntry) treeEntryMap.get(superName);
+            	if(parent != null) {
+            		parent.addChild(child);
+            	} else {
+            		Debug.reportError("Could not find the superclass for: " + cls.getName() +" which should have been: " + superName + "  Adding it as a root.");
+            		roots.add(child);
+            	}             	
             }
-            classNames.add(name);
-            superclassNames.add(element.getSuperclassGuess());
-            //classesAndSupers.put(element.getSuperclassName(), element);
-            
         }
-        buildForest(classesList, classNames, superclassNames);
     }
 
+    
+    /**
+     * Returns an iterator over the data in this forest.
+     * @return
+     */
     public Iterator iterator()
     {
         Iterator empty = new Iterator() {
