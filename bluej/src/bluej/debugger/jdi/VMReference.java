@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3610 2005-09-29 06:38:44Z davmac $
+ * @version $Id: VMReference.java 3657 2005-10-07 00:59:19Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -1088,8 +1088,6 @@ class VMReference
         List allTypesInFile = new ArrayList();
 
         // find all ReferenceType's declared in this source file
-        // TODO: not done properly - only already initialised inner
-        // classes will be found
         buildNestedTypes(remoteClass, allTypesInFile);
 
         Iterator it = allTypesInFile.iterator();
@@ -1117,14 +1115,32 @@ class VMReference
      */
     private void buildNestedTypes(ReferenceType rootType, List l)
     {
-        l.add(rootType);
-
-        List nestedTypes = rootType.nestedTypes();
-        Iterator it = nestedTypes.iterator();
-        while (it.hasNext()) {
-            ReferenceType r = (ReferenceType) it.next();
-            buildNestedTypes(r, l);
+        try {
+            synchronized(workerThread) {
+                workerThreadReadyWait();
+                setStaticFieldValue(serverClass, ExecServer.WORKER_ACTION_NAME, machine.mirrorOf(ExecServer.LOAD_ALL));
+                
+                // parameters
+                setStaticFieldObject(serverClass, ExecServer.CLASSNAME_NAME, rootType.name());
+                
+                workerThreadReady = false;
+                workerThread.resume();
+                
+                workerThreadReadyWait();
+                ObjectReference or = getStaticFieldObject(serverClass, ExecServer.WORKER_RETURN_NAME);
+                ArrayReference inners = (ArrayReference) or;
+                Iterator i = inners.getValues().iterator();
+                while (i.hasNext()) {
+                    ClassObjectReference cor = (ClassObjectReference) i.next();
+                    ReferenceType rt = cor.reflectedType();
+                    if (rt.isPrepared()) {
+                        l.add(rt);
+                    }
+                }
+            }
         }
+        catch (VMDisconnectedException vmde) {}
+        catch (VMMismatchException vmmme) {}
     }
 
     /**

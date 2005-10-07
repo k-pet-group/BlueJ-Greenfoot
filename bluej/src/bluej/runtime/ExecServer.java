@@ -36,7 +36,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3593 2005-09-27 10:26:13Z polle $
+ * @version $Id: ExecServer.java 3657 2005-10-07 00:59:19Z davmac $
  */
 public class ExecServer
 {
@@ -77,6 +77,7 @@ public class ExecServer
     public static Object methodReturn;
     public static Throwable exception;
     
+    // These constant values must match the variable names declared above
     public static final String CLASS_TO_RUN_NAME = "classToRun";
     public static final String METHOD_TO_RUN_NAME = "methodToRun";
     public static final String EXEC_ACTION_NAME = "execAction";
@@ -96,13 +97,14 @@ public class ExecServer
     public static int workerAction;
     public static String objectName;
     public static Object object;
-    public static String classPath;     // This is set by the Jdi connection, do not change the name.
+    public static String classPath;
     public static String className;
     public static String scopeId;
     public static ClassLoader classLoader = null; // null to use current loader.
     
     public static Object workerReturn;
     
+    // These constant values must match the variable names declared above
     public static final String WORKER_ACTION_NAME = "workerAction";
     public static final String OBJECTNAME_NAME = "objectName";
     public static final String OBJECT_NAME = "object";
@@ -118,6 +120,7 @@ public class ExecServer
     public static final int LOAD_CLASS    = 2;
     public static final int NEW_LOADER    = 3;
     // EXIT_VM ( = 4) is also used in the worker thread
+    public static final int LOAD_ALL      = 5; // load class and inner classes
 
     // the current class loader
 	private static ClassLoader currentLoader;
@@ -204,6 +207,8 @@ public class ExecServer
                             break;
                         case EXIT_VM:
                             System.exit(0);
+                        case LOAD_ALL:
+                            workerReturn = loadAllClasses(className);
                     }
                 }
             }
@@ -443,6 +448,51 @@ public class ExecServer
         }
        
         return cl;
+    }
+    
+    /**
+     * Load a class, and all its inner classes.
+     */
+    private static Class [] loadAllClasses(String className)
+    {
+        List l = new ArrayList();
+        
+        try {
+            Class c = currentLoader.loadClass(className);
+            c.getFields(); // prepare class
+            l.add(c);
+            getDeclaredInnerClasses(c, l);
+            
+            // Now we want the anonymous inner classes:
+            int i = 1;
+            while(true) {
+                c = currentLoader.loadClass(className + '$' + i);
+                c.getFields();
+                l.add(c);
+                i++;
+            }
+        }
+        catch (Throwable t) {}
+        
+        return (Class []) l.toArray(new Class[l.size()]);
+    }
+    
+    /**
+     * Add the declared inner classes of the given class to the given
+     * list, recursively.
+     */
+    private static void getDeclaredInnerClasses(Class c, List list)
+    {
+        try {
+            Class [] rlist = c.getDeclaredClasses();
+            for (int i = 0; i < rlist.length; i++) {
+                c = rlist[i];
+                c.getFields(); // force preparation
+                list.add(rlist[i]);
+                getDeclaredInnerClasses(rlist[i], list);
+            }
+        }
+        catch (Throwable t) {}
     }
     
     /**

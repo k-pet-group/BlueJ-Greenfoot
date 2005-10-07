@@ -33,7 +33,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 3610 2005-09-29 06:38:44Z davmac $
+ * @version $Id: JdiDebugger.java 3657 2005-10-07 00:59:19Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -704,6 +704,7 @@ public class JdiDebugger extends Debugger
         }
         catch (Exception e) {
             Debug.reportError("breakpoint error: " + e);
+            e.printStackTrace(System.out);
             return Config.getString("debugger.jdiDebugger.internalErrorMsg");
         }
     }
