@@ -19,7 +19,7 @@ public class AntWorld extends GreenfootWorld
     
 
     public AntWorld() {
-        super(SIZE/RESOLUTION,SIZE/RESOLUTION,RESOLUTION, false);       
+        super(SIZE/RESOLUTION,SIZE/RESOLUTION,RESOLUTION);       
         GreenfootImage background = new GreenfootImage("sand.jpg");
         background.setTiled(true);
         setBackground(background);
