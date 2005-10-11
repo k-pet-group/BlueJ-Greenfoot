@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3651 2005-10-06 03:47:03Z davmac $
+ * @version $Id: Invoker.java 3661 2005-10-11 07:23:26Z davmac $
  */
 
 public class Invoker
@@ -487,6 +487,7 @@ public class Invoker
             // Special case for construction of a class using the default constructor.
             // We can do this without writing and compiling a shell file.
             
+            commandString = command + actualArgString;
             BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, commandString);
             
             // We must however do so in a seperate thread. Otherwise a constructor which
@@ -506,6 +507,7 @@ public class Invoker
                                 
                                 executionEvent.setResultObject(result);
                                 executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
+                                BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
                             }
                             else {
                                 handleResult(""); // handles error situations
