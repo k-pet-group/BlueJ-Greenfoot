@@ -64,7 +64,12 @@ public class GreenfootObjectInstantiationListener extends RInvocationListenerImp
             DragGlassPane.getInstance().startDrag(go, xoffset, yoffset, null, null, false);
         }
         else if(realObject instanceof GreenfootObject) {
-            //We do nothing, since the object is automatically added to the world in the constructor of GreenfootObject
+            // We do not need to add the object to the world, since the object
+            // is automatically added in the constructor of GreenfootObject
+
+            // We should however make sure that the world is repainted once the
+            // object is created:
+            worldHandler.repaint();
         }
         else if(realObject instanceof greenfoot.GreenfootWorld) {
             worldHandler.installNewWorld((GreenfootWorld) realObject);

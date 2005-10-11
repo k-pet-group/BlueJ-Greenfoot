@@ -5,9 +5,11 @@ import greenfoot.actions.NewSubclassAction;
 import greenfoot.actions.RemoveClassAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
+import greenfoot.core.Greenfoot;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
+import greenfoot.event.GreenfootObjectInstantiationListener;
 import greenfoot.gui.classbrowser.role.ClassRole;
 
 import java.awt.Color;
@@ -48,7 +50,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3659 2005-10-07 22:32:59Z polle $
+ * @version $Id: ClassView.java 3662 2005-10-11 16:28:17Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -348,6 +350,10 @@ public class ClassView extends JToggleButton
 
             Object newObject = constructor.newInstance(new Object[]{});
             logger.info("new Obejct: " + newObject);
+            GreenfootObjectInstantiationListener invocationListener = Greenfoot.getInstance().getInvocationListener();
+            if(invocationListener != null) {
+                invocationListener.localObjectCreated(newObject);
+            }
             return newObject;
         }
         catch (NoSuchMethodException e) {

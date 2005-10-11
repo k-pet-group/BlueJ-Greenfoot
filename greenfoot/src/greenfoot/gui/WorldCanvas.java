@@ -32,7 +32,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3637 2005-10-03 13:53:06Z polle $
+ * @version $Id: WorldCanvas.java 3662 2005-10-11 16:28:17Z polle $
  */
 public class WorldCanvas extends JComponent
     implements Observer, DropTarget, Scrollable
@@ -73,10 +73,11 @@ public class WorldCanvas extends JComponent
         if (world == null) {
             return;
         }
-        List objects = world.getObjects(null);
-        
         //we need to sync, so that objects are not added and removed when we traverse the list.
         synchronized (world) {
+            
+            List objects = world.getObjects(null);
+            
             for (Iterator iter = objects.iterator(); iter.hasNext();) {
 
                 GreenfootObject thing = (GreenfootObject) iter.next();
