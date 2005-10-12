@@ -3,14 +3,19 @@ package greenfoot.localdebugger;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugger.gentype.JavaType;
-import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
@@ -22,7 +27,7 @@ import com.sun.jdi.ObjectReference;
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 3486 2005-07-28 15:58:27Z polle $
+ * @version $Id: LocalObject.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class LocalObject extends DebuggerObject
 {

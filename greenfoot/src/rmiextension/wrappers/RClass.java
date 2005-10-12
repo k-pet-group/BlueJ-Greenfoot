@@ -3,12 +3,16 @@ package rmiextension.wrappers;
 import java.io.File;
 import java.rmi.RemoteException;
 
-import bluej.extensions.*;
+import bluej.extensions.BField;
+import bluej.extensions.BMethod;
 import bluej.extensions.ClassNotFoundException;
+import bluej.extensions.CompilationNotStartedException;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClass.java 3643 2005-10-04 12:37:52Z polle $
+ * @version $Id: RClass.java 3664 2005-10-12 10:21:20Z polle $
  */
 public interface RClass
     extends java.rmi.Remote

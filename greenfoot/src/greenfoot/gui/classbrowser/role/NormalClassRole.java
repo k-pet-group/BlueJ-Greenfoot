@@ -6,14 +6,13 @@ import greenfoot.gui.classbrowser.ClassView;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.io.FileWriter;
-import java.rmi.RemoteException;
 
 import javax.swing.JLabel;
 
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NormalClassRole.java 3556 2005-09-09 13:40:58Z polle $
+ * @version $Id: NormalClassRole.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class NormalClassRole extends ClassRole
 {

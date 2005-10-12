@@ -8,14 +8,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.rmi.RemoteException;
 
 import javax.swing.JLabel;
 
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 3607 2005-09-27 14:49:53Z polle $
+ * @version $Id: WorldClassRole.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class WorldClassRole extends ClassRole
 {

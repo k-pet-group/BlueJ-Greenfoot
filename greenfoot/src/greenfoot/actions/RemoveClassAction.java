@@ -1,14 +1,9 @@
 package greenfoot.actions;
 
-import greenfoot.core.GClass;
-import greenfoot.gui.NewClassDialog;
-import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.event.ActionEvent;
 
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>

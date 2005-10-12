@@ -12,7 +12,6 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -25,10 +24,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
-
 /**
  * 
  * This is the component which has all the classes (from the project + the
@@ -36,7 +31,7 @@ import bluej.extensions.ProjectNotOpenException;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3659 2005-10-07 22:32:59Z polle $
+ * @version $Id: ClassBrowser.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class ClassBrowser extends JPanel
 {

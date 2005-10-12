@@ -6,20 +6,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-import bluej.extensions.BObject;
 import bluej.extensions.BPackage;
-import bluej.extensions.InvocationArgumentException;
-import bluej.extensions.InvocationErrorException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.extensions.event.CompileEvent;
-import bluej.extensions.event.CompileListener;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 3648 2005-10-05 16:22:34Z polle $
+ * @version $Id: ProjectManager.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class ProjectManager
     implements PackageListener

@@ -21,11 +21,10 @@ import bluej.extensions.event.ApplicationListener;
 import bluej.extensions.event.ExtensionEventListener;
 import bluej.extensions.event.PackageListener;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.utility.DialogManager;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 3562 2005-09-12 15:51:02Z polle $
+ * @version $Id: RBlueJImpl.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ

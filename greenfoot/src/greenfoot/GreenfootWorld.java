@@ -6,7 +6,6 @@ import greenfoot.collision.GridCollisionChecker;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Observable;
@@ -28,7 +27,7 @@ import java.util.Observable;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.2.1
- * @cvs-version $Id: GreenfootWorld.java 3606 2005-09-27 14:20:59Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class GreenfootWorld extends Observable
 {

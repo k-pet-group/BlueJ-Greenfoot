@@ -3,17 +3,14 @@ package rmiextension.wrappers;
 import java.rmi.RemoteException;
 import java.util.logging.Logger;
 
-import rmiextension.ProjectManager;
 import bluej.extensions.BField;
 import bluej.extensions.BObject;
-import bluej.extensions.BPackage;
-import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RFieldImpl.java 3648 2005-10-05 16:22:34Z polle $
+ * @version $Id: RFieldImpl.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
     implements RField

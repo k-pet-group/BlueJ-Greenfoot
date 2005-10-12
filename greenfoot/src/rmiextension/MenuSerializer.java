@@ -11,7 +11,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
+import javax.swing.MenuElement;
+import javax.swing.SwingUtilities;
 
 import rmiextension.wrappers.event.RActionListenerImpl;
 import rmiextension.wrappers.event.RActionListenerWrapper;
@@ -25,7 +30,7 @@ import rmiextension.wrappers.event.RActionListenerWrapper;
  * Maximum Solutions for more information.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: MenuSerializer.java 3262 2005-01-12 03:30:49Z davmac $
+ * @version $Id: MenuSerializer.java 3664 2005-10-12 10:21:20Z polle $
  * 
  * TODO this class is no longer needed and can be removed
  */

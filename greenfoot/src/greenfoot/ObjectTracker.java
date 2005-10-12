@@ -2,8 +2,8 @@ package greenfoot;
 
 import java.rmi.RemoteException;
 
-import bluej.runtime.ExecServer;
 import rmiextension.wrappers.RObject;
+import bluej.runtime.ExecServer;
 
 /**
  * Class that can be used to get the remote version of an object and vice versa.

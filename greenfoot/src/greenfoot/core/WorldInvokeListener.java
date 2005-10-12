@@ -1,6 +1,5 @@
 package greenfoot.core;
 
-import greenfoot.GreenfootObject;
 import greenfoot.ObjectTracker;
 import greenfoot.event.GreenfootObjectInstantiationListener;
 import greenfoot.localdebugger.LocalObject;
@@ -86,7 +85,7 @@ public class WorldInvokeListener
                             if (m.getReturnType() != void.class) {
                                 ExpressionInformation ei = new ExpressionInformation(WorldInvokeListener.this.mv, instanceName);
                                 ResultInspector ri = inspectorManager.getResultInspectorInstance(wrapResult(r, m.getReturnType()), instanceName, null, null, ei,  Greenfoot.getInstance().getFrame());
-                                ri.show();
+                                ri.setVisible(true);
                             }
                         }
                         catch (InvocationTargetException ite) {
@@ -104,7 +103,7 @@ public class WorldInvokeListener
                 CallHistory ch = Greenfoot.getInstance().getCallHistory();
                 MethodDialog md = new MethodDialog(Greenfoot.getInstance().getFrame(), null, ch, instanceName, mv, null);
                 md.setWatcher(this);
-                md.show();
+                md.setVisible(true);
                 
                 // The dialog will be Ok'd or cancelled, this
                 // WorldInvokeListener instance is notified via the
@@ -145,7 +144,7 @@ public class WorldInvokeListener
             CallHistory ch = Greenfoot.getInstance().getCallHistory();
             MethodDialog md = new MethodDialog(Greenfoot.getInstance().getFrame(), null, ch, "result", cv, null);
             md.setWatcher(this);
-            md.show();
+            md.setVisible(true);
             
             // The dialog will be Ok'd or cancelled, this
             // WorldInvokeListener instance is notified via the
@@ -221,7 +220,7 @@ public class WorldInvokeListener
                                 rresult.removeFromBench();
                                 
                                 ResultInspector ri = inspectorManager.getResultInspectorInstance(new LocalObject(resultw), instanceName, null, null, ei, Greenfoot.getInstance().getFrame());
-                                ri.show();
+                                ri.setVisible(true);
                             }
                             catch (PackageNotFoundException pnfe) {}
                             catch (ProjectNotOpenException pnoe) {}

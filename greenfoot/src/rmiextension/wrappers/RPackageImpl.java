@@ -1,7 +1,6 @@
 package rmiextension.wrappers;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,7 +9,13 @@ import java.rmi.RemoteException;
 
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.extensions.*;
+import bluej.extensions.BClass;
+import bluej.extensions.BObject;
+import bluej.extensions.BPackage;
+import bluej.extensions.CompilationNotStartedException;
+import bluej.extensions.MissingJavaFileException;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.CallableView;
@@ -24,7 +29,7 @@ import bluej.views.View;
  * @see bluej.extensions.BPackage
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackageImpl.java 3648 2005-10-05 16:22:34Z polle $
+ * @version $Id: RPackageImpl.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     implements RPackage

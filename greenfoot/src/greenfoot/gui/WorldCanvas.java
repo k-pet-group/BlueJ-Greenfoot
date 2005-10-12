@@ -5,25 +5,18 @@ import greenfoot.GreenfootWorld;
 import greenfoot.ImageVisitor;
 import greenfoot.WorldVisitor;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.MediaTracker;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Logger;
 
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
@@ -32,7 +25,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3662 2005-10-11 16:28:17Z polle $
+ * @version $Id: WorldCanvas.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class WorldCanvas extends JComponent
     implements Observer, DropTarget, Scrollable

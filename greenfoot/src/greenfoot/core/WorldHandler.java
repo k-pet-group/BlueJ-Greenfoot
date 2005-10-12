@@ -12,10 +12,8 @@ import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.localdebugger.LocalObject;
-import greenfoot.util.Location;
 
 import java.awt.Component;
-import java.awt.EventQueue;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,12 +23,9 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.rmi.RemoteException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
@@ -41,15 +36,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import bluej.debugger.DebuggerObject;
-import bluej.debugmgr.ExpressionInformation;
-import bluej.debugmgr.inspector.Inspector;
-import bluej.debugmgr.inspector.ObjectInspector;
-import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
-import bluej.pkgmgr.Package;
-import bluej.testmgr.record.InvokerRecord;
 
 /**
  * The worldhandler handles the connection between the GreenfootWorld and the

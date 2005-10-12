@@ -5,14 +5,26 @@ import greenfoot.ImageVisitor;
 import greenfoot.core.LocationTracker;
 import greenfoot.util.Location;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.net.URL;
 import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JMenuBar;
+import javax.swing.SwingUtilities;
 
 /**
  * Component that can be used for dragging. It should be used as a glasspane on
@@ -36,7 +48,7 @@ import javax.swing.*;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3653 2005-10-06 13:21:09Z polle $
+ * @version $Id: DragGlassPane.java 3664 2005-10-12 10:21:20Z polle $
  *  
  */
 public class DragGlassPane extends JComponent

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,7 +33,7 @@ import javax.swing.JLabel;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3563 2005-09-12 17:46:12Z polle $
+ * @version $Id: GreenfootClassRole.java 3664 2005-10-12 10:21:20Z polle $
  * 
  */
 public class GreenfootClassRole extends ClassRole

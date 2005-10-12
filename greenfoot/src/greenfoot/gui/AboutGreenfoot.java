@@ -1,14 +1,27 @@
 package greenfoot.gui;
 
-import bluej.*;
-import bluej.utility.MultiLineLabel;
-import bluej.utility.DialogManager;
-
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.URL;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import bluej.BlueJTheme;
+import bluej.Config;
+import bluej.utility.DialogManager;
+import bluej.utility.MultiLineLabel;
 
 /**
  * The BlueJ about box.

@@ -5,13 +5,20 @@ import java.rmi.RemoteException;
 
 import javax.swing.SwingUtilities;
 
-import bluej.extensions.*;
+import bluej.extensions.BClass;
+import bluej.extensions.BConstructor;
+import bluej.extensions.BField;
+import bluej.extensions.BMethod;
+import bluej.extensions.BPackage;
 import bluej.extensions.ClassNotFoundException;
+import bluej.extensions.CompilationNotStartedException;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 3643 2005-10-04 12:37:52Z polle $
+ * @version $Id: RClassImpl.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass

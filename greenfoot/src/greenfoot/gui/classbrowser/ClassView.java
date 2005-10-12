@@ -8,14 +8,12 @@ import greenfoot.core.GPackage;
 import greenfoot.core.Greenfoot;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.CompileListener;
-import greenfoot.event.CompileListenerForwarder;
 import greenfoot.event.GreenfootObjectInstantiationListener;
 import greenfoot.gui.classbrowser.role.ClassRole;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -50,7 +48,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3662 2005-10-11 16:28:17Z polle $
+ * @version $Id: ClassView.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener

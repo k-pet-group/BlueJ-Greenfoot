@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.Properties;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -16,7 +14,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import bluej.BlueJTheme;
-import bluej.Config;
 
 /**
  * Dialog that ask for the name of a new class

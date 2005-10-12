@@ -26,7 +26,6 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.Iterator;
@@ -47,14 +46,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
-
-import com.apple.eawt.Application;
-import com.apple.eawt.ApplicationAdapter;
-import com.apple.eawt.ApplicationEvent;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
@@ -63,11 +57,15 @@ import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 
+import com.apple.eawt.Application;
+import com.apple.eawt.ApplicationAdapter;
+import com.apple.eawt.ApplicationEvent;
+
 /**
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3656 2005-10-06 14:32:35Z polle $
+ * @version $Id: GreenfootFrame.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener

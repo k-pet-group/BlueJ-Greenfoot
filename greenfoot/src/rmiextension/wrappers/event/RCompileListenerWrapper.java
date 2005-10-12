@@ -3,8 +3,6 @@ package rmiextension.wrappers.event;
 import java.io.File;
 import java.rmi.RemoteException;
 
-import rmiextension.wrappers.RProject;
-
 import bluej.extensions.BClass;
 import bluej.extensions.BPackage;
 import bluej.extensions.BProject;

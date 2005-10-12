@@ -6,15 +6,19 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.extensions.*;
+import bluej.extensions.BClass;
+import bluej.extensions.BObject;
+import bluej.extensions.BPackage;
 import bluej.extensions.ClassNotFoundException;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.views.MethodView;
 import bluej.views.View;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RObjectImpl.java 3556 2005-09-09 13:40:58Z polle $
+ * @version $Id: RObjectImpl.java 3664 2005-10-12 10:21:20Z polle $
  */
 public class RObjectImpl extends UnicastRemoteObject
     implements RObject
