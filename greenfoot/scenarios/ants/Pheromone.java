@@ -48,8 +48,6 @@ public class Pheromone extends GreenfootObject
         int alpha = intensity / 3;
         g.setColor(new Color(255, 255, 255, alpha));
         g.fillOval(0, 0, size, size);
-//         g.setColor(Color.GRAY);
-//         g.drawOval(0, 0, size, size);
         g.setColor(Color.DARK_GRAY);
         g.fillRect(size/2, size/2, 2, 2);
         

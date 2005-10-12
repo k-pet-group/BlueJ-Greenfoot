@@ -1,8 +1,8 @@
 import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
-
-import java.util.Random;
+import greenfoot.GreenfootObject; 
  
+import java.util.Random;
+  
 public class AntHill extends GreenfootObject
 {
     private final static Random randomizer = AntWorld.getRandomizer();

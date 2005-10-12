@@ -68,7 +68,6 @@ public class Ant extends GreenfootObject
         else {
             walk();
         }
-       // System.out.println("Act: " + (System.currentTimeMillis() - t1));
     }
     
     /**
@@ -94,7 +93,6 @@ public class Ant extends GreenfootObject
      */
     private void randomWalk()
     {
-        //System.out.println("Random walking.");
         if(randomChance(50)) {
             deltaX = adjustSpeed(deltaX);
             deltaY = adjustSpeed(deltaY);
@@ -107,7 +105,6 @@ public class Ant extends GreenfootObject
      */
     private void headHome()
     {
-        //System.out.println("Heading home.");
         if(randomChance(2)) {
             randomWalk();       // cannot always walk straight...
         }
@@ -189,10 +186,9 @@ public class Ant extends GreenfootObject
      */
     public void checkFood()
     {  
-        List objectsHere = getIntersectingObjects(Food.class);
-        if( ! objectsHere.isEmpty()) {
-            Object thing = objectsHere.get(0);
-            takeFood((Food)thing);
+        Food food = (Food) getOneIntersectingObject(Food.class);
+        if(food != null) {
+            takeFood(food);
         }
     }
     
@@ -210,10 +206,8 @@ public class Ant extends GreenfootObject
      */
     public boolean smellPheromone()
     {
-        List objectsHere = getIntersectingObjects(Pheromone.class);
-        for(Iterator it = objectsHere.iterator(); it.hasNext(); ) {
-            Object thing = it.next();
-            Pheromone ph = (Pheromone)thing;
+        GreenfootObject ph = getOneIntersectingObject(Pheromone.class);
+        if(ph != null) {
             deltaX = capSpeed(ph.getX() - getX());
             deltaY = capSpeed(ph.getY() - getY());
             if(deltaX == 0 && deltaY == 0) {
