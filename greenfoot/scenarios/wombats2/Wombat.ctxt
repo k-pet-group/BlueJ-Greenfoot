@@ -1,0 +1,21 @@
+#BlueJ class context
+comment0.target=void\ act()
+comment0.text=\nDo\ whatever\ the\ wombat\ likes\ to\ to\ just\ now.\n\n
+comment1.target=boolean\ foundLeaf()
+comment1.text=\nCheck\ whether\ there\ is\ a\ leaf\ in\ the\ same\ cell\ as\ we\ are.\n\n
+comment2.target=void\ eatLeaf()
+comment2.text=\nEat\ a\ leaf.\n\n
+comment3.target=void\ move()
+comment3.text=\nMove\ one\ cell\ forward\ in\ the\ current\ direction.\n\n
+comment4.target=boolean\ canMove()
+comment4.text=\nTest\ if\ we\ can\ move\ forward.\ Return\ true\ if\ we\ can,\ false\ otherwise.\n\n
+comment5.target=void\ turnRandom()
+comment5.text=\nTurn\ in\ a\ random\ direction.\n\n
+comment6.target=void\ turnLeft()
+comment6.text=\nTurns\ towards\ the\ left.\n\n
+comment7.params=direction
+comment7.target=void\ setDirection(int)
+comment7.text=\nSets\ the\ direction\ we're\ facing.\n\n
+comment8.target=int\ getLeavesEaten()
+comment8.text=\nTell\ how\ many\ leaves\ we\ have\ eaten.\n\n
+numComments=9
