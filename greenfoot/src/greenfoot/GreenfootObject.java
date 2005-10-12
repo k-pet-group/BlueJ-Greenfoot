@@ -36,7 +36,7 @@ import bluej.extensions.ProjectNotOpenException;
  * 
  * @author Poul Henriksen
  * @version 0.2.1
- * @cvs-version $Id: GreenfootObject.java 3648 2005-10-05 16:22:34Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3663 2005-10-12 10:16:01Z polle $
  */
 public class GreenfootObject
 {
@@ -684,7 +684,15 @@ public class GreenfootObject
         return false;
     }
     
-    
+    /*
+     * ####### OBJECT TRACKER ########
+     * 
+     * In order to get the RObject representation of an Object, we need to use a
+     * class that exists in the BlueJ project, because the extensions requires
+     * this when we want to get the BClass representation (see setRemote()).
+     * <br>
+     * 
+     */
     private static RClass remoteObjectTracker;
     public static  Object transportField;
     public static  Object lock = new Object();
@@ -692,7 +700,7 @@ public class GreenfootObject
     private  static Hashtable cachedObjects = new Hashtable();
     
     /**
-     * Gets the remote reference to the obj
+     * Gets the remote reference to the obj.
      * 
      */
     static RObject getRObject(Object obj)
@@ -730,10 +738,9 @@ public class GreenfootObject
     
 
     /**
-     * Ensures that the ObjectTracker in the Debug-VM has a ref. to the BlueJ-VM
-     * instance
+     * This method ensures that we have the remote (RClass) representation of
+     * this class.
      * 
-     * @param remoteObjectTracker
      */
     static private void setRemote()
     {
