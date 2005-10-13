@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3657 2005-10-07 00:59:19Z davmac $
+ * @version $Id: VMReference.java 3668 2005-10-13 04:56:13Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -394,18 +394,18 @@ class VMReference
         catch (InterruptedException ie) {}
         
         // redirect error stream from process to Terminal
-        errorStreamRedirector = redirectIOStream(new InputStreamReader(vmProcess.getErrorStream()),
+        errorStreamRedirector = redirectIOStream(new InputStreamReader(vmProcess.getErrorStream(), "UTF8"),
                 //new OutputStreamWriter(System.err),
                 term.getErrorWriter(), false);
         
         // redirect output stream from process to Terminal
-        outputStreamRedirector = redirectIOStream(new InputStreamReader(vmProcess.getInputStream()),
+        outputStreamRedirector = redirectIOStream(new InputStreamReader(vmProcess.getInputStream(), "UTF8"),
                 //new OutputStreamWriter(System.err),
                 term.getWriter(), false);
         
         // redirect Terminal input to process output stream
         inputStreamRedirector = redirectIOStream(term.getReader(), new OutputStreamWriter(vmProcess
-                .getOutputStream()), false);
+                .getOutputStream(), "UTF8"), false);
         
         return vmProcess;
     }

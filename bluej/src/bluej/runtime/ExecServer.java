@@ -36,30 +36,10 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3657 2005-10-07 00:59:19Z davmac $
+ * @version $Id: ExecServer.java 3668 2005-10-13 04:56:13Z davmac $
  */
 public class ExecServer
 {
-    // task type constants (these constants must match the name of the
-    // corresponding methods in this ExecServer source). Methods to call are
-    // obtained using reflection by JdiDebugger (using these strings).
-
-    //public static final String NEW_LOADER       = "newLoader";
-    //public static final String LOAD_CLASS       = "loadClass";
-    //public static final String ADD_OBJECT       = "addObject";
-    //public static final String REMOVE_OBJECT    = "removeObject";
-//	BeanShell    
-    //public static final String GET_OBJECTS      = "getObjects";
-    //public static final String SET_LIBRARIES    = "setLibraries";
-    //public static final String RUN_TEST_SETUP   = "runTestSetUp";
-    //public static final String RUN_TEST_METHOD  = "runTestMethod";
-    //public static final String SUPRESS_OUTPUT   = "supressOutput";
-    //public static final String RESTORE_OUTPUT   = "restoreOutput";
-    // public static final String DISPOSE_WINDOWS  = "disposeWindows";
-//	BeanShell    
-    //public static final String EXECUTE_CODE     = "executeCode";
-    //public static final String NEW_THREAD       = "newThread";
-    
 	// these fields will be fetched by VMReference
 	
     // the initial thread that starts main()
@@ -154,21 +134,13 @@ public class ExecServer
     public static void main(String[] args)
         throws Throwable
     {
-		// Debug.message("[VM] creating server object");
-
-
         // Set up an input stream filter to detect "End of file" signals
         // (CTRL-Z or CTRL-D typed in terminal)
         System.setIn(new BJInputStream(System.in));
         
-        // construct a BeanShell interpreter
-//    	BeanShell    
-        //interpreter = new Interpreter();
-        //interpreter.setStrictJava(true);
+        // Set up UTF-8 support for the terminal
+        System.setOut(new PrintStream(System.out, true, "UTF8"));
         
-		// record our main thread
-		// mainThread = Thread.currentThread();
-		
         // Set up the worker thread. The worker thread can be used to perform certain actions
         // when the main thread is busy. Actions on the worker thread are guarenteed to execute
         // in a timely manner - for this reason they must not execute user code.
