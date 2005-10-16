@@ -19,6 +19,7 @@
         <pathelement location="${bluej.projectdir}/classes"/>
     	<pathelement location="${bluej.projectdir}/boot/classes"/>
     	<pathelement location="${bluej.projectdir}/lib/antlr.jar"/>
+    	<pathelement location="${bluej.projectdir}/lib/MRJ141Stubs.jar"/>
     </path>
     <!-- Location of the jar file packed by BlueJ dist target -->
     <property name="bluej.package.jar"  location="${bluej.projectdir}/package/greenfoot-dist-new.jar"/>
@@ -135,9 +136,20 @@
     </target>
 
     <target name="clean" description="clean up" >
-        <!-- Delete the ${build} and ${bluej.extensions.lib} directory trees -->
-        <delete dir="${build}"/>
-        <delete dir="${bluej.extensions.lib}"/>
-    		<delete dir="${package}/scenarios"/>        
+        <delete >
+        	<fileset dir="projects/skeletonProject">
+        	 	<patternset refid="skeleton.files"/>
+        	</fileset>
+       	</delete>
+		<delete dir="${bluej.lib}/skeletonProject"/>
+		<delete dir="${bluej.lib}/startupProject"/>
+    	<delete dir="${bluej.projectdir}/package/scenarios"/>
+    	<delete dir="${build}"/>
+        <delete >
+        	<fileset dir="${bluej.extensions.lib}">
+        		<exclude name=".cvsignore"/>
+        	</fileset>
+        </delete>
+    	<delete dir="${package}/scenarios"/>        
     </target>
 </project>
