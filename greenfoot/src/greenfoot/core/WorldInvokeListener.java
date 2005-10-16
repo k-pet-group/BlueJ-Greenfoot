@@ -18,6 +18,7 @@ import bluej.debugmgr.MethodDialog;
 import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.InvokeListener;
+import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.views.CallableView;
@@ -111,6 +112,18 @@ public class WorldInvokeListener
             }
         }
         catch (RemoteException re) {}
+        catch (ProjectNotOpenException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (PackageNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
     
     public void callConstructor(ConstructorView cv)
@@ -160,7 +173,28 @@ public class WorldInvokeListener
         else if (event == CallDialog.OK) {
             MethodDialog mdlg = (MethodDialog) dlg;
             mdlg.setEnabled(false);
-            RObject rObj = obj != null ? ObjectTracker.getRObject(obj) : null;
+            RObject rObj = null;
+            try {
+                if(obj != null) {
+                    rObj = ObjectTracker.getRObject(obj);
+                }
+            }
+            catch (ProjectNotOpenException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            catch (PackageNotFoundException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            catch (RemoteException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            catch (ClassNotFoundException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
 
             CallableView callv = mv == null ? (CallableView)cv : mv;
             Class [] cparams = callv.getParameters();

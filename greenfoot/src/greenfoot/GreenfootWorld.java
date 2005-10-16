@@ -2,6 +2,10 @@ package greenfoot;
 
 import greenfoot.collision.CollisionChecker;
 import greenfoot.collision.GridCollisionChecker;
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
+import greenfoot.event.WorldEvent;
+import greenfoot.event.WorldListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,6 +13,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Observable;
+
+import javax.swing.event.EventListenerList;
 
 /**
  * GreenfootWorld is the world that GreenfootObjects live in. It is a two-dimensional 
@@ -27,9 +33,9 @@ import java.util.Observable;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.2.1
- * @cvs-version $Id: GreenfootWorld.java 3664 2005-10-12 10:21:20Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3670 2005-10-16 16:27:18Z polle $
  */
-public class GreenfootWorld extends Observable
+public class GreenfootWorld extends ObjectTransporter
 {
    
     // TODO: Maybe we want to be able to force the world into "single-cell"
@@ -60,6 +66,11 @@ public class GreenfootWorld extends Observable
      * @see #setPaintOrder(List)
      */
     private List classPaintOrder;
+    
+    
+    private EventListenerList listenerList = new EventListenerList();
+
+    private WorldEvent worldEvent;
 
     /**
      * Construct a new world. The size of the world (in number of cells) and the size 
@@ -88,6 +99,7 @@ public class GreenfootWorld extends Observable
         this.cellSize = cellSize;
         this.wrapWorld = false;
         collisionChecker.initialize(width, height, wrapWorld);
+        worldEvent = new WorldEvent(this);
         update();
     }
 
@@ -284,6 +296,52 @@ public class GreenfootWorld extends Observable
     {
         this.classPaintOrder = classPaintOrder;
     }
+    
+
+    // =================================================
+    //
+    // LISTENER
+    //
+    // =================================================
+  
+    
+    /**
+     * Refreshes the world. <br>
+     * Should be called to see the changes after painting on the graphics
+     * 
+     * @see #getCanvas()
+     * @see #getCanvas(int, int)
+     */
+    final void update()
+    {
+        fireWorldEvent();
+    }
+    
+
+    private void fireWorldEvent()
+    {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == WorldListener.class) {
+                ((WorldListener) listeners[i + 1]).worldChanged(worldEvent);
+            }
+        }
+    }
+
+    /**
+     * Add a simulationListener to listen for changes.
+     * 
+     * @param l
+     *            Listener to add
+     */
+    public void addWorldListener(WorldListener l)
+    {
+        listenerList.add(WorldListener.class, l);
+    }
+
 
     // =================================================
     //
@@ -405,19 +463,7 @@ public class GreenfootWorld extends Observable
         return (int) Math.floor((double) i / cellSize);
     }
 
-    /**
-     * Refreshes the world. <br>
-     * Should be called to see the changes after painting on the graphics
-     * 
-     * @see #getCanvas()
-     * @see #getCanvas(int, int)
-     */
-    final void update()
-    {
-        setChanged();
-        notifyObservers();
-    }
-
+  
     Collection getObjectsAtPixel(int x, int y)
     {
         return collisionChecker.getObjectsAt(toCellFloor(x), toCellFloor(y), null);

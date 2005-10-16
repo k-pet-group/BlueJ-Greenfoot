@@ -386,7 +386,7 @@ public class WorldHandler
         this.world = world;
 
         if (world != null) {
-            world.addObserver(worldCanvas);
+            world.addWorldListener(worldCanvas);
             worldTitle.setText(world.getClass().getName());
         }
         worldCanvas.setWorld(world); // TODO consider removing this and only

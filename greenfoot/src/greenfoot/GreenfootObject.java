@@ -36,9 +36,9 @@ import bluej.extensions.ProjectNotOpenException;
  * 
  * @author Poul Henriksen
  * @version 0.2.1
- * @cvs-version $Id: GreenfootObject.java 3663 2005-10-12 10:16:01Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3670 2005-10-16 16:27:18Z polle $
  */
-public class GreenfootObject
+public class GreenfootObject extends ObjectTransporter
 {
 
     /**
@@ -684,81 +684,6 @@ public class GreenfootObject
         return false;
     }
     
-    /*
-     * ####### OBJECT TRACKER ########
-     * 
-     * In order to get the RObject representation of an Object, we need to use a
-     * class that exists in the BlueJ project, because the extensions requires
-     * this when we want to get the BClass representation (see setRemote()).
-     * <br>
-     * 
-     */
-    private static RClass remoteObjectTracker;
-    public static  Object transportField;
-    public static  Object lock = new Object();
-    //TODO The cached objects should be cleared at recompile.
-    private  static Hashtable cachedObjects = new Hashtable();
-    
-    /**
-     * Gets the remote reference to the obj.
-     * 
-     */
-    static RObject getRObject(Object obj)
-    {
-        synchronized (lock) {
-
-            setRemote();
-
-            RObject rObject = (RObject) cachedObjects.get(obj);
-            if (rObject != null) {
-                return rObject;
-            }
-            transportField = obj;
-            try {
-                rObject = remoteObjectTracker.getField("transportField").getValue(null);
-                cachedObjects.put(obj, rObject);
-                return rObject;
-            }
-            catch (ProjectNotOpenException e) {
-                e.printStackTrace();
-            }
-            catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            catch (PackageNotFoundException e) {
-                e.printStackTrace();
-            }
-            return null;
-
-        }
-    }
-    
-
-    /**
-     * This method ensures that we have the remote (RClass) representation of
-     * this class.
-     * 
-     */
-    static private void setRemote()
-    {
-        if (remoteObjectTracker == null) {
-            try {
-                RPackage greenfootPkg = BlueJRMIClient.instance().getPackage().getProject().getPackage("greenfoot");
-                remoteObjectTracker = greenfootPkg.getRClass("GreenfootObject");                
-            }
-            catch (ProjectNotOpenException e) {
-                e.printStackTrace();
-            }
-            catch (PackageNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+   
     
 }

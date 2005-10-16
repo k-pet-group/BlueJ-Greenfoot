@@ -206,8 +206,6 @@ public class Greenfoot
                 //Close everything
                 //TODO maybe open dummy project instead
                
-                //To avoid autoopening of the greenfoot package we explicitly close it
-                project.getGreenfootPackage().close();
                
                 //And then exit greenfoot
                 logger.info("exit greenfoot");
