@@ -17,7 +17,7 @@ import bluej.utility.Debug;
  * A forest of trees. The roots are sorted alphabeticaly on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 3659 2005-10-07 22:32:59Z polle $
+ * @version $Id: ClassForest.java 3674 2005-10-17 12:02:18Z polle $
  */
 public class ClassForest
 {
@@ -128,8 +128,8 @@ public class ClassForest
             	if(parent != null) {
             		parent.addChild(child);
             	} else {
-            		Debug.reportError("Could not find the superclass for: " + cls.getName() +" which should have been: " + superName + "  Adding it as a root.");
-            		roots.add(child);
+                    //We couldn't find the superclass, so we just add it as a root
+                    roots.add(child);
             	}             	
             }
         }
