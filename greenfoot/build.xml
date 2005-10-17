@@ -51,8 +51,7 @@
         <exclude name="**/.#*" />
     	<exclude name="**/.cvsignore" />
         <exclude name="**/doc/" />
-    	<exclude name="**/greenfoot/" />
-    	<exclude name="**/__*" />    
+    	<exclude name="**/__*" />   
         <include name="ants/" />
         <include name="boids/" />
 	    <include name="bricks/" />
@@ -60,8 +59,15 @@
         <include name="robots/" />
         <include name="shapes/" />
         <include name="turtleGraphics/" />
+    	<include name="wombats/" />
     </patternset>
-
+	
+	<!-- To avoid duplicate classes when compiling scenarios we exclude the greenfoto classes here -->
+	<patternset id="compile.scenarios">
+		<patternset refid="distribution.scenarios"/>
+	    <exclude name="**/greenfoot/*" />
+	</patternset>
+	
 	<!-- The classpath to the greenfoot classes (once they are build) -->
 	<path id="greenfoot.class.path">
 	    <pathelement location="${build}"/>
@@ -99,7 +105,7 @@
 		
 		<!-- Compile all the scenarios -->
 	    <javac srcdir="scenarios" classpathref="greenfoot.class.path" debug="true">
-	    	<patternset refid="distribution.scenarios"/>
+	    	<patternset refid="compile.scenarios"/>
 	       	<compilerarg line="-source 1.4"/>
 	    </javac>
 	</target>
@@ -134,6 +140,9 @@
             <fileset dir="${src}">
                 <patternset refid="skeleton.files"/>
             </fileset>
+        	<fileset dir="${build}">
+        	    <patternset refid="skeleton.files"/>
+        	</fileset>
         </copy>
     </target>
 
@@ -179,7 +188,9 @@
 		   	<fileset dir="scenarios">
 		   		<include name="**/doc/" />
 		   		<include name="**/greenfoot/" />
+		   		<include name="**/*.ctxt" />
 	      	</fileset>
   		</delete>
+		  
     </target>
 </project>
