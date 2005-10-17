@@ -6,19 +6,9 @@ import greenfoot.core.WorldHandler;
 import greenfoot.util.Location;
 
 import java.net.URL;
-import java.rmi.RemoteException;
-import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.ImageIcon;
-
-import rmiextension.BlueJRMIClient;
-import rmiextension.wrappers.RClass;
-import rmiextension.wrappers.RObject;
-import rmiextension.wrappers.RPackage;
-import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 
 /**
  * A GreenfootObject is an object that exists in the greenfoot world. 
@@ -36,7 +26,7 @@ import bluej.extensions.ProjectNotOpenException;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootObject.java 3672 2005-10-17 11:54:26Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3679 2005-10-17 13:25:47Z polle $
  */
 public class GreenfootObject extends ObjectTransporter
 {
@@ -164,7 +154,7 @@ public class GreenfootObject extends ObjectTransporter
      * Return the width of the object. The width is the number of cells
      * that an object's image overlaps horizontally.
      * 
-     * @returns The width of the object, or -1 if it has no image.
+     * @return The width of the object, or -1 if it has no image.
      */
     public int getWidth()
     {
@@ -180,7 +170,7 @@ public class GreenfootObject extends ObjectTransporter
      * Return the height of the object. The height is the number of cells
      * that an object's image overlaps vertically.
      * 
-     * @returns The height of the object, or -1 if it has no image.
+     * @return The height of the object, or -1 if it has no image.
      */
     public int getHeight()
     {

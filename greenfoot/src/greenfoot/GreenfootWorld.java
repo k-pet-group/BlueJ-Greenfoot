@@ -2,8 +2,6 @@ package greenfoot;
 
 import greenfoot.collision.CollisionChecker;
 import greenfoot.collision.GridCollisionChecker;
-import greenfoot.event.SimulationEvent;
-import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 
@@ -12,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Observable;
 
 import javax.swing.event.EventListenerList;
 
@@ -33,7 +30,7 @@ import javax.swing.event.EventListenerList;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.3.0
- * @cvs-version $Id: GreenfootWorld.java 3672 2005-10-17 11:54:26Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3679 2005-10-17 13:25:47Z polle $
  */
 public class GreenfootWorld extends ObjectTransporter
 {
