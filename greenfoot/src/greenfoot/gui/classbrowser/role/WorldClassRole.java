@@ -14,7 +14,7 @@ import javax.swing.JLabel;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: WorldClassRole.java 3678 2005-10-17 13:21:10Z polle $
  */
 public class WorldClassRole extends ClassRole
 {
@@ -61,7 +61,7 @@ public class WorldClassRole extends ClassRole
             //      }
             writer.write(newline + "public class " + className + " extends " + superClassName + newline + "{" + newline);
             writer.write("    /**" + newline + "     * Creates a new world with 20x20 cells and" + newline
-                    + "     * with a cell size of 50x50 pixels" + newline + "     */" + newline + "    public "
+                    + "     * with a cell size of 10x10 pixels" + newline + "     */" + newline + "    public "
                     + className + "() {" + newline + "        super(20,20,10);" + newline + "    }" + newline);
 
             //            writer.write(" public " + className + "()" + newline + " {" +
