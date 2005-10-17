@@ -49,6 +49,10 @@
     <patternset id="distribution.scenarios">
         <exclude name="**/*.pkh" />
         <exclude name="**/.#*" />
+    	<exclude name="**/.cvsignore" />
+        <exclude name="**/doc/" />
+    	<exclude name="**/greenfoot/" />
+    	<exclude name="**/__*" />    
         <include name="ants/" />
         <include name="boids/" />
 	    <include name="bricks/" />
@@ -58,6 +62,11 @@
         <include name="turtleGraphics/" />
     </patternset>
 
+	<!-- The classpath to the greenfoot classes (once they are build) -->
+	<path id="greenfoot.class.path">
+	    <pathelement location="${build}"/>
+	</path>
+	
     <target name="init">
         <!-- Create the time stamp -->
         <tstamp/>
@@ -82,6 +91,18 @@
             </classpath>
         </rmic>
     </target>
+	
+	
+	<target name="compile-scenarios" depends="compile" description="Compile the scenarios" >
+		<!-- TODO copy skeleton/greenfoot to all scenarios. Might need a custom target. -->
+			    
+		
+		<!-- Compile all the scenarios -->
+	    <javac srcdir="scenarios" classpathref="greenfoot.class.path" debug="true">
+	    	<patternset refid="distribution.scenarios"/>
+	       	<compilerarg line="-source 1.4"/>
+	    </javac>
+	</target>
 
     <target name="ready-to-run" depends="compile, copy-projects" description="Builds everything so it is ready to run" >
         <!-- Put everything in ${build} into the the jar file-->
@@ -116,7 +137,7 @@
         </copy>
     </target>
 
-    <target name="copy-projects" depends="skeleton"  description="Copies the projects skeletonProject and startupProject to bluej" >
+    <target name="copy-projects" depends="skeleton, compile-scenarios"  description="Copies the projects skeletonProject, startupProject and scenarios to bluej" >
         <copy todir="${bluej.lib}">
             <fileset dir="projects"/>
         </copy>
@@ -151,5 +172,14 @@
         	</fileset>
         </delete>
     	<delete dir="${package}/scenarios"/>        
+    </target>
+	
+	<target name="clean-scenarios" description="clean up scenarios (remove doc and greenfoot dir)" >
+		<delete includeemptydirs="true">
+		   	<fileset dir="scenarios">
+		   		<include name="**/doc/" />
+		   		<include name="**/greenfoot/" />
+	      	</fileset>
+  		</delete>
     </target>
 </project>
