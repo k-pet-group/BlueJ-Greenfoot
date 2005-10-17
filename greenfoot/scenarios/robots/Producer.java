@@ -6,16 +6,16 @@ import greenfoot.GreenfootObject;
  */ 
 public class Producer extends Robot
 {
-    public Producer()
+    public Producer() 
     {
     }
 
     /**
      * Create a beeper and put it down. Then moves one step forward
      */
-    public void act()
+    public void act() 
     {
-        Beeper beeper = new Beeper();
+        Beeper beeper = new Beeper(); 
         beeper.setLocation(getX(), getY());
         getWorld().addObject(beeper);
 

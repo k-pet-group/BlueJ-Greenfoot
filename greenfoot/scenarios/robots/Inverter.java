@@ -6,13 +6,13 @@ import greenfoot.GreenfootObject;
  * An inverter moves forward in a straight line. <br>
  * It inverts the beepers: if sees a beeper, 
  * it picks it up, else it puts down a beeper.
- */ 
+ */  
 public class Inverter extends Robot
 {
     public Inverter()
     {
     }
-
+  
     /**
      * Inverts and moves one step forward.
      */

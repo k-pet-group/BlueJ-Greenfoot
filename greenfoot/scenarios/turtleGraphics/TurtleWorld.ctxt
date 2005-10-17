@@ -1,6 +1,0 @@
-#BlueJ class context
-comment0.target=class\ TurtleWorld
-comment1.params=
-comment1.target=TurtleWorld()
-comment1.text=\nCreates\ a\ new\ world\ with\ 800x600\ cells\ and\nwith\ a\ cell\ size\ of\ 1x1\ pixels\n\n
-numComments=2

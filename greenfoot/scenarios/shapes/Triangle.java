@@ -1,6 +1,5 @@
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootImage;
-import greenfoot.Utilities;
 
 import java.awt.Color;
 
@@ -35,7 +34,7 @@ public class Triangle extends GreenfootObject
         int[] ypoints = {height, 0, height};
         im.fillPolygon(xpoints, ypoints, 3);
         setImage(im);
-        Utilities.repaint();
+
     }
     
     /**
@@ -85,7 +84,7 @@ public class Triangle extends GreenfootObject
     public void moveHorizontal(int distance)
     {
         setLocation(getX()+distance, getY());
-        Utilities.repaint();
+
     }
     
     /**
@@ -94,7 +93,7 @@ public class Triangle extends GreenfootObject
     public void moveVertical(int distance)
     {
         setLocation(getX(), getY()+distance);
-        Utilities.repaint();
+
     }
     
     /**
@@ -117,7 +116,7 @@ public class Triangle extends GreenfootObject
         for(int i = 0; i < distance; i++)
         {
             setLocation(getX()+delta, getY());
-            Utilities.delay();
+
         }
     }
     
@@ -141,7 +140,7 @@ public class Triangle extends GreenfootObject
         for(int i = 0; i < distance; i++)
         {
             setLocation(getX(), getY()+delta);
-            Utilities.delay();
+
         }
     }
     

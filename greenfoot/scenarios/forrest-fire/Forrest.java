@@ -5,8 +5,8 @@ import java.util.Random;
 
 public class Forrest extends GreenfootWorld
 {
-    private final static int WIDTH = 100;
-    private final static int HEIGHT = 100;
+    private final static int WIDTH = 150;
+    private final static int HEIGHT = 150;
     
     private Random random;
     
@@ -15,8 +15,9 @@ public class Forrest extends GreenfootWorld
      * with a cell size of 50x50 pixels
      */
     public Forrest() {
-        super(WIDTH, HEIGHT, 5, true);
+        super(WIDTH, HEIGHT, 5);
         random = new Random();
+        getBackground().fill(java.awt.Color.WHITE);
     }
      
     /**
@@ -41,8 +42,5 @@ public class Forrest extends GreenfootWorld
                 }
             }
         }
-        System.out.println("Created " + n + "trees in " + sum + " ms");
-        
-        System.out.println("Average instantiation time: " + (double) sum/n);
     }
 }

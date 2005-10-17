@@ -1,6 +1,6 @@
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootImage;
-import greenfoot.Utilities;
+
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -34,7 +34,7 @@ public class Circle extends GreenfootObject
         im.setColor(color);
         im.fillOval(0,0,diameter-1,diameter-1);
         setImage(im);
-        Utilities.repaint();
+
     }
     
     
@@ -85,7 +85,7 @@ public class Circle extends GreenfootObject
     public void moveHorizontal(int distance)
     {
         setLocation(getX()+distance, getY());
-        Utilities.repaint();
+
     }
     
     /**
@@ -94,7 +94,7 @@ public class Circle extends GreenfootObject
     public void moveVertical(int distance)
     {
         setLocation(getX(), getY()+distance);
-        Utilities.repaint();
+
     }
     
     /**
@@ -117,7 +117,7 @@ public class Circle extends GreenfootObject
         for(int i = 0; i < distance; i++)
         {
             setLocation(getX()+delta, getY());
-            Utilities.delay();
+
         }
     }
     
@@ -141,7 +141,7 @@ public class Circle extends GreenfootObject
         for(int i = 0; i < distance; i++)
         {
             setLocation(getX(), getY()+delta);
-            Utilities.delay();
+
         }
     }
     

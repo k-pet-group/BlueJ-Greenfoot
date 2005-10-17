@@ -20,11 +20,11 @@ public class RobotWorld extends GreenfootWorld
      */
     public RobotWorld()
     {
-        super(8, 8, cellSize, false);
+        super(19, 8, cellSize);
 
-        GreenfootImage background = new GreenfootImage("road.gif");
-        setBackground(background);
-        background.setTiled(true);
+      //  GreenfootImage background = new GreenfootImage("road.gif");
+        setBackground("road.gif");
+       //background.setTiled(true);
     }
 
 /*

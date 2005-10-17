@@ -7,10 +7,10 @@ public class  Wall extends GreenfootObject
     {
         setImage("Wall.gif");
     }
-
+ 
     public void act()
     {
     //here you can create the behaviour of your object
     }
 
-}
+} 

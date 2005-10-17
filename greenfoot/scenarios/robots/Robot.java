@@ -1,7 +1,7 @@
 
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
-import greenfoot.Utilities;
+
 
 import java.util.*;
 
@@ -168,7 +168,6 @@ public class Robot extends GreenfootObject
             default :
                 break;
         }
-        Utilities.repaint();
     }
 
     /**

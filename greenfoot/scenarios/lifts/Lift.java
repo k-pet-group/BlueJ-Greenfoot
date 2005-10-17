@@ -1,5 +1,5 @@
 import greenfoot.GreenfootObject;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -18,17 +18,17 @@ public class Lift extends GreenfootObject
 
     private int status;
     private int people;
-    private Image openImage;
-    private Image emptyImage;
-    private Image closedImage;
-    private Image personImage;
+    private GreenfootImage openImage;
+    private GreenfootImage emptyImage;
+    private GreenfootImage closedImage;
+    private GreenfootImage personImage;
     
     public Lift()
     {
-        personImage = new Image("person.gif");
-        openImage =  new Image("lift-open.jpg");
-        emptyImage =  new Image("lift-open.jpg");
-        closedImage =  new Image("lift-closed.jpg");
+        personImage = new GreenfootImage("person.gif");
+        openImage =  new GreenfootImage("lift-open.jpg");
+        emptyImage =  new GreenfootImage("lift-open.jpg");
+        closedImage =  new GreenfootImage("lift-closed.jpg");
         setImage(closedImage);
         status = ST_STOPPED;
         people = 0;
@@ -187,7 +187,7 @@ public class Lift extends GreenfootObject
     /**
      * Paint the number of passengers onto the lift's image.
      */
-    private void paintNumber(Image img)
+    private void paintNumber(GreenfootImage img)
     {
         img.setColor(Color.WHITE);
         img.fillRect(20, 4, 24, 16);

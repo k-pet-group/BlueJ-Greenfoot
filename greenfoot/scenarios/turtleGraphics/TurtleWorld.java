@@ -10,7 +10,7 @@ public class TurtleWorld extends GreenfootWorld
      * with a cell size of 1x1 pixels
      */
     public TurtleWorld() {
-        super(800,600, 1, true);
+        super(800,600, 1);
         getBackground().fill(Color.WHITE);
     }
 }

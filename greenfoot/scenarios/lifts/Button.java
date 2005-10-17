@@ -1,5 +1,5 @@
 import greenfoot.GreenfootObject;
-import greenfoot.Image;
+import greenfoot.GreenfootImage;
 
 import javax.swing.ImageIcon;
 
@@ -8,20 +8,20 @@ public class Button extends GreenfootObject
     public static final int UP = 0;
     public static final int DOWN = 1;
     
-    private Image imageNone;
-    private Image imageUp;
-    private Image imageDown;
-    private Image imageUpDown;
+    private GreenfootImage imageNone;
+    private GreenfootImage imageUp;
+    private GreenfootImage imageDown;
+    private GreenfootImage imageUpDown;
     
     private boolean up;
     private boolean down;
     
     public Button()
     {
-        imageUpDown = new Image("button-up-down.jpg");
-        imageUp = new Image("button-up.jpg");
-        imageDown =new Image("button-down.jpg");
-        imageNone = new Image("button.jpg");
+        imageUpDown = new GreenfootImage("button-up-down.jpg");
+        imageUp = new GreenfootImage("button-up.jpg");
+        imageDown =new GreenfootImage("button-down.jpg");
+        imageNone = new GreenfootImage("button.jpg");
         
         setImage(imageNone);
         

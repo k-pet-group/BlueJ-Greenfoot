@@ -20,7 +20,7 @@ public class BrickWorld extends GreenfootWorld
      * A brave new BrickWorld.
      */
     public BrickWorld() {
-        super(SIZEX, SIZEY, 1, false);
+        super(SIZEX, SIZEY, 1);
         GreenfootImage background = new GreenfootImage(20,20);
         background.fill(Color.BLACK);
         background.setTiled(true);

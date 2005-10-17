@@ -1,6 +1,6 @@
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootImage;
-import greenfoot.Utilities;
+
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -32,7 +32,7 @@ public class Square extends GreenfootObject{
         im.setColor(color);
         im.fillRect(0, 0, size, size);
         setImage(im);
-        Utilities.repaint();
+
     }
     
     /**
@@ -82,7 +82,7 @@ public class Square extends GreenfootObject{
     public void moveHorizontal(int distance)
     {
         setLocation(getX()+distance, getY());
-        Utilities.repaint();
+
     }
     
     /**
@@ -91,7 +91,7 @@ public class Square extends GreenfootObject{
     public void moveVertical(int distance)
     {
         setLocation(getX(), getY()+distance);
-        Utilities.repaint();
+
     }
     
     /**
@@ -114,7 +114,7 @@ public class Square extends GreenfootObject{
         for(int i = 0; i < distance; i++)
         {
             setLocation(getX()+delta, getY());
-            Utilities.delay();
+
         }
     }
     
@@ -138,7 +138,7 @@ public class Square extends GreenfootObject{
         for(int i = 0; i < distance; i++)
         {
             setLocation(getX(), getY()+delta);
-            Utilities.delay();
+
         }
     }
     

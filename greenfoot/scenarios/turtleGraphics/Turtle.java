@@ -1,7 +1,6 @@
 
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootImage;
-import greenfoot.Utilities;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -58,7 +57,7 @@ public class Turtle extends GreenfootObject
         }
         x = newX;
         y = newY;
-        setLocation((int) Math.floor(x), (int) Math.floor(y));
+        setLocation(x, y);
     }
 
     /**
@@ -125,7 +124,6 @@ public class Turtle extends GreenfootObject
             drawPen();
         }
         setRotation((int)direction);
-        Utilities.repaint();
     }
 
     private void drawPen()
@@ -159,6 +157,21 @@ public class Turtle extends GreenfootObject
             return Color.white;
         else
             return Color.black;
+    }
+    
+    public void setLocation(double x, double y) {
+        this.x = x;
+        this.y = y;
+        super.setLocation((int) Math.floor(x), (int) Math.floor(y));
+    }
+    
+    /**
+     * We need to override this method, so we can interactively move objects.
+     */
+    public void setLocation(int x, int y) {
+        this.x = x;
+        this.y = y;
+        super.setLocation(x,y);
     }
 
 }

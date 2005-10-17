@@ -2,7 +2,6 @@ import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
 
 import greenfoot.GreenfootImage;
-import greenfoot.Utilities;
 
 import java.awt.Color;
 import java.awt.Graphics;

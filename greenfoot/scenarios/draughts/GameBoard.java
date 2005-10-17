@@ -16,7 +16,7 @@ public class GameBoard extends GreenfootWorld
      */
     public GameBoard() 
     {
-        super(8,8,50,false);
+        super(8,8,50);
         GreenfootImage background = new GreenfootImage("board.gif");
         setBackground(background);
         background.setTiled(true);
