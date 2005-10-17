@@ -25,8 +25,8 @@ import bluej.extensions.ProjectNotOpenException;
  * and/or drawn by using various drawing methods.
  * 
  * @author Poul Henriksen
- * @version 0.2.1
- * @cvs-version $Id: GreenfootImage.java 3601 2005-09-27 12:48:10Z polle $
+ * @version 0.3.0
+ * @cvs-version $Id: GreenfootImage.java 3680 2005-10-17 13:27:21Z polle $
  */
 public class GreenfootImage
 {
