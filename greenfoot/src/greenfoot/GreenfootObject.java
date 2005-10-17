@@ -35,8 +35,8 @@ import bluej.extensions.ProjectNotOpenException;
  * The method here is empty, and subclasses normally provide their own implementations.
  * 
  * @author Poul Henriksen
- * @version 0.2.1
- * @cvs-version $Id: GreenfootObject.java 3670 2005-10-16 16:27:18Z polle $
+ * @version 0.3.0
+ * @cvs-version $Id: GreenfootObject.java 3672 2005-10-17 11:54:26Z polle $
  */
 public class GreenfootObject extends ObjectTransporter
 {

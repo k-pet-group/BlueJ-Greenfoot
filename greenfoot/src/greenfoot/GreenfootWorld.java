@@ -32,8 +32,8 @@ import javax.swing.event.EventListenerList;
  * @see greenfoot.GreenfootObject
  * @author Poul Henriksen
  * @author Michael Kolling
- * @version 0.2.1
- * @cvs-version $Id: GreenfootWorld.java 3670 2005-10-16 16:27:18Z polle $
+ * @version 0.3.0
+ * @cvs-version $Id: GreenfootWorld.java 3672 2005-10-17 11:54:26Z polle $
  */
 public class GreenfootWorld extends ObjectTransporter
 {
