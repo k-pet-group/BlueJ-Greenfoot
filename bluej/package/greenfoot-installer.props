@@ -44,7 +44,7 @@ install.javaOpts.win=-cp %CP%
 install.mainClass=bluej.Boot
 
 # Arguments to the main class
-install.arguments=-greenfoot=true
+install.arguments=-greenfoot=true -bluej.compiler.showunchecked=false
 
 # Top color, normal background 
 install.color.background=255,255,255
