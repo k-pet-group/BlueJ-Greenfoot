@@ -22,8 +22,9 @@
     	<pathelement location="${bluej.projectdir}/lib/MRJ141Stubs.jar"/>
     </path>
     <!-- Location of the jar file packed by BlueJ dist target -->
-    <property name="bluej.package.jar"  location="${bluej.projectdir}/package/greenfoot-dist-new.jar"/>
-        
+    <property name="bluej.installer.jar"  location="${bluej.projectdir}/package/greenfoot-dist-new.jar"/>
+	<property name="bluej.dist.jar"  location="${bluej.projectdir}/package/greenfoot-dist.jar"/>
+	        
     
 
     <!-- **** greenfoot related properties **** -->
@@ -100,14 +101,15 @@
 	
 	
 	<target name="compile-scenarios" depends="compile" description="Compile the scenarios" >
-		<!-- TODO copy skeleton/greenfoot to all scenarios. Might need a custom target. -->
-			    
+		<!-- Should first delete all class files in scenario, and the greenfoot dir (depend on clean-scenarios) -->
 		
 		<!-- Compile all the scenarios -->
 	    <javac srcdir="scenarios" classpathref="greenfoot.class.path" debug="true">
 	    	<patternset refid="compile.scenarios"/>
-	       	<compilerarg line="-source 1.4"/>
+	       	<compilerarg line="-source 1.4 -target 1.4"/>
 	    </javac>
+		<!-- TODO copy skeleton/greenfoot to all scenarios. Might need a custom target. -->
+				
 	</target>
 
     <target name="ready-to-run" depends="compile, copy-projects" description="Builds everything so it is ready to run" >
@@ -161,8 +163,11 @@
         <!-- Run the BlueJ dist-->
         <ant dir="${bluej.projectdir}" target="dist-greenfoot" />
         
-        <move file="${bluej.package.jar}" tofile="${package}/greenfoot-installer.jar"/> 
-	    <echo message="The greenfoot installer is in ${package}/greenfoot-installer.jar"/>
+        <move file="${bluej.installer.jar}" tofile="${package}/greenfoot-installer.jar"/> 
+    	<move file="${bluej.dist.jar}" tofile="${package}/greenfoot-dist.jar"/> 
+    	
+    	<echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist.jar"/>
+    	<echo message="The greenfoot installer is in ${package}/greenfoot-installer.jar"/>
     </target>
 
     <target name="clean" description="clean up" >
