@@ -10,10 +10,11 @@ uses
 
 const
     bluejdefsproperty : string = 'bluej.windows.vm=';
+    bluejvmargsproperty: string = 'bluej.windows.vm.args=';
 
     jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
     ibmregkey : string = '\Software\IBM\Java Development Kit';
-    bluejregkey : string = '\Software\BlueJ\BlueJ\2.0.4';
+    bluejregkey : string = '\Software\BlueJ\BlueJ\2.1.0';
 
     searchingstartcaption : string = 'Search drives for all Java versions...';
     searchingstopcaption : string = 'Stop Search';
@@ -96,6 +97,8 @@ type
         function LaunchBlueJ(jdkpath, ver : string) : boolean;
 
         function ParseBlueJDefs : string;
+
+        function ParseVMArgs : string;
 
   public
 
@@ -454,7 +457,7 @@ end;
 }
 function TMainForm.LaunchBlueJ(jdkpath, ver : string) : boolean;
 var
-        appdir, appdirlib, vmfilename,
+        appdir, appdirlib, vmfilename, uservmargs,
           bluejjarfilename , toolsjarfilename : string;
         exfile : TExFile;
 begin
@@ -469,8 +472,8 @@ begin
 
 	// vmfilename is automatically wrapped in quotes by ExecConsoleApp so
 	// there is no need for us to do it
-//    if usejavaw then
-//    else
+    //    if usejavaw then
+    //    else
     if StrLIComp(PChar(ver), '"1.4', 4) >= 0 then
      	vmfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\bin\javaw.exe'
     else
@@ -482,15 +485,17 @@ begin
 
     toolsjarfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\lib\tools.jar';
 
+    uservmargs := ParseVMArgs;
+
 //    if (LanguageComboBox.ItemIndex <> 0) then
 //        goodparams.Add('-Dbluej.language=' + LanguageComboBox.Items[LanguageComboBox.ItemIndex]);
-        
+
     exfile := TExFile.Create(MainForm);
 
     exfile.WaitUntilDone := false;
     exfile.WindowType := wtMinimize;
     exfile.ProcFileName := vmfilename;
-    exfile.ProcParameters := '-classpath "' + bluejjarfilename + ';' + toolsjarfilename  + '" bluej.Boot' + ' ' + goodparams.DelimitedText;
+    exfile.ProcParameters := uservmargs + ' -classpath "' + bluejjarfilename + ';' + toolsjarfilename  + '" bluej.Boot' + ' ' + goodparams.DelimitedText;
     exfile.ProcCurrentDir := startingcurrentdir;
     result := exfile.Execute;
 
@@ -604,7 +609,7 @@ begin
 end;
 
 {
-
+   Searches bluej.defs for a specified vm location
 
 }
 function TMainForm.ParseBlueJDefs : string;
@@ -651,5 +656,41 @@ begin
 
     CloseFile(f);
 end;
+
+{
+  Based on ParseBlueJDefs.
+}
+ function TMainForm.ParseVMArgs : string;
+var
+    f : TextFile;
+    defsfile : string;
+    matchline : string;
+    vmargsline : string;
+    i : integer;
+    gotbackslash : boolean;
+begin
+    ParseVMArgs := '';
+
+    defsfile := ExtractFilePath(Application.ExeName) + 'lib\bluej.defs';
+
+    AssignFile(f, defsfile);
+
+    Reset(f);
+
+    while not Eof(f) do
+    begin
+        Readln(f, matchline);
+
+        matchline := Trim(matchline);
+        if AnsiStartsStr(bluejvmargsproperty, matchline) then
+        begin
+            matchline := Copy(matchline, Length(bluejvmargsproperty)+1, 999);
+            ParseVMArgs := matchline;
+        end;
+    end;
+
+    CloseFile(f);
+end;
+
 
 end.
