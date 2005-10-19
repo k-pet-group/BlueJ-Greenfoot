@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=BlueJ
-AppVerName=BlueJ 2.0.5
+AppVerName=BlueJ 2.1.0
 AppPublisher=Deakin University
 AppPublisherURL=http://www.bluej.org
 AppSupportURL=http://www.bluej.org
@@ -32,7 +32,7 @@ Name: "{group}\Select VM"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Par
 Name: "{app}\Select VM"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Parameters: "/select"; IconIndex: 1
 
 [InstallDelete]
-Type: files; Name: "{app}\lib\extensions\submission24.jar"
+Type: files; Name: "{app}\lib\extensions\submission.jar"
 
 [Files]
 Source: "..\install_tmp\*.*"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Flags: recursesubdirs
