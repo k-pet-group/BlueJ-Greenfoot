@@ -35,7 +35,7 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 3619 2005-09-30 06:45:46Z davmac $
+ * @version $Id: ClassParser.java 3687 2005-10-19 06:04:19Z davmac $
  */
 public class ClassParser
 {
@@ -1058,6 +1058,10 @@ public class ClassParser
                 break;
             }
                             
+            case JavaTokenTypes.ARRAY_INIT:
+                processExpressionList(node, scope);
+                break;
+                
             case JavaTokenTypes.NUM_INT:
             case JavaTokenTypes.NUM_DOUBLE:
             case JavaTokenTypes.NUM_FLOAT:
