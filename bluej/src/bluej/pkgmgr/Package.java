@@ -29,7 +29,6 @@ import bluej.extmgr.ExtensionsManager;
 import bluej.graph.Edge;
 import bluej.graph.Graph;
 import bluej.graph.Vertex;
-import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.dependency.Dependency;
@@ -53,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3644 2005-10-05 00:56:32Z davmac $
+ * @version $Id: Package.java 3683 2005-10-19 02:20:13Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -2093,6 +2092,8 @@ public final class Package extends Graph
                 if (t == null)
                     continue;
 
+                boolean newCompiledState = successful;
+                
                 if (successful) {
                     t.endCompile();
 
@@ -2101,18 +2102,24 @@ public final class Package extends Graph
                      * names)
                      */
                     try {
-                        ClassInfo info = ClassParser.parse(t.getSourceFile(), getAllClassnames());
+                        ClassInfo info = t.getSourceInfo().getInfo(t.getSourceFile(), t.getPackage());
 
-                        OutputStream out = new FileOutputStream(t.getContextFile());
-                        info.getComments().store(out, "BlueJ class context");
-                        out.close();
+                        if (info != null) {
+                            OutputStream out = new FileOutputStream(t.getContextFile());
+                            info.getComments().store(out, "BlueJ class context");
+                            out.close();
+                        }
                     }
                     catch (Exception ex) {
                         ex.printStackTrace();
                     }
+                    
+                    // Empty class files should not be marked compiled,
+                    // even though compilation is "successful".
+                    newCompiledState &= t.upToDate();
                 }
 
-                t.setState(successful ? Target.S_NORMAL : Target.S_INVALID);
+                t.setState(newCompiledState ? Target.S_NORMAL : Target.S_INVALID);
                 t.setQueued(false);
                 if (successful && t.editorOpen())
                     t.getEditor().setCompiled(true);
@@ -2122,7 +2129,7 @@ public final class Package extends Graph
                 getEditor().repaint();
             }
             // The following three lines will send a compilation event to
-            // extensions.ing
+            // extensions.
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
             CompileEvent aCompileEvent = new CompileEvent(eventId, sources);
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);        
