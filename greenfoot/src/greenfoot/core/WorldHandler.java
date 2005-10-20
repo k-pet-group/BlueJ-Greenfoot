@@ -211,6 +211,7 @@ public class WorldHandler
             public void actionPerformed(ActionEvent e)
             {
                 world.removeObject(obj);
+                repaint();
             }
         });
         menu.add(m);
@@ -386,7 +387,6 @@ public class WorldHandler
         this.world = world;
 
         if (world != null) {
-            world.addWorldListener(worldCanvas);
             worldTitle.setText(world.getClass().getName());
         }
         worldCanvas.setWorld(world); // TODO consider removing this and only

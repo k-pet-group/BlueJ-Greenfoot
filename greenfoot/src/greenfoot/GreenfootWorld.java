@@ -2,8 +2,6 @@ package greenfoot;
 
 import greenfoot.collision.CollisionChecker;
 import greenfoot.collision.GridCollisionChecker;
-import greenfoot.event.WorldEvent;
-import greenfoot.event.WorldListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,7 +9,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.event.EventListenerList;
 
 /**
  * GreenfootWorld is the world that GreenfootObjects live in. It is a two-dimensional 
@@ -30,7 +27,7 @@ import javax.swing.event.EventListenerList;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.3.0
- * @cvs-version $Id: GreenfootWorld.java 3679 2005-10-17 13:25:47Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3693 2005-10-20 12:44:55Z polle $
  */
 public class GreenfootWorld extends ObjectTransporter
 {
@@ -63,11 +60,6 @@ public class GreenfootWorld extends ObjectTransporter
      * @see #setPaintOrder(List)
      */
     private List classPaintOrder;
-    
-    
-    private EventListenerList listenerList = new EventListenerList();
-
-    private WorldEvent worldEvent;
 
     /**
      * Construct a new world. The size of the world (in number of cells) and the size 
@@ -96,8 +88,6 @@ public class GreenfootWorld extends ObjectTransporter
         this.cellSize = cellSize;
         this.wrapWorld = false;
         collisionChecker.initialize(width, height, wrapWorld);
-        worldEvent = new WorldEvent(this);
-        update();
     }
 
     /**
@@ -115,7 +105,6 @@ public class GreenfootWorld extends ObjectTransporter
     final public void setBackground(GreenfootImage image)
     {
         backgroundImage = image;
-        update();
     }
 
     /**
@@ -195,7 +184,6 @@ public class GreenfootWorld extends ObjectTransporter
         object.setWorld(this);
         collisionChecker.addObject(object);
         objects.add(object);
-        update();
     }
 
     /**
@@ -207,7 +195,6 @@ public class GreenfootWorld extends ObjectTransporter
     {
         collisionChecker.removeObject(object);
         objects.remove(object);
-        update();
     }
     
     /**
@@ -222,7 +209,6 @@ public class GreenfootWorld extends ObjectTransporter
             collisionChecker.removeObject(go);
             this.objects.remove(go);
         }
-        update();
     }
 
     /**
@@ -293,51 +279,7 @@ public class GreenfootWorld extends ObjectTransporter
     {
         this.classPaintOrder = classPaintOrder;
     }
-    
-
-    // =================================================
-    //
-    // LISTENER
-    //
-    // =================================================
   
-    
-    /**
-     * Refreshes the world. <br>
-     * Should be called to see the changes after painting on the graphics
-     * 
-     * @see #getCanvas()
-     * @see #getCanvas(int, int)
-     */
-    final void update()
-    {
-        fireWorldEvent();
-    }
-    
-
-    private void fireWorldEvent()
-    {
-        // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == WorldListener.class) {
-                ((WorldListener) listeners[i + 1]).worldChanged(worldEvent);
-            }
-        }
-    }
-
-    /**
-     * Add a simulationListener to listen for changes.
-     * 
-     * @param l
-     *            Listener to add
-     */
-    public void addWorldListener(WorldListener l)
-    {
-        listenerList.add(WorldListener.class, l);
-    }
 
 
     // =================================================

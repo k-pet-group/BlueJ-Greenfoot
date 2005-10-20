@@ -4,8 +4,6 @@ import greenfoot.GreenfootObject;
 import greenfoot.GreenfootWorld;
 import greenfoot.ImageVisitor;
 import greenfoot.WorldVisitor;
-import greenfoot.event.WorldEvent;
-import greenfoot.event.WorldListener;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -27,10 +25,10 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3670 2005-10-16 16:27:18Z polle $
+ * @version $Id: WorldCanvas.java 3693 2005-10-20 12:44:55Z polle $
  */
 public class WorldCanvas extends JComponent
-    implements  DropTarget, Scrollable, WorldListener
+    implements  DropTarget, Scrollable
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
@@ -261,11 +259,6 @@ public class WorldCanvas extends JComponent
     {
         // TODO Auto-generated method stub
         return false;
-    }
-
-    public void worldChanged(WorldEvent e)
-    {
-        repaint();
     }
 
 }
