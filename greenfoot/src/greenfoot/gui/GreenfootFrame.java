@@ -2,11 +2,13 @@ package greenfoot.gui;
 
 import greenfoot.GreenfootWorld;
 import greenfoot.actions.AboutGreenfootAction;
+import greenfoot.actions.CloseProjectAction;
 import greenfoot.actions.CompileAllAction;
 import greenfoot.actions.CompileClassAction;
 import greenfoot.actions.EditClassAction;
 import greenfoot.actions.NewProjectAction;
 import greenfoot.actions.OpenProjectAction;
+import greenfoot.actions.SaveProjectAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
@@ -65,7 +67,7 @@ import com.apple.eawt.ApplicationEvent;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3691 2005-10-20 08:25:32Z polle $
+ * @version $Id: GreenfootFrame.java 3692 2005-10-20 08:48:03Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -376,10 +378,19 @@ public class GreenfootFrame extends JFrame
         projectMenu.add(newProjectAction);
         
         Action openProjectAction = new OpenProjectAction("Open");
-        openProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
-        openProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_O));
-        
+        openProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
+        openProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_C));
         projectMenu.add(openProjectAction);
+        
+        Action closeProjectAction = new CloseProjectAction("Close");
+        closeProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
+        closeProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_N));
+        projectMenu.add(closeProjectAction);
+        
+        Action saveProjectAction = new SaveProjectAction("Save");
+        saveProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
+        saveProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_S));
+        projectMenu.add(saveProjectAction);
 
         JMenu helpMenu = new JMenu("Help");
         helpMenu.setMnemonic('h');
