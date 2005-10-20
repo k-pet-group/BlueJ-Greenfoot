@@ -4,6 +4,8 @@ import greenfoot.GreenfootObject;
 import greenfoot.GreenfootObjectVisitor;
 import greenfoot.GreenfootWorld;
 import greenfoot.WorldVisitor;
+import greenfoot.event.WorldEvent;
+import greenfoot.event.WorldListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
@@ -34,6 +36,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.event.EventListenerList;
 
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -70,6 +73,10 @@ public class WorldHandler
     
     private GProject project; 
     
+    private EventListenerList listenerList = new EventListenerList();
+
+    private WorldEvent worldEvent;
+    
     /**
      * Creates a new worldHandler and sets up the connection between worldCanvas
      * and world.
@@ -79,6 +86,7 @@ public class WorldHandler
 
         this.project = project;
         this.worldCanvas = worldCanvas;
+        worldEvent = new WorldEvent(this);
         worldCanvas.addMouseListener(this);
         worldCanvas.addKeyListener(this);
         worldCanvas.setDropTargetListener(this);
@@ -428,6 +436,7 @@ public class WorldHandler
                 }
             }
         });
+        fireWorldCreatedEvent();
 
     }
 
@@ -555,5 +564,44 @@ public class WorldHandler
     {
         project.removeAllInspectors();
         setWorld(null);
+        fireWorldRemovedEvent();
+    }
+    
+    
+    protected void fireWorldCreatedEvent()
+    {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == WorldListener.class) {
+                ((WorldListener) listeners[i + 1]).worldCreated(worldEvent);
+            }
+        }
+    }
+    
+    protected void fireWorldRemovedEvent()
+    {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == WorldListener.class) {
+                ((WorldListener) listeners[i + 1]).worldRemoved(worldEvent);
+            }
+        }
+    }
+
+    /**
+     * Add a worldListener to listen for when a worlds are created and removed.
+     * 
+     * @param l
+     *            Listener to add
+     */
+    public void addWorldListener(WorldListener l)
+    {
+        listenerList.add(WorldListener.class, l);
     }
 }

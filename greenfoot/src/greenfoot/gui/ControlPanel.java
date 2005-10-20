@@ -6,6 +6,8 @@ import greenfoot.actions.RunSimulationAction;
 import greenfoot.core.Simulation;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
+import greenfoot.event.WorldEvent;
+import greenfoot.event.WorldListener;
 
 import java.awt.CardLayout;
 import java.awt.FlowLayout;
@@ -30,13 +32,14 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 3634 2005-10-03 10:34:22Z polle $
+ * @version $Id: ControlPanel.java 3694 2005-10-20 13:21:03Z polle $
  */
 public class ControlPanel extends JPanel
-    implements ChangeListener, SimulationListener
+    implements ChangeListener, SimulationListener, WorldListener
 {
     private RunSimulationAction runSimulationAction;
     private PauseSimulationAction pauseSimulationAction;
+    private RunOnceSimulationAction runOnceSimulationAction;
     private JSlider speedSlider;
 
     protected EventListenerList listenerList = new EventListenerList();
@@ -50,11 +53,11 @@ public class ControlPanel extends JPanel
         setLayout(new FlowLayout(FlowLayout.CENTER, 10 ,10));
         URL stepIconFile = this.getClass().getClassLoader().getResource("step.gif");
         Icon stepIcon = new ImageIcon(stepIconFile);
-        RunOnceSimulationAction stepSimulationAction = new RunOnceSimulationAction("Act", stepIcon, simulation);
-        stepSimulationAction.putValue(Action.LONG_DESCRIPTION, "Makes one run of the simulation loop.");
-        stepSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Makes one run of the simulation loop.");
-
-        AbstractButton stepButton = new JButton(stepSimulationAction);
+        runOnceSimulationAction = new RunOnceSimulationAction("Act", stepIcon, simulation);
+        runOnceSimulationAction.putValue(Action.LONG_DESCRIPTION, "Makes one run of the simulation loop.");
+        runOnceSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Makes one run of the simulation loop.");
+        runOnceSimulationAction.setEnabled(false);
+        AbstractButton stepButton = new JButton(runOnceSimulationAction);
 
         add(stepButton);
 
@@ -63,6 +66,7 @@ public class ControlPanel extends JPanel
         runSimulationAction = new RunSimulationAction("Run", runIcon, simulation);
         runSimulationAction.putValue(Action.LONG_DESCRIPTION, "Runs the simulation until stopped.");
         runSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Runs the simulation.");
+        runSimulationAction.setEnabled(false);
 
         URL pauseIconFile = this.getClass().getClassLoader().getResource("pause.gif");
         Icon pauseIcon = new ImageIcon(pauseIconFile);
@@ -70,7 +74,8 @@ public class ControlPanel extends JPanel
         pauseSimulationAction.putValue(Action.LONG_DESCRIPTION,
                 "Pauses the simulation, leaving it in the current state.");
         pauseSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Pauses the simulation.");
-
+        pauseSimulationAction.setEnabled(false);
+        
         runpauseLayout = new CardLayout();
         runpauseContainer = new JPanel(runpauseLayout);
         runpauseContainer.add(new JButton(runSimulationAction), "run");
@@ -143,6 +148,20 @@ public class ControlPanel extends JPanel
                 ((ChangeListener) listeners[i + 1]).stateChanged(changeEvent);
             }
         }
+    }
+
+    public void worldCreated(WorldEvent e)
+    {
+        runSimulationAction.setEnabled(true);
+        pauseSimulationAction.setEnabled(true);
+        runOnceSimulationAction.setEnabled(true);
+    }
+
+    public void worldRemoved(WorldEvent e)
+    {
+        runSimulationAction.setEnabled(false);
+        pauseSimulationAction.setEnabled(false);
+        runOnceSimulationAction.setEnabled(false);
     }
 
 }

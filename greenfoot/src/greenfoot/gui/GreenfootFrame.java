@@ -67,7 +67,7 @@ import com.apple.eawt.ApplicationEvent;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3692 2005-10-20 08:48:03Z polle $
+ * @version $Id: GreenfootFrame.java 3694 2005-10-20 13:21:03Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -202,6 +202,7 @@ public class GreenfootFrame extends JFrame
         ControlPanel controlPanel = new ControlPanel(sim);
         controlPanel.setBorder(BorderFactory.createEtchedBorder());
         controlPanel.addChangeListener(sim);
+        worldHandler.addWorldListener(controlPanel);
         sim.setDelay(controlPanel.getDelay());
 
         //todo this should be moved to WorldCanvas becuase it changes when new
