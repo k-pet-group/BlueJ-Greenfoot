@@ -13,9 +13,8 @@ import java.util.Map;
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
@@ -27,7 +26,7 @@ import com.sun.jdi.ObjectReference;
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: LocalObject.java 3688 2005-10-20 00:11:50Z davmac $
  */
 public class LocalObject extends DebuggerObject
 {
@@ -305,9 +304,8 @@ public class LocalObject extends DebuggerObject
                 Class c = o.getClass();
                 if (genericParams != null)
                     expectedType.mapTparsToTypes(genericParams);
-                GenTypeParameterizable g = expectedCtype.mapToDerived(new JavaReflective(c));
-                Map m = new HashMap();
-                g.getParamsFromTemplate(m, g);
+                GenTypeClass g = expectedCtype.mapToDerived(new JavaReflective(c));
+                Map m = g.getMap();
                 return new LocalObject(o, m);
             }
 

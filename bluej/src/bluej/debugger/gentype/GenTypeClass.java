@@ -10,7 +10,7 @@ import java.util.*;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 3535 2005-08-22 06:12:16Z davmac $
+ * @version $Id: GenTypeClass.java 3688 2005-10-20 00:11:50Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
@@ -510,7 +510,7 @@ public class GenTypeClass extends GenTypeSolid {
         return new GenTypeClass(reflective, retlist, newOuter);
     }
     
-    public GenTypeParameterizable mapToDerived(Reflective derivedType)
+    public GenTypeClass mapToDerived(Reflective derivedType)
     {        
         // Get a map (parameter name -> type) for this class.
         if(! isGeneric() )
