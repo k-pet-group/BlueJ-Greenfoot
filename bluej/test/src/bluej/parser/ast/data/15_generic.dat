@@ -155,6 +155,16 @@ public class G2
         sort(strings);
     }
     
+    // wildcard method return type
+    static List<? extends Runnable> returnList()
+    {
+    	return new LinkedList<Thread>();
+    }
+    
+    // wildcard parameter type
+    static void takeList(List<? extends Runnable> listarg)
+    {
+    }
 }
 
 
