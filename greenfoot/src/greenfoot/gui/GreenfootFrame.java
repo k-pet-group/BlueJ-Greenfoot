@@ -67,7 +67,7 @@ import com.apple.eawt.ApplicationEvent;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3694 2005-10-20 13:21:03Z polle $
+ * @version $Id: GreenfootFrame.java 3695 2005-10-20 13:49:20Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -373,23 +373,25 @@ public class GreenfootFrame extends JFrame
         projectMenu.setMnemonic('p');
         menuBar.add(projectMenu);
         
+        int acceleratorModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        
         Action newProjectAction = new NewProjectAction("New");
-        newProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
+        newProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, acceleratorModifier));
         newProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_N));
         projectMenu.add(newProjectAction);
         
         Action openProjectAction = new OpenProjectAction("Open");
-        openProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
-        openProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_C));
+        openProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, acceleratorModifier));
+        openProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_O));
         projectMenu.add(openProjectAction);
         
         Action closeProjectAction = new CloseProjectAction("Close");
-        closeProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
-        closeProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_N));
+        closeProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, acceleratorModifier));
+        closeProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_C));
         projectMenu.add(closeProjectAction);
         
         Action saveProjectAction = new SaveProjectAction("Save");
-        saveProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
+        saveProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, acceleratorModifier));
         saveProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_S));
         projectMenu.add(saveProjectAction);
 
