@@ -35,7 +35,7 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 3687 2005-10-19 06:04:19Z davmac $
+ * @version $Id: ClassParser.java 3690 2005-10-20 03:52:16Z davmac $
  */
 public class ClassParser
 {
@@ -1201,6 +1201,9 @@ public class ClassParser
         // of a child representing the type itself, and then optionally a series
         // of array declarators.
         
+        if (node.getType() == JavaTokenTypes.TYPE)
+            node = node.getFirstChild();
+        
         AST arrayNode = node.getNextSibling();
         int ntype = node.getType();
         String tstring;
@@ -1250,7 +1253,7 @@ public class ClassParser
                 else {
                     targ += " super ";
                 }
-                targ += getCompleteTypeString(node.getFirstChild().getFirstChild());
+                targ += getCompleteTypeString(node.getFirstChild());
             }
             return targ;
         }
