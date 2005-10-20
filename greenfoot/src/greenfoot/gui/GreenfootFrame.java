@@ -65,7 +65,7 @@ import com.apple.eawt.ApplicationEvent;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: GreenfootFrame.java 3691 2005-10-20 08:25:32Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -191,7 +191,6 @@ public class GreenfootFrame extends JFrame
         Simulation sim = Simulation.getInstance();
         JScrollPane worldScrollPane = new JScrollPane(worldHandler.getWorldCanvas());
         
-        worldScrollPane.getViewport().setBackground(Color.BLACK);
         worldScrollPane.getViewport().setOpaque(true);
         
         JPanel worldPanel = new JPanel(new BorderLayout(4, 4));
