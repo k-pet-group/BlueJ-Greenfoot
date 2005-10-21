@@ -36,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3610 2005-09-29 06:38:44Z davmac $
+ * @version $Id: Config.java 3698 2005-10-21 04:39:21Z davmac $
  */
 
 public final class Config
@@ -301,7 +301,7 @@ public final class Config
      */
     public static boolean isJava15()
     {
-        return System.getProperty("java.vm.version").substring(0,3).compareTo("1.5") >= 0;
+        return System.getProperty("java.specification.version").compareTo("1.5") >= 0;
     }
     
     /**

@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import java.awt.EventQueue;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -112,7 +113,7 @@ public class DocuGenerator
         ArrayList call = new ArrayList();
         call.add(docCommand);
         addParams(call, fixedJavadocParams);
-        String majorVersion = System.getProperty("java.vm.version").substring(0,3);        
+        String majorVersion = System.getProperty("java.specification.version");        
         call.add("-source");
         call.add(majorVersion);
         addParams(call, tmpJavadocParams);
@@ -228,7 +229,7 @@ public class DocuGenerator
 //                 Debug.message(docuCall);
                 OutputStream logStream = new FileOutputStream(logFile);
 //                 Writer logWriter = new OutputStreamWriter(logStream);
-                PrintWriter logWriter = new PrintWriter(logStream,true);
+                final PrintWriter logWriter = new PrintWriter(logStream,true);
                 
                 String[] docuCall2 = new String[docuCall.length-1];
                 logWriter.println(logHeader);
@@ -245,32 +246,40 @@ public class DocuGenerator
                 logWriter.flush();
                 
                 // Call Javadoc
-                int exitValue = com.sun.tools.javadoc.Main.execute("javadoc",
+                final int exitValue = com.sun.tools.javadoc.Main.execute("javadoc",
                         logWriter,logWriter, logWriter,
                         "com.sun.tools.doclets.standard.Standard",
                         docuCall2);
                 
-                if (exitValue == 0) {
-                    BlueJEvent.raiseEvent(BlueJEvent.DOCU_GENERATED, null);
-                    if (!showFile.exists()) {
-                        Debug.message("showfile does not exist - searching");
-                        showFile = FileUtility.findFile(showFile.getParentFile(),
-                                                        showFile.getName());
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        if (exitValue == 0) {
+                            BlueJEvent.raiseEvent(BlueJEvent.DOCU_GENERATED, null);
+                            if (!showFile.exists()) {
+                                Debug.message("showfile does not exist - searching");
+                                showFile = FileUtility.findFile(showFile.getParentFile(),
+                                        showFile.getName());
+                            }
+                            if(openBrowser) {
+                                logWriter.println("try to open: " + showFile.getPath());
+                                Utility.openWebBrowser(showFile.getPath());
+                            }
+                        }
+                        else {
+                            BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
+                            DialogManager.showMessageWithText(null,
+                                    "doctool-error",
+                                    logFile.getPath());
+                        }
                     }
-                    if(openBrowser) {
-                        logWriter.println("try to open: " + showFile.getPath());
-                        Utility.openWebBrowser(showFile.getPath());
-                    }
-                }
-                else {
-                    BlueJEvent.raiseEvent(BlueJEvent.DOCU_ABORTED, null);
-                    DialogManager.showMessageWithText(null,
-                                                      "doctool-error",
-                                                      logFile.getPath());
-                }
+                });
             }
             catch (IOException exc) {
-                DialogManager.showMessage(null,"severe-doc-trouble");
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        DialogManager.showMessage(null,"severe-doc-trouble");
+                    }
+                });
             }
         }
     }
@@ -344,7 +353,7 @@ public class DocuGenerator
         call.add(junitFile.getAbsolutePath());
         call.add("-d");
         call.add(docDirPath);
-        String majorVersion = System.getProperty("java.vm.version").substring(0,3);        
+        String majorVersion = System.getProperty("java.specification.version");        
         call.add("-source");
         call.add(majorVersion);
         call.add("-doctitle");

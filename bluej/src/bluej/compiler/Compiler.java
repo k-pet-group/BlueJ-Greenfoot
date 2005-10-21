@@ -17,7 +17,7 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Compiler.java 3469 2005-07-18 13:41:54Z damiano $
+ * @version $Id: Compiler.java 3698 2005-10-21 04:39:21Z davmac $
  */
 abstract class Compiler
 {
@@ -93,7 +93,7 @@ abstract class Compiler
         if (isDeprecation())
             args.add("-deprecation");
             
-        String majorVersion = System.getProperty("java.vm.version").substring(0,3);        
+        String majorVersion = System.getProperty("java.specification.version");        
         args.add("-source");
         args.add(majorVersion);
 
