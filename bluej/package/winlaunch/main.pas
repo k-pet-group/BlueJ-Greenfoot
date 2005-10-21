@@ -9,8 +9,8 @@ uses
   Buttons, ImgList, ExtCtrls, jpeg, StrUtils;
 
 const
-    bluejdefsproperty : string = 'bluej.windows.vm=';
-    bluejvmargsproperty: string = 'bluej.windows.vm.args=';
+    bluejvmlocationproperty : string = 'bluej.windows.vm';
+    bluejvmargsproperty: string = 'bluej.windows.vm.args';
 
     jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
     ibmregkey : string = '\Software\IBM\Java Development Kit';
@@ -96,9 +96,13 @@ type
 
         function LaunchBlueJ(jdkpath, ver : string) : boolean;
 
-        function ParseBlueJDefs : string;
+        function GetBlueJVMLocation : string;
 
-        function ParseVMArgs : string;
+        function GetBlueJDef(const VariableName: string): string;
+
+        function GetEnvironmentVariableValue(const EnvironmentVariable: string): string;
+
+        function GetProperty(const Location: string; const VariableName: string): string;
 
   public
 
@@ -173,7 +177,7 @@ begin
     end;
 
     { look for a definition of a VM in the bluej.defs file }
-    home := ParseBlueJDefs;
+    home := GetBlueJVMLocation;
 
     { if we find one and we are not forced to display ourselves,
       launch BlueJ }
@@ -339,6 +343,8 @@ begin
 	        StartMessage3.Caption := foundjavacaption3;
         end;
      end;
+     //Debug only
+     GetBlueJDef(bluejvmargsproperty);
 end;
 
 function DelphiIsRunning : boolean;
@@ -485,7 +491,7 @@ begin
 
     toolsjarfilename := ExcludeTrailingPathDelimiter(jdkpath) + '\lib\tools.jar';
 
-    uservmargs := ParseVMArgs;
+    uservmargs := GetBlueJDef(bluejvmargsproperty);
 
 //    if (LanguageComboBox.ItemIndex <> 0) then
 //        goodparams.Add('-Dbluej.language=' + LanguageComboBox.Items[LanguageComboBox.ItemIndex]);
@@ -609,87 +615,102 @@ begin
 end;
 
 {
-   Searches bluej.defs for a specified vm location
-
+   Searches for a specified vm location
 }
-function TMainForm.ParseBlueJDefs : string;
+function TMainForm.GetBlueJVMLocation : string;
+begin
+    GetBlueJVMLocation := GetBlueJDef(bluejvmlocationproperty);
+end;
+
+
+{
+  Get a bluej definition, try where we think the user properties will be
+  and then look into bluej.defs if not found
+}
+function TMainForm.GetBlueJDef(const VariableName: string): string;
+var
+    defsfile : string;
+    varToMatch : string;
+    value : string;
+begin
+    GetBlueJDef := '';
+    varToMatch := VariableName;
+
+    //try %HOME%/bluej/bluej.properties first
+    defsfile := GetEnvironmentVariableValue('HOME') + '\bluej\bluej.properties';
+    value := GetProperty(defsfile, bluejvmargsproperty);
+
+    // if nothing from bluej.properties try bluej.defs
+    if value = '' then
+    begin
+        defsfile := ExtractFilePath(Application.ExeName) + 'lib\bluej.defs';
+        value := GetProperty(defsfile, bluejvmargsproperty);
+    end;
+
+    GetBlueJDef := value;
+end;
+
+
+{
+  Get a property from a Java Properties file
+}
+function TMainForm.GetProperty(const Location: string; const VariableName: string): string;
 var
     f : TextFile;
-    defsfile : string;
     matchline : string;
-    vmline : string;
+    varToMatch : string;
+    value : string;
+    gotBackSlash : boolean;
     i : integer;
-    gotbackslash : boolean;
 begin
-    ParseBlueJDefs := '';
-
-    defsfile := ExtractFilePath(Application.ExeName) + 'lib\bluej.defs';
-
-    AssignFile(f, defsfile);
-
+    GetProperty := '';
+    //add the '=' found between key, value
+    varToMatch := VariableName + '=';
+   AssignFile(f, Location);
     Reset(f);
-
     while not Eof(f) do
     begin
         Readln(f, matchline);
-
         matchline := Trim(matchline);
-        if AnsiStartsStr(bluejdefsproperty, matchline) then
+        if AnsiStartsStr(varToMatch, matchline) then
         begin
-            matchline := Copy(matchline, Length(bluejdefsproperty)+1, 999);
-
+            matchline := Copy(matchline, Length(varToMatch)+1, 999);
             gotbackslash := false;
-
             for i := 1 to Length(matchline) do
             begin
                 if not gotbackslash and (matchline[i] = '\') then
                     gotbackslash := true
                 else
                 begin
-                    vmline := vmline + matchline[i];
+                    value := value + matchline[i];
                     gotbackslash := false;
                 end;
             end;
-            ParseBlueJDefs := vmline;
+            GetProperty := value;
         end;
     end;
-
+    
     CloseFile(f);
 end;
 
-{
-  Based on ParseBlueJDefs.
-}
- function TMainForm.ParseVMArgs : string;
+
+function TMainForm.GetEnvironmentVariableValue(const EnvironmentVariable: string): string;
 var
-    f : TextFile;
-    defsfile : string;
-    matchline : string;
-    vmargsline : string;
-    i : integer;
-    gotbackslash : boolean;
+    BufferLength: Integer;  // buffer size required for value
 begin
-    ParseVMArgs := '';
-
-    defsfile := ExtractFilePath(Application.ExeName) + 'lib\bluej.defs';
-
-    AssignFile(f, defsfile);
-
-    Reset(f);
-
-    while not Eof(f) do
+    // Get required buffer size (inc. terminal #0)
+    BufferLength := GetEnvironmentVariable(
+        PChar(EnvironmentVariable), nil, 0);
+    if BufferLength > 0 then
     begin
-        Readln(f, matchline);
-
-        matchline := Trim(matchline);
-        if AnsiStartsStr(bluejvmargsproperty, matchline) then
-        begin
-            matchline := Copy(matchline, Length(bluejvmargsproperty)+1, 999);
-            ParseVMArgs := matchline;
-        end;
-    end;
-
-    CloseFile(f);
+        // Read env var value into result string
+        SetLength(Result, BufferLength - 1);
+        GetEnvironmentVariable(PChar(EnvironmentVariable),
+        PChar(Result), BufferLength);
+    end
+    else
+        // No such environment variable
+        Result := '';
 end;
 
 

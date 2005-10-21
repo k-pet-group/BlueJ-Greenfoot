@@ -148,7 +148,7 @@
 			<VersionInfo Name="MajorVer">2</VersionInfo>
 			<VersionInfo Name="MinorVer">1</VersionInfo>
 			<VersionInfo Name="Release">0</VersionInfo>
-			<VersionInfo Name="Build">8</VersionInfo>
+			<VersionInfo Name="Build">34</VersionInfo>
 			<VersionInfo Name="Debug">False</VersionInfo>
 			<VersionInfo Name="PreRelease">False</VersionInfo>
 			<VersionInfo Name="Special">False</VersionInfo>
@@ -160,7 +160,7 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="CompanyName">www.bluej.org</VersionInfoKeys>
 			<VersionInfoKeys Name="FileDescription">BlueJ Launcher</VersionInfoKeys>
-			<VersionInfoKeys Name="FileVersion">2.1.0.8</VersionInfoKeys>
+			<VersionInfoKeys Name="FileVersion">2.1.0.34</VersionInfoKeys>
 			<VersionInfoKeys Name="InternalName"></VersionInfoKeys>
 			<VersionInfoKeys Name="LegalCopyright">Michael Kolling and John Rosenberg</VersionInfoKeys>
 			<VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
