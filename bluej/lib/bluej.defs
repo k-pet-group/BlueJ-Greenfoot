@@ -463,6 +463,34 @@ bluej.compiler.type=internal
 bluej.vm.optimize=true
 
 #####################################################################
+## bluej.vm.args provides arguments to the debug VM that 
+## is launched to run Java code, the code pad and the object bench. 
+## This setting is likely to not be needed in most instances.
+## It is provided for situations where bluej and/or Java defaults
+## need to be modified. Multiple args can be specified on the one line.
+## Settings here have the ability to stop BlueJ running correctly
+## if not configured properly.  
+#####################################################################
+
+#bluej.vm.args=
+
+#####################################################################
+## bluej.windows.vm.args provides arguments to the Java VM that 
+## launches the bluej GUI on Windows only. These arguments do not apply to  
+## the debug VM that is launched to run Java code, the code pad and  
+## the object bench. At present there is no equivalent for Linux, 
+## Unix or Mac. On Unix & Linux the launch script can be edited 
+## manually to add these arguments, on Mac they can be added by 
+## editing the Info.plist file found inside the BlueJ.app package 
+## contents. This setting is likely to not be needed in most  
+## instances.It is provided for situations where bluej and/or 
+## Java defaults need to be modified.  
+#####################################################################
+
+#bluej.windows.vm.args=
+
+
+#####################################################################
 ## transport used to communicate with the debug VM. Available
 ## transports are "dt_socket" (TCP/IP transport) and "dt_shmem"
 ## (shared memory transport, which is available on Windows only).
