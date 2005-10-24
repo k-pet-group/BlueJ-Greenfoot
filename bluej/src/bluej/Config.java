@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.List;
 import java.util.*;
+import java.util.StringTokenizer;
 
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
@@ -36,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3698 2005-10-21 04:39:21Z davmac $
+ * @version $Id: Config.java 3699 2005-10-24 01:10:52Z bquig $
  */
 
 public final class Config
@@ -183,7 +184,8 @@ public final class Config
 
         String laf = Config.getPropString("bluej.lookAndFeel", "default");
         setLookAndFeel(laf);
-
+        //read any debug vm args
+	initDebugVMArgs();
         Config.setVMLocale();
         
         // Create a property containing the BlueJ version string
@@ -1021,7 +1023,7 @@ public final class Config
         if((lang == null || "".equals(lang)) && (region == null || "".equals(region)))
             return;
         
-        // something has been be specified...
+        // something has been specified...
         // if only one of region or language is specified only, make the other
         // use the existing default to create the Locale object
         // This gets rid of any dependencies in bluej.defs between the two
@@ -1074,8 +1076,54 @@ public final class Config
         }
     }
     
+    /**
+     * Initialise debug VM args from bluej config file
+     * Should only be called once in Config.initialise(...)
+     */
+    private static void initDebugVMArgs()
+    {
+	String args = getPropString("bluej.vm.args");
+	if(args != null && !args.equals("bluej.vm.args")) {
+	    // if there is more than one arg set
+	    List splitArgs = splitVMArgs(args);
+	    debugVMArgs.addAll(splitArgs);
+        }
+        
+    }
     
+     /**
+     * Splits VM args String into separate args including handling quotes
+     * used for file paths with spaces. 
+     * @param str - the string to be split
+     * @returns	an array of Strings
+     */
+    private static List splitVMArgs(String str)
+    {
+        boolean inQuote = false;
+        List strings = new ArrayList();
+        StringTokenizer t = new StringTokenizer(str, " ", true);
+        while(t.hasMoreTokens()) {
+            String arg = t.nextToken();
+            // if we have a "
+            if(arg.indexOf("\"")!= -1) {
+                inQuote = true;
+                while(t.hasMoreTokens() && inQuote == true) {
+                    String next = t.nextToken();
+                    arg = arg + next;
+                    if(next.indexOf("\"") != -1)
+                        inQuote = false;
+                }
+                strings.add(arg); 
+            }
+            else if(!arg.equals(" "))
+                strings.add(arg);
+        }
+        return strings;
+    }
     
+    /**
+     * debug vm args used for launch of debug vm
+     */
     public static List getDebugVMArgs()
     {
         return debugVMArgs;
