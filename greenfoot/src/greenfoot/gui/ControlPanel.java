@@ -12,15 +12,15 @@ import greenfoot.event.WorldListener;
 import java.awt.CardLayout;
 import java.awt.FlowLayout;
 import java.net.URL;
-import java.util.Dictionary;
-import java.util.Hashtable;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -32,9 +32,9 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 3694 2005-10-20 13:21:03Z polle $
+ * @version $Id: ControlPanel.java 3701 2005-10-25 18:11:23Z polle $
  */
-public class ControlPanel extends JPanel
+public class ControlPanel extends Box
     implements ChangeListener, SimulationListener, WorldListener
 {
     private RunSimulationAction runSimulationAction;
@@ -50,7 +50,18 @@ public class ControlPanel extends JPanel
 
     public ControlPanel(Simulation simulation)
     {
-        setLayout(new FlowLayout(FlowLayout.CENTER, 10 ,10));
+        super(BoxLayout.X_AXIS);
+        
+        add(createButtonPanel(simulation));
+        add(createSpeedSlider());
+        
+        simulation.addSimulationListener(this);
+    }
+
+    private JPanel createButtonPanel(Simulation simulation)
+    {
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        
         URL stepIconFile = this.getClass().getClassLoader().getResource("step.gif");
         Icon stepIcon = new ImageIcon(stepIconFile);
         runOnceSimulationAction = new RunOnceSimulationAction("Act", stepIcon, simulation);
@@ -59,7 +70,7 @@ public class ControlPanel extends JPanel
         runOnceSimulationAction.setEnabled(false);
         AbstractButton stepButton = new JButton(runOnceSimulationAction);
 
-        add(stepButton);
+        buttonPanel.add(stepButton);
 
         URL runIconFile = this.getClass().getClassLoader().getResource("run.gif");
         Icon runIcon = new ImageIcon(runIconFile);
@@ -80,31 +91,29 @@ public class ControlPanel extends JPanel
         runpauseContainer = new JPanel(runpauseLayout);
         runpauseContainer.add(new JButton(runSimulationAction), "run");
         runpauseContainer.add(new JButton(pauseSimulationAction), "pause");
-        add(runpauseContainer);
-
-        createSpeedSlider();
+        buttonPanel.add(runpauseContainer);
         
-        simulation.addSimulationListener(this);
+        return buttonPanel;
     }
 
-    private void createSpeedSlider()
+    private JComponent createSpeedSlider()
     {
+        JPanel speedPanel = new JPanel(new FlowLayout());
+        JLabel speedLabel = new JLabel("Speed:");
+        speedPanel.add(speedLabel);
+        
         int min = 0;
         int max = 400;
         speedSlider = new JSlider(JSlider.HORIZONTAL, min, max, 200);
-        speedSlider.setPaintLabels(true);
+        speedSlider.setPaintLabels(false);
         speedSlider.setMajorTickSpacing( (min+max) /2);
         speedSlider.setMinorTickSpacing( (min+max) /4);
-        speedSlider.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         speedSlider.setPaintTicks(true);
         speedSlider.addChangeListener(this);
-        Dictionary labelTable = new Hashtable();
-        JLabel startLabel = new JLabel("Slow");
-        JLabel endLabel = new JLabel("Fast");
-        labelTable.put(new Integer(min), startLabel);
-        labelTable.put(new Integer(max), endLabel);
-        speedSlider.setLabelTable(labelTable );
-        add(speedSlider);
+        speedSlider.setToolTipText("Adjusts the execution speed");
+        speedPanel.add(speedSlider);
+        
+        return speedPanel;
     }
 
     public void simulationChanged(SimulationEvent e)
