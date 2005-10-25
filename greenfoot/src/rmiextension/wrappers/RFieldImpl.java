@@ -5,12 +5,13 @@ import java.util.logging.Logger;
 
 import bluej.extensions.BField;
 import bluej.extensions.BObject;
+import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RFieldImpl.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: RFieldImpl.java 3702 2005-10-25 18:27:18Z polle $
  */
 public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
     implements RField
@@ -81,13 +82,19 @@ public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
                 BObject bFieldValue = (BObject) fieldValue;
 
                 String newInstanceName = "noName";
-       /*         try {
-                    newInstanceName = bFieldValue.getBClass().getName();
-                    newInstanceName = newInstanceName.substring(0, 1).toLowerCase() + newInstanceName.substring(1);
+                
+                try {
+                    String className = bFieldValue.getBClass().getName();
+                    int index = className.lastIndexOf('.');
+                    if (index >= 0) {
+                        className = className.substring(index + 1);
+                    }
+                    newInstanceName = className.substring(0, 1).toLowerCase() + className.substring(1);
                 }
-                catch (ClassNotFoundException e1) {
-                    e1.printStackTrace();
-                }*/
+                catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                    
                 //must add to object bench in order to get the menu later
                 bFieldValue.addToBench(newInstanceName);
 
