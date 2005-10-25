@@ -17,7 +17,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3672 2005-10-17 11:54:26Z polle $
+ * @version $Id: Boot.java 3700 2005-10-25 17:05:48Z polle $
  */
 public class Boot
 {
@@ -60,7 +60,7 @@ public class Boot
     // In greenfoot we need access to the BlueJ classes.
     // When running from eclipse, the first jar files will be excluded as explained above at the bluejBuildJars field.
     private static String[] greenfootUserJars = {"bluejcore.jar", "bluejeditor.jar", "bluejext.jar","antlr.jar", "MRJ141Stubs.jar",
-         "junit.jar" };
+        "junit.jar", "bluej.jar"};
     
     private static boolean isGreenfoot = false;
     /**
