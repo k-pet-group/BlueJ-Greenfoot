@@ -3,6 +3,7 @@ package greenfoot.core;
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootObjectVisitor;
 import greenfoot.GreenfootWorld;
+import greenfoot.ObjectTracker;
 import greenfoot.WorldVisitor;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
@@ -25,6 +26,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -38,8 +40,13 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
+import rmiextension.wrappers.RObject;
+
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.extensions.ClassNotFoundException;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 
 /**
  * The worldhandler handles the connection between the GreenfootWorld and the
@@ -237,7 +244,24 @@ public class WorldHandler
             {
                 JFrame parent = (JFrame) worldCanvas.getTopLevelAncestor();
                 DebuggerObject dObj = new LocalObject(obj);
-                project.getInspectorInstance(dObj, "", null, null, parent);
+                String instanceName = "";
+                try {
+                    RObject rObject = ObjectTracker.getRObject(obj);
+                    instanceName = rObject.getInstanceName();
+                }
+                catch (ProjectNotOpenException e1) {
+                    e1.printStackTrace();
+                }
+                catch (PackageNotFoundException e1) {
+                    e1.printStackTrace();
+                }
+                catch (RemoteException e1) {
+                    e1.printStackTrace();
+                }
+                catch (ClassNotFoundException e1) {
+                    e1.printStackTrace();
+                }
+                project.getInspectorInstance(dObj, instanceName, null, null, parent);
             }
         });
         return m;
