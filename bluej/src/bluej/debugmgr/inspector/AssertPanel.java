@@ -12,7 +12,7 @@ import bluej.testmgr.record.InvokerRecord;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 2948 2004-08-25 15:51:37Z polle $
+ * @version $Id: AssertPanel.java 3704 2005-10-26 02:05:20Z davmac $
  */
 public class AssertPanel extends JPanel
 {
@@ -273,6 +273,29 @@ public class AssertPanel extends JPanel
 		return assertCheckbox != null ? assertCheckbox.isSelected() : false;
 	}
 	
+    /**
+     * Check whether the necessary fields have been filled in to make a compilable
+     * assert statement.
+     */
+    public boolean isAssertComplete()
+    {
+        int index = assertCombo.getSelectedIndex();
+        
+        if (secondFieldNeeded[index]) {
+            if (deltaData.getText().length() == 0) {
+                return false;
+            }
+        }
+        
+        if (firstLabelFieldNeeded[index]) {
+            if (assertData.getText().length() == 0) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
     /**
      * Return an assertion statement out of the data in the UI.
      * 

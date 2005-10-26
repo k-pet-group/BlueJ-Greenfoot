@@ -11,7 +11,6 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
@@ -21,7 +20,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 3611 2005-09-29 11:37:50Z polle $
+ * @version $Id: ClassInspector.java 3704 2005-10-26 02:05:20Z davmac $
  */
 public class ClassInspector extends Inspector
 {

@@ -13,7 +13,6 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 
@@ -23,10 +22,9 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: ObjectInspector.java 3611 2005-09-29 11:37:50Z polle $
+ * @version $Id: ObjectInspector.java 3704 2005-10-26 02:05:20Z davmac $
  */
 public class ObjectInspector extends Inspector
-    implements InspectorListener
 {
     // === static variables ===
 
@@ -395,11 +393,6 @@ public class ObjectInspector extends Inspector
         Integer slot = (Integer) indexToSlotList.get(listIndexPosition);
 
         return slot.intValue();
-    }
-
-    public void inspectEvent(InspectorEvent e)
-    {
-        inspectorManager.getInspectorInstance(e.getDebuggerObject(), null, pkg, null, this);
     }
 
     protected int getPreferredRows()

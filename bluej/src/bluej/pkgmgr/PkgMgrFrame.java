@@ -54,7 +54,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3630 2005-10-03 00:50:38Z davmac $
+ * @version $Id: PkgMgrFrame.java 3704 2005-10-26 02:05:20Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1893,12 +1893,14 @@ public class PkgMgrFrame extends JFrame
                 utcr.doEndMakeTestCase(this, testTarget, testTargetMethod);
             }
             
+            // try to compile the test class we have just changed. Do this before
+            // installing the new class loader, because that causes a short machine
+            // execution during which compilation fails with an error message
+            getPackage().compileQuiet(testTarget);
+
             // remove objects from object bench
             getProject().removeClassLoader();
             getProject().newRemoteClassLoader();
-            
-            // try to compile the test class we have just changed
-            getPackage().compileQuiet(testTarget);
             
             testTarget = null;
         }

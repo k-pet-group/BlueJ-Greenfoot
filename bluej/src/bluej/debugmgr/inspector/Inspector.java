@@ -2,7 +2,6 @@ package bluej.debugmgr.inspector;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.*;
@@ -19,9 +18,9 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
+import bluej.utility.DialogManager;
 
 /**
  * 
@@ -32,7 +31,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 3611 2005-09-29 11:37:50Z polle $
+ * @version $Id: Inspector.java 3704 2005-10-26 02:05:20Z davmac $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -97,10 +96,12 @@ public abstract class Inspector extends JFrame
         this.pkg = pkg;
         this.ir = ir;
 
+        // We want to be able to veto a close
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent E)
             {
-                doClose();
+                doClose(true);
             }
         });
 
@@ -142,7 +143,7 @@ public abstract class Inspector extends JFrame
             public void keyReleased(KeyEvent e)
             {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    doClose();
+                    doClose(true);
                 }    
             }
 
@@ -165,9 +166,6 @@ public abstract class Inspector extends JFrame
         // requestFocus seems to work only of the
         // component is already visible
     }
-
-    public void getEvent(InspectorEvent e)
-    {}
 
     /**
      * De-iconify the window (if necessary) and bring it to the front.
@@ -218,51 +216,46 @@ public abstract class Inspector extends JFrame
      * Requests an update of the field values shown in this viewer to show current object
      * values.
      * 
-     * Will be executed int the event dispatch thread. 
+     * Will be executed in the event dispatch thread. 
      */
     public void update()
     {
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {                
-                final Object[] listData = getListData();
-
-                fieldList.setData(listData);
-                fieldList.setTableHeader(null);
-
-                // Ensures that an element is always seleceted (if there is any)
-                if (fieldList.getSelectedRow() == -1 && listData.length > 0) {
-                    fieldList.setRowSelectionInterval(0, 0);
-                }
-
-                double height = fieldList.getPreferredSize().getHeight();
-                int rows = listData.length;
-                if (rows > getPreferredRows()) {
-                    height = fieldList.getRowHeight() * getPreferredRows();
-                }
-
-                int width = (int) fieldList.getPreferredSize().getWidth();
-                if (width < LIST_WIDTH)
-                    width = LIST_WIDTH;
-
-                fieldList.setPreferredScrollableViewportSize(new Dimension(width, (int) height));
-                pack();
-
-                if (assertPanel != null) {
-                    assertPanel.updateWithResultData((String) listData[0]);
-                }
-                
-                int slot = fieldList.getSelectedRow();
-
-                // occurs if valueChanged picked up a clearSelection event from
-                // the list
-                if (slot != -1) {
-                    listElementSelected(slot);
-                }
-
-                repaint();
-            }
-        });
+        final Object[] listData = getListData();
+        
+        fieldList.setData(listData);
+        fieldList.setTableHeader(null);
+        
+        // Ensures that an element (if any exist) is always selected
+        if (fieldList.getSelectedRow() == -1 && listData.length > 0) {
+            fieldList.setRowSelectionInterval(0, 0);
+        }
+        
+        double height = fieldList.getPreferredSize().getHeight();
+        int rows = listData.length;
+        if (rows > getPreferredRows()) {
+            height = fieldList.getRowHeight() * getPreferredRows();
+        }
+        
+        int width = (int) fieldList.getPreferredSize().getWidth();
+        if (width < LIST_WIDTH)
+            width = LIST_WIDTH;
+        
+        fieldList.setPreferredScrollableViewportSize(new Dimension(width, (int) height));
+        pack();
+        
+        // if (assertPanel != null) {
+        //    assertPanel.updateWithResultData((String) listData[0]);
+        // }
+        
+        int slot = fieldList.getSelectedRow();
+        
+        // occurs if valueChanged picked up a clearSelection event from
+        // the list
+        if (slot != -1) {
+            listElementSelected(slot);
+        }
+        
+        repaint();
     }
 
     // ----- ListSelectionListener interface -----
@@ -351,23 +344,44 @@ public abstract class Inspector extends JFrame
     }
 
     /**
-     * Close this viewer. Don't forget to remove it from the list of open
+     * Close this inspector. The caller should remove it from the list of open
      * inspectors.
+     * 
+     * @param handleAssertions   Whether assertions should be attached to the
+     *                           invoker record. If true, the user may be prompted
+     *                           to fill in assertion data. 
      */
-    public void doClose()
+    public void doClose(boolean handleAssertions)
     {
-        handleAssertions();
+        boolean closeOk = true;
 
-        setVisible(false);
-        remove();
-        dispose();
+        if (handleAssertions) {
+            // handleAssertions may veto the close
+            closeOk = handleAssertions();
+        }
+
+        if (closeOk) {
+            setVisible(false);
+            remove();
+            dispose();
+        }
     }
 
-    protected void handleAssertions()
+    protected boolean handleAssertions()
     {
         if (assertPanel != null && assertPanel.isAssertEnabled()) {
+            
+            if (! assertPanel.isAssertComplete()) {
+                int choice = DialogManager.askQuestion(this, "empty-assertion-text");
+                
+                if (choice == 0) {
+                    return false;
+                }
+            }
+            
             ir.addAssertion(assertPanel.getAssertStatement());
         }
+        return true;
     }
 
     public void setBorder(Border border)
@@ -392,7 +406,7 @@ public abstract class Inspector extends JFrame
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
-                    doClose();
+                    doClose(true);
                 }
             });
         }

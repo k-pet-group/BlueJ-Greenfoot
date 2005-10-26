@@ -17,7 +17,6 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.*;
 import bluej.views.Comment;
@@ -28,10 +27,9 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 3611 2005-09-29 11:37:50Z polle $
+ * @version $Id: ResultInspector.java 3704 2005-10-26 02:05:20Z davmac $
  */
 public class ResultInspector extends Inspector
-    implements InspectorListener
 {
 
     // === static variables ===
@@ -78,15 +76,9 @@ public class ResultInspector extends Inspector
 
         calcResultType();
 
-        final ResultInspector thisInspector = this;
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                makeFrame();
-                pack();
-                DialogManager.centreWindow(thisInspector, parent);
-            }
-        });
+        makeFrame();
+        pack();
+        DialogManager.centreWindow(this, parent);
     }
 
     /**
@@ -312,11 +304,6 @@ public class ResultInspector extends Inspector
     public String getResult()
     {
         return (String) obj.getInstanceFields(false).get(0);
-    }
-
-    public void inspectEvent(InspectorEvent e)
-    {
-        pkg.getProject().getInspectorInstance(e.getDebuggerObject(), null, pkg, null, this);
     }
 
     protected int getPreferredRows()

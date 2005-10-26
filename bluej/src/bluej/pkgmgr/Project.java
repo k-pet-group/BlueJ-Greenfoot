@@ -44,7 +44,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3646 2005-10-05 05:14:09Z davmac $
+ * @version $Id: Project.java 3704 2005-10-26 02:05:20Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager {
     /**
@@ -503,7 +503,7 @@ public class Project implements DebuggerListener, InspectorManager {
         Inspector inspect = getInspector(obj);
 
         if (inspect != null) {
-            inspect.doClose();
+            inspect.doClose(false);
         }
     }
 
