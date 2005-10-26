@@ -421,7 +421,7 @@ An error was encountered when trying to save a file.
 
 empty-assertion-text
 You have not entered an expected result for this method call.
-Without this result, you test is incomplete, and your test class will
+Without this result, your test is incomplete, and your test class will
 not compile. Are you sure you want to continue without entering
 a result value? 
 Go back
