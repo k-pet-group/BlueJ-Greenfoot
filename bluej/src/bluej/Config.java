@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3699 2005-10-24 01:10:52Z bquig $
+ * @version $Id: Config.java 3706 2005-10-31 02:36:05Z bquig $
  */
 
 public final class Config
@@ -1082,13 +1082,12 @@ public final class Config
      */
     private static void initDebugVMArgs()
     {
-	String args = getPropString("bluej.vm.args");
-	if(args != null && !args.equals("bluej.vm.args")) {
-	    // if there is more than one arg set
-	    List splitArgs = splitVMArgs(args);
-	    debugVMArgs.addAll(splitArgs);
-        }
-        
+        String args = getPropString("bluej.vm.args");
+        if(args != null && !args.equals("bluej.vm.args")) {
+            // if there is more than one arg set
+            List splitArgs = splitVMArgs(args);
+	        debugVMArgs.addAll(splitArgs);
+        }        
     }
     
      /**
