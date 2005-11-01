@@ -35,7 +35,7 @@
         <mkdir dir="${dist}" />     
         <!-- Put everything in ${build} into the ${editor}.jar file -->
         <jar compress="yes" jarfile="${dist}/${editor}.jar" basedir="${build}">
-            <fileset dir="${core.build}">
+            <fileset dir="${build}">
                 <include name="bluej/editor/**" />
                 <include name="org/**" />
                 <exclude name="bluej/editor/*.txt" />
