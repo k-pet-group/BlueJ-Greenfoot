@@ -44,7 +44,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3704 2005-10-26 02:05:20Z davmac $
+ * @version $Id: Project.java 3708 2005-11-02 04:01:53Z bquig $
  */
 public class Project implements DebuggerListener, InspectorManager {
     /**
@@ -1151,7 +1151,7 @@ public class Project implements DebuggerListener, InspectorManager {
      * of this project.
      * @return a non null but possibly empty list of URL.
      */
-    private ArrayList getPlusLibsContent () {
+    protected ArrayList getPlusLibsContent () {
         ArrayList risul = new ArrayList();
         
         // the subdirectory of the project which can hold project specific jars and zips
@@ -1222,7 +1222,7 @@ public class Project implements DebuggerListener, InspectorManager {
             attemptAddLibrary(risul, files[index]);
         }
  
-    return risul;
+        return risul;
     }
 
     /**
