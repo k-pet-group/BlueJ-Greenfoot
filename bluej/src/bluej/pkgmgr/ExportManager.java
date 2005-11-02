@@ -1,22 +1,20 @@
 package bluej.pkgmgr;
 
-import java.util.jar.*;
-import java.util.zip.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Iterator;
 import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.jar.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.FileUtility;
+import bluej.utility.*;
 
 /**
  * Component to manage storing projects to jar file format.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 3480 2005-07-27 18:47:08Z damiano $
+ * @version $Id: ExportManager.java 3709 2005-11-02 04:41:04Z bquig $
  */
 final class ExportManager
 {
@@ -64,15 +62,23 @@ final class ExportManager
     private void createJar(String fileName, String sourceDir, String mainClass,
                            List userLibs, boolean includeSource, boolean includePkgFiles)
     {
-        // Construct classpath with used library jars
-        
+        // Construct classpath with used library jars       
         String classpath = "";
-
-        // add jar files from +libs to classpath
-        // TODO: This logic is not correct, all libraries are in a single place now, no need to look in multiple places.
-        File[] projectLibs = frame.getProject().getClassLoader().getClassPathAsFiles();
-        for(int i=0; i < projectLibs.length; i++) {
-            classpath += " " + projectLibs[i].getName();
+        
+        // add jar files from +libs to classpath               
+        List plusLibs = frame.getProject().getPlusLibsContent();
+        List plusLibAsFiles = new ArrayList();
+        for(Iterator it = plusLibs.iterator(); it.hasNext();) {
+            URL url = (URL)it.next();
+            try {
+                File file = new File(new URI(url.toString()));
+                plusLibAsFiles.add(file);
+                classpath += " " + file.getName();
+            }
+            catch(URISyntaxException urie) {
+                // nothing at the moment
+            }
+            
         }
         
         // add jar files from userlibs to classpath
@@ -129,7 +135,7 @@ final class ExportManager
                             includePkgFiles,
                             jarFile.getCanonicalFile());
             if(parent != null) {
-                copyLibsToJar(Arrays.asList(projectLibs), parent);
+                copyLibsToJar(plusLibAsFiles, parent);
                 copyLibsToJar(userLibs, parent);
             }
             

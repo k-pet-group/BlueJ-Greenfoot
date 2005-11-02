@@ -1,29 +1,27 @@
 package bluej.pkgmgr;
 
-import bluej.*;
-import bluej.Config;
-import bluej.classmgr.ClassPath;
-import bluej.classmgr.ClassPathEntry;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.DialogManager;
-import bluej.utility.EscapeDialog;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Collections;
-import java.io.File;
-
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.net.*;
+import java.util.*;
+import java.util.List;
+
 import javax.swing.*;
+
+import bluej.BlueJTheme;
+import bluej.Config;
+import bluej.prefmgr.PrefMgr;
+import bluej.prefmgr.PrefMgrDialog;
+import bluej.utility.*;
 
 /**
  * Dialog for exporting the project to a jar file. Here, the jar
  * creation options can be specified.
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 3506 2005-08-07 18:58:32Z damiano $
+ * @version $Id: ExportDialog.java 3709 2005-11-02 04:41:04Z bquig $
  */
 class ExportDialog extends EscapeDialog
 {
@@ -255,17 +253,30 @@ class ExportDialog extends EscapeDialog
      */
     private JPanel createUserLibPanel(Project project)
     {
+
         // collect info about jar files from the project classloader.
         ArrayList userlibList = new ArrayList();
-        File [] fileClasspath = project.getClassLoader().getClassPathAsFiles();
-
-        for (int index=0; index<fileClasspath.length;index++) {
-            File file = fileClasspath[index];
-            
+        
+        // get user specified libs
+        ArrayList libList = PrefMgrDialog.getInstance().getUserConfigLibPanel().getUserConfigContent(); 
+        
+        // also get any libs in userlib directory
+        libList.addAll(Project.getUserlibContent());
+        
+        for (Iterator it = libList.iterator(); it.hasNext(); ) {
+            URL url = (URL)it.next();
+            try {
+                File file = new File(new URI(url.toString()));
+                
+                if ( file == null || file.isDirectory() ) continue;
+                
+                userlibList.add (new UserLibInfo(file));
+            } catch (URISyntaxException use) {
+                // Should never happen. If there is a problem with the conversion we want to know about it.
+                Debug.reportError("ExportDialog.createUserLibPanel(Project) invalid url=" + url.getPath());
+            }
             // Skip directories.
-            if ( file == null || file.isDirectory() ) continue;
             
-            userlibList.add (new UserLibInfo(file));
         }
         
         if ( userlibList.size() < 1 ) return null;
