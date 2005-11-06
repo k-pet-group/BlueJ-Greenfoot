@@ -27,16 +27,16 @@ public class IntersectionTest extends TestCase
         o2.setLocation(2,2);
         world.addObject(o2);
         
-        assertTrue(o1.intersects(o2));
-        assertTrue(o2.intersects(o1));
+        assertTrue(o1.intersectsP(o2));
+        assertTrue(o2.intersectsP(o1));
         
-        Collection c = o1.getIntersectingObjects(TestObject.class);
+        Collection c = o1.getIntersectingObjectsP(TestObject.class);
         assertTrue(c.contains(o2));
         assertEquals(1, c.size());
         
         o2.setLocation(3,2);
-        assertFalse(o1.intersects(o2));
-        assertFalse(o2.intersects(o1));
+        assertFalse(o1.intersectsP(o2));
+        assertFalse(o2.intersectsP(o1));
     }
     
     public void testIntersectingPixelLevelOdd()
@@ -50,16 +50,16 @@ public class IntersectionTest extends TestCase
         o2.setLocation(6,6);
         world.addObject(o2);
         
-        assertTrue(o1.intersects(o2));
-        assertTrue(o2.intersects(o1));
+        assertTrue(o1.intersectsP(o2));
+        assertTrue(o2.intersectsP(o1));
         
-        Collection c = o1.getIntersectingObjects(TestObject.class);
+        Collection c = o1.getIntersectingObjectsP(TestObject.class);
         assertTrue(c.contains(o2));
         assertEquals(1, c.size());
         
         o2.setLocation(7,7);
-        assertFalse(o1.intersects(o2));
-        assertFalse(o2.intersects(o1));
+        assertFalse(o1.intersectsP(o2));
+        assertFalse(o2.intersectsP(o1));
     }
     
     public void testIntersectingPixelLevelEven()
@@ -73,15 +73,15 @@ public class IntersectionTest extends TestCase
         o2.setLocation(7,7);
         world.addObject(o2);
         
-        assertTrue(o1.intersects(o2));
-        assertTrue(o2.intersects(o1));
+        assertTrue(o1.intersectsP(o2));
+        assertTrue(o2.intersectsP(o1));
         
-        Collection c = o1.getIntersectingObjects(TestObject.class);
+        Collection c = o1.getIntersectingObjectsP(TestObject.class);
         assertTrue(c.contains(o2));
         assertEquals(1, c.size());
         
         o2.setLocation(8,8);
-        assertFalse(o1.intersects(o2));
-        assertFalse(o2.intersects(o1));
+        assertFalse(o1.intersectsP(o2));
+        assertFalse(o2.intersectsP(o1));
     }
 }

@@ -1,6 +1,5 @@
 package greenfoot.collision;
 
-import greenfoot.GreenfootObject;
 import greenfoot.GreenfootWorld;
 import greenfoot.TestObject;
 
@@ -26,14 +25,14 @@ public class NeighbourTest extends TestCase
         world.setWrapped(true);
         int d = 2;
 
-        GreenfootObject me = new GreenfootObject();
+        TestObject me = new TestObject();
         int xStart = 4;
         int yStart = 4;
         me.setLocation(xStart, yStart);
         world.addObject(me);
 
         Collection neighbours = createNeigboursWithDiagonal(xStart, yStart, d);
-        Collection c = me.getNeighbours(2, true, TestObject.class);
+        Collection c = me.getNeighboursP(2, true, TestObject.class);
 
         assertEquals(24, c.size());
         assertTrue(c.containsAll(neighbours));
@@ -43,13 +42,13 @@ public class NeighbourTest extends TestCase
     {
         world = new GreenfootWorld(10, 10, 10);
         world.setWrapped(true);
-        GreenfootObject me = new GreenfootObject();
+        TestObject me = new TestObject();
         me.setLocation(4, 4);
         world.addObject(me);
 
         for (int x = 0; x < world.getWidth(); x++) {
             for (int y = 0; y < world.getHeight(); y++) {
-                GreenfootObject go = new TestObject();
+                TestObject go = new TestObject();
                 go.setLocation(x, y);
                 world.addObject(go);
             }
@@ -74,7 +73,7 @@ public class NeighbourTest extends TestCase
             dyEnd--;
         }
 
-        Collection c = me.getNeighbours(d, false, TestObject.class);
+        Collection c = me.getNeighboursP(d, false, TestObject.class);
 
         // To calculate number of neighbours in distance d:
         //     2(d^2 + d)
@@ -87,19 +86,19 @@ public class NeighbourTest extends TestCase
     {
         world = new GreenfootWorld(10, 10, 10);
         world.setWrapped(true);
-        GreenfootObject topLeft = new TestObject();
+        TestObject topLeft = new TestObject();
         topLeft.setLocation(0, 0);
         world.addObject(topLeft);
 
-        GreenfootObject topRight = new TestObject();
+        TestObject topRight = new TestObject();
         topRight.setLocation(9, 0);
         world.addObject(topRight);
 
-        GreenfootObject bottomLeft = new TestObject();
+        TestObject bottomLeft = new TestObject();
         bottomLeft.setLocation(0, 9);
         world.addObject(bottomLeft);
 
-        GreenfootObject bottomRight = new TestObject();
+        TestObject bottomRight = new TestObject();
         bottomRight.setLocation(9, 9);
         world.addObject(bottomRight);
 
@@ -109,9 +108,9 @@ public class NeighbourTest extends TestCase
         wrapTest(bottomRight);
     }
 
-    private void wrapTest(GreenfootObject go)
+    private void wrapTest(TestObject go)
     {
-        Collection c = go.getNeighbours(1, true, TestObject.class);
+        Collection c = go.getNeighboursP(1, true, TestObject.class);
         assertEquals(3, c.size());
         assertFalse(c.contains(go));
     }
@@ -125,13 +124,13 @@ public class NeighbourTest extends TestCase
         int xStart = 0;
         int yStart = 0;
 
-        GreenfootObject me = new GreenfootObject();
+        TestObject me = new TestObject();
         me.setLocation(xStart, yStart);
         world.addObject(me);
 
         Collection neighbours = createNeighboursWithoutDiagonal(xStart, yStart, d);
 
-        Collection c = me.getNeighbours(d, false, TestObject.class);
+        Collection c = me.getNeighboursP(d, false, TestObject.class);
 
         // To calculate number of neighbours within distance d:
         //     2(d^2 + d)
@@ -148,11 +147,11 @@ public class NeighbourTest extends TestCase
 
         int xStart = 9;
         int yStart = 9;
-        GreenfootObject me = new GreenfootObject();
+        TestObject me = new TestObject();
         me.setLocation(xStart, yStart);
         world.addObject(me);
         Collection neighbours = createNeigboursWithDiagonal(xStart, yStart, d);
-        Collection c = me.getNeighbours(d, true, TestObject.class);
+        Collection c = me.getNeighboursP(d, true, TestObject.class);
         assertEquals(8, c.size());
         assertTrue(c.containsAll(neighbours));
 
@@ -162,7 +161,7 @@ public class NeighbourTest extends TestCase
         me.setLocation(xStart, yStart);
         world.addObject(me);
         neighbours = createNeigboursWithDiagonal(xStart, yStart, d);
-        c = me.getNeighbours(d, true, TestObject.class);
+        c = me.getNeighboursP(d, true, TestObject.class);
         assertEquals(8, c.size());
         assertTrue(c.containsAll(neighbours));
     }
@@ -175,11 +174,11 @@ public class NeighbourTest extends TestCase
 
         int xStart = 9;
         int yStart = 9;
-        GreenfootObject me = new GreenfootObject();
+        TestObject me = new TestObject();
         me.setLocation(xStart, yStart);
         world.addObject(me);
         Collection neighbours = createNeigboursWithDiagonal(xStart, yStart, d);
-        Collection c = me.getNeighbours(d, true, TestObject.class);
+        Collection c = me.getNeighboursP(d, true, TestObject.class);
         assertEquals(24, c.size());
         assertTrue(c.containsAll(neighbours));
 
@@ -190,7 +189,7 @@ public class NeighbourTest extends TestCase
         me.setLocation(xStart, yStart);
         world.addObject(me);
         neighbours = createNeigboursWithDiagonal(xStart, yStart, d);
-        c = me.getNeighbours(d, true, TestObject.class);
+        c = me.getNeighboursP(d, true, TestObject.class);
         assertEquals(24, c.size());
         assertTrue(c.containsAll(neighbours));
     }
@@ -203,11 +202,11 @@ public class NeighbourTest extends TestCase
 
         int xStart = 9;
         int yStart = 9;
-        GreenfootObject me = new GreenfootObject();
+        TestObject me = new TestObject();
         me.setLocation(xStart, yStart);
         world.addObject(me);
         Collection neighbours = createNeighboursWithoutDiagonal(xStart, yStart, d);
-        Collection c = me.getNeighbours(d, false, TestObject.class);
+        Collection c = me.getNeighboursP(d, false, TestObject.class);
         assertEquals(12, c.size());
         assertTrue(c.containsAll(neighbours));
 
@@ -218,7 +217,7 @@ public class NeighbourTest extends TestCase
         me.setLocation(xStart, yStart);
         world.addObject(me);
         neighbours = createNeighboursWithoutDiagonal(xStart, yStart, d);
-        c = me.getNeighbours(d, false, TestObject.class);
+        c = me.getNeighboursP(d, false, TestObject.class);
         assertEquals(12, c.size());
         assertTrue(c.containsAll(neighbours));
     }
@@ -231,7 +230,7 @@ public class NeighbourTest extends TestCase
     {
         for (int x = 0; x < world.getWidth(); x++) {
             for (int y = 0; y < world.getHeight(); y++) {
-                GreenfootObject go = new TestObject();
+                TestObject go = new TestObject();
                 go.setLocation(x, y);
                 world.addObject(go);
             }
@@ -245,7 +244,7 @@ public class NeighbourTest extends TestCase
                 }
                 Collection remove = world.getObjectsAt(x, y, TestObject.class);
                 for (Iterator iter = remove.iterator(); iter.hasNext();) {
-                    GreenfootObject element = (GreenfootObject) iter.next();
+                    TestObject element = (TestObject) iter.next();
                     if (!(x == xStart && y == yStart)) {
                         neighbours.add(element);
                     }
@@ -263,7 +262,7 @@ public class NeighbourTest extends TestCase
         Collection neighbours = new ArrayList();
         for (int x = 0; x < world.getWidth(); x++) {
             for (int y = 0; y < world.getHeight(); y++) {
-                GreenfootObject go = new TestObject();
+                TestObject go = new TestObject();
                 go.setLocation(x, y);
                 world.addObject(go);
             }
@@ -312,7 +311,7 @@ public class NeighbourTest extends TestCase
     private void makeNeighbour(Collection neighbours, int x, int y)
     {
         Collection here = world.getObjectsAt(x, y, TestObject.class);
-        GreenfootObject neighbour = (GreenfootObject) here.iterator().next();
+        TestObject neighbour = (TestObject) here.iterator().next();
         neighbours.add(neighbour);
     }
 }

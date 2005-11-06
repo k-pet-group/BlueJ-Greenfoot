@@ -25,6 +25,26 @@ public class TestObject extends GreenfootObject
         setImage(image);
     }
 
+    public Collection getNeighboursP(int distance, boolean diagonal, Class cls)
+    {
+        return getNeighbours(distance, diagonal, cls);
+    }
+
+    public Collection getObjectsInRangeP(int distance, Class cls)
+    {
+        return getObjectsInRange(distance, cls);
+    }
+
+    public boolean intersectsP(TestObject other)
+    {
+        return intersects(other);
+    }
+
+    public Collection getIntersectingObjectsP(Class cls)
+    {
+        return getIntersectingObjects(cls);
+    }
+
 
   
 }

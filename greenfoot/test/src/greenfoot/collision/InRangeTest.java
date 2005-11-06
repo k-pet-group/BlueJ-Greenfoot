@@ -28,27 +28,27 @@ public class InRangeTest extends TestCase
         world.addObject(go2);
         
         go2.setLocation(2, 4);
-        Collection inRange = go1.getObjectsInRange(3, TestObject.class);
+        Collection inRange = go1.getObjectsInRangeP(3, TestObject.class);
         assertTrue(inRange.contains(go2));
 
         go2.setLocation(2, 5);
-        inRange = go1.getObjectsInRange(3, TestObject.class);
+        inRange = go1.getObjectsInRangeP(3, TestObject.class);
         assertTrue(inRange.contains(go2));
 
         go2.setLocation(2, 6);
-        inRange = go1.getObjectsInRange(3, TestObject.class);
+        inRange = go1.getObjectsInRangeP(3, TestObject.class);
         assertFalse(inRange.contains(go2));
 
         go2.setLocation(4, 4);
-        inRange = go1.getObjectsInRange(3, TestObject.class);
+        inRange = go1.getObjectsInRangeP(3, TestObject.class);
         assertTrue(inRange.contains(go2));
 
         go2.setLocation(5, 5);
-        inRange = go1.getObjectsInRange(3, TestObject.class);
+        inRange = go1.getObjectsInRangeP(3, TestObject.class);
         assertFalse(inRange.contains(go2));
 
         go2.setLocation(5, 5);
-        inRange = go1.getObjectsInRange(10000, TestObject.class);
+        inRange = go1.getObjectsInRangeP(10000, TestObject.class);
         assertTrue(inRange.contains(go2));
     }
     
@@ -66,20 +66,20 @@ public class InRangeTest extends TestCase
         go2.setLocation(8, 2);
         world.addObject(go2);
         
-        Collection inRange = go1.getObjectsInRange(3, TestObject.class);
+        Collection inRange = go1.getObjectsInRangeP(3, TestObject.class);
         assertTrue(inRange.contains(go2));
         assertEquals(1, inRange.size());
-        inRange = go2.getObjectsInRange(3, TestObject.class);
+        inRange = go2.getObjectsInRangeP(3, TestObject.class);
         assertTrue(inRange.contains(go1));
 
-        inRange = go1.getObjectsInRange(2, TestObject.class);
+        inRange = go1.getObjectsInRangeP(2, TestObject.class);
         assertTrue(inRange.contains(go2));
-        inRange = go2.getObjectsInRange(2, TestObject.class);
+        inRange = go2.getObjectsInRangeP(2, TestObject.class);
         assertTrue(inRange.contains(go1));
 
-        inRange = go1.getObjectsInRange(1, TestObject.class);
+        inRange = go1.getObjectsInRangeP(1, TestObject.class);
         assertFalse(inRange.contains(go2));
-        inRange = go2.getObjectsInRange(1, TestObject.class);
+        inRange = go2.getObjectsInRangeP(1, TestObject.class);
         assertFalse(inRange.contains(go1));
     }
 }
