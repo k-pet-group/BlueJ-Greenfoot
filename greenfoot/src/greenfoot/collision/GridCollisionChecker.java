@@ -136,19 +136,7 @@ public class GridCollisionChecker
             world[x][y] = cell;
         }
 
-        /**
-         * wraps the number x with the width
-         */
-        private int wrap(int x, int width)
-        {
-            int remainder = x % width;
-            if (remainder < 0) {
-                return width + remainder;
-            }
-            else {
-                return remainder;
-            }
-        }
+        
     }
 
     private Set objects;
@@ -224,6 +212,10 @@ public class GridCollisionChecker
      */
     public List getObjectsAt(int x, int y, Class cls)
     {
+        if(wrap) {
+            x = wrap(x, world.getWidth());
+            y = wrap(y, world.getWidth());
+        }
         List objectsThere = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
             GreenfootObject go = (GreenfootObject) iter.next();
@@ -500,5 +492,19 @@ public class GridCollisionChecker
     private boolean withinBounds(int x, int width)
     {
         return wrap || (!wrap && x >= 0 && x < width);
+    }
+    
+    /**
+     * wraps the number x with the width
+     */
+    private int wrap(int x, int width)
+    {
+        int remainder = x % width;
+        if (remainder < 0) {
+            return width + remainder;
+        }
+        else {
+            return remainder;
+        }
     }
 }
