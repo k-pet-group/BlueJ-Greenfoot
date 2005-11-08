@@ -13,7 +13,7 @@ import javax.swing.*;
  * internationalised, using BlueJ's langauage library system.
  *
  * @author Michael Kolling
- * @version $Id: DialogManager.java 3592 2005-09-27 09:43:46Z polle $
+ * @version $Id: DialogManager.java 3712 2005-11-08 13:13:42Z polle $
  */
 public class DialogManager
 {
@@ -235,7 +235,7 @@ public class DialogManager
      */
     public static void tileWindow(Window child, Window parent)
     {
-        if(parent.isShowing() && child.isShowing()) {
+        if(parent.isShowing()) {
             Point p_topleft = parent.getLocationOnScreen();
             child.setLocation(p_topleft.x + 20, p_topleft.y + 20);
         }
