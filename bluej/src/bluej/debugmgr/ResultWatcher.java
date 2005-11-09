@@ -9,7 +9,7 @@ import bluej.testmgr.record.*;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ResultWatcher.java 3590 2005-09-27 04:33:52Z davmac $
+ * @version $Id: ResultWatcher.java 3713 2005-11-09 01:42:02Z davmac $
  */
 public interface ResultWatcher
 {
@@ -33,4 +33,10 @@ public interface ResultWatcher
      * A runtime exception occurred - here is the exception text
      */
     void putException(String message);
+    
+    /**
+     * The debug VM terminated. This may have been due to an explicit user action in
+     * the UI, or the executing code called System.exit().
+     */
+    void putVMTerminated();
 }

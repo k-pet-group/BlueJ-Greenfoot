@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3661 2005-10-11 07:23:26Z davmac $
+ * @version $Id: Invoker.java 3713 2005-11-09 01:42:02Z davmac $
  */
 
 public class Invoker
@@ -1112,8 +1112,7 @@ public class Invoker
                     break;
 
                 case Debugger.TERMINATED : // terminated by user
-                    // nothing to do
-                    watcher.putException("Terminated");
+                    watcher.putVMTerminated();
                     executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
                     break;
 

@@ -49,7 +49,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3655 2005-10-06 13:59:43Z polle $
+ * @version $Id: ObjectWrapper.java 3713 2005-11-09 01:42:02Z davmac $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -684,6 +684,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
             }
             public void putError(String msg) { }
             public void putException(String msg) { }
+            public void putVMTerminated() { }
         };
 
         Invoker invoker = new Invoker(pmf, method, this, watcher);

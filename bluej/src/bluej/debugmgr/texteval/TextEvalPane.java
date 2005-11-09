@@ -43,7 +43,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3590 2005-09-27 04:33:52Z davmac $
+ * @version $Id: TextEvalPane.java 3713 2005-11-09 01:42:02Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -308,6 +308,23 @@ public class TextEvalPane extends JEditorPane
     }
     
     /**
+     * The remote VM terminated before execution completed (or as a result of
+     * execution).
+     */
+    public void putVMTerminated()
+    {
+        if (autoInitializedVars != null)
+            autoInitializedVars.clear();
+        
+        removeNewlyDeclareds();
+        
+        append(Config.getString("pkgmgr.codepad.vmTerminated"));
+        markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
+        
+        completeExecution();
+    }
+    
+    /**
      * Remove the newly declared variables from the value collection.
      * (This is needed if compilation fails, or execution bombs with an exception).
      */
@@ -322,26 +339,29 @@ public class TextEvalPane extends JEditorPane
         }
     }
     
+    //   --- end of ResultWatcher interface ---
+    
     /**
-     * Show an error message, and allow further command input. This can be
-     * called from outside the GUI event thread.
+     * Show an error message, and allow further command input.
      */
     private void showErrorMsg(final String message)
     {
+        append(" ");
+        error(message);
+        completeExecution();
+    }
+    
+    /**
+     * Execution of the current command has finished (one way or another).
+     * Allow further command input.
+     */
+    private void completeExecution()
+    {
         currentCommand = "";
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                append(" ");
-                error(message);
-                setEditable(true);    // allow next input
-                busy = false;
-            }
-        });
+        setEditable(true);
+        busy = false;
     }
 
-    //   --- end of ResultWatcher interface ---
-    
     /**
      * We had a click in the tag area. Handle it appropriately.
      * Specifically: If the click (or double click) is on an object, then

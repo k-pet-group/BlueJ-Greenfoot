@@ -339,6 +339,7 @@ pkgmgr.test.popup.fixtureToBench=Test Fixture to Object Bench
 
 pkgmgr.codepad.uninitialized=Warning: The following variables have been automatically initialized to default values.\nThis is specific to the codepad, and does not happen for local variables in standard Java code.
 pkgmgr.codepad.uninitializedShort=Warning: The following variables were automatically intialized:
+pkgmgr.codepad.vmTerminated=VM reset occurred
 
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Create New Class

@@ -13,7 +13,7 @@ import bluej.views.*;
  * @author     Damiano Bolla, University of Kent at Canterbury, 2003,2004
  * @author     Clive Miller, University of Kent at Canterbury, 2002
  *
- * @version    $Id: DirectInvoker.java 3348 2005-04-15 02:36:36Z davmac $
+ * @version    $Id: DirectInvoker.java 3713 2005-11-09 01:42:02Z davmac $
  */
 
 class DirectInvoker
@@ -318,6 +318,15 @@ class DirectInvoker
         public void putException(String msg)
         {
             putError(msg);
+        }
+        
+        
+        /**
+         * Treat termination as an error
+         */
+        public void putVMTerminated()
+        {
+            putError("Terminated");
         }
 
 

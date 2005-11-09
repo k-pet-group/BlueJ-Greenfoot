@@ -29,7 +29,7 @@ import bluej.views.View;
  * Tests for the debugger.
  *  
  * @author Davin McCall
- * @version $Id: JdiTests.java 3591 2005-09-27 05:03:14Z davmac $
+ * @version $Id: JdiTests.java 3713 2005-11-09 01:42:02Z davmac $
  */
 public class JdiTests extends TestCase
 {
@@ -274,6 +274,8 @@ public class JdiTests extends TestCase
                     public void putError(String msg)
                     {}
                     public void putException(String msg)
+                    {}
+                    public void putVMTerminated()
                     {}
                 };
                 

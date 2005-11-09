@@ -54,7 +54,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3704 2005-10-26 02:05:20Z davmac $
+ * @version $Id: PkgMgrFrame.java 3713 2005-11-09 01:42:02Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1551,6 +1551,8 @@ public class PkgMgrFrame extends JFrame
                 {}
                 public void putException(String msg)
                 {}
+                public void putVMTerminated()
+                {}
             };
         }
         else if (cv instanceof MethodView) {
@@ -1584,6 +1586,8 @@ public class PkgMgrFrame extends JFrame
                 public void putError(String msg)
                 {}
                 public void putException(String msg)
+                {}
+                public void putVMTerminated()
                 {}
             };
         }
