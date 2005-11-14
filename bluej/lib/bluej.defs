@@ -544,7 +544,7 @@ bluej.debug=false
 image.icon=bluej-icon.gif
 image.icon.terminal=bluej-icon-terminal.gif
 image.icon.editor=bluej-icon-edit.gif
-image.logo=bluej-logo.gif
+image.logo=about-logo.jpg
 image.empty=empty.gif
 
 # arrow buttons
