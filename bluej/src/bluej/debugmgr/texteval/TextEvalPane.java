@@ -43,7 +43,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3713 2005-11-09 01:42:02Z davmac $
+ * @version $Id: TextEvalPane.java 3717 2005-11-15 00:33:51Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -56,7 +56,6 @@ public class TextEvalPane extends JEditorPane
     private static final String nullLabel = Config.getString("debugger.null");
     
     private static final String uninitializedWarning = Config.getString("pkgmgr.codepad.uninitialized");
-    private static final String shortUnininitializedWarning = Config.getString("pkgmgr.codepad.uninitializedShort");
     
     private PkgMgrFrame frame;
     private MoeSyntaxDocument doc;  // the text document behind the editor pane
@@ -195,15 +194,13 @@ public class TextEvalPane extends JEditorPane
         }
         
         append(" ");
-        if (autoInitializedVars != null && autoInitializedVars.size() != 0) {
+        boolean giveUninitializedWarning = autoInitializedVars != null && autoInitializedVars.size() != 0; 
+        
+        if (giveUninitializedWarning && Utility.firstTimeThisRun("TextEvalPane.uninitializedWarning")) {
             // Some variables were automatically initialized - warn the user that
             // this won't happen in "real" code.
             
-            // We use a long warning the first time, a shorter one thereafter.
-            boolean uninitializedWarningGiven = ! Utility.firstTimeThisRun("TextEvalPane.uninitializedWarning");
-            String warning = uninitializedWarningGiven ? 
-                    shortUnininitializedWarning 
-                    : uninitializedWarning;
+            String warning = uninitializedWarning;
             
             int findex = 0;
             while (findex < warning.length()) {
@@ -212,22 +209,10 @@ public class TextEvalPane extends JEditorPane
                     nindex = warning.length();
                 
                 String warnLine = warning.substring(findex, nindex);
-                //if (warnLine.indexOf('\n') != -1)
-                //    Debug.message("?? Contains newline");
                 append(warnLine);
                 markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
-                //append(" ");
                 findex = nindex + 1; // skip the newline character
             }
-            
-            // make a list of comma-seperated variable names
-            Iterator i = autoInitializedVars.iterator();
-            String varnames = (String) i.next();
-            while (i.hasNext()) {
-                varnames += ", " + (String) i.next();
-            }
-            append(varnames);
-            markAs(TextEvalSyntaxView.ERROR, Boolean.TRUE);
             
             autoInitializedVars.clear();
         }
