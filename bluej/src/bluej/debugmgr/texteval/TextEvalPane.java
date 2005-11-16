@@ -43,7 +43,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3717 2005-11-15 00:33:51Z davmac $
+ * @version $Id: TextEvalPane.java 3718 2005-11-16 02:58:57Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -162,6 +162,23 @@ public class TextEvalPane extends JEditorPane
     
     public NamedValue getNamedValue(String name)
     {
+        NamedValue nv = getLocalVar(name);
+        if (nv != null) {
+            return nv;
+        }
+        else {
+            return frame.getObjectBench().getNamedValue(name);
+        }
+    }
+    
+    /**
+     * Search for a named local variable, but do not fall back to the object
+     * bench if it cannot be found (return null in this case).
+     * @param name  The name of the variable to search for
+     * @return    The named variable, or null
+     */
+    private NamedValue getLocalVar(String name)
+    {
         Iterator i = localVars.iterator();
         while (i.hasNext()) {
             NamedValue nv = (NamedValue) i.next();
@@ -169,7 +186,8 @@ public class TextEvalPane extends JEditorPane
                 return nv;
         }
         
-        return frame.getObjectBench().getNamedValue(name);
+        // not found
+        return null;
     }
     
     //   --- ResultWatcher interface ---
@@ -773,6 +791,17 @@ public class TextEvalPane extends JEditorPane
                                 autoInitializedVars = new ArrayList();
                             
                             TextParser.DeclaredVar dv = (TextParser.DeclaredVar) i.next();
+                            String declaredName = dv.getName();
+                            
+                            if (getLocalVar(declaredName) != null) {
+                                // The variable has already been declared
+                                String errMsg = Config.getString("pkgmgr.codepad.redefinedVar");
+                                errMsg = Utility.mergeStrings(errMsg, declaredName);
+                                showErrorMsg(errMsg);
+                                removeNewlyDeclareds();
+                                return;
+                            }
+                            
                             CodepadVar cpv = new CodepadVar(dv.getName(), dv.getDeclaredVarType(), dv.checkFinal());
                             newlyDeclareds.add(cpv);
                             localVars.add(cpv);
