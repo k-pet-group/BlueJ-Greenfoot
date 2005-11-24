@@ -8,7 +8,6 @@ import java.util.Properties;
 import javax.swing.*;
 
 import bluej.Config;
-import bluej.graph.GraphEditor;
 import bluej.graph.Moveable;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
@@ -19,7 +18,7 @@ import bluej.utility.*;
  * A sub package (or parent package)
  * 
  * @author Michael Cahill
- * @version $Id: PackageTarget.java 2789 2004-07-12 18:08:11Z mik $
+ * @version $Id: PackageTarget.java 3719 2005-11-24 05:43:50Z davmac $
  */
 public class PackageTarget extends Target
     implements Moveable
@@ -183,8 +182,8 @@ public class PackageTarget extends Target
         PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
         if (pmf.askRemovePackage(this)) {
             deleteFiles();
-            getPackage().removePackage(this);
             getPackage().getProject().removePackage(getQualifiedName());
+            getPackage().removePackage(this);
         }
     }
 
