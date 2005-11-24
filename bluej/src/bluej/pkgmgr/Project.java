@@ -44,7 +44,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3708 2005-11-02 04:01:53Z bquig $
+ * @version $Id: Project.java 3720 2005-11-24 05:48:38Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager {
     /**
@@ -833,7 +833,7 @@ public class Project implements DebuggerListener, InspectorManager {
 
             // Search the children of the current package to find the next
             // component.
-            List children = r.getChildren();
+            List children = r.getChildren(true);
             Iterator i = children.iterator();
             Package child = null;
 
@@ -870,7 +870,7 @@ public class Project implements DebuggerListener, InspectorManager {
 
         l.add(rootPackage.getQualifiedName());
 
-        children = rootPackage.getChildren();
+        children = rootPackage.getChildren(true);
 
         if (children != null) {
             Iterator i = children.iterator();
@@ -1398,7 +1398,8 @@ public class Project implements DebuggerListener, InspectorManager {
     /**
      * String representation for debugging.
      */
-    public String toString() {
+    public String toString()
+    {
         return "Project:" + getProjectName();
     }
 
@@ -1407,7 +1408,19 @@ public class Project implements DebuggerListener, InspectorManager {
      * @param packageQualifiedName The qualified name of the package.
      *
      */
-    public void removePackage(String packageQualifiedName) {
-        packages.remove(packageQualifiedName);
+    public void removePackage(String packageQualifiedName)
+    {
+        Package pkg = (Package) packages.get(packageQualifiedName);
+        if (pkg != null) {
+            List childPackages = pkg.getChildren(false);
+            if (childPackages != null) {
+                Iterator i = childPackages.iterator();
+                while (i.hasNext()) {
+                    Package childPkg = (Package) i.next();
+                    removePackage(childPkg.getQualifiedName());
+                }
+            }
+            packages.remove(packageQualifiedName);
+        }
     }
 }

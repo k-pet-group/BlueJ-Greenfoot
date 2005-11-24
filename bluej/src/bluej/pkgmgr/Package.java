@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3683 2005-10-19 02:20:13Z davmac $
+ * @version $Id: Package.java 3720 2005-11-24 05:48:38Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -387,8 +387,10 @@ public final class Package extends Graph
     /**
      * Return an array of package objects which are nested one level below us.
      * Will return null if there are no children.
+     * 
+     * @param getUncached   should be true if unopened packages should be included
      */
-    protected List getChildren()
+    protected List getChildren(boolean getUncached)
     {
         List children = new ArrayList();
 
@@ -398,7 +400,13 @@ public final class Package extends Graph
             if (target instanceof PackageTarget && !(target instanceof ParentPackageTarget)) {
                 PackageTarget pt = (PackageTarget) target;
 
-                Package child = getProject().getPackage(pt.getQualifiedName());
+                Package child;
+                if (getUncached) {
+                    child = getProject().getPackage(pt.getQualifiedName());
+                }
+                else {
+                    child = getProject().getCachedPackage(pt.getQualifiedName());
+                }
 
                 if (child == null)
                     continue;
