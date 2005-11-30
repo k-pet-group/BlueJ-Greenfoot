@@ -9,7 +9,7 @@ import bluej.testmgr.record.InvokerRecord;
  * A result watcher used by the RObjectImpl class.
  * 
  * @author Davin McCall
- * @version $Id: InvocationResultWatcher.java 3486 2005-07-28 15:58:27Z polle $
+ * @version $Id: InvocationResultWatcher.java 3724 2005-11-30 02:57:50Z davmac $
  */
 class InvocationResultWatcher implements ResultWatcher
 {
@@ -40,6 +40,11 @@ class InvocationResultWatcher implements ResultWatcher
     public void putException(String message)
     {
         // TODO Auto-generated method stub
+        
+    }
+    
+    public void putVMTerminated()
+    {
         
     }
 }
