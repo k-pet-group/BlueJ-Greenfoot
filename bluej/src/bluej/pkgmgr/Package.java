@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3720 2005-11-24 05:48:38Z davmac $
+ * @version $Id: Package.java 3722 2005-11-30 01:18:49Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -537,12 +537,10 @@ public final class Package extends Graph
 
                         // fix for bug 152
                         // check that this class is a public class which means
-                        // that
-                        // private and package .class files generated because
-                        // there are
-                        // multiple classes defined in a single file will not
-                        // add a target
-                        if (Modifier.isPublic(c.getModifiers()))
+                        // that private and package .class files generated
+                        // because there are multiple classes defined in a
+                        // single file will not add a target
+                        if (c != null && Modifier.isPublic(c.getModifiers()))
                             interestingSet.add(classFileName);
                     }
                     catch (LinkageError e) {

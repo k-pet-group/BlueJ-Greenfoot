@@ -53,7 +53,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3644 2005-10-05 00:56:32Z davmac $
+ * @version $Id: ClassTarget.java 3722 2005-11-30 01:18:49Z davmac $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable, InvokeListener
@@ -1151,19 +1151,14 @@ public class ClassTarget extends EditableTarget
             // on a 1.3 VM
             // we detect the error, remove the class file, and invalidate
             // to allow them to be recompiled
-            try {
-                cl = getPackage().loadClass(getQualifiedName());
-            }
-            catch (LinkageError le) {
-                Debug.message(le.toString());
-
+            cl = getPackage().loadClass(getQualifiedName());
+            if (cl == null) {
                 // trouble loading the class
                 // remove the class file and invalidate the target
                 if (hasSourceCode()) {
                     getClassFile().delete();
                     invalidate();
                 }
-                cl = null;
             }
         }
 
