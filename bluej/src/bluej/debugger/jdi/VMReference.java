@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3668 2005-10-13 04:56:13Z davmac $
+ * @version $Id: VMReference.java 3727 2005-12-01 02:56:36Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -1260,15 +1260,17 @@ class VMReference
             workerThreadReadyWait();
             
             // we need to throw away all the breakpoints referring to the old
-            // class loader but then we need to restore our exitMarker and
-            // suspendMethod breakpoints
+            // class loader but then we need to restore our internal breakpoints
             
             // Note, we have to be careful when deleting breakpoints. There is
             // a JDI bug which causes threads to halt indefinitely when hitting
             // a breakpoint that is being deleted. That's why we wait for the
             // worker thread to be in a stopped state before we proceed, and we
             // suspend the machine to prevent problems with the server thread.
+            // Also we make sure any pending breakpoint events are processed before
+            // removing the breakpoints.
             machine.suspend();
+            eventHandler.waitQueueEmpty();
             erm.deleteAllBreakpoints();
             serverClassAddBreakpoints();
             

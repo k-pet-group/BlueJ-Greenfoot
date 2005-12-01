@@ -9,15 +9,16 @@ import com.sun.jdi.event.*;
  * Event handler class to handle events coming from the remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: VMEventHandler.java 3044 2004-10-12 04:51:05Z davmac $
+ * @version $Id: VMEventHandler.java 3727 2005-12-01 02:56:36Z davmac $
  */
 class VMEventHandler extends Thread
 {
     final static String DONT_RESUME = "dontResume";
     
-    private Thread thread;
+    private Object syncObj = new Object();
     private VMReference vm;
     private EventQueue queue;
+    private boolean queueEmpty;
     
     volatile boolean exiting = false;
     
@@ -33,8 +34,22 @@ class VMEventHandler extends Thread
     {
         while (!exiting) {
             try {
-                // wait for the next event
-                EventSet eventSet = queue.remove();
+                // get the next event
+                EventSet eventSet = queue.remove(1);
+                
+                if (eventSet == null) {
+                    // If no event is currently available, signal anyone waiting for
+                    // the queue to empty, and then block until an event arrives
+                    synchronized (syncObj) {
+                        queueEmpty = true;
+                        syncObj.notifyAll();
+                    }
+
+                    eventSet = queue.remove();
+                    synchronized (syncObj) {
+                        queueEmpty = false;
+                    }
+                }
                 
                 // From the JDK documentation
                 // The events that are grouped in an EventSet are restricted in the following ways:
@@ -97,6 +112,21 @@ class VMEventHandler extends Thread
             }
             catch (InterruptedException exc) { }
             catch (VMDisconnectedException discExc) { exiting = true; }
+        }
+    }
+    
+    /**
+     * Wait until the event queue is empty (all pending events have been dispatched).
+     */
+    public void waitQueueEmpty()
+    {
+        synchronized (syncObj) {
+            try {
+                while (! queueEmpty) {
+                    syncObj.wait();
+                }
+            }
+            catch (InterruptedException ie) {}
         }
     }
     
