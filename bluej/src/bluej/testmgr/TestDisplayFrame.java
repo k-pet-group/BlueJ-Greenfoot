@@ -22,7 +22,7 @@ import bluej.utility.JavaNames;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 3588 2005-09-26 00:18:07Z davmac $
+ * @version $Id: TestDisplayFrame.java 3726 2005-12-01 01:38:18Z bquig $
  */
 public class TestDisplayFrame
 {
@@ -229,7 +229,7 @@ public class TestDisplayFrame
         reset();
         testTotal = num;
         counterPanel.setTotal(testTotal);
-        progressBar.setmaximum(testTotal);  
+        progressBar.setMaximum(testTotal);  
         showTestDisplay(true);
     }
     
@@ -252,7 +252,7 @@ public class TestDisplayFrame
             reset();
             testTotal = num;
             counterPanel.setTotal(testTotal);
-            progressBar.setmaximum(testTotal);  
+            progressBar.setMaximum(testTotal);  
         }
 	}
 
