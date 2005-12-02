@@ -35,7 +35,7 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 3690 2005-10-20 03:52:16Z davmac $
+ * @version $Id: ClassParser.java 3729 2005-12-02 01:38:24Z davmac $
  */
 public class ClassParser
 {
@@ -71,45 +71,58 @@ public class ClassParser
     public static ClassInfo parse(InputStreamReader ir, List packageClasses)
         throws RecognitionException
     {
-        // Debug.message("Parsing file: " + file);
+        return getClassParser(ir, packageClasses).getInfo();
+    }
+    
+    public static List parseList(InputStreamReader ir, List packageClasses)
+        throws RecognitionException
+    {
+        return getClassParser(ir, packageClasses).getInfoList();
+    }
+    
+    public static ClassParser getClassParser(InputStreamReader ir, List packageClasses)
+        throws RecognitionException
+    {
+    // Debug.message("Parsing file: " + file);
+    try {
+        // We use a lexer pipeline:
+        // First, deal with escaped unicode characters:
+        EscapedUnicodeReader eur = new EscapedUnicodeReader(ir);
+
+        // Next create the initial lexer stage
+        JavaLexer lexer = new JavaLexer(eur);
+        lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
+        lexer.setTabSize(1);
+        eur.setAttachedScanner(lexer);
+        
+        // Finally filter out comments and whitespace
+        TokenStream filter = new JavaTokenFilter(lexer);
+
+        // create a parser that reads from the scanner
+        JavaRecognizer parser = new JavaRecognizer(filter);
+        parser.setASTNodeClass("bluej.parser.ast.LocatableAST");
+        
+        parser.compilationUnit();
+        AST node = parser.getAST();
+        
+        ClassParser cp = new ClassParser();
         try {
-            // We use a lexer pipeline:
-            // First, deal with escaped unicode characters:
-            EscapedUnicodeReader eur = new EscapedUnicodeReader(ir);
-
-            // Next create the initial lexer stage
-            JavaLexer lexer = new JavaLexer(eur);
-            lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
-            lexer.setTabSize(1);
-            eur.setAttachedScanner(lexer);
-            
-            // Finally filter out comments and whitespace
-            TokenStream filter = new JavaTokenFilter(lexer);
-
-            // create a parser that reads from the scanner
-            JavaRecognizer parser = new JavaRecognizer(filter);
-            parser.setASTNodeClass("bluej.parser.ast.LocatableAST");
-            
-            parser.compilationUnit();
-            AST node = parser.getAST();
-            
-            ClassParser cp = new ClassParser();
-            try {
-                cp.getClassInfo(node, packageClasses);
-                return cp.getInfo();
-            }
-            catch (RecognitionException re) {
-                throw re;
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                throw new RecognitionException();
-            }
+            cp.getClassInfo(node, packageClasses);
+            return cp;
         }
-        catch (TokenStreamException tse) {
+        catch (RecognitionException re) {
+            throw re;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
             throw new RecognitionException();
         }
     }
+    catch (TokenStreamException tse) {
+        throw new RecognitionException();
+    }
+}
+
     
     /**
      * Get a selection for the beginning of the given token.
@@ -134,6 +147,7 @@ public class ClassParser
     /****************** instance members ***********************/
     
     private ClassInfo classInfo;
+    private List classInfoList = new ArrayList();
     
     private ClassParser()
     {
@@ -143,6 +157,11 @@ public class ClassParser
     public ClassInfo getInfo()
     {
         return classInfo;
+    }
+    
+    public List getInfoList()
+    {
+        return classInfoList;
     }
     
     public void getClassInfo(AST node, List packageClasses) throws RecognitionException
@@ -286,6 +305,8 @@ public class ClassParser
                     processObjBlock(cnode, new ClassScope(info, compUnitScope));
                 }
                 
+                classInfoList.add(info);
+                
                 // If this is the first class, or it's a public class, store it.
                 if (classInfo == null || isPublic)
                     classInfo = info;
@@ -295,13 +316,16 @@ public class ClassParser
             node = node.getNextSibling();
         }
         
-        if (classInfo != null) {
+        Iterator ci = classInfoList.iterator();
+        while (ci.hasNext()) {
+            ClassInfo cinfo = (ClassInfo) ci.next();
             Iterator i = packageScope.getReferences().iterator();
             while (i.hasNext()) {
-                classInfo.addUsed(i.next().toString());
+                cinfo.addUsed(i.next().toString());
             }
-            if (packageDefNode != null)
-                storePackageInfo(packageDefNode, classInfo);
+            if (packageDefNode != null) {
+                storePackageInfo(packageDefNode, cinfo);
+            }
         }
     }
     
@@ -1047,13 +1071,18 @@ public class ClassParser
                 else {
                     // new array
                     AST anode = node.getFirstChild();
-                    while (anode.getType() == JavaTokenTypes.ARRAY_DECLARATOR) {
+                    while (anode != null && anode.getType() == JavaTokenTypes.ARRAY_DECLARATOR) {
                         AST exprNode = anode.getNextSibling();
                         if (exprNode != null)
                             processExpression(exprNode, scope);
                         anode = anode.getFirstChild();
                     }
-                    processExpression(anode, scope);
+                    
+                    // optional initializer eg {"one","two","three"}
+                    node = node.getNextSibling();
+                    if (node != null) {
+                        processExpression(node, scope);
+                    }
                 }
                 break;
             }
