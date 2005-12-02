@@ -73,6 +73,7 @@ public class BasicParseTest extends junit.framework.TestCase
         ClassParser.parse(getFile("C.dat"),null);
         ClassParser.parse(getFile("D.dat"),null);
         ClassParser.parse(getFile("E.dat"),null);
+        ClassParser.parse(getFile("F.dat"),null);
     } 
 
     public void testValidClassInfo()

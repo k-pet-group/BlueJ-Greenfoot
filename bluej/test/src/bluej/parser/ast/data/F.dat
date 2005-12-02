@@ -1,0 +1,4 @@
+class F
+{
+	String [] p = { "one", "two", "three" };
+}
