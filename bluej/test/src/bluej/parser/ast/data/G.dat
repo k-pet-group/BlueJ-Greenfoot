@@ -1,0 +1,8 @@
+// This tests that a single-line comment at end-of-file (with no terminating
+// newline) is correctly handled.
+
+class G
+{
+}
+
+// a comment - no newline
