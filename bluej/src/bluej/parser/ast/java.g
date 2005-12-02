@@ -1618,7 +1618,12 @@ options {
 	testLiterals=false;    // don't automatically test for literals
     defaultErrorHandler=false;
 	k=4;                   // four characters of lookahead
-	charVocabulary='\u0000'..'\uFFFF';
+
+	// Cannot use '\uFFFF' as antlr uses that for end-of-file token. It causes
+	// problems for example with SL_COMMENT when the comment occurs at end-of-file
+	// (with no terminating newline).
+	charVocabulary='\u0000'..'\uFFFE';
+
 	// without inlining some bitset tests, couldn't do unicode;
 	// I need to make ANTLR generate smaller bitsets; see
 	// bottom of JavaLexer.java

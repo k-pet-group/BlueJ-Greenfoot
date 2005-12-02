@@ -1,4 +1,4 @@
-// $ANTLR : "java.g" -> "JavaLexer.java"$
+// $ANTLR 2.7.4: "java.g" -> "JavaLexer.java"$
 
     package bluej.parser.ast.gen;
 	
