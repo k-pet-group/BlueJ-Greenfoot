@@ -1,5 +1,5 @@
 
-BlueJ version 2.0.5       --        README.TXT
+BlueJ version 2.1.1       --        README.TXT
 
 Information about BlueJ
 -----------------------
@@ -26,7 +26,7 @@ The BlueJ Team
 BlueJ is being developed by:
 Deakin University: John Rosenberg, Bruce Quig, Davin McCall
 University of Southern Denmark: Kasper Fisker
-University of Kent at Canterbury: Ian Utting, Damiano Bolla, Michael Kolling, Poul Henriksen
+University of Kent at Canterbury: Ian Utting, Michael Kolling, Poul Henriksen
 
 The BlueJ License
 -----------------
