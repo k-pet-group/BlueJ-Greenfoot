@@ -40,7 +40,7 @@ import bluej.utility.JavaNames;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 3722 2005-11-30 01:18:49Z davmac $
+ * @version $Id: UnitTestClassRole.java 3735 2005-12-15 02:04:09Z davmac $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -536,10 +536,10 @@ public class UnitTestClassRole extends ClassRole
             e.printStackTrace();
         }
 
+        pmf.getPackage().compileQuiet(ct);
+        
 		pmf.getProject().removeClassLoader();
 		pmf.getProject().newRemoteClassLoader();
-
-		pmf.getPackage().compileQuiet(ct);	
     }
 
     /**
