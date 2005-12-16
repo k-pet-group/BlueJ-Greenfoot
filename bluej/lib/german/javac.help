@@ -65,15 +65,16 @@ führt zu Ärger!
 cannot access *
 Leider kein Hilfetext verfügbar.
 
-* cannot be applied to *
-Leider kein Hilfetext verfügbar.
-
 cannot assign a value to final variable *
 Die Variable, der Sie hier etwas zuweisen wollen,
 wurde als "final" deklariert. Das bedeutet, dass
 Sie ihren Wert später nicht mehr ändern dürfen.
 Wenn Sie den Wert wirklich ändern müssen, entfernen
 Sie "final" aus der Variablendeklaration.
+
+type variables cannot be dereferenced
+Sie können keine Punktnotation verwenden, um auf Attribute
+oder Methoden von Typvariablen zuzugreifen.
 
 * cannot be dereferenced
 Sie verwenden die Punktnotation, um eine Variable oder
@@ -303,6 +304,12 @@ Leider kein Hilfetext verfügbar.
 * but with different return type
 Sie versuchen vielleicht, zwei Methoden zu schreiben, die bis auf
 den Rückgabetyp dieselbe Signatur haben. Das ist nicht zulässig.
+Die wahrscheinlichste Ursache ist, dass Ihre Klasse zwei Schnittstellen
+implementiert. Jede Schnittstelle hat eine Methode mit denselben Namen
+und Parametern, aber mit unterschiedlichem Rückgabetyp. Sie können nicht
+beide diese Schnittstellen implementieren, solange Sie nicht eine davon
+ändern, um dies zu vermeiden. Entweder benennen Sie die Methode um oder
+gleichen die Rückgabetypen an.
 
 interface expected here
 Ein Interface kann nur von einem anderen Interface abgeleitet werden.
@@ -354,7 +361,7 @@ sein. Ein Methodenrumpf ist der Block in geschwungenen Klammern { },
 der dem Methodenkopf folgt und Anweisungen enthält.
 Wenn eine Methode keinen Methodenrumpf besitzt, muss sie das 
 Schlüsselwort "abstract" in ihrem Methodenkopf enthalten, z.B.
-    public abstract int getAntwort();
+    public abstract int getAnswer();
 
 missing return statement
 Sie haben hier eine Methode, die laut Deklaration einen Rückgabewert
@@ -380,7 +387,9 @@ Methode einen Rückgabewert besitzt. Sie müssen entweder:
          return "Martin";
 
 name clash: *
-Leider kein Hilfetext verfügbar.
+Sie haben zwei Methoden mit demselben Namen definiert. Dies ist nur
+erlaubt, wenn die eine die andere überschreibt (was hier nicht der Fall 
+ist). Einer der beiden Namen muss geändert werden.
 
 * is reserved for internal use
 Der angezeigte Ausdruck ist für die interne Verwendung reserviert,
@@ -404,17 +413,27 @@ von anderen Klassen abgeleitet werden, nicht von Interfaces.
 Wenn Sie dieses Interface implementieren wollen, verwenden Sie
 stattdessen das Schlüsselwort "implements".
 
-* has no match in entry in *
+{0} has no match in entry in {1}; required {2}
 Leider kein Hilfetext verfügbar.
 
 * is not defined in a public class or interface; cannot be accessed from outside package
 Leider kein Hilfetext verfügbar.
 
 * cannot be accessed from outside package
-Leider kein Hilfetext verfügbar.
+Die Klasse, die Sie hier zu verwenden versuchen, ist nicht öffentlich,
+d.h. ihre Definition beginnt nicht mit
+   public class ...
+Wenn eine Klasse nicht öffentlich ist, kann sie nicht außerhalb ihres
+eigenen Pakets benutzt werden. Falls Sie die Klasse wirklich benutzen
+müssen, müssen Sie ihre Definition ändern und sie öffentlich machen.
 
 not a loop label: *
-Leider kein Hilfetext verfügbar.
+Die Marke, die Sie für Schleifenoperationen verwenden, wie z.B.
+   continue <label>;
+muss so definiert werden, dass sie die Schleife markiert, d.h.
+sie muss unmittelbar vor dem Beginn der Schleife gesetzt sein.
+Die Marke, die Sie angegeben haben, ist nicht an der richtigen
+Stelle - sie markiert keine Schleife.
 
 not a statement
 Sie haben hier eine Codezeile geschrieben, die keine vollständige
@@ -422,7 +441,11 @@ Anweisung ist. Bitte überprüfen Sie nochmals, was Sie bezwecken und
 wie Sie dies tun sollten.
 
 not an enclosing class:*
-Leider kein Hilfetext verfügbar.
+You have tried to access the current object ('this') pointer
+of another class outside your own. This is only allowed
+if that other class is an enclosing class of the current one
+(in other words: in an inner class you can access the outer
+class, but no others).
 
 * cannot be applied to *
 Der Operator, den Sie hier einsetzen, kann für den Wertetyp, für
@@ -467,9 +490,14 @@ Modifizierer ist ein Schlüsselwort wie etwa "final", "static", "public",
 Leider kein Hilfetext verfügbar.
 
 return outside method
+'return'-Anweisungen können nur innerhalb von Methoden verwendet werden
+(nicht in Initialisierungsblöcken oder anderen nicht-Methoden 
+Code-Abschnitten).
+
+signature does not match {0}; incompatible interfaces
 Leider kein Hilfetext verfügbar.
 
-signature does not match *
+signature does not match {0}; incompatible supertype
 Leider kein Hilfetext verfügbar.
 
 * should be declared abstract; it does not define *
@@ -518,9 +546,10 @@ ein "finally"-Block oder beide folgen. Die korrekte Anordnung ist:
    }
 
 * does not take parameters
-Leider kein Hilfetext verfügbar.
+Der Typ, den Sie benutzen, ist kein parameterisierter Typ.
+Sie können hier keinen Parameter angeben.
 
-type variables cannot be dereferenced
+wrong number of type arguments; required *
 Leider kein Hilfetext verfügbar.
 
 type variable {0} occurs more than once in result type of {1}; cannot be left uninstantiated
@@ -569,7 +598,7 @@ Exceptions auslösen oder solche Blöche vorzeitig
 beende. Sie müssen die Ausführung solcher Blöcke bis zum Ende
 zulassen.
 
-unreported exception {0}; must be caught or declared to be thrown
+* must be caught or declared to be thrown
 Ihr Code ruft eine Methode auf, die eine Exception auslösen
 kann. Sie haben zwei Möglichkeiten: Sie können entweder diese
 Exception abfangen, oder Sie können deklarieren, dass 
@@ -615,7 +644,7 @@ Sie verwenden eine lokale Variable, die nicht mit Sicherheit
 initialisiert wurde, bevor sie hier angesprochen wird. Im
 Zweifelsfall initialisieren Sie sie bei der Deklaration.
 
-* might be assigned in loop
+variable {0} might be assigned in loop
 Leider kein Hilfetext verfügbar.
 
 error while writing *
@@ -630,50 +659,17 @@ dem Namen "Dingsda.java" befinden.
 cannot read: *
 Leider kein Hilfetext verfügbar.
 
-Fatal Error: Unable to locate package java.lang in classpath or bootclasspath
-Leider kein Hilfetext verfügbar.
-
-Fatal Error: Unable to locate method *
-Leider kein Hilfetext verfügbar.
-
 * uses or overrides a deprecated API.
 Sie verwenden eine Methode, die nicht länger empfohlen wird. Es ist recht 
 wahrscheinlich, dass es eine andere Methode oder Klasse gibt, die diese
 Funktionalität aufweist. Sehen Sie in der API-Dokumentation nach weiteren
 Details.
 
-Some input files use or override a deprecated API.
-Leider kein Hilfetext verfügbar.
-
-Recompile with -deprecation for details.
-Leider kein Hilfetext verfügbar.
-
-* uses unchecked operations.
-Leider kein Hilfetext verfügbar.
-
-Some input files use unchecked operations.
-Leider kein Hilfetext verfügbar.
-
 * has been deprecated
 Sie verwenden eine Methode, die nicht länger empfohlen wird. Es ist recht 
 wahrscheinlich, dass es eine andere Methode oder Klasse gibt, die diese
 Funktionalität aufweist. Sehen Sie in der API-Dokumentation nach weiteren
 Details.
-
-unchecked assignment: *
-Leider kein Hilfetext verfügbar.
-
-unchecked call to {0} as a member of the raw type {1}
-Leider kein Hilfetext verfügbar.
-
-unchecked cast to type *
-Leider kein Hilfetext verfügbar.
-
-unchecked generic array creation
-Leider kein Hilfetext verfügbar.
-
-unchecked method invocation: *
-Leider kein Hilfetext verfügbar.
 
 ';' expected
 Am Ende einer Zeile fehlt ein Strichpunkt. Es könnte die im Editor
@@ -706,10 +702,10 @@ Leider kein Hilfetext verfügbar.
 cannot access *
 Leider kein Hilfetext verfügbar.
 
-bad class file: *
+type parameter {0} is not within its bound *
 Leider kein Hilfetext verfügbar.
 
-type parameter {0} is not within its bound *
+type parameters of {0} cannot be determined
 Leider kein Hilfetext verfügbar.
 
 incompatible types*
@@ -725,7 +721,10 @@ possible loss of precision
 Leider kein Hilfetext verfügbar.
 
 unexpected type
-Leider kein Hilfetext verfügbar.
+Hier wird ein Ausdruck eines bestimmten Typs erwartet.
+Sie haben einen Ausdruck mit einem anderen Typ angegeben,
+der nicht kompatibel ist (z.B. haben Sie einen String 
+verwendet, wo ein int erwartet wurde).
 
 abstract {0} {1} cannot be accessed directly
 Leider kein Hilfetext verfügbar.
@@ -736,8 +735,27 @@ Leider kein Hilfetext verfügbar.
 non-static {0} {1} cannot be referenced from a static context
 Leider kein Hilfetext verfügbar.
 
+*cannot be referenced from a static context
+Sie versuchen, auf ein Objektattribut oder eine Objektmethode von
+einer Klassenmethode aus zuzugreifen. Das ist nicht erlaubt. Die
+Objektattribute und Objektmethoden gehören zu einem Objekt, während
+Sie kein aktuelles Objekt in einer Klassenmethode haben.
+Klassenmethoden können nur andere Klassenmethoden ihrer Klasse aufrufen
+(oder sie benötigen ein bestimmtes Objekt für den Aufruf).
+
+cannot find symbol*
+Sie benutzen hier ein Symbol (einen Namen einer Variablen, Methode 
+oder Klasse), das nicht im aktuellen Sichtbarkeitsbereich deklariert
+wurde. Überprüfen Sie die Schreibung dieses Bezeichners -
+haben Sie sich vertippt? Oder habe Sie vergessen, ihn zu deklarieren?
+Oder Sie haben ihn deklariert, aber er ist nicht sichtbar von hier.
+
 cannot resolve symbol*
-Leider kein Hilfetext verfügbar.
+Sie benutzen hier ein Symbol (einen Namen einer Variablen, Methode 
+oder Klasse), das nicht im aktuellen Sichtbarkeitsbereich deklariert
+wurde. Überprüfen Sie die Schreibung dieses Bezeichners -
+haben Sie sich vertippt? Oder habe Sie vergessen, ihn zu deklarieren?
+Oder Sie haben ihn deklariert, aber er ist nicht sichtbar von hier.
 
 {0}; {1} and {2} are static
 Leider kein Hilfetext verfügbar.
@@ -745,11 +763,29 @@ Leider kein Hilfetext verfügbar.
 {0}; overridden method is {1}
 Leider kein Hilfetext verfügbar.
 
-attempting to assign weaker access privileges; was *
-Leider kein Hilfetext verfügbar.
+* attempting to assign weaker access privileges; was *
+Sie überschreien hier eine Methode und verändern ihren 
+Zugriffs-Modifizierer (private, protected, public). Sie können
+den Zugriffs-Modifizierer nur ändern, um einen breiteren Zugriff
+zu gewähren (z.B. von private auf public), aber es ist nicht erlaubt,
+den Zugriff einzuengen (z.B. von public auf private). 
+Auf jeden Fall kann er auch so bleiben, wie er war.
 
-overridden method does not throw *
-Leider kein Hilfetext verfügbar.
+* overridden method does not throw *
+Sie überschreien hier eine Methode und erzeugen eine Ausnahme.
+Überschreibende Methoden dürfen keine Ausnahmen erzeugen, die die
+überschriebene (Oberklassen-) Methode nicht auch erzeugt. Die Methode
+in der Unterklasse kann weniger Ausnahmen erzeugen, aber nicht mehr.
 
 * attempting to use incompatible return type
+Leider kein Hilfetext verfügbar.
+
+* is already defined in this compilation unit
+Sie haben den Namen hier doppelt verwendet. Wählen Sie
+einen anderen Namen für diesen Bezeichner.
+
+{0} is already defined in a single-type import
+Leider kein Hilfetext verfügbar.
+
+* conflicts with a compiler-synthesized symbol in *
 Leider kein Hilfetext verfügbar.

@@ -11,12 +11,12 @@ czech           2.0.0                x                         Petr Skoda       
 dutch           2.0.0                x                         Peter van Diepen    <pvdiepen@tiscali.nl>
 english         2.0.5                x      
 french          2.0.0                x                         Patrice Moreaux     <patrice.moreaux@univ-reims.fr>
-german          2.0.0                x                         Thomas R?fer        <roefer@tzi.de>
+german          2.1.0                x                         Thomas R?fer        <roefer@tzi.de>
 italian         2.0.5                x          only labels    Luzio Menna         <luzio@dazeroadieci.org> (or: Angelo Papadia: <angelo.papadia@libero.it>)
 japanese        1.3.5                           partially
 korean          1.2.x                                            
 portuguese      2.0.0                x                         Fred Guedes Pereira <fredguedespereira@yahoo.com.br> (or: Fernando Kronbauer <fernandoak@gmail.com>)
 persian                              x                         M. Shahdoost        <persianshadow2003@yahoo.com>
 spanish         1.2.x                                                
-swedish         1.3.5                x          later          Markus Östman       <markus@gnistra.se>
+swedish         1.3.5                x          later          Markus ?stman       <markus@gnistra.se>
 trad. chinese                        ?                         Ma Wing Ho          <mawingho@netvigator.com>

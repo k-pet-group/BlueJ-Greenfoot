@@ -339,7 +339,8 @@ null
 
 classmgr-changes-no-effect
 Ihre Änderungen an den Klassenbibliotheken werden
-erst beim nächsten Starten von BlueJ wirksam.
+erst nach dem nächsten Übersetzen oder dem Neustart
+der virtuellen Maschine wirksam.
 
 pref-optimise-no-effect
 Änderungen an den Einstellungen der virtuellen Maschine
@@ -411,6 +412,8 @@ Um dieses Projekt vollständig nutzen zu können, müssen Sie dafür
 sorgen, dass es sich auf einem beschreibbaren Dateisystem
 (normalerweise eine Festplatte) befindet und dass Sie Schreibrechte
 für das Projektverzeichnis und alle darin enthaltenen Dateien haben.
+Das kann oft erreicht werden, indem "Speichern unter" im Projektmenü
+nach dem Schließen dieses Dialogs ausgewählt wird.
 
 could-not-write-shell-file
 Die Ausführung hat versagt, weil das Projektverzeichnis nicht
@@ -420,3 +423,28 @@ Stellen Sie sicher, dass Ihr Projekt auf einem beschreibbaren
 Dateisystem (keine CD!) abgelegt ist und dass Sie die 
 Schreibrechte für das Projektverzeichnis und die darin enthaltenen
 Dateien besitzen.
+
+jar-output-dir-exists
+Das Ausgabeverzeichnis für das Archive, das gerade entpackt wird,
+existiert bereits. Sie müssen das Verzeichnis löschen, bevor Sie 
+das Archiv entpacken können.
+
+jar-extraction-error
+Während des Entpackens des Archivs trat ein Fehler auf. Die
+Debug-Logdatei enthält möglicherweise weitere Informationen.
+
+file-save-error-before-compile
+Eine oder mehrere Dateien konnten nicht gespeichert werden. Daher
+wurde die Übersetzung abgebrochen.
+
+generic-file-save-error
+An error was encountered when trying to save a file.
+
+empty-assertion-text
+Sie haben kein Ergebnis für diesen Methodenaufruf eingegeben.
+Ohne dieses Ergebnis ist Ihr Test unvollständig und Ihre Testklasse
+wird sich nicht übersetzen lassen. Sind Sie sicher, dass Sie ohne die 
+Eingabe eines Ergebniswertes fortfahren möchten?
+Zurück
+Fortsetzen
+null

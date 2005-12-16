@@ -42,6 +42,8 @@ debugger.objectwrapper.remove=Entfernen
 debugger.objectwrapper.serializable=Serialisiere
 debugger.objectwrapper.redefined=redefiniert in
 debugger.objectwrapper.inherited=geerbt von
+debugger.objectwrapper.noMethods=(Keine zugreifbaren Methoden)
+debugger.objectwrapper.moreMethods=Weitere Methoden
 debugger.threadstatus.finished=beendet
 debugger.threadstatus.breakpoint=an Haltepunkt
 debugger.threadstatus.stopped=gestoppt
@@ -64,7 +66,7 @@ classmgr.delete=L\u00F6schen
 classmgr.statuscolumn=Status
 classmgr.statusgood=Geladen
 classmgr.statusbad=Fehler
-classmgr.statusnew=Nicht geladen
+classmgr.statusnew=
 classmgr.locationcolumn=Pfad
 classmgr.error.unresolvable=Pfad nicht aufl\u00F6sbar
 classmgr.error.nodescription=Keine Beschreibung
@@ -79,10 +81,11 @@ prefmgr.misc.linkToLibNoteLine1=Wenn dieser URL f\u00FCr die Erstellung der Inte
 prefmgr.misc.linkToLibNoteLine2=Andernfalls wird die Erstellung der Interface-Doku fehlschlagen. Deaktivieren Sie diese Option f\u00FCr den Offline-Betrieb.
 prefmgr.misc.testing.title=Testeinstellungen
 prefmgr.misc.showTesting=Testwerkzeuge anzeigen
-prefmgr.misc.vm.title=Einstellungen der virtuellen Maschine
+prefmgr.misc.vm.title=Compiler- und Laufzeiteinstellungen
 prefmgr.misc.optimiseVM=Verwende Optimierungen (schnellere Ausf\u00FChrung, kann aber Probleme beim Debugging verursachen)
 prefmgr.misc.addLibTitle=Verzeichnis oder jar/zip-Datei ausw\u00E4hlen
 prefmgr.misc.libFileFilter=Bibliotheksdateien (*.jar;*.zip) oder Klassenverzeichnisse
+prefmgr.misc.showUnchecked=Warnungen des Compilers anzeigen, falls unsichere Collections verwendet werden
 prefmgr.edit.prefpaneltitle=Editor
 prefmgr.edit.editor.title=Editoreinstellungen
 prefmgr.edit.editorfontsize=Schriftgr\u00F6sse
@@ -179,6 +182,21 @@ editor.find.up=R\u00FCckw\u00E4rts suchen
 editor.find.down=Vorw\u00E4rts suchen
 editor.find.ignoreCase=Gro\u00DF/klein egal
 editor.find.wholeWord=Ganze Worte
+
+editor.find.backward=Rückwärts
+editor.find.forward=Vorwärts
+editor.find.wrapAround=Von neuem
+
+#Messages shown as a result of a search with replace all
+editor.replaceAll.replaced=Ersetzen
+editor.replaceAll.intancesOf=\ Instanzen von 
+editor.replaceAll.string=String 
+editor.replaceAll.notFoundNothingReplaced=\ nicht gefunden. Nicht ersetzt.
+
+#Messages shown when determining what function is bound to a given key
+editor.keypressed.keyIsNotBound=\ ist nicht an eine Funktion gebunden.
+editor.keypressed.callsTheFunction=\ ruft die Funktion " auf
+
 editor.info.version=Moe-Version
 editor.info.readingProblem=Beim Lesen dieser Datei trat ein Problem auf.
 editor.info.regularFile=(Ist es wirklich eine normale Datei? Haben Sie Lesezugriff?)
@@ -258,14 +276,25 @@ pkgmgr.test.invalidTestName=Der Testname muss ein g\u00FCltiger Java-Bezeichner 
 pkgmgr.test.recording=Aufzeichnung von
 pkgmgr.test.popup.testAll=Alles testen
 pkgmgr.test.popup.noTests=Keine Testmethoden
+pkgmgr.test.popup.abstract=Testklasse ist abstrakt
 pkgmgr.test.popup.testPrefix=Test
 pkgmgr.test.popup.createTest=Erzeuge Testmethode...
-pkgmgr.test.popup.benchToFixture=TestgerŸst speichern
-pkgmgr.test.popup.fixtureToBench=TestgerŸst wiederherstellen
+pkgmgr.test.popup.benchToFixture=Objektzustand speichern
+pkgmgr.test.popup.fixtureToBench=Objektzustand wiederherstellen
+
+# codepad messages
+pkgmgr.codepad.uninitialized=Hinweis: Direkteingabe-Variablen werden automatisch initialisiert\n genauso wie Objektattribute.
+pkgmgr.codepad.vmTerminated=VM neu gestartet
+# The "variable has already been defined" error message in the codepad. The '$' symbol will be
+# replaced by the name of the problematic variable.
+pkgmgr.codepad.redefinedVar=$ ist bereits definiert
+
 pkgmgr.newClass.title=Neue Klasse erzeugen
 pkgmgr.newClass.label=Klassenname\:
 pkgmgr.newClass.classType=Art der Klasse
 pkgmgr.newClass.stdclass=Klasse
+pkgmgr.newClass.constclass=Klasse mit Konstruktor
+pkgmgr.newClass.stdprogram=Standardprogramm
 pkgmgr.newClass.abstract=Abstrakte Klasse
 pkgmgr.newClass.interface=Interface
 pkgmgr.newClass.applet=Applet
@@ -289,6 +318,7 @@ pkgmgr.export.helpLine2=bar, wenn eine Klasse mit "main"-Methode angegeben wird.
 pkgmgr.export.classLabel=Klasse mit "main"-Methode\:
 pkgmgr.export.includeLibs=Benutzerbibliotheken mitspeichern
 pkgmgr.export.sourceLabel=Quelltexte mitspeichern
+pkgmgr.export.pkgFilesLabel=BlueJ-Projektdateien mitspeichern
 pkgmgr.export.noClassText=keine (nicht ausf\u00FChrbar)
 pkgmgr.export.specifyJar=Name des jar-Archivs
 pkgmgr.export.createJarText=Speichern
