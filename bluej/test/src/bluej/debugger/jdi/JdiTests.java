@@ -3,7 +3,6 @@ package bluej.debugger.jdi;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -29,35 +28,14 @@ import bluej.views.View;
  * Tests for the debugger.
  *  
  * @author Davin McCall
- * @version $Id: JdiTests.java 3713 2005-11-09 01:42:02Z davmac $
+ * @version $Id: JdiTests.java 3739 2006-01-11 00:41:45Z davmac $
  */
 public class JdiTests extends TestCase
 {
     // various vars useful for testing
     boolean failed = false;
     boolean flag1 = false;
-    
-    /**
-     * Return the path element of a URL, properly decoded - that is: replace 
-     * each char encoded as "%xx" with its real character.
-     * 
-     * This is from bluej.Boot.
-     */
-    private static String getURLPath(String url)
-    {
-        // Get rid of the initial "file:" string
-        if (!url.startsWith("file:"))
-            throw new IllegalStateException("Unexpected format of jar file URL (class Boot.java): " + url);
-        url = url.substring(5);
         
-        try {
-            return java.net.URLDecoder.decode(url, "UTF-8");
-        }
-        catch(UnsupportedEncodingException exc) {
-            return null;
-        }
-    }
-    
     protected void setUp()
     {
         try {
@@ -81,7 +59,9 @@ public class JdiTests extends TestCase
             setStaticField(fields, "instance", bootInstance);
 
             // initialize Config
-            Config.initialise(Boot.getInstance().getBluejLibDir(), new Properties());
+            Properties tempProps = new Properties();
+            tempProps.setProperty("bluej.debug", "true");
+            Config.initialise(Boot.getInstance().getBluejLibDir(), tempProps);
 
         }
         catch(Throwable t) {

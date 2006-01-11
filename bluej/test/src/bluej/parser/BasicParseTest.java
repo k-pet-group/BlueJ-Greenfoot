@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
@@ -144,6 +145,20 @@ public class BasicParseTest extends junit.framework.TestCase
         assertEquals(41, superReplace.getColumn());
         assertEquals(6, superReplace.getEndLine());
         assertEquals(47, superReplace.getEndColumn());
+        
+        // Check that comment is created with parameter names
+        Properties comments = info.getComments();
+        
+        String wantedComment = "void resizeToInternalSize(int, int)";
+        for (int commentNum = 0; ; commentNum++) {
+            String comment = comments.getProperty("comment" + commentNum + ".target");
+            if (comment.equals(wantedComment)) {
+                String paramNames = comments.getProperty("comment" + commentNum + ".params");
+                assertEquals(paramNames, "internalWidth internalHeight");
+                break;
+            }
+            assertNotNull(comment);
+        }
         
         /*
          * Second file - no superclass, multiple interfaces 
