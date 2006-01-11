@@ -37,7 +37,7 @@ public class ClassScope extends Scope
             while (i.hasNext()) {
                 target += i.next();
                 if (i.hasNext()) {
-                    target += ",";
+                    target += ", ";
                 }
             }
         }
