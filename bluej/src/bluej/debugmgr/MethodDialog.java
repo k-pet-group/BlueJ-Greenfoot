@@ -36,7 +36,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 3530 2005-08-17 01:54:06Z davmac $
+ * @version $Id: MethodDialog.java 3741 2006-01-16 00:41:18Z davmac $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -114,7 +114,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 3530 2005-08-17 01:54:06Z davmac $
+     * @version $Id: MethodDialog.java 3741 2006-01-16 00:41:18Z davmac $
      */
     public static class ParameterList
     {
@@ -592,12 +592,13 @@ public class MethodDialog extends CallDialog implements FocusListener
         if (typeParameterMap != null)
             typeMap.putAll(typeParameterMap);
         
+        String [] typeParams = getTypeParams();
         TypeParamView[] formalTypeParamViews = getFormalTypeParams();                  
         int len = typeParameterList == null ? 0 : formalTypeParamViews.length;
         for (int i = 0; i < len; i++) {
             TypeParamView view = formalTypeParamViews[i];
             GenTypeDeclTpar formalType = view.getParamType();
-            JavaType actualType = new TextType(typeParameterList.getType(i));
+            JavaType actualType = new TextType(typeParams[i]);
             typeMap.put(formalType.getTparName(), actualType);
         }
         

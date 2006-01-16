@@ -10,14 +10,12 @@ import bluej.utility.JavaNames;
  * parameters themselves.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeParameterizable.java 3535 2005-08-22 06:12:16Z davmac $
+ * @version $Id: GenTypeParameterizable.java 3741 2006-01-16 00:41:18Z davmac $
  */
 public abstract class GenTypeParameterizable
     extends JavaType
 {
 
-    private static GenTypeSolid [] noBounds = new GenTypeSolid[0];
-    
     private static NameTransform stripPrefixNt = new NameTransform() {
         public String transform(String x) {
             return JavaNames.stripPrefix(x);

@@ -10,9 +10,9 @@ import java.util.Map;
  * Most operations on this type fail with an UnsupportedOperationException.
  * 
  * @author Davin McCall
- * @version $Id: TextType.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: TextType.java 3741 2006-01-16 00:41:18Z davmac $
  */
-public class TextType extends JavaType
+public class TextType extends GenTypeParameterizable
 {
     private String text;
     
@@ -98,5 +98,49 @@ public class TextType extends JavaType
     {
         throw new UnsupportedOperationException();
     }
+    
+    // methods from GenTypeParameterizable
+    
+    public void getParamsFromTemplate(Map map, GenTypeParameterizable template)
+    {
+        throw new UnsupportedOperationException();
+    }
 
+    public boolean contains(GenTypeParameterizable other)
+    {
+        throw new UnsupportedOperationException();
+    }
+    
+    public GenTypeSolid getLowerBound()
+    {
+        throw new UnsupportedOperationException();
+    }
+    
+    public boolean equals(GenTypeParameterizable other)
+    {
+        if (other == null) {
+            return false;
+        }
+        
+        if (other == this) {
+            return true;
+        }
+        
+        throw new UnsupportedOperationException();
+    }
+
+    public String toTypeArgString(NameTransform nt)
+    {
+        throw new UnsupportedOperationException();
+    }
+    
+    public GenTypeSolid [] getUpperBounds()
+    {
+        throw new UnsupportedOperationException();
+    }
+    
+    public GenTypeSolid getUpperBound()
+    {
+        throw new UnsupportedOperationException();
+    }
 }
