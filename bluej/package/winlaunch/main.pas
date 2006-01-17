@@ -254,7 +254,7 @@ begin
 	{ look for Sun JDK's }
     try
         reg.RootKey := HKEY_LOCAL_MACHINE;
-        if reg.OpenKey(jdkregkey, false) then
+        if reg.OpenKeyReadOnly(jdkregkey) then
         begin
             reg.GetKeyNames(subkeys);
             reg.CloseKey;
@@ -287,7 +287,7 @@ begin
         subkeys.Clear;
 
         reg.RootKey := HKEY_LOCAL_MACHINE;
-        if reg.OpenKey(ibmregkey, false) then
+        if reg.OpenKeyReadOnly(ibmregkey) then
         begin
             reg.GetKeyNames(subkeys);
             reg.CloseKey;
@@ -638,13 +638,13 @@ begin
 
     //try %HOME%/bluej/bluej.properties first
     defsfile := GetEnvironmentVariableValue('HOME') + '\bluej\bluej.properties';
-    value := GetProperty(defsfile, bluejvmargsproperty);
+    value := GetProperty(defsfile, VariableName);
 
     // if nothing from bluej.properties try bluej.defs
     if value = '' then
     begin
         defsfile := ExtractFilePath(Application.ExeName) + 'lib\bluej.defs';
-        value := GetProperty(defsfile, bluejvmargsproperty);
+        value := GetProperty(defsfile, VariableName);
     end;
 
     GetBlueJDef := value;
@@ -666,7 +666,7 @@ begin
     GetProperty := '';
     //add the '=' found between key, value
     varToMatch := VariableName + '=';
-   AssignFile(f, Location);
+    AssignFile(f, Location);
     Reset(f);
     while not Eof(f) do
     begin
@@ -689,7 +689,7 @@ begin
             GetProperty := value;
         end;
     end;
-    
+
     CloseFile(f);
 end;
 
