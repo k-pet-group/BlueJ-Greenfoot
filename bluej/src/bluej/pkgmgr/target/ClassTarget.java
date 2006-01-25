@@ -53,7 +53,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3722 2005-11-30 01:18:49Z davmac $
+ * @version $Id: ClassTarget.java 3745 2006-01-25 01:11:06Z davmac $
  */
 public class ClassTarget extends EditableTarget
     implements Moveable, InvokeListener
@@ -291,23 +291,38 @@ public class ClassTarget extends EditableTarget
         if (cl != null) {
             isAbstract = Modifier.isAbstract(cl.getModifiers());
             
+            ClassLoader clLoader = cl.getClassLoader();
             Class junitClass = null;
-            try {
-                junitClass = cl.getClassLoader().loadClass("junit.framework.TestCase");
+            Class appletClass = null;
+
+            // It shouldn't ever be the case that the class is on the bootstrap
+            // class path (and was loaded by the bootstrap class loader), unless
+            // someone has done something rather strange - but it has happened;
+            // see bug # 1017.
+
+            if (clLoader != null) {
+                try {
+                    junitClass = clLoader.loadClass("junit.framework.TestCase");
+                }
+                catch (ClassNotFoundException cnfe) {}
+                catch (LinkageError le) {}
+
+                try {
+                    appletClass = clLoader.loadClass("java.applet.Applet");
+                }
+                catch (ClassNotFoundException cnfe) {}
+                catch (LinkageError le) {}
             }
-            catch (ClassNotFoundException cnfe) {
+            
+            if (junitClass == null) {
                 junitClass = junit.framework.TestCase.class;
             }
-
-            Class appletClass = null;
-            try {
-                appletClass = cl.getClassLoader().loadClass("java.applet.Applet");
-            }
-            catch (ClassNotFoundException cnfe) {
+            
+            if (appletClass == null) {
                 appletClass = java.applet.Applet.class;
             }
-
-            // if cl is non-null then it is the definitive information
+            
+            // As cl is non-null, it is the definitive information
             // source ie. if it thinks its an applet who are we to argue
             // with it.
             if (appletClass.isAssignableFrom(cl)) {
