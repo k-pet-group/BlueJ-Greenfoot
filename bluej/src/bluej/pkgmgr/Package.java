@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3722 2005-11-30 01:18:49Z davmac $
+ * @version $Id: Package.java 3747 2006-01-25 10:29:24Z iau $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -994,6 +994,9 @@ public final class Package extends Graph
         if (! toCompile.isEmpty()) {
             project.removeClassLoader();
             project.newRemoteClassLoader();
+
+            // Clear-down the compiler Warning dialog box singleton
+            bluej.compiler.CompilerWarningDialog.getDialog().reset();
         }
 
         for (int i = toCompile.size() - 1; i >= 0; i--) {
@@ -1018,6 +1021,9 @@ public final class Package extends Graph
 
         project.removeClassLoader();
         project.newRemoteClassLoader();
+
+        // Clear-down the compiler Warning dialog box singleton
+        bluej.compiler.CompilerWarningDialog.getDialog().reset();
 
         searchCompile(ct, 1, new Stack(), new PackageCompileObserver());
 
@@ -1069,6 +1075,10 @@ public final class Package extends Graph
             }
             project.removeClassLoader();
             project.newRemoteClassLoader();
+            
+            // Clear-down the compiler Warning dialog box singleton
+            bluej.compiler.CompilerWarningDialog.getDialog().reset();
+
             doCompile(compileTargets, new PackageCompileObserver());
         }
         catch (IOException ioe) {
@@ -2022,16 +2032,18 @@ public final class Package extends Graph
         }
     }
 
-    // ---- bluej.compiler.CompileObserver interface ----
+    // ---- bluej.compiler.CompileObserver interfaces ----
 
     /**
      * Observe compilation jobs and change the PkgMgr interface elements as
-     * compilation goes through different stages.
+     * compilation goes through different stages, but don't display the popups
+     * for error/warning messages.
+     * Also relay compilation events to any listening extensions.
      */
-    class PackageCompileObserver
+    private class QuietPackageCompileObserver
         implements CompileObserver
     {
-        protected void markAsCompiling(File[] sources)
+        private void markAsCompiling(File[] sources)
         {
             for (int i = 0; i < sources.length; i++) {
                 String fileName = sources[i].getPath();
@@ -2044,42 +2056,43 @@ public final class Package extends Graph
             }
         }
 
+        private void sendEventToExtensions(String filename, int lineNo, String message, int eventType)
+        {
+            File[] sources = new File[1];
+            sources[0] = new File(filename);
+            CompileEvent aCompileEvent = new CompileEvent(eventType, sources);
+            aCompileEvent.setErrorLineNumber(lineNo);
+            aCompileEvent.setErrorMessage(message);
+            ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
+        }
+
         /**
          * A compilation has been started. Mark the affected classes as being
          * currently compiled.
          */
         public void startCompile(File[] sources)
         {
-            // The following two lines will send a compilation event to
-            // extensions.
+            // Send a compilation starting event to extensions.
             CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, sources);
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
 
+            // Set BlueJ status bar message
             setStatus(compiling);
 
+            // Change view of source classes
             markAsCompiling(sources);
         }
 
-        /**
-         * Display an error message associated with a specific line in a class.
-         * This is done by opening the class's source, highlighting the line and
-         * showing the message in the editor's information area.
-         */
         public void errorMessage(String filename, int lineNo, String message)
         {
-            // The following lines will send a compilation Error event to
-            // extensions.
-            //int eventId = invalidate ? CompileEvent.COMPILE_ERROR_EVENT : CompileEvent.COMPILE_WARNING_EVENT;
-            int eventId = CompileEvent.COMPILE_ERROR_EVENT;
-            File[] sources = new File[1];
-            sources[0] = new File(filename);
-            CompileEvent aCompileEvent = new CompileEvent(eventId, sources);
-            aCompileEvent.setErrorLineNumber(lineNo);
-            aCompileEvent.setErrorMessage(message);
-            ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
+            // Send a compilation Error event to extensions.
+            sendEventToExtensions(filename, lineNo, message, CompileEvent.COMPILE_ERROR_EVENT);
+        }
 
-            if (!showEditorMessage(filename, lineNo, message, true, true, false, Config.compilertype))
-                showMessageWithText("error-in-file", filename + ":" + lineNo + "\n" + message);
+        public void warningMessage(String filename, int lineNo, String message)
+        {
+            // Send a compilation Error event to extensions.
+            sendEventToExtensions(filename, lineNo, message, CompileEvent.COMPILE_WARNING_EVENT);
         }
 
         /**
@@ -2134,42 +2147,51 @@ public final class Package extends Graph
             if(getEditor() != null) {
                 getEditor().repaint();
             }
-            // The following three lines will send a compilation event to
-            // extensions.
+
+            // Send a compilation done event to extensions.
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
             CompileEvent aCompileEvent = new CompileEvent(eventId, sources);
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);        
         }
     }
 
-    class QuietPackageCompileObserver extends PackageCompileObserver
+    /**
+     * The same, but also display error/warning messages for the user
+     */
+    private class PackageCompileObserver extends QuietPackageCompileObserver
     {
-        public void startCompile(File[] sources)
+        /**
+         * Display an error message associated with a specific line in a class.
+         * This is done by opening the class's source, highlighting the line and
+         * showing the message in the editor's information area.
+         */
+        public void errorMessage(String filename, int lineNo, String message)
         {
-            // the following two lines will send a compilation event to
-            // extensions.
-            CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, sources);
-            ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
-
-            setStatus(compiling);
-
-            markAsCompiling(sources);
+            super.errorMessage(filename, lineNo, message);
+            
+            // Display the error message in the source editor
+            if (!showEditorMessage(filename, lineNo, message, true, true, false, Config.compilertype))
+                showMessageWithText("error-in-file", filename + ":" + lineNo + "\n" + message);
         }
 
-        public void errorMessage(String filename, int lineNo, String message, boolean invalidate)
-        {}
-
-        public void exceptionMessage(List stack, String message, boolean invalidate)
-        {}
-
-        /*
-         * public void endCompile(File[] sources, boolean successful) {
-         *  }
+        /**
+         * Display a warning message: just a dialog box
+         * The dialog accumulates messages until reset() is called, which is
+         * done in the methods which the user can invoke to cause compilation
+         * Thus all the warnings caused by a "compilation" can be accumulated
+         * into a single dialog.
+         * If searchCompile() built a single list, we wouldn't need to do this
          */
-
+        public void warningMessage(String filename, int lineNo, String message)
+        {
+            super.warningMessage(filename, lineNo, message);
+            
+            // Add this message-fragment to, and display, the warning dialog
+            bluej.compiler.CompilerWarningDialog.getDialog().addWarningMessage(message);
+        }
     }
 
-    // ---- end of bluej.compiler.CompileObserver interface ----
+    // ---- end of bluej.compiler.CompileObserver interfaces ----
 
     /**
      * Report an exit of a method through "System.exit()" where we expected a

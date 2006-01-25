@@ -15,7 +15,7 @@ import bluej.utility.*;
  * @author  Michael Kolling
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: JavacCompilerInternal.java 3590 2005-09-27 04:33:52Z davmac $
+ * @version $Id: JavacCompilerInternal.java 3747 2006-01-25 10:29:24Z iau $
  */
 class JavacCompilerInternal extends Compiler
 {
@@ -114,12 +114,10 @@ class JavacCompilerInternal extends Compiler
 		//}
 
         // Handle compiler warning messages        
-        CompilerWarningDialog warningDialog = CompilerWarningDialog.getDialog();
         if (output.hasWarnings()) {
-            warningDialog.setWarningMessage(output.getWarning());           
-        }
-        else {
-            warningDialog.reset();
+            watcher.warningMessage(output.getFilename(),
+						output.getLineNo(),
+						output.getWarning());
         }
         System.setErr(systemErr);   // restore
 

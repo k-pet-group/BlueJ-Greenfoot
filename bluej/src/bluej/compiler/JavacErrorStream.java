@@ -136,7 +136,7 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
             // x warning(s)
 
             if (msg.trim().endsWith("warnings") || msg.trim().endsWith("warning")) {
-                warning += msg;
+                warning += msg.trim() + "\n";
                 hasWarnings = true;
                 return;
             }
@@ -146,17 +146,22 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
             return;
         }
 
-        filename = msg.substring(0, first_colon);
-
-        // "unchecked" warnings for generics begin with "Note:"
-        if(filename.equals("Note")) {
-            if(internal)
-                return;
-            warning += msg;
+        // "unchecked" warnings for generics begin with "Note: "
+        // and the filename is everything from there to ".java uses"
+        if(msg.startsWith("Note: ")) {
+            //if(internal)
+                //return;
+            int uses = msg.indexOf(".java uses");
+            if(uses != -1) {
+                filename = msg.substring(5, uses) + ".java";
+            }
+            warning += msg.trim() + "\n";
             hasWarnings = true;
             return;
         }
         
+        filename = msg.substring(0, first_colon);
+
         // Windows might have a colon after drive name. If so, ignore it
         if(! filename.endsWith(".java")) {
             first_colon = msg.indexOf(':', first_colon + 1);
@@ -184,8 +189,10 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
         message = msg.substring(second_colon + 1).trim();
 
         if (message.startsWith("warning:")) {
-            // record the warnings and display them to users!!!
-            warning += msg;
+            // Record the warnings and display them to users.
+            // This may end up multi-line, so ensure that the
+            // message is broken into (single-spaced) lines
+            warning += msg.trim() + "\n";
             ignoreCount = 2;
             // This type of warning generates an additional two lines:
             // one is a duplicate of the source line, the next is empty

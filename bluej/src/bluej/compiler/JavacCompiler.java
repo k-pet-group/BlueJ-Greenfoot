@@ -13,7 +13,7 @@ import bluej.utility.DialogManager;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- * @version $Id: JavacCompiler.java 3590 2005-09-27 04:33:52Z davmac $
+ * @version $Id: JavacCompiler.java 3747 2006-01-25 10:29:24Z iau $
  */
 class JavacCompiler extends Compiler
 {
@@ -79,12 +79,10 @@ class JavacCompiler extends Compiler
         }
 
         // Handle compiler warning messages        
-        CompilerWarningDialog warningDialog = CompilerWarningDialog.getDialog();
         if (output.hasWarnings()) {
-            warningDialog.setWarningMessage(output.getWarning());           
-        }
-        else {
-            warningDialog.reset();
+            watcher.warningMessage(output.getFilename(),
+                        output.getLineNo(),
+                        output.getWarning());
         }
         
         processresult = compiler.waitFor();

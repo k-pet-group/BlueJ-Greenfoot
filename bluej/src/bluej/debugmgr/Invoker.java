@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3713 2005-11-09 01:42:02Z davmac $
+ * @version $Id: Invoker.java 3747 2006-01-25 10:29:24Z iau $
  */
 
 public class Invoker
@@ -936,6 +936,14 @@ public class Invoker
             dialog.setErrorMessage("Error: " + message);
         }
         watcher.putError(message);
+    }
+    
+    /**
+     * A warning was detected during compilation of the shell class.
+     * For the shell class, we just ignore warnings.
+     */
+    public void warningMessage(String filename, int lineNo, String message) 
+    {
     }
 
     /**

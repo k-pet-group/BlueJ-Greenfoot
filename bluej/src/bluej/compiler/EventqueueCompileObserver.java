@@ -18,13 +18,14 @@ final public class EventqueueCompileObserver
     
     private static final int COMMAND_START = 0;
     private static final int COMMAND_ERROR = 1;
-    private static final int COMMAND_END = 2;
+    private static final int COMMAND_WARNING = 2;
+    private static final int COMMAND_END = 3;
     
     // parameters for COMMAND_START/COMMAND_END
     private File [] sources;
     private boolean successful;  // COMMAND_END only
     
-    // parameters for COMMAND_ERROR
+    // parameters for COMMAND_ERROR/COMMAND_WARNING
     private String filename;
     private int lineNo;
     private String message;
@@ -68,6 +69,15 @@ final public class EventqueueCompileObserver
         runOnEventQueue();
     }
 
+    public synchronized void warningMessage(String filename, int lineNo, String message)
+    {
+        command = COMMAND_WARNING;
+        this.filename = filename;
+        this.lineNo = lineNo;
+        this.message = message;
+        runOnEventQueue();
+    }
+
     public synchronized void endCompile(File[] sources, boolean successful)
     {
         command = COMMAND_END;
@@ -89,6 +99,9 @@ final public class EventqueueCompileObserver
                 break;
             case COMMAND_ERROR:
                 link.errorMessage(filename, lineNo, message);
+                break;
+            case COMMAND_WARNING:
+                link.warningMessage(filename, lineNo, message);
                 break;
             case COMMAND_END:
                 link.endCompile(sources, successful);

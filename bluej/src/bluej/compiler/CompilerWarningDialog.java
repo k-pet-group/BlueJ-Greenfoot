@@ -14,7 +14,7 @@ import javax.swing.*;
  * Dialog for Compiler Warning messages.  Should be used as a Singleton.  
  * The dialog is non-modal, allowing minimisation to ignore further warnings.
  * 
- * @version $Id: CompilerWarningDialog.java 1923 2003-04-30 06:11:12Z ajp $
+ * @version $Id: CompilerWarningDialog.java 3747 2006-01-25 10:29:24Z iau $
  * @author Bruce Quig
  */
 public class CompilerWarningDialog extends JFrame implements ActionListener
@@ -26,6 +26,7 @@ public class CompilerWarningDialog extends JFrame implements ActionListener
     static final String noWarnings = Config.getString("compiler.warningDialog.noWarnings");
     
     private MultiLineLabel warningLabel;
+    private boolean isEmpty;  // true if there's is (logically) no text in the dialog box
     
     // singleton
     private static CompilerWarningDialog dialog;
@@ -43,7 +44,7 @@ public class CompilerWarningDialog extends JFrame implements ActionListener
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent E)
             {
-                setVisible(false);
+                doClose();
             }
         });
 
@@ -74,7 +75,7 @@ public class CompilerWarningDialog extends JFrame implements ActionListener
         mainPanel.add(buttonPanel);
 
         getContentPane().add(mainPanel);
-        pack();
+        reset();
 
     }
     
@@ -107,12 +108,23 @@ public class CompilerWarningDialog extends JFrame implements ActionListener
      */
     public void doClose()
     {
+        reset();   // clear-down any outstanding messages
         setVisible(false);
     }
     
-    public void setWarningMessage(String warning)
+    /**
+     * add a warning message component to the dialog
+     * If it's the first such component, overwrite any text associated
+     * with the dialog's "empty" state, otherwise, just append
+     */
+    public void addWarningMessage(String warning)
     {
-        warningLabel.setText(warning);
+        if(isEmpty) {
+            warningLabel.setText(warning);
+            isEmpty = false;
+        } else {
+            warningLabel.addText(warning);
+        }
         pack();
         if(!isVisible()) {
             setVisible(true);            
@@ -122,6 +134,7 @@ public class CompilerWarningDialog extends JFrame implements ActionListener
     public void reset()
     {
         warningLabel.setText(noWarnings);
+        isEmpty = true;
         pack();    
     }
     
