@@ -229,4 +229,23 @@ public class BasicParseTest extends junit.framework.TestCase
         assertEquals(32, interfaceSel.getEndColumn());
         
     }
+    
+    public void testDependencyAnalysis()
+        throws Exception
+    {
+        List packages = new ArrayList();
+        packages.add("I");
+        packages.add("J");
+        packages.add("K");
+        packages.add("L");
+        packages.add("M");
+        ClassInfo info = ClassParser.parse(getFile("H.dat"), packages);
+        
+        List used = info.getUsed();
+        assertTrue(used.contains("I")); 
+        assertTrue(used.contains("J")); 
+        assertTrue(used.contains("K")); 
+        assertTrue(used.contains("L")); 
+        assertTrue(used.contains("M")); 
+    }
 }

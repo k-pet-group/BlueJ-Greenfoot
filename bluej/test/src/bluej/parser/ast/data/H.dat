@@ -1,0 +1,12 @@
+// Sample data for testing dependency analysis. 
+
+class H
+{
+	I ii;   // create a dependency on I
+	
+	void method1(J<String> jj, K kk)  // dependency on J and K
+	{
+		L ll = new M();  // dependency on L and M
+	
+	}
+}
