@@ -35,7 +35,7 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 3748 2006-01-26 23:31:39Z davmac $
+ * @version $Id: ClassParser.java 3750 2006-01-26 23:44:25Z davmac $
  */
 public class ClassParser
 {
@@ -705,7 +705,10 @@ public class ClassParser
             {
                 Scope forScope = new Scope(scope);
                 node = node.getFirstChild(); // FOR_INIT
-                processStatement(node.getFirstChild(), forScope);
+                AST cnode = node.getFirstChild();
+                if (cnode != null) {
+                    processStatement(node.getFirstChild(), forScope);
+                }
                 node = node.getNextSibling(); // FOR_CONDITION
                 AST conditionNode = node.getFirstChild();
                 if (conditionNode != null) {
