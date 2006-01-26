@@ -35,7 +35,7 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 3729 2005-12-02 01:38:24Z davmac $
+ * @version $Id: ClassParser.java 3748 2006-01-26 23:31:39Z davmac $
  */
 public class ClassParser
 {
@@ -670,11 +670,12 @@ public class ClassParser
                 
             case JavaTokenTypes.VARIABLE_DEF:
             {
-                // modifiers, TYPE, identifier
+                processVarDef(node, scope);
+                                
+                // Add the variable name to the current scope
+                //   modifiers, TYPE, identifier
                 AST cnode = node.getFirstChild(); // modifiers
                 cnode = cnode.getNextSibling(); // TYPE node
-                String tname = getFirstLevelName(cnode.getFirstChild());
-                scope.checkType(tname);
                 String varName = cnode.getNextSibling().getText();
                 scope.addVariable(varName);
                 break;
@@ -890,6 +891,15 @@ public class ClassParser
         processParameterDef(node, scope, null, null);
     }
     
+    /**
+     * Process a VARIABLE_DEF node (variable or parameter definition) including declared
+     * type and initializer expression if any. 
+     * 
+     * Does NOT add the variable name to the given scope.
+     * 
+     * @param node   The VARIABLE_DEF node to process
+     * @param scope  The current scope.
+     */
     private void processVarDef(AST node, Scope scope)
     {
         // VARIABLE_DEF
@@ -898,7 +908,7 @@ public class ClassParser
         cnode = cnode.getNextSibling();
         
         // Generate a reference.
-        String typeName = getFirstLevelName(cnode);
+        String typeName = getFirstLevelName(cnode.getFirstChild());
         scope.checkType(typeName);
         
         AST initializerNode = cnode.getNextSibling().getNextSibling();
