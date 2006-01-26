@@ -1,4 +1,13 @@
 class F
 {
+	// Test array initializers
 	String [] p = { "one", "two", "three" };
+	
+	// Test for-loop with no initializer
+	public void main(String [] args)
+	{
+		for (;;) {
+			break;
+		}
+	}
 }
