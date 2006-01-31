@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 3586 2005-09-22 06:02:25Z davmac $
+ * @version $Id: JavaUtils15.java 3753 2006-01-31 00:12:01Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -22,9 +22,7 @@ public class JavaUtils15 extends JavaUtils {
         String name = getTypeParameters(method);
         name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
         Type[] params = method.getGenericParameterTypes();
-        String [] paramStrings = typeArrayToStrings(params, method.isVarArgs());
-        return makeDescription(name, paramStrings, null, true, method.isVarArgs());
-        //return makeSignature(name, params, method.isVarArgs());
+        return makeSignature(name, params, method.isVarArgs());
     }
     
     public String getSignature(Constructor cons)
@@ -41,7 +39,7 @@ public class JavaUtils15 extends JavaUtils {
      */
     static private String makeSignature(String name, Type[] params, boolean isVarArgs)
     {
-        String [] typeStrings = typeArrayToStrings(params, isVarArgs);
+        String [] typeStrings = typeArrayToStrings(params);
         return makeDescription(name, typeStrings, null, true, isVarArgs);
     }
     
@@ -52,16 +50,13 @@ public class JavaUtils15 extends JavaUtils {
      * @param types     The array of types to convert
      * @param isVarArgs True if the last arg should be treated as having var-arity
      */
-    private static String [] typeArrayToStrings(Type [] types, boolean isVarArgs)
+    private static String [] typeArrayToStrings(Type [] types)
     {
         String [] rval = new String[types.length];
         for (int i = 0; i < types.length; i++) {
             rval[i] = getTypeName(types[i]);
         }
-        
-        if (isVarArgs)
-            rval[types.length - 1] = createVarArg(rval[types.length - 1]);
-        
+                
         return rval;
     }
     
