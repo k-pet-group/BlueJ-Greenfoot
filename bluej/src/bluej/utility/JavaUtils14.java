@@ -9,12 +9,12 @@ import java.util.Map;
 
 import bluej.debugger.gentype.*;
 
-/*
+/**
  * Java 1.4 version of JavaUtils
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 3543 2005-08-26 02:40:53Z davmac $
+ * @version $Id: JavaUtils14.java 3751 2006-01-31 00:11:20Z davmac $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -228,7 +228,7 @@ public class JavaUtils14 extends JavaUtils
             String typeName = getTypeName(params[j]);
             sb.append(typeName);
             if (j < (params.length - 1))
-                sb.append(",");
+                sb.append(", ");
         }
         sb.append(")");
         return sb.toString();
