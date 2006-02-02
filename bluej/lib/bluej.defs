@@ -195,20 +195,6 @@ bluej.macos.screenmenubar=true
 
 
 #####################################################################
-## System libraries which are added to BlueJ's class path
-##
-## The commented out examples below are just to show the
-## syntax used
-#####################################################################
-
-#bluej.systemlibrary1.description=A Sample Library for Windows
-#bluej.systemlibrary1.location=S\:\\Programming\\Java\\lib\\sample.jar
-
-#bluej.systemlibrary2.description=A Sample Library for UNIX
-#bluej.systemlibrary2.location=/usr/local/java/lib/sample.jar
-
-
-#####################################################################
 ## The VM that the windows client should use
 ##
 ## This setting can be used in lab environment where there is a
