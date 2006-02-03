@@ -47,6 +47,8 @@ install.javaOpts.win=-cp %CP%
 # Class that contains the main to execute
 install.mainClass=bluej.Boot
 
+# Arguments to pass to the main method
+install.arguments=
 
 # The big text colors
 install.color.text=0 0 0
