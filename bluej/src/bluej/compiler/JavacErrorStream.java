@@ -149,8 +149,8 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
         // "unchecked" warnings for generics begin with "Note: "
         // and the filename is everything from there to ".java uses"
         if(msg.startsWith("Note: ")) {
-            //if(internal)
-                //return;
+            if(internal) // set from compiler.showunchecked in the PrefMgr
+                return;
             int uses = msg.indexOf(".java uses");
             if(uses != -1) {
                 filename = msg.substring(5, uses) + ".java";

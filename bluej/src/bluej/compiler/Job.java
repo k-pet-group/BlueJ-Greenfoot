@@ -11,7 +11,7 @@ import bluej.Config;
  * by running the job's "compile" method.
  *
  * @author  Michael Cahill
- * @version $Id: Job.java 3469 2005-07-18 13:41:54Z damiano $
+ * @version $Id: Job.java 3759 2006-02-03 09:47:31Z iau $
  */
 class Job
 {
@@ -20,7 +20,10 @@ class Job
     File destDir;
     BPClassLoader bpClassLoader;
     File sources[];
-    boolean internal; // true for compiling shell files; false for user files
+    boolean internal; // true for compiling shell files, 
+                      // or user files if we want to suppress 
+                      // "unchecked" warnings, false otherwise
+
 	
     /**
      * Create a job with a set of sources.
