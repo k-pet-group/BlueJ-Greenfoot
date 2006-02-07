@@ -44,7 +44,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3720 2005-11-24 05:48:38Z davmac $
+ * @version $Id: Project.java 3762 2006-02-07 02:48:39Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager {
     /**
@@ -1210,8 +1210,16 @@ public class Project implements DebuggerListener, InspectorManager {
     public static final ArrayList getUserlibContent() 
     {
         ArrayList risul = new ArrayList();
+        File userLibDir;
         
-        File userLibDir = new File(Boot.getInstance().getBluejLibDir(), "userlib");
+        // The userlib location may be specified in bluej.defs
+        String userLibSetting = Config.getPropString("bluej.userlibLocation", null);
+        if (userLibSetting == null) {
+            userLibDir = new File(Boot.getInstance().getBluejLibDir(), "userlib");
+        }
+        else {
+            userLibDir = new File(userLibSetting);
+        }
 
         File[] files = userLibDir.listFiles();
         if (files == null) {
