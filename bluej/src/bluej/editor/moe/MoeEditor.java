@@ -2215,10 +2215,6 @@ public final class MoeEditor extends JFrame
         for (int i = 0; i < menuKeys.length; i++) {
             menu = createMenu(menuKeys[i]);
             if (menu != null) {
-                // Make sure help menu moves over to right side
-                if (menuKeys[i].equals("help")) {
-                    menubar.add(Box.createHorizontalGlue());
-                }
                 menubar.add(menu);
             }
         }
