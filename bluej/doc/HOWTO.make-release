@@ -21,8 +21,8 @@ How to make a BlueJ release                    (last update 05.01.2006, iau)
     This will create 
         .../bluej/package/bluej-dist-new.jar   -- the distribution jar
         .../bluej/package/bluej-dist.jar       -- the core jar for building the win release
-    NOTE: for some mysterious reasons, distribuitions are smaller when
-    built on Solaris than on Windows. Preferrably build on Solaris.
+    NOTE: for some mysterious reasons, distribuitions are larger when
+    built on Windows. Preferrably build on Solaris or Mac.
 
  4. Rename (usually to bluej-XXXrcX.jar).
     Use bluej-dist.jar to build Windows version. (See HOWTO.make-win-version)
