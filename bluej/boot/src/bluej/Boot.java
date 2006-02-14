@@ -2,9 +2,13 @@ package bluej;
 
 import java.awt.Frame;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.*;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Properties;
 
 /**
  * This class is the BlueJ boot loader. bluej.Boot is the class that should be 
@@ -17,7 +21,7 @@ import java.util.*;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3756 2006-01-31 04:08:04Z bquig $
+ * @version $Id: Boot.java 3781 2006-02-14 03:42:33Z davmac $
  */
 public class Boot
 {
@@ -26,9 +30,9 @@ public class Boot
     public static final int BLUEJ_VERSION_RELEASE = 2;
     public static final String BLUEJ_VERSION_SUFFIX = "";
 
-    public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
-                                             BLUEJ_VERSION_MINOR * 100 +
-                                             BLUEJ_VERSION_RELEASE;
+    // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
+    //                                                BLUEJ_VERSION_MINOR * 100 +
+    //                                                BLUEJ_VERSION_RELEASE;
 
     public static final String BLUEJ_VERSION = BLUEJ_VERSION_MAJOR
                                          + "." + BLUEJ_VERSION_MINOR
@@ -281,60 +285,41 @@ public class Boot
      *
      * @return    the path of the BlueJ lib directory
      */
-	private File calculateBluejLibDir()
+    private File calculateBluejLibDir()
     {
         File bluejDir = null;
-		String bootFullName = getClass().getResource("Boot.class").getFile();
+        String bootFullName = getClass().getResource("Boot.class").toString();
 
-		// Assuming the class is in a jar file, '!' separates the jar file name from the class name.		
-		int classIndex = bootFullName.indexOf("!");
-		String bootName = null;
-		if (classIndex < 0) {
-			// Boot.class is not in a jar-file. Find a lib directory somewhere
-            // above us to use
-            File startingDir = (new File(bootFullName).getParentFile());
-
-            while((startingDir != null) &&
-                   !(new File(startingDir.getParentFile(), "lib").isDirectory())) {
-                        startingDir = startingDir.getParentFile();
-            }
-            
-            if (startingDir == null)
-                bluejDir = null;
-            else
-                bluejDir = new File(startingDir.getParentFile(), "lib");			
-		} else {
-			//It was in a jar. Cut of the class name
-			bootName = bootFullName.substring(0, classIndex);
-			bootName = getURLPath(bootName);
-
-            File finalFile = new File(bootName);
-            bluejDir = finalFile.getParentFile();
-		}	
-		
-		return bluejDir;
-	}
-
-
-
-    /**
-     * Return the path element of a URL, properly decoded - that is: replace 
-     * each char encoded as "%xx" with its real character.
-     */
-    private String getURLPath(String url)
-    {
-        // Get rid of the initial "file:" string
-        if (!url.startsWith("file:"))
-            throw new IllegalStateException("Unexpected format of jar file URL (class Boot.java): " + url);
-        url = url.substring(5);
-//        return java.net.URLDecoder.decode(url);
-        
         try {
-            return java.net.URLDecoder.decode(url, "UTF-8");
-        }
-        catch(UnsupportedEncodingException exc) {
-            return null;
-        }
+            if (! bootFullName.startsWith("jar:")) {
+                // Boot.class is not in a jar-file. Find a lib directory somewhere
+                // above us to use
+                File startingDir = (new File(new URI(bootFullName)).getParentFile());
+                while((startingDir != null) &&
+                        !(new File(startingDir.getParentFile(), "lib").isDirectory())) {
+                    startingDir = startingDir.getParentFile();
+                }
+                
+                if (startingDir == null) {
+                    bluejDir = null;
+                }
+                else {
+                    bluejDir = new File(startingDir.getParentFile(), "lib");
+                }
+            }
+            else {
+                // The class is in a jar file, '!' separates the jar file name
+                // from the class name. Cut off the class name and the "jar:" prefix.
+                int classIndex = bootFullName.indexOf("!");
+                String bootName = bootFullName.substring(4, classIndex);
+                
+                File finalFile = new File(new URI(bootName));
+                bluejDir = finalFile.getParentFile();
+            }   
+        } 
+        catch (URISyntaxException use) { }
+        
+        return bluejDir;
     }
 
     /**
@@ -383,32 +368,6 @@ public class Boot
         }
         return (URL[]) urlList.toArray(new URL[0]);
     }
-    
-    
-    
-    /**
-     * Try to decide if this filename has the right extension to be a
-     * library
-     *
-     * @param  aFile  the File to be checked
-     * @return  true if the File could be library
-     */
-    private boolean hasValidExtension(File aFile)
-    {
-        if (aFile == null)
-            return false;
-
-        // If it ends in jar it is good.
-        if (aFile.getName().endsWith(".jar"))
-            return true;
-
-        // if it ends in zip also
-        if (aFile.getName().endsWith(".zip"))
-            return true;
-
-        return false;
-    }
-
 
     /**
      * Get the URL of the  current tools.jar file
