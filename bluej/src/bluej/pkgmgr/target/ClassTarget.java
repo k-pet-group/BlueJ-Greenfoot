@@ -53,9 +53,9 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3745 2006-01-25 01:11:06Z davmac $
+ * @version $Id: ClassTarget.java 3784 2006-02-15 01:37:58Z davmac $
  */
-public class ClassTarget extends EditableTarget
+public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
 {
     final static int MIN_WIDTH = 60;
@@ -1563,16 +1563,13 @@ public class ClassTarget extends EditableTarget
      * 
      * @see bluej.editor.EditorWatcher#generateDoc()
      */
-    /**
-     * Description of the Method
-     */
     public void generateDoc()
     {
         getPackage().generateDocumentation(this);
     }
 
-    /**
-     * Description of the Method
+    /* (non-Javadoc)
+     * @see bluej.graph.GraphElement#remove()
      */
     public void remove()
     {

@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3747 2006-01-25 10:29:24Z iau $
+ * @version $Id: Package.java 3784 2006-02-15 01:37:58Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -2210,10 +2210,11 @@ public final class Package extends Graph
     {
         for (Iterator it = targets.iterator(); it.hasNext();) {
             Target t = (Target) it.next();
-            if (t instanceof ClassTarget) {
-                ClassTarget ct = (ClassTarget) t;
-                if (ct.editorOpen())
-                    ct.getEditor().close();
+            if (t instanceof EditableTarget) {
+                EditableTarget et = (EditableTarget) t;
+                if (et.editorOpen()) {
+                    et.getEditor().close();
+                }
             }
         }
     }

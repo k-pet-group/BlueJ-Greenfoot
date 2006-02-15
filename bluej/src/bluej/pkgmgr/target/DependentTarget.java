@@ -14,9 +14,9 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 2787 2004-07-12 14:12:42Z mik $
+ * @version	$Id: DependentTarget.java 3784 2006-02-15 01:37:58Z davmac $
  */
-public abstract class DependentTarget extends Target
+public abstract class DependentTarget extends EditableTarget
 {
     private List inUses;
     private List outUses;

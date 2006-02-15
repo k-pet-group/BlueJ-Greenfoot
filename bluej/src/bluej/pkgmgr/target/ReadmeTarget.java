@@ -18,9 +18,9 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 2789 2004-07-12 18:08:11Z mik $
+ * @version $Id: ReadmeTarget.java 3784 2006-02-15 01:37:58Z davmac $
  */
-public class ReadmeTarget extends Target
+public class ReadmeTarget extends EditableTarget
     implements ActionListener
 {
     static final int WIDTH = 40;
@@ -33,10 +33,6 @@ public class ReadmeTarget extends Target
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
     
     public static final String README_ID = "@README";
-
-    protected Editor editor;
-    private Rectangle editorBounds;
-
 
     public ReadmeTarget(Package pkg)
     {
@@ -229,4 +225,10 @@ public class ReadmeTarget extends Target
     {
         // The user is not permitted to remove the readmefile
     }
+    
+    public void generateDoc()
+    {
+        // meaningless
+    }
+
 }

@@ -2,6 +2,7 @@ package bluej.pkgmgr.target;
 
 import java.awt.Rectangle;
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 import bluej.editor.*;
@@ -11,9 +12,9 @@ import bluej.pkgmgr.Package;
  * A target in a package that can be edited as text
  *
  * @author  Michael Cahill
- * @version $Id: EditableTarget.java 3629 2005-10-03 00:19:53Z davmac $
+ * @version $Id: EditableTarget.java 3784 2006-02-15 01:37:58Z davmac $
  */
-public abstract class EditableTarget extends DependentTarget
+public abstract class EditableTarget extends Target
     implements EditorWatcher
 {
     protected Editor editor;
@@ -34,6 +35,18 @@ public abstract class EditableTarget extends DependentTarget
      */
     public abstract Editor getEditor();
 
+    /**
+     * Ensure that the source file of this target is up-to-date (i.e.
+     * that any possible unsaved changes in an open editor window are 
+     * saved).
+     */
+    public void ensureSaved() throws IOException
+    {
+        if(editor != null) {
+            editor.save();
+        }
+    }
+    
     /**
      * Called to open the editor for this target
      */
