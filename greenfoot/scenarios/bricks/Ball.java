@@ -21,7 +21,7 @@ public class Ball extends GreenfootObject
 
     public Ball()
     {
-        setImage("ball.png");
+        setImage("images/ball.png");
         motionX = -20;
         motionXdenom = 10;
         motionY = -20;

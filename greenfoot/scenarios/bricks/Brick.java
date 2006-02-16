@@ -4,7 +4,7 @@ public class Brick extends GreenfootObject
 {
   public Brick()
   {
-    setImage("brick.png");
+    setImage("images/brick.png");
   }
 
   public void act()
