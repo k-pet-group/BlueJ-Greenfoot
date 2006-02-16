@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3727 2005-12-01 02:56:36Z davmac $
+ * @version $Id: VMReference.java 3785 2006-02-16 02:35:45Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -169,13 +169,8 @@ class VMReference
         if (!PrefMgr.getFlag(PrefMgr.OPTIMISE_VM))
             paramList.add("-Xint");
         if (Config.isMacOS()) {
-            if(Config.isGreenfoot()) {
-                paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/greenfootvm.icns");
-                paramList.add("-Xdock:name=Greenfoot");
-            } else {
-                paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/vm.icns");
-                paramList.add("-Xdock:name=BlueJ Virtual Machine");
-            }
+            paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/" + Config.getVMIconsName());
+            paramList.add("-Xdock:name=" + Config.getVMDockName());
         }
         paramList.add("-Xrunjdwp:transport=dt_socket,server=y");
         paramList.add(SERVER_CLASSNAME);
@@ -749,7 +744,6 @@ class VMReference
      *            parameter is passed as the event parameter
      */
     public void runShellClass(String className)
-        throws ClassNotFoundException
     {
         // Debug.message("[VMRef] starting " + className);
         // ** call Shell.run() **

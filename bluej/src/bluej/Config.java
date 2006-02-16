@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3706 2005-10-31 02:36:05Z bquig $
+ * @version $Id: Config.java 3785 2006-02-16 02:35:45Z davmac $
  */
 
 public final class Config
@@ -76,6 +76,12 @@ public final class Config
     public static String debugLogName = bluejDebugLogName;
     
     private static boolean initialised = false;
+    
+    /** name of the icons file for the VM on Mac */
+    private static String vmIconsFile;
+    /** name of the VM in the dock on Mac */
+    private static String vmName;
+    
     protected static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     
@@ -185,7 +191,7 @@ public final class Config
         String laf = Config.getPropString("bluej.lookAndFeel", "default");
         setLookAndFeel(laf);
         //read any debug vm args
-	initDebugVMArgs();
+        initDebugVMArgs();
         Config.setVMLocale();
         
         // Create a property containing the BlueJ version string
@@ -264,6 +270,38 @@ public final class Config
     
     public static boolean isInitialised() {
         return initialised;
+    }
+    
+    /**
+     * Set the name of icons file for the debug VM (Mac).
+     */
+    public static void setVMIconsName(String name)
+    {
+        vmIconsFile = name;
+    }
+    
+    /**
+     * Get the name of icons file for the debug VM (Mac).
+     */
+    public static String getVMIconsName()
+    {
+        return vmIconsFile;
+    }
+    
+    /**
+     * Set the name of the debug VM to appear in the dock (Mac).
+     */
+    public static void setVMDockName(String name)
+    {
+        vmName = name;
+    }
+    
+    /**
+     * Get the name of the debug VM to appear in the dock (Mac).
+     */
+    public static String getVMDockName()
+    {
+        return vmName;
     }
     
     /**
@@ -984,14 +1022,6 @@ public final class Config
         user_props.setProperty(strname, value);
     }
     
-    /**
-     * Get the Inspector directory for the system
-     */
-    public static File getSystemInspectorDir()
-    {
-        return new File(bluejLibDir, "inspector");
-    }
-
     /**
      * Returns the blueJLibDir
      */

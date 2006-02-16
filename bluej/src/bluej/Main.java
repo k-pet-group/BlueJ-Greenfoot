@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 3516 2005-08-13 13:45:47Z polle $
+ * @version $Id: Main.java 3785 2006-02-16 02:35:45Z davmac $
  */
 public class Main
 {
@@ -37,6 +37,14 @@ public class Main
 		File bluejLibDir = boot.getBluejLibDir();
 
         Config.initialise(bluejLibDir,commandLineProps);
+        if (! Config.isGreenfoot()) {
+            Config.setVMIconsName("vm.icns");
+            Config.setVMDockName("BlueJ Virtual Machine");
+        }
+        else {
+            Config.setVMIconsName("greenfootvm.icns");
+            Config.setVMDockName("Greenfoot");
+        }
 
         // workaround java's broken UNC path handling on Windows
         if (Config.getPropString("bluej.windows.customUNCHandler", "false").equals("true")) {

@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  * components for i18n purposes.
  *
  * @author  Bruce Quig
- * @version $Id: BlueJTheme.java 2762 2004-07-08 11:13:23Z mik $
+ * @version $Id: BlueJTheme.java 3785 2006-02-16 02:35:45Z davmac $
  */
 public class BlueJTheme extends DefaultMetalTheme
 {
@@ -108,6 +108,11 @@ public class BlueJTheme extends DefaultMetalTheme
 
 		return iconImage;
 	}
+    
+    public static void setIconImage(Image newIconImage)
+    {
+        iconImage = newIconImage;
+    }
 
 	public static String getOkLabel()
 	{

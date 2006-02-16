@@ -3,11 +3,15 @@ package greenfoot.core;
 import greenfoot.util.GreenfootLogger;
 
 import java.io.File;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.logging.Logger;
 
+import javax.swing.ImageIcon;
+
 import rmiextension.BlueJRMIClient;
 import rmiextension.wrappers.RBlueJ;
+import bluej.BlueJTheme;
 import bluej.Config;
 
 /**
@@ -36,6 +40,11 @@ public class GreenfootLauncher
             try {
                 File libdir = blueJ.getSystemLibDir();
                 Config.initializeVMside(libdir, client);
+                
+                URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
+                ImageIcon icon = new ImageIcon(iconFile);
+                BlueJTheme.setIconImage(icon.getImage());
+
                 Greenfoot.initialize(blueJ, client.getPackage());
                 logger.info("Greenfoot initialized");
             }

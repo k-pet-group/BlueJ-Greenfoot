@@ -5,19 +5,11 @@ import greenfoot.event.CompileListenerForwarder;
 import greenfoot.event.GreenfootObjectInstantiationListener;
 import greenfoot.gui.GreenfootFrame;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
@@ -65,10 +57,7 @@ public class Greenfoot
         try {
             this.pkg = new GPackage(pkg);
             this.project = this.pkg.getProject();
-            File libFile = rBlueJ.getSystemLibDir();
-            logger.info("Found systemlib: " + libFile);
-            Config.initialise(libFile, new Properties());
-            logger.info("BlueJ Config initialized");
+            // Config is initialized in GreenfootLauncher
         }
         catch (RemoteException e) {
             e.printStackTrace();

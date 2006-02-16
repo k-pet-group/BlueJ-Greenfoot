@@ -31,7 +31,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 3704 2005-10-26 02:05:20Z davmac $
+ * @version $Id: Inspector.java 3785 2006-02-16 02:35:45Z davmac $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -83,6 +83,10 @@ public abstract class Inspector extends JFrame
     {
         super();
 
+        // Later, we cast the content pane to a JPanel in order to set its border.
+        // Now, we need to make sure it really is a JPanel...
+        setContentPane(new JPanel());
+        
         if(inspectorManager == null) {
             throw new NullPointerException("An inspector must have an InspectorManager.");
         }
