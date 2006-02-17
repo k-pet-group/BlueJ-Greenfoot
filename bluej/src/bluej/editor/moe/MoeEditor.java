@@ -133,6 +133,7 @@ public final class MoeEditor extends JFrame
     private JComponent toolbar;             // The toolbar
 
     private String filename;                // name of file or null
+    private long lastModified;              // time of last modification of file
     private String windowTitle;             // title of editor window
     private String docFilename;             // path to javadoc html file
 
@@ -263,6 +264,8 @@ public final class MoeEditor extends JFrame
                 FileReader reader = new FileReader(filename);
                 sourcePane.read(reader, null);
                 reader.close();
+                File file = new File(filename);
+                lastModified = file.lastModified();
 
                 sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
 
@@ -420,6 +423,8 @@ public final class MoeEditor extends JFrame
                 sourcePane.write(writer);
                 writer.close();
                 setSaved();
+                File file = new File(filename);
+                lastModified = file.lastModified();
 
                 if (PrefMgr.getFlag(PrefMgr.MAKE_BACKUP)) {
                     // if all went well, rename the crash file as a normal
@@ -678,6 +683,19 @@ public final class MoeEditor extends JFrame
     public boolean isShowingInterface()
     {
         return viewingHTML;
+    }
+
+    /**
+     * Check whether the source file has changed on disk. If it has, reload.
+     */
+    private void checkForChangeOnDisk()
+    {
+        //TODO: implement
+        File file = new File(filename);
+        long modified = file.lastModified();
+        if(modified != lastModified) {
+            doReload();
+        }
     }
 
     /**
@@ -1872,9 +1890,13 @@ public final class MoeEditor extends JFrame
             reader = new FileReader(filename);
             sourcePane.read(reader, null);
             reader.close();
+            File file = new File(filename);
+            lastModified = file.lastModified();
 
             sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
-
+            if(!viewingHTML)
+                document = sourceDocument;
+            
             // flag document type as a java file by associating a
             // JavaTokenMarker for syntax colouring if specified
             checkSyntaxStatus();
@@ -2189,13 +2211,15 @@ public final class MoeEditor extends JFrame
         // add event listener to handle the window close requests
 
         addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e)
-            {
+            public void windowClosing(WindowEvent e) {
                 close();
+            }
+            public void windowActivated(WindowEvent e) {
+                checkForChangeOnDisk();
             }
         });
 
-        this.setFocusTraversalPolicy(new MoeFocusTraversalPolicy());
+        setFocusTraversalPolicy(new MoeFocusTraversalPolicy());
         
         setWindowTitle();
         pack();
