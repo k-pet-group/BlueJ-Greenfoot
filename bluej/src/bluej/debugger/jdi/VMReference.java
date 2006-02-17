@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3785 2006-02-16 02:35:45Z davmac $
+ * @version $Id: VMReference.java 3790 2006-02-17 03:40:16Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -58,8 +58,7 @@ import com.sun.jdi.request.EventRequestManager;
  * We can now execute commands on the remote VM by invoking methods using the
  * server thread (which is suspended at the breakpoint). 
  * 
- * Non-user code used by BlueJ is run a seperate "worker" thread via the
- * "invokeExecServerWorker()" method.
+ * Non-user code used by BlueJ is run a seperate "worker" thread.
  */
 class VMReference
 {
@@ -112,15 +111,6 @@ class VMReference
 
     // the current class loader in the ExecServer
     private ClassLoaderReference currentLoader = null;
-
-    // an exception used to interrupt the main thread
-    // when simulating a System.exit()
-    // pending for removal when exit scheme is tested.
-    //    private ObjectReference exitException = null;
-
-    // map of String names to ExecServer methods
-    // used by JdiDebugger.invokeMethod
-    //private Map execServerMethods = null;
 
     private int exitStatus;
     private ExceptionDescription lastException;
@@ -247,14 +237,10 @@ class VMReference
                     
                     hostnameArg.setValue("127.0.0.1");
                     portArg.setValue(Integer.toString(portNumber));
+                    VirtualMachine m = null;
                     
                     try {
-                        VirtualMachine m = connector.attach(arguments);
-                        Debug.log("Connected to debug VM via dt_socket transport.");
-                        machine = m;
-                        setupEventHandling();
-                        waitForStartup();
-                        return m;
+                        m = connector.attach(arguments);
                     }
                     catch (Throwable t) {
                         // failed to connect.
@@ -263,6 +249,12 @@ class VMReference
                         remoteVMprocess = null;
                         throw t;
                     }
+                    Debug.log("Connected to debug VM via dt_socket transport...");
+                    machine = m;
+                    setupEventHandling();
+                    waitForStartup();
+                    Debug.log("Communication with debug VM fully established.");
+                    return m;
                 }
                 catch(Throwable t) {
                     tcpipFailureReason = t;
@@ -294,11 +286,22 @@ class VMReference
                         StringBuffer listenMessage = new StringBuffer();
                         remoteVMprocess = launchVM(initDir, launchParams, listenMessage,term);
                         
-                        VirtualMachine m = connector.attach(arguments);
-                        Debug.log("Connected to debug VM via dt_shmem transport.");
+                        VirtualMachine m = null;
+                        try {
+                            m = connector.attach(arguments);
+                        }
+                        catch (Throwable t) {
+                            // failed to connect.
+                            closeIO();
+                            remoteVMprocess.destroy();
+                            remoteVMprocess = null;
+                            throw t;
+                        }
+                        Debug.log("Connected to debug VM via dt_shmem transport...");
                         machine = m;
-                        waitForStartup();
                         setupEventHandling();
+                        waitForStartup();
+                        Debug.log("Communication with debug VM fully established.");
                         return m;
                     }
                 }
