@@ -5,7 +5,6 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.AWTEventListener;
 import java.awt.event.WindowEvent;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
@@ -18,14 +17,11 @@ import java.net.URLClassLoader;
 import java.net.URLStreamHandlerFactory;
 import java.util.*;
 
-import bluej.Config;
-
 import junit.framework.TestCase;
 import junit.framework.TestFailure;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
-//BeanShell
-//import bsh.*;
+import bluej.Config;
 
 /**
  * Class that controls the runtime of code executed within BlueJ.
@@ -36,7 +32,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3668 2005-10-13 04:56:13Z davmac $
+ * @version $Id: ExecServer.java 3791 2006-02-17 04:21:57Z davmac $
  */
 public class ExecServer
 {
@@ -74,7 +70,7 @@ public class ExecServer
     public static final int INSTANTIATE_CLASS = 6; // use default constructor
     
     // Parameter for worker thread actions
-    public static int workerAction;
+    public static int workerAction = EXIT_VM;
     public static String objectName;
     public static Object object;
     public static String classPath;
@@ -123,9 +119,6 @@ public class ExecServer
      */
     private static List openWindows = Collections.synchronizedList(new LinkedList());
     private static boolean disposingAllWindows = false; // true while we are disposing
-
-    private static PrintStream systemErr = System.err;
-    private static ByteArrayOutputStream throwawayErr = null;
 
     /**
      * Main method.
@@ -182,6 +175,9 @@ public class ExecServer
                         case LOAD_ALL:
                             workerReturn = loadAllClasses(className);
                     }
+                    // After any action, set the next action to exit. If connection to
+                    // primary VM is lost, the secondary VM (i.e. this VM) will then exit.
+                    workerAction = EXIT_VM;
                 }
             }
         };
