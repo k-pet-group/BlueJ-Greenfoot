@@ -248,6 +248,14 @@ Reload
 Cancel
 null
 
+changed-on-disk
+The source file has changed on disk. Do you want to
+reload it from disk? This will discard changes made
+here in the editor.
+Reload
+Cancel
+null
+
 really-print
 The text is wider than the paper. Long lines
 will be cut off. You can avoid this by resizing

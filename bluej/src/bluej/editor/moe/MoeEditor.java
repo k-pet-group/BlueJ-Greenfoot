@@ -689,11 +689,19 @@ public final class MoeEditor extends JFrame
      */
     private void checkForChangeOnDisk()
     {
-        //TODO: implement
         File file = new File(filename);
         long modified = file.lastModified();
         if(modified != lastModified) {
-            doReload();
+            if (saveState.isChanged()) {
+                int answer = DialogManager.askQuestion(this, "changed-on-disk");
+                if (answer == 0)
+                    doReload();
+                else
+                    lastModified = modified; // don't ask again for this change
+            }
+            else {
+                doReload();
+            }
         }
     }
 
