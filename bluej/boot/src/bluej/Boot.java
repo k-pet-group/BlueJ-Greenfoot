@@ -21,14 +21,14 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 3781 2006-02-14 03:42:33Z davmac $
+ * @version $Id: Boot.java 3795 2006-02-20 11:22:01Z mik $
  */
 public class Boot
 {
     public static final int BLUEJ_VERSION_MAJOR = 2;
     public static final int BLUEJ_VERSION_MINOR = 1;
-    public static final int BLUEJ_VERSION_RELEASE = 2;
-    public static final String BLUEJ_VERSION_SUFFIX = "";
+    public static final int BLUEJ_VERSION_RELEASE = 3;
+    public static final String BLUEJ_VERSION_SUFFIX = " (dev)";
 
     // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
     //                                                BLUEJ_VERSION_MINOR * 100 +

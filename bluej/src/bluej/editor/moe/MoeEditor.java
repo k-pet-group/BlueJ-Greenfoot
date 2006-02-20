@@ -283,7 +283,6 @@ public final class MoeEditor extends JFrame
             catch (IOException ex) {
                 readError = true;
             }
-
         }
 
         if (!loaded)             // should exist, but didn't
@@ -2187,7 +2186,8 @@ public final class MoeEditor extends JFrame
         
         scrollPane = new JScrollPane(currentTextPane);
         scrollPane.setPreferredSize(new Dimension(598, 400));
-
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        
         contentPane.add(scrollPane, BorderLayout.CENTER);
 
         // get table of edit actions
