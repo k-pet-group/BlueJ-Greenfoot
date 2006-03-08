@@ -254,7 +254,7 @@ public class GridCollisionChecker
         List neighbours = new ArrayList();
         while (iter.hasNext()) {
             Object o = iter.next();
-            if (cls.isInstance(o)) {
+            if (cls == null || cls.isInstance(o)) {
                 GreenfootObject g = (GreenfootObject) o;
                 if (distance(x, y, g) <= r) {
                     neighbours.add(g);
