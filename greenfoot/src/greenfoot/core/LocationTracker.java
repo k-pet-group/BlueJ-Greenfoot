@@ -2,9 +2,14 @@ package greenfoot.core;
 
 import greenfoot.util.Location;
 
+import java.awt.AWTEvent;
+import java.awt.Component;
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
+
+import javax.swing.SwingUtilities;
 
 /**
  * This singleton keeps track of where to add an object. This location is used
@@ -16,14 +21,31 @@ import java.awt.event.MouseMotionListener;
  * @author Poul Henriksen
  * 
  */
-public class LocationTracker implements MouseMotionListener
+public class LocationTracker
 {
     private static LocationTracker instance;
     private Location location = new Location();
+    private Component component;
+    
+    static {
+        instance();
+    }
 
     private LocationTracker()
     {
+        AWTEventListener listener = new AWTEventListener() {
 
+            public void eventDispatched(AWTEvent event)
+            {
+                MouseEvent me = (MouseEvent) event;
+                Component source = me.getComponent();
+                me = SwingUtilities.convertMouseEvent(source, me, component);
+                LocationTracker.this.move(me);
+            } 
+            
+        };
+        Toolkit.getDefaultToolkit().addAWTEventListener(listener, AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
+    
     }
 
     public synchronized static LocationTracker instance()
@@ -34,7 +56,7 @@ public class LocationTracker implements MouseMotionListener
         return instance;
     }
 
-    public void setLocation(int x, int y)
+    private void setLocation(int x, int y)
     {
         location.setX(x);
         location.setY(y);
@@ -50,24 +72,17 @@ public class LocationTracker implements MouseMotionListener
       
     }
 
-    public void mouseDragged(MouseEvent e)
-    {
-        move(e);
-    }
-
-    public void mouseMoved(MouseEvent e)
-    {
-        move(e);
-    }
-
     private void move(MouseEvent e)
     {
         Point p = e.getPoint(); 
-        int x = (int) p.getX();
-        int y = (int) p.getY();
-        LocationTracker.instance().setLocation(x, y);
+        int x = p.x;
+        int y = p.y;
+		LocationTracker.instance().setLocation(x, y);
     }
 
-   
+    public void setComponent(Component worldCanvas)
+    {
+        this.component = worldCanvas;
+    }
 
 }

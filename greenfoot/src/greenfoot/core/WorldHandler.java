@@ -97,7 +97,7 @@ public class WorldHandler
         worldCanvas.addMouseListener(this);
         worldCanvas.addKeyListener(this);
         worldCanvas.setDropTargetListener(this);
-        worldCanvas.addMouseMotionListener(LocationTracker.instance());
+        LocationTracker.instance().setComponent(worldCanvas);
         installNewWorld(world);
         DragGlassPane.getInstance().addKeyListener(this);
 
@@ -153,10 +153,10 @@ public class WorldHandler
         if (SwingUtilities.isLeftMouseButton(e)) {
             GreenfootObject go = getObject(e.getX(), e.getY());
             if (go != null) {
-                dragBeginX = go.getX() * world.getCellSize();
-                dragBeginY = go.getY() * world.getCellSize();
-                int dragOffsetX = dragBeginX - e.getX() + world.getCellSize()/2;
-                int dragOffsetY = dragBeginY - e.getY() + world.getCellSize()/2;
+                dragBeginX = go.getX() * world.getCellSize() + world.getCellSize()/2;
+                dragBeginY = go.getY() * world.getCellSize() + world.getCellSize()/2;
+                int dragOffsetX = dragBeginX - e.getX();
+                int dragOffsetY = dragBeginY - e.getY();
                 objectDropped = false;
                 DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this, this, false);
 
@@ -523,7 +523,6 @@ public class WorldHandler
             int y = (int) p.getY();
             GreenfootObject go = (GreenfootObject) o;
             
-            LocationTracker.instance().setLocation(x, y);
             world.addObject(go);
             try {
                 int oldX = go.getX();

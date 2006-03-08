@@ -13,6 +13,7 @@ import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
 import greenfoot.core.Greenfoot;
+import greenfoot.core.LocationTracker;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.CompileListener;
@@ -67,7 +68,7 @@ import com.apple.eawt.ApplicationEvent;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3804 2006-03-08 16:02:30Z polle $
+ * @version $Id: GreenfootFrame.java 3806 2006-03-08 18:30:48Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -112,7 +113,7 @@ public class GreenfootFrame extends JFrame
             e.printStackTrace();
         }
 
-        
+        LocationTracker.instance(); //force initialisation
         aboutGreenfootAction = new AboutGreenfootAction("About Greenfoot", this);
         setSize(400, 300);
         URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");

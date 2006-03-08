@@ -48,7 +48,7 @@ import javax.swing.SwingUtilities;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: DragGlassPane.java 3806 2006-03-08 18:30:48Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -120,6 +120,7 @@ public class DragGlassPane extends JComponent
 
     public void paintComponent(Graphics g)
     {
+
         if (image != null && paintNoDropImage) {
             Graphics2D g2 = (Graphics2D) g;
 
@@ -194,14 +195,19 @@ public class DragGlassPane extends JComponent
         dragOffsetX = xOffset;
         dragOffsetY = yOffset;
         dragListener = dl;
-        setVisible(true);
         if(initialDropTarget != null) {
             lastDropTarget = initialDropTarget;
             //force painting of drag object
             Location l = LocationTracker.instance().getLocation();
-            Point p = new Point(l.getX(), l.getY());
-            lastDropTarget.drag(object, p);
+            Point p = new Point(l.getX() + xOffset, l.getY() + yOffset);
+            boolean processed = lastDropTarget.drag(object, p);
+            if(! processed) {
+                //since it was not processed we paint it:
+                paintNoDropImage = true;
+            }            
         }
+
+        setVisible(true);
         //Toolkit.getDefaultToolkit().addAWTEventListener(eventListener,
         //        (AWTEvent.MOUSE_MOTION_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK));
         logger.info("DragGlassPane.startDrag begin: " + this);
