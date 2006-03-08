@@ -381,7 +381,7 @@ public class GridCollisionChecker
         List intersecting = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
             GreenfootObject element = (GreenfootObject) iter.next();
-            if (element != go && GreenfootObjectVisitor.intersects(go, element) && cls.isInstance(element)) {
+            if (element != go && GreenfootObjectVisitor.intersects(go, element) && (cls == null || cls.isInstance(element))) {
                 intersecting.add(element);
             }
         }
@@ -396,7 +396,6 @@ public class GridCollisionChecker
      */
     public List getNeighbours(int x, int y, int distance, boolean diag, Class cls)
     {
-        //TODO: consider the class.
         List c = new ArrayList();
         if (diag) {
             for (int dx = x - distance; dx <= x + distance; dx++) {
@@ -471,14 +470,154 @@ public class GridCollisionChecker
         }
         return c;
     }
+    
 
     /**
-     * Get all objects that lie on the line between the two points.
+     * Get all objects that lie on the line between the two points.<br>
+     * 
+     * Current implementation is using Bresenham. Don't know if that is the way
+     * we want to do it, since it does NOT include every pixel that the line
+     * intersects.
+     * 
+     * @param x1 Location of point 1
+     * @param y1 Location of point 1
+     * @param x2 Location of point 2
+     * @param y2 Location of point 2
+     * @param cls Class of objects to look for (passing 'null' will find all
+     *            objects).
      */
-    public List getObjectsAtLine(int x1, int y1, int x2, int y2, Class cls)
+ /*   public List getObjectsAtLine(int x0, int y0, int x1, int y1, Class cls)
     {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO would we want to add them in order, so that the closest objects
+        // are first in the list?
+
+        // using Bresenham algo
+        List result = new ArrayList();
+        int dy = y1 - y0;
+        int dx = x1 - x0;
+        int stepx, stepy;
+
+        if (dy < 0) {
+            dy = -dy;
+            stepy = -1;
+        }
+        else {
+            stepy = 1;
+        }
+        if (dx < 0) {
+            dx = -dx;
+            stepx = -1;
+        }
+        else {
+            stepx = 1;
+        }
+        dy <<= 1; // dy is now 2*dy
+        dx <<= 1; // dx is now 2*dx
+
+        result.addAll(getObjectsAt(x0, y0, cls));
+        if (dx > dy) {
+            int fraction = dy - (dx >> 1); // same as 2*dy - dx
+            while (x0 != x1) {
+                if (fraction >= 0) {
+                    y0 += stepy;
+                    fraction -= dx; // same as fraction -= 2*dx
+                }
+                x0 += stepx;
+                fraction += dy; // same as fraction -= 2*dy
+
+                result.addAll(getObjectsAt(x0, y0, cls));
+            }
+        }
+        else {
+            int fraction = dx - (dy >> 1);
+            while (y0 != y1) {
+                if (fraction >= 0) {
+                    x0 += stepx;
+                    fraction -= dy;
+                }
+                y0 += stepy;
+                fraction += dx;
+                result.addAll(getObjectsAt(x0, y0, cls));
+            }
+        }
+
+        return result;
+    }*/
+
+
+    /**
+     * Return all objects that intersect a straight line from this object at a
+     * specified angle. The angle is clockwise relative to the current rotation
+     * of the object. <br>
+     * 
+     * @param x x-coordinate
+     * @param y y-coordinate
+     * @param angle The angle relative to current rotation of the object.
+     * @param length How far we want to look (in cells)
+     * @param cls Class of objects to look for (passing 'null' will find all
+     *            objects).
+     */
+    public List getObjectsInDirection(int x, int y, int angle, int length, Class cls)
+    {
+        
+        //TODO For non wrapping worlds the length should not be longer than it can reach the border.
+        
+        //calculate end point
+     /*   int x1 = x + (int) Math.round(length * Math.cos(Math.toRadians(angle)));
+        int y1 = y + (int) Math.round(length * Math.sin(Math.toRadians(angle)));
+        return getObjectsAtLine(x, y, x1, y1, cls);*/
+        // using Bresenham algo
+        List result = new ArrayList();
+        double dy = (2 * Math.sin(Math.toRadians(angle)));
+        double dx =  (2 * Math.cos(Math.toRadians(angle)));
+        int lxMax = (int) Math.abs(Math.round(length * Math.cos(Math.toRadians(angle))));
+        int lyMax = (int) Math.abs(Math.round(length * Math.sin(Math.toRadians(angle))));
+        
+        int stepx, stepy;
+
+        if (dy < 0) {
+            dy = -dy;
+            stepy = -1;
+        }
+        else {
+            stepy = 1;
+        }
+        if (dx < 0) {
+            dx = -dx;
+            stepx = -1;
+        }
+        else {
+            stepx = 1;
+        }
+
+        result.addAll(getObjectsAt(x, y, cls));
+        if (dx > dy) {
+            double fraction = dy - (dx / 2); // same as 2*dy - dx
+            for(int l=0; l< lxMax; l++) {
+                if (fraction >= 0) {
+                    y += stepy;
+                    fraction -= dx; // same as fraction -= 2*dx
+                }
+                x += stepx;
+                fraction += dy; // same as fraction -= 2*dy
+
+                result.addAll(getObjectsAt(x, y, cls));
+            }
+        }
+        else {
+            double fraction = dx - (dy / 2);
+            for(int l=0; l< lyMax; l++) {
+                if (fraction >= 0) {
+                    x += stepx;
+                    fraction -= dy;
+                }
+                y += stepy;
+                fraction += dx;
+                result.addAll(getObjectsAt(x, y, cls));
+            }
+        }
+
+        return result;
     }
 
     /**

@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootObject.java 3679 2005-10-17 13:25:47Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3801 2006-03-08 14:50:09Z polle $
  */
 public class GreenfootObject extends ObjectTransporter
 {
@@ -384,7 +384,7 @@ public class GreenfootObject extends ObjectTransporter
         this.world = world;
     }
 
-    int toCellFloor(int i)
+    private int toCellFloor(int i)
     {
         return (int) Math.floor((double) i / getWorld().getCellSize());
     }
@@ -443,7 +443,8 @@ public class GreenfootObject extends ObjectTransporter
      */
     protected boolean intersects(GreenfootObject other)
     {
-
+        // TODO: Rotation, we could just increase the bounding box, or we could
+        // deal with the rotated bounding box.
         // TODO: Take wrapping of the world into consideration.
         if (world == null)
             return false;
@@ -479,8 +480,7 @@ public class GreenfootObject extends ObjectTransporter
      * should be considered.
      * <br>
      * 
-     * NOTE: Does not take rotation into consideration, and has not been tested
-     * when the world is wrapped.
+     * NOTE: Does not take rotation into consideration.
      * 
      * @param dx The x-position relative to the location of the object
      * @param dy The y-position relative to the location of the object
@@ -489,6 +489,7 @@ public class GreenfootObject extends ObjectTransporter
      */
     protected boolean contains(int dx, int dy)
     {
+        // TODO wrapping when the object actually lies on the edge.
         // TODO this disregards rotations. maybe this should be updated in the
         // getWidth/height methods
         if (image != null && world != null) {
@@ -524,8 +525,7 @@ public class GreenfootObject extends ObjectTransporter
      * inspect four cells, (1,true) will inspect eight cells.
      * <p>
      * 
-     * NOTE: Class argument does not work. It does not return subclasses of the
-     * given class, but only the actual class.
+     * NOTE: It does not return subclasses of the given class, but only the actual class.
      * 
      * @param distance Distance (in cells) in which to look for other objects.
      * @param diagonal If true, include diagonal steps.
@@ -542,7 +542,8 @@ public class GreenfootObject extends ObjectTransporter
      * Return all objects that intersect the given location (relative to this
      * object's location). <br>
      * 
-     * NOTE: has not been tested when the world is wrapped.
+     * NOTE: has not been tested when the world is wrapped.<br>
+     * NOTE: It does not return subclasses of the given class, but only the actual class.
      * 
      * @param dx X-coordinate relative to this objects location.
      * @param dy y-coordinate relative to this objects location.
@@ -560,7 +561,8 @@ public class GreenfootObject extends ObjectTransporter
      * object of the specified class resides at that location, one of them will
      * be chosen and returned.
      * 
-     * NOTE: has not been tested when the world is wrapped.
+     * NOTE: has not been tested when the world is wrapped.<br>
+     * NOTE: It does not return subclasses of the given class, but only the actual class.
      * 
      * @param dx X-coordinate relative to this objects location.
      * @param dy y-coordinate relative to this objects location.
@@ -582,6 +584,7 @@ public class GreenfootObject extends ObjectTransporter
      * Return all objects within range 'r' around this object. 
      * An object is within range if the distance between its centre and this
      * object's centre is less than or equal to r.
+     * 
      * 
      * @param r Radius of the cirle (in pixels)
      * @param cls Class of objects to look for (passing 'null' will find all objects).
@@ -631,15 +634,17 @@ public class GreenfootObject extends ObjectTransporter
      * Return all objects that intersect a straight line from this object at
      * a specified angle. The angle is clockwise relative to the current 
      * rotation of the object.   <br>
+     * It will never include the object itself.
      * 
-     * NOTE: Not yet implemented.
      * 
      * @param angle The angle relative to current rotation of the object.
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    protected List getObjectsInDirection(int angle, Class cls)
+    protected List getObjectsInDirection(int angle, int length, Class cls)
     {
-        return null;
+       List l = world.getObjectsInDirection(getX(), getY(), angle + getRotation(), length, cls);
+       l.remove(this);
+       return l;
     }
     
     /**

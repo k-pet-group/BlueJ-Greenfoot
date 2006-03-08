@@ -111,20 +111,17 @@ public interface CollisionChecker
     public List getNeighbours(int x, int y, int distance, boolean diag, Class cls);
 
     /**
-     * Get all objects that lie on the line between the two points.
+     * Return all objects that intersect a straight line from this object at
+     * a specified angle. The angle is clockwise relative to the current 
+     * rotation of the object.  <br>
      * 
-     * @param x1
-     *            Location of point 1
-     * @param y1
-     *            Location of point 1
-     * @param x2
-     *            Location of point 2
-     * @param y2
-     *            Location of point 2
-     * @param cls
-     *            Class of objects to look for (null or Object.class will find
-     *            all classes)
+     * If the world is wrapped, the line will wrap around the edges.
+     * 
+     * @param x x-coordinate
+     * @param y y-coordinate
+     * @param angle The angle relative to current rotation of the object.
+     * @param length How far we want to look (in cells)
+     * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    public List getObjectsAtLine(int x1, int y1, int x2, int y2, Class cls);
-
+    public List getObjectsInDirection(int x, int y, int angle, int length, Class cls);
 }

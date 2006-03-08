@@ -27,7 +27,7 @@ import java.util.List;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.3.0
- * @cvs-version $Id: GreenfootWorld.java 3693 2005-10-20 12:44:55Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3801 2006-03-08 14:50:09Z polle $
  */
 public class GreenfootWorld extends ObjectTransporter
 {
@@ -339,7 +339,6 @@ public class GreenfootWorld extends ObjectTransporter
      * the logical location and not the extent of objects. Hence it is most
      * useful in scenarios where objects only span one cell.
      * 
-     * NOTE: class argument does not work. It returns all types of objects.
      * 
      * @param x Location
      * @param y Location
@@ -353,20 +352,22 @@ public class GreenfootWorld extends ObjectTransporter
     {
         return collisionChecker.getNeighbours(x, y, distance, diag, cls);
     }
-
+    
     /**
-     * Get all objects that lie on the line between the two points.
+     * Return all objects that intersect a straight line from the location at a
+     * specified angle. The angle is clockwise.
      * 
-     * @param x1 Location of point 1
-     * @param y1 Location of point 1
-     * @param x2 Location of point 2
-     * @param y2 Location of point 2
-     * @param cls Class of objects to look for (null or Object.class will find
-     *            all classes)
+     * @param x x-coordinate
+     * @param y y-coordinate
+     * @param angle The angle relative to current rotation of the object. (0-359)
+     * @param length How far we want to look (in cells)
+     * @param cls Class of objects to look for (passing 'null' will find all
+     *            objects).
      */
-    List getObjectsAtLine(int x1, int y1, int x2, int y2, Class cls)
+    List getObjectsInDirection(int x0, int y0, int angle, int length, Class cls)
     {
-        return collisionChecker.getObjectsAtLine(x1, y1, x2, y2, cls);
+
+        return collisionChecker.getObjectsInDirection(x0, y0, angle, length, cls);
     }
 
     // =================================================
