@@ -550,6 +550,8 @@ public class GridCollisionChecker
      * specified angle. The angle is clockwise relative to the current rotation
      * of the object. <br>
      * 
+     * This implementation is likely to change. Currently it uses a Bresenham algorithm. 
+     *
      * @param x x-coordinate
      * @param y y-coordinate
      * @param angle The angle relative to current rotation of the object.
@@ -559,8 +561,11 @@ public class GridCollisionChecker
      */
     public List getObjectsInDirection(int x, int y, int angle, int length, Class cls)
     {
+        // The current implementation is using a Bresenham algorithm which is
+        // probably not the one we want to use. The definition should probably
+        // be the following:
+        // Draw a line from the center of the start cell. EVERY object that is in a cell that this line intersects should be returned.
         
-        //TODO For non wrapping worlds the length should not be longer than it can reach the border.
         
         //calculate end point
      /*   int x1 = x + (int) Math.round(length * Math.cos(Math.toRadians(angle)));
