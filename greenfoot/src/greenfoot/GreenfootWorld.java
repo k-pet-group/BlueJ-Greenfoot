@@ -27,7 +27,7 @@ import java.util.List;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.3.0
- * @cvs-version $Id: GreenfootWorld.java 3801 2006-03-08 14:50:09Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3804 2006-03-08 16:02:30Z polle $
  */
 public class GreenfootWorld extends ObjectTransporter
 {
@@ -256,7 +256,7 @@ public class GreenfootWorld extends ObjectTransporter
      */
     public void setWrapped(boolean b)
     {
-        wrapWorld = true;
+        wrapWorld = b;
         collisionChecker.initialize(getWidth(), getHeight(), wrapWorld);
     }
 
