@@ -1,6 +1,7 @@
 package greenfoot;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Test object that can easily be configured to having different sizes.
@@ -25,25 +26,48 @@ public class TestObject extends GreenfootObject
         setImage(image);
     }
 
-    public Collection getNeighboursP(int distance, boolean diagonal, Class cls)
+    public List getNeighboursP(int distance, boolean diagonal, Class cls)
     {
         return getNeighbours(distance, diagonal, cls);
     }
 
-    public Collection getObjectsInRangeP(int distance, Class cls)
+    public List getObjectsInRangeP(int distance, Class cls)
     {
         return getObjectsInRange(distance, cls);
     }
 
-    public boolean intersectsP(TestObject other)
+    public boolean intersectsP(GreenfootObject other)
     {
         return intersects(other);
     }
 
-    public Collection getIntersectingObjectsP(Class cls)
+    public List getIntersectingObjectsP(Class cls)
     {
         return getIntersectingObjects(cls);
     }
+
+    public List getObjectsAtP(int dx, int dy, Class cls)
+    {
+        return getObjectsAt(dx, dy, cls);
+    }
+
+    public List getObjectsInDirectionP(int angle, int length, Class cls)
+    {
+         return getObjectsInDirection(angle, length, cls);
+    }
+
+    public GreenfootObject getOneIntersectingObjectP(Class cls)
+    {
+       return getOneIntersectingObject(cls);
+    }
+
+    public GreenfootObject getOneObjectAtP(int dx, int dy, Class cls)
+    {
+        return getOneObjectAt(dx, dy, cls);
+    }
+
+    
+    
 
 
   
