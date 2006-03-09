@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3790 2006-02-17 03:40:16Z davmac $
+ * @version $Id: VMReference.java 3807 2006-03-09 01:05:50Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -422,6 +422,10 @@ class VMReference
         int colonIndex = msg.indexOf(":");
         int val = -1;
 
+        if (! msg.startsWith("Listening for transport dt_socket at address:")) {
+            return -1;
+        }
+        
         try {
             if (colonIndex > -1) {
                 val = Integer.parseInt(msg.substring(colonIndex + 1).trim());
