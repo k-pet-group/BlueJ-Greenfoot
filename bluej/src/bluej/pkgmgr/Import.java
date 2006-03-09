@@ -22,7 +22,7 @@ import bluej.utility.JavaNames;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Import.java 3344 2005-04-11 01:57:42Z davmac $
+ * @version $Id: Import.java 3810 2006-03-09 13:21:56Z polle $
  */
 class Import
 {
@@ -86,7 +86,7 @@ class Import
         if (mismatchFiles.size() > 0) {
             ImportMismatchDialog imd = new ImportMismatchDialog(parentWin, mismatchFiles, mismatchPackagesOriginal,
                     mismatchPackagesChanged);
-            imd.show();
+            imd.setVisible(true);
 
             if (!imd.getResult())
                 return false;

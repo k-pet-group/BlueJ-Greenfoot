@@ -36,7 +36,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 3741 2006-01-16 00:41:18Z davmac $
+ * @version $Id: MethodDialog.java 3810 2006-03-09 13:21:56Z polle $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -114,7 +114,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 3741 2006-01-16 00:41:18Z davmac $
+     * @version $Id: MethodDialog.java 3810 2006-03-09 13:21:56Z polle $
      */
     public static class ParameterList
     {
@@ -453,7 +453,7 @@ public class MethodDialog extends CallDialog implements FocusListener
             if (focusedTextField != null) {
                 focusedTextField.setText(text);
                 // bring to front after insertion, doesn't seem to work.
-                this.show();
+                this.setVisible(true);
             }
         }
     }
@@ -484,7 +484,7 @@ public class MethodDialog extends CallDialog implements FocusListener
             startObjectBenchListening();
             listeningObjects = true;
         }
-        show();
+        setVisible(true);
 
         // focus requests have been wrapped in invokeLater method to resolve issues 
         // with focus confusion on Mac OSX (BlueJ 2.0, JDK 1.4.2)

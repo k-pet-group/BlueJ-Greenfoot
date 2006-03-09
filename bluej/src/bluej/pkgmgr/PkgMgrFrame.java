@@ -54,7 +54,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3713 2005-11-09 01:42:02Z davmac $
+ * @version $Id: PkgMgrFrame.java 3810 2006-03-09 13:21:56Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -586,7 +586,7 @@ public class PkgMgrFrame extends JFrame
     public void show()
     {
         if (!Config.isGreenfoot()) {
-            super.show();
+            super.setVisible(true);
             setState(Frame.NORMAL);
             toFront();
         }
@@ -835,7 +835,7 @@ public class PkgMgrFrame extends JFrame
         // if we have any files which failed the copy, we show them now
         if (fails != null && showFailureDialog) {
             JDialog ifd = new ImportFailedDialog(this, fails);
-            ifd.show();
+            ifd.setVisible(true);
         }
 
         // add bluej.pkg files through the imported directory structure
