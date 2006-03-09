@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3807 2006-03-09 01:05:50Z davmac $
+ * @version $Id: VMReference.java 3808 2006-03-09 01:53:04Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -1019,8 +1019,9 @@ class VMReference
     public void breakpointEvent(LocatableEvent event, boolean breakpoint)
     {
         // if the breakpoint is marked as with the SERVER_STARTED property
-        // then this is our own breakpoint that we have been waiting for at
-        // startup
+        // then this is our own breakpoint that is used to detect when a new
+        // server thread has started (which happens at startup, and when user
+        // code completes execution).
         if (event.request().getProperty(SERVER_STARTED_METHOD_NAME) != null) {
             // wake up the waitForStartup() method
             synchronized (this) {
@@ -1031,7 +1032,7 @@ class VMReference
             }
         }
         // if the breakpoint is marked with the SERVER_SUSPEND property
-        // then it is a main/worker thread returning to its breakpoint
+        // then it is the worker thread returning to its breakpoint
         // after completing some work. We want to leave it suspended here until
         // it is required to do more work.
         else if (event.request().getProperty(SERVER_SUSPEND_METHOD_NAME) != null) {
@@ -1046,28 +1047,30 @@ class VMReference
         }
         else {
             // breakpoint set by user in user code
-            if (serverThread.equals(event.thread()))
+            if (serverThread.equals(event.thread())) {
                 owner.raiseStateChangeEvent(Debugger.SUSPENDED);
 
-            // a breakpoint/step event in our SHELL class
-            // means the user has stepped past the end of a method
-            // and we should continue the machine
-            Location location = event.location();
-            String fileName;
-            try {
-                fileName = location.sourceName();
-            }
-            catch (AbsentInformationException e) {
-                fileName = null;
+                Location location = event.location();
+                String className = location.declaringType().name();
+                String fileName;
+                try {
+                    fileName = location.sourceName();
+                }
+                catch (AbsentInformationException e) {
+                    fileName = null;
+                }
+
+                // A breakpoint in the shell class or a BlueJ runtime class means that
+                // the user has stepped past the end of their own code
+                if (fileName != null && fileName.startsWith("__SHELL")
+                        || className != null && className.startsWith("bluej.runtime.")) {
+                    serverThread.resume();
+                    return;
+                }
             }
 
-            if (fileName != null && fileName.startsWith("__SHELL")) {
-                // machine.resume();
-            }
-            else {
-                // otherwise, signal the breakpoint/step to the user
-                owner.breakpoint(event.thread(), breakpoint);
-            }
+            // signal the breakpoint/step to the user
+            owner.breakpoint(event.thread(), breakpoint);
         }
     }
 
