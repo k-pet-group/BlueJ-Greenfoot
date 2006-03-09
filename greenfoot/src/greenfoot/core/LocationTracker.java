@@ -26,6 +26,7 @@ public class LocationTracker
     private static LocationTracker instance;
     private Location location = new Location();
     private Component component;
+    private MouseEvent mouseEvent;
     
     static {
         instance();
@@ -71,13 +72,24 @@ public class LocationTracker
         return location;
       
     }
+    
+    /**
+     * 
+     * @return null if no location is available
+     */
+    public MouseEvent getMouseEvent()
+    {
+        return mouseEvent;
+      
+    }
 
     private void move(MouseEvent e)
     {
+        mouseEvent = e;
         Point p = e.getPoint(); 
         int x = p.x;
         int y = p.y;
-		LocationTracker.instance().setLocation(x, y);
+		setLocation(x, y);
     }
 
     public void setComponent(Component worldCanvas)

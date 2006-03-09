@@ -48,7 +48,7 @@ import javax.swing.SwingUtilities;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3806 2006-03-08 18:30:48Z polle $
+ * @version $Id: DragGlassPane.java 3809 2006-03-09 11:34:51Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -191,7 +191,11 @@ public class DragGlassPane extends JComponent
         this.forcedDrag = forcedDrag;
         setDragImage(object.getImage(), object.getRotation());
         setDragObject(object);
-        paintNoDropImage = false;
+        paintNoDropImage = true;
+
+        //get last mouseevent to get first location
+        storePosition(LocationTracker.instance().getMouseEvent());
+
         dragOffsetX = xOffset;
         dragOffsetY = yOffset;
         dragListener = dl;
@@ -200,11 +204,7 @@ public class DragGlassPane extends JComponent
             //force painting of drag object
             Location l = LocationTracker.instance().getLocation();
             Point p = new Point(l.getX() + xOffset, l.getY() + yOffset);
-            boolean processed = lastDropTarget.drag(object, p);
-            if(! processed) {
-                //since it was not processed we paint it:
-                paintNoDropImage = true;
-            }            
+            paintNoDropImage =  ! lastDropTarget.drag(object, p);                      
         }
 
         setVisible(true);
