@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootObject.java 3801 2006-03-08 14:50:09Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3813 2006-03-10 18:19:21Z polle $
  */
 public class GreenfootObject extends ObjectTransporter
 {
@@ -102,10 +102,10 @@ public class GreenfootObject extends ObjectTransporter
             // it should just set the location to something else. We make no
             // promises of where the obecjt will be added if no location is
             // specified.
-            if(x >= world.getWidthInPixels()) {
+            if(x >= world.getWidthInPixels() || x < 0) {
                 x = 0;
             }
-            if(y >= world.getWidthInPixels()) {
+            if(y >= world.getHeightInPixels() || y < 0) {
                 y = 0;
             }
             
@@ -288,10 +288,10 @@ public class GreenfootObject extends ObjectTransporter
     {
         if (world != null) {
             if (world.getWidth() <= x || x < 0) {
-                throw new IndexOutOfBoundsException("x is out of bounds: " + x);
+                throw new IndexOutOfBoundsException("x(" + x + ") is out of bounds("+world.getWidth() +")");
             }
             if (world.getHeight() <= y || y < 0) {
-                throw new IndexOutOfBoundsException("y is out of bounds: " + x);
+                throw new IndexOutOfBoundsException("y(" + y + ") is out of bounds("+world.getHeight() +")");
             }
         }
     }
