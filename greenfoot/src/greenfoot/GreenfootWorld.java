@@ -27,7 +27,7 @@ import java.util.List;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.3.0
- * @cvs-version $Id: GreenfootWorld.java 3814 2006-03-10 18:59:37Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3815 2006-03-10 19:00:38Z polle $
  */
 public class GreenfootWorld extends ObjectTransporter
 {
@@ -224,7 +224,6 @@ public class GreenfootWorld extends ObjectTransporter
      * If a class is specified as a parameter, only objects of that class (or its
      * subclasses) will be returned. <p>
      * 
-     * NOTE: Incomplete implementation. the cls parameter is currently ignored.
      * 
      * @param cls Class of objects to look for ('null' will find all objects).
      * 
@@ -232,7 +231,6 @@ public class GreenfootWorld extends ObjectTransporter
      */
     public synchronized List getObjects(Class cls)
     {
-        //TODO: implement cls parameter
         return Collections.unmodifiableList(collisionChecker.getObjects(cls));
     }
 
