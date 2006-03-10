@@ -9,7 +9,7 @@ import java.util.Collection;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 3551 2005-09-06 09:31:41Z polle $
+ * @version $Id: WorldVisitor.java 3814 2006-03-10 18:59:37Z polle $
  */
 public class WorldVisitor
 {
@@ -31,5 +31,14 @@ public class WorldVisitor
     public static Collection getObjectsAtPixel(GreenfootWorld w, int x, int y)
     {
         return w.getObjectsAtPixel(x, y);
+    }
+
+    /**
+     * Used to indicate the start of an animation sequence. For use in the collision checker.
+     * @see greenfoot.collision.CollisionChecker#startSequence()
+     */
+    public static void startSequence(GreenfootWorld w)
+    {
+        w.startSequence();
     }
 }

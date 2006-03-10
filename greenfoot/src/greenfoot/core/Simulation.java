@@ -87,6 +87,7 @@ public class Simulation extends Thread
         System.gc();
         while (true) {
             maybePause();
+            worldHandler.startSequence();
             runOnce();
             delay();
         }
@@ -127,12 +128,11 @@ public class Simulation extends Thread
             synchronized (worldHandler.getWorldLock()) {
                 // We need to copy it, to avoid ConcurrentModificationException
                 objects = new ArrayList(worldHandler.getGreenfootObjects());
-            
 
-            for (Iterator i = objects.iterator(); i.hasNext();) {
-                GreenfootObject actor = (GreenfootObject) i.next();
-                actor.act();
-            }
+                for (Iterator i = objects.iterator(); i.hasNext();) {
+                    GreenfootObject actor = (GreenfootObject) i.next();
+                    actor.act();
+                }
             }
         }
         catch (Throwable t) {

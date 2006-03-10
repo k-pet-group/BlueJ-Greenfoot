@@ -27,7 +27,7 @@ import java.util.List;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.3.0
- * @cvs-version $Id: GreenfootWorld.java 3804 2006-03-08 16:02:30Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3814 2006-03-10 18:59:37Z polle $
  */
 public class GreenfootWorld extends ObjectTransporter
 {
@@ -233,7 +233,7 @@ public class GreenfootWorld extends ObjectTransporter
     public synchronized List getObjects(Class cls)
     {
         //TODO: implement cls parameter
-        return Collections.unmodifiableList(objects);
+        return Collections.unmodifiableList(collisionChecker.getObjects(cls));
     }
 
     /**
@@ -513,6 +513,15 @@ public class GreenfootWorld extends ObjectTransporter
             throw new IndexOutOfBoundsException("The y-coordinate is: " + +object.getY()
                     + ". It must be larger than: 0");
         }
+    }
+
+    /**
+     * Used to indicate the start of an animation sequence. For use in the collision checker.
+     * @see greenfoot.collision.CollisionChecker#startSequence()
+     */
+    void startSequence()
+    {
+        collisionChecker.startSequence();
     }
 
 }

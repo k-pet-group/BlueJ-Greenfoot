@@ -5,11 +5,13 @@ import greenfoot.GreenfootObjectVisitor;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 
 /**<
@@ -139,18 +141,105 @@ public class GridCollisionChecker
         
     }
 
+    public static class Statistics {
+        
+        private static final String format = "%15s%15s%15s%15s%15s";
+        private long objectsAt;
+        private long intersectionObjects;
+        private long objectsInRange;
+        private long neighbours;
+        private long objectsInDirection;
+        private long startTime = -1;
+
+        public void incGetObjectsAt() {
+            initStartTime();
+            objectsAt++;
+        }
+
+        public void incGetIntersectingObjects() {
+            initStartTime();
+            intersectionObjects++;
+        }
+
+        public void incGetObjectsInRange() {
+            initStartTime();
+            objectsInRange++;
+        }
+
+        public void incGetNeighbours() {
+            initStartTime();
+            neighbours++;
+        }
+
+        public void incGetObjectsInDirection() {
+            initStartTime();
+            objectsInDirection++;
+        }
+
+        private void initStartTime()
+        {
+            if(startTime == -1) {
+                startTime = System.currentTimeMillis();
+            }
+        }
+        
+        public String toString() {
+            return String.format(format, new Object[] {
+                    new Long(startTime),
+                    new Long(objectsAt),
+                    new Long(intersectionObjects),
+                    new Long(objectsInRange),
+                    new Long(neighbours),
+                    new Long(objectsInDirection)
+                    });
+        }
+        
+        public static String headerString() {
+            return String.format(format, new Object[] {
+                    "startTime",
+                    "objectsAt",
+                    "intersection",
+                    "oinRange",
+                    "neighbours",
+                    "inDirection"
+                    });
+        }
+    }
+    
+    
     private Set objects;
 
     private static List emptyList = new Vector();
     private boolean wrap;
 
     private GridWorld world;
+    
+    private Statistics currentStats = new Statistics();
+    private List allStats = new ArrayList();
+    private static boolean PRINT_STATS = true;  
+    
 
     public void initialize(int width, int height, boolean wrap)
     {
         this.wrap = wrap;
+        objects = null;
+        if (PRINT_STATS) {
+            System.out.println(Statistics.headerString());
+            objects = new TreeSet(new Comparator() {
+                public int compare(Object arg0, Object arg1)
+                {
+                    int compare = arg0.hashCode() - arg1.hashCode();
+                    if (compare == 0 && !arg0.equals(arg1)) {
+                        System.err.println("Write the developers that they should fix the GridCollisionChecker!");
+                    }
+                    return compare;
+                }
+            });
+        }
+        else {
+            objects = new HashSet();
+        }
         
-        objects = new HashSet();
         if (wrap) {
             world = new WrappingGridWorld(width, height);
         }
@@ -218,6 +307,7 @@ public class GridCollisionChecker
         }
         List objectsThere = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
+            currentStats.incGetObjectsAt();
             GreenfootObject go = (GreenfootObject) iter.next();
             if ((cls == null || cls.isInstance(go)) && GreenfootObjectVisitor.contains(go,x - go.getX(), y - go.getY())) {
                 objectsThere.add(go);
@@ -254,6 +344,7 @@ public class GridCollisionChecker
         List neighbours = new ArrayList();
         while (iter.hasNext()) {
             Object o = iter.next();
+            currentStats.incGetObjectsInRange();
             if (cls == null || cls.isInstance(o)) {
                 GreenfootObject g = (GreenfootObject) o;
                 if (distance(x, y, g) <= r) {
@@ -381,6 +472,7 @@ public class GridCollisionChecker
         List intersecting = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
             GreenfootObject element = (GreenfootObject) iter.next();
+            currentStats.incGetIntersectingObjects();
             if (element != go && GreenfootObjectVisitor.intersects(go, element) && (cls == null || cls.isInstance(element))) {
                 intersecting.add(element);
             }
@@ -415,6 +507,7 @@ public class GridCollisionChecker
                     if (dx == x && dy == y)
                         continue;
                     Cell cell = world.get(dx, dy);
+                    currentStats.incGetNeighbours();
                     if (cell != null) {
                         Collection found = cell.get(cls);
                         if (found != null) {
@@ -446,6 +539,7 @@ public class GridCollisionChecker
                     if (dx == 0 && dy == 0) {
                         continue;
                     }
+                    currentStats.incGetNeighbours();
                     if (withinBounds(xPos, getWidth())) {
                         Cell cell = world.get(xPos, yPos);
                         if (cell != null) {
@@ -599,6 +693,7 @@ public class GridCollisionChecker
         if (dx > dy) {
             double fraction = dy - (dx / 2); // same as 2*dy - dx
             for(int l=0; l< lxMax; l++) {
+                currentStats.incGetObjectsInDirection();
                 if (fraction >= 0) {
                     y += stepy;
                     fraction -= dx; // same as fraction -= 2*dx
@@ -612,6 +707,7 @@ public class GridCollisionChecker
         else {
             double fraction = dx - (dy / 2);
             for(int l=0; l< lyMax; l++) {
+                currentStats.incGetObjectsInDirection();
                 if (fraction >= 0) {
                     x += stepx;
                     fraction -= dy;
@@ -650,5 +746,28 @@ public class GridCollisionChecker
         else {
             return remainder;
         }
+    }
+
+
+    public void startSequence()
+    {
+        if (PRINT_STATS) {
+            System.out.println(currentStats);
+        }
+        allStats.add(currentStats);
+        currentStats = new Statistics();
+    }
+
+    public List getObjects(Class cls)
+    {
+        List objectsThere = new ArrayList();
+        for (Iterator iter = objects.iterator(); iter.hasNext();) {
+            currentStats.incGetObjectsAt();
+            GreenfootObject go = (GreenfootObject) iter.next();
+            if (cls == null || cls.isInstance(go)) {
+                objectsThere.add(go);
+            }
+        }
+        return objectsThere;
     }
 }

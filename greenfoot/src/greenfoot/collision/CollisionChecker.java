@@ -124,4 +124,28 @@ public interface CollisionChecker
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
     public List getObjectsInDirection(int x, int y, int angle, int length, Class cls);
+    
+    /**
+     * Returns all objects of a particular class
+     * 
+     * @param cls
+     *            Class of objects to look for (null or Object.class will find
+     *            all classes)
+     */
+    public List getObjects(Class cls);
+    
+    /**
+     * Methods that marks that a new sequence is started. A sequence in
+     * greenfoot is most likely to start when a new act-iteration is begun
+     * through all the objects. When calling methods interactively or using the
+     * act button, that single invocation should be considered a sequence.
+     * 
+     * <br>
+     * 
+     * This method will initially be used only for performance testing, but
+     * collision detection algorithms might also take advantage of this
+     * information - especially if we will implement an all-at-once algortihm.
+     */
+    public void startSequence();
+
 }

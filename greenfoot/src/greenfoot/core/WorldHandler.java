@@ -627,4 +627,13 @@ public class WorldHandler
     {
         listenerList.add(WorldListener.class, l);
     }
+
+    /**
+     * Used to indicate the start of an animation sequence. For use in the collision checker.
+     * @see greenfoot.collision.CollisionChecker#startSequence()
+     */
+    public void startSequence()
+    {
+        WorldVisitor.startSequence(world);
+    }
 }
