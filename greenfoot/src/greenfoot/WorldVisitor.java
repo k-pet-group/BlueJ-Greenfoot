@@ -1,5 +1,6 @@
 package greenfoot;
 
+import java.awt.Graphics;
 import java.util.Collection;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Collection;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 3814 2006-03-10 18:59:37Z polle $
+ * @version $Id: WorldVisitor.java 3816 2006-03-13 15:49:00Z polle $
  */
 public class WorldVisitor
 {
@@ -40,5 +41,10 @@ public class WorldVisitor
     public static void startSequence(GreenfootWorld w)
     {
         w.startSequence();
+    }
+
+    public static void paintDebug(GreenfootWorld world, Graphics g)
+    {
+        world.paintDebug(g);
     }
 }

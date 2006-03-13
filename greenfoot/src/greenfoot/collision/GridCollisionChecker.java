@@ -3,6 +3,7 @@ package greenfoot.collision;
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootObjectVisitor;
 
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -216,10 +217,10 @@ public class GridCollisionChecker
     
     private Statistics currentStats = new Statistics();
     private List allStats = new ArrayList();
-    private static boolean PRINT_STATS = true;  
+    private static boolean PRINT_STATS = false;  
     
 
-    public void initialize(int width, int height, boolean wrap)
+    public void initialize(int width, int height, int cellSize, boolean wrap)
     {
         this.wrap = wrap;
         objects = null;
@@ -769,5 +770,31 @@ public class GridCollisionChecker
             }
         }
         return objectsThere;
+    }
+
+    public GreenfootObject getOneObjectAt(int dx, int dy, Class cls)
+    {
+        List neighbours = getObjectsAt(dx, dy, cls);
+        if(!neighbours.isEmpty()) {
+            return (GreenfootObject) neighbours.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    public GreenfootObject getOneIntersectingObject(GreenfootObject object, Class cls)
+    {
+        List intersecting = getIntersectingObjects(object, cls);
+        if(!intersecting.isEmpty()) {
+            return (GreenfootObject) intersecting.get(0);
+        } else {
+            return null; 
+        }
+    }
+
+    public void paintDebug(Graphics g)
+    {
+        // TODO Auto-generated method stub
+        
     }
 }

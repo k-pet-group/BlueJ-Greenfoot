@@ -2,6 +2,7 @@ package greenfoot.collision;
 
 import greenfoot.GreenfootObject;
 
+import java.awt.Graphics;
 import java.util.List;
 
 /**
@@ -14,14 +15,12 @@ public interface CollisionChecker
     /**
      * This method is called when the collision checker should initialise.
      * 
-     * @param width
-     *            Width of the world
-     * @param height
-     *            Height of the world
-     * @param wrap
-     *            Whether the world wraps around the edges
+     * @param width Width of the world
+     * @param height Height of the world
+     * @param cellSize size of one cell
+     * @param wrap Whether the world wraps around the edges
      */
-    public void initialize(int width, int height, boolean wrap);
+    public void initialize(int width, int height, int cellSize, boolean wrap);
 
     /**
      * Called when an object is added into the world
@@ -147,5 +146,12 @@ public interface CollisionChecker
      * information - especially if we will implement an all-at-once algortihm.
      */
     public void startSequence();
+
+    public GreenfootObject getOneObjectAt(int dx, int dy, Class cls);
+
+    public GreenfootObject getOneIntersectingObject(GreenfootObject object, Class cls);
+
+    public void paintDebug(Graphics g);
+
 
 }

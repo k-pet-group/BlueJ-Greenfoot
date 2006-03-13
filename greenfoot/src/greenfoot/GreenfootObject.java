@@ -3,6 +3,7 @@ package greenfoot;
 import greenfoot.core.LocationTracker;
 import greenfoot.core.ObjectDragProxy;
 import greenfoot.core.WorldHandler;
+import greenfoot.util.Circle;
 import greenfoot.util.Location;
 
 import java.net.URL;
@@ -26,7 +27,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootObject.java 3813 2006-03-10 18:19:21Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3816 2006-03-13 15:49:00Z polle $
  */
 public class GreenfootObject extends ObjectTransporter
 {
@@ -49,9 +50,11 @@ public class GreenfootObject extends ObjectTransporter
     private GreenfootWorld world;
     private GreenfootImage image;
 
+    private Circle boundingCircle;
+    private Object data;
+
     private static GreenfootImage greenfootImage = new GreenfootImage("greenfoot/greenfoot-logo.png");
 
-    
     /**
      * Construct a GreenfootObject.
      * The default position is (0,0). Usually the constructor
@@ -75,8 +78,11 @@ public class GreenfootObject extends ObjectTransporter
     public GreenfootObject(int x, int y)
     {
         init();
+        int oldx = x;
+        int oldy = y;
         this.x = x;
         this.y = y;
+        locationChanged(x,y);
     }
     
     private void init()
@@ -251,7 +257,7 @@ public class GreenfootObject extends ObjectTransporter
         this.rotation = rotation;
 
         if (oldHeight != getHeight() || oldWidth != getWidth()) {
-            world.updateObjectSize(this);
+            sizeChanged();
         }
     }
 
@@ -281,8 +287,9 @@ public class GreenfootObject extends ObjectTransporter
 
         this.x = x;
         this.y = y;
-        world.updateObjectLocation(this, oldX, oldY);
+        locationChanged(oldX, oldY);
     }
+
 
     private void boundsCheck(int x, int y)
     {
@@ -329,6 +336,7 @@ public class GreenfootObject extends ObjectTransporter
         URL imageURL = this.getClass().getClassLoader().getResource(filename);
         if (imageURL != null) {
             image = new GreenfootImage(imageURL);
+            sizeChanged();
         }
     }
 
@@ -341,6 +349,7 @@ public class GreenfootObject extends ObjectTransporter
     final public void setImage(GreenfootImage image)
     {
         this.image = image;
+        sizeChanged();
     }
     
     // ==================================
@@ -382,8 +391,24 @@ public class GreenfootObject extends ObjectTransporter
     {
         // TODO Possible error if its location is out of bounds
         this.world = world;
+        boundingCircle = new Circle();
+        boundingCircle.setRadius(calcBoundingRadius());
+        boundingCircle.setX(x);
+        boundingCircle.setY(y);  
+    }
+    
+    Circle getBoundingCircle() {        
+        return boundingCircle;
     }
 
+    void setData(Object o) {
+        this.data = o;
+    }
+    
+    Object getData() {
+        return data;
+    }
+    
     private int toCellFloor(int i)
     {
         return (int) Math.floor((double) i / getWorld().getCellSize());
@@ -425,6 +450,36 @@ public class GreenfootObject extends ObjectTransporter
         double paintY = cellCenter - image.getHeight() / 2;
 
         return (int) Math.floor(paintY);
+    }
+    
+
+    private void sizeChanged()
+    {
+        if(boundingCircle != null) {
+            boundingCircle.setRadius(calcBoundingRadius());
+        }
+        if(world != null) {
+            world.updateObjectSize(this);
+        }
+    }   
+
+    private int calcBoundingRadius()
+    {
+        if(world == null) return -1;
+        int dy = getYMax() - getYMin();
+        int dx = getXMax() - getXMin();
+        return (int) Math.sqrt(dx*dx + dy*dy)/2;
+    }
+
+    private void locationChanged(int oldX, int oldY)
+    {
+        if(boundingCircle != null) {
+            boundingCircle.setX(x);
+            boundingCircle.setY(y);
+        }
+        if(world != null) {
+            world.updateObjectLocation(this, oldX, oldY);
+        }
     }
 
     // ============================
@@ -571,13 +626,8 @@ public class GreenfootObject extends ObjectTransporter
      */
     protected GreenfootObject getOneObjectAt(int dx, int dy, Class cls)
     {
-        //return world.getOneObjectAt(getX() + dx, getY() + dy, cls);
-        List neighbours = getObjectsAt(dx, dy, cls);
-        if(!neighbours.isEmpty()) {
-            return (GreenfootObject) neighbours.get(0);
-        } else {
-            return null;
-        }
+        return world.getOneObjectAt(getX() + dx, getY() + dy, cls);
+        
     }
     
     /**
@@ -621,13 +671,8 @@ public class GreenfootObject extends ObjectTransporter
      */
     protected GreenfootObject getOneIntersectingObject(Class cls)
     {
-        //return world.getOneIntersectingObject(this, cls);
-        List intersecting = world.getIntersectingObjects(this, cls);
-        if(!intersecting.isEmpty()) {
-            return (GreenfootObject) intersecting.get(0);
-        } else {
-            return null;
-        }
+        return world.getOneIntersectingObject(this, cls);
+
     }
 
     /**
@@ -678,7 +723,5 @@ public class GreenfootObject extends ObjectTransporter
             return true;
         return false;
     }
-    
-   
     
 }

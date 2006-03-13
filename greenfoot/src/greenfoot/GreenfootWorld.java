@@ -1,8 +1,11 @@
 package greenfoot;
 
+import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
 import greenfoot.collision.GridCollisionChecker;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,16 +30,11 @@ import java.util.List;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.3.0
- * @cvs-version $Id: GreenfootWorld.java 3815 2006-03-10 19:00:38Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3816 2006-03-13 15:49:00Z polle $
  */
 public class GreenfootWorld extends ObjectTransporter
 {
-   
-    // TODO: Maybe we want to be able to force the world into "single-cell"
-    // mode. With that we avoid accidently going into sprite mode if an object
-    // is rotated and therefore get out of cell bounds
-
-    private CollisionChecker collisionChecker = new GridCollisionChecker();
+    private CollisionChecker collisionChecker = new GridCollisionChecker(); //new BVHInsChecker();
 
     /** All the objects currently in the world */
     private List objects = new ArrayList();
@@ -87,7 +85,7 @@ public class GreenfootWorld extends ObjectTransporter
         this.height = height;
         this.cellSize = cellSize;
         this.wrapWorld = false;
-        collisionChecker.initialize(width, height, wrapWorld);
+        collisionChecker.initialize(width, height, cellSize, wrapWorld);
     }
 
     /**
@@ -182,6 +180,7 @@ public class GreenfootWorld extends ObjectTransporter
         }
         checkAndWrapLocation(object);
         object.setWorld(this);
+         
         collisionChecker.addObject(object);
         objects.add(object);
     }
@@ -192,9 +191,11 @@ public class GreenfootWorld extends ObjectTransporter
      * @param object the object to remove
      */
     public synchronized void removeObject(GreenfootObject object)
-    {
-        collisionChecker.removeObject(object);
-        objects.remove(object);
+    { 
+        if(objects.remove(object)) {
+            //we only want to remove it once.
+            collisionChecker.removeObject(object);
+        }
     }
     
     /**
@@ -255,7 +256,7 @@ public class GreenfootWorld extends ObjectTransporter
     public void setWrapped(boolean b)
     {
         wrapWorld = b;
-        collisionChecker.initialize(getWidth(), getHeight(), wrapWorld);
+        collisionChecker.initialize(getWidth(), getHeight(), cellSize, wrapWorld);
     }
 
     /**
@@ -522,4 +523,20 @@ public class GreenfootWorld extends ObjectTransporter
         collisionChecker.startSequence();
     }
 
+    GreenfootObject getOneObjectAt(int dx, int dy, Class cls)
+    {
+        return collisionChecker.getOneObjectAt(dx, dy, cls);
+    }
+
+    GreenfootObject getOneIntersectingObject(GreenfootObject object, Class cls)
+    {
+        return collisionChecker.getOneIntersectingObject(object,cls);
+    }
+
+    public void paintDebug(Graphics g)
+    {
+        g.setColor(Color.BLACK);
+        g.drawString("# of Objects: " + objects.size(), 50,50);
+        collisionChecker.paintDebug(g);
+    }
 }
