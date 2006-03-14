@@ -74,7 +74,7 @@ public class AboutGreenfoot extends JDialog
         bottomtext.addText(" ");
         bottomtext.addText(Config.getString("More information can be found at www.greenfoot.org"));
         bottomtext.addText(" ");
-        bottomtext.addText(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.debugLogName));
+        bottomtext.addText(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.greenfootDebugLogName));
 
         aboutPanel.add(bottomtext, BorderLayout.SOUTH);
 
