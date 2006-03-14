@@ -1,9 +1,14 @@
 package greenfoot.core;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RObject;
@@ -27,6 +32,7 @@ public class GPackage
     private GClass classes;
     
     private Map classPool = new HashMap();
+    private Properties pkgProperties = null;
     
     public GPackage(RPackage pkg)
     {
@@ -48,6 +54,64 @@ public class GPackage
         this.project = project;
     }
 
+    /**
+     * Get a persistent greenfoot property for this package.
+     * @param propName   The name of the property whose value to get
+     * @return   The string value of the property
+     * 
+     * @throws RemoteException
+     * @throws PackageNotFoundException
+     */
+    public String getProperty(String propName)
+        throws RemoteException, PackageNotFoundException
+    {
+        loadProperties();
+        return pkgProperties.getProperty(propName);
+    }
+    
+    /**
+     * Set a persistent greenfoot property for this package.
+     * @param propName  The name of the property to set
+     * @param value     The string value of the property
+     * 
+     * @throws PackageNotFoundException
+     * @throws RemoteException
+     * @throws IOException
+     */
+    public void setProperty(String propName, String value)
+        throws PackageNotFoundException, RemoteException, IOException
+    {
+        loadProperties();
+        pkgProperties.setProperty(propName, value);
+        
+        try {
+            File propsFile = new File(getDir(), "greenfoot.pkg");
+            OutputStream os = new FileOutputStream(propsFile);
+            pkgProperties.store(os, "Greenfoot properties");
+        }
+        catch (ProjectNotOpenException pnoe) {
+            // can't happen.
+        }
+    }
+    
+    private void loadProperties()
+        throws PackageNotFoundException, RemoteException
+    {
+        try {
+            if (pkgProperties == null) {
+                pkgProperties = new Properties();
+                File propsFile = new File(getDir(), "greenfoot.pkg");
+                try {
+                    pkgProperties.load(new FileInputStream(propsFile));
+                }
+                catch (IOException ioe) {}
+            }
+        }
+        catch (ProjectNotOpenException pnoe) {
+            // We can't get this, or greenfoot wouldn't be running!
+        }
+    }
+    
     public void compile(boolean waitCompileEnd)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException
     {
