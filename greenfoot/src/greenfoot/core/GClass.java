@@ -2,18 +2,15 @@ package greenfoot.core;
 
 import greenfoot.event.CompileListener;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RConstructor;
 import rmiextension.wrappers.RField;
 import rmiextension.wrappers.event.RCompileEvent;
-import bluej.extensions.BField;
-import bluej.extensions.BMethod;
+import bluej.extensions.*;
 import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.CompilationNotStartedException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 
@@ -21,7 +18,7 @@ import bluej.parser.symtab.ClassInfo;
 /**
  * Represents a class in Greenfoot. This class wraps the RMI class and contains
  * some extra functionality. The main reason for createing this class is to have
- * a place to store information about inheritance realtions between classes that
+ * a place to store information about inheritance relations between classes that
  * have not been compiled.
  * 
  * @author Poul Henriksen
@@ -41,6 +38,49 @@ public class GClass implements CompileListener
         guessSuperclass();
     }
 
+    /**
+     * Get the value of a persistent property for this class
+     * 
+     * @param propertyName   The property name
+     * @return   The property value (a String)
+     */
+    public String getClassProperty(String propertyName)
+    {
+        try {
+            return pkg.getProperty("class." + getName() + "." + propertyName);
+        }
+        catch (RemoteException re) {
+            // TODO handle/report error
+            return null;
+        }
+        catch (PackageNotFoundException pnfe) {
+            // TODO handle/report error
+            return null;
+        }
+    }
+    
+    /**
+     * Set the value of a persistent property for this class
+     * 
+     * @param propertyName  The property name to set
+     * @param value         The value to set the property to
+     */
+    public void setClassProperty(String propertyName, String value)
+    {
+        try {
+            pkg.setProperty("class." + getName() + "." + propertyName, value);
+        }
+        catch (RemoteException re) {
+            // TODO handle/report error
+        }
+        catch (PackageNotFoundException pnfe) {
+            // TODO handle/report error
+        }
+        catch (IOException ioe) {
+            // TODO handle/report error
+        }
+    }
+    
     public void compile(boolean waitCompileEnd)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException
     {

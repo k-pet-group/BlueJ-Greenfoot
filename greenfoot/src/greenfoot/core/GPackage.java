@@ -83,14 +83,20 @@ public class GPackage
     {
         loadProperties();
         pkgProperties.setProperty(propName, value);
+        OutputStream os = null;
         
         try {
             File propsFile = new File(getDir(), "greenfoot.pkg");
-            OutputStream os = new FileOutputStream(propsFile);
+            os = new FileOutputStream(propsFile);
             pkgProperties.store(os, "Greenfoot properties");
         }
         catch (ProjectNotOpenException pnoe) {
             // can't happen.
+        }
+        finally {
+            if (os != null) {
+                os.close();
+            }
         }
     }
     
