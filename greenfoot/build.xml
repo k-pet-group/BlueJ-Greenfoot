@@ -130,7 +130,7 @@
 
 	<target name="compile-scenarios" depends="compile" description="Compile the scenarios">
 		<!-- Should first delete all class files in scenario, and the greenfoot dir (depend on clean-scenarios) -->
-
+                
 		<!-- Compile all the scenarios -->
 		<javac srcdir="scenarios" classpathref="greenfoot.class.path" debug="true">
 			<patternset refid="compile.scenarios" />
@@ -235,15 +235,62 @@
         </java>
     </target>
     
+    <target name="run-scenario-viewer"  depends="ready-to-run,compile-scenarios">
+        <!-- run the java code built into the jar files -->
+        <java classname="greenfoot.util.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/bin/java">        
+            <classpath>
+                <!--path refid="bluej.class.path"/>
+                <pathelement location="${build_java_home}/lib/tools.jar"/>
+                <pathelement location="/System/Library/Java"/-->
+                <pathelement location="${build}"/>
+                <pathelement location="scenarios/ants/"/>
+                <fileset dir="scenarios">
+                    <patternset refid="compile.scenarios" />
+                </fileset>
+                 <path refid="bluej.class.path"/>
+                
+
+            </classpath>        
+            
+        </java>
+    </target>
     
-	<target name="clean-scenarios" description="clean up scenarios (remove doc and greenfoot dir)" >
-		<delete includeemptydirs="true">
-			<fileset dir="scenarios">
-				<include name="**/*.class"/>
-				<include name="**/doc/" />
-				<include name="**/greenfoot/" />
-				<include name="**/*.ctxt" />
-			</fileset>
-		</delete>
-	</target>
+    <target name="profile-scenario-viewer"  depends="ready-to-run,compile-scenarios">
+        <fail unless="netbeans.home">This target can only run inside the NetBeans IDE.</fail>
+
+        <nbprofiledirect>
+            <classpath>
+                <pathelement location="${build}"/>
+                <pathelement location="scenarios/ants/"/>
+                <fileset dir="scenarios">
+                    <patternset refid="compile.scenarios" />
+                </fileset>
+                <path refid="bluej.class.path"/> 
+            </classpath>
+        </nbprofiledirect>
+    
+        <!-- run the java code built into the jar files -->
+        <java classname="greenfoot.util.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/bin/java">        
+            <classpath>
+                <pathelement location="${build}"/>
+                <pathelement location="scenarios/ants/"/>
+                <fileset dir="scenarios">
+                    <patternset refid="compile.scenarios" />
+                </fileset>
+                <path refid="bluej.class.path"/>
+            </classpath>        
+            <jvmarg value="${profiler.info.jvmargs.agent}"/>
+        </java>
+    </target>
+    
+    <target name="clean-scenarios" description="clean up scenarios (remove doc and greenfoot dir)" >
+        <delete includeemptydirs="true">
+            <fileset dir="scenarios">
+                <include name="**/*.class"/>
+                <include name="**/doc/" />
+                <include name="**/greenfoot/" />
+                <include name="**/*.ctxt" />
+            </fileset>
+        </delete>
+    </target>
 </project>
