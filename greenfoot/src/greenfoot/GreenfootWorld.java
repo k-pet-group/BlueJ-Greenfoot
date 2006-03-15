@@ -6,6 +6,7 @@ import greenfoot.collision.GridCollisionChecker;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,11 +31,11 @@ import java.util.List;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.3.0
- * @cvs-version $Id: GreenfootWorld.java 3816 2006-03-13 15:49:00Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3824 2006-03-15 14:07:39Z polle $
  */
 public class GreenfootWorld extends ObjectTransporter
 {
-    private CollisionChecker collisionChecker = new GridCollisionChecker(); //new BVHInsChecker();
+    private CollisionChecker collisionChecker = new GridCollisionChecker();//new BVHInsChecker();
 
     /** All the objects currently in the world */
     private List objects = new ArrayList();
@@ -118,9 +119,10 @@ public class GreenfootWorld extends ObjectTransporter
      */
     final public void setBackground(String filename)
     {
-        GreenfootImage bg = new GreenfootImage(filename);
+        URL imageURL = this.getClass().getClassLoader().getResource(filename);
+        GreenfootImage bg = new GreenfootImage(imageURL);            
         bg.setTiled(true);
-        setBackground(bg);
+        setBackground(bg);        
     }
 
     /**
@@ -535,8 +537,8 @@ public class GreenfootWorld extends ObjectTransporter
 
     public void paintDebug(Graphics g)
     {
-        g.setColor(Color.BLACK);
+        /*g.setColor(Color.BLACK);
         g.drawString("# of Objects: " + objects.size(), 50,50);
-        collisionChecker.paintDebug(g);
+        collisionChecker.paintDebug(g);*/
     }
 }
