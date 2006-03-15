@@ -29,7 +29,7 @@ public class GreenfootScenarioViewer
     public static void main(String[] args)
     {
         String worldClassName = "AntWorld"; 
-        String worldInitMethod = "scenarioStupidBig";  
+        String worldInitMethod = "big";  
         if(args.length == 2) {
             worldClassName = args[0];
             worldInitMethod = args[1];
@@ -54,6 +54,7 @@ public class GreenfootScenarioViewer
         ControlPanel controls = new ControlPanel(sim);
         controls.worldCreated(null);
         frame.getContentPane().add(controls, BorderLayout.SOUTH);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
 
