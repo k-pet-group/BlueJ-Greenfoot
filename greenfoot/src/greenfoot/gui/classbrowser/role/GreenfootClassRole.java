@@ -1,39 +1,37 @@
 package greenfoot.gui.classbrowser.role;
 
 import greenfoot.GreenfootImage;
-import greenfoot.GreenfootObject;
-import greenfoot.GreenfootWorld;
-import greenfoot.ImageVisitor;
 import greenfoot.actions.DragProxyAction;
+import greenfoot.actions.SelectImageAction;
 import greenfoot.core.GClass;
 import greenfoot.core.ObjectDragProxy;
 import greenfoot.gui.classbrowser.ClassView;
+import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JPopupMenu;
 
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: GreenfootClassRole.java 3830 2006-03-16 05:36:04Z davmac $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -43,6 +41,7 @@ public class GreenfootClassRole extends ClassRole
     private final static Dimension iconSize = new Dimension(16, 16);
     private Image image;
     private ClassView classView;
+    private JLabel imageLabel;
 
     /*
      * (non-Javadoc)
@@ -76,17 +75,33 @@ public class GreenfootClassRole extends ClassRole
         classView.setForeground(new Color(245, 204, 155));
         classView.setOpaque(true);
 
-        image = renderImage();
+        // Add the image label
+        image = getImage();
         if (image != null) {
-            java.awt.Image scaledImage = image.getScaledInstance(iconSize.width, iconSize.height,
-                    java.awt.Image.SCALE_SMOOTH);
-            JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
-            c.insets.left = 4;
-            c.insets.right = 4;
-            classView.add(imageLabel, c);
+            Image scaledImage = GreenfootUtil.getScaledImage(image, iconSize.width, iconSize.height);
+            imageLabel = new JLabel(new ImageIcon(scaledImage));
         }
+        else {
+            imageLabel = new JLabel();
+        }
+        c.insets.left = 4;
+        c.insets.right = 4;
+        classView.add(imageLabel, c);
     }
 
+    /**
+     * Notification that a new image has been selected for this class.
+     */
+    public void changeImage()
+    {
+        image = null;
+        getImage();
+        if (image != null && imageLabel != null) {
+            Image scaledImage = GreenfootUtil.getScaledImage(image, iconSize.width, iconSize.height);
+            imageLabel.setIcon(new ImageIcon(scaledImage));
+        }
+    }
+    
     public GreenfootImage getGreenfootImage() {
         Image im = getImage();
         if(im == null) {
@@ -102,87 +117,21 @@ public class GreenfootClassRole extends ClassRole
      */
     public Image getImage()
     {
-        /*
-         * if (image == null && rClass.isCompiled()) { image = renderImage();
-         */
         if (image == null) {
-            image = renderImage();
+            String imageName = gClass.getClassProperty("image");
+            if (imageName == null) {
+                imageName = "greenfoot-logo.png";
+            }
+            try {
+                image = ImageIO.read(new File(new File("images"), imageName));
+            }
+            catch (IOException ioe) {
+                image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+            }
         }
+        
         return image;
     }
-
-    private Image renderImage()
-    {
-        Object object = null;
-        Class cls = classView.getRealClass();
-        if (cls == null) {
-            return null;
-        }
-        try {
-            Constructor constructor = cls.getConstructor(new Class[]{});
-
-            if (!Modifier.isAbstract(cls.getModifiers())) {
-                object =  constructor.newInstance(null);
-            }
-        }
-        catch (SecurityException e2) {
-            // TODO Auto-generated catch block
-            e2.printStackTrace();
-        }
-        catch (NoSuchMethodException e2) {
-            // TODO Auto-generated catch block
-            e2.printStackTrace();
-        }
-        catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (InstantiationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-            
-        if (object == null) {
-            return null;
-        }
-        else if (object instanceof GreenfootObject) {
-            GreenfootObject so = (GreenfootObject) object;
-            greenfoot.GreenfootImage image = so.getImage();
-            //rotate it.
-            if (image != null) {
-                BufferedImage bImg = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-                Graphics2D g2 = (Graphics2D) bImg.getGraphics();
-
-                double halfWidth = image.getWidth() / 2.;
-                double halfHeight = image.getHeight() / 2.;
-                double rotateX = halfWidth;
-                double rotateY = halfHeight;
-                g2.rotate(Math.toRadians(so.getRotation()), rotateX, rotateY);
-
-                ImageVisitor.drawImage(image, g2, 0, 0, classView);
-                GreenfootWorld world = so.getWorld();
-                if(world != null) {
-                    world.removeObject(so);
-                } 
-                return bImg;
-            }
-            else {
-                System.err.println("Could not render the image: " + image + " for the class: " + cls);
-            }
-            
-        }
-        return null;
-    }
-
-  
 
     /**
      * 
@@ -248,4 +197,10 @@ public class GreenfootClassRole extends ClassRole
         GreenfootImage greenfootImage = getGreenfootImage();
         return new DragProxyAction(greenfootImage, realAction);
     }
+    
+    public void addPopupMenuItems(JPopupMenu menu)
+    {
+        menu.add(new SelectImageAction(classView, this));
+    }
+
 }
