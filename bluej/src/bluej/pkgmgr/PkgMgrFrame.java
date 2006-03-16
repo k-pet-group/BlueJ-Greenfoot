@@ -54,7 +54,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3810 2006-03-09 13:21:56Z polle $
+ * @version $Id: PkgMgrFrame.java 3826 2006-03-16 00:48:15Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -586,7 +586,7 @@ public class PkgMgrFrame extends JFrame
     public void show()
     {
         if (!Config.isGreenfoot()) {
-            super.setVisible(true);
+            super.show();
             setState(Frame.NORMAL);
             toFront();
         }
