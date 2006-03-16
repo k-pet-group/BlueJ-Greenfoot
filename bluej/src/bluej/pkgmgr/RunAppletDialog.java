@@ -16,7 +16,7 @@ import bluej.utility.EscapeDialog;
  * Dialog for generating HTML and running applets.
  * 
  * @author Bruce Quig
- * @version $Id: RunAppletDialog.java 3175 2004-11-25 14:33:52Z fisker $
+ * @version $Id: RunAppletDialog.java 3828 2006-03-16 03:46:08Z bquig $
  */
 
 public class RunAppletDialog extends EscapeDialog
@@ -118,19 +118,31 @@ public class RunAppletDialog extends EscapeDialog
         webPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.darkGray),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
+        gridConstraints.weightx = 0;
+        gridConstraints.weighty = 0;
         addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel(heightLbl), 0, 1, 1, 1,
                 GridBagConstraints.EAST);
 
+        gridConstraints.fill = GridBagConstraints.HORIZONTAL;
         heightField = new JTextField(5);
+        gridConstraints.weightx = 1.0;
+        gridConstraints.weighty = 1.0;
         addGridBagComponent(webPanel, gridBag, gridConstraints, heightField, 1, 1, 1, 1, GridBagConstraints.WEST);
 
+        gridConstraints.fill = GridBagConstraints.NONE;
+        gridConstraints.weightx = 0;
+        gridConstraints.weighty = 0;
         addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel(widthLbl), 2, 1, 1, 1,
                 GridBagConstraints.EAST);
 
+        gridConstraints.fill = GridBagConstraints.HORIZONTAL;
+        gridConstraints.weightx = 1.0;
+        gridConstraints.weighty = 1.0;
         widthField = new JTextField(5);
         addGridBagComponent(webPanel, gridBag, gridConstraints, widthField, 3, 1, 1, 1, GridBagConstraints.WEST);
 
-        addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel(newParameterLbl), 4, 2, 2, 1,
+        gridConstraints.fill = GridBagConstraints.NONE;
+        addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel(newParameterLbl), 5, 2, 1, 1,
                 GridBagConstraints.CENTER);
 
         parameterList = new JList(appletParameters);
@@ -139,21 +151,36 @@ public class RunAppletDialog extends EscapeDialog
         parameterList.addListSelectionListener(this);
         JScrollPane parameterScroller = new JScrollPane(parameterList);
         parameterScroller.setColumnHeaderView(new JLabel(appletParameterLbl, JLabel.CENTER));
+        
+        gridConstraints.fill = GridBagConstraints.BOTH;
         addGridBagComponent(webPanel, gridBag, gridConstraints, parameterScroller, 0, 2, 4, 4,
                 GridBagConstraints.CENTER);
 
+        gridConstraints.fill = GridBagConstraints.NONE;
         addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel(nameLbl), 4, 3, 1, 1,
-                GridBagConstraints.WEST);
+                GridBagConstraints.EAST);
 
+        gridConstraints.weightx = 1.0;
+        gridConstraints.weighty = 1.0;
+        gridConstraints.fill = GridBagConstraints.HORIZONTAL;
         paramNameField = new JTextField(16);
         addGridBagComponent(webPanel, gridBag, gridConstraints, paramNameField, 5, 3, 1, 1, GridBagConstraints.WEST);
 
+        gridConstraints.weightx = 0;
+        gridConstraints.weighty = 0;
+        gridConstraints.fill = GridBagConstraints.NONE;
         addGridBagComponent(webPanel, gridBag, gridConstraints, new JLabel(valueLbl), 4, 4, 1, 1,
-                GridBagConstraints.WEST);
+                GridBagConstraints.EAST);
 
+        gridConstraints.weightx = 1.0;
+        gridConstraints.weighty = 1.0;
+        gridConstraints.fill = GridBagConstraints.HORIZONTAL;
         paramValueField = new JTextField(16);
         addGridBagComponent(webPanel, gridBag, gridConstraints, paramValueField, 5, 4, 1, 1, GridBagConstraints.WEST);
 
+        gridConstraints.weightx = 0;
+        gridConstraints.weighty = 0;
+        gridConstraints.fill = GridBagConstraints.NONE;
         deleteButton = new JButton(Config.getString("classmgr.delete"));
         deleteButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt)
@@ -161,8 +188,7 @@ public class RunAppletDialog extends EscapeDialog
                 doDelete();
             }
         });
-
-        addGridBagComponent(webPanel, gridBag, gridConstraints, deleteButton, 4, 5, 1, 1, GridBagConstraints.EAST);
+ 
         deleteButton.setEnabled(false);
 
         addButton = new JButton(Config.getString("classmgr.add"));
@@ -172,9 +198,13 @@ public class RunAppletDialog extends EscapeDialog
                 doAdd();
             }
         });
-        addGridBagComponent(webPanel, gridBag, gridConstraints, addButton, 5, 5, 1, 1, GridBagConstraints.WEST);
         addButton.setEnabled(true);
 
+        JPanel addDeletePanel = new JPanel();
+        addDeletePanel.add(deleteButton);
+        addDeletePanel.add(addButton);
+        addGridBagComponent(webPanel, gridBag, gridConstraints, addDeletePanel, 5, 5, 1, 1, GridBagConstraints.CENTER);
+        
         getContentPane().add("Center", webPanel);
 
         DialogManager.centreDialog(this);
