@@ -48,7 +48,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: ClassView.java 3827 2006-03-16 00:50:27Z davmac $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -161,11 +161,8 @@ public class ClassView extends JToggleButton
         popupMenu.addSeparator();
         popupMenu.add(new RemoveClassAction("Remove class", this));
         popupMenu.add(new EditClassAction("Edit class", gClass));
-        // popupMenu.insert( JPopupMenu.);
+        role.addPopupMenuItems(popupMenu);
         add(popupMenu);
-        
-
-
     }
 
 

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Action;
+import javax.swing.JPopupMenu;
 
 import bluej.debugmgr.ConstructAction;
 import bluej.utility.Debug;
@@ -21,7 +22,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 3552 2005-09-06 15:53:28Z polle $
+ * @version $Id: ClassRole.java 3827 2006-03-16 00:50:27Z davmac $
  */
 public abstract class ClassRole
 {
@@ -67,5 +68,10 @@ public abstract class ClassRole
             }
         }
         return actions;
+    }
+    
+    public void addPopupMenuItems(JPopupMenu menu)
+    {
+        // default implementation does nothing
     }
 }
