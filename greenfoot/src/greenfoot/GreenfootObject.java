@@ -27,7 +27,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootObject.java 3816 2006-03-13 15:49:00Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3829 2006-03-16 05:28:38Z davmac $
  */
 public class GreenfootObject extends ObjectTransporter
 {
@@ -53,7 +53,7 @@ public class GreenfootObject extends ObjectTransporter
     private Circle boundingCircle;
     private Object data;
 
-    private static GreenfootImage greenfootImage = new GreenfootImage("greenfoot/greenfoot-logo.png");
+    private static GreenfootImage greenfootImage = new GreenfootImage("images/greenfoot-logo.png");
 
     /**
      * Construct a GreenfootObject.
