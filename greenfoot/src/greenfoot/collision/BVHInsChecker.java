@@ -100,6 +100,50 @@ public class BVHInsChecker
                 right.getIntersections(c, checker, result);
             }
         }
+        
+        
+        public GreenfootObject getOneIntersectingObject(BVHInsChecker.Node node, GOCollisionChecker checker) {
+            return node.getOneIntersectingObjectUpwards(node.circle, checker);           
+        }
+        
+        
+        private GreenfootObject getOneIntersectingObjectDownwards(Circle c, GOCollisionChecker checker) {
+            
+            if (!c.intersects(this.circle)) {
+                return null;
+            }
+            if (isLeaf() && (checker != null && checker.checkCollision(getGo()))) {
+                return getGo();
+            } else if (!isLeaf()) {
+                //TODO maybe decide which one to go to first based on size, distance of/between circles
+                //maybe calculate the "insideness" of two circles as dist/r where dist is the distance
+                //between centers of the two circles and r is the largest of the two circles' radius'. 
+                //Insideness should probably be r/dist to get higher value for better.
+                GreenfootObject res = left.getOneIntersectingObjectDownwards(c, checker);
+                if(res!=null) {
+                    return res;
+                } else {
+                    return right.getOneIntersectingObjectDownwards(c, checker);
+                }
+            }
+            return null;
+        }
+        
+        
+        private GreenfootObject getOneIntersectingObjectUpwards(Circle c, GOCollisionChecker checker) {
+            Node sibling = getSibling();
+            GreenfootObject result = null;
+            if(sibling != null) {
+                result = sibling.getOneIntersectingObjectDownwards(sibling.circle, checker);
+            }
+            
+            if(result == null && parent != null) {
+                return parent.getOneIntersectingObjectUpwards(c, checker);
+            } else  if (result != null) {
+                return result;
+            }
+            return null;
+        }
 
         // TODO replace with loop instead of recursion so that we can escape
         // quicker.
@@ -121,6 +165,19 @@ public class BVHInsChecker
             left = null;
             right = null;
         }
+
+        private Node getSibling() {
+            if(parent != null) {
+                if(parent.left == this) {
+                    return parent.right;
+                } else {
+                    return parent.left;
+                }
+            }
+            return null;
+        }
+
+
 
     }
 
@@ -417,6 +474,13 @@ public class BVHInsChecker
             }
             return getRoot().getIntersection(b, checker);
         }
+        
+        
+        public GreenfootObject getOneIntersectingObject(Node node, GOCollisionChecker checker) {
+             return getRoot().getOneIntersectingObject(node, checker);
+        }
+        
+       
 
         public void paintDebug(Graphics g)
         {
@@ -471,6 +535,7 @@ public class BVHInsChecker
         {
             return root;
         }
+
     }
 
     private CircleTree tree;
@@ -618,11 +683,21 @@ public class BVHInsChecker
 
     public GreenfootObject getOneIntersectingObject(GreenfootObject object, Class cls)
     {
-        List l = getIntersectingObjects(object, cls);
-        if (!l.isEmpty()) {
-            return (GreenfootObject) l.get(0);
+        synchronized (checker) {
+            checker.init(cls, object);
+            
+            Node node = (Node) GreenfootObjectVisitor.getData(object);
+            if(node != null) {
+                return tree.getOneIntersectingObject(node, checker);
+            } else {
+                List l = getIntersectingObjects(object, cls);
+                if (!l.isEmpty()) {
+                    return (GreenfootObject) l.get(0);
+                }
+            }            
         }
         return null;
+        
     }
 
     /**
