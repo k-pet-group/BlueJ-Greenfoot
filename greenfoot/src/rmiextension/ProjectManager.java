@@ -14,7 +14,7 @@ import bluej.extensions.event.PackageListener;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: ProjectManager.java 3832 2006-03-17 02:39:34Z davmac $
  */
 public class ProjectManager
     implements PackageListener
@@ -48,19 +48,25 @@ public class ProjectManager
      */
     public void packageOpened(PackageEvent event)
     {
-        ProjectEvent projectEvent = new ProjectEvent(event);
-        
-        logger.info("Creating bluejRMIClient");
-        ObjectBench.createObject(projectEvent.getProject(), BlueJRMIClient.class.getName(), "blueJRMIClient",
-                new Object[]{projectEvent.getProject().getDir(), projectEvent.getProject().getName()});
-        logger.info("bluejRMIClient created");
-
-        for (Iterator iter = projectListeners.iterator(); iter.hasNext();) {
-            ProjectListener element = (ProjectListener) iter.next();
-            element.projectOpened(projectEvent);
+        try {
+            if (event.getPackage().getName().equals("")) {
+                
+                ProjectEvent projectEvent = new ProjectEvent(event);
+                
+                logger.info("Creating bluejRMIClient");
+                ObjectBench.createObject(projectEvent.getProject(), BlueJRMIClient.class.getName(), "blueJRMIClient",
+                        new Object[]{projectEvent.getProject().getDir(), projectEvent.getProject().getName()});
+                logger.info("bluejRMIClient created");
+                
+                for (Iterator iter = projectListeners.iterator(); iter.hasNext();) {
+                    ProjectListener element = (ProjectListener) iter.next();
+                    element.projectOpened(projectEvent);
+                }
+            }
         }
+        catch (PackageNotFoundException pnfe) {}
+        catch (ProjectNotOpenException pnoe) {}
         openedPackages.add(event.getPackage());
-
     }
 
     /*
