@@ -15,7 +15,7 @@ import bluej.utility.JavaUtils;
  * A representation of a Java class in BlueJ
  *
  * @author  Michael Cahill
- * @version $Id: View.java 3543 2005-08-26 02:40:53Z davmac $
+ * @version $Id: View.java 3831 2006-03-17 02:34:23Z davmac $
  */
 public class View
 {
@@ -370,13 +370,19 @@ public class View
     public ConstructorView[] getConstructors()
     {
         if(constructors == null)
-            {
+        {
+            try {
                 Constructor[] cl_constrs = cl.getDeclaredConstructors();
                 constructors = new ConstructorView[cl_constrs.length];
-
+                
                 for(int i = 0; i < constructors.length; i++)
                     constructors[i] = new ConstructorView(this, cl_constrs[i]);
             }
+            catch (LinkageError le) {
+                // Class.getDeclaredConstructors() can throw various linkage errors
+                return new ConstructorView[0];
+            }
+        }
 
         return constructors;
     }
