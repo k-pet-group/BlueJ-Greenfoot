@@ -40,7 +40,7 @@ public class GOCollisionChecker{
         else if(compareObject == null && cls.isInstance(other)) {
             return true;
         }
-        else if(cls.isInstance(other) && cls.isInstance(other)) {
+        else if(cls.isInstance(other) && GreenfootObjectVisitor.intersects(compareObject, other)) {
             return true;
         }
         return false;
