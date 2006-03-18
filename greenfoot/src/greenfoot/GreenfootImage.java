@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
@@ -26,7 +27,7 @@ import bluej.extensions.ProjectNotOpenException;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootImage.java 3680 2005-10-17 13:27:21Z polle $
+ * @cvs-version $Id: GreenfootImage.java 3835 2006-03-18 17:01:09Z polle $
  */
 public class GreenfootImage
 {
@@ -145,6 +146,9 @@ public class GreenfootImage
         initGraphics();
     }
     
+    public Image getAWTImage() {
+        return image;
+    }
     
     private void initGraphics() {
         try {
