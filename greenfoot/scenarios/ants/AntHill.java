@@ -16,13 +16,13 @@ public class AntHill extends GreenfootObject
     public AntHill()
     {
         maxAnts = DEFAULT_ANTS;
-        setImage("anthill.gif");
+        setImage("images/anthill.gif");
     }
 
     public AntHill(int numberOfAnts)
     {
         maxAnts = numberOfAnts;
-        setImage("anthill.gif");
+        setImage("images/anthill.gif");
     }
 
     public void act()

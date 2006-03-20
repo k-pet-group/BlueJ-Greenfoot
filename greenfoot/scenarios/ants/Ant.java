@@ -42,7 +42,7 @@ public class Ant extends GreenfootObject
     public Ant()
     {
         antCount++;
-        setImage("ant.gif");
+        setImage("images/ant.gif");
         homeX = getX();
         homeY = getY();
     }
@@ -51,7 +51,7 @@ public class Ant extends GreenfootObject
     {
         super(x,y);
         antCount++;
-        setImage("ant.gif");
+        setImage("images/ant.gif");
         homeX = x;
         homeY = y;
         homeHill = home;
