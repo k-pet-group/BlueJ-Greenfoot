@@ -14,7 +14,7 @@ import bluej.extensions.event.PackageListener;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 3832 2006-03-17 02:39:34Z davmac $
+ * @version $Id: ProjectManager.java 3842 2006-03-20 14:56:04Z polle $
  */
 public class ProjectManager
     implements PackageListener
@@ -49,8 +49,8 @@ public class ProjectManager
     public void packageOpened(PackageEvent event)
     {
         try {
-            if (event.getPackage().getName().equals("")) {
-                
+            if (event.getPackage().getName().equals("") || event.getPackage().getProject().getName().equals("startupProject")) {
+               
                 ProjectEvent projectEvent = new ProjectEvent(event);
                 
                 logger.info("Creating bluejRMIClient");
@@ -62,7 +62,7 @@ public class ProjectManager
                     ProjectListener element = (ProjectListener) iter.next();
                     element.projectOpened(projectEvent);
                 }
-            }
+            } 
         }
         catch (PackageNotFoundException pnfe) {}
         catch (ProjectNotOpenException pnoe) {}
