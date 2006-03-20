@@ -183,13 +183,18 @@ public class Grid<E> extends GreenfootWorld
       if (obj == null)
          throw new NullPointerException("obj == null");
 
-      GreenfootObject go = (GreenfootObject) obj;
-      E oldOccupant = null;
+     
       List l = getObjectsAt(loc.col(), loc.row(),null);
-      if(!l.isEmpty()) {
-          oldOccupant = (E) l.get(0);
-          removeObject((GreenfootObject) oldOccupant);
-      }
+       E oldOccupant = null;
+      for(Object o : l) {
+        GreenfootObject go = (GreenfootObject) o;
+         if(go.getX() == loc.col() && go.getY() == loc.row()) {
+            oldOccupant = (E) o;            
+            removeObject((GreenfootObject) oldOccupant);
+            break;
+         }
+      }      
+      GreenfootObject go = (GreenfootObject) obj;
       addObject(go);
       go.setLocation(loc.col(), loc.row());
       return oldOccupant;
