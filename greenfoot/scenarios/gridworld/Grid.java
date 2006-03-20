@@ -18,10 +18,11 @@
 
 import greenfoot.GreenfootWorld;
 import greenfoot.GreenfootObject;
+import greenfoot.GreenfootImage;
 
 import java.util.ArrayList;
-
 import java.util.List;
+
 public class Grid<E> extends GreenfootWorld
 {
 // COPY FROM AbstractGrid
@@ -96,7 +97,7 @@ public class Grid<E> extends GreenfootWorld
   // private Object[][] occupantArray; // the array storing the grid elements
    private static final int DEFAULT_ROWS = 10;
    private static final int DEFAULT_COLS = 10;
-   private static final int DEFAULT_CELL_SIZE = 64;
+   private static final int DEFAULT_CELL_SIZE = 80;
    
    /**
     * Constructs an empty BoundedGrid object with the given dimensions.
@@ -114,6 +115,14 @@ public class Grid<E> extends GreenfootWorld
          throw new IllegalArgumentException("rows <= 0");
       if (DEFAULT_COLS <= 0) 
          throw new IllegalArgumentException("cols <= 0");
+      
+      GreenfootImage img = new GreenfootImage(DEFAULT_CELL_SIZE,DEFAULT_CELL_SIZE);
+      img.setColor(java.awt.Color.WHITE);
+      img.fillRect(0,0,DEFAULT_CELL_SIZE, DEFAULT_CELL_SIZE);
+      img.setColor(java.awt.Color.BLACK);
+      img.drawRect(0,0,DEFAULT_CELL_SIZE, DEFAULT_CELL_SIZE);
+      img.setTiled(true);
+      setBackground(img);
       //occupantArray = new Object[DEFAULT_ROWS][DEFAULT_COLS];
    }
 
