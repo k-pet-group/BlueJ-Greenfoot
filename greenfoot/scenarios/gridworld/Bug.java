@@ -35,7 +35,7 @@ public class Bug extends Actor
     */
    public Bug()
    {
-       setImage("images/Bug.gif");
+       setActorImage("images/Bug.gif");
       setColor(Color.RED);
    }
 

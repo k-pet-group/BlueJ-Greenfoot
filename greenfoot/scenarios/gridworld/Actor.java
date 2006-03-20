@@ -44,6 +44,12 @@ public class Actor extends GreenfootObject
       color  = Color.BLUE;
    }
 
+   public void setActorImage(String imageName) {
+       GreenfootImage img = new GreenfootImage(imageName);
+       Grid g = (Grid) getWorld();
+       setImage(img.scaleTo(g.getCellSize(), g.getCellSize()));
+   }
+   
    /**
     * Override this method to define the action of this actor.
     * By default, an actor acts by flipping its direction.
@@ -130,8 +136,7 @@ public class Actor extends GreenfootObject
       Actor other = getGrid().get(newLocation);
       if (other != null) 
          other.removeSelfFromGrid();
-      location = newLocation;
-      getGrid().put(location, this);
+      getGrid().put(newLocation, this);
     /*   if(getX() == newLocation.col() && getY() == newLocation.row()) {
            return;
         }
