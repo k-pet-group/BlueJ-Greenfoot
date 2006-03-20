@@ -1,6 +1,7 @@
 package greenfoot;
 
 import greenfoot.core.Greenfoot;
+import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
 import java.awt.Container;
@@ -27,7 +28,7 @@ import bluej.extensions.ProjectNotOpenException;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootImage.java 3835 2006-03-18 17:01:09Z polle $
+ * @cvs-version $Id: GreenfootImage.java 3843 2006-03-20 15:51:46Z polle $
  */
 public class GreenfootImage
 {
@@ -210,6 +211,18 @@ public class GreenfootImage
             return -1;
         }
     }
+    
+    /**
+     * Creates a new image that is a scaled version of this image.
+     * 
+     * @param width Width of new image
+     * @param height Height of new image
+     * @return A new scaled image
+     */
+    public GreenfootImage scaleTo(int width, int height) {
+        return new GreenfootImage(GreenfootUtil.getScaledImage(getAWTImage(), width, height));
+    }
+    
 
     /**
      * Fill the entire image with the given color.
