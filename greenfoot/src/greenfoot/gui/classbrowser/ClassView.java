@@ -48,7 +48,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3827 2006-03-16 00:50:27Z davmac $
+ * @version $Id: ClassView.java 3846 2006-03-20 23:40:42Z davmac $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -102,7 +102,9 @@ public class ClassView extends JToggleButton
             //it is important that we use the right classloader
             cls = ExecServer.loadAndInitClass(className);
         }
-        catch (NoClassDefFoundError e) {
+        catch (LinkageError e) {
+            // TODO log this properly? It can happen for various reasons, not
+            // necessarily a real error.
             e.printStackTrace();
         }
         return cls;
