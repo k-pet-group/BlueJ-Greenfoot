@@ -7,6 +7,7 @@ import greenfoot.core.Greenfoot;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
+import java.awt.BorderLayout;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -31,24 +32,20 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: ClassBrowser.java 3854 2006-03-21 20:23:38Z mik $
  */
 public class ClassBrowser extends JPanel
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
-    private static String simObj = "greenfoot.GreenfootObject"; //.class.getName();
-    private static String worldObj = "greenfoot.GreenfootWorld"; //.class.getName();
+    private static String simObj = "greenfoot.GreenfootObject";
+    private static String worldObj = "greenfoot.GreenfootWorld";
 
     private EditClassAction editClassAction;
-
     private CompileClassAction compileClassAction;
+    private static final int SPACE = 2;
 
     private ButtonGroup buttonGroup = new ButtonGroup();
-
-    private List classes = new ArrayList();
-
-    private static final int SPACE = 2;
 
     private SelectionManager selectionManager = new SelectionManager();
 
@@ -56,17 +53,56 @@ public class ClassBrowser extends JPanel
     private ClassForest greenfootClasses = new ClassForest();
     private ClassForest otherClasses = new ClassForest();
 
-    private JComponent worldClassPanel;
-    private JComponent greenfootClassPanel;
-
     public ClassBrowser()
     {
-        setLayout(new GridBagLayout());
+        setLayout(new BorderLayout());
+        worldClasses = new ClassForest();
+        greenfootClasses = new ClassForest();
+        otherClasses = new ClassForest();
     }
 
-    private void addClass(ClassView classView)
+    /**
+     * Add a new class to the class browser.
+     */
+    public ClassView addClass(GClass gClass)
     {
-        classes.add(classView);
+        ClassView classLabel = null;
+
+        if (gClass.getQualifiedName().equals(simObj)) {
+            // the class GreenfootObject
+            classLabel = new ClassView(new GreenfootClassRole(), gClass);
+            greenfootClasses.add(classLabel);
+        }
+        else if (gClass.getQualifiedName().equals(worldObj)) {
+            // the class GreenfootWorld
+            classLabel = new ClassView(new WorldClassRole(), gClass);
+            worldClasses.add(classLabel);
+        }
+        else if (gClass.isSubclassOf(simObj)) {
+            // a subclass of GreenfootObject
+            classLabel = new ClassView(new GreenfootClassRole(), gClass);
+            greenfootClasses.add(classLabel);
+        }
+        else if (gClass.isSubclassOf(worldObj)) {
+            // a subclass of World
+            classLabel = new ClassView(new WorldClassRole(), gClass);
+            worldClasses.add(classLabel);
+        }
+        else {
+            // everything else
+            classLabel = new ClassView(new NormalClassRole(), gClass);
+            otherClasses.add(classLabel);
+        }
+        if (classLabel != null) {
+            classLabel.setClassBrowser(this);
+            addClassView(classLabel);
+        }
+        Greenfoot.getInstance().addCompileListener(classLabel);
+        return classLabel;
+    }
+    
+    private void addClassView(ClassView classView)
+    {
         buttonGroup.add(classView);
 
         classView.addSelectionChangeListener(selectionManager);
@@ -76,40 +112,17 @@ public class ClassBrowser extends JPanel
         layoutClasses();
     }
 
-    public ClassView addClass(GClass gClass)
+    /**
+     * Remove a class from the browser and update the view on screen.
+     */
+    public void removeClass(ClassView classView) 
     {
-        ClassView classLabel = null;
-
-        if (gClass.getQualifiedName().equals(simObj)) {
-            //the class GreenfootObject
-            classLabel = new ClassView(new GreenfootClassRole(), gClass);
-        }
-        else if (gClass.getQualifiedName().equals(worldObj)) {
-            //The class GreenfootWorld
-            classLabel = new ClassView(new WorldClassRole(), gClass);
-        }
-        else if (gClass.isSubclassOf(simObj)) {
-            //A subclass of GreenfootObject
-            classLabel = new ClassView(new GreenfootClassRole(), gClass);
-        }
-        else if (gClass.isSubclassOf(worldObj)) {
-            //A subclass of World
-            classLabel = new ClassView(new WorldClassRole(), gClass);
-        }
-        else {
-            //everything else
-            classLabel = new ClassView(new NormalClassRole(), gClass);
-        }
-        if (classLabel != null) {
-            classLabel.setClassBrowser(this);
-            addClass(classLabel);
-        }
-        Greenfoot.getInstance().addCompileListener(classLabel);
-        return classLabel;
-    }
-    
-    public void removeClass(ClassView classView) {
-        classes.remove(classView);
+        boolean found = greenfootClasses.remove(classView);        
+        if(!found)
+            found = worldClasses.remove(classView);
+        if(!found)
+            found = otherClasses.remove(classView);
+                
         buttonGroup.remove(classView);
         Greenfoot.getInstance().removeCompileListener(classView);
 
@@ -118,116 +131,39 @@ public class ClassBrowser extends JPanel
     }
 
     /**
-     * Orders the classes in a nice way
+     * Arrange and show the class views on screen.
      */
     private void layoutClasses()
     {
+        this.removeAll();  // remove current components
 
-        // First, we should sort the classes into SystemCLasses,
-        // SimlationObjects and Others
-        worldClasses = new ClassForest();
-        greenfootClasses = new ClassForest();
-        otherClasses = new ClassForest();
-        categorizeClasses(classes, worldClasses, greenfootClasses, otherClasses);
+        // world Classes
 
-        //  logger.info("WORLD + " + worldClasses);
-        //  logger.info("SIMUL + " + greenfootClasses);
-        //  logger.info("OTHER + " + otherClasses);
+        JComponent worldClassPanel = createClassHierarchyComponent(worldClasses.getRoots(), false);
 
-        //Build the gui
-        this.removeAll();
+        JPanel worldFrame = new JPanel();
+        ((FlowLayout)worldFrame.getLayout()).setAlignment(FlowLayout.LEFT);
+        worldFrame.setBackground(Color.WHITE);
+        worldFrame.add(worldClassPanel);
+        worldFrame.setBorder(BorderFactory.createTitledBorder(null, "World classes"));
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.NONE;
-        c.anchor = GridBagConstraints.FIRST_LINE_START;
-        c.gridx = 0;
-        c.weightx = 0;
+        this.add(worldFrame, BorderLayout.NORTH);
 
-        //World Classes
+        // simulation classes
 
-        worldClassPanel = createClassHierarchyComponent(worldClasses.getRoots(), false);
-        worldClassPanel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        worldClassPanel.setBackground(Color.WHITE);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1;
-
-        JPanel filler = new JPanel();
-        filler.setLayout(new FlowLayout(0, 0, FlowLayout.LEFT));
-        filler.setBackground(worldClassPanel.getBackground());
-        filler.add(worldClassPanel);
-        filler.setBorder(BorderFactory.createTitledBorder(null, "GreenfootWorld classes"));
-
-        this.add(filler, c);
-
-        //Simulation classes
-
-        c.gridx = 0;
-        c.fill = GridBagConstraints.NONE;
-        c.weightx = 0;
-
-        greenfootClassPanel = createClassHierarchyComponent(greenfootClasses.getRoots(), false);
-        greenfootClassPanel.setOpaque(true);
-        greenfootClassPanel.setBackground(Color.WHITE);
+        JComponent greenfootClassPanel = createClassHierarchyComponent(greenfootClasses.getRoots(), false);
 
         if (greenfootClassPanel != null) {
-            greenfootClassPanel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1;
+            JPanel objectFrame = new JPanel();
+            ((FlowLayout)objectFrame.getLayout()).setAlignment(FlowLayout.LEFT);
+            objectFrame.setBackground(Color.WHITE);
+            objectFrame.add(greenfootClassPanel);
+            objectFrame.setBorder(BorderFactory.createTitledBorder(null, "Object classes"));
 
-            filler = new JPanel();
-            filler.setLayout(new FlowLayout(0, 0, FlowLayout.LEFT));
-            filler.setBackground(greenfootClassPanel.getBackground());
-            filler.add(greenfootClassPanel);
-            filler.setBorder(BorderFactory.createTitledBorder(null, "GreenfootObject classes"));
-
-            this.add(filler, c);
+            this.add(objectFrame, BorderLayout.CENTER);
         }
-
     }
 
-    /**
-     * Categorizes classes into worlds, greenfootsobjects and other classes.
-     * 
-     * @param classes
-     *            All the classes
-     * @param worldClasses
-     *            The world classes put into a forest of subclasses
-     * @param greenfootClasses
-     *            The GreenfootObject classes put into a forest of subclasses
-     * @param otherClasses
-     *            The other classes put into a forest of subclasses
-     */
-    private void categorizeClasses(List classes, ClassForest worldClasses, ClassForest greenfootClasses,
-            ClassForest otherClasses)
-    {
-        List worldClassesList = getInstancesOf(classes, WorldClassRole.class);
-        List greenfootClassesList = getInstancesOf(classes, GreenfootClassRole.class);
-        List otherClassesList = getInstancesOf(classes, NormalClassRole.class);
-
-        worldClasses.buildForest(worldClassesList);
-        greenfootClasses.buildForest(greenfootClassesList);
-        otherClasses.buildForest(otherClassesList);
-    }
-
-    /**
-     * Gets all instances of the given class.
-     * 
-     * @param classes
-     * @param superClass
-     * @return
-     */
-    private List getInstancesOf(List classes, Class cls)
-    {
-        List subclasses = new ArrayList();
-        for (Iterator iter = classes.iterator(); iter.hasNext();) {
-            ClassView classLabel = (ClassView) iter.next();
-            String name = classLabel.getQualifiedClassName();
-            if (cls.isInstance(classLabel.getRole())) {
-                subclasses.add(classLabel);
-            }
-        }
-        return subclasses;
-    }
 
     /**
      * Creates a component with the class hierarchy. This method calls itself

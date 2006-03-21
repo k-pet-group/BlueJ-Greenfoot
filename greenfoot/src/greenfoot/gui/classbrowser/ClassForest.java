@@ -17,7 +17,7 @@ import bluej.utility.Debug;
  * A forest of trees. The roots are sorted alphabeticaly on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 3674 2005-10-17 12:02:18Z polle $
+ * @version $Id: ClassForest.java 3854 2006-03-21 20:23:38Z mik $
  */
 public class ClassForest
 {
@@ -74,8 +74,9 @@ public class ClassForest
         }
     }
 
-    private SortedSet roots;
-    private Map treeEntryMap;
+    private List classesList = new ArrayList();
+    private SortedSet roots = new TreeSet();
+    private Map treeEntryMap = new Hashtable();
 
     public ClassForest()
     {}
@@ -93,12 +94,32 @@ public class ClassForest
         }
         return str.toString();
     }
+    
+    /**
+     * Add a new class to this forest.
+     */
+    public void add(ClassView cls)
+    {
+        classesList.add(cls);
+        buildForest();
+    }
+
+    /**
+     * Remove a class from this forest.
+     */
+    public boolean remove(ClassView cls)
+    {
+        boolean found = classesList.remove(cls);
+        if(found)
+            buildForest();
+        return found;
+    }
 
     /**
      * Builds a forest from the list of classes
      * @param classesList List of instances of ClassView
      */
-    public void buildForest(List classesList) 
+    private void buildForest() 
     {
         Map nameMap = new Hashtable();
         treeEntryMap = new Hashtable();
