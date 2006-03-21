@@ -92,8 +92,14 @@
 
 	<target name="compile" depends="init" description="Compile the source and run rmic" >
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}" classpathref="bluej.class.path" debug="true">
-			<compilerarg line="-source 1.4"/>
+		<javac  
+                    executable="${build_java_home}/bin/javac" 
+                    fork="yes"
+                    srcdir="${src}" 
+                    destdir="${build}" 
+                    classpathref="bluej.class.path" 
+                    debug="true">
+                    <compilerarg line="-source 1.4"/>
 		</javac>
 		<!-- Compile the RMI-classes -->
 		<rmic base="${build}" includes="**/*Impl.class" >
@@ -106,7 +112,7 @@
 	<target name="compile-test" depends="compile" description="Compile the test source" >
 		<!-- Compile the java code from ${test.src} into ${build} -->
 		<javac srcdir="${test.src}" destdir="${build}" classpathref="bluej.class.path" debug="true">
-			<compilerarg line="-source 1.4" />
+			<!-- compilerarg line="-source 1.4" / -->
 		</javac>
 	</target>
 
@@ -134,7 +140,7 @@
 		<!-- Compile all the scenarios -->
 		<javac srcdir="scenarios" classpathref="greenfoot.class.path" debug="true">
 			<patternset refid="compile.scenarios" />
-			<compilerarg line="-source 1.4 -target 1.4" />
+			<!-- compilerarg line="-source 1.4 -target 1.4" / -->
 		</javac>
 		<!-- TODO copy skeleton/greenfoot to all scenarios. Might need a custom target. -->
 
