@@ -19,7 +19,7 @@ import java.lang.reflect.Modifier;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 2783 2004-07-12 09:56:31Z damiano $
+ * @version $Id: BMethod.java 3853 2006-03-21 20:17:53Z iau $
  */
 
 /*
@@ -114,7 +114,7 @@ public class BMethod
         }
 
     /**
-     * Invoke this method on the given object.
+     * Invoke this method on the given object. Note that this method should not be called from the AWT/Swing event-dispatching thread.
      * 
      * @param onThis The BObject to which the method call should be applied, null if a static method.
      * @param params an array containing the arguments, or null if there are none

@@ -10,7 +10,7 @@ import bluej.views.*;
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API.
  *
- * @version    $Id: BConstructor.java 2782 2004-07-12 09:54:24Z damiano $
+ * @version    $Id: BConstructor.java 3853 2006-03-21 20:17:53Z iau $
  */
 
 /*
@@ -100,7 +100,7 @@ public class BConstructor
 
     /**
      * Creates a new instance of the object described by this constructor.
-     * Similar to reflection API.
+     * Similar to reflection API. Note that this method should not be called from the AWT/Swing event-dispatching thread.
      *
      * @param  initargs                      Description of the Parameter
      * @return                               Description of the Return Value
