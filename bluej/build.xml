@@ -182,7 +182,7 @@
 		<java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">        
 			<classpath>
 				<pathelement location="${boot.jar}"/>
-                	<pathelement location="${build_java_home}/lib/tools.jar"/>
+                        	<pathelement location="${build_java_home}/lib/tools.jar"/>
 		        	<pathelement location="/System/Library/Java"/>
 			</classpath>                	
         </java>
