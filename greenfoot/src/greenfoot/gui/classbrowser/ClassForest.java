@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * A forest of trees. The roots are sorted alphabeticaly on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 3855 2006-03-21 22:11:15Z mik $
+ * @version $Id: ClassForest.java 3856 2006-03-21 22:43:33Z mik $
  */
 public class ClassForest
 {
@@ -39,7 +39,11 @@ public class ClassForest
         {
             children.add(child);
         }
-
+        
+        public void removeChildren()
+        {
+            children.clear();
+        }
 
         public List getChildren()
         {
@@ -104,6 +108,7 @@ public class ClassForest
         String name =  cls.getClassName();
         TreeEntry entry = new TreeEntry(cls, name);
         treeEntryMap.put(name, entry);
+        System.out.println("adding tree entry: " + name);
     }
 
     /**
@@ -125,9 +130,15 @@ public class ClassForest
      */
     public void rebuild() 
     {
+        System.out.println("rebuilding tree");
         roots = new TreeSet();
         Collection values = treeEntryMap.values();
-        
+
+        for (Iterator iter = values.iterator(); iter.hasNext();) {
+            TreeEntry entry = ((TreeEntry) iter.next());
+            entry.removeChildren();
+        }
+
         for (Iterator iter = values.iterator(); iter.hasNext();) {
             TreeEntry entry = ((TreeEntry) iter.next());
             addEntryToTree(entry.getData());

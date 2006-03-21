@@ -32,7 +32,7 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3855 2006-03-21 22:11:15Z mik $
+ * @version $Id: ClassBrowser.java 3856 2006-03-21 22:43:33Z mik $
  */
 public class ClassBrowser extends JPanel
 {
@@ -64,7 +64,7 @@ public class ClassBrowser extends JPanel
     /**
      * Add a new class to the class browser data structure, without updating
      * the view on screen. The view can be explicitly updated later, using 
-     * update().
+     * updateLayout().
      */
     public ClassView quickAddClass(GClass gClass)
     {
@@ -102,6 +102,8 @@ public class ClassBrowser extends JPanel
         //TODO: the following two lines look dodgy... (mik)
         selectionManager.addSelectionChangeListener(compileClassAction);
         selectionManager.addSelectionChangeListener(editClassAction);
+
+        Greenfoot.getInstance().addCompileListener(classLabel);
         
         return classLabel;
     }
@@ -114,7 +116,6 @@ public class ClassBrowser extends JPanel
     {
         ClassView classView = quickAddClass(gClass);
         updateLayout();
-        Greenfoot.getInstance().addCompileListener(classView);
         return classView;
     }
     
@@ -145,6 +146,7 @@ public class ClassBrowser extends JPanel
         worldClasses.rebuild();
         otherClasses.rebuild();
         
+        System.out.println("Forest: " + greenfootClasses);
         this.removeAll();  // remove current components
 
         // world Classes
