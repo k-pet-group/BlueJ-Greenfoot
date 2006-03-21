@@ -68,7 +68,7 @@ import com.apple.eawt.ApplicationEvent;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3820 2006-03-14 21:03:48Z polle $
+ * @version $Id: GreenfootFrame.java 3851 2006-03-21 15:29:00Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -387,7 +387,7 @@ public class GreenfootFrame extends JFrame
         projectMenu.add(openProjectAction);
         
         Action closeProjectAction = new CloseProjectAction("Close");
-        closeProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_C, acceleratorModifier));
+        closeProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, acceleratorModifier));
         closeProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_C));
         projectMenu.add(closeProjectAction);
         
