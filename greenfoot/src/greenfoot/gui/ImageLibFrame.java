@@ -6,6 +6,8 @@ import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.util.GreenfootUtil;
 
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -30,7 +32,7 @@ import bluej.utility.FileUtility;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 3830 2006-03-16 05:36:04Z davmac $
+ * @version $Id: ImageLibFrame.java 3847 2006-03-21 03:35:09Z davmac $
  */
 public class ImageLibFrame extends JFrame implements ListSelectionListener
 {
@@ -79,10 +81,10 @@ public class ImageLibFrame extends JFrame implements ListSelectionListener
             currentImagePanel.add(imageLabel);
             currentImagePanel.setAlignmentX(0.0f);
             
-            contentPane.add(currentImagePanel);
+            contentPane.add(fixHeight(currentImagePanel));
         }
         
-        contentPane.add(Box.createVerticalStrut(spacingLarge));
+        contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
         
         // Image selection panels - project and greenfoot image library
         {
@@ -144,6 +146,27 @@ public class ImageLibFrame extends JFrame implements ListSelectionListener
             projImageList.addListSelectionListener(this);
             greenfootImageList.addListSelectionListener(this);
         }
+
+        // Browse button. Select image file from arbitrary location.
+        JButton browseButton = new JButton("Browse for more images ...");
+        browseButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                JFileChooser chooser = new JFileChooser();
+                new ImageFilePreview(chooser);
+                int choice = chooser.showDialog(ImageLibFrame.this, "Select");
+                if (choice == JFileChooser.APPROVE_OPTION) {
+                    currentImageFile = chooser.getSelectedFile();
+                    imageLabel.setIcon(getPreviewIcon(currentImageFile));
+                }
+            }
+        });
+        browseButton.setAlignmentX(0.0f);
+        contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
+        contentPane.add(fixHeight(browseButton));
+        
+        contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
+        contentPane.add(fixHeight(new JSeparator()));
         
         // Ok and cancel buttons
         {
@@ -183,11 +206,10 @@ public class ImageLibFrame extends JFrame implements ListSelectionListener
             okCancelPanel.add(okButton);
             okCancelPanel.add(Box.createHorizontalStrut(spacingLarge));
             okCancelPanel.add(cancelButton);
-            okCancelPanel.add(Box.createHorizontalGlue());
             okCancelPanel.setAlignmentX(0.0f);
             okCancelPanel.validate();
-            contentPane.add(Box.createVerticalStrut(spacingLarge));
-            contentPane.add(okCancelPanel);
+            contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
+            contentPane.add(fixHeight(okCancelPanel));
         }
         
         pack();
@@ -239,5 +261,17 @@ public class ImageLibFrame extends JFrame implements ListSelectionListener
             BufferedImage bi = new BufferedImage(dpi/2, dpi/2, BufferedImage.TYPE_INT_ARGB);
             return new ImageIcon(bi);
         }
+    }
+    
+    /**
+     * Fix the maxiumum height of the component equal to its preferred size, and
+     * return the component.
+     */
+    private static Component fixHeight(Component src)
+    {
+        Dimension d = src.getMaximumSize();
+        d.height = src.getPreferredSize().height;
+        src.setMaximumSize(d);
+        return src;
     }
 }

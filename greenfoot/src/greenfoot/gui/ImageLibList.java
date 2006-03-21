@@ -19,7 +19,7 @@ import javax.swing.*;
  * filenames.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibList.java 3830 2006-03-16 05:36:04Z davmac $
+ * @version $Id: ImageLibList.java 3847 2006-03-21 03:35:09Z davmac $
  */
 public class ImageLibList extends JList
 {
@@ -29,6 +29,7 @@ public class ImageLibList extends JList
         setModel(listModel);
         setCellRenderer(new MyCellRenderer());
         setLayoutOrientation(JList.VERTICAL);
+        setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
         FilenameFilter filter = new FilenameFilter() {
             public boolean accept(File dir, String name)
