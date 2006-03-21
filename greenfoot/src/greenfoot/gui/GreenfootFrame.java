@@ -68,7 +68,7 @@ import com.apple.eawt.ApplicationEvent;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3851 2006-03-21 15:29:00Z mik $
+ * @version $Id: GreenfootFrame.java 3855 2006-03-21 22:11:15Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -316,6 +316,9 @@ public class GreenfootFrame extends JFrame
         WorldHandler.initialise(project, worldCanvas, world);
     }
 
+    /**
+     * Build the class browser.
+     */
     private ClassBrowser buildClassBrowser()
     {
         ClassBrowser classBrowser = new ClassBrowser();
@@ -324,28 +327,30 @@ public class GreenfootFrame extends JFrame
 
         try {
             //pkg = Greenfoot.getInstance().getCurrentPackage();
-            GProject prj = Greenfoot.getInstance().getProject();
+            GProject project = Greenfoot.getInstance().getProject();
             //	TODO when project is empty (a new project) the systemclasses get
             // loaded twice
-            GPackage pkg = prj.getDefaultPackage();
+            GPackage pkg = project.getDefaultPackage();
 
             GClass[] classes = pkg.getClasses();
             //add the system classes
-            GPackage sysPkg = prj.getGreenfootPackage();
+            GPackage sysPkg = project.getGreenfootPackage();
             if (sysPkg == null) {
-                sysPkg = prj.newPackage("greenfoot");
+                sysPkg = project.newPackage("greenfoot");
             }
 
             GClass[] gClasses = sysPkg.getClasses();
             for (int i = 0; i < gClasses.length; i++) {
                 GClass gClass = gClasses[i];
-                classBrowser.addClass(gClass);
+                classBrowser.quickAddClass(gClass);
             }
 
             for (int i = 0; i < classes.length; i++) {
                 GClass gClass = classes[i];
-                classBrowser.addClass(gClass);
+                classBrowser.quickAddClass(gClass);
             }
+            
+            classBrowser.updateLayout();
             
         }
         catch (RemoteException e) {

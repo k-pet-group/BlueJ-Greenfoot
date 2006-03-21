@@ -32,7 +32,7 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3854 2006-03-21 20:23:38Z mik $
+ * @version $Id: ClassBrowser.java 3855 2006-03-21 22:11:15Z mik $
  */
 public class ClassBrowser extends JPanel
 {
@@ -62,9 +62,11 @@ public class ClassBrowser extends JPanel
     }
 
     /**
-     * Add a new class to the class browser.
+     * Add a new class to the class browser data structure, without updating
+     * the view on screen. The view can be explicitly updated later, using 
+     * update().
      */
-    public ClassView addClass(GClass gClass)
+    public ClassView quickAddClass(GClass gClass)
     {
         ClassView classLabel = null;
 
@@ -93,25 +95,29 @@ public class ClassBrowser extends JPanel
             classLabel = new ClassView(new NormalClassRole(), gClass);
             otherClasses.add(classLabel);
         }
-        if (classLabel != null) {
-            classLabel.setClassBrowser(this);
-            addClassView(classLabel);
-        }
-        Greenfoot.getInstance().addCompileListener(classLabel);
+        buttonGroup.add(classLabel);
+        classLabel.setClassBrowser(this);
+        classLabel.addSelectionChangeListener(selectionManager);
+        
+        //TODO: the following two lines look dodgy... (mik)
+        selectionManager.addSelectionChangeListener(compileClassAction);
+        selectionManager.addSelectionChangeListener(editClassAction);
+        
         return classLabel;
     }
     
-    private void addClassView(ClassView classView)
+    
+    /**
+     * Add a new class to the class browser.
+     */
+    public ClassView addClass(GClass gClass)
     {
-        buttonGroup.add(classView);
-
-        classView.addSelectionChangeListener(selectionManager);
-        selectionManager.addSelectionChangeListener(compileClassAction);
-        selectionManager.addSelectionChangeListener(editClassAction);
-
-        layoutClasses();
+        ClassView classView = quickAddClass(gClass);
+        updateLayout();
+        Greenfoot.getInstance().addCompileListener(classView);
+        return classView;
     }
-
+    
     /**
      * Remove a class from the browser and update the view on screen.
      */
@@ -133,8 +139,12 @@ public class ClassBrowser extends JPanel
     /**
      * Arrange and show the class views on screen.
      */
-    private void layoutClasses()
+    public void updateLayout()
     {
+        greenfootClasses.rebuild();
+        worldClasses.rebuild();
+        otherClasses.rebuild();
+        
         this.removeAll();  // remove current components
 
         // world Classes
@@ -303,7 +313,7 @@ public class ClassBrowser extends JPanel
     {
         Thread t = new Thread() {
             public void run() {
-                layoutClasses();
+                updateLayout();
                 revalidate();
                 repaint();
             }
