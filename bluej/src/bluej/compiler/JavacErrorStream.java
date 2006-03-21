@@ -153,7 +153,7 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
                 return;
             int uses = msg.indexOf(".java uses");
             if(uses != -1) {
-                filename = msg.substring(5, uses) + ".java";
+                filename = msg.substring(6, uses) + ".java";
             }
             warning += msg.trim() + "\n";
             hasWarnings = true;
