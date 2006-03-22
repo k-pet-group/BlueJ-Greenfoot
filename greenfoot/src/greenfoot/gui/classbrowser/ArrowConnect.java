@@ -10,9 +10,9 @@ import javax.swing.JComponent;
  *  | |__ | |
  * 
  * @author Poul Henriksen
- * @version $Id: ArrowConnect.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: ArrowConnect.java 3857 2006-03-22 00:08:17Z mik $
  */
-public class ArrowConnect extends JComponent
+public class ArrowConnect extends ArrowElement
 {
     public void paintComponent(Graphics g)
     {

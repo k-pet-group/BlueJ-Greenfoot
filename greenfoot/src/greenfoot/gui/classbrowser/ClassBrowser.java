@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -32,7 +33,7 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3856 2006-03-21 22:43:33Z mik $
+ * @version $Id: ClassBrowser.java 3857 2006-03-22 00:08:17Z mik $
  */
 public class ClassBrowser extends JPanel
 {
@@ -146,7 +147,6 @@ public class ClassBrowser extends JPanel
         worldClasses.rebuild();
         otherClasses.rebuild();
         
-        System.out.println("Forest: " + greenfootClasses);
         this.removeAll();  // remove current components
 
         // world Classes
@@ -191,84 +191,64 @@ public class ClassBrowser extends JPanel
     private JComponent createClassHierarchyComponent(Collection roots, boolean isRecursiveCall)
     {
 
-        JComponent classPanel = new JPanel();
-        classPanel.setOpaque(false);
-        classPanel.setLayout(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.gridy = 0;
+        JComponent hierarchyPanel = new JPanel();
+        hierarchyPanel.setOpaque(false);
+        hierarchyPanel.setLayout(new BoxLayout(hierarchyPanel, BoxLayout.Y_AXIS));
+        
         boolean isFirstSubclass = true; //whether it is the first subclass
-        //boolean isSubclass = lse; //whether it is a subclass
-
-        constraints.gridwidth = 1;
-        constraints.gridx = 0;
-        constraints.fill = GridBagConstraints.BOTH;
-
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.gridx = 1;
-        constraints.insets.bottom = 0;
-        constraints.insets.top = 4;
-        constraints.insets.left = 10;
-        constraints.anchor = GridBagConstraints.FIRST_LINE_START;
-        constraints.insets.top = 0;
-        constraints.insets.right = 0;
-        constraints.insets.left = 0;
-        constraints.gridy = 1;
-
-        constraints.anchor = GridBagConstraints.WEST;
 
         for (Iterator iter = roots.iterator(); iter.hasNext();) {
-            ClassForest.TreeEntry element = (ClassForest.TreeEntry) iter.next();
-            JComponent childPanel = createClassHierarchyComponent(element.getChildren(), true);
-            constraints.gridwidth = 1;
-            constraints.gridx = 0;
+            JComponent classPanel = new JPanel();
+            classPanel.setOpaque(false);
+            classPanel.setLayout(new BoxLayout(classPanel, BoxLayout.X_AXIS));
 
-            constraints.fill = GridBagConstraints.BOTH;
-            if (!isRecursiveCall) {}
+            ClassForest.TreeEntry element = (ClassForest.TreeEntry) iter.next();
+
+            if (!isRecursiveCall) {
+                // not recursive: we are at the greenfoot root - no arrows up
+            }
             else if (isFirstSubclass && !iter.hasNext()) {
-                classPanel.add(new ArrowHeadEnd(10, 7), constraints);
+                // first and last subclass: arrow head, no line to bottom
+                classPanel.add(new ArrowHeadEnd());
             }
             else if (isFirstSubclass) {
-                classPanel.add(new ArrowHead(10, 7), constraints);
+                // first, but not last, subclass: arrow head with line down
+                classPanel.add(new ArrowHead());
             }
             else if (!iter.hasNext()) {
-                classPanel.add(new ArrowConnectEnd(), constraints);
+                // last subclass: line end
+                classPanel.add(new ArrowConnectEnd());
             }
             else {
-                classPanel.add(new ArrowConnect(), constraints);
+                // subclass in middle: line to top and bottom
+                classPanel.add(new ArrowConnect());
             }
-            constraints.fill = GridBagConstraints.NONE;
 
-            constraints.gridx = 1;
-            constraints.insets.bottom = 0; //SPACE
-            constraints.insets.top = SPACE;
-            constraints.insets.right = 3;
             JComponent classView = element.getData();
-            classPanel.add(classView, constraints);
-            constraints.insets.bottom = 0;
-            constraints.insets.top = 0;
-            constraints.insets.right = 0;
+            classPanel.add(classView);
+            hierarchyPanel.add(classPanel);
+            
+            List children = element.getChildren();
+            if(!children.isEmpty()) {
+                JComponent childPanel = new JPanel();
+                childPanel.setOpaque(false);
+                childPanel.setLayout(new BoxLayout(childPanel, BoxLayout.X_AXIS));
 
-            constraints.gridwidth = 1;
-            constraints.gridy += 1;
-
-            if (childPanel != null) {
-                constraints.gridx = 0;
-
+                JComponent child = createClassHierarchyComponent(children, true);
                 if (iter.hasNext()) {
-                    constraints.fill = GridBagConstraints.BOTH;
-                    classPanel.add(new ArrowLine(), constraints);
-                    constraints.fill = GridBagConstraints.NONE;
+                    childPanel.add(new ArrowLine());
                 }
-
-                constraints.gridx++;
-                classPanel.add(childPanel, constraints);
+                else if (isRecursiveCall) {
+                    childPanel.add(new EmptySpace());
+                }
+                childPanel.add(child);
+                hierarchyPanel.add(childPanel);
             }
-
-            constraints.gridy += 1;
+            
             isFirstSubclass = false;
         }
 
-        return classPanel;
+        return hierarchyPanel;
 
     }
 

@@ -10,16 +10,14 @@ import javax.swing.JComponent;
  *  | |__
  * 
  * @author Poul Henriksen
- * @version $Id: ArrowConnectEnd.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: ArrowConnectEnd.java 3857 2006-03-22 00:08:17Z mik $
  */
-public class ArrowConnectEnd extends JComponent
+public class ArrowConnectEnd extends ArrowElement
 {
-
     public void paintComponent(Graphics g)
     {
         Dimension size = getSize();
         g.drawLine(size.width / 2, 0, size.width / 2, size.height / 2);
         g.drawLine(size.width / 2, size.height / 2, size.width, size.height / 2);
     }
-
 }
