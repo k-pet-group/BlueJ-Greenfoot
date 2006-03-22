@@ -51,12 +51,23 @@ import java.awt.Font;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3858 2006-03-22 17:25:25Z mik $
+ * @version $Id: ClassView.java 3860 2006-03-22 20:37:22Z mik $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
 {
     private final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+
+    public static final Color[] shadowColours = { new Color(242, 242, 242), 
+                                                  new Color(211, 211, 211),
+                                                  new Color(189, 189, 189),
+                                                  new Color(83, 83, 83)
+                                                };
+
+    private static final int SHADOW = 4;    // thickness of shadow
+    private static final int GAP = 2;       // spacing between classes
+    private static final int SELECTED_BORDER = 3;
+    private static final int BORDER = 1;
 
     private transient final static Logger logger = Logger.getLogger("greenfoot");
     private static final String newline = System.getProperty("line.separator");
@@ -66,10 +77,6 @@ public class ClassView extends JToggleButton
     private static final Dimension minimumSize = new Dimension(60, 20);
     private static final Dimension preferredSize = new Dimension(60, 20);
     
-    private static final int SHADOW = 2;
-    private static final int SELECTED_BORDER = 3;
-    private static final int BORDER = 1;
-
     private GClass gClass;
     private Class realClass; // null if not compiled
     private ClassRole role;
@@ -86,8 +93,7 @@ public class ClassView extends JToggleButton
         //this.setOpaque(false);
         //logger.info("Creating view: " + role + " for " + gClass.getQualifiedName());
         this.addMouseListener(this);
-        this.setBorder(BorderFactory.createEmptyBorder(SELECTED_BORDER + 2, SELECTED_BORDER + 2, SELECTED_BORDER
-                + SHADOW + 2, SELECTED_BORDER + SHADOW + 2));
+        this.setBorder(BorderFactory.createEmptyBorder(7, 8, 10, 11)); //top,left,bottom,right
         Font font = getFont();
         font = font.deriveFont(13.0f);
         this.setFont(font);
@@ -142,8 +148,6 @@ public class ClassView extends JToggleButton
 
     private void createPopupMenu()
     {
-//        logger.info("Creating new popup for: " + gClass.getQualifiedName());
-
         if (popupMenu != null) {
             remove(popupMenu);
         }
@@ -236,13 +240,7 @@ public class ClassView extends JToggleButton
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-//        g.setColor(getParent().getBackground());
-//        g.fillRect(0, 0, getWidth(), getHeight());
-//
-//        g.setColor(getBackground());
-//        g.fillRect(0, 0, getWidth() - SHADOW, getHeight() - SHADOW);
-//
-//        drawShadow((Graphics2D) g);
+        drawShadow((Graphics2D) g);
         drawBorders((Graphics2D) g);
 
     }
@@ -252,9 +250,29 @@ public class ClassView extends JToggleButton
      */
     protected void drawShadow(Graphics2D g)
     {
-        g.setColor(Color.GRAY);
-        g.fillRect(SHADOW, getHeight() - SHADOW, getWidth() - SHADOW, SHADOW);
-        g.fillRect(getWidth() - SHADOW, SHADOW, SHADOW, getHeight() - SHADOW);
+        int height = getHeight() - SHADOW;
+        int width = getWidth() - 4;
+        
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, width + 4, GAP);   // blank for gap above class
+        g.fillRect(0, height, 6, height + SHADOW);
+        g.fillRect(width, 0, width + 3, 10);
+        
+        // colorchange is expensive on mac, so draworder is by color, not position
+        g.setColor(shadowColours[3]);
+        g.drawLine(3, height, width, height);//bottom
+
+        g.setColor(shadowColours[2]);
+        g.drawLine(4, height + 1, width, height + 1);//bottom
+        g.drawLine(width + 1, height + 2, width + 1, 3 + GAP);//right
+
+        g.setColor(shadowColours[1]);
+        g.drawLine(5, height + 2, width + 1, height + 2);//bottom
+        g.drawLine(width + 2, height + 3, width + 2, 4 + GAP);//right
+
+        g.setColor(shadowColours[0]);
+        g.drawLine(6, height + 3, width + 2, height + 3); //bottom
+        g.drawLine(width + 3, height + 3, width + 3, 5 + GAP); // right
     }
 
     /**
@@ -264,7 +282,7 @@ public class ClassView extends JToggleButton
     {
         g.setColor(Color.BLACK);
         int thickness = isSelected() ? SELECTED_BORDER : BORDER;
-        Utility.drawThickRect(g, 0, 0, getWidth() - 1 - SHADOW, getHeight() - 1 - SHADOW, thickness);
+        Utility.drawThickRect(g, 0, GAP, getWidth() - 4, getHeight() - SHADOW - GAP - 1, thickness);
     }
 
     /**
