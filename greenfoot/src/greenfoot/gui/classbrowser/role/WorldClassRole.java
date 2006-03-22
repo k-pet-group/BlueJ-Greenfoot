@@ -4,8 +4,7 @@ import greenfoot.core.GClass;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.FlowLayout;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -14,36 +13,23 @@ import javax.swing.JLabel;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 3678 2005-10-17 13:21:10Z polle $
+ * @version $Id: WorldClassRole.java 3858 2006-03-22 17:25:25Z mik $
  */
 public class WorldClassRole extends ClassRole
 {
 
     public void buildUI(ClassView classView, GClass gClass)
     {
-
         //TODO get this color from the bluej config
         classView.setBackground(new Color(245, 204, 155));
-        classView.setOpaque(true);
-        classView.setLayout(new GridBagLayout());
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridy = 0;
-
-        String name = "";
-        name = gClass.getQualifiedName();
+        String name = gClass.getQualifiedName();
         int index = name.lastIndexOf('.');
         if (index >= 0) {
             name = name.substring(index + 1);
         }
 
-        JLabel className = new JLabel(name);
-
-        classView.add(className, c);
-        classView.setBackground(new Color(245, 204, 155));
-        classView.setForeground(new Color(245, 204, 155));
-        classView.setOpaque(true);
-
+        classView.setText(name);
     }
 
     /**

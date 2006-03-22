@@ -1,5 +1,7 @@
 package greenfoot.gui.classbrowser.role;
 
+import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import greenfoot.GreenfootImage;
 import greenfoot.actions.DragProxyAction;
 import greenfoot.actions.SelectImageAction;
@@ -10,8 +12,6 @@ import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -25,23 +25,23 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3830 2006-03-16 05:36:04Z davmac $
+ * @version $Id: GreenfootClassRole.java 3858 2006-03-22 17:25:25Z mik $
  * 
  */
 public class GreenfootClassRole extends ClassRole
 {
-    private final static float SUPER_CLASS_FONT_SHRINK_FACTOR = 0.8f;
-    private GClass gClass;
     private final static Dimension iconSize = new Dimension(16, 16);
+    protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+
+    private GClass gClass;
     private Image image;
     private ClassView classView;
-    private JLabel imageLabel;
 
     /*
      * (non-Javadoc)
@@ -52,41 +52,18 @@ public class GreenfootClassRole extends ClassRole
     {
         this.gClass = gClass;
         this.classView = classView;
-        //TODO get this color from the bluej config
+        // TODO:  get this color from the bluej config
         classView.setBackground(new Color(245, 204, 155));
-        classView.setOpaque(true);
-        classView.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridy = 0;
-        /*
-         * String superClassString = getSuperClassName(rClass); if
-         * (superClassString != null) { JLabel superClassName = new JLabel("[" +
-         * superClassString + "]"); Font normal = superClassName.getFont(); Font
-         * superFont = normal.deriveFont( SUPER_CLASS_FONT_SHRINK_FACTOR);
-         * superClassName.setFont(superFont); component.add(superClassName,c);
-         * //component.add(new Arrow(), c);
-         */
-        c.gridy = 2;
-        String name = gClass.getName();
-        
-        JLabel className = new JLabel(name);
-        classView.add(className, c);
-        classView.setBackground(new Color(245, 204, 155));
-        classView.setForeground(new Color(245, 204, 155));
-        classView.setOpaque(true);
 
+        String name = gClass.getName();
+        classView.setText(name);
+        
         // Add the image label
         image = getImage();
         if (image != null) {
             Image scaledImage = GreenfootUtil.getScaledImage(image, iconSize.width, iconSize.height);
-            imageLabel = new JLabel(new ImageIcon(scaledImage));
+            classView.setIcon(new ImageIcon(scaledImage));
         }
-        else {
-            imageLabel = new JLabel();
-        }
-        c.insets.left = 4;
-        c.insets.right = 4;
-        classView.add(imageLabel, c);
     }
 
     /**
@@ -96,9 +73,9 @@ public class GreenfootClassRole extends ClassRole
     {
         image = null;
         getImage();
-        if (image != null && imageLabel != null) {
+        if (image != null) {
             Image scaledImage = GreenfootUtil.getScaledImage(image, iconSize.width, iconSize.height);
-            imageLabel.setIcon(new ImageIcon(scaledImage));
+            classView.setIcon(new ImageIcon(scaledImage));
         }
     }
     
@@ -200,7 +177,10 @@ public class GreenfootClassRole extends ClassRole
     
     public void addPopupMenuItems(JPopupMenu menu)
     {
-        menu.add(new SelectImageAction(classView, this));
+        JMenuItem item = new JMenuItem(new SelectImageAction(classView, this));
+        item.setFont(PrefMgr.getPopupMenuFont());
+        item.setForeground(envOpColour);
+        menu.add(item);
     }
 
 }

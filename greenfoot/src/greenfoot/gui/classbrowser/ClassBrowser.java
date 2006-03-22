@@ -11,15 +11,13 @@ import java.awt.BorderLayout;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
@@ -33,7 +31,7 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3857 2006-03-22 00:08:17Z mik $
+ * @version $Id: ClassBrowser.java 3858 2006-03-22 17:25:25Z mik $
  */
 public class ClassBrowser extends JPanel
 {
@@ -200,7 +198,8 @@ public class ClassBrowser extends JPanel
         for (Iterator iter = roots.iterator(); iter.hasNext();) {
             JComponent classPanel = new JPanel();
             classPanel.setOpaque(false);
-            classPanel.setLayout(new BoxLayout(classPanel, BoxLayout.X_AXIS));
+//            classPanel.setLayout(new BoxLayout(classPanel, BoxLayout.X_AXIS));
+            classPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
             ClassForest.TreeEntry element = (ClassForest.TreeEntry) iter.next();
 
@@ -232,7 +231,7 @@ public class ClassBrowser extends JPanel
             if(!children.isEmpty()) {
                 JComponent childPanel = new JPanel();
                 childPanel.setOpaque(false);
-                childPanel.setLayout(new BoxLayout(childPanel, BoxLayout.X_AXIS));
+                childPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
                 JComponent child = createClassHierarchyComponent(children, true);
                 if (iter.hasNext()) {

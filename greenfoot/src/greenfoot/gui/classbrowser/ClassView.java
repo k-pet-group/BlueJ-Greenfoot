@@ -1,5 +1,6 @@
 package greenfoot.gui.classbrowser;
 
+import bluej.Config;
 import greenfoot.actions.EditClassAction;
 import greenfoot.actions.NewSubclassAction;
 import greenfoot.actions.RemoveClassAction;
@@ -45,48 +46,66 @@ import bluej.utility.Utility;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
+import java.awt.Dimension;
+import java.awt.Font;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3846 2006-03-20 23:40:42Z davmac $
+ * @version $Id: ClassView.java 3858 2006-03-22 17:25:25Z mik $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
 {
+    private final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+
     private transient final static Logger logger = Logger.getLogger("greenfoot");
+    private static final String newline = System.getProperty("line.separator");
+    private static final String imports = "import greenfoot.GreenfootWorld;" + newline 
+                                         + "import greenfoot.GreenfootObject;" + newline;
+
+    private static final Dimension minimumSize = new Dimension(60, 20);
+    private static final Dimension preferredSize = new Dimension(60, 20);
+    
+    private static final int SHADOW = 2;
+    private static final int SELECTED_BORDER = 3;
+    private static final int BORDER = 1;
+
     private GClass gClass;
     private Class realClass; // null if not compiled
     private ClassRole role;
-    private final static int SHADOW = 2;
-    private final static int SELECTED_BORDER = 3;
-    private final static int BORDER = 1;
     private ClassBrowser classBrowser;
-    public static final String newline = System.getProperty("line.separator");
-    private static String imports = "import greenfoot.GreenfootWorld;" + newline + "import greenfoot.GreenfootObject;"
-            + newline;
     private JPopupMenu popupMenu;
 
+    
     public ClassView(ClassRole role, GClass gClass)
     {
         this.gClass = gClass;
         realClass = getClass(gClass);
         setRole(role);
         addChangeListener(this);
-        this.setOpaque(false);
-        logger.info("Creating view: " + role + " for " + gClass.getQualifiedName());
+        //this.setOpaque(false);
+        //logger.info("Creating view: " + role + " for " + gClass.getQualifiedName());
         this.addMouseListener(this);
         this.setBorder(BorderFactory.createEmptyBorder(SELECTED_BORDER + 2, SELECTED_BORDER + 2, SELECTED_BORDER
                 + SHADOW + 2, SELECTED_BORDER + SHADOW + 2));
-
+        Font font = getFont();
+        font = font.deriveFont(13.0f);
+        this.setFont(font);
+//        this.setFont(PrefMgr.getTargetFont());
     }
 
+        
+    /**
+     * Return the real Java class that this class view represents.
+     */
     public Class getRealClass()
     {
         return realClass;
     }
 
+    
     /**
-     * Get the real class that rClass represents.
+     * Get the real class that this view represents.
      * 
      * @param class1
      * @return null if the class can't be loaded
@@ -123,13 +142,14 @@ public class ClassView extends JToggleButton
 
     private void createPopupMenu()
     {
-        logger.info("Creating new popup for: " + gClass.getQualifiedName());
+//        logger.info("Creating new popup for: " + gClass.getQualifiedName());
 
         if (popupMenu != null) {
             remove(popupMenu);
         }
         // popupMenu = menu.getPopupMenu();
         popupMenu = new JPopupMenu();
+
 
         if (realClass != null) {
 
@@ -159,12 +179,24 @@ public class ClassView extends JToggleButton
 
         popupMenu.setInvoker(this);
 
-        popupMenu.add(new NewSubclassAction("Create new subclass", this, classBrowser));
+        JMenuItem item;
+        item = new JMenuItem(new NewSubclassAction("Create new subclass", this, classBrowser));
+        item.setFont(PrefMgr.getPopupMenuFont());
+        item.setForeground(envOpColour);
+        popupMenu.add(item);
+        
         popupMenu.addSeparator();
-        popupMenu.add(new RemoveClassAction("Remove class", this));
-        popupMenu.add(new EditClassAction("Edit class", gClass));
+
+        item = new JMenuItem(new RemoveClassAction("Remove class", this));
+        item.setFont(PrefMgr.getPopupMenuFont());
+        item.setForeground(envOpColour);
+        popupMenu.add(item);
+        item = new JMenuItem(new EditClassAction("Edit class", gClass));
+        item.setFont(PrefMgr.getPopupMenuFont());
+        item.setForeground(envOpColour);
+        popupMenu.add(item);
+
         role.addPopupMenuItems(popupMenu);
-        add(popupMenu);
     }
 
 
@@ -204,13 +236,13 @@ public class ClassView extends JToggleButton
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        g.setColor(getParent().getBackground());
-        g.fillRect(0, 0, getWidth(), getHeight());
-
-        g.setColor(getBackground());
-        g.fillRect(0, 0, getWidth() - SHADOW, getHeight() - SHADOW);
-
-        drawShadow((Graphics2D) g);
+//        g.setColor(getParent().getBackground());
+//        g.fillRect(0, 0, getWidth(), getHeight());
+//
+//        g.setColor(getBackground());
+//        g.fillRect(0, 0, getWidth() - SHADOW, getHeight() - SHADOW);
+//
+//        drawShadow((Graphics2D) g);
         drawBorders((Graphics2D) g);
 
     }
@@ -430,43 +462,22 @@ public class ClassView extends JToggleButton
 
     }
 
+    // ----- CompileListener interface -----
+    
     /*
-     * (non-Javadoc)
-     * 
-     * @see greenfoot.CompileListener#compileStarted(greenfoot.remote.RCompileEvent)
      */
-    public void compileStarted(RCompileEvent event)
-    {
-    // TODO Auto-generated method stub
-
-    }
+    public void compileStarted(RCompileEvent event) { }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see greenfoot.CompileListener#compileError(greenfoot.remote.RCompileEvent)
      */
-    public void compileError(RCompileEvent event)
-    {
-    // TODO Auto-generated method stub
-
-    }
+    public void compileError(RCompileEvent event) { }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see greenfoot.CompileListener#compileWarning(greenfoot.remote.RCompileEvent)
      */
-    public void compileWarning(RCompileEvent event)
-    {
-    // TODO Auto-generated method stub
+    public void compileWarning(RCompileEvent event) { }
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see greenfoot.CompileListener#compileSucceeded(greenfoot.remote.RCompileEvent)
+    /**
+     * After a successful compile, reload the Java class associated with this class view.
      */
     public void compileSucceeded(RCompileEvent event)
     {
@@ -481,24 +492,17 @@ public class ClassView extends JToggleButton
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see greenfoot.CompileListener#compileFailed(greenfoot.remote.RCompileEvent)
      */
-    public void compileFailed(RCompileEvent event)
-    {
-    // TODO Auto-generated method stub
+    public void compileFailed(RCompileEvent event) { }
 
-    }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+    // ----- MouseListener interface -----
+    
+    /**
+     * Mouse-click on this class view. Chek for double-click and handle.
      */
     public void mouseClicked(MouseEvent e)
     {
-        //int clicks = e.getClickCount();
         if (e.getClickCount() > 1 && ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)) {
             try {
                 gClass.edit();
@@ -519,25 +523,16 @@ public class ClassView extends JToggleButton
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
      */
-    public void mouseEntered(MouseEvent e)
-    {
-
-    }
+    public void mouseEntered(MouseEvent e) { }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
      */
-    public void mouseExited(MouseEvent e)
-    {
-
-    }
+    public void mouseExited(MouseEvent e) { }
     
+    /**
+     * The mouse was pressed on the component. Do what you have to do.
+     */
     public void mousePressed(MouseEvent e)
     {
         select();

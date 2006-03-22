@@ -9,7 +9,7 @@ import java.awt.Polygon;
  *  ^ | |__ | |
  * 
  * @author Poul Henriksen
- * @version $Id: ArrowHead.java 3857 2006-03-22 00:08:17Z mik $
+ * @version $Id: ArrowHead.java 3858 2006-03-22 17:25:25Z mik $
  */
 public class ArrowHead extends ArrowElement
 {
@@ -23,6 +23,6 @@ public class ArrowHead extends ArrowElement
 
         g.drawLine(size.width / 2, 0 + ARROW_HEIGHT, size.width / 2, size.height);
         g.drawLine(size.width / 2, size.height / 2, size.width, size.height / 2);
-        g.fillPolygon(arrow);
+        g.drawPolygon(arrow);
     }
 }
