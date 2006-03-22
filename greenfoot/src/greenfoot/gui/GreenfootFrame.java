@@ -47,7 +47,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -68,7 +67,7 @@ import com.apple.eawt.ApplicationEvent;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3855 2006-03-21 22:11:15Z mik $
+ * @version $Id: GreenfootFrame.java 3861 2006-03-22 21:59:02Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -79,10 +78,9 @@ public class GreenfootFrame extends JFrame
     private EditClassAction editClassAction = new EditClassAction("Edit");
     private AboutGreenfootAction aboutGreenfootAction;
     private ClassBrowser classBrowser;
-    private JSplitPane splitPane;
+//    private JSplitPane splitPane;
 
-    private Thread projectOpenThread ;
-    private final static Dimension MAX_SIZE = new Dimension(800, 600);
+    private Thread projectOpenThread;
 
     /**
      * Creates a new frame with all the basic components (menus...)
@@ -91,7 +89,7 @@ public class GreenfootFrame extends JFrame
     public GreenfootFrame(RBlueJ blueJ, final GProject project)
         throws HeadlessException, ProjectNotOpenException, RemoteException
     {
-        super("greenfoot:" + project.getName());
+        super("greenfoot: " + project.getName());
         try {
             //HACK to avoid error in class diagram (getPreferredSize stuff) on
             // windows, we use cross platform look and feel
@@ -198,8 +196,6 @@ public class GreenfootFrame extends JFrame
         worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
         JPanel worldPanel = new JPanel(new BorderLayout(4, 4));
-        Border empty = BorderFactory.createEmptyBorder(4, 4, 4, 4);
-        worldPanel.setBorder(empty);
 
         ControlPanel controlPanel = new ControlPanel(sim);
         controlPanel.setBorder(BorderFactory.createEtchedBorder());        
@@ -242,13 +238,19 @@ public class GreenfootFrame extends JFrame
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         rightPane.add(buttonPanel, BorderLayout.SOUTH);
 
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
-        splitPane.setLeftComponent(worldPanel);
-        splitPane.setRightComponent(rightPane);
-        splitPane.setResizeWeight(.9);
-        splitPane.resetToPreferredSizes();
+//        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+//        splitPane.setLeftComponent(worldPanel);
+//        splitPane.setRightComponent(rightPane);
+//        splitPane.setResizeWeight(.9);
+//        splitPane.resetToPreferredSizes();
+//
+//        getContentPane().add(splitPane, BorderLayout.CENTER);
 
-        getContentPane().add(splitPane, BorderLayout.CENTER);
+        getContentPane().setLayout(new BorderLayout(6,6));
+        getContentPane().add(worldPanel, BorderLayout.CENTER);
+        getContentPane().add(rightPane, BorderLayout.EAST);
+        Border emptyBorder = BorderFactory.createEmptyBorder(8, 8, 8, 8);
+        ((JPanel)getContentPane()).setBorder(emptyBorder);
 
         instantiateNewWorld(classBrowser);
         pack();
@@ -264,20 +266,25 @@ public class GreenfootFrame extends JFrame
 
     public void pack()
     {
+//        splitPane.resetToPreferredSizes();
         super.pack();
-        splitPane.resetToPreferredSizes();
-        super.pack();
+        super.pack();   // this seems a bug: if not called twice, it gets the size wrong...
+        
         int width = getSize().width;
         int height = getSize().height;
-
+        boolean needChange = false;
+        
         if (width > getMaximumSize().width) {
             width = getMaximumSize().width;
+            needChange = true;
         }
         if (height > getMaximumSize().height) {
             height = getMaximumSize().height;
+            needChange = true;
         }
-        setSize(width, height);
-        this.validateTree();
+        if (needChange) {
+            setSize(width, height);
+        }
     }
 
     /**

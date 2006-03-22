@@ -67,7 +67,7 @@ public class Greenfoot
         }
 
         //Threading avoids deadlock when classbrowser tries to instantiate
-        // objects to get images. this is necessy beacsuse greenfoot is started
+        // objects to get images. this is necessy because greenfoot is started
         // from BlueJ-VM which waits for this call to return.
         final GProject finalProject = project;
         Thread t = new Thread() {
@@ -85,13 +85,13 @@ public class Greenfoot
                     e2.printStackTrace();
                 }
                 logger.info("Frame created");
-                frame.setVisible(true);
-                frame.toFront();
-                Utility.bringToFront();
-                logger.info("Frame visible");
                 
                 //We must wait for the frame to finish preparing:
                 frame.waitForProjectOpen();
+                frame.setVisible(true);
+//                frame.toFront();
+                Utility.bringToFront();
+                logger.info("Frame visible");
                 try {
                     instantiationListener = new GreenfootObjectInstantiationListener(WorldHandler.instance());
                     Greenfoot.this.rBlueJ.addInvocationListener(instantiationListener);
