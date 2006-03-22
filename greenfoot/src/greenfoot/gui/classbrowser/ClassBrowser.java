@@ -31,7 +31,7 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3858 2006-03-22 17:25:25Z mik $
+ * @version $Id: ClassBrowser.java 3859 2006-03-22 17:54:17Z mik $
  */
 public class ClassBrowser extends JPanel
 {
@@ -198,8 +198,7 @@ public class ClassBrowser extends JPanel
         for (Iterator iter = roots.iterator(); iter.hasNext();) {
             JComponent classPanel = new JPanel();
             classPanel.setOpaque(false);
-//            classPanel.setLayout(new BoxLayout(classPanel, BoxLayout.X_AXIS));
-            classPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            classPanel.setLayout(new BoxLayout(classPanel, BoxLayout.X_AXIS));
 
             ClassForest.TreeEntry element = (ClassForest.TreeEntry) iter.next();
 
@@ -225,13 +224,16 @@ public class ClassBrowser extends JPanel
 
             JComponent classView = element.getData();
             classPanel.add(classView);
-            hierarchyPanel.add(classPanel);
+            JComponent flowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            flowPanel.add(classPanel);
+            flowPanel.setOpaque(false);
+            hierarchyPanel.add(flowPanel);
             
             List children = element.getChildren();
             if(!children.isEmpty()) {
                 JComponent childPanel = new JPanel();
                 childPanel.setOpaque(false);
-                childPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+                childPanel.setLayout(new BoxLayout(childPanel, BoxLayout.X_AXIS));
 
                 JComponent child = createClassHierarchyComponent(children, true);
                 if (iter.hasNext()) {
@@ -241,7 +243,10 @@ public class ClassBrowser extends JPanel
                     childPanel.add(new EmptySpace());
                 }
                 childPanel.add(child);
-                hierarchyPanel.add(childPanel);
+                flowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+                flowPanel.setOpaque(false);
+                flowPanel.add(childPanel);
+                hierarchyPanel.add(flowPanel);
             }
             
             isFirstSubclass = false;

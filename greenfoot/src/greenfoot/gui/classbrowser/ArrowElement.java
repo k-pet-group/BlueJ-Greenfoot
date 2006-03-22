@@ -11,12 +11,12 @@ import javax.swing.JComponent;
  *  ^ | |__ | |
  * 
  * @author mik
- * @version $Id: ArrowElement.java 3858 2006-03-22 17:25:25Z mik $
+ * @version $Id: ArrowElement.java 3859 2006-03-22 17:54:17Z mik $
  */
 public abstract class ArrowElement extends JComponent
 {
     protected static final int ARROW_WIDTH = 10;
-    protected static final int ARROW_HEIGHT = 32;
+    protected static final int ARROW_HEIGHT = 7;
     
     public Dimension minimumSize;
 
