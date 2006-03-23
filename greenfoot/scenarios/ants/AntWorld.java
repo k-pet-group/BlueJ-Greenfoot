@@ -38,15 +38,18 @@ public class AntWorld extends GreenfootWorld
 
     public void scenario2()
     {
-        newObject(new AntHill(20), 300, 400);
-        newObject(new AntHill(20), 70, 60);
-        newObject(new AntHill(20), 410, 320);
+        newObject(new AntHill(40), 546, 356);
+        newObject(new AntHill(40), 95,267);
         
-        newObject(new Food(), 250, 70);
-        newObject(new Food(), 250, 160);
-        newObject(new Food(), 200, 220);
-        newObject(new Food(), 150, 160);
-        newObject(new Food(), 70, 270);
+        newObject(new Food(), 80, 71);
+        newObject(new Food(), 291, 56);
+        newObject(new Food(), 516, 212);
+        newObject(new Food(), 311, 269);
+        newObject(new Food(), 318, 299);
+        newObject(new Food(), 315, 331);
+        newObject(new Food(), 141, 425);
+        newObject(new Food(), 378, 547);
+        newObject(new Food(), 566, 529);
     }
 
     private void newObject(GreenfootObject obj, int x, int y)
