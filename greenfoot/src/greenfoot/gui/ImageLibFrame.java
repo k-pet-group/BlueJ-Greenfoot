@@ -25,6 +25,7 @@ import javax.swing.event.ListSelectionListener;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 
 /**
@@ -32,9 +33,9 @@ import bluej.utility.FileUtility;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 3847 2006-03-21 03:35:09Z davmac $
+ * @version $Id: ImageLibFrame.java 3862 2006-03-23 03:05:51Z davmac $
  */
-public class ImageLibFrame extends JFrame implements ListSelectionListener
+public class ImageLibFrame extends JDialog implements ListSelectionListener
 {
     /** label displaying the currently selected image */
     private JLabel imageLabel;
@@ -48,11 +49,12 @@ public class ImageLibFrame extends JFrame implements ListSelectionListener
     private File currentImageFile;
     private File projImagesDir;
     
-    public ImageLibFrame(ClassView classView, GreenfootClassRole gclassRole)
+    public ImageLibFrame(JFrame owner, ClassView classView, GreenfootClassRole gclassRole)
     {
         // TODO i18n
-        super("Select class image: " + classView.getClassName());
-        setIconImage(BlueJTheme.getIconImage());
+        // super("Select class image: " + classView.getClassName());
+        super(owner, "Select class image: " + classView.getClassName(), true);
+        // setIconImage(BlueJTheme.getIconImage());
         
         this.classView = classView;
         this.gclass = classView.getGClass();
@@ -213,6 +215,7 @@ public class ImageLibFrame extends JFrame implements ListSelectionListener
         }
         
         pack();
+        DialogManager.centreDialog(this);
         setVisible(true);
     }
     
