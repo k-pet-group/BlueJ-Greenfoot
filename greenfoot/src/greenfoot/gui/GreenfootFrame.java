@@ -62,24 +62,28 @@ import bluej.extensions.ProjectNotOpenException;
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
+import greenfoot.actions.NYIAction;
 
 /**
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3861 2006-03-22 21:59:02Z mik $
+ * @version $Id: GreenfootFrame.java 3864 2006-03-23 22:26:27Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
+    private static final int accelModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+    private static final int shiftAccelModifier = accelModifier | KeyEvent.SHIFT_MASK;
 
     private CompileClassAction compileClassAction = new CompileClassAction("Compile");
+    private CompileAllAction compileAllAction = new CompileAllAction("Compile All");
     private EditClassAction editClassAction = new EditClassAction("Edit");
     private AboutGreenfootAction aboutGreenfootAction;
     private ClassBrowser classBrowser;
-//    private JSplitPane splitPane;
-
+    private ControlPanel controlPanel;
+    
     private Thread projectOpenThread;
 
     /**
@@ -197,10 +201,9 @@ public class GreenfootFrame extends JFrame
         
         JPanel worldPanel = new JPanel(new BorderLayout(4, 4));
 
-        ControlPanel controlPanel = new ControlPanel(sim);
+        controlPanel = new ControlPanel(sim);
         controlPanel.setBorder(BorderFactory.createEtchedBorder());        
         worldHandler.addWorldListener(controlPanel);
-        sim.setDelay(controlPanel.getDelay());
 
         //todo this should be moved to WorldCanvas becuase it changes when new
         // worlds are created
@@ -213,7 +216,7 @@ public class GreenfootFrame extends JFrame
         Box buttonPanel = new Box(BoxLayout.Y_AXIS);
         buttonPanel.setAlignmentX(Box.CENTER_ALIGNMENT);
 
-        JButton button = new JButton(new CompileAllAction("Compile"));
+        JButton button = new JButton(compileAllAction);
         Dimension pref = button.getMinimumSize();
         pref.width = Integer.MAX_VALUE;
         button.setMaximumSize(pref);
@@ -382,41 +385,63 @@ public class GreenfootFrame extends JFrame
     {
         JMenuBar menuBar = new JMenuBar();
 
-        JMenu projectMenu = new JMenu("Project");
-        projectMenu.setMnemonic('p');
-        menuBar.add(projectMenu);
+        JMenu projectMenu = addMenu("Project", menuBar, 'p');
         
-        int acceleratorModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        addMenuItem(new NewProjectAction("New"), projectMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
+        addMenuItem(new OpenProjectAction("Open"), projectMenu, KeyEvent.VK_O, false, KeyEvent.VK_O);
+//        addMenuItem(new NYIAction("Open Recent...", this), projectMenu, -1, false, -1);
+        addMenuItem(new CloseProjectAction("Close"), projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
+        addMenuItem(new SaveProjectAction("Save"), projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
+        addMenuItem(new NYIAction("Save As...", this), projectMenu, KeyEvent.VK_S, true, -1);
+        projectMenu.addSeparator();
+        addMenuItem(new NYIAction("Page Setup...", this), projectMenu, KeyEvent.VK_P, true, -1);
+        addMenuItem(new NYIAction("Print...", this), projectMenu, KeyEvent.VK_P, false, KeyEvent.VK_P);
         
-        Action newProjectAction = new NewProjectAction("New");
-        newProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, acceleratorModifier));
-        newProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_N));
-        projectMenu.add(newProjectAction);
+        JMenu ctrlMenu = addMenu("Controls", menuBar, 'c');
         
-        Action openProjectAction = new OpenProjectAction("Open");
-        openProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, acceleratorModifier));
-        openProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_O));
-        projectMenu.add(openProjectAction);
+        addMenuItem(new NYIAction("Act", this), ctrlMenu, KeyEvent.VK_A, false, KeyEvent.VK_A);
+        addMenuItem(new NYIAction("Run", this), ctrlMenu, KeyEvent.VK_R, false, KeyEvent.VK_R);
+        addMenuItem(new NYIAction("Increase Speed", this), ctrlMenu, KeyEvent.VK_PLUS, false, KeyEvent.VK_PLUS);
+        addMenuItem(new NYIAction("Decrease Speed", this), ctrlMenu, KeyEvent.VK_MINUS, false, KeyEvent.VK_MINUS);
+        ctrlMenu.addSeparator();
+        addMenuItem(compileAllAction, ctrlMenu, KeyEvent.VK_K, false, -1);
         
-        Action closeProjectAction = new CloseProjectAction("Close");
-        closeProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, acceleratorModifier));
-        closeProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_C));
-        projectMenu.add(closeProjectAction);
+        JMenu helpMenu = addMenu("Help", menuBar, 'h');
         
-        Action saveProjectAction = new SaveProjectAction("Save");
-        saveProjectAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, acceleratorModifier));
-        saveProjectAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_S));
-        projectMenu.add(saveProjectAction);
-
-        JMenu helpMenu = new JMenu("Help");
-        helpMenu.setMnemonic('h');
-        menuBar.add(helpMenu);
-        aboutGreenfootAction.putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_A));
+        addMenuItem(aboutGreenfootAction, helpMenu, -1, false, KeyEvent.VK_A);
+        addMenuItem(new NYIAction("Copyright", this), helpMenu, -1, false, -1);
+        helpMenu.addSeparator();
+        addMenuItem(new NYIAction("Greenfoot Web Site", this), helpMenu, -1, false, -1);
+        addMenuItem(new NYIAction("Greenfoot Tutorial", this), helpMenu, -1, false, -1);
         
-        helpMenu.add(aboutGreenfootAction); 
-
-       // helpMenu.add(new CopyrightAction("Copyright", this)); 
         return menuBar;
+    }
+
+    /** 
+     * Add a menu to a menu bar.
+     */
+    private JMenu addMenu(String name, JMenuBar menubar, char mnemonic)
+    {
+        JMenu menu = new JMenu(name);
+        menu.setMnemonic(mnemonic);
+        menubar.add(menu);
+        return menu;
+    }
+
+    /** 
+     * Add a menu item to a menu.
+     */
+    private void addMenuItem(Action action, JMenu menu, int accelKey, boolean shift, int mnemonicKey)
+    {
+        if(accelKey != -1) {
+            if(shift)
+                action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(accelKey, shiftAccelModifier));
+            else
+                action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(accelKey, accelModifier));
+        }
+        if(mnemonicKey != -1)
+            action.putValue(Action.MNEMONIC_KEY, new Integer(mnemonicKey));
+        menu.add(action);
     }
 
     /**

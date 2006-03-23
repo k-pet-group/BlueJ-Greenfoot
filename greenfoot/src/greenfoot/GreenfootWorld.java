@@ -31,11 +31,12 @@ import java.util.List;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.3.0
- * @cvs-version $Id: GreenfootWorld.java 3824 2006-03-15 14:07:39Z polle $
+ * @cvs-version $Id: GreenfootWorld.java 3864 2006-03-23 22:26:27Z mik $
  */
 public class GreenfootWorld extends ObjectTransporter
 {
-    private CollisionChecker collisionChecker = new GridCollisionChecker();//new BVHInsChecker();
+//    private CollisionChecker collisionChecker = new GridCollisionChecker();//new BVHInsChecker();
+    private CollisionChecker collisionChecker = new BVHInsChecker();
 
     /** All the objects currently in the world */
     private List objects = new ArrayList();

@@ -32,7 +32,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 3820 2006-03-14 21:03:48Z polle $
+ * @version $Id: ControlPanel.java 3864 2006-03-23 22:26:27Z mik $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener, WorldListener
@@ -117,7 +117,31 @@ public class ControlPanel extends Box
         
         return speedPanel;
     }
-
+    
+//    /**
+//     * Return the action object for the 'act' action.
+//     */
+//    public Action getActAction()
+//    {
+//        return runOnceSimulationAction;
+//    }
+//
+//    /**
+//     * Return the action object for the 'run' action.
+//     */
+//    public Action getRunAction()
+//    {
+//        return runSimulationAction;
+//    }
+//
+//    /**
+//     * Return the action object for the 'pause' action.
+//     */
+//    public Action getPauseAction()
+//    {
+//        return pauseSimulationAction;
+//    }
+//
     public void simulationChanged(SimulationEvent e)
     {
         int etype = e.getType();
