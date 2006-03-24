@@ -27,7 +27,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootObject.java 3829 2006-03-16 05:28:38Z davmac $
+ * @cvs-version $Id: GreenfootObject.java 3875 2006-03-24 12:03:53Z polle $
  */
 public class GreenfootObject extends ObjectTransporter
 {
@@ -428,7 +428,7 @@ public class GreenfootObject extends ObjectTransporter
         }
         int cellSize = world.getCellSize();
         double cellCenter = getX() * cellSize + cellSize / 2.;
-        double paintX = cellCenter - image.getWidth() / 2;
+        double paintX = cellCenter - image.getWidth() / 2.;
 
         return (int) Math.floor(paintX);
     }
@@ -447,7 +447,7 @@ public class GreenfootObject extends ObjectTransporter
         }
         int cellSize = world.getCellSize();
         double cellCenter = getY() * cellSize + cellSize / 2.;
-        double paintY = cellCenter - image.getHeight() / 2;
+        double paintY = cellCenter - image.getHeight() / 2.;
 
         return (int) Math.floor(paintY);
     }
@@ -463,12 +463,18 @@ public class GreenfootObject extends ObjectTransporter
         }
     }   
 
-    private int calcBoundingRadius()
-    {
+    /**
+     *Calculate the bounding radius. In grid coordinates.
+     */
+    private int calcBoundingRadius() {
         if(world == null) return -1;
-        int dy = getYMax() - getYMin();
-        int dx = getXMax() - getXMin();
-        return (int) Math.sqrt(dx*dx + dy*dy)/2;
+        // An explanation of why +3 is needed:
+        // +1 comes form the fact that Max - Min is not the width of the objects,
+        //  but the difference in max an min location which for instance can be 0.
+        // +2 we need  to cover the boundary cases in both ends.
+        int dy = getYMax() - getYMin() + 3;
+        int dx = getXMax() - getXMin() + 3;
+        return (int) (Math.sqrt(dx*dx + dy*dy) / 2 );
     }
 
     private void locationChanged(int oldX, int oldY)
