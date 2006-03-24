@@ -87,7 +87,7 @@ public class BVHInsChecker
          *            collisions based on the circle.
          * @param result List to put the result in.
          */
-        public void getIntersections(Circle c, GOCollisionChecker checker, List result)
+        public void getIntersections(Circle c, CollisionQuery checker, List result)
         {
             if (!c.intersects(this.circle)) {
                 return;
@@ -102,12 +102,12 @@ public class BVHInsChecker
         }
         
         
-        public GreenfootObject getOneIntersectingObject(BVHInsChecker.Node node, GOCollisionChecker checker) {
+        public GreenfootObject getOneIntersectingObject(BVHInsChecker.Node node, CollisionQuery checker) {
             return node.getOneIntersectingObjectUpwards(node.circle, checker);           
         }
         
         
-        private GreenfootObject getOneIntersectingObjectDownwards(Circle c, GOCollisionChecker checker) {
+        private GreenfootObject getOneIntersectingObjectDownwards(Circle c, CollisionQuery checker) {
             
             if (!c.intersects(this.circle)) {
                 return null;
@@ -130,7 +130,7 @@ public class BVHInsChecker
         }
         
         
-        private GreenfootObject getOneIntersectingObjectUpwards(Circle c, GOCollisionChecker checker) {
+        private GreenfootObject getOneIntersectingObjectUpwards(Circle c, CollisionQuery checker) {
             Node sibling = getSibling();
             GreenfootObject result = null;
             if(sibling != null) {
@@ -147,7 +147,7 @@ public class BVHInsChecker
 
         // TODO replace with loop instead of recursion so that we can escape
         // quicker.
-        public GreenfootObject getIntersection(Circle b, GOCollisionChecker c)
+        public GreenfootObject getIntersection(Circle b, CollisionQuery c)
         {
             throw new RuntimeException("NOT IMPLEMENTED YET");
             /*
@@ -455,7 +455,7 @@ public class BVHInsChecker
             size--;
         }
 
-        public List getIntersections(Circle b, GOCollisionChecker c)
+        public List getIntersections(Circle b, CollisionQuery c)
         {
             List result = new ArrayList();
             if (getRoot() == null) {
@@ -467,7 +467,7 @@ public class BVHInsChecker
             return result;
         }
 
-        public GreenfootObject getOneIntersection(Circle b, GOCollisionChecker checker)
+        public GreenfootObject getOneIntersection(Circle b, CollisionQuery checker)
         {
             if (getRoot() == null) {
                 return null;
@@ -476,7 +476,7 @@ public class BVHInsChecker
         }
         
         
-        public GreenfootObject getOneIntersectingObject(Node node, GOCollisionChecker checker) {
+        public GreenfootObject getOneIntersectingObject(Node node, CollisionQuery checker) {
              return getRoot().getOneIntersectingObject(node, checker);
         }
         
@@ -539,7 +539,9 @@ public class BVHInsChecker
     }
 
     private CircleTree tree;
-    private GOCollisionChecker checker = new GOCollisionChecker();
+    private GOCollisionQuery goQuery = new GOCollisionQuery();
+    private NeighbourCollisionQuery neighbourQuery = new NeighbourCollisionQuery();
+    private PointCollisionQuery pointQuery = new PointCollisionQuery();
     private int cellSize;
     private List objects;
 
@@ -599,19 +601,20 @@ public class BVHInsChecker
 
     public List getObjectsAt(int x, int y, Class cls)
     {
+        pointQuery.init(x, y);
         Circle b = new Circle(x * cellSize, y * cellSize, 0);
-        synchronized (checker) {
-            checker.init(cls, null);
-            return tree.getIntersections(b, checker);
+        synchronized (goQuery) {
+            goQuery.init(cls, null);
+            return tree.getIntersections(b, pointQuery);
         }
     }
 
     public List getIntersectingObjects(GreenfootObject go, Class cls)
     {
         Circle b = getCircle(go);
-        synchronized (checker) {
-            checker.init(cls, go);
-            return tree.getIntersections(b, checker);
+        synchronized (goQuery) {
+            goQuery.init(cls, go);
+            return tree.getIntersections(b, goQuery);
         }
     }
 
@@ -628,9 +631,9 @@ public class BVHInsChecker
     public List getObjectsInRange(int x, int y, int r, Class cls)
     {   
         Circle b = new Circle(x * cellSize, y * cellSize, r * cellSize);
-        synchronized (checker) {
-            checker.init(cls, null);
-            return tree.getIntersections(b, checker);
+        synchronized (goQuery) {
+            goQuery.init(cls, null);
+            return tree.getIntersections(b, goQuery);
         }
     }
 
@@ -640,8 +643,25 @@ public class BVHInsChecker
         // objects within.
         // remember, it only looks at logical position.
 
-        // TODO Auto-generated method stub
-        throw new RuntimeException("NOT IMPLEMENTED YET");
+        
+        int xPixel = x * cellSize;
+        int yPixel = y * cellSize;
+        int dPixel = distance * cellSize;
+        int r = 0;
+        if(diag) {            
+            r = (int) Math.ceil(Math.sqrt(dPixel * dPixel + dPixel * dPixel));            
+        } else {
+            double dy = 0.5 * cellSize;
+            double dx = dPixel + dy;
+            r = (int) Math.sqrt(dy*dy+dx*dx);            
+        }
+        Circle c = new Circle(xPixel, yPixel, r);
+        
+        synchronized (neighbourQuery) {
+            neighbourQuery.init(x, y, distance, diag, cls);
+            return tree.getIntersections(c, neighbourQuery);
+        }
+        
     }
 
     public List getObjectsInDirection(int x, int y, int angle, int length, Class cls)
@@ -683,12 +703,12 @@ public class BVHInsChecker
 
     public GreenfootObject getOneIntersectingObject(GreenfootObject object, Class cls)
     {
-        synchronized (checker) {
-            checker.init(cls, object);
+        synchronized (goQuery) {
+            goQuery.init(cls, object);
             
             Node node = (Node) GreenfootObjectVisitor.getData(object);
             if(node != null) {
-                return tree.getOneIntersectingObject(node, checker);
+                return tree.getOneIntersectingObject(node, goQuery);
             } else {
                 List l = getIntersectingObjects(object, cls);
                 if (!l.isEmpty()) {

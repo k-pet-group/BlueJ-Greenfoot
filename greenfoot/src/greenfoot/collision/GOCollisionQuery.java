@@ -4,12 +4,12 @@ import greenfoot.GreenfootObject;
 import greenfoot.GreenfootObjectVisitor;
 
 /**
- * Comparator used to check or collisions between GreenfooObjects.
+ * Checks collisions between GreenfooObjects.
  * 
  * @author Poul Henriksen
  *
  */
-public class GOCollisionChecker{
+public class GOCollisionQuery implements CollisionQuery {
     
     private Class cls;
     private GreenfootObject compareObject;
@@ -29,8 +29,7 @@ public class GOCollisionChecker{
      * Checks if the other object collides with this object and if it is of the given class.
      * 
      */
-    public boolean checkCollision(GreenfootObject other) {
-       
+    public boolean checkCollision(GreenfootObject other) {       
         if(compareObject == null && cls == null ) {
             return true;
         }       
@@ -44,6 +43,5 @@ public class GOCollisionChecker{
             return true;
         }
         return false;
-    }
-     
+    }     
 }
