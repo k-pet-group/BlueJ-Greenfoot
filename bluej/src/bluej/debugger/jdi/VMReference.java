@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3868 2006-03-24 05:05:33Z bquig $
+ * @version $Id: VMReference.java 3869 2006-03-24 05:15:17Z bquig $
  * 
  * The startup process is as follows:
  * 
@@ -408,29 +408,25 @@ class VMReference
         }
         catch (InterruptedException ie) {}
         
-        // redirect error stream from process to Terminal
-        Reader reader = null;
-        if(isDefaultEncoding)
-            reader = new InputStreamReader(vmProcess.getErrorStream());
-        else
-            reader = new InputStreamReader(vmProcess.getErrorStream(), streamEncoding);            
-        errorStreamRedirector = redirectIOStream(reader, term.getErrorWriter(), false);
+        // redirect standard streams from process to Terminal
+        // error stream System.err
+        Reader errorReader = null;
+        // output stream System.out
+        Reader outReader = null;
+        // input stream System.in
+        Writer inputWriter = null;
         
-        // redirect output stream from process to Terminal
-        if(isDefaultEncoding)
-            reader = new InputStreamReader(vmProcess.getInputStream());
-        else
-            reader = new InputStreamReader(vmProcess.getInputStream(), streamEncoding);
-        outputStreamRedirector = redirectIOStream(reader, term.getWriter(), false);
-        
-        // redirect Terminal input to process output stream
-        Writer writer = null;
-         if(isDefaultEncoding)
-            writer = new OutputStreamWriter(vmProcess.getOutputStream());
-        else
-            writer = new OutputStreamWriter(vmProcess.getOutputStream(), streamEncoding);
-        inputStreamRedirector = redirectIOStream(term.getReader(), writer, false);
-        
+        if(isDefaultEncoding) {
+            errorReader = new InputStreamReader(vmProcess.getErrorStream());
+            outReader = new InputStreamReader(vmProcess.getInputStream());
+            inputWriter = new OutputStreamWriter(vmProcess.getOutputStream());            
+        }
+        // if specified in bluej.defs
+        else {
+            errorReader = new InputStreamReader(vmProcess.getErrorStream(), streamEncoding); 
+            outReader = new InputStreamReader(vmProcess.getInputStream(), streamEncoding);
+            inputWriter = new OutputStreamWriter(vmProcess.getOutputStream(), streamEncoding);
+        }
         return vmProcess;
     }
 
