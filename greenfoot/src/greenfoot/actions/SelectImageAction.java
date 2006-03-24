@@ -19,7 +19,7 @@ import bluej.utility.FileUtility;
  * Action to select an image for a class.
  * 
  * @author Davin McCall
- * @version $Id: SelectImageAction.java 3865 2006-03-24 00:08:15Z davmac $
+ * @version $Id: SelectImageAction.java 3866 2006-03-24 04:23:52Z davmac $
  */
 public class SelectImageAction extends ClassAction
 {
@@ -40,28 +40,32 @@ public class SelectImageAction extends ClassAction
         
         File currentImageFile = imageLibFrame.getSelectedImageFile();
         
+        setClassImage(classView, gclassRole, currentImageFile);
+    }
+
+    public static void setClassImage(ClassView classView, GreenfootClassRole gclassRole, File imageFile)
+    {
         Greenfoot greenfootInstance = Greenfoot.getInstance();
         
         try {
             File projDir = greenfootInstance.getProject().getDir();
             File projImagesDir = new File(projDir, "images");
             
-            if (currentImageFile != null) {
-                if (! currentImageFile.getParent().equals(projImagesDir)) {
+            if (imageFile != null) {
+                if (! imageFile.getParent().equals(projImagesDir)) {
                     // An image was selected from an external dir. We need
                     // to copy it into the project images directory first.
-                    File destFile = new File(projImagesDir, currentImageFile.getName());
-                    FileUtility.copyFile(currentImageFile, destFile);
-                    currentImageFile = destFile;
+                    File destFile = new File(projImagesDir, imageFile.getName());
+                    FileUtility.copyFile(imageFile, destFile);
+                    imageFile = destFile;
                 }
                 
                 GClass gclass = classView.getGClass();
-                gclass.setClassProperty("image", currentImageFile.getName());
+                gclass.setClassProperty("image", imageFile.getName());
                 gclassRole.changeImage();
             }
         }
         catch (RemoteException re) {}
         catch (ProjectNotOpenException pnoe) {}
     }
-
 }

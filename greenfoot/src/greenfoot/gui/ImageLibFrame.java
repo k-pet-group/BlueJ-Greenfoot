@@ -18,8 +18,11 @@ import java.rmi.RemoteException;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.BadLocationException;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -32,7 +35,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 3865 2006-03-24 00:08:15Z davmac $
+ * @version $Id: ImageLibFrame.java 3866 2006-03-24 04:23:52Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -42,9 +45,11 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     
     private ImageLibList projImageList;
     private ImageLibList greenfootImageList;
+    private Action okAction;
     
     private File selectedImageFile;
     private File projImagesDir;
+    private String className;
     
     public static int OK = 0;
     public static int CANCEL = 1;
@@ -59,7 +64,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         
         this.gclass = classView.getGClass();
         
-        buildUI();
+        buildUI(false);
     }
     
     /**
@@ -72,9 +77,10 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         super(owner, "New class", true);
         
         // this.classView = new ClassView()
+        buildUI(true);
     }
     
-    private void buildUI()
+    private void buildUI(boolean includeClassNameField)
     {
         JPanel contentPane = new JPanel();
         this.setContentPane(contentPane);
@@ -84,22 +90,83 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         int spacingLarge = BlueJTheme.componentSpacingLarge;
         int spacingSmal = BlueJTheme.componentSpacingSmall;
         
-        // Show current image
+        okAction = new AbstractAction("Ok") {
+            public void actionPerformed(ActionEvent e)
+            {
+                result = OK;
+                setVisible(false);
+                dispose();
+            }
+        };
+        
         {
-            JPanel currentImagePanel = new JPanel();
-            currentImagePanel.setLayout(new BoxLayout(currentImagePanel, BoxLayout.X_AXIS));
+            JPanel classDetailsPanel = new JPanel();
+            classDetailsPanel.setLayout(new BoxLayout(classDetailsPanel, BoxLayout.Y_AXIS));
             
-            JLabel classImageLabel = new JLabel("Class Image:");
-            currentImagePanel.add(classImageLabel);
+            // Show current image
+            {
+                JPanel currentImagePanel = new JPanel();
+                currentImagePanel.setLayout(new BoxLayout(currentImagePanel, BoxLayout.X_AXIS));
+                
+                if (includeClassNameField) {
+                    Box b = new Box(BoxLayout.X_AXIS);
+                    JLabel classNameLabel = new JLabel("New class name:");
+                    b.add(classNameLabel);
+                    
+                    // "ok" button should be disabled until class name entered
+                    okAction.setEnabled(false);
+                    
+                    final JTextField classNameField = new JTextField(12);
+                    classNameField.getDocument().addDocumentListener(new DocumentListener() {
+                        private void change()
+                        {
+                            int length = classNameField.getDocument().getLength();
+                            okAction.setEnabled(length != 0);
+                            try {
+                                className = classNameField.getDocument().getText(0, length);
+                            }
+                            catch (BadLocationException ble) {}
+                        }
+                        
+                        public void changedUpdate(DocumentEvent e)
+                        {
+                            // Nothing to do
+                        }
+                        
+                        public void insertUpdate(DocumentEvent e)
+                        {
+                            change();
+                        }
+                        
+                        public void removeUpdate(DocumentEvent e)
+                        {
+                            change();
+                        }
+                    });
+                    
+                    b.add(Box.createHorizontalStrut(spacingLarge));
+                    b.add(fixHeight(classNameField));
+                    b.setAlignmentX(0.0f);
+                    
+                    classDetailsPanel.add(b);
+                    classDetailsPanel.add(Box.createVerticalStrut(spacingLarge));
+                }
+                
+                JLabel classImageLabel = new JLabel("Class Image:");
+                currentImagePanel.add(classImageLabel);
+                
+                currentImagePanel.add(Box.createHorizontalStrut(spacingLarge));
+                
+                Icon icon = getClassIcon(gclass);
+                imageLabel = new JLabel(icon);
+                currentImagePanel.add(imageLabel);
+                currentImagePanel.setAlignmentX(0.0f);
+                
+                classDetailsPanel.add(fixHeight(currentImagePanel));
+            }
             
-            currentImagePanel.add(Box.createHorizontalStrut(spacingLarge));
-            
-            Icon icon = getClassIcon(gclass);
-            imageLabel = new JLabel(icon);
-            currentImagePanel.add(imageLabel);
-            currentImagePanel.setAlignmentX(0.0f);
-            
-            contentPane.add(fixHeight(currentImagePanel));
+            classDetailsPanel.setAlignmentX(0.0f);
+            contentPane.add(fixHeight(classDetailsPanel));
         }
         
         contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
@@ -192,14 +259,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             okCancelPanel.setLayout(new BoxLayout(okCancelPanel, BoxLayout.X_AXIS));
 
             JButton okButton = BlueJTheme.getOkButton();
-            okButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    result = OK;
-                    setVisible(false);
-                    dispose();
-                }
-            });
+            okButton.setAction(okAction);
             
             JButton cancelButton = BlueJTheme.getCancelButton();
             cancelButton.addActionListener(new ActionListener() {
@@ -249,7 +309,12 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      */
     public static Icon getClassIcon(GClass gclass)
     {
-        String imageName = gclass.getClassProperty("image");
+        String imageName = null;
+        
+        if (gclass != null) {
+            imageName = gclass.getClassProperty("image");
+        }
+        
         if (imageName == null) {
             imageName = "greenfoot-logo.png";
         }
@@ -306,5 +371,10 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     public int getResult()
     {
         return result;
+    }
+    
+    public String getClassName()
+    {
+        return className;
     }
 }

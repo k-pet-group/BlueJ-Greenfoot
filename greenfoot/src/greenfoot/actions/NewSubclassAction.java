@@ -1,9 +1,10 @@
 package greenfoot.actions;
 
 import greenfoot.core.GClass;
-import greenfoot.gui.NewClassDialog;
+import greenfoot.gui.ImageLibFrame;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
+import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 
 import java.awt.event.ActionEvent;
 
@@ -14,7 +15,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 3640 2005-10-04 09:53:37Z polle $
+ * @version $Id: NewSubclassAction.java 3866 2006-03-24 04:23:52Z davmac $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -40,16 +41,20 @@ public class NewSubclassAction extends AbstractAction
     public void actionPerformed(ActionEvent e)
     {
         JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
-        NewClassDialog dialog = new NewClassDialog(f, superclass.getQualifiedClassName());
-        dialog.setVisible(true);
-        if (!dialog.okPressed()) {
+        
+        ImageLibFrame dialog = new ImageLibFrame(f);
+        if (! (dialog.getResult() == ImageLibFrame.OK)) {
             return;
         }
-
+        
         String className = dialog.getClassName();
         GClass gClass = superclass.createSubclass(className);
-        
         ClassView classView = classBrowser.addClass(gClass);
+        
+        SelectImageAction.setClassImage(classView,
+                (GreenfootClassRole) classView.getRole(),
+                dialog.getSelectedImageFile());
+        
         classView.select();
         classBrowser.revalidate();
     }
