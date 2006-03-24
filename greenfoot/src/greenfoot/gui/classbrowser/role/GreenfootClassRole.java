@@ -31,7 +31,7 @@ import javax.swing.JPopupMenu;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3858 2006-03-22 17:25:25Z mik $
+ * @version $Id: GreenfootClassRole.java 3867 2006-03-24 04:51:45Z davmac $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -95,10 +95,24 @@ public class GreenfootClassRole extends ClassRole
     public Image getImage()
     {
         if (image == null) {
-            String imageName = gClass.getClassProperty("image");
+            
+            String imageName = null;
+            GClass imageClass = gClass;
+            
+            // go up the class hierarchy until we find a class with an image
+            while (imageClass != null) {
+                imageName = imageClass.getClassProperty("image");
+                if (imageName != null) {
+                    break;
+                }
+                imageClass = imageClass.getSuperclass();
+            }
+            
+            // If we can't find any image, use the greenfoot logo
             if (imageName == null) {
                 imageName = "greenfoot-logo.png";
             }
+            
             try {
                 image = ImageIO.read(new File(new File("images"), imageName));
             }

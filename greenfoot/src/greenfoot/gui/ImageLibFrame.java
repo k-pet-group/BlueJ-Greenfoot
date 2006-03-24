@@ -35,13 +35,14 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 3866 2006-03-24 04:23:52Z davmac $
+ * @version $Id: ImageLibFrame.java 3867 2006-03-24 04:51:45Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
     /** label displaying the currently selected image */
     private JLabel imageLabel;
     private GClass gclass;
+    private Icon defaultIcon;
     
     private ImageLibList projImageList;
     private ImageLibList greenfootImageList;
@@ -55,6 +56,12 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     public static int CANCEL = 1;
     private int result = CANCEL;
     
+    /**
+     * Construct an ImageLibFrame for changing the image of an existing class.
+     * 
+     * @param owner      The parent frame
+     * @param classView  The ClassView of the existing class
+     */
     public ImageLibFrame(JFrame owner, ClassView classView)
     {
         // TODO i18n
@@ -63,6 +70,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         // setIconImage(BlueJTheme.getIconImage());
         
         this.gclass = classView.getGClass();
+        defaultIcon = getPreviewIcon(new File(new File("images"), "greenfoot-logo.png"));
         
         buildUI(false);
     }
@@ -70,11 +78,14 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     /**
      * Construct an ImageLibFrame to be used for creating a new class.
      * 
-     * @param owner   The parent frame
+     * @param owner        The parent frame
+     * @param superClass   The superclass of the new class
      */
-    public ImageLibFrame(JFrame owner)
+    public ImageLibFrame(JFrame owner, GClass superClass)
     {
         super(owner, "New class", true);
+        
+        defaultIcon = getClassIcon(superClass, getPreviewIcon(new File(new File("images"), "greenfoot-logo.png")));
         
         // this.classView = new ClassView()
         buildUI(true);
@@ -157,7 +168,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 
                 currentImagePanel.add(Box.createHorizontalStrut(spacingLarge));
                 
-                Icon icon = getClassIcon(gclass);
+                Icon icon = getClassIcon(gclass, defaultIcon);
                 imageLabel = new JLabel(icon);
                 currentImagePanel.add(imageLabel);
                 currentImagePanel.setAlignmentX(0.0f);
@@ -307,19 +318,29 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      * 
      * @param gclass   The class whose icon to get
      */
-    public static Icon getClassIcon(GClass gclass)
+    private static Icon getClassIcon(GClass gclass, Icon defaultIcon)
     {
         String imageName = null;
         
-        if (gclass != null) {
-            imageName = gclass.getClassProperty("image");
+        if (gclass == null) {
+            return defaultIcon;
         }
         
-        if (imageName == null) {
-            imageName = "greenfoot-logo.png";
+        while (gclass != null) {
+            imageName = gclass.getClassProperty("image");
+            
+            // If an image is specified for this class, and we can read it, return
+            if (imageName != null) {
+                File imageFile = new File(new File("images"), imageName);
+                if (imageFile.canRead()) {
+                    return getPreviewIcon(imageFile);
+                }
+            }
+            
+            gclass = gclass.getSuperclass();
         }
-        File imageFile = new File(new File("images"), imageName);
-        return getPreviewIcon(imageFile);
+        
+        return defaultIcon;
     }
     
     /**

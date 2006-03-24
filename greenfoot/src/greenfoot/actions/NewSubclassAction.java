@@ -15,7 +15,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 3866 2006-03-24 04:23:52Z davmac $
+ * @version $Id: NewSubclassAction.java 3867 2006-03-24 04:51:45Z davmac $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -42,7 +42,7 @@ public class NewSubclassAction extends AbstractAction
     {
         JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
         
-        ImageLibFrame dialog = new ImageLibFrame(f);
+        ImageLibFrame dialog = new ImageLibFrame(f, superclass.getGClass());
         if (! (dialog.getResult() == ImageLibFrame.OK)) {
             return;
         }
