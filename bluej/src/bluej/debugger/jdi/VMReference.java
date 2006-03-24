@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3808 2006-03-09 01:53:04Z davmac $
+ * @version $Id: VMReference.java 3868 2006-03-24 05:05:33Z bquig $
  * 
  * The startup process is as follows:
  * 
@@ -118,6 +118,11 @@ class VMReference
     // A counter for giving names to shared memory blocks for the shared
     // memory transport
     static private int shmCount = 0;
+    // array index of memory transport parameter 
+    private int transportIndex = 0;
+    
+    private boolean isDefaultEncoding = true;
+    private String streamEncoding = null;
 
     /**
      * Launch a remote debug VM using a TCP/IP socket.
@@ -163,7 +168,19 @@ class VMReference
             paramList.add("-Xdock:name=" + Config.getVMDockName());
         }
         paramList.add("-Xrunjdwp:transport=dt_socket,server=y");
+        
+        // set index of memory transport, this may be used later if socket launch
+        // will not work
+        transportIndex = paramList.size() - 1;
         paramList.add(SERVER_CLASSNAME);
+        
+        // set output encoding if specified, default is to use system default
+        // this gets passed to ExecServer's main as an arg which can then be 
+        // used to specify encoding
+        streamEncoding = Config.getDefaultPropString("bluej.terminal.encoding", null);
+        isDefaultEncoding = (streamEncoding == null);
+        if(!isDefaultEncoding)
+            paramList.add(streamEncoding);
         
         launchParams = (String[]) paramList.toArray(new String[0]);
 
@@ -281,7 +298,7 @@ class VMReference
                         String shmName = "bluej" + shmCount++;
                         addressArg.setValue(shmName);
                         
-                        launchParams[launchParams.length - 2] = "-Xrunjdwp:transport=dt_shmem,address=" + shmName + ",server=y,suspend=y";
+                        launchParams[transportIndex] = "-Xrunjdwp:transport=dt_shmem,address=" + shmName + ",server=y,suspend=y";
                         
                         StringBuffer listenMessage = new StringBuffer();
                         remoteVMprocess = launchVM(initDir, launchParams, listenMessage,term);
@@ -360,7 +377,7 @@ class VMReference
      */
     private Process launchVM(File initDir, String [] params, StringBuffer line, DebuggerTerminal term)
         throws IOException
-    {
+    {    
         Process vmProcess = Runtime.getRuntime().exec(params, null, initDir);
         BufferedReader br = new BufferedReader(new InputStreamReader(vmProcess.getInputStream()));
         String listenMessage = br.readLine();
@@ -392,18 +409,27 @@ class VMReference
         catch (InterruptedException ie) {}
         
         // redirect error stream from process to Terminal
-        errorStreamRedirector = redirectIOStream(new InputStreamReader(vmProcess.getErrorStream(), "UTF8"),
-                //new OutputStreamWriter(System.err),
-                term.getErrorWriter(), false);
+        Reader reader = null;
+        if(isDefaultEncoding)
+            reader = new InputStreamReader(vmProcess.getErrorStream());
+        else
+            reader = new InputStreamReader(vmProcess.getErrorStream(), streamEncoding);            
+        errorStreamRedirector = redirectIOStream(reader, term.getErrorWriter(), false);
         
         // redirect output stream from process to Terminal
-        outputStreamRedirector = redirectIOStream(new InputStreamReader(vmProcess.getInputStream(), "UTF8"),
-                //new OutputStreamWriter(System.err),
-                term.getWriter(), false);
+        if(isDefaultEncoding)
+            reader = new InputStreamReader(vmProcess.getInputStream());
+        else
+            reader = new InputStreamReader(vmProcess.getInputStream(), streamEncoding);
+        outputStreamRedirector = redirectIOStream(reader, term.getWriter(), false);
         
         // redirect Terminal input to process output stream
-        inputStreamRedirector = redirectIOStream(term.getReader(), new OutputStreamWriter(vmProcess
-                .getOutputStream(), "UTF8"), false);
+        Writer writer = null;
+         if(isDefaultEncoding)
+            writer = new OutputStreamWriter(vmProcess.getOutputStream());
+        else
+            writer = new OutputStreamWriter(vmProcess.getOutputStream(), streamEncoding);
+        inputStreamRedirector = redirectIOStream(term.getReader(), writer, false);
         
         return vmProcess;
     }

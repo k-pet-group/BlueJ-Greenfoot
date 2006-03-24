@@ -353,6 +353,9 @@ bluej.print.scale=60
 bluej.terminal.height=22
 bluej.terminal.width=80
 
+# Default is to use system encoding, uncomment only to provide an explicit encoding 
+#bluej.terminal.encoding=UTF-8
+
 
 #######################################################################
 ## Some settings for editor preferences.
@@ -458,11 +461,10 @@ bluej.compiler.type=internal
 
 #####################################################################
 ## Options for starting the internal virtual machine.
-## By default, we switch Hotspot optimisation off. There are some 
+## By default, we switch Hotspot optimisation on. There are occasional 
 ## bugs in Hotspot that cause debugging errors when optimising.
-## If you really want, you can switch it on here - this will make
-## your programs run faster, but cause bugs in BlueJ's debugger!!
 ## This can also be switched in the preferences dialog.
+##
 #####################################################################
 
 bluej.vm.optimize=true

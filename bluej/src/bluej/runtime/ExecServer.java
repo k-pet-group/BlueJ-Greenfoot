@@ -32,7 +32,7 @@ import bluej.Config;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3791 2006-02-17 04:21:57Z davmac $
+ * @version $Id: ExecServer.java 3868 2006-03-24 05:05:33Z bquig $
  */
 public class ExecServer
 {
@@ -131,8 +131,11 @@ public class ExecServer
         // (CTRL-Z or CTRL-D typed in terminal)
         System.setIn(new BJInputStream(System.in));
         
-        // Set up UTF-8 support for the terminal
-        System.setOut(new PrintStream(System.out, true, "UTF8"));
+        // Set up encoding for the terminal, the only arg that should be passed in
+        // is the encoding eg. "UTF-8, otherwise do nothing
+        if(args.length > 0 && !args[0].equals("")) {
+            System.setOut(new PrintStream(System.out, true, args[0]));
+        }
         
         // Set up the worker thread. The worker thread can be used to perform certain actions
         // when the main thread is busy. Actions on the worker thread are guarenteed to execute
