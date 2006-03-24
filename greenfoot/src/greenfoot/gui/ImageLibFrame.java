@@ -3,7 +3,6 @@ package greenfoot.gui;
 import greenfoot.core.GClass;
 import greenfoot.core.Greenfoot;
 import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Component;
@@ -26,40 +25,57 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.DialogManager;
-import bluej.utility.FileUtility;
+import bluej.utility.EscapeDialog;
 
 /**
  * A dialog for selecting a class image. The image can be selected from either the
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 3862 2006-03-23 03:05:51Z davmac $
+ * @version $Id: ImageLibFrame.java 3865 2006-03-24 00:08:15Z davmac $
  */
-public class ImageLibFrame extends JDialog implements ListSelectionListener
+public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
     /** label displaying the currently selected image */
     private JLabel imageLabel;
     private GClass gclass;
-    private ClassView classView;
-    private GreenfootClassRole gclassRole;
     
     private ImageLibList projImageList;
     private ImageLibList greenfootImageList;
     
-    private File currentImageFile;
+    private File selectedImageFile;
     private File projImagesDir;
     
-    public ImageLibFrame(JFrame owner, ClassView classView, GreenfootClassRole gclassRole)
+    public static int OK = 0;
+    public static int CANCEL = 1;
+    private int result = CANCEL;
+    
+    public ImageLibFrame(JFrame owner, ClassView classView)
     {
         // TODO i18n
         // super("Select class image: " + classView.getClassName());
         super(owner, "Select class image: " + classView.getClassName(), true);
         // setIconImage(BlueJTheme.getIconImage());
         
-        this.classView = classView;
         this.gclass = classView.getGClass();
-        this.gclassRole = gclassRole;
         
+        buildUI();
+    }
+    
+    /**
+     * Construct an ImageLibFrame to be used for creating a new class.
+     * 
+     * @param owner   The parent frame
+     */
+    public ImageLibFrame(JFrame owner)
+    {
+        super(owner, "New class", true);
+        
+        // this.classView = new ClassView()
+    }
+    
+    private void buildUI()
+    {
         JPanel contentPane = new JPanel();
         this.setContentPane(contentPane);
         contentPane.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
@@ -158,8 +174,8 @@ public class ImageLibFrame extends JDialog implements ListSelectionListener
                 new ImageFilePreview(chooser);
                 int choice = chooser.showDialog(ImageLibFrame.this, "Select");
                 if (choice == JFileChooser.APPROVE_OPTION) {
-                    currentImageFile = chooser.getSelectedFile();
-                    imageLabel.setIcon(getPreviewIcon(currentImageFile));
+                    selectedImageFile = chooser.getSelectedFile();
+                    imageLabel.setIcon(getPreviewIcon(selectedImageFile));
                 }
             }
         });
@@ -179,26 +195,17 @@ public class ImageLibFrame extends JDialog implements ListSelectionListener
             okButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
-                    if (currentImageFile != null) {
-                        if (! currentImageFile.getParent().equals(projImagesDir)) {
-                            // An image was selected from an external dir. We need
-                            // to copy it into the project images directory first.
-                            File destFile = new File(projImagesDir, currentImageFile.getName());
-                            FileUtility.copyFile(currentImageFile, destFile);
-                            currentImageFile = destFile;
-                        }
-                        
-                        gclass.setClassProperty("image", currentImageFile.getName());
-                        ImageLibFrame.this.gclassRole.changeImage();
-                        setVisible(false);
-                        dispose();
-                    }
+                    result = OK;
+                    setVisible(false);
+                    dispose();
                 }
             });
             
             JButton cancelButton = BlueJTheme.getCancelButton();
             cancelButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+                    result = CANCEL;
+                    selectedImageFile = null;
                     setVisible(false);
                     dispose();
                 }
@@ -212,6 +219,8 @@ public class ImageLibFrame extends JDialog implements ListSelectionListener
             okCancelPanel.validate();
             contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
             contentPane.add(fixHeight(okCancelPanel));
+            
+            getRootPane().setDefaultButton(okButton);
         }
         
         pack();
@@ -229,7 +238,7 @@ public class ImageLibFrame extends JDialog implements ListSelectionListener
             ImageLibList sourceList = (ImageLibList) source;
             ImageLibList.ImageListEntry ile = sourceList.getSelectedEntry();
             imageLabel.setIcon(getPreviewIcon(ile.imageFile));
-            currentImageFile = ile.imageFile;
+            selectedImageFile = ile.imageFile;
         }
     }
     
@@ -276,5 +285,26 @@ public class ImageLibFrame extends JDialog implements ListSelectionListener
         d.height = src.getPreferredSize().height;
         src.setMaximumSize(d);
         return src;
+    }
+    
+    /**
+     * Get the selected image file (null if dialog was canceled)
+     */
+    public File getSelectedImageFile()
+    {
+        if (result == OK) {
+            return selectedImageFile;
+        }
+        else {
+            return null;
+        }
+    }
+    
+    /**
+     * Get the result from the dialog: OK or CANCEL
+     */
+    public int getResult()
+    {
+        return result;
     }
 }

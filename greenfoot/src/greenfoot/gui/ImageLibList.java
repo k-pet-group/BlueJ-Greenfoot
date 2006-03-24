@@ -5,6 +5,8 @@ import greenfoot.util.GreenfootUtil;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -19,7 +21,7 @@ import javax.swing.*;
  * filenames.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibList.java 3847 2006-03-21 03:35:09Z davmac $
+ * @version $Id: ImageLibList.java 3865 2006-03-24 00:08:15Z davmac $
  */
 public class ImageLibList extends JList
 {
@@ -61,8 +63,21 @@ public class ImageLibList extends JList
             catch (MalformedURLException mfue) { }
             catch (IOException ioe) { }
         }
+        
+        // A double-click executes the default action for the enclosing frame
+        addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e)
+            {
+                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() >= 2) {
+                    getRootPane().getDefaultButton().doClick();
+                }
+            }
+        });
     }
     
+    /**
+     * Get the currently selected entry.
+     */
     public ImageListEntry getSelectedEntry()
     {
         return (ImageListEntry) getSelectedValue();
@@ -78,7 +93,6 @@ public class ImageLibList extends JList
                 boolean isSelected,      // is the cell selected
                 boolean cellHasFocus)    // the list and the cell have the focus
         {
-            //JLabel item = (JLabel) value;
             ImageListEntry entry = (ImageListEntry) value;
             JLabel item = this;
             
