@@ -15,9 +15,9 @@ public class RemoveClassAction extends ClassAction
     private ClassView cls;
 
     
-    public RemoveClassAction(String name, ClassView view)
+    public RemoveClassAction(ClassView view)
     {
-        super(name);
+        super("Remove");
         this.cls = view;
     }
 

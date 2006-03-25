@@ -9,6 +9,7 @@ import greenfoot.actions.EditClassAction;
 import greenfoot.actions.NewProjectAction;
 import greenfoot.actions.OpenProjectAction;
 import greenfoot.actions.SaveProjectAction;
+import greenfoot.actions.ShowCopyrightAction;
 import greenfoot.actions.ShowWebsiteAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
@@ -69,7 +70,7 @@ import greenfoot.actions.NYIAction;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3878 2006-03-25 17:38:28Z mik $
+ * @version $Id: GreenfootFrame.java 3879 2006-03-25 20:40:14Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -78,9 +79,9 @@ public class GreenfootFrame extends JFrame
     private static final int accelModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     private static final int shiftAccelModifier = accelModifier | KeyEvent.SHIFT_MASK;
 
-    private CompileClassAction compileClassAction = new CompileClassAction("Compile");
-    private CompileAllAction compileAllAction = new CompileAllAction("Compile All");
-    private EditClassAction editClassAction = new EditClassAction("Edit");
+    private CompileClassAction compileClassAction = new CompileClassAction();
+    private CompileAllAction compileAllAction = new CompileAllAction();
+    private EditClassAction editClassAction = new EditClassAction();
     private AboutGreenfootAction aboutGreenfootAction;
     private ClassBrowser classBrowser;
     private ControlPanel controlPanel;
@@ -117,7 +118,7 @@ public class GreenfootFrame extends JFrame
         }
 
         LocationTracker.instance(); //force initialisation
-        aboutGreenfootAction = new AboutGreenfootAction("About Greenfoot", this);
+        aboutGreenfootAction = new AboutGreenfootAction(this);
         setSize(400, 300);
         URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
         ImageIcon icon = new ImageIcon(iconFile);
@@ -388,11 +389,11 @@ public class GreenfootFrame extends JFrame
 
         JMenu projectMenu = addMenu("Project", menuBar, 'p');
         
-        addMenuItem(new NewProjectAction("New"), projectMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
-        addMenuItem(new OpenProjectAction("Open"), projectMenu, KeyEvent.VK_O, false, KeyEvent.VK_O);
+        addMenuItem(new NewProjectAction(), projectMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
+        addMenuItem(new OpenProjectAction(), projectMenu, KeyEvent.VK_O, false, KeyEvent.VK_O);
 //        addMenuItem(new NYIAction("Open Recent...", this), projectMenu, -1, false, -1);
-        addMenuItem(new CloseProjectAction("Close"), projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
-        addMenuItem(new SaveProjectAction("Save"), projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
+        addMenuItem(new CloseProjectAction(), projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
+        addMenuItem(new SaveProjectAction(), projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
         addMenuItem(new NYIAction("Save As...", this), projectMenu, KeyEvent.VK_S, true, -1);
         projectMenu.addSeparator();
         addMenuItem(new NYIAction("Page Setup...", this), projectMenu, KeyEvent.VK_P, true, -1);
@@ -410,10 +411,10 @@ public class GreenfootFrame extends JFrame
         JMenu helpMenu = addMenu("Help", menuBar, 'h');
         
         addMenuItem(aboutGreenfootAction, helpMenu, -1, false, KeyEvent.VK_A);
-        addMenuItem(new NYIAction("Copyright", this), helpMenu, -1, false, -1);
+        addMenuItem(new ShowCopyrightAction(this), helpMenu, -1, false, -1);
         helpMenu.addSeparator();
         addMenuItem(new ShowWebsiteAction("Greenfoot Web Site", "http://www.greenfoot.org"), helpMenu, -1, false, -1);
-        addMenuItem(new NYIAction("Greenfoot Tutorial", this), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction("Greenfoot Tutorial", "http://www.greenfoot.org/doc/tutorial.html"), helpMenu, -1, false, -1);
         
         return menuBar;
     }

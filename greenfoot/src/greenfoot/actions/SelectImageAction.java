@@ -19,7 +19,7 @@ import bluej.utility.FileUtility;
  * Action to select an image for a class.
  * 
  * @author Davin McCall
- * @version $Id: SelectImageAction.java 3866 2006-03-24 04:23:52Z davmac $
+ * @version $Id: SelectImageAction.java 3879 2006-03-25 20:40:14Z mik $
  */
 public class SelectImageAction extends ClassAction
 {
@@ -28,7 +28,7 @@ public class SelectImageAction extends ClassAction
     
     public SelectImageAction(ClassView classView, GreenfootClassRole gcr)
     {
-        super("Select image for class");
+        super("Set image...");
         this.classView = classView;
         this.gclassRole = gcr;
     }

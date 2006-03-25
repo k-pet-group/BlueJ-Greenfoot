@@ -10,19 +10,19 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: EditClassAction.java 3643 2005-10-04 12:37:52Z polle $
+ * @version $Id: EditClassAction.java 3879 2006-03-25 20:40:14Z mik $
  */
 public class EditClassAction extends ClassAction
 {
 
-    public EditClassAction(String name)
+    public EditClassAction()
     {
-        super(name);
+        super("Open editor");
     }
     
-    public EditClassAction(String name, GClass cls)
+    public EditClassAction(GClass cls)
     {
-        super(name);
+        super("Open editor");
         selectedClass = cls;
     }
 

@@ -8,10 +8,15 @@ import javax.swing.AbstractAction;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: OpenProjectAction.java 3551 2005-09-06 09:31:41Z polle $
+ * @version $Id: OpenProjectAction.java 3879 2006-03-25 20:40:14Z mik $
  */
 public class OpenProjectAction extends AbstractAction
 {
+    public OpenProjectAction()
+    {
+        super("Open...");
+    }
+
     public void actionPerformed(ActionEvent e)
     {
         Thread t = new Thread() {
@@ -22,10 +27,4 @@ public class OpenProjectAction extends AbstractAction
         };
         t.start();
     }
-
-    public OpenProjectAction(String name)
-    {
-        super(name);
-    }
-
 }

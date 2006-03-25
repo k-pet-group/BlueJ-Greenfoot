@@ -15,7 +15,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 3867 2006-03-24 04:51:45Z davmac $
+ * @version $Id: NewSubclassAction.java 3879 2006-03-25 20:40:14Z mik $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -31,9 +31,9 @@ public class NewSubclassAction extends AbstractAction
      * @param name
      *            Name of the action that appears in the menu
      */
-    public NewSubclassAction(String name, ClassView view, ClassBrowser classBrowser)
+    public NewSubclassAction(ClassView view, ClassBrowser classBrowser)
     {
-        super(name);
+        super("New subclass...");
         this.superclass = view;
         this.classBrowser = classBrowser;
     }

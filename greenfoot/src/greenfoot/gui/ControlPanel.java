@@ -11,14 +11,11 @@ import greenfoot.event.WorldListener;
 
 import java.awt.CardLayout;
 import java.awt.FlowLayout;
-import java.net.URL;
 
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -32,7 +29,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 3864 2006-03-23 22:26:27Z mik $
+ * @version $Id: ControlPanel.java 3879 2006-03-25 20:40:14Z mik $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener, WorldListener
@@ -64,9 +61,7 @@ public class ControlPanel extends Box
     {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         
-        URL stepIconFile = this.getClass().getClassLoader().getResource("step.gif");
-        Icon stepIcon = new ImageIcon(stepIconFile);
-        runOnceSimulationAction = new RunOnceSimulationAction("Act", stepIcon, simulation);
+        runOnceSimulationAction = new RunOnceSimulationAction(simulation);
         runOnceSimulationAction.putValue(Action.LONG_DESCRIPTION, "Makes one run of the simulation loop.");
         runOnceSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Makes one run of the simulation loop.");
         runOnceSimulationAction.setEnabled(false);
@@ -74,16 +69,12 @@ public class ControlPanel extends Box
 
         buttonPanel.add(stepButton);
 
-        URL runIconFile = this.getClass().getClassLoader().getResource("run.gif");
-        Icon runIcon = new ImageIcon(runIconFile);
-        runSimulationAction = new RunSimulationAction("Run", runIcon, simulation);
+        runSimulationAction = new RunSimulationAction(simulation);
         runSimulationAction.putValue(Action.LONG_DESCRIPTION, "Runs the simulation until stopped.");
         runSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Runs the simulation.");
         runSimulationAction.setEnabled(false);
 
-        URL pauseIconFile = this.getClass().getClassLoader().getResource("pause.gif");
-        Icon pauseIcon = new ImageIcon(pauseIconFile);
-        pauseSimulationAction = new PauseSimulationAction("Pause", pauseIcon, simulation);
+        pauseSimulationAction = new PauseSimulationAction(simulation);
         pauseSimulationAction.putValue(Action.LONG_DESCRIPTION,
                 "Pauses the simulation, leaving it in the current state.");
         pauseSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Pauses the simulation.");

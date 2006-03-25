@@ -11,10 +11,14 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileClassAction.java 3551 2005-09-06 09:31:41Z polle $
+ * @version $Id: CompileClassAction.java 3879 2006-03-25 20:40:14Z mik $
  */
 public class CompileClassAction extends ClassAction
 {
+    public CompileClassAction()
+    {
+        super("Compile");
+    }
 
     /**
      * Compiles the currently selected class. If no class is selected it does
@@ -43,10 +47,4 @@ public class CompileClassAction extends ClassAction
             e1.printStackTrace();
         }
     }
-
-    public CompileClassAction(String name)
-    {
-        super(name);
-    }
-
 }

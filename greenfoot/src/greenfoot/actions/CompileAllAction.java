@@ -11,14 +11,18 @@ import javax.swing.AbstractAction;
  * Action that compiles all classes that needs compilation.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileAllAction.java 3551 2005-09-06 09:31:41Z polle $
+ * @version $Id: CompileAllAction.java 3879 2006-03-25 20:40:14Z mik $
  */
 public class CompileAllAction extends AbstractAction
 {
 
+    public CompileAllAction()
+    {
+        super("Compile All");
+    }
+
     /**
-     * Compiles the currently selected class. If no class is selected it does
-     * nothing.
+     * Compiles all classes.
      *  
      */
     public void actionPerformed(ActionEvent e)
@@ -26,10 +30,4 @@ public class CompileAllAction extends AbstractAction
         Simulation.getInstance().setPaused(true);
         Greenfoot.getInstance().compileAll();
     }
-
-    public CompileAllAction(String name)
-    {
-        super(name);
-    }
-
 }

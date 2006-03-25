@@ -19,9 +19,9 @@ public class AboutGreenfootAction extends AbstractAction
     private AboutGreenfoot aboutGreenfoot;
     private JFrame parent;
 
-    public AboutGreenfootAction(String name, JFrame parent)
+    public AboutGreenfootAction(JFrame parent)
     {
-        super(name);
+        super("About Greenfoot...");
         this.parent = parent;
     }
 

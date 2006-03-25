@@ -16,9 +16,9 @@ import bluej.utility.Debug;
  */
 public class SaveProjectAction extends AbstractAction
 {
-    public SaveProjectAction(String name)
+    public SaveProjectAction()
     {
-        super(name);
+        super("Save");
     }
     
     public void actionPerformed(ActionEvent e)

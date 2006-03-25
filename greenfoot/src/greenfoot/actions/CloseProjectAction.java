@@ -12,9 +12,9 @@ import javax.swing.AbstractAction;
  */
 public class CloseProjectAction extends AbstractAction
 {
-    public CloseProjectAction(String name)
+    public CloseProjectAction()
     {
-        super(name);
+        super("Close");
     }
     
     public void actionPerformed(ActionEvent e)

@@ -5,20 +5,21 @@ import greenfoot.core.Simulation;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RunSimulationAction.java 3551 2005-09-06 09:31:41Z polle $
+ * @version $Id: RunSimulationAction.java 3879 2006-03-25 20:40:14Z mik $
  */
 public class RunSimulationAction extends AbstractAction
 {
+    private static final String iconFile = "run.gif";
 
     private Simulation simulation;
 
-    public RunSimulationAction(String name, Icon icon, Simulation simulation)
+    public RunSimulationAction(Simulation simulation)
     {
-        super(name, icon);
+        super("Run", new ImageIcon(RunSimulationAction.class.getClassLoader().getResource(iconFile)));
         this.simulation = simulation;
     }
 

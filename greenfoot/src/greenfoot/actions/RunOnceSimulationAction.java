@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 /**
  * @author Poul Henriksen
@@ -18,12 +19,14 @@ import javax.swing.Icon;
 public class RunOnceSimulationAction extends AbstractAction
     implements SimulationListener
 {
+    private static final String iconFile = "step.gif";
+
     private transient final static Logger logger = Logger.getLogger("greenfoot");
     private Simulation simulation;
 
-    public RunOnceSimulationAction(String name, Icon icon, Simulation simulation)
+    public RunOnceSimulationAction(Simulation simulation)
     {
-        super(name, icon);
+        super("Act", new ImageIcon(RunOnceSimulationAction.class.getClassLoader().getResource(iconFile)));
         this.simulation = simulation;
         simulation.addSimulationListener(this);
     }
