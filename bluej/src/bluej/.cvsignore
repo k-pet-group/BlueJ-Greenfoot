@@ -1,5 +1,5 @@
-*.class
+.DS_Store
 *.ctxt
+*.class
+
 bluej.pkh
-
-
