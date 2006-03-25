@@ -9,6 +9,7 @@ import greenfoot.actions.EditClassAction;
 import greenfoot.actions.NewProjectAction;
 import greenfoot.actions.OpenProjectAction;
 import greenfoot.actions.SaveProjectAction;
+import greenfoot.actions.ShowWebsiteAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
@@ -68,7 +69,7 @@ import greenfoot.actions.NYIAction;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3864 2006-03-23 22:26:27Z mik $
+ * @version $Id: GreenfootFrame.java 3878 2006-03-25 17:38:28Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -411,7 +412,7 @@ public class GreenfootFrame extends JFrame
         addMenuItem(aboutGreenfootAction, helpMenu, -1, false, KeyEvent.VK_A);
         addMenuItem(new NYIAction("Copyright", this), helpMenu, -1, false, -1);
         helpMenu.addSeparator();
-        addMenuItem(new NYIAction("Greenfoot Web Site", this), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction("Greenfoot Web Site", "http://www.greenfoot.org"), helpMenu, -1, false, -1);
         addMenuItem(new NYIAction("Greenfoot Tutorial", this), helpMenu, -1, false, -1);
         
         return menuBar;
