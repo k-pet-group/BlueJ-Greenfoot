@@ -28,7 +28,7 @@ import bluej.extensions.ProjectNotOpenException;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootImage.java 3881 2006-03-27 03:42:50Z davmac $
+ * @cvs-version $Id: GreenfootImage.java 3885 2006-03-27 04:22:33Z davmac $
  */
 public class GreenfootImage
 {
@@ -168,7 +168,13 @@ public class GreenfootImage
         }
         catch (Throwable e) {
             int width = image.getWidth(null);
-            int height = image.getHeight(null);           
+            int height = image.getHeight(null);
+            
+            if (width == -1 || height == -1) {
+                // Failed to load for some reason
+                width = 1;
+                height = 1;
+            }
             
             //we MUST be able to get the graphics!
             BufferedImage bImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
