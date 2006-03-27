@@ -142,7 +142,6 @@ public class GClass implements CompileListener
     }
 
     public GPackage getPackage()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         return pkg;
     }
@@ -184,7 +183,39 @@ public class GClass implements CompileListener
      */
     public GClass getSuperclass()
     {
-        return pkg.getClass(getSuperclassGuess());
+        try {
+            GProject proj = pkg.getProject();
+            String superclassName = getSuperclassGuess();
+            if (superclassName == null) {
+                return null;
+            }
+            
+            // The superclass could belong to a different package...
+            String superclassPkg;
+            int lastDot = superclassName.lastIndexOf('.');
+            if (lastDot == -1) {
+                superclassPkg = "";
+            }
+            else {
+                superclassPkg = superclassName.substring(0, lastDot);
+                superclassName = superclassName.substring(lastDot + 1);
+            }
+            
+            // Get the package, return the class
+            GPackage thePkg = proj.getPackage(superclassPkg);
+            if (thePkg == null) {
+                return null;
+            }
+            return thePkg.getClass(superclassName);
+        }
+        catch (RemoteException re) {
+            re.printStackTrace();
+            return null;
+        }
+        catch (ProjectNotOpenException pnoe) {
+            pnoe.printStackTrace();
+            return null;
+        }
     }
     
     /**
@@ -214,8 +245,9 @@ public class GClass implements CompileListener
      */
     public void setSuperclassGuess(String superclassName)
     {
-        superclassGuess = removeQualification(superclassName);
+        superclassGuess = superclassName;
     }
+    
     /**
      * This method tries to guess which class is the superclass. This can be used for non compilable and non parseable classes.
      * <p>
@@ -262,7 +294,7 @@ public class GClass implements CompileListener
         catch (NullPointerException e) {
         }
         if(realSuperclass != null) {
-            superclassGuess = removeQualification(realSuperclass);
+            superclassGuess = realSuperclass;
             return;
         }
         
@@ -279,6 +311,14 @@ public class GClass implements CompileListener
             }*/
             ClassInfo info = ClassParser.parse(rmiClass.getJavaFile());//, classes);
             parsedSuperclass = info.getSuperclass();
+            // TODO hack! If the superclass is GreenfootObject or GreenfootWorld,
+            // put it in the right package... parsing does not resolve references...
+            if (parsedSuperclass.equals("GreenfootObject")) {
+                parsedSuperclass = "greenfoot.GreenfootObject";
+            }
+            if (parsedSuperclass.equals("GreenfootWorld")) {
+                parsedSuperclass = "greenfoot.GreenfootWorld";
+            }
         }
         catch (ProjectNotOpenException e) {}
         catch (PackageNotFoundException e) {}
@@ -286,7 +326,7 @@ public class GClass implements CompileListener
         catch (Exception e) {}
         
         if(parsedSuperclass != null) {
-            superclassGuess = removeQualification(parsedSuperclass);
+            superclassGuess = parsedSuperclass;
             return;
         }
         
@@ -360,7 +400,7 @@ public class GClass implements CompileListener
             if(superclassName == null) {
                 superclassName = "";
             }
-            if (superclassName != null && (className.equals(superclassName))) {
+            if (superclassName != null && (className.equals(removeQualification(superclassName)))) {
                 return true;
             }
             superclass = superclass.getSuperclass();
