@@ -1,5 +1,6 @@
 package greenfoot;
 
+import greenfoot.core.ClassImageManager;
 import greenfoot.util.Circle;
 
 /**
@@ -41,5 +42,10 @@ public class GreenfootObjectVisitor
     public static Object getData(GreenfootObject go)
     {
         return go.getData();
+    }
+    
+    public static void setClassImageManager(ClassImageManager classImageManager)
+    {
+        GreenfootObject.setClassImageManager(classImageManager);
     }
 }

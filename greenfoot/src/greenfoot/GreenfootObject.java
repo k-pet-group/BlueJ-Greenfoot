@@ -1,5 +1,6 @@
 package greenfoot;
 
+import greenfoot.core.ClassImageManager;
 import greenfoot.core.LocationTracker;
 import greenfoot.core.ObjectDragProxy;
 import greenfoot.core.WorldHandler;
@@ -27,7 +28,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootObject.java 3875 2006-03-24 12:03:53Z polle $
+ * @cvs-version $Id: GreenfootObject.java 3882 2006-03-27 03:44:41Z davmac $
  */
 public class GreenfootObject extends ObjectTransporter
 {
@@ -54,6 +55,7 @@ public class GreenfootObject extends ObjectTransporter
     private Object data;
 
     private static GreenfootImage greenfootImage = new GreenfootImage("images/greenfoot-logo.png");
+    private static ClassImageManager classImageManager;
 
     /**
      * Construct a GreenfootObject.
@@ -87,8 +89,14 @@ public class GreenfootObject extends ObjectTransporter
     
     private void init()
     {
+        // Use the class image, if one is defined, as the default image, or the
+        // greenfoot logo image otherwise
+        GreenfootImage image = getClassImage();
+        if (image == null) {
+            image = greenfootImage;
+        }
+        setImage(image.copy());
         
-        setImage(greenfootImage);
         WorldHandler worldHandler = WorldHandler.instance();
         if( worldHandler == null ||  worldHandler.getWorld() == null) {
             //we are probably doing some unit testing...
@@ -407,6 +415,27 @@ public class GreenfootObject extends ObjectTransporter
     
     Object getData() {
         return data;
+    }
+    
+    static void setClassImageManager(ClassImageManager classImageManager)
+    {
+        GreenfootObject.classImageManager = classImageManager;
+    }
+    
+    private GreenfootImage getClassImage()
+    {
+        if (classImageManager != null) {
+            Class clazz = getClass();
+            while (clazz != null) {
+                GreenfootImage image = classImageManager.getClassImage(clazz.getName());
+                if (image != null) {
+                    return image;
+                }
+                clazz = clazz.getSuperclass();
+            }
+        }
+
+        return greenfootImage;
     }
     
     private int toCellFloor(int i)
