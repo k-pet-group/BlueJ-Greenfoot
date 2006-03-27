@@ -51,13 +51,7 @@ public class GreenfootScenarioViewer implements ClassImageManager
         GreenfootScenarioViewer gs = new GreenfootScenarioViewer();
         GreenfootObjectVisitor.setClassImageManager(gs);
         gs.init(worldClassName, worldInitMethod);
-        gs.buildGUI();
-        gs.startSim();
-    }
-
-    private void startSim()
-    {
-        sim.run();
+        gs.buildGUI();        
     }
 
     private void buildGUI()
