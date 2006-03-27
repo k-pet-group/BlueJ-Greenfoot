@@ -32,7 +32,7 @@ import bluej.Config;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3897 2006-03-27 23:57:20Z davmac $
+ * @version $Id: ExecServer.java 3898 2006-03-27 23:57:21Z davmac $
  */
 public class ExecServer
 {
@@ -956,6 +956,16 @@ public class ExecServer
     public static ClassLoader getCurrentClassLoader()
     {
         return currentLoader;
+    }
+    
+    /**
+     * Set the current class loader, to be used for loading user classes.
+     * 
+     * @param newLoader   The new class loader
+     */
+    public static void setClassLoader(ClassLoader newLoader)
+    {
+        currentLoader = newLoader;
     }
 }
 
