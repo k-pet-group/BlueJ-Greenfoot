@@ -296,9 +296,6 @@ public class Greenfoot implements ClassImageManager
             catch (RemoteException e) {
                 e.printStackTrace();
             }
-            catch (ProjectNotOpenException e) {
-                e.printStackTrace();
-            }
         }
     }
     
@@ -361,7 +358,31 @@ public class Greenfoot implements ClassImageManager
     {
         GreenfootImage image = (GreenfootImage) classImages.get(className);
         if (image == null) {
-            GClass gClass = getPackage().getClass(className);
+            // get the package the class is in
+            GPackage classPackage = null;
+            int lastDot = className.lastIndexOf('.');
+            if (lastDot == -1) {
+                classPackage = getPackage();
+            }
+            else {
+                String pkgName = className.substring(0, lastDot);
+                className = className.substring(lastDot + 1);
+                try {
+                    classPackage = getProject().getPackage(pkgName);
+                    if (classPackage == null) {
+                        return null;
+                    }
+                }
+                catch (ProjectNotOpenException pnoe) {
+                    pnoe.printStackTrace();
+                }
+                catch (RemoteException re) {
+                    re.printStackTrace();
+                }
+            }
+                        
+            // Get the class, find the image
+            GClass gClass = classPackage.getClass(className);
             if (gClass != null) {
                 String imageName = gClass.getClassProperty("image");
                 image = new GreenfootImage("images/" + imageName);
