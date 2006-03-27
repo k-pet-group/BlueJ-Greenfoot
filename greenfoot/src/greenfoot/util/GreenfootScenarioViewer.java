@@ -1,17 +1,27 @@
 package greenfoot.util;
 
-import java.awt.BorderLayout;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import javax.swing.JFrame;
-
+import greenfoot.GreenfootImage;
+import greenfoot.GreenfootObjectVisitor;
 import greenfoot.GreenfootWorld;
+import greenfoot.core.ClassImageManager;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.WorldCanvas;
+
+import java.awt.BorderLayout;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.swing.JFrame;
+
+import bluej.runtime.ExecServer;
 
 /**
  * This class can view and run a greenfoot scenario. It is not possible to
@@ -20,11 +30,14 @@ import greenfoot.gui.WorldCanvas;
  * @author Poul Henriksen
  * 
  */
-public class GreenfootScenarioViewer
+public class GreenfootScenarioViewer implements ClassImageManager
 {
 
     private Simulation sim;
     private WorldCanvas canvas;
+    
+    private Map classImages = new HashMap();
+    private Map pkgPropsMap = new HashMap();
 
     public static void main(String[] args)
     {
@@ -36,6 +49,7 @@ public class GreenfootScenarioViewer
         }
         
         GreenfootScenarioViewer gs = new GreenfootScenarioViewer();
+        GreenfootObjectVisitor.setClassImageManager(gs);
         gs.init(worldClassName, worldInitMethod);
         gs.buildGUI();
         gs.startSim();
@@ -63,8 +77,10 @@ public class GreenfootScenarioViewer
     private void init(String worldClassName, String worldInitMethod)
     {
         GreenfootLogger.init();
+        
         try {
             Class worldClass = Class.forName(worldClassName);
+            ExecServer.currentLoader = worldClass.getClassLoader();
             Constructor worldConstructor = worldClass.getConstructor(new Class[]{});
             GreenfootWorld world = (GreenfootWorld) worldConstructor.newInstance(new Object[]{});
 
@@ -109,4 +125,56 @@ public class GreenfootScenarioViewer
             e.printStackTrace();
         }
     }
+    
+    private Properties getPackageProperties(String pkgName)
+    {
+        Properties pkgProps = (Properties) pkgPropsMap.get(pkgName);
+        if (pkgProps == null) {
+            pkgProps = new Properties();
+            String propsFileResource = pkgName.replace('.', '/');
+            // + "/greenfoot.pkg";
+            if (propsFileResource.length() == 0) {
+                propsFileResource = "greenfoot.pkg";
+            }
+            else {
+                propsFileResource += "/greenfoot.pkg";
+            }
+            InputStream propStream = ClassLoader.getSystemResourceAsStream(propsFileResource);
+            try {
+                pkgProps.load(propStream);
+            }
+            catch (IOException ioe) {}
+            pkgPropsMap.put(pkgName, pkgProps);
+        }
+        return pkgProps;
+    }
+    
+    // --------- ClassImageManager interface ---------
+    
+    public GreenfootImage getClassImage(String className)
+    {
+        GreenfootImage image = (GreenfootImage) classImages.get(className);
+        if (image == null) {
+            int lastDot = className.lastIndexOf('.');
+            String packageName;
+            if (lastDot != -1) {
+                packageName = className.substring(0, lastDot);
+                className = className.substring(lastDot + 1);
+            }
+            else {
+                packageName = "";
+            }
+            
+            Properties pkgProps = getPackageProperties(packageName);
+            String imageName = pkgProps.getProperty("class." + className + ".image");
+            if (imageName != null) {
+                image = new GreenfootImage("images/" + imageName);
+                if (image != null) {
+                    classImages.put(className, image);
+                }
+            }
+        }
+        return image;
+    }
+
 }
