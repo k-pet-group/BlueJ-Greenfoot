@@ -385,8 +385,8 @@ public class Greenfoot implements ClassImageManager
             GClass gClass = classPackage.getClass(className);
             if (gClass != null) {
                 String imageName = gClass.getClassProperty("image");
-                image = new GreenfootImage("images/" + imageName);
-                if (image != null) {
+                if (imageName != null) {
+                    image = new GreenfootImage("images/" + imageName);
                     classImages.put(className, image);
                 }
             }
