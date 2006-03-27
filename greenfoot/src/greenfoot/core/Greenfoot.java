@@ -1,5 +1,7 @@
 package greenfoot.core;
 
+import greenfoot.GreenfootImage;
+import greenfoot.GreenfootObjectVisitor;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
 import greenfoot.event.GreenfootObjectInstantiationListener;
@@ -7,9 +9,7 @@ import greenfoot.gui.GreenfootFrame;
 
 import java.io.*;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
@@ -32,7 +32,7 @@ import bluej.utility.Utility;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @version $Id$
  */
-public class Greenfoot
+public class Greenfoot implements ClassImageManager
 {
     private static Greenfoot instance;
     private transient final static Logger logger = Logger.getLogger("greenfoot");
@@ -41,7 +41,13 @@ public class Greenfoot
     private GreenfootFrame frame;
     private GProject project;
     private GPackage pkg;
-
+    
+    /** Map of class names to images */
+    private Map classImages = new HashMap();
+    
+    /** Package properties for opened packages */
+    private Map packageProperties = new HashMap();
+    
     private CompileListenerForwarder compileListenerForwarder;
     private List compileListeners = new ArrayList();
 
@@ -66,6 +72,8 @@ public class Greenfoot
             e.printStackTrace();
         }
 
+        GreenfootObjectVisitor.setClassImageManager(this);
+        
         //Threading avoids deadlock when classbrowser tries to instantiate
         // objects to get images. this is necessy because greenfoot is started
         // from BlueJ-VM which waits for this call to return.
@@ -318,6 +326,64 @@ public class Greenfoot
         return frame;
     }
 
+    /**
+     * Retrieve the properties for a package. Loads the properties if
+     * necessary.
+     */
+    public Properties getPackageProperties(GPackage pkg)
+        throws RemoteException, PackageNotFoundException
+    {
+        try {
+            String pkgName = pkg.getName();
+            
+            Properties p = (Properties) packageProperties.get(pkgName);
+            if (p == null) {
+                p = new Properties();
+                File propsFile = new File(pkg.getDir(), "greenfoot.pkg");
+                try {
+                    p.load(new FileInputStream(propsFile));
+                }
+                catch (IOException ioe) {}
+                
+                packageProperties.put(pkgName, p);
+            }
+            return p;
+        }
+        catch (ProjectNotOpenException pnoe) {
+            // Won't happen
+            return null;
+        }
+    }
+    
+    // --------- ClassImageManager interface ---------
+        
+    public GreenfootImage getClassImage(String className)
+    {
+        GreenfootImage image = (GreenfootImage) classImages.get(className);
+        if (image == null) {
+            GClass gClass = getPackage().getClass(className);
+            if (gClass != null) {
+                String imageName = gClass.getClassProperty("image");
+                image = new GreenfootImage("images/" + imageName);
+                if (image != null) {
+                    classImages.put(className, image);
+                }
+            }
+        }
+        return image;
+    }
+    
+    /**
+     * Remove the cached version of an image for a particular class. This should be
+     * called when the image for the class is set to something different.
+     */
+    public void removeCachedImage(String className)
+    {
+        classImages.remove(className);
+    }        
+    
+    // ========= Private methods ==========
+    
     /**
      * Makes a project a greenfoot project. That is, copy the system classes to
      * the users library.

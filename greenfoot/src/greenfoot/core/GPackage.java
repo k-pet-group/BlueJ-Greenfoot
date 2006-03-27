@@ -1,7 +1,6 @@
 package greenfoot.core;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -103,18 +102,11 @@ public class GPackage
     private void loadProperties()
         throws PackageNotFoundException, RemoteException
     {
-        try {
-            if (pkgProperties == null) {
-                pkgProperties = new Properties();
-                File propsFile = new File(getDir(), "greenfoot.pkg");
-                try {
-                    pkgProperties.load(new FileInputStream(propsFile));
-                }
-                catch (IOException ioe) {}
-            }
-        }
-        catch (ProjectNotOpenException pnoe) {
-            // We can't get this, or greenfoot wouldn't be running!
+        // More than one GPackage may be created which references the same package.
+        // Properties for a single package must be shared for all instances of GPackage,
+        // so we use a global map maintained by the Greenfoot class.
+        if (pkgProperties == null) {
+            pkgProperties = Greenfoot.getInstance().getPackageProperties(this);
         }
     }
     
