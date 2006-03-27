@@ -3,24 +3,16 @@ package greenfoot;
 import greenfoot.core.Greenfoot;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.MediaTracker;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.rmi.RemoteException;
 
 import javax.swing.ImageIcon;
 
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
+import bluej.runtime.ExecServer;
 
 /**
  * An image to be shown on screen. The image may be loaded from an image file
@@ -28,7 +20,7 @@ import bluej.extensions.ProjectNotOpenException;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootImage.java 3885 2006-03-27 04:22:33Z davmac $
+ * @cvs-version $Id: GreenfootImage.java 3886 2006-03-27 05:52:50Z davmac $
  */
 public class GreenfootImage
 {
@@ -68,35 +60,21 @@ public class GreenfootImage
         }
         catch (MalformedURLException e) {
             Greenfoot greenfoot = Greenfoot.getInstance();
-            if (greenfoot == null) {
-                // If there is no greenfoot instance, we should just return
-                // without trying to load the image. This should never happen
-                // when running greenfoot normally, but will be the case when
-                // doing some of unit tests.
-                return;
-            }
-            try {
-                URI dir = greenfoot.getPackage().getDir().toURI();
-                URL url = null;
-                try {
-                    url = dir.resolve(filename).toURL();
-                    setImage(new ImageIcon(url).getImage());
-                }
-                catch (MalformedURLException e2) {
-                    System.err.println("Could not load the URL (file): " + filename);
-                    e2.printStackTrace();
-                }
-            }
-            catch (ProjectNotOpenException e1) {
-                e1.printStackTrace();
-            }
-            catch (PackageNotFoundException e1) {
-                e1.printStackTrace();
-            }
-            catch (RemoteException e1) {
-                e1.printStackTrace();
-            }
 
+            URL url;
+            if (ExecServer.currentLoader != null) {    
+                url = ExecServer.currentLoader.getResource(filename);
+            }
+            else {
+                url = ClassLoader.getSystemResource(filename);
+            }
+                    
+            if (url != null) {
+                setImage(new ImageIcon(url).getImage());
+            }
+            else if (image == null) {
+                setImage(new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR));
+            }
         }
     }
 
@@ -452,6 +430,11 @@ public class GreenfootImage
     {
         int width = getWidth();
         int height = getHeight();
+        
+        if (width == -1 || height == -1) {
+            return new GreenfootImage(1, 1);
+        }
+        
         GreenfootImage dest = new GreenfootImage(width, height);
         dest.drawImage(this, 0, 0);
         return dest;

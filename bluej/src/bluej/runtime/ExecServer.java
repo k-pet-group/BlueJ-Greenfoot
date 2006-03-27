@@ -32,7 +32,7 @@ import bluej.Config;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3868 2006-03-24 05:05:33Z bquig $
+ * @version $Id: ExecServer.java 3886 2006-03-27 05:52:50Z davmac $
  */
 public class ExecServer
 {
@@ -99,7 +99,7 @@ public class ExecServer
     public static final int LOAD_ALL      = 5; // load class and inner classes
 
     // the current class loader
-	private static ClassLoader currentLoader;
+	public static ClassLoader currentLoader;
 
     // The loader that loads the greenfoot application classes. This is the
     // loader that gets used the first time anything is loaded in the debugvm.
@@ -530,7 +530,6 @@ public class ExecServer
      *          put it into a more suitable data structure itself.
      */
     private static Object[] runTestSetUp(String className)
-        throws ClassNotFoundException
     {
 		// Debug.message("[VM] runTestSetUp" + className);
 
@@ -638,7 +637,6 @@ public class ExecServer
      *         successfully.
      */
     private static Object[] runTestMethod(String className, String methodName)
-        throws ClassNotFoundException
     {
 		// Debug.message("[VM] runTestMethod" + className + " " + methodName);
 
