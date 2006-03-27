@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3869 2006-03-24 05:15:17Z bquig $
+ * @version $Id: VMReference.java 3880 2006-03-27 00:25:58Z bquig $
  * 
  * The startup process is as follows:
  * 
@@ -427,6 +427,11 @@ class VMReference
             outReader = new InputStreamReader(vmProcess.getInputStream(), streamEncoding);
             inputWriter = new OutputStreamWriter(vmProcess.getOutputStream(), streamEncoding);
         }
+        
+        errorStreamRedirector = redirectIOStream(errorReader, term.getErrorWriter(), false);
+        outputStreamRedirector = redirectIOStream(outReader, term.getWriter(), false);
+        inputStreamRedirector = redirectIOStream(term.getReader(), inputWriter, false);
+        
         return vmProcess;
     }
 
