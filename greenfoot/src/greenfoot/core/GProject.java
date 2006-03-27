@@ -39,7 +39,7 @@ public class GProject implements InspectorManager
     
     private RProject rProject;
     
-    public GProject(RProject rmiProject) throws ProjectNotOpenException, RemoteException
+    public GProject(RProject rmiProject)
     {
         this.rProject = rmiProject;
     }
@@ -61,12 +61,7 @@ public class GProject implements InspectorManager
      * 
      */
     public GPackage getDefaultPackage() throws ProjectNotOpenException, RemoteException {
-    	RPackage rPkg = rProject.getPackage("");
-        if(rPkg == null) {
-            return null;
-        } else {
-            return new GPackage(rPkg, this);
-        }
+    	return getPackage("");
     }
 
     /**
@@ -74,10 +69,19 @@ public class GProject implements InspectorManager
      * 
      */
     public GPackage getGreenfootPackage() throws ProjectNotOpenException, RemoteException {
-        RPackage rPkg = rProject.getPackage("greenfoot");
-        if(rPkg == null) {
+        return getPackage("greenfoot");
+    }
+    
+    /**
+     * returns the named package.
+     */
+    public GPackage getPackage(String packageName) throws ProjectNotOpenException, RemoteException
+    {
+        RPackage rPkg = rProject.getPackage(packageName);
+        if (rPkg == null) {
             return null;
-        } else {
+        }
+        else {
             return new GPackage(rPkg, this);
         }
     }
