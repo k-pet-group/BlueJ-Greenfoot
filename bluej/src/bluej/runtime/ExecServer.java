@@ -32,7 +32,7 @@ import bluej.Config;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3886 2006-03-27 05:52:50Z davmac $
+ * @version $Id: ExecServer.java 3897 2006-03-27 23:57:20Z davmac $
  */
 public class ExecServer
 {
@@ -99,7 +99,7 @@ public class ExecServer
     public static final int LOAD_ALL      = 5; // load class and inner classes
 
     // the current class loader
-	public static ClassLoader currentLoader;
+	private static ClassLoader currentLoader;
 
     // The loader that loads the greenfoot application classes. This is the
     // loader that gets used the first time anything is loaded in the debugvm.
@@ -564,7 +564,7 @@ public class ExecServer
             Method setUpMethod = findMethod(cl, "setUp", null);
             if (setUpMethod != null) {
                 setUpMethod.setAccessible(true);
-                setUpMethod.invoke(testCase, null);
+                setUpMethod.invoke(testCase, (Object []) null);
             }
 
             // pick up all declared fields
@@ -868,7 +868,7 @@ public class ExecServer
                             Constructor cons = c.getDeclaredConstructor(new Class[0]);
                             cons.setAccessible(true);
                             try {
-                                methodReturn = cons.newInstance(null);
+                                methodReturn = cons.newInstance((Object []) null);
                             }
                             catch (InvocationTargetException ite) {
                                 throw ite.getCause();
@@ -946,6 +946,16 @@ public class ExecServer
      */
     public static Object getObject(String instanceName) {
         return getScope(scopeId).get(instanceName);
+    }
+    
+    /**
+     * Get the current class loader used to load user classes.
+     * 
+     * @return  The current class loader
+     */
+    public static ClassLoader getCurrentClassLoader()
+    {
+        return currentLoader;
     }
 }
 

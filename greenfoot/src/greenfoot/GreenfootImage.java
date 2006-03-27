@@ -20,7 +20,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootImage.java 3886 2006-03-27 05:52:50Z davmac $
+ * @cvs-version $Id: GreenfootImage.java 3897 2006-03-27 23:57:20Z davmac $
  */
 public class GreenfootImage
 {
@@ -62,8 +62,9 @@ public class GreenfootImage
             Greenfoot greenfoot = Greenfoot.getInstance();
 
             URL url;
-            if (ExecServer.currentLoader != null) {    
-                url = ExecServer.currentLoader.getResource(filename);
+            ClassLoader currentLoader = ExecServer.getCurrentClassLoader();
+            if (currentLoader != null) {    
+                url = currentLoader.getResource(filename);
             }
             else {
                 url = ClassLoader.getSystemResource(filename);

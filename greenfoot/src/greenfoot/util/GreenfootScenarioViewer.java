@@ -74,7 +74,7 @@ public class GreenfootScenarioViewer implements ClassImageManager
         
         try {
             Class worldClass = Class.forName(worldClassName);
-            ExecServer.currentLoader = worldClass.getClassLoader();
+            ExecServer.setClassLoader(worldClass.getClassLoader());
             Constructor worldConstructor = worldClass.getConstructor(new Class[]{});
             GreenfootWorld world = (GreenfootWorld) worldConstructor.newInstance(new Object[]{});
 
