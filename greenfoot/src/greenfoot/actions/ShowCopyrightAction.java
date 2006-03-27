@@ -12,15 +12,28 @@ import javax.swing.JOptionPane;
  */
 public class ShowCopyrightAction extends AbstractAction
 {
-    private JFrame frame;
+    private static ShowCopyrightAction instance;
+    
+     /**
+     * Singleton factory method for action.
+     */
+   public static ShowCopyrightAction getInstance(JFrame parent)
+    {
+        if(instance == null)
+            instance = new ShowCopyrightAction(parent);
+        return instance;
+    }
+    
+
+   private JFrame parent;
     
     /** 
      *  Creates a new instance of ShowCopyrightAction 
      */
-    public ShowCopyrightAction(JFrame frame) 
+    private ShowCopyrightAction(JFrame parent) 
     {
         super("Copyright...");
-        this.frame = frame;
+        this.parent = parent;
     }
 
     /**
@@ -28,7 +41,7 @@ public class ShowCopyrightAction extends AbstractAction
      */
     public void actionPerformed(ActionEvent e)
     {
-            JOptionPane.showMessageDialog(frame, new String[]{
+            JOptionPane.showMessageDialog(parent, new String[]{
                 "Greenfoot \u00a9 2005-2006 Michael K\u00F6lling, Poul Henriksen.", " ",
                 "Greenfoot is available 'as is' free of charge for use and non-commercial", 
                 "redistribution. Disassembly of the system is prohibited.",

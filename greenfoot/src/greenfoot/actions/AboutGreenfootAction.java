@@ -1,6 +1,6 @@
 package greenfoot.actions;
 
-import greenfoot.gui.AboutGreenfoot;
+import greenfoot.gui.AboutGreenfootDialog;
 
 import java.awt.event.ActionEvent;
 
@@ -15,11 +15,23 @@ import bluej.Boot;
  */
 public class AboutGreenfootAction extends AbstractAction
 {
-
-    private AboutGreenfoot aboutGreenfoot;
+    private static AboutGreenfootAction instance;
+    
+     /**
+     * Singleton factory method for action.
+     */
+    public static AboutGreenfootAction getInstance(JFrame parent)
+    {
+        if(instance == null)
+            instance = new AboutGreenfootAction(parent);
+        return instance;
+    }
+    
+    
+    private AboutGreenfootDialog aboutGreenfoot;
     private JFrame parent;
 
-    public AboutGreenfootAction(JFrame parent)
+    private AboutGreenfootAction(JFrame parent)
     {
         super("About Greenfoot...");
         this.parent = parent;
@@ -28,7 +40,7 @@ public class AboutGreenfootAction extends AbstractAction
     public void actionPerformed(ActionEvent e)
     {
         if (aboutGreenfoot == null) {
-            aboutGreenfoot = new AboutGreenfoot(parent, Boot.GREENFOOT_VERSION);
+            aboutGreenfoot = new AboutGreenfootDialog(parent, Boot.GREENFOOT_VERSION);
         }
         aboutGreenfoot.setVisible(true);
     }

@@ -16,7 +16,18 @@ import bluej.utility.Debug;
  */
 public class SaveProjectAction extends AbstractAction
 {
-    public SaveProjectAction()
+    private static SaveProjectAction instance = new SaveProjectAction();
+    
+    /**
+     * Singleton factory method for action.
+     */
+    public static SaveProjectAction getInstance()
+    {
+        return instance;
+    }
+
+    
+    private SaveProjectAction()
     {
         super("Save");
     }

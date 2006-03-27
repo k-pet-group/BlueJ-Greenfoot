@@ -8,11 +8,22 @@ import javax.swing.AbstractAction;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: OpenProjectAction.java 3879 2006-03-25 20:40:14Z mik $
+ * @version $Id: OpenProjectAction.java 3890 2006-03-27 16:04:42Z mik $
  */
 public class OpenProjectAction extends AbstractAction
 {
-    public OpenProjectAction()
+    private static OpenProjectAction instance = new OpenProjectAction();
+    
+    /**
+     * Singleton factory method for action.
+     */
+    public static OpenProjectAction getInstance()
+    {
+        return instance;
+    }
+
+    
+    private OpenProjectAction()
     {
         super("Open...");
     }

@@ -10,12 +10,22 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: EditClassAction.java 3879 2006-03-25 20:40:14Z mik $
+ * @version $Id: EditClassAction.java 3890 2006-03-27 16:04:42Z mik $
  */
 public class EditClassAction extends ClassAction
 {
+    private static EditClassAction instance = new EditClassAction();
+    
+    /**
+     * Singleton factory method for action.
+     */
+    public static EditClassAction getInstance()
+    {
+        return instance;
+    }
 
-    public EditClassAction()
+    
+    private EditClassAction()
     {
         super("Open editor");
     }

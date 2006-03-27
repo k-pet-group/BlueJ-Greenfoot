@@ -27,12 +27,12 @@ import bluej.utility.MultiLineLabel;
  * The BlueJ about box.
  * 
  * @author Poul Henriksen
- * @version $Id$
+ * @version $Id: AboutGreenfootDialog.java 3890 2006-03-27 16:04:42Z mik $
  */
-public class AboutGreenfoot extends JDialog
+public class AboutGreenfootDialog extends JDialog
 {
 
-    public AboutGreenfoot(JFrame parent, String version)
+    public AboutGreenfootDialog(JFrame parent, String version)
     {
         super(parent, Config.getString("menu.help.about"), true);
 

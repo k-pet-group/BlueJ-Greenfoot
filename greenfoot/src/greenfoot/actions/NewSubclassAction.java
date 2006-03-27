@@ -15,11 +15,10 @@ import javax.swing.SwingUtilities;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 3879 2006-03-25 20:40:14Z mik $
+ * @version $Id: NewSubclassAction.java 3890 2006-03-27 16:04:42Z mik $
  */
 public class NewSubclassAction extends AbstractAction
 {
-
     private ClassView superclass;
     private ClassBrowser classBrowser;
 

@@ -29,7 +29,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 3879 2006-03-25 20:40:14Z mik $
+ * @version $Id: ControlPanel.java 3890 2006-03-27 16:04:42Z mik $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener, WorldListener
@@ -61,7 +61,8 @@ public class ControlPanel extends Box
     {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         
-        runOnceSimulationAction = new RunOnceSimulationAction(simulation);
+        runOnceSimulationAction = RunOnceSimulationAction.getInstance();
+        runOnceSimulationAction.attachSimulation(simulation);
         runOnceSimulationAction.putValue(Action.LONG_DESCRIPTION, "Makes one run of the simulation loop.");
         runOnceSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Makes one run of the simulation loop.");
         runOnceSimulationAction.setEnabled(false);
@@ -69,12 +70,14 @@ public class ControlPanel extends Box
 
         buttonPanel.add(stepButton);
 
-        runSimulationAction = new RunSimulationAction(simulation);
+        runSimulationAction = RunSimulationAction.getInstance();
+        runSimulationAction.attachSimulation(simulation);
         runSimulationAction.putValue(Action.LONG_DESCRIPTION, "Runs the simulation until stopped.");
         runSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Runs the simulation.");
         runSimulationAction.setEnabled(false);
 
-        pauseSimulationAction = new PauseSimulationAction(simulation);
+        pauseSimulationAction = PauseSimulationAction.getInstance();
+        pauseSimulationAction.attachSimulation(simulation);
         pauseSimulationAction.putValue(Action.LONG_DESCRIPTION,
                 "Pauses the simulation, leaving it in the current state.");
         pauseSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Pauses the simulation.");

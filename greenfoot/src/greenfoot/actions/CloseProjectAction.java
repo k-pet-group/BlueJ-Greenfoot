@@ -12,7 +12,18 @@ import javax.swing.AbstractAction;
  */
 public class CloseProjectAction extends AbstractAction
 {
-    public CloseProjectAction()
+    private static CloseProjectAction instance = new CloseProjectAction();
+    
+    /**
+     * Singleton factory method for action.
+     */
+    public static CloseProjectAction getInstance()
+    {
+        return instance;
+    }
+
+    
+    private CloseProjectAction()
     {
         super("Close");
     }

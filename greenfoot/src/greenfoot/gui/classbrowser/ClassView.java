@@ -51,7 +51,7 @@ import java.awt.Font;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3879 2006-03-25 20:40:14Z mik $
+ * @version $Id: ClassView.java 3890 2006-03-27 16:04:42Z mik $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -184,24 +184,25 @@ public class ClassView extends JToggleButton
         popupMenu.setInvoker(this);
 
         JMenuItem item;
-        item = new JMenuItem(new NewSubclassAction(this, classBrowser));
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
-        popupMenu.add(item);
-        
-        popupMenu.addSeparator();
-
-        item = new JMenuItem(new RemoveClassAction(this));
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
-        popupMenu.add(item);
         item = new JMenuItem(new EditClassAction(gClass));
         item.setFont(PrefMgr.getPopupMenuFont());
         item.setForeground(envOpColour);
         popupMenu.add(item);
 
         role.addPopupMenuItems(popupMenu);
-    }
+
+        item = new JMenuItem(new RemoveClassAction(this));
+        item.setFont(PrefMgr.getPopupMenuFont());
+        item.setForeground(envOpColour);
+        popupMenu.add(item);
+
+        popupMenu.addSeparator();
+
+        item = new JMenuItem(new NewSubclassAction(this, classBrowser));
+        item.setFont(PrefMgr.getPopupMenuFont());
+        item.setForeground(envOpColour);
+        popupMenu.add(item);
+}
 
 
     /**

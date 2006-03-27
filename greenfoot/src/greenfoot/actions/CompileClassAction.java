@@ -11,11 +11,22 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileClassAction.java 3879 2006-03-25 20:40:14Z mik $
+ * @version $Id: CompileClassAction.java 3890 2006-03-27 16:04:42Z mik $
  */
 public class CompileClassAction extends ClassAction
 {
-    public CompileClassAction()
+    private static CompileClassAction instance = new CompileClassAction();
+    
+    /**
+     * Singleton factory method for action.
+     */
+    public static CompileClassAction getInstance()
+    {
+        return instance;
+    }
+
+    
+    private CompileClassAction()
     {
         super("Compile");
     }

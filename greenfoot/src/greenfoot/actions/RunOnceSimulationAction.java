@@ -11,6 +11,8 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import bluej.utility.Debug;
+
 /**
  * @author Poul Henriksen
  * @version $Id: RunOnceSimulationAction.java,v 1.10 2004/11/18 09:43:46 polle
@@ -20,19 +22,40 @@ public class RunOnceSimulationAction extends AbstractAction
     implements SimulationListener
 {
     private static final String iconFile = "step.gif";
+    private static RunOnceSimulationAction instance = new RunOnceSimulationAction();
+    
+    /**
+     * Singleton factory method for action.
+     */
+    public static RunOnceSimulationAction getInstance()
+    {
+        return instance;
+    }
+    
 
     private transient final static Logger logger = Logger.getLogger("greenfoot");
     private Simulation simulation;
 
-    public RunOnceSimulationAction(Simulation simulation)
+    private RunOnceSimulationAction()
     {
         super("Act", new ImageIcon(RunOnceSimulationAction.class.getClassLoader().getResource(iconFile)));
-        this.simulation = simulation;
-        simulation.addSimulationListener(this);
     }
 
+    /**
+     * Attach this action to a simulation object that it controls.
+     */
+    public void attachSimulation(Simulation simulation)
+    {
+        this.simulation = simulation;        
+        simulation.addSimulationListener(this);
+    }
+    
     public void actionPerformed(ActionEvent e)
     {
+        if(simulation == null) {
+            Debug.reportError("attempt to pause a simulation while none exists.");
+            return;
+        }
         //We don't want to block!
         new Thread() {
             public void run()

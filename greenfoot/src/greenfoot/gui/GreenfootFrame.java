@@ -65,12 +65,14 @@ import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
 import greenfoot.actions.NYIAction;
+import greenfoot.actions.RunOnceSimulationAction;
+import greenfoot.actions.RunSimulationAction;
 
 /**
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3879 2006-03-25 20:40:14Z mik $
+ * @version $Id: GreenfootFrame.java 3890 2006-03-27 16:04:42Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -79,10 +81,6 @@ public class GreenfootFrame extends JFrame
     private static final int accelModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     private static final int shiftAccelModifier = accelModifier | KeyEvent.SHIFT_MASK;
 
-    private CompileClassAction compileClassAction = new CompileClassAction();
-    private CompileAllAction compileAllAction = new CompileAllAction();
-    private EditClassAction editClassAction = new EditClassAction();
-    private AboutGreenfootAction aboutGreenfootAction;
     private ClassBrowser classBrowser;
     private ControlPanel controlPanel;
     
@@ -118,7 +116,6 @@ public class GreenfootFrame extends JFrame
         }
 
         LocationTracker.instance(); //force initialisation
-        aboutGreenfootAction = new AboutGreenfootAction(this);
         setSize(400, 300);
         URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
         ImageIcon icon = new ImageIcon(iconFile);
@@ -159,7 +156,7 @@ public class GreenfootFrame extends JFrame
         macApp.addApplicationListener(new ApplicationAdapter() {
             public void handleAbout(ApplicationEvent e)
             {
-                aboutGreenfootAction.actionPerformed(null);
+                AboutGreenfootAction.getInstance(GreenfootFrame.this).actionPerformed(null);
                 e.setHandled(true);
             }
 
@@ -218,7 +215,7 @@ public class GreenfootFrame extends JFrame
         Box buttonPanel = new Box(BoxLayout.Y_AXIS);
         buttonPanel.setAlignmentX(Box.CENTER_ALIGNMENT);
 
-        JButton button = new JButton(compileAllAction);
+        JButton button = new JButton(CompileAllAction.getInstance());
         Dimension pref = button.getMinimumSize();
         pref.width = Integer.MAX_VALUE;
         button.setMaximumSize(pref);
@@ -334,8 +331,8 @@ public class GreenfootFrame extends JFrame
     private ClassBrowser buildClassBrowser()
     {
         ClassBrowser classBrowser = new ClassBrowser();
-        classBrowser.addCompileClassAction(compileClassAction);
-        classBrowser.addEditClassAction(editClassAction);
+        classBrowser.addCompileClassAction(CompileClassAction.getInstance());
+        classBrowser.addEditClassAction(EditClassAction.getInstance());
 
         try {
             //pkg = Greenfoot.getInstance().getCurrentPackage();
@@ -389,11 +386,11 @@ public class GreenfootFrame extends JFrame
 
         JMenu projectMenu = addMenu("Project", menuBar, 'p');
         
-        addMenuItem(new NewProjectAction(), projectMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
-        addMenuItem(new OpenProjectAction(), projectMenu, KeyEvent.VK_O, false, KeyEvent.VK_O);
+        addMenuItem(NewProjectAction.getInstance(), projectMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
+        addMenuItem(OpenProjectAction.getInstance(), projectMenu, KeyEvent.VK_O, false, KeyEvent.VK_O);
 //        addMenuItem(new NYIAction("Open Recent...", this), projectMenu, -1, false, -1);
-        addMenuItem(new CloseProjectAction(), projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
-        addMenuItem(new SaveProjectAction(), projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
+        addMenuItem(CloseProjectAction.getInstance(), projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
+        addMenuItem(SaveProjectAction.getInstance(), projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
         addMenuItem(new NYIAction("Save As...", this), projectMenu, KeyEvent.VK_S, true, -1);
         projectMenu.addSeparator();
         addMenuItem(new NYIAction("Page Setup...", this), projectMenu, KeyEvent.VK_P, true, -1);
@@ -401,17 +398,17 @@ public class GreenfootFrame extends JFrame
         
         JMenu ctrlMenu = addMenu("Controls", menuBar, 'c');
         
-        addMenuItem(new NYIAction("Act", this), ctrlMenu, KeyEvent.VK_A, false, KeyEvent.VK_A);
-        addMenuItem(new NYIAction("Run", this), ctrlMenu, KeyEvent.VK_R, false, KeyEvent.VK_R);
+        addMenuItem(RunOnceSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_A, false, KeyEvent.VK_A);
+        addMenuItem(RunSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_R, false, KeyEvent.VK_R);
         addMenuItem(new NYIAction("Increase Speed", this), ctrlMenu, KeyEvent.VK_PLUS, false, KeyEvent.VK_PLUS);
         addMenuItem(new NYIAction("Decrease Speed", this), ctrlMenu, KeyEvent.VK_MINUS, false, KeyEvent.VK_MINUS);
         ctrlMenu.addSeparator();
-        addMenuItem(compileAllAction, ctrlMenu, KeyEvent.VK_K, false, -1);
+        addMenuItem(CompileAllAction.getInstance(), ctrlMenu, KeyEvent.VK_K, false, -1);
         
         JMenu helpMenu = addMenu("Help", menuBar, 'h');
         
-        addMenuItem(aboutGreenfootAction, helpMenu, -1, false, KeyEvent.VK_A);
-        addMenuItem(new ShowCopyrightAction(this), helpMenu, -1, false, -1);
+        addMenuItem(AboutGreenfootAction.getInstance(this), helpMenu, -1, false, KeyEvent.VK_A);
+        addMenuItem(ShowCopyrightAction.getInstance(this), helpMenu, -1, false, -1);
         helpMenu.addSeparator();
         addMenuItem(new ShowWebsiteAction("Greenfoot Web Site", "http://www.greenfoot.org"), helpMenu, -1, false, -1);
         addMenuItem(new ShowWebsiteAction("Greenfoot Tutorial", "http://www.greenfoot.org/doc/tutorial.html"), helpMenu, -1, false, -1);
