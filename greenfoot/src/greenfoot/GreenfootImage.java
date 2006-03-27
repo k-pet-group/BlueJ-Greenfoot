@@ -28,7 +28,7 @@ import bluej.extensions.ProjectNotOpenException;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootImage.java 3843 2006-03-20 15:51:46Z polle $
+ * @cvs-version $Id: GreenfootImage.java 3881 2006-03-27 03:42:50Z davmac $
  */
 public class GreenfootImage
 {
@@ -437,5 +437,17 @@ public class GreenfootImage
         } else {
             return "Image file name: " + imageFileName + " " + superString;
         }
+    }
+    
+    /**
+     * Make a copy of this image. Drawing in the copy will not affect the original.
+     */
+    public GreenfootImage copy()
+    {
+        int width = getWidth();
+        int height = getHeight();
+        GreenfootImage dest = new GreenfootImage(width, height);
+        dest.drawImage(this, 0, 0);
+        return dest;
     }
 }
