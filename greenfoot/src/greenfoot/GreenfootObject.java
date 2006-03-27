@@ -28,7 +28,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootObject.java 3882 2006-03-27 03:44:41Z davmac $
+ * @cvs-version $Id: GreenfootObject.java 3892 2006-03-27 17:33:52Z polle $
  */
 public class GreenfootObject extends ObjectTransporter
 {
@@ -399,7 +399,7 @@ public class GreenfootObject extends ObjectTransporter
     {
         // TODO Possible error if its location is out of bounds
         this.world = world;
-        boundingCircle = new Circle();
+        boundingCircle = Circle.createCircle();
         boundingCircle.setRadius(calcBoundingRadius());
         boundingCircle.setX(x);
         boundingCircle.setY(y);  

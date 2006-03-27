@@ -3,11 +3,13 @@ package greenfoot.collision;
 import greenfoot.GreenfootObject;
 import greenfoot.GreenfootObjectVisitor;
 import greenfoot.util.Circle;
+import greenfoot.util.ObjectPool;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -21,7 +23,7 @@ import java.util.PriorityQueue;
  * <ul>
  * <li>On-line, which means it is cheap to insert and remove objects.</li>
  * <li>Good for many kinds of object distributions.</li>
- * <li>Moderate tree construction time</li>
+ * <li>Moderate tree construction time (could maybe be improved by using fast (but not as good) algorithm from paper)</li>
  * <li> </li>
  * </ul>
  * 
@@ -43,26 +45,54 @@ import java.util.PriorityQueue;
 public class BVHInsChecker
     implements CollisionChecker
 {
-
-    static class Node
-    {
+    
+    /**
+     * Node in a tree. The objects are pooled and should be created with the
+     * createNode methods and deleted with the delete() method once it is not 
+     * used anymore.
+     */
+    static class Node {
         public Node parent;
         public Node left; // child
         public Node right; // child
         public Circle circle;
         private GreenfootObject go;
 
-        public Node(Circle circle)
+        private static ObjectPool<Node> pool = new ObjectPool<Node>() {
+            @Override
+            protected Node createNew()
+            {
+                return new Node();
+            }
+        };
+        
+        public static Node createNode() {
+            Node c = (Node) pool.get();
+            c.init(null, null);
+            return c;
+        }    
+
+        public static Node createNode(Circle circle, GreenfootObject go) {
+            Node c = (Node) pool.get();
+            c.reset();
+            c.init(circle, go);
+            return c;
+        }
+        
+        public void delete() {
+            pool.add(this);
+        }
+        
+        public static void clearPool() {
+            pool.reset();
+        }
+        
+        private Node()
         {
-            this.circle = circle;
+
         }
 
-        public Node()
-        {
-
-        }
-
-        public Node(Circle circle, GreenfootObject go)
+        public void init(Circle circle, GreenfootObject go)
         {
             this.circle = circle;
             this.go = go;
@@ -106,7 +136,6 @@ public class BVHInsChecker
             return node.getOneIntersectingObjectUpwards(node.circle, checker);           
         }
         
-        
         private GreenfootObject getOneIntersectingObjectDownwards(Circle c, CollisionQuery checker) {
             
             if (!c.intersects(this.circle)) {
@@ -145,8 +174,6 @@ public class BVHInsChecker
             return null;
         }
 
-        // TODO replace with loop instead of recursion so that we can escape
-        // quicker.
         public GreenfootObject getIntersection(Circle b, CollisionQuery c)
         {
             throw new RuntimeException("NOT IMPLEMENTED YET");
@@ -159,11 +186,33 @@ public class BVHInsChecker
              */
         }
 
-        void reset()
+        /**
+         * Resets all fields in this note and any pointers from parent or
+         * children.
+         */
+        public void reset()
         {
+            if(left != null && left.parent == this) {
+                left.parent = null;
+            }
+            if(right != null && right.parent == this) {
+                right.parent = null;
+            }
+            if(parent != null) {
+                if(parent.left == this) {
+                    parent.left = null;
+                } else if(parent.right == this) {
+                    parent.right = null;
+                }
+            }
             parent = null;
             left = null;
             right = null;
+            circle = null;
+            if(go != null) {
+                GreenfootObjectVisitor.setData(go, null);
+            }
+            go = null;
         }
 
         private Node getSibling() {
@@ -176,9 +225,6 @@ public class BVHInsChecker
             }
             return null;
         }
-
-
-
     }
 
     /**
@@ -186,7 +232,9 @@ public class BVHInsChecker
      * tree. In particular the "ancestor expansion" which is the total increase
      * in the size of the ancestor when insert a new node as a sibling to this
      * node.
-     * 
+     *<p>
+     * CircleFringe objects are pooled.
+     *
      * @author Poul Henriksen
      * 
      */
@@ -197,14 +245,46 @@ public class BVHInsChecker
         private double ancestorExpansion;
         private Node node;
         private double volume;
+        
+        private static ObjectPool<CircleFringe> pool = new ObjectPool<CircleFringe>() {
+            @Override
+            protected CircleFringe createNew()
+            {
+                return new CircleFringe();
+            }
+        };
+        
+        public static CircleFringe createCircleFringe() {
+            CircleFringe c = (CircleFringe) pool.get();
+            c.init(null,0,0);
+            return c;
+        }    
 
-        public CircleFringe(Node n, double ancestorExpansion, double volume)
+        public static CircleFringe createCircleFringe(Node n, double ancestorExpansion, double volume)
         {
+            CircleFringe c =  (CircleFringe) pool.get();
+            c.init(n, ancestorExpansion, volume);
+            return c;
+        }
+    
+        public void delete() {
+            pool.add(this);
+        }     
+
+        private static void delete(Collection fringeQueue) {
+            pool.add(fringeQueue);
+        }
+                
+        public static void clearPool() {
+            pool.reset();
+        }
+        
+        public void init(Node n, double ancestorExpansion, double volume) {
             this.ancestorExpansion = ancestorExpansion;
             this.volume = volume;
             this.node = n;
         }
-
+        
         /**
          * Get total increase in the size of the ancestor when insert a new node
          * as a sibling to this node.
@@ -264,11 +344,10 @@ public class BVHInsChecker
         {
             return volume;
         }
-
     }
 
     /**
-     * Tree of circles. The lead nodes contains the objects. Each objects has a
+     * Tree of circles. The leaf nodes contains the objects. Each objects has a
      * bounding circle. The parent of the two nodes has a bounding circle which
      * is the bounding circle of the two child circles.
      * 
@@ -279,12 +358,36 @@ public class BVHInsChecker
     {
         private Node root;
         private int size;
-        private CircleFringe best;
-
-        public void addNode(Node n)
+        private PriorityQueue fringeQueue = new PriorityQueue();;
+        
+        private void checkInvariant(Node n) {
+            if(n==null) return;
+            if(n.circle == null) {
+                throw new RuntimeException("Invariant not true because circle==null:   Node: " + n + " #   left:" + n.left + " #   right:" +n.right);
+                
+            }
+            if( !(n.left == null  && n.right == null) && (n.left==null || n.right==null) ) {
+                throw new RuntimeException("Invariant not true:   Node: " + n + " #   left:" + n.left + " #   right:" +n.right);
+            }
+            checkInvariant(n.left);
+            checkInvariant(n.right);
+            
+        }
+        
+        /**
+         * For checking the consistency of the tree. It will throw an exception
+         * if the tree has nodes without a circle of with only one child.
+         */
+        private void checkInvariant() {
+        //   checkInvariant(root);
+        }
+        
+        public synchronized   void addNode(Node n)
         {
+            checkInvariant();
             Node sibling = bestSibling(n);
             insertAtNode(n, sibling);
+            checkInvariant();
         }
 
         /**
@@ -293,40 +396,54 @@ public class BVHInsChecker
          */
         public Node bestSibling(Node newNode)
         {
-
             if (getRoot() == null) {
                 return null;
+            }            
+            if(!fringeQueue.isEmpty()) {
+                CircleFringe.delete(fringeQueue);
+                fringeQueue.clear();
             }
-
-            // Priority queue ordered by ancestor expansion
-            // This priority queue holds the fringe elements
-            PriorityQueue fringeQueue = new PriorityQueue();
-
             // Initialise
-            double bestCost = getRoot().circle.merge(newNode.circle).getVolume();
-            best = new CircleFringe(getRoot(), 0, bestCost);
+            Circle c = getRoot().circle.merge(newNode.circle);
+            double bestCost = c.getVolume();
+            c.delete();
+            c = null;
+            CircleFringe best = CircleFringe.createCircleFringe(getRoot(), 0, bestCost);
+            
             if (!best.getNode().isLeaf()) {
+                if(best.getNode().left ==null || best.getNode().right == null) {
+                    try {
+                        throw new Exception();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 // We are not the only element, so we add the initial fringe
-                CircleFringe tf = new CircleFringe(getRoot(), 0, bestCost);
+                CircleFringe tf = CircleFringe.createCircleFringe(getRoot(), 0, bestCost);
                 fringeQueue.add(tf);
             }
-
+            
             // Search for the best location to insert
             while (!fringeQueue.isEmpty()) {
                 // get best candidate
                 CircleFringe tf = (CircleFringe) fringeQueue.poll();
                 if (tf.getAncestorExpansion() >= (best.getVolume() + best.getAncestorExpansion())) {
                     break;
-                }
-                else {
+                } else {
                     // calculate new ancestor expansion for the children's
                     // fringes
-                    double newAExp = tf.getAncestorExpansion() + tf.getVolume() - tf.getNode().circle.getVolume(); // ancestor
+                    double newAExp = tf.getAncestorExpansion() + tf.getVolume() - tf.getNode().circle.getVolume(); // ancestor                    
                     processNode(newNode, tf.getNode().left, newAExp, best, fringeQueue);
-                    processNode(newNode, tf.getNode().right, newAExp, best, fringeQueue);
+                    processNode(newNode, tf.getNode().right, newAExp, best, fringeQueue);                    
                 }
+                tf.delete();
+                tf = null;
             }
-            return best.getNode();
+            Node bestNode = best.getNode();
+            best.delete();
+            best = null;
+            return bestNode;
         }
 
         /**
@@ -338,6 +455,8 @@ public class BVHInsChecker
         {
             Circle enclosingCircle = childNode.circle.merge(newNode.circle);
             double enclosingVolume = enclosingCircle.getVolume();
+            enclosingCircle.delete();
+            enclosingCircle = null;
             // have we found a better cost?
             if ((newAExp + enclosingVolume) < (best.getVolume() + best.getAncestorExpansion())) {
                 best.setVolume(enclosingVolume);
@@ -345,7 +464,7 @@ public class BVHInsChecker
                 best.setNode(childNode);
             }
             if (!childNode.isLeaf()) {
-                CircleFringe newFringe = new CircleFringe(childNode, newAExp, enclosingVolume);
+                CircleFringe newFringe = CircleFringe.createCircleFringe(childNode, newAExp, enclosingVolume);
                 fringeQueue.add(newFringe);
             }
         }
@@ -358,36 +477,35 @@ public class BVHInsChecker
          */
         public void insertAtNode(Node newNode, Node sibling)
         {
-            //Make sure the new node is reset
-            newNode.reset();
+            checkInvariant();           
             if (getRoot() == null) {
-                // System.out.println("ROOT NULL");
                 setRoot(newNode);
             }
             else {
-
-                Node newParent = new Node();
+                checkInvariant();
+                
+                Node newParent = Node.createNode();
                 newParent.parent = sibling.parent;
+                
                 if (sibling.parent == null) {
                     setRoot(newParent);
-                }
-                else if (sibling.parent.left == sibling) {
+                } else if (sibling.parent.left == sibling) {
                     // parent is a left child
                     sibling.parent.left = newParent;
-                }
-                else {
+                } else {
                     // parent is a right child
                     sibling.parent.right = newParent;
-                }
-
+                }                
+                
                 newParent.left = sibling;
                 newParent.right = newNode;
-
                 newNode.parent = newParent;
                 sibling.parent = newParent;
+                
                 newParent.circle = newNode.circle.merge(sibling.circle);
+                
                 repairParents(newParent);
-
+                
             }
             size++;
         }
@@ -401,7 +519,9 @@ public class BVHInsChecker
         {
             Node p = newParent.parent;
             while (p != null) {
+                Circle c = p.circle;
                 p.circle = p.left.circle.merge(p.right.circle);
+                c.delete();
                 p = p.parent;
             }
         }
@@ -410,7 +530,7 @@ public class BVHInsChecker
          * Used when a node has moved or changed size.
          * 
          */
-        public void repairNode(Node n)
+        public synchronized   void repairNode(Node n)
         {
             if (n == null)
                 return;
@@ -420,8 +540,9 @@ public class BVHInsChecker
             addNode(n);
         }
 
-        public void removeNode(Node n)
+        public synchronized  void removeNode(Node n)
         {
+            checkInvariant();         
             if (n == null) {
                 return;
             }
@@ -429,16 +550,10 @@ public class BVHInsChecker
                 setRoot(null);
             }
             else {
-                Node sibling = null;
                 Node parent = n.parent;
-
-                if (n == parent.left) {
-                    sibling = parent.right;
-                }
-                else {
-                    sibling = parent.left;
-                }
-
+                Node sibling = n.getSibling();
+                
+                checkInvariant();             
                 sibling.parent = parent.parent;
                 if (parent.parent == null) {
                     setRoot(sibling);
@@ -450,9 +565,14 @@ public class BVHInsChecker
                     parent.parent.right = sibling;
                 }
                 repairParents(sibling);
+                parent.delete();
+
+                parent = null;
             }
-            n.reset();
+            n = null;
             size--;
+
+            checkInvariant();
         }
 
         public List getIntersections(Circle b, CollisionQuery c)
@@ -463,7 +583,6 @@ public class BVHInsChecker
             }
 
             getRoot().getIntersections(b, c, result);
-
             return result;
         }
 
@@ -475,19 +594,15 @@ public class BVHInsChecker
             return getRoot().getIntersection(b, checker);
         }
         
-        
         public GreenfootObject getOneIntersectingObject(Node node, CollisionQuery checker) {
              return getRoot().getOneIntersectingObject(node, checker);
         }
-        
-       
 
         public void paintDebug(Graphics g)
         {
             if (getRoot() != null) {
                 paintNode(getRoot(), g);
             }
-
         }
 
         private void paintNode(Node n, Graphics g)
@@ -535,7 +650,6 @@ public class BVHInsChecker
         {
             return root;
         }
-
     }
 
     private CircleTree tree;
@@ -552,7 +666,7 @@ public class BVHInsChecker
         objects = new ArrayList();
     }
 
-    public synchronized void addObject(GreenfootObject go)
+    public void addObject(GreenfootObject go)
     {
         if (objects.contains(go)) {
             return;
@@ -567,45 +681,51 @@ public class BVHInsChecker
     private Node createNode(GreenfootObject go)
     {
         Circle c = getCircle(go);
-        Node n = new Node(c, go);
+        Node n = Node.createNode(c, go);
         return n;
     }
 
-    public synchronized void removeObject(GreenfootObject object)
+    public void removeObject(GreenfootObject object)
     {
-        tree.removeNode((Node) GreenfootObjectVisitor.getData(object));
+        Node n = (Node) GreenfootObjectVisitor.getData(object);
+        tree.removeNode(n);
+        n.delete();
         GreenfootObjectVisitor.setData(object, null);
         objects.remove(object);
     }
 
-    public synchronized void updateObjectLocation(GreenfootObject object, int oldX, int oldY)
+    public void updateObjectLocation(GreenfootObject object, int oldX, int oldY)
     {
         Node n = (Node) GreenfootObjectVisitor.getData(object);
         Circle c = getCircle(object);
         if (c != null && n != null) {
             n.circle.setX(c.getX());
             n.circle.setY(c.getY());
-            tree.repairNode((Node) GreenfootObjectVisitor.getData(object));
+            tree.repairNode(n);
+            c.delete();
         }
     }
 
-    public synchronized void updateObjectSize(GreenfootObject object)
+    public void updateObjectSize(GreenfootObject object)
     {
         Node n = (Node) GreenfootObjectVisitor.getData(object);
-        Circle c = GreenfootObjectVisitor.getBoundingCircle(object);
+        Circle c = getCircle(object);
         if (c != null && n != null) {
             n.circle.setRadius(c.getRadius());
-            tree.repairNode((Node) GreenfootObjectVisitor.getData(object));
-        }        
+            tree.repairNode(n);
+            c.delete();
+        }     
     }
 
     public List getObjectsAt(int x, int y, Class cls)
     {
-        pointQuery.init(x, y);
-        Circle b = new Circle(x * cellSize, y * cellSize, 0);
-        synchronized (goQuery) {
-            goQuery.init(cls, null);
-            return tree.getIntersections(b, pointQuery);
+        Circle b = Circle.createCircle(x * cellSize, y * cellSize, 0);
+        synchronized (pointQuery) {
+            pointQuery.init(x, y);
+            List l = tree.getIntersections(b, pointQuery);
+            b.delete();
+            b=null;
+            return l;
         }
     }
 
@@ -624,26 +744,24 @@ public class BVHInsChecker
         if(c == null) {
             return null;
         }
-        Circle b = new Circle(c.getX() * cellSize, c.getY() * cellSize, c.getRadius() * cellSize);
+        Circle b = Circle.createCircle(c.getX() * cellSize, c.getY() * cellSize, c.getRadius() * cellSize);
         return b;
     }
 
     public List getObjectsInRange(int x, int y, int r, Class cls)
     {   
-        Circle b = new Circle(x * cellSize, y * cellSize, r * cellSize);
+        Circle b = Circle.createCircle(x * cellSize, y * cellSize, r * cellSize);
         synchronized (goQuery) {
             goQuery.init(cls, null);
-            return tree.getIntersections(b, goQuery);
+            List l = tree.getIntersections(b, goQuery);
+            b.delete();
+            b = null;
+            return l;
         }
     }
 
     public List getNeighbours(int x, int y, int distance, boolean diag, Class cls)
     {
-        // Maybe: create bounding circle and a custom comparator with all the
-        // objects within.
-        // remember, it only looks at logical position.
-
-        
         int xPixel = x * cellSize;
         int yPixel = y * cellSize;
         int dPixel = distance * cellSize;
@@ -655,13 +773,14 @@ public class BVHInsChecker
             double dx = dPixel + dy;
             r = (int) Math.sqrt(dy*dy+dx*dx);            
         }
-        Circle c = new Circle(xPixel, yPixel, r);
+        Circle c = Circle.createCircle(xPixel, yPixel, r);
         
         synchronized (neighbourQuery) {
             neighbourQuery.init(x, y, distance, diag, cls);
-            return tree.getIntersections(c, neighbourQuery);
+            List l = tree.getIntersections(c, neighbourQuery);
+            c.delete();
+            return l;
         }
-        
     }
 
     public List getObjectsInDirection(int x, int y, int angle, int length, Class cls)
@@ -688,8 +807,6 @@ public class BVHInsChecker
 
     public void startSequence()
     {
-    // TODO Auto-generated method stub
-
     }
 
     public GreenfootObject getOneObjectAt(int x, int y, Class cls)
@@ -733,5 +850,6 @@ public class BVHInsChecker
         if (missing > 0) {
             System.out.println("Objects missing: " + missing);
         }
+        
     }
 }

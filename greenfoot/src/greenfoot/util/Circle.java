@@ -13,8 +13,52 @@ public class Circle
     private int x;
     private int y;
     private int radius;
+    private static long startTime;
+
+    private static long instantiated;
     
-    public Circle(int x, int y, int r) {
+
+    static {
+     //   pool = new ObjectPool<Circle>();
+        startTime = System.currentTimeMillis();
+    }
+    
+    private static ObjectPool<Circle> pool = new ObjectPool<Circle>() {
+        @Override
+        protected Circle createNew()
+        {
+            return new Circle();
+        }
+    };
+  
+    
+    public static Circle createCircle() {
+        Circle c = (Circle) pool.get();
+        c.init(0,0,0);
+        return c;
+    }    
+
+    public static Circle createCircle(int x, int y, int r) {
+        Circle c =  (Circle) pool.get();
+        c.init(x,y,r);
+        return c;
+    }
+    
+    public void delete() {
+        pool.add(this);
+    }
+    
+    public static void clearPool() {
+        pool.reset();
+    }
+    
+    /**
+     * @param x
+     * @param y
+     * @param r
+     */
+    private void init(int x, int y, int r)
+    {
         if(r < 0 ) {
             throw new IllegalArgumentException("Radius must be larger than -1. It was: " + r);
         }
@@ -24,7 +68,16 @@ public class Circle
     }
     
     public Circle() {
-        
+     /*   instantiated++;
+        long now = System.currentTimeMillis();
+        //   System.out.println("add: " +  (now - startTime ));
+           
+           if( (now - startTime )> 2005) {
+               startTime = now;
+               System.out.println("Instantiated circles: " + instantiated);
+               
+           }
+    */
     }
 
     public double getVolume()
@@ -99,16 +152,18 @@ public class Circle
         int r2 = (getRadius() - other.getRadius());
         //check if r1 encloses r2
         if( r2*r2 >= circleDistSq) {
-            Circle biggest = new Circle(x, y, radius);
+            Circle biggest;
             if(getRadius() < other.getRadius()) {
-                biggest = other;
-            } 
+                biggest = Circle.createCircle(other.getX(), other.getY(), other.getRadius());
+            } else {
+                biggest = Circle.createCircle(x, y, radius);
+            }
             return biggest;
         }        
         double circleDist =  Math.sqrt(circleDistSq);
         double r =  (circleDist + getRadius() + other.getRadius()) / 2.;
         
-        Circle newCircle = new Circle(getX(), getY(), (int) Math.ceil(r));
+        Circle newCircle = Circle.createCircle(getX(), getY(), (int) Math.ceil(r));
         if(circleDist > 0) {
             double f = ((r - getRadius()) / circleDist);                
             
