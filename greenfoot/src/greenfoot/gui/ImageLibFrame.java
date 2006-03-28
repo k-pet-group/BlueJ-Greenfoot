@@ -40,7 +40,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 3906 2006-03-28 07:13:30Z davmac $
+ * @version $Id: ImageLibFrame.java 3907 2006-03-28 09:56:21Z mik $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -195,10 +195,26 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     classDetailsPanel.add(Box.createVerticalStrut(spacingLarge));
                 }
                 
+                // help label
+                JLabel helpLabel = new JLabel();
+                if (showingGeneratedImage) {
+                    helpLabel.setText("Click Ok to accept the auto-generated image,"
+                            + " or select an image from the list below.");
+                }
+                else {
+                    helpLabel.setText("Select an image for the class from the list below.");
+                }
+                Font smallFont = helpLabel.getFont().deriveFont(Font.ITALIC, 11.0f);
+                helpLabel.setFont(smallFont);
+                classDetailsPanel.add(fixHeight(helpLabel));
+
+                classDetailsPanel.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
+        
+                classDetailsPanel.add(fixHeight(new JSeparator()));
+
+                // new class image display 
                 JLabel classImageLabel = new JLabel("New class image:");
                 currentImagePanel.add(classImageLabel);
-                
-                currentImagePanel.add(Box.createHorizontalStrut(spacingLarge));
                 
                 Icon icon;
                 if (showingGeneratedImage) {
@@ -215,21 +231,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 currentImagePanel.setAlignmentX(0.0f);
                 
                 classDetailsPanel.add(fixHeight(currentImagePanel));
-                
-                classDetailsPanel.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
-                JLabel helpLabel = new JLabel();
-                if (showingGeneratedImage) {
-                    helpLabel.setText("Click Ok to accept the auto-generated image,"
-                            + " or select an image from the list below");
-                }
-                else {
-                    helpLabel.setText("Select an image for the class from the list below");
-                }
-                Font helpFont = helpLabel.getFont();
-                int fontSize = helpFont.getSize();
-                helpFont = helpFont.deriveFont(fontSize - 1);
-                helpLabel.setFont(helpFont);
-                classDetailsPanel.add(fixHeight(helpLabel));
             }
             
             classDetailsPanel.setAlignmentX(0.0f);
@@ -274,7 +275,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             {
                 Box piPanel = new Box(BoxLayout.Y_AXIS);
                 
-                JLabel piLabel = new JLabel("Greenfoot images:");
+                JLabel piLabel = new JLabel("Library images:");
                 piLabel.setAlignmentX(0.0f);
                 piPanel.add(piLabel);
                 
