@@ -1,19 +1,24 @@
 package greenfoot.gui;
 
+import greenfoot.GreenfootObject;
+import greenfoot.GreenfootWorld;
 import greenfoot.core.GClass;
 import greenfoot.core.Greenfoot;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
+import greenfoot.util.GreenfootUtil.ImageWaiter;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.rmi.RemoteException;
 
 import javax.imageio.ImageIO;
@@ -35,7 +40,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 3867 2006-03-24 04:51:45Z davmac $
+ * @version $Id: ImageLibFrame.java 3905 2006-03-28 07:04:27Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -56,6 +61,12 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     public static int CANCEL = 1;
     private int result = CANCEL;
     
+    private Image generatedImage;
+    private boolean showingGeneratedImage;
+    
+    private int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+
+    
     /**
      * Construct an ImageLibFrame for changing the image of an existing class.
      * 
@@ -65,12 +76,19 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     public ImageLibFrame(JFrame owner, ClassView classView)
     {
         // TODO i18n
-        // super("Select class image: " + classView.getClassName());
         super(owner, "Select class image: " + classView.getClassName(), true);
         // setIconImage(BlueJTheme.getIconImage());
         
         this.gclass = classView.getGClass();
-        defaultIcon = getPreviewIcon(new File(new File("images"), "greenfoot-logo.png"));
+        generatedImage = renderImage();
+        if (generatedImage != null) {
+            showingGeneratedImage = true;
+            defaultIcon = new ImageIcon(GreenfootUtil.getScaledImage(generatedImage, dpi/2, dpi/2));
+        }
+        else {
+            showingGeneratedImage = false;
+            defaultIcon = getPreviewIcon(new File(new File("images"), "greenfoot-logo.png"));
+        }
         
         buildUI(false);
     }
@@ -86,6 +104,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         super(owner, "New class", true);
         
         defaultIcon = getClassIcon(superClass, getPreviewIcon(new File(new File("images"), "greenfoot-logo.png")));
+        showingGeneratedImage = false;
         
         // this.classView = new ClassView()
         buildUI(true);
@@ -105,6 +124,19 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             public void actionPerformed(ActionEvent e)
             {
                 result = OK;
+                if (showingGeneratedImage) {
+                    try {
+                        selectedImageFile = writeGeneratedImage();
+                        if (selectedImageFile == null) {
+                            // cancelled by user.
+                            return;
+                        }
+                    }
+                    catch (IOException ioe) {
+                        // TODO: report with dialog
+                        ioe.printStackTrace();
+                    }
+                }
                 setVisible(false);
                 dispose();
             }
@@ -163,17 +195,38 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     classDetailsPanel.add(Box.createVerticalStrut(spacingLarge));
                 }
                 
-                JLabel classImageLabel = new JLabel("Class Image:");
+                JLabel classImageLabel = new JLabel("New class image:");
                 currentImagePanel.add(classImageLabel);
                 
                 currentImagePanel.add(Box.createHorizontalStrut(spacingLarge));
                 
-                Icon icon = getClassIcon(gclass, defaultIcon);
+                Icon icon;
+                if (showingGeneratedImage) {
+                    icon = defaultIcon;
+                }
+                else {
+                    icon = getClassIcon(gclass, defaultIcon);
+                }
                 imageLabel = new JLabel(icon);
                 currentImagePanel.add(imageLabel);
                 currentImagePanel.setAlignmentX(0.0f);
                 
                 classDetailsPanel.add(fixHeight(currentImagePanel));
+                
+                classDetailsPanel.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
+                JLabel helpLabel = new JLabel();
+                if (showingGeneratedImage) {
+                    helpLabel.setText("Click Ok to accept the auto-generated image,"
+                            + " or select an image from the list below");
+                }
+                else {
+                    helpLabel.setText("Select an image for the class from the list below");
+                }
+                Font helpFont = helpLabel.getFont();
+                int fontSize = helpFont.getSize();
+                helpFont = helpFont.deriveFont(fontSize - 1);
+                helpLabel.setFont(helpFont);
+                classDetailsPanel.add(fixHeight(helpLabel));
             }
             
             classDetailsPanel.setAlignmentX(0.0f);
@@ -306,6 +359,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
         Object source = lse.getSource();
         if (! lse.getValueIsAdjusting() && source instanceof ImageLibList) {
+            showingGeneratedImage = false;
             ImageLibList sourceList = (ImageLibList) source;
             ImageLibList.ImageListEntry ile = sourceList.getSelectedEntry();
             imageLabel.setIcon(getPreviewIcon(ile.imageFile));
@@ -394,8 +448,133 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         return result;
     }
     
+    /**
+     * Get the name of the class as entered in the dialog.
+     */
     public String getClassName()
     {
         return className;
     }
+    
+    /**
+     * Try to get an image for the class by instantiating it, and grabbing the image from
+     * the resulting object.
+     */
+    private Image renderImage()
+    {
+        Object object = null;
+        Class cls;
+        try {
+            cls = gclass.getJavaClass();
+        }
+        catch (ProjectNotOpenException pnoe) {
+            pnoe.printStackTrace();
+            cls = null;
+        }
+        catch (RemoteException re) {
+            re.printStackTrace();
+            cls = null;
+        }
+        catch (bluej.extensions.ClassNotFoundException cnfe) {
+            cls = null;
+        }
+        
+        if (cls == null) {
+            return null;
+        }
+        try {
+            Constructor constructor = cls.getConstructor(new Class[]{});
+
+            if (!Modifier.isAbstract(cls.getModifiers())) {
+                object =  constructor.newInstance((Object []) null);
+            }
+        }
+        catch (SecurityException e2) {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+        }
+        catch (NoSuchMethodException e2) {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+        }
+        catch (IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (InstantiationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (InvocationTargetException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (Throwable t) {
+            // *Whatever* is thrown by user code, we want to catch it.
+            t.printStackTrace();
+        }
+            
+        if (object == null) {
+            return null;
+        }
+        else if (object instanceof GreenfootObject) {
+            GreenfootObject so = (GreenfootObject) object;
+            greenfoot.GreenfootImage image = so.getImage();
+            //rotate it.
+            if (image != null) {
+                BufferedImage bImg = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g2 = (Graphics2D) bImg.getGraphics();
+
+                double halfWidth = image.getWidth() / 2.;
+                double halfHeight = image.getHeight() / 2.;
+                double rotateX = halfWidth;
+                double rotateY = halfHeight;
+                g2.rotate(Math.toRadians(so.getRotation()), rotateX, rotateY);
+
+                ImageWaiter imageWaiter = new ImageWaiter(image.getAWTImage());
+                imageWaiter.drawWait(g2, 0, 0);
+                
+                GreenfootWorld world = so.getWorld();
+                if(world != null) {
+                    world.removeObject(so);
+                } 
+                return bImg;
+            }
+            else {
+                System.err.println("Could not render the image: " + image + " for the class: " + cls);
+            }
+            
+        }
+        return null;
+    }
+    
+    /**
+     * Write the generate image to a file, and return the filename used.
+     * 
+     * @return The filename the image was written to, or null if cancelled.
+     * @throws IOException
+     */
+    private File writeGeneratedImage()
+        throws IOException
+    {
+        File f = new File(new File("images"), gclass.getName() + ".png");
+        if (f.exists()) {
+            int r = JOptionPane.showOptionDialog(this, "The file \"" + f + "\" already exists."
+                    + "Do you want to overwrite it?", "Confirm file replace",
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE,
+                    null, null, null);
+            if (r != JOptionPane.OK_OPTION) {
+                return null;
+            }
+        }
+        
+        boolean bv = ImageIO.write((RenderedImage) generatedImage, "png", new FileOutputStream(f));
+        
+        return f;
+    }
+
 }
