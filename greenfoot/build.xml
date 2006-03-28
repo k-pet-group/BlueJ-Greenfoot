@@ -47,7 +47,7 @@
 	<patternset id="skeleton.files">
 		<include name="greenfoot/GreenfootWorld.*"/>
 		<include name="greenfoot/GreenfootObject.*"/>
-		<include name="greenfoot/greenfoot-logo.png"/>
+		<include name="images/greenfoot-logo.png"/>
 	</patternset>
 
 	<!-- scenarios to be included in standard distribution -->
@@ -102,7 +102,7 @@
                     <!--compilerarg line="-source 1.4"/-->
 		</javac>
 		<!-- Compile the RMI-classes -->
-		<rmic base="${build}" includes="**/*Impl.class" >
+		<rmic base="${build}" includes="**/*Impl.class" excludes="bluej/**">
 			<classpath>
 				<path refid="bluej.class.path"/>
 			</classpath>
@@ -134,7 +134,7 @@
 		</junit>
 	</target>
 
-	<target name="compile-scenarios" depends="compile" description="Compile the scenarios">
+	<target name="compile-scenarios" depends="compile, skeleton" description="Compile the scenarios">
 		<!-- Should first delete all class files in scenario, and the greenfoot dir (depend on clean-scenarios) -->
                 
 		<macrodef name="compile-scenario">
