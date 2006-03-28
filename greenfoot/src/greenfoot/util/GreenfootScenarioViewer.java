@@ -4,6 +4,7 @@ import greenfoot.GreenfootImage;
 import greenfoot.ActorVisitor;
 import greenfoot.World;
 import greenfoot.core.ClassImageManager;
+import greenfoot.core.Greenfoot;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.ControlPanel;
@@ -126,12 +127,12 @@ public class GreenfootScenarioViewer implements ClassImageManager
         if (pkgProps == null) {
             pkgProps = new Properties();
             String propsFileResource = pkgName.replace('.', '/');
-            // + "/greenfoot.pkg";
+            // + "/"+ Greenfoot.GREENFOOT_PKG_NAME;
             if (propsFileResource.length() == 0) {
-                propsFileResource = "greenfoot.pkg";
+                propsFileResource = Greenfoot.GREENFOOT_PKG_NAME;
             }
             else {
-                propsFileResource += "/greenfoot.pkg";
+                propsFileResource += "/" + Greenfoot.GREENFOOT_PKG_NAME;
             }
             InputStream propStream = ClassLoader.getSystemResourceAsStream(propsFileResource);
             try {

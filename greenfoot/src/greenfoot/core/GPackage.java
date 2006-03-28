@@ -85,7 +85,7 @@ public class GPackage
         OutputStream os = null;
         
         try {
-            File propsFile = new File(getDir(), "greenfoot.pkg");
+            File propsFile = new File(getDir(), Greenfoot.GREENFOOT_PKG_NAME);
             os = new FileOutputStream(propsFile);
             pkgProperties.store(os, "Greenfoot properties");
         }

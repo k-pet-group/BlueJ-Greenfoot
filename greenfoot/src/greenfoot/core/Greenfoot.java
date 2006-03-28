@@ -34,6 +34,8 @@ import bluej.utility.Utility;
  */
 public class Greenfoot implements ClassImageManager
 {
+    /** Name of the greenfoot package file that holds information specific to a package/project */
+    public static final String GREENFOOT_PKG_NAME = "greenfoot.pkg";
     private static Greenfoot instance;
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
@@ -336,7 +338,7 @@ public class Greenfoot implements ClassImageManager
             Properties p = (Properties) packageProperties.get(pkgName);
             if (p == null) {
                 p = new Properties();
-                File propsFile = new File(pkg.getDir(), "greenfoot.pkg");
+                File propsFile = new File(pkg.getDir(), GREENFOOT_PKG_NAME);
                 try {
                     p.load(new FileInputStream(propsFile));
                 }
