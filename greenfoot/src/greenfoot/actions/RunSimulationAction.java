@@ -8,12 +8,15 @@ import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
 import bluej.utility.Debug;
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RunSimulationAction.java 3890 2006-03-27 16:04:42Z mik $
+ * @version $Id: RunSimulationAction.java 3909 2006-03-28 10:39:37Z mik $
  */
 public class RunSimulationAction extends AbstractAction
+    implements SimulationListener
 {
     private static final String iconFile = "run.gif";
     private static RunSimulationAction instance = new RunSimulationAction();
@@ -39,7 +42,8 @@ public class RunSimulationAction extends AbstractAction
      */
     public void attachSimulation(Simulation simulation)
     {
-        this.simulation = simulation;        
+        this.simulation = simulation;
+        simulation.addSimulationListener(this);
     }
     
     public void actionPerformed(ActionEvent e)
@@ -60,5 +64,18 @@ public class RunSimulationAction extends AbstractAction
                 }
             }
         }.start();
+    }
+
+    /**
+     * Observing for the simulation state so we can dis/en-able us appropiately
+     */
+    public void simulationChanged(SimulationEvent e)
+    {
+        if (e.getType() == SimulationEvent.STOPPED) {
+            setEnabled(true);
+        }
+        if (e.getType() == SimulationEvent.STARTED) {
+            setEnabled(false);
+        }
     }
 }

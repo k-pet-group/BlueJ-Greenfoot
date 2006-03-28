@@ -31,7 +31,7 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3859 2006-03-22 17:54:17Z mik $
+ * @version $Id: ClassBrowser.java 3909 2006-03-28 10:39:37Z mik $
  */
 public class ClassBrowser extends JPanel
 {
@@ -168,7 +168,7 @@ public class ClassBrowser extends JPanel
             ((FlowLayout)objectFrame.getLayout()).setAlignment(FlowLayout.LEFT);
             objectFrame.setBackground(Color.WHITE);
             objectFrame.add(greenfootClassPanel);
-            objectFrame.setBorder(BorderFactory.createTitledBorder(null, "Object classes"));
+            objectFrame.setBorder(BorderFactory.createTitledBorder(null, "Actor classes"));
 
             this.add(objectFrame, BorderLayout.CENTER);
         }

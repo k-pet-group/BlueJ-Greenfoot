@@ -46,7 +46,7 @@ public class RunOnceSimulationAction extends AbstractAction
      */
     public void attachSimulation(Simulation simulation)
     {
-        this.simulation = simulation;        
+        this.simulation = simulation;
         simulation.addSimulationListener(this);
     }
     
@@ -68,18 +68,14 @@ public class RunOnceSimulationAction extends AbstractAction
 
     /**
      * Observing for the simulation state so we can dis/en-able us appropiately
-     * 
-     * @see greenfoot.event.SimulationListener#simulationChanged(greenfoot.simulation.SimulationEvent)
      */
     public void simulationChanged(SimulationEvent e)
     {
         if (e.getType() == SimulationEvent.STOPPED) {
-            logger.info("enabling");
             setEnabled(true);
         }
         if (e.getType() == SimulationEvent.STARTED) {
             setEnabled(false);
-            logger.info("disabling");
         }
     }
 }

@@ -8,6 +8,7 @@ import greenfoot.actions.CompileClassAction;
 import greenfoot.actions.EditClassAction;
 import greenfoot.actions.NewProjectAction;
 import greenfoot.actions.OpenProjectAction;
+import greenfoot.actions.PauseSimulationAction;
 import greenfoot.actions.SaveProjectAction;
 import greenfoot.actions.ShowCopyrightAction;
 import greenfoot.actions.ShowWebsiteAction;
@@ -72,7 +73,7 @@ import greenfoot.actions.RunSimulationAction;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3890 2006-03-27 16:04:42Z mik $
+ * @version $Id: GreenfootFrame.java 3909 2006-03-28 10:39:37Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -400,6 +401,7 @@ public class GreenfootFrame extends JFrame
         
         addMenuItem(RunOnceSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_A, false, KeyEvent.VK_A);
         addMenuItem(RunSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_R, false, KeyEvent.VK_R);
+        addMenuItem(PauseSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_R, true, KeyEvent.VK_P);
         addMenuItem(new NYIAction("Increase Speed", this), ctrlMenu, KeyEvent.VK_PLUS, false, KeyEvent.VK_PLUS);
         addMenuItem(new NYIAction("Decrease Speed", this), ctrlMenu, KeyEvent.VK_MINUS, false, KeyEvent.VK_MINUS);
         ctrlMenu.addSeparator();
@@ -422,7 +424,8 @@ public class GreenfootFrame extends JFrame
     private JMenu addMenu(String name, JMenuBar menubar, char mnemonic)
     {
         JMenu menu = new JMenu(name);
-        menu.setMnemonic(mnemonic);
+        if(!Config.isMacOS())
+            menu.setMnemonic(mnemonic);
         menubar.add(menu);
         return menu;
     }
@@ -438,7 +441,7 @@ public class GreenfootFrame extends JFrame
             else
                 action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(accelKey, accelModifier));
         }
-        if(mnemonicKey != -1)
+        if(!Config.isMacOS() && mnemonicKey != -1)
             action.putValue(Action.MNEMONIC_KEY, new Integer(mnemonicKey));
         menu.add(action);
     }
