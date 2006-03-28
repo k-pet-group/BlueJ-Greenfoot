@@ -28,7 +28,7 @@ import greenfoot.GreenfootImage;
  * is testable on the AP CS A and AB exams. 
  */
 
-public class Rock extends Actor 
+public class Rock extends GridActor 
 {
    private static final Color DEFAULT_COLOR = Color.BLACK;
 
@@ -37,7 +37,7 @@ public class Rock extends Actor
     */
    public Rock()
    {
-      setActorImage("images/Rock.gif");
+      setGridActorImage("images/Rock.gif");
       setColor(DEFAULT_COLOR);
    }
    
@@ -52,7 +52,7 @@ public class Rock extends Actor
    }
    
    /**
-    * This method overrides the act method in the Actor class
+    * This method overrides the act method in the GridActor class
     * to do nothing.
     */
    public void act()

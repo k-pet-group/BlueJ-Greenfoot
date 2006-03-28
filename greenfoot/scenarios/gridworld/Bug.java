@@ -28,14 +28,14 @@ import java.awt.Color;
  * <br />
  * The implementation of this class is testable on the AP CS A and AB exams. 
  */
-public class Bug extends Actor
+public class Bug extends GridActor
 {
    /**
     * Constructs a red bug.
     */
    public Bug()
    {
-       setActorImage("images/Bug.gif");
+       setGridActorImage("images/Bug.gif");
       setColor(Color.RED);
    }
 
@@ -72,7 +72,7 @@ public class Bug extends Actor
     */
    public void move()
    {
-      Grid<Actor> gr = getGrid();
+      Grid<GridActor> gr = getGrid();
       if (gr == null) 
          return;
       Location loc = getLocation();
@@ -93,7 +93,7 @@ public class Bug extends Actor
     */
    public boolean canMove()
    {
-      Grid<Actor> gr = getGrid();
+      Grid<GridActor> gr = getGrid();
       if (gr == null) 
          return false;
       Location loc = getLocation();
@@ -101,7 +101,7 @@ public class Bug extends Actor
       if (!gr.isValid(next)) {
          return false;
         }
-         Actor neighbor = gr.get(next);
+         GridActor neighbor = gr.get(next);
       return (neighbor == null) || (neighbor instanceof Flower);
       // ok to move into empty cell or onto flower
       // not ok to move onto any other actor            

@@ -26,9 +26,9 @@ import java.awt.Toolkit;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.RGBImageFilter;
 
-public class Actor extends Actor
+public class GridActor extends Actor
 {
- /* private Grid<Actor> grid;
+ /* private Grid<GridActor> grid;
    private Location location;*/
    private int direction;
    private Color color;
@@ -37,14 +37,14 @@ public class Actor extends Actor
    /**
     * Constructs a blue actor that is facing north.
     */
-   public Actor()
+   public GridActor()
    {
-      setImage("images/Actor.gif");
+      setImage("images/GridActor.gif");
       direction = Location.NORTH;
       color  = Color.BLUE;
    }
 
-   public void setActorImage(String imageName) {
+   public void setGridActorImage(String imageName) {
        GreenfootImage img = new GreenfootImage(imageName);
        Grid g = (Grid) getWorld();
        setImage(img.scaleTo(g.getCellSize(), g.getCellSize()));
@@ -73,9 +73,9 @@ public class Actor extends Actor
     * Gets the grid in which this actor is located
     * @return the grid, or null if this actor is not contained in a grid
     */
-   public Grid<Actor> getGrid()
+   public Grid<GridActor> getGrid()
    {
-      return (Grid<Actor>) getWorld(); //grid;
+      return (Grid<GridActor>) getWorld(); //grid;
    }
    
    /**
@@ -85,14 +85,14 @@ public class Actor extends Actor
     * @param gr the grid into which this actor should be placed
     * @param loc the location into which the actor should be placed (must be valid)
     */
-   public void putSelfInGrid(Grid<Actor> gr, Location loc)
+   public void putSelfInGrid(Grid<GridActor> gr, Location loc)
    {
        getWorld().addObject(this);
        this.setLocation(loc.col(), loc.row());
       /*if (grid != null)
          throw new IllegalStateException("This actor is already in a grid.");
       
-      Actor actor = gr.get(loc);
+      GridActor actor = gr.get(loc);
       if (actor != null) 
          actor.removeSelfFromGrid();
       gr.put(loc, this);
@@ -133,14 +133,14 @@ public class Actor extends Actor
         }
         Location location = new Location(getY(), getX());
        getGrid().remove(location);
-      Actor other = getGrid().get(newLocation);
+      GridActor other = getGrid().get(newLocation);
       if (other != null) 
          other.removeSelfFromGrid();
       getGrid().put(newLocation, this);
     /*   if(getX() == newLocation.col() && getY() == newLocation.row()) {
            return;
         }
-       Actor other = (Actor) getOneObjectAt(newLocation.col(),newLocation.row(),null);
+       GridActor other = (GridActor) getOneObjectAt(newLocation.col(),newLocation.row(),null);
        if(other != null) {
            System.out.println("Removing in moveTo: " + other);
            other.removeSelfFromGrid();
@@ -156,7 +156,7 @@ public class Actor extends Actor
       if (newLocation.equals(location)) 
          return;
       grid.remove(location);
-      Actor other = grid.get(newLocation);
+      GridActor other = grid.get(newLocation);
       if (other != null) 
          other.removeSelfFromGrid();
       location = newLocation;

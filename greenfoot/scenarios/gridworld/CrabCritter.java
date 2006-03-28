@@ -31,7 +31,7 @@ public class CrabCritter extends Critter
 {
    public CrabCritter()
    {       
-       setActorImage("images/CrabCritter.gif");
+       setGridActorImage("images/CrabCritter.gif");
        
       setColor(Color.RED);
    }
@@ -41,13 +41,13 @@ public class CrabCritter extends Critter
     * to its front-right and to its front-left
     * @return a list of actors occupying these locations
     */
-   public ArrayList<Actor> getActors()
+   public ArrayList<GridActor> getGridActors()
    {
-      ArrayList<Actor> actors = new ArrayList<Actor>();
+      ArrayList<GridActor> actors = new ArrayList<GridActor>();
       int[] dirs = { Location.AHEAD, Location.HALF_LEFT, Location.HALF_RIGHT };
       for (Location loc : findValidNeighborLocations(dirs))
       {
-         Actor a = getGrid().get(loc);
+         GridActor a = getGrid().get(loc);
          if(a != null) 
             actors.add(a);         
       }

@@ -29,7 +29,7 @@ import java.awt.Color;
  * is testable on the AP CS A and AB exams. 
  */
 
-public class Flower extends Actor
+public class Flower extends GridActor
 {
    private static final Color DEFAULT_COLOR = Color.PINK;
    private static final double WILT_FACTOR = 0.05; 

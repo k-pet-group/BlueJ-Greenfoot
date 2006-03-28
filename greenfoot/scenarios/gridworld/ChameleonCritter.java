@@ -29,7 +29,7 @@ import java.util.ArrayList;
 public class ChameleonCritter extends Critter
 {
     public ChameleonCritter() {  
-        setActorImage("images/ChameleonCritter.gif");
+        setGridActorImage("images/ChameleonCritter.gif");
     }
 
    /**
@@ -37,13 +37,13 @@ public class ChameleonCritter extends Critter
     * color to be the same as that neighbor's. If there are no
     * neighbors, no action is taken.
     */
-   public void processActors(ArrayList<Actor> actors)
+   public void processGridActors(ArrayList<GridActor> actors)
    {
       int n = actors.size();
       if (n == 0) return;
       int r = (int) (Math.random() * n);      
       
-      Actor other = actors.get(r);
+      GridActor other = actors.get(r);
       setColor(other.getColor());
    }
    

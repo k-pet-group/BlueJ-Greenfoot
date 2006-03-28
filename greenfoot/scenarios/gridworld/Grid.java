@@ -173,7 +173,7 @@ public class Grid<E> extends World
       E occupant = null;
       List l = getObjectsAt(loc.col(), loc.row(),null);
       for(Object o : l) {
-         Actor go = (Actor) o;
+         GridActor go = (GridActor) o;
          if(go.getX() == loc.col() && go.getY() == loc.row()) {
             occupant = (E) o;
             break;
@@ -196,14 +196,14 @@ public class Grid<E> extends World
       List l = getObjectsAt(loc.col(), loc.row(),null);
        E oldOccupant = null;
       for(Object o : l) {
-        Actor go = (Actor) o;
+        GridActor go = (GridActor) o;
          if(go.getX() == loc.col() && go.getY() == loc.row()) {
             oldOccupant = (E) o;            
-            removeObject((Actor) oldOccupant);
+            removeObject((GridActor) oldOccupant);
             break;
          }
       }      
-      Actor go = (Actor) obj;
+      GridActor go = (GridActor) obj;
       addObject(go);
       go.setLocation(loc.col(), loc.row());
       return oldOccupant;
@@ -221,11 +221,11 @@ public class Grid<E> extends World
       // Remove the object from the grid.
       
       List l = getObjectsAt(loc.col(), loc.row(),null);
-      Actor r = null;
+      GridActor r = null;
       for(Object o : l) {
-         Actor go = (Actor) o;
+         GridActor go = (GridActor) o;
          if(go.getX() == loc.col() && go.getY() == loc.row()) {
-            r = (Actor) o;
+            r = (GridActor) o;
             break;
          }
       }
@@ -233,7 +233,7 @@ public class Grid<E> extends World
    /*   if(!l.isEmpty()) {
           
           r = (E) l.get(0);
-          removeObject((Actor) r);
+          removeObject((GridActor) r);
       }*/
       return (E) r;
       
@@ -246,17 +246,17 @@ public class Grid<E> extends World
     
     /// METHODS ADDED FOR GREENFOOT
     
-   /* public void addObject(Actor o) {
+   /* public void addObject(GridActor o) {
         
         super.addObject( o);
-        if(o instanceof Actor) {
-            ((Actor) o).putSelfInGrid((Grid<Actor>)this, new Location(o.getX(), o.getY()));
+        if(o instanceof GridActor) {
+            ((GridActor) o).putSelfInGrid((Grid<GridActor>)this, new Location(o.getX(), o.getY()));
         }
         // this.put(new Location(o.getX(), o.getY()), (E) o);
         System.out.println("obj added");
     }
     
-    public void removeObject(Actor o) {
+    public void removeObject(GridActor o) {
         System.out.println("RemoveObject");
     }
     */

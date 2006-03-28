@@ -24,10 +24,10 @@ import java.util.ArrayList;
  * <br />
  * The implementation of this class is testable on the AP CS A and AB exams. 
  */
-public class Critter extends Actor
+public class Critter extends GridActor
 {
    public Critter() {
-       setActorImage("images/Critter.gif");
+       setGridActorImage("images/Critter.gif");
     }
    /**
     * A critter acts by getting a list of its neighbors, processing them, 
@@ -38,8 +38,8 @@ public class Critter extends Actor
    {
       if (getGrid() == null) 
          return;
-      ArrayList<Actor> actors = getActors();
-      processActors(actors);
+      ArrayList<GridActor> actors = getGridActors();
+      processGridActors(actors);
       ArrayList<Location> moveLocs = getMoveLocations();
       Location loc = selectMoveLocation(moveLocs);
       makeMove(loc);
@@ -51,7 +51,7 @@ public class Critter extends Actor
     * method for subclasses that look elsewhere for actors to process. 
     * @return a list of actors that are neighbors of this critter
     */
-   public ArrayList<Actor> getActors()
+   public ArrayList<GridActor> getGridActors()
    {
       return getGrid().getNeighbors(getLocation());
    }
@@ -62,9 +62,9 @@ public class Critter extends Actor
     * neighbors in a different way. 
     * @param actors the actors to be processed
     */
-   public void processActors(ArrayList<Actor> actors)
+   public void processGridActors(ArrayList<GridActor> actors)
    {
-      for (Actor a : actors)
+      for (GridActor a : actors)
       {
          if (!(a instanceof Rock) && !(a instanceof Critter))
             a.removeSelfFromGrid();
