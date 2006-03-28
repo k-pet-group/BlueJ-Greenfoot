@@ -165,7 +165,7 @@ public class World extends ObjectTransporter
     }
 
     /**
-     * Add a Actor to the world (at the object's specified location).
+     * Add an Actor to the world (at the object's specified location).
      * 
      * @param object The new object to add.
      * @throws IndexOutOfBoundsException If the coordinates are outside the
@@ -311,7 +311,7 @@ public class World extends ObjectTransporter
      * Return all the objects that intersect the given object. This takes the
      * graphical extent of objects into consideration.
      * 
-     * @param actor A Actor in the world
+     * @param actor An Actor in the world
      * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */

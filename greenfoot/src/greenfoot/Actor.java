@@ -13,11 +13,11 @@ import java.util.List;
 import javax.swing.ImageIcon;
 
 /**
- * A Actor is an object that exists in the greenfoot world. 
+ * An Actor is an object that exists in the greenfoot world. 
  * Every Actor has a location in the world, and an appearance (that is:
  * an icon).
  * 
- * A Actor is not normally instantiated, but instead used as a superclass
+ * An Actor is not normally instantiated, but instead used as a superclass
  * to more specific objects in the world. Every object that is intended to appear
  * in the world must extend Actor. Subclasses can then define their own 
  * appearance and behaviour.
@@ -58,7 +58,7 @@ public class Actor extends ObjectTransporter
     private static ClassImageManager classImageManager;
 
     /**
-     * Construct a Actor.
+     * Construct an Actor.
      * The default position is (0,0). Usually the constructor
      * Actor(int, int) should be used in preference.
      * The object will have a default image.
@@ -71,7 +71,7 @@ public class Actor extends ObjectTransporter
     }
 
     /**
-     * Construct a Actor with a default image at a specified
+     * Construct an Actor with a default image at a specified
      * location. The location is specified as the horizontal and vertical index
      * of the world cell where the object is placed.
      * 
