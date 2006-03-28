@@ -1,6 +1,6 @@
 package greenfoot.core;
 
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.gui.ControlPanel;
@@ -127,10 +127,10 @@ public class Simulation extends Thread
             // copying it ( to avoid ConcurrentModificationException)
             synchronized (worldHandler.getWorldLock()) {
                 // We need to copy it, to avoid ConcurrentModificationException
-                objects = new ArrayList(worldHandler.getGreenfootObjects());
+                objects = new ArrayList(worldHandler.getActors());
 
                 for (Iterator i = objects.iterator(); i.hasNext();) {
-                    GreenfootObject actor = (GreenfootObject) i.next();
+                    Actor actor = (Actor) i.next();
                     actor.act();
                 }
             }
@@ -201,6 +201,8 @@ public class Simulation extends Thread
             long actualDelay = delay - timeElapsed;
             if (actualDelay > 0) {
                 Thread.sleep(delay - timeElapsed);
+            } else {
+               // Thread.yield();
             }
             this.lastDelayTime = System.currentTimeMillis();
         }

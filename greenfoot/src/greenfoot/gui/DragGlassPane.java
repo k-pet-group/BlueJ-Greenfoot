@@ -1,6 +1,6 @@
 package greenfoot.gui;
 
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 import greenfoot.ImageVisitor;
 import greenfoot.core.LocationTracker;
 import greenfoot.util.Location;
@@ -48,7 +48,7 @@ import javax.swing.SwingUtilities;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3809 2006-03-09 11:34:51Z polle $
+ * @version $Id: DragGlassPane.java 3910 2006-03-28 11:12:03Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -183,7 +183,7 @@ public class DragGlassPane extends JComponent
      *            or mouse buttons are pressed.
      * 
      */
-    public void startDrag(GreenfootObject object, int xOffset, int yOffset, DragListener dl, DropTarget initialDropTarget, boolean forcedDrag)
+    public void startDrag(Actor object, int xOffset, int yOffset, DragListener dl, DropTarget initialDropTarget, boolean forcedDrag)
     {
         if (object == null || object.getImage() == null) {
             return;

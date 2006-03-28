@@ -1,7 +1,7 @@
 package greenfoot.collision;
 
-import greenfoot.GreenfootObject;
-import greenfoot.GreenfootObjectVisitor;
+import greenfoot.Actor;
+import greenfoot.ActorVisitor;
 import greenfoot.util.Circle;
 
 import java.awt.Color;
@@ -50,7 +50,7 @@ public class BVHInsChecker
         public Node left; // child
         public Node right; // child
         public Circle circle;
-        private GreenfootObject go;
+        private Actor go;
 
         public Node(Circle circle)
         {
@@ -62,13 +62,13 @@ public class BVHInsChecker
 
         }
 
-        public Node(Circle circle, GreenfootObject go)
+        public Node(Circle circle, Actor go)
         {
             this.circle = circle;
             this.go = go;
         }
 
-        public GreenfootObject getGo()
+        public Actor getGo()
         {
             return go;
         }
@@ -80,7 +80,7 @@ public class BVHInsChecker
 
         /**
          * Get collisions with the circle b and then use the specific collision
-         * checker for the greenfootObjects to make low-level collision check.
+         * checker for the Actors to make low-level collision check.
          * 
          * @param c Circle to find intersections with
          * @param checker Optional collision checker. If null it will just find
@@ -102,12 +102,12 @@ public class BVHInsChecker
         }
         
         
-        public GreenfootObject getOneIntersectingObject(BVHInsChecker.Node node, CollisionQuery checker) {
+        public Actor getOneIntersectingObject(BVHInsChecker.Node node, CollisionQuery checker) {
             return node.getOneIntersectingObjectUpwards(node.circle, checker);           
         }
         
         
-        private GreenfootObject getOneIntersectingObjectDownwards(Circle c, CollisionQuery checker) {
+        private Actor getOneIntersectingObjectDownwards(Circle c, CollisionQuery checker) {
             
             if (!c.intersects(this.circle)) {
                 return null;
@@ -119,7 +119,7 @@ public class BVHInsChecker
                 //maybe calculate the "insideness" of two circles as dist/r where dist is the distance
                 //between centers of the two circles and r is the largest of the two circles' radius'. 
                 //Insideness should probably be r/dist to get higher value for better.
-                GreenfootObject res = left.getOneIntersectingObjectDownwards(c, checker);
+                Actor res = left.getOneIntersectingObjectDownwards(c, checker);
                 if(res!=null) {
                     return res;
                 } else {
@@ -130,9 +130,9 @@ public class BVHInsChecker
         }
         
         
-        private GreenfootObject getOneIntersectingObjectUpwards(Circle c, CollisionQuery checker) {
+        private Actor getOneIntersectingObjectUpwards(Circle c, CollisionQuery checker) {
             Node sibling = getSibling();
-            GreenfootObject result = null;
+            Actor result = null;
             if(sibling != null) {
                 result = sibling.getOneIntersectingObjectDownwards(sibling.circle, checker);
             }
@@ -147,13 +147,13 @@ public class BVHInsChecker
 
         // TODO replace with loop instead of recursion so that we can escape
         // quicker.
-        public GreenfootObject getIntersection(Circle b, CollisionQuery c)
+        public Actor getIntersection(Circle b, CollisionQuery c)
         {
             throw new RuntimeException("NOT IMPLEMENTED YET");
             /*
              * if (!b.intersects(this.circle)) { return null; } // TODO maybe
              * allow c==null if (isLeaf() && c.checkCollision(getGo())) { return
-             * getGo(); } else { GreenfootObject res = left.getIntersection(b,
+             * getGo(); } else { Actor res = left.getIntersection(b,
              * c); if(res!= null) return res; return right.getIntersection(b,
              * c); }
              */
@@ -183,7 +183,7 @@ public class BVHInsChecker
             right = null;
             circle = null;
             if(go != null) {
-                GreenfootObjectVisitor.setData(go, null);
+                ActorVisitor.setData(go, null);
         }
             go = null;
         }
@@ -501,7 +501,7 @@ public class BVHInsChecker
             return result;
         }
 
-        public GreenfootObject getOneIntersection(Circle b, CollisionQuery checker)
+        public Actor getOneIntersection(Circle b, CollisionQuery checker)
         {
             if (getRoot() == null) {
                 return null;
@@ -510,7 +510,7 @@ public class BVHInsChecker
         }
         
         
-        public GreenfootObject getOneIntersectingObject(Node node, CollisionQuery checker) {
+        public Actor getOneIntersectingObject(Node node, CollisionQuery checker) {
              return getRoot().getOneIntersectingObject(node, checker);
         }
         
@@ -586,50 +586,50 @@ public class BVHInsChecker
         objects = new ArrayList();
     }
 
-    public synchronized void addObject(GreenfootObject go)
+    public synchronized void addObject(Actor go)
     {
         if (objects.contains(go)) {
             return;
         }
 
         Node n = createNode(go);
-        GreenfootObjectVisitor.setData(go, n);
+        ActorVisitor.setData(go, n);
         tree.addNode(n);
         objects.add(go);
     }
 
-    private Node createNode(GreenfootObject go)
+    private Node createNode(Actor go)
     {
         Circle c = getCircle(go);
         Node n = new Node(c, go);
         return n;
     }
 
-    public synchronized void removeObject(GreenfootObject object)
+    public synchronized void removeObject(Actor object)
     {
-        tree.removeNode((Node) GreenfootObjectVisitor.getData(object));
-        GreenfootObjectVisitor.setData(object, null);
+        tree.removeNode((Node) ActorVisitor.getData(object));
+        ActorVisitor.setData(object, null);
         objects.remove(object);
     }
 
-    public synchronized void updateObjectLocation(GreenfootObject object, int oldX, int oldY)
+    public synchronized void updateObjectLocation(Actor object, int oldX, int oldY)
     {
-        Node n = (Node) GreenfootObjectVisitor.getData(object);
+        Node n = (Node) ActorVisitor.getData(object);
         Circle c = getCircle(object);
         if (c != null && n != null) {
             n.circle.setX(c.getX());
             n.circle.setY(c.getY());
-            tree.repairNode((Node) GreenfootObjectVisitor.getData(object));
+            tree.repairNode((Node) ActorVisitor.getData(object));
         }
     }
 
-    public synchronized void updateObjectSize(GreenfootObject object)
+    public synchronized void updateObjectSize(Actor object)
     {
-        Node n = (Node) GreenfootObjectVisitor.getData(object);
-        Circle c = GreenfootObjectVisitor.getBoundingCircle(object);
+        Node n = (Node) ActorVisitor.getData(object);
+        Circle c = ActorVisitor.getBoundingCircle(object);
         if (c != null && n != null) {
             n.circle.setRadius(c.getRadius());
-            tree.repairNode((Node) GreenfootObjectVisitor.getData(object));
+            tree.repairNode((Node) ActorVisitor.getData(object));
         }        
     }
 
@@ -642,7 +642,7 @@ public class BVHInsChecker
         }
     }
 
-    public List getIntersectingObjects(GreenfootObject go, Class cls)
+    public List getIntersectingObjects(Actor go, Class cls)
     {
         Circle b = getCircle(go);
         synchronized (goQuery) {
@@ -651,9 +651,9 @@ public class BVHInsChecker
         }
     }
 
-    private Circle getCircle(GreenfootObject go)
+    private Circle getCircle(Actor go)
     {
-        Circle c = GreenfootObjectVisitor.getBoundingCircle(go);
+        Circle c = ActorVisitor.getBoundingCircle(go);
         if(c == null) {
             return null;
         }
@@ -706,7 +706,7 @@ public class BVHInsChecker
         }
         List l = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
-            GreenfootObject go = (GreenfootObject) iter.next();
+            Actor go = (Actor) iter.next();
             if (cls.isInstance(go)) {
                 l.add(go);
             }
@@ -718,27 +718,27 @@ public class BVHInsChecker
     {
     }
 
-    public GreenfootObject getOneObjectAt(int x, int y, Class cls)
+    public Actor getOneObjectAt(int x, int y, Class cls)
     {
         List l = getObjectsAt(x , y , cls);
         if (!l.isEmpty()) {
-            return (GreenfootObject) l.get(0);
+            return (Actor) l.get(0);
         }
         return null;
     }
 
-    public GreenfootObject getOneIntersectingObject(GreenfootObject object, Class cls)
+    public Actor getOneIntersectingObject(Actor object, Class cls)
     {
         synchronized (goQuery) {
             goQuery.init(cls, object);
             
-            Node node = (Node) GreenfootObjectVisitor.getData(object);
+            Node node = (Node) ActorVisitor.getData(object);
             if(node != null) {
                 return tree.getOneIntersectingObject(node, goQuery);
             } else {
                 List l = getIntersectingObjects(object, cls);
                 if (!l.isEmpty()) {
-                    return (GreenfootObject) l.get(0);
+                    return (Actor) l.get(0);
                 }
             }            
         }

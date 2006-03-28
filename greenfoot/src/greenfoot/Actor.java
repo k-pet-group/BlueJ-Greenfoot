@@ -13,13 +13,13 @@ import java.util.List;
 import javax.swing.ImageIcon;
 
 /**
- * A GreenfootObject is an object that exists in the greenfoot world. 
- * Every GreenfootObject has a location in the world, and an appearance (that is:
+ * A Actor is an object that exists in the greenfoot world. 
+ * Every Actor has a location in the world, and an appearance (that is:
  * an icon).
  * 
- * A GreenfootObject is not normally instantiated, but instead used as a superclass
+ * A Actor is not normally instantiated, but instead used as a superclass
  * to more specific objects in the world. Every object that is intended to appear
- * in the world must extend GreenfootObject. Subclasses can then define their own 
+ * in the world must extend Actor. Subclasses can then define their own 
  * appearance and behaviour.
  * 
  * One of the most important aspects of this class is the 'act' method. This method
@@ -28,9 +28,9 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 0.3.0
- * @cvs-version $Id: GreenfootObject.java 3908 2006-03-28 10:02:34Z polle $
+ * @cvs-version $Id$
  */
-public class GreenfootObject extends ObjectTransporter
+public class Actor extends ObjectTransporter
 {
 
     /**
@@ -58,26 +58,26 @@ public class GreenfootObject extends ObjectTransporter
     private static ClassImageManager classImageManager;
 
     /**
-     * Construct a GreenfootObject.
+     * Construct a Actor.
      * The default position is (0,0). Usually the constructor
-     * GreenfootObject(int, int) should be used in preference.
+     * Actor(int, int) should be used in preference.
      * The object will have a default image.
      * 
-     * @see GreenfootObject#GreenfootObject(int, int)
+     * @see Actor#Actor(int, int)
      */
-    public GreenfootObject()
+    public Actor()
     {
         init();
     }
 
     /**
-     * Construct a GreenfootObject with a default image at a specified
+     * Construct a Actor with a default image at a specified
      * location. The location is specified as the horizontal and vertical index
      * of the world cell where the object is placed.
      * 
      * @see #setLocation(int, int)
      */
-    public GreenfootObject(int x, int y)
+    public Actor(int x, int y)
     {
         init();
         int oldx = x;
@@ -322,7 +322,7 @@ public class GreenfootObject extends ObjectTransporter
     }
  
     /**
-     * Returns the image used to represent this GreenfootObject. This image can be 
+     * Returns the image used to represent this Actor. This image can be 
      * modified to change the object's appearance.
      * 
      * @return The object's image.
@@ -416,7 +416,7 @@ public class GreenfootObject extends ObjectTransporter
     
     static void setClassImageManager(ClassImageManager classImageManager)
     {
-        GreenfootObject.classImageManager = classImageManager;
+        Actor.classImageManager = classImageManager;
     }
     
     private GreenfootImage getClassImage()
@@ -528,7 +528,7 @@ public class GreenfootObject extends ObjectTransporter
      * 
      * @return True if the object's intersect, false otherwise.
      */
-    protected boolean intersects(GreenfootObject other)
+    protected boolean intersects(Actor other)
     {
         // TODO: Rotation, we could just increase the bounding box, or we could
         // deal with the rotated bounding box.
@@ -656,7 +656,7 @@ public class GreenfootObject extends ObjectTransporter
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return An object at the given location, or null if none found.
      */
-    protected GreenfootObject getOneObjectAt(int dx, int dy, Class cls)
+    protected Actor getOneObjectAt(int dx, int dy, Class cls)
     {
         return world.getOneObjectAt(getX() + dx, getY() + dy, cls);
         
@@ -701,7 +701,7 @@ public class GreenfootObject extends ObjectTransporter
      * 
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    protected GreenfootObject getOneIntersectingObject(Class cls)
+    protected Actor getOneIntersectingObject(Class cls)
     {
         return world.getOneIntersectingObject(this, cls);
 

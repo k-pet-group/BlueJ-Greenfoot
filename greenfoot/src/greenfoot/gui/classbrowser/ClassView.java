@@ -9,7 +9,7 @@ import greenfoot.core.GPackage;
 import greenfoot.core.Greenfoot;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.CompileListener;
-import greenfoot.event.GreenfootObjectInstantiationListener;
+import greenfoot.event.ActorInstantiationListener;
 import greenfoot.gui.classbrowser.role.ClassRole;
 
 import java.awt.Color;
@@ -51,7 +51,7 @@ import java.awt.Font;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3890 2006-03-27 16:04:42Z mik $
+ * @version $Id: ClassView.java 3910 2006-03-28 11:12:03Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -72,7 +72,7 @@ public class ClassView extends JToggleButton
     private transient final static Logger logger = Logger.getLogger("greenfoot");
     private static final String newline = System.getProperty("line.separator");
     private static final String imports = "import greenfoot.GreenfootWorld;" + newline 
-                                         + "import greenfoot.GreenfootObject;" + newline;
+                                         + "import greenfoot.Actor;" + newline;
 
     private static final Dimension minimumSize = new Dimension(60, 20);
     private static final Dimension preferredSize = new Dimension(60, 20);
@@ -398,7 +398,7 @@ public class ClassView extends JToggleButton
 
             Object newObject = constructor.newInstance(new Object[]{});
             logger.info("new Obejct: " + newObject);
-            GreenfootObjectInstantiationListener invocationListener = Greenfoot.getInstance().getInvocationListener();
+            ActorInstantiationListener invocationListener = Greenfoot.getInstance().getInvocationListener();
             if(invocationListener != null) {
                 invocationListener.localObjectCreated(newObject);
             }

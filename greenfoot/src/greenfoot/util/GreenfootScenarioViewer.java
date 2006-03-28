@@ -1,7 +1,7 @@
 package greenfoot.util;
 
 import greenfoot.GreenfootImage;
-import greenfoot.GreenfootObjectVisitor;
+import greenfoot.ActorVisitor;
 import greenfoot.GreenfootWorld;
 import greenfoot.core.ClassImageManager;
 import greenfoot.core.Simulation;
@@ -49,7 +49,7 @@ public class GreenfootScenarioViewer implements ClassImageManager
         }
         
         GreenfootScenarioViewer gs = new GreenfootScenarioViewer();
-        GreenfootObjectVisitor.setClassImageManager(gs);
+        ActorVisitor.setClassImageManager(gs);
         gs.init(worldClassName, worldInitMethod);
         gs.buildGUI();        
     }

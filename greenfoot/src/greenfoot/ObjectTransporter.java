@@ -85,7 +85,7 @@ public abstract class ObjectTransporter
         if (remoteObjectTracker == null) {
             try {
                 if( ! (obj instanceof ObjectTransporter)) {
-                    System.out.println("Tracker is NOT a GreenfootObject: " + obj.getClass());
+                    System.out.println("Tracker is NOT a Actor: " + obj.getClass());
                 }
                 RPackage pkg = BlueJRMIClient.instance().getPackage();
                 remoteObjectTracker = pkg.getRClass(obj.getClass().getName());                

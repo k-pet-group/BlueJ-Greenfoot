@@ -1,7 +1,7 @@
 package greenfoot.collision;
 
-import greenfoot.GreenfootObject;
-import greenfoot.GreenfootObjectVisitor;
+import greenfoot.Actor;
+import greenfoot.ActorVisitor;
 
 /**
  * Checks collisions between GreenfooObjects.
@@ -12,7 +12,7 @@ import greenfoot.GreenfootObjectVisitor;
 public class GOCollisionQuery implements CollisionQuery {
     
     private Class cls;
-    private GreenfootObject compareObject;
+    private Actor compareObject;
 
     /**
      * Initialise.
@@ -20,7 +20,7 @@ public class GOCollisionQuery implements CollisionQuery {
      * @param cls The compared object must be of this class. If null, it is accepted.
      * @param go Object to compare against other objects.
      */
-    public void init(Class cls, GreenfootObject go) {
+    public void init(Class cls, Actor go) {
         this.cls = cls;
         this.compareObject = go;
     }        
@@ -29,17 +29,17 @@ public class GOCollisionQuery implements CollisionQuery {
      * Checks if the other object collides with this object and if it is of the given class.
      * 
      */
-    public boolean checkCollision(GreenfootObject other) {       
+    public boolean checkCollision(Actor other) {       
         if(compareObject == null && cls == null ) {
             return true;
         }       
-        else if(cls == null && GreenfootObjectVisitor.intersects(compareObject, other)) {
+        else if(cls == null && ActorVisitor.intersects(compareObject, other)) {
             return true;
         }
         else if(compareObject == null && cls.isInstance(other)) {
             return true;
         }
-        else if(cls.isInstance(other) && GreenfootObjectVisitor.intersects(compareObject, other)) {
+        else if(cls.isInstance(other) && ActorVisitor.intersects(compareObject, other)) {
             return true;
         }
         return false;

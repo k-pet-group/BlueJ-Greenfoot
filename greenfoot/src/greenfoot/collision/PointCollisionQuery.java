@@ -1,7 +1,7 @@
 package greenfoot.collision;
 
-import greenfoot.GreenfootObject;
-import greenfoot.GreenfootObjectVisitor;
+import greenfoot.Actor;
+import greenfoot.ActorVisitor;
 
 /**
  * Checks a collision against a point.
@@ -17,8 +17,8 @@ public class PointCollisionQuery implements CollisionQuery{
         this.y = y;
     }
 
-    public boolean checkCollision(GreenfootObject go) {
-        return GreenfootObjectVisitor.contains(go, x - go.getX(), y - go.getY());
+    public boolean checkCollision(Actor go) {
+        return ActorVisitor.contains(go, x - go.getX(), y - go.getY());
     }
     
 }

@@ -1,6 +1,6 @@
 package greenfoot.collision;
 
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 
 /**
  *  Checks if a greenfoot object is within a specific neighbourhood.
@@ -27,7 +27,7 @@ public class NeighbourCollisionQuery implements CollisionQuery{
         this.cls = cls;
     }
 
-    public boolean checkCollision(GreenfootObject go) {
+    public boolean checkCollision(Actor go) {
         if(cls != null && !cls.isInstance(go)) {
             return false;
         }

@@ -1,7 +1,7 @@
 package greenfoot.core;
 
-import greenfoot.GreenfootObject;
-import greenfoot.GreenfootObjectVisitor;
+import greenfoot.Actor;
+import greenfoot.ActorVisitor;
 import greenfoot.GreenfootWorld;
 import greenfoot.ObjectTracker;
 import greenfoot.WorldVisitor;
@@ -135,7 +135,7 @@ public class WorldHandler
     public void mouseClicked(MouseEvent e)
     {
         if (e.getClickCount() > 1 && ((e.getModifiers() & MouseEvent.BUTTON1_DOWN_MASK) != 0)) {
-            // GreenfootObject gObject = getObject(e.getX(), e.getY());
+            // Actor gObject = getObject(e.getX(), e.getY());
             // RObject rObject = ObjectTracker.instance().getRObject(gObject);
             // TODO: inspect rObject
 
@@ -151,7 +151,7 @@ public class WorldHandler
     {
         maybeShowPopup(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
-            GreenfootObject go = getObject(e.getX(), e.getY());
+            Actor go = getObject(e.getX(), e.getY());
             if (go != null) {
                 dragBeginX = go.getX() * world.getCellSize() + world.getCellSize()/2;
                 dragBeginY = go.getY() * world.getCellSize() + world.getCellSize()/2;
@@ -185,7 +185,7 @@ public class WorldHandler
     {
         if (e.isPopupTrigger()) {
 
-            GreenfootObject obj = getObject(e.getX(), e.getY());
+            Actor obj = getObject(e.getX(), e.getY());
             if (obj != null) {
                 JPopupMenu menu = makePopupMenu(obj);
                 // JPopupMenu menu = new JPopupMenu();
@@ -206,7 +206,7 @@ public class WorldHandler
      * Make a popup menu suitable for calling methods on, inspecting and
      * removing an object in the world.
      */
-    private JPopupMenu makePopupMenu(final GreenfootObject obj)
+    private JPopupMenu makePopupMenu(final Actor obj)
     {
         JPopupMenu menu = new JPopupMenu();
         GPackage currentPackage = Greenfoot.getInstance().getPackage();
@@ -280,7 +280,7 @@ public class WorldHandler
      * @param y
      * @return
      */
-    private GreenfootObject getObject(int x, int y)
+    private Actor getObject(int x, int y)
     {
         if (world == null)
             return null;
@@ -291,9 +291,9 @@ public class WorldHandler
         }
 
         Iterator iter = objectsThere.iterator();
-        GreenfootObject go = null;
+        Actor go = null;
         while (iter.hasNext()) {
-            go = (GreenfootObject) iter.next();
+            go = (Actor) iter.next();
         }
         return go;
     }
@@ -331,7 +331,7 @@ public class WorldHandler
      * Returns a list of all objects.
      * 
      */
-    public List getGreenfootObjects()
+    public List getActors()
     {
         return world.getObjects(null);
     }
@@ -376,7 +376,7 @@ public class WorldHandler
                 GreenfootClassRole role = (GreenfootClassRole) cls.getRole();
                 Object object = role.createObjectDragProxy();//cls.createInstance();
 
-                GreenfootObject go = (GreenfootObject) object;
+                Actor go = (Actor) object;
                 int dragOffsetX = 0;
                 int dragOffsetY = 0;
                 objectDropped = false;
@@ -499,10 +499,10 @@ public class WorldHandler
             objectDropped = true;
             return true;
         }
-        else if (o instanceof GreenfootObject) {
+        else if (o instanceof Actor) {
             try {
-                GreenfootObject go = (GreenfootObject) o;
-                GreenfootObjectVisitor.setLocationInPixels(go, x, y);
+                Actor go = (Actor) o;
+                ActorVisitor.setLocationInPixels(go, x, y);
                 objectDropped = true;
             }
             catch(IndexOutOfBoundsException e) {
@@ -518,16 +518,16 @@ public class WorldHandler
 
     public boolean drag(Object o, Point p)
     {
-        if (o instanceof GreenfootObject && world != null) {
+        if (o instanceof Actor && world != null) {
             int x = (int) p.getX();
             int y = (int) p.getY();
-            GreenfootObject go = (GreenfootObject) o;
+            Actor go = (Actor) o;
             
             world.addObject(go);
             try {
                 int oldX = go.getX();
                 int oldY = go.getY();
-                GreenfootObjectVisitor.setLocationInPixels(go, x, y);
+                ActorVisitor.setLocationInPixels(go, x, y);
 
                 if(oldX != go.getX() || oldY != go.getY()) {
                     repaint();
@@ -546,8 +546,8 @@ public class WorldHandler
 
     public void dragEnded(Object o)
     {
-        if (o instanceof GreenfootObject) {
-            GreenfootObject go = (GreenfootObject) o;
+        if (o instanceof Actor) {
+            Actor go = (Actor) o;
             world.removeObject(go);
         }
     }
@@ -566,9 +566,9 @@ public class WorldHandler
             // if the operation was cancelled, add the object back into the
             // world
             // at its original position
-            if (!objectDropped && o instanceof GreenfootObject) {
-                GreenfootObject go = (GreenfootObject) o;
-                GreenfootObjectVisitor.setLocationInPixels(go, dragBeginX, dragBeginY);
+            if (!objectDropped && o instanceof Actor) {
+                Actor go = (Actor) o;
+                ActorVisitor.setLocationInPixels(go, dragBeginX, dragBeginY);
                 world.addObject(go);
                 objectDropped = true;
             }

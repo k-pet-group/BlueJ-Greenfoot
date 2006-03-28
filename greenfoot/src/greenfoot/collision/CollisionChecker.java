@@ -1,6 +1,6 @@
 package greenfoot.collision;
 
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 
 import java.awt.Graphics;
 import java.util.List;
@@ -25,12 +25,12 @@ public interface CollisionChecker
     /**
      * Called when an object is added into the world
      */
-    public void addObject(GreenfootObject go);
+    public void addObject(Actor go);
 
     /**
      * Called when an object is removed from the world
      */
-    public void removeObject(GreenfootObject object);
+    public void removeObject(Actor object);
 
     /**
      * Called when an object has changed its location in the world.
@@ -40,12 +40,12 @@ public interface CollisionChecker
      * @param oldY
      *            Old location
      */
-    public void updateObjectLocation(GreenfootObject object, int oldX, int oldY);
+    public void updateObjectLocation(Actor object, int oldX, int oldY);
 
     /**
      * Called when an object has changed its size in the world.
      */
-    public void updateObjectSize(GreenfootObject object);
+    public void updateObjectSize(Actor object);
 
     /**
      * Returns all objects that intersects the given location.
@@ -65,12 +65,12 @@ public interface CollisionChecker
      * graphical extent of objects into consideration.
      * 
      * @param go
-     *            A GreenfootObject in the world
+     *            A Actor in the world
      * @param cls
      *            Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    public List getIntersectingObjects(GreenfootObject go, Class cls);
+    public List getIntersectingObjects(Actor go, Class cls);
 
     /**
      * Returns all objects with the logical location within the specified
@@ -147,9 +147,9 @@ public interface CollisionChecker
      */
     public void startSequence();
 
-    public GreenfootObject getOneObjectAt(int dx, int dy, Class cls);
+    public Actor getOneObjectAt(int dx, int dy, Class cls);
 
-    public GreenfootObject getOneIntersectingObject(GreenfootObject object, Class cls);
+    public Actor getOneIntersectingObject(Actor object, Class cls);
 
     public void paintDebug(Graphics g);
 

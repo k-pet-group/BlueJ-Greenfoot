@@ -1,7 +1,7 @@
 package greenfoot.core;
 
 import greenfoot.ObjectTracker;
-import greenfoot.event.GreenfootObjectInstantiationListener;
+import greenfoot.event.ActorInstantiationListener;
 import greenfoot.localdebugger.LocalObject;
 
 import java.lang.reflect.Constructor;
@@ -43,7 +43,7 @@ import bluej.views.MethodView;
 public class WorldInvokeListener
     implements InvokeListener, CallDialogWatcher
 {
-    //private GreenfootObject obj;
+    //private Actor obj;
     private Object obj;
     private RObject rObj;
     private MethodView mv;
@@ -139,7 +139,7 @@ public class WorldInvokeListener
                         final Constructor c = cl.getDeclaredConstructor(new Class[0]);
                         c.setAccessible(true);
                         Object o = c.newInstance(null);
-                        GreenfootObjectInstantiationListener invocListener = Greenfoot.getInstance().getInvocationListener();
+                        ActorInstantiationListener invocListener = Greenfoot.getInstance().getInvocationListener();
                         invocListener.localObjectCreated(o);
                     }
                     catch (NoSuchMethodException nsme) {}
@@ -282,7 +282,7 @@ public class WorldInvokeListener
                             RObject rresult = pkg.getObject(resultName);
                             Object resultw =  ObjectTracker.getRealObject(rresult);
                             rresult.removeFromBench();
-                            GreenfootObjectInstantiationListener invocListener = Greenfoot.getInstance().getInvocationListener();
+                            ActorInstantiationListener invocListener = Greenfoot.getInstance().getInvocationListener();
                             invocListener.localObjectCreated(resultw);
                         }
                     }

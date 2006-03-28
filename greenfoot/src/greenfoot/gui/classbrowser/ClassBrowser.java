@@ -31,13 +31,13 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3909 2006-03-28 10:39:37Z mik $
+ * @version $Id: ClassBrowser.java 3910 2006-03-28 11:12:03Z polle $
  */
 public class ClassBrowser extends JPanel
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
-    private static String simObj = "greenfoot.GreenfootObject";
+    private static String simObj = "greenfoot.Actor";
     private static String worldObj = "greenfoot.GreenfootWorld";
 
     private EditClassAction editClassAction;
@@ -70,7 +70,7 @@ public class ClassBrowser extends JPanel
         ClassView classLabel = null;
 
         if (gClass.getQualifiedName().equals(simObj)) {
-            // the class GreenfootObject
+            // the class Actor
             classLabel = new ClassView(new GreenfootClassRole(), gClass);
             greenfootClasses.add(classLabel);
         }
@@ -80,7 +80,7 @@ public class ClassBrowser extends JPanel
             worldClasses.add(classLabel);
         }
         else if (gClass.isSubclassOf(simObj)) {
-            // a subclass of GreenfootObject
+            // a subclass of Actor
             classLabel = new ClassView(new GreenfootClassRole(), gClass);
             greenfootClasses.add(classLabel);
         }

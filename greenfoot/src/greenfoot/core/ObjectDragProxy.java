@@ -1,7 +1,7 @@
 package greenfoot.core;
 
 import greenfoot.GreenfootImage;
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 
 import javax.swing.Action;
 
@@ -14,7 +14,7 @@ import javax.swing.Action;
  * @author Poul Henriksen
  * 
  */
-public class ObjectDragProxy extends GreenfootObject
+public class ObjectDragProxy extends Actor
 {
     private Action realAction;
 

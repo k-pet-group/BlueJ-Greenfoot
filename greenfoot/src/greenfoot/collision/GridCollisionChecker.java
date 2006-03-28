@@ -1,7 +1,7 @@
 package greenfoot.collision;
 
-import greenfoot.GreenfootObject;
-import greenfoot.GreenfootObjectVisitor;
+import greenfoot.Actor;
+import greenfoot.ActorVisitor;
 
 import java.awt.Graphics;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class GridCollisionChecker
         private HashMap classMap = new HashMap();
         private List objects = new ArrayList();
 
-        public void add(GreenfootObject thing)
+        public void add(Actor thing)
         {
             Class clazz = thing.getClass();
             List list = (List) classMap.get(clazz);
@@ -54,7 +54,7 @@ public class GridCollisionChecker
             return (List) classMap.get(cls);
         }
 
-        public void remove(GreenfootObject object)
+        public void remove(Actor object)
         {
             objects.remove(object);
             List classes = (List) classMap.get(object.getClass());
@@ -250,14 +250,14 @@ public class GridCollisionChecker
     }
 
     /**
-     * Adds a GreenfootObject to the world. <br>
+     * Adds a Actor to the world. <br>
      * If the coordinates of the object is outside the worlds bounds, an
      * exception is thrown.
      * 
      * @param thing
      *            The new object to add.
      */
-    public synchronized void addObject(GreenfootObject thing)
+    public synchronized void addObject(Actor thing)
         throws ArrayIndexOutOfBoundsException
     {
         testBounds(thing);
@@ -276,7 +276,7 @@ public class GridCollisionChecker
     /**
      * @param thing
      */
-    private void testBounds(GreenfootObject thing)
+    private void testBounds(Actor thing)
     {
         if (thing.getX() >= getWidth()) {
             throw new ArrayIndexOutOfBoundsException(thing.getX());
@@ -298,7 +298,7 @@ public class GridCollisionChecker
      * TODO: Bad performance. Can be improved MUCH if we only handle worlds
      * wehre objects spans a single cell.
      * 
-     * @see GreenfootObject#contains(int, int)
+     * @see Actor#contains(int, int)
      */
     public List getObjectsAt(int x, int y, Class cls)
     {
@@ -309,8 +309,8 @@ public class GridCollisionChecker
         List objectsThere = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
             currentStats.incGetObjectsAt();
-            GreenfootObject go = (GreenfootObject) iter.next();
-            if ((cls == null || cls.isInstance(go)) && GreenfootObjectVisitor.contains(go,x - go.getX(), y - go.getY())) {
+            Actor go = (Actor) iter.next();
+            if ((cls == null || cls.isInstance(go)) && ActorVisitor.contains(go,x - go.getX(), y - go.getY())) {
                 objectsThere.add(go);
             }
         }
@@ -347,7 +347,7 @@ public class GridCollisionChecker
             Object o = iter.next();
             currentStats.incGetObjectsInRange();
             if (cls == null || cls.isInstance(o)) {
-                GreenfootObject g = (GreenfootObject) o;
+                Actor g = (Actor) o;
                 if (distance(x, y, g) <= r) {
                     neighbours.add(g);
                 }
@@ -367,7 +367,7 @@ public class GridCollisionChecker
      * @param go
      * @return
      */
-    private double distance(int x, int y, GreenfootObject go)
+    private double distance(int x, int y, Actor go)
     {
         // TODO should x,y be wrapped?
         double gx = go.getX();
@@ -395,7 +395,7 @@ public class GridCollisionChecker
      * @param object
      *            the object to remove
      */
-    public synchronized void removeObject(GreenfootObject object)
+    public synchronized void removeObject(Actor object)
     {
         Cell cell = world.get(object.getX(), object.getY());
         if (cell != null) {
@@ -435,7 +435,7 @@ public class GridCollisionChecker
      * @param oldY
      *            The old Y location of the object
      */
-    public void updateObjectLocation(GreenfootObject object, int oldX, int oldY)
+    public void updateObjectLocation(Actor object, int oldX, int oldY)
     {
         Cell cell = world.get(oldX, oldY);
         if (cell != null) {
@@ -456,7 +456,7 @@ public class GridCollisionChecker
 
     }
 
-    public void updateObjectSize(GreenfootObject object)
+    public void updateObjectSize(Actor object)
     {
         // we don't care, because we do not directly use the object size for
         // anything.
@@ -468,13 +468,13 @@ public class GridCollisionChecker
      * This is very slow in this implementation as it checks against all objects
      * 
      */
-    public List getIntersectingObjects(GreenfootObject go, Class cls)
+    public List getIntersectingObjects(Actor go, Class cls)
     {
         List intersecting = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
-            GreenfootObject element = (GreenfootObject) iter.next();
+            Actor element = (Actor) iter.next();
             currentStats.incGetIntersectingObjects();
-            if (element != go && GreenfootObjectVisitor.intersects(go, element) && (cls == null || cls.isInstance(element))) {
+            if (element != go && ActorVisitor.intersects(go, element) && (cls == null || cls.isInstance(element))) {
                 intersecting.add(element);
             }
         }
@@ -764,7 +764,7 @@ public class GridCollisionChecker
         List objectsThere = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
             currentStats.incGetObjectsAt();
-            GreenfootObject go = (GreenfootObject) iter.next();
+            Actor go = (Actor) iter.next();
             if (cls == null || cls.isInstance(go)) {
                 objectsThere.add(go);
             }
@@ -772,21 +772,21 @@ public class GridCollisionChecker
         return objectsThere;
     }
 
-    public GreenfootObject getOneObjectAt(int dx, int dy, Class cls)
+    public Actor getOneObjectAt(int dx, int dy, Class cls)
     {
         List neighbours = getObjectsAt(dx, dy, cls);
         if(!neighbours.isEmpty()) {
-            return (GreenfootObject) neighbours.get(0);
+            return (Actor) neighbours.get(0);
         } else {
             return null;
         }
     }
 
-    public GreenfootObject getOneIntersectingObject(GreenfootObject object, Class cls)
+    public Actor getOneIntersectingObject(Actor object, Class cls)
     {
         List intersecting = getIntersectingObjects(object, cls);
         if(!intersecting.isEmpty()) {
-            return (GreenfootObject) intersecting.get(0);
+            return (Actor) intersecting.get(0);
         } else {
             return null; 
         }

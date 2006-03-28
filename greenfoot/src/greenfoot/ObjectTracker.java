@@ -31,7 +31,7 @@ public class ObjectTracker
      */
     public static RObject getRObject(Object obj) throws ProjectNotOpenException, PackageNotFoundException, RemoteException, ClassNotFoundException
     {
-        return GreenfootObject.getRObject(obj);
+        return Actor.getRObject(obj);
     }
     
     public static Object getRealObject(RObject remoteObj)

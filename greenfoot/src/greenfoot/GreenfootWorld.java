@@ -15,10 +15,10 @@ import java.util.List;
 
 
 /**
- * GreenfootWorld is the world that GreenfootObjects live in. It is a two-dimensional 
+ * GreenfootWorld is the world that Actors live in. It is a two-dimensional 
  * grid of cells. <br>
  * 
- * All GreenfootObject are associated with a GreenfootWorld and can get access to the 
+ * All Actor are associated with a GreenfootWorld and can get access to the 
  * world object. The size of cells can be specified at world creation time, and is 
  * constant after creation. Simple scenarios may use large cells that entirely contain
  * the representations of objects in a single cell. More elaborate scenarios may use
@@ -27,11 +27,11 @@ import java.util.List;
  * 
  * The world background can be decorated with drawings or images.
  * 
- * @see greenfoot.GreenfootObject
+ * @see greenfoot.Actor
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.3.0
- * @cvs-version $Id: GreenfootWorld.java 3864 2006-03-23 22:26:27Z mik $
+ * @cvs-version $Id: GreenfootWorld.java 3910 2006-03-28 11:12:03Z polle $
  */
 public class GreenfootWorld extends ObjectTransporter
 {
@@ -123,7 +123,7 @@ public class GreenfootWorld extends ObjectTransporter
         URL imageURL = this.getClass().getClassLoader().getResource(filename);
         GreenfootImage bg = new GreenfootImage(imageURL);            
         bg.setTiled(true);
-        setBackground(bg);        
+        setBackground(bg);
     }
 
     /**
@@ -165,7 +165,7 @@ public class GreenfootWorld extends ObjectTransporter
     }
 
     /**
-     * Add a GreenfootObject to the world (at the object's specified location).
+     * Add a Actor to the world (at the object's specified location).
      * 
      * @param object The new object to add.
      * @throws IndexOutOfBoundsException If the coordinates are outside the
@@ -173,7 +173,7 @@ public class GreenfootWorld extends ObjectTransporter
      *             bounds.
      */
 
-    public synchronized void addObject(GreenfootObject object)
+    public synchronized void addObject(Actor object)
         throws IndexOutOfBoundsException
     {
         // TODO bad performance when using a List for the objects. But if we
@@ -193,7 +193,7 @@ public class GreenfootWorld extends ObjectTransporter
      * 
      * @param object the object to remove
      */
-    public synchronized void removeObject(GreenfootObject object)
+    public synchronized void removeObject(Actor object)
     { 
         if(objects.remove(object)) {
             //we only want to remove it once.
@@ -204,12 +204,12 @@ public class GreenfootWorld extends ObjectTransporter
     /**
      * Remove a list of objects from the world.
      * 
-     * @param objects A list of GreenfootObjects to remove.
+     * @param objects A list of Actors to remove.
      */    
     public synchronized void removeObjects(Collection objects)
     {
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
-            GreenfootObject go = (GreenfootObject) iter.next();
+            Actor go = (Actor) iter.next();
             collisionChecker.removeObject(go);
             this.objects.remove(go);
         }
@@ -311,11 +311,11 @@ public class GreenfootWorld extends ObjectTransporter
      * Return all the objects that intersect the given object. This takes the
      * graphical extent of objects into consideration.
      * 
-     * @param go A GreenfootObject in the world
+     * @param go A Actor in the world
      * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    List getIntersectingObjects(GreenfootObject go, Class cls)
+    List getIntersectingObjects(Actor go, Class cls)
     {
         return collisionChecker.getIntersectingObjects(go, cls);
     }
@@ -411,13 +411,13 @@ public class GreenfootWorld extends ObjectTransporter
         return collisionChecker.getObjectsAt(toCellFloor(x), toCellFloor(y), null);
     }
 
-    void updateObjectLocation(GreenfootObject object, int oldX, int oldY)
+    void updateObjectLocation(Actor object, int oldX, int oldY)
     {
         checkAndWrapLocation(object);
         collisionChecker.updateObjectLocation(object, oldX, oldY);
     }
 
-    void updateObjectSize(GreenfootObject object)
+    void updateObjectSize(Actor object)
     {
         collisionChecker.updateObjectSize(object);
     }
@@ -436,7 +436,7 @@ public class GreenfootWorld extends ObjectTransporter
      * This method only checks the logical location.
      * 
      */
-    private void checkAndWrapLocation(GreenfootObject object)
+    private void checkAndWrapLocation(Actor object)
         throws IndexOutOfBoundsException
     {
         if (!wrapWorld) {
@@ -453,7 +453,7 @@ public class GreenfootWorld extends ObjectTransporter
      * 
      * @param object
      */
-    private void wrapLocation(GreenfootObject object)
+    private void wrapLocation(Actor object)
     {
         int x = object.getX();
         int y = object.getY();
@@ -496,7 +496,7 @@ public class GreenfootWorld extends ObjectTransporter
      * @return
      * @throws IndexOutOfBoundsException
      */
-    private void ensureWithinBounds(GreenfootObject object)
+    private void ensureWithinBounds(Actor object)
         throws IndexOutOfBoundsException
     {
         if (object.getX() >= getWidth()) {
@@ -526,20 +526,20 @@ public class GreenfootWorld extends ObjectTransporter
         collisionChecker.startSequence();
     }
 
-    GreenfootObject getOneObjectAt(int dx, int dy, Class cls)
+    Actor getOneObjectAt(int dx, int dy, Class cls)
     {
         return collisionChecker.getOneObjectAt(dx, dy, cls);
     }
 
-    GreenfootObject getOneIntersectingObject(GreenfootObject object, Class cls)
+    Actor getOneIntersectingObject(Actor object, Class cls)
     {
         return collisionChecker.getOneIntersectingObject(object,cls);
     }
 
     public void paintDebug(Graphics g)
     {
-        /*g.setColor(Color.BLACK);
+        g.setColor(Color.BLACK);
         g.drawString("# of Objects: " + objects.size(), 50,50);
-        collisionChecker.paintDebug(g);*/
+      /*  collisionChecker.paintDebug(g);*/
     }
 }

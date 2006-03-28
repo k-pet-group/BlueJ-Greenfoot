@@ -1,10 +1,10 @@
 package greenfoot.core;
 
 import greenfoot.GreenfootImage;
-import greenfoot.GreenfootObjectVisitor;
+import greenfoot.ActorVisitor;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
-import greenfoot.event.GreenfootObjectInstantiationListener;
+import greenfoot.event.ActorInstantiationListener;
 import greenfoot.gui.GreenfootFrame;
 
 import java.io.*;
@@ -51,7 +51,7 @@ public class Greenfoot implements ClassImageManager
     private CompileListenerForwarder compileListenerForwarder;
     private List compileListeners = new ArrayList();
 
-    private GreenfootObjectInstantiationListener instantiationListener;
+    private ActorInstantiationListener instantiationListener;
     private List invocationListeners = new ArrayList();
     
     private CallHistory callHistory = new CallHistory();
@@ -72,7 +72,7 @@ public class Greenfoot implements ClassImageManager
             e.printStackTrace();
         }
 
-        GreenfootObjectVisitor.setClassImageManager(this);
+        ActorVisitor.setClassImageManager(this);
         
         //Threading avoids deadlock when classbrowser tries to instantiate
         // objects to get images. this is necessy because greenfoot is started
@@ -101,7 +101,7 @@ public class Greenfoot implements ClassImageManager
                 Utility.bringToFront();
                 logger.info("Frame visible");
                 try {
-                    instantiationListener = new GreenfootObjectInstantiationListener(WorldHandler.instance());
+                    instantiationListener = new ActorInstantiationListener(WorldHandler.instance());
                     Greenfoot.this.rBlueJ.addInvocationListener(instantiationListener);
                     compileListenerForwarder = new CompileListenerForwarder(compileListeners);
                     Greenfoot.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
@@ -310,7 +310,7 @@ public class Greenfoot implements ClassImageManager
     /**
      * Get a reference to the invocation listener.
      */
-    public GreenfootObjectInstantiationListener getInvocationListener()
+    public ActorInstantiationListener getInvocationListener()
     {
         return instantiationListener;
     }
@@ -438,15 +438,15 @@ public class Greenfoot implements ClassImageManager
     }
 
     /**
-     * Checks whether the odl and new source files for GreenfootObject and
+     * Checks whether the odl and new source files for Actor and
      * GreenfootWorld are the same. If they are not, the class files are
      * deleted.
      */
     private void validateClassFiles(File src, File dst)
     {
-        File newGO = new File(src, "greenfoot/GreenfootObject.java");
-        File oldGO = new File(dst, "greenfoot/GreenfootObject.java");
-        File goClassFile= new File(dst, "greenfoot/GreenfootObject.class");
+        File newGO = new File(src, "greenfoot/Actor.java");
+        File oldGO = new File(dst, "greenfoot/Actor.java");
+        File goClassFile= new File(dst, "greenfoot/Actor.class");
         
         File newGW = new File(src, "greenfoot/GreenfootWorld.java");
         File oldGW = new File(dst, "greenfoot/GreenfootWorld.java");

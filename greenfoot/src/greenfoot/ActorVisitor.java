@@ -5,47 +5,47 @@ import greenfoot.util.Circle;
 
 /**
  * Class that makes it possible for classes outside the greenfoot package to get
- * access to GreenfootObject methods that are package protected. We need some
+ * access to Actor methods that are package protected. We need some
  * package-protected methods, because we don't want them to show up
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen 
  * @version $Id$
  */
-public class GreenfootObjectVisitor
+public class ActorVisitor
 {
-    public static void setLocationInPixels(GreenfootObject go, int dragBeginX, int dragBeginY) {
+    public static void setLocationInPixels(Actor go, int dragBeginX, int dragBeginY) {
         go.setLocationInPixels(dragBeginX, dragBeginY);
     }
     
    
-    public static boolean contains(GreenfootObject go, int dx, int dy)
+    public static boolean contains(Actor go, int dx, int dy)
     {
         return go.contains(dx, dy);
     }
 
-    public static boolean intersects(GreenfootObject go, GreenfootObject other)
+    public static boolean intersects(Actor go, Actor other)
     {
         return go.intersects(other);
     }
     
-    public static Circle getBoundingCircle(GreenfootObject go) 
+    public static Circle getBoundingCircle(Actor go) 
     {
         return go.getBoundingCircle();
     }
     
-    public static void setData(GreenfootObject go, Object n)
+    public static void setData(Actor go, Object n)
     {
         go.setData(n);
     }
     
-    public static Object getData(GreenfootObject go)
+    public static Object getData(Actor go)
     {
         return go.getData();
     }
     
     public static void setClassImageManager(ClassImageManager classImageManager)
     {
-        GreenfootObject.setClassImageManager(classImageManager);
+        Actor.setClassImageManager(classImageManager);
     }
 }

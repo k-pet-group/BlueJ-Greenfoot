@@ -46,7 +46,7 @@
 	<!-- Files that are used in the skeleton project. These are the user-visible framework files   -->
 	<patternset id="skeleton.files">
 		<include name="greenfoot/GreenfootWorld.*"/>
-		<include name="greenfoot/GreenfootObject.*"/>
+		<include name="greenfoot/Actor.*"/>
 		<include name="images/greenfoot-logo.png"/>
 	</patternset>
 
@@ -188,7 +188,7 @@
 		       bottom="&lt;a href=http://www.greenfoot.org/&gt;Greenfoot homepage&lt;/a&gt;">
 
 			<fileset dir="${src}" defaultexcludes="yes">
-				<include name="greenfoot/GreenfootObject.java" />
+				<include name="greenfoot/Actor.java" />
 				<include name="greenfoot/GreenfootWorld.java" />
 				<include name="greenfoot/GreenfootImage.java" />
 			</fileset>
@@ -216,7 +216,7 @@
 			</fileset>
 		</copy>
 	</target>
-	
+
 	<target name="copy-imagelib" depends="skeleton" description="Copies the images for the image library to bluej">
 		<copy todir="${bluej.lib}/imagelib">
 			<fileset dir="imagelib"/>

@@ -1,6 +1,6 @@
 package greenfoot.gui;
 
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 import greenfoot.GreenfootWorld;
 import greenfoot.core.GClass;
 import greenfoot.core.Greenfoot;
@@ -40,7 +40,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 3907 2006-03-28 09:56:21Z mik $
+ * @version $Id: ImageLibFrame.java 3910 2006-03-28 11:12:03Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -526,8 +526,8 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         if (object == null) {
             return null;
         }
-        else if (object instanceof GreenfootObject) {
-            GreenfootObject so = (GreenfootObject) object;
+        else if (object instanceof Actor) {
+            Actor so = (Actor) object;
             greenfoot.GreenfootImage image = so.getImage();
             //rotate it.
             if (image != null) {
