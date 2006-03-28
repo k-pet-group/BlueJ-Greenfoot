@@ -444,15 +444,15 @@ public class Greenfoot implements ClassImageManager
      */
     private void validateClassFiles(File src, File dst)
     {
-        File newGO = new File(src, "greenfoot/Actor.java");
-        File oldGO = new File(dst, "greenfoot/Actor.java");
-        File goClassFile= new File(dst, "greenfoot/Actor.class");
+        File newActor = new File(src, "greenfoot/Actor.java");
+        File oldActor = new File(dst, "greenfoot/Actor.java");
+        File actorClassFile= new File(dst, "greenfoot/Actor.class");
         
-        File newGW = new File(src, "greenfoot/World.java");
-        File oldGW = new File(dst, "greenfoot/World.java");
+        File newWorld = new File(src, "greenfoot/World.java");
+        File oldWorld = new File(dst, "greenfoot/World.java");
         File gwClassFile= new File(dst, "greenfoot/World.class");
         
-        if(! sameFileContents(newGO, oldGO) || ! sameFileContents(newGW, oldGW)) {
+        if(! sameFileContents(newActor, oldActor) || ! sameFileContents(newWorld, oldWorld)) {
             try {
                 GPackage defaultPkg = project.getDefaultPackage();
                 if(defaultPkg != null) {

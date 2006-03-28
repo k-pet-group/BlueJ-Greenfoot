@@ -18,11 +18,11 @@ public class GOCollisionQuery implements CollisionQuery {
      * Initialise.
      * 
      * @param cls The compared object must be of this class. If null, it is accepted.
-     * @param go Object to compare against other objects.
+     * @param actor Object to compare against other objects.
      */
-    public void init(Class cls, Actor go) {
+    public void init(Class cls, Actor actor) {
         this.cls = cls;
-        this.compareObject = go;
+        this.compareObject = actor;
     }        
     
     /**

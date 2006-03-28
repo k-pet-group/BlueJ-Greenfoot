@@ -309,9 +309,9 @@ public class GridCollisionChecker
         List objectsThere = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
             currentStats.incGetObjectsAt();
-            Actor go = (Actor) iter.next();
-            if ((cls == null || cls.isInstance(go)) && ActorVisitor.contains(go,x - go.getX(), y - go.getY())) {
-                objectsThere.add(go);
+            Actor actor = (Actor) iter.next();
+            if ((cls == null || cls.isInstance(actor)) && ActorVisitor.contains(actor,x - actor.getX(), y - actor.getY())) {
+                objectsThere.add(actor);
             }
         }
         return objectsThere;
@@ -364,14 +364,14 @@ public class GridCollisionChecker
      *            x-coordinate of the cell
      * @param y
      *            y-coordinate of the cell
-     * @param go
+     * @param actor
      * @return
      */
-    private double distance(int x, int y, Actor go)
+    private double distance(int x, int y, Actor actor)
     {
         // TODO should x,y be wrapped?
-        double gx = go.getX();
-        double gy = go.getY();
+        double gx = actor.getX();
+        double gy = actor.getY();
         double dx = Math.abs(gx - x);
         double dy = Math.abs(gy - y);
 
@@ -468,13 +468,13 @@ public class GridCollisionChecker
      * This is very slow in this implementation as it checks against all objects
      * 
      */
-    public List getIntersectingObjects(Actor go, Class cls)
+    public List getIntersectingObjects(Actor actor, Class cls)
     {
         List intersecting = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
             Actor element = (Actor) iter.next();
             currentStats.incGetIntersectingObjects();
-            if (element != go && ActorVisitor.intersects(go, element) && (cls == null || cls.isInstance(element))) {
+            if (element != actor && ActorVisitor.intersects(actor, element) && (cls == null || cls.isInstance(element))) {
                 intersecting.add(element);
             }
         }
@@ -764,9 +764,9 @@ public class GridCollisionChecker
         List objectsThere = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
             currentStats.incGetObjectsAt();
-            Actor go = (Actor) iter.next();
-            if (cls == null || cls.isInstance(go)) {
-                objectsThere.add(go);
+            Actor actor = (Actor) iter.next();
+            if (cls == null || cls.isInstance(actor)) {
+                objectsThere.add(actor);
             }
         }
         return objectsThere;

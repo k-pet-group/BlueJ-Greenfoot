@@ -25,7 +25,7 @@ public interface CollisionChecker
     /**
      * Called when an object is added into the world
      */
-    public void addObject(Actor go);
+    public void addObject(Actor actor);
 
     /**
      * Called when an object is removed from the world
@@ -64,13 +64,13 @@ public interface CollisionChecker
      * Returns all the objects that intersects the given object. This takes the
      * graphical extent of objects into consideration.
      * 
-     * @param go
+     * @param actor
      *            A Actor in the world
      * @param cls
      *            Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    public List getIntersectingObjects(Actor go, Class cls);
+    public List getIntersectingObjects(Actor actor, Class cls);
 
     /**
      * Returns all objects with the logical location within the specified

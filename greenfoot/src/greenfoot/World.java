@@ -209,9 +209,9 @@ public class World extends ObjectTransporter
     public synchronized void removeObjects(Collection objects)
     {
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
-            Actor go = (Actor) iter.next();
-            collisionChecker.removeObject(go);
-            this.objects.remove(go);
+            Actor actor = (Actor) iter.next();
+            collisionChecker.removeObject(actor);
+            this.objects.remove(actor);
         }
     }
 
@@ -311,13 +311,13 @@ public class World extends ObjectTransporter
      * Return all the objects that intersect the given object. This takes the
      * graphical extent of objects into consideration.
      * 
-     * @param go A Actor in the world
+     * @param actor A Actor in the world
      * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    List getIntersectingObjects(Actor go, Class cls)
+    List getIntersectingObjects(Actor actor, Class cls)
     {
-        return collisionChecker.getIntersectingObjects(go, cls);
+        return collisionChecker.getIntersectingObjects(actor, cls);
     }
 
     /**

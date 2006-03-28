@@ -50,7 +50,7 @@ public class BVHInsChecker
         public Node left; // child
         public Node right; // child
         public Circle circle;
-        private Actor go;
+        private Actor actor;
 
         public Node(Circle circle)
         {
@@ -62,15 +62,15 @@ public class BVHInsChecker
 
         }
 
-        public Node(Circle circle, Actor go)
+        public Node(Circle circle, Actor actor)
         {
             this.circle = circle;
-            this.go = go;
+            this.actor = actor;
         }
 
-        public Actor getGo()
+        public Actor getActor()
         {
-            return go;
+            return actor;
         }
 
         public boolean isLeaf()
@@ -92,8 +92,8 @@ public class BVHInsChecker
             if (!c.intersects(this.circle)) {
                 return;
             }
-            if (isLeaf() && (checker != null && checker.checkCollision(getGo()))) {
-                result.add(getGo());
+            if (isLeaf() && (checker != null && checker.checkCollision(getActor()))) {
+                result.add(getActor());
             }
             else if (!isLeaf()) {
                 left.getIntersections(c, checker, result);
@@ -112,10 +112,10 @@ public class BVHInsChecker
             if (!c.intersects(this.circle)) {
                 return null;
             }
-            if (isLeaf() && (checker != null && checker.checkCollision(getGo()))) {
-                return getGo();
+            if (isLeaf() && (checker != null && checker.checkCollision(getActor()))) {
+                return getActor();
             } else if (!isLeaf()) {
-                //TODO maybe decide which one to go to first based on size, distance of/between circles
+                //TODO maybe decide which one to actor to first based on size, distance of/between circles
                 //maybe calculate the "insideness" of two circles as dist/r where dist is the distance
                 //between centers of the two circles and r is the largest of the two circles' radius'. 
                 //Insideness should probably be r/dist to get higher value for better.
@@ -182,10 +182,10 @@ public class BVHInsChecker
             left = null;
             right = null;
             circle = null;
-            if(go != null) {
-                ActorVisitor.setData(go, null);
+            if(actor != null) {
+                ActorVisitor.setData(actor, null);
         }
-            go = null;
+            actor = null;
         }
 
         private Node getSibling() {
@@ -573,7 +573,7 @@ public class BVHInsChecker
     }
 
     private CircleTree tree;
-    private GOCollisionQuery goQuery = new GOCollisionQuery();
+    private GOCollisionQuery actorQuery = new GOCollisionQuery();
     private NeighbourCollisionQuery neighbourQuery = new NeighbourCollisionQuery();
     private PointCollisionQuery pointQuery = new PointCollisionQuery();
     private int cellSize;
@@ -586,22 +586,22 @@ public class BVHInsChecker
         objects = new ArrayList();
     }
 
-    public synchronized void addObject(Actor go)
+    public synchronized void addObject(Actor actor)
     {
-        if (objects.contains(go)) {
+        if (objects.contains(actor)) {
             return;
         }
 
-        Node n = createNode(go);
-        ActorVisitor.setData(go, n);
+        Node n = createNode(actor);
+        ActorVisitor.setData(actor, n);
         tree.addNode(n);
-        objects.add(go);
+        objects.add(actor);
     }
 
-    private Node createNode(Actor go)
+    private Node createNode(Actor actor)
     {
-        Circle c = getCircle(go);
-        Node n = new Node(c, go);
+        Circle c = getCircle(actor);
+        Node n = new Node(c, actor);
         return n;
     }
 
@@ -642,18 +642,18 @@ public class BVHInsChecker
         }
     }
 
-    public List getIntersectingObjects(Actor go, Class cls)
+    public List getIntersectingObjects(Actor actor, Class cls)
     {
-        Circle b = getCircle(go);
-        synchronized (goQuery) {
-            goQuery.init(cls, go);
-            return tree.getIntersections(b, goQuery);
+        Circle b = getCircle(actor);
+        synchronized (actorQuery) {
+            actorQuery.init(cls, actor);
+            return tree.getIntersections(b, actorQuery);
         }
     }
 
-    private Circle getCircle(Actor go)
+    private Circle getCircle(Actor actor)
     {
-        Circle c = ActorVisitor.getBoundingCircle(go);
+        Circle c = ActorVisitor.getBoundingCircle(actor);
         if(c == null) {
             return null;
         }
@@ -664,9 +664,9 @@ public class BVHInsChecker
     public List getObjectsInRange(int x, int y, int r, Class cls)
     {   
         Circle b = new Circle(x * cellSize, y * cellSize, r * cellSize);
-        synchronized (goQuery) {
-            goQuery.init(cls, null);
-            return tree.getIntersections(b, goQuery);
+        synchronized (actorQuery) {
+            actorQuery.init(cls, null);
+            return tree.getIntersections(b, actorQuery);
         }
     }
 
@@ -706,9 +706,9 @@ public class BVHInsChecker
         }
         List l = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
-            Actor go = (Actor) iter.next();
-            if (cls.isInstance(go)) {
-                l.add(go);
+            Actor actor = (Actor) iter.next();
+            if (cls.isInstance(actor)) {
+                l.add(actor);
             }
         }
         return l;
@@ -729,12 +729,12 @@ public class BVHInsChecker
 
     public Actor getOneIntersectingObject(Actor object, Class cls)
     {
-        synchronized (goQuery) {
-            goQuery.init(cls, object);
+        synchronized (actorQuery) {
+            actorQuery.init(cls, object);
             
             Node node = (Node) ActorVisitor.getData(object);
             if(node != null) {
-                return tree.getOneIntersectingObject(node, goQuery);
+                return tree.getOneIntersectingObject(node, actorQuery);
             } else {
                 List l = getIntersectingObjects(object, cls);
                 if (!l.isEmpty()) {

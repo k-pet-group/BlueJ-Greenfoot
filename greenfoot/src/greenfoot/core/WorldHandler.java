@@ -151,14 +151,14 @@ public class WorldHandler
     {
         maybeShowPopup(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
-            Actor go = getObject(e.getX(), e.getY());
-            if (go != null) {
-                dragBeginX = go.getX() * world.getCellSize() + world.getCellSize()/2;
-                dragBeginY = go.getY() * world.getCellSize() + world.getCellSize()/2;
+            Actor actor = getObject(e.getX(), e.getY());
+            if (actor != null) {
+                dragBeginX = actor.getX() * world.getCellSize() + world.getCellSize()/2;
+                dragBeginY = actor.getY() * world.getCellSize() + world.getCellSize()/2;
                 int dragOffsetX = dragBeginX - e.getX();
                 int dragOffsetY = dragBeginY - e.getY();
                 objectDropped = false;
-                DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this, worldCanvas, false);
+                DragGlassPane.getInstance().startDrag(actor, dragOffsetX, dragOffsetY, this, worldCanvas, false);
 
                 // While the drag is occuring, the world handler no longer
                 // processes mouse/key events
@@ -291,11 +291,11 @@ public class WorldHandler
         }
 
         Iterator iter = objectsThere.iterator();
-        Actor go = null;
+        Actor actor = null;
         while (iter.hasNext()) {
-            go = (Actor) iter.next();
+            actor = (Actor) iter.next();
         }
-        return go;
+        return actor;
     }
 
     /*
@@ -376,11 +376,11 @@ public class WorldHandler
                 GreenfootClassRole role = (GreenfootClassRole) cls.getRole();
                 Object object = role.createObjectDragProxy();//cls.createInstance();
 
-                Actor go = (Actor) object;
+                Actor actor = (Actor) object;
                 int dragOffsetX = 0;
                 int dragOffsetY = 0;
                 objectDropped = false;
-                DragGlassPane.getInstance().startDrag(go, dragOffsetX, dragOffsetY, this, worldCanvas, false);
+                DragGlassPane.getInstance().startDrag(actor, dragOffsetX, dragOffsetY, this, worldCanvas, false);
                 
                 // On the mac, the glass pane doesn't seem to receive
                 // mouse move events; the shift/move is treated like a drag
@@ -501,8 +501,8 @@ public class WorldHandler
         }
         else if (o instanceof Actor) {
             try {
-                Actor go = (Actor) o;
-                ActorVisitor.setLocationInPixels(go, x, y);
+                Actor actor = (Actor) o;
+                ActorVisitor.setLocationInPixels(actor, x, y);
                 objectDropped = true;
             }
             catch(IndexOutOfBoundsException e) {
@@ -521,20 +521,20 @@ public class WorldHandler
         if (o instanceof Actor && world != null) {
             int x = (int) p.getX();
             int y = (int) p.getY();
-            Actor go = (Actor) o;
+            Actor actor = (Actor) o;
             
-            world.addObject(go);
+            world.addObject(actor);
             try {
-                int oldX = go.getX();
-                int oldY = go.getY();
-                ActorVisitor.setLocationInPixels(go, x, y);
+                int oldX = actor.getX();
+                int oldY = actor.getY();
+                ActorVisitor.setLocationInPixels(actor, x, y);
 
-                if(oldX != go.getX() || oldY != go.getY()) {
+                if(oldX != actor.getX() || oldY != actor.getY()) {
                     repaint();
                 }                
             }
             catch (IndexOutOfBoundsException e) {
-                world.removeObject(go);
+                world.removeObject(actor);
                 return false;
             }
             return true;
@@ -547,8 +547,8 @@ public class WorldHandler
     public void dragEnded(Object o)
     {
         if (o instanceof Actor) {
-            Actor go = (Actor) o;
-            world.removeObject(go);
+            Actor actor = (Actor) o;
+            world.removeObject(actor);
         }
     }
 
@@ -567,9 +567,9 @@ public class WorldHandler
             // world
             // at its original position
             if (!objectDropped && o instanceof Actor) {
-                Actor go = (Actor) o;
-                ActorVisitor.setLocationInPixels(go, dragBeginX, dragBeginY);
-                world.addObject(go);
+                Actor actor = (Actor) o;
+                ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
+                world.addObject(actor);
                 objectDropped = true;
             }
         }

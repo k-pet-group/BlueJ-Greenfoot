@@ -17,8 +17,8 @@ public class PointCollisionQuery implements CollisionQuery{
         this.y = y;
     }
 
-    public boolean checkCollision(Actor go) {
-        return ActorVisitor.contains(go, x - go.getX(), y - go.getY());
+    public boolean checkCollision(Actor actor) {
+        return ActorVisitor.contains(actor, x - actor.getX(), y - actor.getY());
     }
     
 }

@@ -14,34 +14,34 @@ import greenfoot.util.Circle;
  */
 public class ActorVisitor
 {
-    public static void setLocationInPixels(Actor go, int dragBeginX, int dragBeginY) {
-        go.setLocationInPixels(dragBeginX, dragBeginY);
+    public static void setLocationInPixels(Actor actor, int dragBeginX, int dragBeginY) {
+        actor.setLocationInPixels(dragBeginX, dragBeginY);
     }
     
    
-    public static boolean contains(Actor go, int dx, int dy)
+    public static boolean contains(Actor actor, int dx, int dy)
     {
-        return go.contains(dx, dy);
+        return actor.contains(dx, dy);
     }
 
-    public static boolean intersects(Actor go, Actor other)
+    public static boolean intersects(Actor actor, Actor other)
     {
-        return go.intersects(other);
+        return actor.intersects(other);
     }
     
-    public static Circle getBoundingCircle(Actor go) 
+    public static Circle getBoundingCircle(Actor actor) 
     {
-        return go.getBoundingCircle();
+        return actor.getBoundingCircle();
     }
     
-    public static void setData(Actor go, Object n)
+    public static void setData(Actor actor, Object n)
     {
-        go.setData(n);
+        actor.setData(n);
     }
     
-    public static Object getData(Actor go)
+    public static Object getData(Actor actor)
     {
-        return go.getData();
+        return actor.getData();
     }
     
     public static void setClassImageManager(ClassImageManager classImageManager)

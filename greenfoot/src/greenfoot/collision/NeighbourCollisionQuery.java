@@ -27,11 +27,11 @@ public class NeighbourCollisionQuery implements CollisionQuery{
         this.cls = cls;
     }
 
-    public boolean checkCollision(Actor go) {
-        if(cls != null && !cls.isInstance(go)) {
+    public boolean checkCollision(Actor actor) {
+        if(cls != null && !cls.isInstance(actor)) {
             return false;
         }
-        if(go.getX() == x && go.getY() == y) {
+        if(actor.getX() == x && actor.getY() == y) {
             return false;
         }       
         if(diag) {
@@ -39,10 +39,10 @@ public class NeighbourCollisionQuery implements CollisionQuery{
             int y1 = y - distance;            
             int x2 = x + distance;            
             int y2 = y + distance;
-            return (go.getX() >= x1 && go.getY() >=y1 && go.getX() <= x2 && go.getY() <=y2);
+            return (actor.getX() >= x1 && actor.getY() >=y1 && actor.getX() <= x2 && actor.getY() <=y2);
         } else {
-            int dx = Math.abs(go.getX() - x);
-            int dy = Math.abs(go.getY() - y);
+            int dx = Math.abs(actor.getX() - x);
+            int dy = Math.abs(actor.getY() - y);
             return ((dx+dy) <= distance);            
         }
     }

@@ -58,10 +58,10 @@ public class ActorInstantiationListener extends RInvocationListenerImpl
     public void localObjectCreated(Object realObject)
     {
         if (realObject instanceof ObjectDragProxy) {
-            Actor go = (Actor) realObject;
+            Actor actor = (Actor) realObject;
             int xoffset = 0;
             int yoffset = 0;
-            DragGlassPane.getInstance().startDrag(go, xoffset, yoffset, null, null, false);
+            DragGlassPane.getInstance().startDrag(actor, xoffset, yoffset, null, null, false);
         }
         else if(realObject instanceof Actor) {
             // We do not need to add the object to the world, since the object

@@ -11,5 +11,5 @@ public interface CollisionQuery {
      /**
       * Does the Actor collide with this collision checker?
       */
-     public boolean checkCollision(Actor go);
+     public boolean checkCollision(Actor actor);
 }

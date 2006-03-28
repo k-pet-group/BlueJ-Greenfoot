@@ -56,10 +56,10 @@ private PrintStream fileStream;
         }
     }
 
-    public synchronized void addObject(Actor go)
+    public synchronized void addObject(Actor actor)
     {
         long t1 = System.nanoTime();
-        checker.addObject(go);
+        checker.addObject(actor);
         long t2 = System.nanoTime();
         objectAtTime += t2 - t1;
     }
@@ -100,11 +100,11 @@ private PrintStream fileStream;
         return l;
     }
 
-    public List getIntersectingObjects(Actor go, Class cls)
+    public List getIntersectingObjects(Actor actor, Class cls)
     {
 
         long t1 = System.nanoTime();
-        List l = checker.getIntersectingObjects(go, cls);
+        List l = checker.getIntersectingObjects(actor, cls);
         long t2 = System.nanoTime();
         getIntersectingObjectsTime += t2 - t1;
         return l;
