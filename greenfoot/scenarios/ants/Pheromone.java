@@ -1,11 +1,11 @@
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-public class Pheromone extends GreenfootObject
+public class Pheromone extends Actor
 {
     private final static int MAX_INTENSITY = 180;
     private int intensity;

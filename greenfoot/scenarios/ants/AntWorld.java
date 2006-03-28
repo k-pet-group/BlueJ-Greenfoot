@@ -1,11 +1,11 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 import java.util.Random;
  
-public class AntWorld extends GreenfootWorld
+public class AntWorld extends World
 {
     public static final int RESOLUTION = 1;
     public static final int SIZE = 640; 
@@ -52,7 +52,7 @@ public class AntWorld extends GreenfootWorld
         newObject(new Food(), 566, 529);
     }
 
-    private void newObject(GreenfootObject obj, int x, int y)
+    private void newObject(Actor obj, int x, int y)
     {
         obj.setLocation(x, y);
         addObject(obj);

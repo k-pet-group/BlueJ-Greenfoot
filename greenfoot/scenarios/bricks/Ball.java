@@ -1,10 +1,10 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 import java.util.Collection;
 import java.util.Iterator;
 
-public class Ball extends GreenfootObject
+public class Ball extends Actor
 {
     public static int BALLSIZEX = 20;
     public static int BALLSIZEY = 19;
@@ -35,7 +35,7 @@ public class Ball extends GreenfootObject
         setLocation(x,y);
     }
     
-    public static Bounds getBounds(GreenfootObject go)
+    public static Bounds getBounds(Actor go)
     {
         Bounds b = new Bounds();
         int width = go.getWidth();
@@ -99,12 +99,12 @@ public class Ball extends GreenfootObject
         int centerY = getY();
         
         // check for collision with bricks
-        //Collection objs = getObjectsInRange(centerX, centerY, 30, GreenfootObject.class);
-        //Collection objs = getObjectsInRange(30, GreenfootObject.class);
-        Collection objs = getIntersectingObjects(GreenfootObject.class);
+        //Collection objs = getObjectsInRange(centerX, centerY, 30, Actor.class);
+        //Collection objs = getObjectsInRange(30, Actor.class);
+        Collection objs = getIntersectingObjects(Actor.class);
         Iterator i = objs.iterator();
         while (i.hasNext()) {
-            GreenfootObject go = (GreenfootObject) i.next();
+            Actor go = (Actor) i.next();
         
             if (go instanceof Brick) {
                 Brick brick = (Brick) go;

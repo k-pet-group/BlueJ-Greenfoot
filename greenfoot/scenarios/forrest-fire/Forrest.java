@@ -1,9 +1,9 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 import java.util.Random;
 
-public class Forrest extends GreenfootWorld
+public class Forrest extends World
 {
     private final static int WIDTH = 150;
     private final static int HEIGHT = 150;

@@ -1,5 +1,5 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 import greenfoot.GreenfootImage;
 
@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 
 import java.util.*;
 
-public class Tree extends GreenfootObject
+public class Tree extends Actor
 {
     private final static int SIZE = 5;
     private final static int BURN_RADIUS = 1;

@@ -1,7 +1,7 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
-public class LiftController extends GreenfootObject
+public class LiftController extends Actor
 {
     public LiftController()
     {

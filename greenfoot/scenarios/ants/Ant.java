@@ -1,12 +1,12 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 import java.util.Random;
 import java.util.List;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class Ant extends GreenfootObject
+public class Ant extends Actor
 {
     private static long  antCount;
     
@@ -206,7 +206,7 @@ public class Ant extends GreenfootObject
      */
     public boolean smellPheromone()
     {
-        GreenfootObject ph = getOneIntersectingObject(Pheromone.class);
+        Actor ph = getOneIntersectingObject(Pheromone.class);
         if(ph != null) {
             deltaX = capSpeed(ph.getX() - getX());
             deltaY = capSpeed(ph.getY() - getY());

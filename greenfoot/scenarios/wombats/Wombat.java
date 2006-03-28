@@ -1,10 +1,10 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 import java.util.List;
 import java.util.ArrayList;
 
-public class Wombat extends GreenfootObject
+public class Wombat extends Actor
 {
     private static final int EAST = 0;
     private static final int WEST = 1;
@@ -42,7 +42,7 @@ public class Wombat extends GreenfootObject
      */
     public boolean foundLeaf()
     {
-        GreenfootObject leaf = getOneObjectAt(0, 0, Leaf.class);
+        Actor leaf = getOneObjectAt(0, 0, Leaf.class);
         if(leaf != null) {
             return true;
         }
@@ -56,7 +56,7 @@ public class Wombat extends GreenfootObject
      */
     public void eatLeaf()
     {
-        GreenfootObject leaf = getOneObjectAt(0, 0, Leaf.class);
+        Actor leaf = getOneObjectAt(0, 0, Leaf.class);
         if(leaf != null) {
             // eat the leaf...
             getWorld().removeObject(leaf);
@@ -93,7 +93,7 @@ public class Wombat extends GreenfootObject
      */
     public boolean canMove()
     {
-        GreenfootWorld myWorld = getWorld();
+        World myWorld = getWorld();
         int x = getX();
         int y = getY();
         switch(direction) {

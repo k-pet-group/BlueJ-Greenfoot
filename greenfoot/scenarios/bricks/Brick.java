@@ -1,6 +1,6 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
-public class Brick extends GreenfootObject
+import greenfoot.World;
+import greenfoot.Actor;
+public class Brick extends Actor
 {
   public Brick()
   {

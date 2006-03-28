@@ -1,11 +1,11 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 import java.util.Random;
 import java.util.List;
 import java.util.Iterator;
 
-public class Floor extends GreenfootObject
+public class Floor extends Actor
 {
     private static final Random random = Building.getRandomizer();
 

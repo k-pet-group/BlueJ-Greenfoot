@@ -1,4 +1,4 @@
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 
 import java.util.*;
 
@@ -8,7 +8,7 @@ import java.util.*;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class Player extends GreenfootObject
+public class Player extends Actor
 {
     private static Player defaultPlayer = new Player();;
     private boolean isTop = true;
@@ -70,7 +70,7 @@ public class Player extends GreenfootObject
     /**
      * the main act method to define behaviour, i.e. what to do 
      * with your pieces when it is your turn
-     * @see greenfoot.GreenfootObject#act()
+     * @see greenfoot.Actor#act()
      */
     public void act()
     {

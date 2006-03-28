@@ -1,11 +1,11 @@
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-public class Counter extends GreenfootObject
+public class Counter extends Actor
 {
     private int value = 0;
     private String text;

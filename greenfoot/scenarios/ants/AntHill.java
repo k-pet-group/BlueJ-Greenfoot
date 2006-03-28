@@ -1,9 +1,9 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject; 
+import greenfoot.World;
+import greenfoot.Actor; 
  
 import java.util.Random;
   
-public class AntHill extends GreenfootObject
+public class AntHill extends Actor
 {
     private final static Random randomizer = AntWorld.getRandomizer();
     private final static int DEFAULT_ANTS = 40;

@@ -1,9 +1,9 @@
-import greenfoot.GreenfootWorld;
+import greenfoot.World;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 
-public class Space extends GreenfootWorld
+public class Space extends World
 {
     /**
      * Creates a new world with 20x20 cells and

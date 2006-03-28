@@ -1,9 +1,9 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 import java.awt.*;
 
-public class TurtleWorld extends GreenfootWorld
+public class TurtleWorld extends World
 {
     /**
      * Creates a new world with 800x600 cells and

@@ -1,11 +1,11 @@
 
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 
 import java.util.*;
 
-public class Robot extends GreenfootObject
+public class Robot extends Actor
 {
 
     /**
@@ -194,7 +194,7 @@ public class Robot extends GreenfootObject
      */
     public void putBeeper()
     {
-        GreenfootWorld myWorld = getWorld();
+        World myWorld = getWorld();
         if (!beeperBag.isEmpty()) {
             Beeper beeper = (Beeper) beeperBag.pop();
             beeper.setLocation(getX(), getY());

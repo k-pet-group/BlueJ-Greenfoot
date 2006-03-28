@@ -1,9 +1,9 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 import java.awt.*;
 
-public class Sky extends GreenfootWorld
+public class Sky extends World
 {
     private static int WIDTH = 800;
     private static int HEIGHT = 600;

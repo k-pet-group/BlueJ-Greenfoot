@@ -1,5 +1,5 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 import java.awt.*;
 import javax.swing.*;
@@ -9,7 +9,7 @@ import java.awt.image.*;
 /**
  * A shape world
  */
-public class ShapeWorld extends GreenfootWorld
+public class ShapeWorld extends World
 {
     /**
      * Creates a world of size 600*400, 

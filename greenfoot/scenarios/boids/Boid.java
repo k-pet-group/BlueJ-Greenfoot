@@ -1,5 +1,5 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 import java.util.Iterator;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.ArrayList;
 import java.awt.Point;
 
-public abstract class Boid extends GreenfootObject
+public abstract class Boid extends Actor
 {
 
  

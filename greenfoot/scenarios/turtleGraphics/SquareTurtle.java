@@ -1,5 +1,5 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 public class SquareTurtle extends Turtle
 {

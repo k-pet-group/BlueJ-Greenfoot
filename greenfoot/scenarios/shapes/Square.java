@@ -1,4 +1,4 @@
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 
@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 /**
  * A square
  */
-public class Square extends GreenfootObject{
+public class Square extends Actor{
     private Color color;
     private int size;
     

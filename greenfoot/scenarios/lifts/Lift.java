@@ -1,4 +1,4 @@
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
@@ -7,7 +7,7 @@ import java.util.Random;
 
 import javax.swing.ImageIcon;
 
-public class Lift extends GreenfootObject
+public class Lift extends Actor
 {
     private static final Random randomizer = Building.getRandomizer();
 

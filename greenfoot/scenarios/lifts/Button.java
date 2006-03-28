@@ -1,9 +1,9 @@
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import javax.swing.ImageIcon;
 
-public class Button extends GreenfootObject
+public class Button extends Actor
 {
     public static final int UP = 0;
     public static final int DOWN = 1;

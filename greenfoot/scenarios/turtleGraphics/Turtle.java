@@ -1,12 +1,12 @@
 
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-public class Turtle extends GreenfootObject
+public class Turtle extends Actor
 {
 
     private boolean penDown;
@@ -97,7 +97,7 @@ public class Turtle extends GreenfootObject
     
     /**
      * We need to make sure that our own representaion of the location is the
-     * same as the GreenfootWorld
+     * same as the World
      */
     private void initialize()
     {

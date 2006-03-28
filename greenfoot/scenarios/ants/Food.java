@@ -1,11 +1,11 @@
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
-public class Food extends GreenfootObject
+public class Food extends Actor
 {
     private static Random randomizer = AntWorld.getRandomizer();
 

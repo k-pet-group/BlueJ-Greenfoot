@@ -16,8 +16,8 @@
  * Modified by Poul Henriksen to make it work with Greenfoot
  */
 
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import java.awt.Toolkit;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.RGBImageFilter;
 
-public class Actor extends GreenfootObject
+public class Actor extends Actor
 {
  /* private Grid<Actor> grid;
    private Location location;*/

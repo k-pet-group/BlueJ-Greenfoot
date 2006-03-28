@@ -1,6 +1,6 @@
 
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 /**
  * An inverter moves forward in a straight line. <br>

@@ -1,6 +1,6 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
-public class Rocket extends GreenfootObject
+import greenfoot.World;
+import greenfoot.Actor;
+public class Rocket extends Actor
 {
     private double velocity;
     private double power;

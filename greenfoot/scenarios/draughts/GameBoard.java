@@ -1,11 +1,11 @@
 import greenfoot.*;
-import greenfoot.GreenfootObject;
-import greenfoot.GreenfootWorld;
+import greenfoot.Actor;
+import greenfoot.World;
 import greenfoot.GreenfootImage;
 
 import java.util.Collection;
 
-public class GameBoard extends GreenfootWorld
+public class GameBoard extends World
 {
     private Player playerOne;
     private Player playerTwo;
@@ -35,7 +35,7 @@ public class GameBoard extends GreenfootWorld
         
     }
     
-    public synchronized void removeObject(GreenfootObject object)
+    public synchronized void removeObject(Actor object)
     {
         super.removeObject(object);
         if(object instanceof Draught) {

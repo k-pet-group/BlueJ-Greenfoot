@@ -16,14 +16,14 @@
  * Modified by Poul Henriksen to make it work with Greenfoot
  */
 
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Grid<E> extends GreenfootWorld
+public class Grid<E> extends World
 {
 // COPY FROM AbstractGrid
    public ArrayList<Location> getValidNeighborLocations(Location loc)
@@ -173,7 +173,7 @@ public class Grid<E> extends GreenfootWorld
       E occupant = null;
       List l = getObjectsAt(loc.col(), loc.row(),null);
       for(Object o : l) {
-         GreenfootObject go = (GreenfootObject) o;
+         Actor go = (Actor) o;
          if(go.getX() == loc.col() && go.getY() == loc.row()) {
             occupant = (E) o;
             break;
@@ -196,14 +196,14 @@ public class Grid<E> extends GreenfootWorld
       List l = getObjectsAt(loc.col(), loc.row(),null);
        E oldOccupant = null;
       for(Object o : l) {
-        GreenfootObject go = (GreenfootObject) o;
+        Actor go = (Actor) o;
          if(go.getX() == loc.col() && go.getY() == loc.row()) {
             oldOccupant = (E) o;            
-            removeObject((GreenfootObject) oldOccupant);
+            removeObject((Actor) oldOccupant);
             break;
          }
       }      
-      GreenfootObject go = (GreenfootObject) obj;
+      Actor go = (Actor) obj;
       addObject(go);
       go.setLocation(loc.col(), loc.row());
       return oldOccupant;
@@ -221,11 +221,11 @@ public class Grid<E> extends GreenfootWorld
       // Remove the object from the grid.
       
       List l = getObjectsAt(loc.col(), loc.row(),null);
-      GreenfootObject r = null;
+      Actor r = null;
       for(Object o : l) {
-         GreenfootObject go = (GreenfootObject) o;
+         Actor go = (Actor) o;
          if(go.getX() == loc.col() && go.getY() == loc.row()) {
-            r = (GreenfootObject) o;
+            r = (Actor) o;
             break;
          }
       }
@@ -233,7 +233,7 @@ public class Grid<E> extends GreenfootWorld
    /*   if(!l.isEmpty()) {
           
           r = (E) l.get(0);
-          removeObject((GreenfootObject) r);
+          removeObject((Actor) r);
       }*/
       return (E) r;
       
@@ -246,7 +246,7 @@ public class Grid<E> extends GreenfootWorld
     
     /// METHODS ADDED FOR GREENFOOT
     
-   /* public void addObject(GreenfootObject o) {
+   /* public void addObject(Actor o) {
         
         super.addObject( o);
         if(o instanceof Actor) {
@@ -256,7 +256,7 @@ public class Grid<E> extends GreenfootWorld
         System.out.println("obj added");
     }
     
-    public void removeObject(GreenfootObject o) {
+    public void removeObject(Actor o) {
         System.out.println("RemoveObject");
     }
     */

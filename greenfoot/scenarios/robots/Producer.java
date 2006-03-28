@@ -1,5 +1,5 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 /**
  * A producer robot moves forward in a straight line 
  * and puts down a beeper in each cell it passes.

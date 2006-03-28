@@ -1,4 +1,4 @@
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 
@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 /**
  * A circle
  */
-public class Circle extends GreenfootObject
+public class Circle extends Actor
 {
     
     private Color color;

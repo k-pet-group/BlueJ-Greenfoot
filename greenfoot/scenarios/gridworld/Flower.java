@@ -14,8 +14,8 @@
  * @author Cay Horstmann
  */
 
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 
 import java.awt.Color;

@@ -1,10 +1,10 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.util.Random;
 
-public class WombatWorld extends GreenfootWorld
+public class WombatWorld extends World
 {
     private Random randomizer = new Random();
     

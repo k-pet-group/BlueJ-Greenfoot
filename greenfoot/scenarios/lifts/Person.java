@@ -1,7 +1,7 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
-public class Person extends GreenfootObject
+public class Person extends Actor
 {
     private static final int ST_ON_FLOOR = 0;
     private static final int ST_IN_LIFT = 1;

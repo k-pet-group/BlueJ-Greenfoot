@@ -1,12 +1,12 @@
 
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 
 /**
  * A beeper.
  */
-public class Beeper extends GreenfootObject
+public class Beeper extends Actor
 {
     public Beeper()
     {

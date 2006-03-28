@@ -1,10 +1,10 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 
-public class Paddle extends GreenfootObject
+public class Paddle extends Actor
 {
     public Paddle()
     {

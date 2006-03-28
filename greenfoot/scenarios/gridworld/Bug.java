@@ -16,8 +16,8 @@
  * Modified by Poul Henriksen to make it work with Greenfoot
  */
 
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
 import java.awt.Color;
 

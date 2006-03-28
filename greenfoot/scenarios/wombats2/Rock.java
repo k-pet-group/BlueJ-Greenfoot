@@ -1,7 +1,7 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 
-public class Rock extends GreenfootObject
+public class Rock extends Actor
 {
     public Rock()
     {

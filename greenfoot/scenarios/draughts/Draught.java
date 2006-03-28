@@ -1,7 +1,7 @@
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 
 import java.util.*;
-public class Draught extends GreenfootObject
+public class Draught extends Actor
 {
     private boolean isKing;
     private String draughtColour;

@@ -1,12 +1,12 @@
-import greenfoot.GreenfootObject;
-import greenfoot.GreenfootWorld;
+import greenfoot.Actor;
+import greenfoot.World;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.Random;
 
-public class Building extends GreenfootWorld
+public class Building extends World
 {
     public static final int RESOLUTION = 1;
     public static final int DEFAULT_LIFTS = 3;
@@ -80,7 +80,7 @@ public class Building extends GreenfootWorld
         }
     }
     
-    private void newObject(GreenfootObject obj, int x, int y)
+    private void newObject(Actor obj, int x, int y)
     {
         addObject(obj);
         obj.setLocation(x, y);

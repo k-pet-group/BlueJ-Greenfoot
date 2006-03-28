@@ -1,5 +1,5 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
@@ -10,7 +10,7 @@ import java.net.MalformedURLException;
 /**
  * A world for the robots
  */
-public class RobotWorld extends GreenfootWorld
+public class RobotWorld extends World
 {
 
     private static int cellSize = 50;

@@ -1,4 +1,4 @@
-import greenfoot.GreenfootObject;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
@@ -7,7 +7,7 @@ import java.awt.Color;
 /**
  * A triangle
  */
-public class Triangle extends GreenfootObject
+public class Triangle extends Actor
 {
     private Color color;
     private int width;

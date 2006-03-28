@@ -1,10 +1,10 @@
-import greenfoot.GreenfootWorld;
-import greenfoot.GreenfootObject;
+import greenfoot.World;
+import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
 
-public class BrickWorld extends GreenfootWorld
+public class BrickWorld extends World
 {
     public static int SIZEX = 400;
     public static int SIZEY = 300;
