@@ -8,7 +8,7 @@ import junit.framework.TestCase;
  * 
  * @author Poul Henriksen
  */
-public class GreenfootObjectTest extends TestCase
+public class ActorTest extends TestCase
 {
 
     private World world;

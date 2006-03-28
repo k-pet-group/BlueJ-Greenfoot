@@ -2,7 +2,7 @@ package greenfoot;
 
 import junit.framework.TestCase;
 
-public class GreenfootWorldTest extends TestCase
+public class WorldTest extends TestCase
 {
     public void testSetWrapped() {
         World world = new World(10,10,10);
