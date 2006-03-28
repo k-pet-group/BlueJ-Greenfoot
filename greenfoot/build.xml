@@ -67,7 +67,7 @@
 		<include name="wombats/" />
 	</patternset>
 
-	<!-- To avoid duplicate classes when compiling scenarios we exclude the greenfoto classes here -->
+	<!-- To avoid duplicate classes when compiling scenarios we exclude the greenfoot classes here -->
 	<patternset id="compile.scenarios">
 		<patternset refid="distribution.scenarios"/>
 		<exclude name="**/greenfoot/*" />
@@ -137,16 +137,40 @@
 	<target name="compile-scenarios" depends="compile" description="Compile the scenarios">
 		<!-- Should first delete all class files in scenario, and the greenfoot dir (depend on clean-scenarios) -->
                 
+		<macrodef name="compile-scenario">
+			<attribute name="scenario" />
+			<sequential>
+				<copy todir="scenarios/@{scenario}">
+					<fileset dir="projects/skeletonProject">
+						<include name="greenfoot/**" />
+						<include name="images/**" />
+					</fileset>
+				</copy>		
+				<javac srcdir="scenarios/@{scenario}" classpathref="greenfoot.class.path" debug="true"/>
+			</sequential>
+		</macrodef>
+		
+		<compile-scenario scenario="ants" />
+		<compile-scenario scenario="boids" />
+		<compile-scenario scenario="bricks" />
+		<compile-scenario scenario="draughts" />
+		<compile-scenario scenario="robots" />
+		<compile-scenario scenario="shapes" />
+		<compile-scenario scenario="turtleGraphics" />
+		<compile-scenario scenario="wombats" />
+		
 		<!-- Compile all the scenarios -->
+		<!--
 		<javac srcdir="scenarios" classpathref="greenfoot.class.path" debug="true">
 			<patternset refid="compile.scenarios" />
+			-->
 			<!-- compilerarg line="-source 1.4 -target 1.4" / -->
-		</javac>
+		<!-- </javac> -->
 		<!-- TODO copy skeleton/greenfoot to all scenarios. Might need a custom target. -->
 
 	</target>
 
-	<target name="ready-to-run" depends="compile, copy-projects" description="Builds everything so it is ready to run" >
+	<target name="ready-to-run" depends="compile, copy-projects, copy-imagelib" description="Builds everything so it is ready to run" >
 		<!-- Put everything in ${build} into the the jar file-->
 		<jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
 			<manifest>
@@ -192,6 +216,12 @@
 			</fileset>
 		</copy>
 	</target>
+	
+	<target name="copy-imagelib" depends="skeleton" description="Copies the images for the image library to bluej">
+		<copy todir="${bluej.lib}/imagelib">
+			<fileset dir="imagelib"/>
+		</copy>
+	</target>		
 
 	<target name="dist" depends="ready-to-run" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
 		<!-- Run the BlueJ dist-->
