@@ -2,7 +2,7 @@ package greenfoot.core;
 
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
-import greenfoot.GreenfootWorld;
+import greenfoot.World;
 import greenfoot.ObjectTracker;
 import greenfoot.WorldVisitor;
 import greenfoot.event.WorldEvent;
@@ -49,7 +49,7 @@ import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
- * The worldhandler handles the connection between the GreenfootWorld and the
+ * The worldhandler handles the connection between the World and the
  * WorldCanvas.
  * 
  * @author Poul Henriksen
@@ -59,7 +59,7 @@ public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
-    private GreenfootWorld world;
+    private World world;
     private WorldCanvas worldCanvas;
     private SelectionManager classSelectionManager;
     private JLabel worldTitle = new JLabel();
@@ -88,7 +88,7 @@ public class WorldHandler
      * Creates a new worldHandler and sets up the connection between worldCanvas
      * and world.
      */
-    private WorldHandler(GProject project, WorldCanvas worldCanvas, GreenfootWorld world)
+    private WorldHandler(GProject project, WorldCanvas worldCanvas, World world)
     {
 
         this.project = project;
@@ -108,7 +108,7 @@ public class WorldHandler
         return instance;
     }
 
-    public static synchronized void initialise(GProject project, WorldCanvas worldCanvas, GreenfootWorld world) 
+    public static synchronized void initialise(GProject project, WorldCanvas worldCanvas, World world) 
     {
         if(instance == null) {
             instance = new WorldHandler(project, worldCanvas, world);
@@ -409,12 +409,12 @@ public class WorldHandler
      * 
      * @param world
      */
-    public void setWorld(GreenfootWorld world)
+    public void setWorld(World world)
     {
         installNewWorld(world);
     }
 
-    public void installNewWorld(GreenfootWorld world)
+    public void installNewWorld(World world)
     {
         this.world = world;
 
@@ -472,7 +472,7 @@ public class WorldHandler
         return worldTitle;
     }
     
-    public GreenfootWorld getWorld() {
+    public World getWorld() {
         return world;
     }
 

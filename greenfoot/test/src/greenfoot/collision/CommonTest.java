@@ -1,7 +1,7 @@
 package greenfoot.collision;
 
 import junit.framework.TestCase;
-import greenfoot.GreenfootWorld;
+import greenfoot.World;
 import greenfoot.TestObject;
 
 /**
@@ -12,11 +12,11 @@ import greenfoot.TestObject;
  */
 public class CommonTest extends TestCase
 {
-    private GreenfootWorld world;
+    private World world;
     private TestObject obj1;
     protected void setUp()        
     {
-        world = new GreenfootWorld(10,10,10);
+        world = new World(10,10,10);
         obj1 = new TestObject(10,10);
         world.addObject(obj1);
         obj1.setLocation(0, 0);

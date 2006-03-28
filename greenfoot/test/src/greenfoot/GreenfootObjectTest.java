@@ -3,7 +3,7 @@ package greenfoot;
 import junit.framework.TestCase;
 
 /**
- * Tests some of the methods in GreenfootObject. This is things related to size,
+ * Tests some of the methods in Actor. This is things related to size,
  * position and rotation.
  * 
  * @author Poul Henriksen
@@ -11,11 +11,11 @@ import junit.framework.TestCase;
 public class GreenfootObjectTest extends TestCase
 {
 
-    private GreenfootWorld world;
+    private World world;
 
     public void testSize()
     {
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
         world.setWrapped(true);
         TestObject o = new TestObject(11, 31);
         world.addObject(o);
@@ -30,7 +30,7 @@ public class GreenfootObjectTest extends TestCase
     
     public void testOutOfBounds()
     {
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
         TestObject o = new TestObject(11, 31);
         world.addObject(o);
         int x = 2;

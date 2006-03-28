@@ -10,26 +10,26 @@ import java.util.Collection;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 3816 2006-03-13 15:49:00Z polle $
+ * @version $Id: WorldVisitor.java 3911 2006-03-28 11:38:48Z polle $
  */
 public class WorldVisitor
 {
-    public static int getWidthInPixels(GreenfootWorld w)
+    public static int getWidthInPixels(World w)
     {
         return w.getWidthInPixels();
     }
 
-    public static int getHeightInPixels(GreenfootWorld w)
+    public static int getHeightInPixels(World w)
     {
         return w.getHeightInPixels();
     }
 
-    public static int getCellSize(GreenfootWorld w)
+    public static int getCellSize(World w)
     {
         return w.getCellSize();
     }
     
-    public static Collection getObjectsAtPixel(GreenfootWorld w, int x, int y)
+    public static Collection getObjectsAtPixel(World w, int x, int y)
     {
         return w.getObjectsAtPixel(x, y);
     }
@@ -38,12 +38,12 @@ public class WorldVisitor
      * Used to indicate the start of an animation sequence. For use in the collision checker.
      * @see greenfoot.collision.CollisionChecker#startSequence()
      */
-    public static void startSequence(GreenfootWorld w)
+    public static void startSequence(World w)
     {
         w.startSequence();
     }
 
-    public static void paintDebug(GreenfootWorld world, Graphics g)
+    public static void paintDebug(World world, Graphics g)
     {
         world.paintDebug(g);
     }

@@ -1,6 +1,6 @@
 package greenfoot.collision;
 
-import greenfoot.GreenfootWorld;
+import greenfoot.World;
 import greenfoot.TestObject;
 
 import java.util.Collection;
@@ -8,17 +8,17 @@ import java.util.Collection;
 import junit.framework.TestCase;
 
 /**
- * Tests the GreenfootWorld's and GreenfootObject's getObjectsInRange method.
+ * Tests the World's and Actor's getObjectsInRange method.
  * 
  * @author Poul Henriksen
  */
 public class InRangeTest extends TestCase
 {
-    private GreenfootWorld world;
+    private World world;
 
     public void testNoWrap()
     {
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
 
         TestObject go1 = new TestObject(20, 20);
         go1.setLocation(2, 2);
@@ -55,7 +55,7 @@ public class InRangeTest extends TestCase
     
     public void testWrap()
     {
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
         world.setWrapped(true);
 
         TestObject go1 = new TestObject(20, 20);

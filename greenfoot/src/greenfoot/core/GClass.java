@@ -271,7 +271,7 @@ public class GClass implements CompileListener
         // compiled.
         
         String name = this.getName();
-        if(name.equals("GreenfootWorld") || name.equals("Actor")) {
+        if(name.equals("World") || name.equals("Actor")) {
             //We do not want to waste time on guessing the name of the superclass for these to classes.
             return;
         }
@@ -311,13 +311,13 @@ public class GClass implements CompileListener
             }*/
             ClassInfo info = ClassParser.parse(rmiClass.getJavaFile());//, classes);
             parsedSuperclass = info.getSuperclass();
-            // TODO hack! If the superclass is Actor or GreenfootWorld,
+            // TODO hack! If the superclass is Actor or World,
             // put it in the right package... parsing does not resolve references...
             if (parsedSuperclass.equals("Actor")) {
                 parsedSuperclass = "greenfoot.Actor";
             }
-            if (parsedSuperclass.equals("GreenfootWorld")) {
-                parsedSuperclass = "greenfoot.GreenfootWorld";
+            if (parsedSuperclass.equals("World")) {
+                parsedSuperclass = "greenfoot.World";
             }
         }
         catch (ProjectNotOpenException e) {}

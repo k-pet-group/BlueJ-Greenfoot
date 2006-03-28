@@ -2,7 +2,7 @@ package greenfoot.util;
 
 import greenfoot.GreenfootImage;
 import greenfoot.ActorVisitor;
-import greenfoot.GreenfootWorld;
+import greenfoot.World;
 import greenfoot.core.ClassImageManager;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -76,7 +76,7 @@ public class GreenfootScenarioViewer implements ClassImageManager
             Class worldClass = Class.forName(worldClassName);
             ExecServer.setClassLoader(worldClass.getClassLoader());
             Constructor worldConstructor = worldClass.getConstructor(new Class[]{});
-            GreenfootWorld world = (GreenfootWorld) worldConstructor.newInstance(new Object[]{});
+            World world = (World) worldConstructor.newInstance(new Object[]{});
 
             canvas = new WorldCanvas(world);
 

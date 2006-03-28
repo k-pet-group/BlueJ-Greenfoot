@@ -1,6 +1,6 @@
 package greenfoot.gui;
 
-import greenfoot.GreenfootWorld;
+import greenfoot.World;
 import greenfoot.actions.AboutGreenfootAction;
 import greenfoot.actions.CloseProjectAction;
 import greenfoot.actions.CompileAllAction;
@@ -73,7 +73,7 @@ import greenfoot.actions.RunSimulationAction;
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3909 2006-03-28 10:39:37Z mik $
+ * @version $Id: GreenfootFrame.java 3911 2006-03-28 11:38:48Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -295,18 +295,18 @@ public class GreenfootFrame extends JFrame
      * 
      * @param classBrowser
      */
-    private GreenfootWorld instantiateNewWorld(ClassBrowser classBrowser)
+    private World instantiateNewWorld(ClassBrowser classBrowser)
     {
         //init a random world
         Iterator worldClasses = classBrowser.getWorldClasses();
 
         while (worldClasses.hasNext()) {
             ClassView classView = (ClassView) worldClasses.next();
-            if (!classView.getClassName().equals("GreenfootWorld")) {
+            if (!classView.getClassName().equals("World")) {
                 classView.reloadClass();
                 Object o = classView.createInstance();
-                if (o instanceof GreenfootWorld) {
-                    GreenfootWorld world = (GreenfootWorld) o;
+                if (o instanceof World) {
+                    World world = (World) o;
                     if (world != null) {
                         WorldHandler.instance().setWorld(world);
                     }
@@ -321,7 +321,7 @@ public class GreenfootFrame extends JFrame
 
     private void buildWorld(GProject project)
     {
-        GreenfootWorld world = null;
+        World world = null;
         WorldCanvas worldCanvas = new WorldCanvas(world);
         WorldHandler.initialise(project, worldCanvas, world);
     }

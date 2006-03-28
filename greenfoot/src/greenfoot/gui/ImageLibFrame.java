@@ -1,7 +1,7 @@
 package greenfoot.gui;
 
 import greenfoot.Actor;
-import greenfoot.GreenfootWorld;
+import greenfoot.World;
 import greenfoot.core.GClass;
 import greenfoot.core.Greenfoot;
 import greenfoot.gui.classbrowser.ClassView;
@@ -40,7 +40,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 3910 2006-03-28 11:12:03Z polle $
+ * @version $Id: ImageLibFrame.java 3911 2006-03-28 11:38:48Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -543,7 +543,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 ImageWaiter imageWaiter = new ImageWaiter(image.getAWTImage());
                 imageWaiter.drawWait(g2, 0, 0);
                 
-                GreenfootWorld world = so.getWorld();
+                World world = so.getWorld();
                 if(world != null) {
                     world.removeObject(so);
                 } 

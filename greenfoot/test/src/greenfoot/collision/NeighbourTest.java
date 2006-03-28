@@ -1,6 +1,6 @@
 package greenfoot.collision;
 
-import greenfoot.GreenfootWorld;
+import greenfoot.World;
 import greenfoot.TestObject;
 
 import java.util.ArrayList;
@@ -17,11 +17,11 @@ import junit.framework.TestCase;
  */
 public class NeighbourTest extends TestCase
 {
-    private GreenfootWorld world;
+    private World world;
 
     public void testDiagonal()
     {
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
         world.setWrapped(true);
         int d = 2;
 
@@ -40,7 +40,7 @@ public class NeighbourTest extends TestCase
 
     public void testNoDiagonal()
     {
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
         world.setWrapped(true);
         TestObject me = new TestObject();
         me.setLocation(4, 4);
@@ -84,7 +84,7 @@ public class NeighbourTest extends TestCase
 
     public void testWraping()
     {
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
         world.setWrapped(true);
         TestObject topLeft = new TestObject();
         topLeft.setLocation(0, 0);
@@ -118,7 +118,7 @@ public class NeighbourTest extends TestCase
     public void testNoWrapNoDiagonal()
     {
 
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
 
         int d = 2;
         int xStart = 0;
@@ -143,7 +143,7 @@ public class NeighbourTest extends TestCase
     {
 
         int d = 2;
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
 
         int xStart = 9;
         int yStart = 9;
@@ -155,7 +155,7 @@ public class NeighbourTest extends TestCase
         assertEquals(8, c.size());
         assertTrue(c.containsAll(neighbours));
 
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
         xStart = 0;
         yStart = 0;
         me.setLocation(xStart, yStart);
@@ -168,7 +168,7 @@ public class NeighbourTest extends TestCase
 
     public void testWrapDiagonal()
     {
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
         world.setWrapped(true);
         int d = 2;
 
@@ -182,7 +182,7 @@ public class NeighbourTest extends TestCase
         assertEquals(24, c.size());
         assertTrue(c.containsAll(neighbours));
 
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
         world.setWrapped(true);
         xStart = 0;
         yStart = 0;
@@ -196,7 +196,7 @@ public class NeighbourTest extends TestCase
 
     public void testWrapNoDiagonal()
     {
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
         world.setWrapped(true);
         int d = 2;
 
@@ -210,7 +210,7 @@ public class NeighbourTest extends TestCase
         assertEquals(12, c.size());
         assertTrue(c.containsAll(neighbours));
 
-        world = new GreenfootWorld(10, 10, 10);
+        world = new World(10, 10, 10);
         world.setWrapped(true);
         xStart = 0;
         yStart = 0;

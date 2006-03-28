@@ -439,7 +439,7 @@ public class Greenfoot implements ClassImageManager
 
     /**
      * Checks whether the odl and new source files for Actor and
-     * GreenfootWorld are the same. If they are not, the class files are
+     * World are the same. If they are not, the class files are
      * deleted.
      */
     private void validateClassFiles(File src, File dst)
@@ -448,9 +448,9 @@ public class Greenfoot implements ClassImageManager
         File oldGO = new File(dst, "greenfoot/Actor.java");
         File goClassFile= new File(dst, "greenfoot/Actor.class");
         
-        File newGW = new File(src, "greenfoot/GreenfootWorld.java");
-        File oldGW = new File(dst, "greenfoot/GreenfootWorld.java");
-        File gwClassFile= new File(dst, "greenfoot/GreenfootWorld.class");
+        File newGW = new File(src, "greenfoot/World.java");
+        File oldGW = new File(dst, "greenfoot/World.java");
+        File gwClassFile= new File(dst, "greenfoot/World.class");
         
         if(! sameFileContents(newGO, oldGO) || ! sameFileContents(newGW, oldGW)) {
             try {

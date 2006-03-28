@@ -15,10 +15,10 @@ import java.util.List;
 
 
 /**
- * GreenfootWorld is the world that Actors live in. It is a two-dimensional 
+ * World is the world that Actors live in. It is a two-dimensional 
  * grid of cells. <br>
  * 
- * All Actor are associated with a GreenfootWorld and can get access to the 
+ * All Actor are associated with a World and can get access to the 
  * world object. The size of cells can be specified at world creation time, and is 
  * constant after creation. Simple scenarios may use large cells that entirely contain
  * the representations of objects in a single cell. More elaborate scenarios may use
@@ -31,9 +31,9 @@ import java.util.List;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 0.3.0
- * @cvs-version $Id: GreenfootWorld.java 3910 2006-03-28 11:12:03Z polle $
+ * @cvs-version $Id$
  */
-public class GreenfootWorld extends ObjectTransporter
+public class World extends ObjectTransporter
 {
 //    private CollisionChecker collisionChecker = new GridCollisionChecker();//new BVHInsChecker();
     private CollisionChecker collisionChecker = new BVHInsChecker();
@@ -70,7 +70,7 @@ public class GreenfootWorld extends ObjectTransporter
      * @param cellSize Size of a cell in pixels.
      * 
      */
-    public GreenfootWorld(int worldWidth, int worldHeight, int cellSize)
+    public World(int worldWidth, int worldHeight, int cellSize)
     {
         initialize(worldWidth, worldHeight, cellSize);
     }

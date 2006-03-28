@@ -1,7 +1,7 @@
 package greenfoot.event;
 
 import greenfoot.Actor;
-import greenfoot.GreenfootWorld;
+import greenfoot.World;
 import greenfoot.ObjectTracker;
 import greenfoot.core.ObjectDragProxy;
 import greenfoot.core.WorldHandler;
@@ -71,8 +71,8 @@ public class ActorInstantiationListener extends RInvocationListenerImpl
             // object is created:
             worldHandler.repaint();
         }
-        else if(realObject instanceof greenfoot.GreenfootWorld) {
-            worldHandler.installNewWorld((GreenfootWorld) realObject);
+        else if(realObject instanceof greenfoot.World) {
+            worldHandler.installNewWorld((World) realObject);
         }
     }
 

@@ -5,17 +5,17 @@ package greenfoot.collision;
 
 import java.util.List;
 
-import greenfoot.GreenfootWorld;
+import greenfoot.World;
 import greenfoot.TestObject;
 import junit.framework.TestCase;
 
 public class GetAtTest extends TestCase
 {
-    private GreenfootWorld world;
+    private World world;
 
     public void testPixelOdd()
     {
-        world = new GreenfootWorld(100, 100, 1);
+        world = new World(100, 100, 1);
 
         TestObject go1 = new TestObject(21, 21);
         world.addObject(go1);
@@ -41,7 +41,7 @@ public class GetAtTest extends TestCase
 
     public void testPixelEven()
     {
-        world = new GreenfootWorld(100, 100, 1);
+        world = new World(100, 100, 1);
 
         TestObject go1 = new TestObject(20, 20);
         world.addObject(go1);

@@ -45,7 +45,7 @@
 	<property name="package" location="package"/>
 	<!-- Files that are used in the skeleton project. These are the user-visible framework files   -->
 	<patternset id="skeleton.files">
-		<include name="greenfoot/GreenfootWorld.*"/>
+		<include name="greenfoot/World.*"/>
 		<include name="greenfoot/Actor.*"/>
 		<include name="images/greenfoot-logo.png"/>
 	</patternset>
@@ -189,7 +189,7 @@
 
 			<fileset dir="${src}" defaultexcludes="yes">
 				<include name="greenfoot/Actor.java" />
-				<include name="greenfoot/GreenfootWorld.java" />
+				<include name="greenfoot/World.java" />
 				<include name="greenfoot/GreenfootImage.java" />
 			</fileset>
 		</javadoc>

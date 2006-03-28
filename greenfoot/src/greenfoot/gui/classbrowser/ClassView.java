@@ -51,7 +51,7 @@ import java.awt.Font;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 3910 2006-03-28 11:12:03Z polle $
+ * @version $Id: ClassView.java 3911 2006-03-28 11:38:48Z polle $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -71,7 +71,7 @@ public class ClassView extends JToggleButton
 
     private transient final static Logger logger = Logger.getLogger("greenfoot");
     private static final String newline = System.getProperty("line.separator");
-    private static final String imports = "import greenfoot.GreenfootWorld;" + newline 
+    private static final String imports = "import greenfoot.World;" + newline 
                                          + "import greenfoot.Actor;" + newline;
 
     private static final Dimension minimumSize = new Dimension(60, 20);

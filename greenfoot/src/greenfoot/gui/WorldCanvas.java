@@ -1,7 +1,7 @@
 package greenfoot.gui;
 
 import greenfoot.Actor;
-import greenfoot.GreenfootWorld;
+import greenfoot.World;
 import greenfoot.ImageVisitor;
 import greenfoot.WorldVisitor;
 
@@ -25,17 +25,17 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3910 2006-03-28 11:12:03Z polle $
+ * @version $Id: WorldCanvas.java 3911 2006-03-28 11:38:48Z polle $
  */
 public class WorldCanvas extends JComponent
     implements  DropTarget, Scrollable
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
-    private GreenfootWorld world;
+    private World world;
     private DropTarget dropTargetListener;
 
-    public WorldCanvas(GreenfootWorld world)
+    public WorldCanvas(World world)
     {
         setWorld(world);
     }
@@ -45,7 +45,7 @@ public class WorldCanvas extends JComponent
      * 
      * @param world
      */
-    public void setWorld(GreenfootWorld world)
+    public void setWorld(World world)
     {
         this.world = world;
         this.setSize(0, 0);

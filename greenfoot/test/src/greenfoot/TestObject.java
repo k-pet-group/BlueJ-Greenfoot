@@ -8,7 +8,7 @@ import java.util.List;
  * 
  * @author Poul Henriksen
  */
-public class TestObject extends GreenfootObject
+public class TestObject extends Actor
 {
     /**
      * A test object with an image size of 7x7. Using 7x7 gives a size just less
@@ -36,7 +36,7 @@ public class TestObject extends GreenfootObject
         return getObjectsInRange(distance, cls);
     }
 
-    public boolean intersectsP(GreenfootObject other)
+    public boolean intersectsP(Actor other)
     {
         return intersects(other);
     }
@@ -56,12 +56,12 @@ public class TestObject extends GreenfootObject
          return getObjectsInDirection(angle, length, cls);
     }
 
-    public GreenfootObject getOneIntersectingObjectP(Class cls)
+    public Actor getOneIntersectingObjectP(Class cls)
     {
        return getOneIntersectingObject(cls);
     }
 
-    public GreenfootObject getOneObjectAtP(int dx, int dy, Class cls)
+    public Actor getOneObjectAtP(int dx, int dy, Class cls)
     {
         return getOneObjectAt(dx, dy, cls);
     }

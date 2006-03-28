@@ -48,7 +48,7 @@ public class Actor extends ObjectTransporter
     /** Rotation in degrees (0-359) */
     private int rotation = 0;
 
-    private GreenfootWorld world;
+    private World world;
     private GreenfootImage image;
 
     private Circle boundingCircle;
@@ -316,7 +316,7 @@ public class Actor extends ObjectTransporter
      * 
      * @return The world.
      */
-    final public GreenfootWorld getWorld()
+    final public World getWorld()
     {
         return world; 
     }
@@ -395,7 +395,7 @@ public class Actor extends ObjectTransporter
      * 
      * @param world
      */
-    void setWorld(GreenfootWorld world)
+    void setWorld(World world)
     {
         // TODO Possible error if its location is out of bounds
         this.world = world;
