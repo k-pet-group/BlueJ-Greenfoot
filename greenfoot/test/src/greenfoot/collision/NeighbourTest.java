@@ -48,9 +48,9 @@ public class NeighbourTest extends TestCase
 
         for (int x = 0; x < world.getWidth(); x++) {
             for (int y = 0; y < world.getHeight(); y++) {
-                TestObject go = new TestObject();
-                go.setLocation(x, y);
-                world.addObject(go);
+                TestObject actor = new TestObject();
+                actor.setLocation(x, y);
+                world.addObject(actor);
             }
         }
 
@@ -108,11 +108,11 @@ public class NeighbourTest extends TestCase
         wrapTest(bottomRight);
     }
 
-    private void wrapTest(TestObject go)
+    private void wrapTest(TestObject actor)
     {
-        Collection c = go.getNeighboursP(1, true, TestObject.class);
+        Collection c = actor.getNeighboursP(1, true, TestObject.class);
         assertEquals(3, c.size());
-        assertFalse(c.contains(go));
+        assertFalse(c.contains(actor));
     }
 
     public void testNoWrapNoDiagonal()
@@ -230,9 +230,9 @@ public class NeighbourTest extends TestCase
     {
         for (int x = 0; x < world.getWidth(); x++) {
             for (int y = 0; y < world.getHeight(); y++) {
-                TestObject go = new TestObject();
-                go.setLocation(x, y);
-                world.addObject(go);
+                TestObject actor = new TestObject();
+                actor.setLocation(x, y);
+                world.addObject(actor);
             }
         }
 
@@ -262,9 +262,9 @@ public class NeighbourTest extends TestCase
         Collection neighbours = new ArrayList();
         for (int x = 0; x < world.getWidth(); x++) {
             for (int y = 0; y < world.getHeight(); y++) {
-                TestObject go = new TestObject();
-                go.setLocation(x, y);
-                world.addObject(go);
+                TestObject actor = new TestObject();
+                actor.setLocation(x, y);
+                world.addObject(actor);
             }
         }
 
