@@ -19,7 +19,7 @@ import bluej.utility.FileUtility;
  * Action to select an image for a class.
  * 
  * @author Davin McCall
- * @version $Id: SelectImageAction.java 3879 2006-03-25 20:40:14Z mik $
+ * @version $Id: SelectImageAction.java 3904 2006-03-28 06:35:52Z davmac $
  */
 public class SelectImageAction extends ClassAction
 {
@@ -48,11 +48,11 @@ public class SelectImageAction extends ClassAction
         Greenfoot greenfootInstance = Greenfoot.getInstance();
         
         try {
-            File projDir = greenfootInstance.getProject().getDir();
+            File projDir = greenfootInstance.getProject().getDir().getAbsoluteFile();
             File projImagesDir = new File(projDir, "images");
             
             if (imageFile != null) {
-                if (! imageFile.getParent().equals(projImagesDir)) {
+                if (! imageFile.getParentFile().getAbsoluteFile().equals(projImagesDir)) {
                     // An image was selected from an external dir. We need
                     // to copy it into the project images directory first.
                     File destFile = new File(projImagesDir, imageFile.getName());
