@@ -27,7 +27,7 @@ import javax.swing.ImageIcon;
  * The method here is empty, and subclasses normally provide their own implementations.
  * 
  * @author Poul Henriksen
- * @version 0.3.0
+ * @version 0.5.0
  * @cvs-version $Id$
  */
 public class Actor extends ObjectTransporter

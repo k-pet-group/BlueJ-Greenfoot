@@ -30,7 +30,7 @@ import java.util.List;
  * @see greenfoot.Actor
  * @author Poul Henriksen
  * @author Michael Kolling
- * @version 0.3.0
+ * @version 0.5.0
  * @cvs-version $Id$
  */
 public class World extends ObjectTransporter
