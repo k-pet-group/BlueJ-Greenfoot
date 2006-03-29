@@ -56,6 +56,7 @@ public class Actor extends ObjectTransporter
 
     private static GreenfootImage greenfootImage = new GreenfootImage("images/greenfoot-logo.png");
     private static ClassImageManager classImageManager;
+    private boolean usingClassImage;
 
     /**
      * Construct an Actor.
@@ -87,6 +88,13 @@ public class Actor extends ObjectTransporter
         locationChanged(x,y);
     }
     
+    /**
+     * Initialize an Actor:
+     * <ul>
+     * <li>Set the image to the default image for the Actor's class
+     * <li>Put the actor in the world
+     * </ul>
+     */
     private void init()
     {
         // Use the class image, if one is defined, as the default image, or the
@@ -95,7 +103,8 @@ public class Actor extends ObjectTransporter
         if (image == null) {
             image = greenfootImage;
         }
-        setImage(image.copy());
+        setImage(image);
+        usingClassImage = true;
         
         WorldHandler worldHandler = WorldHandler.instance();
         if( worldHandler == null ||  worldHandler.getWorld() == null) {
@@ -329,6 +338,13 @@ public class Actor extends ObjectTransporter
      */
     public GreenfootImage getImage()
     {
+        if (usingClassImage) {
+            // If this actor is using the class image, make a copy of it before
+            // returning it. Otherwise modifications will affect the class image.
+            image = image.copy();
+            usingClassImage = false;
+        }
+        
         return image;
     }
 
@@ -344,6 +360,7 @@ public class Actor extends ObjectTransporter
         URL imageURL = this.getClass().getClassLoader().getResource(filename);
         if (imageURL != null) {
             image = new GreenfootImage(imageURL);
+            usingClassImage = false;
             sizeChanged();
         }
     }
@@ -414,11 +431,29 @@ public class Actor extends ObjectTransporter
         return data;
     }
     
+    /**
+     * Set the class image manager for all greenfoot Actors. The image
+     * manager is used to get the default image for objects (i.e. the
+     * image that was set as the class image).
+     */
     static void setClassImageManager(ClassImageManager classImageManager)
     {
         Actor.classImageManager = classImageManager;
     }
     
+    /**
+     * Check whether the object is using the class image. This is true until
+     * getImage() is called, when a copy of the image is made.
+     * (package-private method). 
+     */
+    boolean isUsingClassImage()
+    {
+        return usingClassImage;
+    }
+    
+    /**
+     * Get the default image for objects of this class. May return null.
+     */
     private GreenfootImage getClassImage()
     {
         if (classImageManager != null) {
