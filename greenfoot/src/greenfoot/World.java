@@ -538,8 +538,8 @@ public class World extends ObjectTransporter
 
     public void paintDebug(Graphics g)
     {
-        g.setColor(Color.BLACK);
-        g.drawString("# of Objects: " + objects.size(), 50,50);
+     /*   g.setColor(Color.BLACK);
+        g.drawString("# of Objects: " + objects.size(), 50,50);*/
       /*  collisionChecker.paintDebug(g);*/
     }
 }
