@@ -28,7 +28,7 @@ import javax.swing.text.*;
  * This is an adaptation of the SyntaxEditorKit class from JEdit for BlueJ.
  * 
  * @author Bruce Quig
- * @author Michael Kšlling
+ * @author Michael Kolling
  *
  * @see org.gjt.sp.jedit.syntax.SyntaxView
  */
