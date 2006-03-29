@@ -1,3 +1,4 @@
 #Greenfoot properties
 #Mon Mar 27 14:39:58 EST 2006
-class.GreenfootObject.image=greenfoot-logo.png
+version=0.5
+class.Actor.image=greenfoot-logo.png
