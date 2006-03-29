@@ -1,8 +1,10 @@
 #Greenfoot properties
-#Fri Mar 24 10:15:45 GMT 2006
+#Wed Mar 29 21:14:07 GMT 2006
 class.Ball.image=ball.png
 class.Ant.image=ant.gif
 class.Brick.image=brick.png
 class.Food.image=ant-with-food.gif
+class.Counter.image=Counter.png
 class.Paddle.image=greenfoot-logo.png
 class.AntHill.image=anthill.gif
+class.Pheromone.image=Pheromone.png
