@@ -20,7 +20,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 0.5.0
- * @cvs-version $Id: GreenfootImage.java 3920 2006-03-29 00:38:09Z davmac $
+ * @cvs-version $Id: GreenfootImage.java 3930 2006-03-29 19:51:49Z polle $
  */
 public class GreenfootImage
 {
@@ -126,6 +126,11 @@ public class GreenfootImage
         initGraphics();
     }
     
+    /**
+     * Gets the Java AWT image that this GreenfootImage represents.
+     * 
+     * @return
+     */
     public Image getAWTImage() {
         return image;
     }
@@ -185,7 +190,7 @@ public class GreenfootImage
     /**
      * Return the height of the image.
      * 
-     * @return Height of the image, or -1 if the width can't be determined
+     * @return Height of the image, or -1 if the height can't be determined
      */
     public int getHeight()
     {
@@ -413,7 +418,7 @@ public class GreenfootImage
     }
     
     /**
-     * Return a text representation of the image for debugging purposes.
+     * Return a text representation of the image.
      */
     public String toString() {        
         String superString = super.toString();

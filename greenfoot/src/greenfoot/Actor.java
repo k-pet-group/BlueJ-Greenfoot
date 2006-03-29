@@ -48,12 +48,19 @@ public class Actor extends ObjectTransporter
     /** Rotation in degrees (0-359) */
     private int rotation = 0;
 
+    /** Reference to the world that this actor is a part of. */
     private World world;
+    
+    /** The image for this actor. */
     private GreenfootImage image;
 
+    /** Bounding circle. Used for collision checking. */
     private Circle boundingCircle;
+    
+    /** Field used to store some extra data in an object. Used by collision checkers. */
     private Object data;
 
+    
     private static GreenfootImage greenfootImage = new GreenfootImage("images/greenfoot-logo.png");
     private static ClassImageManager classImageManager;
     private boolean usingClassImage;
@@ -123,7 +130,7 @@ public class Actor extends ObjectTransporter
             // If an object that shouldn't really use the location from the
             // object tracker gets a location which is out of the world bounds,
             // it should just set the location to something else. We make no
-            // promises of where the obecjt will be added if no location is
+            // promises of where the object will be added if no location is
             // specified.
             if(x >= world.getWidthInPixels() || x < 0) {
                 x = 0;
@@ -307,15 +314,21 @@ public class Actor extends ObjectTransporter
         locationChanged(oldX, oldY);
     }
 
-
+    /**
+     * Checks if the coordinates are within the bounds of the world. Throws an
+     * exception if they are not within bounds.
+     * 
+     * @param x
+     * @param y
+     */
     private void boundsCheck(int x, int y)
     {
         if (world != null) {
             if (world.getWidth() <= x || x < 0) {
-                throw new IndexOutOfBoundsException("x(" + x + ") is out of bounds("+world.getWidth() +")");
+                throw new IndexOutOfBoundsException("x(" + x + ") is out of bounds(" + world.getWidth() + ")");
             }
             if (world.getHeight() <= y || y < 0) {
-                throw new IndexOutOfBoundsException("y(" + y + ") is out of bounds("+world.getHeight() +")");
+                throw new IndexOutOfBoundsException("y(" + y + ") is out of bounds(" + world.getHeight() + ")");
             }
         }
     }
@@ -419,6 +432,11 @@ public class Actor extends ObjectTransporter
         boundingCircle = new Circle(x,y,calcBoundingRadius());
     }
     
+    /**
+     * Get the bounding circle of the object. Taking into consideration that the
+     * object can rotate.
+     * 
+     */
     Circle getBoundingCircle() {        
         return boundingCircle;
     }
@@ -513,7 +531,10 @@ public class Actor extends ObjectTransporter
         return (int) Math.floor(paintY);
     }
     
-
+    /**
+     * Notify the world that this object's size has changed.
+     *
+     */
     private void sizeChanged()
     {
         if(boundingCircle != null) {
@@ -523,9 +544,24 @@ public class Actor extends ObjectTransporter
             world.updateObjectSize(this);
         }
     }   
-
+    
     /**
-     *Calculate the bounding radius. In grid coordinates.
+     * Notify the world that this object's location has changed.
+     *
+     */
+    private void locationChanged(int oldX, int oldY)
+    {
+        if(boundingCircle != null) {
+            boundingCircle.setX(x);
+            boundingCircle.setY(y);
+        }
+        if(world != null) {
+            world.updateObjectLocation(this, oldX, oldY);
+        }
+    }
+    
+    /**
+     * Calculate the bounding radius. In grid coordinates.
      */
     private int calcBoundingRadius() {
         if(world == null) return -1;
@@ -538,16 +574,7 @@ public class Actor extends ObjectTransporter
         return (int) (Math.sqrt(dx*dx + dy*dy) / 2 );
     }
 
-    private void locationChanged(int oldX, int oldY)
-    {
-        if(boundingCircle != null) {
-            boundingCircle.setX(x);
-            boundingCircle.setY(y);
-        }
-        if(world != null) {
-            world.updateObjectLocation(this, oldX, oldY);
-        }
-    }
+
 
     // ============================
     //
@@ -647,8 +674,6 @@ public class Actor extends ObjectTransporter
      * inspect four cells, (1,true) will inspect eight cells.
      * <p>
      * 
-     * NOTE: It does not return subclasses of the given class, but only the actual class.
-     * 
      * @param distance Distance (in cells) in which to look for other objects.
      * @param diagonal If true, include diagonal steps.
      * @param cls Class of objects to look for (passing 'null' will find all
@@ -664,8 +689,6 @@ public class Actor extends ObjectTransporter
      * Return all objects that intersect the given location (relative to this
      * object's location). <br>
      * 
-     * NOTE: has not been tested when the world is wrapped.<br>
-     * NOTE: It does not return subclasses of the given class, but only the actual class.
      * 
      * @param dx X-coordinate relative to this objects location.
      * @param dy y-coordinate relative to this objects location.
@@ -683,9 +706,6 @@ public class Actor extends ObjectTransporter
      * object of the specified class resides at that location, one of them will
      * be chosen and returned.
      * 
-     * NOTE: has not been tested when the world is wrapped.<br>
-     * NOTE: It does not return subclasses of the given class, but only the actual class.
-     * 
      * @param dx X-coordinate relative to this objects location.
      * @param dy y-coordinate relative to this objects location.
      * @param cls Class of objects to look for (passing 'null' will find all objects).
@@ -702,7 +722,6 @@ public class Actor extends ObjectTransporter
      * An object is within range if the distance between its centre and this
      * object's centre is less than or equal to r.
      * 
-     * 
      * @param r Radius of the cirle (in pixels)
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
@@ -717,8 +736,7 @@ public class Actor extends ObjectTransporter
      * Return all the objects that intersect this object. This takes the
      * graphical extent of objects into consideration. <br>
      * 
-     * NOTE: Does not take rotation into consideration, and has not been tested
-     * when the world is wrapped.
+     * NOTE: Does not take rotation into consideration.
      * 
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
@@ -731,8 +749,7 @@ public class Actor extends ObjectTransporter
      * Return an object that intersects this object. This takes the
      * graphical extent of objects into consideration. <br>
      * 
-     * NOTE: Does not take rotation into consideration, and has not been tested
-     * when the world is wrapped.
+     * NOTE: Does not take rotation into consideration.
      * 
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
@@ -748,6 +765,7 @@ public class Actor extends ObjectTransporter
      * rotation of the object.   <br>
      * It will never include the object itself.
      * 
+     * NOTE: not implemented yet!
      * 
      * @param angle The angle relative to current rotation of the object.
      * @param cls Class of objects to look for (passing 'null' will find all objects).

@@ -241,6 +241,9 @@ public class World extends ObjectTransporter
     /**
      * Check whether the world is wrapped around the edges.
      * 
+     * <p>
+     * NOTE: Wrapping is not implemented yet
+     * 
      * @return True if we have a wrapped world, false otherwise.
      */
     public boolean isWrapped()
@@ -253,6 +256,9 @@ public class World extends ObjectTransporter
      * The world may be specified to 'wrap'. In a wrapping world, an object
      * moving out of the world at one edge automatically enters the world at the
      * opposite edge.
+     * 
+     * <p>
+     * NOTE: Wrapping is not implemented yet
      * 
      * @param b If true, the world wraps around at its edges.
      */
@@ -272,6 +278,7 @@ public class World extends ObjectTransporter
      * Within the same class, or within classes that have unspecified paint order,
      * the last object that has moved into a cell is painted on top of others.
      * 
+     * <p>
      * NOTE: NOT IMPLEMENTED.
      * 
      * @param classPaintOrder List of class objects.
@@ -295,8 +302,6 @@ public class World extends ObjectTransporter
      * 
      * An object is defined to be at that cell if its graphical representation overlaps
      * with the cell at any point.
-     * 
-     * NOTE: Incomplete implementation. May be faulty at the edges when the world is wrapped.
      * 
      * @param x  X-coordinate of the cell to be checked.
      * @param y  Y-coordinate of the cell to be checked.
