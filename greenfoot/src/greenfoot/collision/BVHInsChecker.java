@@ -637,7 +637,7 @@ public class BVHInsChecker
     {
         Circle b = new Circle(x * cellSize, y * cellSize, 0);
         synchronized (pointQuery) {
-        	pointQuery.init(x, y);
+        	pointQuery.init(x, y, cls);
             return tree.getIntersections(b, pointQuery);
         }
     }

@@ -11,14 +11,20 @@ import greenfoot.ActorVisitor;
 public class PointCollisionQuery implements CollisionQuery{
     private int x;
     private int y;
+    private Class cls;
     
-    public void init(int x, int y) {
+    public void init(int x, int y, Class cls) {
         this.x = x;
         this.y = y;
+        this.cls = cls;
     }
 
     public boolean checkCollision(Actor actor) {
-        return ActorVisitor.contains(actor, x - actor.getX(), y - actor.getY());
+        if(cls == null) {
+            return ActorVisitor.contains(actor, x - actor.getX(), y - actor.getY());
+        } else {
+            return cls.isInstance(actor) && ActorVisitor.contains(actor, x - actor.getX(), y - actor.getY());
+        }
     }
     
 }
