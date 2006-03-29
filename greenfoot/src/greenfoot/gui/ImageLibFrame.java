@@ -1,6 +1,7 @@
 package greenfoot.gui;
 
 import greenfoot.Actor;
+import greenfoot.GreenfootImage;
 import greenfoot.World;
 import greenfoot.core.GClass;
 import greenfoot.core.Greenfoot;
@@ -40,7 +41,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 3911 2006-03-28 11:38:48Z polle $
+ * @version $Id: ImageLibFrame.java 3922 2006-03-29 02:55:20Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -463,7 +464,8 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     
     /**
      * Try to get an image for the class by instantiating it, and grabbing the image from
-     * the resulting object.
+     * the resulting object. Returns null if unsuccessful (or if the "generated" image is
+     * really the same as the current class image).
      */
     private Image renderImage()
     {
@@ -529,30 +531,39 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         else if (object instanceof Actor) {
             Actor so = (Actor) object;
             greenfoot.GreenfootImage image = so.getImage();
-            //rotate it.
+
             if (image != null) {
-                BufferedImage bImg = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-                Graphics2D g2 = (Graphics2D) bImg.getGraphics();
+                Image awtImage = image.getAWTImage();
+                //rotate it.
+                int rotation = so.getRotation();
+                if (image != null && rotation != 0) {
+                    BufferedImage bImg = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g2 = (Graphics2D) bImg.getGraphics();
 
-                double halfWidth = image.getWidth() / 2.;
-                double halfHeight = image.getHeight() / 2.;
-                double rotateX = halfWidth;
-                double rotateY = halfHeight;
-                g2.rotate(Math.toRadians(so.getRotation()), rotateX, rotateY);
+                    double halfWidth = image.getWidth() / 2.;
+                    double halfHeight = image.getHeight() / 2.;
+                    double rotateX = halfWidth;
+                    double rotateY = halfHeight;
+                    g2.rotate(Math.toRadians(so.getRotation()), rotateX, rotateY);
 
-                ImageWaiter imageWaiter = new ImageWaiter(image.getAWTImage());
-                imageWaiter.drawWait(g2, 0, 0);
-                
-                World world = so.getWorld();
-                if(world != null) {
-                    world.removeObject(so);
-                } 
-                return bImg;
+                    ImageWaiter imageWaiter = new ImageWaiter(image.getAWTImage());
+                    imageWaiter.drawWait(g2, 0, 0);
+                    
+                    World world = so.getWorld();
+                    if(world != null) {
+                        world.removeObject(so);
+                    } 
+                    awtImage = bImg;
+                }
+                GreenfootImage classImage = Greenfoot.getInstance().getClassImage(gclass.getQualifiedName());
+                if (classImage != null && classImage.getAWTImage().equals(awtImage)) {
+                    // "generated" image is actually just the class image
+                    return null;
+                }
+                else {
+                    return awtImage;
+                }
             }
-            else {
-                System.err.println("Could not render the image: " + image + " for the class: " + cls);
-            }
-            
         }
         return null;
     }
