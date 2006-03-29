@@ -35,7 +35,7 @@ import bluej.utility.Utility;
 public class Greenfoot implements ClassImageManager
 {
     /** Name of the greenfoot package file that holds information specific to a package/project */
-    public static final String GREENFOOT_PKG_NAME = "greenfoot.pkg";
+    public static final String GREENFOOT_PKG_NAME = "project.greenfoot";
     private static Greenfoot instance;
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
