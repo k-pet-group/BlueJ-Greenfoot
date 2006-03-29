@@ -1,4 +1,5 @@
-*.class
 *.ctxt
-bluej.pkh
+greenfoot
+*.class
 
+bluej.pkh

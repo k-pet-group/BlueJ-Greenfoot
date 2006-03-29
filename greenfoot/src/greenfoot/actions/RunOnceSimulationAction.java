@@ -21,7 +21,7 @@ import bluej.utility.Debug;
 public class RunOnceSimulationAction extends AbstractAction
     implements SimulationListener
 {
-    private static final String iconFile = "step.gif";
+    private static final String iconFile = "step.png";
     private static RunOnceSimulationAction instance = new RunOnceSimulationAction();
     
     /**

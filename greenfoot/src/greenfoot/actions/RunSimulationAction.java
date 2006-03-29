@@ -13,12 +13,12 @@ import greenfoot.event.SimulationListener;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RunSimulationAction.java 3909 2006-03-28 10:39:37Z mik $
+ * @version $Id: RunSimulationAction.java 3923 2006-03-29 09:55:50Z mik $
  */
 public class RunSimulationAction extends AbstractAction
     implements SimulationListener
 {
-    private static final String iconFile = "run.gif";
+    private static final String iconFile = "run.png";
     private static RunSimulationAction instance = new RunSimulationAction();
     
     /**
