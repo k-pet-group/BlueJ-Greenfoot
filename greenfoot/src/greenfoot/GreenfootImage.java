@@ -20,7 +20,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 0.5.0
- * @cvs-version $Id: GreenfootImage.java 3915 2006-03-28 12:15:21Z polle $
+ * @cvs-version $Id: GreenfootImage.java 3920 2006-03-29 00:38:09Z davmac $
  */
 public class GreenfootImage
 {
@@ -427,7 +427,7 @@ public class GreenfootImage
     /**
      * Make a copy of this image. Drawing in the copy will not affect the original.
      */
-    public GreenfootImage copy()
+    GreenfootImage copy()
     {
         int width = getWidth();
         int height = getHeight();
