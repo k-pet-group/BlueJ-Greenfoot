@@ -25,10 +25,10 @@ public class Lift extends Actor
     
     public Lift()
     {
-        personImage = new GreenfootImage("person.gif");
-        openImage =  new GreenfootImage("lift-open.jpg");
-        emptyImage =  new GreenfootImage("lift-open.jpg");
-        closedImage =  new GreenfootImage("lift-closed.jpg");
+        personImage = new GreenfootImage("images/person.gif");
+        openImage =  new GreenfootImage("images/lift-open.jpg");
+        emptyImage =  new GreenfootImage("images/lift-open.jpg");
+        closedImage =  new GreenfootImage("images/lift-closed.jpg");
         setImage(closedImage);
         status = ST_STOPPED;
         people = 0;

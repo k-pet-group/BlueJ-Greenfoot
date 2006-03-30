@@ -1,0 +1,6 @@
+#Greenfoot properties
+#Thu Mar 30 11:06:53 GMT 2006
+class.Person.image=person.gif
+class.Floor.image=floor.jpg
+class.Lift.image=lift-closed.jpg
+class.Button.image=button-up-down.jpg

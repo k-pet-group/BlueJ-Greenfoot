@@ -20,14 +20,13 @@ public class Floor extends Actor
     public Floor(int floorNumber, Button liftButton)
     {
         this.floorNumber = floorNumber;
-        setImage("floor.jpg");
         button = liftButton;
     }
 
     public void setLocation(int x, int y)
     {
         super.setLocation(x, y);
-        button.setLocation(x+78, y+8);
+        button.setLocation(x+78, y);
     }
     
     /**

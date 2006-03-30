@@ -18,10 +18,10 @@ public class Button extends Actor
     
     public Button()
     {
-        imageUpDown = new GreenfootImage("button-up-down.jpg");
-        imageUp = new GreenfootImage("button-up.jpg");
-        imageDown =new GreenfootImage("button-down.jpg");
-        imageNone = new GreenfootImage("button.jpg");
+        imageUpDown = new GreenfootImage("images/button-up-down.jpg");
+        imageUp = new GreenfootImage("images/button-up.jpg");
+        imageDown =new GreenfootImage("images/button-down.jpg");
+        imageNone = new GreenfootImage("images/button.jpg");
         
         setImage(imageNone);
         

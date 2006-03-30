@@ -44,7 +44,7 @@ public class Building extends World
         super(240 + lifts * 56, stories * 72 + 40, 1);
         
         //setBackgroundImage("brick.jpg");
-        GreenfootImage background = new GreenfootImage("sandstone.jpg");
+        GreenfootImage background = new GreenfootImage("images/sandstone.jpg");
         background.setTiled(true);
         setBackground(background);
         
@@ -60,9 +60,9 @@ public class Building extends World
         floors = new Floor[numberOfFloors];
         for(int i=0; i<numberOfFloors; i++) {
             Button button = new Button();
-            addObject(button);
             floors[i] = new Floor(i, button);
             newObject(floors[i], 100, (numberOfFloors-1-i) * 72 + 40);
+            addObject(button);
         }
     }
     
