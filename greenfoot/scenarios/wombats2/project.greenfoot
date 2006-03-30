@@ -1,5 +1,6 @@
 #Greenfoot properties
-#Thu Mar 30 11:51:43 GMT 2006
-class.Wombat.image=wombat.gif
+#Thu Mar 30 12:00:57 GMT 2006
+version=0.5
 class.Leaf.image=leaf.gif
+class.Wombat.image=wombat.gif
 class.Rock.image=rock.gif

@@ -1,4 +1,5 @@
 #Greenfoot properties
 #Thu Mar 30 09:00:06 GMT 2006
+version=0.5
 class.Player.image=Player.png
 class.Draught.image=Draught.png

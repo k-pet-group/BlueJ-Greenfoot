@@ -1,5 +1,6 @@
 #Greenfoot properties
 #Thu Mar 30 08:56:51 GMT 2006
+version=0.5
 class.Ball.image=ball.png
 class.Brick.image=brick.png
 class.Paddle.image=Paddle.png

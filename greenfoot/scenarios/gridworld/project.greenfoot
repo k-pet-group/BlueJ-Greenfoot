@@ -1,5 +1,6 @@
 #Greenfoot properties
 #Thu Mar 30 09:34:41 GMT 2006
+version=0.5
 class.ChameleonCritter.image=ChameleonCritter.gif
 class.Critter.image=Critter.gif
 class.Flower.image=Flower.gif

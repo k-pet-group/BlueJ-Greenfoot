@@ -1,5 +1,6 @@
 #Greenfoot properties
 #Thu Mar 30 11:38:55 GMT 2006
+version=0.5
 class.Circle.image=Circle.png
 class.Sun.image=Sun.png
 class.Square.image=Square.png
