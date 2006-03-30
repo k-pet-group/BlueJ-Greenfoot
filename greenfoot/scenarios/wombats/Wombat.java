@@ -16,7 +16,6 @@ public class Wombat extends Actor
 
     public Wombat()
     {
-        setImage("wombat.gif");
         setDirection(EAST);
         leavesEaten = 0;
     }
