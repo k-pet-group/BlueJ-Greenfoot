@@ -38,6 +38,7 @@
     	<!-- greenfoot stuff -->
         <include name="lib/skeletonProject/" />
         <include name="lib/startupProject/" />
+        <include name="lib/imagelib/" />
     </patternset>
 
     <patternset id="greenfoot.scenarios">
