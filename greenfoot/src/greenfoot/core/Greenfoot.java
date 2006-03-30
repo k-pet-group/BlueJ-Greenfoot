@@ -18,6 +18,7 @@ import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RInvocationListener;
+import bluej.Boot;
 import bluej.Config;
 import bluej.debugmgr.CallHistory;
 import bluej.extensions.CompilationNotStartedException;
@@ -341,9 +342,12 @@ public class Greenfoot implements ClassImageManager
                 File propsFile = new File(pkg.getDir(), GREENFOOT_PKG_NAME);
                 try {
                     p.load(new FileInputStream(propsFile));
+                    // TODO temporary hack to put in version number. Should be
+                    // removed once this is implemented properly.
+                    p.put("version", Boot.GREENFOOT_VERSION);
                 }
                 catch (IOException ioe) {}
-                
+
                 packageProperties.put(pkgName, p);
             }
             return p;
@@ -422,7 +426,7 @@ public class Greenfoot implements ClassImageManager
                 logger.info("GreenfootLauncher: This is startupProject... ");
                 return;
             }
-
+            
             File blueJLibDir = rBlueJ.getSystemLibDir();
             File src = new File(blueJLibDir, "skeletonProject");
             File dst = projectDir;
