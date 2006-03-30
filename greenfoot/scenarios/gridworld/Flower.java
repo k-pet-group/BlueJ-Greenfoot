@@ -40,8 +40,6 @@ public class Flower extends GridActor
     */
    public Flower()
    {
-       
-      setImage("images/Flower.gif");
       setColor(DEFAULT_COLOR);
    }
    

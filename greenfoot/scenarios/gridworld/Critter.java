@@ -27,7 +27,6 @@ import java.util.ArrayList;
 public class Critter extends GridActor
 {
    public Critter() {
-       setGridActorImage("images/Critter.gif");
     }
    /**
     * A critter acts by getting a list of its neighbors, processing them, 

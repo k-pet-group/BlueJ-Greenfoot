@@ -29,7 +29,6 @@ import java.util.ArrayList;
 public class ChameleonCritter extends Critter
 {
     public ChameleonCritter() {  
-        setGridActorImage("images/ChameleonCritter.gif");
     }
 
    /**

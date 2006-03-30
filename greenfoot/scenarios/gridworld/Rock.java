@@ -37,7 +37,6 @@ public class Rock extends GridActor
     */
    public Rock()
    {
-      setGridActorImage("images/Rock.gif");
       setColor(DEFAULT_COLOR);
    }
    
@@ -47,7 +46,6 @@ public class Rock extends GridActor
     */
    public Rock(Color color)
    {
-       setImage("images/Rock.gif");
       setColor(color);
    }
    

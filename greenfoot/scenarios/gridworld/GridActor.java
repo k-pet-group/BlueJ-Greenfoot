@@ -39,7 +39,6 @@ public class GridActor extends Actor
     */
    public GridActor()
    {
-      setImage("images/GridActor.gif");
       direction = Location.NORTH;
       color  = Color.BLUE;
    }

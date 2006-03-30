@@ -28,13 +28,11 @@ public class BoxBug extends Bug
    public BoxBug(int n)
    {
       
-      setImage("images/BoxBug.gif");
       sideLength = n;
    }
    
    public BoxBug()
    {       
-      setImage("images/BoxBug.gif");
       sideLength = 4;
    }
 

@@ -35,7 +35,6 @@ public class Bug extends GridActor
     */
    public Bug()
    {
-       setGridActorImage("images/Bug.gif");
       setColor(Color.RED);
    }
 
@@ -45,7 +44,6 @@ public class Bug extends GridActor
     */
    public Bug(Color color)
    {
-       setImage("images/Bug.gif");
       setColor(color);
    }
    

@@ -31,7 +31,6 @@ public class CrabCritter extends Critter
 {
    public CrabCritter()
    {       
-       setGridActorImage("images/CrabCritter.gif");
        
       setColor(Color.RED);
    }
