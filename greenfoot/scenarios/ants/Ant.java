@@ -19,7 +19,7 @@ public class Ant extends Actor
     private static final int PH_TIME = 30;
     
     // the speed the ant moves with - in pizels per update
-    private static final int SPEED = 2; 
+    private static final int SPEED = 3; 
      
     // current movement
     private int deltaX = 0;
@@ -42,7 +42,6 @@ public class Ant extends Actor
     public Ant()
     {
         antCount++;
-        setImage("images/ant.gif");
         homeX = getX();
         homeY = getY();
     }
@@ -51,7 +50,6 @@ public class Ant extends Actor
     {
         super(x,y);
         antCount++;
-        setImage("images/ant.gif");
         homeX = x;
         homeY = y;
         homeHill = home;

@@ -16,13 +16,11 @@ public class AntHill extends Actor
     public AntHill()
     {
         maxAnts = DEFAULT_ANTS;
-        setImage("images/anthill.gif");
     }
 
     public AntHill(int numberOfAnts)
     {
         maxAnts = numberOfAnts;
-        setImage("images/anthill.gif");
     }
 
     public void act()
