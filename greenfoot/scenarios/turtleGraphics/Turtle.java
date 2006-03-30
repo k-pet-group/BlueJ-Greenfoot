@@ -19,7 +19,6 @@ public class Turtle extends Actor
 
     public Turtle()
     {
-        setImage("turtle.gif");
     }
     
         
@@ -160,6 +159,18 @@ public class Turtle extends Actor
     }
     
     public void setLocation(double x, double y) {
+        if(x>=getWorld().getWidth()) {
+            x = getWorld().getWidth()-1;
+        }
+        if(y>=getWorld().getHeight()) {
+            y = getWorld().getHeight()-1;
+        }
+        if(x < 0) {
+            x = 0;
+        }
+        if(y < 0) {
+            y = 0;
+        }
         this.x = x;
         this.y = y;
         super.setLocation((int) Math.floor(x), (int) Math.floor(y));
