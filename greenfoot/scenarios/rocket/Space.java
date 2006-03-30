@@ -23,7 +23,7 @@ public class Space extends World
         addObject(rocket);
         
         Speeder speeder = new Speeder();
-        speeder.setLocation(0,0);
+        speeder.setLocation(20,200);
         addObject(speeder);
         
         speeder.setListener(rocket);

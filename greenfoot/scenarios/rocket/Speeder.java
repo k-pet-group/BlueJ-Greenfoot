@@ -22,7 +22,7 @@ public class Speeder extends Actor
         if(rocket!=null) {
             rocket.setPower(getY() / 10.);   
         }
-        super.setLocation(getX(),y);   
+        super.setLocation(20,y);   
     }
     
     
