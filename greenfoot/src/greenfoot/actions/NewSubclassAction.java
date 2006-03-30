@@ -2,6 +2,7 @@ package greenfoot.actions;
 
 import greenfoot.core.GClass;
 import greenfoot.gui.ImageLibFrame;
+import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
@@ -15,7 +16,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 3890 2006-03-27 16:04:42Z mik $
+ * @version $Id: NewSubclassAction.java 3967 2006-03-30 14:27:59Z polle $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -36,8 +37,18 @@ public class NewSubclassAction extends AbstractAction
         this.superclass = view;
         this.classBrowser = classBrowser;
     }
-
     public void actionPerformed(ActionEvent e)
+    {
+        String actor = "Actor";
+        GClass superG = superclass.getGClass();
+        if(superG.isSubclassOf(actor) || superG.getName().equals(actor)) {
+            createActorClass();
+        } else {
+            createNonActorClass();
+        }
+    }
+    
+    public void createActorClass()
     {
         JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
         
@@ -53,6 +64,23 @@ public class NewSubclassAction extends AbstractAction
         SelectImageAction.setClassImage(classView,
                 (GreenfootClassRole) classView.getRole(),
                 dialog.getSelectedImageFile());
+        
+        classView.select();
+        classBrowser.revalidate();
+    }
+    
+    public void createNonActorClass()
+    {
+        JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
+        NewClassDialog dialog = new NewClassDialog(f, superclass.getQualifiedClassName());
+        dialog.setVisible(true);
+        if (!dialog.okPressed()) {
+            return;
+        }
+
+        String className = dialog.getClassName();
+        GClass gClass = superclass.createSubclass(className);        
+        ClassView classView = classBrowser.addClass(gClass);
         
         classView.select();
         classBrowser.revalidate();
