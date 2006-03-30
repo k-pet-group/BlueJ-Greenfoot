@@ -21,7 +21,6 @@ public class Ball extends Actor
 
     public Ball()
     {
-        setImage("images/ball.png");
         motionX = -20;
         motionXdenom = 10;
         motionY = -20;

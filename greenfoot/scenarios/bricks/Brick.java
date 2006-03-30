@@ -4,7 +4,6 @@ public class Brick extends Actor
 {
   public Brick()
   {
-    setImage("images/brick.png");
   }
 
   public void act()
