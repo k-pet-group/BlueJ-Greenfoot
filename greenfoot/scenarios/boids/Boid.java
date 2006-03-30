@@ -107,7 +107,6 @@ public abstract class Boid extends Actor
     }
     
     public Boid()  {
-        setImage("bird.png");
         setRotation((int) (90 + 180 * getVector().getDirection() / Math.PI));
     }
     

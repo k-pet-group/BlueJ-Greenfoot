@@ -11,9 +11,9 @@ public class Sky extends World
    
     public Sky() {
         super(WIDTH,HEIGHT,1);
-        setWrapped(true);
         getBackground().fill(new Color(90,90,255));
-      //  populate(20);
+        setWrapped(true);
+        populateNaive(20);
       
       /*  Cohesion c = new Cohesion();
         c.setLocation(0,HEIGHT-1);
