@@ -5,7 +5,6 @@ public class  Wall extends Actor
 {
     public Wall()
     {
-        setImage("Wall.gif");
     }
  
     public void act()

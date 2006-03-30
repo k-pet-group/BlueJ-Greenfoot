@@ -10,7 +10,6 @@ public class Beeper extends Actor
 {
     public Beeper()
     {
-        setImage("Beeper.gif");
     }
     
     /**

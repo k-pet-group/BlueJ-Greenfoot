@@ -42,7 +42,6 @@ public class Robot extends Actor
      */
     public Robot()
     {
-        setImage("Robot.gif");
         setDirection(SOUTH);
     }
 

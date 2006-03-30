@@ -1,0 +1,5 @@
+#Greenfoot properties
+#Thu Mar 30 11:29:46 GMT 2006
+class.Robot.image=Robot.gif
+class.Beeper.image=Beeper.png
+class.Wall.image=Wall.gif
