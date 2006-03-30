@@ -30,7 +30,7 @@ import javax.swing.ImageIcon;
  * @version 0.5.0
  * @cvs-version $Id$
  */
-public class Actor extends ObjectTransporter
+public abstract class Actor extends ObjectTransporter
 {
 
     /**

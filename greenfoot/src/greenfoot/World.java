@@ -33,7 +33,7 @@ import java.util.List;
  * @version 0.5.0
  * @cvs-version $Id$
  */
-public class World extends ObjectTransporter
+public abstract class World extends ObjectTransporter
 {
 //    private CollisionChecker collisionChecker = new GridCollisionChecker();//new BVHInsChecker();
     private CollisionChecker collisionChecker = new BVHInsChecker();
