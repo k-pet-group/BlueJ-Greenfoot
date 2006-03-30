@@ -16,7 +16,7 @@ public class WombatWorld extends World
     {
         super(8, 8, 60);
         
-        GreenfootImage background = new GreenfootImage("cell.jpg");
+        GreenfootImage background = new GreenfootImage("images/cell.jpg");
         setBackground(background);
         background.setTiled(true);
     }

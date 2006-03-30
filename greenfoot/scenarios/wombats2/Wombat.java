@@ -16,7 +16,6 @@ public class Wombat extends Actor
 
     public Wombat()
     {
-        setImage("wombat.gif");
         setDirection(EAST);
         leavesEaten = 0;
     }
@@ -169,19 +168,19 @@ public class Wombat extends Actor
         this.direction = direction;
         switch(direction) {
             case SOUTH :
-                setImage("wombat.gif");
+                setImage("images/wombat.gif");
                 setRotation(90);
                 break;
             case EAST :
-                setImage("wombat.gif");
+                setImage("images/wombat.gif");
                 setRotation(0);
                 break;
             case NORTH :
-                setImage("wombat-left.gif");
+                setImage("images/wombat-left.gif");
                 setRotation(90);
                 break;
             case WEST :
-                setImage("wombat-left.gif");
+                setImage("images/wombat-left.gif");
                 setRotation(0);
                 break;
             default :
