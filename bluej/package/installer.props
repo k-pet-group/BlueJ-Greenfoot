@@ -24,6 +24,9 @@ install.pkgJarSize=0
 # Name of shell/batch script to create
 install.exeName=bluej
 
+# Required java specification version
+install.requiredJavaVersion=1.4
+
 # additional commands to be added to MacOS script before execution
 install.commands.mac = CP="~/lib/bluej.jar:!/lib/tools.jar"
 

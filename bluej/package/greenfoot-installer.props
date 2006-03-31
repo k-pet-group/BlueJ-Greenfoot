@@ -20,6 +20,9 @@ install.pkgJar=greenfoot-dist.jar
 # Name of shell/batch script to create
 install.exeName=greenfoot
 
+# Required java specification version
+install.requiredJavaVersion=1.5
+
 # additional commands to be added to MacOS script before execution
 install.commands.mac = CP="~/lib/bluej.jar:~/lib/junit.jar:~/lib/bluejcore.jar:~/lib/bluejext.jar:~/lib/bluejeditor.jar:~/lib/editor.jar:~/lib/antlr.jar:!/lib/tools.jar:~/lib/MRJ141Stubs.jar:~/lib/extensions/greenfoot.jar:~/System/Library/Java"
 
@@ -60,10 +63,10 @@ install.tagline=Greenfoot Installer
 install.installDirName=greenfoot
 
 # Error message to show when incorrect JDK version is used.
-install.jdkError1=This version of Greenfoot requires JDK 1.4 or newer.\nYou are running on JDK
+install.jdkError1=This version of Greenfoot requires JDK 1.5 or newer.\nYou are running on JDK
 # The actual java version will be inserted here.
 install.jdkError2= Please upgrade\nJDK before installing Greenfoot.
-install.jdkMsg=JDK 1.4 (or newer) required.
+install.jdkMsg=JDK 1.5 (or newer) required.
                         
 # Name of the application                       
 install.appName=Greenfoot

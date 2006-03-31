@@ -30,7 +30,7 @@ import javax.swing.text.Keymap;
   *
   *   java Installer
   *
-  * @version $Id: Installer.java 3572 2005-09-16 04:51:25Z davmac $
+  * @version $Id: Installer.java 3971 2006-03-31 02:59:22Z davmac $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -124,9 +124,7 @@ public class Installer extends JFrame
         
         osname = System.getProperty("os.name");
         architecture = System.getProperty("os.arch");
-        javaVersion = System.getProperty("java.version");
-        isJDK12 = javaVersion.startsWith("1.2");
-        isJDK13 = javaVersion.startsWith("1.3");
+        javaVersion = System.getProperty("java.specification.version");
         javaPath = findJavaPath();
 
         //System.out.println(javaPath);
@@ -143,7 +141,8 @@ public class Installer extends JFrame
         
         makeWindow();
 
-        if(isJDK12 || isJDK13) {
+        String requiredJavaVersion = getProperty("requiredJavaVersion");
+        if(javaVersion.compareTo(requiredJavaVersion) < 0) {
             notifyError(getProperty("jdkError1") + javaVersion + " " + getProperty("jdkError2"), getProperty("jdkMsg"));
         }
     }
