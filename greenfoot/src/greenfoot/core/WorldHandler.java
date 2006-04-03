@@ -5,6 +5,7 @@ import greenfoot.ActorVisitor;
 import greenfoot.World;
 import greenfoot.ObjectTracker;
 import greenfoot.WorldVisitor;
+import greenfoot.actions.PauseSimulationAction;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.DragGlassPane;
@@ -416,6 +417,10 @@ public class WorldHandler
 
     public void installNewWorld(World world)
     {
+        if(this.world != null) {
+            PauseSimulationAction.getInstance().actionPerformed(null);
+        }
+        
         this.world = world;
 
         if (world != null) {
