@@ -41,7 +41,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 3922 2006-03-29 02:55:20Z davmac $
+ * @version $Id: ImageLibFrame.java 3973 2006-04-04 02:01:51Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -540,21 +540,20 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     BufferedImage bImg = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g2 = (Graphics2D) bImg.getGraphics();
 
-                    double halfWidth = image.getWidth() / 2.;
-                    double halfHeight = image.getHeight() / 2.;
-                    double rotateX = halfWidth;
-                    double rotateY = halfHeight;
+                    double rotateX = image.getWidth() / 2.;
+                    double rotateY = image.getHeight() / 2.;
                     g2.rotate(Math.toRadians(so.getRotation()), rotateX, rotateY);
 
                     ImageWaiter imageWaiter = new ImageWaiter(image.getAWTImage());
                     imageWaiter.drawWait(g2, 0, 0);
-                    
-                    World world = so.getWorld();
-                    if(world != null) {
-                        world.removeObject(so);
-                    } 
+
                     awtImage = bImg;
                 }
+                World world = so.getWorld();
+                if(world != null) {
+                    world.removeObject(so);
+                } 
+
                 GreenfootImage classImage = Greenfoot.getInstance().getClassImage(gclass.getQualifiedName());
                 if (classImage != null && classImage.getAWTImage().equals(awtImage)) {
                     // "generated" image is actually just the class image
