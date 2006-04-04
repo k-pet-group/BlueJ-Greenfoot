@@ -9,7 +9,7 @@ import bluej.extensions.ProjectNotOpenException;
  * not support packages.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Project.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: Project.java 3974 2006-04-04 15:29:30Z polle $
  */
 public class Project
 {
@@ -30,7 +30,7 @@ public class Project
     /**
      * @return
      */
-    public Object getDir()
+    public String getDir()
     {
 
         try {

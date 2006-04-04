@@ -4,22 +4,17 @@ import greenfoot.GreenfootImage;
 import greenfoot.ActorVisitor;
 import greenfoot.World;
 import greenfoot.core.ClassImageManager;
-import greenfoot.core.Greenfoot;
+import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.WorldCanvas;
 
 import java.awt.BorderLayout;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 import javax.swing.JFrame;
 
 import bluej.runtime.ExecServer;
@@ -36,9 +31,8 @@ public class GreenfootScenarioViewer implements ClassImageManager
 
     private Simulation sim;
     private WorldCanvas canvas;
+    private ProjectProperties properties;
     
-    private Map classImages = new HashMap();
-    private Map pkgPropsMap = new HashMap();
 
     public static void main(String[] args)
     {
@@ -74,6 +68,17 @@ public class GreenfootScenarioViewer implements ClassImageManager
         GreenfootLogger.init();
         
         try {
+            int lastDot = worldClassName.lastIndexOf('.');
+            String packageName;
+            if (lastDot != -1) {
+                packageName = worldClassName.substring(0, lastDot);
+                worldClassName = worldClassName.substring(lastDot + 1);
+            }
+            else {
+                packageName = "";
+            }
+            properties = new ProjectProperties(new File(packageName));
+            
             Class worldClass = Class.forName(worldClassName);
             ExecServer.setClassLoader(worldClass.getClassLoader());
             Constructor worldConstructor = worldClass.getConstructor(new Class[]{});
@@ -121,55 +126,12 @@ public class GreenfootScenarioViewer implements ClassImageManager
         }
     }
     
-    private Properties getPackageProperties(String pkgName)
-    {
-        Properties pkgProps = (Properties) pkgPropsMap.get(pkgName);
-        if (pkgProps == null) {
-            pkgProps = new Properties();
-            String propsFileResource = pkgName.replace('.', '/');
-            // + "/"+ Greenfoot.GREENFOOT_PKG_NAME;
-            if (propsFileResource.length() == 0) {
-                propsFileResource = Greenfoot.GREENFOOT_PKG_NAME;
-            }
-            else {
-                propsFileResource += "/" + Greenfoot.GREENFOOT_PKG_NAME;
-            }
-            InputStream propStream = ClassLoader.getSystemResourceAsStream(propsFileResource);
-            try {
-                pkgProps.load(propStream);
-            }
-            catch (IOException ioe) {}
-            pkgPropsMap.put(pkgName, pkgProps);
-        }
-        return pkgProps;
-    }
     
     // --------- ClassImageManager interface ---------
     
     public GreenfootImage getClassImage(String className)
-    {
-        GreenfootImage image = (GreenfootImage) classImages.get(className);
-        if (image == null) {
-            int lastDot = className.lastIndexOf('.');
-            String packageName;
-            if (lastDot != -1) {
-                packageName = className.substring(0, lastDot);
-                className = className.substring(lastDot + 1);
-            }
-            else {
-                packageName = "";
-            }
-            
-            Properties pkgProps = getPackageProperties(packageName);
-            String imageName = pkgProps.getProperty("class." + className + ".image");
-            if (imageName != null) {
-                image = new GreenfootImage("images/" + imageName);
-                if (image != null) {
-                    classImages.put(className, image);
-                }
-            }
-        }
-        return image;
+    {   
+        return properties.getImage(className);
     }
-
+   
 }

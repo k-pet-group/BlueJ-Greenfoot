@@ -18,7 +18,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: RMIExtension.java 3974 2006-04-04 15:29:30Z polle $
  */
 public class RMIExtension extends Extension
     implements Runnable
@@ -97,6 +97,7 @@ public class RMIExtension extends Extension
     {
         theBlueJ = bluej;
         //theBlueJ.addPackageListener(ProjectLauncher.instance());
+        ProjectLauncher.init(bluej);
         ProjectManager.instance().addProjectListener(ProjectLauncher.instance());
 
         Thread t = new Thread(this);

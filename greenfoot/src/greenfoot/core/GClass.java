@@ -47,16 +47,14 @@ public class GClass implements CompileListener
     public String getClassProperty(String propertyName)
     {
         try {
-            return pkg.getProperty("class." + getName() + "." + propertyName);
+            return pkg.getProject().getProperty("class." + getName() + "." + propertyName);
         }
-        catch (RemoteException re) {
-            // TODO handle/report error
+        catch (ProjectNotOpenException e) {
             return null;
         }
-        catch (PackageNotFoundException pnfe) {
-            // TODO handle/report error
+        catch (RemoteException e) {
             return null;
-        }
+        }    
     }
     
     /**
@@ -68,7 +66,7 @@ public class GClass implements CompileListener
     public void setClassProperty(String propertyName, String value)
     {
         try {
-            pkg.setProperty("class." + getName() + "." + propertyName, value);
+            pkg.getProject().setProperty("class." + getName() + "." + propertyName, value);
         }
         catch (RemoteException re) {
             // TODO handle/report error
@@ -78,6 +76,9 @@ public class GClass implements CompileListener
         }
         catch (IOException ioe) {
             // TODO handle/report error
+        }
+        catch (ProjectNotOpenException e) {
+            // TODO Auto-generated catch block
         }
     }
     

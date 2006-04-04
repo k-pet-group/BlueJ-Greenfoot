@@ -1,15 +1,23 @@
 package greenfoot.core;
 
-import greenfoot.GreenfootImage;
 import greenfoot.ActorVisitor;
+import greenfoot.GreenfootImage;
+import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
-import greenfoot.event.ActorInstantiationListener;
 import greenfoot.gui.GreenfootFrame;
+import greenfoot.util.GreenfootUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
@@ -18,7 +26,6 @@ import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RInvocationListener;
-import bluej.Boot;
 import bluej.Config;
 import bluej.debugmgr.CallHistory;
 import bluej.extensions.CompilationNotStartedException;
@@ -28,38 +35,62 @@ import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 
 /**
- * The main class for greenfoot. This is a singelton.
+ * The main class for greenfoot. This is a singelton (in the JVM). Since each
+ * project is opened in its own JVM there can be several Greenfoot instances,
+ * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @version $Id$
  */
-public class Greenfoot implements ClassImageManager
+public class Greenfoot
+    implements ClassImageManager
 {
-    /** Name of the greenfoot package file that holds information specific to a package/project */
-    public static final String GREENFOOT_PKG_NAME = "project.greenfoot";
+    /** Greenfoot is a singleton - this is the instance. */
     private static Greenfoot instance;
+
+    /** Used to enable logging. */
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
+    /** The connection to BlueJ via RMI */
     private RBlueJ rBlueJ;
+
+    /** The main frame of greenfoot. */
     private GreenfootFrame frame;
+
+    /** The project this Greenfoot singelton refers to.*/
     private GProject project;
+
+    /** The package this Greenfoot singelton refers to.*/
     private GPackage pkg;
-    
+
     /** Map of class names to images */
     private Map classImages = new HashMap();
-    
-    /** Package properties for opened packages */
-    private Map packageProperties = new HashMap();
-    
-    private CompileListenerForwarder compileListenerForwarder;
-    private List compileListeners = new ArrayList();
 
+    /** Project properties for opened packages */
+    private ProjectProperties projectProperties;
+
+    /** Forwards compile events to all the compileListeners that has registered to reccieve compile events. */
+    private CompileListenerForwarder compileListenerForwarder;
+    private List<CompileListener> compileListeners = new ArrayList<CompileListener>();
+
+    /** Listens for instantiations of Actor objects. */
     private ActorInstantiationListener instantiationListener;
-    private List invocationListeners = new ArrayList();
-    
+
+    /** List of invocation listeners that has been registered. */
+    private List<RInvocationListener> invocationListeners = new ArrayList<RInvocationListener>();
+
+    /** History of parameters passed to methods. */
     private CallHistory callHistory = new CallHistory();
 
-    private Greenfoot(RBlueJ rBlueJ, final RPackage pkg)
+    /** Filter that matches class files */
+    private static FilenameFilter classFilter = new FilenameFilter() {
+        public boolean accept(File dir, String name)
+        {
+            return name.toLowerCase().endsWith(".class");
+        }
+    };
+
+    private Greenfoot(final RBlueJ rBlueJ, final RPackage pkg)
     {
         instance = this;
         this.rBlueJ = rBlueJ;
@@ -76,7 +107,21 @@ public class Greenfoot implements ClassImageManager
         }
 
         ActorVisitor.setClassImageManager(this);
-        
+        try {
+            projectProperties = new ProjectProperties(pkg.getDir());
+        }
+        catch (ProjectNotOpenException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        catch (PackageNotFoundException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        catch (RemoteException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
         //Threading avoids deadlock when classbrowser tries to instantiate
         // objects to get images. this is necessy because greenfoot is started
         // from BlueJ-VM which waits for this call to return.
@@ -85,7 +130,7 @@ public class Greenfoot implements ClassImageManager
             public void run()
             {
                 long t1 = System.currentTimeMillis();
-                prepareGreenfootProject(finalProject);
+
                 try {
                     frame = new GreenfootFrame(Greenfoot.this.rBlueJ, finalProject);
                 }
@@ -96,11 +141,11 @@ public class Greenfoot implements ClassImageManager
                     e2.printStackTrace();
                 }
                 logger.info("Frame created");
-                
+
                 //We must wait for the frame to finish preparing:
                 frame.waitForProjectOpen();
                 frame.setVisible(true);
-//                frame.toFront();
+                //                frame.toFront();
                 Utility.bringToFront();
                 logger.info("Frame visible");
                 try {
@@ -144,14 +189,18 @@ public class Greenfoot implements ClassImageManager
     }
 
     /**
-     * Opens a project in the given directory
+     * Opens the project in the given directory. 
      * 
      * @param projectDir
      */
     public void openProject(String projectDir)
         throws RemoteException
     {
-        rBlueJ.openProject(projectDir);
+        boolean doOpen = Greenfoot.updateApi(new File(projectDir), rBlueJ.getSystemLibDir());
+        if (doOpen) {
+            rBlueJ.openProject(projectDir);
+        }
+
     }
 
     /**
@@ -179,12 +228,11 @@ public class Greenfoot implements ClassImageManager
     {
         return pkg;
     }
-    
-    public GProject getProject() {
+
+    public GProject getProject()
+    {
         return project;
     }
-    
-    
 
     /**
      * Closes this greenfoot frame
@@ -198,15 +246,13 @@ public class Greenfoot implements ClassImageManager
             logger.info("closeThisInstance(): " + project.getName());
             rBlueJ.removeCompileListener(compileListenerForwarder);
             rBlueJ.removeInvocationListener(instantiationListener);
-            for (Iterator iter = invocationListeners.iterator(); iter.hasNext();) {
-                RInvocationListener element = (RInvocationListener) iter.next();
+            for (RInvocationListener element : invocationListeners) {
                 rBlueJ.removeInvocationListener(element);
             }
             if (rBlueJ.getOpenProjects().length <= 1) {
                 //Close everything
                 //TODO maybe open dummy project instead
-               
-               
+
                 //And then exit greenfoot
                 logger.info("exit greenfoot");
                 rBlueJ.exit();
@@ -233,7 +279,7 @@ public class Greenfoot implements ClassImageManager
     {
         compileListeners.add(listener);
     }
-    
+
     /**
      * removes a listener for compile events
      * 
@@ -280,28 +326,25 @@ public class Greenfoot implements ClassImageManager
         }
     }
 
-   
-
     /**
      * Creates a new project
      */
     public void newProject()
     {
-
         String newname = FileUtility.getFileName(frame, Config.getString("pkgmgr.newPkg.title"), Config
                 .getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
         if (newname != null) {
             try {
-                RProject newProject = rBlueJ.newProject(new File(newname));
-                GProject gProject = new GProject(newProject);
-                prepareGreenfootProject(gProject);
+                File f = new File(newname);
+                RProject newProject = rBlueJ.newProject(f);
+                //Project will be prepared by the ProjectLauncher on the BlueJ side.
             }
             catch (RemoteException e) {
                 e.printStackTrace();
             }
         }
     }
-    
+
     /**
      * Get a reference to the CallHistory instance.
      */
@@ -309,7 +352,7 @@ public class Greenfoot implements ClassImageManager
     {
         return callHistory;
     }
-    
+
     /**
      * Get a reference to the invocation listener.
      */
@@ -317,7 +360,7 @@ public class Greenfoot implements ClassImageManager
     {
         return instantiationListener;
     }
-    
+
     /**
      * Get a reference to the greenfoot frame.
      */
@@ -330,155 +373,163 @@ public class Greenfoot implements ClassImageManager
      * Retrieve the properties for a package. Loads the properties if
      * necessary.
      */
-    public Properties getPackageProperties(GPackage pkg)
-        throws RemoteException, PackageNotFoundException
+    public ProjectProperties getProjectProperties()
     {
-        try {
-            String pkgName = pkg.getName();
-            
-            Properties p = (Properties) packageProperties.get(pkgName);
-            if (p == null) {
-                p = new Properties();
-                File propsFile = new File(pkg.getDir(), GREENFOOT_PKG_NAME);
-                try {
-                    p.load(new FileInputStream(propsFile));
-                    // TODO temporary hack to put in version number. Should be
-                    // removed once this is implemented properly.
-                    p.put("version", Boot.GREENFOOT_VERSION);
-                }
-                catch (IOException ioe) {}
-
-                packageProperties.put(pkgName, p);
-            }
-            return p;
-        }
-        catch (ProjectNotOpenException pnoe) {
-            // Won't happen
-            return null;
-        }
+        return projectProperties;
     }
-    
+
     // --------- ClassImageManager interface ---------
-        
+
     public GreenfootImage getClassImage(String className)
     {
-        GreenfootImage image = (GreenfootImage) classImages.get(className);
-        if (image == null) {
-            // get the package the class is in
-            GPackage classPackage = null;
-            int lastDot = className.lastIndexOf('.');
-            if (lastDot == -1) {
-                classPackage = getPackage();
-            }
-            else {
-                String pkgName = className.substring(0, lastDot);
-                className = className.substring(lastDot + 1);
-                try {
-                    classPackage = getProject().getPackage(pkgName);
-                    if (classPackage == null) {
-                        return null;
-                    }
-                }
-                catch (ProjectNotOpenException pnoe) {
-                    pnoe.printStackTrace();
-                }
-                catch (RemoteException re) {
-                    re.printStackTrace();
-                }
-            }
-                        
-            // Get the class, find the image
-            GClass gClass = classPackage.getClass(className);
-            if (gClass != null) {
-                String imageName = gClass.getClassProperty("image");
-                if (imageName != null) {
-                    image = new GreenfootImage("images/" + imageName);
-                    classImages.put(className, image);
-                }
-            }
-        }
-        return image;
+        return projectProperties.getImage(className);
     }
-    
+
     /**
      * Remove the cached version of an image for a particular class. This should be
      * called when the image for the class is set to something different.
      */
     public void removeCachedImage(String className)
     {
-        classImages.remove(className);
-    }        
-    
+        projectProperties.removeCachedImage(className);
+    }
+
     // ========= Private methods ==========
-    
+
     /**
      * Makes a project a greenfoot project. That is, copy the system classes to
      * the users library.
      * 
-     * @param project
+     * @param projectDir absolute path to the project
      */
-    private void prepareGreenfootProject(GProject project)
+    private static void prepareGreenfootProject(File blueJLibDir, File projectDir)
     {
-        try {
-            File projectDir = project.getDir();
-
-            if (isStartupProject(projectDir)) {
-                logger.info("GreenfootLauncher: This is startupProject... ");
-                return;
-            }
-            
-            File blueJLibDir = rBlueJ.getSystemLibDir();
-            File src = new File(blueJLibDir, "skeletonProject");
-            File dst = projectDir;
-
-            validateClassFiles(src, dst);
-            copyDir(src, dst);
+        if (isStartupProject(blueJLibDir, projectDir)) {
+            logger.info("GreenfootLauncher: This is startupProject... ");
+            return;
         }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
+
+        File src = new File(blueJLibDir, "skeletonProject");
+        File dst = projectDir;
+
+        validateClassFiles(src, dst);
+        GreenfootUtil.copyDir(src, dst);
+        ProjectProperties newProperties = new ProjectProperties(projectDir);
+        newProperties.storeApiVersion();
+    }
+
+    /**
+     * Checks whether the API version this project was created with is
+     * compatible with the current API version. If it is not, it will attempt to
+     * update the project to the current version of the API and present the user
+     * with a dialog with instructions on what to do if there is a changes in API
+     * version that requires manual modifications of the API.
+     * <p>
+     * If is considered safe to open this project with the current API version
+     * the method will return true. value will be 'true'.
+     * 
+     * @param project The project in question
+     * @return True If we should try to open the project.
+     * @throws RemoteException
+     */
+    public static boolean updateApi(File projectDir, File systemLibDir)
+        throws RemoteException
+    {
+        ProjectProperties newProperties = new ProjectProperties(projectDir);
+        double projectVersion = newProperties.getAPIVersion();
+        System.out.println("Project API version: " + projectVersion);
+        double apiVersion = Greenfoot.getAPIVersion();
+        System.out.println("Greenfoot API version: " + apiVersion);
+
+        if (projectVersion == apiVersion) {
+            Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
+            return true;
         }
-        catch (RemoteException e) {
-            e.printStackTrace();
+        else if (projectVersion == ProjectProperties.NO_VERSION) {
+            // Show warning dialog
+            System.out
+                    .println("This appears to be an old greenfoot project (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.");
+            Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
+            return true;
+        }
+        else if (projectVersion < apiVersion) { //
+            System.out.println("This appears to be an old greenfoot project (API version " + projectVersion
+                    + "). The project will be updated to the current version (API version " + apiVersion
+                    + "), but it might require some manual fixing of errors due to API changes.");
+            Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
+            return true;
+        }
+        else if (projectVersion > apiVersion) { //
+            System.out
+                    .println("This appears to be a greenfoot project created with a newer version of the Greenfoot API (version "
+                            + projectVersion
+                            + "). Opening the project with this version might result in some errors that will have to be fixed manually. Continue Open/ Cancel Open ");
+            Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
+            return true; //or false if cancel is selected.
+        }
+        else {
+            System.out.println("Not a greenfoot project.");
+            return false;
         }
 
     }
 
     /**
-     * Checks whether the odl and new source files for Actor and
+     * Write the version of the current API to the greenfoot properties file in
+     * the given directory.
+     * 
+     * @param projectDir Directory of the greenfoot project
+     * @throws IOException
+     */
+    /* private void writeApiVersion(File projectDir)
+     throws IOException
+     {
+     
+     }*/
+
+    /**
+     * Checks whether the old and new source files for Actor and
      * World are the same. If they are not, the class files are
      * deleted.
      */
-    private void validateClassFiles(File src, File dst)
+    public static void validateClassFiles(File src, File dst)
     {
         File newActor = new File(src, "greenfoot/Actor.java");
         File oldActor = new File(dst, "greenfoot/Actor.java");
-        File actorClassFile= new File(dst, "greenfoot/Actor.class");
-        
+        File actorClassFile = new File(dst, "greenfoot/Actor.class");
+
         File newWorld = new File(src, "greenfoot/World.java");
         File oldWorld = new File(dst, "greenfoot/World.java");
-        File gwClassFile= new File(dst, "greenfoot/World.class");
-        
-        if(! sameFileContents(newActor, oldActor) || ! sameFileContents(newWorld, oldWorld)) {
-            try {
-                GPackage defaultPkg = project.getDefaultPackage();
-                if(defaultPkg != null) {
-                    defaultPkg.deleteClassFiles();
-                }
-                GPackage greenfootPkg = project.getGreenfootPackage();
-                if(greenfootPkg != null) {
-                    greenfootPkg.deleteClassFiles();
-                }                
+        File gwClassFile = new File(dst, "greenfoot/World.class");
+
+        if (!sameFileContents(newActor, oldActor) || !sameFileContents(newWorld, oldWorld)) {
+
+            deleteClassFiles(dst);
+
+            File greenfootDir = new File(dst, "greenfoot");
+            // the greenfoot dir does not necessarily exist
+            if (greenfootDir.canRead()) {
+                deleteClassFiles(greenfootDir);
             }
-            catch (ProjectNotOpenException e) {
-                e.printStackTrace();
-            }
-            catch (RemoteException e) {
-                e.printStackTrace();
-            }            
-        } 
+        }
     }
 
-    private boolean sameFileContents(File f1, File f2)
+    /**
+     * Deletes all class files in the given directory.
+     * @param dir The directory MUST exist
+     */
+    private static void deleteClassFiles(File dir)
+    {
+        System.out.println("deleting classes in:" + dir);
+        String[] classFiles = dir.list(classFilter);
+        for (int i = 0; i < classFiles.length; i++) {
+            String fileName = classFiles[i];
+            File file = new File(dir, fileName);
+            file.delete();
+        }
+    }
+
+    private static boolean sameFileContents(File f1, File f2)
     {
         if (f1.canRead() && f2.canRead()) {
             if (f1.length() != f2.length()) {
@@ -514,91 +565,28 @@ public class Greenfoot implements ClassImageManager
      * becuase we must have a project in order to launch the DebugVM.
      * 
      */
-    private boolean isStartupProject(File projectDir)
+    public static boolean isStartupProject(File blueJLibDir, File projectDir)
     {
-        try {
-            File blueJLibDir = rBlueJ.getSystemLibDir();
-            File startupProject = new File(blueJLibDir, "startupProject");
-            if (startupProject.equals(projectDir)) {
-                return true;
-            }
+        File startupProject = new File(blueJLibDir, "startupProject");
+        if (startupProject.equals(projectDir)) {
+            return true;
         }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
+
         return false;
     }
 
     /**
+     * Gets the version number of the greenfoot API.
      * 
-     * Copies the src-DIR recursively into dst.
-     * 
-     * TODO make files read-only?
-     * 
-     * @param src
-     * @param dst
+     * @return
      */
-    private void copyDir(File src, File dst)
+    public static double getAPIVersion()
     {
-        if (!src.isDirectory()) {
-            return;
-        }
-        if (!dst.exists()) {
-            dst.mkdirs();
-        }
-        File[] files = src.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File file = files[i];
-            File newDst = new File(dst, file.getName());
-            if (file.isDirectory()) {
-                copyDir(file, newDst);
-            }
-            else {
-                copyFile(file, newDst);
-            }
-        }
-    }
-
-    /**
-     * Copies the src to dst. Creating parent dirs for dst. If dst exist it
-     * overrides it.
-     * 
-     * @param src
-     *            The source. It must be a file
-     * @param dst
-     *            Must not exist as a DIR
-     */
-    private void copyFile(File src, File dst)
-    {
-        if (!src.isFile() || dst.isDirectory()) {
-            return;
-        }
-        dst.getParentFile().mkdirs();
-        if (dst.exists()) {
-            dst.delete();
-        }
+        double version = 0;
         try {
-            BufferedInputStream is = new BufferedInputStream(new FileInputStream(src));
-            BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(dst));
-
-            byte[] buffer = new byte[8192];
-            int read = 0;
-            while (read != -1) {
-                os.write(buffer, 0, read);
-                read = is.read(buffer);
-            }
-            os.flush();
-            is.close();
-            os.close();
+            version = ActorVisitor.getApiVersion();
         }
-        catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        finally {
-
-        }
+        catch (NumberFormatException e) {}
+        return version;
     }
 }

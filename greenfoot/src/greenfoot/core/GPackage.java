@@ -31,7 +31,6 @@ public class GPackage
     private GClass classes;
     
     private Map classPool = new HashMap();
-    private Properties pkgProperties = null;
     
     public GPackage(RPackage pkg)
     {
@@ -53,62 +52,10 @@ public class GPackage
         this.project = project;
     }
 
-    /**
-     * Get a persistent greenfoot property for this package.
-     * @param propName   The name of the property whose value to get
-     * @return   The string value of the property
-     * 
-     * @throws RemoteException
-     * @throws PackageNotFoundException
-     */
-    public String getProperty(String propName)
-        throws RemoteException, PackageNotFoundException
-    {
-        loadProperties();
-        return pkgProperties.getProperty(propName);
-    }
+
+
     
-    /**
-     * Set a persistent greenfoot property for this package.
-     * @param propName  The name of the property to set
-     * @param value     The string value of the property
-     * 
-     * @throws PackageNotFoundException
-     * @throws RemoteException
-     * @throws IOException
-     */
-    public void setProperty(String propName, String value)
-        throws PackageNotFoundException, RemoteException, IOException
-    {
-        loadProperties();
-        pkgProperties.setProperty(propName, value);
-        OutputStream os = null;
-        
-        try {
-            File propsFile = new File(getDir(), Greenfoot.GREENFOOT_PKG_NAME);
-            os = new FileOutputStream(propsFile);
-            pkgProperties.store(os, "Greenfoot properties");
-        }
-        catch (ProjectNotOpenException pnoe) {
-            // can't happen.
-        }
-        finally {
-            if (os != null) {
-                os.close();
-            }
-        }
-    }
     
-    private void loadProperties()
-        throws PackageNotFoundException, RemoteException
-    {
-        // More than one GPackage may be created which references the same package.
-        // Properties for a single package must be shared for all instances of GPackage,
-        // so we use a global map maintained by the Greenfoot class.
-        if (pkgProperties == null) {
-            pkgProperties = Greenfoot.getInstance().getPackageProperties(this);
-        }
-    }
     
     public void compile(boolean waitCompileEnd)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException
@@ -253,6 +200,5 @@ public class GPackage
             e.printStackTrace();
         }
     }
-
 
 }

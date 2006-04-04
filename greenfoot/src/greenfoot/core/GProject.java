@@ -2,6 +2,7 @@ package greenfoot.core;
 
 import java.awt.EventQueue;
 import java.io.File;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +21,7 @@ import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.extensions.PackageAlreadyExistsException;
+import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
@@ -38,6 +40,8 @@ public class GProject implements InspectorManager
     private Map inspectors = new HashMap();
     
     private RProject rProject;
+
+    private ProjectProperties projectProperties = null;
     
     public GProject(RProject rmiProject)
     {
@@ -249,5 +253,44 @@ public class GProject implements InspectorManager
      */
     public void removeInspector(DebuggerClass cls) {
         inspectors.remove(cls.getName());
+    }
+    
+    /**
+     * Get a persistent greenfoot property for this project.
+     * @param propName   The name of the property whose value to get
+     * @return   The string value of the property
+     *
+     */
+    public String getProperty(String propName)
+    {
+        loadProperties();
+        return projectProperties.getProperty(propName);
+    }
+    
+    
+    /**
+     * Set a persistent greenfoot property for this project.
+     * @param propName  The name of the property to set
+     * @param value     The string value of the property
+     * 
+     * @throws PackageNotFoundException
+     * @throws RemoteException
+     * @throws IOException
+     */
+    public void setProperty(String propName, String value)
+        throws PackageNotFoundException, RemoteException, IOException
+    {
+        loadProperties();
+        projectProperties.setProperty(propName, value);       
+    }
+    
+    private void loadProperties()
+    {
+        // More than one GProject may be created which references the same project.
+        // Properties for a single package must be shared for all instances of GProject,
+        // so we use a global map maintained by the Greenfoot class.
+        if (projectProperties == null) {
+            projectProperties = Greenfoot.getInstance().getProjectProperties();
+        }
     }
 }

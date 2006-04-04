@@ -48,4 +48,12 @@ public class ActorVisitor
     {
         Actor.setClassImageManager(classImageManager);
     }
+    
+    /**
+     * Return the version of the Greenfoot API
+     *
+     */
+    public static double getApiVersion() {
+        return Actor.VERSION;
+    }
 }

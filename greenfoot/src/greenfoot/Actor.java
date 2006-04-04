@@ -30,9 +30,12 @@ import javax.swing.ImageIcon;
  * @version 0.5.0
  * @cvs-version $Id$
  */
-public abstract class Actor extends ObjectTransporter
+public class Actor extends ObjectTransporter
 {
 
+    /** Version number of the Greenfoot API */
+    final static double VERSION = 0.5;
+    
     /**
      * x-coordinate of the object's location in the world. The object is
      * centered around this location.
@@ -60,7 +63,6 @@ public abstract class Actor extends ObjectTransporter
     /** Field used to store some extra data in an object. Used by collision checkers. */
     private Object data;
 
-    
     private static GreenfootImage greenfootImage = new GreenfootImage("images/greenfoot-logo.png");
     private static ClassImageManager classImageManager;
     private boolean usingClassImage;
@@ -325,10 +327,10 @@ public abstract class Actor extends ObjectTransporter
     {
         if (world != null) {
             if (world.getWidth() <= x || x < 0) {
-                throw new IndexOutOfBoundsException("x(" + x + ") is out of bounds(" + world.getWidth() + ")");
+                throw new IndexOutOfBoundsException("x(" + x + ") is out of bounds("+world.getWidth() +")");
             }
             if (world.getHeight() <= y || y < 0) {
-                throw new IndexOutOfBoundsException("y(" + y + ") is out of bounds(" + world.getHeight() + ")");
+                throw new IndexOutOfBoundsException("y(" + y + ") is out of bounds("+world.getHeight() +")");
             }
         }
     }
@@ -544,7 +546,7 @@ public abstract class Actor extends ObjectTransporter
             world.updateObjectSize(this);
         }
     }   
-    
+
     /**
      * Notify the world that this object's location has changed.
      *
@@ -561,7 +563,7 @@ public abstract class Actor extends ObjectTransporter
     }
     
     /**
-     * Calculate the bounding radius. In grid coordinates.
+     *Calculate the bounding radius. In grid coordinates.
      */
     private int calcBoundingRadius() {
         if(world == null) return -1;
@@ -573,7 +575,6 @@ public abstract class Actor extends ObjectTransporter
         int dx = getXMax() - getXMin() + 3;
         return (int) (Math.sqrt(dx*dx + dy*dy) / 2 );
     }
-
 
 
     // ============================

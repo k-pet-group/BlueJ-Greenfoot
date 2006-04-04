@@ -5,12 +5,19 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 3830 2006-03-16 05:36:04Z davmac $
+ * @version $Id: GreenfootUtil.java 3974 2006-04-04 15:29:30Z polle $
  */
 public class GreenfootUtil
 {
@@ -208,4 +215,75 @@ public class GreenfootUtil
             return true;
         }
     }
+    
+    
+    /**
+     * 
+     * Copies the src-DIR recursively into dst.
+     * 
+     */
+    public static void copyDir(File src, File dst)
+    {
+        if (!src.isDirectory()) {
+            return;
+        }
+        if (!dst.exists()) {
+            dst.mkdirs();
+        }
+        File[] files = src.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File file = files[i];
+            File newDst = new File(dst, file.getName());
+            if (file.isDirectory()) {
+                copyDir(file, newDst);
+            }
+            else {
+                copyFile(file, newDst);
+            }
+        }
+    }
+
+    /**
+     * Copies the src to dst. Creating parent dirs for dst. If dst exist it
+     * overrides it.
+     * 
+     * @param src
+     *            The source. It must be a file
+     * @param dst
+     *            Must not exist as a DIR
+     */
+    public static void copyFile(File src, File dst)
+    {
+        if (!src.isFile() || dst.isDirectory()) {
+            return;
+        }
+        dst.getParentFile().mkdirs();
+        if (dst.exists()) {
+            dst.delete();
+        }
+        try {
+            BufferedInputStream is = new BufferedInputStream(new FileInputStream(src));
+            BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(dst));
+
+            byte[] buffer = new byte[8192];
+            int read = 0;
+            while (read != -1) {
+                os.write(buffer, 0, read);
+                read = is.read(buffer);
+            }
+            os.flush();
+            is.close();
+            os.close();
+        }
+        catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+
+        }
+    }
+        
 }
