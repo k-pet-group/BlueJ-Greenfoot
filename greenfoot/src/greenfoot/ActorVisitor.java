@@ -2,6 +2,7 @@ package greenfoot;
 
 import greenfoot.core.ClassImageManager;
 import greenfoot.util.Circle;
+import greenfoot.util.Version;
 
 /**
  * Class that makes it possible for classes outside the greenfoot package to get
@@ -53,7 +54,7 @@ public class ActorVisitor
      * Return the version of the Greenfoot API
      *
      */
-    public static double getApiVersion() {
+    public static Version getApiVersion() {
         return Actor.VERSION;
     }
 }

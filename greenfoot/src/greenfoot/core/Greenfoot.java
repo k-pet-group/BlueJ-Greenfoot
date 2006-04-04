@@ -7,6 +7,7 @@ import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.util.GreenfootUtil;
+import greenfoot.util.Version;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -436,30 +437,30 @@ public class Greenfoot
         throws RemoteException
     {
         ProjectProperties newProperties = new ProjectProperties(projectDir);
-        double projectVersion = newProperties.getAPIVersion();
+        Version projectVersion = newProperties.getAPIVersion();
         System.out.println("Project API version: " + projectVersion);
-        double apiVersion = Greenfoot.getAPIVersion();
+        Version apiVersion = Greenfoot.getAPIVersion();
         System.out.println("Greenfoot API version: " + apiVersion);
 
-        if (projectVersion == apiVersion) {
+        if (projectVersion.equals(apiVersion)) {
             Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
             return true;
         }
-        else if (projectVersion == ProjectProperties.NO_VERSION) {
+        else if (projectVersion == Version.NO_VERSION) {
             // Show warning dialog
             System.out
                     .println("This appears to be an old greenfoot project (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.");
             Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
             return true;
         }
-        else if (projectVersion < apiVersion) { //
+        else if (projectVersion.compareTo(apiVersion) < 0) { //
             System.out.println("This appears to be an old greenfoot project (API version " + projectVersion
                     + "). The project will be updated to the current version (API version " + apiVersion
                     + "), but it might require some manual fixing of errors due to API changes.");
             Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
             return true;
         }
-        else if (projectVersion > apiVersion) { //
+        else if (projectVersion.compareTo(apiVersion) > 0) { //
             System.out
                     .println("This appears to be a greenfoot project created with a newer version of the Greenfoot API (version "
                             + projectVersion
@@ -473,19 +474,6 @@ public class Greenfoot
         }
 
     }
-
-    /**
-     * Write the version of the current API to the greenfoot properties file in
-     * the given directory.
-     * 
-     * @param projectDir Directory of the greenfoot project
-     * @throws IOException
-     */
-    /* private void writeApiVersion(File projectDir)
-     throws IOException
-     {
-     
-     }*/
 
     /**
      * Checks whether the old and new source files for Actor and
@@ -580,13 +568,8 @@ public class Greenfoot
      * 
      * @return
      */
-    public static double getAPIVersion()
+    public static Version getAPIVersion()
     {
-        double version = 0;
-        try {
-            version = ActorVisitor.getApiVersion();
-        }
-        catch (NumberFormatException e) {}
-        return version;
+        return ActorVisitor.getApiVersion();
     }
 }

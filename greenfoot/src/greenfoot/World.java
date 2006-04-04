@@ -4,7 +4,6 @@ import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
 import greenfoot.collision.GridCollisionChecker;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ import java.util.List;
  * @see greenfoot.Actor
  * @author Poul Henriksen
  * @author Michael Kolling
- * @version 0.5.0
+ * @version 0.5.0 dev
  * @cvs-version $Id$
  */
 public abstract class World extends ObjectTransporter

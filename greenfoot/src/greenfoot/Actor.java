@@ -6,6 +6,7 @@ import greenfoot.core.ObjectDragProxy;
 import greenfoot.core.WorldHandler;
 import greenfoot.util.Circle;
 import greenfoot.util.Location;
+import greenfoot.util.Version;
 
 import java.net.URL;
 import java.util.List;
@@ -27,14 +28,13 @@ import javax.swing.ImageIcon;
  * The method here is empty, and subclasses normally provide their own implementations.
  * 
  * @author Poul Henriksen
- * @version 0.5.0
+ * @version 0.5.0 dev
  * @cvs-version $Id$
  */
 public class Actor extends ObjectTransporter
 {
-
     /** Version number of the Greenfoot API */
-    final static double VERSION = 0.5;
+    final static Version VERSION = new Version("0.5.0 dev");
     
     /**
      * x-coordinate of the object's location in the world. The object is

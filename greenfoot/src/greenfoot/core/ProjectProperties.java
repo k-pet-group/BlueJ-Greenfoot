@@ -2,6 +2,7 @@ package greenfoot.core;
 
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
+import greenfoot.util.Version;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,8 +28,6 @@ public class ProjectProperties
     /** String printed in the top of the properties file. */
     private static final String FILE_HEADER = "Greenfoot properties";
 
-    /** Constant that indicates that no version number could be found. */
-    public static final double NO_VERSION = -1;
     /**
      * Name of the greenfoot package file that holds information specific to a
      * package/project
@@ -132,27 +131,24 @@ public class ProjectProperties
     public void storeApiVersion()
     {
         System.out.println("Writing API version: " + ActorVisitor.getApiVersion());
-        properties.setProperty("version", "" + ActorVisitor.getApiVersion());
+        properties.setProperty("version", ActorVisitor.getApiVersion().toString());
         storeProperties();
     }
 
     /**
      * Attempts to find the version number the greenfoot API that a greenfoot
      * project was created with. If it can not find a version number, it will
-     * return ProjectProperties.NO_VERSION.
+     * return Version.NO_VERSION.
      * 
-     * @return API version or ProjectProperties.NO_VERSION
+     * @return API version or Version.NO_VERSION
      */
-    public double getAPIVersion()
+    public Version getAPIVersion()
     {
-        double version = NO_VERSION;
-        try {
-            String versionString = properties.getProperty("version");
-            if (versionString != null) {
-                version = Double.parseDouble(versionString);
-            }
+        Version version = Version.NO_VERSION;
+        String versionString = properties.getProperty("version");
+        if(versionString != null) {
+            version = new Version(versionString);
         }
-        catch (NumberFormatException e) {}
         return version;
     }
 
