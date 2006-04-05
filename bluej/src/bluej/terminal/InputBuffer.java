@@ -7,7 +7,7 @@ import java.awt.Toolkit;
  * a circular array.
  *
  * @author  Michael Kolling
- * @version $Id: InputBuffer.java 3315 2005-02-17 00:21:15Z davmac $
+ * @version $Id: InputBuffer.java 3976 2006-04-05 04:11:38Z davmac $
  */
 public final class InputBuffer 
 {
@@ -56,9 +56,7 @@ public final class InputBuffer
 
         while(isEmpty()) {
             try {
-                synchronized(this) {
-                    wait();		// sleep until there is some input
-                }
+                wait();		// sleep until there is some input
             } catch(InterruptedException e) {
 				// our main process is telling us
 				// we want to exit the character
@@ -93,14 +91,6 @@ public final class InputBuffer
         else
             eofMark = true;
         notifyReaders();
-    }
-
-    public int numberOfCharacters()
-    {
-        if(bufferNextFree >= bufferNextFull)
-            return bufferNextFree - bufferNextFull;
-        else
-            return (bufferNextFree + bufferSize) - bufferNextFull;
     }
 
     public synchronized void notifyReaders()

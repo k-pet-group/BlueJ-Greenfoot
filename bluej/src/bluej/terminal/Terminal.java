@@ -2,23 +2,32 @@ package bluej.terminal;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
-import bluej.*;
-import bluej.debugger.*;
+import bluej.BlueJEvent;
+import bluej.BlueJEventListener;
+import bluej.Config;
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerTerminal;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.*;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 
 /**
  * The Frame part of the Terminal window used for I/O when running programs
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 3523 2005-08-13 21:43:34Z polle $
+ * @version $Id: Terminal.java 3976 2006-04-05 04:11:38Z davmac $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -192,36 +201,31 @@ public final class Terminal extends JFrame
      */
     private void writeToErrorOut(String s)
     {       
-        showErrorPane();
-        errorText.append(s);
-        errorText.setCaretPosition(errorText.getDocument().getLength());
-    }
+        erroutBuffer.append(s);
+        int endOfLine = erroutBuffer.indexOf("\n");
+        while (endOfLine != -1) {
+            String line = erroutBuffer.substring(0, endOfLine + 1);
 
-    private StringBuffer erroutBuffer = new StringBuffer(120);
-    
-    /**
-     * Write a character to error output.
-     */
-    private void writeToErrorOut(char ch)
-    {
-        erroutBuffer.append(ch);
-        if(ch == '\n') {
-            
             // TEMPORARY: filter out known annoying but harmless error messages
             // from MacOS Java v. 1.4.1
-            if((erroutBuffer.indexOf("CFMessagePort") == -1) &&
-                    (erroutBuffer.indexOf("bootstrap_defs.h") == -1)) {
+            if((line.indexOf("CFMessagePort") == -1) &&
+                    (line.indexOf("bootstrap_defs.h") == -1)) {
                 prepare();
                 showErrorPane();
                 
-                errorText.append(erroutBuffer.toString());
+                errorText.append(line);
                 errorText.setCaretPosition(errorText.getDocument().getLength());
             }
-            erroutBuffer.setLength(0);
+            StringBuffer newBuffer = new StringBuffer();
+            newBuffer.append(erroutBuffer.subSequence(endOfLine + 1, erroutBuffer.length()));
+            erroutBuffer = newBuffer;
+            endOfLine = erroutBuffer.indexOf("\n");
         }
     }
 
+    private StringBuffer erroutBuffer = new StringBuffer(120);
 
+    
     /**
      * Prepare the terminal for I/O.
      */
@@ -640,31 +644,38 @@ public final class Terminal extends JFrame
     private class TerminalWriter extends Writer
     {
         private boolean isErrorOut;
-
+        
         TerminalWriter(boolean isError)
         {
             super();
             isErrorOut = isError;
         }
 
-        public void write(char[] cbuf, int off, int len)
+        public void write(final char[] cbuf, final int off, final int len)
         {
             if (enabled) {
-                prepare();
-                if(isErrorOut)
-                    writeToErrorOut(new String(cbuf, off, len));
-                else
-                    writeToTerminal(new String(cbuf, off, len));
-            }
-        }
-
-        public void write(int ch)
-        {
-            if (enabled) {
-                if(isErrorOut)
-                    writeToErrorOut((char)ch);
-                else
-                    writeToTerminal((char)ch);
+                try {
+                    // We use invokeAndWait so that terminal output is limited to
+                    // the processing speed of the event queue. This means the UI
+                    // will still respond to user input even if the output is really
+                    // gushing.
+                    EventQueue.invokeAndWait(new Runnable() {
+                        public void run()
+                        {
+                            prepare();
+                            if(isErrorOut) {
+                                writeToErrorOut(new String(cbuf, off, len));
+                            }
+                            else {
+                                writeToTerminal(new String(cbuf, off, len));
+                            }
+                        }
+                    });
+                }
+                catch (InvocationTargetException ite) {
+                    ite.printStackTrace();
+                }
+                catch (InterruptedException ie) {}
             }
         }
 

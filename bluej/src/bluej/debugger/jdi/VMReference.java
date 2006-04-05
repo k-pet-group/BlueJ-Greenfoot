@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3880 2006-03-27 00:25:58Z bquig $
+ * @version $Id: VMReference.java 3976 2006-04-05 04:11:38Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -428,9 +428,9 @@ class VMReference
             inputWriter = new OutputStreamWriter(vmProcess.getOutputStream(), streamEncoding);
         }
         
-        errorStreamRedirector = redirectIOStream(errorReader, term.getErrorWriter(), false);
-        outputStreamRedirector = redirectIOStream(outReader, term.getWriter(), false);
-        inputStreamRedirector = redirectIOStream(term.getReader(), inputWriter, false);
+        errorStreamRedirector = redirectIOStream(errorReader, term.getErrorWriter());
+        outputStreamRedirector = redirectIOStream(outReader, term.getWriter());
+        inputStreamRedirector = redirectIOStream(term.getReader(), inputWriter);
         
         return vmProcess;
     }
@@ -1705,11 +1705,11 @@ class VMReference
      * Create a thread that will retrieve any output from the remote machine and
      * direct it to our terminal (or vice versa).
      */
-    private IOHandlerThread redirectIOStream(final Reader reader, final Writer writer, boolean buffered)
+    private IOHandlerThread redirectIOStream(final Reader reader, final Writer writer)
     {
         IOHandlerThread thr;
 
-        thr = new IOHandlerThread(reader, writer, buffered);
+        thr = new IOHandlerThread(reader, writer);
         thr.setPriority(Thread.MAX_PRIORITY - 1);
         thr.start();
 
@@ -1724,15 +1724,14 @@ class VMReference
     {
         private Reader reader;
         private Writer writer;
-        private boolean buffered;
         private volatile boolean keepRunning = true;
 
-        IOHandlerThread(Reader reader, Writer writer, boolean buffered)
+        IOHandlerThread(Reader reader, Writer writer)
         {
-            super("BlueJ I/O Handler " + (buffered ? "(buffered)" : "(unbuffered)"));
+            super("BlueJ I/O Handler");
             this.reader = reader;
             this.writer = writer;
-            this.buffered = buffered;
+            setPriority(Thread.MIN_PRIORITY);
         }
 
         public void close()
@@ -1743,25 +1742,16 @@ class VMReference
         public void run()
         {
             try {
-                if (buffered) {
-                    BufferedReader in = new BufferedReader(reader);
-
-                    String line;
-                    while (keepRunning && (line = in.readLine()) != null) {
-                        line += '\n';
-                        if (keepRunning) {
-                            writer.write(line.toCharArray(), 0, line.length());
-                            writer.flush();
-                        }
+                // An arbitrary buffer size.
+                char [] chbuf = new char[4096];
+                
+                while (keepRunning) {
+                    int numchars = reader.read(chbuf);
+                    if (numchars == -1) {
+                        keepRunning = false;
                     }
-                }
-                else {
-                    int ch;
-                    while (keepRunning && (ch = reader.read()) != -1) {
-                        if (keepRunning) {
-                            writer.write(ch);
-                            writer.flush();
-                        }
+                    else {
+                        writer.write(chbuf, 0, numchars);
                     }
                 }
             }
