@@ -28,13 +28,13 @@ import javax.swing.ImageIcon;
  * The method here is empty, and subclasses normally provide their own implementations.
  * 
  * @author Poul Henriksen
- * @version 0.5.0 dev
+ * @version 0.6 dev
  * @cvs-version $Id$
  */
 public class Actor extends ObjectTransporter
 {
     /** Version number of the Greenfoot API */
-    final static Version VERSION = new Version("0.5.0 dev");
+    final static Version VERSION = new Version("0.6 dev");
     
     /**
      * x-coordinate of the object's location in the world. The object is
