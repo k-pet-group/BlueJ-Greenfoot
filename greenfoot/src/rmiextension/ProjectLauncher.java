@@ -2,20 +2,24 @@ package rmiextension;
 
 import greenfoot.core.Greenfoot;
 import greenfoot.core.GreenfootLauncher;
-import greenfoot.core.ProjectProperties;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.logging.Logger;
 
+import javax.swing.JFrame;
+
 import bluej.extensions.BlueJ;
+import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * The ProjectLauncher monitors project events from BlueJ and instantiates a
  * specific object in the Debug-VM.
  * 
  * @author Poul Henriksen
- * @version $Id: ProjectLauncher.java 3974 2006-04-04 15:29:30Z polle $
+ * @version $Id: ProjectLauncher.java 3977 2006-04-05 16:00:07Z polle $
  */
 public class ProjectLauncher
     implements ProjectListener
@@ -73,17 +77,32 @@ public class ProjectLauncher
     public void projectOpened(ProjectEvent event)
     {
         if (!ProjectManager.instance().isProjectOpen(event.getProject())) {
-            File projectDir = new File(event.getProject().getDir());
+            final Project project = event.getProject();
+            File projectDir = new File(project.getDir());
             boolean doOpen = false;
             try {
-                doOpen = Greenfoot.updateApi(projectDir, bluej.getSystemLibDir());
+                JFrame frame = new JFrame("NONE");
+                frame.setUndecorated(true);
+                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                frame.setLocation(screenSize.width / 2, screenSize.height / 2);
+                frame.setVisible(true);
+                doOpen = Greenfoot.updateApi(projectDir, bluej.getSystemLibDir(), frame);
+                frame.dispose();
             }
             catch (RemoteException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            if(doOpen) {
-                launchProject(event.getProject());
+            if (doOpen) {
+                launchProject(project);
+            }
+            else {
+                //If this was the only open project, open the startup project instead.
+                if (bluej.getOpenProjects().length == 1) {
+                    ((PkgMgrFrame) bluej.getCurrentFrame()).doClose(true);
+                    File startupProject = new File(bluej.getSystemLibDir(), "startupProject");
+                    bluej.openProject(startupProject);
+                }
             }
         }
         logger.info("ProjectLauncher.packageOpened done ");

@@ -6,9 +6,11 @@ import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
 import greenfoot.gui.GreenfootFrame;
+import greenfoot.gui.MessageDialog;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.Version;
 
+import java.awt.Frame;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
 import rmiextension.wrappers.RBlueJ;
@@ -32,6 +35,7 @@ import bluej.debugmgr.CallHistory;
 import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 
@@ -58,10 +62,10 @@ public class Greenfoot
     /** The main frame of greenfoot. */
     private GreenfootFrame frame;
 
-    /** The project this Greenfoot singelton refers to.*/
+    /** The project this Greenfoot singelton refers to. */
     private GProject project;
 
-    /** The package this Greenfoot singelton refers to.*/
+    /** The package this Greenfoot singelton refers to. */
     private GPackage pkg;
 
     /** Map of class names to images */
@@ -70,7 +74,10 @@ public class Greenfoot
     /** Project properties for opened packages */
     private ProjectProperties projectProperties;
 
-    /** Forwards compile events to all the compileListeners that has registered to reccieve compile events. */
+    /**
+     * Forwards compile events to all the compileListeners that has registered
+     * to reccieve compile events.
+     */
     private CompileListenerForwarder compileListenerForwarder;
     private List<CompileListener> compileListeners = new ArrayList<CompileListener>();
 
@@ -123,7 +130,7 @@ public class Greenfoot
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        //Threading avoids deadlock when classbrowser tries to instantiate
+        // Threading avoids deadlock when classbrowser tries to instantiate
         // objects to get images. this is necessy because greenfoot is started
         // from BlueJ-VM which waits for this call to return.
         final GProject finalProject = project;
@@ -143,10 +150,10 @@ public class Greenfoot
                 }
                 logger.info("Frame created");
 
-                //We must wait for the frame to finish preparing:
+                // We must wait for the frame to finish preparing:
                 frame.waitForProjectOpen();
                 frame.setVisible(true);
-                //                frame.toFront();
+                // frame.toFront();
                 Utility.bringToFront();
                 logger.info("Frame visible");
                 try {
@@ -182,7 +189,7 @@ public class Greenfoot
 
     /**
      * Gets the singleton.
-     *  
+     * 
      */
     public static Greenfoot getInstance()
     {
@@ -190,14 +197,14 @@ public class Greenfoot
     }
 
     /**
-     * Opens the project in the given directory. 
+     * Opens the project in the given directory.
      * 
      * @param projectDir
      */
     public void openProject(String projectDir)
         throws RemoteException
     {
-        boolean doOpen = Greenfoot.updateApi(new File(projectDir), rBlueJ.getSystemLibDir());
+        boolean doOpen = Greenfoot.updateApi(new File(projectDir), rBlueJ.getSystemLibDir(), frame);
         if (doOpen) {
             rBlueJ.openProject(projectDir);
         }
@@ -206,7 +213,7 @@ public class Greenfoot
 
     /**
      * Opens a file browser to find a greenfoot project
-     *  
+     * 
      */
     public void openProjectBrowser()
     {
@@ -251,10 +258,10 @@ public class Greenfoot
                 rBlueJ.removeInvocationListener(element);
             }
             if (rBlueJ.getOpenProjects().length <= 1) {
-                //Close everything
-                //TODO maybe open dummy project instead
+                // Close everything
+                // TODO maybe open dummy project instead
 
-                //And then exit greenfoot
+                // And then exit greenfoot
                 logger.info("exit greenfoot");
                 rBlueJ.exit();
             }
@@ -304,7 +311,7 @@ public class Greenfoot
     }
 
     /**
-     * Compiles all files 
+     * Compiles all files
      */
     public void compileAll()
     {
@@ -338,7 +345,8 @@ public class Greenfoot
             try {
                 File f = new File(newname);
                 RProject newProject = rBlueJ.newProject(f);
-                //Project will be prepared by the ProjectLauncher on the BlueJ side.
+                // Project will be prepared by the ProjectLauncher on the BlueJ
+                // side.
             }
             catch (RemoteException e) {
                 e.printStackTrace();
@@ -371,8 +379,7 @@ public class Greenfoot
     }
 
     /**
-     * Retrieve the properties for a package. Loads the properties if
-     * necessary.
+     * Retrieve the properties for a package. Loads the properties if necessary.
      */
     public ProjectProperties getProjectProperties()
     {
@@ -387,8 +394,8 @@ public class Greenfoot
     }
 
     /**
-     * Remove the cached version of an image for a particular class. This should be
-     * called when the image for the class is set to something different.
+     * Remove the cached version of an image for a particular class. This should
+     * be called when the image for the class is set to something different.
      */
     public void removeCachedImage(String className)
     {
@@ -423,8 +430,8 @@ public class Greenfoot
      * Checks whether the API version this project was created with is
      * compatible with the current API version. If it is not, it will attempt to
      * update the project to the current version of the API and present the user
-     * with a dialog with instructions on what to do if there is a changes in API
-     * version that requires manual modifications of the API.
+     * with a dialog with instructions on what to do if there is a changes in
+     * API version that requires manual modifications of the API.
      * <p>
      * If is considered safe to open this project with the current API version
      * the method will return true. value will be 'true'.
@@ -433,52 +440,78 @@ public class Greenfoot
      * @return True If we should try to open the project.
      * @throws RemoteException
      */
-    public static boolean updateApi(File projectDir, File systemLibDir)
+    public static boolean updateApi(File projectDir, File systemLibDir, Frame parent)
         throws RemoteException
     {
         ProjectProperties newProperties = new ProjectProperties(projectDir);
         Version projectVersion = newProperties.getAPIVersion();
-        System.out.println("Project API version: " + projectVersion);
+
         Version apiVersion = Greenfoot.getAPIVersion();
-        System.out.println("Greenfoot API version: " + apiVersion);
 
         if (projectVersion.equals(apiVersion)) {
             Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
             return true;
         }
-        else if (projectVersion == Version.NO_VERSION) {
-            // Show warning dialog
-            System.out
-                    .println("This appears to be an old greenfoot project (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.");
+
+     //   Debug.log("Greenfoot project is not correct API version: " + projectDir);
+     //   Debug.log("Greenfoot API version: " + apiVersion);
+     //   Debug.log("Project API version: " + projectVersion);
+
+        if (projectVersion == Version.NO_VERSION) {
+            String message = "The project that you are trying to open appears to be an old greenfoot project (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.";
+            JButton continueButton = new JButton("Continue");
+            MessageDialog dialog = new MessageDialog(parent, message, "Versions does not match", 50,
+                    new JButton[]{continueButton});
+            dialog.displayModal();
+            System.out.println(message);
             Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
             return true;
         }
-        else if (projectVersion.compareTo(apiVersion) < 0) { //
-            System.out.println("This appears to be an old greenfoot project (API version " + projectVersion
+        else if (projectVersion.compareTo(apiVersion) < 0) {
+            String message = "The project that you are trying to open appears to be an old greenfoot project (API version " + projectVersion
                     + "). The project will be updated to the current version (API version " + apiVersion
-                    + "), but it might require some manual fixing of errors due to API changes.");
+                    + "), but it might require some manual fixing of errors due to API changes.";
+            JButton continueButton = new JButton("Continue");
+            MessageDialog dialog = new MessageDialog(parent, message, "Versions does not match", 50,
+                    new JButton[]{continueButton});
+            dialog.displayModal();
             Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
             return true;
         }
         else if (projectVersion.compareTo(apiVersion) > 0) { //
-            System.out
-                    .println("This appears to be a greenfoot project created with a newer version of the Greenfoot API (version "
-                            + projectVersion
-                            + "). Opening the project with this version might result in some errors that will have to be fixed manually. Continue Open/ Cancel Open ");
-            Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
-            return true; //or false if cancel is selected.
+            String message = "The project that you are trying to open appears to be a greenfoot project created with"
+                    + "a newer version of the Greenfoot API (version " + projectVersion + ")."
+                    + "Opening the project with this version might result in"
+                    + "some errors that will have to be fixed manually." + "\n \n"
+                    + "Do you want to continue opening the project?";
+
+            JButton cancelButton = new JButton("Cancel");
+            JButton continueButton = new JButton("Continue");
+            MessageDialog dialog = new MessageDialog(parent, message, "Versions does not match", 50, new JButton[]{
+                    continueButton, cancelButton});
+            JButton pressed = dialog.displayModal();
+            if (pressed == cancelButton) {
+                return false;
+            }
+            else {
+                prepareGreenfootProject(systemLibDir, projectDir);
+                return true;
+            }
         }
         else {
-            System.out.println("Not a greenfoot project.");
+            String message = "This is not a Greenfoot project: " + projectDir;
+            JButton continueButton = new JButton("Continue");
+            MessageDialog dialog = new MessageDialog(parent, message, "Versions does not match", 50,
+                    new JButton[]{continueButton});
+            dialog.displayModal();
             return false;
         }
 
     }
 
     /**
-     * Checks whether the old and new source files for Actor and
-     * World are the same. If they are not, the class files are
-     * deleted.
+     * Checks whether the old and new source files for Actor and World are the
+     * same. If they are not, the class files are deleted.
      */
     public static void validateClassFiles(File src, File dst)
     {
@@ -504,6 +537,7 @@ public class Greenfoot
 
     /**
      * Deletes all class files in the given directory.
+     * 
      * @param dir The directory MUST exist
      */
     private static void deleteClassFiles(File dir)

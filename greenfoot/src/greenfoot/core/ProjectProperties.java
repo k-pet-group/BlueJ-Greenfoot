@@ -32,7 +32,7 @@ public class ProjectProperties
      * Name of the greenfoot package file that holds information specific to a
      * package/project
      */
-    public static final String GREENFOOT_PKG_NAME = "greenfoot.project";
+    public static final String GREENFOOT_PKG_NAME = "project.greenfoot";
 
     /** Holds the actual properties */
     private Properties properties;
@@ -130,7 +130,6 @@ public class ProjectProperties
      */
     public void storeApiVersion()
     {
-        System.out.println("Writing API version: " + ActorVisitor.getApiVersion());
         properties.setProperty("version", ActorVisitor.getApiVersion().toString());
         storeProperties();
     }
