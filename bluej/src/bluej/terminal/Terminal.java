@@ -27,7 +27,7 @@ import bluej.utility.FileUtility;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 3976 2006-04-05 04:11:38Z davmac $
+ * @version $Id: Terminal.java 3979 2006-04-06 01:00:04Z davmac $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -631,6 +631,11 @@ public final class Terminal extends JFrame
             return charsRead;
         }
 
+        public boolean ready()
+        {
+            return ! buffer.isEmpty();
+        }
+        
         public void close()
         {
         }

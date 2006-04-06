@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3976 2006-04-05 04:11:38Z davmac $
+ * @version $Id: VMReference.java 3979 2006-04-06 01:00:04Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -1746,6 +1746,10 @@ class VMReference
                 char [] chbuf = new char[4096];
                 
                 while (keepRunning) {
+                    if (! reader.ready()) {
+                        writer.flush();
+                    }
+                    
                     int numchars = reader.read(chbuf);
                     if (numchars == -1) {
                         keepRunning = false;
