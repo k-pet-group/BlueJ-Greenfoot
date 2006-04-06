@@ -197,8 +197,13 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
             // This type of warning generates an additional two lines:
             // one is a duplicate of the source line, the next is empty
             // other than a single caret (^) indicating the position in the line.
-            if(message.startsWith("warning: [unchecked] unchecked cast"))
+            if (message.startsWith("warning: [unchecked] unchecked cast")) {
                 ignoreCount = 4;
+            }
+            else if (message.startsWith("warning: non-varargs call of varargs method with inexact argument type for last parameter")) {
+                ignoreCount = 4;
+            }
+            
             if(!hasWarnings)
                 hasWarnings = true;           
             return;
