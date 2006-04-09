@@ -27,7 +27,7 @@ import bluej.utility.FileUtility;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 3979 2006-04-06 01:00:04Z davmac $
+ * @version $Id: Terminal.java 3983 2006-04-09 19:37:44Z polle $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -667,7 +667,6 @@ public final class Terminal extends JFrame
                     EventQueue.invokeAndWait(new Runnable() {
                         public void run()
                         {
-                            prepare();
                             if(isErrorOut) {
                                 writeToErrorOut(new String(cbuf, off, len));
                             }
