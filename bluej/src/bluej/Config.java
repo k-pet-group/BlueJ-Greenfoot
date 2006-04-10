@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3785 2006-02-16 02:35:45Z davmac $
+ * @version $Id: Config.java 3986 2006-04-10 01:53:23Z davmac $
  */
 
 public final class Config
@@ -590,32 +590,39 @@ public final class Config
     
     
     /**
-     * Use hasMnemonicKey to ensure that the label has a mnemonicKey. If the
-     * lable doesn't have a mnemomic an exception will be thrown.
-     * @param strname
-     * @return
+     * Get the mnemonic key for a particular label, as specified in the
+     * labels file.
+     * 
+     * @param strname  The label name
+     * @return  The mnemonic key for the label
      */
-    public static int getMnemonicKey(String strname){
-        int index;
-		int mnemonic = 0;
-        char ch;
+    public static int getMnemonicKey(String strname)
+    {
+		int mnemonic;
         String str = lang_props.getProperty(strname, strname);
-        index = str.indexOf('_');
-        ch = str.charAt(index + 1);
-        String s = ch + "";
-        if (index == -1){
+        int index = str.indexOf('_');
+        
+        if (index == -1 || (index + 1) >= str.length()) {
         	mnemonic = KeyEvent.VK_UNDEFINED;
         }
         else {
+            char ch = str.charAt(index + 1);
+            String s = ch + "";
 	        // ch is appended to the emptystring to cast the argument to a string.
 	        // this is needed because of a bug in AWTKeyStroke.getAWTKeyStroke(char c)
 	        mnemonic = KeyStroke.getKeyStroke(s.toUpperCase()).getKeyCode();
         }
         return mnemonic;
-        
     }
     
-    public static boolean hasAcceleratorKey(String strname){
+    
+    /**
+     * Check whether a particular label has an accelerator key defined.
+     * @param strname  The label name to check
+     * @return     True if an accelerator key is defined
+     */
+    public static boolean hasAcceleratorKey(String strname)
+    {
         return lang_props.getProperty(strname, strname).indexOf('@') != -1;
     }
     
