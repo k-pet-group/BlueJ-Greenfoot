@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3986 2006-04-10 01:53:23Z davmac $
+ * @version $Id: Config.java 3990 2006-04-11 10:28:49Z polle $
  */
 
 public final class Config
@@ -191,7 +191,7 @@ public final class Config
         String laf = Config.getPropString("bluej.lookAndFeel", "default");
         setLookAndFeel(laf);
         //read any debug vm args
-        initDebugVMArgs();
+	initDebugVMArgs();
         Config.setVMLocale();
         
         // Create a property containing the BlueJ version string
@@ -590,27 +590,22 @@ public final class Config
     
     
     /**
-     * Get the mnemonic key for a particular label, as specified in the
-     * labels file.
+     * Get the mnemonic key for a particular label by looking for an underscore
+     * and using the character right after the underscore as the mnemonic key.
      * 
-     * @param strname  The label name
-     * @return  The mnemonic key for the label
+     * @param strname The label name
+     * @return Mnemonic or KeyEvent.VK_UNDEFINED if none found.
      */
     public static int getMnemonicKey(String strname)
     {
-		int mnemonic;
+        int mnemonic;
         String str = lang_props.getProperty(strname, strname);
         int index = str.indexOf('_');
-        
         if (index == -1 || (index + 1) >= str.length()) {
-        	mnemonic = KeyEvent.VK_UNDEFINED;
+            mnemonic = KeyEvent.VK_UNDEFINED;
         }
         else {
-            char ch = str.charAt(index + 1);
-            String s = ch + "";
-	        // ch is appended to the emptystring to cast the argument to a string.
-	        // this is needed because of a bug in AWTKeyStroke.getAWTKeyStroke(char c)
-	        mnemonic = KeyStroke.getKeyStroke(s.toUpperCase()).getKeyCode();
+            mnemonic = getKeyCodeAt(str, index + 1);
         }
         return mnemonic;
     }
@@ -624,8 +619,7 @@ public final class Config
     public static boolean hasAcceleratorKey(String strname)
     {
         return lang_props.getProperty(strname, strname).indexOf('@') != -1;
-    }
-    
+    }    
     
     /**
      * parses the labels file and creates a KeyStroke with the right accelerator
@@ -646,7 +640,7 @@ public final class Config
         }
         keyString = str.substring(index).toUpperCase();
         if(keyString.length() == 1) {
-            return KeyStroke.getKeyStroke(keyString.charAt(0), modifiers);
+            return KeyStroke.getKeyStroke(getKeyCodeAt(keyString, 0), modifiers);
         }
         else {
             KeyStroke k1= KeyStroke.getKeyStroke(keyString);
@@ -654,7 +648,35 @@ public final class Config
         }
     }
     
-    
+    /**
+     * Gets the keycode at the given position. On Java 1.5 this will be the code
+     * point which can also handle supplementary characters. On previous java
+     * versions it will return the BMP (Basic Multilingual Plane) character.
+     * 
+     * @return The keycode
+     * @throws IndexOutOfBoundsException if the index argument is negative or
+     *             not less than the length of this string.
+     */
+    private static int getKeyCodeAt(String str, int index)
+    {
+        // Currently the only use for this method is for retrieving mnemonics
+        // and accelerator keys. I have no idea if supplementary characters will
+        // ever be used for mnemonics or accelerators, but at least it should be
+        // supported.
+        // Poul Henriksen 11/04-2006
+        int code;
+        if (isJava15()) {
+            // Supplementary unicode characters are only supported in Java
+            // 1.5
+            code = str.codePointAt(index);
+        }
+        else {
+            // Will get the BMP (Basic Multilingual Plane) character and
+            // hence will not work with supplementary characters
+            code = str.charAt(index);
+        }
+        return code;
+    }
         
     /**
      * Get a non-language-dependent string from the BlueJ properties
