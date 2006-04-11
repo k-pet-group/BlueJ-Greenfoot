@@ -1,30 +1,20 @@
 package greenfoot.gui;
 
 import greenfoot.Actor;
+import greenfoot.ActorVisitor;
+import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.core.LocationTracker;
 import greenfoot.util.Location;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.net.URL;
 import java.util.logging.Logger;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 /**
  * Component that can be used for dragging. It should be used as a glasspane on
@@ -48,7 +38,7 @@ import javax.swing.SwingUtilities;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3910 2006-03-28 11:12:03Z polle $
+ * @version $Id: DragGlassPane.java 3988 2006-04-11 05:44:52Z davmac $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -185,11 +175,15 @@ public class DragGlassPane extends JComponent
      */
     public void startDrag(Actor object, int xOffset, int yOffset, DragListener dl, DropTarget initialDropTarget, boolean forcedDrag)
     {
-        if (object == null || object.getImage() == null) {
+        if (object == null) {
+            return;
+        }
+        GreenfootImage objectImage = ActorVisitor.getDisplayImage(object);
+        if (objectImage == null) {
             return;
         }
         this.forcedDrag = forcedDrag;
-        setDragImage(object.getImage(), object.getRotation());
+        setDragImage(objectImage, object.getRotation());
         setDragObject(object);
         paintNoDropImage = true;
 

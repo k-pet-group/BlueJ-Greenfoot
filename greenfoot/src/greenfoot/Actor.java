@@ -435,6 +435,18 @@ public class Actor extends ObjectTransporter
     }
     
     /**
+     * Get the image to use when displaying this actor. This should be whatever
+     * was set using setImage(). The returned image should not be modified as it
+     * may be the original class image.
+     * 
+     * @return  The image to use to display the actor
+     */
+    GreenfootImage getDisplayImage()
+    {
+        return image;
+    }
+    
+    /**
      * Get the bounding circle of the object. Taking into consideration that the
      * object can rotate.
      * 

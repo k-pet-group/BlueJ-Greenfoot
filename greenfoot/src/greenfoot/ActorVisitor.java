@@ -57,4 +57,15 @@ public class ActorVisitor
     public static Version getApiVersion() {
         return Actor.VERSION;
     }
+    
+    /**
+     * Get the display image for an actor. This is the last image that was
+     * set using setImage(). The returned image should not be modified.
+     * 
+     * @param actor  The actor whose display image to retrieve
+     */
+    public static GreenfootImage getDisplayImage(Actor actor)
+    {
+        return actor.getDisplayImage();
+    }
 }
