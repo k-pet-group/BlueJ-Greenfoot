@@ -14,7 +14,7 @@ const
 
     jdkregkey : string = '\Software\JavaSoft\Java Development Kit';
     ibmregkey : string = '\Software\IBM\Java Development Kit';
-    bluejregkey : string = '\Software\BlueJ\BlueJ\2.1.2';
+    bluejregkey : string = '\Software\BlueJ\BlueJ\2.1.3';
 
     searchingstartcaption : string = 'Search drives for all Java versions...';
     searchingstopcaption : string = 'Stop Search';
@@ -343,8 +343,6 @@ begin
 	        StartMessage3.Caption := foundjavacaption3;
         end;
      end;
-     //Debug only
-     GetBlueJDef(bluejvmargsproperty);
 end;
 
 function DelphiIsRunning : boolean;
