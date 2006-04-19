@@ -1,20 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
-  <PersonalityInfo>
-    <Option>
-      <Option Name="Personality">Default.Personality</Option>
-      <Option Name="ProjectType"></Option>
-      <Option Name="Version">1.0</Option>
-      <Option Name="GUID">{07DCA71F-C17E-4753-8EF7-B786422C8285}</Option>
-    </Option>
-  </PersonalityInfo>
-  <Default.Personality>
-    
-    <Projects>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">Default.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{07DCA71F-C17E-4753-8EF7-B786422C8285}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  <Projects>
       <Projects Name="vmselect.exe">winlaunch\vmselect.bdsproj</Projects>
-      <Projects Name="vmselect.CHS">winlaunch\CHS\vmselect.bdsproj</Projects>
-      <Projects Name="vmselect.CSY">winlaunch\CSY\vmselect.bdsproj</Projects>
-      <Projects Name="Targets">vmselect.exe vmselect.CHS vmselect.CSY</Projects>
+      <Projects Name="Targets">vmselect.exe</Projects>
     </Projects>
     <Dependencies/>
   </Default.Personality>
