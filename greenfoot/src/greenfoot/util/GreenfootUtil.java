@@ -17,10 +17,34 @@ import java.io.IOException;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 3974 2006-04-04 15:29:30Z polle $
+ * @version $Id: GreenfootUtil.java 3995 2006-04-21 10:12:54Z polle $
  */
 public class GreenfootUtil
 {
+    /**
+     * Extracts the name of a class from the qualified class name.
+     */
+    public static String extractClassName(String qualifiedName) {
+        int index = qualifiedName.lastIndexOf('.');
+        String name = qualifiedName;
+        if (index >= 0) {
+            name = qualifiedName.substring(index + 1);
+        }
+        return name;
+    }
+    
+    /**
+     * Extracts the package of a class from the qualified class name.
+     */
+    public static String extractPackageName(String qualifiedName) {
+        int index = qualifiedName.lastIndexOf('.');
+        String name = "";
+        if (index >= 0) {
+            name = qualifiedName.substring(0, index);
+        }
+        return name;
+    }    
+    
     /**
      * Scale an image, but avoid stretching small images and changing of the image's
      * aspect ratio. If the input image is smaller than the desired size, it is centered

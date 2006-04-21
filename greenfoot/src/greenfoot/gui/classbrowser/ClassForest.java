@@ -1,6 +1,7 @@
 package greenfoot.gui.classbrowser;
 
 import greenfoot.core.GClass;
+import greenfoot.util.GreenfootUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +19,7 @@ import bluej.utility.Debug;
  * A forest of trees. The roots are sorted alphabeticaly on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 3857 2006-03-22 00:08:17Z mik $
+ * @version $Id: ClassForest.java 3995 2006-04-21 10:12:54Z polle $
  */
 public class ClassForest
 {
@@ -156,10 +157,7 @@ public class ClassForest
         if(superName == null || superName.equals("")) {
             roots.add(child);
         } else {
-            int index = superName.lastIndexOf('.');
-            if (index >= 0) {
-                superName = superName.substring(index + 1);
-            }
+            superName = GreenfootUtil.extractClassName(superName);
             TreeEntry parent = (TreeEntry) treeEntryMap.get(superName);
             if(parent != null) {
                 parent.addChild(child);

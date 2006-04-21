@@ -2,6 +2,7 @@ package greenfoot.core;
 
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
+import greenfoot.util.GreenfootUtil;
 import greenfoot.util.Version;
 
 import java.io.File;
@@ -187,11 +188,7 @@ public class ProjectProperties
      */
     public GreenfootImage getImage(String className)
     {
-        int lastDot = className.lastIndexOf('.');
-        if (lastDot != -1) {
-            className = className.substring(lastDot + 1);
-        }
-
+        className = GreenfootUtil.extractClassName(className);
         GreenfootImage image = classImages.get(className);
 
         if (image == null) {

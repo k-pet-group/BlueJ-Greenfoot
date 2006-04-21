@@ -1,5 +1,7 @@
 package rmiextension.wrappers;
 
+import greenfoot.util.GreenfootUtil;
+
 import java.rmi.RemoteException;
 import java.util.logging.Logger;
 
@@ -11,7 +13,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RFieldImpl.java 3702 2005-10-25 18:27:18Z polle $
+ * @version $Id: RFieldImpl.java 3995 2006-04-21 10:12:54Z polle $
  */
 public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
     implements RField
@@ -85,10 +87,7 @@ public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
                 
                 try {
                     String className = bFieldValue.getBClass().getName();
-                    int index = className.lastIndexOf('.');
-                    if (index >= 0) {
-                        className = className.substring(index + 1);
-                    }
+                    className = GreenfootUtil.extractClassName(className);
                     newInstanceName = className.substring(0, 1).toLowerCase() + className.substring(1);
                 }
                 catch (ClassNotFoundException e) {

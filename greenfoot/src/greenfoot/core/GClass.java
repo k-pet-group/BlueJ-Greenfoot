@@ -1,6 +1,7 @@
 package greenfoot.core;
 
 import greenfoot.event.CompileListener;
+import greenfoot.util.GreenfootUtil;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -148,7 +149,7 @@ public class GClass implements CompileListener
     }
 
     /**
-     * Gets the qulified name of this class.
+     * Gets the qualified name of this class.
      * @return
      */
     public String getQualifiedName()
@@ -169,12 +170,7 @@ public class GClass implements CompileListener
      * @return
      */
     public String getName() {
-        String name = getQualifiedName();
-        int index = name.lastIndexOf('.');
-        if (index >= 0) {
-            name = name.substring(index + 1);
-        }
-        return name;
+        return GreenfootUtil.extractClassName(getQualifiedName());
     }
     /**
      * Returns the superclass or null if no superclass can be found.
@@ -192,16 +188,9 @@ public class GClass implements CompileListener
             }
             
             // The superclass could belong to a different package...
-            String superclassPkg;
-            int lastDot = superclassName.lastIndexOf('.');
-            if (lastDot == -1) {
-                superclassPkg = "";
-            }
-            else {
-                superclassPkg = superclassName.substring(0, lastDot);
-                superclassName = superclassName.substring(lastDot + 1);
-            }
-            
+            String superclassPkg = GreenfootUtil.extractPackageName(superclassName);
+            superclassName = GreenfootUtil.extractClassName(superclassName);
+                        
             // Get the package, return the class
             GPackage thePkg = proj.getPackage(superclassPkg);
             if (thePkg == null) {

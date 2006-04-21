@@ -67,16 +67,9 @@ public class GreenfootScenarioViewer implements ClassImageManager
     {
         GreenfootLogger.init();
         
-        try {
-            int lastDot = worldClassName.lastIndexOf('.');
-            String packageName;
-            if (lastDot != -1) {
-                packageName = worldClassName.substring(0, lastDot);
-                worldClassName = worldClassName.substring(lastDot + 1);
-            }
-            else {
-                packageName = "";
-            }
+        try {            
+            String packageName = GreenfootUtil.extractPackageName(worldClassName);
+            worldClassName = GreenfootUtil.extractClassName(worldClassName);
             properties = new ProjectProperties(new File(packageName));
             
             Class worldClass = Class.forName(worldClassName);

@@ -2,6 +2,7 @@ package greenfoot.gui.classbrowser.role;
 
 import greenfoot.core.GClass;
 import greenfoot.gui.classbrowser.ClassView;
+import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -13,7 +14,7 @@ import javax.swing.JLabel;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 3858 2006-03-22 17:25:25Z mik $
+ * @version $Id: WorldClassRole.java 3995 2006-04-21 10:12:54Z polle $
  */
 public class WorldClassRole extends ClassRole
 {
@@ -23,12 +24,8 @@ public class WorldClassRole extends ClassRole
         //TODO get this color from the bluej config
         classView.setBackground(new Color(245, 204, 155));
 
-        String name = gClass.getQualifiedName();
-        int index = name.lastIndexOf('.');
-        if (index >= 0) {
-            name = name.substring(index + 1);
-        }
-
+        String name = GreenfootUtil.extractClassName(gClass.getQualifiedName());
+       
         classView.setText(name);
     }
 
