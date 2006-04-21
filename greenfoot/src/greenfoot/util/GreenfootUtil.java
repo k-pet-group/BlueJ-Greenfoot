@@ -12,12 +12,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 3995 2006-04-21 10:12:54Z polle $
+ * @version $Id: GreenfootUtil.java 3996 2006-04-21 12:43:29Z polle $
  */
 public class GreenfootUtil
 {
@@ -44,6 +46,27 @@ public class GreenfootUtil
         }
         return name;
     }    
+    
+    /**
+     * Finds the directory that contains the given resource.
+     * 
+     * @param The name of a resource. Typically a class name including the extension.
+     * @return The directory containing the resource or null if it couldn't be found.
+     */
+    public static File getDirectoryContaining(String resName)
+    {
+        URL url = ClassLoader.getSystemResource(resName);
+        if (url != null) {
+            try {
+                return new File(url.toURI()).getParentFile();
+            }
+            catch (URISyntaxException e) {
+                // Should never happen since the url will be valid.
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
     
     /**
      * Scale an image, but avoid stretching small images and changing of the image's

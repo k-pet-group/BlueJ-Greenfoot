@@ -34,10 +34,21 @@ public class GreenfootScenarioViewer implements ClassImageManager
     private ProjectProperties properties;
     
 
+    /**
+     * Start the scenario. <p>
+     * 
+     * BlueJ and the scenario MUST be on the classpath.
+     * 
+     * @param args Two arguments should be passed to this method. The
+     * first one should be the World to be instantiated and the second argument
+     * should be a method that populates the world with actors. If no arguments
+     * are supplied it will use AntWorld and scenario2 as arguments.
+     * 
+     */
     public static void main(String[] args)
     {
-        String worldClassName = "AntWorld"; 
-        String worldInitMethod = "big";  
+        String worldClassName = "AntWorld";
+        String worldInitMethod = "scenario2";  
         if(args.length == 2) {
             worldClassName = args[0];
             worldInitMethod = args[1];
@@ -68,10 +79,8 @@ public class GreenfootScenarioViewer implements ClassImageManager
         GreenfootLogger.init();
         
         try {            
-            String packageName = GreenfootUtil.extractPackageName(worldClassName);
-            worldClassName = GreenfootUtil.extractClassName(worldClassName);
-            properties = new ProjectProperties(new File(packageName));
-            
+            File projectDir = GreenfootUtil.getDirectoryContaining(worldClassName + ".class");
+            properties = new ProjectProperties(projectDir);            
             Class worldClass = Class.forName(worldClassName);
             ExecServer.setClassLoader(worldClass.getClassLoader());
             Constructor worldConstructor = worldClass.getConstructor(new Class[]{});
@@ -122,6 +131,7 @@ public class GreenfootScenarioViewer implements ClassImageManager
     
     // --------- ClassImageManager interface ---------
     
+
     public GreenfootImage getClassImage(String className)
     {   
         return properties.getImage(className);
