@@ -1,109 +1,142 @@
 package rmiextension;
 
+import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootLauncher;
+
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.File;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.swing.JFrame;
+
 import bluej.extensions.BPackage;
+import bluej.extensions.BlueJ;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
+import bluej.pkgmgr.PkgMgrFrame;
 
 /**
+ * The ProjectManager is on the BlueJ-VM. It monitors pacakage events from BlueJ
+ * and launches the greenfoot project in the greenfoot-VM.
+ * 
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 3842 2006-03-20 14:56:04Z polle $
+ * @version $Id: ProjectManager.java 4010 2006-04-25 13:19:37Z polle $
  */
 public class ProjectManager
     implements PackageListener
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
+    /** Singleton instance */
     private static ProjectManager instance;
-    private List projectListeners = new ArrayList();
-    private List openedPackages = new ArrayList();
+
+    /** List to keep track of which projects has been opened */
+    private List<BPackage> openedPackages = new ArrayList<BPackage>();
+
+    /** The class that will be instantiated in the greenfoot VM to launch the project */
+    private String launchClass = GreenfootLauncher.class.getName();
+
+    private static BlueJ bluej;
 
     private ProjectManager()
     {}
 
+    /**
+     * Get the singleton instance. Make sure it is initialised first.
+     * 
+     * @see #init(BlueJ)
+     */
     public static ProjectManager instance()
     {
+        if (bluej == null) {
+            throw new IllegalStateException("Projectmanager has not been initialised.");
+        }
         if (instance == null) {
             instance = new ProjectManager();
         }
         return instance;
     }
 
-    public void addProjectListener(ProjectListener l)
+    /**
+     * Initialise. Must be called before the instance is accessed.
+     */
+    public static void init(BlueJ bluej)
     {
-        projectListeners.add(l);
+        ProjectManager.bluej = bluej;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.extensions.event.PackageListener#packageOpened(bluej.extensions.event.PackageEvent)
+    /**
+     * Launch the project in the greenfoot-VM if it is a proper greenfoot
+     * project.
      */
-    public void packageOpened(PackageEvent event)
+    private void launchProject(final Project project)
     {
+        if (!ProjectManager.instance().isProjectOpen(project)) {
+            File projectDir = new File(project.getDir());
+            boolean versionOK = checkVersion(projectDir);
+            if (versionOK) {
+                ObjectBench.createObject(project, launchClass, "launcher");
+            }
+            else {
+                //If this was the only open project, open the startup project instead.
+                if (bluej.getOpenProjects().length == 1) {
+                    ((PkgMgrFrame) bluej.getCurrentFrame()).doClose(true);
+                    File startupProject = new File(bluej.getSystemLibDir(), "startupProject");
+                    bluej.openProject(startupProject);
+                }
+            }
+        }
+        logger.info("ProjectLauncher.packageOpened done ");
+    }
+
+    /**
+     * Launches the RMI client in the greenfoot-VM.
+     * 
+     */
+    private void launchRmiClient(Project project)
+    {
+        ObjectBench.createObject(project, BlueJRMIClient.class.getName(), "blueJRMIClient", new Object[]{
+                project.getDir(), project.getName()});
+    }
+
+    /**
+     * Handles the check of the project version. It will notify the user if the
+     * project has to be updated.
+     * 
+     * @param projectDir Directory of the project.
+     * @return true if the project can be opened.
+     */
+    private boolean checkVersion(File projectDir)
+    {
+        //TODO if this is a new project, we should automatically create a proejct.greenfoot file with the current version number.
+        boolean doOpen = false;
         try {
-            if (event.getPackage().getName().equals("") || event.getPackage().getProject().getName().equals("startupProject")) {
-               
-                ProjectEvent projectEvent = new ProjectEvent(event);
-                
-                logger.info("Creating bluejRMIClient");
-                ObjectBench.createObject(projectEvent.getProject(), BlueJRMIClient.class.getName(), "blueJRMIClient",
-                        new Object[]{projectEvent.getProject().getDir(), projectEvent.getProject().getName()});
-                logger.info("bluejRMIClient created");
-                
-                for (Iterator iter = projectListeners.iterator(); iter.hasNext();) {
-                    ProjectListener element = (ProjectListener) iter.next();
-                    element.projectOpened(projectEvent);
-                }
-            } 
+            JFrame frame = new JFrame("NONE");
+            frame.setUndecorated(true);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            frame.setLocation(screenSize.width / 2, screenSize.height / 2);
+            frame.setVisible(true);
+            doOpen = Greenfoot.updateApi(projectDir, bluej.getSystemLibDir(), frame);
+            frame.dispose();
         }
-        catch (PackageNotFoundException pnfe) {}
-        catch (ProjectNotOpenException pnoe) {}
-        openedPackages.add(event.getPackage());
+        catch (RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return doOpen;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see bluej.extensions.event.PackageListener#packageClosing(bluej.extensions.event.PackageEvent)
+    /**
+     * Whether this project is currently open or not.
      */
-    public void packageClosing(PackageEvent event)
-    {
-        for (Iterator iter = projectListeners.iterator(); iter.hasNext();) {
-            ProjectListener element = (ProjectListener) iter.next();
-            ProjectEvent projectEvent = new ProjectEvent(event);
-            element.projectClosed(projectEvent);
-        }
-        openedPackages.remove(event.getPackage());
-    }
-
-    public BPackage getPackage(String project, String name)
-    {
-        for (Iterator iter = openedPackages.iterator(); iter.hasNext();) {
-            BPackage element = (BPackage) iter.next();
-            try {
-                if (element.getName().equals(name) && element.getProject().getName().equals(project)) {
-                    return element;
-                }
-            }
-            catch (ProjectNotOpenException e) {
-                e.printStackTrace();
-            }
-            catch (PackageNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    public boolean isProjectOpen(Project prj)
+    private boolean isProjectOpen(Project prj)
     {
         boolean projectIsOpen = false;
         File prjFile = null;
@@ -114,7 +147,7 @@ public class ProjectManager
             e1.printStackTrace();
         }
         for (int i = 0; i < openedPackages.size(); i++) {
-            BPackage openPkg = (BPackage) openedPackages.get(i);
+            BPackage openPkg = openedPackages.get(i);
 
             File openPrj = null;
             try {
@@ -127,7 +160,6 @@ public class ProjectManager
                 //e2.printStackTrace();
             }
 
-            //can give npe here - not anymore :-)
             if (openPrj != null && prjFile != null && openPrj.equals(prjFile)) {
                 projectIsOpen = true;
             }
@@ -135,8 +167,35 @@ public class ProjectManager
         return projectIsOpen;
     }
 
-   
+    //=================================================================
+    //bluej.extensions.event.PackageListener implementation
+    //=================================================================
 
-  
+    /**
+     * 
+     * @see bluej.extensions.event.PackageListener#packageOpened(bluej.extensions.event.PackageEvent)
+     */
+    public void packageOpened(PackageEvent event)
+    {
+        try {
+            BPackage pkg = event.getPackage();
+            if (pkg.getName().equals("") || pkg.getProject().getName().equals("startupProject")) {
+                Project project = new Project(pkg);
+                launchRmiClient(project);
+                launchProject(project);
+            }
+        }
+        catch (PackageNotFoundException pnfe) {}
+        catch (ProjectNotOpenException pnoe) {}
+        openedPackages.add(event.getPackage());
+    }
 
+    /**
+     * 
+     * @see bluej.extensions.event.PackageListener#packageClosing(bluej.extensions.event.PackageEvent)
+     */
+    public void packageClosing(PackageEvent event)
+    {
+        openedPackages.remove(event.getPackage());
+    }
 }

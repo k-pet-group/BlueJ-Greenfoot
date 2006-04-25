@@ -345,9 +345,13 @@ public class Greenfoot
         if (newname != null) {
             try {
                 File f = new File(newname);
+              /*  f.mkdir();
+                // Make sure that the new project has a project version.
+                ProjectProperties newProperties = new ProjectProperties(f);
+                newProperties.storeApiVersion();*/
                 RProject newProject = rBlueJ.newProject(f);
-                // Project will be prepared by the ProjectLauncher on the BlueJ
-                // side.
+                // The rest of the project preparation will be done by the
+                // ProjectLauncher on the BlueJ side.
             }
             catch (RemoteException e) {
                 e.printStackTrace();
