@@ -4,17 +4,13 @@ import greenfoot.core.GClass;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import javax.swing.JLabel;
 
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 4012 2006-04-25 14:38:06Z mik $
+ * @version $Id: WorldClassRole.java 4016 2006-04-25 16:42:46Z davmac $
  */
 public class WorldClassRole extends ClassRole
 {
@@ -38,6 +34,7 @@ public class WorldClassRole extends ClassRole
             //        if(pkg != null && pkg.getName() != "") {
             // writer.write("import " + rClass.getQualifiedName() + ";\n");
             //      }
+            writer.write(GreenfootClassRole.imports);
             writer.write(newline + "public class " + className + " extends " + superClassName + newline + "{" + newline);
             writer.write("    /**" + newline + "     * Creates a new world with 20x20 cells and" + newline
                     + "     * with a cell size of 10x10 pixels" + newline + "     */" + newline + "    public "

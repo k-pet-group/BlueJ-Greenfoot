@@ -22,7 +22,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 3827 2006-03-16 00:50:27Z davmac $
+ * @version $Id: ClassRole.java 4016 2006-04-25 16:42:46Z davmac $
  */
 public abstract class ClassRole
 {
@@ -34,14 +34,19 @@ public abstract class ClassRole
     }
 
     /**
-     * @return
+     * Write the skeleton for a class to a FileWriter.
+     * 
+     * @param className   the name of the class to write the skeleton for
+     * @param superClassName  the name of the superclass, or null if there
+     *                        is no superclass
+     * @param writer   the writer to write the skeleton to
      */
     public abstract void createSkeleton(String className, String superClassName, FileWriter writer);
 
     public List createConstructorActions(Class realClass)
     {
         View view = View.getView(realClass);
-        List actions = new ArrayList();
+        List<Action> actions = new ArrayList<Action>();
         ConstructorView[] constructors = view.getConstructors();
 
         for (int i = 0; i < constructors.length; i++) {

@@ -30,7 +30,7 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4015 2006-04-25 16:18:13Z mik $
+ * @version $Id: ClassBrowser.java 4016 2006-04-25 16:42:46Z davmac $
  */
 public class ClassBrowser extends JPanel
 {
@@ -91,7 +91,7 @@ public class ClassBrowser extends JPanel
         }
         else {
             // everything else
-            classLabel = new ClassView(new NormalClassRole(), gClass);
+            classLabel = new ClassView(NormalClassRole.getInstance(), gClass);
             otherClasses.add(classLabel);
         }
         buttonGroup.add(classLabel);

@@ -6,12 +6,12 @@ import greenfoot.core.Greenfoot;
 import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
+import greenfoot.gui.classbrowser.role.NormalClassRole;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.rmi.RemoteException;
 
 import javax.swing.AbstractAction;
@@ -26,7 +26,7 @@ import bluej.extensions.ProjectNotOpenException;
  * An action for creating a new (non-Actor, non-World) class.
  * 
  * @author dam
- * @version $Id: NewClassAction.java 4013 2006-04-25 15:08:57Z davmac $
+ * @version $Id: NewClassAction.java 4016 2006-04-25 16:42:46Z davmac $
  */
 public class NewClassAction extends AbstractAction {
 
@@ -54,8 +54,9 @@ public class NewClassAction extends AbstractAction {
         try {
             File dir = pkg.getProject().getDir();
             File newJavaFile = new File(dir, className + ".java");
-            Writer writer = new FileWriter(newJavaFile);
-            // DAV write the file from skeleton
+            FileWriter writer = new FileWriter(newJavaFile);
+            
+            NormalClassRole.getInstance().createSkeleton(className, null, writer);
         
             writer.close();
             GClass newClass = pkg.newClass(className);

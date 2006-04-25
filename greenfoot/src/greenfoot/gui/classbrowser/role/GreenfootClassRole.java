@@ -30,7 +30,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 4012 2006-04-25 14:38:06Z mik $
+ * @version $Id: GreenfootClassRole.java 4016 2006-04-25 16:42:46Z davmac $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -38,9 +38,12 @@ public class GreenfootClassRole extends ClassRole
     private final static Dimension iconSize = new Dimension(16, 16);
     protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
-    private GClass gClass;
     private ClassView classView;
 
+    private static final String newline = System.getProperty("line.separator");
+    public static final String imports = "import greenfoot.World;" + newline 
+        + "import greenfoot.Actor;" + newline;
+    
     /*
      * (non-Javadoc)
      * 
@@ -48,7 +51,6 @@ public class GreenfootClassRole extends ClassRole
      */
     public void buildUI(ClassView classView, GClass gClass)
     {
-        this.gClass = gClass;
         this.classView = classView;
 
         classView.setText(gClass.getName());
@@ -118,6 +120,8 @@ public class GreenfootClassRole extends ClassRole
             //        if(pkg != null && pkg.getName() != "") {
             // writer.write("import " + rClass.getQualifiedName() + ";\n");
             //      }
+            writer.write(imports);
+
             writer.write(newline + "public class " + className + " extends " + superClassName + newline + "{" + newline);
 
             writer.write("    public " + className + "()" + newline + "    {" + newline);
@@ -143,7 +147,7 @@ public class GreenfootClassRole extends ClassRole
     public List createConstructorActions(Class realClass)
     {
         List realActions = super.createConstructorActions(realClass);
-        List tempActions = new ArrayList();
+        List<Action> tempActions = new ArrayList<Action>();
         for (Iterator iter = realActions.iterator(); iter.hasNext();) {
             Action realAction = (Action) iter.next();
             Action tempAction = createDragProxyAction(realAction);

@@ -46,12 +46,11 @@ import bluej.utility.Utility;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
-import java.awt.Dimension;
 import java.awt.Font;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4012 2006-04-25 14:38:06Z mik $
+ * @version $Id: ClassView.java 4016 2006-04-25 16:42:46Z davmac $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -70,13 +69,7 @@ public class ClassView extends JToggleButton
     private static final int BORDER = 1;
 
     private transient final static Logger logger = Logger.getLogger("greenfoot");
-    private static final String newline = System.getProperty("line.separator");
-    private static final String imports = "import greenfoot.World;" + newline 
-                                         + "import greenfoot.Actor;" + newline;
-
-    private static final Dimension minimumSize = new Dimension(60, 20);
-    private static final Dimension preferredSize = new Dimension(60, 20);
-    
+   
     private GClass gClass;
     private Class realClass; // null if not compiled
     private ClassRole role;
@@ -461,7 +454,6 @@ public class ClassView extends JToggleButton
             File newJavaFile = new File(dir, className + ".java");
             writer = new FileWriter(newJavaFile);
             String superClassName = getClassName();            
-            writer.write(imports);
             role.createSkeleton(className, superClassName, writer);
             writer.close();
             GClass newClass = pkg.newClass(className);

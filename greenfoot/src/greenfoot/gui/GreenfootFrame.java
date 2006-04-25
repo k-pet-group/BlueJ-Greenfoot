@@ -7,6 +7,7 @@ import greenfoot.actions.CompileAllAction;
 import greenfoot.actions.CompileClassAction;
 import greenfoot.actions.EditClassAction;
 import greenfoot.actions.NYIAction;
+import greenfoot.actions.NewClassAction;
 import greenfoot.actions.NewProjectAction;
 import greenfoot.actions.OpenProjectAction;
 import greenfoot.actions.PauseSimulationAction;
@@ -29,7 +30,6 @@ import greenfoot.gui.classbrowser.ClassView;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -53,7 +53,6 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.Border;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
@@ -72,7 +71,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4015 2006-04-25 16:18:13Z mik $
+ * @version $Id: GreenfootFrame.java 4016 2006-04-25 16:42:46Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -183,6 +182,9 @@ public class GreenfootFrame extends JFrame
     private void makeFrame(GProject project)
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Build the class browser before building the menu, because
+        // some menu actions work on the class browser.
+        classBrowser = buildClassBrowser();
         setJMenuBar(buildMenu());
         setGlassPane(DragGlassPane.getInstance());
 
@@ -234,7 +236,6 @@ public class GreenfootFrame extends JFrame
         
         // the class browser 
         
-        classBrowser = buildClassBrowser();
         JScrollPane classScrollPane = new JScrollPane(classBrowser);
         classScrollPane.setOpaque(false);
         classScrollPane.getViewport().setOpaque(false);
@@ -394,6 +395,10 @@ public class GreenfootFrame extends JFrame
         projectMenu.addSeparator();
         addMenuItem(new NYIAction("Page Setup...", this), projectMenu, KeyEvent.VK_P, true, -1);
         addMenuItem(new NYIAction("Print...", this), projectMenu, KeyEvent.VK_P, false, KeyEvent.VK_P);
+        
+        JMenu editMenu = addMenu("Edit", menuBar, 'e');
+        
+        addMenuItem(new NewClassAction(classBrowser), editMenu, KeyEvent.VK_C, false, KeyEvent.VK_N);
         
         JMenu ctrlMenu = addMenu("Controls", menuBar, 'c');
         
