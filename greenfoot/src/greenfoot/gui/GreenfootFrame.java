@@ -29,6 +29,7 @@ import greenfoot.gui.classbrowser.ClassView;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -71,7 +72,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4013 2006-04-25 15:08:57Z davmac $
+ * @version $Id: GreenfootFrame.java 4015 2006-04-25 16:18:13Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -202,7 +203,9 @@ public class GreenfootFrame extends JFrame
         Simulation.initialize(worldHandler);
         Simulation sim = Simulation.getInstance();
         
-        JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
+        JPanel canvasPanel = new JPanel(new CenterLayout()); // this panel is needed for resize behaviour
+        canvasPanel.add(worldCanvas, BorderLayout.CENTER);
+        JScrollPane worldScrollPane = new JScrollPane(canvasPanel);
         worldScrollPane.setOpaque(false);
         worldScrollPane.getViewport().setOpaque(false);
         worldScrollPane.setBorder(null);
@@ -369,10 +372,6 @@ public class GreenfootFrame extends JFrame
         catch (PackageAlreadyExistsException e) {
             e.printStackTrace();
         }
-
-        Border insideBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
-        classBrowser.setBorder(insideBorder);
-        classBrowser.setBackground(Color.WHITE);
 
         return classBrowser;
     }

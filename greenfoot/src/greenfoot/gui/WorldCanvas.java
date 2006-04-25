@@ -6,6 +6,7 @@ import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.GreenfootImage;
+import java.awt.BorderLayout;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -16,8 +17,7 @@ import java.awt.geom.AffineTransform;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
-
-import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 
@@ -25,9 +25,9 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 4012 2006-04-25 14:38:06Z mik $
+ * @version $Id: WorldCanvas.java 4015 2006-04-25 16:18:13Z mik $
  */
-public class WorldCanvas extends JComponent
+public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
@@ -104,7 +104,7 @@ public class WorldCanvas extends JComponent
      */
     public void paintComponent(Graphics g)
     {
-        super.paintComponent(g);
+//        super.paintComponent(g);
         if (world == null) {
             return;
         }
@@ -114,6 +114,11 @@ public class WorldCanvas extends JComponent
         WorldVisitor.paintDebug(world, g);
     }
 
+    
+    /**
+     * Paint the world background. This takes tiling into account: the
+     * world image is painted either once or tiled onto this component.
+     */
     private void paintBackground(Graphics g)
     {
         if (world != null) {
@@ -127,9 +132,13 @@ public class WorldCanvas extends JComponent
                 }
             }
         }
-
     }
 
+    
+    /**
+     * Print the world background image onto this component in tiles
+     * so that it will the whole world size.
+     */
     private void paintTiledBackground(Graphics g, GreenfootImage backgroundImage)
     {
         if (backgroundImage == null || world == null) {
@@ -152,10 +161,9 @@ public class WorldCanvas extends JComponent
 
     }
 
-    public Dimension getMaximumSize()
-    {
-        return getPreferredSize();
-    }
+//    public Dimension getMaximumSize()
+//    {
+//    }
 
     public Dimension getMinimumSize()
     {
@@ -172,10 +180,12 @@ public class WorldCanvas extends JComponent
         return size;
     }
     
+    
     public void setDropTargetListener(DropTarget dropTargetListener)
     {
         this.dropTargetListener = dropTargetListener;
     }
+    
 
     public boolean drop(Object o, Point p)
     {
@@ -188,6 +198,7 @@ public class WorldCanvas extends JComponent
 
     }
 
+    
     public boolean drag(Object o, Point p)
     {
         if (dropTargetListener != null) {
@@ -198,6 +209,7 @@ public class WorldCanvas extends JComponent
         }
     }
 
+    
     public void dragEnded(Object o)
     {
         if (dropTargetListener != null) {

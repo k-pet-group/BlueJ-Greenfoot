@@ -30,7 +30,7 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4013 2006-04-25 15:08:57Z davmac $
+ * @version $Id: ClassBrowser.java 4015 2006-04-25 16:18:13Z mik $
  */
 public class ClassBrowser extends JPanel
 {
@@ -53,6 +53,7 @@ public class ClassBrowser extends JPanel
     public ClassBrowser()
     {
         setLayout(new BorderLayout());
+
         worldClasses = new ClassForest();
         greenfootClasses = new ClassForest();
         otherClasses = new ClassForest();
