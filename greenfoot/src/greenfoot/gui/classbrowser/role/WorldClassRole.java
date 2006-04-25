@@ -14,18 +14,14 @@ import javax.swing.JLabel;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 3995 2006-04-21 10:12:54Z polle $
+ * @version $Id: WorldClassRole.java 4012 2006-04-25 14:38:06Z mik $
  */
 public class WorldClassRole extends ClassRole
 {
 
     public void buildUI(ClassView classView, GClass gClass)
     {
-        //TODO get this color from the bluej config
-        classView.setBackground(new Color(245, 204, 155));
-
         String name = GreenfootUtil.extractClassName(gClass.getQualifiedName());
-       
         classView.setText(name);
     }
 

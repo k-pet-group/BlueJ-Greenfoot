@@ -31,7 +31,7 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 3911 2006-03-28 11:38:48Z polle $
+ * @version $Id: ClassBrowser.java 4012 2006-04-25 14:38:06Z mik $
  */
 public class ClassBrowser extends JPanel
 {
@@ -58,6 +58,7 @@ public class ClassBrowser extends JPanel
         worldClasses = new ClassForest();
         greenfootClasses = new ClassForest();
         otherClasses = new ClassForest();
+        setOpaque(false);
     }
 
     /**
@@ -153,7 +154,7 @@ public class ClassBrowser extends JPanel
 
         JPanel worldFrame = new JPanel();
         ((FlowLayout)worldFrame.getLayout()).setAlignment(FlowLayout.LEFT);
-        worldFrame.setBackground(Color.WHITE);
+        //worldFrame.setBackground(Color.WHITE);
         worldFrame.add(worldClassPanel);
         worldFrame.setBorder(BorderFactory.createTitledBorder(null, "World classes"));
 
@@ -166,7 +167,7 @@ public class ClassBrowser extends JPanel
         if (greenfootClassPanel != null) {
             JPanel objectFrame = new JPanel();
             ((FlowLayout)objectFrame.getLayout()).setAlignment(FlowLayout.LEFT);
-            objectFrame.setBackground(Color.WHITE);
+            //objectFrame.setBackground(Color.WHITE);
             objectFrame.add(greenfootClassPanel);
             objectFrame.setBorder(BorderFactory.createTitledBorder(null, "Actor classes"));
 

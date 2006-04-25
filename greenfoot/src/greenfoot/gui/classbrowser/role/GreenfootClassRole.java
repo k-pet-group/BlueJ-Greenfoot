@@ -30,7 +30,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 3896 2006-03-27 23:32:36Z davmac $
+ * @version $Id: GreenfootClassRole.java 4012 2006-04-25 14:38:06Z mik $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -50,11 +50,8 @@ public class GreenfootClassRole extends ClassRole
     {
         this.gClass = gClass;
         this.classView = classView;
-        // TODO:  get this color from the bluej config
-        classView.setBackground(new Color(245, 204, 155));
 
-        String name = gClass.getName();
-        classView.setText(name);
+        classView.setText(gClass.getName());
         
         // Add the image label
         Image image = getImage();

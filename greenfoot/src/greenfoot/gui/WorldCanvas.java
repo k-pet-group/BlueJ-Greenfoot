@@ -5,6 +5,7 @@ import greenfoot.ActorVisitor;
 import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.GreenfootImage;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -24,7 +25,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 3988 2006-04-11 05:44:52Z davmac $
+ * @version $Id: WorldCanvas.java 4012 2006-04-25 14:38:06Z mik $
  */
 public class WorldCanvas extends JComponent
     implements  DropTarget, Scrollable
@@ -37,6 +38,7 @@ public class WorldCanvas extends JComponent
     public WorldCanvas(World world)
     {
         setWorld(world);
+        setOpaque(false);
     }
 
     /**
@@ -115,26 +117,21 @@ public class WorldCanvas extends JComponent
     private void paintBackground(Graphics g)
     {
         if (world != null) {
-            g.setColor(getBackground());
-
-            int width = WorldVisitor.getWidthInPixels(world);
-            int height = WorldVisitor.getHeightInPixels(world);
-            g.fillRect(0, 0, width, height);
-
-            greenfoot.GreenfootImage backgroundImage = world.getBackground();
-            if (backgroundImage.isTiled()) {
-                paintTiledBackground(g);
-            }
-            else if (backgroundImage != null) {
-                ImageVisitor.drawImage(backgroundImage, g, 0, 0, this);
+            GreenfootImage backgroundImage = world.getBackground();
+            if (backgroundImage != null) {
+                if (backgroundImage.isTiled()) {
+                    paintTiledBackground(g, backgroundImage);
+                }
+                else {
+                    ImageVisitor.drawImage(backgroundImage, g, 0, 0, this);
+                }
             }
         }
 
     }
 
-    private void paintTiledBackground(Graphics g)
+    private void paintTiledBackground(Graphics g, GreenfootImage backgroundImage)
     {
-        greenfoot.GreenfootImage backgroundImage = world.getBackground();
         if (backgroundImage == null || world == null) {
             return;
         }

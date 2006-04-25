@@ -35,8 +35,6 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.logging.Logger;
-
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -66,6 +64,7 @@ import greenfoot.actions.NYIAction;
 import greenfoot.actions.RunOnceSimulationAction;
 import greenfoot.actions.RunSimulationAction;
 import java.awt.GridLayout;
+import javax.swing.JViewport;
 
 /**
  * The main frame for a Greenfoot project (one per project)
@@ -73,7 +72,7 @@ import java.awt.GridLayout;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4009 2006-04-25 12:39:48Z mik $
+ * @version $Id: GreenfootFrame.java 4012 2006-04-25 14:38:06Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -189,69 +188,71 @@ public class GreenfootFrame extends JFrame
         setJMenuBar(buildMenu());
         setGlassPane(DragGlassPane.getInstance());
 
-        // build the world panel. this includes the world and the controls
+        // build the centre panel. this includes the world and the controls
         
-        JPanel worldPanel = new JPanel(new BorderLayout(4, 4));
+        JPanel centrePanel = new JPanel(new BorderLayout(4, 4));
+
+        // the world panel. this includes the world title and world
+        
+        JPanel worldPanel = new JPanel(new BorderLayout(12, 12));
+        worldPanel.setBorder(BorderFactory.createEtchedBorder());        
 
         WorldCanvas worldCanvas = new WorldCanvas(null);
         worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
         WorldHandler.initialise(project, worldCanvas, null);
         WorldHandler worldHandler = WorldHandler.instance();
-        
         Simulation.initialize(worldHandler);
         Simulation sim = Simulation.getInstance();
         
         JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
+        worldScrollPane.setOpaque(false);
+        worldScrollPane.getViewport().setOpaque(false);
+        worldScrollPane.setBorder(null);
+        JViewport v = worldScrollPane.getViewport();
+        
+        worldPanel.add(worldHandler.getWorldTitle(), BorderLayout.NORTH);
+        worldPanel.add(worldScrollPane, BorderLayout.CENTER);
+
+        centrePanel.add(worldPanel, BorderLayout.CENTER);
+        
+        // the control panel
         
         controlPanel = new ControlPanel(sim);
         controlPanel.setBorder(BorderFactory.createEtchedBorder());        
         worldHandler.addWorldListener(controlPanel);
 
-        //todo this should be moved to WorldCanvas becuase it changes when new
-        // worlds are created
-        worldPanel.add(worldHandler.getWorldTitle(), BorderLayout.NORTH);
-        worldPanel.add(worldScrollPane, BorderLayout.CENTER);
-        worldPanel.add(controlPanel, BorderLayout.SOUTH);
+        centrePanel.add(controlPanel, BorderLayout.SOUTH);
 
         
-        // build and place the class browser on the east side
+        // EAST side: project info button and class browser
         
-        JPanel eastPane = new JPanel(new BorderLayout(4, 4));
+        JPanel eastPanel = new JPanel(new BorderLayout(4, 4));
 
-        JButton readMeButton = new JButton("Scenario Info", 
+        JButton readMeButton = new JButton("Project Information", 
                                            new ImageIcon(getClass().getClassLoader().getResource(readMeIconFile)));
-        eastPane.add(readMeButton, BorderLayout.NORTH);
+        eastPanel.add(readMeButton, BorderLayout.NORTH);
+        
+        // the class browser 
         
         classBrowser = buildClassBrowser();
         JScrollPane classScrollPane = new JScrollPane(classBrowser);
-        eastPane.add(classScrollPane, BorderLayout.CENTER);
+        classScrollPane.setOpaque(false);
+        classScrollPane.getViewport().setOpaque(false);
+        classScrollPane.setBorder(null);
+        eastPanel.add(classScrollPane, BorderLayout.CENTER);
 
         // make the buttons at the bottom
         
-        JPanel buttonPanel = new JPanel(new GridLayout(2,0));
-        
         JButton button = new JButton(CompileAllAction.getInstance());
-        buttonPanel.add(button);
-
-        //TODO create proper implementation.
-        Action newClassAction = new AbstractAction("New Class...") {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                GreenfootFrame.this.showNYIMessage();
-            }
-
-        };
-        button = new JButton(newClassAction);
-        buttonPanel.add(button);
-
-        eastPane.add(buttonPanel, BorderLayout.SOUTH);
+        eastPanel.add(button, BorderLayout.SOUTH);
 
         JPanel contentPane = (JPanel)getContentPane();
         contentPane.setLayout(new BorderLayout(6,6));
         contentPane.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        contentPane.add(worldPanel, BorderLayout.CENTER);
-        contentPane.add(eastPane, BorderLayout.EAST);
+        contentPane.add(centrePanel, BorderLayout.CENTER);
+        contentPane.add(eastPanel, BorderLayout.EAST);
 
         instantiateNewWorld(classBrowser);
         pack();
@@ -531,28 +532,6 @@ public class GreenfootFrame extends JFrame
 
     
     // ----------- end of WindowListener interface -----------
-    
-    public void setBounds(int x,
-                      int y,
-                      int width,
-                      int height) 
-    {
-        super.setBounds(x, y, width, height);
-        System.out.println("w: " + width + "  h: " + height);
-    }
-                      
-    public void setSize(int width, int height)
-    {
-        super.setSize(width, height);
-        System.out.println("w: " + width + "  h: " + height);
-    }
-    
-    public void setSize(Dimension d)
-    {
-        super.setSize(d);
-        System.out.println("d: " + d);
-    }
-    
     
     /**
      * Returns the maximum size, which is the size of the screen.
