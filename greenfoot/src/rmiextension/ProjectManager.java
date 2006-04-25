@@ -2,6 +2,7 @@ package rmiextension;
 
 import greenfoot.core.Greenfoot;
 import greenfoot.core.GreenfootLauncher;
+import greenfoot.core.ProjectProperties;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -27,7 +28,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4010 2006-04-25 13:19:37Z polle $
+ * @version $Id: ProjectManager.java 4011 2006-04-25 14:28:08Z polle $
  */
 public class ProjectManager
     implements PackageListener
@@ -39,6 +40,9 @@ public class ProjectManager
 
     /** List to keep track of which projects has been opened */
     private List<BPackage> openedPackages = new ArrayList<BPackage>();
+
+    /** List to keep track of which projects are int the process of being created */
+    private List<File> projectsInCreation = new ArrayList<File>();
 
     /** The class that will be instantiated in the greenfoot VM to launch the project */
     private String launchClass = GreenfootLauncher.class.getName();
@@ -115,7 +119,11 @@ public class ProjectManager
      */
     private boolean checkVersion(File projectDir)
     {
-        //TODO if this is a new project, we should automatically create a proejct.greenfoot file with the current version number.
+        if(isNewProject(projectDir)) {
+            ProjectProperties newProperties = new ProjectProperties(projectDir);
+            newProperties.storeApiVersion();
+        }
+        
         boolean doOpen = false;
         try {
             JFrame frame = new JFrame("NONE");
@@ -131,6 +139,32 @@ public class ProjectManager
             e.printStackTrace();
         }
         return doOpen;
+    }
+
+    /**
+     * Checks if this is a project that is being created for the first time
+     * @param projectDir
+     * @return
+     */
+    private boolean isNewProject(File projectDir)
+    {
+        return projectsInCreation.contains(projectDir);        
+    }
+    
+    /**
+     * Flags that this project is in the process of being created.
+     */
+    public void addNewProject(File projectDir)
+    {
+        projectsInCreation.add(projectDir);
+    }
+
+    /**
+     * Flags that this project is no longer in the process of being created.
+     */
+    public void removeNewProject(File projectDir)
+    {
+        projectsInCreation.remove(projectDir);
     }
 
     /**

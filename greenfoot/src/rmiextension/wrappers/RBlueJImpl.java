@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import rmiextension.ProjectManager;
 import rmiextension.wrappers.event.RCompileListener;
 import rmiextension.wrappers.event.RCompileListenerWrapper;
 import rmiextension.wrappers.event.RInvocationListener;
@@ -24,7 +25,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: RBlueJImpl.java 4011 2006-04-25 14:28:08Z polle $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -204,8 +205,10 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public RProject newProject(File directory)
         throws RemoteException
     {
+        ProjectManager.instance().addNewProject(directory);
         BProject wrapped = blueJ.newProject(directory);
         RProject wrapper = WrapperPool.instance().getWrapper(wrapped);
+        ProjectManager.instance().removeNewProject(directory);
         return wrapper;
     }
 
