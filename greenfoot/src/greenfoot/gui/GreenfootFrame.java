@@ -11,6 +11,7 @@ import greenfoot.actions.NewClassAction;
 import greenfoot.actions.NewProjectAction;
 import greenfoot.actions.OpenProjectAction;
 import greenfoot.actions.PauseSimulationAction;
+import greenfoot.actions.RemoveSelectedClassAction;
 import greenfoot.actions.RunOnceSimulationAction;
 import greenfoot.actions.RunSimulationAction;
 import greenfoot.actions.SaveProjectAction;
@@ -71,7 +72,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4016 2006-04-25 16:42:46Z davmac $
+ * @version $Id: GreenfootFrame.java 4017 2006-04-25 17:51:23Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -399,6 +400,9 @@ public class GreenfootFrame extends JFrame
         JMenu editMenu = addMenu("Edit", menuBar, 'e');
         
         addMenuItem(new NewClassAction(classBrowser), editMenu, KeyEvent.VK_C, false, KeyEvent.VK_N);
+        RemoveSelectedClassAction removeClassAction = new RemoveSelectedClassAction();
+        classBrowser.getSelectionManager().addSelectionChangeListener(removeClassAction);
+        addMenuItem(removeClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
         
         JMenu ctrlMenu = addMenu("Controls", menuBar, 'c');
         

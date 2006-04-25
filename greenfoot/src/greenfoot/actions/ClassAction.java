@@ -12,12 +12,13 @@ import javax.swing.AbstractAction;
  * Superclass for actions that depends on the selected class.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassAction.java 3552 2005-09-06 15:53:28Z polle $
+ * @version $Id: ClassAction.java 4017 2006-04-25 17:51:23Z davmac $
  */
 public abstract class ClassAction extends AbstractAction
     implements SelectionListener
 {
     protected GClass selectedClass;
+    protected ClassView selectedClassView;
 
     public ClassAction(String name)
     {
@@ -27,15 +28,18 @@ public abstract class ClassAction extends AbstractAction
     public void selectionChange(Selectable source)
     {
         if (source == null) {
+            selectedClassView = null;
             selectedClass = null;
         }
         else if (source instanceof ClassView) {
             ClassView classLabel = (ClassView) source;
             GClass gClass = classLabel.getGClass();
             if (classLabel.isSelected()) {
+                selectedClassView = classLabel;
                 selectedClass = gClass;
             }
             else {
+                selectedClassView = null;
                 selectedClass = null;
             }
         }
