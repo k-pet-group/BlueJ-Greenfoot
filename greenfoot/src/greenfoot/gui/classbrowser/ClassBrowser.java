@@ -7,8 +7,8 @@ import greenfoot.core.Greenfoot;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
-import java.awt.BorderLayout;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.util.Collection;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
@@ -31,7 +30,7 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4012 2006-04-25 14:38:06Z mik $
+ * @version $Id: ClassBrowser.java 4013 2006-04-25 15:08:57Z davmac $
  */
 public class ClassBrowser extends JPanel
 {
@@ -42,7 +41,6 @@ public class ClassBrowser extends JPanel
 
     private EditClassAction editClassAction;
     private CompileClassAction compileClassAction;
-    private static final int SPACE = 2;
 
     private ButtonGroup buttonGroup = new ButtonGroup();
 
@@ -172,6 +170,20 @@ public class ClassBrowser extends JPanel
             objectFrame.setBorder(BorderFactory.createTitledBorder(null, "Actor classes"));
 
             this.add(objectFrame, BorderLayout.CENTER);
+        }
+        
+        if (! otherClasses.getRoots().isEmpty()) {
+            JComponent otherClassPanel = createClassHierarchyComponent(otherClasses.getRoots(), false);
+            
+            if (otherClassPanel != null) {
+                JPanel objectFrame = new JPanel();
+                ((FlowLayout)objectFrame.getLayout()).setAlignment(FlowLayout.LEFT);
+                objectFrame.setBackground(Color.WHITE);
+                objectFrame.add(otherClassPanel);
+                objectFrame.setBorder(BorderFactory.createTitledBorder(null, "Other classes"));
+                
+                this.add(objectFrame, BorderLayout.SOUTH);
+            }
         }
     }
 

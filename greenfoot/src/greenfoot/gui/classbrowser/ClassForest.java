@@ -19,7 +19,7 @@ import bluej.utility.Debug;
  * A forest of trees. The roots are sorted alphabeticaly on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 3995 2006-04-21 10:12:54Z polle $
+ * @version $Id: ClassForest.java 4013 2006-04-25 15:08:57Z davmac $
  */
 public class ClassForest
 {
@@ -86,6 +86,10 @@ public class ClassForest
     public ClassForest()
     { }
 
+    /**
+     * Get the root classes of this ClassForest (i.e. classes which have no
+     * parent classes).
+     */
     public Set getRoots()
     {
         return roots;

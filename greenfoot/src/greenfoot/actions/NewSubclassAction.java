@@ -16,7 +16,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 3967 2006-03-30 14:27:59Z polle $
+ * @version $Id: NewSubclassAction.java 4013 2006-04-25 15:08:57Z davmac $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -72,7 +72,7 @@ public class NewSubclassAction extends AbstractAction
     public void createNonActorClass()
     {
         JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
-        NewClassDialog dialog = new NewClassDialog(f, superclass.getQualifiedClassName());
+        NewClassDialog dialog = new NewClassDialog(f);
         dialog.setVisible(true);
         if (!dialog.okPressed()) {
             return;

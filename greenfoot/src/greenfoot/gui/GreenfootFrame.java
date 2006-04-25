@@ -6,9 +6,12 @@ import greenfoot.actions.CloseProjectAction;
 import greenfoot.actions.CompileAllAction;
 import greenfoot.actions.CompileClassAction;
 import greenfoot.actions.EditClassAction;
+import greenfoot.actions.NYIAction;
 import greenfoot.actions.NewProjectAction;
 import greenfoot.actions.OpenProjectAction;
 import greenfoot.actions.PauseSimulationAction;
+import greenfoot.actions.RunOnceSimulationAction;
+import greenfoot.actions.RunSimulationAction;
 import greenfoot.actions.SaveProjectAction;
 import greenfoot.actions.ShowCopyrightAction;
 import greenfoot.actions.ShowWebsiteAction;
@@ -35,6 +38,7 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.logging.Logger;
+
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -60,11 +64,6 @@ import bluej.extensions.ProjectNotOpenException;
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
-import greenfoot.actions.NYIAction;
-import greenfoot.actions.RunOnceSimulationAction;
-import greenfoot.actions.RunSimulationAction;
-import java.awt.GridLayout;
-import javax.swing.JViewport;
 
 /**
  * The main frame for a Greenfoot project (one per project)
@@ -72,7 +71,7 @@ import javax.swing.JViewport;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4012 2006-04-25 14:38:06Z mik $
+ * @version $Id: GreenfootFrame.java 4013 2006-04-25 15:08:57Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -87,8 +86,6 @@ public class GreenfootFrame extends JFrame
     private ClassBrowser classBrowser;
     private ControlPanel controlPanel;
     
-    private Thread projectOpenThread;
-
     /**
      * Creates a new top level frame with all the GUI components
      * and an open project.
@@ -209,7 +206,6 @@ public class GreenfootFrame extends JFrame
         worldScrollPane.setOpaque(false);
         worldScrollPane.getViewport().setOpaque(false);
         worldScrollPane.setBorder(null);
-        JViewport v = worldScrollPane.getViewport();
         
         worldPanel.add(worldHandler.getWorldTitle(), BorderLayout.NORTH);
         worldPanel.add(worldScrollPane, BorderLayout.CENTER);
