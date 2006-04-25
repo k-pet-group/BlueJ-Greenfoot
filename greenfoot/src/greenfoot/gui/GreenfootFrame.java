@@ -68,15 +68,20 @@ import greenfoot.actions.RunSimulationAction;
 import java.awt.GridLayout;
 
 /**
- * The main frame of the greenfoot application
+ * The main frame for a Greenfoot project (one per project)
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 4007 2006-04-25 11:09:41Z mik $
+ * @author mik
+ *
+ * @version $Id: GreenfootFrame.java 4009 2006-04-25 12:39:48Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
 {
+    private static final String readMeIconFile = "readme.png";
+
     private transient final static Logger logger = Logger.getLogger("greenfoot");
+    
     private static final int accelModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     private static final int shiftAccelModifier = accelModifier | KeyEvent.SHIFT_MASK;
 
@@ -116,8 +121,6 @@ public class GreenfootFrame extends JFrame
 
         LocationTracker.instance(); //force initialisation
         
-        setSize(400, 300);
-
         URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
         ImageIcon icon = new ImageIcon(iconFile);
         setIconImage(icon.getImage());
@@ -214,12 +217,18 @@ public class GreenfootFrame extends JFrame
         
         // build and place the class browser on the east side
         
-        JPanel eastPane = new JPanel(new BorderLayout());
+        JPanel eastPane = new JPanel(new BorderLayout(4, 4));
 
+        JButton readMeButton = new JButton("Scenario Info", 
+                                           new ImageIcon(getClass().getClassLoader().getResource(readMeIconFile)));
+        eastPane.add(readMeButton, BorderLayout.NORTH);
+        
         classBrowser = buildClassBrowser();
         JScrollPane classScrollPane = new JScrollPane(classBrowser);
         eastPane.add(classScrollPane, BorderLayout.CENTER);
 
+        // make the buttons at the bottom
+        
         JPanel buttonPanel = new JPanel(new GridLayout(2,0));
         
         JButton button = new JButton(CompileAllAction.getInstance());
@@ -250,11 +259,19 @@ public class GreenfootFrame extends JFrame
         worldHandler.setSelectionManager(classBrowser.getSelectionManager());
     }
 
+    /**
+     * Show a "Not Yet Implemented" message.
+     */
     public void showNYIMessage()
     {
         JOptionPane.showMessageDialog(this, "Not Yet Implemented - sorry.");
     } 
 
+    /**
+     * Pack the components in this frame.
+     * As part of this, try to make sure that the frame does not get too big.
+     * If necessary, make it smaller to fit on screen.
+     */
     public void pack()
     {
         super.pack();
@@ -278,9 +295,9 @@ public class GreenfootFrame extends JFrame
     }
 
     /**
-     * Tries to instantiate a new world
-     * 
-     * @param classBrowser
+     * Tries to instantiate a new world. This may fail (if, for example, the
+     * world is not compiled. If multiple world classes exist, a random one
+     * will be instantiated.
      */
     private World instantiateNewWorld(ClassBrowser classBrowser)
     {
@@ -363,6 +380,9 @@ public class GreenfootFrame extends JFrame
         return classBrowser;
     }
 
+    /**
+     * Build the menu bar.
+     */
     private JMenuBar buildMenu()
     {
         JMenuBar menuBar = new JMenuBar();
@@ -428,6 +448,17 @@ public class GreenfootFrame extends JFrame
         menu.add(action);
     }
 
+
+    /**
+     * Close this project.
+     */
+    private void exit()
+    {
+        super.dispose();
+        Greenfoot.getInstance().closeThisInstance();
+    }
+
+
     /**
      * 
      * This frame should never be disposed (at least not until the program is
@@ -443,6 +474,8 @@ public class GreenfootFrame extends JFrame
         // I will not close :-)
     }
 
+    // ----------- WindowListener interface -----------
+    
     public void windowOpened(WindowEvent e)
     {}
 
@@ -450,12 +483,6 @@ public class GreenfootFrame extends JFrame
     {
         logger.info("WindowClosing");
         exit();
-    }
-
-    private void exit()
-    {
-        super.dispose();
-        Greenfoot.getInstance().closeThisInstance();
     }
 
     public void windowClosed(WindowEvent e)
@@ -475,6 +502,8 @@ public class GreenfootFrame extends JFrame
     public void windowDeactivated(WindowEvent e)
     {}
 
+    // ----------- CompileListener interface -----------
+    
     public void compileStarted(RCompileEvent event)
     {        
         WorldHandler.instance().reset();
@@ -500,6 +529,30 @@ public class GreenfootFrame extends JFrame
     public void compileFailed(RCompileEvent event)
     {}
 
+    
+    // ----------- end of WindowListener interface -----------
+    
+    public void setBounds(int x,
+                      int y,
+                      int width,
+                      int height) 
+    {
+        super.setBounds(x, y, width, height);
+        System.out.println("w: " + width + "  h: " + height);
+    }
+                      
+    public void setSize(int width, int height)
+    {
+        super.setSize(width, height);
+        System.out.println("w: " + width + "  h: " + height);
+    }
+    
+    public void setSize(Dimension d)
+    {
+        super.setSize(d);
+        System.out.println("d: " + d);
+    }
+    
     
     /**
      * Returns the maximum size, which is the size of the screen.
