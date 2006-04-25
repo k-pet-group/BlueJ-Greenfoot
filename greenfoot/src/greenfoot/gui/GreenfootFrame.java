@@ -25,7 +25,6 @@ import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
@@ -40,8 +39,6 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -68,12 +65,13 @@ import com.apple.eawt.ApplicationEvent;
 import greenfoot.actions.NYIAction;
 import greenfoot.actions.RunOnceSimulationAction;
 import greenfoot.actions.RunSimulationAction;
+import java.awt.GridLayout;
 
 /**
  * The main frame of the greenfoot application
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootFrame.java 3911 2006-03-28 11:38:48Z polle $
+ * @version $Id: GreenfootFrame.java 4007 2006-04-25 11:09:41Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -88,13 +86,13 @@ public class GreenfootFrame extends JFrame
     private Thread projectOpenThread;
 
     /**
-     * Creates a new frame with all the basic components (menus...)
-     *  
+     * Creates a new top level frame with all the GUI components
+     * and an open project.
      */
     public GreenfootFrame(RBlueJ blueJ, final GProject project)
         throws HeadlessException, ProjectNotOpenException, RemoteException
     {
-        super("greenfoot: " + project.getName());
+        super("Greenfoot: " + project.getName());
         try {
             //HACK to avoid error in class diagram (getPreferredSize stuff) on
             // windows, we use cross platform look and feel
@@ -117,34 +115,35 @@ public class GreenfootFrame extends JFrame
         }
 
         LocationTracker.instance(); //force initialisation
+        
         setSize(400, 300);
+
         URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
         ImageIcon icon = new ImageIcon(iconFile);
         setIconImage(icon.getImage());
-        buildUI();
+
+        makeFrame(project);
         addWindowListener(this);
         Greenfoot.getInstance().addCompileListener(this);
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         
         prepareMacOSApp();
         
-        projectOpenThread = new Thread() {
-            public void run() {
-                openProject(project);
-                GreenfootFrame.this.setCursor(Cursor.getDefaultCursor());
-            }
-        };
-        projectOpenThread.start();
+//        projectOpenThread = new Thread() {        // to be removed?
+//            public void run() {
+//                createFrameComponents(project);
+//            }
+//        };
+//        projectOpenThread.start();
     }
     
-    public void waitForProjectOpen() {
-        try {
-            projectOpenThread.join();
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void waitForProjectOpen() {
+//        try {
+//            projectOpenThread.join();
+//        }
+//        catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
@@ -177,30 +176,31 @@ public class GreenfootFrame extends JFrame
         return macApp;
     }
     
-    private void buildUI()
+    /**
+     * Create the GUI components for this project in the top level frame.
+     * This includes opening the project and displaying the project classes.
+     */
+    private void makeFrame(GProject project)
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new BorderLayout());
         setJMenuBar(buildMenu());
         setGlassPane(DragGlassPane.getInstance());
-    }
 
-    private void openProject(GProject project)
-    {
-        classBrowser = buildClassBrowser();
-        classBrowser.setBackground(Color.WHITE);
-        JScrollPane classScrollPane = new JScrollPane(classBrowser);
-        buildWorld(project);
-        WorldHandler worldHandler = WorldHandler.instance();
-        Simulation.initialize(worldHandler);
-        Simulation sim = Simulation.getInstance();
-        WorldCanvas worldCanvas = worldHandler.getWorldCanvas();
-        JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
-        worldScrollPane.getViewport().setOpaque(true);
-        worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        // build the world panel. this includes the world and the controls
         
         JPanel worldPanel = new JPanel(new BorderLayout(4, 4));
 
+        WorldCanvas worldCanvas = new WorldCanvas(null);
+        worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        
+        WorldHandler.initialise(project, worldCanvas, null);
+        WorldHandler worldHandler = WorldHandler.instance();
+        
+        Simulation.initialize(worldHandler);
+        Simulation sim = Simulation.getInstance();
+        
+        JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
+        
         controlPanel = new ControlPanel(sim);
         controlPanel.setBorder(BorderFactory.createEtchedBorder());        
         worldHandler.addWorldListener(controlPanel);
@@ -211,18 +211,19 @@ public class GreenfootFrame extends JFrame
         worldPanel.add(worldScrollPane, BorderLayout.CENTER);
         worldPanel.add(controlPanel, BorderLayout.SOUTH);
 
-        JPanel rightPane = new JPanel(new BorderLayout());
-        rightPane.add(classScrollPane, BorderLayout.CENTER);
-        Box buttonPanel = new Box(BoxLayout.Y_AXIS);
-        buttonPanel.setAlignmentX(Box.CENTER_ALIGNMENT);
+        
+        // build and place the class browser on the east side
+        
+        JPanel eastPane = new JPanel(new BorderLayout());
 
+        classBrowser = buildClassBrowser();
+        JScrollPane classScrollPane = new JScrollPane(classBrowser);
+        eastPane.add(classScrollPane, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new GridLayout(2,0));
+        
         JButton button = new JButton(CompileAllAction.getInstance());
-        Dimension pref = button.getMinimumSize();
-        pref.width = Integer.MAX_VALUE;
-        button.setMaximumSize(pref);
         buttonPanel.add(button);
-
-        buttonPanel.add(Box.createVerticalStrut(5));
 
         //TODO create proper implementation.
         Action newClassAction = new AbstractAction("New Class...") {
@@ -232,34 +233,21 @@ public class GreenfootFrame extends JFrame
 
         };
         button = new JButton(newClassAction);
-        pref = button.getMinimumSize();
-        pref.width = Integer.MAX_VALUE;
-        button.setMaximumSize(pref);
-        
         buttonPanel.add(button);
 
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        rightPane.add(buttonPanel, BorderLayout.SOUTH);
+        eastPane.add(buttonPanel, BorderLayout.SOUTH);
 
-//        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
-//        splitPane.setLeftComponent(worldPanel);
-//        splitPane.setRightComponent(rightPane);
-//        splitPane.setResizeWeight(.9);
-//        splitPane.resetToPreferredSizes();
-//
-//        getContentPane().add(splitPane, BorderLayout.CENTER);
+        JPanel contentPane = (JPanel)getContentPane();
+        contentPane.setLayout(new BorderLayout(6,6));
+        contentPane.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        getContentPane().setLayout(new BorderLayout(6,6));
-        getContentPane().add(worldPanel, BorderLayout.CENTER);
-        getContentPane().add(rightPane, BorderLayout.EAST);
-        Border emptyBorder = BorderFactory.createEmptyBorder(8, 8, 8, 8);
-        ((JPanel)getContentPane()).setBorder(emptyBorder);
+        contentPane.add(worldPanel, BorderLayout.CENTER);
+        contentPane.add(eastPane, BorderLayout.EAST);
 
         instantiateNewWorld(classBrowser);
         pack();
 
         worldHandler.setSelectionManager(classBrowser.getSelectionManager());
-
     }
 
     public void showNYIMessage()
@@ -269,7 +257,6 @@ public class GreenfootFrame extends JFrame
 
     public void pack()
     {
-//        splitPane.resetToPreferredSizes();
         super.pack();
         super.pack();   // this seems a bug: if not called twice, it gets the size wrong...
         
@@ -318,13 +305,6 @@ public class GreenfootFrame extends JFrame
         return null;
     }
 
-
-    private void buildWorld(GProject project)
-    {
-        World world = null;
-        WorldCanvas worldCanvas = new WorldCanvas(world);
-        WorldHandler.initialise(project, worldCanvas, world);
-    }
 
     /**
      * Build the class browser.
@@ -378,6 +358,8 @@ public class GreenfootFrame extends JFrame
 
         Border insideBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
         classBrowser.setBorder(insideBorder);
+        classBrowser.setBackground(Color.WHITE);
+
         return classBrowser;
     }
 
@@ -458,7 +440,7 @@ public class GreenfootFrame extends JFrame
      */
     public void dispose()
     {
-    //I will not close :-)
+        // I will not close :-)
     }
 
     public void windowOpened(WindowEvent e)

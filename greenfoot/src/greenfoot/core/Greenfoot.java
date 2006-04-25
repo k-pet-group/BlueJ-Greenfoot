@@ -151,11 +151,12 @@ public class Greenfoot
                 logger.info("Frame created");
 
                 // We must wait for the frame to finish preparing:
-                frame.waitForProjectOpen();
+// (to be removed?)               frame.waitForProjectOpen();
+
                 frame.setVisible(true);
-                // frame.toFront();
                 Utility.bringToFront();
                 logger.info("Frame visible");
+
                 try {
                     instantiationListener = new ActorInstantiationListener(WorldHandler.instance());
                     Greenfoot.this.rBlueJ.addInvocationListener(instantiationListener);
