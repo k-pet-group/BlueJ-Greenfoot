@@ -1,6 +1,6 @@
 #Greenfoot properties
-#Wed Mar 29 21:20:03 GMT 2006
-version=0.5
+#Wed Apr 26 12:15:36 GMT 2006
+version=0.6 dev
 class.Ant.image=ant.gif
 class.Food.image=Food.png
 class.Counter.image=Counter.png

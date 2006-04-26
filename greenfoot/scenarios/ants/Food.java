@@ -48,8 +48,7 @@ public class Food extends Actor
     {
         BufferedImage image = new BufferedImage(SIZE, SIZE,
                                                 BufferedImage.TYPE_INT_ARGB);
-        int left = getX();
-        int top = getY();
+
         
         for(int i=0; i<crumbs; i++) {
             int x = randomCoord();

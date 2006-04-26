@@ -42,17 +42,23 @@ public class Ant extends Actor
     public Ant()
     {
         antCount++;
-        homeX = getX();
-        homeY = getY();
+    }
+    
+    public Ant(AntHill home)
+    {
+        homeHill = home;
+        antCount++;
     }
 
-    public Ant(int x, int y, AntHill home)
+    public void addedToWorld(World world)
     {
-        super(x,y);
-        antCount++;
-        homeX = x;
-        homeY = y;
-        homeHill = home;
+        if(homeHill != null) {
+            homeX = homeHill.getX();
+            homeY = homeHill.getY();
+        } else {
+            homeX = getX();
+            homeY = getY();
+        }
     }
 
     /**
@@ -168,7 +174,7 @@ public class Ant extends Actor
      */
     private void checkHome()
     {
-        if(intersects(homeHill)) {
+        if(homeHill != null && intersects(homeHill)) {
             dropFood();
             // move one step to where we came from so that we set out back in the 
             // right direction
@@ -222,10 +228,8 @@ public class Ant extends Actor
     private void dropPheromone()
     {
         // otherwise drop a new one
-        Pheromone ph = new Pheromone();
-        ph.setLocation(getX(), getY());
-       
-        getWorld().addObject(ph);
+        Pheromone ph = new Pheromone();       
+        getWorld().addObject(ph, getX(), getY());
         pheromoneLevel = 0;
     }
     

@@ -21,7 +21,6 @@ public class AntWorld extends World
     public AntWorld() {
         super(SIZE/RESOLUTION,SIZE/RESOLUTION,RESOLUTION);       
         GreenfootImage background = new GreenfootImage("images/sand.jpg");
-        background.setTiled(true);
         setBackground(background);
     }
     
@@ -54,8 +53,7 @@ public class AntWorld extends World
 
     private void newObject(Actor obj, int x, int y)
     {
-        obj.setLocation(x, y);
-        addObject(obj);
+        addObject(obj, x, y);
     }
     
     public int getResolution() {

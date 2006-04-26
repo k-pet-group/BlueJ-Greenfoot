@@ -27,7 +27,7 @@ public class AntHill extends Actor
     {
         if(ants < maxAnts) {
             if(randomizer.nextInt(100) < 10) {            
-                getWorld().addObject(new Ant(getX(), getY(), this));
+                getWorld().addObject(new Ant(this), getX(), getY());
                 ants++;
             }
         }
@@ -46,8 +46,7 @@ public class AntHill extends Actor
                 y = getWorld().getHeight();    
             }
 
-            foodCounter.setLocation(x, y);
-            getWorld().addObject(foodCounter);
+            getWorld().addObject(foodCounter, x, y);
         }        
         foodCounter.increment();
     }
