@@ -6,6 +6,7 @@ import greenfoot.util.GreenfootUtil;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.awt.image.VolatileImage;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,7 +21,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 0.6 dev
- * @cvs-version $Id: GreenfootImage.java 4022 2006-04-26 11:10:05Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4024 2006-04-26 15:33:43Z polle $
  */
 public class GreenfootImage
 {
@@ -266,6 +267,37 @@ public class GreenfootImage
      */
     public Color getColor() {
         return getGraphics().getColor();
+    }
+    
+    /**
+     * Return the color at the given pixel.
+     * 
+     * @throws IndexOutOfBoundsException If the pixel location is not within the image bounds.
+     */
+    public Color getColorAt(int x, int y) {
+        if(x >= getWidth()) {
+            throw new IndexOutOfBoundsException("X is out of bounds. It was: " + x + " and it should have been smaller than: " + getWidth());
+        }
+        if(y >= getHeight()) {
+            throw new IndexOutOfBoundsException("Y is out of bounds. It was: " + y + " and it should have been smaller than: " + getHeight());
+        }
+        if(x < 0) {
+            throw new IndexOutOfBoundsException("X is out of bounds. It was: " + x + " and it should have been at least: 0");
+        }
+        if(y < 0) {
+            throw new IndexOutOfBoundsException("Y is out of bounds. It was: " + y + " and it should have been at least: 0");
+        }
+        
+        int rgb = 0;
+        if(image instanceof BufferedImage) {
+            rgb = ((BufferedImage) image).getRGB(x, y);
+        }
+        else if(image instanceof VolatileImage) {
+            rgb = ((VolatileImage) image).getSnapshot().getRGB(x, y);
+        } else {
+            throw new IllegalStateException("The type of image was neither BufferedImage or VolatileImage. It was. " + image.getClass());
+        }
+        return new Color(rgb);
     }
 
     /**

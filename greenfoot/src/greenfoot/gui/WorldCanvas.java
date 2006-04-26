@@ -6,8 +6,8 @@ import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.GreenfootImage;
-import java.awt.BorderLayout;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -25,7 +25,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 4022 2006-04-26 11:10:05Z polle $
+ * @version $Id: WorldCanvas.java 4024 2006-04-26 15:33:43Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -38,7 +38,8 @@ public class WorldCanvas extends JPanel
     public WorldCanvas(World world)
     {
         setWorld(world);
-        setOpaque(false);
+        setBackground(Color.WHITE);
+        setOpaque(true);
     }
 
     /**
@@ -104,7 +105,7 @@ public class WorldCanvas extends JPanel
      */
     public void paintComponent(Graphics g)
     {
-//        super.paintComponent(g);
+        super.paintComponent(g);
         if (world == null) {
             return;
         }

@@ -494,11 +494,9 @@ public class Actor extends ObjectTransporter
     {
         if (world == null) {
             return -1;
-        }
-        int cellSize = world.getCellSize();
-        double cellCenter = getX() * cellSize + cellSize / 2.;
+        } 
+        double cellCenter = getWorld().getCellCenter(getX());
         double paintX = cellCenter - image.getWidth() / 2.;
-
         return (int) Math.floor(paintX);
     }
 
@@ -514,12 +512,12 @@ public class Actor extends ObjectTransporter
         if (world == null) {
             return -1;
         }
-        int cellSize = world.getCellSize();
-        double cellCenter = getY() * cellSize + cellSize / 2.;
+        double cellCenter = getWorld().getCellCenter(getY());
         double paintY = cellCenter - image.getHeight() / 2.;
-
-        return (int) Math.floor(paintY);
+		return (int) Math.floor(paintY);
     }
+    
+
     
     /**
      * Notify the world that this object's size has changed.

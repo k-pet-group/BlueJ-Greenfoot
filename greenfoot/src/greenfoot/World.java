@@ -3,6 +3,7 @@ package greenfoot;
 import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.net.URL;
 import java.util.ArrayList;
@@ -139,6 +140,35 @@ public abstract class World extends ObjectTransporter
             backgroundImage = new GreenfootImage(getWidthInPixels(), getHeightInPixels());
         }
         return backgroundImage;
+    }
+    
+    /**
+     * Return the color at the center of the cell.
+     * 
+     * @throws IndexOutOfBoundsException If the pixel location is not within the world bounds. If there is no background image at the location it will return Color.WHITE.
+     */
+    public Color getColorAt(int x, int y) {
+        x = checkAndWrapX(x);
+        y = checkAndWrapX(y);       
+        
+        int xPixel = (int) Math.floor(getCellCenter(x));
+        int yPixel = (int) Math.floor(getCellCenter(y));
+        
+        // Take tiling into account
+        if(isTiled()) {
+            xPixel = xPixel % backgroundImage.getWidth();
+            yPixel = yPixel % backgroundImage.getHeight();
+        }
+        
+        // TODO if it is not tiled, and outside, what should be returned? BGcolor? Null?
+        if(xPixel >= backgroundImage.getWidth()) {
+            return Color.WHITE;
+        }
+        if(yPixel >= backgroundImage.getHeight()) {
+            return Color.WHITE;
+        }        
+        
+        return backgroundImage.getColorAt(xPixel, yPixel);
     }
 
     /**
@@ -446,6 +476,17 @@ public abstract class World extends ObjectTransporter
         return (int) Math.floor((double) i / cellSize);
     }
 
+    /**
+     * Returns the center of the cell. It should be rounded down with Math.floor() if the integer version is needed.
+     * @param l Cell location.
+     * @return Absolute location of the cell center in pixels.
+     */
+    double getCellCenter(int l)
+    {
+        double cellCenter = l * cellSize + cellSize / 2.;
+        return cellCenter;
+    }
+    
     Collection getObjectsAtPixel(int x, int y)
     {
         return collisionChecker.getObjectsAt(toCellFloor(x), toCellFloor(y), null);
