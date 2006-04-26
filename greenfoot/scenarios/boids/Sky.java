@@ -33,8 +33,7 @@ public class Sky extends World
              int x = (int) (Math.random() * getWidth());          
              int y = (int) (Math.random() * getHeight());
              Boid b = new Naive();
-             b.setLocation(x,y);
-             addObject(b);
+             addObject(b, x, y);
         }
     }
     
