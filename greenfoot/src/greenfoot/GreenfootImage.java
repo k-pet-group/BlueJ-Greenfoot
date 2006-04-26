@@ -20,7 +20,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 0.6 dev
- * @cvs-version $Id: GreenfootImage.java 3978 2006-04-05 16:00:26Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4022 2006-04-26 11:10:05Z polle $
  */
 public class GreenfootImage
 {
@@ -30,7 +30,6 @@ public class GreenfootImage
     
     private java.awt.Image image; 
     private Graphics2D graphics;
-    private boolean tiled;
 
     /**
      * Create an image from an image file. Supported file formats are JPEG, GIF and PNG.<p>
@@ -249,28 +248,7 @@ public class GreenfootImage
     {
         g.drawImage(image, x, y, observer);
     }
-
-    /**
-     * Sets the tiled property of an image.
-     * 
-     * @param tiled
-     *            Whether it should tile the image or not.
-     */
-    public void setTiled(boolean tiled)
-    {
-        this.tiled = tiled;
-    }
-
-    /**
-     * Returns true if image is tiled
-     * 
-     * @return Wherher the image is tilled.
-     */
-    public boolean isTiled()
-    {
-        return tiled;
-    }
-
+    
     /**
      * Set a color to be used for subsequent drawing operations.
      * 

@@ -13,15 +13,15 @@ import java.util.List;
 
 
 /**
- * World is the world that Actors live in. It is a two-dimensional 
- * grid of cells. <br>
+ * World is the world that Actors live in. It is a two-dimensional grid of
+ * cells. <br>
  * 
- * All Actor are associated with a World and can get access to the 
- * world object. The size of cells can be specified at world creation time, and is 
- * constant after creation. Simple scenarios may use large cells that entirely contain
- * the representations of objects in a single cell. More elaborate scenarios may use
- * smaller cells (down to single pixel size) to achieve fine-grained placement and 
- * smoother animation.
+ * All Actor are associated with a World and can get access to the world object.
+ * The size of cells can be specified at world creation time, and is constant
+ * after creation. Simple scenarios may use large cells that entirely contain
+ * the representations of objects in a single cell. More elaborate scenarios may
+ * use smaller cells (down to single pixel size) to achieve fine-grained
+ * placement and smoother animation.
  * 
  * The world background can be decorated with drawings or images.
  * 
@@ -58,10 +58,13 @@ public abstract class World extends ObjectTransporter
      * @see #setPaintOrder(List)
      */
     private List classPaintOrder;
+    
+    /** Should the image be tiled to fill the entire background */
+    private boolean tiled = true;    
 
     /**
-     * Construct a new world. The size of the world (in number of cells) and the size 
-     * of each cell (in pixels) must be specified.
+     * Construct a new world. The size of the world (in number of cells) and the
+     * size of each cell (in pixels) must be specified.
      * 
      * @param worldWidth The width of the world (in cells).
      * @param worldHeight The height of the world (in cells).
@@ -85,19 +88,19 @@ public abstract class World extends ObjectTransporter
         this.height = height;
         this.cellSize = cellSize;
         this.wrapWorld = false;
+        this.tiled = true;
         collisionChecker.initialize(width, height, cellSize, wrapWorld);
     }
 
     /**
-     * Set a background image for the world. If the image size is larger than the 
-     * world in pixels, it is clipped. If it is smaller than the world, it is tiled.
-     * A pattern showing the cells can easily be shown by setting a background image
-     * with a size equal to the cell size.
-     * 
-     * NOTE: Incomplete implementation. Tiling is currently not automatic and must be
-     * specified in the GreenfootImage.
+     * Set a background image for the world. If the image size is larger than
+     * the world in pixels, it is clipped. If it is smaller than the world, it
+     * is tiled unless specifically stated to do otherwise (see setTiled()). A
+     * pattern showing the cells can easily be shown by setting a background
+     * image with a size equal to the cell size.
      * 
      * @see #setBackground(String)
+     * @see #setTiled(boolean)
      * @param image The image to be shown
      */
     final public void setBackground(GreenfootImage image)
@@ -106,27 +109,27 @@ public abstract class World extends ObjectTransporter
     }
 
     /**
-     * Set a background image for the world from an image file. Images of type 'jpeg',
-     * 'gif' and 'png' are supported. If the image size is larger than the 
-     * world in pixels, it is clipped. If it is smaller than the world, it is tiled.
-     * A pattern showing the cells can easily be shown by setting a background image
-     * with a size equal to the cell size.
-     * 
+     * Set a background image for the world from an image file. Images of type
+     * 'jpeg', 'gif' and 'png' are supported. If the image size is larger than
+     * the world in pixels, it is clipped. If it is smaller than the world, it
+     * is tiled unless specifically stated to do otherwise (see setTiled()). A
+     * pattern showing the cells can easily be shown by setting a background
+     * image with a size equal to the cell size.
      * 
      * @see #setBackground(GreenfootImage)
+     * @see #setTiled(boolean)
      * @param filename The file holding the image to be shown
      */
     final public void setBackground(String filename)
     {
         URL imageURL = this.getClass().getClassLoader().getResource(filename);
-        GreenfootImage bg = new GreenfootImage(imageURL);            
-        bg.setTiled(true);
+        GreenfootImage bg = new GreenfootImage(imageURL);
         setBackground(bg);
     }
 
     /**
-     * Return the world's background image. The image may be used to draw onto the
-     * world's background.
+     * Return the world's background image. The image may be used to draw onto
+     * the world's background.
      * 
      * @return The background image
      */
@@ -136,6 +139,28 @@ public abstract class World extends ObjectTransporter
             backgroundImage = new GreenfootImage(getWidthInPixels(), getHeightInPixels());
         }
         return backgroundImage;
+    }
+
+    /**
+     * If set to true, the background image will be tiled to fill out the entire
+     * background of the world.
+     * 
+     * @param tiled Whether it should tile the image or not.
+     */
+    public void setTiled(boolean tiled)
+    {
+        this.tiled = tiled;
+    }
+
+    /**
+     * Returns true if the world is tiled.
+     * 
+     * @return Whether the image is tilled.
+     * @see #setTiled(boolean)
+     */
+    public boolean isTiled()
+    {
+        return tiled;
     }
 
     /**
@@ -178,16 +203,16 @@ public abstract class World extends ObjectTransporter
         if (objects.contains(object)) {
             return;
         }
-        
+
         x = checkAndWrapX(x);
         y = checkAndWrapY(y);
-        object.world = this; //can only set location if world is set.        
-        object.setLocation(x,y);
+        object.world = this; // can only set location if world is set.
+        object.setLocation(x, y);
         object.setWorld(this);
-        
+
         collisionChecker.addObject(object);
         objects.add(object);
-        
+
         object.addedToWorld(this);
     }
 
@@ -197,19 +222,19 @@ public abstract class World extends ObjectTransporter
      * @param object the object to remove
      */
     public synchronized void removeObject(Actor object)
-    { 
-        if(objects.remove(object)) {
-            //we only want to remove it once.
+    {
+        if (objects.remove(object)) {
+            // we only want to remove it once.
             collisionChecker.removeObject(object);
         }
         object.setWorld(null);
     }
-    
+
     /**
      * Remove a list of objects from the world.
      * 
      * @param objects A list of Actors to remove.
-     */    
+     */
     public synchronized void removeObjects(Collection objects)
     {
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
@@ -223,14 +248,17 @@ public abstract class World extends ObjectTransporter
      * Get all the objects in the world.<br>
      * 
      * If iterating through these objects, you should synchronize on this world
-     * to avoid ConcurrentModificationException. <p>
+     * to avoid ConcurrentModificationException.
+     * <p>
      * 
      * The objects are returned in their paint order. The first object in the
-     * List is the one painted first. The last object is the one painted on top 
-     * of all other objects.<p>
+     * List is the one painted first. The last object is the one painted on top
+     * of all other objects.
+     * <p>
      * 
-     * If a class is specified as a parameter, only objects of that class (or its
-     * subclasses) will be returned. <p>
+     * If a class is specified as a parameter, only objects of that class (or
+     * its subclasses) will be returned.
+     * <p>
      * 
      * 
      * @param cls Class of objects to look for ('null' will find all objects).
@@ -254,7 +282,7 @@ public abstract class World extends ObjectTransporter
     {
         return wrapWorld;
     }
-    
+
     /**
      * 
      * The world may be specified to 'wrap'. In a wrapping world, an object
@@ -273,14 +301,17 @@ public abstract class World extends ObjectTransporter
     }
 
     /**
-     * Sets the paint order of objects based on their class. <p>
+     * Sets the paint order of objects based on their class.
+     * <p>
      * 
      * Objects of the classes that are first in the list will be painted on top
-     * of objects of the classes later in the list. Objects of classes not mentioned
-     * in the list will be painted below objects explicitly named here.
+     * of objects of the classes later in the list. Objects of classes not
+     * mentioned in the list will be painted below objects explicitly named
+     * here.
      * 
-     * Within the same class, or within classes that have unspecified paint order,
-     * the last object that has moved into a cell is painted on top of others.
+     * Within the same class, or within classes that have unspecified paint
+     * order, the last object that has moved into a cell is painted on top of
+     * others.
      * 
      * <p>
      * NOTE: NOT IMPLEMENTED.
@@ -292,8 +323,6 @@ public abstract class World extends ObjectTransporter
     {
         this.classPaintOrder = classPaintOrder;
     }
-  
-
 
     // =================================================
     //
@@ -302,14 +331,16 @@ public abstract class World extends ObjectTransporter
     // =================================================
 
     /**
-     * Return all objects at a given cell. <p>
+     * Return all objects at a given cell.
+     * <p>
      * 
-     * An object is defined to be at that cell if its graphical representation overlaps
-     * with the cell at any point.
+     * An object is defined to be at that cell if its graphical representation
+     * overlaps with the cell at any point.
      * 
-     * @param x  X-coordinate of the cell to be checked.
-     * @param y  Y-coordinate of the cell to be checked.
-     * @param cls Class of objects to look return ('null' will return all objects).
+     * @param x X-coordinate of the cell to be checked.
+     * @param y Y-coordinate of the cell to be checked.
+     * @param cls Class of objects to look return ('null' will return all
+     *            objects).
      */
     public List getObjectsAt(int x, int y, Class cls)
     {
@@ -363,14 +394,15 @@ public abstract class World extends ObjectTransporter
     {
         return collisionChecker.getNeighbours(x, y, distance, diag, cls);
     }
-    
+
     /**
      * Return all objects that intersect a straight line from the location at a
      * specified angle. The angle is clockwise.
      * 
      * @param x x-coordinate
      * @param y y-coordinate
-     * @param angle The angle relative to current rotation of the object. (0-359)
+     * @param angle The angle relative to current rotation of the object.
+     *            (0-359)
      * @param length How far we want to look (in cells)
      * @param cls Class of objects to look for (passing 'null' will find all
      *            objects).
@@ -414,7 +446,6 @@ public abstract class World extends ObjectTransporter
         return (int) Math.floor((double) i / cellSize);
     }
 
-  
     Collection getObjectsAtPixel(int x, int y)
     {
         return collisionChecker.getObjectsAt(toCellFloor(x), toCellFloor(y), null);
@@ -456,7 +487,7 @@ public abstract class World extends ObjectTransporter
         }
         return x;
     }
-    
+
     /**
      * Throws an exception if the object's location is out of the bounds of the
      * world. <br>
@@ -476,7 +507,7 @@ public abstract class World extends ObjectTransporter
         }
         return y;
     }
-    
+
     /**
      * Throws an exception if the object's location is out of the bounds of the
      * world. <br>
@@ -510,8 +541,8 @@ public abstract class World extends ObjectTransporter
         y = wrap(y, getHeight());
         object.x = x;
         object.y = y;
-    }    
-    
+    }
+
     /**
      * Wrap the location so it is in between 0 and max
      */
@@ -555,7 +586,7 @@ public abstract class World extends ObjectTransporter
             throw new IndexOutOfBoundsException("The x-coordinate is: " + x + ". It must be larger than: 0");
         }
     }
-    
+
     /**
      * Methods that throws an exception if the location is out of bounds.
      * 
@@ -572,8 +603,7 @@ public abstract class World extends ObjectTransporter
             throw new IndexOutOfBoundsException("The x-coordinate is: " + y + ". It must be larger than: 0");
         }
     }
-    
-    
+
     /**
      * Used to indicate the start of an animation sequence. For use in the
      * collision checker.
@@ -592,13 +622,15 @@ public abstract class World extends ObjectTransporter
 
     Actor getOneIntersectingObject(Actor object, Class cls)
     {
-        return collisionChecker.getOneIntersectingObject(object,cls);
+        return collisionChecker.getOneIntersectingObject(object, cls);
     }
 
     public void paintDebug(Graphics g)
     {
-     /*   g.setColor(Color.BLACK);
-        g.drawString("# of Objects: " + objects.size(), 50,50);*/
-      /*  collisionChecker.paintDebug(g);*/
+    /*
+     * g.setColor(Color.BLACK); g.drawString("# of Objects: " + objects.size(),
+     * 50,50);
+     */
+    /* collisionChecker.paintDebug(g); */
     }
 }
