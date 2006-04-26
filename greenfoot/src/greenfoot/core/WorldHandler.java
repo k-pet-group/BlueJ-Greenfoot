@@ -528,15 +528,16 @@ public class WorldHandler
             int y = (int) p.getY();
             Actor actor = (Actor) o;
             
-            world.addObject(actor);
             try {
+                if (actor.getWorld() == null) {
+                    addObjectAtPixel(actor, x, y);
+                }
                 int oldX = actor.getX();
                 int oldY = actor.getY();
                 ActorVisitor.setLocationInPixels(actor, x, y);
-
-                if(oldX != actor.getX() || oldY != actor.getY()) {
+                if (oldX != actor.getX() || oldY != actor.getY()) {
                     repaint();
-                }                
+                }      
             }
             catch (IndexOutOfBoundsException e) {
                 world.removeObject(actor);
@@ -547,6 +548,27 @@ public class WorldHandler
         else {
             return false;
         }
+    }
+
+    /**
+     * Adds the object at the specified pixel location.
+     * 
+     * @return true if location changed
+     * @throws IndexOutOfBoundsException If the coordinates are outside the
+     *             bounds of the world. Note that a wrapping world has no
+     *             bounds.
+     */
+    private boolean addObjectAtPixel(Actor actor, int x, int y)
+    {
+        int xCell = WorldVisitor.toCellFloor(world, x);
+        int yCell = WorldVisitor.toCellFloor(world, y);
+        if (actor.getWorld() != null) {
+            if (x == actor.getX() && y == actor.getY()) {
+                return false;
+            }
+        }
+        world.addObject(actor, xCell, yCell);
+        return true;
     }
 
     public void dragEnded(Object o)
@@ -569,12 +591,10 @@ public class WorldHandler
             worldCanvas.addKeyListener(this);
 
             // if the operation was cancelled, add the object back into the
-            // world
-            // at its original position
+            // world at its original position
             if (!objectDropped && o instanceof Actor) {
                 Actor actor = (Actor) o;
-                ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
-                world.addObject(actor);
+                addObjectAtPixel(actor, dragBeginX, dragBeginY);
                 objectDropped = true;
             }
         }

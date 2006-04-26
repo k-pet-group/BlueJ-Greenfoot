@@ -1,11 +1,7 @@
 package greenfoot;
 
 import greenfoot.core.ClassImageManager;
-import greenfoot.core.LocationTracker;
-import greenfoot.core.ObjectDragProxy;
-import greenfoot.core.WorldHandler;
 import greenfoot.util.Circle;
-import greenfoot.util.Location;
 import greenfoot.util.Version;
 
 import java.net.URL;
@@ -52,7 +48,7 @@ public class Actor extends ObjectTransporter
     private int rotation = 0;
 
     /** Reference to the world that this actor is a part of. */
-    private World world;
+    World world;
     
     /** The image for this actor. */
     private GreenfootImage image;
@@ -79,23 +75,6 @@ public class Actor extends ObjectTransporter
     {
         init();
     }
-
-    /**
-     * Construct an Actor with a default image at a specified
-     * location. The location is specified as the horizontal and vertical index
-     * of the world cell where the object is placed.
-     * 
-     * @see #setLocation(int, int)
-     */
-    public Actor(int x, int y)
-    {
-        init();
-        int oldx = x;
-        int oldy = y;
-        this.x = x;
-        this.y = y;
-        locationChanged(x,y);
-    }
     
     /**
      * Initialize an Actor:
@@ -114,37 +93,6 @@ public class Actor extends ObjectTransporter
         }
         setImage(image);
         usingClassImage = true;
-        
-        WorldHandler worldHandler = WorldHandler.instance();
-        if( worldHandler == null ||  worldHandler.getWorld() == null) {
-            //we are probably doing some unit testing...
-            return;
-        }
-        
-        if( ! (this instanceof ObjectDragProxy)) {            
-            world = worldHandler.getWorld();
-            
-            LocationTracker tracker = LocationTracker.instance();
-            Location location = tracker.getLocation();
-            int x = location.getX();
-            int y = location.getY();
-            
-            // If an object that shouldn't really use the location from the
-            // object tracker gets a location which is out of the world bounds,
-            // it should just set the location to something else. We make no
-            // promises of where the object will be added if no location is
-            // specified.
-            if(x >= world.getWidthInPixels() || x < 0) {
-                x = 0;
-            }
-            if(y >= world.getHeightInPixels() || y < 0) {
-                y = 0;
-            }
-            
-            setLocationInPixels(x, y); 
-            
-            world.addObject(this);            
-        }
     }
 
 
@@ -165,9 +113,13 @@ public class Actor extends ObjectTransporter
      * value returned is the horizontal index of the object's cell in the world.
      * 
      * @return The x-coordinate of the object's current location.
+     * @throws IllegalStateException If the actor has not been added into a world.
      */
-    public int getX()
+    public int getX() throws IllegalStateException
     {
+        if(world == null) {
+            throw new IllegalStateException("The actor has not been inserted into a world so it has no location yet.");
+        }
         return x;
     }
 
@@ -176,9 +128,13 @@ public class Actor extends ObjectTransporter
      * value returned is the vertical index of the object's cell in the world.
      * 
      * @return The y-coordinate of the object's current location
+     * @throws IllegalStateException If the actor has not been added into a world.
      */
     public int getY()
-    {
+    {       
+        if(world == null) {
+            throw new IllegalStateException("The actor has not been inserted into a world so it has no location yet.");
+        }
         return y;
     }
 
@@ -187,10 +143,14 @@ public class Actor extends ObjectTransporter
      * that an object's image overlaps horizontally.
      * 
      * @return The width of the object, or -1 if it has no image.
+     * @throws IllegalStateException If the actor has not been added into a world.
      */
     public int getWidth()
     {
-        if (image == null || world == null) {
+        if(world == null) {
+            throw new IllegalStateException("The actor has not been inserted into a world so it has no width yet.");
+        }
+        if (image == null) {
             return -1;
         }
         else {
@@ -203,10 +163,14 @@ public class Actor extends ObjectTransporter
      * that an object's image overlaps vertically.
      * 
      * @return The height of the object, or -1 if it has no image.
+     * @throws IllegalStateException If the actor has not been added into a world.
      */
     public int getHeight()
     {
-        if (image == null || world == null) {
+        if(world == null) {
+            throw new IllegalStateException("The actor has not been inserted into a world so it has no height yet.");
+        }
+        if (image == null) {
             return -1;
         }
         else {
@@ -296,13 +260,12 @@ public class Actor extends ObjectTransporter
      * 
      * @param x Location index on the x-axis
      * @param y Location index on the y-axis
+     * @throws IllegalStateException If the actor has not been added into a world.
      */
     public void setLocation(int x, int y)
     {
-        if (world == null) {
-            this.x = x;
-            this.y = y;
-            return;
+        if(world == null) {
+            throw new IllegalStateException("The actor has not been inserted into a world so the location can't be set.");
         }
         int oldX = this.x;
         int oldY = this.y;
@@ -423,23 +386,36 @@ public class Actor extends ObjectTransporter
     }
 
     /**
-     * Sets the world of this object
+     * Sets the world of this actor.
      * 
      * @param world
      */
     void setWorld(World world)
     {
-        // TODO Possible error if its location is out of bounds
         this.world = world;
-        boundingCircle = new Circle(x,y,calcBoundingRadius());
+        if(world != null) {
+            boundingCircle = new Circle(x,y,calcBoundingRadius());
+        }
     }
+
+    /**
+     * This method will be called by the Greenfoot system when the object has
+     * been inserted into the world. This method can be overridden to implement
+     * custom behavoiur when the actor is inserted into the world.
+     * <p>
+     * This default implementation is empty.
+     * 
+     * @param world The world the object was added to.
+     */
+    public void addedToWorld(World world)
+    {}
     
     /**
      * Get the image to use when displaying this actor. This should be whatever
      * was set using setImage(). The returned image should not be modified as it
      * may be the original class image.
      * 
-     * @return  The image to use to display the actor
+     * @return The image to use to display the actor
      */
     GreenfootImage getDisplayImage()
     {

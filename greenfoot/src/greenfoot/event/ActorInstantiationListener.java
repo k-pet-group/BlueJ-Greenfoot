@@ -3,9 +3,11 @@ package greenfoot.event;
 import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.ObjectTracker;
+import greenfoot.core.LocationTracker;
 import greenfoot.core.ObjectDragProxy;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.DragGlassPane;
+import greenfoot.util.Location;
 
 import java.rmi.RemoteException;
 
@@ -66,7 +68,8 @@ public class ActorInstantiationListener extends RInvocationListenerImpl
         else if(realObject instanceof Actor) {
             // We do not need to add the object to the world, since the object
             // is automatically added in the constructor of Actor
-
+            Location loc =  LocationTracker.instance().getLocation();
+            worldHandler.getWorld().addObject((Actor) realObject, loc.getX(), loc.getY());
             // We should however make sure that the world is repainted once the
             // object is created:
             worldHandler.repaint();

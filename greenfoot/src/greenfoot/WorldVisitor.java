@@ -10,7 +10,7 @@ import java.util.Collection;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 3911 2006-03-28 11:38:48Z polle $
+ * @version $Id: WorldVisitor.java 4020 2006-04-26 10:16:48Z polle $
  */
 public class WorldVisitor
 {
@@ -46,5 +46,10 @@ public class WorldVisitor
     public static void paintDebug(World world, Graphics g)
     {
         world.paintDebug(g);
+    }
+
+    public static int toCellFloor(World world, int x)
+    {
+        return world.toCellFloor(x);
     }
 }

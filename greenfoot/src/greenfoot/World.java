@@ -2,7 +2,6 @@ package greenfoot;
 
 import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
-import greenfoot.collision.GridCollisionChecker;
 
 import java.awt.Graphics;
 import java.net.URL;
@@ -171,8 +170,7 @@ public abstract class World extends ObjectTransporter
      *             bounds of the world. Note that a wrapping world has not
      *             bounds.
      */
-
-    public synchronized void addObject(Actor object)
+    public synchronized void addObject(Actor object, int x, int y)
         throws IndexOutOfBoundsException
     {
         // TODO bad performance when using a List for the objects. But if we
@@ -180,11 +178,17 @@ public abstract class World extends ObjectTransporter
         if (objects.contains(object)) {
             return;
         }
-        checkAndWrapLocation(object);
+        
+        x = checkAndWrapX(x);
+        y = checkAndWrapY(y);
+        object.world = this; //can only set location if world is set.        
+        object.setLocation(x,y);
         object.setWorld(this);
-         
+        
         collisionChecker.addObject(object);
         objects.add(object);
+        
+        object.addedToWorld(this);
     }
 
     /**
@@ -198,6 +202,7 @@ public abstract class World extends ObjectTransporter
             //we only want to remove it once.
             collisionChecker.removeObject(object);
         }
+        object.setWorld(null);
     }
     
     /**
@@ -440,6 +445,46 @@ public abstract class World extends ObjectTransporter
      * This method only checks the logical location.
      * 
      */
+    private int checkAndWrapX(int x)
+        throws IndexOutOfBoundsException
+    {
+        if (!wrapWorld) {
+            ensureWithinXBounds(x);
+        }
+        else {
+            x = wrap(x, getWidth());
+        }
+        return x;
+    }
+    
+    /**
+     * Throws an exception if the object's location is out of the bounds of the
+     * world. <br>
+     * If the world is wrapping around the edges, it will convert the location
+     * to be within the actual size of the world. <br>
+     * This method only checks the logical location.
+     * 
+     */
+    private int checkAndWrapY(int y)
+        throws IndexOutOfBoundsException
+    {
+        if (!wrapWorld) {
+            ensureWithinYBounds(y);
+        }
+        else {
+            y = wrap(y, getHeight());
+        }
+        return y;
+    }
+    
+    /**
+     * Throws an exception if the object's location is out of the bounds of the
+     * world. <br>
+     * If the world is wrapping around the edges, it will convert the location
+     * to be within the actual size of the world. <br>
+     * This method only checks the logical location.
+     * 
+     */
     private void checkAndWrapLocation(Actor object)
         throws IndexOutOfBoundsException
     {
@@ -461,31 +506,20 @@ public abstract class World extends ObjectTransporter
     {
         int x = object.getX();
         int y = object.getY();
-
-        if (x >= getWidth()) {
-            x = wrap(x, getWidth());
-        }
-        if (y >= getHeight()) {
-            y = wrap(y, getHeight());
-        }
-        if (x < 0) {
-            x = wrap(x, getWidth());
-        }
-        if (object.getY() < 0) {
-            y = wrap(y, getHeight());
-        }
+        x = wrap(x, getWidth());
+        y = wrap(y, getHeight());
         object.x = x;
         object.y = y;
-    }
-
+    }    
+    
     /**
-     * wraps the number x with the width
+     * Wrap the location so it is in between 0 and max
      */
-    int wrap(int x, int width)
+    int wrap(int l, int max)
     {
-        int remainder = x % width;
+        int remainder = l % max;
         if (remainder < 0) {
-            return width + remainder;
+            return max + remainder;
         }
         else {
             return remainder;
@@ -493,36 +527,57 @@ public abstract class World extends ObjectTransporter
     }
 
     /**
-     * Methods that throws an exception if the location of the world is out of
+     * Methods that throws an exception if the location of the object is out of
      * bounds.
      * 
-     * @param object
-     * @return
      * @throws IndexOutOfBoundsException
      */
     private void ensureWithinBounds(Actor object)
         throws IndexOutOfBoundsException
     {
-        if (object.getX() >= getWidth()) {
-            throw new IndexOutOfBoundsException("The x-coordinate is: " + object.getX() + ". It must be smaller than: "
-                    + getWidth());
-        }
-        if (object.getY() >= getHeight()) {
-            throw new IndexOutOfBoundsException("The y-coordinate is: " + +object.getY()
-                    + ". It must be smaller than: " + getHeight());
-        }
-        if (object.getX() < 0) {
-            throw new IndexOutOfBoundsException("The x-coordinate is: " + +object.getX()
-                    + ". It must be larger than: 0");
-        }
-        if (object.getY() < 0) {
-            throw new IndexOutOfBoundsException("The y-coordinate is: " + +object.getY()
-                    + ". It must be larger than: 0");
-        }
+        ensureWithinXBounds(object.getX());
+        ensureWithinYBounds(object.getY());
     }
 
     /**
-     * Used to indicate the start of an animation sequence. For use in the collision checker.
+     * Methods that throws an exception if the location is out of bounds.
+     * 
+     * @throws IndexOutOfBoundsException
+     */
+    private void ensureWithinXBounds(int x)
+        throws IndexOutOfBoundsException
+    {
+        if (x >= getWidth()) {
+            throw new IndexOutOfBoundsException("The x-coordinate is: " + x + ". It must be smaller than: "
+                    + getWidth());
+        }
+        if (x < 0) {
+            throw new IndexOutOfBoundsException("The x-coordinate is: " + x + ". It must be larger than: 0");
+        }
+    }
+    
+    /**
+     * Methods that throws an exception if the location is out of bounds.
+     * 
+     * @throws IndexOutOfBoundsException
+     */
+    private void ensureWithinYBounds(int y)
+        throws IndexOutOfBoundsException
+    {
+        if (y >= getHeight()) {
+            throw new IndexOutOfBoundsException("The y-coordinate is: " + y + ". It must be smaller than: "
+                    + getHeight());
+        }
+        if (y < 0) {
+            throw new IndexOutOfBoundsException("The x-coordinate is: " + y + ". It must be larger than: 0");
+        }
+    }
+    
+    
+    /**
+     * Used to indicate the start of an animation sequence. For use in the
+     * collision checker.
+     * 
      * @see greenfoot.collision.CollisionChecker#startSequence()
      */
     void startSequence()
