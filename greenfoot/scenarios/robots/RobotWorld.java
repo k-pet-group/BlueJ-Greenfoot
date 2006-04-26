@@ -16,42 +16,31 @@ public class RobotWorld extends World
     private static int cellSize = 50;
 
     /**
-     * Creates a new world with 20x20 cells and with a cell size of 50x50 pixels
+     * Creates a new world with 16x8 cells and with a cell size of 50x50 pixels
      */
     public RobotWorld()
     {
-        super(12, 8, cellSize);
-
-      //  GreenfootImage background = new GreenfootImage("road.gif");
+        super(16, 8, cellSize);
         setBackground("images/road.gif");
-       //background.setTiled(true);
     }
 
-/*
- * public static int getCellSize() { return cellSize; }
- */
 
     public void populate()
     {
         Robot robot = new Harvester();
-        robot.setLocation(3, 1);
-        addObject(robot);
+        addObject(robot, 3, 1);
 
         Beeper beeper1 = new Beeper();
-        beeper1.setLocation(3, 6);
-        addObject(beeper1);
+        addObject(beeper1, 3, 6);
 
         Beeper beeper2 = new Beeper();
-        beeper2.setLocation(3, 4);
-        addObject(beeper2);
+        addObject(beeper2, 3, 4);
 
         Beeper beeper3 = new Beeper();
-        beeper3.setLocation(7, 7);
-        addObject(beeper3);
+        addObject(beeper3, 7, 7);
 
         Beeper beeper4 = new Beeper();
-        beeper4.setLocation(5, 7);
-        addObject(beeper4);
+        addObject(beeper4, 5, 7);
 
     }
 
@@ -71,14 +60,4 @@ public class RobotWorld extends World
         // at the middle pixel in the cell
         return getObjectsAt(x, y, cls);
     }
-/*
-    public static int toCell(int i)
-    {
-        return i / getCellSize();
-    }
-
-    public static int toPixel(int i)
-    {
-        return i * getCellSize();
-    }*/
 }

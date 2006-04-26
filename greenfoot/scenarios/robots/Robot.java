@@ -196,8 +196,7 @@ public class Robot extends Actor
         World myWorld = getWorld();
         if (!beeperBag.isEmpty()) {
             Beeper beeper = (Beeper) beeperBag.pop();
-            beeper.setLocation(getX(), getY());
-            myWorld.addObject(beeper);
+            myWorld.addObject(beeper, getX(), getY());
             setLocation(getX(), getY());
         }
     }
