@@ -72,12 +72,13 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4017 2006-04-25 17:51:23Z davmac $
+ * @version $Id: GreenfootFrame.java 4018 2006-04-26 07:58:46Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
 {
     private static final String readMeIconFile = "readme.png";
+    private static final int WORLD_MARGIN = 40;
 
     private transient final static Logger logger = Logger.getLogger("greenfoot");
     
@@ -279,21 +280,16 @@ public class GreenfootFrame extends JFrame
         super.pack();
         super.pack();   // this seems a bug: if not called twice, it gets the size wrong...
         
-        int width = getSize().width;
-        int height = getSize().height;
-        boolean needChange = false;
+        int width = getSize().width + WORLD_MARGIN;
+        int height = getSize().height + WORLD_MARGIN;
         
         if (width > getMaximumSize().width) {
             width = getMaximumSize().width;
-            needChange = true;
         }
         if (height > getMaximumSize().height) {
             height = getMaximumSize().height;
-            needChange = true;
         }
-        if (needChange) {
-            setSize(width, height);
-        }
+        setSize(width, height);
     }
 
     /**
