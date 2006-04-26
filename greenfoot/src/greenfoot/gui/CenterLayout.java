@@ -20,7 +20,7 @@ public class CenterLayout extends FlowLayout {
      * Creates a new instance of CenterLayout.
      */
     public CenterLayout() {
-        super(FlowLayout.LEFT, 20, 20);
+        super(FlowLayout.LEFT, 0, 0);
         
     }
     
