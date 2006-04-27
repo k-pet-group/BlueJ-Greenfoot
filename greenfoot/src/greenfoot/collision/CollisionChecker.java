@@ -58,19 +58,19 @@ public interface CollisionChecker
      *            Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    public List getObjectsAt(int x, int y, Class cls);
+    public <T extends Actor> List<T> getObjectsAt(int x, int y, Class<T> cls);
 
     /**
      * Returns all the objects that intersects the given object. This takes the
      * graphical extent of objects into consideration.
      * 
      * @param actor
-     *            A Actor in the world
+     *            An Actor in the world
      * @param cls
      *            Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    public List getIntersectingObjects(Actor actor, Class cls);
+    public <T extends Actor> List<T> getIntersectingObjects(Actor actor, Class<T> cls);
 
     /**
      * Returns all objects with the logical location within the specified
@@ -87,7 +87,7 @@ public interface CollisionChecker
      *            Class of objects to look for (null or Object.class will find
      *            all classes)
      */
-    public List getObjectsInRange(int x, int y, int r, Class cls);
+    public <T extends Actor> List<T> getObjectsInRange(int x, int y, int r, Class<T> cls);
 
     /**
      * Returns the neighbours to the given location. This method only looks at
@@ -107,7 +107,7 @@ public interface CollisionChecker
      *            all classes)
      * @return A collection of all neighbours found
      */
-    public List getNeighbours(int x, int y, int distance, boolean diag, Class cls);
+    public <T extends Actor> List<T> getNeighbours(int x, int y, int distance, boolean diag, Class<T> cls);
 
     /**
      * Return all objects that intersect a straight line from this object at
@@ -122,16 +122,16 @@ public interface CollisionChecker
      * @param length How far we want to look (in cells)
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    public List getObjectsInDirection(int x, int y, int angle, int length, Class cls);
+    public <T extends Actor> List<T> getObjectsInDirection(int x, int y, int angle, int length, Class<T> cls);
     
     /**
      * Returns all objects of a particular class
      * 
      * @param cls
-     *            Class of objects to look for (null or Object.class will find
+     *            Class of objects to look for (null or Actor.class will find
      *            all classes)
      */
-    public List getObjects(Class cls);
+    public <T extends Actor> List<T> getObjects(Class<T> cls);
     
     /**
      * Methods that marks that a new sequence is started. A sequence in
@@ -147,7 +147,7 @@ public interface CollisionChecker
      */
     public void startSequence();
 
-    public Actor getOneObjectAt(int dx, int dy, Class cls);
+    public <T extends Actor> T getOneObjectAt(int dx, int dy, Class<T> cls);
 
     public Actor getOneIntersectingObject(Actor object, Class cls);
 
