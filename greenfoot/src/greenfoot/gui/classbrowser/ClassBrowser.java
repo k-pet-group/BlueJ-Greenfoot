@@ -31,7 +31,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4034 2006-04-27 11:20:45Z mik $
+ * @version $Id: ClassBrowser.java 4035 2006-04-27 11:22:00Z mik $
  */
 public class ClassBrowser extends JPanel
 {
@@ -173,7 +173,7 @@ public class ClassBrowser extends JPanel
             objectFrame.setBackground(Color.WHITE);
             objectFrame.add(greenfootClassPanel);
             border = BorderFactory.createTitledBorder(null, "Actor classes");
-            border.setTitleColor(Color.LIGHT_GRAY);
+            border.setTitleColor(Color.GRAY);
             objectFrame.setBorder(border);
 
             this.add(objectFrame, BorderLayout.CENTER);
