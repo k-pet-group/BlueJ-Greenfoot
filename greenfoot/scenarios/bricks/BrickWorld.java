@@ -23,18 +23,26 @@ public class BrickWorld extends World
         super(SIZEX, SIZEY, 1);
         GreenfootImage background = new GreenfootImage(20,20);
         background.fill(Color.BLACK);
-        background.setTiled(true);
+        setTiled(true);
         setBackground(background);
         
-        for (int i = BRICKLEFTBORDER + BRICKWIDTH / 2; i+BRICKWIDTH/2 < SIZEX - BRICKRIGHTBORDER; i+=BRICKWIDTH+BRICKSPACING) {
+        scenario1();
+    }
+    
+    /**
+     * The standard BrickWorld scenario.
+     */
+    public void scenario1()
+    {
+                for (int i = BRICKLEFTBORDER + BRICKWIDTH / 2; i+BRICKWIDTH/2 < SIZEX - BRICKRIGHTBORDER; i+=BRICKWIDTH+BRICKSPACING) {
             for (int j = 0; j < 4; j++ ) {
                 Brick newBrick = new Brick();
-                newBrick.setLocation(i, BRICKTOPBORDER + (BRICKHEIGHT + BRICKSPACING) * j);
-                addObject(newBrick);
+                // newBrick.setLocation(i, BRICKTOPBORDER + (BRICKHEIGHT + BRICKSPACING) * j);
+                addObject(newBrick, i, BRICKTOPBORDER + (BRICKHEIGHT + BRICKSPACING) * j);
             }
         }
         
-        addObject(new Ball(200, 120));
-        addObject(new Paddle(200, SIZEY - 20));
+        addObject(new Ball(), 200, 120);
+        addObject(new Paddle(), 200, SIZEY - 20);
     }
 }

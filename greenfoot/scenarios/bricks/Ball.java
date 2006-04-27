@@ -27,13 +27,7 @@ public class Ball extends Actor
         motionYdenom = 10;
         ballSpeed = (int) Math.sqrt(motionX * motionX + motionY * motionY);
     }
-    
-    public Ball(int x, int y)
-    {
-        this();
-        setLocation(x,y);
-    }
-    
+        
     public static Bounds getBounds(Actor go)
     {
         Bounds b = new Bounds();
