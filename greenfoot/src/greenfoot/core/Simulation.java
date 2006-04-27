@@ -3,15 +3,12 @@ package greenfoot.core;
 import greenfoot.Actor;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
-import greenfoot.gui.ControlPanel;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
 /**
@@ -22,7 +19,6 @@ import javax.swing.event.EventListenerList;
  * @version $Id$
  */
 public class Simulation extends Thread
-    implements ChangeListener
 {
     private transient final static Logger logger = Logger.getLogger("greenfoot");
 
@@ -178,20 +174,18 @@ public class Simulation extends Thread
         listenerList.add(SimulationListener.class, l);
     }
 
-    /**
-     * Probably an update in the speedslider
-     * 
-     */
-    public void stateChanged(ChangeEvent e)
-    {
-        if (e.getSource() instanceof ControlPanel) {
-            delay = ((ControlPanel) e.getSource()).getDelay();
-        }
-    }
-
     public void setDelay(int millis)
     {
         this.delay = millis;
+    }
+    
+    /**
+     * Get the current delay between simulation steps.
+     * @return  The delay in milliseconds.
+     */
+    public int getDelay()
+    {
+        return delay;
     }
 
     public void delay()

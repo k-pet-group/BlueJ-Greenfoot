@@ -29,7 +29,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 4009 2006-04-25 12:39:48Z mik $
+ * @version $Id: ControlPanel.java 4043 2006-04-27 15:30:40Z davmac $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener, WorldListener
@@ -40,20 +40,25 @@ public class ControlPanel extends Box
     private JSlider speedSlider;
 
     protected EventListenerList listenerList = new EventListenerList();
-    private ChangeEvent changeEvent;
     
     private CardLayout runpauseLayout;
     private JPanel runpauseContainer;
+    
+    private Simulation simulation;
+    private int simulationSpeed = 200;
+    
+    private final int MAX_SIMULATION_DELAY = 400;
 
     public ControlPanel(Simulation simulation)
     {
         super(BoxLayout.X_AXIS);
         
+        this.simulation = simulation;
+        
         add(createButtonPanel(simulation));
         add(createSpeedSlider());
 
         simulation.setDelay(getDelay());
-        addChangeListener(simulation);
         simulation.addSimulationListener(this);
     }
 
@@ -99,8 +104,8 @@ public class ControlPanel extends Box
         speedPanel.add(speedLabel);
         
         int min = 0;
-        int max = 400;
-        speedSlider = new JSlider(JSlider.HORIZONTAL, min, max, 200);
+        int max = MAX_SIMULATION_DELAY;
+        speedSlider = new JSlider(JSlider.HORIZONTAL, min, max, simulationSpeed);
         speedSlider.setPaintLabels(false);
         speedSlider.setMajorTickSpacing( (min+max) /2);
         speedSlider.setMinorTickSpacing( (min+max) /4);
@@ -121,6 +126,16 @@ public class ControlPanel extends Box
         else if (etype == SimulationEvent.STOPPED) {
             runpauseLayout.show(runpauseContainer, "run");
         }
+        else if (etype == SimulationEvent.CHANGED_SPEED) {
+            int newDelay = simulation.getDelay();
+            if (newDelay > MAX_SIMULATION_DELAY) {
+                newDelay = MAX_SIMULATION_DELAY;
+            }
+            if (newDelay != simulationSpeed) {
+                simulationSpeed = newDelay;
+                speedSlider.setValue(simulationSpeed);
+            }
+        }
     }
     
     public int getDelay()
@@ -132,26 +147,12 @@ public class ControlPanel extends Box
         return delay;
     }
 
-    public void addChangeListener(ChangeListener l)
-    {
-        listenerList.add(ChangeListener.class, l);
-    }
-
     public void stateChanged(ChangeEvent e)
     {
-        fireStateChanged();
-    }
-
-    protected void fireStateChanged()
-    {
-        Object[] listeners = listenerList.getListenerList();
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == ChangeListener.class) {
-                if (changeEvent == null) {
-                    changeEvent = new ChangeEvent(this);
-                }
-                ((ChangeListener) listeners[i + 1]).stateChanged(changeEvent);
-            }
+        int newDelay = getDelay();
+        if (newDelay != simulationSpeed) {
+            simulationSpeed = newDelay;
+            simulation.setDelay(simulationSpeed);
         }
     }
 
