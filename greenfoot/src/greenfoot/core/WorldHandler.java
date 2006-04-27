@@ -2,8 +2,8 @@ package greenfoot.core;
 
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
-import greenfoot.World;
 import greenfoot.ObjectTracker;
+import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.actions.PauseSimulationAction;
 import greenfoot.event.WorldEvent;
@@ -42,7 +42,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
 import rmiextension.wrappers.RObject;
-
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.ClassNotFoundException;
@@ -75,6 +74,8 @@ public class WorldHandler
      * need to be replaced if the drop is cancelled.
      */
     private boolean objectDropped = true; // true if the object was dropped
+    
+    private KeyboardManager keyboardManager;
 
     private static WorldHandler instance;
     
@@ -100,8 +101,8 @@ public class WorldHandler
         worldCanvas.setDropTargetListener(this);
         LocationTracker.instance().setComponent(worldCanvas);
         installNewWorld(world);
+        keyboardManager = new KeyboardManager();
         DragGlassPane.getInstance().addKeyListener(this);
-
     }
     
     public synchronized static WorldHandler instance() 
@@ -126,6 +127,14 @@ public class WorldHandler
     public void setSelectionManager(SelectionManager selectionManager)
     {
         this.classSelectionManager = selectionManager;
+    }
+    
+    /**
+     * Get the keyboard manager.
+     */
+    public KeyboardManager getKeyboardManager()
+    {
+        return keyboardManager;
     }
 
     /*
@@ -210,7 +219,6 @@ public class WorldHandler
     private JPopupMenu makePopupMenu(final Actor obj)
     {
         JPopupMenu menu = new JPopupMenu();
-        GPackage currentPackage = Greenfoot.getInstance().getPackage();
         
         ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this, project), new LocalObject(obj), null);
        
@@ -348,7 +356,7 @@ public class WorldHandler
      */
     public void keyTyped(KeyEvent e)
     {
-        logger.info("KEY TYPED");
+        keyboardManager.keyTyped(e);
     }
 
     /*
@@ -359,6 +367,7 @@ public class WorldHandler
     public void keyPressed(KeyEvent e)
     {
     	processInputEvent(e);
+        keyboardManager.keyPressed(e);
     }
 
     private void processInputEvent(InputEvent e)
@@ -403,6 +412,7 @@ public class WorldHandler
         if (isQuickAddActive) {
             isQuickAddActive = e.isShiftDown();
         }
+        keyboardManager.keyReleased(e);
     }
 
     /**
@@ -449,11 +459,9 @@ public class WorldHandler
 
             private void maybeShowPopup(MouseEvent e)
             {
-
                 Object world = WorldHandler.this.world;
                 if (e.isPopupTrigger() && world != null) {
                     JPopupMenu menu = new JPopupMenu();
-                    GPackage currentPackage = Greenfoot.getInstance().getPackage();
                     
                     ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world,
                             WorldHandler.this, project), new LocalObject(world), null);

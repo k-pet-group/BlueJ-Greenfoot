@@ -25,6 +25,8 @@ import greenfoot.core.LocationTracker;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.CompileListener;
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 
@@ -72,7 +74,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4034 2006-04-27 11:20:45Z mik $
+ * @version $Id: GreenfootFrame.java 4039 2006-04-27 12:31:44Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -200,13 +202,25 @@ public class GreenfootFrame extends JFrame
         JPanel worldPanel = new JPanel(new BorderLayout(12, 12));
         worldPanel.setBorder(BorderFactory.createEtchedBorder());        
 
-        WorldCanvas worldCanvas = new WorldCanvas(null);
+        final WorldCanvas worldCanvas = new WorldCanvas(null);
         worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
         WorldHandler.initialise(project, worldCanvas, null);
         WorldHandler worldHandler = WorldHandler.instance();
         Simulation.initialize(worldHandler);
         Simulation sim = Simulation.getInstance();
+        
+        sim.addSimulationListener(new SimulationListener() {
+            public void simulationChanged(SimulationEvent e)
+            {
+                // If the simulation starts, try to transfer keyboard
+                // focus to the world canvas to allow control of Actors
+                // via the keyboard
+                if (e.getType() == SimulationEvent.STARTED) {
+                    worldCanvas.requestFocusInWindow();
+                }
+            }
+        });
         
         JPanel canvasPanel = new JPanel(new CenterLayout()); // this panel is needed for resize behaviour
         canvasPanel.add(worldCanvas, BorderLayout.CENTER);

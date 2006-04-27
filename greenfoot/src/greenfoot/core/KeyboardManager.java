@@ -1,0 +1,251 @@
+package greenfoot.core;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+/**
+ * Manage keyboard input, to allow Greenfoot programs to poll for
+ * keystrokes. Keystrokes will be delivered on the GUI event thread,
+ * but may be polled from another thread.
+ * 
+ * <p>The following key names are recognized:
+ * up, down, left, right (cursor keys); enter, space, tab, escape, backspace,
+ * F1-F12.
+ * 
+ * @author davmac
+ * @version $Id: KeyboardManager.java 4039 2006-04-27 12:31:44Z davmac $
+ */
+public class KeyboardManager implements KeyListener
+{
+    private String lastKeyTyped;
+
+    // We don't know how many virtual keys there are or what they are
+    // defined as. To allow checking arbitrary keys, we'll allocate an
+    // initial array size of 100, but increase it if we see a higher key
+    // code.
+    private int numKeys = 100;
+    private boolean [] keyLatched = new boolean[numKeys];
+    private boolean [] keyDown = new boolean[numKeys];
+
+    // The highest named key index
+    private int maxNamedKey = 0;
+    // The names of keys, for those keys we want to translate
+    private String [] keyNames;
+    
+    private Map<String,Integer> keyCodeMap;
+    
+    /**
+     * Constructor for a KeyboardManager. Key events must be delivered
+     * from an external source.
+     */
+    public KeyboardManager()
+    {
+        keyCodeMap = new HashMap<String,Integer>();
+        addAllKeys();
+        buildKeyNameArray();
+    }
+    
+    /**
+     * Add all the keys which Greenfoot will directly support into the
+     * key code map (excluding keys with single-character names identifying
+     * the key, such as "a", "b" .. "z" and "0" .. "9", punctuation marks.
+     */
+    private void addAllKeys()
+    {
+        addKey("up", KeyEvent.VK_UP);
+        addKey("down", KeyEvent.VK_DOWN);
+        addKey("left", KeyEvent.VK_LEFT);
+        addKey("right", KeyEvent.VK_RIGHT);
+        addKey("space", KeyEvent.VK_SPACE);
+        addKey("enter", KeyEvent.VK_ENTER);
+        addKey("escape", KeyEvent.VK_ESCAPE);
+        addKey("F1", KeyEvent.VK_F1);
+        addKey("F2", KeyEvent.VK_F2);
+        addKey("F3", KeyEvent.VK_F3);
+        addKey("F4", KeyEvent.VK_F4);
+        addKey("F5", KeyEvent.VK_F5);
+        addKey("F6", KeyEvent.VK_F6);
+        addKey("F7", KeyEvent.VK_F7);
+        addKey("F8", KeyEvent.VK_F8);
+        addKey("F9", KeyEvent.VK_F9);
+        addKey("F10", KeyEvent.VK_F10);
+        addKey("F11", KeyEvent.VK_F11);
+        addKey("F12", KeyEvent.VK_F12);
+        addKey("backspace", KeyEvent.VK_BACK_SPACE);
+    }
+    
+    /**
+     * Add a single key into the key code map. Adjust numKeys if necessary
+     * so that it can contain the given keycode.
+     * 
+     * @param keyName   The name of the key to add (Greenfoot name)
+     * @param keyCode   The key code of the key to add (Java key code)
+     */
+    private void addKey(String keyName, int keyCode)
+    {
+        keyCodeMap.put(keyName, keyCode);
+        if (keyCode + 1 > maxNamedKey) {
+            maxNamedKey = keyCode + 1;
+        }
+    }
+    
+    /**
+     * Build the three key arrays: keyLatched, keyDown, and keyNames.
+     */
+    private void buildKeyNameArray()
+    {
+        keyNames = new String[maxNamedKey];
+        Iterator<String> keyNamesIterator = keyCodeMap.keySet().iterator();
+        while (keyNamesIterator.hasNext()) {
+             String keyName = keyNamesIterator.next();
+             int keyCode = keyCodeMap.get(keyName);
+             keyNames[keyCode] = keyName;
+        }
+        
+        // remove from the keyNames table keys which will generate
+        // keyTyped events.
+        keyNames[KeyEvent.VK_SPACE] = null;
+        keyNames[KeyEvent.VK_ENTER] = null;
+        keyNames[KeyEvent.VK_ESCAPE] = null;
+        keyNames[KeyEvent.VK_TAB] = null;
+        keyNames[KeyEvent.VK_BACK_SPACE] = null;
+    }
+        
+    
+    /**
+     * Make sure the key arrays are big enough to store information about
+     * the given key. Should be called from a synchronized context.
+     * 
+     * @param keycode  The keycode of the key to check.
+     */
+    private void checkKeyArrays(int keycode)
+    {
+        int nsize = keycode + 1;
+        if (nsize > numKeys) {
+            // we're seeing a new key code, increase array size
+            boolean [] newKeyLatched = new boolean[nsize];
+            boolean [] newKeyDown = new boolean[nsize];
+            for (int i = 0; i < numKeys; i++) {
+                newKeyLatched[i] = keyLatched[i];
+                newKeyDown[i] = keyDown[i];
+            }
+            keyLatched = newKeyLatched;
+            keyDown = newKeyDown;
+            numKeys = nsize;
+        }
+    }
+    
+    /**
+     * Get the last key pressed, as a String key name identifying the key.
+     */
+    public synchronized String getKey()
+    {
+        String r = lastKeyTyped;
+        lastKeyTyped = null;
+        return r;
+    }
+    
+    /**
+     * Check whether a key, identified by a virtual key code (int),
+     * is currently down (or latched).
+     * 
+     * @param keycode   The key code of the key to check
+     * @return        True if the key is currently down, or was down since
+     *                it was last checked; false otherwise.
+     */
+    public synchronized boolean isKeyDown(int keycode)
+    {
+        if (keycode < numKeys) {
+            boolean pressed = keyDown[keycode] || keyLatched[keycode];
+            keyLatched[keycode] = false;
+            return pressed;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    /**
+     * Check whether a key, identified by name, is currently down
+     * (or latched).
+     * 
+     * @param keyId  The Greenfoot name for the key to check
+     * @return       True if the key is down, or was down since it was
+     *               last checked; false otherwise.
+     */
+    public boolean isKeyDown(String keyId)
+    {
+        Integer code = keyCodeMap.get(keyId);
+        if (code != null) {
+            return isKeyDown(code);
+        }
+        else {
+            // If the keyId is a single character, treat the unicode
+            // value of that character as a virtual key code. This is
+            // something of a hack, but it works.
+            if (keyId.codePointCount(0, keyId.length()) == 1) {
+                int keyChar = keyId.codePointAt(0);
+                return isKeyDown(keyChar);
+            }
+            return false;
+        }
+    }
+    
+    // ----- KeyListener interface -----
+    
+    /* (non-Javadoc)
+     * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+     */
+    public synchronized void keyPressed(KeyEvent event)
+    {
+        int keyCode = event.getKeyCode();
+        checkKeyArrays(keyCode);
+        keyLatched[keyCode] = true;
+        keyDown[keyCode] = true;
+        if (keyCode < maxNamedKey) {
+            String keyName = keyNames[keyCode];
+            if (keyName != null) {
+                lastKeyTyped = keyName;
+            }
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+     */
+    public synchronized void keyReleased(KeyEvent event)
+    {
+        int keyCode = event.getKeyCode();
+        checkKeyArrays(keyCode);
+        keyDown[keyCode] = false;
+    }
+    
+    /* (non-Javadoc)
+     * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+     */
+    public synchronized void keyTyped(KeyEvent key)
+    {
+        char c = key.getKeyChar();
+        if (c == '\n' || c == '\r') {
+            lastKeyTyped = "enter";
+        }
+        else if (c == '\t') {
+            lastKeyTyped = "tab";
+        }
+        else if (c == '\b') {
+            lastKeyTyped = "backspace";
+        }
+        else if (c == ' ') {
+            lastKeyTyped = "space";
+        }
+        else if (c == 27) {
+            lastKeyTyped = "escape";
+        }
+        else {
+            lastKeyTyped = "" + c;
+        }
+    }
+}
