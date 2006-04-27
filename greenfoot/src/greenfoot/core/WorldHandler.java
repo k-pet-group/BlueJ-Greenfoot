@@ -47,6 +47,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import javax.swing.BorderFactory;
 
 /**
  * The worldhandler handles the connection between the World and the
@@ -62,7 +63,7 @@ public class WorldHandler
     private World world;
     private WorldCanvas worldCanvas;
     private SelectionManager classSelectionManager;
-    private JLabel worldTitle = new JLabel();
+    private JLabel worldTitle;
     private boolean isQuickAddActive;
 
     // where did the the drag/drop operation begin?
@@ -92,6 +93,9 @@ public class WorldHandler
      */
     private WorldHandler(GProject project, WorldCanvas worldCanvas, World world)
     {
+        worldTitle = new JLabel();
+        worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
+        worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
 
         this.project = project;
         this.worldCanvas = worldCanvas;
@@ -439,7 +443,6 @@ public class WorldHandler
         worldCanvas.setWorld(world); // TODO consider removing this and only
         // rely on observer
         worldTitle.setEnabled(true);
-        worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
         MouseListener listeners[] = worldTitle.getMouseListeners();
         for (int i = 0; i < listeners.length; i++) {
             MouseListener listener = listeners[i];

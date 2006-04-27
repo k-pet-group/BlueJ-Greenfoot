@@ -74,7 +74,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4039 2006-04-27 12:31:44Z davmac $
+ * @version $Id: GreenfootFrame.java 4045 2006-04-27 16:16:16Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -131,23 +131,8 @@ public class GreenfootFrame extends JFrame
         Greenfoot.getInstance().addCompileListener(this);
         
         prepareMacOSApp();
-        
-//        projectOpenThread = new Thread() {        // to be removed?
-//            public void run() {
-//                createFrameComponents(project);
-//            }
-//        };
-//        projectOpenThread.start();
     }
     
-//    public void waitForProjectOpen() {
-//        try {
-//            projectOpenThread.join();
-//        }
-//        catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
@@ -199,7 +184,7 @@ public class GreenfootFrame extends JFrame
 
         // the world panel. this includes the world title and world
         
-        JPanel worldPanel = new JPanel(new BorderLayout(12, 12));
+        JPanel worldPanel = new JPanel(new BorderLayout());
         worldPanel.setBorder(BorderFactory.createEtchedBorder());        
 
         final WorldCanvas worldCanvas = new WorldCanvas(null);
