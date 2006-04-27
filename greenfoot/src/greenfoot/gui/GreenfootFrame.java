@@ -72,12 +72,13 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4018 2006-04-26 07:58:46Z mik $
+ * @version $Id: GreenfootFrame.java 4034 2006-04-27 11:20:45Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
 {
     private static final String readMeIconFile = "readme.png";
+    private static final String compileIconFile = "compile.png";
     private static final int WORLD_MARGIN = 40;
 
     private transient final static Logger logger = Logger.getLogger("greenfoot");
@@ -230,10 +231,10 @@ public class GreenfootFrame extends JFrame
         
         // EAST side: project info button and class browser
         
-        JPanel eastPanel = new JPanel(new BorderLayout(4, 4));
+        JPanel eastPanel = new JPanel(new BorderLayout(12, 12));
 
         JButton readMeButton = new JButton("Project Information", 
-                                           new ImageIcon(getClass().getClassLoader().getResource(readMeIconFile)));
+                                   new ImageIcon(getClass().getClassLoader().getResource(readMeIconFile)));
         eastPanel.add(readMeButton, BorderLayout.NORTH);
         
         // the class browser 
@@ -241,17 +242,22 @@ public class GreenfootFrame extends JFrame
         JScrollPane classScrollPane = new JScrollPane(classBrowser);
         classScrollPane.setOpaque(false);
         classScrollPane.getViewport().setOpaque(false);
-        classScrollPane.setBorder(null);
+        classScrollPane.setBorder(BorderFactory.createEtchedBorder());
         eastPanel.add(classScrollPane, BorderLayout.CENTER);
 
-        // make the buttons at the bottom
+        // the compile button at the bottom
         
         JButton button = new JButton(CompileAllAction.getInstance());
+        // set the icon image: currently empty, but used to force same button look as readme button
+        button.setIcon(new ImageIcon(getClass().getClassLoader().getResource(compileIconFile)));
         eastPanel.add(button, BorderLayout.SOUTH);
 
+        
+        // arrange the major components in the content pane
+        
         JPanel contentPane = (JPanel)getContentPane();
-        contentPane.setLayout(new BorderLayout(6,6));
-        contentPane.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        contentPane.setLayout(new BorderLayout(12, 12));
+        contentPane.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         contentPane.add(centrePanel, BorderLayout.CENTER);
         contentPane.add(eastPanel, BorderLayout.EAST);

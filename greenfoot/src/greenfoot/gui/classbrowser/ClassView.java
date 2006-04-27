@@ -50,11 +50,14 @@ import java.awt.Font;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4016 2006-04-25 16:42:46Z davmac $
+ * @version $Id: ClassView.java 4034 2006-04-27 11:20:45Z mik $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
 {
+    // TODO: get this colour out of config
+    private final Color classColour = new Color(245, 204, 155);
+    
     private final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
     public static final Color[] shadowColours = { new Color(242, 242, 242), 
@@ -83,7 +86,6 @@ public class ClassView extends JToggleButton
         realClass = getClass(gClass);
         setRole(role);
         addChangeListener(this);
-        this.setOpaque(false);
         this.addMouseListener(this);
         this.setBorder(BorderFactory.createEmptyBorder(7, 8, 10, 11)); //top,left,bottom,right
         Font font = getFont();
@@ -91,7 +93,7 @@ public class ClassView extends JToggleButton
         this.setFont(font);
 //        this.setFont(PrefMgr.getTargetFont());
 
-//        setBackground(new Color(245, 204, 155));
+        setBackground(classColour);
 }
 
         
@@ -234,18 +236,10 @@ public class ClassView extends JToggleButton
      */
     public void paintComponent(Graphics g)
     {
-        int height = getHeight() - SHADOW;
-        int width = getWidth() - 4;
-        
-        //TODO get this color from the bluej config
-        g.setColor(new Color(245, 204, 155));
-        g.fillRect(0, GAP, width, height - GAP);   // blank for gap above class
-
         super.paintComponent(g);
         
         drawShadow((Graphics2D) g);
         drawBorders((Graphics2D) g);
-
     }
 
     /**
@@ -256,10 +250,10 @@ public class ClassView extends JToggleButton
         int height = getHeight() - SHADOW;
         int width = getWidth() - 4;
         
-//        g.setColor(Color.WHITE);
-//        g.fillRect(0, 0, width + 4, GAP);   // blank for gap above class
-//        g.fillRect(0, height, 6, height + SHADOW);
-//        g.fillRect(width, 0, width + 3, 10);
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, width + 4, GAP);   // blank for gap above class
+        g.fillRect(0, height, 6, height + SHADOW);
+        g.fillRect(width, 0, width + 3, 10);
         
         // colorchange is expensive on mac, so draworder is by color, not position
         g.setColor(shadowColours[3]);

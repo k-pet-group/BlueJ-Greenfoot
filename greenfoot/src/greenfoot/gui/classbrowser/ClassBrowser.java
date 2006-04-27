@@ -22,6 +22,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.TitledBorder;
 
 /**
  * 
@@ -30,7 +31,7 @@ import javax.swing.SwingUtilities;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4016 2006-04-25 16:42:46Z davmac $
+ * @version $Id: ClassBrowser.java 4034 2006-04-27 11:20:45Z mik $
  */
 public class ClassBrowser extends JPanel
 {
@@ -53,11 +54,12 @@ public class ClassBrowser extends JPanel
     public ClassBrowser()
     {
         setLayout(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        setBackground(Color.WHITE);
 
         worldClasses = new ClassForest();
         greenfootClasses = new ClassForest();
         otherClasses = new ClassForest();
-        setOpaque(false);
     }
 
     /**
@@ -153,9 +155,11 @@ public class ClassBrowser extends JPanel
 
         JPanel worldFrame = new JPanel();
         ((FlowLayout)worldFrame.getLayout()).setAlignment(FlowLayout.LEFT);
-        //worldFrame.setBackground(Color.WHITE);
+        worldFrame.setBackground(Color.WHITE);
         worldFrame.add(worldClassPanel);
-        worldFrame.setBorder(BorderFactory.createTitledBorder(null, "World classes"));
+        TitledBorder border = BorderFactory.createTitledBorder(null, "World classes");
+        border.setTitleColor(Color.GRAY);
+        worldFrame.setBorder(border);
 
         this.add(worldFrame, BorderLayout.NORTH);
 
@@ -166,9 +170,11 @@ public class ClassBrowser extends JPanel
         if (greenfootClassPanel != null) {
             JPanel objectFrame = new JPanel();
             ((FlowLayout)objectFrame.getLayout()).setAlignment(FlowLayout.LEFT);
-            //objectFrame.setBackground(Color.WHITE);
+            objectFrame.setBackground(Color.WHITE);
             objectFrame.add(greenfootClassPanel);
-            objectFrame.setBorder(BorderFactory.createTitledBorder(null, "Actor classes"));
+            border = BorderFactory.createTitledBorder(null, "Actor classes");
+            border.setTitleColor(Color.LIGHT_GRAY);
+            objectFrame.setBorder(border);
 
             this.add(objectFrame, BorderLayout.CENTER);
         }
@@ -181,7 +187,9 @@ public class ClassBrowser extends JPanel
                 ((FlowLayout)objectFrame.getLayout()).setAlignment(FlowLayout.LEFT);
                 objectFrame.setBackground(Color.WHITE);
                 objectFrame.add(otherClassPanel);
-                objectFrame.setBorder(BorderFactory.createTitledBorder(null, "Other classes"));
+                border = BorderFactory.createTitledBorder(null, "Other classes");
+                border.setTitleColor(Color.GRAY);
+                objectFrame.setBorder(border);
                 
                 this.add(objectFrame, BorderLayout.SOUTH);
             }
