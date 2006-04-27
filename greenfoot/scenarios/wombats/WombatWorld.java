@@ -18,7 +18,6 @@ public class WombatWorld extends World
         
         GreenfootImage background = new GreenfootImage("cell.jpg");
         setBackground(background);
-        background.setTiled(true);
     }
 
     /**
@@ -27,36 +26,28 @@ public class WombatWorld extends World
     public void populate()
     {
         Wombat w1 = new Wombat();
-        w1.setLocation(3, 3);
-        addObject(w1);
+        addObject(w1, 3, 3);
         
         Wombat w2 = new Wombat();
-        w2.setLocation(1, 7);
-        addObject(w2);
+        addObject(w2, 1, 7);
 
         Leaf l1 = new Leaf();
-        l1.setLocation(5, 3);
-        addObject(l1);
+        addObject(l1, 5, 3);
 
         Leaf l2 = new Leaf();
-        l2.setLocation(0, 2);
-        addObject(l2);
+        addObject(l2, 0, 2);
 
         Leaf l3 = new Leaf();
-        l3.setLocation(7, 5);
-        addObject(l3);
+        addObject(l3, 7, 5);
 
         Leaf l4 = new Leaf();
-        l4.setLocation(2, 6);
-        addObject(l4);
+        addObject(l4, 2, 6);
 
         Leaf l5 = new Leaf();
-        l5.setLocation(5, 0);
-        addObject(l5);
+        addObject(l5, 5, 0);
         
         Leaf l6 = new Leaf();
-        l6.setLocation(4, 7);
-        addObject(l6);
+        addObject(l6, 4, 7);
     }
     
     /**
@@ -69,8 +60,7 @@ public class WombatWorld extends World
             Leaf leaf = new Leaf();
             int x = getRandomNumber(getWidth());
             int y = getRandomNumber(getHeight());
-            leaf.setLocation(x, y);
-            addObject(leaf);
+            addObject(leaf, x, y);
         }
     }
     
