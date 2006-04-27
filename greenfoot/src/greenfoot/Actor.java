@@ -1,6 +1,7 @@
 package greenfoot;
 
 import greenfoot.core.ClassImageManager;
+import greenfoot.core.WorldHandler;
 import greenfoot.util.Circle;
 import greenfoot.util.Version;
 
@@ -29,6 +30,10 @@ import javax.swing.ImageIcon;
  */
 public class Actor extends ObjectTransporter
 {
+    private static final String NO_WORLD = "No world has been instantiated.";
+
+    private static final String ACTOR_NOT_IN_WORLD = "The actor has not been inserted into a world so it has no location yet. You might want to look at the method addedToWorld on the Actor class.";
+
     /** Version number of the Greenfoot API */
     final static Version VERSION = new Version("0.6 dev");
     
@@ -117,9 +122,7 @@ public class Actor extends ObjectTransporter
      */
     public int getX() throws IllegalStateException
     {
-        if(world == null) {
-            throw new IllegalStateException("The actor has not been inserted into a world so it has no location yet.");
-        }
+        failIfNotInWorld();
         return x;
     }
 
@@ -132,9 +135,7 @@ public class Actor extends ObjectTransporter
      */
     public int getY()
     {       
-        if(world == null) {
-            throw new IllegalStateException("The actor has not been inserted into a world so it has no location yet.");
-        }
+        failIfNotInWorld();
         return y;
     }
 
@@ -143,13 +144,10 @@ public class Actor extends ObjectTransporter
      * that an object's image overlaps horizontally.
      * 
      * @return The width of the object, or -1 if it has no image.
-     * @throws IllegalStateException If the actor has not been added into a world.
+     * @throws IllegalStateException If there is no world instantiated.
      */
     public int getWidth()
     {
-        if(world == null) {
-            throw new IllegalStateException("The actor has not been inserted into a world so it has no width yet.");
-        }
         if (image == null) {
             return -1;
         }
@@ -163,13 +161,10 @@ public class Actor extends ObjectTransporter
      * that an object's image overlaps vertically.
      * 
      * @return The height of the object, or -1 if it has no image.
-     * @throws IllegalStateException If the actor has not been added into a world.
+     * @throws IllegalStateException If there is no world instantiated.
      */
     public int getHeight()
     {
-        if(world == null) {
-            throw new IllegalStateException("The actor has not been inserted into a world so it has no height yet.");
-        }
         if (image == null) {
             return -1;
         }
@@ -192,6 +187,7 @@ public class Actor extends ObjectTransporter
      * Gets the x-coordinate of the right most cell that is occupied by the
      * object.
      * 
+     * @throws IllegalStateException If there is no world instantiated.
      */
     private int getXMax()
     {
@@ -202,6 +198,7 @@ public class Actor extends ObjectTransporter
      * Gets the y-coordinate of the top most cell that is occupied by the
      * object.
      * 
+     * @throws IllegalStateException If there is no world instantiated.
      */
     private int getYMin()
     {
@@ -241,12 +238,17 @@ public class Actor extends ObjectTransporter
      */
     public void setRotation(int rotation)
     {
-        int oldWidth = getWidth();
-        int oldHeight = getHeight();
+        
+        int oldWidth = 0;
+        int oldHeight = 0;
+        if(world != null) {
+            oldWidth = getWidth();
+            oldHeight = getHeight();
+        }
 
         this.rotation = rotation;
 
-        if (oldHeight != getHeight() || oldWidth != getWidth()) {
+        if (world != null && (oldHeight != getHeight() || oldWidth != getWidth())) {
             sizeChanged();
         }
     }
@@ -264,9 +266,7 @@ public class Actor extends ObjectTransporter
      */
     public void setLocation(int x, int y)
     {
-        if(world == null) {
-            throw new IllegalStateException("The actor has not been inserted into a world so the location can't be set.");
-        }
+        failIfNotInWorld();
         int oldX = this.x;
         int oldY = this.y;
 
@@ -288,13 +288,12 @@ public class Actor extends ObjectTransporter
      */
     private void boundsCheck(int x, int y)
     {
-        if (world != null) {
-            if (world.getWidth() <= x || x < 0) {
-                throw new IndexOutOfBoundsException("x(" + x + ") is out of bounds("+world.getWidth() +")");
-            }
-            if (world.getHeight() <= y || y < 0) {
-                throw new IndexOutOfBoundsException("y(" + y + ") is out of bounds("+world.getHeight() +")");
-            }
+        failIfNotInWorld();
+        if (world.getWidth() <= x || x < 0) {
+            throw new IndexOutOfBoundsException("x(" + x + ") is out of bounds(" + world.getWidth() + ")");
+        }
+        if (world.getHeight() <= y || y < 0) {
+            throw new IndexOutOfBoundsException("y(" + y + ") is out of bounds(" + world.getHeight() + ")");
         }
     }
 
@@ -372,17 +371,16 @@ public class Actor extends ObjectTransporter
      */
     void setLocationInPixels(int x, int y)
     {
-        if (world != null) {
-            int xCell = world.toCellFloor(x);
-            int yCell = world.toCellFloor(y);
-            
-            if(x == getX() && y == getY()) {
-                return;
-            }
-            
-            boundsCheck(xCell, yCell);
-            setLocation(xCell, yCell);
+        failIfNotInWorld();
+        int xCell = world.toCellFloor(x);
+        int yCell = world.toCellFloor(y);
+
+        if (x == getX() && y == getY()) {
+            return;
         }
+
+        boundsCheck(xCell, yCell);
+        setLocation(xCell, yCell);
     }
 
     /**
@@ -480,7 +478,11 @@ public class Actor extends ObjectTransporter
     
     private int toCellFloor(int i)
     {
-        return (int) Math.floor((double) i / getWorld().getCellSize());
+        World aWorld = world;
+        if(aWorld == null) {
+            aWorld = WorldHandler.instance().getWorld();
+        }
+        return (int) Math.floor((double) i / aWorld.getCellSize());
     }
 
     /**
@@ -488,14 +490,18 @@ public class Actor extends ObjectTransporter
      * 
      * Rounds down if it does not result in an integer.
      * 
-     * @return
+     * @throws IllegalStateException If there is no world instantiated.
      */
     private final int getPaintX()
     {
-        if (world == null) {
-            return -1;
+        World aWorld = world;
+        if (aWorld == null) {
+            aWorld = WorldHandler.instance().getWorld();
         } 
-        double cellCenter = getWorld().getCellCenter(getX());
+        if (aWorld == null) {
+            throw new IllegalStateException(NO_WORLD);
+        }
+        double cellCenter = aWorld.getCellCenter(x);
         double paintX = cellCenter - image.getWidth() / 2.;
         return (int) Math.floor(paintX);
     }
@@ -505,14 +511,18 @@ public class Actor extends ObjectTransporter
      * 
      * Rounds down if it does not result in an integer.
      * 
-     * @return
+     * @throws IllegalStateException If there is no world instantiated.
      */
     private final int getPaintY()
     {
-        if (world == null) {
-            return -1;
+        World aWorld = world;
+        if (aWorld == null) {
+            aWorld = WorldHandler.instance().getWorld();
+        } 
+        if (aWorld == null) {
+            throw new IllegalStateException(NO_WORLD);
         }
-        double cellCenter = getWorld().getCellCenter(getY());
+        double cellCenter = aWorld.getCellCenter(y);
         double paintY = cellCenter - image.getHeight() / 2.;
 		return (int) Math.floor(paintY);
     }
@@ -549,7 +559,7 @@ public class Actor extends ObjectTransporter
     }
     
     /**
-     *Calculate the bounding radius. In grid coordinates.
+     * Calculate the bounding radius. In grid coordinates.
      */
     private int calcBoundingRadius() {
         if(world == null) return -1;
@@ -562,6 +572,17 @@ public class Actor extends ObjectTransporter
         return (int) (Math.sqrt(dx*dx + dy*dy) / 2 );
     }
 
+    /**
+     * Throws an exception if the actor is not in a world.
+     * 
+     * @throws IllegalStateException If not in world.
+     */
+    private void failIfNotInWorld()
+    {
+        if(world == null) {
+            throw new IllegalStateException(ACTOR_NOT_IN_WORLD);
+        }
+    }
 
     // ============================
     //
@@ -582,9 +603,6 @@ public class Actor extends ObjectTransporter
         // TODO: Rotation, we could just increase the bounding box, or we could
         // deal with the rotated bounding box.
         // TODO: Take wrapping of the world into consideration.
-        if (world == null)
-            return false;
-
         int thisX = getXMin();
         int otherX = other.getXMin();
         int thisW = getWidth();
@@ -628,7 +646,8 @@ public class Actor extends ObjectTransporter
         // TODO wrapping when the object actually lies on the edge.
         // TODO this disregards rotations. maybe this should be updated in the
         // getWidth/height methods
-        if (image != null && world != null) {
+        failIfNotInWorld();
+        if (image != null) {
             int width = getXMax() - getXMin() + 1;
             int height = getYMax() - getYMin() + 1;
             int left = getXMin() - getX();
@@ -669,6 +688,7 @@ public class Actor extends ObjectTransporter
      */
     protected List getNeighbours(int distance, boolean diagonal, Class cls)
     {
+        failIfNotInWorld();
         return getWorld().getNeighbours(getX(), getY(), distance, diagonal, cls);
     }
     
@@ -683,6 +703,7 @@ public class Actor extends ObjectTransporter
      */
     protected List getObjectsAt(int dx, int dy, Class cls)
     {
+        failIfNotInWorld();
         return world.getObjectsAt(getX() + dx, getY() + dy, cls);
     }
 
@@ -700,6 +721,7 @@ public class Actor extends ObjectTransporter
      */
     protected Actor getOneObjectAt(int dx, int dy, Class cls)
     {
+        failIfNotInWorld();
         return world.getOneObjectAt(getX() + dx, getY() + dy, cls);
         
     }
@@ -714,6 +736,7 @@ public class Actor extends ObjectTransporter
      */
     protected List getObjectsInRange(int r, Class cls)
     {
+        failIfNotInWorld();
         List inRange = world.getObjectsInRange(getX(), getY(), r, cls);
         inRange.remove(this);
         return inRange;
@@ -729,6 +752,7 @@ public class Actor extends ObjectTransporter
      */
     protected List getIntersectingObjects(Class cls)
     {
+        failIfNotInWorld();
         return world.getIntersectingObjects(this, cls);
     }
     
@@ -742,8 +766,8 @@ public class Actor extends ObjectTransporter
      */
     protected Actor getOneIntersectingObject(Class cls)
     {
+        failIfNotInWorld();
         return world.getOneIntersectingObject(this, cls);
-
     }
 
     /**
@@ -759,11 +783,12 @@ public class Actor extends ObjectTransporter
      */
     protected List getObjectsInDirection(int angle, int length, Class cls)
     {
-       List l = world.getObjectsInDirection(getX(), getY(), angle + getRotation(), length, cls);
-       l.remove(this);
-       return l;
+        failIfNotInWorld();
+        List l = world.getObjectsInDirection(getX(), getY(), angle + getRotation(), length, cls);
+        l.remove(this);
+        return l;
     }
-    
+
     /**
      * Determines if the given position intersects with the rectangle.<br>
      * 
