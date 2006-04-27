@@ -150,9 +150,6 @@ public class Greenfoot
                 }
                 logger.info("Frame created");
 
-                // We must wait for the frame to finish preparing:
-// (to be removed?)               frame.waitForProjectOpen();
-
                 frame.setVisible(true);
                 Utility.bringToFront();
                 logger.info("Frame visible");
