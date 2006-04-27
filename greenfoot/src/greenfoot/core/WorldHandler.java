@@ -558,7 +558,7 @@ public class WorldHandler
      *             bounds of the world. Note that a wrapping world has no
      *             bounds.
      */
-    private boolean addObjectAtPixel(Actor actor, int x, int y)
+    public boolean addObjectAtPixel(Actor actor, int x, int y)
     {
         int xCell = WorldVisitor.toCellFloor(world, x);
         int yCell = WorldVisitor.toCellFloor(world, y);
