@@ -288,7 +288,7 @@ public class Ant extends Actor
         } catch (IndexOutOfBoundsException e) {
             //We don't care - just leave it
         }
-        setRotation((int) (180*Math.atan2(deltaY,deltaX)/Math.PI+90 -45));
+        setRotation((int) (180*Math.atan2(deltaY,deltaX)/Math.PI));
     }
     
     /**
