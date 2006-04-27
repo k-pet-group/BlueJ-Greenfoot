@@ -269,8 +269,7 @@ public abstract class World extends ObjectTransporter
     {
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
             Actor actor = (Actor) iter.next();
-            collisionChecker.removeObject(actor);
-            this.objects.remove(actor);
+            removeObject(actor);
         }
     }
 
