@@ -28,7 +28,7 @@ import javax.swing.ImageIcon;
  * @version 0.6 dev
  * @cvs-version $Id$
  */
-public class Actor extends ObjectTransporter
+public abstract class Actor extends ObjectTransporter
 {
     private static final String NO_WORLD = "No world has been instantiated.";
 
