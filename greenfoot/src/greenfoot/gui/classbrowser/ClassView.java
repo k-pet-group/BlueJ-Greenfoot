@@ -50,14 +50,14 @@ import java.awt.Font;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4034 2006-04-27 11:20:45Z mik $
+ * @version $Id: ClassView.java 4046 2006-04-28 14:38:17Z mik $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
 {
-    // TODO: get this colour out of config
     private final Color classColour = new Color(245, 204, 155);
-    
+    private static final Color stripeColor = new Color(152,152,152);
+
     private final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
     public static final Color[] shadowColours = { new Color(242, 242, 242), 
@@ -69,7 +69,6 @@ public class ClassView extends JToggleButton
     private static final int SHADOW = 4;    // thickness of shadow
     private static final int GAP = 2;       // spacing between classes
     private static final int SELECTED_BORDER = 3;
-    private static final int BORDER = 1;
 
     private transient final static Logger logger = Logger.getLogger("greenfoot");
    
@@ -93,7 +92,8 @@ public class ClassView extends JToggleButton
         this.setFont(font);
 //        this.setFont(PrefMgr.getTargetFont());
 
-        setBackground(classColour);
+//        setBackground(classColour);
+        setOpaque(false);
 }
 
         
@@ -236,12 +236,32 @@ public class ClassView extends JToggleButton
      */
     public void paintComponent(Graphics g)
     {
+        drawBackground(g);
         super.paintComponent(g);
         
         drawShadow((Graphics2D) g);
         drawBorders((Graphics2D) g);
     }
 
+    
+    private void drawBackground(Graphics g)
+    {
+        int height = getHeight() - SHADOW - GAP;
+        int width = getWidth() - 4;
+
+        g.setColor(classColour);
+        g.fillRect(0, GAP, width, height);
+        
+        if(!gClass.isCompiled()) {
+            g.setColor(stripeColor);
+            Utility.stripeRect(g, 0, GAP, width, height, 8, 3);
+
+            g.setColor(classColour);
+            g.fillRect(7, GAP+7, width-14, height-14);
+        }
+    }
+    
+    
     /**
      * Draw a 'shadow' appearance under and to the right of the target.
      */
@@ -278,7 +298,7 @@ public class ClassView extends JToggleButton
     protected void drawBorders(Graphics2D g)
     {
         g.setColor(Color.BLACK);
-        int thickness = isSelected() ? SELECTED_BORDER : BORDER;
+        int thickness = isSelected() ? SELECTED_BORDER : 1;
         Utility.drawThickRect(g, 0, GAP, getWidth() - 4, getHeight() - SHADOW - GAP - 1, thickness);
     }
 
