@@ -31,7 +31,6 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -47,10 +46,11 @@ import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
 import java.awt.Font;
+import javax.swing.JToggleButton;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4048 2006-04-28 15:03:32Z mik $
+ * @version $Id: ClassView.java 4049 2006-04-28 15:41:12Z mik $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -92,8 +92,8 @@ public class ClassView extends JToggleButton
         this.setFont(font);
 //        this.setFont(PrefMgr.getTargetFont());
 
-        setBackground(null);
-        setOpaque(false);
+        setContentAreaFilled(false);
+        setFocusPainted(false);
 }
 
         
