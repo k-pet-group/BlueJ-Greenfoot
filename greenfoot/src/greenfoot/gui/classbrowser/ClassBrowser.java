@@ -31,7 +31,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4035 2006-04-27 11:22:00Z mik $
+ * @version $Id: ClassBrowser.java 4051 2006-04-28 16:27:39Z mik $
  */
 public class ClassBrowser extends JPanel
 {
@@ -100,7 +100,7 @@ public class ClassBrowser extends JPanel
         classLabel.setClassBrowser(this);
         classLabel.addSelectionChangeListener(selectionManager);
         
-        //TODO: the following two lines look dodgy... (mik)
+        // make sure the compile and edit actions are informed of the selected class
         selectionManager.addSelectionChangeListener(compileClassAction);
         selectionManager.addSelectionChangeListener(editClassAction);
 

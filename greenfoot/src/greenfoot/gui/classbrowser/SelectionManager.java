@@ -3,8 +3,14 @@ package greenfoot.gui.classbrowser;
 import javax.swing.event.EventListenerList;
 
 /**
+ * The SelectionManager manages notification of selection changes from a group
+ * of selectable components to a list of listeners.
+ *
+ * At any time, there is (at most) one selected component, and when the selected 
+ * component changes, all listeners are notified.
+ *
  * @author Poul Henriksen
- * @version $Id: SelectionManager.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: SelectionManager.java 4051 2006-04-28 16:27:39Z mik $
  */
 public class SelectionManager
     implements SelectionListener
