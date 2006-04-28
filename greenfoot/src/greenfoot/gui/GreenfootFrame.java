@@ -74,7 +74,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4045 2006-04-27 16:16:16Z mik $
+ * @version $Id: GreenfootFrame.java 4050 2006-04-28 15:41:36Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -99,26 +99,26 @@ public class GreenfootFrame extends JFrame
         throws HeadlessException, ProjectNotOpenException, RemoteException
     {
         super("Greenfoot: " + project.getName());
-        try {
-            //HACK to avoid error in class diagram (getPreferredSize stuff) on
-            // windows, we use cross platform look and feel
-            if (Config.isWinOS()) {
-                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-            }
-        }
-        catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (InstantiationException e) {
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        catch (UnsupportedLookAndFeelException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+//        try {
+//            //HACK to avoid error in class diagram (getPreferredSize stuff) on
+//            // windows, we use cross platform look and feel
+//            if (Config.isWinOS()) {
+//                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+//            }
+//        }
+//        catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        catch (InstantiationException e) {
+//            e.printStackTrace();
+//        }
+//        catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        }
+//        catch (UnsupportedLookAndFeelException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
 
         LocationTracker.instance(); //force initialisation
         
