@@ -50,7 +50,7 @@ import java.awt.Font;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4046 2006-04-28 14:38:17Z mik $
+ * @version $Id: ClassView.java 4048 2006-04-28 15:03:32Z mik $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -92,7 +92,7 @@ public class ClassView extends JToggleButton
         this.setFont(font);
 //        this.setFont(PrefMgr.getTargetFont());
 
-//        setBackground(classColour);
+        setBackground(null);
         setOpaque(false);
 }
 
