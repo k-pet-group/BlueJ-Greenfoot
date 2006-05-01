@@ -28,7 +28,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4011 2006-04-25 14:28:08Z polle $
+ * @version $Id: ProjectManager.java 4052 2006-05-01 11:58:26Z davmac $
  */
 public class ProjectManager
     implements PackageListener
@@ -106,7 +106,7 @@ public class ProjectManager
      */
     private void launchRmiClient(Project project)
     {
-        ObjectBench.createObject(project, BlueJRMIClient.class.getName(), "blueJRMIClient", new Object[]{
+        ObjectBench.createObject(project, BlueJRMIClient.class.getName(), "blueJRMIClient", new String[]{
                 project.getDir(), project.getName()});
     }
 

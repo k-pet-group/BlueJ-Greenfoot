@@ -9,7 +9,7 @@ import bluej.extensions.ProjectNotOpenException;
  * not support packages.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: Project.java 3974 2006-04-04 15:29:30Z polle $
+ * @version $Id: Project.java 4052 2006-05-01 11:58:26Z davmac $
  */
 public class Project
 {
@@ -44,9 +44,10 @@ public class Project
     }
 
     /**
-     * @return
+     * Get the name of the package.
+     * @return  The package name
      */
-    public Object getName()
+    public String getName()
     {
         try {
             return pkg.getName();

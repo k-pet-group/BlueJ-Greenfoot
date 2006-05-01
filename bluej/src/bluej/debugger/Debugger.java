@@ -13,7 +13,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 3610 2005-09-29 06:38:44Z davmac $
+ * @version $Id: Debugger.java 4052 2006-05-01 11:58:26Z davmac $
  */
 public abstract class Debugger
 {
@@ -86,8 +86,9 @@ public abstract class Debugger
     /**
      * Add a debugger object into the project scope.
      * 
+     * @param   scopeId          the scope identifier
      * @param   newInstanceName  the name of the object
-     *          dob              the object itself
+     * @param   dob              the object itself
      * @return  true if the object could be added with this name,
      *          false if there was a name clash.
      */
@@ -173,6 +174,17 @@ public abstract class Debugger
     public abstract DebuggerObject instantiateClass(String className);
 
     /**
+     * Instantiate a class using a specific constructor for that class.
+     * 
+     * @param className  The name of the class to instantiate
+     * @param argTypes   The formal parameter types (class names)
+     * @param args       The arguments
+     * @return A DebuggerObject representing the newly constructed object,
+     *         or null if the remote VM terminates or an error occurs.
+     */
+    public abstract DebuggerObject instantiateClass(String className, String [] paramTypes, DebuggerObject [] args);
+    
+    /**
      * Get a class from the virtual machine, using the current classloader. The class will be
      * initialized if possible. This can cause execution of user code.
      */
@@ -184,6 +196,17 @@ public abstract class Debugger
      */
     public abstract DebuggerObject getStaticValue(String className, String fieldName)
 		throws ClassNotFoundException;
+    
+    /**
+     * Get a reference to a string in the remote machine whose value is the
+     * same as the given value. Returns null if the remote VM terminates
+     * or the string cannot be mirrored for some other reason (such as
+     * out of memory).
+     * 
+     * @param value  The string value to mirror
+     * @return       The remote object with the same value, or null
+     */
+    public abstract DebuggerObject getMirror(String value);
 
     /**
      * Set/clear a breakpoint at a specified line in a class.

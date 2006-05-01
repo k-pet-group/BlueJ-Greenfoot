@@ -33,7 +33,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 3657 2005-10-07 00:59:19Z davmac $
+ * @version $Id: JdiDebugger.java 4052 2006-05-01 11:58:26Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -55,7 +55,7 @@ public class JdiDebugger extends Debugger
     // the thread that we spawn to load the current remote VM
     private MachineLoaderThread machineLoader;
     
-    // An object to provide a lock for server thread execution
+    /** An object to provide a lock for server thread execution */
     private Object serverThreadLock = new Object();
 
     // a set holding all the JdiThreads in the VM
@@ -396,6 +396,22 @@ public class JdiDebugger extends Debugger
         catch (VMDisconnectedException vde) {}
         return null;
     }
+    
+    /* (non-Javadoc)
+     * @see bluej.debugger.Debugger#getMirror(java.lang.String)
+     */
+    public DebuggerObject getMirror(String value)
+    {
+        VMReference vmr = getVM();
+        if (vmr != null) {
+            try {
+                return JdiObject.getDebuggerObject(vmr.getMirror(value));
+            }
+            catch (VMDisconnectedException vde) { }
+            catch (VMOutOfMemoryException vmoome) { }
+        }
+        return null;
+    }
 
     /**
      * Return the status of the last invocation. One of (NORMAL_EXIT,
@@ -599,7 +615,36 @@ public class JdiDebugger extends Debugger
             return null;
         }
     }
-
+    
+    /* (non-Javadoc)
+     * @see bluej.debugger.Debugger#instantiateClass(java.lang.String, java.lang.String[], bluej.debugger.DebuggerObject[])
+     */
+    public DebuggerObject instantiateClass(String className, String[] paramTypes, DebuggerObject[] args)
+    {
+        // If there are no arguments, use the default constructor
+        if (paramTypes == null || args == null || paramTypes.length == 0 || args.length == 0) {
+            return instantiateClass(className);
+        }
+        
+        VMReference vmr = getVM();
+        if (vmr != null) {
+            
+            // Convert the args array from DebuggerObject[] to ObjectReference[]
+            ObjectReference [] orArgs = new ObjectReference[args.length];
+            for (int i = 0; i < args.length; i++) {
+                JdiObject jdiObject = (JdiObject) args[i];
+                orArgs[i] = jdiObject.getObjectReference(); 
+            }
+            
+            synchronized (serverThreadLock) {
+                return vmr.instantiateClass(className, paramTypes, orArgs);
+            }
+        }
+        else {
+            return null;
+        }
+    }
+    
     /**
      * Get a class from the virtual machine. Throws ClassNotFoundException
      * if the class cannot be found.

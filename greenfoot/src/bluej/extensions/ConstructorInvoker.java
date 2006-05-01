@@ -2,6 +2,7 @@ package bluej.extensions;
 
 import java.util.logging.Logger;
 
+import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -36,24 +37,35 @@ public class ConstructorInvoker {
         }
         view = View.getView(launcherClass);
     }
-
    
     
-    public ObjectWrapper invokeConstructor(String instanceNameOnObjectBench, Object[] args)
-    throws InvocationArgumentException, InvocationErrorException {
-        DirectInvoker di =
-            new DirectInvoker(pkgFrame, getConstructor(view,args));
+    /**
+     * Invoke a constructor which takes String arguments only.
+     * 
+     * @param instanceNameOnObjectBench  Name of the created object as it
+     *                                   should appear on the bench
+     * @param args  Arguments to supply to the constructor
+     * @return  The newly created object
+     * 
+     * @throws InvocationArgumentException
+     * @throws InvocationErrorException
+     */
+    public ObjectWrapper invokeConstructor(String instanceNameOnObjectBench, String[] args)
+        throws InvocationArgumentException, InvocationErrorException
+    {
         ObjectBench objBench = pkgFrame.getObjectBench();
-        Package pkg =pkgFrame.getPackage();    
+        Package pkg = pkgFrame.getPackage();    
         
+        Debugger debugger = pkgFrame.getProject().getDebugger();
+        String [] argTypes = new String[args.length];
+        DebuggerObject [] argObjects = new DebuggerObject[args.length];
         for (int i = 0; i < args.length; i++) {
-            Object object = args[i];
-            if(object instanceof String) {
-                args[i] = ((String) object).replace('\\','/');
-            }
+            argTypes[i] = "java.lang.String";
+            argObjects[i] = debugger.getMirror(args[i]);
         }
         
-        DebuggerObject debugObject = di.invokeConstructor(args);
+        DebuggerObject debugObject = debugger.instantiateClass(view.getQualifiedName(), argTypes, argObjects);
+        
         ObjectWrapper wrapper = ObjectWrapper.getWrapper(
                 pkgFrame, objBench,
                 debugObject,
@@ -63,25 +75,6 @@ public class ConstructorInvoker {
         pkg.getDebugger().addObject(pkg.getQualifiedName(), wrapper.getName(), debugObject);  
         
         return wrapper;         
-    }
-
-    private ConstructorView getConstructor(View simulationView, Object[] args) {
-        ConstructorView[] constructors = simulationView.getConstructors();
-        for (int i = 0; i < constructors.length; i++) {
-            Class[] parameters = constructors[i].getParameters();
-            boolean argMatch=true;
-            for (int j = 0; j < parameters.length; j++) {
-                Class class1 = parameters[j];
-                if(args[j]==null || !args[j].getClass().equals(class1)) {
-                    argMatch=false;
-                    break;
-                }
-            }
-            if(argMatch) {
-                return constructors[i];
-            }
-        }
-        return null;
     }
 
     private Class getClass(String fullClassname)

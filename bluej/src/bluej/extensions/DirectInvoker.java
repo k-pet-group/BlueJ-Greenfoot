@@ -13,7 +13,7 @@ import bluej.views.*;
  * @author     Damiano Bolla, University of Kent at Canterbury, 2003,2004
  * @author     Clive Miller, University of Kent at Canterbury, 2002
  *
- * @version    $Id: DirectInvoker.java 3713 2005-11-09 01:42:02Z davmac $
+ * @version    $Id: DirectInvoker.java 4052 2006-05-01 11:58:26Z davmac $
  */
 
 class DirectInvoker
@@ -167,6 +167,8 @@ class DirectInvoker
         }
         // A string should be quoted by a couple of "".
         if (i_obj instanceof String) {
+            // DAV it needs more quoting than this!! quote backslashes,
+            // tabs, newlines, control characters!
             return "\"" + i_obj + "\"";
         }
         // An object reference is just the object instance name

@@ -32,7 +32,7 @@ import bluej.Config;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 3898 2006-03-27 23:57:21Z davmac $
+ * @version $Id: ExecServer.java 4052 2006-05-01 11:58:26Z davmac $
  */
 public class ExecServer
 {
@@ -49,6 +49,8 @@ public class ExecServer
     // Parameters for main thread actions
     public static String classToRun;
     public static String methodToRun;
+    public static String [] parameterTypes;
+    public static Object [] arguments;
     public static int execAction;   // EXEC_SHELL, TEST_SETUP or TEST_RUN
     public static Object methodReturn;
     public static Throwable exception;
@@ -56,6 +58,8 @@ public class ExecServer
     // These constant values must match the variable names declared above
     public static final String CLASS_TO_RUN_NAME = "classToRun";
     public static final String METHOD_TO_RUN_NAME = "methodToRun";
+    public static final String PARAMETER_TYPES_NAME = "parameterTypes";
+    public static final String ARGUMENTS_NAME = "arguments";
     public static final String EXEC_ACTION_NAME = "execAction";
     public static final String METHOD_RETURN_NAME = "methodReturn";
     public static final String EXCEPTION_NAME = "exception";
@@ -68,6 +72,8 @@ public class ExecServer
     public static final int EXIT_VM = 4;
     public static final int LOAD_INIT_CLASS = 5;  // load and initialize a class
     public static final int INSTANTIATE_CLASS = 6; // use default constructor
+    public static final int INSTANTIATE_CLASS_ARGS = 7; // use constructor
+        // with specified parameter types and arguments
     
     // Parameter for worker thread actions
     public static int workerAction = EXIT_VM;
@@ -874,7 +880,30 @@ public class ExecServer
                                 throw ite.getCause();
                             }
                             break;
-                        }   
+                        }
+                        case INSTANTIATE_CLASS_ARGS:
+                        {
+                            // Instantiate a class using specified parameter
+                            // types and arguments
+                            clearInputBuffer();
+                            Class c = currentLoader.loadClass(classToRun);
+                            Class [] paramClasses = new Class[parameterTypes.length];
+                            for (int i = 0; i < parameterTypes.length; i++) {
+                                if (classLoader == null)
+                                    classLoader = currentLoader;
+                                
+                                paramClasses[i] = Class.forName(className, false, currentLoader);
+                            }
+                            Constructor cons = c.getDeclaredConstructor(paramClasses);
+                            cons.setAccessible(true);
+                            try {
+                                methodReturn = cons.newInstance(arguments);
+                            }
+                            catch (InvocationTargetException ite) {
+                                throw ite.getCause();
+                            }
+                            break;
+                        }
                         case TEST_SETUP:
                             methodReturn = runTestSetUp(classToRun);
                             break;

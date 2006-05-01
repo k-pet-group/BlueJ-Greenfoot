@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 3982 2006-04-07 03:40:28Z davmac $
+ * @version $Id: VMReference.java 4052 2006-05-01 11:58:26Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -673,6 +673,18 @@ class VMReference
     }
     
     /**
+     * Get an ObjectReference mirroring a String. May throw
+     * VMDisconnectedException, VMOutOfMemoryException.
+     * 
+     * @param value  The string to mirror on the remote VM.
+     * @return       The mirror object
+     */
+    public StringReference getMirror(String value)
+    {
+        return machine.mirrorOf(value);
+    }
+    
+    /**
      * Load a class in the remote machine and return its reference. Note that
      * this function never returns null.
      * 
@@ -825,6 +837,42 @@ class VMReference
             return JdiObject.getDebuggerObject(obj);
     }
 
+    /**
+     * Invoke a particular constructor with arguments. The parameter types
+     * of the constructor must be supplied (String[]) as well as the
+     * argument values (ObjectReference []).
+     * 
+     * @param className  The name of the class to construct an instance of
+     * @param paramTypes The parameter types of the constructor (class names)
+     * @param args      The argument values to use in the constructor call
+     * 
+     * @return  The newly constructed object (or null if error/exception
+     *          occurs)
+     */
+    public JdiObject instantiateClass(String className, String [] paramTypes, ObjectReference [] args)
+    {
+        ObjectReference obj = null;
+        exitStatus = Debugger.NORMAL_EXIT;
+        try {
+            obj = invokeConstructor(className, paramTypes, args);
+        }
+        catch (VMDisconnectedException e) {
+            exitStatus = Debugger.TERMINATED;
+            return null; // debugger state change handled elsewhere 
+        }
+        catch (Exception e) {
+            // remote invocation failed
+            Debug.reportError("starting shell class failed: " + e);
+            e.printStackTrace();
+            exitStatus = Debugger.EXCEPTION;
+            lastException = new ExceptionDescription("Internal BlueJ error: unexpected exception in remote VM\n" + e);
+        }
+        if (obj == null)
+            return null;
+        else
+            return JdiObject.getDebuggerObject(obj);
+    }
+    
     /**
      * Return the status of the last invocation. One of (NORMAL_EXIT,
      * FORCED_EXIT, EXCEPTION, TERMINATED).
@@ -1024,7 +1072,10 @@ class VMReference
                     Value lineNumV = safeInvoke(stackt[i], getLineNum, empty);
                     
                     String className = ((StringReference)classNameV).value();
-                    String fileName = ((StringReference)fileNameV).value();
+                    String fileName = null;
+                    if (fileNameV != null) {
+                        fileName = ((StringReference)fileNameV).value();
+                    }
                     String methodName = ((StringReference)methodNameV).value();
                     int lineNumber = ((IntegerValue)lineNumV).value();
                     stack.add(new SourceLocation(className,fileName,methodName,lineNumber));
@@ -1428,6 +1479,85 @@ class VMReference
                 exceptionEvent(new InvocationException(exception));
         }
         return (ObjectReference) rval;
+    }
+    
+    /**
+     * Invoke a particular constructor with arguments. The parameter types
+     * of the constructor must be supplied (String[]) as well as the
+     * argument values (ObjectReference []).
+     * 
+     * @param className  The name of the class to construct an instance of
+     * @param paramTypes The parameter types of the constructor (class names)
+     * @param args      The argument values to use in the constructor call
+     * 
+     * @return  The newly constructed object
+     */
+    private ObjectReference invokeConstructor(String className, String [] paramTypes, ObjectReference [] args)
+    {
+        // Calls to this method are serialized via serverThreadLock in JdiDebugger
+        
+        serverThreadStartWait();
+        boolean needsMachineResume = false;
+        
+        try {
+            int length = paramTypes.length;
+            if (args.length != length) {
+                throw new IllegalArgumentException();
+            }
+
+            // Store the class, parameter types and arguments
+
+            ArrayType objectArray = (ArrayType) loadClass("[Ljava.lang.Object;");
+            ArrayType stringArray = (ArrayType) loadClass("[Ljava.lang.String;");
+
+            // avoid problems with ObjectCollectedExceptions, see:
+            // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4257193
+            // We suspend the machine which seems to prevent GC from occurring.
+            machine.suspend();
+            needsMachineResume = true;
+            ArrayReference argsArray = objectArray.newInstance(length);
+            ArrayReference typesArray = stringArray.newInstance(length);
+            
+            // Fill the arrays with the correct values
+            for (int i = 0; i < length; i++) {
+                StringReference s = machine.mirrorOf(paramTypes[i]);
+                typesArray.setValue(i, s);
+                argsArray.setValue(i, args[i]);
+            }
+            
+            setStaticFieldValue(serverClass, ExecServer.PARAMETER_TYPES_NAME, typesArray);
+            setStaticFieldValue(serverClass, ExecServer.ARGUMENTS_NAME, argsArray);
+
+            setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, className);
+            setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.INSTANTIATE_CLASS_ARGS));
+            machine.resume();
+            needsMachineResume = false;
+            
+            // Resume the thread, wait for it to finish and the new thread to start
+            serverThreadStarted = false;
+            resumeServerThread();
+            serverThreadStartWait();
+            
+            // Get return value and check for exceptions
+            Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
+            if (rval == null) {
+                ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
+                if (exception != null)
+                    exceptionEvent(new InvocationException(exception));
+            }
+            return (ObjectReference) rval;
+
+        }
+        catch (ClassNotFoundException cnfe) { }
+        catch (ClassNotLoadedException cnle) { }
+        catch (InvalidTypeException ite) { }
+        finally {
+            if (needsMachineResume) {
+                machine.resume();
+            }
+        }
+        
+        return null;
     }
     
     // Calls to this method are serialized via serverThreadLock in JdiDebugger
