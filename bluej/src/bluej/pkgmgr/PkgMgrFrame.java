@@ -54,7 +54,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 3826 2006-03-16 00:48:15Z bquig $
+ * @version $Id: PkgMgrFrame.java 4056 2006-05-01 15:41:24Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -533,7 +533,7 @@ public class PkgMgrFrame extends JFrame
             {
                 enableFunctions(true); // changes menu items
                 updateWindowTitle();
-                show();
+                setVisible(true);
             }
         };
 
@@ -583,12 +583,14 @@ public class PkgMgrFrame extends JFrame
     /**
      * Override standard show to add de-iconify and bring-to-front.
      */
-    public void show()
+    public void setVisible(boolean visible)
     {
-        if (!Config.isGreenfoot()) {
-            super.show();
+        if(!visible) {
+            super.setVisible(false);
+        }
+        else if (!Config.isGreenfoot()) {
+            super.setVisible(true);
             setState(Frame.NORMAL);
-            toFront();
         }
     }
 
@@ -813,7 +815,7 @@ public class PkgMgrFrame extends JFrame
             else {
                 PkgMgrFrame pmf = createFrame(proj.getPackage(""));
                 DialogManager.tileWindow(pmf, this);
-                pmf.show();
+                pmf.setVisible(true);
             }
             return true;
         }
@@ -834,8 +836,8 @@ public class PkgMgrFrame extends JFrame
 
         // if we have any files which failed the copy, we show them now
         if (fails != null && showFailureDialog) {
-            JDialog ifd = new ImportFailedDialog(this, fails);
-            ifd.setVisible(true);
+            JDialog importFailedDlg = new ImportFailedDialog(this, fails);
+            importFailedDlg.setVisible(true);
         }
 
         // add bluej.pkg files through the imported directory structure
@@ -956,7 +958,7 @@ public class PkgMgrFrame extends JFrame
                 }
             }
 
-            pmf.show();
+            pmf.setVisible(true);
 
             return true;
         }
@@ -1609,7 +1611,7 @@ public class PkgMgrFrame extends JFrame
             pmf = createFrame(p);
             DialogManager.tileWindow(pmf, this);
         }
-        pmf.show();
+        pmf.setVisible(true);
     }
 
     /**

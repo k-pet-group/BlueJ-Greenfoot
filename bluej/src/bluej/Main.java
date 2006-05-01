@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 3785 2006-02-16 02:35:45Z davmac $
+ * @version $Id: Main.java 4056 2006-05-01 15:41:24Z mik $
  */
 public class Main
 {
@@ -81,7 +81,7 @@ public class Main
                         PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
 
                         pmf.setLocation(i * 30 + FIRST_X_LOCATION, i * 30 + FIRST_Y_LOCATION);
-                        pmf.show();
+                        pmf.setVisible(true);
                     }
                 }
             }
@@ -130,7 +130,7 @@ public class Main
     {
         PkgMgrFrame frame = PkgMgrFrame.createFrame();
         frame.setLocation(FIRST_X_LOCATION, FIRST_Y_LOCATION);
-        frame.show(); 
+        frame.setVisible(true); 
     }
 
     /**

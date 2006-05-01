@@ -156,7 +156,7 @@ class Identifier
         if (recentFrame != null)
             DialogManager.tileWindow(pmf, recentFrame);
 
-        pmf.show();
+        pmf.setVisible(true);
         return pmf;
     }
 

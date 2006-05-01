@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 3839 2006-03-20 05:09:56Z davmac $
+ * @version $Id: Package.java 4056 2006-05-01 15:41:24Z mik $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1944,7 +1944,7 @@ public final class Package extends Graph
                 pmf = PkgMgrFrame.createFrame(pkg);
             }
 
-            pmf.show();
+            pmf.setVisible(true);
 
             t = (ClassTarget) pkg.getTarget(className);
         }

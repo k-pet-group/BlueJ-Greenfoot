@@ -44,7 +44,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 3762 2006-02-07 02:48:39Z davmac $
+ * @version $Id: Project.java 4056 2006-05-01 15:41:24Z mik $
  */
 public class Project implements DebuggerListener, InspectorManager {
     /**
@@ -986,7 +986,7 @@ public class Project implements DebuggerListener, InspectorManager {
                 Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
                 PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
-                pmf.show();
+                pmf.setVisible(true);
             } else {
                 Debug.message("could not open package under new name");
             }
