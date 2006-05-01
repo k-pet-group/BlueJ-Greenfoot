@@ -55,8 +55,8 @@ How to make a BlueJ release                    (last update 05.01.2006, iau)
         - Change the jarUrl entry for the "pure Java" release to refer to 
           the "all other systems" distribution Jar.
 
-11. In the bugs database, change status of all "RESOLVED" bigs to "CLOSED".
-    When doing this, write "fixed in version XXX" into status whitebord.
+11. In the bugs database, change status of all "RESOLVED" bugs to "CLOSED".
+    When doing this, write "closed in version XXX" into status whitebord.
 
 12. Send a mail message to bluej-announce@bluej.org, announcing the
     release.
