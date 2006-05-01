@@ -224,11 +224,6 @@ implements ActionListener, ListSelectionListener, ItemListener
         FocusManager.setCurrentManager(focusMgr);
     }
 
-    public boolean isFocusTraversable()
-    {
-        return true;
-    }
-
     // ======== EVENT HANDLING INTERFACES =========
 
     // ----- ActionListener interface -----
