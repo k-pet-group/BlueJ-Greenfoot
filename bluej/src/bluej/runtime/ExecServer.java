@@ -32,7 +32,7 @@ import bluej.Config;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 4052 2006-05-01 11:58:26Z davmac $
+ * @version $Id: ExecServer.java 4053 2006-05-01 12:54:58Z davmac $
  */
 public class ExecServer
 {
@@ -892,7 +892,7 @@ public class ExecServer
                                 if (classLoader == null)
                                     classLoader = currentLoader;
                                 
-                                paramClasses[i] = Class.forName(className, false, currentLoader);
+                                paramClasses[i] = Class.forName(parameterTypes[i], false, currentLoader);
                             }
                             Constructor cons = c.getDeclaredConstructor(paramClasses);
                             cons.setAccessible(true);
