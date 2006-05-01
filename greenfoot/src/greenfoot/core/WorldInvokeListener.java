@@ -81,7 +81,7 @@ public class WorldInvokeListener
                 new Thread() {
                     public void run() {
                         try {
-                            Object r = m.invoke(obj, null);
+                            Object r = m.invoke(obj, (Object[])null);
                             update();
                             if (m.getReturnType() != void.class) {
                                 ExpressionInformation ei = new ExpressionInformation(WorldInvokeListener.this.mv, instanceName);
@@ -138,7 +138,7 @@ public class WorldInvokeListener
                     try {
                         final Constructor c = cl.getDeclaredConstructor(new Class[0]);
                         c.setAccessible(true);
-                        Object o = c.newInstance(null);
+                        Object o = c.newInstance((Object[]) null);
                         ActorInstantiationListener invocListener = Greenfoot.getInstance().getInvocationListener();
                         invocListener.localObjectCreated(o);
                     }

@@ -252,6 +252,7 @@ public class Greenfoot
             logger.info("closeThisInstance(): " + project.getName());
             rBlueJ.removeCompileListener(compileListenerForwarder);
             rBlueJ.removeInvocationListener(instantiationListener);
+            storeWindowSize();
             for (RInvocationListener element : invocationListeners) {
                 rBlueJ.removeInvocationListener(element);
             }
@@ -274,6 +275,15 @@ public class Greenfoot
         catch (RemoteException e) {
             e.printStackTrace();
         }
+    }
+    
+    /**
+     * Store the current main window size to the project properties.
+     */
+    private void storeWindowSize()
+    {
+        projectProperties.setInt("mainWindow.width", frame.getWidth());
+        projectProperties.setInt("mainWindow.height", frame.getHeight());
     }
 
     /**

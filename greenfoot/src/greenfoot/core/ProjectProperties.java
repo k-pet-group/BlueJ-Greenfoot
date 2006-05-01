@@ -155,10 +155,6 @@ public class ProjectProperties
     /**
      * Sets a property as in Java's Properties class. It also immediately writes
      * the property to the file.
-     * 
-     * @param key
-     * @param value
-     * @see java.util.Properties
      */
     public void setProperty(String key, String value)
     {
@@ -168,13 +164,29 @@ public class ProjectProperties
 
     /**
      * Gets a property as in Java's Properties class.
-     * 
-     * @param key
-     * @see java.util.Properties
      */
     public String getProperty(String key)
     {
         return properties.getProperty(key);
+    }
+
+    /**
+     * Sets an int property as in Java's Properties class. It also immediately writes
+     * the property to the file.
+     */
+    public void setInt(String key, int value)
+    {
+        properties.setProperty(key, Integer.toString(value));
+        storeProperties();
+    }
+
+    /**
+     * Gets an int property as in Java's Properties class.
+     */
+    public int getInt(String key)
+    {
+        String number = properties.getProperty(key);
+        return Integer.parseInt(number);
     }
 
     /**

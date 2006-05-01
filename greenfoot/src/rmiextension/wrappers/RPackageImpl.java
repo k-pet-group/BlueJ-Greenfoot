@@ -29,7 +29,7 @@ import bluej.views.View;
  * @see bluej.extensions.BPackage
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackageImpl.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: RPackageImpl.java 4057 2006-05-01 16:39:56Z mik $
  */
 public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     implements RPackage
@@ -352,7 +352,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
             Class identifierClass = identifier.getClass();
             Method getBluejPackage = identifierClass.getDeclaredMethod("getBluejPackage", new Class[0]);
             getBluejPackage.setAccessible(true);
-            Package pkg = (bluej.pkgmgr.Package) getBluejPackage.invoke(identifier, null);
+            Package pkg = (bluej.pkgmgr.Package) getBluejPackage.invoke(identifier, (Object[]) null);
             
             return pkg;
         }

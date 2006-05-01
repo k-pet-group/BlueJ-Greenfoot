@@ -74,7 +74,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4050 2006-04-28 15:41:36Z mik $
+ * @version $Id: GreenfootFrame.java 4057 2006-05-01 16:39:56Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -88,6 +88,8 @@ public class GreenfootFrame extends JFrame
     private static final int accelModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     private static final int shiftAccelModifier = accelModifier | KeyEvent.SHIFT_MASK;
 
+    private WorldCanvas worldCanvas;
+    private Dimension worldDimensions;
     private ClassBrowser classBrowser;
     private ControlPanel controlPanel;
     
@@ -187,7 +189,7 @@ public class GreenfootFrame extends JFrame
         JPanel worldPanel = new JPanel(new BorderLayout());
         worldPanel.setBorder(BorderFactory.createEtchedBorder());        
 
-        final WorldCanvas worldCanvas = new WorldCanvas(null);
+        worldCanvas = new WorldCanvas(null);
         worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
         WorldHandler.initialise(project, worldCanvas, null);
@@ -263,7 +265,8 @@ public class GreenfootFrame extends JFrame
 
         instantiateNewWorld(classBrowser);
         pack();
-
+        worldDimensions = worldCanvas.getPreferredSize();
+        
         worldHandler.setSelectionManager(classBrowser.getSelectionManager());
     }
 
@@ -283,18 +286,33 @@ public class GreenfootFrame extends JFrame
     public void pack()
     {
         super.pack();
-        super.pack();   // this seems a bug: if not called twice, it gets the size wrong...
+//        super.pack();   // this seems a bug: if not called twice, it gets the size wrong...
         
-        int width = getSize().width + WORLD_MARGIN;
-        int height = getSize().height + WORLD_MARGIN;
+        int width = getSize().width;
+        int height = getSize().height;
+        boolean change = false;
         
         if (width > getMaximumSize().width) {
             width = getMaximumSize().width;
+            change = true;
         }
         if (height > getMaximumSize().height) {
             height = getMaximumSize().height;
+            change = true;
         }
-        setSize(width, height);
+        if (change) {
+            setSize(width, height);
+        }
+    }
+    
+    /**
+     * Return the preferred size for the frame. The preferred size adds a bit of
+     * spacing to the default size to get a margin around the world display.
+     */
+    public  Dimension getPreferredSize() {
+        Dimension dim = super.getPreferredSize();
+        dim.setSize(dim.width + WORLD_MARGIN, dim.height + WORLD_MARGIN);
+	return dim;
     }
 
     /**
@@ -529,7 +547,9 @@ public class GreenfootFrame extends JFrame
     {
         instantiateNewWorld(classBrowser);
         classBrowser.rebuild();
-        pack();
+        if (worldSizeChanged()) {
+            pack();
+        }
     }
 
     public void compileFailed(RCompileEvent event)
@@ -544,5 +564,17 @@ public class GreenfootFrame extends JFrame
     public Dimension getMaximumSize()
     {
         return Toolkit.getDefaultToolkit().getScreenSize();
+    }
+    
+    private boolean worldSizeChanged()
+    {
+        Dimension dim = worldCanvas.getPreferredSize();
+        if(dim.equals(worldDimensions)) {
+            return false;
+        }
+        else {
+            worldDimensions = dim;
+            return true;
+        }
     }
 }
