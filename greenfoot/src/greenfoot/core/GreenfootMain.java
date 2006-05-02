@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4065 2006-05-02 10:56:34Z mik $
+ * @version $Id: GreenfootMain.java 4068 2006-05-02 11:42:28Z mik $
  */
 public class GreenfootMain
 {
@@ -69,9 +69,6 @@ public class GreenfootMain
 
     /** Map of class names to images */
     private Map classImages = new HashMap();
-
-    /** Project properties for opened packages */
-    private ProjectProperties projectProperties;
 
     /**
      * Forwards compile events to all the compileListeners that has registered
@@ -255,7 +252,6 @@ public class GreenfootMain
     public void closeThisInstance()
     {
         try {
-            System.out.println("close");
             logger.info("closeThisInstance(): " + project.getName());
             rBlueJ.removeCompileListener(compileListenerForwarder);
             rBlueJ.removeInvocationListener(instantiationListener);
@@ -289,6 +285,8 @@ public class GreenfootMain
      */
     private void storeFrameState()
     {
+        ProjectProperties projectProperties = getProject().getProjectProperties();
+        
         projectProperties.setInt("mainWindow.width", frame.getWidth());
         projectProperties.setInt("mainWindow.height", frame.getHeight());
         // store window position
