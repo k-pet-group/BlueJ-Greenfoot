@@ -29,7 +29,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 4071 2006-05-02 13:14:23Z mik $
+ * @version $Id: ControlPanel.java 4072 2006-05-02 14:06:16Z mik $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener, WorldListener
@@ -45,10 +45,7 @@ public class ControlPanel extends Box
     private JPanel runpauseContainer;
     
     private Simulation simulation;
-    private int simulationSpeed = 200;
     
-    private final int MAX_SIMULATION_DELAY = 400;
-
     public ControlPanel(Simulation simulation)
     {
         super(BoxLayout.X_AXIS);
@@ -58,7 +55,6 @@ public class ControlPanel extends Box
         add(createButtonPanel(simulation));
         add(createSpeedSlider());
 
-        simulation.setDelay(getDelay());
         simulation.addSimulationListener(this);
     }
 
@@ -104,11 +100,11 @@ public class ControlPanel extends Box
         speedPanel.add(speedLabel);
         
         int min = 0;
-        int max = MAX_SIMULATION_DELAY;
-        speedSlider = new JSlider(JSlider.HORIZONTAL, min, max, simulationSpeed);
+        int max = simulation.MAX_SIMULATION_SPEED;
+        speedSlider = new JSlider(JSlider.HORIZONTAL, min, max, simulation.getSpeed());
         speedSlider.setPaintLabels(false);
-        speedSlider.setMajorTickSpacing( (min+max) /2);
-        speedSlider.setMinorTickSpacing( (min+max) /4);
+        speedSlider.setMajorTickSpacing( max / 2);
+        speedSlider.setMinorTickSpacing( max / 4);
         speedSlider.setPaintTicks(true);
         speedSlider.addChangeListener(this);
         speedSlider.setToolTipText("Adjusts the execution speed");
@@ -117,6 +113,10 @@ public class ControlPanel extends Box
         return speedPanel;
     }
     
+    
+    /**
+     *
+     */
     public void simulationChanged(SimulationEvent e)
     {
         int etype = e.getType();
@@ -127,32 +127,27 @@ public class ControlPanel extends Box
             runpauseLayout.show(runpauseContainer, "run");
         }
         else if (etype == SimulationEvent.CHANGED_SPEED) {
-            int newDelay = simulation.getDelay();
-            if (newDelay > MAX_SIMULATION_DELAY) {
-                newDelay = MAX_SIMULATION_DELAY;
-            }
-            if (newDelay != simulationSpeed) {
-                simulationSpeed = newDelay;
-                speedSlider.setValue(MAX_SIMULATION_DELAY - simulationSpeed);
+            int newSpeed = simulation.getSpeed();
+            if (newSpeed != speedSlider.getValue()) {
+                speedSlider.setValue(newSpeed);
             }
         }
     }
     
-    private int getDelay()
-    {
-        int value = speedSlider.getValue();
-        return speedSlider.getMaximum() - value;    // invert
-    }
 
+    // ---------- ChangeListener interface (for speed slider changes) -----------
+    
     public void stateChanged(ChangeEvent e)
     {
-        int newDelay = getDelay();
-        if (newDelay != simulationSpeed) {
-            simulationSpeed = newDelay;
-            simulation.setDelay(simulationSpeed);
-        }
+        simulation.setSpeed(speedSlider.getValue());
     }
 
+    // ---------- WorldListener interface -----------
+    
+    /**
+     * A new world was created - we're ready to go.
+     * Enable the simulation functions.
+     */
     public void worldCreated(WorldEvent e)
     {
         runSimulationAction.setEnabled(true);
@@ -160,6 +155,10 @@ public class ControlPanel extends Box
         runOnceSimulationAction.setEnabled(true);
     }
 
+    
+    /**
+     * The world was removed - disable the simulation functions.
+     */
     public void worldRemoved(WorldEvent e)
     {
         runSimulationAction.setEnabled(false);

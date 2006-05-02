@@ -44,7 +44,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4071 2006-05-02 13:14:23Z mik $
+ * @version $Id: GreenfootMain.java 4072 2006-05-02 14:06:16Z mik $
  */
 public class GreenfootMain
 {
@@ -292,7 +292,7 @@ public class GreenfootMain
         projectProperties.setInt("mainWindow.x", loc.x);
         projectProperties.setInt("mainWindow.y", loc.y);
 
-        projectProperties.setInt("simulation.speed", Simulation.getInstance().getDelay());
+        projectProperties.setInt("simulation.speed", Simulation.getInstance().getSpeed());
         
         projectProperties.save();
     }

@@ -26,7 +26,7 @@ import greenfoot.core.WorldHandler;
  * 
  * @author Davin McCall
  * @version 0.6 dev
- * @cvs-version $Id: Greenfoot.java 4063 2006-05-02 10:14:42Z davmac $
+ * @cvs-version $Id: Greenfoot.java 4072 2006-05-02 14:06:16Z mik $
  */
 public class Greenfoot
 {
@@ -57,14 +57,13 @@ public class Greenfoot
     }
     
     /**
-     * Set the delay between simulation steps when the simulation is
-     * running.
+     * Set the speed of the simulation execution.
      *  
-     * @param millis  The delay between simulation steps, in milliseconds
+     * @param speed  The new speed. the value must be in the range (1..100)
      */
-    public static void setSimulationDelay(int millis)
+    public static void setSimulationSpeed(int speed)
     {
-        Simulation.getInstance().setDelay(millis);
+        Simulation.getInstance().setSpeed(speed);
     }
     
     /**

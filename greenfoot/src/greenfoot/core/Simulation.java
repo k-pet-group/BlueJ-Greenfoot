@@ -32,8 +32,11 @@ public class Simulation extends Thread
     private static Simulation instance;
 
     /** for timing the animation */
+    public static final int MAX_SIMULATION_SPEED = 100;
+    private int speed;      // the simulation speed in range (1..100)
+    
     private long lastDelayTime;
-    private int delay;
+    private int delay;      // the speed translated into delay (ms) per step
 
     /**
      * Create new simulation. Leaves the simulation in paused state
@@ -44,6 +47,7 @@ public class Simulation extends Thread
     private Simulation()
     {}
 
+    
     public static void initialize(WorldHandler worldHandler)
     {
         if (instance == null) {
@@ -54,15 +58,15 @@ public class Simulation extends Thread
      
         instance.startedEvent = new SimulationEvent(instance, SimulationEvent.STARTED);
         instance.stoppedEvent = new SimulationEvent(instance, SimulationEvent.STOPPED);
+        instance.setSpeed(50);
         instance.paused = true;
         instance.setPriority(Thread.MIN_PRIORITY);
         instance.start();
     }
 
+    
     /**
      * Returns the simulation if it is initialised. If not, it will return null.
-     * 
-     * @return
      */
     public static Simulation getInstance()
     {
@@ -174,24 +178,34 @@ public class Simulation extends Thread
         listenerList.add(SimulationListener.class, l);
     }
     
-    /**
-     * Set the delay of the simulation to the indicated time.
-     */
-    public void setDelay(int millis)
-    {
-        this.delay = millis;
-    }
     
     /**
-     * Get the current delay between simulation steps.
-     * @return  The delay in milliseconds.
+     * Set the speed of the simulation.
+     *
+     * @param speed  The speed in the range (1..100)
      */
-    public int getDelay()
+    public void setSpeed(int speed)
     {
-        return delay;
+        this.speed = speed;
+        this.delay = (MAX_SIMULATION_SPEED - speed) * 4;
+    }
+    
+    
+    /**
+     * Get the current simulation speed.
+     * @return  The speed in the range (1..100)
+     */
+    public int getSpeed()
+    {
+        return speed;
     }
 
-    public void delay()
+    
+    /**
+     * Cause a delay (wait) according to the current speed setting for this
+     * simulation.
+     */
+    private void delay()
     {
         try {
             long timeElapsed = System.currentTimeMillis() - this.lastDelayTime;
