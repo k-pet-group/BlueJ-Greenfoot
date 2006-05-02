@@ -1,11 +1,15 @@
 package bluej.extensions;
 
-import bluej.debugger.*;
-import bluej.debugmgr.*;
-import bluej.debugmgr.objectbench.*;
-import bluej.pkgmgr.*;
-import bluej.testmgr.record.*;
-import bluej.views.*;
+import bluej.debugger.DebuggerObject;
+import bluej.debugmgr.ExpressionInformation;
+import bluej.debugmgr.Invoker;
+import bluej.debugmgr.ResultWatcher;
+import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.testmgr.record.InvokerRecord;
+import bluej.utility.Utility;
+import bluej.views.CallableView;
+import bluej.views.MethodView;
 
 /**
  * Provides a gateway to invoke methods on objects using a specified set of parameters.
@@ -13,7 +17,7 @@ import bluej.views.*;
  * @author     Damiano Bolla, University of Kent at Canterbury, 2003,2004
  * @author     Clive Miller, University of Kent at Canterbury, 2002
  *
- * @version    $Id: DirectInvoker.java 4052 2006-05-01 11:58:26Z davmac $
+ * @version    $Id: DirectInvoker.java 4061 2006-05-02 08:40:20Z davmac $
  */
 
 class DirectInvoker
@@ -167,9 +171,7 @@ class DirectInvoker
         }
         // A string should be quoted by a couple of "".
         if (i_obj instanceof String) {
-            // DAV it needs more quoting than this!! quote backslashes,
-            // tabs, newlines, control characters!
-            return "\"" + i_obj + "\"";
+            return "\"" + Utility.quoteString(i_obj.toString()) + "\"";
         }
         // An object reference is just the object instance name
         if (i_obj instanceof BObject) {
