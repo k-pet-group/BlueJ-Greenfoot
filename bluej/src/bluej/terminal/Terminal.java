@@ -27,7 +27,7 @@ import bluej.utility.FileUtility;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 3984 2006-04-09 20:05:53Z polle $
+ * @version $Id: Terminal.java 4069 2006-05-02 12:56:41Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -65,7 +65,7 @@ public final class Terminal extends JFrame
     private boolean isActive = false;
     private boolean recordMethodCalls = false;
     private boolean clearOnMethodCall = false;
-    private boolean newMethodCall = false;
+    private boolean newMethodCall = true;
     private boolean errorShown = false;
     private InputBuffer buffer;
 
@@ -201,7 +201,7 @@ public final class Terminal extends JFrame
      * Write some text to error output.
      */
     private void writeToErrorOut(String s)
-    {       
+    {
         erroutBuffer.append(s);
         int endOfLine = erroutBuffer.indexOf("\n");
         while (endOfLine != -1) {
