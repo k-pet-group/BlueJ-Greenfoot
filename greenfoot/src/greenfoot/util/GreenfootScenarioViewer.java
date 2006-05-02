@@ -3,7 +3,6 @@ package greenfoot.util;
 import greenfoot.GreenfootImage;
 import greenfoot.ActorVisitor;
 import greenfoot.World;
-import greenfoot.core.ClassImageManager;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -26,7 +25,7 @@ import bluej.runtime.ExecServer;
  * @author Poul Henriksen
  * 
  */
-public class GreenfootScenarioViewer implements ClassImageManager
+public class GreenfootScenarioViewer
 {
 
     private Simulation sim;
@@ -55,7 +54,6 @@ public class GreenfootScenarioViewer implements ClassImageManager
         }
         
         GreenfootScenarioViewer gs = new GreenfootScenarioViewer();
-        ActorVisitor.setClassImageManager(gs);
         gs.init(worldClassName, worldInitMethod);
         gs.buildGUI();        
     }
@@ -127,14 +125,4 @@ public class GreenfootScenarioViewer implements ClassImageManager
             e.printStackTrace();
         }
     }
-    
-    
-    // --------- ClassImageManager interface ---------
-    
-
-    public GreenfootImage getClassImage(String className)
-    {   
-        return properties.getImage(className);
-    }
-   
 }

@@ -53,7 +53,7 @@ public class ProjectProperties
     public ProjectProperties(File projectDir)
     {
         properties = new Properties();
-        loadProperties(projectDir);
+        load(projectDir);
     }
 
     /**
@@ -63,13 +63,14 @@ public class ProjectProperties
      * @param projectDir The project dir.
      * @throws IllegalArgumentException If directory can't be read or written.
      */
-    private void loadProperties(File projectDir)
+    private void load(File projectDir)
     {
         if (!projectDir.canWrite() || !projectDir.canRead()) {
             throw new IllegalArgumentException(
                     "Project directory must exist and be readable and writable. Project directory: " + projectDir);
         }
-        initialiseFile(projectDir);
+        propsFile = new File(projectDir, GREENFOOT_PKG_NAME);
+
         InputStream is = null;
         try {
             is = new FileInputStream(propsFile);
@@ -90,24 +91,15 @@ public class ProjectProperties
             }
         }
     }
-
-    /**
-     * Creates the file object for this projects properties.
-     * 
-     * @param projectDir
-     */
-    private void initialiseFile(File projectDir)
-    {
-        propsFile = new File(projectDir, GREENFOOT_PKG_NAME);
-    }
-
+    
+    
     /**
      * Stores these properties to the file.
      * 
      * @throws IOException If the properties can't be written to the properties
      *             file.
      */
-    private void storeProperties()
+    public void save()
     {
         OutputStream os = null;
         try {
@@ -126,49 +118,25 @@ public class ProjectProperties
         }
     }
 
-    /**
-     * Writes the API version into the file.
-     */
-    public void storeApiVersion()
-    {
-        properties.setProperty("version", ActorVisitor.getApiVersion().toString());
-        storeProperties();
-    }
-
-    /**
-     * Attempts to find the version number the greenfoot API that a greenfoot
-     * project was created with. If it can not find a version number, it will
-     * return Version.NO_VERSION.
-     * 
-     * @return API version or Version.NO_VERSION
-     */
-    public Version getAPIVersion()
-    {
-        Version version = Version.NO_VERSION;
-        String versionString = properties.getProperty("version");
-        if(versionString != null) {
-            version = new Version(versionString);
-        }
-        return version;
-    }
 
     /**
      * Sets a property as in Java's Properties class. It also immediately writes
      * the property to the file.
      */
-    public void setProperty(String key, String value)
+    public void setString(String key, String value)
     {
         properties.setProperty(key, value);
-        storeProperties();
     }
+
 
     /**
      * Gets a property as in Java's Properties class.
      */
-    public String getProperty(String key)
+    public String getString(String key)
     {
         return properties.getProperty(key);
     }
+
 
     /**
      * Sets an int property as in Java's Properties class. It also immediately writes
@@ -177,8 +145,8 @@ public class ProjectProperties
     public void setInt(String key, int value)
     {
         properties.setProperty(key, Integer.toString(value));
-        storeProperties();
     }
+
 
     /**
      * Gets an int property as in Java's Properties class.
@@ -188,6 +156,7 @@ public class ProjectProperties
         String number = properties.getProperty(key);
         return Integer.parseInt(number);
     }
+
 
     /**
      * Gets an image for the given class. The images are cached to avoid loading
@@ -209,7 +178,7 @@ public class ProjectProperties
                 image = new GreenfootImage("images/greenfoot-logo.png");
             }
             else {
-                String imageName = getProperty("class." + className + ".image");
+                String imageName = getString("class." + className + ".image");
                 if (imageName != null) {
                     image = new GreenfootImage("images/" + imageName);
                 }
@@ -222,12 +191,40 @@ public class ProjectProperties
         return image;
     }
 
+
     /**
      * Remove the cached version of an image for a particular class. This should be
-     * called when the image for the class is set to something different.
+     * called when the image for the class is changed.
      */
     public void removeCachedImage(String className)
     {
         classImages.remove(className);
+    }
+
+
+    /**
+     * Stores the API version.
+     */
+    public void setApiVersion()
+    {
+        properties.setProperty("version", ActorVisitor.getApiVersion().toString());
+    }
+
+
+    /**
+     * Attempts to find the version number the greenfoot API that a greenfoot
+     * project was created with. If it can not find a version number, it will
+     * return Version.NO_VERSION.
+     * 
+     * @return API version or Version.NO_VERSION
+     */
+    public Version getAPIVersion()
+    {
+        Version version = Version.NO_VERSION;
+        String versionString = properties.getProperty("version");
+        if(versionString != null) {
+            version = new Version(versionString);
+        }
+        return version;
     }
 }

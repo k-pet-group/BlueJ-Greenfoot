@@ -28,7 +28,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4062 2006-05-02 09:38:55Z mik $
+ * @version $Id: ProjectManager.java 4065 2006-05-02 10:56:34Z mik $
  */
 public class ProjectManager
     implements PackageListener
@@ -121,7 +121,8 @@ public class ProjectManager
     {
         if(isNewProject(projectDir)) {
             ProjectProperties newProperties = new ProjectProperties(projectDir);
-            newProperties.storeApiVersion();
+            newProperties.setApiVersion();
+            newProperties.save();
         }
         
         boolean doOpen = false;

@@ -74,7 +74,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4062 2006-05-02 09:38:55Z mik $
+ * @version $Id: GreenfootFrame.java 4065 2006-05-02 10:56:34Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -159,6 +159,7 @@ public class GreenfootFrame extends JFrame
 
             public void handleQuit(ApplicationEvent e)
             {
+                System.out.println("Quit");
                 exit();
                 e.setHandled(true);
             }
@@ -479,6 +480,7 @@ public class GreenfootFrame extends JFrame
     private void exit()
     {
         super.dispose();
+        System.out.println("exiting");
         GreenfootMain.getInstance().closeThisInstance();
     }
 

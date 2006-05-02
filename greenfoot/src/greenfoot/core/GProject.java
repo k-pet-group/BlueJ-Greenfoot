@@ -26,6 +26,7 @@ import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
+import bluej.utility.Debug;
 
 /**
  * 
@@ -41,11 +42,23 @@ public class GProject implements InspectorManager
     
     private RProject rProject;
 
-    private ProjectProperties projectProperties = null;
+    private ProjectProperties projectProperties;
     
+    
+    /**
+     * Create a G(reenfoot)Project object. This is a singleton for every
+     * running Greenfoot project (for every VM).
+     */
     public GProject(RProject rmiProject)
     {
         this.rProject = rmiProject;
+        try {
+            projectProperties = new ProjectProperties(getDir());
+        }
+        catch (Exception exc) {
+            Debug.reportError("Could not open greenfoot project properties");
+            exc.printStackTrace();
+        }
     }
 
     public void close()
@@ -103,18 +116,21 @@ public class GProject implements InspectorManager
         return new GPackage(rProject.newPackage(fullyQualifiedName));
     }
 
+
     public File getDir()
         throws ProjectNotOpenException,RemoteException
     {
         return rProject.getDir();
     }
 
+    
     public String getName()
         throws ProjectNotOpenException, RemoteException
     {
         return rProject.getName();
     }
 
+    
     public ObjectInspector getInspectorInstance(DebuggerObject obj,
             String name, Package pkg, InvokerRecord ir, JFrame parent) {
         ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
@@ -135,6 +151,7 @@ public class GProject implements InspectorManager
         
         return inspector;
     }
+    
     
     /**
      * Return an ObjectInspector for an object. The inspector is visible.
@@ -177,6 +194,7 @@ public class GProject implements InspectorManager
 
         return inspector;
     }
+    
     
     /**
      * Return a ClassInspector for a class. The inspector is visible.
@@ -239,6 +257,7 @@ public class GProject implements InspectorManager
         inspectors.clear();
     }
 
+    
     /**
      * Remove an inspector from the list of inspectors for this project
      * @param obj the inspector.
@@ -246,6 +265,7 @@ public class GProject implements InspectorManager
     public void removeInspector(DebuggerObject obj) {
         inspectors.remove(obj);
     }
+    
     
     /**
      * Remove an inspector from the list of inspectors for this project
@@ -255,42 +275,12 @@ public class GProject implements InspectorManager
         inspectors.remove(cls.getName());
     }
     
-    /**
-     * Get a persistent greenfoot property for this project.
-     * @param propName   The name of the property whose value to get
-     * @return   The string value of the property
-     *
-     */
-    public String getProperty(String propName)
-    {
-        loadProperties();
-        return projectProperties.getProperty(propName);
-    }
-    
     
     /**
-     * Set a persistent greenfoot property for this project.
-     * @param propName  The name of the property to set
-     * @param value     The string value of the property
-     * 
-     * @throws PackageNotFoundException
-     * @throws RemoteException
-     * @throws IOException
+     * Retrieve the properties for a package. Loads the properties if necessary.
      */
-    public void setProperty(String propName, String value)
-        throws PackageNotFoundException, RemoteException, IOException
+    public ProjectProperties getProjectProperties()
     {
-        loadProperties();
-        projectProperties.setProperty(propName, value);       
-    }
-    
-    private void loadProperties()
-    {
-        // More than one GProject may be created which references the same project.
-        // Properties for a single package must be shared for all instances of GProject,
-        // so we use a global map maintained by the Greenfoot class.
-        if (projectProperties == null) {
-            projectProperties = GreenfootMain.getInstance().getProjectProperties();
-        }
+        return projectProperties;
     }
 }

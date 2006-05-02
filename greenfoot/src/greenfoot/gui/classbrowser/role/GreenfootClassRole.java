@@ -30,7 +30,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 4062 2006-05-02 09:38:55Z mik $
+ * @version $Id: GreenfootClassRole.java 4065 2006-05-02 10:56:34Z mik $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -68,7 +68,7 @@ public class GreenfootClassRole extends ClassRole
      */
     public void changeImage()
     {
-        GreenfootMain.getInstance().removeCachedImage(classView.getClassName());
+        GreenfootMain.getProjectProperties().removeCachedImage(classView.getClassName());
         Image image = getImage();
         if (image != null) {
             Image scaledImage = GreenfootUtil.getScaledImage(image, iconSize.width, iconSize.height);
@@ -81,7 +81,7 @@ public class GreenfootClassRole extends ClassRole
         
         while (gclass != null) {
             String className = gclass.getQualifiedName();
-            GreenfootImage gfImage = GreenfootMain.getInstance().getClassImage(className);
+            GreenfootImage gfImage = GreenfootMain.getProjectProperties().getImage(className);
             if (gfImage != null) {
                 return gfImage;
             }

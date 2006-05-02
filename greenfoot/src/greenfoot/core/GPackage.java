@@ -52,10 +52,6 @@ public class GPackage
         this.project = project;
     }
 
-
-
-    
-    
     
     public void compile(boolean waitCompileEnd)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException

@@ -45,10 +45,9 @@ import bluej.utility.Utility;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4062 2006-05-02 09:38:55Z mik $
+ * @version $Id: GreenfootMain.java 4065 2006-05-02 10:56:34Z mik $
  */
 public class GreenfootMain
-    implements ClassImageManager
 {
     /** Greenfoot is a singleton - this is the instance. */
     private static GreenfootMain instance;
@@ -98,6 +97,48 @@ public class GreenfootMain
         }
     };
 
+    
+    // ----------- static methods ------------
+
+    /**
+     * Initializes the singleton. This can only be done once - subsequent calls
+     * will have no effect.
+     */
+    public static void initialize(RBlueJ rBlueJ, RPackage pkg)
+    {
+        if (instance == null) {
+            instance = new GreenfootMain(rBlueJ, pkg);
+            System.setProperty("apple.laf.useScreenMenuBar", "true");
+        }
+    }
+
+
+    /**
+     * Gets the singleton.
+     * 
+     */
+    public static GreenfootMain getInstance()
+    {
+        return instance;
+    }
+
+
+    /**
+     * Gets the properties for the greenfoot project run on this copy of 
+     * greenfoot.
+     */
+    public static ProjectProperties getProjectProperties()
+    {
+        return instance.getProject().getProjectProperties();
+    }
+
+
+    // ----------- instance methods ------------
+
+    /**
+     * Contructor is private. This class is initialised via the 'initialize'
+     * method (below).
+     */
     private GreenfootMain(final RBlueJ rBlueJ, final RPackage pkg)
     {
         instance = this;
@@ -114,22 +155,6 @@ public class GreenfootMain
             e.printStackTrace();
         }
 
-        ActorVisitor.setClassImageManager(this);
-        try {
-            projectProperties = new ProjectProperties(pkg.getDir());
-        }
-        catch (ProjectNotOpenException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (PackageNotFoundException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (RemoteException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
         // Threading avoids deadlock when classbrowser tries to instantiate
         // objects to get images. this is necessy because greenfoot is started
         // from BlueJ-VM which waits for this call to return.
@@ -173,26 +198,6 @@ public class GreenfootMain
         SwingUtilities.invokeLater(t);
     }
 
-    /**
-     * Initializes the singleton. This can only be done once - subsequent calls
-     * will have no effect.
-     */
-    public static void initialize(RBlueJ rBlueJ, RPackage pkg)
-    {
-        if (instance == null) {
-            instance = new GreenfootMain(rBlueJ, pkg);
-            System.setProperty("apple.laf.useScreenMenuBar", "true");
-        }
-    }
-
-    /**
-     * Gets the singleton.
-     * 
-     */
-    public static GreenfootMain getInstance()
-    {
-        return instance;
-    }
 
     /**
      * Opens the project in the given directory.
@@ -209,6 +214,7 @@ public class GreenfootMain
 
     }
 
+    
     /**
      * Opens a file browser to find a greenfoot project
      * 
@@ -249,10 +255,11 @@ public class GreenfootMain
     public void closeThisInstance()
     {
         try {
+            System.out.println("close");
             logger.info("closeThisInstance(): " + project.getName());
             rBlueJ.removeCompileListener(compileListenerForwarder);
             rBlueJ.removeInvocationListener(instantiationListener);
-            storeWindowSize();
+            storeFrameState();
             for (RInvocationListener element : invocationListeners) {
                 rBlueJ.removeInvocationListener(element);
             }
@@ -280,10 +287,13 @@ public class GreenfootMain
     /**
      * Store the current main window size to the project properties.
      */
-    private void storeWindowSize()
+    private void storeFrameState()
     {
         projectProperties.setInt("mainWindow.width", frame.getWidth());
         projectProperties.setInt("mainWindow.height", frame.getHeight());
+        // store window position
+        // store speed slider value
+        projectProperties.save();
     }
 
     /**
@@ -390,29 +400,6 @@ public class GreenfootMain
         return frame;
     }
 
-    /**
-     * Retrieve the properties for a package. Loads the properties if necessary.
-     */
-    public ProjectProperties getProjectProperties()
-    {
-        return projectProperties;
-    }
-
-    // --------- ClassImageManager interface ---------
-
-    public GreenfootImage getClassImage(String className)
-    {
-        return projectProperties.getImage(className);
-    }
-
-    /**
-     * Remove the cached version of an image for a particular class. This should
-     * be called when the image for the class is set to something different.
-     */
-    public void removeCachedImage(String className)
-    {
-        projectProperties.removeCachedImage(className);
-    }
 
     // ========= Private methods ==========
 
@@ -435,7 +422,8 @@ public class GreenfootMain
         validateClassFiles(src, dst);
         GreenfootUtil.copyDir(src, dst);
         ProjectProperties newProperties = new ProjectProperties(projectDir);
-        newProperties.storeApiVersion();
+        newProperties.setApiVersion();
+        newProperties.save();
     }
 
     /**

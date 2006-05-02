@@ -42,7 +42,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4062 2006-05-02 09:38:55Z mik $
+ * @version $Id: ImageLibFrame.java 4065 2006-05-02 10:56:34Z mik $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -555,7 +555,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     world.removeObject(so);
                 } 
 
-                GreenfootImage classImage = GreenfootMain.getInstance().getClassImage(gclass.getQualifiedName());
+                GreenfootImage classImage = GreenfootMain.getProjectProperties().getImage(gclass.getQualifiedName());
                 if (classImage != null && classImage.getAWTImage().equals(awtImage)) {
                     // "generated" image is actually just the class image
                     return null;

@@ -2,8 +2,6 @@ package greenfoot.core;
 
 import greenfoot.event.CompileListener;
 import greenfoot.util.GreenfootUtil;
-
-import java.io.IOException;
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.RClass;
@@ -14,6 +12,7 @@ import bluej.extensions.*;
 import bluej.extensions.ClassNotFoundException;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
+import bluej.utility.Debug;
 
 
 /**
@@ -48,7 +47,7 @@ public class GClass implements CompileListener
     public String getClassProperty(String propertyName)
     {
         try {
-            return pkg.getProject().getProperty("class." + getName() + "." + propertyName);
+            return pkg.getProject().getProjectProperties().getString("class." + getName() + "." + propertyName);
         }
         catch (ProjectNotOpenException e) {
             return null;
@@ -67,19 +66,10 @@ public class GClass implements CompileListener
     public void setClassProperty(String propertyName, String value)
     {
         try {
-            pkg.getProject().setProperty("class." + getName() + "." + propertyName, value);
+            pkg.getProject().getProjectProperties().setString("class." + getName() + "." + propertyName, value);
         }
-        catch (RemoteException re) {
-            // TODO handle/report error
-        }
-        catch (PackageNotFoundException pnfe) {
-            // TODO handle/report error
-        }
-        catch (IOException ioe) {
-            // TODO handle/report error
-        }
-        catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
+        catch (Exception exc) {
+            Debug.reportError("Greenfoot: Could not set class property: " + getName() + "." + propertyName);
         }
     }
     

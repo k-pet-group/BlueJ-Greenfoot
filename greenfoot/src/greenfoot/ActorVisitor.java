@@ -1,6 +1,5 @@
 package greenfoot;
 
-import greenfoot.core.ClassImageManager;
 import greenfoot.util.Circle;
 import greenfoot.util.Version;
 
@@ -43,11 +42,6 @@ public class ActorVisitor
     public static Object getData(Actor actor)
     {
         return actor.getData();
-    }
-    
-    public static void setClassImageManager(ClassImageManager classImageManager)
-    {
-        Actor.setClassImageManager(classImageManager);
     }
     
     /**

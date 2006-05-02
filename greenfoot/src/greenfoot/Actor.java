@@ -1,14 +1,12 @@
 package greenfoot;
 
-import greenfoot.core.ClassImageManager;
+import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
 import greenfoot.util.Circle;
 import greenfoot.util.Version;
 
 import java.net.URL;
 import java.util.List;
-
-import javax.swing.ImageIcon;
 
 /**
  * An Actor is an object that exists in the greenfoot world. 
@@ -65,7 +63,6 @@ public abstract class Actor extends ObjectTransporter
     private Object data;
 
     private static GreenfootImage greenfootImage = new GreenfootImage("images/greenfoot-logo.png");
-    private static ClassImageManager classImageManager;
     private boolean usingClassImage;
 
     /**
@@ -438,16 +435,6 @@ public abstract class Actor extends ObjectTransporter
     }
     
     /**
-     * Set the class image manager for all greenfoot Actors. The image
-     * manager is used to get the default image for objects (i.e. the
-     * image that was set as the class image).
-     */
-    static void setClassImageManager(ClassImageManager classImageManager)
-    {
-        Actor.classImageManager = classImageManager;
-    }
-    
-    /**
      * Check whether the object is using the class image. This is true until
      * getImage() is called, when a copy of the image is made.
      * (package-private method). 
@@ -462,15 +449,13 @@ public abstract class Actor extends ObjectTransporter
      */
     private GreenfootImage getClassImage()
     {
-        if (classImageManager != null) {
-            Class clazz = getClass();
-            while (clazz != null) {
-                GreenfootImage image = classImageManager.getClassImage(clazz.getName());
-                if (image != null) {
-                    return image;
-                }
-                clazz = clazz.getSuperclass();
+        Class clazz = getClass();
+        while (clazz != null) {
+            GreenfootImage image = GreenfootMain.getProjectProperties().getImage(clazz.getName());
+            if (image != null) {
+                return image;
             }
+            clazz = clazz.getSuperclass();
         }
 
         return greenfootImage;
