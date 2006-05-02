@@ -1,6 +1,7 @@
 package greenfoot;
 
 import greenfoot.core.KeyboardManager;
+import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 
 
@@ -16,7 +17,8 @@ import greenfoot.core.WorldHandler;
  * 
  * <ul>
  * <li>"a", "b", .., "z" (alphabetical keys), "0".."9" (digits), most
- *     punctuation marks
+ *     punctuation marks. getKey() also returns uppercase characters when
+ *     appropriate.
  * <li>"up", "down", "left", "right" (the cursor keys)
  * <li>"enter", "space", "tab", "escape"
  * <li>"F1", "F2", .., "F12" (the function keys)
@@ -24,7 +26,7 @@ import greenfoot.core.WorldHandler;
  * 
  * @author Davin McCall
  * @version 0.6 dev
- * @cvs-version $Id: Greenfoot.java 4039 2006-04-27 12:31:44Z davmac $
+ * @cvs-version $Id: Greenfoot.java 4063 2006-05-02 10:14:42Z davmac $
  */
 public class Greenfoot
 {
@@ -52,5 +54,32 @@ public class Greenfoot
     public static boolean isKeyDown(String keyName)
     {
         return keyboardManager.isKeyDown(keyName);
+    }
+    
+    /**
+     * Set the delay between simulation steps when the simulation is
+     * running.
+     *  
+     * @param millis  The delay between simulation steps, in milliseconds
+     */
+    public static void setSimulationDelay(int millis)
+    {
+        Simulation.getInstance().setDelay(millis);
+    }
+    
+    /**
+     * Pause the simulation.
+     */
+    public static void pauseSimulation()
+    {
+        Simulation.getInstance().setPaused(true);
+    }
+    
+    /**
+     * Run (or resume) the simulation.
+     */
+    public static void resumeSimulation()
+    {
+        Simulation.getInstance().setPaused(false);
     }
 }
