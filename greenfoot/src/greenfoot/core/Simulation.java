@@ -173,7 +173,10 @@ public class Simulation extends Thread
     {
         listenerList.add(SimulationListener.class, l);
     }
-
+    
+    /**
+     * Set the delay of the simulation to the indicated time.
+     */
     public void setDelay(int millis)
     {
         this.delay = millis;

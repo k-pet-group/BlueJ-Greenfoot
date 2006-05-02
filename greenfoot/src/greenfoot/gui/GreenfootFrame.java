@@ -74,7 +74,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4068 2006-05-02 11:42:28Z mik $
+ * @version $Id: GreenfootFrame.java 4071 2006-05-02 13:14:23Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -92,6 +92,7 @@ public class GreenfootFrame extends JFrame
     private Dimension worldDimensions;
     private ClassBrowser classBrowser;
     private ControlPanel controlPanel;
+    
     
     /**
      * Creates a new top level frame with all the GUI components
@@ -167,6 +168,7 @@ public class GreenfootFrame extends JFrame
         return macApp;
     }
     
+    
     /**
      * Create the GUI components for this project in the top level frame.
      * This includes opening the project and displaying the project classes.
@@ -209,7 +211,7 @@ public class GreenfootFrame extends JFrame
             }
         });
         
-        JPanel canvasPanel = new JPanel(new CenterLayout()); // this panel is needed for resize behaviour
+        JPanel canvasPanel = new JPanel(new CenterLayout());
         canvasPanel.add(worldCanvas, BorderLayout.CENTER);
         JScrollPane worldScrollPane = new JScrollPane(canvasPanel);
         worldScrollPane.setOpaque(false);

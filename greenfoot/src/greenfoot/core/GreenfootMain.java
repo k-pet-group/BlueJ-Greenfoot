@@ -1,7 +1,6 @@
 package greenfoot.core;
 
 import greenfoot.ActorVisitor;
-import greenfoot.GreenfootImage;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
@@ -35,9 +34,9 @@ import bluej.debugmgr.CallHistory;
 import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
+import java.awt.Point;
 
 /**
  * The main class for greenfoot. This is a singelton (in the JVM). Since each
@@ -45,7 +44,7 @@ import bluej.utility.Utility;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4068 2006-05-02 11:42:28Z mik $
+ * @version $Id: GreenfootMain.java 4071 2006-05-02 13:14:23Z mik $
  */
 public class GreenfootMain
 {
@@ -289,8 +288,12 @@ public class GreenfootMain
         
         projectProperties.setInt("mainWindow.width", frame.getWidth());
         projectProperties.setInt("mainWindow.height", frame.getHeight());
-        // store window position
-        // store speed slider value
+        Point loc = frame.getLocation();
+        projectProperties.setInt("mainWindow.x", loc.x);
+        projectProperties.setInt("mainWindow.y", loc.y);
+
+        projectProperties.setInt("simulation.speed", Simulation.getInstance().getDelay());
+        
         projectProperties.save();
     }
 
@@ -450,10 +453,6 @@ public class GreenfootMain
             GreenfootMain.prepareGreenfootProject(systemLibDir, projectDir);
             return true;
         }
-
-     //   Debug.log("Greenfoot project is not correct API version: " + projectDir);
-     //   Debug.log("Greenfoot API version: " + apiVersion);
-     //   Debug.log("Project API version: " + projectVersion);
 
         if (projectVersion == Version.NO_VERSION) {
             String message = "The project that you are trying to open appears to be an old greenfoot project (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.";
