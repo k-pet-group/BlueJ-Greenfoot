@@ -42,7 +42,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4065 2006-05-02 10:56:34Z mik $
+ * @version $Id: ImageLibFrame.java 4076 2006-05-02 14:32:42Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -120,7 +120,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         contentPane.setBorder(BlueJTheme.dialogBorder);
         
         int spacingLarge = BlueJTheme.componentSpacingLarge;
-        int spacingSmal = BlueJTheme.componentSpacingSmall;
         
         okAction = new AbstractAction("Ok") {
             public void actionPerformed(ActionEvent e)
@@ -273,6 +272,30 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 imageSelPanels.add(piPanel);
             }
             
+            // Category selection panel
+            ImageCategorySelector imageCategorySelector;
+            {
+                Box piPanel = new Box(BoxLayout.Y_AXIS);
+                
+                JLabel piLabel = new JLabel("Image Categories:");
+                piLabel.setAlignmentX(0.0f);
+                piPanel.add(piLabel);
+                
+                JScrollPane jsp = new JScrollPane();
+                
+                File imageDir = Config.getBlueJLibDir();
+                imageDir = new File(imageDir, "imagelib");
+                imageCategorySelector = new ImageCategorySelector(imageDir);
+                
+                jsp.getViewport().setView(imageCategorySelector);
+                
+                jsp.setBorder(Config.normalBorder);
+                jsp.setAlignmentX(0.0f);
+                
+                piPanel.add(jsp);
+                imageSelPanels.add(piPanel);
+            }
+            
             // Greenfoot images panel
             {
                 Box piPanel = new Box(BoxLayout.Y_AXIS);
@@ -283,9 +306,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 
                 JScrollPane jsp = new JScrollPane();
                 
-                File imageDir = Config.getBlueJLibDir();
-                imageDir = new File(imageDir, "imagelib");
-                greenfootImageList = new ImageLibList(imageDir);
+                greenfootImageList = new ImageLibList();
                 jsp.getViewport().setView(greenfootImageList);
                 
                 jsp.setBorder(Config.normalBorder);
@@ -300,6 +321,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             
             projImageList.addListSelectionListener(this);
             greenfootImageList.addListSelectionListener(this);
+            imageCategorySelector.setImageLibList(greenfootImageList);
         }
 
         // Browse button. Select image file from arbitrary location.
@@ -588,7 +610,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             }
         }
         
-        boolean bv = ImageIO.write((RenderedImage) generatedImage, "png", new FileOutputStream(f));
+        ImageIO.write((RenderedImage) generatedImage, "png", new FileOutputStream(f));
         
         return f;
     }

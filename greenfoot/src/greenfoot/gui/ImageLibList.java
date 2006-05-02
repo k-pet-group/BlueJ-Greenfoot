@@ -21,17 +21,57 @@ import javax.swing.*;
  * filenames.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibList.java 3865 2006-03-24 00:08:15Z davmac $
+ * @version $Id: ImageLibList.java 4076 2006-05-02 14:32:42Z davmac $
  */
 public class ImageLibList extends JList
 {
-    public ImageLibList(File directory)
+    private DefaultListModel listModel;
+    
+    /**
+     * Construct an empty ImageLibList.
+     */
+    public ImageLibList()
     {
-        DefaultListModel listModel = new DefaultListModel();
+        listModel = new DefaultListModel();
         setModel(listModel);
         setCellRenderer(new MyCellRenderer());
         setLayoutOrientation(JList.VERTICAL);
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        
+        // A double-click executes the default action for the enclosing frame
+        addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e)
+            {
+                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() >= 2) {
+                    if (getSelectedEntry() != null) {
+                        getRootPane().getDefaultButton().doClick();
+                    }
+                }
+            }
+        });
+    }
+    
+    /**
+     * Construct an empty ImageLibList, and populate it with entries from
+     * the given directory.
+     * 
+     * @param directory  The directory to retrieve images from
+     */
+    public ImageLibList(File directory)
+    {
+        this();
+        setDirectory(directory);
+    }
+
+    /**
+     * Clear the list and re-populate it with images from the given
+     * directory.
+     * 
+     * @param directory   The directory to retrieve images from
+     */
+    public void setDirectory(File directory)
+    {
+        listModel.removeAllElements();
         
         FilenameFilter filter = new FilenameFilter() {
             public boolean accept(File dir, String name)
@@ -49,7 +89,6 @@ public class ImageLibList extends JList
         int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
         
         for (int i = 0; i < imageFiles.length; i++) {
-            String fileName = imageFiles[i].getName();
             try {
                 BufferedImage image = ImageIO.read(imageFiles[i]);
                 if (image != null) {
@@ -63,18 +102,8 @@ public class ImageLibList extends JList
             catch (MalformedURLException mfue) { }
             catch (IOException ioe) { }
         }
-        
-        // A double-click executes the default action for the enclosing frame
-        addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e)
-            {
-                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() >= 2) {
-                    getRootPane().getDefaultButton().doClick();
-                }
-            }
-        });
     }
-    
+        
     /**
      * Get the currently selected entry.
      */
