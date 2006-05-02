@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 4056 2006-05-01 15:41:24Z mik $
+ * @version $Id: Main.java 4070 2006-05-02 12:57:01Z mik $
  */
 public class Main
 {
@@ -36,7 +36,7 @@ public class Main
         Properties commandLineProps = boot.getCommandLineProperties();
 		File bluejLibDir = boot.getBluejLibDir();
 
-        Config.initialise(bluejLibDir,commandLineProps);
+        Config.initialise(bluejLibDir, commandLineProps);
         if (! Config.isGreenfoot()) {
             Config.setVMIconsName("vm.icns");
             Config.setVMDockName("BlueJ Virtual Machine");
@@ -115,8 +115,8 @@ public class Main
                 // TODO: open default project
             }
             else {
-            openEmptyFrame();
-        }
+                openEmptyFrame();
+            }
         }
 
         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
