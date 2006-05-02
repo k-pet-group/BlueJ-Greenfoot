@@ -182,12 +182,20 @@ public class Simulation extends Thread
     /**
      * Set the speed of the simulation.
      *
-     * @param speed  The speed in the range (1..100)
+     * @param speed  The speed in the range (0..100)
      */
     public void setSpeed(int speed)
     {
-        this.speed = speed;
-        this.delay = (MAX_SIMULATION_SPEED - speed) * 4;
+        if (speed < 0) {
+            this.speed = 0;
+        }
+        else if (speed > MAX_SIMULATION_SPEED) {
+            this.speed = MAX_SIMULATION_SPEED;
+        }
+        else {
+            this.speed = speed;
+        }
+        this.delay = (MAX_SIMULATION_SPEED - this.speed) * 4;
     }
     
     
