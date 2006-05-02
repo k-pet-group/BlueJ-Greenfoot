@@ -8,7 +8,7 @@ import java.io.File;
  * finishes, whether it succeeds or fails, and what warnings or errors are 
  * generated.
  * 
- * @version $Id: CompileEvent.java 1988 2003-05-27 09:08:18Z damiano $
+ * @version $Id: CompileEvent.java 4077 2006-05-02 15:13:50Z iau $
  */
 
 /*
@@ -128,8 +128,10 @@ public class CompileEvent implements ExtensionEvent
     aRisul.append(" getFiles().length=");
     aRisul.append(fileNames.length);
     
-    aRisul.append(" getFiles()[0]=");
-    aRisul.append(fileNames[0]);
+    for(int i = 0; i < fileNames.length; i++) {
+        aRisul.append(" getFiles()[" + i + "]=");
+        aRisul.append(fileNames[i]);
+    }
 
     if ( eventId == COMPILE_WARNING_EVENT || eventId == COMPILE_ERROR_EVENT )
       {
