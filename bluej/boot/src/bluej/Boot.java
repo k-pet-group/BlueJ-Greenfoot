@@ -21,7 +21,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 4058 2006-05-02 05:54:57Z bquig $
+ * @version $Id: Boot.java 4064 2006-05-02 10:45:09Z davmac $
  */
 public class Boot
 {
@@ -61,12 +61,19 @@ public class Boot
     // (bluej.runtime.* classes).
     private static String[] bluejUserJars = { "bluejcore.jar", "junit.jar" };
     
+    // The number of jar files in the user jars which are built from the
+    // BlueJ classes directory
+    private static int bluejUserBuildJars = 1;
+    
     // In greenfoot we need access to the BlueJ classes.
     // When running from eclipse, the first jar files will be excluded as explained above at the bluejBuildJars field.
-    private static String[] greenfootUserJars = {"bluejcore.jar", "bluejeditor.jar", "bluejext.jar","antlr.jar", "MRJ141Stubs.jar",
+    private static final String[] greenfootUserJars = {"bluejcore.jar", "bluejeditor.jar", "bluejext.jar","antlr.jar", "MRJ141Stubs.jar",
         "junit.jar", "bluej.jar"};
     
+    private static final int greenfootUserBuildJars = 3;
+    
     private static boolean isGreenfoot = false;
+    
     /**
      * Entry point for booting BlueJ
      *
@@ -106,6 +113,7 @@ public class Boot
         if(isGreenfoot) {
             image = new GreenfootLabel();
             bluejUserJars = greenfootUserJars;
+            bluejUserBuildJars = greenfootUserBuildJars;
         } else {
             image = new BlueJLabel();
         }
@@ -186,21 +194,6 @@ public class Boot
         return bluejLibDir;
     }
 
-
-    /**
-     * Return the path of the Junit library.
-     * @return a File pointing to the local Junit library.
-     */
-    public File getJunitLib ()
-    {
-        File risul = new File(bluejLibDir, "junit.jar");
-
-        if (!risul.canRead())
-            throw new IllegalStateException("junit.jar is missing or unreadable");
-
-        return risul;
-    }
-
     /**
      * Returns the runtime classpath. This contains all the classes for BlueJ.
      *
@@ -264,9 +257,9 @@ public class Boot
         bluejLibDir = calculateBluejLibDir();
 
         try {
-        	runtimeClassPath = getKnownJars(bluejLibDir, bluejJars, true);
+        	runtimeClassPath = getKnownJars(bluejLibDir, bluejJars, true, bluejBuildJars);
         
-        	runtimeUserClassPath = getKnownJars(bluejLibDir, bluejUserJars, false);
+        	runtimeUserClassPath = getKnownJars(bluejLibDir, bluejUserJars, false, bluejUserBuildJars);
         }
         catch (Exception exc) {
             exc.printStackTrace();
@@ -325,10 +318,20 @@ public class Boot
     /**
      * Returns an array of URLs for all the required BlueJ jars
      *
+     * @param libDir  the BlueJ "lib" dir (where the jars are stored)
+     * @param jars    the names of the jar files whose urls to add in the
+     *                returned list
+     * @param isSystem  True if tools.jar should be included in the returned
+     *                  list, on systems that need it
+     * @param numBuildJars  The number of jar files in the jars array which
+     *                  are built from the BlueJ source. If running from eclipse
+     *                  these can be replaced with a single entry - the classes
+     *                  directory.
+     * 
      * @return  URLs of the required JAR files
      * @exception  MalformedURLException  for any problems with the URLs
      */
-    private URL[] getKnownJars(File libDir, String[] jars, boolean isSystem) 
+    private URL[] getKnownJars(File libDir, String[] jars, boolean isSystem, int numBuildJars) 
         throws MalformedURLException
     {
         boolean useClassesDir = commandLineProps.getProperty("useclassesdir", "false").equals("true");
@@ -341,23 +344,35 @@ public class Boot
         // If specified on command line, lets add a ../classes
         // directory to the classpath (where Eclipse stores the
         // .class files)
-        if ((isSystem || isGreenfoot) && useClassesDir) {
-            File classesDir = new File(libDir.getParentFile(), "classes");
+        if (numBuildJars != 0 && useClassesDir) {
+        	File classesDir = new File(libDir.getParentFile(), "classes");
             
             if (classesDir.isDirectory()) {
                 urlList.add(classesDir.toURI().toURL());
+                if (isGreenfoot) {
+                	String gfClassesDir = commandLineProps.getProperty("greenfootclassesdir");
+                	if (gfClassesDir != null) {
+                		classesDir = new File(gfClassesDir);
+                		urlList.add(classesDir.toURI().toURL());
+                	}
+                }
+                
                 // skip over requiring bluejcore.jar, bluejeditor.jar etc.
-                startJar = bluejBuildJars;
+                startJar = numBuildJars;
             }
         }
 
         for (int i=startJar; i < jars.length; i++) {
             File toAdd = new File(libDir, jars[i]);
+            
+            // No need to throw exception at this point; we will get
+            // a ClassNotFoundException or similar if there is really a
+            // problem.
+            //if (!toAdd.canRead())
+            //    throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
 
-            if (!toAdd.canRead())
-                throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
-
-            urlList.add(toAdd.toURI().toURL());
+            if (toAdd.canRead())
+            	urlList.add(toAdd.toURI().toURL());
         }
     
         if (isSystem) {
