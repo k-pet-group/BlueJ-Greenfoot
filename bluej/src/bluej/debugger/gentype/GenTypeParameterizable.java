@@ -10,7 +10,7 @@ import bluej.utility.JavaNames;
  * parameters themselves.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeParameterizable.java 3741 2006-01-16 00:41:18Z davmac $
+ * @version $Id: GenTypeParameterizable.java 4066 2006-05-02 11:10:55Z davmac $
  */
 public abstract class GenTypeParameterizable
     extends JavaType
@@ -147,6 +147,13 @@ public abstract class GenTypeParameterizable
             return toString(nullTransform);
     }
     
+    /**
+     * Returns a string which is a java-source valid type argument,
+     * compatible with this actual type. For an intersection type this
+     * returns a compatible wildcard.
+     * 
+     * @param stripPrefix   True if package prefixes should be stripped
+     */
     public String toTypeArgString(boolean stripPrefix)
     {
         if (stripPrefix)
@@ -155,5 +162,15 @@ public abstract class GenTypeParameterizable
             return toString(nullTransform);
     }
     
+    /**
+     * Returns a string which is a java-source valid type argument
+     * compatible with this actual type, modified using the given name
+     * transform.
+     * 
+     * For an intersection type this returns a compatible wildcard.
+     * 
+     * @param nt
+     * @return
+     */
     abstract public String toTypeArgString(NameTransform nt);
 }

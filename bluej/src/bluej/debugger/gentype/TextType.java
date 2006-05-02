@@ -10,7 +10,7 @@ import java.util.Map;
  * Most operations on this type fail with an UnsupportedOperationException.
  * 
  * @author Davin McCall
- * @version $Id: TextType.java 3741 2006-01-16 00:41:18Z davmac $
+ * @version $Id: TextType.java 4066 2006-05-02 11:10:55Z davmac $
  */
 public class TextType extends GenTypeParameterizable
 {
@@ -131,7 +131,11 @@ public class TextType extends GenTypeParameterizable
 
     public String toTypeArgString(NameTransform nt)
     {
-        throw new UnsupportedOperationException();
+        // throw new UnsupportedOperationException();
+    	
+    	// Text types are generally typed in by the user, and require
+    	// no transformation.
+    	return text;
     }
     
     public GenTypeSolid [] getUpperBounds()
