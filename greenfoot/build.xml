@@ -217,7 +217,7 @@
 		</copy>
 	</target>
 
-	<target name="copy-imagelib" depends="skeleton" description="Copies the images for the image library to bluej">
+	<target name="copy-imagelib" description="Copies the images for the image library to bluej">
 		<copy todir="${bluej.lib}/imagelib">
 			<fileset dir="imagelib"/>
 		</copy>
@@ -242,6 +242,7 @@
 		</delete>
 		<delete dir="${bluej.lib}/skeletonProject"/>
 		<delete dir="${bluej.lib}/startupProject"/>
+		<delete dir="${bluej.lib}/imagelib"/>
     	<delete dir="${bluej.projectdir}/package/scenarios"/>
     	<delete dir="${build}"/>
         <delete >
