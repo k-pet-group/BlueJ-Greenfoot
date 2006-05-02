@@ -29,6 +29,7 @@ public class Simulation extends Thread
 
     private SimulationEvent startedEvent;
     private SimulationEvent stoppedEvent;
+    private SimulationEvent speedChangeEvent;
     private static Simulation instance;
 
     /** for timing the animation */
@@ -52,16 +53,18 @@ public class Simulation extends Thread
     {
         if (instance == null) {
             instance = new Simulation();
+
+            instance.worldHandler = worldHandler;
+            
+            instance.startedEvent = new SimulationEvent(instance, SimulationEvent.STARTED);
+            instance.stoppedEvent = new SimulationEvent(instance, SimulationEvent.STOPPED);
+            instance.speedChangeEvent = new SimulationEvent(instance, SimulationEvent.CHANGED_SPEED);
+            instance.setPriority(Thread.MIN_PRIORITY);
+            instance.start();
         }
      
-        instance.worldHandler = worldHandler;
-     
-        instance.startedEvent = new SimulationEvent(instance, SimulationEvent.STARTED);
-        instance.stoppedEvent = new SimulationEvent(instance, SimulationEvent.STOPPED);
         instance.setSpeed(50);
         instance.paused = true;
-        instance.setPriority(Thread.MIN_PRIORITY);
-        instance.start();
     }
 
     
@@ -187,15 +190,17 @@ public class Simulation extends Thread
     public void setSpeed(int speed)
     {
         if (speed < 0) {
-            this.speed = 0;
+            speed = 0;
         }
         else if (speed > MAX_SIMULATION_SPEED) {
-            this.speed = MAX_SIMULATION_SPEED;
+            speed = MAX_SIMULATION_SPEED;
         }
-        else {
+
+        if(this.speed != speed) {
             this.speed = speed;
+            this.delay = (MAX_SIMULATION_SPEED - speed) * 4;
+            fireSimulationEvent(speedChangeEvent);
         }
-        this.delay = (MAX_SIMULATION_SPEED - this.speed) * 4;
     }
     
     
