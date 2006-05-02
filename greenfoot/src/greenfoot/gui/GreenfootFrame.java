@@ -20,7 +20,7 @@ import greenfoot.actions.ShowWebsiteAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
-import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootMain;
 import greenfoot.core.LocationTracker;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -74,7 +74,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4057 2006-05-01 16:39:56Z mik $
+ * @version $Id: GreenfootFrame.java 4062 2006-05-02 09:38:55Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -130,7 +130,7 @@ public class GreenfootFrame extends JFrame
 
         makeFrame(project);
         addWindowListener(this);
-        Greenfoot.getInstance().addCompileListener(this);
+        GreenfootMain.getInstance().addCompileListener(this);
         
         prepareMacOSApp();
     }
@@ -355,7 +355,7 @@ public class GreenfootFrame extends JFrame
 
         try {
             //pkg = Greenfoot.getInstance().getCurrentPackage();
-            GProject project = Greenfoot.getInstance().getProject();
+            GProject project = GreenfootMain.getInstance().getProject();
             //	TODO when project is empty (a new project) the systemclasses get
             // loaded twice
             GPackage pkg = project.getDefaultPackage();
@@ -479,7 +479,7 @@ public class GreenfootFrame extends JFrame
     private void exit()
     {
         super.dispose();
-        Greenfoot.getInstance().closeThisInstance();
+        GreenfootMain.getInstance().closeThisInstance();
     }
 
 

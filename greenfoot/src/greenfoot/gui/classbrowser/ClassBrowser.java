@@ -3,7 +3,7 @@ package greenfoot.gui.classbrowser;
 import greenfoot.actions.CompileClassAction;
 import greenfoot.actions.EditClassAction;
 import greenfoot.core.GClass;
-import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootMain;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
@@ -31,7 +31,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4051 2006-04-28 16:27:39Z mik $
+ * @version $Id: ClassBrowser.java 4062 2006-05-02 09:38:55Z mik $
  */
 public class ClassBrowser extends JPanel
 {
@@ -104,7 +104,7 @@ public class ClassBrowser extends JPanel
         selectionManager.addSelectionChangeListener(compileClassAction);
         selectionManager.addSelectionChangeListener(editClassAction);
 
-        Greenfoot.getInstance().addCompileListener(classLabel);
+        GreenfootMain.getInstance().addCompileListener(classLabel);
         
         return classLabel;
     }
@@ -132,7 +132,7 @@ public class ClassBrowser extends JPanel
             found = otherClasses.remove(classView);
                 
         buttonGroup.remove(classView);
-        Greenfoot.getInstance().removeCompileListener(classView);
+        GreenfootMain.getInstance().removeCompileListener(classView);
 
         classView.removeSelectionChangeListener(selectionManager);
         rebuild();

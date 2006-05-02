@@ -1,6 +1,6 @@
 package greenfoot.actions;
 
-import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootMain;
 
 import java.awt.event.ActionEvent;
 
@@ -8,7 +8,7 @@ import javax.swing.AbstractAction;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: OpenProjectAction.java 3890 2006-03-27 16:04:42Z mik $
+ * @version $Id: OpenProjectAction.java 4062 2006-05-02 09:38:55Z mik $
  */
 public class OpenProjectAction extends AbstractAction
 {
@@ -33,7 +33,7 @@ public class OpenProjectAction extends AbstractAction
         Thread t = new Thread() {
             public void run()
             {
-                Greenfoot.getInstance().openProjectBrowser();
+                GreenfootMain.getInstance().openProjectBrowser();
             }
         };
         t.start();

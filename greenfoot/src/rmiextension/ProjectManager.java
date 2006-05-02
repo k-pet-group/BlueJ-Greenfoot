@@ -1,6 +1,6 @@
 package rmiextension;
 
-import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootMain;
 import greenfoot.core.GreenfootLauncher;
 import greenfoot.core.ProjectProperties;
 
@@ -28,7 +28,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4052 2006-05-01 11:58:26Z davmac $
+ * @version $Id: ProjectManager.java 4062 2006-05-02 09:38:55Z mik $
  */
 public class ProjectManager
     implements PackageListener
@@ -131,7 +131,7 @@ public class ProjectManager
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             frame.setLocation(screenSize.width / 2, screenSize.height / 2);
             frame.setVisible(true);
-            doOpen = Greenfoot.updateApi(projectDir, bluej.getSystemLibDir(), frame);
+            doOpen = GreenfootMain.updateApi(projectDir, bluej.getSystemLibDir(), frame);
             frame.dispose();
         }
         catch (RemoteException e) {

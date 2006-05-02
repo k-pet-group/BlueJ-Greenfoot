@@ -6,7 +6,7 @@ import greenfoot.actions.NewSubclassAction;
 import greenfoot.actions.RemoveClassAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
-import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.CompileListener;
 import greenfoot.event.ActorInstantiationListener;
@@ -50,7 +50,7 @@ import javax.swing.JToggleButton;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4049 2006-04-28 15:41:12Z mik $
+ * @version $Id: ClassView.java 4062 2006-05-02 09:38:55Z mik $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -414,7 +414,7 @@ public class ClassView extends JToggleButton
 
             Object newObject = constructor.newInstance(new Object[]{});
             logger.info("new Obejct: " + newObject);
-            ActorInstantiationListener invocationListener = Greenfoot.getInstance().getInvocationListener();
+            ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
             if(invocationListener != null) {
                 invocationListener.localObjectCreated(newObject);
             }

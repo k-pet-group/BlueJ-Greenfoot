@@ -2,7 +2,7 @@ package greenfoot.actions;
 
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
-import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootMain;
 import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
@@ -26,7 +26,7 @@ import bluej.extensions.ProjectNotOpenException;
  * An action for creating a new (non-Actor, non-World) class.
  * 
  * @author dam
- * @version $Id: NewClassAction.java 4021 2006-04-26 10:21:09Z davmac $
+ * @version $Id: NewClassAction.java 4062 2006-05-02 09:38:55Z mik $
  */
 public class NewClassAction extends AbstractAction {
 
@@ -49,7 +49,7 @@ public class NewClassAction extends AbstractAction {
 
         String className = dialog.getClassName();
         //GClass gClass = superclass.createSubclass(className);        
-        GPackage pkg = Greenfoot.getInstance().getPackage();
+        GPackage pkg = GreenfootMain.getInstance().getPackage();
 
         try {
             File dir = pkg.getProject().getDir();

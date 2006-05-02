@@ -4,7 +4,7 @@ import greenfoot.GreenfootImage;
 import greenfoot.actions.DragProxyAction;
 import greenfoot.actions.SelectImageAction;
 import greenfoot.core.GClass;
-import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootMain;
 import greenfoot.core.ObjectDragProxy;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
@@ -30,7 +30,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 4016 2006-04-25 16:42:46Z davmac $
+ * @version $Id: GreenfootClassRole.java 4062 2006-05-02 09:38:55Z mik $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -68,7 +68,7 @@ public class GreenfootClassRole extends ClassRole
      */
     public void changeImage()
     {
-        Greenfoot.getInstance().removeCachedImage(classView.getClassName());
+        GreenfootMain.getInstance().removeCachedImage(classView.getClassName());
         Image image = getImage();
         if (image != null) {
             Image scaledImage = GreenfootUtil.getScaledImage(image, iconSize.width, iconSize.height);
@@ -81,7 +81,7 @@ public class GreenfootClassRole extends ClassRole
         
         while (gclass != null) {
             String className = gclass.getQualifiedName();
-            GreenfootImage gfImage = Greenfoot.getInstance().getClassImage(className);
+            GreenfootImage gfImage = GreenfootMain.getInstance().getClassImage(className);
             if (gfImage != null) {
                 return gfImage;
             }

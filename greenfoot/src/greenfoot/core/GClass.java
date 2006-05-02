@@ -35,7 +35,7 @@ public class GClass implements CompileListener
     {
         this.rmiClass = cls;
         this.pkg = pkg;
-        Greenfoot.getInstance().addCompileListener(this);
+        GreenfootMain.getInstance().addCompileListener(this);
         guessSuperclass();
     }
 

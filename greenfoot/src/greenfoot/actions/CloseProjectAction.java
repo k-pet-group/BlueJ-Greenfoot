@@ -1,6 +1,6 @@
 package greenfoot.actions;
 
-import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootMain;
 
 import java.awt.event.ActionEvent;
 
@@ -30,6 +30,6 @@ public class CloseProjectAction extends AbstractAction
     
     public void actionPerformed(ActionEvent e)
     {
-        Greenfoot.getInstance().closeThisInstance();
+        GreenfootMain.getInstance().closeThisInstance();
     }
 }

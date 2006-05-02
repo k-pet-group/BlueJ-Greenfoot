@@ -45,7 +45,7 @@ public class GreenfootLauncher
                 ImageIcon icon = new ImageIcon(iconFile);
                 BlueJTheme.setIconImage(icon.getImage());
 
-                Greenfoot.initialize(blueJ, client.getPackage());
+                GreenfootMain.initialize(blueJ, client.getPackage());
                 logger.info("Greenfoot initialized");
             }
             catch (RemoteException re) {

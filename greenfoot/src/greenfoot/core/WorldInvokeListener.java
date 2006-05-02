@@ -85,7 +85,7 @@ public class WorldInvokeListener
                             update();
                             if (m.getReturnType() != void.class) {
                                 ExpressionInformation ei = new ExpressionInformation(WorldInvokeListener.this.mv, instanceName);
-                                ResultInspector ri = inspectorManager.getResultInspectorInstance(wrapResult(r, m.getReturnType()), instanceName, null, null, ei,  Greenfoot.getInstance().getFrame());
+                                ResultInspector ri = inspectorManager.getResultInspectorInstance(wrapResult(r, m.getReturnType()), instanceName, null, null, ei,  GreenfootMain.getInstance().getFrame());
                                 ri.setVisible(true);
                             }
                         }
@@ -101,8 +101,8 @@ public class WorldInvokeListener
                 }.start();
             }
             else {
-                CallHistory ch = Greenfoot.getInstance().getCallHistory();
-                MethodDialog md = new MethodDialog(Greenfoot.getInstance().getFrame(), null, ch, instanceName, mv, null);
+                CallHistory ch = GreenfootMain.getInstance().getCallHistory();
+                MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(), null, ch, instanceName, mv, null);
                 md.setWatcher(this);
                 md.setVisible(true);
                 
@@ -139,7 +139,7 @@ public class WorldInvokeListener
                         final Constructor c = cl.getDeclaredConstructor(new Class[0]);
                         c.setAccessible(true);
                         Object o = c.newInstance((Object[]) null);
-                        ActorInstantiationListener invocListener = Greenfoot.getInstance().getInvocationListener();
+                        ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
                         invocListener.localObjectCreated(o);
                     }
                     catch (NoSuchMethodException nsme) {}
@@ -154,8 +154,8 @@ public class WorldInvokeListener
             }.start();
         }
         else {
-            CallHistory ch = Greenfoot.getInstance().getCallHistory();
-            MethodDialog md = new MethodDialog(Greenfoot.getInstance().getFrame(), null, ch, "result", cv, null);
+            CallHistory ch = GreenfootMain.getInstance().getCallHistory();
+            MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(), null, ch, "result", cv, null);
             md.setWatcher(this);
             md.setVisible(true);
             
@@ -205,7 +205,7 @@ public class WorldInvokeListener
 
             GPackage pkg = null;
             try {
-                pkg = Greenfoot.getInstance().getProject().getDefaultPackage();
+                pkg = GreenfootMain.getInstance().getProject().getDefaultPackage();
             }
             catch (ProjectNotOpenException e) {
                 // TODO Auto-generated catch block
@@ -253,7 +253,7 @@ public class WorldInvokeListener
                                 Object resultw =  ObjectTracker.getRealObject(rresult);
                                 rresult.removeFromBench();
                                 
-                                ResultInspector ri = inspectorManager.getResultInspectorInstance(new LocalObject(resultw), instanceName, null, null, ei, Greenfoot.getInstance().getFrame());
+                                ResultInspector ri = inspectorManager.getResultInspectorInstance(new LocalObject(resultw), instanceName, null, null, ei, GreenfootMain.getInstance().getFrame());
                                 ri.setVisible(true);
                             }
                             catch (PackageNotFoundException pnfe) {}
@@ -282,7 +282,7 @@ public class WorldInvokeListener
                             RObject rresult = pkg.getObject(resultName);
                             Object resultw =  ObjectTracker.getRealObject(rresult);
                             rresult.removeFromBench();
-                            ActorInstantiationListener invocListener = Greenfoot.getInstance().getInvocationListener();
+                            ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
                             invocListener.localObjectCreated(resultw);
                         }
                     }

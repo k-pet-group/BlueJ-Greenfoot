@@ -1,6 +1,6 @@
 package greenfoot;
 
-import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootMain;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.*;
@@ -21,7 +21,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 0.6 dev
- * @cvs-version $Id: GreenfootImage.java 4024 2006-04-26 15:33:43Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4062 2006-05-02 09:38:55Z mik $
  */
 public class GreenfootImage
 {
@@ -59,7 +59,7 @@ public class GreenfootImage
             return;
         }
         catch (MalformedURLException e) {
-            Greenfoot greenfoot = Greenfoot.getInstance();
+            GreenfootMain greenfoot = GreenfootMain.getInstance();
 
             URL url;
             ClassLoader currentLoader = ExecServer.getCurrentClassLoader();

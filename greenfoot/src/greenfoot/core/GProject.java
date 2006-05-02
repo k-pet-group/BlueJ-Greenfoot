@@ -290,7 +290,7 @@ public class GProject implements InspectorManager
         // Properties for a single package must be shared for all instances of GProject,
         // so we use a global map maintained by the Greenfoot class.
         if (projectProperties == null) {
-            projectProperties = Greenfoot.getInstance().getProjectProperties();
+            projectProperties = GreenfootMain.getInstance().getProjectProperties();
         }
     }
 }

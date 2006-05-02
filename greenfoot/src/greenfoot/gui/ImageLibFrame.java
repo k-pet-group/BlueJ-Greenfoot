@@ -5,7 +5,7 @@ import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
 import greenfoot.World;
 import greenfoot.core.GClass;
-import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootMain;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.GreenfootUtil.ImageWaiter;
@@ -42,7 +42,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 3988 2006-04-11 05:44:52Z davmac $
+ * @version $Id: ImageLibFrame.java 4062 2006-05-02 09:38:55Z mik $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -257,7 +257,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 JScrollPane jsp = new JScrollPane();
                 
                 try {
-                    Greenfoot greenfootInstance = Greenfoot.getInstance();
+                    GreenfootMain greenfootInstance = GreenfootMain.getInstance();
                     File projDir = greenfootInstance.getProject().getDir();
                     projImagesDir = new File(projDir, "images");
                     projImageList = new ImageLibList(projImagesDir);
@@ -555,7 +555,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     world.removeObject(so);
                 } 
 
-                GreenfootImage classImage = Greenfoot.getInstance().getClassImage(gclass.getQualifiedName());
+                GreenfootImage classImage = GreenfootMain.getInstance().getClassImage(gclass.getQualifiedName());
                 if (classImage != null && classImage.getAWTImage().equals(awtImage)) {
                     // "generated" image is actually just the class image
                     return null;

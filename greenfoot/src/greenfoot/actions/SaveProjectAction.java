@@ -1,6 +1,6 @@
 package greenfoot.actions;
 
-import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootMain;
 
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
@@ -35,7 +35,7 @@ public class SaveProjectAction extends AbstractAction
     public void actionPerformed(ActionEvent e)
     {
         try {
-            Greenfoot.getInstance().getProject().save();
+            GreenfootMain.getInstance().getProject().save();
         }
         catch (ProjectNotOpenException e1) {
             Debug.reportError("Could not save project because it is not open.");

@@ -1,6 +1,6 @@
 package greenfoot.actions;
 
-import greenfoot.core.Greenfoot;
+import greenfoot.core.GreenfootMain;
 
 import java.awt.event.ActionEvent;
 
@@ -8,7 +8,7 @@ import javax.swing.AbstractAction;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewProjectAction.java 3890 2006-03-27 16:04:42Z mik $
+ * @version $Id: NewProjectAction.java 4062 2006-05-02 09:38:55Z mik $
  */
 public class NewProjectAction extends AbstractAction
 {
@@ -35,6 +35,6 @@ public class NewProjectAction extends AbstractAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        Greenfoot.getInstance().newProject();
+        GreenfootMain.getInstance().newProject();
     }
 }

@@ -45,13 +45,13 @@ import bluej.utility.Utility;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id$
+ * @version $Id: GreenfootMain.java 4062 2006-05-02 09:38:55Z mik $
  */
-public class Greenfoot
+public class GreenfootMain
     implements ClassImageManager
 {
     /** Greenfoot is a singleton - this is the instance. */
-    private static Greenfoot instance;
+    private static GreenfootMain instance;
 
     /** Used to enable logging. */
     private transient final static Logger logger = Logger.getLogger("greenfoot");
@@ -98,7 +98,7 @@ public class Greenfoot
         }
     };
 
-    private Greenfoot(final RBlueJ rBlueJ, final RPackage pkg)
+    private GreenfootMain(final RBlueJ rBlueJ, final RPackage pkg)
     {
         instance = this;
         this.rBlueJ = rBlueJ;
@@ -140,7 +140,7 @@ public class Greenfoot
                 long t1 = System.currentTimeMillis();
 
                 try {
-                    frame = new GreenfootFrame(Greenfoot.this.rBlueJ, finalProject);
+                    frame = new GreenfootFrame(GreenfootMain.this.rBlueJ, finalProject);
                 }
                 catch (ProjectNotOpenException e2) {
                     e2.printStackTrace();
@@ -156,9 +156,9 @@ public class Greenfoot
 
                 try {
                     instantiationListener = new ActorInstantiationListener(WorldHandler.instance());
-                    Greenfoot.this.rBlueJ.addInvocationListener(instantiationListener);
+                    GreenfootMain.this.rBlueJ.addInvocationListener(instantiationListener);
                     compileListenerForwarder = new CompileListenerForwarder(compileListeners);
-                    Greenfoot.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
+                    GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
                 }
                 catch (RemoteException e) {
                     e.printStackTrace();
@@ -180,7 +180,7 @@ public class Greenfoot
     public static void initialize(RBlueJ rBlueJ, RPackage pkg)
     {
         if (instance == null) {
-            instance = new Greenfoot(rBlueJ, pkg);
+            instance = new GreenfootMain(rBlueJ, pkg);
             System.setProperty("apple.laf.useScreenMenuBar", "true");
         }
     }
@@ -189,7 +189,7 @@ public class Greenfoot
      * Gets the singleton.
      * 
      */
-    public static Greenfoot getInstance()
+    public static GreenfootMain getInstance()
     {
         return instance;
     }
@@ -202,7 +202,7 @@ public class Greenfoot
     public void openProject(String projectDir)
         throws RemoteException
     {
-        boolean doOpen = Greenfoot.updateApi(new File(projectDir), rBlueJ.getSystemLibDir(), frame);
+        boolean doOpen = GreenfootMain.updateApi(new File(projectDir), rBlueJ.getSystemLibDir(), frame);
         if (doOpen) {
             rBlueJ.openProject(projectDir);
         }
@@ -458,10 +458,10 @@ public class Greenfoot
         ProjectProperties newProperties = new ProjectProperties(projectDir);
         Version projectVersion = newProperties.getAPIVersion();
 
-        Version apiVersion = Greenfoot.getAPIVersion();
+        Version apiVersion = GreenfootMain.getAPIVersion();
 
         if (projectVersion.equals(apiVersion)) {
-            Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
+            GreenfootMain.prepareGreenfootProject(systemLibDir, projectDir);
             return true;
         }
 
@@ -476,7 +476,7 @@ public class Greenfoot
                     new JButton[]{continueButton});
             dialog.displayModal();
             System.out.println(message);
-            Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
+            GreenfootMain.prepareGreenfootProject(systemLibDir, projectDir);
             return true;
         }
         else if (projectVersion.compareTo(apiVersion) < 0) {
@@ -487,7 +487,7 @@ public class Greenfoot
             MessageDialog dialog = new MessageDialog(parent, message, "Versions does not match", 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
-            Greenfoot.prepareGreenfootProject(systemLibDir, projectDir);
+            GreenfootMain.prepareGreenfootProject(systemLibDir, projectDir);
             return true;
         }
         else if (projectVersion.compareTo(apiVersion) > 0) { //
