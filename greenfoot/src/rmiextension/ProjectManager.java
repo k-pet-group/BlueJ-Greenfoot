@@ -28,7 +28,7 @@ import bluej.Boot;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4089 2006-05-04 21:03:52Z polle $
+ * @version $Id: ProjectManager.java 4093 2006-05-04 22:04:45Z polle $
  */
 public class ProjectManager
     implements PackageListener
@@ -112,17 +112,10 @@ public class ProjectManager
             ProjectProperties newProperties = new ProjectProperties(projectDir);
             newProperties.setApiVersion();
             newProperties.save();
-        }
-        
+        }        
         boolean doOpen = false;
         try {
-            JFrame frame = new JFrame("NONE");
-            frame.setUndecorated(true);
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            frame.setLocation(screenSize.width / 2, screenSize.height / 2);
-            frame.setVisible(true);
-            doOpen = GreenfootMain.updateApi(projectDir, bluej.getSystemLibDir(), frame);
-            frame.dispose();
+            doOpen = GreenfootMain.updateApi(projectDir, bluej.getSystemLibDir(), null); 
         }
         catch (RemoteException e) {
             // TODO Auto-generated catch block
