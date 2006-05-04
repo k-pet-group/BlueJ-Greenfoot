@@ -5,7 +5,6 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 
 import java.awt.event.ActionEvent;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -33,7 +32,6 @@ public class RunOnceSimulationAction extends AbstractAction
     }
     
 
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
     private Simulation simulation;
 
     private RunOnceSimulationAction()

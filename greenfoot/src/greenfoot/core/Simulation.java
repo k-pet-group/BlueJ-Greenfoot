@@ -7,7 +7,6 @@ import greenfoot.event.SimulationListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.swing.event.EventListenerList;
 
@@ -20,8 +19,6 @@ import javax.swing.event.EventListenerList;
  */
 public class Simulation extends Thread
 {
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
-
     private WorldHandler worldHandler;
     private boolean paused;
 
@@ -60,11 +57,10 @@ public class Simulation extends Thread
             instance.stoppedEvent = new SimulationEvent(instance, SimulationEvent.STOPPED);
             instance.speedChangeEvent = new SimulationEvent(instance, SimulationEvent.CHANGED_SPEED);
             instance.setPriority(Thread.MIN_PRIORITY);
+//            instance.setSpeed(50);
+            instance.paused = true;
             instance.start();
         }
-     
-        instance.setSpeed(50);
-        instance.paused = true;
     }
 
     
@@ -101,7 +97,6 @@ public class Simulation extends Thread
         if (paused) {
             fireSimulationEvent(stoppedEvent);
             System.gc();
-            logger.info("Stoppping Simulation");
         }
         while (paused) {
             try {
@@ -111,7 +106,6 @@ public class Simulation extends Thread
             if (!paused) {
                 System.gc();
                 fireSimulationEvent(startedEvent);
-                logger.info("Starting Simulation");
             }
 
         }

@@ -6,7 +6,6 @@ import java.io.File;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import rmiextension.ProjectManager;
 import rmiextension.wrappers.event.RCompileListener;
@@ -25,7 +24,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 4011 2006-04-25 14:28:08Z polle $
+ * @version $Id: RBlueJImpl.java 4088 2006-05-04 20:36:05Z mik $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -34,8 +33,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
 
     Map listeners = new Hashtable();
 
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
-
+    
     public RBlueJImpl(BlueJ blueJ)
         throws RemoteException
     {

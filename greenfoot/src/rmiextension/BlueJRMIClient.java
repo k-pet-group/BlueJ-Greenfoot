@@ -1,13 +1,10 @@
 package rmiextension;
 
-import greenfoot.util.GreenfootLogger;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.logging.Logger;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPackage;
@@ -17,28 +14,22 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIClient.java 3552 2005-09-06 15:53:28Z polle $
+ * @version $Id: BlueJRMIClient.java 4088 2006-05-04 20:36:05Z mik $
  */
 public class BlueJRMIClient implements BlueJPropStringSource
 {
 
     RBlueJ blueJ = null;
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
     private static BlueJRMIClient instance;
 
     private RPackage pkg;
 
     public BlueJRMIClient(String prjDir, String pkgName)
     {
-        GreenfootLogger.init();
-
         instance = this;
 
         try {
-            logger.info("Looking for BlueJRMIClient RMI service ");
             blueJ = (RBlueJ) Naming.lookup("rmi://localhost/BlueJService");
-            logger.info("BlueJRMIClient RMI service found");
-
         }
         catch (MalformedURLException e) {
             e.printStackTrace();

@@ -26,11 +26,11 @@ import greenfoot.core.WorldHandler;
  * 
  * @author Davin McCall
  * @version 0.6 dev
- * @cvs-version $Id: Greenfoot.java 4072 2006-05-02 14:06:16Z mik $
+ * @cvs-version $Id: Greenfoot.java 4088 2006-05-04 20:36:05Z mik $
  */
 public class Greenfoot
 {
-    private static KeyboardManager keyboardManager = WorldHandler.instance().getKeyboardManager();
+    private static KeyboardManager keyboardManager = WorldHandler.getInstance().getKeyboardManager();
     
     /**
      * Get the most recently pressed key, since the last time this method was

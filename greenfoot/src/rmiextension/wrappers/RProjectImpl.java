@@ -2,7 +2,6 @@ package rmiextension.wrappers;
 
 import java.io.File;
 import java.rmi.RemoteException;
-import java.util.logging.Logger;
 
 import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
@@ -11,13 +10,11 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProjectImpl.java 3262 2005-01-12 03:30:49Z davmac $
+ * @version $Id: RProjectImpl.java 4088 2006-05-04 20:36:05Z mik $
  */
 public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     implements RProject
 {
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
-
     //	The BlueJ-package (from extensions) that is wrapped
     BProject bProject;
 
@@ -76,7 +73,6 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         throws ProjectNotOpenException, PackageAlreadyExistsException, RemoteException
     {
         BPackage bPackage = bProject.newPackage(fullyQualifiedName);
-        logger.info("opened pkg: " + bPackage);
         RPackage wrapper = null;
         wrapper = WrapperPool.instance().getWrapper(bPackage);
 

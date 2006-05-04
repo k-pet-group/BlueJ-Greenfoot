@@ -14,7 +14,6 @@ import java.awt.FlowLayout;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -31,12 +30,10 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4062 2006-05-02 09:38:55Z mik $
+ * @version $Id: ClassBrowser.java 4088 2006-05-04 20:36:05Z mik $
  */
 public class ClassBrowser extends JPanel
 {
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
-
     private static String simObj = "greenfoot.Actor";
     private static String worldObj = "greenfoot.World";
 

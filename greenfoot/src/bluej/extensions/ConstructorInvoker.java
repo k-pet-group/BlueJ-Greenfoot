@@ -1,7 +1,5 @@
 package bluej.extensions;
 
-import java.util.logging.Logger;
-
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.objectbench.ObjectBench;
@@ -19,7 +17,6 @@ import bluej.views.View;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  */
 public class ConstructorInvoker {
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
     private PkgMgrFrame pkgFrame;
     private BProject prj;
 

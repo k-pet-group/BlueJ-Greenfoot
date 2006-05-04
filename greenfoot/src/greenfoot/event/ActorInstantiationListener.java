@@ -72,7 +72,7 @@ public class ActorInstantiationListener extends RInvocationListenerImpl
             worldHandler.repaint();
         }
         else if(realObject instanceof greenfoot.World) {
-            worldHandler.installNewWorld((World) realObject);
+            worldHandler.setWorld((World) realObject);
         }
     }
 

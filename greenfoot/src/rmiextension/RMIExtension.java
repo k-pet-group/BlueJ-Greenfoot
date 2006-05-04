@@ -1,11 +1,8 @@
 package rmiextension;
 
-import greenfoot.util.GreenfootLogger;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Logger;
 
 import bluej.Config;
 import bluej.extensions.BlueJ;
@@ -18,12 +15,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 4010 2006-04-25 13:19:37Z polle $
+ * @version $Id: RMIExtension.java 4088 2006-05-04 20:36:05Z mik $
  */
 public class RMIExtension extends Extension
     implements Runnable
 {
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
     private BlueJ theBlueJ;
 
     /**
@@ -31,11 +27,7 @@ public class RMIExtension extends Extension
      */
     public void run()
     {
-        GreenfootLogger.init();
-
-        logger.info("greenfoot Extension running...");
         new BlueJRMIServer(theBlueJ);
-        logger.info("Server running running");
 
         waitForPkgMgrFrame();
 
@@ -44,13 +36,9 @@ public class RMIExtension extends Extension
         //If not we must open the dummy project
         boolean openOrphans = "true".equals(Config.getPropString("bluej.autoOpenLastProject"));
         if (openOrphans && PkgMgrFrame.hadOrphanPackages()) {
-            logger.info("Reopening last opened packages (orphaned)");
         }
         else {
-            logger.info("No autopeneing of previous packages. Opening dummy");
             openStartupProject();
-            logger.info("dummy project opened");
-
         }
         //  theBlueJ.addCompileListener(ProjectLauncher.instance());
 

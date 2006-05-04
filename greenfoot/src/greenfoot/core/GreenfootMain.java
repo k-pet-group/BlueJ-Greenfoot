@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
@@ -34,6 +33,7 @@ import bluej.debugmgr.CallHistory;
 import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 import java.awt.Point;
@@ -44,15 +44,12 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4072 2006-05-02 14:06:16Z mik $
+ * @version $Id: GreenfootMain.java 4088 2006-05-04 20:36:05Z mik $
  */
 public class GreenfootMain
 {
     /** Greenfoot is a singleton - this is the instance. */
     private static GreenfootMain instance;
-
-    /** Used to enable logging. */
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
 
     /** The connection to BlueJ via RMI */
     private RBlueJ rBlueJ;
@@ -102,9 +99,9 @@ public class GreenfootMain
      */
     public static void initialize(RBlueJ rBlueJ, RPackage pkg)
     {
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
         if (instance == null) {
             instance = new GreenfootMain(rBlueJ, pkg);
-            System.setProperty("apple.laf.useScreenMenuBar", "true");
         }
     }
 
@@ -139,68 +136,49 @@ public class GreenfootMain
     {
         instance = this;
         this.rBlueJ = rBlueJ;
+
         try {
+            frame = new GreenfootFrame(rBlueJ);
+        
             this.pkg = new GPackage(pkg);
             this.project = this.pkg.getProject();
+            
+            restoreFrameState();
+            frame.setVisible(true);
             // Config is initialized in GreenfootLauncher
         }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
+        catch (Exception exc) {
+            Debug.reportError("could not create greenfoot main", exc);
         }
 
         // Threading avoids deadlock when classbrowser tries to instantiate
         // objects to get images. this is necessy because greenfoot is started
         // from BlueJ-VM which waits for this call to return.
-        final GProject finalProject = project;
-        Thread t = new Thread() {
+        Thread openThread = new Thread() {
             public void run()
             {
-                long t1 = System.currentTimeMillis();
-
                 try {
-                    frame = new GreenfootFrame(GreenfootMain.this.rBlueJ, finalProject);
-                }
-                catch (ProjectNotOpenException e2) {
-                    e2.printStackTrace();
-                }
-                catch (RemoteException e2) {
-                    e2.printStackTrace();
-                }
-                logger.info("Frame created");
+                    frame.openProject(GreenfootMain.this.project);
+                    Utility.bringToFront();
 
-                frame.setVisible(true);
-                Utility.bringToFront();
-                logger.info("Frame visible");
-
-                try {
-                    instantiationListener = new ActorInstantiationListener(WorldHandler.instance());
+                    instantiationListener = new ActorInstantiationListener(WorldHandler.getInstance());
                     GreenfootMain.this.rBlueJ.addInvocationListener(instantiationListener);
                     compileListenerForwarder = new CompileListenerForwarder(compileListeners);
                     GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
                 }
-                catch (RemoteException e) {
-                    e.printStackTrace();
+                catch (Exception exc) {
+                    Debug.reportError("failed to open project", exc);
                 }
-                catch (ProjectNotOpenException e) {
-                    e.printStackTrace();
-                }
-                long t2 = System.currentTimeMillis();
-                logger.info("Creation of frame took: " + (t2 - t1));
             }
         };
-        SwingUtilities.invokeLater(t);
+        SwingUtilities.invokeLater(openThread);
     }
 
 
     /**
      * Opens the project in the given directory.
-     * 
-     * @param projectDir
      */
-    public void openProject(String projectDir)
+    private void openProject(String projectDir)
         throws RemoteException
     {
         boolean doOpen = GreenfootMain.updateApi(new File(projectDir), rBlueJ.getSystemLibDir(), frame);
@@ -251,7 +229,6 @@ public class GreenfootMain
     public void closeThisInstance()
     {
         try {
-            logger.info("closeThisInstance(): " + project.getName());
             rBlueJ.removeCompileListener(compileListenerForwarder);
             rBlueJ.removeInvocationListener(instantiationListener);
             storeFrameState();
@@ -263,11 +240,9 @@ public class GreenfootMain
                 // TODO maybe open dummy project instead
 
                 // And then exit greenfoot
-                logger.info("exit greenfoot");
                 rBlueJ.exit();
             }
             else {
-                logger.info("closing project: " + project.getName());
                 project.close();
             }
         }
@@ -295,6 +270,25 @@ public class GreenfootMain
         projectProperties.setInt("simulation.speed", Simulation.getInstance().getSpeed());
         
         projectProperties.save();
+    }
+
+    /**
+     * Restore the current main window size from the project properties.
+     */
+    private void restoreFrameState()
+    {
+        ProjectProperties projectProperties = getProject().getProjectProperties();
+        
+        int x = projectProperties.getInt("mainWindow.x");
+        int y = projectProperties.getInt("mainWindow.y");
+
+        int width = projectProperties.getInt("mainWindow.width");
+        int height = projectProperties.getInt("mainWindow.height");
+
+        frame.setBounds(x, y, width, height);
+        
+        int speed = projectProperties.getInt("simulation.speed");
+        Simulation.getInstance().setSpeed(speed);
     }
 
     /**
@@ -339,17 +333,9 @@ public class GreenfootMain
             // externally and the isCompiled state is no longer up-to-date.
             pkg.compileAll(false);
         }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-        }
-        catch (PackageNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        catch (CompilationNotStartedException e) {
-            e.printStackTrace();
+        catch (Exception exc) {
+            Debug.reportError("Compile greenfoot project failed", exc);
+            exc.printStackTrace();
         }
     }
 
@@ -413,7 +399,6 @@ public class GreenfootMain
     private static void prepareGreenfootProject(File blueJLibDir, File projectDir)
     {
         if (isStartupProject(blueJLibDir, projectDir)) {
-            logger.info("GreenfootLauncher: This is startupProject... ");
             return;
         }
 

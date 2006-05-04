@@ -465,7 +465,7 @@ public abstract class Actor extends ObjectTransporter
     {
         World aWorld = world;
         if(aWorld == null) {
-            aWorld = WorldHandler.instance().getWorld();
+            aWorld = WorldHandler.getInstance().getWorld();
         }
         return (int) Math.floor((double) i / aWorld.getCellSize());
     }
@@ -481,7 +481,7 @@ public abstract class Actor extends ObjectTransporter
     {
         World aWorld = world;
         if (aWorld == null) {
-            aWorld = WorldHandler.instance().getWorld();
+            aWorld = WorldHandler.getInstance().getWorld();
         } 
         if (aWorld == null) {
             throw new IllegalStateException(NO_WORLD);
@@ -502,7 +502,7 @@ public abstract class Actor extends ObjectTransporter
     {
         World aWorld = world;
         if (aWorld == null) {
-            aWorld = WorldHandler.instance().getWorld();
+            aWorld = WorldHandler.getInstance().getWorld();
         } 
         if (aWorld == null) {
             throw new IllegalStateException(NO_WORLD);

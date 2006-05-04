@@ -16,7 +16,6 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
@@ -25,13 +24,11 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 4024 2006-04-26 15:33:43Z polle $
+ * @version $Id: WorldCanvas.java 4088 2006-05-04 20:36:05Z mik $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
 {
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
-
     private World world;
     private DropTarget dropTargetListener;
 

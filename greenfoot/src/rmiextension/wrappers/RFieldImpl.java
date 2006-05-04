@@ -3,7 +3,6 @@ package rmiextension.wrappers;
 import greenfoot.util.GreenfootUtil;
 
 import java.rmi.RemoteException;
-import java.util.logging.Logger;
 
 import bluej.extensions.BField;
 import bluej.extensions.BObject;
@@ -13,12 +12,11 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RFieldImpl.java 3995 2006-04-21 10:12:54Z polle $
+ * @version $Id: RFieldImpl.java 4088 2006-05-04 20:36:05Z mik $
  */
 public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
     implements RField
 {
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
     private BField bField;
 
     /**
@@ -101,10 +99,7 @@ public class RFieldImpl extends java.rmi.server.UnicastRemoteObject
                 return wrapper;
             }
             else {
-                logger.info("It is something else: " + fieldValue);
-                logger.info(" We can't use that for anything... return null");
                 return null;
-
             }
         }
         catch (ProjectNotOpenException e) {

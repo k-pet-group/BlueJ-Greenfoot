@@ -12,7 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.net.URL;
-import java.util.logging.Logger;
 
 import javax.swing.*;
 
@@ -38,15 +37,12 @@ import javax.swing.*;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 3988 2006-04-11 05:44:52Z davmac $
+ * @version $Id: DragGlassPane.java 4088 2006-05-04 20:36:05Z mik $
  *  
  */
 public class DragGlassPane extends JComponent
     implements MouseMotionListener, MouseListener
 {
-
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
-
     /** Singleton */
     private static DragGlassPane instance;
 
@@ -204,7 +200,6 @@ public class DragGlassPane extends JComponent
         setVisible(true);
         //Toolkit.getDefaultToolkit().addAWTEventListener(eventListener,
         //        (AWTEvent.MOUSE_MOTION_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK));
-        logger.info("DragGlassPane.startDrag begin: " + this);
     }
 
     /**
@@ -225,7 +220,6 @@ public class DragGlassPane extends JComponent
      */
     private void endDrag()
     {
-        logger.info("DragGlassPane.endDrag: " + this);
         if (lastDropTarget != null) {
             lastDropTarget.dragEnded(data);
         }
@@ -280,7 +274,6 @@ public class DragGlassPane extends JComponent
             //No valid drag object available.
             return;
         }
-        //logger.info("DragGlassPane.move" + e.paramString());
         storePosition(e);
         paintNoDropImage = true;
         boolean doRepaint = true;

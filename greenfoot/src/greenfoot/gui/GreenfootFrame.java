@@ -1,5 +1,6 @@
 package greenfoot.gui;
 
+import bluej.utility.Debug;
 import greenfoot.World;
 import greenfoot.actions.AboutGreenfootAction;
 import greenfoot.actions.CloseProjectAction;
@@ -41,7 +42,6 @@ import java.awt.event.WindowListener;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -74,7 +74,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4071 2006-05-02 13:14:23Z mik $
+ * @version $Id: GreenfootFrame.java 4088 2006-05-04 20:36:05Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -83,25 +83,23 @@ public class GreenfootFrame extends JFrame
     private static final String compileIconFile = "compile.png";
     private static final int WORLD_MARGIN = 40;
 
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
-    
     private static final int accelModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     private static final int shiftAccelModifier = accelModifier | KeyEvent.SHIFT_MASK;
 
     private WorldCanvas worldCanvas;
+    private WorldHandler worldHandler;
     private Dimension worldDimensions;
     private ClassBrowser classBrowser;
     private ControlPanel controlPanel;
     
     
     /**
-     * Creates a new top level frame with all the GUI components
-     * and an open project.
+     * Creates a new top level frame with all the GUI components.
      */
-    public GreenfootFrame(RBlueJ blueJ, final GProject project)
+    public GreenfootFrame(RBlueJ blueJ)
         throws HeadlessException, ProjectNotOpenException, RemoteException
     {
-        super("Greenfoot: " + project.getName());
+        super("Greenfoot");
 //        try {
 //            //HACK to avoid error in class diagram (getPreferredSize stuff) on
 //            // windows, we use cross platform look and feel
@@ -109,17 +107,8 @@ public class GreenfootFrame extends JFrame
 //                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 //            }
 //        }
-//        catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        catch (InstantiationException e) {
-//            e.printStackTrace();
-//        }
-//        catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        }
-//        catch (UnsupportedLookAndFeelException e) {
-//            // TODO Auto-generated catch block
+//        catch (Exception exc) {
+//            Debug.reportError("(greenfoot:) " + exc);
 //            e.printStackTrace();
 //        }
 
@@ -129,7 +118,7 @@ public class GreenfootFrame extends JFrame
         ImageIcon icon = new ImageIcon(iconFile);
         setIconImage(icon.getImage());
 
-        makeFrame(project);
+        makeFrame();
         addWindowListener(this);
         GreenfootMain.getInstance().addCompileListener(this);
 
@@ -170,10 +159,23 @@ public class GreenfootFrame extends JFrame
     
     
     /**
+     * Open a given project into this frame.
+     */
+    public void openProject(GProject project)
+        throws ProjectNotOpenException, RemoteException
+    {
+        this.setTitle("Greenfoot: " + project.getName());
+        populateClassBrowser(classBrowser, project);
+        worldHandler.attachProject(project);
+        instantiateNewWorld(classBrowser);
+    }
+    
+    
+    /**
      * Create the GUI components for this project in the top level frame.
      * This includes opening the project and displaying the project classes.
      */
-    private void makeFrame(GProject project)
+    private void makeFrame()
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // Build the class browser before building the menu, because
@@ -194,8 +196,8 @@ public class GreenfootFrame extends JFrame
         worldCanvas = new WorldCanvas(null);
         worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
-        WorldHandler.initialise(project, worldCanvas, null);
-        WorldHandler worldHandler = WorldHandler.instance();
+        WorldHandler.initialise(worldCanvas);
+        worldHandler = WorldHandler.getInstance();
         Simulation.initialize(worldHandler);
         Simulation sim = Simulation.getInstance();
         
@@ -265,7 +267,6 @@ public class GreenfootFrame extends JFrame
         contentPane.add(centrePanel, BorderLayout.CENTER);
         contentPane.add(eastPanel, BorderLayout.EAST);
 
-        instantiateNewWorld(classBrowser);
         pack();
         worldDimensions = worldCanvas.getPreferredSize();
         
@@ -335,7 +336,7 @@ public class GreenfootFrame extends JFrame
                 if (o instanceof World) {
                     World world = (World) o;
                     if (world != null) {
-                        WorldHandler.instance().setWorld(world);
+                        WorldHandler.getInstance().setWorld(world);
                     }
                     return world;
                 }
@@ -355,11 +356,15 @@ public class GreenfootFrame extends JFrame
         classBrowser.addCompileClassAction(CompileClassAction.getInstance());
         classBrowser.addEditClassAction(EditClassAction.getInstance());
 
+        return classBrowser;
+    }
+
+    /**
+     * Read the classes from a given project and display them in the class browser.
+     */
+    private void populateClassBrowser(ClassBrowser classBrowser, GProject project)
+    {
         try {
-            //pkg = Greenfoot.getInstance().getCurrentPackage();
-            GProject project = GreenfootMain.getInstance().getProject();
-            //	TODO when project is empty (a new project) the systemclasses get
-            // loaded twice
             GPackage pkg = project.getDefaultPackage();
 
             GClass[] classes = pkg.getClasses();
@@ -383,20 +388,9 @@ public class GreenfootFrame extends JFrame
             classBrowser.updateLayout();
             
         }
-        catch (RemoteException e) {
-            e.printStackTrace();
+        catch (Exception exc) {
+            Debug.reportError("Could not open classes in project", exc);
         }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-        }
-        catch (PackageNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (PackageAlreadyExistsException e) {
-            e.printStackTrace();
-        }
-
-        return classBrowser;
     }
 
     /**
@@ -507,32 +501,24 @@ public class GreenfootFrame extends JFrame
 
     public void windowClosing(WindowEvent e)
     {
-        logger.info("WindowClosing");
         exit();
     }
 
-    public void windowClosed(WindowEvent e)
-    {
-        logger.info("WindowClosed");
-    }
+    public void windowClosed(WindowEvent e) {}
 
-    public void windowIconified(WindowEvent e)
-    {}
+    public void windowIconified(WindowEvent e) {}
 
-    public void windowDeiconified(WindowEvent e)
-    {}
+    public void windowDeiconified(WindowEvent e) {}
 
-    public void windowActivated(WindowEvent e)
-    {}
+    public void windowActivated(WindowEvent e) {}
 
-    public void windowDeactivated(WindowEvent e)
-    {}
+    public void windowDeactivated(WindowEvent e) {}
 
     // ----------- CompileListener interface -----------
     
     public void compileStarted(RCompileEvent event)
     {        
-        WorldHandler.instance().reset();
+        WorldHandler.getInstance().reset();
     }
 
     public void compileError(RCompileEvent event)
@@ -571,7 +557,7 @@ public class GreenfootFrame extends JFrame
     private boolean worldSizeChanged()
     {
         Dimension dim = worldCanvas.getPreferredSize();
-        if(dim.equals(worldDimensions)) {
+        if(dim.equals(worldDimensions) || worldDimensions == null) {
             return false;
         }
         else {

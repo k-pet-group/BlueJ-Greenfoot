@@ -1,11 +1,8 @@
 package greenfoot.core;
 
-import greenfoot.util.GreenfootLogger;
-
 import java.io.File;
 import java.net.URL;
 import java.rmi.RemoteException;
-import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 
@@ -13,6 +10,7 @@ import rmiextension.BlueJRMIClient;
 import rmiextension.wrappers.RBlueJ;
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.utility.Debug;
 
 /**
  * An object of GreenfootLauncher is the first object that is created in the
@@ -26,17 +24,13 @@ import bluej.Config;
  */
 public class GreenfootLauncher
 {
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
 
     public GreenfootLauncher()
     {
-        GreenfootLogger.init();
-
         BlueJRMIClient client = BlueJRMIClient.instance();
 
         if (client != null) {
             RBlueJ blueJ = client.getBlueJ();
-            logger.info("RMIClient service found!");
             try {
                 File libdir = blueJ.getSystemLibDir();
                 Config.initializeVMside(libdir, client);
@@ -46,17 +40,13 @@ public class GreenfootLauncher
                 BlueJTheme.setIconImage(icon.getImage());
 
                 GreenfootMain.initialize(blueJ, client.getPackage());
-                logger.info("Greenfoot initialized");
             }
             catch (RemoteException re) {
-                // TODO better error handling.
-                logger.severe("RemoteException occurred. Cannot initialize greenfoot.");
+                re.printStackTrace();
             }
         }
         else {
-            //TODO error message / exception
-            logger.severe("Could not find the RMIClient");
+            Debug.reportError("Could not find the RMIClient");
         }
     }
-
 }

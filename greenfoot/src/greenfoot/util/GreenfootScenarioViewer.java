@@ -74,8 +74,6 @@ public class GreenfootScenarioViewer
 
     private void init(String worldClassName, String worldInitMethod)
     {
-        GreenfootLogger.init();
-        
         try {            
             File projectDir = GreenfootUtil.getDirectoryContaining(worldClassName + ".class");
             properties = new ProjectProperties(projectDir);            
@@ -86,9 +84,9 @@ public class GreenfootScenarioViewer
 
             canvas = new WorldCanvas(world);
 
-            WorldHandler.initialise(null, canvas, world);
-            WorldHandler worldHandler = WorldHandler.instance();
-
+            WorldHandler.initialise(canvas);
+            WorldHandler worldHandler = WorldHandler.getInstance();
+            worldHandler.setWorld(world);
             Simulation.initialize(worldHandler);
             sim = Simulation.getInstance();
 

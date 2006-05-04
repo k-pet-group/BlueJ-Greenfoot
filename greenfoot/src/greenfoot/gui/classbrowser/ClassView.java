@@ -25,7 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -50,7 +49,7 @@ import javax.swing.JToggleButton;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4083 2006-05-04 14:00:11Z davmac $
+ * @version $Id: ClassView.java 4088 2006-05-04 20:36:05Z mik $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -70,8 +69,6 @@ public class ClassView extends JToggleButton
     private static final int GAP = 2;       // spacing between classes
     private static final int SELECTED_BORDER = 3;
 
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
-   
     private GClass gClass;
     private Class realClass; // null if not compiled
     private ClassRole role;
@@ -400,17 +397,13 @@ public class ClassView extends JToggleButton
     {
         try {
             Class cls = getRealClass();
-            logger.info("real class: " + cls);
-            logger.info("*** Class LOADER1: " + this.getClass().getClassLoader());
 
             if (cls == null) {
                 return null;
             }
             Constructor constructor = cls.getConstructor(new Class[]{});
-            logger.info("*** Class LOADER2: " + cls.getClassLoader());
 
             Object newObject = constructor.newInstance(new Object[]{});
-            logger.info("new Obejct: " + newObject);
             ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
             if(invocationListener != null) {
                 invocationListener.localObjectCreated(newObject);

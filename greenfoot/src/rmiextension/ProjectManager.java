@@ -10,7 +10,6 @@ import java.io.File;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 
@@ -28,13 +27,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4065 2006-05-02 10:56:34Z mik $
+ * @version $Id: ProjectManager.java 4088 2006-05-04 20:36:05Z mik $
  */
 public class ProjectManager
     implements PackageListener
 {
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
-
     /** Singleton instance */
     private static ProjectManager instance;
 
@@ -97,7 +94,6 @@ public class ProjectManager
                 }
             }
         }
-        logger.info("ProjectLauncher.packageOpened done ");
     }
 
     /**

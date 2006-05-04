@@ -31,7 +31,6 @@ import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -59,7 +58,6 @@ import javax.swing.BorderFactory;
 public class WorldHandler
     implements MouseListener, KeyListener, DropTarget, DragListener
 {
-    private transient final static Logger logger = Logger.getLogger("greenfoot");
     private World world;
     private WorldCanvas worldCanvas;
     private SelectionManager classSelectionManager;
@@ -77,21 +75,38 @@ public class WorldHandler
     private boolean objectDropped = true; // true if the object was dropped
     
     private KeyboardManager keyboardManager;
-
     private static WorldHandler instance;
     
-    
     private GProject project; 
-    
     private EventListenerList listenerList = new EventListenerList();
-
     private WorldEvent worldEvent;
+
     
+    
+    public static synchronized void initialise(WorldCanvas worldCanvas) 
+    {
+        if(instance == null) {
+            instance = new WorldHandler(worldCanvas);
+        } else {
+            throw (new IllegalStateException("Can only intiliase this singleton once."));
+        }
+    }
+
+
+    /**
+     * Return the singleton instance.
+     */
+    public synchronized static WorldHandler getInstance() 
+    {
+        return instance;
+    }
+
+
     /**
      * Creates a new worldHandler and sets up the connection between worldCanvas
      * and world.
      */
-    private WorldHandler(GProject project, WorldCanvas worldCanvas, World world)
+    private WorldHandler(WorldCanvas worldCanvas)
     {
         worldTitle = new JLabel();
         worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
@@ -104,24 +119,12 @@ public class WorldHandler
         worldCanvas.addKeyListener(this);
         worldCanvas.setDropTargetListener(this);
         LocationTracker.instance().setComponent(worldCanvas);
-        installNewWorld(world);
+        
         keyboardManager = new KeyboardManager();
         DragGlassPane.getInstance().addKeyListener(this);
     }
     
-    public synchronized static WorldHandler instance() 
-    {
-        return instance;
-    }
 
-    public static synchronized void initialise(GProject project, WorldCanvas worldCanvas, World world) 
-    {
-        if(instance == null) {
-            instance = new WorldHandler(project, worldCanvas, world);
-        } else {
-            throw (new IllegalStateException("Can only intiliase this singleton once."));
-        }
-    }
     /**
      * Sets the selection manager.
      * 
@@ -419,17 +422,19 @@ public class WorldHandler
         keyboardManager.keyReleased(e);
     }
 
+    
+    /**
+     * Attaches a project to this handler.
+     */
+    public void attachProject(GProject project)
+    {
+        this.project = project;
+    }
+            
     /**
      * Sets a new world.
-     * 
-     * @param world
      */
     public void setWorld(World world)
-    {
-        installNewWorld(world);
-    }
-
-    public void installNewWorld(World world)
     {
         if(this.world != null) {
             PauseSimulationAction.getInstance().actionPerformed(null);
