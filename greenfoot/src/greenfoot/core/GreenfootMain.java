@@ -44,7 +44,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4088 2006-05-04 20:36:05Z mik $
+ * @version $Id: GreenfootMain.java 4090 2006-05-04 21:27:25Z polle $
  */
 public class GreenfootMain
 {
@@ -405,7 +405,7 @@ public class GreenfootMain
         File src = new File(blueJLibDir, "skeletonProject");
         File dst = projectDir;
 
-        validateClassFiles(src, dst);
+        deleteAllClassFiles(dst);
         GreenfootUtil.copyDir(src, dst);
         ProjectProperties newProperties = new ProjectProperties(projectDir);
         newProperties.setApiVersion();
@@ -420,7 +420,7 @@ public class GreenfootMain
      * API version that requires manual modifications of the API.
      * <p>
      * If is considered safe to open this project with the current API version
-     * the method will return true. value will be 'true'.
+     * the method will return true.
      * 
      * @param project The project in question
      * @return True If we should try to open the project.
@@ -435,7 +435,7 @@ public class GreenfootMain
         Version apiVersion = GreenfootMain.getAPIVersion();
 
         if (projectVersion.equals(apiVersion)) {
-            GreenfootMain.prepareGreenfootProject(systemLibDir, projectDir);
+            //If the version number matches, we assume everything is ok.
             return true;
         }
 
@@ -492,28 +492,16 @@ public class GreenfootMain
     }
 
     /**
-     * Checks whether the old and new source files for Actor and World are the
-     * same. If they are not, the class files are deleted.
+     * Deletes all class files in the directory, including the greenfoot subdirectory.
      */
-    public static void validateClassFiles(File src, File dst)
+    public static void deleteAllClassFiles(File dst) 
     {
-        File newActor = new File(src, "greenfoot/Actor.java");
-        File oldActor = new File(dst, "greenfoot/Actor.java");
-        File actorClassFile = new File(dst, "greenfoot/Actor.class");
-
-        File newWorld = new File(src, "greenfoot/World.java");
-        File oldWorld = new File(dst, "greenfoot/World.java");
-        File gwClassFile = new File(dst, "greenfoot/World.class");
-
-        if (!sameFileContents(newActor, oldActor) || !sameFileContents(newWorld, oldWorld)) {
-
-            deleteClassFiles(dst);
-
-            File greenfootDir = new File(dst, "greenfoot");
-            // the greenfoot dir does not necessarily exist
-            if (greenfootDir.canRead()) {
-                deleteClassFiles(greenfootDir);
-            }
+        deleteClassFiles(dst);
+        
+        File greenfootDir = new File(dst, "greenfoot");
+        // the greenfoot dir does not necessarily exist
+        if (greenfootDir.canRead()) {
+            deleteClassFiles(greenfootDir);
         }
     }
 
@@ -524,7 +512,6 @@ public class GreenfootMain
      */
     private static void deleteClassFiles(File dir)
     {
-        System.out.println("deleting classes in:" + dir);
         String[] classFiles = dir.list(classFilter);
         for (int i = 0; i < classFiles.length; i++) {
             String fileName = classFiles[i];
@@ -533,36 +520,7 @@ public class GreenfootMain
         }
     }
 
-    private static boolean sameFileContents(File f1, File f2)
-    {
-        if (f1.canRead() && f2.canRead()) {
-            if (f1.length() != f2.length()) {
-                return false;
-            }
-            try {
-                FileReader reader1 = new FileReader(f1);
-                FileReader reader2 = new FileReader(f2);
-                int read1;
-
-                try {
-                    while ((read1 = reader1.read()) != -1) {
-                        int read2 = reader2.read();
-                        if (read1 != read2) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-                catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-            catch (FileNotFoundException e) {}
-        }
-        return false;
-    }
-
+   
     /**
      * Checks if the project is the default startup project that is used when no
      * other project is open. It is necessary to have this dummy project,
