@@ -44,7 +44,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4090 2006-05-04 21:27:25Z polle $
+ * @version $Id: GreenfootMain.java 4091 2006-05-04 21:36:22Z mik $
  */
 public class GreenfootMain
 {
@@ -278,17 +278,24 @@ public class GreenfootMain
     private void restoreFrameState()
     {
         ProjectProperties projectProperties = getProject().getProjectProperties();
-        
-        int x = projectProperties.getInt("mainWindow.x");
-        int y = projectProperties.getInt("mainWindow.y");
 
-        int width = projectProperties.getInt("mainWindow.width");
-        int height = projectProperties.getInt("mainWindow.height");
+        try {
+            
+            int x = projectProperties.getInt("mainWindow.x");
+            int y = projectProperties.getInt("mainWindow.y");
 
-        frame.setBounds(x, y, width, height);
-        
-        int speed = projectProperties.getInt("simulation.speed");
-        Simulation.getInstance().setSpeed(speed);
+            int width = projectProperties.getInt("mainWindow.width");
+            int height = projectProperties.getInt("mainWindow.height");
+
+            frame.setBounds(x, y, width, height);
+            
+            int speed = projectProperties.getInt("simulation.speed");
+            Simulation.getInstance().setSpeed(speed);
+        } 
+        catch (NumberFormatException ecx) {
+            // doesn't matter - project not found - just use some default size
+            frame.setBounds(20, 20, 400, 400);
+        }
     }
 
     /**
