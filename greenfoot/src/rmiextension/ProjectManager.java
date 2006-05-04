@@ -20,6 +20,7 @@ import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.Boot;
 
 /**
  * The ProjectManager is on the BlueJ-VM. It monitors pacakage events from BlueJ
@@ -27,7 +28,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4088 2006-05-04 20:36:05Z mik $
+ * @version $Id: ProjectManager.java 4089 2006-05-04 21:03:52Z polle $
  */
 public class ProjectManager
     implements PackageListener
@@ -43,6 +44,7 @@ public class ProjectManager
 
     /** The class that will be instantiated in the greenfoot VM to launch the project */
     private String launchClass = GreenfootLauncher.class.getName();
+    private static final String launcherName = "greenfootLauncher";
 
     private static BlueJ bluej;
 
@@ -78,12 +80,13 @@ public class ProjectManager
      * project.
      */
     private void launchProject(final Project project)
-    {
+    {   
         if (!ProjectManager.instance().isProjectOpen(project)) {
             File projectDir = new File(project.getDir());
             boolean versionOK = checkVersion(projectDir);
             if (versionOK) {
-                ObjectBench.createObject(project, launchClass, "launcher");
+                ObjectBench.createObject(project, launchClass, launcherName, new String[]{
+                project.getDir(), project.getName()});
             }
             else {
                 //If this was the only open project, open the startup project instead.
@@ -94,16 +97,6 @@ public class ProjectManager
                 }
             }
         }
-    }
-
-    /**
-     * Launches the RMI client in the greenfoot-VM.
-     * 
-     */
-    private void launchRmiClient(Project project)
-    {
-        ObjectBench.createObject(project, BlueJRMIClient.class.getName(), "blueJRMIClient", new String[]{
-                project.getDir(), project.getName()});
     }
 
     /**
@@ -212,7 +205,6 @@ public class ProjectManager
             BPackage pkg = event.getPackage();
             if (pkg.getName().equals("") || pkg.getProject().getName().equals("startupProject")) {
                 Project project = new Project(pkg);
-                launchRmiClient(project);
                 launchProject(project);
             }
         }

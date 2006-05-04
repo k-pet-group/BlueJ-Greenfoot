@@ -25,9 +25,9 @@ import bluej.utility.Debug;
 public class GreenfootLauncher
 {
 
-    public GreenfootLauncher()
+    public GreenfootLauncher(String prjDir, String pkgName)
     {
-        BlueJRMIClient client = BlueJRMIClient.instance();
+        BlueJRMIClient client = new BlueJRMIClient(prjDir, pkgName);
 
         if (client != null) {
             RBlueJ blueJ = client.getBlueJ();

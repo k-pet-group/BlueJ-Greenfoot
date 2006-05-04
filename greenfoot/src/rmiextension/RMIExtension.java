@@ -1,5 +1,6 @@
 package rmiextension;
 
+import bluej.Boot;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,7 +16,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 4088 2006-05-04 20:36:05Z mik $
+ * @version $Id: RMIExtension.java 4089 2006-05-04 21:03:52Z polle $
  */
 public class RMIExtension extends Extension
     implements Runnable
@@ -31,9 +32,8 @@ public class RMIExtension extends Extension
 
         waitForPkgMgrFrame();
 
-        //TODO. Now we need to find out if a greenfoot project is automatically
-        // opening
-        //If not we must open the dummy project
+        // Now we need to find out if a greenfoot project is automatically
+        // opening. If not we must open the dummy project
         boolean openOrphans = "true".equals(Config.getPropString("bluej.autoOpenLastProject"));
         if (openOrphans && PkgMgrFrame.hadOrphanPackages()) {
         }
