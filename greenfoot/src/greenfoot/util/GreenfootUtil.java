@@ -1,5 +1,7 @@
 package greenfoot.util;
 
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -15,14 +17,22 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 /**
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 3996 2006-04-21 12:43:29Z polle $
+ * @version $Id: GreenfootUtil.java 4084 2006-05-04 14:01:15Z davmac $
  */
 public class GreenfootUtil
 {
+    // constants for use with createSpacer()
+    public static final int X_AXIS = 0;
+    public static final int Y_AXIS = 1;
+    
     /**
      * Extracts the name of a class from the qualified class name.
      */
@@ -66,6 +76,51 @@ public class GreenfootUtil
             }
         }
         return null;
+    }
+    
+    /**
+     * Get a spacer along the specified axis and with the specified width.
+     * 
+     * A Spacer is like a strut, but with a minimum height/width of 0,
+     * so it will collapse to provide additional space to other
+     * components if necessary.
+     */
+    public static JComponent createSpacer(int axis, int width)
+    {
+        JPanel spacer = new JPanel();
+        
+        spacer.setMinimumSize(new Dimension(0,0));
+        
+        Dimension size = new Dimension();
+        
+        // Preferred size...
+        size.width = 0;
+        size.height = 0;
+        if (axis == X_AXIS) {
+            size.width = width;
+        }
+        else {
+            size.height = width;
+        }
+        spacer.setPreferredSize(size);
+        
+        // Maximum size
+        spacer.setMaximumSize(size);
+
+        spacer.setBorder(null);
+        
+        return spacer;
+    }
+    
+    /**
+     * Create a JLabel suitable for displaying help text (small font).
+     */
+    public static JLabel createHelpLabel()
+    {
+        JLabel helpLabel = new JLabel();
+        Font smallFont = helpLabel.getFont().deriveFont(Font.ITALIC, 11.0f);
+        helpLabel.setFont(smallFont);
+        return helpLabel;
     }
     
     /**
