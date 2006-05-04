@@ -22,7 +22,7 @@ import bluej.extmgr.ExtensionPrefManager;
  *
  * @author  Andrew Patterson
  * @author  Michael Kolling
- * @version $Id: PrefMgrDialog.java 3506 2005-08-07 18:58:32Z damiano $
+ * @version $Id: PrefMgrDialog.java 4080 2006-05-04 10:49:55Z polle $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -96,7 +96,10 @@ public class PrefMgrDialog extends JFrame
     private PrefMgrDialog()
     {
         createPrefPanes();
-        makeDialog();
+       
+        if(! Config.isGreenfoot()) {
+            makeDialog();
+        }
     }
 
     /**

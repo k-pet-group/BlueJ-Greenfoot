@@ -22,7 +22,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: ObjectInspector.java 3704 2005-10-26 02:05:20Z davmac $
+ * @version $Id: ObjectInspector.java 4080 2006-05-04 10:49:55Z polle $
  */
 public class ObjectInspector extends Inspector
 {
@@ -92,7 +92,7 @@ public class ObjectInspector extends Inspector
     protected void makeFrame()
     {
         setTitle(inspectTitle);
-        setBorder(BlueJTheme.roundedShadowBorder);
+        setBorder(BlueJTheme.getRoundedShadowBorder());
 
         // Create the header
 

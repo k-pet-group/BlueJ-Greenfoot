@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  * components for i18n purposes.
  *
  * @author  Bruce Quig
- * @version $Id: BlueJTheme.java 3785 2006-02-16 02:35:45Z davmac $
+ * @version $Id: BlueJTheme.java 4080 2006-05-04 10:49:55Z polle $
  */
 public class BlueJTheme extends DefaultMetalTheme
 {
@@ -56,9 +56,9 @@ public class BlueJTheme extends DefaultMetalTheme
 	public static final Border dialogBorder =
 	    BorderFactory.createEmptyBorder(12,12,12,12);
     
-    public static final Border roundedShadowBorder = new RoundedShadowBorder();
+        private static Border roundedShadowBorder;
 
-	public static final Border shadowBorder = new ShadowBorder();
+	private static Border shadowBorder;
     
 	public static final int commandButtonSpacing = 5;
 	public static final int commandButtonPadding = 12;
@@ -182,6 +182,20 @@ public class BlueJTheme extends DefaultMetalTheme
 		continueButton.setPreferredSize(okCancelDimension);
 		return continueButton;	
 	}
+        
+        public synchronized static Border getRoundedShadowBorder() {
+            if(roundedShadowBorder == null) {
+                roundedShadowBorder = new RoundedShadowBorder();
+            }
+            return roundedShadowBorder;
+        }
+        
+        public synchronized static Border getShadowBorder() {
+            if(roundedShadowBorder == null) {
+                shadowBorder = new ShadowBorder();
+            }
+            return roundedShadowBorder;
+        }
 
 	/**
 	 * Computer the maximum width of the ok, cancel and continue buttons

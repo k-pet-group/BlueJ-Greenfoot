@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 3990 2006-04-11 10:28:49Z polle $
+ * @version $Id: Config.java 4080 2006-05-04 10:49:55Z polle $
  */
 
 public final class Config
@@ -817,6 +817,21 @@ public final class Config
         }
         catch (java.net.MalformedURLException mue) { }
         catch (NullPointerException npe) { }
+        return null;
+    }
+    
+    /**
+     * Find and return an image. The image will have to be tracked. 
+     */
+    public static Image getImage(String propname)
+    {
+        try {
+            java.net.URL u = getImageFile(propname).toURI().toURL();
+            return Toolkit.getDefaultToolkit().createImage(u);
+        }
+        catch (java.net.MalformedURLException mue) { }
+        catch (NullPointerException npe) { }        
+        catch (IOException ioe) { }
         return null;
     }
 

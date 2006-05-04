@@ -20,7 +20,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 3704 2005-10-26 02:05:20Z davmac $
+ * @version $Id: ClassInspector.java 4080 2006-05-04 10:49:55Z polle $
  */
 public class ClassInspector extends Inspector
 {
@@ -86,7 +86,7 @@ public class ClassInspector extends Inspector
             headerString = CLASS_NAME_LABEL + " " + className;
         }
         
-        setBorder(BorderFactory.createCompoundBorder(BlueJTheme.shadowBorder, BorderFactory.createEmptyBorder(10, 10,
+        setBorder(BorderFactory.createCompoundBorder(BlueJTheme.getShadowBorder(), BorderFactory.createEmptyBorder(10, 10,
                 10, 10)));
 
         // Create the header

@@ -21,13 +21,14 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.Boot;
 
 /**
  * The Frame part of the Terminal window used for I/O when running programs
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 4069 2006-05-02 12:56:41Z mik $
+ * @version $Id: Terminal.java 4080 2006-05-04 10:49:55Z polle $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -40,16 +41,10 @@ public final class Terminal extends JFrame
 
     private static final Color fgColour = Color.black;
     private static final Color errorColour = Color.red;
-    private static final Image iconImage =
-        Config.getImageAsIcon("image.icon.terminal").getImage();
 
     private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-        //Event.CTRL_MASK;
 
-    // -- static singleton factory method --
-
-//    static Terminal frame = null;
     static boolean enabled = true;
 
 
@@ -77,28 +72,29 @@ public final class Terminal extends JFrame
     private Writer out = new TerminalWriter(false);
     private Writer err = new TerminalWriter(true);
 
-
+    /** Used for lazy initialisation  */
+    private boolean initialised = false; 
+    
     /**
      * Create a new terminal window with default specifications.
      */
     public Terminal(Project project)
     {
-        this(WINDOWTITLE + " - " + project.getProjectName(), windowWidth, windowHeight);
-
+        super(WINDOWTITLE + " - " + project.getProjectName());
         this.project = project;
+        BlueJEvent.addListener(this);
     }
 
-
+    
     /**
-     * Create a new terminal window.
+     * Initialise the terminal; create the UI.
      */
-    private Terminal(String title, int columns, int rows)
-    {
-        super(title);
-
-        buffer = new InputBuffer(256);
-        makeWindow(columns, rows);
-        BlueJEvent.addListener(this);
+    private synchronized void initialise() {
+        if(! initialised) {            
+            buffer = new InputBuffer(256);
+            makeWindow(windowWidth, windowHeight);
+            initialised = true;
+        }
     }
 
     /**
@@ -106,6 +102,7 @@ public final class Terminal extends JFrame
      */
     public void showHide(boolean show)
     {
+        initialise();
         setVisible(show);
         if(show) {
             text.requestFocus();
@@ -116,7 +113,8 @@ public final class Terminal extends JFrame
      * Return true if the window is currently displayed.
      */
     public boolean isShown()
-    {
+    {       
+        initialise();
         return isShowing();
     }
 
@@ -127,6 +125,7 @@ public final class Terminal extends JFrame
     public void activate(boolean active)
     {
         if(active != isActive) {
+            initialise();
             text.setEditable(active);
             //text.setEnabled(active);
             //text.setBackground(active ? activeBgColour : inactiveBgColour);
@@ -140,6 +139,7 @@ public final class Terminal extends JFrame
      */
     public void clear()
     {
+        initialise();
         text.setText("");
         if(errorText!=null) {
             errorText.setText("");
@@ -153,6 +153,7 @@ public final class Terminal extends JFrame
      */
     public void save()
     {
+        initialise();
         String fileName = FileUtility.getFileName(this,
                                  Config.getString("terminal.save.title"),
                                  Config.getString("terminal.save.buttonText"),
@@ -308,6 +309,7 @@ public final class Terminal extends JFrame
 
     public void keyTyped(KeyEvent event)
     {
+        initialise();
         if(isActive) {
             char ch = event.getKeyChar();
 
@@ -363,6 +365,7 @@ public final class Terminal extends JFrame
      */
     public void blueJEvent(int eventId, Object arg)
     {
+        initialise();
         if(eventId == BlueJEvent.METHOD_CALL) {
             methodCall((String)arg);
         }
@@ -375,8 +378,7 @@ public final class Terminal extends JFrame
      */
     private void makeWindow(int columns, int rows)
     {
-        setIconImage(iconImage);
-
+        setIconImage(Config.getImage("image.icon.terminal"));        
         text = new TermTextArea(rows, columns);
         scrollPane = new JScrollPane(text);
         text.setFont(PrefMgr.getTerminalFont());
@@ -621,6 +623,7 @@ public final class Terminal extends JFrame
     {
         public int read(char[] cbuf, int off, int len)
         {
+            initialise();
             int charsRead = 0;
 
             while(charsRead < len) {
@@ -668,6 +671,7 @@ public final class Terminal extends JFrame
                     EventQueue.invokeAndWait(new Runnable() {
                         public void run()
                         {
+                            initialise();
                             if(isErrorOut) {
                                 writeToErrorOut(new String(cbuf, off, len));
                             }

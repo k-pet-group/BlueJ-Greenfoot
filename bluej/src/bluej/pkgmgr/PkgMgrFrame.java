@@ -54,7 +54,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 4056 2006-05-01 15:41:24Z mik $
+ * @version $Id: PkgMgrFrame.java 4080 2006-05-04 10:49:55Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -452,11 +452,13 @@ public class PkgMgrFrame extends JFrame
     {
         this.pkg = null;
         this.editor = null;
-
-        setupActionDisableSet();
-        makeFrame();
-        updateWindowTitle();
-        setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
+        objbench = new ObjectBench();
+        if(!Config.isGreenfoot()) {
+            setupActionDisableSet();
+            makeFrame();
+            updateWindowTitle();
+            setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
+        }
     }
 
     /**
@@ -474,74 +476,74 @@ public class PkgMgrFrame extends JFrame
         }
 
         this.pkg = pkg;
-        this.editor = new PackageEditor(pkg);
-        editor.setFocusable(true);
-        editor.addMouseListener(this); // This mouse listener MUST be before
-        editor.addFocusListener(this); //  the editor's listener itself!
-        editor.startMouseListening();
-        this.pkg.editor = this.editor;
 
-        classScroller.setViewportView(editor);
-        editor.addPackageEditorListener(this);
-
-        // fetch some properties from the package that interest us
-        Properties p = pkg.getLastSavedProperties();
-
-        try {
-            String width_str = p.getProperty("package.editor.width", Integer.toString(DEFAULT_WIDTH));
-            String height_str = p.getProperty("package.editor.height", Integer.toString(DEFAULT_HEIGHT));
-
-            classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str), Integer.parseInt(height_str)));
-
-            String x_str = p.getProperty("package.editor.x", "30");
-            String y_str = p.getProperty("package.editor.y", "30");
-
-            int x = Integer.parseInt(x_str);
-            int y = Integer.parseInt(y_str);
-
-            if (x > (Config.screenBounds.width - 80))
-                x = Config.screenBounds.width - 80;
-
-            if (y > (Config.screenBounds.height - 80))
-                y = Config.screenBounds.height - 80;
-
-            setLocation(x, y);
-        }
-        catch (NumberFormatException e) {
-            Debug.reportError("Could not read preferred project screen position");
-        }
-
-        String uses_str = p.getProperty("package.showUses", "true");
-        String extends_str = p.getProperty("package.showExtends", "true");
-
-        showUsesMenuItem.setSelected(uses_str.equals("true"));
-        showExtendsMenuItem.setSelected(extends_str.equals("true"));
-
-        updateShowUsesInPackage();
-        updateShowExtendsInPackage();
-
-        pack();
-        editor.revalidate();
-        editor.requestFocus();
-
-        // we have had trouble with BlueJ freezing when
-        // the enable/disable GUI code was run off a menu
-        // item. This code will delay the menu disable
-        // until after menu processing has finished
-        Runnable enableUI = new Runnable() {
-            public void run()
-            {
-                enableFunctions(true); // changes menu items
-                updateWindowTitle();
-                setVisible(true);
+        if(! Config.isGreenfoot()) {
+            this.editor = new PackageEditor(pkg);
+            editor.setFocusable(true);
+            editor.addMouseListener(this); // This mouse listener MUST be before
+            editor.addFocusListener(this); //  the editor's listener itself!
+            editor.startMouseListening();
+            this.pkg.editor = this.editor;
+            
+            classScroller.setViewportView(editor);
+            editor.addPackageEditorListener(this);
+            
+            // fetch some properties from the package that interest us
+            Properties p = pkg.getLastSavedProperties();
+            
+            try {
+                String width_str = p.getProperty("package.editor.width", Integer.toString(DEFAULT_WIDTH));
+                String height_str = p.getProperty("package.editor.height", Integer.toString(DEFAULT_HEIGHT));
+                
+                classScroller.setPreferredSize(new Dimension(Integer.parseInt(width_str), Integer.parseInt(height_str)));
+                
+                String x_str = p.getProperty("package.editor.x", "30");
+                String y_str = p.getProperty("package.editor.y", "30");
+                
+                int x = Integer.parseInt(x_str);
+                int y = Integer.parseInt(y_str);
+                
+                if (x > (Config.screenBounds.width - 80))
+                    x = Config.screenBounds.width - 80;
+                
+                if (y > (Config.screenBounds.height - 80))
+                    y = Config.screenBounds.height - 80;
+                
+                setLocation(x, y);
+            } catch (NumberFormatException e) {
+                Debug.reportError("Could not read preferred project screen position");
             }
-        };
-
-        SwingUtilities.invokeLater(enableUI);
-
-        this.menuManager.setAttachedObject(pkg);
-        this.menuManager.addExtensionMenu(pkg.getProject());
-
+            
+            String uses_str = p.getProperty("package.showUses", "true");
+            String extends_str = p.getProperty("package.showExtends", "true");
+            
+            showUsesMenuItem.setSelected(uses_str.equals("true"));
+            showExtendsMenuItem.setSelected(extends_str.equals("true"));
+            
+            updateShowUsesInPackage();
+            updateShowExtendsInPackage();
+            
+            pack();
+            editor.revalidate();
+            editor.requestFocus();
+            
+            // we have had trouble with BlueJ freezing when
+            // the enable/disable GUI code was run off a menu
+            // item. This code will delay the menu disable
+            // until after menu processing has finished
+            Runnable enableUI = new Runnable() {
+                public void run() {
+                    enableFunctions(true); // changes menu items
+                    updateWindowTitle();
+                    setVisible(true);
+                }
+            };
+            
+            SwingUtilities.invokeLater(enableUI);
+            
+            this.menuManager.setAttachedObject(pkg);
+            this.menuManager.addExtensionMenu(pkg.getProject());
+        }
         extMgr.packageOpened(pkg);
     }
 
@@ -555,13 +557,15 @@ public class PkgMgrFrame extends JFrame
 
         extMgr.packageClosing(pkg);
 
-        classScroller.setViewportView(null);
-        classScroller.setBorder(Config.normalBorder);
-
-        editor.removePackageEditorListener(this);
-        editor.removeMouseListener(this);
-        editor.removeFocusListener(this);
-
+        if(! Config.isGreenfoot()) {
+            classScroller.setViewportView(null);
+            classScroller.setBorder(Config.normalBorder);
+            editor.removePackageEditorListener(this);
+            editor.removeMouseListener(this);
+            editor.removeFocusListener(this);
+            this.menuManager.setAttachedObject(pkg);
+        }
+        
         getObjectBench().removeAllObjects(getProject().getUniqueId());
         clearTextEval();
 
@@ -572,7 +576,6 @@ public class PkgMgrFrame extends JFrame
         editor = null;
         pkg = null;
 
-        this.menuManager.setAttachedObject(pkg);
 
         // if there are no other frames editing this project, we close
         // the project
@@ -1303,6 +1306,10 @@ public class PkgMgrFrame extends JFrame
         if (isEmptyFrame())
             return;
 
+        if(Config.isGreenfoot()) {
+            return;
+        }
+        
         // store the current editor size in the bluej.pkg file
         Properties p = new Properties();
 
@@ -2186,17 +2193,23 @@ public class PkgMgrFrame extends JFrame
                 break;
 
             case Debugger.IDLE :
-                machineIcon.setIdle();
+                if(machineIcon != null) {
+                    machineIcon.setIdle();
+                }
                 getProject().getTerminal().activate(false);
                 break;
 
             case Debugger.RUNNING :
-                machineIcon.setRunning();
+                if(machineIcon != null) {
+                    machineIcon.setRunning();
+                }
                 getProject().getTerminal().activate(true);
                 break;
 
             case Debugger.SUSPENDED :
-                machineIcon.setStopped();
+                if(machineIcon != null) {
+                    machineIcon.setStopped();
+                }
                 break;
         }
     }
@@ -2349,9 +2362,6 @@ public class PkgMgrFrame extends JFrame
         classScroller.getHorizontalScrollBar().setUnitIncrement(20);
         mainPanel.add(classScroller, BorderLayout.CENTER);
 
-        // create the object bench
-
-        objbench = new ObjectBench();
         itemsToDisable.add(objbench);
 
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, mainPanel, objbench);
