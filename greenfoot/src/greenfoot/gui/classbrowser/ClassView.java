@@ -50,7 +50,7 @@ import javax.swing.JToggleButton;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4062 2006-05-02 09:38:55Z mik $
+ * @version $Id: ClassView.java 4083 2006-05-04 14:00:11Z davmac $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -387,9 +387,6 @@ public class ClassView extends JToggleButton
      */
     public void removeSelectionChangeListener(SelectionListener l)
     {
-        if(isSelected()) {
-            deselect();
-        }
         listenerList.remove(SelectionListener.class, l);
     }
 
@@ -587,7 +584,6 @@ public class ClassView extends JToggleButton
 
     public void remove()
     {
-        
         classBrowser.removeClass(this);
         removeChangeListener(this);
         try {
