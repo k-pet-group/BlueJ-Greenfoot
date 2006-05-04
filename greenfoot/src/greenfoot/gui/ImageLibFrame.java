@@ -42,7 +42,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4076 2006-05-02 14:32:42Z davmac $
+ * @version $Id: ImageLibFrame.java 4085 2006-05-04 14:39:17Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -387,12 +387,15 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
         Object source = lse.getSource();
         if (! lse.getValueIsAdjusting() && source instanceof ImageLibList) {
-            showingGeneratedImage = false;
             imageLabel.setText("");
             ImageLibList sourceList = (ImageLibList) source;
             ImageLibList.ImageListEntry ile = sourceList.getSelectedEntry();
-            imageLabel.setIcon(getPreviewIcon(ile.imageFile));
-            selectedImageFile = ile.imageFile;
+            
+            if (ile != null) {
+                showingGeneratedImage = false;
+                imageLabel.setIcon(getPreviewIcon(ile.imageFile));
+                selectedImageFile = ile.imageFile;
+            }
         }
     }
     
