@@ -54,7 +54,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 4080 2006-05-04 10:49:55Z polle $
+ * @version $Id: PkgMgrFrame.java 4082 2006-05-04 13:37:44Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -886,9 +886,11 @@ public class PkgMgrFrame extends JFrame
         pkg.findSpaceForVertex(target);
         pkg.addTarget(target);
 
-        editor.revalidate();
-        editor.scrollRectToVisible(target.getRectangle());
-        editor.repaint();
+        if (editor != null) {
+            editor.revalidate();
+            editor.scrollRectToVisible(target.getRectangle());
+            editor.repaint();
+        }
 
         if (target.getRole() instanceof UnitTestClassRole)
             pkg.compileQuiet(target);

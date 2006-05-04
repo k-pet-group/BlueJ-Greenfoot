@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4056 2006-05-01 15:41:24Z mik $
+ * @version $Id: Package.java 4082 2006-05-04 13:37:44Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1260,7 +1260,7 @@ public final class Package extends Graph
     public void removeTarget(Target t)
     {
         targets.remove(t.getIdentifierName());
-        getEditor().removeFromSelection(t);
+        removedSelectableElement(t);
         t.setRemoved();
     }
 
@@ -1288,7 +1288,7 @@ public final class Package extends Graph
     public void removeClass(ClassTarget removableTarget)
     {
         removeTarget(removableTarget);
-        getEditor().repaint();
+        graphChanged();
     }
 
     /**
@@ -1300,7 +1300,7 @@ public final class Package extends Graph
     public void removePackage(PackageTarget removableTarget)
     {
         removeTarget(removableTarget);
-        getEditor().repaint();
+        graphChanged();
     }
 
     /**
@@ -1314,7 +1314,7 @@ public final class Package extends Graph
             userRemoveDependency(d);
         }
         removeDependency(d, true);
-        getEditor().repaint();
+        graphChanged();
     }
 
     /**
@@ -1584,7 +1584,7 @@ public final class Package extends Graph
         DependentTarget to = d.getTo();
         to.removeDependencyIn(d, recalc);
 
-        getEditor().removeFromSelection(d);
+        removedSelectableElement(d);
     }
 
     public void recalcArrows()
@@ -2150,9 +2150,7 @@ public final class Package extends Graph
                     t.getEditor().setCompiled(true);
             }
             setStatus(compileDone);
-            if(getEditor() != null) {
-                getEditor().repaint();
-            }
+            graphChanged();
 
             // Send a compilation done event to extensions.
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;

@@ -1,8 +1,11 @@
 package bluej.graph;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.geom.Area;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.awt.geom.*;
+import java.util.List;
 
 /**
  * A superclass representing a general graph structure. The graph consists of
@@ -11,12 +14,14 @@ import java.awt.geom.*;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Graph.java 2789 2004-07-12 18:08:11Z mik $
+ * @version $Id: Graph.java 4082 2006-05-04 13:37:44Z davmac $
  */
 public abstract class Graph
 {
     private static final int RIGHT_PLACEMENT_MIN = 300;
     private static final int WHITESPACE_SIZE = 10;
+    
+    private List listeners = new ArrayList();
 
     /**
      * Return an iterator over the vertices in this graph.
@@ -165,5 +170,46 @@ public abstract class Graph
             }
         }
         return (Vertex) topElement;
+    }
+    
+    /**
+     * Add a listener to be notified of graph events.
+     */
+    public void addListener(GraphListener listener)
+    {
+        listeners.add(listener);
+    }
+    
+    /**
+     * Detach a graph listener.
+     */
+    public void removeListener(GraphListener listener)
+    {
+        listeners.remove(listener);
+    }
+    
+    /**
+     * Notify listeners that a vertex has been removed.
+     */
+    protected void removedSelectableElement(SelectableGraphElement vertex)
+    {
+        Iterator i = listeners.iterator();
+        while (i.hasNext()) {
+            GraphListener listener = (GraphListener) i.next();
+            listener.selectableElementRemoved(vertex);
+        }
+    }
+    
+    /**
+     * Notify listeners that the graph has changed in an
+     * unspecified way.
+     */
+    protected void graphChanged()
+    {
+        Iterator i = listeners.iterator();
+        while (i.hasNext()) {
+            GraphListener listener = (GraphListener) i.next();
+            listener.graphChanged();
+        }
     }
 }

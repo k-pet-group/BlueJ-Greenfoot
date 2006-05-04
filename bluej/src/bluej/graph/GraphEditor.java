@@ -19,10 +19,10 @@ import bluej.prefmgr.PrefMgr;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 3205 2004-11-29 15:48:03Z fisker $
+ * @version $Id: GraphEditor.java 4082 2006-05-04 13:37:44Z davmac $
  */
 public class GraphEditor extends JComponent
-    implements MouseMotionListener
+    implements MouseMotionListener, GraphListener
 {
     protected static final Color background = Config.getItemColour("colour.graph.background");
     protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
@@ -52,6 +52,7 @@ public class GraphEditor extends JComponent
         marqueePainter = new MarqueePainter();
         graphPainter = GraphPainterStdImpl.getInstance();
         selectionController = new SelectionController(this);
+        graph.addListener(this);
     }
 
     /**
@@ -228,5 +229,17 @@ public class GraphEditor extends JComponent
     
     public void setHasFocus(boolean hasFocus){
         this.hasFocus = hasFocus;
+    }
+    
+    // ---- GraphListener interface ----
+    
+    public void selectableElementRemoved(SelectableGraphElement element)
+    {
+        removeFromSelection(element);
+    }
+    
+    public void graphChanged()
+    {
+        repaint();
     }
 }
