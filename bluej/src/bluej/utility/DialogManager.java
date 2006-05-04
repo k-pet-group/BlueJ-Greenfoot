@@ -13,7 +13,7 @@ import javax.swing.*;
  * internationalised, using BlueJ's langauage library system.
  *
  * @author Michael Kolling
- * @version $Id: DialogManager.java 3712 2005-11-08 13:13:42Z polle $
+ * @version $Id: DialogManager.java 4086 2006-05-04 14:50:24Z davmac $
  */
 public class DialogManager
 {
@@ -220,12 +220,7 @@ public class DialogManager
      */
     public static void centreWindow(Window child, Window parent)
     {
-        Point topleft = parent.getLocationOnScreen();
-        Dimension parentSize = parent.getSize();
-        Dimension childSize = child.getSize();
-
-        child.setLocation(topleft.x + (parentSize.width - childSize.width) / 2,
-                          topleft.y + (parentSize.height - childSize.height) / 2);
+        child.setLocationRelativeTo(parent);
     }
 
 
