@@ -2,6 +2,7 @@ package greenfoot;
 
 import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
+import greenfoot.util.Version;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -33,7 +34,10 @@ import java.util.List;
  * @cvs-version $Id$
  */
 public abstract class World extends ObjectTransporter
-{
+{    
+    /** Version number of the Greenfoot API */
+    final static Version VERSION = new Version("0.6 dev");
+   
 //    private CollisionChecker collisionChecker = new GridCollisionChecker();//new BVHInsChecker();
     private CollisionChecker collisionChecker = new BVHInsChecker();
 

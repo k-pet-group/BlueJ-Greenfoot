@@ -31,9 +31,6 @@ public abstract class Actor extends ObjectTransporter
     private static final String NO_WORLD = "No world has been instantiated.";
 
     private static final String ACTOR_NOT_IN_WORLD = "The actor has not been inserted into a world so it has no location yet. You might want to look at the method addedToWorld on the Actor class.";
-
-    /** Version number of the Greenfoot API */
-    final static Version VERSION = new Version("0.6 dev");
     
     /**
      * x-coordinate of the object's location in the world. The object is

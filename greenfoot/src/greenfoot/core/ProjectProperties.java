@@ -1,7 +1,7 @@
 package greenfoot.core;
 
-import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
+import greenfoot.WorldVisitor;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.Version;
 
@@ -207,7 +207,7 @@ public class ProjectProperties
      */
     public void setApiVersion()
     {
-        properties.setProperty("version", ActorVisitor.getApiVersion().toString());
+        properties.setProperty("version", WorldVisitor.getApiVersion().toString());
     }
 
 

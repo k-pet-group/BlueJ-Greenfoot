@@ -1,6 +1,6 @@
 package greenfoot.core;
 
-import greenfoot.ActorVisitor;
+import greenfoot.WorldVisitor;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
@@ -44,7 +44,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4091 2006-05-04 21:36:22Z mik $
+ * @version $Id: GreenfootMain.java 4092 2006-05-04 22:00:44Z polle $
  */
 public class GreenfootMain
 {
@@ -551,6 +551,6 @@ public class GreenfootMain
      */
     public static Version getAPIVersion()
     {
-        return ActorVisitor.getApiVersion();
+        return WorldVisitor.getApiVersion();
     }
 }

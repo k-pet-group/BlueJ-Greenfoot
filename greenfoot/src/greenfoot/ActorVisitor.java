@@ -45,14 +45,6 @@ public class ActorVisitor
     }
     
     /**
-     * Return the version of the Greenfoot API
-     *
-     */
-    public static Version getApiVersion() {
-        return Actor.VERSION;
-    }
-    
-    /**
      * Get the display image for an actor. This is the last image that was
      * set using setImage(). The returned image should not be modified.
      * 
