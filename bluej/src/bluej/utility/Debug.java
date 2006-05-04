@@ -6,7 +6,7 @@ import bluej.Config;
  * Class to handle debugging messages.
  * 
  * @author Michael Kolling
- * @version $Id: Debug.java 3056 2004-10-21 00:58:44Z davmac $
+ * @version $Id: Debug.java 4087 2006-05-04 20:34:07Z mik $
  */
 
 public class Debug
@@ -41,6 +41,17 @@ public class Debug
      */
     public static void reportError(String error)
     {
-        message("Internal BlueJ error: " + error);
+        message("Internal error: " + error);
+    }
+
+    /**
+     * Write out a BlueJ error message for debugging.
+     * 
+     * @param error The error message.
+     */
+    public static void reportError(String error, Exception exc)
+    {
+        message("Internal error: " + error);
+        message("Exception: " + exc);
     }
 }
