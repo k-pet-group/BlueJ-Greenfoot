@@ -1,5 +1,7 @@
 package greenfoot;
 
+import greenfoot.util.Version;
+
 import java.awt.Graphics;
 import java.util.Collection;
 
@@ -10,7 +12,7 @@ import java.util.Collection;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 4020 2006-04-26 10:16:48Z polle $
+ * @version $Id: WorldVisitor.java 4094 2006-05-05 10:44:27Z polle $
  */
 public class WorldVisitor
 {
@@ -51,5 +53,13 @@ public class WorldVisitor
     public static int toCellFloor(World world, int x)
     {
         return world.toCellFloor(x);
+    }
+    
+    /**
+     * Return the version of the Greenfoot API.
+     *
+     */
+    public static Version getApiVersion() {
+        return World.VERSION;
     }
 }
