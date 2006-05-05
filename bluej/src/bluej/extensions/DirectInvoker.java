@@ -17,7 +17,7 @@ import bluej.views.MethodView;
  * @author     Damiano Bolla, University of Kent at Canterbury, 2003,2004
  * @author     Clive Miller, University of Kent at Canterbury, 2002
  *
- * @version    $Id: DirectInvoker.java 4061 2006-05-02 08:40:20Z davmac $
+ * @version    $Id: DirectInvoker.java 4095 2006-05-05 13:45:01Z davmac $
  */
 
 class DirectInvoker
@@ -43,10 +43,29 @@ class DirectInvoker
     /**
      * Call this if you want to call a constructor
      *
+     * <p>The arguments passed in the args array may have any type,
+     * but the type will determine exactly what is passed to the
+     * constructor:
+     * 
+     * <ul>
+     * <li>String - the String will be passed directly to the constructor
+     * <li>BObject - the object will be passed directly to the constructor,
+     *               though it must be on the object bench for this to work
+     * <li>Anything else - toString() is called on the object and the
+     *               result is treated as a Java expression, which is
+     *               evaluated and passed to the constructor.
+     * </ul>
+     * 
+     * <p>An attempt is made to ensure that the argument types are suitable
+     * for the constructor. InvocationArgumentException will be thrown if
+     * the arguments are clearly unsuitable, however some cases will
+     * generate an InvocationErrorException instead. In such cases no
+     * expression arguments will be evaluated.
+     *
      * @param  args                             Arguments to the constructor
      * @return                                  The newly created object
-     * @exception  InvocationArgumentException  Thrown if the arglist is not consistent with the signature
-     * @exception  InvocationErrorException     Thrown if there is a system error
+     * @throws  InvocationArgumentException   if the arglist is not consistent with the signature
+     * @throws  InvocationErrorException      if there is a system error
      */
     DebuggerObject invokeConstructor(Object[] args)
              throws InvocationArgumentException, InvocationErrorException
@@ -77,8 +96,27 @@ class DirectInvoker
 
 
     /**
-     * This if you want a method
+     * Call a method on an object.
      * You need to pass the object where you want it applied.
+     * 
+     * <p>The arguments passed in the args array may have any type,
+     * but the type will determine exactly what is passed to the
+     * method:
+     * 
+     * <ul>
+     * <li>String - the String will be passed directly to the method
+     * <li>BObject - the object will be passed directly to the method,
+     *               though it must be on the object bench for this to work
+     * <li>Anything else - toString() is called on the object and the
+     *               result is treated as a Java expression, which is
+     *               evaluated and passed to the method.
+     * </ul>
+     * 
+     * <p>An attempt is made to ensure that the argument types are suitable
+     * for the method. InvocationArgumentException will be thrown if
+     * the arguments are clearly unsuitable, however some cases will
+     * generate an InvocationErrorException instead. In such cases no
+     * expression arguments will be evaluated.
      *
      * @param  onThisObjectInstance             the method is called on this object
      * @param  args                             The arguments for the method
@@ -132,9 +170,8 @@ class DirectInvoker
 
 
     /**
-     * As from reflection standard the user will give me Objects to be given to the
-     * constructors or methods. BUT bluej wants strings... so I am here converting
-     * the objects into strings...
+     * Converts an array of Object into an array of String with java
+     * expressions representing the objects, as per the convOneObj method.
      *
      * @param  i_array  Input object values
      * @return          Objects transformed into an array of strings
@@ -159,9 +196,20 @@ class DirectInvoker
 
 
     /**
-     * Does one conversion. 
+     * Does one conversion of a supplied object to a java expression
+     * representing that object, according to the following rules:
+     * 
+     * <ul>
+     * <li>String - the String will be quoted according to Java quoting
+     *              rules, and enclosed in quotes
+     * <li>BObject - the name of the BObject on the object bench will be
+     *               returned 
+     * <li>Anything else - toString() is called on the object and the
+     *               result is treated as a Java expression, which is
+     *               returned.
+     * </ul>
      *
-     * @param  i_obj  Input obkect to convert
+     * @param  i_obj  Input object to convert
      * @return        The resulting string representation
      */
     private String convOneObj(Object i_obj)

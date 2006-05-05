@@ -19,7 +19,7 @@ import java.lang.reflect.Modifier;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 3853 2006-03-21 20:17:53Z iau $
+ * @version $Id: BMethod.java 4095 2006-05-05 13:45:01Z davmac $
  */
 
 /*
@@ -48,73 +48,96 @@ public class BMethod
      * Pass a zero length parameter array if the method takes no arguments.
      */
     public boolean matches ( String methodName, Class[] parameter )
-      {
-      // If someone is crazy enough to do this he deserves it :-)
-      if ( methodName == null ) return false;
+    {
+        // If someone is crazy enough to do this he deserves it :-)
+        if ( methodName == null ) return false;
 
-      // Let me se if the named method is OK
-      if ( ! methodName.equals(bluej_view.getName() ) ) return false;
+        // Let me se if the named method is OK
+        if ( ! methodName.equals(bluej_view.getName() ) ) return false;
      
-      Class[] thisArgs = bluej_view.getParameters();
+        Class[] thisArgs = bluej_view.getParameters();
 
-      // An empty array is equivalent to a null array
-      if (thisArgs  != null && thisArgs.length  <= 0)  thisArgs  = null;
-      if (parameter != null && parameter.length <= 0 ) parameter = null;
+        // An empty array is equivalent to a null array
+        if (thisArgs  != null && thisArgs.length  <= 0)  thisArgs  = null;
+        if (parameter != null && parameter.length <= 0 ) parameter = null;
 
-      // If both are null the we are OK
-      if ( thisArgs == null && parameter == null ) return true;
+        // If both are null the we are OK
+        if ( thisArgs == null && parameter == null ) return true;
 
-      // If ANY of them is null we are in trouble now. (They MUST be both NOT null)
-      if ( thisArgs == null || parameter == null ) return false;
+        // If ANY of them is null we are in trouble now. (They MUST be both NOT null)
+        if ( thisArgs == null || parameter == null ) return false;
 
-      // Now I know that BOTH are NOT empty. They MUST be the same length
-      if ( thisArgs.length != parameter.length ) return false;
+        // Now I know that BOTH are NOT empty. They MUST be the same length
+        if ( thisArgs.length != parameter.length ) return false;
     
-      for ( int index=0; index<thisArgs.length; index++ )
-        if ( ! thisArgs[index].isAssignableFrom(parameter[index]) ) return false;
+        for ( int index=0; index<thisArgs.length; index++ ) {
+            if ( ! thisArgs[index].isAssignableFrom(parameter[index]) ) {
+                return false;
+            }
+        }
 
-      return true;
-      }
+        return true;
+    }
 
     /**
      * Returns the types of the parameters of this method.
      * Similar to Reflection API
      */
     public Class[] getParameterTypes()
-      {
-      return bluej_view.getParameters();
-      }
+    {
+        return bluej_view.getParameters();
+    }
       
     /**
      * Returns the name of this method.
      * Similar to Reflection API
      */
     public String getName()
-      {
-      return bluej_view.getName();
-      }
+    {
+        return bluej_view.getName();
+    }
     
     /**
      * Returns the return type of this method
      * Similar to Reflection API
      */
     public Class getReturnType()
-        {
+    {
         View aView = bluej_view.getReturnType();
         return aView.getViewClass();
-        }
+    }
     
     /**
      * Returns the modifiers for this method.
      * The <code>java.lang.reflect.Modifier</code> class can be used to decode the modifiers.
      */
     public int getModifiers()
-        {
+    {
         return bluej_view.getModifiers();
-        }
+    }
 
     /**
-     * Invoke this method on the given object. Note that this method should not be called from the AWT/Swing event-dispatching thread.
+     * Invoke this method on the given object. Note that this method should
+     * not be called from the AWT/Swing event-dispatching thread.
+     * 
+     * <p>The arguments passed in the initargs array may have any type,
+     * but the type will determine exactly what is passed to the
+     * method:
+     * 
+     * <ul>
+     * <li>String - the String will be passed directly to the method
+     * <li>BObject - the object will be passed directly to the method,
+     *               though it must be on the object bench for this to work
+     * <li>Anything else - toString() is called on the object and the
+     *               result is treated as a Java expression, which is
+     *               evaluated and passed to the method.
+     * </ul>
+     * 
+     * <p>An attempt is made to ensure that the argument types are suitable
+     * for the method. InvocationArgumentException will be thrown if
+     * the arguments are clearly unsuitable, however some cases will
+     * generate an InvocationErrorException instead. In such cases no
+     * expression arguments will be evaluated.
      * 
      * @param onThis The BObject to which the method call should be applied, null if a static method.
      * @param params an array containing the arguments, or null if there are none
@@ -127,7 +150,7 @@ public class BMethod
     public Object invoke (BObject onThis, Object[] params) 
         throws ProjectNotOpenException, PackageNotFoundException, 
                InvocationArgumentException, InvocationErrorException
-        {
+    {
         ObjectWrapper instanceWrapper=null;
         // If it is a method call on a live object get the identifier for it.
         if ( onThis != null ) instanceWrapper = onThis.getObjectWrapper();
@@ -150,7 +173,7 @@ public class BMethod
 
         // DOing this is the correct way of returning the right object. Tested 080303, Damiano
         return BField.doGetVal(pkgFrame, resultName, objRef.getValue(thisField));
-        }
+    }
     
   
     /**

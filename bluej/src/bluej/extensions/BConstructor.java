@@ -10,7 +10,7 @@ import bluej.views.*;
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API.
  *
- * @version    $Id: BConstructor.java 3853 2006-03-21 20:17:53Z iau $
+ * @version    $Id: BConstructor.java 4095 2006-05-05 13:45:01Z davmac $
  */
 
 /*
@@ -100,7 +100,27 @@ public class BConstructor
 
     /**
      * Creates a new instance of the object described by this constructor.
-     * Similar to reflection API. Note that this method should not be called from the AWT/Swing event-dispatching thread.
+     * Similar to reflection API. Note that this method should not be called
+     * from the AWT/Swing event-dispatching thread.
+     * 
+     * <p>The arguments passed in the initargs array may have any type,
+     * but the type will determine exactly what is passed to the
+     * constructor:
+     * 
+     * <ul>
+     * <li>String - the String will be passed directly to the constructor
+     * <li>BObject - the object will be passed directly to the constructor,
+     *               though it must be on the object bench for this to work
+     * <li>Anything else - toString() is called on the object and the
+     *               result is treated as a Java expression, which is
+     *               evaluated and passed to the constructor.
+     * </ul>
+     * 
+     * <p>An attempt is made to ensure that the argument types are suitable
+     * for the constructor. InvocationArgumentException will be thrown if
+     * the arguments are clearly unsuitable, however some cases will
+     * generate an InvocationErrorException instead. In such cases no
+     * expression arguments will be evaluated.
      *
      * @param  initargs                      Description of the Parameter
      * @return                               Description of the Return Value
