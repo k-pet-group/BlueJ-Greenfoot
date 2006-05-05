@@ -44,7 +44,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4092 2006-05-04 22:00:44Z polle $
+ * @version $Id: GreenfootMain.java 4097 2006-05-05 14:29:08Z mik $
  */
 public class GreenfootMain
 {
@@ -130,7 +130,7 @@ public class GreenfootMain
 
     /**
      * Contructor is private. This class is initialised via the 'initialize'
-     * method (below).
+     * method (above).
      */
     private GreenfootMain(final RBlueJ rBlueJ, final RPackage pkg)
     {
@@ -294,7 +294,7 @@ public class GreenfootMain
         } 
         catch (NumberFormatException ecx) {
             // doesn't matter - project not found - just use some default size
-            frame.setBounds(20, 20, 400, 400);
+            frame.setBounds(40, 40, 600, 500);
         }
     }
 
