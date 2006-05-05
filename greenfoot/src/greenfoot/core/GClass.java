@@ -35,7 +35,12 @@ public class GClass implements CompileListener
         this.rmiClass = cls;
         this.pkg = pkg;
         GreenfootMain.getInstance().addCompileListener(this);
-        guessSuperclass();
+        String savedSuperclass = getClassProperty("superclass");
+        if(savedSuperclass == null) {
+            guessSuperclass();
+        } else {
+            superclassGuess = savedSuperclass;
+        }
     }
 
     /**
@@ -205,10 +210,10 @@ public class GClass implements CompileListener
      * <br>
      * If the class is parseable this information will be used to extract the superclass.
      * <br>
-     * If the is not parseable it will use the last superclass that was known.
+     * If the class is not parseable it will use the last superclass that was known.
      * <br>
-     * In general, we will try to remember the last known superclass, and report that back.
-     * 
+     * In general, we will try to remember the last known superclass, and report that back. It also saves the superclass between different runs of the greenfoot application.
+     *
      * @return Best guess of the fully qualified name of the superclass.
      */
     public String getSuperclassGuess() {
@@ -225,7 +230,10 @@ public class GClass implements CompileListener
      */
     public void setSuperclassGuess(String superclassName)
     {
-        superclassGuess = superclassName;
+        if(superclassGuess != superclassName) {
+            superclassGuess = superclassName;
+            setClassProperty("superclass", superclassGuess);
+        }
     }
     
     /**
@@ -246,13 +254,13 @@ public class GClass implements CompileListener
      */
     private void guessSuperclass()
     {
-        // This should be called each time the source file is saved. However,
+        // TODO This should be called each time the source file is saved. However,
         // this is not possible at the moment, so we just do it when it is
         // compiled.
         
         String name = this.getName();
         if(name.equals("World") || name.equals("Actor")) {
-            //We do not want to waste time on guessing the name of the superclass for these to classes.
+            //We do not want to waste time on guessing the name of the superclass for these two classes.
             return;
         }
         
@@ -274,7 +282,7 @@ public class GClass implements CompileListener
         catch (NullPointerException e) {
         }
         if(realSuperclass != null) {
-            superclassGuess = realSuperclass;
+            setSuperclassGuess(realSuperclass);
             return;
         }
         
@@ -306,7 +314,7 @@ public class GClass implements CompileListener
         catch (Exception e) {}
         
         if(parsedSuperclass != null) {
-            superclassGuess = parsedSuperclass;
+            setSuperclassGuess(parsedSuperclass);
             return;
         }
         
