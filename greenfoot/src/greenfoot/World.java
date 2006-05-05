@@ -1,5 +1,6 @@
 package greenfoot;
 
+import bluej.Boot;
 import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
 import greenfoot.util.Version;
@@ -36,7 +37,7 @@ import java.util.List;
 public abstract class World extends ObjectTransporter
 {    
     /** Version number of the Greenfoot API */
-    final static Version VERSION = new Version("0.6 dev");
+    final static Version VERSION = new Version(Boot.GREENFOOT_API_VERSION);
    
 //    private CollisionChecker collisionChecker = new GridCollisionChecker();//new BVHInsChecker();
     private CollisionChecker collisionChecker = new BVHInsChecker();
