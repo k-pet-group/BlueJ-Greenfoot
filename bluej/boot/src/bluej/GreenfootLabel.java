@@ -22,8 +22,8 @@ public class GreenfootLabel extends SplashLabel
     {
         BufferedImage image = getImage();
         g.drawImage(image, 0, 0, null);
-        g.setColor(new Color(50, 92, 16));
-        g.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        g.drawString("Version " + Boot.GREENFOOT_VERSION, 168, image.getHeight() - 91);
+//        g.setColor(new Color(50, 92, 16));
+//        g.setFont(new Font("SansSerif", Font.PLAIN, 14));
+//        g.drawString("Version " + Boot.GREENFOOT_VERSION, 168, image.getHeight() - 91);
     }
 }
