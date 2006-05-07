@@ -151,7 +151,12 @@
 						<include name="images/**" />
 					</fileset>
 				</copy>		
-				<javac srcdir="scenarios/@{scenario}" classpathref="greenfoot.class.path" debug="true"/>
+				<javac srcdir="scenarios/@{scenario}" debug="true">
+				    <classpath>
+				      <path refid="greenfoot.class.path"/>
+					  <path refid="bluej.class.path"/>
+				    </classpath>
+				</javac>
 			</sequential>
 		</macrodef>
 		
@@ -175,7 +180,7 @@
 
 	</target>
 
-	<target name="ready-to-run" depends="compile, copy-projects, copy-imagelib" description="Builds everything so it is ready to run" >
+	<target name="ready-to-run" depends="compile, copy-imagelib" description="Builds everything so it is ready to run" >
 		<!-- Put everything in ${build} into the the jar file-->
 		<jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
 			<manifest>
@@ -228,7 +233,7 @@
 		</copy>
 	</target>		
 
-	<target name="dist" depends="ready-to-run" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
+	<target name="dist" depends="ready-to-run, copy-projects" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
 		<!-- Run the BlueJ dist-->
 		<ant dir="${bluej.projectdir}" target="dist-greenfoot" />
 
