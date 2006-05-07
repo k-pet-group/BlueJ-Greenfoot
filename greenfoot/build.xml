@@ -22,6 +22,11 @@
 		<pathelement location="${bluej.projectdir}/lib/junit.jar"/>
 		<pathelement location="${bluej.projectdir}/lib/MRJ141Stubs.jar"/>
 	</path>
+	<!-- The sourcepath to the bluej classes-->
+	<path id="bluej.src.path">
+		<pathelement location="${bluej.projectdir}/src"/>
+		<pathelement location="${bluej.projectdir}/boot/src"/>
+	</path>
 	<!-- Location of the jar file packed by BlueJ dist target -->
 	<property name="bluej.installer.jar"  location="${bluej.projectdir}/package/greenfoot-dist-new.jar"/>
 	<property name="bluej.dist.jar"  location="${bluej.projectdir}/package/greenfoot-dist.jar"/>
@@ -260,10 +265,10 @@
         <java classname="bluej.Boot" fork="yes" jvm="${build_java_home}/bin/java">        
             <classpath>
                 <path refid="bluej.class.path"/>
+                <path refid="bluej.src.path"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
-                <pathelement location="${build}"/>
-                
+                <pathelement location="${build}"/>                
             </classpath>        
             
             <arg value="-bluej.debug=true"></arg>
