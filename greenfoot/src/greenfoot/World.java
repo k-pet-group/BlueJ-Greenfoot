@@ -54,13 +54,6 @@ public abstract class World extends ObjectTransporter
 
     /** Image painted in the background. */
     private GreenfootImage backgroundImage;
-
-    /**
-     * The order in which objects should be painted
-     * 
-     * @see #setPaintOrder(List)
-     */
-    private List classPaintOrder;
     
     /** Should the image be tiled to fill the entire background */
     private boolean tiled = true;    
@@ -298,30 +291,6 @@ public abstract class World extends ObjectTransporter
     public synchronized List getObjects(Class cls)
     {
         return Collections.unmodifiableList(collisionChecker.getObjects(cls));
-    }
-
-    /**
-     * Sets the paint order of objects based on their class.
-     * <p>
-     * 
-     * Objects of the classes that are first in the list will be painted on top
-     * of objects of the classes later in the list. Objects of classes not
-     * mentioned in the list will be painted below objects explicitly named
-     * here.
-     * 
-     * Within the same class, or within classes that have unspecified paint
-     * order, the last object that has moved into a cell is painted on top of
-     * others.
-     * 
-     * <p>
-     * NOTE: NOT IMPLEMENTED.
-     * 
-     * @param classPaintOrder List of class objects.
-     * 
-     */
-    public void setPaintOrder(List classPaintOrder)
-    {
-        this.classPaintOrder = classPaintOrder;
     }
 
     // =================================================
