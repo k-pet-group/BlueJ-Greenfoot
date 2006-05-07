@@ -36,9 +36,7 @@
         <include name="lib/swedish/" />
         <include name="lib/extensions/" />
     	<!-- greenfoot stuff -->
-        <include name="lib/skeletonProject/" />
-        <include name="lib/startupProject/" />
-        <include name="lib/imagelib/" />
+        <include name="lib/greenfoot/**" />
     </patternset>
 
     <patternset id="greenfoot.scenarios">

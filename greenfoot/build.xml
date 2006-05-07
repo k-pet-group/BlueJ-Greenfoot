@@ -11,7 +11,7 @@
 
 
 	<!-- Location of the bluej lib dir -->
-	<property name="bluej.lib"  location="${bluej.projectdir}/lib"/>
+	<property name="bluej.lib.greenfoot"  location="${bluej.projectdir}/lib/greenfoot"/>
 	<!-- Location of the where the greenfoot.jar should be placed-->
 	<property name="bluej.extensions.lib"  location="${bluej.projectdir}/lib/extensions"/>
 	<!-- The classpath to the bluej classes-->
@@ -217,7 +217,7 @@
 	</target>
 
 	<target name="copy-projects" depends="skeleton"  description="Copies the projects skeletonProject, startupProject and scenarios to bluej" >
-		<copy todir="${bluej.lib}">
+		<copy todir="${bluej.lib.greenfoot}">
 			<fileset dir="projects"/>
 		</copy>
 	</target>
@@ -231,7 +231,7 @@
 	</target>
 
 	<target name="copy-imagelib" description="Copies the images for the image library to bluej">
-		<copy todir="${bluej.lib}/imagelib">
+		<copy todir="${bluej.lib.greenfoot}/imagelib">
 			<fileset dir="imagelib"/>
 		</copy>
 	</target>		
@@ -253,9 +253,9 @@
 				<patternset refid="skeleton.files"/>
 			</fileset>
 		</delete>
-		<delete dir="${bluej.lib}/skeletonProject"/>
-		<delete dir="${bluej.lib}/startupProject"/>
-		<delete dir="${bluej.lib}/imagelib"/>
+		<delete dir="${bluej.lib.greenfoot}/skeletonProject"/>
+		<delete dir="${bluej.lib.greenfoot}/startupProject"/>
+		<delete dir="${bluej.lib.greenfoot}/imagelib"/>
     	<delete dir="${bluej.projectdir}/package/scenarios"/>
     	<delete dir="${build}"/>
         <delete >

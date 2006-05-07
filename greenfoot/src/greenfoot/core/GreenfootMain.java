@@ -44,7 +44,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4107 2006-05-07 12:23:23Z polle $
+ * @version $Id: GreenfootMain.java 4111 2006-05-07 15:05:59Z polle $
  */
 public class GreenfootMain
 {
@@ -181,7 +181,7 @@ public class GreenfootMain
     private void openProject(String projectDir)
         throws RemoteException
     {
-        boolean doOpen = GreenfootMain.updateApi(new File(projectDir), rBlueJ.getSystemLibDir(), frame);
+        boolean doOpen = GreenfootMain.updateApi(new File(projectDir), frame);
         if (doOpen) {
             rBlueJ.openProject(projectDir);
         }
@@ -403,13 +403,12 @@ public class GreenfootMain
      * 
      * @param projectDir absolute path to the project
      */
-    private static void prepareGreenfootProject(File blueJLibDir, File projectDir)
+    private static void prepareGreenfootProject(File greenfootLibDir, File projectDir)
     {
-        if (isStartupProject(blueJLibDir, projectDir)) {
+        if (isStartupProject(greenfootLibDir, projectDir)) {
             return;
         }
-
-        File src = new File(blueJLibDir, "skeletonProject");
+        File src = new File(greenfootLibDir, "skeletonProject");
         File dst = projectDir;
 
         deleteAllClassFiles(dst);
@@ -429,13 +428,15 @@ public class GreenfootMain
      * If is considered safe to open this project with the current API version
      * the method will return true.
      * 
-     * @param project The project in question
+     * @param project The project in question.
+     * @param parent Frame that should be used to place dialogs.
      * @return True If we should try to open the project.
      * @throws RemoteException
      */
-    public static boolean updateApi(File projectDir, File systemLibDir, Frame parent)
+    public static boolean updateApi(File projectDir, Frame parent)
         throws RemoteException
     {
+        File greenfootLibDir = Config.getGreenfootLibDir();
         ProjectProperties newProperties = new ProjectProperties(projectDir);
         Version projectVersion = newProperties.getAPIVersion();
 
@@ -450,7 +451,7 @@ public class GreenfootMain
             // ant script.
             File greenfootDir = new File(projectDir, "greenfoot");
             if(! greenfootDir.exists()) {
-                GreenfootMain.prepareGreenfootProject(systemLibDir, projectDir);
+                GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir);
             }
             return true;
         }
@@ -462,7 +463,7 @@ public class GreenfootMain
                     new JButton[]{continueButton});
             dialog.displayModal();
             System.out.println(message);
-            GreenfootMain.prepareGreenfootProject(systemLibDir, projectDir);
+            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir);
             return true;
         }
         else if (projectVersion.compareTo(apiVersion) < 0) {
@@ -473,7 +474,7 @@ public class GreenfootMain
             MessageDialog dialog = new MessageDialog(parent, message, "Versions does not match", 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
-            GreenfootMain.prepareGreenfootProject(systemLibDir, projectDir);
+            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir);
             return true;
         }
         else if (projectVersion.compareTo(apiVersion) > 0) { //
@@ -492,7 +493,7 @@ public class GreenfootMain
                 return false;
             }
             else {
-                prepareGreenfootProject(systemLibDir, projectDir);
+                prepareGreenfootProject(greenfootLibDir, projectDir);
                 return true;
             }
         }

@@ -21,6 +21,7 @@ import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.Boot;
+import bluej.Config;
 
 /**
  * The ProjectManager is on the BlueJ-VM. It monitors pacakage events from BlueJ
@@ -28,7 +29,7 @@ import bluej.Boot;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4093 2006-05-04 22:04:45Z polle $
+ * @version $Id: ProjectManager.java 4111 2006-05-07 15:05:59Z polle $
  */
 public class ProjectManager
     implements PackageListener
@@ -115,7 +116,7 @@ public class ProjectManager
         }        
         boolean doOpen = false;
         try {
-            doOpen = GreenfootMain.updateApi(projectDir, bluej.getSystemLibDir(), null); 
+            doOpen = GreenfootMain.updateApi(projectDir, null); 
         }
         catch (RemoteException e) {
             // TODO Auto-generated catch block

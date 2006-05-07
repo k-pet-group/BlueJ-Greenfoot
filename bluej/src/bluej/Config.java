@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 4080 2006-05-04 10:49:55Z polle $
+ * @version $Id: Config.java 4111 2006-05-07 15:05:59Z polle $
  */
 
 public final class Config
@@ -60,7 +60,9 @@ public final class Config
 
     private static File bluejLibDir;
     private static File userPrefDir;
-
+    /** The greenfoot subdirectory of the "lib"-directory*/ 
+    private static File greenfootLibDir;
+    
     public static String compilertype;	// current compiler (javac, jikes)
     public static String language;	// message language (english, ...)
 
@@ -121,7 +123,8 @@ public final class Config
 
         // construct paths for the configuration directories
         Config.bluejLibDir = bluejLibDir;
-
+        Config.greenfootLibDir = new File(bluejLibDir, "greenfoot");
+        
         // setup our heirarchy of property objects
         
         // top level is the system properties loaded from bluej.defs
@@ -210,6 +213,7 @@ public final class Config
     
         initialised = true;
         Config.bluejLibDir = bluejLibDir;
+        Config.greenfootLibDir = new File(bluejLibDir, "greenfoot");
         Config.propSource = propSource;
         screenBounds = calculateScreenBounds();
         
@@ -1072,6 +1076,14 @@ public final class Config
     public static File getBlueJLibDir()
     {
         return bluejLibDir;
+    }
+    
+    /**
+     * Returns the greenfoot directory in blueJLibDir
+     */
+    public static File getGreenfootLibDir()
+    {
+        return greenfootLibDir;
     }
 
     /**

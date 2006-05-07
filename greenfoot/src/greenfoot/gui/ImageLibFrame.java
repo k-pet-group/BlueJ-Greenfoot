@@ -42,7 +42,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4085 2006-05-04 14:39:17Z davmac $
+ * @version $Id: ImageLibFrame.java 4111 2006-05-07 15:05:59Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -283,7 +283,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 
                 JScrollPane jsp = new JScrollPane();
                 
-                File imageDir = Config.getBlueJLibDir();
+                File imageDir = Config.getGreenfootLibDir();
                 imageDir = new File(imageDir, "imagelib");
                 imageCategorySelector = new ImageCategorySelector(imageDir);
                 
