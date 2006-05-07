@@ -43,7 +43,10 @@ public class Simulation extends Thread
      *            The handler for the world that is simulated
      */
     private Simulation()
-    {}
+    {
+        speed = 0;
+        delay = calculateDelay(speed);
+    }
 
     
     public static void initialize(WorldHandler worldHandler)
@@ -192,9 +195,18 @@ public class Simulation extends Thread
 
         if(this.speed != speed) {
             this.speed = speed;
-            this.delay = (MAX_SIMULATION_SPEED - speed) * 4;
+            this.delay = calculateDelay(speed);
             fireSimulationEvent(speedChangeEvent);
         }
+    }
+
+    /**
+     * Returns the delay as a function of the speed.
+     * 
+     */
+    private int calculateDelay(int speed)
+    {
+        return (MAX_SIMULATION_SPEED - speed) * 4;
     }
     
     
