@@ -52,9 +52,6 @@ public abstract class World extends ObjectTransporter
     private int width;
     private int height;
 
-    /** Whether the world should wrap around the edges */
-    private boolean wrapWorld;
-
     /** Image painted in the background. */
     private GreenfootImage backgroundImage;
 
@@ -93,9 +90,8 @@ public abstract class World extends ObjectTransporter
         this.width = width;
         this.height = height;
         this.cellSize = cellSize;
-        this.wrapWorld = false;
         this.tiled = true;
-        collisionChecker.initialize(width, height, cellSize, wrapWorld);
+        collisionChecker.initialize(width, height, cellSize, false);
     }
 
     /**
@@ -153,8 +149,8 @@ public abstract class World extends ObjectTransporter
      * @throws IndexOutOfBoundsException If the pixel location is not within the world bounds. If there is no background image at the location it will return Color.WHITE.
      */
     public Color getColorAt(int x, int y) {
-        x = checkAndWrapX(x);
-        y = checkAndWrapX(y);       
+        ensureWithinXBounds(x);
+        ensureWithinYBounds(y);       
         
         int xPixel = (int) Math.floor(getCellCenter(x));
         int yPixel = (int) Math.floor(getCellCenter(y));
@@ -239,8 +235,8 @@ public abstract class World extends ObjectTransporter
             return;
         }
 
-        x = checkAndWrapX(x);
-        y = checkAndWrapY(y);
+        ensureWithinXBounds(x);
+        ensureWithinYBounds(y);
         object.world = this; // can only set location if world is set.
         object.setLocation(x, y);
         object.setWorld(this);
@@ -302,36 +298,6 @@ public abstract class World extends ObjectTransporter
     public synchronized List getObjects(Class cls)
     {
         return Collections.unmodifiableList(collisionChecker.getObjects(cls));
-    }
-
-    /**
-     * Check whether the world is wrapped around the edges.
-     * 
-     * <p>
-     * NOTE: Wrapping is not implemented yet
-     * 
-     * @return True if we have a wrapped world, false otherwise.
-     */
-    public boolean isWrapped()
-    {
-        return wrapWorld;
-    }
-
-    /**
-     * 
-     * The world may be specified to 'wrap'. In a wrapping world, an object
-     * moving out of the world at one edge automatically enters the world at the
-     * opposite edge.
-     * 
-     * <p>
-     * NOTE: Wrapping is not implemented yet
-     * 
-     * @param b If true, the world wraps around at its edges.
-     */
-    public void setWrapped(boolean b)
-    {
-        wrapWorld = b;
-        collisionChecker.initialize(getWidth(), getHeight(), cellSize, wrapWorld);
     }
 
     /**
@@ -498,7 +464,7 @@ public abstract class World extends ObjectTransporter
 
     void updateObjectLocation(Actor object, int oldX, int oldY)
     {
-        checkAndWrapLocation(object);
+        ensureWithinBounds(object);
         collisionChecker.updateObjectLocation(object, oldX, oldY);
     }
 
@@ -514,65 +480,6 @@ public abstract class World extends ObjectTransporter
     // =================================================
 
     /**
-     * Throws an exception if the object's location is out of the bounds of the
-     * world. <br>
-     * If the world is wrapping around the edges, it will convert the location
-     * to be within the actual size of the world. <br>
-     * This method only checks the logical location.
-     * 
-     */
-    private int checkAndWrapX(int x)
-        throws IndexOutOfBoundsException
-    {
-        if (!wrapWorld) {
-            ensureWithinXBounds(x);
-        }
-        else {
-            x = wrap(x, getWidth());
-        }
-        return x;
-    }
-
-    /**
-     * Throws an exception if the object's location is out of the bounds of the
-     * world. <br>
-     * If the world is wrapping around the edges, it will convert the location
-     * to be within the actual size of the world. <br>
-     * This method only checks the logical location.
-     * 
-     */
-    private int checkAndWrapY(int y)
-        throws IndexOutOfBoundsException
-    {
-        if (!wrapWorld) {
-            ensureWithinYBounds(y);
-        }
-        else {
-            y = wrap(y, getHeight());
-        }
-        return y;
-    }
-
-    /**
-     * Throws an exception if the object's location is out of the bounds of the
-     * world. <br>
-     * If the world is wrapping around the edges, it will convert the location
-     * to be within the actual size of the world. <br>
-     * This method only checks the logical location.
-     * 
-     */
-    private void checkAndWrapLocation(Actor object)
-        throws IndexOutOfBoundsException
-    {
-        if (!wrapWorld) {
-            ensureWithinBounds(object);
-        }
-        else {
-            wrapLocation(object);
-        }
-    }
-
-    /**
      * Makes sure that the location of the object is wrapped into a location
      * within the worlds bounds.
      * 
@@ -582,24 +489,8 @@ public abstract class World extends ObjectTransporter
     {
         int x = object.getX();
         int y = object.getY();
-        x = wrap(x, getWidth());
-        y = wrap(y, getHeight());
         object.x = x;
         object.y = y;
-    }
-
-    /**
-     * Wrap the location so it is in between 0 and max
-     */
-    int wrap(int l, int max)
-    {
-        int remainder = l % max;
-        if (remainder < 0) {
-            return max + remainder;
-        }
-        else {
-            return remainder;
-        }
     }
 
     /**

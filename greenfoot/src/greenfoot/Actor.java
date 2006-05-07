@@ -146,7 +146,7 @@ public abstract class Actor extends ObjectTransporter
             return -1;
         }
         else {
-            return getXMax() - getXMin() + 1; // TODO watch out if wrapping?
+            return getXMax() - getXMin() + 1;
         }
     }
 
@@ -264,9 +264,7 @@ public abstract class Actor extends ObjectTransporter
         int oldX = this.x;
         int oldY = this.y;
 
-        if (!world.isWrapped()) {
-            boundsCheck(x, y);
-        }
+        boundsCheck(x, y);
 
         this.x = x;
         this.y = y;
@@ -509,8 +507,6 @@ public abstract class Actor extends ObjectTransporter
 		return (int) Math.floor(paintY);
     }
     
-
-    
     /**
      * Notify the world that this object's size has changed.
      *
@@ -575,8 +571,7 @@ public abstract class Actor extends ObjectTransporter
     /**
      * Check whether this object intersects with another given object.
      * 
-     * NOTE: Does not take rotation into consideration, and has not been tested
-     * when the world is wrapped.
+     * NOTE: Does not take rotation into consideration.
      * 
      * @return True if the object's intersect, false otherwise.
      */
@@ -584,7 +579,6 @@ public abstract class Actor extends ObjectTransporter
     {
         // TODO: Rotation, we could just increase the bounding box, or we could
         // deal with the rotated bounding box.
-        // TODO: Take wrapping of the world into consideration.
         int thisX = getXMin();
         int otherX = other.getXMin();
         int thisW = getWidth();
@@ -625,7 +619,6 @@ public abstract class Actor extends ObjectTransporter
      */
     protected boolean contains(int dx, int dy)
     {
-        // TODO wrapping when the object actually lies on the edge.
         // TODO this disregards rotations. maybe this should be updated in the
         // getWidth/height methods
         failIfNotInWorld();
@@ -634,13 +627,6 @@ public abstract class Actor extends ObjectTransporter
             int height = getYMax() - getYMin() + 1;
             int left = getXMin() - getX();
             int top = getYMin() - getY();
-            if (world.isWrapped()) {
-                //TODO dx, dy is relative and should not be wrapped in this way. If at all...
-          //      dx = world.wrap(dx, world.getWidth());
-            //    dy = world.wrap(dy, world.getHeight());
-            }
-           // System.out.println("dx,dy: " + dx +"," + dy +"  left: " + left + "  top: " + top + "  width:" + width + "  height:" + height);
-            
             return intersects(dx, dy, left, top, width, height);
         }
         else {
@@ -788,7 +774,6 @@ public abstract class Actor extends ObjectTransporter
     /**
      * Determines if two lines intersects.
      * 
-     * TODO: wrap
      */
     private boolean intersects(int x1, int x2, int w1, int w2)
     {
