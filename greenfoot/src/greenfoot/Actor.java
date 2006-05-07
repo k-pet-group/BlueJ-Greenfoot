@@ -600,24 +600,29 @@ public abstract class Actor extends ObjectTransporter
 
     /**
      * Checks whether the specified relative cell-location is considered to be
-     * inside this object.<p>
+     * inside this object.
+     * <p>
      * 
      * A location is considered to be inside an object, if the object's image
-     * overlaps at least partially with that cell.<p>
+     * overlaps at least partially with that cell.
+     * <p>
      * 
-     * This method is used by collision checking methods. Therefor, this method 
+     * This method is used by collision checking methods. Therefor, this method
      * can be overridden if, for example, other than rectangular image shapes
-     * should be considered.
-     * <br>
+     * should be considered. <p>
      * 
-     * NOTE: Does not take rotation into consideration.
+     * NOTE: Does not take rotation into consideration. <br>
+     * NOTE: No longer public,
+     * since no scenarios have used it so far, and we might want to do it
+     * sligthly different if we want collision checkers to only do most of the
+     * computation once pr. act.
      * 
      * @param dx The x-position relative to the location of the object
      * @param dy The y-position relative to the location of the object
      * @return True if the image contains the cell. If the object has no image,
      *         false will be returned.
      */
-    protected boolean contains(int dx, int dy)
+    boolean contains(int dx, int dy)
     {
         // TODO this disregards rotations. maybe this should be updated in the
         // getWidth/height methods
@@ -738,24 +743,24 @@ public abstract class Actor extends ObjectTransporter
         return world.getOneIntersectingObject(this, cls);
     }
 
-    /**
-     * Return all objects that intersect a straight line from this object at
-     * a specified angle. The angle is clockwise relative to the current 
-     * rotation of the object.   <br>
-     * It will never include the object itself.
-     * 
-     * NOTE: not implemented yet!
-     * 
-     * @param angle The angle relative to current rotation of the object.
-     * @param cls Class of objects to look for (passing 'null' will find all objects).
-     */
-    protected List getObjectsInDirection(int angle, int length, Class cls)
-    {
-        failIfNotInWorld();
-        List l = world.getObjectsInDirection(getX(), getY(), angle + getRotation(), length, cls);
-        l.remove(this);
-        return l;
-    }
+//    /**
+//     * Return all objects that intersect a straight line from this object at
+//     * a specified angle. The angle is clockwise relative to the current 
+//     * rotation of the object.   <br>
+//     * It will never include the object itself.
+//     * 
+//     * NOTE: not implemented yet!
+//     * 
+//     * @param angle The angle relative to current rotation of the object.
+//     * @param cls Class of objects to look for (passing 'null' will find all objects).
+//     */
+//    protected List getObjectsInDirection(int angle, int length, Class cls)
+//    {
+//        failIfNotInWorld();
+//        List l = world.getObjectsInDirection(getX(), getY(), angle + getRotation(), length, cls);
+//        l.remove(this);
+//        return l;
+//    }
 
     /**
      * Determines if the given position intersects with the rectangle.<br>
