@@ -44,7 +44,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4097 2006-05-05 14:29:08Z mik $
+ * @version $Id: GreenfootMain.java 4107 2006-05-07 12:23:23Z polle $
  */
 public class GreenfootMain
 {
@@ -442,7 +442,16 @@ public class GreenfootMain
         Version apiVersion = GreenfootMain.getAPIVersion();
 
         if (projectVersion.equals(apiVersion)) {
-            //If the version number matches, we assume everything is ok.
+            // If the version number matches everything should be ok.
+            //
+            // Just to be sure, we check that the greenfoot subdirectory is
+            // actually there. This makes it easier to work with, since it will
+            // then reinstall the classes after cleaning the scenarios with the
+            // ant script.
+            File greenfootDir = new File(projectDir, "greenfoot");
+            if(! greenfootDir.exists()) {
+                GreenfootMain.prepareGreenfootProject(systemLibDir, projectDir);
+            }
             return true;
         }
 
