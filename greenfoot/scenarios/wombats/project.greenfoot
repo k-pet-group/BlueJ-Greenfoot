@@ -1,5 +1,9 @@
 #Greenfoot properties
-#Thu Apr 27 12:44:37 BST 2006
-version=0.6 dev
+#Mon May 08 16:10:11 GMT 2006
 class.Leaf.image=leaf.gif
 class.Wombat.image=wombat.gif
+simulation.speed=50
+class.Wombat.superclass=greenfoot.Actor
+version=0.9
+class.Leaf.superclass=greenfoot.Actor
+class.WombatWorld.superclass=greenfoot.World
