@@ -33,6 +33,7 @@ import greenfoot.gui.classbrowser.ClassView;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -72,7 +73,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4128 2006-05-08 16:07:34Z polle $
+ * @version $Id: GreenfootFrame.java 4130 2006-05-08 16:19:14Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -549,12 +550,17 @@ public class GreenfootFrame extends JFrame
 
     public void compileSucceeded(RCompileEvent event)
     {
-        instantiateNewWorld(classBrowser);
-        classBrowser.rebuild();
-        if (needsResize()) {
-            pack();
-            boundsDetermined = true;
-        }
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                instantiateNewWorld(classBrowser);
+                classBrowser.rebuild();
+                if (needsResize()) {
+                    pack();
+                    boundsDetermined = true;
+		        }
+            }
+        });
     }
 
     public void compileFailed(RCompileEvent event)
