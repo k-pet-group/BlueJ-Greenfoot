@@ -634,7 +634,7 @@ public abstract class Actor extends ObjectTransporter
      * @param dy y-coordinate relative to this objects location.
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    protected List getObjectsAt(int dx, int dy, Class cls)
+    protected List getObjectsAtOffset(int dx, int dy, Class cls)
     {
         failIfNotInWorld();
         return world.getObjectsAt(getX() + dx, getY() + dy, cls);
@@ -652,11 +652,10 @@ public abstract class Actor extends ObjectTransporter
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return An object at the given location, or null if none found.
      */
-    protected Actor getOneObjectAt(int dx, int dy, Class cls)
+    protected Actor getOneObjectAtOffset(int dx, int dy, Class cls)
     {
         failIfNotInWorld();
-        return world.getOneObjectAt(getX() + dx, getY() + dy, cls);
-        
+        return world.getOneObjectAt(getX() + dx, getY() + dy, cls);        
     }
     
     /**
