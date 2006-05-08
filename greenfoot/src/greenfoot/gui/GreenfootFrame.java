@@ -1,6 +1,5 @@
 package greenfoot.gui;
 
-import bluej.utility.Debug;
 import greenfoot.World;
 import greenfoot.actions.AboutGreenfootAction;
 import greenfoot.actions.CloseProjectAction;
@@ -60,9 +59,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.Config;
-import bluej.extensions.PackageAlreadyExistsException;
-import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
@@ -74,7 +72,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4088 2006-05-04 20:36:05Z mik $
+ * @version $Id: GreenfootFrame.java 4121 2006-05-08 14:10:27Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -100,18 +98,26 @@ public class GreenfootFrame extends JFrame
         throws HeadlessException, ProjectNotOpenException, RemoteException
     {
         super("Greenfoot");
-//        try {
-//            //HACK to avoid error in class diagram (getPreferredSize stuff) on
-//            // windows, we use cross platform look and feel
-//            if (Config.isWinOS()) {
-//                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-//            }
-//        }
-//        catch (Exception exc) {
-//            Debug.reportError("(greenfoot:) " + exc);
-//            e.printStackTrace();
-//        }
-
+        try {
+            if (Config.isWinOS()) {
+                // UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            }
+        }
+        catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        catch (UnsupportedLookAndFeelException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
         LocationTracker.instance(); //force initialisation
         
         URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
