@@ -49,7 +49,7 @@ import javax.swing.JToggleButton;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4088 2006-05-04 20:36:05Z mik $
+ * @version $Id: ClassView.java 4132 2006-05-08 16:50:06Z davmac $
  */
 public class ClassView extends JToggleButton
     implements ChangeListener, Selectable, CompileListener, MouseListener
@@ -233,11 +233,15 @@ public class ClassView extends JToggleButton
      */
     public void paintComponent(Graphics g)
     {
-        drawBackground(g);
-        super.paintComponent(g);
-        
-        drawShadow((Graphics2D) g);
-        drawBorders((Graphics2D) g);
+        // Sometimes there are still paint events pending when the gclass
+        // has been removed. We can check for that here.
+        if (gClass != null) {
+            drawBackground(g);
+            super.paintComponent(g);
+            
+            drawShadow((Graphics2D) g);
+            drawBorders((Graphics2D) g);
+        }
     }
 
     
@@ -598,5 +602,6 @@ public class ClassView extends JToggleButton
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        gClass = null;
     }
 }
