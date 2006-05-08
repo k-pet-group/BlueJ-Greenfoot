@@ -72,7 +72,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4121 2006-05-08 14:10:27Z davmac $
+ * @version $Id: GreenfootFrame.java 4128 2006-05-08 16:07:34Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -89,6 +89,13 @@ public class GreenfootFrame extends JFrame
     private Dimension worldDimensions;
     private ClassBrowser classBrowser;
     private ControlPanel controlPanel;
+    
+    /**
+     * Indicates whether the bounds has been determined. The only case where it
+     * hasn't been determined is when no bounds could be found in the
+     * project.greenfoot file and a world has not been installed yet.
+     */
+    private boolean boundsDetermined = false;
     
     
     /**
@@ -173,9 +180,12 @@ public class GreenfootFrame extends JFrame
         this.setTitle("Greenfoot: " + project.getName());
         populateClassBrowser(classBrowser, project);
         worldHandler.attachProject(project);
-        instantiateNewWorld(classBrowser);
-    }
-    
+        World newWorld = instantiateNewWorld(classBrowser);
+        if (! boundsDetermined  && newWorld != null) {
+            pack();
+            boundsDetermined = true;
+        }
+    }    
     
     /**
      * Create the GUI components for this project in the top level frame.
@@ -541,8 +551,9 @@ public class GreenfootFrame extends JFrame
     {
         instantiateNewWorld(classBrowser);
         classBrowser.rebuild();
-        if (worldSizeChanged()) {
+        if (needsResize()) {
             pack();
+            boundsDetermined = true;
         }
     }
 
@@ -560,15 +571,33 @@ public class GreenfootFrame extends JFrame
         return Toolkit.getDefaultToolkit().getScreenSize();
     }
     
-    private boolean worldSizeChanged()
+    /**
+     * Returns true if we need to resize the frame. Based on whether the world
+     * has changed size.
+     * 
+     * @return
+     */
+    private boolean needsResize()
     {
         Dimension dim = worldCanvas.getPreferredSize();
-        if(dim.equals(worldDimensions) || worldDimensions == null) {
+        if ((dim.equals(worldDimensions) || worldDimensions == null) && boundsDetermined) {
+            worldDimensions = dim;
             return false;
         }
         else {
             worldDimensions = dim;
             return true;
         }
+    }
+
+    /**
+     * Set this frame to a fixed size and location. This size is only used until
+     * the world changes size or the frame is explicitly resized by the user.
+     * 
+     */
+    public void setFixedBounds(int x, int y, int width, int height)
+    {
+        setBounds(x, y, width, height);
+        this.boundsDetermined = true;
     }
 }

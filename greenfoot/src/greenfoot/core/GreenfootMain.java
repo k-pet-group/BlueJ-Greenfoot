@@ -44,7 +44,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4127 2006-05-08 15:03:07Z polle $
+ * @version $Id: GreenfootMain.java 4128 2006-05-08 16:07:34Z polle $
  */
 public class GreenfootMain
 {
@@ -286,11 +286,10 @@ public class GreenfootMain
             int width = projectProperties.getInt("mainWindow.width");
             int height = projectProperties.getInt("mainWindow.height");
 
-            frame.setBounds(x, y, width, height);            
+            frame.setFixedBounds(x, y, width, height);
         } 
         catch (NumberFormatException ecx) {
             // doesn't matter - just use some default size
-            // TODO: this should not be needed once the resize behaviour works properly.
             frame.setBounds(40, 40, 600, 500);
         }
         
