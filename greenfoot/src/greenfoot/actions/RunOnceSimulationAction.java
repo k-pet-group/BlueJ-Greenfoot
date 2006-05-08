@@ -4,10 +4,10 @@ import greenfoot.core.Simulation;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import bluej.utility.Debug;
@@ -67,13 +67,18 @@ public class RunOnceSimulationAction extends AbstractAction
     /**
      * Observing for the simulation state so we can dis/en-able us appropiately
      */
-    public void simulationChanged(SimulationEvent e)
+    public void simulationChanged(final SimulationEvent e)
     {
-        if (e.getType() == SimulationEvent.STOPPED) {
-            setEnabled(true);
-        }
-        if (e.getType() == SimulationEvent.STARTED) {
-            setEnabled(false);
-        }
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                if (e.getType() == SimulationEvent.STOPPED) {
+                    setEnabled(true);
+                }
+                if (e.getType() == SimulationEvent.STARTED) {
+                    setEnabled(false);
+                }
+            }
+        });
     }
 }

@@ -1,19 +1,20 @@
 package greenfoot.actions;
 
 import greenfoot.core.Simulation;
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
 import bluej.utility.Debug;
-import greenfoot.event.SimulationEvent;
-import greenfoot.event.SimulationListener;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RunSimulationAction.java 3923 2006-03-29 09:55:50Z mik $
+ * @version $Id: RunSimulationAction.java 4125 2006-05-08 14:57:27Z davmac $
  */
 public class RunSimulationAction extends AbstractAction
     implements SimulationListener
@@ -69,13 +70,18 @@ public class RunSimulationAction extends AbstractAction
     /**
      * Observing for the simulation state so we can dis/en-able us appropiately
      */
-    public void simulationChanged(SimulationEvent e)
+    public void simulationChanged(final SimulationEvent e)
     {
-        if (e.getType() == SimulationEvent.STOPPED) {
-            setEnabled(true);
-        }
-        if (e.getType() == SimulationEvent.STARTED) {
-            setEnabled(false);
-        }
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                if (e.getType() == SimulationEvent.STOPPED) {
+                    setEnabled(true);
+                }
+                if (e.getType() == SimulationEvent.STARTED) {
+                    setEnabled(false);
+                }
+            }
+        });
     }
 }
