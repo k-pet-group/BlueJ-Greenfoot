@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.BufferedInputStream;
@@ -25,7 +26,7 @@ import javax.swing.JPanel;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4084 2006-05-04 14:01:15Z davmac $
+ * @version $Id: GreenfootUtil.java 4134 2006-05-08 17:49:21Z davmac $
  */
 public class GreenfootUtil
 {
@@ -149,6 +150,8 @@ public class GreenfootUtil
         // Otherwise create a new image
         BufferedImage rImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = rImage.createGraphics();
+        // We'd like interpolated image rendering.
+        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         
         // if the input image is smaller in both dimensions than the required
         // image, just stamp it.
