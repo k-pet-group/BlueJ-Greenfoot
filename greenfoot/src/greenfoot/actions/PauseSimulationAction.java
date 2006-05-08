@@ -13,7 +13,7 @@ import greenfoot.event.SimulationListener;
 
 /**
  * @author Poul Henriksen
- * @version $Id: PauseSimulationAction.java 3923 2006-03-29 09:55:50Z mik $
+ * @version $Id: PauseSimulationAction.java 4115 2006-05-08 12:56:59Z davmac $
  */
 public class PauseSimulationAction extends AbstractAction
     implements SimulationListener
@@ -34,6 +34,7 @@ public class PauseSimulationAction extends AbstractAction
     private PauseSimulationAction()
     {
         super("Pause", new ImageIcon(PauseSimulationAction.class.getClassLoader().getResource(iconFile)));
+        setEnabled(false);
     }
 
     /**
