@@ -20,7 +20,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 0.6 dev
- * @cvs-version $Id: GreenfootImage.java 4065 2006-05-02 10:56:34Z mik $
+ * @cvs-version $Id: GreenfootImage.java 4136 2006-05-08 18:22:45Z polle $
  */
 public class GreenfootImage
 {
@@ -163,6 +163,9 @@ public class GreenfootImage
             graphics.drawImage(image, 0, 0, null);
             image = bImage;
         }
+        if(graphics != null) {
+            graphics.setBackground(new Color(0,0,0,0));
+        }
     }
     
     private Graphics2D getGraphics() {
@@ -224,7 +227,7 @@ public class GreenfootImage
         g.fillRect(0, 0, getWidth(), getHeight());
         g.setColor(oldColor);
     }
-
+    
     /**
      * Draws the given Image onto this image
      * 
@@ -319,6 +322,16 @@ public class GreenfootImage
     public void fillRect(int x, int y, int width, int height)
     {
         getGraphics().fillRect(x, y, width, height);
+    }
+    
+
+    /**
+     * Clears the image.
+     * 
+     */
+    public void clear()
+    {        
+        getGraphics().clearRect(0, 0, getWidth(), getHeight());
     }
 
     /**
