@@ -5,7 +5,6 @@ import greenfoot.ActorVisitor;
 import greenfoot.ObjectTracker;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
-import greenfoot.actions.PauseSimulationAction;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.DragGlassPane;
@@ -18,6 +17,7 @@ import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.localdebugger.LocalObject;
 
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -46,7 +47,6 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import javax.swing.BorderFactory;
 
 /**
  * The worldhandler handles the connection between the World and the
@@ -112,7 +112,6 @@ public class WorldHandler
         worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
         worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
 
-        this.project = project;
         this.worldCanvas = worldCanvas;
         worldEvent = new WorldEvent(this);
         worldCanvas.addMouseListener(this);
@@ -346,12 +345,18 @@ public class WorldHandler
     /**
      * Returns a list of all objects.
      * 
+     * Access to the list should be synchronized using the word lock
+     * (see getWorldLock).
      */
     public List getActors()
     {
         return world.getObjects(null);
     }
     
+    /**
+     * Get the world lock object. The world lock controls access to the
+     * world, including the list of actors in the world.
+     */
     public Object getWorldLock() {
         return world;
     }
@@ -436,53 +441,58 @@ public class WorldHandler
      */
     public void setWorld(World world)
     {
-        if(this.world != null) {
-            PauseSimulationAction.getInstance().actionPerformed(null);
+        synchronized (this) {
+            if (this.world != null) {
+                Simulation.getInstance().setPaused(true);
+            }
+            this.world = world;
         }
         
-        this.world = world;
-
-        if (world != null) {
-            worldTitle.setText(world.getClass().getName());
-        }
-        worldCanvas.setWorld(world); // TODO consider removing this and only
-        // rely on observer
-        worldTitle.setEnabled(true);
-        MouseListener listeners[] = worldTitle.getMouseListeners();
-        for (int i = 0; i < listeners.length; i++) {
-            MouseListener listener = listeners[i];
-            worldTitle.removeMouseListener(listener);
-        }
-
-        worldTitle.addMouseListener(new MouseAdapter() {
-            public void mouseReleased(MouseEvent e)
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
             {
-                maybeShowPopup(e);
-            }
-
-            public void mousePressed(MouseEvent e)
-            {
-                maybeShowPopup(e);
-            }
-
-            private void maybeShowPopup(MouseEvent e)
-            {
-                Object world = WorldHandler.this.world;
-                if (e.isPopupTrigger() && world != null) {
-                    JPopupMenu menu = new JPopupMenu();
-                    
-                    ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world,
-                            WorldHandler.this, project), new LocalObject(world), null);
-                    menu.addSeparator();
-                    // "inspect" menu item
-                    JMenuItem m = getInspectMenuItem(world);
-                    menu.add(m);
-                    menu.show(worldTitle, e.getX(), e.getY());
+                World world = WorldHandler.this.world;
+                if (world != null) {
+                    worldTitle.setText(world.getClass().getName());
                 }
+                worldCanvas.setWorld(world); // TODO consider removing this and only
+                // rely on observer
+                worldTitle.setEnabled(true);
+                MouseListener listeners[] = worldTitle.getMouseListeners();
+                for (int i = 0; i < listeners.length; i++) {
+                    worldTitle.removeMouseListener(listeners[i]);
+                }
+
+                worldTitle.addMouseListener(new MouseAdapter() {
+                    public void mouseReleased(MouseEvent e)
+                    {
+                        maybeShowPopup(e);
+                    }
+
+                    public void mousePressed(MouseEvent e)
+                    {
+                        maybeShowPopup(e);
+                    }
+
+                    private void maybeShowPopup(MouseEvent e)
+                    {
+                        Object world = WorldHandler.this.world;
+                        if (e.isPopupTrigger() && world != null) {
+                            JPopupMenu menu = new JPopupMenu();
+                            
+                            ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world,
+                                    WorldHandler.this, project), new LocalObject(world), null);
+                            menu.addSeparator();
+                            // "inspect" menu item
+                            JMenuItem m = getInspectMenuItem(world);
+                            menu.add(m);
+                            menu.show(worldTitle, e.getX(), e.getY());
+                        }
+                    }
+                });
+                fireWorldCreatedEvent();
             }
         });
-        fireWorldCreatedEvent();
-
     }
 
     /**
@@ -495,11 +505,6 @@ public class WorldHandler
     
     public World getWorld() {
         return world;
-    }
-
-    public WorldCanvas getWorldCanvas()
-    {
-        return worldCanvas;
     }
 
     public boolean drop(Object o, Point p)
@@ -574,7 +579,7 @@ public class WorldHandler
      *             bounds of the world. Note that a wrapping world has no
      *             bounds.
      */
-    public boolean addObjectAtPixel(Actor actor, int x, int y)
+    public synchronized boolean addObjectAtPixel(Actor actor, int x, int y)
     {
         int xCell = WorldVisitor.toCellFloor(world, x);
         int yCell = WorldVisitor.toCellFloor(world, y);
@@ -626,9 +631,14 @@ public class WorldHandler
      */
     public void reset()
     {
-        project.removeAllInspectors();
-        setWorld(null);
-        fireWorldRemovedEvent();
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                project.removeAllInspectors();
+                setWorld(null);
+                fireWorldRemovedEvent();
+            }
+        });
     }
     
     
