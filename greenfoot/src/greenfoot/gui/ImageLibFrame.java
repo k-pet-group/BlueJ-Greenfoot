@@ -10,7 +10,12 @@ import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.GreenfootUtil.ImageWaiter;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -24,7 +29,21 @@ import java.lang.reflect.Modifier;
 import java.rmi.RemoteException;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -42,7 +61,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4111 2006-05-07 15:05:59Z polle $
+ * @version $Id: ImageLibFrame.java 4122 2006-05-08 14:12:06Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -120,6 +139,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         contentPane.setBorder(BlueJTheme.dialogBorder);
         
         int spacingLarge = BlueJTheme.componentSpacingLarge;
+        int spacingSmall = BlueJTheme.componentSpacingSmall;
         
         okAction = new AbstractAction("Ok") {
             public void actionPerformed(ActionEvent e)
@@ -224,7 +244,14 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 else {
                     icon = getClassIcon(gclass, defaultIcon);
                 }
-                imageLabel = new JLabel(icon);
+                imageLabel = new JLabel(icon) {
+                    // We don't want changing the image to re-layout the
+                    // whole frame
+                    public boolean isValidateRoot()
+                    {
+                        return true;
+                    }
+                };
                 if (showingGeneratedImage) {
                     imageLabel.setText("(auto-generated)");
                 }
@@ -242,8 +269,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         
         // Image selection panels - project and greenfoot image library
         {
-            JPanel imageSelPanels = new JPanel();
-            imageSelPanels.setLayout(new GridLayout(1, 2, BlueJTheme.componentSpacingSmall, 0));
+            //JPanel imageSelPanels = new JPanel();
+            //imageSelPanels.setLayout(new GridLayout(1, 2, BlueJTheme.componentSpacingSmall, 0));
+            Box imageSelPanels = new Box(BoxLayout.X_AXIS);
             
             // Project images panel
             {
@@ -272,12 +300,14 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 imageSelPanels.add(piPanel);
             }
             
+            imageSelPanels.add(GreenfootUtil.createSpacer(GreenfootUtil.X_AXIS, spacingLarge));
+            
             // Category selection panel
             ImageCategorySelector imageCategorySelector;
             {
                 Box piPanel = new Box(BoxLayout.Y_AXIS);
                 
-                JLabel piLabel = new JLabel("Image Categories:");
+                JLabel piLabel = new JLabel("Image Categories:   ");
                 piLabel.setAlignmentX(0.0f);
                 piPanel.add(piLabel);
                 
@@ -295,7 +325,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 piPanel.add(jsp);
                 imageSelPanels.add(piPanel);
             }
-            
+
+            imageSelPanels.add(GreenfootUtil.createSpacer(GreenfootUtil.X_AXIS, spacingSmall));
+
             // Greenfoot images panel
             {
                 Box piPanel = new Box(BoxLayout.Y_AXIS);

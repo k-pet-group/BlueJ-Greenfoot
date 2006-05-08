@@ -25,7 +25,7 @@ import javax.swing.event.ListSelectionListener;
  * the contents of that category.
  * 
  * @author davmac
- * @version $Id: ImageCategorySelector.java 4076 2006-05-02 14:32:42Z davmac $
+ * @version $Id: ImageCategorySelector.java 4122 2006-05-08 14:12:06Z davmac $
  */
 public class ImageCategorySelector extends JList
     implements ListSelectionListener
@@ -112,7 +112,7 @@ public class ImageCategorySelector extends JList
         public MyCellRenderer()
         {
             super(BoxLayout.X_AXIS);
-            categoryNameLabel = new JLabel();
+            categoryNameLabel = new JLabel(" ");
             categoryNameLabel.setOpaque(true);
             add(categoryNameLabel);
             iconLabel = new JLabel(openRightIcon);
@@ -141,8 +141,8 @@ public class ImageCategorySelector extends JList
             // much space as possible, pushing the icon over to the
             // right.
             Dimension size = categoryNameLabel.getPreferredSize();
-            size.width = list.getWidth();
-            categoryNameLabel.setPreferredSize(size);
+            size.width = Integer.MAX_VALUE;
+            categoryNameLabel.setMaximumSize(size);
             
             // Set foreground and background colors according to 
             // selection status.
@@ -168,4 +168,14 @@ public class ImageCategorySelector extends JList
         }
     }
 
+    /* (non-Javadoc)
+     * @see javax.swing.Scrollable#getPreferredScrollableViewportSize()
+     */
+    public Dimension getPreferredScrollableViewportSize()
+    {
+        // Limit the preferred viewport width to the preferred width
+        Dimension d = super.getPreferredScrollableViewportSize();
+        d.width = Math.min(d.width, getPreferredSize().width);
+        return d;
+    }
 }

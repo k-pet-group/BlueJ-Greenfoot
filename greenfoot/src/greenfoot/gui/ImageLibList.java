@@ -3,6 +3,7 @@ package greenfoot.gui;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
@@ -14,14 +15,22 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
+
+import bluej.BlueJTheme;
 
 /**
  * A list component which displays a list of images (found in a directory) with their
  * filenames.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibList.java 4076 2006-05-02 14:32:42Z davmac $
+ * @version $Id: ImageLibList.java 4122 2006-05-08 14:12:06Z davmac $
  */
 public class ImageLibList extends JList
 {
@@ -115,6 +124,13 @@ public class ImageLibList extends JList
     private static class MyCellRenderer extends JLabel
         implements ListCellRenderer
     {
+//        public MyCellRenderer()
+//        {
+//           imageLabel = new JLabel();
+//           add(imageLabel);
+//           add(GreenfootUtil.createSpacer(GreenfootUtil.X_AXIS, BlueJTheme.generalSpacingWidth));
+//        }
+        
         public Component getListCellRendererComponent(
                 JList list,
                 Object value,            // value to display
@@ -139,7 +155,16 @@ public class ImageLibList extends JList
             item.setEnabled(list.isEnabled());
             item.setFont(list.getFont());
             item.setOpaque(true);
-            return item;
+            return this;
+        }
+        
+        public Dimension getPreferredSize()
+        {
+            // TODO Auto-generated method stub
+            //return super.getPreferredSize();
+            Dimension d = super.getPreferredSize();
+            d.width += BlueJTheme.generalSpacingWidth;
+            return d;
         }
     }
     
@@ -154,4 +179,39 @@ public class ImageLibList extends JList
             imageIcon = icon;
         }
     }
+    
+    /* (non-Javadoc)
+     * @see java.awt.Component#getPreferredSize()
+     */
+    public Dimension getPreferredSize()
+    {
+        if (getModel().getSize() != 0) {
+            return super.getPreferredSize();
+        }
+        else {
+            // If there are no items in the list, try and guess an
+            // appropriate preferred with. The default guess isn't very
+            // good.
+            Dimension d = super.getPreferredSize();
+            ListCellRenderer renderer = getCellRenderer();
+            
+            int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+            ImageListEntry fakeEntry = new ImageListEntry(new File("abcdefghijklmnopqrstuvw.jpg"), new ImageIcon(new BufferedImage(dpi/3, dpi/3, BufferedImage.TYPE_INT_ARGB)));
+            Component component = renderer.getListCellRendererComponent(this, fakeEntry, 0, false, false);
+            d.width = component.getPreferredSize().width;
+            return d;
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see javax.swing.Scrollable#getPreferredScrollableViewportSize()
+     */
+    public Dimension getPreferredScrollableViewportSize()
+    {
+        // Limit the preferred viewport width to the preferred width
+        Dimension d = super.getPreferredScrollableViewportSize();
+        d.width = Math.min(d.width, getPreferredSize().width);
+        return d;
+    }
+
 }
