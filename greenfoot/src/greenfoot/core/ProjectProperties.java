@@ -151,7 +151,7 @@ public class ProjectProperties
     /**
      * Gets an int property as in Java's Properties class.
      */
-    public int getInt(String key)
+    public int getInt(String key) throws NumberFormatException
     {
         String number = properties.getProperty(key);
         return Integer.parseInt(number);

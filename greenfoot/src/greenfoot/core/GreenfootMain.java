@@ -44,7 +44,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4111 2006-05-07 15:05:59Z polle $
+ * @version $Id: GreenfootMain.java 4127 2006-05-08 15:03:07Z polle $
  */
 public class GreenfootMain
 {
@@ -279,22 +279,27 @@ public class GreenfootMain
     {
         ProjectProperties projectProperties = getProject().getProjectProperties();
 
-        try {
-            
+        try {            
             int x = projectProperties.getInt("mainWindow.x");
             int y = projectProperties.getInt("mainWindow.y");
 
             int width = projectProperties.getInt("mainWindow.width");
             int height = projectProperties.getInt("mainWindow.height");
 
-            frame.setBounds(x, y, width, height);
-            
+            frame.setBounds(x, y, width, height);            
+        } 
+        catch (NumberFormatException ecx) {
+            // doesn't matter - just use some default size
+            // TODO: this should not be needed once the resize behaviour works properly.
+            frame.setBounds(40, 40, 600, 500);
+        }
+        
+        try {
             int speed = projectProperties.getInt("simulation.speed");
             Simulation.getInstance().setSpeed(speed);
         } 
         catch (NumberFormatException ecx) {
-            // doesn't matter - project not found - just use some default size
-            frame.setBounds(40, 40, 600, 500);
+            //simulation.speed not found
         }
     }
 
