@@ -260,7 +260,8 @@ public abstract class Actor extends ObjectTransporter
 
     /**
      * Set an image for this object from an image file. The file may be in
-     * jpeg, gif or png format. The file should be located in the project directory.
+     * jpeg, gif or png format. The file should be located in the project
+     * directory.
      * 
      * @see #setImage(ImageIcon)
      * @param filename The name of the image file.
@@ -268,6 +269,9 @@ public abstract class Actor extends ObjectTransporter
     public void setImage(String filename)
     {
         URL imageURL = this.getClass().getClassLoader().getResource(filename);
+        if (imageURL == null) {
+            imageURL = this.getClass().getClassLoader().getResource("images/" + filename);
+        }
         if (imageURL != null) {
             image = new GreenfootImage(imageURL);
             usingClassImage = false;
