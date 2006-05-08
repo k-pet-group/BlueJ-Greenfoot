@@ -29,7 +29,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 4072 2006-05-02 14:06:16Z mik $
+ * @version $Id: ControlPanel.java 4135 2006-05-08 17:52:59Z davmac $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener, WorldListener
@@ -151,7 +151,6 @@ public class ControlPanel extends Box
     public void worldCreated(WorldEvent e)
     {
         runSimulationAction.setEnabled(true);
-        pauseSimulationAction.setEnabled(true);
         runOnceSimulationAction.setEnabled(true);
     }
 
