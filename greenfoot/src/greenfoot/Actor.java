@@ -28,8 +28,10 @@ import java.util.List;
  */
 public abstract class Actor extends ObjectTransporter
 {
+    /** Error message to display when trying to use methods that requires a world. */
     private static final String NO_WORLD = "No world has been instantiated.";
 
+    /** Error message to display when trying to use methods that requires the actor be in a world. */
     private static final String ACTOR_NOT_IN_WORLD = "The actor has not been inserted into a world so it has no location yet. You might want to look at the method addedToWorld on the Actor class.";
     
     /**
@@ -72,18 +74,6 @@ public abstract class Actor extends ObjectTransporter
      */
     public Actor()
     {
-        init();
-    }
-    
-    /**
-     * Initialize an Actor:
-     * <ul>
-     * <li>Set the image to the default image for the Actor's class
-     * <li>Put the actor in the world
-     * </ul>
-     */
-    private void init()
-    {
         // Use the class image, if one is defined, as the default image, or the
         // greenfoot logo image otherwise
         GreenfootImage image = getClassImage();
@@ -93,7 +83,6 @@ public abstract class Actor extends ObjectTransporter
         setImage(image);
         usingClassImage = true;
     }
-
 
     /**
      * The act method is called by the greenfoot framework to give objects a
@@ -168,48 +157,6 @@ public abstract class Actor extends ObjectTransporter
     }
 
     /**
-     * Gets the x-coordinate of the left most cell that is occupied by the
-     * object.
-     * 
-     */
-    private int getXMin()
-    {
-        return toCellFloor(getPaintX());
-    }
-
-    /**
-     * Gets the x-coordinate of the right most cell that is occupied by the
-     * object.
-     * 
-     * @throws IllegalStateException If there is no world instantiated.
-     */
-    private int getXMax()
-    {
-        return toCellFloor(getPaintX() + image.getWidth() - 1);
-    }
-
-    /**
-     * Gets the y-coordinate of the top most cell that is occupied by the
-     * object.
-     * 
-     * @throws IllegalStateException If there is no world instantiated.
-     */
-    private int getYMin()
-    {
-        return toCellFloor(getPaintY());
-    }
-
-    /**
-     * Gets the y-coordinate of the bottom most cell that is occupied by the
-     * object.
-     * 
-     */
-    private int getYMax()
-    {
-        return toCellFloor(getPaintY() + image.getHeight() - 1);
-    }
-
-    /**
      * Return the current rotation of the object. Rotation is expressed as a degree
      * value, range (0..359). Zero degrees is to the east. The angle increases 
      * clockwise.
@@ -272,33 +219,27 @@ public abstract class Actor extends ObjectTransporter
     }
 
     /**
-     * Checks if the coordinates are within the bounds of the world. Throws an
-     * exception if they are not within bounds.
-     * 
-     * @param x
-     * @param y
-     */
-    private void boundsCheck(int x, int y)
-    {
-        failIfNotInWorld();
-        if (world.getWidth() <= x || x < 0) {
-            throw new IndexOutOfBoundsException("x(" + x + ") is out of bounds(" + world.getWidth() + ")");
-        }
-        if (world.getHeight() <= y || y < 0) {
-            throw new IndexOutOfBoundsException("y(" + y + ") is out of bounds(" + world.getHeight() + ")");
-        }
-    }
-
-    /**
      * Return the world that this object lives in.
      * 
      * @return The world.
      */
-    final public World getWorld()
+    public World getWorld()
     {
         return world; 
     }
- 
+
+    /**
+     * This method will be called by the Greenfoot system when the object has
+     * been inserted into the world. This method can be overridden to implement
+     * custom behavoiur when the actor is inserted into the world.
+     * <p>
+     * This default implementation is empty.
+     * 
+     * @param world The world the object was added to.
+     */
+    public void addedToWorld(World world)
+    {}
+    
     /**
      * Returns the image used to represent this Actor. This image can be 
      * modified to change the object's appearance.
@@ -324,7 +265,7 @@ public abstract class Actor extends ObjectTransporter
      * @see #setImage(ImageIcon)
      * @param filename The name of the image file.
      */
-    final public void setImage(String filename)
+    public void setImage(String filename)
     {
         URL imageURL = this.getClass().getClassLoader().getResource(filename);
         if (imageURL != null) {
@@ -340,7 +281,7 @@ public abstract class Actor extends ObjectTransporter
      * @see #setImage(String)
      * @param image The image.
      */
-    final public void setImage(GreenfootImage image)
+    public void setImage(GreenfootImage image)
     {
         this.image = image;
         sizeChanged();
@@ -387,18 +328,6 @@ public abstract class Actor extends ObjectTransporter
             boundingCircle = new Circle(x,y,calcBoundingRadius());
         }
     }
-
-    /**
-     * This method will be called by the Greenfoot system when the object has
-     * been inserted into the world. This method can be overridden to implement
-     * custom behavoiur when the actor is inserted into the world.
-     * <p>
-     * This default implementation is empty.
-     * 
-     * @param world The world the object was added to.
-     */
-    public void addedToWorld(World world)
-    {}
     
     /**
      * Get the image to use when displaying this actor. This should be whatever
@@ -439,6 +368,13 @@ public abstract class Actor extends ObjectTransporter
         return usingClassImage;
     }
     
+
+    // ============================
+    //
+    // Private methods
+    //
+    // ============================
+    
     /**
      * Get the default image for objects of this class. May return null.
      */
@@ -462,9 +398,55 @@ public abstract class Actor extends ObjectTransporter
         if(aWorld == null) {
             aWorld = WorldHandler.getInstance().getWorld();
         }
+        if(aWorld == null) {
+            // Should never happen
+            throw new IllegalStateException(NO_WORLD);
+        }
         return (int) Math.floor((double) i / aWorld.getCellSize());
     }
 
+    /**
+     * Gets the x-coordinate of the left most cell that is occupied by the
+     * object.
+     * 
+     */
+    private int getXMin()
+    {
+        return toCellFloor(getPaintX());
+    }
+
+    /**
+     * Gets the x-coordinate of the right most cell that is occupied by the
+     * object.
+     * 
+     * @throws IllegalStateException If there is no world instantiated.
+     */
+    private int getXMax()
+    {
+        return toCellFloor(getPaintX() + image.getWidth() - 1);
+    }
+
+    /**
+     * Gets the y-coordinate of the top most cell that is occupied by the
+     * object.
+     * 
+     * @throws IllegalStateException If there is no world instantiated.
+     */
+    private int getYMin()
+    {
+        return toCellFloor(getPaintY());
+    }
+
+    /**
+     * Gets the y-coordinate of the bottom most cell that is occupied by the
+     * object.
+     * 
+     */
+    private int getYMax()
+    {
+        return toCellFloor(getPaintY() + image.getHeight() - 1);
+    }
+    
     /**
      * Pixel location of the left of the image.
      * 
@@ -479,6 +461,7 @@ public abstract class Actor extends ObjectTransporter
             aWorld = WorldHandler.getInstance().getWorld();
         } 
         if (aWorld == null) {
+            // Should never happen
             throw new IllegalStateException(NO_WORLD);
         }
         double cellCenter = aWorld.getCellCenter(x);
@@ -562,6 +545,24 @@ public abstract class Actor extends ObjectTransporter
         }
     }
 
+    /**
+     * Checks if the coordinates are within the bounds of the world. Throws an
+     * exception if they are not within bounds.
+     * 
+     * @param x
+     * @param y
+     */
+    private void boundsCheck(int x, int y)
+    {
+        failIfNotInWorld();
+        if (world.getWidth() <= x || x < 0) {
+            throw new IndexOutOfBoundsException("x(" + x + ") is out of bounds(" + world.getWidth() + ")");
+        }
+        if (world.getHeight() <= y || y < 0) {
+            throw new IndexOutOfBoundsException("y(" + y + ") is out of bounds(" + world.getHeight() + ")");
+        }
+    }
+
     // ============================
     //
     // Collision stuff
@@ -596,47 +597,6 @@ public abstract class Actor extends ObjectTransporter
         }
 
         return true;
-    }
-
-    /**
-     * Checks whether the specified relative cell-location is considered to be
-     * inside this object.
-     * <p>
-     * 
-     * A location is considered to be inside an object, if the object's image
-     * overlaps at least partially with that cell.
-     * <p>
-     * 
-     * This method is used by collision checking methods. Therefor, this method
-     * can be overridden if, for example, other than rectangular image shapes
-     * should be considered. <p>
-     * 
-     * NOTE: Does not take rotation into consideration. <br>
-     * NOTE: No longer public,
-     * since no scenarios have used it so far, and we might want to do it
-     * sligthly different if we want collision checkers to only do most of the
-     * computation once pr. act.
-     * 
-     * @param dx The x-position relative to the location of the object
-     * @param dy The y-position relative to the location of the object
-     * @return True if the image contains the cell. If the object has no image,
-     *         false will be returned.
-     */
-    boolean contains(int dx, int dy)
-    {
-        // TODO this disregards rotations. maybe this should be updated in the
-        // getWidth/height methods
-        failIfNotInWorld();
-        if (image != null) {
-            int width = getXMax() - getXMin() + 1;
-            int height = getYMax() - getYMin() + 1;
-            int left = getXMin() - getX();
-            int top = getYMin() - getY();
-            return intersects(dx, dy, left, top, width, height);
-        }
-        else {
-            return false;
-        }
     }
 
     /**
@@ -762,6 +722,48 @@ public abstract class Actor extends ObjectTransporter
 //        return l;
 //    }
 
+
+    /**
+     * Checks whether the specified relative cell-location is considered to be
+     * inside this object.
+     * <p>
+     * 
+     * A location is considered to be inside an object, if the object's image
+     * overlaps at least partially with that cell.
+     * <p>
+     * 
+     * This method is used by collision checking methods. Therefor, this method
+     * can be overridden if, for example, other than rectangular image shapes
+     * should be considered. <p>
+     * 
+     * NOTE: Does not take rotation into consideration. <br>
+     * NOTE: No longer public,
+     * since no scenarios have used it so far, and we might want to do it
+     * sligthly different if we want collision checkers to only do most of the
+     * computation once pr. act.
+     * 
+     * @param dx The x-position relative to the location of the object
+     * @param dy The y-position relative to the location of the object
+     * @return True if the image contains the cell. If the object has no image,
+     *         false will be returned.
+     */
+    boolean contains(int dx, int dy)
+    {
+        // TODO this disregards rotations. maybe this should be updated in the
+        // getWidth/height methods
+        failIfNotInWorld();
+        if (image != null) {
+            int width = getXMax() - getXMin() + 1;
+            int height = getYMax() - getYMin() + 1;
+            int left = getXMin() - getX();
+            int top = getYMin() - getY();
+            return intersects(dx, dy, left, top, width, height);
+        }
+        else {
+            return false;
+        }
+    }
+    
     /**
      * Determines if the given position intersects with the rectangle.<br>
      * 
