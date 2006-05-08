@@ -207,6 +207,7 @@ public class DocuGenerator
         private File logFile;
         private String logHeader;
         private boolean openBrowser;
+        private static final Object mutex = new Object();
 
         public DocuRunStarter(String[] call, File result, File log, 
                               String header, boolean browse)
@@ -245,12 +246,13 @@ public class DocuGenerator
                 logWriter.println("<---- end of javadoc command ---->");
                 logWriter.flush();
                 
+                final int exitValue;
                 // Call Javadoc
-                final int exitValue = com.sun.tools.javadoc.Main.execute("javadoc",
-                        logWriter,logWriter, logWriter,
-                        "com.sun.tools.doclets.standard.Standard",
-                        docuCall2);
-                
+                // We synchronize because Javadoc can run into problems if several instances are running at the same time.
+                synchronized (mutex) {
+                    exitValue = com.sun.tools.javadoc.Main.execute("javadoc", logWriter, logWriter,
+                            logWriter, "com.sun.tools.doclets.standard.Standard", docuCall2);
+                }
                 EventQueue.invokeLater(new Runnable() {
                     public void run() {
                         if (exitValue == 0) {

@@ -12,7 +12,7 @@ import bluej.pkgmgr.Package;
  * A target in a package that can be edited as text
  *
  * @author  Michael Cahill
- * @version $Id: EditableTarget.java 3784 2006-02-15 01:37:58Z davmac $
+ * @version $Id: EditableTarget.java 4116 2006-05-08 13:18:36Z polle $
  */
 public abstract class EditableTarget extends Target
     implements EditorWatcher
@@ -68,6 +68,9 @@ public abstract class EditableTarget extends Target
         getEditor().close();
     }
 
+    /**
+     * Return true if this editor has been opened at some point since this project was opened.
+     */
     public boolean editorOpen()
     {
         return (editor!=null);

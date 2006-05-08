@@ -22,7 +22,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 3658 2005-10-07 15:35:48Z iau $
+ * @version    $Id: BClass.java 4116 2006-05-08 13:18:36Z polle $
  */
 
 /*
@@ -458,13 +458,15 @@ public class BClass
     public File getJavaFile()
              throws ProjectNotOpenException, PackageNotFoundException
     {
-        ClassTarget aTarget = classId.getClassTarget();
-        bluej.editor.Editor anEditor = aTarget.getEditor();
-        if (anEditor != null) {
-            try {
-                anEditor.save();
+        ClassTarget aTarget = classId.getClassTarget();        
+        if(aTarget.editorOpen()) {
+            bluej.editor.Editor anEditor = aTarget.getEditor();
+            if (anEditor != null) {
+                try {
+                    anEditor.save();
+                }
+                catch (IOException ioe) {}
             }
-            catch (IOException ioe) {}
         }
 
         return aTarget.getSourceFile();
