@@ -1,5 +1,6 @@
 package greenfoot.core;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.net.URL;
 import java.rmi.RemoteException;
@@ -10,7 +11,6 @@ import rmiextension.BlueJRMIClient;
 import rmiextension.wrappers.RBlueJ;
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.utility.Debug;
 
 /**
  * An object of GreenfootLauncher is the first object that is created in the
@@ -22,31 +22,36 @@ import bluej.utility.Debug;
  * @version 22-05-2003
  * @version $Id$
  */
-public class GreenfootLauncher
+public class GreenfootLauncher implements Runnable
 {
-
+    private String prjDir;
+    private String pkgName;
+    
     public GreenfootLauncher(String prjDir, String pkgName)
     {
+        this.prjDir = prjDir;
+        this.pkgName = pkgName;
+        EventQueue.invokeLater(this);
+    }
+    
+    public void run()
+    {
         BlueJRMIClient client = new BlueJRMIClient(prjDir, pkgName);
+        
+        // TODO Auto-generated method stub
+        RBlueJ blueJ = client.getBlueJ();
+        try {
+            File libdir = blueJ.getSystemLibDir();
+            Config.initializeVMside(libdir, client);
+            
+            URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
+            ImageIcon icon = new ImageIcon(iconFile);
+            BlueJTheme.setIconImage(icon.getImage());
 
-        if (client != null) {
-            RBlueJ blueJ = client.getBlueJ();
-            try {
-                File libdir = blueJ.getSystemLibDir();
-                Config.initializeVMside(libdir, client);
-                
-                URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
-                ImageIcon icon = new ImageIcon(iconFile);
-                BlueJTheme.setIconImage(icon.getImage());
-
-                GreenfootMain.initialize(blueJ, client.getPackage());
-            }
-            catch (RemoteException re) {
-                re.printStackTrace();
-            }
+            GreenfootMain.initialize(blueJ, client.getPackage());
         }
-        else {
-            Debug.reportError("Could not find the RMIClient");
+        catch (RemoteException re) {
+            re.printStackTrace();
         }
     }
 }

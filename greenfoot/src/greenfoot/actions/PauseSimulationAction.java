@@ -1,19 +1,20 @@
 package greenfoot.actions;
 
 import greenfoot.core.Simulation;
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
 import bluej.utility.Debug;
-import greenfoot.event.SimulationEvent;
-import greenfoot.event.SimulationListener;
 
 /**
  * @author Poul Henriksen
- * @version $Id: PauseSimulationAction.java 4115 2006-05-08 12:56:59Z davmac $
+ * @version $Id: PauseSimulationAction.java 4123 2006-05-08 14:40:25Z davmac $
  */
 public class PauseSimulationAction extends AbstractAction
     implements SimulationListener
@@ -34,7 +35,6 @@ public class PauseSimulationAction extends AbstractAction
     private PauseSimulationAction()
     {
         super("Pause", new ImageIcon(PauseSimulationAction.class.getClassLoader().getResource(iconFile)));
-        setEnabled(false);
     }
 
     /**
@@ -60,13 +60,18 @@ public class PauseSimulationAction extends AbstractAction
     /**
      * Observing for the simulation state so we can dis/en-able us appropiately
      */
-    public void simulationChanged(SimulationEvent e)
+    public void simulationChanged(final SimulationEvent e)
     {
-        if (e.getType() == SimulationEvent.STOPPED) {
-            setEnabled(false);
-        }
-        if (e.getType() == SimulationEvent.STARTED) {
-            setEnabled(true);
-        }
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                if (e.getType() == SimulationEvent.STOPPED) {
+                    setEnabled(false);
+                }
+                if (e.getType() == SimulationEvent.STARTED) {
+                    setEnabled(true);
+                }
+            }            
+        });
     }
 }
