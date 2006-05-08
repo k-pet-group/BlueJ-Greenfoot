@@ -50,6 +50,9 @@ public class Ant extends Actor
         antCount++;
     }
 
+    /**
+     * We want to know where we were born.
+     */
     public void addedToWorld(World world)
     {
         if(homeHill != null) {
@@ -275,8 +278,6 @@ public class Ant extends Actor
         else
             return speed;
     }
-    
-  
     
     /**
      * Move forward according to the current delta values.

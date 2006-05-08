@@ -5,6 +5,9 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
+/**
+ * A pile of food.
+ */
 public class Food extends Actor
 {
     private static Random randomizer = AntWorld.getRandomizer();
@@ -22,13 +25,8 @@ public class Food extends Actor
         updateImage();
     }
 
-    public void act()
-    {
-        //here you can create the behaviour of your object
-    }
-
     /**
-     * 
+     * Removes some food from this pile of food.
      */
     public void takeSome()
     {
@@ -48,7 +46,6 @@ public class Food extends Actor
     {
         BufferedImage image = new BufferedImage(SIZE, SIZE,
                                                 BufferedImage.TYPE_INT_ARGB);
-
         
         for(int i=0; i<crumbs; i++) {
             int x = randomCoord();
@@ -71,6 +68,5 @@ public class Food extends Actor
             return SIZE-2;
         else
             return val;
-    }
-    
+    }    
 }

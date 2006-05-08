@@ -5,6 +5,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
+/**
+ * Counter that displays a number.
+ */
 public class Counter extends Actor
 {
     private int value = 0;
@@ -22,12 +25,9 @@ public class Counter extends Actor
     {
         text = prefix;
         stringLength = (text.length() + 2) * 10;
+        
+        setImage(new GreenfootImage(stringLength, 16));
         updateImage();
-    }
-
-    public void act()
-    {
-        //here you can create the behaviour of your object
     }
     
     public void increment()
@@ -41,11 +41,9 @@ public class Counter extends Actor
      */
     private void updateImage() 
     {
-        BufferedImage image = new BufferedImage(stringLength, 16,
-                                                BufferedImage.TYPE_INT_ARGB);
-        Graphics g = image.getGraphics();
-        g.setColor(Color.BLACK);
-        g.drawString(text + value, 1, 12);
-        setImage(new GreenfootImage(image));
+        GreenfootImage image = getImage();
+        image.clear();
+        image.setColor(Color.BLACK);
+        image.drawString(text + value, 1, 12);
     }
 }

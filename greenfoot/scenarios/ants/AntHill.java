@@ -3,6 +3,9 @@ import greenfoot.Actor;
  
 import java.util.Random;
   
+/**
+ * A hill full of ants.
+ */
 public class AntHill extends Actor
 {
     private final static Random randomizer = AntWorld.getRandomizer();
