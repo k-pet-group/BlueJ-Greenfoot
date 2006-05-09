@@ -1,0 +1,9 @@
+#Greenfoot properties
+#Tue May 09 15:35:39 GMT 2006
+class.ControlKnob.superclass=greenfoot.Actor
+simulation.speed=96
+class.Plane.image=airplane.gif
+class.ControlKnob.image=button-purple.png
+version=0.9
+class.Plane.superclass=greenfoot.Actor
+class.Field.superclass=greenfoot.World
