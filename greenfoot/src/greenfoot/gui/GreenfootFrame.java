@@ -29,6 +29,8 @@ import greenfoot.core.WorldHandler;
 import greenfoot.event.CompileListener;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
+import greenfoot.event.WorldEvent;
+import greenfoot.event.WorldListener;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
@@ -75,10 +77,10 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4170 2006-05-09 18:09:23Z davmac $
+ * @version $Id: GreenfootFrame.java 4173 2006-05-09 18:54:55Z davmac $
  */
 public class GreenfootFrame extends JFrame
-    implements WindowListener, CompileListener
+    implements WindowListener, CompileListener, WorldListener
 {
     private static final String readMeIconFile = "readme.png";
     private static final String compileIconFile = "compile.png";
@@ -250,10 +252,7 @@ public class GreenfootFrame extends JFrame
                 setTitle("Greenfoot: " + project.getName());
                 populateClassBrowser(classBrowser, project);
                 enableProjectActions();
-                World newWorld = instantiateNewWorld(classBrowser);
-                if (needsResize() && newWorld != null) {
-                    resize();
-                }
+                instantiateNewWorld(classBrowser);
             }
         });
     }    
@@ -285,6 +284,7 @@ public class GreenfootFrame extends JFrame
         
         WorldHandler.initialise(worldCanvas);
         worldHandler = WorldHandler.getInstance();
+        worldHandler.addWorldListener(this);
         Simulation.initialize(worldHandler);
         Simulation sim = Simulation.getInstance();
         
@@ -402,7 +402,7 @@ public class GreenfootFrame extends JFrame
      * world is not compiled. If multiple world classes exist, a random one
      * will be instantiated.
      */
-    private World instantiateNewWorld(ClassBrowser classBrowser)
+    private void instantiateNewWorld(ClassBrowser classBrowser)
     {
         //init a random world
         Iterator worldClasses = classBrowser.getWorldClasses();
@@ -411,18 +411,9 @@ public class GreenfootFrame extends JFrame
             ClassView classView = (ClassView) worldClasses.next();
             if (!classView.getClassName().equals("World")) {
                 classView.reloadClass();
-                Object o = classView.createInstance();
-                if (o instanceof World) {
-                    World world = (World) o;
-                    if (world != null) {
-                        WorldHandler.getInstance().setWorld(world);
-                    }
-                    return world;
-                }
+                classView.createInstance();
             }
         }
-
-        return null;
     }
 
 
@@ -627,18 +618,7 @@ public class GreenfootFrame extends JFrame
     public void compileSucceeded(RCompileEvent event)
     {
         instantiateNewWorld(classBrowser);
-        if(worldDimensions == null) {
-            setResizeWhenPossible(true);
-        }
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                classBrowser.rebuild();
-                if (needsResize()) {
-                    resize();
-                }
-            }
-        });
+        classBrowser.repaint();
     }
 
     public void compileFailed(RCompileEvent event)
@@ -646,6 +626,27 @@ public class GreenfootFrame extends JFrame
 
     
     // ----------- end of WindowListener interface -----------
+    
+    // ----------- WorldListener interface -------------
+    
+    public void worldCreated(WorldEvent e)
+    {
+        // TODO Auto-generated method stub
+        // from openProject
+        World newWorld = worldHandler.getWorld();
+        if (needsResize() && newWorld != null) {
+            resize();
+        }
+
+    }
+    
+    public void worldRemoved(WorldEvent e)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    // ------------- end of WorldListener interface ------------
     
     /**
      * Returns the maximum size, which is the size of the screen.
