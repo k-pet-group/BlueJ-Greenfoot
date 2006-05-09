@@ -29,22 +29,17 @@ public class GOCollisionQuery implements CollisionQuery {
      * Checks if the other object collides with this object and if it is of the given class.
      * 
      */
-    public boolean checkCollision(Actor other) {       
-        if(compareObject == null && cls == null ) {
-            return true;
-        }       
-        else if(cls == null && ActorVisitor.intersects(compareObject, other)) {
-            return true;
-        } 
-        else if (cls == null) {
+    public boolean checkCollision(Actor other) {   
+        if(cls != null && !cls.isInstance(other)) {
             return false;
         }
-        else if(compareObject == null && cls.isInstance(other)) {
+        
+        if(compareObject == null) {
             return true;
         }
-        else if(cls.isInstance(other) && ActorVisitor.intersects(compareObject, other)) {
+        else if(ActorVisitor.intersects(compareObject, other)) {
             return true;
-        }
+        } 
         return false;
     }     
 }

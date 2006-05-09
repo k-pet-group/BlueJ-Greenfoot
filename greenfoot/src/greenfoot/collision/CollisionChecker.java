@@ -147,7 +147,7 @@ public interface CollisionChecker
      */
     public void startSequence();
 
-    public <T extends Actor> T getOneObjectAt(int dx, int dy, Class<T> cls);
+    public <T extends Actor> T getOneObjectAt(Actor object, int dx, int dy, Class<T> cls);
 
     public Actor getOneIntersectingObject(Actor object, Class cls);
 

@@ -659,7 +659,7 @@ public abstract class Actor extends ObjectTransporter
     protected Actor getOneObjectAtOffset(int dx, int dy, Class cls)
     {
         failIfNotInWorld();
-        return world.getOneObjectAt(getX() + dx, getY() + dy, cls);        
+        return world.getOneObjectAt(this, getX() + dx, getY() + dy, cls);        
     }
     
     /**
@@ -689,7 +689,9 @@ public abstract class Actor extends ObjectTransporter
     protected List getIntersectingObjects(Class cls)
     {
         failIfNotInWorld();
-        return world.getIntersectingObjects(this, cls);
+        List l = world.getIntersectingObjects(this, cls);
+        l.remove(this);
+        return l;
     }
     
     /**

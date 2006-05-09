@@ -20,11 +20,11 @@ public class PointCollisionQuery implements CollisionQuery{
     }
 
     public boolean checkCollision(Actor actor) {
-        if(cls == null) {
-            return ActorVisitor.contains(actor, x - actor.getX(), y - actor.getY());
-        } else {
-            return cls.isInstance(actor) && ActorVisitor.contains(actor, x - actor.getX(), y - actor.getY());
+        if(cls != null && !cls.isInstance(actor)) {
+            return false;
         }
+        return ActorVisitor.contains(actor, x - actor.getX(), y - actor.getY());
+        
     }
     
 }

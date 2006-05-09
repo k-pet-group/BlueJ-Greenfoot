@@ -520,9 +520,9 @@ public abstract class World extends ObjectTransporter
         collisionChecker.startSequence();
     }
 
-    Actor getOneObjectAt(int dx, int dy, Class cls)
+    Actor getOneObjectAt(Actor object, int dx, int dy, Class cls)
     {
-        return collisionChecker.getOneObjectAt(dx, dy, cls);
+        return collisionChecker.getOneObjectAt(object, dx, dy, cls);
     }
 
     Actor getOneIntersectingObject(Actor object, Class cls)

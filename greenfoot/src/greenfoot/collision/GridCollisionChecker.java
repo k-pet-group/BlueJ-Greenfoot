@@ -772,9 +772,10 @@ public class GridCollisionChecker
         return objectsThere;
     }
 
-    public Actor getOneObjectAt(int dx, int dy, Class cls)
+    public Actor getOneObjectAt(Actor actor, int dx, int dy, Class cls)
     {
         List neighbours = getObjectsAt(dx, dy, cls);
+        neighbours.remove(actor);
         if(!neighbours.isEmpty()) {
             return (Actor) neighbours.get(0);
         } else {

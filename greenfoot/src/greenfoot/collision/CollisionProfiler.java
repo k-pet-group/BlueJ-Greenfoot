@@ -201,10 +201,10 @@ private PrintStream fileStream;
             fileStream.println(  totalTime +","+ objects);
     }
 
-    public Actor getOneObjectAt(int dx, int dy, Class cls)
+    public Actor getOneObjectAt(Actor actor, int dx, int dy, Class cls)
     {
         long t1 = System.nanoTime();
-        Actor o = checker.getOneObjectAt(dx, dy, cls);
+        Actor o = checker.getOneObjectAt(actor, dx, dy, cls);
         long t2 = System.nanoTime();
         getOneObjectAtTime += t2 - t1;
         return o;

@@ -718,9 +718,10 @@ public class BVHInsChecker
     {
     }
 
-    public Actor getOneObjectAt(int x, int y, Class cls)
+    public Actor getOneObjectAt(Actor exclude, int x, int y, Class cls)
     {
         List l = getObjectsAt(x , y , cls);
+        l.remove(exclude);
         if (!l.isEmpty()) {
             return (Actor) l.get(0);
         }
