@@ -10,11 +10,9 @@ import greenfoot.util.GreenfootUtil;
 import greenfoot.util.Version;
 
 import java.awt.Frame;
+import java.awt.Point;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
-import javax.swing.SwingUtilities;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPackage;
@@ -30,13 +27,10 @@ import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RInvocationListener;
 import bluej.Config;
 import bluej.debugmgr.CallHistory;
-import bluej.extensions.CompilationNotStartedException;
-import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
-import java.awt.Point;
 
 /**
  * The main class for greenfoot. This is a singelton (in the JVM). Since each
@@ -44,7 +38,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4157 2006-05-09 13:19:14Z mik $
+ * @version $Id: GreenfootMain.java 4160 2006-05-09 13:33:33Z davmac $
  */
 public class GreenfootMain
 {
@@ -62,9 +56,6 @@ public class GreenfootMain
 
     /** The package this Greenfoot singelton refers to. */
     private GPackage pkg;
-
-    /** Map of class names to images */
-    private Map classImages = new HashMap();
 
     /**
      * Forwards compile events to all the compileListeners that has registered
@@ -324,7 +315,9 @@ public class GreenfootMain
      */
     public void addCompileListener(CompileListener listener)
     {
-        compileListeners.add(listener);
+        synchronized (compileListeners) {
+            compileListeners.add(listener);
+        }
     }
 
     /**
@@ -334,7 +327,9 @@ public class GreenfootMain
      */
     public void removeCompileListener(CompileListener listener)
     {
-        compileListeners.remove(listener);
+        synchronized (compileListeners) {
+            compileListeners.remove(listener);
+        }
     }
 
     /**

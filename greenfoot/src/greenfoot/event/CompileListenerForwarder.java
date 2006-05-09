@@ -19,9 +19,9 @@ import rmiextension.wrappers.event.RCompileListenerImpl;
  */
 public class CompileListenerForwarder extends RCompileListenerImpl
 {
-    private List compileListeners;
+    private List<? extends CompileListener> compileListeners;
 
-    public CompileListenerForwarder(List compileListeners)
+    public CompileListenerForwarder(List<? extends CompileListener> compileListeners)
         throws RemoteException
     {
         this.compileListeners = compileListeners;
@@ -30,35 +30,46 @@ public class CompileListenerForwarder extends RCompileListenerImpl
     public void compileStarted(RCompileEvent event)
         throws RemoteException
     {
-        for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
-            CompileListener element = (CompileListener) iter.next();
-            element.compileStarted(event);
+        synchronized (compileListeners) {
+            for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
+                CompileListener element = (CompileListener) iter.next();
+                element.compileStarted(event);
+            }
         }
     }
 
     public void compileError(RCompileEvent event)
         throws RemoteException
     {
-        for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
-            CompileListener element = (CompileListener) iter.next();
-            element.compileError(event);
+        synchronized (compileListeners) {
+            for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
+                CompileListener element = (CompileListener) iter.next();
+                element.compileError(event);
+            }
         }
     }
 
     public void compileWarning(RCompileEvent event)
         throws RemoteException
     {
-        for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
-            CompileListener element = (CompileListener) iter.next();
-            element.compileWarning(event);
+        synchronized (compileListeners) {
+            for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
+                CompileListener element = (CompileListener) iter.next();
+                element.compileWarning(event);
+            }
         }
     }
 
     public void compileSucceeded(RCompileEvent event)
         throws RemoteException
     {
-        CompileListener[] listenersCopy = new CompileListener[compileListeners.size()];
-        listenersCopy = (CompileListener[]) compileListeners.toArray(listenersCopy);
+        CompileListener [] listenersCopy;
+        
+        synchronized (compileListeners) {
+            listenersCopy = new CompileListener[compileListeners.size()];
+            listenersCopy = compileListeners.toArray(listenersCopy);
+        }
+        
         for (int i = 0; i < listenersCopy.length; i++) {
             CompileListener listener = listenersCopy[i];
             listener.compileSucceeded(event);
@@ -68,9 +79,11 @@ public class CompileListenerForwarder extends RCompileListenerImpl
     public void compileFailed(RCompileEvent event)
         throws RemoteException
     {
-        for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
-            CompileListener element = (CompileListener) iter.next();
-            element.compileFailed(event);
+        synchronized (compileListeners) {
+            for (Iterator iter = compileListeners.iterator(); iter.hasNext();) {
+                CompileListener element = (CompileListener) iter.next();
+                element.compileFailed(event);
+            }
         }
     }
 
