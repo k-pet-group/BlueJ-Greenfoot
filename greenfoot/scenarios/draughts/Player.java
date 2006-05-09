@@ -139,9 +139,8 @@ public class Player extends Actor
             x = y % 2;
             while(x < 8) {
                 Draught d = new Draught(direction, colour);
-                d.setLocation(x, y);
+                getWorld().addObject(d, x, y);
                 x += 2;
-                getWorld().addObject(d);
                 myDraughts.add(d);
             }
             y++;

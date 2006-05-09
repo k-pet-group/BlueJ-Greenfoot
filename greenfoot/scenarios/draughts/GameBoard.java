@@ -19,11 +19,11 @@ public class GameBoard extends World
         super(8,8,50);
         GreenfootImage background = new GreenfootImage("board.gif");
         setBackground(background);
-        background.setTiled(true);
+        setTiled(true);
         playerOne = new Player("blue", true);
-        addObject(playerOne);
+        addObject(playerOne, 0, 0);
         playerTwo = new Player("red", false);
-        addObject(playerTwo);
+        addObject(playerTwo, 0, 0);
         playerOne.setupPieces();
         playerTwo.setupPieces();
         //player one to start...
