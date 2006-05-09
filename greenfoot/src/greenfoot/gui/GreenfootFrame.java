@@ -74,7 +74,7 @@ import greenfoot.actions.ShowReadMeAction;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4144 2006-05-09 10:07:04Z polle $
+ * @version $Id: GreenfootFrame.java 4151 2006-05-09 11:39:18Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -401,7 +401,7 @@ public class GreenfootFrame extends JFrame
             }
             
             classBrowser.updateLayout();
-            
+            classBrowser.revalidate();
         }
         catch (Exception exc) {
             Debug.reportError("Could not open classes in project", exc);
