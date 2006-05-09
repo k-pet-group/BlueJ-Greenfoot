@@ -1,8 +1,7 @@
 #Greenfoot properties
-#Sun May 07 22:43:23 BST 2006
-class.Flag.image=boy1.gif
-simulation.speed=81
-mainWindow.width=880
+#Tue May 09 17:47:59 GMT 2006
+class.Flag.image=flag.png
+simulation.speed=94
 class.Explosion.superclass=greenfoot.Actor
 class.Flag.superclass=greenfoot.Actor
 class.Lander.image=rocket.png
@@ -10,9 +9,6 @@ version=0.9
 class.Actor.image=green-foot.gif
 class.Moon.superclass=greenfoot.World
 class.Gravity.image=elephant.gif
-class.Explosion.image=Beeper.gif
-mainWindow.y=35
-mainWindow.x=327
+class.Explosion.image=explosion.png
 class.Lander.superclass=greenfoot.Actor
-mainWindow.height=824
 class.Gravity.superclass=greenfoot.Actor

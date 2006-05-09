@@ -62,8 +62,7 @@ public class Lander extends Actor
     }
 
     public void addedToWorld(World world) {
-        moon = (Moon) world;
-        
+        moon = (Moon) world;        
         altitude = getY();
     }
     
@@ -84,39 +83,26 @@ public class Lander extends Actor
     }
     
     private boolean isLanded() {
-        Color leftColor = getWorld().getColorAt(getX() + leftX, getY() + bottom);
-        Color rightColor = getWorld().getColorAt(getX() + rightX, getY() + bottom);
-        /*System.out.println("Left Color: " + leftColor);
-        moon.addObject(new Explosion(), getX() + leftX, getY() + bottom);
-moon.addObject(new Explosion(), getX() + rightX, getY() + bottom);*/
-        
+        Color leftColor = moon.getColorAt(getX() + leftX, getY() + bottom);
+        Color rightColor = moon.getColorAt(getX() + rightX, getY() + bottom);
         return (speed <= MAX_LANDING_SPEED) && leftColor.equals(moon.getLandingColor()) && rightColor.equals(moon.getLandingColor());
     }
         
     private boolean isExploded() {
-        Color leftColor = getWorld().getColorAt(getX() + leftX, getY() + bottom);
-        Color rightColor = getWorld().getColorAt(getX() + rightX, getY() + bottom);
+        Color leftColor = moon.getColorAt(getX() + leftX, getY() + bottom);
+        Color rightColor = moon.getColorAt(getX() + rightX, getY() + bottom);
         return !(leftColor.equals(moon.getSpaceColor()) && rightColor.equals(moon.getSpaceColor()));
     }
     
     private void checkCollision() {
         if(isLanded()) {
-         //   putFlag();
-         
-           System.out.println("LAND");
             setImage(rocket);
+           
             moon.addObject(new Flag(), getX(), getY());
-            Greenfoot.pauseSimulation();
-            
+            Greenfoot.pauseSimulation();            
         } else if(isExploded()) {
-           // explode();
-           System.out.println("EXPLODE");
             moon.addObject(new Explosion(), getX(), getY());
             moon.removeObject(this);
-           
-            
-            Greenfoot.pauseSimulation();
-            
         }
     }
 }
