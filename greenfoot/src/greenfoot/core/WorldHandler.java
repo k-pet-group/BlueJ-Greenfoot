@@ -348,9 +348,9 @@ public class WorldHandler
      * Access to the list should be synchronized using the word lock
      * (see getWorldLock).
      */
-    public List getActors()
+    public List<Actor> getActors()
     {
-        return world.getObjects(null);
+        return (List<Actor>) world.getObjects(null);
     }
     
     /**
@@ -670,6 +670,7 @@ public class WorldHandler
 
     /**
      * Add a worldListener to listen for when a worlds are created and removed.
+     * Events will be delivered on the GUI event thread.
      * 
      * @param l
      *            Listener to add

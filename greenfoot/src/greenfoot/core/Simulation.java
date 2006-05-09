@@ -3,6 +3,8 @@ package greenfoot.core;
 import greenfoot.Actor;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
+import greenfoot.event.WorldEvent;
+import greenfoot.event.WorldListener;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,15 +19,19 @@ import javax.swing.event.EventListenerList;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @version $Id$
  */
-public class Simulation extends Thread
+public class Simulation extends Thread implements WorldListener
 {
     private WorldHandler worldHandler;
     private boolean paused;
+    
+    /** Whether the simulation is enabled (world installed) */
+    private boolean enabled;
 
     private EventListenerList listenerList = new EventListenerList();
 
     private SimulationEvent startedEvent;
     private SimulationEvent stoppedEvent;
+    private SimulationEvent disabledEvent;
     private SimulationEvent speedChangeEvent;
     private static Simulation instance;
 
@@ -59,9 +65,13 @@ public class Simulation extends Thread
             instance.startedEvent = new SimulationEvent(instance, SimulationEvent.STARTED);
             instance.stoppedEvent = new SimulationEvent(instance, SimulationEvent.STOPPED);
             instance.speedChangeEvent = new SimulationEvent(instance, SimulationEvent.CHANGED_SPEED);
+            instance.disabledEvent = new SimulationEvent(instance, SimulationEvent.DISABLED);
             instance.setPriority(Thread.MIN_PRIORITY);
 //            instance.setSpeed(50);
             instance.paused = true;
+            
+            worldHandler.addWorldListener(instance);
+            
             instance.start();
         }
     }
@@ -97,7 +107,7 @@ public class Simulation extends Thread
 
     private synchronized void maybePause()
     {
-        if (paused) {
+        if (paused && enabled) {
             fireSimulationEvent(stoppedEvent);
             System.gc();
         }
@@ -121,13 +131,13 @@ public class Simulation extends Thread
     public void runOnce()
     {
         try {
-            List objects = null;
+            List<? extends Actor> objects = null;
 
             // We need to sync, so that the collection is not changed while
             // copying it ( to avoid ConcurrentModificationException)
             synchronized (worldHandler.getWorldLock()) {
                 // We need to copy it, to avoid ConcurrentModificationException
-                objects = new ArrayList(worldHandler.getActors());
+                objects = new ArrayList<Actor>(worldHandler.getActors());
 
                 for (Iterator i = objects.iterator(); i.hasNext();) {
                     Actor actor = (Actor) i.next();
@@ -150,8 +160,29 @@ public class Simulation extends Thread
      */
     public synchronized void setPaused(boolean b)
     {
-        paused = b;
-        notifyAll();
+        if (enabled) {
+            paused = b;
+            notifyAll();
+        }
+    }
+    
+    /**
+     * Enable or disable the simulation.
+     */
+    public synchronized void setEnabled(boolean b)
+    {
+        if (enabled != b) {
+            enabled = b;
+            if (! enabled) {
+                paused = true;
+                fireSimulationEvent(disabledEvent);
+            }
+            else {
+                // fire a paused event to let listeners know we are
+                // enabled again
+                fireSimulationEvent(stoppedEvent);
+            }
+        }
     }
 
     protected void fireSimulationEvent(SimulationEvent event)
@@ -239,6 +270,26 @@ public class Simulation extends Thread
         catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+    
+    // ---------- WorldListener interface -----------
+    
+    /**
+     * A new world was created - we're ready to go.
+     * Enable the simulation functions.
+     */
+    public void worldCreated(WorldEvent e)
+    {
+        setEnabled(true);
+    }
+
+    
+    /**
+     * The world was removed - disable the simulation functions.
+     */
+    public void worldRemoved(WorldEvent e)
+    {
+        setEnabled(false);
     }
 
 }

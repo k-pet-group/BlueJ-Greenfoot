@@ -74,7 +74,7 @@ import greenfoot.actions.ShowReadMeAction;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4155 2006-05-09 13:00:29Z mik $
+ * @version $Id: GreenfootFrame.java 4165 2006-05-09 14:28:54Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -253,7 +253,6 @@ public class GreenfootFrame extends JFrame
         
         controlPanel = new ControlPanel(sim);
         controlPanel.setBorder(BorderFactory.createEtchedBorder());        
-        worldHandler.addWorldListener(controlPanel);
 
         centrePanel.add(controlPanel, BorderLayout.SOUTH);
 

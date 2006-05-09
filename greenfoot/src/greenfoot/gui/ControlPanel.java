@@ -29,10 +29,10 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 4159 2006-05-09 13:33:31Z mik $
+ * @version $Id: ControlPanel.java 4165 2006-05-09 14:28:54Z davmac $
  */
 public class ControlPanel extends Box
-    implements ChangeListener, SimulationListener, WorldListener
+    implements ChangeListener, SimulationListener
 {
     private RunSimulationAction runSimulationAction;
     private PauseSimulationAction pauseSimulationAction;
@@ -141,29 +141,6 @@ public class ControlPanel extends Box
     public void stateChanged(ChangeEvent e)
     {
         simulation.setSpeed(speedSlider.getValue());
-    }
-
-    // ---------- WorldListener interface -----------
-    
-    /**
-     * A new world was created - we're ready to go.
-     * Enable the simulation functions.
-     */
-    public void worldCreated(WorldEvent e)
-    {
-        runSimulationAction.setEnabled(true);
-        runOnceSimulationAction.setEnabled(true);
-    }
-
-    
-    /**
-     * The world was removed - disable the simulation functions.
-     */
-    public void worldRemoved(WorldEvent e)
-    {
-        runSimulationAction.setEnabled(false);
-        pauseSimulationAction.setEnabled(false);
-        runOnceSimulationAction.setEnabled(false);
     }
 
 }

@@ -72,10 +72,14 @@ public class RunOnceSimulationAction extends AbstractAction
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
-                if (e.getType() == SimulationEvent.STOPPED) {
+                int eventType = e.getType();
+                if (eventType == SimulationEvent.STOPPED) {
                     setEnabled(true);
                 }
-                if (e.getType() == SimulationEvent.STARTED) {
+                else if (eventType == SimulationEvent.STARTED) {
+                    setEnabled(false);
+                }
+                else if (eventType == SimulationEvent.DISABLED) {
                     setEnabled(false);
                 }
             }

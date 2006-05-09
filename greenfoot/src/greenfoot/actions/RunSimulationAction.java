@@ -14,7 +14,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RunSimulationAction.java 4125 2006-05-08 14:57:27Z davmac $
+ * @version $Id: RunSimulationAction.java 4165 2006-05-09 14:28:54Z davmac $
  */
 public class RunSimulationAction extends AbstractAction
     implements SimulationListener
@@ -75,10 +75,14 @@ public class RunSimulationAction extends AbstractAction
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
-                if (e.getType() == SimulationEvent.STOPPED) {
+                int eventType = e.getType();
+                if (eventType == SimulationEvent.STOPPED) {
                     setEnabled(true);
                 }
-                if (e.getType() == SimulationEvent.STARTED) {
+                else if (eventType == SimulationEvent.STARTED) {
+                    setEnabled(false);
+                }
+                else if (eventType == SimulationEvent.DISABLED) {
                     setEnabled(false);
                 }
             }

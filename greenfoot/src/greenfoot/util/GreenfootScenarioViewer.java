@@ -1,7 +1,5 @@
 package greenfoot.util;
 
-import greenfoot.GreenfootImage;
-import greenfoot.ActorVisitor;
 import greenfoot.World;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
@@ -14,6 +12,7 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import javax.swing.JFrame;
 
 import bluej.runtime.ExecServer;
@@ -64,7 +63,6 @@ public class GreenfootScenarioViewer
         frame.getContentPane().add(canvas, BorderLayout.CENTER);
 
         ControlPanel controls = new ControlPanel(sim);
-        controls.worldCreated(null);
         frame.getContentPane().add(controls, BorderLayout.SOUTH);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
