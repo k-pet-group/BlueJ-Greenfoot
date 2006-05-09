@@ -15,15 +15,12 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPackage;
-import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RInvocationListener;
 import bluej.Config;
 import bluej.debugmgr.CallHistory;
@@ -38,7 +35,7 @@ import bluej.utility.Utility;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4160 2006-05-09 13:33:33Z davmac $
+ * @version $Id: GreenfootMain.java 4166 2006-05-09 14:52:06Z davmac $
  */
 public class GreenfootMain
 {
@@ -374,7 +371,8 @@ public class GreenfootMain
                 // Make sure that the new project has a project version.
                 ProjectProperties newProperties = new ProjectProperties(f);
                 newProperties.storeApiVersion();*/
-                RProject newProject = rBlueJ.newProject(f);
+                /* RProject newProject = */
+                rBlueJ.newProject(f);
                 // The rest of the project preparation will be done by the
                 // ProjectLauncher on the BlueJ side.
 
@@ -431,9 +429,30 @@ public class GreenfootMain
 
         deleteAllClassFiles(dst);
         GreenfootUtil.copyDir(src, dst);
+        
+        touchApiClasses(dst);
+        
         ProjectProperties newProperties = new ProjectProperties(projectDir);
         newProperties.setApiVersion();
         newProperties.save();
+    }
+    
+    /**
+     * "Touch" the actor and world class files to ensure that BlueJ/
+     * Greenfoot think they are compiled.
+     * 
+     * @param projectDir  The Greenfoot project directory
+     */
+    private static void touchApiClasses(File projectDir)
+    {
+        // touch the Actor and World classes to ensure that they show
+        // as being compiled
+        File greenfootPkgDir = new File(projectDir, "greenfoot");
+        File actorClassFile = new File(greenfootPkgDir, "Actor.class");
+        File worldClassFile = new File(greenfootPkgDir, "World.class");
+        long currentTime = System.currentTimeMillis();
+        actorClassFile.setLastModified(currentTime);
+        worldClassFile.setLastModified(currentTime);
     }
 
     /**
