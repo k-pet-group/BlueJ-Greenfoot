@@ -36,11 +36,14 @@ public class NewClassDialog extends EscapeDialog
         JPanel mainPanel = new JPanel();
         setContentPane(mainPanel);
         
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BlueJTheme.generalBorder);
+
         // help labels
         JLabel helpLabel1 = GreenfootUtil.createHelpLabel();
         JLabel helpLabel2 = GreenfootUtil.createHelpLabel();
-        helpLabel1.setText("Enter a name for the new class. The class will");
-        helpLabel2.setText("appear in the class browser when you hit Ok.");
+        helpLabel1.setText("A class name cannot contain spaces or punctuation ");
+        helpLabel2.setText("characters and should start with a capital letter.");
         helpLabel1.setAlignmentX(0.0f);
         helpLabel2.setAlignmentX(0.0f);
         mainPanel.add(helpLabel1);
@@ -50,10 +53,10 @@ public class NewClassDialog extends EscapeDialog
         
         JLabel label = new JLabel("New class name: ");
         label.setAlignmentX(0.0f);
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(BlueJTheme.generalBorder);
         mainPanel.add(label);
         
+        mainPanel.add(Box.createVerticalStrut(4));
+
         classNameTextField = new JTextField();
         classNameTextField.setAlignmentX(0.0f);
         Dimension classNameMax = classNameTextField.getMaximumSize();
