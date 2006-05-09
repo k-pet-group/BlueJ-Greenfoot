@@ -44,7 +44,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4156 2006-05-09 13:06:48Z mik $
+ * @version $Id: GreenfootMain.java 4157 2006-05-09 13:19:14Z mik $
  */
 public class GreenfootMain
 {
@@ -169,7 +169,6 @@ public class GreenfootMain
                     }
                 };
                 openThread.start();
-                // SwingUtilities.invokeLater(openThread);
             }
             else {
                 Utility.bringToFront();
@@ -186,11 +185,16 @@ public class GreenfootMain
      * Opens the project in the given directory.
      */
     private void openProject(String projectDir)
-        throws RemoteException
+        throws RemoteException, ProjectNotOpenException
     {
         boolean doOpen = GreenfootMain.updateApi(new File(projectDir), frame);
         if (doOpen) {
             rBlueJ.openProject(projectDir);
+
+            // if this is the dummy startup project, close it now.
+            if(project.isStartupProject()) {
+                project.close();
+            }
         }
 
     }
@@ -208,8 +212,8 @@ public class GreenfootMain
             try {
                 openProject(dirName.getAbsolutePath());
             }
-            catch (RemoteException e) {
-                e.printStackTrace();
+            catch (Exception exc) {
+                Debug.reportError("Could not open project", exc);
             }
         }
     }
