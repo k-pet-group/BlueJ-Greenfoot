@@ -30,8 +30,6 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.extensions.ClassNotFoundException;
@@ -49,10 +47,10 @@ import javax.swing.JToggleButton;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4132 2006-05-08 16:50:06Z davmac $
+ * @version $Id: ClassView.java 4169 2006-05-09 17:11:12Z davmac $
  */
 public class ClassView extends JToggleButton
-    implements ChangeListener, Selectable, CompileListener, MouseListener
+    implements Selectable, CompileListener, MouseListener
 {
     private final Color classColour = new Color(245, 204, 155);
     private static final Color stripeColor = new Color(152,152,152);
@@ -81,7 +79,6 @@ public class ClassView extends JToggleButton
         this.gClass = gClass;
         realClass = getClass(gClass);
         setRole(role);
-        addChangeListener(this);
         this.addMouseListener(this);
         this.setBorder(BorderFactory.createEmptyBorder(7, 8, 10, 11)); //top,left,bottom,right
         Font font = getFont();
@@ -324,22 +321,12 @@ public class ClassView extends JToggleButton
     /*
      * (non-Javadoc)
      * 
-     * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
-     */
-    public void stateChanged(ChangeEvent e)
-    {
-        //repaint();
-        fireSelectionChangeEvent();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see greenfoot.ui.classbrowser.Selectable#select()
      */
     public void select()
     {
         this.setSelected(true);
+        fireSelectionChangeEvent();
     }
 
     /*
@@ -582,7 +569,6 @@ public class ClassView extends JToggleButton
     public void remove()
     {
         classBrowser.removeClass(this);
-        removeChangeListener(this);
         try {
             gClass.remove();
         }
