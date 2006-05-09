@@ -26,6 +26,7 @@ public class CloseProjectAction extends AbstractAction
     private CloseProjectAction()
     {
         super("Close");
+        setEnabled(false);
     }
     
     public void actionPerformed(ActionEvent e)

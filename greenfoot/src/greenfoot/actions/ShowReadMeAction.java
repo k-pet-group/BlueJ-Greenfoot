@@ -8,7 +8,7 @@ import javax.swing.JOptionPane;
  * Action that compiles all classes that needs compilation.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ShowReadMeAction.java 4142 2006-05-09 09:39:27Z mik $
+ * @version $Id: ShowReadMeAction.java 4154 2006-05-09 12:59:31Z mik $
  */
 public class ShowReadMeAction extends AbstractAction
 {
@@ -26,6 +26,7 @@ public class ShowReadMeAction extends AbstractAction
     private ShowReadMeAction()
     {
         super("Project Information");
+        setEnabled(false);
     }
 
     /**

@@ -21,25 +21,54 @@ import javax.swing.SwingUtilities;
 import bluej.extensions.MissingJavaFileException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 
 /**
  * An action for creating a new (non-Actor, non-World) class.
  * 
  * @author dam
- * @version $Id: NewClassAction.java 4147 2006-05-09 10:51:28Z davmac $
+ * @version $Id: NewClassAction.java 4154 2006-05-09 12:59:31Z mik $
  */
 public class NewClassAction extends AbstractAction {
 
+    private static NewClassAction instance;
+    
+    /**
+     * Singleton factory method for action.
+     */
+    public static synchronized NewClassAction getInstance(ClassBrowser classBrowser)
+    {
+        if(instance == null) {
+            instance = new NewClassAction(classBrowser);
+        }
+        return instance;
+    }
+
+
+    /**
+     * Singleton accessor method. The action must already be initialised before
+     * using this method.
+     */
+    public static NewClassAction getInstance()
+    {
+        if(instance == null) {
+            Debug.reportError("Attempt to access uninitialised NewClassAction");
+        }
+        return instance;
+    }
+
+
     private ClassBrowser classBrowser;
     
-	public NewClassAction(ClassBrowser classBrowser)
-	{
-		super("New Class...");
+    private NewClassAction(ClassBrowser classBrowser)
+    {
+        super("New Class...");
+        setEnabled(false);
         this.classBrowser = classBrowser;
-	}
+    }
 	
-	public void actionPerformed(ActionEvent arg0)
-	{
+    public void actionPerformed(ActionEvent arg0)
+    {
         JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
         NewClassDialog dialog = new NewClassDialog(f);
         dialog.setVisible(true);

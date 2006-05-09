@@ -20,6 +20,7 @@ public class NYIAction extends AbstractAction
     public NYIAction(String name, JFrame parent) 
     {
         super(name);
+        setEnabled(false);
         this.parent = parent;
     }
 

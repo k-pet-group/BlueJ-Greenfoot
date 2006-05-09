@@ -30,6 +30,7 @@ public class SaveProjectAction extends AbstractAction
     private SaveProjectAction()
     {
         super("Save");
+        setEnabled(false);
     }
     
     public void actionPerformed(ActionEvent e)
