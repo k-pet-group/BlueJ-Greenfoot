@@ -113,7 +113,7 @@ public class GProject implements InspectorManager
     public GPackage newPackage(String fullyQualifiedName)
         throws ProjectNotOpenException, PackageAlreadyExistsException, RemoteException
     {
-        return new GPackage(rProject.newPackage(fullyQualifiedName));
+        return new GPackage(rProject.newPackage(fullyQualifiedName), this);
     }
 
 
