@@ -74,7 +74,7 @@ import greenfoot.actions.ShowReadMeAction;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4151 2006-05-09 11:39:18Z davmac $
+ * @version $Id: GreenfootFrame.java 4155 2006-05-09 13:00:29Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -183,6 +183,7 @@ public class GreenfootFrame extends JFrame
         this.setTitle("Greenfoot: " + project.getName());
         populateClassBrowser(classBrowser, project);
         worldHandler.attachProject(project);
+        enableProjectActions();
         World newWorld = instantiateNewWorld(classBrowser);
         if (needsResize() && newWorld != null) {
             EventQueue.invokeLater(new Runnable() {
@@ -429,8 +430,8 @@ public class GreenfootFrame extends JFrame
         
         JMenu editMenu = addMenu("Edit", menuBar, 'e');
         
-        addMenuItem(new NewClassAction(classBrowser), editMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
-        RemoveSelectedClassAction removeClassAction = new RemoveSelectedClassAction();
+        addMenuItem(NewClassAction.getInstance(classBrowser), editMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
+        RemoveSelectedClassAction removeClassAction = RemoveSelectedClassAction.getInstance();
         classBrowser.getSelectionManager().addSelectionChangeListener(removeClassAction);
         addMenuItem(removeClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
         
@@ -483,6 +484,19 @@ public class GreenfootFrame extends JFrame
         menu.add(action);
     }
 
+
+    /**
+     * Enable the actions that were disabled when no project is open.
+     */
+    private void enableProjectActions() 
+    {
+        CloseProjectAction.getInstance().setEnabled(true);
+        SaveProjectAction.getInstance().setEnabled(true);
+        NewClassAction.getInstance().setEnabled(true);
+        RemoveSelectedClassAction.getInstance().setEnabled(true);
+        CompileAllAction.getInstance().setEnabled(true);
+        ShowReadMeAction.getInstance().setEnabled(true);
+    }
 
     /**
      * Close this project.

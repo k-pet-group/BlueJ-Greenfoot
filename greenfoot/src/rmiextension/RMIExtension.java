@@ -1,14 +1,15 @@
 package rmiextension;
 
-import bluej.Boot;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import bluej.Config;
+import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
 import bluej.extensions.Extension;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.utility.Debug;
 
 /**
  * 
@@ -16,7 +17,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 4089 2006-05-04 21:03:52Z polle $
+ * @version $Id: RMIExtension.java 4155 2006-05-09 13:00:29Z mik $
  */
 public class RMIExtension extends Extension
     implements Runnable
@@ -53,8 +54,11 @@ public class RMIExtension extends Extension
     {
         if (theBlueJ.getOpenProjects().length == 0) {
             File blueJLibDir = theBlueJ.getSystemLibDir();
-            File startupProject = new File(blueJLibDir, "startupProject");
-            theBlueJ.openProject(startupProject);
+            File startupProject = new File(blueJLibDir, "greenfoot/startupProject");
+            BProject project = theBlueJ.openProject(startupProject);
+            if(project == null) {
+                Debug.reportError("Could not open startup project");
+            }
         }
     }
 
