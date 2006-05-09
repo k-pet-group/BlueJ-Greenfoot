@@ -214,6 +214,8 @@
 				<patternset refid="skeleton.files"/>
 			</fileset>
 		</copy>
+		<mkdir dir="projects/skeletonProject/images"/>
+		<copy file="imagelib/other/greenfoot-logo.png" todir="projects/skeletonProject/images"/>
 	</target>
 
 	<target name="copy-projects" depends="skeleton"  description="Copies the projects skeletonProject, startupProject and scenarios to bluej" >
