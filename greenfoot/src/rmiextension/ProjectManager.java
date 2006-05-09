@@ -1,27 +1,20 @@
 package rmiextension;
 
-import greenfoot.core.GreenfootMain;
 import greenfoot.core.GreenfootLauncher;
+import greenfoot.core.GreenfootMain;
 import greenfoot.core.ProjectProperties;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JFrame;
-
 import bluej.extensions.BPackage;
 import bluej.extensions.BlueJ;
-import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.Boot;
-import bluej.Config;
 
 /**
  * The ProjectManager is on the BlueJ-VM. It monitors pacakage events from BlueJ
@@ -29,7 +22,7 @@ import bluej.Config;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4111 2006-05-07 15:05:59Z polle $
+ * @version $Id: ProjectManager.java 4162 2006-05-09 13:54:53Z davmac $
  */
 public class ProjectManager
     implements PackageListener
@@ -195,15 +188,13 @@ public class ProjectManager
      */
     public void packageOpened(PackageEvent event)
     {
-        try {
-            BPackage pkg = event.getPackage();
-            if (pkg.getName().equals("") || pkg.getProject().getName().equals("startupProject")) {
-                Project project = new Project(pkg);
-                launchProject(project);
-            }
+        BPackage pkg = event.getPackage();
+        
+        Project project = new Project(pkg);
+        if (! isProjectOpen(project)) {
+            launchProject(project);
         }
-        catch (PackageNotFoundException pnfe) {}
-        catch (ProjectNotOpenException pnoe) {}
+
         openedPackages.add(event.getPackage());
     }
 
