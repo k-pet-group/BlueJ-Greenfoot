@@ -29,7 +29,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 4135 2006-05-08 17:52:59Z davmac $
+ * @version $Id: ControlPanel.java 4159 2006-05-09 13:33:31Z mik $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener, WorldListener
@@ -106,6 +106,7 @@ public class ControlPanel extends Box
         speedSlider.setMajorTickSpacing( max / 2);
         speedSlider.setMinorTickSpacing( max / 4);
         speedSlider.setPaintTicks(true);
+        speedSlider.setValue( max / 2 );
         speedSlider.addChangeListener(this);
         speedSlider.setToolTipText("Adjusts the execution speed");
         speedPanel.add(speedSlider);

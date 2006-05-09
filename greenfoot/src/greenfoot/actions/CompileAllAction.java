@@ -11,7 +11,7 @@ import javax.swing.AbstractAction;
  * Action that compiles all classes that needs compilation.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileAllAction.java 4062 2006-05-02 09:38:55Z mik $
+ * @version $Id: CompileAllAction.java 4159 2006-05-09 13:33:31Z mik $
  */
 public class CompileAllAction extends AbstractAction
 {
@@ -29,6 +29,7 @@ public class CompileAllAction extends AbstractAction
     private CompileAllAction()
     {
         super("Compile All");
+        setEnabled(false);
     }
 
     /**
