@@ -50,7 +50,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
@@ -66,6 +65,7 @@ import bluej.utility.Debug;
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
+import greenfoot.actions.ShowReadMeAction;
 
 /**
  * The main frame for a Greenfoot project (one per project)
@@ -73,7 +73,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4130 2006-05-08 16:19:14Z davmac $
+ * @version $Id: GreenfootFrame.java 4143 2006-05-09 09:40:01Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -255,8 +255,8 @@ public class GreenfootFrame extends JFrame
         
         JPanel eastPanel = new JPanel(new BorderLayout(12, 12));
 
-        JButton readMeButton = new JButton("Project Information", 
-                                   new ImageIcon(getClass().getClassLoader().getResource(readMeIconFile)));
+        JButton readMeButton = new JButton(ShowReadMeAction.getInstance()); 
+        readMeButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource(readMeIconFile)));
         eastPanel.add(readMeButton, BorderLayout.NORTH);
         
         // the class browser 
@@ -289,14 +289,6 @@ public class GreenfootFrame extends JFrame
         
         worldHandler.setSelectionManager(classBrowser.getSelectionManager());
     }
-
-    /**
-     * Show a "Not Yet Implemented" message.
-     */
-    public void showNYIMessage()
-    {
-        JOptionPane.showMessageDialog(this, "Not Yet Implemented - sorry.");
-    } 
 
     /**
      * Pack the components in this frame.
@@ -419,7 +411,7 @@ public class GreenfootFrame extends JFrame
 
         JMenu projectMenu = addMenu("Project", menuBar, 'p');
         
-        addMenuItem(NewProjectAction.getInstance(), projectMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
+        addMenuItem(NewProjectAction.getInstance(), projectMenu, -1, false, KeyEvent.VK_N);
         addMenuItem(OpenProjectAction.getInstance(), projectMenu, KeyEvent.VK_O, false, KeyEvent.VK_O);
 //        addMenuItem(new NYIAction("Open Recent...", this), projectMenu, -1, false, -1);
         addMenuItem(CloseProjectAction.getInstance(), projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
@@ -431,7 +423,7 @@ public class GreenfootFrame extends JFrame
         
         JMenu editMenu = addMenu("Edit", menuBar, 'e');
         
-        addMenuItem(new NewClassAction(classBrowser), editMenu, KeyEvent.VK_C, false, KeyEvent.VK_N);
+        addMenuItem(new NewClassAction(classBrowser), editMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
         RemoveSelectedClassAction removeClassAction = new RemoveSelectedClassAction();
         classBrowser.getSelectionManager().addSelectionChangeListener(removeClassAction);
         addMenuItem(removeClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
