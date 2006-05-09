@@ -4,6 +4,7 @@ import greenfoot.ObjectTracker;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.localdebugger.LocalObject;
 
+import java.awt.EventQueue;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -81,12 +82,17 @@ public class WorldInvokeListener
                 new Thread() {
                     public void run() {
                         try {
-                            Object r = m.invoke(obj, (Object[])null);
+                            final Object r = m.invoke(obj, (Object[])null);
                             update();
                             if (m.getReturnType() != void.class) {
-                                ExpressionInformation ei = new ExpressionInformation(WorldInvokeListener.this.mv, instanceName);
-                                ResultInspector ri = inspectorManager.getResultInspectorInstance(wrapResult(r, m.getReturnType()), instanceName, null, null, ei,  GreenfootMain.getInstance().getFrame());
-                                ri.setVisible(true);
+                                final ExpressionInformation ei = new ExpressionInformation(WorldInvokeListener.this.mv, instanceName);
+                                EventQueue.invokeLater(new Runnable() {
+                                    public void run()
+                                    {
+                                        ResultInspector ri = inspectorManager.getResultInspectorInstance(wrapResult(r, m.getReturnType()), instanceName, null, null, ei,  GreenfootMain.getInstance().getFrame());
+                                        ri.setVisible(true);
+                                    }
+                                });
                             }
                         }
                         catch (InvocationTargetException ite) {
