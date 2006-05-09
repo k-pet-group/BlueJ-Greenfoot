@@ -44,7 +44,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4144 2006-05-09 10:07:04Z polle $
+ * @version $Id: GreenfootMain.java 4156 2006-05-09 13:06:48Z mik $
  */
 public class GreenfootMain
 {
@@ -139,39 +139,46 @@ public class GreenfootMain
 
         try {
             frame = new GreenfootFrame(rBlueJ);
-        
+
             this.pkg = new GPackage(pkg);
             this.project = this.pkg.getProject();
-            
+
             restoreFrameState();
             frame.setVisible(true);
             // Config is initialized in GreenfootLauncher
+
+            if(!project.isStartupProject()) {
+                // Threading avoids deadlock when classbrowser tries to instantiate
+                // objects to get images. this is necessy because greenfoot is started
+                // from BlueJ-VM which waits for this call to return.
+                Thread openThread = new Thread() {
+                    public void run()
+                    {
+                        try {
+                            frame.openProject(GreenfootMain.this.project);
+                            Utility.bringToFront();
+
+                            instantiationListener = new ActorInstantiationListener(WorldHandler.getInstance());
+                            GreenfootMain.this.rBlueJ.addInvocationListener(instantiationListener);
+                            compileListenerForwarder = new CompileListenerForwarder(compileListeners);
+                            GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
+                        }
+                        catch (Exception exc) {
+                            Debug.reportError("failed to open project", exc);
+                        }
+                    }
+                };
+                openThread.start();
+                // SwingUtilities.invokeLater(openThread);
+            }
+            else {
+                Utility.bringToFront();
+            }
         }
         catch (Exception exc) {
             Debug.reportError("could not create greenfoot main", exc);
         }
 
-        // Threading avoids deadlock when classbrowser tries to instantiate
-        // objects to get images. this is necessy because greenfoot is started
-        // from BlueJ-VM which waits for this call to return.
-        Thread openThread = new Thread() {
-            public void run()
-            {
-                try {
-                    frame.openProject(GreenfootMain.this.project);
-                    Utility.bringToFront();
-
-                    instantiationListener = new ActorInstantiationListener(WorldHandler.getInstance());
-                    GreenfootMain.this.rBlueJ.addInvocationListener(instantiationListener);
-                    compileListenerForwarder = new CompileListenerForwarder(compileListeners);
-                    GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
-                }
-                catch (Exception exc) {
-                    Debug.reportError("failed to open project", exc);
-                }
-            }
-        };
-        openThread.start();
     }
 
 
@@ -229,11 +236,13 @@ public class GreenfootMain
     public void closeThisInstance()
     {
         try {
-            rBlueJ.removeCompileListener(compileListenerForwarder);
-            rBlueJ.removeInvocationListener(instantiationListener);
-            storeFrameState();
-            for (RInvocationListener element : invocationListeners) {
-                rBlueJ.removeInvocationListener(element);
+            if(!project.isStartupProject()) {
+                rBlueJ.removeCompileListener(compileListenerForwarder);
+                rBlueJ.removeInvocationListener(instantiationListener);
+                storeFrameState();
+                for (RInvocationListener element : invocationListeners) {
+                    rBlueJ.removeInvocationListener(element);
+                }
             }
             if (rBlueJ.getOpenProjects().length <= 1) {
                 // Close everything
@@ -369,9 +378,14 @@ public class GreenfootMain
                 RProject newProject = rBlueJ.newProject(f);
                 // The rest of the project preparation will be done by the
                 // ProjectLauncher on the BlueJ side.
+
+                // if this is the dummy startup project, close it now.
+                if(project.isStartupProject()) {
+                    project.close();
+                }
             }
-            catch (RemoteException e) {
-                e.printStackTrace();
+            catch (Exception exc) {
+                Debug.reportError("Problems when trying to create new project...", exc);
             }
         }
     }
@@ -401,7 +415,6 @@ public class GreenfootMain
     }
 
 
-    // ========= Private methods ==========
 
     /**
      * Makes a project a greenfoot project. That is, copy the system classes to
