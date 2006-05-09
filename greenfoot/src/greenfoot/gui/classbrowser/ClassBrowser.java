@@ -1,7 +1,5 @@
 package greenfoot.gui.classbrowser;
 
-import greenfoot.actions.CompileClassAction;
-import greenfoot.actions.EditClassAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GreenfootMain;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
@@ -30,7 +28,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4170 2006-05-09 18:09:23Z davmac $
+ * @version $Id: ClassBrowser.java 4171 2006-05-09 18:13:17Z davmac $
  */
 public class ClassBrowser extends JPanel
 {
@@ -102,6 +100,7 @@ public class ClassBrowser extends JPanel
     
     /**
      * Add a new class to the class browser.
+     * Call only from the Swing event thread.
      */
     public ClassView addClass(GClass gClass)
     {
@@ -130,8 +129,7 @@ public class ClassBrowser extends JPanel
 
     /**
      * Arrange and show the class views on screen.
-     * 
-     * TODO some of it should be put on the EventQueue
+     * Call only from the Swing event thread.
      */
     public void updateLayout()
     {
@@ -280,7 +278,7 @@ public class ClassBrowser extends JPanel
 
     /**
      * Gets all the classes that is in the GreenfootWorls classes section.
-     * 
+     * Call from the Swing event thread.
      * 
      * @return A list of ClassViews
      */
