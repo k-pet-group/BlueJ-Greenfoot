@@ -1,14 +1,12 @@
 #Greenfoot properties
-#Tue May 09 17:47:59 GMT 2006
+#Tue May 09 21:38:05 GMT 2006
 class.Flag.image=flag.png
-simulation.speed=94
+simulation.speed=92
 class.Explosion.superclass=greenfoot.Actor
 class.Flag.superclass=greenfoot.Actor
 class.Lander.image=rocket.png
 version=0.9
-class.Actor.image=green-foot.gif
 class.Moon.superclass=greenfoot.World
-class.Gravity.image=elephant.gif
 class.Explosion.image=explosion.png
 class.Lander.superclass=greenfoot.Actor
 class.Gravity.superclass=greenfoot.Actor
