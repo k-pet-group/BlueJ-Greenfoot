@@ -30,7 +30,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4088 2006-05-04 20:36:05Z mik $
+ * @version $Id: ClassBrowser.java 4144 2006-05-09 10:07:04Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -137,6 +137,8 @@ public class ClassBrowser extends JPanel
 
     /**
      * Arrange and show the class views on screen.
+     * 
+     * TODO some of it should be put on the EventQueue
      */
     public void updateLayout()
     {
@@ -312,7 +314,8 @@ public class ClassBrowser extends JPanel
 
     /**
      * Rebuilds the class browser: updating the hierachy.
-     *
+     * <p>
+     * Runs on the event thread
      */
     public void rebuild()
     {

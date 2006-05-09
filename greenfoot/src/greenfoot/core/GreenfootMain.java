@@ -44,7 +44,7 @@ import java.awt.Point;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4128 2006-05-08 16:07:34Z polle $
+ * @version $Id: GreenfootMain.java 4144 2006-05-09 10:07:04Z polle $
  */
 public class GreenfootMain
 {
@@ -171,7 +171,7 @@ public class GreenfootMain
                 }
             }
         };
-        SwingUtilities.invokeLater(openThread);
+        openThread.start();
     }
 
 
@@ -286,11 +286,13 @@ public class GreenfootMain
             int width = projectProperties.getInt("mainWindow.width");
             int height = projectProperties.getInt("mainWindow.height");
 
-            frame.setFixedBounds(x, y, width, height);
+            frame.setBounds(x, y, width, height);
+            frame.setResizeWhenPossible(false);
         } 
         catch (NumberFormatException ecx) {
             // doesn't matter - just use some default size
             frame.setBounds(40, 40, 600, 500);
+            frame.setResizeWhenPossible(true);
         }
         
         try {

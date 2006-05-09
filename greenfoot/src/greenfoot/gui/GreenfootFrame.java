@@ -50,6 +50,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
@@ -73,7 +74,7 @@ import greenfoot.actions.ShowReadMeAction;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4143 2006-05-09 09:40:01Z mik $
+ * @version $Id: GreenfootFrame.java 4144 2006-05-09 10:07:04Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -92,12 +93,12 @@ public class GreenfootFrame extends JFrame
     private ControlPanel controlPanel;
     
     /**
-     * Indicates whether the bounds has been determined. The only case where it
-     * hasn't been determined is when no bounds could be found in the
-     * project.greenfoot file and a world has not been installed yet.
+     * Indicate whether we want to resize. 
+     * 
+     * @see #setResizeWhenPossible(boolean)
+     * @see #needsResize()
      */
-    private boolean boundsDetermined = false;
-    
+    private boolean resizeWhenPossible = false;    
     
     /**
      * Creates a new top level frame with all the GUI components.
@@ -174,6 +175,7 @@ public class GreenfootFrame extends JFrame
     
     /**
      * Open a given project into this frame.
+     * 
      */
     public void openProject(GProject project)
         throws ProjectNotOpenException, RemoteException
@@ -182,9 +184,13 @@ public class GreenfootFrame extends JFrame
         populateClassBrowser(classBrowser, project);
         worldHandler.attachProject(project);
         World newWorld = instantiateNewWorld(classBrowser);
-        if (! boundsDetermined  && newWorld != null) {
-            pack();
-            boundsDetermined = true;
+        if (needsResize() && newWorld != null) {
+            EventQueue.invokeLater(new Runnable() {
+                public void run()
+                {
+                    resize();
+                }
+            });
         }
     }    
     
@@ -542,15 +548,17 @@ public class GreenfootFrame extends JFrame
 
     public void compileSucceeded(RCompileEvent event)
     {
+        instantiateNewWorld(classBrowser);
+        if(worldDimensions == null) {
+            setResizeWhenPossible(true);
+        }
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
-                instantiateNewWorld(classBrowser);
                 classBrowser.rebuild();
                 if (needsResize()) {
-                    pack();
-                    boundsDetermined = true;
-		        }
+                    resize();
+                }
             }
         });
     }
@@ -571,31 +579,48 @@ public class GreenfootFrame extends JFrame
     
     /**
      * Returns true if we need to resize the frame. Based on whether the world
-     * has changed size.
+     * has changed size or we have specifically asked for a resize by setting resizeWhenPossible.
      * 
-     * @return
+     * @see #setResizeWhenPossible(boolean)
+     * @return true, if we need a resize.
      */
     private boolean needsResize()
     {
         Dimension dim = worldCanvas.getPreferredSize();
-        if ((dim.equals(worldDimensions) || worldDimensions == null) && boundsDetermined) {
-            worldDimensions = dim;
-            return false;
-        }
-        else {
-            worldDimensions = dim;
+        if (resizeWhenPossible) {
             return true;
         }
+        else if (worldDimensions == null) {
+            // If the worldDimensions are null here, it means that we set the
+            // size specifically when we created the frame.
+            return false;
+        }
+        else if (!dim.equals(worldDimensions)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    /**
+     * Resizes the frame to its preferred size by running pack().
+     * <p>
+     * Should be run on the event thread.
+     */
+    private void resize() {
+        setResizeWhenPossible(false);
+        worldDimensions = worldCanvas.getPreferredSize();
+        pack();
     }
 
     /**
-     * Set this frame to a fixed size and location. This size is only used until
-     * the world changes size or the frame is explicitly resized by the user.
-     * 
+     * Indicate whether we want to resize the next time we get new information
+     * about the size, and hence might want to do a resize of the entire frame.
      */
-    public void setFixedBounds(int x, int y, int width, int height)
+    public void setResizeWhenPossible(boolean b)
     {
-        setBounds(x, y, width, height);
-        this.boundsDetermined = true;
+        worldDimensions = null;
+        this.resizeWhenPossible = b;
     }
 }
