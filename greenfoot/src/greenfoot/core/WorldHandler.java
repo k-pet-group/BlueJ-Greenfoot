@@ -490,7 +490,13 @@ public class WorldHandler
                         }
                     }
                 });
-                fireWorldCreatedEvent();
+                
+                if (world != null) {
+                    fireWorldCreatedEvent();
+                }
+                else {
+                    fireWorldRemovedEvent();
+                }
             }
         });
     }
@@ -636,7 +642,6 @@ public class WorldHandler
             {
                 project.removeAllInspectors();
                 setWorld(null);
-                fireWorldRemovedEvent();
             }
         });
     }
