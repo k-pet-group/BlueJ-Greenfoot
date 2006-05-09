@@ -1,6 +1,5 @@
 package greenfoot.core;
 
-import java.awt.EventQueue;
 import java.io.File;
 import java.net.URL;
 import java.rmi.RemoteException;
@@ -22,19 +21,9 @@ import bluej.Config;
  * @version 22-05-2003
  * @version $Id$
  */
-public class GreenfootLauncher implements Runnable
+public class GreenfootLauncher
 {
-    private String prjDir;
-    private String pkgName;
-    
     public GreenfootLauncher(String prjDir, String pkgName)
-    {
-        this.prjDir = prjDir;
-        this.pkgName = pkgName;
-        EventQueue.invokeLater(this);
-    }
-    
-    public void run()
     {
         BlueJRMIClient client = new BlueJRMIClient(prjDir, pkgName);
         

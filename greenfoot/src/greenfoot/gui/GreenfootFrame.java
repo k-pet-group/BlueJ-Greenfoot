@@ -16,12 +16,14 @@ import greenfoot.actions.RunOnceSimulationAction;
 import greenfoot.actions.RunSimulationAction;
 import greenfoot.actions.SaveProjectAction;
 import greenfoot.actions.ShowCopyrightAction;
+import greenfoot.actions.ShowReadMeAction;
 import greenfoot.actions.ShowWebsiteAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.LocationTracker;
+import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.CompileListener;
@@ -29,6 +31,7 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
+import greenfoot.gui.classbrowser.SelectionManager;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -50,7 +53,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
@@ -66,7 +68,6 @@ import bluej.utility.Debug;
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
-import greenfoot.actions.ShowReadMeAction;
 
 /**
  * The main frame for a Greenfoot project (one per project)
@@ -74,7 +75,7 @@ import greenfoot.actions.ShowReadMeAction;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4165 2006-05-09 14:28:54Z davmac $
+ * @version $Id: GreenfootFrame.java 4170 2006-05-09 18:09:23Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener
@@ -98,12 +99,39 @@ public class GreenfootFrame extends JFrame
      * @see #setResizeWhenPossible(boolean)
      * @see #needsResize()
      */
-    private boolean resizeWhenPossible = false;    
+    private boolean resizeWhenPossible = false;
+    
+    private static GreenfootFrame instance;
+    
+    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ)
+    {
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                public void run()
+                {
+                    try {
+                        instance = new GreenfootFrame(blueJ);                        
+                    }
+                    catch (ProjectNotOpenException pnoe) {
+                        pnoe.printStackTrace();
+                    }
+                    catch (RemoteException re) {
+                        re.printStackTrace();
+                    }
+                }
+            });
+            return instance;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     
     /**
      * Creates a new top level frame with all the GUI components.
      */
-    public GreenfootFrame(RBlueJ blueJ)
+    private GreenfootFrame(RBlueJ blueJ)
         throws HeadlessException, ProjectNotOpenException, RemoteException
     {
         super("Greenfoot");
@@ -136,9 +164,46 @@ public class GreenfootFrame extends JFrame
         makeFrame();
         addWindowListener(this);
         GreenfootMain.getInstance().addCompileListener(this);
+        
+        restoreFrameState();
 
         prepareMacOSApp();
+        
+        setVisible(true);
     }
+    
+    /**
+     * Restore the current main window size from the project properties.
+     */
+    private void restoreFrameState()
+    {
+        ProjectProperties projectProperties = GreenfootMain.getProjectProperties();
+
+        try {            
+            int x = projectProperties.getInt("mainWindow.x");
+            int y = projectProperties.getInt("mainWindow.y");
+
+            int width = projectProperties.getInt("mainWindow.width");
+            int height = projectProperties.getInt("mainWindow.height");
+
+            setBounds(x, y, width, height);
+            setResizeWhenPossible(false);
+        } 
+        catch (NumberFormatException ecx) {
+            // doesn't matter - just use some default size
+            setBounds(40, 40, 600, 500);
+            setResizeWhenPossible(true);
+        }
+        
+        try {
+            int speed = projectProperties.getInt("simulation.speed");
+            Simulation.getInstance().setSpeed(speed);
+        } 
+        catch (NumberFormatException ecx) {
+            //simulation.speed not found
+        }
+    }
+
     
 
     /**
@@ -177,22 +242,20 @@ public class GreenfootFrame extends JFrame
      * Open a given project into this frame.
      * 
      */
-    public void openProject(GProject project)
-        throws ProjectNotOpenException, RemoteException
+    public void openProject(final GProject project)
     {
-        this.setTitle("Greenfoot: " + project.getName());
-        populateClassBrowser(classBrowser, project);
-        worldHandler.attachProject(project);
-        enableProjectActions();
-        World newWorld = instantiateNewWorld(classBrowser);
-        if (needsResize() && newWorld != null) {
-            EventQueue.invokeLater(new Runnable() {
-                public void run()
-                {
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                setTitle("Greenfoot: " + project.getName());
+                populateClassBrowser(classBrowser, project);
+                enableProjectActions();
+                World newWorld = instantiateNewWorld(classBrowser);
+                if (needsResize() && newWorld != null) {
                     resize();
                 }
-            });
-        }
+            }
+        });
     }    
     
     /**
@@ -300,11 +363,12 @@ public class GreenfootFrame extends JFrame
      * Pack the components in this frame.
      * As part of this, try to make sure that the frame does not get too big.
      * If necessary, make it smaller to fit on screen.
+     * 
+     * <p>Call on event thread only.
      */
     public void pack()
     {
         super.pack();
-//        super.pack();   // this seems a bug: if not called twice, it gets the size wrong...
         
         int width = getSize().width;
         int height = getSize().height;
@@ -330,7 +394,7 @@ public class GreenfootFrame extends JFrame
     public  Dimension getPreferredSize() {
         Dimension dim = super.getPreferredSize();
         dim.setSize(dim.width + WORLD_MARGIN, dim.height + WORLD_MARGIN);
-	return dim;
+        return dim;
     }
 
     /**
@@ -368,8 +432,9 @@ public class GreenfootFrame extends JFrame
     private ClassBrowser buildClassBrowser()
     {
         ClassBrowser classBrowser = new ClassBrowser();
-        classBrowser.addCompileClassAction(CompileClassAction.getInstance());
-        classBrowser.addEditClassAction(EditClassAction.getInstance());
+        SelectionManager selectionManager = classBrowser.getSelectionManager();
+        selectionManager.addSelectionChangeListener(CompileClassAction.getInstance());
+        selectionManager.addSelectionChangeListener(EditClassAction.getInstance());
 
         return classBrowser;
     }

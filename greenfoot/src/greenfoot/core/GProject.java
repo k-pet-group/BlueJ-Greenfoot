@@ -134,10 +134,23 @@ public class GProject implements InspectorManager
     }
 
     
+    /**
+     * Get the project name (the name of the directory containing it)
+     */
     public String getName()
-        throws ProjectNotOpenException, RemoteException
     {
-        return rProject.getName();
+        try {
+            return rProject.getName();
+        }
+        catch (ProjectNotOpenException pnoe) {
+            // this exception should never happen
+            pnoe.printStackTrace();
+        }
+        catch (RemoteException re) {
+            // this should also not happen
+            re.printStackTrace();
+        }
+        return null;
     }
 
     

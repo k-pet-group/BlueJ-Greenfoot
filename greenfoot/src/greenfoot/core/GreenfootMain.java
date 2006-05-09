@@ -35,9 +35,9 @@ import bluej.utility.Utility;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4166 2006-05-09 14:52:06Z davmac $
+ * @version $Id: GreenfootMain.java 4170 2006-05-09 18:09:23Z davmac $
  */
-public class GreenfootMain
+public class GreenfootMain extends Thread
 {
     /** Greenfoot is a singleton - this is the instance. */
     private static GreenfootMain instance;
@@ -126,37 +126,27 @@ public class GreenfootMain
         this.rBlueJ = rBlueJ;
 
         try {
-            frame = new GreenfootFrame(rBlueJ);
-
             this.pkg = new GPackage(pkg);
             this.project = this.pkg.getProject();
 
-            restoreFrameState();
-            frame.setVisible(true);
+            frame = GreenfootFrame.getGreenfootFrame(rBlueJ);
+
             // Config is initialized in GreenfootLauncher
 
             if(!project.isStartupProject()) {
-                // Threading avoids deadlock when classbrowser tries to instantiate
-                // objects to get images. this is necessy because greenfoot is started
-                // from BlueJ-VM which waits for this call to return.
-                Thread openThread = new Thread() {
-                    public void run()
-                    {
-                        try {
-                            frame.openProject(GreenfootMain.this.project);
-                            Utility.bringToFront();
+                try {
+                    WorldHandler.getInstance().attachProject(project);
+                    frame.openProject(project);
+                    Utility.bringToFront();
 
-                            instantiationListener = new ActorInstantiationListener(WorldHandler.getInstance());
-                            GreenfootMain.this.rBlueJ.addInvocationListener(instantiationListener);
-                            compileListenerForwarder = new CompileListenerForwarder(compileListeners);
-                            GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
-                        }
-                        catch (Exception exc) {
-                            Debug.reportError("failed to open project", exc);
-                        }
-                    }
-                };
-                openThread.start();
+                    instantiationListener = new ActorInstantiationListener(WorldHandler.getInstance());
+                    GreenfootMain.this.rBlueJ.addInvocationListener(instantiationListener);
+                    compileListenerForwarder = new CompileListenerForwarder(compileListeners);
+                    GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
+                }
+                catch (Exception exc) {
+                    Debug.reportError("failed to open project", exc);
+                }
             }
             else {
                 Utility.bringToFront();
@@ -167,8 +157,7 @@ public class GreenfootMain
         }
 
     }
-
-
+    
     /**
      * Opens the project in the given directory.
      */
@@ -271,38 +260,6 @@ public class GreenfootMain
         projectProperties.setInt("simulation.speed", Simulation.getInstance().getSpeed());
         
         projectProperties.save();
-    }
-
-    /**
-     * Restore the current main window size from the project properties.
-     */
-    private void restoreFrameState()
-    {
-        ProjectProperties projectProperties = getProject().getProjectProperties();
-
-        try {            
-            int x = projectProperties.getInt("mainWindow.x");
-            int y = projectProperties.getInt("mainWindow.y");
-
-            int width = projectProperties.getInt("mainWindow.width");
-            int height = projectProperties.getInt("mainWindow.height");
-
-            frame.setBounds(x, y, width, height);
-            frame.setResizeWhenPossible(false);
-        } 
-        catch (NumberFormatException ecx) {
-            // doesn't matter - just use some default size
-            frame.setBounds(40, 40, 600, 500);
-            frame.setResizeWhenPossible(true);
-        }
-        
-        try {
-            int speed = projectProperties.getInt("simulation.speed");
-            Simulation.getInstance().setSpeed(speed);
-        } 
-        catch (NumberFormatException ecx) {
-            //simulation.speed not found
-        }
     }
 
     /**

@@ -30,15 +30,12 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4144 2006-05-09 10:07:04Z polle $
+ * @version $Id: ClassBrowser.java 4170 2006-05-09 18:09:23Z davmac $
  */
 public class ClassBrowser extends JPanel
 {
     private static String simObj = "greenfoot.Actor";
     private static String worldObj = "greenfoot.World";
-
-    private EditClassAction editClassAction;
-    private CompileClassAction compileClassAction;
 
     private ButtonGroup buttonGroup = new ButtonGroup();
 
@@ -97,10 +94,6 @@ public class ClassBrowser extends JPanel
         classLabel.setClassBrowser(this);
         classLabel.addSelectionChangeListener(selectionManager);
         
-        // make sure the compile and edit actions are informed of the selected class
-        selectionManager.addSelectionChangeListener(compileClassAction);
-        selectionManager.addSelectionChangeListener(editClassAction);
-
         GreenfootMain.getInstance().addCompileListener(classLabel);
         
         return classLabel;
@@ -278,23 +271,7 @@ public class ClassBrowser extends JPanel
     }
 
     /**
-     * @param compileClassAction
-     */
-    public void addCompileClassAction(CompileClassAction compileClassAction)
-    {
-        this.compileClassAction = compileClassAction;
-    }
-
-    /**
-     * @param editClassAction
-     */
-    public void addEditClassAction(EditClassAction editClassAction)
-    {
-        this.editClassAction = editClassAction;
-    }
-
-    /**
-     * @return
+     * Get the selection manager for this class browser.
      */
     public SelectionManager getSelectionManager()
     {
@@ -319,14 +296,14 @@ public class ClassBrowser extends JPanel
      */
     public void rebuild()
     {
-        Thread t = new Thread() {
+        Runnable r = new Runnable() {
             public void run() {
                 updateLayout();
                 revalidate();
                 repaint();
             }
         };
-        SwingUtilities.invokeLater(t);        
+        SwingUtilities.invokeLater(r);        
     }
 
 }
