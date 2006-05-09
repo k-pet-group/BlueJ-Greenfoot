@@ -26,7 +26,7 @@ import bluej.extensions.ProjectNotOpenException;
  * An action for creating a new (non-Actor, non-World) class.
  * 
  * @author dam
- * @version $Id: NewClassAction.java 4062 2006-05-02 09:38:55Z mik $
+ * @version $Id: NewClassAction.java 4147 2006-05-09 10:51:28Z davmac $
  */
 public class NewClassAction extends AbstractAction {
 
@@ -49,9 +49,10 @@ public class NewClassAction extends AbstractAction {
 
         String className = dialog.getClassName();
         //GClass gClass = superclass.createSubclass(className);        
-        GPackage pkg = GreenfootMain.getInstance().getPackage();
 
         try {
+            GPackage pkg = GreenfootMain.getInstance().getProject().getDefaultPackage();
+            
             File dir = pkg.getProject().getDir();
             File newJavaFile = new File(dir, className + ".java");
             FileWriter writer = new FileWriter(newJavaFile);
