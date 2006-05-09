@@ -13,5 +13,4 @@ public class CircleTurtle extends Turtle
         move(5);
         turn(2);
     }
-
 }

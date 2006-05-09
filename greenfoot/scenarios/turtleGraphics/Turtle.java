@@ -1,30 +1,34 @@
-
+import greenfoot.World;
 import greenfoot.Actor;
 import greenfoot.GreenfootImage;
 
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 
+/** 
+ * A basic turtle.
+ */
 public class Turtle extends Actor
 {
-
+    /** Whether the turtle should paint or not. */
     private boolean penDown;
+    
+    /** Colour of the pen. */
     private String color = "black";
+    
+    /** The direction the turtle is facing. */
     private double direction;
+    
+    /** The x location. */
     private double x;
+    
+    /** The y location. */
     private double y;
+    
+    /** The maximum value that the direction can have. */
     private final static double MAX_ANGLE = 360;
-    private boolean initialized = false;
-
+    
     public Turtle()
     {
-    }
-    
-        
-    public void act()
-    {
-        //here you can create the behaviour of your object
     }
 
     /**
@@ -33,13 +37,11 @@ public class Turtle extends Actor
      */
     public void turn(double degrees)
     {
-        if (!initialized) {
-            initialize();
-        }
         direction = direction + degrees;
         if (direction > MAX_ANGLE) {
             direction = direction % MAX_ANGLE;
         }
+        setRotation((int)direction);
         draw();
     }
     
@@ -48,9 +50,6 @@ public class Turtle extends Actor
      */
     public void moveTo(double newX, double newY)
     {
-        if (!initialized) {
-            initialize();
-        }
         if (penDown) {
             drawLine(x, y, newX, newY);
         }
@@ -64,16 +63,15 @@ public class Turtle extends Actor
      */
     public void move(double distance)
     {
-        if (!initialized) {
-            initialize();
-        }
         double directionRad = Math.toRadians(direction);
         double xDist = distance * Math.cos(directionRad);
         double yDist = distance * Math.sin(directionRad);
-
         moveTo(x + xDist, y + yDist);
     }
 
+    /**
+     * Takes the pen up.
+     */
     public void penUp()
     {
         penDown = false;
@@ -81,12 +79,19 @@ public class Turtle extends Actor
         draw();
     }
 
+    /**
+     * Puts the pen down.
+     */
     public void penDown()
     {
         penDown = true;
         draw();
     }
 
+    /** 
+     * Set the color of the pen.
+     * Accepted colours are: "red", "black", "blue", "yellow", "green", "magenta", "white"
+     */
     public void setColor(String newColor)
     {
         color = newColor;
@@ -98,33 +103,34 @@ public class Turtle extends Actor
      * We need to make sure that our own representaion of the location is the
      * same as the World
      */
-    private void initialize()
+    public void addedToWorld(World world)
     {
-        initialized = true;
         x = getX();
         y = getY();
     }
 
+    /**
+     * Draw a line between to point with the current colour.
+     */
     private void drawLine(double x1, double y1, double x2, double y2)
     {
         GreenfootImage image = getWorld().getBackground();
         Color awtColor = decode(color);
-
         image.setColor(awtColor);
-        int xOffset = 0;//getImage().getWidth() / 2;
-        int yOffset = 0;//getImage().getHeight() / 2;
-        image.drawLine((int) Math.ceil(x1) + xOffset, (int) Math.ceil(y1) + yOffset, (int) Math.ceil(x2) + xOffset,
-                (int) Math.ceil(y2) + yOffset);
+        image.drawLine((int) Math.ceil(x1) , (int) Math.ceil(y1), (int) Math.ceil(x2), (int) Math.ceil(y2));
     }
     
+    /**
+     * Update the turtleimage.
+     */
     private void draw()
     {
         if (penDown) {
             drawPen();
         }
-        setRotation((int)direction);
     }
 
+    /** Draw the pen on the back of the turtle with the correct colour */
     private void drawPen()
     {
         GreenfootImage image = getImage();
@@ -139,6 +145,9 @@ public class Turtle extends Actor
         image.fillOval(penX, penY, penWidth, penHeight);
     }
     
+    /** 
+     * Translate a String into a Color
+     */
     private Color decode(String colorString) {
         if(colorString.equals("red"))
             return Color.red;
@@ -158,6 +167,9 @@ public class Turtle extends Actor
             return Color.black;
     }
     
+    /**
+     * Set the location of the turtle.
+     */
     public void setLocation(double x, double y) {
         if(x>=getWorld().getWidth()) {
             x = getWorld().getWidth()-1;
@@ -178,11 +190,12 @@ public class Turtle extends Actor
     
     /**
      * We need to override this method, so we can interactively move objects.
+     * This method should not be used by subclasses. Use the 
+     * setLocation(double x, double y) instead
      */
     public void setLocation(int x, int y) {
         this.x = x;
         this.y = y;
         super.setLocation(x,y);
     }
-
 }

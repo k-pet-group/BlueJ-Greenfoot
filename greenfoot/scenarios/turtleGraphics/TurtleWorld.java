@@ -1,7 +1,7 @@
 import greenfoot.World;
 import greenfoot.Actor;
 
-import java.awt.*;
+import java.awt.Color;
 
 public class TurtleWorld extends World
 {
