@@ -35,6 +35,9 @@ public class GOCollisionQuery implements CollisionQuery {
         }       
         else if(cls == null && ActorVisitor.intersects(compareObject, other)) {
             return true;
+        } 
+        else if (cls == null) {
+            return false;
         }
         else if(compareObject == null && cls.isInstance(other)) {
             return true;
