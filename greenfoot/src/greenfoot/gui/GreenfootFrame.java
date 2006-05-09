@@ -77,7 +77,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4173 2006-05-09 18:54:55Z davmac $
+ * @version $Id: GreenfootFrame.java 4178 2006-05-09 20:24:57Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -315,7 +315,7 @@ public class GreenfootFrame extends JFrame
         // the control panel
         
         controlPanel = new ControlPanel(sim);
-        controlPanel.setBorder(BorderFactory.createEtchedBorder());        
+        controlPanel.setBorder(BorderFactory.createEtchedBorder());
 
         centrePanel.add(controlPanel, BorderLayout.SOUTH);
 
@@ -551,6 +551,8 @@ public class GreenfootFrame extends JFrame
         RemoveSelectedClassAction.getInstance().setEnabled(true);
         CompileAllAction.getInstance().setEnabled(true);
         ShowReadMeAction.getInstance().setEnabled(true);
+        
+        controlPanel.setSliderEnabled(true);
     }
 
     /**
