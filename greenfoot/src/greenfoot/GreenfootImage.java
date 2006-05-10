@@ -19,8 +19,8 @@ import bluej.runtime.ExecServer;
  * and/or drawn by using various drawing methods.
  * 
  * @author Poul Henriksen
- * @version 0.6 dev
- * @cvs-version $Id: GreenfootImage.java 4136 2006-05-08 18:22:45Z polle $
+ * @version 0.9
+ * @cvs-version $Id: GreenfootImage.java 4183 2006-05-10 11:11:29Z polle $
  */
 public class GreenfootImage
 {
@@ -126,7 +126,6 @@ public class GreenfootImage
     /**
      * Gets the Java AWT image that this GreenfootImage represents.
      * 
-     * @return
      */
     public Image getAWTImage() {
         return image;

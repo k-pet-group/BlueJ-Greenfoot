@@ -25,8 +25,8 @@ import greenfoot.core.WorldHandler;
  * </ul>
  * 
  * @author Davin McCall
- * @version 0.6 dev
- * @cvs-version $Id: Greenfoot.java 4088 2006-05-04 20:36:05Z mik $
+ * @version 0.9
+ * @cvs-version $Id: Greenfoot.java 4183 2006-05-10 11:11:29Z polle $
  */
 public class Greenfoot
 {

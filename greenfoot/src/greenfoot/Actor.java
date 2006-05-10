@@ -23,7 +23,7 @@ import java.util.List;
  * The method here is empty, and subclasses normally provide their own implementations.
  * 
  * @author Poul Henriksen
- * @version 0.6 dev
+ * @version 0.9
  * @cvs-version $Id$
  */
 public abstract class Actor extends ObjectTransporter
@@ -66,11 +66,8 @@ public abstract class Actor extends ObjectTransporter
 
     /**
      * Construct an Actor.
-     * The default position is (0,0). Usually the constructor
-     * Actor(int, int) should be used in preference.
      * The object will have a default image.
      * 
-     * @see Actor#Actor(int, int)
      */
     public Actor()
     {
@@ -263,7 +260,6 @@ public abstract class Actor extends ObjectTransporter
      * jpeg, gif or png format. The file should be located in the project
      * directory.
      * 
-     * @see #setImage(ImageIcon)
      * @param filename The name of the image file.
      */
     public void setImage(String filename)
