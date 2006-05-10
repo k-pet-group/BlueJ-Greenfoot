@@ -34,6 +34,8 @@
 
 
 	<!-- **** greenfoot related properties **** -->
+	<property name="version" value="0.9"/>
+	<property name="apiversion" value="0.9"/>
 	<!-- Location of the source files for greenfoot -->
 	<property name="src" location="src"/>
 	<!-- Location of the test source files for greenfoot -->
@@ -354,5 +356,30 @@
                 <include name="**/*.ctxt" />
             </fileset>
         </delete>
+    </target>
+	
+    <target name="update-version-number" description="updates the version number in all files where it appears" >
+
+    	<!--replace dir="${src}/greenfoot" value="version 0.9" token="version *" includes="Greenfoot.java,GreenfootImage.java,Actor.java,World.java" summary="true"/-->
+    	<replaceregexp byline="true">
+    	    <regexp pattern="@version .*"/>
+    	    <substitution expression="@version ${apiversion}"/>
+    	    <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,Actor.java,World.java"/>
+    	</replaceregexp>
+    	<replaceregexp byline="true">
+    	    <regexp pattern="GREENFOOT_VERSION = .*"/>
+    	    <substitution expression="GREENFOOT_VERSION = &quot;${version}&quot;;"/>
+    	    <fileset dir="${bluej.projectdir}/boot/src/bluej" includes="Boot.java"/>
+    	</replaceregexp>
+    	<replaceregexp byline="true">
+    	    <regexp pattern="GREENFOOT_API_VERSION = .*"/>
+    	    <substitution expression="GREENFOOT_API_VERSION = &quot;${apiversion}&quot;;"/>
+    	    <fileset dir="${bluej.projectdir}/boot/src/bluej" includes="Boot.java"/>
+    	</replaceregexp>
+    	<replaceregexp byline="true">
+    	    <regexp pattern="version=.*"/>
+    	    <substitution expression="version=${apiversion}"/>
+    	    <fileset dir="projects/startupProject" includes="project.greenfoot"/>
+    	</replaceregexp>
     </target>
 </project>
