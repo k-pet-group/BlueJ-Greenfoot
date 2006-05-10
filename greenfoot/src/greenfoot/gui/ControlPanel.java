@@ -6,8 +6,6 @@ import greenfoot.actions.RunSimulationAction;
 import greenfoot.core.Simulation;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
-import greenfoot.event.WorldEvent;
-import greenfoot.event.WorldListener;
 
 import java.awt.CardLayout;
 import java.awt.FlowLayout;
@@ -29,7 +27,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 4178 2006-05-09 20:24:57Z mik $
+ * @version $Id: ControlPanel.java 4185 2006-05-10 14:32:26Z davmac $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -94,7 +92,12 @@ public class ControlPanel extends Box
         pauseSimulationAction.setEnabled(false);
         
         runpauseLayout = new CardLayout();
-        runpauseContainer = new JPanel(runpauseLayout);
+        runpauseContainer = new JPanel(runpauseLayout) {
+            public boolean isValidateRoot()
+            {
+                return true;
+            }
+        };
         runpauseContainer.add(new JButton(runSimulationAction), "run");
         runpauseContainer.add(new JButton(pauseSimulationAction), "pause");
         buttonPanel.add(runpauseContainer);
@@ -109,7 +112,7 @@ public class ControlPanel extends Box
         speedPanel.add(speedLabel);
         
         int min = 0;
-        int max = simulation.MAX_SIMULATION_SPEED;
+        int max = Simulation.MAX_SIMULATION_SPEED;
         speedSlider = new JSlider(JSlider.HORIZONTAL, min, max, simulation.getSpeed());
         speedSlider.setPaintLabels(false);
         speedSlider.setMajorTickSpacing( max / 2);

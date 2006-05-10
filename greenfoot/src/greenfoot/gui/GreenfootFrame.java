@@ -77,7 +77,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4184 2006-05-10 13:30:06Z polle $
+ * @version $Id: GreenfootFrame.java 4185 2006-05-10 14:32:26Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -633,8 +633,6 @@ public class GreenfootFrame extends JFrame
     
     public void worldCreated(WorldEvent e)
     {
-        // TODO Auto-generated method stub
-        // from openProject
         World newWorld = worldHandler.getWorld();
         if (needsResize() && newWorld != null) {
             resize();
@@ -644,8 +642,7 @@ public class GreenfootFrame extends JFrame
     
     public void worldRemoved(WorldEvent e)
     {
-        // TODO Auto-generated method stub
-        
+        // Nothing needs doing.
     }
     
     // ------------- end of WorldListener interface ------------
