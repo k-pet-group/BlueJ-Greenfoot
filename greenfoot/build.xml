@@ -63,11 +63,8 @@
 		<exclude name="**/doc/" />
 		<exclude name="**/__*" />
 		<include name="ants/" />
-		<include name="boids/" />
-		<include name="bricks/" />
-		<include name="draughts/" />
-		<include name="robots/" />
-		<include name="shapes/" />
+		<include name="plane/" />
+		<include name="lunarlander/" />
 		<include name="turtleGraphics/" />
 		<include name="wombats/" />
 	</patternset>
@@ -122,7 +119,7 @@
 	</target>
 
 	<target name="test" depends="compile-test">
-		<junit printsummary="yes" haltonfailure="yes">
+		<junit printsummary="yes" haltonfailure="no">
 			<classpath>
 				<pathelement location="${build}" />
 				<path refid="bluej.class.path" />
@@ -161,11 +158,8 @@
 		</macrodef>
 		
 		<compile-scenario scenario="ants" />
-		<compile-scenario scenario="boids" />
-		<compile-scenario scenario="bricks" />
-		<compile-scenario scenario="draughts" />
-		<compile-scenario scenario="robots" />
-		<compile-scenario scenario="shapes" />
+		<compile-scenario scenario="plane" />
+		<compile-scenario scenario="lunarlander" />
 		<compile-scenario scenario="turtleGraphics" />
 		<compile-scenario scenario="wombats" />
 		
@@ -180,7 +174,7 @@
 
 	</target>
 
-	<target name="ready-to-run" depends="compile, copy-imagelib, copy-projects" description="Builds everything so it is ready to run" >
+	<target name="ready-to-run" depends="update-images, compile, copy-imagelib, copy-projects" description="Builds everything so it is ready to run" >
 		<!-- Put everything in ${build} into the the jar file-->
 		<jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
 			<manifest>
@@ -201,6 +195,7 @@
 				<include name="greenfoot/Actor.java" />
 				<include name="greenfoot/World.java" />
 				<include name="greenfoot/GreenfootImage.java" />
+				<include name="greenfoot/Greenfoot.java" />
 			</fileset>
 		</javadoc>
 	</target>
@@ -215,7 +210,7 @@
 			</fileset>
 		</copy>
 		<mkdir dir="projects/skeletonProject/images"/>
-		<copy file="imagelib/other/greenfoot-logo.png" todir="projects/skeletonProject/images"/>
+		<copy file="resources/greenfoot-16.png" tofile="projects/skeletonProject/images/greenfoot.png"/>
 	</target>
 
 	<target name="copy-projects" depends="skeleton"  description="Copies the projects skeletonProject, startupProject and scenarios to bluej" >
@@ -236,6 +231,21 @@
 		<copy todir="${bluej.lib.greenfoot}/imagelib">
 			<fileset dir="imagelib"/>
 		</copy>
+	</target>	
+	
+	<target name="update-images" description="Copies the images from the resource directory out into the various places where the images are required.">
+		<!-- Installer image windows: greenfoot-install.bmp -->
+		<copy file="resources/greenfoot-install.bmp" todir="${bluej.projectdir}/package"/>
+		<!-- Installer image jar: greenfoot-install.png -->	
+		<copy file="resources/greenfoot-install.png" todir="${bluej.projectdir}/package"/>				
+		<!-- About image: greenfoot-about.png -->
+		<copy file="resources/greenfoot-about.png" todir="images"/>		
+		<!-- Splash image: greenfoot-splash.jpg -->
+		<copy file="resources/greenfootsplash.jpg" todir="${bluej.projectdir}/boot/src/bluej"/>				
+		<!-- Greenfoot icon for classes: greenfoot-16.png -->
+		<copy file="resources/greenfoot-16.png" tofile="imagelib/other/greenfoot.png"/>				
+		<!-- Greenfoot icon for application: greenfoot-16.png -->
+		<copy file="resources/greenfoot-16.png" tofile="images/greenfoot.png"/>				
 	</target>		
 
 	<target name="dist" depends="ready-to-run, copy-scenarios" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >

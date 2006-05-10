@@ -77,7 +77,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4178 2006-05-09 20:24:57Z mik $
+ * @version $Id: GreenfootFrame.java 4184 2006-05-10 13:30:06Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -159,7 +159,7 @@ public class GreenfootFrame extends JFrame
         
         LocationTracker.instance(); //force initialisation
         
-        URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
+        URL iconFile = this.getClass().getClassLoader().getResource("greenfoot.png");
         ImageIcon icon = new ImageIcon(iconFile);
         setIconImage(icon.getImage());
 

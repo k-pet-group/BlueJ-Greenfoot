@@ -33,7 +33,7 @@ public class GreenfootLauncher
             File libdir = blueJ.getSystemLibDir();
             Config.initializeVMside(libdir, client);
             
-            URL iconFile = this.getClass().getClassLoader().getResource("greenfoot-icon.gif");
+            URL iconFile = this.getClass().getClassLoader().getResource("greenfoot.png");
             ImageIcon icon = new ImageIcon(iconFile);
             BlueJTheme.setIconImage(icon.getImage());
 
