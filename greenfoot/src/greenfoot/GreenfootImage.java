@@ -19,8 +19,8 @@ import bluej.runtime.ExecServer;
  * and/or drawn by using various drawing methods.
  * 
  * @author Poul Henriksen
- * @version 0.9
- * @cvs-version $Id: GreenfootImage.java 4193 2006-05-11 11:26:38Z polle $
+ * @version 1.0
+ * @cvs-version $Id: GreenfootImage.java 4198 2006-05-11 14:19:07Z polle $
  */
 public class GreenfootImage
 {

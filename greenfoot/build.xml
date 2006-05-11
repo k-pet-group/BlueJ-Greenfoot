@@ -34,8 +34,8 @@
 
 
 	<!-- **** greenfoot related properties **** -->
-	<property name="version" value="0.9"/>
-	<property name="apiversion" value="0.9"/>
+	<property name="version" value="1.0"/>
+	<property name="apiversion" value="1.0"/>
 	<!-- Location of the source files for greenfoot -->
 	<property name="src" location="src"/>
 	<!-- Location of the test source files for greenfoot -->
