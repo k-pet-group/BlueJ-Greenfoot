@@ -32,19 +32,19 @@ import bluej.Config;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 4053 2006-05-01 12:54:58Z davmac $
+ * @version $Id: ExecServer.java 4191 2006-05-11 11:04:21Z davmac $
  */
 public class ExecServer
 {
-	// these fields will be fetched by VMReference
+    // these fields will be fetched by VMReference
 	
     // the initial thread that starts main()
-	public static final String MAIN_THREAD_NAME = "mainThread";
-	public static Thread mainThread = null;
+    public static final String MAIN_THREAD_NAME = "mainThread";
+    public static Thread mainThread = null;
 	
-	// a worker thread that we create
-	public static final String WORKER_THREAD_NAME = "workerThread";
-	public static Thread workerThread = null;
+    // a worker thread that we create
+    public static final String WORKER_THREAD_NAME = "workerThread";
+    public static Thread workerThread = null;
     
     // Parameters for main thread actions
     public static String classToRun;
@@ -105,7 +105,7 @@ public class ExecServer
     public static final int LOAD_ALL      = 5; // load class and inner classes
 
     // the current class loader
-	private static ClassLoader currentLoader;
+    private static ClassLoader currentLoader;
 
     // The loader that loads the greenfoot application classes. This is the
     // loader that gets used the first time anything is loaded in the debugvm.
@@ -113,9 +113,9 @@ public class ExecServer
     // The reason we need to do this, is to keep using the same class for
     // GreenfootObject and GreenfootWorld in order to cast newly created objects
     // into these types.
-    private static ClassLoader greenfootLoader;
+    //private static ClassLoader greenfootLoader;
     
-	  // a hashmap of names to objects
+    // a hashmap of names to objects
     // private static Map objects = new HashMap();
     private static Map objectMaps = new HashMap();
     
@@ -191,29 +191,29 @@ public class ExecServer
             }
         };
 
-		// register a listener to record all window opens and closes
-		Toolkit toolkit = Toolkit.getDefaultToolkit();
+        // register a listener to record all window opens and closes
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
 
-		AWTEventListener listener = new AWTEventListener()
-		{
-			public void eventDispatched(AWTEvent event)
-			{
-				if(event.getID() == WindowEvent.WINDOW_OPENED) {
-					addWindow(event.getSource());
-				} else if(event.getID() == WindowEvent.WINDOW_CLOSED) {
-					removeWindow(event.getSource());
-				}
-			}
-		};
+        AWTEventListener listener = new AWTEventListener()
+        {
+            public void eventDispatched(AWTEvent event)
+            {
+                if(event.getID() == WindowEvent.WINDOW_OPENED) {
+                    addWindow(event.getSource());
+                } else if(event.getID() == WindowEvent.WINDOW_CLOSED) {
+                    removeWindow(event.getSource());
+                }
+            }
+        };
 
-		toolkit.addAWTEventListener(listener, AWTEvent.WINDOW_EVENT_MASK);
+        toolkit.addAWTEventListener(listener, AWTEvent.WINDOW_EVENT_MASK);
 
-		// we create the security manager last so that hopefully, all the system/AWT
-		// threads will have been created and we can then rig our security manager
-		// to make all user-created threads go into a single thread group
-		System.setSecurityManager(new RemoteSecurityManager());
+        // we create the security manager last so that hopefully, all the system/AWT
+        // threads will have been created and we can then rig our security manager
+        // to make all user-created threads go into a single thread group
+        System.setSecurityManager(new RemoteSecurityManager());
 
-		// signal with a breakpoint that we have performed our VM
+        // signal with a breakpoint that we have performed our VM
         // initialization, at the same time, create the initial server thread.
         newThread();
 		
@@ -224,24 +224,24 @@ public class ExecServer
         workerThread.start();
     }
 
-	/**
-	 * This method is used to suspend the execution of the
-	 * machine to indicate that everything is up and running.
-	 */
-	public static void vmStarted()
-	{
-		// <SUSPENDING BREAKPOINT!>
-	}
+    /**
+     * This method is used to suspend the execution of the
+     * machine to indicate that everything is up and running.
+     */
+    public static void vmStarted()
+    {
+        // <SUSPENDING BREAKPOINT!>
+    }
 
-	/**
-	 * This method is used to suspend the execution of the worker threads.
-	 * This is done via a breakpoint: a breakpoint is set in this method
-	 * so calling this method suspends execution.
-	 */
-	public static void vmSuspend()
-	{
-		// <SUSPENDING BREAKPOINT!>
-	}
+    /**
+     * This method is used to suspend the execution of the worker threads.
+     * This is done via a breakpoint: a breakpoint is set in this method
+     * so calling this method suspends execution.
+     */
+    public static void vmSuspend()
+    {
+        // <SUSPENDING BREAKPOINT!>
+    }
 
     /**
      * Add the object to our list of open windows
@@ -307,34 +307,38 @@ public class ExecServer
      */
     private static ClassLoader newLoader(String urlListAsString )
     {
-//        JOptionPane.showMessageDialog(null,"ExecServer.newLoader() urlListAsString="+urlListAsString);
-
+//      JOptionPane.showMessageDialog(null,"ExecServer.newLoader() urlListAsString="+urlListAsString);
+        
         String [] splits = urlListAsString.split("\n");
         URL []urls = new URL[splits.length];
-
+        
         for (int index = 0; index < splits.length; index++)
             try {
                 urls[index] = new URL(splits[index]);
             }
-            catch (MalformedURLException mfue) {
-                // Should never happen but if it does we want to know about it
-                System.err.println("ExecServer.newLoader() Malformed URL=" + splits[index]);
-            }
-            
+        catch (MalformedURLException mfue) {
+            // Should never happen but if it does we want to know about it
+            System.err.println("ExecServer.newLoader() Malformed URL=" + splits[index]);
+        }
+        
         // For greenfoot we need to use the greenfootLoader as parent for all
         // class loaders.
-        if (currentLoader != null && Config.isInitialised() && Config.isGreenfoot()) {
-            currentLoader = new GreenfootClassLoader(urls, greenfootLoader);
-        }
-        else {
-            //For BlueJ and the first time we create classloader for greenfoot
-            greenfootLoader = new URLClassLoader(urls);
-            currentLoader = greenfootLoader;
-        }
-            
+        //        if (currentLoader != null && Config.isInitialised() && Config.isGreenfoot()) {
+        //            currentLoader = new GreenfootClassLoader(urls, greenfootLoader);
+        //        }
+        //        else {
+        //For BlueJ and the first time we create classloader for greenfoot
+        
+        //greenfootLoader = new DebugClassLoader(urls);
+        //greenfootLoader = new URLClassLoader(urls);
+        //currentLoader = greenfootLoader;
+        currentLoader = new URLClassLoader(urls);
+        
+        //        }
+        
         objectMaps.clear();
-
-//    	BeanShell    
+        
+//      BeanShell    
         //if (classPath.equals("."))
         //    return currentLoader;
         
@@ -1006,40 +1010,98 @@ public class ExecServer
  * 
  * @author Poul Henriksen
  */
-class GreenfootClassLoader extends URLClassLoader {
-    public GreenfootClassLoader(URL[] urls)
-    {
-        super(urls);
-     
-    }
-    public GreenfootClassLoader(URL[] urls, ClassLoader parent)
-    {
-        super(urls, parent);
-     
-    }
-    public GreenfootClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory)
-    {
-        super(urls, parent, factory);
-     
-    }
-    
-    /**
-     * If the class is in the default package (the name contains no '.') it will
-     * be reloaded. If not, it will use the normal URLClassloader mechanism.
-     */
-    public Class loadClass(String filename)
-        throws ClassNotFoundException
-    {
-        Class c = null;
-        if (filename.indexOf(".") == -1) {
-            try {
-                c = findClass(filename);
-            }
-            catch (ClassNotFoundException e) {}
-        }
-        if (c == null) {
-            c = super.loadClass(filename);
-        }
-        return c;
-    }
-}
+//class GreenfootClassLoader extends URLClassLoader {
+//    public GreenfootClassLoader(URL[] urls)
+//    {
+//        super(urls);
+//     
+//    }
+//    public GreenfootClassLoader(URL[] urls, ClassLoader parent)
+//    {
+//        super(urls, parent);
+//     
+//    }
+//    public GreenfootClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory)
+//    {
+//        super(urls, parent, factory);
+//     
+//    }
+//    
+//    /**
+//     * If the class is in the default package (the name contains no '.') it will
+//     * be reloaded. If not, it will use the normal URLClassloader mechanism.
+//     */
+//    public Class loadClass(String filename)
+//        throws ClassNotFoundException
+//    {
+//        Class c = null;
+//        if (filename.indexOf(".") == -1) {
+//            try {
+//                c = findClass(filename);
+//            }
+//            catch (ClassNotFoundException e) {}
+//        }
+//        if (c == null) {
+//            c = super.loadClass(filename);
+//        }
+//        return c;
+//    }
+//    
+//    protected Class<?> findClass(String filename) throws ClassNotFoundException
+//    {
+//        boolean debugmode = filename.indexOf('.') == -1 || filename.equals("greenfoot.Actor");
+//        if (debugmode)
+//        System.out.println("Find class: " + filename);
+//        Class c = super.findClass(filename);
+//        if (debugmode);
+//        System.out.println("  (Found! : " + filename);
+//        return c;
+//    }
+//}
+
+//class DebugClassLoader extends URLClassLoader
+//{
+//    public DebugClassLoader(URL[] urls)
+//    {
+//        super(urls);
+//     
+//    }
+//    public DebugClassLoader(URL[] urls, ClassLoader parent)
+//    {
+//        super(urls, parent);
+//     
+//    }
+//    public DebugClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory)
+//    {
+//        super(urls, parent, factory);
+//     
+//    }
+//    
+//    /**
+//     * If the class is in the default package (the name contains no '.') it will
+//     * be reloaded. If not, it will use the normal URLClassloader mechanism.
+//     */
+//    public Class loadClass(String filename)
+//        throws ClassNotFoundException
+//    {
+//        boolean debugmode = filename.indexOf('.') == -1 || filename.equals("greenfoot.Actor");
+//        
+//        if (debugmode)
+//            System.out.println("DebugClassLoader, loadClass: " + filename);
+//        Class c = super.loadClass(filename);
+//        if (debugmode)
+//            System.out.println("  Loaded: " + filename);
+//        return c;
+//    }
+//    
+//    protected Class<?> findClass(String filename) throws ClassNotFoundException
+//    {
+//        boolean debugmode = filename.indexOf('.') == -1 || filename.equals("greenfoot.Actor");
+//        if (debugmode)
+//        System.out.println("DBCL, find class: " + filename);
+//        Class c = super.findClass(filename);
+//        if (debugmode)
+//        System.out.println("  Found: " + filename);
+//        return c;
+//    }
+//}
