@@ -77,7 +77,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4185 2006-05-10 14:32:26Z davmac $
+ * @version $Id: GreenfootFrame.java 4192 2006-05-11 11:24:15Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -637,7 +637,7 @@ public class GreenfootFrame extends JFrame
         if (needsResize() && newWorld != null) {
             resize();
         }
-
+        worldDimensions = worldCanvas.getPreferredSize();
     }
     
     public void worldRemoved(WorldEvent e)
@@ -688,7 +688,6 @@ public class GreenfootFrame extends JFrame
      */
     private void resize() {
         setResizeWhenPossible(false);
-        worldDimensions = worldCanvas.getPreferredSize();
         pack();
     }
 
