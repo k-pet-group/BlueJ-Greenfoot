@@ -21,7 +21,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 4188 2006-05-11 10:55:55Z davmac $
+ * @version $Id: Boot.java 4200 2006-05-11 14:33:45Z polle $
  */
 public class Boot
 {
@@ -41,8 +41,8 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
 
     public static final String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
     
-    public static String GREENFOOT_VERSION = "0.9";
-    public static String GREENFOOT_API_VERSION = "0.9";
+    public static String GREENFOOT_VERSION = "1.0";
+    public static String GREENFOOT_API_VERSION = "1.0";
 
     
     // A singleton boot object so the rest of BlueJ can pick up args etc.
