@@ -54,7 +54,7 @@
 	<patternset id="skeleton.files">
 		<include name="greenfoot/World.*"/>
 		<include name="greenfoot/Actor.*"/>
-		<include name="images/greenfoot-logo.png"/>
+		<include name="images/greenfoot.png"/>
 	</patternset>
 
 	<!-- scenarios to be included in standard distribution -->
@@ -267,9 +267,21 @@
 				<patternset refid="skeleton.files"/>
 			</fileset>
 		</delete>
-		<delete dir="${bluej.lib.greenfoot}/skeletonProject"/>
-		<delete dir="${bluej.lib.greenfoot}/startupProject"/>
-		<delete dir="${bluej.lib.greenfoot}/imagelib"/>
+		
+		<!-- Installer image windows: greenfoot-install.bmp -->
+		<delete file="${bluej.projectdir}/package/greenfoot-install.bmp"/>
+		<!-- Installer image jar: greenfoot-install.png -->	
+		<delete file="${bluej.projectdir}/package/greenfoot-install.png"/>				
+		<!-- About image: greenfoot-about.png -->
+		<delete file="images/greenfoot-about.png"/>		
+		<!-- Splash image: greenfoot-splash.jpg -->
+		<delete file="${bluej.projectdir}/boot/src/bluej/greenfootsplash.jpg"/>				
+		<!-- Greenfoot icon for classes: greenfoot-16.png -->
+		<delete file="imagelib/other/greenfoot.png"/>				
+		<!-- Greenfoot icon for application: greenfoot-16.png -->
+		<delete file="images/greenfoot.png"/>	
+		
+		<delete dir="${bluej.lib.greenfoot}"/>
     	<delete dir="${bluej.projectdir}/package/scenarios"/>
     	<delete dir="${build}"/>
         <delete >

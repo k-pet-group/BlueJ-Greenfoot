@@ -61,7 +61,7 @@ public abstract class Actor extends ObjectTransporter
     /** Field used to store some extra data in an object. Used by collision checkers. */
     private Object data;
 
-    private static GreenfootImage greenfootImage = new GreenfootImage("images/greenfoot-logo.png");
+    private static GreenfootImage greenfootImage = new GreenfootImage("images/greenfoot.png");
     private boolean usingClassImage;
 
     /**
