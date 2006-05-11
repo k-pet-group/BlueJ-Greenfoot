@@ -61,7 +61,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4122 2006-05-08 14:12:06Z davmac $
+ * @version $Id: ImageLibFrame.java 4193 2006-05-11 11:26:38Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -576,7 +576,11 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         }
         catch (InvocationTargetException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            if(e.getCause() instanceof IllegalArgumentException) {
+                //The image couldn't be generated - we just ignore that error.
+            } else {
+                e.printStackTrace();
+            }
         }
         catch (Throwable t) {
             // *Whatever* is thrown by user code, we want to catch it.

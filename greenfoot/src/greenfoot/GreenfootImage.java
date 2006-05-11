@@ -20,14 +20,13 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 0.9
- * @cvs-version $Id: GreenfootImage.java 4183 2006-05-10 11:11:29Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4193 2006-05-11 11:26:38Z polle $
  */
 public class GreenfootImage
 {
+    private static final Color DEFAULT_BACKGROUND = new Color(0,0,0,0);
     /** The image name is primarily use for debuging. */
     private String imageFileName; 
-    
-    
     private java.awt.Image image; 
     private Graphics2D graphics;
 
@@ -40,12 +39,12 @@ public class GreenfootImage
      * @param filename The name of the file to be loaded.
      * @throws FileNotFoundException
      */
-    public GreenfootImage(String filename)
+    public GreenfootImage(String filename) throws IllegalArgumentException
     {
         loadFile(filename);
     }
 
-    private void loadFile(String filename)
+    private void loadFile(String filename) throws IllegalArgumentException
     {
         if(filename == null) {
             throw new NullPointerException("Filename must not be null.");
@@ -54,7 +53,11 @@ public class GreenfootImage
         URL imageURL;
         try {
             imageURL = new URL(filename);
-            setImage(new ImageIcon(imageURL).getImage());
+            Image newImage = new ImageIcon(imageURL).getImage();
+            if(newImage.getWidth(null) == -1) {
+                throw new IllegalArgumentException("Could not load image from: " + filename);
+            }
+            setImage(newImage);
             return;
         }
         catch (MalformedURLException e) {
@@ -70,8 +73,8 @@ public class GreenfootImage
             if (url != null) {
                 setImage(new ImageIcon(url).getImage());
             }
-            else if (image == null) {
-                setImage(new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR));
+            if(image==null){
+                throw new IllegalArgumentException("Could not load image from: " + filename);
             }
         }
     }
@@ -81,18 +84,21 @@ public class GreenfootImage
      * 
      * @param imageURL The URL of the image file.
      */
-    public GreenfootImage(URL imageURL)
+    public GreenfootImage(URL imageURL) throws IllegalArgumentException
     {
         if(imageURL == null) {
             throw new NullPointerException("Image URL must not be null.");
         }
         imageFileName = imageURL.getFile();
-        image = new ImageIcon(imageURL).getImage();
-        initGraphics();
+        Image newImage = new ImageIcon(imageURL).getImage();
+        if(newImage.getWidth(null) == -1) {
+            throw new IllegalArgumentException("Could not load image from URL: " + imageURL);
+        }
+        setImage(newImage);
     }
 
     /**
-     * Create an empty (white) image with a specified size.
+     * Create an empty (transparent) image with a specified size.
      * 
      * @param width The width of the image in pixels.
      * @param height The height of the image in pixels.
@@ -106,7 +112,7 @@ public class GreenfootImage
     /**
      * Create a GreenfootImage from specified AWT image.
      */
-    public GreenfootImage(java.awt.Image image)
+    public GreenfootImage(java.awt.Image image) throws IllegalArgumentException
     {
         setImage(image);
         initGraphics();
@@ -117,8 +123,11 @@ public class GreenfootImage
      * 
      * @param image
      */
-    private void setImage(java.awt.Image image)
+    private void setImage(java.awt.Image image) throws IllegalArgumentException
     {
+        if(image == null) {
+            throw new IllegalArgumentException("Image must not be null.");
+        }
         this.image = image;
         initGraphics();
     }
@@ -134,6 +143,7 @@ public class GreenfootImage
     private void initGraphics() {
         try {
             if(image==null && imageFileName!=null) {
+                System.out.println("Image was null, so we load it anyway?");
                 loadFile(imageFileName);
             }
             MediaTracker tracker = new MediaTracker(new Container());
@@ -152,8 +162,7 @@ public class GreenfootImage
             
             if (width == -1 || height == -1) {
                 // Failed to load for some reason
-                width = 1;
-                height = 1;
+                throw new IllegalArgumentException("Couldn't load image: " + imageFileName);
             }
             
             //we MUST be able to get the graphics!
@@ -162,9 +171,7 @@ public class GreenfootImage
             graphics.drawImage(image, 0, 0, null);
             image = bImage;
         }
-        if(graphics != null) {
-            graphics.setBackground(new Color(0,0,0,0));
-        }
+        graphics.setBackground(DEFAULT_BACKGROUND);
     }
     
     private Graphics2D getGraphics() {
