@@ -10,7 +10,7 @@ import java.io.IOException;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 4016 2006-04-25 16:42:46Z davmac $
+ * @version $Id: WorldClassRole.java 4205 2006-05-11 22:24:13Z mik $
  */
 public class WorldClassRole extends ClassRole
 {
@@ -36,9 +36,9 @@ public class WorldClassRole extends ClassRole
             //      }
             writer.write(GreenfootClassRole.imports);
             writer.write(newline + "public class " + className + " extends " + superClassName + newline + "{" + newline);
-            writer.write("    /**" + newline + "     * Creates a new world with 20x20 cells and" + newline
-                    + "     * with a cell size of 10x10 pixels" + newline + "     */" + newline + "    public "
-                    + className + "() {" + newline + "        super(20,20,10);" + newline + "    }" + newline);
+            writer.write("    /**" + newline + "     * Creates a new world with 20x20 cells" + newline
+                    + "     * with a cell size of 10x10 pixels." + newline + "     */" + newline + "    public "
+                    + className + "() {" + newline + "        super(20, 20, 10);" + newline + "    }" + newline);
 
             //            writer.write(" public " + className + "()" + newline + " {" +
             // newline);

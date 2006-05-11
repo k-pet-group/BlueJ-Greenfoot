@@ -30,7 +30,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 4065 2006-05-02 10:56:34Z mik $
+ * @version $Id: GreenfootClassRole.java 4205 2006-05-11 22:24:13Z mik $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -41,8 +41,7 @@ public class GreenfootClassRole extends ClassRole
     private ClassView classView;
 
     private static final String newline = System.getProperty("line.separator");
-    public static final String imports = "import greenfoot.World;" + newline 
-        + "import greenfoot.Actor;" + newline;
+    public static final String imports = "import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)" + newline;
     
     /*
      * (non-Javadoc)
@@ -125,7 +124,6 @@ public class GreenfootClassRole extends ClassRole
             writer.write(newline + "public class " + className + " extends " + superClassName + newline + "{" + newline);
 
             writer.write("    public " + className + "()" + newline + "    {" + newline);
-            writer.write("        //setImage(\"name of the image file\");" + newline);
             writer.write("    }" + newline + newline);
 
             writer.write("    public void act()" + newline + "    {" + newline);
