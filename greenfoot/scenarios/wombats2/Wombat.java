@@ -41,7 +41,7 @@ public class Wombat extends Actor
      */
     public boolean foundLeaf()
     {
-        Actor leaf = getOneObjectAt(0, 0, Leaf.class);
+        Actor leaf = getOneObjectAtOffset(0, 0, Leaf.class);
         if(leaf != null) {
             return true;
         }
@@ -55,7 +55,7 @@ public class Wombat extends Actor
      */
     public void eatLeaf()
     {
-        Actor leaf = getOneObjectAt(0, 0, Leaf.class);
+        Actor leaf = getOneObjectAtOffset(0, 0, Leaf.class);
         if(leaf != null) {
             // eat the leaf...
             getWorld().removeObject(leaf);

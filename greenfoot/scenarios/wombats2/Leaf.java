@@ -5,7 +5,6 @@ public class Leaf extends Actor
 {
     public Leaf()
     {
-        setImage("leaf.gif");
     }
 
     public void act()
