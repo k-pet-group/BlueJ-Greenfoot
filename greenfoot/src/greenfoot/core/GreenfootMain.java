@@ -21,13 +21,16 @@ import javax.swing.JButton;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPackage;
+import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RInvocationListener;
 import bluej.Config;
 import bluej.debugmgr.CallHistory;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
+import bluej.views.View;
 
 /**
  * The main class for greenfoot. This is a singelton (in the JVM). Since each
@@ -35,9 +38,9 @@ import bluej.utility.Utility;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4170 2006-05-09 18:09:23Z davmac $
+ * @version $Id: GreenfootMain.java 4204 2006-05-11 16:26:18Z davmac $
  */
-public class GreenfootMain extends Thread
+public class GreenfootMain extends Thread implements CompileListener
 {
     /** Greenfoot is a singleton - this is the instance. */
     private static GreenfootMain instance;
@@ -78,6 +81,8 @@ public class GreenfootMain extends Thread
         }
     };
 
+    
+    private ClassLoader currentLoader;
     
     // ----------- static methods ------------
 
@@ -124,7 +129,9 @@ public class GreenfootMain extends Thread
     {
         instance = this;
         this.rBlueJ = rBlueJ;
-
+        currentLoader = ExecServer.getCurrentClassLoader();
+        addCompileListener(this);
+        
         try {
             this.pkg = new GPackage(pkg);
             this.project = this.pkg.getProject();
@@ -557,4 +564,44 @@ public class GreenfootMain extends Thread
     {
         return WorldVisitor.getApiVersion();
     }
+    
+    public static Class loadAndInitClass(String name)
+    {
+        return null;
+    }
+    
+    /**
+     * See if there is a new class loader in place. If so, we want to
+     * clear all views which refer to classes loaded by the previous
+     * loader.
+     */
+    private void checkClassLoader()
+    {
+        ClassLoader newLoader = ExecServer.getCurrentClassLoader();
+        if (newLoader != currentLoader) {
+            View.removeAll(currentLoader);
+            currentLoader = newLoader;
+        }
+    }
+    
+    // ------------ CompileListener interface -------------
+        
+    public void compileStarted(RCompileEvent event)
+    {
+        checkClassLoader();
+    }
+        
+    public void compileSucceeded(RCompileEvent event)
+    {
+        checkClassLoader();
+    }
+    
+    public void compileFailed(RCompileEvent event)
+    {
+        checkClassLoader();
+    }
+        
+    public void compileError(RCompileEvent event) {}
+
+    public void compileWarning(RCompileEvent event){}
 }
