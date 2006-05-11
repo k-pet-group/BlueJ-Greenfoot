@@ -44,7 +44,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4056 2006-05-01 15:41:24Z mik $
+ * @version $Id: Project.java 4189 2006-05-11 10:56:53Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager {
     /**
@@ -1275,19 +1275,13 @@ public class Project implements DebuggerListener, InspectorManager {
           
             // The current paroject dir must be added to the project class path too.
             pathList.add(getProjectDir().toURI().toURL());
-            if(Config.isGreenfoot()) {
-                // If this is greenfoot, we also need access to all the BlueJ jars.
-                addArrayToList(pathList, Boot.getInstance().getRuntimeClassPath());
-                // And the greenfoot.jar as well 
-                File extDir = new File(Config.getBlueJLibDir(), "extensions/greenfoot.jar");
-                pathList.add(extDir.toURI().toURL());
-            }
-        } catch ( Exception exc ) {
+
+        }
+        catch ( Exception exc ) {
             // Should never happen
             Debug.reportError("Project.getClassLoader() exception: " + exc.getMessage());
             exc.printStackTrace();
         }
-        
 
         URL [] newUrls = (URL [])pathList.toArray(new URL[pathList.size()]);
         
