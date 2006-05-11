@@ -296,6 +296,7 @@
             <arg value="-bluej.debug=true"></arg>
             <arg value="-greenfoot=true"></arg>            
             <arg value="-useclassesdir=true"></arg>
+        	<arg value="-greenfootclassesdir=${build}"/>
         </java>
     </target>
     
