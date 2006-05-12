@@ -100,7 +100,7 @@
 
         <!-- Copy other files needed by the installer -->
         <copy todir="install_tmp" file="greenfoot-dist.jar"/>
-        <copy todir="install_tmp" file="greenfoot-logo.png"/>
+        <copy todir="install_tmp" file="greenfoot-install.png"/>
 
         <!-- compile the installer -->
         <javac
