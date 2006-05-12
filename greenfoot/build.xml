@@ -250,7 +250,7 @@
 		<copy file="resources/greenfoot-16.png" tofile="images/greenfoot.png"/>				
 	</target>		
 
-	<target name="dist" depends="ready-to-run, copy-scenarios" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
+	<target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
 		<!-- Run the BlueJ dist-->
 		<ant dir="${bluej.projectdir}" target="dist-greenfoot" />
 
@@ -372,9 +372,7 @@
     </target>
 	
     <target name="update-version-number" description="updates the version number in all files where it appears" >
-
-    	<!--replace dir="${src}/greenfoot" value="version 0.9" token="version *" includes="Greenfoot.java,GreenfootImage.java,Actor.java,World.java" summary="true"/-->
-    	<replaceregexp byline="true">
+		<replaceregexp byline="true">
     	    <regexp pattern="@version .*"/>
     	    <substitution expression="@version ${apiversion}"/>
     	    <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,Actor.java,World.java"/>
