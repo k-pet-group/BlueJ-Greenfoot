@@ -65,6 +65,8 @@ public class ProjectProperties
      */
     private void load(File projectDir)
     {
+        System.err.println("Loading properties from: " + projectDir);
+        new Exception().printStackTrace();
         if (!projectDir.canWrite() || !projectDir.canRead()) {
             throw new IllegalArgumentException(
                     "Project directory must exist and be readable and writable. Project directory: " + projectDir);
@@ -116,6 +118,7 @@ public class ProjectProperties
                 catch (IOException e) {}
             }
         }
+        System.out.println("Saved properties: " + propsFile);
     }
 
 

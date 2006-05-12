@@ -38,7 +38,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4204 2006-05-11 16:26:18Z davmac $
+ * @version $Id: GreenfootMain.java 4219 2006-05-12 12:17:43Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener
 {
@@ -383,7 +383,7 @@ public class GreenfootMain extends Thread implements CompileListener
      * 
      * @param projectDir absolute path to the project
      */
-    private static void prepareGreenfootProject(File greenfootLibDir, File projectDir)
+    private static void prepareGreenfootProject(File greenfootLibDir, File projectDir, ProjectProperties p)
     {
         if (isStartupProject(greenfootLibDir, projectDir)) {
             return;
@@ -396,9 +396,8 @@ public class GreenfootMain extends Thread implements CompileListener
         
         touchApiClasses(dst);
         
-        ProjectProperties newProperties = new ProjectProperties(projectDir);
-        newProperties.setApiVersion();
-        newProperties.save();
+        p.setApiVersion();
+        p.save();
     }
     
     /**
@@ -452,7 +451,7 @@ public class GreenfootMain extends Thread implements CompileListener
             // ant script.
             File greenfootDir = new File(projectDir, "greenfoot");
             if(! greenfootDir.exists()) {
-                GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir);
+                GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
             }
             return true;
         }
@@ -464,7 +463,7 @@ public class GreenfootMain extends Thread implements CompileListener
                     new JButton[]{continueButton});
             dialog.displayModal();
             System.out.println(message);
-            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir);
+            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
             return true;
         }
         else if (projectVersion.compareTo(apiVersion) < 0) {
@@ -475,7 +474,7 @@ public class GreenfootMain extends Thread implements CompileListener
             MessageDialog dialog = new MessageDialog(parent, message, "Versions does not match", 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
-            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir);
+            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
             return true;
         }
         else if (projectVersion.compareTo(apiVersion) > 0) { //
@@ -494,7 +493,7 @@ public class GreenfootMain extends Thread implements CompileListener
                 return false;
             }
             else {
-                prepareGreenfootProject(greenfootLibDir, projectDir);
+                prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
                 return true;
             }
         }
