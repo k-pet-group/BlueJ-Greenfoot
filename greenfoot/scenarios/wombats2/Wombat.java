@@ -1,5 +1,4 @@
-import greenfoot.World;
-import greenfoot.Actor;
+import greenfoot.*;  // imports Actor, World, Greenfoot, GreenfootImage
 
 import java.util.List;
 import java.util.ArrayList;
@@ -131,7 +130,7 @@ public class Wombat extends Actor
     public void turnRandom()
     {
         // get a random number between 0 and 3...
-        int turns = ((WombatWorld)getWorld()).getRandomNumber(4);
+        int turns = Greenfoot.getRandomNumber(4);
         
         // ...an turn left that many times.
         for(int i=0; i<turns; i++) {

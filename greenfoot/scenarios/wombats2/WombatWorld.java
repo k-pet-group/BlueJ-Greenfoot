@@ -1,6 +1,4 @@
-import greenfoot.World;
-import greenfoot.Actor;
-import greenfoot.GreenfootImage;
+import greenfoot.*;  // imports Actor, World, Greenfoot, GreenfootImage
 
 import java.util.Random;
 
@@ -15,7 +13,7 @@ public class WombatWorld extends World
     public WombatWorld() 
     {
         super(8, 8, 60);
-        setBackground("images/cell.jpg");
+        setBackground("cell.jpg");
     }
 
     /**
@@ -56,17 +54,9 @@ public class WombatWorld extends World
     {
         for(int i=0; i<howMany; i++) {
             Leaf leaf = new Leaf();
-            int x = getRandomNumber(getWidth());
-            int y = getRandomNumber(getHeight());
+            int x = Greenfoot.getRandomNumber(getWidth());
+            int y = Greenfoot.getRandomNumber(getHeight());
             addObject(leaf, x, y);
         }
-    }
-    
-    /**
-     * Return a random number between 0 (inclusive) and limit (exclusive).
-     */
-    public int getRandomNumber(int limit)
-    {
-        return randomizer.nextInt(limit);
     }
 }
