@@ -1,5 +1,7 @@
 package greenfoot;
 
+import java.util.Random;
+
 import greenfoot.core.KeyboardManager;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -26,11 +28,13 @@ import greenfoot.core.WorldHandler;
  * 
  * @author Davin McCall
  * @version 1.0
- * @cvs-version $Id: Greenfoot.java 4198 2006-05-11 14:19:07Z polle $
+ * @cvs-version $Id: Greenfoot.java 4220 2006-05-12 12:36:00Z polle $
  */
 public class Greenfoot
 {
     private static KeyboardManager keyboardManager = WorldHandler.getInstance().getKeyboardManager();
+    
+    private static Random randomGenerator = new Random();
     
     /**
      * Get the most recently pressed key, since the last time this method was
@@ -80,5 +84,12 @@ public class Greenfoot
     public static void resumeSimulation()
     {
         Simulation.getInstance().setPaused(false);
+    }
+    
+    /**
+     * Return a random number between 0 (inclusive) and limit (exclusive).
+     */
+    public static int getRandomNumber(int limit) {
+        return randomGenerator.nextInt(limit);
     }
 }
