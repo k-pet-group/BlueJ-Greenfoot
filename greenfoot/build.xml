@@ -212,7 +212,7 @@
 			</fileset>
 		</copy>
 		<mkdir dir="projects/skeletonProject/images"/>
-		<copy file="resources/greenfoot-16.png" tofile="projects/skeletonProject/images/greenfoot.png"/>
+		<copy file="resources/greenfoot-icon-16.png" tofile="projects/skeletonProject/images/greenfoot.png"/>
 	</target>
 
 	<target name="copy-projects" depends="skeleton"  description="Copies the projects skeletonProject, startupProject and scenarios to bluej" >
@@ -245,9 +245,9 @@
 		<!-- Splash image: greenfoot-splash.jpg -->
 		<copy file="resources/greenfootsplash.jpg" todir="${bluej.projectdir}/boot/src/bluej"/>				
 		<!-- Greenfoot icon for classes: greenfoot-16.png -->
-		<copy file="resources/greenfoot-16.png" tofile="imagelib/other/greenfoot.png"/>				
+		<copy file="resources/greenfoot-icon-16.png" tofile="imagelib/other/greenfoot.png"/>				
 		<!-- Greenfoot icon for application: greenfoot-16.png -->
-		<copy file="resources/greenfoot-16.png" tofile="images/greenfoot.png"/>				
+		<copy file="resources/greenfoot-icon-16.png" tofile="images/greenfoot.png"/>				
 	</target>		
 
 	<target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
