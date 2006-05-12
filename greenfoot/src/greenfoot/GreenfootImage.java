@@ -1,11 +1,11 @@
 package greenfoot;
 
-import greenfoot.util.GreenfootUtil;
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.MediaTracker;
+import java.awt.Panel;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.VolatileImage;
@@ -21,7 +21,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4230 2006-05-12 15:37:11Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4231 2006-05-12 16:18:01Z polle $
  */
 public class GreenfootImage
 {
@@ -30,6 +30,7 @@ public class GreenfootImage
     private String imageFileName; 
     private Image image; 
     private Graphics2D graphics;
+    private static MediaTracker tracker;
 
     /**
      * Create an image from an image file. Supported file formats are JPEG, GIF and PNG.<p>
@@ -194,13 +195,22 @@ public class GreenfootImage
      * @param height Height of new image
      * @return A new scaled image
      */
-    public GreenfootImage scaleTo(int width, int height) {
-        Image newAWTImage = GreenfootUtil.getScaledImage(getAWTImage(), width, height);
-        GreenfootImage newImage = new GreenfootImage(width, height);
-        newImage.setImage(newAWTImage);
-        return newImage;
-    }
-    
+    public void scale(int width, int height) {
+        image = image.getScaledInstance(width, height, Image.SCALE_AREA_AVERAGING);
+        
+        if(tracker == null) {
+            tracker = new MediaTracker(new Panel());
+        }
+        tracker.addImage(image, 0);
+        try {
+            tracker.waitForID(0);
+            tracker.removeImage(image);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        initGraphics();
+    }    
 
     /**
      * Fill the entire image with the current drawing dcolor.
@@ -482,11 +492,6 @@ public class GreenfootImage
     {
         int width = getWidth();
         int height = getHeight();
-        
-        if (width == -1 || height == -1) {
-            return new GreenfootImage(1, 1);
-        }
-        
         GreenfootImage dest = new GreenfootImage(width, height);
         dest.drawImage(this, 0, 0);
         return dest;
