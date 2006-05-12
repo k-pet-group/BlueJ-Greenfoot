@@ -2,7 +2,10 @@ package greenfoot;
 
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.VolatileImage;
@@ -18,7 +21,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4225 2006-05-12 15:03:14Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4228 2006-05-12 15:32:21Z polle $
  */
 public class GreenfootImage
 {
@@ -34,29 +37,35 @@ public class GreenfootImage
      * The file name may be an absolute path, a base name for a file located in the
      * project directory.
      * 
-     * @param filename The name of the file to be loaded.
+     * @param filename Typically the name of a file in the images directory in the project directory.
      * @throws IllegalArgumentException If the image can not be loaded.
      */
     public GreenfootImage(String filename) throws IllegalArgumentException
     {
-        imageFileName = filename;
         loadFile(filename);
-    }
-
-    
+    }    
 
     /**
-     * Create an image from an URL.
+     * Create an empty (transparent) image with the specified size.
      * 
-     * @param imageURL The URL of the image file.
-     * @throws IllegalArgumentException If the image can not be loaded.
+     * @param width The width of the image in pixels.
+     * @param height The height of the image in pixels.
      */
-    public GreenfootImage(URL imageURL) throws IllegalArgumentException
+    public GreenfootImage(int width, int height)
     {
-        imageFileName = imageURL.toString();
-        loadURL(imageURL);
+        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        initGraphics();
     }
 
+    /**
+     * Create a GreenfootImage from another GreenfootImage.
+     */
+    public GreenfootImage(GreenfootImage image) throws IllegalArgumentException
+    {
+        this(image.getWidth(), image.getHeight());
+        drawImage(image, 0, 0);
+    }
+    
     private void loadURL(URL imageURL) throws IllegalArgumentException
     {
         if(imageURL == null) {
@@ -83,7 +92,8 @@ public class GreenfootImage
         if (filename == null) {
             throw new NullPointerException("Filename must not be null.");
         }
-
+        imageFileName = filename;
+        
         ClassLoader currentLoader = ExecServer.getCurrentClassLoader();
 
         // First, try the project's images dir
@@ -106,27 +116,6 @@ public class GreenfootImage
     }
 
     /**
-     * Create an empty (transparent) image with a specified size.
-     * 
-     * @param width The width of the image in pixels.
-     * @param height The height of the image in pixels.
-     */
-    public GreenfootImage(int width, int height)
-    {
-        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        initGraphics();
-    }
-
-    /**
-     * Create a GreenfootImage from specified AWT image.
-     */
-    public GreenfootImage(java.awt.Image image) throws IllegalArgumentException
-    {
-        setImage(image);
-        initGraphics();
-    }
-
-    /**
      * Sets the image to the specified AWT image
      * 
      * @param image
@@ -144,7 +133,7 @@ public class GreenfootImage
      * Gets the Java AWT image that this GreenfootImage represents.
      * 
      */
-    public Image getAWTImage() {
+    Image getAWTImage() {
         return image;
     }
     
@@ -206,7 +195,10 @@ public class GreenfootImage
      * @return A new scaled image
      */
     public GreenfootImage scaleTo(int width, int height) {
-        return new GreenfootImage(GreenfootUtil.getScaledImage(getAWTImage(), width, height));
+        Image newAWTImage = GreenfootUtil.getScaledImage(getAWTImage(), width, height);
+        GreenfootImage newImage = new GreenfootImage(width, height);
+        newImage.setImage(newAWTImage);
+        return newImage;
     }
     
 

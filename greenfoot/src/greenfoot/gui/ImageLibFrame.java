@@ -3,6 +3,7 @@ package greenfoot.gui;
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
+import greenfoot.GreenfootImageVisitor;
 import greenfoot.World;
 import greenfoot.core.GClass;
 import greenfoot.core.GreenfootMain;
@@ -61,7 +62,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4202 2006-05-11 14:47:53Z polle $
+ * @version $Id: ImageLibFrame.java 4228 2006-05-12 15:32:21Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -595,7 +596,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             GreenfootImage image = ActorVisitor.getDisplayImage(so);
 
             if (image != null) {
-                Image awtImage = image.getAWTImage();
+                Image awtImage = GreenfootImageVisitor.getAWTImage(image);
                 //rotate it.
                 int rotation = so.getRotation();
                 if (image != null && rotation != 0) {
@@ -606,7 +607,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     double rotateY = image.getHeight() / 2.;
                     g2.rotate(Math.toRadians(so.getRotation()), rotateX, rotateY);
 
-                    ImageWaiter imageWaiter = new ImageWaiter(image.getAWTImage());
+                    ImageWaiter imageWaiter = new ImageWaiter(awtImage);
                     imageWaiter.drawWait(g2, 0, 0);
 
                     awtImage = bImg;
@@ -617,7 +618,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 } 
 
                 GreenfootImage classImage = GreenfootMain.getProjectProperties().getImage(gclass.getQualifiedName());
-                if (classImage != null && classImage.getAWTImage().equals(awtImage)) {
+                if (classImage != null && GreenfootImageVisitor.getAWTImage(classImage).equals(awtImage)) {
                     // "generated" image is actually just the class image
                     return null;
                 }
