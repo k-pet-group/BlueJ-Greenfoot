@@ -261,18 +261,13 @@ public abstract class Actor extends ObjectTransporter
      * directory.
      * 
      * @param filename The name of the image file.
+     * @throws IllegalArgumentException If the image can not be loaded.
      */
-    public void setImage(String filename)
+    public void setImage(String filename) throws IllegalArgumentException
     {
-        URL imageURL = this.getClass().getClassLoader().getResource(filename);
-        if (imageURL == null) {
-            imageURL = this.getClass().getClassLoader().getResource("images/" + filename);
-        }
-        if (imageURL != null) {
-            image = new GreenfootImage(imageURL);
-            usingClassImage = false;
-            sizeChanged();
-        }
+        image = new GreenfootImage(filename);
+        usingClassImage = false;
+        sizeChanged();
     }
 
     /**

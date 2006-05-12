@@ -114,11 +114,11 @@ public abstract class World extends ObjectTransporter
      * @see #setBackground(GreenfootImage)
      * @see #setTiled(boolean)
      * @param filename The file holding the image to be shown
+     * @throws IllegalArgumentException If the image can not be loaded.
      */
-    final public void setBackground(String filename)
+    final public void setBackground(String filename) throws IllegalArgumentException
     {
-        URL imageURL = this.getClass().getClassLoader().getResource(filename);
-        GreenfootImage bg = new GreenfootImage(imageURL);
+        GreenfootImage bg = new GreenfootImage(filename);
         setBackground(bg);
     }
 

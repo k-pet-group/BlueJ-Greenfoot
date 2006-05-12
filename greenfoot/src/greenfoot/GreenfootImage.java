@@ -6,8 +6,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.VolatileImage;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -20,14 +18,14 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4198 2006-05-11 14:19:07Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4225 2006-05-12 15:03:14Z polle $
  */
 public class GreenfootImage
 {
     private static final Color DEFAULT_BACKGROUND = new Color(0,0,0,0);
     /** The image name is primarily use for debuging. */
     private String imageFileName; 
-    private java.awt.Image image; 
+    private Image image; 
     private Graphics2D graphics;
 
     /**
@@ -37,64 +35,74 @@ public class GreenfootImage
      * project directory.
      * 
      * @param filename The name of the file to be loaded.
-     * @throws FileNotFoundException
+     * @throws IllegalArgumentException If the image can not be loaded.
      */
     public GreenfootImage(String filename) throws IllegalArgumentException
     {
+        imageFileName = filename;
         loadFile(filename);
     }
 
-    private void loadFile(String filename) throws IllegalArgumentException
-    {
-        if(filename == null) {
-            throw new NullPointerException("Filename must not be null.");
-        }
-        imageFileName = filename;
-        URL imageURL;
-        try {
-            imageURL = new URL(filename);
-            Image newImage = new ImageIcon(imageURL).getImage();
-            if(newImage.getWidth(null) == -1) {
-                throw new IllegalArgumentException("Could not load image from: " + filename);
-            }
-            setImage(newImage);
-            return;
-        }
-        catch (MalformedURLException e) {
-            URL url;
-            ClassLoader currentLoader = ExecServer.getCurrentClassLoader();
-            if (currentLoader != null) {    
-                url = currentLoader.getResource(filename);
-            }
-            else {
-                url = ClassLoader.getSystemResource(filename);
-            }
-                    
-            if (url != null) {
-                setImage(new ImageIcon(url).getImage());
-            }
-            if(image==null){
-                throw new IllegalArgumentException("Could not load image from: " + filename);
-            }
-        }
-    }
+    
 
     /**
      * Create an image from an URL.
      * 
      * @param imageURL The URL of the image file.
+     * @throws IllegalArgumentException If the image can not be loaded.
      */
     public GreenfootImage(URL imageURL) throws IllegalArgumentException
+    {
+        imageFileName = imageURL.toString();
+        loadURL(imageURL);
+    }
+
+    private void loadURL(URL imageURL) throws IllegalArgumentException
     {
         if(imageURL == null) {
             throw new NullPointerException("Image URL must not be null.");
         }
-        imageFileName = imageURL.getFile();
         Image newImage = new ImageIcon(imageURL).getImage();
         if(newImage.getWidth(null) == -1) {
-            throw new IllegalArgumentException("Could not load image from URL: " + imageURL);
+            throw new IllegalArgumentException("Could not load image from: " + imageFileName);
         }
         setImage(newImage);
+    }
+    
+    /**
+     * Tries to find the filename using the classloader. It first searches in
+     * 'projectdir/images/', then in the 'projectdir' and last as an absolute
+     * filename or URL
+     * 
+     * @param filename Name of the image file
+     * @throws IllegalArgumentException If it could not read the image.
+     */
+    private void loadFile(String filename)
+        throws IllegalArgumentException
+    {
+        if (filename == null) {
+            throw new NullPointerException("Filename must not be null.");
+        }
+
+        ClassLoader currentLoader = ExecServer.getCurrentClassLoader();
+
+        // First, try the project's images dir
+        URL imageURL = currentLoader.getResource("images/" + filename);
+        if (imageURL == null) {
+            // Second, try the project directory
+            imageURL = currentLoader.getResource(filename);
+        }        
+        try {
+            loadURL(imageURL);
+        }
+        catch (Exception e) {
+            // Third, try as an absolute filename or URL.
+            Image newImage = new ImageIcon(filename).getImage();
+            if(newImage.getWidth(null) == -1) {
+                throw new IllegalArgumentException("Could not load image from: " + imageFileName);                
+            }
+            setImage(newImage);
+        }
     }
 
     /**
@@ -142,29 +150,11 @@ public class GreenfootImage
     
     private void initGraphics() {
         try {
-            if(image==null && imageFileName!=null) {
-                System.out.println("Image was null, so we load it anyway?");
-                loadFile(imageFileName);
-            }
-            MediaTracker tracker = new MediaTracker(new Container());
-            tracker.addImage(image, 0);
-            try {
-                tracker.waitForAll();
-            }
-            catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
             graphics = (Graphics2D) image.getGraphics();
         }
         catch (Throwable e) {
             int width = image.getWidth(null);
-            int height = image.getHeight(null);
-            
-            if (width == -1 || height == -1) {
-                // Failed to load for some reason
-                throw new IllegalArgumentException("Couldn't load image: " + imageFileName);
-            }
-            
+            int height = image.getHeight(null);            
             //we MUST be able to get the graphics!
             BufferedImage bImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
             graphics = (Graphics2D) bImage.getGraphics();
