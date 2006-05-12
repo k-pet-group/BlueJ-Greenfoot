@@ -21,7 +21,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4228 2006-05-12 15:32:21Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4229 2006-05-12 15:34:00Z polle $
  */
 public class GreenfootImage
 {
@@ -203,17 +203,13 @@ public class GreenfootImage
     
 
     /**
-     * Fill the entire image with the given color.
+     * Fill the entire image with the current drawing dcolor.
      * 
-     * @param color
      */
-    public void fill(Color color)
+    public void fill()
     {
         Graphics g = getGraphics();
-        Color oldColor = g.getColor();
-        g.setColor(color);
         g.fillRect(0, 0, getWidth(), getHeight());
-        g.setColor(oldColor);
     }
     
     /**
