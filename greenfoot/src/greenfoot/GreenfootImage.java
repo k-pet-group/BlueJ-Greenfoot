@@ -21,7 +21,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4229 2006-05-12 15:34:00Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4230 2006-05-12 15:37:11Z polle $
  */
 public class GreenfootImage
 {
@@ -357,7 +357,7 @@ public class GreenfootImage
     }
 
     /**
-     * Fill an oval bounded by the specified rectangle with the current color.
+     * Fill an oval bounded by the specified rectangle with the current drawing color.
      * 
      * @param x
      *            the <i>x </i> coordinate of the upper left corner of the oval
@@ -373,6 +373,25 @@ public class GreenfootImage
     public void fillOval(int x, int y, int width, int height)
     {
         getGraphics().fillOval(x, y, width, height);
+    }
+    
+    /**
+     * Draw an oval bounded by the specified rectangle with the current drawing color.
+     * 
+     * @param x
+     *            the <i>x </i> coordinate of the upper left corner of the oval
+     *            to be filled.
+     * @param y
+     *            the <i>y </i> coordinate of the upper left corner of the oval
+     *            to be filled.
+     * @param width
+     *            the width of the oval to be filled.
+     * @param height
+     *            the height of the oval to be filled.
+     */
+    public void drawOval(int x, int y, int width, int height)
+    {
+        getGraphics().drawOval(x, y, width, height);
     }
 
     /**
@@ -402,9 +421,32 @@ public class GreenfootImage
     {
         getGraphics().fillPolygon(xpoints, ypoints, nPoints);
     }
+    
+
+    /** 
+     * Draws a closed polygon defined by 
+     * arrays of <i>x</i> and <i>y</i> coordinates. 
+     * Each pair of (<i>x</i>,&nbsp;<i>y</i>) coordinates defines a point.
+     * <p>
+     * This method draws the polygon defined by <code>nPoint</code> line 
+     * segments, where the first <code>nPoint&nbsp;-&nbsp;1</code> 
+     * line segments are line segments from 
+     * <code>(xPoints[i&nbsp;-&nbsp;1],&nbsp;yPoints[i&nbsp;-&nbsp;1])</code> 
+     * to <code>(xPoints[i],&nbsp;yPoints[i])</code>, for 
+     * 1&nbsp;&le;&nbsp;<i>i</i>&nbsp;&le;&nbsp;<code>nPoints</code>.  
+     * The figure is automatically closed by drawing a line connecting
+     * the final point to the first point, if those points are different.
+     * @param        xPoints   a an array of <code>x</code> coordinates.
+     * @param        yPoints   a an array of <code>y</code> coordinates.
+     * @param        nPoints   a the total number of points.
+     */
+    public void drawPolygon(int[] xpoints, int[] ypoints, int nPoints)
+    {
+        getGraphics().drawPolygon(xpoints, ypoints, nPoints);
+    }
 
     /**
-     * Draw a line, using the current color, between the points
+     * Draw a line, using the current drawing color, between the points
      * <code>(x1,&nbsp;y1)</code> and <code>(x2,&nbsp;y2)</code>.
      * 
      * @param x1
