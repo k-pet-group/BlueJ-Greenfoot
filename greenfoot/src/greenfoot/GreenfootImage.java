@@ -23,7 +23,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4233 2006-05-13 14:57:36Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4234 2006-05-13 15:02:13Z polle $
  */
 public class GreenfootImage
 {
@@ -210,24 +210,24 @@ public class GreenfootImage
 
     /**
      * Mirrors the image vertically (flip around the y-axis).
-     *
+     * 
      */
     public void mirrorVertically()
     {
-        AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
-        tx.translate(-image.getWidth(null), 0);
+        AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
+        tx.translate(0, -image.getHeight(null));
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         setImage(op.filter(getBufferedImage(), null));
     }
 
     /**
      * Mirrors the image horizontally (flip around the x-axis).
-     *
+     * 
      */
     public void mirrorHorizontally()
     {
-        AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
-        tx.translate(0, -image.getHeight(null));
+        AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+        tx.translate(-image.getWidth(null), 0);
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         setImage(op.filter(getBufferedImage(), null));
     }
