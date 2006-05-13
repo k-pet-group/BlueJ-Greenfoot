@@ -1,11 +1,11 @@
 package greenfoot;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MediaTracker;
-import java.awt.Panel;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -23,7 +23,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4234 2006-05-13 15:02:13Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4235 2006-05-13 15:14:23Z polle $
  */
 public class GreenfootImage
 {
@@ -128,7 +128,7 @@ public class GreenfootImage
      * 
      * @param image
      */
-    private void setImage(java.awt.Image image)
+    private void setImage(Image image)
         throws IllegalArgumentException
     {
         if (image == null) {
@@ -168,31 +168,21 @@ public class GreenfootImage
     /**
      * Return the width of the image.
      * 
-     * @return Width of the image, or -1 if the width can't be determined
+     * @return Width of the image.
      */
     public int getWidth()
     {
-        if (image != null) {
-            return image.getWidth(null);
-        }
-        else {
-            return -1;
-        }
+        return image.getWidth(null);
     }
 
     /**
      * Return the height of the image.
      * 
-     * @return Height of the image, or -1 if the height can't be determined
+     * @return Height of the image.
      */
     public int getHeight()
     {
-        if (image != null) {
-            return image.getHeight(null);
-        }
-        else {
-            return -1;
-        }
+        return image.getHeight(null);
     }
 
     /**
@@ -265,7 +255,8 @@ public class GreenfootImage
     }
 
     /**
-     * Set a color to be used for subsequent drawing operations.
+     * Set the current drawing color. This color will be used for subsequent
+     * drawing operations.
      * 
      * @param color The color to be used.
      */
@@ -519,7 +510,7 @@ public class GreenfootImage
     private void waitForImageLoad()
     {
         if (tracker == null) {
-            tracker = new MediaTracker(new Panel());
+            tracker = new MediaTracker(new Component() {});
         }
         tracker.addImage(image, 0);
         try {
