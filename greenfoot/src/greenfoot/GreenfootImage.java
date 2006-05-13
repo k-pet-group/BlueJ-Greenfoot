@@ -23,7 +23,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4235 2006-05-13 15:14:23Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4236 2006-05-13 17:55:59Z polle $
  */
 public class GreenfootImage
 {
@@ -283,6 +283,17 @@ public class GreenfootImage
      */
     public Color getColorAt(int x, int y)
     {
+        return new Color(getRGBAt(x, y));
+    }
+    
+    /**
+     * Sets the color at the given pixel to the given color.
+     */
+    public void setColorAt(int x, int y, Color color) {
+        setRGBAt(x, y, color.getRGB());
+    }
+    
+    private int getRGBAt(int x, int y) {
         if (x >= getWidth()) {
             throw new IndexOutOfBoundsException("X is out of bounds. It was: " + x
                     + " and it should have been smaller than: " + getWidth());
@@ -300,20 +311,32 @@ public class GreenfootImage
                     + " and it should have been at least: 0");
         }
 
-        int rgb = 0;
-        if (image instanceof BufferedImage) {
-            rgb = ((BufferedImage) image).getRGB(x, y);
-        }
-        else if (image instanceof VolatileImage) {
-            rgb = ((VolatileImage) image).getSnapshot().getRGB(x, y);
-        }
-        else {
-            throw new IllegalStateException("The type of image was neither BufferedImage or VolatileImage. It was. "
-                    + image.getClass());
-        }
-        return new Color(rgb);
+        BufferedImage bImage = getBufferedImage();
+        return bImage.getRGB(x,y);
     }
+    
+    private void setRGBAt(int x, int y, int rgb) {
+        if (x >= getWidth()) {
+            throw new IndexOutOfBoundsException("X is out of bounds. It was: " + x
+                    + " and it should have been smaller than: " + getWidth());
+        }
+        if (y >= getHeight()) {
+            throw new IndexOutOfBoundsException("Y is out of bounds. It was: " + y
+                    + " and it should have been smaller than: " + getHeight());
+        }
+        if (x < 0) {
+            throw new IndexOutOfBoundsException("X is out of bounds. It was: " + x
+                    + " and it should have been at least: 0");
+        }
+        if (y < 0) {
+            throw new IndexOutOfBoundsException("Y is out of bounds. It was: " + y
+                    + " and it should have been at least: 0");
+        }
 
+        BufferedImage bImage = getBufferedImage();
+        bImage.setRGB(x,y,rgb);
+    }
+ 
     /**
      * Fill the specified rectangle. The left and right edges of the rectangle
      * are at <code>x</code> and
