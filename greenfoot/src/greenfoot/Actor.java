@@ -3,9 +3,7 @@ package greenfoot;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
 import greenfoot.util.Circle;
-import greenfoot.util.Version;
 
-import java.net.URL;
 import java.util.List;
 
 /**
@@ -248,7 +246,7 @@ public abstract class Actor extends ObjectTransporter
         if (usingClassImage) {
             // If this actor is using the class image, make a copy of it before
             // returning it. Otherwise modifications will affect the class image.
-            image = image.copy();
+            image = new GreenfootImage(image);
             usingClassImage = false;
         }
         

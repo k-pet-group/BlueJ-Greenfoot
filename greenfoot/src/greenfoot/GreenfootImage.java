@@ -6,6 +6,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Panel;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.VolatileImage;
@@ -21,30 +23,34 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4231 2006-05-12 16:18:01Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4233 2006-05-13 14:57:36Z polle $
  */
 public class GreenfootImage
 {
-    private static final Color DEFAULT_BACKGROUND = new Color(0,0,0,0);
+    private static final Color DEFAULT_BACKGROUND = new Color(0, 0, 0, 0);
     /** The image name is primarily use for debuging. */
-    private String imageFileName; 
-    private Image image; 
+    private String imageFileName;
+    private Image image;
     private Graphics2D graphics;
     private static MediaTracker tracker;
 
     /**
-     * Create an image from an image file. Supported file formats are JPEG, GIF and PNG.<p>
+     * Create an image from an image file. Supported file formats are JPEG, GIF
+     * and PNG.
+     * <p>
      * 
-     * The file name may be an absolute path, a base name for a file located in the
-     * project directory.
+     * The file name may be an absolute path, a base name for a file located in
+     * the project directory.
      * 
-     * @param filename Typically the name of a file in the images directory in the project directory.
+     * @param filename Typically the name of a file in the images directory in
+     *            the project directory.
      * @throws IllegalArgumentException If the image can not be loaded.
      */
-    public GreenfootImage(String filename) throws IllegalArgumentException
+    public GreenfootImage(String filename)
+        throws IllegalArgumentException
     {
         loadFile(filename);
-    }    
+    }
 
     /**
      * Create an empty (transparent) image with the specified size.
@@ -54,31 +60,32 @@ public class GreenfootImage
      */
     public GreenfootImage(int width, int height)
     {
-        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        initGraphics();
+        setImage(new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB));
     }
 
     /**
      * Create a GreenfootImage from another GreenfootImage.
      */
-    public GreenfootImage(GreenfootImage image) throws IllegalArgumentException
+    public GreenfootImage(GreenfootImage image)
+        throws IllegalArgumentException
     {
         this(image.getWidth(), image.getHeight());
         drawImage(image, 0, 0);
     }
-    
-    private void loadURL(URL imageURL) throws IllegalArgumentException
+
+    private void loadURL(URL imageURL)
+        throws IllegalArgumentException
     {
-        if(imageURL == null) {
+        if (imageURL == null) {
             throw new NullPointerException("Image URL must not be null.");
         }
         Image newImage = new ImageIcon(imageURL).getImage();
-        if(newImage.getWidth(null) == -1) {
+        if (newImage.getWidth(null) == -1) {
             throw new IllegalArgumentException("Could not load image from: " + imageFileName);
         }
         setImage(newImage);
     }
-    
+
     /**
      * Tries to find the filename using the classloader. It first searches in
      * 'projectdir/images/', then in the 'projectdir' and last as an absolute
@@ -94,7 +101,7 @@ public class GreenfootImage
             throw new NullPointerException("Filename must not be null.");
         }
         imageFileName = filename;
-        
+
         ClassLoader currentLoader = ExecServer.getCurrentClassLoader();
 
         // First, try the project's images dir
@@ -102,15 +109,15 @@ public class GreenfootImage
         if (imageURL == null) {
             // Second, try the project directory
             imageURL = currentLoader.getResource(filename);
-        }        
+        }
         try {
             loadURL(imageURL);
         }
-        catch (Exception e) {
+        catch (Throwable e) {
             // Third, try as an absolute filename or URL.
             Image newImage = new ImageIcon(filename).getImage();
-            if(newImage.getWidth(null) == -1) {
-                throw new IllegalArgumentException("Could not load image from: " + imageFileName);                
+            if (newImage.getWidth(null) == -1) {
+                throw new IllegalArgumentException("Could not load image from: " + imageFileName);
             }
             setImage(newImage);
         }
@@ -121,40 +128,40 @@ public class GreenfootImage
      * 
      * @param image
      */
-    private void setImage(java.awt.Image image) throws IllegalArgumentException
+    private void setImage(java.awt.Image image)
+        throws IllegalArgumentException
     {
-        if(image == null) {
+        if (image == null) {
             throw new IllegalArgumentException("Image must not be null.");
         }
         this.image = image;
         initGraphics();
     }
-    
+
     /**
      * Gets the Java AWT image that this GreenfootImage represents.
      * 
      */
-    Image getAWTImage() {
+    Image getAWTImage()
+    {
         return image;
     }
-    
-    private void initGraphics() {
+
+    private void initGraphics()
+    {
         try {
             graphics = (Graphics2D) image.getGraphics();
         }
         catch (Throwable e) {
-            int width = image.getWidth(null);
-            int height = image.getHeight(null);            
-            //we MUST be able to get the graphics!
-            BufferedImage bImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-            graphics = (Graphics2D) bImage.getGraphics();
-            graphics.drawImage(image, 0, 0, null);
-            image = bImage;
+            // we MUST be able to get the graphics!
+            image = getBufferedImage();
+            graphics = (Graphics2D) image.getGraphics();
         }
         graphics.setBackground(DEFAULT_BACKGROUND);
     }
-    
-    private Graphics2D getGraphics() {
+
+    private Graphics2D getGraphics()
+    {
         return graphics;
     }
 
@@ -187,7 +194,7 @@ public class GreenfootImage
             return -1;
         }
     }
-    
+
     /**
      * Creates a new image that is a scaled version of this image.
      * 
@@ -195,22 +202,35 @@ public class GreenfootImage
      * @param height Height of new image
      * @return A new scaled image
      */
-    public void scale(int width, int height) {
+    public void scale(int width, int height)
+    {
         image = image.getScaledInstance(width, height, Image.SCALE_AREA_AVERAGING);
-        
-        if(tracker == null) {
-            tracker = new MediaTracker(new Panel());
-        }
-        tracker.addImage(image, 0);
-        try {
-            tracker.waitForID(0);
-            tracker.removeImage(image);
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        initGraphics();
-    }    
+        waitForImageLoad();
+    }
+
+    /**
+     * Mirrors the image vertically (flip around the y-axis).
+     *
+     */
+    public void mirrorVertically()
+    {
+        AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+        tx.translate(-image.getWidth(null), 0);
+        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        setImage(op.filter(getBufferedImage(), null));
+    }
+
+    /**
+     * Mirrors the image horizontally (flip around the x-axis).
+     *
+     */
+    public void mirrorHorizontally()
+    {
+        AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
+        tx.translate(0, -image.getHeight(null));
+        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        setImage(op.filter(getBufferedImage(), null));
+    }
 
     /**
      * Fill the entire image with the current drawing dcolor.
@@ -221,13 +241,13 @@ public class GreenfootImage
         Graphics g = getGraphics();
         g.fillRect(0, 0, getWidth(), getHeight());
     }
-    
+
     /**
      * Draws the given Image onto this image
      * 
      * @param image The image to draw onto this one.
-     * @param x  x-coordinate for drawing the image.
-     * @param y  y-coordinate for drawing the image.
+     * @param x x-coordinate for drawing the image.
+     * @param y y-coordinate for drawing the image.
      */
     public void drawImage(GreenfootImage image, int x, int y)
     {
@@ -237,13 +257,13 @@ public class GreenfootImage
 
     /**
      * Draws this image onto the given Graphics object.
-     *  
+     * 
      */
     void drawImage(Graphics g, int x, int y, ImageObserver observer)
     {
         g.drawImage(image, x, y, observer);
     }
-    
+
     /**
      * Set a color to be used for subsequent drawing operations.
      * 
@@ -259,37 +279,46 @@ public class GreenfootImage
      * 
      * @return The current color.
      */
-    public Color getColor() {
+    public Color getColor()
+    {
         return getGraphics().getColor();
     }
-    
+
     /**
      * Return the color at the given pixel.
      * 
-     * @throws IndexOutOfBoundsException If the pixel location is not within the image bounds.
+     * @throws IndexOutOfBoundsException If the pixel location is not within the
+     *             image bounds.
      */
-    public Color getColorAt(int x, int y) {
-        if(x >= getWidth()) {
-            throw new IndexOutOfBoundsException("X is out of bounds. It was: " + x + " and it should have been smaller than: " + getWidth());
+    public Color getColorAt(int x, int y)
+    {
+        if (x >= getWidth()) {
+            throw new IndexOutOfBoundsException("X is out of bounds. It was: " + x
+                    + " and it should have been smaller than: " + getWidth());
         }
-        if(y >= getHeight()) {
-            throw new IndexOutOfBoundsException("Y is out of bounds. It was: " + y + " and it should have been smaller than: " + getHeight());
+        if (y >= getHeight()) {
+            throw new IndexOutOfBoundsException("Y is out of bounds. It was: " + y
+                    + " and it should have been smaller than: " + getHeight());
         }
-        if(x < 0) {
-            throw new IndexOutOfBoundsException("X is out of bounds. It was: " + x + " and it should have been at least: 0");
+        if (x < 0) {
+            throw new IndexOutOfBoundsException("X is out of bounds. It was: " + x
+                    + " and it should have been at least: 0");
         }
-        if(y < 0) {
-            throw new IndexOutOfBoundsException("Y is out of bounds. It was: " + y + " and it should have been at least: 0");
+        if (y < 0) {
+            throw new IndexOutOfBoundsException("Y is out of bounds. It was: " + y
+                    + " and it should have been at least: 0");
         }
-        
+
         int rgb = 0;
-        if(image instanceof BufferedImage) {
+        if (image instanceof BufferedImage) {
             rgb = ((BufferedImage) image).getRGB(x, y);
         }
-        else if(image instanceof VolatileImage) {
+        else if (image instanceof VolatileImage) {
             rgb = ((VolatileImage) image).getSnapshot().getRGB(x, y);
-        } else {
-            throw new IllegalStateException("The type of image was neither BufferedImage or VolatileImage. It was. " + image.getClass());
+        }
+        else {
+            throw new IllegalStateException("The type of image was neither BufferedImage or VolatileImage. It was. "
+                    + image.getClass());
         }
         return new Color(rgb);
     }
@@ -304,27 +333,22 @@ public class GreenfootImage
      * <code>height</code> pixels tall. The rectangle is filled using the
      * current color.
      * 
-     * @param x
-     *            the <i>x </i> coordinate of the rectangle to be filled.
-     * @param y
-     *            the <i>y </i> coordinate of the rectangle to be filled.
-     * @param width
-     *            the width of the rectangle to be filled.
-     * @param height
-     *            the height of the rectangle to be filled.
+     * @param x the <i>x </i> coordinate of the rectangle to be filled.
+     * @param y the <i>y </i> coordinate of the rectangle to be filled.
+     * @param width the width of the rectangle to be filled.
+     * @param height the height of the rectangle to be filled.
      */
     public void fillRect(int x, int y, int width, int height)
     {
         getGraphics().fillRect(x, y, width, height);
     }
-    
 
     /**
      * Clears the image.
      * 
      */
     public void clear()
-    {        
+    {
         getGraphics().clearRect(0, 0, getWidth(), getHeight());
     }
 
@@ -335,14 +359,10 @@ public class GreenfootImage
      * <code>y</code> and <code>y&nbsp;+&nbsp;height</code>. The rectangle
      * is drawn using the current color.
      * 
-     * @param x
-     *            the <i>x </i> coordinate of the rectangle to be drawn.
-     * @param y
-     *            the <i>y </i> coordinate of the rectangle to be drawn.
-     * @param width
-     *            the width of the rectangle to be drawn.
-     * @param height
-     *            the height of the rectangle to be drawn.
+     * @param x the <i>x </i> coordinate of the rectangle to be drawn.
+     * @param y the <i>y </i> coordinate of the rectangle to be drawn.
+     * @param width the width of the rectangle to be drawn.
+     * @param height the height of the rectangle to be drawn.
      */
     public void drawRect(int x, int y, int width, int height)
     {
@@ -354,12 +374,9 @@ public class GreenfootImage
      * color. The baseline of the leftmost character is at position ( <i>x
      * </i>,&nbsp; <i>y </i>).
      * 
-     * @param string
-     *            the string to be drawn.
-     * @param x
-     *            the <i>x </i> coordinate.
-     * @param y
-     *            the <i>y </i> coordinate.
+     * @param string the string to be drawn.
+     * @param x the <i>x </i> coordinate.
+     * @param y the <i>y </i> coordinate.
      */
     public void drawString(String string, int x, int y)
     {
@@ -367,37 +384,31 @@ public class GreenfootImage
     }
 
     /**
-     * Fill an oval bounded by the specified rectangle with the current drawing color.
+     * Fill an oval bounded by the specified rectangle with the current drawing
+     * color.
      * 
-     * @param x
-     *            the <i>x </i> coordinate of the upper left corner of the oval
-     *            to be filled.
-     * @param y
-     *            the <i>y </i> coordinate of the upper left corner of the oval
-     *            to be filled.
-     * @param width
-     *            the width of the oval to be filled.
-     * @param height
-     *            the height of the oval to be filled.
+     * @param x the <i>x </i> coordinate of the upper left corner of the oval to
+     *            be filled.
+     * @param y the <i>y </i> coordinate of the upper left corner of the oval to
+     *            be filled.
+     * @param width the width of the oval to be filled.
+     * @param height the height of the oval to be filled.
      */
     public void fillOval(int x, int y, int width, int height)
     {
         getGraphics().fillOval(x, y, width, height);
     }
-    
+
     /**
-     * Draw an oval bounded by the specified rectangle with the current drawing color.
+     * Draw an oval bounded by the specified rectangle with the current drawing
+     * color.
      * 
-     * @param x
-     *            the <i>x </i> coordinate of the upper left corner of the oval
-     *            to be filled.
-     * @param y
-     *            the <i>y </i> coordinate of the upper left corner of the oval
-     *            to be filled.
-     * @param width
-     *            the width of the oval to be filled.
-     * @param height
-     *            the height of the oval to be filled.
+     * @param x the <i>x </i> coordinate of the upper left corner of the oval to
+     *            be filled.
+     * @param y the <i>y </i> coordinate of the upper left corner of the oval to
+     *            be filled.
+     * @param width the width of the oval to be filled.
+     * @param height the height of the oval to be filled.
      */
     public void drawOval(int x, int y, int width, int height)
     {
@@ -420,35 +431,31 @@ public class GreenfootImage
      * The area inside the polygon is defined using an even-odd fill rule, also
      * known as the alternating rule.
      * 
-     * @param xpoints
-     *            a an array of <code>x</code> coordinates.
-     * @param ypoints
-     *            a an array of <code>y</code> coordinates.
-     * @param nPoints
-     *            a the total number of points.
+     * @param xpoints a an array of <code>x</code> coordinates.
+     * @param ypoints a an array of <code>y</code> coordinates.
+     * @param nPoints a the total number of points.
      */
     public void fillPolygon(int[] xpoints, int[] ypoints, int nPoints)
     {
         getGraphics().fillPolygon(xpoints, ypoints, nPoints);
     }
-    
 
-    /** 
-     * Draws a closed polygon defined by 
-     * arrays of <i>x</i> and <i>y</i> coordinates. 
-     * Each pair of (<i>x</i>,&nbsp;<i>y</i>) coordinates defines a point.
+    /**
+     * Draws a closed polygon defined by arrays of <i>x</i> and <i>y</i>
+     * coordinates. Each pair of (<i>x</i>,&nbsp;<i>y</i>) coordinates
+     * defines a point.
      * <p>
-     * This method draws the polygon defined by <code>nPoint</code> line 
-     * segments, where the first <code>nPoint&nbsp;-&nbsp;1</code> 
-     * line segments are line segments from 
-     * <code>(xPoints[i&nbsp;-&nbsp;1],&nbsp;yPoints[i&nbsp;-&nbsp;1])</code> 
-     * to <code>(xPoints[i],&nbsp;yPoints[i])</code>, for 
-     * 1&nbsp;&le;&nbsp;<i>i</i>&nbsp;&le;&nbsp;<code>nPoints</code>.  
-     * The figure is automatically closed by drawing a line connecting
-     * the final point to the first point, if those points are different.
-     * @param        xPoints   a an array of <code>x</code> coordinates.
-     * @param        yPoints   a an array of <code>y</code> coordinates.
-     * @param        nPoints   a the total number of points.
+     * This method draws the polygon defined by <code>nPoint</code> line
+     * segments, where the first <code>nPoint&nbsp;-&nbsp;1</code> line
+     * segments are line segments from
+     * <code>(xPoints[i&nbsp;-&nbsp;1],&nbsp;yPoints[i&nbsp;-&nbsp;1])</code>
+     * to <code>(xPoints[i],&nbsp;yPoints[i])</code>, for 1&nbsp;&le;&nbsp;<i>i</i>&nbsp;&le;&nbsp;<code>nPoints</code>.
+     * The figure is automatically closed by drawing a line connecting the final
+     * point to the first point, if those points are different.
+     * 
+     * @param xPoints a an array of <code>x</code> coordinates.
+     * @param yPoints a an array of <code>y</code> coordinates.
+     * @param nPoints a the total number of points.
      */
     public void drawPolygon(int[] xpoints, int[] ypoints, int nPoints)
     {
@@ -459,41 +466,69 @@ public class GreenfootImage
      * Draw a line, using the current drawing color, between the points
      * <code>(x1,&nbsp;y1)</code> and <code>(x2,&nbsp;y2)</code>.
      * 
-     * @param x1
-     *            the first point's <i>x </i> coordinate.
-     * @param y1
-     *            the first point's <i>y </i> coordinate.
-     * @param x2
-     *            the second point's <i>x </i> coordinate.
-     * @param y2
-     *            the second point's <i>y </i> coordinate.
+     * @param x1 the first point's <i>x </i> coordinate.
+     * @param y1 the first point's <i>y </i> coordinate.
+     * @param x2 the second point's <i>x </i> coordinate.
+     * @param y2 the second point's <i>y </i> coordinate.
      */
     public void drawLine(int x1, int y1, int x2, int y2)
     {
         getGraphics().drawLine(x1, y1, x2, y2);
     }
-    
+
     /**
      * Return a text representation of the image.
      */
-    public String toString() {        
+    public String toString()
+    {
         String superString = super.toString();
-        if(imageFileName == null) {
+        if (imageFileName == null) {
             return superString;
-        } else {
+        }
+        else {
             return "Image file name: " + imageFileName + " " + superString;
         }
     }
     
     /**
-     * Make a copy of this image. Drawing in the copy will not affect the original.
+     * Gets a BufferedImage of the AWT Image that this GreenfootImage
+     * represents. We need this for some of the image manipulation methods.
+     * 
+     * 
      */
-    GreenfootImage copy()
+    private BufferedImage getBufferedImage()
     {
-        int width = getWidth();
-        int height = getHeight();
-        GreenfootImage dest = new GreenfootImage(width, height);
-        dest.drawImage(this, 0, 0);
-        return dest;
+        if (image instanceof BufferedImage) {}
+        else if (image instanceof VolatileImage) {
+            image = ((VolatileImage) image).getSnapshot();
+        }
+        else {
+            BufferedImage bImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+            Graphics g = bImage.getGraphics();
+            g.drawImage(image, 0, 0, null);
+            image = bImage;
+            waitForImageLoad();
+        }
+        return (BufferedImage) image;
+    }
+    
+    /**
+     * Wait until the iamge is fully loaded and then init the graphics.
+     * 
+     */
+    private void waitForImageLoad()
+    {
+        if (tracker == null) {
+            tracker = new MediaTracker(new Panel());
+        }
+        tracker.addImage(image, 0);
+        try {
+            tracker.waitForID(0);
+            tracker.removeImage(image);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        initGraphics();
     }
 }
