@@ -369,6 +369,12 @@
                 <include name="**/*.ctxt" />
             </fileset>
         </delete>
+    	<!-- Remove size and location from project.greenfoot -->
+		<replaceregexp byline="true">
+    	    <regexp pattern="mainWindow.*"/>
+    	    <substitution expression=""/>
+    	    <fileset dir="scenarios" includes="**/project.greenfoot"/>
+    	</replaceregexp>
     </target>
 	
     <target name="update-version-number" description="updates the version number in all files where it appears" >
