@@ -1,5 +1,13 @@
 #Greenfoot properties
-#Thu Mar 30 09:00:06 GMT 2006
-version=0.5
-class.Player.image=Player.png
+#Sun May 14 15:28:11 GMT 2006
+simulation.speed=96
+
+class.Draught.superclass=greenfoot.Actor
+class.GameBoard.superclass=greenfoot.World
 class.Draught.image=Draught.png
+version=1.0
+class.Player.superclass=greenfoot.Actor
+
+
+class.Player.image=Player.png
+
