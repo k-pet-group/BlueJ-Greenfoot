@@ -13,7 +13,7 @@ import bluej.utility.Utility;
  * Paints a packageTarget
  * 
  * @author fisker
- * @version $Id: PackageTargetPainter.java 2884 2004-08-17 08:31:20Z mik $
+ * @version $Id: PackageTargetPainter.java 4257 2006-05-14 16:38:01Z davmac $
  */
 public class PackageTargetPainter
 {
@@ -128,8 +128,7 @@ public class PackageTargetPainter
 
     private Font getFont(PackageTarget packageTarget)
     {
-        return (packageTarget.getState() == PackageTarget.S_INVALID) ? PrefMgr.getStandoutFont() : PrefMgr
-                .getStandardFont();
+        return PrefMgr.getStandardFont();
     }
 
 }

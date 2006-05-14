@@ -14,7 +14,7 @@ import java.awt.geom.*;
  * A general target in a package
  * 
  * @author Michael Cahill
- * @version $Id: Target.java 3644 2005-10-05 00:56:32Z davmac $
+ * @version $Id: Target.java 4257 2006-05-14 16:38:01Z davmac $
  */
 public abstract class Target extends Vertex
     implements Comparable
@@ -28,11 +28,6 @@ public abstract class Target extends Vertex
     static final int TEXT_BORDER = 4;
     static final int SHAD_SIZE = 4;
 
-    /** States * */
-    public static final int S_NORMAL = 0;
-    public static final int S_INVALID = 1;
-    public static final int S_COMPILING = 2;
-
     private String identifierName; // the name handle for this target within
     // this package (must be unique within this
     // package)
@@ -40,8 +35,6 @@ public abstract class Target extends Vertex
     private Package pkg; // the package this target belongs to
 
     protected boolean disabled;
-
-    protected int state = S_INVALID;
 
     protected boolean selected;
     protected boolean queued;
@@ -222,35 +215,6 @@ public abstract class Target extends Vertex
     public void setQueued(boolean queued)
     {
         this.queued = queued;
-    }
-
-    /**
-     * Return the current state of the target (one of S_NORMAL, S_INVALID,
-     * S_COMPILING)
-     */
-    public int getState()
-    {
-        return state;
-    }
-
-    /**
-     * Change the state of this target. The target will be repainted to show the
-     * new state.
-     */
-    public void setState(int newState)
-    {
-        state = newState;
-        repaint();
-    }
-
-    public boolean isInvalidState()
-    {
-        return getState() == S_INVALID;
-    }
-
-    public void setInvalidState()
-    {
-        setState(S_INVALID);
     }
 
     public boolean isResizable()

@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4082 2006-05-04 13:37:44Z davmac $
+ * @version $Id: Package.java 4257 2006-05-14 16:38:01Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -696,7 +696,7 @@ public final class Package extends Graph
                 Class cl = loadClass(ct.getQualifiedName());
                 ct.determineRole(cl);
                 if (cl != null && ct.upToDate()) {
-                    ct.setState(Target.S_NORMAL);
+                    ct.setState(ClassTarget.S_NORMAL);
                 }
             }
         }
@@ -1067,7 +1067,7 @@ public final class Package extends Graph
                     // we don't want to try and compile if it is a class target without src
                     if (ct.hasSourceCode()) {
                         ct.ensureSaved();
-                        ct.setState(Target.S_INVALID);
+                        ct.setState(ClassTarget.S_INVALID);
                         ct.setQueued(true);
                         compileTargets.add(ct);
                     }
@@ -1093,8 +1093,9 @@ public final class Package extends Graph
      */
     private boolean searchCompile(ClassTarget t, int dfcount, Stack stack, CompileObserver observer)
     {
-        if ((t.getState() != Target.S_INVALID) || t.isQueued())
+        if (! t.isInvalidState() || ! t.isQueued()) {
             return true;
+        }
 
         try {
             // Dependencies may be out-of-date if file is modified.
@@ -1127,7 +1128,7 @@ public final class Package extends Graph
                 if ((to.dfn < t.dfn) && (stack.search(to) != -1))
                     t.link = Math.min(t.link, to.dfn);
             }
-            else if (to.getState() == Target.S_INVALID) {
+            else if (to.isInvalidState()) {
                 boolean success = searchCompile(to, dfcount + 1, stack, observer);
                 if (! success) {
                     t.setQueued(false);
@@ -2051,8 +2052,10 @@ public final class Package extends Graph
 
                 Target t = getTarget(JavaNames.getBase(fullName));
 
-                if (t != null)
-                    t.setState(ClassTarget.S_COMPILING);
+                if (t instanceof ClassTarget) {
+                    ClassTarget ct = (ClassTarget) t;
+                    ct.setState(ClassTarget.S_COMPILING);
+                }
             }
         }
 
@@ -2144,7 +2147,7 @@ public final class Package extends Graph
                     newCompiledState &= t.upToDate();
                 }
 
-                t.setState(newCompiledState ? Target.S_NORMAL : Target.S_INVALID);
+                t.setState(newCompiledState ? ClassTarget.S_NORMAL : ClassTarget.S_INVALID);
                 t.setQueued(false);
                 if (successful && t.editorOpen())
                     t.getEditor().setCompiled(true);

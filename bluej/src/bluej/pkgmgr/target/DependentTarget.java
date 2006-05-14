@@ -14,16 +14,23 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 3784 2006-02-15 01:37:58Z davmac $
+ * @version	$Id: DependentTarget.java 4257 2006-05-14 16:38:01Z davmac $
  */
 public abstract class DependentTarget extends EditableTarget
 {
+    /** States * */
+    public static final int S_NORMAL = 0;
+    public static final int S_INVALID = 1;
+    public static final int S_COMPILING = 2;
+
+    protected int state = S_INVALID;
+
     private List inUses;
     private List outUses;
     private List parents;
     private List children;
 
-	protected DependentTarget assoc;
+    protected DependentTarget assoc;
 	
     /**
      * Create a new target at a specified position.
@@ -121,7 +128,7 @@ public abstract class DependentTarget extends EditableTarget
                 || (d instanceof ImplementsDependency)) {
             parents.remove(d);
         }
-
+        
         if(recalc)
             setState(S_INVALID);
     }
@@ -379,6 +386,37 @@ public abstract class DependentTarget extends EditableTarget
     public String toString()
     {
         return getDisplayName();
+    }
+    
+    /**
+     * Return the current state of the target (one of S_NORMAL, S_INVALID,
+     * S_COMPILING)
+     */
+    public int getState()
+    {
+        return state;
+    }
+
+    public boolean isInvalidState()
+    {
+        return getState() == S_INVALID;
+    }
+
+    public void setInvalidState()
+    {
+        setState(S_INVALID);
+    }
+    
+    /**
+     * Change the state of this target. The target will be repainted to show the
+     * new state.
+     * 
+     * @param newState The new state value
+     */
+    public void setState(int newState)
+    {
+        state = newState;
+        repaint();
     }
 
 }

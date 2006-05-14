@@ -19,7 +19,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 3506 2005-08-07 18:58:32Z damiano $
+ * @version $Id: AppletClassRole.java 4257 2006-05-14 16:38:01Z davmac $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -134,7 +134,7 @@ public class AppletClassRole extends ClassRole
     {
         // add run applet option
         addMenuItem(menu, new AppletAction(ct.getPackage().getEditor(),ct),
-                     (state == Target.S_NORMAL));
+                     (state == ClassTarget.S_NORMAL));
         menu.addSeparator();
 
         return true;

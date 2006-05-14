@@ -1,7 +1,5 @@
 package bluej.pkgmgr.target;
 
-import bluej.extensions.BClass;
-import bluej.extensions.ExtensionBridge;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -24,6 +22,10 @@ import bluej.debugger.DebuggerClass;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
+import bluej.extensions.BClass;
+import bluej.extensions.ExtensionBridge;
+import bluej.extensions.event.ClassEvent;
+import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.MenuManager;
 import bluej.graph.GraphEditor;
 import bluej.graph.Moveable;
@@ -37,9 +39,20 @@ import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
-import bluej.pkgmgr.target.role.*;
+import bluej.pkgmgr.target.role.AbstractClassRole;
+import bluej.pkgmgr.target.role.AppletClassRole;
+import bluej.pkgmgr.target.role.ClassRole;
+import bluej.pkgmgr.target.role.EnumClassRole;
+import bluej.pkgmgr.target.role.InterfaceClassRole;
+import bluej.pkgmgr.target.role.StdClassRole;
+import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.*;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.FileEditor;
+import bluej.utility.FileUtility;
+import bluej.utility.JavaNames;
+import bluej.utility.JavaUtils;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
@@ -53,7 +66,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 3784 2006-02-15 01:37:58Z davmac $
+ * @version $Id: ClassTarget.java 4257 2006-05-14 16:38:01Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -247,8 +260,23 @@ public class ClassTarget extends DependentTarget
      */
     public void setState(int newState)
     {
-        getPackage().getProject().removeInspectorInstance(getQualifiedName());
-        super.setState(newState);
+        if (state != newState) {
+            getPackage().getProject().removeInspectorInstance(getQualifiedName());
+            
+            // Notify extensions if necessary. Note we don't distinguish
+            // S_COMPILING and S_INVALID.
+            if (newState == S_NORMAL) {
+                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, true);
+                ExtensionsManager.getInstance().delegateEvent(event);
+            }
+            else if (state == S_NORMAL) {
+                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, false);
+                ExtensionsManager.getInstance().delegateEvent(event);
+            }
+            
+            state = newState;
+            repaint();
+        }
     }
 
     /**
@@ -479,7 +507,7 @@ public class ClassTarget extends DependentTarget
 
         for (Iterator it = dependents(); it.hasNext();) {
             Dependency d = (Dependency) it.next();
-            Target dependent = d.getFrom();
+            ClassTarget dependent = (ClassTarget) d.getFrom();
             dependent.setState(S_INVALID);
         }
     }
@@ -799,7 +827,7 @@ public class ClassTarget extends DependentTarget
             boolean success = role.generateSkeleton(template, getPackage(), getBaseName(), getSourceFile().getPath());
             if (success) {
                 // skeleton successfully generated
-                setState(Target.S_INVALID);
+                setState(S_INVALID);
                 hasSource = true;
                 return true;
             }
@@ -1618,4 +1646,5 @@ public class ClassTarget extends DependentTarget
     {
         getPackage().getEditor().raiseMethodCallEvent(this, cv);
     }
+    
 }
