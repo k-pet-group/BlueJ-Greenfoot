@@ -44,8 +44,7 @@ public class Building extends World
         super(240 + lifts * 56, stories * 72 + 40, 1);
         
         //setBackgroundImage("brick.jpg");
-        GreenfootImage background = new GreenfootImage("images/sandstone.jpg");
-        background.setTiled(true);
+        GreenfootImage background = new GreenfootImage("sandstone.jpg");
         setBackground(background);
         
         createFloors(stories);
@@ -59,10 +58,8 @@ public class Building extends World
     {
         floors = new Floor[numberOfFloors];
         for(int i=0; i<numberOfFloors; i++) {
-            Button button = new Button();
-            floors[i] = new Floor(i, button);
-            newObject(floors[i], 100, (numberOfFloors-1-i) * 72 + 40);
-            addObject(button);
+            floors[i] = new Floor(i);
+            addObject(floors[i], 100, (numberOfFloors-1-i) * 72 + 40);
         }
     }
     
@@ -76,15 +73,10 @@ public class Building extends World
 
         for(int i=0; i<numberOfLifts; i++) {
             background.fillRect(218 + i * 56, 18, 54, (numberOfFloors)*72 + 2);
-            newObject(new Lift(), 240 + i * 56, (numberOfFloors-1)*72 + 40);
+            addObject(new Lift(), 240 + i * 56, (numberOfFloors-1)*72 + 40);
         }
     }
     
-    private void newObject(Actor obj, int x, int y)
-    {
-        addObject(obj);
-        obj.setLocation(x, y);
-    }
     
     /**
      * Return the floor number at a given screen cell y-coordinate.

@@ -14,19 +14,18 @@ public class Floor extends Actor
     
     public Floor()
     {
-        this(0, null);
+        this(0);
     }
 
-    public Floor(int floorNumber, Button liftButton)
+    public Floor(int floorNumber)
     {
         this.floorNumber = floorNumber;
-        button = liftButton;
     }
-
-    public void setLocation(int x, int y)
+    
+    public void addedToWorld(World world)
     {
-        super.setLocation(x, y);
-        button.setLocation(x+78, y);
+        button = new Button();
+        world.addObject(button, getX()+78, getY());
     }
     
     /**
@@ -36,11 +35,9 @@ public class Floor extends Actor
     public void act()
     {
         if(random.nextFloat() < 0.005) {
-            Person p = new Person(getX() + random.nextInt(68),
-                                  getY() + 8,
-                                  this,
+            Person p = new Person(this,
                                   (Building)getWorld());
-            getWorld().addObject(p);
+            getWorld().addObject(p,getX() + random.nextInt(68),getY() + 8);
         }
     }
     

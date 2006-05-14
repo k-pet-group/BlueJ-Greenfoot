@@ -12,13 +12,12 @@ public class Person extends Actor
     
     public Person()
     {
-        this(10, 10, null, null);
+        this(null, null);
     }
 
-    public Person(int x, int y, Floor floor, Building building)
+    public Person(Floor floor, Building building)
     {
         setImage("person.gif");
-        setLocation(x, y);
         originFloor = floor;
         status = ST_ON_FLOOR;
         if((floor != null) && (building != null)) {
