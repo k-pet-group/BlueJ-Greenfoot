@@ -14,9 +14,9 @@ public class Food extends Actor
 
     private static final int SIZE = 30;
     private static final int HALFSIZE = SIZE / 2;
-    private static final int color1 = new Color(160, 200, 60).getRGB();
-    private static final int color2 = new Color(80, 100, 30).getRGB();
-    private static final int color3 = new Color(10, 50, 0).getRGB();
+    private static final Color color1 = new Color(160, 200, 60);
+    private static final Color color2 = new Color(80, 100, 30);
+    private static final Color color3 = new Color(10, 50, 0);
     
     private int crumbs = 100;
     
@@ -44,19 +44,18 @@ public class Food extends Actor
      */
     private void updateImage() 
     {
-        BufferedImage image = new BufferedImage(SIZE, SIZE,
-                                                BufferedImage.TYPE_INT_ARGB);
+        GreenfootImage image = new GreenfootImage(SIZE, SIZE);
         
         for(int i=0; i<crumbs; i++) {
             int x = randomCoord();
             int y = randomCoord();
             
-            image.setRGB(x, y, color1);
-            image.setRGB(x+1, y, color2);
-            image.setRGB(x, y+1, color2);
-            image.setRGB(x+1, y+1, color3);
+            image.setColorAt(x, y, color1);
+            image.setColorAt(x+1, y, color2);
+            image.setColorAt(x, y+1, color2);
+            image.setColorAt(x+1, y+1, color3);
         }
-        setImage(new GreenfootImage(image));
+        setImage(image);
     }
     
     private int randomCoord()

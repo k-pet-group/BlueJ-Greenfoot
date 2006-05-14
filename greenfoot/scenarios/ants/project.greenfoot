@@ -1,15 +1,19 @@
 #Greenfoot properties
-#Mon May 08 17:43:07 GMT 2006
-class.Counter.superclass=greenfoot.Actor
-class.Food.superclass=greenfoot.Actor
-class.Counter.image=Counter.png
-class.Pheromone.image=Pheromone.png
-version=0.9
-class.Food.image=Food.png
-class.AntHill.superclass=greenfoot.Actor
+#Sun May 14 14:46:46 GMT 2006
 class.AntHill.image=anthill.gif
-class.AntWorld.superclass=greenfoot.World
 simulation.speed=80
+class.Pheromone.image=Pheromone.png
+class.Food.superclass=greenfoot.Actor
+
+class.Counter.superclass=greenfoot.Actor
 class.Pheromone.superclass=greenfoot.Actor
-class.Ant.superclass=greenfoot.Actor
 class.Ant.image=ant.gif
+class.Counter.image=Counter.png
+class.Food.image=Food.png
+class.AntWorld.superclass=greenfoot.World
+version=1.0
+
+
+class.Ant.superclass=greenfoot.Actor
+class.AntHill.superclass=greenfoot.Actor
+
