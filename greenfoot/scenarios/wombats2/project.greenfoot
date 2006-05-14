@@ -1,15 +1,15 @@
 #Greenfoot properties
-#Fri May 12 16:43:06 BST 2006
+#Sun May 14 15:59:03 GMT 2006
 class.Leaf.image=leaf.gif
 class.Wombat.image=wombat.gif
 simulation.speed=77
-mainWindow.width=745
+
 class.Rock.image=rock.gif
 class.Wombat.superclass=greenfoot.Actor
 class.Rock.superclass=greenfoot.Actor
 version=1.0
-mainWindow.y=90
-mainWindow.x=293
+
+
 class.Leaf.superclass=greenfoot.Actor
 class.WombatWorld.superclass=greenfoot.World
-mainWindow.height=664
+

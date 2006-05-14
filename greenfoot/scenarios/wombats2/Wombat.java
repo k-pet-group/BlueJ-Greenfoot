@@ -12,9 +12,16 @@ public class Wombat extends Actor
 
     private int direction;
     private int leavesEaten;
-
+    
+    private GreenfootImage wombatRight;
+    private GreenfootImage wombatLeft;
+    
     public Wombat()
     {
+        wombatRight  = getImage();
+        wombatLeft = new GreenfootImage(getImage());
+        wombatLeft.mirrorHorizontally();
+        
         setDirection(EAST);
         leavesEaten = 0;
     }
@@ -167,19 +174,19 @@ public class Wombat extends Actor
         this.direction = direction;
         switch(direction) {
             case SOUTH :
-                setImage("images/wombat.gif");
+                setImage(wombatRight);
                 setRotation(90);
                 break;
             case EAST :
-                setImage("images/wombat.gif");
+                setImage(wombatRight);
                 setRotation(0);
                 break;
             case NORTH :
-                setImage("images/wombat-left.gif");
+                setImage(wombatLeft);
                 setRotation(90);
                 break;
             case WEST :
-                setImage("images/wombat-left.gif");
+                setImage(wombatLeft);
                 setRotation(0);
                 break;
             default :
