@@ -11,6 +11,7 @@ public class TurtleWorld extends World
      */
     public TurtleWorld() {
         super(800,600, 1);
-        getBackground().fill(Color.WHITE);
+        getBackground().setColor(Color.WHITE);
+        getBackground().fill();
     }
 }
