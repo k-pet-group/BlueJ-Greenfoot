@@ -10,6 +10,7 @@ public class Field extends World
      */
     public Field() {
         super(600,600,1);
-        getBackground().fill(new Color(50,150,50));
+        getBackground().setColor(new Color(50,150,50));
+        getBackground().fill();
     }
 }
