@@ -17,7 +17,8 @@ public class ShapeWorld extends World
      */
     public ShapeWorld() {
         super(600,400, 1);
-        getBackground().fill(Color.white);
+        getBackground().setColor(Color.white);
+        getBackground().fill();
     }
     
     /**
@@ -26,21 +27,18 @@ public class ShapeWorld extends World
     public void buildHouse() {
         Triangle roof = new Triangle();
         roof.changeColor(Color.RED);
-        roof.changeSize(200,100);
-        roof.setLocation(100,100);        
-        addObject(roof);
+        roof.changeSize(200,100);      
+        addObject(roof,100,100);
         
         
         Square wall = new Square();
         wall.changeColor(Color.BLUE);
-        wall.changeSize(140);
-        wall.setLocation(130,200);        
-        addObject(wall);
+        wall.changeSize(140);   
+        addObject(wall,130,200);
         
         
-        Square window = new Square();
-        window.setLocation(150,220);        
-        addObject(window);
+        Square window = new Square();      
+        addObject(window,150,220);
         
     }
     
