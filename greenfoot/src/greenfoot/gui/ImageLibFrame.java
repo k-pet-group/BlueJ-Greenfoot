@@ -56,13 +56,14 @@ import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
+import javax.swing.BorderFactory;
 
 /**
  * A dialog for selecting a class image. The image can be selected from either the
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4228 2006-05-12 15:32:21Z polle $
+ * @version $Id: ImageLibFrame.java 4260 2006-05-14 19:36:54Z mik $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -295,6 +296,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 catch (RemoteException re) { re.printStackTrace(); }
                 
                 jsp.setBorder(Config.normalBorder);
+                jsp.setViewportBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
                 jsp.setAlignmentX(0.0f);
                 
                 piPanel.add(jsp);
@@ -312,15 +314,14 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 piLabel.setAlignmentX(0.0f);
                 piPanel.add(piLabel);
                 
-                JScrollPane jsp = new JScrollPane();
-                
                 File imageDir = Config.getGreenfootLibDir();
                 imageDir = new File(imageDir, "imagelib");
                 imageCategorySelector = new ImageCategorySelector(imageDir);
                 
-                jsp.getViewport().setView(imageCategorySelector);
+                JScrollPane jsp = new JScrollPane(imageCategorySelector);
                 
                 jsp.setBorder(Config.normalBorder);
+                jsp.setViewportBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
                 jsp.setAlignmentX(0.0f);
                 
                 piPanel.add(jsp);
@@ -343,6 +344,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 jsp.getViewport().setView(greenfootImageList);
                 
                 jsp.setBorder(Config.normalBorder);
+                jsp.setViewportBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
                 jsp.setAlignmentX(0.0f);
                 
                 piPanel.add(jsp);

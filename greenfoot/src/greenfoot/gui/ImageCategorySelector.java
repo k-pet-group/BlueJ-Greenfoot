@@ -25,7 +25,7 @@ import javax.swing.event.ListSelectionListener;
  * the contents of that category.
  * 
  * @author davmac
- * @version $Id: ImageCategorySelector.java 4122 2006-05-08 14:12:06Z davmac $
+ * @version $Id: ImageCategorySelector.java 4260 2006-05-14 19:36:54Z mik $
  */
 public class ImageCategorySelector extends JList
     implements ListSelectionListener
@@ -112,16 +112,22 @@ public class ImageCategorySelector extends JList
         public MyCellRenderer()
         {
             super(BoxLayout.X_AXIS);
-            categoryNameLabel = new JLabel(" ");
-            categoryNameLabel.setOpaque(true);
-            add(categoryNameLabel);
+
             iconLabel = new JLabel(openRightIcon);
             iconLabel.setOpaque(true);
-            
+            Dimension iconSize = iconLabel.getPreferredSize();
             // Set maximum size on the icon label so that the category
             // name label uses up all the extra space
-            Dimension iconSize = iconLabel.getPreferredSize();
             iconLabel.setMaximumSize(iconSize);
+            
+            categoryNameLabel = new JLabel(" ");
+            categoryNameLabel.setOpaque(true);
+            // name label height the same as the icon height (for selection painting)
+            Dimension preferredSize = categoryNameLabel.getPreferredSize();
+            preferredSize.height = iconSize.height;
+            categoryNameLabel.setPreferredSize(preferredSize);
+            
+            add(categoryNameLabel);
             add(iconLabel);
         }
         
@@ -171,11 +177,11 @@ public class ImageCategorySelector extends JList
     /* (non-Javadoc)
      * @see javax.swing.Scrollable#getPreferredScrollableViewportSize()
      */
-    public Dimension getPreferredScrollableViewportSize()
-    {
-        // Limit the preferred viewport width to the preferred width
-        Dimension d = super.getPreferredScrollableViewportSize();
-        d.width = Math.min(d.width, getPreferredSize().width);
-        return d;
-    }
+//    public Dimension getPreferredScrollableViewportSize()
+//    {
+//        // Limit the preferred viewport width to the preferred width
+//        Dimension d = super.getPreferredScrollableViewportSize();
+//        d.width = Math.min(d.width, getPreferredSize().width);
+//        return d;
+//    }
 }
