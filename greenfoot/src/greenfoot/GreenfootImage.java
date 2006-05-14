@@ -24,7 +24,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4256 2006-05-14 16:22:48Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4258 2006-05-14 16:44:44Z polle $
  */
 public class GreenfootImage
 {
@@ -185,13 +185,26 @@ public class GreenfootImage
     {
         return image.getHeight(null);
     }
+    
 
     /**
-     * Creates a new image that is a scaled version of this image.
+     * Rotates this image around the center.
+     * 
+     * @param degrees
+     */
+    public void rotate(int degrees)
+    {
+        AffineTransform tx = AffineTransform.getRotateInstance(Math.toRadians(degrees), getWidth()/2., getHeight()/2.);
+        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        BufferedImage newImage = new BufferedImage(getWidth(), getHeight(),  BufferedImage.TYPE_INT_ARGB);
+        setImage(op.filter(getBufferedImage(), newImage));
+    }
+
+    /**
+     * Scales this image to a new size.
      * 
      * @param width Width of new image
      * @param height Height of new image
-     * @return A new scaled image
      */
     public void scale(int width, int height)
     {
@@ -533,6 +546,7 @@ public class GreenfootImage
         if (image instanceof BufferedImage) {}
         else if (image instanceof VolatileImage) {
             image = ((VolatileImage) image).getSnapshot();
+            waitForImageLoad();
         }
         else {
             BufferedImage bImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
