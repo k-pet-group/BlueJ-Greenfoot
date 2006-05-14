@@ -21,6 +21,7 @@ import javax.swing.JButton;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPackage;
+import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RInvocationListener;
 import bluej.Config;
@@ -38,7 +39,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4219 2006-05-12 12:17:43Z polle $
+ * @version $Id: GreenfootMain.java 4254 2006-05-14 15:23:20Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener
 {
@@ -94,7 +95,17 @@ public class GreenfootMain extends Thread implements CompileListener
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         if (instance == null) {
-            instance = new GreenfootMain(rBlueJ, pkg);
+            try {
+                instance = new GreenfootMain(rBlueJ, pkg.getProject());
+            }
+            catch (ProjectNotOpenException pnoe) {
+                // can't happen
+                pnoe.printStackTrace();
+            }
+            catch (RemoteException re) {
+                // shouldn't happen
+                re.printStackTrace();
+            }
         }
     }
 
@@ -125,7 +136,7 @@ public class GreenfootMain extends Thread implements CompileListener
      * Contructor is private. This class is initialised via the 'initialize'
      * method (above).
      */
-    private GreenfootMain(final RBlueJ rBlueJ, final RPackage pkg)
+    private GreenfootMain(final RBlueJ rBlueJ, final RProject proj)
     {
         instance = this;
         this.rBlueJ = rBlueJ;
@@ -133,8 +144,8 @@ public class GreenfootMain extends Thread implements CompileListener
         addCompileListener(this);
         
         try {
-            this.pkg = new GPackage(pkg);
-            this.project = this.pkg.getProject();
+            this.project = new GProject(proj);
+            this.pkg = project.getDefaultPackage();
 
             frame = GreenfootFrame.getGreenfootFrame(rBlueJ);
 
@@ -203,13 +214,17 @@ public class GreenfootMain extends Thread implements CompileListener
     }
 
     /**
-     * Gets the package for this.
+     * Gets the default package for this greenfoot instance.
      */
     public GPackage getPackage()
     {
         return pkg;
     }
 
+    /**
+     * Get the project for this greenfoot instance.
+     * @return
+     */
     public GProject getProject()
     {
         return project;
@@ -217,9 +232,6 @@ public class GreenfootMain extends Thread implements CompileListener
 
     /**
      * Closes this greenfoot frame
-     * 
-     * TODO This sometimes leaves proceses hanging? Seems to be fixed with later
-     * BlueJ versions
      */
     public void closeThisInstance()
     {
