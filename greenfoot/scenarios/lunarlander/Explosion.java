@@ -21,7 +21,8 @@ public class Explosion extends Actor
         images = new GreenfootImage[IMAGE_COUNT];
         for(int i=0; i < IMAGE_COUNT; i++) {
             size = size + delta;
-            images[i] = baseImage.scaleTo(size, size);
+            images[i] = new GreenfootImage(baseImage);
+            images[i].scale(size, size);
         }
     }
     
