@@ -1,4 +1,14 @@
 #Greenfoot properties
-#Wed Apr 26 17:05:12 BST 2006
-version=0.6 dev
+#Sun May 14 15:28:16 GMT 2006
+class.Boid.superclass=greenfoot.Actor
+simulation.speed=90
+class.Social.superclass=Boid
+
+class.Hunter.superclass=Boid
+version=1.0
 class.Boid.image=bird.png
+
+class.Sky.superclass=greenfoot.World
+
+
+class.Naive.superclass=Boid
