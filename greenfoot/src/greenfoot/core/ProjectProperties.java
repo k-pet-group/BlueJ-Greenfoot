@@ -116,7 +116,6 @@ public class ProjectProperties
                 catch (IOException e) {}
             }
         }
-        System.out.println("Saved properties: " + propsFile);
     }
 
 
