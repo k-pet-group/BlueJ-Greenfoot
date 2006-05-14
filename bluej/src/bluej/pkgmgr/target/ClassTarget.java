@@ -66,7 +66,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 4257 2006-05-14 16:38:01Z davmac $
+ * @version $Id: ClassTarget.java 4259 2006-05-14 16:50:58Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -266,11 +266,11 @@ public class ClassTarget extends DependentTarget
             // Notify extensions if necessary. Note we don't distinguish
             // S_COMPILING and S_INVALID.
             if (newState == S_NORMAL) {
-                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, true);
+                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getBClass(),true);
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
             else if (state == S_NORMAL) {
-                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, false);
+                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getBClass(), false);
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
             
