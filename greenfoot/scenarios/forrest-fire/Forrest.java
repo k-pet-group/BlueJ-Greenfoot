@@ -17,7 +17,8 @@ public class Forrest extends World
     public Forrest() {
         super(WIDTH, HEIGHT, 5);
         random = new Random();
-        getBackground().fill(java.awt.Color.WHITE);
+        getBackground().setColor(java.awt.Color.WHITE);
+        getBackground().fill();
     }
      
     /**
@@ -32,10 +33,9 @@ public class Forrest extends World
                 if(random.nextInt(100) < density) {
                     long t1 = System.currentTimeMillis();
                     Tree tree = new Tree();
-                    long t2 = System.currentTimeMillis();
-                    tree.setLocation(i, j);                    
+                    long t2 = System.currentTimeMillis();                  
                     long t3 = System.currentTimeMillis();
-                    addObject(tree);                   
+                    addObject(tree, i, j);                   
                     long t4 = System.currentTimeMillis();
                     n++;
                     sum+= t2-t1;

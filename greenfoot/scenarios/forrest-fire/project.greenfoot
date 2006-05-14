@@ -1,4 +1,11 @@
 #Greenfoot properties
-#Thu Mar 30 09:14:59 GMT 2006
-version=0.5
+#Sun May 14 15:54:03 GMT 2006
+simulation.speed=100
+
+version=1.0
 class.Tree.image=Tree.png
+
+
+
+class.Tree.superclass=greenfoot.Actor
+class.Forrest.superclass=greenfoot.World
