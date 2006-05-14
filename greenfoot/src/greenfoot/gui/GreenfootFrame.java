@@ -77,7 +77,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4192 2006-05-11 11:24:15Z davmac $
+ * @version $Id: GreenfootFrame.java 4238 2006-05-14 13:20:22Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -193,7 +193,7 @@ public class GreenfootFrame extends JFrame
         } 
         catch (NumberFormatException ecx) {
             // doesn't matter - just use some default size
-            setBounds(40, 40, 600, 500);
+            setBounds(40, 40, 700, 500);
             setResizeWhenPossible(true);
         }
         
@@ -253,6 +253,9 @@ public class GreenfootFrame extends JFrame
                 populateClassBrowser(classBrowser, project);
                 enableProjectActions();
                 instantiateNewWorld(classBrowser);
+                if(needsResize()) {
+                    pack();
+                }
             }
         });
     }    
