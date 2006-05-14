@@ -367,6 +367,7 @@
                 <include name="**/doc/" />
                 <include name="**/greenfoot/" />
                 <include name="**/*.ctxt" />
+            	<include name="**/images/greenfoot.png" />
             </fileset>
         </delete>
     	<!-- Remove size and location from project.greenfoot -->
