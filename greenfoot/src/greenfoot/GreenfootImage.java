@@ -2,6 +2,7 @@ package greenfoot;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -23,7 +24,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4236 2006-05-13 17:55:59Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4256 2006-05-14 16:22:48Z polle $
  */
 public class GreenfootImage
 {
@@ -252,6 +253,23 @@ public class GreenfootImage
     void drawImage(Graphics g, int x, int y, ImageObserver observer)
     {
         g.drawImage(image, x, y, observer);
+    }
+    
+    /**
+     * Set the current font. This font will be used for subsequent text
+     * operations.
+     */
+    public void setFont(Font f)
+    {
+        getGraphics().setFont(f);
+    }
+    
+    /**
+     * Get the current font.
+     */
+    public Font getFont()
+    {
+        return getGraphics().getFont();
     }
 
     /**
