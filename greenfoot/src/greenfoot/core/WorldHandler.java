@@ -117,10 +117,25 @@ public class WorldHandler
         worldCanvas.addMouseListener(this);
         worldCanvas.addKeyListener(this);
         worldCanvas.setDropTargetListener(this);
-        LocationTracker.instance().setComponent(worldCanvas);
+        
+        initialiseLocationTracker(worldCanvas);        
         
         keyboardManager = new KeyboardManager();
         DragGlassPane.getInstance().addKeyListener(this);
+    }
+
+    /**
+     * Sets up the LocationTracker as listener for mouse events on specific
+     * components.
+     * 
+     */
+    private void initialiseLocationTracker(WorldCanvas worldCanvas)
+    {
+        LocationTracker.instance().setSourceComponent(worldCanvas);
+        worldCanvas.addMouseListener(LocationTracker.instance());
+        worldCanvas.addMouseMotionListener(LocationTracker.instance());
+        DragGlassPane.getInstance().addMouseListener(LocationTracker.instance());
+        DragGlassPane.getInstance().addMouseMotionListener(LocationTracker.instance());
     }
     
 
@@ -554,7 +569,6 @@ public class WorldHandler
             int x = (int) p.getX();
             int y = (int) p.getY();
             Actor actor = (Actor) o;
-            
             try {
                 if (actor.getWorld() == null) {
                     addObjectAtPixel(actor, x, y);
@@ -585,7 +599,7 @@ public class WorldHandler
      *             bounds of the world. Note that a wrapping world has no
      *             bounds.
      */
-    public synchronized boolean addObjectAtPixel(Actor actor, int x, int y)
+    private synchronized boolean addObjectAtPixel(Actor actor, int x, int y)
     {
         int xCell = WorldVisitor.toCellFloor(world, x);
         int yCell = WorldVisitor.toCellFloor(world, y);
@@ -596,6 +610,25 @@ public class WorldHandler
         }
         world.addObject(actor, xCell, yCell);
         return true;
+    }
+    
+    /**
+     * Adds the object where the mouse event occured.
+     * 
+     * @return true if location changed
+     * @throws IndexOutOfBoundsException If the coordinates are outside the
+     *             bounds of the world. Note that a wrapping world has no
+     *             bounds.
+     */
+    public synchronized boolean addObjectAtEvent(Actor actor, MouseEvent e)
+    {
+        Component source = (Component) e.getSource();
+        if (source != worldCanvas) {
+            e = SwingUtilities.convertMouseEvent(source, e, worldCanvas);
+        }
+		int x = e.getX();
+        int y = e.getY();
+        return addObjectAtPixel(actor, x, y);
     }
 
     public void dragEnded(Object o)

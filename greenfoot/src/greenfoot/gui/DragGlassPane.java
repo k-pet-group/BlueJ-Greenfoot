@@ -5,15 +5,26 @@ import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.core.LocationTracker;
-import greenfoot.util.Location;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.net.URL;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JMenuBar;
+import javax.swing.SwingUtilities;
 
 /**
  * Component that can be used for dragging. It should be used as a glasspane on
@@ -37,7 +48,7 @@ import javax.swing.*;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 4088 2006-05-04 20:36:05Z mik $
+ * @version $Id: DragGlassPane.java 4266 2006-05-15 14:08:10Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -121,7 +132,7 @@ public class DragGlassPane extends JComponent
             g2.rotate(Math.toRadians(rotation), rotateX, rotateY);
             ImageVisitor.drawImage(image, g2, rect.x, rect.y, this);
 
-            g2.setColor(Color.RED);
+			g2.setColor(Color.RED);
             if (noParkingIcon != null) {
                 int x = (int) (rect.getX() + halfWidth - noParkingIcon.getIconWidth() / 2);
                 int y = (int) (rect.getY() + halfHeight - noParkingIcon.getIconHeight() / 2);
@@ -182,24 +193,23 @@ public class DragGlassPane extends JComponent
         setDragImage(objectImage, object.getRotation());
         setDragObject(object);
         paintNoDropImage = true;
-
+        
+        
         //get last mouseevent to get first location
-        storePosition(LocationTracker.instance().getMouseEvent());
-
+        MouseEvent e =  LocationTracker.instance().getMouseMotionEvent();
+        storePosition(e);
         dragOffsetX = xOffset;
         dragOffsetY = yOffset;
         dragListener = dl;
         if(initialDropTarget != null) {
             lastDropTarget = initialDropTarget;
             //force painting of drag object
-            Location l = LocationTracker.instance().getLocation();
-            Point p = new Point(l.getX() + xOffset, l.getY() + yOffset);
+            Point p = e.getPoint();
+            p.translate(xOffset, yOffset);
             paintNoDropImage =  ! lastDropTarget.drag(object, p);                      
         }
 
         setVisible(true);
-        //Toolkit.getDefaultToolkit().addAWTEventListener(eventListener,
-        //        (AWTEvent.MOUSE_MOTION_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK));
     }
 
     /**
@@ -392,8 +402,8 @@ public class DragGlassPane extends JComponent
 
     private void storePosition(MouseEvent e)
     {
-        MouseEvent eThis = SwingUtilities.convertMouseEvent((Component) e.getSource(), e, this);
-        rect.x = eThis.getX() + dragOffsetX - image.getWidth()/2;
-        rect.y = eThis.getY() + dragOffsetY - image.getHeight()/2;
+        e = SwingUtilities.convertMouseEvent((Component) e.getSource(), e, this);
+        rect.x = e.getX() + dragOffsetX - image.getWidth()/2;
+        rect.y = e.getY() + dragOffsetY - image.getHeight()/2;
     }
 }

@@ -1,15 +1,14 @@
 package greenfoot.event;
 
 import greenfoot.Actor;
-import greenfoot.World;
 import greenfoot.ObjectTracker;
-import greenfoot.WorldVisitor;
+import greenfoot.World;
 import greenfoot.core.LocationTracker;
 import greenfoot.core.ObjectDragProxy;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.DragGlassPane;
-import greenfoot.util.Location;
 
+import java.awt.event.MouseEvent;
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.RObject;
@@ -67,8 +66,8 @@ public class ActorInstantiationListener extends RInvocationListenerImpl
             DragGlassPane.getInstance().startDrag(actor, xoffset, yoffset, null, null, false);
         }
         else if(realObject instanceof Actor) {
-            Location loc =  LocationTracker.instance().getLocation();
-            worldHandler.addObjectAtPixel((Actor) realObject, loc.getX(), loc.getY());
+            MouseEvent e =  LocationTracker.instance().getMouseButtonEvent();            
+            worldHandler.addObjectAtEvent((Actor) realObject, e);
             worldHandler.repaint();
         }
         else if(realObject instanceof greenfoot.World) {
