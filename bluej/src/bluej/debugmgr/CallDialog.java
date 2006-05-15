@@ -30,7 +30,7 @@ import bluej.utility.MultiLineLabel;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 3519 2005-08-13 18:01:44Z polle $
+ * @version $Id: CallDialog.java 4277 2006-05-15 23:43:11Z polle $
  */
 public abstract class CallDialog extends EscapeDialog
 	implements ObjectBenchListener
@@ -158,8 +158,8 @@ public abstract class CallDialog extends EscapeDialog
      */
     public void objectEvent(ObjectBenchEvent obe)
     {
-        ObjectWrapper wrapper = obe.getWrapper();
-        insertText(wrapper.getName());
+        NamedValue value = obe.getValue();
+        insertText(value.getName());
     }
 
     /**
