@@ -178,6 +178,7 @@ public class WorldInvokeListener
         }
         else if (event == CallDialog.OK) {
             MethodDialog mdlg = (MethodDialog) dlg;
+            mdlg.setWaitCursor(true);
             mdlg.setEnabled(false);
             RObject rObj = null;
             try {
@@ -239,6 +240,7 @@ public class WorldInvokeListener
                     if (resultName != null && resultName.charAt(0) == '!') {
                         String errorMsg = resultName.substring(1);
                         mdlg.setErrorMessage(errorMsg);
+                        mdlg.setWaitCursor(false);
                         mdlg.setEnabled(true);
                     }
                     else {
@@ -279,6 +281,7 @@ public class WorldInvokeListener
                     if (resultName != null && resultName.charAt(0) == '!') {
                         String errorMsg = resultName.substring(1);
                         mdlg.setErrorMessage(errorMsg);
+                        mdlg.setWaitCursor(false);                        
                         mdlg.setEnabled(true);
                     }
                     else {
