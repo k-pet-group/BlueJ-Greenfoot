@@ -1,6 +1,5 @@
 package rmiextension.wrappers;
 
-import java.awt.Frame;
 import java.awt.Rectangle;
 import java.io.File;
 import java.rmi.RemoteException;
@@ -8,6 +7,8 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import rmiextension.ProjectManager;
+import rmiextension.wrappers.event.RClassListener;
+import rmiextension.wrappers.event.RClassListenerWrapper;
 import rmiextension.wrappers.event.RCompileListener;
 import rmiextension.wrappers.event.RCompileListenerWrapper;
 import rmiextension.wrappers.event.RInvocationListener;
@@ -18,13 +19,12 @@ import bluej.extensions.MenuGenerator;
 import bluej.extensions.PreferenceGenerator;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.ApplicationListener;
-import bluej.extensions.event.ExtensionEventListener;
-import bluej.extensions.event.PackageListener;
+import bluej.extensions.event.ClassListener;
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 4253 2006-05-14 15:19:54Z davmac $
+ * @version $Id: RBlueJImpl.java 4261 2006-05-15 10:54:18Z davmac $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -56,6 +56,8 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     {
         BProject[] projects = blueJ.getOpenProjects();
         BProject project = null;
+        // TODO this is not robust if more than one project with the
+        // same name is open
         for (int i = 0; i < projects.length; i++) {
             BProject prj = projects[i];
             try {
@@ -75,27 +77,21 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     /**
      * @param listener
      */
-    public void addExtensionEventListener(ExtensionEventListener listener)
-    {
-        blueJ.addExtensionEventListener(listener);
-    }
-
-    /**
-     * @param listener
-     */
     public void addInvocationListener(RInvocationListener listener)
     {
         RInvocationListenerWrapper wrapper = new RInvocationListenerWrapper(listener);
         listeners.put(listener, wrapper);
         blueJ.addInvocationListener(wrapper);
     }
-
-    /**
-     * @param listener
+    
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RBlueJ#addClassListener(rmiextension.wrappers.event.RClassListener)
      */
-    public void addPackageListener(PackageListener listener)
+    public void addClassListener(RClassListener listener) throws RemoteException
     {
-        blueJ.addPackageListener(listener);
+        ClassListener wrapper = new RClassListenerWrapper(listener);
+        listeners.put(listener, wrapper);
+        blueJ.addClassListener(wrapper);
     }
 
     /**
@@ -106,14 +102,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public String getBlueJPropertyString(String property, String def)
     {
         return blueJ.getBlueJPropertyString(property, def);
-    }
-
-    /**
-     * @return
-     */
-    public Frame getCurrentFrame()
-    {
-        return blueJ.getCurrentFrame();
     }
 
     /**
@@ -242,14 +230,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     /**
      * @param listener
      */
-    public void removeExtensionEventListener(ExtensionEventListener listener)
-    {
-        blueJ.removeExtensionEventListener(listener);
-    }
-
-    /**
-     * @param listener
-     */
     public void removeInvocationListener(RInvocationListener listener)
     {
         RInvocationListenerWrapper wrapper = (RInvocationListenerWrapper) listeners.get(listener);
@@ -257,14 +237,15 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         blueJ.removeInvocationListener(wrapper);
     }
 
-    /**
-     * @param listener
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RBlueJ#removeClassListener(rmiextension.wrappers.event.RClassListener)
      */
-    public void removePackageListener(PackageListener listener)
+    public void removeClassListener(RClassListener listener) throws RemoteException
     {
-        blueJ.removePackageListener(listener);
+        ClassListener wrapper = (ClassListener) listeners.remove(listener);
+        blueJ.removeClassListener(wrapper);
     }
-
+    
     /**
      * @param property
      * @param value

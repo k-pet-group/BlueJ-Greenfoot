@@ -1,69 +1,56 @@
 package rmiextension.wrappers;
 
-import java.awt.Frame;
 import java.awt.Rectangle;
 import java.io.File;
 import java.rmi.RemoteException;
 
+import rmiextension.wrappers.event.RClassListener;
 import rmiextension.wrappers.event.RCompileListener;
 import rmiextension.wrappers.event.RInvocationListener;
 import bluej.extensions.MenuGenerator;
 import bluej.extensions.PreferenceGenerator;
 import bluej.extensions.event.ApplicationListener;
 import bluej.extensions.event.ExtensionEventListener;
-import bluej.extensions.event.PackageListener;
 
 /**
  * 
  * Interface for accessing BlueJ-functionality
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJ.java 3562 2005-09-12 15:51:02Z polle $
+ * @version $Id: RBlueJ.java 4261 2006-05-15 10:54:18Z davmac $
  */
 public interface RBlueJ
     extends java.rmi.Remote
 {
     /**
-     * @param listener
+     * Register an Application listener
      */
     public void addApplicationListener(ApplicationListener listener)
         throws RemoteException;
 
     /**
-     * @param listener
-     * @param project 
+     * Register a Compile event listener
      */
     public void addCompileListener(RCompileListener listener, String project)
         throws RemoteException;
 
     /**
-     * @param listener
+     * Register an invocation event listener
      */
-    public void addExtensionEventListener(ExtensionEventListener listener)
-        throws RemoteException;
-
     public void addInvocationListener(RInvocationListener listener)
         throws RemoteException;
 
     /**
-     * @param listener
+     * Register a remote class event listener
      */
-    public void addPackageListener(PackageListener listener)
+    public void addClassListener(RClassListener listener)
         throws RemoteException;
-
+    
+    
     /**
-     * @param property
-     * @param def
-     * @return
+     * Get a BlueJ property value
      */
-
     public String getBlueJPropertyString(String property, String def)
-        throws RemoteException;
-
-    /**
-     * @return
-     */
-    public Frame getCurrentFrame()
         throws RemoteException;
 
     /**
@@ -146,19 +133,13 @@ public interface RBlueJ
     /**
      * @param listener
      */
-    public void removeExtensionEventListener(ExtensionEventListener listener)
-        throws RemoteException;
-
-    /**
-     * @param listener
-     */
     public void removeInvocationListener(RInvocationListener listener)
         throws RemoteException;
 
     /**
-     * @param listener
+     * De-register a remote class event listener.
      */
-    public void removePackageListener(PackageListener listener)
+    public void removeClassListener(RClassListener listener)
         throws RemoteException;
 
     /**
