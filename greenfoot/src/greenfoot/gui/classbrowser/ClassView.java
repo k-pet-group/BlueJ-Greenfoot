@@ -46,7 +46,7 @@ import javax.swing.JToggleButton;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4263 2006-05-15 13:16:59Z davmac $
+ * @version $Id: ClassView.java 4264 2006-05-15 13:32:54Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, CompileListener, MouseListener
@@ -76,6 +76,8 @@ public class ClassView extends JToggleButton
     public ClassView(ClassRole role, GClass gClass)
     {
         this.gClass = gClass;
+        gClass.setClassView(this);
+        
         realClass = getClass(gClass);
         setRole(role);
         this.addMouseListener(this);

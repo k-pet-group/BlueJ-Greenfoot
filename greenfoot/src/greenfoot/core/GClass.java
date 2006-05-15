@@ -1,15 +1,21 @@
 package greenfoot.core;
 
 import greenfoot.event.CompileListener;
+import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
+
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RConstructor;
 import rmiextension.wrappers.RField;
 import rmiextension.wrappers.event.RCompileEvent;
-import bluej.extensions.*;
+import bluej.extensions.BField;
+import bluej.extensions.BMethod;
 import bluej.extensions.ClassNotFoundException;
+import bluej.extensions.CompilationNotStartedException;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.utility.Debug;
@@ -30,6 +36,8 @@ public class GClass implements CompileListener
     private GPackage pkg;
     private String superclassGuess;
     private boolean compiled;
+    
+    private ClassView classView;
 
     /**
      * Constructor for GClass. You should generally not use this -
@@ -60,6 +68,15 @@ public class GClass implements CompileListener
         catch (ProjectNotOpenException pnoe) {
             pnoe.printStackTrace();
         }
+    }
+    
+    /**
+     * Set the view to be associated with this GClass. The view is
+     * notified when the compilation state changes.
+     */
+    public void setClassView(ClassView view)
+    {
+        classView = view;
     }
 
     /**
@@ -381,6 +398,10 @@ public class GClass implements CompileListener
     public void setCompiledState(boolean isCompiled)
     {
         compiled = isCompiled;
+        if (classView != null) {
+            // It's safe to call repaint off the event thread
+            classView.repaint();
+        }
     }
 
     /**
