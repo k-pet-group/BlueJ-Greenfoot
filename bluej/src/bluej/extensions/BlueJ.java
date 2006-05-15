@@ -47,7 +47,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 4257 2006-05-14 16:38:01Z davmac $
+ * @version    $Id: BlueJ.java 4271 2006-05-15 17:23:11Z davmac $
  */
 
 /*
@@ -419,8 +419,11 @@ public final class BlueJ
      */
     public void addExtensionEventListener(ExtensionEventListener listener)
     {
-        if (listener != null)
-            eventListeners.add(listener);
+        if (listener != null) {
+            synchronized (eventListeners) {
+                eventListeners.add(listener);
+            }
+        }
     }
 
 
@@ -429,8 +432,11 @@ public final class BlueJ
      */
     public void removeExtensionEventListener(ExtensionEventListener listener)
     {
-        if (listener != null)
-            eventListeners.remove(listener);
+        if (listener != null) {
+            synchronized (eventListeners) {
+                eventListeners.remove(listener);
+            }
+        }
     }
 
 
@@ -439,8 +445,11 @@ public final class BlueJ
      */
     public void addApplicationListener(ApplicationListener listener)
     {
-        if (listener != null)
-            applicationListeners.add(listener);
+        if (listener != null) {
+            synchronized (applicationListeners) {
+                applicationListeners.add(listener);
+            }
+        }
     }
 
 
@@ -449,8 +458,11 @@ public final class BlueJ
      */
     public void removeApplicationListener(ApplicationListener listener)
     {
-        if (listener != null)
-            applicationListeners.remove(listener);
+        if (listener != null) {
+            synchronized (applicationListeners) {
+                applicationListeners.remove(listener);
+            }
+        }
     }
 
 
@@ -459,8 +471,11 @@ public final class BlueJ
      */
     public void addPackageListener(PackageListener listener)
     {
-        if (listener != null)
-            packageListeners.add(listener);
+        if (listener != null) {
+            synchronized (packageListeners) {
+                packageListeners.add(listener);
+            }
+        }
     }
 
 
@@ -469,8 +484,11 @@ public final class BlueJ
      */
     public void removePackageListener(PackageListener listener)
     {
-        if (listener != null)
-            packageListeners.remove(listener);
+        if (listener != null) {
+            synchronized (packageListeners) {
+                packageListeners.remove(listener);
+            }
+        }
     }
 
 
@@ -479,8 +497,11 @@ public final class BlueJ
      */
     public void addCompileListener(CompileListener listener)
     {
-        if (listener != null)
-            compileListeners.add(listener);
+        if (listener != null) {
+            synchronized (compileListeners) {
+                compileListeners.add(listener);
+            }
+        }
     }
 
 
@@ -489,8 +510,11 @@ public final class BlueJ
      */
     public void removeCompileListener(CompileListener listener)
     {
-        if (listener != null)
-            compileListeners.remove(listener);
+        if (listener != null) {
+            synchronized (compileListeners) {
+                compileListeners.remove(listener);
+            }
+        }
     }
 
 
@@ -499,8 +523,11 @@ public final class BlueJ
      */
     public void addInvocationListener(InvocationListener listener)
     {
-        if (listener != null)
-            invocationListeners.add(listener);
+        if (listener != null) {
+            synchronized (invocationListeners) {
+                invocationListeners.add(listener);
+            }
+        }
     }
 
 
@@ -509,8 +536,11 @@ public final class BlueJ
      */
     public void removeInvocationListener(InvocationListener listener)
     {
-        if (listener != null)
-            invocationListeners.remove(listener);
+        if (listener != null) {
+            synchronized (invocationListeners) {
+                invocationListeners.remove(listener);
+            }
+        }
     }
 
 
@@ -548,12 +578,14 @@ public final class BlueJ
      */
     private void delegateExtensionEvent(ExtensionEvent event)
     {
-        if ( eventListeners.isEmpty()) return;
+        ExtensionEventListener [] listeners;
         
-        List aList=Collections.unmodifiableList(eventListeners);
-
-        for (Iterator iter = aList.iterator(); iter.hasNext(); ) {
-            ExtensionEventListener eventListener = (ExtensionEventListener) iter.next();
+        synchronized (eventListeners) {
+            listeners = (ExtensionEventListener []) eventListeners.toArray(new ExtensionEventListener [eventListeners.size()]);
+        }
+        
+        for (int i = 0; i < listeners.length; i++) {
+            ExtensionEventListener eventListener = listeners[i];
             eventListener.eventOccurred(event);
         }
     }
@@ -566,12 +598,14 @@ public final class BlueJ
      */
     private void delegateApplicationEvent(ApplicationEvent event)
     {
-        if ( applicationListeners.isEmpty()) return;
+        ApplicationListener [] listeners;
         
-        List aList=Collections.unmodifiableList(applicationListeners);
-
-        for (Iterator iter = aList.iterator(); iter.hasNext(); ) {
-            ApplicationListener eventListener = (ApplicationListener) iter.next();
+        synchronized (applicationListeners) {
+            listeners = (ApplicationListener []) applicationListeners.toArray(new ApplicationListener[applicationListeners.size()]);
+        }
+        
+        for (int i = 0; i < listeners.length; i++) {
+            ApplicationListener eventListener = listeners[i];
             // Just this for the time being.
             eventListener.blueJReady(event);
         }
@@ -585,13 +619,16 @@ public final class BlueJ
      */
     private void delegatePackageEvent(PackageEvent event)
     {
-        if ( packageListeners.isEmpty()) return;
+        PackageListener [] listeners;
+        
+        synchronized (packageListeners) {
+            listeners = (PackageListener []) packageListeners.toArray(new PackageListener[packageListeners.size()]);
+        }
         
         int thisEvent = event.getEvent();
-        List aList=Collections.unmodifiableList(packageListeners);
 
-        for (Iterator iter = aList.iterator(); iter.hasNext(); ) {
-            PackageListener eventListener = (PackageListener) iter.next();
+        for (int i = 0; i < listeners.length; i++) {
+            PackageListener eventListener = listeners[i];
             if (thisEvent == PackageEvent.PACKAGE_OPENED)
                 eventListener.packageOpened(event);
             if (thisEvent == PackageEvent.PACKAGE_CLOSING)
@@ -607,13 +644,16 @@ public final class BlueJ
      */
     private void delegateCompileEvent(CompileEvent event)
     {
-        if ( compileListeners.isEmpty()) return;
+        CompileListener [] listeners;
+        
+        synchronized (compileListeners) {
+            listeners = (CompileListener []) compileListeners.toArray(new CompileListener[compileListeners.size()]);
+        }
         
         int thisEvent = event.getEvent();
-        List aList=Collections.unmodifiableList(compileListeners);
 
-        for (Iterator iter = aList.iterator(); iter.hasNext(); ) {
-            CompileListener eventListener = (CompileListener) iter.next();
+        for (int i = 0; i < listeners.length; i++) {
+            CompileListener eventListener = listeners[i];
             if (thisEvent == CompileEvent.COMPILE_START_EVENT)
                 eventListener.compileStarted(event);
             if (thisEvent == CompileEvent.COMPILE_ERROR_EVENT)
@@ -635,13 +675,14 @@ public final class BlueJ
      */
     private void delegateInvocationEvent(InvocationEvent event)
     {
-        if ( invocationListeners.isEmpty()) return;
+        InvocationListener [] listeners;
         
-        List aList=Collections.unmodifiableList(invocationListeners);
+        synchronized (invocationListeners) {
+            listeners = (InvocationListener []) invocationListeners.toArray(new InvocationListener[invocationListeners.size()]);
+        }
         
-        for (Iterator iter = aList.iterator(); iter.hasNext(); ) {
-            InvocationListener eventListener = (InvocationListener) iter.next();
-            eventListener.invocationFinished(event);
+        for (int i = 0; i < listeners.length; i++) {
+            listeners[i].invocationFinished(event);
         }
     }
 
@@ -653,18 +694,15 @@ public final class BlueJ
     private void delegateClassEvent(ClassEvent event)
     {
         // We'll make a copy of the current list to prevent
-        // ConcurrentModification problems. The technique with
-        // Collections.unmodifiableList() used above doesn't achieve this
-        // - does it achieve anything at all? Maybe they should also be
-        // changed.
-        ArrayList listeners;
+        // ConcurrentModification problems.
+        ClassListener [] listeners;
+        
         synchronized (classListeners) {
-            listeners = new ArrayList(classListeners);
+            listeners = (ClassListener []) classListeners.toArray(new ClassListener[classListeners.size()]);
         }
         
-        for (Iterator i = listeners.iterator(); i.hasNext(); ) {
-            ClassListener classListener = (ClassListener) i.next();
-            classListener.classStateChanged(event);
+        for (int i = 0; i < listeners.length; i++) {
+            listeners[i].classStateChanged(event);
         }
     }
 
