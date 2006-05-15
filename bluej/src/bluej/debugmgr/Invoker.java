@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 3747 2006-01-25 10:29:24Z iau $
+ * @version $Id: Invoker.java 4267 2006-05-15 15:33:49Z davmac $
  */
 
 public class Invoker
@@ -994,6 +994,12 @@ public class Invoker
         if (dialog != null) {
             dialog.setWaitCursor(false);
             dialog.setVisible(false);
+            // JDK on Windows has a bug. If the PkgMgrFrame is
+            // minimised while the call dialog is still showing, the
+            // call dialog re-appears when the PkgMgrFrame is restored.
+            // Calling dispose() as a workaround.
+            // See http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5005454
+            dialog.dispose();
             if (dialog instanceof MethodDialog)
                 ((MethodDialog) dialog).updateParameters();
         }
