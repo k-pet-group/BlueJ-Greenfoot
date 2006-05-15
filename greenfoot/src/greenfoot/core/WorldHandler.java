@@ -335,8 +335,8 @@ public class WorldHandler
      */
     public void mouseEntered(MouseEvent e)
     {
-        worldCanvas.requestFocusInWindow();
-        processInputEvent(e);
+        isQuickAddActive = false;
+        worldCanvas.requestFocusInWindow();     
     }
 
     /*
