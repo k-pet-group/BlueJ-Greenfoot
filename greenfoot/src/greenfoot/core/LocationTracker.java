@@ -1,9 +1,10 @@
 package greenfoot.core;
 
+import java.awt.AWTEvent;
 import java.awt.Component;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 
 import javax.swing.SwingUtilities;
 
@@ -16,7 +17,7 @@ import javax.swing.SwingUtilities;
  * @author Poul Henriksen
  * 
  */
-public class LocationTracker implements MouseMotionListener, MouseListener
+public class LocationTracker
 {
     private static LocationTracker instance;
     private MouseEvent mouseButtonEvent;
@@ -29,7 +30,22 @@ public class LocationTracker implements MouseMotionListener, MouseListener
 
     private LocationTracker()
     {
-      
+        AWTEventListener listener = new AWTEventListener() {
+
+            public void eventDispatched(AWTEvent event)
+            {
+                MouseEvent me = (MouseEvent) event;
+                if( (event.getID() & AWTEvent.MOUSE_MOTION_EVENT_MASK) != 0) {
+                    LocationTracker.instance().move(me);
+                }
+                if( (event.getID() & AWTEvent.MOUSE_EVENT_MASK) != 0) {
+                    LocationTracker.instance().click(me);
+                }
+            } 
+            
+        };
+        Toolkit.getDefaultToolkit().addAWTEventListener(listener, AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
+    
     }
 
     public synchronized static LocationTracker instance()
@@ -94,47 +110,4 @@ public class LocationTracker implements MouseMotionListener, MouseListener
     {
         this.sourceComponent = source;
     }
-
-    //==========================================================
-    //
-    // Listener implementations
-    //
-    //==========================================================
-    
-    public void mouseDragged(MouseEvent e)
-    {
-        move(e);
-    }
-
-    public void mouseMoved(MouseEvent e)
-    {        
-        move(e);
-    }
-    
-    public void mouseEntered(MouseEvent e)
-    {
-        move(e);
-    }
-
-    public void mouseExited(MouseEvent e)
-    {
-        move(e);
-    }
-
-    public void mouseClicked(MouseEvent e)
-    {
-        click(e);
-    }
-
-    public void mousePressed(MouseEvent e)
-    {
-        click(e);
-    }
-
-    public void mouseReleased(MouseEvent e)
-    {
-        click(e);
-    }
-
-
 }

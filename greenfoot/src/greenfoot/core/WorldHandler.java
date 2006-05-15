@@ -118,26 +118,11 @@ public class WorldHandler
         worldCanvas.addKeyListener(this);
         worldCanvas.setDropTargetListener(this);
         
-        initialiseLocationTracker(worldCanvas);        
+        LocationTracker.instance().setSourceComponent(worldCanvas);
         
         keyboardManager = new KeyboardManager();
         DragGlassPane.getInstance().addKeyListener(this);
     }
-
-    /**
-     * Sets up the LocationTracker as listener for mouse events on specific
-     * components.
-     * 
-     */
-    private void initialiseLocationTracker(WorldCanvas worldCanvas)
-    {
-        LocationTracker.instance().setSourceComponent(worldCanvas);
-        worldCanvas.addMouseListener(LocationTracker.instance());
-        worldCanvas.addMouseMotionListener(LocationTracker.instance());
-        DragGlassPane.getInstance().addMouseListener(LocationTracker.instance());
-        DragGlassPane.getInstance().addMouseMotionListener(LocationTracker.instance());
-    }
-    
 
     /**
      * Sets the selection manager.
