@@ -1,13 +1,9 @@
 package greenfoot.core;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RObject;
@@ -28,9 +24,8 @@ public class GPackage
 {
     private RPackage pkg;
     private GProject project; 
-    private GClass classes;
     
-    private Map classPool = new HashMap();
+    private Map<RClass,GClass> classPool = new HashMap<RClass,GClass>();
     
     public GPackage(RPackage pkg)
     {
@@ -51,7 +46,22 @@ public class GPackage
         this.pkg = pkg;
         this.project = project;
     }
-
+    
+    /**
+     * Get the GClass wrapper for a remote class in this package.
+     */
+    public GClass getGClass(RClass remoteClass)
+    {
+        GClass gClass;
+        synchronized (classPool) {
+            gClass = classPool.get(remoteClass);
+            if (gClass == null) {
+                gClass = new GClass(remoteClass, this);
+                classPool.put(remoteClass, gClass);
+            }
+        }
+        return gClass;
+    }
     
     public void compile(boolean waitCompileEnd)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException
@@ -105,12 +115,7 @@ public class GPackage
         GClass[] gClasses = new GClass[rClasses.length];
         for (int i = 0; i < rClasses.length; i++) {
             RClass rClass = rClasses[i];
-            GClass gClass = (GClass) classPool.get(rClass);
-            if(gClass == null) {
-                gClass = new GClass(rClass, this);
-                classPool.put(rClass, gClass);
-            }
-            gClasses[i] = gClass;
+            gClasses[i] = getGClass(rClass);
         }
         return gClasses;
     }
@@ -128,32 +133,50 @@ public class GPackage
     }
 
     public GClass newClass(String className)
-        throws RemoteException, ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
     {
-    	return new GClass(pkg.newClass(className), this);
-    }
-    
-    public GClass getClass(String className) {
-        GClass cls = (GClass) classPool.get(className);
-        if(cls == null) {
-            try {
-                RClass rClass = pkg.getRClass(className);
-                if(rClass != null) {
-                    cls = new GClass(rClass, this);
-                    classPool.put(rClass, cls);
-                }                
-            }
-            catch (ProjectNotOpenException e) {
-                e.printStackTrace();
-            }
-            catch (PackageNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch (RemoteException e) {
-                e.printStackTrace();
+    	GClass newClass = null;
+        try {
+            RClass newRClass = pkg.newClass(className);
+            newClass = new GClass(newRClass, this);
+            synchronized (classPool) {
+                classPool.put(newRClass, newClass);
             }
         }
-        return cls;
+        catch (RemoteException re) {
+            re.printStackTrace();
+        }
+        catch (ProjectNotOpenException pnoe) {
+            pnoe.printStackTrace();
+        }
+        catch (PackageNotFoundException pnfe) {
+            pnfe.printStackTrace();
+        }
+        catch (MissingJavaFileException mjfe) {
+            mjfe.printStackTrace();
+        }
+        return newClass;
+    }
+    
+    /**
+     * Get the named class.
+     */
+    public GClass getClass(String className)
+    {
+        try {
+            RClass rClass = pkg.getRClass(className);
+            return getGClass(rClass);
+        }
+        catch (RemoteException re) {
+            re.printStackTrace();
+        }
+        catch (ProjectNotOpenException pnoe) {
+            pnoe.printStackTrace();
+        }
+        catch (PackageNotFoundException pnfe) {
+            pnfe.printStackTrace();
+        }
+        
+        return null;
     }
 
     public void reload()

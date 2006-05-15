@@ -39,7 +39,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4254 2006-05-14 15:23:20Z davmac $
+ * @version $Id: GreenfootMain.java 4263 2006-05-15 13:16:59Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener
 {
@@ -64,6 +64,9 @@ public class GreenfootMain extends Thread implements CompileListener
      */
     private CompileListenerForwarder compileListenerForwarder;
     private List<CompileListener> compileListeners = new ArrayList<CompileListener>();
+    
+    /** The class state manager notifies GClass objects when their compilation state changes */
+    private ClassStateManager classStateManager;
 
     /** Listens for instantiations of Actor objects. */
     private ActorInstantiationListener instantiationListener;
@@ -161,6 +164,9 @@ public class GreenfootMain extends Thread implements CompileListener
                     GreenfootMain.this.rBlueJ.addInvocationListener(instantiationListener);
                     compileListenerForwarder = new CompileListenerForwarder(compileListeners);
                     GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
+                    
+                    classStateManager = new ClassStateManager();
+                    rBlueJ.addClassListener(classStateManager);
                 }
                 catch (Exception exc) {
                     Debug.reportError("failed to open project", exc);
@@ -239,6 +245,7 @@ public class GreenfootMain extends Thread implements CompileListener
             if(!project.isStartupProject()) {
                 rBlueJ.removeCompileListener(compileListenerForwarder);
                 rBlueJ.removeInvocationListener(instantiationListener);
+                rBlueJ.removeClassListener(classStateManager);
                 storeFrameState();
                 for (RInvocationListener element : invocationListeners) {
                     rBlueJ.removeInvocationListener(element);

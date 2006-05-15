@@ -2,7 +2,6 @@ package greenfoot.core;
 
 import java.awt.EventQueue;
 import java.io.File;
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,7 +20,6 @@ import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.extensions.PackageAlreadyExistsException;
-import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
@@ -39,6 +37,8 @@ public class GProject implements InspectorManager
     /** This holds all object inspectors and class inspectors
     for a world. */
     private Map inspectors = new HashMap();
+    
+    private Map<RPackage,GPackage> packagePool = new HashMap<RPackage,GPackage>();
     
     private RProject rProject;
 
@@ -60,7 +60,7 @@ public class GProject implements InspectorManager
             exc.printStackTrace();
         }
     }
-
+    
     public void close()
         throws ProjectNotOpenException, RemoteException
     {
@@ -109,10 +109,23 @@ public class GProject implements InspectorManager
             return null;
         }
         else {
-            return new GPackage(rPkg, this);
+            return getPackage(rPkg);
         }
     }
 
+    /**
+     * Get a GPackage wrapper for an RPackage object
+     */
+    public GPackage getPackage(RPackage pkg)
+    {
+        GPackage ret = packagePool.get(pkg);
+        if (ret == null) {
+            ret = new GPackage(pkg, this);
+            packagePool.put(pkg, ret);
+        }
+        return ret;
+    }
+    
     public RPackage[] getPackages()
         throws ProjectNotOpenException, RemoteException
     {
@@ -123,7 +136,7 @@ public class GProject implements InspectorManager
     public GPackage newPackage(String fullyQualifiedName)
         throws ProjectNotOpenException, PackageAlreadyExistsException, RemoteException
     {
-        return new GPackage(rProject.newPackage(fullyQualifiedName), this);
+        return getPackage(rProject.newPackage(fullyQualifiedName));
     }
 
 

@@ -33,7 +33,6 @@ import javax.swing.JPopupMenu;
 
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.MissingJavaFileException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
@@ -47,7 +46,7 @@ import javax.swing.JToggleButton;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4169 2006-05-09 17:11:12Z davmac $
+ * @version $Id: ClassView.java 4263 2006-05-15 13:16:59Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, CompileListener, MouseListener
@@ -459,19 +458,12 @@ public class ClassView extends JToggleButton
         catch (ProjectNotOpenException e) {
             e.printStackTrace();
         }
-        catch (PackageNotFoundException e) {
-            e.printStackTrace();
-        }
         catch (RemoteException e) {
             e.printStackTrace();
         }
         catch (IOException e3) {
             // TODO Auto-generated catch block
             e3.printStackTrace();
-        }
-        catch (MissingJavaFileException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
         return null;
 

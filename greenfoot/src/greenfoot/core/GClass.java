@@ -29,7 +29,13 @@ public class GClass implements CompileListener
     private RClass rmiClass;
     private GPackage pkg;
     private String superclassGuess;
+    private boolean compiled;
 
+    /**
+     * Constructor for GClass. You should generally not use this -
+     * GPackage maintains a class pool which needs to be updated. Use
+     * GPackage.getGClass().
+     */
     public GClass(RClass cls, GPackage pkg)
     {
         this.rmiClass = cls;
@@ -40,6 +46,19 @@ public class GClass implements CompileListener
             guessSuperclass();
         } else {
             superclassGuess = savedSuperclass;
+        }
+        
+        try {
+            compiled = cls.isCompiled();
+        }
+        catch (RemoteException re) {
+            re.printStackTrace();
+        }
+        catch (PackageNotFoundException pnfe) {
+            pnfe.printStackTrace();
+        }
+        catch (ProjectNotOpenException pnoe) {
+            pnoe.printStackTrace();
         }
     }
 
@@ -348,17 +367,20 @@ public class GClass implements CompileListener
         return "Error getting real toString. super: " + super.toString();
     }
 
+    /**
+     * Check whether this class is compiled.
+     */
     public boolean isCompiled()
     {
-        try {
-            return rmiClass.isCompiled();
-        }
-        catch (ProjectNotOpenException e) {
-            // TODO error reporting
-        }
-        catch (PackageNotFoundException e) {}
-        catch (RemoteException e) {}
-        return false;
+        return compiled;
+    }
+    
+    /**
+     * Set the compiled state of this class.
+     */
+    public void setCompiledState(boolean isCompiled)
+    {
+        compiled = isCompiled;
     }
 
     /**

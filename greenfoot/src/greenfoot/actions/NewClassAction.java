@@ -27,7 +27,7 @@ import bluej.utility.Debug;
  * An action for creating a new (non-Actor, non-World) class.
  * 
  * @author dam
- * @version $Id: NewClassAction.java 4154 2006-05-09 12:59:31Z mik $
+ * @version $Id: NewClassAction.java 4263 2006-05-15 13:16:59Z davmac $
  */
 public class NewClassAction extends AbstractAction {
 
@@ -75,10 +75,10 @@ public class NewClassAction extends AbstractAction {
         if (!dialog.okPressed()) {
             return;
         }
-
+        
         String className = dialog.getClassName();
         //GClass gClass = superclass.createSubclass(className);        
-
+        
         try {
             GPackage pkg = GreenfootMain.getInstance().getProject().getDefaultPackage();
             
@@ -87,10 +87,10 @@ public class NewClassAction extends AbstractAction {
             FileWriter writer = new FileWriter(newJavaFile);
             
             NormalClassRole.getInstance().createSkeleton(className, null, writer);
-        
+            
             writer.close();
             GClass newClass = pkg.newClass(className);
-        
+            
             ClassView classView = classBrowser.addClass(newClass);
             classView.select();
             classBrowser.revalidate();
@@ -102,14 +102,8 @@ public class NewClassAction extends AbstractAction {
             // TODO definitely should report an error condition via dialog
             ioe.printStackTrace();
         }
-        catch (PackageNotFoundException pnfe) {
-            pnfe.printStackTrace();
-        }
-        catch (MissingJavaFileException mjfe) {
-            mjfe.printStackTrace();
-        }
         catch (ProjectNotOpenException pnoe) {
             pnoe.printStackTrace();
         }
-	}
+    }
 }
