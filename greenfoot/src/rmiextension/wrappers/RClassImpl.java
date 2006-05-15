@@ -18,7 +18,7 @@ import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: RClassImpl.java 4262 2006-05-15 12:21:15Z davmac $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -27,9 +27,9 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     BClass bClass;
 
     /**
-     * @param class1
+     * Package-private constructor. Use WrapperPool to instantiate.
      */
-    public RClassImpl(BClass bClass)
+    RClassImpl(BClass bClass)
         throws RemoteException
     {
         this.bClass = bClass;

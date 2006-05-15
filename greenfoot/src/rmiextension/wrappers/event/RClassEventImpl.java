@@ -3,14 +3,14 @@ package rmiextension.wrappers.event;
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.RClass;
-import rmiextension.wrappers.RClassImpl;
+import rmiextension.wrappers.WrapperPool;
 import bluej.extensions.event.ClassEvent;
 
 /**
  * Implementation of a remote class event. Wraps a local ClassEvent.
  * 
  * @author Davin McCall
- * @version $Id: RClassEventImpl.java 4261 2006-05-15 10:54:18Z davmac $
+ * @version $Id: RClassEventImpl.java 4262 2006-05-15 12:21:15Z davmac $
  */
 public class RClassEventImpl extends java.rmi.server.UnicastRemoteObject
     implements RClassEvent
@@ -34,7 +34,7 @@ public class RClassEventImpl extends java.rmi.server.UnicastRemoteObject
      */
     public RClass getRClass() throws RemoteException
     {
-        return new RClassImpl(event.getBClass());
+        return WrapperPool.instance().getWrapper(event.getBClass());
     }
     
     /* (non-Javadoc)
