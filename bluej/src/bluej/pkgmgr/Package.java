@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4257 2006-05-14 16:38:01Z davmac $
+ * @version $Id: Package.java 4265 2006-05-15 13:48:29Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1093,7 +1093,7 @@ public final class Package extends Graph
      */
     private boolean searchCompile(ClassTarget t, int dfcount, Stack stack, CompileObserver observer)
     {
-        if (! t.isInvalidState() || ! t.isQueued()) {
+        if (! t.isInvalidState() || t.isQueued()) {
             return true;
         }
 
