@@ -50,6 +50,7 @@ public class WorldInvokeListener
     private MethodView mv;
     private ConstructorView cv;
     private Class cl;
+    //TODO polle should not store the worldhandler since it is a singleton
     private WorldHandler worldHandler;
     private InspectorManager inspectorManager;
     
@@ -109,6 +110,8 @@ public class WorldInvokeListener
             else {
                 CallHistory ch = GreenfootMain.getInstance().getCallHistory();
                 MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(), null, ch, instanceName, mv, null);
+
+                WorldHandler.getInstance().addObjectEventListener(md); 
                 md.setWatcher(this);
                 md.setVisible(true);
                 
@@ -162,6 +165,8 @@ public class WorldInvokeListener
         else {
             CallHistory ch = GreenfootMain.getInstance().getCallHistory();
             MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(), null, ch, "result", cv, null);
+
+            WorldHandler.getInstance().addObjectEventListener(md); 
             md.setWatcher(this);
             md.setVisible(true);
             
@@ -244,7 +249,7 @@ public class WorldInvokeListener
                         mdlg.setEnabled(true);
                     }
                     else {
-                        mdlg.dispose();
+                        disposeDialog(mdlg);
                         Method m = mv.getMethod();
                         if (m.getReturnType() != void.class) {
                             // Non-void result, display it in a result inspector.
@@ -286,7 +291,7 @@ public class WorldInvokeListener
                     }
                     else {
                         // Construction went ok (or there was a runtime error).
-                        mdlg.dispose();
+                        disposeDialog(mdlg);
                         if (resultName != null) {
                             RObject rresult = pkg.getObject(resultName);
                             Object resultw =  ObjectTracker.getRealObject(rresult);
@@ -311,6 +316,15 @@ public class WorldInvokeListener
         if(worldHandler != null) {
             worldHandler.repaint();
         }
+    }
+    
+    /**
+     * Dispose of the method dialog.
+     */
+    private void disposeDialog(MethodDialog mdlg)
+    {
+        WorldHandler.getInstance().removeObjectEventListener(mdlg);
+        mdlg.dispose();
     }
     
     /**

@@ -43,6 +43,10 @@ import javax.swing.event.EventListenerList;
 
 import rmiextension.wrappers.RObject;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.JavaType;
+import bluej.debugmgr.NamedValue;
+import bluej.debugmgr.objectbench.ObjectBenchEvent;
+import bluej.debugmgr.objectbench.ObjectBenchListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
@@ -169,6 +173,7 @@ public class WorldHandler
         if (SwingUtilities.isLeftMouseButton(e)) {
             Actor actor = getObject(e.getX(), e.getY());
             if (actor != null) {
+                fireObjectEvent(actor);
                 dragBeginX = actor.getX() * world.getCellSize() + world.getCellSize()/2;
                 dragBeginY = actor.getY() * world.getCellSize() + world.getCellSize()/2;
                 int dragOffsetX = dragBeginX - e.getX();
@@ -710,5 +715,94 @@ public class WorldHandler
     public void startSequence()
     {
         WorldVisitor.startSequence(world);
+    }
+
+    /**
+     * Fire an object event for the named object. This will
+     * notify all listeners that have registered interest for
+     * notification on this event type.
+     */
+    public void fireObjectEvent(Actor actor)
+    {
+        class GNamedValue implements NamedValue {
+            private String name;
+            public GNamedValue(String instanceName)
+            {
+                name = instanceName;
+            }
+
+            public JavaType getGenType()
+            {
+                // TODO Auto-generated method stub
+                return null;
+            }
+
+            public String getName()
+            {
+                return name;
+            }
+
+            public boolean isFinal()
+            {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            public boolean isInitialized()
+            {
+                return true;
+            }            
+        }
+        GNamedValue value =null;
+        try {
+            RObject rObj = ObjectTracker.getRObject(actor);
+            value =  new GNamedValue(rObj.getInstanceName());
+        }
+        catch (RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (ProjectNotOpenException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (PackageNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } 
+        // guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {   // I don't understand this - why step 2? (mik)
+            if (listeners[i] == ObjectBenchListener.class) {
+                ((ObjectBenchListener)listeners[i+1]).objectEvent(
+                        new ObjectBenchEvent(this,
+                                ObjectBenchEvent.OBJECT_SELECTED, value));
+            }
+        }
+    }
+    
+    /**
+     * Add listener to recieve events when objects in the world are clicked.
+     * @param listener
+     */
+    public void addObjectEventListener(ObjectBenchListener listener)
+    {
+        listenerList.add(ObjectBenchListener.class, listener);
+    }
+    
+    
+    /**
+     * Add listener to recieve events when objects in the world are clicked.
+     * @param listener
+     */
+    public void removeObjectEventListener(ObjectBenchListener listener)
+    {
+        listenerList.remove(ObjectBenchListener.class, listener);
     }
 }
