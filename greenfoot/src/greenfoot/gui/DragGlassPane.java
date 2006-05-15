@@ -48,7 +48,7 @@ import javax.swing.SwingUtilities;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 4266 2006-05-15 14:08:10Z polle $
+ * @version $Id: DragGlassPane.java 4273 2006-05-15 17:28:42Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -197,6 +197,11 @@ public class DragGlassPane extends JComponent
         
         //get last mouseevent to get first location
         MouseEvent e =  LocationTracker.instance().getMouseMotionEvent();
+        if(e == null) {
+            // This startDrag was probably initiated by a mouse event that was
+            // handled before the LocationTracker got a chance to handle it.
+            cancelDrag();
+        }
         storePosition(e);
         dragOffsetX = xOffset;
         dragOffsetY = yOffset;
