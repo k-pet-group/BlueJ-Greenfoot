@@ -10,7 +10,7 @@ import javax.swing.event.EventListenerList;
  * component changes, all listeners are notified.
  *
  * @author Poul Henriksen
- * @version $Id: SelectionManager.java 4051 2006-04-28 16:27:39Z mik $
+ * @version $Id: SelectionManager.java 4269 2006-05-15 16:36:05Z davmac $
  */
 public class SelectionManager
     implements SelectionListener
@@ -55,16 +55,18 @@ public class SelectionManager
      */
     public void selectionChange(Selectable source)
     {
-        if (source != selected && source.isSelected()) {
-            selected = source;
-        }
-        else if (source == selected) {
-            selected = null;
+        if (source == selected) {
+            if (! source.isSelected()) {
+                selected = null;
+                fireSelectionChangeEvent(selected);
+            }
         }
         else {
-            return;
+            if (source.isSelected()) {
+                selected = source;
+                fireSelectionChangeEvent(selected);
+            }
         }
-        fireSelectionChangeEvent(selected);
     }
 
 }
