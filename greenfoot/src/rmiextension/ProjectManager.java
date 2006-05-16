@@ -11,10 +11,13 @@ import java.util.List;
 
 import bluej.extensions.BPackage;
 import bluej.extensions.BlueJ;
+import bluej.extensions.InvocationArgumentException;
+import bluej.extensions.InvocationErrorException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.utility.Debug;
 
 /**
  * The ProjectManager is on the BlueJ-VM. It monitors pacakage events from BlueJ
@@ -22,7 +25,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4162 2006-05-09 13:54:53Z davmac $
+ * @version $Id: ProjectManager.java 4281 2006-05-16 16:46:42Z polle $
  */
 public class ProjectManager
     implements PackageListener
@@ -79,8 +82,14 @@ public class ProjectManager
             File projectDir = new File(project.getDir());
             boolean versionOK = checkVersion(projectDir);
             if (versionOK) {
-                ObjectBench.createObject(project, launchClass, launcherName, new String[]{
-                project.getDir(), project.getName()});
+               	try {
+					ObjectBench.createObject(project, launchClass, launcherName, new String[]{
+						project.getDir(), project.getName()});
+				} catch (Exception e) {
+					Debug.reportError("Could not create greenfoot launcher.", e);
+					//This is bad, lets exit.
+					System.exit(1);
+				}				
             }
             else {
                 //If this was the only open project, open the startup project instead.

@@ -11,7 +11,7 @@ import bluej.extensions.ProjectNotOpenException;
  * Creates and removes objects on the object bench.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ObjectBench.java 4088 2006-05-04 20:36:05Z mik $
+ * @version $Id: ObjectBench.java 4281 2006-05-16 16:46:42Z polle $
  */
 public class ObjectBench
 {
@@ -45,22 +45,14 @@ public class ObjectBench
     /**
      * Creates a new object, and puts it on the objectbench
      * 
-     * @param prj
-     * @param className
-     * @param instanceName
-     * @param constructorParams
+     * @throws InvocationErrorException 
+     * @throws InvocationArgumentException 
      */
-    public static void createObject(Project prj, String className, String instanceName, String[] constructorParams)
+    public static void createObject(Project prj, String className, String instanceName, String[] constructorParams) throws InvocationArgumentException, InvocationErrorException
     {
         try {
             ConstructorInvoker launcher = new ConstructorInvoker(prj.getPackage(), className);
             launcher.invokeConstructor(instanceName, constructorParams);
-        }
-        catch (InvocationArgumentException e) {
-            e.printStackTrace();
-        }
-        catch (InvocationErrorException e) {
-            e.printStackTrace();
         }
         catch (ProjectNotOpenException e) {
             e.printStackTrace();
@@ -68,7 +60,6 @@ public class ObjectBench
         catch (PackageNotFoundException e) {
             e.printStackTrace();
         }
-
     }
 
     /**

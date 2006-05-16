@@ -14,7 +14,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIClient.java 4088 2006-05-04 20:36:05Z mik $
+ * @version $Id: BlueJRMIClient.java 4281 2006-05-16 16:46:42Z polle $
  */
 public class BlueJRMIClient implements BlueJPropStringSource
 {
@@ -29,7 +29,7 @@ public class BlueJRMIClient implements BlueJPropStringSource
         instance = this;
 
         try {
-            blueJ = (RBlueJ) Naming.lookup("rmi://localhost/BlueJService");
+        	blueJ = (RBlueJ) Naming.lookup(BlueJRMIServer.BLUEJ_SERVICE);
         }
         catch (MalformedURLException e) {
             e.printStackTrace();

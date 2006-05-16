@@ -15,23 +15,21 @@ import bluej.extensions.BlueJ;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIServer.java 3648 2005-10-05 16:22:34Z polle $
+ * @version $Id: BlueJRMIServer.java 4281 2006-05-16 16:46:42Z polle $
  */
 public class BlueJRMIServer
 {
-    public BlueJRMIServer(BlueJ blueJ)
+	public final static String BLUEJ_SERVICE = "//127.0.0.1/BlueJService";
+    public BlueJRMIServer(BlueJ blueJ) throws RemoteException
     {
         try {
             Registry reg = LocateRegistry.createRegistry(1099);
             blueJ.addPackageListener(ProjectManager.instance());
             RBlueJ rBlueJ = new RBlueJImpl(blueJ);
-            Naming.rebind("//127.0.0.1/BlueJService", rBlueJ);
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
+            Naming.rebind(BLUEJ_SERVICE, rBlueJ);
         }
         catch (MalformedURLException e) {
-            e.printStackTrace();
+        	e.printStackTrace();
         }
     }
 }

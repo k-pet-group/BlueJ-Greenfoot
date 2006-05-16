@@ -3,6 +3,7 @@ package rmiextension;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.rmi.RemoteException;
 
 import bluej.Config;
 import bluej.extensions.BProject;
@@ -17,7 +18,7 @@ import bluej.utility.Debug;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 4155 2006-05-09 13:00:29Z mik $
+ * @version $Id: RMIExtension.java 4281 2006-05-16 16:46:42Z polle $
  */
 public class RMIExtension extends Extension
     implements Runnable
@@ -29,8 +30,6 @@ public class RMIExtension extends Extension
      */
     public void run()
     {
-        new BlueJRMIServer(theBlueJ);
-
         waitForPkgMgrFrame();
 
         // Now we need to find out if a greenfoot project is automatically
@@ -41,8 +40,6 @@ public class RMIExtension extends Extension
         else {
             openStartupProject();
         }
-        //  theBlueJ.addCompileListener(ProjectLauncher.instance());
-
     }
 
     /**
@@ -89,6 +86,14 @@ public class RMIExtension extends Extension
         //theBlueJ.addPackageListener(ProjectLauncher.instance());
         ProjectManager.init(bluej);
 
+        try {
+			new BlueJRMIServer(theBlueJ);
+		} catch (RemoteException e) {
+			Debug.reportError("Could not launch RMI server", e);
+			//This is bad, lets exit.
+			System.exit(1);
+		}
+        
         Thread t = new Thread(this);
         t.start();
     }
