@@ -9,7 +9,7 @@ import bluej.extensions.ProjectNotOpenException;
 /**
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProject.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: RProject.java 4279 2006-05-16 11:20:51Z davmac $
  */
 public interface RProject
     extends java.rmi.Remote
@@ -57,4 +57,13 @@ public interface RProject
      */
     public abstract void save()
         throws ProjectNotOpenException, RemoteException;
+    
+    /**
+     * Open the "readme" editor for this project.
+     * @throws ProjectNotOpenException
+     * @throws RemoteException
+     */
+    public abstract void openReadmeEditor()
+        throws ProjectNotOpenException, RemoteException;
+
 }

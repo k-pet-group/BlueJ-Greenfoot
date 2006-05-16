@@ -7,10 +7,12 @@ import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ReadmeTarget;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProjectImpl.java 4088 2006-05-04 20:36:05Z mik $
+ * @version $Id: RProjectImpl.java 4279 2006-05-16 11:20:51Z davmac $
  */
 public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     implements RProject
@@ -104,5 +106,17 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         throws ProjectNotOpenException
     {
         bProject.save();
+    }
+    
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RProject#openReadmeEditor()
+     */
+    public void openReadmeEditor()
+        throws ProjectNotOpenException
+    {
+        Project thisProject = Project.getProject(bProject.getDir());
+        bluej.pkgmgr.Package defaultPackage = thisProject.getPackage("");
+        ReadmeTarget readmeTarget = defaultPackage.getReadmeTarget();
+        readmeTarget.open();
     }
 }

@@ -10,14 +10,13 @@ import rmiextension.wrappers.event.RInvocationListener;
 import bluej.extensions.MenuGenerator;
 import bluej.extensions.PreferenceGenerator;
 import bluej.extensions.event.ApplicationListener;
-import bluej.extensions.event.ExtensionEventListener;
 
 /**
  * 
  * Interface for accessing BlueJ-functionality
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJ.java 4261 2006-05-15 10:54:18Z davmac $
+ * @version $Id: RBlueJ.java 4279 2006-05-16 11:20:51Z davmac $
  */
 public interface RBlueJ
     extends java.rmi.Remote

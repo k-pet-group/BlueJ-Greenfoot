@@ -319,4 +319,20 @@ public class GProject implements InspectorManager
     {
         return projectProperties;
     }
+    
+    /**
+     * Show the readme file for this project in an editor window.
+     */
+    public void openReadme()
+    {
+        try {
+            rProject.openReadmeEditor();
+        }
+        catch (RemoteException re) {
+            re.printStackTrace();
+        }
+        catch (ProjectNotOpenException pnoe) {
+            pnoe.printStackTrace();
+        }
+    }
 }

@@ -44,12 +44,12 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4189 2006-05-11 10:56:53Z davmac $
+ * @version $Id: Project.java 4279 2006-05-16 11:20:51Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager {
     /**
-     * Collection of all open projects. the canonical name of the project
-     * directory is used as the key.
+     * Collection of all open projects. The canonical name of the project
+     * directory (as a File object) is used as the key.
      */
     private static Map projects = new HashMap();
     public static final int NEW_PACKAGE_DONE = 0;
@@ -354,30 +354,8 @@ public class Project implements DebuggerListener, InspectorManager {
     /**
      * Given a Projects key returns the Project objects describing this projects.
      */
-    public static Project getProject(Object projectKey) {
+    public static Project getProject(File projectKey) {
         return (Project) projects.get(projectKey);
-    }
-
-    /**
-     * workaround method to get a project from the project list.
-     * Added so that if only one project is open you could call this
-     * to access that project.  This was added to allow an inspector window
-     * created from within the debugger to access custom inspectors for a
-     * project.
-     * @return an open project (may return null if no projects open)
-     *
-     */
-    public static Project getProject() {
-        if (projects.size() == 1) {
-            Collection projectColl = projects.values();
-            Iterator it = projectColl.iterator();
-
-            if (it.hasNext()) {
-                return (Project) it.next();
-            }
-        }
-
-        return null;
     }
 
     /**

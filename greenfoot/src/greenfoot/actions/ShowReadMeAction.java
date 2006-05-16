@@ -1,14 +1,16 @@
 package greenfoot.actions;
 
+import greenfoot.core.GreenfootMain;
+
 import java.awt.event.ActionEvent;
+
 import javax.swing.AbstractAction;
-import javax.swing.JOptionPane;
 
 /**
  * Action that compiles all classes that needs compilation.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ShowReadMeAction.java 4154 2006-05-09 12:59:31Z mik $
+ * @version $Id: ShowReadMeAction.java 4279 2006-05-16 11:20:51Z davmac $
  */
 public class ShowReadMeAction extends AbstractAction
 {
@@ -35,6 +37,6 @@ public class ShowReadMeAction extends AbstractAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        JOptionPane.showMessageDialog(null, "Not Yet Implemented - sorry.");
+        GreenfootMain.getInstance().getProject().openReadme();
     }
 }
