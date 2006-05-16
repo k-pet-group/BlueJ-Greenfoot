@@ -309,6 +309,7 @@
             <arg value="-greenfoot=true"></arg>            
             <arg value="-useclassesdir=true"></arg>
         	<arg value="-greenfootclassesdir=${build}"/>
+        	<arg value="-bluej.compiler.showunchecked=false"/>        	
         </java>
     </target>
     
