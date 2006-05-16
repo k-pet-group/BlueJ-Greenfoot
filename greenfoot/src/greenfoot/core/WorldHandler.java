@@ -514,7 +514,8 @@ public class WorldHandler
         return worldTitle;
     }
     
-    public World getWorld() {
+    public World getWorld()
+    {
         return world;
     }
 
@@ -553,6 +554,9 @@ public class WorldHandler
         }
     }
 
+    /* (non-Javadoc)
+     * @see greenfoot.gui.DropTarget#drag(java.lang.Object, java.awt.Point)
+     */
     public boolean drag(Object o, Point p)
     {
         if (o instanceof Actor && world != null) {
@@ -565,14 +569,17 @@ public class WorldHandler
                 }
                 int oldX = actor.getX();
                 int oldY = actor.getY();
-                ActorVisitor.setLocationInPixels(actor, x, y);
-                if (oldX != actor.getX() || oldY != actor.getY()) {
-                    repaint();
-                }      
+                if (oldX != x || oldY != y) {
+                    if (x < world.getWidth() && y < world.getHeight() && x >= 0 && y >= 0) {
+                        Simulation.getInstance().dragObject(actor, x, y);
+                    }
+                    else {
+                        world.removeObject(actor);
+                        return false;
+                    }
+                }
             }
             catch (IndexOutOfBoundsException e) {
-                world.removeObject(actor);
-                return false;
             }
             return true;
         }

@@ -48,7 +48,7 @@ import javax.swing.SwingUtilities;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 4273 2006-05-15 17:28:42Z polle $
+ * @version $Id: DragGlassPane.java 4280 2006-05-16 15:58:39Z davmac $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -290,11 +290,10 @@ public class DragGlassPane extends JComponent
             return;
         }
         storePosition(e);
-        paintNoDropImage = true;
         boolean doRepaint = true;
         Component destination = getComponentBeneath(e);
         DropTarget dropTarget = null;
-        if (destination != null && destination instanceof DropTarget) {
+        if (destination instanceof DropTarget) {
             dropTarget = (DropTarget) destination;
 
             Point tp = e.getPoint().getLocation(); // copy the point
@@ -311,7 +310,13 @@ public class DragGlassPane extends JComponent
                     doRepaint = false;
                 }
             }
-        } 
+            else {
+                paintNoDropImage = true;
+            }
+        }
+        else {
+            paintNoDropImage = true;
+        }
 
         if (lastDropTarget != null && dropTarget != lastDropTarget) {
             lastDropTarget.dragEnded(data);

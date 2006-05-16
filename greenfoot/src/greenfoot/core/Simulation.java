@@ -1,6 +1,7 @@
 package greenfoot.core;
 
 import greenfoot.Actor;
+import greenfoot.ActorVisitor;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
@@ -41,7 +42,13 @@ public class Simulation extends Thread implements WorldListener
     
     private long lastDelayTime;
     private int delay;      // the speed translated into delay (ms) per step
+    private boolean sleeping; // true when we are sleeping for delay or pause purposes
 
+    /** for synchronized object dragging */
+    private Actor draggedObject;
+    private int dragXpos;
+    private int dragYpos;
+    
     /**
      * Create new simulation. Leaves the simulation in paused state
      * 
@@ -69,6 +76,7 @@ public class Simulation extends Thread implements WorldListener
             instance.setPriority(Thread.MIN_PRIORITY);
 //            instance.setSpeed(50);
             instance.paused = true;
+            instance.sleeping = true;
             
             worldHandler.addWorldListener(instance);
             
@@ -105,23 +113,30 @@ public class Simulation extends Thread implements WorldListener
         }
     }
 
+    /**
+     * Block if the simulation is paused. This will block until the simulation is resumed.
+     */
     private synchronized void maybePause()
     {
+        checkScheduledDrag();
+        
         if (paused && enabled) {
             fireSimulationEvent(stoppedEvent);
             System.gc();
         }
         while (paused) {
+            sleeping = true;
             try {
                 this.wait();
             }
-            catch (InterruptedException e1) {}
+            catch (InterruptedException e1) { }
             if (!paused) {
                 System.gc();
                 fireSimulationEvent(startedEvent);
             }
 
         }
+        sleeping = false;
     }
 
     /**
@@ -130,12 +145,19 @@ public class Simulation extends Thread implements WorldListener
      */
     public void runOnce()
     {
+        // Get the world lock, and check that the world hasn't been removed from
+        // underneath us
+        Object worldLock = worldHandler.getWorldLock();
+        if (worldLock == null) {
+            return;
+        }
+        
         try {
             List<? extends Actor> objects = null;
 
             // We need to sync, so that the collection is not changed while
             // copying it ( to avoid ConcurrentModificationException)
-            synchronized (worldHandler.getWorldLock()) {
+            synchronized (worldLock) {
                 // We need to copy it, to avoid ConcurrentModificationException
                 objects = new ArrayList<Actor>(worldHandler.getActors());
 
@@ -150,7 +172,35 @@ public class Simulation extends Thread implements WorldListener
             paused = true;
             t.printStackTrace();
         }
+        
+        // If an object is being dragged, update its location
+        synchronized (this) {
+            synchronized (worldLock) {
+                if (draggedObject != null && draggedObject.getWorld() != null) {
+                    ActorVisitor.setLocationInPixels(draggedObject, dragXpos, dragYpos);
+                    draggedObject = null;
+                }
+            }
+        }
+        
         worldHandler.repaint();
+    }
+    
+    /**
+     * Check if there is a scheduled object drag, and perform it if there is.
+     * Should be called from a synchronized context on the simulation thread. 
+     */
+    private void checkScheduledDrag()
+    {
+        Object worldLock = worldHandler.getWorldLock();
+        if (worldLock != null) {
+            synchronized (worldLock) {
+                if (draggedObject != null && draggedObject.getWorld() != null) {
+                    ActorVisitor.setLocationInPixels(draggedObject, dragXpos, dragYpos);
+                    draggedObject = null;
+                }
+            }
+        }
     }
 
     /**
@@ -261,7 +311,13 @@ public class Simulation extends Thread implements WorldListener
             long timeElapsed = System.currentTimeMillis() - this.lastDelayTime;
             long actualDelay = delay - timeElapsed;
             if (actualDelay > 0) {
+                synchronized (this) {
+                    sleeping = true;
+                }
                 Thread.sleep(delay - timeElapsed);
+                synchronized (this) {
+                    sleeping = false;
+                }
             } else {
                // Thread.yield();
             }
@@ -290,6 +346,43 @@ public class Simulation extends Thread implements WorldListener
     public void worldRemoved(WorldEvent e)
     {
         setEnabled(false);
+    }
+    
+    // ----------- End of WorldListener interface -------------
+    
+    /**
+     * Drag an object in the world, in a synchronized manner with the rest
+     * of the simulation. This will return immediately even if the actual
+     * actor movement is slightly delayed.
+     */
+    public void dragObject(Actor object, int xpos, int ypos)
+    {
+        synchronized (this) {
+            if (sleeping && ! hasSleepTimeExpired()) {
+                ActorVisitor.setLocationInPixels(object, xpos, ypos);
+                worldHandler.repaint();
+            }
+            else {
+                // schedule a drag
+                draggedObject = object;
+                dragXpos = xpos;
+                dragYpos = ypos;
+            }
+        }
+    }
+    
+    /**
+     * Check whether the simulation is running and the delay time has expired.
+     * This is an indication that the simulation thread is being starved for
+     * CPU time.
+     */
+    private boolean hasSleepTimeExpired()
+    {
+        if (paused || ! enabled) {
+            return false;
+        }
+            
+        return (lastDelayTime + delay < System.currentTimeMillis());
     }
 
 }
