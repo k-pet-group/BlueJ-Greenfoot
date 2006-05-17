@@ -540,12 +540,12 @@ public class WorldHandler
     public boolean drag(Object o, Point p)
     {
         if (o instanceof Actor && world != null) {
-            int x = (int) p.getX();
-            int y = (int) p.getY();
+            int x = WorldVisitor.toCellFloor(getWorld(), (int) p.getX());
+            int y = WorldVisitor.toCellFloor(getWorld(), (int) p.getY());
             Actor actor = (Actor) o;
             try {
                 if (actor.getWorld() == null) {
-                    addObjectAtPixel(actor, x, y);
+                    getWorld().addObject(actor, x, y);
                 }
                 int oldX = actor.getX();
                 int oldY = actor.getY();
@@ -567,27 +567,6 @@ public class WorldHandler
             return false;
         }
     }
-
-    /**
-     * Adds the object at the specified pixel location.
-     * 
-     * @return true if location changed
-     * @throws IndexOutOfBoundsException If the coordinates are outside the
-     *             bounds of the world. Note that a wrapping world has no
-     *             bounds.
-     */
-    private synchronized boolean addObjectAtPixel(Actor actor, int x, int y)
-    {
-        int xCell = WorldVisitor.toCellFloor(world, x);
-        int yCell = WorldVisitor.toCellFloor(world, y);
-        if (actor.getWorld() != null) {
-            if (x == actor.getX() && y == actor.getY()) {
-                return false;
-            }
-        }
-        world.addObject(actor, xCell, yCell);
-        return true;
-    }
     
     /**
      * Adds the object where the mouse event occured.
@@ -603,9 +582,14 @@ public class WorldHandler
         if (source != worldCanvas) {
             e = SwingUtilities.convertMouseEvent(source, e, worldCanvas);
         }
-		int x = e.getX();
-        int y = e.getY();
-        return addObjectAtPixel(actor, x, y);
+        int x = WorldVisitor.toCellFloor(getWorld(), e.getX());
+        int y = WorldVisitor.toCellFloor(getWorld(), e.getY());
+        if(x < getWorld().getWidth() && y < getWorld().getHeight()) {
+            getWorld().addObject(actor, x, y);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void dragEnded(Object o)
@@ -631,7 +615,9 @@ public class WorldHandler
             // world at its original position
             if (!objectDropped && o instanceof Actor) {
                 Actor actor = (Actor) o;
-                addObjectAtPixel(actor, dragBeginX, dragBeginY);
+                int x = WorldVisitor.toCellFloor(getWorld(), dragBeginX);
+                int y = WorldVisitor.toCellFloor(getWorld(), dragBeginY);
+                getWorld().addObject(actor, x,y);
                 objectDropped = true;
             }
         }

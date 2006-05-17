@@ -13,7 +13,7 @@ import java.util.List;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 4283 2006-05-17 10:20:52Z davmac $
+ * @version $Id: WorldVisitor.java 4295 2006-05-17 14:08:34Z polle $
  */
 public class WorldVisitor
 {
@@ -50,7 +50,10 @@ public class WorldVisitor
     {
         world.paintDebug(g);
     }
-
+    
+    /**
+     * Convert a location in pixels into a cell location
+     */
     public static int toCellFloor(World world, int x)
     {
         return world.toCellFloor(x);

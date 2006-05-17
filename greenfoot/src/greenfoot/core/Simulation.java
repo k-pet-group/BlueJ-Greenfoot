@@ -111,7 +111,7 @@ public class Simulation extends Thread implements WorldListener
             World world = worldHandler.getWorld();
             if (world != null) {
                 WorldVisitor.startSequence(world);
-                runOneLoop();
+            runOneLoop();
             }
             delay();
         }
@@ -380,7 +380,7 @@ public class Simulation extends Thread implements WorldListener
     {
         synchronized (this) {
             if (sleeping && ! hasSleepTimeExpired()) {
-                ActorVisitor.setLocationInPixels(object, xpos, ypos);
+				object.setLocation(xpos,ypos);
                 worldHandler.repaint();
             }
             else {
