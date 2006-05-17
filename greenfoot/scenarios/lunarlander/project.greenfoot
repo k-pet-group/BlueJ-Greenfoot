@@ -1,12 +1,22 @@
 #Greenfoot properties
-#Tue May 09 21:38:05 GMT 2006
-class.Flag.image=flag.png
-simulation.speed=92
-class.Explosion.superclass=greenfoot.Actor
+#Wed May 17 13:56:32 GMT 2006
+class.Counter.superclass=greenfoot.Actor
 class.Flag.superclass=greenfoot.Actor
-class.Lander.image=rocket.png
+class.Food.superclass=greenfoot.Actor
+class.Flag.image=flag.png
+
 version=1.0
-class.Moon.superclass=greenfoot.World
+class.AntHill.superclass=greenfoot.Actor
 class.Explosion.image=explosion.png
-class.Lander.superclass=greenfoot.Actor
+class.AntWorld.superclass=greenfoot.World
+simulation.speed=92
+class.Moon.superclass=greenfoot.World
 class.Gravity.superclass=greenfoot.Actor
+
+
+class.Explosion.superclass=greenfoot.Actor
+class.Lander.image=rocket.png
+class.Pheromone.superclass=greenfoot.Actor
+class.Lander.superclass=greenfoot.Actor
+
+class.Ant.superclass=greenfoot.Actor
