@@ -77,7 +77,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4302 2006-05-17 15:08:11Z polle $
+ * @version $Id: GreenfootFrame.java 4303 2006-05-17 15:24:35Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -510,9 +510,10 @@ public class GreenfootFrame extends JFrame
         }
         addMenuItem(ShowCopyrightAction.getInstance(this), helpMenu, -1, false, -1);
         helpMenu.addSeparator();
-        addMenuItem(new ShowWebsiteAction("Greenfoot Web Site", "http://www.greenfoot.org"), helpMenu, -1, false, -1);
-        addMenuItem(new ShowWebsiteAction("Greenfoot Tutorial", "http://www.greenfoot.org/doc/tutorial.html"), helpMenu, -1, false, -1);
         addMenuItem(new ShowWebsiteAction("API Documentation", "http://www.greenfoot.org/doc/javadoc/"), helpMenu, -1, false, -1);
+        helpMenu.addSeparator();
+        addMenuItem(new ShowWebsiteAction("Greenfoot Tutorial", "http://www.greenfoot.org/doc/tutorial.html"), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction("Greenfoot Web Site", "http://www.greenfoot.org"), helpMenu, -1, false, -1);
         addMenuItem(new ShowWebsiteAction("Get more scenarios", "http://www.greenfoot.org/download/scenarios.html"), helpMenu, -1, false, -1);
         
         return menuBar;
