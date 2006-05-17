@@ -4,6 +4,13 @@ import greenfoot.Actor;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * Wombat. A Wombat moves forward until it can't do so anymore, at
+ * which point it turns left. If a wombat finds a leaf, it eats it.
+ * 
+ * @author Michael Kolling
+ * @version 1.0
+ */
 public class Wombat extends Actor
 {
     private static final int EAST = 0;
