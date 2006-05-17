@@ -32,6 +32,7 @@ import java.rmi.RemoteException;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -56,14 +57,13 @@ import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
-import javax.swing.BorderFactory;
 
 /**
  * A dialog for selecting a class image. The image can be selected from either the
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4260 2006-05-14 19:36:54Z mik $
+ * @version $Id: ImageLibFrame.java 4287 2006-05-17 11:23:41Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -234,6 +234,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 classDetailsPanel.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
         
                 classDetailsPanel.add(fixHeight(new JSeparator()));
+                classDetailsPanel.add(Box.createVerticalStrut(spacingSmall));
 
                 // new class image display 
                 JLabel classImageLabel = new JLabel("New class image:");
@@ -246,6 +247,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 else {
                     icon = getClassIcon(gclass, defaultIcon);
                 }
+                currentImagePanel.add(Box.createHorizontalStrut(spacingSmall));
                 imageLabel = new JLabel(icon) {
                     // We don't want changing the image to re-layout the
                     // whole frame
@@ -296,7 +298,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 catch (RemoteException re) { re.printStackTrace(); }
                 
                 jsp.setBorder(Config.normalBorder);
-                jsp.setViewportBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+                jsp.setViewportBorder(BorderFactory.createLineBorder(projImageList.getBackground(), 4));
                 jsp.setAlignmentX(0.0f);
                 
                 piPanel.add(jsp);
@@ -321,7 +323,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 JScrollPane jsp = new JScrollPane(imageCategorySelector);
                 
                 jsp.setBorder(Config.normalBorder);
-                jsp.setViewportBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+                jsp.setViewportBorder(BorderFactory.createLineBorder(imageCategorySelector.getBackground(), 4));
                 jsp.setAlignmentX(0.0f);
                 
                 piPanel.add(jsp);
@@ -344,7 +346,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 jsp.getViewport().setView(greenfootImageList);
                 
                 jsp.setBorder(Config.normalBorder);
-                jsp.setViewportBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+                jsp.setViewportBorder(BorderFactory.createLineBorder(greenfootImageList.getBackground(), 4));
                 jsp.setAlignmentX(0.0f);
                 
                 piPanel.add(jsp);
