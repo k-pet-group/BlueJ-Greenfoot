@@ -3,6 +3,9 @@ import greenfoot.Actor;
 
 import java.awt.Color;
 
+/**
+ * A white world that turtles can draw on.
+ */
 public class TurtleWorld extends World
 {
     /**

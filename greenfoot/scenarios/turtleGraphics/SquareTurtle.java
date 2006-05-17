@@ -1,6 +1,9 @@
 import greenfoot.World;
 import greenfoot.Actor;
 
+/**
+ * A turtle that can draw a square
+ */
 public class SquareTurtle extends Turtle
 {
     public SquareTurtle()

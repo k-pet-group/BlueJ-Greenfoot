@@ -1,6 +1,9 @@
 import greenfoot.World;
 import greenfoot.Actor;
 
+/**
+ * A turtle that runs in circles.
+ */
 public class CircleTurtle extends Turtle
 {
     public CircleTurtle()

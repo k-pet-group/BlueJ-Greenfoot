@@ -98,10 +98,32 @@ public class Turtle extends Actor
         draw();
     }
     
+    /** 
+     * Translate a String into a Color
+     */
+    private Color decode(String colorString) {
+        if(colorString.equals("red"))
+            return Color.red;
+        else if(colorString.equals("black"))
+            return  Color.black;
+        else if(colorString.equals("blue"))
+            return Color.blue;
+        else if(colorString.equals("yellow"))
+            return  Color.yellow;
+        else if(colorString.equals("green"))
+            return Color.green;
+        else if(colorString.equals("magenta"))
+            return Color.magenta;
+        else if(colorString.equals("white"))
+            return Color.white;
+        else
+            return Color.black;
+    }
+    
     
     /**
      * We need to make sure that our own representaion of the location is the
-     * same as the World
+     * same as the World's.
      */
     public void addedToWorld(World world)
     {
@@ -130,7 +152,9 @@ public class Turtle extends Actor
         }
     }
 
-    /** Draw the pen on the back of the turtle with the correct colour */
+    /** 
+     * Draw the pen on the back of the turtle with the correct colour 
+     */
     private void drawPen()
     {
         GreenfootImage image = getImage();
@@ -143,28 +167,6 @@ public class Turtle extends Actor
         Color awtColor = decode(color);
         image.setColor(awtColor);
         image.fillOval(penX, penY, penWidth, penHeight);
-    }
-    
-    /** 
-     * Translate a String into a Color
-     */
-    private Color decode(String colorString) {
-        if(colorString.equals("red"))
-            return Color.red;
-        else if(colorString.equals("black"))
-            return  Color.black;
-        else if(colorString.equals("blue"))
-            return Color.blue;
-        else if(colorString.equals("yellow"))
-            return  Color.yellow;
-        else if(colorString.equals("green"))
-            return Color.green;
-        else if(colorString.equals("magenta"))
-            return Color.magenta;
-        else if(colorString.equals("white"))
-            return Color.white;
-        else
-            return Color.black;
     }
     
     /**
