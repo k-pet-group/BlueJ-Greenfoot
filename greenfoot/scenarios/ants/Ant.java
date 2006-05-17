@@ -6,62 +6,49 @@ import java.util.List;
 import java.util.Collection;
 import java.util.Iterator;
 
+/**
+ * An ant that collects food.
+ * 
+ * @author Michael Kolling
+ * @version 1.0
+ */
 public class Ant extends Actor
 {
-    private static long  antCount;
-    
+    /** Random number generator. */
     private static final Random randomizer = AntWorld.getRandomizer();
-    
-    // every how many steps can we place a pheromone drop
+
+    /** Every how many steps can we place a pheromone drop. */
     private static final int MAX_PH_LEVEL = 18;
 
-    // how long to we keep direction after finding pheromones:
+    /** How long to we keep direction after finding pheromones. */
     private static final int PH_TIME = 30;
-    
-    // the speed the ant moves with - in pizels per update
-    private static final int SPEED = 3; 
-     
+
+    /** the speed the ant moves with - in pizels per update. */
+    private static final int SPEED = 3;
+
     // current movement
     private int deltaX = 0;
     private int deltaY = 0;
-    
-    // location of home ant hill
-    private int homeX;
-    private int homeY;
+
+    /** Location of home ant hill */
     private AntHill homeHill;
-    
-    // indicate whether we have any food with us
+
+    /** Indicate whether we have any food with us */
     private boolean carryingFood = false;
-    
-    // how much pheromone do we have right now
+
+    /** how much pheromone do we have right now */
     private int pheromoneLevel = MAX_PH_LEVEL;
-    
-    // how well do we remember the last pheromone - larger number: more recent
+
+    /** how well do we remember the last pheromone - larger number: more recent */
     private int foundLastPheromone = 0;
-    
+
     public Ant()
     {
-        antCount++;
     }
-    
+
     public Ant(AntHill home)
     {
         homeHill = home;
-        antCount++;
-    }
-
-    /**
-     * We want to know where we were born.
-     */
-    public void addedToWorld(World world)
-    {
-        if(homeHill != null) {
-            homeX = homeHill.getX();
-            homeY = homeHill.getY();
-        } else {
-            homeX = getX();
-            homeY = getY();
-        }
     }
 
     /**
@@ -69,63 +56,67 @@ public class Ant extends Actor
      */
     public void act()
     {
-        if(haveFood()) {
+        if (haveFood()) {
             headHome();
         }
         else {
             walk();
         }
     }
-    
+
     /**
      * Walk around in search of food.
      */
     private void walk()
     {
-        if(foundLastPheromone > 0) {   // if we can still remember...
+        if (foundLastPheromone > 0) { // if we can still remember...
             foundLastPheromone--;
             headAway();
         }
-        else if(smellPheromone()) {
+        else if (smellPheromone()) {
             move();
         }
         else {
             randomWalk();
-        }        
+        }
         checkFood();
     }
-    
+
     /**
      * Walk around randomly.
      */
     private void randomWalk()
     {
-        if(randomChance(50)) {
+        if (randomChance(50)) {
             deltaX = adjustSpeed(deltaX);
             deltaY = adjustSpeed(deltaY);
         }
         move();
     }
-    
+
     /**
      * Try to walk home.
      */
     private void headHome()
     {
-        if(randomChance(2)) {
-            randomWalk();       // cannot always walk straight...
+        if(homeHill == null) {
+            //if we do not have a home, we can not go there.
+            return;
+        }
+        if (randomChance(2)) {
+            randomWalk(); // cannot always walk straight...
         }
         else {
-            int distanceX = Math.abs(getX() - homeX);
-            int distanceY = Math.abs(getY() - homeY);
+            int distanceX = Math.abs(getX() - homeHill.getX());
+            int distanceY = Math.abs(getY() - homeHill.getY());
             boolean moveX = (distanceX > 0) && (randomizer.nextInt(distanceX + distanceY) < distanceX);
             boolean moveY = (distanceY > 0) && (randomizer.nextInt(distanceX + distanceY) < distanceY);
 
-            deltaX = computeHomeDelta(moveX, getX(), homeX);
-            deltaY = computeHomeDelta(moveY, getY(), homeY);
+            deltaX = computeHomeDelta(moveX, getX(), homeHill.getX());
+            deltaY = computeHomeDelta(moveY, getY(), homeHill.getY());
             move();
-            
-            if(pheromoneLevel == MAX_PH_LEVEL) {
+
+            if (pheromoneLevel == MAX_PH_LEVEL) {
                 dropPheromone();
             }
             else {
@@ -135,35 +126,39 @@ public class Ant extends Actor
 
         checkHome();
     }
-    
+
     /**
      * Try to walk away from home.
      */
     private void headAway()
     {
-        if(randomChance(2)) {
-            randomWalk();       // cannot always walk straight...
+        if(homeHill == null) {
+            //if we do not have a home, we can not head away from it.
+            return;
+        }
+        if (randomChance(2)) {
+            randomWalk(); // cannot always walk straight...
         }
         else {
-            int distanceX = Math.abs(getX() - homeX);
-            int distanceY = Math.abs(getY() - homeY);
+            int distanceX = Math.abs(getX() - homeHill.getX());
+            int distanceY = Math.abs(getY() - homeHill.getY());
             boolean moveX = (distanceX > 0) && (randomizer.nextInt(distanceX + distanceY) < distanceX);
             boolean moveY = (distanceY > 0) && (randomizer.nextInt(distanceX + distanceY) < distanceY);
-    
-            deltaX = computeHomeDelta(moveX, getX(), homeX) * -1;
-            deltaY = computeHomeDelta(moveY, getY(), homeY) * -1;
+
+            deltaX = computeHomeDelta(moveX, getX(), homeHill.getX()) * -1;
+            deltaY = computeHomeDelta(moveY, getY(), homeHill.getY()) * -1;
             move();
         }
     }
-    
+
     /**
      * Compute and return the direction (delta) that we should steer in when
      * we're on our way home.
      */
     private int computeHomeDelta(boolean move, int current, int home)
     {
-        if(move) {
-            if(current > home)
+        if (move) {
+            if (current > home)
                 return -SPEED;
             else
                 return SPEED;
@@ -177,28 +172,29 @@ public class Ant extends Actor
      */
     private void checkHome()
     {
-        if(homeHill != null && intersects(homeHill)) {
+        if (homeHill != null && intersects(homeHill)) {
             dropFood();
-            // move one step to where we came from so that we set out back in the 
+            // move one step to where we came from so that we set out back in
+            // the
             // right direction
             deltaX = -deltaX;
             deltaY = -deltaY;
             move();
-            move();    
+            move();
         }
     }
-    
+
     /**
      * Is there any food here where we are? If so, take some!.
      */
     public void checkFood()
-    {  
+    {
         Food food = (Food) getOneIntersectingObject(Food.class);
-        if(food != null) {
+        if (food != null) {
             takeFood(food);
         }
     }
-    
+
     /**
      * Tell whether we are carrying food of not.
      */
@@ -208,19 +204,19 @@ public class Ant extends Actor
     }
 
     /**
-     * Check whether we can smell pheromones. If we can, turn towards it and 
+     * Check whether we can smell pheromones. If we can, turn towards it and
      * return true. Otherwise just return false.
      */
     public boolean smellPheromone()
     {
         Actor ph = getOneIntersectingObject(Pheromone.class);
-        if(ph != null) {
+        if (ph != null) {
             deltaX = capSpeed(ph.getX() - getX());
             deltaY = capSpeed(ph.getY() - getY());
-            if(deltaX == 0 && deltaY == 0) {
+            if (deltaX == 0 && deltaY == 0) {
                 foundLastPheromone = PH_TIME;
-            } 
-            return true;            
+            }
+            return true;
         }
         return false;
     }
@@ -231,11 +227,11 @@ public class Ant extends Actor
     private void dropPheromone()
     {
         // otherwise drop a new one
-        Pheromone ph = new Pheromone();       
+        Pheromone ph = new Pheromone();
         getWorld().addObject(ph, getX(), getY());
         pheromoneLevel = 0;
     }
-    
+
     /**
      * Drop a spot of pheromones at our current location.
      */
@@ -245,40 +241,40 @@ public class Ant extends Actor
         food.takeSome();
         setImage("ant-with-food.gif");
     }
-    
+
     /**
      * Drop our food in the ant hill.
      */
     private void dropFood()
     {
-        carryingFood = false;     
+        carryingFood = false;
         homeHill.countFood();
         setImage("ant.gif");
     }
-    
+
     /**
-     * Adjust the speed randomly (start moving, continue or slow down).
-     * The speed returned is in the range [-SPEED .. SPEED].
+     * Adjust the speed randomly (start moving, continue or slow down). The
+     * speed returned is in the range [-SPEED .. SPEED].
      */
     private int adjustSpeed(int speed)
     {
-        speed = speed + randomizer.nextInt(2*SPEED -1) - SPEED+1;
+        speed = speed + randomizer.nextInt(2 * SPEED - 1) - SPEED + 1;
         return capSpeed(speed);
     }
-    
+
     /**
      * The speed returned is in the range [-SPEED .. SPEED].
      */
     private int capSpeed(int speed)
     {
-        if(speed < -SPEED)
+        if (speed < -SPEED)
             return -SPEED;
-        else if(speed > SPEED)
+        else if (speed > SPEED)
             return SPEED;
         else
             return speed;
     }
-    
+
     /**
      * Move forward according to the current delta values.
      */
@@ -286,15 +282,16 @@ public class Ant extends Actor
     {
         try {
             setLocation(getX() + deltaX, getY() + deltaY);
-        } catch (IndexOutOfBoundsException e) {
-            //We don't care - just leave it
         }
-        setRotation((int) (180*Math.atan2(deltaY,deltaX)/Math.PI));
+        catch (IndexOutOfBoundsException e) {
+            // We don't care - just leave it
+        }
+        setRotation((int) (180 * Math.atan2(deltaY, deltaX) / Math.PI));
     }
-    
+
     /**
-     * Return 'true' in exactly 'percent' number of calls.
-     * That is: a call randomChance(25) has a 25% chance to return true.
+     * Return 'true' in exactly 'percent' number of calls. That is: a call
+     * randomChance(25) has a 25% chance to return true.
      */
     private boolean randomChance(int percent)
     {

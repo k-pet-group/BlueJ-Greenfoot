@@ -5,20 +5,24 @@ import java.util.Random;
   
 /**
  * A hill full of ants.
+ * 
+ * @author Michael Kolling
+ * @version 1.0
  */
 public class AntHill extends Actor
 {
+    /** Random number genrator */
     private final static Random randomizer = AntWorld.getRandomizer();
-    private final static int DEFAULT_ANTS = 40;
     
-    // number of ants created so far
+    /** Number of ants created so far. */
     private int ants = 0;
-    private int maxAnts;
+    /** Maximum number of ants the hill can produce. */
+    private int maxAnts = 40;
+    /** Counter to show how much food have been collected so far. */
     private Counter foodCounter;
     
     public AntHill()
     {
-        maxAnts = DEFAULT_ANTS;
     }
 
     public AntHill(int numberOfAnts)
@@ -53,5 +57,4 @@ public class AntHill extends Actor
         }        
         foodCounter.increment();
     }
-
 }

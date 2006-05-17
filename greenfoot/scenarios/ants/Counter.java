@@ -7,13 +7,16 @@ import java.awt.image.BufferedImage;
 
 /**
  * Counter that displays a number.
+ * 
+ * @author Michael Kolling
+ * @version 1.0
  */
 public class Counter extends Actor
 {
     private int value = 0;
     private String text;
     private int stringLength;
-    
+
     public Counter()
     {
         text = "";
@@ -25,21 +28,21 @@ public class Counter extends Actor
     {
         text = prefix;
         stringLength = (text.length() + 2) * 10;
-        
+
         setImage(new GreenfootImage(stringLength, 16));
         updateImage();
     }
-    
+
     public void increment()
     {
         value++;
         updateImage();
     }
-    
+
     /**
      * Make the image
      */
-    private void updateImage() 
+    private void updateImage()
     {
         GreenfootImage image = getImage();
         image.clear();
