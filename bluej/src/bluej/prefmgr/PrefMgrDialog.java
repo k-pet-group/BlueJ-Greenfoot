@@ -22,11 +22,14 @@ import bluej.extmgr.ExtensionPrefManager;
  *
  * @author  Andrew Patterson
  * @author  Michael Kolling
- * @version $Id: PrefMgrDialog.java 4080 2006-05-04 10:49:55Z polle $
+ * @version $Id: PrefMgrDialog.java 4284 2006-05-17 10:25:19Z polle $
  */
 public class PrefMgrDialog extends JFrame
 {
     private static PrefMgrDialog dialog = null;
+    
+    /** Indicates whether the dialog has been prepared for display. */
+    private boolean prepared = false;
 
     /**
      * Show the preferences dialog.  The first argument should
@@ -37,7 +40,7 @@ public class PrefMgrDialog extends JFrame
      * @param comp the parent component for the dialog.
      */
     public static void showDialog() {
-        prepareDialog();
+        dialog.prepareDialog();
         dialog.setVisible(true);
     }
     
@@ -51,7 +54,7 @@ public class PrefMgrDialog extends JFrame
      * @param comp the parent component for the dialog.
      */
     public static void showDialog(int paneNumber) {
-        prepareDialog();
+        dialog.prepareDialog();
         dialog.selectTab(paneNumber);
         dialog.setVisible(true);
     }
@@ -59,9 +62,13 @@ public class PrefMgrDialog extends JFrame
     /**
      * Prepare this dialog for display.
      */
-    private static void prepareDialog() {
-        if (dialog == null) {
-            dialog = new PrefMgrDialog();
+    private synchronized void prepareDialog() {
+        if (!prepared) {
+            if (dialog == null) {
+                dialog = new PrefMgrDialog();
+            }
+            makeDialog();
+            prepared = true;
         }
         dialog.startEditing();
     }
@@ -96,10 +103,6 @@ public class PrefMgrDialog extends JFrame
     private PrefMgrDialog()
     {
         createPrefPanes();
-       
-        if(! Config.isGreenfoot()) {
-            makeDialog();
-        }
     }
 
     /**
