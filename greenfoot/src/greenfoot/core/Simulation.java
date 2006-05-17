@@ -3,6 +3,7 @@ package greenfoot.core;
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.World;
+import greenfoot.WorldVisitor;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
@@ -106,8 +107,12 @@ public class Simulation extends Thread implements WorldListener
         System.gc();
         while (true) {
             maybePause();
-            worldHandler.startSequence();
-            runOneLoop();
+            
+            World world = worldHandler.getWorld();
+            if (world != null) {
+                WorldVisitor.startSequence(world);
+                runOneLoop();
+            }
             delay();
         }
     }
@@ -125,7 +130,6 @@ public class Simulation extends Thread implements WorldListener
         }
         while (paused && ! runOnce) {
             sleeping = true;
-            runOnce = false;
             try {
                 this.wait();
             }
@@ -136,6 +140,8 @@ public class Simulation extends Thread implements WorldListener
             }
 
         }
+        
+        runOnce = false;
         sleeping = false;
     }
 
