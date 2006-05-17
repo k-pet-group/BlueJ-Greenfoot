@@ -25,12 +25,20 @@ import javax.swing.event.ListSelectionListener;
  * the contents of that category.
  * 
  * @author davmac
- * @version $Id: ImageCategorySelector.java 4260 2006-05-14 19:36:54Z mik $
+ * @version $Id: ImageCategorySelector.java 4286 2006-05-17 11:22:04Z davmac $
  */
 public class ImageCategorySelector extends JList
     implements ListSelectionListener
 {
     private ImageLibList imageLibList;
+    
+    /**
+     * The expected number of categories. Our preferred scrollport
+     * size is set to be large enough to show this many categories.
+     */
+    private static int NUMBER_OF_CATEGORIES = 10;
+    
+    private int preferredHeight;
     
     /**
      * Construct an ImageCategorySelector to show categories from the
@@ -63,6 +71,13 @@ public class ImageCategorySelector extends JList
 
         for (int i = 0; i < imageFiles.length; i++) {
             listModel.addElement(imageFiles[i]);
+            if (i == (NUMBER_OF_CATEGORIES - 1)) {
+                preferredHeight = getPreferredSize().height;
+            }
+        }
+        
+        if (preferredHeight == 0) {
+            preferredHeight = getPreferredSize().height;
         }
     }
 
@@ -177,11 +192,14 @@ public class ImageCategorySelector extends JList
     /* (non-Javadoc)
      * @see javax.swing.Scrollable#getPreferredScrollableViewportSize()
      */
-//    public Dimension getPreferredScrollableViewportSize()
-//    {
-//        // Limit the preferred viewport width to the preferred width
-//        Dimension d = super.getPreferredScrollableViewportSize();
-//        d.width = Math.min(d.width, getPreferredSize().width);
-//        return d;
-//    }
+    public Dimension getPreferredScrollableViewportSize()
+    {
+        // Limit the preferred viewport width to the preferred width
+        Dimension d = super.getPreferredScrollableViewportSize();
+        Dimension preferredSize = getPreferredSize();
+        
+        d.height = Math.max(d.height, preferredHeight);
+        d.width = Math.min(d.width, preferredSize.width);
+        return d;
+    }
 }
