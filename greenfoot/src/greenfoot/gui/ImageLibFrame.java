@@ -63,12 +63,13 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4287 2006-05-17 11:23:41Z davmac $
+ * @version $Id: ImageLibFrame.java 4288 2006-05-17 12:34:45Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
     /** label displaying the currently selected image */
     private JLabel imageLabel;
+    private JLabel imageTextLabel;
     private GClass gclass;
     private Icon defaultIcon;
     
@@ -143,133 +144,10 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         int spacingLarge = BlueJTheme.componentSpacingLarge;
         int spacingSmall = BlueJTheme.componentSpacingSmall;
         
-        okAction = new AbstractAction("Ok") {
-            public void actionPerformed(ActionEvent e)
-            {
-                result = OK;
-                if (showingGeneratedImage) {
-                    try {
-                        selectedImageFile = writeGeneratedImage();
-                        if (selectedImageFile == null) {
-                            // cancelled by user.
-                            return;
-                        }
-                    }
-                    catch (IOException ioe) {
-                        // TODO: report with dialog
-                        ioe.printStackTrace();
-                    }
-                }
-                setVisible(false);
-                dispose();
-            }
-        };
+        okAction = getOkAction();
         
-        {
-            JPanel classDetailsPanel = new JPanel();
-            classDetailsPanel.setLayout(new BoxLayout(classDetailsPanel, BoxLayout.Y_AXIS));
-            
-            // Show current image
-            {
-                JPanel currentImagePanel = new JPanel();
-                currentImagePanel.setLayout(new BoxLayout(currentImagePanel, BoxLayout.X_AXIS));
-                
-                if (includeClassNameField) {
-                    Box b = new Box(BoxLayout.X_AXIS);
-                    JLabel classNameLabel = new JLabel("New class name:");
-                    b.add(classNameLabel);
-                    
-                    // "ok" button should be disabled until class name entered
-                    okAction.setEnabled(false);
-                    
-                    final JTextField classNameField = new JTextField(12);
-                    classNameField.getDocument().addDocumentListener(new DocumentListener() {
-                        private void change()
-                        {
-                            int length = classNameField.getDocument().getLength();
-                            okAction.setEnabled(length != 0);
-                            try {
-                                className = classNameField.getDocument().getText(0, length);
-                            }
-                            catch (BadLocationException ble) {}
-                        }
-                        
-                        public void changedUpdate(DocumentEvent e)
-                        {
-                            // Nothing to do
-                        }
-                        
-                        public void insertUpdate(DocumentEvent e)
-                        {
-                            change();
-                        }
-                        
-                        public void removeUpdate(DocumentEvent e)
-                        {
-                            change();
-                        }
-                    });
-                    
-                    b.add(Box.createHorizontalStrut(spacingLarge));
-                    b.add(fixHeight(classNameField));
-                    b.setAlignmentX(0.0f);
-                    
-                    classDetailsPanel.add(b);
-                    classDetailsPanel.add(Box.createVerticalStrut(spacingLarge));
-                }
-                
-                // help label
-                JLabel helpLabel = new JLabel();
-                if (showingGeneratedImage) {
-                    helpLabel.setText("Click Ok to accept the auto-generated image,"
-                            + " or select an image from the list below.");
-                }
-                else {
-                    helpLabel.setText("Select an image for the class from the list below.");
-                }
-                Font smallFont = helpLabel.getFont().deriveFont(Font.ITALIC, 11.0f);
-                helpLabel.setFont(smallFont);
-                classDetailsPanel.add(fixHeight(helpLabel));
-
-                classDetailsPanel.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
-        
-                classDetailsPanel.add(fixHeight(new JSeparator()));
-                classDetailsPanel.add(Box.createVerticalStrut(spacingSmall));
-
-                // new class image display 
-                JLabel classImageLabel = new JLabel("New class image:");
-                currentImagePanel.add(classImageLabel);
-                
-                Icon icon;
-                if (showingGeneratedImage) {
-                    icon = defaultIcon;
-                }
-                else {
-                    icon = getClassIcon(gclass, defaultIcon);
-                }
-                currentImagePanel.add(Box.createHorizontalStrut(spacingSmall));
-                imageLabel = new JLabel(icon) {
-                    // We don't want changing the image to re-layout the
-                    // whole frame
-                    public boolean isValidateRoot()
-                    {
-                        return true;
-                    }
-                };
-                if (showingGeneratedImage) {
-                    imageLabel.setText("(auto-generated)");
-                }
-                currentImagePanel.add(imageLabel);
-                currentImagePanel.setAlignmentX(0.0f);
-                
-                classDetailsPanel.add(fixHeight(currentImagePanel));
-            }
-            
-            classDetailsPanel.setAlignmentX(0.0f);
-            contentPane.add(fixHeight(classDetailsPanel));
-        }
-        
-        contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
+        // Class details - name, current icon
+        contentPane.add(buildClassDetailsPanel(includeClassNameField));
         
         // Image selection panels - project and greenfoot image library
         {
@@ -417,6 +295,130 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         setVisible(true);
     }
     
+    /**
+     * Build the class details panel.
+     * 
+     * @param includeClassNameField  Whether to include a field for
+     *                              specifying the class name.
+     */
+    private JPanel buildClassDetailsPanel(boolean includeClassNameField)
+    {
+        JPanel classDetailsPanel = new JPanel();
+        classDetailsPanel.setLayout(new BoxLayout(classDetailsPanel, BoxLayout.Y_AXIS));
+        
+        int spacingLarge = BlueJTheme.componentSpacingLarge;
+        int spacingSmall = BlueJTheme.componentSpacingSmall;
+        
+        // Show current image
+        {
+            JPanel currentImagePanel = new JPanel();
+            currentImagePanel.setLayout(new BoxLayout(currentImagePanel, BoxLayout.X_AXIS));
+            
+            if (includeClassNameField) {
+                Box b = new Box(BoxLayout.X_AXIS);
+                JLabel classNameLabel = new JLabel("New class name:");
+                b.add(classNameLabel);
+                
+                // "ok" button should be disabled until class name entered
+                okAction.setEnabled(false);
+                
+                final JTextField classNameField = new JTextField(12);
+                classNameField.getDocument().addDocumentListener(new DocumentListener() {
+                    private void change()
+                    {
+                        int length = classNameField.getDocument().getLength();
+                        okAction.setEnabled(length != 0);
+                        try {
+                            className = classNameField.getDocument().getText(0, length);
+                        }
+                        catch (BadLocationException ble) {}
+                    }
+                    
+                    public void changedUpdate(DocumentEvent e)
+                    {
+                        // Nothing to do
+                    }
+                    
+                    public void insertUpdate(DocumentEvent e)
+                    {
+                        change();
+                    }
+                    
+                    public void removeUpdate(DocumentEvent e)
+                    {
+                        change();
+                    }
+                });
+                
+                b.add(Box.createHorizontalStrut(spacingLarge));
+                b.add(fixHeight(classNameField));
+                b.setAlignmentX(0.0f);
+                
+                classDetailsPanel.add(b);
+                classDetailsPanel.add(Box.createVerticalStrut(spacingLarge));
+            }
+            
+            // help label
+            JLabel helpLabel = new JLabel();
+            if (showingGeneratedImage) {
+                helpLabel.setText("Click Ok to accept the auto-generated image,"
+                        + " or select an image from the list below.");
+            }
+            else {
+                helpLabel.setText("Select an image for the class from the list below.");
+            }
+            Font smallFont = helpLabel.getFont().deriveFont(Font.ITALIC, 11.0f);
+            helpLabel.setFont(smallFont);
+            classDetailsPanel.add(fixHeight(helpLabel));
+            
+            classDetailsPanel.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
+            
+            classDetailsPanel.add(fixHeight(new JSeparator()));
+            classDetailsPanel.add(Box.createVerticalStrut(spacingSmall));
+            
+            // new class image display 
+            JLabel classImageLabel = new JLabel("New class image:");
+            currentImagePanel.add(classImageLabel);
+            
+            Icon icon;
+            if (showingGeneratedImage) {
+                icon = defaultIcon;
+            }
+            else {
+                icon = getClassIcon(gclass, defaultIcon);
+            }
+            currentImagePanel.add(Box.createHorizontalStrut(spacingSmall));
+            imageLabel = new JLabel(icon) {
+                // We don't want changing the image to re-layout the
+                // whole frame
+                public boolean isValidateRoot()
+                {
+                    return true;
+                }
+            };
+            currentImagePanel.add(imageLabel);
+            currentImagePanel.add(Box.createHorizontalStrut(spacingSmall));
+            imageTextLabel = new JLabel() {
+                // We don't want changing the text to re-layout the
+                // whole frame
+                public boolean isValidateRoot()
+                {
+                    return true;
+                }
+            };
+            currentImagePanel.add(imageTextLabel);
+            if (showingGeneratedImage) {
+                imageTextLabel.setText("(auto-generated)");
+            }
+            currentImagePanel.setAlignmentX(0.0f);
+            
+            classDetailsPanel.add(fixHeight(currentImagePanel));
+        }
+        
+        classDetailsPanel.setAlignmentX(0.0f);
+        return classDetailsPanel;
+    }
+    
     /*
      * A new image was selected in one of the ImageLibLists
      */
@@ -424,7 +426,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
         Object source = lse.getSource();
         if (! lse.getValueIsAdjusting() && source instanceof ImageLibList) {
-            imageLabel.setText("");
+            imageTextLabel.setText("");
             ImageLibList sourceList = (ImageLibList) source;
             ImageLibList.ImageListEntry ile = sourceList.getSelectedEntry();
             
@@ -659,4 +661,31 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         return f;
     }
 
+    /**
+     * Get the action for the "ok" button.
+     */
+    private AbstractAction getOkAction()
+    {
+        return new AbstractAction("Ok") {
+            public void actionPerformed(ActionEvent e)
+            {
+                result = OK;
+                if (showingGeneratedImage) {
+                    try {
+                        selectedImageFile = writeGeneratedImage();
+                        if (selectedImageFile == null) {
+                            // cancelled by user.
+                            return;
+                        }
+                    }
+                    catch (IOException ioe) {
+                        // TODO: report with dialog
+                        ioe.printStackTrace();
+                    }
+                }
+                setVisible(false);
+                dispose();
+            }
+        };
+    }
 }
