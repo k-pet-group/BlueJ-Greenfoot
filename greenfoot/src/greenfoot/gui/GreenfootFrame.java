@@ -77,7 +77,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4296 2006-05-17 14:11:09Z polle $
+ * @version $Id: GreenfootFrame.java 4302 2006-05-17 15:08:11Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -348,8 +348,8 @@ public class GreenfootFrame extends JFrame
 
         
         // arrange the major components in the content pane
-        
-        JPanel contentPane = (JPanel)getContentPane();
+        JPanel contentPane = new JPanel();
+        setContentPane(contentPane);
         contentPane.setLayout(new BorderLayout(12, 12));
         contentPane.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
