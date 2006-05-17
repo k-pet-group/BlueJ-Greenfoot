@@ -30,7 +30,6 @@ import java.awt.event.MouseListener;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -346,26 +345,7 @@ public class WorldHandler
     {
         worldCanvas.repaint();
     }
-
-    /**
-     * Returns a list of all objects.
-     * 
-     * Access to the list should be synchronized using the word lock
-     * (see getWorldLock).
-     */
-    public List<Actor> getActors()
-    {
-        return (List<Actor>) world.getObjects(null);
-    }
     
-    /**
-     * Get the world lock object. The world lock controls access to the
-     * world, including the list of actors in the world.
-     */
-    public Object getWorldLock() {
-        return world;
-    }
-
     /*
      * (non-Javadoc)
      * 

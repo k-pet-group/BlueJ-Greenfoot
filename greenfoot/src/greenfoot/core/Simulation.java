@@ -2,12 +2,12 @@ package greenfoot.core;
 
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
+import greenfoot.World;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,6 +27,9 @@ public class Simulation extends Thread implements WorldListener
     
     /** Whether the simulation is enabled (world installed) */
     private boolean enabled;
+    
+    /** Whether to run one loop when paused */
+    private boolean runOnce;
 
     private EventListenerList listenerList = new EventListenerList();
 
@@ -93,14 +96,10 @@ public class Simulation extends Thread implements WorldListener
         return instance;
     }
 
-    public WorldHandler getWorldHandler()
-    {
-        return worldHandler;
-    }
-
+    // The following methods should run only on the simulation thread itself!
+    
     /**
      * Runs the simulation from the current state.
-     * 
      */
     public void run()
     {
@@ -108,7 +107,7 @@ public class Simulation extends Thread implements WorldListener
         while (true) {
             maybePause();
             worldHandler.startSequence();
-            runOnce();
+            runOneLoop();
             delay();
         }
     }
@@ -124,8 +123,9 @@ public class Simulation extends Thread implements WorldListener
             fireSimulationEvent(stoppedEvent);
             System.gc();
         }
-        while (paused) {
+        while (paused && ! runOnce) {
             sleeping = true;
+            runOnce = false;
             try {
                 this.wait();
             }
@@ -143,12 +143,10 @@ public class Simulation extends Thread implements WorldListener
      * Performs one step in the simulation. Calls act() on all actors.
      * 
      */
-    public void runOnce()
+    private void runOneLoop()
     {
-        // Get the world lock, and check that the world hasn't been removed from
-        // underneath us
-        Object worldLock = worldHandler.getWorldLock();
-        if (worldLock == null) {
+        World world = worldHandler.getWorld();
+        if (world == null) {
             return;
         }
         
@@ -157,13 +155,24 @@ public class Simulation extends Thread implements WorldListener
 
             // We need to sync, so that the collection is not changed while
             // copying it ( to avoid ConcurrentModificationException)
-            synchronized (worldLock) {
-                // We need to copy it, to avoid ConcurrentModificationException
-                objects = new ArrayList<Actor>(worldHandler.getActors());
+            synchronized (world) {
+                // XX We need to copy it, to avoid ConcurrentModificationException
+                // No we don't. What we get back is a copy anyway...
+                objects = world.getObjects(null);
 
                 for (Iterator i = objects.iterator(); i.hasNext();) {
                     Actor actor = (Actor) i.next();
-                    actor.act();
+                    if (actor.getWorld() != null) {
+                        actor.act();
+                    }
+                }
+                
+                // If an object is being dragged, update its location
+                synchronized (this) {
+                        if (draggedObject != null && draggedObject.getWorld() != null) {
+                            ActorVisitor.setLocationInPixels(draggedObject, dragXpos, dragYpos);
+                            draggedObject = null;
+                        }
                 }
             }
         }
@@ -173,15 +182,6 @@ public class Simulation extends Thread implements WorldListener
             t.printStackTrace();
         }
         
-        // If an object is being dragged, update its location
-        synchronized (this) {
-            synchronized (worldLock) {
-                if (draggedObject != null && draggedObject.getWorld() != null) {
-                    ActorVisitor.setLocationInPixels(draggedObject, dragXpos, dragYpos);
-                    draggedObject = null;
-                }
-            }
-        }
         
         worldHandler.repaint();
     }
@@ -192,9 +192,13 @@ public class Simulation extends Thread implements WorldListener
      */
     private void checkScheduledDrag()
     {
-        Object worldLock = worldHandler.getWorldLock();
-        if (worldLock != null) {
-            synchronized (worldLock) {
+        if (draggedObject == null) {
+            return;
+        }
+        
+        World world = draggedObject.getWorld();
+        if (world != null) {
+            synchronized (world) {
                 if (draggedObject != null && draggedObject.getWorld() != null) {
                     ActorVisitor.setLocationInPixels(draggedObject, dragXpos, dragYpos);
                     draggedObject = null;
@@ -203,10 +207,21 @@ public class Simulation extends Thread implements WorldListener
         }
     }
 
+    // Public methods etc.
+    
+    /**
+     * Run one step of the simulation. Each actor in the world acts once.
+     */
+    public synchronized void runOnce()
+    {
+        // Don't call runOneLoop directly as that executes user code
+        // and might hang.
+        runOnce = true;
+        notifyAll();
+    }
+    
     /**
      * Pauses and unpauses the simulation.
-     * 
-     * @param b
      */
     public synchronized void setPaused(boolean b)
     {
@@ -235,7 +250,7 @@ public class Simulation extends Thread implements WorldListener
         }
     }
 
-    protected void fireSimulationEvent(SimulationEvent event)
+    private void fireSimulationEvent(SimulationEvent event)
     {
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
