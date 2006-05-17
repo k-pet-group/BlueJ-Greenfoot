@@ -4,6 +4,7 @@ import greenfoot.util.Version;
 
 import java.awt.Graphics;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Class that makes it possible for classes outside the greenfoot package to get
@@ -12,7 +13,7 @@ import java.util.Collection;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 4094 2006-05-05 10:44:27Z polle $
+ * @version $Id: WorldVisitor.java 4283 2006-05-17 10:20:52Z davmac $
  */
 public class WorldVisitor
 {
@@ -61,5 +62,13 @@ public class WorldVisitor
      */
     public static Version getApiVersion() {
         return World.VERSION;
+    }
+    
+    /**
+     * Get a possibly-live list of all objects in the world.
+     */
+    public static List<Actor> getObjectsList(World world)
+    {
+        return world.getObjectsList(); 
     }
 }

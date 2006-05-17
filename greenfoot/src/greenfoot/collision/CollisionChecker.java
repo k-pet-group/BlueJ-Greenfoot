@@ -134,6 +134,13 @@ public interface CollisionChecker
     public <T extends Actor> List<T> getObjects(Class<T> cls);
     
     /**
+     * Returns the list of all objects. The returned list may be live (updated
+     * when objects are added/removed from the collision checker) and should not
+     * be directly modified.
+     */
+    public List<Actor> getObjectsList();
+    
+    /**
      * Methods that marks that a new sequence is started. A sequence in
      * greenfoot is most likely to start when a new act-iteration is begun
      * through all the objects. When calling methods interactively or using the

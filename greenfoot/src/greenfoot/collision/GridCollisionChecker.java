@@ -772,6 +772,12 @@ public class GridCollisionChecker
         return objectsThere;
     }
 
+    public List<Actor> getObjectsList()
+    {
+        List<Actor> l = new ArrayList<Actor>(objects);
+        return l;
+    }
+    
     public Actor getOneObjectAt(Actor actor, int dx, int dy, Class cls)
     {
         List neighbours = getObjectsAt(dx, dy, cls);

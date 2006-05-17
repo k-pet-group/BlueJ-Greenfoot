@@ -529,6 +529,15 @@ public abstract class World extends ObjectTransporter
     {
         return collisionChecker.getOneIntersectingObject(object, cls);
     }
+    
+    /**
+     * Get the list of all objects in the world. This returns a live list which
+     * should not be modified by the caller.
+     */
+    List<Actor> getObjectsList()
+    {
+        return collisionChecker.getObjectsList();
+    }
 
     public void paintDebug(Graphics g)
     {

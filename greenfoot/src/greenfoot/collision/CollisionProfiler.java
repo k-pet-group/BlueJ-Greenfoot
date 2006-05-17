@@ -30,8 +30,10 @@ public class CollisionProfiler
     private int sequenceCount;
     private long getOneObjectAtTime;
     private long getOneIntersectingObjectTime;
-private File f;
-private PrintStream fileStream;
+    private long getObjectsListTime;
+    
+    private File f;
+    private PrintStream fileStream;
     public CollisionProfiler(CollisionChecker checker) {
         this.checker = checker;
     }
@@ -137,14 +139,24 @@ private PrintStream fileStream;
         return l;
     }
 
-    public synchronized List getObjects(Class cls)
+    public synchronized <T extends Actor> List<T> getObjects(Class<T> cls)
     {
         long t1 = System.nanoTime();
-        List l = checker.getObjects(cls);
+        List<T> l = checker.getObjects(cls);
         long t2 = System.nanoTime();
         getObjectsTime += t2 - t1;
         return l;
     }
+    
+    public List<Actor> getObjectsList()
+    {
+        long t1 = System.nanoTime();
+        List<Actor> l = checker.getObjectsList();
+        long t2 = System.nanoTime();
+        getObjectsListTime += t2 - t1;
+        return l;
+    }
+    
 
     public void startSequence()
     {

@@ -702,7 +702,7 @@ public class BVHInsChecker
     public List getObjects(Class cls)
     {
         if (cls == null) {
-            return objects;
+            return new ArrayList(objects);
         }
         List l = new ArrayList();
         for (Iterator iter = objects.iterator(); iter.hasNext();) {
@@ -712,6 +712,11 @@ public class BVHInsChecker
             }
         }
         return l;
+    }
+    
+    public List getObjectsList()
+    {
+        return objects;
     }
 
     public void startSequence()
