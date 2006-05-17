@@ -2,10 +2,7 @@ package bluej.terminal;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.*;
@@ -21,14 +18,13 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
-import bluej.Boot;
 
 /**
  * The Frame part of the Terminal window used for I/O when running programs
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 4080 2006-05-04 10:49:55Z polle $
+ * @version $Id: Terminal.java 4301 2006-05-17 14:48:40Z davmac $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -98,7 +94,7 @@ public final class Terminal extends JFrame
     }
 
     /**
-     * Show or hide the ExecControl window.
+     * Show or hide the Terminal window.
      */
     public void showHide(boolean show)
     {
@@ -236,6 +232,12 @@ public final class Terminal extends JFrame
         if(newMethodCall) {   // prepare only once per method call
             showHide(true);
             newMethodCall = false;
+        }
+        else if (Config.isGreenfoot()) {
+            // In greenfoot new output should always show the terminal
+            if (! isVisible()) {
+                showHide(true);
+            }
         }
     }
 
