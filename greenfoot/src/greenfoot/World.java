@@ -1,18 +1,14 @@
 package greenfoot;
 
-import bluej.Boot;
-import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
+import greenfoot.collision.ibsp.IBSPColChecker;
 import greenfoot.util.Version;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+
+import bluej.Boot;
 
 
 /**
@@ -40,7 +36,8 @@ public abstract class World extends ObjectTransporter
     final static Version VERSION = new Version(Boot.GREENFOOT_API_VERSION);
    
 //    private CollisionChecker collisionChecker = new GridCollisionChecker();//new BVHInsChecker();
-    private CollisionChecker collisionChecker = new BVHInsChecker();
+//    private CollisionChecker collisionChecker = new BVHInsChecker();
+    private CollisionChecker collisionChecker = new IBSPColChecker();
 
     /** All the objects currently in the world */
     private List objects = new ArrayList();
@@ -536,7 +533,7 @@ public abstract class World extends ObjectTransporter
      */
     List<Actor> getObjectsList()
     {
-        return collisionChecker.getObjectsList();
+        return objects;
     }
 
     public void paintDebug(Graphics g)

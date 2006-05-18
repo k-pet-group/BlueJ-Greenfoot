@@ -635,7 +635,8 @@ public class BVHInsChecker
 
     public List getObjectsAt(int x, int y, Class cls)
     {
-        Circle b = new Circle(x * cellSize, y * cellSize, 0);
+        int halfCell = cellSize / 2;
+        Circle b = new Circle(x * cellSize + halfCell, y * cellSize + halfCell, 0);
         synchronized (pointQuery) {
         	pointQuery.init(x, y, cls);
             return tree.getIntersections(b, pointQuery);
