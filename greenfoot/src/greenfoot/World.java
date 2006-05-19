@@ -1,7 +1,7 @@
 package greenfoot;
 
+import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
-import greenfoot.collision.ibsp.IBSPColChecker;
 import greenfoot.util.Version;
 
 import java.awt.Color;
@@ -36,8 +36,7 @@ public abstract class World extends ObjectTransporter
     final static Version VERSION = new Version(Boot.GREENFOOT_API_VERSION);
    
 //    private CollisionChecker collisionChecker = new GridCollisionChecker();//new BVHInsChecker();
-//    private CollisionChecker collisionChecker = new BVHInsChecker();
-    private CollisionChecker collisionChecker = new IBSPColChecker();
+    private CollisionChecker collisionChecker = new BVHInsChecker();
 
     /** All the objects currently in the world */
     private List objects = new ArrayList();
