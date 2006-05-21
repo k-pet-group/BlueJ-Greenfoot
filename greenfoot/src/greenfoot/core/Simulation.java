@@ -1,15 +1,9 @@
 package greenfoot.core;
 
-import greenfoot.Actor;
-import greenfoot.ActorVisitor;
-import greenfoot.World;
-import greenfoot.WorldVisitor;
-import greenfoot.event.SimulationEvent;
-import greenfoot.event.SimulationListener;
-import greenfoot.event.WorldEvent;
-import greenfoot.event.WorldListener;
+import greenfoot.*;
+import greenfoot.event.*;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.event.EventListenerList;
@@ -162,12 +156,10 @@ public class Simulation extends Thread implements WorldListener
             // We need to sync, so that the collection is not changed while
             // copying it ( to avoid ConcurrentModificationException)
             synchronized (world) {
-                // XX We need to copy it, to avoid ConcurrentModificationException
-                // No we don't. What we get back is a copy anyway...
-                objects = world.getObjects(null);
+                // We need to copy it, to avoid ConcurrentModificationException
+                objects = new ArrayList<Actor>(WorldVisitor.getObjectsList(world));
 
-                for (Iterator i = objects.iterator(); i.hasNext();) {
-                    Actor actor = (Actor) i.next();
+                for (Actor actor : objects) {
                     if (actor.getWorld() != null) {
                         actor.act();
                     }
@@ -278,6 +270,16 @@ public class Simulation extends Thread implements WorldListener
     public void addSimulationListener(SimulationListener l)
     {
         listenerList.add(SimulationListener.class, l);
+    }
+    
+    /**
+     * Remove a simulationListener to listen for changes.
+     * 
+     * @param l  Listener to remove
+     */
+    public void removeSimulationListener(SimulationListener l)
+    {
+        listenerList.remove(SimulationListener.class, l);
     }
     
     
