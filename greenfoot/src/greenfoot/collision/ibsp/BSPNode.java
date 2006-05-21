@@ -1,0 +1,273 @@
+package greenfoot.collision.ibsp;
+
+import greenfoot.Actor;
+
+import java.util.*;
+
+public class BSPNode
+{
+    // private List<ActorNode> actorNodes;
+    private Map<Actor, ActorNode> actors;
+    
+    private BSPNode parent;
+    private Rect area;
+    private int splitAxis;  // which axis is split
+    private int splitPos;  // where it is split (absolute)
+    private BSPNode left;
+    private BSPNode right;
+    
+    // Depth and rebalance variables
+    private int leftDepth;
+    private int rightDepth;
+    
+    private boolean areaRipple; // area has been set, need to ripple
+        // down to children at some stage
+    
+    public BSPNode(Rect area, int splitAxis, int splitPos)
+    {
+        this.area = area;
+        this.splitAxis = splitAxis;
+        this.splitPos = splitPos;
+        
+        // actorNodes = new LinkedList<ActorNode>();
+        actors = new HashMap<Actor, ActorNode>();
+    }
+    
+    public void setChild(int side, BSPNode child)
+    {
+        int oldDepth = getDepth();
+        if (side == IBSPColChecker.PARENT_LEFT) {
+            left = child;
+            if (child != null) {
+                child.parent = this;
+                child.setArea(getLeftArea());
+                leftDepth = child.getDepth();
+            }
+            else {
+                leftDepth = 0;
+            }
+        }
+        else {
+            right = child;
+            if (child != null) {
+                child.parent = this;
+                child.setArea(getRightArea());
+                rightDepth = child.getDepth();
+            }
+            else {
+                rightDepth = 0;
+            }
+        }
+        int depth = getDepth();
+        if (depth != oldDepth) {
+            if (parent != null) {
+                parent.updateDepth();
+            }
+        }
+    }
+    
+    private void updateDepth()
+    {
+        int oldDepth = getDepth();
+        leftDepth = left != null ? left.getDepth() : 0;
+        rightDepth = right != null ? right.getDepth() : 0;
+        int depth = getDepth();
+        if (depth != oldDepth) {
+            if (parent != null) {
+                parent.updateDepth();
+            }
+        }
+    }
+    
+    public int getDepth()
+    {
+        return Math.max(leftDepth, rightDepth) + 1;
+    }
+    
+    public int getLeftDepth()
+    {
+        return leftDepth;
+    }
+    
+    public boolean needsRebalance()
+    {
+        return Math.abs(leftDepth - rightDepth) > 3;
+    }
+    
+    public int getRightDepth()
+    {
+        return rightDepth;
+    }
+    
+    public void setArea(Rect area)
+    {
+        this.area = area;
+        areaRipple = true;
+    }
+    
+    public void setSplitAxis(int axis)
+    {
+        if (axis != splitAxis) {
+            splitAxis = axis;
+            areaRipple = true;
+        }
+    }
+    
+    public void setSplitPos(int pos)
+    {
+        if (pos != splitPos) {
+            splitPos = pos;
+            areaRipple = true;
+        }
+    }
+
+    public int getSplitAxis()
+    {
+        return splitAxis;
+    }
+    
+    public int getSplitPos()
+    {
+        return splitPos;
+    }
+
+    public Rect getLeftArea()
+    {
+        if (splitAxis == IBSPColChecker.X_AXIS) {
+            return new Rect(area.getX(), area.getY(), splitPos - area.getX(), area.getHeight());
+        }
+        else {
+            return new Rect(area.getX(), area.getY(), area.getWidth(), splitPos - area.getY());
+        }
+    }
+    
+    public Rect getRightArea()
+    {
+        if (splitAxis == IBSPColChecker.X_AXIS) {
+            return new Rect(splitPos, area.getY(), area.getRight() - splitPos, area.getHeight());
+        }
+        else {
+            return new Rect(area.getX(), splitPos, area.getWidth(), area.getTop() - splitPos);
+        }
+    }
+    
+    public Rect getArea()
+    {
+        return area;
+    }
+    
+    private void resizeChildren()
+    {
+        if (left != null) {
+            left.setArea(getLeftArea());
+        }
+        if (right != null) {
+            right.setArea(getRightArea());
+        }
+    }
+    
+    public BSPNode getLeft()
+    {
+        if (areaRipple) {
+            resizeChildren();
+            areaRipple = false;
+        }
+        return left;
+    }
+    
+    public BSPNode getRight()
+    {
+        if (areaRipple) {
+            resizeChildren();
+            areaRipple = false;
+        }
+        return right;
+    }
+    
+    public BSPNode getParent()
+    {
+        return parent;
+    }
+    
+    public void setParent(BSPNode parent)
+    {
+        this.parent = parent;
+    }
+    
+    public int getChildSide(BSPNode child)
+    {
+        if (left == child) {
+            return IBSPColChecker.PARENT_LEFT;
+        }
+        else {
+            return IBSPColChecker.PARENT_RIGHT;
+        }
+    }
+    
+    public String toString()
+    {
+        return "bsp" + hashCode();
+    }
+    
+    public void addActor(Actor actor)
+    {
+        // actorNodes.add(new ActorNode(actor, this));
+        actors.put(actor, new ActorNode(actor, this));
+    }
+    
+    public boolean containsActor(Actor actor)
+    {
+        return actors.containsKey(actor);
+    }
+    
+    public void actorRemoved(Actor actor)
+    {
+        actors.remove(actor);
+    }
+    
+    public void removeActor(Actor actor)
+    {
+        ActorNode anode = actors.remove(actor);
+        if (anode != null) {
+            anode.removed();
+        }
+    }
+    
+    public int numberActors()
+    {
+        return actors.size();
+    }
+    
+    public boolean isEmpty()
+    {
+        return actors.isEmpty();
+    }
+    
+    public Iterator<Map.Entry<Actor, ActorNode>> getEntriesIterator()
+    {
+        return actors.entrySet().iterator();
+    }
+    
+    public Iterator<Actor> getActorsIterator()
+    {
+        return actors.keySet().iterator();
+    }
+    
+    public List<Actor> getActorsList()
+    {
+        return new ArrayList<Actor>(actors.keySet());
+    }
+    
+    /**
+     * Remove all actors from this node.
+     */
+    public void clear()
+    {
+        Iterator<Map.Entry<Actor,ActorNode>> i = actors.entrySet().iterator();
+
+        while (i.hasNext()) {
+            i.next().getValue().removed();
+            i.remove();
+        }
+    }
+}
