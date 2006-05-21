@@ -1,9 +1,13 @@
 package rmiextension;
 
+import greenfoot.gui.FirstStartupDialog;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
+
+import javax.swing.SwingUtilities;
 
 import bluej.Config;
 import bluej.extensions.BProject;
@@ -11,6 +15,7 @@ import bluej.extensions.BlueJ;
 import bluej.extensions.Extension;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 
 /**
  * 
@@ -18,7 +23,7 @@ import bluej.utility.Debug;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 4281 2006-05-16 16:46:42Z polle $
+ * @version $Id: RMIExtension.java 4306 2006-05-21 12:37:18Z polle $
  */
 public class RMIExtension extends Extension
     implements Runnable
@@ -30,8 +35,11 @@ public class RMIExtension extends Extension
      */
     public void run()
     {
+
+        
         waitForPkgMgrFrame();
 
+        
         // Now we need to find out if a greenfoot project is automatically
         // opening. If not we must open the dummy project
         boolean openOrphans = "true".equals(Config.getPropString("bluej.autoOpenLastProject"));
@@ -39,8 +47,30 @@ public class RMIExtension extends Extension
         }
         else {
             openStartupProject();
+        
         }
     }
+
+    /**
+     * Method that displays a dialog to the first time user of greenfoot.
+     * <p> 
+     * Will be executed on the eventthread
+     *
+     */
+    private void handleFirstTime()
+    {
+        Thread t = new Thread() {
+            public void run() {
+                FirstStartupDialog dialog = new FirstStartupDialog();
+                dialog.setLocationRelativeTo(null); //centers dialog
+                dialog.setModal(true);
+                dialog.setVisible(true);
+            }
+        };
+        SwingUtilities.invokeLater(t);
+        
+    }
+
 
     /**
      * Opens a dummy project This is necessary to use the direct invoke as this
@@ -94,8 +124,17 @@ public class RMIExtension extends Extension
 			System.exit(1);
 		}
         
-        Thread t = new Thread(this);
-        t.start();
+
+        //First, we check if this is the first run of greenfoot ever.
+        if(false) {// Utility.firstTimeEver("greenfoot.run")) {            
+            handleFirstTime();
+            return;
+        } else {         
+        
+          Thread t = new Thread(this);
+          t.start();
+        }
+
     }
 
     /**
