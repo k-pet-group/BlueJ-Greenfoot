@@ -54,7 +54,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 4099 2006-05-05 14:45:42Z mik $
+ * @version $Id: PkgMgrFrame.java 4314 2006-05-23 11:18:18Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1508,7 +1508,7 @@ public class PkgMgrFrame extends JFrame
     public void showCopyright()
     {
         JOptionPane.showMessageDialog(this, new String[]{
-                "BlueJ \u00a9 2000-2004 Michael K\u00F6lling, John Rosenberg.", " ",
+                "BlueJ \u00a9 2000-2006 Michael K\u00F6lling, John Rosenberg.", " ",
                 Config.getString("menu.help.copyright.line1"), Config.getString("menu.help.copyright.line2"),
                 Config.getString("menu.help.copyright.line3"), Config.getString("menu.help.copyright.line4"),}, Config
                 .getString("menu.help.copyright.title"), JOptionPane.INFORMATION_MESSAGE);
