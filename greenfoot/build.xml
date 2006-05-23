@@ -309,6 +309,9 @@
             <arg value="-greenfoot=true"></arg>            
             <arg value="-useclassesdir=true"></arg>
         	<arg value="-greenfootclassesdir=${build}"/>
+        	<arg value="-greenfoot.scenarios=${greenfoot.scenarios}"/>
+        	<arg value="-greenfoot.tutorial=${greenfoot.tutorial}"/>
+        	<arg value="-greenfoot.tutorial.scenario=${greenfoot.tutorial.scenario}"/>
         	<arg value="-bluej.compiler.showunchecked=false"/>        	
         </java>
     </target>
