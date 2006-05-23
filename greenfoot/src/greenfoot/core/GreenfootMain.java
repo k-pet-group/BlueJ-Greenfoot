@@ -29,7 +29,6 @@ import bluej.debugmgr.CallHistory;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
-import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 import bluej.views.View;
 
@@ -39,7 +38,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4263 2006-05-15 13:16:59Z davmac $
+ * @version $Id: GreenfootMain.java 4319 2006-05-23 20:48:04Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener
 {
@@ -152,7 +151,7 @@ public class GreenfootMain extends Thread implements CompileListener
 
             frame = GreenfootFrame.getGreenfootFrame(rBlueJ);
 
-            // Config is initialized in GreenfootLauncher
+            // Config is initialized in GreenfootLauncherDebugVM
 
             if(!project.isStartupProject()) {
                 try {
@@ -200,15 +199,15 @@ public class GreenfootMain extends Thread implements CompileListener
 
     }
 
-    
     /**
      * Opens a file browser to find a greenfoot project
+ 
      * 
      */
     public void openProjectBrowser()
     {
-        File dirName = FileUtility.getPackageName(frame);
-
+        File dirName = GreenfootUtil.getScenarioFromFileBrowser(frame);
+    
         if (dirName != null) {
             try {
                 openProject(dirName.getAbsolutePath());
@@ -345,21 +344,15 @@ public class GreenfootMain extends Thread implements CompileListener
      */
     public void newProject()
     {
-        String newname = FileUtility.getFileName(frame, Config.getString("pkgmgr.newPkg.title"), Config
-                .getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
+        String newname = GreenfootUtil.getNewNameFromFileBrowser(frame);
         if (newname != null) {
             try {
                 File f = new File(newname);
-              /*  f.mkdir();
-                // Make sure that the new project has a project version.
-                ProjectProperties newProperties = new ProjectProperties(f);
-                newProperties.storeApiVersion();*/
-                /* RProject newProject = */
                 rBlueJ.newProject(f);
                 // The rest of the project preparation will be done by the
-                // ProjectLauncher on the BlueJ side.
+                // ProjectManager on the BlueJ VM.
 
-                // if this is the dummy startup project, close it now.
+                // if the project that is already open is the dummy startup project, close it now.
                 if(project.isStartupProject()) {
                     project.close();
                 }

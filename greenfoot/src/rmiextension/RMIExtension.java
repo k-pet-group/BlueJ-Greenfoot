@@ -1,13 +1,11 @@
 package rmiextension;
 
-import greenfoot.gui.FirstStartupDialog;
+import greenfoot.core.GreenfootLauncherBlueJVM;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
-
-import javax.swing.SwingUtilities;
 
 import bluej.Config;
 import bluej.extensions.BProject;
@@ -15,7 +13,6 @@ import bluej.extensions.BlueJ;
 import bluej.extensions.Extension;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
-import bluej.utility.Utility;
 
 /**
  * 
@@ -23,78 +20,87 @@ import bluej.utility.Utility;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 4306 2006-05-21 12:37:18Z polle $
+ * @version $Id: RMIExtension.java 4319 2006-05-23 20:48:04Z polle $
  */
 public class RMIExtension extends Extension
-    implements Runnable
 {
     private BlueJ theBlueJ;
 
     /**
-     * started as soon as we get the go signal from BlueJ...
+     * When this method is called, the extension may start its work.
+     * 
      */
-    public void run()
+    public void startup(BlueJ bluej)
     {
+        theBlueJ = bluej;
+        // theBlueJ.addPackageListener(ProjectLauncher.instance());
+        ProjectManager.init(bluej);
 
-        
-        waitForPkgMgrFrame();
+        try {
+            new BlueJRMIServer(theBlueJ);
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Could not launch RMI server", e);
+            // This is bad, lets exit.
+            System.exit(1);
+        }
 
-        
+        GreenfootLauncherBlueJVM.getInstance().launch(this);
+    }
+
+    /**
+     * Opens a project in BlueJ if no other projects are open.
+     * 
+     * @param projectPath path of the project to open.
+     */
+    public void maybeOpenProject(File projectPath)
+    {
         // Now we need to find out if a greenfoot project is automatically
-        // opening. If not we must open the dummy project
+        // opening. If not we must openthe dummy project
         boolean openOrphans = "true".equals(Config.getPropString("bluej.autoOpenLastProject"));
-        if (openOrphans && PkgMgrFrame.hadOrphanPackages()) {
-        }
+        if (openOrphans && PkgMgrFrame.hadOrphanPackages()) {}
         else {
-            openStartupProject();
-        
-        }
-    }
-
-    /**
-     * Method that displays a dialog to the first time user of greenfoot.
-     * <p> 
-     * Will be executed on the eventthread
-     *
-     */
-    private void handleFirstTime()
-    {
-        Thread t = new Thread() {
-            public void run() {
-                FirstStartupDialog dialog = new FirstStartupDialog();
-                dialog.setLocationRelativeTo(null); //centers dialog
-                dialog.setModal(true);
-                dialog.setVisible(true);
-            }
-        };
-        SwingUtilities.invokeLater(t);
-        
-    }
-
-
-    /**
-     * Opens a dummy project This is necessary to use the direct invoke as this
-     * needs to have a blueJ-package
-     *  
-     */
-    private void openStartupProject()
-    {
-        if (theBlueJ.getOpenProjects().length == 0) {
-            File blueJLibDir = theBlueJ.getSystemLibDir();
-            File startupProject = new File(blueJLibDir, "greenfoot/startupProject");
-            BProject project = theBlueJ.openProject(startupProject);
-            if(project == null) {
-                Debug.reportError("Could not open startup project");
+            if (theBlueJ.getOpenProjects().length == 0) {
+                openProject(projectPath);
             }
         }
+    }
+    
+    /**
+     * Opens a project in BlueJ
+     * 
+     * @param projectPath path of the project to open.
+     */
+    public void openProject(File projectPath)
+    {
+        BProject project = theBlueJ.openProject(projectPath);
+        if (project == null) {
+            Debug.reportError("Could not open project: " + projectPath);
+        }
+    }
+    
+    /**
+     * Creates a new project in BlueJ
+     * 
+     * @param projectPath path of the project to open.
+     */
+    public void newProject(File projectPath)
+    {
+        ProjectManager.instance().addNewProject(projectPath);
+        BProject project = theBlueJ.newProject(projectPath);
+        if (project == null) {
+            Debug.reportError("Could not open project: " + projectPath);
+        }
+        ProjectManager.instance().removeNewProject(projectPath);
+        
     }
 
     /**
      * Waits for the packageMgrFrame to be ready. TODO this is not quite stable
      * enough. Reinvestigate how to ensure BlueJ is properly started-
-     *  
+     * 
      */
-    private void waitForPkgMgrFrame()
+    public void waitUntilBlueJStarted()
     {
         while (PkgMgrFrame.getAllFrames() == null) {
             try {
@@ -104,37 +110,6 @@ public class RMIExtension extends Extension
                 e.printStackTrace();
             }
         }
-    }
-
-    /**
-     * When this method is called, the extension may start its work.
-     *  
-     */
-    public void startup(BlueJ bluej)
-    {
-        theBlueJ = bluej;
-        //theBlueJ.addPackageListener(ProjectLauncher.instance());
-        ProjectManager.init(bluej);
-
-        try {
-			new BlueJRMIServer(theBlueJ);
-		} catch (RemoteException e) {
-			Debug.reportError("Could not launch RMI server", e);
-			//This is bad, lets exit.
-			System.exit(1);
-		}
-        
-
-        //First, we check if this is the first run of greenfoot ever.
-        if(false) {// Utility.firstTimeEver("greenfoot.run")) {            
-            handleFirstTime();
-            return;
-        } else {         
-        
-          Thread t = new Thread(this);
-          t.start();
-        }
-
     }
 
     /**
@@ -179,7 +154,6 @@ public class RMIExtension extends Extension
         catch (MalformedURLException e) {
             return null;
         }
-
     }
 
 }

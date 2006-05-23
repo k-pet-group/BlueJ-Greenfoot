@@ -2,13 +2,12 @@ package greenfoot.gui;
 
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -16,7 +15,6 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 
 import bluej.BlueJTheme;
 
@@ -31,9 +29,16 @@ import bluej.BlueJTheme;
  */
 public class FirstStartupDialog extends JDialog
 {
+    public enum Result {
+        TUTORIAL, OPEN, CREATE, WITHOUT;
+    }
+
+    private Result result = Result.WITHOUT;
+    
     public FirstStartupDialog()
     {
         super((Frame) null, "Greenfoot");
+        setModal(true);
         buildUI();
         pack();
     }
@@ -82,29 +87,68 @@ public class FirstStartupDialog extends JDialog
         JButton tutorialButton = new JButton("Open tutorial and tutorial scenario");
         JButton openButton = new JButton("Choose a scenario");
         JButton createButton = new JButton("Create a new scenario");
-      //  JButton openButton = new JButton("Continue without scenario");        
+        JButton continueButton = new JButton("Continue without scenario");        
                
         
         tutorialButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         openButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         createButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        continueButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         Dimension bigSize = new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
         tutorialButton.setMaximumSize(bigSize);
         openButton.setMaximumSize(bigSize);
         createButton.setMaximumSize(bigSize);
+        continueButton.setMaximumSize(bigSize);
         
+        tutorialButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                result = Result.TUTORIAL;
+                dispose();
+            }
+        });
+        openButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                result = Result.OPEN;
+                dispose();
+            }
+        });
+        createButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                result = Result.CREATE;
+                dispose();
+            }
+        });
+        continueButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e)
+            {
+                result = Result.WITHOUT;
+                dispose();
+            }
+        });
         
         buttonPanel.add(tutorialButton);
         buttonPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS, spacingSmall));
         buttonPanel.add(openButton);
         buttonPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS, spacingSmall));
         buttonPanel.add(createButton);
+        buttonPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS, spacingSmall));
+        buttonPanel.add(continueButton);
         
         JPanel nonGreedyPanel = new JPanel();
         nonGreedyPanel.add(buttonPanel);
         contentPane.add(nonGreedyPanel);
     }
+
+    public Result getResult()
+    {
+        return result;
+    }
+    
+    
     
 }
 

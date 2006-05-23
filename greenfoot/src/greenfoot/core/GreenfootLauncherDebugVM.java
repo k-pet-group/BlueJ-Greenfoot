@@ -12,7 +12,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 
 /**
- * An object of GreenfootLauncher is the first object that is created in the
+ * An object of GreenfootLauncherDebugVM is the first object that is created in the
  * Debug-VM. The launcher object is created from the BlueJ-VM in the Debug-VM.
  * When a new object of the launcher is created, the constructor looks up the
  * BlueJService in the RMI registry and starts the initialisation of greenfoot.
@@ -21,13 +21,12 @@ import bluej.Config;
  * @version 22-05-2003
  * @version $Id$
  */
-public class GreenfootLauncher
+public class GreenfootLauncherDebugVM
 {
-    public GreenfootLauncher(String prjDir, String pkgName)
+    public GreenfootLauncherDebugVM(String prjDir, String pkgName)
     {
         BlueJRMIClient client = new BlueJRMIClient(prjDir, pkgName);
         
-        // TODO Auto-generated method stub
         RBlueJ blueJ = client.getBlueJ();
         try {
             File libdir = blueJ.getSystemLibDir();

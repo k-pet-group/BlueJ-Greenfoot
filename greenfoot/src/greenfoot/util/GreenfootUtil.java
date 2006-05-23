@@ -1,5 +1,8 @@
 package greenfoot.util;
 
+import greenfoot.core.GreenfootMain;
+
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -22,11 +25,15 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import bluej.Config;
+import bluej.utility.Debug;
+import bluej.utility.FileUtility;
+
 /**
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4134 2006-05-08 17:49:21Z davmac $
+ * @version $Id: GreenfootUtil.java 4319 2006-05-23 20:48:04Z polle $
  */
 public class GreenfootUtil
 {
@@ -389,6 +396,25 @@ public class GreenfootUtil
         finally {
 
         }
+    }
+
+    /**
+     * Opens a file browser and lets the user select a greenfoot scenario.
+     * @param parent For placing the file browser
+     * @return The selected scenario or null if nothing was selected
+     */
+    public static File getScenarioFromFileBrowser(Component parent) {
+        return FileUtility.getPackageName(parent);
+    }
+
+
+    /**
+     *  Get a file name from the user, using a file selection dialogue.
+     *  If cancelled or an invalid name was specified, return null.
+     */
+    public static String getNewNameFromFileBrowser(Component parent)
+    {
+        return FileUtility.getFileName(parent, Config.getString("pkgmgr.newPkg.title"), Config.getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
     }
         
 }

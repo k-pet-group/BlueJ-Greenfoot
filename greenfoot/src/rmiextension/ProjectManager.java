@@ -1,6 +1,6 @@
 package rmiextension;
 
-import greenfoot.core.GreenfootLauncher;
+import greenfoot.core.GreenfootLauncherDebugVM;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.ProjectProperties;
 
@@ -11,8 +11,6 @@ import java.util.List;
 
 import bluej.extensions.BPackage;
 import bluej.extensions.BlueJ;
-import bluej.extensions.InvocationArgumentException;
-import bluej.extensions.InvocationErrorException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
@@ -25,7 +23,7 @@ import bluej.utility.Debug;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4281 2006-05-16 16:46:42Z polle $
+ * @version $Id: ProjectManager.java 4319 2006-05-23 20:48:04Z polle $
  */
 public class ProjectManager
     implements PackageListener
@@ -40,7 +38,7 @@ public class ProjectManager
     private List<File> projectsInCreation = new ArrayList<File>();
 
     /** The class that will be instantiated in the greenfoot VM to launch the project */
-    private String launchClass = GreenfootLauncher.class.getName();
+    private String launchClass = GreenfootLauncherDebugVM.class.getName();
     private static final String launcherName = "greenfootLauncher";
 
     private static BlueJ bluej;
