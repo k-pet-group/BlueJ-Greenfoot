@@ -1,13 +1,19 @@
 #Greenfoot properties
-#Fri May 12 16:43:11 BST 2006
+#Wed May 24 09:46:36 GMT 2006
+class.SquareTurtle.superclass=Turtle
 class.Leaf.image=leaf.gif
 class.Wombat.image=wombat.gif
-simulation.speed=50
-mainWindow.width=745
+simulation.speed=52
+
+class.TurtleWorld.superclass=greenfoot.World
 class.Wombat.superclass=greenfoot.Actor
+class.CircleTurtle.superclass=Turtle
+class.FlowerTurtle.superclass=SquareTurtle
 version=1.0
-mainWindow.y=183
-mainWindow.x=212
+class.Turtle.superclass=greenfoot.Actor
+class.SpiralTurtle.superclass=Turtle
+
+
 class.Leaf.superclass=greenfoot.Actor
 class.WombatWorld.superclass=greenfoot.World
-mainWindow.height=664
+
