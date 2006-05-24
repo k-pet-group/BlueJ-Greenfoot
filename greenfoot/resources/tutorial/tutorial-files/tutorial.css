@@ -58,7 +58,7 @@
     font-weight: normal;
     letter-spacing: 0;
     line-height: 1.17;
-    margin-bottom: 0.000000pt;
+    margin-bottom: 0pt;
     margin-left: 28.35pt;
     margin-right: 0.00pt;
     margin-top: 0pt;
@@ -122,9 +122,10 @@
     vertical-align: 0.000000em;
 }
 .None {
+    font-family: 'Skia-Regular', 'Skia'; 
     list-style: none;
     margin-bottom: 0.000000pt;
-    margin-left: -24.000000pt;
+    margin-left: -24.0pt;
     margin-top: 0.000000pt;
     text-indent: 0.000000pt;
 }
