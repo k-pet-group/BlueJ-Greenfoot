@@ -87,8 +87,9 @@ public class FirstStartupDialog extends JDialog
         JButton tutorialButton = new JButton("Open tutorial and tutorial scenario");
         JButton openButton = new JButton("Choose a scenario");
         JButton createButton = new JButton("Create a new scenario");
-        JButton continueButton = new JButton("Continue without scenario");        
-               
+        JButton continueButton = new JButton("Continue without scenario");       
+
+        getRootPane().setDefaultButton(tutorialButton);
         
         tutorialButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         openButton.setAlignmentX(Component.CENTER_ALIGNMENT);
