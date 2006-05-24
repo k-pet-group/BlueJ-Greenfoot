@@ -60,7 +60,7 @@
 
 	<!-- Files that are used in tutorial -->
 	<fileset id="tutorial.files" dir="resources/tutorial/">
-		<include name="*"/>
+		<include name="**"/>
 	</fileset>
 	
 	<!-- scenarios to be included in standard distribution -->
