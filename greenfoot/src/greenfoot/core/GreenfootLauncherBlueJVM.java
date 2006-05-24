@@ -61,9 +61,8 @@ public class GreenfootLauncherBlueJVM
     {
         this.extension = extension;
 
-        // First, we check if this is the first run of greenfoot ever.
-        // TODO: this should be in the users configuration, not the global?
-        if (false) {//Utility.firstTimeEver("greenfoot.run")) {
+        // First, we check if this is the first run of greenfoot ever for this user
+        if (Utility.firstTimeEver("greenfoot.run")) {
             handleFirstTime();
             return;
         }
@@ -114,6 +113,9 @@ public class GreenfootLauncherBlueJVM
      */
     private void openTutorial()
     {
+        // So that when they can easily open other scenarios once they finish
+        // with the tutorial.
+        setScenariosAsDefaultDir();
         File scenarioDir = null;
         try {
             String scenarioName = Config.getPropString("greenfoot.tutorial.scenario", null);
@@ -171,14 +173,7 @@ public class GreenfootLauncherBlueJVM
      */
     private void openScenario()
     {
-        // Attempt to set scenarios dir as default.
-        try {
-            File startupDir = getScenariosDir();
-            PrefMgr.setProjectDirectory(startupDir.getAbsolutePath());
-        }
-        catch (IOException e) {
-            // Not a problem, we use default dir
-        }
+        setScenariosAsDefaultDir();
         File scenario = GreenfootUtil.getScenarioFromFileBrowser(null);
         if (scenario != null) {
             extension.openProject(scenario);
@@ -217,6 +212,25 @@ public class GreenfootLauncherBlueJVM
             }            
         };
         t.start();
+    }
+    
+    /**
+     * Sets the directory containing the scenarios to be the directory that the
+     * file browser will open up in.
+     * <p>
+     * If it can't find the scenarios dir, it will do nothing.
+     * 
+     */
+    private void setScenariosAsDefaultDir()
+    {
+        // Attempt to set scenarios dir as default.
+        try {
+            File startupDir = getScenariosDir();
+            PrefMgr.setProjectDirectory(startupDir.getAbsolutePath());
+        }
+        catch (IOException e) {
+            // Not a problem, we use default dir
+        }
     }
     
     /**
