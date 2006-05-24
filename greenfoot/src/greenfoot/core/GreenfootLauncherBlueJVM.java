@@ -287,9 +287,9 @@ public class GreenfootLauncherBlueJVM
         File libDir = Config.getBlueJLibDir();
         // The parent dir of the lib dir is the top level dir of greenfoot
         File greenfootDir = libDir.getParentFile();
-        // But on the mac it is one level further back.
+        // But on the mac it is further back in the hierarchy.
         if (Config.isMacOS()) {
-            greenfootDir = greenfootDir.getParentFile();
+            greenfootDir = greenfootDir.getParentFile().getParentFile().getParentFile();
         }
         if (!(greenfootDir.isDirectory() && greenfootDir.canRead())) {
             throw new IOException("Could not read from greenfoot directory: " + greenfootDir);
