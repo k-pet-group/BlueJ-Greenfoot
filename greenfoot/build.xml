@@ -27,15 +27,13 @@
 		<pathelement location="${bluej.projectdir}/src"/>
 		<pathelement location="${bluej.projectdir}/boot/src"/>
 	</path>
-	<!-- Location of the jar file packed by BlueJ dist target -->
-	<property name="bluej.installer.jar"  location="${bluej.projectdir}/package/greenfoot-dist-new.jar"/>
+	<!-- Location of the files packed by BlueJ dist target -->
+	<property name="bluej.installer.jar"  location="${bluej.projectdir}/package/greenfoot-instaler.jar"/>
 	<property name="bluej.dist.jar"  location="${bluej.projectdir}/package/greenfoot-dist.jar"/>
+    <property name="bluej.dist.mac"  location="${bluej.projectdir}/package/greenfoot-instaler-mac.zip"/>
 
+    
 
-
-	<!-- **** greenfoot related properties **** -->
-	<property name="version" value="1.0"/>
-	<property name="apiversion" value="1.0"/>
 	<!-- Location of the source files for greenfoot -->
 	<property name="src" location="src"/>
 	<!-- Location of the test source files for greenfoot -->
@@ -261,18 +259,22 @@
 		<!-- Greenfoot icon for classes: greenfoot-16.png -->
 		<copy file="resources/greenfoot-icon-16.png" tofile="imagelib/other/greenfoot.png"/>				
 		<!-- Greenfoot icon for application: greenfoot-16.png -->
-		<copy file="resources/greenfoot-icon-16.png" tofile="images/greenfoot.png"/>				
+		<copy file="resources/greenfoot-icon-16.png" tofile="images/greenfoot.png"/>	
+	    <!-- Greenfoot icon for application on the mac: greenfoot.icns -->
+	    <copy file="resources/greenfoot.icns" todir="${bluej.projectdir}/package/macfiles/Greenfoot.app/Contents/Resources"/>		
 	</target>		
 
 	<target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-tutorial" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
 		<!-- Run the BlueJ dist-->
 		<ant dir="${bluej.projectdir}" target="dist-greenfoot" />
 
-		<move file="${bluej.installer.jar}" tofile="${package}/greenfoot-installer.jar"/>
-		<move file="${bluej.dist.jar}" tofile="${package}/greenfoot-dist.jar"/>
+		<move file="${bluej.installer.jar}" tofile="${package}/greenfoot-installer-${greenfoot.version}.jar"/>
+		<move file="${bluej.dist.jar}" tofile="${package}/greenfoot-dist-${greenfoot.version}.jar"/>
+		<move file="${bluej.dist.mac}" tofile="${package}/greenfoot-${greenfoot.version}.zip"/>
 
-		<echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist.jar"/>
-		<echo message="The greenfoot installer is in ${package}/greenfoot-installer.jar"/>
+		<echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist-${greenfoot.version}.jar.jar"/>
+		<echo message="The greenfoot jar-installer is in ${package}/greenfoot-installer-${greenfoot.version}.jar.jar"/>
+		<echo message="The greenfoot Mac-installer is in ${package}/greenfoot-${greenfoot.version}.zip"/>
 	</target>
 
 	<target name="clean" description="clean up" >
@@ -405,22 +407,22 @@
     <target name="update-version-number" description="updates the version number in all files where it appears" >
 		<replaceregexp byline="true">
     	    <regexp pattern="@version .*"/>
-    	    <substitution expression="@version ${apiversion}"/>
+    	    <substitution expression="@version ${greenfoot.apiversion}"/>
     	    <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,Actor.java,World.java"/>
     	</replaceregexp>
     	<replaceregexp byline="true">
     	    <regexp pattern="GREENFOOT_VERSION = .*"/>
-    	    <substitution expression="GREENFOOT_VERSION = &quot;${version}&quot;;"/>
+    	    <substitution expression="GREENFOOT_VERSION = &quot;${greenfoot.version}&quot;;"/>
     	    <fileset dir="${bluej.projectdir}/boot/src/bluej" includes="Boot.java"/>
     	</replaceregexp>
     	<replaceregexp byline="true">
     	    <regexp pattern="GREENFOOT_API_VERSION = .*"/>
-    	    <substitution expression="GREENFOOT_API_VERSION = &quot;${apiversion}&quot;;"/>
+    	    <substitution expression="GREENFOOT_API_VERSION = &quot;${greenfoot.apiversion}&quot;;"/>
     	    <fileset dir="${bluej.projectdir}/boot/src/bluej" includes="Boot.java"/>
     	</replaceregexp>
     	<replaceregexp byline="true">
     	    <regexp pattern="version=.*"/>
-    	    <substitution expression="version=${apiversion}"/>
+    	    <substitution expression="version=${greenfoot.apiversion}"/>
     	    <fileset dir="projects/startupProject" includes="project.greenfoot"/>
     	</replaceregexp>
     </target>

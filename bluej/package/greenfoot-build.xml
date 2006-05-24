@@ -56,7 +56,6 @@
             <fileset dir="${bluej_home}" >
                 <patternset refid="bluej.libfiles"/>
                 <patternset refid="bluej.libdirs"/>
-             <!--   <patternset refid="bluej.examples"/> -->
             </fileset>
             <fileset dir="${bluej_home}/package" >
                 <patternset refid="greenfoot.scenarios"/>
@@ -70,11 +69,13 @@
 
         <!-- jar the entire distribution into one jar file            -->
         <!-- (use zip instead of jar to avoid generation of manifest) -->
-        <zip zipfile="greenfoot-dist.jar"
+        <zip zipfile="${bluej.dist.jar}"
              basedir="install_tmp"
              compress="yes"
         />
 
+        <antcall target="mac-dist"/>
+        
         <delete dir="install_tmp" />
         <mkdir dir="install_tmp"/>
 
@@ -123,7 +124,7 @@
     	</javac>
 
         <!-- bundle the resulting class into the final distribution jar file -->
-        <jar jarfile="greenfoot-dist-new.jar"
+        <jar jarfile="${bluej.installer.jar}"
              basedir="install_tmp"
              compress="no"
              manifest="manifest"
@@ -135,10 +136,59 @@
              greenfoot-dist-new.jar which is the platform independant
              distributable -->
         <delete dir="install_tmp"/>
-    	<delete dir="${bluej_home}/package/scenarios"/>
-    	<delete dir="${bluej_home}/package/tutorial"/>
+        <delete dir="${bluej_home}/package/scenarios"/>
+    	    <delete dir="${bluej_home}/package/tutorial"/>
     </target>
 
+    <target name="mac-dist">
+        <delete dir="mac_tmp" />
+        <mkdir dir="mac_tmp" />
+        
+        <!-- copy the skeleton mac dir /Greenfoot ${greenfoot.version}-->
+        <copydir src="macfiles" dest="mac_tmp"/>
+        
+        <!-- update version number -->
+        <replaceregexp byline="true">
+        	    <regexp pattern="VERSION"/>
+        	    <substitution expression="${greenfoot.version}"/>
+        	    <fileset dir="mac_tmp/Greenfoot.app/Contents" includes="Info.plist"/>
+        	</replaceregexp>
+               
+        <!-- construct the directory structure we want for the distribution -->
+        <copy todir="mac_tmp">
+            <fileset dir="${bluej_home}/package" >
+                <patternset refid="greenfoot.scenarios"/>
+            </fileset>
+	        <fileset dir="${bluej_home}/package" >
+                <patternset refid="greenfoot.tutorial"/>
+            </fileset>
+        </copy>		        
+        <copy todir="mac_tmp/">
+           <fileset dir="${bluej_home}" >
+               <patternset refid="bluej.libfiles"/>
+               <patternset refid="bluej.libdirs"/>
+           </fileset>
+        </copy>
+        <move todir="mac_tmp/Greenfoot.app/Contents/Resources/Java" > 
+            <fileset dir="mac_tmp/lib/">
+                <!--include name="mac_tmp/lib/**"/-->
+            </fileset>
+        </move>
+        <delete dir="mac_tmp/Greenfoot.app/Contents/Resources/Java/lib"/>
+        
+        <!-- ZIP it -->
+        <!--zip basedir="mac_tmp" destfile="${bluej.dist.mac}" /-->
+        <zip destfile="${bluej.dist.mac}">
+            <zipfileset dir="mac_tmp" excludes="Greenfoot.app/Contents/PkgInfo,Greenfoot.app/Contents/MacOS/JavaApplicationStub"/>
+            <!-- Make the files executable that need to be executable -->
+            <zipfileset dir="mac_tmp" filemode="755" includes="Greenfoot.app/Contents/PkgInfo,Greenfoot.app/Contents/MacOS/JavaApplicationStub"/>
+                        
+        </zip>
+        
+        <delete dir="mac_tmp" />
+    </target>
+
+    
     <!-- windows-dist requires that a greenfoot-dist.jar file is placed into
          the package directory. This is unjarred and then rebuilt into
          the windows installer package (left as winsetup/bluejsetup.exe)-->

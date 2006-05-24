@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleAllowMixedLocalizations</key>
+	<string>true</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>bjp</string>
+				<string>*</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>bluejproj.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>bluejproj</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+		</dict>
+	</array>
+	<key>CFBundleExecutable</key>
+	<string>JavaApplicationStub</string>
+	<key>CFBundleGetInfoString</key>
+	<string>VERSION</string>
+	<key>CFBundleIconFile</key>
+	<string>greenfoot.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.greenfoot</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>greenfoot</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>VERSION</string>
+	<key>CFBundleSignature</key>
+	<string>FOOT</string>
+	<key>CFBundleVersion</key>
+	<string>VERSION</string>
+	<key>Java</key>
+	<dict>
+		<key>Arguments</key>
+		<string>-greenfoot=true -bluej.compiler.showunchecked=false</string>
+		<key>ClassPath</key>
+		<array>
+			<string>$JAVAROOT/antlr.jar</string>
+			<string>$JAVAROOT/bluej.jar</string>
+			<string>$JAVAROOT/bluejcore.jar</string>
+			<string>$JAVAROOT/bluejeditor.jar</string>
+			<string>$JAVAROOT/bluejext.jar</string>
+			<string>$JAVAROOT/junit.jar</string>
+			<string>$JAVAROOT/MRJ141Stubs.jar</string>
+			<string>/System/Library/Java</string>
+			<string>$JAVAROOT/extensions/greenfoot.jar</string>
+		</array>
+		<key>JVMVersion</key>
+		<string>1.5*</string>
+		<key>MainClass</key>
+		<string>bluej.Boot</string>
+		<key>Properties</key>
+		<dict/>
+	</dict>
+</dict>
+</plist>
