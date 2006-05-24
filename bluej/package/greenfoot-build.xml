@@ -42,6 +42,10 @@
     <patternset id="greenfoot.scenarios">
         <include name="scenarios/" />
     </patternset>
+	
+    <patternset id="greenfoot.tutorial">
+        <include name="tutorial/" />
+    </patternset>
 
     <target name="dist">
         <delete dir="install_tmp" />
@@ -56,6 +60,9 @@
             </fileset>
             <fileset dir="${bluej_home}/package" >
                 <patternset refid="greenfoot.scenarios"/>
+            </fileset>
+        	 <fileset dir="${bluej_home}/package" >
+                <patternset refid="greenfoot.tutorial"/>
             </fileset>
         </copy>
        
@@ -128,6 +135,8 @@
              greenfoot-dist-new.jar which is the platform independant
              distributable -->
         <delete dir="install_tmp"/>
+    	<delete dir="${bluej_home}/package/scenarios"/>
+    	<delete dir="${bluej_home}/package/tutorial"/>
     </target>
 
     <!-- windows-dist requires that a greenfoot-dist.jar file is placed into

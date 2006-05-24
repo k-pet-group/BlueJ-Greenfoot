@@ -50,6 +50,7 @@
 	<property name="build" location="classes"/>
 	<!-- Location of the packed files for distribution -->
 	<property name="package" location="package"/>
+	
 	<!-- Files that are used in the skeleton project. These are the user-visible framework files   -->
 	<patternset id="skeleton.files">
 		<include name="greenfoot/World.*"/>
@@ -57,6 +58,11 @@
 		<include name="images/greenfoot.png"/>
 	</patternset>
 
+	<!-- Files that are used in tutorial -->
+	<fileset id="tutorial.files" dir="resources/tutorial/">
+		<include name="*"/>
+	</fileset>
+	
 	<!-- scenarios to be included in standard distribution -->
 	<patternset id="distribution.scenarios">
 		<exclude name="**/*.pkh" />
@@ -69,6 +75,7 @@
 		<include name="lunarlander/" />
 		<include name="turtleGraphics/" />
 		<include name="wombats/" />
+		<include name="wombats2/" />
 	</patternset>
 
 	<!-- To avoid duplicate classes when compiling scenarios we exclude the greenfoot classes here -->
@@ -81,7 +88,7 @@
 	<path id="greenfoot.class.path">
 		<pathelement location="${build}"/>
 	</path>
-
+	
 	<target name="init">
 		<!-- Create the time stamp -->
 		<tstamp/>
@@ -164,6 +171,7 @@
 		<compile-scenario scenario="lunarlander" />
 		<compile-scenario scenario="turtleGraphics" />
 		<compile-scenario scenario="wombats" />
+		<compile-scenario scenario="wombats2" />
 		
 		<!-- Compile all the scenarios -->
 		<!--
@@ -215,17 +223,23 @@
 		<copy file="resources/greenfoot-icon-16.png" tofile="projects/skeletonProject/images/greenfoot.png"/>
 	</target>
 
-	<target name="copy-projects" depends="skeleton"  description="Copies the projects skeletonProject, startupProject and scenarios to bluej" >
+	<target name="copy-projects" depends="skeleton"  description="Copies the projects skeletonProject and startupProject to bluej" >
 		<copy todir="${bluej.lib.greenfoot}">
 			<fileset dir="projects"/>
 		</copy>
 	</target>
 	
-	<target name="copy-scenarios" depends="compile-scenarios"  description="Copies the projects skeletonProject, startupProject and scenarios to bluej" >
+	<target name="copy-scenarios" depends="compile-scenarios"  description="Copies the scenarios to bluej" >
 		<copy todir="${bluej.projectdir}/package/scenarios">
 			<fileset dir="scenarios">
 				<patternset refid="distribution.scenarios"/>
 			</fileset>
+		</copy>
+	</target>
+	
+	<target name="copy-tutorial" description="Copies the projects tutorial and tutorial project to BlueJ" >
+		<copy todir="${bluej.projectdir}/package/tutorial">
+			<fileset refid="tutorial.files"/>
 		</copy>
 	</target>
 
@@ -250,7 +264,7 @@
 		<copy file="resources/greenfoot-icon-16.png" tofile="images/greenfoot.png"/>				
 	</target>		
 
-	<target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
+	<target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-tutorial" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
 		<!-- Run the BlueJ dist-->
 		<ant dir="${bluej.projectdir}" target="dist-greenfoot" />
 
