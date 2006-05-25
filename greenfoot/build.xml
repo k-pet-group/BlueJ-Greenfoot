@@ -270,11 +270,11 @@
 
 		<move file="${bluej.installer.jar}" tofile="${package}/greenfoot-installer-${greenfoot.version}.jar"/>
 		<move file="${bluej.dist.jar}" tofile="${package}/greenfoot-dist-${greenfoot.version}.jar"/>
-		<move file="${bluej.dist.mac}" tofile="${package}/greenfoot-${greenfoot.version}.zip"/>
+		<move file="${bluej.dist.mac}" tofile="${package}/Greenfoot-${greenfoot.version}.zip"/>
 
 		<echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist-${greenfoot.version}.jar.jar"/>
 		<echo message="The greenfoot jar-installer is in ${package}/greenfoot-installer-${greenfoot.version}.jar.jar"/>
-		<echo message="The greenfoot Mac-installer is in ${package}/greenfoot-${greenfoot.version}.zip"/>
+		<echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-${greenfoot.version}.zip"/>
 	</target>
 
 	<target name="clean" description="clean up" >

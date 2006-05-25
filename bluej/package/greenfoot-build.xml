@@ -142,20 +142,20 @@
 
     <target name="mac-dist">
         <delete dir="mac_tmp" />
-        <mkdir dir="mac_tmp" />
-        
+        <property name="mac_dir" location="mac_tmp/Greenfoot ${greenfoot.version}/" />        
+        <mkdir dir="${mac_dir}" />
         <!-- copy the skeleton mac dir /Greenfoot ${greenfoot.version}-->
-        <copydir src="macfiles" dest="mac_tmp"/>
+        <copydir src="macfiles" dest="${mac_dir}"/>
         
         <!-- update version number -->
         <replaceregexp byline="true">
         	    <regexp pattern="VERSION"/>
         	    <substitution expression="${greenfoot.version}"/>
-        	    <fileset dir="mac_tmp/Greenfoot.app/Contents" includes="Info.plist"/>
+        	    <fileset dir="${mac_dir}/Greenfoot.app/Contents" includes="Info.plist"/>
         	</replaceregexp>
                
         <!-- construct the directory structure we want for the distribution -->
-        <copy todir="mac_tmp">
+        <copy todir="${mac_dir}">
             <fileset dir="${bluej_home}/package" >
                 <patternset refid="greenfoot.scenarios"/>
             </fileset>
@@ -163,18 +163,18 @@
                 <patternset refid="greenfoot.tutorial"/>
             </fileset>
         </copy>		        
-        <copy todir="mac_tmp/">
+        <copy todir="${mac_dir}">
            <fileset dir="${bluej_home}" >
                <patternset refid="bluej.libfiles"/>
                <patternset refid="bluej.libdirs"/>
            </fileset>
         </copy>
-        <move todir="mac_tmp/Greenfoot.app/Contents/Resources/Java" > 
-            <fileset dir="mac_tmp/lib/">
+        <move todir="${mac_dir}/Greenfoot.app/Contents/Resources/Java" > 
+            <fileset dir="${mac_dir}/lib/">
                 <!--include name="mac_tmp/lib/**"/-->
             </fileset>
         </move>
-        <delete dir="mac_tmp/Greenfoot.app/Contents/Resources/Java/lib"/>
+        <delete dir="${mac_dir}/Greenfoot.app/Contents/Resources/Java/lib"/>
         
         <!-- ZIP it -->
         <!--zip basedir="mac_tmp" destfile="${bluej.dist.mac}" /-->
