@@ -1,0 +1,19 @@
+#Greenfoot properties
+#Thu May 25 19:15:50 BST 2006
+class.asd.superclass=greenfoot.Actor
+simulation.speed=91
+class.Figther.image=rocketWithThrust.png
+class.Bullet.image=bullet.png
+class.Space.superclass=greenfoot.World
+mainWindow.width=851
+class.Figther.superclass=greenfoot.Actor
+class.Asteroid.image=rock.gif
+class.MovingThing.superclass=greenfoot.Actor
+class.Rocket.superclass=MovingThing
+version=1.0
+class.Asteroid.superclass=MovingThing
+class.Rocket.image=rocket.png
+mainWindow.y=57
+mainWindow.x=177
+mainWindow.height=584
+class.Bullet.superclass=MovingThing
