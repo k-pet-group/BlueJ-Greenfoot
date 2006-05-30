@@ -24,7 +24,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4258 2006-05-14 16:44:44Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4339 2006-05-30 11:09:56Z polle $
  */
 public class GreenfootImage
 {
@@ -476,13 +476,13 @@ public class GreenfootImage
      * The area inside the polygon is defined using an even-odd fill rule, also
      * known as the alternating rule.
      * 
-     * @param xpoints a an array of <code>x</code> coordinates.
-     * @param ypoints a an array of <code>y</code> coordinates.
+     * @param xPoints a an array of <code>x</code> coordinates.
+     * @param yPoints a an array of <code>y</code> coordinates.
      * @param nPoints a the total number of points.
      */
-    public void fillPolygon(int[] xpoints, int[] ypoints, int nPoints)
+    public void fillPolygon(int[] xPoints, int[] yPoints, int nPoints)
     {
-        getGraphics().fillPolygon(xpoints, ypoints, nPoints);
+        getGraphics().fillPolygon(xPoints, yPoints, nPoints);
     }
 
     /**
@@ -498,13 +498,13 @@ public class GreenfootImage
      * The figure is automatically closed by drawing a line connecting the final
      * point to the first point, if those points are different.
      * 
-     * @param xPoints a an array of <code>x</code> coordinates.
-     * @param yPoints a an array of <code>y</code> coordinates.
-     * @param nPoints a the total number of points.
+     * @param xPoints an array of <code>x</code> coordinates.
+     * @param yPoints an array of <code>y</code> coordinates.
+     * @param nPoints the total number of points.
      */
-    public void drawPolygon(int[] xpoints, int[] ypoints, int nPoints)
+    public void drawPolygon(int[] xPoints, int[] yPoints, int nPoints)
     {
-        getGraphics().drawPolygon(xpoints, ypoints, nPoints);
+        getGraphics().drawPolygon(xPoints, yPoints, nPoints);
     }
 
     /**
