@@ -165,14 +165,14 @@ public class BVHInsChecker
          */
         public void reset()
         {
-            if(left != null && left.parent == this) {
+            if (left != null && left.parent == this) {
                 left.parent = null;
             }
-            if(right != null && right.parent == this) {
+            if (right != null && right.parent == this) {
                 right.parent = null;
             }
-            if(parent != null) {
-                if(parent.left == this) {
+            if (parent != null) {
+                if (parent.left == this) {
                     parent.left = null;
                 } else if(parent.right == this) {
                     parent.right = null;
@@ -182,9 +182,9 @@ public class BVHInsChecker
             left = null;
             right = null;
             circle = null;
-            if(actor != null) {
+            if (actor != null) {
                 ActorVisitor.setData(actor, null);
-        }
+            }
             actor = null;
         }
 
@@ -628,7 +628,7 @@ public class BVHInsChecker
         Node n = (Node) ActorVisitor.getData(object);
         Circle c = ActorVisitor.getBoundingCircle(object);
         if (c != null && n != null) {
-            n.circle.setRadius(c.getRadius());
+            n.circle.setRadius(c.getRadius() * cellSize);
             tree.repairNode((Node) ActorVisitor.getData(object));
         }        
     }
