@@ -109,9 +109,9 @@ public class WorldInvokeListener
             }
             else {
                 CallHistory ch = GreenfootMain.getInstance().getCallHistory();
-                MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(), null, ch, instanceName, mv, null);
+                MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(),
+                        WorldHandler.getInstance(), ch, instanceName, mv, null);
 
-                WorldHandler.getInstance().addObjectEventListener(md); 
                 md.setWatcher(this);
                 md.setVisible(true);
                 
@@ -164,9 +164,9 @@ public class WorldInvokeListener
         }
         else {
             CallHistory ch = GreenfootMain.getInstance().getCallHistory();
-            MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(), null, ch, "result", cv, null);
+            MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(),
+                    WorldHandler.getInstance(), ch, "result", cv, null);
 
-            WorldHandler.getInstance().addObjectEventListener(md); 
             md.setWatcher(this);
             md.setVisible(true);
             
@@ -249,7 +249,6 @@ public class WorldInvokeListener
                         mdlg.setEnabled(true);
                     }
                     else {
-                        disposeDialog(mdlg);
                         Method m = mv.getMethod();
                         if (m.getReturnType() != void.class) {
                             // Non-void result, display it in a result inspector.
@@ -291,7 +290,6 @@ public class WorldInvokeListener
                     }
                     else {
                         // Construction went ok (or there was a runtime error).
-                        disposeDialog(mdlg);
                         if (resultName != null) {
                             RObject rresult = pkg.getObject(resultName);
                             Object resultw =  ObjectTracker.getRealObject(rresult);
@@ -317,16 +315,7 @@ public class WorldInvokeListener
             worldHandler.repaint();
         }
     }
-    
-    /**
-     * Dispose of the method dialog.
-     */
-    private void disposeDialog(MethodDialog mdlg)
-    {
-        WorldHandler.getInstance().removeObjectEventListener(mdlg);
-        mdlg.dispose();
-    }
-    
+        
     /**
      * Wrap a value, that is the result of a method call, in a form that the
      * ResultInspector can understand.<p>

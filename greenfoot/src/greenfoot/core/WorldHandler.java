@@ -19,25 +19,12 @@ import greenfoot.localdebugger.LocalObject;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.rmi.RemoteException;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.EventListenerList;
 
 import rmiextension.wrappers.RObject;
@@ -45,6 +32,7 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.objectbench.ObjectBenchEvent;
+import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.ClassNotFoundException;
@@ -59,7 +47,7 @@ import bluej.extensions.ProjectNotOpenException;
  * @version $Id$
  */
 public class WorldHandler
-    implements MouseListener, KeyListener, DropTarget, DragListener
+    implements MouseListener, KeyListener, DropTarget, DragListener, ObjectBenchInterface
 {
     private World world;
     private WorldCanvas worldCanvas;
@@ -764,7 +752,7 @@ public class WorldHandler
      * Add listener to recieve events when objects in the world are clicked.
      * @param listener
      */
-    public void addObjectEventListener(ObjectBenchListener listener)
+    public void addObjectBenchListener(ObjectBenchListener listener)
     {
         listenerList.add(ObjectBenchListener.class, listener);
     }
@@ -774,8 +762,16 @@ public class WorldHandler
      * Add listener to recieve events when objects in the world are clicked.
      * @param listener
      */
-    public void removeObjectEventListener(ObjectBenchListener listener)
+    public void removeObjectBenchListener(ObjectBenchListener listener)
     {
         listenerList.remove(ObjectBenchListener.class, listener);
+    }
+    
+    /* (non-Javadoc)
+     * @see bluej.debugmgr.objectbench.ObjectBenchInterface#hasObject(java.lang.String)
+     */
+    public boolean hasObject(String name)
+    {
+        return false;
     }
 }
