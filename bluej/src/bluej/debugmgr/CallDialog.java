@@ -11,15 +11,14 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import bluej.BlueJTheme;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectBenchEvent;
+import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
-import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import bluej.utility.MultiLineLabel;
@@ -30,7 +29,7 @@ import bluej.utility.MultiLineLabel;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 4277 2006-05-15 23:43:11Z polle $
+ * @version $Id: CallDialog.java 4341 2006-06-07 05:32:07Z davmac $
  */
 public abstract class CallDialog extends EscapeDialog
 	implements ObjectBenchListener
@@ -40,12 +39,12 @@ public abstract class CallDialog extends EscapeDialog
 
     private MultiLineLabel errorLabel;
 
-    private ObjectBench bench;
+    private ObjectBenchInterface bench;
     private CallDialogWatcher watcher;
     
     protected JButton okButton;
 
-    public CallDialog(JFrame parentFrame, ObjectBench objectBench, String title)
+    public CallDialog(JFrame parentFrame, ObjectBenchInterface objectBench, String title)
     {
         super(parentFrame, title, false);
         bench = objectBench;
@@ -105,7 +104,7 @@ public abstract class CallDialog extends EscapeDialog
     /**
      * Return the frame's object bench.
      */
-    protected ObjectBench getObjectBench()
+    protected ObjectBenchInterface getObjectBench()
     {
         return bench;
     }

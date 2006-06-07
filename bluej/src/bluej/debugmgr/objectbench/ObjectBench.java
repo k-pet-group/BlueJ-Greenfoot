@@ -21,10 +21,10 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 3478 2005-07-26 02:46:05Z davmac $
+ * @version $Id: ObjectBench.java 4341 2006-06-07 05:32:07Z davmac $
  */
 public class ObjectBench extends JPanel implements ValueCollection,
-    FocusListener, KeyListener, MouseListener
+    FocusListener, KeyListener, MouseListener, ObjectBenchInterface
 {
     private static final Color BACKGROUND_COLOR = Config.getItemColour("colour.objectbench.background");
 

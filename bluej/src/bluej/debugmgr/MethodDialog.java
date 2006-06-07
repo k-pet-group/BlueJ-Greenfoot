@@ -18,6 +18,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.TextType;
 import bluej.debugmgr.objectbench.ObjectBench;
+import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.ComponentFactory;
@@ -36,7 +37,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 3981 2006-04-06 04:43:54Z davmac $
+ * @version $Id: MethodDialog.java 4341 2006-06-07 05:32:07Z davmac $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -114,7 +115,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 3981 2006-04-06 04:43:54Z davmac $
+     * @version $Id: MethodDialog.java 4341 2006-06-07 05:32:07Z davmac $
      */
     public static class ParameterList
     {
@@ -271,7 +272,8 @@ public class MethodDialog extends CallDialog implements FocusListener
      * @param typeMap      The mapping of type parameter names to runtime types
      *                     (a Map of String -> GenType).
      */
-    public MethodDialog(JFrame parentFrame, ObjectBench ob, CallHistory callHistory, String instanceName, CallableView method, Map typeMap) {
+    public MethodDialog(JFrame parentFrame, ObjectBenchInterface ob, CallHistory callHistory, String instanceName, CallableView method, Map typeMap)
+    {
         super(parentFrame, ob, "");
 
         history = callHistory;
@@ -317,7 +319,7 @@ public class MethodDialog extends CallDialog implements FocusListener
                     setErrorMessage(illegalNameMsg);
                     return;
                 }
-                ObjectBench ob = getObjectBench();
+                ObjectBenchInterface ob = getObjectBench();
                 if (ob != null && ob.hasObject(getNewInstanceName())) {
                     setErrorMessage(duplicateNameMsg);
                     return;
