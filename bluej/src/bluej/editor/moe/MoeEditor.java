@@ -98,9 +98,6 @@ public final class MoeEditor extends JFrame
 
     final static String COMPILED = "compiled";
 
-    // PageFormat object for printing page format
-    private static PageFormat pageFormat;
-
     private static boolean matchBrackets = false;
 
     // -------- INSTANCE VARIABLES --------
@@ -1115,8 +1112,16 @@ public final class MoeEditor extends JFrame
      */
     public void print(PrinterJob printerJob)
     {
-        PrintHandler pt = new PrintHandler(printerJob);
+        PrintHandler pt = new PrintHandler(printerJob, getPageFormat(printerJob));
         pt.print();
+    }
+    
+    /**
+     * Return a validated version of the global PageFormat for BlueJ
+     */
+    public PageFormat getPageFormat(PrinterJob job)
+    {
+        return job.validatePage(PkgMgrFrame.getPageFormat());
     }
 
     /**
@@ -1128,14 +1133,8 @@ public final class MoeEditor extends JFrame
     {
         // create a printjob
         PrinterJob job = PrinterJob.getPrinterJob();
-
-        // make sure the pageformat is ok
-        if(pageFormat == null) {
-            pageFormat = PkgMgrFrame.getPageFormat();
-        }
-        pageFormat = job.validatePage(pageFormat);
         if (job.printDialog()) {
-            PrintHandler pt = new PrintHandler(job);
+            PrintHandler pt = new PrintHandler(job, getPageFormat(job));
             Thread printJobThread = new Thread(pt);
             printJobThread.setPriority((Thread.currentThread().getPriority() - 1));
             printJobThread.start();
@@ -1145,12 +1144,14 @@ public final class MoeEditor extends JFrame
     // --------------------------------------------------------------------
     /**
      * Implementation of the "page setup" user function. This provides a dialog
-     * for print page setup.
+     * for print page setup. PageSetup is global to BlueJ. Calling this from the 
+     * Editor is effectively the same as calling from PkgMgrFrame as this saves 
+     * back to PkgMgrFrame's global page format object.
      */
     public void pageSetup()
     {
         PrinterJob job = PrinterJob.getPrinterJob();
-        pageFormat = job.pageDialog(PkgMgrFrame.getPageFormat());
+        PageFormat pageFormat = job.pageDialog(PkgMgrFrame.getPageFormat());
         PkgMgrFrame.setPageFormat(pageFormat);
     }
 
@@ -2449,14 +2450,16 @@ public final class MoeEditor extends JFrame
         implements Runnable
     {
         PrinterJob printJob;
+        PageFormat pageFormat;
 
         /**
          * Construct the PrintHandler.
          */
-        public PrintHandler(PrinterJob pj)
+        public PrintHandler(PrinterJob pj, PageFormat format)
         {
             super();
             printJob = pj;
+            pageFormat = format;
         }
 
         /**
