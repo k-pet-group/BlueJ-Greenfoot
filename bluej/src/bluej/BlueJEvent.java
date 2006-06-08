@@ -24,11 +24,9 @@ import java.util.List;
   *  CREATE_VM_DONE (unused)        creation of VM completed
   *
   *  METHOD_CALL    a String representing   an interactive method call
-  *                      the call                was started
+  *                      the call           was started or completed
   *
-  *  EXECUTION_STARTED  (unused)        VM execution started
-  *
-  *  EXECUTION_FINISHED (unused)        VM execution finished
+  *  EXECUTION_RESULT  bluej.debugmgr.ExpressionInformation   VM execution finished
   *
   *  GENERATING_DOCU    (unused)        documentation generation started
   *
@@ -38,7 +36,7 @@ import java.util.List;
   *
   * </PRE>
   * @author Michael Kolling
-  * @version $Id: BlueJEvent.java 3610 2005-09-29 06:38:44Z davmac $
+  * @version $Id: BlueJEvent.java 4344 2006-06-08 06:11:25Z davmac $
   *
   */
 
