@@ -17,7 +17,7 @@ import bluej.prefmgr.PrefMgr;
  * 
  * @author Andrew Patterson
  * @author Bruce Quig
- * @version $Id: ArrayWrapper.java 2957 2004-08-30 10:43:16Z polle $
+ * @version $Id: ArrayWrapper.java 4345 2006-06-08 06:33:46Z davmac $
  */
 public class ArrayWrapper extends ObjectWrapper
 {
@@ -29,7 +29,7 @@ public class ArrayWrapper extends ObjectWrapper
 
     public ArrayWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, String instanceName)
     {
-        super(pmf, ob, obj, instanceName);
+        super(pmf, ob, obj, obj.getGenType(), instanceName);
     }
 
     /**

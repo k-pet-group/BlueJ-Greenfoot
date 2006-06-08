@@ -90,7 +90,7 @@ public class DragAndDropHelper
         deregisterListeners();
         
         if(pointInTarget(x, y)) {
-            frame.getPackage().getEditor().raisePutOnBenchEvent(target, object, invokerRecord);
+            frame.getPackage().getEditor().raisePutOnBenchEvent(target, object, object.getGenType(), invokerRecord);
         }
         target.showFocusHiLight(false);
     }

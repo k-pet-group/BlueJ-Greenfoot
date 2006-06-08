@@ -40,7 +40,7 @@ import bluej.utility.JavaNames;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 4257 2006-05-14 16:38:01Z davmac $
+ * @version $Id: UnitTestClassRole.java 4345 2006-06-08 06:33:46Z davmac $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -327,8 +327,9 @@ public class UnitTestClassRole extends ClassRole
                         
                         while(it.hasNext()) {
                             Map.Entry mapent = (Map.Entry) it.next();
+                            DebuggerObject objVal = (DebuggerObject) mapent.getValue();
                             
-                            pmf.putObjectOnBench((String) mapent.getKey(), (DebuggerObject)mapent.getValue(), null);
+                            pmf.putObjectOnBench((String) mapent.getKey(), objVal, objVal.getGenType(), null);
                         }
                         
                         pmf.getObjectBench().resetRecordingInteractions();
@@ -443,8 +444,9 @@ public class UnitTestClassRole extends ClassRole
         
         while(it.hasNext()) {
             Map.Entry mapent = (Map.Entry) it.next();
+            DebuggerObject objVal = (DebuggerObject) mapent.getValue();
 
-            pmf.putObjectOnBench((String) mapent.getKey(), (DebuggerObject)mapent.getValue(), null);
+            pmf.putObjectOnBench((String) mapent.getKey(), objVal, objVal.getGenType(), null);
         }
         
         pmf.getObjectBench().addInteraction(existing);

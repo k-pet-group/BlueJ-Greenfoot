@@ -28,7 +28,7 @@ import com.sun.jdi.Value;
  * Behaviour is similar to the Reflection API.
  *
  *
- * @version    $Id: BField.java 3542 2005-08-24 10:22:28Z damiano $
+ * @version    $Id: BField.java 4345 2006-06-08 06:33:46Z davmac $
  */
 
 /*
@@ -275,7 +275,8 @@ public class BField
         }
 
         if (val instanceof ObjectReference) {
-            ObjectWrapper objWrap = ObjectWrapper.getWrapper(packageFrame, packageFrame.getObjectBench(), JdiObject.getDebuggerObject((ObjectReference) val), instanceName);
+            JdiObject obj = JdiObject.getDebuggerObject((ObjectReference) val);
+            ObjectWrapper objWrap = ObjectWrapper.getWrapper(packageFrame, packageFrame.getObjectBench(), obj, obj.getGenType(), instanceName);
             return objWrap.getBObject();
         }
 

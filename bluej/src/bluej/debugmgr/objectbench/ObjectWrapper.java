@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -36,6 +37,7 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
+import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -49,7 +51,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 3713 2005-11-09 01:42:02Z davmac $
+ * @version $Id: ObjectWrapper.java 4345 2006-06-08 06:33:46Z davmac $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -85,6 +87,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
 
     // The Java object that this wraps
     protected DebuggerObject obj;
+    protected GenTypeClass iType;
 
     private String className;
     private String instanceName;
@@ -105,8 +108,21 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
             new Color(0,0,0,66)//closes to the center
     };
 
+    /**
+     * Get an object wrapper for a user object. 
+     * 
+     * @param pmf   The package manager frame
+     * @param ob    The object bench
+     * @param obj   The object to wrap
+     * @param iType   The static type of the object, used as a fallback if
+     *                the runtime type is inaccessible
+     * @param instanceName  The name for the object reference
+     * @return
+     */
     static public ObjectWrapper getWrapper(PkgMgrFrame pmf, ObjectBench ob,
-                                            DebuggerObject obj, String instanceName)
+                                            DebuggerObject obj,
+                                            GenTypeClass iType,
+                                            String instanceName)
     {
         if(pmf.isEmptyFrame())
             throw new IllegalArgumentException();
@@ -115,11 +131,11 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
             return new ArrayWrapper(pmf, ob, obj, instanceName);
         }
         else {
-            return new ObjectWrapper(pmf, ob, obj, instanceName);
+            return new ObjectWrapper(pmf, ob, obj, iType, instanceName);
         }
     }
 
-    protected ObjectWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, String instanceName)
+    protected ObjectWrapper(PkgMgrFrame pmf, ObjectBench ob, DebuggerObject obj, GenTypeClass iType, String instanceName)
     {
         if(pmf.isEmptyFrame())
             throw new IllegalArgumentException();
@@ -132,13 +148,12 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         this.pkg = pmf.getPackage();
         this.ob = ob;
         this.obj = obj;
+        this.iType = iType;
         this.setName(instanceName);
-
-        // Must use the raw class name for createMenu call
-        createMenu(obj.getClassName());
-
         className = obj.getGenClassName();
         displayClassName = obj.getStrippedGenClassName(); 
+
+        createMenu(findIType());
                 
         enableEvents(AWTEvent.MOUSE_EVENT_MASK);
         
@@ -155,11 +170,6 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         return pkg;
     }
 
-    public PkgMgrFrame getFrame()
-    {
-        return pmf;
-    }
-    
     public String getClassName()
     {
         return obj.getClassName();
@@ -170,10 +180,17 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         return className;
     }
 
+    /**
+     * Return the invocation type for this object. The invocation type is the
+     * type which should be written in the shell file. It is not necessarily the
+     * same as the actual (dynamic) type of the object.
+     */
     public JavaType getGenType()
     {
-        return obj.getGenType();
+        return iType;
     }
+    
+    // --------- NamedValue interface --------------
     
     public boolean isFinal()
     {
@@ -185,6 +202,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         return true;
     }
     
+    // ----------------------------------------------
     
     private BObject singleBObject;  // Every ObjectWrapper has none or one BObject
     
@@ -202,7 +220,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     }
     
     /**
-     * Open this object for inspection.
+     * Perform any necessary cleanup before removal from the object bench.
      */
     public void prepareRemove()
     {
@@ -210,22 +228,72 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     }
 
     /**
+     * Check whether the given class is accessible (from this wrapper's package)
+     * 
+     * @param cl  The class to check for accessibility
+     * @return    True if the class is accessible, false otherwise
+     */
+    private boolean classIsAccessible(Class cl)
+    {
+        int clMods = cl.getModifiers();
+        String classPackage = JavaNames.getPrefix(cl.getName());
+        if (Modifier.isProtected(clMods) && ! pkg.getQualifiedName().equals(classPackage)
+                || Modifier.isPrivate(clMods)) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    
+    /**
+     * Determine an appropriate type to use for this object in shell files.
+     * The type must be accessible in the current package.
+     * 
+     * iType will be set to the chosen type.
+     * 
+     * @return  The class of the chosen type.
+     */
+    private Class findIType()
+    {
+        String className = obj.getClassName();
+        Class cl = pkg.loadClass(className);
+        
+        // If the class is inaccessible, use the invocation type.
+        if (cl != null) {
+            if (! classIsAccessible(cl)) {
+                cl = pkg.loadClass(iType.rawName());
+                while (cl != null && ! classIsAccessible(cl)) {
+                    cl = cl.getSuperclass();
+                    if (cl != null) {
+                        iType = iType.mapToSuper(cl.getName());
+                    }
+                    else {
+                        JavaReflective objectReflective = new JavaReflective(Object.class);
+                        iType = new GenTypeClass(objectReflective);
+                    }
+                }
+            }
+            else {
+                // If the class type *is* accessible, on the other hand,
+                // use it as the invocation type.
+                iType = obj.getGenType();
+            }
+        }
+
+        return cl;
+    }
+    
+    /**
      * Creates the popup menu structure by parsing the object's
      * class inheritance hierarchy.
-     *
-     * @param className   class name of the object for which the menu is to be built
-     *                    (fully qualified)
      */
-    protected void createMenu(String className)
+    protected void createMenu(Class cl)
     {
-        // System.out.println ("Bobject createMenu");    Damiano, marker for dynamic menu
-        Class cl = pkg.loadClass(className);
-
-
         menu = new JPopupMenu(getName() + " operations");
 
         // add the menu items to call the methods
-        createMethodMenuItems(menu, cl, this, obj, pkg.getQualifiedName());
+        createMethodMenuItems(menu, cl, iType, this, obj, pkg.getQualifiedName());
 
         // add inspect and remove options
         JMenuItem item;
@@ -263,7 +331,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      *            shown from (used to determine wheter to show package protected
      *            methods)
      */
-    public static void createMethodMenuItems(JPopupMenu menu, Class cl, InvokeListener il, DebuggerObject obj,
+    public static void createMethodMenuItems(JPopupMenu menu, Class cl, GenTypeClass gtype, InvokeListener il, DebuggerObject obj,
             String currentPackageName)
     {
         if (cl != null) {
@@ -283,15 +351,13 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
             else
                 filter = otherPackageFilter;
 
-            
-            
             menu.addSeparator();
 
             // get declared methods for the class
             MethodView[] declaredMethods = view.getDeclaredMethods();
             
             // create method entries for locally declared methods
-            GenTypeClass curType = obj.getGenType();
+            GenTypeClass curType = gtype;
             
             // HACK to make it work in greenfoot.
             if(itemsOnScreen <= 0 ) {

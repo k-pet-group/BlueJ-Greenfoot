@@ -18,6 +18,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.LibraryCallDialog;
@@ -54,7 +55,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 4314 2006-05-23 11:18:18Z mik $
+ * @version $Id: PkgMgrFrame.java 4345 2006-06-08 06:33:46Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -778,7 +779,7 @@ public class PkgMgrFrame extends JFrame
                         tryAgain = false; // cancelled
                     }
                     else if (JavaNames.isIdentifier(newObjectName)) {
-                        putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getInvokerRecord());
+                        putObjectOnBench(newObjectName, e.getDebuggerObject(), e.getIType(), e.getInvokerRecord());
                         tryAgain = false;
                     }
                     else {
@@ -1539,7 +1540,7 @@ public class PkgMgrFrame extends JFrame
                         // result.getInstanceFieldObject(0);
 
                         ObjectWrapper wrapper = ObjectWrapper.getWrapper(PkgMgrFrame.this, getObjectBench(), result,
-                                name);
+                                result.getGenType(), name);
                         getObjectBench().addObject(wrapper);
 
                         getPackage().getDebugger().addObject(pkg.getId(), wrapper.getName(), result);
@@ -1663,12 +1664,15 @@ public class PkgMgrFrame extends JFrame
      * 
      * @param newInstanceName  Name for the instance on the bench.
      * @param object    The internal object to be placed.
+     * @param iType    The "interface type" of the object. This is the type of the object
+     *               for purposes of method calls etc if the actual type is inaccessible
+     *               (private to another package or class).
      * @param ir    The invoker record (for recording interaction).
      */
-    public void putObjectOnBench(String newInstanceName, DebuggerObject object, InvokerRecord ir)
+    public void putObjectOnBench(String newInstanceName, DebuggerObject object, GenTypeClass iType, InvokerRecord ir)
     {
         if (!object.isNullObject()) {
-            ObjectWrapper wrapper = ObjectWrapper.getWrapper(this, getObjectBench(), object, newInstanceName);
+            ObjectWrapper wrapper = ObjectWrapper.getWrapper(this, getObjectBench(), object, iType, newInstanceName);
             getObjectBench().addObject(wrapper); // might change name
 
             // load the object into runtime scope

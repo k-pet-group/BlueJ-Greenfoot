@@ -10,7 +10,7 @@ import bluej.views.*;
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API.
  *
- * @version    $Id: BConstructor.java 4095 2006-05-05 13:45:01Z davmac $
+ * @version    $Id: BConstructor.java 4345 2006-06-08 06:33:46Z davmac $
  */
 
 /*
@@ -145,7 +145,7 @@ public class BConstructor
         String resultName = invoker.getResultName();
         PkgMgrFrame pmf = parentId.getPackageFrame();
 
-        ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, resultName);
+        ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, result.getGenType(), resultName);
 
         return new BObject(wrapper);
     }

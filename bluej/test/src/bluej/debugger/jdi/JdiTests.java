@@ -28,7 +28,7 @@ import bluej.views.View;
  * Tests for the debugger.
  *  
  * @author Davin McCall
- * @version $Id: JdiTests.java 3739 2006-01-11 00:41:45Z davmac $
+ * @version $Id: JdiTests.java 4345 2006-06-08 06:33:46Z davmac $
  */
 public class JdiTests extends TestCase
 {
@@ -233,7 +233,7 @@ public class JdiTests extends TestCase
                     public void putResult(DebuggerObject result, String name, InvokerRecord ir)
                     {
                         if (result != null) {
-                            ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, "result");
+                            ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), result, result.getGenType(), "result");
                             pmf.getObjectBench().addObject(wrapper);
 
                             pmf.getPackage().getDebugger().addObject(pmf.getPackage().getId(), wrapper.getName(), result);

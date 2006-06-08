@@ -27,7 +27,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 3704 2005-10-26 02:05:20Z davmac $
+ * @version $Id: ResultInspector.java 4345 2006-06-08 06:33:46Z davmac $
  */
 public class ResultInspector extends Inspector
 {
@@ -309,5 +309,12 @@ public class ResultInspector extends Inspector
     protected int getPreferredRows()
     {
         return 2;
+    }
+    
+    protected void doGet()
+    {
+        if (selectedObject != null) {
+            pkg.getEditor().raisePutOnBenchEvent(this, selectedObject, resultType.asClass(), ir);
+        }
     }
 }

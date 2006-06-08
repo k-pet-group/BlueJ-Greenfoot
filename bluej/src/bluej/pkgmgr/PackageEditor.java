@@ -3,8 +3,9 @@ package bluej.pkgmgr;
 import java.awt.Component;
 
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.graph.GraphEditor;
-import bluej.pkgmgr.target.*;
+import bluej.pkgmgr.target.Target;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.views.CallableView;
 
@@ -12,7 +13,7 @@ import bluej.views.CallableView;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 2227 2003-10-28 02:08:15Z ajp $
+ * @version $Id: PackageEditor.java 4345 2006-06-08 06:33:46Z davmac $
  */
 public final class PackageEditor extends GraphEditor
 {
@@ -93,9 +94,17 @@ public final class PackageEditor extends GraphEditor
                                     packageName));
     }
 
-    public void raisePutOnBenchEvent(Component src, DebuggerObject obj, InvokerRecord ir)
+    /**
+     * Raise an event to notify that an object should be placed on the oject bench.
+     * @param src  The source of the event
+     * @param obj    The object to be put on the event
+     * @param iType  The "interface" type of the object (declared type, used as a
+     *               fallback if the runtime type is not accessible)
+     * @param ir   The invoker record for the invocation used to create this object
+     */
+    public void raisePutOnBenchEvent(Component src, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir)
     {
         fireTargetEvent(
-            new PackageEditorEvent(src, PackageEditorEvent.OBJECT_PUTONBENCH, obj, ir));
+            new PackageEditorEvent(src, PackageEditorEvent.OBJECT_PUTONBENCH, obj, iType, ir));
     }
 }

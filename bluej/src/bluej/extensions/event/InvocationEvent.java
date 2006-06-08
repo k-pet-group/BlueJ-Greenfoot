@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * classes and objects involved.
  *
  *
- * @version    $Id: InvocationEvent.java 3575 2005-09-19 12:59:34Z polle $
+ * @version    $Id: InvocationEvent.java 4345 2006-06-08 06:33:46Z davmac $
  */
 
 /*
@@ -211,7 +211,7 @@ public class InvocationEvent implements ExtensionEvent
 
         // Here I am dealing with a new instance...
         PkgMgrFrame pmf = PkgMgrFrame.findFrame(bluej_pkg);
-        ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), resultObj, objectName);
+        ObjectWrapper wrapper = ObjectWrapper.getWrapper(pmf, pmf.getObjectBench(), resultObj, resultObj.getGenType(), objectName);
 
         return ExtensionBridge.newBObject(wrapper);
     }

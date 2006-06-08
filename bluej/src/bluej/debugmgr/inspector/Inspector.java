@@ -31,7 +31,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 3785 2006-02-16 02:35:45Z davmac $
+ * @version $Id: Inspector.java 4345 2006-06-08 06:33:46Z davmac $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -340,10 +340,10 @@ public abstract class Inspector extends JFrame
      * The "Get" button was pressed. Get the selected object on the object
      * bench.
      */
-    private void doGet()
+    protected void doGet()
     {
         if (selectedObject != null) {
-            pkg.getEditor().raisePutOnBenchEvent(this, selectedObject, ir);
+            pkg.getEditor().raisePutOnBenchEvent(this, selectedObject, selectedObject.getGenType(), ir);
         }
     }
 

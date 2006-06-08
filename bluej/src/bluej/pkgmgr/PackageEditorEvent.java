@@ -3,6 +3,7 @@ package bluej.pkgmgr;
 import java.util.EventObject;
 
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.views.CallableView;
 
@@ -10,7 +11,7 @@ import bluej.views.CallableView;
  * The event which occurs while editing a package
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditorEvent.java 2227 2003-10-28 02:08:15Z ajp $
+ * @version $Id: PackageEditorEvent.java 4345 2006-06-08 06:33:46Z davmac $
  */
 public class PackageEditorEvent extends EventObject
 {
@@ -28,6 +29,7 @@ public class PackageEditorEvent extends EventObject
     protected CallableView cv;
     protected DebuggerObject obj;
 	protected InvokerRecord ir;
+    protected GenTypeClass iType;
     protected String name;
 
     public PackageEditorEvent(Object source, int id)
@@ -55,7 +57,19 @@ public class PackageEditorEvent extends EventObject
         this.cv = cv;
     }
 
-    public PackageEditorEvent(Object source, int id, DebuggerObject obj, InvokerRecord ir)
+    /**
+     * Construct an event for a "put object on bench" request (OBJECT_PUTONBENCH)
+     * 
+     * @param source  The source of the event
+     * @param id      The event id (OBJECT_PUTONBENCH)
+     * @param obj     The object to put on the bench
+     * @param iType   The publicly-accessible type of the object
+     *       The iType parameter is used to provide an acting type for the object if the
+     *       actual type is inaccessible (is private to another package or class).
+     * @param ir      The record for the invocation used to obtain the object
+     * 
+     */
+    public PackageEditorEvent(Object source, int id, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir)
     {
         super(source);
 
@@ -64,6 +78,7 @@ public class PackageEditorEvent extends EventObject
 
         this.id = id;
         this.obj = obj;
+        this.iType = iType;
 		this.ir = ir;
     }
 
@@ -85,6 +100,11 @@ public class PackageEditorEvent extends EventObject
     public DebuggerObject getDebuggerObject()
     {
         return obj;
+    }
+    
+    public GenTypeClass getIType()
+    {
+        return iType;
     }
     
     public InvokerRecord getInvokerRecord()
