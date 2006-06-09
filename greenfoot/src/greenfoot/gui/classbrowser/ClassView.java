@@ -1,6 +1,5 @@
 package greenfoot.gui.classbrowser;
 
-import bluej.Config;
 import greenfoot.actions.EditClassAction;
 import greenfoot.actions.NewSubclassAction;
 import greenfoot.actions.RemoveClassAction;
@@ -8,11 +7,12 @@ import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldInvokeListener;
-import greenfoot.event.CompileListener;
 import greenfoot.event.ActorInstantiationListener;
+import greenfoot.event.CompileListener;
 import greenfoot.gui.classbrowser.role.ClassRole;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
@@ -30,8 +30,10 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JToggleButton;
 
 import rmiextension.wrappers.event.RCompileEvent;
+import bluej.Config;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
@@ -41,12 +43,10 @@ import bluej.utility.Utility;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
-import java.awt.Font;
-import javax.swing.JToggleButton;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4264 2006-05-15 13:32:54Z davmac $
+ * @version $Id: ClassView.java 4347 2006-06-09 04:34:15Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, CompileListener, MouseListener
@@ -116,7 +116,11 @@ public class ClassView extends JToggleButton
         try {
             String className = gClass.getQualifiedName();
             //it is important that we use the right classloader
-            cls = ExecServer.loadAndInitClass(className);
+            ClassLoader classLdr = ExecServer.getCurrentClassLoader();
+            cls = Class.forName(className, false, classLdr);
+        }
+        catch (java.lang.ClassNotFoundException cnfe) {
+            // couldn't load: that's ok, we return null
         }
         catch (LinkageError e) {
             // TODO log this properly? It can happen for various reasons, not
