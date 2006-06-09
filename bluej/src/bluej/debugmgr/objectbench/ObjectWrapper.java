@@ -1,17 +1,12 @@
 package bluej.debugmgr.objectbench;
 
-import bluej.extensions.BObject;
-import bluej.extensions.ExtensionBridge;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -29,6 +24,8 @@ import bluej.debugmgr.Invoker;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.inspector.ResultInspector;
+import bluej.extensions.BObject;
+import bluej.extensions.ExtensionBridge;
 import bluej.extmgr.MenuManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -51,7 +48,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 4345 2006-06-08 06:33:46Z davmac $
+ * @version $Id: ObjectWrapper.java 4346 2006-06-09 04:33:01Z davmac $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -170,6 +167,14 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         return pkg;
     }
 
+    /**
+     * Get the PkgMgrFrame which is housing this object wrapper.
+     */
+    public PkgMgrFrame getFrame()
+    {
+        return pmf;
+    }
+    
     public String getClassName()
     {
         return obj.getClassName();
@@ -321,12 +326,32 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     }
     
     /**
+     * Creates the menu items for all the methods in the class, which is a raw
+     * class type.
+     * 
+     * @param menu  The menu to add the menu items to
+     * @param cl    The class whose methods to add
+     * @param il    The invoke listener to notify when a method is called
+     * @param obj   The object to apply the methods to
+     * @param currentPackageName Name of the package that this object will be
+     *            shown from (used to determine wheter to show package protected
+     *            methods)
+     */
+    public static void createMethodMenuItems(JPopupMenu menu, Class cl, InvokeListener il, DebuggerObject obj,
+            String currentPackageName)
+    {
+        GenTypeClass gt = new GenTypeClass(new JavaReflective(cl));
+        createMethodMenuItems(menu, cl, gt, il, obj, currentPackageName);
+    }
+    
+    /**
      * Creates the menu items for all the methods in the class
      * 
-     * @param menu
-     * @param cl
-     * @param il
-     * @param obj
+     * @param menu  The menu to add the menu items to
+     * @param cl    The class whose methods to add
+     * @param gtype  The generic type of the class
+     * @param il    The invoke listener to notify when a method is called
+     * @param obj   The object to apply the methods to
      * @param currentPackageName Name of the package that this object will be
      *            shown from (used to determine wheter to show package protected
      *            methods)
@@ -358,6 +383,9 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
             
             // create method entries for locally declared methods
             GenTypeClass curType = gtype;
+            if (curType == null) {
+                curType = new GenTypeClass(new JavaReflective(cl));
+            }
             
             // HACK to make it work in greenfoot.
             if(itemsOnScreen <= 0 ) {
@@ -378,7 +406,6 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                     filter = samePackageFilter;
                 else
                     filter = otherPackageFilter;
-                
                 
                 // map generic type paramaters to the current superclass
                 curType = curType.mapToSuper(currentClass.getName());

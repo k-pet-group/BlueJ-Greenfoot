@@ -66,6 +66,7 @@ public class ConstructorInvoker {
         ObjectWrapper wrapper = ObjectWrapper.getWrapper(
                 pkgFrame, objBench,
                 debugObject,
+                debugObject.getGenType(),
                 instanceNameOnObjectBench);       
         
         objBench.addObject(wrapper);        
