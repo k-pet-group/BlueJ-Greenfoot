@@ -2,24 +2,38 @@ package rmiextension.wrappers;
 
 import java.io.File;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import rmiextension.wrappers.event.RProjectListener;
 import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ReadmeTarget;
+import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProjectImpl.java 4279 2006-05-16 11:20:51Z davmac $
+ * @version $Id: RProjectImpl.java 4349 2006-06-12 03:07:04Z davmac $
  */
 public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     implements RProject
 {
-    //	The BlueJ-package (from extensions) that is wrapped
-    BProject bProject;
+    /**	The BlueJ-package (from extensions) that is wrapped */
+    private BProject bProject;
+    
+    private List listeners = new ArrayList();
 
+    /**
+     * Construct an RProjectImpl - generally only should be called from
+     * WrapperPool (use WrapperPool.instance().getWrapper(...)).
+     * 
+     * @param bProject  The project to wrap
+     * @throws java.rmi.RemoteException
+     */
     public RProjectImpl(BProject bProject)
         throws java.rmi.RemoteException
     {
@@ -27,13 +41,31 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         this.bProject = bProject;
     }
 
-    /**
-     * @throws ProjectNotOpenException
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RProject#close()
      */
     public void close()
-        throws ProjectNotOpenException
     {
-        bProject.close();
+        // Inform the listeners that the project is closing
+        List listeners = new ArrayList(this.listeners);
+        Iterator i = listeners.iterator();
+        while (i.hasNext()) {
+            RProjectListener listener = (RProjectListener) i.next();
+            try {
+                listener.projectClosing();
+            }
+            catch (RemoteException re) {
+                Debug.reportError("Error when project closing: ", re);
+            }
+        }
+        
+        try {
+            bProject.close();
+        }
+        catch (ProjectNotOpenException pnoe) {
+            // this isn't a big deal; after all, we were trying to close
+            // the project...
+        }
     }
 
     /**
@@ -118,5 +150,23 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         bluej.pkgmgr.Package defaultPackage = thisProject.getPackage("");
         ReadmeTarget readmeTarget = defaultPackage.getReadmeTarget();
         readmeTarget.open();
+    }
+    
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RProject#addListener(rmiextension.wrappers.event.RProjectListener)
+     */
+    public void addListener(RProjectListener listener)
+        throws RemoteException
+    {
+        listeners.add(listener);
+    }
+    
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RProject#removeListener(rmiextension.wrappers.event.RProjectListener)
+     */
+    public void removeListener(RProjectListener listener)
+        throws RemoteException
+    {
+        listeners.remove(listener);
     }
 }

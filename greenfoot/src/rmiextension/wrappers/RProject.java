@@ -3,22 +3,23 @@ package rmiextension.wrappers;
 import java.io.File;
 import java.rmi.RemoteException;
 
+import rmiextension.wrappers.event.RProjectListener;
 import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProject.java 4279 2006-05-16 11:20:51Z davmac $
+ * @version $Id: RProject.java 4349 2006-06-12 03:07:04Z davmac $
  */
 public interface RProject
     extends java.rmi.Remote
 {
     /**
-     * @throws ProjectNotOpenException
+     * Close this project
      */
     public abstract void close()
-        throws ProjectNotOpenException, RemoteException;
+        throws RemoteException;
 
     /**
      * @return
@@ -65,5 +66,20 @@ public interface RProject
      */
     public abstract void openReadmeEditor()
         throws ProjectNotOpenException, RemoteException;
-
+    
+    /**
+     * Add a listener to this project
+     * @param listener  The listener to add
+     * @throws RemoteException
+     */
+    public abstract void addListener(RProjectListener listener)
+        throws RemoteException;
+    
+    /**
+     * Remove a listener from this project
+     * @param listener  The listener to remove
+     * @throws RemoteException
+     */
+    public abstract void removeListener(RProjectListener listener)
+        throws RemoteException;
 }

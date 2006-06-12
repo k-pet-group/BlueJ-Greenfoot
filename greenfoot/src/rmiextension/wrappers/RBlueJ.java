@@ -1,32 +1,22 @@
 package rmiextension.wrappers;
 
-import java.awt.Rectangle;
 import java.io.File;
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.event.RClassListener;
 import rmiextension.wrappers.event.RCompileListener;
 import rmiextension.wrappers.event.RInvocationListener;
-import bluej.extensions.MenuGenerator;
-import bluej.extensions.PreferenceGenerator;
-import bluej.extensions.event.ApplicationListener;
 
 /**
  * 
  * Interface for accessing BlueJ-functionality
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJ.java 4279 2006-05-16 11:20:51Z davmac $
+ * @version $Id: RBlueJ.java 4349 2006-06-12 03:07:04Z davmac $
  */
 public interface RBlueJ
     extends java.rmi.Remote
 {
-    /**
-     * Register an Application listener
-     */
-    public void addApplicationListener(ApplicationListener listener)
-        throws RemoteException;
-
     /**
      * Register a Compile event listener
      */
@@ -53,84 +43,61 @@ public interface RBlueJ
         throws RemoteException;
 
     /**
-     * @return
-     */
-    public RPackage getCurrentPackage()
-        throws RemoteException;
-
-    /**
-     * @param property
-     * @param def
-     * @return
+     * Get a BlueJ extensions property value
+     * 
+     * @param property  The property whose value to retrieve
+     * @param def       The default value to return
+     * @return   The property value
      */
     public String getExtensionPropertyString(String property, String def)
         throws RemoteException;
 
     /**
-     * @param key
-     * @return
+     * Get a language label
+     * @param key  The label key
+     * @return     The label value
      */
     public String getLabel(String key)
         throws RemoteException;
 
     /**
-     * @return
-     */
-    public MenuGenerator getMenuGenerator()
-        throws RemoteException;
-
-    /**
-     * @return
+     * Get a list of all open projects.
      */
     public RProject[] getOpenProjects()
         throws RemoteException;
 
     /**
-     * @return
-     */
-    public PreferenceGenerator getPreferenceGenerator()
-        throws RemoteException;
-
-    /**
-     * @return
+     * Get the Bluej "lib" dir.
      */
     public File getSystemLibDir()
         throws RemoteException;
 
     /**
-     * @return
-     */
-    public File getUserConfigDir()
-        throws RemoteException;
-
-    /**
-     * @param directory
-     * @return
+     * Create and open a new Project
+     * @param directory  The directory to create the project in
+     * @return   A reference to the newly created project
      */
     public RProject newProject(File directory)
         throws RemoteException;
 
     /**
-     * @param directory
-     * @return
+     * Open an existing project
+     * @param directory  The directory containing the project to open
+     * @return  A reference to the project
      */
     public RProject openProject(String directory)
         throws RemoteException;
 
     /**
-     * @param listener
-     */
-    public void removeApplicationListener(ApplicationListener listener)
-        throws RemoteException;
-
-    /**
-     * @param listener
+     * Remove a compile listener.
+     * @param listener  The listener to remove
      */
     public void removeCompileListener(RCompileListener listener)
         throws RemoteException;
 
     /**
-     * @param listener
+     * Remove an invocation listener.
+     * @param listener  The listener to remove
      */
     public void removeInvocationListener(RInvocationListener listener)
         throws RemoteException;
@@ -142,22 +109,11 @@ public interface RBlueJ
         throws RemoteException;
 
     /**
-     * @param property
-     * @param value
+     * Set an extension property value.
+     * @param property  The property key
+     * @param value     The value to set
      */
     public void setExtensionPropertyString(String property, String value)
-        throws RemoteException;
-
-    /**
-     * @param menuGen
-     */
-    public void setMenuGenerator(MenuGenerator menuGen)
-        throws RemoteException;
-
-    /**
-     * @param prefGen
-     */
-    public void setPreferenceGenerator(PreferenceGenerator prefGen)
         throws RemoteException;
 
     /**
@@ -166,12 +122,6 @@ public interface RBlueJ
      * @throws RemoteException
      */
     public void exit()
-        throws RemoteException;
-
-    /**
-     * @param bounds
-     */
-    public void frameResized(Rectangle bounds)
         throws RemoteException;
 
 }
