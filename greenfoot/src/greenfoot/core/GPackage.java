@@ -52,6 +52,10 @@ public class GPackage
      */
     public GClass getGClass(RClass remoteClass)
     {
+        if (remoteClass == null) {
+            return null;
+        }
+        
         GClass gClass;
         synchronized (classPool) {
             gClass = classPool.get(remoteClass);

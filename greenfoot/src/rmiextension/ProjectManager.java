@@ -5,7 +5,6 @@ import greenfoot.core.GreenfootMain;
 import greenfoot.core.ProjectProperties;
 
 import java.io.File;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +22,7 @@ import bluej.utility.Debug;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4319 2006-05-23 20:48:04Z polle $
+ * @version $Id: ProjectManager.java 4350 2006-06-12 03:56:19Z davmac $
  */
 public class ProjectManager
     implements PackageListener
@@ -114,15 +113,7 @@ public class ProjectManager
             newProperties.setApiVersion();
             newProperties.save();
         }        
-        boolean doOpen = false;
-        try {
-            doOpen = GreenfootMain.updateApi(projectDir, null); 
-        }
-        catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return doOpen;
+        return GreenfootMain.updateApi(projectDir, null); 
     }
 
     /**

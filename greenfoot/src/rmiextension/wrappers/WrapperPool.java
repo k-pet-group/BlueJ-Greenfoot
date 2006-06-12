@@ -18,7 +18,7 @@ import bluej.extensions.BProject;
  * TODO remember to "release" objects when they are no longer needed
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WrapperPool.java 3124 2004-11-18 16:08:48Z polle $
+ * @version $Id: WrapperPool.java 4350 2006-06-12 03:56:19Z davmac $
  */
 public class WrapperPool
 {
@@ -40,10 +40,10 @@ public class WrapperPool
         return instance;
     }
 
-    public RProject getWrapper(BProject wrapped)
+    public RProjectImpl getWrapper(BProject wrapped)
         throws RemoteException
     {
-        RProject wrapper = (RProject) pool.get(wrapped);
+        RProjectImpl wrapper = (RProjectImpl) pool.get(wrapped);
         if (wrapper == null) {
             wrapper = new RProjectImpl(wrapped);
             pool.put(wrapped, wrapper);

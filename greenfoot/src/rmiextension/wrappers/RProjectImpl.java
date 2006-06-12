@@ -17,7 +17,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProjectImpl.java 4349 2006-06-12 03:07:04Z davmac $
+ * @version $Id: RProjectImpl.java 4350 2006-06-12 03:56:19Z davmac $
  */
 public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     implements RProject
@@ -46,7 +46,23 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
      */
     public void close()
     {
-        // Inform the listeners that the project is closing
+        notifyClosing();
+        
+        try {
+            bProject.close();
+        }
+        catch (ProjectNotOpenException pnoe) {
+            // this isn't a big deal; after all, we were trying to close
+            // the project...
+        }
+    }
+    
+    /**
+     * Inform listeners that this project will close. This should be called if the
+     * project will be closed other than by calling RProjectImpl.close().
+     */
+    public void notifyClosing()
+    {
         List listeners = new ArrayList(this.listeners);
         Iterator i = listeners.iterator();
         while (i.hasNext()) {
@@ -57,14 +73,6 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
             catch (RemoteException re) {
                 Debug.reportError("Error when project closing: ", re);
             }
-        }
-        
-        try {
-            bProject.close();
-        }
-        catch (ProjectNotOpenException pnoe) {
-            // this isn't a big deal; after all, we were trying to close
-            // the project...
         }
     }
 

@@ -6,7 +6,6 @@ import greenfoot.actions.CloseProjectAction;
 import greenfoot.actions.CompileAllAction;
 import greenfoot.actions.CompileClassAction;
 import greenfoot.actions.EditClassAction;
-import greenfoot.actions.NYIAction;
 import greenfoot.actions.NewClassAction;
 import greenfoot.actions.NewProjectAction;
 import greenfoot.actions.OpenProjectAction;
@@ -45,7 +44,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.net.URL;
-import java.rmi.RemoteException;
 import java.util.Iterator;
 
 import javax.swing.Action;
@@ -64,7 +62,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.Config;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.Debug;
 
 import com.apple.eawt.Application;
@@ -77,7 +74,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4336 2006-05-24 14:13:57Z polle $
+ * @version $Id: GreenfootFrame.java 4350 2006-06-12 03:56:19Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -111,15 +108,7 @@ public class GreenfootFrame extends JFrame
             EventQueue.invokeAndWait(new Runnable() {
                 public void run()
                 {
-                    try {
-                        instance = new GreenfootFrame(blueJ);                        
-                    }
-                    catch (ProjectNotOpenException pnoe) {
-                        pnoe.printStackTrace();
-                    }
-                    catch (RemoteException re) {
-                        re.printStackTrace();
-                    }
+                    instance = new GreenfootFrame(blueJ);                        
                 }
             });
             return instance;
@@ -134,7 +123,7 @@ public class GreenfootFrame extends JFrame
      * Creates a new top level frame with all the GUI components.
      */
     private GreenfootFrame(RBlueJ blueJ)
-        throws HeadlessException, ProjectNotOpenException, RemoteException
+        throws HeadlessException
     {
         super("Greenfoot");
         try {
@@ -564,14 +553,13 @@ public class GreenfootFrame extends JFrame
     }
 
     /**
-     * Close this project.
+     * Quit Greenfoot.
      */
     private void exit()
     {
         super.dispose();
-        GreenfootMain.getInstance().closeThisInstance();
+        GreenfootMain.closeAll();
     }
-
 
     /**
      * 
@@ -595,7 +583,7 @@ public class GreenfootFrame extends JFrame
 
     public void windowClosing(WindowEvent e)
     {
-        exit();
+        GreenfootMain.getInstance().closeThisInstance();
     }
 
     public void windowClosed(WindowEvent e) {}

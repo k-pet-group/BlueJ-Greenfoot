@@ -24,6 +24,7 @@ import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RInvocationListener;
+import rmiextension.wrappers.event.RProjectListener;
 import bluej.Config;
 import bluej.debugmgr.CallHistory;
 import bluej.extensions.ProjectNotOpenException;
@@ -38,9 +39,9 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4319 2006-05-23 20:48:04Z polle $
+ * @version $Id: GreenfootMain.java 4350 2006-06-12 03:56:19Z davmac $
  */
-public class GreenfootMain extends Thread implements CompileListener
+public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
     /** Greenfoot is a singleton - this is the instance. */
     private static GreenfootMain instance;
@@ -241,15 +242,6 @@ public class GreenfootMain extends Thread implements CompileListener
     public void closeThisInstance()
     {
         try {
-            if(!project.isStartupProject()) {
-                rBlueJ.removeCompileListener(compileListenerForwarder);
-                rBlueJ.removeInvocationListener(instantiationListener);
-                rBlueJ.removeClassListener(classStateManager);
-                storeFrameState();
-                for (RInvocationListener element : invocationListeners) {
-                    rBlueJ.removeInvocationListener(element);
-                }
-            }
             if (rBlueJ.getOpenProjects().length <= 1) {
                 // Close everything
                 // TODO maybe open dummy project instead
@@ -261,11 +253,43 @@ public class GreenfootMain extends Thread implements CompileListener
                 project.close();
             }
         }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-        }
         catch (RemoteException e) {
             e.printStackTrace();
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.event.RProjectListener#projectClosing()
+     */
+    public void projectClosing()
+    {
+        try {
+            if(!project.isStartupProject()) {
+                rBlueJ.removeCompileListener(compileListenerForwarder);
+                rBlueJ.removeInvocationListener(instantiationListener);
+                rBlueJ.removeClassListener(classStateManager);
+                storeFrameState();
+                for (RInvocationListener element : invocationListeners) {
+                    rBlueJ.removeInvocationListener(element);
+                }
+            }
+        }
+        catch (ProjectNotOpenException pnoe) { }
+        catch (RemoteException re) {
+            re.printStackTrace();
+        }
+    }
+    
+    /**
+     * Close all open Greenfoot project instances, i.e. exit the application.
+     */
+    public static void closeAll()
+    {
+        try {
+            getInstance().rBlueJ.exit();
+        }
+        catch (RemoteException re) {
+            re.printStackTrace();
         }
     }
     
@@ -387,8 +411,6 @@ public class GreenfootMain extends Thread implements CompileListener
         return frame;
     }
 
-
-
     /**
      * Makes a project a greenfoot project. That is, copy the system classes to
      * the users library.
@@ -446,7 +468,6 @@ public class GreenfootMain extends Thread implements CompileListener
      * @throws RemoteException
      */
     public static boolean updateApi(File projectDir, Frame parent)
-        throws RemoteException
     {
         File greenfootLibDir = Config.getGreenfootLibDir();
         ProjectProperties newProperties = new ProjectProperties(projectDir);

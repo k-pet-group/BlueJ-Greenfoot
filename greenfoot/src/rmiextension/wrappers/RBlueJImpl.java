@@ -15,7 +15,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 4349 2006-06-12 03:07:04Z davmac $
+ * @version $Id: RBlueJImpl.java 4350 2006-06-12 03:56:19Z davmac $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -196,9 +196,11 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public void exit()
         throws RemoteException
     {
-        RProject [] projects = getOpenProjects();
-        for (int i = 0; i < projects.length; i++) {
-            projects[i].close();
+        BProject[] bProjects = blueJ.getOpenProjects();
+        int length = bProjects.length;
+        for (int i = 0; i < length; i++) {
+            RProjectImpl rpImpl = WrapperPool.instance().getWrapper(bProjects[i]);
+            rpImpl.notifyClosing();
         }
         
         PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();

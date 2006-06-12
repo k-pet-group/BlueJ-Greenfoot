@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
+import rmiextension.wrappers.event.RProjectListenerImpl;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.ExpressionInformation;
@@ -32,7 +33,8 @@ import bluej.utility.Debug;
  * 
  * @author Poul Henriksen
  */
-public class GProject implements InspectorManager
+public class GProject extends RProjectListenerImpl
+    implements InspectorManager
 {
     /** This holds all object inspectors and class inspectors
     for a world. */
@@ -49,9 +51,10 @@ public class GProject implements InspectorManager
      * Create a G(reenfoot)Project object. This is a singleton for every
      * running Greenfoot project (for every VM).
      */
-    public GProject(RProject rmiProject)
+    public GProject(RProject rmiProject) throws RemoteException
     {
         this.rProject = rmiProject;
+        rmiProject.addListener(this);
         try {
             projectProperties = new ProjectProperties(getDir());
         }
@@ -62,7 +65,7 @@ public class GProject implements InspectorManager
     }
     
     public void close()
-        throws ProjectNotOpenException, RemoteException
+        throws RemoteException
     {
         rProject.close();
     }
@@ -334,5 +337,21 @@ public class GProject implements InspectorManager
         catch (ProjectNotOpenException pnoe) {
             pnoe.printStackTrace();
         }
+    }
+    
+    /**
+     * Get the remote project reference which this GProject wraps.
+     */
+    public RProject getRProject()
+    {
+        return rProject;
+    }
+    
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.event.RProjectListener#projectClosing()
+     */
+    public void projectClosing()
+    {
+        GreenfootMain.getInstance().projectClosing();
     }
 }
