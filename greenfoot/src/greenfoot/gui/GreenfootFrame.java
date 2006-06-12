@@ -1,30 +1,8 @@
 package greenfoot.gui;
 
 import greenfoot.World;
-import greenfoot.actions.AboutGreenfootAction;
-import greenfoot.actions.CloseProjectAction;
-import greenfoot.actions.CompileAllAction;
-import greenfoot.actions.CompileClassAction;
-import greenfoot.actions.EditClassAction;
-import greenfoot.actions.NewClassAction;
-import greenfoot.actions.NewProjectAction;
-import greenfoot.actions.OpenProjectAction;
-import greenfoot.actions.PauseSimulationAction;
-import greenfoot.actions.RemoveSelectedClassAction;
-import greenfoot.actions.RunOnceSimulationAction;
-import greenfoot.actions.RunSimulationAction;
-import greenfoot.actions.SaveProjectAction;
-import greenfoot.actions.ShowCopyrightAction;
-import greenfoot.actions.ShowReadMeAction;
-import greenfoot.actions.ShowWebsiteAction;
-import greenfoot.core.GClass;
-import greenfoot.core.GPackage;
-import greenfoot.core.GProject;
-import greenfoot.core.GreenfootMain;
-import greenfoot.core.LocationTracker;
-import greenfoot.core.ProjectProperties;
-import greenfoot.core.Simulation;
-import greenfoot.core.WorldHandler;
+import greenfoot.actions.*;
+import greenfoot.core.*;
 import greenfoot.event.CompileListener;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
@@ -34,30 +12,14 @@ import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.HeadlessException;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.net.URL;
 import java.util.Iterator;
 
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
@@ -74,7 +36,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4350 2006-06-12 03:56:19Z davmac $
+ * @version $Id: GreenfootFrame.java 4351 2006-06-12 04:31:35Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -474,6 +436,9 @@ public class GreenfootFrame extends JFrame
 //        projectMenu.addSeparator();
 //        addMenuItem(new NYIAction("Page Setup...", this), projectMenu, KeyEvent.VK_P, true, -1);
 //        addMenuItem(new NYIAction("Print...", this), projectMenu, KeyEvent.VK_P, false, KeyEvent.VK_P);
+        if(! Config.isMacOS()) {
+            addMenuItem(QuitAction.getInstance(), projectMenu, KeyEvent.VK_Q, false, KeyEvent.VK_Q);
+        }
         
         JMenu editMenu = addMenu("Edit", menuBar, 'e');
         
