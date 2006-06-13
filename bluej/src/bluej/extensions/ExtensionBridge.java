@@ -59,6 +59,11 @@ public final class ExtensionBridge {
                 classTarget.getQualifiedName()));
     }
 
+    public static void ChangeBClassName(BClass bClass, String newName)
+    {
+        bClass.nameChanged(newName);
+    }
+    
     public static JMenuItem getMenuItem(BlueJ aBluej, Object attachedObject) {
         return aBluej.getMenuItem(attachedObject);
     }

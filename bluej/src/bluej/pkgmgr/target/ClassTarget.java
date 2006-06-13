@@ -66,7 +66,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 4354 2006-06-13 04:27:35Z davmac $
+ * @version $Id: ClassTarget.java 4355 2006-06-13 05:10:38Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1089,9 +1089,6 @@ public class ClassTarget extends DependentTarget
         File oldSourceFile = getSourceFile();
 
         if (FileUtility.copyFile(oldSourceFile, newSourceFile)) {
-
-            ClassEvent event = new ClassEvent(ClassEvent.CHANGING_NAME, getBClass(), newName);
-            ExtensionsManager.getInstance().delegateEvent(event);
             
             getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
             getEditor().changeName(newName, newSourceFile.getPath());
@@ -1102,9 +1099,15 @@ public class ClassTarget extends DependentTarget
             // this is extremely dangerous code here.. must track all
             // variables which are set when ClassTarget is first
             // constructed and fix them up for new class name
+            String oldName = getIdentifierName();
             setIdentifierName(newName);
             setDisplayName(newName);
             updateSize();
+            
+            BClass bClass = getBClass();
+            ExtensionBridge.ChangeBClassName(bClass, getQualifiedName());
+            ClassEvent event = new ClassEvent(ClassEvent.CHANGED_NAME, getBClass(), oldName);
+            ExtensionsManager.getInstance().delegateEvent(event);
 
             return true;
         }

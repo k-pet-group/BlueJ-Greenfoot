@@ -22,7 +22,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 4116 2006-05-08 13:18:36Z polle $
+ * @version    $Id: BClass.java 4355 2006-06-13 05:10:38Z davmac $
  */
 
 /*
@@ -44,6 +44,20 @@ public class BClass
         classId = thisClassId;
     }
 
+    /**
+     * Notification that the name of the class has changed.
+     * @param newName  The new class name, fully qualified.
+     */
+    void nameChanged(String newName)
+    {
+        try {
+            Project proj = classId.getBluejProject();
+            Package pkg = classId.getBluejPackage();
+            classId = new Identifier(proj, pkg, newName);
+        }
+        catch (ProjectNotOpenException pnoe) { }
+        catch (PackageNotFoundException pnfe) { }
+    }
 
     /**
      * Returns the name of this BClass.

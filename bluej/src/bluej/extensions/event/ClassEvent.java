@@ -3,20 +3,27 @@ package bluej.extensions.event;
 import bluej.extensions.BClass;
 
 /**
- * This class encapsulates events which occur on BlueJ classes.
+ * This class encapsulates events which occur on BlueJ classes.<p>
+ * 
+ * The following events can occur:<p>
+ * 
+ * STATE_CHANGED: The compile state changed (either from uncompiled to compiled,
+ *                or from compiled to uncompiled)<p>
+ * CHANGED_NAME:  The class has changed name.
+ * 
  * 
  * @author Davin McCall
- * @version $Id: ClassEvent.java 4354 2006-06-13 04:27:35Z davmac $
+ * @version $Id: ClassEvent.java 4355 2006-06-13 05:10:38Z davmac $
  */
 public class ClassEvent implements ExtensionEvent
 {
     public static final int STATE_CHANGED = 0;
-    public static final int CHANGING_NAME = 1;
+    public static final int CHANGED_NAME = 1;
     
     private int eventId;
     private BClass bClass;
     private boolean isCompiled;
-    private String newName;
+    private String oldName;
     
     /**
      * Construct a new ClassEvent object for a STATE_CHANGED event.
@@ -31,20 +38,19 @@ public class ClassEvent implements ExtensionEvent
     }
     
     /**
-     * Construct a new ClassEvent object for a CHANGING_NAME event.
-     * @param eventId  The event identifier (CHANGING_NAME)
-     * @param bClass   The class which is being renamed
-     * @param newName  The new name of the class
+     * Construct a new ClassEvent object for a CHANGED_NAME event.
+     * @param eventId  The event identifier (CHANGED_NAME)
+     * @param bClass   The class which was renamed (refers to the new name)
      */
-    public ClassEvent(int eventId, BClass bClass, String newName)
+    public ClassEvent(int eventId, BClass bClass, String oldName)
     {
         this.eventId = eventId;
-        this.newName = newName;
         this.bClass = bClass;
+        this.oldName = oldName;
     }
     
     /**
-     * Get the event Id (one of STATE_CHANGED, CHANGING_NAME).
+     * Get the event Id (one of STATE_CHANGED, CHANGED_NAME).
      */
     public int getEventId()
     {
@@ -70,10 +76,10 @@ public class ClassEvent implements ExtensionEvent
     }
     
     /**
-     * Get the new class name. Valid for CHANGING_NAME event.
+     * Get the new class name. Valid for CHANGED_NAME event.
      */
-    public String getNewName()
+    public String getOldName()
     {
-        return newName;
+        return oldName;
     }
 }
