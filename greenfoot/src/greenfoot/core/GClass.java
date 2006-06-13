@@ -29,7 +29,7 @@ import bluej.utility.Debug;
  * have not been compiled.
  * 
  * @author Poul Henriksen
- * 
+ * @version $Id$
  */
 public class GClass implements CompileListener
 {
@@ -84,6 +84,14 @@ public class GClass implements CompileListener
         classView = view;
     }
 
+    /**
+     * Notification that we changed name.
+     */
+    public void nameChanged()
+    {
+        classView.reloadClass();
+    }
+    
     /**
      * Get the value of a persistent property for this class
      * 
@@ -479,6 +487,12 @@ public class GClass implements CompileListener
     {   
     }
 
+    /**
+     * Try and load the "real" (java.lang.Class) class represented by this
+     * GClass, using the current class loader.
+     * 
+     * @return The class, or null if unsuccessful
+     */
     private Class loadRealClass()
     {
         Class cls = null;
