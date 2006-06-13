@@ -1,9 +1,11 @@
-import greenfoot.World;
-import greenfoot.Actor;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 /**
- * A turtle that draw something that looks like a flower (might requrie 
+ * A turtle that draw something that looks like a flower (might require 
  * some imagination to see this though)
+ * 
+ * @author Poul Henriksen
+ * @version 1.0.1
  */
 public class FlowerTurtle extends SquareTurtle
 {

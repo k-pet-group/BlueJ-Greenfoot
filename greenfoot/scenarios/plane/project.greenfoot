@@ -1,5 +1,5 @@
 #Greenfoot properties
-#Sun May 14 14:52:21 GMT 2006
+#Tue Jun 13 13:45:32 BST 2006
 class.ControlKnob.superclass=greenfoot.Actor
 simulation.speed=96
 class.Plane.image=airplane.gif

@@ -1,6 +1,4 @@
-import greenfoot.World;
-import greenfoot.Actor;
-import greenfoot.GreenfootImage;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 import java.awt.Color;
 import java.util.Random;
@@ -9,7 +7,7 @@ import java.util.Random;
  * The world where ants live.
  * 
  * @author Michael Kolling
- * @version 1.0
+ * @version 1.0.1
  */
 public class AntWorld extends World
 {

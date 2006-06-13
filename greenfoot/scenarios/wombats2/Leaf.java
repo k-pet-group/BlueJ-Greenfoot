@@ -1,6 +1,11 @@
-import greenfoot.World;
-import greenfoot.Actor;
+import greenfoot.*;  // imports Actor, World, Greenfoot, GreenfootImage
 
+/**
+ * Leaf - a class for representing leafs.
+ *
+ * @author Michael Kolling
+ * @version 1.0.1
+ */
 public class Leaf extends Actor
 {
     public Leaf()

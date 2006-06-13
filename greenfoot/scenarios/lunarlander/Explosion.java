@@ -1,7 +1,4 @@
-import greenfoot.World;
-import greenfoot.Actor;
-import greenfoot.GreenfootImage;
-import greenfoot.Greenfoot;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 import java.util.*;
 
@@ -10,7 +7,7 @@ import java.util.*;
  * The explosion will explode other obejcts that the explosion intersects.
  * 
  * @author Poul Henriksen
- * @version 1.0
+ * @version 1.0.1
  */
 public class Explosion extends Actor
 {
@@ -37,7 +34,7 @@ public class Explosion extends Actor
     /** 
      * Create the images for explosion.
      */
-    public static void initialiseImages() {
+    public synchronized static void initialiseImages() {
         if(images == null) {
             GreenfootImage baseImage = new GreenfootImage("images/explosion.png");
             int maxSize = baseImage.getWidth()/2;

@@ -1,5 +1,4 @@
-import greenfoot.World;
-import greenfoot.Actor;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 import java.util.List;
 import java.util.ArrayList;
@@ -9,7 +8,7 @@ import java.util.ArrayList;
  * which point it turns left. If a wombat finds a leaf, it eats it.
  * 
  * @author Michael Kolling
- * @version 1.0
+ * @version 1.0.1
  */
 public class Wombat extends Actor
 {

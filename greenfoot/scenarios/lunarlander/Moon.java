@@ -1,12 +1,12 @@
-import greenfoot.World;
-import greenfoot.Actor;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
+
 import java.awt.Color;
 
 /**
  * A moon.
  * 
  * @author Poul Henriksen
- * @version 1.0
+ * @version 1.0.1
  */
 public class Moon extends World
 {
@@ -24,7 +24,12 @@ public class Moon extends World
         setBackground("moon.png");
         addObject(new Lander(), 326, 100);
         //Force the explosion to initialise the images
-        Explosion.initialiseImages();
+        //We do this in a thread to make it load in the background
+        new Thread() {
+            public void run() {
+                Explosion.initialiseImages();
+            }
+        }.start();
     }
     
     /** 

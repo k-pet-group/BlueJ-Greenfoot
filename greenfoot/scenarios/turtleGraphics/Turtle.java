@@ -1,11 +1,12 @@
-import greenfoot.World;
-import greenfoot.Actor;
-import greenfoot.GreenfootImage;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 import java.awt.Color;
 
 /** 
  * A basic turtle.
+ *
+ * @author Poul Henriksen
+ * @version 1.0.1
  */
 public class Turtle extends Actor
 {

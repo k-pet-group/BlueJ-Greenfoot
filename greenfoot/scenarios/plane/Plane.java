@@ -1,5 +1,4 @@
-import greenfoot.World;
-import greenfoot.Actor;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 /**
  * A Plane which flies above the field. The direction of the plane
@@ -8,7 +7,7 @@ import greenfoot.Actor;
  * world.
  * 
  * @author Michael Kolling
- * @version $Id$
+ * @version 1.0.1
  */
 public class Plane extends Actor
 {

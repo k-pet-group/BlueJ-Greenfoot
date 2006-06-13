@@ -1,5 +1,5 @@
 #Greenfoot properties
-#Wed May 17 13:56:32 GMT 2006
+#Tue Jun 13 13:55:15 BST 2006
 class.Counter.superclass=greenfoot.Actor
 class.Flag.superclass=greenfoot.Actor
 class.Food.superclass=greenfoot.Actor
@@ -7,9 +7,12 @@ class.Flag.image=flag.png
 
 version=1.0
 class.AntHill.superclass=greenfoot.Actor
+class.Plane.superclass=greenfoot.Actor
+class.ControlKnob.superclass=greenfoot.Actor
 class.Explosion.image=explosion.png
 class.AntWorld.superclass=greenfoot.World
 simulation.speed=92
+class.Field.superclass=greenfoot.World
 class.Moon.superclass=greenfoot.World
 class.Gravity.superclass=greenfoot.Actor
 

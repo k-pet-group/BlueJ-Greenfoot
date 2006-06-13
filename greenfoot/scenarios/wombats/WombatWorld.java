@@ -2,6 +2,12 @@ import greenfoot.*;  // imports Actor, World, Greenfoot, GreenfootImage
 
 import java.util.Random;
 
+/**
+ * A world where wombats live.
+ * 
+ * @author Michael Kolling
+ * @version 1.0.1
+ */
 public class WombatWorld extends World
 {
     /**

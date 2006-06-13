@@ -1,5 +1,5 @@
 #Greenfoot properties
-#Tue May 23 18:17:17 GMT 2006
+#Tue Jun 13 11:30:06 BST 2006
 class.Counter.superclass=greenfoot.Actor
 class.Flag.superclass=greenfoot.Actor
 class.Food.superclass=greenfoot.Actor
@@ -17,8 +17,8 @@ class.Moon.superclass=greenfoot.World
 
 
 class.WombatWorld.superclass=greenfoot.World
-class.Explosion.superclass=greenfoot.Actor
 class.Leaf.superclass=greenfoot.Actor
+class.Explosion.superclass=greenfoot.Actor
 class.Pheromone.superclass=greenfoot.Actor
 
 class.Ant.superclass=greenfoot.Actor

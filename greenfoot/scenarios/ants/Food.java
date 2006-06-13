@@ -1,5 +1,4 @@
-import greenfoot.Actor;
-import greenfoot.GreenfootImage;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -9,7 +8,7 @@ import java.util.Random;
  * A pile of food.
  * 
  * @author Michael Kolling
- * @version 1.0
+ * @version 1.0.1
  */
 public class Food extends Actor
 {

@@ -1,8 +1,10 @@
-import greenfoot.World;
-import greenfoot.Actor;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 /**
  * A turtle that can draw a square
+ * 
+ * @author Poul Henriksen
+ * @version 1.0.1
  */
 public class SquareTurtle extends Turtle
 {

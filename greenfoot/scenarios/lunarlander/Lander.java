@@ -1,14 +1,12 @@
-import greenfoot.World;
-import greenfoot.Actor;
-import greenfoot.Greenfoot;
-import greenfoot.GreenfootImage;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
+
 import java.awt.Color;
 
 /**
  * A lunar lander
  *
  * @author Poul Henriksen
- * @version 1.0
+ * @version 1.0.1
  */
 public class Lander extends Actor
 {

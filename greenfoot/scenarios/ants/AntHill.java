@@ -1,5 +1,4 @@
-import greenfoot.World;
-import greenfoot.Actor; 
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
  
 import java.util.Random;
   
@@ -7,7 +6,7 @@ import java.util.Random;
  * A hill full of ants.
  * 
  * @author Michael Kolling
- * @version 1.0
+ * @version 1.0.1
  */
 public class AntHill extends Actor
 {

@@ -1,8 +1,13 @@
-import greenfoot.World;
-import greenfoot.Actor;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 import java.awt.Color;
 
+/**
+ * A green field.
+ * 
+ * @author Michael Kolling
+ * @version 1.0.1
+ */
 public class Field extends World
 {
     /**

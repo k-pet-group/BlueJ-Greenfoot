@@ -1,5 +1,4 @@
-import greenfoot.World;
-import greenfoot.Actor;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 import java.util.Random;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.Iterator;
  * An ant that collects food.
  * 
  * @author Michael Kolling
- * @version 1.0
+ * @version 1.0.1
  */
 public class Ant extends Actor
 {

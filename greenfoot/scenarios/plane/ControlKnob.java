@@ -1,9 +1,12 @@
-import greenfoot.World;
-import greenfoot.Actor;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
+
 
 /**
  * A control knob for a plane. A ControlKnob can be dragged around
- * the world, and this will turn the associated plane.
+ * the world, and this will turn the associated plane. 
+ * 
+ * @author Michael Kolling
+ * @version 1.0.1
  */
 public class ControlKnob extends Actor
 {
