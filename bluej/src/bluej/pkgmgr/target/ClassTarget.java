@@ -66,7 +66,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 4259 2006-05-14 16:50:58Z davmac $
+ * @version $Id: ClassTarget.java 4354 2006-06-13 04:27:35Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1090,6 +1090,9 @@ public class ClassTarget extends DependentTarget
 
         if (FileUtility.copyFile(oldSourceFile, newSourceFile)) {
 
+            ClassEvent event = new ClassEvent(ClassEvent.CHANGING_NAME, getBClass(), newName);
+            ExtensionsManager.getInstance().delegateEvent(event);
+            
             getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
             getEditor().changeName(newName, newSourceFile.getPath());
 

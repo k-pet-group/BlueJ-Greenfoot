@@ -8,16 +8,14 @@ package bluej.extensions.event;
  * changed) or compiled. 
  * 
  * @author Davin McCall
- * @version $Id: ClassListener.java 4257 2006-05-14 16:38:01Z davmac $
+ * @version $Id: ClassListener.java 4354 2006-06-13 04:27:35Z davmac $
  */
 public interface ClassListener
 {
     /**
      * The class state changed. This means that the class source was
      * changed so that the class is now uncompiled, or the class was
-     * compiled.
-     * 
-     * <p>Use event.isCompiled() to check the class compilation state.
+     * compiled, or the class was renamed.
      */
     public void classStateChanged(ClassEvent event);
 }
