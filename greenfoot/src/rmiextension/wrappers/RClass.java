@@ -12,7 +12,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClass.java 3664 2005-10-12 10:21:20Z polle $
+ * @version $Id: RClass.java 4353 2006-06-13 03:40:59Z davmac $
  */
 public interface RClass
     extends java.rmi.Remote
@@ -78,14 +78,6 @@ public interface RClass
      * @throws ClassNotFoundException
      */
     public abstract BField[] getFields()
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
-
-    /**
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws ClassNotFoundException
-     */
-    public abstract Class getJavaClass()
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
     /**

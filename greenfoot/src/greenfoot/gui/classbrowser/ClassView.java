@@ -38,7 +38,6 @@ import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
-import bluej.runtime.ExecServer;
 import bluej.utility.Utility;
 import bluej.views.MethodView;
 import bluej.views.View;
@@ -46,7 +45,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4347 2006-06-09 04:34:15Z davmac $
+ * @version $Id: ClassView.java 4353 2006-06-13 03:40:59Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, CompileListener, MouseListener
@@ -78,7 +77,7 @@ public class ClassView extends JToggleButton
         this.gClass = gClass;
         gClass.setClassView(this);
         
-        realClass = getClass(gClass);
+        realClass = gClass.getJavaClass();
         setRole(role);
         this.addMouseListener(this);
         this.setBorder(BorderFactory.createEmptyBorder(7, 8, 10, 11)); //top,left,bottom,right
@@ -98,36 +97,6 @@ public class ClassView extends JToggleButton
     public Class getRealClass()
     {
         return realClass;
-    }
-
-    
-    /**
-     * Get the real class that this view represents.
-     * 
-     * @param class1
-     * @return null if the class can't be loaded
-     */
-    private Class getClass(GClass gClass)
-    {
-        Class cls = null;
-        if (!gClass.isCompiled()) {
-            return cls;
-        }
-        try {
-            String className = gClass.getQualifiedName();
-            //it is important that we use the right classloader
-            ClassLoader classLdr = ExecServer.getCurrentClassLoader();
-            cls = Class.forName(className, false, classLdr);
-        }
-        catch (java.lang.ClassNotFoundException cnfe) {
-            // couldn't load: that's ok, we return null
-        }
-        catch (LinkageError e) {
-            // TODO log this properly? It can happen for various reasons, not
-            // necessarily a real error.
-            e.printStackTrace();
-        }
-        return cls;
     }
 
     void setClassBrowser(ClassBrowser classBrowser)
@@ -197,7 +166,7 @@ public class ClassView extends JToggleButton
         item.setFont(PrefMgr.getPopupMenuFont());
         item.setForeground(envOpColour);
         popupMenu.add(item);
-}
+    }
 
 
     /**
@@ -499,7 +468,7 @@ public class ClassView extends JToggleButton
 
     public void reloadClass()
     {
-        realClass = getClass(gClass);
+        realClass = gClass.getJavaClass();
         createPopupMenu();
         update();
     }

@@ -18,6 +18,7 @@ import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
+import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 
 
@@ -38,6 +39,7 @@ public class GClass implements CompileListener
     private boolean compiled;
     
     private ClassView classView;
+    private Class realClass;
 
     /**
      * Constructor for GClass. You should generally not use this -
@@ -58,6 +60,9 @@ public class GClass implements CompileListener
         
         try {
             compiled = cls.isCompiled();
+            if (compiled) {
+                realClass = loadRealClass();
+            }
         }
         catch (RemoteException re) {
             re.printStackTrace();
@@ -168,10 +173,13 @@ public class GClass implements CompileListener
         return rmiClass.getFields();
     }
 
+    /**
+     * Get the java.lang.Class object representing this class. Returns null if
+     * the class cannot be loaded (including if the class is not compiled).
+     */
     public Class getJavaClass()
-        throws ProjectNotOpenException, ClassNotFoundException, RemoteException
     {
-        return rmiClass.getJavaClass();
+        return realClass;
     }
 
     public GPackage getPackage()
@@ -252,7 +260,8 @@ public class GClass implements CompileListener
      *
      * @return Best guess of the fully qualified name of the superclass.
      */
-    public String getSuperclassGuess() {
+    public String getSuperclassGuess()
+    {
         return superclassGuess;
     }
     
@@ -402,6 +411,13 @@ public class GClass implements CompileListener
             // It's safe to call repaint off the event thread
             classView.repaint();
         }
+        
+        if (isCompiled) {
+            realClass = loadRealClass();
+        }
+        else {
+            realClass = null;
+        }
     }
 
     /**
@@ -461,6 +477,29 @@ public class GClass implements CompileListener
 
     public void compileStarted(RCompileEvent event)
     {   
+    }
+
+    private Class loadRealClass()
+    {
+        Class cls = null;
+        if (! isCompiled()) {
+            return cls;
+        }
+        try {
+            String className = getQualifiedName();
+            //it is important that we use the right classloader
+            ClassLoader classLdr = ExecServer.getCurrentClassLoader();
+            cls = Class.forName(className, false, classLdr);
+        }
+        catch (java.lang.ClassNotFoundException cnfe) {
+            // couldn't load: that's ok, we return null
+        }
+        catch (LinkageError e) {
+            // TODO log this properly? It can happen for various reasons, not
+            // necessarily a real error.
+            e.printStackTrace();
+        }
+        return cls;
     }
 
 }

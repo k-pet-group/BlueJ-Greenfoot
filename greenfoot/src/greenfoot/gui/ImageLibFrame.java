@@ -63,7 +63,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4288 2006-05-17 12:34:45Z davmac $
+ * @version $Id: ImageLibFrame.java 4353 2006-06-13 03:40:59Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -535,21 +535,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private Image renderImage()
     {
         Object object = null;
-        Class cls;
-        try {
-            cls = gclass.getJavaClass();
-        }
-        catch (ProjectNotOpenException pnoe) {
-            pnoe.printStackTrace();
-            cls = null;
-        }
-        catch (RemoteException re) {
-            re.printStackTrace();
-            cls = null;
-        }
-        catch (bluej.extensions.ClassNotFoundException cnfe) {
-            cls = null;
-        }
+        Class cls = gclass.getJavaClass();
         
         if (cls == null) {
             return null;
