@@ -46,7 +46,7 @@ public class ShowCopyrightAction extends AbstractAction
                 "Greenfoot is available 'as is' free of charge for use and non-commercial", 
                 "redistribution. Disassembly of the system is prohibited.",
                 "This software may not be sold for profit or included in other", 
-                "packages which are sold for profit without athorisation."}, 
+                "packages which are sold for profit without written authorisation."}, 
                 "Copyright, License and Redistribution", JOptionPane.INFORMATION_MESSAGE);
     }
 }
