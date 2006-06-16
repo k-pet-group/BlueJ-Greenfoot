@@ -249,6 +249,7 @@ public class WorldInvokeListener
                         mdlg.setEnabled(true);
                     }
                     else {
+                        mdlg.setVisible(false);
                         Method m = mv.getMethod();
                         if (m.getReturnType() != void.class) {
                             // Non-void result, display it in a result inspector.
@@ -290,6 +291,7 @@ public class WorldInvokeListener
                     }
                     else {
                         // Construction went ok (or there was a runtime error).
+                        mdlg.setVisible(false);
                         if (resultName != null) {
                             RObject rresult = pkg.getObject(resultName);
                             Object resultw =  ObjectTracker.getRealObject(rresult);
