@@ -535,7 +535,7 @@ public abstract class World extends ObjectTransporter
         return objects;
     }
 
-    public void paintDebug(Graphics g)
+    void paintDebug(Graphics g)
     {
     /*
      * g.setColor(Color.BLACK); g.drawString("# of Objects: " + objects.size(),
