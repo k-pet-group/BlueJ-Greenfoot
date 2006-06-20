@@ -22,10 +22,10 @@
     <property name="test.build" value="test/classes"/>
     <property name="test.report" value="test/report"/>
 
-	<property name="boot.jar" value="${bluej_home}/lib/bluej.jar"/>
-	<property name="core.jar" value="${bluej_home}/lib/bluejcore.jar"/>
-	<property name="editor.jar" value="${bluej_home}/lib/bluejeditor.jar"/>
-	<property name="extension.jar" value="${bluej_home}/lib/bluejext.jar"/>
+    <property name="boot.jar" value="${bluej_home}/lib/bluej.jar"/>
+    <property name="core.jar" value="${bluej_home}/lib/bluejcore.jar"/>
+    <property name="editor.jar" value="${bluej_home}/lib/bluejeditor.jar"/>
+    <property name="extension.jar" value="${bluej_home}/lib/bluejext.jar"/>
 
     <!-- Set up classpath (does not include jar files built by us) -->
     <path id="bluej.class.path">
@@ -179,12 +179,12 @@
 
     <target name="run">
         <!-- run the java code built into the jar files -->
-		<java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">        
-			<classpath>
-				<pathelement location="${boot.jar}"/>
-                        	<pathelement location="${build_java_home}/lib/tools.jar"/>
-		        	<pathelement location="/System/Library/Java"/>
-			</classpath>                	
+        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">        
+            <classpath>
+                <pathelement location="${boot.jar}"/>
+                <pathelement location="${build_java_home}/lib/tools.jar"/>
+                <pathelement location="/System/Library/Java"/>
+            </classpath>                	
         </java>
     </target>
 
@@ -232,7 +232,7 @@
         <!-- doc the java code from ${core.src} into ${core.doc} -->
         <mkdir dir="${core.doc}"/>
         <javadoc destdir="${core.doc}"
-            packagenames="bluej.*, org.gjt.sp.jedit.syntax.*, javax.swing.beaninfo.*"
+            packagenames="bluej.*, org.syntax.jedit.*"
             excludepackagenames=
                "bluej.guibuilder.*,
                 bluej.groupwork.*,
