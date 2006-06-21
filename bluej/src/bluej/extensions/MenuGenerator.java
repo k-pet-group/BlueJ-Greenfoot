@@ -18,7 +18,7 @@ import javax.swing.JMenuItem;
  *
  * Below is a simple example which creates menus for Tools, Classes and Objects. 
  * 
- * To activate the menus you instantiate an object of the ExtensionMenu class
+ * To activate the menus you instantiate an object of the MenuGenerator class
  * and then register it with the BlueJ proxy object, e.g.:
  * <pre>
  *        MenuBuilder myMenus = new MenuBuilder();
@@ -111,7 +111,7 @@ import javax.swing.JMenuItem;
  * }
  * </PRE>
  *
- * @version $Id: MenuGenerator.java 3012 2004-09-22 11:05:04Z iau $
+ * @version $Id: MenuGenerator.java 4385 2006-06-21 08:40:51Z cecilia $
  */
 
  /*
