@@ -19,7 +19,7 @@ import java.lang.reflect.Modifier;
  * In the case that the returned value is an object type then an appropriate BObject will 
  * be returned, allowing the returned object itself to be placed on the BlueJ object bench.
  *
- * @version $Id: BMethod.java 4095 2006-05-05 13:45:01Z davmac $
+ * @version $Id: BMethod.java 4386 2006-06-21 08:42:03Z cecilia $
  */
 
 /*
@@ -43,7 +43,6 @@ public class BMethod
 
     /**
      * Tests if this method matches against the given signature.
-     * This is similar to reflection API.
      * Returns true if there is a match, false otherwise.
      * Pass a zero length parameter array if the method takes no arguments.
      */
@@ -79,6 +78,15 @@ public class BMethod
         return true;
     }
 
+     /**
+     * Returns the class that declares this method.
+     * Similar to Reflection API
+     */
+    public String getDeclaringClass()
+    {
+        return bluej_view.getClassName();
+    }
+    
     /**
      * Returns the types of the parameters of this method.
      * Similar to Reflection API
