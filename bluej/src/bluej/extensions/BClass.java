@@ -22,7 +22,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 4355 2006-06-13 05:10:38Z davmac $
+ * @version    $Id: BClass.java 4387 2006-06-21 08:45:48Z cecilia $
  */
 
 /*
@@ -367,9 +367,9 @@ public class BClass
      * Returns the declared method of this class which has the given signature.
      * Similar to reflection API.
      *
-     * @param  methodName                Description of the Parameter
-     * @param  params                    Description of the Parameter
-     * @return                           The declaredMethod value
+     * @param  methodName                The name of the method.
+     * @param  params                    The parameters of the method. Pass a zero length array if the method takes no arguments. 
+     * @return                           The declaredMethod value or <code>null</code> if the method is not found.
      * @throws  ProjectNotOpenException  if the project to which this class belongs has been closed by the user.
      * @throws  ClassNotFoundException   if the class has been deleted by the user.
      */
@@ -377,11 +377,64 @@ public class BClass
              throws ProjectNotOpenException, ClassNotFoundException
     {
         View bluejView = classId.getBluejView();
-
         MethodView[] methodView = bluejView.getDeclaredMethods();
+
+        for (int index = 0; index < methodView.length; index++) {
+            BMethod aResul = new BMethod(classId, methodView[index]);
+            if (aResul.matches(methodName, params)) {
+                return aResul;
+            }
+        }
+
+        return null;
+    }
+
+    
+    /**
+     * Returns all methods of this class, those declared and those inherited from all ancestors. 
+     * Similar to reflection API, except that all methods, declared and inherited, are returned, and not only the public ones.
+     * That is, it returns all public, private, protected, and package-access methods, inherited or declared.
+     * The elements in the array returned are not sorted and are not in any particular order.
+     *
+     * @return                           The Methods value
+     * @throws  ProjectNotOpenException  if the project to which this class belongs has been closed by the user.
+     * @throws  ClassNotFoundException   if the class has been deleted by the user.
+     */
+    public BMethod[] getMethods()
+             throws ProjectNotOpenException, ClassNotFoundException
+    {
+        View bluejView = classId.getBluejView();
+
+        MethodView[] methodView = bluejView.getAllMethods();
         BMethod[] methods = new BMethod[methodView.length];
 
         for (int index = 0; index < methods.length; index++) {
+            methods[index] = new BMethod(classId, methodView[index]);
+        }
+
+        return methods;
+    }
+
+    
+    /**
+     * Returns the method of this class with the given signature.
+     * Similar to reflection API, except that all methods, declared and inherited, are searched, and not only the public ones.
+     * That is, it searches all public, private, protected, and package-access methods, declared or inherited from all ancestors.
+     * If the searched method has been redefined, the returned method is chosen arbitrarily from the list of inherited and declared methods.
+     *
+     * @param  methodName                The name of the method
+     * @param  params                    The parameters of the method. Pass a zero length array if the method takes no arguments. 
+     * @return                           The Method value or <code>null</code> if the method is not found.
+     * @throws  ProjectNotOpenException  If the project to which this class belongs has been closed by the user
+     * @throws  ClassNotFoundException   If the class has been deleted by the user
+     */
+    public BMethod getMethod(String methodName, Class[] params)
+             throws ProjectNotOpenException, ClassNotFoundException
+    {
+        View bluejView = classId.getBluejView();
+        MethodView[] methodView = bluejView.getAllMethods();
+ 
+        for (int index = 0; index < methodView.length; index++) {
             BMethod aResul = new BMethod(classId, methodView[index]);
             if (aResul.matches(methodName, params)) {
                 return aResul;
