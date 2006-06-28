@@ -24,7 +24,7 @@ import bluej.utility.FileUtility;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 4301 2006-05-17 14:48:40Z davmac $
+ * @version $Id: Terminal.java 4421 2006-06-28 06:25:47Z davmac $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -173,26 +173,17 @@ public final class Terminal extends JFrame
     private void writeToTerminal(String s)
     {
         prepare();
+        
+        // The form-feed character should clear the screen.
+        int n = s.lastIndexOf('\f');
+        if (n != -1) {
+            clear();
+            s = s.substring(n + 1);
+        }
+        
         text.append(s);
         text.setCaretPosition(text.getDocument().getLength());
     }
-
-
-    /**
-     * Write a character to the terminal.
-     */
-    private void writeToTerminal(char ch)
-    {
-        prepare();
-        if(ch == '\f') {
-            clear();
-        }
-        else {
-            text.append(String.valueOf(ch));
-            text.setCaretPosition(text.getDocument().getLength());
-        }
-    }
-
 
     /**
      * Write some text to error output.
@@ -254,11 +245,11 @@ public final class Terminal extends JFrame
             try {
                 if(text.getCaretPosition() !=
                    text.getLineStartOffset(text.getLineCount())) {
-                    writeToTerminal('\n');
+                    writeToTerminal("\n");
                 }
             }
             catch(BadLocationException exc) {
-                writeToTerminal('\n');
+                writeToTerminal("\n");
             }
             if(callString != null) {
                 writeToTerminal("[ ");
@@ -320,7 +311,7 @@ public final class Terminal extends JFrame
             case 4:   // CTRL-D (unix/Mac EOF)
             case 26:  // CTRL-Z (DOS/Windows EOF)
                 buffer.signalEOF();
-                writeToTerminal('\n');
+                writeToTerminal("\n");
                 break;
                 
             case '\b':	// backspace
@@ -338,14 +329,14 @@ public final class Terminal extends JFrame
             case '\r':	// carriage return
             case '\n':	// newline
                 if(buffer.putChar('\n')) {
-                    writeToTerminal(ch);
+                    writeToTerminal(String.valueOf(ch));
                     buffer.notifyReaders();
                 }
                 break;
 
             default:
                 if(buffer.putChar(ch))
-                    writeToTerminal(ch);
+                    writeToTerminal(String.valueOf(ch));
                 break;
             }
         }
@@ -384,7 +375,7 @@ public final class Terminal extends JFrame
         text = new TermTextArea(rows, columns);
         scrollPane = new JScrollPane(text);
         text.setFont(PrefMgr.getTerminalFont());
-        text.setEditable(true);		// TODO: changed when removed active state tracking
+        text.setEditable(true);
         text.setLineWrap(false);
         text.setForeground(fgColour);
         text.setMargin(new Insets(6, 6, 6, 6));
