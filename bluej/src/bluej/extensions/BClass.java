@@ -2,8 +2,6 @@ package bluej.extensions;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 
 import bluej.compiler.JobQueue;
 import bluej.extensions.editor.Editor;
@@ -22,7 +20,7 @@ import bluej.views.View;
  * From this you can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
- * @version    $Id: BClass.java 4387 2006-06-21 08:45:48Z cecilia $
+ * @version    $Id: BClass.java 4413 2006-06-28 02:43:19Z davmac $
  */
 
 /*
@@ -252,29 +250,13 @@ public class BClass
         }
 
         String classPkgName = findPkgName(superView.getQualifiedName());
-//      System.out.println ("Parent="+classPkgName);
 
         // Now I need to find out to what package it belongs to...
-        boolean foundPackageMatch = false;
-        List pkgList = bluejPrj.getPackageNames();
-        for (Iterator iter = pkgList.iterator(); iter.hasNext(); ) {
-            if (!classPkgName.equals(iter.next())) {
-                continue;
-            }
-            // Fount it, remembar that we found it and get out.
-            foundPackageMatch = true;
-            break;
-        }
-
-        // There is no point to return a BClass whose package does not match..
-        // Things would just fall here and there...
-        if (!foundPackageMatch) {
+        Package bluejPkg = bluejPrj.getPackage(classPkgName);
+        if (bluejPkg == null) {
             return null;
         }
-
-        // Let me get the package I want now...
-        Package bluejPkg = bluejPrj.getCachedPackage(classPkgName);
-
+        
         // I need the Target for the class I want.
         Target aTarget = bluejPkg.getTarget (superView.getBaseName());
 
