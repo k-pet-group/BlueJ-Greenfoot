@@ -44,9 +44,10 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4279 2006-05-16 11:20:51Z davmac $
+ * @version $Id: Project.java 4414 2006-06-28 02:49:08Z davmac $
  */
-public class Project implements DebuggerListener, InspectorManager {
+public class Project implements DebuggerListener, InspectorManager 
+{
     /**
      * Collection of all open projects. The canonical name of the project
      * directory (as a File object) is used as the key.
@@ -629,15 +630,15 @@ public class Project implements DebuggerListener, InspectorManager {
     }
 
     /**
-     * Returns or creates a package (tree) in this project.
-     * It will construct the package if it needs or return it from the cache.
-     * All parent packages on the way to the root of the package tree will also be constructed.
-     * This method does not check if the user really wanted to create parent packages.
-     * This method assumes that package directory are already set up.
-     *
+     * Get an existing package from the project. The package is opened (i.e an
+     * new Package is created) if it's not already open. All parent packages on
+     * the way to the root of the package tree will also be constructed.
+     * 
      * @param qualifiedName package name ie java.util or "" for unnamed package
+     * @returns  the package, or null if the package doesn't exist
      */
-    public Package getPackage(String qualifiedName) {
+    public Package getPackage(String qualifiedName)
+    {
         Package existing = (Package) packages.get(qualifiedName);
 
         if (existing != null) {
@@ -653,6 +654,8 @@ public class Project implements DebuggerListener, InspectorManager {
                 Package parent = getPackage(JavaNames.getPrefix(qualifiedName));
 
                 if (parent != null) {
+                    // Note, construction of the new package throws IOException if
+                    // the directory or bluej.pkg file doesn't exist
                     pkg = new Package(this, JavaNames.getBase(qualifiedName),
                             parent);
                     packages.put(qualifiedName, pkg);
@@ -662,11 +665,8 @@ public class Project implements DebuggerListener, InspectorManager {
             } catch (IOException exc) {
                 // the package did not exist in this project
                 pkg = null;
-            } catch (IllegalArgumentException iae) {
-                iae.printStackTrace();
-                pkg = null;
             }
-
+            
             return pkg;
         }
 
@@ -787,62 +787,16 @@ public class Project implements DebuggerListener, InspectorManager {
     }
 
     /**
-     * Returns the existing package with the given fully qualified name, or
-     * null if it doesn't exist.
-     *
-     * @param packageName   The fully qualified name of the package to look for
-     * @return    The requested package (or null)
-     */
-    public Package getExistingPackage(String packageName) {
-        Package r = getPackage(""); // start at root package
-
-        while (packageName.length() != 0) {
-            // Get the next component in the fully qualified package name.
-            String nextName;
-            int firstPos = packageName.indexOf('.');
-
-            if (firstPos == -1) {
-                nextName = packageName;
-                packageName = "";
-            } else {
-                nextName = packageName.substring(0, firstPos);
-                packageName = packageName.substring(firstPos + 1);
-            }
-
-            // Search the children of the current package to find the next
-            // component.
-            List children = r.getChildren(true);
-            Iterator i = children.iterator();
-            Package child = null;
-
-            while (i.hasNext()) {
-                child = (Package) i.next();
-
-                if (child.getBaseName().equals(nextName)) {
-                    break;
-                }
-            }
-
-            if (child == null) {
-                return null;
-            }
-
-            r = child;
-        }
-
-        return r;
-    }
-
-    /**
      * Get the names of all packages in this project consisting of rootPackage
      * package and all packages nested below it.
      *
      * @param rootPackage
      *            the root package to consider in looking for nested packages
-     * @return an array of String containing the fully qualified names of the
+     * @return a List of String containing the fully qualified names of the
      *         packages.
      */
-    private List getPackageNames(Package rootPackage) {
+    private List getPackageNames(Package rootPackage)
+    {
         List l = new LinkedList();
         List children;
 
@@ -864,8 +818,9 @@ public class Project implements DebuggerListener, InspectorManager {
 
     /**
      * Get the names of all packages in this project.
-     * @return an array of String containing the fully qualified names
-     * of the packages in this project.
+     * 
+     * @return  a List of String containing the fully qualified names
+     *          of the packages in this project.
      */
     public List getPackageNames() {
         return getPackageNames(getPackage(""));
@@ -1384,9 +1339,10 @@ public class Project implements DebuggerListener, InspectorManager {
     }
 
     /**
-     * Removes a packageTarget from the map of packages in the project.
+     * Removes a package (and any sub-packages) from the map of open
+     * packages in the project.
+     * 
      * @param packageQualifiedName The qualified name of the package.
-     *
      */
     public void removePackage(String packageQualifiedName)
     {

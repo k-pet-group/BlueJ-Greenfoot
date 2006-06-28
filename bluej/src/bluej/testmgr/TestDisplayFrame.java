@@ -22,7 +22,7 @@ import bluej.utility.JavaNames;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 3726 2005-12-01 01:38:18Z bquig $
+ * @version $Id: TestDisplayFrame.java 4414 2006-06-28 02:49:08Z davmac $
  */
 public class TestDisplayFrame
 {
@@ -369,7 +369,7 @@ public class TestDisplayFrame
                     return;
                 String packageName = JavaNames.getPrefix(exceptionLocation.getClassName());
 
-                Package spackage = lastProject.getExistingPackage(packageName);
+                Package spackage = lastProject.getPackage(packageName);
                 if (spackage == null)
                     return;
 
