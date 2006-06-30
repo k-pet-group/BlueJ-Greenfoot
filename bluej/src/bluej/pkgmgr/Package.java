@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4265 2006-05-15 13:48:29Z davmac $
+ * @version $Id: Package.java 4431 2006-06-30 02:01:45Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -72,7 +72,6 @@ public final class Package extends Graph
      */
     public static final String pkgfileName = "bluej.pkg";
     /** the name of the backup file of the package file */
-    public static final String pkgfileBackup = "bluej.pkh";
 
     public static final String readmeName = "README.TXT";
 
@@ -804,9 +803,6 @@ public final class Package extends Graph
         File file = new File(dir, pkgfileName);
         if (!file.canWrite())
             return false;
-        if (file.exists()) { // make backup of original
-            file.renameTo(new File(getPath(), pkgfileBackup));
-        }
 
         SortedProperties props = new SortedProperties();
 
