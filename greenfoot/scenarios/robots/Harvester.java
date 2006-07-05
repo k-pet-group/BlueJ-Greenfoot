@@ -21,9 +21,7 @@ public class Harvester extends Robot
      */
     public void act()
     {
-        //pickBeeper();
-          
-        List here = getObjectsAt(0,0,Beeper.class);
+        List here = getObjectsAtOffset(0, 0, Beeper.class); // take beepers, if any
         getWorld().removeObjects(here);
          
         if (canMove()) {

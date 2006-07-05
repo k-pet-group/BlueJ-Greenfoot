@@ -1,6 +1,19 @@
 #Greenfoot properties
-#Thu Apr 27 11:41:03 BST 2006
-version=0.6 dev
-class.Robot.image=Robot.gif
-class.Beeper.image=Beeper.png
+#Wed Jul 05 14:57:46 BST 2006
+class.Inverter.superclass=Robot
+simulation.speed=0
 class.Wall.image=Wall.gif
+class.Robot.superclass=greenfoot.Actor
+class.Beeper.superclass=greenfoot.Actor
+class.Beeper.image=Beeper.png
+mainWindow.width=1095
+class.Producer.superclass=Robot
+class.Collector.superclass=Robot
+class.Robot.image=Robot.gif
+version=1.0
+class.RobotWorld.superclass=greenfoot.World
+class.Harvester.superclass=Robot
+mainWindow.y=35
+mainWindow.x=507
+mainWindow.height=602
+class.Wall.superclass=greenfoot.Actor

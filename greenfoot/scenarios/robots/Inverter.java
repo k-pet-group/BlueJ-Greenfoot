@@ -42,8 +42,7 @@ public class Inverter extends Robot
             }
             else {
                 Beeper newBeeper = new Beeper();
-                newBeeper.setLocation(getX(), getY());
-                getWorld().addObject(newBeeper);
+                getWorld().addObject(newBeeper, getX(), getY());
             }
         }
     }

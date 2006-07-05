@@ -16,8 +16,7 @@ public class Producer extends Robot
     public void act() 
     {
         Beeper beeper = new Beeper(); 
-        beeper.setLocation(getX(), getY());
-        getWorld().addObject(beeper);
+        getWorld().addObject(beeper, getX(), getY());
 
         move();
     }

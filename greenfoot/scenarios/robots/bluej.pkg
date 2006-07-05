@@ -23,10 +23,10 @@ dependency7.type=UsesDependency
 dependency8.from=RobotWorld
 dependency8.to=Robot
 dependency8.type=UsesDependency
-package.editor.height=300
-package.editor.width=420
-package.editor.x=640
-package.editor.y=131
+
+
+
+
 package.numDependencies=8
 package.numTargets=9
 package.showExtends=true
