@@ -5,10 +5,10 @@ dependency1.type=UsesDependency
 dependency2.from=Sky
 dependency2.to=Naive
 dependency2.type=UsesDependency
-package.editor.height=300
-package.editor.width=420
-package.editor.x=640
-package.editor.y=131
+
+
+
+
 package.numDependencies=2
 package.numTargets=6
 package.showExtends=true

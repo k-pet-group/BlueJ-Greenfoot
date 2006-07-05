@@ -10,14 +10,8 @@ import java.awt.Point;
 
 public abstract class Boid extends Actor
 {
-
- 
-    
     private double startSpeed = 1.0;
-    
     private double x, y;
-    
-
     
     private boolean initialised = false;
     
@@ -26,6 +20,7 @@ public abstract class Boid extends Actor
     protected Vector vectorPlan = (Vector) vector.clone();
     
     private boolean planning = true;
+
     
     public class Vector {
         private double x;
@@ -106,6 +101,7 @@ public abstract class Boid extends Actor
             
     }
     
+    
     public Boid()  {
         setRotation((int) (90 + 180 * getVector().getDirection() / Math.PI));
     }
@@ -125,13 +121,10 @@ public abstract class Boid extends Actor
        // double flockDirection  = getFlockDirection(flock);
      
         if(planning) {
-            
             doStuff();   
-            
             planning = false;
         }
         else {
-            
             vector.setX(vectorPlan.getX());            
             vector.setY(vectorPlan.getY());
             
@@ -150,7 +143,7 @@ public abstract class Boid extends Actor
             x += getVector().getX() ;
             y += getVector().getY() ;  
         }
-       // limit();
+        limit();
         
     //    System.out.println("" + x + " , " + y + " rot: " + getRotation());
         
@@ -194,25 +187,25 @@ public abstract class Boid extends Actor
         }
     }
     
-  /*  private void limit() {
+    private void limit() {
         if(x<=0) {
          //  vectorPlan.setX(10);// -10 * vectorPlan.getX());
-           x=0;
+           x=getWorld().getWidth()-2;
         }
         if(x>=getWorld().getWidth()) {
          //  vectorPlan.setX(-10) ;//-10 * vectorPlan.getX());
-           x=getWorld().getWidth()-2;
+           x=0;
         }
         if(y<=0) {
             //vectorPlan.setY(10);//-10 * vectorPlan.getY());                
-            y=0;
+            y=getWorld().getHeight() -2 ;
         }
         if(y>=getWorld().getHeight()) {
           //  vectorPlan.setY(-10);//-10 * vectorPlan.getY());                
-            y=getWorld().getHeight() -2 ;
+            y=0;
         }
         
-    }*/
+    }
     
    /* public static void setSeparationFactor(double factor) {
         separationFactor = factor;

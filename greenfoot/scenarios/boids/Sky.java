@@ -11,7 +11,7 @@ public class Sky extends World
    
     public Sky() {
         super(WIDTH,HEIGHT,1);
-        getBackground().setColor(new Color(90,90,255));
+        getBackground().setColor(new Color(128,164,255));
         getBackground().fill();
         populateNaive(20);
       

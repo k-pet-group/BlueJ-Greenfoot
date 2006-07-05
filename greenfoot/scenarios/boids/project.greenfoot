@@ -1,14 +1,14 @@
 #Greenfoot properties
-#Sun May 14 15:28:16 GMT 2006
+#Wed Jul 05 17:03:58 BST 2006
 class.Boid.superclass=greenfoot.Actor
-simulation.speed=90
+simulation.speed=96
 class.Social.superclass=Boid
-
+mainWindow.width=1063
 class.Hunter.superclass=Boid
 version=1.0
 class.Boid.image=bird.png
-
+mainWindow.y=146
 class.Sky.superclass=greenfoot.World
-
-
+mainWindow.x=546
+mainWindow.height=784
 class.Naive.superclass=Boid
