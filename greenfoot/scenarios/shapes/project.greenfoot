@@ -1,17 +1,20 @@
 #Greenfoot properties
-#Sun May 14 15:59:06 GMT 2006
-simulation.speed=0
-class.Square.superclass=greenfoot.Actor
+#Tue Jun 06 16:30:24 BST 2006
 class.Triangle.superclass=greenfoot.Actor
-
-class.Circle.image=Circle.png
-class.Circle.superclass=greenfoot.Actor
-class.ShapeWorld.superclass=greenfoot.World
+mainWindow.height=584
+class.ShapesWorld.superclass=greenfoot.World
 class.Sun.superclass=Circle
 version=1.0
-class.Sun.image=Sun.png
+class.Square.superclass=greenfoot.Actor
+class.ShapeWorld.superclass=greenfoot.World
+class.Shape.superclass=greenfoot.Actor
+simulation.speed=96
 class.Square.image=Square.png
-
-
-
+mainWindow.y=500
+mainWindow.x=10
 class.Triangle.image=Triangle.png
+class.Circle.image=Circle.png
+mainWindow.width=851
+class.Sun.image=Sun.png
+class.Picture.superclass=greenfoot.Actor
+class.Circle.superclass=greenfoot.Actor

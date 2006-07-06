@@ -14,11 +14,4 @@ public class Sun extends Circle
     changeColor(java.awt.Color.YELLOW);
   }
 
-  /**
-   * Moves the sun down a bit.
-   */
-  public void act()
-  {
-    moveDown();
-  }
 }

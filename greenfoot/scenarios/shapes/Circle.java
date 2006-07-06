@@ -1,5 +1,4 @@
-import greenfoot.Actor;
-import greenfoot.GreenfootImage;
+import greenfoot.*;
 
 
 import java.awt.Color;
@@ -14,6 +13,8 @@ public class Circle extends Actor
     
     private Color color;
     private int diameter;
+    private int xTarget;
+    private int yTarget;
     
     /**
      * Creates a black circle.
@@ -23,7 +24,6 @@ public class Circle extends Actor
         diameter=32;
         color=Color.BLACK;
         draw();
-        
     }
     
     /**
@@ -43,7 +43,16 @@ public class Circle extends Actor
      */
     public void act()
     {
-        //here you can create the behaviour of your object
+        if(xTarget == getX() ) {
+            Greenfoot.pauseSimulation();
+        }
+        else {
+            int deltaX = 1;
+            if(getX() > xTarget) {
+                deltaX = -1;
+            }
+            setLocation(getX() + deltaX, getY());
+        }
     }
     
     
@@ -102,23 +111,8 @@ public class Circle extends Actor
      */
     public void slowMoveHorizontal(int distance)
     {
-        int delta;
-        
-        if(distance < 0) 
-        {
-            delta = -1;
-            distance = -distance;
-        }
-        else 
-        {
-            delta = 1;
-        }
-        
-        for(int i = 0; i < distance; i++)
-        {
-            setLocation(getX()+delta, getY());
-
-        }
+        xTarget = getX() + distance;
+        Greenfoot.resumeSimulation();
     }
     
     /**
@@ -126,23 +120,8 @@ public class Circle extends Actor
      */
     public void slowMoveVertical(int distance)
     {
-        int delta;
-        
-        if(distance < 0) 
-        {
-            delta = -1;
-            distance = -distance;
-        }
-        else 
-        {
-            delta = 1;
-        }
-        
-        for(int i = 0; i < distance; i++)
-        {
-            setLocation(getX(), getY()+delta);
-
-        }
+        yTarget = getY() + distance;
+        Greenfoot.resumeSimulation();
     }
     
     /**
