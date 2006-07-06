@@ -29,10 +29,10 @@ dependency8.type=UsesDependency
 dependency9.from=Person
 dependency9.to=Button
 dependency9.type=UsesDependency
-package.editor.height=300
-package.editor.width=420
-package.editor.x=1200
-package.editor.y=69
+
+
+
+
 package.numDependencies=10
 package.numTargets=7
 package.showExtends=true

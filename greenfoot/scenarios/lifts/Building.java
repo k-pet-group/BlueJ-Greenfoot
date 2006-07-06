@@ -79,17 +79,17 @@ public class Building extends World
     
     
     /**
-     * Return the floor number at a given screen cell y-coordinate.
-     * If this cell is not the exact height of an existing floor, return -1.
+     * Return the floor at a given screen cell y-coordinate.
+     * If this cell is not the exact height of an existing floor, return null.
      */
-    public int getFloorAt(int y)
+    public Floor getFloorAt(int y)
     {
         for(int i=0; i<floors.length; i++) {
             if(floors[i].getY() == y) {
-                return i;
+                return floors[i];
             }
         }
-        return -1;
+        return null;
     }
 
     /**

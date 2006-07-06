@@ -1,4 +1,5 @@
-*.class
+.DS_Store
 *.ctxt
-bluej.pkh
 greenfoot
+*.class
+bluej.pkh

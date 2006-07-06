@@ -54,9 +54,10 @@ public class Lift extends Actor
     private void goingUp()
     {
         moveUp();
-        int floor = atFloor();
-        if(floor != -1) {
+        Floor floor = atFloor();
+        if(floor != null) {
             openDoors();
+            floor.liftArrived(Button.UP);
             people++;
             updateImage();
         }
@@ -68,9 +69,10 @@ public class Lift extends Actor
     private void goingDown()
     {
         moveDown();
-        int floor = atFloor();
-        if(floor != -1) {
+        Floor floor = atFloor();
+        if(floor != null) {
             openDoors();
+            floor.liftArrived(Button.DOWN);
             people--;
             updateImage();
         }
@@ -82,11 +84,11 @@ public class Lift extends Actor
     private void standingClosed()
     {
         if(randomizer.nextInt(100) > 95) {
-            int floor = atFloor();
-            if(floor == 0) {
+            Floor floor = atFloor();
+            if(floor.getFloorNumber() == 0) {
                 goUp();
             }
-            else if(floor == ((Building)getWorld()).getTopFloor()) {
+            else if(floor.getFloorNumber() == ((Building)getWorld()).getTopFloor()) {
                 goDown();
             }
             else if(randomizer.nextInt(100) >= 50) {
@@ -159,9 +161,9 @@ public class Lift extends Actor
     }
     
     /**
-     * Are we at a floor? Return floor number or -1.
+     * Are we at a floor? Return floor or null.
      */
-    public int atFloor()
+    public Floor atFloor()
     {
         return ((Building)getWorld()).getFloorAt(getY());
     }
