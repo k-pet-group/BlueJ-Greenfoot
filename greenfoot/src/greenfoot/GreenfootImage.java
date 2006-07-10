@@ -24,7 +24,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4339 2006-05-30 11:09:56Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4451 2006-07-10 09:18:56Z polle $
  */
 public class GreenfootImage
 {
@@ -314,7 +314,7 @@ public class GreenfootImage
      */
     public Color getColorAt(int x, int y)
     {
-        return new Color(getRGBAt(x, y));
+        return new Color(getRGBAt(x, y), true); 
     }
     
     /**
