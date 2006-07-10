@@ -36,7 +36,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4448 2006-07-06 10:55:45Z mik $
+ * @version $Id: GreenfootFrame.java 4452 2006-07-10 12:15:49Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -356,24 +356,31 @@ public class GreenfootFrame extends JFrame
      * world is not compiled. If multiple world classes exist, a random one
      * will be instantiated.
      */
-    private void instantiateNewWorld(ClassBrowser classBrowser)
-    {
-        //init a random world
-        Iterator worldClasses = classBrowser.getWorldClasses();
+    private void instantiateNewWorld(ClassBrowser classBrowser) {
+		// init a random world
+		Iterator worldClasses = classBrowser.getWorldClasses();
 
-        while (worldClasses.hasNext()) {
-            ClassView classView = (ClassView) worldClasses.next();
-            if (!classView.getClassName().equals("World")) {
-                classView.reloadClass();
-                classView.createInstance();
-            }
-        }
-    }
+		while (worldClasses.hasNext()) {
+			ClassView classView = (ClassView) worldClasses.next();
+			if (!classView.getClassName().equals("World")) {
+				classView.reloadClass();
+				// ACC_INTERFACE 0x0200 Is an interface, not a class.
+				// ACC_ABSTRACT 0x0400 Declared abstract; may not be
+				// instantiated.
+				int modifiers = classView.getRealClass().getModifiers();
+				boolean canBeInstantiated = (0x0600 & modifiers) == 0x0000;
+				if (canBeInstantiated) {
+					classView.createInstance();
+					break;
+				}
+			}
+		}
+	}
 
 
     /**
-     * Build the class browser.
-     */
+	 * Build the class browser.
+	 */
     private ClassBrowser buildClassBrowser()
     {
         ClassBrowser classBrowser = new ClassBrowser();
