@@ -212,8 +212,7 @@ public abstract class World extends ObjectTransporter
      * 
      * @param object The new object to add.
      * @throws IndexOutOfBoundsException If the coordinates are outside the
-     *             bounds of the world. Note that a wrapping world has not
-     *             bounds.
+     *             bounds of the world.
      */
     public synchronized void addObject(Actor object, int x, int y)
         throws IndexOutOfBoundsException
