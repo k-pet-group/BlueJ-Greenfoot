@@ -62,6 +62,8 @@ public abstract class Actor extends ObjectTransporter
     private static GreenfootImage greenfootImage = new GreenfootImage("images/greenfoot.png");
     private boolean usingClassImage;
 
+    private boolean  copyClassImage = true;
+
     /**
      * Construct an Actor.
      * The object will have a default image.
@@ -237,13 +239,16 @@ public abstract class Actor extends ObjectTransporter
     
     /**
      * Returns the image used to represent this Actor. This image can be 
-     * modified to change the object's appearance.
+     * modified to change the object's appearance. 
+     * <p>
+     * 
+     * If you override this method, you should call super.getImage() before doing anything else.
      * 
      * @return The object's image.
      */
     public GreenfootImage getImage()
     {
-        if (usingClassImage) {
+        if (usingClassImage && copyClassImage) {
             // If this actor is using the class image, make a copy of it before
             // returning it. Otherwise modifications will affect the class image.
             image = new GreenfootImage(image);
@@ -331,7 +336,14 @@ public abstract class Actor extends ObjectTransporter
      */
     GreenfootImage getDisplayImage()
     {
-        return image;
+        // When calling getImage, we do not want it to copy the class image -
+        // for performance reasons.
+        // We have to use getImage() though, if we want the user to be able to
+        // override it.
+        copyClassImage = false;
+        GreenfootImage img = getImage();
+        copyClassImage = true;
+        return img;
     }
     
     /**
