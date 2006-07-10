@@ -234,7 +234,7 @@ public abstract class Actor extends ObjectTransporter
      * 
      * @param world The world the object was added to.
      */
-    public void addedToWorld(World world)
+    protected void addedToWorld(World world)
     {}
     
     /**
