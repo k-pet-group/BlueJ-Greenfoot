@@ -22,7 +22,8 @@ public class BrickWorld extends World
     public BrickWorld() {
         super(SIZEX, SIZEY, 1);
         GreenfootImage background = new GreenfootImage(20,20);
-        background.fill(Color.BLACK);
+        background.setColor(Color.BLACK);
+        background.fill();
         setTiled(true);
         setBackground(background);
         

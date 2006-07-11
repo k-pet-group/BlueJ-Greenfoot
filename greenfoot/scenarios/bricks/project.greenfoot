@@ -1,6 +1,15 @@
 #Greenfoot properties
-#Thu Apr 27 13:50:19 BST 2006
-class.Ball.image=ball.png
-version=0.6 dev
+#Sun May 14 15:28:13 GMT 2006
 class.Brick.image=brick.png
+simulation.speed=99
+class.Paddle.superclass=greenfoot.Actor
+
+class.BrickWorld.superclass=greenfoot.World
 class.Paddle.image=Paddle.png
+version=1.0
+class.Ball.image=ball.png
+class.Ball.superclass=greenfoot.Actor
+
+
+class.Brick.superclass=greenfoot.Actor
+

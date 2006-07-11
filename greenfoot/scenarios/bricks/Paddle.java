@@ -10,7 +10,8 @@ public class Paddle extends Actor
     public Paddle()
     {
         GreenfootImage pic = new GreenfootImage(60, 10);
-        pic.fill(Color.GREEN);
+        pic.setColor(Color.GREEN);
+        pic.fill();
         setImage(pic);
     }
     
