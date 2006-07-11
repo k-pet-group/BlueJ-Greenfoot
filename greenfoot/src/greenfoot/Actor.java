@@ -4,8 +4,17 @@ import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
 import greenfoot.util.Circle;
 
+import java.rmi.RemoteException;
+import java.util.Hashtable;
 import java.util.List;
 
+import rmiextension.BlueJRMIClient;
+import rmiextension.wrappers.RClass;
+import rmiextension.wrappers.RObject;
+import rmiextension.wrappers.RPackage;
+import bluej.extensions.ClassNotFoundException;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 /**
  * An Actor is an object that exists in the greenfoot world. 
  * Every Actor has a location in the world, and an appearance (that is:
@@ -24,8 +33,9 @@ import java.util.List;
  * @version 1.0
  * @cvs-version $Id$
  */
-public abstract class Actor extends ObjectTransporter
+public abstract class Actor 
 {
+    
     /** Error message to display when trying to use methods that requires a world. */
     private static final String NO_WORLD = "No world has been instantiated.";
 
@@ -799,6 +809,80 @@ public abstract class Actor extends ObjectTransporter
         if (x2 < x1 + w1 && x1 + w1 <= x2 + w2)
             return true;
         return false;
+    } 
+
+    
+    //============================================================================
+    //  
+    //  Object Transporting - between the two VMs
+    //  
+    //  IMPORTANT: This code is duplicated in greenfoot.World!
+    //============================================================================    
+    
+    /** Remote version of this class */
+    private static RClass remoteObjectTracker;
+    
+    /** The object we want to get a remote version of */
+    private static  Object transportField;
+    
+    /** Lock to ensure that we only have one remoteObjectTracker */
+    private static  Object lock = new Object();
+    //TODO The cached objects should be cleared at recompile.
+    private  static Hashtable cachedObjects = new Hashtable();
+    
+    /**
+     * Gets the remote reference to the obj.
+     * <p>
+     *  
+     * IMPORTANT: This code is duplicated in greenfoot.World!
+     *  
+     * @throws ClassNotFoundException 
+     * @throws RemoteException 
+     * @throws PackageNotFoundException 
+     * @throws ProjectNotOpenException 
+     * 
+     */
+    static RObject getRObject(Object obj) throws ProjectNotOpenException, PackageNotFoundException, RemoteException, ClassNotFoundException
+    {
+        synchronized (lock) {
+            RObject rObject = (RObject) cachedObjects.get(obj);
+            if (rObject != null) {
+                return rObject;
+            }
+            transportField = obj;
+            rObject = getRemoteClass(obj).getField("transportField").getValue(null);
+            cachedObjects.put(obj, rObject);
+            return rObject;
+        }
     }
     
+
+    /**
+     * This method ensures that we have the remote (RClass) representation of
+     * this class.
+     * <p>
+     *  
+     * IMPORTANT: This code is duplicated in greenfoot.World!
+     * @param obj
+     * 
+     */
+    static private RClass getRemoteClass(Object obj)
+    {
+        if (remoteObjectTracker == null) {
+            try {
+                RPackage pkg = BlueJRMIClient.instance().getPackage();
+                remoteObjectTracker = pkg.getRClass(obj.getClass().getName());                
+            }
+            catch (ProjectNotOpenException e) {
+                e.printStackTrace();
+            }
+            catch (PackageNotFoundException e) {
+                e.printStackTrace();
+            }
+            catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        return remoteObjectTracker;
+    }
 }

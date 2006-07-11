@@ -7,6 +7,7 @@ import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.runtime.ExecServer;
+import bluej.utility.Debug;
 
 /**
  * Class that can be used to get the remote version of an object and vice versa.
@@ -20,7 +21,6 @@ public class ObjectTracker
     /**
      * Get the RObject version of the obj.
      * 
-     * @see greenfoot.ObjectTransporter
      * 
      * @param obj The class of obj must be in the project and be a subclass of greenfoot.ObjectTransporter
      * @return
@@ -31,7 +31,15 @@ public class ObjectTracker
      */
     public static RObject getRObject(Object obj) throws ProjectNotOpenException, PackageNotFoundException, RemoteException, ClassNotFoundException
     {
-        return Actor.getRObject(obj);
+        if(obj instanceof Actor) {
+            return Actor.getRObject(obj);
+        } else  if( obj instanceof World) {
+            return World.getRObject(obj);
+        } else {
+            Debug.reportError("Could not get remote version of object: " + obj, new Exception());
+            return null;
+        }
+        
     }
     
     public static Object getRealObject(RObject remoteObj)
