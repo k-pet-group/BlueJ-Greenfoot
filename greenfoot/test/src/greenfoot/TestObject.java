@@ -48,13 +48,13 @@ public class TestObject extends Actor
 
     public List getObjectsAtP(int dx, int dy, Class cls)
     {
-        return getObjectsAt(dx, dy, cls);
+        return getObjectsAtOffset(dx, dy, cls);
     }
 
-    public List getObjectsInDirectionP(int angle, int length, Class cls)
+  /*  public List getObjectsInDirectionP(int angle, int length, Class cls)
     {
          return getObjectsInDirection(angle, length, cls);
-    }
+    }*/
 
     public Actor getOneIntersectingObjectP(Class cls)
     {
@@ -63,7 +63,7 @@ public class TestObject extends Actor
 
     public Actor getOneObjectAtP(int dx, int dy, Class cls)
     {
-        return getOneObjectAt(dx, dy, cls);
+        return getOneObjectAtOffset(dx, dy, cls);
     }
 
     

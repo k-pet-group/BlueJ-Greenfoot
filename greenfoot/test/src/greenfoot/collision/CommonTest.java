@@ -1,5 +1,7 @@
 package greenfoot.collision;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 import greenfoot.World;
 import greenfoot.TestObject;
@@ -16,10 +18,9 @@ public class CommonTest extends TestCase
     private TestObject obj1;
     protected void setUp()        
     {
-        world = new World(10,10,10);
+        world = new World(10,10,10) {};
         obj1 = new TestObject(10,10);
-        world.addObject(obj1);
-        obj1.setLocation(0, 0);
+        world.addObject(obj1, 0, 0);
     }
 
     /**
@@ -39,7 +40,7 @@ public class CommonTest extends TestCase
 
             obj1.getObjectsAtP(5, 5, null);
 
-            obj1.getObjectsInDirectionP(0, 1, null);
+         //   obj1.getObjectsInDirectionP(0, 1, null);
 
             obj1.getObjectsInRangeP(1, null);
 
@@ -54,4 +55,36 @@ public class CommonTest extends TestCase
         assertFalse(gotException);
 
     }
+     /**
+         * test if the object itself is included in results.
+         * 
+         */
+    public void testSelfInclusion()
+    {
+        world.getObjectsAt(0, 0, TestObject.class);
+
+        List l = obj1.getIntersectingObjectsP(TestObject.class);
+        assertFalse(l.contains(obj1));
+
+        l = obj1.getNeighboursP(1, true, TestObject.class);
+        assertFalse(l.contains(obj1));
+
+        l = obj1.getNeighboursP(1, false, TestObject.class);
+        assertFalse(l.contains(obj1));
+
+        l = obj1.getObjectsAtP(5, 5, TestObject.class);
+        assertFalse(l.contains(obj1));
+
+        // obj1.getObjectsInDirectionP(0, 1, TestObject.class);
+
+        l = obj1.getObjectsInRangeP(1, TestObject.class);
+        assertFalse(l.contains(obj1));
+
+        Object o = obj1.getOneIntersectingObjectP(TestObject.class);
+        assertNotSame(obj1, o);
+
+        o  = obj1.getOneObjectAtP(0, 0, TestObject.class);
+        assertNotSame(obj1, o);
+    }
+    
 }

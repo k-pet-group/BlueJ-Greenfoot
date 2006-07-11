@@ -18,14 +18,12 @@ public class IntersectionTest extends TestCase
 
     public void testIntersectingSingleCell()
     {
-        world = new World(10, 10, 10);
+        world = new World(10, 10, 10){};
         TestObject o1 = new TestObject(10,10);
-        o1.setLocation(2,2);
-        world.addObject(o1);
+        world.addObject(o1, 2, 2);
         
         TestObject o2 = new TestObject(10,10);
-        o2.setLocation(2,2);
-        world.addObject(o2);
+        world.addObject(o2, 2, 2);
         
         assertTrue(o1.intersectsP(o2));
         assertTrue(o2.intersectsP(o1));
@@ -41,14 +39,12 @@ public class IntersectionTest extends TestCase
     
     public void testIntersectingPixelLevelOdd()
     {
-        world = new World(70, 70, 1);
+        world = new World(70, 70, 1){};
         TestObject o1 = new TestObject(7,7);
-        o1.setLocation(0,0);
-        world.addObject(o1);
+        world.addObject(o1, 0 ,0);
         
         TestObject o2 = new TestObject(7,7);
-        o2.setLocation(6,6);
-        world.addObject(o2);
+        world.addObject(o2, 6, 6);
         
         assertTrue(o1.intersectsP(o2));
         assertTrue(o2.intersectsP(o1));
@@ -64,14 +60,12 @@ public class IntersectionTest extends TestCase
     
     public void testIntersectingPixelLevelEven()
     {
-        world = new World(80, 80, 1);
+        world = new World(80, 80, 1){};
         TestObject o1 = new TestObject(8,8);
-        o1.setLocation(0,0);
-        world.addObject(o1);
+        world.addObject(o1, 0 ,0);
         
         TestObject o2 = new TestObject(8,8);
-        o2.setLocation(7,7);
-        world.addObject(o2);
+        world.addObject(o2, 7, 7);
         
         assertTrue(o1.intersectsP(o2));
         assertTrue(o2.intersectsP(o1));

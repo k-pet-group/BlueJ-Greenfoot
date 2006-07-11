@@ -15,12 +15,11 @@ public class GetAtTest extends TestCase
 
     public void testPixelOdd()
     {
-        world = new World(100, 100, 1);
+        world = new World(100, 100, 1){};
 
         TestObject actor1 = new TestObject(21, 21);
-        world.addObject(actor1);
+        world.addObject(actor1, 50 , 50);
 
-        actor1.setLocation(50, 50);
 
         List result = world.getObjectsAt(50, 50, TestObject.class);
         assertTrue(result.contains(actor1));
@@ -41,12 +40,10 @@ public class GetAtTest extends TestCase
 
     public void testPixelEven()
     {
-        world = new World(100, 100, 1);
+        world = new World(100, 100, 1) {};
 
         TestObject actor1 = new TestObject(20, 20);
-        world.addObject(actor1);
-
-        actor1.setLocation(50, 50);
+        world.addObject(actor1, 50, 50);
 
         List result = world.getObjectsAt(50, 50, TestObject.class);
         assertTrue(result.contains(actor1));
