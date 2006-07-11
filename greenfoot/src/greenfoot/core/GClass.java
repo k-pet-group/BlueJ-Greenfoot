@@ -475,6 +475,7 @@ public class GClass implements CompileListener
 
     public void compileSucceeded(RCompileEvent event)
     {
+        realClass = loadRealClass();
         guessSuperclass();
     }
 
