@@ -21,7 +21,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 4357 2006-06-13 12:19:06Z polle $
+ * @version $Id: Boot.java 4468 2006-07-11 08:29:00Z polle $
  */
 public class Boot
 {
@@ -41,7 +41,7 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
 
     public static final String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
     
-    public static String GREENFOOT_VERSION = "1.0.1";
+    public static String GREENFOOT_VERSION = "1.0.2";
     public static String GREENFOOT_API_VERSION = "1.0";
 
     
