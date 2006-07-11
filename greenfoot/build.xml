@@ -9,7 +9,7 @@
 	<!-- user specific properties that are edited to match local build environment-->
 	<property file="build.properties"/>
 
-
+	
 	<!-- Location of the bluej lib dir -->
 	<property name="bluej.lib.greenfoot"  location="${bluej.projectdir}/lib/greenfoot"/>
 	<!-- Location of the where the greenfoot.jar should be placed-->
@@ -271,9 +271,9 @@
 		<move file="${bluej.installer.jar}" tofile="${package}/greenfoot-installer-${greenfoot.version}.jar"/>
 		<move file="${bluej.dist.jar}" tofile="${package}/greenfoot-dist-${greenfoot.version}.jar"/>
 		<move file="${bluej.dist.mac}" tofile="${package}/Greenfoot-${greenfoot.version}.zip"/>
-
-		<echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist-${greenfoot.version}.jar.jar"/>
-		<echo message="The greenfoot jar-installer is in ${package}/greenfoot-installer-${greenfoot.version}.jar.jar"/>
+		
+		<echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist-${greenfoot.version}.jar"/>
+		<echo message="The greenfoot jar-installer is in ${package}/greenfoot-installer-${greenfoot.version}.jar"/>
 		<echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-${greenfoot.version}.zip"/>
 	</target>
 
