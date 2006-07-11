@@ -1,7 +1,6 @@
 package greenfoot.gui.classbrowser.role;
 
 import greenfoot.GreenfootImage;
-import greenfoot.GreenfootImageVisitor;
 import greenfoot.actions.DragProxyAction;
 import greenfoot.actions.SelectImageAction;
 import greenfoot.core.GClass;
@@ -31,7 +30,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 4228 2006-05-12 15:32:21Z polle $
+ * @version $Id: GreenfootClassRole.java 4471 2006-07-11 12:13:39Z polle $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -100,7 +99,7 @@ public class GreenfootClassRole extends ClassRole
     {
         GreenfootImage gfImage = getGreenfootImage();
         if (gfImage != null) {
-            return GreenfootImageVisitor.getAWTImage(gfImage);
+            return gfImage.getAwtImage();
         }
         else {
             return null;

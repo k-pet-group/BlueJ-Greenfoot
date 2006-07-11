@@ -24,7 +24,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4451 2006-07-10 09:18:56Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4471 2006-07-11 12:13:39Z polle $
  */
 public class GreenfootImage
 {
@@ -139,11 +139,15 @@ public class GreenfootImage
         initGraphics();
     }
 
+
     /**
-     * Gets the Java AWT image that this GreenfootImage represents.
+     * Returns the java.awt.Image that backs this GreenfootImage. Any changes to
+     * the returned image will be reflected in the GreenfootImage.
      * 
+     * @return The java.awt.Image backing this GreenfootImage
+     * @since Greenfoot version 1.0.2
      */
-    Image getAWTImage()
+    public Image getAwtImage()
     {
         return image;
     }
@@ -258,7 +262,7 @@ public class GreenfootImage
         Graphics thisGraphics = getGraphics();
         image.drawImage(thisGraphics, x, y, null);
     }
-
+    
     /**
      * Draws this image onto the given Graphics object.
      * 

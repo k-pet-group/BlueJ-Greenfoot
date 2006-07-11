@@ -3,7 +3,6 @@ package greenfoot.gui;
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
-import greenfoot.GreenfootImageVisitor;
 import greenfoot.World;
 import greenfoot.core.GClass;
 import greenfoot.core.GreenfootMain;
@@ -63,7 +62,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4353 2006-06-13 03:40:59Z davmac $
+ * @version $Id: ImageLibFrame.java 4471 2006-07-11 12:13:39Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -588,7 +587,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             GreenfootImage image = ActorVisitor.getDisplayImage(so);
 
             if (image != null) {
-                Image awtImage = GreenfootImageVisitor.getAWTImage(image);
+                Image awtImage = image.getAwtImage();
                 //rotate it.
                 int rotation = so.getRotation();
                 if (image != null && rotation != 0) {
@@ -610,7 +609,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 } 
 
                 GreenfootImage classImage = GreenfootMain.getProjectProperties().getImage(gclass.getQualifiedName());
-                if (classImage != null && GreenfootImageVisitor.getAWTImage(classImage).equals(awtImage)) {
+                if (classImage != null && classImage.getAwtImage().equals(awtImage)) {
                     // "generated" image is actually just the class image
                     return null;
                 }
