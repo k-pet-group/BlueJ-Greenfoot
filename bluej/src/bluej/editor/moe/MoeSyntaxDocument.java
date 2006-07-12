@@ -1,24 +1,12 @@
-/*
-* MoeSyntaxDocument.java - inherits from
-* DefaultSyntaxDocument.java - Simple implementation of SyntaxDocument
-* Copyright (C) 1999 Slava Pestov
-* modified by Bruce Quig to add Syntax highlighting to the BlueJ
-* programming environment.
-*
-* This library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU Lesser General Public
-* License as published by the Free Software Foundation; either
-* version 2 of the License, or (at your option) any later version.
-*
-* This library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-* Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public
-* License along with this library; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
-*/
+// Copyright (c) 2000, 2005 BlueJ Group, Deakin University
+//
+// This software is made available under the terms of the "MIT License"
+// A copy of this license is included with this source distribution
+// in "license.txt" and is also available at:
+// http://www.opensource.org/licenses/mit-license.html 
+// Any queries should be directed to Michael Kolling mik@bluej.org
+
+
 package bluej.editor.moe;
 
 import javax.swing.text.*;
@@ -34,7 +22,7 @@ import java.util.Properties;
 
 /**
  * A simple implementation of <code>SyntaxDocument</code> that 
- * inherits from DefaultSyntaxDocument. It takes
+ * inherits from SyntaxDocument. It takes
  * care of inserting and deleting lines from the token marker's state.
  * It adds the ability to handle paragraph attributes on a per line basis.
  *

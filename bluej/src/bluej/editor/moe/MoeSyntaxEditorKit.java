@@ -1,23 +1,10 @@
-/**
- * MoeSyntaxEditorKit.java - adapted from
- * SyntaxEditorKit.java - jEdit's own editor kit
- * to add Syntax highlighting to the BlueJ programming environment.
- * Copyright (C) 1998, 1999 Slava Pestov
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
- */
+// Copyright (c) 2000, 2005 BlueJ Group, Deakin University
+//
+// This software is made available under the terms of the "MIT License"
+// A copy of this license is included with this source distribution
+// in "license.txt" and is also available at:
+// http://www.opensource.org/licenses/mit-license.html 
+// Any queries should be directed to Michael Kolling mik@bluej.org
 
 package bluej.editor.moe;
 
@@ -30,7 +17,7 @@ import javax.swing.text.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @see org.gjt.sp.jedit.syntax.SyntaxView
+ * 
  */
 public class MoeSyntaxEditorKit extends DefaultEditorKit
         implements ViewFactory
@@ -67,7 +54,7 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
      * instance.
      * @param elem The element
      * @return a new MoeSyntaxView for an element
-     * @see org.gjt.sp.jedit.syntax.SyntaxView
+     * 
      */
     public View create(Element elem)
     {
@@ -81,7 +68,7 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
      * Creates a new instance of the default document for this
      * editor kit. This returns a new instance of
      * <code>DefaultSyntaxDocument</code>.
-     * @see org.gjt.sp.jedit.syntax.DefaultSyntaxDocument
+     * 
      */
     public Document createDefaultDocument()
     {
