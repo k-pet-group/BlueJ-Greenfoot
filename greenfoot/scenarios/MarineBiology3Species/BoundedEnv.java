@@ -51,9 +51,9 @@ public class BoundedEnv extends SquareEnvironment
      *
      *  <p>
      *  
-     *  Constructs an empty BoundedEnv object with the
-     *  dimensions specified in the static variables added
-     *  for Greenfoot in class BoundedEnv.
+     *  Constructs a BoundedEnv object, with 3 types of fish in random
+     *  locations, and of the dimensions specified in the static
+     *  variables added for Greenfoot in class BoundedEnv.
      **/
     public BoundedEnv()   
     {
@@ -220,7 +220,7 @@ public class BoundedEnv extends SquareEnvironment
         // Remove the object from the grid.
         theGrid[loc.row()][loc.col()] = null;
         objectCount--;
-        removeObject((Actor) obj);
+        removeObject((Actor) obj);   //Needed for Greenfoot
     }
 
     /** Updates this environment to reflect the fact that an object moved.
@@ -271,7 +271,7 @@ public class BoundedEnv extends SquareEnvironment
            {
               Debug.println(fish.toString() + " about to die.");
               remove(fish);
-            }
+           }
        }
        super.removeObject(object);
     }   

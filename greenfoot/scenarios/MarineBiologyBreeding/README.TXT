@@ -18,7 +18,7 @@ College Board case study.
 
 USER INSTRUCTIONS:
 To add more fish, select the Fish class and then hold Shift as you click on
-the grid cells, or invoke the populate method in the World object. Right-click
-the label BoundedEnv above the grid to get a list of methods in this object.
-You can create worlds of different sizes by right-clicking the BoundedEnv
-class and invoking the constructor with two arguments.
+the grid cells, or invoke the populate method on the World object. Right-click
+the label BoundedEnv above the grid to get the list of methods of this object.
+To create an empty world of a specific size, right-click the BoundedEnv
+class and invoke the constructor with two arguments.

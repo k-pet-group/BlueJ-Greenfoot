@@ -1,9 +1,9 @@
 #Greenfoot properties
-#Wed Jul 12 11:53:33 BST 2006
-simulation.speed=0
+#Wed Jul 12 19:37:29 BST 2006
+simulation.speed=97
 class.DarterFish.superclass=Fish
 class.Fish.superclass=greenfoot.Actor
-mainWindow.width=891
+mainWindow.width=731
 class.Fish.image=fish.png
 class.DarterFish.image=fish.png
 class.SquareEnvironment.superclass=greenfoot.World

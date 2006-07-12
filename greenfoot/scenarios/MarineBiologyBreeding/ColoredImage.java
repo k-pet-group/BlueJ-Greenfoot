@@ -9,18 +9,20 @@
 // GNU General Public License for more details.
 
 import greenfoot.*;
-import java.util.HashMap;
 
 import java.util.WeakHashMap;
+
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.RGBImageFilter;
+import java.awt.MediaTracker;
 import java.awt.Image;
+import java.awt.Component;
 
 
 /**
- * A colored image. The image is "tinted" with a specifc color - in effect chaning the color of an image.
+ * A colored image. The image is "tinted" with a specific color - in effect changing the color of an image.
  * 
  * @author Poul Henriksen
  */
@@ -30,10 +32,7 @@ public class ColoredImage extends GreenfootImage
     private Color color;
     
     /** The original untinted image */
-    private GreenfootImage org;
-    
-    /** The tint values of the color */
-    private int tintR, tintG, tintB;
+    private GreenfootImage org;    
     
     /** Pool to hold images for actors, to avoid recreating images all the time. Actor->ColoredImage */
     private static WeakHashMap pool = new WeakHashMap();
@@ -87,10 +86,6 @@ public class ColoredImage extends GreenfootImage
     {
         if(newColor != color)  {
             color = newColor;            
-            int rgb = color.getRGB();
-            tintR = (rgb >> 16) & 0xff;
-            tintG = (rgb >> 8) & 0xff;
-            tintB = rgb & 0xff;
             tintImage();
         }        
     }
@@ -100,41 +95,62 @@ public class ColoredImage extends GreenfootImage
      */
     private void tintImage()
     {
-        for(int x=0; x < org.getWidth(); x++) {
-            for(int y=0; y < org.getHeight(); y++) {
-                //System.out.println("Alpha direct: " + org.getAlpha());
-                Color oldColor = org.getColorAt(x,y);
-                Color newColor = new Color(filterRGB(x,y,oldColor.getRGB()), true);
-                setColorAt(x,y,newColor);                
-            }
-        }      
-    }
-
+        Image orgImg = org.getAwtImage();
+        FilteredImageSource src = new FilteredImageSource(orgImg.getSource(), new TintFilter(color));
+        Image newImg = Toolkit.getDefaultToolkit().createImage(src);
+        Image thisImg = getAwtImage();
+        thisImg.getGraphics().drawImage(newImg, 0,0, null);        
+        MediaTracker tracker = new MediaTracker(new Component() {});        
+        tracker.addImage(thisImg , 0);
+        try {
+            tracker.waitForID(0);
+            tracker.removeImage(thisImg );
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }   
+    
     /**
-     * Tint a specific pixel in the image.
+     * An image filter class that tints colors based on the tint provided to the
+     * constructor (the color of an object).
      */
-    public int filterRGB(int x, int y, int rgb)
+    private static class TintFilter extends RGBImageFilter
     {
-        //hack because greenfoot throws away transparency in getColorAt()
-        /*   if( (argb & 0x00ffffff) == 0x00000000) { 
-        return 0x00000000;// transparent
-        }*/
-        
-        int alpha = (rgb >> 24) & 0xff;
-        int red = (rgb >> 16) & 0xff;
-        int green = (rgb >> 8) & 0xff;
-        int blue = rgb & 0xff;
-        
-        // Use NTSC/PAL algorithm to convert RGB to grayscale.
-        int lum = (int) (0.2989 * red + 0.5866 * green + 0.1144 * blue);
-        
-        // Interpolate along spectrum black->white with tint at midpoint
-        double scale = Math.abs((lum - 128) / 128.0); // absolute distance from midpt
-        int edge = lum < 128 ? 0 : 255; // going towards white or black?
-        red = tintR + (int) ((edge - tintR) * scale); // scale from midpt to edge
-        green = tintG + (int) ((edge - tintG) * scale);
-        blue = tintB + (int) ((edge - tintB) * scale);
-        return (alpha << 24) | (red << 16) | (green << 8) | blue;
+       private int tintR, tintG, tintB;
+
+       /** Constructs an image filter for tinting colors in an image. * */
+       public TintFilter(Color color)
+       {
+          canFilterIndexColorModel = true;
+          int rgb = color.getRGB();
+          tintR = (rgb >> 16) & 0xff;
+          tintG = (rgb >> 8) & 0xff;
+          tintB = rgb & 0xff;
+       }
+
+       public int filterRGB(int x, int y, int argb)
+       {
+          // Separate pixel into its RGB coomponents.
+          int alpha = (argb >> 24) & 0xff;
+          int red = (argb >> 16) & 0xff;
+          int green = (argb >> 8) & 0xff;
+          int blue = argb & 0xff;
+
+          // Use NTSC/PAL algorithm to convert RGB to grayscale.
+          int lum = (int) (0.2989 * red + 0.5866 * green + 0.1144 * blue);
+
+          // Interpolate along spectrum black->white with tint at midpoint
+          double scale = Math.abs((lum - 128) / 128.0); // absolute distance
+                                                          // from midpt
+          int edge = lum < 128 ? 0 : 255; // going towards white or black?
+          red = tintR + (int) ((edge - tintR) * scale); // scale from midpt to
+                                                          // edge
+          green = tintG + (int) ((edge - tintG) * scale);
+          blue = tintB + (int) ((edge - tintB) * scale);
+          return (alpha << 24) | (red << 16) | (green << 8) | blue;
+       }
+
     }
 
 }
