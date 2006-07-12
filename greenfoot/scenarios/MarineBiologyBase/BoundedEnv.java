@@ -51,9 +51,9 @@ public class BoundedEnv extends SquareEnvironment
      *
      *  <p>
      *  
-     *  Constructs an empty BoundedEnv object with the
-     *  dimensions specified in the static variables added
-     *  for Greenfoot in class BoundedEnv.
+     *  Constructs a BoundedEnv object, with a few fish in random
+     *  locations, and of the dimensions specified in the static
+     *  variables added for Greenfoot in class BoundedEnv.
      **/
     public BoundedEnv()   
     {
@@ -220,7 +220,7 @@ public class BoundedEnv extends SquareEnvironment
         // Remove the object from the grid.
         theGrid[loc.row()][loc.col()] = null;
         objectCount--;
-        removeObject((Actor) obj);
+        removeObject((Actor) obj);   //Needed for Greenfoot
     }
 
     /** Updates this environment to reflect the fact that an object moved.
@@ -271,9 +271,9 @@ public class BoundedEnv extends SquareEnvironment
            {
               Debug.println(fish.toString() + " about to die.");
               remove(fish);
-            }
+           }
        }
-       super.removeObject(object);
+       super.removeObject(object); 
     }   
     
     /**
@@ -303,36 +303,43 @@ public class BoundedEnv extends SquareEnvironment
     }
     
         
-    /**
+     /**
      * For Greenfoot.
      * 
      * <p>
      * 
-     * Populates the world with fish.
+     * Populates the world with randomly colored fish in random locations.
      */
-    private void populate() {
-        Fish fish = new Fish(this, new Location(3,2), new Direction(90), Color.red);
-        addObject(fish, 2, 3);
-        fish = new Fish(this, new Location(3,9), new Direction(180), Color.green); 
-        addObject(fish, 9, 3);
-        fish = new Fish(this, new Location(10,10), new Direction(0), Color.yellow); 
-        addObject(fish, 10, 10);   
-        fish = new Fish(this, new Location(7,7), new Direction(270), Color.black); 
-        addObject(fish, 7, 7);
-        fish = new Fish(this, new Location(2,12), new Direction(0), Color.blue); 
-        addObject(fish, 12, 2);
-        fish = new Fish(this, new Location(13,5), new Direction(180), Color.pink); 
-        addObject(fish, 5, 13);
-        fish = new Fish(this, new Location(11,12), new Direction(0), Color.white); 
-        addObject(fish, 12, 11);
-    }
+    public void populate()
+    {
+        Fish fish;
+        Color color;
+        Location loc;
+        int rows = numRows();
+        int cols = numCols();
+        int r,c;
+        
+        Random rand = RandNumGenerator.getInstance();
+
+        for (int i = 1; i < rows; i++) {
+           color = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
+           r = rand.nextInt(rows);
+           c = rand.nextInt(cols);
+           loc =  new Location(r,c);
+           if ( isEmpty(loc) ) {
+              fish = new Fish(this, loc , randomDirection(), color); 
+              addObject(fish, c, r);
+           }
+        }
+    } 
     
     /**
      * For Greenfoot.
      * 
      * <p>
      * 
-     * Populates the world with fish along the four boundaries of the world.
+     * Populates the world with randomly colored fish on the 
+     * four boundaries of the world.
      */
     public void populateBoundaryFish() {
         Fish fish;
@@ -341,12 +348,10 @@ public class BoundedEnv extends SquareEnvironment
         int rows = numRows();
         int cols = numCols();
         
-        Random randNumGen = RandNumGenerator.getInstance();
+        Random rand = RandNumGenerator.getInstance();
 
         for (int i = 0; i < cols; i++) {  //populate first and last rows
-           color = new Color(randNumGen.nextInt(256), 
-                             randNumGen.nextInt(256), 
-                             randNumGen.nextInt(256));
+           color = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
            loc =  new Location(0,i);
            if ( isEmpty(loc) ) {
               fish = new Fish(this, loc , randomDirection(), color); 
@@ -356,13 +361,11 @@ public class BoundedEnv extends SquareEnvironment
            if ( isEmpty(loc) ) {
               fish = new Fish(this, loc, randomDirection(), color); 
               addObject(fish, i, rows - 1); 
-            }
+           }
         }
         
         for (int i = 1; i < (rows - 1) ; i++) {  //populate rest of first and last columns
-           color = new Color(randNumGen.nextInt(256), 
-                             randNumGen.nextInt(256), 
-                             randNumGen.nextInt(256));
+           color = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
            loc = new Location(i,0);
            if ( isEmpty(loc) ) {
               fish = new Fish(this, loc, randomDirection(), color); 

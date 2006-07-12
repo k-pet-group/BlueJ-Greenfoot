@@ -1,5 +1,5 @@
 #Greenfoot properties
-#Wed Jul 12 09:30:01 BST 2006
+#Wed Jul 12 19:38:35 BST 2006
 class.Fish.image=fish.png
 class.ColoredImage.superclass=GreenfootImage
 class.BoundedEnv.superclass=SquareEnvironment
@@ -9,7 +9,7 @@ class.DarterFish.superclass=Fish
 class.SlowFish.superclass=Fish
 >>>>>>>=1.2
 class.SquareEnvironment.superclass=greenfoot.World
-simulation.speed=0
+simulation.speed=68
 class.SlowFish.image=fish.png
 <<<<<<<=project.greenfoot
 class.DarterFish.image=fish.png
