@@ -116,6 +116,7 @@ public class Fish extends Actor implements Locatable
     private void initialize(Environment env, Location loc, Direction dir,
                             Color col)
     {
+        
         theEnv = env;
         myId = nextAvailableID;
         nextAvailableID++;
@@ -157,7 +158,7 @@ public class Fish extends Actor implements Locatable
     public GreenfootImage getImage()
     {
         return  ColoredImage.getImage(this, super.getImage(), myColor);
-    }
+        }           
 
     /** Generates a random color.
      *  @return       the new random color
@@ -332,6 +333,23 @@ public class Fish extends Actor implements Locatable
         setLocation(newLoc.col(), newLoc.row());   // Needed for Greenfoot 
 
         // object is again at location myLoc in environment
+    }    
+
+    /**
+     * For Greenfoot.
+     * <p>
+     * 
+     * Overrides the setLcoation so that setting the location from greenfoot 
+     * changes the location ni the environment.
+     * 
+     */
+    public void setLocation(int x, int y) {
+        if (environment() != null && ! (getX() == x && getY() == y)) {  
+            super.setLocation(x, y);
+            changeLocation(new Location(y, x));
+        } else {                      
+            super.setLocation(x, y);
+        }
     }
 
     /** Modifies this fish's direction.

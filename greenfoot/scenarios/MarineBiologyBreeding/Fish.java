@@ -409,6 +409,23 @@ public class Fish extends Actor implements Locatable
         // object is again at location myLoc in environment
     }
 
+    /**
+     * For Greenfoot.
+     * <p>
+     * 
+     * Overrides the setLcoation so that setting the location from greenfoot 
+     * changes the location ni the environment.
+     * 
+     */
+    public void setLocation(int x, int y) {
+        if (environment() != null && ! (getX() == x && getY() == y)) {  
+            super.setLocation(x, y);
+            changeLocation(new Location(y, x));
+        } else {                      
+            super.setLocation(x, y);
+        }
+    }
+    
     /** Modifies this fish's direction.
      *  @param  newDir    new direction value
      **/
