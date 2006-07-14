@@ -22,7 +22,10 @@ import java.awt.Component;
 
 
 /**
- * A colored image. The image is "tinted" with a specific color - in effect changing the color of an image.
+ * A colored image. The image is "tinted" with a specific color - in effect
+ * changing the color of an image. The tint will always be on applied to the
+ * image. If you do any image operation on this image those oeration will also
+ * be tinted.
  * 
  * @author Poul Henriksen
  */
@@ -95,9 +98,13 @@ public class ColoredImage extends GreenfootImage
      */
     private void tintImage()
     {
+        if(color == null) {
+            return;
+        }
         Image orgImg = org.getAwtImage();
         FilteredImageSource src = new FilteredImageSource(orgImg.getSource(), new TintFilter(color));
-        Image newImg = Toolkit.getDefaultToolkit().createImage(src);
+        Image newImg = Toolkit.getDefaultToolkit().createImage(src);        
+        
         Image thisImg = getAwtImage();
         thisImg.getGraphics().drawImage(newImg, 0,0, null);        
         MediaTracker tracker = new MediaTracker(new Component() {});        
@@ -153,4 +160,104 @@ public class ColoredImage extends GreenfootImage
 
     }
 
+    //======================================================
+    // DELEGATED METHODS
+    //======================================================
+    
+    public void clear()
+    {
+        org.clear();
+    }
+
+    public void drawImage(GreenfootImage image, int x, int y)
+    {
+        org.drawImage(image, x, y);
+        tintImage();
+    }
+
+    public void drawLine(int x1, int y1, int x2, int y2)
+    {
+        org.drawLine(x1, y1, x2, y2);
+        tintImage();
+    }
+
+    public void drawOval(int x, int y, int width, int height)
+    {
+        org.drawOval(x, y, width, height);
+        tintImage();
+    }
+
+    public void drawPolygon(int[] xPoints, int[] yPoints, int nPoints)
+    {
+        org.drawPolygon(xPoints, yPoints, nPoints);
+        tintImage();
+    }
+
+    public void drawRect(int x, int y, int width, int height)
+    {
+        org.drawRect(x, y, width, height);
+        tintImage();
+    }
+
+    public void drawString(String string, int x, int y)
+    {
+        org.drawString(string, x, y);
+        tintImage();
+    }
+
+    public void fill()
+    {
+        org.fill();
+        tintImage();
+    }
+
+    public void fillOval(int x, int y, int width, int height)
+    {
+        org.fillOval(x, y, width, height);
+        tintImage();
+    }
+
+    public void fillPolygon(int[] xPoints, int[] yPoints, int nPoints)
+    {
+        org.fillPolygon(xPoints, yPoints, nPoints);
+        tintImage();
+    }
+
+    public void fillRect(int x, int y, int width, int height)
+    {
+        org.fillRect(x, y, width, height);
+        tintImage();
+    }
+
+    public void mirrorHorizontally()
+    {
+        org.mirrorHorizontally();
+        mirrorHorizontally();
+    }
+
+    public void mirrorVertically()
+    {
+        org.mirrorVertically();
+        super.mirrorVertically();
+    }
+
+    public void rotate(int degrees)
+    {
+        org.rotate(degrees);
+        super.rotate(degrees); //to make sure the image has the right size
+        tintImage();
+    }
+
+    public void scale(int width, int height)
+    {
+        org.scale(width, height);
+        super.scale(width, height); //to make sure the image has the right size
+        tintImage();
+    }
+
+    public void setColorAt(int x, int y, Color color)
+    {
+        org.setColorAt(x, y, color);
+        tintImage();
+    }
 }
