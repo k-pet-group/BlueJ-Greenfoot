@@ -138,7 +138,7 @@ public class Fish extends Actor implements Locatable
      * environment when objects are added to the world.
      * @param world    world where objects are added.
      */
-    public void addedToWorld(World world)
+    protected void addedToWorld(World world)
     {
         // Scale image to cell size.
         getImage().scale(world.getCellSize() - 2, world.getCellSize() - 2);
