@@ -59,7 +59,7 @@ public class BoundedEnv extends SquareEnvironment
     public BoundedEnv()   
     {
         this(ROWS, COLS);
-      //  populate3Species();
+        populate3Species();
     }
 
     /** Constructs an empty BoundedEnv object with the given dimensions.
