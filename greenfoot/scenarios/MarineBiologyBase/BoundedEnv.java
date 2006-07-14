@@ -52,14 +52,13 @@ public class BoundedEnv extends SquareEnvironment
      *
      *  <p>
      *  
-     *  Constructs a BoundedEnv object, with a few fish in random
-     *  locations, and of the dimensions specified in the static
-     *  variables added for Greenfoot in class BoundedEnv.
+     *  Constructs an empty BoundedEnv object of the dimensions
+     *  specified in the static variables added for Greenfoot
+     *  in class BoundedEnv.
      **/
     public BoundedEnv()   
     {
         this(ROWS, COLS);
-        populate();
     }
 
     /** Constructs an empty BoundedEnv object with the given dimensions.
