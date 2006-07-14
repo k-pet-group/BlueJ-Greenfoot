@@ -420,9 +420,14 @@ public class Fish extends Actor implements Locatable
      * 
      */
     public void setLocation(int x, int y) {
-        if (environment() != null && ! (getX() == x && getY() == y)) {  
-            super.setLocation(x, y);
-            changeLocation(new Location(y, x));
+        if (environment() != null && ! (getX() == x && getY() == y)) {
+            // Check if there are any objects at the new location. 
+            Object o = getOneObjectAtOffset(x - getX(), y - getY(), null);
+            if(o == null) {
+                // In MBCS you acn only put the fish in a cell that is empty.
+                super.setLocation(x, y);
+                changeLocation(new Location(y, x));
+            }
         } else {                      
             super.setLocation(x, y);
         }

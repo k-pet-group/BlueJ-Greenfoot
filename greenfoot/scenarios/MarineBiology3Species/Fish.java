@@ -341,14 +341,19 @@ public class Fish extends Actor implements Locatable
      * For Greenfoot.
      * <p>
      * 
-     * Overrides the setLcoation so that setting the location from greenfoot 
-     * changes the location ni the environment.
+     * Overrides setLocation so that setting the location from greenfoot 
+     * changes the location in the environment.
      * 
      */
     public void setLocation(int x, int y) {
-        if (environment() != null && ! (getX() == x && getY() == y)) {  
-            super.setLocation(x, y);
-            changeLocation(new Location(y, x));
+        if (environment() != null && ! (getX() == x && getY() == y)) {
+            // Check if there are any objects at the new location. 
+            Object o = getOneObjectAtOffset(x - getX(), y - getY(), null);
+            if(o == null) {
+                // In MBCS you acn only put the fish in a cell that is empty.
+                super.setLocation(x, y);
+                changeLocation(new Location(y, x));
+            }
         } else {                      
             super.setLocation(x, y);
         }
