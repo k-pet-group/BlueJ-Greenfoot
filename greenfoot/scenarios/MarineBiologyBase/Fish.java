@@ -125,7 +125,6 @@ public class Fish extends Actor implements Locatable
         theEnv.add(this);
         setRotation(dir.inDegrees() - 90);  // Needed for Greenfoot 
             // Need -90 since 0 is NORTH in the MBS, but 0 is EAST in Greenfoot 
-
         // object is at location myLoc in environment
     }
 
@@ -139,6 +138,8 @@ public class Fish extends Actor implements Locatable
      */
     public void addedToWorld(World world)
     {
+        // Scale image to cell size.
+        getImage().scale(world.getCellSize() - 2, world.getCellSize() - 2);
         if ( theEnv == null )
         {
            Location loc = new Location(getY(), getX());
