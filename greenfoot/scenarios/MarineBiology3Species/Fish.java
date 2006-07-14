@@ -140,6 +140,8 @@ public class Fish extends Actor implements Locatable
      */
     public void addedToWorld(World world)
     {
+        // Scale image to cell size.
+        getImage().scale(world.getCellSize() - 2, world.getCellSize() - 2);
         if ( theEnv == null )
         {
            Location loc = new Location(getY(), getX());
