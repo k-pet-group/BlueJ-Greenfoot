@@ -12,9 +12,10 @@
 // GNU General Public License for more details.
 
 import java.util.List;    //Needed for Greenfoot
+import java.util.Iterator;//Needed for Greenfoot
+import java.util.Random;  //Needed for Greenfoot
 import greenfoot.Actor;   //Needed for Greenfoot
 import java.awt.Color;    //Needed for Greenfoot
-import java.util.Random;  //Needed for Greenfoot
 
 /**
  *  AP&reg; Computer Science Marine Biology Simulation:<br>
@@ -287,7 +288,17 @@ public class BoundedEnv extends SquareEnvironment
      * @param y        Row in which to add the object.
      */
     public void addObject(Actor obj, int x, int y) {
+        //Get all objects that overlap the location (x,y)
         List occupants = getObjectsAt(x, y, null);
+        
+        //Remove objects that does not have their location at (x,y)
+        Iterator iter = occupants.iterator();
+        while(iter.hasNext()) {
+            Actor a = (Actor) iter.next();
+            if( ! (a.getX() == x && a.getY() == y)) {
+                iter.remove();
+            }
+        }
         
         if(occupants.isEmpty()) {
             super.addObject(obj, x, y);
