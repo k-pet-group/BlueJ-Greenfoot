@@ -45,11 +45,13 @@ public class ColoredImage extends GreenfootImage
      */
     public static ColoredImage getImage(GreenfootImage image, Color newColor) 
     {        
+        ColoredImage colorImage = null;
         if(! (image instanceof ColoredImage)) {
-            image = new ColoredImage(image, newColor);
+            colorImage = new ColoredImage(image, newColor);
+        } else {        
+            colorImage = (ColoredImage) image;         
+            colorImage.changeColor(newColor);
         }
-        ColoredImage colorImage = (ColoredImage) image;
-        colorImage.changeColor(newColor);
         return colorImage;
     }
     
@@ -72,7 +74,9 @@ public class ColoredImage extends GreenfootImage
     public ColoredImage(GreenfootImage org, Color color)
     {
         super(org.getWidth(), org.getHeight());
-        this.org=org;          
+        this.org = org;    
+        this.color = color;
+        tintImage();
     }
     
     /**
@@ -98,15 +102,18 @@ public class ColoredImage extends GreenfootImage
      */
     private void tintImage()
     {
-        if(color == null) {
-            return;
-        }
         Image orgImg = org.getAwtImage();
-        FilteredImageSource src = new FilteredImageSource(orgImg.getSource(), new TintFilter(color));
-        Image newImg = Toolkit.getDefaultToolkit().createImage(src);        
-        
         Image thisImg = getAwtImage();
-        thisImg.getGraphics().drawImage(newImg, 0,0, null);        
+        
+        if(color != null) {
+            FilteredImageSource src = new FilteredImageSource(orgImg.getSource(), new TintFilter(color));
+            Image newImg = Toolkit.getDefaultToolkit().createImage(src);               
+            thisImg.getGraphics().drawImage(newImg, 0,0, null);  
+        }
+        else {        
+            thisImg.getGraphics().drawImage(orgImg, 0,0, null);  
+        }      
+        
         MediaTracker tracker = new MediaTracker(new Component() {});        
         tracker.addImage(thisImg , 0);
         try {
@@ -136,6 +143,12 @@ public class ColoredImage extends GreenfootImage
           tintB = rgb & 0xff;
        }
 
+       /**
+        * The algorithm in this method is taken from the AP(r) Computer Science 
+        * GridWorld Case Study: http://www.horstmann.com/gridworld by Julie 
+        * Zelenski and Cay Horstmann.
+        * 
+        */
        public int filterRGB(int x, int y, int argb)
        {
           // Separate pixel into its RGB coomponents.
