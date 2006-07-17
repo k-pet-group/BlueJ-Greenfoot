@@ -21,5 +21,8 @@ To add more fish, select one of the fish classes and then hold Shift
 as you click on the grid cells. Or you can invoke one of the populate
 methods from the World object. Right-click the label BoundedEnv above the
 grid to get the list of methods for this object.
+The 3 fish images are not randomly tinted. To achieve this random coloring,
+remove the double slashes in the source code of method getImage() to redefine it.
+You can also change the image of a fish class by invoking method setImage on the class.
 To create an empty world of a specific size, right-click the BoundedEnv
 class and invoke the constructor with two arguments.

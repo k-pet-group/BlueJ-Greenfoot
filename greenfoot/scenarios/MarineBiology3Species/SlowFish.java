@@ -33,7 +33,12 @@ import java.util.Random;
  *  copyright&copy; 2002 College Entrance Examination Board
  *  (www.collegeboard.com).
  *
+ *  <p>
+ *  This class was modified by the Greenfoot developers 
+ *  to run the simulation in Greenfoot.
+ *
  *  @author Alyce Brady
+ *  @author Cecilia Vargas (Greenfoot modifications)
  *  @version 1 July 2002
  **/
 

@@ -34,9 +34,14 @@ import java.awt.Color;
  *  The <code>DarterFish</code> class is
  *  copyright&copy; 2002 College Entrance Examination Board
  *  (www.collegeboard.com).
+ * 
+ *  <p>
+ *  This class was modified by the Greenfoot developers 
+ *  to run the simulation in Greenfoot.
  *
  *  @author APCS Development Committee
  *  @author Alyce Brady
+ *  @author Cecilia Vargas (Greenfoot modifications)
  *  @version 1 July 2002
  **/
 

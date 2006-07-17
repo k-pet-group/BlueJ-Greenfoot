@@ -30,8 +30,15 @@ import greenfoot.GreenfootImage;    //needed for Greenfoot
  *  copyright&copy; 2002 College Entrance Examination Board
  *  (www.collegeboard.com).
  *
+ *  <p>
+ *  This class was modified by the Greenfoot developers to run the 
+ *  simulation in Greenfoot. The fish are not drawn with random colors.
+ *  To achieve this random tinting, remove the double slashes in 
+ *  method getImage( ) to redefine it.
+ *
  *  @author Alyce Brady
  *  @author APCS Development Committee
+ *  @author Cecilia Vargas (Greenfoot modifications)
  *  @version 1 July 2002
  *  @see Environment
  *  @see Direction
@@ -116,7 +123,6 @@ public class Fish extends Actor implements Locatable
     private void initialize(Environment env, Location loc, Direction dir,
                             Color col)
     {
-        
         theEnv = env;
         myId = nextAvailableID;
         nextAvailableID++;
@@ -154,13 +160,17 @@ public class Fish extends Actor implements Locatable
      * For Greenfoot.
      * <p>
      * 
-     * Overrides the getImage so that setting the color will change the image.
+     * Overrides getImage so that setting the color will change the image.
+     * This method is commented out so that there is no random coloring of the
+     * fish. Each of the 3 types of fish will use the same image. 
+     * To have random tinting of the color in these images, remove the
+     * double slashes.
      * 
      */
-    public GreenfootImage getImage()
-    {
-        return  ColoredImage.getImage(this, super.getImage(), myColor);
-        }           
+//    public GreenfootImage getImage()
+//    {
+//        return  ColoredImage.getImage(this, super.getImage(), myColor);
+//    }           
 
     /** Generates a random color.
      *  @return       the new random color
