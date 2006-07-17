@@ -1,9 +1,9 @@
 #Greenfoot properties
-#Wed Jul 12 19:38:35 BST 2006
+#Thu Jul 13 15:41:12 BST 2006
 class.Fish.image=fish.png
 class.ColoredImage.superclass=GreenfootImage
 class.BoundedEnv.superclass=SquareEnvironment
-mainWindow.height=754
+mainWindow.height=1024
 version=1.0
 class.DarterFish.superclass=Fish
 class.SlowFish.superclass=Fish
@@ -13,8 +13,8 @@ simulation.speed=68
 class.SlowFish.image=fish.png
 <<<<<<<=project.greenfoot
 class.DarterFish.image=fish.png
-mainWindow.y=121
-mainWindow.x=169
-mainWindow.width=731
+mainWindow.y=9
+mainWindow.x=39
+mainWindow.width=1280
 class.Fish.superclass=greenfoot.Actor
 =\=\=\=\=\=\=

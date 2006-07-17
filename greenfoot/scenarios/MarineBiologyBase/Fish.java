@@ -30,8 +30,13 @@ import greenfoot.GreenfootImage;    //needed for Greenfoot
  *  copyright&copy; 2002 College Entrance Examination Board
  *  (www.collegeboard.com).
  *
+ *  <p>
+ *  This class was modified by the Greefoot developers 
+ *  to run the simulation in Greenfoot.
+
  *  @author Alyce Brady
  *  @author APCS Development Committee
+ *  @author Cecilia Vargas (Greenfoot modifications)
  *  @version 1 July 2002
  *  @see Environment
  *  @see Direction
@@ -57,12 +62,12 @@ public class Fish extends Actor implements Locatable
 
     /** 
      *  For Greenfoot.
-
      *  <p>
      *
      *  Constructs a fish at the location where the user placed it with 
      *  the cursor. The fish is assigned a random direction and random
      *  color.
+     *
      **/
     public Fish() { } 
 
@@ -125,6 +130,7 @@ public class Fish extends Actor implements Locatable
         theEnv.add(this);
         setRotation(dir.inDegrees() - 90);  // Needed for Greenfoot 
             // Need -90 since 0 is NORTH in the MBS, but 0 is EAST in Greenfoot 
+
         // object is at location myLoc in environment
     }
 
@@ -339,8 +345,8 @@ public class Fish extends Actor implements Locatable
      * For Greenfoot.
      * <p>
      * 
-     * Overrides the setLcoation so that setting the location from greenfoot 
-     * changes the location ni the environment.
+     * Overrides setLocation so that setting the location from greenfoot 
+     * changes the location in the environment.
      * 
      */
     public void setLocation(int x, int y) {

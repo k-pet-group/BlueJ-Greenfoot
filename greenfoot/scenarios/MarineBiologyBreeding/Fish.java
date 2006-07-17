@@ -30,6 +30,7 @@ import greenfoot.GreenfootImage;   //needed for Greenfoot
  *  Modification History:
  *  - Modified to support a dynamic population in the environment:
  *    fish can now breed and die.
+ *  - Modified by Greenfoot developers to run the simulation in Greenfoot.
  *
  *  <p>
  *  The <code>Fish</code> class is
@@ -38,6 +39,7 @@ import greenfoot.GreenfootImage;   //needed for Greenfoot
  *
  *  @author Alyce Brady
  *  @author APCS Development Committee
+ *  @author Cecilia Vargas (Greenfoot modifications)
  *  @version 1 July 2002
  *  @see Environment
  *  @see Direction
@@ -415,8 +417,8 @@ public class Fish extends Actor implements Locatable
      * For Greenfoot.
      * <p>
      * 
-     * Overrides the setLcoation so that setting the location from greenfoot 
-     * changes the location ni the environment.
+     * Overrides setLocation so that setting the location from greenfoot 
+     * changes the location in the environment.
      * 
      */
     public void setLocation(int x, int y) {
