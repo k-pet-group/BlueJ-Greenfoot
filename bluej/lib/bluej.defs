@@ -91,6 +91,12 @@ bluej.language=english
 bluej.url.bluej=http://www.bluej.org
 bluej.url.tutorial=http://www.bluej.org/tutorial/tutorial.pdf
 bluej.url.reference=http://www.bluej.org/reference/manual.pdf
+
+# The URL for the Java API documentation can be specified here, however
+# this will only apply the first time you use BlueJ. After that, the
+# setting is saved in the user preferences file (and the setting here
+# is ignored). You can adjust the user preferences via the preferences
+# dialog (found under the "tools" menu) in BlueJ.
 bluej.url.javaStdLib=http://java.sun.com/j2se/1.5/docs/api/index.html
 
 # do not change the following:
