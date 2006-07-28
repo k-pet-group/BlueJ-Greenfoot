@@ -1,0 +1,22 @@
+#Greenfoot properties
+#Fri Jul 28 09:25:00 BST 2006
+class.UnboundedEnv.superclass=SquareEnvironment
+class.Fish.image=fish.png
+class.ColoredImage.superclass=GreenfootImage
+class.Wombat.superclass=greenfoot.Actor
+class.BoundedEnv.superclass=SquareEnvironment
+mainWindow.height=771
+version=1.0
+class.InvisibleFishContainer.superclass=greenfoot.Actor
+class.DarterFish.superclass=Fish
+class.SlowFish.superclass=Fish
+class.SquareEnvironment.superclass=greenfoot.World
+simulation.speed=56
+class.SlowFish.image=fish.png
+class.DarterFish.image=fish.png
+mainWindow.y=-26
+mainWindow.x=6
+class.WombatWorld.superclass=greenfoot.World
+class.Leaf.superclass=greenfoot.Actor
+mainWindow.width=816
+class.Fish.superclass=greenfoot.Actor
