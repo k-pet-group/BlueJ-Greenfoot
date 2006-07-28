@@ -400,14 +400,9 @@ public class UnboundedEnv extends SquareEnvironment
     {
         int col = loc.col();
         int row = loc.row();
-        boolean result = false;
 
-        if ( col < getWidth()  &&  col >= 0  &&
-             row < getHeight() &&  row >= 0    )
-        {
-           result = true;   
-        }
-        return result;
+        return  col < getWidth()  &&  col >= 0  &&
+                row < getHeight() &&  row >= 0;    
     }
 
      /**
