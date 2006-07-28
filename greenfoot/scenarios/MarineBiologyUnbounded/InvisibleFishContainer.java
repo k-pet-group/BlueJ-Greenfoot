@@ -1,4 +1,3 @@
-import greenfoot.Actor;
 // This class is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation.
@@ -11,11 +10,13 @@ import greenfoot.Actor;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import greenfoot.Actor;
 
 /**
  * A container class to hold the locatable objects that are in the
  * unbounded world but not in the Greenfoot visible world. Its behavior
  * as an actor is to invoke act( ) on each of the objects it holds.
+ * Written for the unbounded-world Marine Biology Simulation.
  * 
  * @author Cecilia Vargas
  * @version 28 July 2006
