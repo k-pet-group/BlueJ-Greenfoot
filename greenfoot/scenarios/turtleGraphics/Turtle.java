@@ -6,7 +6,7 @@ import java.awt.Color;
  * A basic turtle.
  *
  * @author Poul Henriksen
- * @version 1.0.1
+ * @version 1.0.2
  */
 public class Turtle extends Actor
 {
@@ -28,8 +28,17 @@ public class Turtle extends Actor
     /** The maximum value that the direction can have. */
     private final static double MAX_ANGLE = 360;
     
+    /** Image used when the pen is up */
+    private GreenfootImage penUpImage;
+    
+    /** Image used when the pen is down */
+    private GreenfootImage penDownImage;
+    
     public Turtle()
     {
+        penUpImage = getImage();
+        penDownImage = new GreenfootImage(penUpImage);
+        drawPen(penDownImage);
     }
 
     /**
@@ -43,7 +52,6 @@ public class Turtle extends Actor
             direction = direction % MAX_ANGLE;
         }
         setRotation((int)direction);
-        draw();
     }
     
     /**
@@ -76,8 +84,7 @@ public class Turtle extends Actor
     public void penUp()
     {
         penDown = false;
-        setImage("turtle.gif");
-        draw();
+        setImage(penUpImage);
     }
 
     /**
@@ -86,7 +93,7 @@ public class Turtle extends Actor
     public void penDown()
     {
         penDown = true;
-        draw();
+        setImage(penDownImage);
     }
 
     /** 
@@ -96,7 +103,7 @@ public class Turtle extends Actor
     public void setColor(String newColor)
     {
         color = newColor;
-        draw();
+        drawPen(penDownImage);
     }
     
     /** 
@@ -142,23 +149,12 @@ public class Turtle extends Actor
         image.setColor(awtColor);
         image.drawLine((int) Math.ceil(x1) , (int) Math.ceil(y1), (int) Math.ceil(x2), (int) Math.ceil(y2));
     }
-    
-    /**
-     * Update the turtleimage.
-     */
-    private void draw()
-    {
-        if (penDown) {
-            drawPen();
-        }
-    }
 
     /** 
      * Draw the pen on the back of the turtle with the correct colour 
      */
-    private void drawPen()
+    private void drawPen(GreenfootImage image)
     {
-        GreenfootImage image = getImage();
         double halfWidth = image.getWidth() / 2.;
         double halfHeight = image.getHeight() / 2.;
         int penWidth = (int) halfWidth / 2;
@@ -167,7 +163,7 @@ public class Turtle extends Actor
         int penY = (int) (halfHeight - penHeight / 2);
         Color awtColor = decode(color);
         image.setColor(awtColor);
-        image.fillOval(penX, penY, penWidth, penHeight);
+        image.fillOval(penX - 3, penY - 1, penWidth, penHeight);
     }
     
     /**
