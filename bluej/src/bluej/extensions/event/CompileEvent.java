@@ -8,7 +8,7 @@ import java.io.File;
  * finishes, whether it succeeds or fails, and what warnings or errors are 
  * generated.
  * 
- * @version $Id: CompileEvent.java 4077 2006-05-02 15:13:50Z iau $
+ * @version $Id: CompileEvent.java 4559 2006-07-31 09:34:39Z iau $
  */
 
 /*
@@ -68,8 +68,6 @@ public class CompileEvent implements ExtensionEvent
 
   /**
    * Returns an array of zero, one or more files related to this event.
-   * In the case of an error or warning event it is normally a one element array.
-   * In all other cases it depends on the number of files being compiled.
    */
   public File[] getFiles ()
     {
