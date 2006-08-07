@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * classes and objects involved.
  *
  *
- * @version    $Id: InvocationEvent.java 4345 2006-06-08 06:33:46Z davmac $
+ * @version    $Id: InvocationEvent.java 4564 2006-08-07 17:16:43Z polle $
  */
 
 /*
@@ -165,15 +165,48 @@ public class InvocationEvent implements ExtensionEvent
         }
 
         Class[] risul = new Class[signature.length];
-
         for (int index = 0; index < signature.length; index++) {
-            String className = signature[index].toString();
-            int sotPos = className.indexOf("<");
-            if (sotPos > 0) {
-                className = className.substring(0, sotPos);
+            JavaType sig = signature[index];
+            if (sig.isPrimitive()) {
+                // Map the primitive bluej types to java types
+                if(sig == JavaPrimitiveType.getBoolean()) {
+                    risul[index] = boolean.class;
+                } 
+                else if(sig == JavaPrimitiveType.getBoolean()) {
+                    risul[index] = boolean.class;
+                }  
+                else if(sig == JavaPrimitiveType.getByte()) {
+                    risul[index] = byte.class;
+                }  
+                else if(sig == JavaPrimitiveType.getChar()) {
+                    risul[index] = char.class;
+                }  
+                else if(sig == JavaPrimitiveType.getDouble()) {
+                    risul[index] = double.class;
+                }  
+                else if(sig == JavaPrimitiveType.getFloat()) {
+                    risul[index] = float.class;
+                }  
+                else if(sig == JavaPrimitiveType.getInt()) {
+                    risul[index] = int.class;
+                }  
+                else if(sig == JavaPrimitiveType.getLong()) {
+                    risul[index] = long.class;
+                }  
+                else if(sig == JavaPrimitiveType.getShort()) {
+                    risul[index] = short.class;
+                }  
             }
+            else {
+                String className = sig.toString();
+
+                int sotPos = className.indexOf("<");
+                if (sotPos > 0) {
+                    className = className.substring(0, sotPos);
+                }
             // A temporary solution until I find how to get a Class froma GenType
-            risul[index] = bluej_pkg.getProject().loadClass(className);
+                risul[index] = bluej_pkg.getProject().loadClass(className);
+            }
         }
         return risul;
     }
