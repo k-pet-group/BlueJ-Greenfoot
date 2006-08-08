@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * classes and objects involved.
  *
  *
- * @version    $Id: InvocationEvent.java 4564 2006-08-07 17:16:43Z polle $
+ * @version    $Id: InvocationEvent.java 4565 2006-08-08 23:20:56Z iau $
  */
 
 /*
@@ -154,9 +154,14 @@ public class InvocationEvent implements ExtensionEvent
 
 
     /**
-     * Returns the signature of the invoked method or constructor.
+     * Returns the signature of the invoked method or constructor. 
      *
-     * @return    The signature value
+     * This is an array of Class objects representing the static types of 
+     * the parameters to the method or constructor, in order. In the case of 
+     * parameterised types, only the base type (e.g. List, not 
+     * List<String>) is returned.
+     *
+     * @return    An array of Classes corresponding to the static types of the method's parameters.
      */
     public Class[] getSignature()
     {
@@ -198,13 +203,17 @@ public class InvocationEvent implements ExtensionEvent
                 }  
             }
             else {
+                // It's a non-primitive class. Until we abandon Java 1.4
+                // support, we can't use java.lang.reflect.Type, and we
+                // don't want to reveal the JavaType hierarchy, so we return
+                // a simple class type -- everything to the left of any
+                // "<" character in the string representation of the class name
                 String className = sig.toString();
 
                 int sotPos = className.indexOf("<");
                 if (sotPos > 0) {
                     className = className.substring(0, sotPos);
                 }
-            // A temporary solution until I find how to get a Class froma GenType
                 risul[index] = bluej_pkg.getProject().loadClass(className);
             }
         }
@@ -213,11 +222,11 @@ public class InvocationEvent implements ExtensionEvent
 
 
     /**
-     * Returns the parameters of the invocation in string form.
-     * If a parameter really is a string, this will be either the
-     * name of the string instance, or a literal string enclosed in double quotes.
+     * Returns the values of the parameters to the invocation as strings.
+     * If a parameter really was a String, this will be returned either as the
+     * name of the string instance, or as a literal string enclosed in double quotes.
      *
-     * @return    The parameters value
+     * @return    The values of the parameters
      */
     public String[] getParameters()
     {
@@ -229,9 +238,11 @@ public class InvocationEvent implements ExtensionEvent
      * Returns the newly created object (if any).
      * If the object is one that can be put on the object bench it will be an instance of BObject.
      *
-     *
      * @return    an Object of various types or <code>null</code> if the result type is <code>void</code>.
      */
+
+    // TODO: There ought to be a way of retrieving the declared return type of the invoked method.
+
     public Object getResult()
     {
         if (resultObj == null) {
