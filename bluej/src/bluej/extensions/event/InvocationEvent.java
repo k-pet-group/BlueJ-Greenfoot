@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * classes and objects involved.
  *
  *
- * @version    $Id: InvocationEvent.java 4565 2006-08-08 23:20:56Z iau $
+ * @version    $Id: InvocationEvent.java 4567 2006-08-09 16:39:51Z iau $
  */
 
 /*
@@ -177,9 +177,6 @@ public class InvocationEvent implements ExtensionEvent
                 if(sig == JavaPrimitiveType.getBoolean()) {
                     risul[index] = boolean.class;
                 } 
-                else if(sig == JavaPrimitiveType.getBoolean()) {
-                    risul[index] = boolean.class;
-                }  
                 else if(sig == JavaPrimitiveType.getByte()) {
                     risul[index] = byte.class;
                 }  
@@ -205,15 +202,10 @@ public class InvocationEvent implements ExtensionEvent
             else {
                 // It's a non-primitive class. Until we abandon Java 1.4
                 // support, we can't use java.lang.reflect.Type, and we
-                // don't want to reveal the JavaType hierarchy, so we return
-                // a simple class type -- everything to the left of any
-                // "<" character in the string representation of the class name
-                String className = sig.toString();
+                // don't want to reveal the JavaType hierarchy, so we use 
+                // the "raw" class name provided by the JavaType
 
-                int sotPos = className.indexOf("<");
-                if (sotPos > 0) {
-                    className = className.substring(0, sotPos);
-                }
+                String className = sig.asClass().rawName();
                 risul[index] = bluej_pkg.getProject().loadClass(className);
             }
         }
