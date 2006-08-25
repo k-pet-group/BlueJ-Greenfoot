@@ -1,9 +1,9 @@
 PROJECT TITLE:
-Marine Biology Simulation purely in Greenfoot.
+Marine Biology Simulation in Greenfoot code only.
 
 PURPOSE OF PROJECT:
-This looks like the bounded-world Marine Biology Simulation Case Study.
-It simulates fish in a bounded environment.
+Simulate the bounded-world Marine Biology Simulation Case Study,
+which simulates fish swimming in a bounded environment.
  
 VERSION or DATE:
 1.0
