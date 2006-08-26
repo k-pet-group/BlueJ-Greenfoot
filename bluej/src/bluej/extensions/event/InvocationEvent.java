@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * classes and objects involved.
  *
  *
- * @version    $Id: InvocationEvent.java 4567 2006-08-09 16:39:51Z iau $
+ * @version    $Id: InvocationEvent.java 4583 2006-08-26 15:51:04Z iau $
  */
 
 /*
@@ -222,6 +222,9 @@ public class InvocationEvent implements ExtensionEvent
      */
     public String[] getParameters()
     {
+        if (parameters == null) {
+            return new String[0];
+        }
         return parameters;
     }
 
