@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 4267 2006-05-15 15:33:49Z davmac $
+ * @version $Id: Invoker.java 4597 2006-09-06 12:18:48Z davmac $
  */
 
 public class Invoker
@@ -74,6 +74,11 @@ public class Invoker
     private Map typeMap; // map type parameter names to types
     private ValueCollection localVars;
     private String imports; // import statements to include in shell file
+    
+    /** exit status from the debugger */
+    private int exitStatus;
+    /** result from the invocation */
+    private DebuggerObject result;
 
     /**
      * The instance name for any object we create. For a constructed object the
@@ -501,8 +506,8 @@ public class Invoker
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
                             
-                            int status = pkg.getDebugger().getExitStatus();
-                            if (status == Debugger.NORMAL_EXIT) {
+                            exitStatus = pkg.getDebugger().getExitStatus();
+                            if (exitStatus == Debugger.NORMAL_EXIT) {
                                 watcher.putResult(result, instanceName, ir);
                                 
                                 executionEvent.setResultObject(result);
@@ -510,7 +515,7 @@ public class Invoker
                                 BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
                             }
                             else {
-                                handleResult(""); // handles error situations
+                                handleResult(); // handles error situations
                             }
                                 
                             closeCallDialog();
@@ -1038,13 +1043,14 @@ public class Invoker
             public void run() {
                 try {
                     pkg.getProject().getDebugger().runClassMain(shellClassName);
+                    getResult(shellClassName);
                     
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
                             
-                            handleResult(shellClassName);
+                            handleResult();
                             
                             // update all open inspect windows
                             pkg.getProject().updateInspectors();
@@ -1062,36 +1068,43 @@ public class Invoker
     }
 
     /**
+     * Get the result of the invocation and store it. This can take a little time
+     * so try and do it off the event queue.
+     * 
+     * @param shellClassName  the name of the executed shell class
+     */
+    public void getResult(String shellClassName)
+    {
+        exitStatus = pkg.getDebugger().getExitStatus();
+        try {
+            result = pkg.getDebugger().getStaticValue(shellClassName, "__bluej_runtime_result");
+        }
+        catch (ClassNotFoundException cnfe) {
+            exitStatus = Debugger.TERMINATED;
+            result = null;
+        }
+    }
+    
+    /**
      * After an execution has finished, check whether there is a result (such as
      * a freshly created object, a function result or an exception) and make
      * sure that it gets processed appropriately.
+     * 
+     * "exitStatus" and "result" fields should be set with appropriate values before
+     * calling this.
      */
-    public void handleResult(String shellClassName)
+    public void handleResult()
     {
         try {
             // first, check whether we had an unexpected exit
-            int status = pkg.getDebugger().getExitStatus();
+            int status = exitStatus;
             switch(status) {
                 case Debugger.NORMAL_EXIT :
-                    try {
-                        DebuggerObject result = pkg.getDebugger().getStaticValue(shellClassName,
-                                "__bluej_runtime_result");
-
-                        // result will be null here for a void call
-                        watcher.putResult(result, instanceName, ir);
-
-                        executionEvent.setResultObject(result);
-                        executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
-
-                    }
-                    catch (ClassNotFoundException cnfe) {
-                        // if the VM is terminated during the method call,
-                        // getStaticValue cannot load the shell class and
-                        // therefore ends up here
-                        watcher.putError("Terminated");
-                        executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
-                        return;
-                    }
+                    // result will be null here for a void call
+                    watcher.putResult(result, instanceName, ir);
+                    
+                    executionEvent.setResultObject(result);
+                    executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                     break;
 
                 case Debugger.FORCED_EXIT : // exit through System.exit()
