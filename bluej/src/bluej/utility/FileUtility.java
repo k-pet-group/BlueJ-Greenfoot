@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 3344 2005-04-11 01:57:42Z davmac $
+ * @version $Id: FileUtility.java 4602 2006-09-07 04:31:33Z davmac $
  */
 public class FileUtility
 {
@@ -25,6 +25,7 @@ public class FileUtility
     private static JFileChooser pkgChooser = null;
     private static JFileChooser pkgChooserNonBlueJ = null;
     private static JFileChooser fileChooser = null;
+    private static JFileChooser directoryChooser = null;
     private static JFileChooser multiFileChooser = null;
     
 
@@ -91,18 +92,9 @@ public class FileUtility
                                      String buttonLabel, boolean directoryOnly,
                                      FileFilter filter, boolean rememberDir)
     {
-        JFileChooser newChooser = getFileChooser();
-
+        JFileChooser newChooser = getFileChooser(directoryOnly, filter);
+        
         newChooser.setDialogTitle(title);
-
-        if (directoryOnly)
-            newChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        else
-            newChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-
-        if(filter == null)
-            filter = newChooser.getAcceptAllFileFilter();
-        newChooser.setFileFilter(filter);
 
         int result = newChooser.showDialog(parent, buttonLabel);
 
@@ -127,7 +119,39 @@ public class FileUtility
         return new JavaSourceFilter();
     }
 
+    /**
+     * Get a file chooser which can be used to select files or directories,
+     * and which knows about BlueJ packages.<p>
+     * 
+     * The caller should use setDialogTitle() to set an appropriate title
+     * for the returned chooser.
+     * 
+     * @param directoriesOnly  True to return a chooser which only allows
+     *                         selecting directories
+     * @param filter  The file filter to use, may be null to allow 'all files'
+     * 
+     * @return  A file chooser
+     */
+    private static JFileChooser getFileChooser(boolean directoriesOnly, FileFilter filter)
+    {
+        JFileChooser newChooser;
+        
+        if (directoriesOnly) {
+            newChooser = getDirectoryChooser();
+        }
+        else {
+            newChooser = getFileChooser();
+            newChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        }
 
+        if(filter == null) {
+            filter = newChooser.getAcceptAllFileFilter();
+        }
+        newChooser.setFileFilter(filter);
+        
+        return newChooser;
+    }
+    
     /**
      * Return a BlueJ package chooser, i.e. a file chooser which
      * recognises BlueJ packages and treats them differently.
@@ -150,7 +174,7 @@ public class FileUtility
     private static JFileChooser getNonBlueJPackageChooser()
     {
         if(pkgChooserNonBlueJ == null)
-            pkgChooserNonBlueJ = new PackageChooser(new File(PrefMgr.getProjectDirectory()), true);
+            pkgChooserNonBlueJ = new PackageChooser(new File(PrefMgr.getProjectDirectory()), true, true);
 
         pkgChooserNonBlueJ.setDialogTitle(Config.getString("pkgmgr.openNonBlueJPkg.title"));
         pkgChooserNonBlueJ.setApproveButtonText(Config.getString("pkgmgr.openNonBlueJPkg.buttonLabel"));
@@ -158,9 +182,20 @@ public class FileUtility
         return pkgChooserNonBlueJ;
     }
 
+    /**
+     * return a file chooser for choosing any directory
+     */
+    private static JFileChooser getDirectoryChooser()
+    {
+        if (directoryChooser == null) {
+            directoryChooser = new PackageChooser(new File(PrefMgr.getProjectDirectory()), false, false);
+        }
+        
+        return directoryChooser;
+    }
 
     /**
-     * return a file chooser for choosing any directory (default behaviour)
+     * return a file chooser for choosing any file (default behaviour)
      */
     private static JFileChooser getFileChooser()
     {

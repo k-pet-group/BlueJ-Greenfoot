@@ -10,6 +10,7 @@ import java.util.List;
 import javax.swing.*;
 
 import bluej.Config;
+import bluej.pkgmgr.Package;
 import bluej.utility.filefilter.*;
 
 /**
@@ -22,7 +23,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Markus Ostman
- * @version $Id: PackageChooser.java 3344 2005-04-11 01:57:42Z davmac $
+ * @version $Id: PackageChooser.java 4602 2006-09-07 04:31:33Z davmac $
  */
 class PackageChooser extends JFileChooser
 {
@@ -33,11 +34,6 @@ class PackageChooser extends JFileChooser
     static final String previewLine2 = Config.getString("utility.packageChooser.previewPane2");
 
     PackageDisplay displayPanel;
-
-    public PackageChooser(File startDirectory, boolean showArchives)
-    {
-        this(startDirectory, true, showArchives);
-    }
 
     /**
      * Create a new PackageChooser.
@@ -50,10 +46,12 @@ class PackageChooser extends JFileChooser
     {
         super(startDirectory);
 
-        if (! showArchives)
-            setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        else
+        if (showArchives) {
             setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        }
+        else {
+            setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        }
         setFileView(new PackageFileView());
         
         if (preview) {
@@ -93,6 +91,31 @@ class PackageChooser extends JFileChooser
                 fname.endsWith(".zip") || fname.endsWith(".ZIP");
     }
 
+    /**
+     *  A directory was double-clicked. If this is a BlueJ package, consider
+     *  this a package selection and accept it as the "Open" action, otherwise
+     *  just traverse into the directory.
+     */
+    public void setCurrentDirectory(File dir)   // redefined
+    {
+        if (Package.isBlueJPackage(dir)) {
+            setSelectedFile(dir);
+            super.approveSelection();
+        }
+        else{
+            super.setCurrentDirectory(dir);
+        }
+    }
+    
+    /**
+     * Approve the selection. We have this mainly so that derived classes
+     * can call it...
+     */
+    protected void approved()
+    {
+        super.approveSelection();
+    }
+    
     class PackageDisplay extends JList
     {
         // number of lines at the top to display a header

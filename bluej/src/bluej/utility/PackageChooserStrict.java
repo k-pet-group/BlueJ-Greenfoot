@@ -16,7 +16,7 @@ import java.io.File;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
- * @version $Id: PackageChooserStrict.java 3344 2005-04-11 01:57:42Z davmac $
+ * @version $Id: PackageChooserStrict.java 4602 2006-09-07 04:31:33Z davmac $
  */
 class PackageChooserStrict extends PackageChooser
 {
@@ -36,25 +36,11 @@ class PackageChooserStrict extends PackageChooser
      */
     public void approveSelection()   // redefined
     {
-    	if (Package.isBlueJPackage(getSelectedFile()))
-    	    super.approveSelection();
-        else
-            super.setCurrentDirectory(getSelectedFile());
-    }
-
-    /**
-     *  A directory was double-clicked. If this is a BlueJ package, consider
-     *  this a package selection and accept it as the "Open" action, otherwise
-     *  just traverse into the directory.
-     */
-    public void setCurrentDirectory(File dir)   // redefined
-    {
-        if (Package.isBlueJPackage(dir)) {
-            setSelectedFile(dir);
-            super.approveSelection();
+    	if (Package.isBlueJPackage(getSelectedFile())) {
+    	    approved();
         }
-        else{
-            super.setCurrentDirectory(dir);
+        else {
+            super.setCurrentDirectory(getSelectedFile());
         }
     }
 }

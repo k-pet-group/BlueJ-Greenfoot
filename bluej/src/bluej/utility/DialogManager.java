@@ -13,7 +13,7 @@ import javax.swing.*;
  * internationalised, using BlueJ's langauage library system.
  *
  * @author Michael Kolling
- * @version $Id: DialogManager.java 4086 2006-05-04 14:50:24Z davmac $
+ * @version $Id: DialogManager.java 4602 2006-09-07 04:31:33Z davmac $
  */
 public class DialogManager
 {
@@ -69,12 +69,24 @@ public class DialogManager
     public static void showError(Component parent, String msgID)
     {
         String message = getMessage(msgID);
-        if(message != null)
-            JOptionPane.showMessageDialog(parent, message,
-                                          Config.getString("dialogmgr.error"),
-                                          JOptionPane.ERROR_MESSAGE);
+        if(message != null) {
+            showErrorText(parent, message);
+        }
     }
 
+    /**
+     * Show an error dialog with an already-localized message and "OK" button.
+     * 
+     * @param parent   The component to position the dialog over
+     * @param message  The message text to display (should be localized)
+     */
+    public static void showErrorText(Component parent, String message)
+    {
+        JOptionPane.showMessageDialog(parent, message,
+                Config.getString("dialogmgr.error"),
+                JOptionPane.ERROR_MESSAGE);
+    }
+    
 
     /**
      * Show an error dialog with message and "OK" button.

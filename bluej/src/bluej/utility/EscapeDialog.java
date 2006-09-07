@@ -38,7 +38,7 @@ public class EscapeDialog extends JDialog {
         setVisible(false);
       }
     };
-    JRootPane rootPane = new JRootPane();
+    JRootPane rootPane = super.createRootPane();
     KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
     rootPane.registerKeyboardAction(actionListener, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
     return rootPane;
