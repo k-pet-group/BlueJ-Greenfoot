@@ -17,7 +17,7 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Compiler.java 3698 2005-10-21 04:39:21Z davmac $
+ * @version $Id: Compiler.java 4599 2006-09-07 02:40:51Z davmac $
  */
 abstract class Compiler
 {

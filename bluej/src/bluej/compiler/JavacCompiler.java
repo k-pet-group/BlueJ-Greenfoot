@@ -13,7 +13,7 @@ import bluej.utility.DialogManager;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- * @version $Id: JavacCompiler.java 3747 2006-01-25 10:29:24Z iau $
+ * @version $Id: JavacCompiler.java 4599 2006-09-07 02:40:51Z davmac $
  */
 class JavacCompiler extends Compiler
 {
@@ -64,12 +64,12 @@ class JavacCompiler extends Compiler
         
         BufferedReader d = new BufferedReader(
                 new InputStreamReader(compiler.getErrorStream()));
-        JavacErrorStream output = new JavacErrorStream(internal);
+        JavacErrorWriter output = new JavacErrorWriter(internal);
         
         String line;
         
         while((line = d.readLine()) != null)            
-            output.print(line);
+            output.write(line);
         
         // Handle any error message
         if (output.hasError()) {

@@ -1,15 +1,11 @@
 package bluej.compiler;
 
-import java.io.PrintStream;
+import java.io.IOException;
+import java.io.Writer;
 
 import bluej.utility.DialogManager;
 
-/**
- * An OutputStream that parses javac output.
- *
- * @author  Michael Cahill
- */
-class JavacErrorStream extends PrintStream
+public class JavacErrorWriter extends Writer
 {
     private boolean haserror = false, hasfollowup = false, hasWarnings = false;
     private int ignoreCount = 0;    // when > 0, indicates number of lines to ignore
@@ -19,17 +15,16 @@ class JavacErrorStream extends PrintStream
     private int lineno;
     
     private boolean internal;
-
-    public JavacErrorStream(boolean internal)
+    
+    private String lineBuf;
+    private String newLineSequence = System.getProperty("line.separator");
+    
+    public JavacErrorWriter(boolean internal)
     {
-        // we do not actually intend to use an actual OutputStream from
-        // within this class yet our superclass requires us to pass a
-        // non-null OutputStream
-        // we pass it the system error stream
-        super(System.err);
         this.internal = internal;
+        lineBuf = "";
     }
-
+    
     public void reset()
     {
         haserror = false;
@@ -69,32 +64,44 @@ class JavacErrorStream extends PrintStream
         return warning;
     }
     
-
-    /**
-     * Note: this class "cheats" by assuming that all output will be written by
-     * a call to print or println. It happens that this is true for the
-     * current version of javac but this could change in the future.
-     *
-     * We assume a certain error message format here:
-     *   filename:line-number:message
-     *
-     * Some examples
-
-o:\bj122\examples\appletdemo\Uncompile.java:19: cannot resolve symbol
-symbol  : variable xxx
-location: class Uncompile
-                xxx = 0;
-                ^
-o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String) in java.lang.System has been deprecated
-                System.getenv("aa");
-                      ^
-     *                      
-     * We find the components by searching for the colons. Careful: MS Windows
-     * systems might have a colon in the file name (if it is an absolute path
-     * with a drive name included). In that case we have to ignore the first
-     * colon.
+    /* (non-Javadoc)
+     * @see java.io.Writer#write(char[], int, int)
      */
-    public void print(String msg)
+    public void write(char[] cbuf, int off, int len)
+        throws IOException
+    {
+        int lineBufLen = lineBuf.length();
+        lineBuf += new String(cbuf, off, len);
+        
+        int startSearch = lineBufLen - newLineSequence.length() + 1;
+        if (startSearch < 0) {
+            startSearch = 0;
+        }
+        
+        int eolIndex = lineBuf.indexOf(newLineSequence, startSearch);
+        if (eolIndex != -1) {
+            String line = lineBuf.substring(0, eolIndex);
+            lineBuf = lineBuf.substring(eolIndex + newLineSequence.length());
+            processLine(line);
+        }
+    }
+
+    public void flush()
+        throws IOException
+    {
+
+    }
+
+    public void close()
+        throws IOException
+    {
+        if (lineBuf.length() != 0) {
+            processLine(lineBuf);
+            lineBuf = "";
+        }
+    }
+
+    private void processLine(String msg)
     {
         if (haserror)
             return;
@@ -121,13 +128,13 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
                 message += " - " + info;                             
                 haserror = true;  
             }
-            else                        // if not what we were expecting, bail out
+            else {
+                // if not what we were expecting, bail out
                 haserror = true;  
+            }
             
             return;          
         }
-
-        //Debug.message("Compiler message: " + msg);
 
         int first_colon = msg.indexOf(':', 0);
         if(first_colon == -1) {
@@ -136,7 +143,7 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
             // x warning(s)
 
             if (msg.trim().endsWith("warnings") || msg.trim().endsWith("warning")) {
-                warning += msg.trim() + "\n";
+                warning += msg.trim() + newLineSequence;
                 hasWarnings = true;
                 return;
             }
@@ -153,9 +160,9 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
                 return;
             int uses = msg.indexOf(".java uses");
             if(uses != -1) {
-                filename = msg.substring(6, uses) + ".java";
+                filename = msg.substring(5, uses) + ".java";
             }
-            warning += msg.trim() + "\n";
+            warning += msg.trim() + newLineSequence;
             hasWarnings = true;
             return;
         }
@@ -192,7 +199,7 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
             // Record the warnings and display them to users.
             // This may end up multi-line, so ensure that the
             // message is broken into (single-spaced) lines
-            warning += msg.trim() + "\n";
+            warning += msg.trim() + newLineSequence;
             ignoreCount = 2;
             // This type of warning generates an additional two lines:
             // one is a duplicate of the source line, the next is empty
@@ -209,25 +216,13 @@ o:\bj122\examples\appletdemo\Uncompile.java:31: warning: getenv(java.lang.String
             return;
         }
 
-        if (message.equals("cannot resolve symbol") || message.equals("cannot find symbol") || message.equals("incompatible types"))
+        if (message.equals("cannot resolve symbol")
+                || message.equals("cannot find symbol")
+                || message.equals("incompatible types")) {
             hasfollowup = true;
-        else
+        }
+        else {
             haserror = true;
-    }
-
-    /**
-     * Map println to print - we are not interested in the line break anyway.
-     */
-    public void println(String msg)
-    {
-        print(msg);
-    }
-
-    /**
-     * JDK 1.4 seems to use write rather than print
-     */
-    public void write(byte[] buf, int off, int len)
-    {
-        print(new String(buf, off, len));
+        }
     }
 }

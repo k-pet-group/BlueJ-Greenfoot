@@ -15,7 +15,7 @@ import bluej.utility.*;
  * @author  Michael Kolling
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: JavacCompilerInternal.java 3747 2006-01-25 10:29:24Z iau $
+ * @version $Id: JavacCompilerInternal.java 4599 2006-09-07 02:40:51Z davmac $
  */
 class JavacCompilerInternal extends Compiler
 {
@@ -49,16 +49,27 @@ class JavacCompilerInternal extends Compiler
            use reflection to fix this.
            based on an idea from the JDEE code by jslopez@alum.mit.edu */
 
+        // There are two "compile" methods, one which takes a printwriter as an
+        // argument. We'd prefer to use that one if we can find it.
+        boolean compileMethodTakesPrintWriter = false;
+        
         try {
             compiler = Class.forName("com.sun.tools.javac.Main");
 
             if (compiler == null)
                 return false;
 
+            Class[] ppw = new Class[] {String[].class, PrintWriter.class};
             Class[] p = new Class[] {String[].class};
 
-            compileMethod = compiler.getMethod("compile", p);
-
+            try {
+                compileMethod = compiler.getMethod("compile", ppw);
+                compileMethodTakesPrintWriter = true;
+            }
+            catch (NoSuchMethodException nsme) {
+                compileMethod = compiler.getMethod("compile", p);
+            }
+            
         } catch (ClassNotFoundException e) {
             Debug.message("com.sun.tools.javac.Main compiler is not available");
             return false;
@@ -71,47 +82,48 @@ class JavacCompilerInternal extends Compiler
             return false;
 
         PrintStream systemErr = System.err;
-        JavacErrorStream output = new JavacErrorStream(internal);
+        JavacErrorWriter output = new JavacErrorWriter(internal);
+        WriterOutputStream outputS = null;
 
-        /* second problem with the jdk1.4 beta. It seems to use a
-           PrintWriter wrapped around the system error stream. It also
-           seems to cache the creation of this, so on subsequent compiles,
-           the original output stream is still being used. To cope with
-           both 1.3 and 1.4, we check the results of both the first stream
-           and the newly created stream */
-
-        /* 2004-06-30: No longer seems to be a problem */
-        
-        //if (firstStream == null)
-        //    firstStream = output;
-
-        System.setErr(output);      // redirect errors to our stream
+        if (! compileMethodTakesPrintWriter) {
+            // We have to temporarily redirect System.out in order to be
+            // able to trap compiler messages
+            outputS = new WriterOutputStream(output);
+            System.setErr(new PrintStream(outputS));
+        }
 
         int result = 1;
         try {
             Object objResult;
-            Object[] arguments = new Object[] { params };
-            objResult = compileMethod.invoke(compiler.newInstance(), arguments);
+            if (compileMethodTakesPrintWriter) {
+                Object [] arguments = new Object [] { params, new PrintWriter(output) };
+                objResult = compileMethod.invoke(compiler.newInstance(), arguments);
+            }
+            else {
+                Object[] arguments = new Object[] { params };
+                objResult = compileMethod.invoke(compiler.newInstance(), arguments);
+            }
 
             result = ((Integer) objResult).intValue();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            System.setErr(systemErr);   // restore
+            e.printStackTrace(System.out);
             return false;
         }
+        
+        if (! compileMethodTakesPrintWriter) {
+            try {
+                outputS.close();
+            }
+            catch (IOException ioe) { }
+            System.setErr(systemErr);   // restore
+        }
 
-        // only one of 'output' or 'firstStream' should be receiving output so
-        // we will only generate one error message
 		if (output.hasError()) {
 			watcher.errorMessage(output.getFilename(),
 						output.getLineNo(),
 						output.getMessage());
 		}
-
-        //if (firstStream != null && firstStream != output && firstStream.hasError()) {
-		//	watcher.errorMessage(firstStream.getFilename(),
-		//				firstStream.getLineNo(),
-		//				firstStream.getMessage(),true);
-		//}
 
         // Handle compiler warning messages        
         if (output.hasWarnings()) {
@@ -119,12 +131,7 @@ class JavacCompilerInternal extends Compiler
 						output.getLineNo(),
 						output.getWarning());
         }
-        System.setErr(systemErr);   // restore
-
-        // in case we are reusing the first stream, reset the hasError boolean
-        //if (firstStream != null)
-        //    firstStream.reset();
-
+        
 		return result==0;
 	}
 }
