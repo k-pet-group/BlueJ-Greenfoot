@@ -15,7 +15,7 @@ import javax.swing.*;
 /**
  * Dialog for creating a new Package
  * 
- * @version $Id: ProjectPrintDialog.java 3175 2004-11-25 14:33:52Z fisker $
+ * @version $Id: ProjectPrintDialog.java 4603 2006-09-07 04:34:37Z davmac $
  * @author Bruce Quig
  */
 public class ProjectPrintDialog extends EscapeDialog

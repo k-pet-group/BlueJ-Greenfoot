@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4431 2006-06-30 02:01:45Z davmac $
+ * @version $Id: Package.java 4603 2006-09-07 04:34:37Z davmac $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -385,7 +385,6 @@ public final class Package extends Graph
 
     /**
      * Return an array of package objects which are nested one level below us.
-     * Will return null if there are no children.
      * 
      * @param getUncached   should be true if unopened packages should be included
      */
@@ -413,9 +412,6 @@ public final class Package extends Graph
                 children.add(child);
             }
         }
-
-        if (children.size() == 0)
-            children = null;
 
         return children;
     }
@@ -906,6 +902,11 @@ public final class Package extends Graph
         return target;
     }
 
+    /**
+     * Add a new package target to this package.
+     * 
+     * @param packageName The basename of the package to add
+     */
     public PackageTarget addPackage(String packageName)
     {
         PackageTarget target = new PackageTarget(this, packageName);
@@ -1374,8 +1375,7 @@ public final class Package extends Graph
                 if (info.hasInterfaceSelections()) {
                     // if we already have an implements clause then we need to put a
                     // comma and the interface name but not before checking that we
-                    // don't
-                    // already have it
+                    // don't already have it
                     
                     List exists = getInterfaceTexts(ed, info.getInterfaceSelections());
                     

@@ -16,7 +16,7 @@ import bluej.utility.EscapeDialog;
  * Dialog for generating HTML and running applets.
  * 
  * @author Bruce Quig
- * @version $Id: RunAppletDialog.java 3828 2006-03-16 03:46:08Z bquig $
+ * @version $Id: RunAppletDialog.java 4603 2006-09-07 04:34:37Z davmac $
  */
 
 public class RunAppletDialog extends EscapeDialog

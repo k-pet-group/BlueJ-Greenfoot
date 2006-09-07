@@ -21,7 +21,7 @@ import bluej.utility.*;
  * creation options can be specified.
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 3709 2005-11-02 04:41:04Z bquig $
+ * @version $Id: ExportDialog.java 4603 2006-09-07 04:34:37Z davmac $
  */
 class ExportDialog extends EscapeDialog
 {
@@ -253,7 +253,6 @@ class ExportDialog extends EscapeDialog
      */
     private JPanel createUserLibPanel(Project project)
     {
-
         // collect info about jar files from the project classloader.
         ArrayList userlibList = new ArrayList();
         

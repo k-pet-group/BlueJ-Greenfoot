@@ -55,7 +55,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 4345 2006-06-08 06:33:46Z davmac $
+ * @version $Id: PkgMgrFrame.java 4603 2006-09-07 04:34:37Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -901,7 +901,7 @@ public class PkgMgrFrame extends JFrame
     public boolean doNewProject()
     {
         String newname = FileUtility.getFileName(this, Config.getString("pkgmgr.newPkg.title"), Config
-                .getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
+                .getString("pkgmgr.newPkg.buttonLabel"), true, null, true);
 
         if (newname == null)
             return false;
@@ -1743,15 +1743,8 @@ public class PkgMgrFrame extends JFrame
         else
             fullName = getPackage().getQualifiedName(name);
 
-        // check whether name is already used as an existing package
-        if (getProject().getPackage(fullName) != null) {
-            if (showErrDialog)
-                DialogManager.showError(this, "duplicate-name");
-            return false;
-        }
-
-        // check whether name is already used for a class in the
-        // parent package
+        // check whether name is already used for a class or package
+        // in the parent package
         String prefix = JavaNames.getPrefix(fullName);
         String base = JavaNames.getBase(fullName);
 

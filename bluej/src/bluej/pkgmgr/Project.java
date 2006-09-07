@@ -44,7 +44,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4414 2006-06-28 02:49:08Z davmac $
+ * @version $Id: Project.java 4603 2006-09-07 04:34:37Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -110,7 +110,8 @@ public class Project implements DebuggerListener, InspectorManager
      * This must contain the root bluej.pkg of a nested package
      * (this should by its nature be the unnamed package).
      */
-    private Project(File projectDir) {
+    private Project(File projectDir)
+    {
         if (projectDir == null) {
             throw new NullPointerException();
         }
@@ -610,14 +611,16 @@ public class Project implements DebuggerListener, InspectorManager
      * Return whether the project is located in a readonly directory
      * @return
      */
-    public boolean isReadOnly() {
+    public boolean isReadOnly() 
+    {
         return !projectDir.canWrite();
     }
 
     /**
      * A string which uniquely identifies this project
      */
-    public String getUniqueId() {
+    public String getUniqueId() 
+    {
         return String.valueOf(new String("BJID" + getProjectDir().getPath()).hashCode());
     }
 
@@ -625,7 +628,8 @@ public class Project implements DebuggerListener, InspectorManager
      * The name of the package within the project directory where we first opened
      * this project.
      */
-    public String getInitialPackageName() {
+    public String getInitialPackageName() 
+    {
         return initialPackageName;
     }
 
@@ -701,9 +705,16 @@ public class Project implements DebuggerListener, InspectorManager
     }
 
     /**
-     * This creates package directories.
+     * This creates package directories. For the given package, all
+     * intermediate package directories (which do not already exist)
+     * will be created. A bluej.pkg file will be created for each
+     * directory (if it does not already exist).
+     * 
+     * @param fullName  the fully qualified name of the package to create
+     *                  directories for
      */
-    public void createPackageDirectory(String fullName) {
+    public void createPackageDirectory(String fullName)
+    {
         // construct the directory name for the new package
         StringTokenizer st = new StringTokenizer(fullName, ".");
         File newPkgDir = getProjectDir();
@@ -803,14 +814,11 @@ public class Project implements DebuggerListener, InspectorManager
         l.add(rootPackage.getQualifiedName());
 
         children = rootPackage.getChildren(true);
-
-        if (children != null) {
-            Iterator i = children.iterator();
-
-            while (i.hasNext()) {
-                Package p = (Package) i.next();
-                l.addAll(getPackageNames(p));
-            }
+        Iterator i = children.iterator();
+        
+        while (i.hasNext()) {
+            Package p = (Package) i.next();
+            l.addAll(getPackageNames(p));
         }
 
         return l;
@@ -885,7 +893,7 @@ public class Project implements DebuggerListener, InspectorManager
         // get a file name to save under
         String newName = FileUtility.getFileName(frame,
                 Config.getString("pkgmgr.saveAs.title"),
-                Config.getString("pkgmgr.saveAs.buttonLabel"), false, null, true);
+                Config.getString("pkgmgr.saveAs.buttonLabel"), true, null, true);
 
         if (newName != null) {
             saveAll();
@@ -1349,12 +1357,10 @@ public class Project implements DebuggerListener, InspectorManager
         Package pkg = (Package) packages.get(packageQualifiedName);
         if (pkg != null) {
             List childPackages = pkg.getChildren(false);
-            if (childPackages != null) {
-                Iterator i = childPackages.iterator();
-                while (i.hasNext()) {
-                    Package childPkg = (Package) i.next();
-                    removePackage(childPkg.getQualifiedName());
-                }
+            Iterator i = childPackages.iterator();
+            while (i.hasNext()) {
+                Package childPkg = (Package) i.next();
+                removePackage(childPkg.getQualifiedName());
             }
             packages.remove(packageQualifiedName);
         }
