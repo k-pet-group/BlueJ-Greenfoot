@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -40,7 +42,7 @@ import bluej.utility.JavaNames;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 4345 2006-06-08 06:33:46Z davmac $
+ * @version $Id: UnitTestClassRole.java 4606 2006-09-13 06:14:24Z davmac $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -296,7 +298,7 @@ public class UnitTestClassRole extends ClassRole
 
         // find out if the method already exists in the unit test src
         try {
-            UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
+            UnitTestAnalyzer uta = analyzeUnitTest(ct);
 
             SourceSpan existingSpan = uta.getMethodBlockSpan(newTestName);
 
@@ -305,15 +307,61 @@ public class UnitTestClassRole extends ClassRole
                     return;
             }
         }
-        catch (FileNotFoundException fnfe) { fnfe.printStackTrace(); }
+        catch (IOException ioe) { ioe.printStackTrace(); }
+        // TODO better handling of above exception
 
         pmf.testRecordingStarted(Config.getString("pkgmgr.test.recording") + " "
         						 + ct.getBaseName() + "." + newTestName + "()");
 
         pmf.getProject().removeClassLoader();
 
-        final String testName = newTestName;
+        runTestSetup(pmf, ct);
         
+        pmf.getObjectBench().resetRecordingInteractions();
+        pmf.setTestInfo(newTestName, ct);
+    }
+    
+    /**
+     * Analyze a unit test file.
+     * @param ct  The classtarget representing the unit test class to analyze
+     * @return  A UnitTestAnalyzer object with information about the unit test class
+     * @throws IOException  if the source file can't be saved or read
+     */
+    private UnitTestAnalyzer analyzeUnitTest(ClassTarget ct) throws IOException
+    {
+        ct.ensureSaved();
+        
+        UnitTestAnalyzer uta = null;
+        Reader reader = null;
+        try {
+            reader = new FileReader(ct.getSourceFile());
+            uta = new UnitTestAnalyzer(reader);
+        }
+        catch (FileNotFoundException fnfe) {
+            throw fnfe;
+        }
+        finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                }
+                catch (IOException ioe) {
+                    // shouldn't happen
+                    ioe.printStackTrace();
+                }
+            }
+        }
+        
+        return uta;
+    }
+    
+    /**
+     * Run the test setup.
+     * @param pmf  The package manager frame to run the setup in
+     * @param ct   The classtarget for the test class
+     */
+    private void runTestSetup(final PkgMgrFrame pmf, final ClassTarget ct)
+    {
         // Avoid running test setup (which is user code) on the event thread.
         // Run it on a new thread instead.
         new Thread() {
@@ -331,15 +379,11 @@ public class UnitTestClassRole extends ClassRole
                             
                             pmf.putObjectOnBench((String) mapent.getKey(), objVal, objVal.getGenType(), null);
                         }
-                        
-                        pmf.getObjectBench().resetRecordingInteractions();
-                        
-                        pmf.setTestInfo(testName, ct);
                     }
                 });
             }
         }.start();
-     }
+    }
 
     /**
      * End the construction of a test method.
@@ -355,8 +399,7 @@ public class UnitTestClassRole extends ClassRole
     {
         Editor ed = ct.getEditor();
         try {
-            ed.save();
-            UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
+            UnitTestAnalyzer uta = analyzeUnitTest(ct);
 
             SourceSpan existingSpan = uta.getMethodBlockSpan(name);
 
@@ -378,7 +421,6 @@ public class UnitTestClassRole extends ClassRole
             
             ed.save();
         }
-        catch (FileNotFoundException fnfe) { /* shouldn't happen */ }
         catch (IOException ioe) {
             PkgMgrFrame.showMessageWithText(pmf.getPackage(),
                     "generic-file-save-error", ioe.getLocalizedMessage());
@@ -403,8 +445,7 @@ public class UnitTestClassRole extends ClassRole
         ExistingFixtureInvokerRecord existing = new ExistingFixtureInvokerRecord();
         
         try {
-            ed.save();
-            UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
+            UnitTestAnalyzer uta = analyzeUnitTest(ct);
 
             // iterate through all the declarations of fields (fixture items) in the class
             List fixtureSpans = uta.getFieldSpans();
@@ -433,21 +474,11 @@ public class UnitTestClassRole extends ClassRole
             }
             
         }
-        catch (FileNotFoundException fnfe) { fnfe.printStackTrace(); }
         catch (IOException ioe) {
             PkgMgrFrame.showMessageWithText(pmf.getPackage(), "generic-file-save-error", ioe.getLocalizedMessage());
         }
         
-        Map dobs = pmf.getProject().getDebugger().runTestSetUp(ct.getQualifiedName());
-
-        Iterator it = dobs.entrySet().iterator();
-        
-        while(it.hasNext()) {
-            Map.Entry mapent = (Map.Entry) it.next();
-            DebuggerObject objVal = (DebuggerObject) mapent.getValue();
-
-            pmf.putObjectOnBench((String) mapent.getKey(), objVal, objVal.getGenType(), null);
-        }
+        runTestSetup(pmf, ct);
         
         pmf.getObjectBench().addInteraction(existing);
     }   
@@ -462,8 +493,7 @@ public class UnitTestClassRole extends ClassRole
                 
         Editor ed = ct.getEditor();
         try {
-            ed.save();
-            UnitTestAnalyzer uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
+            UnitTestAnalyzer uta = analyzeUnitTest(ct);
 
             // find all the fields declared in this unit test class
             List variables = uta.getFieldSpans();
@@ -493,8 +523,7 @@ public class UnitTestClassRole extends ClassRole
                 // to get correct locations for rewriting setUp(), we need to reparse
                 // (TODO: intelligently keep track of changes to the editor and modify
                 //        line numbers accordingly - avoid this reparse)
-                ed.save();
-                uta = new UnitTestAnalyzer(new java.io.FileReader(ct.getSourceFile()));
+                uta = analyzeUnitTest(ct);
             }
 
             // find a location to insert new methods
@@ -534,16 +563,13 @@ public class UnitTestClassRole extends ClassRole
             PkgMgrFrame.showMessageWithText(pmf.getPackage(),
                     "generic-file-save-error", ioe.getLocalizedMessage());
         }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        
         pmf.getPackage().compileQuiet(ct);
         
 		pmf.getProject().removeClassLoader();
 		pmf.getProject().newRemoteClassLoader();
     }
-
+    
     /**
      * A base class for all our actions that run on targets.
      */
