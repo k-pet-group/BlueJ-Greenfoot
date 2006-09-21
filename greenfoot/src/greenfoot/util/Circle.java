@@ -27,6 +27,15 @@ public class Circle
         
     }
 
+    public boolean equals(Object other)
+    {
+        if (other instanceof Circle) {
+            Circle oCircle = (Circle) other;
+            return oCircle.x == x && oCircle.y == y && oCircle.radius == radius;
+        }
+        return false;
+    }
+    
     public double getVolume()
     {
         return Math.PI * radius * radius;

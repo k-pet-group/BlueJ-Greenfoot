@@ -562,17 +562,17 @@ public class IBSPColChecker implements CollisionChecker
     private List<Actor> getIntersectingObjects(Rect r, CollisionQuery query)
     {
         Set<Actor> set = new HashSet<Actor>();
-        getIntersectingObjects(r, query, set);
+        getIntersectingObjects(r, query, set, bspTree);
         List<Actor> l = new ArrayList<Actor>(set);
         return l;
     }
     
-    private void getIntersectingObjects(Rect r, CollisionQuery query, Set<Actor> resultSet)
+    private void getIntersectingObjects(Rect r, CollisionQuery query, Set<Actor> resultSet, BSPNode startNode)
     {
         LinkedList<BSPNode> nodeStack = new LinkedList<BSPNode>();
         
-        if (bspTree != null) {
-            nodeStack.add(bspTree);
+        if (startNode != null) {
+            nodeStack.add(startNode);
         }
         
         while (! nodeStack.isEmpty()) {
@@ -599,7 +599,12 @@ public class IBSPColChecker implements CollisionChecker
             }
         }
     }
+
     
+    /**
+     * Check if there is at least one actor in the given BSPNode which matches
+     * the given collision query, and return it if so.
+     */
     private Actor checkForOneCollision(BSPNode node, CollisionQuery query)
     {
         Iterator<Actor> i = node.getActorsIterator();
@@ -742,9 +747,11 @@ public class IBSPColChecker implements CollisionChecker
         }
     }
 
-    public <T extends Actor> List<T> getNeighbours(int x, int y, int distance,
+    public <T extends Actor> List<T> getNeighbours(Actor actor, int distance,
             boolean diag, Class<T> cls)
     {
+        int x = actor.getX();
+        int y = actor.getY();
         int xPixel = x * cellSize;
         int yPixel = y * cellSize;
         int dPixel = distance * cellSize;
@@ -836,7 +843,15 @@ public class IBSPColChecker implements CollisionChecker
             actorQuery.init(cls, actor);
             
             ActorNode node = getNodeForActor(actor);
-            return getOneIntersectingObject(r, actorQuery, node.getBSPNode());
+            do {
+                Actor ret = getOneIntersectingObject(r, actorQuery, node.getBSPNode());
+                if (ret != null) {
+                    return ret;
+                }
+                node = node.getNext();
+            }
+            while (node != null);
+            return null;
         }
     }
 

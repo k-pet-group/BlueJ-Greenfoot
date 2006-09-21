@@ -487,8 +487,10 @@ public class GridCollisionChecker
      * @see greenfoot.collision.CollisionChecker#getNeighbours(int, boolean,
      *      java.lang.Class)
      */
-    public List getNeighbours(int x, int y, int distance, boolean diag, Class cls)
+    public List getNeighbours(Actor actor, int distance, boolean diag, Class cls)
     {
+        int x = actor.getX();
+        int y = actor.getY();
         List c = new ArrayList();
         if (diag) {
             for (int dx = x - distance; dx <= x + distance; dx++) {

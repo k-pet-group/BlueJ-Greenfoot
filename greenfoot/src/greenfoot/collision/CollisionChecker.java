@@ -107,7 +107,7 @@ public interface CollisionChecker
      *            all classes)
      * @return A collection of all neighbours found
      */
-    public <T extends Actor> List<T> getNeighbours(int x, int y, int distance, boolean diag, Class<T> cls);
+    public <T extends Actor> List<T> getNeighbours(Actor actor, int distance, boolean diag, Class<T> cls);
 
     /**
      * Return all objects that intersect a straight line from this object at

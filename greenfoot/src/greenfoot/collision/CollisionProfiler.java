@@ -5,8 +5,6 @@ import greenfoot.Actor;
 import java.awt.Graphics;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
@@ -14,10 +12,19 @@ import java.util.List;
 public class CollisionProfiler
     implements CollisionChecker
 {
+    // Set this to true for output to console
+    private static boolean to_console = true;
+    
+    // Set this to true for more complete output
+    private static boolean verbose = true;
+    
+    // Set this to the number of sequences to collect times for,
+    // before outputting the results and resetting the times
+    private static final int MAX_SEQ_COUNT = 100;
 
-    private static final int MAX_SEQ_COUNT = 1;
-    private long objectAtTime;
     private CollisionChecker checker;
+    
+    private long addObjectTime;
     private long removeObjectTime;
     private long updateObjectLocationTime;
     private long updateObjectSizeTime;
@@ -27,34 +34,42 @@ public class CollisionProfiler
     private long getNeighboursTime;
     private long getObjectsInDirectionTime;
     private long getObjectsTime;
-    private int sequenceCount;
     private long getOneObjectAtTime;
     private long getOneIntersectingObjectTime;
     private long getObjectsListTime;
+
+    private int sequenceCount;
     
-    private File f;
     private PrintStream fileStream;
-    public CollisionProfiler(CollisionChecker checker) {
+    
+    public CollisionProfiler(CollisionChecker checker)
+    {
         this.checker = checker;
     }
     
     public void initialize(int width, int height, int cellSize, boolean wrap)
     {
         checker.initialize(width, height, cellSize, wrap);
-        File f = new File("/home/polle/profile.txt");
-        try {
-            f.createNewFile();
+        if (to_console) {
+            fileStream = System.out;
         }
-        catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        try {
-            fileStream = new PrintStream(f);
-        }
-        catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        else {
+            File f = new File(System.getProperty("user.home"));
+            f = new File(f, "profile.txt");
+            try {
+                f.createNewFile();
+            }
+            catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            try {
+                fileStream = new PrintStream(f);
+            }
+            catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
 
@@ -63,7 +78,7 @@ public class CollisionProfiler
         long t1 = System.nanoTime();
         checker.addObject(actor);
         long t2 = System.nanoTime();
-        objectAtTime += t2 - t1;
+        addObjectTime += t2 - t1;
     }
 
     public synchronized void removeObject(Actor object)
@@ -121,10 +136,10 @@ public class CollisionProfiler
         return l;
     }
 
-    public List getNeighbours(int x, int y, int distance, boolean diag, Class cls)
+    public List getNeighbours(Actor actor, int distance, boolean diag, Class cls)
     {
         long t1 = System.nanoTime();
-        List l = checker.getNeighbours(x, y, distance, diag, cls);
+        List l = checker.getNeighbours(actor, distance, diag, cls);
         long t2 = System.nanoTime();
         getNeighboursTime += t2 - t1;
         return l;
@@ -166,7 +181,7 @@ public class CollisionProfiler
             
             printTimes();
             
-            objectAtTime = 0;
+            addObjectTime = 0;
             removeObjectTime = 0;
             updateObjectLocationTime = 0;
             updateObjectSizeTime = 0;
@@ -178,19 +193,19 @@ public class CollisionProfiler
             getObjectsTime = 0;
             getOneObjectAtTime = 0;
             getOneIntersectingObjectTime = 0;
+            getObjectsListTime = 0;
             
             sequenceCount = 0;
         }
         
         //Should write the file?
         fileStream.flush();
-        
     }
 
     private void printTimes()
     {
         long totalTime = 0;
-        totalTime += objectAtTime;
+        totalTime += addObjectTime;
         totalTime += removeObjectTime;
         totalTime += updateObjectLocationTime;
         totalTime += updateObjectSizeTime;
@@ -202,6 +217,7 @@ public class CollisionProfiler
         totalTime += getObjectsTime;
         totalTime += getOneObjectAtTime;
         totalTime += getOneIntersectingObjectTime;
+        // totalTime += getObjectsListTime;
         
         int objects = checker.getObjects(null).size();
         long delay =  0;
@@ -209,8 +225,23 @@ public class CollisionProfiler
             delay =  totalTime / objects;
         }
         
-      //  System.out.println("Delay pr. object (nanosec/obj , objects): " + delay  + "," + objects);
-            fileStream.println(  totalTime +","+ objects);
+        if (verbose) {
+            System.out.println("addObjectTime                : " + addObjectTime);
+            System.out.println("removeObjectTime             : " + removeObjectTime);
+            System.out.println("updateObjectLocationTime     : " + updateObjectLocationTime);
+            System.out.println("updateObjectSizeTime         : " + updateObjectSizeTime);
+            System.out.println("getObjectsAtTime             : " + getObjectsAtTime);
+            System.out.println("getIntersectingObjectsTime   : " + getIntersectingObjectsTime);
+            System.out.println("getObjectsInRanageTime       : " + getObjectsInRangeTime);
+            System.out.println("getNeighboursTime            : " + getNeighboursTime);
+            System.out.println("getObjectsInDirectionTime    : " + getObjectsInDirectionTime);
+            System.out.println("getObjectsTime               : " + getObjectsTime);
+            System.out.println("getOneObjectAtTime           : " + getOneObjectAtTime);
+            System.out.println("getOneIntersectingObjectTime : " + getOneIntersectingObjectTime);
+        }
+        
+        // System.out.println("Delay pr. object (nanosec/obj , objects): " + delay  + "," + objects);
+        fileStream.println(  totalTime +","+ objects);
     }
 
     public Actor getOneObjectAt(Actor actor, int dx, int dy, Class cls)

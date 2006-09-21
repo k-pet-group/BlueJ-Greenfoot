@@ -457,8 +457,33 @@ public class BVHInsChecker
                 return;
             // TODO consider if it is possible to use the current location to
             // improve finding the best sibling.
+            
+            // following is much faster for forest-fire type scenario,
+            // but might degrade performance for other scenarios
+            // if (forrest-fire-scenario) {
+            //   repairParentNode(n.parent);
+            // } else {
+            
+            // This is slow but ensures the tree doesn't go too crazy
             removeNode(n);
             addNode(n);
+            // }
+        }
+        
+        /**
+         * Repair parent nodes up the tree, by resizing their circles to fit
+         * their children.
+         * 
+         * @param n  The initial parent node
+         */
+        public void repairParentNode(Node n)
+        {
+            while (n != null) {
+                Circle res = n.left.circle.merge(n.right.circle);
+                if (res.equals(n.circle)) {
+                    n = null;
+                }
+            }
         }
 
         public void removeNode(Node n)
@@ -619,7 +644,7 @@ public class BVHInsChecker
         if (c != null && n != null) {
             n.circle.setX(c.getX());
             n.circle.setY(c.getY());
-            tree.repairNode((Node) ActorVisitor.getData(object));
+            tree.repairNode(n);
         }
     }
 
@@ -629,7 +654,7 @@ public class BVHInsChecker
         Circle c = ActorVisitor.getBoundingCircle(object);
         if (c != null && n != null) {
             n.circle.setRadius(c.getRadius() * cellSize);
-            tree.repairNode((Node) ActorVisitor.getData(object));
+            tree.repairNode(n);
         }        
     }
 
@@ -671,8 +696,10 @@ public class BVHInsChecker
         }
     }
 
-    public List getNeighbours(int x, int y, int distance, boolean diag, Class cls)
+    public List getNeighbours(Actor actor, int distance, boolean diag, Class cls)
     {
+        int x = actor.getX();
+        int y = actor.getY();
         int xPixel = x * cellSize;
         int yPixel = y * cellSize;
         int dPixel = distance * cellSize;

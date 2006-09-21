@@ -2,7 +2,6 @@ package greenfoot;
 
 import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
-import greenfoot.core.GPackage;
 import greenfoot.core.GreenfootMain;
 import greenfoot.util.Version;
 
@@ -14,7 +13,6 @@ import java.util.*;
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RField;
 import rmiextension.wrappers.RObject;
-import rmiextension.wrappers.RPackage;
 import bluej.Boot;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
@@ -45,8 +43,13 @@ public abstract class World
     /** Version number of the Greenfoot API */
     final static Version VERSION = new Version(Boot.GREENFOOT_API_VERSION);
    
-//    private CollisionChecker collisionChecker = new GridCollisionChecker();//new BVHInsChecker();
+    // private CollisionChecker collisionChecker = new GridCollisionChecker();
     private CollisionChecker collisionChecker = new BVHInsChecker();
+    // private CollisionChecker collisionChecker = new IBSPColChecker();
+    
+    //{
+    //    collisionChecker = new CollisionProfiler(collisionChecker);
+    //}
 
     /** All the objects currently in the world */
     private List objects = new ArrayList();
@@ -364,9 +367,9 @@ public abstract class World
      *            all classes)
      * @return A collection of all neighbours found
      */
-    List getNeighbours(int x, int y, int distance, boolean diag, Class cls)
+    List getNeighbours(Actor actor, int distance, boolean diag, Class cls)
     {
-        return collisionChecker.getNeighbours(x, y, distance, diag, cls);
+        return collisionChecker.getNeighbours(actor, distance, diag, cls);
     }
 
     /**

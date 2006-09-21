@@ -33,6 +33,10 @@ public class ActorNode
         return node;
     }
     
+    /**
+     * Get the next ActorNode for the same actor. Returns null if this
+     * is the last ActorNode for the actor.
+     */
     public ActorNode getNext()
     {
         return next;

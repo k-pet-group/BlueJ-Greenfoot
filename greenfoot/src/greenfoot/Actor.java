@@ -637,7 +637,7 @@ public abstract class Actor
     protected List getNeighbours(int distance, boolean diagonal, Class cls)
     {
         failIfNotInWorld();
-        return getWorld().getNeighbours(getX(), getY(), distance, diagonal, cls);
+        return getWorld().getNeighbours(this, distance, diagonal, cls);
     }
     
     /**
