@@ -15,7 +15,10 @@ import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
- * Represents a package in Greenfoot. 
+ * Represents a package in Greenfoot.
+ * 
+ * <p>A GPackage is essentially a reference to a remote package (RPackage), together
+ * with a pool of GClass objects representing the classes in the package. 
  * 
  * @author Poul Henriksen
  * 
@@ -27,14 +30,13 @@ public class GPackage
     
     private Map<RClass,GClass> classPool = new HashMap<RClass,GClass>();
     
-    public GPackage(RPackage pkg)
-    {
-        if(pkg == null) {
-            throw new NullPointerException("Pkg must not be null.");
-        }
-        this.pkg = pkg;
-    }
-    
+    /**
+     * Construct a new GPackage; this should generally only be called by
+     * GProject.
+     * 
+     * @param pkg  The reference to the remote package
+     * @param project  The project
+     */
     public GPackage(RPackage pkg, GProject project)
     {
         if(pkg == null) {

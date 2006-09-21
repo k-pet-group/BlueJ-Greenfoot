@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
+import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RProjectListenerImpl;
@@ -21,6 +22,7 @@ import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.extensions.PackageAlreadyExistsException;
+import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
@@ -142,6 +144,41 @@ public class GProject extends RProjectListenerImpl
         return getPackage(rProject.newPackage(fullyQualifiedName));
     }
 
+    /**
+     * Get a remote reference to a class in this project.
+     * 
+     * @param fullyQualifiedName  The fully-qualified class name
+     * @return  A remote reference to the class
+     */
+    public RClass getRClass(String fullyQualifiedName)
+    {
+        try {
+            int lastDotIndex = fullyQualifiedName.lastIndexOf('.');
+            RPackage pkg;
+            String className;
+            if (lastDotIndex == -1) {
+                pkg = rProject.getPackage("");
+                className = fullyQualifiedName;
+            }
+            else {
+                pkg = rProject.getPackage(fullyQualifiedName.substring(0, lastDotIndex));
+                className = fullyQualifiedName.substring(lastDotIndex + 1);
+            }
+            if (pkg == null) {
+                return null;
+            }
+            return pkg.getRClass(className);
+        }
+        catch (RemoteException re) {
+            throw new InternalGreenfootError(re);
+        }
+        catch (ProjectNotOpenException pnoe) {
+            throw new InternalGreenfootError(pnoe);
+        }
+        catch (PackageNotFoundException pnfe) {
+            throw new InternalGreenfootError(pnfe);
+        }
+    }
 
     public File getDir()
         throws ProjectNotOpenException,RemoteException

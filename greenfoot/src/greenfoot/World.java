@@ -2,20 +2,17 @@ package greenfoot;
 
 import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
+import greenfoot.core.GPackage;
+import greenfoot.core.GreenfootMain;
 import greenfoot.util.Version;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
-import rmiextension.BlueJRMIClient;
 import rmiextension.wrappers.RClass;
+import rmiextension.wrappers.RField;
 import rmiextension.wrappers.RObject;
 import rmiextension.wrappers.RPackage;
 import bluej.Boot;
@@ -595,7 +592,11 @@ public abstract class World
                 return rObject;
             }
             transportField = obj;
-            rObject = getRemoteClass(obj).getField("transportField").getValue(null);
+            // DAV !
+            //rObject = getRemoteClass(obj).getField("transportField").getValue(null);
+            RClass rClass = getRemoteClass(obj);
+            RField rField = rClass.getField("transportField");
+            rObject = rField.getValue(null);
             cachedObjects.put(obj, rObject);
             return rObject;
         }
@@ -614,19 +615,8 @@ public abstract class World
     static private RClass getRemoteClass(Object obj)
     {
         if (remoteObjectTracker == null) {
-            try {
-                RPackage pkg = BlueJRMIClient.instance().getPackage();
-                remoteObjectTracker = pkg.getRClass(obj.getClass().getName());                
-            }
-            catch (ProjectNotOpenException e) {
-                e.printStackTrace();
-            }
-            catch (PackageNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch (RemoteException e) {
-                e.printStackTrace();
-            }
+            String rclassName = obj.getClass().getName();
+            remoteObjectTracker = GreenfootMain.getInstance().getProject().getRClass(rclassName);
         }
         return remoteObjectTracker;
     }

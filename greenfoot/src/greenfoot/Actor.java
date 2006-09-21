@@ -869,19 +869,8 @@ public abstract class Actor
     static private RClass getRemoteClass(Object obj)
     {
         if (remoteObjectTracker == null) {
-            try {
-                RPackage pkg = BlueJRMIClient.instance().getPackage();
-                remoteObjectTracker = pkg.getRClass(obj.getClass().getName());                
-            }
-            catch (ProjectNotOpenException e) {
-                e.printStackTrace();
-            }
-            catch (PackageNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch (RemoteException e) {
-                e.printStackTrace();
-            }
+            String rclassName = obj.getClass().getName();
+            remoteObjectTracker = GreenfootMain.getInstance().getProject().getRClass(rclassName);
         }
         return remoteObjectTracker;
     }
