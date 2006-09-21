@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 4597 2006-09-06 12:18:48Z davmac $
+ * @version $Id: Invoker.java 4608 2006-09-21 02:20:21Z davmac $
  */
 
 public class Invoker
@@ -725,13 +725,16 @@ public class Invoker
                 }
             }
             buffer.append(callString);
+            // Append a new line, as the call string may end with a //-style comment
+            buffer.append(Config.nl);
             if (!isVoid && constype == null) {
                 buffer.append(")");
             }
         }
 
-        if(! isVoid && ! callString.endsWith(";"))
+        if(! isVoid && ! callString.endsWith(";")) {
             buffer.append(";");
+        }
         buffer.append(Config.nl);
 
         String invocation = buffer.toString();
