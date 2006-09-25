@@ -24,7 +24,7 @@ import bluej.utility.FileUtility;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 4421 2006-06-28 06:25:47Z davmac $
+ * @version $Id: Terminal.java 4611 2006-09-25 11:38:27Z polle $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -206,7 +206,8 @@ public final class Terminal extends JFrame
                 errorText.setCaretPosition(errorText.getDocument().getLength());
             }
             StringBuffer newBuffer = new StringBuffer();
-            newBuffer.append(erroutBuffer.subSequence(endOfLine + 1, erroutBuffer.length()));
+            //We need to cast the CharSequence to an Object to make it work on Java 1.4 which does not have an append method for CharSequence.
+            newBuffer.append((Object) erroutBuffer.subSequence(endOfLine + 1, erroutBuffer.length()));
             erroutBuffer = newBuffer;
             endOfLine = erroutBuffer.indexOf("\n");
         }
