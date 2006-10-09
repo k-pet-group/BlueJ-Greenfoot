@@ -98,36 +98,90 @@ public class Circle
      * 
      * @return An new circle bounding this and other.
      */
-    public Circle merge(Circle other)
+ /*   public Circle merge(Circle other)
     {
+        Circle mCircle = new Circle();
+        mCircle.merge(this, other);
+       if(true)
+           return mCircle;
+    
+        
         int dx = getX() - other.getX();
         int dy = getY() - other.getY();
         int dxSq = dx * dx;
         int dySq = dy * dy;        
         int circleDistSq = (dxSq + dySq);
         int r2 = (getRadius() - other.getRadius());
+        
+
+        Circle newCircle = null;
         //check if r1 encloses r2
         if( r2*r2 >= circleDistSq) {
-            Circle biggest;
             if(getRadius() < other.getRadius()) {
-                biggest = new Circle(other.getX(), other.getY(), other.getRadius());
+                newCircle= new Circle(other.getX(), other.getY(), other.getRadius());
             } else {
-                biggest = new Circle(x, y, radius);
+                newCircle = new Circle(x, y, radius);
             } 
-            return biggest;
-        }        
-        double circleDist =  Math.sqrt(circleDistSq);
-        double r =  (circleDist + getRadius() + other.getRadius()) / 2.;
-        
-        Circle newCircle = new Circle(getX(), getY(), (int) Math.ceil(r));
-        if(circleDist > 0) {
-            double f = ((r - getRadius()) / circleDist);                
+        } else {        
+            double circleDist =  Math.sqrt(circleDistSq);
+            double r =  (circleDist + getRadius() + other.getRadius()) / 2.;
             
-            newCircle.setX(newCircle.getX() - ((int) Math.ceil(f * dx)));
-            newCircle.setY(newCircle.getY() - ((int) Math.ceil(f * dy)));
+            newCircle = new Circle(getX(), getY(), (int) Math.ceil(r));
+            if(circleDist > 0) {
+                double f = ((r - getRadius()) / circleDist);                
+                
+                newCircle.setX(newCircle.getX() - ((int) Math.ceil(f * dx)));
+                newCircle.setY(newCircle.getY() - ((int) Math.ceil(f * dy)));
+            }            
         }
-        
+        System.out.println(newCircle);
+        System.out.println(mCircle);
+        System.out.println("----------");
         return newCircle;
+    }    
+    */
+    /**
+     * Calculates the circle that bounds this circle and the other.
+     * 
+     */
+    public void merge(Circle one, Circle two)
+    {
+        int dx = one.getX() - two.getX();
+        int dy = one.getY() - two.getY();
+        int dxSq = dx * dx;
+        int dySq = dy * dy;        
+        int circleDistSq = (dxSq + dySq);
+        int r2 = (one.getRadius() - two.getRadius());
+        
+        //check if r1 encloses r2
+        if( r2*r2 >= circleDistSq) {
+            if(one.getRadius() < two.getRadius()) {
+                setRadius(two.getRadius());
+                setX(two.getX());
+                setY(two.getY());
+                //biggest = new Circle(two.getX(), two.getY(), two.getRadius());
+            } else {
+                setRadius(one.getRadius());
+                setX(one.getX());
+                setY(one.getY());
+                //biggest = new Circle(x, y, radius);
+            } 
+        }
+        else {
+            double circleDist = Math.sqrt(circleDistSq);
+            double r = (circleDist + one.getRadius() + two.getRadius()) / 2.;
+            // Circle newCircle = new Circle(getX(), getY(), (int)
+            // Math.ceil(r));
+            setRadius((int) Math.ceil(r));
+            if (circleDist > 0) {
+                double f = ((r - one.getRadius()) / circleDist);
+                setX(one.getX() - ((int) Math.ceil(f * dx)));
+                setY(one.getY() - ((int) Math.ceil(f * dy)));
+            } else {
+                setX(one.getX());
+                setY(one.getY());
+            }
+        }
     }
     
     public String toString() {
