@@ -506,13 +506,18 @@ public abstract class Actor
     }
     
     /**
-     * Notify the world that this object's size has changed.
+     * Notify the world that this object's size has changed, if it in fact has changed.
      *
      */
     private void sizeChanged()
     {
+        int newSize = calcBoundingRadius();
+        if(boundingCircle != null && newSize == boundingCircle.getRadius()) {
+            //If the size have not changed we just return
+            return;
+        }
         if(boundingCircle != null) {
-            boundingCircle.setRadius(calcBoundingRadius());
+            boundingCircle.setRadius(newSize);
         }
         if(world != null) {
             world.updateObjectSize(this);
