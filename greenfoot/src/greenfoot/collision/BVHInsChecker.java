@@ -217,7 +217,7 @@ public class BVHInsChecker
      * A circle fringe represents extra information calculated about a node in a
      * tree. In particular the "ancestor expansion" which is the total increase
      * in the size of the ancestor when insert a new node as a sibling to this
-     * node.
+     * node. 
      * 
      * @author Poul Henriksen
      * 
@@ -225,9 +225,11 @@ public class BVHInsChecker
     static class CircleFringe
         implements Comparable
     {
-
-        private double ancestorExpansion;
+        /** The sibling node for this circle fring e*/
         private Node node;
+        /** Total expansion of all the ancestors of node */
+        private double ancestorExpansion;
+        /** Volume of the new parent for the sibling node and the new node */         
         private double volume;
 
         public CircleFringe(Node n, double ancestorExpansion, double volume)
@@ -296,6 +298,14 @@ public class BVHInsChecker
         {
             return volume;
         }
+        
+        /**
+         * Return the cost of this fringe. That is: volume + ancestor expansion
+         * @return
+         */
+        public double getCost() {
+            return ancestorExpansion + volume;
+        }
 
     }
 
@@ -311,15 +321,11 @@ public class BVHInsChecker
     {
         private Node root;
         private int size;
-        private CircleFringe best;
-        private Node lastInsertionPoint; // where did we insert a node the
-                                            // last time? This can speed up
-                                            // insertion when iterating thorugh
-                                            // the world from one end to the
-                                            // other. Have to make sure that
-                                            // this node is not deleted from the
-                                            // tree in the meantime.
-
+        // where did we insert a node the last time? This can speed up insertion
+        // when iterating thorugh the world from one end to the other. Have to
+        // make sure that this node is not deleted from the tree in the
+        // meantime though.
+        private Node lastInsertionPoint; 
         public void addNode(Node n, Node bestGuess)
         {
             Node sibling = bestSibling(n, bestGuess);
@@ -380,85 +386,101 @@ public class BVHInsChecker
          */
         public Node bestSibling(Node newNode, Node bestGuess)
         {
-            // TODO: some parts of the tree will be traversed twice because the
-            // root fringe is added . The
-            // algorithm should be modified to NOT use the root but instead
-            // traverse upwards from the bestGuess.
-            
-            // bestGuess = null;
             if (getRoot() == null) {
                 return null;
             }
 
+            if(root.isLeaf()) {
+                return root;
+            }            
+            
+            CircleFringe rootFringe = createFringe(newNode, root);
+            
+            // Lets set the initial best one to be the root
+            CircleFringe best = rootFringe;
+            
+            // There is a good chance that bestGuess will have a better cost
+            // than the root, so we use this to get an initial good value for
+            // the best cost to quickly disregard branches that we do not need
+            // to traverse.
+            if (bestGuess != null) {
+                CircleFringe newFringe = createFringe(newNode, bestGuess);
+                if(newFringe.getCost() < best.getCost()) {
+                    best = newFringe;                
+                }
+            }            
+
             // Priority queue ordered by ancestor expansion
             // This priority queue holds the fringe elements
             PriorityQueue fringeQueue = new PriorityQueue();
+            
+            // Add the fringe for the root
+            fringeQueue.add(rootFringe);
 
-            // Initialise
-            Circle bestCircle = new Circle();
-            bestCircle.merge(getRoot().circle, newNode.circle);
-            double bestCost = bestCircle.getVolume();
-
-            // double bestCost =
-            // getRoot().circle.merge(newNode.circle).getVolume();
-            best = new CircleFringe(getRoot(), 0, bestCost);
-
-            if (!best.getNode().isLeaf()) {
-                // We are not the only element, so we add the initial fringe
-                CircleFringe tf = new CircleFringe(getRoot(), 0, bestCost);
-                fringeQueue.add(tf);
-            }
-
-            if (bestGuess != null) {
-                bestCircle = new Circle();
-                bestCircle.merge(bestGuess.circle, newNode.circle);
-
-                bestCost = bestCircle.getVolume();
-                double ae = 0;
-                Node n = bestGuess;
-                while (n.parent != null) {
-                    Circle enclosingCircle = new Circle();
-                    enclosingCircle.merge(n.circle, newNode.circle);
-                    double delta = enclosingCircle.getVolume() - n.parent.circle.getVolume();
-                    if (delta == 0) {
-                        break;
-                    }
-                    ae += delta;
-                    n = n.parent;
-                }
-                CircleFringe newFringe = new CircleFringe(bestGuess, ae, bestCost);
-
-                if (!newFringe.getNode().isLeaf()) {
-                    // We are not the only element, so we add the initial fringe
-                    CircleFringe tf = new CircleFringe(bestGuess, ae, bestCost);
-                    fringeQueue.add(tf);
-                }
-                if (newFringe.getAncestorExpansion() + newFringe.getVolume() <= best.getAncestorExpansion()
-                        + best.getVolume()) {
-                    // The new fringe is better than the previously best one, so
-                    // we use the new one
-                    best = newFringe;
-                }
-            }
-
+            bestSiblingSearch(newNode, best, fringeQueue);
+            
+            return best.getNode();
+        }
+  
+        
+    
+        /**
+         * Searches through the tree for the best sibling.
+         * 
+         * @param newNode
+         * @param fringeQueue
+         */
+        private void bestSiblingSearch(Node newNode, CircleFringe best, PriorityQueue fringeQueue)
+        {
             // Search for the best location to insert
             while (!fringeQueue.isEmpty()) {
                 // get best candidate
                 CircleFringe tf = (CircleFringe) fringeQueue.poll();
-                if (tf.getAncestorExpansion() >= (best.getVolume() + best.getAncestorExpansion())) {
+                if (tf.getAncestorExpansion() >= (best.getCost())) {
                     // If the ancestorExpansion of the current fringe is larger
-                    // than the best one found so far, then we are done.
+                    // than the best cost found so far, then we are done.
                     break;
                 }
                 else {
-                    // calculate new ancestor expansion for the children's
-                    // fringes
-                    double newAExp = tf.getAncestorExpansion() + tf.getVolume() - tf.getNode().circle.getVolume(); // ancestor
+                    // calculate new ancestor expansion for the children's fringes
+                    double newAExp = tf.getCost() - tf.getNode().circle.getVolume();
                     processNode(newNode, tf.getNode().left, newAExp, best, fringeQueue);
                     processNode(newNode, tf.getNode().right, newAExp, best, fringeQueue);
                 }
             }
-            return best.getNode();
+        }
+        
+        /**
+         * Creates the fringe for newNode at currentNode.
+         * 
+         * TODO: Find the best fringe from the currentNode and up to the root instead of only the firnge at the current node.
+         * @param newNode The new node that is to be inserted
+         * @param currentNode The node for which to create the fringe
+         * @return
+         */
+        private CircleFringe createFringe(Node newNode, Node currentNode)
+        {
+            Circle bestCircle;
+            double bestCost;
+            bestCircle = new Circle();
+            bestCircle.merge(currentNode.circle, newNode.circle);
+
+            bestCost = bestCircle.getVolume();
+            double ae = 0;
+            Node n = currentNode;
+            while (n.parent != null) {
+                Circle enclosingCircle = new Circle();
+                enclosingCircle.merge(n.circle, newNode.circle);
+                double delta = enclosingCircle.getVolume() - n.parent.circle.getVolume();
+                if (delta == 0) {
+                    break;
+                }
+                ae += delta;
+                n = n.parent;
+            }
+            CircleFringe newFringe = new CircleFringe(currentNode, ae, bestCost);
+
+            return newFringe;
         }
 
         /**
@@ -472,8 +494,9 @@ public class BVHInsChecker
             Circle enclosingCircle = new Circle();
             enclosingCircle.merge(childNode.circle, newNode.circle);
             double enclosingVolume = enclosingCircle.getVolume();
+            
             // have we found a better cost?
-            if ((newAExp + enclosingVolume) < (best.getVolume() + best.getAncestorExpansion())) {
+            if ( (newAExp + enclosingVolume) < best.getCost()) {
                 best.setVolume(enclosingVolume);
                 best.setAncestorExpansion(enclosingVolume);
                 best.setNode(childNode);
