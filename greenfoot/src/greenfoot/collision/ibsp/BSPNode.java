@@ -4,7 +4,12 @@ import greenfoot.Actor;
 
 import java.util.*;
 
-public class BSPNode
+/**
+ * A node in a BSP tree.
+ * 
+ * @author Davin McCall
+ */
+public final class BSPNode
 {
     // private List<ActorNode> actorNodes;
     private Map<Actor, ActorNode> actors;
@@ -15,10 +20,6 @@ public class BSPNode
     private int splitPos;  // where it is split (absolute)
     private BSPNode left;
     private BSPNode right;
-    
-    // Depth and rebalance variables
-    private int leftDepth;
-    private int rightDepth;
     
     private boolean areaRipple; // area has been set, need to ripple
         // down to children at some stage
@@ -35,16 +36,16 @@ public class BSPNode
     
     public void setChild(int side, BSPNode child)
     {
-        int oldDepth = getDepth();
+//        int oldDepth = getDepth();
         if (side == IBSPColChecker.PARENT_LEFT) {
             left = child;
             if (child != null) {
                 child.parent = this;
                 child.setArea(getLeftArea());
-                leftDepth = child.getDepth();
+//                leftDepth = child.getDepth();
             }
             else {
-                leftDepth = 0;
+//                leftDepth = 0;
             }
         }
         else {
@@ -52,57 +53,73 @@ public class BSPNode
             if (child != null) {
                 child.parent = this;
                 child.setArea(getRightArea());
-                rightDepth = child.getDepth();
+//                rightDepth = child.getDepth();
             }
             else {
-                rightDepth = 0;
+//                rightDepth = 0;
             }
         }
-        int depth = getDepth();
-        if (depth != oldDepth) {
-            if (parent != null) {
-                parent.updateDepth();
-            }
-        }
+//        int depth = getDepth();
+//        if (depth != oldDepth) {
+//            if (parent != null) {
+//                parent.updateDepth();
+//            }
+//        }
     }
     
-    private void updateDepth()
-    {
-        int oldDepth = getDepth();
-        leftDepth = left != null ? left.getDepth() : 0;
-        rightDepth = right != null ? right.getDepth() : 0;
-        int depth = getDepth();
-        if (depth != oldDepth) {
-            if (parent != null) {
-                parent.updateDepth();
-            }
-        }
-    }
+//    private void updateDepth()
+//    {
+//        int oldDepth = getDepth();
+//        leftDepth = left != null ? left.getDepth() : 0;
+//        rightDepth = right != null ? right.getDepth() : 0;
+//        int depth = getDepth();
+//        if (depth != oldDepth) {
+//            if (parent != null) {
+//                parent.updateDepth();
+//            }
+//        }
+//    }
     
-    public int getDepth()
-    {
-        return Math.max(leftDepth, rightDepth) + 1;
-    }
+//    public int getDepth()
+//    {
+//        return Math.max(leftDepth, rightDepth) + 1;
+//    }
     
-    public int getLeftDepth()
-    {
-        return leftDepth;
-    }
+//    public int getLeftDepth()
+//    {
+//        return leftDepth;
+//    }
     
-    public boolean needsRebalance()
-    {
-        return Math.abs(leftDepth - rightDepth) > 3;
-    }
+//    public boolean needsRebalance()
+//    {
+//        return Math.abs(leftDepth - rightDepth) > IBSPColChecker.REBALANCE_THRESHOLD;
+//    }
     
-    public int getRightDepth()
-    {
-        return rightDepth;
-    }
+//    public int getRightDepth()
+//    {
+//        return rightDepth;
+//    }
     
     public void setArea(Rect area)
     {
+//        if (this.area != null) {
+//            if (! area.contains(this.area)) {
+//                System.out.println("Error, old area = " + this.area + ", new area = " + area);
+//                throw new Error();
+//            }
+//        }
         this.area = area;
         areaRipple = true;
+//        if (splitAxis == IBSPColChecker.Y_AXIS) {
+//            if (splitPos < area.getY() || splitPos > area.getTop()) {
+//                throw new Error();
+//            }
+//        }
+//        else {
+//            if (splitPos < area.getX() || splitPos > area.getRight()) {
+//                throw new Error();
+//            }
+//        }
     }
     
     public void setSplitAxis(int axis)
@@ -211,13 +228,18 @@ public class BSPNode
     
     public void addActor(Actor actor)
     {
-        // actorNodes.add(new ActorNode(actor, this));
         actors.put(actor, new ActorNode(actor, this));
     }
     
     public boolean containsActor(Actor actor)
     {
-        return actors.containsKey(actor);
+        // return actors.containsKey(actor);
+        ActorNode anode = actors.get(actor);
+        if (anode != null) {
+            anode.mark();
+            return true;
+        }
+        return false;
     }
     
     public void actorRemoved(Actor actor)

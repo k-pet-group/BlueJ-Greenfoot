@@ -39,6 +39,7 @@ public class CollisionProfiler
     private long getObjectsListTime;
 
     private int sequenceCount;
+    private int sequences;
     
     private PrintStream fileStream;
     
@@ -204,6 +205,11 @@ public class CollisionProfiler
 
     private void printTimes()
     {
+        sequences++;
+        if (verbose) {
+            fileStream.println("Sequence # " + sequences);
+        }
+        
         long totalTime = 0;
         totalTime += addObjectTime;
         totalTime += removeObjectTime;
@@ -226,22 +232,23 @@ public class CollisionProfiler
         }
         
         if (verbose) {
-            System.out.println("addObjectTime                : " + addObjectTime);
-            System.out.println("removeObjectTime             : " + removeObjectTime);
-            System.out.println("updateObjectLocationTime     : " + updateObjectLocationTime);
-            System.out.println("updateObjectSizeTime         : " + updateObjectSizeTime);
-            System.out.println("getObjectsAtTime             : " + getObjectsAtTime);
-            System.out.println("getIntersectingObjectsTime   : " + getIntersectingObjectsTime);
-            System.out.println("getObjectsInRanageTime       : " + getObjectsInRangeTime);
-            System.out.println("getNeighboursTime            : " + getNeighboursTime);
-            System.out.println("getObjectsInDirectionTime    : " + getObjectsInDirectionTime);
-            System.out.println("getObjectsTime               : " + getObjectsTime);
-            System.out.println("getOneObjectAtTime           : " + getOneObjectAtTime);
-            System.out.println("getOneIntersectingObjectTime : " + getOneIntersectingObjectTime);
+            fileStream.println("addObjectTime                : " + addObjectTime);
+            fileStream.println("removeObjectTime             : " + removeObjectTime);
+            fileStream.println("updateObjectLocationTime     : " + updateObjectLocationTime);
+            fileStream.println("updateObjectSizeTime         : " + updateObjectSizeTime);
+            fileStream.println("getObjectsAtTime             : " + getObjectsAtTime);
+            fileStream.println("getIntersectingObjectsTime   : " + getIntersectingObjectsTime);
+            fileStream.println("getObjectsInRanageTime       : " + getObjectsInRangeTime);
+            fileStream.println("getNeighboursTime            : " + getNeighboursTime);
+            fileStream.println("getObjectsInDirectionTime    : " + getObjectsInDirectionTime);
+            fileStream.println("getObjectsTime               : " + getObjectsTime);
+            fileStream.println("getOneObjectAtTime           : " + getOneObjectAtTime);
+            fileStream.println("getOneIntersectingObjectTime : " + getOneIntersectingObjectTime);
         }
         
         // System.out.println("Delay pr. object (nanosec/obj , objects): " + delay  + "," + objects);
         fileStream.println(  totalTime +","+ objects);
+        fileStream.println("========================");
     }
 
     public Actor getOneObjectAt(Actor actor, int dx, int dy, Class cls)
