@@ -557,7 +557,9 @@ public class IBSPColChecker implements CollisionChecker
                 ActorNode iter = getNodeForActor(object);
                 while (iter != null) {
                     if (iter != node) {
+                        BSPNode rNode = iter.getBSPNode();
                         iter.remove();
+                        checkRemoveNode(rNode);
                     }
                     iter = iter.getNext();
                 }
@@ -565,7 +567,9 @@ public class IBSPColChecker implements CollisionChecker
             }
             else if (Rect.getIntersection(bspArea, newBounds) == null) {
                 // This actor node is no longer needed
+                BSPNode rNode = node.getBSPNode();
                 node.remove();
+                checkRemoveNode(rNode);
             }
             node.clearMark();
             node = node.getNext();
@@ -603,7 +607,9 @@ public class IBSPColChecker implements CollisionChecker
         node = getNodeForActor(object);
         while (node != null) {
             if (! node.checkMark()) {
+                bspNode = node.getBSPNode();
                 node.remove();
+                checkRemoveNode(bspNode);
             }
             node = node.getNext();
         }

@@ -247,13 +247,13 @@ public final class BSPNode
         actors.remove(actor);
     }
     
-    public void removeActor(Actor actor)
-    {
-        ActorNode anode = actors.remove(actor);
-        if (anode != null) {
-            anode.removed();
-        }
-    }
+//    public void removeActor(Actor actor)
+//    {
+//        ActorNode anode = actors.remove(actor);
+//        if (anode != null) {
+//            anode.removed();
+//        }
+//    }
     
     public int numberActors()
     {
@@ -283,13 +283,13 @@ public final class BSPNode
     /**
      * Remove all actors from this node.
      */
-    public void clear()
-    {
-        Iterator<Map.Entry<Actor,ActorNode>> i = actors.entrySet().iterator();
-
-        while (i.hasNext()) {
-            i.next().getValue().removed();
-            i.remove();
-        }
-    }
+//    public void clear()
+//    {
+//        Iterator<Map.Entry<Actor,ActorNode>> i = actors.entrySet().iterator();
+//
+//        while (i.hasNext()) {
+//            i.next().getValue().removed();
+//            i.remove();
+//        }
+//    }
 }
