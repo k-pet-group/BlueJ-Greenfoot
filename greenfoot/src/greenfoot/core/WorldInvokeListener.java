@@ -180,6 +180,7 @@ public class WorldInvokeListener
     {
         if (event == CallDialog.CANCEL) {
             dlg.setVisible(false);
+            dlg.dispose(); // must dispose to prevent leaks
         }
         else if (event == CallDialog.OK) {
             MethodDialog mdlg = (MethodDialog) dlg;
@@ -250,6 +251,7 @@ public class WorldInvokeListener
                     }
                     else {
                         mdlg.setVisible(false);
+                        mdlg.dispose(); // dispose to prevent leaks
                         Method m = mv.getMethod();
                         if (m.getReturnType() != void.class) {
                             // Non-void result, display it in a result inspector.
