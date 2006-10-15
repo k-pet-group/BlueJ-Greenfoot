@@ -44,7 +44,7 @@ public class BVHInsChecker
     implements CollisionChecker
 {
 
-    static class Node
+    class Node
     {
         public Node parent;
         public Node left; // child
@@ -64,6 +64,9 @@ public class BVHInsChecker
 
         public Node(Circle circle, Actor actor)
         {
+            if(actor == null) {
+                throw new NullPointerException("Actor may not be null.");
+            }
             this.circle = circle;
             this.actor = actor;
         }
@@ -95,18 +98,18 @@ public class BVHInsChecker
             if (!c.intersects(this.circle)) {
                 return;
             }
-            if (isLeaf() && (checker != null && checker.checkCollision(getActor()))) {
-                result.add(getActor());
-            }
-            else if (!isLeaf()) {
-                left.getIntersections(c, checker, result);
-                right.getIntersections(c, checker, result);
-            }
+                if (isLeaf() && (checker != null && checker.checkCollision(getActor()))) {
+                    result.add(getActor());
+                }
+                else if (!isLeaf()) {
+                    left.getIntersections(c, checker, result);
+                    right.getIntersections(c, checker, result);
+                }
         }
 
-        public Actor getOneIntersectingObject(BVHInsChecker.Node node, CollisionQuery checker)
+        private Actor getOneIntersectingObject(Circle c, CollisionQuery checker)
         {
-            return node.getOneIntersectingObjectUpwards(node.circle, checker);
+            return getOneIntersectingObjectUpwards(c, checker);
         }
 
         private Actor getOneIntersectingObjectDownwards(Circle c, CollisionQuery checker)
@@ -138,6 +141,12 @@ public class BVHInsChecker
             return null;
         }
 
+        /**
+         * Searches for intersections with the circle c, starting from this node and going upwards in the tree.
+         * @param c Circle to check collision against
+         * @param checker Query to do fine grained checks
+         * @return
+         */
         private Actor getOneIntersectingObjectUpwards(Circle c, CollisionQuery checker)
         {
             Node sibling = getSibling();
@@ -155,22 +164,11 @@ public class BVHInsChecker
             return null;
         }
 
-        // TODO replace with loop instead of recursion so that we can escape
-        // quicker.
-        public Actor getIntersection(Circle b, CollisionQuery c)
-        {
-            throw new RuntimeException("NOT IMPLEMENTED YET");
-            /*
-             * if (!b.intersects(this.circle)) { return null; } // TODO maybe
-             * allow c==null if (isLeaf() && c.checkCollision(getGo())) { return
-             * getGo(); } else { Actor res = left.getIntersection(b, c);
-             * if(res!= null) return res; return right.getIntersection(b, c); }
-             */
-        }
-
         /**
-         * Resets all fields in this note and any pointers from parent or
-         * children.
+         * Removes this node from the tree it is in by clearing all pointers to
+         * and from this node. Resets all fields in this node and any pointers
+         * from parent or children. The node will have the same state as when it
+         * was created.
          */
         public void reset()
         {
@@ -191,11 +189,6 @@ public class BVHInsChecker
             parent = null;
             left = null;
             right = null;
-            circle = new Circle();
-            if (actor != null) {
-                ActorVisitor.setData(actor, null);
-            }
-            actor = null;
         }
 
         private Node getSibling()
@@ -239,6 +232,22 @@ public class BVHInsChecker
             this.node = n;
         }
 
+        /**
+         * Will create a new fringe with the same contents as the other fringe.
+         * 
+         * @param other
+         */
+        public CircleFringe(CircleFringe other)
+        {
+            copyValuesFrom(other);
+        }
+
+        public void copyValuesFrom(CircleFringe other) {
+            node = other.getNode();
+            ancestorExpansion = other.getAncestorExpansion();
+            volume = other.getVolume();
+        }
+        
         /**
          * Get total increase in the size of the ancestor when insert a new node
          * as a sibling to this node.
@@ -317,7 +326,7 @@ public class BVHInsChecker
      * @author Poul Henriksen
      * 
      */
-    static class CircleTree
+    class CircleTree
     {
         private Node root;
         private int size;
@@ -326,6 +335,7 @@ public class BVHInsChecker
         // make sure that this node is not deleted from the tree in the
         // meantime though.
         private Node lastInsertionPoint; 
+        
         public void addNode(Node n, Node bestGuess)
         {
             Node sibling = bestSibling(n, bestGuess);
@@ -333,20 +343,22 @@ public class BVHInsChecker
         }
 
         public void addNode(Node n)
-        {
-            if (!contains(lastInsertionPoint)) {
+        {            
+            //The last insertion point could have been removed
+            if (! contains(lastInsertionPoint)) {
                 lastInsertionPoint = null;
-            }
-
-            Node sibling = bestSibling(n, lastInsertionPoint);
+            }           
+            
+            Node sibling = bestSibling(n, lastInsertionPoint);            
             insertAtNode(n, sibling);
+            lastInsertionPoint = n.getSibling();            
         }
 
         private boolean contains(Node n)
         {
             if (n == null) {
                 return false;
-            }
+            }            
             if (root == n || n.parent != null) {
                 return true;
             }
@@ -357,14 +369,25 @@ public class BVHInsChecker
         {
             if (n == null)
                 return;
+            
+            if(n.getActor() != null && (! BVHInsChecker.this.objects.contains(n.getActor()) ) && this.contains(n) ) { // Check does NOT WORK!!! 
+                System.err.println("The node is in the tree, but should not be: " + n + "  " + n.getActor());
+                throw new RuntimeException("Invariant not true because the node is in the tree, but should not be:   Node: " + n + " #   left:"
+                        + n.left + " #   right:" + n.right  + " #   parent:" + n.parent + " #   root:" + root + " #   actor:" + n.getActor());
+            }
+            if(n.left == null && n.right == null && n.parent == null && n != root) {
+                throw new RuntimeException("Invariant not true because parents and children are null and it is not the root:   Node: " + n + " #   left:"
+                        + n.left + " #   right:" + n.right + " #   parent:" + n.parent + " #   root:" + root + " #   actor:" + n.getActor());
+
+            }
             if (n.circle == null) {
                 throw new RuntimeException("Invariant not true because circle==null:   Node: " + n + " #   left:"
-                        + n.left + " #   right:" + n.right);
+                        + n.left + " #   right:" + n.right + " #   parent:" + n.parent + " #   root:" + root + " #   actor:" + n.getActor());
 
             }
             if (!(n.left == null && n.right == null) && (n.left == null || n.right == null)) {
                 throw new RuntimeException("Invariant not true:   Node: " + n + " #   left:" + n.left + " #   right:"
-                        + n.right);
+                        + n.right + " #   parent:" + n.parent + " #   root:" + root + " #   actor:" + n.getActor());
             }
             checkInvariant(n.left);
             checkInvariant(n.right);
@@ -377,7 +400,7 @@ public class BVHInsChecker
          */
         private void checkInvariant()
         {
-        // checkInvariant(root);
+            //checkInvariant(root);
         }
 
         /**
@@ -394,10 +417,10 @@ public class BVHInsChecker
                 return root;
             }            
             
-            CircleFringe rootFringe = createFringe(newNode, root);
-            
+            CircleFringe rootFringe = createFringe(newNode, root);            
+
             // Lets set the initial best one to be the root
-            CircleFringe best = rootFringe;
+            final CircleFringe best = new CircleFringe(rootFringe);   
             
             // There is a good chance that bestGuess will have a better cost
             // than the root, so we use this to get an initial good value for
@@ -406,9 +429,9 @@ public class BVHInsChecker
             if (bestGuess != null) {
                 CircleFringe newFringe = createFringe(newNode, bestGuess);
                 if(newFringe.getCost() < best.getCost()) {
-                    best = newFringe;                
+                    best.copyValuesFrom(newFringe);               
                 }
-            }            
+            } 
 
             // Priority queue ordered by ancestor expansion
             // This priority queue holds the fringe elements
@@ -418,7 +441,7 @@ public class BVHInsChecker
             fringeQueue.add(rootFringe);
 
             bestSiblingSearch(newNode, best, fringeQueue);
-            
+
             return best.getNode();
         }
   
@@ -430,7 +453,7 @@ public class BVHInsChecker
          * @param newNode
          * @param fringeQueue
          */
-        private void bestSiblingSearch(Node newNode, CircleFringe best, PriorityQueue fringeQueue)
+        private void bestSiblingSearch(Node newNode, final CircleFringe best, PriorityQueue fringeQueue)
         {
             // Search for the best location to insert
             while (!fringeQueue.isEmpty()) {
@@ -453,7 +476,7 @@ public class BVHInsChecker
         /**
          * Creates the fringe for newNode at currentNode.
          * 
-         * TODO: Find the best fringe from the currentNode and up to the root instead of only the firnge at the current node.
+         * TODO: Find the best fringe from the currentNode and up to the root instead of only the fringe at the current node.
          * @param newNode The new node that is to be inserted
          * @param currentNode The node for which to create the fringe
          * @return
@@ -488,7 +511,7 @@ public class BVHInsChecker
          * result. It also creates a new fringe and inserts it into the queue.
          * 
          */
-        private void processNode(Node newNode, Node childNode, double newAExp, CircleFringe best,
+        private void processNode(Node newNode, Node childNode, double newAExp, final CircleFringe best,
                 PriorityQueue fringeQueue)
         {
             Circle enclosingCircle = new Circle();
@@ -522,7 +545,6 @@ public class BVHInsChecker
                 setRoot(newNode);
             }
             else {
-                lastInsertionPoint = sibling;
                 Node newParent = new Node();
                 newParent.parent = sibling.parent;
                 if (sibling.parent == null) {
@@ -591,9 +613,8 @@ public class BVHInsChecker
             if (n == null) {
                 return null;
             }
-            else if (n.parent == null) {
-                // TODO dangerous if we remove the node twice!
-                // Shbould compare against root instead.
+            else if (n == root) {
+                //WTF ? I can't.just delete the root! I can because the node will be a leaf and hence is the only element if it is also the root
                 setRoot(null);
             }
             else {
@@ -610,9 +631,10 @@ public class BVHInsChecker
                 else {
                     parent.parent.right = sibling;
                 }
+                parent.reset();
                 repairParents(sibling);
             }
-            n.parent = null;
+            n.reset();
             size--;
             return sibling;
         }
@@ -629,17 +651,14 @@ public class BVHInsChecker
             return result;
         }
 
-        public Actor getOneIntersection(Circle b, CollisionQuery checker)
+        public Actor getOneIntersectingObject(Node node, Circle circle, CollisionQuery checker)
         {
-            if (getRoot() == null) {
-                return null;
-            }
-            return getRoot().getIntersection(b, checker);
+            return node.getOneIntersectingObject(circle, checker);
         }
-
+        
         public Actor getOneIntersectingObject(Node node, CollisionQuery checker)
         {
-            return getRoot().getOneIntersectingObject(node, checker);
+            return node.getOneIntersectingObject(node.circle, checker);
         }
 
         public void paintDebug(Graphics g)
@@ -647,7 +666,6 @@ public class BVHInsChecker
             if (getRoot() != null) {
                 paintNode(getRoot(), g);
             }
-
         }
 
         private void paintNode(Node n, Graphics g)
@@ -698,7 +716,7 @@ public class BVHInsChecker
 
     }
 
-    private CircleTree tree;
+    public CircleTree tree;
     private GOCollisionQuery actorQuery = new GOCollisionQuery();
     private NeighbourCollisionQuery neighbourQuery = new NeighbourCollisionQuery();
     private PointCollisionQuery pointQuery = new PointCollisionQuery();
@@ -713,7 +731,7 @@ public class BVHInsChecker
     }
 
     public synchronized void addObject(Actor actor)
-    {
+    {   
         if (objects.contains(actor)) {
             return;
         }
@@ -733,13 +751,17 @@ public class BVHInsChecker
 
     public synchronized void removeObject(Actor object)
     {
-        tree.removeNode((Node) ActorVisitor.getData(object));
+        tree.removeNode((Node) ActorVisitor.getData(object));       
+        
         ActorVisitor.setData(object, null);
         objects.remove(object);
     }
 
     public synchronized void updateObjectLocation(Actor object, int oldX, int oldY)
     {
+        if(object.getX() == oldX && object.getY() == oldY) {
+            return;
+        }
         Node n = (Node) ActorVisitor.getData(object);
         Circle c = getCircle(object);
         if (c != null && n != null) {
@@ -799,8 +821,6 @@ public class BVHInsChecker
 
     public List getNeighbours(Actor a, int distance, boolean diag, Class cls)
     {
-        // TODO use the actor as a starting point for the search since
-        // neighbours are likely to be in the same part of the tree.
         int x = a.getX();
         int y = a.getY();
         int xPixel = x * cellSize;
@@ -854,14 +874,15 @@ public class BVHInsChecker
     public void startSequence()
     {}
 
-    public Actor getOneObjectAt(Actor exclude, int x, int y, Class cls)
-    {
-        List l = getObjectsAt(x, y, cls);
-        l.remove(exclude);
-        if (!l.isEmpty()) {
-            return (Actor) l.get(0);
+    public Actor getOneObjectAt(Actor actor, int x, int y, Class cls)
+    {		
+        int halfCell = cellSize / 2;
+        Circle b = new Circle(x * cellSize + halfCell, y * cellSize + halfCell, 0);
+        synchronized (pointQuery) {
+            pointQuery.init(x, y, cls);
+            Node node = (Node) ActorVisitor.getData(actor);
+            return tree.getOneIntersectingObject(node, b, pointQuery);
         }
-        return null;
     }
 
     public Actor getOneIntersectingObject(Actor object, Class cls)
@@ -870,17 +891,8 @@ public class BVHInsChecker
             actorQuery.init(cls, object);
 
             Node node = (Node) ActorVisitor.getData(object);
-            if (node != null) {
-                return tree.getOneIntersectingObject(node, actorQuery);
-            }
-            else {
-                List l = getIntersectingObjects(object, cls);
-                if (!l.isEmpty()) {
-                    return (Actor) l.get(0);
-                }
-            }
+            return tree.getOneIntersectingObject(node, actorQuery);            
         }
-        return null;
 
     }
 
