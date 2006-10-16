@@ -1,5 +1,6 @@
 package greenfoot;
 
+import greenfoot.collision.ibsp.Rect;
 import greenfoot.util.Circle;
 import greenfoot.util.Version;
 
@@ -32,6 +33,11 @@ public class ActorVisitor
     public static Circle getBoundingCircle(Actor actor) 
     {
         return actor.getBoundingCircle();
+    }
+    
+    public static Rect getBoundingRect(Actor actor) 
+    {
+        return actor.getBoundingRect();
     }
     
     public static void setData(Actor actor, Object n)

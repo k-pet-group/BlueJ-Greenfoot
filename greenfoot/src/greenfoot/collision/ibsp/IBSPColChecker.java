@@ -191,18 +191,24 @@ public class IBSPColChecker implements CollisionChecker
          * */
     }
     
+//    public Rect getActorBoundsOLD(Actor actor)
+//    {
+//        int halfCell = cellSize / 2;
+//        int xpos = actor.getX() * cellSize + halfCell;
+//        int ypos = actor.getY() * cellSize + halfCell;
+//        int width = actor.getWidth() * cellSize;
+//        int height = actor.getHeight() * cellSize;
+//        int left = xpos - width / 2;
+//        int top = ypos - height / 2;
+//        return new Rect(left, top, width, height);
+//    }
+    
     public Rect getActorBounds(Actor actor)
     {
-        int halfCell = cellSize / 2;
-        int xpos = actor.getX() * cellSize + halfCell;
-        int ypos = actor.getY() * cellSize + halfCell;
-        int width = actor.getWidth() * cellSize;
-        int height = actor.getHeight() * cellSize;
-        int left = xpos - width / 2;
-        int top = ypos - height / 2;
-        return new Rect(left, top, width, height);
+        Rect r = ActorVisitor.getBoundingRect(actor);      
+        return r;
     }
-
+    
     public static void printTree(BSPNode node, String indent, String lead)
     {
         if (node == null) {

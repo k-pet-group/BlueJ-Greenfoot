@@ -1,5 +1,6 @@
 package greenfoot;
 
+import greenfoot.collision.ibsp.Rect;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
 import greenfoot.util.Circle;
@@ -363,6 +364,23 @@ public abstract class Actor
      */
     Circle getBoundingCircle() {        
         return boundingCircle;
+    }
+    
+    /**
+     * Get the bounding rectangle of the object. Taking into consideration that the
+     * object can rotate. 
+     * 
+     * @return A new Rect specified in pixels!
+     */
+    Rect getBoundingRect() {    
+        if(world == null) return null;
+        // +1 comes form the fact that Max - Min is not the width of the objects,
+        //  but the difference in max an min location which for instance can be 0.
+        int x = getPaintX();
+        int y = getPaintY();
+        int width = image.getWidth();
+        int height = image.getHeight();
+        return new Rect(x, y, width, height);
     }
 
     void setData(Object o) {
