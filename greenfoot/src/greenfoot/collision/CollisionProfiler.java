@@ -42,6 +42,8 @@ public class CollisionProfiler
     private int sequences;
     
     private PrintStream fileStream;
+
+    private int objectCount;
     
     public CollisionProfiler(CollisionChecker checker)
     {
@@ -178,6 +180,7 @@ public class CollisionProfiler
     {
         checker.startSequence();
         sequenceCount++;
+        objectCount += checker.getObjects(null).size();
         if(sequenceCount > MAX_SEQ_COUNT) {
             
             printTimes();
@@ -195,6 +198,8 @@ public class CollisionProfiler
             getOneObjectAtTime = 0;
             getOneIntersectingObjectTime = 0;
             getObjectsListTime = 0;
+            
+            objectCount = 0;
             
             sequenceCount = 0;
         }
@@ -225,11 +230,7 @@ public class CollisionProfiler
         totalTime += getOneIntersectingObjectTime;
         // totalTime += getObjectsListTime;
         
-        int objects = checker.getObjects(null).size();
-        long delay =  0;
-        if(objects > 0) {
-            delay =  totalTime / objects;
-        }
+    
         
         if (verbose) {
             fileStream.println("addObjectTime                : " + addObjectTime);
@@ -247,7 +248,7 @@ public class CollisionProfiler
         }
         
         // System.out.println("Delay pr. object (nanosec/obj , objects): " + delay  + "," + objects);
-        fileStream.println(  totalTime +","+ objects);
+        fileStream.println(  totalTime +","+ objectCount / sequenceCount);
         fileStream.println("========================");
     }
 
@@ -271,7 +272,7 @@ public class CollisionProfiler
 
     public void paintDebug(Graphics g)
     {
-        // checker.paintDebug(g);
+     //    checker.paintDebug(g);
     }
 
 }
