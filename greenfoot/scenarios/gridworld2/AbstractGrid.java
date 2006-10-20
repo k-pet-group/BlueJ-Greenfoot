@@ -12,6 +12,7 @@
  * GNU General Public License for more details.
  * 
  * @author Cay Horstmann
+ * @author Poul Henriksen (Modifications to run in Greenfoot)
  */
 
  
@@ -23,15 +24,10 @@ import java.util.ArrayList;
  * implementations. <br />
  * The implementation of this class is testable on the AP CS AB exam.
  */
-public abstract class AbstractGrid<E> extends greenfoot.World implements Grid<E>  // extends World added for greenfoot
+public abstract class AbstractGrid<E> extends greenfoot.World implements Grid<E>  // Greenfoot: extends World added for greenfoot
 {
-    /**
-     * Greenfoot: this constructor is added to make greenfoot compile. 
-     */
-    public AbstractGrid(int width, int height, int cellSize) {
-        super(width, height, cellSize);
-    }
-
+   
+    
     public ArrayList<E> getNeighbors(Location loc)
     {
         ArrayList<E> neighbors = new ArrayList<E>();
@@ -83,15 +79,106 @@ public abstract class AbstractGrid<E> extends greenfoot.World implements Grid<E>
      * necessarily in any particular order), in the format {loc=obj, loc=obj,
      * ...}
      */
-        public String toString()
+    public String toString()
+    {
+        String s = "{";
+        for (Location loc : getOccupiedLocations())
         {
-            String s = "{";
-            for (Location loc : getOccupiedLocations())
-            {
-                if (s.length() > 1)
-                    s += ", ";
-                s += loc + "=" + get(loc);
-            }
-            return s + "}";
+            if (s.length() > 1)
+                s += ", ";
+            s += loc + "=" + get(loc);
         }
+        return s + "}";
+    }
+     
+    
+    // The rest of the methods here are for running in Greenfoot, and is NOT testable on any of the AP CS exams.
+
+    /**
+     * Greenfoot: this constructor is added to make greenfoot compile. 
+     * It also paints the grid.
+     */
+    public AbstractGrid(int width, int height, int cellSize)
+    {
+        super(width, height, cellSize);
+        paintGrid();
+    }
+
+    /**
+     * Greenfoot:
+     * Paints the grid.
+     */
+    private void paintGrid()
+    {
+        greenfoot.GreenfootImage bg = getBackground();
+        int cellSize = getCellSize();
+        bg.setColor(java.awt.Color.BLACK);
+        for (int x = 0; x < bg.getWidth(); x += cellSize) {
+            bg.drawLine(x, 0, x, bg.getHeight());
+        }
+        for (int y = 0; y < bg.getHeight(); y += cellSize) {
+            bg.drawLine(0, y, bg.getWidth(), y);
+        }
+        setBackground(bg);
+    }
+
+    /** 
+     *  For Greenfoot.
+     * 
+     *  <p>
+     *  
+     *  It removes an object from the GridWorld environment when the 
+     *  user removes an actor from the world. 
+     *  @param object      Object to remove from the Greenfoot world.
+     **/
+    public void removeObject(greenfoot.Actor object)
+    {
+        if (object == null) {
+            return;
+        }
+        if (object instanceof GridActor) {
+            GridActor gridActor = (GridActor) object;
+            if (gridActor.getGrid() != null) {
+                gridActor.removeSelfFromGrid();
+            }
+        }
+        super.removeObject(object);
+    }
+
+    /**
+     * For Greenfoot.
+     * 
+     * <p>
+     * 
+     * Overridden to disallow adding an object to an occupied cell.
+     * @param obj      Object to add to the Greenfoot world.
+     * @param x        Column in which to add the object.
+     * @param y        Row in which to add the object.
+     */
+    public void addObject(greenfoot.Actor obj, int x, int y)
+    {
+        //Get all objects that overlap the location (x,y)
+        java.util.List occupants = getObjectsAt(x, y, null);
+
+        //Remove objects that does not have their location at (x,y)
+        java.util.Iterator iter = occupants.iterator();
+        while (iter.hasNext()) {
+            greenfoot.Actor a = (greenfoot.Actor) iter.next();
+            if (!(a.getX() == x && a.getY() == y)) {
+                iter.remove();
+            }
+        }
+
+        if (occupants.isEmpty()) {
+            super.addObject(obj, x, y);
+        }
+        else if (occupants.get(0) instanceof greenfoot.core.ObjectDragProxy && occupants.size() == 1) {
+            //the proxy object being dragged might be there already - that is OK.
+            super.addObject(obj, x, y);
+        }
+        else if (obj instanceof greenfoot.core.ObjectDragProxy) {
+            //we are allowed to drag the proxy around on top of other objects.
+            super.addObject(obj, x, y);
+        }
+    }        
 }

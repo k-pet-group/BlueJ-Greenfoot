@@ -38,7 +38,6 @@ public class UnboundedGrid<E> extends AbstractGrid<E>
     public UnboundedGrid()
     {
         super(20,20,32); //Greenfoot: Needed to construct the greenfoot world.
-        setBackground("UnboundedGrid.gif"); //Greenfoot: sets the background.
         occupantMap = new HashMap<Location, E>();
     }
 

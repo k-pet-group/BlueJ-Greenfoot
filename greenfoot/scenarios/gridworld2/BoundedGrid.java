@@ -14,7 +14,8 @@
  * 
  * @author Alyce Brady
  * @author APCS Development Committee
- * @author Cay Horstmann
+ * @author Cay Horstmann 
+ * @author Poul Henriksen (Modifications to run in Greenfoot)
  */
 
  
@@ -32,11 +33,11 @@ public class BoundedGrid<E> extends AbstractGrid<E>
     
     
     /**
-     * Greenfoot: added for greenfoot so that it can automatically instantiate a new world.
+     * Greenfoot: added for Greenfoot so that it can automatically instantiate a new world.
      */
     public BoundedGrid()
     {
-        this(20,20);
+        this(12,12);
     }
     
     /**
@@ -47,8 +48,7 @@ public class BoundedGrid<E> extends AbstractGrid<E>
      */
     public BoundedGrid(int rows, int cols)
     {
-        super(cols, rows, 48); //Greenfoot: needed to construct the greenfoot world.
-        setBackground("BoundedGrid.gif");
+        super(cols, rows, 32); //Greenfoot: needed to construct the greenfoot world.
         if (rows <= 0)
             throw new IllegalArgumentException("rows <= 0");
         if (cols <= 0)

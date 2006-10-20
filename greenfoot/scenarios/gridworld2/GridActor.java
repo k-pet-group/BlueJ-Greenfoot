@@ -12,6 +12,7 @@
  * GNU General Public License for more details.
  * 
  * @author Cay Horstmann
+ * @author Poul Henriksen (Modifications to run in Greenfoot)
  */
 
  
@@ -82,6 +83,8 @@ public class GridActor extends greenfoot.Actor  //Greenfoot: Actor renamed to Gr
         direction = newDirection % Location.FULL_CIRCLE;
         if (direction < 0)
             direction += Location.FULL_CIRCLE;
+            
+        setRotation(direction);  //Greenfoot: Set the rotation for greenfoot                       
     }
 
     /**
@@ -124,6 +127,9 @@ public class GridActor extends greenfoot.Actor  //Greenfoot: Actor renamed to Gr
         gr.put(loc, this);
         grid = gr;
         location = loc;
+        
+        //Greenfoot: put the actor in the Greenfoot world
+        ((greenfoot.World) grid).addObject(this, loc.getCol(), loc.getRow());
     }
 
     /**
@@ -143,6 +149,11 @@ public class GridActor extends greenfoot.Actor  //Greenfoot: Actor renamed to Gr
         grid.remove(location);
         grid = null;
         location = null;
+
+        //Greenfoot: remove the object from the Greenfoot world
+        if(getWorld() != null) {
+            getWorld().removeObject(this);
+        }
     }
 
     /**
@@ -172,6 +183,9 @@ public class GridActor extends greenfoot.Actor  //Greenfoot: Actor renamed to Gr
             other.removeSelfFromGrid();
         location = newLocation;
         grid.put(location, this);
+        
+        //Greenfoot: set the location in Greenfoot
+        setLocation(newLocation.getCol(), newLocation.getRow());
     }
 
     /**
@@ -182,6 +196,9 @@ public class GridActor extends greenfoot.Actor  //Greenfoot: Actor renamed to Gr
     public void act()
     {
         setDirection(getDirection() + Location.HALF_CIRCLE);
+        
+        //Greenfoot: set the rotation for Greenfoot
+        setRotation(getDirection());
     }
 
     /**
@@ -192,5 +209,73 @@ public class GridActor extends greenfoot.Actor  //Greenfoot: Actor renamed to Gr
     {
         return getClass().getName() + "[location=" + location + ",direction="
                 + direction + ",color=" + color + "]";
+    }
+    
+    /**
+     * For Greenfoot.
+     * <p>
+     * 
+     * Overrides setLocation so that setting the location from greenfoot 
+     * changes the location in the grid.
+     * 
+     */
+    public void setLocation(int x, int y) {
+        if (grid != null && ! (getX() == x && getY() == y)) {
+            // Check if there are any objects at the new location. 
+            Object o = getOneObjectAtOffset(x - getX(), y - getY(), null);
+            if(o == null) {
+                // In GridWorld you can only put the Actor in a cell that is empty.
+                super.setLocation(x, y);
+                moveTo(new Location(y, x));
+            }
+        } else if (getWorld() != null){  
+            super.setLocation(x, y);
+        }
+    }
+    
+    /**
+     * For Greenfoot.
+     * <p>
+     * 
+     * Second initialization method in Greenfoot. Updates the
+     * environment when objects are added to the world.
+     * @param world    world where objects are added.
+     */
+    protected void addedToWorld(greenfoot.World world)  
+    {
+        // Scale image to cell size.
+        getImage().scale(world.getCellSize() - 2, world.getCellSize() - 2);
+        if ( grid == null )
+        {
+           Location loc = new Location(getY(), getX());
+           Grid grid = (Grid) world;
+           putSelfInGrid(grid, loc);
+        }
+    }
+    
+    /**
+     * Overridden so we can ignore exception when an object is
+     * dragged outside the world, and back into a cell that is
+     * occupied.
+     */
+    public int getX() {
+        try {
+            return super.getX();
+        } catch  (IllegalStateException e ){
+            return -1;
+        }
+    }
+    
+    /**
+     * Overridden so we can ignore exception when an object is
+     * dragged outside the world, and back into a cell that is
+     * occupied.
+     */
+    public int getY() {
+        try {
+            return super.getY();
+        } catch  (IllegalStateException e ){
+            return -1;
+        }
     }
 }
