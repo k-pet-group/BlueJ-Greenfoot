@@ -506,8 +506,14 @@ public class WorldHandler
             return true;
         }
         else if (o instanceof Actor) {
+            Actor actor = (Actor) o;
+            if(actor.getWorld() == null) {
+                // Under some strange cirumstances the world can be null here.
+                // This can happen in the GridWorld scenario because it
+                // overrides World.addObject().
+                return false;
+            }
             try {
-                Actor actor = (Actor) o;
                 ActorVisitor.setLocationInPixels(actor, x, y);
                 objectDropped = true;
             }
