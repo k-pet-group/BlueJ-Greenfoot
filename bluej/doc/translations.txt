@@ -21,3 +21,6 @@ persian                              x                         M. Shahdoost     
 spanish         1.2.x                                                
 swedish         1.3.5                x          later          Markus ?stman       <markus@gnistra.se>
 trad. chinese                        ?                         Ma Wing Ho          <mawingho@netvigator.com>
+
+
+In case we need another translator for chinese we should contact: Xiaoke Hu <go2study@gmail.com>
