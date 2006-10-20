@@ -653,7 +653,15 @@ public class BVHInsChecker
 
         public Actor getOneIntersectingObject(Node node, Circle circle, CollisionQuery checker)
         {
-            return node.getOneIntersectingObject(circle, checker);
+            if(node != null) {
+                return node.getOneIntersectingObject(circle, checker);
+            }
+            else if(root != null) {
+                return root.getOneIntersectingObject(circle, checker);
+            } 
+            else {
+                return null;
+            }
         }
         
         public Actor getOneIntersectingObject(Node node, CollisionQuery checker)
@@ -891,6 +899,9 @@ public class BVHInsChecker
             actorQuery.init(cls, object);
 
             Node node = (Node) ActorVisitor.getData(object);
+            if(node == null) {
+                return null;
+            }
             return tree.getOneIntersectingObject(node, actorQuery);            
         }
 
