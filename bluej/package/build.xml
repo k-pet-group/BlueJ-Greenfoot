@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="bluej-package" default="dist">
-
+    
+    <!-- Names of the the distributables created by the dist-target -->
+    <property name="dist.jarinstaller" value="BlueJ-generic-${bluej.version}.jar"/>
+    <property name="dist.mac" value="BlueJ-mac-${bluej.version}.zip"/>
+    
+    <!-- Don't know how to pass this to the Windows builder -->
+    <!--property name="dist.win" value="BlueJ-windows-${bluej.version}.exe"/-->
+    <property name="dist.jar" value="bluej-dist.jar"/>    
+    
     <patternset id="bluej.libfiles">
         <exclude name="**/.#*" />
         <include name="lib/bluej.jar" />
@@ -77,14 +85,12 @@
         </touch>
 
         <chmod dir="install_tmp" perm="a+r"/>
-
         <!-- jar the entire distribution into one jar file            -->
         <!-- (use zip instead of jar to avoid generation of manifest) -->
-        <zip zipfile="bluej-dist.jar"
+        <zip zipfile="${dist.jar}"
              basedir="install_tmp"
              compress="yes"
         />
-
         <antcall target="mac-dist" />
         
         <delete dir="install_tmp" />
@@ -118,7 +124,7 @@
         <delete file="install_tmp/InstallerProps.class"/>
         
         <!-- Copy other files needed by the installer -->
-        <copy todir="install_tmp" file="bluej-dist.jar"/>
+        <copy todir="install_tmp" file="${dist.jar}"/>
         <copy todir="install_tmp" file="installer-logo.gif"/>
 
         <!-- compile the installer -->
@@ -135,11 +141,11 @@
     	</javac>
 
         <!-- bundle the resulting class into the final distribution jar file -->
-        <jar jarfile="bluej-dist-new.jar"
+        <jar jarfile="${dist.jarinstaller}"
              basedir="install_tmp"
              compress="no"
              manifest="manifest"
-             whenempty="fail" />
+        />
 
         <!-- cleanup
              leaves bluej-dist.jar for distribution to whoever is
@@ -147,6 +153,12 @@
              bluej-dist-new.jar which is the platform independant
              distributable -->
         <delete dir="install_tmp"/>
+       
+        <echo level="info" message="----------------------------------------------------------------------------"/>
+        <echo level="info" message="The bluej-dist.jar (for building the windows installer) is in: ${basedir}${file.separator}${dist.jar}"/>
+        <echo level="info" message="The generic installer is in: ${basedir}${file.separator}${dist.jarinstaller}"/>
+        <echo level="info" message="The mac installer is in: ${basedir}${file.separator}${dist.mac}"/>
+        <echo level="warning" message="Remember to remove the dots in the version numbers when moving the files to the server. "/>
     </target>
 
 
@@ -164,7 +176,14 @@
         <copy todir="${zip_dir}/BlueJ.app">
             <fileset dir="macfiles/BlueJ.app"/> 
         </copy>
-
+        
+        <!-- update version number -->
+        <replaceregexp byline="true">
+            <regexp pattern="VERSION" />
+            <substitution expression="${bluej.version}" />
+            <fileset dir="${zip_dir}/BlueJ.app/Contents" includes="Info.plist" />
+        </replaceregexp>
+        
         <!-- update version number -->
         <replaceregexp byline="true">
             <regexp pattern="VERSION" />
@@ -187,7 +206,7 @@
         <delete dir="${zip_dir}/BlueJ.app/Contents/Resources/Java/lib" />
 
         <!-- ZIP it -->
-        <zip destfile="BlueJ-mac.zip" duplicate="fail">
+        <zip destfile="${dist.mac}" duplicate="fail">
             <zipfileset dir="mac_tmp" excludes="${executable_files}" />
             <!-- Make the files executable that need to be executable -->
             <zipfileset dir="mac_tmp" filemode="755" includes="${executable_files}" />
@@ -202,7 +221,7 @@
          the windows installer package (left as winsetup/bluejsetup.exe)-->
     <target name="windows-dist">
         <delete dir="install_tmp" />
-        <unzip src="bluej-dist.jar" dest="install_tmp" />
+        <unzip src="${dist.win}" dest="install_tmp" />
 
         <exec dir="winsetup" executable="C:\Program Files\Inno Setup 5\ISCC.exe">
             <arg line="bluej.iss"/>
@@ -211,10 +230,16 @@
         <delete dir="install_tmp" />
     </target>
 
+    <target name="put-on-server">
+        
+    </target>
+    
     <target name="clean">
-        <delete file="bluej-dist.jar" />
-        <delete file="bluej-dist-new.jar" />
-        <delete file="BlueJ-mac.zip" />
+        <delete>
+            <fileset dir="." includes="BlueJ-generic-*.jar"/>
+            <fileset dir="." includes="BlueJ-mac-*.zip"/>
+        </delete>
+        <delete file="${dist.jar}"/>     
         <delete file="winsetup/bluejsetup.exe" />
         <delete dir="install_tmp" />
     </target>
