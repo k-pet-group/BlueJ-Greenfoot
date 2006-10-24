@@ -11,11 +11,13 @@
     <property file="build.properties"/>
 
     <!-- 
-        This version number will be used by the mac build script to put the
-        right version number in the Info.plist file and to name the directory
-        with the right version number.
-    -->
-    <property name="bluej.version" value="2.2.0preview" />
+     This is the only place you need to change the version number.
+     After changing the version number the target "update-version-number" should be run -->
+    <property name="bluej.version.major" value="2" />
+    <property name="bluej.version.minor" value="2" />
+    <property name="bluej.version.release" value="0" />
+    <property name="bluej.version.suffix" value="preview" />
+    <property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
 
     <!-- Set up common directories -->
     <property name="core.doc" value="doc/all"/>
@@ -281,6 +283,29 @@
         </javadoc>
     </target>
 
+    <target name="update-version-number" description="updates the version number in all files where it appears" >
+        <replaceregexp byline="true">
+            <regexp pattern="BLUEJ_VERSION_MAJOR = .*"/>
+            <substitution expression="BLUEJ_VERSION_MAJOR = ${bluej.version.major};"/>
+            <fileset dir="boot/src/bluej" includes="Boot.java"/>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="BLUEJ_VERSION_MINOR = .*"/>
+            <substitution expression="BLUEJ_VERSION_MINOR = ${bluej.version.minor};"/>
+            <fileset dir="boot/src/bluej" includes="Boot.java"/>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="BLUEJ_VERSION_RELEASE = .*"/>
+            <substitution expression="BLUEJ_VERSION_RELEASE = ${bluej.version.release};"/>
+            <fileset dir="boot/src/bluej" includes="Boot.java"/>
+        </replaceregexp>
+        <replaceregexp byline="true">
+            <regexp pattern="BLUEJ_VERSION_SUFFIX = .*"/>
+            <substitution expression="BLUEJ_VERSION_SUFFIX = &quot;${bluej.version.suffix}&quot;;"/>
+            <fileset dir="boot/src/bluej" includes="Boot.java"/>
+        </replaceregexp>
+    </target>
+
     <target name="clean-boot">
         <delete quiet="true" dir="${boot.build}/bluej"/>
         <delete quiet="true" file="${boot.jar}"/>
@@ -296,6 +321,7 @@
     </target>
 
     <target name="clean" depends="clean-boot, clean-core">
+        <ant dir="package" target="clean"/>
     </target>
 
     <target name="editor-clean">
