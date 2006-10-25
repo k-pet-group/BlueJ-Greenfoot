@@ -216,13 +216,28 @@
     </target>
 
     
+     <!-- windows-launcher builds the Delphi launcher for BlueJ. 
+          It is not yet functional-->
+    <target name="windows-launcher">
+        
+        <!-- update registry version number in launcher Delphi src to bluej version -->
+        <replaceregexp byline="true">
+            <regexp pattern="bluejregkey : string = .*" />
+            <substitution expression="bluejregkey : string = '\\\\Software\\\\BlueJ\\\\BlueJ\\\\${bluej.version}';" />
+            <fileset dir="winlaunch" includes="main.pas" />
+        </replaceregexp>
+        
+        <!-- here is where we should call the delphi command-line compiler -->
+            
+    </target>
+    
     <!-- windows-dist requires that a bluej-dist.jar file is placed into
          the package directory. This is unjarred and then rebuilt into
          the windows installer package (left as winsetup/bluejsetup.exe)-->
-    <target name="windows-dist">
+    <target name="windows-dist" depends="windows-launcher">
         <delete dir="install_tmp" />
         <unzip src="${dist.jar}" dest="install_tmp" />
-        
+             
         <!-- update version number in innosetup config file -->
         <replaceregexp byline="true">
             <regexp pattern="AppVerName=.*" />
