@@ -251,6 +251,13 @@
             <substitution expression="OutputBaseFilename=${dist.win}" />
             <fileset dir="winsetup" includes="bluej.iss" />
         </replaceregexp>
+        
+        <!-- update BlueJ README.txt version number -->
+        <replaceregexp byline="true">
+            <regexp pattern="BlueJ version .*\b (\s+--.*)" />
+            <substitution expression="BlueJ version ${bluej.version} \1"/>
+            <fileset dir="winlaunch" includes="README.TXT" />
+        </replaceregexp>
 
         <exec dir="winsetup" executable="C:\Program Files\Inno Setup 5\ISCC.exe">
             <arg line="bluej.iss"/>
