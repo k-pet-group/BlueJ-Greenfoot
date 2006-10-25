@@ -6,7 +6,7 @@
     <property name="dist.mac" value="BlueJ-mac-${bluej.version}.zip"/>
     
     <!-- Don't know how to pass this to the Windows builder -->
-    <!--property name="dist.win" value="BlueJ-windows-${bluej.version}.exe"/-->
+    <property name="dist.win" value="BlueJ-windows-${bluej.version}"/>
     <property name="dist.jar" value="bluej-dist.jar"/>    
     
     <patternset id="bluej.libfiles">
@@ -221,7 +221,21 @@
          the windows installer package (left as winsetup/bluejsetup.exe)-->
     <target name="windows-dist">
         <delete dir="install_tmp" />
-        <unzip src="${dist.win}" dest="install_tmp" />
+        <unzip src="${dist.jar}" dest="install_tmp" />
+        
+        <!-- update version number in innosetup config file -->
+        <replaceregexp byline="true">
+            <regexp pattern="AppVerName=.*" />
+            <substitution expression="AppVerName=BlueJ ${bluej.version}" />
+            <fileset dir="winsetup" includes="bluej.iss" />
+        </replaceregexp>
+        
+        <!-- update output file in innosetup config file -->
+        <replaceregexp byline="true">
+            <regexp pattern="OutputBaseFilename=.*" />
+            <substitution expression="OutputBaseFilename=${dist.win}" />
+            <fileset dir="winsetup" includes="bluej.iss" />
+        </replaceregexp>
 
         <exec dir="winsetup" executable="C:\Program Files\Inno Setup 5\ISCC.exe">
             <arg line="bluej.iss"/>
@@ -240,7 +254,7 @@
             <fileset dir="." includes="BlueJ-mac-*.zip"/>
         </delete>
         <delete file="${dist.jar}"/>     
-        <delete file="winsetup/bluejsetup.exe" />
+        <delete file="winsetup/$(dist.win}.exe" />
         <delete dir="install_tmp" />
     </target>
 
