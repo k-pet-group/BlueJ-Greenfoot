@@ -1,10 +1,15 @@
 package greenfoot;
 
+import java.io.IOException;
 import java.util.Random;
+
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import greenfoot.core.KeyboardManager;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
+import greenfoot.sound.SoundPlayer;
 
 
 /**
@@ -28,7 +33,7 @@ import greenfoot.core.WorldHandler;
  * 
  * @author Davin McCall
  * @version 1.0
- * @cvs-version $Id: Greenfoot.java 4220 2006-05-12 12:36:00Z polle $
+ * @cvs-version $Id: Greenfoot.java 4668 2006-10-27 16:33:49Z polle $
  */
 public class Greenfoot
 {
@@ -91,5 +96,24 @@ public class Greenfoot
      */
     public static int getRandomNumber(int limit) {
         return randomGenerator.nextInt(limit);
+    }
+    
+    public static void playSound(final String soundFile)
+    {
+        try {
+            SoundPlayer.play(soundFile);
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (UnsupportedAudioFileException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (LineUnavailableException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }

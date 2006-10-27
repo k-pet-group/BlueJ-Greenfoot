@@ -1,0 +1,132 @@
+package greenfoot.sound;
+
+import greenfoot.util.GreenfootUtil;
+
+import java.applet.Applet;
+import java.applet.AudioClip;
+import java.io.IOException;
+import java.net.URL;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+/**
+ * Plays sound from a file or URL. To avoid loading the entire sound clip into memory,
+ * the sound is streamed.
+ * 
+ * @author Poul Henriksen
+ * 
+ */
+public class SoundStream
+{
+    private URL url;
+    private boolean stop;
+    private boolean pause;
+
+
+  /* public static void playSoundWithApplet(String file) {
+        AudioClip clip = Applet.newAudioClip(GreenfootUtil.getURL(file, null));
+        clip.play();
+    }*/
+    
+    public SoundStream(String file) {
+        url = GreenfootUtil.getURL(file, "sounds");
+        stop = false;
+    }
+    
+    public void stop() {
+        stop = true;
+    }
+    
+    public synchronized void pause()
+    {
+        pause = true;
+    }
+
+    public synchronized void resume()
+    {
+        pause = false;        
+    }
+    
+    public void play()
+        throws IOException, UnsupportedAudioFileException, LineUnavailableException
+    {
+        AudioInputStream is = null;
+        SourceDataLine line = null;
+
+        try {
+            is = AudioSystem.getAudioInputStream(url);
+
+            AudioFormat format = is.getFormat();
+            DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+
+            // If the format is not supported we try to convert it. 
+            if (!AudioSystem.isLineSupported(info)) {
+                // Target format
+                AudioFormat supportedFormat = new AudioFormat(format.getSampleRate(), 16, format.getChannels(), true, false);
+
+                // Create the converter
+                is = AudioSystem.getAudioInputStream(supportedFormat, is);
+               
+                format = is.getFormat();
+                info = new DataLine.Info(SourceDataLine.class, format);
+            }
+
+            line = (SourceDataLine) AudioSystem.getLine(info);
+            try {
+                line.open(format);
+            }
+            catch(LineUnavailableException e) {
+                System.err.println("Is another application using the sound card? Could not play sound: " + url);
+                e.printStackTrace();
+            }
+            int frameSize = format.getFrameSize();
+            byte[] buffer = new byte[4 * 1024 * frameSize]; 
+            int bytesInBuffer = 0;
+
+            int bytesRead = is.read(buffer, 0, buffer.length - bytesInBuffer);
+            while(bytesRead != -1 && ! stop) {
+                while(pause) {
+                    synchronized (this) {
+                        try {
+                            wait();
+                        }
+                        catch (InterruptedException e) {
+                        }
+                    }
+                }
+                
+                line.start();
+                bytesInBuffer += bytesRead;
+
+                //Only write in multiples of frameSize
+                int bytesToWrite = (bytesInBuffer / frameSize) * frameSize;
+
+                //Play it
+                line.write(buffer, 0, bytesToWrite);
+
+                // Copy remaining bytes (if we did not have a multiple of frameSize)
+                int remaining = bytesInBuffer - bytesToWrite;
+                if (remaining > 0)
+                    System.arraycopy(buffer, bytesToWrite, buffer, 0, remaining);
+                bytesInBuffer = remaining;
+                bytesRead = is.read(buffer, bytesInBuffer, buffer.length - bytesInBuffer);
+            }
+            
+            line.drain();
+        }
+        finally {
+            if (line != null)
+                line.close();
+            if (is != null)
+                is.close();
+            
+        }
+    }
+
+}
