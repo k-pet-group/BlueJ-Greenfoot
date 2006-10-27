@@ -1,5 +1,7 @@
 package greenfoot;
 
+import greenfoot.util.GreenfootUtil;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -16,7 +18,6 @@ import java.net.URL;
 
 import javax.swing.ImageIcon;
 
-import bluej.runtime.ExecServer;
 
 /**
  * An image to be shown on screen. The image may be loaded from an image file
@@ -24,7 +25,7 @@ import bluej.runtime.ExecServer;
  * 
  * @author Poul Henriksen
  * @version 1.0
- * @cvs-version $Id: GreenfootImage.java 4471 2006-07-11 12:13:39Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4667 2006-10-27 16:29:47Z polle $
  */
 public class GreenfootImage
 {
@@ -102,26 +103,11 @@ public class GreenfootImage
             throw new NullPointerException("Filename must not be null.");
         }
         imageFileName = filename;
-
-        ClassLoader currentLoader = ExecServer.getCurrentClassLoader();
-
-        // First, try the project's images dir
-        URL imageURL = currentLoader.getResource("images/" + filename);
-        if (imageURL == null) {
-            // Second, try the project directory
-            imageURL = currentLoader.getResource(filename);
+        URL url = GreenfootUtil.getURL(filename, "images");
+        if(url == null) {
+            throw new IllegalArgumentException("Could not load image from: " + imageFileName);
         }
-        try {
-            loadURL(imageURL);
-        }
-        catch (Throwable e) {
-            // Third, try as an absolute filename or URL.
-            Image newImage = new ImageIcon(filename).getImage();
-            if (newImage.getWidth(null) == -1) {
-                throw new IllegalArgumentException("Could not load image from: " + imageFileName);
-            }
-            setImage(newImage);
-        }
+        loadURL(url);
     }
 
     /**

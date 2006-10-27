@@ -1,6 +1,5 @@
 package greenfoot.util;
 
-import greenfoot.core.GreenfootMain;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -18,6 +17,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -26,14 +27,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import bluej.Config;
-import bluej.utility.Debug;
+import bluej.runtime.ExecServer;
 import bluej.utility.FileUtility;
 
 /**
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4319 2006-05-23 20:48:04Z polle $
+ * @version $Id: GreenfootUtil.java 4667 2006-10-27 16:29:47Z polle $
  */
 public class GreenfootUtil
 {
@@ -415,6 +416,77 @@ public class GreenfootUtil
     public static String getNewNameFromFileBrowser(Component parent)
     {
         return FileUtility.getFileName(parent, Config.getString("pkgmgr.newPkg.title"), Config.getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
+    }
+    
+
+    
+    /**
+     * Tries to find the filename using the classloader. It first searches in
+     * 'projectdir/dir/', then in the 'projectdir' and last as an absolute
+     * filename or URL.
+     * 
+     * @param filename Name of the file
+     * @param dir directory to search in first
+     * @return A URL that can be read or null if the URL could not be found.
+     */
+    public static URL getURL(String filename, String dir)
+    {
+        if (filename == null) {
+            throw new NullPointerException("Filename must not be null.");
+        }
+
+        ClassLoader currentLoader = ExecServer.getCurrentClassLoader();
+        
+        URL url = null;
+        
+        if(dir != null) {
+            // First, try the project's images dir
+            url = currentLoader.getResource(dir + "/" + filename);
+        }
+        
+        if (url == null) {
+            // Second, try the project directory
+            url = currentLoader.getResource(filename);
+        }
+
+        if(url == null) {
+            //Third, try as an absolute file
+            File f = new File(filename);
+            if(f.canRead()) {
+                try {
+                    url = f.toURI().toURL();
+                }
+                catch (MalformedURLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        if(url == null) {
+            // Fourth, try as an absolute  URL.
+            InputStream s = null;
+            try {
+                url = new URL(filename);
+                s = url.openStream();
+                s.close();
+            }
+            catch (MalformedURLException e) {
+                url =null;
+            }
+            catch (IOException e) {
+                url =null;
+            } finally {
+                if(s != null) {
+                    try {
+                        s.close();
+                    }
+                    catch (IOException e) {
+                    }
+                }
+            }
+        }
+        return url;
     }
         
 }
