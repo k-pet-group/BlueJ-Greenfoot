@@ -52,7 +52,7 @@ public abstract class World
     //}
 
     /** All the objects currently in the world */
-    private List objects = new ArrayList();
+    private List objects = Collections.synchronizedList(new ArrayList());
 
     /** The size of the cell in pixels. */
     private int cellSize = 1;
@@ -540,7 +540,9 @@ public abstract class World
     
     /**
      * Get the list of all objects in the world. This returns a live list which
-     * should not be modified by the caller.
+     * should not be modified by the caller. If iterating over this list, it
+     * should be synchronized on itself or the World to avoid concurrent
+     * modifactions.
      */
     List<Actor> getObjectsList()
     {

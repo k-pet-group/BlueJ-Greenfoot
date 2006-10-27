@@ -24,7 +24,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 4285 2006-05-17 10:35:32Z davmac $
+ * @version $Id: WorldCanvas.java 4665 2006-10-27 11:30:39Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -70,12 +70,9 @@ public class WorldCanvas extends JPanel
             return;
         }
         //we need to sync, so that objects are not added and removed when we traverse the list.
-        synchronized (world) {
-            
-            List objects = WorldVisitor.getObjectsList(world);
-            
+        List objects = WorldVisitor.getObjectsList(world);
+        synchronized (objects) {
             for (Iterator iter = objects.iterator(); iter.hasNext();) {
-
                 Actor thing = (Actor) iter.next();
                 int cellSize = WorldVisitor.getCellSize(world);
 
@@ -97,7 +94,6 @@ public class WorldCanvas extends JPanel
                 }
             }
         }
-
     }
 
     /**

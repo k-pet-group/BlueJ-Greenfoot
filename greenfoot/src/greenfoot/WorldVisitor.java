@@ -13,7 +13,7 @@ import java.util.List;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 4295 2006-05-17 14:08:34Z polle $
+ * @version $Id: WorldVisitor.java 4665 2006-10-27 11:30:39Z polle $
  */
 public class WorldVisitor
 {
@@ -68,7 +68,10 @@ public class WorldVisitor
     }
     
     /**
-     * Get a possibly-live list of all objects in the world.
+     * Get the list of all objects in the world. This returns a live list which
+     * should not be modified by the caller. If iterating over this list, it
+     * should be synchronized on itself or the World to avoid concurrent
+     * modifactions.
      */
     public static List<Actor> getObjectsList(World world)
     {
