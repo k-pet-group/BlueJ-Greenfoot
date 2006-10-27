@@ -323,10 +323,28 @@ public class Simulation extends Thread implements WorldListener
         return speed;
     }
 
+    /**
+     * Sleep an amount of time according to the current speed setting for this
+     * simulation. This will wait without considering previous waits, as opposed
+     * to delay().
+     */
+    public void sleep()
+    {
+        try {
+            Thread.sleep(delay);
+        }
+        catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
     
     /**
      * Cause a delay (wait) according to the current speed setting for this
-     * simulation.
+     * simulation. It will take the time spend in this simulation loop into
+     * consideration and only pause the remaining time.
+     * 
+     * This method is used for timing the animation.
      */
     private void delay()
     {

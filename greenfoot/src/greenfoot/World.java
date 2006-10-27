@@ -3,6 +3,8 @@ package greenfoot;
 import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
 import greenfoot.core.GreenfootMain;
+import greenfoot.core.Simulation;
+import greenfoot.core.WorldHandler;
 import greenfoot.util.Version;
 
 import java.awt.Color;
@@ -300,6 +302,26 @@ public abstract class World
     {
         return Collections.unmodifiableList(collisionChecker.getObjects(cls));
     }
+    
+    /**
+     * This method will stop the current execution and wait for a time specified
+     * by the Greenfoot environment (the speed slider).
+     */
+    public void sleep()
+    {
+        WorldHandler.getInstance().repaint();
+        Simulation.getInstance().sleep();
+    }
+    
+    /**
+     * Repaints the world. 
+     *
+     */
+    public void repaint() 
+    {
+        WorldHandler.getInstance().repaint();
+    }
+    
 
     // =================================================
     //
