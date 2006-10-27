@@ -11,6 +11,7 @@ import greenfoot.event.WorldListener;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
+import greenfoot.sound.SoundPlayer;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -36,7 +37,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4453 2006-07-10 13:54:22Z polle $
+ * @version $Id: GreenfootFrame.java 4670 2006-10-27 17:31:37Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -253,6 +254,8 @@ public class GreenfootFrame extends JFrame
                 }
             }
         });
+        
+        sim.addSimulationListener(SoundPlayer.getInstance());
         
         JPanel canvasPanel = new JPanel(new CenterLayout());
         canvasPanel.add(worldCanvas, BorderLayout.CENTER);

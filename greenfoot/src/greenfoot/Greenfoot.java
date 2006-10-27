@@ -33,7 +33,7 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.0
- * @cvs-version $Id: Greenfoot.java 4668 2006-10-27 16:33:49Z polle $
+ * @cvs-version $Id: Greenfoot.java 4670 2006-10-27 17:31:37Z polle $
  */
 public class Greenfoot
 {
@@ -101,7 +101,7 @@ public class Greenfoot
     public static void playSound(final String soundFile)
     {
         try {
-            SoundPlayer.play(soundFile);
+            SoundPlayer.getInstance().play(soundFile);
         }
         catch (IOException e) {
             // TODO Auto-generated catch block

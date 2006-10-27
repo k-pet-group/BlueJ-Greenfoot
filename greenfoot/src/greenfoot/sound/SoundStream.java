@@ -27,6 +27,7 @@ public class SoundStream
     private URL url;
     private boolean stop;
     private boolean pause;
+    private SoundPlayer player;
 
 
   /* public static void playSoundWithApplet(String file) {
@@ -34,13 +35,15 @@ public class SoundStream
         clip.play();
     }*/
     
-    public SoundStream(String file) {
+    public SoundStream(String file, SoundPlayer player) {
         url = GreenfootUtil.getURL(file, "sounds");
         stop = false;
+        this.player = player;
     }
     
-    public void stop() {
+    public synchronized void stop() {
         stop = true;
+        notifyAll();
     }
     
     public synchronized void pause()
@@ -50,7 +53,8 @@ public class SoundStream
 
     public synchronized void resume()
     {
-        pause = false;        
+        pause = false;    
+        notifyAll();
     }
     
     public void play()
@@ -90,21 +94,11 @@ public class SoundStream
             int bytesInBuffer = 0;
 
             int bytesRead = is.read(buffer, 0, buffer.length - bytesInBuffer);
-            while(bytesRead != -1 && ! stop) {
-                while(pause) {
-                    synchronized (this) {
-                        try {
-                            wait();
-                        }
-                        catch (InterruptedException e) {
-                        }
-                    }
-                }
-                
+            while (bytesRead != -1 && !stop) {
                 line.start();
                 bytesInBuffer += bytesRead;
 
-                //Only write in multiples of frameSize
+                // Only write in multiples of frameSize
                 int bytesToWrite = (bytesInBuffer / frameSize) * frameSize;
 
                 //Play it
@@ -116,6 +110,14 @@ public class SoundStream
                     System.arraycopy(buffer, bytesToWrite, buffer, 0, remaining);
                 bytesInBuffer = remaining;
                 bytesRead = is.read(buffer, bytesInBuffer, buffer.length - bytesInBuffer);
+                while (pause) {
+                    synchronized (this) {
+                        try {
+                            wait();
+                        }
+                        catch (InterruptedException e) {}
+                    }
+                }
             }
             
             line.drain();
@@ -125,8 +127,12 @@ public class SoundStream
                 line.close();
             if (is != null)
                 is.close();
-            
+            player.soundStreamFinished(this);            
         }
+    }
+    
+    public String toString() {
+        return url + " " + super.toString();
     }
 
 }

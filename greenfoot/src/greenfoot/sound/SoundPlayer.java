@@ -1,5 +1,8 @@
 package greenfoot.sound;
 
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,51 +15,74 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  * Plays sounds from a file or URL. 
  * Several sounds can be played at the same time.
  * 
- * TODO:
- *  Make it a singleton.
- *  Remove soundstreams from list of sounds when they finish playing.
- * 
- * Should sounds be paused when hitting the pause button?
- * Should compile stop all the sounds?
- * What if act-button is hit? Should sounds play to the end?
  * 
  * 
  * @author Poul Henriksen
  * 
  */
-public class SoundPlayer
+public class SoundPlayer implements SimulationListener
 {
-    private static List sounds = new ArrayList();
+    private List sounds = new ArrayList();
     
-    public static void stop() {
+    private static SoundPlayer instance;
+    
+    private SoundPlayer() {
+    }
+    
+    public synchronized static SoundPlayer getInstance() {
+        if(instance == null) {
+            instance = new SoundPlayer();
+        }
+        return instance;
+    }
+    
+    /**
+     * Stops all sounds currently played by the soundplayer. Includes paused
+     * sounds. Stopped sounds can NOT be resumed.
+     * 
+     */
+    public synchronized void stop() {
         for (Iterator iter = sounds.iterator(); iter.hasNext();) {
             SoundStream element = (SoundStream) iter.next();
-            synchronized (element) {
-                element.stop();
-                element.notifyAll();
-            }
+            element.stop();
         }
         sounds.clear();
     }
     
-    public static void pause() {
+    /**
+     * Pauses all sounds. Can be resumed.
+     *
+     */
+    public synchronized void pause() {
         for (Iterator iter = sounds.iterator(); iter.hasNext();) {
             SoundStream element = (SoundStream) iter.next();
             element.pause();
         }
     }
     
-    public static void resume() {
+    /**
+     * Resumes paused sounds.
+     *
+     */
+    public synchronized  void resume() {
         for (Iterator iter = sounds.iterator(); iter.hasNext();) {
             SoundStream element = (SoundStream) iter.next();
             element.resume();
         }
     }
     
-    public static void play(String file)
+    /**
+     * Plays the sound from file.
+     * @param file Name of a file or an url
+     * @throws IOException
+     * @throws UnsupportedAudioFileException
+     * @throws LineUnavailableException
+     */
+    public void play(String file)
         throws IOException, UnsupportedAudioFileException, LineUnavailableException
     {
-       final SoundStream sound = new SoundStream(file);
+       final SoundStream sound = new SoundStream(file, this);
+       sounds.add(sound);
        new Thread() {
            public void run()
            {
@@ -69,4 +95,30 @@ public class SoundPlayer
            }
        }.start();
     }
+
+    /**
+     * Stop sounds when simulation is disabled (a new world is created). Pause
+     * sounds when simulation is paused. Resume when simulation is started.
+     */
+    public void simulationChanged(SimulationEvent e)
+    {
+        if(e.getType() == SimulationEvent.DISABLED) {
+            stop();
+        } 
+        else if(e.getType() == SimulationEvent.STOPPED) {
+            pause();
+        }
+        else if(e.getType() == SimulationEvent.STARTED) {
+            resume();
+        }
+    }
+    
+    /**
+     * Method that should be called by a soundsStream when it is finished
+     * playing.
+     */
+    synchronized void soundStreamFinished(SoundStream s)
+    {
+        sounds.remove(s);
+    } 
 }
