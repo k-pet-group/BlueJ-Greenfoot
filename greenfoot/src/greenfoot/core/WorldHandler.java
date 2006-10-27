@@ -141,11 +141,11 @@ public class WorldHandler
      */
     public void mouseClicked(MouseEvent e)
     {
-        if (e.getClickCount() > 1 && ((e.getModifiers() & MouseEvent.BUTTON1_DOWN_MASK) != 0)) {
-            // Actor gObject = getObject(e.getX(), e.getY());
-            // RObject rObject = ObjectTracker.instance().getRObject(gObject);
-            // TODO: inspect rObject
-
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            Actor actor = getObject(e.getX(), e.getY());
+            if (actor != null) {
+                fireObjectEvent(actor);
+            }
         }
     }
 
@@ -160,7 +160,6 @@ public class WorldHandler
         if (SwingUtilities.isLeftMouseButton(e)) {
             Actor actor = getObject(e.getX(), e.getY());
             if (actor != null) {
-                fireObjectEvent(actor);
                 dragBeginX = actor.getX() * world.getCellSize() + world.getCellSize()/2;
                 dragBeginY = actor.getY() * world.getCellSize() + world.getCellSize()/2;
                 int dragOffsetX = dragBeginX - e.getX();
