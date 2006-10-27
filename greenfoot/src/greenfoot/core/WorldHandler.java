@@ -415,7 +415,7 @@ public class WorldHandler
     {
         synchronized (this) {
             if (this.world != null) {
-                Simulation.getInstance().setPaused(true);
+                fireWorldRemovedEvent();
             }
             this.world = world;
         }
@@ -465,9 +465,6 @@ public class WorldHandler
                 
                 if (world != null) {
                     fireWorldCreatedEvent();
-                }
-                else {
-                    fireWorldRemovedEvent();
                 }
             }
         });
