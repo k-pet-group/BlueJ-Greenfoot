@@ -33,6 +33,9 @@ import bluej.utility.Debug;
  */
 public class GClass implements CompileListener
 {
+    private static String simObj = "greenfoot.Actor";
+    private static String worldObj = "greenfoot.World";
+    
     private RClass rmiClass;
     private GPackage pkg;
     private String superclassGuess;
@@ -515,6 +518,42 @@ public class GClass implements CompileListener
             e.printStackTrace();
         }
         return cls;
+    }
+
+    /**
+     * Returns true if this GClass represents the greenfoot.Actor class.
+     *
+     */
+    public boolean isActorClass()
+    {
+        return getQualifiedName().equals(simObj);
+    }
+    
+    /**
+     * Returns true if this GClass represents the greenfoot.World class.
+     *
+     */
+    public boolean isWorldClass()
+    {
+        return getQualifiedName().equals(worldObj);
+    }
+
+    /**
+     * Returns true if this GClass represents a class that is a subclass of the greenfoot.Actor class.
+     *
+     */
+    public boolean isActorSubclass()
+    {
+        return isSubclassOf(simObj);
+    }
+
+    /**
+     * Returns true if this GClass represents a class that is a subclass of the greenfoot.World class.
+     *
+     */
+    public boolean isWorldSubclass()
+    {        
+        return isSubclassOf(worldObj);
     }
 
 }

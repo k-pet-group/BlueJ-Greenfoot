@@ -28,12 +28,10 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4171 2006-05-09 18:13:17Z davmac $
+ * @version $Id: ClassBrowser.java 4671 2006-10-28 12:59:31Z polle $
  */
 public class ClassBrowser extends JPanel
 {
-    private static String simObj = "greenfoot.Actor";
-    private static String worldObj = "greenfoot.World";
 
     private ButtonGroup buttonGroup = new ButtonGroup();
 
@@ -63,23 +61,19 @@ public class ClassBrowser extends JPanel
     {
         ClassView classLabel = null;
 
-        if (gClass.getQualifiedName().equals(simObj)) {
-            // the class Actor
+        if (gClass.isActorClass()) {
             classLabel = new ClassView(new GreenfootClassRole(), gClass);
             greenfootClasses.add(classLabel);
         }
-        else if (gClass.getQualifiedName().equals(worldObj)) {
-            // the class World
+        else if (gClass.isWorldClass()) {
             classLabel = new ClassView(new WorldClassRole(), gClass);
             worldClasses.add(classLabel);
         }
-        else if (gClass.isSubclassOf(simObj)) {
-            // a subclass of Actor
+        else if (gClass.isActorSubclass()) {
             classLabel = new ClassView(new GreenfootClassRole(), gClass);
             greenfootClasses.add(classLabel);
         }
-        else if (gClass.isSubclassOf(worldObj)) {
-            // a subclass of World
+        else if (gClass.isWorldSubclass()) {
             classLabel = new ClassView(new WorldClassRole(), gClass);
             worldClasses.add(classLabel);
         }
