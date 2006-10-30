@@ -33,6 +33,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JRootPane;
 import javax.swing.JToggleButton;
 
 import rmiextension.wrappers.event.RCompileEvent;
@@ -48,7 +49,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4675 2006-10-30 11:46:12Z polle $
+ * @version $Id: ClassView.java 4676 2006-10-30 11:53:34Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, CompileListener, MouseListener
@@ -214,8 +215,10 @@ public class ClassView extends JToggleButton
     {
         clearUI();
         role.buildUI(this, gClass);
-        revalidate();
-        //       repaint();
+        JRootPane rootPane = getRootPane();
+        if(rootPane != null) {
+            getRootPane().revalidate();
+        }
     }
 
     /**
