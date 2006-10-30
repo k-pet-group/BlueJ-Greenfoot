@@ -19,7 +19,7 @@ import bluej.utility.Debug;
  * A forest of trees. The roots are sorted alphabeticaly on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 4673 2006-10-30 11:02:33Z polle $
+ * @version $Id: ClassForest.java 4674 2006-10-30 11:38:31Z polle $
  */
 public class ClassForest
 {
@@ -156,7 +156,7 @@ public class ClassForest
     {
         String superName = clsView.getSuperclassGuess();
 
-        TreeEntry child = (TreeEntry) treeEntryMap.get(clsView.getName());
+        TreeEntry child = (TreeEntry) treeEntryMap.get(clsView.getClassName());
         if(superName == null || superName.equals("")) {
             roots.add(child);
         } else {

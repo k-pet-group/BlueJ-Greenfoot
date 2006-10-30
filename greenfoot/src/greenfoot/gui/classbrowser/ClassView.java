@@ -48,7 +48,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4673 2006-10-30 11:02:33Z polle $
+ * @version $Id: ClassView.java 4674 2006-10-30 11:38:31Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, CompileListener, MouseListener
@@ -322,7 +322,7 @@ public class ClassView extends JToggleButton
     /*
      * (non-Javadoc)
      * 
-     * @see greenfoot.ui.classbrowser.Selectable#select()
+     * @see greenfoot.gui.classbrowser.Selectable#select()
      */
     public void select()
     {
@@ -333,7 +333,7 @@ public class ClassView extends JToggleButton
     /*
      * (non-Javadoc)
      * 
-     * @see dk.sdu.mip.dit.ui.classbrowser.Selectable#deselect()
+     * @see greenfoot.gui.classbrowser.Selectable#deselect()
      */
     public boolean deselect()
     {
