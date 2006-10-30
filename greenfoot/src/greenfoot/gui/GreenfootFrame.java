@@ -37,7 +37,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4672 2006-10-30 10:58:35Z polle $
+ * @version $Id: GreenfootFrame.java 4677 2006-10-30 11:58:12Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -395,6 +395,8 @@ public class GreenfootFrame extends JFrame
 
     /**
      * Read the classes from a given project and display them in the class browser.
+     * <br>
+     * Call only from the event thread.
      */
     private void populateClassBrowser(ClassBrowser classBrowser, GProject project)
     {
@@ -420,7 +422,6 @@ public class GreenfootFrame extends JFrame
             }
             
             classBrowser.updateLayout();
-            classBrowser.revalidate();
         }
         catch (Exception exc) {
             Debug.reportError("Could not open classes in project", exc);

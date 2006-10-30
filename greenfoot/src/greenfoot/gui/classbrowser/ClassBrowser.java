@@ -16,7 +16,6 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 /**
@@ -26,7 +25,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4675 2006-10-30 11:46:12Z polle $
+ * @version $Id: ClassBrowser.java 4677 2006-10-30 11:58:12Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -86,12 +85,6 @@ public class ClassBrowser extends JPanel
         quickAddClass(classView);
         classView.select();
         updateLayout();
-       
-        // Don't know why I have to revalidate on the RootPane instead of just
-        // the class browser. But that is the only way to make it resize the
-        // class browser if a longer class name has been added.
-        // Poul 30/10/2006
-        getRootPane().revalidate();
     }
     
     /**
@@ -113,7 +106,6 @@ public class ClassBrowser extends JPanel
 
         classView.removeSelectionChangeListener(selectionManager);
         updateLayout();
-        getRootPane().revalidate();
     }
 
     /**
@@ -173,6 +165,12 @@ public class ClassBrowser extends JPanel
                 this.add(objectFrame, BorderLayout.SOUTH);
             }
         }
+        
+        // Don't know why I have to revalidate on the RootPane instead of just
+        // the class browser. But that is the only way to make it resize the
+        // class browser if a longer class name has been added.
+        // Poul 30/10/2006
+        getRootPane().revalidate();
     }
 
 
