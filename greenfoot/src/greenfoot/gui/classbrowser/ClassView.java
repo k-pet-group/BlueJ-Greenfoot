@@ -49,7 +49,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4676 2006-10-30 11:53:34Z polle $
+ * @version $Id: ClassView.java 4678 2006-10-30 12:11:40Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, CompileListener, MouseListener
@@ -80,6 +80,16 @@ public class ClassView extends JToggleButton
      * @param gClass
      */
     public ClassView(GClass gClass) {
+        init(gClass);
+    }
+
+    /**
+     * Reevaluates the role of this class and sets it to the right role.
+     * @param gClass
+     * @return
+     */
+    public void updateRole()
+    {
         ClassRole classRole = null;
         if (gClass.isActorClass()) {
             classRole = new GreenfootClassRole();
@@ -97,16 +107,15 @@ public class ClassView extends JToggleButton
             // everything else
             classRole = NormalClassRole.getInstance();
         }
-        init(classRole, gClass);
+        setRole(classRole);
     }
 
-    private void init(ClassRole role, GClass gClass)
+    private void init(GClass gClass)
     {
         this.gClass = gClass;
         gClass.setClassView(this);
 
         realClass = gClass.getJavaClass();
-        setRole(role);
         this.addMouseListener(this);
         this.setBorder(BorderFactory.createEmptyBorder(7, 8, 10, 11)); // top,left,bottom,right
         Font font = getFont();
@@ -116,6 +125,8 @@ public class ClassView extends JToggleButton
 
         setContentAreaFilled(false);
         setFocusPainted(false);
+
+        updateRole();
     }
 
         
@@ -204,7 +215,6 @@ public class ClassView extends JToggleButton
      */
     private void setRole(ClassRole role)
     {
-
         if (this.role == null || role.getClass() != this.role.getClass()) {
             this.role = role;
             update();
