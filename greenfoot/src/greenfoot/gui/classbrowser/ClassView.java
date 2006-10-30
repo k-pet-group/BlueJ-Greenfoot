@@ -48,7 +48,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4674 2006-10-30 11:38:31Z polle $
+ * @version $Id: ClassView.java 4675 2006-10-30 11:46:12Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, CompileListener, MouseListener
@@ -560,6 +560,11 @@ public class ClassView extends JToggleButton
         }
     }
 
+    /**
+     * Removes this class.
+     * <br>
+     * Must be called from the event thread.
+     */
     public void remove()
     {
         classBrowser.removeClass(this);

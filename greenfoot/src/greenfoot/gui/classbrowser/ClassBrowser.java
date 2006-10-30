@@ -26,7 +26,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4674 2006-10-30 11:38:31Z polle $
+ * @version $Id: ClassBrowser.java 4675 2006-10-30 11:46:12Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -96,6 +96,9 @@ public class ClassBrowser extends JPanel
     
     /**
      * Remove a class from the browser and update the view on screen.
+     * 
+     * <br>
+     * Must be called from the event thread.
      */
     public void removeClass(ClassView classView) 
     {
@@ -109,7 +112,8 @@ public class ClassBrowser extends JPanel
         GreenfootMain.getInstance().removeCompileListener(classView);
 
         classView.removeSelectionChangeListener(selectionManager);
-        rebuild();
+        updateLayout();
+        getRootPane().revalidate();
     }
 
     /**
@@ -271,22 +275,4 @@ public class ClassBrowser extends JPanel
     {
         return worldClasses.iterator();
     }
-
-    /**
-     * Rebuilds the class browser: updating the hierachy.
-     * <p>
-     * Runs on the event thread
-     */
-    public void rebuild()
-    {
-        Runnable r = new Runnable() {
-            public void run() {
-                updateLayout();
-                revalidate();
-                repaint();
-            }
-        };
-        SwingUtilities.invokeLater(r);        
-    }
-
 }
