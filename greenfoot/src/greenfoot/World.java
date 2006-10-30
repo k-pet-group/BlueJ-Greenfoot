@@ -304,16 +304,6 @@ public abstract class World
     }
     
     /**
-     * This method will stop the current execution and wait for a time specified
-     * by the Greenfoot environment (the speed slider).
-     */
-    public void sleep()
-    {
-        WorldHandler.getInstance().repaint();
-        Simulation.getInstance().sleep();
-    }
-    
-    /**
      * Repaints the world. 
      *
      */

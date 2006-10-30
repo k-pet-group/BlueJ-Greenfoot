@@ -33,7 +33,7 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.0
- * @cvs-version $Id: Greenfoot.java 4670 2006-10-27 17:31:37Z polle $
+ * @cvs-version $Id: Greenfoot.java 4679 2006-10-30 17:06:20Z polle $
  */
 public class Greenfoot
 {
@@ -63,6 +63,18 @@ public class Greenfoot
     public static boolean isKeyDown(String keyName)
     {
         return keyboardManager.isKeyDown(keyName);
+    }
+    
+    /**
+     * This method will delay the current execution by the time specified
+     * by the Greenfoot environment (the speed slider).
+     * 
+     * @see #setSimulationSpeed(int)
+     */
+    public void delay()
+    {
+        WorldHandler.getInstance().repaint();
+        Simulation.getInstance().sleep();
     }
     
     /**
