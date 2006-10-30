@@ -48,7 +48,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4672 2006-10-30 10:58:35Z polle $
+ * @version $Id: ClassView.java 4673 2006-10-30 11:02:33Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, CompileListener, MouseListener
@@ -583,5 +583,14 @@ public class ClassView extends JToggleButton
             e.printStackTrace();
         }
         gClass = null;
+    }
+
+    /**
+     * Get the best guess at the super class for this class.
+     * 
+     */
+    public String getSuperclassGuess()
+    {
+        return gClass.getSuperclassGuess();
     }
 }
