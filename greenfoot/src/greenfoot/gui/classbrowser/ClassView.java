@@ -10,6 +10,9 @@ import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
 import greenfoot.gui.classbrowser.role.ClassRole;
+import greenfoot.gui.classbrowser.role.GreenfootClassRole;
+import greenfoot.gui.classbrowser.role.NormalClassRole;
+import greenfoot.gui.classbrowser.role.WorldClassRole;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -45,7 +48,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4353 2006-06-13 03:40:59Z davmac $
+ * @version $Id: ClassView.java 4672 2006-10-30 10:58:35Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, CompileListener, MouseListener
@@ -71,24 +74,48 @@ public class ClassView extends JToggleButton
     private ClassBrowser classBrowser;
     private JPopupMenu popupMenu;
 
-    
-    public ClassView(ClassRole role, GClass gClass)
+    /**
+     * Creates a new ClassView with the role determined from gClass.
+     * @param gClass
+     */
+    public ClassView(GClass gClass) {
+        ClassRole classRole = null;
+        if (gClass.isActorClass()) {
+            classRole = new GreenfootClassRole();
+        }
+        else if (gClass.isWorldClass()) {
+            classRole = new WorldClassRole();
+        }
+        else if (gClass.isActorSubclass()) {
+            classRole = new GreenfootClassRole();
+        }
+        else if (gClass.isWorldSubclass()) {
+            classRole = new WorldClassRole();
+        }
+        else {
+            // everything else
+            classRole = NormalClassRole.getInstance();
+        }
+        init(classRole, gClass);
+    }
+
+    private void init(ClassRole role, GClass gClass)
     {
         this.gClass = gClass;
         gClass.setClassView(this);
-        
+
         realClass = gClass.getJavaClass();
         setRole(role);
         this.addMouseListener(this);
-        this.setBorder(BorderFactory.createEmptyBorder(7, 8, 10, 11)); //top,left,bottom,right
+        this.setBorder(BorderFactory.createEmptyBorder(7, 8, 10, 11)); // top,left,bottom,right
         Font font = getFont();
         font = font.deriveFont(13.0f);
         this.setFont(font);
-//        this.setFont(PrefMgr.getTargetFont());
+        // this.setFont(PrefMgr.getTargetFont());
 
         setContentAreaFilled(false);
         setFocusPainted(false);
-}
+    }
 
         
     /**

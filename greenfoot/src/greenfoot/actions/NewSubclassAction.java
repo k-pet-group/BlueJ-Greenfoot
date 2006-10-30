@@ -16,7 +16,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 4013 2006-04-25 15:08:57Z davmac $
+ * @version $Id: NewSubclassAction.java 4672 2006-10-30 10:58:35Z polle $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -59,7 +59,9 @@ public class NewSubclassAction extends AbstractAction
         
         String className = dialog.getClassName();
         GClass gClass = superclass.createSubclass(className);
-        ClassView classView = classBrowser.addClass(gClass);
+       
+        ClassView classView = new ClassView(gClass);
+        classBrowser.addClass(classView);
         
         SelectImageAction.setClassImage(classView,
                 (GreenfootClassRole) classView.getRole(),
@@ -79,8 +81,10 @@ public class NewSubclassAction extends AbstractAction
         }
 
         String className = dialog.getClassName();
-        GClass gClass = superclass.createSubclass(className);        
-        ClassView classView = classBrowser.addClass(gClass);
+        GClass gClass = superclass.createSubclass(className);   
+        
+        ClassView classView = new ClassView(gClass);
+        classBrowser.addClass(classView);
         
         classView.select();
         classBrowser.revalidate();

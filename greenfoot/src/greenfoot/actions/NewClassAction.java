@@ -27,7 +27,7 @@ import bluej.utility.Debug;
  * An action for creating a new (non-Actor, non-World) class.
  * 
  * @author dam
- * @version $Id: NewClassAction.java 4263 2006-05-15 13:16:59Z davmac $
+ * @version $Id: NewClassAction.java 4672 2006-10-30 10:58:35Z polle $
  */
 public class NewClassAction extends AbstractAction {
 
@@ -91,7 +91,8 @@ public class NewClassAction extends AbstractAction {
             writer.close();
             GClass newClass = pkg.newClass(className);
             
-            ClassView classView = classBrowser.addClass(newClass);
+            ClassView classView = new ClassView(newClass);
+            classBrowser.addClass(classView);
             classView.select();
             classBrowser.revalidate();
         }

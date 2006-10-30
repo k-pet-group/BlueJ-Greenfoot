@@ -1,9 +1,7 @@
 package greenfoot.gui.classbrowser;
 
-import greenfoot.core.GClass;
 import greenfoot.core.GreenfootMain;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
-import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
 
 import java.awt.BorderLayout;
@@ -28,7 +26,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4671 2006-10-28 12:59:31Z polle $
+ * @version $Id: ClassBrowser.java 4672 2006-10-30 10:58:35Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -57,38 +55,25 @@ public class ClassBrowser extends JPanel
      * the view on screen. The view can be explicitly updated later, using 
      * updateLayout().
      */
-    public ClassView quickAddClass(GClass gClass)
+    public void quickAddClass(ClassView classView)
     {
-        ClassView classLabel = null;
 
-        if (gClass.isActorClass()) {
-            classLabel = new ClassView(new GreenfootClassRole(), gClass);
-            greenfootClasses.add(classLabel);
+        if (classView.getRole() instanceof GreenfootClassRole) {
+            greenfootClasses.add(classView);
         }
-        else if (gClass.isWorldClass()) {
-            classLabel = new ClassView(new WorldClassRole(), gClass);
-            worldClasses.add(classLabel);
-        }
-        else if (gClass.isActorSubclass()) {
-            classLabel = new ClassView(new GreenfootClassRole(), gClass);
-            greenfootClasses.add(classLabel);
-        }
-        else if (gClass.isWorldSubclass()) {
-            classLabel = new ClassView(new WorldClassRole(), gClass);
-            worldClasses.add(classLabel);
+        else if (classView.getRole() instanceof WorldClassRole) {           
+            worldClasses.add(classView);
         }
         else {
             // everything else
-            classLabel = new ClassView(NormalClassRole.getInstance(), gClass);
-            otherClasses.add(classLabel);
+            otherClasses.add(classView);
         }
-        buttonGroup.add(classLabel);
-        classLabel.setClassBrowser(this);
-        classLabel.addSelectionChangeListener(selectionManager);
+        buttonGroup.add(classView);
+        classView.setClassBrowser(this);
+        classView.addSelectionChangeListener(selectionManager);
         
-        GreenfootMain.getInstance().addCompileListener(classLabel);
+        GreenfootMain.getInstance().addCompileListener(classView);
         
-        return classLabel;
     }
     
     
@@ -96,11 +81,10 @@ public class ClassBrowser extends JPanel
      * Add a new class to the class browser.
      * Call only from the Swing event thread.
      */
-    public ClassView addClass(GClass gClass)
+    public void addClass(ClassView classView)
     {
-        ClassView classView = quickAddClass(gClass);
+        quickAddClass(classView);
         updateLayout();
-        return classView;
     }
     
     /**
