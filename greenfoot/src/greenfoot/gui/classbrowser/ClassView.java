@@ -50,7 +50,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4686 2006-11-03 15:04:05Z polle $
+ * @version $Id: ClassView.java 4687 2006-11-03 15:08:59Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -157,6 +157,8 @@ public class ClassView extends JToggleButton
         gClass.setClassView(this);
 
         realClass = gClass.getJavaClass();
+        superclass = gClass.getSuperclassGuess();
+        
         this.addMouseListener(this);
         this.setBorder(BorderFactory.createEmptyBorder(7, 8, 10, 11)); // top,left,bottom,right
         Font font = getFont();
@@ -167,6 +169,7 @@ public class ClassView extends JToggleButton
         setContentAreaFilled(false);
         setFocusPainted(false);
 
+        
         setRole(determineRole());
         update();
     }
