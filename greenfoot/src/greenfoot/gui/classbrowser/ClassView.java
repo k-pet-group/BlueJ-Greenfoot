@@ -50,7 +50,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4684 2006-11-03 13:53:14Z polle $
+ * @version $Id: ClassView.java 4685 2006-11-03 13:58:52Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -268,12 +268,11 @@ public class ClassView extends JToggleButton
     }
 
     /**
-     *  Clears this UI for this ClassView
+     *  Clears the UI for this ClassView
      */
     private void clearUI()
     {
         this.setIcon(null);
-        this.setText(null);
         this.removeAll();
     }
 
