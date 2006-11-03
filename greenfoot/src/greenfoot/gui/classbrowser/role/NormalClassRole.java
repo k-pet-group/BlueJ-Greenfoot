@@ -9,7 +9,7 @@ import java.io.IOException;
  * Role for a "normal" (non-Actor, non-World) class.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NormalClassRole.java 4016 2006-04-25 16:42:46Z davmac $
+ * @version $Id: NormalClassRole.java 4686 2006-11-03 15:04:05Z polle $
  */
 public class NormalClassRole extends ClassRole
 {
@@ -34,6 +34,7 @@ public class NormalClassRole extends ClassRole
     
     public void buildUI(ClassView classView, GClass gClass)
     {
+        classView.setIcon(null);
         classView.setText(gClass.getQualifiedName());
     }
 

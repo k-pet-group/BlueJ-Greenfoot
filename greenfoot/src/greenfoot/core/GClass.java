@@ -473,30 +473,28 @@ public class GClass implements CompileListener
     public void compileError(RCompileEvent event)
     {
         guessSuperclass();
-        classView.updateRole();
+        classView.updateSuperClass();
     }
 
     public void compileWarning(RCompileEvent event)
     {
         guessSuperclass();
-        classView.updateRole();
+        classView.updateSuperClass();
     }
 
     public void compileSucceeded(RCompileEvent event)
     {
         Class newClass = loadRealClass();
-        if(newClass != realClass) {
-            realClass = newClass;
-            guessSuperclass();
-            classView.reloadClass();            
-            classView.updateRole();            
-        }
+        realClass = newClass;
+        guessSuperclass();
+        classView.reloadClass();
+        classView.updateSuperClass();
     }
 
     public void compileFailed(RCompileEvent event)
     {
         guessSuperclass();
-        classView.updateRole();
+        classView.updateSuperClass();
     }
 
     public void compileStarted(RCompileEvent event)

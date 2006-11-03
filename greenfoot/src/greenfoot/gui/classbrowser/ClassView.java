@@ -50,7 +50,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4685 2006-11-03 13:58:52Z polle $
+ * @version $Id: ClassView.java 4686 2006-11-03 15:04:05Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -75,6 +75,7 @@ public class ClassView extends JToggleButton
     private ClassRole role;
     private ClassBrowser classBrowser;
     private JPopupMenu popupMenu;
+    private String superclass; //Holds the current superclass. Used to determine wether the superclass has changed.
 
     /**
      * Creates a new ClassView with the role determined from gClass.
@@ -85,38 +86,46 @@ public class ClassView extends JToggleButton
     }
     
     /**
-     * Updates this ClassView to reflect a role change.
+     * Updates this ClassView to reflect a change in super class.
      * 
      * <p>
      * Will also update the UI, but can be called from any thread.
      * 
      */
-    public void updateRole()
+    public void updateSuperClass()
     {        
-        ClassRole newRole = determineRole();
-        if (this.role == null || newRole.getClass() != this.role.getClass()) {
-            setRole(newRole);
+        if (gClass.getSuperclassGuess() == superclass ||  (gClass != null && gClass.getSuperclassGuess().equals(superclass) )) {
+            // If super class has not changed, we do not want to update
+            // anything.
+            return;
+        }
+        else {
+            superclass = gClass.getSuperclassGuess();
+        }
 
-            if (classBrowser != null) {
-                // If we are in a classBrowser, tell it to update this
-                // classview.
-                classBrowser.consolidateLayout(ClassView.this);
-            }
-            Thread t = new Thread() {
-                public void run()
-                {
-                    update();
-                    if (classBrowser != null) {                        
-                        classBrowser.updateLayout();
-                    }
+        ClassRole newRole = determineRole();
+        setRole(newRole);
+
+        if (classBrowser != null) {
+            // If we are in a classBrowser, tell it to update this
+            // classview.
+            classBrowser.consolidateLayout(ClassView.this);
+        }
+        Thread t = new Thread() {
+            public void run()
+            {
+                update();
+                if (classBrowser != null) {
+                    classBrowser.updateLayout();
                 }
-            };
-            SwingUtilities.invokeLater(t);
-        }       
+            }
+        };
+        SwingUtilities.invokeLater(t);
     }
 
     /**
      * Determines the role of this class based on the backing GClass.
+     * 
      * @param gClass
      * @return
      */
@@ -272,7 +281,6 @@ public class ClassView extends JToggleButton
      */
     private void clearUI()
     {
-        this.setIcon(null);
         this.removeAll();
     }
 

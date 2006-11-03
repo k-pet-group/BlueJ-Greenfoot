@@ -1,12 +1,12 @@
 package greenfoot.gui.classbrowser;
 
-import greenfoot.core.GClass;
 import greenfoot.util.GreenfootUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,7 +19,7 @@ import bluej.utility.Debug;
  * A forest of trees. The roots are sorted alphabeticaly on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 4674 2006-10-30 11:38:31Z polle $
+ * @version $Id: ClassForest.java 4686 2006-11-03 15:04:05Z polle $
  */
 public class ClassForest
 {
@@ -108,7 +108,7 @@ public class ClassForest
      * Add a new class to this forest. After adding classes, before
      * the forest can be displayed, the rebuild() method must be called.
      */
-    public void add(ClassView cls)
+    public synchronized void add(ClassView cls)
     {
         String name =  cls.getClassName();
         TreeEntry entry = new TreeEntry(cls, name);
@@ -118,7 +118,7 @@ public class ClassForest
     /**
      * Remove a class from this forest.
      */
-    public boolean remove(ClassView cls)
+    public synchronized boolean remove(ClassView cls)
     {
         String name =  cls.getClassName();
         if(treeEntryMap.remove(name) != null) {
@@ -132,7 +132,7 @@ public class ClassForest
      * Rebuild the forest from the classes in the entry map.
      * This method must be called after adding new elements.
      */
-    public void rebuild() 
+    public synchronized void rebuild() 
     {
         roots = new TreeSet();
         Collection values = treeEntryMap.values();
@@ -183,7 +183,17 @@ public class ClassForest
         }
 
         Iterator i = new Iterator() {
-            Iterator treeEntries = treeEntryMap.values().iterator();
+
+            private Iterator treeEntries;
+            
+            {
+                //Make sure we do not get ConcurentModificationException
+                synchronized (ClassForest.this) {
+                    Collection values = treeEntryMap.values();
+                    List list = new LinkedList(values);
+                    treeEntries = list.iterator();
+                }
+            }
 
             /**
              * Not implemented
