@@ -35,6 +35,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.Config;
@@ -49,7 +50,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4678 2006-10-30 12:11:40Z polle $
+ * @version $Id: ClassView.java 4683 2006-11-03 13:32:27Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, CompileListener, MouseListener
@@ -82,13 +83,44 @@ public class ClassView extends JToggleButton
     public ClassView(GClass gClass) {
         init(gClass);
     }
+    
+    /**
+     * Updates this ClassView to reflect a role change.
+     * 
+     * <p>
+     * Will also update the UI, but can be called from any thread.
+     * 
+     */
+    public void updateRole()
+    {        
+        ClassRole newRole = determineRole();
+        if (this.role == null || newRole.getClass() != this.role.getClass()) {
+            setRole(newRole);
+
+            if (classBrowser != null) {
+                // If we are in a classBrowser, tell it to update this
+                // classview.
+                classBrowser.consolidateLayout(ClassView.this);
+            }
+            Thread t = new Thread() {
+                public void run()
+                {
+                    update();
+                    if (classBrowser != null) {                        
+                        classBrowser.updateLayout();
+                    }
+                }
+            };
+            SwingUtilities.invokeLater(t);
+        }       
+    }
 
     /**
-     * Reevaluates the role of this class and sets it to the right role.
+     * Determines the role of this class based on the backing GClass.
      * @param gClass
      * @return
      */
-    public void updateRole()
+    private ClassRole determineRole()
     {
         ClassRole classRole = null;
         if (gClass.isActorClass()) {
@@ -107,7 +139,7 @@ public class ClassView extends JToggleButton
             // everything else
             classRole = NormalClassRole.getInstance();
         }
-        setRole(classRole);
+        return classRole;
     }
 
     private void init(GClass gClass)
@@ -126,7 +158,8 @@ public class ClassView extends JToggleButton
         setContentAreaFilled(false);
         setFocusPainted(false);
 
-        updateRole();
+        setRole(determineRole());
+        update();
     }
 
         
@@ -209,18 +242,21 @@ public class ClassView extends JToggleButton
 
 
     /**
-     * Sets the role of this ClassLabel. Updates the ui if the role has changed
+     * Sets the role of this ClassLabel. Does not update UI.
      * 
      * @param role
      */
     private void setRole(ClassRole role)
     {
-        if (this.role == null || role.getClass() != this.role.getClass()) {
-            this.role = role;
-            update();
-        }
+        this.role = role;
     }
 
+    /**
+     * Rebuild the UI of this ClassView from scratch.
+     * <p>
+     * Must be called from event thread, unless it is the first time it is
+     * called.
+     */
     private void update()
     {
         clearUI();
@@ -232,10 +268,12 @@ public class ClassView extends JToggleButton
     }
 
     /**
-     *  
+     *  Clears this UI for this ClassView
      */
     private void clearUI()
     {
+        this.setIcon(null);
+        this.setText(null);
         this.removeAll();
     }
 

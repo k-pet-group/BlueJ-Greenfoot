@@ -33,7 +33,7 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.0
- * @cvs-version $Id: Greenfoot.java 4679 2006-10-30 17:06:20Z polle $
+ * @cvs-version $Id: Greenfoot.java 4683 2006-11-03 13:32:27Z polle $
  */
 public class Greenfoot
 {
@@ -71,7 +71,7 @@ public class Greenfoot
      * 
      * @see #setSimulationSpeed(int)
      */
-    public void delay()
+    public static void delay()
     {
         WorldHandler.getInstance().repaint();
         Simulation.getInstance().sleep();

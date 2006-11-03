@@ -304,6 +304,8 @@ public class GClass implements CompileListener
      * In general, we will try to remember the last known superclass, and report that back.
      * <p>
      * 
+     * The meethod will only find superclasses that is part of this project or is one of the greenfoot API class (World or Actor).
+     * 
      * OBS: This method can be very slow and shouldn't be called unless needed. Especially if the class isn't compiled it can be very slow.
      * 
      * @return Best guess of the name of the superclass (NOT the qualified name).
@@ -313,7 +315,6 @@ public class GClass implements CompileListener
         // TODO This should be called each time the source file is saved. However,
         // this is not possible at the moment, so we just do it when it is
         // compiled.
-        
         String name = this.getName();
         if(name.equals("World") || name.equals("Actor")) {
             //We do not want to waste time on guessing the name of the superclass for these two classes.
@@ -337,22 +338,24 @@ public class GClass implements CompileListener
         }
         catch (NullPointerException e) {
         }
+
         if(realSuperclass != null) {
             setSuperclassGuess(realSuperclass);
             return;
         }
         
+        // If the class is compiled, but we did not get a superclass back, then
+        // the superclass is not from this project and we set it 
+        if (realSuperclass == null && isCompiled()) {
+            // no super class that we are interested in.
+            setSuperclassGuess("");
+            return;
+        }
+
         
         //Second, try to parse the file
         String parsedSuperclass = null;
         try {
-            //GClass[] gClasses = pkg.getClasses();
-
-           /* Vector classes = new Vector();
-            for (int i = 0; i < gClasses.length; i++) {
-                GClass cls = gClasses[i];
-                classes.add(cls.getQualifiedName());
-            }*/
             ClassInfo info = ClassParser.parse(rmiClass.getJavaFile());//, classes);
             parsedSuperclass = info.getSuperclass();
             // TODO hack! If the superclass is Actor or World,
@@ -368,7 +371,7 @@ public class GClass implements CompileListener
         catch (PackageNotFoundException e) {}
         catch (RemoteException e) {}
         catch (Exception e) {}
-        
+
         if(parsedSuperclass != null) {
             setSuperclassGuess(parsedSuperclass);
             return;
@@ -429,6 +432,7 @@ public class GClass implements CompileListener
         else {
             realClass = null;
         }
+        
     }
 
     /**
@@ -469,22 +473,26 @@ public class GClass implements CompileListener
     public void compileError(RCompileEvent event)
     {
         guessSuperclass();
+        classView.updateRole();
     }
 
     public void compileWarning(RCompileEvent event)
     {
         guessSuperclass();
+        classView.updateRole();
     }
 
     public void compileSucceeded(RCompileEvent event)
     {
         realClass = loadRealClass();
         guessSuperclass();
+        classView.updateRole();
     }
 
     public void compileFailed(RCompileEvent event)
     {
         guessSuperclass();
+        classView.updateRole();
     }
 
     public void compileStarted(RCompileEvent event)

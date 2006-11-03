@@ -25,7 +25,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4677 2006-10-30 11:58:12Z polle $
+ * @version $Id: ClassBrowser.java 4683 2006-11-03 13:32:27Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -273,4 +273,40 @@ public class ClassBrowser extends JPanel
     {
         return worldClasses.iterator();
     }
+
+    /**
+     * Updates the layout of the ClassBrowser to make sure the given classView
+     * is displayed with the correct superclass and in the right section of the
+     * classbrowser.
+     * <p>
+     * Call updateLayout to make the changes visible.
+     * 
+     * @see #updateLayout()
+     * @param classView
+     */
+    public void consolidateLayout(ClassView classView)
+    {
+        // Only change the role if we have been initialised
+        if (greenfootClasses != null) {
+            // Remove it from the forest since it is in the wrong forest.
+            boolean found = greenfootClasses.remove(classView);
+            if (!found)
+                found = worldClasses.remove(classView);
+            if (!found)
+                found = otherClasses.remove(classView);
+
+            // Add it to the right forest.
+            if (classView.getRole() instanceof GreenfootClassRole) {
+                greenfootClasses.add(classView);
+            }
+            else if (classView.getRole() instanceof WorldClassRole) {
+                worldClasses.add(classView);
+            }
+            else {
+                // everything else
+                otherClasses.add(classView);
+            }
+        }                
+    }
+    
 }
