@@ -484,9 +484,13 @@ public class GClass implements CompileListener
 
     public void compileSucceeded(RCompileEvent event)
     {
-        realClass = loadRealClass();
-        guessSuperclass();
-        classView.updateRole();
+        Class newClass = loadRealClass();
+        if(newClass != realClass) {
+            realClass = newClass;
+            guessSuperclass();
+            classView.reloadClass();            
+            classView.updateRole();            
+        }
     }
 
     public void compileFailed(RCompileEvent event)

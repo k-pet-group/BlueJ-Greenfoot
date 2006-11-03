@@ -50,10 +50,10 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4683 2006-11-03 13:32:27Z polle $
+ * @version $Id: ClassView.java 4684 2006-11-03 13:53:14Z polle $
  */
 public class ClassView extends JToggleButton
-    implements Selectable, CompileListener, MouseListener
+    implements Selectable, MouseListener
 {
     private final Color classColour = new Color(245, 204, 155);
     private static final Color stripeColor = new Color(152,152,152);
@@ -520,28 +520,6 @@ public class ClassView extends JToggleButton
         }
         return null;
 
-    }
-
-    // ----- CompileListener interface -----
-    
-    /*
-     */
-    public void compileStarted(RCompileEvent event) { }
-
-    /*
-     */
-    public void compileError(RCompileEvent event) { }
-
-    /*
-     */
-    public void compileWarning(RCompileEvent event) { }
-
-    /**
-     * After a successful compile, reload the Java class associated with this class view.
-     */
-    public void compileSucceeded(RCompileEvent event)
-    {
-        reloadClass();
     }
 
     public void reloadClass()
