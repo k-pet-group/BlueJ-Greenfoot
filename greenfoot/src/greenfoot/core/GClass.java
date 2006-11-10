@@ -64,7 +64,7 @@ public class GClass implements CompileListener
         try {
             compiled = cls.isCompiled();
             if (compiled) {
-                realClass = loadRealClass();
+                loadRealClass();
             }
         }
         catch (RemoteException re) {
@@ -88,11 +88,13 @@ public class GClass implements CompileListener
     }
 
     /**
-     * Notification that we changed name.
+     * Notify this class that its name has been changed.
      */
     public void nameChanged()
     {
-        classView.reloadClass();
+        if(classView != null) {
+            classView.reloadClass();
+        }
     }
     
     /**
@@ -217,9 +219,9 @@ public class GClass implements CompileListener
 
     /**
      * Gets the name of this class. NOT the qualified name.
-     * @return
      */
     public String getName() {
+        // This class does not depend on the "realClass" since it does a call straight through RMI and to the RClass
         return GreenfootUtil.extractClassName(getQualifiedName());
     }
     /**
@@ -427,7 +429,7 @@ public class GClass implements CompileListener
         }
         
         if (isCompiled) {
-            realClass = loadRealClass();
+            loadRealClass();
         }
         else {
             realClass = null;
@@ -473,28 +475,36 @@ public class GClass implements CompileListener
     public void compileError(RCompileEvent event)
     {
         guessSuperclass();
-        classView.updateSuperClass();
+        if(classView != null) {
+            classView.updateSuperClass();
+        }
     }
 
     public void compileWarning(RCompileEvent event)
     {
         guessSuperclass();
-        classView.updateSuperClass();
+        if(classView != null) {
+            classView.updateSuperClass();
+        }
     }
 
     public void compileSucceeded(RCompileEvent event)
     {
-        Class newClass = loadRealClass();
-        realClass = newClass;
+        loadRealClass();
         guessSuperclass();
-        classView.reloadClass();
-        classView.updateSuperClass();
+
+        if(classView != null) {
+            classView.reloadClass();
+            classView.updateSuperClass();
+        }
     }
 
     public void compileFailed(RCompileEvent event)
     {
         guessSuperclass();
-        classView.updateSuperClass();
+        if(classView != null) {
+            classView.updateSuperClass();
+        }
     }
 
     public void compileStarted(RCompileEvent event)
@@ -507,11 +517,13 @@ public class GClass implements CompileListener
      * 
      * @return The class, or null if unsuccessful
      */
-    private Class loadRealClass()
+    private void loadRealClass()
     {
+        Thread.dumpStack();
         Class cls = null;
         if (! isCompiled()) {
-            return cls;
+            realClass = null;
+            return;
         }
         try {
             String className = getQualifiedName();
@@ -527,7 +539,7 @@ public class GClass implements CompileListener
             // necessarily a real error.
             e.printStackTrace();
         }
-        return cls;
+        realClass = cls;
     }
 
     /**

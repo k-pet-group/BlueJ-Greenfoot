@@ -10,7 +10,7 @@ import java.io.IOException;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 4686 2006-11-03 15:04:05Z polle $
+ * @version $Id: WorldClassRole.java 4689 2006-11-10 11:08:24Z polle $
  */
 public class WorldClassRole extends ClassRole
 {
@@ -18,8 +18,7 @@ public class WorldClassRole extends ClassRole
     public void buildUI(ClassView classView, GClass gClass)
     {
         classView.setIcon(null);        
-        String name = GreenfootUtil.extractClassName(gClass.getQualifiedName());
-        classView.setText(name);
+        classView.setText(gClass.getName());
     }
 
     /**
