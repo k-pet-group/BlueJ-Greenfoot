@@ -251,31 +251,5 @@ public class GridActor extends greenfoot.Actor  //Greenfoot: Actor renamed to Gr
            Grid grid = (Grid) world;
            putSelfInGrid(grid, loc);
         }
-    }
-    
-    /**
-     * Overridden so we can ignore exception when an object is
-     * dragged outside the world, and back into a cell that is
-     * occupied.
-     */
-    public int getX() {
-        try {
-            return super.getX();
-        } catch  (IllegalStateException e ){
-            return -1;
-        }
-    }
-    
-    /**
-     * Overridden so we can ignore exception when an object is
-     * dragged outside the world, and back into a cell that is
-     * occupied.
-     */
-    public int getY() {
-        try {
-            return super.getY();
-        } catch  (IllegalStateException e ){
-            return -1;
-        }
-    }
+    }   
 }
