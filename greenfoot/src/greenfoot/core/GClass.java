@@ -519,7 +519,6 @@ public class GClass implements CompileListener
      */
     private void loadRealClass()
     {
-        Thread.dumpStack();
         Class cls = null;
         if (! isCompiled()) {
             realClass = null;
