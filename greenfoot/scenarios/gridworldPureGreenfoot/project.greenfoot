@@ -1,0 +1,20 @@
+#Greenfoot properties
+#Tue Nov 14 10:43:24 GMT 2006
+class.Critter.superclass=GridActor
+
+version=1.0
+class.Rock.superclass=GridActor
+class.Bug.image=Bug.gif
+class.Flower.image=Flower.gif
+class.Critter.image=Critter.gif
+class.Bug.superclass=GridActor
+simulation.speed=73
+class.GridActor.superclass=greenfoot.Actor
+class.Grid.superclass=greenfoot.World
+class.Flower.superclass=GridActor
+class.GridActor.image=Actor.gif
+
+
+class.Rock.image=Rock.gif
+
+class.Location.superclass=
