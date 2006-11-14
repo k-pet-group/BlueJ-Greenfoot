@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
+ * This class is a merge between the APCS classes AbstractGrid and BoundedGrid.
  * <code>AbstractGrid</code> contains the methods that are common to grid
  * implementations. <br />
  * The implementation of this class is testable on the AP CS AB exam.
@@ -28,112 +29,9 @@ import java.util.ArrayList;
 public class Grid<E> extends greenfoot.World 
 {
    
-    /**
-     * Greenfoot: added for Greenfoot so that it can automatically instantiate a new world.
-     */
-    public Grid()
-    {
-        this(12,12);
-    }
-    
-    /**
-     * Constructs an empty bounded grid with the given dimensions.
-     * (Precondition: <code>rows > 0</code> and <code>cols > 0</code>.)
-     * @param rows number of rows in BoundedGrid
-     * @param cols number of columns in BoundedGrid
-     */
-    public Grid(int rows, int cols)
-    {
-        super(cols, rows, 32); //Greenfoot: needed to construct the greenfoot world.
-        if (rows <= 0)
-            throw new IllegalArgumentException("rows <= 0");
-        if (cols <= 0)
-            throw new IllegalArgumentException("cols <= 0");
-        paintGrid();
-    }
-
-    public int getNumRows()
-    {
-        return getHeight();
-    }
-
-    public int getNumCols()
-    {
-        // Note: according to the constructor precondition, numRows() > 0, so
-        // theGrid[0] is non-null.
-        return getWidth();
-    }
-
-    public boolean isValid(Location loc)
-    {
-        return 0 <= loc.getRow() && loc.getRow() < getNumRows()
-                && 0 <= loc.getCol() && loc.getCol() < getNumCols();
-    }
-
-    public ArrayList<Location> getOccupiedLocations()
-    {
-        ArrayList<Location> theLocations = new ArrayList<Location>();
-
-        // Look at all grid locations.
-        for (int r = 0; r < getNumRows(); r++)
-        {
-            for (int c = 0; c < getNumCols(); c++)
-            {
-                // If there's an object at this location, put it in the array.
-                Location loc = new Location(r, c);
-                if (get(loc) != null)
-                    theLocations.add(loc);
-            }
-        }
-
-        return theLocations;
-    }
-
-    public E get(Location loc)
-    {
-      /*  if (!isValid(loc))
-            throw new IllegalArgumentException("Location " + loc
-                    + " is not valid");*/
-                    
-        //TODO Test what happens when loc i invalid!
-        
-        List objects = getObjectsAt(loc.getCol(), loc.getRow(), null); // occupantArray[loc.getRow()][loc.getCol()]; // unavoidable warning
-        if(objects.isEmpty() ) {
-            return null;
-        }
-        return (E)  objects.get(0); 
-    }
-
-    public E put(Location loc, E obj)
-    {
-       /* if (!isValid(loc))
-            throw new IllegalArgumentException("Location " + loc
-                    + " is not valid");*/
-                    
-        //TODO Test what happens when loc i invalid!
-        
-        
-        if (obj == null)
-            throw new NullPointerException("obj == null");
-
-        // Add the object to the grid.
-        addObject((Actor) obj, loc.getCol(), loc.getRow());
-        
-        E oldOccupant = get(loc);
-        return oldOccupant;
-    }
-
-   /* public E remove(Location loc)
-    {
-        //if (!isValid(loc))
-       //     throw new IllegalArgumentException("Location " + loc
-        //            + " is not valid");
-        
-        //TODO Test what happens when loc i invalid!
-        // Remove the object from the grid.
-        E r = get(loc);
-        return r;
-    }*/
+    //=====================================================
+    // Methods from the APCS BoundedGrid class.
+    //=====================================================
     
     public ArrayList<E> getNeighbors(Location loc)
     {
@@ -199,9 +97,82 @@ public class Grid<E> extends greenfoot.World
         return s + "}";
     }
      
+    //=====================================================
+    // Methods from the APCS AbstractGrid class.
+    //=====================================================
     
-    // The rest of the methods here are for running in Greenfoot, and is NOT testable on any of the AP CS exams.
 
+    public int getNumRows()
+    {
+        return getHeight();
+    }
+
+    public int getNumCols()
+    {
+        // Note: according to the constructor precondition, numRows() > 0, so
+        // theGrid[0] is non-null.
+        return getWidth();
+    }
+
+    public boolean isValid(Location loc)
+    {
+        return 0 <= loc.getRow() && loc.getRow() < getNumRows()
+                && 0 <= loc.getCol() && loc.getCol() < getNumCols();
+    }
+
+    public ArrayList<Location> getOccupiedLocations()
+    {
+        ArrayList<Location> theLocations = new ArrayList<Location>();
+
+        // Look at all grid locations.
+        for (int r = 0; r < getNumRows(); r++)
+        {
+            for (int c = 0; c < getNumCols(); c++)
+            {
+                // If there's an object at this location, put it in the array.
+                Location loc = new Location(r, c);
+                if (get(loc) != null)
+                    theLocations.add(loc);
+            }
+        }
+
+        return theLocations;
+    }
+
+    public E get(Location loc)
+    {
+        if (!isValid(loc))
+            throw new IllegalArgumentException("Location " + loc
+                    + " is not valid");                    
+        
+        List objects = getObjectsAt(loc.getCol(), loc.getRow(), null);
+        if(objects.isEmpty() ) {
+            return null;
+        }
+        return (E) objects.get(0);  // unavoidable warning
+    }
+
+    public E put(Location loc, E obj)
+    {
+        if (!isValid(loc))
+            throw new IllegalArgumentException("Location " + loc
+                    + " is not valid");
+                            
+        if (obj == null)
+            throw new NullPointerException("obj == null");
+
+        // Add the object to the grid.
+        addObject((Actor) obj, loc.getCol(), loc.getRow());
+        
+        E oldOccupant = get(loc);
+        return oldOccupant;
+    }
+    
+    
+
+    //=====================================================
+    // These methods are new for Greenfoot
+    //=====================================================
     
     /**
      * Greenfoot:
@@ -221,35 +192,13 @@ public class Grid<E> extends greenfoot.World
         setBackground(bg);
     }
 
-    /** 
-     *  For Greenfoot.
-     * 
-     *  <p>
-     *  
-     *  It removes an object from the GridWorld environment when the 
-     *  user removes an actor from the world. 
-     *  @param object      Object to remove from the Greenfoot world.
-     **/
-  /*  public void removeObject(greenfoot.Actor object)
-    {
-        if (object == null) {
-            return;
-        }
-        if (object instanceof GridActor) {
-            GridActor gridActor = (GridActor) object;
-            if (gridActor.getGrid() != null) {
-                gridActor.removeSelfFromGrid();
-            }
-        }
-        super.removeObject(object);
-    }*/
-
     /**
      * For Greenfoot.
      * 
      * <p>
      * 
      * Overridden to disallow adding an object to an occupied cell.
+     * 
      * @param obj      Object to add to the Greenfoot world.
      * @param x        Column in which to add the object.
      * @param y        Row in which to add the object.
@@ -279,5 +228,18 @@ public class Grid<E> extends greenfoot.World
             //we are allowed to drag the proxy around on top of other objects.
             super.addObject(obj, x, y);
         }
-    }        
+    }              
+    
+    /**
+     * Added for Greenfoot so that it can automatically instantiate a new world.
+     */
+    public Grid()
+    {
+        this(12,12,32);
+    }
+    
+    public Grid(int rows, int cols, int cellSize) {
+        super(cols, rows, cellSize);
+        paintGrid();
+    }
 }
