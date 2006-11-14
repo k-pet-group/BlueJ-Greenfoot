@@ -102,19 +102,6 @@ public class GridActor extends greenfoot.Actor
         return location;
     }
 
-
-    /**
-     * Removes this actor from its grid. <br />
-     * Precondition: This actor is contained in a grid
-     */
-    public void removeSelfFromGrid()
-    {
-        //Greenfoot: remove the object from the Greenfoot world
-        if(getWorld() != null) {
-            getWorld().removeObject(this);
-        }
-    }
-
     /**
      * Moves this actor to a new location. If there is another actor at the
      * given location, it is removed. <br />
@@ -148,10 +135,7 @@ public class GridActor extends greenfoot.Actor
      */
     public void act()
     {
-        setDirection(getDirection() + Location.HALF_CIRCLE);
-        
-        //Greenfoot: set the rotation for Greenfoot
-        setRotation(getDirection());
+        setDirection(getDirection() + Location.HALF_CIRCLE);        
     }
 
     /**
@@ -162,6 +146,23 @@ public class GridActor extends greenfoot.Actor
     {
         return getClass().getName() + "[location=" + location + ",direction="
                 + getRotation() + ",color=" + color + "]";
+    }
+    
+   
+    
+    /**
+     * For Greenfoot.
+     * <p>
+     * 
+     * Second initialization method in Greenfoot. Updates the
+     * environment when objects are added to the world.
+     * @param world    world where objects are added.
+     */
+    protected void addedToWorld(greenfoot.World world)  
+    {
+        // Scale image to cell size.
+        getImage().scale(world.getCellSize() - 2, world.getCellSize() - 2);       
+        location = new Location(getY(), getX());
     }
     
     /**
@@ -179,58 +180,11 @@ public class GridActor extends greenfoot.Actor
             if(o == null) {
                 // In GridWorld you can only put the Actor in a cell that is empty.
                 super.setLocation(x, y);
-                //moveTo(new Location(y, x));
+                location = new Location(y, x);
             }
         } else if (getWorld() != null){  
             super.setLocation(x, y);
+            location = new Location(y, x);
         }
-    }
-    
-    /**
-     * For Greenfoot.
-     * <p>
-     * 
-     * Second initialization method in Greenfoot. Updates the
-     * environment when objects are added to the world.
-     * @param world    world where objects are added.
-     */
-    protected void addedToWorld(greenfoot.World world)  
-    {
-        // Scale image to cell size.
-        getImage().scale(world.getCellSize() - 2, world.getCellSize() - 2);
-       
-        location = new Location(getY(), getX());
-        /*if (grid== null )
-        {
-           Location loc = new Location(getY(), getX());
-           Grid grid = (Grid) world;
-           putSelfInGrid(grid, loc);
-        }*/
-    }
-    
-    /**
-     * Overridden so we can ignore exception when an object is
-     * dragged outside the world, and back into a cell that is
-     * occupied.
-     */
-  /*  public int getX() {
-        try {
-            return super.getX();
-        } catch  (IllegalStateException e ){
-            return -1;
-        }
-    }*/
-    
-    /**
-     * Overridden so we can ignore exception when an object is
-     * dragged outside the world, and back into a cell that is
-     * occupied.
-     */
-  /*  public int getY() {
-        try {
-            return super.getY();
-        } catch  (IllegalStateException e ){
-            return -1;
-        }
-    }*/
+    }   
 }

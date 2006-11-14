@@ -68,7 +68,7 @@ public class Critter extends GridActor
         for (GridActor a : actors)
         {
             if (!(a instanceof Rock) && !(a instanceof Critter))
-                a.removeSelfFromGrid();
+                getGrid().removeObject(a);
         }
     }
 

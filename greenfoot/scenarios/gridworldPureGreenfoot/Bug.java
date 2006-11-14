@@ -78,7 +78,7 @@ public class Bug extends GridActor
         if (gr.isValid(next))
             moveTo(next);
         else
-            removeSelfFromGrid();
+            getGrid().removeObject(this);
         Flower flower = new Flower(getColor());
         getGrid().put(loc, flower);
     }
