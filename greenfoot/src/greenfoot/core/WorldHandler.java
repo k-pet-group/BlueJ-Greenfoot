@@ -534,11 +534,12 @@ public class WorldHandler
             int y = WorldVisitor.toCellFloor(getWorld(), (int) p.getY());
             Actor actor = (Actor) o;
             try {
-                if (actor.getWorld() == null) {
-                    getWorld().addObject(actor, x, y);
-                }
+                //make sure the object is added to the world.
+                getWorld().addObject(actor, x, y);                
+
                 int oldX = actor.getX();
                 int oldY = actor.getY();
+
                 if (oldX != x || oldY != y) {
                     if (x < world.getWidth() && y < world.getHeight() && x >= 0 && y >= 0) {
                         Simulation.getInstance().dragObject(actor, x, y);
@@ -549,7 +550,10 @@ public class WorldHandler
                     }
                 }
             }
-            catch (IndexOutOfBoundsException e) {
+            catch (IndexOutOfBoundsException e) {}
+            catch (IllegalStateException e) {
+                // If World.addObject() has been overridden the actor might not
+                // have been added to the world and we will get this exception
             }
             return true;
         }
