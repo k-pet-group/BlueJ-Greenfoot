@@ -667,10 +667,12 @@ public abstract class Actor
      * Return all objects that intersect the given location (relative to this
      * object's location). <br>
      * 
-     * 
+     * @return List of objects at the given offset. The list will include this
+     *         object, if the offset is zero.
      * @param dx X-coordinate relative to this objects location.
      * @param dy y-coordinate relative to this objects location.
-     * @param cls Class of objects to look for (passing 'null' will find all objects).
+     * @param cls Class of objects to look for (passing 'null' will find all
+     *            objects).
      */
     protected List getObjectsAtOffset(int dx, int dy, Class cls)
     {
