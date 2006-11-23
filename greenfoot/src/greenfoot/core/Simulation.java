@@ -44,7 +44,11 @@ public class Simulation extends Thread implements WorldListener
 
     /** for synchronized object dragging */
     private Actor draggedObject;
+    
+    /** X position of a dragged object in world coordinates (cells) */
     private int dragXpos;
+
+    /** Y position of a dragged object in world coordinates (cells) */
     private int dragYpos;
     
     /**
@@ -168,7 +172,7 @@ public class Simulation extends Thread implements WorldListener
                 // If an object is being dragged, update its location
                 synchronized (this) {
                         if (draggedObject != null && draggedObject.getWorld() != null) {
-                            ActorVisitor.setLocationInPixels(draggedObject, dragXpos, dragYpos);
+                            draggedObject.setLocation(dragXpos, dragYpos);
                             draggedObject = null;
                         }
                 }
@@ -197,8 +201,8 @@ public class Simulation extends Thread implements WorldListener
         World world = draggedObject.getWorld();
         if (world != null) {
             synchronized (world) {
-                if (draggedObject != null && draggedObject.getWorld() != null) {
-                    ActorVisitor.setLocationInPixels(draggedObject, dragXpos, dragYpos);
+                if (draggedObject != null && draggedObject.getWorld() != null) {                    
+                    draggedObject.setLocation(dragXpos, dragYpos);
                     draggedObject = null;
                 }
             }
@@ -395,6 +399,9 @@ public class Simulation extends Thread implements WorldListener
      * Drag an object in the world, in a synchronized manner with the rest
      * of the simulation. This will return immediately even if the actual
      * actor movement is slightly delayed.
+     * 
+     * @param xpos Drag location in world coordinates (cells)
+     * @param ypos Drag location in world coordinates (cells)
      */
     public void dragObject(Actor object, int xpos, int ypos)
     {
