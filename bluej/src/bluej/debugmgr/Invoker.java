@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 4608 2006-09-21 02:20:21Z davmac $
+ * @version $Id: Invoker.java 4703 2006-11-23 15:28:02Z polle $
  */
 
 public class Invoker
@@ -660,7 +660,7 @@ public class Invoker
                 buffer.append(constype);
             }
             else
-                buffer.append("public static Object");
+                buffer.append("public static java.lang.Object");
             buffer.append(" __bluej_runtime_result;");
             buffer.append(Config.nl);
         }
@@ -715,7 +715,7 @@ public class Invoker
                     buffer.append(".__bluej_runtime_result = makeObj(");
                 }
                 else {
-                    buffer.append(".__bluej_runtime_result = new Object() { ");
+                    buffer.append(".__bluej_runtime_result = new java.lang.Object() { ");
                     buffer.append(constype + " result;");
                     if (localVars != null) {
                         buffer.append("{ ");
