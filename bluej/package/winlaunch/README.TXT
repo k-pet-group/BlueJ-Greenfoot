@@ -1,5 +1,5 @@
 
-BlueJ version 2.1.3       --        README.TXT
+BlueJ version 2.2.0preview       --        README.TXT
 
 Information about BlueJ
 -----------------------
@@ -42,3 +42,25 @@ of the authors.
 
 The copyright (c) for BlueJ is held by M. Kolling and J. Rosenberg.
 
+Third Party Libraries
+---------------------
+BlueJ makes use of, and distributes with it, several third party libraries which
+are made available under different license conditions.
+
+Java Secure Channel
+Java Secure Channel (http://www.jcraft.com/jsch) is released under a BSD style 
+license. Information on its licensing is available at 
+http://www.jcraft.com/jsch/LICENSE.txt
+
+Netbeans CVS Client Library
+Netbeans CVS client library (http://javacvs.netbeans.org/library/) is released 
+under the  Common Development and Distribution License (CDDL) available at 
+http://www.netbeans.org/about/legal/license.html
+
+Antlr Parser Generator
+The Antlr 2 parser generator library (http://www.antlr.org) is public domain. 
+Further information about its use can be found at http://www.antlr.org/license.html
+
+JUnit
+The JUnit test framework (http://www.junit.org) is made available under the 
+Common Public License - v 1.0 http://junit.sourceforge.net/cpl-v10.html
