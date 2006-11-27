@@ -149,6 +149,7 @@ public final class MoeEditor extends JFrame
     private ClassLoader projectClassLoader;
     private HashMap propertyMap = new HashMap();
 
+    // =========================== NESTED CLASSES ===========================
 
     // inner class for listening for undoable edits in text
 
@@ -446,14 +447,6 @@ public final class MoeEditor extends JFrame
                     failureException = ex;
                 }
             }
-        }
-        
-        // If an error occurred, set a message in the editor status bar, and
-        // re-throw the exception.
-        if (failureException != null) {
-            info.warning(Config.getString("editor.info.errorSaving")
-                    + " - " + failureException.getLocalizedMessage());
-            throw failureException;
         }
         
         // If an error occurred, set a message in the editor status bar, and
@@ -1072,6 +1065,7 @@ public final class MoeEditor extends JFrame
         info.warning(msg);
     }
 
+    // ==================== USER ACTION IMPLEMENTATIONS ===================
 
     // --------------------------------------------------------------------
     /**
@@ -1879,6 +1873,7 @@ public final class MoeEditor extends JFrame
         repaint();
     }
 
+    // ========================= SUPPORT ROUTINES ==========================
 
     // --------------------------------------------------------------------
     /**
@@ -2188,6 +2183,7 @@ public final class MoeEditor extends JFrame
         return tokens;
     }
 
+    // ======================= WINDOW INITIALISATION =======================
 
     // --------------------------------------------------------------------
     /**
