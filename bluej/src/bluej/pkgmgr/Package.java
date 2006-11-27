@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4603 2006-09-07 04:34:37Z davmac $
+ * @version $Id: Package.java 4705 2006-11-27 00:16:13Z bquig $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -424,7 +424,6 @@ public final class Package extends Graph
     public void repaint()
     {
         if (editor != null) {
-            editor.revalidate();
             editor.repaint();
         }
     }
@@ -698,6 +697,32 @@ public final class Package extends Graph
     }
 
     /**
+     * Position a target which has been added, based on the layout file
+     * (if an entry exists) or find a suitable position otherwise.
+     * 
+     * @param t  the target to position
+     */
+    public void positionNewTarget(Target t)
+    {
+        String targetName = t.getIdentifierName();
+
+        try {
+            int numTargets = Integer.parseInt(lastSavedProps.getProperty("package.numTargets", "0"));
+            for (int i = 0; i < numTargets; i++) {
+                String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
+                if (identifierName.equals(targetName)) {
+                    t.load(lastSavedProps, "target" + (i + 1));
+                    return;
+                }
+            }
+        }
+        catch (NumberFormatException e) {}
+
+        // If we get here, then we didn't find a location for the target
+        findSpaceForVertex(t);
+    }
+    
+    /**
      * Add our immovable targets (the readme file, and possibly a link to the
      * parent package)
      */ 
@@ -779,6 +804,64 @@ public final class Package extends Graph
         }
 
         repaint();
+    }
+    
+    /** Reset a package. Throws away all data of a package and rereads it 
+     * from disk. This means that classes that has been removed from disk will
+     * also disapear from the diagram.
+     * @throws IOException
+     */
+    public void reset() throws IOException{
+        init();
+    }
+    
+    /**
+     * ReRead the pkg file and update the position of the targets in the graph
+     * @throws IOException
+     *
+     */
+    public void reReadGraphLayout() throws IOException{
+//    	 read the package properties
+        File pkgFile = new File(getPath(), pkgfileName);
+
+        // try to load the package file for this package
+        FileInputStream input = new FileInputStream(pkgFile);
+        SortedProperties props = new SortedProperties();
+        props.load(input);
+        input.close();
+
+        // read in all the targets contained in this package
+        // into this temporary map
+        Map propTargets = new HashMap();
+
+        int numTargets = 0, numDependencies = 0;
+
+        try {
+            numTargets = Integer.parseInt(props.getProperty("package.numTargets", "0"));
+            numDependencies = Integer.parseInt(props.getProperty("package.numDependencies", "0"));
+        }
+        catch (Exception e) {
+            Debug.reportError("Error loading from bluej.pkg file " + pkgFile + ": " + e);
+            e.printStackTrace();
+            return;
+        }
+        //
+        for (int i = 0; i < numTargets; i++) {
+            Target target = null;
+            String type = props.getProperty("target" + (i + 1) + ".type");
+            String identifierName = props.getProperty("target" + (i + 1) + ".name");
+            int x = Integer.parseInt(props.getProperty("target" + (i + 1) + ".x"));
+            int y = Integer.parseInt(props.getProperty("target" + (i + 1) + ".y"));
+            int height = Integer.parseInt(props.getProperty("target" + (i + 1) + ".height"));
+            int width = Integer.parseInt(props.getProperty("target" + (i + 1) + ".width"));
+            target = getTarget(identifierName);
+            if (target != null){
+            	target.setPos(x, y);
+            	target.setSize(width, height);
+            }
+        }
+        repaint();
+
     }
 
     /**
@@ -1084,6 +1167,40 @@ public final class Package extends Graph
     }
 
     /**
+     * Have all editors in this package reload the file the are showing.
+     * Called when doing an update from repository
+     */
+    public void reloadFilesInEditors(){
+    	 for (Iterator it = targets.iterator(); it.hasNext();) {
+            Target target = (Target) it.next();
+            if (target instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget) target;
+                Editor ed = ct.getEditor();
+                if(ed != null)
+                    ed.reloadFile();
+            }
+    	 }
+    }
+    
+    /**
+     * Have all editors in this package save the file the are showing.
+     * Called when doing a cvs operation
+     */
+    public void saveFilesInEditors() throws IOException
+    {
+    	 for (Iterator it = targets.iterator(); it.hasNext();) {
+            Target target = (Target) it.next();
+            if (target instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget) target;
+                Editor ed = ct.getEditor();
+                // Editor can be null eg. class file and no src file
+                if(ed != null)
+                    ed.save();
+            }
+    	 }
+    }
+    
+    /**
      * Use Tarjan's algorithm to construct compiler Jobs. (Cyclic dependencies are
      * submitted together as one job; otherwise we attempt to submit every file as
      * a seperate job, compiling dependencies before their dependents).
@@ -1253,6 +1370,8 @@ public final class Package extends Graph
             throw new IllegalArgumentException();
 
         targets.add(t.getIdentifierName(), t);
+        repaint();
+        graphChanged();
     }
 
     public void removeTarget(Target t)
@@ -1260,6 +1379,7 @@ public final class Package extends Graph
         targets.remove(t.getIdentifierName());
         removedSelectableElement(t);
         t.setRemoved();
+        graphChanged();
     }
 
     /**
@@ -1278,6 +1398,7 @@ public final class Package extends Graph
     }
 
     /**
+<<<<<<< Package.java
      * Removes a class from the Package
      * 
      * @param removableTarget
@@ -1303,6 +1424,9 @@ public final class Package extends Graph
 
     /**
      * remove the arrow representing the given dependency
+=======
+     * remove the arrow representing the given dependency
+>>>>>>> 1.162.2.17
      * 
      * @param d  the dependency to remove
      */
@@ -2053,6 +2177,23 @@ public final class Package extends Graph
                     ct.setState(ClassTarget.S_COMPILING);
                 }
             }
+        }
+
+        private void sendEventToExtensions(String filename, int lineNo, String message, int eventType)
+        {
+            File [] sources;
+            if (filename != null) {
+                sources = new File[1];
+                sources[0] = new File(filename);
+            }
+            else {
+                sources = new File[0];
+
+            }
+            CompileEvent aCompileEvent = new CompileEvent(eventType, sources);
+            aCompileEvent.setErrorLineNumber(lineNo);
+            aCompileEvent.setErrorMessage(message);
+            ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
         }
 
         private void sendEventToExtensions(String filename, int lineNo, String message, int eventType)
