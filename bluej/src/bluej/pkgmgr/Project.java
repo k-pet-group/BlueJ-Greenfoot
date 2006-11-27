@@ -24,6 +24,14 @@ import bluej.debugmgr.inspector.ResultInspector;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extmgr.ExtensionsManager;
+import bluej.groupwork.CodeFileFilter;
+import bluej.groupwork.Repository;
+import bluej.groupwork.TeamSettingsController;
+import bluej.groupwork.actions.TeamActionGroup;
+import bluej.groupwork.ui.CommitCommentsFrame;
+import bluej.groupwork.ui.TeamSettingsDialog;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.terminal.Terminal;
@@ -44,7 +52,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4603 2006-09-07 04:34:37Z davmac $
+ * @version $Id: Project.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -102,6 +110,17 @@ public class Project implements DebuggerListener, InspectorManager
     private Map inspectors;
     private boolean inTestMode = false;
     private BPClassLoader currentClassLoader;
+    
+    // the TeamSettingsController for this project
+    private TeamSettingsController teamSettingsController = null;
+    
+    private CommitCommentsFrame commitCommentsFrame = null;
+        
+    private boolean isSharedProject;
+
+    // team actions
+    private TeamActionGroup teamActions;
+    
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -133,6 +152,12 @@ public class Project implements DebuggerListener, InspectorManager
         debugger.launch();
 
         docuGenerator = new DocuGenerator(this);
+        
+        // Check whether this is a shared project
+        String cfgFilePath = projectDir.getAbsolutePath() + "/team.defs";
+        File cfgFile = new File(cfgFilePath);
+        isSharedProject = cfgFile.isFile();
+        teamActions = new TeamActionGroup(isSharedProject);
     }
 
     /**
@@ -143,7 +168,8 @@ public class Project implements DebuggerListener, InspectorManager
      *            a string representing the path to check. This can either be a
      *            directory name or the filename of a bluej.pkg file.
      */
-    public static boolean isProject(String projectPath) {
+    public static boolean isProject(String projectPath) 
+    {
         File startingDir;
 
         try {
@@ -169,7 +195,8 @@ public class Project implements DebuggerListener, InspectorManager
      *         directory within it or null if there were no bluej.pkg files in
      *         the specified directory.
      */
-    public static Project openProject(String projectPath) {
+    public static Project openProject(String projectPath) 
+    {
         String startingPackageName;
         File projectDir;
         File startingDir;
@@ -267,7 +294,8 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Remove a project from the collection of currently open projects.
      */
-    public static void closeProject(Project project) {
+    public static void closeProject(Project project) 
+    {
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(project);
 
         if (frames != null) {
@@ -283,7 +311,8 @@ public class Project implements DebuggerListener, InspectorManager
      * CleanUp the mess left by a project that has now been closed and
      * throw it away.
      */
-    public static void cleanUp(Project project) {
+    public static void cleanUp(Project project) 
+    {
         if (project.hasExecControls()) {
             project.getExecControls().dispose();
         }
@@ -308,7 +337,8 @@ public class Project implements DebuggerListener, InspectorManager
      *                          to make the new project
      * @return                  a boolean indicating success or failure
      */
-    public static boolean createNewProject(String projectPath) {
+    public static boolean createNewProject(String projectPath) 
+    {
         if (projectPath != null) {
             // check whether name is already in use
             File dir = new File(projectPath);
@@ -341,7 +371,8 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Returns the number of open projects
      */
-    public static int getOpenProjectCount() {
+    public static int getOpenProjectCount() 
+    {
         return projects.size();
     }
 
@@ -349,14 +380,16 @@ public class Project implements DebuggerListener, InspectorManager
      * Gets the set of currently open projects. It is an accessor only
      * @return a Set containing all open projects.
      */
-    public static Collection getProjects() {
+    public static Collection getProjects() 
+    {
         return projects.values();
     }
 
     /**
      * Given a Projects key returns the Project objects describing this projects.
      */
-    public static Project getProject(File projectKey) {
+    public static Project getProject(File projectKey) 
+    {
         return (Project) projects.get(projectKey);
     }
 
@@ -365,7 +398,8 @@ public class Project implements DebuggerListener, InspectorManager
      * 
      * @param projectPath
      */
-    public static boolean isBlueJProject(String projectPath) {
+    public static boolean isBlueJProject(String projectPath) 
+    {
         File startingDir = null;
         try {
             startingDir = pathIntoStartingDirectory(projectPath);
@@ -390,7 +424,8 @@ public class Project implements DebuggerListener, InspectorManager
      * directory/file does not exist.
      */
     private static File pathIntoStartingDirectory(String projectPath)
-        throws IOException {
+        throws IOException 
+    {
         File startingDir;
 
         startingDir = new File(projectPath).getCanonicalFile();
@@ -428,7 +463,8 @@ public class Project implements DebuggerListener, InspectorManager
      * @return The Viewer value
      */
     public ObjectInspector getInspectorInstance(DebuggerObject obj,
-        String name, Package pkg, InvokerRecord ir, JFrame parent) {
+        String name, Package pkg, InvokerRecord ir, JFrame parent) 
+    {
         ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
 
         if (inspector == null) {
@@ -453,7 +489,8 @@ public class Project implements DebuggerListener, InspectorManager
      * @param obj
      * @return the inspector
      */
-    public Inspector getInspector(Object obj) {
+    public Inspector getInspector(Object obj) 
+    {
         return (Inspector) inspectors.get(obj);
     }
 
@@ -461,7 +498,8 @@ public class Project implements DebuggerListener, InspectorManager
      * Remove an inspector from the list of inspectors for this project
      * @param obj the inspector.
      */
-    public void removeInspector(DebuggerObject obj) {
+    public void removeInspector(DebuggerObject obj) 
+    {
         inspectors.remove(obj);
     }
     
@@ -469,7 +507,8 @@ public class Project implements DebuggerListener, InspectorManager
      * Remove an inspector from the list of inspectors for this project
      * @param obj the inspector. 
      */
-    public void removeInspector(DebuggerClass cls) {
+    public void removeInspector(DebuggerClass cls) 
+    {
         inspectors.remove(cls.getName());
     }
 
@@ -479,7 +518,8 @@ public class Project implements DebuggerListener, InspectorManager
      * then calls it's doClose method to
      * @param obj
      */
-    public void removeInspectorInstance(Object obj) {
+    public void removeInspectorInstance(Object obj) 
+    {
         Inspector inspect = getInspector(obj);
 
         if (inspect != null) {
@@ -492,7 +532,8 @@ public class Project implements DebuggerListener, InspectorManager
      * This is used when VM is reset or the project is recompiled.
      *
      */
-    public void removeAllInspectors() {
+    public void removeAllInspectors() 
+    {
         for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
             Inspector inspector = (Inspector) it.next();
             inspector.setVisible(false);
@@ -519,7 +560,8 @@ public class Project implements DebuggerListener, InspectorManager
      * @return The Viewer value
      */
     public ClassInspector getClassInspectorInstance(DebuggerClass clss,
-        Package pkg, JFrame parent) {
+        Package pkg, JFrame parent) 
+    {
         ClassInspector inspector = (ClassInspector) inspectors.get(clss.getName());
 
         if (inspector == null) {
@@ -560,7 +602,8 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public ResultInspector getResultInspectorInstance(DebuggerObject obj,
         String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
-        JFrame parent) {
+        JFrame parent) 
+    {
         ResultInspector inspector = (ResultInspector) pkg.getProject()
                                                          .getInspector(obj);
 
@@ -586,7 +629,8 @@ public class Project implements DebuggerListener, InspectorManager
      * Iterates through all inspectors and updates them
      *
      */
-    public void updateInspectors() {
+    public void updateInspectors() 
+    {
         for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
             Inspector inspector = (Inspector) it.next();
             inspector.update();
@@ -596,17 +640,33 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Return the name of the project.
      */
-    public String getProjectName() {
+    public String getProjectName() 
+    {
         return projectDir.getName();
     }
 
     /**
      * Return the location of the project.
      */
-    public File getProjectDir() {
+    public File getProjectDir() 
+    {
         return projectDir;
     }
 
+    /**
+     * Get the project repository. If the user cancels the credentials dialog,
+     * or this is not a team project, returns null.
+     */
+    public Repository getRepository()
+    {
+    	if (isSharedProject) {
+    	    return getTeamSettingsController().getRepository();
+        }
+        else {
+            return null;
+        }
+    }
+    
     /**
      * Return whether the project is located in a readonly directory
      * @return
@@ -860,7 +920,7 @@ public class Project implements DebuggerListener, InspectorManager
     public void saveAll() {
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
 
-        // Shurely we do not want to stack trace if nothing exists. Damiano
+        // Surely we do not want to stack trace if nothing exists. Damiano
         if (frames == null) {
             return;
         }
@@ -870,6 +930,44 @@ public class Project implements DebuggerListener, InspectorManager
         }
     }
 
+     public void saveAllEditors(){
+    	Iterator i = packages.values().iterator();
+
+        while(i.hasNext()) {
+            Package pkg = (Package) i.next();
+            try {
+                pkg.saveFilesInEditors();
+            }
+            catch(IOException ioe) {
+                ioe.printStackTrace();
+            }
+        } 
+    }
+    /**
+     * Make all the Packages in this project save their graphlayout
+     */
+    public void saveAllGraphLayout(){
+    	Iterator i = packages.values().iterator();
+ 
+        while(i.hasNext()) {
+            Package pkg = (Package) i.next();
+				pkg.save(null);
+        }
+    }
+    
+    /**
+     * Make all the Packages in this project, make their editors reload
+     * the files they are editing.
+     */
+    public void reloadFilesInEditors(){
+    	Iterator i = packages.values().iterator();
+
+        while(i.hasNext()) {
+            Package pkg = (Package) i.next();
+				pkg.reloadFilesInEditors();
+        }
+    }
+    
     /**
      * Reload all constructed packages of this project.
      *
@@ -886,6 +984,116 @@ public class Project implements DebuggerListener, InspectorManager
         }
     }
 
+    /**
+     * make all open package editors clear their selection
+     *
+     */
+    public void clearAllSelections()
+    {
+    	Iterator i = packages.values().iterator();
+
+        while(i.hasNext()) {
+            Package pkg = (Package) i.next();
+            PackageEditor editor = pkg.getEditor();
+            if (editor != null){
+            	editor.clearSelection();
+            }
+        }
+    }
+    
+    /**
+     * Make the grapheditors of this project clear their selection and select
+     * the targets given in the parameter targetNames
+     * @param targetNames a list of Strings containing target names of the form
+     * packages/targetname. For instance myPackage/myClass
+     */
+    public void selectTargetsInGraphs(List targetNames)
+    {
+//    	String packageName = "";
+//    	String targetName = "";
+    	for (Iterator i = targetNames.iterator(); i.hasNext();) {
+			String pathAndName = (String) i.next();
+//			int index = pathAndName.lastIndexOf('/');
+//			if (index > 0) {
+//				packageName = pathAndName.substring(0, index);
+//				targetName = pathAndName.substring(index, pathAndName.length());
+//			}
+//			else {
+//				targetName = pathAndName;
+//			}
+//			Package p = getExistingPackage(packageName);
+//			PackageEditor packageEditor = p.getEditor();
+//	    	Target target = p.getTarget(pathAndName);
+			Target target = getTarget(pathAndName);
+			if (target != null){
+			    PackageEditor packageEditor = target.getPackage().getEditor();
+			    packageEditor.addToSelection(target);
+			    packageEditor.repaint();
+			}
+		}
+    }
+    
+    /**
+     * Given the path and name of a target in the project, return the target or
+     * null if the target doesn't exist
+     * @param pathAndName
+     * @return the target
+     */
+    public Target getTarget(String pathAndName)
+    {
+        String packageName = "";
+    	//String targetName = "";
+    	int index = pathAndName.lastIndexOf('/');
+    	if (index > 0) {
+			packageName = pathAndName.substring(0, index);
+			//targetName = pathAndName.substring(index, pathAndName.length());
+		}
+		else {
+			//targetName = pathAndName;
+		}
+		Package p = getPackage(packageName);
+		if (p == null){
+		    return null;
+		}
+		// PackageEditor packageEditor = p.getEditor();
+    	Target target = p.getTarget(pathAndName);
+    	return target;
+    }
+    
+    /**
+     * Open the source editor for each target that is selected in its
+     * package editor
+     *
+     */
+    public void openEditorsForSelectedTargets(){
+    	List selectedTargets = getSelectedTargets();
+    	for (Iterator i = selectedTargets.iterator(); i.hasNext(); ){
+    		Target target = (Target) i.next();
+    		if (target instanceof ClassTarget){
+    			ClassTarget classTarget = (ClassTarget) target;
+    			Editor editor = classTarget.getEditor();
+    			editor.setVisible(true);
+    			// make moe select the ======== part of cvs conflicts
+    		}
+    	}
+    	
+    }
+    
+    /**
+     * Returns a list of Targets that is seleceted in its package editor
+     * @return List list of targets that is selected
+     */
+    private List getSelectedTargets(){
+    	List selectedTargets = new LinkedList();
+    	List packageNames = getPackageNames();
+    	for (Iterator i = packageNames.iterator(); i.hasNext();) {
+			String packageName = (String) i.next();
+			Package p = getPackage(packageName);
+			selectedTargets.addAll(Arrays.asList(p.getSelectedTargets()));
+		}
+    	return selectedTargets;
+    }
+    
     /**
      * Implementation of the "Save As.." user function.
      */
@@ -1092,7 +1300,8 @@ public class Project implements DebuggerListener, InspectorManager
      * of this project.
      * @return a non null but possibly empty list of URL.
      */
-    protected ArrayList getPlusLibsContent () {
+    protected ArrayList getPlusLibsContent () 
+    {
         ArrayList risul = new ArrayList();
         
         // the subdirectory of the project which can hold project specific jars and zips
@@ -1123,7 +1332,8 @@ public class Project implements DebuggerListener, InspectorManager
      * @param risul where to add the file
      * @param aFile the file to be added.
      */
-    private static final void attemptAddLibrary ( ArrayList risul, File aFile ) {
+    private static final void attemptAddLibrary ( ArrayList risul, File aFile ) 
+    {
         if ( aFile == null ) return;
         
         // Is this a normal file and is it readable ?
@@ -1243,12 +1453,14 @@ public class Project implements DebuggerListener, InspectorManager
      * you pass in a directory name. It is meant for filenames
      * like /foo/bar/p1/s1/TestName.java
      */
-    public String convertPathToPackageName(String pathname) {
+    public String convertPathToPackageName(String pathname) 
+    {
         return JavaNames.convertFileToQualifiedName(getProjectDir(),
             new File(pathname));
     }
 
-    public void removeStepMarks() {
+    public void removeStepMarks() 
+    {
         // remove step marks for all packages
         Iterator i = packages.values().iterator();
 
@@ -1364,5 +1576,181 @@ public class Project implements DebuggerListener, InspectorManager
             }
             packages.remove(packageQualifiedName);
         }
+    }
+    
+    // ---- teamwork
+    
+    /**
+     * Return the teamwork action group.
+     */
+    public TeamActionGroup getTeamActions()
+    {
+        return teamActions;
+    }
+    
+    /**
+	 * Determine if project is a team project. 
+	 * The method will look for the existence of the team configuration file
+	 * team.defs
+	 * @return true if the project is a team project
+	 */
+	public boolean isTeamProject()
+    {
+		return isSharedProject;
+	}
+	
+	/**
+	 * Get an array of Files that resides in the project folders.
+	 * @param project the project
+	 * @return List of Files 
+	 */
+	public Set getFilesInProject(boolean includePkgFiles)
+    {
+		Set files = new HashSet();
+		traverseDirsForFiles(files, projectDir, includePkgFiles);
+		return files;
+	}
+	
+    /**
+     * Get the teams settings controller for this project. Returns null
+     * if this is not a shared project.
+     */
+	public TeamSettingsController getTeamSettingsController()
+    {
+        if(teamSettingsController == null && isSharedProject) {
+            teamSettingsController = new TeamSettingsController(this);
+        }
+		return teamSettingsController;
+	}
+	
+        
+	/**
+	 * Get an array of Files containing the directories that exist in the 
+	 * project which has not been added to CVS.
+	 * @return array of Files
+	 */
+	public List getDirsInProjectWhichNeedToBeAdded() 
+    {
+		List files = new LinkedList();
+		traverseDirsForDirs(files, projectDir);
+		return files;
+	}
+	
+	public boolean isInCVS()
+    {
+		return isDirInCVS(getProjectDir());
+	}
+	
+	/**
+	 * Traverse the directory tree starting in dir an add all the encountered 
+	 * files to the List allFiles. The parameter includePkgFiles determine 
+	 * whether bluej.pgk files should be added to allFiles as well.
+	 * @param allFiles a List to which the method will add the files it meets.
+	 * @param dir the directory the search starts from
+	 * @param includePkgFiles if true, bluej.pkg files are included as well.
+	 */
+	private void traverseDirsForFiles(Set allFiles, File dir, boolean includePkgFiles)
+    {
+		File[] files = dir.listFiles(new CodeFileFilter(getTeamSettingsController().getIgnoreFiles(),includePkgFiles));
+		if (files==null){
+			return;
+		}
+		for(int i=0; i< files.length; i++ ){
+			if (files[i].isFile()){
+				allFiles.add(files[i]);
+			}else{
+				traverseDirsForFiles(allFiles, files[i], includePkgFiles);
+			}
+		}
+	}
+	
+	/**
+	 * Traverses a directory tree and records the directories it encounters.
+	 * Directories named 'CVSROOT' or 'CVS' are ignored along with directories
+	 * already in CVS.
+	 * @param allDirs a List to which the method will add the dirs it meets.
+	 * @param dir the directory the search starts from.
+	 */
+	private static void traverseDirsForDirs(List allDirs, File dir)
+    {
+		File[] files = dir.listFiles();
+		boolean ok = false;
+		if (files == null){
+			return;
+		}
+		for(int i=0; i< files.length; i++ ){
+			ok = !files[i].getName().equals("CVSROOT") &&
+				 !files[i].getName().equals("CVS") && !isDirInCVS(files[i]);
+			if (files[i].isDirectory()){
+				if (ok) {
+					allDirs.add(files[i]);
+				}
+				traverseDirsForDirs(allDirs, files[i]);
+			}
+		}
+	}
+	
+	/**
+	 * Determine if a directory is in CVS. The method looks for a subfolder
+	 * named 'CVS'
+	 * @param dir the directory
+	 * @return true if directory is in CVS.
+	 */
+	private static boolean isDirInCVS(File dir)
+    {
+		char s = File.separatorChar;
+		File cvsDir = new File(dir.getAbsolutePath() + s + "CVS");
+		return cvsDir.exists();
+	}
+
+    /**
+     * Get the team settings dialog for this project. Only call this if the
+     * project is a shared project.
+     */
+    public TeamSettingsDialog getTeamSettingsDialog()
+    {
+        return getTeamSettingsController().getTeamSettingsDialog();
+    }
+    
+    public CommitCommentsFrame getCommitCommentsDialog(PkgMgrFrame pmf)
+    {
+        // if the commit comments dialog is null or has been associated with a different
+        // PkgMgrFrame we need to recreate with appropriate parent. this method is used
+        // by CommitCommentAction for centreing and by CommitAction for gaining 
+        // commit comment etc.
+        if(commitCommentsFrame == null || (!commitCommentsFrame.getParent().equals(pmf))) {
+            commitCommentsFrame = new CommitCommentsFrame(pmf);
+        }
+        return commitCommentsFrame;
+    }
+        
+    /**
+     * Set this project as either shared or non-shared.
+     */
+    private void setProjectShared(boolean shared)
+    {
+        isSharedProject = shared;
+        teamActions.setTeamMode(shared);
+        
+        PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
+        if (frames != null) {
+            for (int i = 0; i < frames.length; i++) {
+                frames[i].updateSharedStatus(shared);
+            }
+        }
+    }
+    
+    /**
+     * Set the team settings controller for this project. This makes the
+     * project a shared project (unless the controller is null).
+     */
+    public void setTeamSettingsController(TeamSettingsController tsc)
+    {
+        teamSettingsController = tsc;
+        if (tsc != null) {
+            tsc.setProject(this);
+            tsc.writeToProject();
+        }
+        setProjectShared (tsc != null);
     }
 }

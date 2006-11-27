@@ -13,7 +13,7 @@ import bluej.extensions.BClass;
  * 
  * 
  * @author Davin McCall
- * @version $Id: ClassEvent.java 4355 2006-06-13 05:10:38Z davmac $
+ * @version $Id: ClassEvent.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class ClassEvent implements ExtensionEvent
 {

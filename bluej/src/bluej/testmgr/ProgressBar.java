@@ -8,7 +8,7 @@ import javax.swing.JProgressBar;
  * A progress bar showing the green/red status.
  * 
  * @author Andrew Patterson (derived from JUnit src)
- * @version $Id: ProgressBar.java 3725 2005-12-01 01:37:08Z bquig $
+ * @version $Id: ProgressBar.java 4708 2006-11-27 00:47:57Z bquig $
  */
 class ProgressBar extends JProgressBar
 {

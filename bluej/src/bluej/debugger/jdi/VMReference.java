@@ -34,7 +34,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 4052 2006-05-01 11:58:26Z davmac $
+ * @version $Id: VMReference.java 4708 2006-11-27 00:47:57Z bquig $
  * 
  * The startup process is as follows:
  * 

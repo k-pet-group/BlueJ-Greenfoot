@@ -31,7 +31,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 4345 2006-06-08 06:33:46Z davmac $
+ * @version $Id: Inspector.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener

@@ -20,7 +20,7 @@ import com.sun.jdi.ThreadReference;
  * JdiThread object (for actual threads).
  * 
  * @author Andrew Patterson
- * @version $Id: JdiThreadTreeModel.java 2825 2004-07-28 01:33:39Z davmac $
+ * @version $Id: JdiThreadTreeModel.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class JdiThreadTreeModel extends DefaultTreeModel
     implements DebuggerThreadTreeModel

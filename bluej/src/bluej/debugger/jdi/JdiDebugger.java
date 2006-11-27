@@ -33,7 +33,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 4052 2006-05-01 11:58:26Z davmac $
+ * @version $Id: JdiDebugger.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class JdiDebugger extends Debugger
 {

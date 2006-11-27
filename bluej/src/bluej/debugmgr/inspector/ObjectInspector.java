@@ -22,7 +22,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: ObjectInspector.java 4080 2006-05-04 10:49:55Z polle $
+ * @version $Id: ObjectInspector.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class ObjectInspector extends Inspector
 {

@@ -435,3 +435,27 @@ a result value?
 Go back
 Continue
 null
+
+team-update-first
+There are conflicts with the following files. You cannot perform a
+commit operation until these conflicts are resolved:
+
+team-uptodate-failed
+Your local copy is out of date. Update from repository
+before committing your local changes.
+
+team-cant-find-module
+Project not in repository. A project must be shared (put 
+in the repository) before you can check it out.
+
+team-empty-message
+An unknown error occurred. Check the team settings to make sure your
+repository settings are correct.
+
+team-invalid-cvsroot
+Invalid CVS root - check your team settings.
+
+team-authentication-problem
+The server could not log you in - check your username/password and
+repository in team settings.
+

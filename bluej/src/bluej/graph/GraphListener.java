@@ -4,7 +4,7 @@ package bluej.graph;
  * An interfacing for receiving events from a Graph.
  * 
  * @author davmac
- * @version $Id: GraphListener.java 4082 2006-05-04 13:37:44Z davmac $
+ * @version $Id: GraphListener.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public interface GraphListener
 {

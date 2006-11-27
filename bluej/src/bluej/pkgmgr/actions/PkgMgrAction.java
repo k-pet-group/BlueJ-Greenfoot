@@ -17,7 +17,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * It can also set-up an accelerator key.
  * 
  * @author Davin McCall
- * @version $Id: PkgMgrAction.java 3055 2004-10-20 08:30:17Z fisker $
+ * @version $Id: PkgMgrAction.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public abstract class PkgMgrAction extends AbstractAction {
         
@@ -37,12 +37,12 @@ public abstract class PkgMgrAction extends AbstractAction {
      * @param event     The event for which to find the frame.
      * @return      The discovered frame (or null).
      */
-    protected static PkgMgrFrame frameFromEvent(ActionEvent event)
+    public static PkgMgrFrame frameFromEvent(ActionEvent event)
     {
         Component jc = (Component)event.getSource();
         while( jc != null ) {            
-            // System.out.println("hello " + jc.getClass().getName());
-            // System.out.flush();
+             //System.out.println("hello " + jc.getClass().getName());
+             //System.out.flush();
             
             if( jc instanceof PkgMgrFrame )
                 break;

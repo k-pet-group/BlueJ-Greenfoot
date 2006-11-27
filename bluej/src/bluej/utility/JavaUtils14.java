@@ -14,7 +14,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 3751 2006-01-31 00:11:20Z davmac $
+ * @version $Id: JavaUtils14.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class JavaUtils14 extends JavaUtils
 {

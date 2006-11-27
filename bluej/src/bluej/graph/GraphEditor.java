@@ -19,7 +19,7 @@ import bluej.prefmgr.PrefMgr;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 4082 2006-05-04 13:37:44Z davmac $
+ * @version $Id: GraphEditor.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener, GraphListener
@@ -171,7 +171,16 @@ public class GraphEditor extends JComponent
     {
         selectionController.removeFromSelection(element);
     }
-
+    
+    /**
+     * Add to the current selection
+     * @param element the element to add
+     */
+    public void addToSelection(SelectableGraphElement element)
+    {
+    	selectionController.addToSelection(element);
+    }
+    
    
     /**
      * Return the rubber band information.

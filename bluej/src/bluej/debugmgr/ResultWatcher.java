@@ -1,7 +1,9 @@
 package bluej.debugmgr;
 
 import bluej.debugger.DebuggerObject;
+
 import bluej.testmgr.record.*;
+
 
 /**
  * Debugger interface implemented by classes interested in the result of an invocation.
@@ -9,7 +11,7 @@ import bluej.testmgr.record.*;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ResultWatcher.java 3713 2005-11-09 01:42:02Z davmac $
+ * @version $Id: ResultWatcher.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public interface ResultWatcher
 {

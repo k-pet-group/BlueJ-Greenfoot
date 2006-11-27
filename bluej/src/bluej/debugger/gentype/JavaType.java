@@ -9,7 +9,7 @@ import java.util.Map;
  * methods are provided.
  * 
  * @author Davin McCall
- * @version $Id: JavaType.java 3508 2005-08-08 04:18:26Z davmac $
+ * @version $Id: JavaType.java 4708 2006-11-27 00:47:57Z bquig $
  */
 
 public abstract class JavaType

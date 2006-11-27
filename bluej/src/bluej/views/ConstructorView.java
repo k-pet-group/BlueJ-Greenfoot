@@ -10,7 +10,7 @@ import bluej.utility.JavaUtils;
 /**
  * A representation of a Java constructor in BlueJ
  * 
- * @version $Id: ConstructorView.java 3587 2005-09-23 00:54:31Z davmac $
+ * @version $Id: ConstructorView.java 4708 2006-11-27 00:47:57Z bquig $
  * @author Michael Cahill
  * @author Michael Kolling
  */

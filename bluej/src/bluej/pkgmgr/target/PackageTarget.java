@@ -18,7 +18,7 @@ import bluej.utility.*;
  * A sub package (or parent package)
  * 
  * @author Michael Cahill
- * @version $Id: PackageTarget.java 3719 2005-11-24 05:43:50Z davmac $
+ * @version $Id: PackageTarget.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class PackageTarget extends Target
     implements Moveable
@@ -183,7 +183,7 @@ public class PackageTarget extends Target
         if (pmf.askRemovePackage(this)) {
             deleteFiles();
             getPackage().getProject().removePackage(getQualifiedName());
-            getPackage().removePackage(this);
+            getPackage().removeTarget(this);
         }
     }
 
@@ -195,7 +195,7 @@ public class PackageTarget extends Target
     public void removeImmediate()
     {
         deleteFiles();
-        getPackage().removePackage(this);
+        getPackage().removeTarget(this);
         getPackage().getProject().removePackage(getQualifiedName());
     }
 

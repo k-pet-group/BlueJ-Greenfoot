@@ -5,7 +5,7 @@ package bluej;
  * Interface for a class which supports retrieving BlueJ property strings.
  * 
  * @author Davin McCall
- * @version $Id: BlueJPropStringSource.java 3515 2005-08-13 13:43:31Z polle $
+ * @version $Id: BlueJPropStringSource.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public interface BlueJPropStringSource
 {

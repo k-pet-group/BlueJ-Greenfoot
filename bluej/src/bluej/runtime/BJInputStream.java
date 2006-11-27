@@ -10,7 +10,7 @@ import bluej.terminal.InputBuffer;
  * signals (CTRL-Z or CTRL-D) from a terminal
  * 
  * @author Davin McCall
- * @version $Id: BJInputStream.java 3317 2005-02-17 01:49:17Z davmac $
+ * @version $Id: BJInputStream.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class BJInputStream extends InputStream
 {

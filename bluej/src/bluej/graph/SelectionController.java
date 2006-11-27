@@ -557,6 +557,14 @@ public class SelectionController
         selection.remove(element);
     }
 
+    /**
+     * Add to the current selection
+     * @param element
+     */
+    public void addToSelection(SelectableGraphElement element)
+    {
+        selection.add(element);
+    }
    
     /**
      * Check whether this mouse event was from button one.

@@ -8,7 +8,7 @@ package bluej.extensions.event;
  * changed) or compiled. 
  * 
  * @author Davin McCall
- * @version $Id: ClassListener.java 4354 2006-06-13 04:27:35Z davmac $
+ * @version $Id: ClassListener.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public interface ClassListener
 {

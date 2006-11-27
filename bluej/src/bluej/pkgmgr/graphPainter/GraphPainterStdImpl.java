@@ -16,7 +16,7 @@ import bluej.pkgmgr.Package;
  * Paints a Graph using TargetPainters
  * 
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 3205 2004-11-29 15:48:03Z fisker $
+ * @version $Id: GraphPainterStdImpl.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class GraphPainterStdImpl
     implements GraphPainter

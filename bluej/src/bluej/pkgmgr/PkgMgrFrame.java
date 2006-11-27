@@ -29,6 +29,9 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.texteval.TextEvalArea;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.MenuManager;
+import bluej.groupwork.actions.CheckoutAction;
+import bluej.groupwork.actions.TeamActionGroup;
+import bluej.groupwork.ui.ActivityIndicator;
 import bluej.pkgmgr.actions.*;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.target.ClassTarget;
@@ -55,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 4603 2006-09-07 04:34:37Z davmac $
+ * @version $Id: PkgMgrFrame.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -72,11 +75,13 @@ public class PkgMgrFrame extends JFrame
 
     private static Application macApplication = prepareMacOSApp();
     private static boolean testToolsShown = wantToSeeTestingTools();
+    private static boolean teamToolsShown = wantToSeeTeamTools();
 
     // instance fields:
 
     private JPanel buttonPanel;
     private JPanel testPanel;
+    private JPanel teamPanel;
 
     private JCheckBoxMenuItem showUsesMenuItem;
     private JCheckBoxMenuItem showExtendsMenuItem;
@@ -86,6 +91,7 @@ public class PkgMgrFrame extends JFrame
     private AbstractButton runButton;
 
     private JLabel statusbar;
+    private ActivityIndicator progressbar;
 
     private JLabel testStatusMessage;
     private JLabel recordingLabel;
@@ -101,7 +107,21 @@ public class PkgMgrFrame extends JFrame
     private JMenu recentProjectsMenu;
     private JMenu testingMenu;
     private MenuManager menuManager;
-
+    
+    private JMenu teamMenu;
+    private JMenuItem shareProjectMenuItem;
+    private JMenuItem teamSettingsMenuItem;
+    private JMenuItem showLogMenuItem;
+    private AbstractButton updateButton;
+    private AbstractButton commitButton;
+    private AbstractButton teamStatusButton;
+    private List teamItems;
+    private JCheckBoxMenuItem includeLayoutMenuItem;
+  
+    // these should probably be transferred to having static getInstance methods
+    //like PkgMgrActions
+    private TeamActionGroup teamActions;
+    
     private JMenuItem showTestResultsItem;
     private List itemsToDisable;
     private List actionsToDisable;
@@ -366,6 +386,28 @@ public class PkgMgrFrame extends JFrame
     {
         return PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS);
     }
+    
+     /**
+     * Check whether the status of the 'Show unit test tools' preference has
+     * changed, and if it has, show or hide them as requested.
+     */
+    public static void updateTeamStatus()
+    {
+        if (teamToolsShown != wantToSeeTeamTools()) {
+            for (Iterator i = frames.iterator(); i.hasNext();) {
+                ((PkgMgrFrame) i.next()).showTeamTools(!teamToolsShown);
+            }
+            teamToolsShown = !teamToolsShown;
+        }
+    }
+
+    /**
+     * Tell whether teamwork tools should be shown.
+     */
+    private static boolean wantToSeeTeamTools()
+    {
+        return PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS);
+    }
 
     /**
      * Display a short text message to the user. Without specifying a package,
@@ -453,6 +495,9 @@ public class PkgMgrFrame extends JFrame
         this.editor = null;
         objbench = new ObjectBench();
         if(!Config.isGreenfoot()) {
+            teamActions = new TeamActionGroup(false);
+            teamActions.setAllDisabled();
+
             setupActionDisableSet();
             makeFrame();
             updateWindowTitle();
@@ -542,8 +587,26 @@ public class PkgMgrFrame extends JFrame
             
             this.menuManager.setAttachedObject(pkg);
             this.menuManager.addExtensionMenu(pkg.getProject());
-        }
+        
+            teamActions = pkg.getProject().getTeamActions();
+            resetTeamActions();
+        };
+
         extMgr.packageOpened(pkg);
+    }
+    
+    /**
+     * Set the team controls to use the team actions for the project.
+     */
+    private void resetTeamActions()
+    {
+        teamStatusButton.setAction(teamActions.getStatusAction());
+        updateButton.setAction(teamActions.getUpdateAction());
+        teamSettingsMenuItem.setAction(teamActions.getTeamSettingsAction());
+        commitButton.setAction(teamActions.getCommitCommentAction());
+        shareProjectMenuItem.setAction(teamActions.getImportAction());
+        includeLayoutMenuItem.setAction(teamActions.getIncludeLayoutAction());
+        showLogMenuItem.setAction(teamActions.getShowLogAction());
     }
 
     /**
@@ -638,6 +701,9 @@ public class PkgMgrFrame extends JFrame
 
             if (!getPackage().isUnnamedPackage())
                 title = title + "  [" + getPackage().getQualifiedName() + "]";
+            
+            if(getProject().isTeamProject())
+                title = title + " (" + Config.getString("team.project.marker") + ")";
 
             setTitle(title);
             return title;
@@ -647,10 +713,32 @@ public class PkgMgrFrame extends JFrame
     /**
      * Display a message in the status bar of the frame
      */
-    public void setStatus(String status)
+    public void setStatus(final String status)
     {
-        if (statusbar != null)
-            statusbar.setText(status);
+         EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                if (statusbar != null)
+                    statusbar.setText(status);
+            }
+        });
+        
+    }
+    
+       
+    /**
+     * Start the activity indicator. Call from any thread.
+     */
+    public void startProgress()
+    {
+        progressbar.setRunning(true);
+    }
+
+    /**
+     * Stop the activity indicator. Call from any thread.
+     */
+    public void stopProgress()
+    {
+        progressbar.setRunning(false);
     }
 
     /**
@@ -658,8 +746,12 @@ public class PkgMgrFrame extends JFrame
      */
     public void clearStatus()
     {
-        if (statusbar != null)
-            statusbar.setText(" ");
+       EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                if (statusbar != null)
+                    statusbar.setText(" ");
+            }
+        });
     }
 
     /**
@@ -1179,6 +1271,7 @@ public class PkgMgrFrame extends JFrame
         if (frameCount() == 1) {
             if (keepLastFrame) { // close package, leave frame
                 closePackage();
+                teamActions.setAllDisabled();
                 updateWindowTitle();
                 updateRecentProjects();
 
@@ -2077,7 +2170,7 @@ public class PkgMgrFrame extends JFrame
         pkg.setShowExtends(isShowExtends());
         editor.repaint();
     }
-
+    
     public boolean isShowUses()
     {
         return showUsesMenuItem.isSelected();
@@ -2086,6 +2179,11 @@ public class PkgMgrFrame extends JFrame
     public boolean isShowExtends()
     {
         return showExtendsMenuItem.isSelected();
+    }
+    
+    public boolean includeLayout()
+    {
+        return includeLayoutMenuItem.isSelected();
     }
 
     /**
@@ -2098,7 +2196,29 @@ public class PkgMgrFrame extends JFrame
             component.setVisible(show);
         }
     }
+    
+    /**
+     * Show or hide the testing tools.
+     */
+    public void showTeamTools(boolean show)
+    {
+        for (Iterator it = teamItems.iterator(); it.hasNext();) {
+            JComponent component = (JComponent) it.next();
+            component.setVisible(show);
+        }
+    }
 
+    /**
+     * Notify the frame that the "shared" status of the project has changed,
+     * i.e. the project has become shared or unshared.
+     * 
+     * @param shared  The new shared status of the project
+     */
+    public void updateSharedStatus(boolean shared)
+    {
+        updateWindowTitle();
+    }
+    
     /**
      * Tell whether we are currently showing the text evaluation pane.
      * 
@@ -2244,6 +2364,7 @@ public class PkgMgrFrame extends JFrame
         setFont(PkgMgrFont);
         setIconImage(BlueJTheme.getIconImage());
         testItems = new ArrayList();
+        teamItems = new ArrayList();
 
         setupMenus();
 
@@ -2334,6 +2455,34 @@ public class PkgMgrFrame extends JFrame
                 testPanel.setAlignmentX(0.5f);
             }
             testItems.add(testPanel);
+            
+            teamPanel = new JPanel();
+            {
+                teamPanel.setLayout(new BoxLayout(teamPanel, BoxLayout.Y_AXIS));
+
+                teamPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 14, 5));
+                
+                updateButton = createButton(teamActions.getUpdateAction(), false, false, 2, 4);
+                updateButton.setAlignmentX(0.15f);
+                teamPanel.add(updateButton);
+                teamPanel.add(Box.createVerticalStrut(3));
+                
+                commitButton = createButton(teamActions.getCommitCommentAction(), false, false, 2, 4);
+                commitButton.setAlignmentX(0.15f);
+                //make the button use a different label than the one from
+                // action
+                teamPanel.add(commitButton);
+                
+                teamPanel.add(Box.createVerticalStrut(3));
+
+                teamStatusButton = createButton(teamActions.getStatusAction(), false, false, 2, 4);
+                teamStatusButton.setAlignmentX(0.15f);
+                teamPanel.add(teamStatusButton);
+                
+                teamPanel.add(Box.createVerticalStrut(3));
+                teamPanel.setAlignmentX(0.5f);
+            }
+            teamItems.add(teamPanel);
 
             machineIcon = new MachineIcon();
             machineIcon.setAlignmentX(0.5f);
@@ -2342,6 +2491,7 @@ public class PkgMgrFrame extends JFrame
             toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
             toolPanel.add(buttonPanel);
             toolPanel.add(Box.createVerticalGlue());
+            toolPanel.add(teamPanel);
             toolPanel.add(testPanel);
             toolPanel.add(machineIcon);
         }
@@ -2377,13 +2527,23 @@ public class PkgMgrFrame extends JFrame
             testStatusMessage = new JLabel(" ");
             testStatusMessage.setFont(PkgMgrFont);
             statusArea.add(testStatusMessage, BorderLayout.WEST);
+            
+            progressbar = new ActivityIndicator();
+            progressbar.setRunning(false);
+            statusArea.add(progressbar, BorderLayout.EAST);
         }
         contentPane.add(statusArea, BorderLayout.SOUTH);
 
         // hide testing tools if not wanted
-        if (!testToolsShown)
+        if (!testToolsShown) {
             showTestingTools(false);
+        }
 
+        // hide team tools if not wanted
+        if (! teamToolsShown) {
+            showTeamTools(false);
+        }
+        
         // show the text evaluation pane if needed
         if (PrefMgr.getFlag(PrefMgr.SHOW_TEXT_EVAL)) {
             addTextEvaluatorPane();
@@ -2551,6 +2711,24 @@ public class PkgMgrFrame extends JFrame
             }
             testItems.add(testingMenu);
             menu.add(testingMenu);
+            
+            //team menu setup
+            teamMenu = new JMenu(Config.getString("menu.tools.teamwork"));
+            teamMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
+            {
+                Action checkoutAction = CheckoutAction.getInstance();
+                createMenuItem(checkoutAction , teamMenu);
+                
+                shareProjectMenuItem = createMenuItem(teamActions.getImportAction(), teamMenu);               
+                
+                includeLayoutMenuItem = createCheckboxMenuItem(teamActions.getIncludeLayoutAction(), teamMenu, false);
+                
+                teamSettingsMenuItem = createMenuItem(teamActions.getTeamSettingsAction(), teamMenu);
+                
+                showLogMenuItem = createMenuItem(teamActions.getShowLogAction(), teamMenu);
+            }
+            teamItems.add(teamMenu);
+            menu.add(teamMenu);
 
             if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
                                                    // Mac

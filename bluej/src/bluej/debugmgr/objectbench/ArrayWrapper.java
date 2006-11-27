@@ -17,7 +17,7 @@ import bluej.prefmgr.PrefMgr;
  * 
  * @author Andrew Patterson
  * @author Bruce Quig
- * @version $Id: ArrayWrapper.java 4345 2006-06-08 06:33:46Z davmac $
+ * @version $Id: ArrayWrapper.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class ArrayWrapper extends ObjectWrapper
 {

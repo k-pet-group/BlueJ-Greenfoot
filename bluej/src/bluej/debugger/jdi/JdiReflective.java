@@ -13,7 +13,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 3507 2005-08-08 04:12:15Z davmac $
+ * @version $Id: JdiReflective.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class JdiReflective extends Reflective
 {

@@ -14,7 +14,7 @@ import java.awt.geom.*;
  * A general target in a package
  * 
  * @author Michael Cahill
- * @version $Id: Target.java 4257 2006-05-14 16:38:01Z davmac $
+ * @version $Id: Target.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public abstract class Target extends Vertex
     implements Comparable
@@ -234,8 +234,8 @@ public abstract class Target extends Vertex
 
     public void repaint()
     {
-        if (pkg.getEditor() != null) {
-            pkg.getEditor().repaint();
+        if (pkg != null && pkg.getEditor() != null) {
+            pkg.getEditor().repaint(getX(), getY(), getWidth(), getHeight());
         }
     }
 

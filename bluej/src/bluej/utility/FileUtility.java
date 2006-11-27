@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 4602 2006-09-07 04:31:33Z davmac $
+ * @version $Id: FileUtility.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class FileUtility
 {
@@ -29,7 +29,6 @@ public class FileUtility
     private static JFileChooser multiFileChooser = null;
     
 
-    //========================= STATIC METHODS ============================
 
     public static File getPackageName(Component parent)
     {

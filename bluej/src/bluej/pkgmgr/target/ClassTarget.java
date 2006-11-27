@@ -39,13 +39,7 @@ import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
-import bluej.pkgmgr.target.role.AbstractClassRole;
-import bluej.pkgmgr.target.role.AppletClassRole;
-import bluej.pkgmgr.target.role.ClassRole;
-import bluej.pkgmgr.target.role.EnumClassRole;
-import bluej.pkgmgr.target.role.InterfaceClassRole;
-import bluej.pkgmgr.target.role.StdClassRole;
-import bluej.pkgmgr.target.role.UnitTestClassRole;
+import bluej.pkgmgr.target.role.*;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
@@ -66,7 +60,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 4355 2006-06-13 05:10:38Z davmac $
+ * @version $Id: ClassTarget.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -473,6 +467,23 @@ public class ClassTarget extends DependentTarget
         getRole().save(props, 0, prefix);
     }
 
+    /**
+     * Notification that the source file may have been updated, and so we should
+     * reload.
+     */
+    public void reload()
+    {
+        hasSource = getSourceFile().canRead();
+        if (hasSource) {
+            if (editor != null) {
+                editor.reloadFile();
+            }
+            else {
+                analyseSource();
+            }
+        }
+    }
+    
     /**
      * Check if the compiled class and the source are up to date.
      * (Specifically, check if a recompilation is needed. This will
@@ -1608,7 +1619,7 @@ public class ClassTarget extends DependentTarget
     public void remove()
     {
         prepareForRemoval();
-        getPackage().removeClass(this);
+        getPackage().removeTarget(this);
     }
 
     /*

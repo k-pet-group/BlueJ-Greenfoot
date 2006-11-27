@@ -14,7 +14,7 @@ import bluej.utility.DialogManager;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 3244 2004-12-16 10:42:50Z mik $
+ * @version $Id: MiscPrefPanel.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -25,7 +25,8 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     private JCheckBox optimiseBox;
     private JCheckBox showUncheckedBox; // show "unchecked" compiler warning
     private JCheckBox showTestBox;
-
+    private JCheckBox showTeamBox;
+     
     private boolean optimiseMessageShown = false;
     
     /**
@@ -97,6 +98,21 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         add(testPanel);
 
         add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+        
+        JPanel teamPanel = new JPanel(new GridLayout(0,1,0,0));
+        {
+            teamPanel.setBorder(BorderFactory.createCompoundBorder(
+                                          BorderFactory.createTitledBorder(
+                                                 Config.getString("prefmgr.misc.team.title")),
+                                          BlueJTheme.generalBorder));
+            teamPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+            showTeamBox = new JCheckBox(Config.getString("prefmgr.misc.showTeam"));
+            teamPanel.add(showTeamBox);
+        }
+        add(teamPanel);
+
+        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
         JPanel vmPanel = new JPanel(new GridLayout(0,1,0,0));
         {
@@ -131,6 +147,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         linkToLibBox.setSelected(PrefMgr.getFlag(PrefMgr.LINK_LIB));
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
         showTestBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS));
+        showTeamBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS));
         optimiseBox.setSelected(PrefMgr.getFlag(PrefMgr.OPTIMISE_VM));
         showUncheckedBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED));
     }
@@ -143,10 +160,12 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     {
         PrefMgr.setFlag(PrefMgr.LINK_LIB, linkToLibBox.isSelected());
         PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, showTestBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.SHOW_TEAM_TOOLS, showTeamBox.isSelected());
         PrefMgr.setFlag(PrefMgr.OPTIMISE_VM, optimiseBox.isSelected());
         PrefMgr.setFlag(PrefMgr.SHOW_UNCHECKED, showUncheckedBox.isSelected());
 
         PkgMgrFrame.updateTestingStatus();
+        PkgMgrFrame.updateTeamStatus();
 
         String jdkURL = jdkURLField.getText();
 

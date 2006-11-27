@@ -1,3 +1,4 @@
+
 package bluej.debugmgr.texteval;
 
 import java.awt.*;
@@ -43,7 +44,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 3718 2005-11-16 02:58:57Z davmac $
+ * @version $Id: TextEvalPane.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -716,7 +717,6 @@ public class TextEvalPane extends JEditorPane
         setKeymap(newmap);
     }
     
-    // ======= Actions =======
     
     final class InsertCharacterAction extends AbstractAction {
 

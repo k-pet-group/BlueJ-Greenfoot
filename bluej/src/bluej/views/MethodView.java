@@ -11,9 +11,9 @@ import bluej.utility.JavaUtils;
 
 /**
  *
- *  A representation of a Java method in BlueJ
+ * A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 3650 2005-10-06 03:35:55Z davmac $
+ *  @version $Id: MethodView.java 4708 2006-11-27 00:47:57Z bquig $
  * @author Michael Cahill
  * @author Michael Kolling
  */

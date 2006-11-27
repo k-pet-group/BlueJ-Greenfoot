@@ -70,7 +70,7 @@ public final class MoeEditorManager
     ** @param watcher	an object interested in editing events
     ** @param compiled	true, if the class has been compiled
     ** @param breakpoints	list of Integers: line numbers where bpts are
-    ** @returns		the new editor, or null if there was a problem
+    ** @return		the new editor, or null if there was a problem
     **/
 
     public Editor openClass(String filename, 

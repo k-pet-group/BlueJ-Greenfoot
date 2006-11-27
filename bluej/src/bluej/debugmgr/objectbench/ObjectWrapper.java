@@ -48,7 +48,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 4346 2006-06-09 04:33:01Z davmac $
+ * @version $Id: ObjectWrapper.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {

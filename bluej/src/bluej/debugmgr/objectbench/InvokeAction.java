@@ -10,7 +10,7 @@ import bluej.views.MethodView;
  * Simple action representing an interactive method invocation.
  *  
  * @author Davin McCall
- * @version $Id: InvokeAction.java 3519 2005-08-13 18:01:44Z polle $
+ * @version $Id: InvokeAction.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class InvokeAction extends AbstractAction
 {

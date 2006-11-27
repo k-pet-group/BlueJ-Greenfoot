@@ -7,7 +7,7 @@ import bluej.debugger.gentype.JavaType;
  * in the code page.
  * 
  * @author Davin McCall
- * @version $Id: NamedValue.java 3478 2005-07-26 02:46:05Z davmac $
+ * @version $Id: NamedValue.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public interface NamedValue
 {

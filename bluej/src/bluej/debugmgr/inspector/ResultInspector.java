@@ -1,6 +1,10 @@
 package bluej.debugmgr.inspector;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.EventQueue;
+import java.awt.Insets;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -17,8 +21,12 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.*;
+import bluej.utility.DialogManager;
+import bluej.utility.JavaNames;
+import bluej.utility.JavaUtils;
+import bluej.utility.MultiLineLabel;
 import bluej.views.Comment;
 import bluej.views.LabelPrintWriter;
 import bluej.views.MethodView;
@@ -27,7 +35,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 4345 2006-06-08 06:33:46Z davmac $
+ * @version $Id: ResultInspector.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class ResultInspector extends Inspector
 {

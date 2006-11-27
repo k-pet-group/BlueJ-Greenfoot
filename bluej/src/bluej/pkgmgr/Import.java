@@ -22,9 +22,9 @@ import bluej.utility.JavaNames;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Import.java 3810 2006-03-09 13:21:56Z polle $
+ * @version $Id: Import.java 4708 2006-11-27 00:47:57Z bquig $
  */
-class Import
+public class Import
 {
     /**
      * Attempt to convert a non-bluej Path to a Bluej project.

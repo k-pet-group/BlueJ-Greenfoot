@@ -14,7 +14,7 @@ import java.util.List;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Graph.java 4082 2006-05-04 13:37:44Z davmac $
+ * @version $Id: Graph.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public abstract class Graph
 {

@@ -8,7 +8,7 @@ import bluej.views.MethodView;
  * interactively invoked.
  * 
  * @author Davin McCall
- * @version $Id: InvokeListener.java 3519 2005-08-13 18:01:44Z polle $
+ * @version $Id: InvokeListener.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public interface InvokeListener
 {

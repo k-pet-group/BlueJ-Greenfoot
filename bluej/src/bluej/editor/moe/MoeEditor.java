@@ -149,7 +149,6 @@ public final class MoeEditor extends JFrame
     private ClassLoader projectClassLoader;
     private HashMap propertyMap = new HashMap();
 
-    // =========================== NESTED CLASSES ===========================
 
     // inner class for listening for undoable edits in text
 
@@ -447,6 +446,14 @@ public final class MoeEditor extends JFrame
                     failureException = ex;
                 }
             }
+        }
+        
+        // If an error occurred, set a message in the editor status bar, and
+        // re-throw the exception.
+        if (failureException != null) {
+            info.warning(Config.getString("editor.info.errorSaving")
+                    + " - " + failureException.getLocalizedMessage());
+            throw failureException;
         }
         
         // If an error occurred, set a message in the editor status bar, and
@@ -1065,7 +1072,6 @@ public final class MoeEditor extends JFrame
         info.warning(msg);
     }
 
-    // ==================== USER ACTION IMPLEMENTATIONS ===================
 
     // --------------------------------------------------------------------
     /**
@@ -1244,6 +1250,60 @@ public final class MoeEditor extends JFrame
     }
 
     // --------------------------------------------------------------------
+    
+    /**
+     * Finds the first cvs-style conflict and selects it
+     */
+    public void findFirstConflict(){
+    	setCaretLocation(new LineColumn(0,0));
+    	findNextConflict();
+    }
+    
+    private void findNextConflict(){
+    	findString("=======", false, false, true, false);
+    	findString("<<<<<<<", true, false, false, false);
+    	LineColumn startPos = getCaretLocation();
+    	findString(">>>>>>>", false, false, false, false);
+    	LineColumn endPos = getCaretLocation();
+    	setSelection(startPos, endPos);
+    }
+    
+    private int findAtStartOfLine(String s){
+    	 int docLength = document.getLength();
+         int startPosition = currentTextPane.getCaretPosition();
+         int endPos = docLength;
+
+         boolean found = false;
+         boolean finished = false;
+         
+//       first line searched starts from current caret position
+         int start = startPosition;
+         Element line = getLineAt(start);
+         int lineEnd = Math.min(line.getEndOffset(), endPos);
+    	 try {
+            while (!found && !finished) {
+                String lineText = document.getText(start, lineEnd - start);
+                if (lineText != null && lineText.length() > 0) {
+                	if (lineText.startsWith(s)){
+                		found = true;
+                    }
+                }
+                if (lineEnd >= endPos) {
+                	finished = true;
+                }
+                else {
+                    // go to next line
+                    line = document.getParagraphElement(lineEnd + 1);
+                    start = line.getStartOffset();
+                    lineEnd = Math.min(line.getEndOffset(), endPos);
+                }
+            }
+        }
+        catch (BadLocationException ex) {
+            Debug.message("error in editor find operation");
+        }
+        return start;
+    }
     /**
      * Do a find with info in the info area.
      */
@@ -1819,7 +1879,6 @@ public final class MoeEditor extends JFrame
         repaint();
     }
 
-    // ========================= SUPPORT ROUTINES ==========================
 
     // --------------------------------------------------------------------
     /**
@@ -2129,7 +2188,6 @@ public final class MoeEditor extends JFrame
         return tokens;
     }
 
-    // ======================= WINDOW INITIALISATION =======================
 
     // --------------------------------------------------------------------
     /**

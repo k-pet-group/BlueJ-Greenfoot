@@ -22,7 +22,7 @@ import bluej.views.*;
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 3630 2005-10-03 00:50:38Z davmac $
+ * @version $Id: ClassRole.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public abstract class ClassRole
 {

@@ -15,7 +15,7 @@ import sun.net.www.protocol.file.Handler;
  * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5086147
  * 
  * @author Davin McCall
- * @version $Id: BluejURLStreamHandlerFactory.java 3352 2005-04-22 02:39:57Z davmac $
+ * @version $Id: BluejURLStreamHandlerFactory.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class BluejURLStreamHandlerFactory implements URLStreamHandlerFactory
 {

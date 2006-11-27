@@ -13,6 +13,7 @@ import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.editor.moe.EditorPrefPanel;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionPrefManager;
+import bluej.groupwork.ui.TeamSettingsPanel;
 
 /**
  * A JDialog subclass to allow the user to interactively edit
@@ -22,7 +23,7 @@ import bluej.extmgr.ExtensionPrefManager;
  *
  * @author  Andrew Patterson
  * @author  Michael Kolling
- * @version $Id: PrefMgrDialog.java 4284 2006-05-17 10:25:19Z polle $
+ * @version $Id: PrefMgrDialog.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -86,7 +87,6 @@ public class PrefMgrDialog extends JFrame
         return dialog;
     }
     
-    // ============ instance part ==============
     
     private ArrayList listeners = new ArrayList();
     private ArrayList tabs = new ArrayList();

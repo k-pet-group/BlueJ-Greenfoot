@@ -94,6 +94,8 @@ prefmgr.misc.linkToLibNoteLine1=If this URL is used for generating documentation
 prefmgr.misc.linkToLibNoteLine2=Otherwise the documentation generation will fail. To work offline, uncheck this option.
 prefmgr.misc.testing.title=Unit test settings
 prefmgr.misc.showTesting=Show unit testing tools
+prefmgr.misc.team.title=Teamwork settings
+prefmgr.misc.showTeam=Show teamwork controls
 prefmgr.misc.vm.title=Compiler and runtime settings
 prefmgr.misc.optimiseVM=Use optimization (faster execution, but may cause problems with debugging)
 prefmgr.misc.addLibTitle=Select directory or jar/zip file
@@ -489,14 +491,14 @@ testdisplay.showsource=Show Source
 
 # status messages
 pkgmgr.compiling=Compiling...
-pkgmgr.compileDone=Compiling... Done
+pkgmgr.compileDone=Compiling... Done.
 pkgmgr.creating=Creating object...
-pkgmgr.createDone=Creating object... Done
+pkgmgr.createDone=Creating object... Done.
 pkgmgr.creatingVM=Initialising virtual machine...
-pkgmgr.creatingVMDone=Initialising virtual machine... Done
+pkgmgr.creatingVMDone=Initialising virtual machine... Done.
 pkgmgr.generatingDocu=Generating documentation...
-pkgmgr.docuGenerated=Generating documentation... Done
-pkgmgr.docuAborted=Generating documentation... Aborted
+pkgmgr.docuGenerated=Generating documentation... Done.
+pkgmgr.docuAborted=Generating documentation... Aborted.
 pkgmgr.webBrowserMsg=Web browser has been started.
 pkgmgr.webBrowserError=Error starting web browser.
 pkgmgr.usesArrowMsg="Uses" dependency declared but never used:
@@ -545,7 +547,10 @@ menu.tools.testing=_Testing
 menu.tools.run=Run Tests
 menu.tools.end=End Recording
 menu.tools.cancel=Cancel Recording
+menu.tools.teamwork=Team
+
 menu.tools.preferences=_Preferences...@,
+
 
 menu.view=_View
 menu.view.showUses=Show Uses@U
@@ -554,7 +559,9 @@ menu.view.showExecControls=Show Debugger@D
 menu.view.showTerminal=Show Terminal@T
 menu.view.showTextEval=Show Code Pad@E
 menu.view.showTestDisplay=Show Test _Results
+#menu.view.showTeamControls=Show Team Controls@G
 
+# these are not used at the moment, remove? bq
 menu.group=_Group Work
 menu.group.make=Make Group Package
 menu.group.open=Open Group Package
@@ -566,6 +573,75 @@ menu.group.statusSelection=Status of Selection
 menu.group.statusAll=Status of All
 menu.group.users=Users
 menu.group.configuration=Configuration
+
+team.project.marker=Shared Project
+team.commit=Commit
+team.commit.title=Commit Files to Repository
+team.commit.files=Files to be committed
+team.commit.comment=Commit comment
+team.commit.layout=(Diagram Layout)
+team.commit.statusMessage=Committing project into repository...
+team.commit.statusDone=Committing project into repository... Done.
+team.checkout=Checkout Project
+team.checkout.statusMessage=Checking out Shared Project
+team.history=Show Project History
+team.history.title=Project History
+team.history.filefilter=Show file:
+team.history.userfilter=Show user:
+team.import=Share This Project
+team.import.statusMessage=Sharing this Project
+team.includeLayout=Include Diagram Layout
+team.settings=Teamwork Settings
+team.update=Update
+team.update.statusMessage=Updating project...
+team.update.statusDone=Updating project... Done.
+team.status=Status
+team.status.status=Teamwork status
+team.status.resource=Team resources
+team.status.version=Revision
+team.status.refresh=Refresh
+team.status.delete=delete from repository
+
+team.nocommitfiles=No files to commit
+
+team.statusinfo.upToDate=Up-to-date
+team.statusinfo.needsCheckout=New in repository
+team.statusinfo.deleted=Deleted locally
+team.statusinfo.needsUpdate=Updated in repository
+team.statusinfo.needsCommit=Locally modified
+team.statusinfo.needsMerge=Local and remote changes
+team.statusinfo.needsAdd=Locally added
+team.statusinfo.removed=Removed from repository
+team.statusinfo.unresolved=Unresolved conflict
+team.statusinfo.hasConflicts=Has conflicts
+team.statusinfo.weird=???
+
+team.settings.title = Team Settings
+team.settings.personal=Personal
+team.settings.location=Location
+team.settings.user=User
+team.settings.password=Password
+team.settings.group=Group
+team.settings.server=Server
+team.settings.prefix=Repository Path
+team.settings.ext=ext (using SSH)
+team.settings.pserver=pserver
+team.settings.protocol=Protocol
+team.settings.rememberSettings=Remember settings for future projects
+team.settings.checkConnection=Check connection
+
+team.moduleselect.title=Select Project to Checkout
+team.moduleselect.label=Select or type project name:
+team.moduleselect.available=Available projects:
+team.moduleselect.show=Show
+
+team.checkingout=Checking out project...
+team.checkedout=Checking out project... Done.
+team.checkout.filechooser.title=Choose a checkout location
+team.checkout.filechooser.button=Checkout
+
+team.sharing=Sharing project...
+team.shared=Sharing project... Done.
 
 menu.help=_Help
 menu.help.about=_About BlueJ
@@ -586,6 +662,9 @@ tooltip.test=Run all compiled test classes in this package
 tooltip.progress=Work indicator: indicates when virtual machine is executing
 tooltip.test.end=End a recording of a test method and save it.
 tooltip.test.cancel=Cancel and discard a recording of a test method.
+tooltip.commit=Commit local changes back to the repository
+tooltip.update=Update local files that have been modified in the repository
+tooltip.status=Show the status of all teamwork files in the project
 
 #Copyright
 

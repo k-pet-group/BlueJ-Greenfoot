@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  * components for i18n purposes.
  *
  * @author  Bruce Quig
- * @version $Id: BlueJTheme.java 4080 2006-05-04 10:49:55Z polle $
+ * @version $Id: BlueJTheme.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class BlueJTheme extends DefaultMetalTheme
 {
@@ -35,6 +35,7 @@ public class BlueJTheme extends DefaultMetalTheme
 	// common strings - must be accessed through getOkLabel()
 	private static String okayLabel;
 	private static String cancelLabel;
+    private static String closeLabel;
 	private static String continueLabel;
 
 	// a dimension for ok and cancel buttons that is as large as
@@ -56,8 +57,7 @@ public class BlueJTheme extends DefaultMetalTheme
 	public static final Border dialogBorder =
 	    BorderFactory.createEmptyBorder(12,12,12,12);
     
-        private static Border roundedShadowBorder;
-
+    private static Border roundedShadowBorder;
 	private static Border shadowBorder;
     
 	public static final int commandButtonSpacing = 5;
@@ -129,6 +129,15 @@ public class BlueJTheme extends DefaultMetalTheme
 		}
 		return cancelLabel;
 	}
+    
+    public static String getCloseLabel()
+	{
+		if (closeLabel == null) {
+			closeLabel = Config.getString("close");
+		}
+		return closeLabel;
+	}
+    
 	
 	public static String getContinueLabel()
 	{
@@ -167,6 +176,22 @@ public class BlueJTheme extends DefaultMetalTheme
 		cancelButton.setPreferredSize(okCancelDimension);
 		return cancelButton;	
 	}
+    
+    /**
+	 * Get a standard BlueJ "close" button.
+	 * 
+	 * @return	A JButton that says "cancel"
+	 */
+	public static JButton getCloseButton()
+	{
+		computeButtonWidths();
+
+		JButton closeButton = new JButton(getCloseLabel());
+		// try to make the OK, cancel and continue  buttons have equal size
+		closeButton.setPreferredSize(okCancelDimension);
+		return closeButton;	
+	}
+
 
 	/**
 	 * Get a standard BlueJ "continue" button.

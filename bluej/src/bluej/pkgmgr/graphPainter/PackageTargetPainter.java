@@ -13,7 +13,7 @@ import bluej.utility.Utility;
  * Paints a packageTarget
  * 
  * @author fisker
- * @version $Id: PackageTargetPainter.java 4257 2006-05-14 16:38:01Z davmac $
+ * @version $Id: PackageTargetPainter.java 4708 2006-11-27 00:47:57Z bquig $
  */
 public class PackageTargetPainter
 {
