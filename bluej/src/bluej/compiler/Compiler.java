@@ -17,7 +17,7 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Compiler.java 4599 2006-09-07 02:40:51Z davmac $
+ * @version $Id: Compiler.java 4704 2006-11-27 00:07:19Z bquig $
  */
 abstract class Compiler
 {
@@ -115,7 +115,6 @@ abstract class Compiler
         }
     }
 
-    //  ========================= ABSTRACT METHODS ==========================
 
     /**
      * Compile some source files.

@@ -1,21 +1,14 @@
 package bluej.groupwork;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
+import javax.net.SocketFactory;
 
 import org.netbeans.lib.cvsclient.CVSRoot;
 import org.netbeans.lib.cvsclient.Client;
 import org.netbeans.lib.cvsclient.admin.Entry;
-import org.netbeans.lib.cvsclient.admin.StandardAdminHandler;
 import org.netbeans.lib.cvsclient.command.Command;
 import org.netbeans.lib.cvsclient.command.CommandAbortedException;
 import org.netbeans.lib.cvsclient.command.CommandException;
@@ -24,825 +17,1045 @@ import org.netbeans.lib.cvsclient.command.add.AddCommand;
 import org.netbeans.lib.cvsclient.command.checkout.CheckoutCommand;
 import org.netbeans.lib.cvsclient.command.commit.CommitCommand;
 import org.netbeans.lib.cvsclient.command.importcmd.ImportCommand;
+import org.netbeans.lib.cvsclient.command.log.LogCommand;
 import org.netbeans.lib.cvsclient.command.remove.RemoveCommand;
+import org.netbeans.lib.cvsclient.command.status.StatusCommand;
+import org.netbeans.lib.cvsclient.command.status.StatusInformation;
 import org.netbeans.lib.cvsclient.command.update.UpdateCommand;
 import org.netbeans.lib.cvsclient.connection.AuthenticationException;
 import org.netbeans.lib.cvsclient.connection.Connection;
-import org.netbeans.lib.cvsclient.connection.ConnectionFactory;
-import org.netbeans.lib.cvsclient.connection.StandardScrambler;
-import org.netbeans.lib.cvsclient.event.MessageEvent;
-import org.netbeans.lib.cvsclient.event.TerminationEvent;
+import org.netbeans.lib.cvsclient.connection.PServerConnection;
+import org.netbeans.lib.cvsclient.file.FileStatus;
+import org.netbeans.modules.versioning.system.cvss.SSHConnection;
+
+import bluej.utility.Debug;
 
 
-import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Project;
 /**
- * @author fisker
+ * This class handles communication with the repository. At time of creation it
+ * needs a reference to a project that needs not be a team project. That is no
+ * team.defs need to be present in the project. But before methods like
+ * updateAll and commitAll, the project needs to be a team project.
  *
+ * @author fisker
+ * @version $Id: Repository.java 4704 2006-11-27 00:07:19Z bquig $
  */
-public class Repository {
+public class Repository
+{
+    /*
+     * A little about CVS.
+     * 
+     * CVS "status" command refuses to give any information about files which
+     * exist in the repository but not locally, *unless* you specify their name
+     * and path as an argument (AND you don't also specify a directory argument).
+     * So this means you need some way of finding the names first.
+     * 
+     * It turns out we can find out the names of files which only exist remotely
+     * by using "cvs -n update". However, this won't recurse into directories which
+     * only exist remotely, though it does print a warning for each one that it
+     * comes across.
+     * 
+     * So, the overall solution is to perform "cvs -n update" recursively each
+     * time we find out about a new directory. We can pretend (by using a
+     * MildManneredAdminHandler instead of the StandardAdminHandler) that the
+     * directory does exist locally (i.e. has been checked out) while we do this.
+     *  
+     */
+    
+    private boolean reconnectBetweenCommands = true;
 
-	private String protocol;
-	private String server;
-	private String repository;
-	private String module;
-	private String user;
-	private String password;
-	
-	private boolean reconnectBetweenCommands = true;
-	
-	//CVS specific members
-	private CVSRoot cvsroot; 
-	private GlobalOptions globalOptions;
-	private Client client;
-	private Project project;
-	private Connection connection;
-	
-	private boolean printCommand = true;
-	
-	// **** static declerations 
-	
-	/**
-	 * Create an instance of a Repository associated with the project.
-	 * The Repository class will try to read the setup file team.defs from the
-	 * top level directory in the project.
-	 * @param the project to which the Repository will be associated. 
-	 */
-	public static Repository getInstance(Project project) {
-		if (project == null){
-			throw new IllegalArgumentException("Project must not be null");
-		}
-		if (!isGroupProject(project)){
-			return null;
-		}
-		Repository repository = new Repository(project);
-		repository.readSetupFile();
-		repository.setupClient();
-		//System.setProperty("javacvs.multiple_commands_warning", "false");
-		return repository;
-	}
-	
-	/**
-	 * Determine if project is a team project. 
-	 * The method will look for the existence of the team configuration file
-	 * team.defs
-	 * @param project the project to investigate
-	 * @return true if the project is a team project
-	 */
-	private static boolean isGroupProject(Project project){
-		String cfgFilePath = project.getProjectDir() + "/team.defs";
-		File cfgFile = new File(cfgFilePath);
-		return cfgFile.isFile();
-	}
-	
-	/**
-	 * Determine if the project has been checked out.
-	 * The method will look for the existence of a CVS directory in the top 
-	 * level project directory
-	 * @param project
-	 * @return true if the project has been checked out.
-	 */
-	private static boolean hasBeenCheckedOut(Project project){
-		File cvsDir = new File(project.getProjectDir() + "/CVS");
-		return cvsDir.isDirectory();
-	}
-	
-	/**
-	 * Get an array of Files that resides in the project folders.
-	 * @param project the project
-	 * @return List of Files 
-	 */
-	private static List getFilesInProject(Project project, boolean includePkgFiles){
-		File projectDir = project.getProjectDir();
-		List files = new LinkedList();
-		traverseDirsForFiles(files, projectDir, includePkgFiles);
-		return files;
-	}
-	
-	/**
-	 * Get an array of Files containing the directories that exist in the 
-	 * project which has not been added to CVS.
-	 * @param project
-	 * @return array of Files
-	 */
-	private static List getDirsInProjectWhichNeedToBeAdded(Project project) {
-		File projectDir = project.getProjectDir();
-		List files = new LinkedList();
-		traverseDirsForDirs(files, projectDir);
-		return files;
-	}
-	
-	/**
-	 * Traverse the directory tree starting in dir an add all the encountered 
-	 * files to the List allFiles. The parameter includePkgFiles determine 
-	 * whether bluej.pgk files should be added to allFiles as well.
-	 * @param allFiles a List to which the method will add the files it meets.
-	 * @param dir the directory the search starts from
-	 * @param includePkgFiles if true, bluej.pkg files are included as well.
-	 */
-	private static void traverseDirsForFiles(List allFiles, File dir, boolean includePkgFiles){
-		File[] files = dir.listFiles(new CodeFileFilter(includePkgFiles));
-		if (files==null){
-			return;
-		}
-		for(int i=0; i< files.length; i++ ){
-			if (files[i].isFile()){
-				allFiles.add(files[i]);
-			}else{
-				traverseDirsForFiles(allFiles, files[i], includePkgFiles);
-			}
-		}
-	}
-	
-	/**
-	 * Traverses a directory tree and records the directories it encounters.
-	 * Directories named 'CVSROOT' or 'CVS' are ignored along with directories
-	 * already in CVS.
-	 * @param allDirs a List to which the method will add the dirs it meets.
-	 * @param dir the directory the search starts from.
-	 */
-	private static void traverseDirsForDirs(List allDirs, File dir){
-		File[] files = dir.listFiles();
-		boolean ok = false;
-		if (files == null){
-			return;
-		}
-		for(int i=0; i< files.length; i++ ){
-			ok = !files[i].getName().equals("CVSROOT") &&
-				 !files[i].getName().equals("CVS") && !isInCVS(files[i]);
-			if (files[i].isDirectory()){
-				if (ok) {
-					allDirs.add(files[i]);
-				}
-				traverseDirsForDirs(allDirs, files[i]);
-			}
-		}
-	}
-	
-	/**
-	 * Determine if a directory is in CVS. The method looks for a subfolder
-	 * named 'CVS'
-	 * @param dir the directory
-	 * @return true if directory is in CVS.
-	 */
-	private static boolean isInCVS(File dir){
-		char s = File.separatorChar;
-		File cvsDir = new File(dir.getAbsolutePath() + s + "CVS");
-		return cvsDir.exists();
-	}
-	
-	/**
-	 * Convert a List of Files to an array of Files.
-	 * @param fileList
-	 */
-	private static File[] listToFileArray(List fileList) {
-		File[] files = new File[fileList.size()];
-		int j = 0;
-		for (Iterator i = fileList.iterator(); i.hasNext(); ) {
-			File file = (File) i.next();
-			files[j++] = file;
-		}
-		return files;	
-	}
-	
-	// ** static declaration end
-	
-	/**
-	 * private constructor
-	 */
-	private Repository(Project project){
-		this.project = project;
-		globalOptions = new GlobalOptions();
-		globalOptions.setUseGzip(false);
-	}
-	
-	// setup start
-	
-	/**
-	 * Create the connection, open it and associate it with the client.
-	 * @throws AuthenticationException
-	 * @throws CommandAbortedException
-	 * @throws AuthenticationException
-	 * @throws CommandAbortedException
-	 */
-	private void setupConnection() throws CommandAbortedException, AuthenticationException {
-		connection = ConnectionFactory.getConnection(cvsroot);     
-		connection.open();
-		client.setConnection(connection);
-	}
-	
-	/**
-	 * Create and setup the client. 
-	 *
-	 */
-	private void setupClient(){
-		//the client is created without a connection
-		client = new Client(null, new StandardAdminHandler());
-	    client.setLocalPath(project.getProjectDir().getParentFile().getAbsolutePath());
-	    //client.getEventManager().addCVSListener(new BasicListener());
-	    client.dontUseGzipFileHandler();
-	}
+    //CVS specific members
+    private CVSRoot cvsroot;
+    private GlobalOptions globalOptions;
+    private boolean printCommand = true;
+    private File projectPath;
+    private MildManneredAdminHandler adminHandler;
 
-	/**
-	 * If the attribute 'reconnectBetweenCommands' is true the connection is 
-	 * closed.
-	 */
-	private void disconnect(){
-		if (reconnectBetweenCommands){
-			try {
-				client.getConnection().close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	/**
-	 * Read the team setup file in the top level folder of the project and
-	 * configure the cvsroot and set the globalOptions
-	 * @throws IOException
-	 * @throws FileNotFoundException
-	 */
-	private void readSetupFile(){
-		File cfgFile = new File(project.getProjectDir() + "/team.defs");
-		Properties properties = new Properties();
-		try {
-			properties.load(new FileInputStream(cfgFile));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		protocol = properties.getProperty("protocol");
-		server = properties.getProperty("server");
-		repository = properties.getProperty("groupname");
-		module = project.getProjectName();
-		user = properties.getProperty("user");
-		password = properties.getProperty("password");
-		
-		//setup cvsroot and global options
-		String cvsRoot = ":" + protocol+":"+user+":"+password+"@"+server+":/CVSNT/"+repository;
-		cvsroot = CVSRoot.parse(cvsRoot);
-		globalOptions.setCVSRoot(cvsroot.toString());
-	}
+    // ** static declaration end
 
-	// setup end
-	
-	// basic cvs commands begin
-	
-	/**
-	 * Checkout project from repostitory to local project. 
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 */
-	public void checkout() throws CommandAbortedException, CommandException, AuthenticationException{
-		setupConnection();
-		CheckoutCommand checkoutCommand = new CheckoutCommand(true, module);
-		checkoutCommand.setRecursive(true);
-		checkoutCommand.setPruneDirectories(false);
-		BasicServerResponse basicServerResponse = new BasicServerResponse();
-		client.getEventManager().addCVSListener(basicServerResponse);
-		
-		client.executeCommand(checkoutCommand, globalOptions);
-		
-		basicServerResponse.waitForExecutionToFinish();
-		client.getEventManager().removeCVSListener(basicServerResponse);
-		disconnect();
-		project.reloadAll();
-	}
-	
-	/**
-	 * Add an array of Files to the repository. 
-	 * @param files the files to add
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 */
-	private void addToRepository(List files) throws CommandAbortedException, CommandException, AuthenticationException{
-		if (files.size() < 1){
-			return;
-		}
-		setupConnection();
-		AddCommand addCommand = new AddCommand();
-		addCommand.setFiles(listToFileArray(files));
-		BasicServerResponse basicServerResponse = new BasicServerResponse();
-		client.getEventManager().addCVSListener(basicServerResponse);
-		printCommand(addCommand);
-		
-		client.executeCommand(addCommand, globalOptions);
+    /**
+     * private constructor
+     */
+    private Repository(File projectPath, String cvsrootString)
+    {
+        // this.project = project;
+        this.projectPath = projectPath;
+        globalOptions = new GlobalOptions();
+        setCvsRoot(cvsrootString);
 
-		basicServerResponse.waitForExecutionToFinish();
-		client.getEventManager().removeCVSListener(basicServerResponse);
-		disconnect();
-	}
-	
-	/**
-	 * Commit an array of Files to the repository
-	 * @param files the files to commit
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 */
-	private BasicServerResponse commitToRepository(List files) throws CommandAbortedException, CommandException, AuthenticationException{
-		if (files.size() < 1){
-			return new BasicServerResponse();
-		}
-		setupConnection();
-		CommitCommand commitCommand = new CommitCommand();
-		commitCommand.setMessage("");
-		commitCommand.setFiles(listToFileArray(files));
-		BasicServerResponse basicServerResponse = new BasicServerResponse();
-		client.getEventManager().addCVSListener(basicServerResponse);
-		printCommand(commitCommand);
-		
-		client.executeCommand(commitCommand, globalOptions);
-		
-		basicServerResponse.waitForExecutionToFinish();
-		if (basicServerResponse.isError()){
-			System.out.println("basicServerResponse.getMessage(): " +basicServerResponse.getMessage());
-		}
-		client.getEventManager().removeCVSListener(basicServerResponse);
-		disconnect();
-		return basicServerResponse;
-	}
-	
-	/**
-	 * Update all files from repository except bluej.pkg files
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 */
-	private UpdateServerResponse updateFromRepository() throws CommandAbortedException, CommandException, AuthenticationException{
-		setupConnection();
-		UpdateCommand command = new UpdateCommand();
-		command.setCleanCopy(false);
-		command.setRecursive(true);
-		command.setBuildDirectories(true);
-		command.setPruneDirectories(false);
-		command.setCVSCommand('I', Package.pkgfileName);// ignore bluej.pkg files
-		UpdateServerResponse updateServerResponse = new UpdateServerResponse();
-		client.getEventManager().addCVSListener(updateServerResponse);
-		client.setLocalPath(project.getProjectDir().getAbsolutePath());
-		printCommand(command);
-		
-		client.executeCommand(command, globalOptions);
-		
-		updateServerResponse.waitForExecutionToFinish();
-		client.getEventManager().removeCVSListener(updateServerResponse);
-		disconnect();
-		return updateServerResponse;
-	}
-	
-	/**
-	 * Import a project into the repository. The project will be put in the
-	 * repository in a module named after the project.
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 */
-	private void importInRepository() throws CommandAbortedException, CommandException, AuthenticationException{
-		setupConnection();
-		
-		ImportCommand importCommand = new ImportCommand();
-		//importCommand.addWrapper(localPath + "/TestProject/simplePackage/SimpleClass.java", KeywordSubstitutionOptions.DEFAULT);
-		//importCommand.addWrapper(localPath + "/TestProject/simplePackage/added.txt", KeywordSubstitutionOptions.DEFAULT);
-		importCommand.setModule(project.getProjectName());
-		importCommand.setReleaseTag("init");
-		importCommand.setLogMessage("logMessage");
-		importCommand.setVendorTag("vendor");
-		BasicServerResponse synchListener = new BasicServerResponse();
-		client.getEventManager().addCVSListener(synchListener);
-		client.setLocalPath(project.getProjectDir().getAbsolutePath());
-		printCommand(importCommand);
-		
-		client.executeCommand(importCommand, globalOptions);
-		
-		synchListener.waitForExecutionToFinish();
-		client.getEventManager().removeCVSListener(synchListener);
-		disconnect();
-	}
-	
-	/**
-	 * Remove the files in an array of Files from the repository.
-	 * @param files the files to remove.
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 */
-	private void removeFromRepository(List files) throws CommandAbortedException, CommandException, AuthenticationException{
-		if (files.size() < 1){
-			return;
-		}
-		setupConnection();
-		RemoveCommand removeCommand = new RemoveCommand ();
-		removeCommand.setFiles(listToFileArray(files));
-		BasicServerResponse basicServerResponse = new BasicServerResponse();
-		client.getEventManager().addCVSListener(basicServerResponse);
-		printCommand(removeCommand);
-		
-		client.executeCommand(removeCommand, globalOptions);
-		
-		basicServerResponse.waitForExecutionToFinish();
-		client.getEventManager().removeCVSListener(basicServerResponse);
-		disconnect();
-	}
-	
-	// basic cvs commands end
-	
-	// util methods begin
-	
-	/**
-	 * Get a UpdateServerResponse that would result from an update. No changes
-	 * are made to the repository or the local copy.
-	 * @return List of UpdateResults
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 */
-	private UpdateServerResponse getUpdateListener() throws CommandAbortedException, CommandException, AuthenticationException{
-		setupConnection();
-		UpdateCommand command = new UpdateCommand();
-		UpdateServerResponse updateServerResponse = new UpdateServerResponse();
-		GlobalOptions globalOptions = new GlobalOptions();
-		
-		command.setRecursive(true);
-		command.setBuildDirectories(true);
-		command.setPruneDirectories(false);
-		command.setCleanCopy(false);
-		globalOptions.setCVSRoot(cvsroot.toString());
-		globalOptions.setCVSCommand('n',"");//Don't change any files
-		globalOptions.setCVSCommand('q',"");// be quiet
-		client.setLocalPath(project.getProjectDir().getAbsolutePath());
-		client.getEventManager().addCVSListener(updateServerResponse);
-		
-		client.executeCommand(command, globalOptions);
-		
-		client.getEventManager().removeCVSListener(updateServerResponse);
-		disconnect();
-		return updateServerResponse;
-	}
-	
-	/**
-	 * Get an array of files in the sandbox that needs to be added to repository
-	 * @return array of files
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 */
-	private List getFilesInSandboxWhichNeedToBeAdded() throws CommandAbortedException, CommandException, AuthenticationException{
-		List updateResults = getUpdateListener().getUnknown();
-		FilenameFilter filter = new CodeFileFilter();
-		List files = new LinkedList();
-		for (Iterator i = updateResults.iterator(); i.hasNext();) {
-			UpdateResult updateResult = (UpdateResult) i.next();
-			File file = updateResultToFile(updateResult);
-			if (filter.accept(new File(file.getParent()), file.getName())){
-				files.add(file);
-			}
-		}
-		return files;
-	}
-	
-	/**
-	 * Get an array of files that has been deleted from the sandbox but not from
-	 * the repository.
-	 * @return List of Files
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 */
-	private List getRemovedFilesInSandbox() throws CommandAbortedException, CommandException, AuthenticationException{
-		List updateResults = getUpdateListener().getUpdated();
-		List files = new LinkedList();
-		for (Iterator i = updateResults.iterator(); i.hasNext();) {
-			UpdateResult updateResult = (UpdateResult) i.next();
-			File file = updateResultToFile(updateResult);
-			if (!file.exists()) {
-				files.add(file);
-			}
-		}
-		return files;
-	}
-	
-	/**
-	 * Convert an UpdateResult to a File
-	 * @param updateResult
-	 * @return a File
-	 */
-	private File updateResultToFile(UpdateResult updateResult){
-		String str;
-		char s = File.separatorChar;
-		str = project.getProjectDir().getAbsolutePath() + s + updateResult.getFilename();
-		File file = new File(str);
-		return file;
-	}
-	
-	/**
-	 * Look through the List of dirs and return a List of bluej.pkg files found
-	 * @param dirs List of dirs that the method will look through
-	 * @return a List of the found bluej.pkg files
-	 */
-	private List findPkgFiles(List dirs){
-		File[] pkgFiles;
-		List pkgFilesList = new LinkedList();
-		char s = File.separatorChar;
-		for (Iterator i = dirs.iterator(); i.hasNext(); ) {
-			File pkgFile = new File(((File)i.next()).getAbsolutePath() + s + Package.pkgfileName);
-			if (pkgFile.exists()){
-				pkgFilesList.add(pkgFile);
-			}
-		}
-		return pkgFilesList;
-	}
-	
-	/**
-	 * Update the layout of the graphs from the ones in the 
-	 * repository. 
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 *
-	 */
-	public void updateGraphLayout() throws CommandAbortedException, CommandException, AuthenticationException{
-		File[] pkgArray = updatePkgFilesFromRepository();
-		if (pkgArray.length < 1){
-			return;
-		}
-		setupConnection();
-		UpdateCommand command = new UpdateCommand();
-		command.setFiles(pkgArray);
-		command.setCleanCopy(true);
-		command.setRecursive(true);
-		command.setBuildDirectories(true);
-		command.setPruneDirectories(false);
-		BasicServerResponse basicServerResponse = new BasicServerResponse();
-		client.getEventManager().addCVSListener(basicServerResponse);
-		client.setLocalPath(project.getProjectDir().getAbsolutePath());
-		//System.out.println("Cvs command: " + command.getCVSCommand());
-		
-		client.executeCommand(command, globalOptions);
-		
-		basicServerResponse.waitForExecutionToFinish();
-		client.getEventManager().removeCVSListener(basicServerResponse);
-		disconnect();
-		
-	}
-	
-	/**
-	 * Get an array of files containing all the bluej.pkg files in the repository
-	 * @return array of files
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 */
-	private File[] updatePkgFilesFromRepository() throws CommandAbortedException, CommandException, AuthenticationException {
-		List updateResults = getUpdateListener().getUpdateResults();
-		List pkgFiles = new LinkedList();
-		for (Iterator i = updateResults.iterator(); i.hasNext();) {
-			UpdateResult updateResult = (UpdateResult) i.next();
-			if (updateResult.getFilename().endsWith(Package.pkgfileName)){
-				pkgFiles.add(updateResultToFile(updateResult));
-				//System.out.println("getPkgFilesInRepository:498 added " + updateResultToFile(updateResult).getAbsolutePath());
-			}
-		}
-		File[] pkgArray = listToFileArray(pkgFiles);
-		return pkgArray;
-	}
-	
-	/**
-	 * if the attribute 'printCommand' the command is printed as it would look
-	 * on the command line
-	 * @param command the command to print
-	 */
-	private void printCommand(Command command){
-		if (printCommand){
-			System.out.println(command.getCVSCommand());
-		}
-	}
-	// util methods end
+        // The client is created without a connection
+        adminHandler = new MildManneredAdminHandler();
+    }
 
-	// public methods begin
-	
-	
+    // **** static declerations 
 
-	public void printExperiments(Project project){
-		System.out.println("====Files in project===========");
-		List files = getFilesInProject(project, false);
-		Set set = null;
-		/*for(int i=0; i < files.size(); i++ ){
-			System.out.println(files[i].getName());
-		}
-		List updateResults = getUpdateResults();
-		System.out.println("====Files in repository===========");
-		for (Iterator i = updateResults.iterator(); i.hasNext();) {
-			UpdateResult updateResult = (UpdateResult) i.next();
-			System.out.println(updateResult + " " + updateResultToFile(updateResult).getAbsolutePath());
-		}
-		try {
-			set = client.getAllFiles(project.getProjectDir());
-			//commitToRepository(getFilesInProject(project));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println("====client.getAllFiles()===========");
-		for (Iterator i = set.iterator(); i.hasNext();) {
-			File file = (File) i.next();
-			System.out.println("File: " + file.getName());
-		}
-		
-		System.out.println("====FileInSandboxWhichNeedToBeAdded===========");
-		files = getFilesInSandboxWhichNeedToBeAdded();
-		for (int i = 0; i < files.length; i++) {
-			System.out.println("File: " + files[i].getName());
-		}
-		/*
-	    System.out.println("====Entries===========");
-		try {
-			for(Iterator i = client.getEntries(project.getProjectDir()) ; i.hasNext(); ){
-				Entry entry = (Entry) i.next();
-				System.out.println("Entry: " + entry.toString());
-			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		*/
-	}
-	
-	/**
-	 * Commits the files and directories in the project. If files or dirs need
-	 * to be added first, they are added.
-	 * The booelean includePkgFiles determins whether pkg files are included in 
-	 * the commit. One exception to this is newly created packages. They always 
-	 * have their pkg files committed. Otherwise bluej won't know the difference
-	 * between simple directories and bluej packages.
-	 * 
-	 * @param project
-	 * @param includePkgFiles if true, pkg files are included in the commit.
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 */
-	public BasicServerResponse commitAll(boolean includePkgFiles) throws CommandAbortedException, CommandException, AuthenticationException{
-		BasicServerResponse basicServerResponse;
-		// add and commit new directories
-		List dirs = getDirsInProjectWhichNeedToBeAdded(project);
-		addToRepository(dirs);
-		commitToRepository(dirs);// this commit needs to be here. find_pkgfiles
-								// depend on directories to be in the repositroy
-		
-		//add and commit the bluej.pkg files in new dirs that were bluej packages
-		List addPkgFiles = findPkgFiles(dirs);
-		project.saveAllGraphLayout(); // make BlueJ save the pkg files
-		addToRepository(addPkgFiles);
-		commitToRepository(addPkgFiles);
-		
-		//add new files
-		addToRepository(getFilesInSandboxWhichNeedToBeAdded());
-		List addFiles = getFilesInProject(project, includePkgFiles);
-		
-		//remove files from repository that has been removed from sandbox
-		List removeFiles = getRemovedFilesInSandbox();
-		removeFromRepository(removeFiles);
-		
-		//commit the files that needed to be added or removed
-		removeFiles.addAll(addFiles);
-		basicServerResponse = commitToRepository(removeFiles);
-		return basicServerResponse;
-	}
-	
-	/**
-	 * Get all changes from repository except the pkg files that determine the
-	 * layout of the graph.
-	 * @param includeGraphLayout should the update include the pkg files.
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 * @return UpdateServerResponse if an update was performed
-	 */
-	public UpdateServerResponse updateAll(boolean includeGraphLayout) throws CommandAbortedException, CommandException, AuthenticationException{
-		UpdateServerResponse updateServerResponse;
-		if (!hasBeenCheckedOut(project)){
-			checkout();
-			updateServerResponse = new UpdateServerResponse();// empty UpdateServerResponse
-		}
-		else {
-			updateServerResponse = updateFromRepository();
-		}
-		if (includeGraphLayout){
-			updateGraphLayout();
-			project.reReadAllGraphLayout();
-		}
-		project.reloadAll();
-		return updateServerResponse;
-	}
-	
-	/**
-	 * Put the project in the repository
-	 * @throws AuthenticationException
-	 * @throws CommandException
-	 * @throws CommandAbortedException
-	 *
-	 */
-	public void shareProject() throws CommandAbortedException, CommandException, AuthenticationException{
-		// TODO handle the existence of team.defs file
-		importInRepository();
-	}
-	
-	// public methods end
-	
-	
-	/**
-	 * A FilenameFilter that filters out files that reside in a directory named
-	 * 'CVS' or 'CVSROOT'
-	 * It also filters out files  
-	 *
-	 */
-	private static class CodeFileFilter implements FilenameFilter {
+    /**
+     * Create an instance of a Repository associated with the project. The
+     * Repository class will try to read the setup file team.defs from the top
+     * level directory in the project.
+     * 
+     * If there are no repository settings, returns null.
+     *
+     * @param the project to which the Repository will be associated.
+     */
+    public static Repository getInstance(File projectPath, String cvsroot)
+    {
+        if (cvsroot != null) {
+        
+            Repository repository = new Repository(projectPath, cvsroot);
 
-		boolean includePkgFiles;
-		
-		/**
-		 * Construct a filter that doesn't accept pkg files
-		 *
-		 */
-		public CodeFileFilter(){
-			this(false);
-		}
-		
-		/**
-		 * Construct a filter.
-		 * @param includePkgFiles if true, pkg files are accepted
-		 */
-		public CodeFileFilter(boolean includePkgFiles){
-			this.includePkgFiles = includePkgFiles;
-		}
-		/**
-		 * Determins which files should be included
-		 * @param dir the directory in which the file was found.
-		 * @param name the name of the file.
-		 */
-		public boolean accept(File dir, String name) {
-			boolean result = true;
-			if (name.equals("CVS") || dir.getName().equals("CVS")){
-				result = false;
-			}
-			if (name.equals("CVSROOT") || dir.getName().equalsIgnoreCase("CVSROOT")){
-				result = false;
-			}
-			
-			/* when a package is first created. pkg files should be
-			 * added and committed. If we don't, BlueJ can't know which folders
-			 * are packages
-			 */ 
-			if (!includePkgFiles && name.equals(Package.pkgfileName)){
-				result = false;
-			}
-			if (name.equals(Package.pkgfileBackup)){
-				result = false;
-			}	
-			if (name.equals("team.defs")){
-				result = false;
-			}	
-			if (getFileType(name).equals("class")){
-				result = false;
-			}
-			if (getFileType(name).equals("ctxt")){
-				result = false;
-			}
-			if (name.charAt(name.length() -1) == '~'){
-				result = false;
-			}
-			if (name.charAt(name.length() -1) == '#'){
-				result = false;
-			}
-			if (name.endsWith("#backup")){
-				result = false;
-			}
-			if (name.startsWith(".#")){
-				return false;
-			}
-			if (result) {
-				//System.out.println("Repository:509 accepted: " + name + " in " + dir.getAbsolutePath());
-			}else{
-				//System.out.println("Repository:509 rejected: " + name + " in " + dir.getAbsolutePath());
-			}
-			return result;
-		}
-		
-		/**
-		 * Get the type of a file
-		 * @param filename the name of the file
-		 * @return a string with the type of the file.
-		 */
-		private String getFileType(String filename) {
-			int lastDotIndex = filename.lastIndexOf('.');
-			if (lastDotIndex > -1 && lastDotIndex < filename.length()){
-				return filename.substring(lastDotIndex + 1);
-			}
-			return "";
-		}
-	}
+            // System.setProperty("javacvs.multiple_commands_warning", "false");
+            return repository;
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Convert a List of Files to an array of Files.
+     *
+     * @param fileList
+     */
+    private static File[] listToFileArray(Collection fileList)
+    {
+        File[] files = new File[fileList.size()];
+        int j = 0;
+
+        for (Iterator i = fileList.iterator(); i.hasNext();) {
+            File file = (File) i.next();
+            files[j++] = file;
+        }
+
+        return files;
+    }
+
+    // setup start
+
+    /**
+     * Set the repository root location (including server, protocol, username etc)
+     * Used at setup and when the cvsroot changes due to user interaction.
+     */
+    private void setCvsRoot(String cvsrootString)
+    {
+        cvsroot = CVSRoot.parse(cvsrootString);
+        globalOptions.setCVSRoot(cvsroot.toString());
+    }
+
+    /**
+     * Create the connection, open it and associate it with the client.
+     *
+     * @throws AuthenticationException
+     * @throws CommandAbortedException
+     * @throws AuthenticationException
+     * @throws CommandAbortedException
+     * @throws InvalidCvsRootException
+     */
+    private void setupConnection(Client client)
+        throws CommandAbortedException, AuthenticationException, 
+            InvalidCvsRootException
+    {
+        Connection connection = getConnection(cvsroot);
+
+        
+        if (connection != null) {
+            connection.open();
+            client.setConnection(connection);
+        } else {
+            Debug.message("Repository.setupConnection: connection is null");
+        }
+    }
+    
+    /**
+     * Get a client object, along with a connection, which can be used
+     * to execute commands.
+     * 
+     * It's necessary to get a fresh client for each command because once
+     * the client is put in the "aborted" state there's no way to undo
+     * that effect.
+     * 
+     * @return A client
+     * 
+     * @throws CommandAbortedException
+     * @throws AuthenticationException
+     * @throws InvalidCvsRootException
+     */
+    private Client getClient() throws CommandAbortedException, AuthenticationException,
+        InvalidCvsRootException
+    {
+        Client client = new Client(null, adminHandler);
+        client.dontUseGzipFileHandler();
+        setupConnection(client);
+        return client;
+    }
+
+    /**
+     * If the attribute 'reconnectBetweenCommands' is true the connection is
+     * closed.
+     */
+    private void disconnect(Client client)
+    {
+        if (reconnectBetweenCommands) {
+            try {
+                client.getConnection().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Checkout project from repostitory to local project.
+     *
+     * @throws CommandException
+     * @throws CommandAbortedException
+     * @throws AuthenticationException
+     * @throws InvalidCvsRootException
+     */
+    public synchronized BasicServerResponse checkout(File projectPath)
+        throws CommandException, CommandAbortedException, 
+            AuthenticationException, InvalidCvsRootException
+    {
+        Client client = getClient();
+        // setupConnection();
+
+        CheckoutCommand checkoutCommand = new CheckoutCommand(true,
+                projectPath.getName());
+        checkoutCommand.setRecursive(true);
+        checkoutCommand.setPruneDirectories(false);
+
+        BasicServerResponse basicServerResponse = new BasicServerResponse();
+        client.getEventManager().addCVSListener(basicServerResponse);
+        client.setLocalPath(projectPath.getParent());
+        
+        printCommand(checkoutCommand, client);
+        try {
+            client.executeCommand(checkoutCommand, globalOptions);
+            basicServerResponse.waitForExecutionToFinish();
+        }
+        finally {
+            client.getEventManager().removeCVSListener(basicServerResponse);
+            disconnect(client);
+        }
+
+        return basicServerResponse;
+    }
+
+    /**
+     * Add an array of Files/directories to the repository. Parent directories
+     * must be specified before the sub-directories/files they contain.
+     *
+     * @param files the files to add
+     *
+     * @throws CommandException
+     * @throws CommandAbortedException
+     * @throws AuthenticationException
+     * @throws InvalidCvsRootException
+     */
+    private BasicServerResponse addToRepository(File [] files)
+        throws CommandException, CommandAbortedException, 
+            AuthenticationException, InvalidCvsRootException
+    {
+        BasicServerResponse basicServerResponse = new BasicServerResponse();
+        
+        // If there's nothing to add, return immediately
+        if (files.length < 1) {
+            basicServerResponse.commandTerminated(null);
+            return basicServerResponse;
+        }
+
+        // setupConnection();
+        Client client = getClient();
+
+        AddCommand addCommand = new AddCommand();
+        addCommand.setFiles(files);
+
+        client.getEventManager().addCVSListener(basicServerResponse);
+        client.setLocalPath(projectPath.toString());
+
+        printCommand(addCommand, client);
+        try {
+            client.executeCommand(addCommand, globalOptions);
+            basicServerResponse.waitForExecutionToFinish();
+        }
+        finally {
+            client.getEventManager().removeCVSListener(basicServerResponse);
+            disconnect(client);
+        }
+        
+        return basicServerResponse;
+    }
+
+    /**
+     * Commit an array of Files to the repository
+     *
+     * @param files the files to commit
+     *
+     * @throws CommandException
+     * @throws CommandAbortedException
+     * @throws AuthenticationException
+     * @throws InvalidCvsRootException
+     */
+    private BasicServerResponse commitToRepository(Collection files, String comment)
+        throws CommandException, CommandAbortedException, 
+            AuthenticationException, InvalidCvsRootException
+    {
+        BasicServerResponse basicServerResponse = new BasicServerResponse();
+        
+        if (files.size() < 1) {
+            basicServerResponse.commandTerminated(null);
+            return basicServerResponse;
+        }
+
+        // setupConnection();
+        Client client = getClient();
+
+        CommitCommand commitCommand = new CommitCommand();
+        commitCommand.setMessage(comment);
+        commitCommand.setFiles(listToFileArray(files));
+
+        client.getEventManager().addCVSListener(basicServerResponse);
+        client.setLocalPath(projectPath.getAbsolutePath());
+
+        printCommand(commitCommand, client);
+        try {
+            client.executeCommand(commitCommand, globalOptions);
+            basicServerResponse.waitForExecutionToFinish();
+        }
+        finally {
+            client.getEventManager().removeCVSListener(basicServerResponse);
+            disconnect(client);
+        }
+
+        return basicServerResponse;
+    }
+
+    /**
+     * Import a project into the repository. The project will be put in the
+     * repository in a module named after the project.
+     *
+     * @throws CommandException
+     * @throws CommandAbortedException
+     * @throws AuthenticationException
+     * @throws InvalidCvsRootException
+     */
+    private BasicServerResponse importInRepository()
+        throws CommandException, CommandAbortedException, 
+            AuthenticationException, InvalidCvsRootException
+    {
+        // setupConnection();
+        Client client = getClient();
+
+        ImportCommand importCommand = new ImportCommand();
+
+        //importCommand.addWrapper(localPath + "/TestProject/simplePackage/SimpleClass.java", KeywordSubstitutionOptions.DEFAULT);
+        //importCommand.addWrapper(localPath + "/TestProject/simplePackage/added.txt", KeywordSubstitutionOptions.DEFAULT);
+        importCommand.setModule(projectPath.getName());
+        importCommand.setReleaseTag("init");
+        importCommand.setLogMessage("logMessage");
+        importCommand.setVendorTag("vendor");
+        
+        // Ignore all files during checkout. Then we can just commit them in-place.
+        importCommand.addIgnoredFile("*");
+
+        BasicServerResponse basicServerResponse = new BasicServerResponse();
+        client.getEventManager().addCVSListener(basicServerResponse);
+        client.setLocalPath(projectPath.getAbsolutePath());
+        printCommand(importCommand, client);
+
+        try {
+            client.executeCommand(importCommand, globalOptions);
+            basicServerResponse.waitForExecutionToFinish();
+        }
+        finally {
+            client.getEventManager().removeCVSListener(basicServerResponse);
+            disconnect(client);
+        }
+
+        return basicServerResponse;
+    }
+
+    /**
+     * Remove the files in an array of Files from the repository.
+     *
+     * @param files the files to remove.
+     *
+     * @throws CommandException
+     * @throws CommandAbortedException
+     * @throws AuthenticationException
+     * @throws InvalidCvsRootException
+     */
+    private BasicServerResponse removeFromRepository(Collection files)
+        throws CommandException, CommandAbortedException, 
+            AuthenticationException, InvalidCvsRootException
+    {
+        BasicServerResponse basicServerResponse = new BasicServerResponse();
+        
+        if (files.size() < 1) {
+            basicServerResponse.commandTerminated(null);
+            return basicServerResponse;
+        }
+
+        // setupConnection();
+        Client client = getClient();
+
+        RemoveCommand removeCommand = new RemoveCommand();
+        removeCommand.setFiles(listToFileArray(files));
+
+        client.getEventManager().addCVSListener(basicServerResponse);
+        client.setLocalPath(projectPath.getAbsolutePath());
+        
+        printCommand(removeCommand, client);
+        try {
+            client.executeCommand(removeCommand, globalOptions);
+            basicServerResponse.waitForExecutionToFinish();
+        }
+        finally {
+            client.getEventManager().removeCVSListener(basicServerResponse);
+            disconnect(client);
+        }
+        
+        return basicServerResponse;
+    }
+
+    // basic cvs commands end
+    // util methods begin
+    
+    /**
+     * Get the response of a "dummy run" update command. The response contains a
+     * list of files, which need to be updated or are locally modified etc.
+     */
+    private UpdateServerResponse getUpdateServerResponse(String path)
+        throws CommandException, CommandAbortedException, 
+            AuthenticationException, InvalidCvsRootException
+    {
+        //setupConnection();
+        Client client = getClient();
+
+        UpdateCommand updateCommand = new UpdateCommand();
+        UpdateServerResponse updateServerResponse = new UpdateServerResponse(null);
+        GlobalOptions globalOptions = new GlobalOptions();
+
+        updateCommand.setRecursive(true);
+        updateCommand.setBuildDirectories(true);
+        updateCommand.setPruneDirectories(true);
+        updateCommand.setCleanCopy(false);
+        globalOptions.setCVSRoot(cvsroot.toString());
+
+        globalOptions.setDoNoChanges(true); // -n
+        globalOptions.setModeratelyQuiet(true); // -q
+        client.setLocalPath(path);
+        client.getEventManager().addCVSListener(updateServerResponse);
+
+        //System.out.println("dir: " + client.getLocalPath());
+        //System.out.println("globalOptions: " + globalOptions.getCVSCommand());
+        printCommand(updateCommand, client);
+
+        //Debug.message("Update command = " + updateCommand.getCVSCommand());
+        try {
+            client.executeCommand(updateCommand, globalOptions);
+            updateServerResponse.waitForExecutionToFinish();
+        }
+        finally {
+            client.getEventManager().removeCVSListener(updateServerResponse);
+            disconnect(client);
+        }
+
+        return updateServerResponse;
+    }
+    
+    /**
+     * if the attribute 'printCommand' the command is printed as it would look
+     * on the command line
+     *
+     * @param command the command to print
+     */
+    private void printCommand(Command command, Client client)
+    {
+        if (printCommand) {
+            System.out.println("cvsCommand: " + command.getCVSCommand() +
+                " localpath: " + client.getLocalPath());
+        }
+    }
+
+    /**
+     * Check whether a directory is under CVS control.
+     */
+    private boolean isDirectoryUnderCVS(File dir)
+    {
+        return (new File(dir, "CVS").isDirectory());
+    }
+    
+    /**
+     * Commits the files and directories in the project. If files or dirs need
+     * to be added first, they are added. The booelean includePkgFiles
+     * determins whether pkg files are included in  the commit. One exception
+     * to this is newly created packages. They always  have their pkg files
+     * committed. Otherwise bluej won't know the difference between simple
+     * directories and bluej packages.
+     *
+     * @param dirs  Directories to be committed
+     * @param files Files to be committed
+     * @param includePkgFiles if true, pkg files are included in the commit.
+     *
+     * @throws CommandAbortedException
+     * @throws CommandException
+     * @throws AuthenticationException
+     * @throws InvalidCvsRootException
+     */
+    public synchronized BasicServerResponse commitAll(Set newFiles, Set deletedFiles, Set files, String commitComment)
+        throws CommandAbortedException, CommandException, 
+            AuthenticationException, InvalidCvsRootException
+    {
+        // First we need to do "cvs add" to put files and directories
+        // under version control if they are not already. Start by building
+        // a list of directories to add.
+        
+        // Note, we need to use a LinkedHashSet to preserve order.
+        Set dirs = new LinkedHashSet();
+        LinkedList stack = new LinkedList();
+        for (Iterator i = newFiles.iterator(); i.hasNext(); ) {
+            File file = (File) i.next();
+            
+            File parent = file.getParentFile();
+            while (! isDirectoryUnderCVS(parent) && ! dirs.contains(parent)) {
+                stack.addLast(parent);
+                if (parent.equals(projectPath)) {
+                    break;
+                }
+                parent = parent.getParentFile();
+            }
+            while (! stack.isEmpty()) {
+                dirs.add(stack.removeLast());
+            }
+        }
+        
+        // we also add the files which need to be added
+        dirs.addAll(newFiles);
+        
+        // "cvs remove" files which need to be removed
+        BasicServerResponse basicServerResponse = removeFromRepository(deletedFiles);
+        if (basicServerResponse.isError()) {
+            return basicServerResponse;
+        }
+        
+        // "cvs add" new directories and files
+        basicServerResponse = addToRepository(listToFileArray(dirs));
+        if (basicServerResponse.isError()) {
+            return basicServerResponse;
+        }
+        
+        // Now perform the commit.
+        basicServerResponse = commitToRepository(files, commitComment);
+        return basicServerResponse;
+    }
+
+    /**
+     * Get all changes from repository except the pkg files that determine the
+     * layout of the graph.
+     *
+     * @param includeGraphLayout should the update include the pkg files.
+     *
+     * @return UpdateServerResponse if an update was performed
+     *
+     * @throws CommandAbortedException
+     * @throws CommandException
+     * @throws AuthenticationException
+     * @throws InvalidCvsRootException
+     */
+    public synchronized UpdateServerResponse updateAll(File [] excludeFiles, UpdateListener listener)
+        throws CommandAbortedException, CommandException, 
+            AuthenticationException, InvalidCvsRootException
+    {
+        // setupConnection();
+        Client client = getClient();
+
+        UpdateCommand command = new UpdateCommand();
+        command.setCleanCopy(false);
+        command.setRecursive(true);
+        command.setBuildDirectories(true);
+        command.setPruneDirectories(true);
+        File [] oldExcludes = globalOptions.getExclusions();
+        globalOptions.setExclusions(excludeFiles);
+
+        UpdateServerResponse updateServerResponse = new UpdateServerResponse(listener);
+        client.getEventManager().addCVSListener(updateServerResponse);
+        client.setLocalPath(projectPath.getAbsolutePath());
+        printCommand(command, client);
+
+        try {
+            client.executeCommand(command, globalOptions);
+            updateServerResponse.waitForExecutionToFinish();
+        }
+        finally {
+            // restore previous excludes setting
+            globalOptions.setExclusions(oldExcludes);
+            client.getEventManager().removeCVSListener(updateServerResponse);
+            disconnect(client);
+        }
+
+        return updateServerResponse;
+    }
+    
+    public synchronized UpdateServerResponse updateAndOverride(File [] files, UpdateListener listener)
+        throws AuthenticationException, CommandAbortedException, InvalidCvsRootException,
+        CommandException
+    {
+        // setupConnection();
+        Client client = getClient();
+
+        UpdateCommand command = new UpdateCommand();
+        command.setFiles(files);
+        command.setCleanCopy(true);
+        //command.setRecursive(true);
+        //command.setBuildDirectories(true);
+        command.setPruneDirectories(false);
+
+        UpdateServerResponse updateServerResponse = new UpdateServerResponse(listener);
+        client.getEventManager().addCVSListener(updateServerResponse);
+        client.setLocalPath(projectPath.getAbsolutePath());
+        printCommand(command, client);
+
+        try {
+            client.executeCommand(command, globalOptions);
+            updateServerResponse.waitForExecutionToFinish();
+        }
+        finally {
+            client.getEventManager().removeCVSListener(updateServerResponse);
+            disconnect(client);
+        }
+        
+        return updateServerResponse;
+    }
+
+    /**
+     * Put the project in the repository and make local copy a sandbox
+     *
+     * @throws CommandAbortedException
+     * @throws CommandException
+     * @throws AuthenticationException
+     * @throws InvalidCvsRootException
+     */
+    public synchronized BasicServerResponse shareProject()
+        throws CommandAbortedException, CommandException, 
+            AuthenticationException, InvalidCvsRootException
+    {
+        BasicServerResponse importResponse;
+        BasicServerResponse checkoutResponse;
+        importResponse = importInRepository();
+
+        if (importResponse.isError()) {
+            return importResponse;
+        } else {
+            checkoutResponse = checkout(projectPath);
+        }
+
+        return checkoutResponse;
+    }
+
+    /**
+     * See if we can connect to the server specified by the parameter
+     * cvsRootStr
+     *
+     * @param cvsrootStr
+     *
+     * @return true if the connection could be made
+     */
+    public static boolean validateConnection(String cvsrootStr)
+    {
+        boolean status = false;
+        Connection connection = null;
+
+        try {
+            CVSRoot cvsroot = CVSRoot.parse(cvsrootStr);
+            connection = getConnection(cvsroot);
+
+            if (connection != null) {
+                connection.verify();
+                status = true;
+            }
+        } catch (AuthenticationException e) {
+            // problem verifying connection
+            status = false;
+        } catch (IllegalArgumentException iae) {
+            // problem parsing CVSRoot
+            status = false;
+        }
+
+        return status;
+    }
+
+    /**
+     * Get the applicable Connection type for the given CVSRoot object.
+     * At present this can only be either pserver or ext using internal ssh.
+     * @return a Connection object for the cvsroot or null if invalid
+     */
+    private static Connection getConnection(CVSRoot cvsRoot)
+    {
+        SocketFactory socketFactory = SocketFactory.getDefault();
+
+        if (CVSRoot.METHOD_EXT.equals(cvsRoot.getMethod())) {
+            // set port to 22 unless it is already set to something other than 0
+            int port = 22;
+
+            if (cvsRoot.getPort() != 0) {
+                port = cvsRoot.getPort();
+            }
+
+            SSHConnection sshConnection = new SSHConnection(socketFactory,
+                    cvsRoot.getHostName(), port, cvsRoot.getUserName(),
+                    cvsRoot.getPassword());
+            sshConnection.setRepository(cvsRoot.getRepository());
+
+            return sshConnection;
+        } else if (CVSRoot.METHOD_PSERVER.equals(cvsRoot.getMethod())) {
+            PServerConnection pConnection = new PServerConnection(cvsRoot, socketFactory);
+
+            //pServerConnection.setRepository(cvsRoot.getRepository());
+            return pConnection;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get a list of files which are in the repository, but which are
+     * not in the local project. This includes both files which have been
+     * locally deleted, and files which have been added to the repository
+     * from another location.
+     * 
+     * @param remoteDirs  This set will have all remote directories which
+     *                    are found added to it.
+     * 
+     * @throws InvalidCvsRootException
+     * @throws AuthenticationException
+     * @throws CommandException
+     */
+    public synchronized List getRemoteFiles(Set remoteDirs) throws InvalidCvsRootException,
+        AuthenticationException, CommandException
+    {
+        List files = new LinkedList();
+        adminHandler.setMildManneredMode(true);
+        try {
+            getRemoteFiles(files, projectPath, remoteDirs, false);
+        }
+        finally {
+            adminHandler.setMildManneredMode(false);
+        }
+        return files;
+    }
+    
+    /**
+     * Find the remote directories which also exist locally, but are not
+     * locally under version control.
+     */
+    public synchronized Set getRemoteDirs() throws InvalidCvsRootException,
+        AuthenticationException, CommandException
+    {
+        adminHandler.setMildManneredMode(true);
+        Set remoteDirs = new HashSet();
+        try {
+            getRemoteFiles(null, projectPath, remoteDirs, true);
+        }
+        finally {
+            adminHandler.setMildManneredMode(false);
+        }
+        return remoteDirs; 
+    }
+    
+    /**
+     * Get a list of files which are in the repository, but which are
+     * not in the local project. This includes both files which have been
+     * locally deleted, and files which have been added to the repository
+     * from another location.
+     * 
+     * Throws CommandAbortedException if command aborted.
+     * 
+     * @param files  the list to store the discovered files in (may be null)
+     * @param path  the path to look at
+     * @param remoteDirs  a set to store all encountered remote directories in
+     * @param localDirs  whether to only look at directories which also exist locally
+     * 
+     * @throws InvalidCvsRootException
+     * @throws AuthenticationException
+     * @throws CommandException
+     */
+    private void getRemoteFiles(List files, File path, Set remoteDirs, boolean localDirs)
+        throws InvalidCvsRootException, AuthenticationException, CommandException
+    {        
+        UpdateServerResponse updateResponse = getUpdateServerResponse(path.getAbsolutePath());
+        List updated = updateResponse.getUpdated();
+        Iterator i = updated.iterator();
+        while (i.hasNext()) {
+            UpdateResult ur = (UpdateResult) i.next();
+            File f = new File(path, ur.getFilename());
+            remoteDirs.add(f.getParentFile());
+            if (files != null && ! f.exists()) {
+                files.add(f);
+            }
+        }
+        
+        // Now recurse into any new directories which were discovered.
+        List newDirs = updateResponse.getNewDirectoryNames();
+        i = newDirs.iterator();
+        while (i.hasNext()) {
+            String newDirName = i.next().toString();
+            File localPath = new File(path, newDirName);
+            if (! localDirs || localPath.isDirectory()) {
+                remoteDirs.add(localPath);
+                getRemoteFiles(files, localPath, remoteDirs, localDirs);
+            }
+        }
+    }
+    
+    
+    /**
+     * Get status of all the given files.
+     * Returns a List of TeamStatusInfo.
+     * 
+     * @param files  The files whose status to retrieve
+     * @param remoteDirs  These are the directories which we know are in the
+     *                    repository. Any file in the files list which does not
+     *                    exist locally but for which the containing directory is
+     *                    in the repository,  should have that directory listed here.
+     * 
+     * @throws CommandAbortedException
+     * @throws CommandException
+     * @throws AuthenticationException
+     * @throws InvalidCvsRootException
+     */
+    public synchronized List getStatus(Set files, Set remoteDirs)
+        throws CommandAbortedException, CommandException, 
+            AuthenticationException, InvalidCvsRootException
+    {
+        // setupConnection();
+        Client client = getClient();
+        List returnInfo = new LinkedList();
+
+        // First, it's necessary to filter out files which are in
+        // directories not in the repository. Otherwise the
+        // CVS status command barfs when it hits such a file.
+        for (Iterator i = files.iterator(); i.hasNext(); ) {
+            File file = (File) i.next();
+            File parent = file.getParentFile();
+            if (! remoteDirs.contains(parent) && ! isDirectoryUnderCVS(parent)) {
+                i.remove();
+                // All such files have status NEEDSADD.
+                TeamStatusInfo teamInfo = new TeamStatusInfo(file,
+                        "",
+                        null,
+                        TeamStatusInfo.STATUS_NEEDSADD);
+                returnInfo.add(teamInfo);
+            }
+        }
+        
+        // Now we can use the cvs "status" command to get status on the
+        // remaining files.
+        
+        StatusCommand statusCommand = new StatusCommand();
+        statusCommand.setFiles(listToFileArray(files));
+
+        StatusServerResponse statusServerResponse = new StatusServerResponse();
+        client.getEventManager().addCVSListener(statusServerResponse);
+
+        client.setLocalPath(projectPath.getAbsolutePath());
+        printCommand(statusCommand, client);
+        adminHandler.setMildManneredMode(true);
+        
+        try {
+            client.executeCommand(statusCommand, globalOptions);
+        }
+        finally {
+            adminHandler.setMildManneredMode(false);
+            
+            statusServerResponse.waitForExecutionToFinish();
+            client.getEventManager().removeCVSListener(statusServerResponse);
+            disconnect(client);
+        }
+
+        List statusInfo = statusServerResponse.getStatusInformation();
+        for (Iterator i = statusInfo.iterator(); i.hasNext(); ) {
+            StatusInformation sinfo = (StatusInformation) i.next();
+            
+            int status;
+            FileStatus fstatus = sinfo.getStatus();
+            String workingRev = sinfo.getWorkingRevision();
+            if (workingRev == null || workingRev.startsWith("No entry")) {
+                workingRev = "";
+            }
+            
+            if (fstatus == FileStatus.NEEDS_CHECKOUT) {
+                if (workingRev.length() > 0) {
+                    status = TeamStatusInfo.STATUS_DELETED;
+                }
+                else {
+                    status = TeamStatusInfo.STATUS_NEEDSCHECKOUT;
+                }
+            }
+            else if (fstatus == FileStatus.NEEDS_PATCH) {
+                status = TeamStatusInfo.STATUS_NEEDSUPDATE;
+            }
+            else if (fstatus == FileStatus.NEEDS_MERGE) {
+                status = TeamStatusInfo.STATUS_NEEDSMERGE;
+            }
+            else if (fstatus == FileStatus.MODIFIED) {
+                status = TeamStatusInfo.STATUS_NEEDSCOMMIT;
+            }
+            else if (fstatus == FileStatus.UNKNOWN) {
+                // present locally, not present in repository
+                status = TeamStatusInfo.STATUS_NEEDSADD;
+            }
+            else if (fstatus == FileStatus.UP_TO_DATE) {
+                status = TeamStatusInfo.STATUS_UPTODATE;
+            }
+            else if (fstatus == FileStatus.INVALID) {
+                status = TeamStatusInfo.STATUS_REMOVED;
+            }
+            else if (fstatus == FileStatus.UNRESOLVED_CONFLICT) {
+                // This seems to indicate that there's been a local modification,
+                // but the file has been removed in the repository
+                status = TeamStatusInfo.STATUS_UNRESOLVED;
+            }
+            else if (fstatus == FileStatus.HAS_CONFLICTS) {
+                // The local file still has conflicts in it from the last update.
+                // The file needs to modified before this status will change.
+                status = TeamStatusInfo.STATUS_HASCONFLICTS;
+            }
+            else if (fstatus == FileStatus.REMOVED) {
+                // "cvs remove" command has been run for this file. This
+                // shouldn't really happen, because we only do that just
+                // before a commit.
+                status = TeamStatusInfo.STATUS_NEEDSCOMMIT;
+            }
+            else {
+                status = TeamStatusInfo.STATUS_WEIRD;
+            }
+        
+            File file = sinfo.getFile();
+            if (file == null) {
+                file = new File(projectPath, sinfo.getRepositoryFileName());
+            }
+            files.remove(file);
+            TeamStatusInfo teamInfo = new TeamStatusInfo(file,
+                    workingRev,
+                    sinfo.getRepositoryRevision(),
+                    status);
+            returnInfo.add(teamInfo);
+        }
+        
+        // Now we may have some local files left which cvs hasn't given any
+        // status for...
+        for (Iterator i = files.iterator(); i.hasNext(); ) {
+            File file = (File) i.next();
+            TeamStatusInfo teamInfo = new TeamStatusInfo(file,
+                    "",
+                    null,
+                    TeamStatusInfo.STATUS_REMOVED);
+            returnInfo.add(teamInfo);
+        }
+        
+        return returnInfo;
+    }
+    
+    /**
+     * Get a list of modules in the repository. The module list is returned as
+     * an UpdateServerResponse - use getNewDirectories() to get the list of module
+     * names.
+     * 
+     * @throws InvalidCvsRootException
+     * @throws AuthenticationException
+     * @throws CommandAbortedException
+     * @throws CommandException
+     */
+    public synchronized UpdateServerResponse getModules(List modules) throws InvalidCvsRootException, AuthenticationException,
+            CommandAbortedException, CommandException
+    {
+        Client client = getClient();
+        client.setAdminHandler(new EmptyAdminHandler());
+
+        CheckoutCommand checkoutCommand = new CheckoutCommand(true, ".");
+        checkoutCommand.setRecursive(true);
+        checkoutCommand.setPruneDirectories(false);
+        globalOptions.setDoNoChanges(true);
+
+        UpdateServerResponse updateServerResponse = new UpdateServerResponse(null);
+        client.getEventManager().addCVSListener(updateServerResponse);
+        client.setLocalPath(projectPath.getAbsolutePath());
+        printCommand(checkoutCommand, client);
+        
+        try {
+            client.executeCommand(checkoutCommand, globalOptions);
+            updateServerResponse.waitForExecutionToFinish();
+        }
+        finally {
+            client.getEventManager().removeCVSListener(updateServerResponse);
+            disconnect(client);
+            client.setAdminHandler(adminHandler);
+            globalOptions.setDoNoChanges(false);
+        }
+        
+        List projects = updateServerResponse.getNewDirectoryNames();
+        for (Iterator i = projects.iterator(); i.hasNext(); ) {
+            String projectName = i.next().toString();
+            if (! projectName.equals("CVSROOT")) {
+                modules.add(projectName);
+            }
+        }
+        
+        return updateServerResponse;
+    }
+    
+    /**
+     * Get the locally deleted files (files which are under version control,
+     * and which existed locally, but which have been deleted locally).
+     * 
+     * @param set  The set to store the locally deleted files in
+     * @param dir  The directory to look for deleted files in (non-recursively)
+     * @throws IOException
+     */
+    public void getLocallyDeletedFiles(Set set, File dir) throws IOException
+    {
+        Iterator i = adminHandler.getEntries(dir);
+        while (i.hasNext()) {
+            Entry entry = (Entry) i.next();
+            File file = new File(dir, entry.getName());
+            if (! file.exists() && ! entry.isDirectory()) {
+                set.add(new File(dir, entry.getName()));
+            }
+        }
+    }
+    
+    /**
+     * Get the history of the repository - all commits, including file, date,
+     * revision, user, and comment.
+     * 
+     * @throws AuthenticationException
+     * @throws InvalidCvsRootException
+     * @throws CommandAbortedException
+     * @throws CommandException
+     */
+    public synchronized LogServerResponse getLogHistory()
+        throws AuthenticationException, InvalidCvsRootException, CommandAbortedException,
+        CommandException
+    {
+        Client client = getClient();
+
+        LogCommand logCommand = new LogCommand();
+        
+        LogServerResponse logServerResponse = new LogServerResponse();
+        client.getEventManager().addCVSListener(logServerResponse);
+        client.setLocalPath(projectPath.getAbsolutePath());
+        
+        printCommand(logCommand, client);
+        try {
+            client.executeCommand(logCommand, globalOptions);
+            logServerResponse.waitForExecutionToFinish();
+        }
+        finally {
+            client.getEventManager().removeCVSListener(logServerResponse);
+            disconnect(client);
+        }
+
+        return logServerResponse;
+    }
 }
-

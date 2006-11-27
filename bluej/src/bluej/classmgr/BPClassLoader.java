@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
  *
- * @version    $Id: BPClassLoader.java 3492 2005-08-01 08:04:22Z damiano $
+ * @version    $Id: BPClassLoader.java 4704 2006-11-27 00:07:19Z bquig $
  */
 
 /*

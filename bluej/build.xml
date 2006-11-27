@@ -19,6 +19,9 @@
     <property name="bluej.version.suffix" value="preview" />
     <property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
 
+    <!-- user specific properties that are edited to match local build environment-->
+    <property file="build.properties"/>   
+      
     <!-- Set up common directories -->
     <property name="core.doc" value="doc/all"/>
     <property name="extension.doc" value="doc/extensions"/>
@@ -41,7 +44,13 @@
         <pathelement location="${bluej_home}/lib/MRJ141Stubs.jar"/>
         <pathelement location="${bluej_home}/lib/antlr.jar"/>
         <pathelement location="${bluej_home}/lib/junit.jar"/>
+    	<pathelement location="${bluej_home}/lib/org-netbeans-lib-cvsclient.jar"/>
+        <pathelement location="${bluej_home}/lib/jsch.jar"/>
+        <pathelement location="${bluej_home}/lib/sshconnection.jar"/>
     </path>
+    
+    <!-- taskdef name="jarbundler"
+        classname="com.loomcom.ant.tasks.jarbundler.JarBundler" / -->
 
     <!--
       -  Generate the parser Java code - not a dependency of any other
@@ -90,7 +99,6 @@
                     archiver/**, gnu/**, javax/**, kopi/**,
                     net/**/test/**,
                     net/**,
-                    bluej/groupwork/**,
                     bluej/tester/**,
                     bluej/browser/**,
                     bluej/guibuilder/**,
@@ -189,12 +197,12 @@
 
     <target name="run">
         <!-- run the java code built into the jar files -->
-        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">
+        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">        
             <classpath>
                 <pathelement location="${boot.jar}"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
-            </classpath>
+            </classpath>                	
         </java>
     </target>
 
@@ -205,15 +213,34 @@
     <target name="dist" depends="ready-to-run">
         <echo message="Do you have the latest copy of the submitter extension in your lib/extensions directory??"/>
         <ant dir="package" target="dist"/>
-        <!--ant dir="package" target="windows-dist"/-->
+        <!-- ant dir="package" target="windows-dist"/-->
     </target>
 
     <target name="dist-greenfoot" depends="ready-to-run">
         <ant dir="package" antfile="greenfoot-build.xml" target="dist"/>
     </target>
+	
+    <target name="dist-greenfoot" depends="ready-to-run">
+	    <ant dir="package" antfile="greenfoot-build.xml" target="dist"/>
+    </target>
 
     <target name="windows-dist">
         <ant dir="package" target="windows-dist"/>
+    </target>
+    
+    <target name ="mac-dist">
+        <jarbundler dir="package"
+            name="BlueJ"
+            mainclass="bluej.Boot"
+            jvmversion="1.4+"
+            icon="lib/images/bluej.icns"
+            version="2.1.0">
+            <jarfileset dir="lib">
+                <include name="**/*.jar" />
+                <exclude name="*/CVS" />
+            </jarfileset>  
+        </jarbundler>
+            
     </target>
 
     <target name="test" depends="compile-core, compile-test">

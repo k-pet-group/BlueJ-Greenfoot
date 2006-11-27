@@ -10,7 +10,7 @@ import bluej.utility.Debug;
  * Reasonably generic interface between the BlueJ IDE and the Java compiler.
  * 
  * @author Michael Cahill
- * @version $Id: JobQueue.java 3469 2005-07-18 13:41:54Z damiano $
+ * @version $Id: JobQueue.java 4704 2006-11-27 00:07:19Z bquig $
  */
 public class JobQueue
 {

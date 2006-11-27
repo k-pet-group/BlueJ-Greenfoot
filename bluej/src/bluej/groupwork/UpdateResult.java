@@ -19,20 +19,32 @@ public class UpdateResult {
 	public static final char UPDATED = 'U';
 	public static final char UNKNOWN = '?';
 	
-	public UpdateResult(char statusCode, String filename){
+	/**
+	 * Create an UpdateResult whith statusCode and filename
+	 * @param statusCode
+	 * @param filename
+	 */
+	private UpdateResult(char statusCode, String filename){
 		this.statusCode = statusCode;
 		this.filename = filename;
 	}
 	
-	public static UpdateResult parse(String m) throws UnableToParseInputException{
+	/**
+	 * Parse a string and create an UpdateResult. Used to parse the strings
+	 * comming from an update command
+	 * @param str the String to parse
+	 * @return UpdateResult the resulting UpdateResult
+	 * @throws UnableToParseInputException
+	 */
+	public static UpdateResult parse(String str) throws UnableToParseInputException{
 		char statusCode = 'X';
 		String filename;
 				
-    	boolean hasRightStructure = (m != null) && (m.length() > 3);
+    	boolean hasRightStructure = (str != null) && (str.length() > 3);
     	boolean hasRightStatusCode = false;
     	boolean messageOk;
     	if (hasRightStructure){
-    		statusCode = m.charAt(0);
+    		statusCode = str.charAt(0);
     	    hasRightStatusCode = statusCode == ADDED ||
 			statusCode == CONFLICT || statusCode == MODIFIED ||
 			statusCode == PATCHED || statusCode == REMOVED || 
@@ -41,12 +53,12 @@ public class UpdateResult {
     	messageOk = hasRightStructure && hasRightStatusCode;
     	
     	if (messageOk){
-        	filename = m.substring(2);
+        	filename = str.substring(2);
         	return new UpdateResult(statusCode, filename);
         	//System.out.println("statusCode=" + statusCode + " filename=" + filename);
     	}
     	else {
-    		throw new UnableToParseInputException(m); 
+    		throw new UnableToParseInputException(str); 
     	}
 	}
 	
