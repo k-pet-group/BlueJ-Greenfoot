@@ -95,18 +95,19 @@
                 debug="on"
                 deprecation="yes"
                 excludes="de/**,
+
                     archiver/**, gnu/**, javax/**, kopi/**,
                     net/**/test/**,
                     net/**,
                     bluej/tester/**,
                     bluej/browser/**,
                     bluej/guibuilder/**,
-                    bluej/editor/moe/Moe.java">
-            <!--,
-             	       						bluej/debugger/jdi/JdiUtils15.java,
-        	        						bluej/utility/JavaUtils15.java,
-        	        						bluej/utility/JavaArrayReflective.java">-->
-            <compilerarg line="-source 1.4"/>
+                    bluej/editor/moe/Moe.java"> <!--,
+             	        bluej/debugger/jdi/JdiUtils15.java,
+        	        bluej/utility/JavaUtils15.java,
+        	        bluej/utility/JavaArrayReflective.java">-->
+
+        	<compilerarg line="-source 1.4"/>
             <classpath>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${boot.jar}"/>
@@ -147,8 +148,8 @@
                 <include name="bluej/GreenfootLabel.class"/>
             </fileset>
             <fileset dir="${boot.src}">
-                <include name="bluej/splash.jpg"/>
-                <include name="bluej/greenfootsplash.jpg"/>
+            	<include name="bluej/splash.jpg"/>
+            	<include name="bluej/greenfootsplash.jpg"/>
             </fileset>
             <manifest>
                 <attribute name="Main-Class" value="bluej.Boot"/>
@@ -176,7 +177,7 @@
                 <include name="bluej/editor/**" />
                 <include name="org/**" />
                 <exclude name="bluej/editor/*.txt" />
-                <exclude name="bluej/editor/*.xml" />
+                <exclude name="bluej/editor/*.xml" />   
             </fileset>
         </jar>
     </target>
