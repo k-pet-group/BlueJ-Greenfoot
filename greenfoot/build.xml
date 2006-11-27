@@ -9,7 +9,10 @@
 	<!-- user specific properties that are edited to match local build environment-->
 	<property file="build.properties"/>
 
-	
+    <!-- Greenfoot Version Number -->
+    <property name="greenfoot.version" value="1.1.0"/>
+    <property name="greenfoot.apiversion" value="1.1.0"/>
+    
 	<!-- Location of the bluej lib dir -->
 	<property name="bluej.lib.greenfoot"  location="${bluej.projectdir}/lib/greenfoot"/>
 	<!-- Location of the where the greenfoot.jar should be placed-->
