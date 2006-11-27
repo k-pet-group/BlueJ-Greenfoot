@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4705 2006-11-27 00:16:13Z bquig $
+ * @version $Id: Package.java 4706 2006-11-27 00:18:07Z bquig $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -1398,7 +1398,6 @@ public final class Package extends Graph
     }
 
     /**
-<<<<<<< Package.java
      * Removes a class from the Package
      * 
      * @param removableTarget
@@ -1424,9 +1423,6 @@ public final class Package extends Graph
 
     /**
      * remove the arrow representing the given dependency
-=======
-     * remove the arrow representing the given dependency
->>>>>>> 1.162.2.17
      * 
      * @param d  the dependency to remove
      */
