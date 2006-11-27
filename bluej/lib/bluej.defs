@@ -388,6 +388,13 @@ bluej.editor.tabsize=4
 
 bluej.testing.showtools=false
 
+#######################################################################
+## Settings for team tools preferences.
+## These are the initial defaults - the settings can be changed by
+## users in their preferences dialogue. (values: true / false)
+#######################################################################
+
+bluej.teamwork.showtools=false
 
 #######################################################################
 ### Colours. All are specified as RGB values.
