@@ -3,7 +3,6 @@
 
     <!-- ************************************************************ -->
     <!-- set global properties for this build (and subproject builds} -->
-
     <!-- ********************************************** -->
     <!-- it should not be necessary to edit any properties to build -->
 
@@ -220,10 +219,6 @@
         <ant dir="package" antfile="greenfoot-build.xml" target="dist"/>
     </target>
 	
-    <target name="dist-greenfoot" depends="ready-to-run">
-	    <ant dir="package" antfile="greenfoot-build.xml" target="dist"/>
-    </target>
-
     <target name="windows-dist">
         <ant dir="package" target="windows-dist"/>
     </target>
