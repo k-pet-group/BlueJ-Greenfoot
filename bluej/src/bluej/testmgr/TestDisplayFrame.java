@@ -22,7 +22,7 @@ import bluej.utility.JavaNames;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 4710 2006-11-27 03:52:28Z bquig $
+ * @version $Id: TestDisplayFrame.java 4718 2006-11-27 04:54:40Z davmac $
  */
 public class TestDisplayFrame
 {
@@ -58,8 +58,9 @@ public class TestDisplayFrame
     private final static int PROGRESS_BAR_INDEX = 0;
     
     private CounterPanel counterPanel;
-    private int errorCount, failureCount;
-    private int testTotal; 
+    private int errorCount;
+    private int failureCount;
+    private int testTotal;
     private boolean doingMultiple;
         
     // private FailureDetailView fdv;
@@ -292,9 +293,11 @@ public class TestDisplayFrame
         counterPanel.setFailureValue(failureCount);
         counterPanel.setErrorValue(errorCount);
         counterPanel.setRunValue(testEntries.getSize());
-        
-        if (!doingMultiple && progressBar.getValue() == progressBar.getMaximum())
+
+        if (!doingMultiple &&
+                (progressBar.getValue() == progressBar.getMaximum())) {
             setResultLabel();
+        }
     }
     
     /**
@@ -305,10 +308,11 @@ public class TestDisplayFrame
     {
         statusLabel = new JPanel();
 
-        if (errorCount + failureCount == 0)
+        if ((errorCount + failureCount) == 0) {
             statusLabel.setBackground(ProgressBar.greenBarColour);
-        else
+        } else {
             statusLabel.setBackground(ProgressBar.redBarColour);
+        }
 
         statusLabel.setMinimumSize(progressBar.getMinimumSize());
         statusLabel.setMaximumSize(progressBar.getMaximumSize());
@@ -332,6 +336,7 @@ public class TestDisplayFrame
                     exceptionMessageField.setText(dtr.getExceptionMessage()
                             + "\n---\n" + dtr.getTrace());
                     exceptionMessageField.setCaretPosition(0);
+
                     // Set the column count to a small number; the text area
                     // will use the available space anyway, and this prevents
                     // unncessary horizontal scrollbar from appearing
@@ -363,15 +368,21 @@ public class TestDisplayFrame
         private void showSource()
         {
             DebuggerTestResult dtr = (DebuggerTestResult) testnames.getSelectedValue();
-            if (dtr != null && (dtr.isError() || dtr.isFailure())) {
+
+            if ((dtr != null) && (dtr.isError() || dtr.isFailure())) {
                 SourceLocation exceptionLocation = dtr.getExceptionLocation();
-                if (exceptionLocation == null)
+
+                if (exceptionLocation == null) {
                     return;
+                }
+
                 String packageName = JavaNames.getPrefix(exceptionLocation.getClassName());
 
                 Package spackage = lastProject.getPackage(packageName);
-                if (spackage == null)
+
+                if (spackage == null) {
                     return;
+                }
 
                 // We have the package name. Now get the source name and
                 // line number.
@@ -381,8 +392,7 @@ public class TestDisplayFrame
                 spackage.showSource(sourceName, lineno, "", false);
             }
         }
-    };
-
+    }
 }
 
 class MyCellRenderer extends JLabel implements ListCellRenderer
@@ -425,4 +435,3 @@ class MyCellRenderer extends JLabel implements ListCellRenderer
 		return this;
 	}
 }
-
