@@ -52,7 +52,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4706 2006-11-27 00:18:07Z bquig $
+ * @version $Id: Package.java 4712 2006-11-27 04:06:23Z bquig $
  */
 public final class Package extends Graph
     implements MouseListener, MouseMotionListener
@@ -2185,22 +2185,6 @@ public final class Package extends Graph
             else {
                 sources = new File[0];
 
-            }
-            CompileEvent aCompileEvent = new CompileEvent(eventType, sources);
-            aCompileEvent.setErrorLineNumber(lineNo);
-            aCompileEvent.setErrorMessage(message);
-            ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
-        }
-
-        private void sendEventToExtensions(String filename, int lineNo, String message, int eventType)
-        {
-            File [] sources;
-            if (filename != null) {
-                sources = new File[1];
-                sources[0] = new File(filename);
-            }
-            else {
-                sources = new File[0];
             }
             CompileEvent aCompileEvent = new CompileEvent(eventType, sources);
             aCompileEvent.setErrorLineNumber(lineNo);

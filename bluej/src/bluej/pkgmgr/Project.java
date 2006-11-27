@@ -21,6 +21,7 @@ import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.debugmgr.inspector.ResultInspector;
+import bluej.editor.Editor;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extmgr.ExtensionsManager;
@@ -52,7 +53,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: Project.java 4712 2006-11-27 04:06:23Z bquig $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
