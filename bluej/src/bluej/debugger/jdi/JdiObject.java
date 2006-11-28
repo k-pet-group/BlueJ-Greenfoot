@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version $Id: JdiObject.java 4721 2006-11-28 04:19:41Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -97,19 +97,26 @@ public class JdiObject extends DebuggerObject
     private JdiObject(ObjectReference obj)
     {
         this.obj = obj;
+        obj.disableCollection();
         getRemoteFields();
     }
 
     private JdiObject(ObjectReference obj, GenTypeClass expectedType)
     {
         this.obj = obj;
+        obj.disableCollection();
         getRemoteFields();
         if( obj != null ) {
             Reflective reflective = new JdiReflective(obj.referenceType());
             if( expectedType.isGeneric() ) {
-                genType = (GenTypeClass) expectedType.mapToDerived(reflective);
+                genType = expectedType.mapToDerived(reflective);
             }
         }
+    }
+    
+    protected void finalize()
+    {
+        obj.enableCollection();
     }
     
     public String toString()

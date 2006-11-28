@@ -16,7 +16,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 3463 2005-07-13 01:55:27Z davmac $
+ * @version    $Id: JdiArray.java 4721 2006-11-28 04:19:41Z davmac $
  */
 public class JdiArray extends JdiObject
 {    
@@ -25,6 +25,7 @@ public class JdiArray extends JdiObject
     protected JdiArray(ArrayReference obj)
     {
         this.obj = obj;
+        obj.disableCollection();
     }
 
     /**
@@ -35,6 +36,7 @@ public class JdiArray extends JdiObject
     protected JdiArray(ArrayReference obj, JavaType expectedType)
     {
         this.obj = obj;
+        obj.disableCollection();
         // All arrays extend java.lang.Object - so it's possible that the
         // expected type is java.lang.Object and not an array type at all.
         if(expectedType instanceof GenTypeArray) {
@@ -77,7 +79,7 @@ public class JdiArray extends JdiObject
                 compName = compName.replace('/', '.');
 
                 Reflective compReflective = new JdiReflective(compName, obj.referenceType());
-                component = (GenTypeClass) ((GenTypeClass) genericType).mapToDerived(compReflective);
+                component = ((GenTypeClass) genericType).mapToDerived(compReflective);
 
                 while (level > 1) {
                     component = new GenTypeArray(component, new JdiArrayReflective(component, obj.referenceType()));
