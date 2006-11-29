@@ -1,8 +1,5 @@
 package bluej.pkgmgr;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -52,10 +49,9 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4712 2006-11-27 04:06:23Z bquig $
+ * @version $Id: Package.java 4723 2006-11-29 01:32:45Z davmac $
  */
 public final class Package extends Graph
-    implements MouseListener, MouseMotionListener
 {
     /** message to be shown on the status bar */
     static final String compiling = Config.getString("pkgmgr.compiling");
@@ -750,7 +746,6 @@ public final class Package extends Graph
             findSpaceForVertex(t);
             addTarget(t);
         }
-
     }
 
     /**
@@ -806,22 +801,14 @@ public final class Package extends Graph
         repaint();
     }
     
-    /** Reset a package. Throws away all data of a package and rereads it 
-     * from disk. This means that classes that has been removed from disk will
-     * also disapear from the diagram.
-     * @throws IOException
-     */
-    public void reset() throws IOException{
-        init();
-    }
-    
     /**
      * ReRead the pkg file and update the position of the targets in the graph
      * @throws IOException
      *
      */
-    public void reReadGraphLayout() throws IOException{
-//    	 read the package properties
+    public void reReadGraphLayout() throws IOException
+    {
+        // read the package properties
         File pkgFile = new File(getPath(), pkgfileName);
 
         // try to load the package file for this package
@@ -830,25 +817,19 @@ public final class Package extends Graph
         props.load(input);
         input.close();
 
-        // read in all the targets contained in this package
-        // into this temporary map
-        Map propTargets = new HashMap();
-
-        int numTargets = 0, numDependencies = 0;
+        int numTargets = 0;
 
         try {
             numTargets = Integer.parseInt(props.getProperty("package.numTargets", "0"));
-            numDependencies = Integer.parseInt(props.getProperty("package.numDependencies", "0"));
         }
         catch (Exception e) {
             Debug.reportError("Error loading from bluej.pkg file " + pkgFile + ": " + e);
             e.printStackTrace();
             return;
         }
-        //
+        
         for (int i = 0; i < numTargets; i++) {
             Target target = null;
-            String type = props.getProperty("target" + (i + 1) + ".type");
             String identifierName = props.getProperty("target" + (i + 1) + ".name");
             int x = Integer.parseInt(props.getProperty("target" + (i + 1) + ".x"));
             int y = Integer.parseInt(props.getProperty("target" + (i + 1) + ".y"));
@@ -861,7 +842,6 @@ public final class Package extends Graph
             }
         }
         repaint();
-
     }
 
     /**
@@ -2360,29 +2340,4 @@ public final class Package extends Graph
     {
         return "Package:" + getQualifiedName();
     }
-
-    // MouseListener interface - only used while deleting arrow
-
-    public void mousePressed(MouseEvent evt)
-    {}
-
-    public void mouseReleased(MouseEvent evt)
-    {}
-
-    public void mouseClicked(MouseEvent evt)
-    {}
-
-    public void mouseEntered(MouseEvent evt)
-    {}
-
-    public void mouseExited(MouseEvent evt)
-    {}
-
-    // MouseMotionListener interface
-
-    public void mouseDragged(MouseEvent evt)
-    {}
-
-    public void mouseMoved(MouseEvent evt)
-    {}
 }
