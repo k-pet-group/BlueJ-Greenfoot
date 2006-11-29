@@ -7,10 +7,8 @@ import java.util.*;
 import bluej.Boot;
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
-import bluej.debugger.Debugger;
-import bluej.debugger.DebuggerTerminal;
-import bluej.debugger.ExceptionDescription;
-import bluej.debugger.SourceLocation;
+import bluej.debugger.*;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.prefmgr.PrefMgr;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
@@ -34,7 +32,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: VMReference.java 4725 2006-11-29 23:58:01Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -768,8 +766,9 @@ class VMReference
             
             // check for and report exceptions which occurred during initialization
             ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
-            if (exception != null)
+            if (exception != null) {
                 exceptionEvent(new InvocationException(exception));
+            }
             
             return rval.reflectedType();
         }
@@ -789,17 +788,53 @@ class VMReference
      *            when a BlueJEvent is generated for a breakpoint, this
      *            parameter is passed as the event parameter
      */
-    public void runShellClass(String className)
+    public DebuggerResult runShellClass(String className)
     {
+        // Calls to this method are protected by serverThreadLock in JdiDebugger
+        
         // Debug.message("[VMRef] starting " + className);
         // ** call Shell.run() **
         try {
             exitStatus = Debugger.NORMAL_EXIT;
 
-            invokeShell(className);
+            serverThreadStartWait();
+            
+            // Store the class and method to call
+            setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, className);
+            setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.EXEC_SHELL));
+            
+            // Resume the thread, wait for it to finish and the new thread to start
+            serverThreadStarted = false;
+            resumeServerThread();
+            serverThreadStartWait();
+            
+            // Get return value and check for exceptions
+            ObjectReference rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
+            if (rval == null) {
+                ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
+                if (exception != null) {
+                    exceptionEvent(new InvocationException(exception));
+                    return new DebuggerResult(lastException);
+                }
+            }
+            
+            ClassObjectReference execdClass = (ClassObjectReference) getStaticFieldObject(serverClass, ExecServer.EXECUTED_CLASS_NAME);
+            ClassType ctype = (ClassType) execdClass.reflectedType();
+            Field rfield = ctype.fieldByName("__bluej_runtime_result");
+            if (rfield != null) {
+                rval = (ObjectReference) ctype.getValue(rfield);
+                if (rval != null) {
+                    GenTypeClass rgtype = (GenTypeClass) JdiReflective.fromField(rfield, ctype);
+                    JdiObject robj = JdiObject.getDebuggerObject(rval, rgtype);
+                    ctype.setValue(rfield, null);
+                    return new DebuggerResult(robj);
+                }
+            }
+            return new DebuggerResult((DebuggerObject) null);
         }
         catch (VMDisconnectedException e) {
             exitStatus = Debugger.TERMINATED;
+            return new DebuggerResult(exitStatus);
         }
         catch (Exception e) {
             // remote invocation failed
@@ -808,12 +843,14 @@ class VMReference
             exitStatus = Debugger.EXCEPTION;
             lastException = new ExceptionDescription("Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
+        
+        return new DebuggerResult(lastException);
     }
     
     /**
      * Invoke the default constructor for some class, and return the resulting object.
      */
-    public JdiObject instantiateClass(String className)
+    public DebuggerResult instantiateClass(String className)
     {
         ObjectReference obj = null;
         exitStatus = Debugger.NORMAL_EXIT;
@@ -822,7 +859,8 @@ class VMReference
         }
         catch (VMDisconnectedException e) {
             exitStatus = Debugger.TERMINATED;
-            return null; // debugger state change handled elsewhere 
+            // return null; // debugger state change handled elsewhere
+            return new DebuggerResult(Debugger.TERMINATED);
         }
         catch (Exception e) {
             // remote invocation failed
@@ -831,10 +869,12 @@ class VMReference
             exitStatus = Debugger.EXCEPTION;
             lastException = new ExceptionDescription("Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
-        if (obj == null)
-            return null;
-        else
-            return JdiObject.getDebuggerObject(obj);
+        if (obj == null) {
+            return new DebuggerResult(lastException);
+        }
+        else {
+            return new DebuggerResult(JdiObject.getDebuggerObject(obj));
+        }
     }
 
     /**
@@ -849,7 +889,7 @@ class VMReference
      * @return  The newly constructed object (or null if error/exception
      *          occurs)
      */
-    public JdiObject instantiateClass(String className, String [] paramTypes, ObjectReference [] args)
+    public DebuggerResult instantiateClass(String className, String [] paramTypes, ObjectReference [] args)
     {
         ObjectReference obj = null;
         exitStatus = Debugger.NORMAL_EXIT;
@@ -858,7 +898,7 @@ class VMReference
         }
         catch (VMDisconnectedException e) {
             exitStatus = Debugger.TERMINATED;
-            return null; // debugger state change handled elsewhere 
+            return new DebuggerResult(exitStatus); // debugger state change handled elsewhere 
         }
         catch (Exception e) {
             // remote invocation failed
@@ -867,10 +907,12 @@ class VMReference
             exitStatus = Debugger.EXCEPTION;
             lastException = new ExceptionDescription("Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
-        if (obj == null)
-            return null;
-        else
-            return JdiObject.getDebuggerObject(obj);
+        if (obj == null) {
+            return new DebuggerResult(lastException);
+        }
+        else {
+            return new DebuggerResult(JdiObject.getDebuggerObject(obj));
+        }
     }
     
     /**
@@ -899,15 +941,6 @@ class VMReference
     public void vmStartEvent(VMStartEvent vmse)
     {
         serverThreadStarted = false;
-    }
-
-    /**
-     * The VM has been disconnected or ended.
-     */
-    public void vmExitEvent()
-    {
-        if (owner != null)
-            owner.vmExit();
     }
 
     /**
@@ -967,8 +1000,8 @@ class VMReference
     /**
      * An exception has occurred in a thread.
      * 
-     * Analyse the exception and store it in 'lastException'. It will be picked
-     * up later.
+     * It doesn't really make sense to do anything here. Any exception which occurs
+     * in the primary execution thread does not come through here.
      */
     public void exceptionEvent(ExceptionEvent exc)
     {
@@ -1005,8 +1038,8 @@ class VMReference
         //int lineNumber = loc.lineNumber();
 
         List stack = JdiThread.getStack(exc.thread());
-        exitStatus = Debugger.EXCEPTION;
-        lastException = new ExceptionDescription(excClass, exceptionText, stack);
+        //exitStatus = Debugger.EXCEPTION;
+        //lastException = new ExceptionDescription(excClass, exceptionText, stack);
         //        }
     }
 
@@ -1039,55 +1072,52 @@ class VMReference
     
     public void exceptionEvent(InvocationException exc)
     {
-        try {
-            List empty = new LinkedList();
-                                                                                                                       
-            ObjectReference remoteException = exc.exception();
-            Field msgField = remoteException.referenceType().fieldByName("detailMessage");
-            StringReference msgVal = (StringReference) remoteException.getValue(msgField);
-            String exceptionText = (msgVal == null ? null : msgVal.value());
-            String excClass = exc.exception().type().name();
-                                                                                                                       
-            ReferenceType remoteType = exc.exception().referenceType();
-            List getStackTraceMethods = remoteType.methodsByName("getStackTrace");
-            Method getStackTrace = (Method)getStackTraceMethods.get(0);
-            ArrayReference stackValue = (ArrayReference)safeInvoke(exc.exception(),  getStackTrace, empty);
-                                                                                                                       
-            ObjectReference [] stackt = (ObjectReference [])stackValue.getValues().toArray(new ObjectReference[0]);
-            List stack = new LinkedList();
-                                                                                                                       
-            // "stackt" is now an array of Values. Each Value represents a
-            // "StackTraceElement" object.
-            if (stackt.length > 0) {
-                ReferenceType StackTraceElementType = (ReferenceType)stackt[0].type();
-                Method getClassName = (Method)StackTraceElementType.methodsByName("getClassName").get(0);
-                Method getFileName = (Method)StackTraceElementType.methodsByName("getFileName").get(0);
-                Method getLineNum = (Method)StackTraceElementType.methodsByName("getLineNumber").get(0);
-                Method getMethodName = (Method)StackTraceElementType.methodsByName("getMethodName").get(0);
+        List empty = new LinkedList();
+        
+        ObjectReference remoteException = exc.exception();
+        Field msgField = remoteException.referenceType().fieldByName("detailMessage");
+        StringReference msgVal = (StringReference) remoteException.getValue(msgField);
+        String exceptionText = (msgVal == null ? null : msgVal.value());
+        String excClass = exc.exception().type().name();
+        
+        ReferenceType remoteType = exc.exception().referenceType();
+        List getStackTraceMethods = remoteType.methodsByName("getStackTrace");
+        Method getStackTrace = (Method)getStackTraceMethods.get(0);
+        ArrayReference stackValue = (ArrayReference)safeInvoke(exc.exception(),  getStackTrace, empty);
+        
+        ObjectReference [] stackt = (ObjectReference [])stackValue.getValues().toArray(new ObjectReference[0]);
+        List stack = new LinkedList();
+        
+        // "stackt" is now an array of Values. Each Value represents a
+        // "StackTraceElement" object.
+        if (stackt.length > 0) {
+            ReferenceType StackTraceElementType = (ReferenceType)stackt[0].type();
+            Method getClassName = (Method)StackTraceElementType.methodsByName("getClassName").get(0);
+            Method getFileName = (Method)StackTraceElementType.methodsByName("getFileName").get(0);
+            Method getLineNum = (Method)StackTraceElementType.methodsByName("getLineNumber").get(0);
+            Method getMethodName = (Method)StackTraceElementType.methodsByName("getMethodName").get(0);
+            
+            for(int i = 0; i < stackt.length; i++) {
+                Value classNameV = safeInvoke(stackt[i], getClassName, empty);
+                Value fileNameV = safeInvoke(stackt[i], getFileName, empty);
+                Value methodNameV = safeInvoke(stackt[i], getMethodName, empty);
+                Value lineNumV = safeInvoke(stackt[i], getLineNum, empty);
                 
-                for(int i = 0; i < stackt.length; i++) {
-                    Value classNameV = safeInvoke(stackt[i], getClassName, empty);
-                    Value fileNameV = safeInvoke(stackt[i], getFileName, empty);
-                    Value methodNameV = safeInvoke(stackt[i], getMethodName, empty);
-                    Value lineNumV = safeInvoke(stackt[i], getLineNum, empty);
-                    
-                    String className = ((StringReference)classNameV).value();
-                    String fileName = null;
-                    if (fileNameV != null) {
-                        fileName = ((StringReference)fileNameV).value();
-                    }
-                    String methodName = ((StringReference)methodNameV).value();
-                    int lineNumber = ((IntegerValue)lineNumV).value();
-                    stack.add(new SourceLocation(className,fileName,methodName,lineNumber));
+                String className = ((StringReference)classNameV).value();
+                String fileName = null;
+                if (fileNameV != null) {
+                    fileName = ((StringReference)fileNameV).value();
                 }
+                String methodName = ((StringReference)methodNameV).value();
+                int lineNumber = ((IntegerValue)lineNumV).value();
+                stack.add(new SourceLocation(className,fileName,methodName,lineNumber));
             }
-                                                                                                                       
-            // stack is a list of SourceLocation (bluej.debugger.SourceLocation)
-                                                                                                                       
-            exitStatus = Debugger.EXCEPTION;
-            lastException = new ExceptionDescription(excClass, exceptionText, stack);
         }
-        finally { }
+        
+        // stack is a list of SourceLocation (bluej.debugger.SourceLocation)
+        
+        exitStatus = Debugger.EXCEPTION;
+        lastException = new ExceptionDescription(excClass, exceptionText, stack);
     }
 
     
@@ -1115,8 +1145,9 @@ class VMReference
         // it is required to do more work.
         else if (event.request().getProperty(SERVER_SUSPEND_METHOD_NAME) != null) {
             
-            if (workerThread == null)
+            if (workerThread == null) {
                 workerThread = event.thread();
+            }
             
             synchronized (workerThread) {
                 workerThreadReady = true;
@@ -1374,8 +1405,8 @@ class VMReference
     // -- support methods --
 
     /**
-     * Wait for the "server" thread to start. This must be called with the
-     * monitor held (ie. from within a synchronized block/method).
+     * Wait for the "server" thread to start. This must be synchronized on
+     * serverThreadLock (in JdiDebugger).
      */
     private void serverThreadStartWait()
     {
@@ -1393,11 +1424,16 @@ class VMReference
     
     /**
      * Resume the server thread to begin executing some function.
+     * 
+     * Calls to this method should be synchronized on the serverThreadLock
+     * (in JdiDebugger).
      */
     private void resumeServerThread()
     {
-        serverThread.resume();
-        owner.raiseStateChangeEvent(Debugger.RUNNING);
+        synchronized (eventHandler) {
+            serverThread.resume();
+            owner.raiseStateChangeEvent(Debugger.RUNNING);
+        }
         // Note, we do the state change after the resume because the state
         // change may throw VMDisconnectedException (in which case we don't
         // want to go into the RUNNING state).
@@ -1417,39 +1453,6 @@ class VMReference
             }
         }
         catch(InterruptedException ie) {}
-    }
-    
-    /**
-     * Invoke a shell class (a class which has been generated on-the-fly in
-     * order to execute some user code)
-     * 
-     * @param cl
-     *            The class to execute.
-     * @return
-     */
-    private Value invokeShell(String cl)
-    {
-        // Calls to this method are serialized via serverThreadLock in JdiDebugger
-
-        serverThreadStartWait();
-        
-        // Store the class and method to call
-        setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, cl);
-        setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.EXEC_SHELL));
-        
-        // Resume the thread, wait for it to finish and the new thread to start
-        serverThreadStarted = false;
-        resumeServerThread();
-        serverThreadStartWait();
-        
-        // Get return value and check for exceptions
-        Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
-        if (rval == null) {
-            ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
-            if (exception != null)
-                exceptionEvent(new InvocationException(exception));
-        }
-        return rval;
     }
     
     /**
@@ -1475,8 +1478,9 @@ class VMReference
         Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
         if (rval == null) {
             ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
-            if (exception != null)
+            if (exception != null) {
                 exceptionEvent(new InvocationException(exception));
+            }
         }
         return (ObjectReference) rval;
     }
@@ -1542,8 +1546,9 @@ class VMReference
             Value rval = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
             if (rval == null) {
                 ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
-                if (exception != null)
+                if (exception != null) {
                     exceptionEvent(new InvocationException(exception));
+                }
             }
             return (ObjectReference) rval;
 

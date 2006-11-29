@@ -9,13 +9,12 @@ import com.sun.jdi.event.*;
  * Event handler class to handle events coming from the remote VM.
  *
  * @author  Michael Kolling
- * @version $Id: VMEventHandler.java 3727 2005-12-01 02:56:36Z davmac $
+ * @version $Id: VMEventHandler.java 4725 2006-11-29 23:58:01Z davmac $
  */
 class VMEventHandler extends Thread
 {
     final static String DONT_RESUME = "dontResume";
     
-    private Object syncObj = new Object();
     private VMReference vm;
     private EventQueue queue;
     private boolean queueEmpty;
@@ -40,13 +39,13 @@ class VMEventHandler extends Thread
                 if (eventSet == null) {
                     // If no event is currently available, signal anyone waiting for
                     // the queue to empty, and then block until an event arrives
-                    synchronized (syncObj) {
+                    synchronized (this) {
                         queueEmpty = true;
-                        syncObj.notifyAll();
+                        notifyAll();
                     }
 
                     eventSet = queue.remove();
-                    synchronized (syncObj) {
+                    synchronized (this) {
                         queueEmpty = false;
                     }
                 }
@@ -120,10 +119,10 @@ class VMEventHandler extends Thread
      */
     public void waitQueueEmpty()
     {
-        synchronized (syncObj) {
+        synchronized (this) {
             try {
                 while (! queueEmpty) {
-                    syncObj.wait();
+                    wait();
                 }
             }
             catch (InterruptedException ie) {}
@@ -135,7 +134,7 @@ class VMEventHandler extends Thread
         if (event instanceof VMStartEvent) {
             vm.vmStartEvent((VMStartEvent) event);
         } else if (event instanceof VMDeathEvent) {
-            vm.vmExitEvent();
+            // vm.vmExitEvent();
         } else if (event instanceof VMDisconnectEvent) {
             vm.vmDisconnectEvent();
         } else if (event instanceof ExceptionEvent) {

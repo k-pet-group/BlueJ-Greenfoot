@@ -33,7 +33,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: JdiDebugger.java 4725 2006-11-29 23:58:01Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -414,22 +414,6 @@ public class JdiDebugger extends Debugger
     }
 
     /**
-     * Return the status of the last invocation. One of (NORMAL_EXIT,
-     * FORCED_EXIT, EXCEPTION, TERMINATED).
-     */
-    public int getExitStatus()
-    {
-        VMReference vmr = getVMNoWait();
-        if (vmr == null)
-            return Debugger.TERMINATED;
-        
-        // Save the exception now to get a consistent value on next call
-        // to "getException()".
-        lastException = vmr.getException();
-        return vmr.getExitStatus();
-    }
-
-    /**
      * Return the text of the last exception.
      */
     public ExceptionDescription getException()
@@ -467,41 +451,41 @@ public class JdiDebugger extends Debugger
         VMReference vmr = getVM();
         try {
             synchronized (serverThreadLock) {
-                if (vmr != null)
+                if (vmr != null) {
                     arrayRef = (ArrayReference) vmr.invokeTestSetup(className);
-            }
-            
-            // the returned array consists of double the number of fields created by
-            // running test setup plus one extra slot
-            // they alternate, fieldname, fieldvalue, fieldname, fieldvalue
-            // ie.
-            // arrayRef[0] = a field name 0 (StringReference)
-            // arrayRef[1] = a field value 0 (ObjectReference)
-            // arrayRef[2] = a field name 1 (StringReference)
-            // arrayRef[3] = a field value 1 (ObjectReference)
-            // with the last slot being reserved for the ObjectReference of the actual 
-            // test object. This is used to extract (potentially generic) fields.
-            // we could return a Map from RUN_TEST_SETUP but then we'd have to use
-            // JDI reflection to make method calls on Map in order to extract the values
-            
-            if (arrayRef != null) {
-
-                // The test case object
-                ObjectReference testObject = (ObjectReference)arrayRef.getValue(arrayRef.length()-1);
-                // get the associated JdiObject so that we can get potentially generic fields 
-                // from the test case.
-                JdiObject jdiTestObject = JdiObject.getDebuggerObject(testObject);
+                }
                 
-                // last slot in array is test case object so it does not get touched here
-                // our iteration boundary is therefore one less than array length
-                for (int i = 0; i < arrayRef.length() - 1; i += 2) {
-                    String fieldName = ((StringReference) arrayRef.getValue(i)).value();
-                    Field testField = testObject.referenceType().fieldByName(fieldName);            
-                    returnMap.put(fieldName, JdiObject
-                            .getDebuggerObject((ObjectReference) arrayRef.getValue(i + 1), testField, jdiTestObject));
+                // the returned array consists of double the number of fields created by
+                // running test setup plus one extra slot
+                // they alternate, fieldname, fieldvalue, fieldname, fieldvalue
+                // ie.
+                // arrayRef[0] = a field name 0 (StringReference)
+                // arrayRef[1] = a field value 0 (ObjectReference)
+                // arrayRef[2] = a field name 1 (StringReference)
+                // arrayRef[3] = a field value 1 (ObjectReference)
+                // with the last slot being reserved for the ObjectReference of the actual 
+                // test object. This is used to extract (potentially generic) fields.
+                // we could return a Map from RUN_TEST_SETUP but then we'd have to use
+                // JDI reflection to make method calls on Map in order to extract the values
+                
+                if (arrayRef != null) {
+                    
+                    // The test case object
+                    ObjectReference testObject = (ObjectReference)arrayRef.getValue(arrayRef.length()-1);
+                    // get the associated JdiObject so that we can get potentially generic fields 
+                    // from the test case.
+                    JdiObject jdiTestObject = JdiObject.getDebuggerObject(testObject);
+                    
+                    // last slot in array is test case object so it does not get touched here
+                    // our iteration boundary is therefore one less than array length
+                    for (int i = 0; i < arrayRef.length() - 1; i += 2) {
+                        String fieldName = ((StringReference) arrayRef.getValue(i)).value();
+                        Field testField = testObject.referenceType().fieldByName(fieldName);            
+                        returnMap.put(fieldName, JdiObject
+                                .getDebuggerObject((ObjectReference) arrayRef.getValue(i + 1), testField, jdiTestObject));
+                    }
                 }
             }
-            
         }
         catch (InvocationException e) {
             // what to do here??
@@ -532,28 +516,28 @@ public class JdiDebugger extends Debugger
         try {
             VMReference vmr = getVM();
             synchronized (serverThreadLock) {
-                if (vmr != null)
+                if (vmr != null) {
                     arrayRef = (ArrayReference) vmr.invokeRunTest(className, methodName);
-            }
-            
-            if (arrayRef != null && arrayRef.length() > 5) {
-                String failureType = ((StringReference) arrayRef.getValue(0)).value();
-                String exMsg = ((StringReference) arrayRef.getValue(1)).value();
-                String traceMsg = ((StringReference) arrayRef.getValue(2)).value();
+                }
                 
-                String failureClass = ((StringReference) arrayRef.getValue(3)).value();
-                String failureSource = ((StringReference) arrayRef.getValue(4)).value();
-                String failureMethod = ((StringReference) arrayRef.getValue(5)).value();
-                int lineNo = Integer.parseInt(((StringReference) arrayRef.getValue(6)).value());
-                
-                SourceLocation failPoint = new SourceLocation(failureClass, failureSource, failureMethod, lineNo);
-
-                if (failureType.equals("failure"))
-                    return new JdiTestResultFailure(className, methodName, exMsg, traceMsg, failPoint);
-                else
-                    return new JdiTestResultError(className, methodName, exMsg, traceMsg, failPoint);
+                if (arrayRef != null && arrayRef.length() > 5) {
+                    String failureType = ((StringReference) arrayRef.getValue(0)).value();
+                    String exMsg = ((StringReference) arrayRef.getValue(1)).value();
+                    String traceMsg = ((StringReference) arrayRef.getValue(2)).value();
+                    
+                    String failureClass = ((StringReference) arrayRef.getValue(3)).value();
+                    String failureSource = ((StringReference) arrayRef.getValue(4)).value();
+                    String failureMethod = ((StringReference) arrayRef.getValue(5)).value();
+                    int lineNo = Integer.parseInt(((StringReference) arrayRef.getValue(6)).value());
+                    
+                    SourceLocation failPoint = new SourceLocation(failureClass, failureSource, failureMethod, lineNo);
+                    
+                    if (failureType.equals("failure"))
+                        return new JdiTestResultFailure(className, methodName, exMsg, traceMsg, failPoint);
+                    else
+                        return new JdiTestResultError(className, methodName, exMsg, traceMsg, failPoint);
+                }
             }
-
         }
         catch (InvocationException ie) {
             // what to do here??
@@ -590,20 +574,24 @@ public class JdiDebugger extends Debugger
      * @param classname
      *            the class to start
      */
-    public void runClassMain(String className)
+    public DebuggerResult runClassMain(String className)
         throws ClassNotFoundException
     {
         VMReference vmr = getVM();
         synchronized (serverThreadLock) {
-            if (vmr != null)
-                vmr.runShellClass(className);
+            if (vmr != null) {
+                return vmr.runShellClass(className);
+            }
+            else {
+                return null;
+            }
         }
     }
-
+    
     /**
      * Construct a class instance using the default constructor.
      */
-    public DebuggerObject instantiateClass(String className)
+    public DebuggerResult instantiateClass(String className)
     {
         VMReference vmr = getVM();
         if (vmr != null) {
@@ -612,14 +600,14 @@ public class JdiDebugger extends Debugger
             }
         }
         else {
-            return null;
+            return new DebuggerResult(Debugger.TERMINATED);
         }
     }
     
     /* (non-Javadoc)
      * @see bluej.debugger.Debugger#instantiateClass(java.lang.String, java.lang.String[], bluej.debugger.DebuggerObject[])
      */
-    public DebuggerObject instantiateClass(String className, String[] paramTypes, DebuggerObject[] args)
+    public DebuggerResult instantiateClass(String className, String[] paramTypes, DebuggerObject[] args)
     {
         // If there are no arguments, use the default constructor
         if (paramTypes == null || args == null || paramTypes.length == 0 || args.length == 0) {
@@ -628,7 +616,6 @@ public class JdiDebugger extends Debugger
         
         VMReference vmr = getVM();
         if (vmr != null) {
-            
             // Convert the args array from DebuggerObject[] to ObjectReference[]
             ObjectReference [] orArgs = new ObjectReference[args.length];
             for (int i = 0; i < args.length; i++) {
@@ -641,7 +628,7 @@ public class JdiDebugger extends Debugger
             }
         }
         else {
-            return null;
+            return new DebuggerResult(Debugger.TERMINATED);
         }
     }
     
@@ -691,9 +678,8 @@ public class JdiDebugger extends Debugger
     void raiseStateChangeEvent(int newState)
     {
         // It might look this method should be synchronized, but it shouldn't,
-        // because state change is effectively serialized by VMReference and
-        // VMEventHandler. If we synchronize this method, the potential for
-        // deadlock is quite high.
+        // because state change is effectively serialized by VMEventHandler (except
+        // in some cases where it is known that no VM is running).
         
         if (newState != machineState) {
             
@@ -786,13 +772,6 @@ public class JdiDebugger extends Debugger
     }
 
     // - event handling
-
-    /**
-     * Called by VMReference when the machine exits. The exit event comes before
-     * a 'disconnect' event that will follow shortly.
-     */
-    void vmExit()
-    {}
 
     /**
      * Called by VMReference when the machine disconnects. The disconnect event
@@ -975,7 +954,6 @@ public class JdiDebugger extends Debugger
                             // We now have a running VM.
                             vmRef.newClassLoader(lastProjectClassLoader.getURLs());
                             vmRunning = true;
-                            raiseStateChangeEvent(Debugger.IDLE);
                         }
                         else {
                             // autoRestart is false - a call to JdiDebugger.close(false)

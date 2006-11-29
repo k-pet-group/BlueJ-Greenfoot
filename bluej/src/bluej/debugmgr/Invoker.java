@@ -15,7 +15,7 @@ import bluej.compiler.CompileObserver;
 import bluej.compiler.EventqueueCompileObserver;
 import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
-import bluej.debugger.DebuggerObject;
+import bluej.debugger.DebuggerResult;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.GenTypeWildcard;
@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 4703 2006-11-23 15:28:02Z polle $
+ * @version $Id: Invoker.java 4725 2006-11-29 23:58:01Z davmac $
  */
 
 public class Invoker
@@ -75,11 +75,6 @@ public class Invoker
     private ValueCollection localVars;
     private String imports; // import statements to include in shell file
     
-    /** exit status from the debugger */
-    private int exitStatus;
-    /** result from the invocation */
-    private DebuggerObject result;
-
     /**
      * The instance name for any object we create. For a constructed object the
      * user sets it in the dialog. For a method call with result we set this to
@@ -499,24 +494,14 @@ public class Invoker
             // goes into an infinite loop can hang BlueJ.
             new Thread() {
                 public void run() {
-                    final DebuggerObject result = pkg.getProject().getDebugger().instantiateClass(className);
+                    final DebuggerResult result = pkg.getProject().getDebugger().instantiateClass(className);
                     
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
                             
-                            exitStatus = pkg.getDebugger().getExitStatus();
-                            if (exitStatus == Debugger.NORMAL_EXIT) {
-                                watcher.putResult(result, instanceName, ir);
-                                
-                                executionEvent.setResultObject(result);
-                                executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
-                                BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-                            }
-                            else {
-                                handleResult(); // handles error situations
-                            }
+                            handleResult(result); // handles error situations
                                 
                             closeCallDialog();
                             pmf.setWaitCursor(false);
@@ -664,7 +649,9 @@ public class Invoker
             buffer.append(" __bluej_runtime_result;");
             buffer.append(Config.nl);
         }
-
+        String resultDecl = buffer.toString();
+        buffer.setLength(0);
+        
         // Build scope, ie. add one line for every object on the object
         // bench that gets the object and makes it available for use as
         // a parameter. Then add one line for each parameter setting the
@@ -680,22 +667,39 @@ public class Invoker
         Iterator wrappers = pmf.getObjectBench().getValueIterator();
         NameTransform cqtTransform = new CleverQualifyTypeNameTransform(pkg);
 
-        if (wrappers.hasNext() || localVars != null) {
-            buffer.append("final static java.util.Map __bluej_runtime_scope = getScope(\"" + scopeId + "\");" + Config.nl);
+        Map objBenchVarsMap = new HashMap();
         
-            writeVariables("", buffer, true, wrappers, cqtTransform);
+        if (wrappers.hasNext() || localVars != null) {
+            buffer.append("final java.util.Map __bluej_runtime_scope = getScope(\"" + scopeId + "\");" + Config.nl);
+        
+            // writeVariables("", buffer, false, wrappers, cqtTransform);
+            while (wrappers.hasNext()) {
+                NamedValue objBenchVar = (NamedValue) wrappers.next();
+                objBenchVarsMap.put(objBenchVar.getName(), getVarDeclString("", false, objBenchVar, cqtTransform));
+            }
         }
-        String vardecl = buffer.toString();
-
-        // build the invocation string
-
-        buffer = new StringBuffer();
-
+        
         // put the local variables here if we don't know the result type. If we do know
         // the result type, we put the local variables inside the result wrapper object
         // later on.
-        if (localVars != null && constype == null)
-            writeVariables("lv:", buffer, false, localVars.getValueIterator(), cqtTransform);
+        if (localVars != null && constype == null) {
+            // writeVariables("lv:", buffer, false, localVars.getValueIterator(), cqtTransform);
+            Iterator i = localVars.getValueIterator();
+            while (i.hasNext()) {
+                NamedValue localVar = (NamedValue) i.next();
+                objBenchVarsMap.put(localVar.getName(), getVarDeclString("lv:", false, localVar, cqtTransform));
+            }
+        }
+        
+        Iterator obVarsIterator = objBenchVarsMap.values().iterator();
+        while (obVarsIterator.hasNext()) {
+            buffer.append(obVarsIterator.next().toString());
+        }
+        
+        String vardecl = buffer.toString();
+        buffer.setLength(0);
+
+        // build the invocation string
         
         if (constructing) {
             // A sample of the code generated (for a constructor)
@@ -769,9 +773,11 @@ public class Invoker
             shell.write(shellName);
             shell.write(" extends bluej.runtime.Shell {");
             shell.newLine();
-            shell.write(vardecl);
+            shell.write(resultDecl);
             shell.newLine();
             shell.write("public static void run() throws Throwable {");
+            shell.newLine();
+            shell.write(vardecl);
             shell.newLine();
             shell.write(paramInit);
             shell.write(invocation);
@@ -818,6 +824,40 @@ public class Invoker
                 extractValue(buffer, scopePx, instname, wrapper.getGenType(), type);
                 buffer.append(Config.nl);
             }
+        }
+    }
+    
+    /**
+     * Get the string to declare a variable.
+     * @param scopePx   The scope prefix for the value map
+     * @param isStatic  True if the variable should be declared static
+     * @param wrapper   The NamedValue representing the variable (and its name)
+     * @param nt        The name transform to use for class names
+     * 
+     * @return the string to declared the variable
+     */
+    private String getVarDeclString(String scopePx, boolean isStatic, NamedValue wrapper, NameTransform nt)
+    {
+        if (wrapper.isInitialized()) {
+            String type = wrapper.getGenType().toString(nt);
+            String instname = wrapper.getName();
+            StringBuffer buffer = new StringBuffer();
+            
+            if (wrapper.isFinal())
+                buffer.append("final ");
+            if (isStatic)
+                buffer.append("static ");
+            
+            buffer.append(type);
+            
+            buffer.append(" " + instname + " = ");
+            extractValue(buffer, scopePx, instname, wrapper.getGenType(), type);
+            buffer.append(Config.nl);
+            
+            return buffer.toString();
+        }
+        else {
+            return "";
         }
     }
 
@@ -1045,15 +1085,14 @@ public class Invoker
         new Thread() {
             public void run() {
                 try {
-                    pkg.getProject().getDebugger().runClassMain(shellClassName);
-                    getResult(shellClassName);
+                    final DebuggerResult result = pkg.getProject().getDebugger().runClassMain(shellClassName);
                     
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
                             
-                            handleResult();
+                            handleResult(result);
                             
                             // update all open inspect windows
                             pkg.getProject().updateInspectors();
@@ -1069,24 +1108,6 @@ public class Invoker
             }
         }.start();
     }
-
-    /**
-     * Get the result of the invocation and store it. This can take a little time
-     * so try and do it off the event queue.
-     * 
-     * @param shellClassName  the name of the executed shell class
-     */
-    public void getResult(String shellClassName)
-    {
-        exitStatus = pkg.getDebugger().getExitStatus();
-        try {
-            result = pkg.getDebugger().getStaticValue(shellClassName, "__bluej_runtime_result");
-        }
-        catch (ClassNotFoundException cnfe) {
-            exitStatus = Debugger.TERMINATED;
-            result = null;
-        }
-    }
     
     /**
      * After an execution has finished, check whether there is a result (such as
@@ -1096,22 +1117,22 @@ public class Invoker
      * "exitStatus" and "result" fields should be set with appropriate values before
      * calling this.
      */
-    public void handleResult()
+    public void handleResult(DebuggerResult result)
     {
         try {
             // first, check whether we had an unexpected exit
-            int status = exitStatus;
+            int status = result.getExitStatus();
             switch(status) {
                 case Debugger.NORMAL_EXIT :
                     // result will be null here for a void call
-                    watcher.putResult(result, instanceName, ir);
+                    watcher.putResult(result.getResultObject(), instanceName, ir);
                     
-                    executionEvent.setResultObject(result);
+                    executionEvent.setResultObject(result.getResultObject());
                     executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                     break;
 
                 case Debugger.FORCED_EXIT : // exit through System.exit()
-                    String excMsg = pkg.getDebugger().getException().getText();
+                    String excMsg = result.getException().getText();
                     if (instanceName != null) {
                         // always report System.exit for non-void calls
                         pkg.reportExit(excMsg);
@@ -1126,7 +1147,7 @@ public class Invoker
                     break;
 
                 case Debugger.EXCEPTION :
-                    ExceptionDescription exc = pkg.getDebugger().getException();
+                    ExceptionDescription exc = result.getException();
                     String msg = exc.getText();
                     String text = exc.getClassName();
                     if (text != null) {

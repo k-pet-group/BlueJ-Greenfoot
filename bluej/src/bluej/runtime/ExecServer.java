@@ -14,14 +14,12 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLStreamHandlerFactory;
 import java.util.*;
 
 import junit.framework.TestCase;
 import junit.framework.TestFailure;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
-import bluej.Config;
 
 /**
  * Class that controls the runtime of code executed within BlueJ.
@@ -32,7 +30,7 @@ import bluej.Config;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 4191 2006-05-11 11:04:21Z davmac $
+ * @version $Id: ExecServer.java 4725 2006-11-29 23:58:01Z davmac $
  */
 public class ExecServer
 {
@@ -52,7 +50,9 @@ public class ExecServer
     public static String [] parameterTypes;
     public static Object [] arguments;
     public static int execAction;   // EXEC_SHELL, TEST_SETUP or TEST_RUN
+    
     public static Object methodReturn;
+    public static Class executedClass;
     public static Throwable exception;
     
     // These constant values must match the variable names declared above
@@ -63,6 +63,7 @@ public class ExecServer
     public static final String EXEC_ACTION_NAME = "execAction";
     public static final String METHOD_RETURN_NAME = "methodReturn";
     public static final String EXCEPTION_NAME = "exception";
+    public static final String EXECUTED_CLASS_NAME = "executedClass";
     
     // Possible actions for the main thread
     public static final int EXEC_SHELL = 0;  // Execute a shell class
@@ -155,6 +156,7 @@ public class ExecServer
                     switch(workerAction) {
                         case ADD_OBJECT:
                             addObject(scopeId, objectName, object);
+                            object = null;
                             break;
                         case REMOVE_OBJECT:
                             removeObject(scopeId, objectName);
@@ -858,8 +860,14 @@ public class ExecServer
                         case EXEC_SHELL:
                         {
                             // Execute a shell class.
+                            methodReturn = null;
+                            executedClass = null;
+                            
                             clearInputBuffer();
+                            // ShellClassLoader cloader = new ShellClassLoader(currentLoader, classToRun);
                             Class c = currentLoader.loadClass(classToRun);
+                            executedClass = c;
+                            // Class c = cloader.loadClass(classToRun);
                             Method m = c.getMethod("run", new Class[0]);
                             try {
                                 methodReturn = m.invoke(null, new Object[0]);

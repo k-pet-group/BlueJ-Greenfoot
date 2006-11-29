@@ -13,7 +13,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 4052 2006-05-01 11:58:26Z davmac $
+ * @version $Id: Debugger.java 4725 2006-11-29 23:58:01Z davmac $
  */
 public abstract class Debugger
 {
@@ -163,15 +163,15 @@ public abstract class Debugger
     /**
      * "Run" a class (i.e. invoke its main method without arguments)
      */
-    public abstract void runClassMain(String className)
+    public abstract DebuggerResult runClassMain(String className)
     	throws ClassNotFoundException;
 
     /**
      * Instantiate a class using the default constructor for that class.
      * @param className  The name of the class to instantiate
-     * @return   A DebuggerObject representing the newly constructed object
+     * @return   The result of the constructor call
      */
-    public abstract DebuggerObject instantiateClass(String className);
+    public abstract DebuggerResult instantiateClass(String className);
 
     /**
      * Instantiate a class using a specific constructor for that class.
@@ -179,10 +179,9 @@ public abstract class Debugger
      * @param className  The name of the class to instantiate
      * @param argTypes   The formal parameter types (class names)
      * @param args       The arguments
-     * @return A DebuggerObject representing the newly constructed object,
-     *         or null if the remote VM terminates or an error occurs.
+     * @return   The result of the constructor call
      */
-    public abstract DebuggerObject instantiateClass(String className, String [] paramTypes, DebuggerObject [] args);
+    public abstract DebuggerResult instantiateClass(String className, String [] paramTypes, DebuggerObject [] args);
     
     /**
      * Get a class from the virtual machine, using the current classloader. The class will be
@@ -219,19 +218,6 @@ public abstract class Debugger
      */
     public abstract String toggleBreakpoint(String className, int line,
                                             boolean set);
-
-    /**
-     * Return the status of the last runClassMain(). One of (NORMAL_EXIT,
-     * FORCED_EXIT, EXCEPTION, BREAKPOINT, TERMINATED).
-     */
-    public abstract int getExitStatus();
-
-
-    /**
-     * Return a description of the last exception if the status of
-     * the last runClassMain() was EXCEPTION.
-     */
-    public abstract ExceptionDescription getException();
 
     /**
      * A tree model representing the threads running in
