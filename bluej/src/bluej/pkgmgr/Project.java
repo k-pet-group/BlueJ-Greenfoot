@@ -53,7 +53,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4712 2006-11-27 04:06:23Z bquig $
+ * @version $Id: Project.java 4726 2006-11-30 00:10:40Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -486,9 +486,11 @@ public class Project implements DebuggerListener, InspectorManager
     }
 
     /**
-     * Get the inspector
-     * @param obj
-     * @return the inspector
+     * Get the inspector for the given object. Object can be a DebuggerObject, or a
+     * fully-qualified class name.
+     * 
+     * @param obj  The object whose inspector to retrieve
+     * @return the inspector, or null if no inspector is open
      */
     public Inspector getInspector(Object obj) 
     {
@@ -605,21 +607,15 @@ public class Project implements DebuggerListener, InspectorManager
         String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
         JFrame parent) 
     {
-        ResultInspector inspector = (ResultInspector) pkg.getProject()
-                                                         .getInspector(obj);
-
-        if (inspector == null) {
-            inspector = new ResultInspector(obj, this, name, pkg, ir, info,
+        final ResultInspector inspector = new ResultInspector(obj, this, name, pkg, ir, info,
                     parent);
-            inspectors.put(obj, inspector);
-        }
+        inspectors.put(obj, inspector);
 
-        final ResultInspector insp = inspector;
-        insp.update();
+        inspector.update();
         EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    insp.setVisible(true);
-                    insp.bringToFront();
+                    inspector.setVisible(true);
+                    inspector.bringToFront();
                 }
             });
 
