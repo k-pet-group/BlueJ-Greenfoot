@@ -75,7 +75,7 @@ public final class MoeEditorManager
 
     public Editor openClass(String filename, 
                 String docFilename,
-    						String windowTitle,
+                String windowTitle,
                 EditorWatcher watcher, 
                 boolean compiled,
                 List breakpoints,  // inherited from EditorManager
