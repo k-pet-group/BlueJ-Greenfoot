@@ -42,6 +42,13 @@ public class ObjectTracker
         
     }
     
+    public static void forgetRObject(Object obj)
+    {
+        if (obj instanceof World) {
+            World.forgetRObject(obj);
+        }
+    }
+    
     public static Object getRealObject(RObject remoteObj)
     {
         try {

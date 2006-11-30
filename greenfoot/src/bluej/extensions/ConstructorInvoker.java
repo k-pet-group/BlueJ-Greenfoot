@@ -6,7 +6,6 @@ import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
-import bluej.views.ConstructorView;
 import bluej.views.View;
 
 /**
@@ -61,7 +60,8 @@ public class ConstructorInvoker {
             argObjects[i] = debugger.getMirror(args[i]);
         }
         
-        DebuggerObject debugObject = debugger.instantiateClass(view.getQualifiedName(), argTypes, argObjects);
+        DebuggerObject debugObject = debugger.instantiateClass(view.getQualifiedName(),
+                argTypes, argObjects).getResultObject();
         
         ObjectWrapper wrapper = ObjectWrapper.getWrapper(
                 pkgFrame, objBench,

@@ -240,6 +240,8 @@ public abstract class World
 
         ensureWithinXBounds(x);
         ensureWithinYBounds(y);
+        object.x = x;
+        object.y = y;
         object.world = this; // can only set location if world is set.
         object.setLocation(x, y);
         object.setWorld(this);
@@ -609,8 +611,6 @@ public abstract class World
                 return rObject;
             }
             transportField = obj;
-            // DAV !
-            //rObject = getRemoteClass(obj).getField("transportField").getValue(null);
             RClass rClass = getRemoteClass(obj);
             RField rField = rClass.getField("transportField");
             rObject = rField.getValue(null);
@@ -619,6 +619,31 @@ public abstract class World
         }
     }
     
+    /**
+     * "Forget" about a remote object reference. This is needed to avoid memory
+     * leaks (worlds are otherwise never forgotten).
+     * @param obj  The object to forget
+     */
+    static void forgetRObject(Object obj)
+    {
+        synchronized (lock) {
+            RObject rObject = (RObject) cachedObjects.remove(obj);
+            if (rObject != null) {
+                try {
+                    rObject.removeFromBench();
+                }
+                catch (RemoteException re) {
+                    throw new Error(re);
+                }
+                catch (ProjectNotOpenException pnoe) {
+                    // shouldn't happen
+                }
+                catch (PackageNotFoundException pnfe) {
+                    // shouldn't happen
+                }
+            }
+        }
+    }
 
     /**
      * This method ensures that we have the remote (RClass) representation of

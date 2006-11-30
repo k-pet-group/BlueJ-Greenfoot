@@ -411,14 +411,18 @@ public class WorldHandler
     /**
      * Sets a new world.
      */
-    public void setWorld(World world)
+    public synchronized void setWorld(World world)
     {
-        synchronized (this) {
-            if (this.world != null) {
-                fireWorldRemovedEvent();
-            }
-            this.world = world;
+        if (this.world != null) {
+            ObjectTracker.forgetRObject(this.world);
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    fireWorldRemovedEvent();
+                }
+            });
+            Simulation.getInstance().setPaused(true);
         }
+        this.world = world;
         
         EventQueue.invokeLater(new Runnable() {
             public void run()
