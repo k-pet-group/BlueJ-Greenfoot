@@ -10,7 +10,7 @@ import javax.swing.*;
  * StdClassRole is used to represent standard Java classes.
  *
  * @author Bruce Quig
- * @version $Id: StdClassRole.java 2011 2003-06-03 07:07:52Z ajp $
+ * @version $Id: StdClassRole.java 4729 2006-11-30 04:18:47Z bquig $
  */
 public class StdClassRole extends ClassRole
 {
@@ -55,10 +55,6 @@ public class StdClassRole extends ClassRole
             if (ct.getAssociation() == null) {
                 menu.addSeparator();
                 addMenuItem(menu, ct.new CreateTestAction(), true);
-//              addMenuItem(menu, new AssociateTestAction(), true);
-            }
-//          else
-//              addMenuItem(menu, new DisassociateTestAction(), true);
         }
         return true;
     }
