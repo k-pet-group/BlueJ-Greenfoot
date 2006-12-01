@@ -8,7 +8,11 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.*;
 
-
+/**
+ * A collision checker using a Binary Space Partition tree.
+ * 
+ * @author Davin McCall
+ */
 public class IBSPColChecker implements CollisionChecker
 {
     public static final int X_AXIS = 0;
@@ -30,7 +34,7 @@ public class IBSPColChecker implements CollisionChecker
     private Rect allArea = new Rect(0 - Integer.MAX_VALUE / 2, 0 - Integer.MAX_VALUE / 2, Integer.MAX_VALUE, Integer.MAX_VALUE);
     
     /** the node scheduled to be re-balanced */
-    private BSPNode rebalanceNode;
+    // private BSPNode rebalanceNode;
     
     public static boolean debugging = false;
     
@@ -43,15 +47,16 @@ public class IBSPColChecker implements CollisionChecker
 
     public void addObject(Actor actor)
     {
-        checkConsistency();
+        // checkConsistency();
         Rect bounds = getActorBounds(actor);
         insertObject(actor, bounds, bounds, allArea, null, bspTree, PARENT_NONE);
-        checkConsistency();
+        // checkConsistency();
     }
     
     /**
      * Check the consistency of the tree, useful for debugging.
      */
+    /*
     public void checkConsistency()
     {
         if (! debugging) {
@@ -87,6 +92,7 @@ public class IBSPColChecker implements CollisionChecker
             }
         }
     }
+    */
     
     /**
      * Insert an actor into the tree at the given positio
@@ -203,7 +209,7 @@ public class IBSPColChecker implements CollisionChecker
 //        return new Rect(left, top, width, height);
 //    }
     
-    public Rect getActorBounds(Actor actor)
+    public final Rect getActorBounds(Actor actor)
     {
         Rect r = ActorVisitor.getBoundingRect(actor);      
         return r;
@@ -246,7 +252,7 @@ public class IBSPColChecker implements CollisionChecker
     
     public void removeObject(Actor object)
     {
-        checkConsistency();
+        // checkConsistency();
         ActorNode node = getNodeForActor(object);
         
         while (node != null) {
@@ -255,7 +261,7 @@ public class IBSPColChecker implements CollisionChecker
             checkRemoveNode(bspNode);
             node = getNodeForActor(object);
         }
-        checkConsistency();
+        // checkConsistency();
     }
     
     /**
@@ -1005,8 +1011,9 @@ public class IBSPColChecker implements CollisionChecker
         return getObjects(null);
     }
 
-    public void startSequence()
+    public final void startSequence()
     {
+        /*
         if (rebalanceNode != null) {
 //            if (rebalanceNode.needsRebalance()) {
 //                rebalance(rebalanceNode);
@@ -1017,6 +1024,7 @@ public class IBSPColChecker implements CollisionChecker
 //                rebalanceNode = null;
 //            }
         }
+        */
     }
 
     public <T extends Actor> T getOneObjectAt(Actor object, int dx, int dy,
@@ -1030,7 +1038,7 @@ public class IBSPColChecker implements CollisionChecker
             }
             // Use of getOneIntersectingDown is ok, because the area is only 1x1 pixel
             // in size - it will be contained by all nodes.
-            return (T) getOneIntersectingDown(new Rect(dx, dy, 1, 1), query, object);
+            return (T) getOneIntersectingDown(new Rect(dx * cellSize + cellSize / 2, dy * cellSize + cellSize / 2, 1, 1), query, object);
         }
     }
 
@@ -1067,7 +1075,8 @@ public class IBSPColChecker implements CollisionChecker
         
         Color oldColor = g.getColor();
         //g.setColor(Color.YELLOW);
-        g.setColor(Color.WHITE);
+        //g.setColor(Color.WHITE);
+        g.setColor(Color.RED);
         
         while (! nodeStack.isEmpty()) {
             BSPNode node = nodeStack.removeLast();
