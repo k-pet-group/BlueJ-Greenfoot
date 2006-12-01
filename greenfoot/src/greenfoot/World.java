@@ -644,6 +644,15 @@ public abstract class World
             }
         }
     }
+    
+    /**
+     * Remove all objects from the remote object cache. This should be called
+     * after a compilation.
+     */
+    static void clearObjectCache()
+    {
+        cachedObjects.clear();
+    }
 
     /**
      * This method ensures that we have the remote (RClass) representation of

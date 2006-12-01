@@ -9,10 +9,8 @@ import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.List;
 
-import rmiextension.BlueJRMIClient;
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RObject;
-import rmiextension.wrappers.RPackage;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
@@ -881,7 +879,41 @@ public abstract class Actor
         }
     }
     
+    /**
+     * "Forget" about a remote object reference. This is needed to avoid memory
+     * leaks (worlds are otherwise never forgotten).
+     * @param obj  The object to forget
+     */
+    static void forgetRObject(Object obj)
+    {
+        synchronized (lock) {
+            RObject rObject = (RObject) cachedObjects.remove(obj);
+            if (rObject != null) {
+                try {
+                    rObject.removeFromBench();
+                }
+                catch (RemoteException re) {
+                    throw new Error(re);
+                }
+                catch (ProjectNotOpenException pnoe) {
+                    // shouldn't happen
+                }
+                catch (PackageNotFoundException pnfe) {
+                    // shouldn't happen
+                }
+            }
+        }
+    }
 
+    /**
+     * Remove all objects from the remote object cache. This should be called
+     * after a compilation.
+     */
+    static void clearObjectCache()
+    {
+        cachedObjects.clear();
+    }
+    
     /**
      * This method ensures that we have the remote (RClass) representation of
      * this class.

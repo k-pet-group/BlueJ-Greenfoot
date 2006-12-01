@@ -1,5 +1,6 @@
 package greenfoot.core;
 
+import greenfoot.ObjectTracker;
 import greenfoot.WorldVisitor;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
@@ -39,7 +40,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4350 2006-06-12 03:56:19Z davmac $
+ * @version $Id: GreenfootMain.java 4733 2006-12-01 01:52:42Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -613,6 +614,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         if (newLoader != currentLoader) {
             View.removeAll(currentLoader);
             currentLoader = newLoader;
+            ObjectTracker.clearRObjectCache();
         }
     }
     

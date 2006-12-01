@@ -42,11 +42,27 @@ public class ObjectTracker
         
     }
     
+    /**
+     * Remove a remote object reference. This removes the object from the hidden
+     * "object bench" in the BlueJ VM.
+     */
     public static void forgetRObject(Object obj)
     {
         if (obj instanceof World) {
             World.forgetRObject(obj);
         }
+        else if (obj instanceof Actor) {
+            Actor.forgetRObject(obj);
+        }
+    }
+    
+    /**
+     * Clear the cache of remote objects.
+     */
+    public static void clearRObjectCache()
+    {
+        World.clearObjectCache();
+        Actor.clearObjectCache();
     }
     
     public static Object getRealObject(RObject remoteObj)

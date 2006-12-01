@@ -21,8 +21,10 @@ import java.awt.EventQueue;
 import java.awt.Point;
 import java.awt.event.*;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -414,7 +416,14 @@ public class WorldHandler
     public synchronized void setWorld(World world)
     {
         if (this.world != null) {
+            // Remove the old world and actors from the remote object caches
             ObjectTracker.forgetRObject(this.world);
+            List<Actor> oldActors = new ArrayList<Actor>(WorldVisitor.getObjectsList(this.world));
+            for (Iterator<Actor> i = oldActors.iterator(); i.hasNext(); ) {
+                Actor oldActor = i.next();
+                ObjectTracker.forgetRObject(oldActor);
+            }
+            
             EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     fireWorldRemovedEvent();
