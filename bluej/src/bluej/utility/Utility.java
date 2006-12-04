@@ -20,7 +20,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 3627 2005-09-30 15:16:43Z polle $
+ * @version $Id: Utility.java 4737 2006-12-04 05:20:57Z davmac $
  */
 public class Utility
 {
@@ -461,11 +461,12 @@ public class Utility
      */
     public static boolean firstTimeEver(String context)
     {
-        String eventIndicator = Config.getPropString(context, "false");
-        if (eventIndicator.equals("true"))
+        boolean occurred = Config.getPropBoolean(context);
+        if (occurred) {
             return false;
+        }
         
-        Config.putPropString(context, "true");
+        Config.putPropBoolean(context, true);
         return true;
     }
     

@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 4111 2006-05-07 15:05:59Z polle $
+ * @version $Id: Config.java 4737 2006-12-04 05:20:57Z davmac $
  */
 
 public final class Config
@@ -144,16 +144,19 @@ public final class Config
         {
             File userHome;
             String homeDir = command_props.getProperty("bluej.userHome", null);
-            if(homeDir == null)
+            if(homeDir == null) {
                 userHome = new File(System.getProperty("user.home"));
-            else
+            }
+            else {
                 userHome = new File(homeDir);
+            }
 
             // get user specific bluej property directory (in user home)
             userPrefDir = new File(userHome, getBlueJPrefDirName());
 
-            if(!userPrefDir.isDirectory())
+            if(!userPrefDir.isDirectory()) {
                 userPrefDir.mkdirs();
+            }
         }
 
         // add user specific definitions
@@ -175,8 +178,9 @@ public final class Config
         loadProperties("moe", moe_user_props);  // add user specific editor definitions
 
         compilertype = Config.getPropString("bluej.compiler.type");
-        if(compilertype.equals("internal"))
+        if(compilertype.equals("internal")) {
             compilertype = "javac";
+        }
 
         // Whether or not to use the screen menu bar on a Mac
         String macOSscreenMenuBar = Config.getPropString("bluej.macos.screenmenubar", "true");
@@ -185,16 +189,16 @@ public final class Config
 
         usingMacOSScreenMenubar = (isMacOS() && macOSscreenMenuBar.equals("true"));
         
-        boolean themed = Boolean.valueOf(
-            Config.getPropString("bluej.useTheme", "false")).booleanValue();
-        if(themed){    
+        boolean themed = Config.getPropBoolean("bluej.useTheme");
+        if(themed) {    
             MetalLookAndFeel.setCurrentTheme(new BlueJTheme());
         }
 
         String laf = Config.getPropString("bluej.lookAndFeel", "default");
         setLookAndFeel(laf);
+        
         //read any debug vm args
-	initDebugVMArgs();
+        initDebugVMArgs();
         Config.setVMLocale();
         
         // Create a property containing the BlueJ version string
@@ -524,45 +528,6 @@ public final class Config
     {
         return loadDefs(language + File.separator + "moe.help");
     }
-
-    /**
-     * Tests if the specified object is a key in this hashtable.
-     * 
-     * @param   key   possible key.
-     * @return  <code>true</code> if and only if the specified object 
-     *          is a key, as determined by the 
-     *          <tt>equals</tt> method; <code>false</code> otherwise.
-     * @throws  NullPointerException  if the key is <code>null</code>.     
-     */
-    public static boolean systemContainsKey(String key) {
-        return system_props.containsKey(key);
-    }
-    
-    /**
-     * Tests if the specified object is a key in this hashtable.
-     * 
-     * @param   key   possible key.
-     * @return  <code>true</code> if and only if the specified object 
-     *          is a key, as determined by the 
-     *          <tt>equals</tt> method; <code>false</code> otherwise.
-     * @throws  NullPointerException  if the key is <code>null</code>.     
-     */
-    public static boolean userContainsKey(String key) {
-        return user_props.containsKey(key);
-    }
-    
-    /**
-     * Tests if the specified object is a key in this hashtable.
-     * 
-     * @param   key   possible key.
-     * @return  <code>true</code> if and only if the specified object 
-     *          is a key, as determined by the 
-     *          <tt>equals</tt> method; <code>false</code> otherwise.
-     * @throws  NullPointerException  if the key is <code>null</code>.     
-     */
-    public static boolean commandContainsKey(String key) {
-        return command_props.containsKey(key);
-    }
     
     /**
      * Get a string from the language dependent definitions file
@@ -631,7 +596,8 @@ public final class Config
      * @param strname
      * @return a KeyStroke
      */
-    public static KeyStroke getAcceleratorKey(String strname){
+    public static KeyStroke getAcceleratorKey(String strname)
+    {
         int index;
         int modifiers = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
         String str = lang_props.getProperty(strname, strname);
@@ -703,27 +669,35 @@ public final class Config
     {
         String sysID;
 
-        if (osname != null && osname.startsWith("Windows 9"))     // win95/98
+        if (osname != null && osname.startsWith("Windows 9")) {    // win95/98
             sysID = "win9x";
-        else if (osname != null && osname.equals("Windows Me"))  // winME (same as 95/98)
+        }
+        else if (osname != null && osname.equals("Windows Me")) { // winME (same as 95/98)
             sysID = "win9x";
-        else if (osname != null && osname.startsWith("Windows"))  // NT/2000/XP
+        }
+        else if (osname != null && osname.startsWith("Windows")) { // NT/2000/XP
             sysID = "win";
-        else if (osname != null && osname.startsWith("Linux"))    // Linux
+        }
+        else if (osname != null && osname.startsWith("Linux")) {    // Linux
             sysID = "linux";
-        else if (osname != null && osname.startsWith("SunOS"))    // Solaris
+        }
+        else if (osname != null && osname.startsWith("SunOS")) {   // Solaris
             sysID = "solaris";
-        else if (osname != null && osname.startsWith("Mac"))      // MacOS
+        }
+        else if (osname != null && osname.startsWith("Mac")) {     // MacOS
             sysID = "macos";
-        else
+        }
+        else {
             sysID = "";
+        }
 
         // try to find it using the sysId prefix
         String value = command_props.getProperty(sysID + propName);
 
         // if that failed, just look for the plain property value
-        if(value == null)
+        if(value == null) {
             value = command_props.getProperty(propName);
+        }
 
         return value;
     }
@@ -772,8 +746,6 @@ public final class Config
     /**
      * Get a non-language dependant integer from the BlueJ properties
      * "bluej.defs" with a default value
-     * 
-     * This is used to retrieve the 
      */
     public static int getDefaultPropInteger(String intname, int def)
     {
@@ -788,6 +760,28 @@ public final class Config
     }
 
     /**
+     * Get a boolean value from the BlueJ properties. The default value is false.
+     */
+    public static boolean getPropBoolean(String propname)
+    {
+        return Boolean.parseBoolean(getPropString(propname, null));
+    }
+    
+    /**
+     * Get a boolean value from the BlueJ properties, with the specified default.
+     */
+    public static boolean getPropBoolean(String propname, boolean def)
+    {
+        String propval = getPropString(propname);
+        if (propval == null) {
+            return def;
+        }
+        else {
+            return Boolean.parseBoolean(propval);
+        }
+    }
+    
+    /**
      * remove a property value from the BlueJ properties.
      */
     public static String removeProperty(String propertyName)
@@ -800,7 +794,7 @@ public final class Config
      */
     private static File getImageFile(String propname)
     {
-        String filename = command_props.getProperty(propname);
+        String filename = getPropString(propname, null);
 
         if (filename != null) {
             return new File(bluejLibDir, "images" + File.separator + filename);
@@ -835,7 +829,6 @@ public final class Config
         }
         catch (java.net.MalformedURLException mue) { }
         catch (NullPointerException npe) { }        
-        catch (IOException ioe) { }
         return null;
     }
 
@@ -989,7 +982,7 @@ public final class Config
     public static Color getItemColour(String itemname)
     {
         try {
-            String rgbStr = command_props.getProperty(itemname, "255,0,255");
+            String rgbStr = getPropString(itemname, "255,0,255");
             String rgbVal[] = Utility.split(rgbStr, ",");
 
             if (rgbVal.length < 3)
@@ -1014,8 +1007,9 @@ public final class Config
      */
     public static Color getSelectionColour()
     {
-        if(selectionColour == null)
+        if(selectionColour == null) {
             selectionColour = Config.getItemColour("colour.selection");
+        }
         return selectionColour;
     }
     
@@ -1059,6 +1053,15 @@ public final class Config
      */
     public static void putPropInteger(String intname, int value)
     {
+        String defVal = system_props.getProperty(intname);
+        if (defVal != null) {
+            try {
+                if (value == Integer.valueOf(defVal).intValue()) {
+                    user_props.remove(intname);
+                }
+            }
+            catch (NumberFormatException nfe) { }
+        }
         user_props.setProperty(intname, Integer.toString(value));
     }
 
@@ -1067,7 +1070,27 @@ public final class Config
      */
     public static void putPropString(String strname, String value)
     {
-        user_props.setProperty(strname, value);
+        String defVal = system_props.getProperty(strname);
+        if (defVal == null || ! defVal.equals(value)) {
+            user_props.setProperty(strname, value);
+        }
+        else {
+            user_props.remove(strname);
+        }
+    }
+    
+    /**
+     * Set a non-language dependent boolean value for the BlueJ properties
+     */
+    public static void putPropBoolean(String propname, boolean value)
+    {
+        String sysval = system_props.getProperty(propname);
+        if (Boolean.valueOf(sysval).booleanValue() == value) {
+            user_props.remove(propname);
+        }
+        else {
+            user_props.setProperty(propname, String.valueOf(value));
+        }
     }
     
     /**
@@ -1224,6 +1247,6 @@ public final class Config
      */
     public static boolean isGreenfoot()
     {
-        return getPropString("greenfoot", "false").equalsIgnoreCase("true");
+        return getPropBoolean("greenfoot");
     }
 }

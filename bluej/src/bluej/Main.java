@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 4070 2006-05-02 12:57:01Z mik $
+ * @version $Id: Main.java 4737 2006-12-04 05:20:57Z davmac $
  */
 public class Main
 {
@@ -47,10 +47,11 @@ public class Main
         }
 
         // workaround java's broken UNC path handling on Windows
-        if (Config.getPropString("bluej.windows.customUNCHandler", "false").equals("true")) {
+        if (Config.getPropBoolean("bluej.windows.customUNCHandler")) {
             String osname = System.getProperty("os.name", "");
-            if(osname.startsWith("Windows"))
+            if(osname.startsWith("Windows")) {
                 URL.setURLStreamHandlerFactory(new BluejURLStreamHandlerFactory());
+            }
         }
         
         // process command line arguments, start BlueJ!

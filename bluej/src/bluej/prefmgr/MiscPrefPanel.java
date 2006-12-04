@@ -14,7 +14,7 @@ import bluej.utility.DialogManager;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: MiscPrefPanel.java 4737 2006-12-04 05:20:57Z davmac $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -169,10 +169,7 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
         String jdkURL = jdkURLField.getText();
 
-        if (Config.getDefaultPropString(jdkURLPropertyName, "") == jdkURL)
-            Config.removeProperty(jdkURLPropertyName);
-        else
-            Config.putPropString(jdkURLPropertyName, jdkURL);
+        Config.putPropString(jdkURLPropertyName, jdkURL);
     }
 
     private void optimiseToggled() 

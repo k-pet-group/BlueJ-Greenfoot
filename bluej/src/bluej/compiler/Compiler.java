@@ -17,7 +17,7 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Compiler.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: Compiler.java 4737 2006-12-04 05:20:57Z davmac $
  */
 abstract class Compiler
 {
@@ -97,9 +97,7 @@ abstract class Compiler
         args.add("-source");
         args.add(majorVersion);
 
-        if (Config.systemContainsKey(COMPILER_OPTIONS)) {
-            addUserSpecifiedOptions(args);
-        }
+        addUserSpecifiedOptions(args);
 
         return args;
     }
