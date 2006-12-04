@@ -4,12 +4,13 @@ import java.awt.Color;
 import javax.swing.JPopupMenu;
 import bluej.Config;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.prefmgr.PrefMgr;
 
 /**
  * A role object to represent the behaviour of enums.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: EnumClassRole.java 2555 2004-05-27 08:21:23Z polle $
+ * @version $Id: EnumClassRole.java 4735 2006-12-04 03:17:45Z bquig $
  */
 public class EnumClassRole extends ClassRole
 {
@@ -53,5 +54,25 @@ public class EnumClassRole extends ClassRole
     public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class cl)
     {
         return false;
+    }
+    
+    /**
+     * Adds role specific items at the bottom of the popup menu for this class target.
+     *
+     * @param menu the menu object to add to
+     * @param ct ClassTarget object associated with this class role
+     * @param state the state of the ClassTarget
+     *
+     * @return true if any menu items have been added
+     */
+    public boolean createRoleMenuEnd(JPopupMenu menu, ClassTarget ct, int state)
+    {
+        if(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS)) {
+            if (ct.getAssociation() == null) {
+                menu.addSeparator();
+                addMenuItem(menu, ct.new CreateTestAction(), true);
+            }
+        }
+        return true;
     }
 }
