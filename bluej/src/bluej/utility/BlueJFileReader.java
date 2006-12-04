@@ -3,6 +3,8 @@ package bluej.utility;
 import java.util.*;
 import java.io.*;
 
+import bluej.Config;
+
 /**
  * BlueJFileReader - a (static) class grouping all functions to read and write
  * BlueJ specific files.
@@ -27,10 +29,14 @@ import java.io.*;
  * to and from other character encodings.
  * 
  * @author Michael Kolling
- * @version $Id: BlueJFileReader.java 2831 2004-08-04 10:50:20Z polle $
+ * @version $Id: BlueJFileReader.java 4736 2006-12-04 04:25:10Z bquig $
  */
 public class BlueJFileReader
 {
+    private static final int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
+    private static final String spaces = "                                        ";
+    private static final char TAB_CHAR = '\t';
+    
     /**
      * Read a help text out of a help file.
      *
@@ -147,6 +153,22 @@ public class BlueJFileReader
                                      Dictionary translations)
         throws IOException
     {
+        translateFile(template, dest, translations, true);
+    }
+    
+    /**
+     * Copy a file while replacing special keywords
+     * within the file by definitions.
+     *
+     * Keywords are marked with a dollar
+     * sign and a name ($KEYWORD). 'translations' contains definitions
+     * to be used as replacements.
+     * This is used to create shell files from the shell file template.
+     */
+    public static void translateFile(File template, File dest,
+                                     Dictionary translations, boolean replaceTabs)
+        throws IOException
+    {
         FileReader in = null;
         FileWriter out = null;
 
@@ -162,7 +184,11 @@ public class BlueJFileReader
 
                     String key = buf.toString();
                     String value = (String)translations.get(key);
-
+                    
+                    // TODO if there are tabs, replace
+                    if(replaceTabs && value.indexOf(TAB_CHAR) != -1)
+                        value = convertTabsToSpaces(value);
+                    
                     if(value == null) {
                         out.write('$');
                         value = key;
@@ -172,7 +198,11 @@ public class BlueJFileReader
                     if(c != -1)
                         out.write(c);
                 }
-                else
+                else if(replaceTabs && c == TAB_CHAR) {
+                    out.write(tabAsSpace());
+                }
+                
+                else 
                     out.write(c);
             }
 
@@ -183,14 +213,27 @@ public class BlueJFileReader
                 in.close();
             if(out != null) {
                 out.close();
-                // File destFile = new File(dest);
-                // destFile.delete();
             }
-
             throw e;
         }
     }
     
+    /**
+     * Convert tab chars to the applicable number of spaces
+     *
+     */
+    private static String convertTabsToSpaces(String tabString)
+    {
+       return tabString.replaceAll("\t", tabAsSpace());
+    }
+    
+    /**
+     * return a String representing the number of spaces to be used in replacing a tab character
+     */
+    private static String tabAsSpace()
+    {
+        return spaces.substring(0, tabSize);
+    }
     
     /**
      * Convert Unicode based characters in \udddd format
