@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 4737 2006-12-04 05:20:57Z davmac $
+ * @version $Id: Config.java 4738 2006-12-05 05:19:12Z davmac $
  */
 
 public final class Config
@@ -139,17 +139,13 @@ public final class Config
         // copy in all our command line properties (done first
         // incase the bluej.userHome property is one specified)
         command_props.putAll(tempCommandLineProps);
+        command_props.setProperty("bluej.libdir", bluejLibDir.getAbsolutePath());
         
         // get user home directory
         {
             File userHome;
-            String homeDir = command_props.getProperty("bluej.userHome", null);
-            if(homeDir == null) {
-                userHome = new File(System.getProperty("user.home"));
-            }
-            else {
-                userHome = new File(homeDir);
-            }
+            String homeDir = getPropString("bluej.userHome", "$user.home");
+            userHome = new File(homeDir);
 
             // get user specific bluej property directory (in user home)
             userPrefDir = new File(userHome, getBlueJPrefDirName());
@@ -372,17 +368,19 @@ public final class Config
      */
     private static String getBlueJPrefDirName()
     {
-        
         String programName = "bluej";
         if(isGreenfoot()) {
             programName = "greenfoot";
         }
-        if(isMacOS())
+        if(isMacOS()) {
             return "Library/Preferences/org." + programName;
-        else if(isWinOS())
+        }
+        else if(isWinOS()) {
             return programName;
-        else
+        }
+        else {
             return "." + programName;
+        }
     }
     
     /**
@@ -455,7 +453,7 @@ public final class Config
     private static Properties loadDefs(String filename)
     {
         File propsFile = new File(bluejLibDir, filename);
-        Properties defs = new Properties();
+        Properties defs = new Properties(System.getProperties());
 
         try {
             defs.load(new FileInputStream(propsFile));
@@ -649,15 +647,6 @@ public final class Config
     }
         
     /**
-     * Get a non-language-dependent string from the BlueJ properties
-     * ("bluej.defs" or "bluej.properties")
-     */
-    public static String getPropString(String strname)
-    {
-        return getPropString(strname, strname);
-    }
-
-    /**
      * Get a system-dependent string from the BlueJ properties
      * System-dependent strings are properties that can
      * start with an OS ID prefix (though it will default to
@@ -702,29 +691,64 @@ public final class Config
         return value;
     }
 
-
     /**
      * Get a non-language-dependent string from the BlueJ properties
-     * ("bluej.defs" or "bluej.properties") with a default value
+     * ("bluej.defs" or "bluej.properties"). If not defined, the property
+     * name is returned unchanged.
      */
-    public static String getPropString(String strname, String def)
+    public static String getPropString(String strname)
     {
-        return command_props.getProperty(strname, def);
+        // Don't pass strname as the second parameter to getPropString, or
+        // variable substitution will be performed.
+        String rval = getPropString(strname, null);
+        if (rval == null) {
+            rval = strname;
+        }
+        return rval;
     }
 
     /**
      * Get a non-language-dependent string from the BlueJ properties
-     * "bluej.defs" with a default value
+     * ("bluej.defs" or "bluej.properties") with a default value. Variable
+     * substitution ($varname) is performed on the value (and will be
+     * performed on the default value if that is used).
+     */
+    public static String getPropString(String strname, String def)
+    {
+        String propVal = command_props.getProperty(strname, def);
+        if (propVal == null) {
+            propVal = def;
+        }
+        if (propVal != null) {
+            return PropParser.parsePropString(propVal, command_props);
+        }
+        else {
+            return null;
+        }
+    }
+    
+    /**
+     * Get a non-language-dependent string from the BlueJ properties
+     * ("bluej.defs" or "bluej.properties"), avoiding the normal
+     * variable substitution rules for properties.
+     * 
+     * @param strname  The name of the property thats value should be retrieved
+     * @return  The raw property value, or null if the property isn't defined
+     */
+    public static String getRawPropString(String strname)
+    {
+        // DAV remove
+        return command_props.getProperty(strname);
+    }
+
+    /**
+     * Get a non-language-dependent string from the BlueJ properties
+     * "bluej.defs" with a default value. No variable substitution is
+     * performed.
      */
     public static String getDefaultPropString(String strname, String def)
     {
-        try {
-            return system_props.getProperty(strname, def);
-        }
-        catch(Exception e) {
-            Debug.reportError("Could not get string for " + strname);
-            return def;
-        }
+        return system_props.getProperty(strname, def);
     }
 
     /**
@@ -735,7 +759,7 @@ public final class Config
     {
         int value;
         try {
-            value = Integer.parseInt(command_props.getProperty(intname, String.valueOf(def)));
+            value = Integer.parseInt(getPropString(intname, String.valueOf(def)));
         }
         catch(NumberFormatException nfe) {
             return def;

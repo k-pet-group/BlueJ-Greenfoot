@@ -32,7 +32,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 4725 2006-11-29 23:58:01Z davmac $
+ * @version $Id: VMReference.java 4738 2006-12-05 05:19:12Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -175,10 +175,11 @@ class VMReference
         // set output encoding if specified, default is to use system default
         // this gets passed to ExecServer's main as an arg which can then be 
         // used to specify encoding
-        streamEncoding = Config.getDefaultPropString("bluej.terminal.encoding", null);
+        streamEncoding = Config.getPropString("bluej.terminal.encoding", null);
         isDefaultEncoding = (streamEncoding == null);
-        if(!isDefaultEncoding)
+        if(!isDefaultEncoding) {
             paramList.add(streamEncoding);
+        }
         
         launchParams = (String[]) paramList.toArray(new String[0]);
 

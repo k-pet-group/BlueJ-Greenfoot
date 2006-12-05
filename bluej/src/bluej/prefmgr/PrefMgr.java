@@ -14,7 +14,7 @@ import bluej.Config;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: PrefMgr.java 4738 2006-12-05 05:19:12Z davmac $
  */
 public class PrefMgr
 {
@@ -261,15 +261,7 @@ public class PrefMgr
         if (size > 0 && size != editorFontSize) {
             editorFontSize = size;
 
-            // check if the font size we are setting it to is already the default
-            // bluej value in which case we do not need to have it saved in the
-            // users settings (thereby hopefully keeping the user preferences
-            // file to a minimum size)
-
-            if (Config.getDefaultPropInteger(editorFontSizePropertyName, -1) == size)
-                Config.removeProperty(editorFontSizePropertyName);
-            else
-                Config.putPropInteger(editorFontSizePropertyName, size);
+            Config.putPropInteger(editorFontSizePropertyName, size);
 
             String fontName;
             if(Config.isMacOS()) {
