@@ -19,6 +19,8 @@
 
 import java.awt.Color;
 import java.util.List;
+import greenfoot.GreenfootImage;
+
 /**
  * An <code>GridActor</code> is an entity with a color and direction that can act.
  * <br />
@@ -187,4 +189,13 @@ public class GridActor extends greenfoot.Actor
             location = new Location(y, x);
         }
     }   
+    
+    /**
+     * Overrides getImage so that setting the color will change the image.
+     * @return    the Greenfoot image of this actor.
+     */
+    public GreenfootImage getImage()
+    {
+        return ColoredImage.getImage(this, super.getImage(), getColor());
+    }
 }
