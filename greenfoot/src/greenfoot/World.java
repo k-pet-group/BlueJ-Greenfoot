@@ -148,9 +148,13 @@ public abstract class World
     }
     
     /**
-     * Return the color at the center of the cell.
+     * Return the color at the center of the cell. To paint a color, you need to
+     * get the background image for the world and paint on that.
      * 
-     * @throws IndexOutOfBoundsException If the pixel location is not within the world bounds. If there is no background image at the location it will return Color.WHITE.
+     * @see #getBackground()
+     * @throws IndexOutOfBoundsException If the location is not within the world
+     *             bounds. If there is no background image at the location it
+     *             will return Color.WHITE.
      */
     public Color getColorAt(int x, int y) {
         ensureWithinXBounds(x);
@@ -158,6 +162,7 @@ public abstract class World
         
         int xPixel = (int) Math.floor(getCellCenter(x));
         int yPixel = (int) Math.floor(getCellCenter(y));
+        
         
         // Take tiling into account
         if(isTiled()) {
