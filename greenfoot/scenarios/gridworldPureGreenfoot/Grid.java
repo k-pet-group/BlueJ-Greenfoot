@@ -171,7 +171,7 @@ public class Grid<E> extends greenfoot.World
     
 
     //=====================================================
-    // These methods are new for Greenfoot
+    // The following methods are new for Greenfoot
     //=====================================================
     
     /**
@@ -235,7 +235,7 @@ public class Grid<E> extends greenfoot.World
      */
     public Grid()
     {
-        this(12,12,32);
+        this(50,50,12);
     }
     
     public Grid(int rows, int cols, int cellSize) {
