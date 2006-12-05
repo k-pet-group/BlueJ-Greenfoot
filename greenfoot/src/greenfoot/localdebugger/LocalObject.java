@@ -26,7 +26,7 @@ import com.sun.jdi.ObjectReference;
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 3688 2005-10-20 00:11:50Z davmac $
+ * @version $Id: LocalObject.java 4740 2006-12-05 16:34:14Z polle $
  */
 public class LocalObject extends DebuggerObject
 {
@@ -301,12 +301,14 @@ public class LocalObject extends DebuggerObject
         try {
             if (expectedCtype != null && !isRaw()) {
                 Object o = field.get(object);
-                Class c = o.getClass();
-                if (genericParams != null)
-                    expectedType.mapTparsToTypes(genericParams);
-                GenTypeClass g = expectedCtype.mapToDerived(new JavaReflective(c));
-                Map m = g.getMap();
-                return new LocalObject(o, m);
+                if (o != null) { // The return value might be null
+                    Class c = o.getClass();
+                    if (genericParams != null)
+                        expectedType.mapTparsToTypes(genericParams);
+                    GenTypeClass g = expectedCtype.mapToDerived(new JavaReflective(c));
+                    Map m = g.getMap();
+                    return new LocalObject(o, m);
+                }
             }
 
             // raw
