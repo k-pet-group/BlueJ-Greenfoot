@@ -1699,7 +1699,7 @@ public final class MoeEditor extends JFrame
         if (generateDoc) {
             // clear the existing document
             htmlDocument = new HTMLDocument();
-            htmlPane.setDocument(document);
+            htmlPane.setDocument(htmlDocument);
             
             // interface needs to be re-generated
             info.message(Config.getString("editor.info.generatingDoc"));
