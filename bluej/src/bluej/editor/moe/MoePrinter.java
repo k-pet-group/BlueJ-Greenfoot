@@ -42,8 +42,8 @@ public class MoePrinter
     
     private Book pages = new Book();  // This holds each page
     
-    private static int titleFontSize = Config.getDefaultPropInteger("bluej.fontsize.printTitle", 14);
-    private static int footerFontSize = Config.getDefaultPropInteger("bluej.fontsize.printInfo", 10);
+    private static int titleFontSize = Config.getPropInteger("bluej.fontsize.printTitle", 14);
+    private static int footerFontSize = Config.getPropInteger("bluej.fontsize.printInfo", 10);
     private static Font titleFont = new Font("SansSerif", Font.BOLD, titleFontSize);
     private static Font smallTitleFont = new Font("SansSerif", Font.BOLD, 10);
     private static Font footerFont = new Font("SansSerif", Font.ITALIC, 9);

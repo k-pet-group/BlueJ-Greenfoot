@@ -77,7 +77,7 @@ public final class MoeEditor extends JFrame
     final static Image iconImage = Config.getImageAsIcon("image.icon.editor").getImage();
 
     // Fonts
-    public static int printFontSize = Config.getDefaultPropInteger("bluej.fontsize.printText", 10);
+    public static int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);
     public static Font printFont = new Font("Monospaced", Font.PLAIN, printFontSize);
 
     // Strings
@@ -147,6 +147,11 @@ public final class MoeEditor extends JFrame
     private TextInsertNotifier doTextInsert = new TextInsertNotifier();
 
     private ClassLoader projectClassLoader;
+    
+    /**
+     * Property map, allows BlueJ extensions to assosciate property values with
+     * this editor instance; otherwise unused.
+     */
     private HashMap propertyMap = new HashMap();
 
     // =========================== NESTED CLASSES ===========================
@@ -360,7 +365,7 @@ public final class MoeEditor extends JFrame
     public void setVisible(boolean vis)       // inherited from Editor, redefined
     {
         if (vis) {
-            currentTextPane.setFont(PrefMgr.getStandardEditorFont());
+            sourcePane.setFont(PrefMgr.getStandardEditorFont());
             checkSyntaxStatus();
             checkBracketStatus();
             setState(Frame.NORMAL);         // de-iconify
@@ -375,7 +380,7 @@ public final class MoeEditor extends JFrame
      */
     public void refresh()       // inherited from Editor, redefined
     {
-        currentTextPane.setFont(PrefMgr.getStandardEditorFont());
+        sourcePane.setFont(PrefMgr.getStandardEditorFont());
         checkBracketStatus();
         checkSyntaxStatus();
         currentTextPane.repaint();
@@ -498,8 +503,8 @@ public final class MoeEditor extends JFrame
 
         // highlight the line
 
-        currentTextPane.setCaretPosition(pos);
-        currentTextPane.moveCaretPosition(line.getEndOffset() - 1);
+        sourcePane.setCaretPosition(pos);
+        sourcePane.moveCaretPosition(line.getEndOffset() - 1);
         moeCaret.setPersistentHighlight();
         // w/o line break
 
@@ -526,7 +531,7 @@ public final class MoeEditor extends JFrame
     {
         Element line = getLine(lineNumber);
 
-        currentTextPane.select(line.getStartOffset() + columnNumber - 1, 
+        sourcePane.select(line.getStartOffset() + columnNumber - 1, 
                                line.getStartOffset() + columnNumber + len - 1);
     }
 
@@ -547,7 +552,7 @@ public final class MoeEditor extends JFrame
         Element line1 = getLine(lineNumber1);
         Element line2 = getLine(lineNumber2);
 
-        currentTextPane.select(line1.getStartOffset() + columnNumber1 - 1, line2.getStartOffset() + columnNumber2 - 1);
+        sourcePane.select(line1.getStartOffset() + columnNumber1 - 1, line2.getStartOffset() + columnNumber2 - 1);
     }
 
     /**
@@ -557,7 +562,7 @@ public final class MoeEditor extends JFrame
      */
     public String getSelectedText()
     {
-        return currentTextPane.getSelectedText();
+        return sourcePane.getSelectedText();
     }
 
     /**
@@ -645,7 +650,7 @@ public final class MoeEditor extends JFrame
             updateUndoControls();
             updateRedoControls();
         }
-        currentTextPane.setEditable(!readOnly);
+        sourcePane.setEditable(!readOnly);
     }
 
     /**
@@ -656,7 +661,7 @@ public final class MoeEditor extends JFrame
      */
     public boolean isReadOnly()
     {
-        return !currentTextPane.isEditable();
+        return !sourcePane.isEditable();
     }
 
     /**
@@ -709,7 +714,7 @@ public final class MoeEditor extends JFrame
      */
     public LineColumn getCaretLocation()
     {
-        int caretOffset = currentTextPane.getCaretPosition();
+        int caretOffset = sourcePane.getCaretPosition();
         return getLineColumnFromOffset(caretOffset);
     }
 
@@ -723,7 +728,7 @@ public final class MoeEditor extends JFrame
      */
     public LineColumn getLineColumnFromOffset(int offset)
     {
-        int lineNumber = document.getDefaultRootElement().getElementIndex(offset);
+        int lineNumber = sourceDocument.getDefaultRootElement().getElementIndex(offset);
 
         if (lineNumber < 0) {
             return null;
@@ -749,7 +754,7 @@ public final class MoeEditor extends JFrame
      */
     public void setCaretLocation(LineColumn location)
     {
-        currentTextPane.setCaretPosition(getOffsetFromLineColumn(location));
+        sourcePane.setCaretPosition(getOffsetFromLineColumn(location));
     }
 
     /**
@@ -760,7 +765,7 @@ public final class MoeEditor extends JFrame
      */
     public LineColumn getSelectionBegin()
     {
-        Caret aCaret = currentTextPane.getCaret();
+        Caret aCaret = sourcePane.getCaret();
 
         // If the dot is == as the mark then there is no selection.
         if (aCaret.getDot() == aCaret.getMark()) {
@@ -779,7 +784,7 @@ public final class MoeEditor extends JFrame
      */
     public LineColumn getSelectionEnd()
     {
-        Caret aCaret = currentTextPane.getCaret();
+        Caret aCaret = sourcePane.getCaret();
 
         // If the dot is == as the mark then there is no selection.
         if (aCaret.getDot() == aCaret.getMark()) {
@@ -809,7 +814,7 @@ public final class MoeEditor extends JFrame
         int endOffset = Math.max(first, last);
 
         try {
-            return document.getText(beginOffset, endOffset - beginOffset);
+            return sourceDocument.getText(beginOffset, endOffset - beginOffset);
         }
         catch (BadLocationException exc) {
             throw new IllegalArgumentException(exc.getMessage());
@@ -840,10 +845,10 @@ public final class MoeEditor extends JFrame
         int endOffset = Math.max(start, finish);
 
         if (beginOffset != endOffset) {
-            document.remove(beginOffset, endOffset - beginOffset);
+            sourceDocument.remove(beginOffset, endOffset - beginOffset);
         }
 
-        document.insertString(beginOffset, newText, null);
+        sourceDocument.insertString(beginOffset, newText, null);
     }
 
     /**
@@ -863,8 +868,8 @@ public final class MoeEditor extends JFrame
         int selectionStart = Math.min(start, finish);
         int selectionEnd = Math.max(start, finish);
 
-        currentTextPane.setCaretPosition(selectionStart);
-        currentTextPane.moveCaretPosition(selectionEnd);
+        sourcePane.setCaretPosition(selectionStart);
+        sourcePane.moveCaretPosition(selectionEnd);
     }
 
     /**
@@ -882,9 +887,11 @@ public final class MoeEditor extends JFrame
             throw new IllegalArgumentException("line < 0");
         }
 
-        Element lineElement = document.getDefaultRootElement().getElement(location.getLine());
+        Element lineElement = sourceDocument.getDefaultRootElement()
+            .getElement(location.getLine());
         if (lineElement == null) {
-            throw new IllegalArgumentException("line=" + location.getLine() + " is out of bound");
+            throw new IllegalArgumentException("line=" + location.getLine()
+                    + " is out of bound");
         }
 
         int lineOffset = lineElement.getStartOffset();
@@ -943,7 +950,7 @@ public final class MoeEditor extends JFrame
             return -1;
         }
 
-        Element lineElement = document.getDefaultRootElement().getElement(line);
+        Element lineElement = sourceDocument.getDefaultRootElement().getElement(line);
         if (lineElement == null) {
             return -1;
         }
@@ -965,7 +972,7 @@ public final class MoeEditor extends JFrame
      */
     public int getTextLength ()
     {
-        return document.getLength();
+        return sourceDocument.getLength();
     }
     
     /**
@@ -973,7 +980,7 @@ public final class MoeEditor extends JFrame
      */
     public int numberOfLines()
     {
-        return document.getDefaultRootElement().getElementCount();
+        return sourceDocument.getDefaultRootElement().getElementCount();
     }
     
 
@@ -992,7 +999,7 @@ public final class MoeEditor extends JFrame
         switch(eventId) {
             case BlueJEvent.DOCU_GENERATED :
                 BlueJEvent.removeListener(this);
-                displayInterface(true);
+                refreshHtmlDisplay();
                 break;
             case BlueJEvent.DOCU_ABORTED :
                 BlueJEvent.removeListener(this);
@@ -1013,7 +1020,7 @@ public final class MoeEditor extends JFrame
             setChanged();
         }
         actions.userAction();
-        doTextInsert.setEvent(e, currentTextPane);
+        doTextInsert.setEvent(e, sourcePane);
         SwingUtilities.invokeLater(doTextInsert);
     }
 
@@ -1262,42 +1269,6 @@ public final class MoeEditor extends JFrame
     	setSelection(startPos, endPos);
     }
     
-    private int findAtStartOfLine(String s){
-    	 int docLength = document.getLength();
-         int startPosition = currentTextPane.getCaretPosition();
-         int endPos = docLength;
-
-         boolean found = false;
-         boolean finished = false;
-         
-//       first line searched starts from current caret position
-         int start = startPosition;
-         Element line = getLineAt(start);
-         int lineEnd = Math.min(line.getEndOffset(), endPos);
-    	 try {
-            while (!found && !finished) {
-                String lineText = document.getText(start, lineEnd - start);
-                if (lineText != null && lineText.length() > 0) {
-                	if (lineText.startsWith(s)){
-                		found = true;
-                    }
-                }
-                if (lineEnd >= endPos) {
-                	finished = true;
-                }
-                else {
-                    // go to next line
-                    line = document.getParagraphElement(lineEnd + 1);
-                    start = line.getStartOffset();
-                    lineEnd = Math.min(line.getEndOffset(), endPos);
-                }
-            }
-        }
-        catch (BadLocationException ex) {
-            Debug.message("error in editor find operation");
-        }
-        return start;
-    }
     /**
      * Do a find with info in the info area.
      */
@@ -1582,14 +1553,17 @@ public final class MoeEditor extends JFrame
      */
     public void toggleInterface()
     {
-        if (!sourceIsCode)
+        if (!sourceIsCode) {
             return;
+        }
 
         boolean wantHTML = (interfaceToggle.getSelectedItem() == interfaceString);
-        if (wantHTML && !viewingHTML)
+        if (wantHTML && !viewingHTML) {
             switchToInterfaceView();
-        else if (!wantHTML && viewingHTML)
+        }
+        else if (!wantHTML && viewingHTML) {
             switchToSourceView();
+        }
     }
 
     /**
@@ -1648,20 +1622,32 @@ public final class MoeEditor extends JFrame
         enablePrinting(false);
         try {
             save();
-            if (docUpToDate()) {
-                displayInterface(false);
-            }
-            else {
-                // interface needs to be re-generated
-                info.message(Config.getString("editor.info.generatingDoc"));
-                BlueJEvent.addListener(this);
-                watcher.generateDoc();
-            }
+            displayInterface();
         }
         catch (IOException ioe) {
             // Could display a dialog here. However, the error message
             // (from save() call) will already be displayed in the editor
             // status bar.
+        }
+    }
+
+    // --------------------------------------------------------------------
+    /**
+     * Refresh the HTML display.
+     */
+    private void refreshHtmlDisplay()
+    {
+        try {
+            File urlFile = new File(getDocPath());
+            URL myURL = urlFile.toURI().toURL();
+            htmlPane.setPage(myURL);
+            htmlDocument = (HTMLDocument) htmlPane.getDocument();
+            htmlDocument.setBase(myURL);
+            info.message(Config.getString("editor.info.docLoaded"));
+        }
+        catch (Exception exc) {
+            info.warning(Config.getString("editor.info.docDisappeared"), getDocPath());
+            Debug.reportError("loading class interface failed: " + exc);
         }
     }
 
@@ -1690,21 +1676,42 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * We want to display the interface view. We have checked (or waited) that
-     * the html file is available. It is there now, ready to be displayed.
-     * Display it.
+     * We want to display the interface view. This will generate the
+     * documentation if necessary.
      * 
      * Don't call this directly to switch to the interface view. Call
      * switchToInterfaceView() instead.
      */
-    private void displayInterface(boolean reload)
+    private void displayInterface()
     {
         info.message(Config.getString("editor.info.loadingDoc"));
+        boolean generateDoc = ! docUpToDate();
+        
+        // The following all used to be done in a separate thread, but this is not
+        // necessary - setPage() operates asynchronously anyway.
+        if (htmlPane == null) {
+            createHTMLPane();
+            if (! generateDoc) {
+                refreshHtmlDisplay();
+            }
+        }
 
-        // start the call in a separate thread to allow fast return to GUI.
-        Thread loadThread = new HTMLDisplayThread(reload);
-        //loadThread.setPriority(Thread.MIN_PRIORITY);
-        loadThread.start();
+        if (generateDoc) {
+            // clear the existing document
+            htmlDocument = new HTMLDocument();
+            htmlPane.setDocument(document);
+            
+            // interface needs to be re-generated
+            info.message(Config.getString("editor.info.generatingDoc"));
+            BlueJEvent.addListener(this);
+            watcher.generateDoc();
+        }
+
+        document = htmlDocument;
+        currentTextPane = htmlPane;
+        viewingHTML = true;
+        scrollPane.setViewportView(htmlPane);
+        currentTextPane.requestFocus();
     }
 
     // --------------------------------------------------------------------
@@ -1900,7 +1907,7 @@ public final class MoeEditor extends JFrame
      */
     private Element getLine(int lineNo)
     {
-        return document.getDefaultRootElement().getElement(lineNo - 1);
+        return sourceDocument.getDefaultRootElement().getElement(lineNo - 1);
     }
 
     // --------------------------------------------------------------------
@@ -1909,7 +1916,7 @@ public final class MoeEditor extends JFrame
      */
     private Element getLineAt(int pos)
     {
-        return document.getParagraphElement(pos);
+        return sourceDocument.getParagraphElement(pos);
     }
 
     // --------------------------------------------------------------------
@@ -1937,7 +1944,7 @@ public final class MoeEditor extends JFrame
      */
     private int getLineNumberAt(int pos)
     {
-        return document.getDefaultRootElement().getElementIndex(pos) + 1;
+        return sourceDocument.getDefaultRootElement().getElementIndex(pos) + 1;
     }
 
     // --------------------------------------------------------------------
@@ -1956,8 +1963,6 @@ public final class MoeEditor extends JFrame
             lastModified = file.lastModified();
 
             sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
-            if(!viewingHTML)
-                document = sourceDocument;
             
             // flag document type as a java file by associating a
             // JavaTokenMarker for syntax colouring if specified
@@ -2046,10 +2051,12 @@ public final class MoeEditor extends JFrame
     private void setCompileStatus(boolean compiled)
     {
         actions.getActionByName("toggle-breakpoint").setEnabled(compiled && viewingCode());
-        if (compiled)
-            document.putProperty(COMPILED, Boolean.TRUE);
-        else
-            document.putProperty(COMPILED, Boolean.FALSE);
+        if (compiled) {
+            sourceDocument.putProperty(COMPILED, Boolean.TRUE);
+        }
+        else {
+            sourceDocument.putProperty(COMPILED, Boolean.FALSE);
+        }
 
         currentTextPane.repaint();
     }
@@ -2244,7 +2251,6 @@ public final class MoeEditor extends JFrame
         sourcePane.setCaretColor(cursorColor);
 
         // default showing:
-        document = sourceDocument;
         currentTextPane = sourcePane;
         
         scrollPane = new JScrollPane(currentTextPane);
@@ -2542,62 +2548,6 @@ public final class MoeEditor extends JFrame
                 info.message(Config.getString("editor.info.cancelled"));
             }
 
-        }
-
-    }
-
-    // --------------------------------------------------------------------
-
-    /**
-     * Inner class for loading HTML documentation
-     */
-    class HTMLDisplayThread extends Thread
-    {
-        private boolean reload;
-
-        /**
-         */
-        HTMLDisplayThread(boolean load)
-        {
-            reload = load;
-        }
-
-        /**
-         * Main processing method for the HTMLDisplayThread object
-         */
-        public void run()
-        {
-            if (htmlDocument == null) {
-                createHTMLPane();
-                reload = true;
-            }
-
-            if (reload) {
-                try {
-                    try {
-                        // this statement fails, but it is needed to avoid
-                        // caching of html page
-                        htmlPane.setPage("file:/dummy");
-                    }
-                    catch (Exception e) {}
-
-                    File urlFile = new File(getDocPath());
-                    URL myURL = urlFile.toURI().toURL();
-                    htmlPane.setPage(myURL);
-                    htmlDocument = (HTMLDocument) htmlPane.getDocument();
-                    htmlDocument.setBase(myURL);
-                    info.message(Config.getString("editor.info.docLoaded"));
-                }
-                catch (Exception exc) {
-                    info.warning(Config.getString("editor.info.docDisappeared"), getDocPath());
-                    Debug.reportError("loading class interface failed: " + exc);
-                }
-            }
-            document = htmlDocument;
-            currentTextPane = htmlPane;
-            viewingHTML = true;
-            scrollPane.setViewportView(currentTextPane);
-            currentTextPane.requestFocus();
         }
 
     }

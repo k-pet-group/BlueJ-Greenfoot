@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 4738 2006-12-05 05:19:12Z davmac $
+ * @version $Id: Config.java 4744 2006-12-06 05:12:36Z davmac $
  */
 
 public final class Config
@@ -715,12 +715,27 @@ public final class Config
      */
     public static String getPropString(String strname, String def)
     {
-        String propVal = command_props.getProperty(strname, def);
+        return getPropString(strname, def, command_props);
+    }
+    
+    /**
+     * Get a property string from the given properties map, using variable substitution.
+     * If the variable is not defined the given default value is used (and variable
+     * substitution is performed on it).
+     * 
+     * @param strname  The name of the property thats value is to be retrieved
+     * @param def      The default value to use if the value is not defined
+     * @param props    The properties to retrieve the value from
+     * @return  The property value after variable substitution
+     */
+    public static String getPropString(String strname, String def, Properties props)
+    {
+        String propVal = props.getProperty(strname, def);
         if (propVal == null) {
             propVal = def;
         }
         if (propVal != null) {
-            return PropParser.parsePropString(propVal, command_props);
+            return PropParser.parsePropString(propVal, props);
         }
         else {
             return null;
@@ -760,22 +775,6 @@ public final class Config
         int value;
         try {
             value = Integer.parseInt(getPropString(intname, String.valueOf(def)));
-        }
-        catch(NumberFormatException nfe) {
-            return def;
-        }
-        return value;
-    }
-
-    /**
-     * Get a non-language dependant integer from the BlueJ properties
-     * "bluej.defs" with a default value
-     */
-    public static int getDefaultPropInteger(String intname, int def)
-    {
-        int value;
-        try {
-            value = Integer.parseInt(system_props.getProperty(intname, String.valueOf(def)));
         }
         catch(NumberFormatException nfe) {
             return def;
