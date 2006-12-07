@@ -19,7 +19,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 4257 2006-05-14 16:38:01Z davmac $
+ * @version $Id: AppletClassRole.java 4746 2006-12-07 02:26:53Z davmac $
  */
 public class AppletClassRole extends ClassRole
 {
@@ -330,20 +330,17 @@ public class AppletClassRole extends ClassRole
         }
     }
 
-    /**
-     * Removes applicable files (.class, .java and .ctxt) prior to
-     * this AppletClassRole being removed from a Package.
+    /* (non-Javadoc)
+     * @see bluej.pkgmgr.target.role.ClassRole#getAllFiles(bluej.pkgmgr.target.ClassTarget)
      */
-    public void prepareFilesForRemoval(ClassTarget ct, String sourceFile,
-                                       String classFile, String contextFile)
+    public List getAllFiles(ClassTarget ct)
     {
-        super.prepareFilesForRemoval(ct, sourceFile, classFile, contextFile);
+        List rlist = super.getAllFiles(ct);
 
-        // remove associated HTML file if exists (lives in the root project
-        // directory!)
         File htmlFile = new File(ct.getPackage().getProject().getProjectDir(), 
-                                   ct.getQualifiedName() + HTML_EXTENSION);
-        if (htmlFile.exists())
-            htmlFile.delete();
+                ct.getQualifiedName() + HTML_EXTENSION);
+        rlist.add(htmlFile);
+        
+        return rlist;
     }
 }

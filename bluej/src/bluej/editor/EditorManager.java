@@ -18,7 +18,7 @@ import bluej.editor.moe.MoeEditorManager;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: EditorManager.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: EditorManager.java 4746 2006-12-07 02:26:53Z davmac $
  */
 public abstract class EditorManager
 {
@@ -56,7 +56,7 @@ public abstract class EditorManager
         EditorWatcher watcher, 
         boolean compiled, 
         List breakpoints, 
-        ClassLoader projectClassLoader, Rectangle bounds );
+        Rectangle bounds );
 
 
     /**

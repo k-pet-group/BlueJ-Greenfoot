@@ -17,7 +17,7 @@ import javax.swing.text.BadLocationException;
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 3644 2005-10-05 00:56:32Z davmac $
+ * @version $Id: Editor.java 4746 2006-12-07 02:26:53Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -150,9 +150,10 @@ public interface Editor
      * Change class name.
      * 
      * @param title        new window title
-     * @param filename    new file name
+     * @param filename     new file name
+     * @param docFileName  new documentation file name
      */
-    void changeName(String title, String filename);
+    void changeName(String title, String filename, String docFileName);
 
     /**
      * Set the "compiled" status

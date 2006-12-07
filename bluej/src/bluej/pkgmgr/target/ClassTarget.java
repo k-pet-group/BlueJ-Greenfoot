@@ -60,7 +60,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: ClassTarget.java 4746 2006-12-07 02:26:53Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -640,11 +640,22 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * @return a FileFilter for all inner class files of this target
+     * Get the name of the documentation (.html) file corresponding to this target.
      */
-    public FileFilter getInnerClassFiles()
+    public File getDocumentationFile()
     {
-        return new InnerClassFileFilter();
+        String filename = getSourceFile().getPath();
+        String docFilename = getPackage().getProject().getDocumentationFile(filename);
+        return new File(docFilename);
+    }
+    
+    /**
+     * Get a list of .class files for inner classes.
+     */
+    public File [] getInnerClassFiles()
+    {
+        File[] files = getPackage().getPath().listFiles(new InnerClassFileFilter());
+        return files;
     }
 
     /**
@@ -690,7 +701,7 @@ public class ClassTarget extends DependentTarget
             String filename = getSourceFile().getPath();
             String docFilename = getPackage().getProject().getDocumentationFile(filename);
             editor = EditorManager.getEditorManager().openClass(filename, docFilename, getBaseName(), this,
-                    isCompiled(), breakpoints, getPackage().getProject().getClassLoader(), editorBounds);
+                    isCompiled(), breakpoints, editorBounds);
             editor.showInterface(showInterface);
         }
         return editor;
@@ -1102,10 +1113,15 @@ public class ClassTarget extends DependentTarget
         if (FileUtility.copyFile(oldSourceFile, newSourceFile)) {
             
             getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
-            getEditor().changeName(newName, newSourceFile.getPath());
+            
+            String filename = newSourceFile.getAbsolutePath();
+            String docFilename = getPackage().getProject().getDocumentationFile(filename);
+            getEditor().changeName(newName, filename, docFilename);
 
-            role.prepareFilesForRemoval(this, oldSourceFile.getPath(), getClassFile().getPath(), getContextFile()
-                    .getPath());
+            oldSourceFile.delete();
+            getClassFile().delete();
+            getContextFile().delete();
+            getDocumentationFile().delete();
 
             // this is extremely dangerous code here.. must track all
             // variables which are set when ClassTarget is first
@@ -1590,7 +1606,7 @@ public class ClassTarget extends DependentTarget
         if (getSourceFile().exists()) {
             // remove all inner class files starting with the same name as
             // sourceFile$
-            File[] files = getPackage().getPath().listFiles(getInnerClassFiles());
+            File[] files = getPackage().getPath().listFiles(new InnerClassFileFilter());
 
             if (files != null) {
                 for (int i = 0; i < files.length; i++) {
@@ -1599,8 +1615,11 @@ public class ClassTarget extends DependentTarget
             }
         }
 
-        getRole().prepareFilesForRemoval(this, getSourceFile().getPath(), getClassFile().getPath(),
-                getContextFile().getPath());
+        List allFiles = getRole().getAllFiles(this);
+        for(Iterator i = allFiles.iterator(); i.hasNext(); ) {
+            File f = (File) i.next();
+            f.delete();
+        }
     }
 
     /*

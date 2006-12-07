@@ -1,16 +1,16 @@
 package bluej.pkgmgr.target.role;
 
-import bluej.pkgmgr.target.*;
-import bluej.prefmgr.PrefMgr;
+import javax.swing.JPopupMenu;
 
-import javax.swing.*;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.prefmgr.PrefMgr;
 
 /**
  * A role object which a class target uses to delegate behaviour to.
  * StdClassRole is used to represent standard Java classes.
  *
  * @author Bruce Quig
- * @version $Id: StdClassRole.java 4730 2006-11-30 04:24:28Z bquig $
+ * @version $Id: StdClassRole.java 4746 2006-12-07 02:26:53Z davmac $
  */
 public class StdClassRole extends ClassRole
 {
@@ -40,7 +40,7 @@ public class StdClassRole extends ClassRole
     }
 
 
-        /**
+    /**
      * Adds role specific items at the bottom of the popup menu for this class target.
      *
      * @param menu the menu object to add to

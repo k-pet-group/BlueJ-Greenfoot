@@ -1,28 +1,39 @@
 package bluej.pkgmgr.target.role;
 
-import java.awt.*;
-import java.io.*;
-import java.util.*;
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Properties;
 
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import bluej.Config;
 import bluej.debugmgr.ConstructAction;
 import bluej.debugmgr.objectbench.InvokeAction;
 import bluej.debugmgr.objectbench.InvokeListener;
-import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.*;
-import bluej.views.*;
+import bluej.utility.BlueJFileReader;
+import bluej.utility.Debug;
+import bluej.views.CallableView;
+import bluej.views.ConstructorView;
+import bluej.views.MethodView;
+import bluej.views.View;
+import bluej.views.ViewFilter;
 
 /**
  * A class role in a class target, providing behaviour specific to particular
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: ClassRole.java 4746 2006-12-07 02:26:53Z davmac $
  */
 public abstract class ClassRole
 {
@@ -262,32 +273,29 @@ public abstract class ClassRole
         return hasEntries;
     }
 
-    /**
-     * Removes applicable files (.class, .java and .ctxt) prior to this
-     * ClassRole being removed from a Package.
-     *  
-     */
-    public void prepareFilesForRemoval(ClassTarget ct, String sourceFile, String classFile, String contextFile)
-    {
-        File sourceFileName = new File(sourceFile);
-        if (sourceFileName.exists()) {
-            sourceFileName.delete();
-        }
-        File classFileName = new File(classFile);
-        if (classFileName.exists())
-            classFileName.delete();
-
-        File contextFileName = new File(contextFile);
-        if (contextFileName.exists())
-            contextFileName.delete();
-    }
-
-//    /**
-//     * Draw role specific elements of this class.
-//     */
-//    public void draw(Graphics2D g, ClassTarget ct, int x, int y, int width, int height)
-//    {}  // currently unused
-
     public void run(PkgMgrFrame pmf, ClassTarget ct, String param)
     {}
+    
+    /**
+     * Get all the files belonging to a class target - source, class, ctxt, docs
+     * @param ct  The class target
+     * @return  A list of File objects
+     */
+    public List getAllFiles(ClassTarget ct)
+    {
+        // Source, .class, .ctxt, and doc (.html)
+        List rlist = new ArrayList();
+        
+        rlist.add(ct.getClassFile());
+        rlist.add(ct.getSourceFile());
+        rlist.add(ct.getContextFile());
+        rlist.add(ct.getDocumentationFile());
+        
+        File [] innerClasses = ct.getInnerClassFiles();
+        for (int i = 0; i < innerClasses.length; i++) {
+            rlist.add(innerClasses[i]);
+        }
+        
+        return rlist;
+    }
 }

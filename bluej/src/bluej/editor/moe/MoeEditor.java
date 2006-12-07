@@ -146,8 +146,6 @@ public final class MoeEditor extends JFrame
 
     private TextInsertNotifier doTextInsert = new TextInsertNotifier();
 
-    private ClassLoader projectClassLoader;
-    
     /**
      * Property map, allows BlueJ extensions to assosciate property values with
      * this editor instance; otherwise unused.
@@ -176,7 +174,7 @@ public final class MoeEditor extends JFrame
      * Constructor. Title may be null
      */
     public MoeEditor(String title, boolean isCode, EditorWatcher watcher, boolean showToolbar, 
-                     boolean showLineNum, Properties resources, ClassLoader aProjectClassLoader)
+                     boolean showLineNum, Properties resources)
     {
         super("Moe");
         this.watcher = watcher;
@@ -188,7 +186,6 @@ public final class MoeEditor extends JFrame
         currentStepPos = -1;
         mayHaveBreakpoints = false;
         matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
-        projectClassLoader = aProjectClassLoader;
         undoManager = new UndoManager();
         undoComponents = new ArrayList(1);
         redoComponents = new ArrayList(1);
@@ -220,17 +217,6 @@ public final class MoeEditor extends JFrame
         while (i.hasNext()) {
             ((JComponent) i.next()).setEnabled(canRedo);
         }
-    }
-
-    /**
-     * Returns the projectClassLoader. Can return null if no classloader is
-     * available.
-     * 
-     * @return The projectClassLoader value
-     */
-    public ClassLoader getProjectClassLoader()
-    {
-        return projectClassLoader;
     }
 
     /**
@@ -590,9 +576,10 @@ public final class MoeEditor extends JFrame
      * @param title  new window title
      * @param filename  new file name
      */
-    public void changeName(String title, String filename)        // inherited from Editor
+    public void changeName(String title, String filename, String docFilename)
     {
         this.filename = filename;
+        this.docFilename = docFilename;
         // error ## - need to add full path
         windowTitle = title;
         setWindowTitle();
@@ -1682,7 +1669,7 @@ public final class MoeEditor extends JFrame
      * Don't call this directly to switch to the interface view. Call
      * switchToInterfaceView() instead.
      */
-    private void displayInterface()
+    private void displayInterface() // DAV
     {
         info.message(Config.getString("editor.info.loadingDoc"));
         boolean generateDoc = ! docUpToDate();
@@ -1694,6 +1681,9 @@ public final class MoeEditor extends JFrame
             if (! generateDoc) {
                 refreshHtmlDisplay();
             }
+        }
+        else if (! generateDoc) {
+            info.message(Config.getString("editor.info.docLoaded"));
         }
 
         if (generateDoc) {

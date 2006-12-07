@@ -79,10 +79,10 @@ public final class MoeEditorManager
                 EditorWatcher watcher, 
                 boolean compiled,
                 List breakpoints,  // inherited from EditorManager
-                ClassLoader projectClassLoader, Rectangle bounds)
+                Rectangle bounds)
     {
         return openEditor (filename, docFilename, true, windowTitle, watcher, compiled,
-                           breakpoints, projectClassLoader, bounds);
+                           breakpoints, bounds);
     }
 
     // ------------------------------------------------------------------------
@@ -102,7 +102,7 @@ public final class MoeEditorManager
     public Editor openText(String filename, String windowTitle,
                            Rectangle bounds)	// inherited from EditorManager
     {
-        return openEditor (filename, null, false, windowTitle, null, false, null, null, bounds);
+        return openEditor (filename, null, false, windowTitle, null, false, null, bounds);
     }
 
     public void refreshAll()
@@ -175,12 +175,12 @@ public final class MoeEditorManager
     private Editor openEditor(String filename, String docFilename,
     							  boolean isCode, String windowTitle, 
                               EditorWatcher watcher, boolean compiled, 
-                              List breakpoints, ClassLoader projectClassLoader, Rectangle bounds)
+                              List breakpoints, Rectangle bounds)
     {
         MoeEditor editor;
 
         editor = new MoeEditor(windowTitle, isCode, watcher, showToolBar,
-                               showLineNum, resources, projectClassLoader);
+                               showLineNum, resources);
         editors.add(editor);
         if (watcher!=null && filename==null)	// editor for class interface
             return editor;
