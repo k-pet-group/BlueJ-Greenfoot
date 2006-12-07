@@ -8,24 +8,33 @@
 
 package bluej.editor.moe;
 
-import bluej.editor.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
-import javax.swing.text.*;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Caret;
+import javax.swing.text.Element;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
-import javax.swing.undo.UndoManager;
 
 import org.syntax.jedit.tokenmarker.JavaTokenMarker;
 
@@ -33,6 +42,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.editor.EditorWatcher;
+import bluej.editor.LineColumn;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -110,9 +120,7 @@ public final class MoeEditor extends JFrame
     private HTMLDocument htmlDocument;
 
     private MoeActions actions;
-    public UndoManager undoManager;
-    public List undoComponents;             // components bound to "undo"
-    public List redoComponents;             // components bound to "redo"
+    public MoeUndoManager undoManager;
 
     JEditorPane currentTextPane;            // text component currently dislayed
     private JEditorPane sourcePane;         // the component holding the source text
@@ -152,24 +160,7 @@ public final class MoeEditor extends JFrame
      */
     private HashMap propertyMap = new HashMap();
 
-    // =========================== NESTED CLASSES ===========================
-
-    // inner class for listening for undoable edits in text
-
-    /**
-     * Class that listens for edits and plaves them onto the undo stack
-     */
-    private class MoeUndoableEditListener
-        implements UndoableEditListener
-    {
-        public void undoableEditHappened(UndoableEditEvent e)
-        {
-            undoManager.addEdit(e.getEdit());
-            updateUndoControls();
-            updateRedoControls();
-        }
-    }
-
+    
     /**
      * Constructor. Title may be null
      */
@@ -186,9 +177,7 @@ public final class MoeEditor extends JFrame
         currentStepPos = -1;
         mayHaveBreakpoints = false;
         matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
-        undoManager = new UndoManager();
-        undoComponents = new ArrayList(1);
-        redoComponents = new ArrayList(1);
+        undoManager = new MoeUndoManager(this);
 
         initWindow();
     }
@@ -200,11 +189,7 @@ public final class MoeEditor extends JFrame
      */
     public void updateUndoControls()
     {
-        boolean canUndo = undoManager.canUndo();
-        Iterator i = undoComponents.iterator();
-        while (i.hasNext()) {
-            ((JComponent) i.next()).setEnabled(canUndo);
-        }
+        actions.setUndoEnabled(undoManager.canUndo());
     }
 
     /**
@@ -212,13 +197,9 @@ public final class MoeEditor extends JFrame
      */
     public void updateRedoControls()
     {
-        boolean canRedo = undoManager.canRedo();
-        Iterator i = redoComponents.iterator();
-        while (i.hasNext()) {
-            ((JComponent) i.next()).setEnabled(canRedo);
-        }
+        actions.setRedoEnabled(undoManager.canRedo());
     }
-
+    
     /**
      * Load the file "filename" and show the editor window.
      */
@@ -261,7 +242,7 @@ public final class MoeEditor extends JFrame
                 checkSyntaxStatus();
 
                 sourceDocument.addDocumentListener(this);
-                sourceDocument.addUndoableEditListener(new MoeUndoableEditListener());
+                sourceDocument.addUndoableEditListener(undoManager);
                 document = sourceDocument;
                 loaded = true;
             }
@@ -633,7 +614,6 @@ public final class MoeEditor extends JFrame
     {
         if (readOnly) {
             saveState.setState(StatusLabel.READONLY);
-            undoManager.discardAllEdits();
             updateUndoControls();
             updateRedoControls();
         }
@@ -1958,7 +1938,7 @@ public final class MoeEditor extends JFrame
             // JavaTokenMarker for syntax colouring if specified
             checkSyntaxStatus();
             sourceDocument.addDocumentListener(this);
-            sourceDocument.addUndoableEditListener(new MoeUndoableEditListener());
+            sourceDocument.addUndoableEditListener(undoManager);
             
             // We want to inform the watcher that the editor content has changed,
             // and then inform it that we are in "saved" state (synced with file).
@@ -2222,7 +2202,7 @@ public final class MoeEditor extends JFrame
 
         sourceDocument = new MoeSyntaxDocument();
         sourceDocument.addDocumentListener(this);
-        sourceDocument.addUndoableEditListener(new MoeUndoableEditListener());
+        sourceDocument.addUndoableEditListener(undoManager);
 
         // create the text pane
 
@@ -2252,6 +2232,8 @@ public final class MoeEditor extends JFrame
         // get table of edit actions
 
         actions = MoeActions.getActions(sourcePane);
+        actions.setUndoEnabled(false);
+        actions.setRedoEnabled(false);
 
         // **** temporary: disable all unimplemented actions ****
         actions.getActionByName("show-manual").setEnabled(false);
@@ -2340,12 +2322,6 @@ public final class MoeEditor extends JFrame
                 }
                 else {
                     item = menu.add(action);
-                    if (action == actions.undoAction) {
-                        undoComponents.add(item);
-                    }
-                    if (action == actions.redoAction) {
-                        redoComponents.add(item);
-                    }
                     label = Config.getString("editor." + itemKeys[i] + LabelSuffix);
                     if (label != null) {
                         item.setText(label);
@@ -2414,47 +2390,39 @@ public final class MoeEditor extends JFrame
      */
     private AbstractButton createToolbarButton(String key, boolean isToggle)
     {
-        String label = Config.getString("editor." + key + LabelSuffix);
+        final String label = Config.getString("editor." + key + LabelSuffix);
         AbstractButton button;
-
-        if (isToggle)
-            button = new JToggleButton(label);
-        else
-            button = new JButton(label);
-
-        button.setRequestFocusEnabled(false);
-        // never get keyboard focus
-
-        Insets margin = button.getMargin();
-        button.setMargin(new Insets(margin.top, 3, margin.bottom, 3));
-
-        button.setFont(PrefMgr.getStandardFont());
-
+        
         String actionName = getResource(key + ActionSuffix);
         if (actionName == null) {
             actionName = key;
         }
         Action action = actions.getActionByName(actionName);
-        if (action != null) {            // should never be null...
-            if (action == actions.undoAction) {
-                undoComponents.add(button);
-                button.setEnabled(false);
-            }
-            if (action == actions.redoAction) {
-                redoComponents.add(button);
-                button.setEnabled(false);
-            }
-            button.addActionListener(action);
-            button.setActionCommand(actionName);
+        Action tbAction = new ToolbarAction(action, label);
+        
+        if (isToggle) {
+            button = new JToggleButton(tbAction);
         }
         else {
+            button = new JButton(tbAction);
+        }
+        
+        if (action == null) {
             button.setEnabled(false);
             Debug.message("Moe: action not found for button " + label);
         }
-
+        
+        button.setRequestFocusEnabled(false);
+        // never get keyboard focus
+        
+        Insets margin = button.getMargin();
+        button.setMargin(new Insets(margin.top, 3, margin.bottom, 3));
+        
+        button.setFont(PrefMgr.getStandardFont());
+        
         // MacOS property to change button shape
         button.putClientProperty("JButton.buttonType", "toolbar");
-
+        
         return button;
     }
 
@@ -2599,6 +2567,44 @@ public final class MoeEditor extends JFrame
 
         public Component getLastComponent(Container focusCycleRoot) {
             return currentTextPane;
+        }
+    }
+    
+    /**
+     * An abstract action which delegates to a sub-action, and which
+     * mirrors the "enabled" state of the sub-action. This allows having
+     * actions with alternative labels.
+     * 
+     * @author Davin McCall
+     */
+    class ToolbarAction extends AbstractAction implements PropertyChangeListener
+    {
+        private Action subAction;
+        
+        public ToolbarAction(Action subAction, String label)
+        {
+            super(label);
+            this.subAction = subAction;
+            subAction.addPropertyChangeListener(this);
+            setEnabled(subAction.isEnabled());
+        }
+        
+        public void actionPerformed(ActionEvent e)
+        {
+            subAction.actionPerformed(e);
+        }
+        
+        public void propertyChange(PropertyChangeEvent evt)
+        {
+            // If the enabled state of the sub-action changed,
+            // then we should change our own state.
+            if (evt.getPropertyName().equals("enabled")) {
+                Object newVal = evt.getNewValue();
+                if (newVal instanceof Boolean) {
+                    boolean state = ((Boolean) newVal).booleanValue();
+                    setEnabled(state);
+                }
+            }
         }
     }
 }

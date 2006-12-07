@@ -131,6 +131,16 @@ public final class MoeActions
         componentInputMap = textComponent.getInputMap();
     }
 
+    public void setUndoEnabled(boolean enabled)
+    {
+        undoAction.setEnabled(enabled);
+    }
+    
+    public void setRedoEnabled(boolean enabled)
+    {
+        redoAction.setEnabled(enabled);
+    }
+    
     /**
      * Return an action with a given name.
      */
@@ -399,7 +409,7 @@ public final class MoeActions
             return ed;
         }
     }
-
+    
     // === File: ===
     // --------------------------------------------------------------------
 
@@ -548,8 +558,10 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-            getEditor(e);
+            MoeEditor editor = getEditor(e);
+            editor.undoManager.beginCompoundEdit();
             blockAction(getTextComponent(e), new CommentLineAction());
+            editor.undoManager.endCompoundEdit();
         }
     }
 
@@ -565,8 +577,10 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-            getEditor(e);
+            MoeEditor editor = getEditor(e);
+            editor.undoManager.beginCompoundEdit();
             blockAction(getTextComponent(e), new UncommentLineAction());
+            editor.undoManager.endCompoundEdit();
         }
     }
 
@@ -582,8 +596,10 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-            getEditor(e);
+            MoeEditor editor = getEditor(e);
+            editor.undoManager.beginCompoundEdit();
             blockAction(getTextComponent(e), new IndentLineAction());
+            editor.undoManager.endCompoundEdit();
         }
     }
 
@@ -599,8 +615,10 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-            getEditor(e);
+            MoeEditor editor = getEditor(e);
+            editor.undoManager.beginCompoundEdit();
             blockAction(getTextComponent(e), new DeindentLineAction());
+            editor.undoManager.endCompoundEdit();
         }
     }
 
@@ -616,8 +634,10 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-            getEditor(e);
+            MoeEditor editor = getEditor(e);
+            editor.undoManager.beginCompoundEdit();
             insertTemplate(getTextComponent(e), "method");
+            editor.undoManager.endCompoundEdit();
         }
     }
 
