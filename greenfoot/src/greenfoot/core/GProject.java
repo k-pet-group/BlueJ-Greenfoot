@@ -1,5 +1,8 @@
 package greenfoot.core;
 
+import greenfoot.gui.inspector.UpdatingClassInspector;
+import greenfoot.gui.inspector.UpdatingObjectInspector;
+
 import java.awt.EventQueue;
 import java.io.File;
 import java.rmi.RemoteException;
@@ -212,7 +215,7 @@ public class GProject extends RProjectListenerImpl
         ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
         
         if (inspector == null) {
-            inspector = new ObjectInspector(obj, this, name, pkg, ir, parent);
+            inspector = new UpdatingObjectInspector(obj, this, name, pkg, ir, parent);
             inspectors.put(obj, inspector);
         }
         
@@ -220,6 +223,7 @@ public class GProject extends RProjectListenerImpl
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 insp.update();
+                insp.updateLayout();
                 insp.setVisible(true);
                 insp.bringToFront();
             }
@@ -261,6 +265,7 @@ public class GProject extends RProjectListenerImpl
 
         final ResultInspector insp = inspector;
         insp.update();
+        insp.updateLayout();
         EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     insp.setVisible(true);
@@ -294,7 +299,7 @@ public class GProject extends RProjectListenerImpl
 
         if (inspector == null) {
             ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
-            inspector = new ClassInspector(clss, this, pkg, ir, parent);
+            inspector = new UpdatingClassInspector(clss, this, pkg, ir, parent);
             inspectors.put(clss.getName(), inspector);
         }
 
@@ -302,6 +307,7 @@ public class GProject extends RProjectListenerImpl
         EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     insp.update();
+                    insp.updateLayout();
                     insp.setVisible(true);
                     insp.bringToFront();
                 }
