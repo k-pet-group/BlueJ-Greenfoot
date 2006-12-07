@@ -53,7 +53,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4726 2006-11-30 00:10:40Z davmac $
+ * @version $Id: Project.java 4755 2006-12-07 17:18:27Z polle $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -477,6 +477,7 @@ public class Project implements DebuggerListener, InspectorManager
         EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     insp.update();
+                    insp.updateLayout();
                     insp.setVisible(true);
                     insp.bringToFront();
                 }
@@ -577,6 +578,7 @@ public class Project implements DebuggerListener, InspectorManager
         EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     insp.update();
+                    insp.updateLayout();
                     insp.setVisible(true);
                     insp.bringToFront();
                 }
@@ -612,6 +614,7 @@ public class Project implements DebuggerListener, InspectorManager
         inspectors.put(obj, inspector);
 
         inspector.update();
+        inspector.updateLayout();
         EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     inspector.setVisible(true);

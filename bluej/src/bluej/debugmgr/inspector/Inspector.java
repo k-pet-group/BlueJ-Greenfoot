@@ -31,7 +31,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: Inspector.java 4755 2006-12-07 17:18:27Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -220,7 +220,6 @@ public abstract class Inspector extends JFrame
      * Requests an update of the field values shown in this viewer to show current object
      * values.
      * 
-     * Will be executed in the event dispatch thread. 
      */
     public void update()
     {
@@ -233,20 +232,7 @@ public abstract class Inspector extends JFrame
         if (fieldList.getSelectedRow() == -1 && listData.length > 0) {
             fieldList.setRowSelectionInterval(0, 0);
         }
-        
-        double height = fieldList.getPreferredSize().getHeight();
-        int rows = listData.length;
-        if (rows > getPreferredRows()) {
-            height = fieldList.getRowHeight() * getPreferredRows();
-        }
-        
-        int width = (int) fieldList.getPreferredSize().getWidth();
-        if (width < LIST_WIDTH)
-            width = LIST_WIDTH;
-        
-        fieldList.setPreferredScrollableViewportSize(new Dimension(width, (int) height));
-        pack();
-        
+                
         // if (assertPanel != null) {
         //    assertPanel.updateWithResultData((String) listData[0]);
         // }
@@ -259,6 +245,29 @@ public abstract class Inspector extends JFrame
             listElementSelected(slot);
         }
         
+        repaint();
+    }
+
+    /**
+     * Call this method when you want the inspector to resize to its preferred
+     * size as calculated from the elements in the inspector.
+     * 
+     */
+    public void updateLayout()
+    {
+        final Object[] listData = getListData();
+        double height = fieldList.getPreferredSize().getHeight();
+        int rows = listData.length;
+        if (rows > getPreferredRows()) {
+            height = fieldList.getRowHeight() * getPreferredRows();
+        }
+        
+        int width = (int) fieldList.getPreferredSize().getWidth();
+        if (width < LIST_WIDTH)
+            width = LIST_WIDTH;
+        
+        fieldList.setPreferredScrollableViewportSize(new Dimension(width, (int) height));
+        pack();
         repaint();
     }
 
