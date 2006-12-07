@@ -13,8 +13,10 @@ import bluej.BlueJPropStringSource;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
+ * The RMI client that establishes the initial connection to the BlueJ RMI server
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIClient.java 4281 2006-05-16 16:46:42Z polle $
+ * @version $Id: BlueJRMIClient.java 4751 2006-12-07 15:48:11Z polle $
  */
 public class BlueJRMIClient implements BlueJPropStringSource
 {
@@ -24,12 +26,12 @@ public class BlueJRMIClient implements BlueJPropStringSource
 
     private RPackage pkg;
 
-    public BlueJRMIClient(String prjDir, String pkgName)
+    public BlueJRMIClient(String prjDir, String pkgName, String rmiServiceName)
     {
         instance = this;
 
         try {
-        	blueJ = (RBlueJ) Naming.lookup(BlueJRMIServer.BLUEJ_SERVICE);
+        	blueJ = (RBlueJ) Naming.lookup(rmiServiceName);
         }
         catch (MalformedURLException e) {
             e.printStackTrace();
@@ -62,7 +64,6 @@ public class BlueJRMIClient implements BlueJPropStringSource
                 e.printStackTrace();
             }
         }
-
     }
 
     public static BlueJRMIClient instance()
@@ -71,13 +72,17 @@ public class BlueJRMIClient implements BlueJPropStringSource
     }
 
     /**
-     * @return
+     * Returns the remote BlueJ instance.
      */
     public RBlueJ getBlueJ()
     {
         return blueJ;
     }
 
+    
+    /**
+     * Returns the remote BlueJ package.
+     */
     public RPackage getPackage()
     {
         return pkg;

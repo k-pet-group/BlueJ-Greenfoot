@@ -22,7 +22,7 @@ import bluej.utility.Debug;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4350 2006-06-12 03:56:19Z davmac $
+ * @version $Id: ProjectManager.java 4751 2006-12-07 15:48:11Z polle $
  */
 public class ProjectManager
     implements PackageListener
@@ -74,22 +74,25 @@ public class ProjectManager
      * project.
      */
     private void launchProject(final Project project)
-    {   
+    {
         if (!ProjectManager.instance().isProjectOpen(project)) {
             File projectDir = new File(project.getDir());
             boolean versionOK = checkVersion(projectDir);
             if (versionOK) {
-               	try {
-					ObjectBench.createObject(project, launchClass, launcherName, new String[]{
-						project.getDir(), project.getName()});
-				} catch (Exception e) {
-					Debug.reportError("Could not create greenfoot launcher.", e);
-					//This is bad, lets exit.
-					System.exit(1);
-				}				
+                try {
+                    ObjectBench.createObject(project, launchClass, launcherName, new String[]{project.getDir(),
+                            project.getName(), BlueJRMIServer.getBlueJService()});
+                }
+                catch (Exception e) {
+                    Debug.reportError("Could not create greenfoot launcher.", e);
+                    e.printStackTrace();
+                    // This is bad, lets exit.
+                    System.exit(1);
+                }
             }
             else {
-                //If this was the only open project, open the startup project instead.
+                // If this was the only open project, open the startup project
+                // instead.
                 if (bluej.getOpenProjects().length == 1) {
                     ((PkgMgrFrame) bluej.getCurrentFrame()).doClose(true);
                     File startupProject = new File(bluej.getSystemLibDir(), "startupProject");

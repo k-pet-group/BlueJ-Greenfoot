@@ -23,9 +23,9 @@ import bluej.Config;
  */
 public class GreenfootLauncherDebugVM
 {
-    public GreenfootLauncherDebugVM(String prjDir, String pkgName)
+    public GreenfootLauncherDebugVM(String prjDir, String pkgName, String rmiServiceName)
     {
-        BlueJRMIClient client = new BlueJRMIClient(prjDir, pkgName);
+        BlueJRMIClient client = new BlueJRMIClient(prjDir, pkgName, rmiServiceName);
         
         RBlueJ blueJ = client.getBlueJ();
         try {

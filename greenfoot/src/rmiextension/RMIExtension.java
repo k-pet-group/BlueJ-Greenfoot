@@ -3,9 +3,9 @@ package rmiextension;
 import greenfoot.core.GreenfootLauncherBlueJVM;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.rmi.RemoteException;
 
 import bluej.Config;
 import bluej.extensions.BProject;
@@ -20,7 +20,7 @@ import bluej.utility.Debug;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 4319 2006-05-23 20:48:04Z polle $
+ * @version $Id: RMIExtension.java 4751 2006-12-07 15:48:11Z polle $
  */
 public class RMIExtension extends Extension
 {
@@ -39,7 +39,7 @@ public class RMIExtension extends Extension
         try {
             new BlueJRMIServer(theBlueJ);
         }
-        catch (RemoteException e) {
+        catch (IOException e) {
             Debug.reportError("Could not launch RMI server", e);
             // This is bad, lets exit.
             System.exit(1);
@@ -65,7 +65,7 @@ public class RMIExtension extends Extension
             }
         }
     }
-    
+
     /**
      * Opens a project in BlueJ
      * 
@@ -78,7 +78,7 @@ public class RMIExtension extends Extension
             Debug.reportError("Could not open project: " + projectPath);
         }
     }
-    
+
     /**
      * Creates a new project in BlueJ
      * 
@@ -92,7 +92,7 @@ public class RMIExtension extends Extension
             Debug.reportError("Could not open project: " + projectPath);
         }
         ProjectManager.instance().removeNewProject(projectPath);
-        
+
     }
 
     /**
