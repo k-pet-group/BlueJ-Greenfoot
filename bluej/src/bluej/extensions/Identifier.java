@@ -21,12 +21,15 @@ package bluej.extensions;
  *
  * Author: Damiano Bolla 2003,2004
  */
-import bluej.pkgmgr.*;
+import java.awt.EventQueue;
+import java.io.File;
+
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.target.*;
-import bluej.utility.*;
-import bluej.views.*;
-import java.io.*;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
+import bluej.views.View;
 
 /**
  *  Description of the Class
@@ -138,25 +141,15 @@ class Identifier
     {
         Package thisPkg = getBluejPackage();
 
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame(thisPkg);
-        // If we already have a frame for this package, return it
-        if (pmf != null)
-            return pmf;
+        // Get a frame for the package.
+        final PkgMgrFrame pmf = PkgMgrFrame.createFrame(thisPkg);
 
-        PkgMgrFrame recentFrame = PkgMgrFrame.getMostRecent();
-        if (recentFrame != null && recentFrame.isEmptyFrame()) {
-            // If, by chance, the current fram is an empty one, use it !
-            recentFrame.openPackage(thisPkg);
-            return recentFrame;
-        }
-
-        // No empty fram I can use, I need to create a new one
-        pmf = PkgMgrFrame.createFrame(thisPkg);
-        // Yes, recent frame may teoretically be null.
-        if (recentFrame != null)
-            DialogManager.tileWindow(pmf, recentFrame);
-
-        pmf.setVisible(true);
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                pmf.setVisible(true);
+            }
+        });
         return pmf;
     }
 
