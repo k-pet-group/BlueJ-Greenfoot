@@ -17,8 +17,6 @@ import bluej.Config;
 import org.syntax.jedit.*;
 import org.syntax.jedit.tokenmarker.*;
 
-// For configuration file reading.
-import java.util.Properties;
 
 /**
  * A simple implementation of <code>SyntaxDocument</code> that 
@@ -76,7 +74,7 @@ public class MoeSyntaxDocument extends SyntaxDocument
     
     /**
      * Allows user-defined colours to be set for synax highlighting. The file
-     * containing the colour values is should be 'lib/moe.defs'. If this file is
+     * containing the colour values is 'lib/moe.defs'. If this file is
      * not found, or not all colours are defined, the BlueJ default colours are
      * used.
      * 
@@ -86,93 +84,42 @@ public class MoeSyntaxDocument extends SyntaxDocument
     private static Color[] getUserColors()
     { 
         if(colors == null) {
-            	Properties editorProps = Config.moe_user_props;
-            	
             	// Build colour table.	   
             	colors = new Color[Token.ID_COUNT];
             	
             	// Replace with user-defined colours.
-            	String colorStr;
             	int    colorInt;
             	
             	// Comments.
-            	colorStr = editorProps.getProperty("comment","1a1a80");
-            	try    {
-            		colorInt = Integer.parseInt(colorStr,16);
-            	}
-            	catch (NumberFormatException e)    {
-            		colorInt = 0x1a1a80;
-            	}
+                colorInt = getPropHexInt("comment", 0x1a1a80);
             	colors[Token.COMMENT1] = new Color(colorInt);    
             	
             	// Javadoc comments.
-            	colorStr = editorProps.getProperty("javadoc","1a1a80");
-            	try {
-            		colorInt = Integer.parseInt(colorStr,16);
-            	}
-            	catch (NumberFormatException e)    {
-            		colorInt = 0x1a1a80;
-            	}
+                colorInt = getPropHexInt("javadoc", 0x1a1a80);
             	colors[Token.COMMENT2] = new Color(colorInt);
             	
             	// Stand-out comments (/*#).
-            	colorStr = editorProps.getProperty("stand-out","ee00bb");
-            	try {
-            		colorInt = Integer.parseInt(colorStr,16);
-            	}
-            	catch (NumberFormatException e)    {
-            		colorInt = 0xee00bb;
-            	}
+                colorInt = getPropHexInt("stand-out", 0xee00bb);
             	colors[Token.COMMENT3] = new Color(colorInt);
             	
-            	// Java keywords.    
-            	colorStr = editorProps.getProperty("keyword1","660033");
-            	try    {
-            		colorInt = Integer.parseInt(colorStr,16);
-            	}
-            	catch (NumberFormatException e) {
-            		colorInt = 0x660033;
-            	}
+            	// Java keywords.
+                colorInt = getPropHexInt("keyword1", 0x660033);
             	colors[Token.KEYWORD1] = new Color(colorInt);
             	
             	// Class-based keywords.
-            	colorStr = editorProps.getProperty("keyword2","cc8033");
-            	try    {
-            		colorInt = Integer.parseInt(colorStr,16);
-            	}
-            	catch (NumberFormatException e)    {
-            		colorInt = 0xcc8033;
-            	}
+                colorInt = getPropHexInt("keyword2", 0xcc8033);
             	colors[Token.KEYWORD2] = new Color(colorInt);
             	
             	// Other Java keywords (true, false, this, super).
-            	colorStr = editorProps.getProperty("keyword3","006699");
-            	try    {
-            		colorInt = Integer.parseInt(colorStr,16);
-            	}
-            	catch (NumberFormatException e)    {
-            		colorInt = 0x006699;
-            	}
+                colorInt = getPropHexInt("keyword3", 0x006699);
             	colors[Token.KEYWORD3] = new Color(colorInt);
             	
             	// Primitives.
-            	colorStr = editorProps.getProperty("primitive","cc0000");
-            	try    {
-            		colorInt = Integer.parseInt(colorStr,16);
-            	}
-            	catch (NumberFormatException e)    {
-            		colorInt = 0xcc0000;
-            	}
+                colorInt = getPropHexInt("primitive", 0xcc0000);
             	colors[Token.PRIMITIVE] = new Color(colorInt);
             	
             	// String literals.
-            	colorStr = editorProps.getProperty("string","339933");
-            	try    {
-            		colorInt = Integer.parseInt(colorStr,16);
-            	}
-            	catch (NumberFormatException e)    {
-            		colorInt = 0x339933;
-            	}
+                colorInt = getPropHexInt("string", 0x339933);
             	colors[Token.LITERAL1] = new Color(colorInt);
             	
             	// Leave remaining tokens as default.
@@ -181,5 +128,23 @@ public class MoeSyntaxDocument extends SyntaxDocument
             	colors[Token.INVALID]  = new Color(0xff3300);
         }
         return colors;
+    }
+    
+    /**
+     * Get an integer value from a property whose value is hex-encoded.
+     * @param propName  The name of the property
+     * @param def       The default value if the property is undefined or
+     *                  not parseable as a hexadecimal
+     * @return  The value
+     */
+    private static int getPropHexInt(String propName, int def)
+    {
+        String strVal = Config.getPropString(propName, null, Config.moe_user_props);
+        try {
+            return Integer.parseInt(strVal, 16);
+        }
+        catch (NumberFormatException nfe) {
+            return def;
+        }
     }
 }

@@ -1669,7 +1669,7 @@ public final class MoeEditor extends JFrame
      * Don't call this directly to switch to the interface view. Call
      * switchToInterfaceView() instead.
      */
-    private void displayInterface() // DAV
+    private void displayInterface()
     {
         info.message(Config.getString("editor.info.loadingDoc"));
         boolean generateDoc = ! docUpToDate();
@@ -2157,7 +2157,7 @@ public final class MoeEditor extends JFrame
      */
     private String getResource(String name)
     {
-        return resources.getProperty(name);
+        return Config.getPropString(name, null, resources);
     }
 
     // --------------------------------------------------------------------
