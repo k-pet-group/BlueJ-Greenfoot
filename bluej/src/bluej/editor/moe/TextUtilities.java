@@ -14,7 +14,7 @@ import javax.swing.text.*;
 /**
  * Class with several utility functions used by the text area component.
  * @author Slava Pestov
- * @version $Id: TextUtilities.java 1287 2002-07-16 00:10:11Z bquig $
+ * @version $Id: TextUtilities.java 4757 2006-12-08 04:41:48Z davmac $
  */
 public class TextUtilities
 {
@@ -30,96 +30,84 @@ public class TextUtilities
 	public static int findMatchingBracket(Document doc, int offset)
 		throws BadLocationException
 	{
-		if(doc.getLength() == 0)
+		if(doc.getLength() == 0) {
 			return -1;
+        }
+        
 		char c = doc.getText(offset, 1).charAt(0);
 		char cprime; // c` - corresponding character
 		boolean direction; // true = back, false = forward
 
 		switch(c)
 		{
-		case '(': cprime = ')'; direction = false; break;
-		case ')': cprime = '('; direction = true; break;
-		case '[': cprime = ']'; direction = false; break;
-		case ']': cprime = '['; direction = true; break;
-		case '{': cprime = '}'; direction = false; break;
-		case '}': cprime = '{'; direction = true; break;
-		default: return -1;
+		    case '(': cprime = ')'; direction = false; break;
+		    case ')': cprime = '('; direction = true; break;
+		    case '[': cprime = ']'; direction = false; break;
+		    case ']': cprime = '['; direction = true; break;
+		    case '{': cprime = '}'; direction = false; break;
+		    case '}': cprime = '{'; direction = true; break;
+		    default: return -1;
 		}
+        
+		int count = 1;
+        int step;
+        int texttOffset;
+        int len;
+        int i;
+        if (direction) {
+            // search backwards
+            step = -1;
+            texttOffset = 0;
+            len = offset;
+            i = len - 1;
+        }
+        else {
+            // search forwards
+            step = 1;
+            texttOffset = offset + 1;
+            len = doc.getLength() - texttOffset;
+            i = 0;
+        }
+        String textt = doc.getText(texttOffset, len);
 
-		int count;
+        while (len > 0) {
+            char x = textt.charAt(i);
+            if(x == c) {
+                count++;
+            }
 
-		// How to merge these two cases is left as an exercise
-		// for the reader.
-
-		// Go back or forward
-		if(direction)
-		{
-			// Count is 1 initially because we have already
-			// `found' one closing bracket
-			count = 1;
-
-			// Get text[0,offset-1];
-			String text = doc.getText(0,offset);
-
-			// Scan backwards
-			for(int i = offset - 1; i >= 0; i--)
-			{
-				// If text[i] == c, we have found another
-				// closing bracket, therefore we will need
-				// two opening brackets to complete the
-				// match.
-				char x = text.charAt(i);
-				if(x == c)
-					count++;
-
-				// If text[i] == cprime, we have found a
-				// opening bracket, so we return i if
-				// --count == 0
-				else if(x == cprime)
-				{
-					if(--count == 0)
-						return i;
-				}
-			}
-		}
-		else
-		{
-			// Count is 1 initially because we have already
-			// `found' one opening bracket
-			count = 1;
-
-			// So we don't have to + 1 in every loop
-			offset++;
-
-			// Number of characters to check
-			int len = doc.getLength() - offset;
-
-			// Get text[offset+1,len];
-			String text = doc.getText(offset,len);
-
-			// Scan forwards
-			for(int i = 0; i < len; i++)
-			{
-				// If text[i] == c, we have found another
-				// opening bracket, therefore we will need
-				// two closing brackets to complete the
-				// match.
-				char x = text.charAt(i);
-
-				if(x == c)
-					count++;
-
-				// If text[i] == cprime, we have found an
-				// closing bracket, so we return i if
-				// --count == 0
-				else if(x == cprime)
-				{
-					if(--count == 0)
-						return i + offset;
-				}
-			}
-		}
+            // If text[i] == cprime, we have found a
+            // opening bracket, so we return i if
+            // --count == 0
+            else if(x == cprime)
+            {
+                if (--count == 0) {
+                    return i + texttOffset;
+                }
+            }
+            
+            len--;
+            i += step;
+            
+            if (x == '\"' || x == '\'') {
+                char quoteChar = x;
+                // A quoted string, need to find the matching quote before matching
+                // further brackets...
+                while (len > 0) {
+                    x = textt.charAt(i);
+                    if (x == quoteChar) {
+                        // Found the matching quote, as long as it is not \-quoted.
+                        if (i == 0 || textt.charAt(i - 1) != '\\') {
+                            len--;
+                            i += step;
+                            break;
+                        }
+                    }
+                    len--;
+                    i += step;
+                }
+            }
+        }
 
 		// Nothing found
 		return -1;
