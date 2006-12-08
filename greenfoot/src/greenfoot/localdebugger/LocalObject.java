@@ -16,17 +16,21 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
+import bluej.debugger.jdi.JdiUtils;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 
+import com.sun.jdi.ClassType;
 import com.sun.jdi.ObjectReference;
+import com.sun.jdi.StringReference;
+import com.sun.jdi.Value;
 
 /**
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 4740 2006-12-05 16:34:14Z polle $
+ * @version $Id: LocalObject.java 4758 2006-12-08 16:56:23Z polle $
  */
 public class LocalObject extends DebuggerObject
 {
@@ -400,10 +404,14 @@ public class LocalObject extends DebuggerObject
         Object v = null;
         try {
             v = f.get(object);
-            // Reference types are handled specially
+
+            // Reference types are handled specially            
             if (! f.getType().isPrimitive()) {
                 if (v == null)
                     v = Config.getString("debugger.null");
+                else if (v instanceof String) {
+                    return "\"" + v + "\"";
+                }
                 else
                     v = OBJECT_REFERENCE;
             }
