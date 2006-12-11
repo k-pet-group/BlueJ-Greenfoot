@@ -147,6 +147,7 @@ public class GClass implements CompileListener
 
     public void remove() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
     {
+        GreenfootMain.getInstance().removeCompileListener(this);
         rmiClass.remove();
     }
     
