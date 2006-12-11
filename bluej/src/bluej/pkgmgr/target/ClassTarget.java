@@ -60,7 +60,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 4746 2006-12-07 02:26:53Z davmac $
+ * @version $Id: ClassTarget.java 4761 2006-12-11 04:39:56Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1217,10 +1217,9 @@ public class ClassTarget extends DependentTarget
      * @param x  the x coordinate for the menu, relative to graph editor
      * @param y  the y coordinate for the menu, relative to graph editor
      */
-    public void popupMenu(int x, int y)
+    public void popupMenu(int x, int y, GraphEditor graphEditor)
     {
         Class cl = null;
-        GraphEditor editor = getPackage().getEditor();
 
         if (state == S_NORMAL) {
             // handle error causes when loading 1.4 compiled classes
@@ -1238,22 +1237,22 @@ public class ClassTarget extends DependentTarget
             }
         }
 
-        if (menu != null) {
-            editor.remove(menu);
-        }
+        //if (menu != null) {
+        //    editor.remove(menu);
+        //}
 
         // check that the class loading hasn't changed out state
         if (state == S_NORMAL) {
             menu = createMenu(cl);
-            editor.add(menu);
+            // editor.add(menu);
         }
         else {
             menu = createMenu(null);
-            editor.add(menu);
+            // editor.add(menu);
         }
 
         if (menu != null) {
-            menu.show(editor, x, y);
+            menu.show(graphEditor, x, y);
         }
     }
 

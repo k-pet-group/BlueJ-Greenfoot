@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4723 2006-11-29 01:32:45Z davmac $
+ * @version $Id: Package.java 4761 2006-12-11 04:39:56Z davmac $
  */
 public final class Package extends Graph
 {
@@ -160,7 +160,7 @@ public final class Package extends Graph
     /** the state a package can be in (one of the S_* values) */
     private int state = S_IDLE;
 
-    protected PackageEditor editor;
+    private PackageEditor editor;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -424,6 +424,11 @@ public final class Package extends Graph
         }
     }
 
+    void setEditor(PackageEditor editor)
+    {
+        this.editor = editor;
+    }
+    
     public PackageEditor getEditor()
     {
         return editor;
@@ -798,7 +803,7 @@ public final class Package extends Graph
             }
         }
 
-        repaint();
+        graphChanged();
     }
     
     /**
@@ -1350,7 +1355,6 @@ public final class Package extends Graph
             throw new IllegalArgumentException();
 
         targets.add(t.getIdentifierName(), t);
-        repaint();
         graphChanged();
     }
 

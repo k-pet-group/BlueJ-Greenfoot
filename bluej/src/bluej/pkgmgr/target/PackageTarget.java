@@ -1,24 +1,30 @@
 package bluej.pkgmgr.target;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Properties;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import bluej.Config;
+import bluej.graph.GraphEditor;
 import bluej.graph.Moveable;
-import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.*;
+import bluej.utility.FileUtility;
 
 /**
  * A sub package (or parent package)
  * 
  * @author Michael Cahill
- * @version $Id: PackageTarget.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: PackageTarget.java 4761 2006-12-11 04:39:56Z davmac $
  */
 public class PackageTarget extends Target
     implements Moveable
@@ -113,11 +119,12 @@ public class PackageTarget extends Target
     /**
      * Disply the context menu.
      */
-    public void popupMenu(int x, int y)
+    public void popupMenu(int x, int y, GraphEditor graphEditor)
     {
         JPopupMenu menu = createMenu();
-        if (menu != null)
-            menu.show(getPackage().getEditor(), x, y);
+        if (menu != null) {
+            menu.show(graphEditor, x, y);
+        }
     }
 
     /**

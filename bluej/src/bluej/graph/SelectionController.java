@@ -185,7 +185,7 @@ public class SelectionController
     {
         if (isButtonOne(evt)) {
             if (marquee.isActive()) {
-                Rectangle oldRect = (Rectangle) marquee.getRectangle();                
+                Rectangle oldRect = marquee.getRectangle();                
                 marquee.move(evt.getX(), evt.getY());
                 Rectangle newRect = (Rectangle) marquee.getRectangle().clone();  
                 if(oldRect != null) {
@@ -504,7 +504,7 @@ public class SelectionController
      */
     private void postMenu(SelectableGraphElement element, int x, int y)
     {
-        element.popupMenu(x, y);
+        element.popupMenu(x, y, graphEditor);
     }
 
 

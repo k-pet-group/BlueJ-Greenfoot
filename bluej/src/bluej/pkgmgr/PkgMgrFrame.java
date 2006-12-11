@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: PkgMgrFrame.java 4761 2006-12-11 04:39:56Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -510,8 +510,9 @@ public class PkgMgrFrame extends JFrame
      */
     public void openPackage(Package pkg)
     {
-        if (pkg == null)
+        if (pkg == null) {
             throw new NullPointerException();
+        }
 
         // if we are already editing a package, close it and
         // open the new one
@@ -527,7 +528,7 @@ public class PkgMgrFrame extends JFrame
             editor.addMouseListener(this); // This mouse listener MUST be before
             editor.addFocusListener(this); //  the editor's listener itself!
             editor.startMouseListening();
-            this.pkg.editor = this.editor;
+            pkg.setEditor(this.editor);
             
             classScroller.setViewportView(editor);
             editor.addPackageEditorListener(this);
@@ -1929,7 +1930,7 @@ public class PkgMgrFrame extends JFrame
     {
         pkg.setState(Package.S_CHOOSE_EXT_FROM);
         setStatus(Config.getString("pkgmgr.chooseInhFrom"));
-        pkg.getEditor().clearSelection();
+        editor.clearSelection();
     }
 
     /**

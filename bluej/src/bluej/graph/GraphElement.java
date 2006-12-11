@@ -30,5 +30,5 @@ public abstract class GraphElement {
     /**
      * Post the context menu for this target.
      */
-    abstract public void popupMenu(int x, int y);
+    abstract public void popupMenu(int x, int y, GraphEditor graphEditor);
 }

@@ -20,7 +20,7 @@ import bluej.utility.Debug;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Dependency.java 2991 2004-09-06 08:29:16Z polle $
+ * @version $Id: Dependency.java 4761 2006-12-11 04:39:56Z davmac $
  */
 public abstract class Dependency extends Edge
 {
@@ -58,9 +58,7 @@ public abstract class Dependency extends Edge
 
     public void repaint()
     {
-        if (pkg.getEditor() != null) {
-            pkg.getEditor().repaint();
-        }
+        pkg.repaint();
     }
 
     public DependentTarget getFrom()
@@ -94,13 +92,11 @@ public abstract class Dependency extends Edge
     /**
      * Disply the context menu.
      */
-    public void popupMenu(int x, int y)
+    public void popupMenu(int x, int y, GraphEditor graphEditor)
     {
         JPopupMenu menu = new JPopupMenu();
         menu.add(new RemoveAction());
-        GraphEditor editor = pkg.getEditor();
-        editor.add(menu);
-        menu.show(editor, x, y);
+        menu.show(graphEditor, x, y);
     }
 
     private class RemoveAction extends AbstractAction

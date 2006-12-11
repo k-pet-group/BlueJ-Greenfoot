@@ -7,7 +7,6 @@ import javax.swing.*;
 
 import bluej.Config;
 import bluej.graph.GraphEditor;
-import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.JavaNames;
@@ -16,7 +15,7 @@ import bluej.utility.JavaNames;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ParentPackageTarget.java 2789 2004-07-12 18:08:11Z mik $
+ * @version $Id: ParentPackageTarget.java 4761 2006-12-11 04:39:56Z davmac $
  */
 public class ParentPackageTarget extends PackageTarget
 {
@@ -85,11 +84,12 @@ public class ParentPackageTarget extends PackageTarget
     /**
      * Disply the context menu.
      */
-    public void popupMenu(int x, int y)
+    public void popupMenu(int x, int y, GraphEditor graphEditor)
     {
         JPopupMenu menu = createMenu(null);
-        if (menu != null)
-            menu.show(getPackage().getEditor(), x, y);
+        if (menu != null) {
+            menu.show(graphEditor, x, y);
+        }
     }
 
     /**
