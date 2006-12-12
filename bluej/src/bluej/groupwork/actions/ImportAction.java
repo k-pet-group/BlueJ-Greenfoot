@@ -20,31 +20,30 @@ import bluej.pkgmgr.Project;
  * An action to perform an import into a repository, i.e. to share a project.
  * 
  * @author Kasper
- * @version $Id: ImportAction.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: ImportAction.java 4766 2006-12-12 03:45:57Z bquig $
  */
 public class ImportAction extends TeamAction 
 {
 	public ImportAction()
     {
-		super("team.import");
-	}
+        super("team.import");
+    }
 	
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
-	public void actionPerformed(PkgMgrFrame pmf)
+    /* (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    public void actionPerformed(PkgMgrFrame pmf)
     {
-	    Project project = pmf.getProject();
+        Project project = pmf.getProject();
 	    
-	    if (project == null)
-        {
-	        return;
-	    }
-	    
-	    doImport(pmf, project);
+        if (project == null) {
+            return;
 	}
+	    
+	doImport(pmf, project);
+    }
 
-	private void doImport(final PkgMgrFrame pmf, final Project project)
+    private void doImport(final PkgMgrFrame pmf, final Project project)
     {
         // The team settings controller is not initially associated with the
         // project, so you can still modify the repository location
@@ -60,43 +59,42 @@ public class ImportAction extends TeamAction
         startProgressBar(); 
         
         Thread thread = new Thread(){
-			public void run(){
-				boolean resetStatus = true;
-                try {
-					BasicServerResponse basicServerResponse = repository.shareProject();
-                    if (basicServerResponse != null && ! basicServerResponse.isError()) {
-                        project.setTeamSettingsController(tsc);
-                        Set files = tsc.getProjectFiles(true);
-                        Set newFiles = new HashSet(files);
-                        basicServerResponse = repository.commitAll(newFiles, Collections.EMPTY_SET, files, "");
-                    }
-                    
-                    stopProgressBar();
-                    handleServerResponse(basicServerResponse);
-                    if (! basicServerResponse.isError()) {
-                        setStatus(Config.getString("team.shared"));
-                        resetStatus = false;
-                    }
-				}
-                catch (CommandAbortedException e) {
-                    stopProgressBar();
-				}
-                catch (CommandException e) {
-                    stopProgressBar();
-					e.printStackTrace();
-				}
-                catch (AuthenticationException e) {
-				    handleAuthenticationException(e);
-				}
-                catch (InvalidCvsRootException e) {
-				    handleInvalidCvsRootException(e);
-				}
-                
-                if (resetStatus) {
-                    clearStatus();
+            public void run(){
+            boolean resetStatus = true;
+            try {
+                BasicServerResponse basicServerResponse = repository.shareProject();
+                 if (basicServerResponse != null && ! basicServerResponse.isError()) {
+                    project.setTeamSettingsController(tsc);
+                    Set files = tsc.getProjectFiles(true);
+                    Set newFiles = new HashSet(files);
+                    basicServerResponse = repository.commitAll(newFiles, Collections.EMPTY_SET, files, Config.getString("team.import.initialMessage"));
                 }
-			}
-		};
-		thread.start();
-	}
+                    
+                stopProgressBar();
+                handleServerResponse(basicServerResponse);
+                if(! basicServerResponse.isError()) {
+                    setStatus(Config.getString("team.shared"));
+                    resetStatus = false;
+                }
+            }
+            catch (CommandAbortedException e) {
+                stopProgressBar();
+            }
+            catch (CommandException e) {
+                stopProgressBar();
+                e.printStackTrace();
+            }
+            catch (AuthenticationException e) {
+                handleAuthenticationException(e);
+            }
+            catch (InvalidCvsRootException e) {
+                handleInvalidCvsRootException(e);
+            }
+                
+            if (resetStatus) {
+                clearStatus();
+            }
+	}};
+	thread.start();
+    }
 }

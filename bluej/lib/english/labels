@@ -640,6 +640,8 @@ team.checkedout=Checking out project... Done.
 team.checkout.filechooser.title=Choose a checkout location
 team.checkout.filechooser.button=Checkout
 
+team.import.initialMessage=Initial sharing of project
+
 team.sharing=Sharing project...
 team.shared=Sharing project... Done.
 
