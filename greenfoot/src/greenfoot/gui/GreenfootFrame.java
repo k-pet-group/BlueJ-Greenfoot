@@ -37,7 +37,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4677 2006-10-30 11:58:12Z polle $
+ * @version $Id: GreenfootFrame.java 4763 2006-12-12 01:32:12Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -591,12 +591,25 @@ public class GreenfootFrame extends JFrame
 
     public void compileSucceeded(RCompileEvent event)
     {
-        instantiateNewWorld(classBrowser);
-        classBrowser.repaint();
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                instantiateNewWorld(classBrowser);
+                classBrowser.repaint();
+                CompileAllAction.getInstance().setEnabled(true);
+            }
+        });
     }
 
     public void compileFailed(RCompileEvent event)
-    {}
+    {
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                CompileAllAction.getInstance().setEnabled(true);
+            }
+        });
+    }
 
     
     // ----------- end of WindowListener interface -----------

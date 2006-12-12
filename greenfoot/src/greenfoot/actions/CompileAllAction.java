@@ -11,7 +11,7 @@ import javax.swing.AbstractAction;
  * Action that compiles all classes that needs compilation.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileAllAction.java 4159 2006-05-09 13:33:31Z mik $
+ * @version $Id: CompileAllAction.java 4763 2006-12-12 01:32:12Z davmac $
  */
 public class CompileAllAction extends AbstractAction
 {
@@ -40,5 +40,9 @@ public class CompileAllAction extends AbstractAction
     {
         Simulation.getInstance().setPaused(true);
         GreenfootMain.getInstance().compileAll();
+        
+        // Disable the action until the compilation is finished, when it
+        // will be re-enabled.
+        setEnabled(false);
     }
 }

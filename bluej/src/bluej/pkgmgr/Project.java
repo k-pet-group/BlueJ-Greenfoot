@@ -53,7 +53,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4755 2006-12-07 17:18:27Z polle $
+ * @version $Id: Project.java 4763 2006-12-12 01:32:12Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -1192,11 +1192,13 @@ public class Project implements DebuggerListener, InspectorManager
      * the objects from all object benches of this project).
      * Should be run whenever a source file changes
      */
-    public void removeClassLoader() {
-
+    public void removeClassLoader()
+    {
         // There is nothing to do if the current classloader is null.
-        if (currentClassLoader == null) return;
-    
+        if (currentClassLoader == null) {
+            return;
+        }
+        
         // remove bench objects for all frames in this project
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
 
@@ -1212,13 +1214,15 @@ public class Project implements DebuggerListener, InspectorManager
         // remove views for classes loaded by this classloader
         View.removeAll(currentClassLoader);
 
-        // dispose windows for local classes. Should not run user code
-        // on the event queue, so run it in a seperate thread.
-        new Thread() {
+        if (! Config.isGreenfoot()) {
+            // dispose windows for local classes. Should not run user code
+            // on the event queue, so run it in a seperate thread.
+            new Thread() {
                 public void run() {
                     getDebugger().disposeWindows();
                 }
             }.start();
+        }
 
         currentClassLoader = null;
     }
