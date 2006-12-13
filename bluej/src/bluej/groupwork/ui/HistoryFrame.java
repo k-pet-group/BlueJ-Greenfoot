@@ -15,9 +15,15 @@ import org.netbeans.lib.cvsclient.connection.AuthenticationException;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.groupwork.*;
+import bluej.groupwork.HistoryInfo;
+import bluej.groupwork.InvalidCvsRootException;
+import bluej.groupwork.LogServerResponse;
+import bluej.groupwork.Repository;
+import bluej.groupwork.TeamUtils;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.utility.DBox;
+import bluej.utility.DBoxLayout;
 import bluej.utility.SwingWorker;
 
 /**
@@ -25,7 +31,7 @@ import bluej.utility.SwingWorker;
  * and commit comments.
  * 
  * @author Davin McCall
- * @version $Id: HistoryFrame.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: HistoryFrame.java 4768 2006-12-13 02:51:24Z davmac $
  */
 public class HistoryFrame extends JFrame
 {
@@ -62,7 +68,8 @@ public class HistoryFrame extends JFrame
     {
         // Content pane
         JPanel contentPane = new JPanel();
-        BoxLayout layout = new BoxLayout(contentPane, BoxLayout.Y_AXIS);
+        DBoxLayout layout = new DBoxLayout(DBoxLayout.Y_AXIS, 0,
+                BlueJTheme.generalSpacingWidth);
         contentPane.setLayout(layout); 
         contentPane.setBorder(BlueJTheme.dialogBorder);
         setContentPane(contentPane);
@@ -90,15 +97,16 @@ public class HistoryFrame extends JFrame
         listModel.setListData(Collections.EMPTY_LIST);
         historyList.setPreferredSize(size);
         
-        contentPane.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+        // contentPane.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
         
         // File and user filter boxes
-        Box filterBox = new Box(BoxLayout.X_AXIS);
+        DBox filterBox = new DBox(DBox.X_AXIS, 0, BlueJTheme.componentSpacingLarge, 0.5f);
+        filterBox.setAxisBounded(DBox.Y_AXIS, true);
         filterBox.add(new JLabel(Config.getString("team.history.filefilter") + " "));
         fileFilterCombo = new JComboBox();
         fileFilterCombo.setEnabled(false);
         filterBox.add(fileFilterCombo);
-        filterBox.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingLarge));
+        // filterBox.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingLarge));
         filterBox.add(new JLabel(Config.getString("team.history.userfilter") + " "));
         userFilterCombo = new JComboBox();
         userFilterCombo.setEnabled(false);
@@ -118,7 +126,7 @@ public class HistoryFrame extends JFrame
             };
         };
         
-        contentPane.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
+        contentPane.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical - BlueJTheme.generalSpacingWidth));
         
         // Activity indicator and close button
         Box buttonBox = new Box(BoxLayout.X_AXIS);
@@ -309,7 +317,6 @@ public class HistoryFrame extends JFrame
                     
                     Collections.sort(modelList, new DateCompare());
                     renderer.setWrapMode(historyPane);
-                    historyList.setPreferredSize(null);
                     listModel.setListData(modelList);
                     historyInfoList = modelList;
                     
