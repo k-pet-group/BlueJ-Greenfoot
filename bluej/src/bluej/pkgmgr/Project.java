@@ -53,7 +53,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4763 2006-12-12 01:32:12Z davmac $
+ * @version $Id: Project.java 4769 2006-12-13 03:04:05Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -448,6 +448,24 @@ public class Project implements DebuggerListener, InspectorManager
     }
 
     /**
+     * Update an inspector, make sure it's visible, and bring it to
+     * the front.
+     * 
+     * @param inspector  The inspector to update and show
+     */
+    private void updateInspector(final Inspector inspector)
+    {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                inspector.update();
+                inspector.updateLayout();
+                inspector.setVisible(true);
+                inspector.bringToFront();
+            }
+        });
+    }
+    
+    /**
      * Return an ObjectInspector for an object.
      *
      * @param obj
@@ -473,19 +491,11 @@ public class Project implements DebuggerListener, InspectorManager
             inspectors.put(obj, inspector);
         }
 
-        final ObjectInspector insp = inspector;
-        EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    insp.update();
-                    insp.updateLayout();
-                    insp.setVisible(true);
-                    insp.bringToFront();
-                }
-            });
+        updateInspector(inspector);
 
         return inspector;
     }
-
+    
     /**
      * Get the inspector for the given object. Object can be a DebuggerObject, or a
      * fully-qualified class name.
@@ -519,7 +529,7 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Removes an inspector instance from the collection of inspectors
      * for this project. It firstly retrieves the inspector object and
-     * then calls it's doClose method to
+     * then calls its doClose method.
      * @param obj
      */
     public void removeInspectorInstance(Object obj) 
@@ -574,15 +584,7 @@ public class Project implements DebuggerListener, InspectorManager
             inspectors.put(clss.getName(), inspector);
         }
 
-        final Inspector insp = inspector;
-        EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    insp.update();
-                    insp.updateLayout();
-                    insp.setVisible(true);
-                    insp.bringToFront();
-                }
-            });
+        updateInspector(inspector);
 
         return inspector;
     }
@@ -613,14 +615,7 @@ public class Project implements DebuggerListener, InspectorManager
                     parent);
         inspectors.put(obj, inspector);
 
-        inspector.update();
-        inspector.updateLayout();
-        EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    inspector.setVisible(true);
-                    inspector.bringToFront();
-                }
-            });
+        updateInspector(inspector);
 
         return inspector;
     }
