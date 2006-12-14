@@ -9,7 +9,7 @@ import bluej.debugger.gentype.GenTypeClass;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 3463 2005-07-13 01:55:27Z davmac $
+ *@version    $Id: DebuggerObject.java 4770 2006-12-14 00:57:49Z davmac $
  */
 public abstract class DebuggerObject
 {
@@ -180,11 +180,22 @@ public abstract class DebuggerObject
     public abstract List getStaticFields(boolean includeModifiers);
 
     /**
-     *  Return a list of strings with the description of each instance field
-     *  in the format "<modifier> <type> <name> = <value>" or
-     *  "<type> <name> = <value>", depending on the parameter.
+     * Return a list of strings with the description of each instance field
+     * in the format "&lt;modifier&gt; &lt;type&gt; &lt;name&gt; [(hidden)] =
+     * &lt;value&gt;" or "&lt;type&gt; &lt;name&gt; = &lt;value&gt;", depending
+     * on the parameter.<p>
      *
-     *@param  includeModifiers  Description of Parameter
+     * "&lt;modifier&gt;" if present is "public", "private", or "protected".
+     * Modifiers such as "final"/"volatile" are not included.<p>
+     * 
+     * "&lt;type&gt;" is the simple name of the type (i.e. it is not fully
+     * qualified).<p>
+     *
+     * "(hidden)" means that the field is declared in a superclass of the
+     * object class and shadowed by a field with the same name declared in
+     * a descendant class.
+     *
+     *@param  includeModifiers  Whether to include the access modifier
      *@return                   The InstanceFields value
      */
     public abstract List getInstanceFields(boolean includeModifiers);
