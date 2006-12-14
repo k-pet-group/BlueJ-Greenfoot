@@ -3,34 +3,25 @@ package greenfoot.localdebugger;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
-import bluej.debugger.jdi.JdiUtils;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 
-import com.sun.jdi.ClassType;
 import com.sun.jdi.ObjectReference;
-import com.sun.jdi.StringReference;
-import com.sun.jdi.Value;
 
 /**
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 4758 2006-12-08 16:56:23Z polle $
+ * @version $Id: LocalObject.java 4771 2006-12-14 01:25:20Z davmac $
  */
 public class LocalObject extends DebuggerObject
 {
@@ -158,10 +149,13 @@ public class LocalObject extends DebuggerObject
      */
     private boolean isRaw()
     {
-        if ((! JavaUtils.getJavaUtils().getTypeParams(object.getClass()).isEmpty()) && genericParams == null)
+        if ((! JavaUtils.getJavaUtils().getTypeParams(object.getClass()).isEmpty())
+                && genericParams == null) {
             return true;
-        else
+        }
+        else {
             return false;
+        }
     }
 
     /* (non-Javadoc)
@@ -182,12 +176,14 @@ public class LocalObject extends DebuggerObject
 
     /**
      * Convenience method to get all fields, instance and static, public
-     * and private.
+     * and private. Fields are returned in order - first those declared in this
+     * class, then the superclass, and so on.
      */
     private Field [] getAllFields()
     {
-        if (object == null)
+        if (object == null) {
             return noFields;
+        }
         
         ArrayList allFields = new ArrayList();
         Class c = object.getClass();
@@ -412,8 +408,9 @@ public class LocalObject extends DebuggerObject
                 else if (v instanceof String) {
                     return "\"" + v + "\"";
                 }
-                else
+                else {
                     v = OBJECT_REFERENCE;
+                }
             }
         }
         catch (IllegalAccessException iae) {}
@@ -426,15 +423,8 @@ public class LocalObject extends DebuggerObject
     public String getFieldValueTypeString(int slot)
     {
         Field f = getAllFields()[slot];
-        JavaUtils.getJavaUtils().getFieldType(f);
-        Class c = f.getType();
-        
-        String tname = "";
-        while (c.isArray()) {
-            tname += "[]";
-            c = c.getComponentType();
-        }
-        return c.getName() + tname;
+        JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(f);
+        return fieldType.toString();
     }
 
     /* (non-Javadoc)
@@ -463,32 +453,60 @@ public class LocalObject extends DebuggerObject
     public List getInstanceFields(boolean includeModifiers)
     {
         List r = new ArrayList();
+        Set fieldNames = new HashSet();
         
         Field [] fields = getAllFields();
         for (int i = 0; i < fields.length; i++) {
             // skip non-instance fields
             int mods = fields[i].getModifiers();
-            if ((mods & Modifier.STATIC) != 0)
+            if ((mods & Modifier.STATIC) != 0) {
                 continue;
+            }
             
             String desc = "";
             if (includeModifiers) {
-                desc = Modifier.toString(mods) + " ";
+                if (Modifier.isPublic(mods)) {
+                    desc = "public ";
+                }
+                else if (Modifier.isProtected(mods)) {
+                    desc = "protected ";
+                }
+                else if (Modifier.isPrivate(mods)) {
+                    desc = "private ";
+                }
             }
             
-            desc += fields[i].getName() + " = ";
+            JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(fields[i]);
+            GenTypeClass fieldClassType = fieldType.asClass();
+            if (fieldClassType != null) {
+                GenTypeClass fieldDeclType = getGenType().mapToSuper(fields[i].getDeclaringClass().getName());
+                fieldType = fieldType.mapTparsToTypes(fieldDeclType.getMap());
+            }
+            desc += fieldType.toString(true) + " ";
+            desc += fields[i].getName();
+            
+            // the field declaration may be hidden by a declaration in a
+            // derived class
+            if (! fieldNames.add(fields[i].getName())) {
+                desc += " (hidden)";
+            }
+            
+            desc += " = ";
             try {
                 if (fields[i].getType().isPrimitive()) {
                     desc += fields[i].get(object);
                 }
                 else {
                     Object fieldval = fields[i].get(object);
-                    if (fieldval instanceof String)
+                    if (fieldval instanceof String) {
                         desc += '\"' + fieldval.toString() + '\"';
-                    else if (fieldval == null)
+                    }
+                    else if (fieldval == null) {
                         desc += Config.getString("debugger.null");
-                    else
+                    }
+                    else {
                         desc += OBJECT_REFERENCE;
+                    }
                 }
             }
             catch (IllegalAccessException iae) {
