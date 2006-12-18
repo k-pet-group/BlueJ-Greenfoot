@@ -1,6 +1,7 @@
 package bluej;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.Properties;
 
 /**
@@ -105,6 +106,7 @@ public class PropParser
         
         String varName = varNameBuf.toString();
         if (varName.equals("filePath")) {
+            // File path function - concatenates directory names/paths to yield a path
             String arg = processStringArg(iter, subvars, depth);
             if (arg != null) {
                 File f = new File(arg);
@@ -115,6 +117,19 @@ public class PropParser
                     }
                 } while (arg != null);
                 outBuffer.append(f.getAbsolutePath());
+            }
+        }
+        else if (varName.equals("fileUrl")) {
+            // File url function - takes a file path as an argument, and converts it
+            // into a URL.
+            String arg = processStringArg(iter, subvars, depth);
+            if (arg != null) {
+                File f = new File(arg);
+                try {
+                    String fileUrl = f.toURI().toURL().toString();
+                    outBuffer.append(fileUrl);
+                }
+                catch (MalformedURLException mfue) {}
             }
         }
         else {
