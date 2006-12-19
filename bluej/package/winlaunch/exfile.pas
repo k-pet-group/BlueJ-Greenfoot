@@ -415,8 +415,9 @@ end;
 
 Function TExFile.StartProcess(StartType : TStartType) : boolean;
 var
-  vProcFileName: array[0..512] of char;
+  vProcFileName: array of char;
   vIdle : DWORD;
+  commandString : String;
 begin
   result := false;
   ListMaint;
@@ -432,7 +433,10 @@ begin
     exit;
 
 {Start the process}
-  StrPCopy(vProcFileName, FProcFileNamelc + ' ' + FFParams);
+
+  commandString := FProcFileName  + ' ' + FFParams;
+  SetLength(vProcFileName, (Length(commandString) + 1));
+  StrPCopy(Addr(vProcFileName[0]), commandString);
   FillChar(Startupinfo, SizeOf(TstartupInfo), #0);
   with StartupInfo do
     begin
@@ -441,7 +445,7 @@ begin
       wShowWindow := cWindowType[FWindowType];
     end;
   result := CreateProcess(nil,
-                          VProcFileName,
+                          Addr(VProcFileName[0]),
                           nil,
                           nil,
                           False,
