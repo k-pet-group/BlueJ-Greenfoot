@@ -2,6 +2,8 @@ package bluej.pkgmgr;
 
 import java.awt.EventQueue;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -226,36 +228,95 @@ public class DocuGenerator
         public void run()
         {
             // Process docuRun;
+            PrintWriter logWriter = null;
+            int exitValue = -1;
             try {
-//                 Debug.message(docuCall);
-                OutputStream logStream = new FileOutputStream(logFile);
-//                 Writer logWriter = new OutputStreamWriter(logStream);
-                final PrintWriter logWriter = new PrintWriter(logStream,true);
-                
-                String[] docuCall2 = new String[docuCall.length-1];
-                logWriter.println(logHeader);
-                logWriter.println("<---- javadoc command: ---->");
-
-                int i;
-                for(i=0; i < docuCall.length; i++) {
-                    logWriter.println(docuCall[i]);
-                    if(i != 0)
-                        docuCall2[i-1] = docuCall[i];
-                }
-                
-                logWriter.println("<---- end of javadoc command ---->");
-                logWriter.flush();
-                
-                final int exitValue;
-                // Call Javadoc
-                // We synchronize because Javadoc can run into problems if several instances are running at the same time.
                 synchronized (mutex) {
-                    exitValue = com.sun.tools.javadoc.Main.execute("javadoc", logWriter, logWriter,
-                            logWriter, "com.sun.tools.doclets.standard.Standard", docuCall2);
+                    // We synchronize because Javadoc can run into problems if several
+                    // instances are running at the same time. Also, this prevents the
+                    // logfile from being written by two threads at once.
+                    OutputStream logStream = new FileOutputStream(logFile);
+                    logWriter = new PrintWriter(logStream,true);
+                    
+                    String[] docuCall2 = new String[docuCall.length-1];
+                    logWriter.println(logHeader);
+                    logWriter.println("<---- javadoc command: ---->");
+                    
+                    int i;
+                    for(i=0; i < docuCall.length; i++) {
+                        logWriter.println(docuCall[i]);
+                        if(i != 0)
+                            docuCall2[i-1] = docuCall[i];
+                    }
+                    
+                    logWriter.println("<---- end of javadoc command ---->");
+                    logWriter.flush();
+                    
+                    // Call Javadoc
+                    Method executeMethod = null;
+                    try {
+                        Class javadocClass = Class.forName("com.sun.tools.javadoc.Main");
+                        executeMethod = javadocClass.getMethod("execute",
+                                new Class [] {String.class, PrintWriter.class, PrintWriter.class,
+                                PrintWriter.class, String.class, String[].class});
+                    }
+                    catch (ClassNotFoundException cnfe) {
+                        cnfe.printStackTrace();
+                    }
+                    catch (NoSuchMethodException nsme) {
+                        nsme.printStackTrace();
+                    }
+                    
+                    // First try and execute javadoc in the same VM via reflection:
+                    if (executeMethod != null) {
+                        try {
+                            Integer result = (Integer) executeMethod.invoke(null,
+                                    new Object [] {"javadoc", logWriter, logWriter,
+                                    logWriter, "com.sun.tools.doclets.standard.Standard",
+                                    docuCall2});
+                            exitValue = result.intValue();
+                        }
+                        catch (IllegalAccessException iae) {
+                            // Try as an external process instead
+                            executeMethod = null;
+                        }
+                        catch (InvocationTargetException ite) {
+                            exitValue = -1;
+                            ite.printStackTrace(logWriter);
+                        }
+                    }
+                    
+                    // If javadoc doesn't seem to be available via reflection,
+                    // execute it as an external process
+                    if (executeMethod == null) {
+                        Process docuRun = Runtime.getRuntime().exec(docuCall);
+                        
+                        // because we don't know what comes first we have to start
+                        // two threads that consume both the standard and the error
+                        // output of the external process. The output is appended to
+                        // the log file.
+                        EchoThread outEcho = new EchoThread(docuRun.getInputStream(),
+                                                            logStream);
+                        EchoThread errEcho = new EchoThread(docuRun.getErrorStream(),
+                                                            logStream);
+                        outEcho.start();
+                        errEcho.start();
+                        try {
+                            docuRun.waitFor();
+                            outEcho.join();
+                            errEcho.join();
+                            exitValue = docuRun.exitValue();
+                        }
+                        catch (InterruptedException ie) {
+                            logWriter.println("Interrupted while waiting for javadoc process to complete.");
+                        }
+                    }
                 }
+                
+                final int finalExitValue = exitValue;
                 EventQueue.invokeLater(new Runnable() {
                     public void run() {
-                        if (exitValue == 0) {
+                        if (finalExitValue == 0) {
                             BlueJEvent.raiseEvent(BlueJEvent.DOCU_GENERATED, null);
                             if (!showFile.exists()) {
                                 Debug.message("showfile does not exist - searching");
@@ -263,7 +324,7 @@ public class DocuGenerator
                                         showFile.getName());
                             }
                             if(openBrowser) {
-                                logWriter.println("try to open: " + showFile.getPath());
+                                // logWriter.println("try to open: " + showFile.getPath());
                                 Utility.openWebBrowser(showFile.getPath());
                             }
                         }
@@ -283,9 +344,40 @@ public class DocuGenerator
                     }
                 });
             }
+            finally {
+                logWriter.close();
+            }
         }
     }
 
+    /**
+     * A thread which reads from an InputStream and echoes everything read
+     * to an OutputStream. 
+     */
+    private static class EchoThread extends Thread
+    {
+        private InputStream   readStream;
+        private OutputStream outStream;
+        private byte[] lastBuf;
+        
+        public EchoThread(InputStream r,OutputStream out) {
+            readStream = r;
+            outStream = out;
+        }
+        
+        public void run() {
+            try {
+                byte[] buf = new byte[1024];
+                int n;
+                while((n = readStream.read(buf)) != -1) {
+                    outStream.write(buf, 0, n);
+                }
+            }
+            catch(IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     /* ------------------- end of static part ------------------- */
     /* ---------------------------------------------------------- */
@@ -318,8 +410,9 @@ public class DocuGenerator
     {
         // test whether the documentation directory is accessible.
         String docDirStatus = testDocDir();
-        if (docDirStatus != "")
+        if (docDirStatus != "") {
             return docDirStatus;
+        }
 
         File startPage = new File(docDir, "index.html");
         File logFile = new File(docDir, "logfile.txt");
@@ -335,24 +428,17 @@ public class DocuGenerator
             }
         }
 
-
         // tool-specific infos for javadoc
         // get the parameter that enables javadoc to link the generated
         // documentation to the API documentation
         String linkParam = getLinkParam();
-
-        // stick it all together
-//          String javadocCall = docCommand + sourceParam + destinationParam
-//                            + titleParams + linkParam + " " + fixedJavadocParams
-//                            + targets;
 
         ArrayList call = new ArrayList();
         call.add(docCommand);
         call.add("-sourcepath");
         call.add(projectDirPath);
         call.add("-classpath");
-        File junitFile = new File(Config.getBlueJLibDir(), "junit.jar");
-        call.add(junitFile.getAbsolutePath());
+        call.add(project.getClassLoader().getClassPathAsString());
         call.add("-d");
         call.add(docDirPath);
         String majorVersion = System.getProperty("java.specification.version");        
@@ -374,8 +460,9 @@ public class DocuGenerator
             // pass only names of packages that really contain java files.
             Package pack = project.getPackage(packageName);
             if (FileUtility.containsFile(pack.getPath(),".java")) {
-                if(packageName.length() > 0)
+                if(packageName.length() > 0) {
                     call.add(packageName);
+                }
             }
         }
 
