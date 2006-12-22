@@ -16,7 +16,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: TeamSettingsController.java 4779 2006-12-22 04:06:21Z bquig $
  */
 public class TeamSettingsController
 {
@@ -24,6 +24,7 @@ public class TeamSettingsController
     private File projectDir;
     private Properties teamProperties;
     private TeamSettingsDialog teamSettingsDialog;
+    private boolean includeLayout;
     
     //general
     //private String user;
@@ -336,5 +337,20 @@ public class TeamSettingsController
     public boolean hasProject()
     {
         return project != null;
+    }
+    
+    public Project getProject()
+    {
+        return project;
+    }
+    
+    public boolean includeLayout()
+    {
+        return includeLayout;
+    }
+    
+    public void setIncludeLayout(boolean state)
+    {
+        includeLayout = state;
     }
 }
