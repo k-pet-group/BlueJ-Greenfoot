@@ -1,6 +1,8 @@
 package bluej.groupwork.actions;
 
+import java.awt.event.ActionEvent;
 import java.util.Set;
+import javax.swing.AbstractAction;
 
 import org.netbeans.lib.cvsclient.command.CommandAbortedException;
 import org.netbeans.lib.cvsclient.command.CommandException;
@@ -8,9 +10,12 @@ import org.netbeans.lib.cvsclient.connection.AuthenticationException;
 
 import bluej.groupwork.BasicServerResponse;
 import bluej.groupwork.InvalidCvsRootException;
-import bluej.pkgmgr.PkgMgrFrame;
+import bluej.groupwork.ui.CommitCommentsFrame;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.Config;
+import bluej.groupwork.TeamUtils;
+import java.awt.EventQueue;
 
 
 /**
@@ -18,17 +23,20 @@ import bluej.Config;
  * committing and have the commit comments.
  * 
  * @author Kasper
- * @version $Id: CommitAction.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: CommitAction.java 4780 2006-12-22 04:14:21Z bquig $
  */
-public class CommitAction extends TeamAction
+public class CommitAction extends AbstractAction
 {
     private Set newFiles; // which files are new files
     private Set deletedFiles; // which files are to be removed
     private Set files; // files to commit (includes both of above)
+    private Set modifiedLayouts;
+    private CommitCommentsFrame commitCommentsFrame;
     
-    public CommitAction()
+    public CommitAction(CommitCommentsFrame frame)
     {
-        super("team.commit");
+        super(Config.getString("team.commit"));
+        commitCommentsFrame = frame; 
     }
     
     /**
@@ -59,22 +67,32 @@ public class CommitAction extends TeamAction
         this.files = files;
     }
     
-
-    /* (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+    /**
+     * accessor for combined list of new, deleted and modified files
      */
-    public void actionPerformed(PkgMgrFrame pmf)
+    public Set getFiles()
     {
-        Project project = pmf.getProject();
+        return files;
+    }
+    
+    /**
+     * 
+     */
+    public void actionPerformed(ActionEvent event) 
+    {
+        Project project = commitCommentsFrame.getProject();
         
         if (project != null) {
             project.saveAllEditors();
-            project.getCommitCommentsDialog(pmf).setVisible(false);
-            doCommit(project, pmf);
+            //project.getCommitCommentsDialog().setVisible(false);
+            setEnabled(false);
+            doCommit(project);
+            
         }
+        
     }
 
-    private void doCommit(final Project project, final PkgMgrFrame pmf)
+    private void doCommit(final Project project)
     {
         Thread thread = new Thread() {
                 public void run()
@@ -82,7 +100,14 @@ public class CommitAction extends TeamAction
                     BasicServerResponse basicServerResponse = null;
 
                     try {
-                        String comment = project.getCommitCommentsDialog(pmf).getComment();
+                        String comment = commitCommentsFrame.getComment();
+                        
+                        //last step before committing is to add in modified diagram 
+                        //layouts if selected in commit comments dialog
+                        if(commitCommentsFrame.includeLayout()) {
+                            files.addAll(commitCommentsFrame.getChangedLayoutFiles());
+                        }
+                        
                         // Note, getRepository() cannot return null here - otherwise
                         // the commit dialog was cancelled (and we'd never get here)
                         basicServerResponse = project.getRepository().commitAll(newFiles, deletedFiles, files, comment);
@@ -91,22 +116,33 @@ public class CommitAction extends TeamAction
                     } catch (CommandException e) {
                         e.printStackTrace();
                     } catch (AuthenticationException e) {
-                        handleAuthenticationException(e);
+                        TeamUtils.handleAuthenticationException(commitCommentsFrame);
                     } catch (InvalidCvsRootException e) {
-                        handleInvalidCvsRootException(e);
+                        TeamUtils.handleInvalidCvsRootException(commitCommentsFrame);
                     }
 
-                    stopProgressBar();
+                    commitCommentsFrame.stopProgress();
                     if (basicServerResponse != null && ! basicServerResponse.isError()) {
-                        setStatus(Config.getString("team.commit.statusDone"));
+                        EventQueue.invokeLater(new Runnable() {
+                            public void run() {
+                                PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusDone"));
+                            }
+                        });
                     }
                   
-                    handleServerResponse(basicServerResponse);
+                    TeamUtils.handleServerResponse(basicServerResponse, commitCommentsFrame);
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            setEnabled(true);
+                            commitCommentsFrame.setVisible(false);
+                        }
+                    });
                 }
             };
 
+        commitCommentsFrame.startProgress();
         thread.start();
-        startProgressBar();
-        setStatus(Config.getString("team.commit.statusMessage"));
+        PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusMessage"));
     }
+
 }

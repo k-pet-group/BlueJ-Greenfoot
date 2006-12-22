@@ -3,6 +3,7 @@ package bluej.groupwork.actions;
 import bluej.Config;
 import bluej.groupwork.ui.StatusFrame;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 
 
 /**
@@ -23,13 +24,14 @@ public class StatusAction extends TeamAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         // save all bluej.pkg files first
-        pmf.getProject().saveAllGraphLayout();
+        Project project = pmf.getProject();
+        project.saveAllGraphLayout();
         doStatus(pmf);
     }
 
-    private void doStatus(final PkgMgrFrame pmf)
+    private void doStatus(PkgMgrFrame pmf)
     {
-        StatusFrame status = StatusFrame.getStatusWindow(pmf);
+        StatusFrame status = pmf.getProject().getStatusWindow(pmf);
         status.setVisible(true);
         status.update();
     }

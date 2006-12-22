@@ -1,17 +1,14 @@
 package bluej.groupwork.actions;
 
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
-import javax.swing.JOptionPane;
 
 import org.netbeans.lib.cvsclient.connection.AuthenticationException;
 
 import bluej.Config;
 import bluej.groupwork.BasicServerResponse;
-import bluej.groupwork.CvsServerMessageTranslator;
 import bluej.groupwork.InvalidCvsRootException;
 import bluej.groupwork.TeamUtils;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -22,7 +19,7 @@ import bluej.pkgmgr.actions.PkgMgrAction;
  * An abstract class for team actions. 
  * 
  * @author fisker
- * @version $Id: TeamAction.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: TeamAction.java 4780 2006-12-22 04:14:21Z bquig $
  */
 public abstract class TeamAction extends AbstractAction
 {

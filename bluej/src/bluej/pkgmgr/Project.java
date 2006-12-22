@@ -1,5 +1,6 @@
 package bluej.pkgmgr;
 
+import bluej.groupwork.ui.StatusFrame;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.net.URL;
 import java.util.*;
 
 import javax.swing.JFrame;
+import java.awt.Window;
 
 import bluej.BlueJEvent;
 import bluej.Boot;
@@ -53,7 +55,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4769 2006-12-13 03:04:05Z davmac $
+ * @version $Id: Project.java 4780 2006-12-22 04:14:21Z bquig $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -116,6 +118,7 @@ public class Project implements DebuggerListener, InspectorManager
     private TeamSettingsController teamSettingsController = null;
     
     private CommitCommentsFrame commitCommentsFrame = null;
+    private StatusFrame statusFrame = null;
         
     private boolean isSharedProject;
 
@@ -1711,14 +1714,14 @@ public class Project implements DebuggerListener, InspectorManager
         return getTeamSettingsController().getTeamSettingsDialog();
     }
     
-    public CommitCommentsFrame getCommitCommentsDialog(PkgMgrFrame pmf)
+    public CommitCommentsFrame getCommitCommentsDialog()
     {
         // if the commit comments dialog is null or has been associated with a different
         // PkgMgrFrame we need to recreate with appropriate parent. this method is used
         // by CommitCommentAction for centreing and by CommitAction for gaining 
         // commit comment etc.
-        if(commitCommentsFrame == null || (!commitCommentsFrame.getParent().equals(pmf))) {
-            commitCommentsFrame = new CommitCommentsFrame(pmf);
+        if(commitCommentsFrame == null) {
+            commitCommentsFrame = new CommitCommentsFrame(this);
         }
         return commitCommentsFrame;
     }
@@ -1740,6 +1743,35 @@ public class Project implements DebuggerListener, InspectorManager
     }
     
     /**
+     * Find the package name of the package containing the given file.
+     * Might return null if the file isn't in the package. 
+     */
+    public String getPackageForFile(File f)
+    {
+        File projdir = getProjectDir();
+        
+        // First find out the package name...
+        String packageName = "";
+        File parentDir = f.getParentFile();
+        while (! parentDir.equals(projdir)) {
+            if (packageName.equals("")) {
+                packageName = parentDir.getName();
+            }
+            else {
+                packageName = parentDir.getName() + "." + packageName;
+            }
+            parentDir = parentDir.getParentFile();
+            if (parentDir == null) {
+                // file not in project?
+                return null;
+            }
+        }
+        
+        return packageName;
+    }
+    
+    
+    /**
      * Set the team settings controller for this project. This makes the
      * project a shared project (unless the controller is null).
      */
@@ -1751,5 +1783,17 @@ public class Project implements DebuggerListener, InspectorManager
             tsc.writeToProject();
         }
         setProjectShared (tsc != null);
+    }
+
+    /**
+     * return the associated status window
+     */
+    public StatusFrame getStatusWindow(Window parent)
+    {
+        if(statusFrame == null) {
+            statusFrame = new StatusFrame(this);
+        }
+        statusFrame.setLocationRelativeTo(parent);
+        return statusFrame;
     }
 }

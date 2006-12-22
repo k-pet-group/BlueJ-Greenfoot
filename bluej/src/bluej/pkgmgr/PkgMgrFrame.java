@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 4761 2006-12-11 04:39:56Z davmac $
+ * @version $Id: PkgMgrFrame.java 4780 2006-12-22 04:14:21Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2182,10 +2182,10 @@ public class PkgMgrFrame extends JFrame
         return showExtendsMenuItem.isSelected();
     }
     
-    public boolean includeLayout()
-    {
-        return includeLayoutMenuItem.isSelected();
-    }
+   // public boolean includeLayout()
+   // {
+   //     return includeLayoutMenuItem.isSelected();
+   // }
 
     /**
      * Show or hide the testing tools.

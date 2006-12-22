@@ -1,8 +1,8 @@
 package bluej.groupwork.ui;
 
+import bluej.utility.DBoxLayout;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -17,6 +17,7 @@ import javax.swing.*;
 
 import org.netbeans.lib.cvsclient.command.CommandAbortedException;
 import org.netbeans.lib.cvsclient.command.CommandException;
+import org.netbeans.lib.cvsclient.command.status.StatusInformation;
 import org.netbeans.lib.cvsclient.connection.AuthenticationException;
 
 import bluej.BlueJTheme;
@@ -27,7 +28,9 @@ import bluej.groupwork.StatusFilter;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.actions.CommitAction;
-import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
+import bluej.utility.DBox;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.SwingWorker;
 import bluej.utility.EscapeDialog;
@@ -45,18 +48,24 @@ public class CommitCommentsFrame extends EscapeDialog
     private JPanel bottomPanel;
     private JTextArea commitText;
     private JButton commitButton;
+    private JCheckBox includeLayout;
     private ActivityIndicator progressBar;
     private CommitAction commitAction;
 
-    private PkgMgrFrame parent;
+    private Project project;
     
     private Repository repository;
     private DefaultListModel commitListModel;
+    
+    private boolean layoutChanged;
+    private Set changedLayoutFiles;
+    
+    private static String noFilesToCommit = Config.getString("team.nocommitfiles"); 
 
-    public CommitCommentsFrame(PkgMgrFrame pmf)
+    public CommitCommentsFrame(Project proj)
     {
-        super(pmf);
-        parent = pmf;
+        project = proj;
+        changedLayoutFiles = new HashSet();
         createUI();
         DialogManager.centreDialog(this);
     }
@@ -69,11 +78,16 @@ public class CommitCommentsFrame extends EscapeDialog
             // until we know there is something to commit
             commitAction.setEnabled(false);
             commitText.setEnabled(false);
-            repository = parent.getProject().getRepository();
+            includeLayout.setSelected(false);
+            includeLayout.setEnabled(false);
+            changedLayoutFiles.clear();
+            commitListModel.removeAllElements();
+            
+            repository = project.getRepository();
             
             if (repository != null) {
-                parent.getProject().saveAllEditors();
-                parent.getProject().saveAllGraphLayout();
+                project.saveAllEditors();
+                project.saveAllGraphLayout();
                 startProgress();
                 new CommitWorker().start();
             }
@@ -119,7 +133,7 @@ public class CommitCommentsFrame extends EscapeDialog
             topPanel.add(commitFilesLabel, BorderLayout.NORTH);
 
             commitFiles = new JList(commitListModel);
-            commitFiles.setCellRenderer(new CommitFileRenderer());
+            commitFiles.setCellRenderer(new CommitFileRenderer(project));
             commitFiles.setEnabled(false);
             commitFileScrollPane.setViewportView(commitFiles);
             
@@ -150,7 +164,7 @@ public class CommitCommentsFrame extends EscapeDialog
             commitTextScrollPane.setMinimumSize(size);
             bottomPanel.add(commitTextScrollPane, BorderLayout.CENTER);
 
-            commitAction = new CommitAction();
+            commitAction = new CommitAction(this);
             commitButton = BlueJTheme.getOkButton();
             commitButton.setAction(commitAction);
             getRootPane().setDefaultButton(commitButton);
@@ -162,17 +176,45 @@ public class CommitCommentsFrame extends EscapeDialog
                         setVisible(false);
                     }
                 });
-
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+           
+            DBox buttonPanel = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
             buttonPanel.setBorder(BlueJTheme.generalBorder);
             
             progressBar = new ActivityIndicator();
             progressBar.setRunning(false);
+            
+            DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
+            // TODO add label
+            includeLayout = new JCheckBox("Commit Diagram Layout");
+            includeLayout.setEnabled(false);
+            includeLayout.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    JCheckBox layoutCheck = (JCheckBox)e.getSource();
+                    Debug.message(e.paramString());
+                    if(layoutCheck.isSelected()) {
+                        if(!commitButton.isEnabled())
+                            addModifiedLayouts();
+                            commitAction.setEnabled(true);
+                    }
+                    // unselected
+                    else {
+                        Set files = commitAction.getFiles();
+                        if(files.size() < 1)
+                            removeModifiedLayouts();
+                            commitAction.setEnabled(false);
+                        }
+                    
+                }
+            });
+
+            checkBoxPanel.add(includeLayout);
+            checkBoxPanel.add(buttonPanel);
+            
             buttonPanel.add(progressBar);
             buttonPanel.add(commitButton);
             buttonPanel.add(closeButton);
-            bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
+            bottomPanel.add(checkBoxPanel, BorderLayout.SOUTH);
         }
 
         splitPane.setBottomComponent(bottomPanel);
@@ -196,6 +238,48 @@ public class CommitCommentsFrame extends EscapeDialog
         commitListModel.clear();
         setComment("");
     }
+    
+    private void removeModifiedLayouts()
+    {
+        // remove modified layouts from list of files shown for commit
+        for(Iterator it = changedLayoutFiles.iterator();it.hasNext();) {
+            commitListModel.removeElement(it.next());
+        }
+        if(commitListModel.isEmpty()) {
+            commitListModel.addElement(noFilesToCommit);
+            commitText.setEnabled(false);
+        }
+    }
+    
+    private void addModifiedLayouts()
+    {
+        if(commitListModel.contains(noFilesToCommit)) {
+            commitListModel.removeElement(noFilesToCommit);
+            commitText.setEnabled(true);
+        }
+        // add diagram layout files to list of files to be committed
+        for(Iterator it = changedLayoutFiles.iterator(); it.hasNext(); ) {
+            commitListModel.addElement(it.next());
+        }
+    }
+    
+    /**
+     *
+     */
+    public Set getChangedLayoutFiles()
+    {
+        Set files = new HashSet();
+        for(Iterator it = changedLayoutFiles.iterator(); it.hasNext(); ) {
+            TeamStatusInfo info = (TeamStatusInfo)it.next();
+            files.add(info.getFile());
+        }
+        return files;
+    }
+    
+    public boolean includeLayout()
+    {
+        return includeLayout != null && includeLayout.isSelected();
+    }
 
     private List initCommitFiles()
     {
@@ -205,7 +289,7 @@ public class CommitCommentsFrame extends EscapeDialog
             // Always include the bluej.pkg files - they will be filtered later.
             // We don't want to filter them here because we need to always commit
             // new bluej.pkg files to the repository.
-            Set files = parent.getProject().getTeamSettingsController().getProjectFiles(true);
+            Set files = project.getTeamSettingsController().getProjectFiles(true);
             Set remoteDirs = repository.getRemoteDirs();
             statusServerResponse = repository.getStatus(files, remoteDirs);
         } catch (CommandAbortedException e) {
@@ -213,9 +297,9 @@ public class CommitCommentsFrame extends EscapeDialog
         } catch (CommandException e) {
             e.printStackTrace();
         } catch (AuthenticationException e) {
-            TeamUtils.handleAuthenticationException(parent);
+            TeamUtils.handleAuthenticationException(this);
         } catch (InvalidCvsRootException e) {
-            TeamUtils.handleInvalidCvsRootException(parent);
+            TeamUtils.handleInvalidCvsRootException(this);
         }
 
         return statusServerResponse;
@@ -235,6 +319,16 @@ public class CommitCommentsFrame extends EscapeDialog
     public void stopProgress()
     {
         progressBar.setRunning(false);
+    }
+    
+    public Project getProject()
+    {
+        return project;
+    }
+    
+    private void setLayoutChanged(boolean hasChanged)
+    {
+        includeLayout.setEnabled(hasChanged);
     }
 
     /**
@@ -258,9 +352,10 @@ public class CommitCommentsFrame extends EscapeDialog
                 Set filesToAdd = new HashSet();
                 Set filesToDelete = new HashSet();
                 Set conflicts = new HashSet();
+                Set modifiedLayoutFiles = new HashSet();
                 
                 List info = response;
-                getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete, conflicts);
+                getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete, conflicts, modifiedLayoutFiles);
                 
                 if (conflicts.size() != 0) {
                     String filesList = "";
@@ -286,7 +381,7 @@ public class CommitCommentsFrame extends EscapeDialog
             }
              
             if(commitListModel.isEmpty()) {
-                commitListModel.addElement(Config.getString("team.nocommitfiles"));
+                commitListModel.addElement(noFilesToCommit);
                
             }
             else {
@@ -312,17 +407,17 @@ public class CommitCommentsFrame extends EscapeDialog
          * @param conflicts      The set to store unresolved conflicts in
          */
         private void getCommitFileSets(List info, Set filesToCommit, Set filesToAdd,
-                Set filesToRemove, Set conflicts)
+                Set filesToRemove, Set conflicts, Set modifiedLayoutFiles)
         {
-            boolean includeLayout = parent.includeLayout();
-            StatusFilter filter = new StatusFilter(parent.getProject().getTeamSettingsController());
+            //boolean includeLayout = project.getTeamSettingsController().includeLayout();
+            
+            StatusFilter filter = new StatusFilter(project.getTeamSettingsController());
 
             for (Iterator it = info.iterator(); it.hasNext();) {
                 TeamStatusInfo statusInfo = (TeamStatusInfo) it.next();
                 int status = statusInfo.getStatus();
                 if(filter.accept(statusInfo)) {
                     if (!statusInfo.getFile().getName().equals("bluej.pkg") 
-                            || includeLayout 
                             || status == TeamStatusInfo.STATUS_NEEDSADD 
                             || status == TeamStatusInfo.STATUS_DELETED ) {
                         
@@ -336,12 +431,20 @@ public class CommitCommentsFrame extends EscapeDialog
                     else if (status == TeamStatusInfo.STATUS_DELETED) {
                         filesToRemove.add(statusInfo.getFile());
                     }
+                    else if(statusInfo.getFile().getName().equals("bluej.pkg")){
+                        // add file to list of files that may be added to commit
+                        modifiedLayoutFiles.add(statusInfo.getFile());
+                        // keep track of StatusInfo objects representing changed diagrams
+                        changedLayoutFiles.add(statusInfo);
+                       
+                        setLayoutChanged(true);
+                    }
                 }
                 else {
                     if (status == TeamStatusInfo.STATUS_HASCONFLICTS
                                 || status == TeamStatusInfo.STATUS_NEEDSMERGE
                                 || status == TeamStatusInfo.STATUS_UNRESOLVED) {
-                        if(!statusInfo.getFile().getName().equals("bluej.pkg") || includeLayout)
+                        if(!statusInfo.getFile().getName().equals("bluej.pkg") || includeLayout())
                             conflicts.add(statusInfo.getFile());
                     }
                 }

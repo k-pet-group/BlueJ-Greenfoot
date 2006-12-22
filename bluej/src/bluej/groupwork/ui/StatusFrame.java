@@ -25,6 +25,7 @@ import bluej.groupwork.Repository;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamUtils;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
@@ -33,11 +34,11 @@ import bluej.utility.SwingWorker;
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: StatusFrame.java 4780 2006-12-22 04:14:21Z bquig $
  */
 public class StatusFrame extends EscapeDialog
 {
-    private PkgMgrFrame parent;
+    private Project project;
     private JTable statusTable;
     private StatusTableModel statusModel;
     private JScrollPane statusScroller;
@@ -51,32 +52,32 @@ public class StatusFrame extends EscapeDialog
     static final int MAX_ENTRIES = 20; 
     
     // store and map BlueJ PkgMgrFrames and associated cvs status dialog windows
-    private static Map statusFrames = new HashMap();
+   // private static Map statusFrames = new HashMap();
     
     /**
      * Factory method to get a status window.
      * Generally you should call update() on the window after retrieving it. 
      */
-    public static StatusFrame getStatusWindow(PkgMgrFrame pmf)
-    {
-        StatusFrame window = (StatusFrame)statusFrames.get(pmf);
-        if(window == null) {
-            window = new StatusFrame(pmf);
-            statusFrames.put(pmf, window);
-        }
-        return window;
-    }
+   // public static StatusFrame getStatusWindow(PkgMgrFrame pmf)
+   // {
+   //     StatusFrame window = (StatusFrame)statusFrames.get(pmf);
+   //     if(window == null) {
+   //         window = new StatusFrame(pmf);
+   //         statusFrames.put(pmf, window);
+   //     }
+   //     return window;
+   // }
 
     /** 
      * Creates a new instance of StatusFrame. Called via factory method
      * getStatusWindow. 
      */
-    private StatusFrame(PkgMgrFrame pmf)
+    public StatusFrame(Project proj)
     {
-        super(pmf);
-        parent = pmf;
+        //super(proj);
+        project = proj;
         makeWindow();
-        DialogManager.tileWindow(this, pmf);
+        //DialogManager.tileWindow(this, proj);
     }
 
     private void makeWindow()
@@ -156,10 +157,10 @@ public class StatusFrame extends EscapeDialog
     private int estimateInitialEntries()
     {
         // Use number of targets + README.TXT
-        int initialEntries = parent.getPackage().getClassTargets().size() + 1;
+        int initialEntries = project.getFilesInProject(project.getTeamSettingsController().includeLayout()).size() + 1;
         // may need to include diagram layout
-        if(parent.includeLayout())
-            initialEntries++;
+        //if(project.includeLayout())
+        //    initialEntries++;
         // Limit to a reasonable maximum
         if(initialEntries > MAX_ENTRIES)
             initialEntries = MAX_ENTRIES;
@@ -178,7 +179,7 @@ public class StatusFrame extends EscapeDialog
             String fileName = file.getName();
             //File dir = file.getParentFile();
                 
-            if(!parent.includeLayout() && fileName.equals("bluej.pkg"))
+            if(!project.getTeamSettingsController().includeLayout() && fileName.equals("bluej.pkg"))
                 it.remove();        
         }
     }
@@ -188,7 +189,7 @@ public class StatusFrame extends EscapeDialog
      */
     public void update()
     {
-        repository = parent.getProject().getRepository();
+        repository = project.getRepository();
         if (repository != null) {
             statusTable.setModel(new StatusTableModel(statusModel.getRowCount()));
             //statusModel.clear();
@@ -258,11 +259,11 @@ public class StatusFrame extends EscapeDialog
               List resourceStatus = null;
 
               try {
-                  Set files = parent.getProject().getTeamSettingsController().getProjectFiles(parent.includeLayout());
+                  Set files = project.getTeamSettingsController().getProjectFiles(project.getTeamSettingsController().includeLayout());
                   
                   Set remoteDirs = new HashSet();
                   List remoteFiles = repository.getRemoteFiles(remoteDirs);
-                  FilenameFilter filter = parent.getProject().getTeamSettingsController().getFileFilter(true);
+                  FilenameFilter filter = project.getTeamSettingsController().getFileFilter(true);
                   for (Iterator i = remoteFiles.iterator(); i.hasNext(); ) {
                       File remoteFile = (File) i.next();
                       File parentDir = remoteFile.getParentFile();
@@ -286,9 +287,9 @@ public class StatusFrame extends EscapeDialog
               } catch (CommandException e) {
                   e.printStackTrace();
               } catch (AuthenticationException e) {
-                  TeamUtils.handleAuthenticationException(parent);
+                  TeamUtils.handleAuthenticationException(StatusFrame.this);
               } catch (InvalidCvsRootException e) {
-                  TeamUtils.handleInvalidCvsRootException(parent);
+                  TeamUtils.handleInvalidCvsRootException(StatusFrame.this);
                   e.printStackTrace();
               }
 

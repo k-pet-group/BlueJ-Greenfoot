@@ -33,7 +33,7 @@ import bluej.utility.JavaNames;
  * Action to update out-of-date files.
  * 
  * @author fisker
- * @version $Id: UpdateAction.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: UpdateAction.java 4780 2006-12-22 04:14:21Z bquig $
  */
 public class UpdateAction extends TeamAction implements UpdateListener
 {
@@ -52,7 +52,7 @@ public class UpdateAction extends TeamAction implements UpdateListener
     public void actionPerformed(PkgMgrFrame pmf)
     {
         project = pmf.getProject();
-        includeLayout = pmf.includeLayout();
+        includeLayout = project.getTeamSettingsController().includeLayout();
         
         if (project != null) {
             project.saveAllEditors();
@@ -207,7 +207,7 @@ public class UpdateAction extends TeamAction implements UpdateListener
                 }
                 
                 // First find out the package name...
-                String packageName = getPackageForFile(f);
+                String packageName = project.getPackageForFile(f);
                 if (packageName == null) {
                     return;
                 }
@@ -266,7 +266,7 @@ public class UpdateAction extends TeamAction implements UpdateListener
                }
                
                // First find out the package name...
-               String packageName = getPackageForFile(f);
+               String packageName = project.getPackageForFile(f);
                if (packageName == null) {
                    return;
                }
@@ -325,7 +325,7 @@ public class UpdateAction extends TeamAction implements UpdateListener
                 }
                 
                 // First find out the package name...
-                String packageName = getPackageForFile(f);
+                String packageName = project.getPackageForFile(f);
                 if (packageName == null) {
                     return;
                 }
@@ -360,33 +360,6 @@ public class UpdateAction extends TeamAction implements UpdateListener
         });
     }
     
-    /**
-     * Find the package name of the package containing the given file.
-     * Might return null if the file isn't in the package. 
-     */
-    private String getPackageForFile(File f)
-    {
-        File projdir = project.getProjectDir();
-        
-        // First find out the package name...
-        String packageName = "";
-        File parentDir = f.getParentFile();
-        while (! parentDir.equals(projdir)) {
-            if (packageName.equals("")) {
-                packageName = parentDir.getName();
-            }
-            else {
-                packageName = parentDir.getName() + "." + packageName;
-            }
-            parentDir = parentDir.getParentFile();
-            if (parentDir == null) {
-                // file not in project?
-                return null;
-            }
-        }
-        
-        return packageName;
-    }
     
     /**
      * Get a list of the bluej.pkg files in a project

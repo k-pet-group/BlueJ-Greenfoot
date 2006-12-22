@@ -19,11 +19,11 @@ import bluej.utility.EscapeDialog;
  *
  * @author fisker
  * @author bquig
- * @version $Id: TeamSettingsDialog.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: TeamSettingsDialog.java 4780 2006-12-22 04:14:21Z bquig $
  */
 public class TeamSettingsDialog extends EscapeDialog
 {
-    private static final String title = Config.getString(
+    private String title = Config.getString(
             "team.settings.title");
     public static final int OK = 0;
     public static final int CANCEL = 1;
@@ -41,7 +41,10 @@ public class TeamSettingsDialog extends EscapeDialog
     {
         teamSettingsController = controller;
         event = CANCEL;
+        if(teamSettingsController.hasProject())
+            title += " - " + teamSettingsController.getProject().getProjectName();
         setTitle(title);
+       
         setModal(true);
 
         JPanel mainPanel = new JPanel();

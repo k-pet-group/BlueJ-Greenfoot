@@ -37,7 +37,7 @@ public class CommitCommentAction extends TeamAction
             Project project = pmf.getProject();
             // we want to save bluej.pkg files first
             project.saveAllGraphLayout();
-            CommitCommentsFrame dialog = project.getCommitCommentsDialog(pmf);
+            CommitCommentsFrame dialog = project.getCommitCommentsDialog();
             
             dialog.reset();
             dialog.setVisible(true);

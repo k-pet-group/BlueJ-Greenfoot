@@ -3,9 +3,9 @@ package bluej.groupwork.ui;
 import bluej.Config;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.pkgmgr.Package;
-
-import java.awt.Color;
+import bluej.pkgmgr.Project;
 import java.awt.Component;
+import java.io.IOException;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -15,10 +15,16 @@ import javax.swing.JList;
  * 
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: CommitFileRenderer.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: CommitFileRenderer.java 4780 2006-12-22 04:14:21Z bquig $
  */
 public class CommitFileRenderer extends DefaultListCellRenderer
 {
+    private Project project;
+    
+    public CommitFileRenderer(Project proj)
+    {
+        project = proj;
+    }
         
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
     {
@@ -31,7 +37,7 @@ public class CommitFileRenderer extends DefaultListCellRenderer
             }
             // bluej.pkg file description
             else if(info.getFile().getName().equals(Package.pkgfileName)) {
-                status = Config.getString("team.commit.layout");
+                status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
            }
         }
        
