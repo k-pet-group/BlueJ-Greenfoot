@@ -65,10 +65,6 @@ public class ProjectProperties
      */
     private void load(File projectDir)
     {
-        if (!projectDir.canWrite() || !projectDir.canRead()) {
-            throw new IllegalArgumentException(
-                    "Project directory must exist and be readable and writable. Project directory: " + projectDir);
-        }
         propsFile = new File(projectDir, GREENFOOT_PKG_NAME);
 
         InputStream is = null;

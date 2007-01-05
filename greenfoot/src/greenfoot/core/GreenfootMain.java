@@ -40,7 +40,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4733 2006-12-01 01:52:42Z davmac $
+ * @version $Id: GreenfootMain.java 4782 2007-01-05 03:29:02Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -59,6 +59,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     /** The package this Greenfoot singelton refers to. */
     private GPackage pkg;
 
+    /** The path to the dummy startup project */
+    private File startupProject;
+    
     /**
      * Forwards compile events to all the compileListeners that has registered
      * to reccieve compile events.
@@ -148,6 +151,11 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         addCompileListener(this);
         
         try {
+            // determine the path of the startup project
+            File startupProj = rBlueJ.getSystemLibDir();
+            startupProj = new File(startupProj, "greenfoot");
+            startupProject = new File(startupProj, "startupProject");
+            
             this.project = new GProject(proj);
             this.pkg = project.getDefaultPackage();
 
@@ -155,7 +163,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
             // Config is initialized in GreenfootLauncherDebugVM
 
-            if(!project.isStartupProject()) {
+            if(!isStartupProject()) {
                 try {
                     WorldHandler.getInstance().attachProject(project);
                     frame.openProject(project);
@@ -184,17 +192,35 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     }
     
     /**
+     * Check whether this instance of greenfoot is running the dummy
+     * startup project.
+     * @return  true if this is the startup project
+     */
+    private boolean isStartupProject()
+    {
+        try {
+            return project.getDir().equals(startupProject);
+        }
+        catch (ProjectNotOpenException pnoe) {
+            return false;
+        }
+        catch (RemoteException re) {
+            return false;
+        }
+    }
+    
+    /**
      * Opens the project in the given directory.
      */
     private void openProject(String projectDir)
-        throws RemoteException, ProjectNotOpenException
+        throws RemoteException
     {
         boolean doOpen = GreenfootMain.updateApi(new File(projectDir), frame);
         if (doOpen) {
             rBlueJ.openProject(projectDir);
 
             // if this is the dummy startup project, close it now.
-            if(project.isStartupProject()) {
+            if(isStartupProject()) {
                 project.close();
             }
         }
@@ -203,8 +229,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
     /**
      * Opens a file browser to find a greenfoot project
- 
-     * 
      */
     public void openProjectBrowser()
     {
@@ -265,7 +289,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     public void projectClosing()
     {
         try {
-            if(!project.isStartupProject()) {
+            if(!isStartupProject()) {
                 rBlueJ.removeCompileListener(compileListenerForwarder);
                 rBlueJ.removeInvocationListener(instantiationListener);
                 rBlueJ.removeClassListener(classStateManager);
@@ -275,7 +299,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 }
             }
         }
-        catch (ProjectNotOpenException pnoe) { }
         catch (RemoteException re) {
             re.printStackTrace();
         }
@@ -378,7 +401,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 // ProjectManager on the BlueJ VM.
 
                 // if the project that is already open is the dummy startup project, close it now.
-                if(project.isStartupProject()) {
+                if(isStartupProject()) {
                     project.close();
                 }
             }

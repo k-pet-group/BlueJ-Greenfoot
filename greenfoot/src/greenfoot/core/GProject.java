@@ -82,16 +82,6 @@ public class GProject extends RProjectListenerImpl
     }
     
     /**
-     * Return true if this project is the dummy startup project that gets opened
-     * when we have nothing else to open.
-     */
-    public boolean isStartupProject()
-        throws ProjectNotOpenException, RemoteException
-    {
-        return (rProject.getName().equals("startupProject"));
-    }
-    
-    /**
      * returns the default package.
      * 
      */
