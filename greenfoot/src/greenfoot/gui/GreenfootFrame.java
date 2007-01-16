@@ -37,7 +37,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4763 2006-12-12 01:32:12Z davmac $
+ * @version $Id: GreenfootFrame.java 4793 2007-01-16 17:48:21Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -524,8 +524,6 @@ public class GreenfootFrame extends JFrame
         RemoveSelectedClassAction.getInstance().setEnabled(true);
         CompileAllAction.getInstance().setEnabled(true);
         ShowReadMeAction.getInstance().setEnabled(true);
-        
-        controlPanel.setSliderEnabled(true);
     }
 
     /**
