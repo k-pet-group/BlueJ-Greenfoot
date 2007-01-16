@@ -89,7 +89,11 @@ public class GreenfootScenarioViewer
             WorldHandler worldHandler = WorldHandler.getInstance();
             Simulation.initialize(worldHandler);
             sim = Simulation.getInstance();
-            controls = new ControlPanel(sim);
+            controls = new ControlPanel(sim);            
+
+            int initialSpeed = properties.getInt("simulation.speed");
+            sim.setSpeed(initialSpeed);
+            
             worldHandler.setWorld(world);
             
             Method initMethod = worldClass.getMethod(worldInitMethod, new Class[]{});
