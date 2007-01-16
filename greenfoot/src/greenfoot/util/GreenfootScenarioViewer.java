@@ -10,9 +10,15 @@ import greenfoot.gui.WorldCanvas;
 
 import java.awt.BorderLayout;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.Properties;
 
 import javax.swing.JFrame;
 
@@ -28,6 +34,7 @@ import bluej.runtime.ExecServer;
 public class GreenfootScenarioViewer
 {
 
+    private static String frameTitleName;
     private Simulation sim;
     private WorldCanvas canvas;
     private ProjectProperties properties;
@@ -39,29 +46,47 @@ public class GreenfootScenarioViewer
      * 
      * BlueJ and the scenario MUST be on the classpath.
      * 
-     * @param args Two arguments should be passed to this method. The
-     * first one should be the World to be instantiated and the second argument
-     * should be a method that populates the world with actors. If no arguments
-     * are supplied it will use AntWorld and scenario2 as arguments.
+     * @param args One argument can be passed to this method. The
+     * first one should be the World to be instantiated. If no arguments
+     * are supplied it will read from the properties file. And if that can't be found either it will use AntWorld.
      * 
      */
     public static void main(String[] args)
     {
-        String worldClassName = "AntWorld";
-        String worldInitMethod = "scenario2";  
-        if(args.length == 2) {
+        String worldClassName = null;
+        Properties p = new Properties();
+        try {
+            ClassLoader loader = GreenfootScenarioViewer.class.getClassLoader();
+            InputStream is = loader.getResourceAsStream("standalone.properties");
+            
+            p.load(is);
+            worldClassName = p.getProperty("main.class");
+            frameTitleName = p.getProperty("project.name");
+            is.close();
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(args.length == 1) {
             worldClassName = args[0];
-            worldInitMethod = args[1];
+        }
+        
+        if(worldClassName == null) {
+            worldClassName = "AntWorld";
         }
         
         GreenfootScenarioViewer gs = new GreenfootScenarioViewer();
-        gs.init(worldClassName, worldInitMethod);
+        gs.init(worldClassName);
         gs.buildGUI();        
     }
 
     private void buildGUI()
     {
-        JFrame frame = new JFrame();
+        JFrame frame = new JFrame(frameTitleName);
         frame.getContentPane().add(canvas, BorderLayout.CENTER);
 
        
@@ -72,14 +97,16 @@ public class GreenfootScenarioViewer
 
     }
 
-    private void init(String worldClassName, String worldInitMethod)
+    private void init(String worldClassName)
     {
         try {            
             File projectDir = GreenfootUtil.getDirectoryContaining(worldClassName + ".class");
             properties = new ProjectProperties(projectDir);
-            GreenfootMain.initialize(properties);
+       // GreenfootMain.initialize(properties);
+            
+            World w = new World(2, 2, 2) {};
             Class worldClass = Class.forName(worldClassName);
-            ExecServer.setClassLoader(worldClass.getClassLoader());
+       //     ExecServer.setClassLoader(worldClass.getClassLoader());
             Constructor worldConstructor = worldClass.getConstructor(new Class[]{});
             World world = (World) worldConstructor.newInstance(new Object[]{});
 
@@ -95,10 +122,6 @@ public class GreenfootScenarioViewer
             sim.setSpeed(initialSpeed);
             
             worldHandler.setWorld(world);
-            
-            Method initMethod = worldClass.getMethod(worldInitMethod, new Class[]{});
-            initMethod.invoke(world, new Object[]{});
-
         }
         catch (ClassNotFoundException e) {
             // TODO Auto-generated catch block
