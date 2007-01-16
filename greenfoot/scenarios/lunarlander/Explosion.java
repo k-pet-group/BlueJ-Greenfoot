@@ -27,8 +27,10 @@ public class Explosion extends Actor
     private int increment=1;    
     
     public Explosion() {
+        
         initialiseImages();
-        setImage(images[0]);
+        setImage(images[0]);        
+        Greenfoot.playSound("Explosion.wav");
     }    
     
     /** 
