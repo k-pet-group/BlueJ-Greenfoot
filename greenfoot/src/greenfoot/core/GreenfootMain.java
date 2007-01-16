@@ -40,7 +40,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4782 2007-01-05 03:29:02Z davmac $
+ * @version $Id: GreenfootMain.java 4794 2007-01-16 18:02:28Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -89,6 +89,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
     };
 
+
+    /** Only used for the standalone Greenfoot program viewer*/
+    private static ProjectProperties projectProperties;
     
     private ClassLoader currentLoader;
     
@@ -115,6 +118,15 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
         }
     }
+    
+    /**
+     * Initializes the singleton for the stand alone Greenfoot Viewer. This can only be done once - subsequent calls
+     * will have no effect.
+     */
+    public static void initialize(ProjectProperties p)
+    {
+        projectProperties = p;
+    }
 
 
     /**
@@ -133,7 +145,14 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      */
     public static ProjectProperties getProjectProperties()
     {
-        return instance.getProject().getProjectProperties();
+        if(projectProperties == null) {
+            return instance.getProject().getProjectProperties();
+        }
+        else {
+            // Return the projecProperties if available. Will only be available
+            // if running with the greenfoot viewer.
+            return projectProperties;
+        }
     }
 
 
@@ -190,6 +209,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
 
     }
+    
     
     /**
      * Check whether this instance of greenfoot is running the dummy

@@ -1,6 +1,7 @@
 package greenfoot.util;
 
 import greenfoot.World;
+import greenfoot.core.GreenfootMain;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -30,7 +31,8 @@ public class GreenfootScenarioViewer
     private Simulation sim;
     private WorldCanvas canvas;
     private ProjectProperties properties;
-    
+
+    private ControlPanel controls;
 
     /**
      * Start the scenario. <p>
@@ -62,7 +64,7 @@ public class GreenfootScenarioViewer
         JFrame frame = new JFrame();
         frame.getContentPane().add(canvas, BorderLayout.CENTER);
 
-        ControlPanel controls = new ControlPanel(sim);
+       
         frame.getContentPane().add(controls, BorderLayout.SOUTH);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -74,7 +76,8 @@ public class GreenfootScenarioViewer
     {
         try {            
             File projectDir = GreenfootUtil.getDirectoryContaining(worldClassName + ".class");
-            properties = new ProjectProperties(projectDir);            
+            properties = new ProjectProperties(projectDir);
+            GreenfootMain.initialize(properties);
             Class worldClass = Class.forName(worldClassName);
             ExecServer.setClassLoader(worldClass.getClassLoader());
             Constructor worldConstructor = worldClass.getConstructor(new Class[]{});
@@ -84,10 +87,11 @@ public class GreenfootScenarioViewer
 
             WorldHandler.initialise(canvas);
             WorldHandler worldHandler = WorldHandler.getInstance();
-            worldHandler.setWorld(world);
             Simulation.initialize(worldHandler);
             sim = Simulation.getInstance();
-
+            controls = new ControlPanel(sim);
+            worldHandler.setWorld(world);
+            
             Method initMethod = worldClass.getMethod(worldInitMethod, new Class[]{});
             initMethod.invoke(world, new Object[]{});
 
@@ -119,6 +123,7 @@ public class GreenfootScenarioViewer
         catch (InvocationTargetException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            e.getCause().printStackTrace();
         }
     }
 }
