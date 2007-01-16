@@ -21,6 +21,7 @@ public class Bullet extends MovingThing
         super(speed);
         setRotation(rotation);
         increaseSpeed(new Vector(rotation, 15));
+        Greenfoot.playSound("EnergyGun.wav");
     }
     
     /**

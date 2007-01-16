@@ -53,6 +53,9 @@ public class Asteroid extends MovingThing
         if(exploded) return;
         exploded = true;
         
+        
+        Greenfoot.playSound("Explosion.wav");
+        
         if(size <= 16) {
             getWorld().removeObject(this);
             return;

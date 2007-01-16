@@ -26,6 +26,8 @@ public class Rocket extends MovingThing
     {
         Asteroid a = (Asteroid) getOneIntersectingObject(Asteroid.class);
         if(a != null) {
+            
+            Greenfoot.playSound("MetalExplosion.wav");
             getWorld().removeObject(this);
             Greenfoot.pauseSimulation();
             return;
