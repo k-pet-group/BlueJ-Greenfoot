@@ -245,11 +245,7 @@ public abstract class World
 
         ensureWithinXBounds(x);
         ensureWithinYBounds(y);
-        object.x = x;
-        object.y = y;
-        object.world = this; // can only set location if world is set.
-        object.setLocation(x, y);
-        object.setWorld(this);
+        object.addToWorld(x, y, this);
 
         collisionChecker.addObject(object);
         objects.add(object);
@@ -474,20 +470,6 @@ public abstract class World
     // PRIVATE MEHTHODS
     //
     // =================================================
-
-    /**
-     * Makes sure that the location of the object is wrapped into a location
-     * within the worlds bounds.
-     * 
-     * @param object
-     */
-    private void wrapLocation(Actor object)
-    {
-        int x = object.getX();
-        int y = object.getY();
-        object.x = x;
-        object.y = y;
-    }
 
     /**
      * Methods that throws an exception if the location of the object is out of
