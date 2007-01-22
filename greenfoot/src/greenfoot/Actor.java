@@ -1,54 +1,89 @@
 package greenfoot;
 
 import greenfoot.collision.ibsp.Rect;
-import greenfoot.core.GreenfootMain;
-import greenfoot.core.WorldHandler;
 import greenfoot.util.Circle;
 
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.List;
 
-import rmiextension.wrappers.RClass;
-import rmiextension.wrappers.RObject;
-import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 
 /**
- * An Actor is an object that exists in the greenfoot world. Every Actor has a
- * location in the world, and an appearance (that is: an icon).
+ * An Actor is an object that exists in the greenfoot world. 
+ * Every Actor has a location in the world, and an appearance (that is:
+ * an icon).
  * 
- * An Actor is not normally instantiated, but instead used as a superclass to
- * more specific objects in the world. Every object that is intended to appear
- * in the world must extend Actor. Subclasses can then define their own
+ * An Actor is not normally instantiated, but instead used as a superclass
+ * to more specific objects in the world. Every object that is intended to appear
+ * in the world must extend Actor. Subclasses can then define their own 
  * appearance and behaviour.
  * 
- * One of the most important aspects of this class is the 'act' method. This
- * method is called when the 'Act' or 'Play' buttons are activated in the
- * greenfoot interface. The method here is empty, and subclasses normally
- * provide their own implementations.
+ * One of the most important aspects of this class is the 'act' method. This method
+ * is called when the 'Act' or 'Play' buttons are activated in the greenfoot interface.
+ * The method here is empty, and subclasses normally provide their own implementations.
  * 
  * @author Poul Henriksen
  * @version 1.1.0
  * @cvs-version $Id$
  */
-public abstract class Actor
+public abstract class Actor 
 {
+    
+    /** Error message to display when trying to use methods that requires a world. */
+    private static final String NO_WORLD = "No world has been instantiated.";
+
+    /** Error message to display when trying to use methods that requires the actor be in a world. */
+    private static final String ACTOR_NOT_IN_WORLD = "The actor has not been inserted into a world so it has no location yet. You might want to look at the method addedToWorld on the Actor class.";
+    
+    /**
+     * x-coordinate of the object's location in the world. The object is
+     * centered around this location.
+     */
+    int x;
 
     /**
-     * Most method calls are delegated to the delegate.
+     * y-coordinate of the object's location in the world. The object is
+     * centered aroudn this location.
      */
-    private ActorDelegate delegate;
+    int y;
+
+    /** Rotation in degrees (0-359) */
+    private int rotation = 0;
+
+    /** Reference to the world that this actor is a part of. */
+    World world;
     
+    /** The image for this actor. */
+    private GreenfootImage image;
+
+    /** Bounding circle. Used for collision checking. */
+    private Circle boundingCircle;
+    
+    /** Field used to store some extra data in an object. Used by collision checkers. */
+    private Object data;
+
+    private static GreenfootImage greenfootImage = new GreenfootImage("images/greenfoot.png");
+    private boolean usingClassImage;
+
+    private boolean  copyClassImage = true;
+
     /**
      * Construct an Actor.
      * The object will have a default image.
      * 
      */
-    public Actor() {
-        delegate = new ActorDelegate(this);
-    }    
+    public Actor()
+    {        
+        // Use the class image, if one is defined, as the default image, or the
+        // greenfoot logo image otherwise
+        GreenfootImage image = getClassImage();
+        if (image == null) {
+            image = greenfootImage;
+        }
+        setImage(image);
+        usingClassImage = true;
+    }
 
     /**
      * The act method is called by the greenfoot framework to give objects a
@@ -59,8 +94,131 @@ public abstract class Actor
      * implement an object's action.
      */
     public void act()
-    {}
-   
+    {
+    }
+
+    /**
+     * Return the x-coordinate of the object's current location. The
+     * value returned is the horizontal index of the object's cell in the world.
+     * 
+     * @return The x-coordinate of the object's current location.
+     * @throws IllegalStateException If the actor has not been added into a world.
+     */
+    public int getX() throws IllegalStateException
+    {
+        failIfNotInWorld();
+        return x;
+    }
+
+    /**
+     * Return the y-coordinate of the object's current location. The
+     * value returned is the vertical index of the object's cell in the world.
+     * 
+     * @return The y-coordinate of the object's current location
+     * @throws IllegalStateException If the actor has not been added into a world.
+     */
+    public int getY()
+    {       
+        failIfNotInWorld();
+        return y;
+    }
+
+    /**
+     * Return the width of the object. The width is the number of cells
+     * that an object's image overlaps horizontally.
+     * 
+     * @return The width of the object, or -1 if it has no image.
+     * @throws IllegalStateException If there is no world instantiated.
+     */
+    public int getWidth()
+    {
+        if (image == null) {
+            return -1;
+        }
+        else {
+            return getXMax() - getXMin() + 1;
+        }
+    }
+
+    /**
+     * Return the height of the object. The height is the number of cells
+     * that an object's image overlaps vertically.
+     * 
+     * @return The height of the object, or -1 if it has no image.
+     * @throws IllegalStateException If there is no world instantiated.
+     */
+    public int getHeight()
+    {
+        if (image == null) {
+            return -1;
+        }
+        else {
+            return getYMax() - getYMin() + 1;
+        }
+    }
+
+    /**
+     * Return the current rotation of the object. Rotation is expressed as a degree
+     * value, range (0..359). Zero degrees is to the east. The angle increases 
+     * clockwise.
+     * 
+     * @see #setRotation(int)
+     * 
+     * @return The rotation in degrees.
+     */
+    public int getRotation()
+    {
+        return rotation;
+    }
+
+    /**
+     * Set the rotation of the object. Rotation is expressed as a degree
+     * value, range (0..359). Zero degrees is to the east. The angle increases 
+     * clockwise.
+     * 
+     * @param rotation The rotation in degrees.
+     */
+    public void setRotation(int rotation)
+    {
+        
+        int oldWidth = 0;
+        int oldHeight = 0;
+        if(world != null) {
+            oldWidth = getWidth();
+            oldHeight = getHeight();
+        }
+
+        this.rotation = rotation;
+
+        if (world != null && (oldHeight != getHeight() || oldWidth != getWidth())) {
+            sizeChanged();
+        }
+    }
+
+    /**
+     * Assign a new location for this object. The location is specified as a cell
+     * index in the world.
+     * 
+     * If this method is overridden it is important to call this method with
+     * super.setLocation(x,y) from the overriding method.
+     * 
+     * @param x Location index on the x-axis
+     * @param y Location index on the y-axis
+     * @throws IllegalStateException If the actor has not been added into a world.
+     */
+    public void setLocation(int x, int y)
+    {
+        failIfNotInWorld();
+        int oldX = this.x;
+        int oldY = this.y;
+
+        boundsCheck(x, y);
+
+        this.x = x;
+        this.y = y;
+        locationChanged(oldX, oldY);
+    }
+
     /**
      * Return the world that this object lives in.
      * 
@@ -68,37 +226,57 @@ public abstract class Actor
      */
     public World getWorld()
     {
-        return delegate.getWorld();
+        return world; 
     }
 
     /**
-     * Returns the image used to represent this Actor. This image can be
-     * modified to change the object's appearance.
+     * This method will be called by the Greenfoot system when the object has
+     * been inserted into the world. This method can be overridden to implement
+     * custom behavoiur when the actor is inserted into the world.
+     * <p>
+     * This default implementation is empty.
+     * 
+     * @param world The world the object was added to.
+     */
+    protected void addedToWorld(World world)
+    {}
+    
+    /**
+     * Returns the image used to represent this Actor. This image can be 
+     * modified to change the object's appearance. 
      * <p>
      * 
-     * If you override this method, you should call super.getImage() before
-     * doing anything else.
+     * If you override this method, you should call super.getImage() before doing anything else.
      * 
      * @return The object's image.
      */
     public GreenfootImage getImage()
     {
-        return delegate.getImage();
+        if (usingClassImage && copyClassImage) {
+            // If this actor is using the class image, make a copy of it before
+            // returning it. Otherwise modifications will affect the class image.
+            image = new GreenfootImage(image);
+            usingClassImage = false;
+        }
+        
+        return image;
     }
 
     /**
-     * Set an image for this object from an image file. The file may be in jpeg,
-     * gif or png format. The file should be located in the project directory.
+     * Set an image for this object from an image file. The file may be in
+     * jpeg, gif or png format. The file should be located in the project
+     * directory.
      * 
      * @param filename The name of the image file.
      * @throws IllegalArgumentException If the image can not be loaded.
      */
-    public void setImage(String filename)
-        throws IllegalArgumentException
+    public void setImage(String filename) throws IllegalArgumentException
     {
-        delegate.setImage(filename);
+        image = new GreenfootImage(filename);
+        usingClassImage = false;
+        sizeChanged();
     }
-    
+
     /**
      * Set the image for this object to the specified image.
      * 
@@ -107,105 +285,332 @@ public abstract class Actor
      */
     public void setImage(GreenfootImage image)
     {
-        delegate.setImage(image);
+        this.image = image;
+        sizeChanged();
+    }
+    
+    // ==================================
+    //
+    // PACKAGE PROTECTED METHODS
+    //
+    // ==================================
+    /**
+     * 
+     * Translates the given location into cell-coordinates before setting the
+     * location.
+     * 
+     * Used by the WorldHandler to drag objects.
+     * 
+     * @param x x-coordinate in pixels
+     * @param y y-coordinate in pixels
+     */
+    void setLocationInPixels(int x, int y)
+    {
+        failIfNotInWorld();
+        int xCell = world.toCellFloor(x);
+        int yCell = world.toCellFloor(y);
+
+        if (x == getX() && y == getY()) {
+            return;
+        }
+
+        boundsCheck(xCell, yCell);
+        setLocation(xCell, yCell);
+    }
+
+    /**
+     * Sets the world of this actor.
+     * 
+     * @param world
+     */
+    void setWorld(World world)
+    {
+        this.world = world;
+        if(world != null) {
+            boundingCircle = new Circle(x,y,calcBoundingRadius());
+        }
+    }
+
+    /**
+     * Adds this object to a world at the given coordinate.
+     */
+    void addToWorld(int x, int y, World world)
+    {
+        this.x = x;
+        this.y = y;
+        this.world = world; // can only set location if world is set.
+        this.setLocation(x, y);
+        this.setWorld(world);
+    }
+    
+    /**
+     * Get the image to use when displaying this actor. This should be whatever
+     * was set using setImage(). The returned image should not be modified as it
+     * may be the original class image.
+     * 
+     * @return The image to use to display the actor
+     */
+    GreenfootImage getDisplayImage()
+    {
+        // When calling getImage, we do not want it to copy the class image -
+        // for performance reasons.
+        // We have to use getImage() though, if we want the user to be able to
+        // override it.
+        copyClassImage = false;
+        GreenfootImage img = getImage();
+        copyClassImage = true;
+        return img;
+    }
+    
+    /**
+     * Get the bounding circle of the object. Taking into consideration that the
+     * object can rotate.
+     * 
+     */
+    Circle getBoundingCircle() {        
+        return boundingCircle;
+    }
+    
+    /**
+     * Get the bounding rectangle of the object. Taking into consideration that the
+     * object can rotate. 
+     * 
+     * @return A new Rect specified in pixels!
+     */
+    Rect getBoundingRect() {    
+        if(world == null) return null;
+        // +1 comes form the fact that Max - Min is not the width of the objects,
+        //  but the difference in max an min location which for instance can be 0.
+        int x = getPaintX();
+        int y = getPaintY();
+        int width = image.getWidth();
+        int height = image.getHeight();
+        return new Rect(x, y, width, height);
+    }
+
+    void setData(Object o) {
+        this.data = o;
+    }
+    
+    Object getData() {
+        return data;
+    }
+    
+    /**
+     * Check whether the object is using the class image. This is true until
+     * getImage() is called, when a copy of the image is made.
+     * (package-private method). 
+     */
+    boolean isUsingClassImage()
+    {
+        return usingClassImage;
     }
     
 
-    /**
-     * Set the rotation of the object. Rotation is expressed as a degree value,
-     * range (0..359). Zero degrees is to the east. The angle increases
-     * clockwise.
-     * 
-     * @param rotation The rotation in degrees.
-     */
-    public void setRotation(int rotation)
-    {
-        delegate.setRotation(rotation);
-    }
-
+    // ============================
+    //
+    // Private methods
+    //
+    // ============================
     
     /**
-     * Return the current rotation of the object. Rotation is expressed as a
-     * degree value, range (0..359). Zero degrees is to the east. The angle
-     * increases clockwise.
-     * 
-     * @see #setRotation(int)
-     * 
-     * @return The rotation in degrees.
+     * Get the default image for objects of this class. May return null.
      */
-    public int getRotation()
+    private GreenfootImage getClassImage()
     {
-        return delegate.getRotation();
+        Class clazz = getClass();
+        while (clazz != null) {
+            GreenfootImage image = getImage(clazz);
+            if (image != null) {
+                return image;
+            }
+            clazz = clazz.getSuperclass();
+        }
+
+        return greenfootImage;
+    }
+    
+    private int toCellFloor(int i)
+    {
+        World aWorld = world;
+        if(aWorld == null) {
+            aWorld = getActiveWorld();
+        }
+        if(aWorld == null) {
+            // Should never happen
+            throw new IllegalStateException(NO_WORLD);
+        }
+        return (int) Math.floor((double) i / aWorld.getCellSize());
     }
 
     /**
-     * Return the width of the object. The width is the number of cells that an
-     * object's image overlaps horizontally.
+     * Gets the x-coordinate of the left most cell that is occupied by the
+     * object.
      * 
-     * @return The width of the object, or -1 if it has no image.
+     */
+    private int getXMin()
+    {
+        return toCellFloor(getPaintX());
+    }
+
+    /**
+     * Gets the x-coordinate of the right most cell that is occupied by the
+     * object.
+     * 
      * @throws IllegalStateException If there is no world instantiated.
      */
-    public int getWidth()
+    private int getXMax()
     {
-        return delegate.getWidth();
+        return toCellFloor(getPaintX() + image.getWidth() - 1);
     }
 
     /**
-     * Return the height of the object. The height is the number of cells that
-     * an object's image overlaps vertically.
+     * Gets the y-coordinate of the top most cell that is occupied by the
+     * object.
      * 
-     * @return The height of the object, or -1 if it has no image.
      * @throws IllegalStateException If there is no world instantiated.
      */
-    public int getHeight()
+    private int getYMin()
     {
-        return delegate.getHeight();
+        return toCellFloor(getPaintY());
+    }
+
+    /**
+     * Gets the y-coordinate of the bottom most cell that is occupied by the
+     * object.
+     * 
+     */
+    private int getYMax()
+    {
+        return toCellFloor(getPaintY() + image.getHeight() - 1);
     }
     
     /**
-     * Return the x-coordinate of the object's current location. The value
-     * returned is the horizontal index of the object's cell in the world.
+     * Pixel location of the left of the image.
      * 
-     * @return The x-coordinate of the object's current location.
-     * @throws IllegalStateException If the actor has not been added into a
-     *             world.
+     * Rounds down if it does not result in an integer.
+     * 
+     * @throws IllegalStateException If there is no world instantiated.
      */
-    public int getX()
-        throws IllegalStateException
+    private final int getPaintX()
     {
-        return delegate.getX();
+        World aWorld = world;
+        if (aWorld == null) {
+            aWorld = getActiveWorld();
+        } 
+        if (aWorld == null) {
+            // Should never happen
+            throw new IllegalStateException(NO_WORLD);
+        }
+        double cellCenter = aWorld.getCellCenter(x);
+        double paintX = cellCenter - image.getWidth() / 2.;
+        return (int) Math.floor(paintX);
     }
 
     /**
-     * Return the y-coordinate of the object's current location. The value
-     * returned is the vertical index of the object's cell in the world.
+     * Pixel location of the top of the image.
      * 
-     * @return The y-coordinate of the object's current location
-     * @throws IllegalStateException If the actor has not been added into a
-     *             world.
+     * Rounds down if it does not result in an integer.
+     * 
+     * @throws IllegalStateException If there is no world instantiated.
      */
-    public int getY()
+    private final int getPaintY()
     {
-        return delegate.getY();
+        World aWorld = world;
+        if (aWorld == null) {
+            aWorld = getActiveWorld();
+        } 
+        if (aWorld == null) {
+            throw new IllegalStateException(NO_WORLD);
+        }
+        double cellCenter = aWorld.getCellCenter(y);
+        double paintY = cellCenter - image.getHeight() / 2.;
+		return (int) Math.floor(paintY);
     }
-
+    
+    /**
+     * Notify the world that this object's size has changed, if it in fact has changed.
+     *
+     */
+    private void sizeChanged()
+    {
+        int newSize = calcBoundingRadius();
+        if(boundingCircle != null && newSize == boundingCircle.getRadius()) {
+            //If the size have not changed we just return
+            return;
+        }
+        if(boundingCircle != null) {
+            boundingCircle.setRadius(newSize);
+        }
+        if(world != null) {
+            world.updateObjectSize(this);
+        }
+    }   
 
     /**
-     * Assign a new location for this object. The location is specified as a
-     * cell index in the world.
-     * 
-     * If this method is overridden it is important to call this method with
-     * super.setLocation(x,y) from the overriding method.
-     * 
-     * @param x Location index on the x-axis
-     * @param y Location index on the y-axis
-     * @throws IllegalStateException If the actor has not been added into a
-     *             world.
+     * Notify the world that this object's location has changed.
+     *
      */
-    public void setLocation(int x, int y)
+    private void locationChanged(int oldX, int oldY)
     {
-        delegate.setLocation(x, y);
+        if(boundingCircle != null) {
+            boundingCircle.setX(x);
+            boundingCircle.setY(y);
+        }
+        if(world != null) {
+            world.updateObjectLocation(this, oldX, oldY);
+        }
     }
+    
+    /**
+     * Calculate the bounding radius. In grid coordinates.
+     */
+    private int calcBoundingRadius() {
+        if(world == null) return -1;
+        // An explanation of why +3 is needed:
+        // +1 comes form the fact that Max - Min is not the width of the objects,
+        //  but the difference in max an min location which for instance can be 0.
+        // +2 we need  to cover the boundary cases in both ends.
+        int dy = getYMax() - getYMin() + 3;
+        int dx = getXMax() - getXMin() + 3;
+        return (int) (Math.sqrt(dx*dx + dy*dy) / 2 );
+    }
+
+    /**
+     * Throws an exception if the actor is not in a world.
+     * 
+     * @throws IllegalStateException If not in world.
+     */
+    private void failIfNotInWorld()
+    {
+        if(world == null) {
+            throw new IllegalStateException(ACTOR_NOT_IN_WORLD);
+        }
+    }
+
+    /**
+     * Checks if the coordinates are within the bounds of the world. Throws an
+     * exception if they are not within bounds.
+     * 
+     * @param x
+     * @param y
+     */
+    private void boundsCheck(int x, int y)
+    {
+        failIfNotInWorld();
+        if (world.getWidth() <= x || x < 0) {
+            throw new IndexOutOfBoundsException("x(" + x + ") is out of bounds(" + world.getWidth() + ")");
+        }
+        if (world.getHeight() <= y || y < 0) {
+            throw new IndexOutOfBoundsException("y(" + y + ") is out of bounds(" + world.getHeight() + ")");
+        }
+    }
+
+    // ============================
+    //
+    // Collision stuff
+    //
+    // ============================
 
     /**
      * Check whether this object intersects with another given object.
@@ -216,13 +621,32 @@ public abstract class Actor
      */
     protected boolean intersects(Actor other)
     {
-        return delegate.intersects(other);
+        // TODO: Rotation, we could just increase the bounding box, or we could
+        // deal with the rotated bounding box.
+        int thisX = getXMin();
+        int otherX = other.getXMin();
+        int thisW = getWidth();
+        int otherW = other.getWidth();
+        if (!intersects(thisX, otherX, thisW, otherW)) {
+            return false;
+        }
+
+        int thisY = getYMin();
+        int otherY = other.getYMin();
+        int thisH = getHeight();
+        int otherH = other.getHeight();
+        if (!intersects(thisY, otherY, thisH, otherH)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
-     * Return the neighbours to this object within a given distance. This method
-     * considers only logical location, ignoring extent of the image. Thus, it
-     * is most useful in scenarios where objects are contained in a single cell.
+     * Return the neighbours to this object within a given distance. This
+     * method considers only logical location, ignoring extent of the image.
+     * Thus, it is most useful in scenarios where objects are contained in a
+     * single cell.
      * <p>
      * 
      * All cells that can be reached in the number of steps given in 'distance'
@@ -240,9 +664,10 @@ public abstract class Actor
      */
     protected List getNeighbours(int distance, boolean diagonal, Class cls)
     {
-        return delegate.getNeighbours(distance, diagonal, cls);
+        failIfNotInWorld();
+        return getWorld().getNeighbours(this, distance, diagonal, cls);
     }
-
+    
     /**
      * Return all objects that intersect the given location (relative to this
      * object's location). <br>
@@ -256,7 +681,8 @@ public abstract class Actor
      */
     protected List getObjectsAtOffset(int dx, int dy, Class cls)
     {
-        return delegate.getObjectsAtOffset(dx, dy, cls);
+        failIfNotInWorld();
+        return world.getObjectsAt(getX() + dx, getY() + dy, cls);
     }
 
     /**
@@ -268,28 +694,29 @@ public abstract class Actor
      * 
      * @param dx X-coordinate relative to this objects location.
      * @param dy y-coordinate relative to this objects location.
-     * @param cls Class of objects to look for (passing 'null' will find all
-     *            objects).
+     * @param cls Class of objects to look for (passing 'null' will find all objects).
      * @return An object at the given location, or null if none found.
      */
     protected Actor getOneObjectAtOffset(int dx, int dy, Class cls)
     {
-        return delegate.getOneObjectAtOffset(dx, dy, cls);
+        failIfNotInWorld();
+        return world.getOneObjectAt(this, getX() + dx, getY() + dy, cls);        
     }
-
+    
     /**
-     * Return all objects within range 'r' around this object. An object is
-     * within range if the distance between its centre and this object's centre
-     * is less than or equal to r.
+     * Return all objects within range 'r' around this object. 
+     * An object is within range if the distance between its centre and this
+     * object's centre is less than or equal to r.
      * 
      * @param r Radius of the cirle (in pixels)
-     * @param cls Class of objects to look for (passing 'null' will find all
-     *            objects).
+     * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
     protected List getObjectsInRange(int r, Class cls)
     {
-
-        return delegate.getObjectsInRange(r, cls);
+        failIfNotInWorld();
+        List inRange = world.getObjectsInRange(getX(), getY(), r, cls);
+        inRange.remove(this);
+        return inRange;
     }
 
     /**
@@ -298,60 +725,49 @@ public abstract class Actor
      * 
      * NOTE: Does not take rotation into consideration.
      * 
-     * @param cls Class of objects to look for (passing 'null' will find all
-     *            objects).
+     * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
     protected List getIntersectingObjects(Class cls)
     {
-        return delegate.getIntersectingObjects(cls);
+        failIfNotInWorld();
+        List l = world.getIntersectingObjects(this, cls);
+        l.remove(this);
+        return l;
     }
-
+    
     /**
-     * Return an object that intersects this object. This takes the graphical
-     * extent of objects into consideration. <br>
+     * Return an object that intersects this object. This takes the
+     * graphical extent of objects into consideration. <br>
      * 
      * NOTE: Does not take rotation into consideration.
      * 
-     * @param cls Class of objects to look for (passing 'null' will find all
-     *            objects).
+     * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
     protected Actor getOneIntersectingObject(Class cls)
     {
-        return delegate.getOneIntersectingObject(cls);
+        failIfNotInWorld();
+        return world.getOneIntersectingObject(this, cls);
     }
 
-    /**
-     * This method will be called by the Greenfoot system when the object has
-     * been inserted into the world. This method can be overridden to implement
-     * custom behavoiur when the actor is inserted into the world.
-     * <p>
-     * This default implementation is empty.
-     * 
-     * @param world The world the object was added to.
-     */
-    protected void addedToWorld(World world)
-    {}
+//    /**
+//     * Return all objects that intersect a straight line from this object at
+//     * a specified angle. The angle is clockwise relative to the current 
+//     * rotation of the object.   <br>
+//     * It will never include the object itself.
+//     * 
+//     * NOTE: not implemented yet!
+//     * 
+//     * @param angle The angle relative to current rotation of the object.
+//     * @param cls Class of objects to look for (passing 'null' will find all objects).
+//     */
+//    protected List getObjectsInDirection(int angle, int length, Class cls)
+//    {
+//        failIfNotInWorld();
+//        List l = world.getObjectsInDirection(getX(), getY(), angle + getRotation(), length, cls);
+//        l.remove(this);
+//        return l;
+//    }
 
-    // ==================================
-    //
-    // PACKAGE PROTECTED METHODS
-    //
-    // ==================================
-
-    /**
-     * 
-     * Translates the given location into cell-coordinates before setting the
-     * location.
-     * 
-     * Used by the WorldHandler to drag objects.
-     * 
-     * @param x x-coordinate in pixels
-     * @param y y-coordinate in pixels
-     */
-    void setLocationInPixels(int dragBeginX, int dragBeginY)
-    {
-        delegate.setLocationInPixels(dragBeginX, dragBeginY);
-    }
 
     /**
      * Checks whether the specified relative cell-location is considered to be
@@ -364,13 +780,13 @@ public abstract class Actor
      * 
      * This method is used by collision checking methods. Therefor, this method
      * can be overridden if, for example, other than rectangular image shapes
-     * should be considered.
-     * <p>
+     * should be considered. <p>
      * 
      * NOTE: Does not take rotation into consideration. <br>
-     * NOTE: No longer public, since no scenarios have used it so far, and we
-     * might want to do it sligthly different if we want collision checkers to
-     * only do most of the computation once pr. act.
+     * NOTE: No longer public,
+     * since no scenarios have used it so far, and we might want to do it
+     * sligthly different if we want collision checkers to only do most of the
+     * computation once pr. act.
      * 
      * @param dx The x-position relative to the location of the object
      * @param dy The y-position relative to the location of the object
@@ -379,105 +795,76 @@ public abstract class Actor
      */
     boolean contains(int dx, int dy)
     {
-        return delegate.contains(dx, dy);
+        // TODO this disregards rotations. maybe this should be updated in the
+        // getWidth/height methods
+        failIfNotInWorld();
+        if (image != null) {
+            int width = getXMax() - getXMin() + 1;
+            int height = getYMax() - getYMin() + 1;
+            int left = getXMin() - getX();
+            int top = getYMin() - getY();
+            return intersects(dx, dy, left, top, width, height);
+        }
+        else {
+            return false;
+        }
     }
-
+    
     /**
-     * Get the bounding circle of the object. Taking into consideration that the
-     * object can rotate.
+     * Determines if the given position intersects with the rectangle.<br>
      * 
      */
-    Circle getBoundingCircle()
+    private boolean intersects(int x, int y, int rectX, int rectY, int rectWidth, int rectHeight)
     {
-        return delegate.getBoundingCircle();
+        if (x >= rectX && x < (rectX + rectWidth) && y >= rectY && y < (rectY + rectHeight)) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /**
-     * Get the bounding rectangle of the object. Taking into consideration that
-     * the object can rotate.
-     * 
-     * @return A new Rect specified in pixels!
-     */
-    Rect getBoundingRect()
-    {
-        return delegate.getBoundingRect();
-    }
-
-    void setData(Object n)
-    {
-        delegate.setData(n);
-    }
-
-    Object getData()
-    {
-        // TODO Auto-generated method stub
-        return delegate.getData();
-    }
-
-    /**
-     * Get the image to use when displaying this actor. This should be whatever
-     * was set using setImage(). The returned image should not be modified as it
-     * may be the original class image.
-     * 
-     * @return The image to use to display the actor
-     */
-    GreenfootImage getDisplayImage()
-    {
-        return delegate.getDisplayImage();
-    }
-
-    /**
-     * Adds this object to a world at the given coordinate.
-     */
-    void addToWorld(int x, int y, World world)
-    {
-        delegate.addToWorld(x, y, world);
-    }
-
-    /**
-     * Sets the world of this actor.
-     * 
-     * @param world
-     */
-    void setWorld(World world)
-    {
-        delegate.setWorld(world);
-    }
-
-    /**
-     * Gets the x-coordinate of the left most cell that is occupied by the
-     * object.
+     * Determines if two lines intersects.
      * 
      */
-    int getXMin()
+    private boolean intersects(int x1, int x2, int w1, int w2)
     {
-        return delegate.getXMin();
-    }
-
-    /**
-     * Gets the y-coordinate of the top most cell that is occupied by the
-     * object.
-     * 
-     * @throws IllegalStateException If there is no world instantiated.
-     */
-    int getYMin()
-    {
-        return delegate.getYMin();
-    }
-
+        if (x1 <= x2 && x2 < x1 + w1)
+            return true;
+        if (x1 < x2 + w2 && x2 + w2 <= x1 + w1)
+            return true;
+        if (x2 <= x1 && x1 < x2 + w2)
+            return true;
+        if (x2 < x1 + w1 && x1 + w1 <= x2 + w2)
+            return true;
+        return false;
+    } 
+    
     // ============================================================================
     //  
-    // Methods below here are different depending on how the project is run
+    // Methods below here are delegated to different objects depending on how
+    // the project is run.
     // (From Greenfoot IDE or StandAlone)
     //  
     // ============================================================================
 
+    private static ActorDelegate delegate;
+    
+    /**
+     * Set the object that this actor should delegate method calls to.
+     *
+     */
+    static void setDelegate(ActorDelegate d) {
+        delegate = d;
+    }
+    
     /**
      * Get the default image for objects of this class. May return null.
      */
     GreenfootImage getImage(Class clazz)
     {
-        return GreenfootMain.getProjectProperties().getImage(clazz.getName());
+        return delegate.getImage(clazz.getName());//GreenfootMain.getProjectProperties().getImage(clazz.getName());
     }
 
     /**
@@ -485,107 +872,34 @@ public abstract class Actor
      */
     World getActiveWorld()
     {
-        return WorldHandler.getInstance().getWorld();
+        return delegate.getWorld(); //WorldHandler.getInstance().getWorld();
     }
-
-    // ============================================================================
+   
+    //============================================================================
     //  
-    // Object Transporting - between the two VMs
+    //  Object Transporting - between the two VMs
     //  
-    // IMPORTANT: This code is duplicated in greenfoot.World!
-    // ============================================================================
-
-    /** Remote version of this class */
-    private static RClass remoteObjectTracker;
-
+    //  IMPORTANT: This code is duplicated in greenfoot.World!
+    //============================================================================    
+    
     /** The object we want to get a remote version of */
     private static Object transportField;
+    
+    /** Remote version of this class. Will be of type RClass. */
+    private static Object remoteObjectTracker;
 
-    /** Lock to ensure that we only have one remoteObjectTracker */
-    private static Object lock = new Object();
-    // TODO The cached objects should be cleared at recompile.
-    private static Hashtable cachedObjects = new Hashtable();
-
-    /**
-     * Gets the remote reference to the obj.
-     * <p>
-     * 
-     * IMPORTANT: This code is duplicated in greenfoot.World!
-     * 
-     * @throws ClassNotFoundException
-     * @throws RemoteException
-     * @throws PackageNotFoundException
-     * @throws ProjectNotOpenException
-     * 
-     */
-    static RObject getRObject(Object obj)
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException, ClassNotFoundException
+    /*static Object getTransportField()
     {
-        synchronized (lock) {
-            RObject rObject = (RObject) cachedObjects.get(obj);
-            if (rObject != null) {
-                return rObject;
-            }
-            transportField = obj;
-            rObject = getRemoteClass(obj).getField("transportField").getValue(null);
-            cachedObjects.put(obj, rObject);
-            return rObject;
-        }
-    }
-
-    /**
-     * "Forget" about a remote object reference. This is needed to avoid memory
-     * leaks (worlds are otherwise never forgotten).
-     * 
-     * @param obj The object to forget
-     */
-    static void forgetRObject(Object obj)
+        return transportField;
+    }*/
+    
+    static Object getRemoteObjectTracker()
     {
-        synchronized (lock) {
-            RObject rObject = (RObject) cachedObjects.remove(obj);
-            if (rObject != null) {
-                try {
-                    rObject.removeFromBench();
-                }
-                catch (RemoteException re) {
-                    throw new Error(re);
-                }
-                catch (ProjectNotOpenException pnoe) {
-                    // shouldn't happen
-                }
-                catch (PackageNotFoundException pnfe) {
-                    // shouldn't happen
-                }
-            }
-        }
-    }
-
-    /**
-     * Remove all objects from the remote object cache. This should be called
-     * after a compilation.
-     */
-    static void clearObjectCache()
-    {
-        cachedObjects.clear();
-    }
-
-    /**
-     * This method ensures that we have the remote (RClass) representation of
-     * this class.
-     * <p>
-     * 
-     * IMPORTANT: This code is duplicated in greenfoot.World!
-     * 
-     * @param obj
-     * 
-     */
-    static private RClass getRemoteClass(Object obj)
-    {
-        if (remoteObjectTracker == null) {
-            String rclassName = obj.getClass().getName();
-            remoteObjectTracker = GreenfootMain.getInstance().getProject().getRClass(rclassName);
-        }
         return remoteObjectTracker;
     }
 
+    static void setTransportField(Object obj)
+    {
+        transportField = obj;
+    }   
 }

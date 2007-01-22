@@ -1,24 +1,17 @@
 package greenfoot;
 
+
 import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
-import greenfoot.core.GreenfootMain;
-import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.util.Version;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.rmi.RemoteException;
 import java.util.*;
 
-import rmiextension.wrappers.RClass;
-import rmiextension.wrappers.RField;
-import rmiextension.wrappers.RObject;
 import bluej.Boot;
-import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
+
 
 
 /**
@@ -42,6 +35,8 @@ import bluej.extensions.ProjectNotOpenException;
  */
 public abstract class World
 {    
+
+    //TODO this link to Boot is no good.
     /** Version number of the Greenfoot API */
     final static Version VERSION = new Version(Boot.GREENFOOT_API_VERSION);
    
@@ -560,6 +555,7 @@ public abstract class World
     }
     
     
+    
     //============================================================================
     //  
     //  Object Transporting - between the two VMs
@@ -567,95 +563,25 @@ public abstract class World
     //  IMPORTANT: This code is duplicated in greenfoot.Actor!
     //============================================================================
     
-    /** Remote version of this class */
-    private static RClass remoteObjectTracker;
-    
     /** The object we want to get a remote version of */
-    private static  Object transportField;
+    private static Object transportField;
     
-    /** Lock to ensure that we only have one remoteObjectTracker */
-    private static  Object lock = new Object();
-    //TODO The cached objects should be cleared at recompile.
-    private  static Hashtable cachedObjects = new Hashtable();
-    
-    /**
-     * Gets the remote reference to the obj.
-     * <p>
-     *  
-     * IMPORTANT: This code is duplicated in greenfoot.Actor!
-     *  
-     * @throws ClassNotFoundException 
-     * @throws RemoteException 
-     * @throws PackageNotFoundException 
-     * @throws ProjectNotOpenException 
-     * 
-     */
-    static RObject getRObject(Object obj) throws ProjectNotOpenException, PackageNotFoundException, RemoteException, ClassNotFoundException
-    {
-        synchronized (lock) {
-            RObject rObject = (RObject) cachedObjects.get(obj);
-            if (rObject != null) {
-                return rObject;
-            }
-            transportField = obj;
-            RClass rClass = getRemoteClass(obj);
-            RField rField = rClass.getField("transportField");
-            rObject = rField.getValue(null);
-            cachedObjects.put(obj, rObject);
-            return rObject;
-        }
-    }
-    
-    /**
-     * "Forget" about a remote object reference. This is needed to avoid memory
-     * leaks (worlds are otherwise never forgotten).
-     * @param obj  The object to forget
-     */
-    static void forgetRObject(Object obj)
-    {
-        synchronized (lock) {
-            RObject rObject = (RObject) cachedObjects.remove(obj);
-            if (rObject != null) {
-                try {
-                    rObject.removeFromBench();
-                }
-                catch (RemoteException re) {
-                    throw new Error(re);
-                }
-                catch (ProjectNotOpenException pnoe) {
-                    // shouldn't happen
-                }
-                catch (PackageNotFoundException pnfe) {
-                    // shouldn't happen
-                }
-            }
-        }
-    }
-    
-    /**
-     * Remove all objects from the remote object cache. This should be called
-     * after a compilation.
-     */
-    static void clearObjectCache()
-    {
-        cachedObjects.clear();
-    }
+    /** Remote version of this class. Will be of type RClass. */
+    private static Object remoteObjectTracker;
 
-    /**
-     * This method ensures that we have the remote (RClass) representation of
-     * this class.
-     * <p>
-     *  
-     * IMPORTANT: This code is duplicated in greenfoot.Actor!
-     * @param obj
-     * 
-     */
-    static private RClass getRemoteClass(Object obj)
+    /*static Object getTransportField()
     {
-        if (remoteObjectTracker == null) {
-            String rclassName = obj.getClass().getName();
-            remoteObjectTracker = GreenfootMain.getInstance().getProject().getRClass(rclassName);
-        }
+        return transportField;
+    }*/
+    
+    static Object getRemoteObjectTracker()
+    {
         return remoteObjectTracker;
     }
+
+    static void setTransportField(Object obj)
+    {
+        transportField = obj;
+    }   
+    
 }

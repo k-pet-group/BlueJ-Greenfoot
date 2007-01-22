@@ -1,5 +1,6 @@
 package greenfoot.core;
 
+import greenfoot.ActorDelegateIDE;
 import greenfoot.ObjectTracker;
 import greenfoot.WorldVisitor;
 import greenfoot.event.ActorInstantiationListener;
@@ -40,7 +41,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4794 2007-01-16 18:02:28Z polle $
+ * @version $Id: GreenfootMain.java 4799 2007-01-22 00:50:30Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -168,7 +169,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         this.rBlueJ = rBlueJ;
         currentLoader = ExecServer.getCurrentClassLoader();
         addCompileListener(this);
-        
+        ActorDelegateIDE.setupAsActorDelegate();
         try {
             // determine the path of the startup project
             File startupProj = rBlueJ.getSystemLibDir();

@@ -1,28 +1,24 @@
 package greenfoot.util;
 
+import greenfoot.ActorDelegateStandAlone;
 import greenfoot.World;
-import greenfoot.core.GreenfootMain;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.ControlPanel;
+import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.WorldCanvas;
 
 import java.awt.BorderLayout;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.Properties;
 
 import javax.swing.JFrame;
-
-import bluej.runtime.ExecServer;
 
 /**
  * This class can view and run a greenfoot scenario. It is not possible to
@@ -35,10 +31,11 @@ public class GreenfootScenarioViewer
 {
 
     private static String frameTitleName;
+    
+    private ProjectProperties properties;
+    private World world;
     private Simulation sim;
     private WorldCanvas canvas;
-    private ProjectProperties properties;
-
     private ControlPanel controls;
 
     /**
@@ -76,17 +73,21 @@ public class GreenfootScenarioViewer
         }
         
         if(worldClassName == null) {
-            worldClassName = "AntWorld";
+       //     worldClassName = "Breakout";
         }
+        
+
         
         GreenfootScenarioViewer gs = new GreenfootScenarioViewer();
         gs.init(worldClassName);
         gs.buildGUI();        
     }
-
+    
     private void buildGUI()
     {
         JFrame frame = new JFrame(frameTitleName);
+
+        frame.setGlassPane(DragGlassPane.getInstance());
         frame.getContentPane().add(canvas, BorderLayout.CENTER);
 
        
@@ -100,17 +101,14 @@ public class GreenfootScenarioViewer
     private void init(String worldClassName)
     {
         try {            
+
             File projectDir = GreenfootUtil.getDirectoryContaining(worldClassName + ".class");
             properties = new ProjectProperties(projectDir);
-       // GreenfootMain.initialize(properties);
             
-            World w = new World(2, 2, 2) {};
-            Class worldClass = Class.forName(worldClassName);
-       //     ExecServer.setClassLoader(worldClass.getClassLoader());
-            Constructor worldConstructor = worldClass.getConstructor(new Class[]{});
-            World world = (World) worldConstructor.newInstance(new Object[]{});
-
-            canvas = new WorldCanvas(world);
+            ActorDelegateStandAlone.setupAsActorDelegate();    
+            ActorDelegateStandAlone.initProperties(properties);
+           
+            canvas = new WorldCanvas(null);
 
             WorldHandler.initialise(canvas);
             WorldHandler worldHandler = WorldHandler.getInstance();
@@ -120,6 +118,12 @@ public class GreenfootScenarioViewer
 
             int initialSpeed = properties.getInt("simulation.speed");
             sim.setSpeed(initialSpeed);
+            
+            Class worldClass = Class.forName(worldClassName);
+            Constructor worldConstructor = worldClass.getConstructor(new Class[]{});
+            world = (World) worldConstructor.newInstance(new Object[]{});
+
+            ActorDelegateStandAlone.initWorld(world);
             
             worldHandler.setWorld(world);
         }
@@ -153,4 +157,5 @@ public class GreenfootScenarioViewer
             e.getCause().printStackTrace();
         }
     }
+
 }

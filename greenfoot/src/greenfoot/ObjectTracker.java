@@ -1,7 +1,12 @@
 package greenfoot;
 
-import java.rmi.RemoteException;
+import greenfoot.core.GreenfootMain;
 
+import java.rmi.RemoteException;
+import java.util.Hashtable;
+
+import rmiextension.wrappers.RClass;
+import rmiextension.wrappers.RField;
 import rmiextension.wrappers.RObject;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
@@ -18,53 +23,76 @@ import bluej.utility.Debug;
  */
 public class ObjectTracker
 {
+    
+
+    /** Lock to ensure that we only have one remoteObjectTracker */
+    private static  Object lock = new Object();
+    //TODO The cached objects should be cleared at recompile.
+    private  static Hashtable cachedObjects = new Hashtable();
+
     /**
-     * Get the RObject version of the obj.
+     * Gets the remote reference to the obj.
+     * <p>
+     *  
+     *  
+     * @throws ClassNotFoundException 
+     * @throws RemoteException 
+     * @throws PackageNotFoundException 
+     * @throws ProjectNotOpenException 
      * 
-     * 
-     * @param obj The class of obj must be in the project and be a subclass of greenfoot.ObjectTransporter
-     * @return
-     * @throws ProjectNotOpenException
-     * @throws PackageNotFoundException
-     * @throws RemoteException
-     * @throws ClassNotFoundException
      */
     public static RObject getRObject(Object obj) throws ProjectNotOpenException, PackageNotFoundException, RemoteException, ClassNotFoundException
     {
-        if(obj instanceof Actor) {
-            return Actor.getRObject(obj);
-        } else  if( obj instanceof World) {
-            return World.getRObject(obj);
-        } else {
-            Debug.reportError("Could not get remote version of object: " + obj, new Exception());
-            return null;
+        synchronized (lock) {
+            RObject rObject = (RObject) cachedObjects.get(obj);
+            if (rObject != null) {
+                return rObject;
+            }
+            
+            World.setTransportField(obj);
+            RClass remoteObjectTracker = null;
+            //This can be the same for world and actor apart from above lines.
+            if(obj instanceof Actor) {
+                Actor.setTransportField(obj);
+                remoteObjectTracker = (RClass) Actor.getRemoteObjectTracker();
+            } else  if( obj instanceof World) {
+                World.setTransportField(obj);
+                remoteObjectTracker = (RClass) World.getRemoteObjectTracker();
+            } else {
+                Debug.reportError("Could not get remote version of object: " + obj, new Exception());
+                return null;
+            }
+            
+
+            RClass rClass = getRemoteClass(obj, remoteObjectTracker);
+            
+            RField rField = rClass.getField("transportField");
+            rObject = rField.getValue(null);
+            cachedObjects.put(obj, rObject);
+            return rObject;
         }
-        
-    }
-    
+    }    
+
     /**
-     * Remove a remote object reference. This removes the object from the hidden
-     * "object bench" in the BlueJ VM.
+     * This method ensures that we have the remote (RClass) representation of
+     * this class.
+     * <p>
+     *  
+     * @param obj
+     * @param remoteObjectTracker 
+     * 
      */
-    public static void forgetRObject(Object obj)
+    static private RClass getRemoteClass(Object obj, RClass remoteObjectTracker)
     {
-        if (obj instanceof World) {
-            World.forgetRObject(obj);
+        if (remoteObjectTracker == null) {
+            String rclassName = obj.getClass().getName();
+            remoteObjectTracker = GreenfootMain.getInstance().getProject().getRClass(rclassName);
         }
-        else if (obj instanceof Actor) {
-            Actor.forgetRObject(obj);
-        }
+        return remoteObjectTracker;
     }
     
-    /**
-     * Clear the cache of remote objects.
-     */
-    public static void clearRObjectCache()
-    {
-        World.clearObjectCache();
-        Actor.clearObjectCache();
-    }
     
+
     public static Object getRealObject(RObject remoteObj)
     {
         try {
@@ -76,4 +104,40 @@ public class ObjectTracker
         }
         return null;
     }
+
+    
+    /**
+     * "Forget" about a remote object reference. This is needed to avoid memory
+     * leaks (worlds are otherwise never forgotten).
+     * @param obj  The object to forget
+     */
+    public static void forgetRObject(Object obj)
+    {
+        synchronized (lock) {
+            RObject rObject = (RObject) cachedObjects.remove(obj);
+            if (rObject != null) {
+                try {
+                    rObject.removeFromBench();
+                }
+                catch (RemoteException re) {
+                    throw new Error(re);
+                }
+                catch (ProjectNotOpenException pnoe) {
+                    // shouldn't happen
+                }
+                catch (PackageNotFoundException pnfe) {
+                    // shouldn't happen
+                }
+            }
+        }
+    }
+    
+    /**
+     * Clear the cache of remote objects.
+     */
+    public static void clearRObjectCache()
+    {
+        cachedObjects.clear();
+    }
+    
 }
