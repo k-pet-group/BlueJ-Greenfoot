@@ -33,7 +33,7 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.1.0
- * @cvs-version $Id: Greenfoot.java 4720 2006-11-27 14:07:19Z polle $
+ * @cvs-version $Id: Greenfoot.java 4801 2007-01-22 12:24:08Z polle $
  */
 public class Greenfoot
 {
@@ -109,23 +109,35 @@ public class Greenfoot
     public static int getRandomNumber(int limit) {
         return randomGenerator.nextInt(limit);
     }
-    
+
+    /**
+     * Play sound from a file. The following formats are supported: AIFF, AU and
+     * WAV.
+     * <p>
+     * 
+     * The file name may be an absolute path, a base name for a file located in
+     * the project directory or in the sounds directory of the project
+     * directory.
+     * 
+     * @param filename Typically the name of a file in the sounds directory in
+     *            the project directory.
+     * @throws IllegalArgumentException If the sound can not be loaded.
+     */
     public static void playSound(final String soundFile)
     {
         try {
             SoundPlayer.getInstance().play(soundFile);
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new IllegalArgumentException("Could not open sound file: " + soundFile, e);
         }
         catch (UnsupportedAudioFileException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new IllegalArgumentException("Format of sound file not supported: " + soundFile, e);
         }
         catch (LineUnavailableException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new IllegalArgumentException("Can not get access to the sound card. "
+                    + "Check your system settings, "
+                    + "and close down any other programs that might be using the sound card.", e);
         }
     }
 }
