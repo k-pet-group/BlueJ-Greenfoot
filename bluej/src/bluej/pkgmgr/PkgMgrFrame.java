@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 4780 2006-12-22 04:14:21Z bquig $
+ * @version $Id: PkgMgrFrame.java 4806 2007-01-22 14:41:29Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1270,12 +1270,11 @@ public class PkgMgrFrame extends JFrame
         // than remove frame
 
         if (frameCount() == 1) {
-            if (keepLastFrame) { // close package, leave frame
+            if (keepLastFrame && !Config.isGreenfoot()) { // close package, leave frame, but not for greenfoot
                 closePackage();
-                teamActions.setAllDisabled();
+                
                 updateWindowTitle();
                 updateRecentProjects();
-
                 // we have had trouble with BlueJ freezing when
                 // the enable/disable GUI code was run off a menu
                 // item. This code will delay the menu disable
