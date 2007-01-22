@@ -39,6 +39,13 @@
 
 	<!-- Location of the source files for greenfoot -->
 	<property name="src" location="src"/>
+
+    <!-- Location of the source files for standalone greenfoot -->
+    <property name="standalone.src" location="standalone/src"/>    
+
+    <!-- Location of the build dir for standalone greenfoot -->
+    <property name="standalone.build" location="standalone/classes"/>
+    
 	<!-- Location of the test source files for greenfoot -->
 	<property name="test.src" location="test/src"/>
 	<property name="test.report" value="test"/>
@@ -343,7 +350,7 @@
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/-->
                 <pathelement location="${build}"/>
-                <pathelement location="scenarios/ants/"/>
+                <pathelement location="scenarios/asteroids/"/>
                 <fileset dir="scenarios">
                     <patternset refid="compile.scenarios" />
                 </fileset>
@@ -381,6 +388,80 @@
             </classpath>        
             <jvmarg value="${profiler.info.jvmargs.agent}"/>
         </java>
+    </target>
+    
+    <target name="build-standalone-jar" depends="compile-standalone" description="Builds a jar file with all the classes and files needed for stand alone execution of Greenfoot projects.">
+        <copy  todir="${standalone.build}">
+            <fileset dir="${images}"/>
+        </copy>
+        <jar jarfile="standalone.jar" basedir="${standalone.build}">
+            <manifest>
+                <attribute name="Main-Class" value="greenfoot.util.GreenfootScenarioViewer" />
+                <attribute name="Class-Path" value="." />
+            </manifest>
+        </jar>
+    </target>
+    
+    <target name="compile-standalone" depends="init" description="Compile the source and run rmic" >
+        <delete dir="${standalone.build}"/>
+        <mkdir dir="${standalone.build}"/>  
+        
+        <!-- Stupid javac target can't specify to exclude files from a specific source path. Will just temporarily rename them-->
+        <move file="${src}/greenfoot/core/WorldHandler.java" tofile="${src}/greenfoot/core/WorldHandler.javaTMP" preservelastmodified="true" overwrite="false" failonerror="false"/>
+        <move file="${src}/greenfoot/util/GreenfootUtil.java" tofile="${src}/greenfoot/util/GreenfootUtil.javaTMP" preservelastmodified="true" overwrite="false" failonerror="false"/>
+               
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac  
+                    executable="${build_java_home}/bin/javac" 
+                    fork="yes"
+                    destdir="${standalone.build}" 
+
+            classpathref="bluej.class.path" 
+                    debug="true"
+                    sourcepath=""            
+            >
+            <src path="${src}"/>
+            <src path="${standalone.src}"/>
+            
+            <include name="greenfoot/core/WorldHandler.java"/>
+            <include name="greenfoot/util/GreenfootUtil.java"/>
+
+            <include name="greenfoot/**.java"/>
+            <exclude name="greenfoot/ObjectTracker.java"/>
+            <exclude name="greenfoot/ActorDelegateIDE.java"/>
+            
+            <include name="greenfoot/actions/PauseSimulationAction.java"/> 
+            <include name="greenfoot/actions/RunSimulationAction.java"/> 
+            <include name="greenfoot/actions/RunOnceSimulationAction.java"/> 
+            
+            <include name="greenfoot/collision/**/*.java"/>            
+
+            <include name="greenfoot/core/KeyboardManager.java"/>
+            <include name="greenfoot/core/LocationTracker.java"/>
+            <include name="greenfoot/core/ProjectProperties.java"/>
+            <include name="greenfoot/core/Simulation.java"/>        
+            <include name="greenfoot/core/ObjectDragProxy.java"/>         
+
+            <include name="greenfoot/event/SimulationEvent.java"/>
+            <include name="greenfoot/event/SimulationListener.java"/> 
+            <include name="greenfoot/event/WorldListener.java"/> 
+            <include name="greenfoot/event/WorldEvent.java"/> 
+            
+            <include name="greenfoot/gui/ControlPanel.java"/>
+            <include name="greenfoot/gui/DragGlassPane.java"/>
+            <include name="greenfoot/gui/DragListener.java"/>
+            <include name="greenfoot/gui/DropTarget.java"/>
+            <include name="greenfoot/gui/WorldCanvas.java"/>            
+
+            <include name="greenfoot/sound/**/*.java"/>
+
+            <include name="greenfoot/util/**/*.java"/>
+            
+        </javac>
+        <!-- Rename files back. This will not happen if compile fails :-( But if it fails it is assumed that the compile will be fixed, and then it should work again. -->
+        <move file="${src}/greenfoot/core/WorldHandler.javaTMP" tofile="${src}/greenfoot/core/WorldHandler.java" preservelastmodified="true" overwrite="false"/>
+        <move file="${src}/greenfoot/util/GreenfootUtil.javaTMP" tofile="${src}/greenfoot/util/GreenfootUtil.java" preservelastmodified="true" overwrite="false"/>
+                 
     </target>
     
     <target name="clean-scenarios" description="clean up scenarios (remove doc and greenfoot dir)" >
