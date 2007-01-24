@@ -2,8 +2,6 @@ package greenfoot.sound;
 
 import greenfoot.util.GreenfootUtil;
 
-import java.applet.Applet;
-import java.applet.AudioClip;
 import java.io.IOException;
 import java.net.URL;
 
@@ -22,18 +20,12 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  * @author Poul Henriksen
  * 
  */
-public class SoundStream
+public class SoundStream implements Sound
 {
     private URL url;
     private boolean stop;
     private boolean pause;
     private SoundPlayer player;
-
-
-  /* public static void playSoundWithApplet(String file) {
-        AudioClip clip = Applet.newAudioClip(GreenfootUtil.getURL(file, null));
-        clip.play();
-    }*/
     
     public SoundStream(String file, SoundPlayer player) {
         url = GreenfootUtil.getURL(file, "sounds");
@@ -60,10 +52,11 @@ public class SoundStream
     public void play()
         throws IOException, UnsupportedAudioFileException, LineUnavailableException
     {
-        AudioInputStream is = null;
-        SourceDataLine line = null;
 
+        SourceDataLine line = null;
+        AudioInputStream is = null;
         try {
+
             is = AudioSystem.getAudioInputStream(url);
 
             AudioFormat format = is.getFormat();
@@ -71,8 +64,10 @@ public class SoundStream
 
             // If the format is not supported we try to convert it. 
             if (!AudioSystem.isLineSupported(info)) {
+                //TODO TEST THIS!!!!
+                System.out.println("Converting");
                 // Target format
-                AudioFormat supportedFormat = new AudioFormat(format.getSampleRate(), 16, format.getChannels(), true, false);
+                AudioFormat supportedFormat = new AudioFormat(format.getSampleRate(), format.getSampleSizeInBits(), format.getChannels(), true, false);
 
                 // Create the converter
                 is = AudioSystem.getAudioInputStream(supportedFormat, is);
@@ -80,6 +75,7 @@ public class SoundStream
                 format = is.getFormat();
                 info = new DataLine.Info(SourceDataLine.class, format);
             }
+
 
             line = (SourceDataLine) AudioSystem.getLine(info);
             try {
@@ -90,10 +86,11 @@ public class SoundStream
                 e.printStackTrace();
             }
             int frameSize = format.getFrameSize();
-            byte[] buffer = new byte[4 * 1024 * frameSize]; 
+            byte[] buffer = new byte[ 2 * frameSize]; //4 * 1024 * frameSize
             int bytesInBuffer = 0;
 
             int bytesRead = is.read(buffer, 0, buffer.length - bytesInBuffer);
+            boolean isFirst = true;
             while (bytesRead != -1 && !stop) {
                 line.start();
                 bytesInBuffer += bytesRead;
@@ -103,12 +100,20 @@ public class SoundStream
 
                 //Play it
                 line.write(buffer, 0, bytesToWrite);
-
                 // Copy remaining bytes (if we did not have a multiple of frameSize)
                 int remaining = bytesInBuffer - bytesToWrite;
                 if (remaining > 0)
                     System.arraycopy(buffer, bytesToWrite, buffer, 0, remaining);
                 bytesInBuffer = remaining;
+                
+
+            /*    if(isFirst) {
+                    isFirst = false;
+
+                   // Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+                    Thread.yield();
+                }*/
+                
                 bytesRead = is.read(buffer, bytesInBuffer, buffer.length - bytesInBuffer);
                 while (pause) {
                     synchronized (this) {

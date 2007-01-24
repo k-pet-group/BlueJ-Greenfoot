@@ -2,11 +2,17 @@ package greenfoot.sound;
 
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
+import greenfoot.util.GreenfootUtil;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -22,8 +28,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class SoundPlayer implements SimulationListener
 {
-    private List sounds = new ArrayList();
-    
+    /** Holds a list of all sounds currently playing. We use this list to stop the sounds. */
+   // private List sounds = new ArrayList();
+    private Map sounds = new Hashtable();
     private static SoundPlayer instance;
     
     private SoundPlayer() {
@@ -42,8 +49,8 @@ public class SoundPlayer implements SimulationListener
      * 
      */
     public synchronized void stop() {
-        for (Iterator iter = sounds.iterator(); iter.hasNext();) {
-            SoundStream element = (SoundStream) iter.next();
+        for (Iterator iter = sounds.values().iterator(); iter.hasNext();) {
+            Sound element = (Sound) iter.next();
             element.stop();
         }
         sounds.clear();
@@ -54,8 +61,8 @@ public class SoundPlayer implements SimulationListener
      *
      */
     public synchronized void pause() {
-        for (Iterator iter = sounds.iterator(); iter.hasNext();) {
-            SoundStream element = (SoundStream) iter.next();
+        for (Iterator iter = sounds.values().iterator(); iter.hasNext();) {
+            Sound element = (Sound) iter.next();
             element.pause();
         }
     }
@@ -65,11 +72,13 @@ public class SoundPlayer implements SimulationListener
      *
      */
     public synchronized  void resume() {
-        for (Iterator iter = sounds.iterator(); iter.hasNext();) {
-            SoundStream element = (SoundStream) iter.next();
+        for (Iterator iter = sounds.values().iterator(); iter.hasNext();) {
+            Sound element = (Sound) iter.next();
             element.resume();
         }
     }
+    
+    private static SoundEngine soundEngine = new SoundEngine();
     
     /**
      * Plays the sound from file.
@@ -78,22 +87,98 @@ public class SoundPlayer implements SimulationListener
      * @throws UnsupportedAudioFileException
      * @throws LineUnavailableException
      */
-    public void play(String file)
+    public void play(final String file)
         throws IOException, UnsupportedAudioFileException, LineUnavailableException
     {
-       final SoundStream sound = new SoundStream(file, this);
-       sounds.add(sound);
-       new Thread() {
-           public void run()
-           {
-               try {
-                   sound.play();
-               }
-               catch (Exception e) {
-                   e.printStackTrace();
-               }
-           }
-       }.start();
+        //If smaller than some size, load it as a clip and cache it. 
+        //If bigger stream it - look into why it is slow - maybe play with buffer size.
+        //Play with threading
+        //To test - can same sound be played on top of itself?
+        //PROBLEM: Can clips be played several times concurrently? NO :-(
+        
+        
+      
+        
+         
+        // DELAY! GFX SMOOTH!  CONCURRENT! BEST one so far
+        Sound sound = null;
+        if(sound == null) {
+            sound = new SoundClip(file, SoundPlayer.this);
+           // sounds.put(file, sound);
+        }
+         sound.play();
+         
+        
+        //Experiments with best one
+    /*     Sound sound = (Sound) sounds.get(file);
+         if(sound == null) {
+             sound = new SoundClip(file, SoundPlayer.this);
+             sounds.put(file, sound);
+         }
+          sound.play();
+         Thread.yield();*/
+        
+
+     
+       // NO DELAY! GFX LONG PAUSE! NOT CONCURRENT
+       /* Sound sound = sound = new SoundStream(file, SoundPlayer.this);
+        
+        sound.play();*/
+        
+        
+        //SOME DELAY, GFX PAUSE, concurrent   THIS 1 ?
+       /* Sound sound = (Sound) sounds.get(file);
+        if(sound == null) {
+            sound = new SoundStream(file, SoundPlayer.this);
+           // sounds.put(file, sound);
+        } 
+        
+        
+       final Sound soundFinal = sound;
+        Thread t = new Thread() {
+            public void run()
+            {             
+                    try {
+                        soundFinal.play();
+                    }
+                    catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    catch (UnsupportedAudioFileException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    catch (LineUnavailableException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }             
+            }
+        };
+        t.start();*/
+        
+      //  Thread.yield();
+        
+       //LONG DELAY! GFX PAUSE! CONCURRENT
+        //GOT one weird crash where greenfoot window just disappeared. When caching of sound turned on.
+      /* Thread t =  new Thread() {
+            public void run()
+            {
+                Sound sound = null;
+                if(sound == null) {
+                    sound = new SoundStream(file, SoundPlayer.this);
+                   // sounds.put(file, sound);
+                }
+                try {
+                    sound.play();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        t.start();*/
+       // Thread.yield(); 
     }
 
     /**
@@ -119,6 +204,6 @@ public class SoundPlayer implements SimulationListener
      */
     synchronized void soundStreamFinished(SoundStream s)
     {
-        sounds.remove(s);
+      //  sounds.remove(s);
     } 
 }
