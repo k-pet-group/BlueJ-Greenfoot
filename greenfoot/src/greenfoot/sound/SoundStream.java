@@ -1,7 +1,5 @@
 package greenfoot.sound;
 
-import greenfoot.util.GreenfootUtil;
-
 import java.io.IOException;
 import java.net.URL;
 
@@ -13,31 +11,65 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import bluej.utility.Debug;
+
 /**
- * Plays sound from a file or URL. To avoid loading the entire sound clip into memory,
- * the sound is streamed.
+ * Plays sound from a URL. To avoid loading the entire sound clip into
+ * memory, the sound is streamed.
  * 
  * @author Poul Henriksen
  * 
  */
-public class SoundStream implements Sound
+public class SoundStream extends Sound
 {
     private URL url;
     private boolean stop;
     private boolean pause;
     private SoundPlayer player;
-    
-    public SoundStream(URL url, SoundPlayer player) {
-    	this.url = url;
+
+    private SourceDataLine line;
+    private AudioInputStream stream;
+    private AudioFormat format;
+
+    private boolean hasPlayed = false;
+
+    public SoundStream(URL url, SoundPlayer player)
+        throws UnsupportedAudioFileException, IOException, LineUnavailableException
+    {
+        this.url = url;
         stop = false;
         this.player = player;
+        open();
     }
-    
-    public synchronized void stop() {
+
+    private void open()
+        throws UnsupportedAudioFileException, IOException, LineUnavailableException
+    {
+        stream = AudioSystem.getAudioInputStream(url);
+
+        format = stream.getFormat();
+        DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+
+        // If the format is not supported we try to convert it.
+        if (!AudioSystem.isLineSupported(info)) {
+            // TODO TEST THIS!!!!
+            System.out.println("Converting");
+            format = getCompatibleFormat(format);
+            // Create the converter
+            stream = AudioSystem.getAudioInputStream(format, stream);
+            info = new DataLine.Info(SourceDataLine.class, format);
+        }
+
+        line = (SourceDataLine) AudioSystem.getLine(info);
+        line.open(format);
+    }
+
+    public synchronized void stop()
+    {
         stop = true;
         notifyAll();
     }
-    
+
     public synchronized void pause()
     {
         pause = true;
@@ -45,52 +77,23 @@ public class SoundStream implements Sound
 
     public synchronized void resume()
     {
-        pause = false;    
+        pause = false;
         notifyAll();
     }
-    
+
     public void play()
-        throws IOException, UnsupportedAudioFileException, LineUnavailableException
     {
-
-        SourceDataLine line = null;
-        AudioInputStream is = null;
+        if(hasPlayed) {
+            throw new IllegalStateException("This sound has already been played.");
+        }
+        hasPlayed = true;
+        
         try {
-
-            is = AudioSystem.getAudioInputStream(url);
-
-            AudioFormat format = is.getFormat();
-            DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-
-            // If the format is not supported we try to convert it. 
-            if (!AudioSystem.isLineSupported(info)) {
-                //TODO TEST THIS!!!!
-                System.out.println("Converting");
-                // Target format
-                AudioFormat supportedFormat = new AudioFormat(format.getSampleRate(), format.getSampleSizeInBits(), format.getChannels(), true, false);
-
-                // Create the converter
-                is = AudioSystem.getAudioInputStream(supportedFormat, is);
-               
-                format = is.getFormat();
-                info = new DataLine.Info(SourceDataLine.class, format);
-            }
-
-
-            line = (SourceDataLine) AudioSystem.getLine(info);
-            try {
-                line.open(format);
-            }
-            catch(LineUnavailableException e) {
-                System.err.println("Is another application using the sound card? Could not play sound: " + url);
-                e.printStackTrace();
-            }
             int frameSize = format.getFrameSize();
-            byte[] buffer = new byte[ 2 * frameSize]; //4 * 1024 * frameSize
+            byte[] buffer = new byte[4 * 1024 * frameSize]; // 4 * 1024 * frameSize
             int bytesInBuffer = 0;
 
-            int bytesRead = is.read(buffer, 0, buffer.length - bytesInBuffer);
-            boolean isFirst = true;
+            int bytesRead = stream.read(buffer, 0, buffer.length - bytesInBuffer);
             while (bytesRead != -1 && !stop) {
                 line.start();
                 bytesInBuffer += bytesRead;
@@ -98,27 +101,19 @@ public class SoundStream implements Sound
                 // Only write in multiples of frameSize
                 int bytesToWrite = (bytesInBuffer / frameSize) * frameSize;
 
-                //Play it
+                // Play it
                 line.write(buffer, 0, bytesToWrite);
-                // Copy remaining bytes (if we did not have a multiple of frameSize)
+                // Copy remaining bytes (if we did not have a multiple of
+                // frameSize)
                 int remaining = bytesInBuffer - bytesToWrite;
                 if (remaining > 0)
                     System.arraycopy(buffer, bytesToWrite, buffer, 0, remaining);
                 bytesInBuffer = remaining;
-                
 
-            /*    if(isFirst) {
-                    isFirst = false;
+                bytesRead = stream.read(buffer, bytesInBuffer, buffer.length - bytesInBuffer);
 
-                   // Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-                    Thread.yield();
-                }*/
-                
-                bytesRead = is.read(buffer, bytesInBuffer, buffer.length - bytesInBuffer);
                 synchronized (this) {
-                	while (pause) {        
-
-                    	System.out.println("Stream paused");
+                    while (pause) {
                         try {
                             wait();
                         }
@@ -126,20 +121,30 @@ public class SoundStream implements Sound
                     }
                 }
             }
-            
+
             line.drain();
         }
+        catch (IOException e1) {
+            // this should not happen, since the error should have happened in the open() method
+            Debug.reportError("Error when streaming sound.", e1);
+        }
         finally {
-            if (line != null)
+            if (line != null) {
                 line.close();
-            if (is != null)
-                is.close();
-            player.soundFinished(this);            
+            }
+            if (stream != null) {
+                try {
+                    stream.close();
+                }
+                catch (IOException e) {;
+                }
+            }
+            player.soundFinished(this);
         }
     }
-    
-    public String toString() {
+
+    public String toString()
+    {
         return url + " " + super.toString();
     }
-
 }
