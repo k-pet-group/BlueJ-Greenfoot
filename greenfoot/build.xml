@@ -228,6 +228,7 @@
 			</fileset>
 		</copy>
 		<mkdir dir="projects/skeletonProject/images"/>
+		<mkdir dir="projects/skeletonProject/sounds"/>
 		<copy file="resources/greenfoot-icon-16.png" tofile="projects/skeletonProject/images/greenfoot.png"/>
 	</target>
 
