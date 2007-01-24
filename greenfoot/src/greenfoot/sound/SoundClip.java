@@ -21,7 +21,6 @@ import javax.sound.sampled.LineUnavailableException;
  */
 public class SoundClip implements Sound
 {
-    public static SoundEngine soundEngine = new SoundEngine();
 
     private URL url;
     private boolean stop;
