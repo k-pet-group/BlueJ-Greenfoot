@@ -356,10 +356,15 @@ public class WorldHandler
         keyboardManager.keyPressed(e);
     }
 
-    private void processInputEvent(InputEvent e)
-    {
+    private void processInputEvent(KeyEvent e)
+    {        
         if( ! isQuickAddActive) {
     		isQuickAddActive = e.isShiftDown();
+            if(isQuickAddActive) {
+                //When shift is pressed any existing drags should be cancelled.
+                //For instance dragging object instantiated via interactively calling the constructor.
+                DragGlassPane.getInstance().cancelDrag();
+            }
     		quickAddIfActive();
     	}
     }
