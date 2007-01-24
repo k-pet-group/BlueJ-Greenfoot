@@ -33,7 +33,7 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.1.0
- * @cvs-version $Id: Greenfoot.java 4801 2007-01-22 12:24:08Z polle $
+ * @cvs-version $Id: Greenfoot.java 4815 2007-01-24 17:28:01Z polle $
  */
 public class Greenfoot
 {
@@ -90,7 +90,7 @@ public class Greenfoot
     /**
      * Pause the simulation.
      */
-    public static void pauseSimulation()
+    public static void stopSimulation()
     {
         Simulation.getInstance().setPaused(true);
     }
@@ -98,7 +98,7 @@ public class Greenfoot
     /**
      * Run (or resume) the simulation.
      */
-    public static void resumeSimulation()
+    public static void startSimulation()
     {
         Simulation.getInstance().setPaused(false);
     }
