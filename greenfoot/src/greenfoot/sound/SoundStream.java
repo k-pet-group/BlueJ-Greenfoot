@@ -27,8 +27,8 @@ public class SoundStream implements Sound
     private boolean pause;
     private SoundPlayer player;
     
-    public SoundStream(String file, SoundPlayer player) {
-        url = GreenfootUtil.getURL(file, "sounds");
+    public SoundStream(URL url, SoundPlayer player) {
+    	this.url = url;
         stop = false;
         this.player = player;
     }
@@ -115,8 +115,10 @@ public class SoundStream implements Sound
                 }*/
                 
                 bytesRead = is.read(buffer, bytesInBuffer, buffer.length - bytesInBuffer);
-                while (pause) {
-                    synchronized (this) {
+                synchronized (this) {
+                	while (pause) {        
+
+                    	System.out.println("Stream paused");
                         try {
                             wait();
                         }
@@ -132,7 +134,7 @@ public class SoundStream implements Sound
                 line.close();
             if (is != null)
                 is.close();
-            player.soundStreamFinished(this);            
+            player.soundFinished(this);            
         }
     }
     
