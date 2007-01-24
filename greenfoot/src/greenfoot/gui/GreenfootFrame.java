@@ -37,7 +37,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4793 2007-01-16 17:48:21Z polle $
+ * @version $Id: GreenfootFrame.java 4816 2007-01-24 17:58:24Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -256,6 +256,7 @@ public class GreenfootFrame extends JFrame
         });
         
         sim.addSimulationListener(SoundPlayer.getInstance());
+        GreenfootMain.getInstance().addCompileListener(SoundPlayer.getInstance());
         
         JPanel canvasPanel = new JPanel(new CenterLayout());
         canvasPanel.add(worldCanvas, BorderLayout.CENTER);
