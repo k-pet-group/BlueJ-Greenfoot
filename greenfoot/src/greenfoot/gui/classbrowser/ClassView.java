@@ -8,11 +8,11 @@ import greenfoot.core.GPackage;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.ActorInstantiationListener;
-import greenfoot.event.CompileListener;
 import greenfoot.gui.classbrowser.role.ClassRole;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
+import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -50,7 +50,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4687 2006-11-03 15:08:59Z polle $
+ * @version $Id: ClassView.java 4823 2007-01-25 17:03:30Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -509,10 +509,9 @@ public class ClassView extends JToggleButton
             //write the java file as this is required to exist
             File dir = pkg.getProject().getDir();
             File newJavaFile = new File(dir, className + ".java");
-            writer = new FileWriter(newJavaFile);
             String superClassName = getClassName();            
-            role.createSkeleton(className, superClassName, writer);
-            writer.close();
+            GreenfootUtil.createSkeleton(className, superClassName, newJavaFile, role.getTemplateFileName());
+            
             GClass newClass = pkg.newClass(className);
             //We know what the superclass should be, so we set it.
             newClass.setSuperclassGuess(this.getQualifiedClassName());
@@ -531,7 +530,7 @@ public class ClassView extends JToggleButton
         return null;
 
     }
-
+    
     public void reloadClass()
     {
         realClass = gClass.getJavaClass();

@@ -12,8 +12,6 @@ import greenfoot.util.GreenfootUtil;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,7 +28,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 4759 2006-12-08 17:10:08Z polle $
+ * @version $Id: GreenfootClassRole.java 4823 2007-01-25 17:03:30Z polle $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -39,6 +37,7 @@ public class GreenfootClassRole extends ClassRole
     protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
     private ClassView classView;
+    private String template = "actorclass.tmpl";
 
     private static final String newline = System.getProperty("line.separator");
     public static final String imports = "import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)" + newline;
@@ -112,38 +111,6 @@ public class GreenfootClassRole extends ClassRole
     }
 
     /**
-     * 
-     * Creates the skeleton for a new class of this type/role
-     * 
-     */
-    public void createSkeleton(String className, String superClassName, FileWriter writer)
-    {
-        String newline = System.getProperty("line.separator");
-        try {
-            //TODO make sure a class from a different package are imported
-            //        if(pkg != null && pkg.getName() != "") {
-            // writer.write("import " + rClass.getQualifiedName() + ";\n");
-            //      }
-            writer.write(imports);
-
-            writer.write(newline + "public class " + className + " extends " + superClassName + newline + "{" + newline);
-
-            writer.write("    public " + className + "()" + newline + "    {" + newline);
-            writer.write("    }" + newline + newline);
-
-            writer.write("    public void act()" + newline + "    {" + newline);
-            writer.write("        //here you can create the behaviour of your object" + newline);
-            writer.write("    }" + newline + newline);
-
-            writer.write("}");
-            writer.flush();
-        }
-        catch (IOException e2) {
-            e2.printStackTrace();
-        }
-    }
-
-    /**
      * Need to overide this method in order to delay the invocation of the
      * constructor until the object is placed into the world.
      */
@@ -183,6 +150,12 @@ public class GreenfootClassRole extends ClassRole
         item.setFont(PrefMgr.getPopupMenuFont());
         item.setForeground(envOpColour);
         menu.add(item);
+    }
+
+    @Override
+    public String getTemplateFileName()
+    {
+        return template;
     }
 
 }

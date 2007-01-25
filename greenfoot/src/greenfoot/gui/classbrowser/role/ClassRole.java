@@ -5,7 +5,6 @@ import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.Image;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +21,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 4016 2006-04-25 16:42:46Z davmac $
+ * @version $Id: ClassRole.java 4823 2007-01-25 17:03:30Z polle $
  */
 public abstract class ClassRole
 {
@@ -34,14 +33,10 @@ public abstract class ClassRole
     }
 
     /**
-     * Write the skeleton for a class to a FileWriter.
+     * Get the name for the template file used to create the initial source for a new class.
      * 
-     * @param className   the name of the class to write the skeleton for
-     * @param superClassName  the name of the superclass, or null if there
-     *                        is no superclass
-     * @param writer   the writer to write the skeleton to
      */
-    public abstract void createSkeleton(String className, String superClassName, FileWriter writer);
+    public abstract String getTemplateFileName();
 
     public List createConstructorActions(Class realClass)
     {

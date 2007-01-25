@@ -2,18 +2,18 @@ package greenfoot.gui.classbrowser.role;
 
 import greenfoot.core.GClass;
 import greenfoot.gui.classbrowser.ClassView;
-import java.io.FileWriter;
-import java.io.IOException;
 
 /**
  * Role for a "normal" (non-Actor, non-World) class.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NormalClassRole.java 4686 2006-11-03 15:04:05Z polle $
+ * @version $Id: NormalClassRole.java 4823 2007-01-25 17:03:30Z polle $
  */
 public class NormalClassRole extends ClassRole
 {
     private static NormalClassRole instance;
+
+    private String template = "stdclass.tmpl";
     
     /**
      * Get the (singleton) instance of NormalClassRole.
@@ -38,27 +38,11 @@ public class NormalClassRole extends ClassRole
         classView.setText(gClass.getQualifiedName());
     }
 
-    public void createSkeleton(String className, String superClassName, FileWriter writer)
+    @Override
+    public String getTemplateFileName()
     {
-        String newline = System.getProperty("line.separator");
-        try {
-            writer.write(newline + "public class " + className);
-            if (superClassName != null) {
-                writer.write(" extends " + superClassName);
-            }
-            writer.write(newline + "{" + newline);
-
-            writer.write("    public " + className + "()" + newline + "    {" + newline);
-            writer.write("        // Write your constructor here" + newline);
-            writer.write("    }" + newline + newline);
-
-
-            writer.write("}");
-            writer.flush();
-        }
-        catch (IOException e2) {
-            e2.printStackTrace();
-        }
+        return template;
     }
+
     
 }

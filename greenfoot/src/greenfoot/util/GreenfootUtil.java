@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -28,13 +30,14 @@ import javax.swing.JPanel;
 
 import bluej.Config;
 import bluej.runtime.ExecServer;
+import bluej.utility.BlueJFileReader;
 import bluej.utility.FileUtility;
 
 /**
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4820 2007-01-25 12:49:14Z polle $
+ * @version $Id: GreenfootUtil.java 4823 2007-01-25 17:03:30Z polle $
  */
 public class GreenfootUtil
 {
@@ -492,4 +495,19 @@ public class GreenfootUtil
         return url;
     }
         
+    /**
+     * 
+     * Creates the skeleton for a new class
+     * 
+     */
+    public static void createSkeleton(String className, String superClassName, File file, String templateFileName) throws IOException   {
+        Dictionary<String, String> translations = new Hashtable<String, String>();
+        translations.put("CLASSNAME", className);
+        if(superClassName != null) {
+            translations.put("SUPERCLASSNAME", superClassName);
+        }
+        File libDir = Config.getGreenfootLibDir();
+        File template = new File(libDir, "templates/" +  templateFileName);  
+        BlueJFileReader.translateFile(template, file, translations);
+    }
 }
