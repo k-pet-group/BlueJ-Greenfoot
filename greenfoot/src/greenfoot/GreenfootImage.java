@@ -25,7 +25,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 1.1.0
- * @cvs-version $Id: GreenfootImage.java 4720 2006-11-27 14:07:19Z polle $
+ * @cvs-version $Id: GreenfootImage.java 4820 2007-01-25 12:49:14Z polle $
  */
 public class GreenfootImage
 {
@@ -53,7 +53,7 @@ public class GreenfootImage
     {
         loadFile(filename);
     }
-
+       
     /**
      * Create an empty (transparent) image with the specified size.
      * 
@@ -104,9 +104,7 @@ public class GreenfootImage
         }
         imageFileName = filename;
         URL url = GreenfootUtil.getURL(filename, "images");
-        if(url == null) {
-            throw new IllegalArgumentException("Could not load image from: " + imageFileName);
-        }
+
         loadURL(url);
     }
 

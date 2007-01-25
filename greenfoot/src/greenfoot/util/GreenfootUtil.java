@@ -34,7 +34,7 @@ import bluej.utility.FileUtility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4667 2006-10-27 16:29:47Z polle $
+ * @version $Id: GreenfootUtil.java 4820 2007-01-25 12:49:14Z polle $
  */
 public class GreenfootUtil
 {
@@ -485,6 +485,9 @@ public class GreenfootUtil
                     }
                 }
             }
+        }
+        if(url == null) {
+            throw new IllegalArgumentException("Could not find file: " + filename);
         }
         return url;
     }
