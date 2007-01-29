@@ -12,12 +12,12 @@ import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
 import greenfoot.sound.SoundPlayer;
+import greenfoot.util.GreenfootUtil;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.net.URL;
 import java.util.Iterator;
 
 import javax.swing.*;
@@ -37,7 +37,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4816 2007-01-24 17:58:24Z polle $
+ * @version $Id: GreenfootFrame.java 4826 2007-01-29 10:39:01Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -110,9 +110,7 @@ public class GreenfootFrame extends JFrame
         }
         
         LocationTracker.instance(); //force initialisation
-        
-        URL iconFile = this.getClass().getClassLoader().getResource("greenfoot.png");
-        ImageIcon icon = new ImageIcon(iconFile);
+        ImageIcon icon = new ImageIcon(GreenfootUtil.getGreenfootLogoPath());
         setIconImage(icon.getImage());
 
         makeFrame();

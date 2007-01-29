@@ -1,6 +1,5 @@
 package greenfoot.util;
 
-
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -37,7 +36,7 @@ import bluej.utility.FileUtility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4823 2007-01-25 17:03:30Z polle $
+ * @version $Id: GreenfootUtil.java 4826 2007-01-29 10:39:01Z polle $
  */
 public class GreenfootUtil
 {
@@ -509,5 +508,15 @@ public class GreenfootUtil
         File libDir = Config.getGreenfootLibDir();
         File template = new File(libDir, "templates/" +  templateFileName);  
         BlueJFileReader.translateFile(template, file, translations);
+    }
+
+    /**
+     * Returns a the path to a small version of the greenfoot logo.
+     */
+    public static String getGreenfootLogoPath()
+    {        
+        File libDir = Config.getGreenfootLibDir();
+        return libDir.getAbsolutePath() + "/imagelib/other/greenfoot.png";
+        
     }
 }

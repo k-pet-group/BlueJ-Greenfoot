@@ -2,9 +2,8 @@ package greenfoot;
 
 import greenfoot.collision.ibsp.Rect;
 import greenfoot.util.Circle;
+import greenfoot.util.GreenfootUtil;
 
-import java.rmi.RemoteException;
-import java.util.Hashtable;
 import java.util.List;
 
 import bluej.utility.Debug;
@@ -63,7 +62,19 @@ public abstract class Actor
     /** Field used to store some extra data in an object. Used by collision checkers. */
     private Object data;
 
-    private static GreenfootImage greenfootImage = new GreenfootImage("images/greenfoot.png");
+    private static GreenfootImage greenfootImage;
+    
+    static {
+        //Do this in a 'try' since a failure at this point will crash greenfoot.
+        try {            
+            greenfootImage = new GreenfootImage(GreenfootUtil.getGreenfootLogoPath().toString());
+        }
+        catch(Exception e) {
+            // Should not happen unless the greenfoot installation is seriously broken.
+            Debug.reportError("Greenfoot installation is broken - reinstalling Greenfoot might helpl.", e);
+        }
+    }
+    
     private boolean usingClassImage;
 
     private boolean  copyClassImage = true;
@@ -74,7 +85,7 @@ public abstract class Actor
      * 
      */
     public Actor()
-    {        
+    {
         // Use the class image, if one is defined, as the default image, or the
         // greenfoot logo image otherwise
         GreenfootImage image = getClassImage();
@@ -420,7 +431,13 @@ public abstract class Actor
     {
         Class clazz = getClass();
         while (clazz != null) {
-            GreenfootImage image = getImage(clazz);
+            GreenfootImage image = null;
+            try {
+                image = getImage(clazz);
+            }
+            catch (Throwable e) {
+                // Ignore exception and continue looking for images
+            }
             if (image != null) {
                 return image;
             }

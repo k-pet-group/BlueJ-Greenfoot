@@ -62,7 +62,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 4471 2006-07-11 12:13:39Z polle $
+ * @version $Id: ImageLibFrame.java 4826 2007-01-29 10:39:01Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -110,7 +110,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         }
         else {
             showingGeneratedImage = false;
-            defaultIcon = getPreviewIcon(new File(new File("images"), "greenfoot.png"));
+            defaultIcon = getPreviewIcon(new File(GreenfootUtil.getGreenfootLogoPath()));
         }
         
         buildUI(false);
@@ -126,7 +126,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
         super(owner, "New class", true);
         
-        defaultIcon = getClassIcon(superClass, getPreviewIcon(new File(new File("images"), "greenfoot.png")));
+        defaultIcon = getClassIcon(superClass, getPreviewIcon(new File(GreenfootUtil.getGreenfootLogoPath())));
         showingGeneratedImage = false;
         
         // this.classView = new ClassView()

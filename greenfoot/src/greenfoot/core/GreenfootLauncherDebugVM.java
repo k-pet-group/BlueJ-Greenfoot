@@ -1,7 +1,8 @@
 package greenfoot.core;
 
+import greenfoot.util.GreenfootUtil;
+
 import java.io.File;
-import java.net.URL;
 import java.rmi.RemoteException;
 
 import javax.swing.ImageIcon;
@@ -32,8 +33,8 @@ public class GreenfootLauncherDebugVM
             File libdir = blueJ.getSystemLibDir();
             Config.initializeVMside(libdir, client);
             
-            URL iconFile = this.getClass().getClassLoader().getResource("greenfoot.png");
-            ImageIcon icon = new ImageIcon(iconFile);
+            
+            ImageIcon icon = new ImageIcon(GreenfootUtil.getGreenfootLogoPath());
             BlueJTheme.setIconImage(icon.getImage());
 
             GreenfootMain.initialize(blueJ, client.getPackage());
