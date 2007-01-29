@@ -63,7 +63,6 @@
 	<patternset id="skeleton.files">
 		<include name="greenfoot/World.*"/>
 		<include name="greenfoot/Actor.*"/>
-		<include name="images/greenfoot.png"/>
 	</patternset>
 
 	<!-- Files that are used in tutorial -->
@@ -229,7 +228,6 @@
 		</copy>
 		<mkdir dir="projects/skeletonProject/images"/>
 		<mkdir dir="projects/skeletonProject/sounds"/>
-		<copy file="resources/greenfoot-icon-16.png" tofile="projects/skeletonProject/images/greenfoot.png"/>
 	</target>
 
 	<target name="copy-projects" depends="skeleton"  description="Copies the projects skeletonProject and startupProject to bluej" >
