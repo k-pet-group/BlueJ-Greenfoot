@@ -117,7 +117,7 @@
                     destdir="${build}" 
                     classpathref="bluej.class.path" 
                     debug="true">
-                    <!--compilerarg line="-source 1.4"/-->
+            <compilerarg line="-target 1.5" />   
 		</javac>
 		<!-- Compile the RMI-classes -->
 		<rmic base="${build}" includes="**/*Impl.class" excludes="bluej/**">
@@ -130,7 +130,7 @@
 	<target name="compile-test" depends="compile" description="Compile the test source" >
 		<!-- Compile the java code from ${test.src} into ${build} -->
 		<javac srcdir="${test.src}" destdir="${build}" classpathref="bluej.class.path" debug="true">
-			<!-- compilerarg line="-source 1.4" / -->
+			<compilerarg line="-target 1.5" />
 		</javac>
 	</target>
 
@@ -169,6 +169,7 @@
 				      <path refid="greenfoot.class.path"/>
 					  <path refid="bluej.class.path"/>
 				    </classpath>
+                    <compilerarg line="-target 1.5" />               
 				</javac>
 			</sequential>
 		</macrodef>
@@ -178,17 +179,7 @@
 		<compile-scenario scenario="lunarlander" />
 		<compile-scenario scenario="turtleGraphics" />
 		<compile-scenario scenario="wombats" />
-		<compile-scenario scenario="wombats2" />
-		
-		<!-- Compile all the scenarios -->
-		<!--
-		<javac srcdir="scenarios" classpathref="greenfoot.class.path" debug="true">
-			<patternset refid="compile.scenarios" />
-			-->
-			<!-- compilerarg line="-source 1.4 -target 1.4" / -->
-		<!-- </javac> -->
-		<!-- TODO copy skeleton/greenfoot to all scenarios. Might need a custom target. -->
-
+		<compile-scenario scenario="wombats2" />	
 	</target>
 
 	<target name="ready-to-run" depends="update-images, compile, copy-imagelib, copy-projects, copy-templates" description="Builds everything so it is ready to run" >
@@ -426,6 +417,7 @@
                     debug="true"
                     sourcepath=""            
             >
+            <compilerarg line="-target 1.5" />   
             <src path="${src}"/>
             <src path="${standalone.src}"/>
             
