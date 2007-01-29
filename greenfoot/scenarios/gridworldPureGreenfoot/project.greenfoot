@@ -1,12 +1,16 @@
 #Greenfoot properties
-#Tue Nov 14 10:43:24 GMT 2006
+#Mon Jan 29 11:44:16 GMT 2007
 class.Critter.superclass=GridActor
+class.UnboundedGrid.superclass=AbstractGrid
+class.ColoredImage.superclass=
 
-version=1.0
+version=1.1.0
+class.AbstractGrid.superclass=greenfoot.World
 class.Rock.superclass=GridActor
 class.Bug.image=Bug.gif
 class.Flower.image=Flower.gif
 class.Critter.image=Critter.gif
+class.BoundedGrid.superclass=AbstractGrid
 class.Bug.superclass=GridActor
 simulation.speed=73
 class.GridActor.superclass=greenfoot.Actor

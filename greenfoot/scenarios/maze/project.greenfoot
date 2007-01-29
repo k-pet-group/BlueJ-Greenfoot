@@ -1,11 +1,11 @@
 #Greenfoot properties
-#Thu Jul 13 13:03:47 GMT 2006
+#Mon Jan 29 12:03:19 GMT 2007
 class.ColoredImage.superclass=GreenfootImage
 class.Wombat.superclass=greenfoot.Actor
+
 class.BoundedEnv.superclass=SquareEnvironment
-mainWindow.height=808
 class.MazeCarver.superclass=greenfoot.Actor
-version=1.0
+version=1.1.0
 class.Token.superclass=greenfoot.Actor
 class.Wall.superclass=greenfoot.Actor
 class.zdsfg.superclass=greenfoot.Actor
@@ -19,9 +19,9 @@ class.Agent.image=ant-with-food.gif
 class.Token.image=Token.png
 class.Maze.superclass=greenfoot.World
 class.MazeCarver.image=MazeCarver.png
-mainWindow.y=7
-mainWindow.x=147
+
+
 class.WombatWorld.superclass=greenfoot.World
 class.Leaf.superclass=greenfoot.Actor
-mainWindow.width=889
+
 class.Fish.superclass=greenfoot.Actor

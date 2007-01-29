@@ -1,13 +1,23 @@
 #Greenfoot properties
-#Mon Jul 17 17:58:10 BST 2006
+#Mon Jan 29 11:58:58 GMT 2007
 class.Fish.image=fish.png
-class.ColoredImage.superclass=GreenfootImage
+class.ColoredImage.superclass=
+
 class.BoundedEnv.superclass=SquareEnvironment
-version=1.0
+class.RandNumGenerator.superclass=
+version=1.1.0
+class.Debug.superclass=
 class.DarterFish.superclass=Fish
 class.SlowFish.superclass=Fish
 class.SquareEnvironment.superclass=greenfoot.World
 simulation.speed=68
 class.SlowFish.image=fish.png
 class.DarterFish.image=fish.png
+
+
+class.Direction.superclass=
+class.Locatable.superclass=
+class.Environment.superclass=
+
+class.Location.superclass=
 class.Fish.superclass=greenfoot.Actor

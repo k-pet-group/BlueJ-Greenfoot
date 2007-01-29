@@ -1,0 +1,15 @@
+#BlueJ package file
+
+
+
+
+package.numDependencies=0
+package.numTargets=1
+package.showExtends=true
+package.showUses=true
+target1.height=62
+target1.name=greenfoot
+target1.type=PackageTarget
+target1.width=90
+target1.x=190
+target1.y=130

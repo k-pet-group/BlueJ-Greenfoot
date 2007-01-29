@@ -1,11 +1,10 @@
 #Greenfoot properties
-#Tue Jun 13 13:55:11 BST 2006
+#Mon Jan 29 11:39:50 GMT 2007
 class.Counter.superclass=greenfoot.Actor
 class.Flag.superclass=greenfoot.Actor
 class.Food.superclass=greenfoot.Actor
 class.Wombat.superclass=greenfoot.Actor
-
-version=1.0
+version=1.1.0
 class.Leaf.image=leaf.gif
 class.AntHill.superclass=greenfoot.Actor
 class.FlowerTurtle.superclass=SquareTurtle
@@ -14,16 +13,13 @@ class.AntWorld.superclass=greenfoot.World
 simulation.speed=52
 class.TurtleWorld.superclass=greenfoot.World
 class.Moon.superclass=greenfoot.World
-
-
-class.Wombat.image=wombat.gif
 class.WombatWorld.superclass=greenfoot.World
-class.SquareTurtle.superclass=Turtle
-class.Leaf.superclass=greenfoot.Actor
+class.Wombat.image=wombat.gif
 class.Explosion.superclass=greenfoot.Actor
+class.Leaf.superclass=greenfoot.Actor
+class.SquareTurtle.superclass=Turtle
 class.CircleTurtle.superclass=Turtle
 class.Pheromone.superclass=greenfoot.Actor
 class.Lander.superclass=greenfoot.Actor
-
 class.Ant.superclass=greenfoot.Actor
 class.Turtle.superclass=greenfoot.Actor

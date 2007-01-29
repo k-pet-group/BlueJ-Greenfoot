@@ -1,15 +1,24 @@
 #Greenfoot properties
-#Tue Jun 13 13:55:08 BST 2006
-class.Leaf.image=leaf.gif
-class.Wombat.image=wombat.gif
-simulation.speed=77
-
-class.Rock.image=rock.gif
+#Mon Jan 29 11:44:19 GMT 2007
+class.Critter.superclass=GridActor
+class.UnboundedGrid.superclass=AbstractGrid
+class.ColoredImage.superclass=GreenfootImage
 class.Wombat.superclass=greenfoot.Actor
+
+version=1.1.0
+class.AbstractGrid.superclass=greenfoot.World
 class.Rock.superclass=greenfoot.Actor
-version=1.0
+class.Leaf.image=leaf.gif
+class.BoundedGrid.superclass=AbstractGrid
+class.Bug.superclass=GridActor
+simulation.speed=77
+class.GridActor.superclass=greenfoot.Actor
+class.Grid.superclass=greenfoot.World
+class.Flower.superclass=GridActor
 
 
-class.Leaf.superclass=greenfoot.Actor
 class.WombatWorld.superclass=greenfoot.World
+class.Wombat.image=wombat.gif
+class.Rock.image=rock.gif
+class.Leaf.superclass=greenfoot.Actor
 

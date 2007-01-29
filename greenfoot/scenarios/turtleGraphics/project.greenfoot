@@ -1,12 +1,12 @@
 #Greenfoot properties
-#Tue Jun 13 13:55:28 BST 2006
+#Mon Jan 29 11:39:41 GMT 2007
 class.SquareTurtle.superclass=Turtle
 simulation.speed=90
 
 class.TurtleWorld.superclass=greenfoot.World
 class.CircleTurtle.superclass=Turtle
 class.FlowerTurtle.superclass=SquareTurtle
-version=1.0
+version=1.1.0
 class.Turtle.superclass=greenfoot.Actor
 class.Turtle.image=Turtle.png
 class.SpiralTurtle.superclass=Turtle

@@ -29,7 +29,7 @@ public class Rocket extends MovingThing
             
             Greenfoot.playSound("MetalExplosion.wav");
             getWorld().removeObject(this);
-            Greenfoot.pauseSimulation();
+            Greenfoot.stopSimulation();
             return;
         }
             

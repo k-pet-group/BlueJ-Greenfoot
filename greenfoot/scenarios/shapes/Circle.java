@@ -44,7 +44,7 @@ public class Circle extends Actor
     public void act()
     {
         if(xTarget == getX() ) {
-            Greenfoot.pauseSimulation();
+            Greenfoot.stopSimulation();
         }
         else {
             int deltaX = 1;
@@ -112,7 +112,7 @@ public class Circle extends Actor
     public void slowMoveHorizontal(int distance)
     {
         xTarget = getX() + distance;
-        Greenfoot.resumeSimulation();
+        Greenfoot.startSimulation();
     }
     
     /**
@@ -121,7 +121,7 @@ public class Circle extends Actor
     public void slowMoveVertical(int distance)
     {
         yTarget = getY() + distance;
-        Greenfoot.resumeSimulation();
+        Greenfoot.startSimulation();
     }
     
     /**

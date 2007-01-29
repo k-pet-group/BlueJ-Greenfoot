@@ -11,20 +11,18 @@ public class Space extends World
      */
     public Space() {
         super(400,400,1);
-        getBackground().fill(java.awt.Color.BLACK);
+        getBackground().setColor(java.awt.Color.BLACK);
+        getBackground().fill();
         createStars(500);
         createRocketAndSpeeder();
     }
     
     public void createRocketAndSpeeder() {
         Rocket rocket = new Rocket();    
-        addObject(rocket);
+        addObject(rocket,0,0);
         rocket.setLocation(getWidth() - rocket.getWidth() -1 , getHeight()- rocket.getHeight() -1 );
-        addObject(rocket);
-        
         Speeder speeder = new Speeder();
-        speeder.setLocation(20,200);
-        addObject(speeder);
+        addObject(speeder,20,200);
         
         speeder.setListener(rocket);
         
