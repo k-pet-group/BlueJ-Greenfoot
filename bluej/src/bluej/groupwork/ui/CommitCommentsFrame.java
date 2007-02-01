@@ -191,17 +191,19 @@ public class CommitCommentsFrame extends EscapeDialog
                 public void actionPerformed(ActionEvent e)
                 {
                     JCheckBox layoutCheck = (JCheckBox)e.getSource();
-                    Debug.message(e.paramString());
+                    //Debug.message(e.paramString());
                     if(layoutCheck.isSelected()) {
+                        addModifiedLayouts();
                         if(!commitButton.isEnabled())
-                            addModifiedLayouts();
+                            
                             commitAction.setEnabled(true);
                     }
                     // unselected
                     else {
-                        Set files = commitAction.getFiles();
-                        if(files.size() < 1)
-                            removeModifiedLayouts();
+                        //Set files = commitAction.getFiles();
+                        removeModifiedLayouts();
+                        if(isCommitListEmpty())
+                            //removeModifiedLayouts();
                             commitAction.setEnabled(false);
                         }
                     
@@ -249,6 +251,11 @@ public class CommitCommentsFrame extends EscapeDialog
             commitListModel.addElement(noFilesToCommit);
             commitText.setEnabled(false);
         }
+    }
+    
+    private boolean isCommitListEmpty()
+    {
+        return commitListModel.isEmpty() || commitListModel.contains(noFilesToCommit);
     }
     
     private void addModifiedLayouts()
