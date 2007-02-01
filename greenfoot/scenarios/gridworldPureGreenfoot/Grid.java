@@ -19,6 +19,7 @@
 import greenfoot.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * This class is a merge between the APCS classes AbstractGrid and BoundedGrid.
@@ -146,6 +147,7 @@ public class Grid<E> extends greenfoot.World
                     + " is not valid");                    
         
         List objects = getObjectsAt(loc.getCol(), loc.getRow(), null);
+        cleanObjects(objects); //Greenfoot hack
         if(objects.isEmpty() ) {
             return null;
         }
@@ -173,6 +175,19 @@ public class Grid<E> extends greenfoot.World
     //=====================================================
     // The following methods are new for Greenfoot
     //=====================================================
+    
+    /**
+     * Method that that removes dragged objects from the collection.
+     */
+    private void cleanObjects(List l) {
+        Iterator iter = l.iterator();
+        while(iter.hasNext()) {
+            Object o = iter.next();
+            if(o instanceof greenfoot.core.ObjectDragProxy) {
+                iter.remove();
+            }
+        }
+    }
     
     /**
      * Greenfoot:
