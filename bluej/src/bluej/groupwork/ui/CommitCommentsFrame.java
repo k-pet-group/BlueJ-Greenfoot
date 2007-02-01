@@ -191,22 +191,17 @@ public class CommitCommentsFrame extends EscapeDialog
                 public void actionPerformed(ActionEvent e)
                 {
                     JCheckBox layoutCheck = (JCheckBox)e.getSource();
-                    //Debug.message(e.paramString());
                     if(layoutCheck.isSelected()) {
                         addModifiedLayouts();
                         if(!commitButton.isEnabled())
-                            
                             commitAction.setEnabled(true);
                     }
                     // unselected
                     else {
-                        //Set files = commitAction.getFiles();
                         removeModifiedLayouts();
                         if(isCommitListEmpty())
-                            //removeModifiedLayouts();
                             commitAction.setEnabled(false);
-                        }
-                    
+                    }
                 }
             });
 
