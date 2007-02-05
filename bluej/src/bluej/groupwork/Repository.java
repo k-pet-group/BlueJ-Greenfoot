@@ -38,7 +38,7 @@ import bluej.utility.Debug;
  * updateAll and commitAll, the project needs to be a team project.
  *
  * @author fisker
- * @version $Id: Repository.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: Repository.java 4836 2007-02-05 00:52:34Z davmac $
  */
 public class Repository
 {
@@ -69,14 +69,14 @@ public class Repository
     private GlobalOptions globalOptions;
     private boolean printCommand = true;
     private File projectPath;
-    private MildManneredAdminHandler adminHandler;
+    private BlueJAdminHandler adminHandler;
 
     // ** static declaration end
 
     /**
-     * private constructor
+     * constructor
      */
-    private Repository(File projectPath, String cvsrootString)
+    public Repository(File projectPath, String cvsrootString, BlueJAdminHandler adminHandler)
     {
         // this.project = project;
         this.projectPath = projectPath;
@@ -84,33 +84,12 @@ public class Repository
         setCvsRoot(cvsrootString);
 
         // The client is created without a connection
-        adminHandler = new MildManneredAdminHandler();
+        this.adminHandler = adminHandler;
+        
+        // System.setProperty("javacvs.multiple_commands_warning", "false");
     }
 
     // **** static declerations 
-
-    /**
-     * Create an instance of a Repository associated with the project. The
-     * Repository class will try to read the setup file team.defs from the top
-     * level directory in the project.
-     * 
-     * If there are no repository settings, returns null.
-     *
-     * @param the project to which the Repository will be associated.
-     */
-    public static Repository getInstance(File projectPath, String cvsroot)
-    {
-        if (cvsroot != null) {
-        
-            Repository repository = new Repository(projectPath, cvsroot);
-
-            // System.setProperty("javacvs.multiple_commands_warning", "false");
-            return repository;
-        }
-        else {
-            return null;
-        }
-    }
 
     /**
      * Convert a List of Files to an array of Files.
@@ -534,9 +513,16 @@ public class Repository
         dirs.addAll(newFiles);
         
         // "cvs remove" files which need to be removed
-        BasicServerResponse basicServerResponse = removeFromRepository(deletedFiles);
-        if (basicServerResponse.isError()) {
-            return basicServerResponse;
+        BasicServerResponse basicServerResponse;
+        try {
+            adminHandler.setMildManneredMode(true);
+            basicServerResponse = removeFromRepository(deletedFiles);
+            if (basicServerResponse.isError()) {
+                return basicServerResponse;
+            }
+        }
+        finally {
+            adminHandler.setMildManneredMode(false);
         }
         
         // "cvs add" new directories and files

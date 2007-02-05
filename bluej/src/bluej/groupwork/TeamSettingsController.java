@@ -16,7 +16,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 4779 2006-12-22 04:06:21Z bquig $
+ * @version $Id: TeamSettingsController.java 4836 2007-02-05 00:52:34Z davmac $
  */
 public class TeamSettingsController
 {
@@ -25,6 +25,7 @@ public class TeamSettingsController
     private Properties teamProperties;
     private TeamSettingsDialog teamSettingsDialog;
     private boolean includeLayout;
+    private BlueJAdminHandler adminHandler;
     
     //general
     //private String user;
@@ -74,6 +75,7 @@ public class TeamSettingsController
         project = proj;
         projectDir = proj.getProjectDir();
         repository = null;
+        adminHandler = null;
         checkTeamSettingsDialog();
     }
     
@@ -86,7 +88,7 @@ public class TeamSettingsController
         if (repository == null) {
             String cvsroot = getCvsRoot();
             if (cvsroot != null) {
-                repository = Repository.getInstance(projectDir, cvsroot);
+                repository = new Repository(projectDir, cvsroot, getAdminHandler());
             }
         }
         
@@ -117,13 +119,46 @@ public class TeamSettingsController
                 File dir = (File) stack.remove(0);
                 File [] subDirs = dir.listFiles(new DirectoryFilter());
                 for (int i = 0; i < subDirs.length; i++) {
-                    stack.add(subDirs[i]);
+                    if (! subDirs[i].getName().equals("CVS")) {
+                        stack.add(subDirs[i]);
+                    }
                 }
                 try {
                     repository.getLocallyDeletedFiles(tempSet, dir);
                     for (Iterator i = tempSet.iterator(); i.hasNext(); ) {
                         File file = (File) i.next();
                         if (filter.accept(dir, file.getName())) {
+                            files.add(file);
+                        }
+                    }
+                    tempSet.clear();
+                }
+                catch (IOException ioe) { }
+            }
+            
+            File delDir = new File(project.getProjectDir(), "CVS");
+            delDir = new File(delDir, "deleted");
+            if (delDir.exists()) {
+                stack.add(delDir);
+            }
+            
+            while (! stack.isEmpty()) {
+                File dir = (File) stack.remove(0);
+                File [] subDirs = dir.listFiles(new DirectoryFilter());
+                for (int i = 0; i < subDirs.length; i++) {
+                    if (! subDirs[i].getName().equals("CVS")) {
+                        stack.add(subDirs[i]);
+                    }
+                }
+                try {
+                    repository.getLocallyDeletedFiles(tempSet, dir);
+                    for (Iterator i = tempSet.iterator(); i.hasNext(); ) {
+                        File file = (File) i.next();
+                        if (filter.accept(dir, file.getName())) {
+                            // map the file back to the real directory
+                            String fileStr = file.getPath();
+                            fileStr = fileStr.substring(delDir.getPath().length());
+                            file = new File(project.getProjectDir(), fileStr);
                             files.add(file);
                         }
                     }
@@ -166,6 +201,36 @@ public class TeamSettingsController
         }
     }
 
+    /**
+     * Lazily construct an AdminHandler for the repository/project.
+     */
+    private BlueJAdminHandler getAdminHandler()
+    {
+        if (adminHandler == null) {
+            adminHandler = new BlueJAdminHandler(projectDir);
+        }
+        return adminHandler;
+    }
+    
+    /**
+     * Prepare for the deletion of a directory. For CVS, this involves moving
+     * the metadata elsewhere.
+     */
+    public void prepareDeleteDir(File dir)
+    {
+        BlueJAdminHandler adminHandler = getAdminHandler();
+        adminHandler.prepareDeleteDir(dir);
+    }
+    
+    /**
+     * Prepare a newly created directory for version control.
+     */
+    public void prepareCreateDir(File dir)
+    {
+        BlueJAdminHandler adminHandler = getAdminHandler();
+        adminHandler.prepareCreateDir(dir);
+    }
+    
     public String getCvsRoot()
     {
         if (password == null) {

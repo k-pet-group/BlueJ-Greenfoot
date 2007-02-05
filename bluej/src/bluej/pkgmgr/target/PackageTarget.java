@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.Properties;
 
 import javax.swing.AbstractAction;
@@ -18,13 +19,13 @@ import bluej.graph.Moveable;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.FileUtility;
+import bluej.utility.Debug;
 
 /**
  * A sub package (or parent package)
  * 
  * @author Michael Cahill
- * @version $Id: PackageTarget.java 4761 2006-12-11 04:39:56Z davmac $
+ * @version $Id: PackageTarget.java 4836 2007-02-05 00:52:34Z davmac $
  */
 public class PackageTarget extends Target
     implements Moveable
@@ -92,9 +93,46 @@ public class PackageTarget extends Target
      */
     public void deleteFiles()
     {
-        FileUtility.deleteDir(new File(getPackage().getPath(), getBaseName()));
+        deleteDir(new File(getPackage().getPath(), getBaseName()));
     }
 
+    /**
+     * Delete a directory recursively.
+     * This method will delete all files and subdirectories in any
+     * directory without asking questions. Use with care.
+     *
+     * @param directory   The directory that will be deleted.
+     *
+     */
+    private void deleteDir(File directory)
+    {
+        File[] fileList = directory.listFiles();
+
+        // If it is a file or an empty directory, delete
+        if (fileList == null) {
+            try{
+                directory.delete();
+            } catch (SecurityException se){
+                Debug.message("Trouble deleting: "+directory+se);
+            }
+        }
+        else {
+            getPackage().getProject().prepareDeleteDir(directory);
+            
+            // delete all subdirectories
+            for(int i=0;i<Array.getLength(fileList);i++) {
+                deleteDir(fileList[i]);
+            }
+            
+            // then delete the directory (when it is empty)
+            try{
+                directory.delete();
+            } catch (SecurityException se) {
+                Debug.message("Trouble deleting: "+directory+se);
+            }
+        }
+    }
+    
     /**
      * Copy all the files belonging to this target to a new location.
      * For package targets, this has not yet been implemented.

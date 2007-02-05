@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 4744 2006-12-06 05:12:36Z davmac $
+ * @version $Id: Config.java 4836 2007-02-05 00:52:34Z davmac $
  */
 
 public final class Config
@@ -742,20 +742,6 @@ public final class Config
         }
     }
     
-    /**
-     * Get a non-language-dependent string from the BlueJ properties
-     * ("bluej.defs" or "bluej.properties"), avoiding the normal
-     * variable substitution rules for properties.
-     * 
-     * @param strname  The name of the property thats value should be retrieved
-     * @return  The raw property value, or null if the property isn't defined
-     */
-    public static String getRawPropString(String strname)
-    {
-        // DAV remove
-        return command_props.getProperty(strname);
-    }
-
     /**
      * Get a non-language-dependent string from the BlueJ properties
      * "bluej.defs" with a default value. No variable substitution is

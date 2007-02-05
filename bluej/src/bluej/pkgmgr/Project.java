@@ -55,7 +55,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4780 2006-12-22 04:14:21Z bquig $
+ * @version $Id: Project.java 4836 2007-02-05 00:52:34Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -796,6 +796,7 @@ public class Project implements DebuggerListener, InspectorManager
 
             while (st.hasMoreTokens()) {
                 newPkgDir = new File(newPkgDir, st.nextToken());
+                prepareCreateDir(newPkgDir);
                 newPkgFile = new File(newPkgDir, Package.pkgfileName);
 
                 try {
@@ -1646,7 +1647,7 @@ public class Project implements DebuggerListener, InspectorManager
 	/**
 	 * Traverse the directory tree starting in dir an add all the encountered 
 	 * files to the List allFiles. The parameter includePkgFiles determine 
-	 * whether bluej.pgk files should be added to allFiles as well.
+	 * whether bluej.pkg files should be added to allFiles as well.
 	 * @param allFiles a List to which the method will add the files it meets.
 	 * @param dir the directory the search starts from
 	 * @param includePkgFiles if true, bluej.pkg files are included as well.
@@ -1795,5 +1796,31 @@ public class Project implements DebuggerListener, InspectorManager
         }
         statusFrame.setLocationRelativeTo(parent);
         return statusFrame;
+    }
+    
+    /**
+     * Prepare for the deletion of a directory inside the project. This is
+     * a notification which allows the team management code to save the
+     * version control metadata elsewhere, if necessary.
+     */
+    public void prepareDeleteDir(File dir)
+    {
+        TeamSettingsController tsc = getTeamSettingsController();
+        if (tsc != null) {
+            tsc.prepareDeleteDir(dir);
+        }
+    }
+    
+    /**
+     * Prepare for the creation of a directory inside the project. This is a 
+     * notification which allows the team management code to perform any
+     * necessary metadata actions.
+     */
+    public void prepareCreateDir(File dir)
+    {
+        TeamSettingsController tsc = getTeamSettingsController();
+        if (tsc != null) {
+            tsc.prepareCreateDir(dir);
+        }
     }
 }

@@ -33,7 +33,7 @@ import bluej.utility.JavaNames;
  * Action to update out-of-date files.
  * 
  * @author fisker
- * @version $Id: UpdateAction.java 4780 2006-12-22 04:14:21Z bquig $
+ * @version $Id: UpdateAction.java 4836 2007-02-05 00:52:34Z davmac $
  */
 public class UpdateAction extends TeamAction implements UpdateListener
 {
@@ -199,6 +199,8 @@ public class UpdateAction extends TeamAction implements UpdateListener
         SwingUtilities.invokeLater(new Runnable() {
             public void run()
             {
+                project.prepareCreateDir(f.getParentFile());
+                
                 String fileName = f.getName();
                 if (! fileName.endsWith(".java") &&
                         ! fileName.endsWith(".class") &&

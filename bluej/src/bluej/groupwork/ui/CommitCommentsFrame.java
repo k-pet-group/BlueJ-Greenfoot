@@ -17,7 +17,6 @@ import javax.swing.*;
 
 import org.netbeans.lib.cvsclient.command.CommandAbortedException;
 import org.netbeans.lib.cvsclient.command.CommandException;
-import org.netbeans.lib.cvsclient.command.status.StatusInformation;
 import org.netbeans.lib.cvsclient.connection.AuthenticationException;
 
 import bluej.BlueJTheme;
@@ -30,7 +29,6 @@ import bluej.groupwork.TeamUtils;
 import bluej.groupwork.actions.CommitAction;
 import bluej.pkgmgr.Project;
 import bluej.utility.DBox;
-import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.SwingWorker;
 import bluej.utility.EscapeDialog;
@@ -292,8 +290,11 @@ public class CommitCommentsFrame extends EscapeDialog
             // We don't want to filter them here because we need to always commit
             // new bluej.pkg files to the repository.
             Set files = project.getTeamSettingsController().getProjectFiles(true);
+            
             Set remoteDirs = repository.getRemoteDirs();
+            
             statusServerResponse = repository.getStatus(files, remoteDirs);
+
         } catch (CommandAbortedException e) {
             e.printStackTrace();
         } catch (CommandException e) {
