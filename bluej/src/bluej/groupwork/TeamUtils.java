@@ -58,21 +58,16 @@ public class TeamUtils
      */
     public static void handleServerResponse(final BasicServerResponse basicServerResponse, final Window window)
     {
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                if ((basicServerResponse != null) && basicServerResponse.isError()) {
-                    String message = basicServerResponse.getMessage();
-                    String translatedMessage = CvsServerMessageTranslator.translate(message);
-                    if (translatedMessage != null) {
-                        DialogManager.showError(window, translatedMessage);
-                    }
-                    else {
-                        DialogManager.showErrorText(window, message);
-                    }
-                }
+        if ((basicServerResponse != null) && basicServerResponse.isError()) {
+            String message = basicServerResponse.getMessage();
+            String translatedMessage = CvsServerMessageTranslator.translate(message);
+            if (translatedMessage != null) {
+                DialogManager.showError(window, translatedMessage);
             }
-        });
+            else {
+                DialogManager.showErrorText(window, message);
+            }
+        }
     }
 
 }

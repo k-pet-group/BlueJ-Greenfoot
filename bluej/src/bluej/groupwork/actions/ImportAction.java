@@ -1,5 +1,6 @@
 package bluej.groupwork.actions;
 
+import java.awt.EventQueue;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,7 +21,7 @@ import bluej.pkgmgr.Project;
  * An action to perform an import into a repository, i.e. to share a project.
  * 
  * @author Kasper
- * @version $Id: ImportAction.java 4766 2006-12-12 03:45:57Z bquig $
+ * @version $Id: ImportAction.java 4838 2007-02-07 01:01:21Z davmac $
  */
 public class ImportAction extends TeamAction 
 {
@@ -38,9 +39,9 @@ public class ImportAction extends TeamAction
 	    
         if (project == null) {
             return;
-	}
+        }
 	    
-	doImport(pmf, project);
+        doImport(pmf, project);
     }
 
     private void doImport(final PkgMgrFrame pmf, final Project project)
@@ -58,43 +59,52 @@ public class ImportAction extends TeamAction
         setStatus(Config.getString("team.sharing"));
         startProgressBar(); 
         
-        Thread thread = new Thread(){
-            public void run(){
-            boolean resetStatus = true;
-            try {
-                BasicServerResponse basicServerResponse = repository.shareProject();
-                 if (basicServerResponse != null && ! basicServerResponse.isError()) {
-                    project.setTeamSettingsController(tsc);
-                    Set files = tsc.getProjectFiles(true);
-                    Set newFiles = new HashSet(files);
-                    basicServerResponse = repository.commitAll(newFiles, Collections.EMPTY_SET, files, Config.getString("team.import.initialMessage"));
-                }
+        Thread thread = new Thread() {
+            
+            BasicServerResponse basicServerResponse = null;
+            
+            public void run()
+            {
+                // boolean resetStatus = true;
+                try {
+                    basicServerResponse = repository.shareProject();
+                    if (basicServerResponse != null && ! basicServerResponse.isError()) {
+                        project.setTeamSettingsController(tsc);
+                        Set files = tsc.getProjectFiles(true);
+                        Set newFiles = new HashSet(files);
+                        basicServerResponse = repository.commitAll(newFiles, Collections.EMPTY_SET, files, Config.getString("team.import.initialMessage"));
+                    }
                     
-                stopProgressBar();
-                handleServerResponse(basicServerResponse);
-                if(! basicServerResponse.isError()) {
-                    setStatus(Config.getString("team.shared"));
-                    resetStatus = false;
+                    stopProgressBar();
                 }
+                catch (CommandAbortedException e) {
+                    stopProgressBar();
+                }
+                catch (CommandException e) {
+                    stopProgressBar();
+                    e.printStackTrace();
+                }
+                catch (AuthenticationException e) {
+                    handleAuthenticationException(e);
+                }
+                catch (InvalidCvsRootException e) {
+                    handleInvalidCvsRootException(e);
+                }
+                                
+                EventQueue.invokeLater(new Runnable() {
+                    public void run()
+                    {
+                        handleServerResponse(basicServerResponse);
+                        if(! basicServerResponse.isError()) {
+                            setStatus(Config.getString("team.shared"));
+                        }
+                        else {
+                            clearStatus();
+                        }
+                    }
+                });
             }
-            catch (CommandAbortedException e) {
-                stopProgressBar();
-            }
-            catch (CommandException e) {
-                stopProgressBar();
-                e.printStackTrace();
-            }
-            catch (AuthenticationException e) {
-                handleAuthenticationException(e);
-            }
-            catch (InvalidCvsRootException e) {
-                handleInvalidCvsRootException(e);
-            }
-                
-            if (resetStatus) {
-                clearStatus();
-            }
-	}};
-	thread.start();
+        };
+        thread.start();
     }
 }

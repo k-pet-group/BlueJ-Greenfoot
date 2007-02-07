@@ -1,6 +1,5 @@
 package bluej.groupwork;
 
-import bluej.utility.Debug;
 import org.netbeans.lib.cvsclient.event.BinaryMessageEvent;
 import org.netbeans.lib.cvsclient.event.CVSListener;
 import org.netbeans.lib.cvsclient.event.FileAddedEvent;
@@ -11,8 +10,6 @@ import org.netbeans.lib.cvsclient.event.FileUpdatedEvent;
 import org.netbeans.lib.cvsclient.event.MessageEvent;
 import org.netbeans.lib.cvsclient.event.ModuleExpansionEvent;
 import org.netbeans.lib.cvsclient.event.TerminationEvent;
-
-import java.io.PrintStream;
 
 
 /**
@@ -45,7 +42,7 @@ public class BasicServerResponse implements CVSListener
     public void messageSent(MessageEvent e)
     {
         String line = e.getMessage();
-        PrintStream stream = e.isError() ? System.err : System.out;
+        // PrintStream stream = e.isError() ? System.err : System.out;
 
         if (e.isTagged()) {
             String message = MessageEvent.parseTaggedMessage(taggedLine, line);
@@ -54,12 +51,16 @@ public class BasicServerResponse implements CVSListener
             // to output. Otherwise, there is more to come and we
             // should do nothing yet.
             if (message != null) {
-                //stream.println("tagged:" + message);
+                this.message.append(message);
+                // if (e.isError()) {
+                //     System.err.println(message);
+                // }
             }
         } else {
             message.append(line + newline);
-
-            //stream.println("nontagged: " + line);
+            // if (e.isError()) {
+            //     System.err.println(message);
+            // }
         }
     }
 

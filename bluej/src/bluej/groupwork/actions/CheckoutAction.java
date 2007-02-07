@@ -28,7 +28,7 @@ import bluej.utility.SwingWorker;
  * project.
  * 
  * @author Kasper
- * @version $Id: CheckoutAction.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: CheckoutAction.java 4838 2007-02-07 01:01:21Z davmac $
  */
 public class CheckoutAction extends TeamAction
 {
@@ -119,6 +119,7 @@ public class CheckoutAction extends TeamAction
         private TeamSettingsController tsc;
         
         private BasicServerResponse response;
+        private boolean failed = true;
         
         public CheckoutWorker(PkgMgrFrame newFrame, Repository repository, File projDir, TeamSettingsController tsc)
         {
@@ -134,8 +135,6 @@ public class CheckoutAction extends TeamAction
          */
         public Object construct()
         {
-            boolean failed = true;
-            
             try {
                 newFrame.setStatus(Config.getString("team.checkingout"));
                 newFrame.startProgress();
@@ -143,8 +142,9 @@ public class CheckoutAction extends TeamAction
                 failed = false;
                 
                 newFrame.stopProgress();
-                newFrame.setStatus(Config.getString("team.checkedout"));
-                handleServerResponse(response);
+                if (response != null && ! response.isError()) {
+                    newFrame.setStatus(Config.getString("team.checkedout"));
+                }
             }
             catch (CommandAbortedException e) {
                 e.printStackTrace();
@@ -161,12 +161,8 @@ public class CheckoutAction extends TeamAction
                 handleInvalidCvsRootException(e);
             }
 
-            if (failed) {
-                projDir.delete();
-                newFrame.stopProgress();
-                newFrame.clearStatus();
-            }
-            
+            newFrame.stopProgress();
+
             return response;
         }
         
@@ -176,7 +172,7 @@ public class CheckoutAction extends TeamAction
          */
         public void finished()
         {
-            if (response != null && ! response.isError()) {
+            if (! failed && response != null && ! response.isError()) {
                 if (! Project.isBlueJProject(projDir.toString())) {
                     // Try and convert it to a project
                     if (! Import.convertNonBlueJ(newFrame, projDir)) {
@@ -193,6 +189,7 @@ public class CheckoutAction extends TeamAction
                 newFrame.setEnabled(true);
             }
             else {
+                handleServerResponse(response);
                 cleanup();
             }
         }

@@ -23,7 +23,7 @@ import java.awt.EventQueue;
  * committing and have the commit comments.
  * 
  * @author Kasper
- * @version $Id: CommitAction.java 4780 2006-12-22 04:14:21Z bquig $
+ * @version $Id: CommitAction.java 4838 2007-02-07 01:01:21Z davmac $
  */
 public class CommitAction extends AbstractAction
 {
@@ -95,10 +95,11 @@ public class CommitAction extends AbstractAction
     private void doCommit(final Project project)
     {
         Thread thread = new Thread() {
+            
+                BasicServerResponse basicServerResponse = null;
+            
                 public void run()
                 {
-                    BasicServerResponse basicServerResponse = null;
-
                     try {
                         String comment = commitCommentsFrame.getComment();
                         
@@ -130,9 +131,9 @@ public class CommitAction extends AbstractAction
                         });
                     }
                   
-                    TeamUtils.handleServerResponse(basicServerResponse, commitCommentsFrame);
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
+                            TeamUtils.handleServerResponse(basicServerResponse, commitCommentsFrame);
                             setEnabled(true);
                             commitCommentsFrame.setVisible(false);
                         }

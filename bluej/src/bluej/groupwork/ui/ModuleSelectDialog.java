@@ -32,7 +32,7 @@ import bluej.utility.EscapeDialog;
  * A dialog for selecting a module to checkout.
  * 
  * @author Davin McCall
- * @version $Id: ModuleSelectDialog.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: ModuleSelectDialog.java 4838 2007-02-07 01:01:21Z davmac $
  */
 public class ModuleSelectDialog extends EscapeDialog implements ListSelectionListener
 {
@@ -246,14 +246,18 @@ public class ModuleSelectDialog extends EscapeDialog implements ListSelectionLis
         {
             final List modules = new ArrayList();
             final UpdateServerResponse response = getResponse(modules);
-            if (response != null && ! response.isError()) {
-                EventQueue.invokeLater(new Runnable() {
-                    public void run()
-                    {
+            
+            EventQueue.invokeLater(new Runnable() {
+                public void run()
+                {
+                    if (response != null && ! response.isError()) {
                         moduleDialog.setModuleList(modules);
                     }
-                });
-            }
+                    else {
+                        TeamUtils.handleServerResponse(response, moduleDialog);
+                    }
+                }
+            });
         }
         
         public UpdateServerResponse getResponse(List modules)
@@ -261,7 +265,6 @@ public class ModuleSelectDialog extends EscapeDialog implements ListSelectionLis
             try {
                 response = repository.getModules(modules);
                 stopProgressBar();
-                TeamUtils.handleServerResponse(response, moduleDialog);
                 return response;
             } catch (CommandAbortedException e) {
                 e.printStackTrace();
