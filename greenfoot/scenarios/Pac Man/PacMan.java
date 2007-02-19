@@ -84,8 +84,10 @@ public class PacMan extends Actor
         imageRight = new AnimatedImage("pacmanAnimRight.png", 3, 16, 16);
         imageDeath = new AnimatedImage("pacmanAnimDeath.png", 7, 16, 16);
         
-        setImage( imageUp.getFrame(SEMI_OPEN) );
+        setImage( imageRight.getFrame(SEMI_OPEN) );
         frameType = SEMI_OPEN;
+        
+        Greenfoot.playSound("pacman_intro.wav");
     }
     
     /**
@@ -322,6 +324,7 @@ public class PacMan extends Actor
 //            addScore( EAT_FOOD_POINTS );
             // and removes the food.
             getWorld().removeObject(food);
+            Greenfoot.playSound("pacman_eat_pellet.wav");
         }
     }
     
@@ -344,6 +347,7 @@ public class PacMan extends Actor
             }
             
             getWorld().removeObject(energizer);
+            Greenfoot.playSound("pacman_eat_pellet.wav");
 //            addScore( EAT_ENERGIZER_POINTS );
         }
     }
@@ -368,11 +372,13 @@ public class PacMan extends Actor
             if (ghost.isNormal()) {
                 // if so pacman is now dead
                 died();
+                Greenfoot.playSound("pacman_death.wav");
             }
             // check if the ghost is in danger (if it's blue)
             else if (ghost.isDanger()) {
                 // in which case the ghost is now dead
                 ghost.setDead();
+                Greenfoot.playSound("pacman_eat_ghost.wav");
 //                addScore( EAT_GHOST_POINTS );
             }
         }

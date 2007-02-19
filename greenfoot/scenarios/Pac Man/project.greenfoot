@@ -1,10 +1,10 @@
 #Greenfoot properties
-#Tue Feb 06 06:16:47 GMT 2007
+#Mon Feb 19 19:17:00 GMT 2007
 class.DisplayScore.superclass=greenfoot.Actor
 class.PacMan.superclass=greenfoot.Actor
 class.Food.superclass=greenfoot.Actor
 class.PlayerWall.superclass=greenfoot.Actor
-simulation.speed=89
+simulation.speed=87
 class.Energizer.image=Energizer.png
 class.Player.image=pacmanFull.png
 class.Food.image=pill.png
@@ -26,16 +26,17 @@ class.Treasure.superclass=greenfoot.Actor
 class.Eye.superclass=greenfoot.Actor
 mainWindow.width=1065
 class.PacManWall.image=ghostWall.png
-mainWindow.y=42
+class.PacMan.image=pacmanFull.png
+mainWindow.y=11
 mainWindow.height=842
-mainWindow.x=75
+mainWindow.x=16
 class.Display.image=blank.png
 class.GhostHealer.superclass=greenfoot.Actor
 class.AnimatedImage.superclass=
 class.test.image=ladybug1.png
 class.Level.superclass=greenfoot.World
-version=1.1.0
 class.Ghost.superclass=greenfoot.Actor
+version=1.1.0
 class.GhostHealer.image=blank.png
 class.Unit.superclass=greenfoot.Actor
 class.Navy.superclass=greenfoot.Actor
