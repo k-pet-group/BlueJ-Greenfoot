@@ -14,6 +14,7 @@ import bluej.groupwork.BasicServerResponse;
 import bluej.groupwork.InvalidCvsRootException;
 import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettingsController;
+import bluej.groupwork.TeamUtils;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 
@@ -21,7 +22,7 @@ import bluej.pkgmgr.Project;
  * An action to perform an import into a repository, i.e. to share a project.
  * 
  * @author Kasper
- * @version $Id: ImportAction.java 4838 2007-02-07 01:01:21Z davmac $
+ * @version $Id: ImportAction.java 4840 2007-03-01 03:12:00Z davmac $
  */
 public class ImportAction extends TeamAction 
 {
@@ -72,7 +73,8 @@ public class ImportAction extends TeamAction
                         project.setTeamSettingsController(tsc);
                         Set files = tsc.getProjectFiles(true);
                         Set newFiles = new HashSet(files);
-                        basicServerResponse = repository.commitAll(newFiles, Collections.EMPTY_SET, files, Config.getString("team.import.initialMessage"));
+                        Set binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
+                        basicServerResponse = repository.commitAll(newFiles, binFiles, Collections.EMPTY_SET, files, Config.getString("team.import.initialMessage"));
                     }
                     
                     stopProgressBar();

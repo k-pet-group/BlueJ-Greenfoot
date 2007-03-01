@@ -55,7 +55,6 @@ public class CommitCommentsFrame extends EscapeDialog
     private Repository repository;
     private DefaultListModel commitListModel;
     
-    private boolean layoutChanged;
     private Set changedLayoutFiles;
     
     private static String noFilesToCommit = Config.getString("team.nocommitfiles"); 

@@ -23,14 +23,13 @@ import java.awt.EventQueue;
  * committing and have the commit comments.
  * 
  * @author Kasper
- * @version $Id: CommitAction.java 4838 2007-02-07 01:01:21Z davmac $
+ * @version $Id: CommitAction.java 4840 2007-03-01 03:12:00Z davmac $
  */
 public class CommitAction extends AbstractAction
 {
     private Set newFiles; // which files are new files
     private Set deletedFiles; // which files are to be removed
     private Set files; // files to commit (includes both of above)
-    private Set modifiedLayouts;
     private CommitCommentsFrame commitCommentsFrame;
     
     public CommitAction(CommitCommentsFrame frame)
@@ -109,9 +108,12 @@ public class CommitAction extends AbstractAction
                             files.addAll(commitCommentsFrame.getChangedLayoutFiles());
                         }
                         
+                        Set binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
+                        
                         // Note, getRepository() cannot return null here - otherwise
                         // the commit dialog was cancelled (and we'd never get here)
-                        basicServerResponse = project.getRepository().commitAll(newFiles, deletedFiles, files, comment);
+                        basicServerResponse = project.getRepository().commitAll(newFiles, binFiles, 
+                                deletedFiles, files, comment);
                     } catch (CommandAbortedException e) {
                         e.printStackTrace();
                     } catch (CommandException e) {

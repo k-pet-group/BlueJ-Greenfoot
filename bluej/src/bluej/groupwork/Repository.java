@@ -13,6 +13,7 @@ import org.netbeans.lib.cvsclient.command.Command;
 import org.netbeans.lib.cvsclient.command.CommandAbortedException;
 import org.netbeans.lib.cvsclient.command.CommandException;
 import org.netbeans.lib.cvsclient.command.GlobalOptions;
+import org.netbeans.lib.cvsclient.command.KeywordSubstitutionOptions;
 import org.netbeans.lib.cvsclient.command.add.AddCommand;
 import org.netbeans.lib.cvsclient.command.checkout.CheckoutCommand;
 import org.netbeans.lib.cvsclient.command.commit.CommitCommand;
@@ -32,13 +33,10 @@ import bluej.utility.Debug;
 
 
 /**
- * This class handles communication with the repository. At time of creation it
- * needs a reference to a project that needs not be a team project. That is no
- * team.defs need to be present in the project. But before methods like
- * updateAll and commitAll, the project needs to be a team project.
+ * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: Repository.java 4836 2007-02-05 00:52:34Z davmac $
+ * @version $Id: Repository.java 4840 2007-03-01 03:12:00Z davmac $
  */
 public class Repository
 {
@@ -53,7 +51,7 @@ public class Repository
      * It turns out we can find out the names of files which only exist remotely
      * by using "cvs -n update". However, this won't recurse into directories which
      * only exist remotely, though it does print a warning for each one that it
-     * comes across.
+     * comes across at the current level.
      * 
      * So, the overall solution is to perform "cvs -n update" recursively each
      * time we find out about a new directory. We can pretend (by using a
@@ -225,13 +223,14 @@ public class Repository
      * must be specified before the sub-directories/files they contain.
      *
      * @param files the files to add
+     * @param binary true if the added files should be treated as binary
      *
      * @throws CommandException
      * @throws CommandAbortedException
      * @throws AuthenticationException
      * @throws InvalidCvsRootException
      */
-    private BasicServerResponse addToRepository(File [] files)
+    private BasicServerResponse addToRepository(File [] files, boolean binary)
         throws CommandException, CommandAbortedException, 
             AuthenticationException, InvalidCvsRootException
     {
@@ -248,6 +247,15 @@ public class Repository
 
         AddCommand addCommand = new AddCommand();
         addCommand.setFiles(files);
+        
+        KeywordSubstitutionOptions kso;
+        if (binary) {
+            kso = KeywordSubstitutionOptions.BINARY;
+        }
+        else {
+            kso = KeywordSubstitutionOptions.DEFAULT;
+        }
+        addCommand.setKeywordSubst(kso);
 
         client.getEventManager().addCVSListener(basicServerResponse);
         client.setLocalPath(projectPath.toString());
@@ -473,16 +481,23 @@ public class Repository
      * committed. Otherwise bluej won't know the difference between simple
      * directories and bluej packages.
      *
-     * @param dirs  Directories to be committed
-     * @param files Files to be committed
-     * @param includePkgFiles if true, pkg files are included in the commit.
+     * @param newFiles Files to be committed which are not presently in the repository
+     *                 (text files only)
+     * @param binaryNewFiles Files to be committed which are not presently in the
+     *                       repository and which are to be treated as binary
+     * @param deletedFiles Files which have been deleted locally but which exist
+     *                     in the latest version in the repository 
+     * @param files  All files to be committed (including all in newFiles, binaryNewFiles,
+     *               and deletedFiles, as well as any other files to be committed)
+     * @param commitComment  The comment for this commit
      *
      * @throws CommandAbortedException
      * @throws CommandException
      * @throws AuthenticationException
      * @throws InvalidCvsRootException
      */
-    public synchronized BasicServerResponse commitAll(Set newFiles, Set deletedFiles, Set files, String commitComment)
+    public synchronized BasicServerResponse commitAll(Set newFiles, Set binaryNewFiles,
+            Set deletedFiles, Set files, String commitComment)
         throws CommandAbortedException, CommandException, 
             AuthenticationException, InvalidCvsRootException
     {
@@ -494,6 +509,23 @@ public class Repository
         Set dirs = new LinkedHashSet();
         LinkedList stack = new LinkedList();
         for (Iterator i = newFiles.iterator(); i.hasNext(); ) {
+            File file = (File) i.next();
+            
+            File parent = file.getParentFile();
+            while (! isDirectoryUnderCVS(parent) && ! dirs.contains(parent)) {
+                stack.addLast(parent);
+                if (parent.equals(projectPath)) {
+                    break;
+                }
+                parent = parent.getParentFile();
+            }
+            while (! stack.isEmpty()) {
+                dirs.add(stack.removeLast());
+            }
+        }
+        
+        // The list of directories must include those containing binary files
+        for (Iterator i = binaryNewFiles.iterator(); i.hasNext(); ) {
             File file = (File) i.next();
             
             File parent = file.getParentFile();
@@ -525,8 +557,14 @@ public class Repository
             adminHandler.setMildManneredMode(false);
         }
         
-        // "cvs add" new directories and files
-        basicServerResponse = addToRepository(listToFileArray(dirs));
+        // "cvs add" new directories and text files
+        basicServerResponse = addToRepository(listToFileArray(dirs), false);
+        if (basicServerResponse.isError()) {
+            return basicServerResponse;
+        }
+        
+        // add the binary files
+        basicServerResponse = addToRepository(listToFileArray(binaryNewFiles), true);
         if (basicServerResponse.isError()) {
             return basicServerResponse;
         }

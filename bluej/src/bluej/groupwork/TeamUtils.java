@@ -2,7 +2,11 @@ package bluej.groupwork;
 
 import java.awt.EventQueue;
 import java.awt.Window;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import bluej.utility.DialogManager;
 
@@ -68,6 +72,25 @@ public class TeamUtils
                 DialogManager.showErrorText(window, message);
             }
         }
+    }
+    
+    /**
+     * From a set of File objects, remove those files which should be treated as
+     * binary files (and put them in a new set). 
+     */
+    public static Set extractBinaryFilesFromSet(Set files)
+    {
+        Set binFiles = new HashSet();
+        Iterator i = files.iterator();
+        while (i.hasNext()) {
+            File f = (File) i.next();
+            String fname = f.getName();
+            if (! fname.endsWith(".txt") && ! fname.endsWith(".java")) {
+                binFiles.add(f);
+                i.remove();
+            }
+        }
+        return binFiles;
     }
 
 }
