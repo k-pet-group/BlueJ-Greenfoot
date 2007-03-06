@@ -14,7 +14,7 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 4257 2006-05-14 16:38:01Z davmac $
+ * @version	$Id: DependentTarget.java 4841 2007-03-06 04:59:06Z davmac $
  */
 public abstract class DependentTarget extends EditableTarget
 {
@@ -33,7 +33,7 @@ public abstract class DependentTarget extends EditableTarget
     protected DependentTarget assoc;
 	
     /**
-     * Create a new target at a specified position.
+     * Create a new target belonging to the specified package.
      */
     public DependentTarget(Package pkg, String identifierName)
     {

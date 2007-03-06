@@ -8,7 +8,8 @@ package bluej.groupwork;
  * 
  * @author fisker
  */
-public class UpdateResult {
+public class UpdateResult
+{
 	char statusCode = 'X';
 	String filename;
 	public static final char ADDED = 'A';
@@ -24,7 +25,8 @@ public class UpdateResult {
 	 * @param statusCode
 	 * @param filename
 	 */
-	private UpdateResult(char statusCode, String filename){
+	private UpdateResult(char statusCode, String filename)
+    {
 		this.statusCode = statusCode;
 		this.filename = filename;
 	}
@@ -36,7 +38,8 @@ public class UpdateResult {
 	 * @return UpdateResult the resulting UpdateResult
 	 * @throws UnableToParseInputException
 	 */
-	public static UpdateResult parse(String str) throws UnableToParseInputException{
+	public static UpdateResult parse(String str) throws UnableToParseInputException
+    {
 		char statusCode = 'X';
 		String filename;
 				
@@ -63,19 +66,22 @@ public class UpdateResult {
 	}
 	
 	/**
-	 * @return Returns the filename.
+	 * Get the file name and path, relative to the project.
 	 */
-	public String getFilename() {
+	public String getFilename()
+    {
 		return filename;
 	}
 	/**
 	 * @return Returns the statusCode.
 	 */
-	public char getStatusCode() {
+	public char getStatusCode()
+    {
 		return statusCode;
 	}
 	
-	public String toString(){
+	public String toString()
+    {
 		return "statusCode: " + statusCode + " filename: " + filename;
 	}
 }

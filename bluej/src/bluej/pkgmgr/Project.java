@@ -55,7 +55,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4836 2007-02-05 00:52:34Z davmac $
+ * @version $Id: Project.java 4841 2007-03-06 04:59:06Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -732,6 +732,7 @@ public class Project implements DebuggerListener, InspectorManager
             return pkg;
         }
 
+        // Default package is not in the package cache. This should never happen...
         throw new IllegalStateException("Project.getPackage()");
     }
 
@@ -753,12 +754,14 @@ public class Project implements DebuggerListener, InspectorManager
 
 
     /**
-     * Returns a package from the project.
+     * Returns a package from the project. The package must have already been
+     * opened.
      *
      * @param qualifiedName package name ie java.util or "" for unnamed package
      * @return null if the named package cannot be found
      */
-    public Package getCachedPackage(String qualifiedName) {
+    public Package getCachedPackage(String qualifiedName)
+    {
         return (Package) packages.get(qualifiedName);
     }
 
@@ -1002,28 +1005,14 @@ public class Project implements DebuggerListener, InspectorManager
     
     /**
      * Make the grapheditors of this project clear their selection and select
-     * the targets given in the parameter targetNames
-     * @param targetNames a list of Strings containing target names of the form
-     * packages/targetname. For instance myPackage/myClass
+     * the targets given in the parameter targets.
+     * 
+     * @param targets a list of Targets
      */
-    public void selectTargetsInGraphs(List targetNames)
+    public void selectTargetsInGraphs(List targets)
     {
-//    	String packageName = "";
-//    	String targetName = "";
-    	for (Iterator i = targetNames.iterator(); i.hasNext();) {
-			String pathAndName = (String) i.next();
-//			int index = pathAndName.lastIndexOf('/');
-//			if (index > 0) {
-//				packageName = pathAndName.substring(0, index);
-//				targetName = pathAndName.substring(index, pathAndName.length());
-//			}
-//			else {
-//				targetName = pathAndName;
-//			}
-//			Package p = getExistingPackage(packageName);
-//			PackageEditor packageEditor = p.getEditor();
-//	    	Target target = p.getTarget(pathAndName);
-			Target target = getTarget(pathAndName);
+    	for (Iterator i = targets.iterator(); i.hasNext();) {
+			Target target = (Target) i.next();
 			if (target != null){
 			    PackageEditor packageEditor = target.getPackage().getEditor();
 			    packageEditor.addToSelection(target);
@@ -1033,29 +1022,29 @@ public class Project implements DebuggerListener, InspectorManager
     }
     
     /**
+     * Given a fully-qualified target name, return the target or null if the target
+     * doesn't exist.
+     * 
+     * Use ReadmeTarget.README_ID ("@README") as the target base name to get the
+     * readme target for a package.
+     * 
      * Given the path and name of a target in the project, return the target or
      * null if the target doesn't exist
      * @param pathAndName
      * @return the target
      */
-    public Target getTarget(String pathAndName)
+    public Target getTarget(String targetId)
     {
         String packageName = "";
-    	//String targetName = "";
-    	int index = pathAndName.lastIndexOf('/');
+    	int index = targetId.lastIndexOf('.');
     	if (index > 0) {
-			packageName = pathAndName.substring(0, index);
-			//targetName = pathAndName.substring(index, pathAndName.length());
-		}
-		else {
-			//targetName = pathAndName;
+			packageName = targetId.substring(0, index);
 		}
 		Package p = getPackage(packageName);
-		if (p == null){
+		if (p == null) {
 		    return null;
 		}
-		// PackageEditor packageEditor = p.getEditor();
-    	Target target = p.getTarget(pathAndName);
+    	Target target = p.getTarget(targetId);
     	return target;
     }
     
@@ -1064,18 +1053,20 @@ public class Project implements DebuggerListener, InspectorManager
      * package editor
      *
      */
-    public void openEditorsForSelectedTargets(){
+    public void openEditorsForSelectedTargets()
+    {
     	List selectedTargets = getSelectedTargets();
     	for (Iterator i = selectedTargets.iterator(); i.hasNext(); ){
     		Target target = (Target) i.next();
     		if (target instanceof ClassTarget){
     			ClassTarget classTarget = (ClassTarget) target;
     			Editor editor = classTarget.getEditor();
-    			editor.setVisible(true);
-    			// make moe select the ======== part of cvs conflicts
+                if (editor != null) {
+                    editor.setVisible(true);
+                    // TODO: make moe select the ======== part of cvs conflicts
+                }
     		}
     	}
-    	
     }
     
     /**
@@ -1745,7 +1736,10 @@ public class Project implements DebuggerListener, InspectorManager
     
     /**
      * Find the package name of the package containing the given file.
-     * Might return null if the file isn't in the package. 
+     * Might return null if the file isn't in the package, or the directory the
+     * file is in doesn't translate to a valid package name. However, may
+     * return a valid package name which doesn't actually exist as a package
+     * in the project.
      */
     public String getPackageForFile(File f)
     {
@@ -1755,11 +1749,16 @@ public class Project implements DebuggerListener, InspectorManager
         String packageName = "";
         File parentDir = f.getParentFile();
         while (! parentDir.equals(projdir)) {
+            String parentName = parentDir.getName();
+            if (!JavaNames.isIdentifier(parentName)) {
+                return null;
+            }
+            
             if (packageName.equals("")) {
-                packageName = parentDir.getName();
+                packageName = parentName;
             }
             else {
-                packageName = parentDir.getName() + "." + packageName;
+                packageName = parentName + "." + packageName;
             }
             parentDir = parentDir.getParentFile();
             if (parentDir == null) {

@@ -8,7 +8,7 @@ import java.util.*;
  * java names.
  *
  * @author  Andrew Patterson
- * @version $Id: JavaNames.java 3586 2005-09-22 06:02:25Z davmac $
+ * @version $Id: JavaNames.java 4841 2007-03-06 04:59:06Z davmac $
  */
 public class JavaNames
 {
@@ -65,14 +65,19 @@ public class JavaNames
         return fullClassName;
     }
 
+    /**
+     * Strip the given suffix (such as ".java" or ".class") from the given name
+     */
     public static String stripSuffix(String name, String suffix)
     {
         int s = name.lastIndexOf(suffix);
 
-        if(s > 0)
+        if(s > 0 && (s == name.length() - suffix.length())) {
             return name.substring(0, s);
-        else
+        }
+        else {
             return name;
+        }
     }
 
     /**
@@ -101,14 +106,17 @@ public class JavaNames
      */
     public static String getPrefix(String qualifiedName)
     {
-        if(qualifiedName == null)
+        if(qualifiedName == null) {
             throw new NullPointerException();
+        }
 
         int index = qualifiedName.lastIndexOf(".");
-        if(index > 0)
+        if(index > 0) {
             return qualifiedName.substring(0, index);
-
-        return "";
+        }
+        else {
+            return "";
+        }
     }
 
     /**
@@ -205,5 +213,23 @@ public class JavaNames
             break;
         }
         return name;
+    }
+    
+    /**
+     * Combine two identifiers, such as a package and a class name, to produce a
+     * qualified name. This works correctly even if either of the identifiers is
+     * empty (or null).
+     */
+    public static String combineNames(String firstPart, String secondPart)
+    {
+        if (firstPart == null || firstPart.length() == 0) {
+            return secondPart;
+        }
+        else if (secondPart == null || secondPart.length() == 0) {
+            return firstPart;
+        }
+        else {
+            return firstPart + "." + secondPart;
+        }
     }
 }

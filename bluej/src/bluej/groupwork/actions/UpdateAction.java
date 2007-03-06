@@ -1,6 +1,5 @@
 package bluej.groupwork.actions;
 
-import bluej.Config;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +13,7 @@ import org.netbeans.lib.cvsclient.command.CommandAbortedException;
 import org.netbeans.lib.cvsclient.command.CommandException;
 import org.netbeans.lib.cvsclient.connection.AuthenticationException;
 
+import bluej.Config;
 import bluej.groupwork.InvalidCvsRootException;
 import bluej.groupwork.Repository;
 import bluej.groupwork.UpdateListener;
@@ -25,6 +25,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.PackageTarget;
+import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.JavaNames;
 
@@ -33,7 +34,7 @@ import bluej.utility.JavaNames;
  * Action to update out-of-date files.
  * 
  * @author fisker
- * @version $Id: UpdateAction.java 4836 2007-02-05 00:52:34Z davmac $
+ * @version $Id: UpdateAction.java 4841 2007-03-06 04:59:06Z davmac $
  */
 public class UpdateAction extends TeamAction implements UpdateListener
 {
@@ -135,7 +136,7 @@ public class UpdateAction extends TeamAction implements UpdateListener
                 
                 List blueJconflicts = new LinkedList();
                 List nonBlueJConflicts = new LinkedList();
-                List targetIdentifiers = new LinkedList();
+                List targets = new LinkedList();
                 
                 for (Iterator i = updateServerResponse.getConflicts().iterator();
                         i.hasNext();) {
@@ -155,22 +156,38 @@ public class UpdateAction extends TeamAction implements UpdateListener
                     // bluej.pkg may come up as a conflict, but it won't cause a problem,
                     // so it can be ignored
                     if (! baseName.equals("bluej.pkg")) {
-                        Target target = project.getTarget(filenameToTargetIdentifier(
-                                updateResult.getFilename()));
+                        Target target = null;
+                        
+                        if (baseName.endsWith(".java") || baseName.endsWith(".class")) {
+                            File file = new File(project.getProjectDir(), fileName);
+                            String pkg = project.getPackageForFile(file);
+                            if (pkg != null) {
+                                String targetId = filenameToTargetIdentifier(baseName);
+                                targetId = JavaNames.combineNames(pkg, targetId);
+                                target = project.getTarget(targetId);
+                            }
+                        }
+                        else if (baseName.equals("README.TXT")) {                            File file = new File(project.getProjectDir(), fileName);
+                            String pkg = project.getPackageForFile(file);
+                            if (pkg != null) {
+                                String targetId = ReadmeTarget.README_ID;
+                                targetId = JavaNames.combineNames(pkg, targetId);
+                                target = project.getTarget(targetId);
+                            }
+                        }
                         
                         if (target == null) {
-                            nonBlueJConflicts.add(updateResult.getFilename());
+                            nonBlueJConflicts.add(fileName);
                         } else {
-                            blueJconflicts.add(updateResult.getFilename());
-                            targetIdentifiers.add(filenameToTargetIdentifier(
-                                    updateResult.getFilename()));
+                            blueJconflicts.add(fileName);
+                            targets.add(target);
                         }
                     }
                 }
                 
                 if (! blueJconflicts.isEmpty() || ! nonBlueJConflicts.isEmpty()) {
                     project.clearAllSelections();
-                    project.selectTargetsInGraphs(targetIdentifiers);
+                    project.selectTargetsInGraphs(targets);
                     
                     ConflictsDialog conflictsDialog = new ConflictsDialog(project,
                             blueJconflicts, nonBlueJConflicts);
@@ -178,10 +195,14 @@ public class UpdateAction extends TeamAction implements UpdateListener
                 }
             }
             
+            /**
+             * Strip the filename suffic from a file name.
+             * @param filename
+             * @return
+             */
             private String filenameToTargetIdentifier(String filename)
             {
                 int lastDot = filename.lastIndexOf('.');
-                
                 return filename.substring(0, lastDot);
             }
         };
@@ -277,7 +298,9 @@ public class UpdateAction extends TeamAction implements UpdateListener
                    // Remove the package
                    String parentPackage = JavaNames.getPrefix(packageName);
                    String pkgName = JavaNames.getBase(packageName);
-                   Package pkg = project.getCachedPackage(parentPackage);
+                   
+                   // Get the parent package so we can remove the child.
+                   Package pkg = project.getPackage(parentPackage);
                    if (pkg == null) {
                        return;
                    }
