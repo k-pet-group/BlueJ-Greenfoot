@@ -123,9 +123,9 @@ public class BlueJAdminHandler extends StandardAdminHandler
     
     /**
      * Get the directory which actually contains the "CVS" subfolder with metadata
-     * for the given directory path.
+     * for files in the given directory.
      */
-    private String getMetaDataPath(String directory)
+    public String getMetaDataPath(String directory)
     {
         String relativeDir = getRelativePath(directory);
         if (relativeDir == null) {
@@ -143,13 +143,33 @@ public class BlueJAdminHandler extends StandardAdminHandler
             return deletedFile.getPath();
         }
         else {
-            // Possibly, the given directory is actually a file and in that case
-            // the parent directory would contain the metadata.
-            deletedFileMd = new File(deletedFile.getParentFile(), "CVS");
-            if (deletedFileMd.exists()) {
-                return deletedFile.getPath();
-            }
             return directory;
+        }
+    }
+    
+    /**
+     * Get the translated file location for a file. I.e. If the file resides in a deleted
+     * directory, which has been moved to "CVS/deleted", adjust the path accordingly.
+     */
+    private String getMetaDataPathForFile(String absFilePath)
+    {
+        String relativeDir = getRelativePath(absFilePath);
+        if (relativeDir == null) {
+            // On initial checkout, the "project" directory is not actually any
+            // specific directory.
+            return absFilePath;
+        }
+        
+        File deletedFile = new File(projectDir, "CVS");
+        deletedFile = new File(deletedFile, "deleted");
+        deletedFile = new File(deletedFile, relativeDir);
+        File deletedFileMd = new File(deletedFile.getParentFile(), "CVS");
+        
+        if (deletedFileMd.exists()) {
+            return deletedFile.getPath();
+        }
+        else {
+            return absFilePath;
         }
     }
     
@@ -163,13 +183,17 @@ public class BlueJAdminHandler extends StandardAdminHandler
     
     public boolean exists(File file)
     {
-        file = new File(getMetaDataPath(file.getAbsolutePath()));
-        return super.exists(file);
+        File nFile = new File(getMetaDataPath(file.getAbsolutePath()));
+        boolean result = super.exists(nFile);
+        if (!result) {
+            result = super.exists(file);
+        }
+        return result;
     }
 
     public Entry getEntry(File file) throws IOException
     {
-        file = new File(getMetaDataPath(file.getAbsolutePath()));
+        file = new File(getMetaDataPathForFile(file.getAbsolutePath()));
         try {
             return super.getEntry(file);
         }
@@ -208,13 +232,13 @@ public class BlueJAdminHandler extends StandardAdminHandler
     public void setEntry(File file, Entry entry)
         throws IOException
     {
-        file = new File(getMetaDataPath(file.getAbsolutePath()));
+        file = new File(getMetaDataPathForFile(file.getAbsolutePath()));
         super.setEntry(file, entry);
     }
 
     public void removeEntry(File file) throws IOException
     {
-        file = new File(getMetaDataPath(file.getAbsolutePath()));
+        file = new File(getMetaDataPathForFile(file.getAbsolutePath()));
         super.removeEntry(file);
         
         // If there are no entries left, we can remove the metadata altogether.

@@ -459,3 +459,11 @@ team-authentication-problem
 The server could not log you in - check your username/password and
 repository in team settings.
 
+team-binary-conflict
+A conflict was detected when trying to update the following file:
+    $
+The file was changed locally, but there are also changes in the
+repository.
+Keep my version
+Use repository version
+null

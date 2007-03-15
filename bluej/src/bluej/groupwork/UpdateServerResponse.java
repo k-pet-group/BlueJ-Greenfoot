@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.netbeans.lib.cvsclient.event.FileAddedEvent;
 import org.netbeans.lib.cvsclient.event.FileRemovedEvent;
@@ -47,6 +49,13 @@ public class UpdateServerResponse extends BasicServerResponse
     private UpdateListener listener;
     
     /**
+     * Files which had conflicts, and for which a decision must be made:
+     * Keep the local version, or the repository version. Map File to File
+     * (original name, backup name)
+     */
+    private Map conflictsMap;
+    
+    /**
      * Constructor for UpdateServerResponse.
      * 
      * @param listener  The listener to receive notification of file changes.
@@ -56,6 +65,21 @@ public class UpdateServerResponse extends BasicServerResponse
     {
         this.listener = listener;
     }
+    
+    /*
+     * Example output from server:
+     * 
+     * cvs update: Updating .
+     * cvs update: New directory 'abcdef' -- ignored 
+     * cvs update: nonmergeable file needs merge
+     * cvs update: revision 1.7 from repository is now in bluej.pkg
+     * cvs update: file from working directory is now in .#bluej.pkg.1.6
+     * cvs update: Updating +libs
+     * cvs update: Updating Examples
+     * 
+     * If a file is deleted in repository as well as locally:
+     * cvs update: warning: Examples/bluej.pkg is not (any longer) pertinent
+     */
     
     /**
      * Called when the server wants to send a message to be displayed to
@@ -70,7 +94,7 @@ public class UpdateServerResponse extends BasicServerResponse
         //		" isTagged: " + e.isTagged()	);
 
         if (e.isError()){
-        	System.err.println(line);
+        	System.err.println("CVS: " + line);
             int offset = 27;
             if (line.startsWith("cvs update: New directory")
                     || line.startsWith("cvs server: New directory")
@@ -87,6 +111,11 @@ public class UpdateServerResponse extends BasicServerResponse
                 }
             }
         }
+        else {
+            //if (! e.isTagged()) {
+            //    System.out.println("CVS: " + line);
+            //}
+        }
         
         if (e.isTagged())
         {
@@ -97,7 +126,16 @@ public class UpdateServerResponse extends BasicServerResponse
             if (line == null) {
             	return;
             }
+            else {
+                if (e.isError()) {
+                    System.err.println("CVS: " + line);
+                }
+                //else {
+                //    System.out.println("CVS: " + line);
+                //}
+            }
         }
+        
         try {
 			UpdateResult updateResult = UpdateResult.parse(line);
 			updateResults.add(updateResult);
@@ -199,29 +237,64 @@ public class UpdateServerResponse extends BasicServerResponse
         return newDirectoryNames;
     }
     
-	/**
-	 * @return
-	 */
-	public int size() {
-		return updateResults.size();
-	}
+    /**
+     * Set the conflict map, which maps the files which had binary conflicts
+     * to the backup name assigned by CVS.
+     * 
+     * @param m The map (File to File). The key is the original file name
+     *          (the repository version of the file) and the value is the
+     *          backup name (the local version of the file).
+     */
+    public void setConflictMap(Map m)
+    {
+        conflictsMap = m;
+    }
     
-//    public void fileInfoGenerated(FileInfoEvent arg0)
-//    {
-        // This doesn't seem to work very well.
-//        FileInfoContainer container = arg0.getInfoContainer();
-//        
-//        if (container instanceof DefaultFileInfoContainer) {
-//            DefaultFileInfoContainer dfic = (DefaultFileInfoContainer) container;
-//            String type = dfic.getType();
-//            
-//            if (! type.equals("?")) {
-//                System.out.println("UpdateServerResponse, fileInfoEvent: ");
-//                System.out.println("   File = " + dfic.getFile());
-//                System.out.println("   Type = " + dfic.getType());
-//            }
-//        }
+    /**
+     * Get the set of files which had binary conflicts. These are files which
+     * have been modified both locally and in the repository. A decision needs to
+     * be made about which version (local or repository) is to be retained; use
+     * the overrideFiles() method to finalise this decision.
+     */
+    public Set getBinaryConflicts()
+    {
+        return conflictsMap.keySet();
+    }
+    
+    /**
+     * Once the initial update has finished and the binary conflicts are known,
+     * this method must be called to select whether to keep the local or use the
+     * remove version of the conflicting files.
+     *  
+     * @param files  A set of files to fetch from the repository, overwriting the
+     *               local version. (For any file not in the set, the local version
+     *               is retained). 
+     */
+    public BasicServerResponse overrideFiles(Set files)
+    {
+        // First delete backups of files which are to be overridden
+        for (Iterator i = files.iterator(); i.hasNext(); ) {
+            File f = (File) i.next();
+            File backupFile = (File) conflictsMap.remove(f);
+            if (backupFile != null) {
+                backupFile.delete();
+            }
+        }
         
-        // arg0.getInfoContainer().
-//    }
+        // Then, for the other files, rename the backup over the original
+        // file
+        for (Iterator i = conflictsMap.entrySet().iterator(); i.hasNext(); ) {
+            Map.Entry entry = (Map.Entry) i.next();
+            File f = (File) entry.getKey();
+            File backupFile = (File) entry.getValue();
+            f.delete();
+            backupFile.renameTo(f);
+        }
+        
+        // For CVS, no communication with the server was really necessary,
+        // because the files were already downloaded. Use a dummy result.
+        BasicServerResponse result = new BasicServerResponse();
+        result.commandTerminated(null);
+        return result;
+    }
 }

@@ -55,7 +55,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4841 2007-03-06 04:59:06Z davmac $
+ * @version $Id: Project.java 4843 2007-03-15 01:20:24Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -707,9 +707,7 @@ public class Project implements DebuggerListener, InspectorManager
             return existing;
         }
 
-        if (qualifiedName.length() > 0) // should always be true (the unnamed package
-                                        // always exists in the package collection)
-         {
+        if (qualifiedName.length() > 0) {
             Package pkg;
 
             try {
@@ -932,7 +930,8 @@ public class Project implements DebuggerListener, InspectorManager
         }
     }
 
-     public void saveAllEditors(){
+    public void saveAllEditors()
+    {
     	Iterator i = packages.values().iterator();
 
         while(i.hasNext()) {
@@ -945,6 +944,7 @@ public class Project implements DebuggerListener, InspectorManager
             }
         } 
     }
+    
     /**
      * Make all the Packages in this project save their graphlayout
      */
@@ -1036,9 +1036,10 @@ public class Project implements DebuggerListener, InspectorManager
     public Target getTarget(String targetId)
     {
         String packageName = "";
-    	int index = targetId.lastIndexOf('.');
+        int index = targetId.lastIndexOf('.');
     	if (index > 0) {
 			packageName = targetId.substring(0, index);
+            targetId = targetId.substring(index + 1);
 		}
 		Package p = getPackage(packageName);
 		if (p == null) {

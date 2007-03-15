@@ -52,15 +52,21 @@ public class BasicServerResponse implements CVSListener
             // should do nothing yet.
             if (message != null) {
                 this.message.append(message);
-                // if (e.isError()) {
-                //     System.err.println(message);
-                // }
+                if (e.isError()) {
+                    System.err.println("CVS: " + message);
+                }
+                //else {
+                //    System.out.println("CVS: " + message);
+                //}
             }
         } else {
             message.append(line + newline);
-            // if (e.isError()) {
-            //     System.err.println(message);
-            // }
+            if (e.isError()) {
+                System.err.println("CVS: " + line);
+            }
+            //else {
+            //    System.out.println("CVS: " + line);
+            //}
         }
     }
 

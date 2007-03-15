@@ -13,7 +13,7 @@ import javax.swing.*;
  * internationalised, using BlueJ's langauage library system.
  *
  * @author Michael Kolling
- * @version $Id: DialogManager.java 4602 2006-09-07 04:31:33Z davmac $
+ * @version $Id: DialogManager.java 4843 2007-03-15 01:20:24Z davmac $
  */
 public class DialogManager
 {
@@ -119,10 +119,50 @@ public class DialogManager
             String button1 = message.substring(button1Index+1, button2Index);
             message = message.substring(0, button1Index);
             Object[] options;
-            if ("null".equals(button3))
+            if ("null".equals(button3)) {
                 options = new Object[] { button1, button2 };
-            else
+            }
+            else {
                 options = new Object[] { button1, button2, button3 };
+            }
+
+            return JOptionPane.showOptionDialog(parent, message,
+                                                Config.getString("dialogmgr.question"),
+                                                JOptionPane.DEFAULT_OPTION,
+                                                JOptionPane.WARNING_MESSAGE,
+                                                null, options, options[0]);
+        }
+        return 0;
+    }
+    
+    /**
+     * Brings up a two or three button question dialog. The text for the
+     * question and the buttons is read from the dialogues file; '$'
+     * characters in the message are replaced one-by-one with the specified
+     * strings.
+     * 
+     * <p>If the third button text is "null", it is not shown. Returns the button
+     * index that was selected (0..2).
+     */
+    public static int askQuestion(Component parent, String msgID, String [] subs)
+    {
+        String message = getMessage(msgID);
+        if(message != null) {
+            int button3Index = message.lastIndexOf("\n");
+            int button2Index = message.lastIndexOf("\n", button3Index-1);
+            int button1Index = message.lastIndexOf("\n", button2Index-1);
+            String button3 = message.substring(button3Index+1);
+            String button2 = message.substring(button2Index+1, button3Index);
+            String button1 = message.substring(button1Index+1, button2Index);
+            message = message.substring(0, button1Index);
+            message = Utility.mergeStrings(message, subs);
+            Object[] options;
+            if ("null".equals(button3)) {
+                options = new Object[] { button1, button2 };
+            }
+            else {
+                options = new Object[] { button1, button2, button3 };
+            }
 
             return JOptionPane.showOptionDialog(parent, message,
                                                 Config.getString("dialogmgr.question"),
@@ -133,9 +173,15 @@ public class DialogManager
         return 0;
     }
 
-
     /**
-     *
+     * Bring up a dialog which asks the user for a response in the form of a string.
+     * 
+     * @param parent The parent component of the dialog
+     * @param msgId  the identifier of the message in the dialogs file. The first line
+     *               is used as the dialog title, and the last line is used as the
+     *               default response ("null" means no default response).
+     * 
+     * @return The string supplied by the user, or null if the dialog was cancelled.
      */
     public static String askString(Component parent, String msgID)
     {
@@ -147,8 +193,9 @@ public class DialogManager
             String defaultText = message.substring(defaultTextIndex+1);
             String title = message.substring(titleIndex+1, defaultTextIndex);
             message = message.substring(0, titleIndex);
-            if("null".equals(defaultText))
+            if("null".equals(defaultText)) {
                 defaultText = null;
+            }
             response = (String)JOptionPane.showInputDialog(parent,
                                                            message,
                                                            title,
@@ -160,9 +207,17 @@ public class DialogManager
         return response;
     }
 
-	/**
-	 *
-	 */
+    /**
+     * Bring up a dialog which asks the user for a response in the form of a string,
+     * using a specified default response.
+     * 
+     * @param parent The parent component of the dialog
+     * @param msgId  the identifier of the message in the dialogs file. The first line
+     *               is used as the dialog title. The last line is ignored.
+     * @param defaultText The default response, which may be null for no default.
+     * 
+     * @return The string supplied by the user, or null if the dialog was cancelled.
+     */
 	public static String askString(Component parent, String msgID, String defaultText)
 	{
 		String response = "";

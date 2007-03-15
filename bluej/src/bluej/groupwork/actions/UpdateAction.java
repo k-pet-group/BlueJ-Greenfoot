@@ -2,10 +2,7 @@ package bluej.groupwork.actions;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import javax.swing.SwingUtilities;
 
@@ -27,6 +24,7 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 
 
@@ -34,12 +32,15 @@ import bluej.utility.JavaNames;
  * Action to update out-of-date files.
  * 
  * @author fisker
- * @version $Id: UpdateAction.java 4841 2007-03-06 04:59:06Z davmac $
+ * @version $Id: UpdateAction.java 4843 2007-03-15 01:20:24Z davmac $
  */
 public class UpdateAction extends TeamAction implements UpdateListener
 {
     private Project project;
     private boolean includeLayout;
+    
+    /** A list of packages whose bluej.pkg file has been removed */
+    private List removedPackages;
     
     public UpdateAction()
     {
@@ -71,15 +72,10 @@ public class UpdateAction extends TeamAction implements UpdateListener
         Thread thread = new Thread() {
             public void run()
             {
+                removedPackages = new ArrayList();
                 boolean success = false;
                 try {
-                    // Get a list of our current pkg files. We exclude them from
-                    // the update, to prevent conflicts.
-
-                    List pkgFiles = getPkgFilesInProject(project);
-                    File[] pkgArray = (File []) pkgFiles.toArray(new File[pkgFiles.size()]);
-                    
-                    final UpdateServerResponse response = repository.updateAll(pkgArray, UpdateAction.this);
+                    final UpdateServerResponse response = repository.updateAll(UpdateAction.this);
                                         
                     Runnable projectUpdate = new Runnable() {
                         public void run()
@@ -91,12 +87,12 @@ public class UpdateAction extends TeamAction implements UpdateListener
                     SwingUtilities.invokeLater(projectUpdate);
                     
                     // update layout files if necessary
-                    if (includeLayout && ! response.isError()) {
+                    //if (includeLayout && ! response.isError()) {
                         // Save the current graph layout, so that we pick up
                         // actual changes
-                        project.saveAllGraphLayout();
-                        repository.updateAndOverride(pkgArray, UpdateAction.this);
-                    }
+                    //    project.saveAllGraphLayout();
+                    //    repository.updateAndOverride(pkgArray, UpdateAction.this);
+                    //}
                     
                     success = ! response.isError();
                     
@@ -117,6 +113,33 @@ public class UpdateAction extends TeamAction implements UpdateListener
                     else {
                         clearStatus();
                     }
+                    handleRemovedPkgs();
+                }
+            }
+            
+            /**
+             * If packages were removed by the update, remove them from the
+             * parent package graph.
+             */
+            private void handleRemovedPkgs()
+            {
+                for (Iterator i = removedPackages.iterator(); i.hasNext(); ) {
+                    String packageName = i.next().toString();
+                    String parentPackage = JavaNames.getPrefix(packageName);
+                    String baseName = JavaNames.getBase(packageName);
+                    
+                    File packageDir = JavaNames.convertQualifiedNameToFile(packageName);
+                    if (! packageDir.exists()) {
+                        // Get the parent package so we can remove the child.
+                        Package pkg = project.getPackage(parentPackage);
+                        if (pkg == null) {
+                            return;
+                        }
+                        Target target = pkg.getTarget(baseName);
+                        if (target instanceof PackageTarget) {
+                            pkg.removeTarget(target);
+                        }
+                    }
                 }
             }
             
@@ -126,13 +149,37 @@ public class UpdateAction extends TeamAction implements UpdateListener
                     return;
                 }
                 
-                if (updateServerResponse.isError()) {
-                    //return;
-                }
-                
                 if (updateServerResponse.getConflicts().size() <= 0) {
                     return;
                 }
+                
+                /** A list of files to replace with repository version */
+                Set filesToOverride = new HashSet();
+                
+                // Binary conflicts
+                for (Iterator i = updateServerResponse.getBinaryConflicts().iterator();
+                        i.hasNext(); ) {
+                    File f = (File) i.next();
+                    
+                    // TODO proper check for name - case insensitive file systems
+                    if (f.getName().equals("bluej.pkg")) {
+                        filesToOverride.add(f);
+                    }
+                    else {
+                        // TODO make the displayed file path relative to project
+                        int answer = DialogManager.askQuestion(PkgMgrFrame.getMostRecent(),
+                                "team-binary-conflict", new String[] {f.getName()});
+                        if (answer == 0) {
+                            // keep local version
+                        }
+                        else {
+                            // use repository version
+                            filesToOverride.add(f);
+                        }
+                    }
+                }
+                
+                updateServerResponse.overrideFiles(filesToOverride);
                 
                 List blueJconflicts = new LinkedList();
                 List nonBlueJConflicts = new LinkedList();
@@ -154,7 +201,7 @@ public class UpdateAction extends TeamAction implements UpdateListener
                     }
                     
                     // bluej.pkg may come up as a conflict, but it won't cause a problem,
-                    // so it can be ignored
+                    // so it can be ignored.
                     if (! baseName.equals("bluej.pkg")) {
                         Target target = null;
                         
@@ -167,7 +214,8 @@ public class UpdateAction extends TeamAction implements UpdateListener
                                 target = project.getTarget(targetId);
                             }
                         }
-                        else if (baseName.equals("README.TXT")) {                            File file = new File(project.getProjectDir(), fileName);
+                        else if (baseName.equals("README.TXT")) {
+                            File file = new File(project.getProjectDir(), fileName);
                             String pkg = project.getPackageForFile(file);
                             if (pkg != null) {
                                 String targetId = ReadmeTarget.README_ID;
@@ -196,7 +244,7 @@ public class UpdateAction extends TeamAction implements UpdateListener
             }
             
             /**
-             * Strip the filename suffic from a file name.
+             * Strip the dot-suffix from a file name.
              * @param filename
              * @return
              */
@@ -295,19 +343,10 @@ public class UpdateAction extends TeamAction implements UpdateListener
                }
                
                if (fileName.equals("bluej.pkg")) {
-                   // Remove the package
-                   String parentPackage = JavaNames.getPrefix(packageName);
-                   String pkgName = JavaNames.getBase(packageName);
-                   
-                   // Get the parent package so we can remove the child.
-                   Package pkg = project.getPackage(parentPackage);
-                   if (pkg == null) {
-                       return;
-                   }
-                   Target target = pkg.getTarget(pkgName);
-                   if (target instanceof PackageTarget) {
-                       pkg.removeTarget(target);
-                   }
+                   // Delay removing the package until
+                   // after the update has finished, and only do it if there
+                   // are no files left in the package.
+                   removedPackages.add(packageName);
                }
                else {
                    // Remove a class
@@ -361,7 +400,9 @@ public class UpdateAction extends TeamAction implements UpdateListener
                 
                 if (fileName.equals("bluej.pkg")) {
                     try {
-                        pkg.reReadGraphLayout();
+                        if (includeLayout) {
+                            pkg.reReadGraphLayout();
+                        }
                     }
                     catch (IOException ioe) {
                         ioe.printStackTrace();
@@ -383,31 +424,5 @@ public class UpdateAction extends TeamAction implements UpdateListener
                 }
             }
         });
-    }
-    
-    
-    /**
-     * Get a list of the bluej.pkg files in a project
-     */
-    private static List getPkgFilesInProject(Project project)
-    {
-        List pkgFiles = new ArrayList();
-        LinkedList dirStack = new LinkedList();
-        dirStack.add(project.getProjectDir());
-        
-        while (! dirStack.isEmpty()) {
-            File dir = (File) dirStack.remove(0);
-            File [] files = dir.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    dirStack.add(files[i]);
-                }
-                else if (files[i].getName().equals(Package.pkgfileName)) {
-                    pkgFiles.add(files[i]);
-                }
-            }
-        }
-        
-        return pkgFiles;
     }
 }

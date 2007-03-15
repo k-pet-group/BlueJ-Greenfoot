@@ -36,7 +36,7 @@ import bluej.utility.Debug;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: Repository.java 4840 2007-03-01 03:12:00Z davmac $
+ * @version $Id: Repository.java 4843 2007-03-15 01:20:24Z davmac $
  */
 public class Repository
 {
@@ -157,10 +157,10 @@ public class Repository
      * @throws AuthenticationException
      * @throws InvalidCvsRootException
      */
-    private Client getClient() throws CommandAbortedException, AuthenticationException,
+    private BlueJCvsClient getClient() throws CommandAbortedException, AuthenticationException,
         InvalidCvsRootException
     {
-        Client client = new Client(null, adminHandler);
+        BlueJCvsClient client = new BlueJCvsClient(null, adminHandler);
         client.dontUseGzipFileHandler();
         setupConnection(client);
         return client;
@@ -470,6 +470,8 @@ public class Repository
      */
     private boolean isDirectoryUnderCVS(File dir)
     {
+        String apath = adminHandler.getMetaDataPath(dir.getAbsolutePath());
+        dir = new File(apath);
         return (new File(dir, "CVS").isDirectory());
     }
     
@@ -587,20 +589,17 @@ public class Repository
      * @throws AuthenticationException
      * @throws InvalidCvsRootException
      */
-    public synchronized UpdateServerResponse updateAll(File [] excludeFiles, UpdateListener listener)
+    public synchronized UpdateServerResponse updateAll(UpdateListener listener)
         throws CommandAbortedException, CommandException, 
             AuthenticationException, InvalidCvsRootException
     {
-        // setupConnection();
-        Client client = getClient();
+        BlueJCvsClient client = getClient();
 
         UpdateCommand command = new UpdateCommand();
         command.setCleanCopy(false);
         command.setRecursive(true);
         command.setBuildDirectories(true);
         command.setPruneDirectories(true);
-        File [] oldExcludes = globalOptions.getExclusions();
-        globalOptions.setExclusions(excludeFiles);
 
         UpdateServerResponse updateServerResponse = new UpdateServerResponse(listener);
         client.getEventManager().addCVSListener(updateServerResponse);
@@ -613,11 +612,11 @@ public class Repository
         }
         finally {
             // restore previous excludes setting
-            globalOptions.setExclusions(oldExcludes);
             client.getEventManager().removeCVSListener(updateServerResponse);
             disconnect(client);
         }
 
+        updateServerResponse.setConflictMap(client.getConflictFiles());
         return updateServerResponse;
     }
     
@@ -954,11 +953,23 @@ public class Repository
             else {
                 status = TeamStatusInfo.STATUS_WEIRD;
             }
-        
-            File file = sinfo.getFile();
-            if (file == null) {
-                file = new File(projectPath, sinfo.getRepositoryFileName());
+            
+            // There's a bug in the netbeans CVS library which can cause files
+            // with the same base name (eg. multiple "bluej.pkg" files) to sometimes
+            // get mixed up. However the repository file name will always
+            // be correct, so we'll use that instead.
+            String reposName = sinfo.getRepositoryFileName();
+            if (reposName.endsWith(",v")) {
+                reposName = reposName.substring(0, reposName.length() - 2);
             }
+            String reposRoot = cvsroot.getRepository();
+            if (! reposRoot.endsWith("/")) {
+                reposRoot += "/";
+            }
+            reposRoot += projectPath.getName() + "/";
+            String fname = reposName.substring(reposRoot.length());
+            File file = new File(projectPath, fname);
+            
             files.remove(file);
             TeamStatusInfo teamInfo = new TeamStatusInfo(file,
                     workingRev,

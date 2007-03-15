@@ -8,7 +8,7 @@ import java.util.*;
  * java names.
  *
  * @author  Andrew Patterson
- * @version $Id: JavaNames.java 4841 2007-03-06 04:59:06Z davmac $
+ * @version $Id: JavaNames.java 4843 2007-03-15 01:20:24Z davmac $
  */
 public class JavaNames
 {
@@ -170,6 +170,28 @@ public class JavaNames
         catch(IOException ioe) { }
 
         return null;
+    }
+    
+    /**
+     * Convert a qualifed name to a file. This is mostly only useful for
+     * packages, as other files have a filename extension with a dot in it.
+     */
+    public static File convertQualifiedNameToFile(String name)
+    {
+        int n = 0;
+        int i;
+        
+        File f = null;
+        
+        i = name.indexOf('.', n);
+        while (i != -1) {
+            String namePart = name.substring(n, i);
+            f = new File(f, namePart);
+            n = i + 1;
+            i = name.indexOf('.', n);
+        }
+        
+        return new File(f, name.substring(n));
     }
 
     /**
