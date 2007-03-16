@@ -37,7 +37,6 @@ import javax.swing.JRootPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
-import rmiextension.wrappers.event.RCompileEvent;
 import bluej.Config;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
@@ -50,7 +49,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4823 2007-01-25 17:03:30Z polle $
+ * @version $Id: ClassView.java 4844 2007-03-16 18:09:38Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -71,7 +70,6 @@ public class ClassView extends JToggleButton
     private static final int SELECTED_BORDER = 3;
 
     private GClass gClass;
-    private Class realClass; // null if not compiled
     private ClassRole role;
     private ClassBrowser classBrowser;
     private JPopupMenu popupMenu;
@@ -156,7 +154,6 @@ public class ClassView extends JToggleButton
         this.gClass = gClass;
         gClass.setClassView(this);
 
-        realClass = gClass.getJavaClass();
         superclass = gClass.getSuperclassGuess();
         
         this.addMouseListener(this);
@@ -180,7 +177,7 @@ public class ClassView extends JToggleButton
      */
     public Class getRealClass()
     {
-        return realClass;
+        return gClass.getJavaClass();
     }
 
     void setClassBrowser(ClassBrowser classBrowser)
@@ -202,7 +199,7 @@ public class ClassView extends JToggleButton
         // popupMenu = menu.getPopupMenu();
         popupMenu = new JPopupMenu();
 
-
+        Class realClass = gClass.getJavaClass();
         if (realClass != null) {
 
             if (!java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
@@ -448,13 +445,12 @@ public class ClassView extends JToggleButton
      */
     public Object createInstance()
     {
+        Class realClass = getRealClass();
         try {
-            Class cls = getRealClass();
-
-            if (cls == null) {
+            if (realClass == null) {
                 return null;
             }
-            Constructor constructor = cls.getConstructor(new Class[]{});
+            Constructor constructor = realClass.getConstructor(new Class[]{});
 
             Object newObject = constructor.newInstance(new Object[]{});
             ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
@@ -531,17 +527,17 @@ public class ClassView extends JToggleButton
 
     }
     
-    public void reloadClass()
+    /**
+     * Updates this class view by rereading the underlying class' properties.
+     *
+     */
+    public void updateView()
     {
-        realClass = gClass.getJavaClass();
         createPopupMenu();
         update();
     }
 
-    /*
-     */
-    public void compileFailed(RCompileEvent event) { }
-
+   
 
     // ----- MouseListener interface -----
     

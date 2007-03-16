@@ -93,7 +93,7 @@ public class GClass implements CompileListener
     public void nameChanged()
     {
         if(classView != null) {
-            classView.reloadClass();
+            classView.updateView();
         }
     }
     
@@ -495,7 +495,7 @@ public class GClass implements CompileListener
         guessSuperclass();
 
         if(classView != null) {
-            classView.reloadClass();
+            classView.updateView();
             classView.updateSuperClass();
         }
     }

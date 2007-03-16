@@ -12,6 +12,8 @@ import rmiextension.wrappers.event.RCompileListenerImpl;
  * with greenfoot. This is for performance reasons. Many objects are intereseted
  * in compile events, and if all these should use remote listenerers it might be
  * to heavy. Consider using non remote compile events as well.
+ * <p>
+ * Another feature of this class is that the events will be delegated to the compileListeners int he order in which they appear in the list.
  * 
  * @author Poul Henriksen
  * @version $Id: CompileListenerForwarder.java,v 1.4 2004/11/18 09:43:52 polle
@@ -21,6 +23,12 @@ public class CompileListenerForwarder extends RCompileListenerImpl
 {
     private List<? extends CompileListener> compileListeners;
 
+    /**
+     * Create a new forwarder that sends events to the list of listeners in the
+     * order in which they appear in the list. The first listener in the list
+     * will get the event first, and so on.
+     * 
+     */
     public CompileListenerForwarder(List<? extends CompileListener> compileListeners)
         throws RemoteException
     {

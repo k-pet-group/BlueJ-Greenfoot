@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -41,7 +42,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4799 2007-01-22 00:50:30Z polle $
+ * @version $Id: GreenfootMain.java 4844 2007-03-16 18:09:38Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -68,7 +69,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * to reccieve compile events.
      */
     private CompileListenerForwarder compileListenerForwarder;
-    private List<CompileListener> compileListeners = new ArrayList<CompileListener>();
+    private List<CompileListener> compileListeners = new LinkedList<CompileListener>();
+
+    /** Used to ensure that setFinalCompileListener is only called one time. */
+    private boolean finalCompileListenerSet;
     
     /** The class state manager notifies GClass objects when their compilation state changes */
     private ClassStateManager classStateManager;
@@ -95,6 +99,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     private static ProjectProperties projectProperties;
     
     private ClassLoader currentLoader;
+
     
     // ----------- static methods ------------
 
@@ -364,7 +369,24 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     public void addCompileListener(CompileListener listener)
     {
         synchronized (compileListeners) {
-            compileListeners.add(listener);
+            compileListeners.add(0, listener);            
+        }
+    }
+    
+    /**
+     * Adds a listener for compile events that will be the last one in the chain
+     * of listeners to recieve the event.
+     * 
+     * @param listener
+     */
+    public void setFinalCompileListener(CompileListener listener)
+    {
+        synchronized (compileListeners) {
+            if(finalCompileListenerSet) {
+                throw new IllegalStateException("Final compile listener already set.");
+            }
+            finalCompileListenerSet = true;
+            compileListeners.add(listener);            
         }
     }
 
@@ -649,7 +671,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     
     /**
      * See if there is a new class loader in place. If so, we want to
-     * clear all views which refer to classes loaded by the previous
+     * clear all views (BlueJ views) which refer to classes loaded by the previous
      * loader.
      */
     private void checkClassLoader()
