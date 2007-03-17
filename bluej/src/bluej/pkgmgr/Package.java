@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4845 2007-03-17 12:34:22Z polle $
+ * @version $Id: Package.java 4847 2007-03-17 13:17:55Z polle $
  */
 public final class Package extends Graph
 {
@@ -635,7 +635,7 @@ public final class Package extends Graph
             addTarget(target);
         }
         
-        // Now, parse the source files, and ensure they have the correct package statements
+        //Now, parse the source files, and ensure they have the correct package statements
         Iterator targetIt = targets.iterator();
         while (targetIt.hasNext()) {
             Object target = targetIt.next();
@@ -688,14 +688,12 @@ public final class Package extends Graph
             }
         }
 
+        //Update class roles, and their state
         for (it = targets.iterator(); it.hasNext();) {
             Target target = (Target) it.next();
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
-
-                if (ct.hasSourceCode())
-                    ct.analyseSource();
 
                 Class cl = loadClass(ct.getQualifiedName());
                 ct.determineRole(cl);
@@ -760,6 +758,7 @@ public final class Package extends Graph
             findSpaceForVertex(t);
             addTarget(t);
         }
+
     }
 
     /**
@@ -1223,14 +1222,14 @@ public final class Package extends Graph
 
         stack.push(t);
         
-        Iterator dependencies = t.dependencies();
-
-        while (dependencies.hasNext()) {
-            Dependency d = (Dependency) dependencies.next();
-            if (!(d.getTo() instanceof ClassTarget))
+        Iterator dependents = t.dependents(); 
+        
+        while (dependents.hasNext()) {
+            Dependency d = (Dependency) dependents.next();
+            if (!(d.getFrom() instanceof ClassTarget))
                 continue;
 
-            ClassTarget to = (ClassTarget) d.getTo();
+            ClassTarget to = (ClassTarget) d.getFrom();
 
             if (to.isQueued()) {
                 if ((to.dfn < t.dfn) && (stack.search(to) != -1))
@@ -1243,7 +1242,7 @@ public final class Package extends Graph
                     return false;
                 }
                 t.link = Math.min(t.link, to.link);
-            }
+            } 
         }
 
         if (t.link == t.dfn) {
@@ -1772,7 +1771,7 @@ public final class Package extends Graph
     public List getAllClassnames()
     {
         List names = new ArrayList();
-
+        
         for (Iterator it = targets.iterator(); it.hasNext();) {
             Target t = (Target) it.next();
 
@@ -2177,7 +2176,6 @@ public final class Package extends Graph
             }
             else {
                 sources = new File[0];
-
             }
             CompileEvent aCompileEvent = new CompileEvent(eventType, sources);
             aCompileEvent.setErrorLineNumber(lineNo);
