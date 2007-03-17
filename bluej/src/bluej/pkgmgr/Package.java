@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4761 2006-12-11 04:39:56Z davmac $
+ * @version $Id: Package.java 4845 2007-03-17 12:34:22Z polle $
  */
 public final class Package extends Graph
 {
@@ -624,7 +624,6 @@ public final class Package extends Graph
         // also we migrate targets from propTargets across
         // to our real list of targets in this loop.
         Iterator it = interestingSet.iterator();
-
         while (it.hasNext()) {
             String targetName = (String) it.next();
 
@@ -633,16 +632,26 @@ public final class Package extends Graph
                 target = new ClassTarget(this, targetName);
                 findSpaceForVertex(target);
             }
-
-            try {
-                ((ClassTarget) target).enforcePackage(getQualifiedName());
-            }
-            catch (IOException ioe) {
-                Debug.message(ioe.getLocalizedMessage());
-            }
-            catch (ClassCastException cce) {}
-
             addTarget(target);
+        }
+        
+        // Now, parse the source files, and ensure they have the correct package statements
+        Iterator targetIt = targets.iterator();
+        while (targetIt.hasNext()) {
+            Object target = targetIt.next();
+            if(target instanceof ClassTarget) {
+                try {
+                    ClassTarget ct = (ClassTarget) target;
+                    if (ct.hasSourceCode()) {
+                        ct.analyseSource();
+                        ct.enforcePackage(getQualifiedName());
+                    }
+                }
+                catch (IOException ioe) {
+                    Debug.message(ioe.getLocalizedMessage());
+                }
+                catch (ClassCastException cce) {}
+            }
         }
 
         for (int i = 0; i < numDependencies; i++) {
