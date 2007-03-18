@@ -60,7 +60,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 4846 2007-03-17 13:15:54Z polle $
+ * @version $Id: ClassTarget.java 4848 2007-03-18 15:46:23Z polle $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -515,12 +515,11 @@ public class ClassTarget extends DependentTarget
     public void invalidate()
     {
         setState(S_INVALID);
-
         for (Iterator it = dependents(); it.hasNext();) {
             Dependency d = (Dependency) it.next();
             ClassTarget dependent = (ClassTarget) d.getFrom();
-
-            if(isInvalidState()) {    
+            
+            if(! dependent.isInvalidState()) {    
                 // Invalidate the dependent only if it is not already invalidated. 
                 // Will avoid going into an infinite circular loop.
                 dependent.invalidate();
